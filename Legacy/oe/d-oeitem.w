@@ -431,6 +431,16 @@ oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3
 
 /* ************************  Function Prototypes ********************** */
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnPrevOrder d-oeitem
+FUNCTION fnPrevOrder RETURNS CHARACTER 
+    (ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOEScreenUOMConvert d-oeitem 
 FUNCTION fOEScreenUOMConvert RETURNS DECIMAL
   ( ipdStartQuantity AS DECIMAL , ipcUOM AS CHARACTER, ipdCount AS DECIMAL ) FORWARD.
@@ -1478,15 +1488,7 @@ DO:
                        VIEW-AS ALERT-BOX ERROR .                       
                RETURN NO-APPLY.
           END.
-          IF oe-ordl.est-no:SCREEN-VALUE GT "" THEN DO:
-            FIND LAST bf-oe-ordl NO-LOCK
-                WHERE bf-oe-ordl.company EQ eb.company
-                  AND bf-oe-ordl.est-no  EQ eb.est-no
-                  AND bf-oe-ordl.ord-no  LT oe-ord.ord-no
-                NO-ERROR.
-            IF AVAILABLE bf-oe-ordl THEN
-              fiPrevOrder:SCREEN-VALUE = STRING(bf-oe-ordl.ord-no).
-          END.
+          fiPrevOrder:SCREEN-VALUE = fnPrevOrder(eb.est-no, oe-ord.ord-no).
        END.
       
       IF oe-ordl.est-no:SCREEN-VALUE GT "" AND runship-char EQ "RUN&SHIP Prompt" THEN 
@@ -5095,15 +5097,7 @@ PROCEDURE display-item :
         oe-ordl.spare-char-1:TOOLTIP = getOrdStatDescr(oe-ordl.spare-char-1).
     IF oe-ordl.spare-int-2 > 0 THEN
         fi_JobStartDate:SCREEN-VALUE = STRING(DATE(oe-ordl.spare-int-2)).
-    IF oe-ordl.est-no:SCREEN-VALUE GT "" THEN DO:
-      FIND LAST bf-oe-ordl NO-LOCK
-          WHERE bf-oe-ordl.company EQ oe-ordl.company
-            AND bf-oe-ordl.est-no  EQ oe-ordl.est-no:SCREEN-VALUE
-            AND bf-oe-ordl.ord-no  LT oe-ord.ord-no
-          NO-ERROR.
-      IF AVAILABLE bf-oe-ordl THEN
-        fiPrevOrder:SCREEN-VALUE = STRING(bf-oe-ordl.ord-no).
-    END.
+    fiPrevOrder:SCREEN-VALUE = fnPrevOrder(oe-ordl.est-no:SCREEN-VALUE, oe-ord.ord-no).
     RUN new-type.
     RUN new-s-man (0).
 
@@ -5461,15 +5455,7 @@ PROCEDURE get-eb-info :
                                (eb.est-type = 6 AND eb.form-no = 0) )
                               NO-LOCK NO-ERROR.
      IF AVAIL eb THEN ls-stock = eb.stock-no.
-     IF oe-ordl.est-no:SCREEN-VALUE GT "" AND AVAIL oe-ordl THEN DO:
-      FIND LAST bf-oe-ordl NO-LOCK
-          WHERE bf-oe-ordl.company EQ oe-ordl.company
-            AND bf-oe-ordl.est-no  EQ oe-ordl.est-no:SCREEN-VALUE
-            AND bf-oe-ordl.ord-no  LT oe-ord.ord-no
-          NO-ERROR.
-      IF AVAILABLE bf-oe-ordl THEN
-        fiPrevOrder:SCREEN-VALUE = STRING(bf-oe-ordl.ord-no).
-    END.
+     fiPrevOrder:SCREEN-VALUE = fnPrevOrder(oe-ordl.est-no:SCREEN-VALUE, oe-ord.ord-no).
   END.
   ELSE ls-stock = "".
   
@@ -9494,6 +9480,34 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnPrevOrder d-oeitem
+FUNCTION fnPrevOrder RETURNS CHARACTER 
+  (ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+		DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+        IF ipcEstNo GT "" THEN 
+        DO:
+            FIND LAST bf-oe-ordl NO-LOCK
+                WHERE bf-oe-ordl.company EQ cocode
+                  AND bf-oe-ordl.est-no  EQ ipcEstNo
+                  AND bf-oe-ordl.ord-no  LT ipiOrdNo
+                NO-ERROR.
+            IF AVAILABLE bf-oe-ordl THEN
+                cResult = STRING(bf-oe-ordl.ord-no).
+        END.
+		RETURN cResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fOEScreenUOMConvert d-oeitem 
 FUNCTION fOEScreenUOMConvert RETURNS DECIMAL
