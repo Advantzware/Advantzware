@@ -68,7 +68,7 @@ def shared temp-table w-job no-undo
   INDEX w-job job-no job-no2 loc loc-bin tag.
   
 def buffer tmp-w-job for w-job.
-
+DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 
 {sys/ref/fgoecost.i}
 
@@ -90,9 +90,9 @@ def buffer tmp-w-job for w-job.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-27 ld-v1 ld-v4 ld-v3 ld-v11 ld-v5 ld-v6 ~
-ld-v7 ld-v8 ld-v9 ld-v10 Btn_OK Btn_Cancel 
+ld-v7 ld-v8 ld-v9 ld-v10 cb_reatype Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS ld-job ld-po ld-whse ld-bin ld-tag ld-v1 ~
-ld-v4 ld-v3 ld-v11 ld-v2 ld-v5 ld-v6 ld-v7 ld-v8 ld-v9 ld-v10 ld-v12 
+ld-v4 ld-v3 ld-v11 ld-v2 ld-v5 ld-v6 ld-v7 ld-v8 ld-v9 ld-v10 ld-v12 cb_reatype
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -202,9 +202,15 @@ DEFINE VARIABLE ld-whse AS CHARACTER FORMAT "X(5)":U
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
+DEFINE VARIABLE cb_reatype AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Adjustment Reason:" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     DROP-DOWN-LIST
+     SIZE 30 BY 1 NO-UNDO.
+
 DEFINE RECTANGLE RECT-27
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 75 BY 18.1.
+     SIZE 75 BY 19.3.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -227,8 +233,9 @@ DEFINE FRAME D-Dialog
      ld-v9 AT ROW 15.91 COL 38 COLON-ALIGNED
      ld-v10 AT ROW 16.86 COL 38 COLON-ALIGNED
      ld-v12 AT ROW 17.86 COL 38 COLON-ALIGNED
-     Btn_OK AT ROW 19.52 COL 16
-     Btn_Cancel AT ROW 19.52 COL 49
+     cb_reatype AT ROW 19.00 COL 38 COLON-ALIGNED WIDGET-ID 12
+     Btn_OK AT ROW 20.52 COL 16
+     Btn_Cancel AT ROW 20.52 COL 49
      RECT-27 AT ROW 1 COL 1
      SPACE(0.59) SKIP(1.89)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -332,6 +339,7 @@ DO:
   DEF VAR lv-qty LIKE fg-bin.qty NO-UNDO.
   DEF VAR lv-part LIKE fg-bin.partial-count NO-UNDO.
   DEF VAR ll-changed AS LOG NO-UNDO.
+  DEFINE VARIABLE cReasonCode AS CHARACTER NO-UNDO .
 
   DEF BUFFER b-fg-bin FOR fg-bin.
 
@@ -342,7 +350,7 @@ DO:
     assign ld-v1 ld-v3 ld-v4 ld-v5 ld-v6 ld-v7 ld-v8 ld-v9 ld-v10 ld-v11.
     ld-v2 = (ld-v1 * ld-v4) + ld-v11.
   end.
-  
+  ASSIGN cReasonCode = cb_reatype:SCREEN-VALUE IN FRAME {&frame-name} .
   if not avail w-job then return.
 
   assign
@@ -392,6 +400,26 @@ DO:
      fg-bin.avg-cost     = w-job.std-tot-cost
      fg-bin.last-cost    = w-job.std-tot-cost.
 
+   /* FOR EACH fg-rdtlh EXCLUSIVE-LOCK
+     WHERE fg-rdtlh.company = fg-bin.company
+       AND fg-rdtlh.i-no    = fg-bin.i-no
+       AND fg-rdtlh.loc     = fg-bin.loc
+       AND fg-rdtlh.loc-bin = fg-bin.loc-bin
+       AND fg-rdtlh.tag     = fg-bin.tag ,
+
+        FIRST fg-rcpth NO-LOCK
+        WHERE fg-rcpth.r-no         EQ fg-rdtlh.r-no
+        AND fg-rcpth.rita-code    EQ fg-rdtlh.rita-code
+        AND fg-rcpth.i-no         EQ fg-bin.i-no
+        AND fg-rcpth.po-no        EQ TRIM(STRING(fg-bin.po-no,">>>>>>>>>>")) 
+        BY fg-rcpth.trans-date :
+
+        fg-rdtlh.reject-code[1] = cb_reatype:SCREEN-VALUE IN FRAME {&frame-name} . 
+        LEAVE.
+    END.
+   FIND CURRENT fg-rdtlh NO-LOCK NO-ERROR .*/
+
+
     FOR EACH loadtag
         WHERE loadtag.company      EQ fg-bin.company
           AND loadtag.item-type    EQ NO
@@ -413,7 +441,7 @@ DO:
      fg-bin.partial-count = w-job.partial-count.
 
     IF ll-changed THEN DO:
-      RUN fg/cre-pchr.p (ROWID(fg-bin), "A", lv-qty, lv-part).
+      RUN fg/cre-pchr.p (ROWID(fg-bin), "A", lv-qty, lv-part,cReasonCode).
 
       IF fg-bin.tag NE "" THEN DO:
         FOR EACH loadtag
@@ -452,7 +480,7 @@ DO:
            b-fg-bin.qty           = 0
            b-fg-bin.partial-count = 0.
 
-          RUN fg/cre-pchr.p (ROWID(b-fg-bin), "C", 0, 0).
+          RUN fg/cre-pchr.p (ROWID(b-fg-bin), "C", 0, 0,cReasonCode).
         END.
       END.
 
@@ -690,6 +718,28 @@ if avail w-job then do:
    ld-v9   = w-job.std-var-cost
    ld-v10  = w-job.std-fix-cost.  
    ld-v12  = (DEC(ld-v7) + DEC(ld-v8) + DEC(ld-v9) + DEC(ld-v10)).
+
+RUN build-type-list .
+
+
+    FOR EACH fg-rdtlh NO-LOCK
+     WHERE fg-rdtlh.company = fg-bin.company
+       AND fg-rdtlh.i-no    = fg-bin.i-no
+       AND fg-rdtlh.loc     = fg-bin.loc
+       AND fg-rdtlh.loc-bin = fg-bin.loc-bin
+       AND fg-rdtlh.tag     = fg-bin.tag ,
+
+        FIRST fg-rcpth NO-LOCK
+        WHERE fg-rcpth.r-no         EQ fg-rdtlh.r-no
+        AND fg-rcpth.rita-code    EQ fg-rdtlh.rita-code
+        AND fg-rcpth.i-no         EQ fg-bin.i-no
+        AND fg-rcpth.po-no        EQ TRIM(STRING(fg-bin.po-no,">>>>>>>>>>")) 
+        BY fg-rcpth.trans-date :
+
+        cb_reatype:SCREEN-VALUE IN FRAME {&frame-name} = fg-rdtlh.reject-code[1] NO-ERROR. 
+        LEAVE .
+    END.
+
 END.
 
 {src/adm/template/dialogmn.i}
@@ -799,10 +849,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY ld-job ld-po ld-whse ld-bin ld-tag ld-v1 ld-v4 ld-v3 ld-v11 ld-v2 
-          ld-v5 ld-v6 ld-v7 ld-v8 ld-v9 ld-v10 ld-v12 
+          ld-v5 ld-v6 ld-v7 ld-v8 ld-v9 ld-v10 ld-v12 cb_reatype
       WITH FRAME D-Dialog.
   ENABLE RECT-27 ld-v1 ld-v4 ld-v3 ld-v11 ld-v5 ld-v6 ld-v7 ld-v8 ld-v9 ld-v10 
-         Btn_OK Btn_Cancel 
+         cb_reatype Btn_OK Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -823,6 +873,29 @@ PROCEDURE send-records :
      Tables specified for this SmartDialog, and there are no
      tables specified in any contained Browse, Query, or Frame. */
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-type-list D-Dialog 
+PROCEDURE build-type-list :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+     
+     RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
+             RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
+    DELETE OBJECT hPgmReason.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      cb_reatype:LIST-ITEM-PAIRS = cComboList .
+  END.
+
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

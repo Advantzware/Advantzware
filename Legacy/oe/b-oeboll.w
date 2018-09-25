@@ -1989,7 +1989,10 @@ PROCEDURE local-create-record :
     ASSIGN
      oe-boll.company = oe-bolh.company
      oe-boll.b-no    = oe-bolh.b-no
-     oe-boll.bol-no  = oe-bolh.bol-no.
+     oe-boll.bol-no  = oe-bolh.bol-no
+     oe-boll.enteredBy = USERID("asi")
+     oe-boll.enteredDT = DATETIME(TODAY, MTIME) 
+     .
 
   FIND FIRST b-oe-boll NO-LOCK
       WHERE b-oe-boll.company EQ oe-bolh.company

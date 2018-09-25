@@ -34,6 +34,9 @@ DEF INPUT PARAMETER ipcName AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcPort AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcDir AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcVer AS CHAR NO-UNDO.
+DEF INPUT PARAMETER ipcEnv AS CHAR NO-UNDO.
+DEF INPUT PARAMETER ipcFromVer AS CHAR NO-UNDO.
+DEF INPUT PARAMETER ipcToVer AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipiLevel AS INT NO-UNDO.
 DEF INPUT PARAMETER iplNeedBackup AS LOG NO-UNDO.
 DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
@@ -69,6 +72,18 @@ DEF TEMP-TABLE ttLookups LIKE lookups.
 DEF TEMP-TABLE ttReftable LIKE reftable.
 DEF TEMP-TABLE ttSysCtrl LIKE sys-ctrl.
 DEF TEMP-TABLE ttSysCtrlShipto LIKE sys-ctrl-shipto.
+DEF TEMP-TABLE ttTranslation LIKE translation.
+DEF TEMP-TABLE ttUserLanguage LIKE userlanguage.
+DEF TEMP-TABLE ttXuserMenu LIKE xuserMenu.
+DEF TEMP-TABLE ttUtilities LIKE utilities.
+
+DEFINE TEMP-TABLE ttUserMenu NO-UNDO
+    FIELD prgmname AS CHARACTER
+    INDEX prgmname IS PRIMARY
+    prgmname
+    .            
+        
+
 DEF TEMP-TABLE tempUser NO-UNDO LIKE _User.
 DEF TEMP-TABLE ttIniFile
     FIELD iPos AS INT
@@ -123,6 +138,7 @@ DEF VAR iDBCurrVer AS INT NO-UNDO.
 DEF VAR iDBTgtVer AS INT NO-UNDO.
 DEF VAR iExtra AS INT NO-UNDO.
 DEF VAR iLastIni AS INT NO-UNDO.
+DEF VAR iListEntry AS INT NO-UNDO.
 DEF VAR iLockoutTries AS INT NO-UNDO.
 DEF VAR iMsgCtr AS INT NO-UNDO.
 DEF VAR iNumberChecked AS INT NO-UNDO.
@@ -292,38 +308,16 @@ DEF VAR cDeltaFileName AS CHAR INITIAL "asi166167.df" NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 RECT-4 fiCurrVer ~
-fiVerDate fiNewVer fiAdminDir fiDbAdmin fiSiteName fiHostname fiEnvAdmin ~
-fiBackupDir fiDrive fiTopDir fiMapDir fiDbBackup fiDlcDir fiDBDrive ~
-fiPgmBackup fiResBackup fiDfFilename fiDeltaFilename fiDbDir fiDbAuditDir ~
-fiLockoutTries fiLicensedUsers fiDbDataDir fiDbProdDir fiDbShipDir ~
-slEnvironments slDatabases fiDbStructDir fiDbTestDir fiDeskDir fiDocDir ~
-fiEnvDir fiEnvProdDir fiEnvAddonDir fiEnvCustFiles fiEnvCustomerDir ~
-fiEnvOverrideDir tbBackupDBs tbRunDataFix fiEnvPoDir fiEnvProgramsDir ~
-tbUserControl tbDelDupeNotes fiEnvResourceDir tbUserCleanup tbUpdateNK1s ~
-fiEnvScheduleDir tbDelBadData fiEnvTemplateDir fiEnvUserMenuDir ~
-tbUpdateMaster tbReftableConv fiEnvUsersDir fiInstallDir fiUpdatesDir ~
-tbLoadMenus fiPatchDir fiUpdAdminDir fiUpdCompressDir fiUpdDataDir ~
-tbRelNotes fiUpdDataUpdateDir fiUpdDeskDir bProcess fiUpdMenuDir ~
-tbInstallFiles fiUpdProgramDir tbUpdateIni fiUpdRelNotesDir fiUpdSqlDir ~
-fiUpdStructureDir 
-&Scoped-Define DISPLAYED-OBJECTS fiCurrVer fiVerDate fiNewVer fiAdminDir ~
-fiDbAdmin fiSiteName fiHostname fiEnvAdmin fiBackupDir fiDrive fiTopDir ~
-fiMapDir fiDbBackup fiDlcDir fiDBDrive fiPgmBackup fiResBackup fiDfFilename ~
-fiDeltaFilename fiDbDir fiDbAuditDir fiLockoutTries fiLicensedUsers ~
-fiDbDataDir fiDbProdDir fiDbShipDir slEnvironments slDatabases ~
-fiDbStructDir fiDbTestDir fiDeskDir fiDocDir fiEnvDir fiEnvProdDir ~
-fiEnvAddonDir fiEnvCustFiles fiEnvCustomerDir fiEnvOverrideDir tbComp-10 ~
-tbBackupDBs tbComp-7 tbRunDataFix fiEnvPoDir fiEnvProgramsDir tbComp-1 ~
-tbUserControl tbComp-13 tbDelDupeNotes fiEnvResourceDir tbComp-2 ~
-tbUserCleanup tbComp-14 tbUpdateNK1s fiEnvScheduleDir tbComp-4 tbDelBadData ~
-tbComp-15 tbUpdateFileLocs fiEnvTemplateDir fiEnvUserMenuDir tbComp-5 ~
-tbUpdateMaster tbComp-17 tbReftableConv fiEnvUsersDir fiInstallDir ~
-fiUpdatesDir tbComp-6 tbLoadMenus fiPatchDir fiUpdAdminDir tbComp-3 ~
-tbBuildDirs fiUpdCompressDir tbComp-8 tbUpdateStartup fiUpdDataDir tbComp-9 ~
-tbRelNotes fiUpdDataUpdateDir fiUpdDeskDir tbComp-11 tbBackupFiles ~
-fiUpdMenuDir tbComp-12 tbInstallFiles fiUpdProgramDir tbComp-16 tbUpdateIni ~
-fiUpdRelNotesDir fiUpdSqlDir fiUpdStructureDir 
+&Scoped-Define ENABLED-OBJECTS RECT-5 tbBackupDBs tbUserControl ~
+tbUserCleanup tbDelBadData tbUpdateMaster tbRunDataFix tbDelDupeNotes ~
+fiLicensedUsers tbUpdateNK1s bProcess tbReftableConv tbLoadMenus eStatus ~
+tbRelNotes tbInstallFiles tbUpdateIni 
+&Scoped-Define DISPLAYED-OBJECTS fiSiteName fiOptions fiHostname ~
+tbBackupDBs tbUserControl fiEnvironment tbUserCleanup fiAsiDbName ~
+fiAudDbName tbDelBadData fiAsiPortNo fiAudPortNo tbUpdateMaster fiFromVer ~
+tbRunDataFix fiToVer tbDelDupeNotes fiLicensedUsers tbUpdateNK1s ~
+tbUpdateFileLocs tbReftableConv tbLoadMenus eStatus tbRelNotes ~
+tbBackupFiles tbInstallFiles tbUpdateIni fiLogFile 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -349,273 +343,75 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bProcess 
-     LABEL "Start  Update" 
-     SIZE 21 BY 2.43
+     LABEL "Start Update" 
+     SIZE 46 BY 1.43
      FONT 6.
 
-DEFINE VARIABLE fiAdminDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
+DEFINE VARIABLE eStatus AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 75 BY 9.52 NO-UNDO.
 
-DEFINE VARIABLE fiBackupDir AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiAsiDbName AS CHARACTER FORMAT "X(256)":U 
+     LABEL "and databases (ASI)" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiCurrVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.6.0" 
-     LABEL "Current Version" 
+DEFINE VARIABLE fiAsiPortNo AS CHARACTER FORMAT "X(256)":U 
+     LABEL "running on ports" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1
-     FONT 6 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiDbAdmin AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiAudDbName AS CHARACTER FORMAT "X(256)":U 
+     LABEL "(Audit)" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiDbAuditDir AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiAudPortNo AS CHARACTER FORMAT "X(256)":U 
+     LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiDbBackup AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiEnvironment AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Upgrading environment" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiDbDataDir AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiFromVer AS CHARACTER FORMAT "X(256)":U 
+     LABEL "from ASI version" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiDbDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiDBDrive AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Database Drive" 
-     VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiDbProdDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiDbShipDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiDbStructDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiDbTestDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiDeltaFilename AS CHARACTER FORMAT "X(256)":U INITIAL "asi165166.df" 
-     LABEL "Delta Filename" 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiDeskDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiDfFilename AS CHARACTER FORMAT "X(256)":U INITIAL "asi166.df" 
-     LABEL "DF Filename" 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiDlcDir AS CHARACTER FORMAT "X(256)":U INITIAL "C:~\PROGRESS~\OE116" 
-     LABEL "DBMS Directory" 
-     VIEW-AS FILL-IN 
-     SIZE 44 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiDocDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiDrive AS CHARACTER FORMAT "X(256)":U INITIAL "C:" 
-     LABEL "Physical Drive" 
-     VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiEnvAddonDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiEnvAdmin AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiEnvCustFiles AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiEnvCustomerDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiEnvDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiEnvOverrideDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiEnvPoDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiEnvProdDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiEnvProgramsDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiEnvResourceDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiEnvScheduleDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiEnvTemplateDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiEnvUserMenuDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiEnvUsersDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiHostname AS CHARACTER FORMAT "X(256)":U INITIAL "DEMO" 
      LABEL "Server Name" 
      VIEW-AS FILL-IN 
-     SIZE 25 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiInstallDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
+     SIZE 26 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiLicensedUsers AS INTEGER FORMAT ">>>>9":U INITIAL 0 
-     LABEL "Licensed Users" 
+     LABEL "Licensed User count" 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiLockoutTries AS CHARACTER FORMAT "X(256)":U INITIAL "4" 
-     LABEL "Lockout Tries" 
-     VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+DEFINE VARIABLE fiLogFile AS CHARACTER FORMAT "X(256)":U INITIAL "Log of actions will be stored in N:~\Admin~\EnvAdmin~\UpdateLog.txt" 
+      VIEW-AS TEXT 
+     SIZE 65 BY .62 NO-UNDO.
 
-DEFINE VARIABLE fiMapDir AS CHARACTER FORMAT "X(256)":U INITIAL "N:" 
-     LABEL "Mapped Drive" 
+DEFINE VARIABLE fiOptions AS CHARACTER FORMAT "X(256)":U INITIAL "Options:" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.16" 
-     LABEL "New Version" 
-     VIEW-AS FILL-IN 
-     SIZE 14 BY 1
-     FONT 6 NO-UNDO.
-
-DEFINE VARIABLE fiPatchDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiPgmBackup AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiResBackup AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiSiteName AS CHARACTER FORMAT "X(256)":U INITIAL "DEMO" 
      LABEL "Site Name" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
+     SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiTopDir AS CHARACTER FORMAT "X(256)":U INITIAL "ASIGUI" 
-     LABEL "ASI Directory" 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiUpdAdminDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiUpdatesDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiUpdCompressDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiUpdDataDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiUpdDataUpdateDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiUpdDeskDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiUpdMenuDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiUpdProgramDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiUpdRelNotesDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiUpdSqlDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiUpdStructureDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiVerDate AS DATE FORMAT "99/99/99":U INITIAL 10/01/17 
-     LABEL "Installed On" 
+DEFINE VARIABLE fiToVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.16" 
+     LABEL "to version" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-1
+DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 57 BY 31.43.
-
-DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 8.1.
-
-DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 5.24.
-
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 100 BY 17.14.
-
-DEFINE VARIABLE slDatabases AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 43 BY 3.57 NO-UNDO.
-
-DEFINE VARIABLE slEnvironments AS CHARACTER 
-     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 36 BY 3.57 NO-UNDO.
+     SIZE 39 BY 16.19.
 
 DEFINE VARIABLE tbBackupDBs AS LOGICAL INITIAL no 
      LABEL "Backup Databases" 
@@ -626,96 +422,6 @@ DEFINE VARIABLE tbBackupFiles AS LOGICAL INITIAL no
      LABEL "Backup System Files" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbBuildDirs AS LOGICAL INITIAL no 
-     LABEL "Build/Update Directories" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 34 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-1 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-10 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-11 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-12 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-13 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-14 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-15 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-16 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-17 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-2 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-3 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-4 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-5 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-6 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-7 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-8 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-9 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tbDelBadData AS LOGICAL INITIAL no 
      LABEL "Remove deprecated records" 
@@ -772,11 +478,6 @@ DEFINE VARIABLE tbUpdateNK1s AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbUpdateStartup AS LOGICAL INITIAL no 
-     LABEL "Create/Update Startup files" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 34 BY .81 NO-UNDO.
-
 DEFINE VARIABLE tbUserCleanup AS LOGICAL INITIAL no 
      LABEL "Cleanup user files" 
      VIEW-AS TOGGLE-BOX
@@ -791,242 +492,42 @@ DEFINE VARIABLE tbUserControl AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     fiCurrVer AT ROW 2.43 COL 21 COLON-ALIGNED WIDGET-ID 66
-     fiVerDate AT ROW 2.43 COL 51 COLON-ALIGNED WIDGET-ID 56
-     fiNewVer AT ROW 2.43 COL 84 COLON-ALIGNED WIDGET-ID 46
-     fiAdminDir AT ROW 2.43 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 60
-     fiDbAdmin AT ROW 3.14 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 90
-     fiSiteName AT ROW 3.62 COL 25 COLON-ALIGNED WIDGET-ID 68
-     fiHostname AT ROW 3.62 COL 69 COLON-ALIGNED WIDGET-ID 36
-     fiEnvAdmin AT ROW 3.86 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 78
-     fiBackupDir AT ROW 4.57 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 88
-     fiDrive AT ROW 4.81 COL 25 COLON-ALIGNED WIDGET-ID 64
-     fiTopDir AT ROW 4.81 COL 45 COLON-ALIGNED WIDGET-ID 62
-     fiMapDir AT ROW 4.81 COL 89 COLON-ALIGNED WIDGET-ID 42
-     fiDbBackup AT ROW 5.29 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 72
-     fiDlcDir AT ROW 6 COL 25 COLON-ALIGNED WIDGET-ID 44
-     fiDBDrive AT ROW 6 COL 89 COLON-ALIGNED WIDGET-ID 478
-     fiPgmBackup AT ROW 6 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 76
-     fiResBackup AT ROW 6.71 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 86
-     fiDfFilename AT ROW 7.19 COL 25 COLON-ALIGNED WIDGET-ID 52
-     fiDeltaFilename AT ROW 7.19 COL 69 COLON-ALIGNED WIDGET-ID 50
-     fiDbDir AT ROW 7.43 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 84
-     fiDbAuditDir AT ROW 8.14 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 486
-     fiLockoutTries AT ROW 8.38 COL 25 COLON-ALIGNED WIDGET-ID 34
-     fiLicensedUsers AT ROW 8.38 COL 49 COLON-ALIGNED WIDGET-ID 440
-     fiDbDataDir AT ROW 8.86 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 126
-     fiDbProdDir AT ROW 9.57 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 124
-     fiDbShipDir AT ROW 10.29 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 122
-     slEnvironments AT ROW 10.76 COL 10 NO-LABEL WIDGET-ID 480
-     slDatabases AT ROW 10.76 COL 58 NO-LABEL WIDGET-ID 484
-     fiDbStructDir AT ROW 11 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 120
-     fiDbTestDir AT ROW 11.71 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 118
-     fiDeskDir AT ROW 12.43 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 96
-     fiDocDir AT ROW 13.14 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 98
-     fiEnvDir AT ROW 13.86 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 104
-     fiEnvProdDir AT ROW 14.57 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 106
-     fiEnvAddonDir AT ROW 15.29 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 116
-     fiEnvCustFiles AT ROW 16 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 114
-     fiEnvCustomerDir AT ROW 16.71 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 112
-     fiEnvOverrideDir AT ROW 17.43 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 110
-     tbComp-10 AT ROW 18.14 COL 15 WIDGET-ID 428
-     tbBackupDBs AT ROW 18.14 COL 21 WIDGET-ID 384
-     tbComp-7 AT ROW 18.14 COL 61 WIDGET-ID 414
-     tbRunDataFix AT ROW 18.14 COL 67 WIDGET-ID 400
-     fiEnvPoDir AT ROW 18.14 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 108
-     fiEnvProgramsDir AT ROW 18.86 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 136
-     tbComp-1 AT ROW 19.1 COL 15 WIDGET-ID 406
-     tbUserControl AT ROW 19.1 COL 21 WIDGET-ID 370
-     tbComp-13 AT ROW 19.1 COL 61 WIDGET-ID 434
-     tbDelDupeNotes AT ROW 19.1 COL 67 WIDGET-ID 390
-     fiEnvResourceDir AT ROW 19.57 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 134
+     fiSiteName AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 68
+     fiOptions AT ROW 1.24 COL 79 COLON-ALIGNED NO-LABEL
+     fiHostname AT ROW 2.19 COL 19 COLON-ALIGNED WIDGET-ID 36
+     tbBackupDBs AT ROW 2.43 COL 82 WIDGET-ID 384
+     tbUserControl AT ROW 3.38 COL 82 WIDGET-ID 370
+     fiEnvironment AT ROW 3.86 COL 29 COLON-ALIGNED
+     tbUserCleanup AT ROW 4.33 COL 82 WIDGET-ID 368
+     fiAsiDbName AT ROW 4.81 COL 29 COLON-ALIGNED
+     fiAudDbName AT ROW 4.81 COL 56 COLON-ALIGNED
+     tbDelBadData AT ROW 5.29 COL 82 WIDGET-ID 374
+     fiAsiPortNo AT ROW 5.76 COL 29 COLON-ALIGNED
+     fiAudPortNo AT ROW 5.76 COL 56 COLON-ALIGNED
+     tbUpdateMaster AT ROW 6.24 COL 82 WIDGET-ID 376
+     fiFromVer AT ROW 6.71 COL 29 COLON-ALIGNED
+     tbRunDataFix AT ROW 7.19 COL 82 WIDGET-ID 400
+     fiToVer AT ROW 7.67 COL 29 COLON-ALIGNED WIDGET-ID 46
+     tbDelDupeNotes AT ROW 8.14 COL 82 WIDGET-ID 390
+     fiLicensedUsers AT ROW 8.62 COL 29 COLON-ALIGNED WIDGET-ID 440
+     tbUpdateNK1s AT ROW 9.1 COL 82 WIDGET-ID 396
+     tbUpdateFileLocs AT ROW 10.05 COL 82 WIDGET-ID 398
+     bProcess AT ROW 10.29 COL 15 WIDGET-ID 404
+     tbReftableConv AT ROW 11 COL 82 WIDGET-ID 504
+     tbLoadMenus AT ROW 11.95 COL 82 WIDGET-ID 378
+     eStatus AT ROW 12.67 COL 2 NO-LABEL
+     tbRelNotes AT ROW 12.91 COL 82 WIDGET-ID 382
+     tbBackupFiles AT ROW 13.86 COL 82 WIDGET-ID 386
+     tbInstallFiles AT ROW 14.81 COL 82 WIDGET-ID 388
+     tbUpdateIni AT ROW 15.76 COL 82 WIDGET-ID 450
+     fiLogFile AT ROW 22.43 COL 5 COLON-ALIGNED NO-LABEL
+     "Status:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 11.95 COL 3 WIDGET-ID 54
+     RECT-5 AT ROW 1.48 COL 79
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 166.2 BY 32.57 WIDGET-ID 100.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME DEFAULT-FRAME
-     tbComp-2 AT ROW 20.05 COL 15 WIDGET-ID 408
-     tbUserCleanup AT ROW 20.05 COL 21 WIDGET-ID 368
-     tbComp-14 AT ROW 20.05 COL 61 WIDGET-ID 452
-     tbUpdateNK1s AT ROW 20.05 COL 67 WIDGET-ID 396
-     fiEnvScheduleDir AT ROW 20.29 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 132
-     tbComp-4 AT ROW 21 COL 15 WIDGET-ID 412
-     tbDelBadData AT ROW 21 COL 21 WIDGET-ID 374
-     tbComp-15 AT ROW 21 COL 61 WIDGET-ID 430
-     tbUpdateFileLocs AT ROW 21 COL 67 WIDGET-ID 398
-     fiEnvTemplateDir AT ROW 21 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 286
-     fiEnvUserMenuDir AT ROW 21.71 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 130
-     tbComp-5 AT ROW 21.95 COL 15 WIDGET-ID 418
-     tbUpdateMaster AT ROW 21.95 COL 21 WIDGET-ID 376
-     tbComp-17 AT ROW 21.95 COL 61 WIDGET-ID 502
-     tbReftableConv AT ROW 21.95 COL 67 WIDGET-ID 504
-     fiEnvUsersDir AT ROW 22.43 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 128
-     fiInstallDir AT ROW 23.14 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 142
-     fiUpdatesDir AT ROW 23.86 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 144
-     tbComp-6 AT ROW 24.57 COL 15 WIDGET-ID 420
-     tbLoadMenus AT ROW 24.57 COL 21 WIDGET-ID 378
-     fiPatchDir AT ROW 24.57 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 290
-     fiUpdAdminDir AT ROW 25.29 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 152
-     tbComp-3 AT ROW 25.52 COL 15 WIDGET-ID 410
-     tbBuildDirs AT ROW 25.52 COL 21 WIDGET-ID 372
-     fiUpdCompressDir AT ROW 26 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 150
-     tbComp-8 AT ROW 26.48 COL 15 WIDGET-ID 416
-     tbUpdateStartup AT ROW 26.48 COL 21 WIDGET-ID 380
-     fiUpdDataDir AT ROW 26.71 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 148
-     tbComp-9 AT ROW 27.43 COL 15 WIDGET-ID 426
-     tbRelNotes AT ROW 27.43 COL 21 WIDGET-ID 382
-     fiUpdDataUpdateDir AT ROW 27.43 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 154
-     fiUpdDeskDir AT ROW 28.14 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 146
-     tbComp-11 AT ROW 28.38 COL 15 WIDGET-ID 422
-     tbBackupFiles AT ROW 28.38 COL 21 WIDGET-ID 386
-     bProcess AT ROW 28.62 COL 73 WIDGET-ID 404
-     fiUpdMenuDir AT ROW 28.86 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 298
-     tbComp-12 AT ROW 29.33 COL 15 WIDGET-ID 424
-     tbInstallFiles AT ROW 29.33 COL 21 WIDGET-ID 388
-     fiUpdProgramDir AT ROW 29.57 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 162
-     tbComp-16 AT ROW 30.29 COL 15 WIDGET-ID 432
-     tbUpdateIni AT ROW 30.29 COL 21 WIDGET-ID 450
-     fiUpdRelNotesDir AT ROW 30.29 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 160
-     fiUpdSqlDir AT ROW 31 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 158
-     fiUpdStructureDir AT ROW 31.71 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 164
-     "Prod" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 9.57 COL 145 WIDGET-ID 250
-     "Desktop" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 28.14 COL 148 WIDGET-ID 192
-     "ProgramFiles" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 29.57 COL 148 WIDGET-ID 180
-     "Database" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 5.29 COL 145 WIDGET-ID 264
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 166.2 BY 32.57 WIDGET-ID 100.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME DEFAULT-FRAME
-     "Admin" VIEW-AS TEXT
-          SIZE 7 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 170
-     "Admin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 172
-     "Compress" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 26 COL 148 WIDGET-ID 186
-     "Install" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 23.14 COL 141 WIDGET-ID 178
-     "Admin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 25.29 COL 148 WIDGET-ID 198
-     "Programs" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 6 COL 145 WIDGET-ID 280
-     "<EnvName>" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 14.57 COL 145 WIDGET-ID 242
-     "ReleaseNotes" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 30.29 COL 148 WIDGET-ID 182
-     "Test" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 11.71 COL 145 WIDGET-ID 244
-     "Resources" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 6.71 COL 145 WIDGET-ID 266
-     "EnvAdmin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 3.86 COL 145 WIDGET-ID 270
-     "Backups" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 4.57 COL 141 WIDGET-ID 278
-     "Structure" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 11 COL 145 WIDGET-ID 254
-     " Environments" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 10.05 COL 8 WIDGET-ID 360
-          FONT 6
-     "Schedule" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 20.29 COL 147 WIDGET-ID 208
-     "DataUpdate" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 27.43 COL 148 WIDGET-ID 190
-     "DataFiles" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 26.71 COL 148 WIDGET-ID 188
-     "DbAdmin" VIEW-AS TEXT
-          SIZE 10 BY .76 AT ROW 2.91 COL 145 WIDGET-ID 284
-     "Template" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 21 COL 147 WIDGET-ID 288
-     "Environments" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 13.86 COL 141 WIDGET-ID 240
-     " (Defaults)" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.48 COL 144 WIDGET-ID 300
-          FONT 6
-     "Programs" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 18.86 COL 147 WIDGET-ID 204
-     "Admin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 174
-     " Patch Processing" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 15.76 COL 8 WIDGET-ID 456
-          FONT 6
-     "Addon" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 15.29 COL 147 WIDGET-ID 216
-     "Database tasks - will be performed once for each DATABASE selected above" VIEW-AS TEXT
-          SIZE 86 BY .62 AT ROW 16.95 COL 11 WIDGET-ID 498
-     "Updates" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 23.86 COL 141 WIDGET-ID 194
-     "Desktop" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 12.43 COL 141 WIDGET-ID 246
-     "Audit" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 8.14 COL 145 WIDGET-ID 488
-     "Documentation" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 13.14 COL 141 WIDGET-ID 248
-     "Data" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 8.86 COL 145 WIDGET-ID 256
-     "Override" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 17.43 COL 147 WIDGET-ID 214
-     " Databases" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 10.05 COL 56 WIDGET-ID 482
-          FONT 6
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 166.2 BY 32.57 WIDGET-ID 100.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME DEFAULT-FRAME
-     "Select one or more to upgrade." VIEW-AS TEXT
-          SIZE 32 BY .62 AT ROW 14.57 COL 10 WIDGET-ID 490
-     "PO" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 18.14 COL 147 WIDGET-ID 202
-     "Environment tasks - will be performed once for each ENVIRONMENT selected above" VIEW-AS TEXT
-          SIZE 86 BY .62 AT ROW 23.38 COL 11 WIDGET-ID 500
-     "Patch<n>" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 24.57 COL 145 WIDGET-ID 196
-     "Databases" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 7.43 COL 141 WIDGET-ID 282
-     "MenuFiles" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 28.86 COL 148 WIDGET-ID 184
-     "CustFiles" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 16 COL 147 WIDGET-ID 210
-     "Customer" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 16.71 COL 147 WIDGET-ID 212
-     "Select ONE and ONLY ONE to upgrade~\back up." VIEW-AS TEXT
-          SIZE 49 BY .62 AT ROW 14.57 COL 55 WIDGET-ID 492
-     "Resources" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 19.57 COL 147 WIDGET-ID 206
-     "SQLAccess" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 31 COL 148 WIDGET-ID 292
-     " Your Directory Structure" VIEW-AS TEXT
-          SIZE 30 BY .62 AT ROW 1.48 COL 111 WIDGET-ID 140
-          FONT 6
-     "Ship" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 10.29 COL 145 WIDGET-ID 252
-     "UserMenu" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 21.71 COL 147 WIDGET-ID 200
-     "StructureUpdate" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 31.71 COL 148 WIDGET-ID 296
-     " General Variables" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 1.48 COL 8 WIDGET-ID 356
-          FONT 6
-     "Users" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 22.43 COL 147 WIDGET-ID 218
-     RECT-1 AT ROW 1.71 COL 109 WIDGET-ID 354
-     RECT-2 AT ROW 1.71 COL 5 WIDGET-ID 358
-     RECT-3 AT ROW 10.29 COL 5 WIDGET-ID 362
-     RECT-4 AT ROW 16 COL 5 WIDGET-ID 454
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 166.2 BY 32.57 WIDGET-ID 100.
+         SIZE 120 BY 22.67 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1045,15 +546,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "ASI Install/Update Processor"
-         HEIGHT             = 32.38
-         WIDTH              = 166.2
+         HEIGHT             = 22.67
+         WIDTH              = 120
          MAX-HEIGHT         = 34.29
          MAX-WIDTH          = 166.2
          VIRTUAL-HEIGHT     = 34.29
          VIRTUAL-WIDTH      = 166.2
          RESIZE             = yes
          SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         STATUS-AREA        = no
          BGCOLOR            = ?
          FGCOLOR            = ?
          KEEP-FRAME-Z-ORDER = yes
@@ -1073,47 +574,31 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+/* SETTINGS FOR FILL-IN fiAsiDbName IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiAsiPortNo IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiAudDbName IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiAudPortNo IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiEnvironment IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFromVer IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiHostname IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiLogFile IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiOptions IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiSiteName IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiToVer IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX tbBackupFiles IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbBuildDirs IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-1 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-10 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-11 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-12 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-13 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-14 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-15 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-16 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-17 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-2 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-3 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-4 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-5 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-6 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-7 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-8 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-9 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX tbUpdateFileLocs IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbUpdateStartup IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -1166,7 +651,7 @@ END.
 
 &Scoped-define SELF-NAME bProcess
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bProcess C-Win
-ON CHOOSE OF bProcess IN FRAME DEFAULT-FRAME /* Start  Update */
+ON CHOOSE OF bProcess IN FRAME DEFAULT-FRAME /* Start Update */
 DO:
     RUN ipProcessAll.
     IF CONNECTED(LDBNAME(2)) THEN
@@ -1174,31 +659,6 @@ DO:
     IF CONNECTED(LDBNAME(1)) THEN
         DISCONNECT VALUE(LDBNAME(1)).
     APPLY "CLOSE":U TO THIS-PROCEDURE.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fiNewVer
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiNewVer C-Win
-ON LEAVE OF fiNewVer IN FRAME DEFAULT-FRAME /* New Version */
-DO:
-    ASSIGN
-        fiPatchDir:{&SV} = "PATCH" + fiNewVer:{&SV}
-        cUpdProgramDir = fiPatchDir:{&SV}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME slEnvironments
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL slEnvironments C-Win
-ON VALUE-CHANGED OF slEnvironments IN FRAME DEFAULT-FRAME
-DO:
-    ASSIGN
-        fiCurrVer:{&SV} = ENTRY(2,SELF:{&SV},"-").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1231,13 +691,25 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
    ON END-KEY UNDO MAIN-BLOCK, LEAVE:
     RUN enable_UI.
 
+    ASSIGN 
+        fiEnvironment:{&SV} = ipcEnv
+        fiFromVer:{&SV}     = ipcFromVer
+        fiToVer:{&SV}       = ipcToVer
+        fiAsiDbName:{&SV}   = ipcName
+        fiAsiPortNo:{&SV}   = ipcPort.
+
     RUN ipCreateTTiniFile.
     RUN ipFindIniFile.
     IF cIniLoc NE "" THEN 
         RUN ipReadIniFile.
     RUN ipExpandVarNames.
     RUN ipSetDispVars.
-
+    
+    ASSIGN 
+        iListEntry          = LOOKUP(fiAsiDbName:{&SV},cDbList)
+        fiAudDbName:{&SV}   = ENTRY(iListEntry,cAudDbList)
+        fiAudPortNo:{&SV}   = ENTRY(iListEntry,cAudPortList).
+    
     RUN ipValidateDB (OUTPUT lValidDB).
     IF NOT lValidDB THEN RETURN.
 
@@ -1252,21 +724,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
     ELSE ASSIGN
         lNeedUsercontrol = TRUE.
         
-    DO i = 1 TO NUM-ENTRIES(PROGRAM-NAME(1),"\"):
-        IF ENTRY(i,PROGRAM-NAME(1),"\") BEGINS "PATCH" THEN ASSIGN
-            cThisPatch = ENTRY(i,PROGRAM-NAME(1),"\").
-    END.
-    ASSIGN
-        cThisPatch = SUBSTRING(cThisPatch,6).
-    IF cThisPatch NE "" 
-    AND cThisPatch NE ? THEN DO:
-        ASSIGN
-            fiNewVer:{&SV} = cThisPatch.
-        APPLY 'leave' TO fiNewVer.
-    END.
-    
-    APPLY 'value-changed' TO slEnvironments.
-    
     ASSIGN
         tbBackupDBs:CHECKED = iplNeedBackup
         tbUserControl:CHECKED = TRUE
@@ -1279,20 +736,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         tbUpdateNK1s:CHECKED = TRUE
         tbUpdateFileLocs:CHECKED = TRUE
         tbRefTableConv:CHECKED = TRUE
-        tbBuildDirs:CHECKED = FALSE
-        tbUpdateStartup:CHECKED = FALSE
         tbRelNotes:CHECKED = TRUE
         tbBackupFiles:CHECKED = FALSE
         tbInstallFiles:CHECKED = TRUE
         tbUpdateINI:CHECKED = TRUE
         .
         
-    IF NUM-ENTRIES(slEnvironments:LIST-ITEMS) EQ 1 
-    AND NUM-ENTRIES(slDatabases:LIST-ITEMS) = 1
-    AND ipiLevel LT 10 THEN DO:
+    IF ipiLevel LT 10 THEN DO:
         ASSIGN
+            c-Win:WIDTH = 77
+            bProcess:LABEL = "No User Action Required"
             lAutorun = TRUE.
-        DISABLE ALL EXCEPT bProcess WITH FRAME {&FRAME-NAME}.
+        DISABLE ALL EXCEPT bProcess eStatus WITH FRAME {&FRAME-NAME}.
         APPLY 'choose' to bProcess.
     END.
     ELSE
@@ -1300,6 +755,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 RETURN.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1336,41 +792,17 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiCurrVer fiVerDate fiNewVer fiAdminDir fiDbAdmin fiSiteName 
-          fiHostname fiEnvAdmin fiBackupDir fiDrive fiTopDir fiMapDir fiDbBackup 
-          fiDlcDir fiDBDrive fiPgmBackup fiResBackup fiDfFilename 
-          fiDeltaFilename fiDbDir fiDbAuditDir fiLockoutTries fiLicensedUsers 
-          fiDbDataDir fiDbProdDir fiDbShipDir slEnvironments slDatabases 
-          fiDbStructDir fiDbTestDir fiDeskDir fiDocDir fiEnvDir fiEnvProdDir 
-          fiEnvAddonDir fiEnvCustFiles fiEnvCustomerDir fiEnvOverrideDir 
-          tbComp-10 tbBackupDBs tbComp-7 tbRunDataFix fiEnvPoDir 
-          fiEnvProgramsDir tbComp-1 tbUserControl tbComp-13 tbDelDupeNotes 
-          fiEnvResourceDir tbComp-2 tbUserCleanup tbComp-14 tbUpdateNK1s 
-          fiEnvScheduleDir tbComp-4 tbDelBadData tbComp-15 tbUpdateFileLocs 
-          fiEnvTemplateDir fiEnvUserMenuDir tbComp-5 tbUpdateMaster tbComp-17 
-          tbReftableConv fiEnvUsersDir fiInstallDir fiUpdatesDir tbComp-6 
-          tbLoadMenus fiPatchDir fiUpdAdminDir tbComp-3 tbBuildDirs 
-          fiUpdCompressDir tbComp-8 tbUpdateStartup fiUpdDataDir tbComp-9 
-          tbRelNotes fiUpdDataUpdateDir fiUpdDeskDir tbComp-11 tbBackupFiles 
-          fiUpdMenuDir tbComp-12 tbInstallFiles fiUpdProgramDir tbComp-16 
-          tbUpdateIni fiUpdRelNotesDir fiUpdSqlDir fiUpdStructureDir 
+  DISPLAY fiSiteName fiOptions fiHostname tbBackupDBs tbUserControl 
+          fiEnvironment tbUserCleanup fiAsiDbName fiAudDbName tbDelBadData 
+          fiAsiPortNo fiAudPortNo tbUpdateMaster fiFromVer tbRunDataFix fiToVer 
+          tbDelDupeNotes fiLicensedUsers tbUpdateNK1s tbUpdateFileLocs 
+          tbReftableConv tbLoadMenus eStatus tbRelNotes tbBackupFiles 
+          tbInstallFiles tbUpdateIni fiLogFile 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-1 RECT-2 RECT-3 RECT-4 fiCurrVer fiVerDate fiNewVer fiAdminDir 
-         fiDbAdmin fiSiteName fiHostname fiEnvAdmin fiBackupDir fiDrive 
-         fiTopDir fiMapDir fiDbBackup fiDlcDir fiDBDrive fiPgmBackup 
-         fiResBackup fiDfFilename fiDeltaFilename fiDbDir fiDbAuditDir 
-         fiLockoutTries fiLicensedUsers fiDbDataDir fiDbProdDir fiDbShipDir 
-         slEnvironments slDatabases fiDbStructDir fiDbTestDir fiDeskDir 
-         fiDocDir fiEnvDir fiEnvProdDir fiEnvAddonDir fiEnvCustFiles 
-         fiEnvCustomerDir fiEnvOverrideDir tbBackupDBs tbRunDataFix fiEnvPoDir 
-         fiEnvProgramsDir tbUserControl tbDelDupeNotes fiEnvResourceDir 
-         tbUserCleanup tbUpdateNK1s fiEnvScheduleDir tbDelBadData 
-         fiEnvTemplateDir fiEnvUserMenuDir tbUpdateMaster tbReftableConv 
-         fiEnvUsersDir fiInstallDir fiUpdatesDir tbLoadMenus fiPatchDir 
-         fiUpdAdminDir fiUpdCompressDir fiUpdDataDir tbRelNotes 
-         fiUpdDataUpdateDir fiUpdDeskDir bProcess fiUpdMenuDir tbInstallFiles 
-         fiUpdProgramDir tbUpdateIni fiUpdRelNotesDir fiUpdSqlDir 
-         fiUpdStructureDir 
+  ENABLE RECT-5 tbBackupDBs tbUserControl tbUserCleanup tbDelBadData 
+         tbUpdateMaster tbRunDataFix tbDelDupeNotes fiLicensedUsers 
+         tbUpdateNK1s bProcess tbReftableConv tbLoadMenus eStatus tbRelNotes 
+         tbInstallFiles tbUpdateIni 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -1386,7 +818,7 @@ PROCEDURE ipAddSuppUserRecords :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Adding Supplemental User Records").
+    RUN ipStatus ("  Adding Supplemental User Records").
 
     DEF INPUT PARAMETER ipcUserID AS CHAR NO-UNDO.
     DEF VAR lv-default-comp AS CHAR NO-UNDO.
@@ -1461,10 +893,10 @@ PROCEDURE ipAddSuppUserRecords :
 
     /* Ensure folder available for custom menus */
     ASSIGN
-        cCurrentDir = fiDrive:{&SV} + "\" + 
-                      fiTopDir:{&SV} + "\" +
-                      fiEnvDir:{&SV} + "\" +
-                      ENTRY(1,slEnvironments:{&SV},"-") + "\" +
+        cCurrentDir = cDrive + "\" + 
+                      cTopDir + "\" +
+                      cEnvDir + "\" +
+                      fiEnvironment:{&SV} + "\" +
                       "UserMenu\" + ipcUserID.
     OS-CREATE-DIR VALUE(cCurrentDir).
     
@@ -1588,9 +1020,12 @@ PROCEDURE ipBackupDataFiles :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Backing up data files").
-    
+    RUN ipStatus ("  Backing up data files").
+    DISABLE TRIGGERS FOR DUMP OF sys-ctrl.
+    DISABLE TRIGGERS FOR DUMP OF sys-ctrl-shipto.
+
 &SCOPED-DEFINE cFile AuditTbl
+
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
@@ -1652,6 +1087,27 @@ PROCEDURE ipBackupDataFiles :
     END.
     OUTPUT CLOSE.
 
+&SCOPED-DEFINE cFile translation
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile userlanguage
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile xusermenu
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1660,51 +1116,98 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipBackupDBs C-Win 
 PROCEDURE ipBackupDBs :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    RUN ipStatus ("Backing Up Selected Databases").
-
-    DEF VAR cCmdLine AS CHAR NO-UNDO.
-    DEF VAR cLocItem AS CHAR NO-UNDO.
-    DEF VAR cLocDir AS CHAR NO-UNDO.
-    DEF VAR cLocName AS CHAR NO-UNDO.
-    DEF VAR cLocPort AS CHAR NO-UNDO.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEF VAR cCmdLine    AS CHAR NO-UNDO.
+    DEF VAR cLocItem    AS CHAR NO-UNDO.
+    DEF VAR cLocDir     AS CHAR NO-UNDO.
+    DEF VAR cLocName    AS CHAR NO-UNDO.
+    DEF VAR cLocPort    AS CHAR NO-UNDO.
+    DEF VAR cBackupName AS CHAR NO-UNDO.
+    DEF VAR cLockFile   AS CHAR NO-UNDO.  
+    DEF VAR cPrefix     AS CHAR NO-UNDO.
+    DEF VAR cThisDir    AS CHAR NO-UNDO.
+    DEF VAR iCount AS INT NO-UNDO.
+    DEF VAR cThisDB AS CHAR NO-UNDO.
+    DEF VAR cThisPort AS CHAR NO-UNDO.
     
-    DO iCtr = 1 TO NUM-ENTRIES(slDatabases:{&SV}):
+    ASSIGN 
+        iCount = 1.
+        
+    DO iCount = 1 TO 2:
+        IF iCount = 1 THEN ASSIGN 
+            cThisDB = fiAsiDBName:{&SV}.
+        ELSE ASSIGN 
+            cThisDB = fiAudDBName:{&SV}.
+      
+        ASSIGN 
+            cPrefix = SUBSTRING(cThisDB,1,3).
+            
+        IF cPrefix = "asi" THEN ASSIGN 
+                iListEntry = LOOKUP(cThisDB,cDbList)
+                cThisDir   = ENTRY(iListEntry,cDbDirList)
+                cThisPort  = ENTRY(iListEntry,cDbPortList).
+        ELSE ASSIGN 
+                iListEntry = LOOKUP(cThisDB,cAudDbList)
+                cThisDir   = ENTRY(iListEntry,cAudDirList)
+                cThisPort  = ENTRY(iListEntry,cAudPortList).
+        
         ASSIGN
-            cLocItem = ENTRY(iCtr,slDatabases:{&SV})
-            cLocDir  = ENTRY(1,cLocItem,"-")
-            cLocName = ENTRY(2,cLocItem,"-")
-            cLocPort = ENTRY(3,cLocItem,"-").
-        IF fiDbDrive:{&SV} EQ fiDrive:{&SV} THEN ASSIGN
-            cCmdLine = fiDlcDir:{&SV} + "\bin\probkup online " + 
-                       fiDrive:{&SV} + "\" + 
-                       fiTopDir:{&SV} + "\" + 
-                       fiDbDir:{&SV} + "\" +
-                       cLocDir + "\" +
-                       cLocName + " " + 
-                       cDbBackup + "\" + cLocName + 
+            cLocDir     = cThisDir
+            cLocName    = cThisDB
+            cLocPort    = cThisDir
+            cBackupName = cDbBackup + "\" + cLocName + "_" +
                        STRING(YEAR(TODAY)) +
                        STRING(MONTH(TODAY),"99") +
-                       STRING(DAY(TODAY),"99") + 
-                       STRING(TIME) + ".bak".
-        ELSE ASSIGN
-            cCmdLine = fiDlcDir:{&SV} + "\bin\probkup online " + 
-                       fiDBDrive:{&SV} + "\" + 
-                       fiDbDir:{&SV} + "\" +
+                       STRING(DAY(TODAY),"99") + "_" +
+                       STRING(TIME) + ".bak" 
+            cCmdLine    = cDLCDir + "\bin\probkup online " + 
+                       cDBDrive + "\" + 
+                       cTopDir + "\" + 
+                       cDbDir + "\" +
                        cLocDir + "\" +
                        cLocName + " " + 
-                       cDbBackup + "\" + cLocName + 
-                       STRING(YEAR(TODAY)) +
-                       STRING(MONTH(TODAY),"99") +
-                       STRING(DAY(TODAY),"99") + 
-                       STRING(TIME) + ".bak".
+                       cBackupName
+            cLockFile   = cDbDrive + "\" +
+                       cTopDir + "\" + cDbDir + "\" + 
+                       cThisDir + "\" +
+                       cThisDB + ".lk".
+        .
     
-        RUN ipStatus ("  Backing Up " + ENTRY(iCtr,slDatabases:{&SV})).
+        IF SEARCH(cLockFile) EQ ? THEN 
+        DO:
+            MESSAGE 
+                "The " + cThisDB + " database is not currently running." SKIP 
+                "This means that it will not be possible to back up the data-" SKIP 
+                "base, or to upgrade it with this program.  You should exit" SKIP 
+                "this program now, and make sure that the databases are" SKIP 
+                "running before you attempt to upgrade the system again."
+                VIEW-AS ALERT-BOX ERROR.
+            ASSIGN 
+                lSuccess = FALSE.
+            RETURN.
+        END.
+        
+        RUN ipStatus ("  Backing Up database " + cThisDB).
+        
         OS-COMMAND SILENT VALUE(cCmdLine).
+        
+        IF SEARCH(cBackupName) NE ? THEN 
+        DO:
+            ASSIGN
+                lSuccess = TRUE.
+            RUN ipStatus ("    Backup successful").
+        END.
+        ELSE 
+        DO:
+            ASSIGN
+                lSuccess = FALSE.
+            RUN ipStatus ("    Backup FAILED").
+        END.
     END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1850,7 +1353,7 @@ DISABLE TRIGGERS FOR LOAD OF reftable.
 
     RUN ipStatus ("  Removing Old User Records").
 
-/* Clean up remnant records for any deleted users */
+    /* Clean up remnant records for any deleted users */
 &SCOPED-DEF cFileName usr
 &SCOPED-DEF cFieldName uid
     FOR EACH {&cFileName} EXCLUSIVE WHERE NOT CAN-FIND (users WHERE users.user_id EQ {&cFileName}.{&cFieldName}):
@@ -1966,7 +1469,7 @@ PROCEDURE ipConfirmAdminUser :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Validating ADMIN user entries").
+    RUN ipStatus ("  Validating ADMIN user entries").
 
     DISABLE TRIGGERS FOR LOAD OF users.
 
@@ -2008,7 +1511,7 @@ PROCEDURE ipConfirmASIUser :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Validating ASI User Entries").
+    RUN ipStatus ("  Validating ASI User Entries").
 
     DISABLE TRIGGERS FOR LOAD OF users.
 
@@ -2063,13 +1566,13 @@ PROCEDURE ipConvertModule :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("  Converting module " + cFrom + " to " + cTo).
-
     FIND FIRST module NO-LOCK WHERE 
         module.module = cfrom 
         NO-ERROR.
     IF NOT AVAIL module THEN RETURN.
   
+    RUN ipStatus ("    Converting module " + cFrom + " to " + cTo).
+
     FIND FIRST bf-module EXCLUSIVE WHERE 
         ROWID(bf-module) = ROWID(module) NO-ERROR.
     IF AVAIL bf-module THEN ASSIGN
@@ -2100,7 +1603,7 @@ PROCEDURE ipConvertUsrFile :
 /*                      06/15/18    MYT             Moved to upgrade process */
 /*---------------------------------------------------------------------------*/
 
-    RUN ipStatus ("Converting advantzware.usr file...").
+    RUN ipStatus ("    Converting advantzware.usr file...").
 
 DEF VAR cLine AS CHAR NO-UNDO.
 DEF VAR cOutline AS CHAR NO-UNDO.
@@ -2228,7 +1731,7 @@ PROCEDURE ipConvQtyPerSet :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Converting QtyPerSet records...").
+    RUN ipStatus ("    Converting QtyPerSet records...").
 
     DEF VAR cOrigPropath AS CHAR NO-UNDO.
     DEF VAR cNewPropath AS CHAR NO-UNDO.
@@ -2287,12 +1790,12 @@ PROCEDURE ipConvQtyPerSet :
             fg-set.qtyPerSet = 1.
     END.     
 
-    RUN ipStatus ("   Total Estimates: "  + STRING(iCount)).
-    RUN ipStatus ("   Converted from .yld-qty: " + STRING(iCountProcessed)).
-    RUN ipStatus ("   Initialized to 1: " + STRING(iCountInitialized)).
-    RUN ipStatus ("   Total Sets: " + STRING(iCountFGSets)).
-    RUN ipStatus ("   Sets Converted from .part-qty to .qtyPerSet: " + STRING(iCountFGSetsProcessed)).
-    RUN ipStatus ("   Sets Initialized to 1: " + STRING(iCountFGSetsInitialized )).
+    RUN ipStatus ("       Total Estimates: "  + STRING(iCount)).
+    RUN ipStatus ("       Converted from .yld-qty: " + STRING(iCountProcessed)).
+    RUN ipStatus ("       Initialized to 1: " + STRING(iCountInitialized)).
+    RUN ipStatus ("       Total Sets: " + STRING(iCountFGSets)).
+    RUN ipStatus ("       Sets Converted from .part-qty to .qtyPerSet: " + STRING(iCountFGSetsProcessed)).
+    RUN ipStatus ("       Sets Initialized to 1: " + STRING(iCountFGSetsInitialized )).
     
 END PROCEDURE.
 
@@ -2471,11 +1974,10 @@ PROCEDURE ipDataFix :
     DEF VAR cThisEntry AS CHAR NO-UNDO.
     DEF VAR cTgtEnv AS CHAR NO-UNDO.
 
-    RUN ipStatus ("Starting Data Fixes...").
+    RUN ipStatus ("Starting Data Fixes - from version " + fiFromVer:{&SV}).
 
     ASSIGN 
-        cThisEntry = ENTRY(1,slEnvironments:{&SV})
-        cThisEntry = ENTRY(2,cThisEntry,"-").
+        cThisEntry = fiFromVer:{&SV}.
 
     IF intVer(cThisEntry) LT 160001 THEN
         RUN ipDataFix160001.
@@ -2495,8 +1997,10 @@ PROCEDURE ipDataFix :
         RUN ipDataFix160708.
     IF intVer(cThisEntry) LT 160712 THEN
         RUN ipDataFix160712.
+    IF intVer(cThisEntry) LT 160800 THEN
+        RUN ipDataFix160800.
 
-    RUN ipStatus ("Completed Data Fixes...").
+    RUN ipStatus ("Completed Data Fixes").
 
 END PROCEDURE.
 
@@ -2673,8 +2177,6 @@ PROCEDURE ipDataFix160704 :
             job-code.dmiID = job-code.dmiID + 100.
     END.
     
-    RUN ipConvQtyPerSet.
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2711,49 +2213,41 @@ PROCEDURE ipDataFix160712 :
     RUN ipTurnOffUserColors.
     RUN ipFixPoEdiDirs.
     
+    /* Ticket 32053 */
+    FOR EACH reftable1 WHERE reftable1.reftable = "oe-rel.lot-no"
+        NO-LOCK:
+        DO TRANSACTION:    
+            FIND FIRST oe-rel WHERE oe-rel.r-no = int(reftable1.company)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE oe-rel THEN    
+            DO: 
+                IF oe-rel.lot-no EQ "" THEN ASSIGN oe-rel.lot-no = reftable1.code.
+                IF oe-rel.frt-pay EQ "" THEN ASSIGN oe-rel.frt-pay = reftable1.code2.
+                IF oe-rel.fob-code EQ "" THEN ASSIGN oe-rel.fob-code = reftable1.dscr.
+            END.   
+            FIND CURRENT oe-rel NO-LOCK NO-ERROR.    
+            RELEASE oe-rel. 
+        END.  
+    END.             
+    
+    RUN ipConvQtyPerSet.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160712 C-Win 
-PROCEDURE ipDataFix160712 :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160800 C-Win 
+PROCEDURE ipDataFix160800 :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DISABLE TRIGGERS FOR LOAD OF reftable1.
-    DISABLE TRIGGERS FOR LOAD OF oe-rel.
-       
-    RUN ipStatus ("  Data Fix 160712...").
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160800...").
 
-       
-    /* Ticket 32053 */
-    FOR EACH reftable1 WHERE reftable1.reftable = "oe-rel.lot-no"
-            NO-LOCK:
-            DO TRANSACTION:    
-                FIND FIRST oe-rel WHERE oe-rel.r-no = int(reftable1.company)
-                    EXCLUSIVE-LOCK NO-ERROR.
-                IF AVAILABLE oe-rel THEN    
-                DO: 
-                    IF oe-rel.lot-no EQ "" THEN ASSIGN oe-rel.lot-no = reftable1.code.
-                    IF oe-rel.frt-pay EQ "" THEN ASSIGN oe-rel.frt-pay = reftable1.code2.
-                    IF oe-rel.fob-code EQ "" THEN ASSIGN oe-rel.fob-code = reftable1.dscr.
-                    ASSIGN iProcessCount = iProcessCount + 1.
-                    EXPORT DELIMITER ","
-                       oe-rel.r-no
-                       oe-rel.lot-no
-                       oe-rel.frt-pay
-                       oe-rel.fob-code.
-                END.   
-                FIND CURRENT oe-rel NO-LOCK NO-ERROR.    
-                RELEASE oe-rel. 
-              END.  
-    END.             
-    
-    RUN ipConvQtyPerSet.
-    
+    RUN ipRemoveUserAddon.
+    RUN ipMoveUserMenusToDatabase.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2956,95 +2450,46 @@ PROCEDURE ipExpandFiles :
     
     RUN ipStatus ("Installing New ASI System Files").
 
-    DO iCtr = 1 TO NUM-ENTRIES(slEnvironments:{&SV}):
-        ASSIGN 
-            cThisEntry = ENTRY(iCtr,slEnvironments:{&SV})
-            cTgtEnv = fiMapDir:{&SV} + "\" + fiEnvDir:{&SV} + "\" + ENTRY(1,cThisEntry,"-").
+    ASSIGN 
+        cThisEntry = fiEnvironment:{&SV}
+        cTgtEnv = cMapDir + "\" + cEnvDir + "\" + fiEnvironment:{&SV}.
 
-        IF iCtr = 1 THEN DO:
-            RUN ipStatus ("  Expanding files...").
+    RUN ipStatus ("  Expanding files...").
 
-            ASSIGN
-                cCmdLine1 = cUpdCompressDir + "\7z.exe x " + cUpdProgramDir + "\Override.7z -y -o" + cUpdProgramDir + "\Override"
-                cCmdLine2 = cUpdCompressDir + "\7z.exe x " + cUpdProgramDir + "\Programs.7z -y -o" + cUpdProgramDir + "\Programs"
-                cCmdLine3 = cUpdCompressDir + "\7z.exe x " + cUpdProgramDir + "\Resources.7z -y -o" + cUpdProgramDir + "\Resources".
-            IF SEARCH(cUpdProgramDir + "\Override.7z") NE ? THEN DO:
-                OS-COMMAND SILENT VALUE(cCmdLine1).
-            END.
-            OS-COMMAND SILENT VALUE(cCmdLine2).
-            OS-COMMAND SILENT VALUE(cCmdLine3).
-        END.
-        IF iCtr LT NUM-ENTRIES(slEnvironments:{&SV}) THEN DO:
-            RUN ipStatus ("  Copying 'N' files to " + cThisEntry + "...").
-
-            /* COPY the new files from Patch to Environment */
-            ASSIGN
-                cCmdLine1 = "XCOPY /E " + cUpdProgramDir + "\Override " + cTgtEnv + "\OverrideN"
-                cCmdLine2 = "XCOPY /E " + cUpdProgramDir + "\Programs " + cTgtEnv + "\ProgramsN"
-                cCmdLine3 = "XCOPY /E " + cUpdProgramDir + "\Resources " + cTgtEnv + "\ResourcesN".
-
-            IF SEARCH(cUpdProgramDir + "\Override.7z") NE ? THEN DO:
-                OS-CREATE-DIR VALUE(cTgtEnv + "\OverrideN").
-                OS-COMMAND SILENT VALUE(cCmdLine1).
-            END.
-            OS-CREATE-DIR VALUE(cTgtEnv + "\ProgramsN").
-            OS-COMMAND SILENT VALUE(cCmdLine2).
-            OS-CREATE-DIR VALUE(cTgtEnv + "\ResourcesN").
-            OS-COMMAND SILENT VALUE(cCmdLine3).
-
-            /* Rename the old files to "O", then new files from "N", then delete "O" */
-            RUN ipStatus ("  Renaming old files in " + cThisEntry + "...").
-            OS-RENAME VALUE(cTgtEnv + "\Override") VALUE(cTgtEnv + "\OverrideO").
-            OS-RENAME VALUE(cTgtEnv + "\Programs") VALUE(cTgtEnv + "\ProgramsO").
-            OS-RENAME VALUE(cTgtEnv + "\Resources") VALUE(cTgtEnv + "\ResourcesO").
-
-            RUN ipStatus ("  Renaming new files in " + cThisEntry + "...").
-            OS-RENAME VALUE(cTgtEnv + "\OverrideN") VALUE(cTgtEnv + "\Override").
-            OS-RENAME VALUE(cTgtEnv + "\ProgramsN") VALUE(cTgtEnv + "\Programs").
-            OS-RENAME VALUE(cTgtEnv + "\ResourcesN") VALUE(cTgtEnv + "\Resources").
-
-            RUN ipStatus ("  Deleting old files in " + cThisEntry + "...").
-            OS-DELETE VALUE(cTgtEnv + "\OverrideO") RECURSIVE.
-            OS-DELETE VALUE(cTgtEnv + "\ProgramsO") RECURSIVE.
-            OS-DELETE VALUE(cTgtEnv + "\ResourcesO") RECURSIVE.
-        END.
-        ELSE DO:
-            ASSIGN 
-                cThisEntry = ENTRY(iCtr,slEnvironments:{&SV})
-                cTgtEnv = fiMapDir:{&SV} + "\" + fiEnvDir:{&SV} + "\" + ENTRY(1,cThisEntry,"-").
-            /* Skip the copy part, just MOVE the files  */
-            RUN ipStatus ("  Renaming old files in " + cThisEntry + "...").
-            OS-RENAME VALUE(cUpdProgramDir + "\Override") VALUE(cTgtEnv + "\OverrideN").
-            OS-RENAME VALUE(cUpdProgramDir + "\Programs") VALUE(cTgtEnv + "\ProgramsN").
-            OS-RENAME VALUE(cUpdProgramDir + "\Resources") VALUE(cTgtEnv + "\ResourcesN").
-
-            /* Rename the old files to "O", then new files from "N", then delete "O" */
-            RUN ipStatus ("  Renaming old files in " + cThisEntry + "...").
-            OS-RENAME VALUE(cTgtEnv + "\Override") VALUE(cTgtEnv + "\OverrideO").
-            OS-RENAME VALUE(cTgtEnv + "\Programs") VALUE(cTgtEnv + "\ProgramsO").
-            OS-RENAME VALUE(cTgtEnv + "\Resources") VALUE(cTgtEnv + "\ResourcesO").
-
-            RUN ipStatus ("  Renaming new files in " + cThisEntry + "...").
-            OS-RENAME VALUE(cTgtEnv + "\OverrideN") VALUE(cTgtEnv + "\Override").
-            OS-RENAME VALUE(cTgtEnv + "\ProgramsN") VALUE(cTgtEnv + "\Programs").
-            OS-RENAME VALUE(cTgtEnv + "\ResourcesN") VALUE(cTgtEnv + "\Resources").
-
-            RUN ipStatus ("  Deleting old files in " + cThisEntry + "...").
-            OS-DELETE VALUE(cTgtEnv + "\OverrideO") RECURSIVE.
-            OS-DELETE VALUE(cTgtEnv + "\ProgramsO") RECURSIVE.
-            OS-DELETE VALUE(cTgtEnv + "\ResourcesO") RECURSIVE.
-        END.
-        ASSIGN
-            cListItems = slEnvironments:LIST-ITEMS
-            cScreenValue = slEnvironments:SCREEN-VALUE
-            cNewEntry = ENTRY(1,cThisEntry,"-") + "-" + fiNewVer:{&SV}
-            cListItems = REPLACE(cListItems,cThisEntry,cNewEntry)
-            cScreenValue = REPLACE(cScreenValue,cThisEntry,cNewEntry)
-            slEnvironments:LIST-ITEMS = cListItems
-            slEnvironments:SCREEN-VALUE = cScreenValue.
-            
+    ASSIGN
+        cCmdLine1 = cUpdCompressDir + "\7z.exe x " + cUpdProgramDir + "\Override.7z -y -o" + cUpdProgramDir + "\Override"
+        cCmdLine2 = cUpdCompressDir + "\7z.exe x " + cUpdProgramDir + "\Programs.7z -y -o" + cUpdProgramDir + "\Programs"
+        cCmdLine3 = cUpdCompressDir + "\7z.exe x " + cUpdProgramDir + "\Resources.7z -y -o" + cUpdProgramDir + "\Resources".
+    IF SEARCH(cUpdProgramDir + "\Override.7z") NE ? THEN DO:
+        OS-COMMAND SILENT VALUE(cCmdLine1).
     END.
+    OS-COMMAND SILENT VALUE(cCmdLine2).
+    OS-COMMAND SILENT VALUE(cCmdLine3).
 
+    /* Skip the copy part, just MOVE the files  */
+    RUN ipStatus ("  Moving expanded files from Patch to " + cThisEntry + " temp directory").
+    OS-RENAME VALUE(cUpdProgramDir + "\Override") VALUE(cTgtEnv + "\OverrideN").
+    OS-RENAME VALUE(cUpdProgramDir + "\Programs") VALUE(cTgtEnv + "\ProgramsN").
+    OS-RENAME VALUE(cUpdProgramDir + "\Resources") VALUE(cTgtEnv + "\ResourcesN").
+
+    /* Rename the old files to "O", then new files from "N", then delete "O" */
+    RUN ipStatus ("  Renaming old " + cThisEntry + " directories").
+    OS-RENAME VALUE(cTgtEnv + "\Override") VALUE(cTgtEnv + "\OverrideO").
+    OS-RENAME VALUE(cTgtEnv + "\Programs") VALUE(cTgtEnv + "\ProgramsO").
+    OS-RENAME VALUE(cTgtEnv + "\Resources") VALUE(cTgtEnv + "\ResourcesO").
+
+    RUN ipStatus ("  Moving temp directories in " + cThisEntry + " to permanents").
+    OS-RENAME VALUE(cTgtEnv + "\OverrideN") VALUE(cTgtEnv + "\Override").
+    OS-RENAME VALUE(cTgtEnv + "\ProgramsN") VALUE(cTgtEnv + "\Programs").
+    OS-RENAME VALUE(cTgtEnv + "\ResourcesN") VALUE(cTgtEnv + "\Resources").
+
+    RUN ipStatus ("  Deleting old files from " + cThisEntry + " directories").
+    OS-DELETE VALUE(cTgtEnv + "\OverrideO") RECURSIVE.
+    OS-DELETE VALUE(cTgtEnv + "\ProgramsO") RECURSIVE.
+    OS-DELETE VALUE(cTgtEnv + "\ResourcesO") RECURSIVE.
+
+    RUN ipStatus ("Installation of new system files complete").
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3060,7 +2505,7 @@ PROCEDURE ipExpandVarNames :
 
     /* Modify variables for ease of use */
     ASSIGN
-        cPatchNo = fiNewVer:{&SV}
+        cPatchNo = fiToVer:{&SV}
         cAdminDir = cMapDir + "\" + cAdminDir
         cBackupDir = cMapDir + "\" + cBackupDir
         cDBDir = cMapDir + "\" + cDbDir
@@ -3097,10 +2542,6 @@ PROCEDURE ipExpandVarNames :
         iLockoutTries = IF cLockoutTries NE "" 
                         AND ASC(cLockoutTries) GE 48
                         AND ASC(cLockoutTries) LE 57 THEN INT(cLockoutTries) ELSE 0
-        iDbCurrVer = (INTEGER(ENTRY(1,fiCurrVer:{&SV},".")) * 10) +
-                     INTEGER(ENTRY(2,fiCurrVer:{&SV},"."))
-        iDbTgtVer = (INTEGER(ENTRY(1,fiNewVer:{&SV},".")) * 10) +
-                     INTEGER(ENTRY(2,fiNewVer:{&SV},"."))
         .
         
 END PROCEDURE.
@@ -3219,30 +2660,30 @@ PROCEDURE ipFixPoEdiDirs :
 ------------------------------------------------------------------------------*/
     DEF VAR cTestLoc AS CHAR NO-UNDO.
     
-    RUN ipStatus(" Fix file locations for PO EDI").
+    RUN ipStatus("   Fix file locations for PO EDI").
     
     /* The correct target for this dir is <env>\CustFiles\EDIfiles\PO */
     /* Is it already correct? */
     ASSIGN
-        cTestLoc = cEnvDir + "\" + ENTRY(1,slEnvironments:{&SV},"-") + "\CustFiles\EDIfiles\POs\poexport.dat".
+        cTestLoc = cEnvDir + "\" + fiEnvironment:{&SV} + "\CustFiles\EDIfiles\POs\poexport.dat".
     IF SEARCH(cTestLoc) NE ? THEN
         RETURN.        
         
     /* Is it in /Customers folder? */
     ASSIGN
-        cTestLoc = cEnvDir + "\" + ENTRY(1,slEnvironments:{&SV},"-") + "\Customer\PO\poexport.dat".
+        cTestLoc = cEnvDir + "\" + fiEnvironment:{&SV} + "\Customer\PO\poexport.dat".
     IF SEARCH(cTestLoc) NE ? THEN DO:
-        RUN ipCopyDirs (cEnvDir + "\" + ENTRY(1,slEnvironments:{&SV},"-") + "\Customer\PO",
-                        cEnvDir + "\" + ENTRY(1,slEnvironments:{&SV},"-") + "\CustFiles\EDIfiles\POs").
+        RUN ipCopyDirs (cEnvDir + "\" + fiEnvironment:{&SV} + "\Customer\PO",
+                        cEnvDir + "\" + fiEnvironment:{&SV} + "\CustFiles\EDIfiles\POs").
         RETURN.
     END.
     
     /* Is it in /PO? */
     ASSIGN
-        cTestLoc = cEnvDir + "\" + ENTRY(1,slEnvironments:{&SV},"-") + "\PO\poexport.dat".
+        cTestLoc = cEnvDir + "\" + fiEnvironment:{&SV} + "\PO\poexport.dat".
     IF SEARCH(cTestLoc) NE ? THEN 
-        RUN ipCopyDirs (cEnvDir + "\" + ENTRY(1,slEnvironments:{&SV},"-") + "\PO",
-                        cEnvDir + "\" + ENTRY(1,slEnvironments:{&SV},"-") + "\CustFiles\EDIfiles\POs").
+        RUN ipCopyDirs (cEnvDir + "\" + fiEnvironment:{&SV} + "\PO",
+                        cEnvDir + "\" + fiEnvironment:{&SV} + "\CustFiles\EDIfiles\POs").
     
 END PROCEDURE.
 
@@ -3273,9 +2714,6 @@ PROCEDURE ipFixUsers :
     RUN ipLoadNewUserData IN THIS-PROCEDURE.
     RUN ipCleanBadUserData IN THIS-PROCEDURE.
 
-    ASSIGN
-        tbComp-2:CHECKED IN FRAME {&FRAME-NAME} = TRUE.
-        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3377,7 +2815,7 @@ PROCEDURE ipLoadAuditRecs :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Loading AuditTbl Records").
+    RUN ipStatus ("  Loading AuditTbl Records").
 
     DISABLE TRIGGERS FOR LOAD OF audittbl.
     
@@ -3400,7 +2838,7 @@ PROCEDURE ipLoadEmailCodes :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Loading Email codes").
+    RUN ipStatus ("  Loading Email codes").
 
     DISABLE TRIGGERS FOR LOAD OF emailcod.
     
@@ -3433,7 +2871,7 @@ PROCEDURE ipLoadLookups :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Loading Lookups").
+    RUN ipStatus ("  Loading Lookups").
 
     DISABLE TRIGGERS FOR LOAD OF lookups.
     
@@ -3471,26 +2909,23 @@ PROCEDURE ipLoadMenus :
     RUN ipStatus ("Loading New Menus").
 
     
-    DO iCtr = 1 TO NUM-ENTRIES(slEnvironments:{&SV}):
-        ASSIGN 
-            cThisEntry = ENTRY(iCtr,slEnvironments:{&SV})
-            cTgtEnv = fiMapDir:{&SV} + "\" + fiEnvDir:{&SV} + "\" + ENTRY(1,cThisEntry,"-").
+    ASSIGN 
+        cTgtEnv = cEnvDir + "\" + fiEnvironment:{&SV}.
 
-        INPUT FROM OS-DIR (ipcDir).
+    INPUT FROM OS-DIR (ipcDir).
 
-        REPEAT:
-            IMPORT cFileStream.
-            FILE-INFO:FILE-NAME = ipcDir + "\" + cFileStream.
-            IF SUBSTRING(FILE-INFO:FILE-NAME,LENGTH(FILE-INFO:FILE-NAME),1) EQ "." THEN DO:
-                NEXT.
-            END.
-            ELSE IF FILE-INFO:FILE-TYPE BEGINS "F" THEN DO:
-                OS-COPY VALUE(FILE-INFO:FILE-NAME) VALUE(cTgtEnv).
-            END.
-            ELSE DO:
-                OS-CREATE-DIR VALUE(cTgtEnv + "\" + cFileStream).
-                RUN ipLoadMenus IN THIS-PROCEDURE (FILE-INFO:FILE-NAME,cTgtEnv + "\Addon").
-            END.
+    REPEAT:
+        IMPORT cFileStream.
+        FILE-INFO:FILE-NAME = ipcDir + "\" + cFileStream.
+        IF SUBSTRING(FILE-INFO:FILE-NAME,LENGTH(FILE-INFO:FILE-NAME),1) EQ "." THEN DO:
+            NEXT.
+        END.
+        ELSE IF FILE-INFO:FILE-TYPE BEGINS "F" THEN DO:
+            OS-COPY VALUE(FILE-INFO:FILE-NAME) VALUE(cTgtEnv).
+        END.
+        ELSE DO:
+            OS-CREATE-DIR VALUE(cTgtEnv + "\" + cFileStream).
+            RUN ipLoadMenus IN THIS-PROCEDURE (FILE-INFO:FILE-NAME,cTgtEnv + "\Addon").
         END.
     END.
     
@@ -3506,7 +2941,7 @@ PROCEDURE ipLoadModules :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Loading Module Records").
+    RUN ipStatus ("  Loading Module Records").
 
     DISABLE TRIGGERS FOR LOAD OF module.
     
@@ -3649,7 +3084,7 @@ PROCEDURE ipLoadPrograms :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Loading Program Master Records").
+    RUN ipStatus ("  Loading Program Master Records").
 
     DISABLE TRIGGERS FOR LOAD OF prgrms.
     
@@ -3712,7 +3147,6 @@ PROCEDURE ipLoadPrograms :
     INPUT CLOSE.
         
     /* Delete records no longer used */
-    DISABLE TRIGGERS FOR LOAD OF prgrms.
     FOR EACH prgrms EXCLUSIVE WHERE 
         NOT CAN-FIND(FIRST ttPrgms WHERE ttPrgms.prgmname = prgrms.prgmname ):
         DELETE prgrms.
@@ -3772,7 +3206,33 @@ PROCEDURE ipLoadPrograms :
     FOR EACH usergrps:
         IF CAN-DO(usergrps.users,"asi") 
         AND NOT CAN-DO(usergrps.users,"admin") THEN ASSIGN
-            usergrps.users = usergrps.users + ",admin".
+                usergrps.users = usergrps.users + ",admin".
+    END.
+
+    /* 35628 - ensure additional field content is loaded */
+    INPUT FROM VALUE(cUpdDataDir + "\prgrms.d") NO-ECHO.
+    REPEAT:
+        CREATE ttPrgms.
+        IMPORT 
+            ttPrgms.prgmname.
+        FIND FIRST prgrms EXCLUSIVE WHERE 
+            prgrms.prgmname EQ ttPrgms.prgmname 
+            NO-ERROR.
+        IF NOT AVAIL prgrms THEN DO:
+            CREATE prgrms.
+            BUFFER-COPY ttPrgms TO prgrms.
+        END.
+        ELSE DO:
+            ASSIGN 
+                prgrms.menuOrder = ttPrgms.menuOrder
+                prgrms.menuLevel = ttPrgms.menuLevel
+                prgrms.itemParent = ttPrgms.itemParent
+                prgrms.mnemonic = ttPrgms.mnemonic
+                prgrms.systemType = ttPrgms.systemType
+                prgrms.menuImage = ttPrgms.menuImage
+                prgrms.translation = ttPrgms.translation.
+        END.
+        DELETE ttPrgms.
     END.
 
 
@@ -3788,7 +3248,7 @@ PROCEDURE ipLoadProgramXref :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Loading Program Master Cross-References").
+    RUN ipStatus ("  Loading Program Master Cross-References").
 
     DISABLE TRIGGERS FOR LOAD OF prgmxref.
     
@@ -3827,6 +3287,76 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadTranslation C-Win 
+PROCEDURE ipLoadTranslation :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading Translation Records").
+
+    DISABLE TRIGGERS FOR LOAD OF translation.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\translation.d") NO-ECHO.
+    REPEAT:
+        CREATE ttTranslation.
+        IMPORT ttTranslation.
+        IF CAN-FIND(translation WHERE 
+            translation.rec_key EQ ttTranslation.rec_key) THEN DO:
+            DELETE ttTranslation.
+            NEXT.
+        END.
+        ELSE DO:
+            CREATE translation.
+            BUFFER-COPY ttTranslation TO translation.
+            DELETE ttTranslation.
+        END.
+    END.
+    INPUT CLOSE.
+        
+    EMPTY TEMP-TABLE ttTranslation.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadUserLanguage C-Win 
+PROCEDURE ipLoadUserLanguage :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading UserLanguage Records").
+
+    DISABLE TRIGGERS FOR LOAD OF UserLanguage.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\UserLanguage.d") NO-ECHO.
+    REPEAT:
+        CREATE ttUserLanguage.
+        IMPORT ttUserLanguage.
+        IF CAN-FIND(UserLanguage WHERE 
+            UserLanguage.rec_key EQ ttUserLanguage.rec_key) THEN DO:
+            DELETE ttUserLanguage.
+            NEXT.
+        END.
+        ELSE DO:
+            CREATE UserLanguage.
+            BUFFER-COPY ttUserLanguage TO UserLanguage.
+            DELETE ttUserLanguage.
+        END.
+    END.
+    
+    INPUT CLOSE.
+        
+    EMPTY TEMP-TABLE ttUserLanguage.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadUtilCodes C-Win 
 PROCEDURE ipLoadUtilCodes :
 /*------------------------------------------------------------------------------
@@ -3834,7 +3364,7 @@ PROCEDURE ipLoadUtilCodes :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Loading New Utilities").
+    RUN ipStatus ("  Loading New Utilities").
 
     DISABLE TRIGGERS FOR LOAD OF reftable.
     
@@ -3866,6 +3396,66 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadUtilitiesTable C-Win 
+PROCEDURE ipLoadUtilitiesTable :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading Utilities Records").
+
+    DISABLE TRIGGERS FOR LOAD OF reftable.
+    DISABLE TRIGGERS FOR LOAD OF notes.
+    DISABLE TRIGGERS FOR LOAD OF Utilities.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\Utilities.d") NO-ECHO.
+    REPEAT:
+        CREATE ttUtilities.
+        IMPORT ttUtilities.
+        IF CAN-FIND(Utilities WHERE 
+            Utilities.programName EQ ttUtilities.programName) THEN 
+        DO:
+            DELETE ttUtilities.
+            NEXT.
+        END.
+        ELSE 
+        DO:
+            CREATE Utilities.
+            BUFFER-COPY ttUtilities TO Utilities.
+            IF Utilities.programName = "module" THEN ASSIGN 
+                utilities.securityLevel = 1000.
+            ELSE ASSIGN 
+                utilities.securityLevel = 900.
+            
+            DELETE ttUtilities.
+        END.
+    END.
+    
+    INPUT CLOSE.
+        
+    EMPTY TEMP-TABLE ttUtilities.
+    
+    /* 25458 - Delete utilities reftables */
+    FOR EACH reftable NO-LOCK WHERE 
+        reftable.reftable EQ 'Utilities':
+        FOR EACH notes EXCLUSIVE WHERE 
+            notes.rec_key EQ reftable.rec_key:
+            DELETE notes.
+        END. 
+    END. 
+    FOR EACH reftable WHERE 
+        reftable.reftable EQ 'Utilities':
+        CREATE reftable1.
+        BUFFER-COPY reftable TO reftable1.
+        DELETE reftable.
+    END. 
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadUtilNotes C-Win 
 PROCEDURE ipLoadUtilNotes :
 /*------------------------------------------------------------------------------
@@ -3873,7 +3463,7 @@ PROCEDURE ipLoadUtilNotes :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Loading Utility Notes").
+    RUN ipStatus ("  Loading Utility Notes").
 
     DISABLE TRIGGERS FOR LOAD OF notes.
     
@@ -3910,6 +3500,116 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadXuserMenu C-Win 
+PROCEDURE ipLoadXuserMenu :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading xusermenu Records").
+
+    DISABLE TRIGGERS FOR LOAD OF xUserMenu.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\xUserMenu.d") NO-ECHO.
+    REPEAT:
+        CREATE ttxUserMenu.
+        IMPORT ttxUserMenu.
+        IF ttxUserMenu.user_id NE "AddonUsr" THEN DO:
+            DELETE ttxUserMenu.
+            NEXT.
+        END.
+        IF CAN-FIND(xUserMenu WHERE 
+            xUserMenu.rec_key EQ ttXuserMenu.rec_key) THEN DO:
+            DELETE ttxUserMenu.
+            NEXT.
+        END.
+        ELSE DO:
+            CREATE xUserMenu.
+            BUFFER-COPY ttxUserMenu TO xUserMenu.
+            DELETE ttxUserMenu.
+        END.
+    END.
+    
+    INPUT CLOSE.
+        
+    EMPTY TEMP-TABLE ttxUserMenu.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipMoveUsermenusToDatabase C-Win 
+PROCEDURE ipMoveUsermenusToDatabase :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cSearchDir AS CHARACTER NO-UNDO INITIAL ".\usermenu".
+    DEFINE VARIABLE cUserDir   AS CHARACTER NO-UNDO FORMAT "X(60)".
+    DEFINE VARIABLE cAttrList  AS CHARACTER NO-UNDO FORMAT "X(4)".
+    DEFINE VARIABLE cListUsers AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cMenuList  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrgmName  AS CHARACTER NO-UNDO.
+
+    ASSIGN 
+        cSearchDir =  cEnvDir + "/" + fiEnvironment:{&SV} + "/usermenu".
+                
+    /* get a list of usermenu folders */
+    INPUT FROM OS-DIR(cSearchDir) NO-ECHO.
+    REPEAT:
+        SET cUserDir ^ cAttrList.
+        IF cAttrList NE "d" THEN NEXT.
+        IF CAN-DO(".,..",cUserDir) THEN NEXT.
+        cListUsers = cListUsers + cUserDir + ",".
+    END. /* repeat */
+    INPUT CLOSE.
+    cListUsers = TRIM(cListUsers,",").
+
+    /* check each usermenu folder */
+    DO idx = 1 TO NUM-ENTRIES(cListUsers):
+        cMenuList = SEARCH(cSearchDir + "/" + ENTRY(idx,cListUsers) + "/menu.lst").
+        /* if menu.lst does not exist */
+        IF cMenuList EQ ? THEN NEXT.
+        /* menu.lst exists, process it */
+        EMPTY TEMP-TABLE ttUserMenu.
+        INPUT FROM VALUE(cMenuList) NO-ECHO.
+        REPEAT:
+            IMPORT cPrgmName.
+            CREATE ttUserMenu.
+            ttUserMenu.prgmname = cPrgmName.
+        END. /* repeat */
+        INPUT CLOSE.
+        /* look for each menu option in the user's custom menu.lst */
+        FOR EACH prgrms NO-LOCK
+            WHERE prgrms.menu_item EQ YES
+            AND prgrms.menuOrder GT 0
+            AND prgrms.menuLevel GT 0
+            AND prgrms.mnemonic  NE ""
+            :
+            /* new additions, do not add to user's exceptions */
+            IF CAN-DO("r-jcstdN.,translatn.,userLang.",prgrms.prgmname) THEN
+                NEXT.
+            /* if found, skip to next menu option */
+            IF CAN-FIND(FIRST ttUserMenu
+                WHERE ttUserMenu.prgmname EQ prgrms.prgmname) THEN
+                NEXT.
+            /* menu option not found in menu.lst, add as an exception */
+            CREATE xUserMenu.                
+            ASSIGN
+                xUserMenu.user_id  = ENTRY(idx,cListUsers)
+                xUserMenu.prgmname = prgrms.prgmname
+                .
+        END. /* each prgrms */
+    END. /* do idx */
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipProcessAll C-Win 
 PROCEDURE ipProcessAll :
 /*------------------------------------------------------------------------------
@@ -3920,129 +3620,53 @@ PROCEDURE ipProcessAll :
     
     RUN ipStatus ("Beginning Patch Application").
     ASSIGN
-        SELF:LABEL = "Processing..."
-        SELF:SENSITIVE = FALSE.
+        SELF:LABEL = IF SELF:SENSITIVE THEN "Processing..." ELSE SELF:LABEL 
+        SELF:SENSITIVE = FALSE
+        lSuccess = TRUE.
 
     IF tbBackupDBs:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipBackupDBs.
-        ASSIGN
-            lSuccess = TRUE
-            tbComp-10:CHECKED = TRUE.
     END.
-    
-    ASSIGN
-        slDatabases:{&SV} = ENTRY(1,slDatabases:LIST-ITEMS).
-    DO iCtr = 1 TO NUM-ENTRIES(slDatabases:{&SV}):
-        
-        IF tbUserControl:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-            RUN ipUpdateUserControl.
-            ASSIGN
-                lSuccess = TRUE
-                tbComp-1:CHECKED = TRUE.
-        END.
-        IF tbUserCleanup:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-            RUN ipFixUsers.
-            ASSIGN
-                lSuccess = TRUE
-                tbComp-2:CHECKED = TRUE.
-        END.
-        IF tbDelBadData:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-            RUN ipDelBadData.
-            ASSIGN
-                lSuccess = TRUE
-                tbComp-4:CHECKED = TRUE.
-        END.
-        IF tbUpdateMaster:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-            RUN ipUpdateMaster.
-            ASSIGN
-                lSuccess = TRUE
-                tbComp-5:CHECKED = TRUE.
-        END.
-        IF tbRunDataFix:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-            RUN ipDataFix.
-            ASSIGN
-                lSuccess = TRUE
-                tbComp-7:CHECKED = TRUE.
-        END.
-        IF tbDelDupeNotes:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-            RUN ipDelDupeNotes.
-            ASSIGN
-                lSuccess = TRUE
-                tbComp-13:CHECKED = TRUE.
-        END.
-        IF tbUpdateNK1s:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-            RUN ipUpdateNK1s.
-            /* RUN ipVerifyNK1Changes. */
-            ASSIGN
-                lSuccess = TRUE
-                tbComp-14:CHECKED = TRUE.
-        END.
-        /*
-        IF tbUpdateFileLocs:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-            RUN ipxxx.
-            ASSIGN
-                lSuccess = TRUE
-                tbComp-15:CHECKED = TRUE.
-        END.
-        */
-        
-    END.        
-    
+    IF tbUserControl:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+        RUN ipUpdateUserControl.
+    END.
+    IF tbUserCleanup:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+        RUN ipFixUsers.
+    END.
+    IF tbDelBadData:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+        RUN ipDelBadData.
+    END.
+    IF tbUpdateMaster:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+        RUN ipUpdateMaster.
+    END.
+    IF tbRunDataFix:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+        RUN ipDataFix.
+    END.
+    IF tbDelDupeNotes:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+        RUN ipDelDupeNotes.
+    END.
+    IF tbUpdateNK1s:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+        RUN ipUpdateNK1s.
+        /* RUN ipVerifyNK1Changes. */
+    END.
     IF tbLoadMenus:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipLoadMenus (cUpdMenuDir,cEnvProdDir).
-        ASSIGN
-            lSuccess = TRUE
-            tbComp-6:CHECKED = TRUE.
     END.
-
-    IF tbBuildDirs:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-        RUN ipBuildDirs.
-        ASSIGN
-            lSuccess = TRUE
-            tbComp-3:CHECKED = TRUE.
-    END.
-
-    IF tbUpdateStartup:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-        RUN ipCopyStartup.
-        ASSIGN
-            lSuccess = TRUE
-            tbComp-8:CHECKED = TRUE.
-    END.
-
     IF tbRelNotes:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipCopyRelNotes.
-        ASSIGN
-            lSuccess = TRUE
-            tbComp-9:CHECKED = TRUE.
     END.
-
     IF tbBackupFiles:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipArchiveFiles.
-        ASSIGN
-            lSuccess = TRUE
-            tbComp-11:CHECKED = TRUE.
     END.
-
     IF tbInstallFiles:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipExpandFiles.
-        ASSIGN
-            lSuccess = TRUE
-            tbComp-12:CHECKED = TRUE.
     END.
-
     IF tbRefTableConv:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipRefTableConv.
-        ASSIGN
-            lSuccess = TRUE
-            tbComp-17:CHECKED = TRUE.
     END.
-
     IF tbUpdateIni:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipUpdateTTIniFile.
         RUN ipWriteIniFile.
-        ASSIGN
-            lSuccess = TRUE
-            tbComp-16:CHECKED = TRUE.
     END.
     
     RUN ipStatus ("Patch Application Complete").
@@ -4050,21 +3674,15 @@ PROCEDURE ipProcessAll :
     ASSIGN
         SELF:LABEL = "Start Update"
         SELF:SENSITIVE = TRUE
-        fiCurrVer:{&SV} = fiNewVer:{&SV}
-        fiVerDate:{&SV} = STRING(TODAY,"99/99/99").
+        fiFromVer:{&SV} = fiToVer:{&SV}.
         
-    APPLY 'leave' to fiCurrVer.
-    
-    STATUS INPUT.
-
     IF lSuccess THEN MESSAGE
-        "Congratulations!  Your upgrade to Advantzware Version " + fiNewVer:{&SV} + " is complete." SKIP
+        "Congratulations!  Your upgrade to Advantzware Version " + fiToVer:{&SV} + " is complete." SKIP
         "Please contact support@advantzware.com with any questions or issues."
         VIEW-AS ALERT-BOX.
     ELSE MESSAGE
         "No action was specified for this session."
         VIEW-AS ALERT-BOX.
-        
 
 END PROCEDURE.
 
@@ -4223,40 +3841,26 @@ PROCEDURE ipRefTableConv :
     DISABLE TRIGGERS FOR LOAD OF reftable1.
     DISABLE TRIGGERS FOR LOAD OF oe-rel.
     
-    /*
-    IF ipiLevel LT 10 THEN DO:
-        MESSAGE
-            "WARNING - RefTable Conversion Time:" SKIP(1)
-            "This operation can potentially take several hours to complete," SKIP
-            "depending on several factors including the size and age of your" SKIP
-            "database, the processing power and available resources of your" SKIP
-            "server, and other considerations.  You may consider running this" SKIP
-            "task separately from other upgrade choices, or you can run this" SKIP
-            "from within the Advantzware system using a conversion utility." SKIP
-            "Press 'Yes' to continue with the conversion, or 'No' to defer it."
-            VIEW-AS ALERT-BOX WARNING BUTTONS YES-NO update lContinue AS LOG.
-            
-        IF NOT lContinue THEN DO:
-            RUN ipStatus ("Reftable conversion was deferred").
-            RETURN.
-        END.
-    END.
-    */
-    
     RUN ipStatus ("Converting Reftable records...").
 
-    DO iCtr = 1 TO NUM-ENTRIES(slEnvironments:{&SV}):
-        ASSIGN
-            cThisElement = ENTRY(iCtr,slEnvironments:{&SV})
-            cOrigPropath = PROPATH
-            cNewPropath = fiMapDir:{&SV} + "\" + fiEnvDir:{&SV} + "\" +
-                          ENTRY(1,cThisElement,"-") + "\Programs," + PROPATH
-            PROPATH = cNewPropath.
-        RUN ipStatus ("   ReftableConv for " + ENTRY(1,cThisElement,"-")).
-        RUN 
-            VALUE(SEARCH("RefTableConv.r")).
-        ASSIGN
-            PROPATH = cOrigPropath.
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH = cNewPropath.
+    RUN ipStatus ("   ReftableConv for " + fiEnvironment:{&SV}).
+    RUN 
+        VALUE(SEARCH("RefTableConv.r")).
+    ASSIGN
+        PROPATH = cOrigPropath.
+
+    /* Ticket 25507 */
+    RUN ipStatus ("   Ticket 25507 reftable = blank").
+    FOR EACH reftable EXCLUSIVE WHERE
+        reftable.reftable EQ "":
+        CREATE reftable1.
+        BUFFER-COPY reftable TO reftable1.
+        DELETE 
+            reftable.
     END.
 
     /* Ticket 27898 */
@@ -4465,6 +4069,57 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRemoveUserAddon C-Win 
+PROCEDURE ipRemoveUserAddon :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    RUN ipStatus ("    Removing addon mode from .usr file").
+
+    DEF VAR cLine     AS CHAR NO-UNDO.
+    DEF VAR cOutline  AS CHAR NO-UNDO.
+
+    INPUT FROM VALUE(cAdminDir + "\advantzware.usr").
+    REPEAT:
+        IMPORT UNFORMATTED cLine.
+        CREATE ttUsers.
+        ASSIGN
+            ttfUserid   = ENTRY(1,cLine,"|")
+            ttfdbname   = ENTRY(2,cLine,"|")
+            ttfalias    = ENTRY(3,cLine,"|")
+            ttfenvlist  = ENTRY(4,cLine,"|")
+            ttfdblist   = ENTRY(5,cLine,"|")
+            ttfmodelist = ENTRY(6,cLine,"|").
+    END.
+    INPUT CLOSE.
+
+    FOR EACH ttUsers:
+        ASSIGN 
+            ttfModeList = REPLACE(ttfModeList,"Addon","")
+            ttfModeList = REPLACE(ttfModeList,",,",",").
+    END.
+
+    OUTPUT TO VALUE(cAdminDir + "\advantzware.usr").
+    FOR EACH ttUsers:
+        ASSIGN
+            cOutline = ttfUserID + "|" +
+                       ttfdbName + "|" +
+                       ttfAlias  + "|" +
+                       ttfEnvList + "|" +
+                       ttfDbList + "|" +
+                       ttfModeList.
+        PUT UNFORMATTED cOutline + CHR(10).
+    END.
+    OUTPUT CLOSE.  
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetAdminPwd C-Win 
 PROCEDURE ipSetAdminPwd :
 /*------------------------------------------------------------------------------
@@ -4472,7 +4127,7 @@ PROCEDURE ipSetAdminPwd :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Setting ADMIN Password").
+    RUN ipStatus ("  Setting ADMIN Password").
 
     FIND FIRST _User WHERE 
         _User._UserId = "admin" 
@@ -4500,7 +4155,7 @@ PROCEDURE ipSetAsiPwd :
   Notes:       
 ------------------------------------------------------------------------------*/
         
-    RUN ipStatus ("Setting ASI Password").
+    RUN ipStatus ("  Setting ASI Password").
 
     FIND FIRST _User WHERE 
         _User._UserId = "asi" 
@@ -4534,133 +4189,15 @@ PROCEDURE ipSetDispVars :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF VAR cCheck AS CHAR NO-UNDO.
-    
     DO:
-        ASSIGN
-            slEnvironments:LIST-ITEMS IN FRAME {&FRAME-NAME}= ""
-            slDatabases:LIST-ITEMS = "".
-        
         FOR EACH ttIniFile:
             CASE ttIniFile.cVarName:
                 WHEN "siteName" THEN ASSIGN fiSiteName:{&SV} = ttIniFile.cVarValue.
                 WHEN "hostname" THEN ASSIGN fiHostname:{&SV} = ttIniFile.cVarValue.
-                WHEN "drive" THEN ASSIGN fiDrive:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbDrive" THEN ASSIGN fiDbDrive:{&SV} = ttIniFile.cVarValue.
-                WHEN "topDir" THEN ASSIGN fiTopDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "mapDir" THEN ASSIGN fiMapDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "DLCDir" THEN ASSIGN fiDLCDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "currVer" THEN ASSIGN fiCurrVer:{&SV} = ttIniFile.cVarValue.
-                WHEN "verDate" THEN ASSIGN fiVerDate:{&SV} = ttIniFile.cVarValue.
-                WHEN "connectAudit" THEN.
-                WHEN "makeBackup" THEN.
-                WHEN "lockoutTries" THEN ASSIGN fiLockoutTries:{&SV} = ttIniFile.cVarValue.
-                WHEN "adminDir" THEN ASSIGN fiAdminDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "backupDir" THEN ASSIGN fiBackupDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbDir" THEN ASSIGN fiDbDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "deskDir" THEN ASSIGN fiDeskDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "docDir" THEN ASSIGN fiDocDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "envDir" THEN ASSIGN fiEnvDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "installDir" THEN ASSIGN fiInstallDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "updatesDir" THEN ASSIGN fiUpdatesDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbAdmin" THEN ASSIGN fiDbAdmin:{&SV} = ttIniFile.cVarValue.
-                WHEN "envAdmin" THEN ASSIGN fiEnvAdmin:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbBackup" THEN ASSIGN fiDbBackup:{&SV} = ttIniFile.cVarValue.
-                WHEN "pgmBackup" THEN ASSIGN fiPgmBackup:{&SV} = ttIniFile.cVarValue.
-                WHEN "resBackup" THEN ASSIGN fiResBackup:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbAuditDir" THEN ASSIGN fiDbAuditDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbDataDir" THEN ASSIGN fiDbDataDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbProdDir" THEN ASSIGN fiDbProdDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbShipDir" THEN ASSIGN fiDbShipDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbStructDir" THEN ASSIGN fiDbStructDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbTestDir" THEN ASSIGN fiDbTestDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "docMiscDocuments" THEN.
-                WHEN "docReleaseNotes" THEN.
-                WHEN "docUserManual" THEN.
-                WHEN "envProdDir" THEN ASSIGN fiEnvProdDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "envTestDir" THEN.
-                WHEN "envAddonDir" THEN ASSIGN fiEnvAddonDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "envCustFiles" THEN ASSIGN fiEnvCustFiles:{&SV} = ttIniFile.cVarValue.
-                WHEN "envCustomerDir" THEN ASSIGN fiEnvCustomerDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "envOverrideDir" THEN ASSIGN fiEnvOverrideDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "envPoDir" THEN ASSIGN fiEnvPoDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "envProgramsDir" THEN ASSIGN fiEnvProgramsDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "envResourceDir" THEN ASSIGN fiEnvResourceDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "envScheduleDir" THEN ASSIGN fiEnvScheduleDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "envTemplateDir" THEN ASSIGN fiEnvTemplateDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "envUserMenuDir" THEN ASSIGN fiEnvUserMenuDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "envUsersDir" THEN ASSIGN fiEnvUsersDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "instAOA" THEN.
-                WHEN "instBackup" THEN.
-                WHEN "instDBMS" THEN.
-                WHEN "instEsko" THEN.
-                WHEN "instFileUtils" THEN.
-                WHEN "instLocalPrint" THEN.
-                WHEN "instRemAccess" THEN.
-                WHEN "updAdminDir" THEN ASSIGN fiUpdAdminDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "updCompressDir" THEN ASSIGN fiUpdCompressDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "updDataDir" THEN ASSIGN fiUpdDataDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "updDataUpdateDir" THEN ASSIGN fiUpdDataUpdateDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "updDeskDir" THEN ASSIGN fiUpdDeskDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "updMenuDir" THEN ASSIGN fiUpdMenuDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "updProgramDir" THEN ASSIGN fiUpdProgramDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "updRelNotesDir" THEN ASSIGN fiUpdRelNotesDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "updSqlDir" THEN ASSIGN fiUpdSqlDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "updStructureDir" THEN ASSIGN fiUpdStructureDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "prodDbName" THEN.
-                WHEN "prodDbPort" THEN.
-                WHEN "prodDbStFile" THEN.
-                WHEN "shipDbName" THEN.
-                WHEN "shipDbPort" THEN.
-                WHEN "shipDbStFile" THEN.
-                WHEN "testDbName" THEN.
-                WHEN "testDbPort" THEN.
-                WHEN "testDbStFile" THEN.
-                WHEN "adminPort" THEN ASSIGN.
-                WHEN "dfFileName" THEN ASSIGN fiDfFileName:{&SV} = ttIniFile.cVarValue.
-                WHEN "deltaFileName" THEN ASSIGN fiDeltaFileName:{&SV} = ttIniFile.cVarValue.
-
-                WHEN "envList" THEN DO iCtr = 1 TO NUM-ENTRIES(ttIniFile.cVarValue):
-                    slEnvironments:ADD-LAST(ENTRY(iCtr,ttIniFile.cVarValue) + "-" + ENTRY(iCtr,cEnvVerList)).
-                END.
-                /*
-                WHEN "dbList" THEN DO iCtr = 1 TO NUM-ENTRIES(ttIniFile.cVarValue):
-                    slDatabases:ADD-LAST(ENTRY(iCtr,cDbDirList) + "-" + ENTRY(iCtr,cDbList) + "-" + 
-                                         ENTRY(iCtr,cDbPortList) + "-" + ENTRY(iCtr,cDbVerList)).
-                END. 
-                */
-
-                WHEN "modeList" THEN.
-                WHEN "pgmList" THEN.
-                WHEN "dbDirList" THEN.
-                WHEN "dbPortList" THEN.
-                WHEN "audDirList" THEN.
-                WHEN "audDbList" THEN.
-                WHEN "audPortList" THEN.
-
-                
             END CASE.
         END.
     END.
     
-    slDatabases:ADD-LAST(ipcDir + "-" + ipcName + "-" + ipcPort + "-" + ipcVer).
-    APPLY 'value-changed' TO slDatabases.
-
-    ASSIGN
-        slDatabases:{&SV} = ENTRY(1,slDatabases:LIST-ITEMS)
-        slEnvironments:{&SV} = ?
-        fiPatchDir:{&SV} = "PATCH" + fiNewVer:{&SV}.
-
-    IF INDEX(slDatabases:{&SV},"Test") NE 0 THEN ASSIGN
-        cCheck = "Test".
-    ELSE IF INDEX(slDatabases:{&SV},"Prod") NE 0 THEN ASSIGN
-        cCheck = "Prod".
-    
-    DO iCtr = 1 to NUM-ENTRIES(slEnvironments:LIST-ITEMS):
-        IF INDEX(ENTRY(iCtr,slEnvironments:LIST-ITEMS),cCheck) NE 0 THEN ASSIGN
-            slEnvironments:{&SV} = ENTRY(iCtr,slEnvironments:LIST-ITEMS).
-    END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4676,13 +4213,14 @@ PROCEDURE ipStatus :
     DEF INPUT PARAMETER ipcStatus AS CHAR NO-UNDO.
     DEF VAR cLogFile AS CHAR NO-UNDO.
                 
-    STATUS INPUT ipcStatus + "...".
-
     IF INDEX(ipcStatus,"duplicate") EQ 0 THEN DO:
+        ASSIGN
+            eStatus:{&SV}       = eStatus:{&SV} + ipcStatus + CHR(10)
+            eStatus:CURSOR-LINE = eStatus:NUM-LINES.
         ASSIGN
             cLogFile = cEnvAdmin + "\UpdateLog.txt"
             iMsgCtr = iMsgCtr + 1
-            cMsgStr[iMsgCtr] = ipcStatus + "...".
+            cMsgStr[iMsgCtr] = "  " + ipcStatus.
         
         OUTPUT STREAM logStream TO VALUE(cLogFile) APPEND.
         PUT STREAM logStream
@@ -4700,594 +4238,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipTestLevel1 C-Win 
-PROCEDURE ipTestLevel1 :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEF OUTPUT PARAMETER lStructOK AS LOG NO-UNDO.
-
-&SCOPED-DEFINE cField1 fiAdminDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField1}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiBackupDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField1}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiDbDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField1}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiDeskDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField1}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiDocDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField1}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiEnvDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField1}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiInstallDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField1}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiUpdatesDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField1}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipTestLevel2 C-Win 
-PROCEDURE ipTestLevel2 :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEF OUTPUT PARAMETER lStructOK AS LOG NO-UNDO.
-
-&SCOPED-DEFINE cField1 fiAdminDir
-&SCOPED-DEFINE cField2 fiDbAdmin
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField2}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiAdminDir
-&SCOPED-DEFINE cField2 fiEnvAdmin
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField2}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-
-&SCOPED-DEFINE cField1 fiBackupDir
-&SCOPED-DEFINE cField2 fiDbBackup
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField2}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiBackupDir
-&SCOPED-DEFINE cField2 fiPgmBackup
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField2}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiBackupDir
-&SCOPED-DEFINE cField2 fiResBackup
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField2}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-
-&SCOPED-DEFINE cField1 fiDbDir
-&SCOPED-DEFINE cField2 fiDbDataDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV}
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField2}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiDbDir
-&SCOPED-DEFINE cField2 fiDbProdDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField2}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiDbDir
-&SCOPED-DEFINE cField2 fiDbShipDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField2}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiDbDir
-&SCOPED-DEFINE cField2 fiDbStructDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField2}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiDbDir
-&SCOPED-DEFINE cField2 fiDbTestDir
-    /*
-    IF tbAutoBuildTest:CHECKED IN FRAME {&FRAME-NAME} THEN ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField2}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-    */
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvProdDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField2}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvTestDir
-    /*
-    IF tbAutoBuildTest:CHECKED IN FRAME {&FRAME-NAME} THEN ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField2}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-    */
-&SCOPED-DEFINE cField1 fiUpdatesDir
-&SCOPED-DEFINE cField2 fiPatchDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField2}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipTestLevel3 C-Win 
-PROCEDURE ipTestLevel3 :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEF OUTPUT PARAMETER lStructOK AS LOG NO-UNDO.
-
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvProdDir
-&SCOPED-DEFINE cField3 fiEnvAddonDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvProdDir
-&SCOPED-DEFINE cField3 fiEnvCustFiles
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvProdDir
-&SCOPED-DEFINE cField3 fiEnvCustomerDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvProdDir
-&SCOPED-DEFINE cField3 fiEnvOverrideDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvProdDir
-&SCOPED-DEFINE cField3 fiEnvPoDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvProdDir
-&SCOPED-DEFINE cField3 fiEnvProgramsDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvProdDir
-&SCOPED-DEFINE cField3 fiEnvResourceDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvProdDir
-&SCOPED-DEFINE cField3 fiEnvScheduleDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvProdDir
-&SCOPED-DEFINE cField3 fiEnvTemplateDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvProdDir
-&SCOPED-DEFINE cField3 fiEnvUsermenuDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvProdDir
-&SCOPED-DEFINE cField3 fiEnvUsersDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-/*
-    IF tbAutoBuildTest:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-    
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvTestDir
-&SCOPED-DEFINE cField3 fiEnvAddonDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvTestDir
-&SCOPED-DEFINE cField3 fiEnvCustFiles
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvTestDir
-&SCOPED-DEFINE cField3 fiEnvCustomerDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvTestDir
-&SCOPED-DEFINE cField3 fiEnvOverrideDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvTestDir
-&SCOPED-DEFINE cField3 fiEnvPoDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvTestDir
-&SCOPED-DEFINE cField3 fiEnvProgramsDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvTestDir
-&SCOPED-DEFINE cField3 fiEnvResourceDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvTestDir
-&SCOPED-DEFINE cField3 fiEnvScheduleDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvTestDir
-&SCOPED-DEFINE cField3 fiEnvTemplateDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvTestDir
-&SCOPED-DEFINE cField3 fiEnvUsermenuDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList.
-&SCOPED-DEFINE cField1 fiEnvDir
-&SCOPED-DEFINE cField2 fiEnvTestDir
-&SCOPED-DEFINE cField3 fiEnvUsersDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList.
-    END.
-*/
-
-&SCOPED-DEFINE cField1 fiUpdatesDir
-&SCOPED-DEFINE cField2 fiPatchDir
-&SCOPED-DEFINE cField3 fiUpdAdminDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiUpdatesDir
-&SCOPED-DEFINE cField2 fiPatchDir
-&SCOPED-DEFINE cField3 fiUpdCompressDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiUpdatesDir
-&SCOPED-DEFINE cField2 fiPatchDir
-&SCOPED-DEFINE cField3 fiUpdDataDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiUpdatesDir
-&SCOPED-DEFINE cField2 fiPatchDir
-&SCOPED-DEFINE cField3 fiUpdDataUpdateDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiUpdatesDir
-&SCOPED-DEFINE cField2 fiPatchDir
-&SCOPED-DEFINE cField3 fiUpdDeskDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiUpdatesDir
-&SCOPED-DEFINE cField2 fiPatchDir
-&SCOPED-DEFINE cField3 fiUpdMenuDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiUpdatesDir
-&SCOPED-DEFINE cField2 fiPatchDir
-&SCOPED-DEFINE cField3 fiUpdProgramDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiUpdatesDir
-&SCOPED-DEFINE cField2 fiPatchDir
-&SCOPED-DEFINE cField3 fiUpdRelNotesDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiUpdatesDir
-&SCOPED-DEFINE cField2 fiPatchDir
-&SCOPED-DEFINE cField3 fiUpdSqlDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-&SCOPED-DEFINE cField1 fiUpdatesDir
-&SCOPED-DEFINE cField2 fiPatchDir
-&SCOPED-DEFINE cField3 fiUpdStructureDir
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\" + {&cField1}:{&SV} + "\" + {&cField2}:{&SV} + "\" + {&cField3}:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?
-        lAllOK = IF NOT lStructOK THEN FALSE ELSE lAllOK
-        cBadDirList = IF NOT lAllOK THEN (cBadDirList + cTestDir + ",") ELSE cBadDirList
-        {&cField3}:BGCOLOR = IF (NOT lStructOK OR INDEX(cTestDir,"\\") <> 0) THEN 14 ELSE ?.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipTestStructure C-Win 
-PROCEDURE ipTestStructure :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEF OUTPUT PARAMETER lStructOK AS LOG NO-UNDO.
-    
-    RUN ipStatus ("Testing Directory Structure").
-
-    ASSIGN
-        lStructOK = YES
-        lAllOK = YES.
-    
-    ASSIGN
-        cTestDir = fiMapDir:{&SV} + "\"
-        FILE-INFO:FILE-NAME = cTestDir
-        lStructOK = FILE-INFO:FULL-PATHNAME NE ?.
-    IF NOT lStructOK THEN DO:
-        MESSAGE
-            "Drive " + cTestDir + " is not correctly mapped."
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN.
-    END.
-
-    RUN ipTestLevel1 (OUTPUT lStructOK).
-    RUN ipTestLevel2 (OUTPUT lStructOK).
-    RUN ipTestLevel3 (OUTPUT lStructOK).
-
-    ASSIGN
-        cBadDirList = TRIM(cBadDirList,",")
-        lStructOK = lAllOK.
-        
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipTurnOffUserColors C-Win 
 PROCEDURE ipTurnOffUserColors :
 /*------------------------------------------------------------------------------
@@ -5295,7 +4245,7 @@ PROCEDURE ipTurnOffUserColors :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus(" Turn off user colors/fonts").
+    RUN ipStatus("   Turn off user colors/fonts").
     
     DISABLE TRIGGERS FOR LOAD OF users.
     
@@ -5320,6 +4270,7 @@ PROCEDURE ipUpdateMaster :
     RUN ipStatus ("Updating Master Records").
 
     RUN ipBackupDataFiles IN THIS-PROCEDURE.
+    
     IF SEARCH(cUpdDataDir + "\prgrms.d") <> ? THEN
         RUN ipLoadPrograms IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\prgmxref.d") <> ? THEN
@@ -5328,12 +4279,22 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadLookups IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\emailcod.d") <> ? THEN
         RUN ipLoadEmailCodes IN THIS-PROCEDURE.
+    /*
     IF SEARCH(cUpdDataDir + "\reftable.d") <> ? THEN
         RUN ipLoadUtilCodes IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\notes.d") <> ? THEN
         RUN ipLoadUtilNotes IN THIS-PROCEDURE.
+    */
     IF SEARCH(cUpdDataDir + "\module.d") <> ? THEN
         RUN ipLoadModules IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\translation.d") <> ? THEN
+        RUN ipLoadTranslation IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\userlanguage.d") <> ? THEN
+        RUN ipLoadUserLanguage IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\xusermenu.d") <> ? THEN
+        RUN ipLoadXuserMenu IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\utilities.d") <> ? THEN
+        RUN ipLoadUtilitiesTable IN THIS-PROCEDURE.
 
     IF NOT CAN-FIND(FIRST audit.audittbl) 
     AND SEARCH(cUpdDataDir + "\audittbl.d") <> ? THEN
@@ -5359,8 +4320,11 @@ PROCEDURE ipUpdateNK1s :
     
     DISABLE TRIGGERS FOR LOAD OF sys-ctrl.
     DISABLE TRIGGERS FOR LOAD OF sys-ctrl-shipto.
+    DISABLE TRIGGERS FOR DUMP OF sys-ctrl.
+    DISABLE TRIGGERS FOR DUMP OF sys-ctrl-shipto.
     
     /* Verify system help WSDL NK1 */
+    RUN ipStatus ("  Help Service entries").
     FIND FIRST sys-ctrl WHERE
         sys-ctrl.name EQ "AsiHelpService"
         NO-ERROR.
@@ -5384,6 +4348,7 @@ PROCEDURE ipUpdateNK1s :
         sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/updatehelpServices/helpupdate.asmx?WSDL'".
     
     /* Reports - set LV = true */
+    RUN ipStatus ("  REPORTS - set log value to TRUE").
     FIND FIRST sys-ctrl WHERE
         sys-ctrl.name EQ "Reports"
         NO-ERROR.
@@ -5391,14 +4356,16 @@ PROCEDURE ipUpdateNK1s :
         sys-ctrl.log-fld = TRUE.
 
     /* RelType - set Default to "B" */
+    RUN ipStatus ("  RelType - if empty, set char value to Bill and Ship").
     FIND FIRST sys-ctrl WHERE
         sys-ctrl.name EQ "RelType"
         NO-ERROR.
     IF AVAIL sys-ctrl 
     AND sys-ctrl.char-fld EQ "" THEN ASSIGN
-        sys-ctrl.char-fld = "Bill and Ship".
+            sys-ctrl.char-fld = "Bill and Ship".
 
     /* Zoho Support Button */
+    RUN ipStatus ("  MenuLinkZoho").
     FIND FIRST sys-ctrl WHERE
         sys-ctrl.name EQ "MenuLinkZoho"
         NO-ERROR.
@@ -5444,87 +4411,17 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateTTIniFile C-Win 
 PROCEDURE ipUpdateTTIniFile :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEF VAR cThisElement AS CHAR NO-UNDO.
-    DEF VAR cMinVer AS CHAR NO-UNDO INITIAL "99.99.99".
-    
-    FIND ttIniFile WHERE ttIniFile.cVarName = "envList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = "".
-    FIND ttIniFile WHERE ttIniFile.cVarName = "envVerList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = "".
-    DO iCtr = 1 TO NUM-ENTRIES(slEnvironments:LIST-ITEMS IN FRAME {&FRAME-NAME}):
-        ASSIGN
-            cThisElement = ENTRY(iCtr,slEnvironments:LIST-ITEMS).
-        IF intVer(ENTRY(2,cThisElement,"-")) LE intVer(cMinVer) THEN ASSIGN
-            cMinVer = ENTRY(2,cThisElement,"-").
-        FIND ttIniFile WHERE ttIniFile.cVarName = "envList" NO-ERROR.
-        ASSIGN ttIniFile.cVarValue = ttIniFile.cVarValue + ENTRY(1,cThisElement,"-") + ",".
-        FIND ttIniFile WHERE ttIniFile.cVarName = "envVerList" NO-ERROR.
-        ASSIGN ttIniFile.cVarValue = ttIniFile.cVarValue + ENTRY(2,cThisElement,"-") + ",".
-    END.
-    FIND ttIniFile WHERE ttIniFile.cVarName = "envList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = TRIM(ttIniFile.cVarValue,",").
-    FIND ttIniFile WHERE ttIniFile.cVarName = "envVerList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = TRIM(ttIniFile.cVarValue,",").
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-    FOR EACH ttIniFile:
-        CASE ttIniFile.cVarName:
-            WHEN "siteName" THEN ASSIGN ttIniFile.cVarValue = fiSiteName:{&SV}.
-            WHEN "hostname" THEN ASSIGN ttIniFile.cVarValue = fiHostName:{&SV}.
-            WHEN "drive" THEN ASSIGN ttIniFile.cVarValue = fiDrive:{&SV}.
-            WHEN "topDir" THEN ASSIGN ttIniFile.cVarValue = fiTopDir:{&SV}.
-            WHEN "mapDir" THEN ASSIGN ttIniFile.cVarValue = fiMapDir:{&SV}.
-            WHEN "currVer" THEN ASSIGN ttIniFile.cVarValue = cMinVer.
-            WHEN "verDate" THEN ASSIGN ttIniFile.cVarValue = fiVerDate:{&SV}.
-            WHEN "DLCDir" THEN ASSIGN ttIniFile.cVarValue = fiDLCDir:{&SV}.
-            WHEN "adminDir" THEN ASSIGN ttIniFile.cVarValue = fiAdminDir:{&SV}.
-            WHEN "backupDir" THEN ASSIGN ttIniFile.cVarValue = fiBackupDir:{&SV}.
-            WHEN "dbDir" THEN ASSIGN ttIniFile.cVarValue = fiDbDir:{&SV}.
-            WHEN "deskDir" THEN ASSIGN ttIniFile.cVarValue = fiDeskDir:{&SV}.
-            WHEN "docDir" THEN ASSIGN ttIniFile.cVarValue = fiDocDir:{&SV}.
-            WHEN "envDir" THEN ASSIGN ttIniFile.cVarValue = fiEnvDir:{&SV}.
-            WHEN "installDir" THEN ASSIGN ttIniFile.cVarValue = fiInstallDir:{&SV}.
-            WHEN "updateDir" THEN ASSIGN ttIniFile.cVarValue = fiUpdatesDir:{&SV}.
-            WHEN "dbAdmin" THEN ASSIGN ttIniFile.cVarValue = fiDbAdmin:{&SV}.
-            WHEN "envAdmin" THEN ASSIGN ttIniFile.cVarValue = fiEnvAdmin:{&SV}.
-            WHEN "dbBackup" THEN ASSIGN ttIniFile.cVarValue = fiDbBackup:{&SV}.
-            WHEN "pgmBackup" THEN ASSIGN ttIniFile.cVarValue = fiPgmBackup:{&SV}.
-            WHEN "resBackup" THEN ASSIGN ttIniFile.cVarValue = fiResBackup:{&SV}.
-            WHEN "dbDataDir" THEN ASSIGN ttIniFile.cVarValue = fiDbDataDir:{&SV}.
-            WHEN "dbProdDir" THEN ASSIGN ttIniFile.cVarValue = fiDbProdDir:{&SV}.
-            WHEN "dbShipDir" THEN ASSIGN ttIniFile.cVarValue = fiDbShipDir:{&SV}.
-            WHEN "dbStructDir" THEN ASSIGN ttIniFile.cVarValue = fiDbStructDir:{&SV}.
-            WHEN "dbTestDir" THEN ASSIGN ttIniFile.cVarValue = fiDbTestDir:{&SV}.
-            WHEN "envProdDir" THEN ASSIGN ttIniFile.cVarValue = fiEnvProdDir:{&SV}.
-            WHEN "envAddonDir" THEN ASSIGN ttIniFile.cVarValue = fiEnvAddonDir:{&SV}.
-            WHEN "envCustFiles" THEN ASSIGN ttIniFile.cVarValue = fiEnvCustFiles:{&SV}.
-            WHEN "envCustomerDir" THEN ASSIGN ttIniFile.cVarValue = fiEnvCustomerdir:{&SV}.
-            WHEN "envOverride" THEN ASSIGN ttIniFile.cVarValue = fiEnvOverrideDir:{&SV}.
-            WHEN "envPoDir" THEN ASSIGN ttIniFile.cVarValue = fiEnvPoDir:{&SV}.
-            WHEN "envProgramsDir" THEN ASSIGN ttIniFile.cVarValue = fiEnvProgramsDir:{&SV}.
-            WHEN "envResourceDir" THEN ASSIGN ttIniFile.cVarValue = fiEnvResourceDir:{&SV}.
-            WHEN "envScheduleDir" THEN ASSIGN ttIniFile.cVarValue = fiEnvScheduleDir:{&SV}.
-            WHEN "envTemplateDir" THEN ASSIGN ttIniFile.cVarValue = fiEnvTemplateDir:{&SV}.
-            WHEN "envUserMenuDir" THEN ASSIGN ttIniFile.cVarValue = fiEnvUserMenuDir:{&SV}.
-            WHEN "envUsersDir" THEN ASSIGN ttIniFile.cVarValue = fiEnvUsersDir:{&SV}.
-            WHEN "updAdminDir" THEN ASSIGN ttIniFile.cVarValue = fiUpdAdminDir:{&SV}.
-            WHEN "updCompressDir" THEN ASSIGN ttIniFile.cVarValue = fiUpdCompressDir:{&SV}.
-            WHEN "updDataDir" THEN ASSIGN ttIniFile.cVarValue = fiUpdDataDir:{&SV}.
-            WHEN "updDataUpdateDir" THEN ASSIGN ttIniFile.cVarValue = fiUpdDataUpdateDir:{&SV}.
-            WHEN "updDeskDir" THEN ASSIGN ttIniFile.cVarValue = fiUpdDeskDir:{&SV}.
-            WHEN "updMenuDir" THEN ASSIGN ttIniFile.cVarValue = fiUpdMenuDir:{&SV}.
-            WHEN "updProgramDir" THEN ASSIGN ttIniFile.cVarValue = fiUpdProgramDir:{&SV}.
-            WHEN "updRelNotesDir" THEN ASSIGN ttIniFile.cVarValue = fiUpdRelNotesDir:{&SV}.
-            WHEN "updSqlDir" THEN ASSIGN ttIniFile.cVarValue = fiUpdSqlDir:{&SV}.
-            WHEN "updStructureDir" THEN ASSIGN ttIniFile.cVarValue = fiUpdStructureDir:{&SV}.
-            WHEN "dfFileName" THEN ASSIGN ttIniFile.cVarValue = fiDfFileName:{&SV}.
-            WHEN "deltaFileName" THEN ASSIGN ttIniFile.cVarValue = fiDeltaFileName:{&SV}.
-            WHEN "lockoutTries" THEN ASSIGN ttIniFile.cVarValue = fiLockoutTries:{&SV}.
-        END CASE.
-    END.
+    ASSIGN 
+        iListEntry = LOOKUP(fiEnvironment:{&SV},cEnvList).    
+
+    FIND ttIniFile WHERE ttIniFile.cVarName = "envVerList" NO-ERROR.
+    ASSIGN ENTRY(iListEntry,ttIniFile.cVarValue) = fiToVer:{&SV}.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5578,90 +4475,9 @@ PROCEDURE ipUpdateUserControl :
         ASSIGN
             usercontrol.numLicensedUsers = iUserCount.
     END.
-    ASSIGN
-        tbComp-1:CHECKED = TRUE.
+    
     RELEASE usercontrol.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpgradeDBs C-Win 
-PROCEDURE ipUpgradeDBs :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEF VAR cStopString AS CHAR NO-UNDO.
-    DEF VAR cStartString AS CHAR NO-UNDO.
-    DEF VAR cStatement AS CHAR NO-UNDO.
-    DEF VAR cDeltaDf AS CHAR NO-UNDO.
-    DEF VAR cLockFile AS CHAR NO-UNDO.
-
-    DO iCtr = 1 TO NUM-ENTRIES(slDatabases:{&SV}):
-        IF DECIMAL(ENTRY(4,ENTRY(iCtr,slDatabases:{&SV}),"-")) * 10 LT iDbTgtVer THEN DO:
-            MESSAGE 
-                "Database " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + " is not at the current" SKIP
-                "version level.  Do you want to update it now?"
-                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lUpdNow AS LOG.
-            IF lUpdNow THEN DO:
-                RUN ipStatus ("Upgrading Selected Databases").
-                ASSIGN
-                    /* This results in a value similar to 'asi166_167.df' */
-                    cDeltaDf = "asi" + 
-                               STRING(DECIMAL(ENTRY(4,ENTRY(iCtr,slDatabases:{&SV}),"-")) * 10) +
-                               "_" + STRING(iDbTgtVer) + ".df"
-                    /* This fully qualifies the path name to the delta */
-                    cDeltaDf = fiDrive:{&SV} + "\" + fiTopDir:{&SV} + "\" +
-                               fiUpdatesDir:{&SV} + "\" + fiPatchDir:{&SV} + "\" +
-                               fiUpdStructureDir:{&SV} + "\DFFiles\" + cDeltaDf
-                    cStopString = fiDlcDir:{&SV} + "\bin\dbman" + 
-                                 " -host " + fiHostName:{&SV} + 
-                                 " -port " + cAdminPort + 
-                                 " -database " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + 
-                                 " -stop"
-                    cStartString = fiDlcDir:{&SV} + "\bin\dbman" + 
-                                 " -host " + fiHostName:{&SV} + 
-                                 " -port " + cAdminPort + 
-                                 " -database " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + 
-                                 " -start"
-                    /* Single user connect statment */
-                    cStatement = "-db " + fiDbDrive:{&SV} + "\" +
-                                 fiTopDir:{&SV} + "\" + fiDbDir:{&SV} + "\" + 
-                                 ENTRY(1,ENTRY(iCtr,slDatabases:{&SV}),"-") + "\" +
-                                 ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + 
-                                 " -1 -ld updDB" + STRING(iCtr)
-                    cLockFile = fiDbDrive:{&SV} + "\" +
-                                 fiTopDir:{&SV} + "\" + fiDbDir:{&SV} + "\" + 
-                                 ENTRY(1,ENTRY(iCtr,slDatabases:{&SV}),"-") + "\" +
-                                 ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + ".lk".
-
-                /* Unserve the database */
-                OS-COMMAND SILENT VALUE(cStopString).
-                /* May have to wait for DB to shut down */
-                DO WHILE SEARCH(cLockFile) NE ?:
-                    PAUSE 3.
-                END.
-                /* Connect to the database single user */
-                CONNECT VALUE(cStatement).
-                CREATE ALIAS DICTDB FOR DATABASE VALUE("updDB" + STRING(iCtr)).
-                /* Load the delta */
-                RUN prodict/load_df.p (cDeltaDf). 
-                
-                /* Disconnect it */
-                DISCONNECT VALUE("updDB" + STRING(iCtr)).
-                /* Re-Serve it */
-                OS-COMMAND SILENT VALUE(cStartString).
-            END.
-        END.
-        ELSE MESSAGE
-            "Database " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + " is already at the current" SKIP
-            "version level.  It should not be updated again"
-            VIEW-AS ALERT-BOX INFO.
-            
-    END.
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5678,9 +4494,11 @@ PROCEDURE ipValidateDB :
     
     ASSIGN
         oplValidDB = TRUE.
-        
+    
+    CREATE ALIAS "DICTDB" FOR DATABASE asi.
+
     IF NOT CAN-FIND(FIRST _file WHERE 
-                    _file._file-name EQ "costheader") THEN DO:
+                    _file._file-name EQ "xusermenu") THEN DO:
         ASSIGN
             oplValidDb = FALSE.
         MESSAGE
@@ -5710,10 +4528,8 @@ PROCEDURE ipVerifyNK1Changes :
     DEF VAR cString AS CHAR NO-UNDO. 
     DEF VAR cChangeList AS CHAR NO-UNDO.
                    
-    STATUS INPUT "Validating NK1 records...".
-
     ASSIGN
-        cLogFile = cUpdatesDir + "\" + "Patch" + fiNewVer:{&SV} + "\installLog.txt"
+        cLogFile = cUpdatesDir + "\" + "Patch" + fiToVer:{&SV} + "\installLog.txt"
         iMsgCtr = iMsgCtr + 1
         cMsgStr[iMsgCtr] = "Validating NK1 records...".
         
@@ -5756,8 +4572,15 @@ PROCEDURE ipWriteIniFile :
     FOR EACH ttIniFile BY ttIniFile.iPos:
         IF ttIniFile.cVarName BEGINS "#" THEN
             PUT UNFORMATTED ttIniFile.cVarName + CHR(10).
-        ELSE IF ttIniFile.cVarName NE "" THEN
+        ELSE IF ttIniFile.cVarName NE "" THEN DO:
+            IF ttIniFile.cVarName EQ "modeList" THEN ASSIGN 
+                ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"Addon,","").
+            IF ttIniFile.cVarName EQ "pgmList" THEN ASSIGN 
+                ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"system/addmain.w,","")
+                ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"system/addmain2.w,","")
+                .
             PUT UNFORMATTED ttIniFile.cVarName + "=" + ttIniFile.cVarValue + CHR(10).
+        END.
         ELSE NEXT.
     END.
     OUTPUT CLOSE.

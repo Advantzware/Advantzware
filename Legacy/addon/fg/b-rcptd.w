@@ -54,6 +54,9 @@ DEF VAR v-ssfgscan AS LOG NO-UNDO.
 DEF VAR lvlAutoAdd AS LOG NO-UNDO.
 DEF VAR lv-do-what AS cha NO-UNDO.  /* will be receipt or delete(negative receipt)*/
 DEFINE VARIABLE currentRowID AS ROWID NO-UNDO.
+DEFINE VARIABLE cFgEmails AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iFgEmails AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
 
 DEF BUFFER b-fg-rctd FOR fg-rctd.  /* for tag validation */
 DEF BUFFER b-fg-rdtlh FOR fg-rdtlh. /* for tag validation */
@@ -69,19 +72,11 @@ DEF VAR ll-set-parts AS LOG NO-UNDO.
 {fg/fg-post3.i NEW}
 
 
-DEF TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd FIELD row-id   AS ROWID
-                                    FIELD has-rec  AS LOG INIT NO
-                                    FIELD invoiced AS LOG INIT NO.
 
 
-DEF TEMP-TABLE tt-email NO-UNDO FIELD tt-recid AS RECID
-                        FIELD job-no LIKE job-hdr.job-no
-                        FIELD job-no2 LIKE job-hdr.job-no2
-                        FIELD i-no LIKE itemfg.i-no
-                        FIELD qty AS INT
-                        FIELD cust-no AS cha
-                        INDEX tt-cust IS PRIMARY cust-no DESCENDING .
-
+/* For fgpostBatch.p */
+{fg/fgPostBatch.i}
+    
 DEF STREAM logFile.
 DEF STREAM st-email.
 
@@ -130,15 +125,27 @@ RUN sys/ref/nk1look.p (INPUT cocode,
 IF lFound THEN
     lFGSetAssembly = cFGSetAssembly EQ "YES".
 RUN sys/ref/nk1look.p (INPUT cocode,
-                       INPUT "FGSetAssembly",
-                       INPUT "C",
-                       INPUT NO,
-                       INPUT NO,
-                       INPUT "",
-                       INPUT "",
-                       OUTPUT cFGSetAssembly,
-                       OUTPUT lFound).
+    INPUT "FGSetAssembly",
+    INPUT "C",
+    INPUT NO,
+    INPUT NO,
+    INPUT "",
+    INPUT "",
+    OUTPUT cFGSetAssembly,
+    OUTPUT lFound).
 
+RUN sys/ref/nk1look.p (INPUT cocode,
+    INPUT "FgEmails",
+                       INPUT "I",
+                       INPUT NO,
+                       INPUT NO,
+                       INPUT "",
+                       INPUT "",
+                       OUTPUT cFgEmails,
+                       OUTPUT lFound).
+IF lFound THEN
+    iFgEmails = INTEGER(cFgEmails) NO-ERROR.
+lFgEmails = (IF iFgEmails EQ 1 THEN YES ELSE NO).
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2071,7 +2078,10 @@ PROCEDURE local-assign-record :
    fg-rctd.po-no = lcPoNo
    fg-rctd.i-no = lcINo
    fg-rctd.i-name = lcIName
-   fg-rctd.std-cost = ldStdCost.
+   fg-rctd.std-cost = ldStdCost
+   fg-rctd.enteredBy = USERID("asi")
+   fg-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+   .
 
   IF fg-rctd.po-no GT "" THEN DO:
       /* 12131305 - Populate job-no so during posting will update */
@@ -2514,7 +2524,7 @@ PROCEDURE post-finish-goods :
   DEF BUFFER b-itemfg FOR itemfg.
   DEF BUFFER b-itemfg1 FOR itemfg.
   DEF BUFFER ps-rctd FOR fg-rctd .
-  DEF BUFFER b-po-ordl FOR po-ordl.
+  DEF BUFFER b-po-ordl FOR po-ordl. 
   DEF BUFFER b-oe-ordl FOR oe-ordl.
 
   DEF VAR v-one-item AS LOG.
@@ -2579,240 +2589,256 @@ PROCEDURE post-finish-goods :
   END.
 
   /* Create a single workfile record for the finished good being posted */
+  /* task - add additional values to w-fg-rctd */
   CREATE w-fg-rctd.
   BUFFER-COPY fg-rctd TO w-fg-rctd
   ASSIGN w-fg-rctd.row-id  = ROWID(fg-rctd)
          w-fg-rctd.has-rec = YES.
-
-  FOR EACH w-fg-rctd,
-
-        FIRST itemfg
-        WHERE itemfg.company EQ cocode
-          AND itemfg.i-no    EQ w-fg-rctd.i-no
-
-        BY w-fg-rctd.tag
-        BY w-fg-rctd.rct-date
-        BY w-fg-rctd.r-no:
-
-      IF fgPostLog THEN RUN fgPostLog ('Start fg/fg-post.i ' + TRIM(itemfg.i-no)).
-      {fg/fg-post.i w-fg-rctd w-fg-rctd}
-
-      FIND CURRENT po-ordl NO-LOCK NO-ERROR.
-      FIND CURRENT fg-bin NO-LOCK NO-ERROR.
-      FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
-      IF fgPostLog THEN RUN fgPostLog ('End fg/fg-post.i - Start fg/fgemails.i').
-      IF w-fg-rctd.rita-code = "R" THEN DO:
-         {fg/fgemails.i}
-      END.
-
-      IF fgPostLog THEN RUN fgPostLog ('End fg-bin - Start fg-rctd').
-
-      FIND FIRST fg-rctd WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id NO-ERROR.
-
-      IF AVAIL fg-rctd THEN DO:
-        ASSIGN
-         fg-rctd.rita-code = "P"  /* posted */
-         fg-rctd.post-date = v-post-date
-         fg-rctd.tag2      = w-fg-rctd.tag2.
-
-        FOR EACH fg-rcpts
-            WHERE fg-rcpts.company EQ fg-rctd.company
-              AND fg-rcpts.r-no    EQ fg-rctd.r-no:
-          fg-rcpts.rita-code = fg-rctd.rita-code.
-        END.
-      END.
-
-      IF fgPostLog THEN RUN fgPostLog ('End loop'). 
-    END.  /* for each fg-rctd */
-
-    FIND CURRENT itemfg NO-LOCK NO-ERROR.
-
-    IF fgPostLog THEN RUN fgPostLog ('End fg/fgemails.i - Start loadtag').
-    FOR EACH w-fg-rctd
-        BREAK BY w-fg-rctd.i-no
-              BY w-fg-rctd.job-no
-              BY w-fg-rctd.job-no2
-              BY w-fg-rctd.loc
-              BY w-fg-rctd.loc-bin
-              BY w-fg-rctd.tag:
-
-      IF LAST-OF(w-fg-rctd.tag) THEN DO:
-        IF TRIM(w-fg-rctd.tag) NE "" THEN 
-        /* Ensure Bin/Tags Qty is correct.  Task 01270602 */
+         
+    /* task - add values passed in */  
+    ASSIGN
+        v-post-date = TODAY
+        .       
+  RUN fg/fgpostBatch.p ( 
+        INPUT v-post-date, /* Post date      */
+        INPUT NO,          /* tg-recalc-cost */
+        INPUT "R",         /* Receipts       */
+        INPUT lFgEmails,   /* Send fg emails */
+        INPUT TABLE w-fg-rctd BY-reference,
+        INPUT TABLE tt-fgemail BY-reference,
+        INPUT TABLE tt-email BY-reference,
+        INPUT TABLE tt-inv BY-reference).
         
-        FOR EACH fg-bin NO-LOCK
-            WHERE fg-bin.company EQ g_company
-              AND fg-bin.i-no    EQ loadtag.i-no
-              AND fg-bin.tag     EQ loadtag.tag-no
-            USE-INDEX tag:
-          RUN fg/calcbinq.p (ROWID(fg-bin)).
-        END.
-
-        /* IF w-fg-rctd.tag <> "" then*/
-        FIND FIRST loadtag
-            WHERE loadtag.company   EQ g_company
-              AND loadtag.item-type EQ NO
-              AND loadtag.tag-no    EQ w-fg-rctd.tag
-              AND loadtag.i-no      EQ w-fg-rctd.i-no
-              AND loadtag.job-no    EQ w-fg-rctd.job-no
-            USE-INDEX tag EXCLUSIVE-LOCK NO-ERROR.
-        IF fgPostLog THEN RUN fgPostLog ('End loadtag - Start fg-bin').
-
-        IF AVAIL loadtag THEN DO:
-          FIND FIRST fg-bin
-              WHERE fg-bin.company EQ g_company
-                AND fg-bin.i-no    EQ loadtag.i-no
-                AND fg-bin.tag     EQ loadtag.tag-no
-              /*AND fg-bin.job-no = loadtag.job-no
-                AND fg-bin.job-no2 = loadtag.job-no2*/
-                AND fg-bin.qty     GT 0
-              USE-INDEX tag NO-LOCK NO-ERROR.
-          IF w-fg-rctd.rita-code = "T" AND /*loadtag.tot-cases = w-fg-rctd.cases*/
-             TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) = w-fg-rctd.cases THEN  /* full qty transfer*/ 
-            ASSIGN
-             loadtag.loc          = w-fg-rctd.loc2   
-             loadtag.loc-bin      = w-fg-rctd.loc-bin2
-             loadtag.qty          = fg-bin.qty
-             loadtag.pallet-count = fg-bin.qty
-             loadtag.partial      = fg-bin.partial-count
-             loadtag.tot-cases    = (loadtag.qty - loadtag.partial) / loadtag.qty-case.
-          ELSE /*partial transfer */
-            ASSIGN
-             loadtag.loc     = w-fg-rctd.loc
-             loadtag.loc-bin = w-fg-rctd.loc-bin.
-
-          FIND CURRENT loadtag NO-LOCK NO-ERROR.
-        END.
-      END.
-    END.
-
-    FOR EACH w-inv:
-      DELETE w-inv.
-    END.
-
-    IF fgPostLog THEN RUN fgPostLog ('End First - Start Second For Each w-fg-rctd').
-    FOR EACH w-fg-rctd WHERE w-fg-rctd.invoiced,
-        FIRST itemfg
-        WHERE itemfg.company EQ cocode
-          AND itemfg.i-no    EQ w-fg-rctd.i-no
-        NO-LOCK:
-
-      CREATE w-inv.
-      w-inv.row-id = w-fg-rctd.row-id.
-    END.
-    IF fgPostLog THEN RUN fgPostLog ('End Second For Each w-fg-rctd').
-
-    IF fgPostLog THEN RUN fgPostLog ('Begin Run fg/invrecpt.p').
-    RUN fg/invrecpt.p (?, 2).
-    IF fgPostLog THEN RUN fgPostLog ('End Run fg/invrecpt.p').
-
-    IF fgPostLog THEN RUN fgPostLog ('End First - Start Third For Each w-fg-rctd').
-    FOR EACH w-fg-rctd WHERE TRIM(w-fg-rctd.tag) EQ "",
-        FIRST itemfg
-        WHERE itemfg.company EQ cocode
-          AND itemfg.i-no    EQ w-fg-rctd.i-no
-        NO-LOCK
-        BREAK BY w-fg-rctd.i-no:
-
-      IF LAST-OF(w-fg-rctd.i-no) THEN DO:
-        IF fgPostLog THEN RUN fgPostLog ('Begin Run fg/updfgcs1.p for ' + w-fg-rctd.i-no).
-        RUN fg/updfgcs1.p (RECID(itemfg), NO).
-        IF fgPostLog THEN RUN fgPostLog ('End Run fg/updfgcs1.p for ' + w-fg-rctd.i-no).
-
-        FOR EACH oe-ordl
-            WHERE oe-ordl.company EQ cocode
-              AND oe-ordl.opened  EQ YES
-              AND oe-ordl.i-no    EQ w-fg-rctd.i-no
-              AND oe-ordl.job-no  EQ ""
-              AND oe-ordl.cost    EQ 0
-            USE-INDEX opened NO-LOCK
-            BREAK BY oe-ordl.ord-no
-            TRANSACTION :
-
-          DO i = 1 TO 1000:
-            FIND b-oe-ordl WHERE ROWID(b-oe-ordl) EQ ROWID(oe-ordl) EXCLUSIVE NO-ERROR NO-WAIT.
-            IF AVAIL b-oe-ordl THEN DO:
-              IF itemfg.prod-uom EQ "M" THEN
-                b-oe-ordl.cost = itemfg.total-std-cost.
-              ELSE
-                RUN sys/ref/convcuom.p((IF LOOKUP(itemfg.prod-uom,fg-uom-list) GT 0
-                                        THEN "EA" ELSE itemfg.prod-uom),
-                                       "M", 0, 0, 0, 0,
-                                       itemfg.total-std-cost, OUTPUT b-oe-ordl.cost).
-              LEAVE.
-            END.
-          END.
-        END.
-      END.
-    END.
-    IF fgPostLog THEN RUN fgPostLog ('End Third For Each w-fg-rctd').
-
-    IF v-fgpostgl NE "None" THEN DO TRANSACTION:
-      /* gdm - 11050906 */
-      REPEAT:
-       FIND FIRST gl-ctrl EXCLUSIVE-LOCK
-         WHERE gl-ctrl.company EQ cocode NO-ERROR NO-WAIT.
-       IF AVAIL gl-ctrl THEN DO:
-         ASSIGN v-trnum       = gl-ctrl.trnum + 1
-                gl-ctrl.trnum = v-trnum.
-
-         FIND CURRENT gl-ctrl NO-LOCK.
-         
-         IF fgPostLog THEN RUN fgPostLog ('Begin Run gl-from-work 1').         
-         RUN gl-from-work (1, v-trnum).
-         IF fgPostLog THEN RUN fgPostLog ('End 1 - Begin Run gl-from-work 2').
-         RUN gl-from-work (2, v-trnum).
-         IF fgPostLog THEN RUN fgPostLog ('End Run gl-from-work 2').
-         
-         LEAVE.
-        END. /* IF AVAIL gl-ctrl */
-      END. /* REPEAT */
-      /* gdm - 11050906 */
-    END.
-    FIND FIRST w-job NO-ERROR.
-    IF AVAIL w-job THEN DO:
-      IF fgPostLog THEN RUN fgPostLog ('Start jc/d-jclose.p').
-      RUN jc/d-jclose.w.
-      IF fgPostLog THEN RUN fgPostLog ('End jc/d-jclose.p').
-    END.
-
-    IF v-adjustgl THEN DO TRANSACTION:
-      /** GET next G/L TRANS. POSTING # **/
-      FIND FIRST gl-ctrl WHERE gl-ctrl.company EQ cocode EXCLUSIVE-LOCK.
-      ASSIGN
-       v-trnum       = gl-ctrl.trnum + 1
-       gl-ctrl.trnum = v-trnum.
-      FIND CURRENT gl-ctrl NO-LOCK.
-      IF fgPostLog THEN RUN fgPostLog ('Start For Each work-job').
-      FOR EACH work-job BREAK BY work-job.actnum:
-         CREATE gltrans.
-        ASSIGN
-         gltrans.company = cocode
-         gltrans.actnum  = work-job.actnum
-         gltrans.jrnl    = "ADJUST"
-         gltrans.tr-date = v-post-date
-         gltrans.period  = period.pnum
-         gltrans.trnum   = v-trnum.
-
-        IF work-job.fg THEN
-          ASSIGN
-           gltrans.tr-amt  = - work-job.amt
-           gltrans.tr-dscr = "ADJUSTMENT FG".
-        ELSE
-          ASSIGN
-           gltrans.tr-amt  = work-job.amt
-           gltrans.tr-dscr = "ADJUSTMENT COGS".
-
-        RELEASE gltrans.
-      END. /* each work-job */
-      IF fgPostLog THEN RUN fgPostLog ('End For Each work-job').
-    END.
-    IF v-got-fgemail THEN DO:
-      IF fgPostLog THEN RUN fgPostLog ('Start Run send-fgemail').
-      RUN send-fgemail (v-fgemail-file).
-      IF fgPostLog THEN RUN fgPostLog ('End Run send-fgemail').
-    END.
-    IF fgPostLog THEN RUN fgPostLog ('End').
+/*  FOR EACH w-fg-rctd,                                                                                                       */
+/*                                                                                                                            */
+/*        FIRST itemfg                                                                                                        */
+/*        WHERE itemfg.company EQ cocode                                                                                      */
+/*          AND itemfg.i-no    EQ w-fg-rctd.i-no                                                                              */
+/*                                                                                                                            */
+/*        BY w-fg-rctd.tag                                                                                                    */
+/*        BY w-fg-rctd.rct-date                                                                                               */
+/*        BY w-fg-rctd.r-no:                                                                                                  */
+/*                                                                                                                            */
+/*      IF fgPostLog THEN RUN fgPostLog ('Start fg/fg-post.i ' + TRIM(itemfg.i-no)).                                          */
+/*      {fg/fg-post.i w-fg-rctd w-fg-rctd}                                                                                    */
+/*                                                                                                                            */
+/*      FIND CURRENT po-ordl NO-LOCK NO-ERROR.                                                                                */
+/*      FIND CURRENT fg-bin NO-LOCK NO-ERROR.                                                                                 */
+/*      FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.                                                                             */
+/*      IF fgPostLog THEN RUN fgPostLog ('End fg/fg-post.i - Start fg/fgemails.i').                                           */
+/*      IF w-fg-rctd.rita-code = "R" THEN DO:                                                                                 */
+/*         {fg/fgemails.i}                                                                                                    */
+/*      END.                                                                                                                  */
+/*                                                                                                                            */
+/*      IF fgPostLog THEN RUN fgPostLog ('End fg-bin - Start fg-rctd').                                                       */
+/*                                                                                                                            */
+/*      FIND FIRST fg-rctd WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id NO-ERROR.                                                 */
+/*                                                                                                                            */
+/*      IF AVAIL fg-rctd THEN DO:                                                                                             */
+/*        ASSIGN                                                                                                              */
+/*         fg-rctd.rita-code = "P"  /* posted */                                                                              */
+/*         fg-rctd.post-date = v-post-date                                                                                    */
+/*         fg-rctd.tag2      = w-fg-rctd.tag2.                                                                                */
+/*                                                                                                                            */
+/*        FOR EACH fg-rcpts                                                                                                   */
+/*            WHERE fg-rcpts.company EQ fg-rctd.company                                                                       */
+/*              AND fg-rcpts.r-no    EQ fg-rctd.r-no:                                                                         */
+/*          fg-rcpts.rita-code = fg-rctd.rita-code.                                                                           */
+/*        END.                                                                                                                */
+/*      END.                                                                                                                  */
+/*                                                                                                                            */
+/*      IF fgPostLog THEN RUN fgPostLog ('End loop').                                                                         */
+/*    END.  /* for each fg-rctd */                                                                                            */
+/*                                                                                                                            */
+/*    FIND CURRENT itemfg NO-LOCK NO-ERROR.                                                                                   */
+/*                                                                                                                            */
+/*    IF fgPostLog THEN RUN fgPostLog ('End fg/fgemails.i - Start loadtag').                                                  */
+/*    FOR EACH w-fg-rctd                                                                                                      */
+/*        BREAK BY w-fg-rctd.i-no                                                                                             */
+/*              BY w-fg-rctd.job-no                                                                                           */
+/*              BY w-fg-rctd.job-no2                                                                                          */
+/*              BY w-fg-rctd.loc                                                                                              */
+/*              BY w-fg-rctd.loc-bin                                                                                          */
+/*              BY w-fg-rctd.tag:                                                                                             */
+/*                                                                                                                            */
+/*      IF LAST-OF(w-fg-rctd.tag) THEN DO:                                                                                    */
+/*        IF TRIM(w-fg-rctd.tag) NE "" THEN                                                                                   */
+/*        /* Ensure Bin/Tags Qty is correct.  Task 01270602 */                                                                */
+/*                                                                                                                            */
+/*        FOR EACH fg-bin NO-LOCK                                                                                             */
+/*            WHERE fg-bin.company EQ g_company                                                                               */
+/*              AND fg-bin.i-no    EQ loadtag.i-no                                                                            */
+/*              AND fg-bin.tag     EQ loadtag.tag-no                                                                          */
+/*            USE-INDEX tag:                                                                                                  */
+/*          RUN fg/calcbinq.p (ROWID(fg-bin)).                                                                                */
+/*        END.                                                                                                                */
+/*                                                                                                                            */
+/*        /* IF w-fg-rctd.tag <> "" then*/                                                                                    */
+/*        FIND FIRST loadtag                                                                                                  */
+/*            WHERE loadtag.company   EQ g_company                                                                            */
+/*              AND loadtag.item-type EQ NO                                                                                   */
+/*              AND loadtag.tag-no    EQ w-fg-rctd.tag                                                                        */
+/*              AND loadtag.i-no      EQ w-fg-rctd.i-no                                                                       */
+/*              AND loadtag.job-no    EQ w-fg-rctd.job-no                                                                     */
+/*            USE-INDEX tag EXCLUSIVE-LOCK NO-ERROR.                                                                          */
+/*        IF fgPostLog THEN RUN fgPostLog ('End loadtag - Start fg-bin').                                                     */
+/*                                                                                                                            */
+/*        IF AVAIL loadtag THEN DO:                                                                                           */
+/*          FIND FIRST fg-bin                                                                                                 */
+/*              WHERE fg-bin.company EQ g_company                                                                             */
+/*                AND fg-bin.i-no    EQ loadtag.i-no                                                                          */
+/*                AND fg-bin.tag     EQ loadtag.tag-no                                                                        */
+/*              /*AND fg-bin.job-no = loadtag.job-no                                                                          */
+/*                AND fg-bin.job-no2 = loadtag.job-no2*/                                                                      */
+/*                AND fg-bin.qty     GT 0                                                                                     */
+/*              USE-INDEX tag NO-LOCK NO-ERROR.                                                                               */
+/*          IF w-fg-rctd.rita-code = "T" AND /*loadtag.tot-cases = w-fg-rctd.cases*/                                          */
+/*             TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) = w-fg-rctd.cases THEN  /* full qty transfer*/*/
+/*            ASSIGN                                                                                                          */
+/*             loadtag.loc          = w-fg-rctd.loc2                                                                          */
+/*             loadtag.loc-bin      = w-fg-rctd.loc-bin2                                                                      */
+/*             loadtag.qty          = fg-bin.qty                                                                              */
+/*             loadtag.pallet-count = fg-bin.qty                                                                              */
+/*             loadtag.partial      = fg-bin.partial-count                                                                    */
+/*             loadtag.tot-cases    = (loadtag.qty - loadtag.partial) / loadtag.qty-case.                                     */
+/*          ELSE /*partial transfer */                                                                                        */
+/*            ASSIGN                                                                                                          */
+/*             loadtag.loc     = w-fg-rctd.loc                                                                                */
+/*             loadtag.loc-bin = w-fg-rctd.loc-bin.                                                                           */
+/*                                                                                                                            */
+/*          FIND CURRENT loadtag NO-LOCK NO-ERROR.                                                                            */
+/*        END.                                                                                                                */
+/*      END.                                                                                                                  */
+/*    END.                                                                                                                    */
+/*                                                                                                                            */
+/*    FOR EACH w-inv:                                                                                                         */
+/*      DELETE w-inv.                                                                                                         */
+/*    END.                                                                                                                    */
+/*                                                                                                                            */
+/*    IF fgPostLog THEN RUN fgPostLog ('End First - Start Second For Each w-fg-rctd').                                        */
+/*    FOR EACH w-fg-rctd WHERE w-fg-rctd.invoiced,                                                                            */
+/*        FIRST itemfg                                                                                                        */
+/*        WHERE itemfg.company EQ cocode                                                                                      */
+/*          AND itemfg.i-no    EQ w-fg-rctd.i-no                                                                              */
+/*        NO-LOCK:                                                                                                            */
+/*                                                                                                                            */
+/*      CREATE w-inv.                                                                                                         */
+/*      w-inv.row-id = w-fg-rctd.row-id.                                                                                      */
+/*    END.                                                                                                                    */
+/*    IF fgPostLog THEN RUN fgPostLog ('End Second For Each w-fg-rctd').                                                      */
+/*                                                                                                                            */
+/*    IF fgPostLog THEN RUN fgPostLog ('Begin Run fg/invrecpt.p').                                                            */
+/*    RUN fg/invrecpt.p (?, 2).                                                                                               */
+/*    IF fgPostLog THEN RUN fgPostLog ('End Run fg/invrecpt.p').                                                              */
+/*                                                                                                                            */
+/*    IF fgPostLog THEN RUN fgPostLog ('End First - Start Third For Each w-fg-rctd').                                         */
+/*    FOR EACH w-fg-rctd WHERE TRIM(w-fg-rctd.tag) EQ "",                                                                     */
+/*        FIRST itemfg                                                                                                        */
+/*        WHERE itemfg.company EQ cocode                                                                                      */
+/*          AND itemfg.i-no    EQ w-fg-rctd.i-no                                                                              */
+/*        NO-LOCK                                                                                                             */
+/*        BREAK BY w-fg-rctd.i-no:                                                                                            */
+/*                                                                                                                            */
+/*      IF LAST-OF(w-fg-rctd.i-no) THEN DO:                                                                                   */
+/*        IF fgPostLog THEN RUN fgPostLog ('Begin Run fg/updfgcs1.p for ' + w-fg-rctd.i-no).                                  */
+/*        RUN fg/updfgcs1.p (RECID(itemfg), NO).                                                                              */
+/*        IF fgPostLog THEN RUN fgPostLog ('End Run fg/updfgcs1.p for ' + w-fg-rctd.i-no).                                    */
+/*                                                                                                                            */
+/*        FOR EACH oe-ordl                                                                                                    */
+/*            WHERE oe-ordl.company EQ cocode                                                                                 */
+/*              AND oe-ordl.opened  EQ YES                                                                                    */
+/*              AND oe-ordl.i-no    EQ w-fg-rctd.i-no                                                                         */
+/*              AND oe-ordl.job-no  EQ ""                                                                                     */
+/*              AND oe-ordl.cost    EQ 0                                                                                      */
+/*            USE-INDEX opened NO-LOCK                                                                                        */
+/*            BREAK BY oe-ordl.ord-no                                                                                         */
+/*            TRANSACTION :                                                                                                   */
+/*                                                                                                                            */
+/*          DO i = 1 TO 1000:                                                                                                 */
+/*            FIND b-oe-ordl WHERE ROWID(b-oe-ordl) EQ ROWID(oe-ordl) EXCLUSIVE NO-ERROR NO-WAIT.                             */
+/*            IF AVAIL b-oe-ordl THEN DO:                                                                                     */
+/*              IF itemfg.prod-uom EQ "M" THEN                                                                                */
+/*                b-oe-ordl.cost = itemfg.total-std-cost.                                                                     */
+/*              ELSE                                                                                                          */
+/*                RUN sys/ref/convcuom.p((IF LOOKUP(itemfg.prod-uom,fg-uom-list) GT 0                                         */
+/*                                        THEN "EA" ELSE itemfg.prod-uom),                                                    */
+/*                                       "M", 0, 0, 0, 0,                                                                     */
+/*                                       itemfg.total-std-cost, OUTPUT b-oe-ordl.cost).                                       */
+/*              LEAVE.                                                                                                        */
+/*            END.                                                                                                            */
+/*          END.                                                                                                              */
+/*        END.                                                                                                                */
+/*      END.                                                                                                                  */
+/*    END.                                                                                                                    */
+/*    IF fgPostLog THEN RUN fgPostLog ('End Third For Each w-fg-rctd').                                                       */
+/*                                                                                                                            */
+/*    IF v-fgpostgl NE "None" THEN DO TRANSACTION:                                                                            */
+/*      /* gdm - 11050906 */                                                                                                  */
+/*      REPEAT:                                                                                                               */
+/*       FIND FIRST gl-ctrl EXCLUSIVE-LOCK                                                                                    */
+/*         WHERE gl-ctrl.company EQ cocode NO-ERROR NO-WAIT.                                                                  */
+/*       IF AVAIL gl-ctrl THEN DO:                                                                                            */
+/*         ASSIGN v-trnum       = gl-ctrl.trnum + 1                                                                           */
+/*                gl-ctrl.trnum = v-trnum.                                                                                    */
+/*                                                                                                                            */
+/*         FIND CURRENT gl-ctrl NO-LOCK.                                                                                      */
+/*                                                                                                                            */
+/*         IF fgPostLog THEN RUN fgPostLog ('Begin Run gl-from-work 1').                                                      */
+/*         RUN gl-from-work (1, v-trnum).                                                                                     */
+/*         IF fgPostLog THEN RUN fgPostLog ('End 1 - Begin Run gl-from-work 2').                                              */
+/*         RUN gl-from-work (2, v-trnum).                                                                                     */
+/*         IF fgPostLog THEN RUN fgPostLog ('End Run gl-from-work 2').                                                        */
+/*                                                                                                                            */
+/*         LEAVE.                                                                                                             */
+/*        END. /* IF AVAIL gl-ctrl */                                                                                         */
+/*      END. /* REPEAT */                                                                                                     */
+/*      /* gdm - 11050906 */                                                                                                  */
+/*    END.                                                                                                                    */
+/*    FIND FIRST w-job NO-ERROR.                                                                                              */
+/*    IF AVAIL w-job THEN DO:                                                                                                 */
+/*      IF fgPostLog THEN RUN fgPostLog ('Start jc/d-jclose.p').                                                              */
+/*      RUN jc/d-jclose.w.                                                                                                    */
+/*      IF fgPostLog THEN RUN fgPostLog ('End jc/d-jclose.p').                                                                */
+/*    END.                                                                                                                    */
+/*                                                                                                                            */
+/*    IF v-adjustgl THEN DO TRANSACTION:                                                                                      */
+/*      /** GET next G/L TRANS. POSTING # **/                                                                                 */
+/*      FIND FIRST gl-ctrl WHERE gl-ctrl.company EQ cocode EXCLUSIVE-LOCK.                                                    */
+/*      ASSIGN                                                                                                                */
+/*       v-trnum       = gl-ctrl.trnum + 1                                                                                    */
+/*       gl-ctrl.trnum = v-trnum.                                                                                             */
+/*      FIND CURRENT gl-ctrl NO-LOCK.                                                                                         */
+/*      IF fgPostLog THEN RUN fgPostLog ('Start For Each work-job').                                                          */
+/*      FOR EACH work-job BREAK BY work-job.actnum:                                                                           */
+/*         CREATE gltrans.                                                                                                    */
+/*        ASSIGN                                                                                                              */
+/*         gltrans.company = cocode                                                                                           */
+/*         gltrans.actnum  = work-job.actnum                                                                                  */
+/*         gltrans.jrnl    = "ADJUST"                                                                                         */
+/*         gltrans.tr-date = v-post-date                                                                                      */
+/*         gltrans.period  = period.pnum                                                                                      */
+/*         gltrans.trnum   = v-trnum.                                                                                         */
+/*                                                                                                                            */
+/*        IF work-job.fg THEN                                                                                                 */
+/*          ASSIGN                                                                                                            */
+/*           gltrans.tr-amt  = - work-job.amt                                                                                 */
+/*           gltrans.tr-dscr = "ADJUSTMENT FG".                                                                               */
+/*        ELSE                                                                                                                */
+/*          ASSIGN                                                                                                            */
+/*           gltrans.tr-amt  = work-job.amt                                                                                   */
+/*           gltrans.tr-dscr = "ADJUSTMENT COGS".                                                                             */
+/*                                                                                                                            */
+/*        RELEASE gltrans.                                                                                                    */
+/*      END. /* each work-job */                                                                                              */
+/*      IF fgPostLog THEN RUN fgPostLog ('End For Each work-job').                                                            */
+/*    END.                                                                                                                    */
+/*    IF v-got-fgemail THEN DO:                                                                                               */
+/*      IF fgPostLog THEN RUN fgPostLog ('Start Run send-fgemail').                                                           */
+/*      RUN send-fgemail (v-fgemail-file).                                                                                    */
+/*      IF fgPostLog THEN RUN fgPostLog ('End Run send-fgemail').                                                             */
+/*    END.                                                                                                                    */
+/*    IF fgPostLog THEN RUN fgPostLog ('End').                                                                                */
+    
     IF fgPostLog THEN OUTPUT STREAM logFile CLOSE.
     SESSION:SET-WAIT-STATE ("").
   

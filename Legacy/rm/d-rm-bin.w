@@ -37,7 +37,8 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-
+DEFINE OUTPUT PARAMETER opcReasonCode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 /* Local Variable Definitions ---                                       */
 
 /* _UIB-CODE-BLOCK-END */
@@ -74,11 +75,11 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 &Scoped-Define ENABLED-FIELDS rm-bin.qty rm-bin.cost 
 &Scoped-define ENABLED-TABLES rm-bin
 &Scoped-define FIRST-ENABLED-TABLE rm-bin
-&Scoped-Define ENABLED-OBJECTS tb_last-cost Btn_OK Btn_Cancel RECT-27 
+&Scoped-Define ENABLED-OBJECTS tb_last-cost cb_reatype Btn_OK Btn_Cancel RECT-27 
 &Scoped-Define DISPLAYED-FIELDS rm-bin.qty rm-bin.cost 
 &Scoped-define DISPLAYED-TABLES rm-bin
 &Scoped-define FIRST-DISPLAYED-TABLE rm-bin
-&Scoped-Define DISPLAYED-OBJECTS tb_last-cost 
+&Scoped-Define DISPLAYED-OBJECTS tb_last-cost cb_reatype
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -105,12 +106,18 @@ DEFINE BUTTON Btn_OK AUTO-GO
 
 DEFINE RECTANGLE RECT-27
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 75 BY 4.05.
+     SIZE 75 BY 4.90.
 
 DEFINE VARIABLE tb_last-cost AS LOGICAL INITIAL no 
      LABEL "Move to RM Last Cost?" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
+
+DEFINE VARIABLE cb_reatype AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Adjustment Reason" 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     DROP-DOWN-LIST
+     SIZE 30 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -130,8 +137,9 @@ DEFINE FRAME D-Dialog
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
      tb_last-cost AT ROW 3.62 COL 34
-     Btn_OK AT ROW 5.76 COL 18
-     Btn_Cancel AT ROW 5.76 COL 47
+     cb_reatype AT ROW 4.62 COL 32 COLON-ALIGNED 
+     Btn_OK AT ROW 6.20 COL 18
+     Btn_Cancel AT ROW 6.20 COL 47
      RECT-27 AT ROW 1 COL 1
      SPACE(0.59) SKIP(2.61)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -228,7 +236,8 @@ DO:
     ASSIGN
      rm-bin.qty
      rm-bin.cost
-     tb_last-cost.
+     tb_last-cost
+     cb_reatype .
   END.
 
   IF tb_last-cost THEN DO:
@@ -240,6 +249,7 @@ DO:
   END.
 
   FIND CURRENT rm-bin NO-LOCK.
+  ASSIGN opcReasonCode = cb_reatype:SCREEN-VALUE IN FRAME {&frame-name} .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -255,6 +265,28 @@ END.
 FIND rm-bin NO-LOCK WHERE ROWID(rm-bin) EQ ip-rowid NO-ERROR.
 
 IF AVAIL rm-bin THEN DO:
+
+ RUN build-type-list .
+ FOR EACH rm-rdtlh NO-LOCK
+     WHERE rm-rdtlh.company = rm-bin.company
+       AND rm-rdtlh.i-no    = rm-bin.i-no
+       AND rm-rdtlh.loc     = rm-bin.loc
+       AND rm-rdtlh.loc-bin = rm-bin.loc-bin
+       AND rm-rdtlh.tag     = rm-bin.tag
+       AND rm-rdtlh.reject-code[1] NE "",
+
+    FIRST rm-rcpth NO-LOCK
+      WHERE rm-rcpth.r-no         EQ rm-rdtlh.r-no
+        AND rm-rcpth.rita-code    EQ rm-rdtlh.rita-code
+        AND rm-rcpth.i-no         EQ rm-bin.i-no
+        AND rm-rcpth.po-no        EQ TRIM(STRING(rm-bin.po-no,">>>>>>>>>>")) 
+      BY rm-rcpth.trans-date :
+
+    cb_reatype:SCREEN-VALUE IN FRAME {&frame-name} = rm-rdtlh.reject-code[1] NO-ERROR. 
+    LEAVE .
+END.
+
+
   {src/adm/template/dialogmn.i}
 END.
 
@@ -327,12 +359,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tb_last-cost 
+  DISPLAY tb_last-cost cb_reatype
       WITH FRAME D-Dialog.
   IF AVAILABLE rm-bin THEN 
     DISPLAY rm-bin.qty rm-bin.cost 
       WITH FRAME D-Dialog.
-  ENABLE rm-bin.qty rm-bin.cost tb_last-cost Btn_OK Btn_Cancel RECT-27 
+  ENABLE rm-bin.qty rm-bin.cost tb_last-cost cb_reatype Btn_OK Btn_Cancel RECT-27 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -358,6 +390,29 @@ PROCEDURE send-records :
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-type-list D-Dialog 
+PROCEDURE build-type-list :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+     
+     RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
+             RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
+    DELETE OBJECT hPgmReason.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      cb_reatype:LIST-ITEM-PAIRS = cComboList .
+  END.
+
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
