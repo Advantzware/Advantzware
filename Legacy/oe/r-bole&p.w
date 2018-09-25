@@ -1477,7 +1477,19 @@ SESSION:SET-WAIT-STATE ("general").
     find oe-bolh where recid(oe-bolh) = w-bolh.w-recid no-lock.
 
     v-tot-post = v-tot-post + 1.
-
+    
+    /* shipto required in oe/oe-bolp3 */
+    RUN oe/custxship.p (oe-bolh.company,
+        oe-bolh.cust-no,
+        oe-bolh.ship-id,
+        BUFFER shipto).
+          
+    IF NOT AVAILABLE shipto THEN 
+    DO:
+        RUN create-nopost ("Ship to Was Not Found").
+        NEXT mainblok.
+    END.
+            
     FOR EACH oe-boll
         WHERE oe-boll.company EQ oe-bolh.company
           AND oe-boll.b-no    EQ oe-bolh.b-no

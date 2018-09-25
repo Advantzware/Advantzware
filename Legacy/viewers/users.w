@@ -268,35 +268,35 @@ DEFINE VARIABLE slModes AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     users.positionMnemonic AT ROW 16.24 COL 64 NO-LABEL WIDGET-ID 126
+     users.positionMnemonic AT ROW 16.24 COL 66 NO-LABEL WIDGET-ID 126
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "Begin", "Begin":U,
 "End", "End":U
           SIZE 17 BY 1
-     users.showMnemonic AT ROW 16.24 COL 21 NO-LABEL WIDGET-ID 120
+     users.showMnemonic AT ROW 16.24 COL 23 NO-LABEL WIDGET-ID 120
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "None", "None":U,
 "All", "All":U,
 "Programs Only", "Program":U
           SIZE 33 BY 1
-     users.menuSize AT ROW 13.62 COL 63 COLON-ALIGNED WIDGET-ID 112
+     users.menuSize AT ROW 13.62 COL 65 COLON-ALIGNED WIDGET-ID 112
           VIEW-AS COMBO-BOX INNER-LINES 3
           LIST-ITEMS "Small","Medium","Large" 
           DROP-DOWN-LIST
           SIZE 16 BY 1
-     users.userLanguage AT ROW 14.81 COL 50 COLON-ALIGNED WIDGET-ID 114
+     users.userLanguage AT ROW 14.81 COL 52 COLON-ALIGNED WIDGET-ID 114
           VIEW-AS COMBO-BOX INNER-LINES 10
           LIST-ITEM-PAIRS "Englist","EN"
           DROP-DOWN-LIST
           SIZE 29 BY 1
-     users.user_id AT ROW 1.24 COL 19 COLON-ALIGNED
+     users.user_id AT ROW 1.24 COL 21 COLON-ALIGNED
           LABEL "User ID"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     users.user_name AT ROW 1.24 COL 44 COLON-ALIGNED
+     users.user_name AT ROW 1.24 COL 46 COLON-ALIGNED
           LABEL "Name"
           VIEW-AS FILL-IN 
           SIZE 35 BY 1
@@ -305,50 +305,50 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 37 BY 1
           BGCOLOR 15 FONT 4
-     fiPassword AT ROW 2.43 COL 19 COLON-ALIGNED WIDGET-ID 80
+     fiPassword AT ROW 2.43 COL 21 COLON-ALIGNED WIDGET-ID 80
      cbUserType AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 48
-     bChgPwd AT ROW 2.43 COL 59 WIDGET-ID 82 NO-TAB-STOP 
-     users.phone-cnty AT ROW 3.62 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     bChgPwd AT ROW 2.43 COL 61 WIDGET-ID 82 NO-TAB-STOP 
+     users.phone-cnty AT ROW 3.62 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 12
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           BGCOLOR 15 FONT 4
-     fi_phone-area AT ROW 3.62 COL 44 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     users.phone AT ROW 3.62 COL 75 COLON-ALIGNED HELP
+     fi_phone-area AT ROW 3.62 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     users.phone AT ROW 3.62 COL 77 COLON-ALIGNED HELP
           "" NO-LABEL WIDGET-ID 84 FORMAT "x(12)"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
           BGCOLOR 15  NO-TAB-STOP 
-     lv-phone-num AT ROW 3.62 COL 57 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     users.fax-cnty AT ROW 4.81 COL 28 COLON-ALIGNED HELP
+     lv-phone-num AT ROW 3.62 COL 59 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     users.fax-cnty AT ROW 4.81 COL 30 COLON-ALIGNED HELP
           "" NO-LABEL WIDGET-ID 18 FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           BGCOLOR 15 FONT 4
-     fi_fax-area AT ROW 4.81 COL 44 COLON-ALIGNED NO-LABEL WIDGET-ID 16
-     lv-fax-num AT ROW 4.81 COL 57 COLON-ALIGNED NO-LABEL WIDGET-ID 20
-     users.fax AT ROW 4.81 COL 75 COLON-ALIGNED HELP
+     fi_fax-area AT ROW 4.81 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     lv-fax-num AT ROW 4.81 COL 59 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     users.fax AT ROW 4.81 COL 77 COLON-ALIGNED HELP
           "" NO-LABEL WIDGET-ID 86 FORMAT "x(12)"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
           BGCOLOR 15  NO-TAB-STOP 
-     users.image_filename AT ROW 6 COL 19 COLON-ALIGNED HELP
+     users.image_filename AT ROW 6 COL 21 COLON-ALIGNED HELP
           "Enter Main Menu Image File Name (fully qualified path)" WIDGET-ID 38
           LABEL "Email" FORMAT "X(40)"
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
           BGCOLOR 15 FONT 4
-     users.user_program[1] AT ROW 7.19 COL 19 COLON-ALIGNED
+     users.user_program[1] AT ROW 7.19 COL 21 COLON-ALIGNED
           LABEL "Image Viewer" FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
           BGCOLOR 15 FONT 4
-     users.user_program[2] AT ROW 8.38 COL 19 COLON-ALIGNED HELP
+     users.user_program[2] AT ROW 8.38 COL 21 COLON-ALIGNED HELP
           "" WIDGET-ID 8
           LABEL "Report Path" FORMAT "x(100)"
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
           BGCOLOR 15 FONT 4
-     users.user_program[3] AT ROW 9.57 COL 19 COLON-ALIGNED WIDGET-ID 36
+     users.user_program[3] AT ROW 9.57 COL 21 COLON-ALIGNED WIDGET-ID 36
           LABEL "Document Path" FORMAT "x(100)"
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
@@ -359,16 +359,16 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     users.track_usage AT ROW 11.95 COL 21
+     users.track_usage AT ROW 11.95 COL 23
           VIEW-AS TOGGLE-BOX
           SIZE 19.8 BY 1
-     users.use_colors AT ROW 12.91 COL 21
+     users.use_colors AT ROW 12.91 COL 23
           VIEW-AS TOGGLE-BOX
           SIZE 27 BY 1
-     users.use_fonts AT ROW 13.86 COL 21
+     users.use_fonts AT ROW 13.86 COL 23
           VIEW-AS TOGGLE-BOX
           SIZE 26.2 BY 1
-     users.developer AT ROW 14.81 COL 21
+     users.developer AT ROW 14.81 COL 23
           VIEW-AS TOGGLE-BOX
           SIZE 16.8 BY 1
      users.securityLevel AT ROW 3.62 COL 99 COLON-ALIGNED WIDGET-ID 44
@@ -393,7 +393,7 @@ DEFINE FRAME F-Main
      slModes AT ROW 6.95 COL 108 NO-LABEL WIDGET-ID 54
      bAll3 AT ROW 7.43 COL 97 WIDGET-ID 72
      bNone3 AT ROW 8.14 COL 97 WIDGET-ID 74
-     users.userImage[1] AT ROW 10.76 COL 19 COLON-ALIGNED WIDGET-ID 116
+     users.userImage[1] AT ROW 10.76 COL 21 COLON-ALIGNED WIDGET-ID 116
           LABEL "User Image" FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 48 BY 1
@@ -401,31 +401,10 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
-     "(Area)" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 4.81 COL 38 WIDGET-ID 108
-          BGCOLOR 15 
-     "(#)" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 4.81 COL 54 WIDGET-ID 110
-          BGCOLOR 15 
-     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
-          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
-          FONT 1
-     "Phone: (Country)" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 3.62 COL 13 WIDGET-ID 92
-     "FAX: (Country)" VIEW-AS TEXT
-          SIZE 14 BY 1 AT ROW 4.81 COL 15 WIDGET-ID 94
-     "(Area)" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 3.62 COL 38 WIDGET-ID 96
-          BGCOLOR 15 
-     " At Login User Can Select:" VIEW-AS TEXT
-          SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
-          FONT 4
-     "Options:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 12.19 COL 12 WIDGET-ID 42
-     "Menu Mnemonic:" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 16.24 COL 4 WIDGET-ID 124
+     "HotKey (Mnemonic:)" VIEW-AS TEXT
+          SIZE 20 BY 1 AT ROW 16.24 COL 2 WIDGET-ID 124
      "Pos.:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 16.24 COL 59 WIDGET-ID 130
+          SIZE 4 BY 1 AT ROW 16.24 COL 61 WIDGET-ID 130
      "Modes:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 6.71 COL 99 WIDGET-ID 62
           FONT 4
@@ -433,10 +412,31 @@ DEFINE FRAME F-Main
           SIZE 13 BY .62 AT ROW 14.1 COL 94 WIDGET-ID 60
           FONT 4
      "(#)" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 3.62 COL 54 WIDGET-ID 106
+          SIZE 4 BY 1 AT ROW 3.62 COL 56 WIDGET-ID 106
           BGCOLOR 15 
+     "(Area)" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 4.81 COL 40 WIDGET-ID 108
+          BGCOLOR 15 
+     "(#)" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 4.81 COL 56 WIDGET-ID 110
+          BGCOLOR 15 
+     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
+          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
+          FONT 1
+     "Phone: (Country)" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 3.62 COL 15 WIDGET-ID 92
+     "FAX: (Country)" VIEW-AS TEXT
+          SIZE 14 BY 1 AT ROW 4.81 COL 17 WIDGET-ID 94
+     "(Area)" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 3.62 COL 40 WIDGET-ID 96
+          BGCOLOR 15 
+     " At Login User Can Select:" VIEW-AS TEXT
+          SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
+          FONT 4
+     "Options:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 12.19 COL 14 WIDGET-ID 42
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
-     cUserImage AT ROW 10.76 COL 70 WIDGET-ID 118
+     cUserImage AT ROW 10.76 COL 72 WIDGET-ID 118
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .

@@ -122,8 +122,8 @@ CREATE tempSysCtrl.
 &Scoped-define FIELDS-IN-QUERY-sysCtrlBrowse ttSysCtrl.name ttSysCtrl.fieldDescrip ttSysCtrl.fieldValue ttSysCtrl.descrip ttSysCtrl.module ttSysCtrl.typeCode ttSysCtrl.category ttSysCtrl.subCategory ttSysCtrl.securityLevelUser ttSysCtrl.tableSource ttSysCtrl.fieldSource ttSysCtrl.fieldExtent ttSysCtrl.dataType   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-sysCtrlBrowse   
 &Scoped-define SELF-NAME sysCtrlBrowse
-&Scoped-define QUERY-STRING-sysCtrlBrowse FOR EACH ttSysCtrl WHERE (ttSysCtrl.category EQ cFilter    OR  cFilter EQ "ALL")   AND (ttSysCtrl.subCategory EQ cSubFilter    OR  cSubFilter EQ "ALL")   AND ttSysCtrl.name         MATCHES "*" + cNameFilter         + "*"   AND ttSysCtrl.fieldDescrip MATCHES "*" + cFieldDescripFilter + "*"   AND ttSysCtrl.fieldValue   MATCHES "*" + cValueFilter        + "*"   AND ttSysCtrl.descrip      MATCHES "*" + cDescripFilter      + "*"   AND ttSysCtrl.module       MATCHES "*" + cModuleFilter       + "*"   AND ttSysCtrl.typeCode     MATCHES "*" + cTypeCodeFilter     + "*"   AND ttSysCtrl.category     MATCHES "*" + cCategoryFilter     + "*"   AND ttSysCtrl.subCategory  MATCHES "*" + cSubCategoryFilter  + "*"   AND ttSysCtrl.tableSource  MATCHES "*" + cTableSourceFilter  + "*"   AND ttSysCtrl.fieldSource  MATCHES "*" + cFieldSourceFilter  + "*"   AND ttSysCtrl.dataType     MATCHES "*" + cDataTypeFilter     + "*"   AND ttSysCtrl.allData      MATCHES "*" + searchBar           + "*"   ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-sysCtrlBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttSysCtrl WHERE (ttSysCtrl.category EQ cFilter    OR  cFilter EQ "ALL")   AND (ttSysCtrl.subCategory EQ cSubFilter    OR  cSubFilter EQ "ALL")   AND ttSysCtrl.name         MATCHES "*" + cNameFilter         + "*"   AND ttSysCtrl.fieldDescrip MATCHES "*" + cFieldDescripFilter + "*"   AND ttSysCtrl.fieldValue   MATCHES "*" + cValueFilter        + "*"   AND ttSysCtrl.descrip      MATCHES "*" + cDescripFilter      + "*"   AND ttSysCtrl.module       MATCHES "*" + cModuleFilter       + "*"   AND ttSysCtrl.typeCode     MATCHES "*" + cTypeCodeFilter     + "*"   AND ttSysCtrl.category     MATCHES "*" + cCategoryFilter     + "*"   AND ttSysCtrl.subCategory  MATCHES "*" + cSubCategoryFilter  + "*"   AND ttSysCtrl.tableSource  MATCHES "*" + cTableSourceFilter  + "*"   AND ttSysCtrl.fieldSource  MATCHES "*" + cFieldSourceFilter  + "*"   AND ttSysCtrl.dataType     MATCHES "*" + cDataTypeFilter     + "*"   AND ttSysCtrl.allData      MATCHES "*" + searchBar           + "*"   ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-sysCtrlBrowse FOR EACH ttSysCtrl WHERE (ttSysCtrl.category EQ cFilter    OR  cFilter EQ "ALL")   AND (ttSysCtrl.subCategory EQ cSubFilter    OR  cSubFilter EQ "ALL")   AND ((lExactMatch EQ YES   AND (ttSysCtrl.name         EQ cNameFilter         OR cNameFilter         EQ "")   AND (ttSysCtrl.fieldDescrip EQ cFieldDescripFilter OR cFieldDescripFilter EQ "")   AND (ttSysCtrl.fieldValue   EQ cValueFilter        OR cValueFilter        EQ "")   AND (ttSysCtrl.descrip      EQ cDescripFilter      OR cDescripFilter      EQ "")   AND (ttSysCtrl.module       EQ cModuleFilter       OR cModuleFilter       EQ "")   AND (ttSysCtrl.typeCode     EQ cTypeCodeFilter     OR cTypeCodeFilter     EQ "")   AND (ttSysCtrl.category     EQ cCategoryFilter     OR cCategoryFilter     EQ "")   AND (ttSysCtrl.subCategory  EQ cSubCategoryFilter  OR cSubCategoryFilter  EQ "")   AND (ttSysCtrl.tableSource  EQ cTableSourceFilter  OR cTableSourceFilter  EQ "")   AND (ttSysCtrl.fieldSource  EQ cFieldSourceFilter  OR cFieldSourceFilter  EQ "")   AND (ttSysCtrl.dataType     EQ cDataTypeFilter     OR cDataTypeFilter     EQ ""))    OR (lExactMatch EQ NO   AND ttSysCtrl.name         MATCHES "*" + cNameFilter         + "*"   AND ttSysCtrl.fieldDescrip MATCHES "*" + cFieldDescripFilter + "*"   AND ttSysCtrl.fieldValue   MATCHES "*" + cValueFilter        + "*"   AND ttSysCtrl.descrip      MATCHES "*" + cDescripFilter      + "*"   AND ttSysCtrl.module       MATCHES "*" + cModuleFilter       + "*"   AND ttSysCtrl.typeCode     MATCHES "*" + cTypeCodeFilter     + "*"   AND ttSysCtrl.category     MATCHES "*" + cCategoryFilter     + "*"   AND ttSysCtrl.subCategory  MATCHES "*" + cSubCategoryFilter  + "*"   AND ttSysCtrl.tableSource  MATCHES "*" + cTableSourceFilter  + "*"   AND ttSysCtrl.fieldSource  MATCHES "*" + cFieldSourceFilter  + "*"   AND ttSysCtrl.dataType     MATCHES "*" + cDataTypeFilter     + "*"   AND ttSysCtrl.allData      MATCHES "*" + searchBar           + "*"))   ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-sysCtrlBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttSysCtrl WHERE (ttSysCtrl.category EQ cFilter    OR  cFilter EQ "ALL")   AND (ttSysCtrl.subCategory EQ cSubFilter    OR  cSubFilter EQ "ALL")   AND ((lExactMatch EQ YES   AND (ttSysCtrl.name         EQ cNameFilter         OR cNameFilter         EQ "")   AND (ttSysCtrl.fieldDescrip EQ cFieldDescripFilter OR cFieldDescripFilter EQ "")   AND (ttSysCtrl.fieldValue   EQ cValueFilter        OR cValueFilter        EQ "")   AND (ttSysCtrl.descrip      EQ cDescripFilter      OR cDescripFilter      EQ "")   AND (ttSysCtrl.module       EQ cModuleFilter       OR cModuleFilter       EQ "")   AND (ttSysCtrl.typeCode     EQ cTypeCodeFilter     OR cTypeCodeFilter     EQ "")   AND (ttSysCtrl.category     EQ cCategoryFilter     OR cCategoryFilter     EQ "")   AND (ttSysCtrl.subCategory  EQ cSubCategoryFilter  OR cSubCategoryFilter  EQ "")   AND (ttSysCtrl.tableSource  EQ cTableSourceFilter  OR cTableSourceFilter  EQ "")   AND (ttSysCtrl.fieldSource  EQ cFieldSourceFilter  OR cFieldSourceFilter  EQ "")   AND (ttSysCtrl.dataType     EQ cDataTypeFilter     OR cDataTypeFilter     EQ ""))    OR (lExactMatch EQ NO   AND ttSysCtrl.name         MATCHES "*" + cNameFilter         + "*"   AND ttSysCtrl.fieldDescrip MATCHES "*" + cFieldDescripFilter + "*"   AND ttSysCtrl.fieldValue   MATCHES "*" + cValueFilter        + "*"   AND ttSysCtrl.descrip      MATCHES "*" + cDescripFilter      + "*"   AND ttSysCtrl.module       MATCHES "*" + cModuleFilter       + "*"   AND ttSysCtrl.typeCode     MATCHES "*" + cTypeCodeFilter     + "*"   AND ttSysCtrl.category     MATCHES "*" + cCategoryFilter     + "*"   AND ttSysCtrl.subCategory  MATCHES "*" + cSubCategoryFilter  + "*"   AND ttSysCtrl.tableSource  MATCHES "*" + cTableSourceFilter  + "*"   AND ttSysCtrl.fieldSource  MATCHES "*" + cFieldSourceFilter  + "*"   AND ttSysCtrl.dataType     MATCHES "*" + cDataTypeFilter     + "*"   AND ttSysCtrl.allData      MATCHES "*" + searchBar           + "*"))   ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-sysCtrlBrowse ttSysCtrl
 &Scoped-define FIRST-TABLE-IN-QUERY-sysCtrlBrowse ttSysCtrl
 
@@ -170,7 +170,7 @@ sys-ctrl-shipto.dec-fld sys-ctrl-shipto.int-fld sys-ctrl-shipto.log-fld
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svFocus btnRestoreDefaults searchBar ~
+&Scoped-Define ENABLED-OBJECTS svFocus searchBar btnRestoreDefaults ~
 sysCtrlBrowse btnSortMove 
 &Scoped-Define DISPLAYED-OBJECTS svFocus searchBar 
 
@@ -189,7 +189,8 @@ iSecurityLevelDefault cName cTypeCode cModule cDescrip cFieldDescrip ~
 cFieldValue cFieldDefault 
 &Scoped-define searchFilters cNameFilter cFieldDescripFilter cValueFilter ~
 cDescripFilter cModuleFilter cTypeCodeFilter cCategoryFilter ~
-cSubCategoryFilter cTableSourceFilter cFieldSourceFilter cDataTypeFilter 
+cSubCategoryFilter cTableSourceFilter cFieldSourceFilter cDataTypeFilter ~
+lExactMatch 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -335,6 +336,11 @@ DEFINE VARIABLE cValueFilter AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 40.8 BY 1 TOOLTIP "Value Search"
      BGCOLOR 15 FGCOLOR 1 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE lExactMatch AS LOGICAL INITIAL no 
+     LABEL "Exact Match" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18 BY .81 TOOLTIP "Select for Exact Match" NO-UNDO.
 
 DEFINE BUTTON btnAdd-2 
      IMAGE-UP FILE "Graphics/32x32/navigate_plus.ico":U
@@ -699,10 +705,10 @@ DEFINE BROWSE sysCtrlShipToBrowse
 
 DEFINE FRAME DEFAULT-FRAME
      svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 4
-     btnRestoreDefaults AT ROW 1 COL 39 HELP
-          "Restore Defaults" WIDGET-ID 42
      searchBar AT ROW 1 COL 54 COLON-ALIGNED HELP
           "Search" WIDGET-ID 6
+     btnRestoreDefaults AT ROW 1 COL 39 HELP
+          "Restore Defaults" WIDGET-ID 42
      sysCtrlBrowse AT ROW 2 COL 39 WIDGET-ID 300
      btnSortMove AT ROW 1 COL 43 HELP
           "Toggle Sort/Move Columns" WIDGET-ID 44
@@ -716,6 +722,110 @@ DEFINE FRAME DEFAULT-FRAME
          AT COL 1 ROW 1
          SIZE 160 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
+
+DEFINE FRAME searchFrame
+     btnSearch AT ROW 1 COL 1 HELP
+          "Advanced Search" WIDGET-ID 40
+     cNameFilter AT ROW 1.24 COL 21 COLON-ALIGNED HELP
+          "Name Search" WIDGET-ID 2
+     cFieldDescripFilter AT ROW 2.19 COL 21 COLON-ALIGNED HELP
+          "Description Search" WIDGET-ID 44
+     cValueFilter AT ROW 3.14 COL 21 COLON-ALIGNED HELP
+          "Value Search" WIDGET-ID 8
+     cDescripFilter AT ROW 4.1 COL 21 COLON-ALIGNED HELP
+          "Description Search" WIDGET-ID 6
+     cModuleFilter AT ROW 5.05 COL 21 COLON-ALIGNED HELP
+          "Module Search" WIDGET-ID 12
+     cTypeCodeFilter AT ROW 6 COL 21 COLON-ALIGNED HELP
+          "Type Search" WIDGET-ID 10
+     cCategoryFilter AT ROW 6.95 COL 21 COLON-ALIGNED HELP
+          "Category Search" WIDGET-ID 14
+     cSubCategoryFilter AT ROW 7.91 COL 21 COLON-ALIGNED HELP
+          "Sub Category Search" WIDGET-ID 16
+     cTableSourceFilter AT ROW 8.86 COL 21 COLON-ALIGNED HELP
+          "Table Source Search" WIDGET-ID 46
+     cFieldSourceFilter AT ROW 9.81 COL 21 COLON-ALIGNED HELP
+          "Field Source Search" WIDGET-ID 48
+     cDataTypeFilter AT ROW 10.76 COL 21 COLON-ALIGNED HELP
+          "Data Type Search" WIDGET-ID 50
+     lExactMatch AT ROW 11.95 COL 23 HELP
+          "Select for Exact Match" WIDGET-ID 52
+     btnClear AT ROW 11.95 COL 56 HELP
+          "Clear Search Filters" WIDGET-ID 42
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS TOP-ONLY NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 64 BY 12.14
+         FGCOLOR 1 FONT 6 WIDGET-ID 600.
+
+DEFINE FRAME viewFrame
+     cCategory AT ROW 1.24 COL 18 COLON-ALIGNED WIDGET-ID 2
+     cSubcategory AT ROW 1.24 COL 58 COLON-ALIGNED WIDGET-ID 12
+     iSecurityLevelUser AT ROW 1.24 COL 92 COLON-ALIGNED WIDGET-ID 10
+     iSecurityLevelDefault AT ROW 1.24 COL 102 COLON-ALIGNED WIDGET-ID 44
+     cName AT ROW 2.43 COL 18 COLON-ALIGNED WIDGET-ID 8
+     cTypeCode AT ROW 2.43 COL 58 COLON-ALIGNED WIDGET-ID 14
+     btnClose AT ROW 1.24 COL 113 HELP
+          "Close" WIDGET-ID 72
+     cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
+     cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
+     cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
+     hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Decimal Value" NO-LABEL WIDGET-ID 60
+     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
+     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
+     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Integer Value" NO-LABEL WIDGET-ID 62
+     hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Date Value" NO-LABEL WIDGET-ID 58
+     cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
+     ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
+     cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
+     cDataType AT ROW 8.38 COL 94 COLON-ALIGNED HELP
+          "Select Data Type" WIDGET-ID 52
+     btnCalendar-1 AT ROW 6 COL 36 WIDGET-ID 272
+     btnFirst-1 AT ROW 9.81 COL 69 HELP
+          "First" WIDGET-ID 274
+     btnLast-1 AT ROW 9.81 COL 93 HELP
+          "Last" WIDGET-ID 68
+     btnNext-1 AT ROW 9.81 COL 85 HELP
+          "Next" WIDGET-ID 276
+     btnPrev-1 AT ROW 9.81 COL 77 HELP
+          "Previous" WIDGET-ID 278
+     btnAdd AT ROW 9.81 COL 15 HELP
+          "Add" WIDGET-ID 20
+     btnCancel AT ROW 9.81 COL 47 HELP
+          "Cancel" WIDGET-ID 28
+     btnCopy AT ROW 9.81 COL 23 HELP
+          "Copy" WIDGET-ID 24
+     btnDefaults AT ROW 9.81 COL 58 HELP
+          "Restore Defaults" WIDGET-ID 34
+     btnDelete AT ROW 9.81 COL 31 HELP
+          "Delete" WIDGET-ID 26
+     btnForms AT ROW 9.81 COL 104 HELP
+          "Forms" WIDGET-ID 54
+     btnReset AT ROW 9.81 COL 39 HELP
+          "Reset" WIDGET-ID 22
+     btnUpdate AT ROW 9.81 COL 7 HELP
+          "Update/Save" WIDGET-ID 18
+     transPanel AT ROW 9.57 COL 6 WIDGET-ID 16
+     transPanel-2 AT ROW 9.57 COL 57 WIDGET-ID 32
+     transPanel-5 AT ROW 9.57 COL 103 WIDGET-ID 56
+     transPanel-8 AT ROW 9.57 COL 68 WIDGET-ID 280
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 40 ROW 10.52
+         SIZE 117 BY 12.14
+         FGCOLOR 1 
+         TITLE "View" WIDGET-ID 400.
+
+DEFINE FRAME filterFrame
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 38 BY 26
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE BGCOLOR 8 "Category / SubCategory" WIDGET-ID 200.
 
 DEFINE FRAME formsFrame
      cSysCtrlName AT ROW 1.24 COL 11 COLON-ALIGNED WIDGET-ID 4
@@ -763,8 +873,6 @@ DEFINE FRAME viewFormFrame
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     btnForms-2 AT ROW 1 COL 138 HELP
-          "Close" WIDGET-ID 72
      sys-ctrl-shipto.dec-fld AT ROW 8.38 COL 21 COLON-ALIGNED WIDGET-ID 38
           LABEL "Decimal"
           VIEW-AS FILL-IN 
@@ -783,6 +891,8 @@ DEFINE FRAME viewFormFrame
 "No", no,
 "Unknown", ?
           SIZE 28 BY 1
+     btnForms-2 AT ROW 1 COL 138 HELP
+          "Close" WIDGET-ID 72
      btnLast-2 AT ROW 9.57 COL 133 HELP
           "Last" WIDGET-ID 68
      btnNext-2 AT ROW 9.57 COL 125 HELP
@@ -812,108 +922,6 @@ DEFINE FRAME viewFormFrame
          SIZE 142 BY 11.86
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 900.
-
-DEFINE FRAME searchFrame
-     btnSearch AT ROW 1 COL 1 HELP
-          "Advanced Search" WIDGET-ID 40
-     cNameFilter AT ROW 1.24 COL 21 COLON-ALIGNED HELP
-          "Name Search" WIDGET-ID 2
-     cFieldDescripFilter AT ROW 2.19 COL 21 COLON-ALIGNED HELP
-          "Description Search" WIDGET-ID 44
-     cValueFilter AT ROW 3.14 COL 21 COLON-ALIGNED HELP
-          "Value Search" WIDGET-ID 8
-     cDescripFilter AT ROW 4.1 COL 21 COLON-ALIGNED HELP
-          "Description Search" WIDGET-ID 6
-     cModuleFilter AT ROW 5.05 COL 21 COLON-ALIGNED HELP
-          "Module Search" WIDGET-ID 12
-     cTypeCodeFilter AT ROW 6 COL 21 COLON-ALIGNED HELP
-          "Type Search" WIDGET-ID 10
-     cCategoryFilter AT ROW 6.95 COL 21 COLON-ALIGNED HELP
-          "Category Search" WIDGET-ID 14
-     cSubCategoryFilter AT ROW 7.91 COL 21 COLON-ALIGNED HELP
-          "Sub Category Search" WIDGET-ID 16
-     cTableSourceFilter AT ROW 8.86 COL 21 COLON-ALIGNED HELP
-          "Table Source Search" WIDGET-ID 46
-     cFieldSourceFilter AT ROW 9.81 COL 21 COLON-ALIGNED HELP
-          "Field Source Search" WIDGET-ID 48
-     cDataTypeFilter AT ROW 10.76 COL 21 COLON-ALIGNED HELP
-          "Data Type Search" WIDGET-ID 50
-     btnClear AT ROW 10.76 COL 64 HELP
-          "Clear Search Filters" WIDGET-ID 42
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS TOP-ONLY NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 72 BY 10.95
-         FGCOLOR 1 FONT 6 WIDGET-ID 600.
-
-DEFINE FRAME filterFrame
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 38 BY 26
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE BGCOLOR 8 "Category / SubCategory" WIDGET-ID 200.
-
-DEFINE FRAME viewFrame
-     btnClose AT ROW 1.24 COL 113 HELP
-          "Close" WIDGET-ID 72
-     cCategory AT ROW 1.24 COL 18 COLON-ALIGNED WIDGET-ID 2
-     cSubcategory AT ROW 1.24 COL 58 COLON-ALIGNED WIDGET-ID 12
-     iSecurityLevelUser AT ROW 1.24 COL 92 COLON-ALIGNED WIDGET-ID 10
-     iSecurityLevelDefault AT ROW 1.24 COL 102 COLON-ALIGNED WIDGET-ID 44
-     cName AT ROW 2.43 COL 18 COLON-ALIGNED WIDGET-ID 8
-     cTypeCode AT ROW 2.43 COL 58 COLON-ALIGNED WIDGET-ID 14
-     cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
-     cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
-     cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
-     hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Date Value" NO-LABEL WIDGET-ID 58
-     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Integer Value" NO-LABEL WIDGET-ID 62
-     hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Decimal Value" NO-LABEL WIDGET-ID 60
-     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
-     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
-     btnCalendar-1 AT ROW 6 COL 36 WIDGET-ID 272
-     cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
-     btnFirst-1 AT ROW 9.81 COL 69 HELP
-          "First" WIDGET-ID 274
-     ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
-     cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
-     btnLast-1 AT ROW 9.81 COL 93 HELP
-          "Last" WIDGET-ID 68
-     cDataType AT ROW 8.38 COL 94 COLON-ALIGNED HELP
-          "Select Data Type" WIDGET-ID 52
-     btnNext-1 AT ROW 9.81 COL 85 HELP
-          "Next" WIDGET-ID 276
-     btnPrev-1 AT ROW 9.81 COL 77 HELP
-          "Previous" WIDGET-ID 278
-     btnAdd AT ROW 9.81 COL 15 HELP
-          "Add" WIDGET-ID 20
-     btnCancel AT ROW 9.81 COL 47 HELP
-          "Cancel" WIDGET-ID 28
-     btnCopy AT ROW 9.81 COL 23 HELP
-          "Copy" WIDGET-ID 24
-     btnDefaults AT ROW 9.81 COL 58 HELP
-          "Restore Defaults" WIDGET-ID 34
-     btnDelete AT ROW 9.81 COL 31 HELP
-          "Delete" WIDGET-ID 26
-     btnForms AT ROW 9.81 COL 104 HELP
-          "Forms" WIDGET-ID 54
-     btnReset AT ROW 9.81 COL 39 HELP
-          "Reset" WIDGET-ID 22
-     btnUpdate AT ROW 9.81 COL 7 HELP
-          "Update/Save" WIDGET-ID 18
-     transPanel AT ROW 9.57 COL 6 WIDGET-ID 16
-     transPanel-2 AT ROW 9.57 COL 57 WIDGET-ID 32
-     transPanel-5 AT ROW 9.57 COL 103 WIDGET-ID 56
-     transPanel-8 AT ROW 9.57 COL 68 WIDGET-ID 280
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 40 ROW 10.52
-         SIZE 117 BY 12.14
-         FGCOLOR 1 
-         TITLE "View" WIDGET-ID 400.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -972,12 +980,10 @@ ASSIGN FRAME filterFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME filterFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
-       XXTABVALXX = FRAME formsFrame:MOVE-BEFORE-TAB-ITEM (searchBar:HANDLE IN FRAME DEFAULT-FRAME)
-       XXTABVALXX = FRAME searchFrame:MOVE-BEFORE-TAB-ITEM (FRAME formsFrame:HANDLE)
        XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (FRAME searchFrame:HANDLE)
 /* END-ASSIGN-TABS */.
 
-/* BROWSE-TAB sysCtrlBrowse RECT-1 DEFAULT-FRAME */
+/* BROWSE-TAB sysCtrlBrowse btnRestoreDefaults DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btnExport IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnImport IN FRAME DEFAULT-FRAME
@@ -1049,6 +1055,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN cTypeCodeFilter IN FRAME searchFrame
    6                                                                    */
 /* SETTINGS FOR FILL-IN cValueFilter IN FRAME searchFrame
+   6                                                                    */
+/* SETTINGS FOR TOGGLE-BOX lExactMatch IN FRAME searchFrame
    6                                                                    */
 /* SETTINGS FOR FRAME viewFormFrame
                                                                         */
@@ -1215,6 +1223,19 @@ WHERE (ttSysCtrl.category EQ cFilter
    OR  cFilter EQ "ALL")
   AND (ttSysCtrl.subCategory EQ cSubFilter
    OR  cSubFilter EQ "ALL")
+  AND ((lExactMatch EQ YES
+  AND (ttSysCtrl.name         EQ cNameFilter         OR cNameFilter         EQ "")
+  AND (ttSysCtrl.fieldDescrip EQ cFieldDescripFilter OR cFieldDescripFilter EQ "")
+  AND (ttSysCtrl.fieldValue   EQ cValueFilter        OR cValueFilter        EQ "")
+  AND (ttSysCtrl.descrip      EQ cDescripFilter      OR cDescripFilter      EQ "")
+  AND (ttSysCtrl.module       EQ cModuleFilter       OR cModuleFilter       EQ "")
+  AND (ttSysCtrl.typeCode     EQ cTypeCodeFilter     OR cTypeCodeFilter     EQ "")
+  AND (ttSysCtrl.category     EQ cCategoryFilter     OR cCategoryFilter     EQ "")
+  AND (ttSysCtrl.subCategory  EQ cSubCategoryFilter  OR cSubCategoryFilter  EQ "")
+  AND (ttSysCtrl.tableSource  EQ cTableSourceFilter  OR cTableSourceFilter  EQ "")
+  AND (ttSysCtrl.fieldSource  EQ cFieldSourceFilter  OR cFieldSourceFilter  EQ "")
+  AND (ttSysCtrl.dataType     EQ cDataTypeFilter     OR cDataTypeFilter     EQ ""))
+   OR (lExactMatch EQ NO
   AND ttSysCtrl.name         MATCHES "*" + cNameFilter         + "*"
   AND ttSysCtrl.fieldDescrip MATCHES "*" + cFieldDescripFilter + "*"
   AND ttSysCtrl.fieldValue   MATCHES "*" + cValueFilter        + "*"
@@ -1226,7 +1247,7 @@ WHERE (ttSysCtrl.category EQ cFilter
   AND ttSysCtrl.tableSource  MATCHES "*" + cTableSourceFilter  + "*"
   AND ttSysCtrl.fieldSource  MATCHES "*" + cFieldSourceFilter  + "*"
   AND ttSysCtrl.dataType     MATCHES "*" + cDataTypeFilter     + "*"
-  AND ttSysCtrl.allData      MATCHES "*" + searchBar           + "*"
+  AND ttSysCtrl.allData      MATCHES "*" + searchBar           + "*"))
   ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is NOT OPENED
@@ -2440,6 +2461,19 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME searchFrame
+&Scoped-define SELF-NAME lExactMatch
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lExactMatch C-Win
+ON VALUE-CHANGED OF lExactMatch IN FRAME searchFrame /* Exact Match */
+DO:
+    ASSIGN {&SELF-NAME}.
+    RUN pReopenBrowse.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define FRAME-NAME viewFormFrame
 &Scoped-define SELF-NAME sys-ctrl-shipto.log-fld
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sys-ctrl-shipto.log-fld C-Win
@@ -2745,18 +2779,18 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY svFocus searchBar 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE svFocus btnRestoreDefaults searchBar sysCtrlBrowse btnSortMove 
+  ENABLE svFocus searchBar btnRestoreDefaults sysCtrlBrowse btnSortMove 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW FRAME filterFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-filterFrame}
   DISPLAY cNameFilter cFieldDescripFilter cValueFilter cDescripFilter 
           cModuleFilter cTypeCodeFilter cCategoryFilter cSubCategoryFilter 
-          cTableSourceFilter cFieldSourceFilter cDataTypeFilter 
+          cTableSourceFilter cFieldSourceFilter cDataTypeFilter lExactMatch 
       WITH FRAME searchFrame IN WINDOW C-Win.
   ENABLE btnSearch cNameFilter cFieldDescripFilter cValueFilter cDescripFilter 
          cModuleFilter cTypeCodeFilter cCategoryFilter cSubCategoryFilter 
-         cTableSourceFilter cFieldSourceFilter cDataTypeFilter 
+         cTableSourceFilter cFieldSourceFilter cDataTypeFilter lExactMatch 
       WITH FRAME searchFrame IN WINDOW C-Win.
   VIEW FRAME searchFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-searchFrame}
@@ -3162,7 +3196,8 @@ PROCEDURE pClearSearchFilters :
     DO WHILE VALID-HANDLE(hWidget):
         IF hWidget:TYPE NE "BUTTON" AND
            hWidget:SENSITIVE THEN
-        hWidget:SCREEN-VALUE = "".
+        hWidget:SCREEN-VALUE = IF hWidget:TYPE EQ "TOGGLE-BOX" THEN "NO"
+                               ELSE "".
         hWidget = hWidget:NEXT-SIBLING.
     END. /* do while */
     ASSIGN {&searchFilters}.

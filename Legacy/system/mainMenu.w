@@ -14,7 +14,7 @@
  
   Author:            Ron Stark
  
-  Created:           9.15.2018
+  Created:           9.23.2018
  
 --------------------------------------------------------------------*/
  
@@ -434,7 +434,7 @@ DEFINE RECTANGLE RECT-20
 
 DEFINE RECTANGLE RECT-21
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 58 BY 2.62.
+     SIZE 58 BY 2.86.
 
 DEFINE VARIABLE copyToUser AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -450,12 +450,12 @@ DEFINE FRAME FRAME-USER
      loc_loc AT ROW 1.71 COL 76 COLON-ALIGNED NO-LABEL
      users_user_id AT ROW 1.71 COL 117 COLON-ALIGNED NO-LABEL
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     "Location:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.71 COL 68
      "User ID:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 110
      "Company:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 4
-     "Location:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 68
      boxes AT ROW 8.62 COL 57
      menu-image AT ROW 3.62 COL 58
      RECT-2 AT ROW 1 COL 1
@@ -484,32 +484,6 @@ DEFINE FRAME FRAME-USER
          SIZE 160 BY 28.57
          BGCOLOR 15 .
 
-DEFINE FRAME menuTreeFrame
-     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
-     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
-     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 4.57
-         SIZE 55 BY 24.91
-         BGCOLOR 15  WIDGET-ID 100.
-
-DEFINE FRAME searchFrame
-     btnSearch AT ROW 1 COL 1 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 40
-     menuTreeFilter AT ROW 1 COL 4 COLON-ALIGNED HELP
-          "Enter Search Filter" NO-LABEL WIDGET-ID 2
-     searchSelections AT ROW 2.19 COL 2 NO-LABEL WIDGET-ID 44
-     btnFavorite AT ROW 13.62 COL 2 WIDGET-ID 46
-     btnClear AT ROW 13.86 COL 47 HELP
-          "Clear Search Filters" WIDGET-ID 42
-     svFavoriteText AT ROW 13.86 COL 5 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 51.6 ROW 3.38
-         SIZE 55 BY 14.05
-         FGCOLOR 1 FONT 6 WIDGET-ID 600.
-
 DEFINE FRAME userSettingsFrame
      btnCancel AT ROW 21 COL 12 HELP
           "Cancel" WIDGET-ID 2
@@ -530,35 +504,35 @@ DEFINE FRAME userSettingsFrame
           "Select Language" NO-LABEL WIDGET-ID 30
      svMenuSize AT ROW 10.76 COL 5 HELP
           "Select Menu Size" NO-LABEL WIDGET-ID 34
-     cShowMnemonic AT ROW 17.91 COL 22 HELP
+     cShowMnemonic AT ROW 18.14 COL 22 HELP
           "Show Mnemonic" NO-LABEL WIDGET-ID 100
-     cPositionMnemonic AT ROW 19.1 COL 22 HELP
+     cPositionMnemonic AT ROW 19.33 COL 22 HELP
           "Place Mnemonic at Begin or End of Text" NO-LABEL WIDGET-ID 108
      btnCopyToUser AT ROW 21 COL 62 HELP
           "Copy From User to Selected User(s)" WIDGET-ID 94
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.52 COL 33 WIDGET-ID 54
-          FONT 6
-     " Mnemonic" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 17.43 COL 4 WIDGET-ID 106
-     "Position:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 19.1 COL 12 WIDGET-ID 114
      " Copy From User" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 98
-     " Language" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 4.1 COL 5 WIDGET-ID 86
-     " Copy to Selected Users" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
-     " Menu Size" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 10.29 COL 5 WIDGET-ID 62
+     "Position:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 19.33 COL 12 WIDGET-ID 114
+     "Show:" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 18.14 COL 14 WIDGET-ID 112
      "[S] Scheduling" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 11.24 COL 26 WIDGET-ID 42
           FONT 6
-     "Show:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 17.91 COL 14 WIDGET-ID 112
      "[S] Scheduling" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 13.38 COL 29 WIDGET-ID 48
           FONT 6
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 15.52 COL 33 WIDGET-ID 54
+          FONT 6
+     " Copy to Selected Users" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
+     " Language" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 4.1 COL 5 WIDGET-ID 86
+     " Menu Size" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 10.29 COL 5 WIDGET-ID 62
+     " HotKey (Mnemonic)" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 17.43 COL 4 WIDGET-ID 106
      IMAGE-1 AT ROW 11.24 COL 18 WIDGET-ID 40
      IMAGE-2 AT ROW 13.14 COL 18 WIDGET-ID 44
      IMAGE-3 AT ROW 15.05 COL 18 WIDGET-ID 50
@@ -577,6 +551,32 @@ DEFINE FRAME userSettingsFrame
          SIZE 103 BY 23.33
          BGCOLOR 15 FGCOLOR 1 
          TITLE "User Settings" WIDGET-ID 200.
+
+DEFINE FRAME searchFrame
+     btnSearch AT ROW 1 COL 1 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 40
+     menuTreeFilter AT ROW 1 COL 4 COLON-ALIGNED HELP
+          "Enter Search Filter" NO-LABEL WIDGET-ID 2
+     searchSelections AT ROW 2.19 COL 2 NO-LABEL WIDGET-ID 44
+     btnFavorite AT ROW 13.62 COL 2 WIDGET-ID 46
+     btnClear AT ROW 13.86 COL 47 HELP
+          "Clear Search Filters" WIDGET-ID 42
+     svFavoriteText AT ROW 13.86 COL 5 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 51.6 ROW 3.38
+         SIZE 55 BY 14.05
+         FGCOLOR 1 FONT 6 WIDGET-ID 600.
+
+DEFINE FRAME menuTreeFrame
+     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
+     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
+     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 4.57
+         SIZE 55 BY 24.91
+         BGCOLOR 15  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -2383,6 +2383,7 @@ PROCEDURE pSetUserSettings :
             user-print.field-value[idx] = ttMenuTree.treeChild
             .
     END. /* each ttmenutree */
+    RELEASE user-print.
     
 END PROCEDURE.
 
