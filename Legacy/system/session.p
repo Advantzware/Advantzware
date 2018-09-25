@@ -68,6 +68,19 @@ FUNCTION sfGetMainMenuHandle RETURNS HANDLE
 &ENDIF
 
 
+&IF DEFINED(EXCLUDE-sfGetNextRecKey) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetNextRecKey Procedure
+FUNCTION sfGetNextRecKey RETURNS CHARACTER 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfGetSysCtrlUsageHandle) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetSysCtrlUsageHandle Procedure
@@ -285,6 +298,31 @@ FUNCTION sfGetMainMenuHandle RETURNS HANDLE
 ------------------------------------------------------------------------------*/
     RETURN hMainMenuHandle.
 
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-sfGetNextRecKey) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfGetNextRecKey Procedure
+FUNCTION sfGetNextRecKey RETURNS CHARACTER 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN STRING(YEAR(TODAY),"9999")
+         + STRING(MONTH(TODAY),"99")
+         + STRING(DAY(TODAY),"99")
+         + STRING(TIME,"99999")
+         + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
+         .
+         
 END FUNCTION.
 	
 /* _UIB-CODE-BLOCK-END */

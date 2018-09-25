@@ -150,7 +150,7 @@ end.*/
   DO:
      CREATE rec_key.
      ASSIGN
-        oe-bolh.rec_key = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+        oe-bolh.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey")
         rec_key.rec_key = oe-bolh.rec_key
         rec_key.table_name = "oe-bolh".
      RELEASE rec_key.

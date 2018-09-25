@@ -51,7 +51,7 @@ do i = 1 to num-entries(cFileList):
             string(hBuf:rowid) + chr(10).
         if lFix then do:
             assign
-                hField:buffer-value = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq),"99999999").
+                hField:buffer-value = DYNAMIC-FUNCTION("sfGetNextRecKey").
         end.
     end.    
 end. 
