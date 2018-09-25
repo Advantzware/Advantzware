@@ -806,11 +806,14 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN
-    rm-rctd.tag2 = lv-tag2
-    rm-rctd.i-no = lv-i-no
-    rm-rctd.i-name = lv-i-name
-    rm-rctd.loc = lv-loc
-    rm-rctd.loc-bin = lv-loc-bin.
+    rm-rctd.tag2      = lv-tag2
+    rm-rctd.i-no      = lv-i-no
+    rm-rctd.i-name    = lv-i-name
+    rm-rctd.loc       = lv-loc
+    rm-rctd.loc-bin   = lv-loc-bin
+    rm-rctd.enteredBy = USERID("asi")
+    rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+    .
       
   FIND FIRST ITEM WHERE
     ITEM.company = cocode AND

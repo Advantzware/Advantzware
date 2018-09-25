@@ -1230,11 +1230,15 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  fg-rctd.t-qty = ld-t-qty.
-  fg-rctd.job-no = lcJobNo.
-  fg-rctd.job-no2 = liJobNo2.
-  fg-rctd.i-no = lcINo.
-  fg-rctd.i-name = lcIName.
+  ASSIGN
+      fg-rctd.t-qty   = ld-t-qty
+      fg-rctd.job-no  = lcJobNo
+      fg-rctd.job-no2 = liJobNo2
+      fg-rctd.i-no    = lcINo
+      fg-rctd.i-name  = lcIName
+      fg-rctd.enteredBy = USERID("asi")
+      fg-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+      .
 
 
    FIND FIRST fg-bin 

@@ -929,7 +929,10 @@ PROCEDURE local-assign-record :
   ASSIGN
    fg-rctd.t-qty = (fg-rctd.cases * fg-rctd.qty-case) + fg-rctd.partial
    fg-rctd.tag2  = lv-tag2
-   fg-rctd.trans-time   = TIME.
+   fg-rctd.trans-time   = TIME
+   fg-rctd.enteredBy = USERID("asi")
+   fg-rctd.enteredDT = DATETIME(TODAY, MTIME)    
+   .
 
   FIND FIRST itemfg
       WHERE itemfg.company EQ cocode
