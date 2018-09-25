@@ -3499,8 +3499,7 @@ PROCEDURE pCRUD :
                         ASSIGN
                             sys-ctrl.company      = g_company
                             sys-ctrl.name         = cName:SCREEN-VALUE
-                            sys-ctrl.rec_key      = STRING(TODAY,"99999999")
-                                                  + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
+                            sys-ctrl.rec_key      = DYNAMIC-FUNCTION("sfGetNextRecKey")
                                                   .
                         CREATE ttSysCtrl.
                         ASSIGN

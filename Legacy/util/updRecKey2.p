@@ -38,7 +38,7 @@ DO TRANSACTION:
       hBufField = bfTable:BUFFER-FIELD("rec_key").
       cValue = hBufField:STRING-VALUE.
   
-      cNewRecKey = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999").
+      cNewRecKey = DYNAMIC-FUNCTION("sfGetNextRecKey").
   
   
       /* Assign new value */  

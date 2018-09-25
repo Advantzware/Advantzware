@@ -70,7 +70,7 @@ FOR EACH oe-rell
   DO:
      CREATE rec_key.
      ASSIGN
-        oe-boll.rec_key = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+        oe-boll.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey")
         rec_key.rec_key = oe-boll.rec_key
         rec_key.table_name = "oe-boll".
      RELEASE rec_key.
