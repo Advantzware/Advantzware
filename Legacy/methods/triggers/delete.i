@@ -21,3 +21,12 @@ FOR EACH mfvalues EXCLUSIVE-LOCK
     :
     DELETE mfvalues.
 END. /* each mfvalues */
+
+IF CAN-FIND(FIRST tags WHERE tags.linkTable EQ "{&TABLENAME}"
+AND tags.linkRecKey EQ {&TABLENAME}.rec_key) THEN
+FOR EACH tags EXCLUSIVE-LOCK
+    WHERE tags.linkTable EQ "{&TABLENAME}" AND
+    tags.linkRecKey EQ {&TABLENAME}.rec_key
+    :
+    DELETE tags.
+END. /* each tags */
