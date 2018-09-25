@@ -274,19 +274,19 @@ oe-ord.approved-date oe-ord.ack-prnt-date
 &Scoped-define DISPLAYED-TABLES oe-ord
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ord
 &Scoped-Define DISPLAYED-OBJECTS fiCustAddress fiHoldType fiShipName ~
-fi_type fi_prev_order fi_sname-lbl fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl ~
+fi_type fi_sname-lbl fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl ~
 fiSoldAddress fiShipAddress 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,calendarPopup,webField,nonWebField,List-6 */
 &Scoped-define ADM-CREATE-FIELDS oe-ord.cust-no 
 &Scoped-define ADM-ASSIGN-FIELDS fi_type oe-ord.stat oe-ord.cust-name ~
-oe-ord.sold-name oe-ord.terms-d fi_prev_order oe-ord.managed ~
+oe-ord.sold-name oe-ord.terms-d oe-ord.managed ~
 oe-ord.sname[1] oe-ord.sname[2] oe-ord.sname[3] 
 &Scoped-define calendarPopup btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
 btnCalendar-4 btnCalendar-5 
 &Scoped-define webField oe-ord.due-code oe-ord.due-date oe-ord.po-no 
-&Scoped-define nonWebField fi_type fi_prev_order oe-ord.managed 
+&Scoped-define nonWebField fi_type oe-ord.managed 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -382,11 +382,6 @@ DEFINE VARIABLE fiShipName AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fiSoldAddress AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 64.2 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fi_prev_order AS CHARACTER FORMAT "X(6)":U 
-     LABEL "Previous Order #" 
-     VIEW-AS FILL-IN 
-     SIZE 14 BY 1.
 
 DEFINE VARIABLE fi_s-comm-lbl AS CHARACTER FORMAT "X(256)":U INITIAL "Comm.%" 
      VIEW-AS FILL-IN 
@@ -544,8 +539,7 @@ DEFINE FRAME F-Main
           SIZE 12 BY 1
      oe-ord.terms-d AT ROW 12.43 COL 26.8 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
-          SIZE 47 BY 1
-     fi_prev_order AT ROW 9.29 COL 60 COLON-ALIGNED WIDGET-ID 2
+          SIZE 47 BY 1     
      oe-ord.tax-gr AT ROW 10.33 COL 60 COLON-ALIGNED
           LABEL "Tax Code"
           VIEW-AS FILL-IN 
@@ -782,8 +776,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiSoldAddress IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fi_prev_order IN FRAME F-Main
-   NO-ENABLE 2 5                                                        */
 /* SETTINGS FOR FILL-IN fi_s-comm-lbl IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_s-pct-lbl IN FRAME F-Main
@@ -3316,7 +3308,7 @@ PROCEDURE disable-fields :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    DISABLE fi_type fi_prev_order.
+    DISABLE fi_type.
   END.
 
   IF NOT v-oecomm-log THEN RUN hide-comm (YES).
@@ -3888,9 +3880,6 @@ IF AVAIL xest THEN DO:
                v-margin = 0.
       END.
 
-      IF xest.ord-no NE 0 THEN fi_prev_order:screen-value = STRING(xest.ord-no).
-      IF oe-ord.TYPE = "T" AND oe-ord.pord- GT 0 THEN
-          fi_prev_order:SCREEN-VALUE = STRING(oe-ord.pord-).
       IF FIRST(eb.cust-no) THEN 
          fil_id = RECID(xoe-ord).
 
@@ -4635,10 +4624,8 @@ PROCEDURE local-assign-record :
             prodDateChanged = NO
             dueDateChanged  = NO
             oe-ord.type     = fi_type
-            oe-ord.po-no2   = fi_prev_order
             oe-ord.t-fuel   = v-margin.
-
-        oe-ord.pord-no = INT(fi_prev_order) NO-ERROR.
+        
     END.
     FIND CURRENT bf-oe-ord NO-LOCK NO-ERROR.
 
@@ -4926,8 +4913,7 @@ PROCEDURE local-create-record :
         fiShipName:SCREEN-VALUE = ""
         fiShipAddress:SCREEN-VALUE = ""
         fiCustAddress:SCREEN-VALUE = "" 
-        fi_prev_order:SCREEN-VALUE = IF oe-ord.po-no2 NE "" THEN oe-ord.po-no2
-                                     ELSE STRING(oe-ord.pord-no).
+        .
   END.
 
   FOR EACH b-oe-ordl
@@ -5126,11 +5112,7 @@ PROCEDURE local-display-fields :
   IF AVAIL oe-ord AND NOT adm-new-record THEN DO:
      ASSIGN
         fi_type = oe-ord.TYPE
-        fi_prev_order = IF oe-ord.po-no2 NE "" THEN oe-ord.po-no2
-                        ELSE STRING(oe-ord.pord-no).
-     IF oe-ord.TYPE EQ "T" AND oe-ord.pord-no GT 0 THEN
-         fi_prev_order = STRING(oe-ord.pord-no).
-
+        .
   END.
 
   /* Dispatch standard ADM method.                             */
@@ -5188,7 +5170,7 @@ PROCEDURE local-enable-fields :
 
     lv-old-cust-no = oe-ord.cust-no:SCREEN-VALUE.
 
-    ENABLE fi_type fi_prev_order.
+    ENABLE fi_type.
     IF NOT job#-log THEN DISABLE oe-ord.job-no oe-ord.job-no2.
       IF adm-new-record THEN
           ENABLE oe-ord.due-date.
