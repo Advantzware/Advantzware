@@ -532,6 +532,7 @@ PROCEDURE fg-post:
     DEFINE VARIABLE lFound         AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lFGSetAssembly AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cFGSetAssembly AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFGSetAdjust   AS CHARACTER NO-UNDO.
 
     fgPostLog = SEARCH('logs/fgpstall.log') NE ?.
     IF fgPostLog THEN
@@ -570,7 +571,16 @@ PROCEDURE fg-post:
         INPUT "",
         OUTPUT cFGSetAssembly,
         OUTPUT lFound).
-
+    RUN sys/ref/nk1look.p (INPUT cocode,
+        INPUT "FGSetAdjustReason",
+        INPUT "C",
+        INPUT NO,
+        INPUT NO,
+        INPUT "",
+        INPUT "",
+        OUTPUT cFGSetAdjust,
+        OUTPUT lFound).
+    
     DISABLE TRIGGERS FOR LOAD OF itemfg.
     DISABLE TRIGGERS FOR LOAD OF b-oe-ordl.
 
@@ -607,7 +617,10 @@ PROCEDURE fg-post:
         DO:
             ASSIGN 
                 b-w-fg-rctd.rita-code = "A"
-                fg-rctd.rita-code   = "A".
+                fg-rctd.rita-code   = "A"
+                b-w-fg-rctd.reject-code = cFGSetAdjust
+                fg-rctd.reject-code   = cFGSetAdjust
+                .
         END.
         RELEASE fg-rctd.
 
