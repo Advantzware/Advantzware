@@ -32,7 +32,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "ImportFolder,ImportLog,TagFormat,FgItemHideCalcFields,VendCostMatrix,RelSkipRecalc,RMAllowAdd,CECostSave,RMOverrunCostProtection,"
            + "SSBOLPassword,BOLImageFooter,InvAddDate,POFGDims,OEPriceHold,POConfigDir,EDILogs,AutoLogout,AutoLogoutLocal,RMTagValidation,"
            + "MenuLink1,MenuLink2,MenuLink3,MenuLink4,MenuLink5,MenuLink6,MenuLink7,MenuLink8,MenuLinkASI,MenuLinkZoHo,MenuLinkUpgrade,"
-           + "BitMap,CEMenu,BOLPartial,OEAutoDateUpdate,FGUnderOver"
+           + "BitMap,CEMenu,BOLPartial,OEAutoDateUpdate,FGUnderOver,FGSetAdjustReason"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -494,6 +494,11 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Finished Goods Check Overrun and Underrun Method",
         INPUT "UnderRuns and OverRun" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
+   WHEN "FGSetAdjustReason" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT " Specify the Adjustment Reason code for Set Component reductions",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */).
 END CASE.
 ELSE
