@@ -1457,9 +1457,11 @@ PROCEDURE clearFilterValues:
  Notes:
 ------------------------------------------------------------------------------*/
     {methods/clearFilterValues.i}
+/*
 
     RUN local-open-query.
     RUN dispatch ('row-changed').
+*/
 
 END PROCEDURE.
 	
