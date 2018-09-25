@@ -84,7 +84,7 @@ IF v-continue THEN DO:
 
    FIND FIRST user-print WHERE user-print.program-id = "{1}"
                            AND user-print.company = cocode
-                           AND user-print.batch = "" NO-LOCK NO-ERROR.
+                           AND user-print.batch = "" EXCLUSIVE-LOCK NO-ERROR.
    IF AVAIL user-print THEN DO:
        ASSIGN user-print.prgmName = IF AVAIL b-prgrms THEN b-prgrms.prgmname ELSE "". 
        
