@@ -423,7 +423,7 @@ DEFINE BROWSE br_table
       tt-report.q-rel COLUMN-LABEL "Release #" FORMAT ">>>>>>9":U
             WIDTH 13.2 COLUMN-FONT 0
       oe-rel.r-no COLUMN-LABEL "Seq. #" FORMAT ">>>>>>>>9":U WIDTH 15
-      oe-rel.link-no COLUMN-LABEL "Int. Release" FORMAT ">>>>>9":U
+      oe-rel.link-no COLUMN-LABEL "Int. Release" FORMAT ">>>>>>>9":U
             WIDTH 16.6
       tt-report.job-start-date COLUMN-LABEL "Shp Date" FORMAT "99/99/9999":U
             WIDTH 14.4
@@ -600,7 +600,7 @@ ASSIGN
      _FldNameList[25]   > ASI.oe-rel.r-no
 "ASI.oe-rel.r-no" "Seq. #" ">>>>>>>>9" "integer" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[26]   > ASI.oe-rel.link-no
-"ASI.oe-rel.link-no" "Int. Release" ? "integer" ? ? ? ? ? ? no ? no no "16.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-rel.link-no" "Int. Release" ">>>>>>>9" "integer" ? ? ? ? ? ? no ? no no "16.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[27]   > Temp-Tables.tt-report.job-start-date
 "Temp-Tables.tt-report.job-start-date" "Shp Date" ? "date" ? ? ? ? ? ? no "Enter the Ship Date" no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[28]   = Temp-Tables.tt-report.qty
