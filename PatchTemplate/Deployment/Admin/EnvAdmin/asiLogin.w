@@ -1031,7 +1031,12 @@ PROCEDURE ipClickOk :
     IF NOT cbMode = "Monitor Users" THEN DO: 
         /* Set current dir */
         RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
-        RUN VALUE(cRunPgm).
+        IF INDEX(cRunPgm,"mainmenu") <> 0
+        AND iEnvLevel LT 16080000
+        AND (SEARCH("system/mainmenu2.r") NE ? 
+            OR SEARCH("system/mainment2.w") NE ?) THEN ASSIGN
+            cRunPgm = "system/mainmenu2.w".
+        RUN VALUE(cRunPgm).        RUN VALUE(cRunPgm).
     END.
     /* This is only used to monitor users */
     ELSE DO: 
