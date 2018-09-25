@@ -1335,7 +1335,11 @@ PROCEDURE local-assign-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  ASSIGN fg-rctd.trans-time = TIME.
+    ASSIGN 
+        fg-rctd.trans-time = TIME
+        fg-rctd.enteredBy  = USERID("asi")
+        fg-rctd.enteredDT  = DATETIME(TODAY, MTIME) 
+        .
   /* Code placed here will execute AFTER standard behavior.    */
   fg-rctd.t-qty = ld-t-qty.
 

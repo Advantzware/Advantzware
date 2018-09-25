@@ -83,7 +83,7 @@ oe-prmtx.qty[2] oe-prmtx.uom[2] oe-prmtx.qty[3] oe-prmtx.uom[3] ~
 oe-prmtx.qty[4] oe-prmtx.uom[4] oe-prmtx.qty[5] oe-prmtx.uom[5] ~
 oe-prmtx.qty[6] oe-prmtx.uom[6] oe-prmtx.qty[7] oe-prmtx.uom[7] ~
 oe-prmtx.qty[8] oe-prmtx.uom[8] oe-prmtx.qty[9] oe-prmtx.uom[9] ~
-oe-prmtx.qty[10] oe-prmtx.uom[10] 
+oe-prmtx.qty[10] oe-prmtx.uom[10] oe-prmtx.online 
 &Scoped-define ENABLED-TABLES oe-prmtx
 &Scoped-define FIRST-ENABLED-TABLE oe-prmtx
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 
@@ -99,7 +99,7 @@ oe-prmtx.discount[6] oe-prmtx.uom[6] oe-prmtx.qty[7] oe-prmtx.price[7] ~
 oe-prmtx.discount[7] oe-prmtx.uom[7] oe-prmtx.qty[8] oe-prmtx.price[8] ~
 oe-prmtx.discount[8] oe-prmtx.uom[8] oe-prmtx.qty[9] oe-prmtx.price[9] ~
 oe-prmtx.discount[9] oe-prmtx.uom[9] oe-prmtx.qty[10] oe-prmtx.price[10] ~
-oe-prmtx.discount[10] oe-prmtx.uom[10] 
+oe-prmtx.discount[10] oe-prmtx.uom[10] oe-prmtx.online  
 &Scoped-define DISPLAYED-TABLES oe-prmtx
 &Scoped-define FIRST-DISPLAYED-TABLE oe-prmtx
 
@@ -116,7 +116,7 @@ oe-prmtx.price[4] oe-prmtx.discount[4] oe-prmtx.price[5] ~
 oe-prmtx.discount[5] oe-prmtx.price[6] oe-prmtx.discount[6] ~
 oe-prmtx.price[7] oe-prmtx.discount[7] oe-prmtx.price[8] ~
 oe-prmtx.discount[8] oe-prmtx.price[9] oe-prmtx.discount[9] ~
-oe-prmtx.price[10] oe-prmtx.discount[10] 
+oe-prmtx.price[10] oe-prmtx.discount[10] oe-prmtx.online 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -184,12 +184,16 @@ DEFINE FRAME F-Main
           LABEL "Expiration Date"
           VIEW-AS FILL-IN 
           SIZE 19.6 BY 1
-     oe-prmtx.meth AT ROW 2.67 COL 32 NO-LABEL
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "Price", yes,
-"Discount", no
-          SIZE 28 BY .71
+    oe-prmtx.meth COLUMN-LABEL "Price Basis" 
+      VIEW-AS COMBO-BOX INNER-LINES 10
+      LIST-ITEM-PAIRS "Price","P",
+                      "Discount","D"
+      DROP-DOWN-LIST
+      AT ROW 2.43 COL 12
+     oe-prmtx.online AT ROW 2.67 COL 48
+          LABEL "Online"
+          VIEW-AS TOGGLE-BOX
+          SIZE 15 BY .81
      oe-prmtx.qty[1] AT ROW 4.57 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -342,8 +346,6 @@ DEFINE FRAME F-Main
 DEFINE FRAME F-Main
      "8" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 13.14 COL 20
-     "Price Basis:" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 2.67 COL 14
      "9" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 14.33 COL 20
      "4" VIEW-AS TEXT
@@ -668,12 +670,11 @@ END.
 &Scoped-define SELF-NAME oe-prmtx.meth
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-prmtx.meth V-table-Win
 ON LEAVE OF oe-prmtx.meth IN FRAME F-Main /* Price Basis */
-DO:
-  if self:screen-value eq "yes" then do:
+DO:  
+  if self:screen-value eq "P" then do:
     enable  oe-prmtx.price    with frame {&frame-name}.
     disable oe-prmtx.discount with frame {&frame-name}.
   end.
-
   else do:
     enable  oe-prmtx.discount with frame {&frame-name}.
     disable oe-prmtx.price    with frame {&frame-name}.
@@ -686,8 +687,8 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-prmtx.meth V-table-Win
 ON VALUE-CHANGED OF oe-prmtx.meth IN FRAME F-Main /* Price Basis */
-DO:
-  if self:screen-value eq "yes" then do:
+DO:   
+  if self:screen-value eq "P" then do:
      disable oe-prmtx.discount with frame {&frame-name}.
      enable  oe-prmtx.price with frame {&frame-name}.
   end.
@@ -1438,8 +1439,9 @@ PROCEDURE valid-entry :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-
-   FIND FIRST bf-oe-prmtx NO-LOCK 
+   
+   IF adm-new-record THEN 
+    FIND FIRST bf-oe-prmtx NO-LOCK 
       WHERE bf-oe-prmtx.company EQ g_company
         AND bf-oe-prmtx.custShipID EQ oe-prmtx.custShipID:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         AND bf-oe-prmtx.cust-no EQ oe-prmtx.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -1447,7 +1449,7 @@ PROCEDURE valid-entry :
         AND bf-oe-prmtx.procat EQ oe-prmtx.procat:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         AND bf-oe-prmtx.custype EQ oe-prmtx.custype:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         AND bf-oe-prmtx.eff-date EQ date(oe-prmtx.eff-date:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-      AND rowid(bf-oe-prmtx) NE rowid(oe-prmtx) NO-ERROR .
+        NO-ERROR .
 
   IF AVAIL bf-oe-prmtx THEN DO:
       MESSAGE "This record is a duplicate of a previous entry; please adjust." VIEW-AS ALERT-BOX ERROR.

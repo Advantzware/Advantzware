@@ -1082,7 +1082,7 @@ PROCEDURE update-record :
           EXCLUSIVE-LOCK.
 
       ASSIGN
-         reftable.CODE = tt-report.carrier:SCREEN-VALUE IN BROWSE {&browse-name}
+         truck-run-print.carrier = tt-report.carrier:SCREEN-VALUE IN BROWSE {&browse-name}
          truck-run-print.truck-code  = tt-report.truck-code:SCREEN-VALUE IN BROWSE {&browse-name}
          truck-run-print.load-no = tt-report.load-no:SCREEN-VALUE IN BROWSE {&browse-name}
          truck-run-print.stop-no = INT(tt-report.stop-no:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -1091,7 +1091,6 @@ PROCEDURE update-record :
 
       FIND CURRENT truck-run-print NO-LOCK.
       RELEASE truck-run-print.
-      RELEASE reftable.
    END.
    
    ASSIGN tt-report.carrier    = tt-report.carrier:SCREEN-VALUE IN BROWSE {&browse-name}

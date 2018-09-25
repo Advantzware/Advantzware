@@ -338,13 +338,13 @@ PROCEDURE enable-period :
   DEF VAR char-hdl AS cha NO-UNDO.
   DEF VAR lv-yr LIKE period.yr NO-UNDO.
 
-
+  
   DO WITH FRAME {&FRAME-NAME}:
-    IF NOT period.pstat THEN DO:
+    IF AVAIL period AND NOT period.pstat THEN DO:
       DISABLE {&ENABLED-FIELDS}.
       ll-all-disabled = YES.
     END.
-
+IF AVAIL period THEN DO:
     FIND FIRST b-period NO-LOCK
         WHERE b-period.company EQ period.company
           AND b-period.pstat   EQ YES
@@ -360,6 +360,7 @@ PROCEDURE enable-period :
       ENABLE period.pstat.
       ll-all-disabled = NO.
     END.
+END.
 
     IF ll-all-disabled THEN RETURN "ADM-ERROR":U.
   END.

@@ -75,30 +75,12 @@ DO TRANSACTION:
   
   ASSIGN
    probe.probe-time = lv-time
-   probe.set-chg    = {2}.
+   probe.set-chg    = {2}
+   probe.boardCostTotal = 0.
 
     
   FIND CURRENT probe NO-LOCK NO-ERROR.
 
-  FIND FIRST probe-board
-      WHERE probe-board.reftable EQ "probe.board"
-        AND probe-board.company  EQ probe.company
-        AND probe-board.loc      EQ ""
-        AND probe-board.code     EQ probe.est-no
-        AND probe-board.code2    EQ STRING(probe.line,"9999999999")
-      NO-ERROR.
-  IF NOT AVAIL probe-board THEN DO:
-    CREATE probe-board.
-    ASSIGN
-     probe-board.reftable = "probe.board"
-     probe-board.company  = probe.company
-     probe-board.loc      = ""
-     probe-board.code     = probe.est-no
-     probe-board.code2    = STRING(probe.line,"9999999999").
-  END.
-  probe-board.val[1] = 0.
-
-  FIND CURRENT probe-board NO-LOCK NO-ERROR.
 END.
 
 IF vprint AND xest.est-type GE 5 AND xest.est-type LE 6 THEN

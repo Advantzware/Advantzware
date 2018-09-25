@@ -379,7 +379,9 @@ IF NOT v-smr THEN
          v-amt[1]  = ar-cashl.amt-paid - ar-cashl.amt-disc
          v-uom     = ""
          v-qty[1]  = 0
-         v-cst[1]  = 0.
+         v-cst[1]  = 0
+         v-custpo = ""
+         item-name = "".
 
         release ar-inv.
 
@@ -416,6 +418,10 @@ IF NOT v-smr THEN
               no-lock:
             v-po-no-po = ar-invl.po-no-po.
             v-ord-no   = ar-invl.ord-no .
+            v-custpo = ar-invl.po-no.
+            item-name = ar-invl.i-name .
+             IF item-name = "" AND AVAIL itemfg THEN
+                 item-name = itemfg.i-name .
             leave.
           end.
 
@@ -899,8 +905,9 @@ IF NOT v-smr THEN
          v-amt[1]  = ar-cashl.amt-paid - ar-cashl.amt-disc
          v-uom     = ""
          v-qty[1]  = 0
-         v-cst[1]  = 0.
-
+         v-cst[1]  = 0
+         v-custpo = ""
+         item-name = "". 
         release ar-inv.
 
         RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
@@ -936,6 +943,10 @@ IF NOT v-smr THEN
               no-lock:
             v-po-no-po = ar-invl.po-no-po.
             v-ord-no   = ar-invl.ord-no .
+            v-custpo = ar-invl.po-no.
+            item-name = ar-invl.i-name .
+             IF item-name = "" AND AVAIL itemfg THEN
+                 item-name = itemfg.i-name .
             leave.
           end.
 

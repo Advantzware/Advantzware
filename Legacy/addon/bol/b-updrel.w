@@ -2535,8 +2535,8 @@ IF gvlCheckOrdStat THEN DO:
    
     IF AVAIL oe-ord AND INDEX(oe-ord.stat, "H") GT 0 OR oe-ord.priceHold THEN
       ASSIGN
-        cHoldMessage = "Order " + STRING(oe-ord.ord-no) + " is on ". 
-        cHoldMessage = cHoldMessage + (IF oe-ord.stat EQ "H" THEN "hold." ELSE "price hold. "). 
+        cHoldMessage = "Order " + STRING(oe-ord.ord-no) + " is on " 
+        cHoldMessage = cHoldMessage + (IF oe-ord.stat EQ "H" THEN "hold." ELSE "price hold. ") 
         lIsOnHold = TRUE.
   END.
 END.

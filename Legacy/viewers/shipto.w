@@ -157,7 +157,7 @@ shipto.spare-int-3 shipto.spare-int-4 shipto.ship-meth shipto.broker ~
 shipto.bill 
 &Scoped-define DISPLAYED-TABLES shipto
 &Scoped-define FIRST-DISPLAYED-TABLE shipto
-&Scoped-Define DISPLAYED-OBJECTS fi_sname faxAreaCode faxNumber 
+&Scoped-Define DISPLAYED-OBJECTS tg_inactive fi_sname faxAreaCode faxNumber 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -165,7 +165,7 @@ shipto.bill
 &Scoped-define ADM-ASSIGN-FIELDS shipto.tax-mandatory shipto.exportCustID 
 &Scoped-define DISPLAY-FIELD shipto.ship-state shipto.tax-code shipto.loc ~
 shipto.carrier shipto.dest-code 
-&Scoped-define List-5 faxAreaCode faxNumber 
+&Scoped-define List-5 tg_inactive faxAreaCode faxNumber 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -231,10 +231,16 @@ DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 35.2 BY 5.29.
 
+DEFINE VARIABLE tg_inactive AS LOGICAL INITIAL no 
+     LABEL "Inactive" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 13.4 BY .81 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     tg_inactive AT ROW 10.05 COL 42 WIDGET-ID 8
      fi_sname AT ROW 13 COL 77.6 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      shipto.ship-id AT ROW 10 COL 14.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -326,10 +332,6 @@ DEFINE FRAME F-Main
           LABEL "Pallet"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     shipto.spare-char-4 AT ROW 6.43 COL 124.8 COLON-ALIGNED
-          LABEL "Shipper ID"
-          VIEW-AS FILL-IN 
-          SIZE 20 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -337,6 +339,10 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     shipto.spare-char-4 AT ROW 6.43 COL 124.8 COLON-ALIGNED
+          LABEL "Shipper ID"
+          VIEW-AS FILL-IN 
+          SIZE 20 BY 1
      shipto.spare-char-5 AT ROW 7.43 COL 124.8 COLON-ALIGNED
           LABEL "Member #"
           VIEW-AS FILL-IN 
@@ -544,6 +550,8 @@ ASSIGN
    4 EXP-LABEL                                                          */
 /* SETTINGS FOR TOGGLE-BOX shipto.tax-mandatory IN FRAME F-Main
    2 EXP-LABEL                                                          */
+/* SETTINGS FOR TOGGLE-BOX tg_inactive IN FRAME F-Main
+   NO-ENABLE 5                                                          */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -953,7 +961,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -1030,7 +1037,7 @@ PROCEDURE enable-shipto :
       ENABLE
        shipto.bill
        shipto.broker.
-    ENABLE faxareacode faxnumber .
+    ENABLE tg_inactive faxareacode faxnumber .
   END.
 
 END PROCEDURE.
@@ -1121,7 +1128,16 @@ PROCEDURE local-assign-record :
   END.
 
   shipto.fax = faxAreaCode + faxNumber.
-  disable faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
+  IF tg_inactive:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "YES" AND DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN DO:
+     RUN AddTagInactive(shipto.rec_key,"shipto").
+     shipto.statusCode = "I".
+  END.
+  ELSE IF tg_inactive:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO" AND NOT DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN DO: 
+     RUN ClearTagsInactive(shipto.rec_key).
+     shipto.statusCode = "".
+  END.
+    
+  disable tg_inactive faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
 
   IF adm-new-record THEN DO:
      IF v-cust-log THEN 
@@ -1153,7 +1169,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-  disable faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
+  DISABLE tg_inactive faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -1293,9 +1309,11 @@ PROCEDURE local-display-fields :
       ASSIGN
         faxAreaCode = SUBSTR(shipto.fax,1,3)
         faxNumber = SUBSTR(shipto.fax,4)
-        fi_sname = getSalesmanName(shipto.spare-char-1).
+        fi_sname = getSalesmanName(shipto.spare-char-1)
+        tg_inactive = DYNAMIC-FUNCTION("IsActive",shipto.rec_key) EQ NO
+        .
 
-      DISPLAY faxareacode faxnumber fi_sname WITH FRAME {&FRAME-NAME}.
+      DISPLAY tg_inactive faxareacode faxnumber fi_sname WITH FRAME {&FRAME-NAME}.
 
   END.
 
@@ -1574,6 +1592,106 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-date V-table-Win 
+PROCEDURE update-date :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipOldvalueTrans AS INTEGER NO-UNDO .
+    DEFINE INPUT PARAMETER ipOldvalueDock AS INTEGER NO-UNDO .
+    DEFINE VARIABLE lCheckUpdate AS LOGICAL NO-UNDO .
+
+    IF oeDateAuto-int EQ 0 THEN DO:
+
+      FIND FIRST sys-ctrl NO-LOCK WHERE 
+          sys-ctrl.company EQ cocode AND 
+          sys-ctrl.name    EQ "OEAutoDateUpdate"
+          NO-ERROR.
+
+      ASSIGN oeDateAuto-log = IF AVAIL sys-ctrl THEN sys-ctrl.log-fld ELSE NO . 
+      
+      IF oeDateAuto-log EQ ? THEN
+          MESSAGE "The Transit or Dock Appt value(s) has changed " + 
+          "- Do you want to update Order date and Release dates for open orders for this ship to?"
+          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+         UPDATE lCheckUpdate .
+
+      IF oeDateAuto-log EQ NO  THEN lCheckUpdate = NO .
+      IF oeDateAuto-log EQ YES  THEN lCheckUpdate = YES .
+
+      IF lCheckUpdate THEN do:
+           
+              FOR EACH oe-ordl EXCLUSIVE-LOCK
+                  WHERE oe-ordl.company EQ cocode 
+                    AND oe-ordl.cust-no EQ shipto.cust-no
+                    AND oe-ordl.ship-id EQ shipto.ship-id  
+                    AND oe-ordl.opened EQ YES AND oe-ordl.stat NE "C":
+                     
+                     IF oeDateAuto-char  EQ "Transit Days" THEN
+                         ASSIGN oe-ordl.prom-date  = oe-ordl.prom-date + ipOldvalueTrans .
+                     ELSE IF oeDateAuto-char  EQ "Dock Appt Days" THEN
+                        ASSIGN oe-ordl.prom-date  = oe-ordl.prom-date + ipOldvalueDock .
+                     ELSE IF ipOldvalueTrans GT 0 THEN
+                         ASSIGN oe-ordl.prom-date  = oe-ordl.prom-date + ipOldvalueTrans .
+                     ELSE oe-ordl.prom-date  = oe-ordl.prom-date + ipOldvalueDock .
+
+                   FOR EACH oe-rel WHERE oe-rel.company = oe-ordl.company 
+                       AND oe-rel.ord-no = oe-ordl.ord-no 
+                       AND oe-rel.i-no = oe-ordl.i-no 
+                       AND oe-rel.line = oe-ordl.line
+                       AND oe-rel.ship-id = shipto.ship-id EXCLUSIVE-LOCK:
+
+                       FIND FIRST oe-rell
+                           WHERE oe-rell.company EQ oe-rel.company
+                           AND oe-rell.ord-no  EQ oe-rel.ord-no      
+                           AND oe-rell.i-no    EQ oe-rel.i-no
+                           AND oe-rell.line    EQ oe-rel.line
+                           AND oe-rell.link-no EQ oe-rel.r-no
+                           NO-LOCK NO-ERROR.
+                       IF AVAIL oe-rell THEN
+                           FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no EXCLUSIVE-LOCK NO-ERROR.
+
+                       IF AVAIL oe-rell AND AVAIL oe-relh THEN do:
+                           IF oeDateAuto-char  EQ "Transit Days" THEN
+                               ASSIGN oe-relh.rel-date  = oe-relh.rel-date + ipOldvalueTrans .
+                           ELSE IF oeDateAuto-char  EQ "Dock Appt Days" THEN
+                               ASSIGN oe-relh.rel-date  = oe-relh.rel-date + ipOldvalueDock .
+                           ELSE IF ipOldvalueTrans GT 0 THEN
+                               ASSIGN oe-relh.rel-date  = oe-relh.rel-date + ipOldvalueTrans .
+                           ELSE oe-relh.rel-date  = oe-relh.rel-date + ipOldvalueDock .
+
+                       END. /* oe-relh */
+                       ELSE DO:
+                           IF oeDateAuto-char  EQ "Transit Days" THEN
+                               ASSIGN oe-rel.rel-date  = oe-rel.rel-date + ipOldvalueTrans .
+                           ELSE IF oeDateAuto-char  EQ "Dock Appt Days" THEN
+                               ASSIGN oe-rel.rel-date  = oe-rel.rel-date + ipOldvalueDock .
+                           ELSE IF ipOldvalueTrans GT 0 THEN
+                               ASSIGN oe-rel.rel-date  = oe-rel.rel-date + ipOldvalueTrans .
+                           ELSE oe-rel.rel-date  = oe-rel.rel-date + ipOldvalueDock .
+
+                       END. /* oe-rel.rel-date */
+
+                       
+                   END. /* for each or-rel*/
+
+           END. /* for each oe-ordl  */
+
+       END. /*  lCheckUpdate  */
+       RELEASE oe-ordl .
+       RELEASE oe-rel.
+       RELEASE oe-relh .
+
+    END.  /* oeDateAuto-int EQ 0 */
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1912,107 +2030,6 @@ PROCEDURE valid-tax-code :
   END.
 
   {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-date V-table-Win 
-PROCEDURE update-date :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipOldvalueTrans AS INTEGER NO-UNDO .
-    DEFINE INPUT PARAMETER ipOldvalueDock AS INTEGER NO-UNDO .
-    DEFINE VARIABLE lCheckUpdate AS LOGICAL NO-UNDO .
-
-    IF oeDateAuto-int EQ 0 THEN DO:
-
-      FIND FIRST sys-ctrl NO-LOCK WHERE 
-          sys-ctrl.company EQ cocode AND 
-          sys-ctrl.name    EQ "OEAutoDateUpdate"
-          NO-ERROR.
-
-      ASSIGN oeDateAuto-log = IF AVAIL sys-ctrl THEN sys-ctrl.log-fld ELSE NO . 
-      
-      IF oeDateAuto-log EQ ? THEN
-          MESSAGE "The Transit or Dock Appt value(s) has changed " + 
-          "- Do you want to update Order date and Release dates for open orders for this ship to?"
-          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-         UPDATE lCheckUpdate .
-
-      IF oeDateAuto-log EQ NO  THEN lCheckUpdate = NO .
-      IF oeDateAuto-log EQ YES  THEN lCheckUpdate = YES .
-
-      IF lCheckUpdate THEN do:
-           
-              FOR EACH oe-ordl EXCLUSIVE-LOCK
-                  WHERE oe-ordl.company EQ cocode 
-                    AND oe-ordl.cust-no EQ shipto.cust-no
-                    AND oe-ordl.ship-id EQ shipto.ship-id  
-                    AND oe-ordl.opened EQ YES AND oe-ordl.stat NE "C":
-                     
-                     IF oeDateAuto-char  EQ "Transit Days" THEN
-                         ASSIGN oe-ordl.prom-date  = oe-ordl.prom-date + ipOldvalueTrans .
-                     ELSE IF oeDateAuto-char  EQ "Dock Appt Days" THEN
-                        ASSIGN oe-ordl.prom-date  = oe-ordl.prom-date + ipOldvalueDock .
-                     ELSE IF ipOldvalueTrans GT 0 THEN
-                         ASSIGN oe-ordl.prom-date  = oe-ordl.prom-date + ipOldvalueTrans .
-                     ELSE oe-ordl.prom-date  = oe-ordl.prom-date + ipOldvalueDock .
-
-                   FOR EACH oe-rel WHERE oe-rel.company = oe-ordl.company 
-                       AND oe-rel.ord-no = oe-ordl.ord-no 
-                       AND oe-rel.i-no = oe-ordl.i-no 
-                       AND oe-rel.line = oe-ordl.line
-                       AND oe-rel.ship-id = shipto.ship-id EXCLUSIVE-LOCK:
-
-                       FIND FIRST oe-rell
-                           WHERE oe-rell.company EQ oe-rel.company
-                           AND oe-rell.ord-no  EQ oe-rel.ord-no      
-                           AND oe-rell.i-no    EQ oe-rel.i-no
-                           AND oe-rell.line    EQ oe-rel.line
-                           AND oe-rell.link-no EQ oe-rel.r-no
-                           NO-LOCK NO-ERROR.
-                       IF AVAIL oe-rell THEN
-                           FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no EXCLUSIVE-LOCK NO-ERROR.
-
-                       IF AVAIL oe-rell AND AVAIL oe-relh THEN do:
-                           IF oeDateAuto-char  EQ "Transit Days" THEN
-                               ASSIGN oe-relh.rel-date  = oe-relh.rel-date + ipOldvalueTrans .
-                           ELSE IF oeDateAuto-char  EQ "Dock Appt Days" THEN
-                               ASSIGN oe-relh.rel-date  = oe-relh.rel-date + ipOldvalueDock .
-                           ELSE IF ipOldvalueTrans GT 0 THEN
-                               ASSIGN oe-relh.rel-date  = oe-relh.rel-date + ipOldvalueTrans .
-                           ELSE oe-relh.rel-date  = oe-relh.rel-date + ipOldvalueDock .
-
-                       END. /* oe-relh */
-                       ELSE DO:
-                           IF oeDateAuto-char  EQ "Transit Days" THEN
-                               ASSIGN oe-rel.rel-date  = oe-rel.rel-date + ipOldvalueTrans .
-                           ELSE IF oeDateAuto-char  EQ "Dock Appt Days" THEN
-                               ASSIGN oe-rel.rel-date  = oe-rel.rel-date + ipOldvalueDock .
-                           ELSE IF ipOldvalueTrans GT 0 THEN
-                               ASSIGN oe-rel.rel-date  = oe-rel.rel-date + ipOldvalueTrans .
-                           ELSE oe-rel.rel-date  = oe-rel.rel-date + ipOldvalueDock .
-
-                       END. /* oe-rel.rel-date */
-
-                       
-                   END. /* for each or-rel*/
-
-           END. /* for each oe-ordl  */
-
-       END. /*  lCheckUpdate  */
-       RELEASE oe-ordl .
-       RELEASE oe-rel.
-       RELEASE oe-relh .
-
-    END.  /* oeDateAuto-int EQ 0 */
-
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

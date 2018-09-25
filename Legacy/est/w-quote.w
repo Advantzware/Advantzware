@@ -108,6 +108,7 @@ DEFINE VARIABLE h_vi-qtitm AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-qtqty AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-prmtx AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-qtrpc AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -384,6 +385,15 @@ PROCEDURE adm-create-objects :
              h_phone , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 61.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'est/b-qthd.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -391,6 +401,10 @@ PROCEDURE adm-create-objects :
              OUTPUT h_b-qthd ).
        RUN set-position IN h_b-qthd ( 4.81 , 7.00 ) NO-ERROR.
        RUN set-size IN h_b-qthd ( 19.52 , 138.00 ) NO-ERROR.
+
+      
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_b-qthd , 'export-xl':U , h_export ).
 
        /* Links to SmartNavBrowser h_b-qthd. */
        RUN add-link IN adm-broker-hdl ( h_b-qthd , 'Record':U , THIS-PROCEDURE ).

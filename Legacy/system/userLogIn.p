@@ -20,14 +20,15 @@ DEFINE VARIABLE lEulaAccepted   AS LOGICAL       NO-UNDO.
 DEFINE VARIABLE cEulaVersion    AS CHARACTER     NO-UNDO.
 DEFINE VARIABLE lcNk1Value      AS CHARACTER     NO-UNDO.
 DEFINE VARIABLE llRecFound      AS LOGICAL       NO-UNDO.
-DEFINE VARIABLE enforceUserCount-log  AS LOGICAL NO-UNDO.
+DEFINE VARIABLE enforceUserCount-log   AS LOGICAL NO-UNDO.
 DEFINE VARIABLE promptMultiSession-log AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iAllUserCount   AS INTEGER NO-UNDO.
 DEFINE VARIABLE iThisUserCount  AS INTEGER NO-UNDO.
 DEFINE VARIABLE cUserName       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iMaxSessionsPerUser AS INTEGER NO-UNDO.
-DEFINE VARIABLE cCurrentUserID AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cResponse AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCurrentUserID  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cResponse       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iLoginUserNum   AS INTEGER NO-UNDO.
 {methods/defines/hndldefs.i}
 {custom/gcompany.i}    
 {custom/getcmpny.i}
@@ -123,9 +124,10 @@ IF iLoginCnt GT 0 AND promptMultiSession-log THEN DO:
         WHEN "Log Out Other Sessions" THEN DO:
             FOR EACH userLog EXCLUSIVE-LOCK WHERE userLog.userStatus EQ "Logged In" 
                 AND  userLog.user_id EQ cCurrentUserID:
-                ASSIGN 
-                    userLog.logoutDateTime = DATETIME(TODAY, MTIME)
-                    userLog.userStatus     = "User Logged Out".
+              iLoginUserNum = userLog.sessionID /* INTEGER(SUBSTRING(userLog.deviceName, R-INDEX(userLog.deviceName,"-") + 1)) */ NO-ERROR. 
+              /* Log out and disconnect from DB */
+              IF NOT ERROR-STATUS:ERROR THEN 
+                RUN system/userLogout.p (YES, userLog.sessionID).
             END.            
         END.
     END CASE.

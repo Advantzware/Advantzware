@@ -608,30 +608,12 @@ PROCEDURE replace-est-proc :
    END.
 
    FOR EACH reftable WHERE
-       reftable.reftable EQ "gsa-fm" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ "" AND
-       reftable.code     EQ begin_est:
-
-       reftable.CODE = new_est.
-   END.
-
-   FOR EACH reftable WHERE
        reftable.reftable EQ "probe.board" AND
        reftable.company  EQ cocode AND
        reftable.loc      EQ "" AND
-       reftable.code     EQ new_est:
+       reftable.code     EQ begin_est:
 
        DELETE reftable.
-   END.
-
-   FOR EACH reftable WHERE
-       reftable.reftable EQ "probe.board" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ "" AND
-       reftable.code     EQ begin_est:
-
-       reftable.CODE = NEW_est.
    END.
 
    FOR EACH reftable WHERE

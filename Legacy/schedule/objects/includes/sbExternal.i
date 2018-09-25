@@ -1,4 +1,4 @@
-/* sbExternal.i - used in sbReport.p, sbStatus.p and sbNotes.p */
+/* sbExternal.i - used in sbDMI.p, sbReport.p, sbStatus.p and sbNotes.p */
 
 {{&includes}/defBoard.i}
 {{&includes}/sharedVars.i NEW}
@@ -16,7 +16,12 @@ DEFINE VARIABLE containerHandle AS HANDLE NO-UNDO.
 DEFINE VARIABLE loadProgram AS CHARACTER NO-UNDO.
 DEFINE VARIABLE reload AS LOGICAL NO-UNDO.
 DEFINE VARIABLE scenario AS CHARACTER NO-UNDO INITIAL 'Actual'.
+DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cProdAceDat AS CHARACTER NO-UNDO.
+DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+
 DEFINE SHARED VARIABLE g_company AS CHARACTER NO-UNDO.
+DEFINE SHARED VARIABLE g_loc AS CHARACTER NO-UNDO.
 
 SESSION:SET-WAIT-STATE('').
 
@@ -48,12 +53,13 @@ containerHandle = THIS-PROCEDURE:HANDLE.
 PROCESS EVENTS.
 
 RUN getConfiguration.
-reload = IF '{&sbExternal}' EQ 'sbJScan'  THEN reloadStatus
+reload = IF '{&sbExternal}' EQ 'sbDMI'    THEN YES
+    ELSE IF '{&sbExternal}' EQ 'sbJScan'  THEN reloadStatus
     ELSE IF '{&sbExternal}' EQ 'sbNotes'  THEN reloadStatus
     ELSE IF '{&sbExternal}' EQ 'sbReport' THEN reloadReport
     ELSE IF '{&sbExternal}' EQ 'sbStatus' THEN reloadStatus
-    ELSE ?.
-
+    ELSE ?
+    .
 IF reload EQ ? THEN DO:
   IF version NE '{&version}' THEN DO:
     MESSAGE 'Schedule Board ({&version}) {&Board} has No Current Jobs' SKIP
@@ -73,6 +79,8 @@ DISPLAY SKIP(1) 'Getting Schedule Board Jobs' SKIP(1)
   WITH FRAME fMsg1 OVERLAY CENTERED ROW 10 BGCOLOR 14 FONT 6
   TITLE ' Schedule Board ({&sbExternal})'.
 
+PROCESS EVENTS.
+
 IF reload EQ NO THEN
 RUN VALUE(findProgram('{&loads}/',ID,'/loadView.p')) (containerHandle).
 ELSE DO:
@@ -89,7 +97,35 @@ PROCESS EVENTS.
 RUN getScenario.
 HIDE FRAME fMsg2 NO-PAUSE.
 
-&IF '{&sbExternal}' EQ 'sbJScan' &THEN
+&IF '{&sbExternal}' EQ 'sbDMI' &THEN
+FOR EACH mach NO-LOCK 
+    WHERE mach.company EQ ENTRY(1,commaList)
+      AND mach.spare-int-2 NE 0
+    :
+    CREATE ttblResource.
+    ASSIGN 
+        ttblResource.resource = mach.m-code
+        ttblResource.resourceDescription = mach.m-dscr
+        ttblResource.dmiID = mach.spare-int-2
+        .
+END. /* each mach */
+
+FOR EACH ttblJob
+    BREAK BY ttblJob.resource
+          BY ttblJob.dueDate
+          BY ttblJob.jobSort
+    :
+    IF FIRST-OF(ttblJob.resource) THEN
+    idx = 0.
+    ASSIGN 
+        idx = idx + 1
+        ttblJob.jobSequence = idx
+        .
+END. /* each ttbljob */
+
+cProdAceDat = findProgram('{&data}/',ID,'/ProdAce.dat').
+RUN VALUE(findProgram('{&loads}/',ID,'/prodAce.w')) (cProdAceDat, THIS-PROCEDURE, NO, OUTPUT lContinue).
+&ELSEIF '{&sbExternal}' EQ 'sbJScan' &THEN
 RUN {&prompts}/jobSeqScan.w (THIS-PROCEDURE, ENTRY(1,commaList)).
 &ELSEIF '{&sbExternal}' EQ 'sbNotes' &THEN
 RUN {&objects}/sbNotes.w.
@@ -103,8 +139,13 @@ RUN {&objects}/sbStatus.w.
 PROCEDURE asiCommaList:
   DEFINE INPUT PARAMETER ipValue AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opValue AS CHARACTER NO-UNDO.
-
-  opValue = g_company.
+  
+  CASE ipValue:
+      WHEN "Company" THEN 
+      opValue = g_company.
+      WHEN "Location" THEN 
+      opValue = g_loc.
+  END CASE.
 END PROCEDURE.
 
 PROCEDURE buildBoard:
