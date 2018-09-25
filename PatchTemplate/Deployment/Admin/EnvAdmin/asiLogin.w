@@ -1594,8 +1594,11 @@ PROCEDURE ipPreRun :
         SESSION:ADD-SUPER-PROCEDURE (hSession).
     END.
     
-    RUN system\TagProcs.p PERSISTENT SET hTags.
-    SESSION:ADD-SUPER-PROCEDURE (hTags).
+    IF NOT VALID-HANDLE(hTags) 
+    AND iDbLevel GE 16080000 THEN DO:
+        RUN system\TagProcs.p PERSISTENT SET hTags.
+        SESSION:ADD-SUPER-PROCEDURE (hTags).
+    END.
     
     IF NOT VALID-HANDLE(persistent-handle) THEN
         RUN nosweat/persist.p PERSISTENT SET persistent-handle.
