@@ -95,18 +95,18 @@ FUNCTION fTreeText RETURNS CHARACTER
         WHEN "All" THEN
             CASE ipcPositionMnemonic:
                 WHEN "Begin" THEN
-                cTreeText = ipcMnemonic + " " + ipcText.
+                cTreeText = fMnemonic(ipcMnemonic) + " " + ipcText.
                 WHEN "End" THEN
-                cTreeText = ipcText + " " + ipcMnemonic.
+                cTreeText = ipcText + " " + fMnemonic(ipcMnemonic).
             END CASE.
         WHEN "Program" THEN
             IF iplIsMenu THEN cTreeText = ipcText.
             ELSE
             CASE ipcPositionMnemonic:
                 WHEN "Begin" THEN
-                cTreeText = ipcMnemonic + " " + ipcText.
+                cTreeText = fMnemonic(ipcMnemonic) + " " + ipcText.
                 WHEN "End" THEN
-                cTreeText = ipcText + " " + ipcMnemonic.
+                cTreeText = ipcText + " " + fMnemonic(ipcMnemonic).
             END CASE.            
     END CASE.
 
@@ -254,7 +254,7 @@ PROCEDURE pCreatettMenuTree:
         cTreeText = fTreeText(
             ttMenuTree.isMenu,
             fTranslate(ttMenuTree.treeText,NO),
-            fMnemonic(ttMenuTree.mnemonic),
+            ttMenuTree.mnemonic,
             ipcShowMnemonic,
             ipcPositionMneminic
             ) 
@@ -288,7 +288,8 @@ PROCEDURE pCreatettMenuTree:
     IF VALID-HANDLE(hWidget) THEN DO:
         ASSIGN
             ttMenuTRee.hEditor = hWidget
-            hWidget:TOOLTIP = hWidget:SCREEN-VALUE
+            hWidget:TOOLTIP = IF ipcMnemonic NE "" THEN "HotKey: " + ipcMnemonic
+                              ELSE hWidget:SCREEN-VALUE
             .
         hWidget:LOAD-MOUSE-POINTER("ARROW").
     END.
