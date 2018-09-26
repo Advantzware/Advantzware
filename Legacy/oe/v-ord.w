@@ -1543,6 +1543,9 @@ DO:
                                                                shipto.ship-city,
                                                                shipto.ship-state,
                                                                 shipto.ship-zip).
+        IF NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN 
+            MESSAGE "Please note: Shipto " shipto.ship-id " is valid but currently inactive"
+            VIEW-AS ALERT-BOX.
             
        END.      
     ELSE DO:

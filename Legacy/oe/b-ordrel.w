@@ -5746,6 +5746,10 @@ PROCEDURE valid-ship-id :
         END.     /* Task 10241303 */
 
       END.
+      IF AVAILABLE shipto AND NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN 
+            MESSAGE "Please note: Shipto " shipto.ship-id " is valid but currently inactive"
+            VIEW-AS ALERT-BOX.
+            
  END.
 
 END PROCEDURE.
