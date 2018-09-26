@@ -305,16 +305,15 @@ DEFINE QUERY external_tables FOR est, ef, eb.
 probe.full-cost display-gp (1) @ probe.gross-profit ~
 display-gp (1) @ probe.gross-profit probe.gross-profit probe.grossProfitPctTemp ~
 probe.comm probe.net-profit probe.sell-price probe.gsh-qty probe.do-quote ~
-voverall(1) @ voverall probe.probe-date probe.boardCostPerM probe.boardCostPct ~
-probe.boardContributionPerM probe.boardContributionTotal probe.probe-user vtot-msf() @ vtot-msf ~
-cvt-time(probe.probe-time) @ ls-probetime probe.grossProfitPerM probe.grossProfitPerManhourAssemb ~
-probe.grossProfitPerManHourOther probe.line probe.spare-dec-1 probe.board-cost ~
+voverall(1) @ voverall probe.probe-date reftable.val[2] reftable.val[3] ~
+reftable.val[4] reftable.val[5] probe.probe-user vtot-msf() @ vtot-msf ~
+cvt-time(probe.probe-time) @ ls-probetime probe.line probe.spare-dec-1 ~
 fDirectMatPctSellPrice(1) @ dMatPctSellPrice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table probe.full-cost ~
-probe.gross-profit probe.grossProfitPctTemp probe.net-profit ~
-probe.sell-price probe.do-quote probe.boardCostPct probe.boardContributionPerM ~
-probe.boardContributionTotal probe.grossProfitPerM probe.grossProfitPerManhourAssemb probe.grossProfitPerManHourOther 
-&Scoped-define ENABLED-TABLES-IN-QUERY-br_table probe
+probe.gross-profit reftable.val[11] probe.net-profit ~
+probe.sell-price probe.do-quote reftable.val[3] reftable.val[4] ~
+reftable.val[5] 
+&Scoped-define ENABLED-TABLES-IN-QUERY-br_table probe reftable
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table probe
 &Scoped-define QUERY-STRING-br_table FOR EACH probe WHERE probe.company = eb.company and ~
 ASI.probe.est-no = eb.est-no ~
@@ -387,28 +386,6 @@ RUN set-attribute-list (
 &ANALYZE-RESUME
 
 /* ************************  Function Prototypes ********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD calc-cm B-table-Win 
-FUNCTION calc-cm RETURNS DECIMAL
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD calc-cmah B-table-Win 
-FUNCTION calc-cmah RETURNS DECIMAL
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD calc-cmoh B-table-Win 
-FUNCTION calc-cmoh RETURNS DECIMAL
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD checkNCBrd B-table-Win 
 FUNCTION checkNCBrd RETURNS LOGICAL
   ( /* parameter-definitions */ )  FORWARD.
@@ -693,9 +670,9 @@ ASI.probe.est-no = ASI.eb.est-no"
 "probe.grossProfitPerManHourOther" "CMOH" "->>,>>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[25]   > ASI.probe.line
 "probe.line" ? ">>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[26]   > ASI.probe.spare-dec-1
+     _FldNameList[23]   > ASI.probe.spare-dec-1
 "probe.spare-dec-1" "Direct!Material" "->>>,>>9.99" "decimal" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[27]   > "_<CALC>"
+     _FldNameList[24]   > "_<CALC>"
 "fDirectMatPctSellPrice(1) @ dMatPctSellPrice" "Dir. Mat%" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
@@ -1450,8 +1427,6 @@ PROCEDURE calc-fields :
       IF lv-changed2 NE "S" THEN 
         probe.gross-profit:{&SVB} = STRING(display-gp (0)).
     END.
-    RUN recalc-multicell.
-     
     RUN save-fields.
 
   END.
