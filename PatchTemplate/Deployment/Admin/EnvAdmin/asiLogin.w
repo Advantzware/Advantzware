@@ -1034,7 +1034,7 @@ PROCEDURE ipClickOk :
         IF INDEX(cRunPgm,"mainmenu") <> 0
         AND iEnvLevel LT 16080000
         AND (SEARCH("system/mainmenu2.r") NE ? 
-            OR SEARCH("system/mainment2.w") NE ?) THEN ASSIGN
+            OR SEARCH("system/mainmenu2.w") NE ?) THEN ASSIGN
             cRunPgm = "system/mainmenu2.w".
         RUN VALUE(cRunPgm).
     END.
@@ -1594,13 +1594,14 @@ PROCEDURE ipPreRun :
         IF NOT lOK THEN QUIT.
     END.
 
-    IF NOT VALID-HANDLE(hSession) THEN DO:
+    IF NOT VALID-HANDLE(hSession)
+    AND iEnvLevel GE 16071600 THEN DO:
         RUN system\session.p PERSISTENT SET hSession.
         SESSION:ADD-SUPER-PROCEDURE (hSession).
     END.
     
     IF NOT VALID-HANDLE(hTags) 
-    AND iDbLevel GE 16080000 THEN DO:
+    AND iEnvLevel GE 16080000 THEN DO:
         RUN system\TagProcs.p PERSISTENT SET hTags.
         SESSION:ADD-SUPER-PROCEDURE (hTags).
     END.
