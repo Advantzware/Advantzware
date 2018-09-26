@@ -1036,7 +1036,7 @@ PROCEDURE ipClickOk :
         AND (SEARCH("system/mainmenu2.r") NE ? 
             OR SEARCH("system/mainment2.w") NE ?) THEN ASSIGN
             cRunPgm = "system/mainmenu2.w".
-        RUN VALUE(cRunPgm).        RUN VALUE(cRunPgm).
+        RUN VALUE(cRunPgm).
     END.
     /* This is only used to monitor users */
     ELSE DO: 
