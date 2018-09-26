@@ -4291,8 +4291,19 @@ PROCEDURE display-est-detail :
           (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
            (tt-item-qty-price.part-no EQ oe-ordl.i-no:SCREEN-VALUE AND oe-ordl.i-no:SCREEN-VALUE NE ""))) THEN
         DO:
+          FIND FIRST quotehd NO-LOCK 
+              WHERE quotehd.company EQ est.company AND
+              quotehd.est-no EQ est.est-no AND 
+              quotehd.quo-date LE TODAY AND
+              (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) NO-ERROR .
+           
+          IF AVAIL quotehd THEN do:
            RUN oe/d-ordqty.w (RECID(est-qty), OUTPUT lv-qty, OUTPUT lv-price, OUTPUT lv-pr-uom,
                               OUTPUT lv-rel, OUTPUT op-error, OUTPUT TABLE tt-item-qty-price).
+          END.
+          ELSE DO:
+           op-error = YES .
+          END.
 
            IF op-error EQ NO THEN
               ASSIGN

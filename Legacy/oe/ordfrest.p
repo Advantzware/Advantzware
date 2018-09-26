@@ -268,9 +268,12 @@ PROCEDURE new-order:
     EMPTY TEMP-TABLE tt-item-qty-price.
 
 
-
-    FOR EACH quoteitm NO-LOCK WHERE quoteitm.company EQ xest.company AND
-          quoteitm.est-no EQ xest.est-no,
+    FOR EACH quotehd NO-LOCK 
+      WHERE quotehd.company EQ xest.company AND
+      quotehd.est-no EQ xest.est-no AND 
+      quotehd.quo-date LE TODAY AND
+      (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?),
+    EACH quoteitm OF quotehd NO-LOCK ,
           EACH quoteqty OF quoteitm NO-LOCK BREAK BY quoteqty.LINE BY quoteqty.quote-date DESC 
               BY quoteqty.qty :
 
