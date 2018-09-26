@@ -1047,16 +1047,16 @@ PROCEDURE local-assign-record:
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  ASSIGN 
-      fg-rctd.enteredBy = USERID("asi")
-      fg-rctd.enteredDT = DATETIME(TODAY, MTIME) 
-      .
+
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-
+    /* Code placed here will execute AFTER standard behavior.    */
+    ASSIGN 
+        fg-rctd.enteredBy = USERID("asi")
+        fg-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+        .
 
 
 END PROCEDURE.
