@@ -47,8 +47,12 @@ def TEMP-TABLE w-est NO-UNDO field w-est-no like est.est-no
 
 def var i as int no-undo.
 def var li-seq as int no-undo.
-
+DEF VAR ld-msf AS DEC NO-UNDO.
 def shared var cocode as cha no-undo.
+
+{custom/globdefs.i}
+cocode = g_company.
+{cec/msfcalc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -73,21 +77,25 @@ lv-qty-7 lv-rels-7 lv-qty-8 lv-rels-8 lv-qty-9 lv-rels-9 lv-qty-10 ~
 lv-rels-10 lv-qty-11 lv-rels-11 lv-qty-12 lv-rels-12 lv-qty-13 lv-rels-13 ~
 lv-qty-14 lv-rels-14 lv-qty-15 lv-rels-15 lv-qty-16 lv-rels-16 lv-qty-17 ~
 lv-rels-17 lv-qty-18 lv-rels-18 lv-qty-19 lv-rels-19 lv-qty-20 lv-rels-20 ~
-lv-qty-21 lv-rels-21 lv-qty-22 lv-rels-22 lv-qty-23 lv-rels-23 lv-qty-24 ~
-lv-rels-24 lv-qty-25 lv-rels-25 lv-qty-26 lv-rels-26 lv-qty-27 lv-rels-27 ~
-lv-qty-28 lv-rels-28 btn-clear btn-upd v-do-speed v-do-mr v-do-gsa ~
-v-drop-rc v-ink-all-forms lv-match-up v-est-list Btn_OK Btn_Cancel ~
-v-calc-board-cost-on-blank RECT-1 RECT-23 RECT-24 
+btn-clear btn-upd v-do-speed v-do-mr v-do-gsa v-drop-rc v-ink-all-forms ~
+lv-match-up v-est-list Btn_OK Btn_Cancel v-calc-board-cost-on-blank RECT-1 ~
+RECT-23 RECT-24 tb_run tb_run-2 tb_run-3 tb_run-4 tb_run-5 tb_run-6 ~
+tb_run-7 tb_run-8 tb_run-9 tb_run-10 tb_run-11 tb_run-12 tb_run-13 ~
+tb_run-14 tb_run-15 tb_run-16 tb_run-17 tb_run-18 tb_run-19 tb_run-20 ~
+tb_run-21 
 &Scoped-Define DISPLAYED-OBJECTS lv-qty-1 lv-rels-1 lv-qty-2 lv-rels-2 ~
 lv-qty-3 lv-rels-3 lv-qty-4 lv-rels-4 lv-qty-5 lv-rels-5 lv-qty-6 lv-rels-6 ~
 lv-qty-7 lv-rels-7 lv-qty-8 lv-rels-8 lv-qty-9 lv-rels-9 lv-qty-10 ~
 lv-rels-10 lv-qty-11 lv-rels-11 lv-qty-12 lv-rels-12 lv-qty-13 lv-rels-13 ~
 lv-qty-14 lv-rels-14 lv-qty-15 lv-rels-15 lv-qty-16 lv-rels-16 lv-qty-17 ~
 lv-rels-17 lv-qty-18 lv-rels-18 lv-qty-19 lv-rels-19 lv-qty-20 lv-rels-20 ~
-lv-qty-21 lv-rels-21 lv-qty-22 lv-rels-22 lv-qty-23 lv-rels-23 lv-qty-24 ~
-lv-rels-24 lv-qty-25 lv-rels-25 lv-qty-26 lv-rels-26 lv-qty-27 lv-rels-27 ~
-lv-qty-28 lv-rels-28 v-do-speed v-do-mr v-do-gsa v-drop-rc v-ink-all-forms ~
-lv-match-up v-est-list v-calc-board-cost-on-blank 
+v-do-speed v-do-mr v-do-gsa v-drop-rc v-ink-all-forms lv-match-up ~
+v-est-list v-calc-board-cost-on-blank tb_run tb_run-2 tb_run-3 tb_run-4 ~
+tb_run-5 tb_run-6 tb_run-7 tb_run-8 tb_run-9 tb_run-10 tb_run-11 tb_run-12 ~
+tb_run-13 tb_run-14 tb_run-15 tb_run-16 tb_run-17 tb_run-18 tb_run-19 ~
+tb_run-20 tb_run-21 lv-msf-1 lv-msf-2 lv-msf-3 lv-msf-4 lv-msf-5 lv-msf-6 ~
+lv-msf-7 lv-msf-8 lv-msf-9 lv-msf-10 lv-msf-11 lv-msf-12 lv-msf-13 ~
+lv-msf-14 lv-msf-15 lv-msf-16 lv-msf-17 lv-msf-18 lv-msf-19 lv-msf-20 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -130,6 +138,86 @@ DEFINE VARIABLE lv-match-up AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 11 BY 1
      FONT 6 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-1 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-10 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-11 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-12 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-13 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-14 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-15 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-16 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-17 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-18 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-19 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-2 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-20 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-3 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-4 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-5 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-6 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-7 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-8 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-msf-9 AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-qty-1 AS INTEGER FORMAT ">>>,>>>,>>>" INITIAL 0 
      VIEW-AS FILL-IN 
@@ -183,38 +271,6 @@ DEFINE VARIABLE lv-qty-20 AS INTEGER FORMAT ">>>,>>>,>>>" INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-qty-21 AS INTEGER FORMAT ">>>,>>>,>>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-qty-22 AS INTEGER FORMAT ">>>,>>>,>>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-qty-23 AS INTEGER FORMAT ">>>,>>>,>>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-qty-24 AS INTEGER FORMAT ">>>,>>>,>>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-qty-25 AS INTEGER FORMAT ">>>,>>>,>>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-qty-26 AS INTEGER FORMAT ">>>,>>>,>>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-qty-27 AS INTEGER FORMAT ">>>,>>>,>>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-qty-28 AS INTEGER FORMAT ">>>,>>>,>>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
-
 DEFINE VARIABLE lv-qty-3 AS INTEGER FORMAT ">>>,>>>,>>>" INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
@@ -243,121 +299,89 @@ DEFINE VARIABLE lv-qty-9 AS INTEGER FORMAT ">>>,>>>,>>>" INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-1 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-1 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-10 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-10 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-11 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-11 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-12 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-12 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-13 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-13 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-14 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-14 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-15 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-15 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-16 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-16 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-17 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-17 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-18 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-18 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-19 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-19 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-2 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-2 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-20 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-20 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-21 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-3 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-22 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-4 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-23 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-5 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-24 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-6 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-25 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-7 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-26 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-8 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-rels-27 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE lv-rels-9 AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-rels-28 AS INTEGER FORMAT ">>":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-rels-3 AS INTEGER FORMAT ">>":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-rels-4 AS INTEGER FORMAT ">>":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-rels-5 AS INTEGER FORMAT ">>":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-rels-6 AS INTEGER FORMAT ">>":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-rels-7 AS INTEGER FORMAT ">>":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-rels-8 AS INTEGER FORMAT ">>":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-rels-9 AS INTEGER FORMAT ">>":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 119 BY 10.48.
+     SIZE 141 BY 24.29.
 
 DEFINE RECTANGLE RECT-23
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -366,6 +390,132 @@ DEFINE RECTANGLE RECT-23
 DEFINE RECTANGLE RECT-24
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 48 BY 8.33.
+
+DEFINE VARIABLE tb_run AS LOGICAL INITIAL no 
+     LABEL ""
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-10 AS LOGICAL INITIAL no 
+     LABEL ""
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-11 AS LOGICAL INITIAL no 
+    LABEL ""
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-12 AS LOGICAL INITIAL no 
+    LABEL ""
+    VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-13 AS LOGICAL INITIAL no 
+    LABEL ""
+    VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-14 AS LOGICAL INITIAL no 
+    LABEL ""
+    VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-15 AS LOGICAL INITIAL no 
+     LABEL ""
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-16 AS LOGICAL INITIAL no
+     LABEL ""
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-17 AS LOGICAL INITIAL no 
+     LABEL ""
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-18 AS LOGICAL INITIAL no 
+     LABEL ""
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-19 AS LOGICAL INITIAL no 
+     LABEL ""
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-2 AS LOGICAL INITIAL no 
+     LABEL ""
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-20 AS LOGICAL INITIAL no 
+     LABEL ""
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-21 AS LOGICAL INITIAL no 
+     LABEL "Select All" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 14.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-3 AS LOGICAL INITIAL no 
+     LABEL ""
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-4 AS LOGICAL INITIAL no 
+     LABEL ""
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-5 AS LOGICAL INITIAL no 
+     LABEL ""
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-6 AS LOGICAL INITIAL no 
+     LABEL ""
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-7 AS LOGICAL INITIAL no 
+     LABEL ""
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-8 AS LOGICAL INITIAL no 
+     LABEL ""
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE tb_run-9 AS LOGICAL INITIAL no 
+     LABEL ""
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.8 BY 1
+     FONT 6 NO-UNDO.
 
 DEFINE VARIABLE v-calc-board-cost-on-blank AS LOGICAL INITIAL no 
      LABEL "Calc board cost on blank?" 
@@ -410,139 +560,153 @@ DEFINE FRAME D-Dialog
      lv-qty-1 AT ROW 2.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
      lv-rels-1 AT ROW 2.43 COL 24 COLON-ALIGNED NO-LABEL
-     lv-qty-2 AT ROW 2.43 COL 34 COLON-ALIGNED HELP
+     tb_run AT ROW 2.38 COL 45.2 WIDGET-ID 8 NO-LABEL
+     lv-qty-2 AT ROW 3.43 COL 7 HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-2 AT ROW 2.43 COL 52 COLON-ALIGNED NO-LABEL
-     lv-qty-3 AT ROW 2.43 COL 62 COLON-ALIGNED HELP
+     lv-rels-2 AT ROW 3.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-2 AT ROW 3.33 COL 45.2 WIDGET-ID 10 NO-LABEL
+     lv-qty-3 AT ROW 4.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-3 AT ROW 2.43 COL 80 COLON-ALIGNED NO-LABEL
-     lv-qty-4 AT ROW 2.43 COL 90 COLON-ALIGNED HELP
+     lv-rels-3 AT ROW 4.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-3 AT ROW 4.38 COL 45.2 WIDGET-ID 12 NO-LABEL
+     lv-qty-4 AT ROW 5.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-4 AT ROW 2.43 COL 108 COLON-ALIGNED NO-LABEL
-     lv-qty-5 AT ROW 3.38 COL 5 COLON-ALIGNED HELP
+     lv-rels-4 AT ROW 5.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-4 AT ROW 5.38 COL 45.2 WIDGET-ID 14 NO-LABEL
+     lv-qty-5 AT ROW 6.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-5 AT ROW 3.38 COL 24 COLON-ALIGNED NO-LABEL
-     lv-qty-6 AT ROW 3.38 COL 34 COLON-ALIGNED HELP
+     lv-rels-5 AT ROW 6.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-5 AT ROW 6.43 COL 45.2 WIDGET-ID 16 NO-LABEL
+     lv-qty-6 AT ROW 7.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-6 AT ROW 3.38 COL 52 COLON-ALIGNED NO-LABEL
-     lv-qty-7 AT ROW 3.38 COL 62 COLON-ALIGNED HELP
+     lv-rels-6 AT ROW 7.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-6 AT ROW 7.48 COL 45.2 WIDGET-ID 18 NO-LABEL
+     lv-qty-7 AT ROW 8.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-7 AT ROW 3.38 COL 80 COLON-ALIGNED NO-LABEL
-     lv-qty-8 AT ROW 3.38 COL 90 COLON-ALIGNED HELP
+     lv-rels-7 AT ROW 8.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-7 AT ROW 8.52 COL 45.2 WIDGET-ID 20 NO-LABEL
+     lv-qty-8 AT ROW 9.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-8 AT ROW 3.38 COL 108 COLON-ALIGNED NO-LABEL
-     lv-qty-9 AT ROW 4.33 COL 5 COLON-ALIGNED HELP
+     lv-rels-8 AT ROW 9.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-8 AT ROW 9.43 COL 45.2 WIDGET-ID 22 NO-LABEL
+     lv-qty-9 AT ROW 10.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-9 AT ROW 4.33 COL 24 COLON-ALIGNED NO-LABEL
-     lv-qty-10 AT ROW 4.33 COL 34 COLON-ALIGNED HELP
+     lv-rels-9 AT ROW 10.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-9 AT ROW 10.48 COL 45.2 WIDGET-ID 24 NO-LABEL
+     lv-qty-10 AT ROW 11.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-10 AT ROW 4.33 COL 52 COLON-ALIGNED NO-LABEL
-     lv-qty-11 AT ROW 4.33 COL 62 COLON-ALIGNED HELP
+     lv-rels-10 AT ROW 11.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-10 AT ROW 11.48 COL 45.2 WIDGET-ID 26 NO-LABEL
+     lv-qty-11 AT ROW 12.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-11 AT ROW 4.33 COL 80 COLON-ALIGNED NO-LABEL
-     lv-qty-12 AT ROW 4.33 COL 90 COLON-ALIGNED HELP
+     lv-rels-11 AT ROW 12.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-11 AT ROW 12.38 COL 45.2 WIDGET-ID 28 NO-LABEL
+     lv-qty-12 AT ROW 13.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-12 AT ROW 4.33 COL 108 COLON-ALIGNED NO-LABEL
-     lv-qty-13 AT ROW 5.29 COL 5 COLON-ALIGNED HELP
+     lv-rels-12 AT ROW 13.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-12 AT ROW 13.38 COL 45.2 WIDGET-ID 30 NO-LABEL
+     lv-qty-13 AT ROW 14.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-13 AT ROW 5.29 COL 24 COLON-ALIGNED NO-LABEL
-     lv-qty-14 AT ROW 5.29 COL 34 COLON-ALIGNED HELP
+     lv-rels-13 AT ROW 14.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-13 AT ROW 14.43 COL 45.2 WIDGET-ID 32 NO-LABEL
+     lv-qty-14 AT ROW 15.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-14 AT ROW 5.29 COL 52 COLON-ALIGNED NO-LABEL
-     lv-qty-15 AT ROW 5.29 COL 62 COLON-ALIGNED HELP
+     lv-rels-14 AT ROW 15.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-14 AT ROW 15.38 COL 45.2 WIDGET-ID 34 NO-LABEL
+     lv-qty-15 AT ROW 16.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-15 AT ROW 5.29 COL 80 COLON-ALIGNED NO-LABEL
-     lv-qty-16 AT ROW 5.29 COL 90 COLON-ALIGNED HELP
+     lv-rels-15 AT ROW 16.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-15 AT ROW 16.38 COL 45.2 WIDGET-ID 36 NO-LABEL
+     lv-qty-16 AT ROW 17.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-16 AT ROW 5.29 COL 108 COLON-ALIGNED NO-LABEL
-     lv-qty-17 AT ROW 6.24 COL 5 COLON-ALIGNED HELP
+     lv-rels-16 AT ROW 17.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-16 AT ROW 17.43 COL 45.2 WIDGET-ID 38 NO-LABEL
+     lv-qty-17 AT ROW 18.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-17 AT ROW 6.24 COL 24 COLON-ALIGNED NO-LABEL
-     lv-qty-18 AT ROW 6.24 COL 34 COLON-ALIGNED HELP
+     lv-rels-17 AT ROW 18.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-17 AT ROW 18.48 COL 45.2 WIDGET-ID 40 NO-LABEL
+     lv-qty-18 AT ROW 19.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-18 AT ROW 6.24 COL 52 COLON-ALIGNED NO-LABEL
-     lv-qty-19 AT ROW 6.24 COL 62 COLON-ALIGNED HELP
+     lv-rels-18 AT ROW 19.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-18 AT ROW 19.52 COL 45.2 WIDGET-ID 42 NO-LABEL
+     lv-qty-19 AT ROW 20.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-19 AT ROW 6.24 COL 80 COLON-ALIGNED NO-LABEL
-     lv-qty-20 AT ROW 6.24 COL 90 COLON-ALIGNED HELP
+     lv-rels-19 AT ROW 20.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-19 AT ROW 20.48 COL 45.2  NO-LABEL WIDGET-ID 44
+     lv-qty-20 AT ROW 21.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
-     lv-rels-20 AT ROW 6.24 COL 108 COLON-ALIGNED NO-LABEL
-     lv-qty-21 AT ROW 7.19 COL 5 COLON-ALIGNED HELP
-          "Enter Quantity." NO-LABEL
-     lv-rels-21 AT ROW 7.19 COL 24 COLON-ALIGNED NO-LABEL
-     lv-qty-22 AT ROW 7.19 COL 34 COLON-ALIGNED HELP
-          "Enter Quantity." NO-LABEL
-     lv-rels-22 AT ROW 7.19 COL 52 COLON-ALIGNED NO-LABEL
+     lv-rels-20 AT ROW 21.43 COL 24 COLON-ALIGNED NO-LABEL
+     tb_run-20 AT ROW 21.43 COL 45.2 NO-LABEL WIDGET-ID 46 
+     btn-clear AT ROW 20.86 COL 96.4
+     btn-upd AT ROW 20.86 COL 117.4
+     v-do-speed AT ROW 3.86 COL 74.8
+     v-do-mr AT ROW 4.81 COL 74.8
+     v-do-gsa AT ROW 5.76 COL 74.8
+     v-drop-rc AT ROW 6.71 COL 74.8
+     v-ink-all-forms AT ROW 7.67 COL 74.8 WIDGET-ID 2
+     lv-match-up AT ROW 9.57 COL 109.8 COLON-ALIGNED
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME D-Dialog
-     lv-qty-23 AT ROW 7.19 COL 62 COLON-ALIGNED HELP
-          "Enter Quantity." NO-LABEL
-     lv-rels-23 AT ROW 7.19 COL 80 COLON-ALIGNED NO-LABEL
-     lv-qty-24 AT ROW 7.19 COL 90 COLON-ALIGNED HELP
-          "Enter Quantity." NO-LABEL
-     lv-rels-24 AT ROW 7.19 COL 108 COLON-ALIGNED NO-LABEL
-     lv-qty-25 AT ROW 8.14 COL 5 COLON-ALIGNED HELP
-          "Enter Quantity." NO-LABEL
-     lv-rels-25 AT ROW 8.14 COL 24 COLON-ALIGNED NO-LABEL
-     lv-qty-26 AT ROW 8.14 COL 34 COLON-ALIGNED HELP
-          "Enter Quantity." NO-LABEL
-     lv-rels-26 AT ROW 8.14 COL 52 COLON-ALIGNED NO-LABEL
-     lv-qty-27 AT ROW 8.14 COL 62 COLON-ALIGNED HELP
-          "Enter Quantity." NO-LABEL
-     lv-rels-27 AT ROW 8.14 COL 80 COLON-ALIGNED NO-LABEL
-     lv-qty-28 AT ROW 8.14 COL 90 COLON-ALIGNED HELP
-          "Enter Quantity." NO-LABEL
-     lv-rels-28 AT ROW 8.14 COL 108 COLON-ALIGNED NO-LABEL
-     btn-clear AT ROW 9.81 COL 42
-     btn-upd AT ROW 9.81 COL 63
-     v-do-speed AT ROW 12.91 COL 6
-     v-do-mr AT ROW 13.86 COL 6
-     v-do-gsa AT ROW 14.81 COL 6
-     v-drop-rc AT ROW 15.76 COL 6
-     v-ink-all-forms AT ROW 16.71 COL 6 WIDGET-ID 2
-     lv-match-up AT ROW 18.62 COL 41 COLON-ALIGNED
-     v-est-list AT ROW 12.95 COL 73 HELP
+     v-est-list AT ROW 13 COL 85.4 HELP
           "Enter a list of estimates separated by commas" NO-LABEL
-     Btn_OK AT ROW 20.52 COL 30
-     Btn_Cancel AT ROW 20.52 COL 74
-     v-calc-board-cost-on-blank AT ROW 17.67 COL 6 WIDGET-ID 4
-     "Rels" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.71 COL 81
-          FONT 6
-     "Selection" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 11.95 COL 4
-          FONT 6
-     "Rels" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.71 COL 109
-          FONT 6
-     "Estimates for Board Cost" VIEW-AS TEXT
-          SIZE 33 BY 1 AT ROW 11.95 COL 80
-     "Quantity" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 1.71 COL 95
-          FONT 6
-     "Quantity" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 1.71 COL 66
-          FONT 6
-     "Rels" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.71 COL 26
-          FONT 6
-     "Quantity" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 1.71 COL 38
-          FONT 6
-     "Rels" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.71 COL 53
-          FONT 6
+     Btn_OK AT ROW 23.67 COL 12.6
+     Btn_Cancel AT ROW 23.67 COL 45.6
+     v-calc-board-cost-on-blank AT ROW 8.62 COL 74.8 WIDGET-ID 4
+     
+     
+     tb_run-21 AT ROW 20.95 COL 77.8 WIDGET-ID 48
+     lv-msf-1 AT ROW 2.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     lv-msf-2 AT ROW 3.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 54
+     lv-msf-3 AT ROW 4.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 56
+     lv-msf-4 AT ROW 5.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     lv-msf-5 AT ROW 6.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 60
+     lv-msf-6 AT ROW 7.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 62
+     lv-msf-7 AT ROW 8.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 64
+     lv-msf-8 AT ROW 9.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 66
+     lv-msf-9 AT ROW 10.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 68
+     lv-msf-10 AT ROW 11.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 70
+     lv-msf-11 AT ROW 12.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 72
+     lv-msf-12 AT ROW 13.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 74
+     lv-msf-13 AT ROW 14.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 76
+     lv-msf-14 AT ROW 15.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 78
+     lv-msf-15 AT ROW 16.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 80
+     lv-msf-16 AT ROW 17.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 82
+     lv-msf-17 AT ROW 18.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 84
+     lv-msf-18 AT ROW 19.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 86
+     lv-msf-19 AT ROW 20.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+     lv-msf-20 AT ROW 21.43 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 90
      "Quantity" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1.71 COL 10
           FONT 6
+     "Run/Ship" VIEW-AS TEXT
+          SIZE 11.4 BY .62 AT ROW 1.71 COL 42.6 WIDGET-ID 6
+          FONT 6
+     "Qty Msf" VIEW-AS TEXT
+          SIZE 11.4 BY .62 AT ROW 1.71 COL 55.6 WIDGET-ID 52
+          FONT 6
+     "Selection" VIEW-AS TEXT
+          SIZE 12 BY 1 AT ROW 2.91 COL 72.8
+          FONT 6
+    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FONT 6
+         DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME D-Dialog
+     "Estimates for Board Cost" VIEW-AS TEXT
+          SIZE 33 BY 1 AT ROW 12 COL 92.4
+     "Releases" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.71 COL 26
+          FONT 6
      RECT-1 AT ROW 1.24 COL 1
-     RECT-23 AT ROW 11.71 COL 1
-     RECT-24 AT ROW 11.71 COL 72
-     SPACE(2.39) SKIP(1.86)
+     RECT-23 AT ROW 2.67 COL 70.4
+     RECT-24 AT ROW 11.76 COL 84.4
+     SPACE(11.59) SKIP(6.14)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -579,6 +743,108 @@ ASSIGN
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN lv-msf-1 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-1:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-10 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-10:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-11 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-11:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-12 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-12:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-13 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-13:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-14 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-14:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-15 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-15:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-16 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-16:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-17 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-17:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-18 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-18:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-19 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-19:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-2 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-2:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-20 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-20:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-3 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-3:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-4 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-4:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-5 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-5:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-6 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-6:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-7 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-7:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-8 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-8:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-msf-9 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lv-msf-9:READ-ONLY IN FRAME D-Dialog        = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-qty-2 IN FRAME D-Dialog
+   ALIGN-L                                                              */
 ASSIGN 
        v-est-list:RETURN-INSERTED IN FRAME D-Dialog  = TRUE.
 
@@ -639,14 +905,7 @@ DO:
    lv-qty-18:SCREEN-VALUE  = ""
    lv-qty-19:SCREEN-VALUE  = ""
    lv-qty-20:SCREEN-VALUE  = ""
-   lv-qty-21:SCREEN-VALUE  = ""
-   lv-qty-22:SCREEN-VALUE  = ""
-   lv-qty-23:SCREEN-VALUE  = ""
-   lv-qty-24:SCREEN-VALUE  = ""
-   lv-qty-25:SCREEN-VALUE  = ""
-   lv-qty-26:SCREEN-VALUE  = ""
-   lv-qty-27:SCREEN-VALUE  = ""
-   lv-qty-28:SCREEN-VALUE  = ""
+   
 
    lv-rels-1:SCREEN-VALUE  = ""
    lv-rels-2:SCREEN-VALUE  = ""
@@ -668,14 +927,7 @@ DO:
    lv-rels-18:SCREEN-VALUE = ""
    lv-rels-19:SCREEN-VALUE = ""
    lv-rels-20:SCREEN-VALUE = ""
-   lv-rels-21:SCREEN-VALUE = ""
-   lv-rels-22:SCREEN-VALUE = ""
-   lv-rels-23:SCREEN-VALUE = ""
-   lv-rels-24:SCREEN-VALUE = ""
-   lv-rels-25:SCREEN-VALUE = ""
-   lv-rels-26:SCREEN-VALUE = ""
-   lv-rels-27:SCREEN-VALUE = ""
-   lv-rels-28:SCREEN-VALUE = "".
+   .
 
   APPLY "entry" TO lv-qty-1.
 END.
@@ -757,6 +1009,9 @@ DO:
        ASSIGN
         lv-rels-1:SCREEN-VALUE = ENTRY(11,char-val)
         lv-qty-1:SCREEN-VALUE  = ENTRY(1,char-val).
+        RUN get-msf(integer(lv-qty-1:SCREEN-VALUE)) .
+          lv-msf-1:SCREEN-VALUE = STRING(ld-msf).
+
        APPLY "entry" TO lv-qty-2.
      END.
     
@@ -764,6 +1019,9 @@ DO:
        ASSIGN
         lv-rels-2:SCREEN-VALUE = ENTRY(12,char-val)
         lv-qty-2:SCREEN-VALUE  = ENTRY(2,char-val).
+       RUN get-msf(integer(lv-qty-2:SCREEN-VALUE)) .
+        lv-msf-2:SCREEN-VALUE = STRING(ld-msf).
+
        APPLY "entry" TO lv-qty-3.
      END.
     
@@ -771,6 +1029,9 @@ DO:
        ASSIGN
         lv-rels-3:SCREEN-VALUE = ENTRY(13,char-val)
         lv-qty-3:SCREEN-VALUE  = ENTRY(3,char-val).
+       RUN get-msf(integer(lv-qty-3:SCREEN-VALUE)) .
+         lv-msf-3:SCREEN-VALUE = STRING(ld-msf).
+
        APPLY "entry" TO lv-qty-4.
      END.
     
@@ -778,6 +1039,8 @@ DO:
        ASSIGN
         lv-rels-4:SCREEN-VALUE = ENTRY(14,char-val)
         lv-qty-4:SCREEN-VALUE  = ENTRY(4,char-val).
+       RUN get-msf(integer(lv-qty-4:SCREEN-VALUE)) .
+        lv-msf-4:SCREEN-VALUE = STRING(ld-msf).
        APPLY "entry" TO lv-qty-5.
      END.
     
@@ -785,6 +1048,8 @@ DO:
        ASSIGN
         lv-rels-5:SCREEN-VALUE = ENTRY(15,char-val)
         lv-qty-5:SCREEN-VALUE  = ENTRY(5,char-val).
+        RUN get-msf(integer(lv-qty-5:SCREEN-VALUE)) .
+        lv-msf-5:SCREEN-VALUE = STRING(ld-msf).
        APPLY "entry" TO lv-qty-6.
      END.
     
@@ -792,6 +1057,8 @@ DO:
        ASSIGN
         lv-rels-6:SCREEN-VALUE = ENTRY(16,char-val)
         lv-qty-6:SCREEN-VALUE  = ENTRY(6,char-val).
+        RUN get-msf(integer(lv-qty-6:SCREEN-VALUE)) .
+        lv-msf-6:SCREEN-VALUE = STRING(ld-msf).
        APPLY "entry" TO lv-qty-7.
      END.
     
@@ -799,6 +1066,8 @@ DO:
        ASSIGN
         lv-rels-7:SCREEN-VALUE = ENTRY(17,char-val)
         lv-qty-7:SCREEN-VALUE  = ENTRY(7,char-val).
+        RUN get-msf(integer(lv-qty-7:SCREEN-VALUE)) .
+        lv-msf-7:SCREEN-VALUE = STRING(ld-msf).
        APPLY "entry" TO lv-qty-8.
      END.
     
@@ -806,6 +1075,8 @@ DO:
        ASSIGN
         lv-rels-8:SCREEN-VALUE = ENTRY(18,char-val)
         lv-qty-8:SCREEN-VALUE  = ENTRY(8,char-val).
+       RUN get-msf(integer(lv-qty-8:SCREEN-VALUE)) .
+        lv-msf-8:SCREEN-VALUE = STRING(ld-msf).
        APPLY "entry" TO lv-qty-9.
      END.
     
@@ -813,6 +1084,8 @@ DO:
        ASSIGN
         lv-rels-9:SCREEN-VALUE = ENTRY(19,char-val)
         lv-qty-9:SCREEN-VALUE  = ENTRY(9,char-val).
+        RUN get-msf(integer(lv-qty-9:SCREEN-VALUE)) .
+        lv-msf-9:SCREEN-VALUE = STRING(ld-msf).
        APPLY "entry" TO lv-qty-10.
      END.
     
@@ -820,6 +1093,8 @@ DO:
        ASSIGN
         lv-rels-10:SCREEN-VALUE = ENTRY(20,char-val)
         lv-qty-10:SCREEN-VALUE  = ENTRY(10,char-val).
+        RUN get-msf(integer(lv-qty-10:SCREEN-VALUE)) .
+        lv-msf-10:SCREEN-VALUE = STRING(ld-msf).
        APPLY "entry" TO lv-qty-11.
      END.
   END.
@@ -829,6 +1104,8 @@ DO:
        ASSIGN
         lv-rels-11:SCREEN-VALUE = ENTRY(11,char-val2)
         lv-qty-11:SCREEN-VALUE  = ENTRY(1,char-val2).
+        RUN get-msf(integer(lv-qty-11:SCREEN-VALUE)) .
+        lv-msf-11:SCREEN-VALUE = STRING(ld-msf).
        APPLY "entry" TO lv-qty-12.
      END.
     
@@ -836,6 +1113,8 @@ DO:
        ASSIGN
         lv-rels-12:SCREEN-VALUE = ENTRY(12,char-val2)
         lv-qty-12:SCREEN-VALUE  = ENTRY(2,char-val2).
+        RUN get-msf(integer(lv-qty-12:SCREEN-VALUE)) .
+        lv-msf-12:SCREEN-VALUE = STRING(ld-msf).
        APPLY "entry" TO lv-qty-13.
      END.
     
@@ -843,6 +1122,8 @@ DO:
        ASSIGN
         lv-rels-13:SCREEN-VALUE = ENTRY(13,char-val2)
         lv-qty-13:SCREEN-VALUE  = ENTRY(3,char-val2).
+        RUN get-msf(integer(lv-qty-13:SCREEN-VALUE)) .
+        lv-msf-13:SCREEN-VALUE = STRING(ld-msf).
        APPLY "entry" TO lv-qty-14.
      END.
     
@@ -850,6 +1131,8 @@ DO:
        ASSIGN
         lv-rels-14:SCREEN-VALUE = ENTRY(14,char-val2)
         lv-qty-14:SCREEN-VALUE  = ENTRY(4,char-val2).
+        RUN get-msf(integer(lv-qty-14:SCREEN-VALUE)) .
+        lv-msf-14:SCREEN-VALUE = STRING(ld-msf).
        APPLY "entry" TO lv-qty-15.
      END.
     
@@ -857,6 +1140,8 @@ DO:
        ASSIGN
         lv-rels-15:SCREEN-VALUE = ENTRY(15,char-val2)
         lv-qty-15:SCREEN-VALUE  = ENTRY(5,char-val2).
+        RUN get-msf(integer(lv-qty-15:SCREEN-VALUE)) .
+        lv-msf-15:SCREEN-VALUE = STRING(ld-msf).
        APPLY "entry" TO lv-qty-16.
      END.
     
@@ -864,6 +1149,8 @@ DO:
        ASSIGN
         lv-rels-16:SCREEN-VALUE = ENTRY(16,char-val2)
         lv-qty-16:SCREEN-VALUE  = ENTRY(6,char-val2).
+        RUN get-msf(integer(lv-qty-16:SCREEN-VALUE)) .
+        lv-msf-16:SCREEN-VALUE = STRING(ld-msf).
        APPLY "entry" TO lv-qty-17.
      END.
     
@@ -871,6 +1158,8 @@ DO:
        ASSIGN
         lv-rels-17:SCREEN-VALUE = ENTRY(17,char-val2)
         lv-qty-17:SCREEN-VALUE  = ENTRY(7,char-val2).
+        RUN get-msf(integer(lv-qty-17:SCREEN-VALUE)) .
+        lv-msf-17:SCREEN-VALUE = STRING(ld-msf).
        APPLY "entry" TO lv-qty-18.
      END.
     
@@ -885,6 +1174,8 @@ DO:
        ASSIGN
         lv-rels-19:SCREEN-VALUE = ENTRY(19,char-val2)
         lv-qty-19:SCREEN-VALUE  = ENTRY(9,char-val2).
+        RUN get-msf(integer(lv-qty-19:SCREEN-VALUE)) .
+        lv-msf-19:SCREEN-VALUE = STRING(ld-msf).
        APPLY "entry" TO lv-qty-20.
      END.
     
@@ -892,9 +1183,66 @@ DO:
        ASSIGN
         lv-rels-20:SCREEN-VALUE = ENTRY(20,char-val2)
         lv-qty-20:SCREEN-VALUE  = ENTRY(10,char-val2).
-       APPLY "entry" TO lv-qty-21.
+        RUN get-msf(integer(lv-qty-20:SCREEN-VALUE)) .
+        lv-msf-20:SCREEN-VALUE = STRING(ld-msf).
+       APPLY "entry" TO lv-qty-20.
      END.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&Scoped-define SELF-NAME tb_run-21
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-21 D-Dialog
+ON VALUE-CHANGED OF tb_run-21 IN FRAME D-Dialog /* Select All checkbox */
+DO:
+    IF tb_run-21:SCREEN-VALUE EQ "YES" THEN
+        ASSIGN
+        tb_run:SCREEN-VALUE = "YES"
+        tb_run-2:SCREEN-VALUE = "YES"
+        tb_run-3:SCREEN-VALUE = "YES"
+        tb_run-4:SCREEN-VALUE = "YES"
+        tb_run-5:SCREEN-VALUE = "YES"
+        tb_run-6:SCREEN-VALUE = "YES"
+        tb_run-7:SCREEN-VALUE = "YES"
+        tb_run-8:SCREEN-VALUE = "YES"
+        tb_run-9:SCREEN-VALUE = "YES"
+        tb_run-10:SCREEN-VALUE = "YES"
+        tb_run-11:SCREEN-VALUE = "YES"
+        tb_run-12:SCREEN-VALUE = "YES"
+        tb_run-13:SCREEN-VALUE = "YES"
+        tb_run-14:SCREEN-VALUE = "YES"
+        tb_run-15:SCREEN-VALUE = "YES"
+        tb_run-16:SCREEN-VALUE = "YES"
+        tb_run-17:SCREEN-VALUE = "YES"
+        tb_run-18:SCREEN-VALUE = "YES"
+        tb_run-19:SCREEN-VALUE = "YES"
+        tb_run-20:SCREEN-VALUE = "YES".
+    ELSE IF tb_run-21:SCREEN-VALUE EQ "No" THEN
+        ASSIGN
+        tb_run:SCREEN-VALUE = "No"
+        tb_run-2:SCREEN-VALUE = "NO"
+        tb_run-3:SCREEN-VALUE = "NO"
+        tb_run-4:SCREEN-VALUE = "NO"
+        tb_run-5:SCREEN-VALUE = "NO"
+        tb_run-6:SCREEN-VALUE = "NO"
+        tb_run-7:SCREEN-VALUE = "NO"
+        tb_run-8:SCREEN-VALUE = "NO"
+        tb_run-9:SCREEN-VALUE = "NO"
+        tb_run-10:SCREEN-VALUE = "NO"
+        tb_run-11:SCREEN-VALUE = "NO"
+        tb_run-12:SCREEN-VALUE = "NO"
+        tb_run-13:SCREEN-VALUE = "NO"
+        tb_run-14:SCREEN-VALUE = "NO"
+        tb_run-15:SCREEN-VALUE = "NO"
+        tb_run-16:SCREEN-VALUE = "NO"
+        tb_run-17:SCREEN-VALUE = "NO"
+        tb_run-18:SCREEN-VALUE = "NO"
+        tb_run-19:SCREEN-VALUE = "NO"
+        tb_run-20:SCREEN-VALUE = "NO".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -979,14 +1327,7 @@ DO:
          tt-qtty.qtty[18] = lv-qty-18    
          tt-qtty.qtty[19] = lv-qty-19    
          tt-qtty.qtty[20] = lv-qty-20    
-         tt-qtty.qtty[21] = lv-qty-21    
-         tt-qtty.qtty[22] = lv-qty-22    
-         tt-qtty.qtty[23] = lv-qty-23    
-         tt-qtty.qtty[24] = lv-qty-24    
-         tt-qtty.qtty[25] = lv-qty-25    
-         tt-qtty.qtty[26] = lv-qty-26    
-         tt-qtty.qtty[27] = lv-qty-27    
-         tt-qtty.qtty[28] = lv-qty-28    
+            
          tt-qtty.rel[1] = lv-rels-1    
          tt-qtty.rel[2] = lv-rels-2    
          tt-qtty.rel[3] = lv-rels-3    
@@ -1007,14 +1348,7 @@ DO:
          tt-qtty.rel[18] = lv-rels-18   
          tt-qtty.rel[19] = lv-rels-19   
          tt-qtty.rel[20] = lv-rels-20   
-         tt-qtty.rel[21] = lv-rels-21   
-         tt-qtty.rel[22] = lv-rels-22   
-         tt-qtty.rel[23] = lv-rels-23  
-         tt-qtty.rel[24] = lv-rels-24   
-         tt-qtty.rel[25] = lv-rels-25   
-         tt-qtty.rel[26] = lv-rels-26   
-         tt-qtty.rel[27] = lv-rels-27   
-         tt-qtty.rel[28] = lv-rels-28.
+         .
 
   DO i = 1 TO NUM-ENTRIES(v-est-list):
     ASSIGN
@@ -1084,11 +1418,279 @@ DO:
 FIND CURRENT xest EXCLUSIVE-LOCK NO-ERROR.  
 ASSIGN xest.markupPct = io-v-match-up.  
 FIND CURRENT xest NO-LOCK NO-ERROR.
-  {est/op-lock.i xest}
+ {est/op-lock.i xest}
   ASSIGN
    op-lock.val[1] = INT(io-do-speed)
    op-lock.val[2] = INT(io-do-mr).
+ FIND FIRST est-qty EXCLUSIVE-LOCK
+    WHERE est-qty.company EQ xest.company
+      AND est-qty.est-no  EQ xest.est-no
+    NO-ERROR.
+ IF AVAIL est-qty THEN
+     ASSIGN
+     est-qty.whsed[1]  =   tb_run 
+     est-qty.whsed[2]  =   tb_run-2 
+     est-qty.whsed[3]  =   tb_run-3 
+     est-qty.whsed[4]  =   tb_run-4 
+     est-qty.whsed[5]  =   tb_run-5 
+     est-qty.whsed[6]  =   tb_run-6 
+     est-qty.whsed[7]  =   tb_run-7 
+     est-qty.whsed[8]  =   tb_run-8 
+     est-qty.whsed[9]  =   tb_run-9 
+     est-qty.whsed[10] =   tb_run-10
+     est-qty.whsed[11] =   tb_run-11
+     est-qty.whsed[12] =   tb_run-12
+     est-qty.whsed[13] =   tb_run-13
+     est-qty.whsed[14] =   tb_run-14
+     est-qty.whsed[15] =   tb_run-15
+     est-qty.whsed[16] =   tb_run-16
+     est-qty.whsed[17] =   tb_run-17
+     est-qty.whsed[18] =   tb_run-18
+     est-qty.whsed[19] =   tb_run-19
+     est-qty.whsed[20] =   tb_run-20 .
 
+ FIND CURRENT est-qty NO-LOCK NO-ERROR.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-1 D-Dialog
+ON VALUE-CHANGED OF lv-qty-1 IN FRAME D-Dialog
+DO:
+  RUN get-msf(integer(lv-qty-1:SCREEN-VALUE)) .
+  lv-msf-1:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-10
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-10 D-Dialog
+ON VALUE-CHANGED OF lv-qty-10 IN FRAME D-Dialog
+DO:
+  RUN get-msf(integer(lv-qty-10:SCREEN-VALUE)) .
+  lv-msf-10:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-11
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-11 D-Dialog
+ON VALUE-CHANGED OF lv-qty-11 IN FRAME D-Dialog
+DO:
+  RUN get-msf(integer(lv-qty-11:SCREEN-VALUE)) .
+  lv-msf-11:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-12
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-12 D-Dialog
+ON VALUE-CHANGED OF lv-qty-12 IN FRAME D-Dialog
+DO:
+  RUN get-msf(integer(lv-qty-12:SCREEN-VALUE)) .
+  lv-msf-12:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-13
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-13 D-Dialog
+ON VALUE-CHANGED OF lv-qty-13 IN FRAME D-Dialog
+DO:
+  RUN get-msf(integer(lv-qty-13:SCREEN-VALUE)) .
+  lv-msf-13:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-14
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-14 D-Dialog
+ON VALUE-CHANGED OF lv-qty-14 IN FRAME D-Dialog
+DO:
+  RUN get-msf(integer(lv-qty-14:SCREEN-VALUE)) .
+  lv-msf-14:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-15
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-15 D-Dialog
+ON VALUE-CHANGED OF lv-qty-15 IN FRAME D-Dialog
+DO:
+ RUN get-msf(integer(lv-qty-15:SCREEN-VALUE)) .
+  lv-msf-15:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-16
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-16 D-Dialog
+ON VALUE-CHANGED OF lv-qty-16 IN FRAME D-Dialog
+DO:
+  RUN get-msf(integer(lv-qty-16:SCREEN-VALUE)) .
+  lv-msf-16:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-17
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-17 D-Dialog
+ON VALUE-CHANGED OF lv-qty-17 IN FRAME D-Dialog
+DO:
+  RUN get-msf(integer(lv-qty-17:SCREEN-VALUE)) .
+  lv-msf-17:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-18
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-18 D-Dialog
+ON VALUE-CHANGED OF lv-qty-18 IN FRAME D-Dialog
+DO:
+ RUN get-msf(integer(lv-qty-18:SCREEN-VALUE)) .
+  lv-msf-18:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-19
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-19 D-Dialog
+ON VALUE-CHANGED OF lv-qty-19 IN FRAME D-Dialog
+DO:
+ RUN get-msf(integer(lv-qty-19:SCREEN-VALUE)) .
+  lv-msf-19:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-2 D-Dialog
+ON VALUE-CHANGED OF lv-qty-2 IN FRAME D-Dialog
+DO:
+  RUN get-msf(integer(lv-qty-2:SCREEN-VALUE)) .
+  lv-msf-2:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-20
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-20 D-Dialog
+ON VALUE-CHANGED OF lv-qty-20 IN FRAME D-Dialog
+DO:
+  RUN get-msf(integer(lv-qty-20:SCREEN-VALUE)) .
+  lv-msf-20:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-3 D-Dialog
+ON VALUE-CHANGED OF lv-qty-3 IN FRAME D-Dialog
+DO:
+  RUN get-msf(integer(lv-qty-3:SCREEN-VALUE)) .
+  lv-msf-3:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-4 D-Dialog
+ON VALUE-CHANGED OF lv-qty-4 IN FRAME D-Dialog
+DO:
+  RUN get-msf(integer(lv-qty-4:SCREEN-VALUE)) .
+  lv-msf-4:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-5
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-5 D-Dialog
+ON VALUE-CHANGED OF lv-qty-5 IN FRAME D-Dialog
+DO:
+  RUN get-msf(integer(lv-qty-5:SCREEN-VALUE)) .
+  lv-msf-5:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-6
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-6 D-Dialog
+ON VALUE-CHANGED OF lv-qty-6 IN FRAME D-Dialog
+DO:
+  RUN get-msf(integer(lv-qty-6:SCREEN-VALUE)) .
+  lv-msf-6:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-7
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-7 D-Dialog
+ON VALUE-CHANGED OF lv-qty-7 IN FRAME D-Dialog
+DO:
+  RUN get-msf(integer(lv-qty-7:SCREEN-VALUE)) .
+  lv-msf-7:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-8
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-8 D-Dialog
+ON VALUE-CHANGED OF lv-qty-8 IN FRAME D-Dialog
+DO:
+  RUN get-msf(integer(lv-qty-8:SCREEN-VALUE)) .
+  lv-msf-8:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-qty-9
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-9 D-Dialog
+ON VALUE-CHANGED OF lv-qty-9 IN FRAME D-Dialog
+DO:
+  RUN get-msf(integer(lv-qty-9:SCREEN-VALUE)) .
+  lv-msf-9:SCREEN-VALUE = STRING(ld-msf).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1176,14 +1778,7 @@ assign  lv-qty-1 = tt-qtty.qtty[1]
         lv-qty-18 = tt-qtty.qtty[18]
         lv-qty-19 = tt-qtty.qtty[19]
         lv-qty-20 = tt-qtty.qtty[20]
-        lv-qty-21 = tt-qtty.qtty[21]
-        lv-qty-22 = tt-qtty.qtty[22]
-        lv-qty-23 = tt-qtty.qtty[23]
-        lv-qty-24 = tt-qtty.qtty[24]
-        lv-qty-25 = tt-qtty.qtty[25]
-        lv-qty-26 = tt-qtty.qtty[26]
-        lv-qty-27 = tt-qtty.qtty[27]
-        lv-qty-28 = tt-qtty.qtty[28]
+        
         lv-rels-1 = tt-qtty.rel[1]
         lv-rels-2 = tt-qtty.rel[2]
         lv-rels-3 = tt-qtty.rel[3]
@@ -1204,15 +1799,109 @@ assign  lv-qty-1 = tt-qtty.qtty[1]
         lv-rels-18 = tt-qtty.rel[18]
         lv-rels-19 = tt-qtty.rel[19]
         lv-rels-20 = tt-qtty.rel[20]
-        lv-rels-21 = tt-qtty.rel[21]
-        lv-rels-22 = tt-qtty.rel[22]
-        lv-rels-23 = tt-qtty.rel[23]
-        lv-rels-24 = tt-qtty.rel[24]
-        lv-rels-25 = tt-qtty.rel[25]
-        lv-rels-26 = tt-qtty.rel[26]
-        lv-rels-27 = tt-qtty.rel[27]
-        lv-rels-28 = tt-qtty.rel[28]
-         . 
+         .  
+        IF lv-qty-1 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-1)) .
+            lv-msf-1 = (ld-msf).
+        END.
+        IF lv-qty-2 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-2)) .
+            lv-msf-2 = (ld-msf).
+        END.
+        IF lv-qty-3 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-3)) .
+            lv-msf-3 = (ld-msf).
+        END.
+        IF lv-qty-4 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-4)) .
+            lv-msf-4 = (ld-msf).
+        END.
+        IF lv-qty-5 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-5)) .
+            lv-msf-5 = (ld-msf).
+        END.
+        IF lv-qty-6 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-6)) .
+            lv-msf-6 = (ld-msf).
+        END.
+        IF lv-qty-7 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-7)) .
+            lv-msf-7 = (ld-msf).
+        END.
+        IF lv-qty-8 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-8)) .
+            lv-msf-8 = (ld-msf).
+        END.
+        IF lv-qty-9 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-9)) .
+            lv-msf-9 = (ld-msf).
+        END.
+        IF lv-qty-10 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-10)) .
+            lv-msf-10 = (ld-msf).
+        END.
+        IF lv-qty-11 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-11)) .
+            lv-msf-11 = (ld-msf).
+        END.
+        IF lv-qty-12 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-12)) .
+            lv-msf-12 = (ld-msf).
+        END.
+        IF lv-qty-13 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-13)) .
+            lv-msf-13 = (ld-msf).
+        END.
+        IF lv-qty-14 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-14)) .
+            lv-msf-14 = (ld-msf).
+        END.
+        IF lv-qty-15 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-15)) .
+            lv-msf-15 = (ld-msf).
+        END.
+        IF lv-qty-16 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-16)) .
+            lv-msf-16 = (ld-msf).
+        END.
+        IF lv-qty-17 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-17)) .
+            lv-msf-17 = (ld-msf).
+        END.
+        IF lv-qty-18 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-18)) .
+            lv-msf-18 = (ld-msf).
+        END.
+        IF lv-qty-19 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-19)) .
+            lv-msf-19 = (ld-msf).
+        END.
+        IF lv-qty-20 NE 0 THEN do:
+            RUN get-msf(integer(lv-qty-20)) .
+            lv-msf-20 = (ld-msf).
+        END.
+IF AVAIL est-qty THEN
+    ASSIGN
+    tb_run = est-qty.whsed[1]
+    tb_run-2 = est-qty.whsed[2]
+    tb_run-3 = est-qty.whsed[3]
+    tb_run-4 = est-qty.whsed[4]
+    tb_run-5 = est-qty.whsed[5]
+    tb_run-6 = est-qty.whsed[6]
+    tb_run-7 = est-qty.whsed[7]
+    tb_run-8 = est-qty.whsed[8]
+    tb_run-9 = est-qty.whsed[9]
+    tb_run-10 = est-qty.whsed[10]
+    tb_run-11 = est-qty.whsed[11]
+    tb_run-12 = est-qty.whsed[12]
+    tb_run-13 = est-qty.whsed[13]
+    tb_run-14 = est-qty.whsed[14]
+    tb_run-15 = est-qty.whsed[15]
+    tb_run-16 = est-qty.whsed[16]
+    tb_run-17 = est-qty.whsed[17]
+    tb_run-18 = est-qty.whsed[18]
+    tb_run-19 = est-qty.whsed[19]
+    tb_run-20 = est-qty.whsed[20] .
 {src/adm/template/dialogmn.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -1290,11 +1979,14 @@ PROCEDURE enable_UI :
           lv-rels-11 lv-qty-12 lv-rels-12 lv-qty-13 lv-rels-13 lv-qty-14 
           lv-rels-14 lv-qty-15 lv-rels-15 lv-qty-16 lv-rels-16 lv-qty-17 
           lv-rels-17 lv-qty-18 lv-rels-18 lv-qty-19 lv-rels-19 lv-qty-20 
-          lv-rels-20 lv-qty-21 lv-rels-21 lv-qty-22 lv-rels-22 lv-qty-23 
-          lv-rels-23 lv-qty-24 lv-rels-24 lv-qty-25 lv-rels-25 lv-qty-26 
-          lv-rels-26 lv-qty-27 lv-rels-27 lv-qty-28 lv-rels-28 v-do-speed 
-          v-do-mr v-do-gsa v-drop-rc v-ink-all-forms lv-match-up v-est-list 
-          v-calc-board-cost-on-blank 
+          lv-rels-20 v-do-speed v-do-mr v-do-gsa v-drop-rc v-ink-all-forms 
+          lv-match-up v-est-list v-calc-board-cost-on-blank tb_run tb_run-2 
+          tb_run-3 tb_run-4 tb_run-5 tb_run-6 tb_run-7 tb_run-8 tb_run-9 
+          tb_run-10 tb_run-11 tb_run-12 tb_run-13 tb_run-14 tb_run-15 tb_run-16 
+          tb_run-17 tb_run-18 tb_run-19 tb_run-20 tb_run-21 lv-msf-1 lv-msf-2 
+          lv-msf-3 lv-msf-4 lv-msf-5 lv-msf-6 lv-msf-7 lv-msf-8 lv-msf-9 
+          lv-msf-10 lv-msf-11 lv-msf-12 lv-msf-13 lv-msf-14 lv-msf-15 lv-msf-16 
+          lv-msf-17 lv-msf-18 lv-msf-19 lv-msf-20 
       WITH FRAME D-Dialog.
   ENABLE lv-qty-1 lv-rels-1 lv-qty-2 lv-rels-2 lv-qty-3 lv-rels-3 lv-qty-4 
          lv-rels-4 lv-qty-5 lv-rels-5 lv-qty-6 lv-rels-6 lv-qty-7 lv-rels-7 
@@ -1302,12 +1994,12 @@ PROCEDURE enable_UI :
          lv-rels-11 lv-qty-12 lv-rels-12 lv-qty-13 lv-rels-13 lv-qty-14 
          lv-rels-14 lv-qty-15 lv-rels-15 lv-qty-16 lv-rels-16 lv-qty-17 
          lv-rels-17 lv-qty-18 lv-rels-18 lv-qty-19 lv-rels-19 lv-qty-20 
-         lv-rels-20 lv-qty-21 lv-rels-21 lv-qty-22 lv-rels-22 lv-qty-23 
-         lv-rels-23 lv-qty-24 lv-rels-24 lv-qty-25 lv-rels-25 lv-qty-26 
-         lv-rels-26 lv-qty-27 lv-rels-27 lv-qty-28 lv-rels-28 btn-clear btn-upd 
-         v-do-speed v-do-mr v-do-gsa v-drop-rc v-ink-all-forms lv-match-up 
-         v-est-list Btn_OK Btn_Cancel v-calc-board-cost-on-blank RECT-1 RECT-23 
-         RECT-24 
+         lv-rels-20 btn-clear btn-upd v-do-speed v-do-mr v-do-gsa v-drop-rc 
+         v-ink-all-forms lv-match-up v-est-list Btn_OK Btn_Cancel 
+         v-calc-board-cost-on-blank RECT-1 RECT-23 RECT-24 tb_run tb_run-2 
+         tb_run-3 tb_run-4 tb_run-5 tb_run-6 tb_run-7 tb_run-8 tb_run-9 
+         tb_run-10 tb_run-11 tb_run-12 tb_run-13 tb_run-14 tb_run-15 tb_run-16 
+         tb_run-17 tb_run-18 tb_run-19 tb_run-20 tb_run-21 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -1389,6 +2081,33 @@ PROCEDURE state-changed :
 -------------------------------------------------------------*/
   DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
   DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-msf D-Dialog 
+PROCEDURE get-msf :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipiQty AS INTEGER .
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN
+     ld-msf = DEC(ipiQty)
+     ld-msf = (IF v-corr THEN (ld-msf * eb.t-len * eb.t-wid * .007)
+                     ELSE (ld-msf * eb.t-len * eb.t-wid / 144)) *
+          (IF eb.est-type EQ 2 THEN
+             (IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%)
+           ELSE
+           IF eb.est-type EQ 6 THEN
+             (IF eb.quantityPerSet LT 0 THEN -1 / (eb.quantityPerSet) ELSE eb.quantityPerSet)
+           ELSE 1) / 1000.
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
