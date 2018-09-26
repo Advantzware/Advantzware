@@ -167,7 +167,7 @@ DEFINE MENU MENU-BAR-MAINMENU MENUBAR
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE favorites AS CHARACTER FORMAT "X(256)":U INITIAL "." 
      VIEW-AS COMBO-BOX SORT INNER-LINES 5
-     LIST-ITEM-PAIRS "[ Favorites ]","."
+     LIST-ITEM-PAIRS " Favorites","."
      DROP-DOWN-LIST
      SIZE 49 BY 1 TOOLTIP "Select Favorite" NO-UNDO.
 
@@ -1431,11 +1431,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 /*        :                                               */
 /*        RUN system/cueCard.w (BUFFER cueCardText).      */
 /*    END. /* each cuecard */                             */
-/*    RUN spRunCueCard (            */
-/*        "system/mainMenu.",       */
-/*        {&WINDOW-NAME}:HANDLE,    */
-/*        FRAME {&FRAME-NAME}:HANDLE*/
-/*        ).                        */
+/*    RUN spRunCueCard (                                  */
+/*        "system/mainMenu.",                             */
+/*        {&WINDOW-NAME}:HANDLE,                          */
+/*        FRAME {&FRAME-NAME}:HANDLE                      */
+/*        ).                                              */
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -2056,13 +2056,17 @@ PROCEDURE pLoadFavorites :
   Notes:       
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
-        favorites:LIST-ITEM-PAIRS = "[ Favorites ],.".
+        favorites:LIST-ITEM-PAIRS = " Favorites,.".
         FOR EACH ttMenuTree
             WHERE ttMenuTree.favorite EQ YES
             :
-            favorites:ADD-LAST("[" + ttMenuTree.mnemonic + "] "
-                             + ttMenuTree.baseText,ttMenuTree.mnemonic)
-                             .
+            favorites:ADD-LAST(fTreeText(ttMenuTree.isMenu,
+                                         ttMenuTree.baseText,
+                                         ttMenuTree.mnemonic,
+                                         cShowMnemonic,
+                                         cPositionMnemonic),ttMenuTree.mnemonic
+                )
+                .
         END. /* each ttmenutree */
         ASSIGN
             favorites:INNER-LINES  = favorites:NUM-ITEMS
@@ -2238,11 +2242,11 @@ PROCEDURE pReset :
             ttMenuTree.hEditor:FONT         = ?
             ttMenuTree.hEditor:SCREEN-VALUE = fTreeText(ttMenuTree.isMenu,
                                               ttMenuTree.baseText,
-                                              fMnemonic(ttMenuTree.mnemonic),
+                                              ttMenuTree.mnemonic,
                                               cShowMnemonic,
                                               cPositionMnemonic
                                               )
-            ttMenuTree.hEditor:TOOLTIP      = fMnemonic(ttMenuTree.mnemonic)
+            ttMenuTree.hEditor:TOOLTIP      = "HotKey: " + ttMenuTree.mnemonic
             .
         IF VALID-HANDLE(ttMenuTree.hImage) THEN
         ttMenuTree.hImage:HIDDEN = YES.
@@ -2252,6 +2256,8 @@ PROCEDURE pReset :
     RUN pMenuSize.
     RUN pKeyPress (FRAME menuTreeFrame:HANDLE, 32).
     RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
+    RUN pLoadFavorites.
+    APPLY "VALUE-CHANGED":U TO menuTreeFilter IN FRAME searchFrame.
 
     RUN LockWindowUpdate (0,OUTPUT i).
     SESSION:SET-WAIT-STATE("").
@@ -2315,13 +2321,17 @@ PROCEDURE pSearchSelections :
               AND ttMenuTree.isActive EQ YES
               AND ttMenuTree.isMenu   EQ NO
             :
-            searchSelections:ADD-LAST("[" + ttMenuTree.mnemonic + "] "
-                           + ttMenuTree.baseText
-                           + (IF lSuperAdmin THEN "  ( " + STRING(ttMenuTree.treeOrder)
-                           + " - " + CAPS(ttMenuTree.treeParent) + " )" ELSE "")
-                           , ttMenuTree.mnemonic
-                           + "|" + STRING(ttMenuTree.favorite))
-                           .
+            searchSelections:ADD-LAST(fTreeText(ttMenuTree.isMenu,
+                                                ttMenuTree.baseText,
+                                                ttMenuTree.mnemonic,
+                                                cShowMnemonic,
+                                                cPositionMnemonic)
+                + (IF lSuperAdmin THEN "  ( " + STRING(ttMenuTree.treeOrder)
+                + " - " + CAPS(ttMenuTree.treeParent) + " )" ELSE "")
+                , ttMenuTree.mnemonic
+                + "|" + STRING(ttMenuTree.favorite)
+                )
+                .
         END. /* each ttmenutree */
     END. /* with frame */
 
