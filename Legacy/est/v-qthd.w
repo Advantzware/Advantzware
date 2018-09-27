@@ -248,7 +248,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 45 BY 1
      quotehd.sman AT ROW 9.33 COL 16 COLON-ALIGNED
-          LABEL "Sales Rep"
+          LABEL "SalesGrp"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
      sman_desc AT ROW 9.33 COL 25.4 COLON-ALIGNED NO-LABEL
@@ -615,7 +615,7 @@ DO:
    IF quotehd.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN RETURN.
    FIND FIRST sman NO-LOCK WHERE sman.sman EQ quotehd.sman:SCREEN-VALUE NO-ERROR.
    IF NOT AVAILABLE sman THEN DO:
-     MESSAGE 'Invalid Sales Rep. Try Help.' VIEW-AS ALERT-BOX ERROR.
+     MESSAGE 'Invalid SalesGrp. Try Help.' VIEW-AS ALERT-BOX ERROR.
      RETURN NO-APPLY.
    END.
    sman_desc:SCREEN-VALUE = sman.sname.
@@ -1209,7 +1209,7 @@ PROCEDURE local-update-record :
      IF quotehd.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE '' THEN DO:
        FIND FIRST sman NO-LOCK WHERE sman.sman EQ quotehd.sman:SCREEN-VALUE NO-ERROR.
        IF NOT AVAILABLE sman THEN DO:
-         MESSAGE 'Invalid Sales Rep. Try Help.' VIEW-AS ALERT-BOX ERROR.
+         MESSAGE 'Invalid SalesGrp. Try Help.' VIEW-AS ALERT-BOX ERROR.
          APPLY 'ENTRY' TO quotehd.sman.
          RETURN NO-APPLY.
        END.
@@ -1457,7 +1457,7 @@ PROCEDURE print-quote :
 ------------------------------------------------------------------------------*/
   {&methods/lValidateError.i YES}
   IF quotehd.sman = "" THEN DO:
-     MESSAGE "Invalid Sales Rep!" VIEW-AS ALERT-BOX ERROR.
+     MESSAGE "Invalid SalesGrp!" VIEW-AS ALERT-BOX ERROR.
      RETURN.
   END.
 

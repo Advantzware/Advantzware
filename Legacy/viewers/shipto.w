@@ -285,7 +285,7 @@ DEFINE FRAME F-Main
      faxAreaCode AT ROW 12.05 COL 68.6 COLON-ALIGNED AUTO-RETURN 
      faxNumber AT ROW 12.05 COL 76.4 COLON-ALIGNED NO-LABEL
      shipto.spare-char-1 AT ROW 13 COL 68.6 COLON-ALIGNED
-          LABEL "Sales Rep" FORMAT "xxx"
+          LABEL "SalesGrp" FORMAT "xxx"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
      shipto.tax-code AT ROW 13.95 COL 68.6 COLON-ALIGNED

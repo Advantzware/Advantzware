@@ -465,6 +465,7 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      btn_bank-info AT ROW 2.95 COL 129.2
      cust.sman AT ROW 3.86 COL 73 COLON-ALIGNED
+          LABEL "SalesGrp"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
