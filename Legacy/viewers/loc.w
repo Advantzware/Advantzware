@@ -54,21 +54,34 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES loc
+&Scoped-define EXTERNAL-TABLES loc location
 &Scoped-define FIRST-EXTERNAL-TABLE loc
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR loc.
+DEFINE QUERY external_tables FOR loc, location.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS loc.dscr 
-&Scoped-define ENABLED-TABLES loc
+&Scoped-Define ENABLED-FIELDS loc.whs-chg loc.wc-uom loc.dscr ~
+location.lActive location.streetAddr[1] location.streetAddr[2] ~
+location.streetAddr[3] location.subCode3 location.subCode1 ~
+location.subCode4 location.countryCode location.subCode2 location.geoLat ~
+location.geoLong location.defaultBin location.externalID[1] location.notes 
+&Scoped-define ENABLED-TABLES loc location
 &Scoped-define FIRST-ENABLED-TABLE loc
-&Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS loc.loc loc.dscr 
-&Scoped-define DISPLAYED-TABLES loc
+&Scoped-define SECOND-ENABLED-TABLE location
+&Scoped-Define ENABLED-OBJECTS fiDlCty fiDlArea fiDlNbr fiDlExt fiDlCty-2 ~
+fiDlArea-2 fiDlNbr-2 fiDlExt-2 
+&Scoped-Define DISPLAYED-FIELDS loc.loc loc.whs-chg loc.wc-uom loc.dscr ~
+location.lActive location.streetAddr[1] location.streetAddr[2] ~
+location.streetAddr[3] location.streetAddr[4] location.subCode3 ~
+location.streetAddr[5] location.subCode1 location.streetAddr[6] ~
+location.subCode4 location.countryCode location.subCode2 location.geoLat ~
+location.geoLong location.defaultBin location.externalID[1] location.notes 
+&Scoped-define DISPLAYED-TABLES loc location
 &Scoped-define FIRST-DISPLAYED-TABLE loc
-
+&Scoped-define SECOND-DISPLAYED-TABLE location
+&Scoped-Define DISPLAYED-OBJECTS fsStDesc fsCtyDesc fiDlCty fiDlArea ~
+fiDlNbr fiDlExt fiDlCty-2 fiDlArea-2 fiDlNbr-2 fiDlExt-2 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -104,26 +117,145 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 54 BY 2.62.
+DEFINE VARIABLE fiDlArea AS CHARACTER FORMAT "x(4)":U 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiDlArea-2 AS CHARACTER FORMAT "x(4)":U 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiDlCty AS CHARACTER FORMAT "x(4)":U INITIAL "+1" 
+     LABEL "Phone" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiDlCty-2 AS CHARACTER FORMAT "x(4)":U INITIAL "+1" 
+     LABEL "FAX" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiDlExt AS CHARACTER FORMAT "x(6)":U 
+     LABEL "x" 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiDlExt-2 AS CHARACTER FORMAT "x(6)":U 
+     LABEL "x" 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiDlNbr AS CHARACTER FORMAT "x(15)":U 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiDlNbr-2 AS CHARACTER FORMAT "x(15)":U 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fsCtyDesc AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 36 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fsStDesc AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 36 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     loc.loc AT ROW 1.24 COL 14 COLON-ALIGNED
+     loc.loc AT ROW 1.24 COL 12 COLON-ALIGNED
+          LABEL "Location"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 4
+     loc.whs-chg AT ROW 1.24 COL 49 COLON-ALIGNED
+          LABEL "Whse Chg"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     loc.wc-uom AT ROW 1.24 COL 77 COLON-ALIGNED
+          LABEL "Chg Unit"
+          VIEW-AS FILL-IN 
+          SIZE 9 BY 1
+     loc.dscr AT ROW 2.91 COL 16 COLON-ALIGNED
+          LABEL "Name"
+          VIEW-AS FILL-IN 
+          SIZE 47 BY 1
+          BGCOLOR 15 FONT 4
+     location.lActive AT ROW 2.91 COL 68
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.4 BY .81
+     location.streetAddr[1] AT ROW 3.86 COL 16 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 47 BY 1
+     location.streetAddr[2] AT ROW 4.81 COL 16 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 47 BY 1
+     location.streetAddr[3] AT ROW 5.76 COL 16 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 47 BY 1
+     location.streetAddr[4] AT ROW 6.24 COL 95 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 3 BY 1
+     location.subCode3 AT ROW 6.71 COL 16 COLON-ALIGNED
+          LABEL "City"
+          VIEW-AS FILL-IN 
+          SIZE 47 BY 1
+     location.streetAddr[5] AT ROW 7.19 COL 95 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 3 BY 1
+     location.subCode1 AT ROW 7.67 COL 16 COLON-ALIGNED
+          LABEL "St/Prov"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-          BGCOLOR 15 FONT 4
-     loc.dscr AT ROW 2.43 COL 14 COLON-ALIGNED
+     fsStDesc AT ROW 7.67 COL 27 COLON-ALIGNED NO-LABEL
+     location.streetAddr[6] AT ROW 8.14 COL 95 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 38 BY 1
-          BGCOLOR 15 FONT 4
-     RECT-1 AT ROW 1 COL 1
+          SIZE 3 BY 1
+     location.subCode4 AT ROW 8.62 COL 16 COLON-ALIGNED
+          LABEL "Zip/Post"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+     location.countryCode AT ROW 8.62 COL 43 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
+     fsCtyDesc AT ROW 8.62 COL 52 COLON-ALIGNED NO-LABEL
+     location.subCode2 AT ROW 10.05 COL 16 COLON-ALIGNED
+          LABEL "County"
+          VIEW-AS FILL-IN 
+          SIZE 20 BY 1
+     location.geoLat AT ROW 10.05 COL 43 COLON-ALIGNED
+          LABEL "Lat"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+     location.geoLong AT ROW 10.05 COL 67 COLON-ALIGNED
+          LABEL "Long"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+     fiDlCty AT ROW 11.24 COL 16 COLON-ALIGNED
+     fiDlArea AT ROW 11.24 COL 24 COLON-ALIGNED NO-LABEL
+     fiDlNbr AT ROW 11.24 COL 33 COLON-ALIGNED NO-LABEL
+     fiDlExt AT ROW 11.24 COL 54 COLON-ALIGNED
+     fiDlCty-2 AT ROW 12.43 COL 16 COLON-ALIGNED
+     fiDlArea-2 AT ROW 12.43 COL 24 COLON-ALIGNED NO-LABEL
+     fiDlNbr-2 AT ROW 12.43 COL 33 COLON-ALIGNED NO-LABEL
+     fiDlExt-2 AT ROW 12.43 COL 54 COLON-ALIGNED
+     location.defaultBin AT ROW 13.86 COL 16 COLON-ALIGNED
+          LABEL "Default Bin"
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
+     location.externalID[1] AT ROW 13.86 COL 42 COLON-ALIGNED
+          LABEL "Ext.Code"
+          VIEW-AS FILL-IN 
+          SIZE 21 BY 1
+     location.notes AT ROW 15.05 COL 18 NO-LABEL
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 73 BY 2.38
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
+         AT COL 1 ROW 1
+         SIZE 102.2 BY 16.81
          FONT 6.
 
 
@@ -132,7 +264,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: ASI.loc
+   External Tables: ASI.loc,asi.location
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -154,8 +286,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 2.62
-         WIDTH              = 54.
+         HEIGHT             = 16.81
+         WIDTH              = 102.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -178,13 +310,53 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE FRAME-NAME                                               */
 ASSIGN 
-       FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN location.defaultBin IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN loc.dscr IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN location.externalID[1] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN fsCtyDesc IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fsStDesc IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN location.geoLat IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN location.geoLong IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN loc.loc IN FRAME F-Main
-   NO-ENABLE 1                                                          */
+   NO-ENABLE 1 EXP-LABEL                                                */
+/* SETTINGS FOR FILL-IN location.streetAddr[4] IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       location.streetAddr[4]:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR FILL-IN location.streetAddr[5] IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       location.streetAddr[5]:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR FILL-IN location.streetAddr[6] IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       location.streetAddr[6]:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR FILL-IN location.subCode1 IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN location.subCode2 IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN location.subCode3 IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN location.subCode4 IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN loc.wc-uom IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN loc.whs-chg IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -198,12 +370,15 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-/* ************************  Control Triggers  ************************ */
+ 
 
+
+
+/* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME loc.loc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL loc.loc V-table-Win
-ON LEAVE OF loc.loc IN FRAME F-Main /* Locations */
+ON LEAVE OF loc.loc IN FRAME F-Main /* Location */
 DO:
    IF LASTKEY = -1 THEN  RETURN.
    {&methods/lValidateError.i YES}
@@ -215,11 +390,11 @@ DO:
    {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -267,12 +442,14 @@ PROCEDURE adm-row-available :
 
   /* Create a list of all the tables that we need to get.            */
   {src/adm/template/row-list.i "loc"}
+  {src/adm/template/row-list.i "location"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
   {src/adm/template/row-find.i "loc"}
+  {src/adm/template/row-find.i "location"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -301,6 +478,62 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
+PROCEDURE local-create-record :
+    /*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  {methods/viewers/create/loc.i}
+    ASSIGN 
+        location.locationCode = loc.loc:SCREEN-VALUE IN FRAME {&frame-name}
+        loc.rec_key           = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+        location.rec_key      = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+        loc.addrRecKey        = location.rec_key.
+
+    CREATE addrPhone.
+    ASSIGN 
+        addrPhone.linkTable = "location"
+        addrPhone.linkRecKey = location.rec_key.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
+PROCEDURE local-display-fields :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+ 
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    FIND  addrPhone NO-LOCK WHERE 
+        addrPhone.linkTable  = "location" AND 
+        addrPhone.linkRecKey = location.rec_key.
+    ASSIGN 
+        fiDlArea:SCREEN-VALUE IN FRAME {&frame-name} = addrPhone.dialArea.
+        
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -318,34 +551,22 @@ PROCEDURE local-update-record :
      END.
   END.
   {&methods/lValidateError.i NO}
-  /* ============== end of validations ==================*/
-
+    /* ============== end of validations ==================*/
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+    /* Code placed here will execute AFTER standard behavior.    */
+    FIND  addrPhone exclusive WHERE 
+        addrPhone.linkTable  = "location" AND 
+        addrPhone.linkRecKey = location.rec_key.
+    assign
+        addrPhone.dialArea = fiDlArea:SCREEN-VALUE.
+    FIND  addrPhone NO-LOCK WHERE 
+        addrPhone.linkTable  = "location" AND 
+        addrPhone.linkRecKey = location.rec_key.
 
-
-END PROCEDURE.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
-PROCEDURE local-create-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  {methods/viewers/create/loc.i}
+        
+        
 
 END PROCEDURE.
 
@@ -365,6 +586,7 @@ PROCEDURE send-records :
 
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "loc"}
+  {src/adm/template/snd-list.i "location"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
