@@ -77,7 +77,7 @@ lv-qty-7 lv-rels-7 lv-qty-8 lv-rels-8 lv-qty-9 lv-rels-9 lv-qty-10 ~
 lv-rels-10 lv-qty-11 lv-rels-11 lv-qty-12 lv-rels-12 lv-qty-13 lv-rels-13 ~
 lv-qty-14 lv-rels-14 lv-qty-15 lv-rels-15 lv-qty-16 lv-rels-16 lv-qty-17 ~
 lv-rels-17 lv-qty-18 lv-rels-18 lv-qty-19 lv-rels-19 lv-qty-20 lv-rels-20 ~
-btn-clear btn-upd v-do-speed v-do-mr v-do-gsa v-drop-rc v-ink-all-forms ~
+btn-clear v-do-speed v-do-mr v-do-gsa v-drop-rc v-ink-all-forms ~
 lv-match-up v-est-list Btn_OK Btn_Cancel v-calc-board-cost-on-blank RECT-1 ~
 RECT-23 RECT-24 tb_run tb_run-2 tb_run-3 tb_run-4 tb_run-5 tb_run-6 ~
 tb_run-7 tb_run-8 tb_run-9 tb_run-10 tb_run-11 tb_run-12 tb_run-13 ~
@@ -114,9 +114,6 @@ DEFINE BUTTON btn-clear
      LABEL "&Clear Qtys" 
      SIZE 21 BY 1.14.
 
-DEFINE BUTTON btn-upd 
-     LABEL "&Update Est Qtys" 
-     SIZE 21 BY 1.14.
 
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
      LABEL "Cancel" 
@@ -636,9 +633,8 @@ DEFINE FRAME D-Dialog
      lv-qty-20 AT ROW 21.43 COL 5 COLON-ALIGNED HELP
           "Enter Quantity." NO-LABEL
      lv-rels-20 AT ROW 21.43 COL 24 COLON-ALIGNED NO-LABEL
-     tb_run-20 AT ROW 21.43 COL 45.2 NO-LABEL WIDGET-ID 46 
+     tb_run-20 AT ROW 21.43 COL 45.2 NO-LABEL WIDGET-ID 46  
      btn-clear AT ROW 20.86 COL 96.4
-     btn-upd AT ROW 20.86 COL 117.4
      v-do-speed AT ROW 3.86 COL 74.8
      v-do-mr AT ROW 4.81 COL 74.8
      v-do-gsa AT ROW 5.76 COL 74.8
@@ -936,265 +932,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-upd
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-upd D-Dialog
-ON CHOOSE OF btn-upd IN FRAME D-Dialog /* Update Est Qtys */
-DO:
-  DEF VAR lv-estqty-recid AS RECID NO-UNDO.
-  DEF VAR lv-hld-eqty LIKE est-qty.eqty NO-UNDO.
-  DEF VAR char-val AS CHAR NO-UNDO. 
-  DEF VAR char-val2 AS CHAR NO-UNDO.        
-  DEF VAR date-val AS CHAR NO-UNDO.
-  DEF VAR date-val2 AS CHAR NO-UNDO.
-  DEFINE BUFFER bff-eb FOR eb .
-  DEFINE BUFFER bff-ef FOR ef .
-  DEFINE BUFFER bf-est FOR est  .
-
-  FIND FIRST bf-est NO-LOCK
-     WHERE RECID(bf-est) EQ recid(xest) NO-ERROR.
- 
-  lv-estqty-recid = IF AVAIL est-qty THEN RECID(est-qty) ELSE ?.
-  RUN est/estqtyd.w (lv-estqty-recid, RECID(eb), STRING(IF bf-est.est-type LE 4 THEN eb.bl-qty ELSE est-qty.eqty), OUTPUT char-val, OUTPUT char-val2, OUTPUT date-val, OUTPUT date-val2).
-
-  IF char-val NE "?" OR char-val2 NE "?" THEN DO:
-     FIND CURRENT bf-est NO-ERROR.
-     ASSIGN
-      bf-est.est-qty[1] = INT(ENTRY(1,char-val))
-      bf-est.est-qty[2] = INT(ENTRY(2,char-val))
-      bf-est.est-qty[3] = INT(ENTRY(3,char-val))
-      bf-est.est-qty[4] = INT(ENTRY(4,char-val)).
-     FIND CURRENT bf-est NO-LOCK NO-ERROR.
-    
-     lv-hld-eqty = est-qty.eqty.
-     FIND CURRENT est-qty NO-ERROR.
-     est-qty.eqty = INT(ENTRY(1,char-val)).
-     FIND CURRENT est-qty NO-LOCK NO-ERROR.
-    
-     /*RELEASE eb.*/
-     FOR EACH bff-eb
-         WHERE bff-eb.company EQ bf-est.company
-           AND bff-eb.est-no  EQ bf-est.est-no
-           AND bff-eb.eqty    EQ lv-hld-eqty
-           AND bff-eb.form-no NE 0:
-       IF bf-est.est-type LE 4 THEN bff-eb.bl-qty = INT(ENTRY(1,char-val)).
-       bff-eb.eqty = INT(ENTRY(1,char-val)).
-     END.
-     FOR EACH bff-ef
-         WHERE bff-ef.company EQ bf-est.company
-           AND bff-ef.est-no  EQ bf-est.est-no
-           AND bff-ef.eqty    EQ lv-hld-eqty:
-       bff-ef.eqty = INT(ENTRY(1,char-val)).
-     END.
-    
-     FOR EACH est-op
-         WHERE est-op.company EQ bf-est.company
-           AND est-op.est-no  EQ bf-est.est-no
-           AND est-op.qty     EQ lv-hld-eqty:
-       est-op.qty = est-qty.eqty.
-     END.
-    
-     FOR EACH est-op
-         WHERE est-op.company EQ bf-est.company
-           AND est-op.est-no  EQ bf-est.est-no
-           AND est-op.qty     EQ est-qty.eqty
-           AND est-op.line    GE 500:
-       DELETE est-op.
-     END.
-    
-     APPLY "choose" TO btn-clear.
-  END. 
-
-  IF char-val NE "?" THEN DO:
-     IF INT(ENTRY(1,char-val)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-1:SCREEN-VALUE = ENTRY(11,char-val)
-        lv-qty-1:SCREEN-VALUE  = ENTRY(1,char-val).
-        RUN get-msf(integer(lv-qty-1:SCREEN-VALUE)) .
-          lv-msf-1:SCREEN-VALUE = STRING(ld-msf).
-
-       APPLY "entry" TO lv-qty-2.
-     END.
-    
-     IF INT(ENTRY(2,char-val)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-2:SCREEN-VALUE = ENTRY(12,char-val)
-        lv-qty-2:SCREEN-VALUE  = ENTRY(2,char-val).
-       RUN get-msf(integer(lv-qty-2:SCREEN-VALUE)) .
-        lv-msf-2:SCREEN-VALUE = STRING(ld-msf).
-
-       APPLY "entry" TO lv-qty-3.
-     END.
-    
-     IF INT(ENTRY(3,char-val)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-3:SCREEN-VALUE = ENTRY(13,char-val)
-        lv-qty-3:SCREEN-VALUE  = ENTRY(3,char-val).
-       RUN get-msf(integer(lv-qty-3:SCREEN-VALUE)) .
-         lv-msf-3:SCREEN-VALUE = STRING(ld-msf).
-
-       APPLY "entry" TO lv-qty-4.
-     END.
-    
-     IF INT(ENTRY(4,char-val)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-4:SCREEN-VALUE = ENTRY(14,char-val)
-        lv-qty-4:SCREEN-VALUE  = ENTRY(4,char-val).
-       RUN get-msf(integer(lv-qty-4:SCREEN-VALUE)) .
-        lv-msf-4:SCREEN-VALUE = STRING(ld-msf).
-       APPLY "entry" TO lv-qty-5.
-     END.
-    
-     IF INT(ENTRY(5,char-val)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-5:SCREEN-VALUE = ENTRY(15,char-val)
-        lv-qty-5:SCREEN-VALUE  = ENTRY(5,char-val).
-        RUN get-msf(integer(lv-qty-5:SCREEN-VALUE)) .
-        lv-msf-5:SCREEN-VALUE = STRING(ld-msf).
-       APPLY "entry" TO lv-qty-6.
-     END.
-    
-     IF INT(ENTRY(6,char-val)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-6:SCREEN-VALUE = ENTRY(16,char-val)
-        lv-qty-6:SCREEN-VALUE  = ENTRY(6,char-val).
-        RUN get-msf(integer(lv-qty-6:SCREEN-VALUE)) .
-        lv-msf-6:SCREEN-VALUE = STRING(ld-msf).
-       APPLY "entry" TO lv-qty-7.
-     END.
-    
-     IF INT(ENTRY(7,char-val)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-7:SCREEN-VALUE = ENTRY(17,char-val)
-        lv-qty-7:SCREEN-VALUE  = ENTRY(7,char-val).
-        RUN get-msf(integer(lv-qty-7:SCREEN-VALUE)) .
-        lv-msf-7:SCREEN-VALUE = STRING(ld-msf).
-       APPLY "entry" TO lv-qty-8.
-     END.
-    
-     IF INT(ENTRY(8,char-val)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-8:SCREEN-VALUE = ENTRY(18,char-val)
-        lv-qty-8:SCREEN-VALUE  = ENTRY(8,char-val).
-       RUN get-msf(integer(lv-qty-8:SCREEN-VALUE)) .
-        lv-msf-8:SCREEN-VALUE = STRING(ld-msf).
-       APPLY "entry" TO lv-qty-9.
-     END.
-    
-     IF INT(ENTRY(9,char-val)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-9:SCREEN-VALUE = ENTRY(19,char-val)
-        lv-qty-9:SCREEN-VALUE  = ENTRY(9,char-val).
-        RUN get-msf(integer(lv-qty-9:SCREEN-VALUE)) .
-        lv-msf-9:SCREEN-VALUE = STRING(ld-msf).
-       APPLY "entry" TO lv-qty-10.
-     END.
-    
-     IF INT(ENTRY(10,char-val)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-10:SCREEN-VALUE = ENTRY(20,char-val)
-        lv-qty-10:SCREEN-VALUE  = ENTRY(10,char-val).
-        RUN get-msf(integer(lv-qty-10:SCREEN-VALUE)) .
-        lv-msf-10:SCREEN-VALUE = STRING(ld-msf).
-       APPLY "entry" TO lv-qty-11.
-     END.
-  END.
-
-  IF char-val2 NE "?" THEN DO:
-     IF INT(ENTRY(1,char-val2)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-11:SCREEN-VALUE = ENTRY(11,char-val2)
-        lv-qty-11:SCREEN-VALUE  = ENTRY(1,char-val2).
-        RUN get-msf(integer(lv-qty-11:SCREEN-VALUE)) .
-        lv-msf-11:SCREEN-VALUE = STRING(ld-msf).
-       APPLY "entry" TO lv-qty-12.
-     END.
-    
-     IF INT(ENTRY(2,char-val2)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-12:SCREEN-VALUE = ENTRY(12,char-val2)
-        lv-qty-12:SCREEN-VALUE  = ENTRY(2,char-val2).
-        RUN get-msf(integer(lv-qty-12:SCREEN-VALUE)) .
-        lv-msf-12:SCREEN-VALUE = STRING(ld-msf).
-       APPLY "entry" TO lv-qty-13.
-     END.
-    
-     IF INT(ENTRY(3,char-val2)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-13:SCREEN-VALUE = ENTRY(13,char-val2)
-        lv-qty-13:SCREEN-VALUE  = ENTRY(3,char-val2).
-        RUN get-msf(integer(lv-qty-13:SCREEN-VALUE)) .
-        lv-msf-13:SCREEN-VALUE = STRING(ld-msf).
-       APPLY "entry" TO lv-qty-14.
-     END.
-    
-     IF INT(ENTRY(4,char-val2)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-14:SCREEN-VALUE = ENTRY(14,char-val2)
-        lv-qty-14:SCREEN-VALUE  = ENTRY(4,char-val2).
-        RUN get-msf(integer(lv-qty-14:SCREEN-VALUE)) .
-        lv-msf-14:SCREEN-VALUE = STRING(ld-msf).
-       APPLY "entry" TO lv-qty-15.
-     END.
-    
-     IF INT(ENTRY(5,char-val2)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-15:SCREEN-VALUE = ENTRY(15,char-val2)
-        lv-qty-15:SCREEN-VALUE  = ENTRY(5,char-val2).
-        RUN get-msf(integer(lv-qty-15:SCREEN-VALUE)) .
-        lv-msf-15:SCREEN-VALUE = STRING(ld-msf).
-       APPLY "entry" TO lv-qty-16.
-     END.
-    
-     IF INT(ENTRY(6,char-val2)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-16:SCREEN-VALUE = ENTRY(16,char-val2)
-        lv-qty-16:SCREEN-VALUE  = ENTRY(6,char-val2).
-        RUN get-msf(integer(lv-qty-16:SCREEN-VALUE)) .
-        lv-msf-16:SCREEN-VALUE = STRING(ld-msf).
-       APPLY "entry" TO lv-qty-17.
-     END.
-    
-     IF INT(ENTRY(7,char-val2)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-17:SCREEN-VALUE = ENTRY(17,char-val2)
-        lv-qty-17:SCREEN-VALUE  = ENTRY(7,char-val2).
-        RUN get-msf(integer(lv-qty-17:SCREEN-VALUE)) .
-        lv-msf-17:SCREEN-VALUE = STRING(ld-msf).
-       APPLY "entry" TO lv-qty-18.
-     END.
-    
-     IF INT(ENTRY(8,char-val2)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-18:SCREEN-VALUE = ENTRY(18,char-val2)
-        lv-qty-18:SCREEN-VALUE  = ENTRY(8,char-val2).
-       APPLY "entry" TO lv-qty-19.
-     END.
-                                        
-     IF INT(ENTRY(9,char-val2)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-19:SCREEN-VALUE = ENTRY(19,char-val2)
-        lv-qty-19:SCREEN-VALUE  = ENTRY(9,char-val2).
-        RUN get-msf(integer(lv-qty-19:SCREEN-VALUE)) .
-        lv-msf-19:SCREEN-VALUE = STRING(ld-msf).
-       APPLY "entry" TO lv-qty-20.
-     END.
-    
-     IF INT(ENTRY(10,char-val2)) NE 0 THEN DO:
-       ASSIGN
-        lv-rels-20:SCREEN-VALUE = ENTRY(20,char-val2)
-        lv-qty-20:SCREEN-VALUE  = ENTRY(10,char-val2).
-        RUN get-msf(integer(lv-qty-20:SCREEN-VALUE)) .
-        lv-msf-20:SCREEN-VALUE = STRING(ld-msf).
-       APPLY "entry" TO lv-qty-20.
-     END.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 &Scoped-define SELF-NAME tb_run-21
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-21 D-Dialog
 ON VALUE-CHANGED OF tb_run-21 IN FRAME D-Dialog /* Select All checkbox */
@@ -1456,7 +1193,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &Scoped-define SELF-NAME lv-qty-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty-1 D-Dialog
 ON VALUE-CHANGED OF lv-qty-1 IN FRAME D-Dialog
@@ -1691,6 +1427,241 @@ ON VALUE-CHANGED OF lv-qty-9 IN FRAME D-Dialog
 DO:
   RUN get-msf(integer(lv-qty-9:SCREEN-VALUE)) .
   lv-msf-9:SCREEN-VALUE = STRING(ld-msf).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_run
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run D-Dialog
+ON VALUE-CHANGED OF tb_run IN FRAME D-Dialog
+DO:
+  IF lv-qty-1:SCREEN-VALUE EQ "" THEN
+  tb_run:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_run-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-2 D-Dialog
+ON VALUE-CHANGED OF tb_run-2 IN FRAME D-Dialog
+DO:
+  IF lv-qty-2:SCREEN-VALUE EQ "" THEN
+  tb_run-2:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_run-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-3 D-Dialog
+ON VALUE-CHANGED OF tb_run-3 IN FRAME D-Dialog
+DO:
+  IF lv-qty-3:SCREEN-VALUE EQ "" THEN
+  tb_run-3:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME tb_run-4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-4 D-Dialog
+ON VALUE-CHANGED OF tb_run-4 IN FRAME D-Dialog
+DO:
+  IF lv-qty-4:SCREEN-VALUE EQ "" THEN
+  tb_run-4:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME tb_run-5
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-5 D-Dialog
+ON VALUE-CHANGED OF tb_run-5 IN FRAME D-Dialog
+DO:
+  IF lv-qty-5:SCREEN-VALUE EQ "" THEN
+  tb_run-5:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&Scoped-define SELF-NAME tb_run-6
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-6 D-Dialog
+ON VALUE-CHANGED OF tb_run-6 IN FRAME D-Dialog
+DO:
+  IF lv-qty-6:SCREEN-VALUE EQ "" THEN
+  tb_run-6:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_run-7
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-7 D-Dialog
+ON VALUE-CHANGED OF tb_run-7 IN FRAME D-Dialog
+DO:
+  IF lv-qty-7:SCREEN-VALUE EQ "" THEN
+  tb_run-7:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_run-8
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-8 D-Dialog
+ON VALUE-CHANGED OF tb_run-8 IN FRAME D-Dialog
+DO:
+  IF lv-qty-8:SCREEN-VALUE EQ "" THEN
+  tb_run-8:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_run-9
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-9 D-Dialog
+ON VALUE-CHANGED OF tb_run-9 IN FRAME D-Dialog
+DO:
+  IF lv-qty-9:SCREEN-VALUE EQ "" THEN
+  tb_run-9:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_run-10
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-10 D-Dialog
+ON VALUE-CHANGED OF tb_run-10 IN FRAME D-Dialog
+DO:
+  IF lv-qty-10:SCREEN-VALUE EQ "" THEN
+  tb_run-10:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_run-11
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-11 D-Dialog
+ON VALUE-CHANGED OF tb_run-11 IN FRAME D-Dialog
+DO:
+  IF lv-qty-11:SCREEN-VALUE EQ "" THEN
+  tb_run-11:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_run-12
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-12 D-Dialog
+ON VALUE-CHANGED OF tb_run-12 IN FRAME D-Dialog
+DO:
+  IF lv-qty-12:SCREEN-VALUE EQ "" THEN
+  tb_run-12:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_run-13
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-13 D-Dialog
+ON VALUE-CHANGED OF tb_run-13 IN FRAME D-Dialog
+DO:
+  IF lv-qty-13:SCREEN-VALUE EQ "" THEN
+  tb_run-13:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_run-14
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-14 D-Dialog
+ON VALUE-CHANGED OF tb_run-14 IN FRAME D-Dialog
+DO:
+  IF lv-qty-14:SCREEN-VALUE EQ "" THEN
+  tb_run-14:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_run-15
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-15 D-Dialog
+ON VALUE-CHANGED OF tb_run-15 IN FRAME D-Dialog
+DO:
+  IF lv-qty-15:SCREEN-VALUE EQ "" THEN
+  tb_run-15:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_run-16
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-16 D-Dialog
+ON VALUE-CHANGED OF tb_run-16 IN FRAME D-Dialog
+DO:
+  IF lv-qty-16:SCREEN-VALUE EQ "" THEN
+  tb_run-16:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME tb_run-17
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-17 D-Dialog
+ON VALUE-CHANGED OF tb_run-17 IN FRAME D-Dialog
+DO:
+  IF lv-qty-17:SCREEN-VALUE EQ "" THEN
+  tb_run-17:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME tb_run-18
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-18 D-Dialog
+ON VALUE-CHANGED OF tb_run-18 IN FRAME D-Dialog
+DO:
+  IF lv-qty-18:SCREEN-VALUE EQ "" THEN
+  tb_run-18:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME tb_run-19
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-19 D-Dialog
+ON VALUE-CHANGED OF tb_run-18 IN FRAME D-Dialog
+DO:
+  IF lv-qty-18:SCREEN-VALUE EQ "" THEN
+  tb_run-18:SCREEN-VALUE = "No" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME tb_run-20
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_run-20 D-Dialog
+ON VALUE-CHANGED OF tb_run-20 IN FRAME D-Dialog
+DO:
+  IF lv-qty-20:SCREEN-VALUE EQ "" THEN
+  tb_run-20:SCREEN-VALUE = "No" .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1994,7 +1965,7 @@ PROCEDURE enable_UI :
          lv-rels-11 lv-qty-12 lv-rels-12 lv-qty-13 lv-rels-13 lv-qty-14 
          lv-rels-14 lv-qty-15 lv-rels-15 lv-qty-16 lv-rels-16 lv-qty-17 
          lv-rels-17 lv-qty-18 lv-rels-18 lv-qty-19 lv-rels-19 lv-qty-20 
-         lv-rels-20 btn-clear btn-upd v-do-speed v-do-mr v-do-gsa v-drop-rc 
+         lv-rels-20 btn-clear  v-do-speed v-do-mr v-do-gsa v-drop-rc 
          v-ink-all-forms lv-match-up v-est-list Btn_OK Btn_Cancel 
          v-calc-board-cost-on-blank RECT-1 RECT-23 RECT-24 tb_run tb_run-2 
          tb_run-3 tb_run-4 tb_run-5 tb_run-6 tb_run-7 tb_run-8 tb_run-9 
