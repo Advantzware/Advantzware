@@ -66,8 +66,8 @@ CREATE WIDGET-POOL.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table loc.loc location.lActive ~
-loc.dscr location.subCode3 location.subCode1 location.phone location.email ~
+&Scoped-define FIELDS-IN-QUERY-Browser-Table loc.loc loc.dscr ~
+location.subCode3 location.subCode1 location.phone location.email ~
 location.subCode4 loc.addrRecKey location.subCode2 location.countryCode ~
 location.defaultBin location.description location.externalID[1] ~
 location.externalID[2] location.externalID[3] location.externalID[4] ~
@@ -149,9 +149,8 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       loc.loc FORMAT "x(5)":U
-      location.lActive FORMAT "yes/no":U WIDTH 8.2
-      loc.dscr COLUMN-LABEL "Name" FORMAT "x(30)":U WIDTH 37.2
-      location.subCode3 COLUMN-LABEL "City" FORMAT "x(24)":U WIDTH 27.2
+      loc.dscr COLUMN-LABEL "Name" FORMAT "x(30)":U WIDTH 39.2
+      location.subCode3 COLUMN-LABEL "City" FORMAT "x(24)":U WIDTH 30.2
       location.subCode1 COLUMN-LABEL "St/Prov" FORMAT "x(24)":U
             WIDTH 12.6
       location.phone FORMAT "x(40)":U
@@ -264,7 +263,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -319,73 +318,71 @@ ASSIGN
      _JoinCode[2]      = "ASI.location.locationCode = ASI.loc.loc
   AND ASI.location.rec_key = ASI.loc.addrRecKey"
      _FldNameList[1]   = ASI.loc.loc
-     _FldNameList[2]   > ASI.location.lActive
-"location.lActive" ? ? "logical" ? ? ? ? ? ? no ? no no "8.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.loc.dscr
-"loc.dscr" "Name" ? "character" ? ? ? ? ? ? no ? no no "37.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.location.subCode3
-"location.subCode3" "City" ? "character" ? ? ? ? ? ? no ? no no "27.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.location.subCode1
+     _FldNameList[2]   > ASI.loc.dscr
+"loc.dscr" "Name" ? "character" ? ? ? ? ? ? no ? no no "39.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.location.subCode3
+"location.subCode3" "City" ? "character" ? ? ? ? ? ? no ? no no "30.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.location.subCode1
 "location.subCode1" "St/Prov" ? "character" ? ? ? ? ? ? no ? no no "12.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   = ASI.location.phone
-     _FldNameList[7]   = ASI.location.email
-     _FldNameList[8]   > ASI.location.subCode4
+     _FldNameList[5]   = ASI.location.phone
+     _FldNameList[6]   = ASI.location.email
+     _FldNameList[7]   > ASI.location.subCode4
 "location.subCode4" "Zip/Post" ? "character" ? ? ? ? ? ? no ? no no "15.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > ASI.loc.addrRecKey
+     _FldNameList[8]   > ASI.loc.addrRecKey
 "loc.addrRecKey" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > ASI.location.subCode2
+     _FldNameList[9]   > ASI.location.subCode2
 "location.subCode2" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.location.countryCode
+     _FldNameList[10]   > ASI.location.countryCode
 "location.countryCode" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > ASI.location.defaultBin
+     _FldNameList[11]   > ASI.location.defaultBin
 "location.defaultBin" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.location.description
+     _FldNameList[12]   > ASI.location.description
 "location.description" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > ASI.location.externalID[1]
+     _FldNameList[13]   > ASI.location.externalID[1]
 "location.externalID[1]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > ASI.location.externalID[2]
+     _FldNameList[14]   > ASI.location.externalID[2]
 "location.externalID[2]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > ASI.location.externalID[3]
+     _FldNameList[15]   > ASI.location.externalID[3]
 "location.externalID[3]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > ASI.location.externalID[4]
+     _FldNameList[16]   > ASI.location.externalID[4]
 "location.externalID[4]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > ASI.location.externalID[5]
+     _FldNameList[17]   > ASI.location.externalID[5]
 "location.externalID[5]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[19]   > ASI.location.geoAlt
+     _FldNameList[18]   > ASI.location.geoAlt
 "location.geoAlt" ? ? "decimal" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[20]   > ASI.location.geoLat
+     _FldNameList[19]   > ASI.location.geoLat
 "location.geoLat" ? ? "decimal" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[21]   > ASI.location.geoLong
+     _FldNameList[20]   > ASI.location.geoLong
 "location.geoLong" ? ? "decimal" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[22]   > ASI.location.locationCode
+     _FldNameList[21]   > ASI.location.locationCode
 "location.locationCode" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[23]   > ASI.loc.whs-chg
+     _FldNameList[22]   > ASI.loc.whs-chg
 "loc.whs-chg" ? ? "decimal" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   > ASI.location.building
+     _FldNameList[23]   > ASI.location.building
 "location.building" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[25]   > ASI.location.notes
+     _FldNameList[24]   > ASI.location.notes
 "location.notes" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[26]   > ASI.location.rec_key
+     _FldNameList[25]   > ASI.location.rec_key
 "location.rec_key" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[27]   > ASI.location.room
+     _FldNameList[26]   > ASI.location.room
 "location.room" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[28]   > ASI.location.streetAddr[1]
+     _FldNameList[27]   > ASI.location.streetAddr[1]
 "location.streetAddr[1]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[29]   > ASI.location.streetAddr[2]
+     _FldNameList[28]   > ASI.location.streetAddr[2]
 "location.streetAddr[2]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[30]   > ASI.location.streetAddr[3]
+     _FldNameList[29]   > ASI.location.streetAddr[3]
 "location.streetAddr[3]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[31]   > ASI.location.streetAddr[4]
+     _FldNameList[30]   > ASI.location.streetAddr[4]
 "location.streetAddr[4]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[32]   > ASI.location.streetAddr[5]
+     _FldNameList[31]   > ASI.location.streetAddr[5]
 "location.streetAddr[5]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[33]   > ASI.location.streetAddr[6]
+     _FldNameList[32]   > ASI.location.streetAddr[6]
 "location.streetAddr[6]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[34]   > ASI.location.workCenter
+     _FldNameList[33]   > ASI.location.workCenter
 "location.workCenter" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[35]   > ASI.loc.company
+     _FldNameList[34]   > ASI.loc.company
 "loc.company" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[36]   > ASI.location.fax
+     _FldNameList[35]   > ASI.location.fax
 "location.fax" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

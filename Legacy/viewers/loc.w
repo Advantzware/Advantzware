@@ -61,22 +61,21 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR loc, location.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS loc.whs-chg loc.wc-uom loc.dscr ~
-location.lActive location.streetAddr[1] location.streetAddr[2] ~
-location.streetAddr[3] location.subCode3 location.subCode1 ~
-location.subCode4 location.countryCode location.subCode2 location.geoLat ~
-location.geoLong location.phone location.fax location.email ~
-location.defaultBin location.externalID[1] location.notes 
-&Scoped-define ENABLED-TABLES loc location
-&Scoped-define FIRST-ENABLED-TABLE loc
-&Scoped-define SECOND-ENABLED-TABLE location
-&Scoped-Define DISPLAYED-FIELDS loc.loc loc.whs-chg loc.wc-uom loc.dscr ~
-location.lActive location.streetAddr[1] location.streetAddr[2] ~
-location.streetAddr[3] location.streetAddr[4] location.subCode3 ~
-location.streetAddr[5] location.subCode1 location.streetAddr[6] ~
-location.subCode4 location.countryCode location.subCode2 location.geoLat ~
-location.geoLong location.phone location.fax location.email ~
-location.defaultBin location.externalID[1] location.notes 
+&Scoped-Define ENABLED-FIELDS location.defaultBin loc.dscr ~
+location.streetAddr[1] location.streetAddr[2] location.streetAddr[3] ~
+location.subCode3 location.subCode1 location.subCode4 location.countryCode ~
+location.subCode2 location.geoLat location.geoLong location.phone ~
+location.fax location.email location.externalID[1] location.notes 
+&Scoped-define ENABLED-TABLES location loc
+&Scoped-define FIRST-ENABLED-TABLE location
+&Scoped-define SECOND-ENABLED-TABLE loc
+&Scoped-Define DISPLAYED-FIELDS loc.loc location.defaultBin loc.dscr ~
+location.streetAddr[1] location.streetAddr[2] location.streetAddr[3] ~
+location.streetAddr[4] location.subCode3 location.streetAddr[5] ~
+location.subCode1 location.streetAddr[6] location.subCode4 ~
+location.countryCode location.subCode2 location.geoLat location.geoLong ~
+location.phone location.fax location.email location.externalID[1] ~
+location.notes 
 &Scoped-define DISPLAYED-TABLES loc location
 &Scoped-define FIRST-DISPLAYED-TABLE loc
 &Scoped-define SECOND-DISPLAYED-TABLE location
@@ -118,11 +117,11 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE fsCtyDesc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 36 BY 1 NO-UNDO.
+     SIZE 36 BY .97 NO-UNDO.
 
 DEFINE VARIABLE fsStDesc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 36 BY 1 NO-UNDO.
+     SIZE 36 BY .97 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -133,21 +132,14 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
           BGCOLOR 15 FONT 4
-     loc.whs-chg AT ROW 1.24 COL 49 COLON-ALIGNED
-          LABEL "Whse Chg"
+     location.defaultBin AT ROW 1.24 COL 59 COLON-ALIGNED
+          LABEL "Default Bin"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     loc.wc-uom AT ROW 1.24 COL 77 COLON-ALIGNED
-          LABEL "Chg Unit"
-          VIEW-AS FILL-IN 
-          SIZE 9 BY 1
+          SIZE 11.6 BY 1
      loc.dscr AT ROW 2.67 COL 16 COLON-ALIGNED
           LABEL "Name"
           VIEW-AS FILL-IN 
           SIZE 47 BY 1
-     location.lActive AT ROW 2.67 COL 68
-          VIEW-AS TOGGLE-BOX
-          SIZE 13.4 BY .81
      location.streetAddr[1] AT ROW 3.62 COL 16 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 47 BY 1
@@ -171,7 +163,7 @@ DEFINE FRAME F-Main
           LABEL "St/Prov"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     fsStDesc AT ROW 7.43 COL 27 COLON-ALIGNED NO-LABEL
+     fsStDesc AT ROW 7.46 COL 27 COLON-ALIGNED NO-LABEL
      location.streetAddr[6] AT ROW 7.91 COL 95 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3 BY 1
@@ -179,10 +171,10 @@ DEFINE FRAME F-Main
           LABEL "Zip/Post"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     location.countryCode AT ROW 8.38 COL 43 COLON-ALIGNED
+     fsCtyDesc AT ROW 8.41 COL 52 COLON-ALIGNED NO-LABEL
+     location.countryCode AT ROW 8.43 COL 43 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 8 BY 1
-     fsCtyDesc AT ROW 8.38 COL 52 COLON-ALIGNED NO-LABEL
+          SIZE 8 BY .97
      location.subCode2 AT ROW 9.57 COL 16 COLON-ALIGNED
           LABEL "County"
           VIEW-AS FILL-IN 
@@ -204,17 +196,17 @@ DEFINE FRAME F-Main
      location.email AT ROW 12.67 COL 16 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 74 BY 1
-     location.defaultBin AT ROW 13.86 COL 16 COLON-ALIGNED
-          LABEL "Default Bin"
-          VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     location.externalID[1] AT ROW 13.86 COL 42 COLON-ALIGNED
+     location.externalID[1] AT ROW 13.86 COL 16 COLON-ALIGNED
           LABEL "Ext.Code"
           VIEW-AS FILL-IN 
-          SIZE 21 BY 1
+          SIZE 23 BY 1
      location.notes AT ROW 15.05 COL 18 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 73 BY 2.38
+     "Notes:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 15.29 COL 9
+     "Address:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 3.86 COL 7
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -315,10 +307,6 @@ ASSIGN
 /* SETTINGS FOR FILL-IN location.subCode3 IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN location.subCode4 IN FRAME F-Main
-   EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN loc.wc-uom IN FRAME F-Main
-   EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN loc.whs-chg IN FRAME F-Main
    EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
