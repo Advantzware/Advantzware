@@ -2432,8 +2432,20 @@ PROCEDURE build-work :
                        AND oe-boll.b-no    EQ oe-bolh.b-no
                        AND oe-boll.ord-no  GE v-s-ord
                        AND oe-boll.ord-no  LE v-e-ord)
-      USE-INDEX post:
-
+     USE-INDEX post:
+          
+    RUN oe/custxship.p (oe-bolh.company,
+        oe-bolh.cust-no,
+          oe-bolh.ship-id,
+          BUFFER shipto).
+          
+    IF NOT AVAILABLE shipto THEN 
+    DO:
+        MESSAGE "BOL has an invalid shipto."
+           VIEW-AS ALERT-BOX INFO BUTTONS OK.
+        NEXT build-work.            
+    END. 
+        
     IF NOT oe-ctrl.p-bol THEN
     FOR EACH oe-boll
        WHERE oe-boll.company EQ oe-bolh.company

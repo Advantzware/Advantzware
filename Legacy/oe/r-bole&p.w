@@ -1577,7 +1577,15 @@ SESSION:SET-WAIT-STATE ("general").
 
     put skip(1).
   end. /* each oe-bolh */
-
+  
+  FOR EACH w-nopost:
+      FIND FIRST w-bolh 
+           WHERE w-bolh.bol-no EQ w-nopost.bol-no
+           NO-ERROR.
+      IF AVAILABLE w-bolh THEN 
+        DELETE w-bolh.
+  END.  
+            
   v-no-post = 0.
 
   for each w-nopost break by w-nopost.bol-no:
