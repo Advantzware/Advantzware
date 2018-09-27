@@ -65,23 +65,22 @@ DEFINE QUERY external_tables FOR loc, location.
 location.lActive location.streetAddr[1] location.streetAddr[2] ~
 location.streetAddr[3] location.subCode3 location.subCode1 ~
 location.subCode4 location.countryCode location.subCode2 location.geoLat ~
-location.geoLong location.defaultBin location.externalID[1] location.notes 
+location.geoLong location.phone location.fax location.email ~
+location.defaultBin location.externalID[1] location.notes 
 &Scoped-define ENABLED-TABLES loc location
 &Scoped-define FIRST-ENABLED-TABLE loc
 &Scoped-define SECOND-ENABLED-TABLE location
-&Scoped-Define ENABLED-OBJECTS fiDlCty fiDlArea fiDlNbr fiDlExt fiDlCty-2 ~
-fiDlArea-2 fiDlNbr-2 fiDlExt-2 
 &Scoped-Define DISPLAYED-FIELDS loc.loc loc.whs-chg loc.wc-uom loc.dscr ~
 location.lActive location.streetAddr[1] location.streetAddr[2] ~
 location.streetAddr[3] location.streetAddr[4] location.subCode3 ~
 location.streetAddr[5] location.subCode1 location.streetAddr[6] ~
 location.subCode4 location.countryCode location.subCode2 location.geoLat ~
-location.geoLong location.defaultBin location.externalID[1] location.notes 
+location.geoLong location.phone location.fax location.email ~
+location.defaultBin location.externalID[1] location.notes 
 &Scoped-define DISPLAYED-TABLES loc location
 &Scoped-define FIRST-DISPLAYED-TABLE loc
 &Scoped-define SECOND-DISPLAYED-TABLE location
-&Scoped-Define DISPLAYED-OBJECTS fsStDesc fsCtyDesc fiDlCty fiDlArea ~
-fiDlNbr fiDlExt fiDlCty-2 fiDlArea-2 fiDlNbr-2 fiDlExt-2 
+&Scoped-Define DISPLAYED-OBJECTS fsStDesc fsCtyDesc 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -117,42 +116,6 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE fiDlArea AS CHARACTER FORMAT "x(4)":U 
-     VIEW-AS FILL-IN 
-     SIZE 8 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiDlArea-2 AS CHARACTER FORMAT "x(4)":U 
-     VIEW-AS FILL-IN 
-     SIZE 8 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiDlCty AS CHARACTER FORMAT "x(4)":U INITIAL "+1" 
-     LABEL "Phone" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiDlCty-2 AS CHARACTER FORMAT "x(4)":U INITIAL "+1" 
-     LABEL "FAX" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiDlExt AS CHARACTER FORMAT "x(6)":U 
-     LABEL "x" 
-     VIEW-AS FILL-IN 
-     SIZE 9 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiDlExt-2 AS CHARACTER FORMAT "x(6)":U 
-     LABEL "x" 
-     VIEW-AS FILL-IN 
-     SIZE 9 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiDlNbr AS CHARACTER FORMAT "x(15)":U 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiDlNbr-2 AS CHARACTER FORMAT "x(15)":U 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
-
 DEFINE VARIABLE fsCtyDesc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 36 BY 1 NO-UNDO.
@@ -178,69 +141,69 @@ DEFINE FRAME F-Main
           LABEL "Chg Unit"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
-     loc.dscr AT ROW 2.91 COL 16 COLON-ALIGNED
+     loc.dscr AT ROW 2.67 COL 16 COLON-ALIGNED
           LABEL "Name"
           VIEW-AS FILL-IN 
           SIZE 47 BY 1
-          BGCOLOR 15 FONT 4
-     location.lActive AT ROW 2.91 COL 68
+     location.lActive AT ROW 2.67 COL 68
           VIEW-AS TOGGLE-BOX
           SIZE 13.4 BY .81
-     location.streetAddr[1] AT ROW 3.86 COL 16 COLON-ALIGNED NO-LABEL
+     location.streetAddr[1] AT ROW 3.62 COL 16 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 47 BY 1
-     location.streetAddr[2] AT ROW 4.81 COL 16 COLON-ALIGNED NO-LABEL
+     location.streetAddr[2] AT ROW 4.57 COL 16 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 47 BY 1
-     location.streetAddr[3] AT ROW 5.76 COL 16 COLON-ALIGNED NO-LABEL
+     location.streetAddr[3] AT ROW 5.52 COL 16 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 47 BY 1
-     location.streetAddr[4] AT ROW 6.24 COL 95 COLON-ALIGNED NO-LABEL
+     location.streetAddr[4] AT ROW 6 COL 95 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3 BY 1
-     location.subCode3 AT ROW 6.71 COL 16 COLON-ALIGNED
+     location.subCode3 AT ROW 6.48 COL 16 COLON-ALIGNED
           LABEL "City"
           VIEW-AS FILL-IN 
           SIZE 47 BY 1
-     location.streetAddr[5] AT ROW 7.19 COL 95 COLON-ALIGNED NO-LABEL
+     location.streetAddr[5] AT ROW 6.95 COL 95 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3 BY 1
-     location.subCode1 AT ROW 7.67 COL 16 COLON-ALIGNED
+     location.subCode1 AT ROW 7.43 COL 16 COLON-ALIGNED
           LABEL "St/Prov"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     fsStDesc AT ROW 7.67 COL 27 COLON-ALIGNED NO-LABEL
-     location.streetAddr[6] AT ROW 8.14 COL 95 COLON-ALIGNED NO-LABEL
+     fsStDesc AT ROW 7.43 COL 27 COLON-ALIGNED NO-LABEL
+     location.streetAddr[6] AT ROW 7.91 COL 95 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3 BY 1
-     location.subCode4 AT ROW 8.62 COL 16 COLON-ALIGNED
+     location.subCode4 AT ROW 8.38 COL 16 COLON-ALIGNED
           LABEL "Zip/Post"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     location.countryCode AT ROW 8.62 COL 43 COLON-ALIGNED
+     location.countryCode AT ROW 8.38 COL 43 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     fsCtyDesc AT ROW 8.62 COL 52 COLON-ALIGNED NO-LABEL
-     location.subCode2 AT ROW 10.05 COL 16 COLON-ALIGNED
+     fsCtyDesc AT ROW 8.38 COL 52 COLON-ALIGNED NO-LABEL
+     location.subCode2 AT ROW 9.57 COL 16 COLON-ALIGNED
           LABEL "County"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     location.geoLat AT ROW 10.05 COL 43 COLON-ALIGNED
+     location.geoLat AT ROW 9.57 COL 43 COLON-ALIGNED
           LABEL "Lat"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     location.geoLong AT ROW 10.05 COL 67 COLON-ALIGNED
+     location.geoLong AT ROW 9.57 COL 69 COLON-ALIGNED
           LABEL "Long"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     fiDlCty AT ROW 11.24 COL 16 COLON-ALIGNED
-     fiDlArea AT ROW 11.24 COL 24 COLON-ALIGNED NO-LABEL
-     fiDlNbr AT ROW 11.24 COL 33 COLON-ALIGNED NO-LABEL
-     fiDlExt AT ROW 11.24 COL 54 COLON-ALIGNED
-     fiDlCty-2 AT ROW 12.43 COL 16 COLON-ALIGNED
-     fiDlArea-2 AT ROW 12.43 COL 24 COLON-ALIGNED NO-LABEL
-     fiDlNbr-2 AT ROW 12.43 COL 33 COLON-ALIGNED NO-LABEL
-     fiDlExt-2 AT ROW 12.43 COL 54 COLON-ALIGNED
+     location.phone AT ROW 10.76 COL 16 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 50 BY 1
+     location.fax AT ROW 11.71 COL 16 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 50 BY 1
+     location.email AT ROW 12.67 COL 16 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 74 BY 1
      location.defaultBin AT ROW 13.86 COL 16 COLON-ALIGNED
           LABEL "Default Bin"
           VIEW-AS FILL-IN 
@@ -480,7 +443,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
@@ -497,10 +460,6 @@ PROCEDURE local-create-record :
         location.rec_key      = DYNAMIC-FUNCTION("sfGetNextRecKey") 
         loc.addrRecKey        = location.rec_key.
 
-    CREATE addrPhone.
-    ASSIGN 
-        addrPhone.linkTable = "location"
-        addrPhone.linkRecKey = location.rec_key.
         
 END PROCEDURE.
 
@@ -522,12 +481,6 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    FIND  addrPhone NO-LOCK WHERE 
-        addrPhone.linkTable  = "location" AND 
-        addrPhone.linkRecKey = location.rec_key.
-    ASSIGN 
-        fiDlArea:SCREEN-VALUE IN FRAME {&frame-name} = addrPhone.dialArea.
-        
 
 END PROCEDURE.
 
@@ -556,15 +509,6 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    FIND  addrPhone exclusive WHERE 
-        addrPhone.linkTable  = "location" AND 
-        addrPhone.linkRecKey = location.rec_key.
-    assign
-        addrPhone.dialArea = fiDlArea:SCREEN-VALUE.
-    FIND  addrPhone NO-LOCK WHERE 
-        addrPhone.linkTable  = "location" AND 
-        addrPhone.linkRecKey = location.rec_key.
-
         
         
 
