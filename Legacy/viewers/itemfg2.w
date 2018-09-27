@@ -46,11 +46,6 @@ def var uom-list as cha init "C,CS,EA,L,M" no-undo.
 DEF VAR v-prior-i-no AS CHAR NO-UNDO.
 DEF VAR v-whseadded AS LOG NO-UNDO.
 DEFINE VARIABLE h_w-inqord AS HANDLE      NO-UNDO.
-DEFINE VARIABLE dq-alloc AS DECIMAL NO-UNDO .
-DEFINE VARIABLE dq-back AS DECIMAL NO-UNDO .
-DEFINE VARIABLE dq-ono AS DECIMAL NO-UNDO .
-DEFINE VARIABLE dq-onh AS DECIMAL NO-UNDO .
-DEFINE VARIABLE dq-avail AS DECIMAL NO-UNDO .
 &Scoped-define List-buttons btn_onh btn_ono btn_all
 &Scoped-define List-nonreord itemfg.i-no itemfg.i-name itemfg.i-dscr itemfg.vend-no ~
      itemfg.vend-item itemfg.vend2-no itemfg.vend2-item itemfg.ord-policy ~
@@ -87,23 +82,16 @@ itemfg.pur-man itemfg.isaset itemfg.alloc itemfg.ord-level itemfg.ord-min ~
 itemfg.ord-max itemfg.pur-uom itemfg.lead-days itemfg.beg-date 
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
-&Scoped-Define ENABLED-OBJECTS btAddLoc cbLoc btn_onh btn_ono btn_all ~
-RECT-22 RECT-24 RECT-25 
 &Scoped-Define DISPLAYED-FIELDS itemfg.i-no itemfg.i-name itemfg.i-dscr ~
 itemfg.vend-no itemfg.vend-item itemfg.vend2-no itemfg.vend2-item ~
 itemfg.ord-policy itemfg.stocked itemfg.pur-man itemfg.isaset itemfg.alloc ~
-itemfg.ord-level itemfg.ord-min itemfg.ord-max itemfg.lead-days ~
-itemfg.beg-bal 
+itemfg.ord-level itemfg.ord-min itemfg.ord-max itemfg.lead-days 
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
-&Scoped-Define DISPLAYED-OBJECTS cbLoc dq-onh dq-ono dq-alloc dq-back dq-avail
+
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
-&Scoped-define ADM-ASSIGN-FIELDS itemfg.beg-bal dq-onh  dq-ono  ~
- dq-alloc dq-back dq-avail
-&Scoped-define List-5 itemfg.beg-bal dq-onh dq-ono ~
- dq-alloc dq-back
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -130,64 +118,23 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-/* ************************  Function Prototypes ********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-alloc V-table-Win 
-FUNCTION get-alloc RETURNS DECIMAL
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 /* ***********************  Control Definitions  ********************** */
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btAddLoc 
-     LABEL "+" 
-     SIZE 6 BY .95
-     FONT 6.
-
-DEFINE BUTTON btn_all 
-     LABEL "Alloc to Orders" 
-     SIZE 20 BY 1.43.
-
-DEFINE BUTTON btn_onh 
-     LABEL "On Hand" 
-     SIZE 20 BY 1.43.
-
-DEFINE BUTTON btn_ono 
-     LABEL "Job/PO On Ord" 
-     SIZE 20 BY 1.43.
-
-DEFINE VARIABLE cbLoc AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Warehouse" 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEM-PAIRS "ALL","ALL",
-                     "Texas","Texas",
-                     "NJ","NJ"
-     DROP-DOWN-LIST
-     SIZE 32 BY 1 NO-UNDO.
-
 DEFINE RECTANGLE RECT-22
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 144 BY 14.52.
-
-DEFINE RECTANGLE RECT-24
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 123 BY 3.1.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 144 BY 10.
 
 DEFINE RECTANGLE RECT-25
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 123 BY 3.81.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btAddLoc AT ROW 14.33 COL 89 WIDGET-ID 4
-     cbLoc AT ROW 14.24 COL 54 COLON-ALIGNED WIDGET-ID 2
      itemfg.i-no AT ROW 1.24 COL 18 COLON-ALIGNED
            VIEW-AS TEXT 
           SIZE 27 BY .62
@@ -263,46 +210,9 @@ DEFINE FRAME F-Main
           LABEL "Beginning Date"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     btn_onh AT ROW 11.24 COL 36
-     btn_ono AT ROW 11.24 COL 56
-     btn_all AT ROW 11.24 COL 76
-     itemfg.beg-bal AT ROW 12.67 COL 14 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
-          VIEW-AS FILL-IN 
-          SIZE 20 BY 1
-     dq-onh AT ROW 12.67 COL 34 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
-          VIEW-AS FILL-IN 
-          SIZE 20 BY 1
-     dq-ono AT ROW 12.67 COL 54 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
-          VIEW-AS FILL-IN 
-          SIZE 20 BY 1
-     dq-alloc AT ROW 12.67 COL 74 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
-          VIEW-AS FILL-IN 
-          SIZE 20 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
-     dq-back AT ROW 12.67 COL 94 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
-          VIEW-AS FILL-IN 
-          SIZE 20 BY 1
-     dq-avail AT ROW 12.67 COL 114 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
-          VIEW-AS FILL-IN 
-          SIZE 20 BY 1
-     "Qty" VIEW-AS TEXT
-          SIZE 6 BY 1 AT ROW 12.67 COL 9
-          FGCOLOR 9 
-     "Begin Balance" VIEW-AS TEXT
-          SIZE 18 BY 1 AT ROW 11.48 COL 16
      "Set Allocation" VIEW-AS TEXT
           SIZE 17 BY .95 AT ROW 4.57 COL 88
           FGCOLOR 9 
-     "Backordered" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 11.48 COL 97
-     "Available" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 11.48 COL 116
      "Reorder Policy" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 5.76 COL 4
           FGCOLOR 9 
@@ -310,7 +220,6 @@ DEFINE FRAME F-Main
           SIZE 8 BY .95 AT ROW 2.67 COL 96
           FGCOLOR 9 
      RECT-22 AT ROW 1 COL 1
-     RECT-24 AT ROW 11 COL 15
      RECT-25 AT ROW 6.95 COL 15
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -345,7 +254,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 17.14
+         HEIGHT             = 10
          WIDTH              = 144.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -374,8 +283,6 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN itemfg.beg-bal IN FRAME F-Main
-   NO-ENABLE 2 5 EXP-FORMAT                                             */
 /* SETTINGS FOR FILL-IN itemfg.beg-date IN FRAME F-Main
    NO-DISPLAY EXP-LABEL                                                 */
 /* SETTINGS FOR FILL-IN itemfg.i-name IN FRAME F-Main
@@ -394,16 +301,10 @@ ASSIGN
    EXP-HELP                                                             */
 /* SETTINGS FOR FILL-IN itemfg.pur-uom IN FRAME F-Main
    NO-DISPLAY EXP-LABEL                                                 */
-/* SETTINGS FOR FILL-IN dq-alloc IN FRAME F-Main
-   NO-ENABLE 2 5 EXP-FORMAT                                             */
-/* SETTINGS FOR FILL-IN dq-avail IN FRAME F-Main
-   NO-ENABLE 2 EXP-FORMAT                                               */
-/* SETTINGS FOR FILL-IN dq-back IN FRAME F-Main
-   NO-ENABLE 2 5 EXP-FORMAT                                             */
-/* SETTINGS FOR FILL-IN dq-onh IN FRAME F-Main
-   NO-ENABLE 2 5 EXP-FORMAT                                             */
-/* SETTINGS FOR FILL-IN dq-ono IN FRAME F-Main
-   NO-ENABLE 2 5 EXP-FORMAT                                             */
+/* SETTINGS FOR RECTANGLE RECT-22 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-25 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX itemfg.stocked IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.vend-item IN FRAME F-Main
@@ -427,7 +328,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -454,107 +355,6 @@ DO:
   end case.
 
   RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btAddLoc
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btAddLoc V-table-Win
-ON CHOOSE OF btAddLoc IN FRAME F-Main /* + */
-DO:
-  DEF VAR C-Win AS HANDLE.
-  C-Win = CURRENT-WINDOW.
-  SESSION:SUPPRESS-WARNINGS = TRUE.
-  C-Win:SHOW-IN-TASKBAR=FALSE.
-  C-Win:SENSITIVE = FALSE.
-
-  v-whseadded = NO.
-  IF AVAIL itemfg THEN
-    RUN windows/addfgloc.w (INPUT ROWID(itemfg), OUTPUT v-whseadded).
-  IF v-whseadded THEN
-      RUN reset-cbloc.
-  C-Win:SHOW-IN-TASKBAR=TRUE.
-  C-Win:SENSITIVE = TRUE.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn_all
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_all V-table-Win
-ON CHOOSE OF btn_all IN FRAME F-Main /* Alloc to Orders */
-DO:
-  IF itemfg.q-alloc NE 0 THEN RUN oe/w-inqord.w PERSISTENT SET h_w-inqord (ROWID(itemfg), YES).
-  IF VALID-HANDLE(h_w-inqord) THEN
-    RUN adm-initialize IN h_w-inqord.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn_onh
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_onh V-table-Win
-ON CHOOSE OF btn_onh IN FRAME F-Main /* On Hand */
-DO:
-  IF itemfg.q-onh NE 0 THEN
-  RUN fg/w-inqonh.w (ROWID(itemfg), NO).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn_ono
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_ono V-table-Win
-ON CHOOSE OF btn_ono IN FRAME F-Main /* Job/PO On Ord */
-DO:
-  IF itemfg.q-ono NE 0 THEN DO:
-    FIND FIRST job-hdr
-        WHERE job-hdr.company EQ itemfg.company
-          AND job-hdr.i-no    EQ itemfg.i-no
-          AND job-hdr.opened  EQ YES
-          AND CAN-FIND(FIRST job WHERE job.company EQ job-hdr.company
-                                   AND job.job     EQ job-hdr.job
-                                   AND job.job-no  EQ job-hdr.job-no
-                                   AND job.job-no2 EQ job-hdr.job-no2)
-        NO-LOCK NO-ERROR.
-    IF AVAIL job-hdr THEN 
-        RUN jc/w-inqjob.w (ROWID(itemfg), YES).
-    ELSE DO:
-        FIND FIRST fg-set WHERE fg-set.company EQ itemfg.company
-                            AND fg-set.part-no EQ itemfg.i-no
-                          NO-LOCK NO-ERROR.
-        IF AVAIL fg-set THEN
-        RUN jc/w-inqjbc.w (ROWID(itemfg), YES).
-    END.
-
-    FIND FIRST po-ordl
-        WHERE po-ordl.company   EQ itemfg.company
-          AND po-ordl.i-no      EQ itemfg.i-no
-          AND po-ordl.item-type EQ NO
-          AND po-ordl.opened    EQ YES
-          AND CAN-FIND(FIRST po-ord WHERE po-ord.company EQ po-ordl.company
-                                      AND po-ord.po-no   EQ po-ordl.po-no)
-        NO-LOCK NO-ERROR.
-    IF AVAIL po-ordl THEN
-    RUN po/w-inqpo.w (ROWID(itemfg), YES).
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME cbLoc
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbLoc V-table-Win
-ON VALUE-CHANGED OF cbLoc IN FRAME F-Main /* Warehouse */
-DO:
-  ASSIGN cbLoc.
-  RUN local-display-fields.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -611,39 +411,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME dq-alloc
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dq-alloc V-table-Win
-ON VALUE-CHANGED OF dq-alloc IN FRAME F-Main /* Qty Available */
-DO:
-  RUN calc-q-avail.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME dq-onh
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dq-onh V-table-Win
-ON VALUE-CHANGED OF dq-onh IN FRAME F-Main /* Qty On-Hand */
-DO:
-  RUN calc-q-avail.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME dq-ono
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dq-ono V-table-Win
-ON VALUE-CHANGED OF dq-ono IN FRAME F-Main /* Qty On-Order */
-DO:
-  RUN calc-q-avail.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME itemfg.stocked
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.stocked V-table-Win
 ON return OF itemfg.stocked IN FRAME F-Main /* Stocked? */
@@ -669,7 +436,6 @@ DO:
     {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -687,7 +453,6 @@ DO:
     end.
     {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -820,35 +585,11 @@ PROCEDURE local-assign-record :
     DEF BUFFER bf-eb FOR eb.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF cbLoc NE "ALL" THEN DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST itemfg-loc WHERE itemfg-loc.company EQ itemfg.company
-        AND itemfg-loc.i-no EQ itemfg.i-no
-        AND itemfg-loc.loc  EQ cbLoc EXCLUSIVE-LOCK NO-ERROR.
-
-    IF AVAIL itemfg-loc THEN 
-        ASSIGN
-        asi.itemfg-loc.ord-level =  INTEGER(itemfg.ord-level:SCREEN-VALUE)
-        asi.itemfg-loc.ord-max   =  INTEGER(itemfg.ord-max:SCREEN-VALUE)
-        asi.itemfg-loc.ord-min   =  INTEGER(itemfg.ord-min:SCREEN-VALUE)
-        asi.itemfg-loc.q-alloc   = INTEGER(dq-alloc:SCREEN-VALUE)
-        asi.itemfg-loc.q-avail   =  INTEGER(dq-avail:SCREEN-VALUE)
-        asi.itemfg-loc.q-back    = INTEGER(dq-back:SCREEN-VALUE)
-        asi.itemfg-loc.q-onh     =  INTEGER(dq-onh:SCREEN-VALUE)
-        asi.itemfg-loc.q-ono     =  INTEGER(dq-ono:SCREEN-VALUE) 
-        asi.itemfg-loc.lead-days =  INTEGER(itemfg.lead-days:SCREEN-VALUE).  
-    RELEASE itemfg-loc.
-    RETURN.
-  END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DO WITH FRAME {&FRAME-NAME}:
-      
-      itemfg.q-onh = int(dq-onh:SCREEN-VALUE) .
-  END.
-
  /*Task# 04121312*/
  FIND FIRST fg-set WHERE fg-set.company = itemfg.company 
      AND fg-set.set-no = itemfg.i-no NO-LOCK NO-ERROR.
@@ -930,94 +671,13 @@ PROCEDURE local-display-fields :
       RUN fg/calcqa&b.p (ROWID(itemfg), OUTPUT v-q-alloc,
                          OUTPUT v-q-back). 
       ASSIGN
-          dq-back:SCREEN-VALUE IN FRAME {&FRAME-NAME}  =  STRING( v-q-back )
-          dq-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} =  STRING(v-q-alloc )
           itemfg.q-alloc = v-q-alloc
           itemfg.q-back  = v-q-back .
-          dq-ono:SCREEN-VALUE IN FRAME {&FRAME-NAME} =  STRING( itemfg.q-ono ) .
-          dq-onh:SCREEN-VALUE IN FRAME {&FRAME-NAME} =  STRING( itemfg.q-onh ) .
-          dq-avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} =  STRING(itemfg.q-avail ) .
   END.
 
-  IF v-prior-i-no EQ "" OR v-prior-i-no NE asi.itemfg.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}  THEN DO:     
-
-      /* Empty the selection-list or combo-box */
-      cbLoc:LIST-ITEM-PAIRS = ?.
-      cbLoc:SCREEN-VALUE = "":U.
-
-      v-return = cbLoc:ADD-LAST("ALL", "ALL"). 
-      IF AVAIL itemfg THEN DO:
-
-          FOR EACH itemfg-loc WHERE itemfg-loc.company EQ itemfg.company
-               AND itemfg-loc.i-no EQ itemfg.i-no
-              NO-LOCK:
-              FIND loc WHERE loc.company EQ itemfg-loc.company
-                         AND loc.loc     EQ itemfg-loc.loc
-                       NO-LOCK NO-ERROR.
-              IF NOT AVAIL loc THEN
-                  NEXT.
-              v-return = cbLoc:ADD-LAST(itemfg-loc.loc + " " + replace(loc.dscr, ",", " "), itemfg-loc.loc).            
-          END.
-      END.
-
-      cbLoc:SCREEN-VALUE = "ALL".
-      cbLoc = "ALL".
-
-  END.
   v-prior-i-no = asi.itemfg.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
 
-  IF dq-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "0" or
-     dq-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
-     v-alloc-save = INTEGER(dq-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-     /*asi.itemfg.q-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(get-alloc()).*/
-     IF v-alloc-save NE INTEGER(dq-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN DO:
-        dq-avail:SCREEN-VALUE = STRING(DEC(itemfg.q-onh ) +
-                                             DEC(itemfg.q-ono ) -
-                                             DEC(itemfg.q-alloc ),
-                                             dq-avail:FORMAT).
-        itemfg.q-avail = (DEC(itemfg.q-onh ) +
-                                             DEC(itemfg.q-ono ) -
-                                             DEC(itemfg.q-alloc )).
-
-     END.
-
-  END.
-
-  IF cbLoc NE "ALL" AND AVAIL itemfg THEN DO:
-    FIND FIRST itemfg-loc WHERE itemfg-loc.company EQ itemfg.company
-        AND itemfg-loc.i-no EQ itemfg.i-no
-        AND itemfg-loc.loc  EQ cbLoc NO-LOCK NO-ERROR.
-
-    IF AVAIL itemfg-loc THEN do:
-        RUN fg/calcqabl.p (ROWID(itemfg), itemfg-loc.loc, OUTPUT v-q-alloc, OUTPUT v-q-back).
-
-        ASSIGN
-        asi.itemfg.ord-level:SCREEN-VALUE =  STRING(itemfg-loc.ord-level)
-        asi.itemfg.ord-max:SCREEN-VALUE =  STRING(itemfg-loc.ord-max)
-        asi.itemfg.ord-min:SCREEN-VALUE =  STRING(itemfg-loc.ord-min)
-        asi.itemfg.lead-days:SCREEN-VALUE = STRING(itemfg-loc.lead-days)
-
-        dq-alloc:SCREEN-VALUE =  STRING(v-q-alloc) /*STRING(get-alloc())*/
-        dq-back:SCREEN-VALUE =   string(v-q-back) /*STRING(itemfg-loc.q-back)*/
-        asi.itemfg.q-alloc =  (v-q-alloc) /*STRING(get-alloc())*/
-        asi.itemfg.q-back =   (v-q-back) /*STRING(itemfg-loc.q-back)*/
-
-        dq-onh:SCREEN-VALUE =  STRING(itemfg-loc.q-onh)
-        asi.itemfg.q-onh =  (itemfg-loc.q-onh)
-         dq-ono:SCREEN-VALUE =  STRING(itemfg-loc.q-ono).
-        asi.itemfg.q-ono =  (itemfg-loc.q-ono).
-       
-        dq-avail:SCREEN-VALUE = STRING(DEC(itemfg.q-onh) +
-                                             DEC(itemfg.q-ono) -
-                                             DEC(itemfg.q-alloc),
-                                                   dq-avail:FORMAT) .
-        itemfg.q-avail = (DEC(itemfg.q-onh) +
-                                             DEC(itemfg.q-ono) -
-                                             DEC(itemfg.q-alloc)) .
-    END.
-  END.
-  ELSE IF AVAIL itemfg THEN DO:
-
+  IF AVAIL itemfg THEN DO:
       DISPLAY itemfg.pur-uom itemfg.beg-date WITH FRAME {&FRAME-NAME}.
       RUN SetPurMan(itemfg.isaset).
   END.  
@@ -1077,43 +737,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize V-table-Win 
-PROCEDURE local-initialize :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF VAR v-return AS LOG NO-UNDO.
-  /* Code placed here will execute PRIOR to standard behavior. */
-  DO WITH FRAME {&FRAME-NAME}:
-
-      /* Empty the selection-list or combo-box */
-      cbLoc:LIST-ITEM-PAIRS = ?.
-      cbLoc:SCREEN-VALUE = "":U.
-      v-return = cbLoc:ADD-LAST("ALL", "ALL"). 
-      IF AVAIL itemfg THEN DO:
-        FOR EACH itemfg-loc 
-          WHERE itemfg-loc.company EQ itemfg.i-no
-            AND itemfg-loc.i-no EQ itemfg.i-no
-          NO-LOCK:
-          v-return = cbLoc:ADD-LAST(itemfg-loc.loc, itemfg-loc.loc).            
-        END.
-      END.
-
-      cbLoc:SCREEN-VALUE = "ALL".
-      cbLoc = "ALL".
-
-  END.
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -1150,65 +773,6 @@ PROCEDURE local-update-record :
     DISABLE {&list-5}.
   END.
 
-END PROCEDURE.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE override-qty V-table-Win 
-PROCEDURE override-qty :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR char-hdl AS cha NO-UNDO.
-
-
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "tableio-source", OUTPUT char-hdl).
-
-  RUN set-buttons IN WIDGET-HANDLE(char-hdl) ("").
-
-  DO WITH FRAME {&FRAME-NAME}:
-    DISABLE ALL.
-
-    ENABLE {&list-5}.
-
-    ENABLE {&list-buttons}.
-
-    APPLY "entry" TO itemfg.beg-bal.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reset-cbloc V-table-Win 
-PROCEDURE reset-cbloc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR v-return AS LOG NO-UNDO.
-  IF AVAIL itemfg THEN DO WITH FRAME {&FRAME-NAME}:
-
-      /* Empty the selection-list or combo-box */
-      cbLoc:LIST-ITEM-PAIRS = ?.
-      cbLoc:SCREEN-VALUE = "":U.
-      v-return = cbLoc:ADD-LAST("ALL", "ALL"). 
-      FOR EACH itemfg-loc WHERE itemfg-loc.company EQ itemfg.company
-           AND itemfg-loc.i-no EQ itemfg.i-no
-          NO-LOCK:
-          v-return = cbLoc:ADD-LAST(itemfg-loc.loc, itemfg-loc.loc).            
-      END.
-
-      cbLoc:SCREEN-VALUE = "ALL".
-      cbLoc = "ALL".
-
-  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1307,111 +871,6 @@ PROCEDURE valid-pur-uom :
 
   {methods/lValidateError.i NO}
 END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-/* ************************  Function Implementations ***************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-alloc V-table-Win 
-FUNCTION get-alloc RETURNS DECIMAL
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-
-  DEF BUFFER b-itemfg FOR itemfg.
-  DEF BUFFER b2-itemfg FOR itemfg.
-  DEF BUFFER b-itemfg-loc FOR itemfg-loc.
-  DEF BUFFER b2-itemfg-loc FOR itemfg-loc.
-
-  DEF VAR lv-q-all AS DECIMAL NO-UNDO.
-
-  ASSIGN
-   lv-q-all = 0.
-
-  IF NOT AVAIL itemfg THEN
-      RETURN 0.
-
-  FIND FIRST b-itemfg
-      WHERE ROWID(b-itemfg) = ROWID(itemfg)
-      NO-LOCK NO-ERROR.
-  FIND FIRST fg-set WHERE fg-set.company = itemfg.company
-                      AND fg-set.part-no = itemfg.i-no
-                    NO-LOCK NO-ERROR.
-  IF NOT AVAIL fg-set THEN
-    FIND FIRST fg-set WHERE fg-set.company = itemfg.company
-                        AND fg-set.set-no = itemfg.i-no
-                      NO-LOCK NO-ERROR.
-  /* If this is not set-related, then just return */
-  IF NOT AVAIL fg-set THEN
-      /* return 0*/ lv-q-all = 0.
-  FIND FIRST b-itemfg-loc 
-    WHERE b-itemfg-loc.company EQ itemfg.company
-      AND b-itemfg-loc.i-no EQ itemfg.i-no
-      AND b-itemfg-loc.loc  EQ cbLoc
-    NO-LOCK NO-ERROR.
-  IF cbLoc EQ "ALL" AND AVAIL b-itemfg THEN
-     ASSIGN lv-q-all = b-itemfg.q-alloc.
-    ELSE IF cbLoc NE "ALL" AND AVAIL b-itemfg-loc THEN
-      lv-q-all = b-itemfg-loc.q-alloc.
-
-    IF AVAIL b-itemfg AND b-itemfg.isaset = NO      
-       AND lv-q-all = 0 THEN DO:
-
-    IF cbLoc EQ "ALL" AND AVAIL(fg-set) THEN DO:
-          FIND FIRST b2-itemfg
-              WHERE b2-itemfg.company EQ fg-set.company
-                AND b2-itemfg.i-no    EQ fg-set.set-no
-                AND b2-itemfg.isaset  EQ YES
-              NO-LOCK NO-ERROR.
-
-          IF AVAIL b2-itemfg THEN DO:
-            FOR EACH oe-ordl WHERE oe-ordl.company = fg-set.company 
-                               AND oe-ordl.i-no = b2-itemfg.i-no
-                             NO-LOCK,
-              EACH oe-rel WHERE oe-rel.company = oe-ordl.company
-                      AND oe-rel.ord-no = oe-ordl.ord-no
-                      AND oe-rel.i-no  = oe-ordl.i-no
-                    NO-LOCK.
-              lv-q-all = lv-q-all + (b2-itemfg.q-alloc * fg-set.QtyPerSet).
-              LEAVE. /* q-alloc contains value for all orders */
-            END.
-          END.
-    END.
-    ELSE IF avail(fg-set) THEN  DO:
-        FIND FIRST b2-itemfg-loc 
-          WHERE b2-itemfg-loc.company EQ fg-set.company
-            AND b2-itemfg-loc.i-no EQ fg-set.set-no
-            /* AND b2-itemfg.isaset EQ YES */
-            AND b2-itemfg-loc.loc  EQ cbLoc 
-          NO-LOCK NO-ERROR.
-
-          IF AVAIL b2-itemfg-loc THEN DO:
-
-
-            /* check of oe-rel seems to be here to confirm rel qty is real */
-            FOR EACH oe-ordl WHERE oe-ordl.company = fg-set.company 
-                               AND oe-ordl.i-no = fg-set.set-no
-                             NO-LOCK,
-              EACH oe-rel WHERE oe-rel.company = oe-ordl.company
-                      AND oe-rel.ord-no = oe-ordl.ord-no
-                      AND oe-rel.i-no  = oe-ordl.i-no
-                      AND oe-rel.spare-char-1 EQ cbLoc
-                    NO-LOCK.
-              lv-q-all = lv-q-all + (b2-itemfg-loc.q-alloc * fg-set.QtyPerSet).
-              LEAVE. /* q-alloc contains value for all orders */
-            END. /* Each Ordl */
-          END. /* avail b2-itemfg-loc */
-
-    END. /* ... else if avail(fg-set) */
-
-  END. /* if cbloc EQ ALL */
-
-  RETURN lv-q-all.   /* Function return value. */
-
-END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
