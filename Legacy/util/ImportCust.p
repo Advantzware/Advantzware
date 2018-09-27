@@ -30,8 +30,8 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD CreditLimit   AS DECIMAL   FORMAT ">>>,>>>,>>9.99" COLUMN-LABEL "Credit Limit" HELP "Optional - Decimal" 
     FIELD CustStatus    AS CHARACTER FORMAT "X(11)" COLUMN-LABEL "Status" HELP "Optional - Size:1"
     FIELD CreditHold    AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Credit Hold" HELP "Optional - Yes or N0"  
-    FIELD CustType      AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Customer Type" HELP "Optional - Size:8"   
-    FIELD Terms         AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Terms Code" HELP "Optional - Size:5" 
+    FIELD CustType      AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Customer Type" HELP "Required - Size:8"   
+    FIELD Terms         AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Terms Code" HELP "Required - Size:5" 
     FIELD FedID         AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Tax Resale#" HELP "Optional - Size:8"   
     FIELD Note1         AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Note 1" HELP "Optional - Size:30"  
     FIELD Note2         AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Note 2" HELP "Optional - Size:30"  
@@ -57,12 +57,12 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD cFactrd       AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Factored" HELP "Optional - Yes or N0"
     FIELD iGraceDay     AS INTEGER   FORMAT ">>9" COLUMN-LABEL "Grace Days" HELP "Optional - Integer" 
     FIELD dGraceDolr    AS DECIMAL   FORMAT ">,>>>,>>9.99" COLUMN-LABEL "Grace $" HELP "Optional - Decimal"
-    FIELD lInvPer       AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Invoice Per" HELP "Required - must be yes Or no or ?"
-    FIELD cFrtPay       AS CHARACTER FORMAT "X(1)" COLUMN-LABEL "Freight Terms" HELP "Required - must be B Or C or P or T - Size:1"
-    FIELD cFOB          AS CHARACTER FORMAT "X(4)" COLUMN-LABEL "Freight Terms" HELP "Required - must be DEST or ORIG - Size:4"
-    FIELD cLoc          AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Location" HELP "Optional - Size:5" 
-    FIELD cCarrier      AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Carrier" HELP "Optional - Size:5" 
-    FIELD cDelZone      AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Delivery zone" HELP "Optional - Size:5" 
+    FIELD lInvPer       AS CHARACTER FORMAT "X(13)" COLUMN-LABEL "Invoice Per" HELP "Required - must be BOL Or PO or Group By Date - Size:13"
+    FIELD cFrtPay       AS CHARACTER FORMAT "X(9)" COLUMN-LABEL "Freight Terms" HELP "Required - must be Bill Or Collect or Prepaid or 3rd Party - Size:9"
+    FIELD cFOB          AS CHARACTER FORMAT "X(11)" COLUMN-LABEL "FOB" HELP "Required - must be Destination or Origin - Size:11"
+    FIELD cLoc          AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Location" HELP "Required - Size:5" 
+    FIELD cCarrier      AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Carrier" HELP "Required - Size:5" 
+    FIELD cDelZone      AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Delivery zone" HELP "Required - Size:5" 
     FIELD cTerr         AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Territory" HELP "Optional - Size:5"
     FIELD iPalletId     AS INTEGER   FORMAT ">>>>>>>>9" COLUMN-LABEL "Pallet Id" HELP "Optional - Integer"
     FIELD dUnderPct     AS DECIMAL   FORMAT ">>9.99%" COLUMN-LABEL "Underrun %" HELP "Optional - Decimal" 
@@ -199,10 +199,38 @@ PROCEDURE pValidate PRIVATE:
     END.
     IF oplValid THEN 
     DO:
+        IF ipbf-ttImportCust.lInvPer EQ "" THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Key Field Blank: Invoice Per.".
+    END.
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportCust.cFrtPay EQ "" THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Key Field Blank: Freight Terms.".
+    END.
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportCust.cFob EQ "" THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Key Field Blank: FOB.".
+    END.
+    IF oplValid THEN 
+    DO:
         IF ipbf-ttImportCust.cDelZone EQ "" THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Delivery Zone.".
+    END.
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportCust.cTaxable EQ "" THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Key Field Blank: Taxable.".
     END.
     IF oplValid THEN 
     DO:
@@ -265,13 +293,13 @@ PROCEDURE pValidate PRIVATE:
             RUN pIsValidCurrency IN hdValidator (ipbf-ttImportCust.cCurrency, NO, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportCust.lInvPer NE "" THEN 
-            RUN pIsValidFromList IN hdValidator ("Bol", ipbf-ttImportCust.lInvPer, "yes,no,?", OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFromList IN hdValidator ("Bol", ipbf-ttImportCust.lInvPer, "BOL,PO,Group by Date", OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportCust.cFrtPay NE "" THEN 
-            RUN pIsValidFromList IN hdValidator ("Bill", ipbf-ttImportCust.cFrtPay, "B,C,P,T", OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFromList IN hdValidator ("Bill", ipbf-ttImportCust.cFrtPay, "Bill,Collect,Prepaid,3rd Party", OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportCust.cFOB NE "" THEN 
-            RUN pIsValidFromList IN hdValidator ("Destination", ipbf-ttImportCust.cFOB, "DEST,ORIG", OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFromList IN hdValidator ("Destination", ipbf-ttImportCust.cFOB, "Destination,Origin", OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportCust.cLoc NE "" THEN 
             RUN pIsValidWarehouse IN hdValidator (ipbf-ttImportCust.cLoc, NO, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
@@ -302,6 +330,24 @@ PROCEDURE pValidate PRIVATE:
         
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
+    IF ipbf-ttImportCust.cFrtPay EQ "Collect" THEN 
+        ipbf-ttImportCust.cFrtPay = "C".
+    ELSE IF ipbf-ttImportCust.cFrtPay EQ "Bill" THEN 
+        ipbf-ttImportCust.cFrtPay = "B".
+    ELSE IF ipbf-ttImportCust.cFrtPay EQ "Prepaid" THEN 
+        ipbf-ttImportCust.cFrtPay = "P".
+    ELSE ipbf-ttImportCust.cFrtPay = "T".
+
+    IF ipbf-ttImportCust.cFOB EQ "Destination" THEN
+     ipbf-ttImportCust.cFOB = "DEST".
+        ELSE 
+          ipbf-ttImportCust.cFOB = "ORIG".
+    IF ipbf-ttImportCust.lInvPer EQ "BOL" THEN
+       ipbf-ttImportCust.lInvPer  = "NO".
+    ELSE IF ipbf-ttImportCust.lInvPer EQ "PO" THEN
+       ipbf-ttImportCust.lInvPer  = "yes".
+    ELSE ipbf-ttImportCust.lInvPer  = "?".
+
     
 END PROCEDURE.
 
