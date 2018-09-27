@@ -322,7 +322,7 @@ ENABLE w-job.job-no-disp
        w-job.tot-wt
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 147 BY 8.57
+    WITH NO-ASSIGN SEPARATORS SIZE 147 BY 5
          FONT 0.
 
 
@@ -363,7 +363,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 8.67
+         HEIGHT             = 5
          WIDTH              = 147.6.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -888,10 +888,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createWJobs B-table-Win
-PROCEDURE createWJobs:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createWJobs B-table-Win 
+PROCEDURE createWJobs :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -937,11 +936,9 @@ PROCEDURE createWJobs:
     RELEASE w-jobs.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
