@@ -105,7 +105,8 @@ DEFINE TEMP-TABLE q-sort1 NO-UNDO FIELD qty AS DECIMAL FIELD rel AS INTEGER.
 DEFINE TEMP-TABLE q-sort2 NO-UNDO FIELD qty AS DECIMAL FIELD rel AS INTEGER.
 
 DEFINE NEW SHARED TEMP-TABLE tt-qtty FIELD qtty LIKE qtty
-                                  FIELD rel LIKE rels.
+                                  FIELD rel LIKE rels
+                                  FIELD lRunShip LIKE lRunShips.
 
 DEFINE TEMP-TABLE tt-bqty NO-UNDO FIELD tt-bqty AS INTEGER FIELD tt-brel AS INTEGER.
 
