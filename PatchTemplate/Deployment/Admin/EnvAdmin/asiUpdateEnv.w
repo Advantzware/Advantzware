@@ -811,6 +811,40 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddLocationData C-Win
+PROCEDURE ipAddLocationData:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF addrPhone.
+    DISABLE TRIGGERS FOR LOAD OF location.
+    DISABLE TRIGGERS FOR LOAD OF loc.
+    
+    FOR EACH loc:
+        IF NOT CAN-FIND (FIRST location WHERE
+            location.locationCode EQ loc.loc AND  
+            location.rec_key EQ loc.addrRecKey) THEN DO:
+            CREATE location.
+            ASSIGN
+                location.locationCode = loc.loc
+                location.rec_key      = STRING(YEAR(TODAY),"9999")
+                    + STRING(MONTH(TODAY),"99")
+                    + STRING(DAY(TODAY),"99")
+                    + STRING(TIME,"99999")
+                    + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
+                loc.addrRecKey        = location.rec_key.
+        END. 
+    END.
+ 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddSuppUserRecords C-Win 
 PROCEDURE ipAddSuppUserRecords :
 /*------------------------------------------------------------------------------
@@ -2247,6 +2281,7 @@ PROCEDURE ipDataFix160800 :
 
     RUN ipRemoveUserAddon.
     RUN ipMoveUserMenusToDatabase.
+    RUN ipAddLocationData.
 
 END PROCEDURE.
 
