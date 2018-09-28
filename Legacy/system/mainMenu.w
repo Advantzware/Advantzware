@@ -14,7 +14,7 @@
  
   Author:            Ron Stark
  
-  Created:           9.23.2018
+  Created:           9.25.2018
  
 --------------------------------------------------------------------*/
  
@@ -33,20 +33,20 @@ ON CTRL-F HELP.
 ON CTRL-P HELP.
 
 ON 'CTRL-ALT-D':U ANYWHERE
-    DO:
-        RUN aoa/aoaLauncher.w PERSISTENT ("Dashboard").
-        RETURN.
-    END.
+DO:
+    RUN aoa/aoaLauncher.w PERSISTENT ("Dashboard").
+    RETURN.
+END.
 
 ON 'CTRL-ALT-R':U ANYWHERE
-    DO:
-        RUN aoa/aoaLauncher.w PERSISTENT ("Report").
-        RETURN.
-    END.
+DO:
+    RUN aoa/aoaLauncher.w PERSISTENT ("Report").
+    RETURN.
+END.
 
 ON 'CTRL-ALT-P':U ANYWHERE 
-    DO: 
-        RUN util/wPgmrToolbox.w.
+DO: 
+    RUN util/wPgmrToolbox.w.
 END.    
    
 /* ***************************  Definitions  ************************** */
@@ -57,27 +57,13 @@ END.
 
 &Scoped-define FGColor ?
 &Scoped-define BGColor 8
-&Scoped-define highlightColor 1
-&Scoped-define startObjectCol 2
-&Scoped-define startObjectRow 3.5
-&Scoped-define objectWidth 49
-&Scoped-define objectGap .2
-&Scoped-define minWindowHeight 28.57
-&Scoped-define winWindowWidth 160
-&Scoped-define maxWindow {&startObjectRow} - .7 + ~
-(dObjectHeight + {&objectGap}) * iHiCount
 
-OS-DELETE VALUE("users\" + USERID(LDBNAME(1)) + "\sysCtrlFind.dat") NO-ERROR.
-
-{methods/defines/mainmenu.i}
+{methods/defines/globdefs.i}
+{methods/defines/hndldefs.i}
 
 /* System Constant Values */
 {system/sysconst.i}
 
-DEFINE TEMP-TABLE ttPersistent NO-UNDO
-    FIELD prgmTitle AS CHARACTER
-        INDEX ttPersistent IS PRIMARY prgmTitle
-        .
 DEFINE VARIABLE closeMenu         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cEulaFile         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lEulaAccepted     AS LOGICAL   NO-UNDO.
@@ -100,14 +86,16 @@ DEFINE VARIABLE lFound            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSearchOpen       AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE lFavorite         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE idx               AS INTEGER   NO-UNDO.
+DEFINE VARIABLE i                 AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lSuperAdmin       AS LOGICAL   NO-UNDO.
 
 ASSIGN
-    g_company = ""
-    g_loc     = ""
+    g_mainmenu = THIS-PROCEDURE
+    g_company  = ""
+    g_loc      = ""
     .
 RUN Get_Procedure IN Persistent-Handle ("comp_loc.",OUTPUT run-proc,YES).
-IF g_company = "" OR g_loc = "" THEN DO:
+IF g_company EQ "" OR g_loc EQ "" THEN DO:
     MESSAGE "No Company and/or Location found for your login ID." SKIP
         "Please Contact System's Administrator." VIEW-AS ALERT-BOX INFORMATION.
     RETURN.
@@ -450,12 +438,12 @@ DEFINE FRAME FRAME-USER
      loc_loc AT ROW 1.71 COL 76 COLON-ALIGNED NO-LABEL
      users_user_id AT ROW 1.71 COL 117 COLON-ALIGNED NO-LABEL
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     "Location:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 68
      "User ID:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 110
      "Company:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 4
+     "Location:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.71 COL 68
      boxes AT ROW 8.62 COL 57
      menu-image AT ROW 3.62 COL 58
      RECT-2 AT ROW 1 COL 1
@@ -484,6 +472,32 @@ DEFINE FRAME FRAME-USER
          SIZE 160 BY 28.57
          BGCOLOR 15 .
 
+DEFINE FRAME menuTreeFrame
+     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
+     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
+     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 4.57
+         SIZE 55 BY 24.91
+         BGCOLOR 15  WIDGET-ID 100.
+
+DEFINE FRAME searchFrame
+     btnSearch AT ROW 1 COL 1 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 40
+     menuTreeFilter AT ROW 1 COL 4 COLON-ALIGNED HELP
+          "Enter Search Filter" NO-LABEL WIDGET-ID 2
+     searchSelections AT ROW 2.19 COL 2 NO-LABEL WIDGET-ID 44
+     btnFavorite AT ROW 13.62 COL 2 WIDGET-ID 46
+     btnClear AT ROW 13.86 COL 47 HELP
+          "Clear Search Filters" WIDGET-ID 42
+     svFavoriteText AT ROW 13.86 COL 5 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 51.6 ROW 3.38
+         SIZE 55 BY 14.05
+         FGCOLOR 1 FONT 6 WIDGET-ID 600.
+
 DEFINE FRAME userSettingsFrame
      btnCancel AT ROW 21 COL 12 HELP
           "Cancel" WIDGET-ID 2
@@ -510,29 +524,29 @@ DEFINE FRAME userSettingsFrame
           "Place Mnemonic at Begin or End of Text" NO-LABEL WIDGET-ID 108
      btnCopyToUser AT ROW 21 COL 62 HELP
           "Copy From User to Selected User(s)" WIDGET-ID 94
-     " Copy From User" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 98
-     "Position:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 19.33 COL 12 WIDGET-ID 114
-     "Show:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 18.14 COL 14 WIDGET-ID 112
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 11.24 COL 26 WIDGET-ID 42
-          FONT 6
      "[S] Scheduling" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 13.38 COL 29 WIDGET-ID 48
           FONT 6
+     "Show:" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 18.14 COL 14 WIDGET-ID 112
+     "Position:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 19.33 COL 12 WIDGET-ID 114
+     " HotKey (Mnemonic)" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 17.43 COL 4 WIDGET-ID 106
+     " Menu Size" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 10.29 COL 5 WIDGET-ID 62
+     " Language" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 4.1 COL 5 WIDGET-ID 86
+     " Copy to Selected Users" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
      "[S] Scheduling" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 15.52 COL 33 WIDGET-ID 54
           FONT 6
-     " Copy to Selected Users" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
-     " Language" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 4.1 COL 5 WIDGET-ID 86
-     " Menu Size" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 10.29 COL 5 WIDGET-ID 62
-     " HotKey (Mnemonic)" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 17.43 COL 4 WIDGET-ID 106
+     " Copy From User" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 98
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 11.24 COL 26 WIDGET-ID 42
+          FONT 6
      IMAGE-1 AT ROW 11.24 COL 18 WIDGET-ID 40
      IMAGE-2 AT ROW 13.14 COL 18 WIDGET-ID 44
      IMAGE-3 AT ROW 15.05 COL 18 WIDGET-ID 50
@@ -551,32 +565,6 @@ DEFINE FRAME userSettingsFrame
          SIZE 103 BY 23.33
          BGCOLOR 15 FGCOLOR 1 
          TITLE "User Settings" WIDGET-ID 200.
-
-DEFINE FRAME searchFrame
-     btnSearch AT ROW 1 COL 1 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 40
-     menuTreeFilter AT ROW 1 COL 4 COLON-ALIGNED HELP
-          "Enter Search Filter" NO-LABEL WIDGET-ID 2
-     searchSelections AT ROW 2.19 COL 2 NO-LABEL WIDGET-ID 44
-     btnFavorite AT ROW 13.62 COL 2 WIDGET-ID 46
-     btnClear AT ROW 13.86 COL 47 HELP
-          "Clear Search Filters" WIDGET-ID 42
-     svFavoriteText AT ROW 13.86 COL 5 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 51.6 ROW 3.38
-         SIZE 55 BY 14.05
-         FGCOLOR 1 FONT 6 WIDGET-ID 600.
-
-DEFINE FRAME menuTreeFrame
-     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
-     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
-     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 4.57
-         SIZE 55 BY 24.91
-         BGCOLOR 15  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -862,9 +850,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FRAME-USER MAINMENU
 ON END-ERROR OF FRAME FRAME-USER
 ANYWHERE
-    DO:
-        RETURN NO-APPLY.
-    END.
+DO:
+    RETURN NO-APPLY.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -873,8 +861,8 @@ ANYWHERE
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FRAME-USER MAINMENU
 ON HELP OF FRAME FRAME-USER
 DO:
-        RUN Get_Procedure IN Persistent-Handle ("popups.",OUTPUT run-proc,YES).
-    END.
+    RUN Get_Procedure IN Persistent-Handle ("popups.",OUTPUT run-proc,YES).
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1121,8 +1109,28 @@ DO:
         APPLY "CHOOSE":U TO btnCancel.
         VIEW FRAME searchFrame.
     END. /* if frame */
-    ELSE
-    RUN pGetCopyUsers.
+    ELSE DO:
+        FIND FIRST users NO-LOCK
+             WHERE users.user_id EQ USERID("ASI")
+             NO-ERROR.
+        IF AVAILABLE users THEN DO:
+            FIND FIRST userLanguage NO-LOCK
+                 WHERE userLanguage.userLanguage EQ users.userLanguage
+                 NO-ERROR.
+            IF AVAILABLE userLanguage THEN
+            iLanguage = userLanguage.languageIdx.
+            ASSIGN
+                iMenuSize         = LOOKUP(users.menuSize,"Small,Medium,Large")
+                svMenuSize        = iMenuSize
+                svLanguageList    = iLanguage
+                cShowMnemonic     = users.showMnemonic
+                cPositionMnemonic = users.positionMnemonic
+                .
+            DISPLAY svMenuSize svLanguageList cShowMnemonic cPositionMnemonic
+                WITH FRAME userSettingsFrame.
+        END. /* if avail */
+        RUN pGetCopyUsers.
+    END. /* else */
     btnToggle:LABEL = btnToggle:PRIVATE-DATA.
 END.
 
@@ -1400,7 +1408,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         g_company,"BitMap","DS",NO,NO,"","",
         OUTPUT cBitMap,OUTPUT lFound
         ).
-    IF lFound AND cBitMap NE "" THEN boxes:LOAD-IMAGE(cBitMap).
+    IF lFound AND cBitMap NE "" THEN
+    boxes:LOAD-IMAGE(cBitMap).
     ASSIGN
         {&WINDOW-NAME}:COL = 1
         {&WINDOW-NAME}:ROW = 1
@@ -1412,6 +1421,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         WITH FRAME {&FRAME-NAME} IN WINDOW {&WINDOW-NAME}.
     VIEW FRAME {&FRAME-NAME} IN WINDOW {&WINDOW-NAME}.
     RUN pInit.
+    /* close search frame */
     APPLY "CHOOSE":U TO btnSearch.
     ASSIGN
       upgradeMsg:HIDDEN = YES
@@ -1424,18 +1434,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN pLoadFavorites.
     menuTreeMsg:HIDDEN = YES.
     RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
-/*    FOR EACH cueCard NO-LOCK                            */
-/*        WHERE cueCard.cuePrgmName EQ "system/mainMenu.",*/
-/*        EACH cueCardText NO-LOCK                        */
-/*        WHERE cueCardText.cueID EQ cueCard.cueID        */
-/*        :                                               */
-/*        RUN system/cueCard.w (BUFFER cueCardText).      */
-/*    END. /* each cuecard */                             */
-/*    RUN spRunCueCard (                                  */
-/*        "system/mainMenu.",                             */
-/*        {&WINDOW-NAME}:HANDLE,                          */
-/*        FRAME {&FRAME-NAME}:HANDLE                      */
-/*        ).                                              */
+/*    FOR EACH cueCard NO-LOCK                      */
+/*        WHERE cueCard.cuePrgmName EQ cCuePrgmName,*/
+/*        EACH cueCardText NO-LOCK                  */
+/*        WHERE cueCardText.cueID EQ cueCard.cueID  */
+/*        :                                         */
+/*        RUN system/cueCard.w (BUFFER cueCardText).*/
+/*    END. /* each cuecard */                       */
+/*    {system/runCueCard.i}                         */
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1546,7 +1552,7 @@ PROCEDURE pBuildttMenuTree :
                 ).
         END. /* if ccemenu */
     END. /* each prgrms */
-    /* create and Exit option */
+    /* create an Exit option */
     RUN pCreatettMenuTree (
         FRAME menuTreeFrame:HANDLE,
         9999,                 /* order             */
@@ -1695,6 +1701,7 @@ PROCEDURE pGetUserSettings :
     DEFINE VARIABLE iWinHeight AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iWinWidth  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE i          AS INTEGER   NO-UNDO.
     
     ASSIGN
         iLanguage = 1 /* english */
@@ -2273,7 +2280,7 @@ PROCEDURE pSaveCustomMenu :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    /* remove xusermenu entry if menu option is active or not present */
+    /* remove xusermenu entry if menu option is active or no longer present */
     FOR EACH xUserMenu
         WHERE xUserMenu.user_id EQ USERID("ASI")
         :
