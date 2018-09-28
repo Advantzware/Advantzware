@@ -276,7 +276,7 @@ DO:
         ELSE
            PUT eb.part-no format "x(18)"
                eb.part-dscr1 FORMAT "x(30)"
-               eb.quantityPerSet FORMAT "->>>>>>>9".
+               eb.quantityPerSet FORMAT "->>>>>9.9<".
     
         do v = vmcl to vhld + vhld-last:
            if mclean.cost[v] ne 0 then
@@ -316,7 +316,7 @@ ELSE DO: /* Protagon */
 
             PUT eb.part-no format "x(18)"
                 eb.part-dscr1 FORMAT "x(30)"
-                eb.quantityPerSet FORMAT "->>>>>>>9".
+                eb.quantityPerSet FORMAT "->>>>>9.9<".
             v-count = 0. 
             do v = vmcl to vhld + vhld-last:
               if qtty[v] ne 0 then
