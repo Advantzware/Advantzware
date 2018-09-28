@@ -92,11 +92,11 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-recalc-qty 
      LABEL "&Recalc Qtys" 
-     SIZE 16 BY 1.14.
+     SIZE 14 BY 1.14.
 
 DEFINE RECTANGLE RECT-25
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 17.2 BY 1.5.
+     SIZE 15.6 BY 1.52.
 
 
 /* ************************  Frame Definitions  *********************** */
