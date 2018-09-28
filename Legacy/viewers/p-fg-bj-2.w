@@ -97,7 +97,7 @@ DEFINE BUTTON btnPreFix
      SIZE 21 BY 1.1.
 
 DEFINE VARIABLE fi_tag# AS CHARACTER FORMAT "X(20)":U 
-     LABEL "Tag#" 
+     LABEL "Tag" 
      VIEW-AS FILL-IN 
      SIZE 39 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -210,7 +210,7 @@ END.
 
 &Scoped-define SELF-NAME fi_tag#
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_tag# V-table-Win
-ON LEAVE OF fi_tag# IN FRAME F-Main /* Tag# */
+ON LEAVE OF fi_tag# IN FRAME F-Main /* Tag */
 DO:
   IF LASTKEY NE -1 THEN
   /*APPLY 'CHOOSE':U TO btn_go.*/
@@ -231,7 +231,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_tag# V-table-Win
-ON RETURN OF fi_tag# IN FRAME F-Main /* Tag# */
+ON RETURN OF fi_tag# IN FRAME F-Main /* Tag */
 DO: 
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR hContainer AS HANDLE NO-UNDO.

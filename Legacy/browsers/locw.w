@@ -23,11 +23,11 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
+{methods/defines/hndldefs.i}
 {sys/inc/var.i new shared}
 
 ASSIGN
@@ -75,6 +75,7 @@ DEFINE VARIABLE lv-sort-by-lab AS CHARACTER INIT "Tag" NO-UNDO.
 DEFINE VARIABLE ll-sort-asc    AS LOG       NO-UNDO.
 DEFINE VARIABLE li-pallets     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE li-qty-pal     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE h_w-inqord     AS HANDLE    NO-UNDO.
 
 &SCOPED-DEFINE for-each1    ~
     FOR EACH w-jobs
@@ -140,7 +141,7 @@ DEFINE QUERY external_tables FOR itemfg.
     ~{&OPEN-QUERY-br_table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS br_table 
+&Scoped-Define ENABLED-OBJECTS br_table btn_onh btn_ono btn_all 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -154,6 +155,23 @@ DEFINE QUERY external_tables FOR itemfg.
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btn_all 
+     LABEL "Alloc to Orders" 
+     SIZE 16 BY 1.43.
+
+DEFINE BUTTON btn_onh 
+     LABEL "On Hand" 
+     SIZE 16 BY 1.43.
+
+DEFINE BUTTON btn_ono 
+     LABEL "Job/PO On Ord" 
+     SIZE 16 BY 1.43.
+
+DEFINE RECTANGLE RECT-26
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 18 BY 4.76
+     BGCOLOR 15 .
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
@@ -178,7 +196,7 @@ DEFINE BROWSE br_table
   ENABLE w-jobs.loc
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN NO-ROW-MARKERS NO-COLUMN-SCROLLING SEPARATORS SIZE 117 BY 4.76
+    WITH NO-ASSIGN NO-ROW-MARKERS NO-COLUMN-SCROLLING SEPARATORS SIZE 139 BY 4.76
          FONT 0.
 
 
@@ -186,6 +204,10 @@ DEFINE BROWSE br_table
 
 DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
+     btn_onh AT ROW 1.24 COL 141 WIDGET-ID 2
+     btn_ono AT ROW 2.67 COL 141 WIDGET-ID 4
+     btn_all AT ROW 4.1 COL 141 WIDGET-ID 6
+     RECT-26 AT ROW 1 COL 140 WIDGET-ID 8
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -220,7 +242,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 4.76
-         WIDTH              = 118.4.
+         WIDTH              = 157.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -248,6 +270,11 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       br_table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 2.
+
+/* SETTINGS FOR RECTANGLE RECT-26 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -345,6 +372,72 @@ DO:
             RUN set-loc IN HANDLE(char-hdl) (INPUT lc-pass-loc) NO-ERROR.
         PUBLISH "SelectReorder" (INPUT lc-pass-loc).
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn_all
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_all B-table-Win
+ON CHOOSE OF btn_all IN FRAME F-Main /* Alloc to Orders */
+DO:
+  IF itemfg.q-alloc NE 0 THEN RUN oe/w-inqord.w PERSISTENT SET h_w-inqord (ROWID(itemfg), YES).
+  IF VALID-HANDLE(h_w-inqord) THEN
+    RUN adm-initialize IN h_w-inqord.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn_onh
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_onh B-table-Win
+ON CHOOSE OF btn_onh IN FRAME F-Main /* On Hand */
+DO:
+  IF itemfg.q-onh NE 0 THEN
+  RUN fg/w-inqonh.w (ROWID(itemfg), NO).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn_ono
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_ono B-table-Win
+ON CHOOSE OF btn_ono IN FRAME F-Main /* Job/PO On Ord */
+DO:
+  IF itemfg.q-ono NE 0 THEN DO:
+    FIND FIRST job-hdr
+        WHERE job-hdr.company EQ itemfg.company
+          AND job-hdr.i-no    EQ itemfg.i-no
+          AND job-hdr.opened  EQ YES
+          AND CAN-FIND(FIRST job WHERE job.company EQ job-hdr.company
+                                   AND job.job     EQ job-hdr.job
+                                   AND job.job-no  EQ job-hdr.job-no
+                                   AND job.job-no2 EQ job-hdr.job-no2)
+        NO-LOCK NO-ERROR.
+    IF AVAIL job-hdr THEN 
+        RUN jc/w-inqjob.w (ROWID(itemfg), YES).
+    ELSE DO:
+        FIND FIRST fg-set WHERE fg-set.company EQ itemfg.company
+                            AND fg-set.part-no EQ itemfg.i-no
+                          NO-LOCK NO-ERROR.
+        IF AVAIL fg-set THEN
+        RUN jc/w-inqjbc.w (ROWID(itemfg), YES).
+    END.
+
+    FIND FIRST po-ordl
+        WHERE po-ordl.company   EQ itemfg.company
+          AND po-ordl.i-no      EQ itemfg.i-no
+          AND po-ordl.item-type EQ NO
+          AND po-ordl.opened    EQ YES
+          AND CAN-FIND(FIRST po-ord WHERE po-ord.company EQ po-ordl.company
+                                      AND po-ord.po-no   EQ po-ordl.po-no)
+        NO-LOCK NO-ERROR.
+    IF AVAIL po-ordl THEN
+    RUN po/w-inqpo.w (ROWID(itemfg), YES).
+  END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -534,7 +627,7 @@ PROCEDURE local-initialize :
         BROWSE br_table:SELECT-ROW(1).
     END.
     APPLY 'entry' TO BROWSE br_table.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
