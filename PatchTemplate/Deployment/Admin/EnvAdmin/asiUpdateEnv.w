@@ -63,7 +63,9 @@ ASSIGN
 DEF STREAM s1.
 
 DEF TEMP-TABLE ttAuditTbl LIKE AuditTbl.
-DEF TEMP-TABLE ttPrgms LIKE prgrms.
+DEF TEMP-TABLE ttCueCard LIKE cueCard.
+DEF TEMP-TABLE ttCueCardText LIKE cueCardText. 
+DEF TEMP-TABLE ttPrgrms LIKE prgrms.
 DEF TEMP-TABLE ttPrgmxref LIKE prgmxref.
 DEF TEMP-TABLE ttEmailcod LIKE emailcod.
 DEF TEMP-TABLE ttNotes LIKE notes.
@@ -310,14 +312,14 @@ DEF VAR cDeltaFileName AS CHAR INITIAL "asi166167.df" NO-UNDO.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-5 tbBackupDBs tbUserControl ~
 tbUserCleanup tbDelBadData tbUpdateMaster tbRunDataFix tbDelDupeNotes ~
-fiLicensedUsers tbUpdateNK1s bProcess tbReftableConv tbLoadMenus eStatus ~
-tbRelNotes tbInstallFiles tbUpdateIni 
+fiLicensedUsers tbUpdateNK1s bProcess tbReftableConv tbRelNotes eStatus ~
+tbInstallFiles tbUpdateIni 
 &Scoped-Define DISPLAYED-OBJECTS fiSiteName fiOptions fiHostname ~
 tbBackupDBs tbUserControl fiEnvironment tbUserCleanup fiAsiDbName ~
 fiAudDbName tbDelBadData fiAsiPortNo fiAudPortNo tbUpdateMaster fiFromVer ~
 tbRunDataFix fiToVer tbDelDupeNotes fiLicensedUsers tbUpdateNK1s ~
-tbUpdateFileLocs tbReftableConv tbLoadMenus eStatus tbRelNotes ~
-tbBackupFiles tbInstallFiles tbUpdateIni fiLogFile 
+tbUpdateFileLocs tbReftableConv tbRelNotes eStatus tbBackupFiles ~
+tbInstallFiles tbUpdateIni fiLogFile 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -411,7 +413,7 @@ DEFINE VARIABLE fiToVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.16"
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 39 BY 16.19.
+     SIZE 39 BY 14.76.
 
 DEFINE VARIABLE tbBackupDBs AS LOGICAL INITIAL no 
      LABEL "Backup Databases" 
@@ -435,11 +437,6 @@ DEFINE VARIABLE tbDelDupeNotes AS LOGICAL INITIAL no
 
 DEFINE VARIABLE tbInstallFiles AS LOGICAL INITIAL no 
      LABEL "Install new System Files" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 34 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbLoadMenus AS LOGICAL INITIAL no 
-     LABEL "Load new Menu files" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
@@ -514,12 +511,11 @@ DEFINE FRAME DEFAULT-FRAME
      tbUpdateFileLocs AT ROW 10.05 COL 82 WIDGET-ID 398
      bProcess AT ROW 10.29 COL 15 WIDGET-ID 404
      tbReftableConv AT ROW 11 COL 82 WIDGET-ID 504
-     tbLoadMenus AT ROW 11.95 COL 82 WIDGET-ID 378
+     tbRelNotes AT ROW 11.95 COL 82 WIDGET-ID 382
      eStatus AT ROW 12.67 COL 2 NO-LABEL
-     tbRelNotes AT ROW 12.91 COL 82 WIDGET-ID 382
-     tbBackupFiles AT ROW 13.86 COL 82 WIDGET-ID 386
-     tbInstallFiles AT ROW 14.81 COL 82 WIDGET-ID 388
-     tbUpdateIni AT ROW 15.76 COL 82 WIDGET-ID 450
+     tbBackupFiles AT ROW 12.91 COL 82 WIDGET-ID 386
+     tbInstallFiles AT ROW 13.86 COL 82 WIDGET-ID 388
+     tbUpdateIni AT ROW 14.81 COL 82 WIDGET-ID 450
      fiLogFile AT ROW 22.43 COL 5 COLON-ALIGNED NO-LABEL
      "Status:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 11.95 COL 3 WIDGET-ID 54
@@ -730,7 +726,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         tbUserCleanup:CHECKED = TRUE
         tbDelBadData:CHECKED = TRUE
         tbUpdateMaster:CHECKED = TRUE
-        tbLoadMenus:CHECKED = TRUE
         tbRunDataFix:CHECKED = TRUE
         tbDelDupeNotes:CHECKED = TRUE
         tbUpdateNK1s:CHECKED = TRUE
@@ -796,13 +791,13 @@ PROCEDURE enable_UI :
           fiEnvironment tbUserCleanup fiAsiDbName fiAudDbName tbDelBadData 
           fiAsiPortNo fiAudPortNo tbUpdateMaster fiFromVer tbRunDataFix fiToVer 
           tbDelDupeNotes fiLicensedUsers tbUpdateNK1s tbUpdateFileLocs 
-          tbReftableConv tbLoadMenus eStatus tbRelNotes tbBackupFiles 
-          tbInstallFiles tbUpdateIni fiLogFile 
+          tbReftableConv tbRelNotes eStatus tbBackupFiles tbInstallFiles 
+          tbUpdateIni fiLogFile 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE RECT-5 tbBackupDBs tbUserControl tbUserCleanup tbDelBadData 
          tbUpdateMaster tbRunDataFix tbDelDupeNotes fiLicensedUsers 
-         tbUpdateNK1s bProcess tbReftableConv tbLoadMenus eStatus tbRelNotes 
-         tbInstallFiles tbUpdateIni 
+         tbUpdateNK1s bProcess tbReftableConv tbRelNotes eStatus tbInstallFiles 
+         tbUpdateIni 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -811,9 +806,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddLocationData C-Win
-PROCEDURE ipAddLocationData:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddLocationData C-Win 
+PROCEDURE ipAddLocationData :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -839,11 +833,9 @@ PROCEDURE ipAddLocationData:
     END.
  
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddSuppUserRecords C-Win 
 PROCEDURE ipAddSuppUserRecords :
@@ -2866,6 +2858,61 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadCueCardData C-Win
+PROCEDURE ipLoadCueCardData:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading CueCard data").
+
+    DISABLE TRIGGERS FOR LOAD OF cueCard.
+    DISABLE TRIGGERS FOR LOAD OF cueCardText.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\cueCard.d") NO-ECHO.
+    REPEAT:
+        CREATE ttCueCard.
+        IMPORT 
+            ttCueCard.
+        FIND FIRST cueCard EXCLUSIVE WHERE 
+            cueCard.rec_key EQ ttCueCard.rec_key
+            NO-ERROR.
+        IF NOT AVAIL cueCard THEN 
+        DO:
+            CREATE cueCard.
+            BUFFER-COPY ttCueCard TO cueCard.
+        END.
+    END.
+    INPUT CLOSE.
+        
+    EMPTY TEMP-TABLE ttCueCard.
+
+    INPUT FROM VALUE(cUpdDataDir + "\cueCardText.d") NO-ECHO.
+    REPEAT:
+        CREATE ttCueCardText.
+        IMPORT 
+            ttCueCardText.
+        FIND FIRST cueCardText EXCLUSIVE WHERE 
+            cueCardText.rec_key EQ ttCueCardText.rec_key
+            NO-ERROR.
+        IF NOT AVAIL cueCardText THEN 
+        DO:
+            CREATE cueCardText.
+            BUFFER-COPY ttCueCardText TO cueCardText.
+        END.
+    END.
+    INPUT CLOSE.
+        
+    EMPTY TEMP-TABLE ttCueCardText.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadEmailCodes C-Win 
 PROCEDURE ipLoadEmailCodes :
 /*------------------------------------------------------------------------------
@@ -2923,47 +2970,6 @@ PROCEDURE ipLoadLookups :
         
     EMPTY TEMP-TABLE ttLookups.
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadMenus C-Win 
-PROCEDURE ipLoadMenus :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcDir AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcTgtDir AS CHAR NO-UNDO.
-    DEF VAR cFileStream AS CHAR NO-UNDO.
-    DEF VAR cThisEntry AS CHAR NO-UNDO.
-    DEF VAR cTgtEnv AS CHAR NO-UNDO.
-
-    RUN ipStatus ("Loading New Menus").
-
-    
-    ASSIGN 
-        cTgtEnv = cEnvDir + "\" + fiEnvironment:{&SV}.
-
-    INPUT FROM OS-DIR (ipcDir).
-
-    REPEAT:
-        IMPORT cFileStream.
-        FILE-INFO:FILE-NAME = ipcDir + "\" + cFileStream.
-        IF SUBSTRING(FILE-INFO:FILE-NAME,LENGTH(FILE-INFO:FILE-NAME),1) EQ "." THEN DO:
-            NEXT.
-        END.
-        ELSE IF FILE-INFO:FILE-TYPE BEGINS "F" THEN DO:
-            OS-COPY VALUE(FILE-INFO:FILE-NAME) VALUE(cTgtEnv).
-        END.
-        ELSE DO:
-            OS-CREATE-DIR VALUE(cTgtEnv + "\" + cFileStream).
-            RUN ipLoadMenus IN THIS-PROCEDURE (FILE-INFO:FILE-NAME,cTgtEnv + "\Addon").
-        END.
-    END.
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3125,34 +3131,15 @@ PROCEDURE ipLoadPrograms :
     
     INPUT FROM VALUE(cUpdDataDir + "\prgrms.d") NO-ECHO.
     REPEAT:
-        CREATE ttPrgms.
-        IMPORT 
-            ttPrgms.prgmname
-            ttPrgms.prgtitle
-            ttPrgms.run_persistent
-            ttPrgms.can_run
-            ttPrgms.can_create
-            ttPrgms.can_update
-            ttPrgms.can_delete
-            ttPrgms.dir_group
-            ttPrgms.use_colors
-            ttPrgms.use_fonts
-            ttPrgms.widget_bgc
-            ttPrgms.widget_fgc
-            ttPrgms.widget_font
-            ttPrgms.track_usage
-            ttPrgms.popup
-            ttPrgms.prgm_ver
-            ttPrgms.menu_item
-            ttPrgms.mfgroup 
-            ttPrgms.rec_key.
-
+        CREATE ttPrgrms.
+        IMPORT ttPrgrms.
+            
         FIND FIRST prgrms EXCLUSIVE WHERE 
-            prgrms.prgmname EQ ttPrgms.prgmname 
+            prgrms.prgmname EQ ttPrgrms.prgmname 
             NO-ERROR.
         IF NOT AVAIL prgrms THEN DO:
             CREATE prgrms.
-            BUFFER-COPY ttPrgms TO prgrms
+            BUFFER-COPY ttPrgrms TO prgrms
             ASSIGN 
                 prgrms.can_run = '*'
                 prgrms.can_create = '*'
@@ -3161,21 +3148,21 @@ PROCEDURE ipLoadPrograms :
         END.
         ELSE DO:
             ASSIGN 
-                prgrms.prgtitle = ttPrgms.prgtitle
-                prgrms.run_persistent = ttPrgms.RUN_persistent
-                prgrms.dir_group = ttPrgms.DIR_group
-                prgrms.use_colors = ttPrgms.USE_colors
-                prgrms.use_fonts = ttPrgms.USE_fonts
-                prgrms.track_usage = ttPrgms.track_usage
-                prgrms.popup = ttPrgms.popup
-                prgrms.prgm_ver = ttPrgms.prgm_ver
-                prgrms.menu_item = ttPrgms.MENU_item
-                prgrms.mfgroup = ttPrgms.mfgroup.
+                prgrms.prgtitle = ttPrgrms.prgtitle
+                prgrms.run_persistent = ttPrgrms.RUN_persistent
+                prgrms.dir_group = ttPrgrms.DIR_group
+                prgrms.use_colors = ttPrgrms.USE_colors
+                prgrms.use_fonts = ttPrgrms.USE_fonts
+                prgrms.track_usage = ttPrgrms.track_usage
+                prgrms.popup = ttPrgrms.popup
+                prgrms.prgm_ver = ttPrgrms.prgm_ver
+                prgrms.menu_item = ttPrgrms.MENU_item
+                prgrms.mfgroup = ttPrgrms.mfgroup.
              DO i = 1 TO 13:
                 ASSIGN 
-                    prgrms.widget_bgc[i] = ttPrgms.WIDGET_bgc[i]
-                    prgrms.widget_fgc[i] = ttPrgms.WIDGET_fgc[i]
-                    prgrms.widget_font[i] = ttPrgms.WIDGET_font[i].
+                    prgrms.widget_bgc[i] = ttPrgrms.WIDGET_bgc[i]
+                    prgrms.widget_fgc[i] = ttPrgrms.WIDGET_fgc[i]
+                    prgrms.widget_font[i] = ttPrgrms.WIDGET_font[i].
             END.
         END.
     END.
@@ -3183,11 +3170,11 @@ PROCEDURE ipLoadPrograms :
         
     /* Delete records no longer used */
     FOR EACH prgrms EXCLUSIVE WHERE 
-        NOT CAN-FIND(FIRST ttPrgms WHERE ttPrgms.prgmname = prgrms.prgmname ):
+        NOT CAN-FIND(FIRST ttPrgrms WHERE ttPrgrms.prgmname = prgrms.prgmname ):
         DELETE prgrms.
     END.
     
-    EMPTY TEMP-TABLE ttPrgms.
+    EMPTY TEMP-TABLE ttPrgrms.
 
     /* Fix "about." prgrms record description */
     FIND FIRST prgrms EXCLUSIVE-LOCK WHERE
@@ -3247,27 +3234,27 @@ PROCEDURE ipLoadPrograms :
     /* 35628 - ensure additional field content is loaded */
     INPUT FROM VALUE(cUpdDataDir + "\prgrms.d") NO-ECHO.
     REPEAT:
-        CREATE ttPrgms.
+        CREATE ttPrgrms.
         IMPORT 
-            ttPrgms.prgmname.
+            ttPrgrms.prgmname.
         FIND FIRST prgrms EXCLUSIVE WHERE 
-            prgrms.prgmname EQ ttPrgms.prgmname 
+            prgrms.prgmname EQ ttPrgrms.prgmname 
             NO-ERROR.
         IF NOT AVAIL prgrms THEN DO:
             CREATE prgrms.
-            BUFFER-COPY ttPrgms TO prgrms.
+            BUFFER-COPY ttPrgrms TO prgrms.
         END.
         ELSE DO:
             ASSIGN 
-                prgrms.menuOrder = ttPrgms.menuOrder
-                prgrms.menuLevel = ttPrgms.menuLevel
-                prgrms.itemParent = ttPrgms.itemParent
-                prgrms.mnemonic = ttPrgms.mnemonic
-                prgrms.systemType = ttPrgms.systemType
-                prgrms.menuImage = ttPrgms.menuImage
-                prgrms.translation = ttPrgms.translation.
+                prgrms.menuOrder = ttPrgrms.menuOrder
+                prgrms.menuLevel = ttPrgrms.menuLevel
+                prgrms.itemParent = ttPrgrms.itemParent
+                prgrms.mnemonic = ttPrgrms.mnemonic
+                prgrms.systemType = ttPrgrms.systemType
+                prgrms.menuImage = ttPrgrms.menuImage
+                prgrms.translation = ttPrgrms.translation.
         END.
-        DELETE ttPrgms.
+        DELETE ttPrgrms.
     END.
 
 
@@ -3392,45 +3379,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadUtilCodes C-Win 
-PROCEDURE ipLoadUtilCodes :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    RUN ipStatus ("  Loading New Utilities").
-
-    DISABLE TRIGGERS FOR LOAD OF reftable.
-    
-    FOR EACH reftable WHERE 
-        reftable.reftable EQ 'Utilities':
-        DELETE reftable.
-    END. 
-
-    INPUT FROM VALUE(cUpdDataDir + "\reftable.d") NO-ECHO.
-    REPEAT:
-        CREATE ttReftable.
-        IMPORT ttReftable.
-        IF NOT ttRefTable.reftable EQ "Utilities" THEN DO:
-            DELETE ttRefTable.
-            NEXT.
-        END.
-        ELSE DO:
-            CREATE reftable.
-            BUFFER-COPY ttReftable TO reftable.
-            DELETE ttRefTable.
-        END.
-    END. 
-    INPUT CLOSE.
-        
-    EMPTY TEMP-TABLE ttReftable.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadUtilitiesTable C-Win 
 PROCEDURE ipLoadUtilitiesTable :
 /*------------------------------------------------------------------------------
@@ -3486,50 +3434,6 @@ PROCEDURE ipLoadUtilitiesTable :
     END. 
 
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadUtilNotes C-Win 
-PROCEDURE ipLoadUtilNotes :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    RUN ipStatus ("  Loading Utility Notes").
-
-    DISABLE TRIGGERS FOR LOAD OF notes.
-    
-    FOR EACH reftable NO-LOCK WHERE 
-        reftable.reftable EQ 'Utilities':
-        FOR EACH notes EXCLUSIVE WHERE 
-            notes.rec_key EQ reftable.rec_key:
-            DELETE notes.
-        END. 
-    END. 
-    
-    INPUT FROM VALUE(cUpdDataDir + "\notes.d") NO-ECHO.
-    REPEAT:
-        CREATE ttNotes.
-        IMPORT ttNotes.
-        IF NOT CAN-FIND (FIRST reftable WHERE
-                reftable.reftable EQ "Utilities" AND
-                reftable.rec_key EQ ttNotes.rec_key) THEN DO:
-            DELETE ttNotes.
-            NEXT.
-        END.
-        ELSE DO:
-            CREATE notes.
-            BUFFER-COPY ttNotes TO notes.
-            DELETE ttNotes.
-        END.
-    END. 
-    INPUT CLOSE.
-        
-    EMPTY TEMP-TABLE ttNotes.
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3683,9 +3587,6 @@ PROCEDURE ipProcessAll :
     IF tbUpdateNK1s:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipUpdateNK1s.
         /* RUN ipVerifyNK1Changes. */
-    END.
-    IF tbLoadMenus:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-        RUN ipLoadMenus (cUpdMenuDir,cEnvProdDir).
     END.
     IF tbRelNotes:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipCopyRelNotes.
@@ -4314,12 +4215,6 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadLookups IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\emailcod.d") <> ? THEN
         RUN ipLoadEmailCodes IN THIS-PROCEDURE.
-    /*
-    IF SEARCH(cUpdDataDir + "\reftable.d") <> ? THEN
-        RUN ipLoadUtilCodes IN THIS-PROCEDURE.
-    IF SEARCH(cUpdDataDir + "\notes.d") <> ? THEN
-        RUN ipLoadUtilNotes IN THIS-PROCEDURE.
-    */
     IF SEARCH(cUpdDataDir + "\module.d") <> ? THEN
         RUN ipLoadModules IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\translation.d") <> ? THEN
