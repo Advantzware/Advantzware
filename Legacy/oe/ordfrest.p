@@ -413,6 +413,8 @@ END PROCEDURE.
 
 
 PROCEDURE create-order-lines.
+    
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO. 
   /* dependencies ...
     cocode
     xoe-ord buffer
@@ -557,7 +559,19 @@ PROCEDURE create-order-lines.
           ASSIGN
              oe-ordl.qty = tt-item-qty-price.qty
              oe-ordl.rel = tt-item-qty-price.rels.
-      
+       
+       IF oe-ordl.qty GT 0 THEN DO:
+           FIND FIRST est-qty NO-LOCK
+                WHERE est-qty.company EQ oe-ordl.company
+                AND est-qty.est-no  EQ oe-ordl.est-no
+                NO-ERROR.
+            IF AVAILABLE est-qty THEN DO:
+                DO iCount = 1 TO EXTENT(est-qty.qty):
+                    IF est-qty.qty[iCount] EQ oe-ordl.qty OR est-qty.qty[iCount] EQ 0 THEN LEAVE.
+                END.
+                IF iCount GT 0 THEN oe-ordl.whsed = est-qty.whsed[iCount]. 
+            END.
+       END.
        IF v-d-ordqty-uom NE "-" THEN
        DO:
           IF AVAIL tt-item-qty-price THEN
