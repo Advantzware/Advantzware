@@ -454,6 +454,8 @@ PROCEDURE pProcessRecord PRIVATE:
             shipto.company = cust.company
             shipto.cust-no = cust.cust-no
             shipto.ship-id = cust.cust-no
+            shipto.tax-code = cust.tax-gr
+            shipto.tax-mandatory = cust.sort EQ "Y"
             .
     END.
     RUN pAssignValueC (ipbf-ttImportCust.ShipName, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-name).

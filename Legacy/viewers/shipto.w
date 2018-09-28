@@ -294,7 +294,7 @@ DEFINE FRAME F-Main
           SIZE 15 BY 1
           FONT 4
      shipto.tax-mandatory AT ROW 14.19 COL 87.8
-          LABEL "Mandatory Tax?"
+          LABEL "Taxable"
           VIEW-AS TOGGLE-BOX
           SIZE 21.8 BY .81
      shipto.notes[1] AT ROW 15.67 COL 5 COLON-ALIGNED NO-LABEL
@@ -878,7 +878,7 @@ END.
 
 &Scoped-define SELF-NAME shipto.spare-char-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL shipto.spare-char-1 V-table-Win
-ON LEAVE OF shipto.spare-char-1 IN FRAME F-Main /* Sales Rep */
+ON LEAVE OF shipto.spare-char-1 IN FRAME F-Main /* SalesGrp */
 DO:
    IF LASTKEY NE -1 THEN DO:
     RUN valid-sman NO-ERROR.
