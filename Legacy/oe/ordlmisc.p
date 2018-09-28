@@ -70,6 +70,7 @@ for each est-prep
         AND oe-ordm.charge  EQ est-prep.code
         AND oe-ordm.est-no  EQ est-prep.est-no
         AND oe-ordm.estPrepEqty EQ est-prep.eqty
+        AND oe-ordm.estPrepLine = est-prep.line
       NO-ERROR.
   IF AVAIL oe-ordm THEN NEXT.   
   
@@ -132,6 +133,7 @@ for each ef OF xeb no-lock:
           AND oe-ordm.charge      EQ ef.mis-cost[i]
           AND oe-ordm.est-no      EQ oe-ordl.est-no
           AND oe-ordm.estPrepEqty EQ ef.eqty
+          AND oe-ordm.estPrepLine = ef.form-no
           NO-ERROR.
       IF AVAIL oe-ordm THEN NEXT. 
         
