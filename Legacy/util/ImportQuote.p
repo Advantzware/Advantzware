@@ -249,10 +249,16 @@ PROCEDURE pProcessRecord PRIVATE:
     FIND FIRST shipto NO-LOCK
         WHERE shipto.company  = quotehd.company
         AND shipto.cust-no  = quotehd.cust-no
+        AND shipto.ship-id  = quotehd.ship-id
+        NO-ERROR.
+    IF NOT AVAIL shipto THEN
+    FIND FIRST shipto NO-LOCK
+        WHERE shipto.company  = quotehd.company
+        AND shipto.cust-no  = quotehd.cust-no
         NO-ERROR.
       IF AVAILABLE shipto THEN
-          ASSIGN quotehd.carrier = IF AVAILABLE shipto THEN shipto.ship-id ELSE ""
-                 quotehd.del-zone = IF AVAILABLE shipto THEN shipto.carrier ELSE "".
+          ASSIGN quotehd.carrier = IF AVAILABLE shipto THEN shipto.carrier ELSE ""
+                 quotehd.del-zone = IF AVAILABLE shipto THEN shipto.dest-code ELSE "".
    END.
   
   FIND LAST bQuoteItm USE-INDEX q-line WHERE bQuoteItm.company = quotehd.company
