@@ -45,9 +45,12 @@ DEFINE VARIABLE v-rec-found AS LOG NO-UNDO.
 
 DEFINE VARIABLE cocode AS cha NO-UNDO.
 DEFINE VARIABLE locode AS cha NO-UNDO.
+DEFINE TEMP-TABLE tt-salesgrpMember LIKE salesgrpMember
+    FIELD lNewRecord AS LOGICAL
+    FIELD lDeleted AS LOGICAL  .
 
-ASSIGN cocode = gcompany
-       locode = gloc.
+ASSIGN cocode = g_company
+       locode = g_loc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -62,8 +65,23 @@ ASSIGN cocode = gcompany
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME dialog-Frame
+&Scoped-define BROWSE-NAME browse-salesgrp
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
+&Scoped-define INTERNAL-TABLES tt-salesgrpMember
+
+&Scoped-define FIELDS-IN-QUERY-browse-salesgrp tt-salesgrpMember.salesmanID tt-salesgrpMember.salesmanName   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-browse-salesgrp   
+&Scoped-define SELF-NAME browse-salesgrp
+&Scoped-define QUERY-STRING-browse-salesgrp FOR EACH tt-salesgrpMember WHERE      tt-salesgrpMember.company = cocode AND      tt-salesgrpMember.sman = ip-sman-code AND tt-salesgrpMember.lDeleted = NO    NO-LOCK BY tt-salesgrpMember.salesmanID
+&Scoped-define OPEN-QUERY-browse-salesgrp OPEN QUERY {&SELF-NAME} FOR EACH tt-salesgrpMember WHERE      tt-salesgrpMember.company = cocode AND      tt-salesgrpMember.sman = ip-sman-code  AND tt-salesgrpMember.lDeleted = NO     NO-LOCK BY tt-salesgrpMember.salesmanID.
+&Scoped-define TABLES-IN-QUERY-browse-salesgrp tt-salesgrpMember
+&Scoped-define FIRST-TABLE-IN-QUERY-browse-salesgrp tt-salesgrpMember
+
+
+/* Definitions for FRAME FRAME-A                                        */
+&Scoped-define OPEN-BROWSERS-IN-QUERY-FRAME-A ~
+    ~{&OPEN-QUERY-browse-salesgrp}
 
 /* Standard List Definitions                                            */
 
@@ -90,7 +108,7 @@ DEFINE BUTTON btAddNote
      FONT 6.
 
 DEFINE BUTTON btDeleteNote
-    LABEL "X"
+    LABEL "-"
     SIZE 6 BY 1.14 
     FONT 6 .
 
@@ -103,18 +121,32 @@ DEFINE BUTTON btOk
      SIZE 18 BY 1.14.
 
 DEFINE VARIABLE cbTitle AS CHARACTER FORMAT "X(256)":U
-     LABEL "Group"
+     LABEL "SalesRep"
      VIEW-AS COMBO-BOX INNER-LINES 10
      LIST-ITEM-PAIRS "1","1"
      DROP-DOWN-LIST 
      SIZE 61 BY 10 NO-UNDO.
 
 DEFINE VARIABLE group-desc AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Sales Rep"
+     LABEL "SalesGrp"
      VIEW-AS FILL-IN 
      SIZE 49 BY 1 NO-UNDO.
 
+/* Query definitions                                                    */
+&ANALYZE-SUSPEND
+DEFINE QUERY browse-salesgrp FOR 
+      tt-salesgrpMember SCROLLING.
+&ANALYZE-RESUME
 
+/* Browse definitions                                                   */
+DEFINE BROWSE browse-salesgrp
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browse-salesgrp C-Win _FREEFORM
+  QUERY browse-salesgrp NO-LOCK DISPLAY
+      tt-salesgrpMember.salesmanID FORMAT "X(6)" COLUMN-LABEL "SalesRep" width 15 LABEL-BGCOLOR 14
+      tt-salesgrpMember.salesmanName FORMAT "X(40)" COLUMN-LABEL "Name" LABEL-BGCOLOR 14
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ASSIGN SEPARATORS FONT 2 SIZE 80.4 BY 8.19 .
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -124,8 +156,9 @@ DEFINE FRAME dialog-Frame
      cbTitle AT ROW 3.62 COL 16 COLON-ALIGNED WIDGET-ID 26
      btAddNote AT ROW 3.62 COL 80 WIDGET-ID 24
      btDeleteNote AT ROW 3.62 COL 88 
-     btOk AT ROW 11.29 COL 25 WIDGET-ID 18
-     btCancel AT ROW 11.29 COL 56 WIDGET-ID 20
+     browse-salesgrp AT ROW 5.50 COL 17.2
+     btOk AT ROW 14.29 COL 40 WIDGET-ID 18
+     btCancel AT ROW 14.29 COL 66 WIDGET-ID 20
      SPACE(14.80) SKIP(0.56)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -157,6 +190,21 @@ ASSIGN
 &ANALYZE-RESUME
 
 
+/* Setting information for Queries and Browse Widgets fields            */
+
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE browse-salesgrp
+/* Query rebuild information for BROWSE browse-salesgrp
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH tt-salesgrpMember WHERE
+     tt-salesgrpMember.company = cocode AND
+     tt-salesgrpMember.sman = ip-sman-code
+     NO-LOCK BY tt-salesgrpMember.salesmanID.
+     _END_FREEFORM
+     _Options          = "NO-LOCK INDEXED-REPOSITION"
+     _Query            is OPENED
+*/  /* BROWSE browse-salesgrp */
+&ANALYZE-RESUME
+
 
 /* ************************  Control Triggers  ************************ */
 
@@ -176,7 +224,7 @@ END.
 ON WINDOW-CLOSE OF FRAME dialog-Frame /* Add Promise Date Change  Note */
 DO:
   ASSIGN cbTitle.
-
+  RUN save-record .
   APPLY "END-ERROR":U TO SELF.
 END.
 
@@ -224,25 +272,31 @@ DO:
         /* They entered nothing */
         IF lNewCode EQ "" THEN
             RETURN.
-        FIND FIRST salesgrpMember NO-LOCK
-             WHERE salesgrpMember.company EQ cocode
-               AND salesgrpMember.salesmanID EQ lNewCode
+        FIND FIRST tt-salesgrpMember NO-LOCK
+             WHERE tt-salesgrpMember.company EQ cocode
+               AND tt-salesgrpMember.sman EQ sman.sman
+               AND tt-salesgrpMember.salesmanID EQ lNewCode
              NO-ERROR .
-        IF AVAIL(salesgrpMember) THEN DO:
+        IF AVAIL(tt-salesgrpMember) THEN DO:
             MESSAGE "This Group Code already exists, please try another..."
                 VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
             NEXT.
         END.
         ELSE DO:
-          CREATE salesgrpMember.
-          ASSIGN salesgrpMember.company = cocode
-                 salesgrpMember.sman    = IF AVAILABLE sman THEN sman.sman ELSE ""  
-                 salesgrpMember.salesmanID = lNewCode
-                 salesgrpMember.addrRecKey = ip-sman-rec-key
-                 salesgrpMember.salesmanName = lNewDesc.
+          CREATE tt-salesgrpMember.
+          ASSIGN tt-salesgrpMember.company = cocode
+                 tt-salesgrpMember.sman    = IF AVAILABLE sman THEN sman.sman ELSE ""  
+                 tt-salesgrpMember.salesmanID = lNewCode
+                 tt-salesgrpMember.addrRecKey = ip-sman-rec-key
+                 tt-salesgrpMember.salesmanName = lNewDesc
+                 tt-salesgrpMember.lNewRecord = YES .
+
             cbTitle:ADD-LAST(lNewCode + " - " + lNewDesc, lNewCode).
             cbTitle:SCREEN-VALUE = lNewCode.
         END.
+
+         RUN open-query .
+             
         LEAVE.
     END.
 
@@ -258,7 +312,7 @@ END.
 ON CHOOSE OF btDeleteNote IN FRAME dialog-Frame /* + */
 DO:
     DEFINE VARIABLE cDeleteCode AS CHARACTER NO-UNDO .
-    DEFINE BUFFER bfsalesgrpMember FOR salesgrpMember .
+    DEFINE BUFFER bfsalesgrpMember FOR tt-salesgrpMember .
       
       IF cbTitle:SCREEN-VALUE NE "" THEN DO:
         MESSAGE "Delete Currently Selected Record(s)?" VIEW-AS ALERT-BOX QUESTION
@@ -275,16 +329,23 @@ DO:
 
          IF AVAILABLE bfsalesgrpMember THEN DO:
             cDeleteCode = bfsalesgrpMember.salesmanID .
-            DELETE bfsalesgrpMember.
+            
+            ASSIGN bfsalesgrpMember.lDeleted = YES .
             
             cbTitle:DELETE(cDeleteCode) IN FRAME {&FRAME-NAME} NO-ERROR.
          END.
-         FIND FIRST salesgrpMember EXCLUSIVE-LOCK
-             WHERE salesgrpMember.company EQ cocode
-               AND salesgrpMember.sman EQ sman.sman 
+         FIND FIRST bfsalesgrpMember EXCLUSIVE-LOCK
+             WHERE bfsalesgrpMember.company EQ cocode
+               AND bfsalesgrpMember.sman EQ sman.sman 
+               AND bfsalesgrpMember.lDeleted = NO
              NO-ERROR . 
-         IF AVAILABLE salesgrpMember THEN
-                  cbTitle:SCREEN-VALUE = salesgrpMember.salesmanID .
+         IF AVAILABLE bfsalesgrpMember THEN
+                  cbTitle:SCREEN-VALUE = bfsalesgrpMember.salesmanID .
+         
+         {custom/statusMsg.i " 'Record Deleting....  '  "}
+
+         RUN open-query.
+         {custom/statusMsg.i " ' '  "}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -310,6 +371,7 @@ ON CHOOSE OF btOk IN FRAME dialog-Frame /* OK */
 DO:
 
   ASSIGN cbTitle.
+  RUN save-record .
   
  APPLY 'go' TO  FRAME {&FRAME-NAME}.
 END.
@@ -324,6 +386,16 @@ ON VALUE-CHANGED OF cbTitle IN FRAME dialog-Frame
 DO:
   ASSIGN cbTitle.
   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browse-salesgrp dialog-Frame
+ON VALUE-CHANGED OF browse-salesgrp IN FRAME dialog-Frame
+DO:
+  cbTitle:SCREEN-VALUE = IF AVAIL tt-salesgrpMember THEN tt-salesgrpMember.salesmanID ELSE "" NO-ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -355,7 +427,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
 
-    RUN promise-date-init.
+    RUN sales-group-init.
  
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -400,7 +472,7 @@ PROCEDURE enable_UI :
   GET FIRST dialog-Frame.*/
   DISPLAY group-desc cbTitle 
       WITH FRAME dialog-Frame.
-  ENABLE cbTitle btAddNote btDeleteNote btOk btCancel
+  ENABLE cbTitle btAddNote btDeleteNote browse-salesgrp btOk btCancel
       WITH FRAME dialog-Frame.
   VIEW FRAME dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-dialog-Frame}
@@ -409,8 +481,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE promise-date-init dialog-Frame 
-PROCEDURE promise-date-init :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE sales-group-init dialog-Frame 
+PROCEDURE sales-group-init :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
@@ -419,18 +491,103 @@ PROCEDURE promise-date-init :
 
 FIND sman WHERE sman.rec_key = ip-sman-rec-key NO-LOCK NO-ERROR.
 
+  
+ FOR EACH salesgrpMember NO-LOCK
+             WHERE salesgrpMember.company EQ cocode
+               AND salesgrpMember.sman    = sman.sman :
+     CREATE tt-salesgrpMember .
+     BUFFER-COPY salesgrpMember TO tt-salesgrpMember NO-ERROR .
+ END.
+
  
 cbTitle:DELETE("1") IN FRAME {&FRAME-NAME} NO-ERROR.
-FOR EACH salesgrpMember NO-LOCK
-             WHERE salesgrpMember.company EQ cocode
-               AND salesgrpMember.sman    = sman.sman  
-     WITH FRAME {&FRAME-NAME}.
-    cbTitle:ADD-LAST(salesgrpMember.salesmanID + " - " + salesgrpMember.salesmanName, salesgrpMember.salesmanID).        
+FOR EACH tt-salesgrpMember NO-LOCK
+             WHERE tt-salesgrpMember.company EQ cocode
+               AND tt-salesgrpMember.sman    = sman.sman  
+     WITH FRAME {&FRAME-NAME} BREAK BY tt-salesgrpMember.sman.
+    cbTitle:ADD-LAST(tt-salesgrpMember.salesmanID + " - " + tt-salesgrpMember.salesmanName, tt-salesgrpMember.salesmanID).
+
+    IF FIRST(tt-salesgrpMember.sman) THEN
+        cbTitle:SCREEN-VALUE = IF AVAIL tt-salesgrpMember THEN tt-salesgrpMember.salesmanID ELSE "" NO-ERROR.
    
 END.
 ASSIGN group-desc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ip-sman-code + " - " + (IF AVAILABLE sman THEN sman.sNAME ELSE "")  .
        
+  RUN open-query .
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE open-query dialog-Frame 
+PROCEDURE open-query :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+        CLOSE QUERY browse-salesgrp.
+        
+        OPEN QUERY browse-salesgrp FOR EACH tt-salesgrpMember WHERE
+            tt-salesgrpMember.company = cocode AND
+            tt-salesgrpMember.sman = ip-sman-code AND
+            tt-salesgrpMember.lDeleted = NO
+            NO-LOCK BY tt-salesgrpMember.salesmanID.
+            
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE save-record dialog-Frame 
+PROCEDURE save-record :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+        FOR EACH tt-salesgrpMember NO-LOCK
+             WHERE tt-salesgrpMember.company EQ cocode
+             AND tt-salesgrpMember.sman = ip-sman-code 
+             AND tt-salesgrpMember.lDeleted EQ YES :
+            
+            FIND FIRST salesgrpMember EXCLUSIVE-LOCK
+                WHERE salesgrpMember.company EQ cocode
+                AND salesgrpMember.salesmanID EQ tt-salesgrpMember.salesmanID
+                AND salesgrpMember.sman EQ sman.sman 
+                NO-ERROR . 
+            IF AVAIL salesgrpMember THEN
+                DELETE salesgrpMember .
+            DELETE tt-salesgrpMember .
+
+        END.
+        FOR EACH tt-salesgrpMember NO-LOCK
+             WHERE tt-salesgrpMember.company EQ cocode
+             AND tt-salesgrpMember.sman = ip-sman-code 
+             AND tt-salesgrpMember.lNewRecord EQ YES :
+            
+            FIND FIRST salesgrpMember EXCLUSIVE-LOCK
+                WHERE salesgrpMember.company EQ cocode
+                AND salesgrpMember.salesmanID EQ tt-salesgrpMember.salesmanID
+                AND salesgrpMember.sman EQ sman.sman 
+                NO-ERROR . 
+            IF NOT AVAIL salesgrpMember THEN DO:
+                 CREATE salesgrpMember.
+                 ASSIGN salesgrpMember.company = cocode
+                        salesgrpMember.sman    = IF AVAILABLE sman THEN sman.sman ELSE ""  
+                        salesgrpMember.salesmanID = tt-salesgrpMember.salesmanID
+                        salesgrpMember.addrRecKey = tt-salesgrpMember.addrRecKey
+                        salesgrpMember.salesmanName = tt-salesgrpMember.salesmanName
+                        .
+            END.
+        END.
 
 END PROCEDURE.
 

@@ -166,7 +166,7 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      terr_dscr AT ROW 4.81 COL 27 COLON-ALIGNED NO-LABEL
      sman.hasMembers AT ROW 6.00 COL 18.6 COLON-ALIGNED
-         LABEL "Sales Group Member"
+         LABEL "Has Group Members"
          VIEW-AS TOGGLE-BOX
          SIZE 30 BY .81
      btnGroupLookup AT ROW 6.00 COL 51
