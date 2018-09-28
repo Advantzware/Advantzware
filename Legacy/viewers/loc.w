@@ -36,6 +36,9 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 {custom/gcompany.i}
+{custom/globdefs.i}
+{sys/inc/var.i new shared}
+{sys/inc/varasgn.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -69,17 +72,18 @@ location.fax location.email location.externalID[1] location.notes
 &Scoped-define ENABLED-TABLES location loc
 &Scoped-define FIRST-ENABLED-TABLE location
 &Scoped-define SECOND-ENABLED-TABLE loc
-&Scoped-Define DISPLAYED-FIELDS loc.loc location.defaultBin loc.dscr ~
-location.streetAddr[1] location.streetAddr[2] location.streetAddr[3] ~
-location.streetAddr[4] location.subCode3 location.streetAddr[5] ~
-location.subCode1 location.streetAddr[6] location.subCode4 ~
-location.countryCode location.subCode2 location.geoLat location.geoLong ~
-location.phone location.fax location.email location.externalID[1] ~
-location.notes 
+&Scoped-Define ENABLED-OBJECTS rsBinType 
+&Scoped-Define DISPLAYED-FIELDS loc.company loc.loc location.defaultBin ~
+location.streetAddr[4] loc.dscr location.streetAddr[5] ~
+location.streetAddr[1] location.streetAddr[6] location.streetAddr[2] ~
+location.streetAddr[3] location.subCode3 location.subCode1 ~
+location.subCode4 location.countryCode location.subCode2 location.geoLat ~
+location.geoLong location.phone location.fax location.email ~
+location.externalID[1] location.notes 
 &Scoped-define DISPLAYED-TABLES loc location
 &Scoped-define FIRST-DISPLAYED-TABLE loc
 &Scoped-define SECOND-DISPLAYED-TABLE location
-&Scoped-Define DISPLAYED-OBJECTS fsStDesc fsCtyDesc 
+&Scoped-Define DISPLAYED-OBJECTS rsBinType fsStDesc fsCtyDesc 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -117,64 +121,76 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE fsCtyDesc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 36 BY .97 NO-UNDO.
+     SIZE 37 BY .95 NO-UNDO.
 
 DEFINE VARIABLE fsStDesc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 36 BY .97 NO-UNDO.
+     SIZE 42 BY .95 NO-UNDO.
+
+DEFINE VARIABLE rsBinType AS CHARACTER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "FG", "FG",
+"RM", "RM",
+"WP", "WP"
+     SIZE 23 BY .95 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     loc.company AT ROW 1 COL 96 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 3 BY 1
      loc.loc AT ROW 1.24 COL 12 COLON-ALIGNED
           LABEL "Location"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
           BGCOLOR 15 FONT 4
-     location.defaultBin AT ROW 1.24 COL 59 COLON-ALIGNED
+     location.defaultBin AT ROW 1.24 COL 49 COLON-ALIGNED
           LABEL "Default Bin"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     loc.dscr AT ROW 2.67 COL 16 COLON-ALIGNED
-          LABEL "Name"
-          VIEW-AS FILL-IN 
-          SIZE 47 BY 1
-     location.streetAddr[1] AT ROW 3.62 COL 16 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 47 BY 1
-     location.streetAddr[2] AT ROW 4.57 COL 16 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 47 BY 1
-     location.streetAddr[3] AT ROW 5.52 COL 16 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 47 BY 1
-     location.streetAddr[4] AT ROW 6 COL 95 COLON-ALIGNED NO-LABEL
+     rsBinType AT ROW 1.24 COL 64 NO-LABEL
+     location.streetAddr[4] AT ROW 1.95 COL 96 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3 BY 1
+     loc.dscr AT ROW 2.67 COL 16 COLON-ALIGNED
+          LABEL "Name" FORMAT "x(60)"
+          VIEW-AS FILL-IN 
+          SIZE 73 BY 1
+     location.streetAddr[5] AT ROW 2.91 COL 96 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 3 BY 1
+     location.streetAddr[1] AT ROW 3.62 COL 16 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 73 BY 1
+     location.streetAddr[6] AT ROW 3.86 COL 96 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 3 BY 1
+     location.streetAddr[2] AT ROW 4.57 COL 16 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 73 BY 1
+     location.streetAddr[3] AT ROW 5.52 COL 16 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 73 BY 1
      location.subCode3 AT ROW 6.48 COL 16 COLON-ALIGNED
           LABEL "City"
           VIEW-AS FILL-IN 
-          SIZE 47 BY 1
-     location.streetAddr[5] AT ROW 6.95 COL 95 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 3 BY 1
+          SIZE 53 BY 1
      location.subCode1 AT ROW 7.43 COL 16 COLON-ALIGNED
           LABEL "St/Prov"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     fsStDesc AT ROW 7.46 COL 27 COLON-ALIGNED NO-LABEL
-     location.streetAddr[6] AT ROW 7.91 COL 95 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 3 BY 1
+     fsStDesc AT ROW 7.48 COL 27 COLON-ALIGNED NO-LABEL
      location.subCode4 AT ROW 8.38 COL 16 COLON-ALIGNED
           LABEL "Zip/Post"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     fsCtyDesc AT ROW 8.41 COL 52 COLON-ALIGNED NO-LABEL
      location.countryCode AT ROW 8.43 COL 43 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 8 BY .97
+          SIZE 8 BY .95
+     fsCtyDesc AT ROW 8.43 COL 52 COLON-ALIGNED NO-LABEL
      location.subCode2 AT ROW 9.57 COL 16 COLON-ALIGNED
           LABEL "County"
           VIEW-AS FILL-IN 
@@ -195,7 +211,7 @@ DEFINE FRAME F-Main
           SIZE 50 BY 1
      location.email AT ROW 12.67 COL 16 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 74 BY 1
+          SIZE 73 BY 1
      location.externalID[1] AT ROW 13.86 COL 16 COLON-ALIGNED
           LABEL "Ext.Code"
           VIEW-AS FILL-IN 
@@ -203,10 +219,6 @@ DEFINE FRAME F-Main
      location.notes AT ROW 15.05 COL 18 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 73 BY 2.38
-     "Notes:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 15.29 COL 9
-     "Address:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 3.86 COL 7
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -269,10 +281,15 @@ END.
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN loc.company IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       loc.company:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN location.defaultBin IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN loc.dscr IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN location.externalID[1] IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN fsCtyDesc IN FRAME F-Main
@@ -327,6 +344,98 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
+&Scoped-define SELF-NAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
+ON HELP OF FRAME F-Main
+DO:
+    DEFINE VARIABLE char-val  AS CHARACTER     NO-UNDO.
+    DEFINE VARIABLE hlp-recid AS RECID         NO-UNDO.
+    DEFINE VARIABLE lw-focus  AS WIDGET-HANDLE NO-UNDO.
+    DEFINE VARIABLE ll        AS LOGICAL       INITIAL YES NO-UNDO.
+    DEFINE VARIABLE op-rowid  AS ROWID         NO-UNDO.
+
+    lw-focus = FOCUS.
+
+    CASE lw-focus:NAME :
+        WHEN "defaultBin" THEN 
+            DO:
+                IF rsBinType:SCREEN-VALUE EQ "FG" THEN 
+                    RUN windows/l-fgbin.w (loc.company:SCREEN-VALUE,loc.loc:SCREEN-VALUE, lw-focus:SCREEN-VALUE, OUTPUT char-val). 
+                ELSE IF rsBinType:SCREEN-VALUE EQ "RM" THEN 
+                    RUN windows/l-rmbin.w (loc.company:SCREEN-VALUE,loc.loc:SCREEN-VALUE, lw-focus:SCREEN-VALUE, OUTPUT char-val). 
+                ELSE IF rsBinType:SCREEN-VALUE EQ "WP" THEN 
+                    RUN windows/l-wipbin.w (loc.company:SCREEN-VALUE,loc.loc:SCREEN-VALUE, OUTPUT char-val). 
+                IF char-val NE "" THEN 
+                DO :
+                    ASSIGN 
+                        lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+                END.   
+            END.
+    END CASE.
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME location.countryCode
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL location.countryCode V-table-Win
+ON LEAVE OF location.countryCode IN FRAME F-Main /* Country */
+DO:
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME location.defaultBin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL location.defaultBin V-table-Win
+ON LEAVE OF location.defaultBin IN FRAME F-Main /* Default Bin */
+DO:
+    DEF VAR lFound AS LOG NO-UNDO.
+    
+    IF LASTKEY = -1 THEN  RETURN.
+
+    FIND FIRST fg-bin NO-LOCK WHERE 
+        fg-bin.company EQ g_company AND 
+        fg-bin.loc EQ loc.loc:SCREEN-VALUE AND 
+        fg-bin.loc-bin EQ SELF:SCREEN-VALUE 
+        NO-ERROR.
+    IF AVAIL fg-bin THEN ASSIGN 
+        lFound = TRUE.
+        
+    FIND FIRST rm-bin NO-LOCK WHERE 
+        rm-bin.company EQ g_company AND 
+        rm-bin.loc EQ loc.loc:SCREEN-VALUE AND 
+        rm-bin.loc-bin EQ SELF:SCREEN-VALUE 
+        NO-ERROR.
+    IF AVAIL rm-bin THEN ASSIGN 
+        lFound = TRUE.
+
+    FIND FIRST wip-bin NO-LOCK WHERE 
+        wip-bin.company EQ g_company AND 
+        wip-bin.loc EQ loc.loc:SCREEN-VALUE AND 
+        wip-bin.loc-bin EQ SELF:SCREEN-VALUE 
+        NO-ERROR.
+    IF AVAIL wip-bin THEN ASSIGN 
+        lFound = TRUE.
+        
+    IF NOT lFound THEN DO:
+        MESSAGE 
+            "Unable to locate this bin in the fg-bin, rm-bin, or wip-bin tables."
+            VIEW-AS ALERT-BOX.
+        APPLY 'entry' TO SELF.
+        RETURN NO-APPLY.
+    END. 
+               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME loc.loc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL loc.loc V-table-Win
 ON LEAVE OF loc.loc IN FRAME F-Main /* Location */
@@ -339,6 +448,28 @@ DO:
        RETURN NO-APPLY.
    END.
    {&methods/lValidateError.i NO}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME location.subCode1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL location.subCode1 V-table-Win
+ON LEAVE OF location.subCode1 IN FRAME F-Main /* St/Prov */
+DO:
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME location.subCode4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL location.subCode4 V-table-Win
+ON LEAVE OF location.subCode4 IN FRAME F-Main /* Zip/Post */
+DO:
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -457,18 +588,45 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-
-
-    /* Code placed here will execute PRIOR to standard behavior. */
- 
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    DEF VAR cBinType AS CHAR NO-UNDO.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
-    /* Code placed here will execute AFTER standard behavior.    */
+    
+    IF LASTKEY = -1 THEN  RETURN.
+
+    FIND FIRST fg-bin NO-LOCK WHERE 
+        fg-bin.company EQ g_company AND 
+        fg-bin.loc EQ loc.loc:SCREEN-VALUE IN FRAME {&frame-name} AND 
+        fg-bin.loc-bin EQ SELF:SCREEN-VALUE 
+        NO-ERROR.
+    IF AVAIL fg-bin THEN ASSIGN
+        cBinType = "FG".
+        
+    FIND FIRST rm-bin NO-LOCK WHERE 
+        rm-bin.company EQ g_company AND 
+        rm-bin.loc EQ loc.loc:SCREEN-VALUE AND 
+        rm-bin.loc-bin EQ SELF:SCREEN-VALUE 
+        NO-ERROR.
+    IF AVAIL rm-bin THEN ASSIGN 
+        cBinType = "RM".
+
+    FIND FIRST wip-bin NO-LOCK WHERE 
+        wip-bin.company EQ g_company AND 
+        wip-bin.loc EQ loc.loc:SCREEN-VALUE AND 
+        wip-bin.loc-bin EQ SELF:SCREEN-VALUE 
+        NO-ERROR.
+    IF AVAIL wip-bin THEN ASSIGN 
+        cBinType = "WP".
+        
+    IF cBinType EQ ? THEN ASSIGN 
+        cBinType = "FG".
+    ASSIGN 
+        rsBinType:SCREEN-VALUE = cBinType.    
 
 END PROCEDURE.
 
