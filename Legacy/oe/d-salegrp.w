@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME dialog-Frame
@@ -251,11 +251,11 @@ DO:
                lNewDesc = ""
                op-values = "".
         ip-parms = 
-               "type=fill-in,name=fi6,row=4,col=3,enable=false,FORMAT=X(8),scrval=GroupID: " 
+               "type=fill-in,name=fi6,row=4,col=3,enable=false,FORMAT=X(9),scrval=Slsmn ID: " 
             + "|type=fill-in,name=fi2,row=4,col=21,enable=false,FORMAT=X(5),scrval=Name: " 
             + "|type=fill-in,name=fi3,row=4,col=13,enable=true,FORMAT=X(4),width=7"
             + "|type=fill-in,name=fi4,row=4,col=28,enable=true,FORMAT=X(35),width=50"
-             + "|type=win,name=win1,row=20,col=33,label=Add New Group Code".
+             + "|type=win,name=win1,row=20,col=33,label=Add Salesman to Group".
         iCurRow = FRAME {&FRAME-NAME}:ROW.
         iCurCol = FRAME {&FRAME-NAME}:COL.
         RUN custom/d-prompt.w PERSISTENT SET h_d-prompt (INPUT "Normal",
