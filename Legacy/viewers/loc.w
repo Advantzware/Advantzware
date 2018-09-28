@@ -68,18 +68,18 @@ DEFINE QUERY external_tables FOR loc, location.
 location.streetAddr[1] location.streetAddr[2] location.streetAddr[3] ~
 location.subCode3 location.subCode1 location.subCode4 location.countryCode ~
 location.subCode2 location.geoLat location.geoLong location.phone ~
-location.fax location.email location.externalID[1] location.notes 
+location.externalID[1] location.fax location.email location.notes 
 &Scoped-define ENABLED-TABLES location loc
 &Scoped-define FIRST-ENABLED-TABLE location
 &Scoped-define SECOND-ENABLED-TABLE loc
 &Scoped-Define ENABLED-OBJECTS rsBinType 
-&Scoped-Define DISPLAYED-FIELDS loc.company loc.loc location.defaultBin ~
+&Scoped-Define DISPLAYED-FIELDS loc.loc location.defaultBin loc.company ~
 location.streetAddr[4] loc.dscr location.streetAddr[5] ~
 location.streetAddr[1] location.streetAddr[6] location.streetAddr[2] ~
 location.streetAddr[3] location.subCode3 location.subCode1 ~
 location.subCode4 location.countryCode location.subCode2 location.geoLat ~
-location.geoLong location.phone location.fax location.email ~
-location.externalID[1] location.notes 
+location.geoLong location.phone location.externalID[1] location.fax ~
+location.email location.notes 
 &Scoped-define DISPLAYED-TABLES loc location
 &Scoped-define FIRST-DISPLAYED-TABLE loc
 &Scoped-define SECOND-DISPLAYED-TABLE location
@@ -139,9 +139,6 @@ DEFINE VARIABLE rsBinType AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     loc.company AT ROW 1 COL 96 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 3 BY 1
      loc.loc AT ROW 1.24 COL 12 COLON-ALIGNED
           LABEL "Location"
           VIEW-AS FILL-IN 
@@ -152,22 +149,25 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      rsBinType AT ROW 1.24 COL 64 NO-LABEL
-     location.streetAddr[4] AT ROW 1.95 COL 96 COLON-ALIGNED NO-LABEL
+     loc.company AT ROW 1.24 COL 97 COLON-ALIGNED NO-LABEL BLANK 
           VIEW-AS FILL-IN 
-          SIZE 3 BY 1
+          SIZE 2 BY 1
+     location.streetAddr[4] AT ROW 2.19 COL 97 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 2 BY 1
      loc.dscr AT ROW 2.67 COL 16 COLON-ALIGNED
           LABEL "Name" FORMAT "x(60)"
           VIEW-AS FILL-IN 
           SIZE 73 BY 1
-     location.streetAddr[5] AT ROW 2.91 COL 96 COLON-ALIGNED NO-LABEL
+     location.streetAddr[5] AT ROW 3.14 COL 97 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 3 BY 1
+          SIZE 2 BY 1
      location.streetAddr[1] AT ROW 3.62 COL 16 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 73 BY 1
-     location.streetAddr[6] AT ROW 3.86 COL 96 COLON-ALIGNED NO-LABEL
+     location.streetAddr[6] AT ROW 4.1 COL 97 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 3 BY 1
+          SIZE 2 BY 1
      location.streetAddr[2] AT ROW 4.57 COL 16 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 73 BY 1
@@ -199,26 +199,31 @@ DEFINE FRAME F-Main
           LABEL "Lat"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     location.geoLong AT ROW 9.57 COL 69 COLON-ALIGNED
+     location.geoLong AT ROW 9.57 COL 74 COLON-ALIGNED
           LABEL "Long"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
      location.phone AT ROW 10.76 COL 16 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 50 BY 1
-     location.fax AT ROW 11.71 COL 16 COLON-ALIGNED
+          SIZE 42 BY 1
+     location.externalID[1] AT ROW 10.76 COL 71 COLON-ALIGNED
+          LABEL "Ext.Code"
           VIEW-AS FILL-IN 
-          SIZE 50 BY 1
+          SIZE 18 BY 1
+     location.fax AT ROW 11.71 COL 16 COLON-ALIGNED
+          LABEL "Fax"
+          VIEW-AS FILL-IN 
+          SIZE 42 BY 1
      location.email AT ROW 12.67 COL 16 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 73 BY 1
-     location.externalID[1] AT ROW 13.86 COL 16 COLON-ALIGNED
-          LABEL "Ext.Code"
-          VIEW-AS FILL-IN 
-          SIZE 23 BY 1
-     location.notes AT ROW 15.05 COL 18 NO-LABEL
+     location.notes AT ROW 14.33 COL 18 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 73 BY 2.38
+          SIZE 73 BY 3.1
+     "Notes:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 14.33 COL 9
+     "Address:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 4.1 COL 7
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -283,14 +288,13 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN loc.company IN FRAME F-Main
    NO-ENABLE                                                            */
-ASSIGN 
-       loc.company:HIDDEN IN FRAME F-Main           = TRUE.
-
 /* SETTINGS FOR FILL-IN location.defaultBin IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN loc.dscr IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN location.externalID[1] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN location.fax IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN fsCtyDesc IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -353,6 +357,7 @@ DO:
     DEFINE VARIABLE lw-focus  AS WIDGET-HANDLE NO-UNDO.
     DEFINE VARIABLE ll        AS LOGICAL       INITIAL YES NO-UNDO.
     DEFINE VARIABLE op-rowid  AS ROWID         NO-UNDO.
+    DEFINE VARIABLE op-recid  AS RECID         NO-UNDO.
 
     lw-focus = FOCUS.
 
@@ -364,7 +369,7 @@ DO:
                 ELSE IF rsBinType:SCREEN-VALUE EQ "RM" THEN 
                     RUN windows/l-rmbin.w (loc.company:SCREEN-VALUE,loc.loc:SCREEN-VALUE, lw-focus:SCREEN-VALUE, OUTPUT char-val). 
                 ELSE IF rsBinType:SCREEN-VALUE EQ "WP" THEN 
-                    RUN windows/l-wipbin.w (loc.company:SCREEN-VALUE,loc.loc:SCREEN-VALUE, OUTPUT char-val). 
+                    RUN windows/l-wipbin.w (loc.company:SCREEN-VALUE,loc.loc:SCREEN-VALUE, OUTPUT char-val, OUTPUT op-recid). 
                 IF char-val NE "" THEN 
                 DO :
                     ASSIGN 
@@ -469,6 +474,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL location.subCode4 V-table-Win
 ON LEAVE OF location.subCode4 IN FRAME F-Main /* Zip/Post */
 DO:
+    IF LASTKEY = -1 THEN  RETURN.
+
+    FIND FIRST fg-bin NO-LOCK WHERE 
+        fg-bin.company EQ g_company AND 
+        fg-bin.loc EQ loc.loc:SCREEN-VALUE AND 
+        fg-bin.loc-bin EQ SELF:SCREEN-VALUE 
+        NO-ERROR.
+    IF AVAIL fg-bin THEN ASSIGN 
+            lFound = TRUE.
   
 END.
 
