@@ -60,16 +60,15 @@ CREATE WIDGET-POOL.
 &Scoped-define BROWSE-NAME Browser-Table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES loc location addrPhone
+&Scoped-define INTERNAL-TABLES loc location
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table loc.loc location.lActive ~
-loc.dscr location.subCode3 location.subCode1 location.subCode4 ~
-addrPhone.phoneType addrPhone.dialArea addrPhone.dialNumber ~
-addrPhone.dialExt loc.addrRecKey location.subCode2 location.countryCode ~
+&Scoped-define FIELDS-IN-QUERY-Browser-Table loc.loc loc.dscr ~
+location.subCode3 location.subCode1 location.phone location.email ~
+location.subCode4 loc.addrRecKey location.subCode2 location.countryCode ~
 location.defaultBin location.description location.externalID[1] ~
 location.externalID[2] location.externalID[3] location.externalID[4] ~
 location.externalID[5] location.geoAlt location.geoLat location.geoLong ~
@@ -77,26 +76,21 @@ location.locationCode loc.whs-chg location.building location.notes ~
 location.rec_key location.room location.streetAddr[1] ~
 location.streetAddr[2] location.streetAddr[3] location.streetAddr[4] ~
 location.streetAddr[5] location.streetAddr[6] location.workCenter ~
-loc.company 
+loc.company location.fax 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH loc WHERE ~{&KEY-PHRASE} ~
       AND loc.company = gcompany NO-LOCK, ~
       EACH location WHERE location.locationCode = loc.loc ~
-  AND location.rec_key = loc.addrRecKey OUTER-JOIN NO-LOCK, ~
-      EACH addrPhone WHERE addrPhone.linkTable = "location" ~
-  AND addrPhone.linkRecKey = location.rec_key OUTER-JOIN NO-LOCK ~
+  AND location.rec_key = loc.addrRecKey OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH loc WHERE ~{&KEY-PHRASE} ~
       AND loc.company = gcompany NO-LOCK, ~
       EACH location WHERE location.locationCode = loc.loc ~
-  AND location.rec_key = loc.addrRecKey OUTER-JOIN NO-LOCK, ~
-      EACH addrPhone WHERE addrPhone.linkTable = "location" ~
-  AND addrPhone.linkRecKey = location.rec_key OUTER-JOIN NO-LOCK ~
+  AND location.rec_key = loc.addrRecKey OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-Browser-Table loc location addrPhone
+&Scoped-define TABLES-IN-QUERY-Browser-Table loc location
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table loc
 &Scoped-define SECOND-TABLE-IN-QUERY-Browser-Table location
-&Scoped-define THIRD-TABLE-IN-QUERY-Browser-Table addrPhone
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -147,8 +141,7 @@ DEFINE QUERY Browser-Table FOR
       loc.addrRecKey
       loc.whs-chg
       loc.company), 
-      location, 
-      addrPhone SCROLLING.
+      location SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -156,17 +149,14 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       loc.loc FORMAT "x(5)":U
-      location.lActive FORMAT "yes/no":U WIDTH 8.2
-      loc.dscr FORMAT "x(30)":U
-      location.subCode3 COLUMN-LABEL "City" FORMAT "x(24)":U
+      loc.dscr COLUMN-LABEL "Name" FORMAT "x(30)":U WIDTH 39.2
+      location.subCode3 COLUMN-LABEL "City" FORMAT "x(24)":U WIDTH 30.2
       location.subCode1 COLUMN-LABEL "St/Prov" FORMAT "x(24)":U
             WIDTH 12.6
+      location.phone FORMAT "x(40)":U
+      location.email FORMAT "x(60)":U
       location.subCode4 COLUMN-LABEL "Zip/Post" FORMAT "x(24)":U
             WIDTH 15.2
-      addrPhone.phoneType COLUMN-LABEL "Ph/Fax" FORMAT "x(8)":U
-      addrPhone.dialArea FORMAT "x(4)":U WIDTH 5.8
-      addrPhone.dialNumber FORMAT "x(10)":U
-      addrPhone.dialExt COLUMN-LABEL "Ext." FORMAT "x(6)":U
       loc.addrRecKey FORMAT "X(20)":U
       location.subCode2 FORMAT "x(24)":U
       location.countryCode FORMAT "x(3)":U
@@ -194,6 +184,7 @@ DEFINE BROWSE Browser-Table
       location.streetAddr[6] FORMAT "x(60)":U
       location.workCenter FORMAT "x(12)":U
       loc.company FORMAT "x(3)":U
+      location.fax FORMAT "x(40)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 100 BY 16.91
@@ -278,6 +269,7 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
+       Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 1
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
                 "2".
 
@@ -295,6 +287,8 @@ ASSIGN
        location.geoAlt:VISIBLE IN BROWSE Browser-Table = FALSE
        location.geoLat:VISIBLE IN BROWSE Browser-Table = FALSE
        location.geoLong:VISIBLE IN BROWSE Browser-Table = FALSE
+       location.locationCode:VISIBLE IN BROWSE Browser-Table = FALSE
+       loc.whs-chg:VISIBLE IN BROWSE Browser-Table = FALSE
        location.building:VISIBLE IN BROWSE Browser-Table = FALSE
        location.notes:VISIBLE IN BROWSE Browser-Table = FALSE
        location.rec_key:VISIBLE IN BROWSE Browser-Table = FALSE
@@ -306,7 +300,8 @@ ASSIGN
        location.streetAddr[5]:VISIBLE IN BROWSE Browser-Table = FALSE
        location.streetAddr[6]:VISIBLE IN BROWSE Browser-Table = FALSE
        location.workCenter:VISIBLE IN BROWSE Browser-Table = FALSE
-       loc.company:VISIBLE IN BROWSE Browser-Table = FALSE.
+       loc.company:VISIBLE IN BROWSE Browser-Table = FALSE
+       location.fax:VISIBLE IN BROWSE Browser-Table = FALSE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -316,83 +311,79 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.loc,ASI.location WHERE ASI.loc ...,ASI.addrPhone WHERE ASI.location ..."
+     _TblList          = "ASI.loc,ASI.location WHERE ASI.loc ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED, OUTER, OUTER"
      _Where[1]         = "loc.company = gcompany"
      _JoinCode[2]      = "ASI.location.locationCode = ASI.loc.loc
   AND ASI.location.rec_key = ASI.loc.addrRecKey"
-     _JoinCode[3]      = "ASI.addrPhone.linkTable = ""location""
-  AND ASI.addrPhone.linkRecKey = ASI.location.rec_key"
      _FldNameList[1]   = ASI.loc.loc
-     _FldNameList[2]   > ASI.location.lActive
-"location.lActive" ? ? "logical" ? ? ? ? ? ? no ? no no "8.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   = ASI.loc.dscr
-     _FldNameList[4]   > ASI.location.subCode3
-"location.subCode3" "City" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.location.subCode1
+     _FldNameList[2]   > ASI.loc.dscr
+"loc.dscr" "Name" ? "character" ? ? ? ? ? ? no ? no no "39.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.location.subCode3
+"location.subCode3" "City" ? "character" ? ? ? ? ? ? no ? no no "30.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.location.subCode1
 "location.subCode1" "St/Prov" ? "character" ? ? ? ? ? ? no ? no no "12.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.location.subCode4
+     _FldNameList[5]   = ASI.location.phone
+     _FldNameList[6]   = ASI.location.email
+     _FldNameList[7]   > ASI.location.subCode4
 "location.subCode4" "Zip/Post" ? "character" ? ? ? ? ? ? no ? no no "15.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > ASI.addrPhone.phoneType
-"addrPhone.phoneType" "Ph/Fax" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.addrPhone.dialArea
-"addrPhone.dialArea" ? ? "character" ? ? ? ? ? ? no ? no no "5.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   = ASI.addrPhone.dialNumber
-     _FldNameList[10]   > ASI.addrPhone.dialExt
-"addrPhone.dialExt" "Ext." ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.loc.addrRecKey
+     _FldNameList[8]   > ASI.loc.addrRecKey
 "loc.addrRecKey" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > ASI.location.subCode2
+     _FldNameList[9]   > ASI.location.subCode2
 "location.subCode2" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.location.countryCode
+     _FldNameList[10]   > ASI.location.countryCode
 "location.countryCode" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > ASI.location.defaultBin
+     _FldNameList[11]   > ASI.location.defaultBin
 "location.defaultBin" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > ASI.location.description
+     _FldNameList[12]   > ASI.location.description
 "location.description" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > ASI.location.externalID[1]
+     _FldNameList[13]   > ASI.location.externalID[1]
 "location.externalID[1]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > ASI.location.externalID[2]
+     _FldNameList[14]   > ASI.location.externalID[2]
 "location.externalID[2]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > ASI.location.externalID[3]
+     _FldNameList[15]   > ASI.location.externalID[3]
 "location.externalID[3]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[19]   > ASI.location.externalID[4]
+     _FldNameList[16]   > ASI.location.externalID[4]
 "location.externalID[4]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[20]   > ASI.location.externalID[5]
+     _FldNameList[17]   > ASI.location.externalID[5]
 "location.externalID[5]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[21]   > ASI.location.geoAlt
+     _FldNameList[18]   > ASI.location.geoAlt
 "location.geoAlt" ? ? "decimal" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[22]   > ASI.location.geoLat
+     _FldNameList[19]   > ASI.location.geoLat
 "location.geoLat" ? ? "decimal" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[23]   > ASI.location.geoLong
+     _FldNameList[20]   > ASI.location.geoLong
 "location.geoLong" ? ? "decimal" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   = ASI.location.locationCode
-     _FldNameList[25]   = ASI.loc.whs-chg
-     _FldNameList[26]   > ASI.location.building
+     _FldNameList[21]   > ASI.location.locationCode
+"location.locationCode" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[22]   > ASI.loc.whs-chg
+"loc.whs-chg" ? ? "decimal" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[23]   > ASI.location.building
 "location.building" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[27]   > ASI.location.notes
+     _FldNameList[24]   > ASI.location.notes
 "location.notes" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[28]   > ASI.location.rec_key
+     _FldNameList[25]   > ASI.location.rec_key
 "location.rec_key" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[29]   > ASI.location.room
+     _FldNameList[26]   > ASI.location.room
 "location.room" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[30]   > ASI.location.streetAddr[1]
+     _FldNameList[27]   > ASI.location.streetAddr[1]
 "location.streetAddr[1]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[31]   > ASI.location.streetAddr[2]
+     _FldNameList[28]   > ASI.location.streetAddr[2]
 "location.streetAddr[2]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[32]   > ASI.location.streetAddr[3]
+     _FldNameList[29]   > ASI.location.streetAddr[3]
 "location.streetAddr[3]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[33]   > ASI.location.streetAddr[4]
+     _FldNameList[30]   > ASI.location.streetAddr[4]
 "location.streetAddr[4]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[34]   > ASI.location.streetAddr[5]
+     _FldNameList[31]   > ASI.location.streetAddr[5]
 "location.streetAddr[5]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[35]   > ASI.location.streetAddr[6]
+     _FldNameList[32]   > ASI.location.streetAddr[6]
 "location.streetAddr[6]" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[36]   > ASI.location.workCenter
+     _FldNameList[33]   > ASI.location.workCenter
 "location.workCenter" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[37]   > ASI.loc.company
+     _FldNameList[34]   > ASI.loc.company
 "loc.company" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[35]   > ASI.location.fax
+"location.fax" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -563,7 +554,6 @@ PROCEDURE send-records :
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "loc"}
   {src/adm/template/snd-list.i "location"}
-  {src/adm/template/snd-list.i "addrPhone"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
