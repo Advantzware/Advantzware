@@ -19,7 +19,9 @@ PROCEDURE Get-Shift:
     IF op-shift EQ "" THEN DO:
         {custom/getshift.i
             &file="shifts"
-            &where="WHERE shifts.company EQ ip-company"}
+            &where="WHERE shifts.company EQ ip-company
+                    AND (shifts.useSpecificDays  EQ TRUE 
+                    AND ENTRY(WEEKDAY(TODAY),shifts.dayList) EQ 'YES')"}
     END.
 END PROCEDURE.
 
