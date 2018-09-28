@@ -1495,6 +1495,7 @@ DO:
           asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
       ELSE IF oe-ordl.est-no:SCREEN-VALUE GT "" AND runship-char EQ "DefaultOnly" AND runship-log = YES THEN 
           asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
+          
     END.
 END.
 
@@ -4136,6 +4137,7 @@ PROCEDURE display-est-detail :
   DEF VAR v-com AS DEC NO-UNDO.
   DEF VAR v-tmp-price-2 AS DEC NO-UNDO.
   DEF VAR v-price-per-1000 AS DEC NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
   DEF BUFFER b-eb FOR eb.
   DEF BUFFER b-oe-ordl FOR oe-ordl.
@@ -4341,8 +4343,8 @@ PROCEDURE display-est-detail :
 
      IF v-rel = 0 THEN
         v-rel = 1.
-
-     IF lv-new-tandem EQ ? AND ll-do-job THEN DO:
+     
+         IF lv-new-tandem EQ ? AND ll-do-job THEN DO:
         
        ASSIGN
           v-disp-prod-cat = eb.procat
@@ -4395,7 +4397,13 @@ PROCEDURE display-est-detail :
 
      oe-ordl.qty:SCREEN-VALUE  = STRING(lv-qty).
   END.
-  
+  IF lv-qty GT 0 AND AVAILABLE est-qty THEN DO:
+        DO iCount = 1 TO EXTENT(est-qty.qty):
+            IF est-qty.qty[iCount] EQ lv-qty OR est-qty.qty[iCount] EQ 0 THEN LEAVE.
+        END.
+        IF iCount GT 0 THEN oe-ordl.whsed:SCREEN-VALUE = STRING(est-qty.whsed[iCount], "YES/NO"). 
+  END.
+     
   IF NOT ll-got-qtprice AND CAN-FIND(FIRST tt-item-qty-price WHERE
      tt-item-qty-price.tt-selected = YES AND
      (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
