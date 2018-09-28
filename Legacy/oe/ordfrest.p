@@ -163,6 +163,15 @@ FORM
 
  HIDE FRAME xyz.
 
+
+
+/* ************************  Function Prototypes ********************** */
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+	(ipcCompany AS CHARACTER,
+	 ipcCust AS CHARACTER,
+	 ipcShipto AS CHARACTER,
+	 ipcFGItemID AS CHARACTER) FORWARD.
+
 PROCEDURE ord-from-est:
     &scoped-define FRAME-NAME xyz
     
@@ -547,7 +556,7 @@ PROCEDURE create-order-lines.
         oe-ordl.blank-no   = eb.blank-no
         oe-ordl.cust-no    = xoe-ord.cust-no
         oe-ordl.disc       = lv-disc
-        oe-ordl.tax        = cust.SORT EQ "Y" AND xoe-ord.tax-gr NE "".
+        oe-ordl.tax        = fGetTaxable(xoe-ord.company, xoe-ord.cust-no, xoe-ord.ship-id, oe-ordl.i-no).
       
        FIND FIRST tt-item-qty-price WHERE
             tt-item-qty-price.tt-selected = YES AND
@@ -587,9 +596,7 @@ PROCEDURE create-order-lines.
           ELSE
              oe-ordl.price = v-d-ordqty-price.
        END.
-      
-       {custom/shptotax.i xoe-ord.cust-no xoe-ord.sold-id oe-ordl.tax}
-      
+           
        RUN est/getcscnt.p ((IF xest.est-type EQ 6 AND
                                AVAIL xeb          AND
                                xeb.cas-no NE ""   THEN ROWID(xeb) ELSE ROWID(eb)),
@@ -1352,3 +1359,21 @@ PROCEDURE recalc-estimate:
       if v-est-type eq 2 then leave. /** 2pc box & Set headers **/
     END.
 END PROCEDURE. /* recalc estimate */
+
+
+/* ************************  Function Implementations ***************** */
+
+
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER, ipcCust AS CHARACTER , ipcShipto AS CHARACTER, ipcFGItemID AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: Gets the Taxable flag based on inputs
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+RUN system\TaxProcs.p (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+RETURN lTaxable.
+
+END FUNCTION.
+

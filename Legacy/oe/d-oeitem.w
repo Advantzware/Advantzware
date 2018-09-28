@@ -432,6 +432,19 @@ oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3
 /* ************************  Function Prototypes ********************** */
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable d-oeitem
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER,
+   ipcCust AS CHARACTER,
+   ipcShipto AS CHARACTER,
+   ipcFGItemID AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnPrevOrder d-oeitem
 FUNCTION fnPrevOrder RETURNS CHARACTER 
     (ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER) FORWARD.
@@ -3271,7 +3284,6 @@ IF AVAIL oe-ord THEN DO:
     bf-oe-ordl.prom-code = oe-ord.due-code
     bf-oe-ordl.prom-date = oe-ord.due-date
     bf-oe-ordl.disc      = cust.disc
-    bf-oe-ordl.tax       = cust.sort EQ "Y" AND oe-ord.tax-gr NE ""
     bf-oe-ordl.over-pct  = oe-ord.over-pct   
     bf-oe-ordl.under-pct = oe-ord.under-pct
     .
@@ -3285,10 +3297,9 @@ IF AVAIL oe-ord THEN DO:
 
        ASSIGN bf-oe-ordl.prom-date = bf-oe-ordl.req-date.
    END.
-
-
-   {custom/shptotax.i oe-ord.cust-no oe-ord.sold-id bf-oe-ordl.tax}
-
+    
+   bf-oe-ordl.tax = fGetTaxable(oe-ord.company, oe-ord.cust-no, oe-ord.ship-id, "").
+  
    FOR LAST b-oe-ordl OF oe-ord
        WHERE ROWID(b-oe-ordl) NE ROWID(bf-oe-ordl)
        NO-LOCK
@@ -3949,12 +3960,8 @@ ASSIGN
   itemfg.setupDate  = TODAY.
 
 ASSIGN
-    itemfg.taxable = IF AVAIL cust 
-                      THEN cust.sort EQ "Y" AND cust.tax-gr NE ""
-                      ELSE 
-                          IF AVAIL bf-itemfg THEN bf-itemfg.taxable
-                                             ELSE NO.
-
+    itemfg.taxable = fGetTaxable(itemfg.company, (IF AVAIL cust THEN cust.cust-no ELSE ""),"", (IF AVAILABLE bf-itemfg THEN bf-itemfg.i-no ELSE "")). 
+                         
 
  IF fgmaster-cha EQ "FGITEM" THEN
     ASSIGN
@@ -4129,7 +4136,6 @@ PROCEDURE display-est-detail :
   DEF VAR v-job-no LIKE oe-ordl.job-no NO-UNDO.
   DEF VAR v-job-no2 LIKE oe-ordl.job-no2 NO-UNDO.
   DEF VAR li-cnt AS INT NO-UNDO.
-  DEF VAR ll-tax AS LOG NO-UNDO.
   DEF VAR ll-do-job AS LOG NO-UNDO.
   DEF VAR li-cases AS INT NO-UNDO.
   DEFINE VARIABLE v-disp-prod-cat AS CHARACTER  NO-UNDO.
@@ -4158,30 +4164,16 @@ PROCEDURE display-est-detail :
                 AND est.est-no = eb.est-no NO-LOCK NO-ERROR.
      IF AVAIL itemfg THEN DO:
        ASSIGN
-        
         oe-ordl.part-dscr2:SCREEN-VALUE = itemfg.part-dscr2
-        oe-ordl.part-dscr3:SCREEN-VALUE = itemfg.part-dscr3.
+        oe-ordl.part-dscr3:SCREEN-VALUE = itemfg.part-dscr3
+        /*35645 - Taxable set by FG item flag only*/
+        oe-ordl.tax:SCREEN-VALUE = STRING(fGetTaxable(itemfg.company, eb.cust-no, eb.ship-id, itemfg.i-no),"Y/N")
+        .
         IF DECIMAL(oe-ordl.price:SCREEN-VALUE) = 0 THEN
             ASSIGN
             oe-ordl.price:SCREEN-VALUE      = STRING(itemfg.sell-price) 
             oe-ordl.pr-uom:SCREEN-VALUE     = itemfg.sell-uom
-            .
-
-          /*ysk*/
-          FIND FIRST cust
-              {sys/ref/custW.i}
-                AND cust.cust-no EQ oe-ord.cust-no
-              USE-INDEX cust
-              NO-LOCK NO-ERROR.
-        
-          ll-tax = AVAIL cust AND cust.sort EQ "Y" AND oe-ord.tax-gr NE "" AND itemfg.taxable.
-        
-          IF NOT ll-tax THEN DO:
-           {custom/shptotax.i oe-ord.cust-no oe-ord.sold-id ll-tax}
-          END.
-        
-          oe-ordl.tax:SCREEN-VALUE = STRING(ll-tax,"Y/N").
-          /*ysk*/
+            .  
           
      END.
 
@@ -4572,7 +4564,6 @@ PROCEDURE display-fgitem :
   DEF VAR lv-pr-uom AS CHAR NO-UNDO.
   DEF VAR v-tmp-part AS CHAR NO-UNDO.
   DEF VAR lv-cost-uom AS CHAR NO-UNDO.
-  DEF VAR ll-tax LIKE oe-ordl.tax NO-UNDO.
   DEF VAR lv-new-i-no LIKE oe-ordl.i-no NO-UNDO.
   DEF VAR lv-calc-qty AS DEC NO-UNDO.
   DEF VAR lv-case-qty AS INT NO-UNDO.
@@ -4680,19 +4671,8 @@ DO WITH FRAME {&FRAME-NAME}:
   RUN validate-fgitem NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
-  FIND FIRST cust
-      {sys/ref/custW.i}
-        AND cust.cust-no EQ oe-ord.cust-no
-      USE-INDEX cust
-      NO-LOCK NO-ERROR.
-
-  ll-tax = AVAIL cust AND cust.sort EQ "Y" AND oe-ord.tax-gr NE "" AND itemfg.taxable.
-
-  IF NOT ll-tax THEN DO:
-   {custom/shptotax.i oe-ord.cust-no oe-ord.sold-id ll-tax}
-  END.
-
-  oe-ordl.tax:SCREEN-VALUE = STRING(ll-tax,"Y/N").
+  /*35645 - Taxable set by FG item flag only*/
+  oe-ordl.tax:SCREEN-VALUE = STRING(fGetTaxable(itemfg.company, oe-ord.cust-no, oe-ord.ship-id, itemfg.i-no),"Y/N").
 
   RUN default-type (BUFFER itemfg).
 
@@ -9499,6 +9479,27 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable d-oeitem
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER, ipcCust AS CHARACTER , ipcShipto AS CHARACTER, ipcFGItemID AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: Gets the Taxable flag based on inputs
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+RUN system\TaxProcs.p (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+RETURN lTaxable.
+
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnPrevOrder d-oeitem
