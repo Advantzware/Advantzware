@@ -23,6 +23,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+&SCOPED-DEFINE excel-mail excel-mail
+
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
@@ -661,24 +663,15 @@ DO:
                             &fax-file=list-name }
        END.
        when 5 then do:
-           IF is-xprint-form THEN DO:
-              RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
-              {custom/asimail.i &TYPE = "Customer"
+           IF is-xprint-form THEN 
+               RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
+            {custom/asimail.i &TYPE = "Customer"
                              &begin_cust= begin_cust-no
                              &END_cust=end_cust-no
                              &mail-subject=c-win:title
                              &mail-body=c-win:title
-                             &mail-file=list-name }
-           END.
-           ELSE DO:
-               {custom/asimailr.i &TYPE = "Customer"
-                                  &begin_cust= begin_cust-no
-                                  &END_cust=end_cust-no
-                                  &mail-subject=c-win:title
-                                  &mail-body=c-win:title
-                                  &mail-file=list-name }
-
-           END.
+                             &mail-file=fi_file }
+           
 
        END. 
        WHEN 6 THEN run output-to-port.
