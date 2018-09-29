@@ -437,7 +437,7 @@ DEFINE BROWSE Browser-Table
       get-vend-info() @ vend-name COLUMN-LABEL "Name" FORMAT "x(25)":U
       get-fg-qty (1) @ iBinQtyBef COLUMN-LABEL "Before Qty" FORMAT "->>>>>>9":U
       get-fg-qty (2) @ iBinQty COLUMN-LABEL "Bin Change" FORMAT "->>>>>>9":U
-      fg-rdtlh.reject-code[1] COLUMN-LABEL "Adjustment Reason" WIDTH 25
+      fg-rdtlh.reject-code[1] COLUMN-LABEL "Adjustment Reason" FORMAT "x(30)" WIDTH 25
       VIEW-AS COMBO-BOX INNER-LINES 10
 
   ENABLE
