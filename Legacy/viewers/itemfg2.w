@@ -595,47 +595,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-q-avail V-table-Win 
-PROCEDURE calc-q-avail :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /*DO WITH FRAME {&FRAME-NAME}:
-    itemfg.q-avail:SCREEN-VALUE = STRING(DEC(itemfg.q-onh:SCREEN-VALUE) +
-                                         DEC(itemfg.q-ono:SCREEN-VALUE) -
-                                         DEC(itemfg.q-alloc:SCREEN-VALUE),
-                                         itemfg.q-avail:FORMAT).
-  END.*/
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-qty V-table-Win 
-PROCEDURE calc-qty :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  def var char-hdl as cha no-undo.
-
-  IF AVAIL itemfg THEN
-    run fg/d-reqtys.w (ROWID(itemfg), yes).
-
-  run get-link-handle in adm-broker-hdl (this-procedure, "record-source", output char-hdl).
-
-  run repo-query in widget-handle(char-hdl) (ROWID(itemfg)).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -935,6 +894,8 @@ PROCEDURE local-update-record :
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE {&list-5}.
   END.
+
+  {methods/run_link.i "RECORD-TARGET" "local-open-query"}
 
 END PROCEDURE.
 

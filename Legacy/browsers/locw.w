@@ -49,10 +49,10 @@ DEFINE NEW SHARED TEMP-TABLE w-job NO-UNDO
     FIELD loc-desc      AS CHARACTER FORMAT "x(20)"
     FIELD loc-bin     LIKE fg-bin.loc-bin
     FIELD tag         LIKE fg-bin.tag
-    FIELD lead-days   LIKE itemfg-loc.lead-days
-    FIELD ord-level   LIKE itemfg-loc.ord-level
-    FIELD ord-max     LIKE itemfg-loc.ord-max
-    FIELD ord-min     LIKE itemfg-loc.ord-min
+    FIELD lead-days   LIKE itemfg-loc.lead-days FORMAT ">>>"
+    FIELD ord-level   LIKE itemfg-loc.ord-level FORMAT ">>>,>>>,>>>.<<<"
+    FIELD ord-max     LIKE itemfg-loc.ord-max   FORMAT ">>>,>>>,>>>.<<"
+    FIELD ord-min     LIKE itemfg-loc.ord-min   FORMAT ">>>,>>>,>>>.<<<"
     FIELD onHand        AS INTEGER FORMAT "->>,>>>,>>9" LABEL "OnHand"
     FIELD onOrder       AS INTEGER FORMAT "->>,>>>,>>9" LABEL "Jobs/POs"
     FIELD allocated     AS INTEGER FORMAT "->>,>>>,>>9" LABEL "Allocated"
@@ -569,10 +569,10 @@ PROCEDURE build-table :
         w-jobs.i-no         = "ALL"
         w-jobs.loc          = "ALL"
         w-jobs.loc-desc     = "ALL Locations"
-        w-jobs.lead-days    = ?
-        w-jobs.ord-level    = ?
-        w-jobs.ord-max      = ?
-        w-jobs.ord-min      = ?     
+        w-jobs.lead-days    = 0
+        w-jobs.ord-level    = 0
+        w-jobs.ord-max      = 0
+        w-jobs.ord-min      = 0     
         w-jobs.onHand       = iTotOnHand
         w-jobs.onOrder      = iTotOnOrder
         w-jobs.allocated    = iTotAlloc
@@ -584,6 +584,51 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-q-avail B-table-Win
+PROCEDURE calc-q-avail:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /*DO WITH FRAME {&FRAME-NAME}:
+    itemfg.q-avail:SCREEN-VALUE = STRING(DEC(itemfg.q-onh:SCREEN-VALUE) +
+                                         DEC(itemfg.q-ono:SCREEN-VALUE) -
+                                         DEC(itemfg.q-alloc:SCREEN-VALUE),
+                                         itemfg.q-avail:FORMAT).
+  END.*/
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-qty B-table-Win
+PROCEDURE calc-qty:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  def var char-hdl as cha no-undo.
+
+  IF AVAIL itemfg THEN
+    run fg/d-reqtys.w (ROWID(itemfg), yes).
+
+  run get-link-handle in adm-broker-hdl (this-procedure, "repo-query-source", output char-hdl).
+
+  run repo-query in widget-handle(char-hdl) (ROWID(itemfg)).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -655,6 +700,21 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE override-qty B-table-Win
+PROCEDURE override-qty:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resort-query B-table-Win 
 PROCEDURE resort-query :
