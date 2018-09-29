@@ -1434,14 +1434,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN pLoadFavorites.
     menuTreeMsg:HIDDEN = YES.
     RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
-/*    FOR EACH cueCard NO-LOCK                      */
-/*        WHERE cueCard.cuePrgmName EQ cCuePrgmName,*/
-/*        EACH cueCardText NO-LOCK                  */
-/*        WHERE cueCardText.cueID EQ cueCard.cueID  */
-/*        :                                         */
-/*        RUN system/cueCard.w (BUFFER cueCardText).*/
-/*    END. /* each cuecard */                       */
-/*    {system/runCueCard.i}                         */
+/*    {system/runCueCard.i}*/
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -2273,6 +2266,36 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetByUser MAINMENU
+PROCEDURE pResetByUser:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplMenuChange AS LOGICAL NO-UNDO.
+    
+    SESSION:SET-WAIT-STATE("General").
+    RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+    
+    FRAME userSettingsFrame:HIDDEN = YES.
+    /* open user settings frame */
+    APPLY "MOUSE-SELECT-CLICK":U TO imageSettings IN FRAME {&FRAME-NAME}.
+    IF iplMenuChange THEN 
+    APPLY "CHOOSE":U TO btnOK IN FRAME userSettingsFrame.
+    /* close user settings frame */
+    APPLY "MOUSE-SELECT-CLICK":U TO imageSettings IN FRAME {&FRAME-NAME}.
+
+    RUN LockWindowUpdate (0,OUTPUT i).
+    SESSION:SET-WAIT-STATE("").
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveCustomMenu MAINMENU 
 PROCEDURE pSaveCustomMenu :
