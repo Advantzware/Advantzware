@@ -26,19 +26,14 @@ END.
 
 
 &IF '{&two}' EQ '' &THEN
-&IF '{&excel-mail}' NE '' &THEN
-	ls-mail-file{&two} = {&mail-file}.
-&ELSE
 IF INDEX({&mail-file},'.pdf') EQ 0 THEN
 ls-mail-file{&two} = {&mail-file} + '.pdf'.
 else
     ls-mail-file{&two} = {&mail-file}.
-&ENDIF
 
 &ELSE
-   ls-mail-file{&two} = init-dir + '\att' + STRING(TIME) + '.txt'. 
-   OS-COPY VALUE({&mail-file}) VALUE(ls-mail-file{&two}).
-
+ls-mail-file{&two} = init-dir + '\att' + STRING(TIME) + '.txt'. 
+OS-COPY VALUE({&mail-file}) VALUE(ls-mail-file{&two}).
 &ENDIF
 
 DO WHILE TRUE:

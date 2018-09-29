@@ -23,8 +23,6 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-&SCOPED-DEFINE excel-mail excel-mail
-
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
@@ -761,16 +759,18 @@ DO:
                             &fax-file=list-name }
        END.
        when 5 then do:
-           IF is-xprint-form THEN 
+           IF is-xprint-form THEN DO:
               RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
-
               {custom/asimail.i &TYPE = "Customer"
                              &begin_cust= begin_cust-no
                              &END_cust=end_cust-no
                              &mail-subject=c-win:title
                              &mail-body=c-win:title
-                             &mail-file=fi_file }
-          
+                             &mail-file=list-name }
+           END.
+           ELSE DO: 
+                RUN ExcelEmail.
+           END.
 
        END. 
        WHEN 6 THEN run output-to-port.
@@ -1900,6 +1900,27 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ExcelEmail C-Win 
+PROCEDURE ExcelEmail :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+     {custom/asimailx.i &TYPE = "Excel"
+                             &begin_cust= begin_cust-no
+                             &END_cust=end_cust-no
+                             &mail-subject=c-win:title
+                             &mail-body=c-win:title
+                             &mail-file=fi_file }   
+        
 
 END PROCEDURE.
 
