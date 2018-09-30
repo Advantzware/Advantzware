@@ -4,8 +4,8 @@ ADD TABLE "cueCard"
   DESCRIPTION "Cue Card ID"
   DUMP-NAME "cuecard"
   TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\cueCard.p" CRC "?" 
-  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\cueCard.p" CRC "15598" 
-  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\cueCard.p" CRC "41576" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\cueCard.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\cueCard.p" CRC "?" 
 
 ADD FIELD "cuePrgmName" OF "cueCard" AS character 
   FORMAT "x(20)"

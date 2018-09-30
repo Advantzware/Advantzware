@@ -3,9 +3,9 @@ ADD TABLE "cueCardText"
   LABEL "Cue Card Text"
   DESCRIPTION "Cue Card Properties"
   DUMP-NAME "cuecardtext"
-  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\cueCardText.p" CRC "39179" 
-  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\cueCardText.p" CRC "41473" 
-  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\cueCardText.p" CRC "37316" 
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\cueCardText.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\cueCardText.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\cueCardText.p" CRC "?" 
 
 ADD FIELD "cueID" OF "cueCardText" AS integer 
   FORMAT ">>>>9"
