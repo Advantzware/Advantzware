@@ -138,18 +138,18 @@ DEFINE FRAME F-Main
          SIZE 159.6 BY 23.95
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 61 ROW 1
-         SIZE 99 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 3 ROW 1
          SIZE 52 BY 2
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 61 ROW 1
+         SIZE 99 BY 1.91
          BGCOLOR 15 .
 
 
@@ -651,7 +651,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_p-overq ).
        RUN set-position IN h_p-overq ( 11.00 , 142.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.52 , 17.20 ) */
+       /* Size in UIB:  ( 1.52 , 18.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/p-fg-bj-2.w':U ,
@@ -670,16 +670,23 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_fgijob ( 11.91 , 157.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('1,3':U) NO-ERROR.
 
        /* Links to SmartViewer h_itemfg. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_itemfg ).
 
        /* Links to SmartBrowser h_locw. */
-       RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_locw ).
+       RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'repo-query':U , h_locw ).
+       RUN add-link IN adm-broker-hdl ( h_itemfg2 , 'Record':U , h_locw ).
 
        /* Links to SmartViewer h_p-fg-bj-l. */
        RUN add-link IN adm-broker-hdl ( h_fgijob , 'cost':U , h_p-fg-bj-l ).
+
+       /* Links to SmartViewer h_p-calcq. */
+       RUN add-link IN adm-broker-hdl ( h_locw , 'calc-qty':U , h_p-calcq ).
+
+       /* Links to SmartViewer h_p-overq. */
+       RUN add-link IN adm-broker-hdl ( h_locw , 'override-qty':U , h_p-overq ).
 
        /* Links to SmartViewer h_p-fg-bj-2. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_p-fg-bj-2 ).
