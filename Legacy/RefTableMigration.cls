@@ -17,26 +17,6 @@ CLASS RefTableMigration:
     DEFINE PUBLIC PROPERTY iProcessCount AS INTEGER GET. SET.
     
     
-    METHOD PUBLIC INTEGER VendorMaxValue(INPUT ipCount AS INTEGER):
-        DEFINE BUFFER be-item-vend  FOR e-item-vend.
-        
-        DISABLE TRIGGERS FOR LOAD OF e-item-vend.
-        FOR EACH e-item-vend NO-LOCK:
-                FIND be-item-vend WHERE ROWID(be-item-vend) = ROWID(e-item-vend)
-                    EXCLUSIVE-LOCK NO-ERROR.
-          IF AVAILABLE be-item-vend THEN DO:
-              IF be-item-vend.roll-w[28] EQ 0 THEN
-              ASSIGN 
-              be-item-vend.roll-w[28] = 999.000 .
-        
-              IF be-item-vend.roll-w[30] EQ 0 THEN
-              ASSIGN 
-              be-item-vend.roll-w[30] = 999.000 .
-          END.
-          RELEASE be-item-vend.
-        END.
-    END METHOD.
-    
     METHOD PUBLIC INTEGER STYFLU(INPUT ipCount AS INTEGER):
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         DEFINE BUFFER styleFluteXref FOR styleFluteXref.
