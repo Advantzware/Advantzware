@@ -143,6 +143,7 @@ ASSIGN
     {refTableConv.i "StdUom" 'e-itemfg-vend.std-uom'}
     {refTableConv.i "relcredconv" 'relcredconv'}
     {refTableConv.i "Arcashhold" 'ARCASHHOLD'}
+    {refTableConv.i "Saletool" 'SALETOOL'}
     {refTableConv.i "EitemvendAdders" 'e-item-vend.adders'}
     {refTableConv.i "Batchrpt" 'Batchrpt'}
     {refTableConv.i "CeComProbemk" 'ce/com/probemk.p'}
