@@ -14,7 +14,7 @@ PUT "<R4><C3><#4><FROM><R4><C83><RECT><||3>" SKIP
     "<R4><C3><FROM><R11><C3><LINE><||3>" SKIP
     "<R4><C83><FROM><R11><C83><LINE><||3>" SKIP.
 
-PUT "<FArial><R6><C20><P25><B>" "Advanced Box, Inc."  "</B>" SKIP.
+PUT "<FArial><R6><C20><P25><B>" tt-po-print.vend-name FORMAT "x(30)" "</B>" SKIP.
 PUT "<FArial><R12><C25><P16><B>" "Purchased Materials"  "</B>" SKIP(2).
 PUT "<FArial><R14><C23><P16><B>" "Material Item Description" "</B>" .
 
@@ -66,7 +66,7 @@ PUT "<R34><C31><#10><FROM><R34><C56><RECT><||3>" SKIP
     "<R34><C31><FROM><R38><C31><LINE><||3>" SKIP
     "<R34><C56><FROM><R38><C56><LINE><||3>" SKIP.
 
-PUT "<FArial><R35><C42><P16><B>" tt-po-print.rcpt-qty  "</B>".
+PUT "<FArial><R35><C42><P16><B>" " "  "</B>".
 
 PUT "<R34><C59><#11><FROM><R34><C83><RECT><||3>" SKIP
     "<R38><C59><FROM><R38><C83><LINE><||3>" SKIP  
@@ -81,15 +81,14 @@ PUT "<R41><C3><#12><FROM><R41><C83><RECT><||3>" SKIP
     "<R41><C3><FROM><R45><C3><LINE><||3>" SKIP
     "<R41><C83><FROM><R45><C83><LINE><||3>" SKIP.
 
-PUT "<FArial><R42><C35><P16><B>" tt-po-print.vend-name FORMAT "x(30)"  "</B>" .
-PUT "<FArial><R46><C44><P16><B>" tt-po-print.vend-name FORMAT "x(30)"  "</B>".
+PUT "<FArial><R42><C10><P16><B>" tt-po-print.vend-no FORMAT "x(12)"  "</B>" .
 
 PUT "<R48><C3><#13><FROM><R48><C83><RECT><||3>" SKIP
     "<R52><C3><FROM><R52><C83><LINE><||3>" SKIP  
     "<R48><C3><FROM><R52><C3><LINE><||3>" SKIP
     "<R48><C83><FROM><R52><C83><LINE><||3>" SKIP.
 
-PUT "<FArial><R49><C32><P16><B>" tt-po-print.vend-no FORMAT "x(12)"  "</B>".
+PUT "<FArial><R49><C10><P16><B>" tt-po-print.vend-name FORMAT "x(30)"  "</B>".
 
 PUT "<R55><C3><#14><FROM><R55><C83><RECT><||3>" SKIP
     "<R66><C3><FROM><R66><C83><LINE><||3>" SKIP  
@@ -98,8 +97,7 @@ PUT "<R55><C3><#14><FROM><R55><C83><RECT><||3>" SKIP
 
 PUT "<FArial><R56><C6><P16><B>" "PKG ID-Unit (S)"  "</B>" SKIP(2).
 
-PUT   "<#=100><AT=,2><FROM><AT=+.8,+4><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE= " cTagno FORMAT "x(20)" ">"
+PUT   "<#=100><AT=,2><FROM><AT=+.8,+4><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" cTagno FORMAT "x(20)" ">"
     "<AT=,2.6>" cTagno FORMAT "x(20)"  .
-
 
 PUT "<FCourier New>".
