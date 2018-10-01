@@ -145,6 +145,8 @@ PROCEDURE pProcessRecord PRIVATE:
             users.user_id = ipbf-ttImportUsers.cUserId
             .
     END.
+    
+    
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
     RUN pAssignValueC (ipbf-ttImportUsers.cUserName, iplIgnoreBlanks, INPUT-OUTPUT users.user_name).
     RUN pAssignValueC (ipbf-ttImportUsers.cAlias, iplIgnoreBlanks, INPUT-OUTPUT  users.userAlias).
