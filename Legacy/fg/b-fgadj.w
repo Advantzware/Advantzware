@@ -533,7 +533,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.reject-code[1] Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF fg-rctd.reject-code[1] IN BROWSE Browser-Table /* reject No */
 DO: 
-   
+
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1480,25 +1481,23 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-type-list B-table-Win 
 PROCEDURE build-type-list :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-     ASSIGN cComboList = ""  .
+    ASSIGN cComboList = ""  .
 
-     RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
-             RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
+    RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
+    RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
     DELETE OBJECT hPgmReason.
 
-     DO WITH FRAME {&FRAME-NAME}:
-     ASSIGN
-      fg-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
-     END.
-  
-    
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            fg-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
+    END.
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
