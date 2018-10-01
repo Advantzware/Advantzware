@@ -295,6 +295,19 @@ edFtpOutput edFtpErrs
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnCurrVer C-Win
+FUNCTION fnCurrVer RETURNS CHARACTER 
+    (ipcVerList AS CHARACTER  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -508,7 +521,8 @@ DO:
   ELSE
   IF INDEX(SELF:LABEL, "EXTRACT") GT 0 THEN 
     RUN ipExtractFile.
-
+  IF INDEX(SELF:LABEL, "Upgrade Installer") GT 0 THEN 
+    RUN ipRunInstaller.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -731,7 +745,7 @@ PROCEDURE ipExpandVarNames :
                         AND ASC(cLockoutTries) GE 48
                         AND ASC(cLockoutTries) LE 57 THEN INT(cLockoutTries) ELSE 0
         .
-        
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -754,17 +768,21 @@ FOR EACH ttUnzipList:
   iPos = R-INDEX(cFileFolder, ".").
   cFileFolder = SUBSTRING(cFileFolder, 1, iPos - 1).
   c7ZCommand = cUpdCompressDir + "\" + "7z.exe".
-  c7ZCommand = c7ZCommand + " x " + ttUnZipList.fileName + " -o" + cFileFolder + " -r -Y".
- 
-  OS-COMMAND SILENT VALUE(c7ZCommand + " > " + c7ZOutputFile + " 2> " + c7ZErrFile).
-  RUN ipPopulateDetails.
 
+  IF SEARCH(c7Zcommand) NE ? THEN DO:
+      c7ZCommand = c7ZCommand + " x " + ttUnZipList.fileName + " -o" + cFileFolder + " -r -Y".
+     
+      OS-COMMAND SILENT VALUE(c7ZCommand + " > " + c7ZOutputFile + " 2> " + c7ZErrFile).
+      RUN ipPopulateDetails.
+      OS-DELETE VALUE(ttUnZipList.fileName).
+      ASSIGN    
+        fiStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "File extract is complete!".
+  END. /* 7zcommand */
+  ELSE 
+      fiStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Error could not find previous update folder!".
+END. /* each file in list */
 
-  ASSIGN    
-    fiStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "File extract is complete!".
-END.
-
-  RUN ipNextAction.
+RUN ipNextAction.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -919,8 +937,10 @@ DO WITH FRAME {&FRAME-NAME}:
         RUN ipMakeZipList.
     END.
     ELSE 
-      IF INDEX(bUpdate:LABEL, "Extract") GT 0 THEN
-        bUpdate:LABEL = "Run the Upgrade Installer from Advantzware".
+    IF INDEX(bUpdate:LABEL, "Extract") GT 0 THEN
+        bUpdate:LABEL = "Run the Upgrade Installer".
+  
+     
 END.
 
 END PROCEDURE.
@@ -1084,13 +1104,31 @@ PROCEDURE ipReadIniFile :
             WHEN "dfFileName" THEN ASSIGN cDfFileName = ttIniFile.cVarValue.
             WHEN "deltaFileName" THEN ASSIGN cDeltaFileName = ttIniFile.cVarValue.
         END CASE.
-        cPatchNo = cCurrVer.
+        cPatchNo = fnCurrVer(cEnvVerList).
     END.
     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRunInstaller C-Win
+PROCEDURE ipRunInstaller:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    OS-COMMAND NO-CONSOLE Startupdate.bat.
+    
+    APPLY 'WINDOW-CLOSE' TO C-Win.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipVerify7zfile C-Win 
 PROCEDURE ipVerify7zfile :
@@ -1106,6 +1144,7 @@ DEF VAR cFileName AS CHAR NO-UNDO.
 DEF VAR attrList AS CHAR NO-UNDO.
 DEF VAR lRemove AS LOGICAL NO-UNDO.
 DEF VAR lRename AS LOGICAL NO-UNDO.
+
 CASE ipcAction:
   WHEN "Remove" THEN
     lRemove = TRUE.
@@ -1113,32 +1152,51 @@ CASE ipcAction:
     lRename = TRUE.
 END CASE.
 
-    opl7ZExists = FALSE.
-    c7ZFolder = ".".
-    INPUT FROM OS-DIR(c7zFolder) NO-ECHO.
-    REPEAT:
-        IMPORT cFileName ^ attrList.
-        IF attrList NE 'f' OR cFileName BEGINS '.' OR
-       INDEX(cFileName,'.7Z') EQ 0 THEN NEXT.
-       opl7ZExists = TRUE.
-       IF lRename THEN DO:
-         CREATE ttUnzipList.
-         ttUnzipList.fileName = cUpdatesDir + "\" + cFilename.
-         OS-RENAME VALUE(".\" + cFilename) VALUE(cUpdatesDir + "\" + cFilename).
-       END.
-       IF lRemove THEN 
-         OS-DELETE VALUE(cFileName).
-        /*
-        cFullFilePath = monitorImportDir + "\" + monitorFile.
-        OS-COPY VALUE(cFullFilePath) VALUE(cPathOut).    
+opl7ZExists = FALSE.
+c7ZFolder = ".".
+INPUT FROM OS-DIR(c7zFolder) NO-ECHO.
+REPEAT:
+    IMPORT cFileName ^ attrList.
+    IF attrList NE 'f' OR cFileName BEGINS '.' 
+                       OR INDEX(cFileName,'.7Z') EQ 0 THEN NEXT.
+   opl7ZExists = TRUE.
+   IF lRename THEN DO:
+     CREATE ttUnzipList.
+     ttUnzipList.fileName = cUpdatesDir + "\" + cFilename.
+     OS-RENAME VALUE(".\" + cFilename) VALUE(cUpdatesDir + "\" + cFilename).
+   END.
+   IF lRemove THEN 
+     OS-DELETE VALUE(cFileName).
 
-        IF INTEGER(OS-ERROR) EQ 0 THEN 
-             OS-DELETE VALUE(cFullFilePath).
-        */  
-    END. /* os-dir repeat */
-    INPUT CLOSE.
+END. /* os-dir repeat */
+INPUT CLOSE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnCurrVer C-Win
+FUNCTION fnCurrVer RETURNS CHARACTER 
+  (ipcVerList AS CHARACTER  ):
+/*------------------------------------------------------------------------------
+ Purpose: Get current version since curVer is not accurate
+ Notes:
+------------------------------------------------------------------------------*/
+		
+		DEFINE VARIABLE cCurrentVersion AS CHARACTER NO-UNDO.
+		DEFINE VARIABLE result AS CHARACTER NO-UNDO.
+		
+		IF ipcVerList GT "" THEN 
+          cCurrentVersion = ENTRY(1, ipcVerList).
+        RESULT = cCurrentVersion.
+		RETURN result.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
