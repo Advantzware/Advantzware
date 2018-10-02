@@ -1515,7 +1515,7 @@ PROCEDURE local-display-fields :
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
     
-    IF AVAIL users THEN DO:
+    IF AVAIL users THEN DO WITH FRAME {&frame-name}:
         /* Most elements come from the 'generic' ttUser (ttfPdbname = '*') */
         FIND FIRST ttUsers WHERE
             ttUsers.ttfPdbName = "*" AND
@@ -1526,10 +1526,16 @@ PROCEDURE local-display-fields :
             ASSIGN
                 ttUsers.ttfPdbName = "*"
                 ttUsers.ttfUserID = users.user_id
-                ttUsers.ttfEnvList = slEnvironments:list-items in FRAME {&FRAME-NAME}
-                ttUsers.ttfDbList = slDatabases:list-items
-                ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE
                 .
+                IF ttUsers.ttfEnvlist EQ "" THEN 
+                  ttUsers.ttfEnvList = IF users.envList GT "" THEN REPLACE(users.envList, "|", ",") ELSE "".
+                IF ttUsers.ttfDbList EQ "" THEN 
+                  ttUsers.ttfDbList = IF users.dbList GT "" THEN REPLACE(users.dbList, "|", ",") ELSE "".
+                IF ttUsers.ttfUserAlias EQ "" THEN 
+                  ttUsers.ttfUserAlias = IF users.userAlias GT "" THEN REPLACE(users.userAlias, "|", ",") ELSE "".
+                IF ttUsers.ttfModeList EQ "" THEN 
+                  ttUsers.ttfModeList = IF users.modeList GT "" THEN REPLACE(users.modeList, "|", ",") ELSE "".
+            
         END.
 
         ASSIGN 
@@ -1542,6 +1548,8 @@ PROCEDURE local-display-fields :
             slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
             users.userAlias:SCREEN-VALUE = ttUsers.ttfUserAlias
             users.userAlias:modified = false
+            slModes:screen-value = if ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList
+                                   else slModes:list-items.            
             .
 
         /* But mode-list has a by-db component (ttfPdbname = pdbname(1)) */
@@ -1554,8 +1562,9 @@ PROCEDURE local-display-fields :
             ASSIGN
                 ttUsers.ttfPdbName = PDBNAME(1)
                 ttUsers.ttfUserID = users.user_id
-                ttUsers.ttfModeList = slModes:list-items
                 .
+            IF ttUsers.ttfModeList EQ "" THEN 
+                ttUsers.ttfModeList = IF users.modeList GT "" THEN REPLACE(users.modeList, "|", ",") ELSE slModes:list-items.            
         END.
         slModes:screen-value = if ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList
                                else slModes:list-items.
@@ -1572,7 +1581,8 @@ PROCEDURE local-display-fields :
             bChgPwd:SENSITIVE = IF users.user_id = zusers.user_id OR zusers.securityLevel > 699 THEN TRUE ELSE FALSE
             fiPassword:SENSITIVE = FALSE
             .
-        cUserImage:LOAD-IMAGE(users.userImage[1]:SCREEN-VALUE).
+        IF users.userImage[1] GT "" THEN
+            cUserImage:LOAD-IMAGE(users.userImage[1]:SCREEN-VALUE) NO-ERROR.
     END.
     
 END PROCEDURE.
