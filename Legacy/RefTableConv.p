@@ -143,6 +143,7 @@ ASSIGN
     {refTableConv.i "StdUom" 'e-itemfg-vend.std-uom'}
     {refTableConv.i "relcredconv" 'relcredconv'}
     {refTableConv.i "Arcashhold" 'ARCASHHOLD'}
+    {refTableConv.i "Saletool" 'SALETOOL'}
     {refTableConv.i "EitemvendAdders" 'e-item-vend.adders'}
     {refTableConv.i "Batchrpt" 'Batchrpt'}
     {refTableConv.i "CeComProbemk" 'ce/com/probemk.p'}
@@ -151,7 +152,6 @@ ASSIGN
     {refTableConv.i "print42" 'print42'}
     {refTableConv.i "ColorAudit" 'COLOR' + chr(32) + 'AUDIT'}
     {refTableConv.i "Machcrew" 'MACH-CREW'}
-    {refTableConv.i "VendorMaxValue" 'VendorMaxValue'}
     {refTableConv.i "Proboard" 'probe.board'}
     {refTableConv.i "CpLabP" 'cp-lab-p'}
     {refTableConv.i "PoordlDepth" 'POORDLDEPTH'}

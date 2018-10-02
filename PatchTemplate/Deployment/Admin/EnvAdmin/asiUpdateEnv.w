@@ -2282,6 +2282,7 @@ PROCEDURE ipDataFix160800 :
     RUN ipRemoveUserAddon.
     RUN ipMoveUserMenusToDatabase.
     RUN ipAddLocationData.
+    RUN ipVendorMaxValue.
 
 END PROCEDURE.
 
@@ -3248,8 +3249,7 @@ PROCEDURE ipLoadPrograms :
     INPUT FROM VALUE(cUpdDataDir + "\prgrms.d") NO-ECHO.
     REPEAT:
         CREATE ttPrgms.
-        IMPORT 
-            ttPrgms.prgmname.
+        IMPORT ttPrgms.
         FIND FIRST prgrms EXCLUSIVE WHERE 
             prgrms.prgmname EQ ttPrgms.prgmname 
             NO-ERROR.
@@ -3270,6 +3270,19 @@ PROCEDURE ipLoadPrograms :
         DELETE ttPrgms.
     END.
 
+    FOR EACH employee EXCLUSIVE-LOCK:
+        employee.employeeImage[1] = "Graphics\32x32\user.png".
+    END. /* each users */
+
+    FOR EACH mach EXCLUSIVE-LOCK:
+        mach.machineImage[1] = "Graphics\32x32\gearwheels.png".
+    END. /* each users */
+
+    FOR EACH users EXCLUSIVE-LOCK:
+        ASSIGN
+            users.userImage[1] = "Graphics\32x32\user.png"
+            users.showMnemonic = "All".
+    END. /* each users */ 
 
 END PROCEDURE.
 
@@ -3873,6 +3886,7 @@ PROCEDURE ipRefTableConv :
     DEF VAR cOrigPropath AS CHAR NO-UNDO.
     DEF VAR cNewPropath AS CHAR NO-UNDO.
     DEF VAR cThisElement AS CHAR NO-UNDO.
+    DISABLE TRIGGERS FOR LOAD OF reftable.
     DISABLE TRIGGERS FOR LOAD OF reftable1.
     DISABLE TRIGGERS FOR LOAD OF oe-rel.
     
@@ -4543,6 +4557,29 @@ PROCEDURE ipValidateDB :
             "this program again."
             VIEW-AS ALERT-BOX.
         RETURN.
+    END.
+                    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipVendorMaxValue C-Win 
+PROCEDURE ipVendorMaxValue :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Setting e-item-vend max values").
+
+    DISABLE TRIGGERS FOR LOAD OF e-item-vend.
+
+    FOR EACH e-item-vend EXCLUSIVE:
+        IF e-item-vend.roll-w[28] EQ 0 THEN ASSIGN 
+            e-item-vend.roll-w[28] = 999.000 .
+        IF e-item-vend.roll-w[30] EQ 0 THEN ASSIGN 
+            e-item-vend.roll-w[30] = 999.000 .
     END.
                     
 END PROCEDURE.

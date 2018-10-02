@@ -17,26 +17,6 @@ CLASS RefTableMigration:
     DEFINE PUBLIC PROPERTY iProcessCount AS INTEGER GET. SET.
     
     
-    METHOD PUBLIC INTEGER VendorMaxValue(INPUT ipCount AS INTEGER):
-        DEFINE BUFFER be-item-vend  FOR e-item-vend.
-        
-        DISABLE TRIGGERS FOR LOAD OF e-item-vend.
-        FOR EACH e-item-vend NO-LOCK:
-                FIND be-item-vend WHERE ROWID(be-item-vend) = ROWID(e-item-vend)
-                    EXCLUSIVE-LOCK NO-ERROR.
-          IF AVAILABLE be-item-vend THEN DO:
-              IF be-item-vend.roll-w[28] EQ 0 THEN
-              ASSIGN 
-              be-item-vend.roll-w[28] = 999.000 .
-        
-              IF be-item-vend.roll-w[30] EQ 0 THEN
-              ASSIGN 
-              be-item-vend.roll-w[30] = 999.000 .
-          END.
-          RELEASE be-item-vend.
-        END.
-    END METHOD.
-    
     METHOD PUBLIC INTEGER STYFLU(INPUT ipCount AS INTEGER):
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         DEFINE BUFFER styleFluteXref FOR styleFluteXref.
@@ -2799,6 +2779,32 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
     END METHOD. /*ar-cash*/
+    METHOD PUBLIC INTEGER Saletool(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.
+        ASSIGN iProcessCount = 0.
+        FOR EACH reftable WHERE reftable.reftable = "SALETOOL"
+            NO-LOCK:
+            DO TRANSACTION:
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
+        RETURN iCnt.
+    END METHOD. /*Saletool*/ 
+    
+    
+    
     METHOD PUBLIC INTEGER print42(INPUT ipCount AS INTEGER):
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         DEFINE BUFFER reftable1 FOR reftable1.

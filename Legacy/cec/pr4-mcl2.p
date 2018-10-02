@@ -334,33 +334,33 @@ ELSE DO: /* Protagon */
                    FIND FIRST probeit WHERE probeit.company EQ eb.company 
                                 AND probeit.est-no  EQ eb.est-no
                                 AND probeit.part-no EQ eb.part-no 
-                                AND (abs(probeit.yld-qty) EQ ABS(eb.yld-qty * qtty[v]) OR
-                                     abs(probeit.yld-qty * eb.yld-qty) EQ ABS(qtty[v]))
+                                AND (abs(probeit.yld-qty) EQ ABS(eb.quantityPerSet * qtty[v]) OR
+                                     abs(probeit.yld-qty * eb.quantityPerSet) EQ ABS(qtty[v]))
                               NO-LOCK NO-ERROR.
 
               IF cerunc-dec EQ 0 THEN do:   
                  IF AVAIL probeit THEN DO:
-                   IF eb.yld-qty GE 0 THEN DO:
-                     PUT probeit.sell-price * eb.yld-qty / 1000 FORMAT "->>>>>9.99".
-                     v-col-tot[v-count] = v-col-tot[v-count] + ROUND(probeit.sell-price * eb.yld-qty / 1000, 2).
+                   IF eb.quantityPerSet GE 0 THEN DO:
+                     PUT probeit.sell-price * eb.quantityPerSet / 1000 FORMAT "->>>>>9.99".
+                     v-col-tot[v-count] = v-col-tot[v-count] + ROUND(probeit.sell-price * eb.quantityPerSet / 1000, 2).
                    END.
 
                    ELSE DO:
-                     PUT probeit.sell-price / ABS(eb.yld-qty) / 1000 FORMAT "->>>>>9.99".
-                     v-col-tot[v-count] = v-col-tot[v-count] + ROUND(probeit.sell-price / ABS(eb.yld-qty) / 1000, 2).
+                     PUT probeit.sell-price / ABS(eb.quantityPerSet) / 1000 FORMAT "->>>>>9.99".
+                     v-col-tot[v-count] = v-col-tot[v-count] + ROUND(probeit.sell-price / ABS(eb.quantityPerSet) / 1000, 2).
                    END.
                  END.
               END.
                ELSE do:
                  IF AVAIL probeit THEN DO:
-                   IF eb.yld-qty GE 0 THEN DO:
-                     PUT probeit.sell-price * eb.yld-qty / 1000 FORMAT "->,>>>,>>9.99".
-                     v-col-tot[v-count] = v-col-tot[v-count] + ROUND(probeit.sell-price * eb.yld-qty / 1000, 2).
+                   IF eb.quantityPerSet GE 0 THEN DO:
+                     PUT probeit.sell-price * eb.quantityPerSet / 1000 FORMAT "->,>>>,>>9.99".
+                     v-col-tot[v-count] = v-col-tot[v-count] + ROUND(probeit.sell-price * eb.quantityPerSet / 1000, 2).
                    END.
 
                    ELSE DO:
-                     PUT probeit.sell-price / ABS(eb.yld-qty) / 1000 FORMAT "->,>>>,>>9.99".
-                     v-col-tot[v-count] = v-col-tot[v-count] + ROUND(probeit.sell-price / ABS(eb.yld-qty) / 1000, 2).
+                     PUT probeit.sell-price / ABS(eb.quantityPerSet) / 1000 FORMAT "->,>>>,>>9.99".
+                     v-col-tot[v-count] = v-col-tot[v-count] + ROUND(probeit.sell-price / ABS(eb.quantityPerSet) / 1000, 2).
                    END.
                  END.
                END.

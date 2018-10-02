@@ -474,15 +474,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL location.subCode4 V-table-Win
 ON LEAVE OF location.subCode4 IN FRAME F-Main /* Zip/Post */
 DO:
-    IF LASTKEY = -1 THEN  RETURN.
-
-    FIND FIRST fg-bin NO-LOCK WHERE 
-        fg-bin.company EQ g_company AND 
-        fg-bin.loc EQ loc.loc:SCREEN-VALUE AND 
-        fg-bin.loc-bin EQ SELF:SCREEN-VALUE 
-        NO-ERROR.
-    IF AVAIL fg-bin THEN ASSIGN 
-            lFound = TRUE.
   
 END.
 
