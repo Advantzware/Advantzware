@@ -37,7 +37,7 @@ DEFINE OUTPUT PARAMETER opContinue AS LOGICAL NO-UNDO.
 {{&includes}/sharedVars.i}
 {{&includes}/ttblJob.i}
 {{&includes}/{&Board}/calcEnd.i}
-/*{system/fSuperRunning.i}*/
+{system/fSuperRunning.i}
 
 DEFINE VARIABLE lvProdAceFile AS CHARACTER NO-UNDO FORMAT 'x(50)'.
 DEFINE VARIABLE lvProdAceData AS CHARACTER NO-UNDO.

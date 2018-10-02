@@ -5,7 +5,7 @@
 &SCOPED-DEFINE connectDatabases YES
 &SCOPED-DEFINE runAsiLoad YES
 &SCOPED-DEFINE createSingleUserPFs YES
-&SCOPED-DEFINE execProgram mainMenu2.    
+&SCOPED-DEFINE execProgram mainMenu.    
 &SCOPED-DEFINE checkExpiredLicense YES
 &GLOBAL-DEFINE checkUserCount YES
 
@@ -15,5 +15,3 @@ RUN system\session.p PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
 
 {nosweat.i}
-
-/* This is a test */

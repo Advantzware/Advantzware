@@ -3,9 +3,9 @@ ADD TABLE "xCueCard"
   LABEL "x Cue Card"
   DESCRIPTION "Cue Card not active per User"
   DUMP-NAME "xcuecard"
-  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\xCueCard.p" CRC "51271" 
-  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\xCueCard.p" CRC "35495" 
-  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\xCueCard.p" CRC "25192" 
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\xCueCard.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\xCueCard.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\xCueCard.p" CRC "?" 
 
 ADD FIELD "user_id" OF "xCueCard" AS character 
   FORMAT "X(16)"
@@ -53,4 +53,4 @@ ADD INDEX "si-rec_key" ON "xCueCard"
 PSC
 cpstream=ISO8859-1
 .
-0000001296
+0000001275
