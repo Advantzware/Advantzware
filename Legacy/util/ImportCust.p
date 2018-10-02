@@ -347,6 +347,9 @@ PROCEDURE pValidate PRIVATE:
     ELSE IF ipbf-ttImportCust.lInvPer EQ "PO" THEN
        ipbf-ttImportCust.lInvPer  = "yes".
     ELSE ipbf-ttImportCust.lInvPer  = "?".
+    IF ipbf-ttImportCust.cTaxable EQ "yes" THEN
+         ipbf-ttImportCust.cTaxable = "Y".
+    ELSE ipbf-ttImportCust.cTaxable = "N".
 
     
 END PROCEDURE.
