@@ -79,10 +79,10 @@ userLog.userName userLog.sessionID userLog.LoginDateTime ~
 userLog.logoutDateTime userLog.EulaVersion userLog.IpAddress 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH userLog WHERE ~{&KEY-PHRASE} ~
-      AND userLog.loginDateTime >= dtStartDate and userLog.loginDateTime <= dtEndDate NO-LOCK ~
+      AND date(userLog.loginDateTime) >= date(dtStartDate) and date(userLog.loginDateTime) <= date(dtEndDate) NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH userLog WHERE ~{&KEY-PHRASE} ~
-      AND userLog.loginDateTime >= dtStartDate and userLog.loginDateTime <= dtEndDate NO-LOCK ~
+      AND date(userLog.loginDateTime) >= date(dtStartDate) and date(userLog.loginDateTime) <= date(dtEndDate) NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table userLog
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table userLog
