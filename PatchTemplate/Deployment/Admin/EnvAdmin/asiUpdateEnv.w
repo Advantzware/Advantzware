@@ -3249,8 +3249,7 @@ PROCEDURE ipLoadPrograms :
     INPUT FROM VALUE(cUpdDataDir + "\prgrms.d") NO-ECHO.
     REPEAT:
         CREATE ttPrgms.
-        IMPORT 
-            ttPrgms.prgmname.
+        IMPORT ttPrgms.
         FIND FIRST prgrms EXCLUSIVE WHERE 
             prgrms.prgmname EQ ttPrgms.prgmname 
             NO-ERROR.
@@ -3271,6 +3270,19 @@ PROCEDURE ipLoadPrograms :
         DELETE ttPrgms.
     END.
 
+    FOR EACH employee EXCLUSIVE-LOCK:
+        employee.employeeImage[1] = "Graphics\32x32\user.png".
+    END. /* each users */
+
+    FOR EACH mach EXCLUSIVE-LOCK:
+        mach.machineImage[1] = "Graphics\32x32\gearwheels.png".
+    END. /* each users */
+
+    FOR EACH users EXCLUSIVE-LOCK:
+        ASSIGN
+            users.userImage[1] = "Graphics\32x32\user.png"
+            users.showMnemonic = "All".
+    END. /* each users */ 
 
 END PROCEDURE.
 
