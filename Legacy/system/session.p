@@ -21,13 +21,12 @@
 
 DEFINE VARIABLE hMainMenuHandle     AS HANDLE  NO-UNDO.
 DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE  NO-UNDO.
+/* cue card variables */
 DEFINE VARIABLE iCueOrder           AS INTEGER NO-UNDO.
 DEFINE VARIABLE lNext               AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lCueCardActive      AS LOGICAL NO-UNDO.
 
 {system/ttSysCtrlUsage.i}
-
-DELETE WIDGET-POOL "CueCardPool" NO-ERROR.
-CREATE WIDGET-POOL "CueCardPool" NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -47,6 +46,19 @@ CREATE WIDGET-POOL "CueCardPool" NO-ERROR.
 
 
 /* ************************  Function Prototypes ********************** */
+
+&IF DEFINED(EXCLUDE-fCueCardActive) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCueCardActive Procedure
+FUNCTION fCueCardActive RETURNS LOGICAL 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfClearTtSysCtrlUsage) = 0 &THEN
 
@@ -255,6 +267,49 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spCueCardClose) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCueCardClose Procedure
+PROCEDURE spCueCardClose:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    iCueOrder = 99999.
+    RUN spNextCue (iphWidget).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spCueCardFrame) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCueCardFrame Procedure
+PROCEDURE spCueCardFrame:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    iphWidget:MOVE-TO-TOP ().
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-spSetDontShowAgain) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetDontShowAgain Procedure
@@ -323,14 +378,14 @@ PROCEDURE spNextCue :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphFrame AS HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
     ASSIGN
         iCueOrder = iCueOrder + 1
         lNext     = YES 
         .
     
-    APPLY "U1":U TO iphFrame.
+    APPLY "U1":U TO iphWidget.
 
 END PROCEDURE.
 
@@ -347,7 +402,7 @@ PROCEDURE spPrevCue :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphFrame AS HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
     ASSIGN
         iCueOrder = iCueOrder - 1
@@ -356,7 +411,7 @@ PROCEDURE spPrevCue :
     IF iCueOrder LT 1 THEN
     iCueOrder = ?.
     
-    APPLY "U1":U TO iphFrame.
+    APPLY "U1":U TO iphWidget.
 
 END PROCEDURE.
 
@@ -378,8 +433,10 @@ PROCEDURE spRunCueCard :
     DEFINE INPUT PARAMETER iphFrame     AS HANDLE    NO-UNDO.
     DEFINE INPUT PARAMETER iplActive    AS LOGICAL   NO-UNDO.
 
+    DEFINE VARIABLE cCueCardPool        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hCueCardFrame       AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hCueCardRectangle   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hClose              AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hCueCardArrow       AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hCueCardPrev        AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hCueCardNext        AS HANDLE    NO-UNDO.
@@ -390,11 +447,14 @@ PROCEDURE spRunCueCard :
     DEFINE VARIABLE dRow                AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE iPosition           AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cOrientation        AS CHARACTER NO-UNDO INITIAL ~
-"nav_up_left,nav_up,nav_up_right,nav_right,nav_down_right,~
-nav_down,nav_down_left,nav_left,navigate_left,navigate_right".
+"default_LeftUp,default_RightUp,default_RightDown,default_LeftDown,default_SidebarCollapse,default_SidebarExpand".
     
     IF iphFrame:SENSITIVE EQ NO THEN RETURN.
     
+    cCueCardPool = "CueCardPool" + STRING(TIME,"99999").
+    DELETE WIDGET-POOL cCueCardPool NO-ERROR.
+    CREATE WIDGET-POOL cCueCardPool NO-ERROR.
+
     /* check for active cue card */
     IF CAN-FIND(FIRST cueCard
                 WHERE cueCard.cuePrgmName EQ ipcPrgmName
@@ -429,30 +489,37 @@ nav_down,nav_down_left,nav_left,navigate_left,navigate_right".
                 RUN spPrevCue (iphFrame).
                 NEXT.
             END.
+            /* calculate the cue card screen position */
+            /* calculate the cue card screen position */
             CASE cueCardText.cuePosition:
-                WHEN 1 OR WHEN 2 OR WHEN 3 OR WHEN 9 THEN
+                /* arrows: 1=absolute */
+                WHEN 1 THEN
                 ASSIGN 
                     dCol = cueCardText.frameCol
-                    dRow = cueCardText.frameRow - 1
+                    dRow = cueCardText.frameRow
                     .
-                WHEN 4 OR WHEN 5 THEN 
+                /* arrows: 2=width */
+                WHEN 2 THEN 
                 ASSIGN 
                     dCol = iphFrame:WIDTH - cueCardText.frameCol
-                    dRow = cueCardText.frameRow - 1
+                    dRow = cueCardText.frameRow
                     .
-                WHEN 6 THEN 
+                /* arrows: 3=height & width */
+                WHEN 3 THEN 
                 ASSIGN 
                     dCol = iphFrame:WIDTH  - cueCardText.frameCol
-                    dRow = iphFrame:HEIGHT - cueCardText.frameRow - 1
+                    dRow = iphFrame:HEIGHT - cueCardText.frameRow
                     .
-                WHEN 7 OR WHEN 8 THEN  
+                /* arrows: 4=height */
+                WHEN 4 THEN  
                 ASSIGN 
                     dCol = cueCardText.frameCol
-                    dRow = iphFrame:HEIGHT - cueCardText.frameRow - 1
+                    dRow = iphFrame:HEIGHT - cueCardText.frameRow
                     .
             END CASE.
             IF dRow LT 1 THEN dRow = 1.
-            CREATE FRAME hCueCardFrame IN WIDGET-POOL "CueCardPool"
+            /* create cue card objects */
+            CREATE FRAME hCueCardFrame IN WIDGET-POOL cCueCardPool
                 ASSIGN 
                     PARENT = iphContainer
                     FRAME = iphFrame
@@ -466,9 +533,12 @@ nav_down,nav_down_left,nav_left,navigate_left,navigate_right".
                     FGCOLOR = cueCardText.frameFGColor
                     HIDDEN = NO 
                     SENSITIVE = YES
-                    .
+              TRIGGERS:
+                ON ENTRY
+                  PERSISTENT RUN spCueCardFrame IN THIS-PROCEDURE (hCueCardFrame).
+              END TRIGGERS.
             hCueCardFrame:MOVE-TO-TOP().
-            CREATE RECTANGLE hCueCardRectangle IN WIDGET-POOL "CueCardPool"
+            CREATE RECTANGLE hCueCardRectangle IN WIDGET-POOL cCueCardPool
                 ASSIGN
                     FRAME = hCueCardFrame
                     NAME = "CueCardRect"
@@ -483,7 +553,25 @@ nav_down,nav_down_left,nav_left,navigate_left,navigate_right".
                     HIDDEN = NO 
                     .
             hCueCardRectangle:MOVE-TO-TOP().
-            CREATE IMAGE hCueCardArrow IN WIDGET-POOL "CueCardPool"
+            CREATE BUTTON hClose IN WIDGET-POOL cCueCardPool
+                ASSIGN 
+                    FRAME = hCueCardFrame
+                    NAME = "btnClose"
+                    COL = hCueCardFrame:WIDTH - 4.4 
+                    ROW = 1.24
+                    TOOLTIP = "Close Cue Card"
+                    FLAT-BUTTON = YES
+                    HEIGHT = 1
+                    WIDTH = 4.2
+                    HIDDEN = NO 
+                    SENSITIVE = YES
+              TRIGGERS:
+                ON CHOOSE
+                  PERSISTENT RUN spCueCardClose IN THIS-PROCEDURE (hMainMenuHandle).
+              END TRIGGERS.
+            hClose:LOAD-IMAGE("Graphics\16x16\delete.gif").
+            hClose:MOVE-TO-TOP().
+            CREATE IMAGE hCueCardArrow IN WIDGET-POOL cCueCardPool
                 ASSIGN
                     FRAME = hCueCardFrame
                     NAME = "ArrowImage"
@@ -495,9 +583,9 @@ nav_down,nav_down_left,nav_left,navigate_left,navigate_right".
                     HEIGHT = 2.38
                     TRANSPARENT = YES
                     .
-            hCueCardArrow:LOAD-IMAGE("Graphics\48x48\" + ENTRY(cueCardText.cueOrientation,cOrientation) + ".png").
+            hCueCardArrow:LOAD-IMAGE("Graphics\24x24\" + ENTRY(cueCardText.cueOrientation,cOrientation) + ".gif").
             hCueCardArrow:MOVE-TO-TOP().
-            CREATE BUTTON hCueCardPrev IN WIDGET-POOL "CueCardPool"
+            CREATE BUTTON hCueCardPrev IN WIDGET-POOL cCueCardPool
                 ASSIGN
                     FRAME = hCueCardFrame
                     NAME = "btnPrev"
@@ -507,15 +595,15 @@ nav_down,nav_down_left,nav_left,navigate_left,navigate_right".
                     FLAT-BUTTON = YES
                     SENSITIVE = YES 
                     HIDDEN = NO 
-                    WIDTH = 10
-                    HEIGHT = 2.38
+                    WIDTH = 5
+                    HEIGHT = 1.19
               TRIGGERS:
                 ON CHOOSE
-                  PERSISTENT RUN spPrevCue IN THIS-PROCEDURE (hCueCardFrame).
+                  PERSISTENT RUN spPrevCue IN THIS-PROCEDURE (hMainMenuHandle).
               END TRIGGERS.
-            hCueCardPrev:LOAD-IMAGE("Graphics\48x48\" + ENTRY(9,cOrientation) + ".ico").
+            hCueCardPrev:LOAD-IMAGE("Graphics\24x24\" + ENTRY(5,cOrientation) + ".gif").
             hCueCardPrev:MOVE-TO-TOP().
-            CREATE BUTTON hCueCardNext IN WIDGET-POOL "CueCardPool"
+            CREATE BUTTON hCueCardNext IN WIDGET-POOL cCueCardPool
                 ASSIGN
                     FRAME = hCueCardFrame
                     NAME = "btnNext"
@@ -525,15 +613,15 @@ nav_down,nav_down_left,nav_left,navigate_left,navigate_right".
                     FLAT-BUTTON = YES
                     SENSITIVE = YES 
                     HIDDEN = NO 
-                    WIDTH = 10
-                    HEIGHT = 2.38
+                    WIDTH = 5
+                    HEIGHT = 1.19
               TRIGGERS:
                 ON CHOOSE
-                  PERSISTENT RUN spNextCue IN THIS-PROCEDURE (hCueCardFrame).
+                  PERSISTENT RUN spNextCue IN THIS-PROCEDURE (hMainMenuHandle).
               END TRIGGERS.
-            hCueCardNext:LOAD-IMAGE("Graphics\48x48\" + ENTRY(10,cOrientation) + ".ico").
+            hCueCardNext:LOAD-IMAGE("Graphics\24x24\" + ENTRY(6,cOrientation) + ".gif").
             hCueCardNext:MOVE-TO-TOP().
-            CREATE EDITOR hCueCardText IN WIDGET-POOL "CueCardPool"
+            CREATE EDITOR hCueCardText IN WIDGET-POOL cCueCardPool
                 ASSIGN
                     FRAME = hCueCardFrame
                     NAME = "CueCardText"
@@ -554,7 +642,7 @@ nav_down,nav_down_left,nav_left,navigate_left,navigate_right".
                     HIDDEN = NO
                     .
             hCueCardText:MOVE-TO-TOP().
-            CREATE TOGGLE-BOX hDontShowAgain IN WIDGET-POOL "CueCardPool"
+            CREATE TOGGLE-BOX hDontShowAgain IN WIDGET-POOL cCueCardPool
                 ASSIGN
                     FRAME = hCueCardFrame
                     NAME = "DontShowAgain"
@@ -573,7 +661,7 @@ nav_down,nav_down_left,nav_left,navigate_left,navigate_right".
               END TRIGGERS.
             hDontShowAgain:MOVE-TO-TOP().
             hDontShowAgain:SENSITIVE = iplActive.
-            CREATE TOGGLE-BOX hGotIt IN WIDGET-POOL "CueCardPool"
+            CREATE TOGGLE-BOX hGotIt IN WIDGET-POOL cCueCardPool
                 ASSIGN
                     FRAME = hCueCardFrame
                     NAME = "GotIt"
@@ -591,20 +679,16 @@ nav_down,nav_down_left,nav_left,navigate_left,navigate_right".
                   PERSISTENT RUN spSetGotIt IN THIS-PROCEDURE (hGotIt:HANDLE).
               END TRIGGERS.
             hGotIt:MOVE-TO-TOP().
-            hGotIt:SENSITIVE = iplActive.
-            
-            WAIT-FOR "U1":U OF hCueCardFrame.
-            
-            DELETE OBJECT hCueCardRectangle.
-            DELETE OBJECT hCueCardArrow.
-            DELETE OBJECT hCueCardPrev.
-            DELETE OBJECT hCueCardNext.
-            DELETE OBJECT hCueCardText.
-            DELETE OBJECT hDontShowAgain.
-            DELETE OBJECT hGotIt.
+            ASSIGN 
+                hGotIt:SENSITIVE = iplActive
+                lCueCardActive   = YES
+                .            
+            WAIT-FOR "U1":U OF hMainMenuHandle.
+            lCueCardActive = NO.            
             DELETE OBJECT hCueCardFrame.
         END. /* do while */
     END. /* each cuecard */
+    DELETE WIDGET-POOL cCueCardPool NO-ERROR.
 
 END PROCEDURE.
 
@@ -614,6 +698,26 @@ END PROCEDURE.
 &ENDIF
 
 /* ************************  Function Implementations ***************** */
+
+&IF DEFINED(EXCLUDE-fCueCardActive) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fCueCardActive Procedure
+FUNCTION fCueCardActive RETURNS LOGICAL 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN lCueCardActive.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfClearTtSysCtrlUsage) = 0 &THEN
 

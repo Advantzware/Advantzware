@@ -873,6 +873,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel MAINMENU
 ON CHOOSE OF btnCancel IN FRAME userSettingsFrame /* Cancel */
 DO:
+    /* cue card showing, don't close frame */
+    IF DYNAMIC-FUNCTION("fCueCardActive") THEN RETURN.
+        
     HIDE FRAME userSettingsFrame.
     IF lToggle THEN DO:
         lToggle = NO.
@@ -975,6 +978,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK MAINMENU
 ON CHOOSE OF btnOK IN FRAME userSettingsFrame /* OK */
 DO:
+    /* cue card showing, don't close frame */
+    IF DYNAMIC-FUNCTION("fCueCardActive") THEN RETURN.
+
     ASSIGN
         iLanguage = svLanguageList
         iMenuSize = svMenuSize
@@ -1026,6 +1032,13 @@ DO:
         END. /* else */
     END. /* with frame */
     FRAME searchFrame:HIDDEN = NO.
+    IF lSearchOpen THEN DO:
+        ASSIGN 
+            cCuePrgmName = FRAME searchFrame:NAME 
+            hCueFrame    = FRAME searchFrame:HANDLE
+            .
+        {system/runCueCard.i}
+    END. /* if searchopen */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1130,6 +1143,11 @@ DO:
                 WITH FRAME userSettingsFrame.
         END. /* if avail */
         RUN pGetCopyUsers.
+        ASSIGN 
+            cCuePrgmName = FRAME userSettingsFrame:NAME 
+            hCueFrame    = FRAME userSettingsFrame:HANDLE
+            .
+        {system/runCueCard.i}
     END. /* else */
     btnToggle:LABEL = btnToggle:PRIVATE-DATA.
 END.
@@ -1373,7 +1391,6 @@ DO:
         MESSAGE 'Exit Advantzware?' VIEW-AS ALERT-BOX
             QUESTION BUTTONS YES-NO UPDATE closeMenu.
     IF NOT closeMenu THEN RETURN NO-APPLY.        
-    RUN pSetUserSettings.
     RUN system/userLogOut.p (NO, 0).
     QUIT. /* kills all processes */
 END.

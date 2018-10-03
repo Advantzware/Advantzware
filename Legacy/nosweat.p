@@ -11,6 +11,11 @@
 
 DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
 
+
+FOR EACH userlog:
+    DELETE userlog.
+END.
+
 RUN system\session.p PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
 
