@@ -42,6 +42,8 @@ DEFINE VARIABLE ipCompanyTo AS CHARACTER NO-UNDO INITIAL '003'.
 
 /* Local Variable Definitions ---                                       */
 
+{system/fSuperRunning.i}
+
 SESSION:SET-WAIT-STATE ("").
 
 /* _UIB-CODE-BLOCK-END */
