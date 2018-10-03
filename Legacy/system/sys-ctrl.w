@@ -171,7 +171,7 @@ sys-ctrl-shipto.dec-fld sys-ctrl-shipto.int-fld sys-ctrl-shipto.log-fld
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svFocus btnRestoreDefaults searchBar ~
-sysCtrlBrowse btnSortMove 
+btnSortMove sysCtrlBrowse 
 &Scoped-Define DISPLAYED-OBJECTS svFocus searchBar 
 
 /* Custom List Definitions                                              */
@@ -481,7 +481,7 @@ DEFINE BUTTON btnFirst-1
      IMAGE-UP FILE "Graphics/32x32/navigate_beginning.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "First" 
-     SIZE 8 BY 1.9 TOOLTIP "First".
+     SIZE 8 BY 1.91 TOOLTIP "First".
 
 DEFINE BUTTON btnForms 
      IMAGE-UP FILE "Graphics/32x32/form.ico":U
@@ -493,19 +493,19 @@ DEFINE BUTTON btnLast-1
      IMAGE-UP FILE "Graphics/32x32/navigate_end.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Last" 
-     SIZE 8 BY 1.9 TOOLTIP "Last".
+     SIZE 8 BY 1.91 TOOLTIP "Last".
 
 DEFINE BUTTON btnNext-1 
      IMAGE-UP FILE "Graphics/32x32/navigate_right.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Next" 
-     SIZE 8 BY 1.9 TOOLTIP "Next".
+     SIZE 8 BY 1.91 TOOLTIP "Next".
 
 DEFINE BUTTON btnPrev-1 
      IMAGE-UP FILE "Graphics/32x32/navigate_left.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Previous" 
-     SIZE 8 BY 1.9 TOOLTIP "Previous".
+     SIZE 8 BY 1.91 TOOLTIP "Previous".
 
 DEFINE BUTTON btnReset 
      IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
@@ -709,9 +709,9 @@ DEFINE FRAME DEFAULT-FRAME
           "Restore Defaults" WIDGET-ID 42
      searchBar AT ROW 1 COL 54 COLON-ALIGNED HELP
           "Search" WIDGET-ID 6
-     sysCtrlBrowse AT ROW 2 COL 39 WIDGET-ID 300
      btnSortMove AT ROW 1 COL 43 HELP
           "Toggle Sort/Move Columns" WIDGET-ID 44
+     sysCtrlBrowse AT ROW 2 COL 39 WIDGET-ID 300
      btnExport AT ROW 27.43 COL 11 HELP
           "Export" WIDGET-ID 36
      btnImport AT ROW 27.43 COL 20 HELP
@@ -723,6 +723,102 @@ DEFINE FRAME DEFAULT-FRAME
          SIZE 160 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
+DEFINE FRAME formsFrame
+     cSysCtrlName AT ROW 1.24 COL 11 COLON-ALIGNED WIDGET-ID 4
+     cSysCtrlDescrip AT ROW 1.24 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+     cSysCtrlDataType AT ROW 2.43 COL 11 COLON-ALIGNED WIDGET-ID 32
+     cSysCtrFieldlDescrip AT ROW 2.43 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 30
+     sysCtrlShipToBrowse AT ROW 3.62 COL 2 WIDGET-ID 800
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 17 ROW 1
+         SIZE 144 BY 28.57
+         FGCOLOR 1 
+         TITLE "System Control Parameter Forms" WIDGET-ID 700.
+
+DEFINE FRAME viewFormFrame
+     btnFirst-2 AT ROW 9.57 COL 109 HELP
+          "First" WIDGET-ID 62
+     sys-ctrl-shipto.cust-vend AT ROW 1.24 COL 24 NO-LABEL WIDGET-ID 48
+          VIEW-AS RADIO-SET HORIZONTAL
+          RADIO-BUTTONS 
+                    "Customer", yes,
+"Vendor", no
+          SIZE 26 BY 1
+     sys-ctrl-shipto.cust-vend-no AT ROW 2.43 COL 21 COLON-ALIGNED WIDGET-ID 34
+          VIEW-AS FILL-IN 
+          SIZE 14.2 BY 1
+          BGCOLOR 15 
+     btnForms-2 AT ROW 1 COL 138 HELP
+          "Close" WIDGET-ID 72
+     type_name AT ROW 2.43 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 76
+     sys-ctrl-shipto.ship-id AT ROW 3.62 COL 21 COLON-ALIGNED WIDGET-ID 44
+          VIEW-AS FILL-IN 
+          SIZE 14.2 BY 1
+          BGCOLOR 15 
+     ship_name AT ROW 3.62 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 74
+     sys-ctrl-shipto.descrip AT ROW 4.81 COL 21 COLON-ALIGNED WIDGET-ID 46 FORMAT "x(256)"
+          VIEW-AS FILL-IN 
+          SIZE 92 BY 1
+          BGCOLOR 15 
+     sys-ctrl-shipto.char-fld AT ROW 6 COL 21 COLON-ALIGNED WIDGET-ID 30
+          LABEL "Character" FORMAT "x(256)"
+          VIEW-AS FILL-IN 
+          SIZE 92 BY 1
+          BGCOLOR 15 
+     sys-ctrl-shipto.date-fld AT ROW 7.19 COL 21 COLON-ALIGNED WIDGET-ID 36
+          LABEL "Date"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 
+     sys-ctrl-shipto.dec-fld AT ROW 8.38 COL 21 COLON-ALIGNED WIDGET-ID 38
+          LABEL "Decimal"
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     sys-ctrl-shipto.int-fld AT ROW 9.57 COL 21 COLON-ALIGNED WIDGET-ID 40
+          LABEL "Integer"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 
+     cLogLabel AT ROW 10.76 COL 15.2 WIDGET-ID 78
+     sys-ctrl-shipto.log-fld AT ROW 10.76 COL 24 NO-LABEL WIDGET-ID 52
+          VIEW-AS RADIO-SET HORIZONTAL
+          RADIO-BUTTONS 
+                    "Yes", yes,
+"No", no,
+"Unknown", ?
+          SIZE 28 BY 1
+     btnLast-2 AT ROW 9.57 COL 133 HELP
+          "Last" WIDGET-ID 68
+     btnNext-2 AT ROW 9.57 COL 125 HELP
+          "Next" WIDGET-ID 66
+     btnPrev-2 AT ROW 9.57 COL 117 HELP
+          "Previous" WIDGET-ID 64
+     btnAdd-2 AT ROW 9.57 COL 66 HELP
+          "Add" WIDGET-ID 20
+     btnCancel-2 AT ROW 9.57 COL 98 HELP
+          "Cancel" WIDGET-ID 28
+     btnCopy-2 AT ROW 9.57 COL 74 HELP
+          "Copy" WIDGET-ID 24
+     btnDelete-2 AT ROW 9.57 COL 82 HELP
+          "Delete" WIDGET-ID 26
+     btnReset-2 AT ROW 9.57 COL 90 HELP
+          "Reset" WIDGET-ID 22
+     btnUpdate-2 AT ROW 9.57 COL 58 HELP
+          "Update/Save" WIDGET-ID 18
+     btnCalendar-2 AT ROW 7.19 COL 39 WIDGET-ID 272
+     "Type:" VIEW-AS TEXT
+          SIZE 6 BY 1 AT ROW 1.24 COL 17 WIDGET-ID 58
+     transPanel-3 AT ROW 9.33 COL 57 WIDGET-ID 16
+     transPanel-4 AT ROW 9.33 COL 108 WIDGET-ID 60
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 16.48
+         SIZE 142 BY 11.86
+         FGCOLOR 1 
+         TITLE "View" WIDGET-ID 900.
+
 DEFINE FRAME viewFrame
      btnFirst-1 AT ROW 9.81 COL 69 HELP
           "First" WIDGET-ID 274
@@ -732,10 +828,10 @@ DEFINE FRAME viewFrame
           "Next" WIDGET-ID 276
      btnPrev-1 AT ROW 9.81 COL 77 HELP
           "Previous" WIDGET-ID 278
-     btnClose AT ROW 1.24 COL 113 HELP
-          "Close" WIDGET-ID 72
      cCategory AT ROW 1.24 COL 18 COLON-ALIGNED WIDGET-ID 2
      cSubcategory AT ROW 1.24 COL 58 COLON-ALIGNED WIDGET-ID 12
+     btnClose AT ROW 1.24 COL 113 HELP
+          "Close" WIDGET-ID 72
      iSecurityLevelUser AT ROW 1.24 COL 92 COLON-ALIGNED WIDGET-ID 10
      iSecurityLevelDefault AT ROW 1.24 COL 102 COLON-ALIGNED WIDGET-ID 44
      cName AT ROW 2.43 COL 18 COLON-ALIGNED WIDGET-ID 8
@@ -743,16 +839,16 @@ DEFINE FRAME viewFrame
      cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
      cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
      cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
-     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Integer Value" NO-LABEL WIDGET-ID 62
-     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
-     btnCalendar-1 AT ROW 6 COL 36 WIDGET-ID 272
-     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
      hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Date Value" NO-LABEL WIDGET-ID 58
+     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Integer Value" NO-LABEL WIDGET-ID 62
      hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Decimal Value" NO-LABEL WIDGET-ID 60
+     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
+     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
      cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
+     btnCalendar-1 AT ROW 6 COL 36 WIDGET-ID 272
      ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
      cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
      cDataType AT ROW 8.38 COL 94 COLON-ALIGNED HELP
@@ -827,102 +923,6 @@ DEFINE FRAME searchFrame
          SIZE 64 BY 12.14
          FGCOLOR 1 FONT 6 WIDGET-ID 600.
 
-DEFINE FRAME formsFrame
-     cSysCtrlName AT ROW 1.24 COL 11 COLON-ALIGNED WIDGET-ID 4
-     cSysCtrlDescrip AT ROW 1.24 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 6
-     cSysCtrlDataType AT ROW 2.43 COL 11 COLON-ALIGNED WIDGET-ID 32
-     cSysCtrFieldlDescrip AT ROW 2.43 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 30
-     sysCtrlShipToBrowse AT ROW 3.62 COL 2 WIDGET-ID 800
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 17 ROW 1
-         SIZE 144 BY 28.57
-         FGCOLOR 1 
-         TITLE "System Control Parameter Forms" WIDGET-ID 700.
-
-DEFINE FRAME viewFormFrame
-     btnFirst-2 AT ROW 9.57 COL 109 HELP
-          "First" WIDGET-ID 62
-     sys-ctrl-shipto.cust-vend AT ROW 1.24 COL 24 NO-LABEL WIDGET-ID 48
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "Customer", yes,
-"Vendor", no
-          SIZE 26 BY 1
-     sys-ctrl-shipto.cust-vend-no AT ROW 2.43 COL 21 COLON-ALIGNED WIDGET-ID 34
-          VIEW-AS FILL-IN 
-          SIZE 14.2 BY 1
-          BGCOLOR 15 
-     type_name AT ROW 2.43 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 76
-     sys-ctrl-shipto.ship-id AT ROW 3.62 COL 21 COLON-ALIGNED WIDGET-ID 44
-          VIEW-AS FILL-IN 
-          SIZE 14.2 BY 1
-          BGCOLOR 15 
-     ship_name AT ROW 3.62 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 74
-     sys-ctrl-shipto.descrip AT ROW 4.81 COL 21 COLON-ALIGNED WIDGET-ID 46 FORMAT "x(256)"
-          VIEW-AS FILL-IN 
-          SIZE 92 BY 1
-          BGCOLOR 15 
-     btnForms-2 AT ROW 1 COL 138 HELP
-          "Close" WIDGET-ID 72
-     sys-ctrl-shipto.char-fld AT ROW 6 COL 21 COLON-ALIGNED WIDGET-ID 30
-          LABEL "Character" FORMAT "x(256)"
-          VIEW-AS FILL-IN 
-          SIZE 92 BY 1
-          BGCOLOR 15 
-     sys-ctrl-shipto.date-fld AT ROW 7.19 COL 21 COLON-ALIGNED WIDGET-ID 36
-          LABEL "Date"
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-          BGCOLOR 15 
-     sys-ctrl-shipto.dec-fld AT ROW 8.38 COL 21 COLON-ALIGNED WIDGET-ID 38
-          LABEL "Decimal"
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     sys-ctrl-shipto.int-fld AT ROW 9.57 COL 21 COLON-ALIGNED WIDGET-ID 40
-          LABEL "Integer"
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-          BGCOLOR 15 
-     cLogLabel AT ROW 10.76 COL 15.2 WIDGET-ID 78
-     sys-ctrl-shipto.log-fld AT ROW 10.76 COL 24 NO-LABEL WIDGET-ID 52
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "Yes", yes,
-"No", no,
-"Unknown", ?
-          SIZE 28 BY 1
-     btnLast-2 AT ROW 9.57 COL 133 HELP
-          "Last" WIDGET-ID 68
-     btnNext-2 AT ROW 9.57 COL 125 HELP
-          "Next" WIDGET-ID 66
-     btnPrev-2 AT ROW 9.57 COL 117 HELP
-          "Previous" WIDGET-ID 64
-     btnAdd-2 AT ROW 9.57 COL 66 HELP
-          "Add" WIDGET-ID 20
-     btnCancel-2 AT ROW 9.57 COL 98 HELP
-          "Cancel" WIDGET-ID 28
-     btnCopy-2 AT ROW 9.57 COL 74 HELP
-          "Copy" WIDGET-ID 24
-     btnDelete-2 AT ROW 9.57 COL 82 HELP
-          "Delete" WIDGET-ID 26
-     btnReset-2 AT ROW 9.57 COL 90 HELP
-          "Reset" WIDGET-ID 22
-     btnUpdate-2 AT ROW 9.57 COL 58 HELP
-          "Update/Save" WIDGET-ID 18
-     btnCalendar-2 AT ROW 7.19 COL 39 WIDGET-ID 272
-     "Type:" VIEW-AS TEXT
-          SIZE 6 BY 1 AT ROW 1.24 COL 17 WIDGET-ID 58
-     transPanel-3 AT ROW 9.33 COL 57 WIDGET-ID 16
-     transPanel-4 AT ROW 9.33 COL 108 WIDGET-ID 60
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 16.48
-         SIZE 142 BY 11.86
-         FGCOLOR 1 
-         TITLE "View" WIDGET-ID 900.
-
 
 /* *********************** Procedure Settings ************************ */
 
@@ -979,13 +979,13 @@ ASSIGN FRAME filterFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
-ASSIGN XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
-       XXTABVALXX = FRAME searchFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+ASSIGN XXTABVALXX = FRAME searchFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
        XXTABVALXX = FRAME formsFrame:MOVE-BEFORE-TAB-ITEM (searchBar:HANDLE IN FRAME DEFAULT-FRAME)
-       XXTABVALXX = FRAME searchFrame:MOVE-BEFORE-TAB-ITEM (FRAME formsFrame:HANDLE)
+       XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (FRAME formsFrame:HANDLE)
+       XXTABVALXX = FRAME searchFrame:MOVE-BEFORE-TAB-ITEM (FRAME filterFrame:HANDLE)
 /* END-ASSIGN-TABS */.
 
-/* BROWSE-TAB sysCtrlBrowse RECT-1 DEFAULT-FRAME */
+/* BROWSE-TAB sysCtrlBrowse btnSortMove DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btnExport IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnImport IN FRAME DEFAULT-FRAME
@@ -2791,7 +2791,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY svFocus searchBar 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE svFocus btnRestoreDefaults searchBar sysCtrlBrowse btnSortMove 
+  ENABLE svFocus btnRestoreDefaults searchBar btnSortMove sysCtrlBrowse 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW FRAME filterFrame IN WINDOW C-Win.
@@ -4348,6 +4348,8 @@ PROCEDURE pParseTables :
             cTableName[10] = "po-ctrl"  cFieldList[10] = "rec_key"
             cTableName[11] = "rfq-ctrl" cFieldList[11] = "rec_key"
             cTableName[12] = "rm-ctrl"  cFieldList[12] = "rec_key"
+            /* initial release, don't include any control tables */
+            cTableName     = ""         cFieldList     = ""
             .
         DO idx = 1 TO EXTENT(cTableName):
             IF cTableName[idx] EQ "" THEN LEAVE.
