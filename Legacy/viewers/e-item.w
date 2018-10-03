@@ -48,8 +48,11 @@ def temp-table tmpfile NO-UNDO
     field setups as dec.
 
 def var lv-roll-w like e-item-vend.roll-w no-undo.
+
 {custom/gcompany.i}
 {custom/persist.i}
+{system/fSuperRunning.i}
+
 def var uom-list as cha init ["M,EA,L,CS,C"] no-undo.
 DEF VAR char-hdl AS CHAR NO-UNDO.
 
