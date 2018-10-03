@@ -517,9 +517,8 @@ PROCEDURE local-update-record:
                oe-relh.ship-i[3] =  opcParsedText[3]
                oe-relh.ship-i[4] =  opcParsedText[4]
                .               
-            RUN UpdateNoteOfType IN hNotesProcs (oe-relh.rec_key,
-                                                 "ES", /*extended ShipNote*/
-                                                 ship_note).
+            RUN UpdateNoteShipOeRelh IN hNotesProcs (oe-relh.rec_key,
+                                                     ship_note).
             DELETE OBJECT hNotesProcs.        
         END.
         FIND CURRENT oe-relh NO-LOCK NO-ERROR.

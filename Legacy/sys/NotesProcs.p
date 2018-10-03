@@ -245,6 +245,62 @@ notes.note_text = ipcNoteText.
 
 END PROCEDURE.
 
+PROCEDURE UpdateNoteShipOeBolh:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcNoteText AS CHARACTER NO-UNDO.
+
+RUN UpdateNoteOfType (ipcObjectRecKey,
+                      "ES",
+                      ipcNoteText).
+
+END PROCEDURE.
+
+PROCEDURE UpdateNoteShipOeRel:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcNoteText AS CHARACTER NO-UNDO.
+
+RUN UpdateNoteOfType (ipcObjectRecKey,
+                      "ES",
+                      ipcNoteText).
+
+END PROCEDURE.
+
+PROCEDURE UpdateNoteShipOeRelh:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcNoteText AS CHARACTER NO-UNDO.
+
+RUN UpdateNoteOfType (ipcObjectRecKey,
+                      "ES",
+                      ipcNoteText).
+
+END PROCEDURE.
+
+PROCEDURE UpdateNoteShipShipto:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcNoteText AS CHARACTER NO-UNDO.
+
+RUN UpdateNoteOfType (ipcObjectRecKey,
+                      "ES",
+                      ipcNoteText).
+
+END PROCEDURE.
+
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fIsLineEnd RETURNS LOGICAL PRIVATE
