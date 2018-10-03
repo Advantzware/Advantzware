@@ -34,11 +34,11 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE ShipNotesExpanded AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE glShipNotesExpanded AS LOGICAL NO-UNDO.
+
 DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
 DEFINE VARIABLE opiFilledArraySize AS INTEGER NO-UNDO.
+
 
 
 
@@ -238,7 +238,7 @@ DO:
   Define Variable hNotesProcs as Handle NO-UNDO. 
   RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
   RUN ConvertToArray IN hNotesProcs (INPUT ship_note:SCREEN-VALUE, 
-              INPUT 100,
+              INPUT 60,
               OUTPUT opcParsedText,
               OUTPUT opiFilledArraySize).  
   IF opiFilledArraySize GT 4 THEN DO:
@@ -324,7 +324,7 @@ PROCEDURE enable_notes :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-  IF ShipNotesExpanded EQ YES THEN DO:
+  IF glShipNotesExpanded EQ YES THEN DO:
       ASSIGN 
          oe-rel.ship-i[1]:HIDDEN IN FRAME F-Main           = TRUE
          oe-rel.ship-i[2]:HIDDEN IN FRAME F-Main           = TRUE
@@ -389,12 +389,9 @@ PROCEDURE local-display-fields :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  Define Variable hNotesProcs as Handle NO-UNDO.
   IF AVAILABLE oe-rel THEN DO:
-    RUN sys/ref/nk1look.p (INPUT oe-rel.company, "ShipNotesExpanded", "L" /* Logical */, NO /* check by cust */, 
-          INPUT NO /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-      OUTPUT cRtnChar, OUTPUT lRecFound).
-      ShipNotesExpanded = LOGICAL(cRtnChar) NO-ERROR.      
+    RUN pSetShipToExpanded(oe-rel.company).
   END.
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -405,25 +402,15 @@ PROCEDURE local-display-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN enable_notes.
   ASSIGN ship_note = "".
-  IF ShipNotesExpanded THEN DO:
+  IF glShipNotesExpanded THEN DO:
       DISABLE ship_note WITH FRAME {&FRAME-NAME}.
       IF AVAILABLE oe-rel THEN DO:
-          Define Variable hNotesProcs as Handle NO-UNDO. 
-          RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-          RUN GetNotesArrayForObject IN hNotesProcs (INPUT oe-rel.rec_key, 
-              INPUT "", 
-              INPUT "", 
-              INPUT 100,
-              INPUT NO,
-              OUTPUT opcParsedText,
-              OUTPUT opiFilledArraySize).
-          DELETE OBJECT hNotesProcs.        
-          DO i = 1 TO opiFilledArraySize:              
-              ASSIGN ship_note = ship_note + opcParsedText[i].
-          END.    
+          RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
+          RUN GetNoteOfType IN hNotesProcs (oe-rel.rec_key, "ES", OUTPUT ship_note).
+          DELETE OBJECT hNotesProcs.
       END. /*IF AVAILABLE oe-rel THEN DO:*/
       DISPLAY ship_note WITH FRAME {&FRAME-NAME}.    
-  END.  /*IF ShipNotesExpanded THEN DO:*/ 
+  END.  /*IF glShipNotesExpanded THEN DO:*/ 
       
   
 
@@ -447,7 +434,7 @@ PROCEDURE local-enable-fields:
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF ShipNotesExpanded THEN DO:
+  IF glShipNotesExpanded THEN DO:
       ENABLE ship_note WITH FRAME {&FRAME-NAME}.         
   END.
 
@@ -466,22 +453,22 @@ PROCEDURE local-update-record:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-   DEFINE VARIABLE i AS INTEGER NO-UNDO.
-
+   Define Variable hNotesProcs as Handle NO-UNDO.   
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF ShipNotesExpanded EQ YES THEN DO:
+  IF glShipNotesExpanded EQ YES THEN DO:
         ASSIGN ship_note = ship_note:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
-        Define Variable hNotesProcs as Handle NO-UNDO. 
+        
         RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
         RUN ConvertToArray IN hNotesProcs (INPUT ship_note, 
-              INPUT 100,
+              INPUT 60,
               OUTPUT opcParsedText,
-              OUTPUT opiFilledArraySize).  
+              OUTPUT opiFilledArraySize). 
+         
         FIND CURRENT oe-rel EXCLUSIVE-LOCK NO-ERROR.
         IF AVAILABLE oe-rel THEN DO:
             ASSIGN
@@ -490,15 +477,39 @@ PROCEDURE local-update-record:
                oe-rel.ship-i[3] =  opcParsedText[3]
                oe-rel.ship-i[4] =  opcParsedText[4]
                .               
-            RUN CreateNotesObjectFromArray IN hNotesProcs (INPUT oe-rel.rec_key, 
-                                                           INPUT opcParsedText,
-                                                           INPUT opiFilledArraySize).
+            RUN UpdateNoteOfType IN hNotesProcs (oe-rel.rec_key,
+                                                 "ES", /*extended ShipNote*/
+                                                 ship_note).
             DELETE OBJECT hNotesProcs.        
         END.
         FIND CURRENT oe-rel NO-LOCK NO-ERROR.
         DISABLE ship_note WITH FRAME {&FRAME-NAME}.
-  END. /* IF ShipNotesExpanded EQ YES THEN DO: */
+  END. /* IF glShipNotesExpanded EQ YES THEN DO: */
    
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetShipToExpanded V-table-Win
+PROCEDURE pSetShipToExpanded:
+/*------------------------------------------------------------------------------
+ Purpose: Set the global glShipToExpanded variable based on NK1
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+
+RUN sys/ref/nk1look.p (ipcCompany, "ShipNotesExpanded", "L" /* Logical */, NO /* check by cust */, 
+          INPUT NO /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+      OUTPUT cRtnChar, OUTPUT lRecFound).
+  glShipNotesExpanded = LOGICAL(cRtnChar) NO-ERROR.      
 
 END PROCEDURE.
     
