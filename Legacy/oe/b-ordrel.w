@@ -630,13 +630,11 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
-   DEF VAR phandle AS WIDGET-HANDLE NO-UNDO.
-   DEF VAR char-hdl AS cha NO-UNDO.   
-
-   RUN get-link-handle IN adm-broker-hdl
-      (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
-   phandle = WIDGET-HANDLE(char-hdl).  
-   RUN new-state IN phandle ('update-begin':U).
+ DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
+    
+  RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
+  RUN reopen-query .
+  RUN repo-query (ROWID(oe-rel)).
   
 END.
 
@@ -2404,6 +2402,231 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddRecord B-table-Win 
+PROCEDURE pAddRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE BUFFER bf-oe-rel FOR oe-rel.
+  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
+  DEFINE VARIABLE lv-rowid2 AS ROWID NO-UNDO.
+  DEFINE VARIABLE iL AS INTEGER INITIAL 0 EXTENT 2 NO-UNDO.
+  DEFINE VARIABLE lv-repos-recid AS RECID NO-UNDO.
+  DEFINE VARIABLE v-nxt-r-no AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lMatchingSRecordFound AS LOGICAL NO-UNDO.
+  DEFINE BUFFER bf-add-oe-rel FOR oe-rel.
+
+  DEFINE BUFFER b-oe-ordl FOR oe-ordl.
+  DEFINE BUFFER b-oe-rel FOR oe-rel.
+
+  DEFINE VARIABLE cShipTo   AS CHAR NO-UNDO.
+  DEFINE VARIABLE iRelQty   AS INT  NO-UNDO.
+  DEFINE VARIABLE dtRelDate AS DATE NO-UNDO.
+  DEFINE VARIABLE dtDelDate AS DATE NO-UNDO.
+  DEFINE VARIABLE cPO       AS CHAR NO-UNDO.
+  DEFINE VARIABLE lRelease  AS LOG  NO-UNDO.
+  DEFINE VARIABLE lCancel AS LOG NO-UNDO.
+
+  lv-rowid2 = IF AVAIL oe-rel THEN ROWID(oe-rel) ELSE ? .
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF CAN-FIND(FIRST b-oe-ordl {sys/inc/ordlcomp.i b-oe-ordl oe-ordl}) THEN DO:
+
+      RUN prompt-set-release (OUTPUT lCancel, OUTPUT cShipTo, OUTPUT iRelQty, OUTPUT dtRelDate,
+                              OUTPUT cPO, OUTPUT lRelease, OUTPUT dtDelDate).
+      IF lCancel THEN
+        RETURN "ADM-ERROR". 
+      RUN add-set-releases (INPUT cShipTo, INPUT iRelQty, INPUT dtRelDate, INPUT lRelease, INPUT dtDelDate, INPUT cPO).
+      MESSAGE "Releases Created"
+          VIEW-AS ALERT-BOX INFO BUTTONS OK.
+     RETURN "ADM-ERROR". 
+  END.
+
+  
+  IF AVAILABLE oe-ordl THEN
+  DO:
+     FOR EACH bf-oe-rel NO-LOCK 
+         WHERE bf-oe-rel.company EQ oe-ordl.company
+           AND bf-oe-rel.ord-no = oe-ordl.ord-no
+           AND bf-oe-rel.i-no = oe-ordl.i-no
+           AND bf-oe-rel.line = oe-ordl.line
+           AND bf-oe-rel.line NE 0
+           BY bf-oe-rel.line:
+         iL[1] = iL[1] + 1.
+     END.
+
+     RUN oe/d-ordrel.w (?, ROWID(oe-ordl), "add",OUTPUT lv-rowid).
+     
+     FOR EACH bf-oe-rel NO-LOCK 
+         WHERE bf-oe-rel.company EQ oe-ordl.company
+           AND bf-oe-rel.ord-no = oe-ordl.ord-no
+           AND bf-oe-rel.i-no = oe-ordl.i-no
+           AND bf-oe-rel.line = oe-ordl.line
+           AND bf-oe-rel.line NE 0
+           BY bf-oe-rel.line:
+         ASSIGN
+             iL[2]    = iL[2] + 1.
+     END.
+
+     IF iL[2] GT 0 AND (iL[1] NE iL[2] OR iL[2] EQ 1) THEN DO:
+         IF lv-rowid NE ? THEN do:
+             RUN reopen-query . 
+             RUN repo-query (lv-rowid).
+         END.
+     END.
+     ELSE DO:
+       RUN repo-query (lv-rowid2).
+     END.
+
+  END.
+
+  IF RelType-int = 1 AND AVAIL tt-report AND oe-rel.s-code EQ "I" THEN DO:
+
+     /* Check if a matching 'S' record already exists */
+     lMatchingSRecordFound = NO.
+     FOR EACH bf-add-oe-rel WHERE bf-add-oe-rel.company EQ oe-rel.company
+         AND bf-add-oe-rel.ord-no EQ oe-rel.ord-no
+         AND bf-add-oe-rel.LINE   EQ oe-rel.LINE
+         AND bf-add-oe-rel.i-no   EQ oe-rel.i-no
+         AND bf-add-oe-rel.s-code EQ "S"
+         NO-LOCK:
+        lMatchingSRecordFound = YES.
+         
+     END.
+
+     IF  lMatchingSRecordFound EQ NO  THEN DO:
+     
+       ASSIGN  v-inv-ship        = YES
+               v-qty-inv-only    = oe-rel.qty
+               v-totqty-inv-only = oe-rel.tot-qty.
+  
+       /* Add a new oe-rel */
+       RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+       
+       CREATE bf-add-oe-rel.
+       BUFFER-COPY oe-rel EXCEPT r-no rec_key TO bf-add-oe-rel.
+       ASSIGN bf-add-oe-rel.s-code = "S"
+              bf-add-oe-rel.r-no = v-nxt-r-no.
+
+       /* Reset everything */
+       RUN build-report-file.
+  
+       lv-repos-recid = RECID(bf-add-oe-rel).
+
+       RUN oe/d-ordrel.w (ROWID(bf-add-oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
+
+       RUN reopen-query .
+       RUN repo-query (lv-rowid).
+
+     END. /* If 'S' record not found */
+  END. /* If updating an invoice only "I" record */
+
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecord B-table-Win 
+PROCEDURE pUpdateRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE ll       AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+    DEFINE VARIABLE lv-repos-recid AS RECID NO-UNDO.
+    DEFINE VARIABLE v-nxt-r-no AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lMatchingSRecordFound AS LOGICAL NO-UNDO.
+    DEFINE BUFFER bf-add-oe-rel FOR oe-rel.
+    
+    IF AVAILABLE oe-ordl AND AVAILABLE oe-rel THEN
+    DO:
+       RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) . 
+       
+          IF lv-rowid NE ? THEN do: 
+              RUN reopen-query .
+              RUN repo-query (lv-rowid).
+          END.
+     END.
+
+     IF RelType-int = 1 AND AVAIL tt-report AND oe-rel.s-code EQ "I" THEN DO:
+
+     /* Check if a matching 'S' record already exists */
+     lMatchingSRecordFound = NO.
+     FOR EACH bf-add-oe-rel WHERE bf-add-oe-rel.company EQ oe-rel.company
+         AND bf-add-oe-rel.ord-no EQ oe-rel.ord-no
+         AND bf-add-oe-rel.LINE   EQ oe-rel.LINE
+         AND bf-add-oe-rel.i-no   EQ oe-rel.i-no
+         AND bf-add-oe-rel.s-code EQ "S"
+         NO-LOCK:
+        lMatchingSRecordFound = YES.
+         
+     END.
+
+     IF  lMatchingSRecordFound EQ NO  THEN DO:
+     
+       ASSIGN  v-inv-ship        = YES
+               v-qty-inv-only    = oe-rel.qty
+               v-totqty-inv-only = oe-rel.tot-qty.
+  
+       /* Add a new oe-rel */
+       RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+       
+       CREATE bf-add-oe-rel.
+       BUFFER-COPY oe-rel EXCEPT r-no rec_key TO bf-add-oe-rel.
+       ASSIGN bf-add-oe-rel.s-code = "S"
+              bf-add-oe-rel.r-no = v-nxt-r-no.
+  
+
+  
+       /* Reset everything */
+       RUN build-report-file.
+  
+       lv-repos-recid = RECID(bf-add-oe-rel).
+
+       RUN oe/d-ordrel.w (ROWID(bf-add-oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
+
+       RUN reopen-query .
+       RUN repo-query (lv-rowid).
+
+     END. /* If 'S' record not found */
+  END. /* If updating an invoice only "I" record */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pViewRecord B-table-Win 
+PROCEDURE pViewRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE ll       AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+    
+    IF AVAILABLE oe-ordl AND AVAILABLE oe-rel THEN
+    DO:
+       RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "view", OUTPUT lv-rowid) . 
+       RUN reopen-query .
+       RUN repo-query (lv-rowid).
+          
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-job B-table-Win 
 PROCEDURE create-job :
