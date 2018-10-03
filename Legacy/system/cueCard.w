@@ -1522,42 +1522,6 @@ PROCEDURE pBuildMenuTree :
     
     RUN pInitMenuTree.
 
-    iOrder = iOrder + 1.
-    RUN pCreatettMenuTree (
-        FRAME filterFrame:HANDLE,
-        iOrder,
-        1,
-        YES,
-        "",
-        "ALL",
-        "ALL",
-        "tab_pane.png",
-        "",
-        "",
-        "",
-        YES
-        ).
-    FOR EACH ttIsRunning
-        BREAK BY ttIsRunning.prgmName
-        :
-        IF FIRST-OF(ttIsRunning.prgmName) THEN DO:
-            iOrder = iOrder + 1.
-            RUN pCreatettMenuTree (
-                FRAME filterFrame:HANDLE,
-                iOrder,
-                2,
-                NO,
-                "ALL",
-                ttIsRunning.prgmName,
-                ttIsRunning.prgmName,
-                "hand_point_right2.png",
-                "",
-                "",
-                "",
-                YES
-                ).
-        END. /* if first-of */
-    END. /* each ttIsRunning */
     FOR EACH ttIsRunning
         BREAK BY ttIsRunning.prgTitle
               BY ttIsRunning.prgmName
@@ -1730,7 +1694,13 @@ PROCEDURE pCreateTtIsRunning :
        NOT cName EQ cCuePrgmName   AND
        NOT cName BEGINS "adecomm/" AND
        NOT cName BEGINS "adeedit/" AND
-       NOT cName BEGINS "adm/" THEN DO: 
+       NOT cName BEGINS "adm/"      OR
+           cName EQ "system/mainMenu" THEN DO:
+        /* allows addition of sub-frames in mainmenu */
+        IF cName EQ "system/mainMenu" THEN DO:
+            IF iphFrame:NAME NE "FRAME-USER" THEN
+            cName = iphFrame:NAME. 
+        END. /* if mainmenu */
         CREATE ttIsRunning.
         ASSIGN 
             ttIsRunning.prgTitle  = iphWidget:TITLE
@@ -1758,7 +1728,6 @@ PROCEDURE pCRUD :
     DEFINE VARIABLE cSaveParent AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSaveChild  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lContinue   AS LOGICAL NO-UNDO.
-/*    DEFINE VARIABLE rRowID      AS ROWID   NO-UNDO EXTENT 2.*/
     
     DEFINE BUFFER bCueCardText FOR cueCardText.
     
@@ -1808,8 +1777,43 @@ PROCEDURE pCRUD :
                             CREATE cueCardText.
                             BUFFER-COPY bCueCardText EXCEPT cueID cueTextID cueOrder TO cueCardText.
                         END. /* if copy */
-                        ELSE /* add */
-                        CREATE cueCardText.
+                        ELSE DO: /* add */
+                            CREATE cueCardText.
+                            /* initialize values based on layout of cueCardLayout.w */
+                            ASSIGN
+                                cueCardText.arrowCol         = 2
+                                cueCardText.arrowRow         = 1.24
+                                cueCardText.cueOrientation   = 1
+                                cueCardText.cuePosition      = 1
+                                cueCardText.dontShowAgainCol = 19
+                                cueCardText.dontShowAgainRow = 1.24
+                                cueCardText.frameCol         = 1
+                                cueCardText.frameRow         = 1
+                                cueCardText.frameBGColor     = 14
+                                cueCardText.frameFGColor     = 1
+                                cueCardText.frameHeight      = 7.38
+                                cueCardText.frameWidth       = 53
+                                cueCardText.gotItCol         = 26
+                                cueCardText.gotItRow         = 7.19
+                                cueCardText.nextCol          = 48
+                                cueCardText.nextRow          = 6.95
+                                cueCardText.positionCol      = 9
+                                cueCardText.positionRow      = 1.24
+                                cueCardText.prevCol          = 9
+                                cueCardText.prevRow          = 6.95
+                                cueCardText.textCol          = 9
+                                cueCardText.textRow          = 2.67
+                                cueCardText.textHeight       = 4.29
+                                cueCardText.textWidth        = 44
+                                fFGColor:BGCOLOR             = cueCardText.frameFGColor
+                                fBGColor:BGCOLOR             = cueCardText.frameBGColor
+                                tFGColor:BGCOLOR             = cueCardText.textFGColor
+                                tBGColor:BGCOLOR             = cueCardText.textBGColor
+                                lGotItFont:FONT              = cueCardText.gotItFont
+                                lDontShowAgainFont:FONT      = cueCardText.dontShowAgainFont
+                                cCuetextFont:FONT            = cueCardText.textFont
+                                .
+                        END. /* else add */
                         ASSIGN 
                             cueCardText.cueID = cueCard.cueID
                             cueCardText.cueTextID:SCREEN-VALUE = STRING(cueCardText.cueTextID)
@@ -1819,35 +1823,26 @@ PROCEDURE pCRUD :
                     IF cMode EQ "Add" OR cMode EQ "Copy" THEN DO:
                         RUN pSetCueOrder.
                         ASSIGN
-/*                            rRowID[1] = ROWID(cueCard)    */
-/*                            rRowID[2] = ROWID(cueCardText)*/
                             cSaveParent = ttMenuTree.treeParent
                             cSaveChild  = ttMenuTree.treeChild
                             .
                         RUN pInit.
                         ASSIGN
-                            cFilter    = "ALL"
-                            cSubFilter = "ALL"
+                            cFilter    = ""
+                            cSubFilter = ""
                             .
                         RUN pReopenBrowse.
                         FIND FIRST ttMenuTree
                              WHERE ttMenuTree.treeParent EQ ""
                                AND ttMenuTree.treeChild  EQ cSaveParent
                              .
+                        IF ttMenuTree.isOpen THEN ttMenuTree.isOpen = NO. 
                         RUN pClickMenuTree (ttMenuTree.hEditor).
                         FIND FIRST ttMenuTree
                              WHERE ttMenuTree.treeParent EQ cSaveParent
                                AND ttMenuTree.treeChild  EQ cSaveChild
                              .
                         RUN pClickMenuTree (ttMenuTree.hEditor).
-/*                        FIND FIRST cueCard NO-LOCK                  */
-/*                             WHERE ROWID(cueCard) EQ rRowID[1]      */
-/*                             NO-ERROR.                              */
-/*                        FIND FIRST cueCardText NO-LOCK              */
-/*                             WHERE ROWID(cueCardText) EQ rRowID[2]  */
-/*                             NO-ERROR.                              */
-/*                        IF AVAILABLE cueCardText THEN               */
-/*                        REPOSITION cueCardBrowse TO ROWID rRowID[2].*/
                     END. /* if add */
                     ELSE
                     BROWSE cueCardBrowse:REFRESH().
@@ -1927,7 +1922,7 @@ PROCEDURE pCueCardLayout :
             VIEW-AS ALERT-BOX ERROR.
             RETURN.
         END. /* else */
-    END. /* if avail */    
+    END. /* if avail */
     RUN system/cueCardLayout.w (BUFFER cueCardText, ttIsRunning.hFrame).
 
 END PROCEDURE.
