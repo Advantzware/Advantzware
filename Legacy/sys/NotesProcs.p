@@ -135,12 +135,38 @@ DEFINE VARIABLE cFullText AS CHARACTER NO-UNDO.
         :
     IF iplIncludeTitles THEN 
         cFullText = cFullText + TRIM(CAPS(notes.note_title)) + CHR(13).
-    cFullText = cFullText + TRIM(notes.note_text) + CHR(13). 
+    cFullText = cFullText + TRIM(notes.note_text) /* + CHR(13) */. 
 END.
 IF cFullText NE "" THEN 
     RUN ConvertToArray(cFullText, ipiMaxCharCount, OUTPUT opcParsedText, OUTPUT opiArraySize).
 
 END PROCEDURE.
+
+PROCEDURE CreateNotesObjectFromArray:
+/*------------------------------------------------------------------------------
+ Purpose: Given a rec_key for an object, a set of type and codes, return an array of a max char length 
+ Notes:  Types and Codes should be comma separated or left blank for all
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
+    DEFINE INPUT PARAMETER opiFilledArraySize AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE i AS INTEGER NO-UNDO.
+    
+    FIND FIRST notes WHERE notes.rec_key = ipcObjectRecKey EXCLUSIVE-LOCK NO-ERROR.
+    IF NOT AVAILABLE notes THEN CREATE notes.
+    ASSIGN
+        notes.rec_key = ipcObjectRecKey
+        notes.note_date = TODAY
+        notes.note_time = TIME
+        notes.note_title = opcParsedText[1]
+        notes.note_text = ""
+        .
+    DO i = 1 TO opiFilledArraySize:  
+        ASSIGN notes.note_text = notes.note_text + opcParsedText[i].
+    END.    
+END PROCEDURE.
+
 
 PROCEDURE pParseText PRIVATE:
     /*------------------------------------------------------------------------------

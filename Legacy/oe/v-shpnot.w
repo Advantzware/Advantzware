@@ -44,6 +44,7 @@ DEFINE VARIABLE opiFilledArraySize AS INTEGER NO-UNDO.
 
 
 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -234,9 +235,14 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ship_note V-table-Win
 ON LEAVE OF ship_note IN FRAME F-Main
 DO:
-  IF LENGTH(ship_note:SCREEN-VALUE IN FRAME F-Main) GT 400 THEN DO:
-    MESSAGE "autoparsed lines exceed 400 lines of text" view-as alert-box error.
-          return no-apply.        
+  Define Variable hNotesProcs as Handle NO-UNDO. 
+  RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+  RUN ConvertToArray IN hNotesProcs (INPUT ship_note:SCREEN-VALUE, 
+              INPUT 100,
+              OUTPUT opcParsedText,
+              OUTPUT opiFilledArraySize).  
+  IF opiFilledArraySize GT 4 THEN DO:
+    MESSAGE "Autoparsed lines exceed 4 lines of text. Only first 4 lines will be used." view-as alert-box error.       
   END.  
 END.
 
@@ -383,7 +389,7 @@ PROCEDURE local-display-fields :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-  
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
   IF AVAILABLE oe-rel THEN DO:
     RUN sys/ref/nk1look.p (INPUT oe-rel.company, "ShipNotesExpanded", "L" /* Logical */, NO /* check by cust */, 
           INPUT NO /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -401,10 +407,23 @@ PROCEDURE local-display-fields :
   ASSIGN ship_note = "".
   IF ShipNotesExpanded THEN DO:
       DISABLE ship_note WITH FRAME {&FRAME-NAME}.
-      IF AVAILABLE oe-rel THEN
-         ASSIGN ship_note = oe-rel.ship-i[1] + oe-rel.ship-i[2] + oe-rel.ship-i[3] + oe-rel.ship-i[4].
+      IF AVAILABLE oe-rel THEN DO:
+          Define Variable hNotesProcs as Handle NO-UNDO. 
+          RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+          RUN GetNotesArrayForObject IN hNotesProcs (INPUT oe-rel.rec_key, 
+              INPUT "", 
+              INPUT "", 
+              INPUT 100,
+              INPUT NO,
+              OUTPUT opcParsedText,
+              OUTPUT opiFilledArraySize).
+          DELETE OBJECT hNotesProcs.        
+          DO i = 1 TO opiFilledArraySize:              
+              ASSIGN ship_note = ship_note + opcParsedText[i].
+          END.    
+      END. /*IF AVAILABLE oe-rel THEN DO:*/
       DISPLAY ship_note WITH FRAME {&FRAME-NAME}.    
-  END.   
+  END.  /*IF ShipNotesExpanded THEN DO:*/ 
       
   
 
@@ -447,7 +466,7 @@ PROCEDURE local-update-record:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-
+   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -463,15 +482,18 @@ PROCEDURE local-update-record:
               INPUT 100,
               OUTPUT opcParsedText,
               OUTPUT opiFilledArraySize).  
-        DELETE OBJECT hNotesProcs.
         FIND CURRENT oe-rel EXCLUSIVE-LOCK NO-ERROR.
         IF AVAILABLE oe-rel THEN DO:
             ASSIGN
                oe-rel.ship-i[1] =  opcParsedText[1]
                oe-rel.ship-i[2] =  opcParsedText[2]
                oe-rel.ship-i[3] =  opcParsedText[3]
-               oe-rel.ship-i[4] =  opcParsedText[4].
-            
+               oe-rel.ship-i[4] =  opcParsedText[4]
+               .               
+            RUN CreateNotesObjectFromArray IN hNotesProcs (INPUT oe-rel.rec_key, 
+                                                           INPUT opcParsedText,
+                                                           INPUT opiFilledArraySize).
+            DELETE OBJECT hNotesProcs.        
         END.
         FIND CURRENT oe-rel NO-LOCK NO-ERROR.
         DISABLE ship_note WITH FRAME {&FRAME-NAME}.
