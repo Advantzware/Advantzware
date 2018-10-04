@@ -13,7 +13,11 @@ IF lFound AND cCalcBtnLink EQ "yes" THEN DO:
         (cCompany,"CalcBtnLink","C",NO,NO,"","",
          OUTPUT cCalcBtnLink,OUTPUT lFound).
     IF lFound AND cCalcBtnLink NE "" THEN DO:
+        &if defined(FWD-VERSION) eq 0 &then
         OS-COMMAND NO-WAIT START VALUE (cCalcBtnLink).
+        &else
+           OPEN-URL(cCalcBtnLink).
+        &endif
     END.
 END.
 ELSE RUN windows/d-frac.w.

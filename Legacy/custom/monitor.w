@@ -306,7 +306,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnViewLog C-Win
 ON CHOOSE OF btnViewLog IN FRAME DEFAULT-FRAME /* View Log */
 DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" string("file:///" + monitorImportDir + '/monitor/monitor.log') false.
+&ELSE
   OS-COMMAND NO-WAIT notepad.exe VALUE(monitorImportDir + '/monitor/monitor.log').
+&ENDIF
   RETURN NO-APPLY.
 END.
 

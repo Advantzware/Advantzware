@@ -1078,7 +1078,12 @@ PROCEDURE postVorne :
 
   RELEASE machtran.
 
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" string("file:///" + lvErrorFile) false.
+&ELSE
+
   OS-COMMAND NO-WAIT notepad.exe VALUE(lvErrorFile).
+&ENDIF
 
 END PROCEDURE.
 

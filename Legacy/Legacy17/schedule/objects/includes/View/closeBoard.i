@@ -1,0 +1,3 @@
+/* closeBoard.i */
+
+/* static version */
