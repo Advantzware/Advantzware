@@ -1,3 +1,0 @@
-/* hideDowntime.i */
-
-/* static version */

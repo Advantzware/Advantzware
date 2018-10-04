@@ -1,3 +1,0 @@
-/* loadDowntime.i */
-
-/* static version */

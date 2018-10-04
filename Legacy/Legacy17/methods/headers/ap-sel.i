@@ -1,1 +1,0 @@
- ap-sel.vend-no

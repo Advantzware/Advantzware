@@ -1,3 +1,0 @@
-/* btnSave.i */
-
-/* static version */

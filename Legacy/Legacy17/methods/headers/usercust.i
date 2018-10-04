@@ -1,1 +1,0 @@
-'Usercust: ' + usercust.cust-no

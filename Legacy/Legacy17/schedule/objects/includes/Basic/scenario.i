@@ -1,3 +1,0 @@
-/* scenario.i */
-
-/* static version */

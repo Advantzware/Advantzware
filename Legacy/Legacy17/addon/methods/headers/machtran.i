@@ -1,1 +1,0 @@
-'Machine: ' + machtran.machine

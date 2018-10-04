@@ -3281,7 +3281,7 @@ PROCEDURE ipLoadPrograms :
     FOR EACH users EXCLUSIVE-LOCK:
         ASSIGN
             users.userImage[1] = if users.userImage[1] = "" then "Graphics\32x32\user.png" else users.userImage[1]
-            users.showMnemonic = users.showMnemonic = "" then "All" else users.showMnemonic
+            users.showMnemonic = IF users.showMnemonic = "" then "All" else users.showMnemonic
             users.positionMnemonic = if users.positionMnemonic = "" then "Begin" else users.positionMnemonic.
     END. /* each users */ 
 

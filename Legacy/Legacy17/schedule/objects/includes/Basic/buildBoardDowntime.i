@@ -1,3 +1,0 @@
-/* buildBoardDowntime.i */
-
-/* static version */

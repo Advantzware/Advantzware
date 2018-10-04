@@ -1,1 +1,0 @@
- STRING(quoteit.q-no)

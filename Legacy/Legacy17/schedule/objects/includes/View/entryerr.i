@@ -1,3 +1,0 @@
-/* entryerr.i */
-
-/* static version */

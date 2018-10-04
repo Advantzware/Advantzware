@@ -1,3 +1,0 @@
-/* btnRemove.i */
-
-/* static version */

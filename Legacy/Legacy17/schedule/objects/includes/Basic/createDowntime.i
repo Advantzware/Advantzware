@@ -1,3 +1,0 @@
-/* createDowntime.i */
-
-/* static version */

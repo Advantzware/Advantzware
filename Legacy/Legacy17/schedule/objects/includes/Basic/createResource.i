@@ -1,3 +1,0 @@
-/* createResource.i */
-
-/* static version */

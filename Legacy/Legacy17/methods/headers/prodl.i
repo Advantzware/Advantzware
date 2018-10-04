@@ -1,1 +1,0 @@
-'Product Line: ' + 'Category: '
