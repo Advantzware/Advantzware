@@ -29,6 +29,8 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object02 h_v-eitem
 &SCOPED-DEFINE h_Object03 h_p-updven
 &SCOPED-DEFINE h_Object04 h_pricechg
+&SCOPED-DEFINE h_Object05 h_p-fg-bj-2
+&SCOPED-DEFINE h_Object06 h_p-calcq
 &SCOPED-DEFINE moveRight {&h_Object02},{&h_Object03},{&h_Object04}
 
 /* Parameters Definitions ---                                           */
@@ -96,6 +98,7 @@ DEFINE VARIABLE h_itemfg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_itemfg-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_itemfg-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_itemfg-4 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_itemfg-5 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_itemfg2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_itemfg2-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_itemfgpo AS HANDLE NO-UNDO.
@@ -109,9 +112,7 @@ DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-calcc AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-calcq AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-fg-bj-2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-fg-bj-l AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-fgset AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-overq AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updclr AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updimg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updinv AS HANDLE NO-UNDO.
@@ -135,7 +136,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 159.6 BY 23.95
+         SIZE 160 BY 28.57
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
@@ -160,7 +161,7 @@ DEFINE FRAME OPTIONS-FRAME
    Type: SmartWindow
    External Tables: ASI.itemfg
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 5
+   Design Page: 13
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -172,7 +173,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Finished Goods Item Inventory"
-         HEIGHT             = 24.19
+         HEIGHT             = 28.57
          WIDTH              = 160.6
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
@@ -354,8 +355,8 @@ PROCEDURE adm-create-objects :
              INPUT  'FOLDER-LABELS = ':U + 'Brws Items|View Item|Inventory|Totals/CP#|Bin/Jobs|Set parts|Colors|Vend Cost|History|Image|POs' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 2.91 , 1.60 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.91 , 159.00 ) NO-ERROR.
+       RUN set-position IN h_folder ( 2.91 , 1.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 26.67 , 160.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/attach.w':U ,
@@ -370,7 +371,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 92.20 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.00 , 92.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        /* Initialize other pages that this page requires. */
@@ -426,7 +427,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_b-itemfg ).
        RUN set-position IN h_b-itemfg ( 4.33 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 20.00 , 156.00 ) */
+       /* Size in UIB:  ( 24.76 , 156.00 ) */
 
        /* Links to SmartViewer h_import. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
@@ -529,7 +530,15 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_itemfg2 ).
        RUN set-position IN h_itemfg2 ( 6.00 , 9.00 ) NO-ERROR.
-       /* Size in UIB:  ( 11.19 , 144.00 ) */
+       /* Size in UIB:  ( 5.71 , 144.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'est/v-navest.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_v-navest ).
+       RUN set-position IN h_v-navest ( 11.95 , 9.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.43 , 34.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'fg/p-updinv.w':U ,
@@ -538,16 +547,8 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updinv ).
-       RUN set-position IN h_p-updinv ( 17.43 , 115.00 ) NO-ERROR.
+       RUN set-position IN h_p-updinv ( 11.95 , 122.00 ) NO-ERROR.
        RUN set-size IN h_p-updinv ( 2.24 , 31.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'est/v-navest.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_v-navest ).
-       RUN set-position IN h_v-navest ( 17.91 , 23.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.43 , 34.00 ) */
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -562,10 +563,10 @@ PROCEDURE adm-create-objects :
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_itemfg2 ,
              h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updinv ,
-             h_itemfg2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-navest ,
-             h_p-updinv , 'AFTER':U ).
+             h_itemfg2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updinv ,
+             h_v-navest , 'AFTER':U ).
     END. /* Page 3 */
     WHEN 4 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -627,47 +628,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_locw ).
        RUN set-position IN h_locw ( 6.24 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_locw ( 4.76 , 157.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/p-fg-bj-l.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_p-fg-bj-l ).
-       RUN set-position IN h_p-fg-bj-l ( 11.00 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.52 , 28.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/p-calcq.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_p-calcq ).
-       RUN set-position IN h_p-calcq ( 11.00 , 126.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.52 , 15.60 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/p-overq.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_p-overq ).
-       RUN set-position IN h_p-overq ( 11.00 , 142.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.52 , 18.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/p-fg-bj-2.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_p-fg-bj-2 ).
-       RUN set-position IN h_p-fg-bj-2 ( 11.24 , 31.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.10 , 95.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'browsers/fgijob.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_fgijob ).
-       RUN set-position IN h_fgijob ( 12.67 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_fgijob ( 11.91 , 157.00 ) NO-ERROR.
+       RUN set-size IN h_locw ( 23.19 , 157.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1,3':U) NO-ERROR.
@@ -678,37 +639,13 @@ PROCEDURE adm-create-objects :
        /* Links to SmartBrowser h_locw. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'repo-query':U , h_locw ).
        RUN add-link IN adm-broker-hdl ( h_itemfg2 , 'Record':U , h_locw ).
-
-       /* Links to SmartViewer h_p-fg-bj-l. */
-       RUN add-link IN adm-broker-hdl ( h_fgijob , 'cost':U , h_p-fg-bj-l ).
-
-       /* Links to SmartViewer h_p-calcq. */
-       RUN add-link IN adm-broker-hdl ( h_locw , 'calc-qty':U , h_p-calcq ).
-
-       /* Links to SmartViewer h_p-overq. */
-       RUN add-link IN adm-broker-hdl ( h_locw , 'override-qty':U , h_p-overq ).
-
-       /* Links to SmartViewer h_p-fg-bj-2. */
-       RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_p-fg-bj-2 ).
-
-       /* Links to SmartBrowser h_fgijob. */
-       RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_fgijob ).
+       RUN add-link IN adm-broker-hdl ( h_locw , 'ViewDetail':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_itemfg ,
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_locw ,
              h_itemfg , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-fg-bj-l ,
-             h_locw , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-calcq ,
-             h_p-fg-bj-l , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-overq ,
-             h_p-calcq , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-fg-bj-2 ,
-             h_p-overq , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_fgijob ,
-             h_p-fg-bj-2 , 'AFTER':U ).
     END. /* Page 5 */
     WHEN 6 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -1053,6 +990,65 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updncp ,
              h_v-itemsp , 'AFTER':U ).
     END. /* Page 12 */
+    WHEN 13 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewerid/itemfg.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_itemfg-5 ).
+       RUN set-position IN h_itemfg-5 ( 4.33 , 3.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 155.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'browsers/fgijob.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_fgijob ).
+       RUN set-position IN h_fgijob ( 6.24 , 3.00 ) NO-ERROR.
+       RUN set-size IN h_fgijob ( 21.19 , 157.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/p-calcq.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_p-calcq ).
+       RUN set-position IN h_p-calcq ( 27.67 , 133.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.52 , 26.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/p-fg-bj-2.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_p-fg-bj-2 ).
+       RUN set-position IN h_p-fg-bj-2 ( 27.91 , 4.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.10 , 95.00 ) */
+
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1,5':U) NO-ERROR.
+
+       /* Links to SmartViewer h_itemfg-5. */
+       RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_itemfg-5 ).
+
+       /* Links to SmartBrowser h_fgijob. */
+       RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_fgijob ).
+       RUN add-link IN adm-broker-hdl ( h_fgijob , 'ViewDetail':U , THIS-PROCEDURE ).
+
+       /* Links to SmartViewer h_p-calcq. */
+       RUN add-link IN adm-broker-hdl ( h_locw , 'calc-qty':U , h_p-calcq ).
+
+       /* Links to SmartViewer h_p-fg-bj-2. */
+       RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_p-fg-bj-2 ).
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_itemfg-5 ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_fgijob ,
+             h_itemfg-5 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-calcq ,
+             h_fgijob , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-fg-bj-2 ,
+             h_p-calcq , 'AFTER':U ).
+    END. /* Page 13 */
 
   END CASE.
   /* Select a Startup page. */
@@ -1196,10 +1192,11 @@ PROCEDURE filterTagBins :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplShowZeroBins AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplTagBins      AS CHARACTER NO-UNDO.
+    
+    RUN filterTagBins IN h_fgijob (INPUT iplShowZeroBins, INPUT iplTagBins ).
 
-DEF INPUT PARAMETER iplShowZeroBins AS LOG NO-UNDO.
-DEF INPUT PARAMETER iplTagBins AS CHAR NO-UNDO.
-RUN filterTagBins IN h_fgijob (INPUT iplShowZeroBins, INPUT iplTagBins ).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1249,6 +1246,7 @@ PROCEDURE local-change-page :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1340,7 +1338,23 @@ PROCEDURE local-exit :
    APPLY "CLOSE":U TO THIS-PROCEDURE.
    
    RETURN.
-       
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pViewDetail W-Win 
+PROCEDURE pViewDetail :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiPage AS INTEGER NO-UNDO.
+    
+    RUN select-page IN THIS-PROCEDURE (ipiPage).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1409,6 +1423,7 @@ PROCEDURE set-loc :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-loc AS CHARACTER NO-UNDO.
     
+    IF VALID-HANDLE(h_fgijob) THEN
     RUN set-pass-loc IN h_fgijob (INPUT ip-loc).
 
 END PROCEDURE.
