@@ -41,7 +41,7 @@ DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
 DEFINE VARIABLE opiFilledArraySize AS INTEGER NO-UNDO.
 /*DEFINE VARIABLE ShipNotesExpanded AS LOGICAL NO-UNDO.*/
 DEFINE VARIABLE glShipNotesExpanded AS LOGICAL NO-UNDO.
-DEFINE VARIABLE ShiptoNote LIKE shipto.notes NO-UNDO.
+DEFINE VARIABLE oldShiptoNote AS CHARACTER NO-UNDO.
 
 DEF VAR lv-bolwhse LIKE sys-ctrl.char-fld NO-UNDO.
 DEF VAR lv-autopost LIKE sys-ctrl.char-fld NO-UNDO.
@@ -1166,13 +1166,7 @@ PROCEDURE local-assign-record :
         fi_sname:SCREEN-VALUE IN FRAME {&FRAME-NAME} = sman.sname
         fi_sname = sman.sname .
    END.
-   ASSIGN
-       ShiptoNote[1] = shipto.notes[1]
-       ShiptoNote[2] = shipto.notes[2]
-       ShiptoNote[3] = shipto.notes[3]
-       ShiptoNote[4] = shipto.notes[4]
-       .        
-
+   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
  
@@ -1413,6 +1407,7 @@ PROCEDURE local-display-fields :
       IF AVAILABLE shipto THEN DO:
           RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
           RUN GetNoteOfType IN hNotesProcs (shipto.rec_key, "ES", OUTPUT ship_note).
+          ASSIGN oldShiptoNote = ship_note.
           DELETE OBJECT hNotesProcs.
       END. /*IF AVAILABLE oe-rel THEN DO:*/
       DISPLAY ship_note WITH FRAME {&FRAME-NAME}.    
@@ -1489,14 +1484,12 @@ ASSIGN
                      TRIM(shipto.notes[3]) + "|" +
                      TRIM(shipto.notes[4]).
   
-  IF ShiptoNote[1] NE shipto.notes[1] OR 
-     ShiptoNote[2] NE shipto.notes[2] OR 
-     ShiptoNote[3] NE shipto.notes[3] OR 
-     ShiptoNote[4] NE shipto.notes[4] THEN DO:
+  IF oldShiptoNote NE ship_note THEN DO:
       RUN oe\d-shp2nt.w(INPUT shipto.company, 
                         INPUT shipto.cust-no, 
                         INPUT shipto.ship-id,
-                        INPUT ip-shipnotes).
+                        INPUT ip-shipnotes,
+                        INPUT shipto.rec_key).
   END.                   
 
   ASSIGN 
