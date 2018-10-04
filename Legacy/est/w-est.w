@@ -32,6 +32,8 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object05 h_p-estop
 &SCOPED-DEFINE moveRight {&h_Object05}
 
+&SCOPED-DEFINE winViewPrgmName w-est
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
