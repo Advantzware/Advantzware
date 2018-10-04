@@ -335,6 +335,8 @@ PROCEDURE spSetDontShowAgain:
             xCueCard.cueTextID = bCueCardText.cueTextID
             .
     END. /* each bcuecardtext */
+    iCueOrder = 99999.
+    RUN spNextCue (iphWidget).
 
 END PROCEDURE.
 	
@@ -360,6 +362,7 @@ PROCEDURE spSetGotIt:
         xCueCard.user_id   = USERID("ASI")
         xCueCard.cueTextID = cueCardText.cueTextID
         .
+    RUN spNextCue (iphWidget).
 
 END PROCEDURE.
 	
@@ -463,7 +466,10 @@ PROCEDURE spRunCueCard :
         WHERE cueCard.cuePrgmName EQ ipcPrgmName
           AND cueCard.isActive    EQ YES
         :
-        iCueOrder = 1.
+        ASSIGN
+            iCueOrder = 1
+            lNext     = YES
+            .
         /* check to be sure there are active cue card texts */
         IF CAN-FIND(FIRST cueCardText
                     WHERE cueCardText.cueID    EQ cueCard.cueID
@@ -484,9 +490,9 @@ PROCEDURE spRunCueCard :
                         WHERE xCueCard.user_id   EQ USERID("ASI")
                           AND xCueCard.cueTextID EQ cueCardText.cueTextID)) THEN DO:
                 IF lNext THEN
-                RUN spNextCue (iphFrame).
+                RUN spNextCue (hMainMenuHandle).
                 ELSE
-                RUN spPrevCue (iphFrame).
+                RUN spPrevCue (hMainMenuHandle).
                 NEXT.
             END.
             /* calculate the cue card screen position */
@@ -657,7 +663,7 @@ PROCEDURE spRunCueCard :
                     SCREEN-VALUE = "NO"
               TRIGGERS:
                 ON VALUE-CHANGED
-                  PERSISTENT RUN spSetDontShowAgain IN THIS-PROCEDURE (hDontShowAgain:HANDLE).
+                  PERSISTENT RUN spSetDontShowAgain IN THIS-PROCEDURE (hMainMenuHandle).
               END TRIGGERS.
             hDontShowAgain:MOVE-TO-TOP().
             hDontShowAgain:SENSITIVE = iplActive.
@@ -676,7 +682,7 @@ PROCEDURE spRunCueCard :
                     SCREEN-VALUE = "NO"
               TRIGGERS:
                 ON VALUE-CHANGED
-                  PERSISTENT RUN spSetGotIt IN THIS-PROCEDURE (hGotIt:HANDLE).
+                  PERSISTENT RUN spSetGotIt IN THIS-PROCEDURE (hMainMenuHandle).
               END TRIGGERS.
             hGotIt:MOVE-TO-TOP().
             ASSIGN 
