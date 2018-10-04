@@ -585,8 +585,8 @@ PROCEDURE spRunCueCard :
                     ROW = cueCardText.arrowRow
                     SENSITIVE = NO
                     HIDDEN = NO 
-                    WIDTH = 10
-                    HEIGHT = 2.38
+                    WIDTH = 7
+                    HEIGHT = 1.67
                     TRANSPARENT = YES
                     .
             hCueCardArrow:LOAD-IMAGE("Graphics\24x24\" + ENTRY(cueCardText.cueOrientation,cOrientation) + ".gif").
