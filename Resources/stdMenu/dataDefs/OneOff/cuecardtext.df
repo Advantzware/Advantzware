@@ -43,7 +43,7 @@ ADD FIELD "cueText" OF "cueCardText" AS character
   POSITION 5
   MAX-WIDTH 120
   HELP "Enter Cue Card Text"
-  ORDER 40
+  ORDER 50
 
 ADD FIELD "cueOrientation" OF "cueCardText" AS integer 
   FORMAT ">9"
@@ -52,7 +52,7 @@ ADD FIELD "cueOrientation" OF "cueCardText" AS integer
   POSITION 6
   MAX-WIDTH 4
   HELP "Enter Orientation"
-  ORDER 50
+  ORDER 70
 
 ADD FIELD "cuePosition" OF "cueCardText" AS integer 
   FORMAT ">9"
@@ -62,7 +62,7 @@ ADD FIELD "cuePosition" OF "cueCardText" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "Position"
   HELP "Enter Relative Position"
-  ORDER 60
+  ORDER 80
 
 ADD FIELD "frameHeight" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -73,7 +73,7 @@ ADD FIELD "frameHeight" OF "cueCardText" AS decimal
   COLUMN-LABEL "F.Height"
   HELP "Enter Frame Height"
   DECIMALS 2
-  ORDER 70
+  ORDER 90
 
 ADD FIELD "frameWidth" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -84,7 +84,7 @@ ADD FIELD "frameWidth" OF "cueCardText" AS decimal
   COLUMN-LABEL "F.Width"
   HELP "Enter Frame Width"
   DECIMALS 2
-  ORDER 80
+  ORDER 100
 
 ADD FIELD "frameCol" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -95,7 +95,7 @@ ADD FIELD "frameCol" OF "cueCardText" AS decimal
   COLUMN-LABEL ""
   HELP "Enter Frame Column"
   DECIMALS 2
-  ORDER 90
+  ORDER 110
 
 ADD FIELD "frameRow" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -106,7 +106,7 @@ ADD FIELD "frameRow" OF "cueCardText" AS decimal
   COLUMN-LABEL ""
   HELP "Enter Frame Row"
   DECIMALS 2
-  ORDER 100
+  ORDER 120
 
 ADD FIELD "frameBGColor" OF "cueCardText" AS integer 
   FORMAT ">9"
@@ -116,7 +116,7 @@ ADD FIELD "frameBGColor" OF "cueCardText" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "F.BG"
   HELP "Enter Frame BG Color"
-  ORDER 110
+  ORDER 130
 
 ADD FIELD "frameFGColor" OF "cueCardText" AS integer 
   FORMAT ">9"
@@ -126,7 +126,7 @@ ADD FIELD "frameFGColor" OF "cueCardText" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "F.FG"
   HELP "Enter Frame FG Color"
-  ORDER 120
+  ORDER 140
 
 ADD FIELD "arrowCol" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -137,7 +137,7 @@ ADD FIELD "arrowCol" OF "cueCardText" AS decimal
   COLUMN-LABEL ""
   HELP "Enter Frame Column"
   DECIMALS 2
-  ORDER 130
+  ORDER 150
 
 ADD FIELD "arrowRow" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -148,7 +148,7 @@ ADD FIELD "arrowRow" OF "cueCardText" AS decimal
   COLUMN-LABEL ""
   HELP "Enter Frame Row"
   DECIMALS 2
-  ORDER 140
+  ORDER 160
 
 ADD FIELD "positionCol" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -159,7 +159,7 @@ ADD FIELD "positionCol" OF "cueCardText" AS decimal
   COLUMN-LABEL "Pos. Col"
   HELP "Enter Position Column"
   DECIMALS 2
-  ORDER 150
+  ORDER 170
 
 ADD FIELD "positionRow" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -170,7 +170,7 @@ ADD FIELD "positionRow" OF "cueCardText" AS decimal
   COLUMN-LABEL "Pos. Row"
   HELP "Enter Position Row"
   DECIMALS 2
-  ORDER 160
+  ORDER 180
 
 ADD FIELD "textHeight" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -181,7 +181,7 @@ ADD FIELD "textHeight" OF "cueCardText" AS decimal
   COLUMN-LABEL "T.Height"
   HELP "Enter Text Height"
   DECIMALS 2
-  ORDER 170
+  ORDER 190
 
 ADD FIELD "textWidth" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -192,7 +192,7 @@ ADD FIELD "textWidth" OF "cueCardText" AS decimal
   COLUMN-LABEL "T.Width"
   HELP "Enter Text Width"
   DECIMALS 2
-  ORDER 180
+  ORDER 200
 
 ADD FIELD "textCol" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -203,7 +203,7 @@ ADD FIELD "textCol" OF "cueCardText" AS decimal
   COLUMN-LABEL ""
   HELP "Enter Text Column"
   DECIMALS 2
-  ORDER 190
+  ORDER 210
 
 ADD FIELD "textRow" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -214,7 +214,7 @@ ADD FIELD "textRow" OF "cueCardText" AS decimal
   COLUMN-LABEL ""
   HELP "Enter Text Row"
   DECIMALS 2
-  ORDER 200
+  ORDER 220
 
 ADD FIELD "textBGColor" OF "cueCardText" AS integer 
   FORMAT ">9"
@@ -224,7 +224,7 @@ ADD FIELD "textBGColor" OF "cueCardText" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "T.BG"
   HELP "Enter Text BG Color"
-  ORDER 210
+  ORDER 230
 
 ADD FIELD "textFGColor" OF "cueCardText" AS integer 
   FORMAT ">9"
@@ -234,7 +234,7 @@ ADD FIELD "textFGColor" OF "cueCardText" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "T.FG"
   HELP "Enter Text FG Color"
-  ORDER 220
+  ORDER 240
 
 ADD FIELD "prevCol" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -245,7 +245,7 @@ ADD FIELD "prevCol" OF "cueCardText" AS decimal
   COLUMN-LABEL ""
   HELP "Enter Previous Column"
   DECIMALS 2
-  ORDER 240
+  ORDER 260
 
 ADD FIELD "prevRow" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -256,7 +256,7 @@ ADD FIELD "prevRow" OF "cueCardText" AS decimal
   COLUMN-LABEL ""
   HELP "Enter Previous Row"
   DECIMALS 2
-  ORDER 250
+  ORDER 270
 
 ADD FIELD "nextCol" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -267,7 +267,7 @@ ADD FIELD "nextCol" OF "cueCardText" AS decimal
   COLUMN-LABEL ""
   HELP "Enter Next Column"
   DECIMALS 2
-  ORDER 260
+  ORDER 280
 
 ADD FIELD "nextRow" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -278,7 +278,7 @@ ADD FIELD "nextRow" OF "cueCardText" AS decimal
   COLUMN-LABEL ""
   HELP "Enter Next Row"
   DECIMALS 2
-  ORDER 270
+  ORDER 290
 
 ADD FIELD "dontShowAgainCol" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -289,7 +289,7 @@ ADD FIELD "dontShowAgainCol" OF "cueCardText" AS decimal
   COLUMN-LABEL "Don't Row"
   HELP "Enter Don't Show Again Col"
   DECIMALS 2
-  ORDER 280
+  ORDER 300
 
 ADD FIELD "dontShowAgainRow" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
@@ -300,29 +300,29 @@ ADD FIELD "dontShowAgainRow" OF "cueCardText" AS decimal
   COLUMN-LABEL "Don't Row"
   HELP "Enter Don't Show Again Row"
   DECIMALS 2
-  ORDER 290
+  ORDER 310
 
-ADD FIELD "gotItCol" OF "cueCardText" AS decimal 
+ADD FIELD "dismissCol" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
   INITIAL "29"
-  LABEL "Got It Col"
+  LABEL "Dismiss Col"
   POSITION 30
   MAX-WIDTH 17
   COLUMN-LABEL ""
-  HELP "Enter Got It Column"
+  HELP "Enter Dismiss Column"
   DECIMALS 2
-  ORDER 310
+  ORDER 330
 
-ADD FIELD "gotItRow" OF "cueCardText" AS decimal 
+ADD FIELD "dismissRow" OF "cueCardText" AS decimal 
   FORMAT ">>>9.99"
   INITIAL "15.29"
-  LABEL "Got It Row"
+  LABEL "Dismiss Row"
   POSITION 31
   MAX-WIDTH 17
   COLUMN-LABEL ""
-  HELP "Enter Got It Row"
+  HELP "Enter Dismiss Row"
   DECIMALS 2
-  ORDER 320
+  ORDER 340
 
 ADD FIELD "rec_key" OF "cueCardText" AS character 
   FORMAT "X(21)"
@@ -332,7 +332,7 @@ ADD FIELD "rec_key" OF "cueCardText" AS character
   MAX-WIDTH 42
   HELP "Enter Record Key Value"
   LENGTH 0
-  ORDER 340
+  ORDER 400
 
 ADD FIELD "textFont" OF "cueCardText" AS integer 
   FORMAT ">9"
@@ -342,7 +342,7 @@ ADD FIELD "textFont" OF "cueCardText" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "T.Font"
   HELP "Enter Cue Card Text Font"
-  ORDER 230
+  ORDER 250
 
 ADD FIELD "dontShowAgainFont" OF "cueCardText" AS integer 
   FORMAT ">9"
@@ -352,17 +352,72 @@ ADD FIELD "dontShowAgainFont" OF "cueCardText" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "Don't Font"
   HELP "Enter Don't Show Again Font"
-  ORDER 300
+  ORDER 320
 
-ADD FIELD "gotItFont" OF "cueCardText" AS integer 
+ADD FIELD "dismissFont" OF "cueCardText" AS integer 
   FORMAT ">9"
   INITIAL "6"
-  LABEL "Got It Font"
+  LABEL "Dismiss Font"
   POSITION 35
   MAX-WIDTH 4
   COLUMN-LABEL ""
-  HELP "Enter Got It Font"
-  ORDER 330
+  HELP "Enter Dismisst Font"
+  ORDER 350
+
+ADD FIELD "cueTextID" OF "cueCardText" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Cue Text ID"
+  POSITION 36
+  MAX-WIDTH 4
+  COLUMN-LABEL "Text ID"
+  HELP "Enter Cue Text ID"
+  ORDER 40
+
+ADD FIELD "cueType" OF "cueCardText" AS character 
+  FORMAT "x(8)"
+  INITIAL "System"
+  LABEL "Cue Type"
+  POSITION 37
+  MAX-WIDTH 16
+  HELP "Enter Cue Card Type"
+  ORDER 60
+
+ADD FIELD "createdBy" OF "cueCardText" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Created By"
+  POSITION 38
+  MAX-WIDTH 24
+  HELP "Enter Created By User ID"
+  ORDER 360
+
+ADD FIELD "createdDate" OF "cueCardText" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Created Date"
+  POSITION 39
+  MAX-WIDTH 4
+  HELP "Enter Created Date"
+  ORDER 370
+
+ADD FIELD "createdTime" OF "cueCardText" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Created Time"
+  POSITION 40
+  MAX-WIDTH 4
+  HELP "Enter Created Time"
+  ORDER 380
+
+ADD FIELD "createdFor" OF "cueCardText" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Created For"
+  POSITION 41
+  MAX-WIDTH 24
+  HELP "Enter Created For User ID"
+  ORDER 390
 
 ADD INDEX "pi-cueCardText" ON "cueCardText" 
   AREA "Index"
@@ -373,6 +428,12 @@ ADD INDEX "pi-cueCardText" ON "cueCardText"
   INDEX-FIELD "isActive" ASCENDING 
   INDEX-FIELD "cueOrder" ASCENDING 
 
+ADD INDEX "si-cueTextID" ON "cueCardText" 
+  AREA "Index"
+  UNIQUE
+  DESCRIPTION "Secondary Index by Cue Text ID"
+  INDEX-FIELD "cueTextID" ASCENDING 
+
 ADD INDEX "si-rec_key" ON "cueCardText" 
   AREA "Index"
   DESCRIPTION "Secondary Index by rec_key"
@@ -382,4 +443,4 @@ ADD INDEX "si-rec_key" ON "cueCardText"
 PSC
 cpstream=ISO8859-1
 .
-0000008106
+0000009401
