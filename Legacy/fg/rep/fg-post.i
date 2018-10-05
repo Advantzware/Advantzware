@@ -240,14 +240,13 @@
     /*djk: get the total quantity (not including the partial)*/
     assign
      v-fg-qty  = w-fg-rctd.cases * w-fg-rctd.qty-case
-     v-fg-cost = w-fg-rctd.ext-cost / w-fg-rctd.t-qty * v-fg-qty.
-
+     v-fg-cost = (w-fg-rctd.ext-cost / w-fg-rctd.t-qty * v-fg-qty).
+     IF v-fg-qty LT 0 THEN ASSIGN v-fg-cost = -1 * v-fg-cost NO-ERROR.
     /*if w-fg-rctd.pur-uom ne "EA" then
         v-fg-cost = (v-fg-qty / 1000) * w-fg-rctd.std-cost.
     else
         v-fg-cost = v-fg-qty * w-fg-rctd.std-cost.*/
     run calc-total.
-
     IF rd-Itm#Cst# = 1
       THEN ASSIGN v-cstprt = w-fg-rctd.i-no.
 
@@ -406,7 +405,7 @@
     assign
      v-fg-qty  = w-fg-rctd.partial
      v-fg-cost = w-fg-rctd.ext-cost / w-fg-rctd.t-qty * v-fg-qty.
-
+     IF v-fg-qty LT 0 THEN ASSIGN v-fg-cost = -1 * v-fg-cost NO-ERROR.
     /*if w-fg-rctd.cost-uom ne "EA" then
         v-fg-cost = (v-fg-qty / 1000) * w-fg-rctd.std-cost.
     else
@@ -562,6 +561,8 @@
    assign
      v-fg-qty  = w-fg-rctd.t-qty
      v-fg-cost = w-fg-rctd.ext-cost.
+   
+     if v-fg-qty  lt 0 then assign v-fg-cost = -1 * v-fg-cost . 
 
     /*if w-fg-rctd.cost-uom ne "EA" then
         v-fg-cost = (v-fg-qty / 1000) * w-fg-rctd.std-cost.
