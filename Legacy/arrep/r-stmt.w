@@ -3158,6 +3158,7 @@ def var v-balance as dec label "Balance" format '->>,>>>,>>>.99CR' NO-UNDO.
 def var v-age as int no-undo. /* number of days old */
 def var v-per as int no-undo. /* hash of v-age into aging periods */
 def var v-aged as dec no-undo extent 5 format ">>,>>>,>>>.99CR" .   /* aging buckets */
+DEFINE VARIABLE dAged as dec no-undo extent 5 format ">>,>>>,>>>.99CR" .   /* aging buckets */
 def var v-days-in-per as int no-undo init 30.
 def var ln-total as int no-undo init 51.
 def var adv as int no-undo.
@@ -3218,14 +3219,15 @@ form
   with frame stmt-line no-box stream-io width 90 DOWN NO-LABEL.
 
 FORM SPACE(1)
+  tt-inv.description FORMAT "x(12)" COLUMN-LABEL "Type"
+  tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Ref #" SPACE(1)
   tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date"
-  tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Invoice" SPACE(2)
-  tt-inv.po-no FORMAT "x(12)" COLUMN-LABEL "Description"
-  tt-inv.charge FORMAT "->>>,>>9.99" COLUMN-LABEL "Charges"
-  tt-inv.credits FORMAT "->,>>>,>>9.99" COLUMN-LABEL "Credits"
-  tt-inv.amount format "->>,>>>,>>>.99" COLUMN-LABEL "Amt.Due"
-  v-balance COLUMN-LABEL "Balance"
-  with frame lanco-stmt-line no-box stream-io width 95 DOWN NO-LABEL.
+  tt-inv.amount format "->>>>>>9.99" COLUMN-LABEL "Amount"
+  dAged[1] FORMAT "->>>>>>>9.99" COLUMN-LABEL "Current"
+  dAged[2] FORMAT "->>>>>>>9.99" COLUMN-LABEL "30"
+  dAged[3] FORMAT "->>>>>>>9.99" COLUMN-LABEL "60"
+  dAged[4] FORMAT "->>>>>>>9.99" COLUMN-LABEL "90+"
+  with frame lanco-stmt-line no-box stream-io width 100 DOWN NO-LABEL.
 
 form
   v-msg at 15
@@ -3243,14 +3245,15 @@ FORM
   with frame no-stmt-line no-box no-labels stream-io width 90 down.
 
 FORM SPACE(1)
-  tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date" SPACE(1)
-  tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Invoice" SPACE(2)
-  tt-inv.po-no FORM "x(12)"  COLUMN-LABEL "Description"
-  tt-inv.charge FORMAT "->>>,>>9.99" COLUMN-LABEL "Charges"
-  tt-inv.credits FORMAT "->,>>>,>>9.99" COLUMN-LABEL "Credits"
-  tt-inv.amount format "->>,>>>,>>>.99" COLUMN-LABEL "Amt.Due"
-  v-balance COLUMN-LABEL "Balance"  
-  with frame lanco-no-stmt-line no-box no-labels stream-io width 95 down.
+  tt-inv.description FORMAT "x(12)" COLUMN-LABEL "Type"
+  tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Ref #" SPACE(1)
+  tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date"
+  tt-inv.amount format "->>>>>>9.99" COLUMN-LABEL "Amount"
+  dAged[1] FORMAT "->>>>>>>9.99" COLUMN-LABEL "Current"
+  dAged[2] FORMAT "->>>>>>>9.99" COLUMN-LABEL "30"
+  dAged[3] FORMAT "->>>>>>>9.99" COLUMN-LABEL "60"
+  dAged[4] FORMAT "->>>>>>>9.99" COLUMN-LABEL "90+"
+  with frame lanco-no-stmt-line no-box no-labels stream-io width 100 down.
 
 form
   v-msg at 15
@@ -3761,10 +3764,10 @@ FIRST cust no-lock
            "<=1><R+12><C1>" ws_addr[3] v-remitto[2]  skip
            "<=1><R+13><C1>" ws_addr[4] v-remitto[3]  skip
            "<=1><R+14><C1>" ws_addr[5] v-remitto[4]  skip
-           /*"<=1><R+15>Attn: " lc-attn FORMAT "x(30)"*/
+           "<=1><R+15>Attn: " lc-attn FORMAT "x(30)" SKIP
            /*"<=1><R+15>                                                Original<C60>Invoice" SKIP*/
-           "<=1><R+15><C2>Date <c10>Invoice <C18> Description <C33>Cherges <c46>Credits <C60>Amt.Due <C74>Balance" SKIP
-           "<=1><R+16><FROM><C+80><LINE>"
+           "<=1><R+17><C2>Type <c14>Ref # <C21> Date <C30>Amount <c41>Current <C56>30 <C66>60  <C75> 90+" SKIP
+           "<=1><R+18><FROM><C+80><LINE><P10>"
             .
        END.
 
@@ -3788,30 +3791,41 @@ FIRST cust no-lock
     IF NOT v-asi-excel THEN
     DO:
         IF v-stmt-char = "Lanco" THEN DO:
+            dAged = 0 .
+            v-age = v-stmt-date - tt-inv.inv-date.
+            if v-age = ? or v-age lt 0 then v-age = 0.
+            v-per = trunc(v-age / v-days-in-per, 0) + 1.
+            if v-per gt 4 then
+                v-per = 4.
+            dAged[v-per] = /*v-aged[v-per] +*/ tt-inv.amount.
+
+          
            IF tt-inv.check-no NE "" THEN
                cCheckPo = tt-inv.check-no.
            ELSE cCheckPo = tt-inv.po-no .
             if v-print-hdr then do:  
                display
+                 tt-inv.DESCRIPTION FORMAT "x(12)"
+                 tt-inv.inv-no  when tt-inv.inv-no gt 0
                  tt-inv.trans-date
-                 tt-inv.inv-no  when tt-inv.inv-no gt 0  
-                 STRING(cCheckPo,"X(12)") @ tt-inv.po-no
-                 tt-inv.charge
-                 tt-inv.credits
                  tt-inv.amount
-                 v-balance
+                 dAged[1]
+                 dAged[2]
+                 dAged[3]
+                 dAged[4]
                  with frame lanco-stmt-line .
                down 1 with frame lanco-stmt-line.
            end.
            else do:
                display
-                 tt-inv.trans-date
+                 tt-inv.DESCRIPTION FORMAT "x(12)"
                  tt-inv.inv-no  when tt-inv.inv-no gt 0
-                 STRING(cCheckPo,"X(12)") @ tt-inv.po-no
-                 tt-inv.charge
-                 tt-inv.credits
+                 tt-inv.trans-date
                  tt-inv.amount
-                 v-balance
+                 dAged[1]
+                 dAged[2]
+                 dAged[3]
+                 dAged[4]
                  with frame lanco-no-stmt-line.
                down 1 with frame lanco-no-stmt-line.
            end.
@@ -3858,6 +3872,18 @@ FIRST cust no-lock
       IF NOT v-asi-excel THEN
       DO:
          PUT SKIP(1).
+        IF v-stmt-char = "Lanco" THEN do:
+         
+               PUT "<R-1><C2><FROM><C+80><LINE>" SKIP
+                   "<R-1><C26>"
+                   (v-aged[1] + v-aged[2] + v-aged[3] + v-aged[4] ) FORMAT "->>>>>>>9.99"
+                 "<C37.5>" v-aged[1] FORMAT "->>>>>>9.99"
+                 "<C48.5>" v-aged[2] FORMAT "->>>>>>9.99"
+                 "<C59.5>" v-aged[3] FORMAT "->>>>>>9.99"
+                 "<C70.5>" v-aged[4] FORMAT "->>>>>>9.99" .
+
+         END.
+         ELSE do:
 
          if v-print-hdr then
          display
@@ -3887,7 +3913,7 @@ FIRST cust no-lock
          "<=3><R+1><C1>" code-legend skip
          "<R+1><C+80><RECT#3>" 
          SKIP. 
-
+         END.
       END.
       ELSE
       DO:
