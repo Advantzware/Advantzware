@@ -43,7 +43,25 @@ ADD FIELD "rec_key" OF "cueCard" AS character
   MAX-WIDTH 42
   HELP "Enter Record Key Value"
   LENGTH 0
+  ORDER 60
+
+ADD FIELD "allowDismiss" OF "cueCard" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Allow Dismiss"
+  POSITION 6
+  MAX-WIDTH 1
+  HELP "Set to Allow Dismiss Cue Card Set"
   ORDER 40
+
+ADD FIELD "allowDontShowAgain" OF "cueCard" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Allow Don't Show"
+  POSITION 7
+  MAX-WIDTH 1
+  HELP "Set to Allow Don't Show Again"
+  ORDER 50
 
 ADD INDEX "pi-cueCard" ON "cueCard" 
   AREA "Index"
@@ -63,4 +81,4 @@ ADD INDEX "si-rec_key" ON "cueCard"
 PSC
 cpstream=ISO8859-1
 .
-0000001485
+0000001874
