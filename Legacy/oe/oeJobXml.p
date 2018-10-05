@@ -156,6 +156,12 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
                 AND eb.est-no  EQ job-hdr.est-no
                 AND eb.stock-no = job-hdr.i-no
               NO-ERROR.
+            IF NOT AVAIL eb THEN 
+               FIND FIRST eb NO-LOCK 
+                  WHERE eb.company     EQ job-hdr.company
+                    AND eb.est-no      EQ job-hdr.est-no
+                    AND eb.form-no     EQ job-hdr.frm
+                    AND eb.blank-no    GT 0 NO-ERROR.              
             IF AVAILABLE eb THEN DO:        
                 FIND FIRST oe-ord NO-LOCK
                     WHERE oe-ord.company EQ eb.company
