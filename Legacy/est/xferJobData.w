@@ -677,10 +677,10 @@ END.
 ON VALUE-CHANGED OF allJobs IN FRAME DEFAULT-FRAME /* ALL JOBS */
 DO:
   ASSIGN {&SELF-NAME}.
-  IF {&SELF-NAME} THEN
-  jobBrowse:SELECT-ALL().
+  IF {&SELF-NAME} THEN 
+  jobBrowse:SELECT-ALL() NO-ERROR.
   ELSE
-  jobBrowse:DESELECT-ROWS().
+  jobBrowse:DESELECT-ROWS() NO-ERROR.
   APPLY 'VALUE-CHANGED':U TO jobBrowse.
 END.
 
@@ -974,7 +974,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                              + STRING(ipJobNo2) + ')'
                              .
       REPOSITION jobBrowse TO ROWID jobhdrRowID.
-      jobBrowse:SELECT-FOCUSED-ROW().
+      jobBrowse:SELECT-FOCUSED-ROW() NO-ERROR.
       RUN getJobAverages.
     END. /* avail job-hdr */
   END. /* if ipjobno ne '' */
@@ -1003,7 +1003,7 @@ PROCEDURE applyDateFilter :
       closeStart
       closeEnd
       .
-    jobBrowse:DESELECT-ROWS().
+    jobBrowse:DESELECT-ROWS() NO-ERROR.
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company EQ ipCompany
           AND job-hdr.est-no EQ ipEstNo
@@ -1014,7 +1014,7 @@ PROCEDURE applyDateFilter :
         :
       jobhdrRowID = ROWID(job-hdr).
       REPOSITION jobBrowse TO ROWID jobhdrRowID.
-      jobBrowse:SELECT-FOCUSED-ROW().
+      jobBrowse:SELECT-FOCUSED-ROW() NO-ERROR.
     END. /* each job-hdr */
     RUN getJobAverages.
   END. /* do with frame */
@@ -1045,7 +1045,7 @@ PROCEDURE applyJobFilter :
       jobNoEnd = ENTRY(1,jobEnd,'-')
       jobNo2End = INT(ENTRY(2,jobEnd,'-'))
       .
-    jobBrowse:DESELECT-ROWS().
+    jobBrowse:DESELECT-ROWS() NO-ERROR.
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company EQ ipCompany
           AND job-hdr.est-no EQ ipEstNo
@@ -1058,7 +1058,7 @@ PROCEDURE applyJobFilter :
          job-hdr.job-no2 GT jobNo2End THEN LEAVE.
       jobhdrRowID = ROWID(job-hdr).
       REPOSITION jobBrowse TO ROWID jobhdrRowID.
-      jobBrowse:SELECT-FOCUSED-ROW().
+      jobBrowse:SELECT-FOCUSED-ROW() NO-ERROR.
     END. /* each job-hdr */
     RUN getJobAverages.
   END. /* do with frame */
@@ -1080,7 +1080,7 @@ PROCEDURE applyQtyFilter :
       qtyStart
       qtyEnd
       .
-    jobBrowse:DESELECT-ROWS().
+    jobBrowse:DESELECT-ROWS() NO-ERROR.
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company EQ ipCompany
           AND job-hdr.est-no EQ ipEstNo
@@ -1089,7 +1089,7 @@ PROCEDURE applyQtyFilter :
         :
       jobhdrRowID = ROWID(job-hdr).
       REPOSITION jobBrowse TO ROWID jobhdrRowID.
-      jobBrowse:SELECT-FOCUSED-ROW().
+      jobBrowse:SELECT-FOCUSED-ROW() NO-ERROR.
     END. /* each job-hdr */
     RUN getJobAverages.
   END. /* do with frame */
