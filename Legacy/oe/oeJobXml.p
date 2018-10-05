@@ -177,7 +177,8 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
                              AND style.style = eb.style
                            NO-ERROR.
                 /* stock-no overrides item number for sales order lookup as jobcard does */
-                cItemOnOrder = eb.stock-no.
+                IF eb.stock-no GT "" THEN 
+                  cItemOnOrder = eb.stock-no.
             END.
             
             cocode = job-hdr.company.
