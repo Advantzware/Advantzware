@@ -3881,6 +3881,8 @@ FIRST cust no-lock
                  "<C48.5>" v-aged[2] FORMAT "->>>>>>9.99"
                  "<C59.5>" v-aged[3] FORMAT "->>>>>>9.99"
                  "<C70.5>" v-aged[4] FORMAT "->>>>>>9.99" .
+            
+         PUT "<C14><R59.5><#3><R+4><C+7> <b> THANK YOU - YOUR BUSINESS IS APPRECIATED </b>"  SKIP.
 
          END.
          ELSE do:
