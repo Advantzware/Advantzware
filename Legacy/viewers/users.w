@@ -73,6 +73,7 @@ DEFINE VARIABLE cOldPwd         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hPgmMstrSecur   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lSuperAdmin     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAdmin          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lMenuChanges    AS LOGICAL   NO-UNDO.
     
 DEFINE TEMP-TABLE tempUser NO-UNDO LIKE _User.
 
@@ -401,6 +402,18 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
+     "Phone: (Country)" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 3.62 COL 15 WIDGET-ID 92
+     "FAX: (Country)" VIEW-AS TEXT
+          SIZE 14 BY 1 AT ROW 4.81 COL 17 WIDGET-ID 94
+     "(Area)" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 3.62 COL 40 WIDGET-ID 96
+          BGCOLOR 15 
+     " At Login User Can Select:" VIEW-AS TEXT
+          SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
+          FONT 4
+     "Options:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 12.19 COL 14 WIDGET-ID 42
      "HotKey (Mnemonic:)" VIEW-AS TEXT
           SIZE 20 BY 1 AT ROW 16.24 COL 2 WIDGET-ID 124
      "Pos.:" VIEW-AS TEXT
@@ -423,18 +436,6 @@ DEFINE FRAME F-Main
      "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
           SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
           FONT 1
-     "Phone: (Country)" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 3.62 COL 15 WIDGET-ID 92
-     "FAX: (Country)" VIEW-AS TEXT
-          SIZE 14 BY 1 AT ROW 4.81 COL 17 WIDGET-ID 94
-     "(Area)" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 3.62 COL 40 WIDGET-ID 96
-          BGCOLOR 15 
-     " At Login User Can Select:" VIEW-AS TEXT
-          SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
-          FONT 4
-     "Options:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 12.19 COL 14 WIDGET-ID 42
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
      cUserImage AT ROW 10.76 COL 72 WIDGET-ID 118
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -723,6 +724,28 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME users.menuSize
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.menuSize V-table-Win
+ON VALUE-CHANGED OF users.menuSize IN FRAME F-Main /* Menu Size */
+DO:
+    lMenuChanges = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME users.positionMnemonic
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.positionMnemonic V-table-Win
+ON VALUE-CHANGED OF users.positionMnemonic IN FRAME F-Main /* Position Mnemonic */
+DO:
+    lMenuChanges = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME users.securityLevel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.securityLevel V-table-Win
 ON LEAVE OF users.securityLevel IN FRAME F-Main /* Security Level */
@@ -743,7 +766,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.showMnemonic V-table-Win
 ON VALUE-CHANGED OF users.showMnemonic IN FRAME F-Main /* Show Mnemonic */
 DO:
-    users.positionMnemonic:SENSITIVE = SELF:SCREEN-VALUE NE "None".
+    ASSIGN
+        users.positionMnemonic:SENSITIVE = SELF:SCREEN-VALUE NE "None"
+        lMenuChanges = YES
+        .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -810,7 +836,19 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.userImage[1] V-table-Win
 ON LEAVE OF users.userImage[1] IN FRAME F-Main /* User Image */
 DO:
+    IF SELF:SCREEN-VALUE NE "" THEN 
     cUserImage:LOAD-IMAGE(SELF:SCREEN-VALUE).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME users.userLanguage
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.userLanguage V-table-Win
+ON VALUE-CHANGED OF users.userLanguage IN FRAME F-Main /* Language */
+DO:
+    lMenuChanges = YES.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1328,7 +1366,7 @@ PROCEDURE local-cancel-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
-
+  
     DISABLE 
         users.user_id
         users.user_name
@@ -1350,7 +1388,7 @@ PROCEDURE local-cancel-record :
         bAll3
         bNone3
         bDefaults
-        WITH FRAME {&FRAME-NAME}.
+            WITH FRAME {&FRAME-NAME}.
         
 END PROCEDURE.
 
@@ -1481,7 +1519,6 @@ PROCEDURE local-delete-record :
 
     {methods/template/local/deleteAfter.i}
 
-/*    RUN ipGoBack IN h_Users.*/
     {methods/run_link.i "RECORD-SOURCE" "ipGoBack"}
 
 END PROCEDURE.
@@ -1581,8 +1618,8 @@ PROCEDURE local-display-fields :
             bChgPwd:SENSITIVE = IF users.user_id = zusers.user_id OR zusers.securityLevel > 699 THEN TRUE ELSE FALSE
             fiPassword:SENSITIVE = FALSE
             .
-        IF users.userImage[1] GT "" THEN
-            cUserImage:LOAD-IMAGE(users.userImage[1]:SCREEN-VALUE) NO-ERROR.
+        IF users.userImage[1]:SCREEN-VALUE NE "" THEN 
+        cUserImage:LOAD-IMAGE(users.userImage[1]:SCREEN-VALUE).
     END.
     
 END PROCEDURE.
@@ -1645,6 +1682,7 @@ PROCEDURE local-update-record :
     DEF VAR lPwdOK AS LOG NO-UNDO.
     DEF VAR cCurrentDir AS CHAR NO-UNDO.
     DEF VAR iStat AS INT NO-UNDO.
+    DEFINE VARIABLE hMainMenu AS HANDLE NO-UNDO.
   
     ASSIGN 
         cOldUserID = users.user_id
@@ -1810,22 +1848,6 @@ PROCEDURE local-update-record :
                     prgrms.can_delete = prgrms.can_delete + "," + users.user_id:SCREEN-VALUE.
             END.
         END. /* lCopy */
-        
-        /* Ensure folder available for custom menus */
-        ASSIGN
-            FILE-INFO:FILE-NAME = ".".
-            cCurrentDir = FILE-INFO:FULL-PATHNAME.
-            cCurrentDir = cCurrentDir + "\UserMenu\" + users.user_id:SCREEN-VALUE.
-        OS-CREATE-DIR VALUE(cCurrentDir).
-        ASSIGN
-            iStat = OS-ERROR.
-        IF iStat NE 0 THEN DO:
-            MESSAGE
-                "Unable to create directory " + cCurrentDir + "." SKIP
-                "Be sure to create this directory before customizing menus."
-                VIEW-AS ALERT-BOX ERROR.
-        END.
-        
     END. /* lAdd */
 
         /* Add usr record for new user */
@@ -1929,18 +1951,27 @@ PROCEDURE local-update-record :
         WITH FRAME {&FRAME-NAME}.
     
     IF lAdd THEN DO:
-/*       RUN DISPATCH IN h_Users ('open-query').*/
        {methods/run_link.i "RECORD-SOURCE" "DISPATCH" "('open-query')"}
     END.
     ASSIGN
         lAdd = FALSE
         lCopy = FALSE.
     
-/*    RUN ipReposition IN h_Users (rThisUser).*/
     {methods/run_link.i "RECORD-SOURCE" "ipReposition" "(rThisUser)"}
     RUN local-display-fields.
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
+    IF users.user_id EQ USERID("ASI") AND lMenuChanges AND fSuperRunning("session.") THEN DO:
+        hMainMenu = DYNAMIC-FUNCTION("sfGetMainMenuHandle").
+        IF VALID-HANDLE(hMainMenu) THEN DO:
+            MESSAGE 
+                "You have changes to values effecting the Main Menu." SKIP(1)
+                "Do you wish to apply the changes and rebuild the Main Menu?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+            UPDATE lMenuChanges.
+            RUN pResetByUser IN hMainMenu (lMenuChanges).
+        END. /* if valid-handle */
+    END. /* if super running */ 
         
 END PROCEDURE.
 

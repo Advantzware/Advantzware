@@ -32,6 +32,8 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object05 h_p-estop
 &SCOPED-DEFINE moveRight {&h_Object05}
 
+&SCOPED-DEFINE winViewPrgmName w-est
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -1399,28 +1401,6 @@ PROCEDURE local-exit :
    
    RETURN.
        
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view W-Win 
-PROCEDURE local-view :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
-   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-         RUN entry-to-frame IN WIDGET-HANDLE(char-hdl) .
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

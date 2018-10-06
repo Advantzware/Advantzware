@@ -11,7 +11,7 @@ IF FIRST-OF({1}.{2})                   OR
     NOT AVAIL inv-head                  OR
     inv-head.cust-no NE oe-bolh.cust-no THEN 
 DO:
-    fLogMsg("Start create inv-head block in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no).
+    fLogMsg("Start create inv-head block in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " first:" + string(FIRST-OF({1}.{2}))).
     /* Original Code */
     
     v-ref-no = next-value(inv_r_no_seq). 

@@ -170,16 +170,16 @@ sys-ctrl-shipto.dec-fld sys-ctrl-shipto.int-fld sys-ctrl-shipto.log-fld
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svFocus searchBar btnRestoreDefaults ~
-sysCtrlBrowse btnSortMove 
+&Scoped-Define ENABLED-OBJECTS svFocus btnRestoreDefaults searchBar ~
+btnSortMove sysCtrlBrowse 
 &Scoped-Define DISPLAYED-OBJECTS svFocus searchBar 
 
 /* Custom List Definitions                                              */
 /* transPanel,transInit,transUpdate,displayFields,enabledFields,searchFilters */
-&Scoped-define transPanel btnClose btnAdd btnCancel btnCopy btnDefaults ~
-btnDelete btnForms btnReset btnUpdate 
-&Scoped-define transInit btnClose btnAdd btnCopy btnDefaults btnDelete ~
-btnForms btnUpdate 
+&Scoped-define transPanel btnFirst-1 btnLast-1 btnNext-1 btnPrev-1 btnClose ~
+btnAdd btnCancel btnCopy btnDefaults btnDelete btnForms btnReset btnUpdate 
+&Scoped-define transInit btnFirst-1 btnLast-1 btnNext-1 btnPrev-1 btnClose ~
+btnAdd btnCopy btnDefaults btnDelete btnForms btnUpdate 
 &Scoped-define transUpdate btnCancel btnReset btnUpdate 
 &Scoped-define displayFields cCategory cSubcategory iSecurityLevelUser ~
 iSecurityLevelDefault cName cTypeCode cModule cDescrip cFieldDescrip ~
@@ -705,13 +705,13 @@ DEFINE BROWSE sysCtrlShipToBrowse
 
 DEFINE FRAME DEFAULT-FRAME
      svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 4
-     searchBar AT ROW 1 COL 54 COLON-ALIGNED HELP
-          "Search" WIDGET-ID 6
      btnRestoreDefaults AT ROW 1 COL 39 HELP
           "Restore Defaults" WIDGET-ID 42
-     sysCtrlBrowse AT ROW 2 COL 39 WIDGET-ID 300
+     searchBar AT ROW 1 COL 54 COLON-ALIGNED HELP
+          "Search" WIDGET-ID 6
      btnSortMove AT ROW 1 COL 43 HELP
           "Toggle Sort/Move Columns" WIDGET-ID 44
+     sysCtrlBrowse AT ROW 2 COL 39 WIDGET-ID 300
      btnExport AT ROW 27.43 COL 11 HELP
           "Export" WIDGET-ID 36
      btnImport AT ROW 27.43 COL 20 HELP
@@ -722,110 +722,6 @@ DEFINE FRAME DEFAULT-FRAME
          AT COL 1 ROW 1
          SIZE 160 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
-
-DEFINE FRAME searchFrame
-     btnSearch AT ROW 1 COL 1 HELP
-          "Advanced Search" WIDGET-ID 40
-     cNameFilter AT ROW 1.24 COL 21 COLON-ALIGNED HELP
-          "Name Search" WIDGET-ID 2
-     cFieldDescripFilter AT ROW 2.19 COL 21 COLON-ALIGNED HELP
-          "Description Search" WIDGET-ID 44
-     cValueFilter AT ROW 3.14 COL 21 COLON-ALIGNED HELP
-          "Value Search" WIDGET-ID 8
-     cDescripFilter AT ROW 4.1 COL 21 COLON-ALIGNED HELP
-          "Description Search" WIDGET-ID 6
-     cModuleFilter AT ROW 5.05 COL 21 COLON-ALIGNED HELP
-          "Module Search" WIDGET-ID 12
-     cTypeCodeFilter AT ROW 6 COL 21 COLON-ALIGNED HELP
-          "Type Search" WIDGET-ID 10
-     cCategoryFilter AT ROW 6.95 COL 21 COLON-ALIGNED HELP
-          "Category Search" WIDGET-ID 14
-     cSubCategoryFilter AT ROW 7.91 COL 21 COLON-ALIGNED HELP
-          "Sub Category Search" WIDGET-ID 16
-     cTableSourceFilter AT ROW 8.86 COL 21 COLON-ALIGNED HELP
-          "Table Source Search" WIDGET-ID 46
-     cFieldSourceFilter AT ROW 9.81 COL 21 COLON-ALIGNED HELP
-          "Field Source Search" WIDGET-ID 48
-     cDataTypeFilter AT ROW 10.76 COL 21 COLON-ALIGNED HELP
-          "Data Type Search" WIDGET-ID 50
-     lExactMatch AT ROW 11.95 COL 23 HELP
-          "Select for Exact Match" WIDGET-ID 52
-     btnClear AT ROW 11.95 COL 56 HELP
-          "Clear Search Filters" WIDGET-ID 42
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS TOP-ONLY NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 64 BY 12.14
-         FGCOLOR 1 FONT 6 WIDGET-ID 600.
-
-DEFINE FRAME viewFrame
-     cCategory AT ROW 1.24 COL 18 COLON-ALIGNED WIDGET-ID 2
-     cSubcategory AT ROW 1.24 COL 58 COLON-ALIGNED WIDGET-ID 12
-     iSecurityLevelUser AT ROW 1.24 COL 92 COLON-ALIGNED WIDGET-ID 10
-     iSecurityLevelDefault AT ROW 1.24 COL 102 COLON-ALIGNED WIDGET-ID 44
-     cName AT ROW 2.43 COL 18 COLON-ALIGNED WIDGET-ID 8
-     cTypeCode AT ROW 2.43 COL 58 COLON-ALIGNED WIDGET-ID 14
-     btnClose AT ROW 1.24 COL 113 HELP
-          "Close" WIDGET-ID 72
-     cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
-     cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
-     cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
-     hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Decimal Value" NO-LABEL WIDGET-ID 60
-     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
-     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
-     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Integer Value" NO-LABEL WIDGET-ID 62
-     hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Date Value" NO-LABEL WIDGET-ID 58
-     cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
-     ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
-     cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
-     cDataType AT ROW 8.38 COL 94 COLON-ALIGNED HELP
-          "Select Data Type" WIDGET-ID 52
-     btnCalendar-1 AT ROW 6 COL 36 WIDGET-ID 272
-     btnFirst-1 AT ROW 9.81 COL 69 HELP
-          "First" WIDGET-ID 274
-     btnLast-1 AT ROW 9.81 COL 93 HELP
-          "Last" WIDGET-ID 68
-     btnNext-1 AT ROW 9.81 COL 85 HELP
-          "Next" WIDGET-ID 276
-     btnPrev-1 AT ROW 9.81 COL 77 HELP
-          "Previous" WIDGET-ID 278
-     btnAdd AT ROW 9.81 COL 15 HELP
-          "Add" WIDGET-ID 20
-     btnCancel AT ROW 9.81 COL 47 HELP
-          "Cancel" WIDGET-ID 28
-     btnCopy AT ROW 9.81 COL 23 HELP
-          "Copy" WIDGET-ID 24
-     btnDefaults AT ROW 9.81 COL 58 HELP
-          "Restore Defaults" WIDGET-ID 34
-     btnDelete AT ROW 9.81 COL 31 HELP
-          "Delete" WIDGET-ID 26
-     btnForms AT ROW 9.81 COL 104 HELP
-          "Forms" WIDGET-ID 54
-     btnReset AT ROW 9.81 COL 39 HELP
-          "Reset" WIDGET-ID 22
-     btnUpdate AT ROW 9.81 COL 7 HELP
-          "Update/Save" WIDGET-ID 18
-     transPanel AT ROW 9.57 COL 6 WIDGET-ID 16
-     transPanel-2 AT ROW 9.57 COL 57 WIDGET-ID 32
-     transPanel-5 AT ROW 9.57 COL 103 WIDGET-ID 56
-     transPanel-8 AT ROW 9.57 COL 68 WIDGET-ID 280
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 40 ROW 10.52
-         SIZE 117 BY 12.14
-         FGCOLOR 1 
-         TITLE "View" WIDGET-ID 400.
-
-DEFINE FRAME filterFrame
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 38 BY 26
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE BGCOLOR 8 "Category / SubCategory" WIDGET-ID 200.
 
 DEFINE FRAME formsFrame
      cSysCtrlName AT ROW 1.24 COL 11 COLON-ALIGNED WIDGET-ID 4
@@ -853,6 +749,8 @@ DEFINE FRAME viewFormFrame
           VIEW-AS FILL-IN 
           SIZE 14.2 BY 1
           BGCOLOR 15 
+     btnForms-2 AT ROW 1 COL 138 HELP
+          "Close" WIDGET-ID 72
      type_name AT ROW 2.43 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 76
      sys-ctrl-shipto.ship-id AT ROW 3.62 COL 21 COLON-ALIGNED WIDGET-ID 44
           VIEW-AS FILL-IN 
@@ -891,8 +789,6 @@ DEFINE FRAME viewFormFrame
 "No", no,
 "Unknown", ?
           SIZE 28 BY 1
-     btnForms-2 AT ROW 1 COL 138 HELP
-          "Close" WIDGET-ID 72
      btnLast-2 AT ROW 9.57 COL 133 HELP
           "Last" WIDGET-ID 68
      btnNext-2 AT ROW 9.57 COL 125 HELP
@@ -922,6 +818,110 @@ DEFINE FRAME viewFormFrame
          SIZE 142 BY 11.86
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 900.
+
+DEFINE FRAME viewFrame
+     btnFirst-1 AT ROW 9.81 COL 69 HELP
+          "First" WIDGET-ID 274
+     btnLast-1 AT ROW 9.81 COL 93 HELP
+          "Last" WIDGET-ID 68
+     btnNext-1 AT ROW 9.81 COL 85 HELP
+          "Next" WIDGET-ID 276
+     btnPrev-1 AT ROW 9.81 COL 77 HELP
+          "Previous" WIDGET-ID 278
+     cCategory AT ROW 1.24 COL 18 COLON-ALIGNED WIDGET-ID 2
+     cSubcategory AT ROW 1.24 COL 58 COLON-ALIGNED WIDGET-ID 12
+     btnClose AT ROW 1.24 COL 113 HELP
+          "Close" WIDGET-ID 72
+     iSecurityLevelUser AT ROW 1.24 COL 92 COLON-ALIGNED WIDGET-ID 10
+     iSecurityLevelDefault AT ROW 1.24 COL 102 COLON-ALIGNED WIDGET-ID 44
+     cName AT ROW 2.43 COL 18 COLON-ALIGNED WIDGET-ID 8
+     cTypeCode AT ROW 2.43 COL 58 COLON-ALIGNED WIDGET-ID 14
+     cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
+     cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
+     cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
+     hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Date Value" NO-LABEL WIDGET-ID 58
+     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Integer Value" NO-LABEL WIDGET-ID 62
+     hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Decimal Value" NO-LABEL WIDGET-ID 60
+     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
+     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
+     cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
+     btnCalendar-1 AT ROW 6 COL 36 WIDGET-ID 272
+     ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
+     cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
+     cDataType AT ROW 8.38 COL 94 COLON-ALIGNED HELP
+          "Select Data Type" WIDGET-ID 52
+     btnAdd AT ROW 9.81 COL 15 HELP
+          "Add" WIDGET-ID 20
+     btnCancel AT ROW 9.81 COL 47 HELP
+          "Cancel" WIDGET-ID 28
+     btnCopy AT ROW 9.81 COL 23 HELP
+          "Copy" WIDGET-ID 24
+     btnDefaults AT ROW 9.81 COL 58 HELP
+          "Restore Defaults" WIDGET-ID 34
+     btnDelete AT ROW 9.81 COL 31 HELP
+          "Delete" WIDGET-ID 26
+     btnForms AT ROW 9.81 COL 104 HELP
+          "Forms" WIDGET-ID 54
+     btnReset AT ROW 9.81 COL 39 HELP
+          "Reset" WIDGET-ID 22
+     btnUpdate AT ROW 9.81 COL 7 HELP
+          "Update/Save" WIDGET-ID 18
+     transPanel AT ROW 9.57 COL 6 WIDGET-ID 16
+     transPanel-2 AT ROW 9.57 COL 57 WIDGET-ID 32
+     transPanel-5 AT ROW 9.57 COL 103 WIDGET-ID 56
+     transPanel-8 AT ROW 9.57 COL 68 WIDGET-ID 280
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 40 ROW 10.52
+         SIZE 117 BY 12.14
+         FGCOLOR 1 
+         TITLE "View" WIDGET-ID 400.
+
+DEFINE FRAME filterFrame
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 38 BY 26
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE BGCOLOR 8 "Category / SubCategory" WIDGET-ID 200.
+
+DEFINE FRAME searchFrame
+     btnSearch AT ROW 1 COL 1 HELP
+          "Advanced Search" WIDGET-ID 40
+     cNameFilter AT ROW 1.24 COL 21 COLON-ALIGNED HELP
+          "Name Search" WIDGET-ID 2
+     cFieldDescripFilter AT ROW 2.19 COL 21 COLON-ALIGNED HELP
+          "Description Search" WIDGET-ID 44
+     cValueFilter AT ROW 3.14 COL 21 COLON-ALIGNED HELP
+          "Value Search" WIDGET-ID 8
+     cDescripFilter AT ROW 4.1 COL 21 COLON-ALIGNED HELP
+          "Description Search" WIDGET-ID 6
+     cModuleFilter AT ROW 5.05 COL 21 COLON-ALIGNED HELP
+          "Module Search" WIDGET-ID 12
+     cTypeCodeFilter AT ROW 6 COL 21 COLON-ALIGNED HELP
+          "Type Search" WIDGET-ID 10
+     cCategoryFilter AT ROW 6.95 COL 21 COLON-ALIGNED HELP
+          "Category Search" WIDGET-ID 14
+     cSubCategoryFilter AT ROW 7.91 COL 21 COLON-ALIGNED HELP
+          "Sub Category Search" WIDGET-ID 16
+     cTableSourceFilter AT ROW 8.86 COL 21 COLON-ALIGNED HELP
+          "Table Source Search" WIDGET-ID 46
+     cFieldSourceFilter AT ROW 9.81 COL 21 COLON-ALIGNED HELP
+          "Field Source Search" WIDGET-ID 48
+     cDataTypeFilter AT ROW 10.76 COL 21 COLON-ALIGNED HELP
+          "Data Type Search" WIDGET-ID 50
+     lExactMatch AT ROW 11.95 COL 23 HELP
+          "Select for Exact Match" WIDGET-ID 52
+     btnClear AT ROW 11.95 COL 56 HELP
+          "Clear Search Filters" WIDGET-ID 42
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS TOP-ONLY NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 64 BY 12.14
+         FGCOLOR 1 FONT 6 WIDGET-ID 600.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -979,11 +979,13 @@ ASSIGN FRAME filterFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
-ASSIGN XXTABVALXX = FRAME filterFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
-       XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (FRAME searchFrame:HANDLE)
+ASSIGN XXTABVALXX = FRAME searchFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME formsFrame:MOVE-BEFORE-TAB-ITEM (searchBar:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (FRAME formsFrame:HANDLE)
+       XXTABVALXX = FRAME searchFrame:MOVE-BEFORE-TAB-ITEM (FRAME filterFrame:HANDLE)
 /* END-ASSIGN-TABS */.
 
-/* BROWSE-TAB sysCtrlBrowse btnRestoreDefaults DEFAULT-FRAME */
+/* BROWSE-TAB sysCtrlBrowse btnSortMove DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btnExport IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnImport IN FRAME DEFAULT-FRAME
@@ -1120,7 +1122,15 @@ ASSIGN
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnDelete IN FRAME viewFrame
    1 2                                                                  */
+/* SETTINGS FOR BUTTON btnFirst-1 IN FRAME viewFrame
+   1 2                                                                  */
 /* SETTINGS FOR BUTTON btnForms IN FRAME viewFrame
+   1 2                                                                  */
+/* SETTINGS FOR BUTTON btnLast-1 IN FRAME viewFrame
+   1 2                                                                  */
+/* SETTINGS FOR BUTTON btnNext-1 IN FRAME viewFrame
+   1 2                                                                  */
+/* SETTINGS FOR BUTTON btnPrev-1 IN FRAME viewFrame
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnReset IN FRAME viewFrame
    NO-ENABLE 1 3                                                        */
@@ -2659,6 +2669,7 @@ ON CLOSE OF THIS-PROCEDURE
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
 
+
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
@@ -2682,6 +2693,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   hFocus = svFocus:HANDLE.
   RUN pGetSettings (USERID("ASI")).
   RUN pInit.
+  APPLY "ENTRY":U TO searchBar IN FRAME {&FRAME-NAME}.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -2779,7 +2791,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY svFocus searchBar 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE svFocus searchBar btnRestoreDefaults sysCtrlBrowse btnSortMove 
+  ENABLE svFocus btnRestoreDefaults searchBar btnSortMove sysCtrlBrowse 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW FRAME filterFrame IN WINDOW C-Win.
@@ -2805,7 +2817,7 @@ PROCEDURE enable_UI :
           cTypeCode cModule cDescrip cFieldDescrip cFieldValue cFieldDefault 
           ctableSource cfieldSource cDataType 
       WITH FRAME viewFrame IN WINDOW C-Win.
-  ENABLE btnClose btnFirst-1 btnLast-1 btnNext-1 btnPrev-1 btnAdd btnCopy 
+  ENABLE btnFirst-1 btnLast-1 btnNext-1 btnPrev-1 btnClose btnAdd btnCopy 
          btnDefaults btnDelete btnForms btnUpdate 
       WITH FRAME viewFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-viewFrame}
@@ -4336,6 +4348,8 @@ PROCEDURE pParseTables :
             cTableName[10] = "po-ctrl"  cFieldList[10] = "rec_key"
             cTableName[11] = "rfq-ctrl" cFieldList[11] = "rec_key"
             cTableName[12] = "rm-ctrl"  cFieldList[12] = "rec_key"
+            /* initial release, don't include any control tables */
+            cTableName     = ""         cFieldList     = ""
             .
         DO idx = 1 TO EXTENT(cTableName):
             IF cTableName[idx] EQ "" THEN LEAVE.

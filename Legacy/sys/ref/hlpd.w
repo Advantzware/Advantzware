@@ -217,6 +217,32 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btPrint
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btPrint gDialog
+ON CHOOSE OF btPrint IN FRAME gDialog /* Print */
+DO:
+{sys/inc/print1.i}
+    {sys/inc/outprint.i value(99)}
+
+    PUT SKIP SPACE(28)
+        lv-help-title 
+        SKIP
+        SPACE(28) lv-program  /*br*/
+        SKIP
+        SPACE(28) lv-frame-name  /*br*/ .
+
+    PUT SKIP(1)
+        ed-text:SCREEN-VALUE FORMAT "x(10000)" .
+
+    RUN custom/prntproc.p (list-name,INT(11),"P").
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &Scoped-define SELF-NAME btUpdateHelp
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btUpdateHelp gDialog
 ON CHOOSE OF btUpdateHelp IN FRAME gDialog /* Update Help */

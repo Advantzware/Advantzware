@@ -1,6 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
@@ -32,6 +33,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE winViewPrgmName fg-ucpt
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -53,9 +56,16 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
+/* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES fg-rctd
+&Scoped-define FIRST-EXTERNAL-TABLE fg-rctd
+
+
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR fg-rctd.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -86,18 +96,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 24 ROW 2.91
          SIZE 127 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -106,6 +116,7 @@ DEFINE FRAME message-frame
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
+   External Tables: ASI.fg-rctd
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
    Other Settings: COMPILE
@@ -165,7 +176,7 @@ ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
        FRAME OPTIONS-FRAME:FRAME = FRAME F-Main:HANDLE.
 
 /* SETTINGS FOR FRAME F-Main
-                                                                        */
+   FRAME-NAME                                                           */
 /* SETTINGS FOR FRAME message-frame
                                                                         */
 /* SETTINGS FOR FRAME OPTIONS-FRAME
@@ -297,8 +308,10 @@ PROCEDURE adm-create-objects :
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
+             FRAME OPTIONS-FRAME:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
-
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/fg/v-ucptd.w':U ,
@@ -306,15 +319,15 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_v-ucptd ).
        RUN set-position IN h_v-ucptd ( 5.05 , 5.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.43 , 143.40 ) */
+       /* Size in UIB:  ( 1.43 , 116.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/fg/b-ucptd.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_b-ucptd ).
-       RUN set-position IN h_b-ucptd ( 6.71 , 5.00 ) NO-ERROR.
-       RUN set-size IN h_b-ucptd ( 15.71 , 144.00 ) NO-ERROR.
+       /* Position in AB:  ( 6.71 , 5.00 ) */
+       /* Size in UIB:  ( 15.71 , 144.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updcan.w':U ,
@@ -329,12 +342,16 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_v-ucptd. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'init-entry':U , h_v-ucptd ).
 
-       /* Links to SmartBrowser h_b-ucptd. */
+       /* Links to  h_b-ucptd. */
        RUN add-link IN adm-broker-hdl ( h_p-updcan , 'TableIO':U , h_b-ucptd ).
        RUN add-link IN adm-broker-hdl ( h_v-ucptd , 'srch':U , h_b-ucptd ).
        RUN add-link IN adm-broker-hdl ( h_b-ucptd , 'can-exit':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_v-ucptd ,
+             FRAME message-frame:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updcan ,
+             h_v-ucptd , 'AFTER':U ).
     END. /* Page 1 */
 
   END CASE.
@@ -359,6 +376,15 @@ PROCEDURE adm-row-available :
 
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
+
+  /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "fg-rctd"}
+
+  /* Get the record ROWID's from the RECORD-SOURCE.                  */
+  {src/adm/template/row-get.i}
+
+  /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "fg-rctd"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -447,28 +473,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view W-Win 
-PROCEDURE local-view :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  {methods/selectTab.i 1}
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"init-entry-target", OUTPUT char-hdl).
-  RUN apply-entry IN WIDGET-HANDLE(char-hdl).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -477,9 +481,14 @@ PROCEDURE send-records :
   Parameters:  see template/snd-head.i
 ------------------------------------------------------------------------------*/
 
-  /* SEND-RECORDS does nothing because there are no External
-     Tables specified for this SmartWindow, and there are no
-     tables specified in any contained Browse, Query, or Frame. */
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
+
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "fg-rctd"}
+
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 

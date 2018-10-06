@@ -129,7 +129,7 @@ SESSION:SET-WAIT-STATE('').
 &Scoped-define BROWSE-NAME estOpBrowse
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES est-op job-hdr ttblEstOp
+&Scoped-define INTERNAL-TABLES est-op job-hdr job ttblEstOp
 
 /* Definitions for BROWSE estOpBrowse                                   */
 &Scoped-define FIELDS-IN-QUERY-estOpBrowse est-op.s-num est-op.b-num ~
@@ -151,24 +151,28 @@ job-hdr.qty
 &Scoped-define QUERY-STRING-jobBrowse FOR EACH job-hdr ~
       WHERE job-hdr.company EQ ipCompany ~
 AND job-hdr.est-no EQ ipEstNo ~
-AND job-hdr.opened EQ FALSE NO-LOCK , ~
-    FIRST job                                ~
-        WHERE job.company EQ job-hdr.company ~
-          AND job.job     EQ job-hdr.job     ~
-          AND job.job-no  EQ job-hdr.job-no  ~
-          AND job.job-no2 EQ job-hdr.job-no2 NO-LOCK BY job.job-no BY job.close-date DESC
+AND job-hdr.opened EQ FALSE NO-LOCK, ~
+      EACH job WHERE job.company = job-hdr.company ~
+  AND job.job = job-hdr.job ~
+  AND job.job-no = job-hdr.job-no ~
+  AND job.job-no2 = job-hdr.job-no2 NO-LOCK ~
+    BY job-hdr.due-date ~
+       BY job-hdr.job-no ~
+        BY job-hdr.job-no2
 &Scoped-define OPEN-QUERY-jobBrowse OPEN QUERY jobBrowse FOR EACH job-hdr ~
       WHERE job-hdr.company EQ ipCompany ~
 AND job-hdr.est-no EQ ipEstNo ~
-AND job-hdr.opened EQ FALSE NO-LOCK , ~
-   FIRST job                                ~
-        WHERE job.company EQ job-hdr.company ~
-          AND job.job     EQ job-hdr.job     ~
-          AND job.job-no  EQ job-hdr.job-no  ~
-          AND job.job-no2 EQ job-hdr.job-no2 NO-LOCK BY job.job-no BY job.close-date DESC .
+AND job-hdr.opened EQ FALSE NO-LOCK, ~
+      EACH job WHERE job.company = job-hdr.company ~
+  AND job.job = job-hdr.job ~
+  AND job.job-no = job-hdr.job-no ~
+  AND job.job-no2 = job-hdr.job-no2 NO-LOCK ~
+    BY job-hdr.due-date ~
+       BY job-hdr.job-no ~
+        BY job-hdr.job-no2.
 &Scoped-define TABLES-IN-QUERY-jobBrowse job-hdr job
 &Scoped-define FIRST-TABLE-IN-QUERY-jobBrowse job-hdr
-&SCOPED-DEFINE SECOND-TABLE-IN-QUERY-jobBrowse job
+&Scoped-define SECOND-TABLE-IN-QUERY-jobBrowse job
 
 
 /* Definitions for BROWSE ttblEstOp                                     */
@@ -341,7 +345,7 @@ DEFINE QUERY estOpBrowse FOR
       est-op SCROLLING.
 
 DEFINE QUERY jobBrowse FOR 
-      job-hdr,
+      job-hdr, 
       job SCROLLING.
 
 DEFINE QUERY ttblEstOp FOR 
@@ -596,13 +600,18 @@ THEN C-Win:HIDDEN = no.
 /* Query rebuild information for BROWSE jobBrowse
      _TblList          = "asi.job-hdr,ASI.job WHERE ASI.job-hdr ..."
      _Options          = "NO-LOCK"
-     _Where[1]         = "job-hdr.company EQ ipCompany
-AND job-hdr.est-no EQ ipEstNo
-AND job-hdr.opened EQ FALSE"
-  _JoinCode[1]      = "ASI.job.company = ASI.job-hdr.company
+     _OrdList          = "asi.job-hdr.due-date|yes,asi.job-hdr.job-no|yes,asi.job-hdr.job-no2|yes"
+     _JoinCode[1]      = "ASI.job.company = ASI.job-hdr.company
   AND ASI.job.job = ASI.job-hdr.job
   AND ASI.job.job-no = ASI.job-hdr.job-no 
   AND job.job-no2 EQ job-hdr.job-no2 NO-LOCK BY job.job-no BY job.close-date DESC"
+     _Where[1]         = "job-hdr.company EQ ipCompany
+AND job-hdr.est-no EQ ipEstNo
+AND job-hdr.opened EQ FALSE"
+     _JoinCode[2]      = "ASI.job.company = ASI.job-hdr.company
+  AND ASI.job.job = ASI.job-hdr.job
+  AND ASI.job.job-no = ASI.job-hdr.job-no
+  AND ASI.job.job-no2 = ASI.job-hdr.job-no2"
      _FldNameList[1]   > asi.job-hdr.job-no
 "job-hdr.job-no" "Job" ? "character" ? ? ? ? ? ? no ? no no "8.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.job-hdr.job-no2
