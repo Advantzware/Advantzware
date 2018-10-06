@@ -50,6 +50,7 @@ DEFINE VARIABLE hFontWidget   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hTargetFrame  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cLayoutStatus AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hLayoutHandle AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hLayoutParent AS HANDLE    NO-UNDO.
 
 DEFINE TEMP-TABLE ttIsRunning NO-UNDO
     FIELD prgTitle AS CHARACTER 
@@ -181,10 +182,15 @@ DEFINE VARIABLE svFocus AS CHARACTER FORMAT "X(256)":U
      SIZE .2 BY 1
      BGCOLOR 8  NO-UNDO.
 
+DEFINE BUTTON checkLayout 
+     IMAGE-UP FILE "Graphics/32x32/check.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Check Layout" 
+     SIZE 8 BY 1.91 TOOLTIP "Reset Layout".
+
 DEFINE BUTTON resetLayout 
      IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset Layout" 
-     SIZE 8 BY 1.9 TOOLTIP "Reset Layout".
+     SIZE 8 BY 1.91 TOOLTIP "Reset Layout".
 
 DEFINE VARIABLE layoutMessage AS CHARACTER 
      VIEW-AS EDITOR
@@ -593,7 +599,9 @@ DEFINE FRAME DEFAULT-FRAME
          FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME helperFrame
-     resetLayout AT ROW 12.9 COL 7 HELP
+     checkLayout AT ROW 12.91 COL 46 HELP
+          "Check Layout" WIDGET-ID 52
+     resetLayout AT ROW 12.91 COL 7 HELP
           "Reset Layout" WIDGET-ID 50
      targetFrameCol AT ROW 2.19 COL 10 COLON-ALIGNED WIDGET-ID 2
      layoutFrameCol AT ROW 2.19 COL 33 COLON-ALIGNED WIDGET-ID 10
@@ -606,10 +614,10 @@ DEFINE FRAME helperFrame
      layoutMessage AT ROW 7.91 COL 2 NO-LABEL WIDGET-ID 30
      moveValue AT ROW 13.38 COL 24 COLON-ALIGNED HELP
           "Enter Value to Move Cue Card Layout" NO-LABEL WIDGET-ID 48
-     "Cue Card" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1.24 COL 36 WIDGET-ID 20
      "Target Frame" VIEW-AS TEXT
           SIZE 14 BY .62 AT ROW 1.24 COL 9 WIDGET-ID 18
+     "Cue Card" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1.24 COL 36 WIDGET-ID 20
      cueStatusCol AT ROW 2.19 COL 50 WIDGET-ID 22
      cueStatusRow AT ROW 3.62 COL 50 WIDGET-ID 24
      cueStatusHeight AT ROW 5.05 COL 50 WIDGET-ID 26
@@ -712,6 +720,85 @@ DEFINE FRAME viewFrame
      created AT ROW 14.33 COL 2 NO-LABEL WIDGET-ID 458
      cCuetextFont AT ROW 14.81 COL 35 COLON-ALIGNED HELP
           "Select Font Size" NO-LABEL WIDGET-ID 396
+     "13" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 80.4 WIDGET-ID 436
+          BGCOLOR 13 FGCOLOR 15 
+     "3" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 67 WIDGET-ID 416
+          BGCOLOR 3 FGCOLOR 15 
+     "15" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 94.4 WIDGET-ID 440
+          BGCOLOR 15 FGCOLOR 0 
+     "BG:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 8.38 COL 26 WIDGET-ID 348
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 62 ROW 11
+         SIZE 99 BY 18.4
+         FGCOLOR 1  WIDGET-ID 400.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME viewFrame
+     "14" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 87.4 WIDGET-ID 438
+          BGCOLOR 14 FGCOLOR 0 
+     "2" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 60 WIDGET-ID 414
+          BGCOLOR 2 FGCOLOR 15 
+     "BG:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 9.57 COL 26 WIDGET-ID 350
+     "Ss" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 74 WIDGET-ID 374
+          FGCOLOR 0 FONT 4
+     "Ff" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 46 WIDGET-ID 358
+          FGCOLOR 0 FONT 0
+     "Fonts:" VIEW-AS TEXT
+          SIZE 6 BY .71 AT ROW 11 COL 30 WIDGET-ID 398
+     "Oo" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 53 WIDGET-ID 362
+          FGCOLOR 0 FONT 1
+     "Zz" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 88 WIDGET-ID 382
+          FGCOLOR 0 FONT 6
+     "10" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 59.4 WIDGET-ID 430
+          BGCOLOR 10 FGCOLOR 0 
+     "Nn" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 60 WIDGET-ID 366
+          FGCOLOR 0 FONT 2
+     "Ee" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 95 WIDGET-ID 386
+          FGCOLOR 0 FONT 7
+     "12" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 73.4 WIDGET-ID 434
+          BGCOLOR 12 FGCOLOR 15 
+     "Ii" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 81 WIDGET-ID 378
+          FGCOLOR 0 FONT 5
+     "0" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 46 WIDGET-ID 402
+          BGCOLOR 0 FGCOLOR 15 
+     "7" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 95 WIDGET-ID 424
+          BGCOLOR 7 FGCOLOR 15 
+     "9" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 9.71 COL 53 WIDGET-ID 428
+          BGCOLOR 9 FGCOLOR 15 
+     "6" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 88 WIDGET-ID 422
+          BGCOLOR 6 FGCOLOR 15 
+     "8" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 9.71 COL 46 WIDGET-ID 426
+          BGCOLOR 8 FGCOLOR 0 
+     "Frame FG Color:" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 8.38 COL 2 WIDGET-ID 344
+     "1" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 53 WIDGET-ID 412
+          BGCOLOR 1 FGCOLOR 15 
+     "?" VIEW-AS TEXT
+          SIZE 2 BY .76 AT ROW 9.1 COL 39 WIDGET-ID 354
+          FGCOLOR 0 FONT 6
      "?" VIEW-AS TEXT
           SIZE 2 BY .76 AT ROW 11 COL 39 WIDGET-ID 390
           FGCOLOR 0 FONT 6
@@ -723,93 +810,14 @@ DEFINE FRAME viewFrame
      "11" VIEW-AS TEXT
           SIZE 3 BY .71 AT ROW 9.71 COL 66.4 WIDGET-ID 432
           BGCOLOR 11 FGCOLOR 0 
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 62 ROW 11
-         SIZE 99 BY 18.4
-         FGCOLOR 1  WIDGET-ID 400.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME viewFrame
      "Cue Card Text:" VIEW-AS TEXT
           SIZE 15 BY .81 AT ROW 6.48 COL 3 WIDGET-ID 298
      "Tt" VIEW-AS TEXT
           SIZE 3 BY .76 AT ROW 11 COL 67 WIDGET-ID 370
           FGCOLOR 0 FONT 3
-     "Frame FG Color:" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 8.38 COL 2 WIDGET-ID 344
-     "8" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 9.71 COL 46 WIDGET-ID 426
-          BGCOLOR 8 FGCOLOR 0 
-     "6" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 88 WIDGET-ID 422
-          BGCOLOR 6 FGCOLOR 15 
-     "9" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 9.71 COL 53 WIDGET-ID 428
-          BGCOLOR 9 FGCOLOR 15 
-     "7" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 95 WIDGET-ID 424
-          BGCOLOR 7 FGCOLOR 15 
-     "0" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 46 WIDGET-ID 402
-          BGCOLOR 0 FGCOLOR 15 
-     "Ii" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 81 WIDGET-ID 378
-          FGCOLOR 0 FONT 5
-     "12" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 73.4 WIDGET-ID 434
-          BGCOLOR 12 FGCOLOR 15 
-     "Ee" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 95 WIDGET-ID 386
-          FGCOLOR 0 FONT 7
-     "Nn" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 60 WIDGET-ID 366
-          FGCOLOR 0 FONT 2
-     "10" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 59.4 WIDGET-ID 430
-          BGCOLOR 10 FGCOLOR 0 
-     "Zz" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 88 WIDGET-ID 382
-          FGCOLOR 0 FONT 6
-     "Oo" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 53 WIDGET-ID 362
-          FGCOLOR 0 FONT 1
-     "Fonts:" VIEW-AS TEXT
-          SIZE 6 BY .71 AT ROW 11 COL 30 WIDGET-ID 398
-     "Ff" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 46 WIDGET-ID 358
-          FGCOLOR 0 FONT 0
-     "Ss" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 74 WIDGET-ID 374
-          FGCOLOR 0 FONT 4
-     "BG:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 9.57 COL 26 WIDGET-ID 350
-     "2" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 60 WIDGET-ID 414
-          BGCOLOR 2 FGCOLOR 15 
-     "14" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 87.4 WIDGET-ID 438
-          BGCOLOR 14 FGCOLOR 0 
-     "BG:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 8.38 COL 26 WIDGET-ID 348
      "4" VIEW-AS TEXT
           SIZE 2 BY .71 AT ROW 8.48 COL 74 WIDGET-ID 418
           BGCOLOR 4 FGCOLOR 15 
-     "3" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 67 WIDGET-ID 416
-          BGCOLOR 3 FGCOLOR 15 
-     "13" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 80.4 WIDGET-ID 436
-          BGCOLOR 13 FGCOLOR 15 
-     "15" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 94.4 WIDGET-ID 440
-          BGCOLOR 15 FGCOLOR 0 
-     "?" VIEW-AS TEXT
-          SIZE 2 BY .76 AT ROW 9.1 COL 39 WIDGET-ID 354
-          FGCOLOR 0 FONT 6
-     "1" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 53 WIDGET-ID 412
-          BGCOLOR 1 FGCOLOR 15 
      transPanel AT ROW 15.95 COL 1 WIDGET-ID 16
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -1172,9 +1180,9 @@ ASSIGN
 ASSIGN 
        fontChoice-default:SELECTABLE IN FRAME viewFrame       = TRUE.
 
-/* SETTINGS FOR TOGGLE-BOX cueCard.isActive IN FRAME viewFrame
-   NO-ENABLE 4 5                                                        */
 /* SETTINGS FOR TOGGLE-BOX cueCardText.isActive IN FRAME viewFrame
+   NO-ENABLE 4 5                                                        */
+/* SETTINGS FOR TOGGLE-BOX cueCard.isActive IN FRAME viewFrame
    NO-ENABLE 4 5                                                        */
 /* SETTINGS FOR TOGGLE-BOX lDismissFont IN FRAME viewFrame
    NO-ENABLE 6                                                          */
@@ -1518,6 +1526,19 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME helperFrame
+&Scoped-define SELF-NAME checkLayout
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL checkLayout C-Win
+ON CHOOSE OF checkLayout IN FRAME helperFrame /* Check Layout */
+DO:
+    RUN pLayoutHelper IN hLayoutParent.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME viewFrame
 &Scoped-define SELF-NAME colorChoice-0
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL colorChoice-0 C-Win
 ON SELECTION OF colorChoice-0 IN FRAME viewFrame
@@ -1638,7 +1659,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL resetLayout C-Win
 ON CHOOSE OF resetLayout IN FRAME helperFrame /* Reset Layout */
 DO:
-    message 0 view-as alert-box.
+    RUN pDisplayCueCardLayout IN hLayoutParent.
+    RUN pLayoutHelper IN hLayoutParent.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1726,8 +1748,8 @@ PROCEDURE enable_UI :
           targetFrameHeight layoutFrameHeight targetFrameWidth layoutFrameWidth 
           moveValue 
       WITH FRAME helperFrame IN WINDOW C-Win.
-  ENABLE resetLayout moveUp moveRightUp moveLeftUp moveLeft moveRight 
-         moveLeftDown moveRightDown moveDown layoutMessage moveValue 
+  ENABLE checkLayout resetLayout moveUp moveRightUp moveLeftUp moveLeft 
+         moveRight moveLeftDown moveRightDown moveDown layoutMessage moveValue 
       WITH FRAME helperFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-helperFrame}
   DISPLAY lDismissFont lDontShowAgainFont created cCuetextFont 
@@ -2378,6 +2400,8 @@ PROCEDURE pLayoutHelper :
     
     DEFINE INPUT PARAMETER iphLayout AS HANDLE NO-UNDO.
     
+    DEFINE VARIABLE dTitle AS DECIMAL NO-UNDO.
+    
     IF VALID-HANDLE(iphLayout) EQ NO THEN DO:
         HIDE FRAME helperFrame.
         RETURN.
@@ -2387,12 +2411,13 @@ PROCEDURE pLayoutHelper :
     DO WITH FRAME helperFrame:        
         FRAME helperFrame:MOVE-TO-TOP().
         ASSIGN
+            dTitle            = IF hTargetFrame:TITLE EQ ? THEN 0 ELSE 1
             targetFrameCol    = hTargetFrame:COL
             targetFrameRow    = hTargetFrame:ROW 
             targetFrameHeight = hTargetFrame:HEIGHT 
             targetFrameWidth  = hTargetFrame:WIDTH 
             layoutFrameCol    = iphLayout:COL 
-            layoutFrameRow    = iphLayout:ROW - 3.43
+            layoutFrameRow    = iphLayout:ROW - 1 - dTitle
             layoutFrameHeight = iphLayout:HEIGHT
             layoutFrameWidth  = iphLayout:WIDTH 
             cLayoutStatus     = ""
@@ -2411,7 +2436,7 @@ PROCEDURE pLayoutHelper :
         END.
         /* check height of cue vs frame */
         cueStatusHeight:LOAD-IMAGE("{&checkImage}").
-        IF layoutFrameRow + layoutFrameHeight GT targetFrameRow + targetFrameHeight THEN DO:
+        IF layoutFrameRow + layoutFrameHeight + dTitle GT targetFrameRow + targetFrameHeight THEN DO:
             cueStatusHeight:LOAD-IMAGE("{&deleteImage}").
             cLayoutStatus = cLayoutStatus + "Cue Card Exceeds Height Limit" + CHR(10).
         END.
@@ -2698,8 +2723,11 @@ PROCEDURE pSetLayoutHandle :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphLayoutHandle AS HANDLE NO-UNDO.
-    
-    hLayoutHandle = iphLayoutHandle.
+
+    ASSIGN    
+        hLayoutHandle = iphLayoutHandle
+        hLayoutParent = iphLayoutHandle:INSTANTIATING-PROCEDURE
+        .
 
 END PROCEDURE.
 
