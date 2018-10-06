@@ -33,7 +33,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 DEFINE PARAMETER BUFFER cueCardText FOR cueCardText.
-DEFINE INPUT PARAMETER  iphFrame AS HANDLE NO-UNDO.
+DEFINE INPUT PARAMETER  iphFrame  AS HANDLE NO-UNDO.
+DEFINE INPUT PARAMETER  iphCaller AS HANDLE NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
@@ -250,17 +251,34 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
+ON MOUSE-SELECT-UP OF C-Win /* Cue Card Layout */
+DO:
+  message 0 view-as alert-box.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Cue Card Layout */
 DO:
   /* This event will close the window and terminate the procedure.  */
+    DEFINE VARIABLE cLayoutError AS CHARACTER NO-UNDO.
+    
+    IF VALID-HANDLE(iphCaller) THEN 
+    RUN pLayoutStatus IN iphCaller (OUTPUT cLayoutError).
     MESSAGE
-        "Save this Cue Card?"
+        cLayoutError + "Save this Cue Card?"
     VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
     UPDATE lSave AS LOGICAL.
     IF lSave THEN
     RUN pSave.
     ELSE IF lSave EQ ? THEN
     RETURN NO-APPLY.
+    /* close helper frame in call */
+    IF VALID-HANDLE(iphCaller) THEN 
+    RUN pLayoutHelper IN iphCaller (?).
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     RETURN NO-APPLY.
 END.
@@ -335,7 +353,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     FRAME {&FRAME-NAME}:GRID-SNAP    = YES
     FRAME {&FRAME-NAME}:GRID-VISIBLE = YES
     .
+  IF VALID-HANDLE(iphCaller) THEN 
+  RUN pSetLayoutHandle IN iphCaller ({&WINDOW-NAME}:HANDLE).
   RUN pDisplayCueCardLayout.
+  RUN pLayoutHelper.
   RUN enable_UI.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -474,6 +495,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLayoutHelper C-Win 
+PROCEDURE pLayoutHelper :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF VALID-HANDLE(iphCaller) THEN 
+    RUN pLayoutHelper IN iphCaller ({&WINDOW-NAME}:HANDLE).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReSize C-Win 
 PROCEDURE pReSize :
 /*------------------------------------------------------------------------------
@@ -518,6 +553,7 @@ PROCEDURE pReSize :
             .
         VIEW FRAME {&FRAME-NAME}.
     END. /* with frame */
+    RUN pLayoutHelper.
 
 END PROCEDURE.
 
