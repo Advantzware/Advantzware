@@ -33,13 +33,14 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 DEFINE PARAMETER BUFFER cueCardText FOR cueCardText.
-DEFINE INPUT PARAMETER  iphFrame AS HANDLE NO-UNDO.
+DEFINE INPUT PARAMETER  iphFrame  AS HANDLE NO-UNDO.
+DEFINE INPUT PARAMETER  iphCaller AS HANDLE NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
 DEFINE VARIABLE iOrientation AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cOrientation AS CHARACTER NO-UNDO INITIAL
-    "default_LeftUp,default_RightUp,default_RightDown,default_LeftDown".
+    "default_LeftUp,default_Up,default_RightUp,default_Right,default_RightDown,default_Down,default_LeftDown,default_Left".
 DEFINE VARIABLE iPosition    AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cPosition    AS CHARACTER NO-UNDO INITIAL
     "arrow_join,arrow_right,arrow_cross,arrow_down".
@@ -60,8 +61,8 @@ DEFINE VARIABLE cPosition    AS CHARACTER NO-UNDO INITIAL
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnClose positionImage arrowImage nextCue ~
-prevCue dontShowAgain cCueText gotIt 
-&Scoped-Define DISPLAYED-OBJECTS dontShowAgain cCueText gotIt 
+prevCue dismiss cCueText dontShowAgain 
+&Scoped-Define DISPLAYED-OBJECTS dismiss cCueText dontShowAgain 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -108,15 +109,15 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 53 BY 7.38.
 
+DEFINE VARIABLE dismiss AS LOGICAL INITIAL no 
+     LABEL "Dismiss This Cue Card Set" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 34 BY .81 NO-UNDO.
+
 DEFINE VARIABLE dontShowAgain AS LOGICAL INITIAL no 
      LABEL "Don't Show Again" 
      VIEW-AS TOGGLE-BOX
-     SIZE 23.6 BY .81 NO-UNDO.
-
-DEFINE VARIABLE gotIt AS LOGICAL INITIAL no 
-     LABEL "Got It" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 11 BY .81 NO-UNDO.
+     SIZE 24 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -124,14 +125,14 @@ DEFINE VARIABLE gotIt AS LOGICAL INITIAL no
 DEFINE FRAME DEFAULT-FRAME
      btnClose AT ROW 1.24 COL 48 HELP
           "Close" WIDGET-ID 72
-     dontShowAgain AT ROW 1.24 COL 19 WIDGET-ID 38
-     cCueText AT ROW 2.67 COL 9 NO-LABEL WIDGET-ID 10
-     gotIt AT ROW 7.19 COL 26 WIDGET-ID 16
+     dismiss AT ROW 1.48 COL 10 WIDGET-ID 16
+     cCueText AT ROW 2.43 COL 9 NO-LABEL WIDGET-ID 10
+     dontShowAgain AT ROW 7.19 COL 10 WIDGET-ID 38
      RECT-1 AT ROW 1 COL 1 WIDGET-ID 42
-     positionImage AT ROW 1.24 COL 9 WIDGET-ID 44
+     positionImage AT ROW 3.14 COL 3 WIDGET-ID 44
      arrowImage AT ROW 1.24 COL 2 WIDGET-ID 2
      nextCue AT ROW 6.95 COL 48 WIDGET-ID 12
-     prevCue AT ROW 6.95 COL 9 WIDGET-ID 14
+     prevCue AT ROW 6.95 COL 42 WIDGET-ID 14
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -199,12 +200,12 @@ ASSIGN
        cCueText:RESIZABLE IN FRAME DEFAULT-FRAME        = TRUE.
 
 ASSIGN 
-       dontShowAgain:SELECTABLE IN FRAME DEFAULT-FRAME       = TRUE
-       dontShowAgain:MOVABLE IN FRAME DEFAULT-FRAME          = TRUE.
+       dismiss:SELECTABLE IN FRAME DEFAULT-FRAME       = TRUE
+       dismiss:MOVABLE IN FRAME DEFAULT-FRAME          = TRUE.
 
 ASSIGN 
-       gotIt:SELECTABLE IN FRAME DEFAULT-FRAME       = TRUE
-       gotIt:MOVABLE IN FRAME DEFAULT-FRAME          = TRUE.
+       dontShowAgain:SELECTABLE IN FRAME DEFAULT-FRAME       = TRUE
+       dontShowAgain:MOVABLE IN FRAME DEFAULT-FRAME          = TRUE.
 
 ASSIGN 
        nextCue:SELECTABLE IN FRAME DEFAULT-FRAME       = TRUE
@@ -250,17 +251,34 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
+ON MOUSE-SELECT-UP OF C-Win /* Cue Card Layout */
+DO:
+  message 0 view-as alert-box.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Cue Card Layout */
 DO:
   /* This event will close the window and terminate the procedure.  */
+    DEFINE VARIABLE cLayoutError AS CHARACTER NO-UNDO.
+    
+    IF VALID-HANDLE(iphCaller) THEN 
+    RUN pLayoutStatus IN iphCaller (OUTPUT cLayoutError).
     MESSAGE
-        "Save this Cue Card?"
+        cLayoutError + "Save this Cue Card?"
     VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
     UPDATE lSave AS LOGICAL.
     IF lSave THEN
     RUN pSave.
     ELSE IF lSave EQ ? THEN
     RETURN NO-APPLY.
+    /* close helper frame in call */
+    IF VALID-HANDLE(iphCaller) THEN 
+    RUN pLayoutHelper IN iphCaller (?).
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     RETURN NO-APPLY.
 END.
@@ -284,7 +302,7 @@ END.
 ON MOUSE-SELECT-CLICK OF arrowImage IN FRAME DEFAULT-FRAME
 DO:
     iOrientation = iOrientation + 1.
-    IF iOrientation GT 4 THEN
+    IF iOrientation GT 8 THEN
     iOrientation = 1.
     arrowImage:LOAD-IMAGE("Graphics\24x24\" + ENTRY(iOrientation,cOrientation) + ".gif").
 END.
@@ -335,7 +353,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     FRAME {&FRAME-NAME}:GRID-SNAP    = YES
     FRAME {&FRAME-NAME}:GRID-VISIBLE = YES
     .
+  IF VALID-HANDLE(iphCaller) THEN 
+  RUN pSetLayoutHandle IN iphCaller ({&WINDOW-NAME}:HANDLE).
   RUN pDisplayCueCardLayout.
+  RUN pLayoutHelper.
   RUN enable_UI.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -377,10 +398,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY dontShowAgain cCueText gotIt 
+  DISPLAY dismiss cCueText dontShowAgain 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnClose positionImage arrowImage nextCue prevCue dontShowAgain 
-         cCueText gotIt 
+  ENABLE btnClose positionImage arrowImage nextCue prevCue dismiss cCueText 
+         dontShowAgain 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -462,12 +483,26 @@ PROCEDURE pDisplayCueCardLayout :
         dontShowAgain:COL                  = cueCardText.dontShowAgainCol
         dontShowAgain:ROW                  = cueCardText.dontShowAgainRow
         dontShowAgain:FONT                 = cueCardText.dontShowAgainFont
-        gotIt:COL                          = cueCardText.gotItCol
-        gotIt:ROW                          = cueCardText.gotItRow
-        gotIt:FONT                         = cueCardText.gotItFont
+        dismiss:COL                        = cueCardText.dismissCol
+        dismiss:ROW                        = cueCardText.dismissRow
+        dismiss:FONT                       = cueCardText.dismissFont
         .
     arrowImage:LOAD-IMAGE("Graphics\24X24\" + ENTRY(iOrientation,cOrientation) + ".gif").
     positionImage:LOAD-IMAGE("Graphics\24x24\" + ENTRY(iPosition,cPosition) + ".png").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLayoutHelper C-Win 
+PROCEDURE pLayoutHelper :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF VALID-HANDLE(iphCaller) THEN 
+    RUN pLayoutHelper IN iphCaller ({&WINDOW-NAME}:HANDLE).
 
 END PROCEDURE.
 
@@ -518,6 +553,7 @@ PROCEDURE pReSize :
             .
         VIEW FRAME {&FRAME-NAME}.
     END. /* with frame */
+    RUN pLayoutHelper.
 
 END PROCEDURE.
 
@@ -595,9 +631,9 @@ PROCEDURE pSave :
         cueCardText.dontShowAgainCol  = dontShowAgain:COL 
         cueCardText.dontShowAgainRow  = dontShowAgain:ROW 
         cueCardText.dontShowAgainFont = dontShowAgain:FONT
-        cueCardText.gotItCol          = gotIt:COL         
-        cueCardText.gotItRow          = gotIt:ROW         
-        cueCardText.gotItFont         = gotIt:FONT        
+        cueCardText.dismissCol        = dismiss:COL         
+        cueCardText.dismissRow        = dismiss:ROW         
+        cueCardText.dismissFont       = dismiss:FONT        
         .
     FIND CURRENT cueCardText NO-LOCK.
     
