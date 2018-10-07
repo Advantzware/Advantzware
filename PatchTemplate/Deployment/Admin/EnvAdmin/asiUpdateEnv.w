@@ -2256,6 +2256,14 @@ PROCEDURE ipDataFix160712 :
         END.  
     END.             
     
+    /* Reports - set LV = true */
+    RUN ipStatus ("  REPORTS - set log value to TRUE").
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.name EQ "Reports"
+        NO-ERROR.
+    IF AVAIL sys-ctrl THEN ASSIGN
+        sys-ctrl.log-fld = TRUE.
+
     RUN ipConvQtyPerSet.
     
 END PROCEDURE.
@@ -4292,14 +4300,6 @@ PROCEDURE ipUpdateNK1s :
     IF AVAIL sys-ctrl THEN ASSIGN
         sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/updatehelpServices/helpupdate.asmx?WSDL'".
     
-    /* Reports - set LV = true */
-    RUN ipStatus ("  REPORTS - set log value to TRUE").
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "Reports"
-        NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN
-        sys-ctrl.log-fld = TRUE.
-
     /* RelType - set Default to "B" */
     RUN ipStatus ("  RelType - if empty, set char value to Bill and Ship").
     FIND FIRST sys-ctrl WHERE
