@@ -348,6 +348,8 @@ DO:
         RUN fg/fglevels (BUFFER itemfg, BUFFER itemfg-loc, OUTPUT lUpdated).
         IF lUpdated THEN 
         RUN dispatch ("open-query").
+        ELSE 
+        RETURN NO-APPLY.
     END. /* if avail */
 END.
 
