@@ -5,8 +5,16 @@
 /*------------------------------------------------------------------------
   File: asiInstaller.w
   Description: utility to install ASI patches and releases
-  Input Parameters:  <none>
-  Output Parameters: <none>
+  Input Parameters:  ipcName - name of database to update
+                     ipcPort - database port number
+                     ipcDir - environment directory name
+                     ipcVer - current version
+                     ipcEnv - current Environment 
+                     ipcFromVer - from Env version
+                     ipcToVer - to Env version
+                     ipiLevel - users security level
+                     iplNeedBackup - backup database?
+  Output Parameters: oplSuccess - upgrade successful
   Author: MYT
   Created: 10/1/2017 and highly modified/adapted over next several months
   Change History:
@@ -14,6 +22,7 @@
                         added Clean Before Install to suppress deletion
                         of existing programs/resources directories prior
                         to install of new (lets customers stay live)
+    10/04/2018 - MYT - documented process flow in asiUpdateENV_process_flow.txt
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
@@ -63,8 +72,6 @@ ASSIGN
 DEF STREAM s1.
 
 DEF TEMP-TABLE ttAuditTbl LIKE AuditTbl.
-DEF TEMP-TABLE ttCueCard LIKE cueCard.
-DEF TEMP-TABLE ttCueCardText LIKE cueCardText. 
 DEF TEMP-TABLE ttPrgrms LIKE prgrms.
 DEF TEMP-TABLE ttPrgmxref LIKE prgmxref.
 DEF TEMP-TABLE ttEmailcod LIKE emailcod.
@@ -311,15 +318,15 @@ DEF VAR cDeltaFileName AS CHAR INITIAL "asi166167.df" NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-5 tbBackupDBs tbUserControl ~
-tbUserCleanup tbDelBadData tbUpdateMaster tbRunDataFix tbDelDupeNotes ~
-fiLicensedUsers tbUpdateNK1s bProcess tbReftableConv tbRelNotes eStatus ~
+tbUserCleanup tbDelBadData tbUpdateMaster tbRunDataFix tbUpdateNK1s ~
+fiLicensedUsers tbReftableConv bProcess tbLoadMenus tbRelNotes eStatus ~
 tbInstallFiles tbUpdateIni 
 &Scoped-Define DISPLAYED-OBJECTS fiSiteName fiOptions fiHostname ~
 tbBackupDBs tbUserControl fiEnvironment tbUserCleanup fiAsiDbName ~
 fiAudDbName tbDelBadData fiAsiPortNo fiAudPortNo tbUpdateMaster fiFromVer ~
-tbRunDataFix fiToVer tbDelDupeNotes fiLicensedUsers tbUpdateNK1s ~
-tbUpdateFileLocs tbReftableConv tbRelNotes eStatus tbBackupFiles ~
-tbInstallFiles tbUpdateIni fiLogFile 
+tbRunDataFix fiToVer tbUpdateNK1s fiLicensedUsers tbUpdateFileLocs ~
+tbReftableConv tbLoadMenus tbRelNotes eStatus tbBackupFiles tbInstallFiles ~
+tbUpdateIni fiLogFile 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -413,7 +420,7 @@ DEFINE VARIABLE fiToVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.16"
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 39 BY 14.76.
+     SIZE 39 BY 16.19.
 
 DEFINE VARIABLE tbBackupDBs AS LOGICAL INITIAL no 
      LABEL "Backup Databases" 
@@ -430,13 +437,13 @@ DEFINE VARIABLE tbDelBadData AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbDelDupeNotes AS LOGICAL INITIAL no 
-     LABEL "Delete duplicate notes" 
+DEFINE VARIABLE tbInstallFiles AS LOGICAL INITIAL no 
+     LABEL "Install new System Files" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbInstallFiles AS LOGICAL INITIAL no 
-     LABEL "Install new System Files" 
+DEFINE VARIABLE tbLoadMenus AS LOGICAL INITIAL no 
+     LABEL "Load new Menu files" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
@@ -505,12 +512,12 @@ DEFINE FRAME DEFAULT-FRAME
      fiFromVer AT ROW 6.71 COL 29 COLON-ALIGNED
      tbRunDataFix AT ROW 7.19 COL 82 WIDGET-ID 400
      fiToVer AT ROW 7.67 COL 29 COLON-ALIGNED WIDGET-ID 46
-     tbDelDupeNotes AT ROW 8.14 COL 82 WIDGET-ID 390
+     tbUpdateNK1s AT ROW 8.14 COL 82 WIDGET-ID 396
      fiLicensedUsers AT ROW 8.62 COL 29 COLON-ALIGNED WIDGET-ID 440
-     tbUpdateNK1s AT ROW 9.1 COL 82 WIDGET-ID 396
-     tbUpdateFileLocs AT ROW 10.05 COL 82 WIDGET-ID 398
+     tbUpdateFileLocs AT ROW 9.1 COL 82 WIDGET-ID 398
+     tbReftableConv AT ROW 10.05 COL 82 WIDGET-ID 504
      bProcess AT ROW 10.29 COL 15 WIDGET-ID 404
-     tbReftableConv AT ROW 11 COL 82 WIDGET-ID 504
+     tbLoadMenus AT ROW 11 COL 82 WIDGET-ID 378
      tbRelNotes AT ROW 11.95 COL 82 WIDGET-ID 382
      eStatus AT ROW 12.67 COL 2 NO-LABEL
      tbBackupFiles AT ROW 12.91 COL 82 WIDGET-ID 386
@@ -726,8 +733,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         tbUserCleanup:CHECKED = TRUE
         tbDelBadData:CHECKED = TRUE
         tbUpdateMaster:CHECKED = TRUE
+        tbLoadMenus:CHECKED = TRUE
         tbRunDataFix:CHECKED = TRUE
-        tbDelDupeNotes:CHECKED = TRUE
         tbUpdateNK1s:CHECKED = TRUE
         tbUpdateFileLocs:CHECKED = TRUE
         tbRefTableConv:CHECKED = TRUE
@@ -790,13 +797,13 @@ PROCEDURE enable_UI :
   DISPLAY fiSiteName fiOptions fiHostname tbBackupDBs tbUserControl 
           fiEnvironment tbUserCleanup fiAsiDbName fiAudDbName tbDelBadData 
           fiAsiPortNo fiAudPortNo tbUpdateMaster fiFromVer tbRunDataFix fiToVer 
-          tbDelDupeNotes fiLicensedUsers tbUpdateNK1s tbUpdateFileLocs 
-          tbReftableConv tbRelNotes eStatus tbBackupFiles tbInstallFiles 
+          tbUpdateNK1s fiLicensedUsers tbUpdateFileLocs tbReftableConv 
+          tbLoadMenus tbRelNotes eStatus tbBackupFiles tbInstallFiles 
           tbUpdateIni fiLogFile 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE RECT-5 tbBackupDBs tbUserControl tbUserCleanup tbDelBadData 
-         tbUpdateMaster tbRunDataFix tbDelDupeNotes fiLicensedUsers 
-         tbUpdateNK1s bProcess tbReftableConv tbRelNotes eStatus tbInstallFiles 
+         tbUpdateMaster tbRunDataFix tbUpdateNK1s fiLicensedUsers 
+         tbReftableConv bProcess tbLoadMenus tbRelNotes eStatus tbInstallFiles 
          tbUpdateIni 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
@@ -1592,17 +1599,20 @@ PROCEDURE ipConvertModule :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcFrom AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcTo AS CHAR NO-UNDO.
+    
     FIND FIRST module NO-LOCK WHERE 
-        module.module = cfrom 
+        module.module = ipcfrom 
         NO-ERROR.
     IF NOT AVAIL module THEN RETURN.
   
-    RUN ipStatus ("    Converting module " + cFrom + " to " + cTo).
+    RUN ipStatus ("    Converting module " + ipcFrom + " to " + ipcTo).
 
     FIND FIRST bf-module EXCLUSIVE WHERE 
         ROWID(bf-module) = ROWID(module) NO-ERROR.
     IF AVAIL bf-module THEN ASSIGN
-        bf-module.module = cTo.
+        bf-module.module = ipcTo.
         
 END PROCEDURE.
 
@@ -2046,30 +2056,6 @@ PROCEDURE ipDataFix160001 :
 
     RUN ipStatus ("  Data Fix 160001...").
 
-    OUTPUT STREAM s1 TO reftable-phone-save.d APPEND.
-
-    FOR EACH emailcod NO-LOCK:
-        FOR EACH reftable NO-LOCK WHERE 
-            reftable.reftable = "" AND 
-            reftable.code = emailcod.emailcod:
-            FIND FIRST phone NO-LOCK WHERE 
-                RECID(phone) = INT(reftable.rec_key)
-                NO-ERROR.
-            IF AVAIL phone THEN DO:
-                EXPORT STREAM s1 reftable.
-                FIND bf-reftable EXCLUSIVE WHERE 
-                    ROWID(bf-reftable) EQ ROWID(reftable)
-                    NO-ERROR.
-                IF AVAIL bf-reftable THEN ASSIGN
-                    bf-reftable.rec_key = STRING(phone.rec_key).
-                ASSIGN 
-                    cnt = cnt + 1.
-            END. /* If matching phone record found */
-        END. /* each reftable */
-    END. /* each emailcod */
-
-    OUTPUT STREAM s1 CLOSE.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2131,6 +2117,22 @@ PROCEDURE ipDataFix160200 :
                 vend.payment-type = "Check".
         END.
     END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160600 C-Win 
+PROCEDURE ipDataFix160600 :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160600...").
+
+    RUN ipDelDupeNotes.
+
 
 END PROCEDURE.
 
@@ -2256,14 +2258,6 @@ PROCEDURE ipDataFix160712 :
         END.  
     END.             
     
-    /* Reports - set LV = true */
-    RUN ipStatus ("  REPORTS - set log value to TRUE").
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "Reports"
-        NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN
-        sys-ctrl.log-fld = TRUE.
-
     RUN ipConvQtyPerSet.
     
 END PROCEDURE.
@@ -2283,6 +2277,7 @@ PROCEDURE ipDataFix160800 :
     RUN ipMoveUserMenusToDatabase.
     RUN ipAddLocationData.
     RUN ipVendorMaxValue.
+    RUN ipSetImageFiles.
 
 END PROCEDURE.
 
@@ -2853,74 +2848,37 @@ PROCEDURE ipLoadAuditRecs :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading AuditTbl Records").
 
-    DISABLE TRIGGERS FOR LOAD OF audittbl.
+    &SCOPED-DEFINE tablename audittbl
     
-    INPUT FROM VALUE(cUpdDataDir + "\audittbl.d") NO-ECHO.
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
-        CREATE AuditTbl.
-        IMPORT AuditTbl.
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.auditTable EQ tt{&tablename}.auditTable
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
+        END.
     END.
     INPUT CLOSE.
+
+    /* Delete records no longer used */
+    FOR EACH {&tablename} EXCLUSIVE WHERE
+        NOT CAN-FIND(FIRST tt{&tablename} WHERE tt{&tablename}.auditTable = {&tablename}.auditTable ):
+        DELETE {&tablename}.
+    END.
+    
+    EMPTY TEMP-TABLE tt{&tablename}.
         
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadCueCardData C-Win
-PROCEDURE ipLoadCueCardData:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    RUN ipStatus ("  Loading CueCard data").
-
-    DISABLE TRIGGERS FOR LOAD OF cueCard.
-    DISABLE TRIGGERS FOR LOAD OF cueCardText.
-    
-    INPUT FROM VALUE(cUpdDataDir + "\cueCard.d") NO-ECHO.
-    REPEAT:
-        CREATE ttCueCard.
-        IMPORT 
-            ttCueCard.
-        FIND FIRST cueCard EXCLUSIVE WHERE 
-            cueCard.rec_key EQ ttCueCard.rec_key
-            NO-ERROR.
-        IF NOT AVAIL cueCard THEN 
-        DO:
-            CREATE cueCard.
-            BUFFER-COPY ttCueCard TO cueCard.
-        END.
-    END.
-    INPUT CLOSE.
-        
-    EMPTY TEMP-TABLE ttCueCard.
-
-    INPUT FROM VALUE(cUpdDataDir + "\cueCardText.d") NO-ECHO.
-    REPEAT:
-        CREATE ttCueCardText.
-        IMPORT 
-            ttCueCardText.
-        FIND FIRST cueCardText EXCLUSIVE WHERE 
-            cueCardText.rec_key EQ ttCueCardText.rec_key
-            NO-ERROR.
-        IF NOT AVAIL cueCardText THEN 
-        DO:
-            CREATE cueCardText.
-            BUFFER-COPY ttCueCardText TO cueCardText.
-        END.
-    END.
-    INPUT CLOSE.
-        
-    EMPTY TEMP-TABLE ttCueCardText.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadEmailCodes C-Win 
 PROCEDURE ipLoadEmailCodes :
@@ -2931,24 +2889,25 @@ PROCEDURE ipLoadEmailCodes :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Email codes").
 
-    DISABLE TRIGGERS FOR LOAD OF emailcod.
+    &SCOPED-DEFINE tablename emailcod
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     
-    INPUT FROM VALUE(cUpdDataDir + "\emailcod.d") NO-ECHO.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
-        CREATE ttEmailcod.
-        IMPORT 
-            ttEmailcod.
-        FIND FIRST emailcod EXCLUSIVE WHERE 
-            emailcod.emailcod EQ ttEmailcod.emailcod
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.emailcod EQ tt{&tablename}.emailcod
             NO-ERROR.
-        IF NOT AVAIL emailcod THEN DO:
-            CREATE emailcod.
-            BUFFER-COPY ttEmailcod TO emailcod.
+        IF NOT AVAIL {&tablename} THEN DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
         END.
     END.
     INPUT CLOSE.
         
-    EMPTY TEMP-TABLE ttEmailcod.
+    EMPTY TEMP-TABLE tt{&tablename}.
   
 END PROCEDURE.
 
@@ -2964,21 +2923,63 @@ PROCEDURE ipLoadLookups :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Lookups").
 
-    DISABLE TRIGGERS FOR LOAD OF lookups.
+    &SCOPED-DEFINE tablename lookups
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     
-    FOR EACH lookups:
-        DELETE lookups.
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
     END.
     
-    INPUT FROM VALUE(cUpdDataDir + "\lookups.d") NO-ECHO.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
-        CREATE lookups.
-        IMPORT lookups.
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
     END.
     INPUT CLOSE.
         
-    EMPTY TEMP-TABLE ttLookups.
+    EMPTY TEMP-TABLE tt{&tablename}.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadMenus C-Win 
+PROCEDURE ipLoadMenus :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcDir AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcTgtDir AS CHAR NO-UNDO.
+    DEF VAR cFileStream AS CHAR NO-UNDO.
+    DEF VAR cThisEntry AS CHAR NO-UNDO.
+    DEF VAR cTgtEnv AS CHAR NO-UNDO.
+
+    RUN ipStatus ("Loading New Menus").
+    
+    ASSIGN 
+        cTgtEnv = cEnvDir + "\" + fiEnvironment:{&SV}.
+
+    INPUT FROM OS-DIR (ipcDir).
+
+    REPEAT:
+        IMPORT cFileStream.
+        FILE-INFO:FILE-NAME = ipcDir + "\" + cFileStream.
+        IF SUBSTRING(FILE-INFO:FILE-NAME,LENGTH(FILE-INFO:FILE-NAME),1) EQ "." THEN DO:
+            NEXT.
+        END.
+        ELSE IF FILE-INFO:FILE-TYPE BEGINS "F" THEN DO:
+            OS-COPY VALUE(FILE-INFO:FILE-NAME) VALUE(cTgtEnv).
+        END.
+        ELSE DO:
+            OS-CREATE-DIR VALUE(cTgtEnv + "\" + cFileStream).
+            RUN ipLoadMenus IN THIS-PROCEDURE (FILE-INFO:FILE-NAME,cTgtEnv + "\Addon").
+        END.
+    END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2993,45 +2994,51 @@ PROCEDURE ipLoadModules :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Module Records").
 
-    DISABLE TRIGGERS FOR LOAD OF module.
+    &SCOPED-DEFINE tablename module
     
-    INPUT FROM VALUE(cUpdDataDir + "\module.d") NO-ECHO.
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
-        CREATE ttModule.
-        IMPORT ttModule.
-        IF CAN-FIND(module WHERE 
-                    module.db-name EQ ttModule.db-name AND
-                    module.module EQ ttModule.module) THEN DO:
-            DELETE ttModule.
-            NEXT.
-        END.
-        ELSE DO:
-            CREATE module.
-            BUFFER-COPY ttModule TO module.
-            DELETE ttModule.
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.db-name EQ tt{&tablename}.db-name AND 
+            {&tablename}.module EQ tt{&tablename}.module
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
         END.
     END.
     INPUT CLOSE.
+
+    /* Delete records no longer used */
+    FOR EACH {&tablename} EXCLUSIVE WHERE 
+        NOT CAN-FIND(FIRST tt{&tablename} WHERE 
+                    tt{&tablename}.db-name EQ {&tablename}.db-name AND
+                    tt{&tablename}.module EQ {&tablename}.module):
+        DELETE {&tablename}.
+    END.
         
-    EMPTY TEMP-TABLE ttmodule.
+    EMPTY TEMP-TABLE tt{&tablename}.
 
-/* From Wade's convertModule.p in ticket 23532 */
-cfrom = "m2." . cTo = "outboundProcess." . RUN ipConvertModule.
-
-cfrom = "m31." . cTo = "eddoc." . RUN ipConvertModule.
-cfrom = "m33." . cTo = "edivtran." . RUN ipConvertModule.
-cfrom = "m34." . cTo = "wedshtr." . RUN ipConvertModule.
-cfrom = "m36." . cTo = "edcat." . RUN ipConvertModule.
-
-cfrom = "m41." . cTo = "edmast." . RUN ipConvertModule.
-cfrom = "m42." . cTo = "edcode." . RUN ipConvertModule.
-cfrom = "m43." . cTo = "edShipTo." . RUN ipConvertModule.
-cfrom = "m44." . cTo = "edICXRef." . RUN ipConvertModule.
-cfrom = "m45." . cTo = "edshipvia." . RUN ipConvertModule.
-cfrom = "m46." . cTo = "edco." . RUN ipConvertModule.
-cfrom = "m47." . cTo = "edSetID." . RUN ipConvertModule.
-cfrom = "m48." . cTo = "edPartnerGrp." . RUN ipConvertModule.
-cfrom = "m49." . cTo = "ediPartnerSegment." . RUN ipConvertModule.
+    /* From Wade's convertModule.p in ticket 23532 */
+    RUN ipConvertModule ("m2.", "outboundProcess.").
+    RUN ipConvertModule ("m31.", "eddoc.").
+    RUN ipConvertModule ("m33.", "edivtran.").
+    RUN ipConvertModule ("m34.", "wedshtr.").
+    RUN ipConvertModule ("m36.", "edcat.").
+    RUN ipConvertModule ("m41.", "edmast.").
+    RUN ipConvertModule ("m42.", "edcode.").
+    RUN ipConvertModule ("m43.", "edShipto.").
+    RUN ipConvertModule ("m44.", "edICXRef.").
+    RUN ipConvertModule ("m45.", "edshipvia.").
+    RUN ipConvertModule ("m46.", "edco.").
+    RUN ipConvertModule ("m47.", "edSetID.").
+    RUN ipConvertModule ("m48.", "edPartnerGrp.").
+    RUN ipConvertModule ("m49.", "edPartnerSegment.").
 
 END PROCEDURE.
 
@@ -3053,6 +3060,14 @@ PROCEDURE ipLoadNewUserData :
 
     /* Add/convert data for new users table fields */
     FOR EACH users EXCLUSIVE:
+
+        ASSIGN
+            users.userImage[1] = IF users.userImage[1] = "" THEN "Graphics\32x32\user.png" ELSE users.userImage[1]
+            users.showMnemonic = IF users.showMnemonic = "" THEN "All" ELSE users.showMnemonic
+            users.positionMnemonic = IF users.positionMnemonic = "" THEN "Begin" ELSE users.positionMnemonic
+            users.use_colors = FALSE
+            users.use_fonts = FALSE.
+
         IF users.userType = "" OR users.userType = ? THEN DO:
             CASE users.user_id:
                 WHEN "ASI" OR
@@ -3069,12 +3084,7 @@ PROCEDURE ipLoadNewUserData :
                 OTHERWISE ASSIGN users.securityLevel = 100.
             END CASE.
         END.
-        /* Ticket 30974 - disable colors/fonts */
-        ASSIGN
-            users.use_colors = FALSE
-            users.use_fonts = FALSE.
-            
-
+        
         FOR EACH reftable EXCLUSIVE WHERE 
             reftable.reftable EQ "users.user-docs" AND
             reftable.company EQ users.user_id:
@@ -3121,7 +3131,6 @@ PROCEDURE ipLoadNewUserData :
         END.
     END. /* each users */
 
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3136,100 +3145,108 @@ PROCEDURE ipLoadPrograms :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Program Master Records").
 
-    DISABLE TRIGGERS FOR LOAD OF prgrms.
+    &SCOPED-DEFINE tablename prgrms
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     
-    INPUT FROM VALUE(cUpdDataDir + "\prgrms.d") NO-ECHO.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
-        CREATE ttPrgrms.
-        IMPORT ttPrgrms.
-            
-        FIND FIRST prgrms EXCLUSIVE WHERE 
-            prgrms.prgmname EQ ttPrgrms.prgmname 
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.prgmname EQ tt{&tablename}.prgmname 
             NO-ERROR.
-        IF NOT AVAIL prgrms THEN DO:
-            CREATE prgrms.
-            BUFFER-COPY ttPrgrms TO prgrms
+        IF NOT AVAIL {&tablename} THEN DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}
             ASSIGN 
-                prgrms.can_run = '*'
-                prgrms.can_create = '*'
-                prgrms.can_update = '*'
-                prgrms.can_delete = '*'.
+                {&tablename}.can_run = '*'
+                {&tablename}.can_create = '*'
+                {&tablename}.can_update = '*'
+                {&tablename}.can_delete = '*'.
         END.
         ELSE DO:
             ASSIGN 
-                prgrms.prgtitle = ttPrgrms.prgtitle
-                prgrms.run_persistent = ttPrgrms.RUN_persistent
-                prgrms.dir_group = ttPrgrms.DIR_group
-                prgrms.use_colors = ttPrgrms.USE_colors
-                prgrms.use_fonts = ttPrgrms.USE_fonts
-                prgrms.track_usage = ttPrgrms.track_usage
-                prgrms.popup = ttPrgrms.popup
-                prgrms.prgm_ver = ttPrgrms.prgm_ver
-                prgrms.menu_item = ttPrgrms.MENU_item
-                prgrms.mfgroup = ttPrgrms.mfgroup.
+                {&tablename}.prgtitle = tt{&tablename}.prgtitle
+                {&tablename}.run_persistent = tt{&tablename}.run_persistent
+                {&tablename}.dir_group = tt{&tablename}.dir_group
+                {&tablename}.use_colors = tt{&tablename}.use_colors
+                {&tablename}.use_fonts = tt{&tablename}.use_fonts
+                {&tablename}.track_usage = tt{&tablename}.track_usage
+                {&tablename}.popup = tt{&tablename}.popup
+                {&tablename}.prgm_ver = tt{&tablename}.prgm_ver
+                {&tablename}.menu_item = tt{&tablename}.MENU_item
+                {&tablename}.mfgroup = tt{&tablename}.mfgroup
+                {&tablename}.menuOrder = tt{&tablename}.menuOrder
+                {&tablename}.menuLevel = tt{&tablename}.menuLevel
+                {&tablename}.itemParent = tt{&tablename}.itemParent
+                {&tablename}.mnemonic = tt{&tablename}.mnemonic
+                {&tablename}.systemType = tt{&tablename}.systemType
+                {&tablename}.menuImage = tt{&tablename}.menuImage
+                {&tablename}.translation = tt{&tablename}.translation.
              DO i = 1 TO 13:
                 ASSIGN 
-                    prgrms.widget_bgc[i] = ttPrgrms.WIDGET_bgc[i]
-                    prgrms.widget_fgc[i] = ttPrgrms.WIDGET_fgc[i]
-                    prgrms.widget_font[i] = ttPrgrms.WIDGET_font[i].
+                    {&tablename}.widget_bgc[i] = tt{&tablename}.WIDGET_bgc[i]
+                    {&tablename}.widget_fgc[i] = tt{&tablename}.WIDGET_fgc[i]
+                    {&tablename}.widget_font[i] = tt{&tablename}.WIDGET_font[i].
             END.
         END.
     END.
     INPUT CLOSE.
         
     /* Delete records no longer used */
-    FOR EACH prgrms EXCLUSIVE WHERE 
-        NOT CAN-FIND(FIRST ttPrgrms WHERE ttPrgrms.prgmname = prgrms.prgmname ):
-        DELETE prgrms.
+    FOR EACH {&tablename} EXCLUSIVE WHERE 
+        NOT CAN-FIND(FIRST tt{&tablename} WHERE tt{&tablename}.prgmname = {&tablename}.prgmname ):
+        DELETE {&tablename}.
     END.
     
-    EMPTY TEMP-TABLE ttPrgrms.
+    EMPTY TEMP-TABLE tt{&tablename}.
 
     /* Fix "about." prgrms record description */
-    FIND FIRST prgrms EXCLUSIVE-LOCK WHERE
-        prgrms.prgmname EQ "about." 
+    FIND FIRST {&tablename} EXCLUSIVE-LOCK WHERE
+        {&tablename}.prgmname EQ "about." 
         NO-ERROR.
-    IF NOT AVAILABLE prgrms THEN DO:
-        CREATE prgrms.
+    IF NOT AVAILABLE {&tablename} THEN DO:
+        CREATE {&tablename}.
         ASSIGN
-            prgrms.prgmname = "about."
-            prgrms.dir_group = "nosweat"
-            prgrms.run_persistent = YES
-            prgrms.menu_item = YES
+            {&tablename}.prgmname = "about."
+            {&tablename}.dir_group = "nosweat"
+            {&tablename}.run_persistent = YES
+            {&tablename}.menu_item = YES
             .
     END.
     ASSIGN
-        prgrms.prgtitle = "About". 
+        {&tablename}.prgtitle = "About". 
         
     /* Fix "audit." program master regardless of existing entry */
-    FIND FIRST prgrms EXCLUSIVE-LOCK WHERE
-        prgrms.prgmname EQ "audit." 
+    FIND FIRST {&tablename} EXCLUSIVE-LOCK WHERE
+        {&tablename}.prgmname EQ "audit." 
         NO-ERROR.
-    IF NOT AVAILABLE prgrms THEN
-        CREATE prgrms.
+    IF NOT AVAILABLE {&tablename} THEN
+        CREATE {&tablename}.
     ASSIGN
-        prgrms.prgmname = "audit."
-        prgrms.dir_group = "system"
-        prgrms.run_persistent = YES
-        prgrms.menu_item = YES
+        {&tablename}.dir_group = "system"
+        {&tablename}.run_persistent = YES
+        {&tablename}.menu_item = YES
         .
         
     /* Ensure 'admin' user has same privileges as 'asi' */
     /* This is better handled with new security, but eliminates some access issues */
     /* See ticket 27968 */
-    FOR EACH prgrms:
-        IF CAN-DO(prgrms.can_run,"asi") 
-        AND NOT CAN-DO(prgrms.can_run,"admin") THEN ASSIGN
-            prgrms.can_run = prgrms.can_run + ",admin".
-        IF CAN-DO(prgrms.can_create,"asi") 
-        AND NOT CAN-DO(prgrms.can_create,"admin") THEN ASSIGN
-            prgrms.can_create = prgrms.can_create + ",admin".
-        IF CAN-DO(prgrms.can_update,"asi") 
-        AND NOT CAN-DO(prgrms.can_update,"admin") THEN ASSIGN
-            prgrms.can_update = prgrms.can_update + ",admin".
-        IF CAN-DO(prgrms.can_delete,"asi") 
-        AND NOT CAN-DO(prgrms.can_delete,"admin") THEN ASSIGN
-            prgrms.can_delete = prgrms.can_delete + ",admin".
+    FOR EACH {&tablename}:
+        IF CAN-DO({&tablename}.can_run,"asi") 
+        AND NOT CAN-DO({&tablename}.can_run,"admin") THEN ASSIGN
+            {&tablename}.can_run = {&tablename}.can_run + ",admin".
+        IF CAN-DO({&tablename}.can_create,"asi") 
+        AND NOT CAN-DO({&tablename}.can_create,"admin") THEN ASSIGN
+            {&tablename}.can_create = {&tablename}.can_create + ",admin".
+        IF CAN-DO({&tablename}.can_update,"asi") 
+        AND NOT CAN-DO({&tablename}.can_update,"admin") THEN ASSIGN
+            {&tablename}.can_update = {&tablename}.can_update + ",admin".
+        IF CAN-DO({&tablename}.can_delete,"asi") 
+        AND NOT CAN-DO({&tablename}.can_delete,"admin") THEN ASSIGN
+            {&tablename}.can_delete = prgrms.can_delete + ",admin".
     END.
     
     /* Added usergrp test per BV request - same ticket */
@@ -3239,46 +3256,6 @@ PROCEDURE ipLoadPrograms :
         AND NOT CAN-DO(usergrps.users,"admin") THEN ASSIGN
                 usergrps.users = usergrps.users + ",admin".
     END.
-
-    /* 35628 - ensure additional field content is loaded */
-    INPUT FROM VALUE(cUpdDataDir + "\prgrms.d") NO-ECHO.
-    REPEAT:
-        CREATE ttPrgms.
-        IMPORT ttPrgms.
-        FIND FIRST prgrms EXCLUSIVE WHERE 
-            prgrms.prgmname EQ ttPrgrms.prgmname 
-            NO-ERROR.
-        IF NOT AVAIL prgrms THEN DO:
-            CREATE prgrms.
-            BUFFER-COPY ttPrgrms TO prgrms.
-        END.
-        ELSE DO:
-            ASSIGN 
-                prgrms.menuOrder = ttPrgrms.menuOrder
-                prgrms.menuLevel = ttPrgrms.menuLevel
-                prgrms.itemParent = ttPrgrms.itemParent
-                prgrms.mnemonic = ttPrgrms.mnemonic
-                prgrms.systemType = ttPrgrms.systemType
-                prgrms.menuImage = ttPrgrms.menuImage
-                prgrms.translation = ttPrgrms.translation.
-        END.
-        DELETE ttPrgrms.
-    END.
-
-    FOR EACH employee EXCLUSIVE-LOCK:
-        employee.employeeImage[1] = "Graphics\32x32\user.png".
-    END. /* each users */
-
-    FOR EACH mach EXCLUSIVE-LOCK:
-        mach.machineImage[1] = "Graphics\32x32\gearwheels.png".
-    END. /* each users */
-
-    FOR EACH users EXCLUSIVE-LOCK:
-        ASSIGN
-            users.userImage[1] = if users.userImage[1] = "" then "Graphics\32x32\user.png" else users.userImage[1]
-            users.showMnemonic = users.showMnemonic = "" then "All" else users.showMnemonic
-            users.positionMnemonic = if users.positionMnemonic = "" then "Begin" else users.positionMnemonic.
-    END. /* each users */ 
 
 END PROCEDURE.
 
@@ -3294,37 +3271,36 @@ PROCEDURE ipLoadProgramXref :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Program Master Cross-References").
 
-    DISABLE TRIGGERS FOR LOAD OF prgmxref.
+    &SCOPED-DEFINE tablename prgmxref
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     
-    INPUT FROM VALUE(cUpdDataDir + "\prgmxref.d") NO-ECHO.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
-        CREATE ttPrgmxref.
-        IMPORT 
-            ttPrgmxref.table_name
-            ttPrgmxref.prgmname
-            ttPrgmxref.pageno.
-        FIND FIRST prgmxref EXCLUSIVE WHERE 
-            prgmxref.table_name EQ ttPrgmxref.table_name 
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.table_name EQ tt{&tablename}.table_name 
             NO-ERROR.
-        IF NOT AVAIL prgmxref THEN DO:
-            CREATE prgmxref.
-            BUFFER-COPY ttPrgmxref TO prgmxref.
+        IF NOT AVAIL {&tablename} THEN DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
         END.
         ELSE DO:
             ASSIGN 
-                prgmxref.prgmname = ttPrgmxref.prgmname
-                prgmxref.pageno = ttPrgmxref.pageno.
+                {&tablename}.prgmname = tt{&tablename}.prgmname
+                {&tablename}.pageno = tt{&tablename}.pageno.
         END.
     END.
     INPUT CLOSE.
         
     /* Delete records no longer used */
-    FOR EACH prgmxref EXCLUSIVE WHERE
-        NOT CAN-FIND(FIRST ttPrgmxref WHERE ttPrgmxref.table_name = prgmxref.table_name ):
-        DELETE prgmxref.
+    FOR EACH {&tablename} EXCLUSIVE WHERE
+        NOT CAN-FIND(FIRST tt{&tablename} WHERE tt{&tablename}.table_name = {&tablename}.table_name ):
+        DELETE {&tablename}.
     END.
     
-    EMPTY TEMP-TABLE ttPrgmxref.
+    EMPTY TEMP-TABLE tt{&tablename}.
 
 END PROCEDURE.
 
@@ -3339,27 +3315,26 @@ PROCEDURE ipLoadTranslation :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Translation Records").
 
-    DISABLE TRIGGERS FOR LOAD OF translation.
+    &SCOPED-DEFINE tablename translation
     
-    INPUT FROM VALUE(cUpdDataDir + "\translation.d") NO-ECHO.
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
-        CREATE ttTranslation.
-        IMPORT ttTranslation.
-        IF CAN-FIND(translation WHERE 
-            translation.rec_key EQ ttTranslation.rec_key) THEN DO:
-            DELETE ttTranslation.
-            NEXT.
-        END.
-        ELSE DO:
-            CREATE translation.
-            BUFFER-COPY ttTranslation TO translation.
-            DELETE ttTranslation.
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.rec_key EQ tt{&tablename}.rec_key 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
         END.
     END.
     INPUT CLOSE.
         
-    EMPTY TEMP-TABLE ttTranslation.
-
+    EMPTY TEMP-TABLE tt{&tablename}.
 
 END PROCEDURE.
 
@@ -3374,27 +3349,26 @@ PROCEDURE ipLoadUserLanguage :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading UserLanguage Records").
 
-    DISABLE TRIGGERS FOR LOAD OF UserLanguage.
+    &SCOPED-DEFINE tablename userlanguage
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     
-    INPUT FROM VALUE(cUpdDataDir + "\UserLanguage.d") NO-ECHO.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
-        CREATE ttUserLanguage.
-        IMPORT ttUserLanguage.
-        IF CAN-FIND(UserLanguage WHERE 
-            UserLanguage.rec_key EQ ttUserLanguage.rec_key) THEN DO:
-            DELETE ttUserLanguage.
-            NEXT.
-        END.
-        ELSE DO:
-            CREATE UserLanguage.
-            BUFFER-COPY ttUserLanguage TO UserLanguage.
-            DELETE ttUserLanguage.
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.rec_key EQ tt{&tablename}.rec_key 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
         END.
     END.
-    
     INPUT CLOSE.
         
-    EMPTY TEMP-TABLE ttUserLanguage.
+    EMPTY TEMP-TABLE tt{&tablename}.
 
 END PROCEDURE.
 
@@ -3409,37 +3383,31 @@ PROCEDURE ipLoadUtilitiesTable :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Utilities Records").
 
+    &SCOPED-DEFINE tablename utilities
+
     DISABLE TRIGGERS FOR LOAD OF reftable.
     DISABLE TRIGGERS FOR LOAD OF notes.
-    DISABLE TRIGGERS FOR LOAD OF Utilities.
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     
-    INPUT FROM VALUE(cUpdDataDir + "\Utilities.d") NO-ECHO.
-    REPEAT:
-        CREATE ttUtilities.
-        IMPORT ttUtilities.
-        IF CAN-FIND(Utilities WHERE 
-            Utilities.programName EQ ttUtilities.programName) THEN 
-        DO:
-            DELETE ttUtilities.
-            NEXT.
-        END.
-        ELSE 
-        DO:
-            CREATE Utilities.
-            BUFFER-COPY ttUtilities TO Utilities.
-            IF Utilities.programName = "module" THEN ASSIGN 
-                utilities.securityLevel = 1000.
-            ELSE ASSIGN 
-                utilities.securityLevel = 900.
-            
-            DELETE ttUtilities.
-        END.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
     END.
     
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+        IF {&tablename}.programName = "module" THEN ASSIGN 
+            {&tablename}.securityLevel = 1000.
+        ELSE ASSIGN 
+            {&tablename}.securityLevel = 900.
+    END.
     INPUT CLOSE.
         
-    EMPTY TEMP-TABLE ttUtilities.
-    
+    EMPTY TEMP-TABLE tt{&tablename}.
+
     /* 25458 - Delete utilities reftables */
     FOR EACH reftable NO-LOCK WHERE 
         reftable.reftable EQ 'Utilities':
@@ -3447,14 +3415,10 @@ PROCEDURE ipLoadUtilitiesTable :
             notes.rec_key EQ reftable.rec_key:
             DELETE notes.
         END. 
-    END. 
-    FOR EACH reftable WHERE 
-        reftable.reftable EQ 'Utilities':
         CREATE reftable1.
         BUFFER-COPY reftable TO reftable1.
         DELETE reftable.
     END. 
-
 
 END PROCEDURE.
 
@@ -3469,31 +3433,31 @@ PROCEDURE ipLoadXuserMenu :
     ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading xusermenu Records").
 
-    DISABLE TRIGGERS FOR LOAD OF xUserMenu.
+    &SCOPED-DEFINE tablename xusermenu
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     
-    INPUT FROM VALUE(cUpdDataDir + "\xUserMenu.d") NO-ECHO.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
-        CREATE ttxUserMenu.
-        IMPORT ttxUserMenu.
-        IF ttxUserMenu.user_id NE "AddonUsr" THEN DO:
-            DELETE ttxUserMenu.
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        IF tt{&tablename}.user_id NE "AddonUsr" THEN DO:
+            DELETE tt{&tablename}.
             NEXT.
         END.
-        IF CAN-FIND(xUserMenu WHERE 
-            xUserMenu.rec_key EQ ttXuserMenu.rec_key) THEN DO:
-            DELETE ttxUserMenu.
-            NEXT.
-        END.
-        ELSE DO:
-            CREATE xUserMenu.
-            BUFFER-COPY ttxUserMenu TO xUserMenu.
-            DELETE ttxUserMenu.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.rec_key EQ tt{&tablename}.rec_key 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
         END.
     END.
     
     INPUT CLOSE.
         
-    EMPTY TEMP-TABLE ttxUserMenu.
+    EMPTY TEMP-TABLE tt{&tablename}.
 
 END PROCEDURE.
 
@@ -3557,14 +3521,13 @@ PROCEDURE ipMoveUsermenusToDatabase :
                 WHERE ttUserMenu.prgmname EQ prgrms.prgmname) THEN
                 NEXT.
             /* menu option not found in menu.lst, add as an exception */
-            CREATE xUserMenu.                
+            CREATE xusermenu.                
             ASSIGN
-                xUserMenu.user_id  = ENTRY(idx,cListUsers)
-                xUserMenu.prgmname = prgrms.prgmname
+                xusermenu.user_id  = ENTRY(idx,cListUsers)
+                xusermenu.prgmname = prgrms.prgmname
                 .
         END. /* each prgrms */
     END. /* do idx */
-
 
 END PROCEDURE.
 
@@ -3603,12 +3566,12 @@ PROCEDURE ipProcessAll :
     IF tbRunDataFix:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipDataFix.
     END.
-    IF tbDelDupeNotes:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-        RUN ipDelDupeNotes.
-    END.
     IF tbUpdateNK1s:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipUpdateNK1s.
         /* RUN ipVerifyNK1Changes. */
+    END.
+    IF tbLoadMenus:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+        RUN ipLoadMenus (cUpdMenuDir,cEnvProdDir).
     END.
     IF tbRelNotes:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipCopyRelNotes.
@@ -4162,6 +4125,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetImageFiles C-Win 
+PROCEDURE ipSetImageFiles :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Setting Image files").
+    
+    FOR EACH employee EXCLUSIVE-LOCK:
+        employee.employeeImage[1] = "Graphics\32x32\user.png".
+    END. /* each users */
+
+    FOR EACH mach EXCLUSIVE-LOCK:
+        mach.machineImage[1] = "Graphics\32x32\gearwheels.png".
+    END. /* each users */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipStatus C-Win 
 PROCEDURE ipStatus :
 /*------------------------------------------------------------------------------
@@ -4300,6 +4284,14 @@ PROCEDURE ipUpdateNK1s :
     IF AVAIL sys-ctrl THEN ASSIGN
         sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/updatehelpServices/helpupdate.asmx?WSDL'".
     
+    /* Reports - set LV = true */
+    RUN ipStatus ("  REPORTS - set log value to TRUE").
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.name EQ "Reports"
+        NO-ERROR.
+    IF AVAIL sys-ctrl THEN ASSIGN
+        sys-ctrl.log-fld = TRUE.
+
     /* RelType - set Default to "B" */
     RUN ipStatus ("  RelType - if empty, set char value to Bill and Ship").
     FIND FIRST sys-ctrl WHERE
