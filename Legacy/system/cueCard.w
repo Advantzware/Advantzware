@@ -194,7 +194,7 @@ DEFINE BUTTON resetLayout
 
 DEFINE VARIABLE layoutMessage AS CHARACTER 
      VIEW-AS EDITOR
-     SIZE 57 BY 3.33
+     SIZE 57 BY 3.1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE layoutFrameCol AS DECIMAL FORMAT "->>9.99":U INITIAL 0 
@@ -297,6 +297,14 @@ DEFINE IMAGE moveRightUp
 DEFINE IMAGE moveUp
      FILENAME "Graphics/24x24/default_up.gif":U TRANSPARENT
      SIZE 7 BY 1.67 TOOLTIP "Move Up".
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 9.8 BY 2.38.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 9.8 BY 2.38.
 
 DEFINE BUTTON btnAdd 
      IMAGE-UP FILE "Graphics/32x32/navigate_plus.ico":U
@@ -614,10 +622,10 @@ DEFINE FRAME helperFrame
      layoutMessage AT ROW 7.91 COL 2 NO-LABEL WIDGET-ID 30
      moveValue AT ROW 13.38 COL 24 COLON-ALIGNED HELP
           "Enter Value to Move Cue Card Layout" NO-LABEL WIDGET-ID 48
-     "Target Frame" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 1.24 COL 9 WIDGET-ID 18
      "Cue Card" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.24 COL 36 WIDGET-ID 20
+     "Target Frame" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 1.24 COL 9 WIDGET-ID 18
      cueStatusCol AT ROW 2.19 COL 50 WIDGET-ID 22
      cueStatusRow AT ROW 3.62 COL 50 WIDGET-ID 24
      cueStatusHeight AT ROW 5.05 COL 50 WIDGET-ID 26
@@ -630,20 +638,14 @@ DEFINE FRAME helperFrame
      moveLeftDown AT ROW 14.81 COL 20 WIDGET-ID 42
      moveRightDown AT ROW 14.81 COL 34 WIDGET-ID 44
      moveDown AT ROW 14.81 COL 27 WIDGET-ID 46
+     RECT-3 AT ROW 12.67 COL 6 WIDGET-ID 54
+     RECT-4 AT ROW 12.67 COL 45 WIDGET-ID 56
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS TOP-ONLY NO-UNDERLINE THREE-D 
          AT COL 2 ROW 11
-         SIZE 59 BY 16.67
+         SIZE 59 BY 17.14
          FGCOLOR 1 
          TITLE "Cue Card Layout Helper" WIDGET-ID 600.
-
-DEFINE FRAME filterFrame
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 61 BY 28.57
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE BGCOLOR 8 "Running Objects" WIDGET-ID 200.
 
 DEFINE FRAME viewFrame
      btnDown AT ROW 17.19 COL 60 HELP
@@ -720,17 +722,17 @@ DEFINE FRAME viewFrame
      created AT ROW 14.33 COL 2 NO-LABEL WIDGET-ID 458
      cCuetextFont AT ROW 14.81 COL 35 COLON-ALIGNED HELP
           "Select Font Size" NO-LABEL WIDGET-ID 396
-     "13" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 80.4 WIDGET-ID 436
-          BGCOLOR 13 FGCOLOR 15 
-     "3" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 67 WIDGET-ID 416
-          BGCOLOR 3 FGCOLOR 15 
+     "BG:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 8.38 COL 26 WIDGET-ID 348
      "15" VIEW-AS TEXT
           SIZE 3 BY .71 AT ROW 9.71 COL 94.4 WIDGET-ID 440
           BGCOLOR 15 FGCOLOR 0 
-     "BG:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 8.38 COL 26 WIDGET-ID 348
+     "3" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 67 WIDGET-ID 416
+          BGCOLOR 3 FGCOLOR 15 
+     "13" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 80.4 WIDGET-ID 436
+          BGCOLOR 13 FGCOLOR 15 
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 62 ROW 11
@@ -739,28 +741,6 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     "14" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 87.4 WIDGET-ID 438
-          BGCOLOR 14 FGCOLOR 0 
-     "2" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 60 WIDGET-ID 414
-          BGCOLOR 2 FGCOLOR 15 
-     "BG:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 9.57 COL 26 WIDGET-ID 350
-     "Ss" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 74 WIDGET-ID 374
-          FGCOLOR 0 FONT 4
-     "Ff" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 46 WIDGET-ID 358
-          FGCOLOR 0 FONT 0
-     "Fonts:" VIEW-AS TEXT
-          SIZE 6 BY .71 AT ROW 11 COL 30 WIDGET-ID 398
-     "Oo" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 53 WIDGET-ID 362
-          FGCOLOR 0 FONT 1
-     "Zz" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 88 WIDGET-ID 382
-          FGCOLOR 0 FONT 6
      "10" VIEW-AS TEXT
           SIZE 3 BY .71 AT ROW 9.71 COL 59.4 WIDGET-ID 430
           BGCOLOR 10 FGCOLOR 0 
@@ -770,54 +750,76 @@ DEFINE FRAME viewFrame
      "Ee" VIEW-AS TEXT
           SIZE 3 BY .76 AT ROW 11 COL 95 WIDGET-ID 386
           FGCOLOR 0 FONT 7
-     "12" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 73.4 WIDGET-ID 434
-          BGCOLOR 12 FGCOLOR 15 
-     "Ii" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 81 WIDGET-ID 378
-          FGCOLOR 0 FONT 5
-     "0" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 46 WIDGET-ID 402
-          BGCOLOR 0 FGCOLOR 15 
-     "7" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 95 WIDGET-ID 424
-          BGCOLOR 7 FGCOLOR 15 
-     "9" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 9.71 COL 53 WIDGET-ID 428
-          BGCOLOR 9 FGCOLOR 15 
-     "6" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 88 WIDGET-ID 422
-          BGCOLOR 6 FGCOLOR 15 
-     "8" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 9.71 COL 46 WIDGET-ID 426
-          BGCOLOR 8 FGCOLOR 0 
-     "Frame FG Color:" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 8.38 COL 2 WIDGET-ID 344
-     "1" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 53 WIDGET-ID 412
-          BGCOLOR 1 FGCOLOR 15 
-     "?" VIEW-AS TEXT
-          SIZE 2 BY .76 AT ROW 9.1 COL 39 WIDGET-ID 354
-          FGCOLOR 0 FONT 6
-     "?" VIEW-AS TEXT
-          SIZE 2 BY .76 AT ROW 11 COL 39 WIDGET-ID 390
-          FGCOLOR 0 FONT 6
-     "5" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 81 WIDGET-ID 420
-          BGCOLOR 5 FGCOLOR 15 
-     "Text FG Color:" VIEW-AS TEXT
-          SIZE 14 BY 1 AT ROW 9.57 COL 4 WIDGET-ID 346
-     "11" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 66.4 WIDGET-ID 432
-          BGCOLOR 11 FGCOLOR 0 
-     "Cue Card Text:" VIEW-AS TEXT
-          SIZE 15 BY .81 AT ROW 6.48 COL 3 WIDGET-ID 298
-     "Tt" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 67 WIDGET-ID 370
-          FGCOLOR 0 FONT 3
      "4" VIEW-AS TEXT
           SIZE 2 BY .71 AT ROW 8.48 COL 74 WIDGET-ID 418
           BGCOLOR 4 FGCOLOR 15 
+     "Tt" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 67 WIDGET-ID 370
+          FGCOLOR 0 FONT 3
+     "Cue Card Text:" VIEW-AS TEXT
+          SIZE 15 BY .81 AT ROW 6.48 COL 3 WIDGET-ID 298
+     "11" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 66.4 WIDGET-ID 432
+          BGCOLOR 11 FGCOLOR 0 
+     "Text FG Color:" VIEW-AS TEXT
+          SIZE 14 BY 1 AT ROW 9.57 COL 4 WIDGET-ID 346
+     "5" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 81 WIDGET-ID 420
+          BGCOLOR 5 FGCOLOR 15 
+     "?" VIEW-AS TEXT
+          SIZE 2 BY .76 AT ROW 11 COL 39 WIDGET-ID 390
+          FGCOLOR 0 FONT 6
+     "?" VIEW-AS TEXT
+          SIZE 2 BY .76 AT ROW 9.1 COL 39 WIDGET-ID 354
+          FGCOLOR 0 FONT 6
+     "1" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 53 WIDGET-ID 412
+          BGCOLOR 1 FGCOLOR 15 
+     "Frame FG Color:" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 8.38 COL 2 WIDGET-ID 344
+     "8" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 9.71 COL 46 WIDGET-ID 426
+          BGCOLOR 8 FGCOLOR 0 
+     "6" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 88 WIDGET-ID 422
+          BGCOLOR 6 FGCOLOR 15 
+     "Ii" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 81 WIDGET-ID 378
+          FGCOLOR 0 FONT 5
+     "9" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 9.71 COL 53 WIDGET-ID 428
+          BGCOLOR 9 FGCOLOR 15 
+     "7" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 95 WIDGET-ID 424
+          BGCOLOR 7 FGCOLOR 15 
+     "0" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 46 WIDGET-ID 402
+          BGCOLOR 0 FGCOLOR 15 
+     "Zz" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 88 WIDGET-ID 382
+          FGCOLOR 0 FONT 6
+     "12" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 73.4 WIDGET-ID 434
+          BGCOLOR 12 FGCOLOR 15 
+     "Oo" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 53 WIDGET-ID 362
+          FGCOLOR 0 FONT 1
+     "Fonts:" VIEW-AS TEXT
+          SIZE 6 BY .71 AT ROW 11 COL 30 WIDGET-ID 398
+     "Ff" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 46 WIDGET-ID 358
+          FGCOLOR 0 FONT 0
+     "2" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 60 WIDGET-ID 414
+          BGCOLOR 2 FGCOLOR 15 
+     "BG:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 9.57 COL 26 WIDGET-ID 350
+     "Ss" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 74 WIDGET-ID 374
+          FGCOLOR 0 FONT 4
+     "14" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 87.4 WIDGET-ID 438
+          BGCOLOR 14 FGCOLOR 0 
      transPanel AT ROW 15.95 COL 1 WIDGET-ID 16
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -866,6 +868,14 @@ DEFINE FRAME viewFrame
          SIZE 99 BY 18.4
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 400.
+
+DEFINE FRAME filterFrame
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 61 BY 28.57
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE BGCOLOR 8 "Running Objects" WIDGET-ID 200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -921,12 +931,13 @@ ASSIGN FRAME filterFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
-ASSIGN XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+ASSIGN XXTABVALXX = FRAME filterFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (cueCardBrowse:HANDLE IN FRAME DEFAULT-FRAME)
        XXTABVALXX = FRAME helperFrame:MOVE-AFTER-TAB-ITEM (cueCardBrowse:HANDLE IN FRAME DEFAULT-FRAME)
        XXTABVALXX = FRAME helperFrame:MOVE-BEFORE-TAB-ITEM (FRAME viewFrame:HANDLE)
 /* END-ASSIGN-TABS */.
 
-/* BROWSE-TAB cueCardBrowse svFocus DEFAULT-FRAME */
+/* BROWSE-TAB cueCardBrowse filterFrame DEFAULT-FRAME */
 /* SETTINGS FOR FILL-IN svFocus IN FRAME DEFAULT-FRAME
    ALIGN-L                                                              */
 /* SETTINGS FOR FRAME filterFrame
@@ -957,6 +968,10 @@ ASSIGN
 ASSIGN 
        layoutMessage:READ-ONLY IN FRAME helperFrame        = TRUE.
 
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME helperFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME helperFrame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN targetFrameCol IN FRAME helperFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN targetFrameHeight IN FRAME helperFrame
@@ -2104,6 +2119,7 @@ PROCEDURE pCRUD :
                                 cueCardText.textRow           = 2.43
                                 cueCardText.textHeight        = 4.29
                                 cueCardText.textWidth         = 44
+                                cueCardText.textFont          = ?
                                 fFGColor:BGCOLOR              = cueCardText.frameFGColor
                                 fBGColor:BGCOLOR              = cueCardText.frameBGColor
                                 tFGColor:BGCOLOR              = cueCardText.textFGColor
