@@ -416,7 +416,7 @@ oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
 oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
 &Scoped-define DISPLAYED-TABLES oe-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordl
-&Scoped-Define DISPLAYED-OBJECTS fiPrevOrder fiPromDtLabel fi_type-dscr ~
+&Scoped-Define DISPLAYED-OBJECTS fiPromDtLabel fi_type-dscr ~
 fi_qty-uom spare-dec-1 fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 ~
 fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate 
 
@@ -442,16 +442,6 @@ FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnPrevOrder d-oeitem
-FUNCTION fnPrevOrder RETURNS CHARACTER 
-    (ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOEScreenUOMConvert d-oeitem 
@@ -505,11 +495,6 @@ DEFINE BUTTON Btn_OK
      LABEL "&Save" 
      SIZE 15 BY 1.14
      BGCOLOR 8 .
-
-DEFINE VARIABLE fiPrevOrder AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Prev Order" 
-     VIEW-AS FILL-IN 
-     SIZE 17.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiPromDtLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Promise Date:" 
      VIEW-AS FILL-IN 
@@ -592,7 +577,6 @@ DEFINE QUERY d-oeitem FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME d-oeitem
-     fiPrevOrder AT ROW 9.33 COL 93.4 COLON-ALIGNED WIDGET-ID 28
      fiPromDtLabel AT ROW 14.57 COL 103.8 COLON-ALIGNED NO-LABEL WIDGET-ID 26
      fi_type-dscr AT ROW 7.67 COL 119.4 COLON-ALIGNED NO-LABEL
      oe-ordl.est-no AT ROW 1.24 COL 15.6 COLON-ALIGNED FORMAT "x(8)"
@@ -829,8 +813,6 @@ ASSIGN
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN oe-ordl.est-no IN FRAME d-oeitem
    EXP-FORMAT                                                           */
-/* SETTINGS FOR FILL-IN fiPrevOrder IN FRAME d-oeitem
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiPromDtLabel IN FRAME d-oeitem
    NO-ENABLE                                                            */
 ASSIGN 
@@ -1501,7 +1483,7 @@ DO:
                        VIEW-AS ALERT-BOX ERROR .                       
                RETURN NO-APPLY.
           END.
-          fiPrevOrder:SCREEN-VALUE = fnPrevOrder(eb.est-no, oe-ord.ord-no).
+          
        END.
       
       IF oe-ordl.est-no:SCREEN-VALUE GT "" AND runship-char EQ "RUN&SHIP Prompt" THEN 
@@ -5096,7 +5078,6 @@ PROCEDURE display-item :
         oe-ordl.spare-char-1:TOOLTIP = getOrdStatDescr(oe-ordl.spare-char-1).
     IF oe-ordl.spare-int-2 > 0 THEN
         fi_JobStartDate:SCREEN-VALUE = STRING(DATE(oe-ordl.spare-int-2)).
-    fiPrevOrder:SCREEN-VALUE = fnPrevOrder(oe-ordl.est-no:SCREEN-VALUE, oe-ord.ord-no).
     RUN new-type.
     RUN new-s-man (0).
 
@@ -5121,7 +5102,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiPrevOrder fiPromDtLabel fi_type-dscr fi_qty-uom spare-dec-1 
+  DISPLAY fiPromDtLabel fi_type-dscr fi_qty-uom spare-dec-1 
           fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 fi_sname-2 
           fi_sname-3 fi_sname-lbl fi_jobStartDate 
       WITH FRAME d-oeitem.
@@ -5454,7 +5435,7 @@ PROCEDURE get-eb-info :
                                (eb.est-type = 6 AND eb.form-no = 0) )
                               NO-LOCK NO-ERROR.
      IF AVAIL eb THEN ls-stock = eb.stock-no.
-     fiPrevOrder:SCREEN-VALUE = fnPrevOrder(oe-ordl.est-no:SCREEN-VALUE, oe-ord.ord-no).
+     
   END.
   ELSE ls-stock = "".
   
@@ -9499,34 +9480,6 @@ END FUNCTION.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnPrevOrder d-oeitem
-FUNCTION fnPrevOrder RETURNS CHARACTER 
-  (ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-		DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
-        IF ipcEstNo GT "" THEN 
-        DO:
-            FIND LAST bf-oe-ordl NO-LOCK
-                WHERE bf-oe-ordl.company EQ cocode
-                  AND bf-oe-ordl.est-no  EQ ipcEstNo
-                  AND bf-oe-ordl.ord-no  LT ipiOrdNo
-                NO-ERROR.
-            IF AVAILABLE bf-oe-ordl THEN
-                cResult = STRING(bf-oe-ordl.ord-no).
-        END.
-		RETURN cResult.
-
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fOEScreenUOMConvert d-oeitem 
