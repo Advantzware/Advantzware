@@ -9,7 +9,7 @@
                      ipcPort - database port number
                      ipcDir - environment directory name
                      ipcVer - current version
-                     ipcEnv - current Environment
+                     ipcEnv - current Environment 
                      ipcFromVer - from Env version
                      ipcToVer - to Env version
                      ipiLevel - users security level
