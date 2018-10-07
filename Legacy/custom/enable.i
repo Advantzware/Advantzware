@@ -58,3 +58,4 @@ userControl
 users ~
 wiptag ~
 vend ~
+sman ~

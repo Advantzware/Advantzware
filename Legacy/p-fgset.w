@@ -115,7 +115,7 @@ DEFINE BUTTON Btn-Delete
      FONT 4.
 
 DEFINE BUTTON Btn-est 
-     LABEL "&EstimateBuild" 
+     LABEL "&Build Est." 
      SIZE 20 BY 1.29
      FONT 4.
 

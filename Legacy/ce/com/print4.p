@@ -1218,9 +1218,7 @@ assign
  gsa-war = ce-ctrl.whse-mrkup
  qty     = tt-blk.
 
-FIND FIRST probe    
-      WHERE probe.company    EQ xest.company
-        AND probe.est-no     EQ xest.est-no NO-LOCK NO-ERROR.
+
    IF AVAIL probe THEN
       gsa-fm = int(probe.gsa-fm).      
    ELSE

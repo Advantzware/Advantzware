@@ -3236,7 +3236,10 @@ PROCEDURE local-assign-record :
    fg-rctd.pur-uom  = ls-tmp-uom
    fg-rctd.cost-uom = ls-tmp-uom
    fg-rctd.ext-cost = absolute(fg-rctd.std-cost * fg-rctd.t-qty /
-                      (IF fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1)). 
+                      (IF fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1))
+   fg-rctd.enteredBy = USERID("asi")
+   fg-rctd.enteredDT = DATETIME(TODAY, MTIME)                      
+   . 
   IF fg-rctd.po-no GT "" THEN DO:
       FIND FIRST po-ord WHERE po-ord.company EQ fg-rctd.company
           AND po-ord.po-no EQ INTEGER(fg-rctd.po-no)

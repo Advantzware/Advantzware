@@ -18,6 +18,7 @@ DEFINE {1} VARIABLE iBlankNo                AS INTEGER   NO-UNDO.
 
 DEFINE {2} VARIABLE qtty                    AS INTEGER   EXTENT 28 FORMAT ">>,>>>,>>>" NO-UNDO.
 DEFINE {2} VARIABLE rels                    AS INTEGER   EXTENT 28 FORMAT ">>" NO-UNDO.
+DEFINE {2} VARIABLE lRunShips               AS LOGICAL   EXTENT 28 NO-UNDO.
 DEFINE {2} VARIABLE save-qty                AS DECIMAL   NO-UNDO.
 DEFINE {2} VARIABLE xcal                    AS DECIMAL   NO-UNDO.
 DEFINE {2} VARIABLE lctr                    AS INTEGER   NO-UNDO.

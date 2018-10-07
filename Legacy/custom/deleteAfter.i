@@ -1,2 +1,1 @@
-itemfg-ink,~
 prgrms

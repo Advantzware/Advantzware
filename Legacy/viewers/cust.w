@@ -465,6 +465,7 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      btn_bank-info AT ROW 2.95 COL 129.2
      cust.sman AT ROW 3.86 COL 73 COLON-ALIGNED
+          LABEL "SalesGrp"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
@@ -2048,7 +2049,8 @@ PROCEDURE local-assign-record :
                 shipto.carrier = cust.carrier
                 shipto.dest-code = cust.del-zone
                 shipto.loc = cust.loc
-                shipto.tax-code = cust.tax-gr.
+                shipto.tax-code = cust.tax-gr
+                shipto.tax-mandatory = cust.sort EQ "Y".
          LEAVE.  /* just copy first shipto only Task 05250421*/
     end.
     for each bf-soldto of bf-cust NO-LOCK BY bf-soldto.sold-no:
@@ -2102,42 +2104,7 @@ PROCEDURE local-assign-record :
     cust.SwiftBIC  =  cShift  
     cust.Bank-RTN  =  cRouting .
 
-   /*IF adm-new-record AND NOT adm-adding-record THEN DO: /* copy*/
-     FIND FIRST b-cust WHERE RECID(b-cust) = v-cust-recid-prev NO-LOCK NO-ERROR.
-     FOR EACH b-shipto OF b-cust NO-LOCK.
-         CREATE shipto.
-         BUFFER-COPY b-shipto EXCEPT b-shipto.cust b-shipto.rec_key TO shipto.
-         ASSIGN shipto.company = cust.company
-                shipto.cust-no = cust.cust-no
-                shipto.ship-addr[1] = cust.addr[1]
-                shipto.ship-addr[2] = cust.addr[2]
-                shipto.ship-city = cust.city
-                shipto.ship-id = cust.cust-no
-                shipto.ship-name = cust.name
-                shipto.ship-no = 1
-                shipto.ship-state = cust.state
-                shipto.ship-zip = cust.zip
-                shipto.carrier = cust.carrier
-                shipto.dest-code = cust.del-zone
-                shipto.loc = cust.loc
-                shipto.tax-code = cust.tax-gr.
-     END.
-     FOR EACH b-soldto OF b-cust NO-LOCK:
-         CREATE soldto.
-         BUFFER-COPY b-soldto EXCEPT b-soldto.cust b-soldto.rec_key TO soldto.
-         ASSIGN soldto.company = cust.company
-                soldto.cust-no = cust.cust-no
-                soldto.sold-addr[1] = cust.addr[1]
-                soldto.sold-addr[2] = cust.addr[2]
-                soldto.sold-city = cust.city
-                soldto.sold-id = cust.cust-no
-                soldto.sold-name = cust.name
-                soldto.sold-no = 1
-                soldto.sold-state = cust.state
-                soldto.sold-zip = cust.zip.
-     END.
-  END.*/
-
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2488,46 +2455,7 @@ PROCEDURE local-update-record :
 
   RUN disable-fields.
 
-  /*if adm-new-record and not adm-adding-record then do:  /* copy */
-    find bf-cust where bf-cust.company = cust.company and
-                       bf-cust.cust-no = ls-prev-cust-no no-lock no-error.
-
-    for each bf-shipto of bf-cust NO-LOCK BY bf-shipto.ship-no
-         /* WHERE bf-shipto.ship-id = bf-cust.cust-no*/ :
-        create shipto.
-        buffer-copy bf-shipto except bf-shipto.cust-no to shipto.
-        assign shipto.cust-no = cust.cust-no
-                shipto.company = cust.company
-                shipto.ship-addr[1] = cust.addr[1]
-                shipto.ship-addr[2] = cust.addr[2]
-                shipto.ship-city = cust.city
-                shipto.ship-id = cust.cust-no
-                shipto.ship-name = cust.name
-                shipto.ship-state = cust.state
-                shipto.ship-zip = cust.zip
-                shipto.carrier = cust.carrier
-                shipto.dest-code = cust.del-zone
-                shipto.loc = cust.loc
-                shipto.tax-code = cust.tax-gr.
-               .
-         LEAVE.  /* just copy first shipto only Task 05250421*/
-    end.
-    for each bf-soldto of bf-cust NO-LOCK BY bf-soldto.sold-no:
-        create soldto.
-        buffer-copy bf-soldto except bf-soldto.cust-no to soldto.
-        assign soldto.cust-no = cust.cust-no
-                soldto.company = cust.company
-                soldto.sold-addr[1] = cust.addr[1]
-                soldto.sold-addr[2] = cust.addr[2]
-                soldto.sold-city = cust.city
-                soldto.sold-id = cust.cust-no
-                soldto.sold-name = cust.name
-                soldto.sold-state = cust.state
-                soldto.sold-zip = cust.zip.
-        LEAVE. /* just copy first shipto only Task 05250421*/
-    end.                     
-  end.*/
-
+ 
   IF NOT adm-new-record             AND
     cust.cr-hold NE ll-prev-cr-hold THEN
   FOR EACH oe-ord

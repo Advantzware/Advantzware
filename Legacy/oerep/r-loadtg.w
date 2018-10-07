@@ -967,7 +967,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Loadtag Creation */
 DO:
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -1166,7 +1166,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
    apply "close" to this-procedure.
 END.
 
@@ -3547,7 +3547,7 @@ PROCEDURE create-text-file :
 
       PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#,"
                        "PalletCode,PalletID,TagCounter,TagCountTotal,"
-                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty".
+                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty,RunShip".
 
       /* rstark - */
       IF lSSCC THEN PUT UNFORMATTED ",SSCC".
@@ -3829,7 +3829,9 @@ PROCEDURE create-w-ord :
             w-ord.sold-state   = oe-ord.sold-state
             w-ord.sold-zip     = oe-ord.sold-zip
             w-ord.linenum      = IF AVAIL oe-ordl THEN oe-ordl.e-num ELSE 0
-            w-ord.lot          = loadtag.misc-char[2].
+            w-ord.lot          = loadtag.misc-char[2]
+            w-ord.runShip      = IF AVAILABLE oe-ordl THEN oe-ordl.whsed ELSE NO 
+            .
 
       IF AVAIL b-job-hdr THEN
          w-ord.due-date-jobhdr = IF b-job-hdr.due-date <> ? THEN STRING(b-job-hdr.due-date, "99/99/9999") ELSE "".
@@ -4645,7 +4647,8 @@ PROCEDURE from-job :
 
                 ASSIGN
                  w-ord.ord-desc1    = oe-ordl.part-dscr1
-                 w-ord.ord-desc2    = oe-ordl.part-dscr2.
+                 w-ord.ord-desc2    = oe-ordl.part-dscr2
+                 w-ord.runShip      = oe-ordl.whsed.
 
                 RELEASE oe-ordl.
                 RELEASE oe-ord.
@@ -4891,6 +4894,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
             w-ord.dont-run-set = oe-ordl.is-a-component
             w-ord.ord-desc1    = oe-ordl.part-dscr1
             w-ord.ord-desc2    = oe-ordl.part-dscr2
+            w-ord.runShip      = oe-ordl.whsed
 
             /* gdm - 08130804*/
             w-ord.linenum      = oe-ordl.e-num
@@ -6709,7 +6713,7 @@ PROCEDURE ok-button :
   IF lv-ok-ran AND NOT tb_reprint-tag AND tb_close THEN do:
      IF program-name(1) matches "*r-loadtg.*"
         and not program-name(2) matches "*persist*" THEN DO:
-         RUN system/userLogOut.p.
+         RUN system/userLogOut.p (NO, 0).
      END.
       APPLY "close" TO THIS-PROCEDURE.
   END.
@@ -7769,8 +7773,9 @@ PROCEDURE write-loadtag-line :
         "~"" replace(w-ord.ship-notes[3],'"', '') "~","
         "~"" replace(w-ord.ship-notes[4],'"', '') "~","
         "~"" loadtag.loc "~","
-        "~"" loadtag.loc-bin "~""
-        .
+        "~"" loadtag.loc-bin "~","
+        "~"" w-ord.job-qty "~","
+        "~"" STRING(w-ord.runShip,"R&S/WHSE")  "~"".
     
     IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".
 END.

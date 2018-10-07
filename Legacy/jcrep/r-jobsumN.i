@@ -535,45 +535,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                   ROUND(work-mch.mr-cost3,0)        FORMAT "zzzz,zzz-" AT 75
               WITH FRAME det-r1c NO-BOX NO-LABELS STREAM-IO WIDTH 87.*/
 
-        /*display "R" at 25
-                work-mch.run-qty AT 26 format ">>>>>>>9-"
-                round(work-mch.est-run-hr,2) at 35 format ">>>9.99-"
-                  when work-mch.est-run-hr ne 0
-                   and work-mch.est-run-hr ne ?
-                work-mch.est-speed 
-                  when work-mch.est-speed ne 0
-                   and work-mch.est-speed ne ? format ">>>>>9-"
-                work-mch.est-run-cost format ">>>,>>9-"
-                  when work-mch.est-run-cost ne 0
-                   and work-mch.est-run-cost ne ?
-                work-mch.run-hr format ">>>9.9-"
-                  when work-mch.run-hr ne 0
-                   and work-mch.run-hr ne ?
-                work-mch.run-speed 
-                  when work-mch.run-speed ne 0
-                   and work-mch.run-speed ne ? format ">>>>>9-"
-                v-run-cost format ">>>>,>>9-"
-                  when v-run-cost ne 0
-                   and v-run-cost ne ?
-                v-run-cost-var format ">,>>>,>>9-"
-                  when v-run-cost-var ne 0
-                   and v-run-cost-var ne ?
-                v-run-prod-p format ">>>9.9-"
-                  when v-run-prod-p ne 0
-                   and v-run-prod-p ne ?
-                "     "
-                work-mch.run-waste format ">>>,>>9-"
-                  when work-mch.run-waste ne 0
-                   and work-mch.run-waste ne ?
-                work-mch.wst-qty format ">>>,>>9-"
-                  when work-mch.wst-qty ne 0
-                   and work-mch.wst-qty ne ?
-                v-run-wst-var format ">>>>>9.9-"
-                  when v-run-wst-var ne 0
-                   and v-run-wst-var ne ?
-
-            WITH FRAME det-r2 STREAM-IO WIDTH 200 NO-BOX down NO-LABELS.*/
-
+       
         ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -668,6 +630,20 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                         if v-mr-cost  ne ? then v-mr-cost  else 0
          v-t-act-cost = v-t-act-cost +
                         if v-run-cost ne ? then v-run-cost else 0.
+         
+          IF v-lab  AND (work-mch.est-mr-cost1 NE 0 OR work-mch.mr-cost1 NE 0 ) THEN
+             ASSIGN
+             v-t-est-cost = v-t-est-cost + work-mch.est-mr-cost1 
+             v-t-act-cost = v-t-act-cost + work-mch.mr-cost1 .
+         IF v-foh AND (work-mch.est-mr-cost2 NE 0 OR work-mch.mr-cost2 NE 0) THEN 
+             ASSIGN
+             v-t-est-cost = v-t-est-cost + work-mch.est-mr-cost2 
+             v-t-act-cost = v-t-act-cost + work-mch.mr-cost2.
+         IF v-voh AND (work-mch.est-mr-cost3 NE 0 OR work-mch.mr-cost3 NE 0 ) THEN
+             ASSIGN
+             v-t-est-cost = v-t-est-cost + work-mch.est-mr-cost3 
+             v-t-act-cost = v-t-act-cost + work-mch.mr-cost3 .
+        
 
         if last(work-mch.d-seq) then do:
           assign

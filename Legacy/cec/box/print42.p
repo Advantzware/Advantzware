@@ -31,7 +31,8 @@ def TEMP-TABLE q-sort1 no-undo field qty as dec field rel as int.
 def TEMP-TABLE q-sort2 no-undo field qty as dec field rel as int.
 
 def new shared temp-table tt-qtty field qtty like qtty
-                                  field rel like rels.
+                                  field rel like rels
+                                  FIELD lRunShip LIKE lRunShips.
 def var lv-error as log no-undo.
 def new shared var k_frac as dec init "6.25" no-undo.
 def new shared var day_str as cha form "x(8)" no-undo.

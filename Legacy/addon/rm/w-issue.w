@@ -1,6 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
@@ -32,6 +33,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE winViewPrgmName w-issue
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -58,6 +61,13 @@ CREATE WIDGET-POOL.
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
+/* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES rm-rctd
+&Scoped-define FIRST-EXTERNAL-TABLE rm-rctd
+
+
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR rm-rctd.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -88,18 +98,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 4 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 2.91
-         SIZE 127 BY 1.19
-         BGCOLOR 4 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
+         BGCOLOR 4 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 2.91
+         SIZE 127 BY 1.19
          BGCOLOR 4 .
 
 
@@ -108,6 +118,7 @@ DEFINE FRAME OPTIONS-FRAME
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
+   External Tables: ASI.rm-rctd
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
    Other Settings: COMPILE
@@ -304,14 +315,10 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/rm/b-issued.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Initial-Lock = NO-LOCK,
-                     Hide-on-Init = no,
-                     Disable-on-Init = no,
-                     Layout = ,
-                     Create-On-Add = Yes':U ,
+             INPUT  '':U ,
              OUTPUT h_b-issued ).
-       RUN set-position IN h_b-issued ( 4.81 , 4.00 ) NO-ERROR.
-       RUN set-size IN h_b-issued ( 16.91 , 144.00 ) NO-ERROR.
+       /* Position in AB:  ( 4.81 , 4.00 ) */
+       /* Size in UIB:  ( 16.91 , 144.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updsav.r':U ,
@@ -331,16 +338,14 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_v-post ( 22.29 , 84.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 17.00 ) */
 
-       /* Links to SmartNavBrowser h_b-issued. */
+       /* Links to  h_b-issued. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_b-issued ).
        RUN add-link IN adm-broker-hdl ( h_v-post , 'State':U , h_b-issued ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'cancel-item':U , h_b-issued ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-issued ,
-             FRAME message-frame:HANDLE , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
-             h_b-issued , 'AFTER':U ).
+             FRAME message-frame:HANDLE , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-post ,
              h_p-updsav , 'AFTER':U ).
     END. /* Page 1 */
@@ -367,6 +372,15 @@ PROCEDURE adm-row-available :
 
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
+
+  /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "rm-rctd"}
+
+  /* Get the record ROWID's from the RECORD-SOURCE.                  */
+  {src/adm/template/row-get.i}
+
+  /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "rm-rctd"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -435,27 +449,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view W-Win 
-PROCEDURE local-view :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  {methods/selectTab.i 1}
-  RUN auto-add IN h_p-updsav.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -464,9 +457,14 @@ PROCEDURE send-records :
   Parameters:  see template/snd-head.i
 ------------------------------------------------------------------------------*/
 
-  /* SEND-RECORDS does nothing because there are no External
-     Tables specified for this SmartWindow, and there are no
-     tables specified in any contained Browse, Query, or Frame. */
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
+
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "rm-rctd"}
+
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 

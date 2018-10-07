@@ -416,9 +416,9 @@ oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
 oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
 &Scoped-define DISPLAYED-TABLES oe-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordl
-&Scoped-Define DISPLAYED-OBJECTS fiPromDtLabel fi_type-dscr fi_qty-uom ~
-spare-dec-1 fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 fi_sname-2 ~
-fi_sname-3 fi_sname-lbl fi_jobStartDate 
+&Scoped-Define DISPLAYED-OBJECTS fiPrevOrder fiPromDtLabel fi_type-dscr ~
+fi_qty-uom spare-dec-1 fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 ~
+fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -430,6 +430,29 @@ oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3
 
 
 /* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable d-oeitem
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER,
+   ipcCust AS CHARACTER,
+   ipcShipto AS CHARACTER,
+   ipcFGItemID AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnPrevOrder d-oeitem
+FUNCTION fnPrevOrder RETURNS CHARACTER 
+    (ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOEScreenUOMConvert d-oeitem 
 FUNCTION fOEScreenUOMConvert RETURNS DECIMAL
@@ -482,6 +505,11 @@ DEFINE BUTTON Btn_OK
      LABEL "&Save" 
      SIZE 15 BY 1.14
      BGCOLOR 8 .
+
+DEFINE VARIABLE fiPrevOrder AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Prev Order" 
+     VIEW-AS FILL-IN 
+     SIZE 17.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiPromDtLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Promise Date:" 
      VIEW-AS FILL-IN 
@@ -564,8 +592,9 @@ DEFINE QUERY d-oeitem FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME d-oeitem
+     fiPrevOrder AT ROW 9.33 COL 93.4 COLON-ALIGNED WIDGET-ID 28
      fiPromDtLabel AT ROW 14.57 COL 103.8 COLON-ALIGNED NO-LABEL WIDGET-ID 26
-     fi_type-dscr AT ROW 7.67 COL 117.8 COLON-ALIGNED NO-LABEL
+     fi_type-dscr AT ROW 7.67 COL 119.4 COLON-ALIGNED NO-LABEL
      oe-ordl.est-no AT ROW 1.24 COL 15.6 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -663,13 +692,13 @@ DEFINE FRAME d-oeitem
      spare-dec-1 AT ROW 6.48 COL 93 COLON-ALIGNED HELP
           "" WIDGET-ID 4
           LABEL "Full Cost" FORMAT "->>,>>9.99"
-     oe-ordl.type-code AT ROW 7.67 COL 112 COLON-ALIGNED NO-LABEL
+     oe-ordl.type-code AT ROW 7.67 COL 113.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1 TOOLTIP "(O)riginal, (R)epeat, Repeat with (C)hange, inhouse (T)ransfer"
-     oe-ordl.managed AT ROW 9 COL 114
+     oe-ordl.managed AT ROW 9 COL 115.6
           VIEW-AS TOGGLE-BOX
           SIZE 27 BY .81
-     oe-ordl.whsed AT ROW 9.86 COL 114 HELP
+     oe-ordl.whsed AT ROW 9.86 COL 115.6 HELP
           "Is line item warehoused?" WIDGET-ID 2
           LABEL "Run && Ship"
           VIEW-AS TOGGLE-BOX
@@ -800,6 +829,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN oe-ordl.est-no IN FRAME d-oeitem
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN fiPrevOrder IN FRAME d-oeitem
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiPromDtLabel IN FRAME d-oeitem
    NO-ENABLE                                                            */
 ASSIGN 
@@ -861,10 +892,10 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-char-2 IN FRAME d-oeitem
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
-   NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
+   NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
 /* SETTINGS FOR FILL-IN oe-ordl.t-price IN FRAME d-oeitem
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ordl.tax IN FRAME d-oeitem
@@ -1470,13 +1501,14 @@ DO:
                        VIEW-AS ALERT-BOX ERROR .                       
                RETURN NO-APPLY.
           END.
-
+          fiPrevOrder:SCREEN-VALUE = fnPrevOrder(eb.est-no, oe-ord.ord-no).
        END.
       
       IF oe-ordl.est-no:SCREEN-VALUE GT "" AND runship-char EQ "RUN&SHIP Prompt" THEN 
           asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
       ELSE IF oe-ordl.est-no:SCREEN-VALUE GT "" AND runship-char EQ "DefaultOnly" AND runship-log = YES THEN 
           asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
+          
     END.
 END.
 
@@ -3065,7 +3097,12 @@ PROCEDURE check-quote :
              (tt-item-qty-price.part-no EQ ip-part-no AND ip-part-no EQ ""))) 
             THEN DO:
 
-              FOR EACH quoteitm WHERE quoteitm.company = oe-ord.company AND
+             FOR EACH quotehd NO-LOCK 
+                 WHERE quotehd.company EQ oe-ord.company AND
+                       quotehd.est-no EQ oe-ordl.est-no:SCREEN-VALUE AND 
+                       quotehd.quo-date LE TODAY AND
+                       (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) ,
+              EACH quoteitm OF quotehd WHERE quoteitm.company = oe-ord.company AND
                                 quoteitm.est-no = oe-ordl.est-no:SCREEN-VALUE  AND
                                 (quoteitm.part-no = ip-part-no OR ip-part-no <> ""),
                  EACH quoteqty WHERE quoteqty.company = quoteitm.company AND
@@ -3247,7 +3284,6 @@ IF AVAIL oe-ord THEN DO:
     bf-oe-ordl.prom-code = oe-ord.due-code
     bf-oe-ordl.prom-date = oe-ord.due-date
     bf-oe-ordl.disc      = cust.disc
-    bf-oe-ordl.tax       = cust.sort EQ "Y" AND oe-ord.tax-gr NE ""
     bf-oe-ordl.over-pct  = oe-ord.over-pct   
     bf-oe-ordl.under-pct = oe-ord.under-pct
     .
@@ -3261,10 +3297,9 @@ IF AVAIL oe-ord THEN DO:
 
        ASSIGN bf-oe-ordl.prom-date = bf-oe-ordl.req-date.
    END.
-
-
-   {custom/shptotax.i oe-ord.cust-no oe-ord.sold-id bf-oe-ordl.tax}
-
+    
+   bf-oe-ordl.tax = fGetTaxable(oe-ord.company, oe-ord.cust-no, oe-ord.ship-id, "").
+  
    FOR LAST b-oe-ordl OF oe-ord
        WHERE ROWID(b-oe-ordl) NE ROWID(bf-oe-ordl)
        NO-LOCK
@@ -3925,12 +3960,8 @@ ASSIGN
   itemfg.setupDate  = TODAY.
 
 ASSIGN
-    itemfg.taxable = IF AVAIL cust 
-                      THEN cust.sort EQ "Y" AND cust.tax-gr NE ""
-                      ELSE 
-                          IF AVAIL bf-itemfg THEN bf-itemfg.taxable
-                                             ELSE NO.
-
+    itemfg.taxable = fGetTaxable(itemfg.company, (IF AVAIL cust THEN cust.cust-no ELSE ""),"", (IF AVAILABLE bf-itemfg THEN bf-itemfg.i-no ELSE "")). 
+                         
 
  IF fgmaster-cha EQ "FGITEM" THEN
     ASSIGN
@@ -4105,7 +4136,6 @@ PROCEDURE display-est-detail :
   DEF VAR v-job-no LIKE oe-ordl.job-no NO-UNDO.
   DEF VAR v-job-no2 LIKE oe-ordl.job-no2 NO-UNDO.
   DEF VAR li-cnt AS INT NO-UNDO.
-  DEF VAR ll-tax AS LOG NO-UNDO.
   DEF VAR ll-do-job AS LOG NO-UNDO.
   DEF VAR li-cases AS INT NO-UNDO.
   DEFINE VARIABLE v-disp-prod-cat AS CHARACTER  NO-UNDO.
@@ -4113,6 +4143,7 @@ PROCEDURE display-est-detail :
   DEF VAR v-com AS DEC NO-UNDO.
   DEF VAR v-tmp-price-2 AS DEC NO-UNDO.
   DEF VAR v-price-per-1000 AS DEC NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
   DEF BUFFER b-eb FOR eb.
   DEF BUFFER b-oe-ordl FOR oe-ordl.
@@ -4133,30 +4164,16 @@ PROCEDURE display-est-detail :
                 AND est.est-no = eb.est-no NO-LOCK NO-ERROR.
      IF AVAIL itemfg THEN DO:
        ASSIGN
-        
         oe-ordl.part-dscr2:SCREEN-VALUE = itemfg.part-dscr2
-        oe-ordl.part-dscr3:SCREEN-VALUE = itemfg.part-dscr3.
+        oe-ordl.part-dscr3:SCREEN-VALUE = itemfg.part-dscr3
+        /*35645 - Taxable set by FG item flag only*/
+        oe-ordl.tax:SCREEN-VALUE = STRING(fGetTaxable(itemfg.company, eb.cust-no, eb.ship-id, itemfg.i-no),"Y/N")
+        .
         IF DECIMAL(oe-ordl.price:SCREEN-VALUE) = 0 THEN
             ASSIGN
             oe-ordl.price:SCREEN-VALUE      = STRING(itemfg.sell-price) 
             oe-ordl.pr-uom:SCREEN-VALUE     = itemfg.sell-uom
-            .
-
-          /*ysk*/
-          FIND FIRST cust
-              {sys/ref/custW.i}
-                AND cust.cust-no EQ oe-ord.cust-no
-              USE-INDEX cust
-              NO-LOCK NO-ERROR.
-        
-          ll-tax = AVAIL cust AND cust.sort EQ "Y" AND oe-ord.tax-gr NE "" AND itemfg.taxable.
-        
-          IF NOT ll-tax THEN DO:
-           {custom/shptotax.i oe-ord.cust-no oe-ord.sold-id ll-tax}
-          END.
-        
-          oe-ordl.tax:SCREEN-VALUE = STRING(ll-tax,"Y/N").
-          /*ysk*/
+            .  
           
      END.
 
@@ -4268,8 +4285,19 @@ PROCEDURE display-est-detail :
           (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
            (tt-item-qty-price.part-no EQ oe-ordl.i-no:SCREEN-VALUE AND oe-ordl.i-no:SCREEN-VALUE NE ""))) THEN
         DO:
+          FIND FIRST quotehd NO-LOCK 
+              WHERE quotehd.company EQ est.company AND
+              quotehd.est-no EQ est.est-no AND 
+              quotehd.quo-date LE TODAY AND
+              (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) NO-ERROR .
+           
+          IF AVAIL quotehd THEN do:
            RUN oe/d-ordqty.w (RECID(est-qty), OUTPUT lv-qty, OUTPUT lv-price, OUTPUT lv-pr-uom,
                               OUTPUT lv-rel, OUTPUT op-error, OUTPUT TABLE tt-item-qty-price).
+          END.
+          ELSE DO:
+           op-error = YES .
+          END.
 
            IF op-error EQ NO THEN
               ASSIGN
@@ -4307,8 +4335,8 @@ PROCEDURE display-est-detail :
 
      IF v-rel = 0 THEN
         v-rel = 1.
-
-     IF lv-new-tandem EQ ? AND ll-do-job THEN DO:
+     
+         IF lv-new-tandem EQ ? AND ll-do-job THEN DO:
         
        ASSIGN
           v-disp-prod-cat = eb.procat
@@ -4361,7 +4389,13 @@ PROCEDURE display-est-detail :
 
      oe-ordl.qty:SCREEN-VALUE  = STRING(lv-qty).
   END.
-  
+  IF lv-qty GT 0 AND AVAILABLE est-qty THEN DO:
+        DO iCount = 1 TO EXTENT(est-qty.qty):
+            IF est-qty.qty[iCount] EQ lv-qty OR est-qty.qty[iCount] EQ 0 THEN LEAVE.
+        END.
+        IF iCount GT 0 THEN oe-ordl.whsed:SCREEN-VALUE = STRING(est-qty.whsed[iCount], "YES/NO"). 
+  END.
+     
   IF NOT ll-got-qtprice AND CAN-FIND(FIRST tt-item-qty-price WHERE
      tt-item-qty-price.tt-selected = YES AND
      (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
@@ -4530,7 +4564,6 @@ PROCEDURE display-fgitem :
   DEF VAR lv-pr-uom AS CHAR NO-UNDO.
   DEF VAR v-tmp-part AS CHAR NO-UNDO.
   DEF VAR lv-cost-uom AS CHAR NO-UNDO.
-  DEF VAR ll-tax LIKE oe-ordl.tax NO-UNDO.
   DEF VAR lv-new-i-no LIKE oe-ordl.i-no NO-UNDO.
   DEF VAR lv-calc-qty AS DEC NO-UNDO.
   DEF VAR lv-case-qty AS INT NO-UNDO.
@@ -4638,19 +4671,8 @@ DO WITH FRAME {&FRAME-NAME}:
   RUN validate-fgitem NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
-  FIND FIRST cust
-      {sys/ref/custW.i}
-        AND cust.cust-no EQ oe-ord.cust-no
-      USE-INDEX cust
-      NO-LOCK NO-ERROR.
-
-  ll-tax = AVAIL cust AND cust.sort EQ "Y" AND oe-ord.tax-gr NE "" AND itemfg.taxable.
-
-  IF NOT ll-tax THEN DO:
-   {custom/shptotax.i oe-ord.cust-no oe-ord.sold-id ll-tax}
-  END.
-
-  oe-ordl.tax:SCREEN-VALUE = STRING(ll-tax,"Y/N").
+  /*35645 - Taxable set by FG item flag only*/
+  oe-ordl.tax:SCREEN-VALUE = STRING(fGetTaxable(itemfg.company, oe-ord.cust-no, oe-ord.ship-id, itemfg.i-no),"Y/N").
 
   RUN default-type (BUFFER itemfg).
 
@@ -5074,7 +5096,7 @@ PROCEDURE display-item :
         oe-ordl.spare-char-1:TOOLTIP = getOrdStatDescr(oe-ordl.spare-char-1).
     IF oe-ordl.spare-int-2 > 0 THEN
         fi_JobStartDate:SCREEN-VALUE = STRING(DATE(oe-ordl.spare-int-2)).
-
+    fiPrevOrder:SCREEN-VALUE = fnPrevOrder(oe-ordl.est-no:SCREEN-VALUE, oe-ord.ord-no).
     RUN new-type.
     RUN new-s-man (0).
 
@@ -5099,9 +5121,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiPromDtLabel fi_type-dscr fi_qty-uom spare-dec-1 fi_s-pct-lbl 
-          fi_s-comm-lbl fi_sman-lbl fi_sname-1 fi_sname-2 fi_sname-3 
-          fi_sname-lbl fi_jobStartDate 
+  DISPLAY fiPrevOrder fiPromDtLabel fi_type-dscr fi_qty-uom spare-dec-1 
+          fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 fi_sname-2 
+          fi_sname-3 fi_sname-lbl fi_jobStartDate 
       WITH FRAME d-oeitem.
   IF AVAILABLE oe-ordl THEN 
     DISPLAY oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 oe-ordl.qty oe-ordl.i-no 
@@ -5432,7 +5454,7 @@ PROCEDURE get-eb-info :
                                (eb.est-type = 6 AND eb.form-no = 0) )
                               NO-LOCK NO-ERROR.
      IF AVAIL eb THEN ls-stock = eb.stock-no.
-     
+     fiPrevOrder:SCREEN-VALUE = fnPrevOrder(oe-ordl.est-no:SCREEN-VALUE, oe-ord.ord-no).
   END.
   ELSE ls-stock = "".
   
@@ -6485,9 +6507,9 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OnSaveButton d-oeitem
-PROCEDURE OnSaveButton:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OnSaveButton d-oeitem 
+PROCEDURE OnSaveButton :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -7142,11 +7164,9 @@ PROCEDURE OnSaveButton:
     END. /* If Price was modified */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE prev-quote-proc d-oeitem 
 PROCEDURE prev-quote-proc :
@@ -9459,6 +9479,55 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable d-oeitem
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER, ipcCust AS CHARACTER , ipcShipto AS CHARACTER, ipcFGItemID AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: Gets the Taxable flag based on inputs
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+RUN system\TaxProcs.p (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+RETURN lTaxable.
+
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnPrevOrder d-oeitem
+FUNCTION fnPrevOrder RETURNS CHARACTER 
+  (ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+		DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+        IF ipcEstNo GT "" THEN 
+        DO:
+            FIND LAST bf-oe-ordl NO-LOCK
+                WHERE bf-oe-ordl.company EQ cocode
+                  AND bf-oe-ordl.est-no  EQ ipcEstNo
+                  AND bf-oe-ordl.ord-no  LT ipiOrdNo
+                NO-ERROR.
+            IF AVAILABLE bf-oe-ordl THEN
+                cResult = STRING(bf-oe-ordl.ord-no).
+        END.
+		RETURN cResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fOEScreenUOMConvert d-oeitem 
 FUNCTION fOEScreenUOMConvert RETURNS DECIMAL

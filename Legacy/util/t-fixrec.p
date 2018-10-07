@@ -14,8 +14,7 @@ if avail bf-est then do:
                          
         disp bf-est.rec_key bf-est.est-no.
         
-        ls-key = string(today,"99999999") +
-                 string(next-value(rec_key_seq,nosweat),"99999999").
+        ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey").
 
         bf-est.rec_key = ls-key.               
 

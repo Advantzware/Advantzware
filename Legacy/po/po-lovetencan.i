@@ -291,6 +291,16 @@ FOR EACH po-ordl
   END.
   ELSE
      v-line-2 = po-ordl.i-name.
+
+   cMachCode = "" .
+      FOR EACH job-mch WHERE job-mch.company EQ cocode
+          AND job-mch.job-no EQ po-ordl.job-no
+          AND job-mch.job-no2 EQ po-ordl.job-no2
+          AND job-mch.frm EQ po-ordl.s-num use-index line-idx NO-LOCK:
+
+          ASSIGN cMachCode = job-mch.m-code .
+          LEAVE.
+      END.
      
   PUT {1} v-ord-qty FORMAT "X(6)" TO 6
           v-line-2 FORMAT "X(28)" AT 8
@@ -356,6 +366,12 @@ FOR EACH po-ordl
   IF lCustCode THEN DO:
    put {1} SKIP.
    PUT {1} po-ordl.cust-no FORM "x(8)"  SKIP.
+  END.
+
+  IF lPrintMach and cMachCode NE ""  THEN DO:
+   put {1} SKIP.
+   PUT {1} "First Resource: " cMachCode FORM "x(8)"  SKIP.
+   v-print-lines = v-print-lines + 1.
   END.
   
   put {1} skip "<C1><R+.5><FROM><C82><LINE><||3>" SKIP. 

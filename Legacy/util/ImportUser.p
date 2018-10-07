@@ -65,6 +65,8 @@ PROCEDURE pValidate PRIVATE:
     DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportUsers FOR ttImportUsers.
+    DEFINE VARIABLE iInd AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cUserType AS CHARACTER NO-UNDO.
 
     RUN util/Validate.p PERSISTENT SET hdValidator.
     
@@ -117,6 +119,14 @@ PROCEDURE pValidate PRIVATE:
                 .
     END.
     
+    DO iInd = 1 TO NUM-ENTRIES(ipbf-ttImportUsers.cUserType, "|"):
+       cUserType = ENTRY(iInd, ipbf-ttImportUsers.cUserType).
+       IF LOOKUP(cUserType, "Full User,Production Floor,Administrator,Portal User") EQ 0 THEN 
+         ASSIGN
+           oplValid = NO
+           opcNote = "Invalid User Type".
+    END.
+    
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
     
 END PROCEDURE.
@@ -145,6 +155,8 @@ PROCEDURE pProcessRecord PRIVATE:
             users.user_id = ipbf-ttImportUsers.cUserId
             .
     END.
+    
+    
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
     RUN pAssignValueC (ipbf-ttImportUsers.cUserName, iplIgnoreBlanks, INPUT-OUTPUT users.user_name).
     RUN pAssignValueC (ipbf-ttImportUsers.cAlias, iplIgnoreBlanks, INPUT-OUTPUT  users.userAlias).

@@ -123,6 +123,31 @@ PROCEDURE pIsValidShiptoID:
 
 END PROCEDURE.
 
+PROCEDURE pIsValidCustPartID:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates Cust Part ID 
+     Notes: Input 1 = Cust Part Number
+    ------------------------------------------------------------------------------*/
+    {util\ValidateCustPart.i 
+        &ValidateTable = "itemfg" 
+        &ValidateField1 = "part-no" 
+        &ValidateField2 = "cust-no"
+        &ValidateMessage = "Cust Part ID"}
+
+END PROCEDURE.
+
+PROCEDURE pIsValidEstID:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates Estimate No
+     Notes: Input 1 = Estimate Number
+    ------------------------------------------------------------------------------*/
+    {util\VALIDATEEst.i 
+        &ValidateTable = "eb" 
+        &ValidateField = "est-no" 
+        &ValidateMessage = "Estimate Number"}
+
+END PROCEDURE.
+
 PROCEDURE pIsValidFGITemID:
     /*------------------------------------------------------------------------------
      Purpose:  Validates FG Item ID 

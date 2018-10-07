@@ -104,7 +104,6 @@ PROCEDURE Display-Field :
   DO WITH FRAME {&FRAME-NAME}:
     CASE widget-name:
         {methods/dispflds/{&FIRST-EXTERNAL-TABLE}.i}
-/*      {custom/dispflds.i} */
     END CASE.
   END.
 &ENDIF
@@ -259,6 +258,8 @@ PROCEDURE local-view :
   {{&translationInclude}}
   &ENDIF
 
+  {system/runCueCard.i}
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
