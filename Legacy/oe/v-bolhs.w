@@ -449,7 +449,7 @@ PROCEDURE local-update-record:
                oe-bolh.ship-i[3] =  opcParsedText[3]
                oe-bolh.ship-i[4] =  opcParsedText[4]
                .               
-          IF ship_note <> "" THEN RUN UpdateNoteShipOeBolh IN hNotesProcs (oe-bolh.rec_key,
+            RUN UpdateNoteShipOeBolh IN hNotesProcs (oe-bolh.rec_key,
                                                      ship_note).
             DELETE OBJECT hNotesProcs.        
         END.

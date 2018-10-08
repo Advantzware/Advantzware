@@ -517,7 +517,7 @@ PROCEDURE local-update-record:
                oe-relh.ship-i[3] =  opcParsedText[3]
                oe-relh.ship-i[4] =  opcParsedText[4]
                .               
-           IF ship_note <> "" THEN RUN UpdateNoteShipOeRelh IN hNotesProcs (oe-relh.rec_key,
+            RUN UpdateNoteShipOeRelh IN hNotesProcs (oe-relh.rec_key,
                                                      ship_note).
             DELETE OBJECT hNotesProcs.        
         END.
