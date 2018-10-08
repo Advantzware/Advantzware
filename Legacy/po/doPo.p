@@ -2542,8 +2542,10 @@ PROCEDURE initJobVals :
     DEFINE OUTPUT PARAMETER opcJob AS CHARACTER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcVendNo AS CHARACTER   NO-UNDO.
 
+    DEFINE VARIABLE iPono AS INTEGER NO-UNDO .
     DEFINE BUFFER bf-w-job-mat FOR w-job-mat.
     DEFINE BUFFER bf-oe-ordl   FOR oe-ordl.
+    DEFINE BUFFER bff-job-mat FOR job-mat .
 
     FIND bf-w-job-mat WHERE ROWID(bf-w-job-mat) EQ iprWJobMat NO-LOCK NO-ERROR.
     FIND job WHERE ROWID(job) EQ iprJob NO-LOCK NO-ERROR.
@@ -2600,16 +2602,9 @@ PROCEDURE initJobVals :
 
     rOrderPoRow = ?.
     /* 05281404 - added first po-ordl to check item # */
-    FOR EACH  b-orderpo NO-LOCK
-        WHERE b-orderpo.reftable EQ "ORDERPO"
-        AND b-orderpo.company  EQ cocode
-        AND b-orderpo.loc      EQ string(v-ord-no,"9999999999")
-        AND b-orderpo.code     EQ string(bf-w-job-mat.job,"9999999999") +
-        string(bf-w-job-mat.frm,"9999999999")
-        AND b-orderpo.code2    EQ bf-w-job-mat.rm-i-no
-        ,
-        FIRST po-ord NO-LOCK WHERE po-ord.company EQ cocode
-        AND po-ord.po-no EQ INTEGER(b-orderpo.val[1])
+    
+       FOR EACH po-ord NO-LOCK WHERE po-ord.company EQ cocode
+        AND po-ord.po-no EQ INTEGER(bf-w-job-mat.po-no)
         AND po-ord.stat NE "C"
         ,
         FIRST po-ordl NO-LOCK WHERE po-ordl.company EQ po-ord.company
@@ -2618,24 +2613,12 @@ PROCEDURE initJobVals :
         AND po-ordl.s-num EQ bf-w-job-mat.frm
       
         :
-        rOrderPoRow = ROWID(b-orderpo).
+        iPono = bf-w-job-mat.po-no .
     
     END. /* Each b-orderpo */
 
-    IF rOrderPoRow NE ? THEN
-        FIND b-orderpo WHERE ROWID(b-orderpo) EQ rOrderPoRow.
-
-    IF NOT AVAILABLE b-orderpo THEN 
+    IF iPono EQ 0 THEN 
     DO:
-        CREATE b-orderpo.
-        ASSIGN
-            b-orderpo.reftable = "ORDERPO"
-            b-orderpo.company  = cocode
-            b-orderpo.loc      = STRING(v-ord-no,"9999999999")
-            b-orderpo.code     = STRING(bf-w-job-mat.job,"9999999999") +
-                          string(bf-w-job-mat.frm,"9999999999")
-            b-orderpo.code2    = bf-w-job-mat.rm-i-no.
-
         IF AVAILABLE bf-ordl AND bf-ordl.vend-no NE "" AND bf-ordl.po-no-po NE 0 THEN 
         DO:
             FIND FIRST po-ordl NO-LOCK 
@@ -2648,19 +2631,20 @@ PROCEDURE initJobVals :
                 NO-ERROR.
             IF AVAILABLE po-ordl THEN 
             DO:         
-                b-orderpo.val[1] = po-ordl.po-no.        
+                iPono = po-ordl.po-no.   
+                /* update job-mat table with pono*/
+                FIND FIRST bff-job-mat EXCLUSIVE-LOCK
+                    WHERE bff-job-mat.company EQ cocode
+                    AND ROWID(bff-job-mat) EQ bf-w-job-mat.w-rowid NO-ERROR .
+                IF AVAIL bff-job-mat THEN
+                    bff-job-mat.po-no = po-ordl.po-no.
             END.
         END. /* If avail bf-ordl */
-
-        FIND CURRENT b-orderpo NO-LOCK NO-ERROR.
     END. /* If not avail b-orderpo */
-  
-    IF AVAILABLE b-orderpo THEN
-        gvrB-orderpo = ROWID(b-orderpo).
 
     FIND FIRST po-ord NO-LOCK 
         WHERE po-ord.company   EQ cocode
-        AND po-ord.po-no     EQ int(b-orderpo.val[1])
+        AND po-ord.po-no     EQ int(iPono)
         AND b-orderpo.val[1] NE 0
         NO-ERROR.
     IF AVAILABLE po-ord THEN gvcVendNo = po-ord.vend-no.  
