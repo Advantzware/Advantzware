@@ -39,8 +39,9 @@ DEFINE INPUT PARAMETER  iphCaller AS HANDLE NO-UNDO.
 /* Local Variable Definitions ---                                       */
 
 DEFINE VARIABLE iOrientation AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cOrientation AS CHARACTER NO-UNDO INITIAL
-    "default_LeftUp,default_Up,default_RightUp,default_Right,default_RightDown,default_Down,default_LeftDown,default_Left".
+DEFINE VARIABLE cOrientation AS CHARACTER NO-UNDO INITIAL ~
+"default_LeftUp,default_Up,default_RightUp,default_Right,default_RightDown,~
+default_Down,default_LeftDown,default_Left,information".
 DEFINE VARIABLE iPosition    AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cPosition    AS CHARACTER NO-UNDO INITIAL
     "arrow_join,arrow_right,arrow_cross,arrow_down".
@@ -302,7 +303,7 @@ END.
 ON MOUSE-SELECT-CLICK OF arrowImage IN FRAME DEFAULT-FRAME
 DO:
     iOrientation = iOrientation + 1.
-    IF iOrientation GT 8 THEN
+    IF iOrientation GT 9 THEN
     iOrientation = 1.
     arrowImage:LOAD-IMAGE("Graphics\24x24\" + ENTRY(iOrientation,cOrientation) + ".gif").
 END.

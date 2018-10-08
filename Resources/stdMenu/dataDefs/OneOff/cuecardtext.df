@@ -24,7 +24,7 @@ ADD FIELD "isActive" OF "cueCardText" AS logical
   POSITION 3
   MAX-WIDTH 1
   HELP "Set Active Flag"
-  ORDER 20
+  ORDER 30
 
 ADD FIELD "cueOrder" OF "cueCardText" AS integer 
   FORMAT ">>>9"
@@ -34,7 +34,7 @@ ADD FIELD "cueOrder" OF "cueCardText" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "Order"
   HELP "Enter Cue Card Order"
-  ORDER 30
+  ORDER 40
 
 ADD FIELD "cueText" OF "cueCardText" AS character 
   FORMAT "x(60)"
@@ -43,7 +43,7 @@ ADD FIELD "cueText" OF "cueCardText" AS character
   POSITION 5
   MAX-WIDTH 120
   HELP "Enter Cue Card Text"
-  ORDER 50
+  ORDER 60
 
 ADD FIELD "cueOrientation" OF "cueCardText" AS integer 
   FORMAT ">9"
@@ -372,16 +372,7 @@ ADD FIELD "cueTextID" OF "cueCardText" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "Text ID"
   HELP "Enter Cue Text ID"
-  ORDER 40
-
-ADD FIELD "cueType" OF "cueCardText" AS character 
-  FORMAT "x(8)"
-  INITIAL "System"
-  LABEL "Cue Type"
-  POSITION 37
-  MAX-WIDTH 16
-  HELP "Enter Cue Card Type"
-  ORDER 60
+  ORDER 50
 
 ADD FIELD "createdBy" OF "cueCardText" AS character 
   FORMAT "x(12)"
@@ -419,19 +410,29 @@ ADD FIELD "createdFor" OF "cueCardText" AS character
   HELP "Enter Created For User ID"
   ORDER 390
 
+ADD FIELD "cueType" OF "cueCardText" AS character 
+  FORMAT "x(8)"
+  INITIAL "System"
+  LABEL "Cue Type"
+  POSITION 46
+  MAX-WIDTH 16
+  HELP "Enter Cue Card Type"
+  ORDER 20
+
 ADD INDEX "pi-cueCardText" ON "cueCardText" 
   AREA "Index"
   UNIQUE
   PRIMARY
-  DESCRIPTION "Primary Index by Cue ID, Is Active and Cue Order"
+  DESCRIPTION "Primary Index"
+  INDEX-FIELD "cueType" ASCENDING 
   INDEX-FIELD "cueID" ASCENDING 
   INDEX-FIELD "isActive" ASCENDING 
   INDEX-FIELD "cueOrder" ASCENDING 
 
 ADD INDEX "si-cueTextID" ON "cueCardText" 
   AREA "Index"
-  UNIQUE
-  DESCRIPTION "Secondary Index by Cue Text ID"
+  DESCRIPTION "Secondary Index by Cue Type and Cue ID"
+  INDEX-FIELD "cueType" ASCENDING 
   INDEX-FIELD "cueTextID" ASCENDING 
 
 ADD INDEX "si-rec_key" ON "cueCardText" 
@@ -443,4 +444,4 @@ ADD INDEX "si-rec_key" ON "cueCardText"
 PSC
 cpstream=ISO8859-1
 .
-0000009401
+0000009436
