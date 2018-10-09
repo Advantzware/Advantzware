@@ -314,7 +314,6 @@ FOR EACH job-hdr NO-LOCK
         FIRST est NO-LOCK
         WHERE est.company  EQ job-hdr.company
           AND est.est-no   EQ job-hdr.est-no
-          AND est.est-type LE 4  
 
         BREAK BY job-hdr.job
               BY job-hdr.job-no
