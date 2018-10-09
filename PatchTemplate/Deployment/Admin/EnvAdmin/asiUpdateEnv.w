@@ -72,6 +72,8 @@ ASSIGN
 DEF STREAM s1.
 
 DEF TEMP-TABLE ttAuditTbl LIKE AuditTbl.
+DEF TEMP-TABLE ttCueCard LIKE cueCard.
+DEF TEMP-TABLE ttCueCardText LIKE cueCardText.
 DEF TEMP-TABLE ttPrgrms LIKE prgrms.
 DEF TEMP-TABLE ttPrgmxref LIKE prgmxref.
 DEF TEMP-TABLE ttEmailcod LIKE emailcod.
@@ -1135,6 +1137,20 @@ PROCEDURE ipBackupDataFiles :
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile xusermenu
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile cueCard
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile cueCardText
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
@@ -2880,6 +2896,84 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadCueCard C-Win
+PROCEDURE ipLoadCueCard:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading Cue Cards").
+
+    &SCOPED-DEFINE tablename cueCard
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.cuePrgmName EQ tt{&tablename}.cuePrgmName AND 
+            {&tablename}.isActive EQ tt{&tablename}.isActive AND 
+            {&tablename}.cueID EQ tt{&tablename}.cueID 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
+        END.
+    END.
+    INPUT CLOSE.
+        
+    EMPTY TEMP-TABLE tt{&tablename}.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadCueCardText C-Win
+PROCEDURE ipLoadCueCardText:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading Cue Card Text").
+
+    &SCOPED-DEFINE tablename cueCardText
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.cueID EQ tt{&tablename}.cueID AND 
+            {&tablename}.isActive EQ tt{&tablename}.isActive AND 
+            {&tablename}.cueOrder EQ tt{&tablename}.cueOrder 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
+        END.
+    END.
+    INPUT CLOSE.
+        
+    EMPTY TEMP-TABLE tt{&tablename}.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadEmailCodes C-Win 
 PROCEDURE ipLoadEmailCodes :
 /*------------------------------------------------------------------------------
@@ -4232,10 +4326,12 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadXuserMenu IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\utilities.d") <> ? THEN
         RUN ipLoadUtilitiesTable IN THIS-PROCEDURE.
-
-    IF NOT CAN-FIND(FIRST audit.audittbl) 
-    AND SEARCH(cUpdDataDir + "\audittbl.d") <> ? THEN
+    IF SEARCH(cUpdDataDir + "\audittbl.d") <> ? THEN
         RUN ipLoadAuditRecs IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\cuecard.d") <> ? THEN
+        RUN ipLoadCueCard IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\cuecardtext.d") <> ? THEN
+        RUN ipLoadCueCardText IN THIS-PROCEDURE.
 
 END PROCEDURE.
 

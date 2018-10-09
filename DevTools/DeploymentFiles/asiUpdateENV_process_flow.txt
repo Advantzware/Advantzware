@@ -118,6 +118,8 @@ PROCEDURE ipProcessAll flow:
                 translation
                 userlanguage
                 xusermenu
+                cueCard
+                cueCardText
         IF prgrms.d exists THEN RUN PROCEDURE ipLoadPrograms
             IF prgrms record NOT THERE, create and copy from .d
             ELSE copy fields:
@@ -174,6 +176,14 @@ PROCEDURE ipProcessAll flow:
             IF NOT in .d, DELETE 
             DELETE reftables for reftable "Utilities" and associated "Notes"
         IF audittbl.d exists THEN RUN PROCEDURE ipLoadAuditRecs
+            IF NOT there, create it
+            IF NOT in .d, DELETE 
+        IF cueCard.d exists THEN RUN PROCEDURE ipLoadCueCard
+            IF NOT there, create it
+            IF NOT in .d, DELETE 
+        IF cueCardText.d exists THEN RUN PROCEDURE ipLoadCueCardText
+            IF NOT there, create it
+            IF NOT in .d, DELETE 
     IF tbRunDataFix THEN RUN PROCEDURE ipDataFix
         IF current version LT 16.0.1 THEN RUN PROCEDURE ipDataFix160001
         IF current version LT 16.1.4 THEN RUN PROCEDURE ipDataFix160104
