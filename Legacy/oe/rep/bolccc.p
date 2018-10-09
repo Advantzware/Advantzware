@@ -114,6 +114,13 @@ DEF VARIABLE li-hh AS INTEGER NO-UNDO.
 DEF VARIABLE li-ss AS INTEGER NO-UNDO.
 DEF VARIABLE li-mm AS INTEGER NO-UNDO.
 
+DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
+DEFINE VARIABLE opiArraySize AS INTEGER NO-UNDO.
+Define Variable hNotesProc as Handle NO-UNDO.
+
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProc.
+
+
 ASSIGN tmpstore = FILL("-",80).
 
 FIND FIRST oe-bolh NO-LOCK NO-ERROR.
@@ -369,20 +376,44 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
     END.
   END.
 
-  PUT "<R39><C50><#7>Initial"
+/*  PUT "<R39><C50><#7>Initial"                                                               */
+/*      "<=7><C+10><FROM><R+2><C+20><RECT> "                                                  */
+/*      "<R41><C50><#8><FROM><R+3><C+30><RECT> "                                              */
+/*      "<=8><R+1> Total Pallets      :" v-tot-cases /*oe-bolh.tot-pallets*/ FORM ">,>>>,>>9".*/
+/*                                                                                            */
+/*PUT "<FBook Antiqua><R39><C1><P12><B>     Shipping Instructions: </B> <P9> " SKIP  .        */
+/*                                                                                            */
+/*IF v-dock-note NE "" THEN PUT v-dock-note AT 7 SKIP .                                       */
+/*                                                                                            */
+/*PUT                                                                                         */
+/*    oe-bolh.ship-i[1] AT 7 SKIP                                                             */
+/*    oe-bolh.ship-i[2] AT 7 SKIP                                                             */
+/*    oe-bolh.ship-i[3] AT 7 SKIP                                                             */
+/*    oe-bolh.ship-i[4] AT 7 SKIP                                                             */
+
+PUT "<R32><C47><#7>Initial"
       "<=7><C+10><FROM><R+2><C+20><RECT> " 
-      "<R41><C50><#8><FROM><R+3><C+30><RECT> " 
+      "<R34><C47><#8><FROM><R+3><C+30><RECT> " 
       "<=8><R+1> Total Pallets      :" v-tot-cases /*oe-bolh.tot-pallets*/ FORM ">,>>>,>>9".
 
-PUT "<FBook Antiqua><R39><C1><P12><B>     Shipping Instructions: </B> <P9> " SKIP  .
+PUT "<FBook Antiqua><R36><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
+PUT "<R36.5><C1>" AT 1 SKIP.
 
-IF v-dock-note NE "" THEN PUT v-dock-note AT 7 SKIP .
+IF v-dock-note NE "" THEN PUT v-dock-note AT 1 SKIP .
+
+/*PUT "<R39><C30>" SKIP.*/
+RUN GetNotesArrayForObject IN hNotesProc (INPUT oe-bolh.rec_key, "ES", "", 130, NO, OUTPUT opcParsedText, OUTPUT opiArraySize).
+
+DO i = 1 TO opiArraySize: 
+    ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
+    ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), "").
+    PUT
+        opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+END.
+
+
 
 PUT
-    oe-bolh.ship-i[1] AT 7 SKIP
-    oe-bolh.ship-i[2] AT 7 SKIP
-    oe-bolh.ship-i[3] AT 7 SKIP
-    oe-bolh.ship-i[4] AT 7 SKIP 
     "_____________________________________________________________________________________________________________________________" SKIP
     "<B>  Signature of Receipt </B>" SKIP
     "Customer ________________________________________                       Carrier _______________________________________" AT 23 SKIP(1)
