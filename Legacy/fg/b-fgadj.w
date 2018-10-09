@@ -403,7 +403,7 @@ DO:
 
   CASE FOCUS:NAME:
     WHEN "i-no" THEN DO:
-      RUN windows/l-itemfg.w (fg-rctd.company, "", FOCUS:SCREEN-VALUE, OUTPUT char-val).
+      RUN windows/l-itemfg.w (cocode, "", FOCUS:SCREEN-VALUE, OUTPUT char-val).
       IF char-val NE "" AND FOCUS:SCREEN-VALUE NE ENTRY(1,char-val) THEN DO:
         FOCUS:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
         APPLY "value-changed" TO FOCUS.
@@ -838,7 +838,7 @@ PROCEDURE fgbin-help :
         FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
         TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 
-    RUN windows/l-fgibn4.w (fg-rctd.company, fg-rctd.i-no:screen-value in browse {&browse-name}, fg-rctd.job-no:screen-value in browse {&browse-name}, INT(fg-rctd.job-no2:screen-value in browse {&browse-name}), fg-rctd.loc:screen-value in browse {&browse-name}, fg-rctd.loc-bin:screen-value in browse {&browse-name}, fg-rctd.tag:screen-value in browse {&browse-name}, output lv-rowid).
+    RUN windows/l-fgibn4.w (cocode, fg-rctd.i-no:screen-value in browse {&browse-name}, fg-rctd.job-no:screen-value in browse {&browse-name}, INT(fg-rctd.job-no2:screen-value in browse {&browse-name}), fg-rctd.loc:screen-value in browse {&browse-name}, fg-rctd.loc-bin:screen-value in browse {&browse-name}, fg-rctd.tag:screen-value in browse {&browse-name}, output lv-rowid).
 
     FIND fg-bin WHERE ROWID(fg-bin) EQ lv-rowid NO-LOCK NO-ERROR.
 
@@ -914,6 +914,10 @@ PROCEDURE local-assign-statement :
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
+    /* Buttons were made sensitive = no during add, so reverse that here */
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
+    RUN make-buttons-sensitive IN WIDGET-HANDLE(char-hdl).
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
@@ -931,6 +935,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win 
+PROCEDURE local-cancel-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+ /* Buttons were made not sensitive during add, so reverse that here */
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
+  RUN make-buttons-sensitive IN WIDGET-HANDLE(char-hdl).
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -941,6 +968,9 @@ PROCEDURE local-create-record :
   DEF BUFFER b-fg-rctd FOR fg-rctd.
   
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
+  RUN make-buttons-insensitive IN WIDGET-HANDLE(char-hdl).
+
   lv-rno = 0.
   FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
   IF AVAIL b-fg-rctd AND b-fg-rctd.r-no GT lv-rno THEN lv-rno = b-fg-rctd.r-no.
@@ -1397,7 +1427,7 @@ PROCEDURE validate-record :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  FIND itemfg WHERE itemfg.company = fg-rctd.company
+  FIND itemfg WHERE itemfg.company = cocode
                 AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                 NO-LOCK NO-ERROR.
   IF NOT AVAIL itemfg THEN DO:
