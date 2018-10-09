@@ -345,7 +345,7 @@ DO:
            AND itemfg-loc.loc     EQ w-jobs.loc
          NO-ERROR.
     IF AVAILABLE itemfg AND AVAILABLE itemfg-loc THEN DO: 
-        RUN fg/fglevels (BUFFER itemfg, BUFFER itemfg-loc, OUTPUT lUpdated).
+        RUN fg/fglevels.w (ROWID(itemfg), ROWID(itemfg-loc), OUTPUT lUpdated).
         IF lUpdated THEN 
         RUN dispatch ("open-query").
         ELSE 
