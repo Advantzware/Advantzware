@@ -31,7 +31,6 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF VAR ll-secure AS LOG NO-UNDO.
 
 DEF VAR listname AS cha NO-UNDO.
 listname = "p-updinv." .
@@ -201,21 +200,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-update V-table-Win
 ON CHOOSE OF btn-update IN FRAME F-Main /* Update Cost/Unit/Count */
 DO:
-  def var char-hdl as cha no-undo.
-  DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
-         DEF VAR lResult AS LOG NO-UNDO.
-         RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
-         RUN epCanAccess IN hPgmSecurity ("viewers/p-fg-bj-l.w", "", OUTPUT lResult).
-    DELETE OBJECT hPgmSecurity.
-  IF lResult THEN
-    ASSIGN ll-secure = YES.
-  
-  IF NOT ll-secure THEN do:  
-     RUN sys/ref/d-passwd.w (1, OUTPUT ll-secure). 
-     IF NOT ll-secure THEN RETURN NO-APPLY.
-  END.  
-  run get-link-handle in adm-broker-hdl (this-procedure, "cost-source", output char-hdl).  
-  run update-cost in widget-handle(char-hdl).
+    RUN pUpdate.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -316,6 +301,20 @@ PROCEDURE local-enable :
    /* IF NOT v-can-update THEN btn-update:SENSITIVE = NO.*/
     tg_showzerobins:HIDDEN = TRUE.
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdate V-table-Win 
+PROCEDURE pUpdate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "cost-source" "update-cost"}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

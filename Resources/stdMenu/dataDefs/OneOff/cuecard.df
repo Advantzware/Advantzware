@@ -4,8 +4,8 @@ ADD TABLE "cueCard"
   DESCRIPTION "Cue Card ID"
   DUMP-NAME "cuecard"
   TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\cueCard.p" CRC "?" 
-  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\cueCard.p" CRC "15598" 
-  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\cueCard.p" CRC "41576" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\cueCard.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\cueCard.p" CRC "?" 
 
 ADD FIELD "cuePrgmName" OF "cueCard" AS character 
   FORMAT "x(20)"
@@ -43,7 +43,25 @@ ADD FIELD "rec_key" OF "cueCard" AS character
   MAX-WIDTH 42
   HELP "Enter Record Key Value"
   LENGTH 0
+  ORDER 60
+
+ADD FIELD "allowDismiss" OF "cueCard" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Allow Dismiss"
+  POSITION 6
+  MAX-WIDTH 1
+  HELP "Set to Allow Dismiss Cue Card Set"
   ORDER 40
+
+ADD FIELD "allowDontShowAgain" OF "cueCard" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Allow Don't Show"
+  POSITION 7
+  MAX-WIDTH 1
+  HELP "Set to Allow Don't Show Again"
+  ORDER 50
 
 ADD INDEX "pi-cueCard" ON "cueCard" 
   AREA "Index"
@@ -63,4 +81,4 @@ ADD INDEX "si-rec_key" ON "cueCard"
 PSC
 cpstream=ISO8859-1
 .
-0000001485
+0000001874

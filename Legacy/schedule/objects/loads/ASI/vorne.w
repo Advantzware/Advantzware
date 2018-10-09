@@ -32,6 +32,7 @@ DEFINE OUTPUT PARAMETER opContinue AS LOGICAL NO-UNDO.
 {{&includes}/sharedVars.i}
 {{&includes}/ttblJob.i}
 {{&includes}/{&Board}/calcEnd.i}
+{system/fSuperRunning.i}
 
 DEFINE VARIABLE lvVorneFile AS CHARACTER NO-UNDO FORMAT 'x(50)'.
 DEFINE VARIABLE lvVorneData AS CHARACTER NO-UNDO.
