@@ -30,9 +30,3 @@ UPDATE SEQUENCE "oerel_rno_seq09"
 
 UPDATE SEQUENCE "oerel_rno_seq10"
   MAX-VAL 9999999
-
-.
-PSC
-cpstream=ISO8859-1
-.
-0000000617

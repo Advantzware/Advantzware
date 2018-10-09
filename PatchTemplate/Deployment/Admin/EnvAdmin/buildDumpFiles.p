@@ -82,5 +82,19 @@ FOR EACH {&cFile} WHERE xUserMenu.user_id EQ "AddonUsr":
 END.
 OUTPUT CLOSE.
 
+&SCOPED-DEFINE cFile cueCard
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile} WHERE xUserMenu.user_id EQ "AddonUsr":
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile cueCardText
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile} WHERE xUserMenu.user_id EQ "AddonUsr":
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
 
 
