@@ -27,8 +27,8 @@
 
 /* Parameters Definitions ---                                           */
 
-DEFINE PARAMETER BUFFER itemfg     FOR itemfg.
-DEFINE PARAMETER BUFFER itemfg-loc FOR itemfg-loc.
+DEFINE INPUT PARAMETER iprItemFGRowID    AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER iprItemFGLocRowID AS ROWID NO-UNDO.
 
 DEFINE OUTPUT PARAMETER oplUpdated AS LOGICAL NO-UNDO.
 
@@ -272,9 +272,11 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
-IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
+FIND itemfg     NO-LOCK WHERE ROWID(itemfg)     EQ iprItemFGRowID.
+FIND itemfg-loc NO-LOCK WHERE ROWID(itemfg-loc) EQ iprItemFGLocRowID.
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
