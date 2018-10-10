@@ -37,7 +37,7 @@ DEFINE STREAM sLogOut.
 
 /* ***************************  Main Block  *************************** */
 
-ASSIGN
+ASSIGN   
     cocode         = gcompany
     locode         = gloc
     cCurrentUserID = USERID(LDBNAME(1))
@@ -59,17 +59,20 @@ DO:
                 
     END.
 END. 
-
-RUN sys/ref/nk1look.p (INPUT gcompany, "UserControl", "C" /* Character*/, 
-    INPUT NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */,
-    INPUT "" /* cust */, 
-    INPUT "" /* ship-to*/,
-    OUTPUT cReturnChar, 
-    OUTPUT lRecFound).
-IF lRecFound THEN 
-    cLogoutFolder = cReturnChar  .
-   
+/* company not determined until user logs in */
+FOR EACH company NO-LOCK:
+    RUN sys/ref/nk1look.p (INPUT company.company, "UserControl", "C" /* Character*/, 
+        INPUT NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */,
+        INPUT "" /* cust */, 
+        INPUT "" /* ship-to*/,
+        OUTPUT cReturnChar, 
+        OUTPUT lRecFound).
+    IF lRecFound THEN DO:
+        cLogoutFolder = cReturnChar  .
+        LEAVE.
+    END.
+END. 
 IF cLogoutFolder NE "" AND SEARCH( cLogoutFolder) EQ ? THEN 
     OS-CREATE-DIR VALUE( cLogoutFolder).  
        
