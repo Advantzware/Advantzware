@@ -420,7 +420,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_locw ).
        RUN set-position IN h_locw ( 2.67 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_locw ( 26.67 , 157.00 ) NO-ERROR.
+       RUN set-size IN h_locw ( 23.19 , 157.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -616,20 +616,17 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'oeinq/b-ordfgi.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_b-ordfgi ).
-       RUN set-position IN h_b-ordfgi ( 2.43 , 2.00 ) NO-ERROR.
+       /* Position in AB:  ( 2.43 , 2.00 ) */
        /* Size in UIB:  ( 20.00 , 156.00 ) */
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartNavBrowser h_b-ordfgi. */
+       /* Links to  h_b-ordfgi. */
        RUN add-link IN adm-broker-hdl ( h_itemfg , 'Record':U , h_b-ordfgi ).
 
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-ordfgi ,
-             h_folder , 'AFTER':U ).
     END. /* Page 8 */
     WHEN 9 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -704,7 +701,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.52 , 26.00 ) */
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('14,2':U) NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('14,4':U) NO-ERROR.
 
        /* Links to SmartBrowser h_fgijob-2. */
        RUN add-link IN adm-broker-hdl ( h_fgijob , 'Record':U , h_fgijob-2 ).
@@ -714,7 +711,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_fgijob-2 , 'cost':U , h_p-fg-bj ).
 
        /* Links to SmartViewer h_p-calcq. */
-       RUN add-link IN adm-broker-hdl ( h_itemfg2 , 'calc-qty':U , h_p-calcq ).
+       RUN add-link IN adm-broker-hdl ( h_locw , 'calc-qty':U , h_p-calcq ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_fgijob-2 ,
