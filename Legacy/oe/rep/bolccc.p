@@ -376,21 +376,6 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
     END.
   END.
 
-/*  PUT "<R39><C50><#7>Initial"                                                               */
-/*      "<=7><C+10><FROM><R+2><C+20><RECT> "                                                  */
-/*      "<R41><C50><#8><FROM><R+3><C+30><RECT> "                                              */
-/*      "<=8><R+1> Total Pallets      :" v-tot-cases /*oe-bolh.tot-pallets*/ FORM ">,>>>,>>9".*/
-/*                                                                                            */
-/*PUT "<FBook Antiqua><R39><C1><P12><B>     Shipping Instructions: </B> <P9> " SKIP  .        */
-/*                                                                                            */
-/*IF v-dock-note NE "" THEN PUT v-dock-note AT 7 SKIP .                                       */
-/*                                                                                            */
-/*PUT                                                                                         */
-/*    oe-bolh.ship-i[1] AT 7 SKIP                                                             */
-/*    oe-bolh.ship-i[2] AT 7 SKIP                                                             */
-/*    oe-bolh.ship-i[3] AT 7 SKIP                                                             */
-/*    oe-bolh.ship-i[4] AT 7 SKIP                                                             */
-
 PUT "<R32><C47><#7>Initial"
       "<=7><C+10><FROM><R+2><C+20><RECT> " 
       "<R34><C47><#8><FROM><R+3><C+30><RECT> " 
@@ -410,8 +395,6 @@ DO i = 1 TO opiArraySize:
     PUT
         opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
 END.
-
-
 
 PUT
     "_____________________________________________________________________________________________________________________________" SKIP
