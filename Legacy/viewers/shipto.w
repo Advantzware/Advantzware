@@ -170,7 +170,7 @@ shipto.spare-int-3 shipto.spare-int-4 shipto.ship-meth shipto.broker ~
 shipto.bill 
 &Scoped-define DISPLAYED-TABLES shipto
 &Scoped-define FIRST-DISPLAYED-TABLE shipto
-&Scoped-Define DISPLAYED-OBJECTS fi_sname faxAreaCode faxNumber ship_note 
+&Scoped-Define DISPLAYED-OBJECTS tg_inactive fi_sname faxAreaCode faxNumber 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -178,7 +178,7 @@ shipto.bill
 &Scoped-define ADM-ASSIGN-FIELDS shipto.tax-mandatory shipto.exportCustID 
 &Scoped-define DISPLAY-FIELD shipto.ship-state shipto.tax-code shipto.loc ~
 shipto.carrier shipto.dest-code 
-&Scoped-define List-5 faxAreaCode faxNumber 
+&Scoped-define List-5 tg_inactive faxAreaCode faxNumber 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -249,10 +249,16 @@ DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 35.2 BY 5.29.
 
+DEFINE VARIABLE tg_inactive AS LOGICAL INITIAL no 
+     LABEL "Inactive" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 13.4 BY .81 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     tg_inactive AT ROW 10.05 COL 42 WIDGET-ID 8
      fi_sname AT ROW 13 COL 77.6 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      shipto.ship-id AT ROW 10 COL 14.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -297,7 +303,7 @@ DEFINE FRAME F-Main
      faxAreaCode AT ROW 12.05 COL 68.6 COLON-ALIGNED AUTO-RETURN 
      faxNumber AT ROW 12.05 COL 76.4 COLON-ALIGNED NO-LABEL
      shipto.spare-char-1 AT ROW 13 COL 68.6 COLON-ALIGNED
-          LABEL "Sales Rep" FORMAT "xxx"
+          LABEL "SalesGrp" FORMAT "xxx"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
      shipto.tax-code AT ROW 13.95 COL 68.6 COLON-ALIGNED
@@ -306,7 +312,7 @@ DEFINE FRAME F-Main
           SIZE 15 BY 1
           FONT 4
      shipto.tax-mandatory AT ROW 14.19 COL 87.8
-          LABEL "Mandatory Tax?"
+          LABEL "Taxable"
           VIEW-AS TOGGLE-BOX
           SIZE 21.8 BY .81
      shipto.notes[1] AT ROW 15.67 COL 5 COLON-ALIGNED NO-LABEL
@@ -563,6 +569,8 @@ ASSIGN
    4 EXP-LABEL                                                          */
 /* SETTINGS FOR TOGGLE-BOX shipto.tax-mandatory IN FRAME F-Main
    2 EXP-LABEL                                                          */
+/* SETTINGS FOR TOGGLE-BOX tg_inactive IN FRAME F-Main
+   NO-ENABLE 5                                                          */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -909,7 +917,7 @@ END.
 
 &Scoped-define SELF-NAME shipto.spare-char-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL shipto.spare-char-1 V-table-Win
-ON LEAVE OF shipto.spare-char-1 IN FRAME F-Main /* Sales Rep */
+ON LEAVE OF shipto.spare-char-1 IN FRAME F-Main /* SalesGrp */
 DO:
    IF LASTKEY NE -1 THEN DO:
     RUN valid-sman NO-ERROR.
@@ -1068,7 +1076,7 @@ PROCEDURE enable-shipto :
       ENABLE
        shipto.bill
        shipto.broker.
-    ENABLE faxareacode faxnumber.
+    ENABLE tg_inactive faxareacode faxnumber.
     IF glShipNotesExpanded EQ YES THEN DO:
        ENABLE ship_note.
     END.
@@ -1212,7 +1220,16 @@ PROCEDURE local-assign-record :
   END.
 
   shipto.fax = faxAreaCode + faxNumber.
-  disable faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
+    IF tg_inactive:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "YES" AND DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN DO:
+     RUN AddTagInactive(shipto.rec_key,"shipto").
+     shipto.statusCode = "I".
+  END.
+  ELSE IF tg_inactive:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO" AND NOT DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN DO: 
+     RUN ClearTagsInactive(shipto.rec_key).
+     shipto.statusCode = "".
+  END.
+    
+  disable tg_inactive faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
 
   IF adm-new-record THEN DO:
      IF v-cust-log THEN 
@@ -1244,7 +1261,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DISABLE ship_note WITH FRAME {&FRAME-NAME}.
-  disable faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
+  disable tg_inactive faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -1394,10 +1411,11 @@ PROCEDURE local-display-fields :
         faxAreaCode = SUBSTR(shipto.fax,1,3)
         faxNumber = SUBSTR(shipto.fax,4)
         fi_sname = getSalesmanName(shipto.spare-char-1)
+            tg_inactive = DYNAMIC-FUNCTION("IsActive",shipto.rec_key) EQ NO
         .
-        
-      DISPLAY faxareacode faxnumber fi_sname WITH FRAME {&FRAME-NAME}.   
 
+      DISPLAY tg_inactive faxareacode faxnumber fi_sname WITH FRAME {&FRAME-NAME}.
+        
   END.
   
   RUN enable_notes.
