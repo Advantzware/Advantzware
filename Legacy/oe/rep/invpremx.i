@@ -2,10 +2,9 @@
 
 RUN XMLOutput (lXMLOutput,'',STRING(PAGE-NUM),'Page'). /* rstark 05181205 */
 RUN cXMLOutput (clXMLOutput,'',STRING(PAGE-NUM),'Page'). /* rstark 05291402 */
-
 PUT "<FTimes New Roman>".
         IF lChkImage THEN
-         PUT  "<C3><#1><R+8><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(200)" SKIP .
+         PUT  "<C3><R2><#1><R+7><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(200)" SKIP(1) .
 /*         PUT "<C3><R2><#1>"                                         */
 /*             "<R+8><C+45><IMAGE#1=" ls-full-img1 SKIP. /* image */ .*/
         PUT "<=1>" SKIP. 
@@ -30,7 +29,7 @@ ELSE IF company.company = '005' THEN
             SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>" SKIP(1)
             SPACE(12) "REMIT TO: MCI PACKAGING" SKIP
             SPACE(12) "          PO BOX 39505" SKIP
-            SPACE(12) "          Louisville, KY 40233" SKIP (2)
+            SPACE(12) "          Louisville, KY 40233" SKIP (1)
             space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
             SPACE(12) inv-head.cust-name v-shipto-name AT 64 skip
             SPACE(12) inv-head.addr[1]   v-shipto-addr[1] AT 64 SKIP
@@ -44,7 +43,7 @@ ELSE
             SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>" SKIP(1)
             SPACE(12) "REMIT TO: PREMIER PACKAGING" SKIP
             SPACE(12) "          3254 RELIABLE PARKWAY" SKIP
-            SPACE(12) "          CHICAGO, IL  60686" SKIP (2)
+            SPACE(12) "          CHICAGO, IL  60686" SKIP (1)
             space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
             SPACE(12) inv-head.cust-name v-shipto-name AT 64 skip
             SPACE(12) inv-head.addr[1]   v-shipto-addr[1] AT 64 SKIP
