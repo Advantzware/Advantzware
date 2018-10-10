@@ -24,28 +24,6 @@ DO li = 1 TO NUM-ENTRIES(spec_codes):
   spec-list = TRIM(ENTRY(li,spec_codes)) + "," + TRIM(spec-list).
 END.
 
-FOR EACH job-mch WHERE job-mch.company = cocode
-    AND job-mch.job-no  ge substr(fjob-no,1,6)
-    AND job-mch.job-no  ge substr(tjob-no,1,6)
-    AND job-mch.job-no2 = job.job-no2 
-    and fill(" ",6 - length(trim(job-mch.job-no))) +
-            trim(job-mch.job-no) +
-            string(job-mch.job-no2,"99")  ge fjob-no
-    and fill(" ",6 - length(trim(job-mch.job-no))) +
-              trim(job-mch.job-no) +
-              string(job-mch.job-no2,"99")  le tjob-no
-    use-index line-idx NO-LOCK :
-
-    IF job-mch.m-code EQ "303" THEN do: 
-        ASSIGN
-        lv-format-f = "CCC-Hybrid"
-        lv-format-c = "CCC-Hybrid" .
-     LEAVE.
-    END.
-END.
-
-
-
 /*FibreFC,*/
 IF tb_fold  AND CAN-DO("Interpac,Dayton,Livngstn,CentBox,Wingate,Frankstn,Colonial,CCC-Hybrid,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Badger,Carded,Carded2,Coburn,Knight***",lv-format-f) THEN 
   lines-per-page = 50. /*55*/
@@ -389,7 +367,7 @@ IF is-xprint-form THEN DO:
 
   ELSE IF rd-dest = 5 THEN DO:
     IF (ip-industry = "Corr" AND 
-       (can-do ('PEACHTREE,PACIFIC,MWBox,Hughes,Protagon,Freedman,ARTIOS,Suthrlnd,United,oklahoma,Spectrum,CapCity,Allwest,RFC2,Loylang,Soule,HPB,MulticellGA,MCPartitions,ColonialPL,Delta,Bell,CCC-Hybrid',lv-format-c))  OR 
+       (can-do ('PEACHTREE,PACIFIC,MWBox,Hughes,Protagon,Freedman,ARTIOS,Suthrlnd,United,oklahoma,Spectrum,CapCity,Allwest,RFC2,Loylang,Soule,HPB,MulticellGA,MCPartitions,ColonialPL,Delta,Bell',lv-format-c))  OR 
        (can-do ("Xprint,Valley,Lakeside,VINELAND,TriLakes,Axis,TriLakes2,Michcor",lv-format-c) AND lv-ornt = "L")) OR
        (ip-industry = "FOLD" AND 
        can-do ('Interpac,Frankstn,OTTPkg,Colonial,CCC-Hybrid,CCC,Dayton,Livngstn,Shelby,HPB,METRO,FibreFC,PPI,PackRite,Rosmar,Knight,MidYork,Carded,Dee,Badger',lv-format-f)) THEN 
@@ -457,11 +435,7 @@ IF ip-industry EQ "Fold" THEN DO:
    ELSE IF lv-format-f EQ "Colonial" THEN DO:
       PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>".
       RUN cerep/jobcolnl.p (lv-format-f).
-   END.
-   ELSE IF lv-format-f EQ "CCC-Hybrid" THEN DO:
-      PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>".
-      RUN cerep/jobccchyb.p (lv-format-f).
-   END.
+   END.   
    ELSE IF lv-format-f EQ "xml" THEN DO: 
       RUN cerep/job_xml.p.
    END.
@@ -775,10 +749,6 @@ ELSE IF ip-industry EQ "Corr" THEN DO:
       PUT UNFORMATTED "<OLANDSCAPE><FTahoma><P10></PROGRESS>" skip.
       RUN cecrep/jobtickc20.p (lv-format-c).
   END.
-  ELSE IF lv-format-c EQ "CCC-Hybrid" THEN DO: 
-      PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>".
-      RUN cerep/jobccchyb.p (lv-format-f).
-   END.
   ELSE IF lv-ornt = "P" THEN do:
       PUT UNFORMATTED "</PROGRESS><P7>" skip.
       RUN cecrep/jobtick.p (lv-format-c).
