@@ -170,7 +170,8 @@ fg-rdtlh.partial li-qty-pal @ li-qty-pal fg-rdtlh.stack-code ~
 fg-rdtlh.tot-wt fg-rdtlh.user-id fg-rcpth.b-no fg-rcpth.pur-uom ~
 display-ship() @ bol-ship fg-rcpth.post-date get-vend-no () @ vend-no ~
 get-vend-info () @ vend-name get-fg-qty (1) @ iBinQtyBef ~
-get-fg-qty (2) @ iBinQty fg-rdtlh.reject-code[1]
+get-fg-qty (2) @ iBinQty fg-rdtlh.reject-code[1] fg-rdtlh.enteredBy ~
+fg-rdtlh.enteredDT 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table fg-rcpth.i-no ~
 fg-rcpth.po-no fg-rcpth.job-no fg-rcpth.job-no2 fg-rcpth.trans-date ~
 fg-rcpth.rita-code fg-rdtlh.cust-no fg-rdtlh.loc fg-rdtlh.loc-bin ~
@@ -439,7 +440,8 @@ DEFINE BROWSE Browser-Table
       get-fg-qty (2) @ iBinQty COLUMN-LABEL "Bin Change" FORMAT "->>>>>>9":U
       fg-rdtlh.reject-code[1] COLUMN-LABEL "Adjustment Reason" FORMAT "x(30)" WIDTH 25
       VIEW-AS COMBO-BOX INNER-LINES 10
-
+      fg-rdtlh.enteredBy COLUMN-LABEL "Scanned By" FORMAT "x(12)":U
+      fg-rdtlh.enteredDT COLUMN-LABEL "Scan Date/Time" FORMAT "99/99/9999 HH:MM:SS.SSS":U
   ENABLE
       fg-rcpth.i-no
       fg-rcpth.po-no
@@ -661,8 +663,12 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
 "get-fg-qty (1) @ iBinQtyBef" "Before Qty" "->>>>>>9" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[31]   > "_<CALC>"
 "get-fg-qty (2) @ iBinQty" "Bin Change" "->>>>>>9" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[32]   > ASI.fg-rdtlh.reject-code[1]
+     _FldNameList[32]   > ASI.fg-rdtlh.reject-code[1]
 "fg-rdtlh.reject-code[1]" "Adjustment Reason:" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[33]   > ASI.fg-rdtlh.enteredBy
+"fg-rdtlh.enteredBy" "Scanned By" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[34]   > ASI.fg-rdtlh.enteredDT
+"fg-rdtlh.enteredDT" "Scan Date/Time" ? "datetime" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -674,7 +680,7 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 

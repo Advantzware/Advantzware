@@ -134,7 +134,8 @@ rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date ~
 rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty ~
 rm-rcpth.pur-uom rm-rdtlh.cost disp-uom () @ rm-rcpth.loc rm-rcpth.loc ~
 disp-uom () @ rm-rcpth.loc rm-rdtlh.qty * rm-rdtlh.cost @ ld-ext-cost ~
-rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rdtlh.reject-code[1]
+rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rdtlh.receiver-no rm-rdtlh.reject-code[1]~
+rm-rdtlh.enteredBy rm-rdtlh.enteredDT 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table rm-rcpth.i-no ~
 rm-rcpth.po-no rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num ~
 rm-rcpth.trans-date rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin ~
@@ -338,6 +339,8 @@ DEFINE BROWSE Browser-Table
       rm-rdtlh.receiver-no COLUMN-LABEL "Invoice Link" FORMAT "x(20)":U
       rm-rdtlh.reject-code[1] COLUMN-LABEL "Adjustment Reason" WIDTH 25
       VIEW-AS COMBO-BOX INNER-LINES 10
+      rm-rdtlh.enteredBy COLUMN-LABEL "Scanned By" FORMAT "x(12)":U
+      rm-rdtlh.enteredDT COLUMN-LABEL "Scanned Date/Time" FORMAT "99/99/9999 HH:MM:SS.SSS":U
   ENABLE
       rm-rcpth.i-no
       rm-rcpth.po-no
@@ -524,8 +527,12 @@ ASSIGN
 "rm-rdtlh.user-id" "UserID" ? "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > ASI.rm-rdtlh.receiver-no
 "rm-rdtlh.receiver-no" "Invoice Link" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[21]   > ASI.rm-rdtlh.receiver-no
+     _FldNameList[21]   > ASI.rm-rdtlh.receiver-no
 "rm-rdtlh.reject-code[1]" "Adjustment Reason:" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[22]   > ASI.rm-rdtlh.enteredBy
+"rm-rdtlh.enteredBy" "Scanned By" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[23]   > ASI.rm-rdtlh.enteredDT
+"rm-rdtlh.enteredDT" "Scanned Date/Time" ? "datetime" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -537,7 +544,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1917,25 +1924,25 @@ PROCEDURE valid-tag-no :
   DEF BUFFER b-rm-rdtlh FOR rm-rdtlh.
 
   DO WITH FRAME {&FRAME-NAME}:
-      lv-tag = rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name}.
+    lv-tag = rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name}.
 
    IF rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
        rm-rcpth.rita-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "R" AND  
        int(rm-rdtlh.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN do:
 
        FIND FIRST  b-rm-rdtlh NO-LOCK
-           WHERE b-rm-rdtlh.company EQ cocode
+                      WHERE b-rm-rdtlh.company EQ cocode
            /*AND b-rm-rcpth.i-no EQ fi_rm-i-no*/
-           AND b-rm-rdtlh.tag     EQ lv-tag 
+                        AND b-rm-rdtlh.tag     EQ lv-tag
            AND ROWID(b-rm-rdtlh)  NE ROWID(rm-rdtlh) NO-ERROR .
 
        IF AVAIL b-rm-rdtlh THEN DO:
            MESSAGE "This Tag Number has already been used..." VIEW-AS ALERT-BOX INFO.
-           rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} = rm-rdtlh.tag.
-           APPLY "entry" TO rm-rdtlh.tag IN BROWSE {&browse-name}.
-           RETURN ERROR.
-       END.
+      rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} = rm-rdtlh.tag.
+      APPLY "entry" TO rm-rdtlh.tag IN BROWSE {&browse-name}.
+      RETURN ERROR.
     END.
+  END.
   END.
 
 END PROCEDURE.
@@ -1957,7 +1964,7 @@ PROCEDURE valid-tag :
 
 
   DO WITH FRAME {&FRAME-NAME}:
-    lv-tag = rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name}.
+      lv-tag = rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name}.
 
     IF lv-tag NE rm-rdtlh.tag AND
        (lv-tag EQ ""       OR
@@ -1967,15 +1974,15 @@ PROCEDURE valid-tag :
                         AND loadtag.i-no      EQ rm-rcpth.i-no:SCREEN-VALUE
                         AND loadtag.tag-no    EQ lv-tag)             AND
          NOT CAN-FIND(FIRST b-rm-rdtlh
-                      WHERE b-rm-rdtlh.company EQ cocode
-                        AND b-rm-rdtlh.tag     EQ lv-tag
+           WHERE b-rm-rdtlh.company EQ cocode
+           AND b-rm-rdtlh.tag     EQ lv-tag 
                         AND ROWID(b-rm-rdtlh)  NE ROWID(rm-rdtlh)))) THEN DO:
       MESSAGE "Invalid Tag# Change..." VIEW-AS ALERT-BOX ERROR.
-      rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} = rm-rdtlh.tag.
-      APPLY "entry" TO rm-rdtlh.tag IN BROWSE {&browse-name}.
-      RETURN ERROR.
+           rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} = rm-rdtlh.tag.
+           APPLY "entry" TO rm-rdtlh.tag IN BROWSE {&browse-name}.
+           RETURN ERROR.
+       END.
     END.
-  END.
 
 END PROCEDURE.
 
