@@ -394,11 +394,13 @@ DEF BUFFER b-tt-rctd FOR tt-rctd.
           and item.mat-type eq "B"
         no-lock:
 
-      {rm/rm-addcr.i E b-tt-rctd b-tt-rctd b-}
+        {rm/rm-addcr.i E tt-rctd tt-rctd b-}
+          CREATE b-tt-rctd.
+        BUFFER-COPY tt-rctd EXCEPT rec_key TO b-tt-rctd  .
         ASSIGN
-         b-tt-rctd.tt-row-id = ROWID(tt-rctd)
-         b-tt-rctd.seq-no    = 3.
-
+            b-tt-rctd.rita-code = "I"
+            b-tt-rctd.tt-row-id = ROWID(tt-rctd)
+            b-tt-rctd.seq-no    = 3.
       END.
     end.
 

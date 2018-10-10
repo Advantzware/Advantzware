@@ -432,10 +432,11 @@ PROCEDURE pre-post:
           and item.mat-type eq "B"
         no-lock:
 
-      {rm/rm-addcr.i E b-tt-rctd b-tt-rctd b-}
+      {rm/rm-addcr.i E tt-rctd tt-rctd b-}
         ASSIGN
+	 b-tt-rctd.rita-code = "I"
          b-tt-rctd.tt-row-id = ROWID(tt-rctd)
-         b-tt-rctd.seq-no    = 3.
+         b-tt-rctd.seq-no    = 3	 .
       END.
     end.
     

@@ -2385,12 +2385,15 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
           AND item.i-no     EQ tt-rctd.i-no
           AND item.mat-type EQ "B"
         NO-LOCK:
-         IF AVAIL b-tt-rctd THEN DO:
-               {rm/rm-addcr.i E b-tt-rctd b-tt-rctd b-}
+         
+       {rm/rm-addcr.i E tt-rctd tt-rctd b-}
+        CREATE b-tt-rctd.
+        BUFFER-COPY tt-rctd EXCEPT rec_key TO b-tt-rctd  .
         ASSIGN
+         b-tt-rctd.rita-code = "I"
          b-tt-rctd.tt-row-id = ROWID(tt-rctd)
          b-tt-rctd.seq-no    = 3.
-         END.
+        
       END.
     END.
     ASSIGN
