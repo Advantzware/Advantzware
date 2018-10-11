@@ -96,18 +96,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 2.91
-         SIZE 127 BY 1.43
-         BGCOLOR 15 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 2.91
+         SIZE 127 BY 1.43
          BGCOLOR 15 .
 
 
@@ -324,15 +324,15 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/fg/b-ucptd.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_b-ucptd ).
-       /* Position in AB:  ( 6.71 , 5.00 ) */
-       /* Size in UIB:  ( 15.71 , 144.00 ) */
+       RUN set-position IN h_b-ucptd ( 6.71 , 5.00 ) NO-ERROR.
+       RUN set-size IN h_b-ucptd ( 15.71 , 144.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updcan.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
+             INPUT  'Edge-Pixels = 1,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updcan ).
@@ -342,7 +342,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_v-ucptd. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'init-entry':U , h_v-ucptd ).
 
-       /* Links to  h_b-ucptd. */
+       /* Links to SmartBrowser h_b-ucptd. */
        RUN add-link IN adm-broker-hdl ( h_p-updcan , 'TableIO':U , h_b-ucptd ).
        RUN add-link IN adm-broker-hdl ( h_v-ucptd , 'srch':U , h_b-ucptd ).
        RUN add-link IN adm-broker-hdl ( h_b-ucptd , 'can-exit':U , THIS-PROCEDURE ).
@@ -350,8 +350,10 @@ PROCEDURE adm-create-objects :
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-ucptd ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updcan ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-ucptd ,
              h_v-ucptd , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updcan ,
+             h_b-ucptd , 'AFTER':U ).
     END. /* Page 1 */
 
   END CASE.
