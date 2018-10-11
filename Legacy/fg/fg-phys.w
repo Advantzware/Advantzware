@@ -91,18 +91,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 2.91
-         SIZE 127 BY 1.43
-         BGCOLOR 15 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 2.91
+         SIZE 127 BY 1.43
          BGCOLOR 15 .
 
 
@@ -173,12 +173,6 @@ ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
 
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
-
-DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
-
-ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-frame:HANDLE)
-/* END-ASSIGN-TABS */.
-
 /* SETTINGS FOR FRAME message-frame
                                                                         */
 /* SETTINGS FOR FRAME OPTIONS-FRAME
@@ -286,6 +280,15 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/folder.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'FOLDER-LABELS = ':U + 'Counts' + ',
+                     FOLDER-TAB-TYPE = 1':U ,
+             OUTPUT h_folder ).
+       RUN set-position IN h_folder ( 2.91 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/options.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
@@ -301,23 +304,14 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_exit ( 1.00 , 141.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/folder.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Counts' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
-             OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
-
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
+             FRAME OPTIONS-FRAME:HANDLE , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_options , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
-             FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -331,10 +325,10 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'fg/b-phys.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_b-phys ).
-       /* Position in AB:  ( 5.05 , 4.00 ) */
-       /* Size in UIB:  ( 17.86 , 145.00 ) */
+       RUN set-position IN h_b-phys ( 5.05 , 4.00 ) NO-ERROR.
+       RUN set-size IN h_b-phys ( 17.86 , 145.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updsav.w':U ,
@@ -354,7 +348,7 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_pv-trans ( 22.91 , 110.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.76 , 17.00 ) */
 
-       /* Links to  h_b-phys. */
+       /* Links to SmartNavBrowser h_b-phys. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_b-phys ).
        RUN add-link IN adm-broker-hdl ( h_pv-trans , 'trans':U , h_b-phys ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'cancel-item':U , h_b-phys ).
@@ -363,8 +357,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'receipt':U , h_p-updsav ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-phys ,
+             FRAME message-frame:HANDLE , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
-             h_folder , 'AFTER':U ).
+             h_b-phys , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_pv-trans ,
              h_p-updsav , 'AFTER':U ).
     END. /* Page 1 */

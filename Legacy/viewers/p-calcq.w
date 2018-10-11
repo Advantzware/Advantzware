@@ -91,12 +91,12 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-recalc-qty 
-     LABEL "&Recalc Qtys" 
-     SIZE 14 BY 1.14.
+     LABEL "&Recalculate Qtys" 
+     SIZE 24.4 BY 1.14.
 
 DEFINE RECTANGLE RECT-25
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 15.6 BY 1.52.
+     SIZE 26 BY 1.52.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -190,7 +190,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME btn-recalc-qty
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-recalc-qty V-table-Win
-ON CHOOSE OF btn-recalc-qty IN FRAME F-Main /* Recalc Qtys */
+ON CHOOSE OF btn-recalc-qty IN FRAME F-Main /* Recalculate Qtys */
 DO:
   def var char-hdl as cha no-undo.
   DEF VAR ll-secure AS LOG INIT NO NO-UNDO.

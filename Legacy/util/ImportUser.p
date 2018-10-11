@@ -10,6 +10,12 @@
 
 /* ***************************  Definitions  ************************** */
 {util\ttImport.i SHARED}
+DEFINE SHARED VARIABLE cIniLoc AS CHAR NO-UNDO. 
+DEFINE VARIABLE cModeList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDbList   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEnvList  AS CHARACTER NO-UNDO.
+
+DEFINE STREAM sIni.
 /*Refactor - required for old external procedures*/ 
 
 DEFINE TEMP-TABLE ttImportUsers
@@ -46,10 +52,33 @@ DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is 
 
 
 /* ***************************  Main Block  *************************** */
-
+RUN getIniLists.
 
 /* **********************  Internal Procedures  *********************** */
 {util/ImportProcs.i &ImportTempTable = "ttImportUsers"}
+
+PROCEDURE getIniLists:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cInpLine AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cParam AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cParamValue AS CHARACTER NO-UNDO.
+  INPUT STREAM sIni FROM VALUE(cIniLoc).
+  REPEAT:
+      IMPORT STREAM sIni DELIMITER "=" cParam cParamValue.
+      CASE cParam:
+          WHEN "modeList" THEN 
+            cModeList = cParamValue.
+          WHEN "DbList" THEN 
+            cDbList = cParamValue.
+          WHEN "EnvList" THEN 
+            cEnvList = cParamValue.
+      END CASE.
+  END.      
+  INPUT STREAM sIni CLOSE.
+END PROCEDURE.
 
 PROCEDURE pValidate PRIVATE:
     /*------------------------------------------------------------------------------
@@ -65,7 +94,11 @@ PROCEDURE pValidate PRIVATE:
     DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportUsers FOR ttImportUsers.
-
+    DEFINE VARIABLE iInd AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cUserType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMode AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDb AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEnvironment AS CHARACTER NO-UNDO.
     RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
@@ -117,6 +150,34 @@ PROCEDURE pValidate PRIVATE:
                 .
     END.
     
+    DO iInd = 1 TO NUM-ENTRIES(ipbf-ttImportUsers.cUserType, "|"):
+       cUserType = ENTRY(iInd, ipbf-ttImportUsers.cUserType, "|").
+       IF LOOKUP(cUserType, "Full User,Production Floor,Administrator,Portal User") EQ 0 THEN 
+         ASSIGN
+           oplValid = NO
+           opcNote = "Invalid User Type".
+    END.
+    DO iInd = 1 TO NUM-ENTRIES(ipbf-ttImportUsers.cModes, "|"):
+        cMode = ENTRY(iInd, ipbf-ttImportUsers.cModes, "|").
+        IF LOOKUP(cMode, cModeList) EQ 0 THEN 
+            ASSIGN
+                oplValid = NO
+                opcNote  = "Invalid Mode".
+    END.    
+    DO iInd = 1 TO NUM-ENTRIES(ipbf-ttImportUsers.cEnvironments, "|"):
+        cEnvironment = ENTRY(iInd, ipbf-ttImportUsers.cEnvironments, "|").
+        IF LOOKUP(cEnvironment, cEnvList) EQ 0 THEN 
+            ASSIGN
+                oplValid = NO
+                opcNote  = "Invalid environment".
+    END. 
+    DO iInd = 1 TO NUM-ENTRIES(ipbf-ttImportUsers.cDatabases, "|"):
+        cDatabase = ENTRY(iInd, ipbf-ttImportUsers.cDatabases, "|").
+        IF LOOKUP(cDatabase, cDbList) EQ 0 THEN 
+            ASSIGN
+                oplValid = NO
+                opcNote  = "Invalid database".
+    END.         
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
     
 END PROCEDURE.
@@ -145,6 +206,8 @@ PROCEDURE pProcessRecord PRIVATE:
             users.user_id = ipbf-ttImportUsers.cUserId
             .
     END.
+    
+    
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
     RUN pAssignValueC (ipbf-ttImportUsers.cUserName, iplIgnoreBlanks, INPUT-OUTPUT users.user_name).
     RUN pAssignValueC (ipbf-ttImportUsers.cAlias, iplIgnoreBlanks, INPUT-OUTPUT  users.userAlias).

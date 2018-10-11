@@ -1860,7 +1860,11 @@ END.
                      WHEN "stat"      THEN cVarValue = "" .
                      WHEN "zip"       THEN cVarValue = ""  .
                      WHEN "cre-lim"   THEN cVarValue = "" .
-                     WHEN "phone"     THEN cVarValue = "" .
+                     WHEN "phone"    THEN DO:
+                         IF vname = "cust.cust-no" THEN
+                              cVarValue = trim(string(cust.area-code,"(xxx)") + string(cust.phone,"xxx-xxxx")) .
+                          ELSE cVarValue = "" .
+                     END.                      
                      WHEN "fax"       THEN cVarValue = "".
                      WHEN "chk-memo"  THEN cVarValue = "".
                      WHEN "day-old"   THEN cVarValue = "".

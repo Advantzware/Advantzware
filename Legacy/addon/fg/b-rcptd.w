@@ -2565,12 +2565,9 @@ PROCEDURE post-finish-goods :
   DEFINE VARIABLE fgPostLog AS LOGICAL NO-UNDO.
 
   fgPostLog = SEARCH('logs/fgpstall.log') NE ?.
-  IF fgPostLog THEN
-  OUTPUT STREAM logFile TO VALUE('logs/fgpstall.' +
-         STRING(TODAY,'99999999') + '.' + STRING(TIME) + '.log').
 
   SESSION:SET-WAIT-STATE ("general").
-  IF fgPostLog THEN RUN fgPostLog ('Started').
+  /* IF fgPostLog THEN RUN fgPostLog ('Started'). */
   FIND FIRST period NO-LOCK
       WHERE period.company EQ cocode
         AND period.pst     LE v-post-date

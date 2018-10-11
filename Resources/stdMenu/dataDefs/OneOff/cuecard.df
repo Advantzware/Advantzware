@@ -33,7 +33,7 @@ ADD FIELD "isActive" OF "cueCard" AS logical
   POSITION 4
   MAX-WIDTH 1
   HELP "Set Active Flag"
-  ORDER 30
+  ORDER 40
 
 ADD FIELD "rec_key" OF "cueCard" AS character 
   FORMAT "X(21)"
@@ -43,16 +43,54 @@ ADD FIELD "rec_key" OF "cueCard" AS character
   MAX-WIDTH 42
   HELP "Enter Record Key Value"
   LENGTH 0
-  ORDER 40
+  ORDER 80
+
+ADD FIELD "enableDismiss" OF "cueCard" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Enable Dismiss"
+  POSITION 6
+  MAX-WIDTH 1
+  HELP "Set to Enable Dismiss Cue Card Set"
+  ORDER 50
+
+ADD FIELD "enableDontShowAgain" OF "cueCard" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Enable Don't Show"
+  POSITION 7
+  MAX-WIDTH 1
+  HELP "Set to Enable Don't Show Again"
+  ORDER 60
+
+ADD FIELD "cueType" OF "cueCard" AS character 
+  FORMAT "x(8)"
+  INITIAL "System"
+  LABEL "Cue Type"
+  POSITION 8
+  MAX-WIDTH 16
+  HELP "Enter Cue Card Type"
+  ORDER 30
+
+ADD FIELD "securityLevel" OF "cueCard" AS integer 
+  FORMAT ">>>9"
+  INITIAL "0"
+  LABEL "Security Level"
+  POSITION 9
+  MAX-WIDTH 4
+  COLUMN-LABEL "SecLvl"
+  HELP "Enter Security Level"
+  ORDER 70
 
 ADD INDEX "pi-cueCard" ON "cueCard" 
   AREA "Index"
   UNIQUE
   PRIMARY
-  DESCRIPTION "Primary Index by cuePrgmName, isActive and cueID"
+  DESCRIPTION "Primary Index"
   INDEX-FIELD "cuePrgmName" ASCENDING 
-  INDEX-FIELD "isActive" ASCENDING 
+  INDEX-FIELD "cueType" ASCENDING 
   INDEX-FIELD "cueID" ASCENDING 
+  INDEX-FIELD "isActive" ASCENDING 
 
 ADD INDEX "si-rec_key" ON "cueCard" 
   AREA "Index"
@@ -63,4 +101,4 @@ ADD INDEX "si-rec_key" ON "cueCard"
 PSC
 cpstream=ISO8859-1
 .
-0000001485
+0000002269

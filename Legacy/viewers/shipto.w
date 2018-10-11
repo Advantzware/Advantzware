@@ -37,6 +37,12 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE op-company AS CHARACTER NO-UNDO.
 DEFINE VARIABLE op-cust-no AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
+DEFINE VARIABLE opiFilledArraySize AS INTEGER NO-UNDO.
+/*DEFINE VARIABLE ShipNotesExpanded AS LOGICAL NO-UNDO.*/
+DEFINE VARIABLE glShipNotesExpanded AS LOGICAL NO-UNDO.
+DEFINE VARIABLE oldShiptoNote AS CHARACTER NO-UNDO.
+
 DEF VAR lv-bolwhse LIKE sys-ctrl.char-fld NO-UNDO.
 DEF VAR lv-autopost LIKE sys-ctrl.char-fld NO-UNDO.
 DEF VAR lv-tax-mand AS LOG NO-UNDO.
@@ -106,6 +112,13 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEAutoDateUpdate", "L" /* Logical */, NO /
 OUTPUT cRtnChar, OUTPUT lRecFound).
 
     oeDateAuto-log = LOGICAL(cRtnChar) NO-ERROR.
+    
+/*RUN sys/ref/nk1look.p (INPUT cocode, "ShipNotesExpanded", "L" /* Logical */, NO /* check by cust */,*/
+/*    INPUT NO /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,                             */
+/*OUTPUT cRtnChar, OUTPUT lRecFound).                                                                 */
+/*                                                                                                    */
+/*    ShipNotesExpanded = LOGICAL(cRtnChar) NO-ERROR.                                                 */
+    
 
 &SCOPED-DEFINE enable-shipto enable-shipto
 
@@ -144,7 +157,7 @@ shipto.del-time shipto.spare-int-1 shipto.spare-int-2 shipto.spare-int-3 ~
 shipto.spare-int-4 shipto.ship-meth shipto.broker shipto.bill 
 &Scoped-define ENABLED-TABLES shipto
 &Scoped-define FIRST-ENABLED-TABLE shipto
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 
+&Scoped-Define ENABLED-OBJECTS ship_note RECT-1 RECT-2 RECT-3 
 &Scoped-Define DISPLAYED-FIELDS shipto.ship-id shipto.ship-name ~
 shipto.ship-addr[1] shipto.ship-addr[2] shipto.ship-city shipto.ship-state ~
 shipto.ship-zip shipto.contact shipto.area-code shipto.phone ~
@@ -206,6 +219,11 @@ FUNCTION getSalesmanName RETURNS CHARACTER
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE ship_note AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 103 BY 5
+     BGCOLOR 15  NO-UNDO.
+
 DEFINE VARIABLE faxAreaCode AS CHARACTER FORMAT "(xxx)":U 
      LABEL "Fax #" 
      VIEW-AS FILL-IN 
@@ -300,7 +318,7 @@ DEFINE FRAME F-Main
      shipto.notes[1] AT ROW 15.67 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 100.6 BY 1
-     shipto.notes[2] AT ROW 16.57 COL 5 COLON-ALIGNED NO-LABEL
+     shipto.notes[2] AT ROW 16.52 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 100.6 BY 1
      shipto.notes[3] AT ROW 17.48 COL 5 COLON-ALIGNED NO-LABEL
@@ -309,6 +327,7 @@ DEFINE FRAME F-Main
      shipto.notes[4] AT ROW 18.38 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 100.6 BY 1
+     ship_note AT ROW 14.91 COL 5 NO-LABEL
      shipto.loc AT ROW 1.62 COL 125 COLON-ALIGNED
           LABEL "Warehouse"
           VIEW-AS FILL-IN 
@@ -876,6 +895,26 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME ship_note
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ship_note V-table-Win
+ON LEAVE OF ship_note IN FRAME F-Main
+DO:
+  Define Variable hNotesProcs as Handle NO-UNDO. 
+  RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+  RUN ConvertToArray IN hNotesProcs (INPUT ship_note:SCREEN-VALUE, 
+              INPUT 60,
+              OUTPUT opcParsedText,
+              OUTPUT opiFilledArraySize).  
+  IF opiFilledArraySize GT 4 THEN DO:
+    MESSAGE "Autoparsed lines exceed 4 lines of text. Only first 4 lines will be used." view-as alert-box error.       
+  END. 
+  {methods/dispflds.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME shipto.spare-char-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL shipto.spare-char-1 V-table-Win
 ON LEAVE OF shipto.spare-char-1 IN FRAME F-Main /* SalesGrp */
@@ -919,7 +958,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+/*  RUN enable_notes.*/
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1037,9 +1076,38 @@ PROCEDURE enable-shipto :
       ENABLE
        shipto.bill
        shipto.broker.
-    ENABLE tg_inactive faxareacode faxnumber .
+    ENABLE tg_inactive faxareacode faxnumber.
+    IF glShipNotesExpanded EQ YES THEN DO:
+       ENABLE ship_note.
+    END.
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_notes V-table-Win 
+PROCEDURE enable_notes :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  
+  IF glShipNotesExpanded EQ YES THEN DO:
+      ASSIGN 
+         shipto.notes[1]:HIDDEN IN FRAME F-Main           = TRUE
+         shipto.notes[2]:HIDDEN IN FRAME F-Main           = TRUE
+         shipto.notes[3]:HIDDEN IN FRAME F-Main           = TRUE
+         shipto.notes[4]:HIDDEN IN FRAME F-Main           = TRUE
+         .      
+  END.
+  ELSE DO:
+      ASSIGN 
+         ship_note:HIDDEN IN FRAME F-Main           = TRUE
+         .      
+  END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1093,7 +1161,7 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
   DEF BUFFER ycust FOR cust.
   DEF BUFFER yshipto FOR shipto.
-
+  Define Variable hNotesProcs as Handle NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
    IF shipto.spare-char-1:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" AND AVAIL cust THEN do:
    ASSIGN shipto.spare-char-1:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cust.sman .
@@ -1106,11 +1174,35 @@ PROCEDURE local-assign-record :
         fi_sname:SCREEN-VALUE IN FRAME {&FRAME-NAME} = sman.sname
         fi_sname = sman.sname .
    END.
-
+   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
-
+ 
+ 
   /* Code placed here will execute AFTER standard behavior.    */
+  
+  IF glShipNotesExpanded EQ YES THEN DO:
+        ASSIGN ship_note = ship_note:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
+        
+        RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+        RUN ConvertToArray IN hNotesProcs (INPUT ship_note, 
+              INPUT 60,
+              OUTPUT opcParsedText,
+              OUTPUT opiFilledArraySize).         
+        
+            ASSIGN
+               shipto.notes[1] =  opcParsedText[1]
+               shipto.notes[2] =  opcParsedText[2]
+               shipto.notes[3] =  opcParsedText[3]
+               shipto.notes[4] =  opcParsedText[4]
+               .               
+            RUN UpdateNoteShipShipto IN hNotesProcs (shipto.rec_key,
+                                                     ship_note).
+            DELETE OBJECT hNotesProcs.
+        FIND CURRENT shipto NO-LOCK NO-ERROR.
+        DISABLE ship_note WITH FRAME {&FRAME-NAME}.
+  END. /* IF glShipNotesExpanded EQ YES THEN DO: */
+
 
   IF cust.active EQ "X" THEN DO: 
     SESSION:SET-WAIT-STATE ("general").
@@ -1128,7 +1220,7 @@ PROCEDURE local-assign-record :
   END.
 
   shipto.fax = faxAreaCode + faxNumber.
-  IF tg_inactive:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "YES" AND DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN DO:
+    IF tg_inactive:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "YES" AND DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN DO:
      RUN AddTagInactive(shipto.rec_key,"shipto").
      shipto.statusCode = "I".
   END.
@@ -1168,8 +1260,8 @@ PROCEDURE local-cancel-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
-  DISABLE tg_inactive faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
+  DISABLE ship_note WITH FRAME {&FRAME-NAME}.
+  disable tg_inactive faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -1184,13 +1276,18 @@ PROCEDURE local-create-record :
 ------------------------------------------------------------------------------*/
   DEF BUFFER bfr-cust FOR cust.
   /* Code placed here will execute BEFORE standard behavior.   */
-
+  
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/shipto.i}
    fi_sname:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "". 
+   IF glShipNotesExpanded EQ YES THEN DO:
+       ship_note:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
+   END.
+   
 
 END PROCEDURE.
 
@@ -1297,25 +1394,43 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  Define Variable hNotesProcs as Handle NO-UNDO.
+  IF AVAILABLE shipto THEN DO:
+    RUN pSetShipToExpanded(shipto.company).
+  END.
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  
   IF NOT adm-new-record AND AVAIL shipto THEN
   DO:
       ASSIGN
         faxAreaCode = SUBSTR(shipto.fax,1,3)
         faxNumber = SUBSTR(shipto.fax,4)
         fi_sname = getSalesmanName(shipto.spare-char-1)
-        tg_inactive = DYNAMIC-FUNCTION("IsActive",shipto.rec_key) EQ NO
+            tg_inactive = DYNAMIC-FUNCTION("IsActive",shipto.rec_key) EQ NO
         .
 
       DISPLAY tg_inactive faxareacode faxnumber fi_sname WITH FRAME {&FRAME-NAME}.
-
+        
   END.
+  
+  RUN enable_notes.
+  ASSIGN ship_note = "".
+  IF glShipNotesExpanded THEN DO:
+      DISABLE ship_note WITH FRAME {&FRAME-NAME}.
+      IF AVAILABLE shipto THEN DO:
+          RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
+          RUN GetNoteOfType IN hNotesProcs (shipto.rec_key, "ES", OUTPUT ship_note).
+          ASSIGN oldShiptoNote = ship_note.
+          DELETE OBJECT hNotesProcs.
+      END. /*IF AVAILABLE oe-rel THEN DO:*/
+      DISPLAY ship_note WITH FRAME {&FRAME-NAME}.    
+  END.  /*IF glShipNotesExpanded THEN DO:*/
+  
 
 END PROCEDURE.
 
@@ -1333,6 +1448,8 @@ DEF VAR ip-shipnotes AS CHAR NO-UNDO.
 DEFINE VARIABLE iOldvalueTrans AS INTEGER NO-UNDO .
 DEFINE VARIABLE iOldvalueDock AS INTEGER NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
+  
+  
 /*   RUN ship-zip. */
 ASSIGN 
     iOldvalueTrans = integer(shipto.del-time)
@@ -1378,17 +1495,20 @@ ASSIGN
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+  /* Code placed here will execute AFTER standard behavior.    */  
   ASSIGN
       ip-shipnotes = TRIM(shipto.notes[1]) + "|" +
                      TRIM(shipto.notes[2]) + "|" +
                      TRIM(shipto.notes[3]) + "|" +
                      TRIM(shipto.notes[4]).
-
-  RUN oe\d-shp2nt.w(INPUT shipto.company, 
-                    INPUT shipto.cust-no, 
-                    INPUT shipto.ship-id,
-                    INPUT ip-shipnotes).
+  
+  IF oldShiptoNote NE ship_note THEN DO:
+      RUN oe\d-shp2nt.w(INPUT shipto.company, 
+                        INPUT shipto.cust-no, 
+                        INPUT shipto.ship-id,
+                        INPUT ip-shipnotes,
+                        INPUT shipto.rec_key).
+  END.                   
 
   ASSIGN 
       iOldvalueTrans = iOldvalueTrans - integer(shipto.del-time)
@@ -1429,6 +1549,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetShipToExpanded V-table-Win
+PROCEDURE pSetShipToExpanded:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+
+RUN sys/ref/nk1look.p (ipcCompany, "ShipNotesExpanded", "L" /* Logical */, NO /* check by cust */, 
+          INPUT NO /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+      OUTPUT cRtnChar, OUTPUT lRecFound).
+  glShipNotesExpanded = LOGICAL(cRtnChar) NO-ERROR.
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

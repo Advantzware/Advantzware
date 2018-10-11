@@ -435,11 +435,7 @@ IF ip-industry EQ "Fold" THEN DO:
    ELSE IF lv-format-f EQ "Colonial" THEN DO:
       PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>".
       RUN cerep/jobcolnl.p (lv-format-f).
-   END.
-   ELSE IF lv-format-f EQ "CCC-Hybrid" THEN DO:
-      PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>".
-      RUN cerep/jobccchyb.p (lv-format-f).
-   END.
+   END.   
    ELSE IF lv-format-f EQ "xml" THEN DO: 
       RUN cerep/job_xml.p.
    END.

@@ -24,7 +24,7 @@ ADD FIELD "rec_key" OF "xCueCard" AS character
   MAX-WIDTH 42
   HELP "Enter Record Key Value"
   LENGTH 0
-  ORDER 30
+  ORDER 40
 
 ADD FIELD "cueTextID" OF "xCueCard" AS integer 
   FORMAT ">>>>>>9"
@@ -34,14 +34,24 @@ ADD FIELD "cueTextID" OF "xCueCard" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "Text ID"
   HELP "Enter Cue Text ID"
+  ORDER 30
+
+ADD FIELD "cueType" OF "xCueCard" AS character 
+  FORMAT "x(8)"
+  INITIAL "System"
+  LABEL "Cue Type"
+  POSITION 7
+  MAX-WIDTH 16
+  HELP "Enter Cue Card Type"
   ORDER 20
 
 ADD INDEX "pi-xCueCard" ON "xCueCard" 
   AREA "Index"
   UNIQUE
   PRIMARY
-  DESCRIPTION "Primary Index User ID and Cue Text ID"
+  DESCRIPTION "Primary Index"
   INDEX-FIELD "user_id" ASCENDING 
+  INDEX-FIELD "cueType" ASCENDING 
   INDEX-FIELD "cueTextID" ASCENDING 
 
 ADD INDEX "si-rec_key" ON "xCueCard" 
@@ -53,4 +63,4 @@ ADD INDEX "si-rec_key" ON "xCueCard"
 PSC
 cpstream=ISO8859-1
 .
-0000001275
+0000001467

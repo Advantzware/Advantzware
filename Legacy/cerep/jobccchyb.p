@@ -1,6 +1,8 @@
 /* cerep/jobcarded.p   Xprint FC Factory  Ticket for CCC-Hybrid */
 /* -------------------------------------------------------------------------- */
-DEFINE INPUT PARAMETER v-format LIKE sys-ctrl.char-fld.
+DEFINE INPUT PARAMETER ip-job-no  LIKE job-hdr.job-no  NO-UNDO.
+DEFINE INPUT PARAMETER ip-job-no2 LIKE job-hdr.job-no2 NO-UNDO.
+
 DEFINE VARIABLE cSide AS CHARACTER NO-UNDO.
 {sys/inc/var.i shared}
 {sys/form/s-top.f}
@@ -290,15 +292,9 @@ ASSIGN
  v-spec-list = spec-list.
 
 FOR EACH job-hdr NO-LOCK
-        WHERE job-hdr.company               EQ cocode
-          AND job-hdr.job-no                GE SUBSTRING(fjob-no,1,6)
-          AND job-hdr.job-no                LE SUBSTRING(tjob-no,1,6)
-          AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-              TRIM(job-hdr.job-no) +
-              STRING(job-hdr.job-no2,"99")  GE fjob-no
-          AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-              TRIM(job-hdr.job-no) +
-              STRING(job-hdr.job-no2,"99")  LE tjob-no
+        WHERE job-hdr.company       EQ cocode
+          AND job-hdr.job-no        EQ ip-job-no
+          AND job-hdr.job-no2       EQ ip-job-no2
           AND (production OR
                job-hdr.ftick-prnt           EQ v-reprint OR
                PROGRAM-NAME(2) MATCHES "*r-tickt2*")
@@ -314,7 +310,6 @@ FOR EACH job-hdr NO-LOCK
         FIRST est NO-LOCK
         WHERE est.company  EQ job-hdr.company
           AND est.est-no   EQ job-hdr.est-no
-          AND est.est-type LE 4  
 
         BREAK BY job-hdr.job
               BY job-hdr.job-no

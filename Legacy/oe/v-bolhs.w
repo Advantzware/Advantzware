@@ -30,7 +30,9 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+DEFINE VARIABLE glShipNotesExpanded AS LOGICAL NO-UNDO.
+DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
+DEFINE VARIABLE opiFilledArraySize AS INTEGER NO-UNDO.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -48,7 +50,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -63,12 +65,12 @@ DEFINE QUERY external_tables FOR oe-bolh.
 oe-bolh.ship-i[3] oe-bolh.ship-i[4] 
 &Scoped-define ENABLED-TABLES oe-bolh
 &Scoped-define FIRST-ENABLED-TABLE oe-bolh
-&Scoped-Define ENABLED-OBJECTS RECT-41 
+&Scoped-Define ENABLED-OBJECTS RECT-41 ship_note 
 &Scoped-Define DISPLAYED-FIELDS oe-bolh.ship-i[1] oe-bolh.ship-i[2] ~
 oe-bolh.ship-i[3] oe-bolh.ship-i[4] 
 &Scoped-define DISPLAYED-TABLES oe-bolh
 &Scoped-define FIRST-DISPLAYED-TABLE oe-bolh
-
+&Scoped-Define DISPLAYED-OBJECTS ship_note 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -103,8 +105,13 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE ship_note AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 109 BY 4
+     BGCOLOR 15  NO-UNDO.
+
 DEFINE RECTANGLE RECT-41
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 115 BY 5.24.
 
 
@@ -114,6 +121,7 @@ DEFINE FRAME F-Main
      oe-bolh.ship-i[1] AT ROW 1.48 COL 4 NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 109 BY 1
+     ship_note AT ROW 1.48 COL 4 NO-LABEL
      oe-bolh.ship-i[2] AT ROW 2.48 COL 4 NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 109 BY 1
@@ -180,7 +188,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -206,7 +214,28 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME ship_note
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ship_note V-table-Win
+ON LEAVE OF ship_note IN FRAME F-Main
+DO:
+  Define Variable hNotesProcs as Handle NO-UNDO. 
+  RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+  RUN ConvertToArray IN hNotesProcs (INPUT ship_note:SCREEN-VALUE, 
+              INPUT 60,
+              OUTPUT opcParsedText,
+              OUTPUT opiFilledArraySize).  
+  IF opiFilledArraySize GT 4 THEN DO:
+    MESSAGE "Autoparsed lines exceed 4 lines of text. Only first 4 lines will be used." view-as alert-box error.       
+  END.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -276,6 +305,94 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_notes V-table-Win 
+PROCEDURE enable_notes :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  IF glShipNotesExpanded EQ YES THEN DO:
+      ASSIGN 
+         oe-bolh.ship-i[1]:HIDDEN IN FRAME F-Main           = TRUE
+         oe-bolh.ship-i[2]:HIDDEN IN FRAME F-Main           = TRUE
+         oe-bolh.ship-i[3]:HIDDEN IN FRAME F-Main           = TRUE
+         oe-bolh.ship-i[4]:HIDDEN IN FRAME F-Main           = TRUE
+         .      
+  END.
+  ELSE DO:
+      ASSIGN 
+         ship_note:HIDDEN IN FRAME F-Main           = TRUE
+         .      
+  END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win
+PROCEDURE local-cancel-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DISABLE ship_note WITH FRAME {&FRAME-NAME}.
+
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win
+PROCEDURE local-display-fields:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  Define Variable hNotesProcs as Handle NO-UNDO.
+  IF AVAILABLE oe-bolh THEN DO:
+    RUN pSetShipToExpanded(oe-bolh.company).
+  END.
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  RUN enable_notes.
+  ASSIGN ship_note = "".
+  IF glShipNotesExpanded THEN DO:
+      DISABLE ship_note WITH FRAME {&FRAME-NAME}.
+      IF AVAILABLE oe-bolh THEN DO:
+          RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
+          RUN GetNoteOfType IN hNotesProcs (oe-bolh.rec_key, "ES", OUTPUT ship_note).
+          DELETE OBJECT hNotesProcs.
+      END. /*IF AVAILABLE oe-rel THEN DO:*/
+      DISPLAY ship_note WITH FRAME {&FRAME-NAME}.    
+  END.  /*IF glShipNotesExpanded THEN DO:*/ 
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields V-table-Win 
 PROCEDURE local-enable-fields :
 /*------------------------------------------------------------------------------
@@ -292,11 +409,85 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  IF glShipNotesExpanded THEN DO:
+      ENABLE ship_note WITH FRAME {&FRAME-NAME}.         
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win
+PROCEDURE local-update-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+   Define Variable hNotesProcs as Handle NO-UNDO.
+  
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  IF glShipNotesExpanded EQ YES THEN DO:
+        ASSIGN ship_note = ship_note:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
+        
+        RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+        RUN ConvertToArray IN hNotesProcs (INPUT ship_note, 
+              INPUT 60,
+              OUTPUT opcParsedText,
+              OUTPUT opiFilledArraySize). 
+         
+        FIND CURRENT oe-bolh EXCLUSIVE-LOCK NO-ERROR.
+        IF AVAILABLE oe-bolh THEN DO:
+            ASSIGN
+               oe-bolh.ship-i[1] =  opcParsedText[1]
+               oe-bolh.ship-i[2] =  opcParsedText[2]
+               oe-bolh.ship-i[3] =  opcParsedText[3]
+               oe-bolh.ship-i[4] =  opcParsedText[4]
+               .               
+            RUN UpdateNoteShipOeBolh IN hNotesProcs (oe-bolh.rec_key,
+                                                     ship_note).
+            DELETE OBJECT hNotesProcs.        
+        END.
+        FIND CURRENT oe-bolh NO-LOCK NO-ERROR.
+        DISABLE ship_note WITH FRAME {&FRAME-NAME}.
+  END. /* IF glShipNotesExpanded EQ YES THEN DO: */
+
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetShipToExpanded V-table-Win
+PROCEDURE pSetShipToExpanded:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+
+RUN sys/ref/nk1look.p (ipcCompany, "ShipNotesExpanded", "L" /* Logical */, NO /* check by cust */, 
+          INPUT NO /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+      OUTPUT cRtnChar, OUTPUT lRecFound).
+  glShipNotesExpanded = LOGICAL(cRtnChar) NO-ERROR.
+ 
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

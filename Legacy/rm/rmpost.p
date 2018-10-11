@@ -394,10 +394,12 @@ DEF BUFFER b-tt-rctd FOR tt-rctd.
           and item.mat-type eq "B"
         no-lock:
 
-      {rm/rm-addcr.i E b-tt-rctd b-tt-rctd b-}
-        ASSIGN
-         b-tt-rctd.tt-row-id = ROWID(tt-rctd)
-         b-tt-rctd.seq-no    = 3.
+        IF AVAIL b-tt-rctd THEN DO:
+           {rm/rm-addcr.i E b-tt-rctd b-tt-rctd b-}
+            ASSIGN
+            b-tt-rctd.tt-row-id = ROWID(tt-rctd)
+            b-tt-rctd.seq-no    = 3.
+        END.
 
       END.
     end.

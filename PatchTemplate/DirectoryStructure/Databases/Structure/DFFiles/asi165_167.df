@@ -2861,6 +2861,114 @@ ADD INDEX "rec_key" ON "styleScoreXref"
   UNIQUE
   INDEX-FIELD "rec_key" ASCENDING 
 
+ADD TABLE "systemConfigSetting"
+  AREA "Data"
+  DUMP-NAME "systemconfigsetting"
+
+ADD FIELD "rec_key" OF "systemConfigSetting" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 40
+  MANDATORY
+
+ADD FIELD "category" OF "systemConfigSetting" AS integer 
+  DESCRIPTION "Category for system control setting"
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Category"
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 50
+  MANDATORY
+
+ADD FIELD "subCategory" OF "systemConfigSetting" AS integer 
+  DESCRIPTION "Subcategory for system control setting"
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Subcategory"
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 60
+  MANDATORY
+
+ADD INDEX "iPrimary" ON "systemConfigSetting" 
+  AREA "Data"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "category" ASCENDING 
+  INDEX-FIELD "subCategory" ASCENDING 
+
+ADD INDEX "iCategory" ON "systemConfigSetting" 
+  AREA "Data"
+  INDEX-FIELD "category" ASCENDING 
+
+ADD INDEX "iRecKey" ON "systemConfigSetting" 
+  AREA "Data"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "iSubCategory" ON "systemConfigSetting" 
+  AREA "Data"
+  INDEX-FIELD "subCategory" ASCENDING 
+
+ADD TABLE "systemConfigUsage"
+  AREA "Data"
+  DUMP-NAME "systemconfigusage"
+
+ADD FIELD "rec_key" OF "systemConfigUsage" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 40
+
+ADD FIELD "sysCtrl_rec_key" OF "systemConfigUsage" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  LABEL "sysControl RecKey"
+  POSITION 3
+  MAX-WIDTH 32
+  ORDER 50
+  MANDATORY
+
+ADD FIELD "program" OF "systemConfigUsage" AS character 
+  DESCRIPTION "program that uses this system configuration setting
+"
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "Program"
+  POSITION 4
+  MAX-WIDTH 48
+  ORDER 60
+
+ADD FIELD "hotkey" OF "systemConfigUsage" AS character 
+  DESCRIPTION "menu selection hot key used
+"
+  FORMAT "x(4)"
+  INITIAL ""
+  LABEL "Hotkey"
+  POSITION 5
+  MAX-WIDTH 8
+  ORDER 70
+
+ADD INDEX "iRecKey" ON "systemConfigUsage" 
+  AREA "Data"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "iProgram" ON "systemConfigUsage" 
+  AREA "Data"
+  INDEX-FIELD "hotkey" ASCENDING 
+
 ADD TABLE "userPwdHist"
   AREA "Data"
   DUMP-NAME "userpwdhist"
@@ -3442,7 +3550,7 @@ ADD FIELD "releases" OF "est-qty" AS character
   LABEL "Releases"
   EXTENT 99
   ORDER 280
-  MAX-WIDTH 50886
+  MAX-WIDTH 24000
 
 UPDATE TABLE "fa-control"
   TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/fa-control.p" CRC "?"
@@ -3630,9 +3738,10 @@ ADD FIELD "BillableFreightAmt" OF "fg-rctd" AS decimal
   MAX-WIDTH 17
 
 ADD FIELD "CreateInvoice" OF "fg-rctd" AS logical
-  FORMAT "Create Invoice?"
+  FORMAT "yes/no"
   POSITION 74
-  INITIAL "Create Invoice?"
+  INITIAL "no"
+  LABEL "Create Invoice?"
   ORDER 700
   MAX-WIDTH 1
 
@@ -3712,6 +3821,15 @@ ADD FIELD "std-var-cost" OF "fg-rdtlh" AS decimal
   DECIMALS 4
   ORDER 580
   MAX-WIDTH 19
+
+ADD FIELD "qtyPerSet" OF "fg-set" AS decimal
+  FORMAT "->>,>>9.99<<<<"
+  POSITION 27
+  INITIAL "0"
+  LABEL "Qty per Set"
+  DECIMALS 6
+  ORDER 260
+  MAX-WIDTH 21
 
 ADD FIELD "lockWeight" OF "item" AS logical
   FORMAT "yes/no"
@@ -4325,6 +4443,19 @@ ADD FIELD "exportCustID" OF "shipto" AS character
   ORDER 740
   MAX-WIDTH 32
 
+ADD FIELD "qtyPerSet" OF "style" AS decimal
+  FORMAT "->>,>>9.99<<<<"
+  POSITION 64
+  INITIAL "0"
+  LABEL "Qty per Set"
+  DECIMALS 6
+  ORDER 610
+  MAX-WIDTH 21
+
+UPDATE FIELD "descrip" OF "sys-ctrl"
+  DESCRIPTION "Description of the setting (Cannot be edited by customer if type=Asi_data)
+"
+
 ADD FIELD "sysCtrlID" OF "sys-ctrl" AS integer
   FORMAT ">>>>>>9"
   POSITION 27
@@ -4334,6 +4465,8 @@ ADD FIELD "sysCtrlID" OF "sys-ctrl" AS integer
   MAX-WIDTH 4
 
 ADD FIELD "seqNo" OF "sys-ctrl" AS integer
+  DESCRIPTION "Sequence of items used to sort the system control settings
+"
   FORMAT "->,>>>,>>9"
   POSITION 28
   INITIAL "0"
@@ -4364,6 +4497,128 @@ ADD FIELD "typeCode" OF "sys-ctrl" AS character
   LABEL "Type Code"
   ORDER 300
   MAX-WIDTH 16
+
+ADD FIELD "systemConfigSetting_rec_key" OF "sys-ctrl" AS character
+  DESCRIPTION "This is the category from the system config setting table used to organize the settings on the screen
+"
+  FORMAT "x(16)"
+  POSITION 32
+  INITIAL ""
+  LABEL "SysConfig RecKey"
+  ORDER 310
+  MANDATORY
+  MAX-WIDTH 32
+
+ADD FIELD "allowsContext" OF "sys-ctrl" AS logical
+  DESCRIPTION "Used to allow them to enter the context for more detail (Customers, vendors, reports, etc.)
+"
+  FORMAT "yes/no"
+  POSITION 33
+  INITIAL "no"
+  LABEL "Allows Context"
+  ORDER 320
+  MAX-WIDTH 1
+
+ADD FIELD "securityLevelDefault" OF "sys-ctrl" AS integer
+  DESCRIPTION "Use this setting to define what security level is required to edit this setting.
+"
+  FORMAT ">>>9"
+  POSITION 34
+  INITIAL "0"
+  LABEL "Sec. Lev. Default"
+  ORDER 330
+  MAX-WIDTH 4
+
+ADD FIELD "securityLevelUser" OF "sys-ctrl" AS integer
+  DESCRIPTION "Use this setting to define what security level is required to edit this setting.
+"
+  FORMAT ">>9"
+  POSITION 35
+  INITIAL "0"
+  LABEL "User Sec. Lev."
+  ORDER 340
+  MAX-WIDTH 4
+
+ADD FIELD "char_field_default" OF "sys-ctrl" AS character
+  FORMAT "x(8)"
+  POSITION 36
+  INITIAL ""
+  LABEL "CharField Default"
+  ORDER 350
+  MAX-WIDTH 16
+
+ADD FIELD "char-fld_descrip" OF "sys-ctrl" AS character
+  FORMAT "x(30)"
+  POSITION 37
+  INITIAL ""
+  LABEL "CharFld Descrip"
+  ORDER 360
+  MAX-WIDTH 60
+
+ADD FIELD "date-fld_default" OF "sys-ctrl" AS date
+  FORMAT "99/99/99"
+  POSITION 38
+  INITIAL ?
+  LABEL "DateFld Default"
+  ORDER 370
+  MAX-WIDTH 4
+
+ADD FIELD "dec-fld_default" OF "sys-ctrl" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 39
+  INITIAL "0"
+  LABEL "DecFld Default"
+  DECIMALS 2
+  ORDER 380
+  MAX-WIDTH 17
+
+ADD FIELD "int-fld_default" OF "sys-ctrl" AS integer
+  FORMAT "->,>>>,>>9"
+  POSITION 40
+  INITIAL "0"
+  LABEL "IntFld Default"
+  ORDER 390
+  MAX-WIDTH 4
+
+ADD FIELD "log-fld_Default" OF "sys-ctrl" AS logical
+  FORMAT "yes/no"
+  POSITION 41
+  INITIAL "no"
+  LABEL "LogFld Default"
+  ORDER 400
+  MAX-WIDTH 1
+
+ADD FIELD "date-fld_Descrip" OF "sys-ctrl" AS character
+  FORMAT "x(30)"
+  POSITION 42
+  INITIAL ""
+  LABEL "DateFld Descrip"
+  ORDER 410
+  MAX-WIDTH 60
+
+ADD FIELD "dec-fld_Descrip" OF "sys-ctrl" AS character
+  FORMAT "x(30)"
+  POSITION 43
+  INITIAL ""
+  LABEL "DecFld Descrip"
+  ORDER 420
+  MAX-WIDTH 60
+
+ADD FIELD "int-fld_Descrip" OF "sys-ctrl" AS character
+  FORMAT "x(30)"
+  POSITION 44
+  INITIAL ""
+  LABEL "InFld Descrip"
+  ORDER 430
+  MAX-WIDTH 60
+
+ADD FIELD "log-fld_Descrip" OF "sys-ctrl" AS character
+  FORMAT "x(30)"
+  POSITION 45
+  INITIAL ""
+  LABEL "LogFld Descrip"
+  ORDER 440
+  MAX-WIDTH 60
 
 ADD FIELD "sysCtrlID" OF "sys-ctrl-shipto" AS integer
   FORMAT ">>>>>>9"
@@ -4644,8 +4899,41 @@ ADD SEQUENCE "jobCodeDMISeq"
   MIN-VAL ?
   MAX-VAL ?
 
+UPDATE SEQUENCE "oerel_rno_seq"
+  MAX-VAL 9999999
+
+UPDATE SEQUENCE "oerel_rno_seq01"
+  MAX-VAL 9999999
+
+UPDATE SEQUENCE "oerel_rno_seq02"
+  MAX-VAL 9999999
+
+UPDATE SEQUENCE "oerel_rno_seq03"
+  MAX-VAL 9999999
+
+UPDATE SEQUENCE "oerel_rno_seq04"
+  MAX-VAL 9999999
+
+UPDATE SEQUENCE "oerel_rno_seq05"
+  MAX-VAL 9999999
+
+UPDATE SEQUENCE "oerel_rno_seq06"
+  MAX-VAL 9999999
+
+UPDATE SEQUENCE "oerel_rno_seq07"
+  MAX-VAL 9999999
+
+UPDATE SEQUENCE "oerel_rno_seq08"
+  MAX-VAL 9999999
+
+UPDATE SEQUENCE "oerel_rno_seq09"
+  MAX-VAL 9999999
+
+UPDATE SEQUENCE "oerel_rno_seq10"
+  MAX-VAL 9999999
+
 .
 PSC
 cpstream=ISO8859-1
 .
-0000100096
+0000106345

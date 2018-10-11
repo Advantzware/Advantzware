@@ -1837,6 +1837,8 @@ IF v-inc THEN
             AND ttCustList.log-fld no-lock) else true) AND
        NOT CAN-FIND(FIRST tt-report WHERE
            tt-report.key-02 EQ cust.cust-no)
+           AND cust.sman GE fsman
+           AND cust.sman LE tsman
        NO-LOCK:
 
        CREATE tt-report.

@@ -23,6 +23,10 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE winReSize
+&SCOPED-DEFINE browseOnly
+{methods/defines/winReSize.i}
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -58,6 +62,7 @@ DEFINE NEW SHARED TEMP-TABLE w-job NO-UNDO
     FIELD allocated     AS INTEGER FORMAT "->>,>>>,>>9" LABEL "Allocated"
     FIELD backOrder     AS INTEGER FORMAT "->>,>>>,>>9" LABEL "BackOrder"
     FIELD qtyAvailable  AS INTEGER FORMAT "->>,>>>,>>9" LABEL "Available"
+    FIELD beg-date      AS DATE    FORMAT "99/99/9999"  LABEL "BeginDate"
         INDEX w-job
             job-no
             job-no2
@@ -126,7 +131,7 @@ DEFINE QUERY external_tables FOR itemfg.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table w-jobs.loc w-jobs.loc-desc w-jobs.onHand w-jobs.onOrder w-jobs.allocated w-jobs.backOrder w-jobs.qtyAvailable w-jobs.ord-level w-jobs.ord-min w-jobs.ord-max w-jobs.lead-days   
+&Scoped-define FIELDS-IN-QUERY-br_table w-jobs.loc w-jobs.loc-desc w-jobs.onHand w-jobs.onOrder w-jobs.allocated w-jobs.backOrder w-jobs.qtyAvailable w-jobs.ord-level w-jobs.ord-min w-jobs.ord-max w-jobs.lead-days w-jobs.beg-date   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table w-jobs.loc   
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table w-jobs
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table w-jobs
@@ -141,7 +146,8 @@ DEFINE QUERY external_tables FOR itemfg.
     ~{&OPEN-QUERY-br_table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS br_table btn_onh btn_ono btn_all 
+&Scoped-Define ENABLED-OBJECTS btnBinDetails btnJobs btnPO btnAllocated ~
+btnAddLocation br_table 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -155,22 +161,29 @@ DEFINE QUERY external_tables FOR itemfg.
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn_all 
-     LABEL "Alloc to Orders" 
-     SIZE 16 BY 1.43.
+DEFINE BUTTON btnAddLocation 
+     LABEL "+ Add New Location" 
+     SIZE 24 BY 1 TOOLTIP "Click to Add New Location".
 
-DEFINE BUTTON btn_onh 
-     LABEL "On Hand" 
-     SIZE 16 BY 1.43.
+DEFINE BUTTON btnAllocated 
+     LABEL "View Allocated" 
+     SIZE 17 BY 1 TOOLTIP "Click to View Allocated".
 
-DEFINE BUTTON btn_ono 
-     LABEL "Job/PO On Ord" 
-     SIZE 16 BY 1.43.
+DEFINE BUTTON btnBinDetails 
+     LABEL "View Bin Details" 
+     SIZE 24 BY 1 TOOLTIP "Click to View Bin Details".
 
-DEFINE RECTANGLE RECT-26
-     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 18 BY 4.76
-     BGCOLOR 15 .
+DEFINE BUTTON btnJobs 
+     LABEL "View Jobs" 
+     SIZE 17 BY 1 TOOLTIP "Click to View Jobs".
+
+DEFINE BUTTON btnLocationDetails 
+     LABEL "View Location Details" 
+     SIZE 24 BY 1.
+
+DEFINE BUTTON btnPO 
+     LABEL "View POs" 
+     SIZE 17 BY 1 TOOLTIP "Click to View POs".
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -182,7 +195,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      w-jobs.loc LABEL "Whse" WIDTH 10 LABEL-BGCOLOR 14
+      w-jobs.loc LABEL "Whse" WIDTH 10
     w-jobs.loc-desc LABEL "Name"
     w-jobs.onHand
     w-jobs.onOrder
@@ -193,21 +206,31 @@ DEFINE BROWSE br_table
     w-jobs.ord-min  
     w-jobs.ord-max
     w-jobs.lead-days
+    w-jobs.beg-date
   ENABLE w-jobs.loc
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN NO-ROW-MARKERS NO-COLUMN-SCROLLING SEPARATORS SIZE 139 BY 4.76
-         FONT 0.
+    WITH NO-ASSIGN NO-ROW-MARKERS NO-COLUMN-SCROLLING SEPARATORS SIZE 157 BY 22.24
+         FONT 0
+         TITLE "Location Details".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     br_table AT ROW 1 COL 1
-     btn_onh AT ROW 1.24 COL 141 WIDGET-ID 2
-     btn_ono AT ROW 2.67 COL 141 WIDGET-ID 4
-     btn_all AT ROW 4.1 COL 141 WIDGET-ID 6
-     RECT-26 AT ROW 1 COL 140 WIDGET-ID 8
+     btnLocationDetails AT ROW 1 COL 1 HELP
+          "View Location Details" WIDGET-ID 12
+     btnBinDetails AT ROW 1 COL 25 HELP
+          "View Bin Details" WIDGET-ID 10
+     btnJobs AT ROW 1 COL 56 HELP
+          "View Jobs" WIDGET-ID 14
+     btnPO AT ROW 1 COL 73 HELP
+          "View POs" WIDGET-ID 16
+     btnAllocated AT ROW 1 COL 90 HELP
+          "View Allocated" WIDGET-ID 18
+     btnAddLocation AT ROW 1 COL 115 HELP
+          "Add New Location" WIDGET-ID 20
+     br_table AT ROW 1.95 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -241,7 +264,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 4.76
+         HEIGHT             = 23.19
          WIDTH              = 157.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -265,15 +288,16 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB br_table 1 F-Main */
+/* BROWSE-TAB br_table btnAddLocation F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-       br_table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 2.
+       br_table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 2
+       br_table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
-/* SETTINGS FOR RECTANGLE RECT-26 IN FRAME F-Main
+/* SETTINGS FOR BUTTON btnLocationDetails IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -311,7 +335,30 @@ ASSIGN
 &Scoped-define BROWSE-NAME br_table
 &Scoped-define SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON ROW-ENTRY OF br_table IN FRAME F-Main
+ON DEFAULT-ACTION OF br_table IN FRAME F-Main /* Location Details */
+DO:
+    DEFINE VARIABLE lUpdated AS LOGICAL NO-UNDO.
+    
+    FIND FIRST itemfg-loc NO-LOCK
+         WHERE itemfg-loc.company EQ itemfg.company 
+           AND itemfg-loc.i-no    EQ itemfg.i-no
+           AND itemfg-loc.loc     EQ w-jobs.loc
+         NO-ERROR.
+    IF AVAILABLE itemfg AND AVAILABLE itemfg-loc THEN DO: 
+        RUN fg/fglevels.w (ROWID(itemfg), ROWID(itemfg-loc), OUTPUT lUpdated).
+        IF lUpdated THEN 
+        RUN dispatch ("open-query").
+        ELSE 
+        RETURN NO-APPLY.
+    END. /* if avail */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON ROW-ENTRY OF br_table IN FRAME F-Main /* Location Details */
 DO:
   /* This code displays initial values for newly added or copied rows. */
     {src/adm/template/brsentry.i}  
@@ -322,7 +369,7 @@ DO:
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON ROW-LEAVE OF br_table IN FRAME F-Main
+ON ROW-LEAVE OF br_table IN FRAME F-Main /* Location Details */
 DO:
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
@@ -334,55 +381,74 @@ DO:
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON START-SEARCH OF br_table IN FRAME F-Main
+ON START-SEARCH OF br_table IN FRAME F-Main /* Location Details */
 DO:
-        DEFINE VARIABLE lh-column     AS HANDLE    NO-UNDO.
-        DEFINE VARIABLE lv-column-nam AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE lv-column-lab AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lh-column     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lv-column-nam AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lv-column-lab AS CHARACTER NO-UNDO.
   
-        ASSIGN
-            lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
-            lv-column-nam = lh-column:NAME
-            lv-column-lab = lh-column:LABEL
-            .
-        IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
-        ELSE
-            ASSIGN
-                lv-sort-by     = lv-column-nam
-                lv-sort-by-lab = lv-column-lab
-                .
-        APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
-        RUN resort-query.
-    END.
+    ASSIGN
+        lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+        lv-column-nam = lh-column:NAME
+        lv-column-lab = lh-column:LABEL
+        .
+    IF lv-sort-by EQ lv-column-nam THEN
+    ll-sort-asc = NOT ll-sort-asc.
+    ELSE
+    ASSIGN
+        lv-sort-by     = lv-column-nam
+        lv-sort-by-lab = lv-column-lab
+        .
+    APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+    RUN resort-query.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON VALUE-CHANGED OF br_table IN FRAME F-Main
+ON VALUE-CHANGED OF br_table IN FRAME F-Main /* Location Details */
 DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
     {src/adm/template/brschnge.i}
-        lc-pass-loc = w-jobs.loc:screen-value IN BROWSE {&browse-name}.
-        DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "container-source", OUTPUT char-hdl).
-        IF VALID-HANDLE(HANDLE(char-hdl)) THEN
-            RUN set-loc IN HANDLE(char-hdl) (INPUT lc-pass-loc) NO-ERROR.
-        PUBLISH "SelectReorder" (INPUT lc-pass-loc).
-    END.
+    lc-pass-loc = w-jobs.loc:screen-value IN BROWSE {&browse-name}.
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "container-source", OUTPUT char-hdl).
+    IF VALID-HANDLE(HANDLE(char-hdl)) THEN
+        RUN set-loc IN HANDLE(char-hdl) (INPUT lc-pass-loc) NO-ERROR.
+    PUBLISH "SelectReorder" (INPUT lc-pass-loc).
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_all
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_all B-table-Win
-ON CHOOSE OF btn_all IN FRAME F-Main /* Alloc to Orders */
+&Scoped-define SELF-NAME btnAddLocation
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddLocation B-table-Win
+ON CHOOSE OF btnAddLocation IN FRAME F-Main /* + Add New Location */
 DO:
-  IF itemfg.q-alloc NE 0 THEN RUN oe/w-inqord.w PERSISTENT SET h_w-inqord (ROWID(itemfg), YES).
-  IF VALID-HANDLE(h_w-inqord) THEN
+    DEFINE VARIABLE lLocationAdded AS LOGICAL NO-UNDO.
+    
+    lLocationAdded = NO.
+    IF AVAILABLE itemfg THEN
+    RUN windows/addfgloc.w (ROWID(itemfg), OUTPUT lLocationAdded).
+    IF lLocationAdded THEN 
+    RUN dispatch ('open-query').
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnAllocated
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAllocated B-table-Win
+ON CHOOSE OF btnAllocated IN FRAME F-Main /* View Allocated */
+DO:
+    IF itemfg.q-alloc NE 0 THEN
+    RUN oe/w-inqord.w PERSISTENT SET h_w-inqord (ROWID(itemfg), YES).
+    IF VALID-HANDLE(h_w-inqord) THEN
     RUN adm-initialize IN h_w-inqord.
 END.
 
@@ -390,53 +456,66 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_onh
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_onh B-table-Win
-ON CHOOSE OF btn_onh IN FRAME F-Main /* On Hand */
+&Scoped-define SELF-NAME btnBinDetails
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnBinDetails B-table-Win
+ON CHOOSE OF btnBinDetails IN FRAME F-Main /* View Bin Details */
 DO:
-  IF itemfg.q-onh NE 0 THEN
-  RUN fg/w-inqonh.w (ROWID(itemfg), NO).
+    {methods/run_link.i "ViewDetail-TARGET" "pViewDetail" "(13)"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_ono
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_ono B-table-Win
-ON CHOOSE OF btn_ono IN FRAME F-Main /* Job/PO On Ord */
+&Scoped-define SELF-NAME btnJobs
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnJobs B-table-Win
+ON CHOOSE OF btnJobs IN FRAME F-Main /* View Jobs */
 DO:
-  IF itemfg.q-ono NE 0 THEN DO:
-    FIND FIRST job-hdr
-        WHERE job-hdr.company EQ itemfg.company
-          AND job-hdr.i-no    EQ itemfg.i-no
-          AND job-hdr.opened  EQ YES
-          AND CAN-FIND(FIRST job WHERE job.company EQ job-hdr.company
-                                   AND job.job     EQ job-hdr.job
-                                   AND job.job-no  EQ job-hdr.job-no
-                                   AND job.job-no2 EQ job-hdr.job-no2)
-        NO-LOCK NO-ERROR.
-    IF AVAIL job-hdr THEN 
-        RUN jc/w-inqjob.w (ROWID(itemfg), YES).
-    ELSE DO:
-        FIND FIRST fg-set WHERE fg-set.company EQ itemfg.company
-                            AND fg-set.part-no EQ itemfg.i-no
-                          NO-LOCK NO-ERROR.
-        IF AVAIL fg-set THEN
-        RUN jc/w-inqjbc.w (ROWID(itemfg), YES).
-    END.
+    IF NOT AVAILABLE itemfg THEN RETURN NO-APPLY.
+    IF itemfg.q-ono NE 0 THEN DO:
+        FIND FIRST job-hdr NO-LOCK
+             WHERE job-hdr.company EQ itemfg.company
+               AND job-hdr.i-no    EQ itemfg.i-no
+               AND job-hdr.opened  EQ YES
+               AND CAN-FIND(FIRST job
+                            WHERE job.company EQ job-hdr.company
+                              AND job.job     EQ job-hdr.job
+                              AND job.job-no  EQ job-hdr.job-no
+                              AND job.job-no2 EQ job-hdr.job-no2)
+             NO-ERROR.
+        IF AVAILABLE job-hdr THEN 
+            RUN jc/w-inqjob.w (ROWID(itemfg), YES).
+        ELSE DO:
+            FIND FIRST fg-set NO-LOCK
+                 WHERE fg-set.company EQ itemfg.company
+                   AND fg-set.part-no EQ itemfg.i-no
+                 NO-ERROR.
+            IF AVAILABLE fg-set THEN
+            RUN jc/w-inqjbc.w (ROWID(itemfg), YES).
+        END.
+    END.          
+END.
 
-    FIND FIRST po-ordl
-        WHERE po-ordl.company   EQ itemfg.company
-          AND po-ordl.i-no      EQ itemfg.i-no
-          AND po-ordl.item-type EQ NO
-          AND po-ordl.opened    EQ YES
-          AND CAN-FIND(FIRST po-ord WHERE po-ord.company EQ po-ordl.company
-                                      AND po-ord.po-no   EQ po-ordl.po-no)
-        NO-LOCK NO-ERROR.
-    IF AVAIL po-ordl THEN
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnPO
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPO B-table-Win
+ON CHOOSE OF btnPO IN FRAME F-Main /* View POs */
+DO:
+    IF NOT AVAILABLE itemfg THEN RETURN NO-APPLY.
+    FIND FIRST po-ordl NO-LOCK
+         WHERE po-ordl.company   EQ itemfg.company
+           AND po-ordl.i-no      EQ itemfg.i-no
+           AND po-ordl.item-type EQ NO
+           AND po-ordl.opened    EQ YES
+           AND CAN-FIND(FIRST po-ord
+                        WHERE po-ord.company EQ po-ordl.company
+                          AND po-ord.po-no   EQ po-ordl.po-no)
+         NO-ERROR.
+    IF AVAILABLE po-ordl THEN
     RUN po/w-inqpo.w (ROWID(itemfg), YES).
-  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -454,6 +533,8 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{methods/winReSize.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -546,6 +627,7 @@ PROCEDURE build-table :
             w-jobs.ord-level    = itemfg-loc.ord-level
             w-jobs.ord-max      = itemfg-loc.ord-max
             w-jobs.ord-min      = itemfg-loc.ord-min
+            w-jobs.beg-date     = itemfg.beg-date
             w-jobs.onHand       = itemfg-loc.q-onh
             w-jobs.onOrder      = itemfg-loc.q-ono
             w-jobs.allocated    = iAlloc
@@ -572,7 +654,8 @@ PROCEDURE build-table :
         w-jobs.lead-days    = 0
         w-jobs.ord-level    = 0
         w-jobs.ord-max      = 0
-        w-jobs.ord-min      = 0     
+        w-jobs.ord-min      = 0
+        w-jobs.beg-date     = ?     
         w-jobs.onHand       = iTotOnHand
         w-jobs.onOrder      = iTotOnOrder
         w-jobs.allocated    = iTotAlloc
@@ -585,10 +668,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-q-avail B-table-Win
-PROCEDURE calc-q-avail:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-q-avail B-table-Win 
+PROCEDURE calc-q-avail :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -602,14 +683,12 @@ PROCEDURE calc-q-avail:
   END.*/
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-qty B-table-Win
-PROCEDURE calc-qty:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-qty B-table-Win 
+PROCEDURE calc-qty :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -621,14 +700,13 @@ PROCEDURE calc-qty:
 
   run get-link-handle in adm-broker-hdl (this-procedure, "repo-query-source", output char-hdl).
 
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
   run repo-query in widget-handle(char-hdl) (ROWID(itemfg)).
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -651,9 +729,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -672,6 +750,9 @@ PROCEDURE local-initialize :
         BROWSE br_table:SELECT-ROW(1).
     END.
     APPLY 'entry' TO BROWSE br_table.
+
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    {methods/winReSizeLocInit.i}
   
 END PROCEDURE.
 
@@ -701,20 +782,17 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE override-qty B-table-Win
-PROCEDURE override-qty:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE override-qty B-table-Win 
+PROCEDURE override-qty :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resort-query B-table-Win 
 PROCEDURE resort-query :
