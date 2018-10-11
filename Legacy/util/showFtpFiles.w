@@ -346,7 +346,12 @@ DO:
             
         END. /* If WinScp */
         
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+        open-mime-resource "text/plain" "file:///po/doFtp.log" false.
+&ELSE
+        
         OS-COMMAND NO-WAIT notepad VALUE("po\doFtp.log").
+&ENDIF
         
     END. /* avail tt-rec */
 END. /* Choose Go */

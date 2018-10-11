@@ -3351,6 +3351,46 @@ PROCEDURE ipLoadPrograms :
                 usergrps.users = usergrps.users + ",admin".
     END.
 
+    /* 35628 - ensure additional field content is loaded */
+    INPUT FROM VALUE(cUpdDataDir + "\prgrms.d") NO-ECHO.
+    REPEAT:
+        CREATE ttPrgms.
+        IMPORT ttPrgms.
+        FIND FIRST prgrms EXCLUSIVE WHERE 
+            prgrms.prgmname EQ ttPrgms.prgmname 
+            NO-ERROR.
+        IF NOT AVAIL prgrms THEN DO:
+            CREATE prgrms.
+            BUFFER-COPY ttPrgms TO prgrms.
+        END.
+        ELSE DO:
+            ASSIGN 
+                prgrms.menuOrder = ttPrgms.menuOrder
+                prgrms.menuLevel = ttPrgms.menuLevel
+                prgrms.itemParent = ttPrgms.itemParent
+                prgrms.mnemonic = ttPrgms.mnemonic
+                prgrms.systemType = ttPrgms.systemType
+                prgrms.menuImage = ttPrgms.menuImage
+                prgrms.translation = ttPrgms.translation.
+        END.
+        DELETE ttPrgms.
+    END.
+
+    FOR EACH employee EXCLUSIVE-LOCK:
+        employee.employeeImage[1] = "Graphics\32x32\user.png".
+    END. /* each users */
+
+    FOR EACH mach EXCLUSIVE-LOCK:
+        mach.machineImage[1] = "Graphics\32x32\gearwheels.png".
+    END. /* each users */
+
+    FOR EACH users EXCLUSIVE-LOCK:
+        ASSIGN
+            users.userImage[1] = if users.userImage[1] = "" then "Graphics\32x32\user.png" else users.userImage[1]
+            users.showMnemonic = IF users.showMnemonic = "" then "All" else users.showMnemonic
+            users.positionMnemonic = if users.positionMnemonic = "" then "Begin" else users.positionMnemonic.
+    END. /* each users */ 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

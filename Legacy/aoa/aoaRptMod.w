@@ -615,7 +615,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDetailOnFormat C-Win
 ON CHOOSE OF btnDetailOnFormat IN FRAME DEFAULT-FRAME /* Detail OnFormat */
 DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.Detail.OnFormat.dat" false.
+&ELSE
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.Detail.OnFormat.dat.
+&ENDIF
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -626,7 +630,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupFooterOnFormat C-Win
 ON CHOOSE OF btnGroupFooterOnFormat IN FRAME DEFAULT-FRAME /* Group Footer OnFormat */
 DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.GroupFooter.OnFormat.dat" false.
+&ELSE
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.GroupFooter.OnFormat.dat.
+&ENDIF
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -637,7 +645,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupHeaderOnFormat C-Win
 ON CHOOSE OF btnGroupHeaderOnFormat IN FRAME DEFAULT-FRAME /* Group Header OnFormat */
 DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.GroupHeader.OnFormat.dat" false.
+&ELSE
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.GroupHeader.OnFormat.dat.
+&ENDIF
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -648,7 +660,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOnReportEnd C-Win
 ON CHOOSE OF btnOnReportEnd IN FRAME DEFAULT-FRAME /* OnReportEnd */
 DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.OnReportEnd.dat" false.
+&ELSE
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.OnReportEnd.dat.
+&ENDIF
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -659,7 +675,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOnReportStart C-Win
 ON CHOOSE OF btnOnReportStart IN FRAME DEFAULT-FRAME /* OnReportStart */
 DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.OnReportStart.dat" false.
+&ELSE
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.OnReportStart.dat.
+&ENDIF
 END.
 
 /* _UIB-CODE-BLOCK-END */

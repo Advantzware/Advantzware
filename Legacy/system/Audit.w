@@ -1888,7 +1888,11 @@ PROCEDURE pHistory :
         lAuditKeyFilter = lSaveFilter
         cAuditKeyFilter = IF lAuditKeyFilter THEN ipcAuditKey ELSE ""
         .
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+    open-mime-resource "text/plain" "file:///c:\tmp\AuditHistory.txt" false.
+&ELSE
     OS-COMMAND NO-WAIT notepad.exe c:\tmp\AuditHistory.txt.
+&ENDIF
 
 END PROCEDURE.
 

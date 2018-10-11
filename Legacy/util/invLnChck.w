@@ -726,7 +726,11 @@ PROCEDURE run-process :
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE ll.
     IF ll THEN 
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+        open-mime-resource "text/plain" string("file:///" + fi_file_path) false.
+&ELSE
         OS-COMMAND NO-WAIT NOTEPAD VALUE(fi_file_path).
+&ENDIF
    
     STATUS DEFAULT ''.   
 END PROCEDURE.
