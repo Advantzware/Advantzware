@@ -220,7 +220,7 @@ FUNCTION getSalesmanName RETURNS CHARACTER
 
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE ship_note AS CHARACTER 
-     VIEW-AS EDITOR
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
      SIZE 103 BY 5
      BGCOLOR 15  NO-UNDO.
 
