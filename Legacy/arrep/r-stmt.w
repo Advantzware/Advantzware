@@ -1083,7 +1083,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF (v-stmt-char EQ "" OR v-stmt-char EQ "ASI") AND
        lookup("PDFCamp Printer",SESSION:GET-PRINTERS()) GT 0 THEN
        v-pdf-camp = YES.
-    IF (v-stmt-char EQ "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "Lanco" OR v-stmt-char = "SouleMed") THEN DO:
+    IF (v-stmt-char EQ "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "StdStatement2" OR v-stmt-char = "SouleMed") THEN DO:
         fi_contact:HIDDEN = NO.
         RUN setAttentionDefault.
     END.
@@ -3158,7 +3158,6 @@ def var v-balance as dec label "Balance" format '->>,>>>,>>>.99CR' NO-UNDO.
 def var v-age as int no-undo. /* number of days old */
 def var v-per as int no-undo. /* hash of v-age into aging periods */
 def var v-aged as dec no-undo extent 5 format ">>,>>>,>>>.99CR" .   /* aging buckets */
-DEFINE VARIABLE dAged as dec no-undo extent 5 format ">>,>>>,>>>.99CR" .   /* aging buckets */
 def var v-days-in-per as int no-undo init 30.
 def var ln-total as int no-undo init 51.
 def var adv as int no-undo.
@@ -3219,15 +3218,14 @@ form
   with frame stmt-line no-box stream-io width 90 DOWN NO-LABEL.
 
 FORM SPACE(1)
-  tt-inv.description FORMAT "x(12)" COLUMN-LABEL "Type"
-  tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Ref #" SPACE(1)
   tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date"
-  tt-inv.amount format "->>>>>>9.99" COLUMN-LABEL "Amount"
-  dAged[1] FORMAT "->>>>>>>9.99" COLUMN-LABEL "Current"
-  dAged[2] FORMAT "->>>>>>>9.99" COLUMN-LABEL "30"
-  dAged[3] FORMAT "->>>>>>>9.99" COLUMN-LABEL "60"
-  dAged[4] FORMAT "->>>>>>>9.99" COLUMN-LABEL "90+"
-  with frame lanco-stmt-line no-box stream-io width 100 DOWN NO-LABEL.
+  tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Invoice" SPACE(2)
+  tt-inv.po-no FORMAT "x(12)" COLUMN-LABEL "Description"
+  tt-inv.charge FORMAT "->>>,>>9.99" COLUMN-LABEL "Charges"
+  tt-inv.credits FORMAT "->,>>>,>>9.99" COLUMN-LABEL "Credits"
+  tt-inv.amount format "->>,>>>,>>>.99" COLUMN-LABEL "Amt.Due"
+  v-balance COLUMN-LABEL "Balance"
+  with frame lanco-stmt-line no-box stream-io width 95 DOWN NO-LABEL.
 
 form
   v-msg at 15
@@ -3245,15 +3243,14 @@ FORM
   with frame no-stmt-line no-box no-labels stream-io width 90 down.
 
 FORM SPACE(1)
-  tt-inv.description FORMAT "x(12)" COLUMN-LABEL "Type"
-  tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Ref #" SPACE(1)
-  tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date"
-  tt-inv.amount format "->>>>>>9.99" COLUMN-LABEL "Amount"
-  dAged[1] FORMAT "->>>>>>>9.99" COLUMN-LABEL "Current"
-  dAged[2] FORMAT "->>>>>>>9.99" COLUMN-LABEL "30"
-  dAged[3] FORMAT "->>>>>>>9.99" COLUMN-LABEL "60"
-  dAged[4] FORMAT "->>>>>>>9.99" COLUMN-LABEL "90+"
-  with frame lanco-no-stmt-line no-box no-labels stream-io width 100 down.
+  tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date" SPACE(1)
+  tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Invoice" SPACE(2)
+  tt-inv.po-no FORM "x(12)"  COLUMN-LABEL "Description"
+  tt-inv.charge FORMAT "->>>,>>9.99" COLUMN-LABEL "Charges"
+  tt-inv.credits FORMAT "->,>>>,>>9.99" COLUMN-LABEL "Credits"
+  tt-inv.amount format "->>,>>>,>>>.99" COLUMN-LABEL "Amt.Due"
+  v-balance COLUMN-LABEL "Balance"  
+  with frame lanco-no-stmt-line no-box no-labels stream-io width 95 down.
 
 form
   v-msg at 15
@@ -3274,7 +3271,7 @@ DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image1 = (IF v-stmt-char = "Protagon" THEN "images\protinv.jpg"
                    ELSE IF v-stmt-char = "SouleMed" THEN "images\Soulemedical.jpg" 
                    ELSE IF v-stmt-char =  "StdStatement10" THEN cRtnChar 
-                   ELSE IF v-stmt-char =  "Lanco" THEN cRtnChar
+                   ELSE IF v-stmt-char =  "StdStatement2" THEN cRtnChar
                     ELSE "images\Soule.jpg") . 
 
 
@@ -3746,7 +3743,7 @@ FIRST cust no-lock
             .
        END.
 
-       IF v-stmt-char = "Lanco" THEN DO: 
+       IF v-stmt-char = "StdStatement2" THEN DO: 
            PUT "<C2><R2><#1><R+8><C+47><IMAGE#1=" ls-full-img1 SKIP
            "<P11><R4><C50><#3><FROM><R7><C80><RECT><||3>" SKIP
            "<R5><C50><FROM><R5><C80><LINE><||3>" SKIP
@@ -3766,8 +3763,8 @@ FIRST cust no-lock
            "<=1><R+14><C1>" ws_addr[5] v-remitto[4]  skip
            "<=1><R+15>Attn: " lc-attn FORMAT "x(30)" SKIP
            /*"<=1><R+15>                                                Original<C60>Invoice" SKIP*/
-           "<=1><R+17><C2>Type <c14>Ref # <C21> Date <C30>Amount <c41>Current <C56>30 <C66>60  <C75> 90+" SKIP
-           "<=1><R+18><FROM><C+80><LINE><P10>"
+           "<=1><R+17><C2>Date <c10>Invoice <C18> Description <C33>Cherges <c46>Credits <C60>Amt.Due <C74>Balance" SKIP
+           "<=1><R+18><FROM><C+80><LINE><P11>"
             .
        END.
 
@@ -3790,42 +3787,32 @@ FIRST cust no-lock
 
     IF NOT v-asi-excel THEN
     DO:
-        IF v-stmt-char = "Lanco" THEN DO:
-            dAged = 0 .
-            v-age = v-stmt-date - tt-inv.inv-date.
-            if v-age = ? or v-age lt 0 then v-age = 0.
-            v-per = trunc(v-age / v-days-in-per, 0) + 1.
-            if v-per gt 4 then
-                v-per = 4.
-            dAged[v-per] = /*v-aged[v-per] +*/ tt-inv.amount.
-
-          
-           IF tt-inv.check-no NE "" THEN
+        IF v-stmt-char = "StdStatement2" THEN DO:
+                       
+            IF tt-inv.check-no NE "" THEN
                cCheckPo = tt-inv.check-no.
            ELSE cCheckPo = tt-inv.po-no .
             if v-print-hdr then do:  
                display
-                 tt-inv.DESCRIPTION FORMAT "x(12)"
-                 tt-inv.inv-no  when tt-inv.inv-no gt 0
                  tt-inv.trans-date
+                 tt-inv.inv-no  when tt-inv.inv-no gt 0  
+                 STRING(cCheckPo,"X(12)") @ tt-inv.po-no
+                 tt-inv.charge
+                 tt-inv.credits
                  tt-inv.amount
-                 dAged[1]
-                 dAged[2]
-                 dAged[3]
-                 dAged[4]
+                 v-balance
                  with frame lanco-stmt-line .
                down 1 with frame lanco-stmt-line.
            end.
            else do:
                display
-                 tt-inv.DESCRIPTION FORMAT "x(12)"
-                 tt-inv.inv-no  when tt-inv.inv-no gt 0
                  tt-inv.trans-date
+                 tt-inv.inv-no  when tt-inv.inv-no gt 0
+                 STRING(cCheckPo,"X(12)") @ tt-inv.po-no
+                 tt-inv.charge
+                 tt-inv.credits
                  tt-inv.amount
-                 dAged[1]
-                 dAged[2]
-                 dAged[3]
-                 dAged[4]
+                 v-balance
                  with frame lanco-no-stmt-line.
                down 1 with frame lanco-no-stmt-line.
            end.
@@ -3862,9 +3849,9 @@ FIRST cust no-lock
 
     v-age = v-stmt-date - tt-inv.inv-date.
     if v-age = ? or v-age lt 0 then v-age = 0.
-    v-per = trunc(v-age / v-days-in-per, 0) + 1.
-    if v-per gt 4 then
-       v-per = 4.
+    v-per = trunc(v-age / v-days-in-per, 0) + 1. 
+    if v-per gt 4 THEN v-per = 4.
+
     v-aged[v-per] = v-aged[v-per] + tt-inv.amount.
 
     if last-of ("1") then do:
@@ -3872,18 +3859,26 @@ FIRST cust no-lock
       IF NOT v-asi-excel THEN
       DO:
          PUT SKIP(1).
-        IF v-stmt-char = "Lanco" THEN do:
-         
-               PUT "<R-1><C2><FROM><C+80><LINE>" SKIP
-                   "<R-1><C26>"
-                   (v-aged[1] + v-aged[2] + v-aged[3] + v-aged[4] ) FORMAT "->>>>>>>9.99"
-                 "<C37.5>" v-aged[1] FORMAT "->>>>>>9.99"
-                 "<C48.5>" v-aged[2] FORMAT "->>>>>>9.99"
-                 "<C59.5>" v-aged[3] FORMAT "->>>>>>9.99"
-                 "<C70.5>" v-aged[4] FORMAT "->>>>>>9.99" .
-            
-         PUT "<C14><R59.5><#3><R+4><C+7> <b> THANK YOU - YOUR BUSINESS IS APPRECIATED </b>"  SKIP.
+        IF v-stmt-char = "StdStatement2" THEN do:
+               if v-print-hdr then
+                   display
+                   v-msg
+                   v-balance
+                   with frame stmt-total-line.
+               else
+                   display
+                   v-msg
+                   v-balance
+                   with frame no-stmt-total-line.
 
+              PUT "<R56><C1><#2>"SKIP
+                  "<=2><C10>      Current     31-60 Days     61-90 Days       >90 Days          Total" skip
+                  "<=2><R+1.3><FROM><C+80><LINE>" SKIP
+                  "<=2><R+2><C10>" v-aged[1 for 4] SPACE(3) DECIMAL(v-aged[1] + v-aged[2] + v-aged[3]+ v-aged[4])
+                  SKIP.
+             
+                  PUT "<C14><R59.5><#3><R+4><C+7> <b> THANK YOU - YOUR BUSINESS IS APPRECIATED </b>"  SKIP.
+              
          END.
          ELSE do:
 
@@ -3907,7 +3902,7 @@ FIRST cust no-lock
          IF v-stmt-char = "Protagon" THEN
          PUT "<C14><R59.5><#3><R+6><C+53><IMAGE#3=" ls-full-img2 SKIP.
 
-         IF v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "Lanco" OR v-stmt-char = "SouleMed" THEN
+         IF v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "SouleMed" THEN
          PUT "<C14><R59.5><#3><R+4><C+7> <b> THANK YOU - YOUR BUSINESS IS APPRECIATED </b>"  SKIP.
 
          IF v-stmt-char = "LoyLang" OR v-stmt-char = "Printers" THEN 
@@ -3964,7 +3959,7 @@ IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,RFC,Premier,ASIExcel,Loy
    RETURN.
 END.
 
-IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,Lanco,SouleMed") > 0 THEN DO:
+IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,StdStatement2,SouleMed") > 0 THEN DO:
     RUN run-protagonstmt (ip-cust-no, ip-sys-ctrl-shipto, NO).
     RETURN.
 END.
@@ -4512,7 +4507,7 @@ IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,Loylang,RFC,Premier,Badg
    RUN run-asistmt-mail (icCustNo).
    RETURN.
 END.
-IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,Lanco,SouleMed") > 0 THEN DO:
+IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,StdStatement2,SouleMed") > 0 THEN DO:
     RUN run-protagonstmt (icCustNo, NO, YES).
     RETURN.
 END.
@@ -5090,7 +5085,7 @@ PROCEDURE setAttentionDefault :
 ------------------------------------------------------------------------------*/
 DEFINE BUFFER lbf-cust FOR cust.
 
-IF (v-stmt-char = "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "Lanco" OR v-stmt-char = "SouleMed")
+IF (v-stmt-char = "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "StdStatement2" OR v-stmt-char = "SouleMed")
     AND begin_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ end_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} 
     AND begin_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
     FIND FIRST lbf-cust WHERE lbf-cust.company = cocode
