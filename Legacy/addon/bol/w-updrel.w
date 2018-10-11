@@ -85,18 +85,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 23 ROW 2.91
          SIZE 128 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -308,8 +308,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_b-updrel ).
-       /* Position in AB:  ( 4.57 , 2.00 ) */
-       /* Size in UIB:  ( 10.24 , 114.00 ) */
+       RUN set-position IN h_b-updrel ( 4.57 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_b-updrel ( 10.24 , 114.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-relbol.w':U ,
@@ -321,7 +321,7 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_p-relbol ( 15.05 , 3.00 ) NO-ERROR.
        RUN set-size IN h_p-relbol ( 1.76 , 71.00 ) NO-ERROR.
 
-       /* Links to  h_b-updrel. */
+       /* Links to SmartObject h_b-updrel. */
        RUN add-link IN adm-broker-hdl ( h_p-relbol , 'TableIO':U , h_b-updrel ).
        RUN add-link IN adm-broker-hdl ( h_b-updrel , 'release':U , THIS-PROCEDURE ).
 

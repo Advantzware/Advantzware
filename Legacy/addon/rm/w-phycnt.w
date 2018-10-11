@@ -96,18 +96,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 4 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 4 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 24 ROW 2.91
          SIZE 127 BY 1.43
+         BGCOLOR 4 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 4 .
 
 
@@ -317,10 +317,10 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/rm/b-phys.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_b-phys ).
-       /* Position in AB:  ( 4.81 , 4.00 ) */
-       /* Size in UIB:  ( 16.91 , 136.00 ) */
+       RUN set-position IN h_b-phys ( 4.81 , 4.00 ) NO-ERROR.
+       RUN set-size IN h_b-phys ( 16.91 , 136.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updsav.r':U ,
@@ -340,14 +340,16 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_v-post ( 22.43 , 62.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 17.00 ) */
 
-       /* Links to  h_b-phys. */
+       /* Links to SmartNavBrowser h_b-phys. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_b-phys ).
        RUN add-link IN adm-broker-hdl ( h_v-post , 'State':U , h_b-phys ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'focus':U , h_b-phys ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-phys ,
              h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
+             h_b-phys , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-post ,
              h_p-updsav , 'AFTER':U ).
     END. /* Page 1 */
