@@ -106,7 +106,7 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE ship_note AS CHARACTER 
-     VIEW-AS EDITOR
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
      SIZE 109 BY 4
      BGCOLOR 15  NO-UNDO.
 
