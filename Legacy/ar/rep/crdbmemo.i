@@ -1,11 +1,10 @@
 /* ar/rep/crdbmemo2.i */
 
-/* PUT "<C1><R2><#1><R+7><C+33><IMAGE#1=" ls-full-img1 SKIP. */
-
+PUT "<C2><R2><#1><R+9><C+45><IMAGE#1=" ls-full-img1 SKIP.
 PUT "<FArial>".
-PUT "<C+25><#1>".
+/*PUT "<C+25><#1>".*/
 PUT "<=1>" SKIP.
-PUT "<C1><#2>" 
+/*PUT "<C1><#2>" 
     "<P10><=2><R+4>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
             "<P10><=2><R+5>"
             space(3) v-comp-add1 SKIP
@@ -14,11 +13,12 @@ PUT "<C1><#2>"
             space(3) v-comp-add4 SKIP
             space(3) v-comp-add5 SKIP
             space(3) "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" lv-email FORMAT "X(48)" SKIP(1).
+*/            
 
 IF v-memo-name NE ""  
   THEN
     PUT 
-    "<FCourier New>"
+    "<FCourier New><C1><R+11><#2>"
 /*             space(7) "Bill To:"    SPACE(47) /*"Ship To:"            */ SKIP */
             SPACE(7) v-memo-name           /*v-shipto-name AT 63   */ SKIP
             SPACE(7) v-memo-addr[1]        /*v-shipto-addr[1] AT 63*/ SKIP.
@@ -31,10 +31,10 @@ IF v-memo-name NE ""
             
           
 v-printline = v-printline + 18.
-IF lv-display-comp THEN
+/*IF lv-display-comp THEN
     PUT "<=2><C3><R+2><FGCOLOR=" trim(lv-comp-color) + ">"
        "<=2><C2><R+3><P20><B>" lv-comp-name "<FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" . 
-
+*/
 PUT "<P10><R4><C50><#3><FROM><R10><C80><RECT><||3>" SKIP.
 PUT "<R6><C50><FROM><R6><C80><LINE><||3>" SKIP
     "<R8><C50><FROM><R8><C80><LINE><||3>" SKIP
