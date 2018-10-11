@@ -700,6 +700,7 @@ PROCEDURE calc-qty :
 
   run get-link-handle in adm-broker-hdl (this-procedure, "repo-query-source", output char-hdl).
 
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
   run repo-query in widget-handle(char-hdl) (ROWID(itemfg)).
 
 END PROCEDURE.
