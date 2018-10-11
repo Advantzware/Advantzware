@@ -427,6 +427,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartBrowser h_locw. */
        RUN add-link IN adm-broker-hdl ( h_itemfg , 'Record':U , h_locw ).
+       RUN add-link IN adm-broker-hdl ( h_itemfg , 'repo-query':U , h_locw ).
        RUN add-link IN adm-broker-hdl ( h_locw , 'viewDetail':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
@@ -616,17 +617,20 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'oeinq/b-ordfgi.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_b-ordfgi ).
-       /* Position in AB:  ( 2.43 , 2.00 ) */
+       RUN set-position IN h_b-ordfgi ( 2.43 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 20.00 , 156.00 ) */
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to  h_b-ordfgi. */
+       /* Links to SmartNavBrowser h_b-ordfgi. */
        RUN add-link IN adm-broker-hdl ( h_itemfg , 'Record':U , h_b-ordfgi ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-ordfgi ,
+             h_folder , 'AFTER':U ).
     END. /* Page 8 */
     WHEN 9 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
