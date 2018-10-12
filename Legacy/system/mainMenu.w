@@ -887,14 +887,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnActivateCueCards MAINMENU
 ON CHOOSE OF btnActivateCueCards IN FRAME userSettingsFrame /* Activate Inactive Cue Cards */
 DO:
-    FOR EACH xCueCard EXCLUSIVE-LOCK
-        WHERE xCueCard.user_id EQ USERID("ASI")
-        :
-        DELETE xCueCard.
-    END. /* each xcuecard */
-    MESSAGE 
-        "Cue Cards Activated"
-    VIEW-AS ALERT-BOX.
+    RUN pActivateCueCards.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1445,7 +1438,7 @@ END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
- 
+
 /* Now enable the interface and wait for the exit condition.*/
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
@@ -1551,6 +1544,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pActivateCueCards MAINMENU
+PROCEDURE pActivateCueCards:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+/*    FOR EACH xCueCard EXCLUSIVE-LOCK           */
+/*        WHERE xCueCard.user_id EQ USERID("ASI")*/
+/*        :                                      */
+/*        DELETE xCueCard.                       */
+/*    END. /* each xcuecard */                   */
+/*    MESSAGE                                    */
+/*        "Cue Cards Activated"                  */
+/*    VIEW-AS ALERT-BOX.                         */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildttMenuTree MAINMENU 
 PROCEDURE pBuildttMenuTree :
@@ -2360,7 +2376,7 @@ PROCEDURE pSaveCustomMenu :
                         WHERE ttMenuTree.treeChild EQ xUserMenu.prgmname) THEN
         DELETE xUserMenu.
     END. /* each xusermenu */
-    
+
     FOR EACH ttMenuTree
         WHERE ttMenuTree.isActive EQ NO
         :
