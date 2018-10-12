@@ -610,6 +610,23 @@ DO:
 
         IF ll-import-all THEN
             RUN ImportRouting.
+
+        FOR EACH xop
+            WHERE xop.company EQ est-op.company
+            AND xop.est-no  EQ est-op.est-no
+            AND xop.line    LT 500
+            BREAK BY xop.qty
+            BY xop.s-num
+            BY xop.b-num
+            BY xop.dept
+            BY xop.line:
+            
+            IF FIRST-OF(xop.dept) THEN j = 0.
+    
+            ASSIGN
+                j           = j + 1
+                xop.op-pass = j.
+        END.
         
         j = 0.
         FOR EACH xop
