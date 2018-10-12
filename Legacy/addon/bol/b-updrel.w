@@ -160,6 +160,8 @@ DEFINE VARIABLE v-qoh AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 16 BY 1
      BGCOLOR 14  NO-UNDO.
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
 
 
 /* bol print/post */
@@ -1094,6 +1096,7 @@ DO:
       END.
    END.
 END.
+DELETE OBJECT hNotesProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -3251,6 +3251,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-item d-oeitem 
 PROCEDURE create-item :
 /*------------------------------------------------------------------------------
@@ -3616,37 +3641,22 @@ IF TRUE OR ( NOT AVAIL xoe-rel OR oe-ordl.est-no NE "" ) THEN DO:
       END.
       
       /* gdm - 06220908 */
-      IF v-relflg2 THEN
-      ASSIGN oe-rel.ship-no      = shipto.ship-no
-      oe-rel.ship-id      = shipto.ship-id
-      oe-rel.ship-addr[1] = shipto.ship-addr[1]
-      oe-rel.ship-addr[2] = shipto.ship-addr[2]
-      oe-rel.ship-city    = shipto.ship-city
-      oe-rel.ship-state   = shipto.ship-state
-      oe-rel.ship-zip     = shipto.ship-zip
-      oe-rel.ship-i[1] = shipto.notes[1]
-      oe-rel.ship-i[2] = shipto.notes[2]
-      oe-rel.ship-i[3] = shipto.notes[3]
-      oe-rel.ship-i[4] = shipto.notes[4]
-      oe-rel.spare-char-1 = shipto.loc.
-      /* gdm - 06220908 end */
-      
-      /* maybe later */
-      /*             IF shipto.notes[1] <> "" OR shipto.notes[2] <> "" OR                          */
-      /*                shipto.notes[3] <> "" OR shipto.notes[4] <> "" THEN DO:                    */
-      /*                   FIND FIRST notes WHERE notes.rec_key = oe-rel.rec_key NO-LOCK NO-ERROR. */
-      /*                   IF NOT AVAIL notes THEN DO:                                             */
-      /*                      CREATE notes.                                                        */
-      /*                      ASSIGN notes.rec_key = oe-rel.rec_key                                */
-      /*                             notes.note_date = TODAY                                       */
-      /*                             notes.note_title = shipto.notes[1]                            */
-      /*                             notes.note_text = shipto.notes[1] + CHR(13) +                 */
-      /*                                               shipto.notes[2] + CHR(13) +                 */
-      /*                                               shipto.notes[3] + CHR(13) +                 */
-      /*                                               ship.notes[4] + CHR(13).                    */
-      /*                    END.                                                                   */
-      /*             END.                                                                          */
-      
+      IF v-relflg2 THEN DO:
+          ASSIGN oe-rel.ship-no      = shipto.ship-no
+          oe-rel.ship-id      = shipto.ship-id
+          oe-rel.ship-addr[1] = shipto.ship-addr[1]
+          oe-rel.ship-addr[2] = shipto.ship-addr[2]
+          oe-rel.ship-city    = shipto.ship-city
+          oe-rel.ship-state   = shipto.ship-state
+          oe-rel.ship-zip     = shipto.ship-zip
+          oe-rel.ship-i[1] = shipto.notes[1]
+          oe-rel.ship-i[2] = shipto.notes[2]
+          oe-rel.ship-i[3] = shipto.notes[3]
+          oe-rel.ship-i[4] = shipto.notes[4]
+          oe-rel.spare-char-1 = shipto.loc.
+          /* gdm - 06220908 end */
+          RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+      END. /*v-relflg2*/
       /* if add mode then use default carrier */
       /*   if sel = 3 /* and NOT oe-rel.carrier ENTERED */ then do: */
       FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -3710,39 +3720,25 @@ IF TRUE OR ( NOT AVAIL xoe-rel OR oe-ordl.est-no NE "" ) THEN DO:
     IF AVAIL shipto THEN DO:
       
       /* gdm - 06220908 */
-      IF v-relflg2 THEN
-      ASSIGN  oe-rel.ship-no      = shipto.ship-no
-              oe-rel.ship-id      = shipto.ship-id
-              oe-rel.ship-addr[1] = shipto.ship-addr[1]
-              oe-rel.ship-addr[2] = shipto.ship-addr[2]
-              oe-rel.ship-city    = shipto.ship-city
-              oe-rel.ship-state   = shipto.ship-state
-              oe-rel.ship-zip     = shipto.ship-zip
-              oe-rel.ship-i[1] = shipto.notes[1]
-              oe-rel.ship-i[2] = shipto.notes[2]
-              oe-rel.ship-i[3] = shipto.notes[3]
-              oe-rel.ship-i[4] = shipto.notes[4]
-              oe-rel.spare-char-1 = shipto.loc.
-      
+      IF v-relflg2 THEN DO:
+          ASSIGN  oe-rel.ship-no      = shipto.ship-no
+                  oe-rel.ship-id      = shipto.ship-id
+                  oe-rel.ship-addr[1] = shipto.ship-addr[1]
+                  oe-rel.ship-addr[2] = shipto.ship-addr[2]
+                  oe-rel.ship-city    = shipto.ship-city
+                  oe-rel.ship-state   = shipto.ship-state
+                  oe-rel.ship-zip     = shipto.ship-zip
+                  oe-rel.ship-i[1] = shipto.notes[1]
+                  oe-rel.ship-i[2] = shipto.notes[2]
+                  oe-rel.ship-i[3] = shipto.notes[3]
+                  oe-rel.ship-i[4] = shipto.notes[4]
+                  oe-rel.spare-char-1 = shipto.loc.
+          RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+      END.
       /* check that itemfg-loc exists */
       IF oe-rel.spare-char-1 GT "" THEN
         RUN fg/chkfgloc.p (INPUT oe-rel.i-no, INPUT oe-rel.spare-char-1).
-      /* ===== maybe later ========*/
-      /*                IF shipto.notes[1] <> "" OR shipto.notes[2] <> "" OR                        */
-      /*                    shipto.notes[3] <> "" OR shipto.notes[4] <> "" THEN DO:                 */
-      /*                    FIND FIRST notes WHERE notes.rec_key = oe-rel.rec_key NO-LOCK NO-ERROR. */
-      /*                    IF NOT AVAIL notes THEN DO:                                             */
-      /*                      CREATE notes.                                                         */
-      /*                      ASSIGN notes.rec_key = oe-rel.rec_key                                 */
-      /*                             notes.note_date = TODAY                                        */
-      /*                             notes.note_title = shipto.notes[1]                             */
-      /*                             notes.note_text = shipto.notes[1] + CHR(13) +                  */
-      /*                                               shipto.notes[2] + CHR(13) +                  */
-      /*                                               shipto.notes[3] + CHR(13) +                  */
-      /*                  "                            ship.notes[4] + CHR(13).                     */
-      /*                    END.                                                                    */
-      /*                END.                                                                        */
-      
+  
       
       /* if add mode then use default carrier */
       IF ll-new-record /* and NOT oe-rel.carrier ENTERED */ THEN DO:
@@ -3804,33 +3800,21 @@ ELSE DO:
   USE-INDEX ship-id NO-LOCK NO-ERROR.
   IF AVAIL shipto THEN DO:
     /* gdm - 06220908 */
-    IF v-relflg2 THEN
-    ASSIGN oe-rel.ship-no      = shipto.ship-no
-    oe-rel.ship-id      = shipto.ship-id
-    oe-rel.ship-addr[1] = shipto.ship-addr[1]
-    oe-rel.ship-addr[2] = shipto.ship-addr[2]
-    oe-rel.ship-city    = shipto.ship-city
-    oe-rel.ship-state   = shipto.ship-state
-    oe-rel.ship-zip     = shipto.ship-zip
-    oe-rel.ship-i[1] = shipto.notes[1]
-    oe-rel.ship-i[2] = shipto.notes[2]
-    oe-rel.ship-i[3] = shipto.notes[3]
-    oe-rel.ship-i[4] = shipto.notes[4]
-    oe-rel.spare-char-1 = shipto.loc.
-    /*             IF shipto.notes[1] <> "" OR shipto.notes[2] <> "" OR                          */
-    /*                shipto.notes[3] <> "" OR shipto.notes[4] <> "" THEN DO:                    */
-    /*                   FIND FIRST notes WHERE notes.rec_key = oe-rel.rec_key NO-LOCK NO-ERROR. */
-    /*                   IF NOT AVAIL notes THEN DO:                                             */
-    /*                      CREATE notes.                                                        */
-    /*                      ASSIGN notes.rec_key = oe-rel.rec_key                                */
-    /*                             notes.note_date = TODAY                                       */
-    /*                             notes.note_title = shipto.notes[1]                            */
-    /*                             notes.note_text = shipto.notes[1] + CHR(13) +                 */
-    /*                                               shipto.notes[2] + CHR(13) +                 */
-    /*                                               shipto.notes[3] + CHR(13) +                 */
-    /*                                               ship.notes[4] + CHR(13).                    */
-    /*                    END.                                                                   */
-    /*             END.                                                                          */
+    IF v-relflg2 THEN DO:
+        ASSIGN oe-rel.ship-no      = shipto.ship-no
+        oe-rel.ship-id      = shipto.ship-id
+        oe-rel.ship-addr[1] = shipto.ship-addr[1]
+        oe-rel.ship-addr[2] = shipto.ship-addr[2]
+        oe-rel.ship-city    = shipto.ship-city
+        oe-rel.ship-state   = shipto.ship-state
+        oe-rel.ship-zip     = shipto.ship-zip
+        oe-rel.ship-i[1] = shipto.notes[1]
+        oe-rel.ship-i[2] = shipto.notes[2]
+        oe-rel.ship-i[3] = shipto.notes[3]
+        oe-rel.ship-i[4] = shipto.notes[4]
+        oe-rel.spare-char-1 = shipto.loc.
+        RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+    END. /*v-relflg2*/
     
     /* if add mode then use default carrier */
     IF ll-new-record THEN DO:
@@ -7905,22 +7889,10 @@ PROCEDURE update-release :
                  oe-rel.ship-i[2] = shipto.notes[2]
                  oe-rel.ship-i[3] = shipto.notes[3]
                  oe-rel.ship-i[4] = shipto.notes[4].
+          RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+          
           /* if add mode then use default carrier */
-          IF shipto.notes[1] <> "" OR shipto.notes[2] <> "" OR
-             shipto.notes[3] <> "" OR shipto.notes[4] <> "" THEN DO:
-            FIND FIRST notes WHERE notes.rec_key = oe-rel.rec_key NO-LOCK NO-ERROR.
-            IF NOT AVAIL notes THEN DO:
-              CREATE notes.
-              ASSIGN
-               notes.rec_key = oe-rel.rec_key
-               notes.note_date = TODAY
-               notes.note_title = shipto.notes[1]
-               notes.note_text = shipto.notes[1] + CHR(13) +
-                                 shipto.notes[2] + CHR(13) +
-                                 shipto.notes[3] + CHR(13) +
-                                 ship.notes[4] + CHR(13).
-            END. /* not avail notes */
-          END. /* if notes are not blank */
+        
         END. /* if avail ship to */
       END. /* If status is S,I or L */
 

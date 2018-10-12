@@ -1436,21 +1436,22 @@ FOR EACH fg-set WHERE fg-set.set-no = oe-ordl.i-no
   IF AVAIL shipto THEN DO:
     
    
-    IF v-relflg2 THEN
-    ASSIGN  
-      oe-rel.ship-no      = shipto.ship-no
-      oe-rel.ship-id      = shipto.ship-id
-      oe-rel.ship-addr[1] = shipto.ship-addr[1]
-      oe-rel.ship-addr[2] = shipto.ship-addr[2]
-      oe-rel.ship-city    = shipto.ship-city
-      oe-rel.ship-state   = shipto.ship-state
-      oe-rel.ship-zip     = shipto.ship-zip
-      oe-rel.ship-i[1]    = shipto.notes[1]
-      oe-rel.ship-i[2]    = shipto.notes[2]
-      oe-rel.ship-i[3]    = shipto.notes[3]
-      oe-rel.ship-i[4]    = shipto.notes[4]
-      oe-rel.spare-char-1 = shipto.loc.
-      
+    IF v-relflg2 THEN DO:
+        ASSIGN  
+          oe-rel.ship-no      = shipto.ship-no
+          oe-rel.ship-id      = shipto.ship-id
+          oe-rel.ship-addr[1] = shipto.ship-addr[1]
+          oe-rel.ship-addr[2] = shipto.ship-addr[2]
+          oe-rel.ship-city    = shipto.ship-city
+          oe-rel.ship-state   = shipto.ship-state
+          oe-rel.ship-zip     = shipto.ship-zip
+          oe-rel.ship-i[1]    = shipto.notes[1]
+          oe-rel.ship-i[2]    = shipto.notes[2]
+          oe-rel.ship-i[3]    = shipto.notes[3]
+          oe-rel.ship-i[4]    = shipto.notes[4]
+          oe-rel.spare-char-1 = shipto.loc.
+        RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+    END.  
     /* check that itemfg-loc exists */
     IF oe-rel.spare-char-1 GT "" THEN
     RUN fg/chkfgloc.p (INPUT oe-rel.i-no, INPUT oe-rel.spare-char-1).
@@ -1731,6 +1732,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
          oe-rel.spare-char-1 = oe-rell.loc
          oe-rel.qty       = lv-qty.
         
+        RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key).
         RUN set-lot-from-boll (INPUT ROWID(oe-rel), INPUT ROWID(oe-rell),
                                INPUT ROWID(oe-boll)).
         RUN oe/custxship.p (oe-rel.company,
@@ -1865,6 +1867,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
            oe-rel.spare-char-1 = oe-rell.loc
            oe-rel.qty       = lv-qty.
            
+          RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key). 
           RUN oe/custxship.p (oe-rel.company,
                               oe-rel.cust-no,
                               oe-rel.ship-id,
@@ -3566,6 +3569,7 @@ END.
                                  oe-rel.ship-i[2] = shipto.notes[2]
                                  oe-rel.ship-i[3] = shipto.notes[3]
                                  oe-rel.ship-i[4] = shipto.notes[4].
+        RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
      END.
   END.   
 
@@ -3807,7 +3811,7 @@ PROCEDURE local-create-record :
 
         IF oe-rel.rel-date LE v-lst-rel THEN oe-rel.rel-date = v-lst-rel + 1.
 
-        IF AVAIL shipto THEN
+        IF AVAIL shipto THEN DO:
             ASSIGN oe-rel.ship-addr[1] = shipto.ship-addr[1]
                 oe-rel.ship-city    = shipto.ship-city
                 oe-rel.ship-state   = shipto.ship-state
@@ -3818,6 +3822,8 @@ PROCEDURE local-create-record :
                 oe-rel.ship-i[2]    = shipto.notes[2]
                 oe-rel.ship-i[3]    = shipto.notes[3]
                 oe-rel.ship-i[4]    = shipto.notes[4].
+            RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+        END.
         ELSE ASSIGN oe-rel.ship-no   = oe-ord.sold-no
                 oe-rel.ship-id   = IF v-first-ship-id <> "" THEN v-first-ship-id ELSE oe-ord.ship-id
                 oe-rel.ship-i[1] = oe-ord.ship-i[1]
@@ -3833,18 +3839,20 @@ PROCEDURE local-create-record :
                 WHERE shipto.company EQ cocode
                 AND shipto.cust-no EQ oe-rel.cust-no NO-LOCK BY shipto.ship-id:
 
-            IF AVAIL shipto THEN
-            ASSIGN 
-                oe-rel.ship-id   = shipto.ship-id
-                oe-rel.ship-addr[1] = shipto.ship-addr[1]
-                oe-rel.ship-city    = shipto.ship-city
-                oe-rel.ship-state   = shipto.ship-state
-                oe-rel.ship-zip     = shipto.ship-zip
-                oe-rel.ship-no      = shipto.ship-no
-                oe-rel.ship-i[1]    = shipto.notes[1]
-                oe-rel.ship-i[2]    = shipto.notes[2]
-                oe-rel.ship-i[3]    = shipto.notes[3]
-                oe-rel.ship-i[4]    = shipto.notes[4].
+            IF AVAIL shipto THEN DO:
+                ASSIGN 
+                    oe-rel.ship-id   = shipto.ship-id
+                    oe-rel.ship-addr[1] = shipto.ship-addr[1]
+                    oe-rel.ship-city    = shipto.ship-city
+                    oe-rel.ship-state   = shipto.ship-state
+                    oe-rel.ship-zip     = shipto.ship-zip
+                    oe-rel.ship-no      = shipto.ship-no
+                    oe-rel.ship-i[1]    = shipto.notes[1]
+                    oe-rel.ship-i[2]    = shipto.notes[2]
+                    oe-rel.ship-i[3]    = shipto.notes[3]
+                    oe-rel.ship-i[4]    = shipto.notes[4].
+                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+            END.
             LEAVE .
            END.
         END.
@@ -5673,6 +5681,28 @@ PROCEDURE valid-ship-from :
   END.
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -31,7 +31,7 @@ FOR EACH shipto NO-LOCK:
                            shipto.notes[3] + CHR(13) +
                            shipto.notes[4].
                            
-        RUN UpdateNoteShipShipto IN hNotesProcs (shipto.rec_key,
+        RUN UpdateShipNote IN hNotesProcs (shipto.rec_key,
                                                  ship_note).
     END.
 END.
@@ -42,7 +42,7 @@ FOR EACH oe-rel NO-LOCK:
                        oe-rel.ship-i[2] + CHR(13) +
                        oe-rel.ship-i[3] + CHR(13) +
                        oe-rel.ship-i[4].
-        RUN UpdateNoteShipOeRel IN hNotesProcs (oe-rel.rec_key,
+        RUN UpdateShipNote IN hNotesProcs (oe-rel.rec_key,
                                                ship_note).
     END.                                       
 END.
@@ -53,7 +53,7 @@ FOR EACH oe-relh NO-LOCK:
                        oe-relh.ship-i[2] + CHR(13) +
                        oe-relh.ship-i[3] + CHR(13) +
                        oe-relh.ship-i[4].
-        RUN UpdateNoteShipOeRelh IN hNotesProcs (oe-relh.rec_key,
+        RUN UpdateShipNote IN hNotesProcs (oe-relh.rec_key,
                                                  ship_note).
     END.                                          
 END.
@@ -64,7 +64,7 @@ FOR EACH oe-bolh NO-LOCK:
                        oe-bolh.ship-i[2] + CHR(13) +
                        oe-bolh.ship-i[3] + CHR(13) +
                        oe-bolh.ship-i[4].
-        RUN UpdateNoteShipOeBolh IN hNotesProcs (oe-bolh.rec_key,
+        RUN UpdateShipNote IN hNotesProcs (oe-bolh.rec_key,
                                                  ship_note).
     END.                                         
 END.                                                
