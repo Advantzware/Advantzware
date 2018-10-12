@@ -1552,14 +1552,14 @@ PROCEDURE pActivateCueCards:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-/*    FOR EACH xCueCard EXCLUSIVE-LOCK           */
-/*        WHERE xCueCard.user_id EQ USERID("ASI")*/
-/*        :                                      */
-/*        DELETE xCueCard.                       */
-/*    END. /* each xcuecard */                   */
-/*    MESSAGE                                    */
-/*        "Cue Cards Activated"                  */
-/*    VIEW-AS ALERT-BOX.                         */
+    FOR EACH xCueCard EXCLUSIVE-LOCK
+        WHERE xCueCard.user_id EQ USERID("ASI")
+        :
+        DELETE xCueCard.
+    END. /* each xcuecard */
+    MESSAGE
+        "Cue Cards Activated"
+    VIEW-AS ALERT-BOX.
 
 END PROCEDURE.
 	
