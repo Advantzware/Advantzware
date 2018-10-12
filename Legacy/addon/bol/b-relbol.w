@@ -1093,7 +1093,7 @@ DO:
        END.
     END.
  END.
-DELETE OBJECT hNotesProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2645,6 +2645,10 @@ END. /* each oe-relh */
 
 RELEASE oe-boll.
   IF BolPostLog THEN OUTPUT STREAM logFile CLOSE.
+  
+IF VALID-HANDLE(hNotesProcs) THEN
+    DELETE OBJECT hNotesProcs.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
