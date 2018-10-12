@@ -67,6 +67,7 @@ DEFINE VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
 DEF  SHARED VAR s-prt-fgimage AS LOG NO-UNDO.
 DEFINE  SHARED VARIABLE v-dept-codes AS CHAR NO-UNDO.
 DEFINE  SHARED VAR v-dept-log AS LOG NO-UNDO.
+DEFINE BUFFER bf-job-mch FOR job-mch .
 DO TRANSACTION:
    {sys/inc/tspostfg.i}
 END.
@@ -161,6 +162,17 @@ do v-local-loop = 1 to v-local-copies:
       release xoe-ord.
       release xoe-ordl.
       release xoe-rel.
+
+      FIND FIRST bf-job-mch NO-LOCK
+           WHERE bf-job-mch.company EQ cocode
+           AND bf-job-mch.job     EQ job-hdr.job
+           AND bf-job-mch.job-no  EQ job-hdr.job-no
+           AND bf-job-mch.job-no2 EQ job-hdr.job-no2 
+           AND bf-job-mch.m-code  EQ "303" NO-ERROR .
+       IF AVAIL bf-job-mch THEN do: 
+         RUN cerep/jobccchyb.p(job-hdr.job-no, job-hdr.job-no2)  .
+         NEXT .
+       END.
 
       run cecrep/jobtick1.p (recid(job-hdr), v-format,
                               v-local-loop, v-local-copies).

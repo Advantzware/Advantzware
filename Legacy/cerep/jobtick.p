@@ -150,6 +150,7 @@ DEF VAR v-printline AS INT NO-UNDO.
 {cec/msfcalc.i}
 DEF BUFFER bf-eb FOR eb.
 DEF BUFFER bf-jobhdr FOR job-hdr.
+DEFINE BUFFER bf-job-mch FOR job-mch .
 v-fill = fill("=",132).
 
 def new shared frame head.
@@ -212,6 +213,17 @@ ASSIGN
         break by job-hdr.job
               by job-hdr.job-no
               by job-hdr.job-no2:
+
+       FIND FIRST bf-job-mch NO-LOCK
+           WHERE bf-job-mch.company EQ cocode
+           AND bf-job-mch.job     EQ job-hdr.job
+           AND bf-job-mch.job-no  EQ job-hdr.job-no
+           AND bf-job-mch.job-no2 EQ job-hdr.job-no2 
+           AND bf-job-mch.m-code  EQ "303" NO-ERROR .
+       IF AVAIL bf-job-mch THEN do: 
+         RUN cerep/jobccchyb.p(job-hdr.job-no, job-hdr.job-no2)  .
+         NEXT .
+       END.
 
       IF NOT job-hdr.ftick-prnt THEN DO WHILE TRUE:
         li = li + 1.
