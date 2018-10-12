@@ -2294,6 +2294,7 @@ PROCEDURE ipDataFix160800 :
     RUN ipAddLocationData.
     RUN ipVendorMaxValue.
     RUN ipSetImageFiles.
+    RUN ipUseOldNK1.
 
 END PROCEDURE.
 
@@ -4551,6 +4552,29 @@ PROCEDURE ipUpdateUserControl :
     
     RELEASE usercontrol.
     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUseOldNK1 C-Win 
+PROCEDURE ipUseOldNK1 :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+        
+    RUN ipStatus ("  Setting NK1 to old view").
+    
+    DISABLE TRIGGERS FOR LOAD OF prgrms.
+    
+    FIND FIRST prgrms EXCLUSIVE WHERE
+        prgrms.prgmname EQ "sys-ctrl."
+        NO-ERROR.
+    IF AVAIL prgrms THEN ASSIGN
+        prgrms.dir_group = "windows".
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
