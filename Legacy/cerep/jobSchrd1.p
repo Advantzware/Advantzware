@@ -111,15 +111,11 @@ FOR EACH oe-ord
                  where job-mat.company eq cocode
                  AND job-mat.job     eq job.job
                  AND job-mat.frm     EQ bf-eb.form-no
-                 /*AND job-mat.frm     GE integer(icBegForm)
-                 AND job-mat.frm     LE integer(icEndForm)
-                 AND job-mat.blank-no     GE integer(icBegBlnk)
-                 AND job-mat.blank-no     LE integer(icEndBlnk)*/
                 use-index job no-lock:
                     find item where item.company eq cocode and
                         item.i-no    eq job-mat.i-no
                         no-lock no-error.
-                    if available item and item.mat-type eq "B" then
+                    if available item then
                     do:
                         i = i + 1.
                         ASSIGN
