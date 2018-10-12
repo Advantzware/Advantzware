@@ -224,5 +224,6 @@ end.*/
          oe-bolh.ship-i[2] = oe-relh.ship-i[2]
          oe-bolh.ship-i[3] = oe-relh.ship-i[3]
          oe-bolh.ship-i[4] = oe-relh.ship-i[4].
+        RUN CopyShipNote IN hNotesProcs (oe-relh.rec_key, oe-bolh.rec_key).
   end.
   /*if v-royal then oe-bolh.trailer = "HOLD".*/

@@ -160,6 +160,8 @@ DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lSSBOLPassword AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cSSBOLPassword AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
 
 v-hold-list = "Royal,Superior,ContSrvc,BlueRidg,Danbury".
 
@@ -1091,7 +1093,7 @@ DO:
        END.
     END.
  END.
-
+DELETE OBJECT hNotesProcs.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

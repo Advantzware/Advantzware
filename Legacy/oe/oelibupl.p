@@ -1530,35 +1530,21 @@ PROCEDURE create-release :
       IF AVAIL shipto THEN DO:
         ASSIGN v-ship-id           = shipto.ship-id.
         /* gdm - 06220908 */
-        IF v-relflg2 THEN
-        ASSIGN oe-rel.ship-no      = shipto.ship-no
-        oe-rel.ship-id      = shipto.ship-id
-        oe-rel.ship-addr[1] = shipto.ship-addr[1]
-        oe-rel.ship-addr[2] = shipto.ship-addr[2]
-        oe-rel.ship-city    = shipto.ship-city
-        oe-rel.ship-state   = shipto.ship-state
-        oe-rel.ship-zip     = shipto.ship-zip
-        oe-rel.ship-i[1] = shipto.notes[1]
-        oe-rel.ship-i[2] = shipto.notes[2]
-        oe-rel.ship-i[3] = shipto.notes[3]
-        oe-rel.ship-i[4] = shipto.notes[4].
-        /* gdm - 06220908 end */
-        /* maybe later
-        IF shipto.notes[1] <> "" OR shipto.notes[2] <> "" OR
-        shipto.notes[3] <> "" OR shipto.notes[4] <> "" THEN DO:
-        FIND FIRST notes WHERE notes.rec_key = oe-rel.rec_key NO-LOCK NO-ERROR.
-        IF NOT AVAIL notes THEN DO:
-        CREATE notes.
-        ASSIGN notes.rec_key = oe-rel.rec_key
-        notes.note_date = TODAY
-        notes.note_title = shipto.notes[1]
-        notes.note_text = shipto.notes[1] + CHR(13) +
-        shipto.notes[2] + CHR(13) +
-        shipto.notes[3] + CHR(13) +
-        ship.notes[4] + CHR(13).
-        END.
-        END.
-        */
+        IF v-relflg2 THEN DO:
+            ASSIGN oe-rel.ship-no      = shipto.ship-no
+            oe-rel.ship-id      = shipto.ship-id
+            oe-rel.ship-addr[1] = shipto.ship-addr[1]
+            oe-rel.ship-addr[2] = shipto.ship-addr[2]
+            oe-rel.ship-city    = shipto.ship-city
+            oe-rel.ship-state   = shipto.ship-state
+            oe-rel.ship-zip     = shipto.ship-zip
+            oe-rel.ship-i[1] = shipto.notes[1]
+            oe-rel.ship-i[2] = shipto.notes[2]
+            oe-rel.ship-i[3] = shipto.notes[3]
+            oe-rel.ship-i[4] = shipto.notes[4].
+            /* gdm - 06220908 end */
+            RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+        END.  
         /* if add mode then use default carrier */
         /*   if sel = 3 /* and NOT oe-rel.carrier ENTERED */ then do: */
         FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -1597,34 +1583,20 @@ PROCEDURE create-release :
       NO-LOCK NO-ERROR.
       IF AVAIL shipto THEN DO:
         /* gdm - 06220908 */
-        IF v-relflg2 THEN
-        ASSIGN oe-rel.ship-no      = shipto.ship-no
-        oe-rel.ship-id      = shipto.ship-id
-        oe-rel.ship-addr[1] = shipto.ship-addr[1]
-        oe-rel.ship-addr[2] = shipto.ship-addr[2]
-        oe-rel.ship-city    = shipto.ship-city
-        oe-rel.ship-state   = shipto.ship-state
-        oe-rel.ship-zip     = shipto.ship-zip
-        oe-rel.ship-i[1] = shipto.notes[1]
-        oe-rel.ship-i[2] = shipto.notes[2]
-        oe-rel.ship-i[3] = shipto.notes[3]
-        oe-rel.ship-i[4] = shipto.notes[4].
-        /* ===== maybe later
-        IF shipto.notes[1] <> "" OR shipto.notes[2] <> "" OR
-        shipto.notes[3] <> "" OR shipto.notes[4] <> "" THEN DO:
-        FIND FIRST notes WHERE notes.rec_key = oe-rel.rec_key NO-LOCK NO-ERROR.
-        IF NOT AVAIL notes THEN DO:
-        CREATE notes.
-        ASSIGN notes.rec_key = oe-rel.rec_key
-        notes.note_date = TODAY
-        notes.note_title = shipto.notes[1]
-        notes.note_text = shipto.notes[1] + CHR(13) +
-        shipto.notes[2] + CHR(13) +
-        shipto.notes[3] + CHR(13) +
-        ship.notes[4] + CHR(13).
+        IF v-relflg2 THEN DO:
+            ASSIGN oe-rel.ship-no      = shipto.ship-no
+            oe-rel.ship-id      = shipto.ship-id
+            oe-rel.ship-addr[1] = shipto.ship-addr[1]
+            oe-rel.ship-addr[2] = shipto.ship-addr[2]
+            oe-rel.ship-city    = shipto.ship-city
+            oe-rel.ship-state   = shipto.ship-state
+            oe-rel.ship-zip     = shipto.ship-zip
+            oe-rel.ship-i[1] = shipto.notes[1]
+            oe-rel.ship-i[2] = shipto.notes[2]
+            oe-rel.ship-i[3] = shipto.notes[3]
+            oe-rel.ship-i[4] = shipto.notes[4].
+            RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
         END.
-        END.
-        ===========*/
         /* if add mode then use default carrier */
         IF ll-new-record /* and NOT oe-rel.carrier ENTERED */ THEN DO:
           /* wfk
@@ -1658,33 +1630,20 @@ PROCEDURE create-release :
     USE-INDEX ship-id NO-LOCK NO-ERROR.
     IF AVAIL shipto THEN DO:
       /* gdm - 06220908 */
-      IF v-relflg2 THEN
-      ASSIGN oe-rel.ship-no      = shipto.ship-no
-      oe-rel.ship-id      = shipto.ship-id
-      oe-rel.ship-addr[1] = shipto.ship-addr[1]
-      oe-rel.ship-addr[2] = shipto.ship-addr[2]
-      oe-rel.ship-city    = shipto.ship-city
-      oe-rel.ship-state   = shipto.ship-state
-      oe-rel.ship-zip     = shipto.ship-zip
-      oe-rel.ship-i[1] = shipto.notes[1]
-      oe-rel.ship-i[2] = shipto.notes[2]
-      oe-rel.ship-i[3] = shipto.notes[3]
-      oe-rel.ship-i[4] = shipto.notes[4].
-      /*   IF shipto.notes[1] <> "" OR shipto.notes[2] <> "" OR
-      shipto.notes[3] <> "" OR shipto.notes[4] <> "" THEN DO:
-      FIND FIRST notes WHERE notes.rec_key = oe-rel.rec_key NO-LOCK NO-ERROR.
-      IF NOT AVAIL notes THEN DO:
-      CREATE notes.
-      ASSIGN notes.rec_key = oe-rel.rec_key
-      notes.note_date = TODAY
-      notes.note_title = shipto.notes[1]
-      notes.note_text = shipto.notes[1] + CHR(13) +
-      shipto.notes[2] + CHR(13) +
-      shipto.notes[3] + CHR(13) +
-      ship.notes[4] + CHR(13).
+      IF v-relflg2 THEN DO:
+          ASSIGN oe-rel.ship-no      = shipto.ship-no
+          oe-rel.ship-id      = shipto.ship-id
+          oe-rel.ship-addr[1] = shipto.ship-addr[1]
+          oe-rel.ship-addr[2] = shipto.ship-addr[2]
+          oe-rel.ship-city    = shipto.ship-city
+          oe-rel.ship-state   = shipto.ship-state
+          oe-rel.ship-zip     = shipto.ship-zip
+          oe-rel.ship-i[1] = shipto.notes[1]
+          oe-rel.ship-i[2] = shipto.notes[2]
+          oe-rel.ship-i[3] = shipto.notes[3]
+          oe-rel.ship-i[4] = shipto.notes[4].
+          RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
       END.
-      END.
-      */
       /* if add mode then use default carrier */
       IF ll-new-record THEN DO:
         FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -4631,22 +4590,10 @@ PROCEDURE update-release :
           oe-rel.ship-i[2] = shipto.notes[2]
           oe-rel.ship-i[3] = shipto.notes[3]
           oe-rel.ship-i[4] = shipto.notes[4].
+          
+          RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
           /* if add mode then use default carrier */
-          IF shipto.notes[1] <> "" OR shipto.notes[2] <> "" OR
-          shipto.notes[3] <> "" OR shipto.notes[4] <> "" THEN DO:
-            FIND FIRST notes WHERE notes.rec_key = oe-rel.rec_key NO-LOCK NO-ERROR.
-            IF NOT AVAIL notes THEN DO:
-              CREATE notes.
-              ASSIGN
-              notes.rec_key = oe-rel.rec_key
-              notes.note_date = TODAY
-              notes.note_title = shipto.notes[1]
-              notes.note_text = shipto.notes[1] + CHR(13) +
-              shipto.notes[2] + CHR(13) +
-              shipto.notes[3] + CHR(13) +
-              ship.notes[4] + CHR(13).
-            END.
-          END.
+       
         END.
       END.
       IF li NE oe-ordl.qty                                  AND
@@ -5944,6 +5891,28 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
 

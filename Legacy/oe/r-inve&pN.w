@@ -48,6 +48,8 @@ DEFINE VARIABLE oeprep-char AS CHARACTER NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
 
 ASSIGN
  cocode = gcompany
@@ -1093,9 +1095,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   {methods/nowait.i}
 
-
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
+  
+  DELETE OBJECT hNotesProcs.
 END.
 
 /* _UIB-CODE-BLOCK-END */

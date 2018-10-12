@@ -1196,7 +1196,7 @@ PROCEDURE local-assign-record :
                shipto.notes[3] =  opcParsedText[3]
                shipto.notes[4] =  opcParsedText[4]
                .               
-            RUN UpdateNoteShipShipto IN hNotesProcs (shipto.rec_key,
+            RUN UpdateShipNote IN hNotesProcs (shipto.rec_key,
                                                      ship_note).
             DELETE OBJECT hNotesProcs.
         FIND CURRENT shipto NO-LOCK NO-ERROR.

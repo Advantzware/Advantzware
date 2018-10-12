@@ -406,7 +406,7 @@ PROCEDURE ip-upd-BOL :
             oe-bolh.ship-i[3] = v-ship-i[3]
             oe-bolh.ship-i[4] = v-ship-i[4].
             
-        RUN CopyNotes IN hNotesProc (INPUT ip-shipnotesreckey, oe-bolh.rec_key, "", "").
+        RUN CopyShipNote IN hNotesProc (INPUT ip-shipnotesreckey, oe-bolh.rec_key).
         
                              
     END.
@@ -446,7 +446,7 @@ PROCEDURE ip-upd-ORDrel :
             oe-rel.ship-i[3] = v-ship-i[3] 
             oe-rel.ship-i[4] = v-ship-i[4].
             
-         RUN CopyNotes IN hNotesProc (INPUT ip-shipnotesreckey, oe-rel.rec_key, "", "").   
+         RUN CopyShipNote IN hNotesProc (INPUT ip-shipnotesreckey, oe-rel.rec_key).   
             
     END.
 
@@ -481,7 +481,7 @@ PROCEDURE ip-upd-REL :
             oe-relh.ship-i[3] = v-ship-i[3]
             oe-relh.ship-i[4] = v-ship-i[4].
 
-         RUN CopyNotes IN hNotesProc (INPUT ip-shipnotesreckey, oe-relh.rec_key, "", "").
+         RUN CopyShipNote IN hNotesProc (INPUT ip-shipnotesreckey, oe-relh.rec_key).
 
     END.
 

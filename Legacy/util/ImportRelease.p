@@ -482,7 +482,7 @@ PROCEDURE pProcessRecord PRIVATE:
                                   
         IF oe-rel.qty LT 0 THEN oe-rel.qty = 0.
 
-        IF AVAILABLE shipto THEN
+        IF AVAILABLE shipto THEN DO:
             ASSIGN
                 oe-rel.ship-addr[1] = shipto.ship-addr[1]
                 oe-rel.ship-city    = shipto.ship-city
@@ -494,6 +494,8 @@ PROCEDURE pProcessRecord PRIVATE:
                 oe-rel.ship-i[2]    = shipto.notes[2]
                 oe-rel.ship-i[3]    = shipto.notes[3]
                 oe-rel.ship-i[4]    = shipto.notes[4].
+            RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+        END.
         ELSE 
             ASSIGN 
                 oe-rel.ship-no   = oe-ord.sold-no
@@ -513,7 +515,7 @@ PROCEDURE pProcessRecord PRIVATE:
                 AND shipto.cust-no EQ oe-rel.cust-no
                 BY shipto.ship-id:
 
-                IF AVAILABLE shipto THEN
+                IF AVAILABLE shipto THEN DO:
                     ASSIGN 
                         oe-rel.ship-id      = shipto.ship-id
                         oe-rel.ship-addr[1] = shipto.ship-addr[1]
@@ -525,10 +527,30 @@ PROCEDURE pProcessRecord PRIVATE:
                         oe-rel.ship-i[2]    = shipto.notes[2]
                         oe-rel.ship-i[3]    = shipto.notes[3]
                         oe-rel.ship-i[4]    = shipto.notes[4].
+                    RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                END.
                 LEAVE .
             END.
         END.
     END.
+END PROCEDURE.
+
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+    
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
+
 END PROCEDURE.
 
 

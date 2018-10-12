@@ -1251,11 +1251,13 @@ PROCEDURE local-assign-record :
                    and shipto.cust-no = oe-relh.cust-no
                    and shipto.ship-no = lv-ship-no
                    no-lock no-error.
-     if avail shipto then 
+     if avail shipto then DO:
         assign oe-relh.ship-i[1] = shipto.notes[1]
                oe-relh.ship-i[2] = shipto.notes[2]
                oe-relh.ship-i[3] = shipto.notes[3]
                oe-relh.ship-i[4] = shipto.notes[4].
+        RUN CopyShipNote (shipto.rec_key, oe-relh.rec_key).
+     END.
   END.
 
   IF oe-relh.ship-id NE v-orig-shipid THEN
@@ -1827,3 +1829,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+    
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

@@ -341,7 +341,8 @@ DEF BUFFER b-oe-rell FOR oe-rell.
            oe-rel.po-no     = oe-rell.po-no
            oe-rel.lot-no    = oe-rell.lot-no
            oe-rel.qty       = lv-qty.
-
+          
+          RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key).
           RUN oe/custxship.p (oe-rel.company,
                               oe-rel.cust-no,
                               oe-rel.ship-id,
@@ -422,3 +423,21 @@ IF NOT AVAIL bf-oe-boll THEN
   END.
 END PROCEDURE.
 
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+    
