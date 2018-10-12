@@ -381,72 +381,149 @@ PUT "<R35.5><C47><#7>Initial"
       "<R37.5><C47><#8><FROM><R+3><C+30><RECT> " 
       "<=8><R+1> Total Pallets      :" v-tot-cases /*oe-bolh.tot-pallets*/ FORM ">,>>>,>>9".
 
-PUT "<FBook Antiqua><R39.5><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
-PUT "<R40><C1>" AT 1 SKIP.
-
-IF v-dock-note NE "" THEN PUT v-dock-note AT 1 SKIP .
 
 /*PUT "<R39><C30>" SKIP.*/
 RUN GetNotesArrayForObject IN hNotesProc (INPUT oe-bolh.rec_key, "ES", "", 130, NO, OUTPUT opcParsedText, OUTPUT opiArraySize).
 
-DO i = 1 TO 4 /*opiArraySize*/: 
-    ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
-    ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
-    PUT
-        opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
-END.
- RUN pFooterLabel .
-/*PUT
-    "_____________________________________________________________________________________________________________________________" SKIP
-    "<B>  Signature of Receipt </B>" SKIP
-    "Customer ________________________________________                       Carrier _______________________________________" AT 23 SKIP(1)
-    "Date ____________________________________________                       Date __________________________________________" AT 23 SKIP   
-    "<C1>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
-    "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP
-    "<R51><C1><P6>RECEIVED, SUBJECT TO THE CLASSIFCATION AND LAWFULLY FILED TARIFFS IN EFFECT ON THE DATE OF THIS Bill of Lading. The property described above, except as noted, marked or consigned and" 
-    "<R51.6><C1>destined as indicated below, which said carrier (the word carrier being understood through this contract as meaning any person or corporation in possession of the property under the contract) agrees to carry to" SKIP
-    "<R52.2><C1>its usual place of delivery at said destination. Its is mutually agreed, as to each carrier of all or any property over all or any portion of said route to destination, as to each party at any time interested" SKIP
-    "<R52.8><C1>in all or any of said property, that every service be performed hereunder shall be subject to all the terms and conditions of the Uniform Domestic Straight Bill of Lading set forth (1) in Uniform Freight Classification" SKIP
-    "<R53.4><C1>in effect of the date hereof, if this is rail or water shipment or (2) in the applicable motor carrier classification or tariff if this is a motor shipment. Shipper/Receiver hereby certifies the he/she is familiar" SKIP
-    "<R54.0><C1>with all the terms and conditions of the said bill of lading, set forth in the classification or tariff which governs the transportation of this shipment, and the said terms and conditions are herby agreed to" SKIP
-    "<R54.6><C1>by the shipper/receiver and accepted for himself/herself and his assigns."  .
-
-PUT "</B><P10><R56><C48><#9><FROM><R65><C80><RECT><||3>" SKIP.
-PUT "<R57><C48><FROM><R57><C80><LINE><||3>" SKIP
-    "<R58><C48><FROM><R58><C80><LINE><||3>" SKIP
-    "<R57><C65><FROM><R58><C65><LINE><||3>" SKIP
-
-    "<R63><C48><FROM><R63><C80><LINE><||3>" SKIP.
-    
-  PUT  "<R56><C58><P9><b> Shipment Inspection  </b>"     SKIP
-    "<R57><C49>               Truck                                   <C70> Shipment  "    SKIP
-    "<R58><C49> No Odors Present <C59.5> _______    All Qtys Match <C74> _______   "    SKIP
-    "<R59><C49> No Debris Present <C59.5> _______  All Items Match <C74> _______   "    SKIP
-    "<R60><C49> No Visible Leaks <C59.5> _______         No Damage <C74> _______   "    SKIP
-    "<R61><C49> No Infestation <C59.5> _______       Cases Sealed <C74> _______   "    SKIP
-                                            
-    "<R63.5><C49>Sign: _______________             Date: _______________   "    SKIP
-    .
-
-    PUT "<FGCOLOR=RED><BGCOLOR=RED><LINECOLOR=RED>"
-      /*"<=9><C+10><FROM><R+4><C+20><RECT> " */
-      "<R57><C5><#15><FROM><R+4><C+25><RECT>" 
-      "<=15><R+1>       DO NOT DOUBLE STACK      " SKIP 
-      "<=15><R+2>       DO NOT BREAK DOWN        " "<FGCOLOR=BLACK><BGCOLOR=BLACK><LINECOLOR=BLACK>"  SKIP.*/
-
-  v-printline = v-printline + 14.
-
-  IF opiArraySize GT 4 AND cPrintFormat EQ "CCC" THEN DO:
-      PAGE {1}.
-      PUT "<FBook Antiqua><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP(1).
-      DO i = 5 TO opiArraySize: 
+IF opiArraySize <= 4 THEN DO:
+    PUT "<FBook Antiqua><R39.5><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
+    PUT "<R40><C1>" AT 1 SKIP.
+    IF v-dock-note NE "" THEN PUT v-dock-note AT 1 SKIP.
+    DO i = 1 TO opiArraySize: 
         ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
         ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
         PUT
             opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
-      END.
-      RUN pFooter .
-  END.
+    END.
+    RUN pFooterLabel.
+END. /*IF opiArraySize <=4 THEN DO:*/
+ELSE IF opiArraySize > 4 AND opiArraySize <= 20 THEN DO:
+    PUT "<FBook Antiqua><R39.5><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
+    PUT "<R40><C1>" AT 1 SKIP.
+    IF v-dock-note NE "" THEN PUT v-dock-note AT 1 SKIP.
+    DO i = 1 TO opiArraySize: 
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
+        PUT
+            opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+    END.
+    PAGE {1}.
+    RUN pHeaderLabel.
+    RUN pFooterLabel.
+END. 
+ELSE IF opiArraySize > 20 AND opiArraySize <= 50 THEN DO:
+    PUT "<FBook Antiqua><R39.5><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
+    PUT "<R40><C1>" AT 1 SKIP.
+    IF v-dock-note NE "" THEN PUT v-dock-note AT 1 SKIP.
+    DO i = 1 TO 20 /*opiArraySize*/: 
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
+        PUT
+            opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+    END.
+     PUT 
+    "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
+    "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
+    PAGE {1}.
+    RUN pHeaderLabel.
+    PUT "<FBook Antiqua><R23><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
+    PUT "<R23.5><C1>" AT 1 SKIP.
+    DO i = 21 TO opiArraySize: 
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
+        PUT
+            opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+    END.
+    RUN pFooterLabel.
+END.     
+ELSE IF opiArraySize > 50 AND opiArraySize <= 80 THEN DO:
+    PUT "<FBook Antiqua><R39.5><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
+    PUT "<R40><C1>" AT 1 SKIP.
+    IF v-dock-note NE "" THEN PUT v-dock-note AT 1 SKIP.
+    DO i = 1 TO 20 /*opiArraySize*/: 
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
+        PUT
+            opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+    END.
+     PUT 
+    "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
+    "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
+    PAGE {1}.
+    RUN pHeaderLabel.
+    PUT "<FBook Antiqua><R23><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
+    PUT "<R23.5><C1>" AT 1 SKIP.
+    DO i = 21 TO 50 /*opiArraySize*/: 
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
+        PUT
+            opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+    END.
+    PAGE {1}.
+    RUN pHeaderLabel.
+    PUT "<FBook Antiqua><R23><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
+    PUT "<R23.5><C1>" AT 1 SKIP.
+    DO i = 51 TO opiArraySize:
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
+        PUT
+            opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+    END.
+    RUN pFooterLabel.
+END.
+ELSE IF opiArraySize > 80 AND opiArraySize <= 100 THEN DO:
+    PUT "<FBook Antiqua><R39.5><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
+    PUT "<R40><C1>" AT 1 SKIP.
+    IF v-dock-note NE "" THEN PUT v-dock-note AT 1 SKIP.
+    DO i = 1 TO 20 /*opiArraySize*/: 
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
+        PUT
+            opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+    END.
+     PUT 
+    "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
+    "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
+    PAGE {1}.
+    RUN pHeaderLabel.
+    PUT "<FBook Antiqua><R23><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
+    PUT "<R23.5><C1>" AT 1 SKIP.
+    DO i = 21 TO 50 /*opiArraySize*/: 
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
+        PUT
+            opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+    END.
+     PUT 
+    "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
+    "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
+    PAGE {1}.
+    RUN pHeaderLabel.
+    PUT "<FBook Antiqua><R23><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
+    PUT "<R23.5><C1>" AT 1 SKIP.
+    DO i = 51 TO 80: 
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
+        PUT
+            opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+    END.
+     PUT 
+    "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
+    "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
+    PAGE {1}.
+    RUN pHeaderLabel.
+    PUT "<FBook Antiqua><R23><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
+    PUT "<R23.5><C1>" AT 1 SKIP.
+    DO i = 81 TO 100:
+        IF i > 100 THEN NEXT. 
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
+        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
+        PUT
+            opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+    END.
+    RUN pFooterLabel.
+END.  
+    
 
   IF LAST-OF(oe-bolh.bol-no) THEN lv-pg-num = PAGE-NUM .
  
@@ -508,14 +585,6 @@ END.
 
 PROCEDURE pFooter:
 
-    PUT "<R39><C47><#7>Initial"
-      "<=7><C+10><FROM><R+2><C+20><RECT> " 
-      "<R41><C47><#8><FROM><R+3><C+30><RECT> " 
-      "<=8><R+1> Total Pallets      :" v-tot-cases /*oe-bolh.tot-pallets*/ FORM ">,>>>,>>9" SKIP.
-
-/*PUT "<FBook Antiqua><R36><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP(1).
-PUT "<R36.5><C1>" AT 1 SKIP.*/
-
 IF v-dock-note NE "" THEN PUT v-dock-note AT 1 SKIP .
 
 PUT SKIP(1).
@@ -529,36 +598,46 @@ PROCEDURE pFooterLabel:
     "<B>  Signature of Receipt </B>" SKIP
     "Customer ________________________________________                       Carrier _______________________________________" AT 23 SKIP(1)
     "Date ____________________________________________                       Date __________________________________________" AT 23 SKIP   
-    "<C1>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
-    "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP
-    "<R51><C1><P6>RECEIVED, SUBJECT TO THE CLASSIFCATION AND LAWFULLY FILED TARIFFS IN EFFECT ON THE DATE OF THIS Bill of Lading. The property described above, except as noted, marked or consigned and" 
-    "<R51.6><C1>destined as indicated below, which said carrier (the word carrier being understood through this contract as meaning any person or corporation in possession of the property under the contract) agrees to carry to" SKIP
-    "<R52.2><C1>its usual place of delivery at said destination. Its is mutually agreed, as to each carrier of all or any property over all or any portion of said route to destination, as to each party at any time interested" SKIP
-    "<R52.8><C1>in all or any of said property, that every service be performed hereunder shall be subject to all the terms and conditions of the Uniform Domestic Straight Bill of Lading set forth (1) in Uniform Freight Classification" SKIP
-    "<R53.4><C1>in effect of the date hereof, if this is rail or water shipment or (2) in the applicable motor carrier classification or tariff if this is a motor shipment. Shipper/Receiver hereby certifies the he/she is familiar" SKIP
-    "<R54.0><C1>with all the terms and conditions of the said bill of lading, set forth in the classification or tariff which governs the transportation of this shipment, and the said terms and conditions are herby agreed to" SKIP
-    "<R54.6><C1>by the shipper/receiver and accepted for himself/herself and his assigns."  .
+/*    "<C1>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  "                       */
+/*    "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP*/
+    "<R50><C1><P6>RECEIVED, SUBJECT TO THE CLASSIFCATION AND LAWFULLY FILED TARIFFS IN EFFECT ON THE DATE OF THIS Bill of Lading. The property described above, except as noted, marked or consigned and" 
+    "<R50.6><C1>destined as indicated below, which said carrier (the word carrier being understood through this contract as meaning any person or corporation in possession of the property under the contract) agrees to carry to" SKIP
+    "<R51.2><C1>its usual place of delivery at said destination. Its is mutually agreed, as to each carrier of all or any property over all or any portion of said route to destination, as to each party at any time interested" SKIP
+    "<R51.8><C1>in all or any of said property, that every service be performed hereunder shall be subject to all the terms and conditions of the Uniform Domestic Straight Bill of Lading set forth (1) in Uniform Freight Classification" SKIP
+    "<R52.4><C1>in effect of the date hereof, if this is rail or water shipment or (2) in the applicable motor carrier classification or tariff if this is a motor shipment. Shipper/Receiver hereby certifies the he/she is familiar" SKIP
+    "<R53.0><C1>with all the terms and conditions of the said bill of lading, set forth in the classification or tariff which governs the transportation of this shipment, and the said terms and conditions are herby agreed to" SKIP
+    "<R53.6><C1>by the shipper/receiver and accepted for himself/herself and his assigns."  .
 
-PUT "</B><P10><R56><C48><#9><FROM><R65><C80><RECT><||3>" SKIP.
-PUT "<R57><C48><FROM><R57><C80><LINE><||3>" SKIP
-    "<R58><C48><FROM><R58><C80><LINE><||3>" SKIP
-    "<R57><C65><FROM><R58><C65><LINE><||3>" SKIP
+PUT "</B><P10><R54><C48><#9><FROM><R63><C80><RECT><||3>" SKIP.
+PUT "<R55><C48><FROM><R55><C80><LINE><||3>" SKIP
+    "<R56><C48><FROM><R56><C80><LINE><||3>" SKIP
+    "<R55><C65><FROM><R56><C65><LINE><||3>" SKIP
 
-    "<R63><C48><FROM><R63><C80><LINE><||3>" SKIP.
+    "<R61><C48><FROM><R61><C80><LINE><||3>" SKIP.
     
-  PUT  "<R56><C58><P9><b> Shipment Inspection  </b>"     SKIP
-    "<R57><C49>               Truck                                   <C70> Shipment  "    SKIP
-    "<R58><C49> No Odors Present <C59.5> _______    All Qtys Match <C74> _______   "    SKIP
-    "<R59><C49> No Debris Present <C59.5> _______  All Items Match <C74> _______   "    SKIP
-    "<R60><C49> No Visible Leaks <C59.5> _______         No Damage <C74> _______   "    SKIP
-    "<R61><C49> No Infestation <C59.5> _______       Cases Sealed <C74> _______   "    SKIP
+  PUT  "<R54><C58><P9><b> Shipment Inspection  </b>"     SKIP
+    "<R55><C49>               Truck                                   <C70> Shipment  "    SKIP
+    "<R56><C49> No Odors Present <C59.5> _______    All Qtys Match <C74> _______   "    SKIP
+    "<R57><C49> No Debris Present <C59.5> _______  All Items Match <C74> _______   "    SKIP
+    "<R58><C49> No Visible Leaks <C59.5> _______         No Damage <C74> _______   "    SKIP
+    "<R59><C49> No Infestation <C59.5> _______       Cases Sealed <C74> _______   "    SKIP
                                             
-    "<R63.5><C49>Sign: _______________             Date: _______________   "    SKIP
+    "<R61.5><C49>Sign: _______________             Date: _______________   "    SKIP
     .
-
+  PUT 
+    "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
+    "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
+      
     PUT "<FGCOLOR=RED><BGCOLOR=RED><LINECOLOR=RED>"
       /*"<=9><C+10><FROM><R+4><C+20><RECT> " */
-      "<R57><C5><#15><FROM><R+4><C+25><RECT>" 
+      "<R56><C5><#15><FROM><R+4><C+25><RECT>" 
       "<=15><R+1>       DO NOT DOUBLE STACK      " SKIP 
       "<=15><R+2>       DO NOT BREAK DOWN        " "<FGCOLOR=BLACK><BGCOLOR=BLACK><LINECOLOR=BLACK>"  SKIP.
 END.
+
+PROCEDURE pHeaderLabel:
+    
+     {oe/rep/bolccc1.i}.
+     
+END.     
+    
