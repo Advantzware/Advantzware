@@ -111,15 +111,17 @@ FOR EACH oe-ord
                  where job-mat.company eq cocode
                  AND job-mat.job     eq job.job
                  AND job-mat.frm     EQ bf-eb.form-no
-                use-index job no-lock:
+                use-index job NO-LOCK BREAK BY job-mat.frm:
                     find item where item.company eq cocode and
                         item.i-no    eq job-mat.i-no
                         no-lock no-error.
                     if available item then
                     do:
-                        i = i + 1.
+                        IF FIRST-OF(job-mat.frm) THEN
+                            i = i + 1.
+
                         ASSIGN
-                            iSheetsReq[i]   = job-mat.qty 
+                            iSheetsReq[i]   = iSheetsReq[i] + job-mat.qty 
                             iSheetsCount[i] = bf-eb.form-no 
                             iSheetTot       = iSheetTot + job-mat.qty .
                     END.
@@ -150,14 +152,14 @@ FOR EACH oe-ord
         PUT  "<C1><#2>".
 
         PUT "<||><R3><C3><#4><FROM><R32><C80><RECT>" SKIP.
-        PUT "<||><R3.5><C63><#5><FROM><R5.5><C78><RECT>" SKIP.
+        /*PUT "<||><R3.5><C63><#5><FROM><R5.5><C78><RECT>" SKIP.*/
 
         PUT UNFORMATTED 
-            "<r3.8><#1><UNITS=INCHES><C64><FROM><c77><r5.3><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
+            "<r3.8><#1><UNITS=INCHES><C63><FROM><c79><r5.9><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
             oe-ordl.ord-no  ">".
 
         PUT "<AT=0.5,3.1><angle=270>" "----------------------------------------------------------------------------------" "</angle>" SKIP .
-        PUT "<AT=5.1,3.0><p11><angle=90>" cUserName FORMAT "x(30)" "Net Sheets:" string(iSheetTot,">>>>>9") "  " "+" string(oe-ord.over-pct,">>9") "/ -" string(oe-ord.under-pct,">>9") "%" "</angle><p11>" SKIP .
+        PUT "<AT=5.1,3.0><p11><angle=90> " + string(cUserName,"x(30)") + "Net Sheets:" + string(iSheetTot,">>>>>9") + "  " + "+ " + trim(string(oe-ord.over-pct,">>9")) + " / - " + trim(string(oe-ord.under-pct,">>9")) + "%" + "</angle><p11>" FORMAT "X(300)" SKIP .
 
 
         PUT  "<R5><C4.5><FROM><R5><c28><LINE>" SKIP .
