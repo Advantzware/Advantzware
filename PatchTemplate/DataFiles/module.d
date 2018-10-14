@@ -60,6 +60,7 @@
 "" "crmCustomers" "CRM Customers" yes 12/31/2099 "ASI"
 "" "crtfgrec." "Create FG Receipt from BOLs" yes 12/31/2099 "ASI"
 "" "crtnotes." "Transfer Dept Notes from Cust" yes 12/31/2099 "ASI"
+"" "CueCard" "Cue Card" no 12/31/2099 "ASI"
 "" "cust." "Customers" yes 12/31/2099 "ASI"
 "" "custproc." "Run Custom Utility Program" yes 12/31/2099 "ASI"
 "" "custpurg." "Purge Customers" yes 12/31/2099 "ASI"

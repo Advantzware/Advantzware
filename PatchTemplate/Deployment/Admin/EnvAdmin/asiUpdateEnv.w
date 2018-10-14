@@ -1064,8 +1064,6 @@ PROCEDURE ipBackupDataFiles :
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
-        CREATE ttAuditTbl.
-        BUFFER-COPY {&cFile} TO ttAuditTbl.
     END.
     OUTPUT CLOSE.
 
@@ -1073,8 +1071,6 @@ PROCEDURE ipBackupDataFiles :
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
-        CREATE ttSysCtrl.
-        BUFFER-COPY {&cFile} TO ttSysCtrl.
     END.
     OUTPUT CLOSE.
 
@@ -1082,8 +1078,6 @@ PROCEDURE ipBackupDataFiles :
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
-        CREATE ttSysCtrlShipto.
-        BUFFER-COPY {&cFile} TO ttSysCtrlShipto.
     END.
     OUTPUT CLOSE.
 
@@ -2873,7 +2867,7 @@ PROCEDURE ipLoadAuditRecs :
     REPEAT:
         CREATE tt{&tablename}.
         IMPORT tt{&tablename}.
-        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+        FIND {&tablename} EXCLUSIVE WHERE 
             {&tablename}.auditTable EQ tt{&tablename}.auditTable
             NO-ERROR.
         IF NOT AVAIL {&tablename} THEN 
@@ -3355,36 +3349,39 @@ PROCEDURE ipLoadPrograms :
     /* 35628 - ensure additional field content is loaded */
     INPUT FROM VALUE(cUpdDataDir + "\prgrms.d") NO-ECHO.
     REPEAT:
-        CREATE ttPrgms.
-        IMPORT ttPrgms.
+        CREATE ttPrgrms.
+        IMPORT ttPrgrms.
         FIND FIRST prgrms EXCLUSIVE WHERE 
-            prgrms.prgmname EQ ttPrgms.prgmname 
+            prgrms.prgmname EQ ttPrgrms.prgmname 
             NO-ERROR.
         IF NOT AVAIL prgrms THEN DO:
             CREATE prgrms.
-            BUFFER-COPY ttPrgms TO prgrms.
+            BUFFER-COPY ttPrgrms TO prgrms.
         END.
         ELSE DO:
             ASSIGN 
-                prgrms.menuOrder = ttPrgms.menuOrder
-                prgrms.menuLevel = ttPrgms.menuLevel
-                prgrms.itemParent = ttPrgms.itemParent
-                prgrms.mnemonic = ttPrgms.mnemonic
-                prgrms.systemType = ttPrgms.systemType
-                prgrms.menuImage = ttPrgms.menuImage
-                prgrms.translation = ttPrgms.translation.
+                prgrms.menuOrder = ttPrgrms.menuOrder
+                prgrms.menuLevel = ttPrgrms.menuLevel
+                prgrms.itemParent = ttPrgrms.itemParent
+                prgrms.mnemonic = ttPrgrms.mnemonic
+                prgrms.systemType = ttPrgrms.systemType
+                prgrms.menuImage = ttPrgrms.menuImage
+                prgrms.translation = ttPrgrms.translation.
         END.
-        DELETE ttPrgms.
+        DELETE ttPrgrms.
     END.
 
+    DISABLE TRIGGERS FOR LOAD OF employee.
     FOR EACH employee EXCLUSIVE-LOCK:
         employee.employeeImage[1] = "Graphics\32x32\user.png".
     END. /* each users */
 
+    DISABLE TRIGGERS FOR LOAD OF mach.
     FOR EACH mach EXCLUSIVE-LOCK:
         mach.machineImage[1] = "Graphics\32x32\gearwheels.png".
     END. /* each users */
 
+    DISABLE TRIGGERS FOR LOAD OF users.
     FOR EACH users EXCLUSIVE-LOCK:
         ASSIGN
             users.userImage[1] = if users.userImage[1] = "" then "Graphics\32x32\user.png" else users.userImage[1]
@@ -3544,7 +3541,7 @@ PROCEDURE ipLoadUtilitiesTable :
     EMPTY TEMP-TABLE tt{&tablename}.
 
     /* 25458 - Delete utilities reftables */
-    FOR EACH reftable NO-LOCK WHERE 
+    FOR EACH reftable EXCLUSIVE WHERE 
         reftable.reftable EQ 'Utilities':
         FOR EACH notes EXCLUSIVE WHERE 
             notes.rec_key EQ reftable.rec_key:
@@ -3613,6 +3610,8 @@ PROCEDURE ipMoveUsermenusToDatabase :
     DEFINE VARIABLE cMenuList  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPrgmName  AS CHARACTER NO-UNDO.
 
+    DISABLE TRIGGERS FOR LOAD OF xUserMenu.
+    
     ASSIGN 
         cSearchDir =  cEnvDir + "/" + fiEnvironment:{&SV} + "/usermenu".
                 
