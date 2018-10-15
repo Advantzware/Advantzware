@@ -115,13 +115,26 @@ FOR EACH oe-ord
                     find item where item.company eq cocode and
                         item.i-no    eq job-mat.i-no
                         no-lock no-error.
-                    if available item then
-                    do:
-                        IF FIRST-OF(job-mat.frm) THEN
-                            i = i + 1.
 
+                    FIND FIRST style NO-LOCK 
+                        where style.company = cocode and
+                              style.style = bf-eb.style
+                            no-error. 
+                    IF avail style and style.type = "f" AND AVAIL ITEM 
+                        AND item.mat-type >= "1" and item.mat-type <= "4" then DO:
+                        
+                        i = i + 1.
+                        
                         ASSIGN
-                            iSheetsReq[i]   = iSheetsReq[i] + job-mat.qty 
+                            iSheetsReq[i]   = job-mat.qty 
+                            iSheetsCount[i] = bf-eb.form-no 
+                            iSheetTot       = iSheetTot + job-mat.qty .
+                    END.
+                    ELSE IF AVAIL ITEM AND 
+                        (item.mat-type = 'B' or item.mat-type = 'P' or item.mat-type = 'R') THEN do: 
+                            i = i + 1.
+                        ASSIGN
+                            iSheetsReq[i]   = job-mat.qty 
                             iSheetsCount[i] = bf-eb.form-no 
                             iSheetTot       = iSheetTot + job-mat.qty .
                     END.
