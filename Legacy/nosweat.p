@@ -9,6 +9,9 @@
 &SCOPED-DEFINE checkExpiredLicense YES
 &GLOBAL-DEFINE checkUserCount YES
 
+/* uncomment to check for open transaction scope */
+/*RUN system/monitor.w PERSISTENT.*/
+
 DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
 DEFINE VARIABLE hTags    AS HANDLE NO-UNDO.
 

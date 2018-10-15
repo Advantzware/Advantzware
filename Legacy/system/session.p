@@ -517,7 +517,8 @@ default_LeftDown,default_Left,information,default_SidebarCollapse,default_Sideba
                     NEXT.
                 END.
                 /* check security level of user vs cue card security */
-                IF sfUserSecurityLevel() LT cueCard.securityLevel THEN DO:
+                IF sfUserSecurityLevel() LT cueCard.securityLevel THEN
+                DO TRANSACTION:
                     CREATE xCueCard.
                     ASSIGN
                         xCueCard.user_id   = USERID("ASI")
