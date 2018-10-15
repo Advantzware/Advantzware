@@ -68,7 +68,7 @@ DEFINE QUERY external_tables FOR truck.
 truck.length-inches truck.width-inches truck.height-inches ~
 truck.msf-c-flute truck.weight-limit truck.max-units truck.regist-no ~
 truck.regist-expire-date truck.plate-no truck.axels truck.classification ~
-truck.tires truck.tire-size truck.tire-date 
+truck.tires truck.tire-size truck.tire-date truck.msfLimit
 &Scoped-define ENABLED-TABLES truck
 &Scoped-define FIRST-ENABLED-TABLE truck
 &Scoped-Define ENABLED-OBJECTS RECT-33 RECT-32 
@@ -76,15 +76,13 @@ truck.tires truck.tire-size truck.tire-date
 truck.truck-type truck.length-inches truck.width-inches truck.height-inches ~
 truck.msf-c-flute truck.weight-limit truck.max-units truck.regist-no ~
 truck.regist-expire-date truck.plate-no truck.axels truck.classification ~
-truck.tires truck.tire-size truck.tire-date 
+truck.tires truck.tire-size truck.tire-date truck.msfLimit
 &Scoped-define DISPLAYED-TABLES truck
 &Scoped-define FIRST-DISPLAYED-TABLE truck
-&Scoped-Define DISPLAYED-OBJECTS fi_msf-limit 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
 &Scoped-define ADM-CREATE-FIELDS truck.truck-code 
-&Scoped-define ADM-ASSIGN-FIELDS fi_msf-limit 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -117,11 +115,6 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE fi_msf-limit AS DECIMAL FORMAT "->>>9.9999":U INITIAL 0 
-     LABEL "MSF Limit" 
-     VIEW-AS FILL-IN 
-     SIZE 12 BY 1
-     FONT 4 NO-UNDO.
 
 DEFINE RECTANGLE RECT-32
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -176,7 +169,10 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 4.8 BY 1
           BGCOLOR 15 FONT 4
-     fi_msf-limit AT ROW 5.19 COL 63.2 COLON-ALIGNED WIDGET-ID 2
+     truck.msfLimit AT ROW 5.19 COL 63.2 COLON-ALIGNED WIDGET-ID 2
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1
+     BGCOLOR 15 FONT 4
      truck.regist-no AT ROW 7.62 COL 14 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 37 BY 1
@@ -282,8 +278,8 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN truck.axels IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN fi_msf-limit IN FRAME F-Main
-   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN truck.msfLimit IN FRAME F-Main
+   EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN truck.msf-c-flute IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN truck.truck-code IN FRAME F-Main
@@ -384,23 +380,6 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-  FIND FIRST reftable WHERE reftable.reftable EQ "msf-limit"
-                        AND reftable.company  EQ truck.company
-                        AND reftable.loc      EQ truck.loc
-                        AND reftable.code     EQ truck.carrier
-                        AND reftable.code2    EQ truck.truck-code
-              NO-ERROR.
-  IF NOT AVAIL reftable THEN DO:
-     CREATE reftable.
-     ASSIGN reftable.reftable = "msf-limit"
-            reftable.company  = truck.company
-            reftable.loc      = truck.loc
-            reftable.code     = truck.carrier
-            reftable.CODE2    = truck.truck-code.
-  END.
-  
-  ASSIGN reftable.val[1] = inte(fi_msf-limit:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -443,8 +422,6 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/truck.i}
 
-  ASSIGN fi_msf-limit:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -463,29 +440,6 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF NOT adm-new-record THEN
-  DO:
-    FIND FIRST reftable WHERE
-         reftable.reftable EQ "msf-limit" AND
-         reftable.company  EQ truck.company AND
-         reftable.loc      EQ truck.loc AND 
-         reftable.CODE     EQ truck.carrier AND
-         reftable.code2    EQ truck.truck-code
-         NO-LOCK NO-ERROR.
-   
-    IF AVAIL reftable THEN
-       ASSIGN
-          fi_msf-limit  = reftable.val[1].
-    ELSE
-       ASSIGN
-          fi_msf-limit = 0.
-  END.
-  ELSE
-       ASSIGN
-          fi_msf-limit = 0.
-
-
-  DISPLAY fi_msf-limit WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -505,7 +459,6 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DISABLE fi_msf-limit WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -519,7 +472,6 @@ PROCEDURE proc-enable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-ENABLE fi_msf-limit WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
