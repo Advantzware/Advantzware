@@ -1510,7 +1510,7 @@ END.
 
       release ar-inv.
 
-      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
       ASSIGN
        lv-r-no = 0
@@ -1720,7 +1720,7 @@ END.
 
         RELEASE ar-invl.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         if avail oe-retl then do:
           assign

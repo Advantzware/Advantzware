@@ -1499,7 +1499,7 @@ PROCEDURE invoiced-sales-forecast-proc :
            RELEASE tt-report.
            RELEASE ar-invl.
 
-           RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+           RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
            if avail oe-retl then 
            find first ar-invl
@@ -1628,7 +1628,7 @@ PROCEDURE invoiced-sales-forecast-proc :
 
            FIND ar-invl WHERE ROWID(ar-invl) EQ tt-report.row-id NO-LOCK NO-ERROR.
 
-           RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+           RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
            if avail oe-retl and not avail ar-invl then 
            find first ar-invl
@@ -2134,7 +2134,7 @@ PROCEDURE raw-prod-cat-proc :
 
         RELEASE itemfg.
 
-    RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+    RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
     IF AVAIL reftable                      OR
        ar-cashl.dscr MATCHES "*OE RETURN*" THEN DO:
@@ -2231,7 +2231,7 @@ PROCEDURE raw-prod-cat-proc :
            RELEASE itemfg.
            RELEASE ar-invl.
 
-           RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+           RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
            IF AVAIL oe-retl THEN DO:
 
@@ -2877,7 +2877,7 @@ PROCEDURE raw-sales-proc :
       FIND FIRST tt-raw-sales WHERE
            tt-raw-sales.DATE EQ ar-cash.check-date.
 
-      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
       IF AVAIL oe-retl THEN DO:
         find first ar-invl
@@ -3003,7 +3003,7 @@ PROCEDURE raw-salesmen-proc :
 
     RELEASE ar-invl.
 
-    RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+    RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
     IF AVAIL oe-retl THEN
     find first ar-invl
@@ -3140,7 +3140,7 @@ PROCEDURE raw-salesmen-proc :
            FIND ar-invl WHERE ROWID(ar-invl) EQ tt-report.row-id NO-LOCK NO-ERROR.
 
            IF NOT AVAIL ar-invl THEN
-              RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+              RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
            IF AVAIL oe-retl THEN DO:
              find first itemfg

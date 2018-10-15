@@ -361,7 +361,7 @@
       RELEASE oe-reth.
       RELEASE ar-inv.
 
-      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
       ASSIGN
        lv-r-no = 0
@@ -613,7 +613,7 @@
          v-tot-retn = 0     .
 
         if AVAIL ar-invl then do:
-          RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+          RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
           IF AVAIL oe-retl THEN
           FOR EACH io-oe-retl

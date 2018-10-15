@@ -505,7 +505,7 @@ PROCEDURE raw-sales-proc :
       FIND FIRST tt-raw-sales WHERE
            tt-raw-sales.DATE EQ ar-cash.check-date.
 
-      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
       IF AVAIL oe-retl THEN DO:
         find first ar-invl

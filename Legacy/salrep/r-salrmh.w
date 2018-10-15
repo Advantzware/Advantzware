@@ -480,7 +480,7 @@ PROCEDURE raw-salesmen-proc :
 
     RELEASE ar-invl.
 
-    RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+    RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
     IF AVAIL oe-retl THEN
     find first ar-invl
@@ -614,7 +614,7 @@ PROCEDURE raw-salesmen-proc :
            FIND ar-invl WHERE ROWID(ar-invl) EQ tt-report.row-id NO-LOCK NO-ERROR.
 
            IF NOT AVAIL ar-invl THEN
-              RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+              RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
            IF AVAIL oe-retl THEN DO:
              find first itemfg

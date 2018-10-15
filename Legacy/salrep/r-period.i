@@ -92,7 +92,7 @@
       RELEASE tt-report.
       RELEASE ar-invl.
 
-      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
       if avail oe-retl then 
       find first ar-invl
@@ -224,7 +224,7 @@
         RELEASE tt-report.
         RELEASE ar-invl.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         if avail oe-retl then 
         find first ar-invl
@@ -432,7 +432,7 @@
       FIND ar-invl WHERE ROWID(ar-invl) EQ tt-report.row-id NO-LOCK NO-ERROR.
 
       /*IF NOT AVAIL ar-invl THEN*/
-      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
       IF AVAIL oe-retl THEN DO:
         find first itemfg
@@ -685,7 +685,7 @@
       FIND ar-invl WHERE ROWID(ar-invl) EQ tt-report.row-id NO-LOCK NO-ERROR.
 
       /*IF NOT AVAIL ar-invl THEN*/
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
       IF AVAIL oe-retl THEN DO:
         find first itemfg

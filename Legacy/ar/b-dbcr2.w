@@ -996,7 +996,7 @@ PROCEDURE local-open-query :
      /*set the rec_key so notes work properly*/
      {methods\template\local\setvalue.i} 
 
-     RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+     RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
      ll-is-a-return = AVAIL reftable OR ar-cashl.dscr MATCHES "*oe return*".
   END.
  IF AVAIL ar-cash AND ar-cash.memo AND AVAIL ar-cashl and ar-cashl.amt-disc gt 0 THEN do: 

@@ -1534,7 +1534,7 @@ FOR each ar-inv
 
       release ar-inv.
 
-      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
       ASSIGN
        lv-r-no = 0
@@ -1727,7 +1727,7 @@ FOR each ar-inv
          v-qty[1] = 0
          v-amt[1] = ar-cashl.amt-paid - ar-cashl.amt-disc.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         if avail oe-retl then do:
           assign
