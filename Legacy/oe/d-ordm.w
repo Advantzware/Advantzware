@@ -138,8 +138,9 @@ oe-ordm.form-no oe-ordm.blank-no
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
+    IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
     LABEL "Cancel" 
-    SIZE 15 BY 1.14
+    SIZE 10 BY 1.91
     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT 
@@ -148,16 +149,17 @@ DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT
     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
+    IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
     LABEL "&Save" 
-    SIZE 15 BY 1.14
+    SIZE 10 BY 1.91
     BGCOLOR 8 .
 
 DEFINE RECTANGLE RECT-21
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 133.8 BY 3.1.
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL ROUNDED  
+    SIZE 25.8 BY 2.4.
 
 DEFINE RECTANGLE RECT-38
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL ROUNDED  
     SIZE 133.8 BY 12.86.
 
 /* Query definitions                                                    */
@@ -174,92 +176,114 @@ DEFINE FRAME Dialog-Frame
     LABEL "Charge" FORMAT "x(20)"
     VIEW-AS FILL-IN 
     SIZE 28.2 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.amt AT ROW 1.52 COL 79 COLON-ALIGNED
     LABEL "Sell Price" FORMAT "->>,>>>,>>9.99"
     VIEW-AS FILL-IN 
     SIZE 33.6 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.actnum AT ROW 2.62 COL 29.8 COLON-ALIGNED
     LABEL "Account#" FORMAT "x(25)"
     VIEW-AS FILL-IN 
     SIZE 28.2 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.dscr AT ROW 2.62 COL 79 COLON-ALIGNED
     LABEL "Description" FORMAT "x(30)"
     VIEW-AS FILL-IN 
     SIZE 33.6 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.po-no AT ROW 3.71 COL 29.8 COLON-ALIGNED
     LABEL "Customer PO#" FORMAT "x(30)"
     VIEW-AS FILL-IN 
     SIZE 28.2 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.cost AT ROW 3.71 COL 79 COLON-ALIGNED
     LABEL "Cost" FORMAT "->>,>>>,>>9.99"
     VIEW-AS FILL-IN 
     SIZE 23.6 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.ord-i-no AT ROW 4.81 COL 29.8 COLON-ALIGNED
     LABEL "Job Number" FORMAT "x(6)"
     VIEW-AS FILL-IN 
     SIZE 19.2 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.ord-line AT ROW 4.81 COL 50.2 COLON-ALIGNED NO-LABELS FORMAT "99"
     VIEW-AS FILL-IN 
     SIZE 5 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.po-no-po AT ROW 4.81 COL 79 COLON-ALIGNED
     LABEL "Vendor PO#" FORMAT ">>>>>>"
     VIEW-AS FILL-IN 
     SIZE 23.6 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.s-man[1] AT ROW 6.19 COL 29.8 COLON-ALIGNED
     LABEL "Sls Rep" FORMAT "X(5)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.s-pct[1] AT ROW 6.19 COL 65.8 COLON-ALIGNED
     LABEL "% of Sale" FORMAT ">>9.99"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.s-comm[1] AT ROW 6.19 COL 102.8 COLON-ALIGNED
     LABEL "Comm%" FORMAT ">>9.99"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.s-man[2] AT ROW 7.29 COL 29.8 COLON-ALIGNED
     LABEL "Sls Rep" FORMAT "X(5)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.s-pct[2] AT ROW 7.29 COL 65.8 COLON-ALIGNED
     LABEL "% of Sale" FORMAT ">>9.99"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.s-comm[2] AT ROW 7.29 COL 102.8 COLON-ALIGNED
     LABEL "Comm%" FORMAT ">>9.99"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.s-man[3] AT ROW 8.38 COL 29.8 COLON-ALIGNED
     LABEL "Sls Rep" FORMAT "X(5)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.s-pct[3] AT ROW 8.38 COL 65.8 COLON-ALIGNED
     LABEL "% of Sale" FORMAT ">>9.99"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.s-comm[3] AT ROW 8.38 COL 102.8 COLON-ALIGNED
     LABEL "Comm%" FORMAT ">>9.99"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.tax AT ROW 9.48 COL 29.8 COLON-ALIGNED
     LABEL "Tax" FORMAT "Y/N"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.spare-char-1 AT ROW 9.48 COL 65.8 COLON-ALIGNED
     LABEL "Tax Prep Code" FORMAT "x(3)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.bill AT ROW 9.48 COL 102.8 COLON-ALIGNED
     LABEL "Bill" FORMAT "X"
     VIEW-AS FILL-IN 
     SIZE 6.4 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.spare-int-1 AT ROW 10.57 COL 29.8 COLON-ALIGNED
     LABEL "Line" FORMAT "->,>>>,>>9"
     VIEW-AS FILL-IN 
     SIZE 8 BY 1
+    BGCOLOR 15 FONT 1
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
     SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FONT 6.
+    FGCOLOR 1 FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
@@ -267,27 +291,31 @@ DEFINE FRAME Dialog-Frame
     LABEL "FG Item Code" FORMAT "x(15)"
     VIEW-AS FILL-IN 
     SIZE 24.2 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.est-no AT ROW 10.57 COL 102.8 COLON-ALIGNED
     LABEL "Estimate" FORMAT "x(12)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.form-no AT ROW 11.67 COL 29.8 COLON-ALIGNED
     LABEL "S" FORMAT ">9"
     VIEW-AS FILL-IN 
     SIZE 8 BY 1
+    BGCOLOR 15 FONT 1
     oe-ordm.blank-no AT ROW 11.67 COL 65.8 COLON-ALIGNED
     LABEL "B" FORMAT ">9"
     VIEW-AS FILL-IN 
     SIZE 8 BY 1
-    Btn_OK AT ROW 15.19 COL 37
-    Btn_Done AT ROW 15.14 COL 57
-    Btn_Cancel AT ROW 15.14 COL 77.2
-    RECT-21 AT ROW 14.1 COL 1
+    BGCOLOR 15 FONT 1
+    Btn_OK AT ROW 14.4 COL 110
+    Btn_Done AT ROW 14.6 COL 112
+    Btn_Cancel AT ROW 14.4 COL 120
+    RECT-21 AT ROW 14.1 COL 107
     RECT-38 AT ROW 1 COL 1.2
     SPACE(0.79) SKIP(3.37)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
     SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FONT 6
+    FGCOLOR 1 FONT 6
     TITLE "Misc. Charge Item Update".
 
 
