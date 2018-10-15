@@ -3722,11 +3722,7 @@ PROCEDURE run-packing-list :
   IF tb_print_ship :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN
         v-ship-inst = LOGICAL(tb_print_ship:SCREEN-VALUE) .
-
-
-  {sys/inc/print1.i}
-
-  {sys/inc/outprint.i value(lines-per-page)}
+  
 
   /*if td-show-parm then run show-param.*/
 
@@ -3737,6 +3733,13 @@ PROCEDURE run-packing-list :
   v-term-id = v-term.
 
   run build-work ('').
+  FIND FIRST report NO-LOCK WHERE report.term-id  = v-term-id NO-ERROR.
+  IF NOT AVAIL report THEN LEAVE.
+
+  {sys/inc/print1.i}
+
+  {sys/inc/outprint.i value(lines-per-page)}
+
   IF IS-xprint-form THEN DO:
 
       CASE rd-dest:
@@ -3893,11 +3896,7 @@ PROCEDURE run-report :
   IF tb_print_ship :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN
         v-ship-inst = LOGICAL(tb_print_ship:SCREEN-VALUE) .
-
-
-  {sys/inc/print1.i}
-
-  {sys/inc/outprint.i value(lines-per-page)}
+  
 
   /*if td-show-parm then run show-param.*/
 
@@ -3908,6 +3907,12 @@ PROCEDURE run-report :
   v-term-id = v-term.
 
   run build-work ('').
+  FIND FIRST report NO-LOCK WHERE report.term-id  = v-term-id NO-ERROR.
+  IF NOT AVAIL report THEN LEAVE.
+
+  {sys/inc/print1.i}
+
+  {sys/inc/outprint.i value(lines-per-page)}
 
   IF IS-xprint-form THEN DO:
 
@@ -4306,10 +4311,6 @@ PROCEDURE run-report-mail :
      ASSIGN
         v-ship-inst = LOGICAL(tb_print_ship:SCREEN-VALUE) .
 
-  {sys/inc/print1.i}
-
-  {sys/inc/outprint.i value(lines-per-page)}
-
   /*if td-show-parm then run show-param.*/
 
   SESSION:SET-WAIT-STATE ("general").
@@ -4319,6 +4320,12 @@ PROCEDURE run-report-mail :
   v-term-id = v-term.
 
   run build-work (ic2ndKey).
+  FIND FIRST report NO-LOCK WHERE report.term-id  = v-term-id NO-ERROR.
+  IF NOT AVAIL report THEN LEAVE.
+
+  {sys/inc/print1.i}
+
+  {sys/inc/outprint.i value(lines-per-page)}
 
   IF NOT vcBOLNums > '' THEN RETURN.
 
