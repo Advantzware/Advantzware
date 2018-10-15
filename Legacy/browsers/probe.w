@@ -192,7 +192,7 @@ lv-cebrowse-dir = tmp-dir.
 
 
 FIND FIRST users NO-LOCK WHERE
-     users.user_id EQ USERID("NOSWEAT")
+     users.user_id EQ USERID("ASI")
       NO-ERROR.
 
 IF AVAILABLE users AND users.user_program[2] NE "" THEN
@@ -1643,7 +1643,7 @@ IF CAN-FIND(FIRST xprobe
        quotehd.part-dscr1 = bf-eb.part-dscr1
        quotehd.upd-date   = TODAY
        quotehd.quo-date   = TODAY
-       quotehd.upd-user   = USERID("nosweat").
+       quotehd.upd-user   = USERID("ASI").
 
       {custom/getrfq.i}
       
@@ -1770,7 +1770,7 @@ IF CAN-FIND(FIRST xprobe
        quoteitm.uom        = lv-quo-price-char
        quoteitm.price      = w-probeit.sell-price
        quoteitm.upd-date   = TODAY
-       quoteitm.upd-user   = USERID("nosweat")
+       quoteitm.upd-user   = USERID("ASI")
        /*RCO400 only */
        quoteitm.i-no       = bf-eb.stock-no.
 
@@ -1814,7 +1814,7 @@ IF CAN-FIND(FIRST xprobe
      quoteqty.price      = w-probeit.sell-price
      quoteqty.rels       = w-probeit.freight
      quoteqty.quote-date = /*IF ll-new-quote THEN TODAY ELSE */ w-probeit.probe-date
-     quoteqty.quote-user = USERID("nosweat")
+     quoteqty.quote-user = USERID("ASI")
      quoteqty.prof-on    = w-probeit.prof-on
      quoteqty.mat-cost   = w-probeit.mat-cost
      quoteqty.lab-cost   = w-probeit.lab-cost
@@ -2703,19 +2703,19 @@ FIND FIRST b-prgrms NO-LOCK WHERE
 IF AVAILABLE b-prgrms THEN
 DO:
   FOR EACH usergrps NO-LOCK:
-      IF CAN-DO(usergrps.users,USERID("NOSWEAT")) THEN
+      IF CAN-DO(usergrps.users,USERID("ASI")) THEN
          g_groups = g_groups + usergrps.usergrps + ",".
   END.
 
   DO num-groups = 1 TO NUM-ENTRIES(g_groups):
-     IF NOT CAN-DO(b-prgrms.can_update,ENTRY(num-groups,g_groups)) THEN
+     IF NOT CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups)) THEN
         NEXT.
     
-     IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,ENTRY(num-groups,g_groups)) THEN
+     IF NOT v-can-update AND CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups)) THEN
         v-can-update = YES.
   END.
   
-  IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) THEN
+  IF NOT v-can-update AND CAN-DO(TRIM(b-prgrms.can_update),USERID("ASI")) THEN
      v-can-update = YES.
 END.
 END PROCEDURE.

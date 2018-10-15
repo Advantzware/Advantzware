@@ -658,24 +658,24 @@ IF NOT AVAIL b-prgrms THEN
 IF AVAILABLE b-prgrms THEN DO:    
 
   DO num-groups = 1 TO NUM-ENTRIES(g_groups):
-    IF NOT CAN-DO(b-prgrms.can_run,ENTRY(num-groups,g_groups)) AND
-       NOT CAN-DO(b-prgrms.can_update,ENTRY(num-groups,g_groups)) AND
-       NOT CAN-DO(b-prgrms.can_create,ENTRY(num-groups,g_groups)) AND
-       NOT CAN-DO(b-prgrms.can_delete,ENTRY(num-groups,g_groups)) THEN
+    IF NOT CAN-DO(TRIM(b-prgrms.can_run),ENTRY(num-groups,g_groups)) AND
+       NOT CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups)) AND
+       NOT CAN-DO(TRIM(b-prgrms.can_create),ENTRY(num-groups,g_groups)) AND
+       NOT CAN-DO(TRIM(b-prgrms.can_delete),ENTRY(num-groups,g_groups)) THEN
     NEXT.
 
     
-    IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,ENTRY(num-groups,g_groups))
+    IF NOT v-can-update AND CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups))
           THEN v-can-update = YES.
     
 
     group-ok = yes.
     /*LEAVE. */
   END.
-  IF NOT CAN-DO(b-prgrms.can_run,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_create,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT")) AND NOT group-ok THEN
+  IF NOT CAN-DO(TRIM(b-prgrms.can_run),USERID("ASI")) AND
+     NOT CAN-DO(TRIM(b-prgrms.can_update),USERID("ASI")) AND
+     NOT CAN-DO(TRIM(b-prgrms.can_create),USERID("ASI")) AND
+     NOT CAN-DO(TRIM(b-prgrms.can_delete),USERID("ASI")) AND NOT group-ok THEN
   DO:
     MESSAGE "Program :" PROGRAM-NAME(1) SKIP "Title :" b-prgrms.prgtitle SKIP(1)
         "Access to this Program Denied - Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
@@ -684,7 +684,7 @@ IF AVAILABLE b-prgrms THEN DO:
 
   END.
   ELSE DO:
-      IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("NOSWEAT"))
+      IF NOT v-can-update AND CAN-DO(TRIM(b-prgrms.can_update),USERID("ASI"))
             THEN v-can-update = YES.      
   END.
 END. 
