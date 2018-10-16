@@ -550,7 +550,7 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "ASI Install/Update Processor"
+         TITLE              = "ASIupdate 160800-01 Environment"
          HEIGHT             = 22.67
          WIDTH              = 120
          MAX-HEIGHT         = 34.29
@@ -619,7 +619,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* ASI Install/Update Processor */
+ON END-ERROR OF C-Win /* ASIupdate 160800-01 Environment */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -633,7 +633,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* ASI Install/Update Processor */
+ON WINDOW-CLOSE OF C-Win /* ASIupdate 160800-01 Environment */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -2891,9 +2891,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadCueCard C-Win
-PROCEDURE ipLoadCueCard:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadCueCard C-Win 
+PROCEDURE ipLoadCueCard :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -2924,15 +2923,12 @@ PROCEDURE ipLoadCueCard:
     EMPTY TEMP-TABLE tt{&tablename}.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadCueCardText C-Win
-PROCEDURE ipLoadCueCardText:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadCueCardText C-Win 
+PROCEDURE ipLoadCueCardText :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -2963,11 +2959,9 @@ PROCEDURE ipLoadCueCardText:
     EMPTY TEMP-TABLE tt{&tablename}.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadEmailCodes C-Win 
 PROCEDURE ipLoadEmailCodes :
@@ -4134,6 +4128,8 @@ PROCEDURE ipRemoveUserAddon :
 
     RUN ipStatus ("    Removing addon mode from .usr file").
 
+    DEF BUFFER bxUserMenu FOR xUserMenu.
+
     DEF VAR cLine     AS CHAR NO-UNDO.
     DEF VAR cOutline  AS CHAR NO-UNDO.
 
@@ -4151,9 +4147,22 @@ PROCEDURE ipRemoveUserAddon :
     END.
     INPUT CLOSE.
 
-    FOR EACH ttUsers:
+    FOR EACH ttUsers WHERE
+        ttUsers.ttfDbName EQ ipcName:
+       
+        /* This condition implies user can access Addon menu, but not Main menu */
+        IF INDEX(ttfModeList,"Addon") NE 0 
+        AND INDEX(ttfModeList,"Advantzware") EQ 0 THEN DO:
+            FOR EACH xUserMenu NO-LOCK WHERE 
+                xUserMenu.user_id EQ "AddOnUsr":
+                CREATE bxUserMenu.
+                BUFFER-COPY xUserMenu EXCEPT user_id TO bxUserMenu
+                ASSIGN 
+                    bxUserMenu.user_id = users.user_id.
+            END. /* each xusermenu */
+        END.
         ASSIGN 
-            ttfModeList = REPLACE(ttfModeList,"Addon","")
+            ttfModeList = REPLACE(ttfModeList,"Addon","") 
             ttfModeList = REPLACE(ttfModeList,",,",",").
     END.
 
@@ -4170,7 +4179,20 @@ PROCEDURE ipRemoveUserAddon :
     END.
     OUTPUT CLOSE.  
 
-
+    RUN ipStatus ("    Modifying menu for Prod Floor users").
+    FOR EACH users NO-LOCK WHERE 
+        users.userType EQ "Production Floor":
+        IF CAN-FIND(FIRST xUserMenu WHERE 
+                    xUserMenu.user_id EQ users.user_id) THEN NEXT.    
+        FOR EACH xUserMenu NO-LOCK WHERE 
+            xUserMenu.user_id EQ "AddOnUsr":
+            CREATE bxUserMenu.
+            BUFFER-COPY xUserMenu EXCEPT user_id TO bxUserMenu
+            ASSIGN 
+                bxUserMenu.user_id = users.user_id.
+        END. /* each xusermenu */
+    END. /* each users */
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

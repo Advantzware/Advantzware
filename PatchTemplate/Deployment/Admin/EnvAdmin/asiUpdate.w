@@ -437,7 +437,7 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "ASIupdate Launcher"
+         TITLE              = "ASIupdate 160800-01"
          HEIGHT             = 26.62
          WIDTH              = 79.8
          MAX-HEIGHT         = 26.67
@@ -476,9 +476,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX tbClearLog IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-ASSIGN 
-       tbClearLog:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
-
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -493,7 +490,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* ASIupdate Launcher */
+ON END-ERROR OF C-Win /* ASIupdate 160800-01 */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -507,7 +504,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* ASIupdate Launcher */
+ON WINDOW-CLOSE OF C-Win /* ASIupdate 160800-01 */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -612,13 +609,23 @@ DO:
         RETURN NO-APPLY.
     END.
     
-    RUN ipStatus("  Entered Password (hidden)").
-    RUN ipStatus("  Password validation deferred until DB connected").
-    
+    IF (fiUserID:{&SV} EQ "asi" AND NOT SELF:{&SV} EQ "Package99")
+    OR (fiUserID:{&SV} EQ "admin" AND NOT SELF:{&SV} EQ "installme") THEN DO:
+        MESSAGE 
+            "The UserID and Password you entered do not match." SKIP 
+            "Please re-enter or cancel."
+            VIEW-AS ALERT-BOX ERROR.
+        ASSIGN 
+            SELF:{&SV} = "".
+        APPLY 'entry' TO fiUserID.
+        RETURN NO-APPLY.
+    END. 
+        
     ASSIGN
         bGetFiles:SENSITIVE = TRUE
         slEnvList:SENSITIVE = TRUE
-        bUpdate:SENSITIVE = TRUE.
+        bUpdate:SENSITIVE = TRUE
+        tbClearLog:SENSITIVE = fiUserID:{&SV} EQ "asi".
     
     APPLY 'entry' TO bGetFiles.
     RETURN NO-APPLY.
@@ -663,26 +670,28 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiUserID C-Win
 ON LEAVE OF fiUserID IN FRAME DEFAULT-FRAME /* User ID */
 DO:
-    DEF VAR lValidUser AS LOG NO-UNDO.
-    
-    IF SELF:{&SV} = "" THEN DO:
+    IF SELF:{&SV} = "" THEN 
+    DO:
         RUN ipStatus("  Blank UserID - ENTRY to Exit button").
         APPLY 'entry' TO bCancel.
         RETURN NO-APPLY.
     END.
+
+    IF SELF:{&SV} NE "asi"
+    AND SELF:{&SV} NE "admin" THEN DO:
+        MESSAGE 
+            "This is not a valid user id for this function." SKIP 
+            "Please re-enter or Exit."
+            VIEW-AS ALERT-BOX ERROR.
+        APPLY 'entry' TO SELF.
+        RETURN NO-APPLY.
+    END.
     
     RUN ipStatus("  Entered UserID " + SELF:{&SV}).
-    RUN ipStatus("  Validating against advantzware.usr file").
-    RUN ipValidUser (OUTPUT lValidUser).
-    IF NOT lValidUser THEN DO:
-        ASSIGN
-            SELF:{&SV} = "".
-        RETURN NO-APPLY.
-    END.
-    ELSE DO:
-        APPLY 'entry' to fiPassword.
-        RETURN NO-APPLY.
-    END.
+    
+    APPLY 'entry' to fiPassword.
+    RETURN NO-APPLY.
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -699,7 +708,7 @@ DO:
                 iIndex = LOOKUP(SELF:{&SV},SELF:LIST-ITEMS)
                 fiFromVersion:{&SV} = ENTRY(iIndex,cEnvVerList)
                 iCurrEnvVer = fIntVer(fiFromVersion:{&SV})
-                iCurrDbVer = iCurrEnvVer - (iCurrEnvVer MODULO 10000)
+                iCurrDbVer = fIntVer(ENTRY(iIndex,cDBVerList))
                 .
         END.
     END CASE.
@@ -758,7 +767,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         iIndex              = LOOKUP(slEnvList:{&SV},slEnvList:LIST-ITEMS)
         fiFromVersion:{&SV} = ENTRY(iIndex,cEnvVerList)
         iCurrEnvVer         = fIntVer(fiFromVersion:{&SV})
-        iCurrDbVer          = iCurrEnvVer - (iCurrEnvVer MODULO 10000)
+        iCurrDbVer          = fIntVer(ENTRY(iIndex,cDBVerList))
         .
         
     RUN ipGetPatchList (0).
@@ -779,8 +788,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         cOutFile = cEnvAdmin + "\" + cSiteName + "-" +
                    STRING(YEAR(TODAY),"9999") +
                    STRING(MONTH(TODAY),"99") +
-                   STRING(DAY(TODAY),"99") +
-                   STRING(TIME) + ".txt"
+                   STRING(DAY(TODAY),"99") + ".txt"
         .    
     
     /* Look in Progress dir to find out which mode (RUN/DEV) we're in */
@@ -797,9 +805,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     
     /* Make sure progress.dev has been installed */    
     IF SEARCH (cDevCfg) EQ ? 
-    AND SEARCH (cRunCfg) EQ ? THEN MESSAGE 
-            "Unable to locate progress.cfg options"
-            VIEW-AS ALERT-BOX ERROR.
+    AND SEARCH (cRunCfg) EQ ? THEN DO:
+        OS-COPY VALUE(cUpdStructureDir + "\STFiles\progress.dev") VALUE(cDLC).
+    END. 
     
     /* Now figure out if we're in dev mode or run mode */
     IF SEARCH (cDevCfg) NE ? THEN ASSIGN
@@ -919,7 +927,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCreateTTIniFile C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCopyDeploy C-Win 
 PROCEDURE ipCopyDeploy :
 /*------------------------------------------------------------------------------
   Purpose:     Copy Patch Deployment Directory Entries to Base Structure
@@ -1312,6 +1320,13 @@ PROCEDURE ipProcess :
     ELSE IF fiUserID:{&SV} EQ "admin" 
     AND fiPassword:{&SV} EQ "installme" THEN ASSIGN
         iUserLevel = 6.
+    ELSE DO:
+        MESSAGE 
+            "Unable to start this process with the credentials supplied."
+            VIEW-AS ALERT-BOX.
+        RUN ipStatus("Invalid credentials.  Abort.").
+        QUIT.
+    END.
         
     IF iCurrDbVer LT iPatchDbVer
     OR iCurrEnvVer = 16070000 THEN DO:
