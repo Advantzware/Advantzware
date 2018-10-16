@@ -1769,7 +1769,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        tb_post-bol:SCREEN-VALUE = "no"
        tb_post-bol:HIDDEN       = YES.
 
-    IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Xprint2,bolfmt 2,bolfmt 20,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell") LE 0 THEN DO:
+    IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Xprint2,bolfmt 2,bolfmt 20,LancoYork,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell") LE 0 THEN DO:
       tb_print-component:SCREEN-VALUE = "no".
       DISABLE tb_print-component.
       tb_print-unassemble-component:SCREEN-VALUE = "no".
@@ -1828,7 +1828,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ASSIGN 
         tb_print-unassemble-component:HIDDEN = YES.
 
-   IF v-print-fmt = "XPrint2" OR v-print-fmt = "bolfmt 2" OR v-print-fmt = "bolfmt 20" THEN  /* task 01121601 */
+   IF v-print-fmt = "XPrint2" OR v-print-fmt = "bolfmt 2" OR v-print-fmt = "bolfmt 20" OR v-print-fmt = "LancoYork" THEN  /* task 01121601 */
        ASSIGN
         lbl_bolsort:HIDDEN = NO
         rd_bol-sort:HIDDEN = NO .
@@ -3984,8 +3984,10 @@ PROCEDURE run-report :
               RUN oe/rep/cocprempkgu.p (?).
          ELSE IF v-program = "oe/rep/cocprempkgm.p" THEN
               RUN oe/rep/cocprempkgm.p (?).
-         IF v-program = "oe/rep/cocbcert10.p" THEN
+         ELSE IF v-program = "oe/rep/cocbcert10.p" THEN
               RUN oe/rep/cocbcert10.p (?).
+         ELSE IF v-program = "oe/rep/coclanyork.p" THEN
+              RUN oe/rep/coclanyork.p (?).
          ELSE RUN VALUE(v-program).
       END.
   END.
@@ -4356,6 +4358,8 @@ PROCEDURE run-report-mail :
             RUN oe/rep/cocloylang.p (?).
          ELSE IF v-program EQ "oe/rep/cocbcert10.p" THEN
             RUN oe/rep/cocbcert10.p (?).
+         ELSE IF v-program EQ "oe/rep/coclanyork.p" THEN
+            RUN oe/rep/coclanyork.p (?).
          ELSE
             RUN value(v-program).
       END.
@@ -4568,6 +4572,10 @@ PROCEDURE SetBOLForm :
             ASSIGN
                is-xprint-form = YES
                v-program = "oe/rep/cocbcert10.p".
+         WHEN "LancoYork" THEN
+            ASSIGN
+               is-xprint-form = YES
+               v-program = "oe/rep/coclanyork.p".
 
          OTHERWISE
             ASSIGN
