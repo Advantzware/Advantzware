@@ -374,18 +374,29 @@ end.
 RETURN.
 
 PROCEDURE round-dim:
-  DEF INPUT-OUTPUT PARAM io-dim AS DEC NO-UNDO.
+  DEFINE INPUT-OUTPUT PARAM iopDim AS DECIMAL NO-UNDO.
 
-  DEF VAR li AS INT NO-UNDO.
-
-
+  DEFINE VARIABLE iMult AS INTEGER  NO-UNDO.
+  DEFINE VARIABLE dCalc AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE lRoundUp AS LOGICAL NO-UNDO.
+  
   IF celayout-chr NE "None" THEN DO:
     CASE celayout-chr:
-      WHEN "1/8" THEN li = 8.
-      OTHERWISE li = 10000000.
+      WHEN "1/8" THEN ASSIGN iMult = 8 lRoundUp = NO.
+      WHEN "1/8Up" THEN ASSIGN iMult = 8 lRoundUp = YES.
+      WHEN "1/4" THEN ASSIGN iMult = 4 lRoundUp = NO.
+      WHEN "1/4Up" THEN ASSIGN iMult = 4 lRoundUp = YES.
+      WHEN "1/2" THEN ASSIGN iMult = 2 lRoundUp = NO.
+      WHEN "1/2Up" THEN ASSIGN iMult = 2 lRoundUp = YES.
+      WHEN "1" THEN ASSIGN iMult = 1 lRoundUp = NO.
+      WHEN "1Up" THEN ASSIGN iMult = 1 lRoundUp = YES.
+      OTHERWISE iMult = 10000000.
     END CASE.
-    
-    io-dim = ROUND(io-dim * li,0) / li.
+    dCalc = ROUND(iopDim * iMult,0) / iMult.
+    IF NOT lRoundUp THEN /*Round*/
+        iopDim = dCalc.
+    ELSE /*Round up*/
+        iopDim = dCalc + (IF iopDim GT dCalc THEN 1 / iMult ELSE 0).
   END.
 
 END PROCEDURE.
