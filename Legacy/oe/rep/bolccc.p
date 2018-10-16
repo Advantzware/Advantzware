@@ -375,12 +375,20 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
       DELETE report.
     END.
   END.
-
+/*To Avoid Overlap*/
+IF v-printline >= 36 THEN DO:
+    PUT 
+    "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
+    "Page " AT 150 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
+    PAGE {1}.
+    v-printline = 0.
+    RUN pHeaderLabel.
+END.
 PUT "<R35.5><C47><#7>Initial"
       "<=7><C+10><FROM><R+2><C+20><RECT> " 
       "<R37.5><C47><#8><FROM><R+3><C+30><RECT> " 
       "<=8><R+1> Total Pallets      :" v-tot-cases /*oe-bolh.tot-pallets*/ FORM ">,>>>,>>9".
-
+v-printline = v-printline + 4.
 
 /*PUT "<R39><C30>" SKIP.*/
 RUN GetNotesArrayForObject IN hNotesProc (INPUT oe-bolh.rec_key, "ES", "", 130, NO, OUTPUT opcParsedText, OUTPUT opiArraySize).
@@ -394,6 +402,7 @@ IF opiArraySize <= 4 THEN DO:
         ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
         PUT
             opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+        v-printline = v-printline + 1.    
     END.
     RUN pFooterLabel.
 END. /*IF opiArraySize <=4 THEN DO:*/
@@ -406,8 +415,10 @@ ELSE IF opiArraySize > 4 AND opiArraySize <= 20 THEN DO:
         ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
         PUT
             opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+            v-printline = v-printline + 1.
     END.
     PAGE {1}.
+    v-printline = 0. 
     RUN pHeaderLabel.
     RUN pFooterLabel.
 END. 
@@ -420,11 +431,13 @@ ELSE IF opiArraySize > 20 AND opiArraySize <= 50 THEN DO:
         ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
         PUT
             opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+            v-printline = v-printline + 1.
     END.
      PUT 
     "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
     "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
     PAGE {1}.
+    v-printline = 0. 
     RUN pHeaderLabel.
     PUT "<FBook Antiqua><R23><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
     PUT "<R23.5><C1>" AT 1 SKIP.
@@ -433,6 +446,7 @@ ELSE IF opiArraySize > 20 AND opiArraySize <= 50 THEN DO:
         ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
         PUT
             opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+            v-printline = v-printline + 1.
     END.
     RUN pFooterLabel.
 END.     
@@ -445,11 +459,13 @@ ELSE IF opiArraySize > 50 AND opiArraySize <= 80 THEN DO:
         ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
         PUT
             opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+            v-printline = v-printline + 1.
     END.
      PUT 
     "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
     "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
     PAGE {1}.
+    v-printline = 0.
     RUN pHeaderLabel.
     PUT "<FBook Antiqua><R23><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
     PUT "<R23.5><C1>" AT 1 SKIP.
@@ -458,8 +474,10 @@ ELSE IF opiArraySize > 50 AND opiArraySize <= 80 THEN DO:
         ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
         PUT
             opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+            v-printline = v-printline + 1.
     END.
     PAGE {1}.
+    v-printline = 0.
     RUN pHeaderLabel.
     PUT "<FBook Antiqua><R23><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
     PUT "<R23.5><C1>" AT 1 SKIP.
@@ -468,6 +486,7 @@ ELSE IF opiArraySize > 50 AND opiArraySize <= 80 THEN DO:
         ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
         PUT
             opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+            v-printline = v-printline + 1.
     END.
     RUN pFooterLabel.
 END.
@@ -480,11 +499,13 @@ ELSE IF opiArraySize > 80 AND opiArraySize <= 100 THEN DO:
         ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
         PUT
             opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+            v-printline = v-printline + 1.
     END.
      PUT 
     "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
     "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
     PAGE {1}.
+    v-printline = 0.
     RUN pHeaderLabel.
     PUT "<FBook Antiqua><R23><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
     PUT "<R23.5><C1>" AT 1 SKIP.
@@ -493,11 +514,13 @@ ELSE IF opiArraySize > 80 AND opiArraySize <= 100 THEN DO:
         ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
         PUT
             opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+            v-printline = v-printline + 1.
     END.
      PUT 
     "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
     "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
     PAGE {1}.
+    v-printline = 0.
     RUN pHeaderLabel.
     PUT "<FBook Antiqua><R23><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
     PUT "<R23.5><C1>" AT 1 SKIP.
@@ -506,11 +529,13 @@ ELSE IF opiArraySize > 80 AND opiArraySize <= 100 THEN DO:
         ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
         PUT
             opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+            v-printline = v-printline + 1.
     END.
      PUT 
     "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
     "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
     PAGE {1}.
+    v-printline = 0.
     RUN pHeaderLabel.
     PUT "<FBook Antiqua><R23><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
     PUT "<R23.5><C1>" AT 1 SKIP.
@@ -520,6 +545,7 @@ ELSE IF opiArraySize > 80 AND opiArraySize <= 100 THEN DO:
         ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
         PUT
             opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
+            v-printline = v-printline + 1.
     END.
     RUN pFooterLabel.
 END.  

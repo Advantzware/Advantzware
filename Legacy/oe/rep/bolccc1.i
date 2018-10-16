@@ -32,7 +32,7 @@
                 "<R15><C70><FROM><R19><C70><LINE>" SKIP
                 /*"<=4><C54>NMFC#"*/
                 "<=4><R+0.1>                                                                      Freight                         Requested" SKIP
-                "<=4><R+1>    Date        FOB              Carrier           NMFC#    Class     Terms            Weight         Delivery" SKIP
+                "<=4><R+1>    Date               FOB                   Carrier                            NMFC#       Class             Terms               Weight               Delivery" SKIP
                 /*"<=4><R+2><C54>29280"*/
                 "<=4><R+3> " oe-bolh.bol-date "<C9.5>" v-fob "<C18.5>" carrier.dscr FORM "x(24)" "<C36.5>" "152465" "<C43.5>" "55" "<C48.5>" v-frt-terms "<C60>" v-tot-wt "<C72>" dReqDate SKIP
                 "<||5><R20><C1><#5><FROM><R22><C80><RECT>" SKIP    
@@ -43,6 +43,6 @@
                 "<R20><C64><FROM><R22><C64><LINE>" 
                 "<R20><C75.2><FROM><R22><C75.2><LINE>" SKIP            
                 
-            "<=5><R+1> Part# / Job#         PO#                Description              Lot#               PAL    Unit-Quantity  Total" SKIP(1)
+            "<=5><R+1> Part# / Job#            PO#                          Description                               Lot#                                  PAL         Unit-Quantity     Total" SKIP(1)
             .
             v-printline = v-printline + 16.
