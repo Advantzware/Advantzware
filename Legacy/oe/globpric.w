@@ -82,11 +82,11 @@ def var ctr             as INT NO-UNDO.
 &Scoped-Define ENABLED-OBJECTS RECT-17 begin_cust end_cust begin_cust-type ~
 end_cust-type begin_i-no end_i-no begin_cat end_cat begin_level end_level ~
 beg_eff_date end_eff_date tg_new_eff_date rd_basis rd_divide percent_chg ~
-rd_round btn-process btn-cancel 
+rd_round td_imported btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_cust-type ~
 end_cust-type begin_i-no end_i-no begin_cat end_cat begin_level end_level ~
 beg_eff_date end_eff_date new_eff_date tg_new_eff_date tg_newmatrix ~
-lbl_price rd_basis rd_divide percent_chg lbl_rnd-meth rd_round 
+lbl_price rd_basis rd_divide percent_chg lbl_rnd-meth rd_round td_imported
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -232,8 +232,12 @@ DEFINE VARIABLE tg_newmatrix AS LOGICAL INITIAL no
 DEFINE VARIABLE tg_new_eff_date AS LOGICAL INITIAL no 
      LABEL "Update Effective Date?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 26.8 BY .81 NO-UNDO.
+     SIZE 26.8 BY .81 NO-UNDO. 
 
+DEFINE VARIABLE td_imported AS LOGICAL INITIAL no 
+     LABEL "Include Contract Pricing Customers?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 40.8 BY .81 NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -266,6 +270,7 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Effective Date"
      tg_new_eff_date AT ROW 10.1 COL 19.2
      tg_newmatrix AT ROW 11 COL 19.2 WIDGET-ID 8
+     td_imported AT ROW 11 COL 45
      lbl_price AT ROW 12.1 COL 24.8 COLON-ALIGNED NO-LABEL
      rd_basis AT ROW 12.1 COL 40.6 NO-LABEL
      rd_divide AT ROW 13.48 COL 53 HELP
@@ -581,12 +586,12 @@ PROCEDURE enable_UI :
   DISPLAY begin_cust end_cust begin_cust-type end_cust-type begin_i-no end_i-no 
           begin_cat end_cat begin_level end_level beg_eff_date end_eff_date 
           new_eff_date tg_new_eff_date tg_newmatrix lbl_price rd_basis rd_divide 
-          percent_chg lbl_rnd-meth rd_round 
+          percent_chg lbl_rnd-meth rd_round td_imported
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-17 begin_cust end_cust begin_cust-type end_cust-type begin_i-no 
          end_i-no begin_cat end_cat begin_level end_level beg_eff_date 
          end_eff_date tg_new_eff_date rd_basis rd_divide percent_chg rd_round 
-         btn-process btn-cancel 
+         td_imported btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -727,8 +732,11 @@ REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
       AND oe-prmtx.i-no       GE start-item-no
       AND oe-prmtx.i-no       LE end-item-no
       AND oe-prmtx.eff-date   GE beg_eff_date
-      AND oe-prmtx.eff-date   LE end_eff_date:
-
+      AND oe-prmtx.eff-date   LE end_eff_date ,
+    FIRST cust  NO-LOCK WHERE cust.company EQ cocode 
+      AND cust.cust-no EQ  oe-prmtx.cust-no 
+      AND (cust.imported EQ NO OR td_imported )  :
+  
     FIND NEXT oe-prmtx.
     RELEASE bf-oe-prmtx.
 
