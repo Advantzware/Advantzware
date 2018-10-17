@@ -263,7 +263,7 @@ for each report where report.term-id eq v-term-id,
           IF AVAIL fg-bin THEN DO:
              put {1}
               v-part-dscr              at 32 format "x(39)"
-              oe-boll.cases TO 81  FORM ">>>9" " @ " 
+              oe-boll.cases TO 95  FORM ">>>9" " @ " 
               fg-bin.case-count FORM "->>>>>z"
               skip.              
 
