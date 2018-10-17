@@ -69,6 +69,9 @@ DEF VAR DOWNLOADEDORDERS AS C FORMAT "X(11)" EXTENT 5000 no-undo.
 DEF VAR DOWNLOADCOUNT AS I no-undo.
         
 DEF VAR cocode AS CHAR NO-UNDO.
+DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cOutputDir AS CHARACTER NO-UNDO.
 
 FOR EACH tt-job-hdr,
     first job-hdr where rowid(job-hdr) = tt-job-hdr.jobhdr-rowid:
@@ -76,6 +79,18 @@ FOR EACH tt-job-hdr,
     cocode = job-hdr.company.
     LEAVE.
 END.
+
+RUN sys/ref/nk1look.p (cocode, "oeDateChange", "C", NO, NO, "", "", 
+    OUTPUT cReturn, OUTPUT lrecFound).
+IF lRecfound THEN
+    cOutputDir = cReturn NO-ERROR.
+IF cOutputDir EQ "" THEN 
+    cOutputDir = ".\CustFiles\DataXfer\CorrTrim\".
+IF SEARCH(cOutputDir) EQ ? THEN 
+    OS-CREATE-DIR VALUE(cOutputDir).
+IF SUBSTRING(cOutputDir, LENGTH(cOutputDir), 1) NE "\" THEN 
+    cOutputDir = cOutputDir + "\".
+    
 
 {sys/inc/f16to32.i}
     
@@ -187,17 +202,17 @@ END.
     
 =========*/
 
-OUTPUT TO Q:\DELTA\CORRTRIM\CONTROLA.
+OUTPUT TO VALUE(cOutputDir + "CONTROLA").
 
 DISP "DO_NOT_DOWNLOAD" WITH FRAME NN NO-LABELS NO-BOX.
 OUTPUT CLOSE.
 
-OUTPUT TO Q:\DELTA\CORRTRIM\CONTROLB.
+OUTPUT TO VALUE(cOutputDir + "CONTROLB").
 
 DISP "DO_NOT_DOWNLOAD" WITH FRAME NN NO-LABELS NO-BOX.
 OUTPUT CLOSE.
 
-OUTPUT TO Q:\DELTA\CORRTRIM\DNLOADA.
+OUTPUT TO VALUE(cOutputDir + "DNLOADA").
 
 DOWNLOAD-RECORD1 = "$BEGIN$  7".
 PUT UNFORMATTED download-record1 SKIP.
