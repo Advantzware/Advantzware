@@ -432,7 +432,7 @@ do v-local-loop = 1 to v-local-copies:
             with no-box no-labels frame i8 width 155 no-attr-space STREAM-IO.
         END.
             
-        IF CAN-DO("TriState,RFC,Boxtech,Brick,Corrugat,ASI,Xprint,Pacific,TriLakes",v-format) THEN do:
+        IF CAN-DO("TriState,RFC,Boxtech,Brick,Corrugat,ASI,Xprint,Pacific,TriLakes,jobcardc 1,jobcardc 2",v-format) THEN do:
           RUN sys/ref/getpo#.p (IF AVAIL xoe-ordl AND est.est-type NE 6 THEN ROWID(xoe-ordl) ELSE ROWID(job),
                                 w-ef.frm, OUTPUT v-po-no).
 

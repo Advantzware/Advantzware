@@ -13,14 +13,8 @@
 /*   "<C7><#1><R+11><C+25><IMAGE#1=" ls-full-img1 SKIP. */
   "<C2><R3><#1><R+60><C+50><IMAGE#1=" ls-full-img1 . */
 PUT
-  "<C1><R2.5><#1><R+50><C+28><IMAGE#1=" ls-full-img1 .
+  "<C1><R2.5><#1><R+12><C+40><IMAGE#1=" ls-full-img1 .
 
-PUT
-   "<P10><C28><R4>" v-cust-add1
-   /*"<C28><R+1>" v-cust-add2*/                 /*Task# 12231307*/
-   "<C28><R+1>" v-cust-add3
-   "<C28><R+1>" v-cust-phn
-   "<C28><R+1>" v-fax-arcd "<P10>".
 
 PUT 
   "<=1>" SKIP

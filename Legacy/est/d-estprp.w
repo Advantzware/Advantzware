@@ -178,7 +178,7 @@ DEFINE FRAME Dialog-Frame
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
     est-prep.ml AT ROW 7.38 COL 80.6 COLON-ALIGNED
-    LABEL "M/L" FORMAT "M/L"
+    LABEL "Mat'l or Labor" FORMAT "M/L"
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
     est-prep.amtz AT ROW 8.67 COL 28.4 COLON-ALIGNED
@@ -344,6 +344,8 @@ ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
                 WHERE RECID(est-prep) EQ lv-item-recid  NO-ERROR.
             IF AVAILABLE est-prep THEN DELETE est-prep .
         END.
+        IF AVAIL est-prep THEN
+            ip-rowid = ROWID(est-prep).
 
         APPLY 'GO':U TO FRAME {&FRAME-NAME}.
     END.

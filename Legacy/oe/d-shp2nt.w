@@ -29,14 +29,19 @@ DEF INPUT PARAMETER ip-company   AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ip-cust-no   AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ip-ship-id   AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ip-shipnotes AS CHAR NO-UNDO.
+DEF INPUT PARAMETER ip-shipnotesreckey AS CHAR NO-UNDO.
+
 
 /* Local Variable Definitions ---                                       */
 
 DEF VAR v-ord    AS INT  FORMAT ">>>>>9"     EXTENT 2 NO-UNDO.
 DEF VAR v-date   AS DATE FORMAT "99/99/9999" EXTENT 2 NO-UNDO.
 DEF VAR v-ship-i AS CHAR FORMAT "x(60)"      EXTENT 4 NO-UNDO.
+Define Variable hNotesProc as Handle NO-UNDO. 
 
 DEF BUFFER bf-shipto FOR shipto.
+
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -327,6 +332,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 
 END.
+IF VALID-HANDLE(hNotesProc) THEN  
+    DELETE OBJECT hNotesProc.
 RUN disable_UI.
 
 /* _UIB-CODE-BLOCK-END */
@@ -400,7 +407,10 @@ PROCEDURE ip-upd-BOL :
             oe-bolh.ship-i[2] = v-ship-i[2]
             oe-bolh.ship-i[3] = v-ship-i[3]
             oe-bolh.ship-i[4] = v-ship-i[4].
-                              
+            
+        RUN CopyShipNote IN hNotesProc (INPUT ip-shipnotesreckey, oe-bolh.rec_key).
+        
+                             
     END.
 
 
@@ -438,6 +448,8 @@ PROCEDURE ip-upd-ORDrel :
             oe-rel.ship-i[3] = v-ship-i[3] 
             oe-rel.ship-i[4] = v-ship-i[4].
             
+         RUN CopyShipNote IN hNotesProc (INPUT ip-shipnotesreckey, oe-rel.rec_key).   
+            
     END.
 
 END PROCEDURE.
@@ -470,6 +482,8 @@ PROCEDURE ip-upd-REL :
             oe-relh.ship-i[2] = v-ship-i[2]
             oe-relh.ship-i[3] = v-ship-i[3]
             oe-relh.ship-i[4] = v-ship-i[4].
+
+         RUN CopyShipNote IN hNotesProc (INPUT ip-shipnotesreckey, oe-relh.rec_key).
 
     END.
 

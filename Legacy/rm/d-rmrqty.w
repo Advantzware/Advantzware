@@ -200,7 +200,7 @@ DO:
         and rm-bin.i-no    eq item.i-no
         and rm-bin.qty     lt 0:
         
-    RUN rm/cre-tran.p (ROWID(rm-bin), "C", 0).
+    RUN rm/cre-tran.p (ROWID(rm-bin), "C", 0,"").
 
     delete rm-bin.
   end.

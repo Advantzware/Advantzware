@@ -630,8 +630,7 @@ PROCEDURE run-process :
         AND itemfg.i-no    EQ from_i-no
       NO-LOCK NO-ERROR.
 
-  lv-rec_key = STRING(TODAY,"99999999") +
-               STRING(NEXT-VALUE(rec_key_seq,nosweat),"99999999").
+  lv-rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
   CREATE rec_key.
   ASSIGN
    rec_key.rec_key    = lv-rec_key

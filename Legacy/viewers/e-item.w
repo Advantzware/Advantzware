@@ -48,15 +48,13 @@ def temp-table tmpfile NO-UNDO
     field setups as dec.
 
 def var lv-roll-w like e-item-vend.roll-w no-undo.
+
 {custom/gcompany.i}
 {custom/persist.i}
+{system/fSuperRunning.i}
+
 def var uom-list as cha init ["M,EA,L,CS,C"] no-undo.
 DEF VAR char-hdl AS CHAR NO-UNDO.
-
-&SCOPED-DEFINE where-adders                         ~
-    WHERE reftable.rec_key  EQ e-item-vend.rec_key  ~
-      AND reftable.reftable EQ "e-item-vend.adders" ~
-    USE-INDEX rec_key
 
 DEF VAR gTerm AS cha NO-UNDO.
 DEF VAR gNewVendor AS LOG NO-UNDO.
@@ -978,8 +976,7 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  RUN reftable-values (NO).
-
+  
   EMPTY TEMP-TABLE tmpfile.
 
   do i = 1 to 26:
@@ -1132,6 +1129,8 @@ PROCEDURE local-assign-record :
   DO i = 1 TO 30:
      e-item.roll-w[i] = e-item-vend.roll-w[i].
   END.
+
+  RUN reftable-values (NO).
 
   FIND CURRENT e-item NO-LOCK.
 
@@ -1560,28 +1559,18 @@ PROCEDURE reftable-values :
 
 
   IF AVAIL e-item-vend THEN DO:
-    FIND FIRST reftable {&where-adders} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.rec_key  = e-item-vend.rec_key
-       reftable.reftable = "e-item-vend.adders"
-       reftable.company  = e-item-vend.company.
-    END.
     IF ip-display THEN
       ASSIGN
-       fi_width-min  = reftable.val[1] / 10000
-       fi_length-min = reftable.val[2] / 10000
-       fi_width-cst  = reftable.val[3] / 10000
-       fi_length-cst = reftable.val[4] / 10000.
+       fi_width-min  = e-item-vend.underWidth / 10000
+       fi_length-min = e-item-vend.underLength / 10000
+       fi_width-cst  = e-item-vend.underWidthCost / 10000
+       fi_length-cst = e-item-vend.underLengthCost / 10000.
     ELSE
       ASSIGN
-       reftable.val[1] = fi_width-min  * 10000
-       reftable.val[2] = fi_length-min * 10000
-       reftable.val[3] = fi_width-cst  * 10000
-       reftable.val[4] = fi_length-cst * 10000.
-
-    FIND CURRENT reftable NO-LOCK.
+       e-item-vend.underWidth = fi_width-min  * 10000
+       e-item-vend.underLength = fi_length-min * 10000
+       e-item-vend.underWidthCost = fi_width-cst  * 10000
+       e-item-vend.underLengthCost = fi_length-cst * 10000.
   END.
 
 END PROCEDURE.

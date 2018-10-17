@@ -1032,7 +1032,9 @@ PROCEDURE ipClickOk :
         /* Set current dir */
         RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
         IF INDEX(cRunPgm,"mainmenu") <> 0
-        AND SEARCH("system/mainmenu2.r") NE ? THEN ASSIGN
+        AND iEnvLevel LT 16080000
+        AND (SEARCH("system/mainmenu2.r") NE ? 
+            OR SEARCH("system/mainmenu2.w") NE ?) THEN ASSIGN
             cRunPgm = "system/mainmenu2.w".
         RUN VALUE(cRunPgm).
     END.
@@ -1573,6 +1575,7 @@ PROCEDURE ipPreRun :
     DEFINE VARIABLE lOK      AS LOGICAL INITIAL TRUE NO-UNDO.
     DEFINE VARIABLE lExit    AS LOGICAL INITIAL TRUE NO-UNDO.
     DEFINE VARIABLE hSession AS HANDLE               NO-UNDO.
+    DEFINE VARIABLE hTags    AS HANDLE               NO-UNDO.
 
     ASSIGN
         iPos = LOOKUP(cbEnvironment,cEnvironmentList)
@@ -1591,11 +1594,18 @@ PROCEDURE ipPreRun :
         IF NOT lOK THEN QUIT.
     END.
 
-    IF SEARCH("system\session.r") NE ? THEN DO:
+    IF NOT VALID-HANDLE(hSession)
+    AND iEnvLevel GE 16071600 THEN DO:
         RUN system\session.p PERSISTENT SET hSession.
         SESSION:ADD-SUPER-PROCEDURE (hSession).
     END.
-
+    
+    IF NOT VALID-HANDLE(hTags) 
+    AND iEnvLevel GE 16080000 THEN DO:
+        RUN system\TagProcs.p PERSISTENT SET hTags.
+        SESSION:ADD-SUPER-PROCEDURE (hTags).
+    END.
+    
     IF NOT VALID-HANDLE(persistent-handle) THEN
         RUN nosweat/persist.p PERSISTENT SET persistent-handle.
     IF NOT VALID-HANDLE(listlogic-handle) THEN

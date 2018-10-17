@@ -74,7 +74,7 @@ def var tmp-var as char format "x(20)" NO-UNDO.
 def var v-disc-type as char format "x(4)" NO-UNDO.
 def var v-sman as char format "x(24)" NO-UNDO.
 def var v-int as int no-undo.
-def var v-dec as dec extent 4 no-undo.
+def var v-dec as dec extent 5 no-undo.
 DEF VAR ll-valid-cust AS LOG NO-UNDO.
 DEF VAR ll-mult-curr AS LOG NO-UNDO.
 DEF VAR lv-page-break AS CHAR NO-UNDO.
@@ -141,13 +141,8 @@ DEF TEMP-TABLE tt-inv NO-UNDO  FIELD sorter    LIKE ar-inv.inv-no
         IF NOT AVAIL ar-inv THEN NEXT.                   ~
       END.                                               ~
       IF ar-cashl.amt-paid GT 0 THEN DO:                 ~
-      FIND FIRST reftable WHERE                          ~
-           reftable.reftable EQ "ARCASHLVDDATE" AND      ~
-           reftable.rec_key EQ ar-cashl.rec_key          ~
-           USE-INDEX rec_key                             ~
-           NO-LOCK NO-ERROR.                             ~
-      IF AVAIL reftable THEN                             ~
-         v-check-date = DATE(reftable.CODE).             ~
+      IF ar-cashl.voided THEN                             ~
+         v-check-date = ar-cashl.voidDate.             ~
       ELSE                                               ~
       DO:                                                ~
          v-gltrans-desc = "VOID " + cust.cust-no + " " + ~
@@ -298,13 +293,6 @@ END.
             str-tit7 FORMAT "x(400)" SKIP .*/
     END.
     
-    /*IF iLinePerPage  GE (iline - 5)  THEN DO:
-        PAGE.
-        PUT str-tit6 FORMAT "x(400)" SKIP 
-            str-tit7 FORMAT "x(400)" SKIP .
-        iLinePerPage = 9 .
-    END.*/
-    
     IF FIRST-OF(tt-cust.curr-code) THEN DO:
       lv-page-break = "Currency: " + TRIM(tt-cust.curr-code).
 
@@ -437,13 +425,8 @@ END.
 
         IF ar-cashl.amt-paid GT 0 THEN
         DO:
-           FIND FIRST reftable WHERE                        
-                reftable.reftable EQ "ARCASHLVDDATE" AND      
-                reftable.rec_key EQ ar-cashl.rec_key          
-                USE-INDEX rec_key
-                NO-LOCK NO-ERROR.                             
-           IF AVAIL reftable THEN                             
-              v-check-date = DATE(reftable.CODE).             
+           IF ar-cashl.voided THEN                             
+              v-check-date = ar-cashl.voidDate.             
            ELSE                                               
            DO:                                                
               v-gltrans-desc = "VOID " + cust.cust-no + " " + 
@@ -498,101 +481,41 @@ END.
 
          if det-rpt = 1 THEN DO:
          
-           /*display cust.cust-no
-                   space(2)
-                   cust.name
-                   space(2)
-                   cust.area-code                           format "(xxx)"
-                   cust.phone                               format "xxx-xxxx"
-                   "  Fax:"
-                   substr(cust.fax,1,3)                     format "(xxx)"
-                   substr(cust.fax,4,7)                     format "xxx-xxxx"
-                   "  Credit Limit:"
-                   string(cust.cr-lim,">,>>>,>>>,>>9.99")   format "x(17)"
-                   skip
-                   cust.contact
-                   v-sman
-                   space(3)
-                   terms.dscr when avail terms
-                   "ADTP:" cust.avg-pay
-                   "TD:" v-current-trend-days WHEN v-trend-days > 0
-               with no-labels no-box frame a1 stream-io width 200.
-
-             IF sPrtCollectionNote THEN RUN Display-CollectionNote.*/
+           
 
          END. /* if det-rpt = 1 */
         
          v-first-cust = no.
        end.
 
-       if d ge v-days[3] then do:
-         /*if det-rpt = 1 then
-           display d at 4 format "-9999" when v-days-old 
-                   space(7) v-type space(5) ar-inv.inv-no
-                   space(2) ar-inv.inv-date format "99/99/99"
-                   amt  to 54 ag to 131
-                   with frame a no-labels no-box stream-io width 200.*/
+       if d ge v-days[4] then do:
 
+         v-int = 5.
+       end.
+       ELSE
+       if d ge v-days[3] then do:
+         
          v-int = 4.
        end.
        
        else
        if d ge v-days[2] then do:
-         /*if det-rpt = 1 then
-           display d at 4 format "-9999" when v-days-old 
-                   space(7) v-type space(5) ar-inv.inv-no
-                   space(2) ar-inv.inv-date format "99/99/99"
-                   amt to 54  ag to 112
-                   with frame b no-labels no-box stream-io width 200.*/
-
+         
          v-int = 3.
        end.
        
        else
        if d ge v-days[1] then do:
-         /*if det-rpt = 1 then
-           display d at 4 format "-9999" when v-days-old 
-                   space(7) v-type space(5) ar-inv.inv-no
-                   space(2) ar-inv.inv-date format "99/99/99"
-                   amt to 54 ag to 94
-                   with frame c no-labels no-box stream-io width 200.*/
-
+         
          v-int = 2.
        end.
        
        else do:
-        /* if det-rpt = 1 then
-           display d at 4 format "-9999" when v-days-old 
-                   space(7) v-type space(5) ar-inv.inv-no
-                   space(2) ar-inv.inv-date format "99/99/99"
-                   amt to 54 ag to 77
-                   with frame d no-labels no-box stream-io width 200.*/
-
+        
          v-int = 1.
        END.
 
-       /* Task 06201206 */
-      /* IF (v-print-cust-po OR v-print-job) AND 
-            (cPoNo NE "" OR cJobStr NE "") THEN DO:
-           IF v-print-cust-po OR v-print-job THEN
-               PUT "" AT 23. 
-          IF v-print-cust-po AND cPoNo  GT "" THEN do:
-               PUT "Customer PO# " cPoNO FORMAT "x(20)" .
-               if v-export THEN DO:
-                   IF det-rpt = 2 THEN DO:
-                       EXPORT STREAM s-temp DELIMITER ","
-                           ""
-                           trim(string("Customer PO#"))                 /*Task# 02071402*/
-                           TRIM(STRING(cPoNo)) .
-                   END.
-               END.
-           END.
-           IF v-print-job AND cJobStr GT "" AND trim(cJobStr) NE "-00" THEN 
-               PUT " Job# " FORMAT "x(6)" cJobStr   .
-           IF v-print-cust-po OR v-print-job THEN 
-               PUT SKIP.
-       END.*/
-
+      
        ASSIGN
         cust-t[v-int] = cust-t[v-int] + ag
         v-dec         = 0
@@ -605,12 +528,7 @@ END.
           ELSE
              cust-t-fc[v-int] = cust-t-fc[v-int] + ag.
        END.
-
-        
-       /*if v-export then
-         run export-data ("", d, v-type, string(ar-inv.inv-no,">>>>>>>>>>"),
-                          ar-inv.inv-date, amt,
-                          v-dec[1], v-dec[2], v-dec[3], v-dec[4]).*/
+      
       if det-rpt = 1 THEN DO:
           IF iLinePerPage  GE (iline - 5)  THEN DO:
               PAGE.
@@ -652,6 +570,7 @@ END.
                      WHEN "per-1"     THEN cVarValue = STRING(v-dec[2],"->>>>>>>>9.99") .
                      WHEN "per-2"     THEN cVarValue = STRING(v-dec[3],"->>>>>>>>9.99").
                      WHEN "per-3"     THEN cVarValue = STRING(v-dec[4],"->>>>>>>>9.99") .
+                     WHEN "per-4"     THEN cVarValue = STRING(v-dec[5],"->>>>>>>>9.99") .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(9)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
@@ -692,13 +611,8 @@ END.
 
         IF ar-cashl.amt-paid GT 0 THEN
         DO:
-           FIND FIRST reftable WHERE                        
-                reftable.reftable EQ "ARCASHLVDDATE" AND      
-                reftable.rec_key EQ ar-cashl.rec_key
-                USE-INDEX rec_key
-                NO-LOCK NO-ERROR.                             
-           IF AVAIL reftable THEN                             
-              v-check-date = DATE(reftable.CODE).             
+           IF ar-cashl.voided THEN                             
+              v-check-date = ar-cashl.voidDate.             
            ELSE                                               
            DO:                                                
               v-gltrans-desc = "VOID " + cust.cust-no + " " + 
@@ -746,10 +660,7 @@ END.
                      + " Inv# " + STRING(ar-cashl.inv-no).
 
            IF ar-cashl.amt-paid GT 0 AND
-              (CAN-FIND(FIRST reftable WHERE
-              reftable.reftable = "ARCASHLVDDATE" AND
-              reftable.rec_key = ar-cashl.rec_key
-              USE-INDEX rec_key) OR
+              (ar-cashl.voided EQ YES OR
               CAN-FIND(FIRST gltrans WHERE
               gltrans.company EQ cust.company AND
               gltrans.jrnl EQ "CASHRVD" AND
@@ -780,17 +691,7 @@ END.
 
           if det-rpt = 1 then do:
             if v-disc-type eq "DISC" then do:
-             /* display ar-cashl.check-no at 4 format "x(10)" when not v-days-old 
-                      v-type at 16
-                      ar-cashl.inv-no at 23
-                      ar-cash.check-date at 31 format "99/99/99"
-                      v-cr-db-amt to 54 skip
-                  with frame f-1 no-box no-labels stream-io width 200.
-                  
-              if v-export then
-                run export-data (ar-cashl.check-no, 0, v-type,
-                                 string(ar-cashl.inv-no,">>>>>>>>>>"),
-                                 ar-cash.check-date, v-cr-db-amt, 0, 0, 0, 0).*/
+             
                 IF iLinePerPage  GE (iline - 5)  THEN DO:
                     PAGE.
                     PUT str-tit6 FORMAT "x(400)" SKIP 
@@ -831,6 +732,7 @@ END.
                          WHEN "per-1"     THEN cVarValue = /*STRING(v-dec[2],"->>>>>>>>9.99")"*/ "" .
                          WHEN "per-2"     THEN cVarValue = /*STRING(v-dec[3],"->>>>>>>>9.99")*/ "" .
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
+                         WHEN "per-4"     THEN cVarValue = /*STRING(v-dec[5],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
@@ -852,18 +754,7 @@ END.
              END.
              IF sPrtInvNote THEN RUN Display-InvNote.
          end.
-            /*IF det-rpt <> 3 THEN
-            display ar-cashl.check-no at 4 format "x(10)" when not v-days-old 
-                    v-disc-type at 16
-                    ar-cashl.inv-no at 23
-                    ar-cash.check-date at 31 format "99/99/99"
-                    v-disc-amt to 54
-                with frame f-50{&frame} no-box no-labels stream-io width 200.
-                
-            if v-export then
-              run export-data (ar-cashl.check-no, 0, v-disc-type,
-                               string(ar-cashl.inv-no,">>>>>>>>>>"),
-                               ar-cash.check-date, v-disc-amt, 0, 0, 0, 0).*/
+            
              IF iLinePerPage  GE (iline - 5)  THEN DO:
                  PAGE.
                  PUT str-tit6 FORMAT "x(400)" SKIP 
@@ -904,6 +795,7 @@ END.
                          WHEN "per-1"     THEN cVarValue = /*STRING(v-dec[2],"->>>>>>>>9.99")"*/ "" .
                          WHEN "per-2"     THEN cVarValue = /*STRING(v-dec[3],"->>>>>>>>9.99")*/ "" .
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
+                         WHEN "per-4"     THEN cVarValue = /*STRING(v-dec[5],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
@@ -933,14 +825,8 @@ END.
 
            IF v-type EQ "VD" THEN
            DO:
-              FIND FIRST reftable WHERE
-                   reftable.reftable EQ "ARCASHLVDDATE" AND
-                   reftable.rec_key EQ ar-cashl.rec_key
-                   USE-INDEX rec_key
-                   NO-LOCK NO-ERROR.
-
-              IF AVAIL reftable THEN
-                 v-check-date = DATE(reftable.CODE).
+              IF ar-cashl.voided THEN
+                 v-check-date = ar-cashl.voidDate.
               ELSE
               DO:
                  v-gltrans-desc = "VOID " + cust.cust-no + " " +
@@ -961,19 +847,7 @@ END.
            END.
            ELSE
               v-check-date = ar-cash.check-date.
-         /* IF det-rpt = 1 THEN
-          display ar-cashl.check-no at 4 format "x(10)" when not v-days-old 
-                  v-type at 16
-                  ar-cashl.inv-no at 23
-                  v-check-date @ ar-cash.check-date at 31 format "99/99/99"
-                  v-cr-db-amt to 54
-              with frame f-100 no-box no-labels stream-io width 200.
-              
-          if v-export AND det-rpt = 1 then
-            run export-data (ar-cashl.check-no, 0, v-type,
-                             string(ar-cashl.inv-no,">>>>>>>>>>"),
-                             v-check-date, v-cr-db-amt, 0, 0, 0, 0).*/
-
+         
               IF det-rpt = 1 THEN do:
                    IF iLinePerPage  GE (iline - 5)  THEN DO:
                        PAGE.
@@ -1015,6 +889,7 @@ END.
                          WHEN "per-1"     THEN cVarValue = /*STRING(v-dec[2],"->>>>>>>>9.99")"*/ "" .
                          WHEN "per-2"     THEN cVarValue = /*STRING(v-dec[3],"->>>>>>>>9.99")*/ "" .
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
+                         WHEN "per-4"     THEN cVarValue = /*STRING(v-dec[5],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
@@ -1047,7 +922,8 @@ END.
     assign unapp[1] = 0
            unapp[2] = 0
            unapp[3] = 0
-           unapp[4] = 0.
+           unapp[4] = 0
+           unapp[5] = 0.
 
     /* This loop finds all unapplied balances and totals by age */
     {&for-each-arcsh}
@@ -1072,6 +948,9 @@ END.
 
       d = v-date - ar-cash.check-date.
 
+      if d ge v-days[4] then
+        unapp[5] = unapp[5] + v-cr-db-amt - v-disc-amt.
+      ELSE
       if d ge v-days[3] then
         unapp[4] = unapp[4] + v-cr-db-amt - v-disc-amt.
       else
@@ -1106,30 +985,6 @@ END.
 
         find first terms where terms.company = cust.company and
                                terms.t-code = ar-inv.terms no-lock no-error.
-
-       /* if det-rpt = 1 then
-          display cust.cust-no
-                  space(2)
-                  cust.name
-                  space(2)
-                  cust.area-code                            format "(xxx)"
-                  cust.phone                                format "xxx-xxxx"
-                  "  Fax:"
-                  substr(cust.fax,1,3)                      format "(xxx)"
-                  substr(cust.fax,4,7)                      format "xxx-xxxx"
-                  "  Credit Limit:"
-                  string(cust.cr-lim,">,>>>,>>>,>>9.99")    format "x(17)"
-                  skip
-                  cust.contact
-                  v-sman
-                  space(3)
-                  terms.dscr when avail terms
-            /* stacey */
-/*                   cust.avg-pay */
-                  (v-trend-days - cust.avg-pay) WHEN v-trend-days > 0
-              with no-labels no-box frame a2 stream-io width 200.
-              
-        if v-prt-add then run print-cust-add.*/
        
         assign v-first-cust = no.
       end.
@@ -1153,10 +1008,7 @@ END.
                    + STRING(ar-cash.check-no,"9999999999")
                    + " Inv# " + STRING(ar-cashl.inv-no).
 
-         IF CAN-FIND(FIRST reftable WHERE
-            reftable.reftable = "ARCASHLVDDATE" AND
-            reftable.rec_key = ar-cashl.rec_key
-            USE-INDEX rec_key) OR
+         IF ar-cashl.voided EQ YES OR
             CAN-FIND(FIRST gltrans WHERE
             gltrans.company EQ cust.company AND
             gltrans.jrnl EQ "CASHRVD" AND
@@ -1165,7 +1017,6 @@ END.
               ASSIGN
                  v-type = "VD"
                  v-neg-text = "VOID".
-              RELEASE reftable.
             END.
          ELSE
             v-type = "PY".
@@ -1184,14 +1035,8 @@ END.
       if first-unapp then do:
          IF v-type EQ "VD" THEN
          DO:
-            FIND FIRST reftable WHERE
-                 reftable.reftable EQ "ARCASHLVDDATE" AND
-                 reftable.rec_key EQ ar-cashl.rec_key
-                 USE-INDEX rec_key
-                 NO-LOCK NO-ERROR.
-           
-            IF AVAIL reftable THEN
-               v-check-date = DATE(reftable.CODE).
+            IF ar-cashl.voided THEN
+                 v-check-date = ar-cashl.voidDate.
             ELSE
             DO:
                v-gltrans-desc = "VOID " + cust.cust-no + " " +
@@ -1213,26 +1058,7 @@ END.
          ELSE
             v-check-date = ar-cash.check-date.
 
-         /*if det-rpt = 1 then
          
-           display skip(1)
-                   ar-cashl.check-no at 4 format "x(10)" when not v-days-old 
-                   v-type at 16
-                   v-neg-text at 23
-                   v-check-date @ ar-cash.check-date at 31 format "99/99/99"
-                   (v-cr-db-amt + v-disc-amt)
-                         format "->>>,>>>,>>9.99" to 54
-                   unapp[1] when unapp[1] ne 0 to 77
-                   unapp[2] when unapp[2] ne 0 to 94
-                   unapp[3] when unapp[3] ne 0 to 112
-                   unapp[4] when unapp[4] ne 0 to 131
-               with frame ab no-labels no-box stream-io width 200.
-         
-               
-         if v-export AND det-rpt = 1 then
-           run export-data (ar-cashl.check-no, 0, v-type, v-neg-text,
-                            v-check-date, v-cr-db-amt + v-disc-amt,
-                            unapp[1], unapp[2], unapp[3], unapp[4]).*/
             if det-rpt = 1 THEN do:
              IF iLinePerPage  GE (iline - 5)  THEN DO:
                  PAGE.
@@ -1274,6 +1100,7 @@ END.
                      WHEN "per-1"     THEN cVarValue = STRING(unapp[2],"->>>>>>>>9.99") .
                      WHEN "per-2"     THEN cVarValue = STRING(unapp[3],"->>>>>>>>9.99").
                      WHEN "per-3"     THEN cVarValue = STRING(unapp[4],"->>>>>>>>9.99") .
+                     WHEN "per-4"     THEN cVarValue = STRING(unapp[5],"->>>>>>>>9.99") .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
@@ -1297,6 +1124,7 @@ END.
             END. /*det-prt = 1 */
 
          assign
+          cust-t[5] = cust-t[5] + unapp[5]
           cust-t[4] = cust-t[4] + unapp[4]
           cust-t[3] = cust-t[3] + unapp[3]
           cust-t[2] = cust-t[2] + unapp[2]
@@ -1304,6 +1132,7 @@ END.
 
          IF v-sep-fc THEN
             ASSIGN
+             cust-t-pri[5] = cust-t-pri[5] + unapp[5]
              cust-t-pri[4] = cust-t-pri[4] + unapp[4]
              cust-t-pri[3] = cust-t-pri[3] + unapp[3]
              cust-t-pri[2] = cust-t-pri[2] + unapp[2]
@@ -1316,14 +1145,8 @@ END.
 
         IF v-type EQ "VD" THEN
         DO:
-           FIND FIRST reftable WHERE
-                reftable.reftable EQ "ARCASHLVDDATE" AND
-                reftable.rec_key EQ ar-cashl.rec_key
-                USE-INDEX rec_key
-                NO-LOCK NO-ERROR.
-          
-           IF AVAIL reftable THEN
-              v-check-date = DATE(reftable.CODE).
+           IF ar-cashl.voided THEN
+                 v-check-date = ar-cashl.voidDate.
            ELSE
            DO:
               v-gltrans-desc = "VOID " + cust.cust-no + " " +
@@ -1345,20 +1168,7 @@ END.
         ELSE
            v-check-date = ar-cash.check-date.
 
-       /* if det-rpt = 1 then
-          display ar-cashl.check-no at 4 format "x(10)" when not v-days-old 
-                  v-type at 16
-                  v-neg-text at 23
-                  v-check-date @ ar-cash.check-date at 31 format "99/99/99"
-                  (v-cr-db-amt + v-disc-amt)
-                           format "->>>,>>>,>>9.99" to 54
-              with frame f-2 no-box no-labels stream-io width 200.
-        
-              
-        if v-export AND det-rpt = 1 then
-          run export-data (ar-cashl.check-no, 0, v-type, v-neg-text,
-                           v-check-date, v-cr-db-amt + v-disc-amt,
-                           0, 0, 0, 0).*/
+       
        if det-rpt = 1 THEN do:
             IF iLinePerPage  GE (iline - 5)  THEN DO:
                 PAGE.
@@ -1400,6 +1210,7 @@ END.
                      WHEN "per-1"     THEN cVarValue = /*STRING(unapp[2],"->>>>>>>>9.99")*/ "" .
                      WHEN "per-2"     THEN cVarValue = /*STRING(unapp[3],"->>>>>>>>9.99")*/ "" .
                      WHEN "per-3"     THEN cVarValue = /*STRING(unapp[4],"->>>>>>>>9.99")*/ "" .
+                     WHEN "per-4"     THEN cVarValue = /*STRING(unapp[5],"->>>>>>>>9.99")*/ "" .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
@@ -1424,7 +1235,7 @@ END.
       end.
     end. /* for each ar-cashl record */
 
-    c1 = cust-t[1] + cust-t[2] + cust-t[3] + cust-t[4].
+    c1 = cust-t[1] + cust-t[2] + cust-t[3] + cust-t[4] + cust-t[5].
 
     if (not v-first-cust) or c1 ne 0 then do:
       if det-rpt = 1 then do:
@@ -1433,26 +1244,26 @@ END.
                 cust-t[2] to 94 cust-t[3] to 112 cust-t[4] to 131 skip(1)
             with frame a3 no-labels no-box no-attr-space stream-io width 200.*/
            RUN total-head("****** CUSTOMER TOTALS",c1,cust-t[1],cust-t[2],
-                           cust-t[3],cust-t[4]).
+                           cust-t[3],cust-t[4],cust-t[5]).
         
         IF v-sep-fc THEN
         DO:
            ASSIGN
-              c1-pri = cust-t-pri[1] + cust-t-pri[2] + cust-t-pri[3] + cust-t-pri[4]
-              c1-fc  = cust-t-fc[1] + cust-t-fc[2] + cust-t-fc[3] + cust-t-fc[4].
+              c1-pri = cust-t-pri[1] + cust-t-pri[2] + cust-t-pri[3] + cust-t-pri[4] + cust-t-pri[5]
+              c1-fc  = cust-t-fc[1] + cust-t-fc[2] + cust-t-fc[3] + cust-t-fc[4] + cust-t-fc[5].
 
            /*display skip(1) "***** PRINCIPAL AMOUNT" at 4 c1-pri to 54 cust-t-pri[1] to 77
                 cust-t-pri[2] to 94 cust-t-pri[3] to 112 cust-t-pri[4] to 131 skip(1)
             with frame a4 no-labels no-box no-attr-space stream-io width 200.*/
 
            RUN total-head("***** PRINCIPAL AMOUNT",c1-pri,cust-t-pri[1],cust-t-pri[2],
-                           cust-t-pri[3],cust-t-pri[4]).
+                           cust-t-pri[3],cust-t-pri[4],cust-t-pri[5]).
 
            /*display skip(1) "***** FINANCE CHARGES" at 4 c1-fc to 54 cust-t-fc[1] to 77
                 cust-t-fc[2] to 94 cust-t-fc[3] to 112 cust-t-fc[4] to 131 skip(1)
             with frame a5 no-labels no-box no-attr-space stream-io width 200.*/
            RUN total-head("****** FINANCE CHARGES",c1-fc,cust-t-fc[1],cust-t-fc[2],
-                           cust-t-fc[3],cust-t-fc[4]).
+                           cust-t-fc[3],cust-t-fc[4],cust-t-fc[5]).
         END.
 
         if not last-of(tt-cust.sorter) or "{&sort-by}" ne "cust.sman" then
@@ -1461,7 +1272,7 @@ END.
       ELSE IF det-rpt = 2 THEN DO:
 
           RUN total-head("cust.cust-no",c1,cust-t[1],cust-t[2],
-                           cust-t[3],cust-t[4]).
+                           cust-t[3],cust-t[4],cust-t[5]).
 
         /*display cust.cust-no space(2) cust.name + "  " + m3 format "x(50)" skip
                 c1        to 54
@@ -1472,40 +1283,11 @@ END.
                 skip(1)
             with frame a3sum no-labels no-box no-attr-space stream-io width 200.*/
          if v-export THEN DO:
-            /*IF NOT v-prt-add THEN
-               EXPORT STREAM s-temp DELIMITER ","
-                  trim(cust.cust-no) 
-                  trim(cust.NAME)
-                  m3                                         
-                  c1                                      
-                  cust-t[1]                                            
-                  cust-t[2]
-                  cust-t[3]
-                  cust-t[4]
-                  SKIP.
-            ELSE 
-               EXPORT STREAM s-temp DELIMITER ","
-                  trim(cust.cust-no) 
-                  trim(cust.NAME)
-                  trim(cust.addr[1])                                      
-                  trim(cust.addr[2])                                      
-                  trim(cust.city)                                         
-                  trim(cust.state)                                        
-                  trim(cust.zip)                                                         
-                  trim(string(cust.area-code,"(xxx)") + " " +
-                       string(cust.phone,"xxx-xxxx"))                     
-                  trim(string(substr(cust.fax,1,3),"(xxx)") + " " +
-                       string(substr(cust.fax,4,7),"xxx-xxxx"))
-                  c1                                      
-                  cust-t[1]                                            
-                  cust-t[2]
-                  cust-t[3]
-                  cust-t[4]
-                  SKIP.*/ 
+            
          END.
       END.
             
-      do i = 1 to 4:
+      do i = 1 to 5:
          ASSIGN
             sman-t[i] = sman-t[i] + cust-t[i]
             cust-t[i] = 0.
@@ -1525,7 +1307,7 @@ END.
       if "{&sort-by}" eq "cust.sman" THEN DO:
         IF det-rpt <> 3 THEN
             RUN total-head("****** SALESREP TOTALS",c1,sman-t[1],sman-t[2],
-                           sman-t[3],sman-t[4]).
+                           sman-t[3],sman-t[4],0).
         /*display v-sman                  at 4    format "x(33)"
                 "TOTALS: " + v-sman                  @ v-sman
                 "***** SALESREP TOTALS" when det-rpt = 1 @ v-sman
@@ -1586,7 +1368,7 @@ END.
         c1 = curr-t[1] + curr-t[2] + curr-t[3] + curr-t[4].
         IF NOT det-rpt = 3 THEN
              RUN total-head("        CURRENCY TOTAL",c1,curr-t[1],curr-t[2],
-                           curr-t[3],curr-t[4]).
+                           curr-t[3],curr-t[4],0).
         /*display fill("_",132) format "x(131)"
                 "CURRENCY TOTAL"        at 12
                 c1                      to 54
@@ -1604,7 +1386,7 @@ END.
             with frame curr2 STREAM-IO WIDTH 200 no-labels no-box no-attr-space.*/
 
         RUN total-head("PERCENTAGE COMPOSITION",0,(IF c1 NE 0 THEN (curr-t[1] / c1) * 100 ELSE 0),(IF c1 NE 0 THEN (curr-t[2] / c1) * 100 ELSE 0),
-                           (IF c1 NE 0 THEN (curr-t[3] / c1) * 100 ELSE 0),(IF c1 NE 0 THEN (curr-t[4] / c1) * 100 ELSE 0)).
+                           (IF c1 NE 0 THEN (curr-t[3] / c1) * 100 ELSE 0),(IF c1 NE 0 THEN (curr-t[4] / c1) * 100 ELSE 0),0).
 
         IF v-export THEN DO:
            IF NOT det-rpt = 1 THEN DO:
@@ -1642,7 +1424,7 @@ END.
         END.
       END.
 
-      do i = 1 to 4:
+      do i = 1 to 5:
         ASSIGN
            grand-t[i] = grand-t[i] + curr-t[i]
            curr-t[i]  = 0.
@@ -1669,7 +1451,7 @@ END.
     PAGE.
   END.
 
-  t1 = grand-t[1] + grand-t[2] + grand-t[3] + grand-t[4].
+  t1 = grand-t[1] + grand-t[2] + grand-t[3] + grand-t[4] + grand-t[5].
 
   /*display fill("_",132) WHEN det-rpt <> 3 format "x(131)"
     "GRAND TOTAL " AT 12  t1 to 54
@@ -1680,10 +1462,10 @@ END.
     with frame grand1 no-box no-labels no-attr-space STREAM-IO WIDTH 200.*/
     
     RUN total-head("           GRAND TOTAL",t1,grand-t[1],grand-t[2],
-                           grand-t[3],grand-t[4]).
+                           grand-t[3],grand-t[4],grand-t[5]).
 
     RUN total-head("PERCENTAGE COMPOSITION",0,(IF t1 NE 0 THEN (grand-t[1] / t1) * 100 ELSE 0),(IF t1 NE 0 THEN (grand-t[2] / t1) * 100 ELSE 0),
-                           (IF t1 NE 0 THEN (grand-t[3] / t1) * 100 ELSE 0),(IF t1 NE 0 THEN (grand-t[4] / t1) * 100 ELSE 0)).
+                           (IF t1 NE 0 THEN (grand-t[3] / t1) * 100 ELSE 0),(IF t1 NE 0 THEN (grand-t[4] / t1) * 100 ELSE 0),(IF t1 NE 0 THEN (grand-t[5] / t1) * 100 ELSE 0)).
 
   /*display SPACE(11) "PERCENTAGE COMPOSITION"
     (IF t1 NE 0 THEN (grand-t[1] / t1) * 100 ELSE 0) to 77 format "->,>>>,>>>,>>9.99"
@@ -1756,11 +1538,11 @@ END.
   IF v-sep-fc THEN
   DO:
      ASSIGN
-        t1-pri = grand-t-pri[1] + grand-t-pri[2] + grand-t-pri[3] + grand-t-pri[4]
-        t1-fc =  grand-t-fc[1] + grand-t-fc[2] + grand-t-fc[3] + grand-t-fc[4].
+        t1-pri = grand-t-pri[1] + grand-t-pri[2] + grand-t-pri[3] + grand-t-pri[4] + grand-t-pri[5]
+        t1-fc =  grand-t-fc[1] + grand-t-fc[2] + grand-t-fc[3] + grand-t-fc[4] + + grand-t-fc[5].
 
      RUN total-head("      PRINCIPAL AMOUNT",t1-pri,grand-t-pri[1],grand-t-pri[2],
-                           grand-t-pri[3],grand-t-pri[4]).
+                           grand-t-pri[3],grand-t-pri[4],grand-t-pri[5]).
 
      /*DISPLAY 
        "PRINCIPAL AMOUNT " AT 12  t1-pri to 54
@@ -1771,7 +1553,7 @@ END.
        with frame grand-pri no-box no-labels no-attr-space STREAM-IO WIDTH 200.*/
 
      RUN total-head("       FINANCE CHARGES",t1-fc,grand-t-fc[1],grand-t-fc[2],
-                           grand-t-fc[3],grand-t-fc[4]).
+                           grand-t-fc[3],grand-t-fc[4],grand-t-fc[5]).
 
      /*DISPLAY
        "FINANCE CHARGES " AT 12  t1-fc to 54
@@ -2052,6 +1834,7 @@ END.
      DEF INPUT PARAMETER per-day1 AS DECIMAL.
      DEF INPUT PARAMETER per-day2 AS DECIMAL.
      DEF INPUT PARAMETER per-day3 AS DECIMAL.
+     DEF INPUT PARAMETER per-day4 AS DECIMAL.
 
         ASSIGN cDisplay = ""
                cTmpField = ""
@@ -2077,7 +1860,11 @@ END.
                      WHEN "stat"      THEN cVarValue = "" .
                      WHEN "zip"       THEN cVarValue = ""  .
                      WHEN "cre-lim"   THEN cVarValue = "" .
-                     WHEN "phone"     THEN cVarValue = "" .
+                     WHEN "phone"    THEN DO:
+                         IF vname = "cust.cust-no" THEN
+                              cVarValue = trim(string(cust.area-code,"(xxx)") + string(cust.phone,"xxx-xxxx")) .
+                          ELSE cVarValue = "" .
+                     END.                      
                      WHEN "fax"       THEN cVarValue = "".
                      WHEN "chk-memo"  THEN cVarValue = "".
                      WHEN "day-old"   THEN cVarValue = "".
@@ -2091,6 +1878,7 @@ END.
                      WHEN "per-1"     THEN cVarValue = STRING(per-day1,"->>>>>>>>9.99") .
                      WHEN "per-2"     THEN cVarValue = STRING(per-day2,"->>>>>>>>9.99") .
                      WHEN "per-3"     THEN cVarValue = STRING(per-day3,"->>>>>>>>9.99")  .
+                     WHEN "per-4"     THEN cVarValue = STRING(per-day4,"->>>>>>>>9.99")  .
                      WHEN "cust-po"   THEN cVarValue = "" .
                      WHEN "job"       THEN cVarValue = ""  .
                      WHEN "bol"       THEN cVarValue = "" .

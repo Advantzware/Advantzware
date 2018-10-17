@@ -941,8 +941,7 @@ FOR EACH rfqitem OF rfq WHERE INDEX(ls-seq-list,STRING(rfqitem.seq,">>9")) > 0 :
        est.form-qty = 1               
        est.mod-date = 01/01/1900  /* Indiana mods Task# 05110404 */
        est.est-date = TODAY
-       ls-key = STRING(TODAY,"99999999") +
-                string(NEXT-VALUE(rec_key_seq,nosweat),"99999999")
+       ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey")
        est.rec_key = ls-key.
 
     CREATE est-qty.
@@ -1227,8 +1226,7 @@ PROCEDURE trx-rfq-to-est-4 :
               est.form-qty = li-num-of-form
               est.est-date = TODAY 
               est.mod-date = 01/01/1900  /* Indiana mods Task# 05110404 */
-      ls-key = STRING(TODAY,"99999999") +
-             string(NEXT-VALUE(rec_key_seq,nosweat),"99999999")
+      ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey")
       est.rec_key = ls-key.       
 
       CREATE est-qty.
@@ -1359,8 +1357,7 @@ PROCEDURE trx-rfq-to-est-6 :
               est.form-qty = li-num-of-form
               est.est-date = TODAY 
               est.mod-date = 01/01/1900  /* Indiana mods Task# 05110404 */
-        ls-key = STRING(TODAY,"99999999") +
-             string(NEXT-VALUE(rec_key_seq,nosweat),"99999999")
+        ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey")
         est.rec_key = ls-key
         lv-est-recid = RECID(est).
         CREATE est-qty.

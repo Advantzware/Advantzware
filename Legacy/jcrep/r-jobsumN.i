@@ -521,7 +521,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
             
         IF v-foh                                                  AND
            (work-mch.est-mr-cost2 NE 0 OR work-mch.mr-cost2 NE 0) THEN
-            RUN mach-data("Fixed Overhead",0,ROUND(work-mch.est-mr-cost1,0),0,ROUND(work-mch.mr-cost1,0),0,0).
+            RUN mach-data("Fixed Overhead",0,ROUND(work-mch.est-mr-cost2,0),0,ROUND(work-mch.mr-cost2,0),0,0).
           /*DISPLAY "Fixed Overhead"                                     AT 8
                   ROUND(work-mch.est-mr-cost2,0)    FORMAT "zzzz,zzz-" AT 51
                   ROUND(work-mch.mr-cost2,0)        FORMAT "zzzz,zzz-" AT 77
@@ -529,51 +529,13 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
             
         IF v-voh                                                  AND
            (work-mch.est-mr-cost3 NE 0 OR work-mch.mr-cost3 NE 0) THEN
-           RUN mach-data("Variable Overhead",0,ROUND(work-mch.est-mr-cost1,0),0,ROUND(work-mch.mr-cost1,0),0,0).
+           RUN mach-data("Variable Overhead",0,ROUND(work-mch.est-mr-cost3,0),0,ROUND(work-mch.mr-cost3,0),0,0).
           /*DISPLAY "Variable Overhead"                                  AT 8
                   ROUND(work-mch.est-mr-cost3,0)    FORMAT "zzzz,zzz-" AT 51
                   ROUND(work-mch.mr-cost3,0)        FORMAT "zzzz,zzz-" AT 75
               WITH FRAME det-r1c NO-BOX NO-LABELS STREAM-IO WIDTH 87.*/
 
-        /*display "R" at 25
-                work-mch.run-qty AT 26 format ">>>>>>>9-"
-                round(work-mch.est-run-hr,2) at 35 format ">>>9.99-"
-                  when work-mch.est-run-hr ne 0
-                   and work-mch.est-run-hr ne ?
-                work-mch.est-speed 
-                  when work-mch.est-speed ne 0
-                   and work-mch.est-speed ne ? format ">>>>>9-"
-                work-mch.est-run-cost format ">>>,>>9-"
-                  when work-mch.est-run-cost ne 0
-                   and work-mch.est-run-cost ne ?
-                work-mch.run-hr format ">>>9.9-"
-                  when work-mch.run-hr ne 0
-                   and work-mch.run-hr ne ?
-                work-mch.run-speed 
-                  when work-mch.run-speed ne 0
-                   and work-mch.run-speed ne ? format ">>>>>9-"
-                v-run-cost format ">>>>,>>9-"
-                  when v-run-cost ne 0
-                   and v-run-cost ne ?
-                v-run-cost-var format ">,>>>,>>9-"
-                  when v-run-cost-var ne 0
-                   and v-run-cost-var ne ?
-                v-run-prod-p format ">>>9.9-"
-                  when v-run-prod-p ne 0
-                   and v-run-prod-p ne ?
-                "     "
-                work-mch.run-waste format ">>>,>>9-"
-                  when work-mch.run-waste ne 0
-                   and work-mch.run-waste ne ?
-                work-mch.wst-qty format ">>>,>>9-"
-                  when work-mch.wst-qty ne 0
-                   and work-mch.wst-qty ne ?
-                v-run-wst-var format ">>>>>9.9-"
-                  when v-run-wst-var ne 0
-                   and v-run-wst-var ne ?
-
-            WITH FRAME det-r2 STREAM-IO WIDTH 200 NO-BOX down NO-LABELS.*/
-
+       
         ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -628,7 +590,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
             
         IF v-foh                                                    AND
            (work-mch.est-run-cost2 NE 0 OR work-mch.run-cost2 NE 0) THEN
-            RUN mach-data("Fixed Overhead",0,ROUND(work-mch.est-run-cost1,0),0,ROUND(work-mch.run-cost1,0),0,0).
+            RUN mach-data("Fixed Overhead",0,ROUND(work-mch.est-run-cost2,0),0,ROUND(work-mch.run-cost2,0),0,0).
          /* DISPLAY "Fixed Overhead"                                     AT 8
                   ROUND(work-mch.est-run-cost2,0)   FORMAT "zzzz,zzz-" AT 51
                   ROUND(work-mch.run-cost2,0)       FORMAT "zzzz,zzz-" AT 77
@@ -636,7 +598,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
             
         IF v-voh                                                    AND
            (work-mch.est-run-cost3 NE 0 OR work-mch.run-cost3 NE 0) THEN
-            RUN mach-data("Variable Overhead",0,ROUND(work-mch.est-run-cost1,0),0,ROUND(work-mch.run-cost1,0),0,0).
+            RUN mach-data("Variable Overhead",0,ROUND(work-mch.est-run-cost3,0),0,ROUND(work-mch.run-cost3,0),0,0).
           /*DISPLAY "Variable Overhead"                                  AT 8
                   ROUND(work-mch.est-run-cost3,0)   FORMAT "zzzz,zzz-" AT 51
                   ROUND(work-mch.run-cost3,0)       FORMAT "zzzz,zzz-" AT 77

@@ -1702,7 +1702,11 @@ PROCEDURE pGenerateInclude :
         UPDATE viewCode AS LOGICAL
         .
     IF viewCode THEN
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+    open-mime-resource "text/plain" string("file:///aoa/includes/p" + REPLACE(aoaTitle," ","") + ".i") false.
+&ELSE
     OS-COMMAND NO-WAIT notepad.exe VALUE("aoa/includes/p" + REPLACE(aoaTitle," ","") + ".i").
+&ENDIF
 
 END PROCEDURE.
 

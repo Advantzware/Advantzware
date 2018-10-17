@@ -1,0 +1,3 @@
+/* prgrms.i */
+
+RUN pRebuildMenuTree.

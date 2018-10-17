@@ -48,6 +48,8 @@ DEFINE VARIABLE oeprep-char AS CHARACTER NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
 
 ASSIGN
  cocode = gcompany
@@ -96,7 +98,7 @@ DEFINE VARIABLE v-ord-date AS DATE.
 DEFINE VARIABLE v-inv-disc AS DECIMAL FORMAT "->>,>>9.99".
 DEFINE VARIABLE v-inv-disc-w AS DECIMAL NO-UNDO.
 DEFINE VARIABLE ld-temp-amt AS DECIMAL.
-DEFINE VARIABLE v-tax-rate AS DECIMAL EXTENT 4.
+DEFINE VARIABLE v-tax-rate LIKE stax.tax-rate1.
 
 DEFINE VARIABLE v-uninv-ordl-amt LIKE oe-ordl.t-price NO-UNDO INIT 0.
 DEFINE VARIABLE v-u-inv LIKE oe-ctrl.u-inv INIT FALSE.
@@ -541,7 +543,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Invoice Posting */
 DO:
-  /* This event will close the window and terminate the procedure.  */
+    /* This event will close the window and terminate the procedure.  */
+  DELETE OBJECT hNotesProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -1093,9 +1096,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   {methods/nowait.i}
 
-
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -110,19 +110,16 @@ DO idx = 1 TO NUM-ENTRIES(ipcType):
                     shifts.description '","'
                     STRING(shifts.start_time,'HH:MM') '"'
                     .
-                FIND FIRST reftable NO-LOCK
-                     WHERE reftable.reftable EQ "ShiftDays"
-                       AND reftable.CODE     EQ shifts.rec_key
-                     NO-ERROR.
-                /* indicates all days of the week */
-                IF NOT AVAILABLE reftable OR reftable.loc NE "1" THEN
+                
+                IF shifts.useSpecificDays EQ FALSE THEN
                 PUT UNFORMATTED ',1,1,1,1,1,1,1'.
                 ELSE
-                DO idx = 1 TO NUM-ENTRIES(reftable.code2):
+                DO idx = 1 TO NUM-ENTRIES(shifts.dayList):
                     PUT UNFORMATTED
-                        ',' IF ENTRY(idx,reftable.code2) EQ 'yes' THEN '1' ELSE '0' 
+                        ',' IF ENTRY(idx,shifts.dayList) EQ 'yes' THEN '1' ELSE '0' 
                         .
                 END. /* do idx */
+              
                 PUT UNFORMATTED SKIP. 
             END. /* each shifts */
             OUTPUT CLOSE.

@@ -28,10 +28,13 @@ DEFINE TEMP-TABLE ttOrdersBooked NO-UNDO
     FIELD dieNo        AS CHARACTER LABEL "Die No"         FORMAT "x(15)"
     FIELD vUserID      AS CHARACTER LABEL "User ID"        FORMAT "x(8)"
     FIELD prUOM        AS CHARACTER LABEL "UOM"            FORMAT "x(6)" 
-    FIELD xxCost       AS DECIMAL   LABEL "Cost"           FORMAT "->>,>>9.99"
+    FIELD machineCode  AS CHARACTER LABEL "Machine"        FORMAT "x(30)"
+    FIELD inksCode     AS CHARACTER LABEL "Inks"           FORMAT "x(40)"
+    FIELD printSheet   AS CHARACTER LABEL "Prints Sheet"   FORMAT "x(20)"
+    FIELD dCstPerM     AS DECIMAL   LABEL "Cost/$m"        FORMAT "->>>,>>>,>>9.99"
+    FIELD dTotStdCost  AS DECIMAL   LABEL "Total Std Cost" FORMAT "->>>>>>>9.99"
+    FIELD dFullCost  AS DECIMAL   LABEL "Full Cost"        FORMAT "->>>>>>>9.99"
+    FIELD xxCost       AS DECIMAL   LABEL "Cost"           FORMAT "->>,>>9.99"   
     FIELD xxSort       AS CHARACTER LABEL "Sort"           FORMAT "x(100)"
-    FIELD MachineCode  AS CHARACTER LABEL "MACHINE"        FORMAT "x(30)"
-    FIELD InksCode     AS CHARACTER LABEL "INKS"           FORMAT "x(40)"
-    FIELD PrintSheet   AS CHARACTER LABEL "PRINTS SHEET"   FORMAT "x(20)"
         INDEX ttOrdersBooked IS PRIMARY rowType xxSort
         .

@@ -73,8 +73,8 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
         ll    = 0.
    end.
    
-   if r-add1 eq " " then do:   /*if no remit-to address*/
-     if length(vend.r-zip) gt 5 then
+   /*if r-add1 eq " " then do:   /*if no remit-to address*/ 
+     if length(vend.zip) gt 5 then
        csz = vend.city + ", " + vend.state + " " +
              substr(vend.zip,1,5) + "-" + substr(vend.zip,6,4).
      else
@@ -85,17 +85,17 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
       add2 = vend.add2.
    end.
    
-   else do: /*if a remit-to address exists  GEH */
+   else do: /*if a remit-to address exists  GEH */ */  /*Ticket - 35388 */
      if length(vend.r-zip) gt 5 then
        csz = vend.r-city + ", " + vend.r-state + " " +
              substr(vend.r-zip,1,5) + "-" + substr(vend.r-zip,6,4).
-     else
+     ELSE IF vend.r-state NE ""  OR vend.r-zip NE "" THEN
        csz = vend.r-city + ", " + vend.r-state + " " + vend.r-zip.
 
      assign
       add1 = vend.r-add1
       add2 = vend.r-add2.
-   end.
+   /*end.*/
    
    assign
     ap-chk.check-date = wdate

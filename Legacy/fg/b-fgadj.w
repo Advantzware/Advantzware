@@ -63,6 +63,18 @@ DO TRANSACTION:
   {sys/inc/fgsecur.i}
 END.
 
+DEF VAR cRtnChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lAdjustReason-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
+DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+
+RUN sys/ref/nk1look.p (INPUT cocode, "AdjustReason", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+lAdjustReason-log = LOGICAL(cRtnChar) NO-ERROR.
+
+
 &SCOPED-DEFINE item-key-phrase TRUE
 
 /* _UIB-CODE-BLOCK-END */
@@ -93,11 +105,11 @@ END.
 STRING(fg-rctd.trans-time,'HH:MM') @ trans-time fg-rctd.i-no fg-rctd.i-name ~
 fg-rctd.job-no fg-rctd.job-no2 fg-rctd.loc fg-rctd.loc-bin fg-rctd.tag ~
 fg-rctd.cust-no fg-rctd.cases fg-rctd.qty-case fg-rctd.partial ~
-fg-rctd.t-qty fg-rctd.ext-cost fg-rctd.created-by fg-rctd.updated-by 
+fg-rctd.t-qty fg-rctd.ext-cost fg-rctd.created-by fg-rctd.updated-by fg-rctd.reject-code[1]
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table fg-rctd.rct-date ~
 fg-rctd.i-no fg-rctd.i-name fg-rctd.job-no fg-rctd.job-no2 fg-rctd.loc ~
 fg-rctd.loc-bin fg-rctd.tag fg-rctd.cust-no fg-rctd.cases fg-rctd.qty-case ~
-fg-rctd.partial 
+fg-rctd.partial fg-rctd.reject-code[1]
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table fg-rctd
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table fg-rctd
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
@@ -131,6 +143,7 @@ auto_find Btn_Clear_Find
 
 
 /* Definitions of the field level widgets                               */
+
 DEFINE BUTTON Btn_Clear_Find 
      LABEL "&Clear Find" 
      SIZE 13 BY 1
@@ -190,7 +203,12 @@ DEFINE BROWSE Browser-Table
             WIDTH 15
       fg-rctd.updated-by COLUMN-LABEL "Last Updated By" FORMAT "x(8)":U
             WIDTH 15
-  ENABLE
+      fg-rctd.reject-code[1] COLUMN-LABEL "Reason" WIDTH 25
+      VIEW-AS COMBO-BOX INNER-LINES 10
+      LIST-ITEM-PAIRS "Item 1","Item 1"
+      DROP-DOWN-LIST 
+     
+    ENABLE
       fg-rctd.rct-date
       fg-rctd.i-no
       fg-rctd.i-name
@@ -203,6 +221,7 @@ DEFINE BROWSE Browser-Table
       fg-rctd.cases
       fg-rctd.qty-case
       fg-rctd.partial
+      fg-rctd.reject-code[1]
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 144 BY 15.24
@@ -336,6 +355,8 @@ fg-rctd.rita-code = ""A"""
 "fg-rctd.created-by" "Created By" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.fg-rctd.updated-by
 "fg-rctd.updated-by" "Last Updated By" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[19]   > asi.fg-rctd.reject-code[1]
+"fg-rctd.reject-code[1]" "Reason" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -382,7 +403,7 @@ DO:
 
   CASE FOCUS:NAME:
     WHEN "i-no" THEN DO:
-      RUN windows/l-itemfg.w (fg-rctd.company, "", FOCUS:SCREEN-VALUE, OUTPUT char-val).
+      RUN windows/l-itemfg.w (cocode, "", FOCUS:SCREEN-VALUE, OUTPUT char-val).
       IF char-val NE "" AND FOCUS:SCREEN-VALUE NE ENTRY(1,char-val) THEN DO:
         FOCUS:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
         APPLY "value-changed" TO FOCUS.
@@ -507,6 +528,17 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.reject-code[1] Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF fg-rctd.reject-code[1] IN BROWSE Browser-Table /* reject No */
+DO: 
+
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.i-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF fg-rctd.i-no IN BROWSE Browser-Table /* Item No */
@@ -806,7 +838,7 @@ PROCEDURE fgbin-help :
         FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
         TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 
-    RUN windows/l-fgibn4.w (fg-rctd.company, fg-rctd.i-no:screen-value in browse {&browse-name}, fg-rctd.job-no:screen-value in browse {&browse-name}, INT(fg-rctd.job-no2:screen-value in browse {&browse-name}), fg-rctd.loc:screen-value in browse {&browse-name}, fg-rctd.loc-bin:screen-value in browse {&browse-name}, fg-rctd.tag:screen-value in browse {&browse-name}, output lv-rowid).
+    RUN windows/l-fgibn4.w (cocode, fg-rctd.i-no:screen-value in browse {&browse-name}, fg-rctd.job-no:screen-value in browse {&browse-name}, INT(fg-rctd.job-no2:screen-value in browse {&browse-name}), fg-rctd.loc:screen-value in browse {&browse-name}, fg-rctd.loc-bin:screen-value in browse {&browse-name}, fg-rctd.tag:screen-value in browse {&browse-name}, output lv-rowid).
 
     FIND fg-bin WHERE ROWID(fg-bin) EQ lv-rowid NO-LOCK NO-ERROR.
 
@@ -882,14 +914,44 @@ PROCEDURE local-assign-statement :
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
+    /* Buttons were made sensitive = no during add, so reverse that here */
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
+    RUN make-buttons-sensitive IN WIDGET-HANDLE(char-hdl).
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
-  ASSIGN fg-rctd.trans-time   = TIME .
+  ASSIGN fg-rctd.trans-time   = TIME 
+         fg-rctd.enteredBy = USERID("asi")
+         fg-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+         .
 
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN BROWSE {&browse-name} fg-rctd.t-qty fg-rctd.ext-cost.
   fg-rctd.cost-uom = lv-uom.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win 
+PROCEDURE local-cancel-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+ /* Buttons were made not sensitive during add, so reverse that here */
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
+  RUN make-buttons-sensitive IN WIDGET-HANDLE(char-hdl).
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+  /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
 
@@ -906,6 +968,9 @@ PROCEDURE local-create-record :
   DEF BUFFER b-fg-rctd FOR fg-rctd.
   
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
+  RUN make-buttons-insensitive IN WIDGET-HANDLE(char-hdl).
+
   lv-rno = 0.
   FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
   IF AVAIL b-fg-rctd AND b-fg-rctd.r-no GT lv-rno THEN lv-rno = b-fg-rctd.r-no.
@@ -1003,7 +1068,7 @@ PROCEDURE local-enable-fields :
   def var ii as int no-undo.
   def var hd-next as widget-handle no-undo.
   DEF VAR li AS INT NO-UNDO.
-
+  DEFINE VARIABLE ilogic AS LOG NO-UNDO.
    
   /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -1064,6 +1129,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
+PROCEDURE local-open-query :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+ 
+  RUN build-type-list .
+
+  GET FIRST {&browse-name}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -1073,6 +1159,8 @@ PROCEDURE local-update-record :
   def var li as int no-undo.
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN valid-reason NO-ERROR .
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1233,6 +1321,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-reason B-table-Win 
+PROCEDURE valid-reason :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  DO WITH FRAME {&FRAME-NAME}:
+
+    IF cComboList NE "" AND lAdjustReason-log AND fg-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""
+    THEN DO:
+      MESSAGE "Please Enter , Adjustment Reason code..." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO fg-rctd.reject-code[1] IN BROWSE {&browse-name}.
+      RETURN ERROR.
+    END.
+  END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-loc-bin-tag B-table-Win 
 PROCEDURE valid-job-loc-bin-tag :
 /*------------------------------------------------------------------------------
@@ -1315,7 +1427,7 @@ PROCEDURE validate-record :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  FIND itemfg WHERE itemfg.company = fg-rctd.company
+  FIND itemfg WHERE itemfg.company = cocode
                 AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                 NO-LOCK NO-ERROR.
   IF NOT AVAIL itemfg THEN DO:
@@ -1398,3 +1510,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-type-list B-table-Win 
+PROCEDURE build-type-list :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    ASSIGN cComboList = ""  .
+
+    RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
+    RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
+    DELETE OBJECT hPgmReason.
+
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            fg-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
+    END.
+      
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

@@ -44,6 +44,8 @@ FOR EACH oe-ord NO-LOCK
       AND oe-ord.cust-no  LE cEndCustNo
       AND oe-ord.ord-date GE dtTrandate
       AND oe-ord.ord-date LE dtEndOrderDate
+      AND oe-ord.due-date GE dtStartDueDate
+      AND oe-ord.due-date LE dtEndDueDate
       AND oe-ord.type     NE "T"
       AND oe-ord.stat     NE "D"
     BY oe-ord.company 
@@ -535,9 +537,12 @@ PROCEDURE pOrdersBooked2:
             ttOrdersBooked.xxSort       = ttOrdersBooked.salesRep
                                         + STRING(ttOrdersBooked.dueDate,"99/99/9999")
                                         + STRING(ttOrdersBooked.orderNo)  
-	    ttOrdersBooked.MachineCode  = fGetRoutingForJob()
+	        ttOrdersBooked.MachineCode  = fGetRoutingForJob()
             ttOrdersBooked.InksCode     = fGetInksForJob()
-            ttOrdersBooked.PrintSheet   = IF AVAIL itemfg THEN itemfg.plate-no ELSE ""           
+            ttOrdersBooked.PrintSheet   = IF AVAILABLE itemfg THEN itemfg.plate-no ELSE ""
+            ttOrdersBooked.dCstPerM     = IF AVAILABLE oe-ordl THEN oe-ordl.cost ELSE 0
+            ttOrdersBooked.dTotStdCost  = IF AVAILABLE oe-ordl THEN oe-ordl.t-cost ELSE 0
+            ttOrdersBooked.dFullCost  = IF AVAILABLE oe-ordl THEN oe-ordl.spare-dec-1 ELSE 0.
             . 
         DELETE w-data.
     END.  /* for each tt-report */
@@ -549,82 +554,83 @@ END PROCEDURE.
 /* ************************  Function Implementations ***************** */
 FUNCTION fGetRoutingForJob RETURNS CHARACTER 
     (  ):
-    /*------------------------------------------------------------------------------
-     Purpose: 
-     Notes:
-    ------------------------------------------------------------------------------*/    
+/*------------------------------------------------------------------------------
+ Purpose: 
+ Notes:
+------------------------------------------------------------------------------*/    
+     DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
 
-     DEFINE VARIABLE dResult    AS CHARACTER NO-UNDO.
-
-     IF AVAIL oe-ord THEN  
+     IF AVAILABLE oe-ord THEN  
      FIND FIRST job NO-LOCK
           WHERE job.company EQ oe-ord.company
-            AND job.job-no EQ oe-ord.job-no
-            AND job.job-no2 EQ oe-ord.job-no2 NO-ERROR.
-
-    IF AVAIL job THEN DO:
-        FOR EACH job-mch WHERE job-mch.company = job.company 
-            AND job-mch.job = job.job 
-            AND job-mch.job-no = job.job-no 
-            AND job-mch.job-no2 = job.job-no2 
-            use-index line-idx NO-LOCK BREAK BY job-mch.job :
+            AND job.job-no  EQ oe-ord.job-no
+            AND job.job-no2 EQ oe-ord.job-no2
+          NO-ERROR.
+    IF AVAILABLE job THEN DO:
+        FOR EACH job-mch NO-LOCK
+            WHERE job-mch.company EQ job.company 
+              AND job-mch.job     EQ job.job 
+              AND job-mch.job-no  EQ job.job-no 
+              AND job-mch.job-no2 EQ job.job-no2 
+            USE-INDEX line-idx
+            BREAK BY job-mch.job
+            :
             IF NOT LAST(job-mch.job) THEN
-                dResult = dResult + job-mch.m-code + "," .
-            ELSE dResult = dResult + job-mch.m-code .
+                cResult = cResult + job-mch.m-code + ",".
+            ELSE cResult = cResult + job-mch.m-code.
         END.
     END.                
 
-    RETURN dResult.
+    RETURN cResult.
 
         
 END FUNCTION.
 
 FUNCTION fGetInksForJob RETURNS CHARACTER 
     (  ):
-    /*------------------------------------------------------------------------------
-     Purpose: 
-     Notes:
-    ------------------------------------------------------------------------------*/    
-DEFINE VARIABLE dResult    AS CHARACTER NO-UNDO.
+/*------------------------------------------------------------------------------
+ Purpose: 
+ Notes:
+------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
 
-    IF AVAIL oe-ord THEN  
+    IF AVAILABLE oe-ord THEN  
      FIND FIRST job NO-LOCK
           WHERE job.company EQ oe-ord.company
             AND job.job-no EQ oe-ord.job-no
             AND job.job-no2 EQ oe-ord.job-no2 NO-ERROR.
 
-    IF AVAIL job THEN DO:
-        IF AVAIL eb THEN
-            for each job-mat where job-mat.company eq job.company
-                and job-mat.job     eq job.job  
-                and job-mat.frm     eq eb.form-no
-                NO-LOCK ,
-                first item
-                where (item.company = job.company and 
-       		(item.mat-type = "I" or item.mat-type = "V"))
-                and item.i-no eq job-mat.i-no:
-                    IF eb.est-type LE 4 THEN do:
-                        do i = 1 to 20:
-                            if eb.i-code2[i] eq job-mat.i-no then do:
-                                IF LOOKUP(job-mat.i-no,dResult) EQ 0 THEN
-                                 dResult = dResult + job-mat.i-no + "," .
-                            end.
-                        end. /* loop i */
+    IF AVAILABLE job THEN DO:
+        IF AVAILABLE eb THEN
+        FOR EACH job-mat NO-LOCK
+            WHERE job-mat.company EQ job.company
+              AND job-mat.job     EQ job.job  
+              AND job-mat.frm     EQ eb.form-no,
+            FIRST item NO-LOCK 
+            WHERE (item.company   EQ job.company
+              AND (item.mat-type  EQ "I"
+               OR item.mat-type   EQ "V"))
+              AND item.i-no EQ job-mat.i-no
+            :
+            IF eb.est-type LE 4 THEN DO:
+                DO i = 1 TO 20:
+                    IF eb.i-code2[i] EQ job-mat.i-no THEN DO:
+                        IF LOOKUP(job-mat.i-no,cResult) EQ 0 THEN
+                         cResult = cResult + job-mat.i-no + ",".
                     END.
-                    ELSE do:
-                        do i = 1 to 10:
-                            if eb.i-code[i] eq job-mat.i-no then do:
-                                IF LOOKUP(job-mat.i-no,dResult) EQ 0 THEN
-                                 dResult = dResult + job-mat.i-no + "," . 
-                            end.
-                        end. /* loop i */
-                    END.
-            END.
-    END.                
+                END. /* loop i */
+            END. /* if est-type */
+            ELSE DO:
+                DO i = 1 TO 10:
+                    IF eb.i-code[i] EQ job-mat.i-no THEN DO:
+                        IF LOOKUP(job-mat.i-no,cResult) EQ 0 THEN
+                        cResult = cResult + job-mat.i-no + ",". 
+                    END. /* if i-code */
+                END. /* loop i */
+            END. /* else */
+        END. /* each job-mat */
+    END. /* if avail */                
 
-    RETURN dResult.
-
+    RETURN cResult.
         
 END FUNCTION.
-
-

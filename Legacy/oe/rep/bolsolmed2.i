@@ -59,8 +59,8 @@
                 /*"<R24><C71><FROM><R26><C71><LINE>" SKIP
                 "<R24><C74><FROM><R26><C74><LINE>" SKIP.*/
    
-   IF lv-bolfmt-int = 1 THEN PUT "<FArial><=5><R+1> Line#   Part#/Ord#                   PO#                             Description / Components                          Units          P/C      <FCourier New>" SKIP(1).
-                       ELSE  PUT "<FArial><=5><R+1> Line#  Part#                                PO#                         Description / Components                          Units          P/C      <FCourier New>" SKIP(1).
+   IF lv-bolfmt-int = 1 THEN PUT "<FArial><=5><R+1> Line#   Part#/Ord#                   PO#                             Description / Components                          Cases          P/C      <FCourier New>" SKIP(1).
+                       ELSE  PUT "<FArial><=5><R+1> Line#  Part#                                PO#                         Description / Components                          Cases          P/C      <FCourier New>" SKIP(1).
             .
 
             v-printline = v-printline + 16.

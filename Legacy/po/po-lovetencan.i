@@ -110,12 +110,6 @@ FOR EACH po-ordl
 
   v-tot-sqft[v-bottom] = v-tot-sqft[v-bottom] + v-sqft.
      
-  FIND FIRST reftable WHERE
-       reftable.reftable EQ "POORDLDEPTH" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ STRING(po-ordl.po-no) AND
-       reftable.code     EQ STRING(po-ordl.LINE)
-       NO-LOCK NO-ERROR.
 
   assign
   /* v-wid     = po-ordl.s-wid - trunc(po-ordl.s-wid,0)
@@ -128,7 +122,7 @@ FOR EACH po-ordl
    v-adder   = ""
    xg-flag   = no
    v-basis-w = 0
-   v-dep = IF AVAIL reftable THEN DEC(reftable.code2)
+   v-dep = IF po-ordl.s-dep GT 0 THEN po-ordl.s-dep
            ELSE IF AVAIL ITEM AND item.mat-type = "C" THEN ITEM.case-d
            ELSE IF AVAIL ITEM THEN item.s-dep
            ELSE 0
@@ -143,8 +137,6 @@ FOR EACH po-ordl
            v-dep = (v-dep * 16 ) / 100
            v-dep = TRUNC(v-dep2,0) + v-dep.*/
 
-
-  RELEASE reftable NO-ERROR.
 
   IF AVAIL item THEN
     ASSIGN
@@ -299,6 +291,16 @@ FOR EACH po-ordl
   END.
   ELSE
      v-line-2 = po-ordl.i-name.
+
+   cMachCode = "" .
+      FOR EACH job-mch WHERE job-mch.company EQ cocode
+          AND job-mch.job-no EQ po-ordl.job-no
+          AND job-mch.job-no2 EQ po-ordl.job-no2
+          AND job-mch.frm EQ po-ordl.s-num use-index line-idx NO-LOCK:
+
+          ASSIGN cMachCode = job-mch.m-code .
+          LEAVE.
+      END.
      
   PUT {1} v-ord-qty FORMAT "X(6)" TO 6
           v-line-2 FORMAT "X(28)" AT 8
@@ -364,6 +366,12 @@ FOR EACH po-ordl
   IF lCustCode THEN DO:
    put {1} SKIP.
    PUT {1} po-ordl.cust-no FORM "x(8)"  SKIP.
+  END.
+
+  IF lPrintMach and cMachCode NE ""  THEN DO:
+   put {1} SKIP.
+   PUT {1} "First Resource: " cMachCode FORM "x(8)"  SKIP.
+   v-print-lines = v-print-lines + 1.
   END.
   
   put {1} skip "<C1><R+.5><FROM><C82><LINE><||3>" SKIP. 

@@ -160,6 +160,8 @@ DEFINE VARIABLE v-qoh AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 16 BY 1
      BGCOLOR 14  NO-UNDO.
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
 
 
 /* bol print/post */
@@ -1094,6 +1096,7 @@ DO:
       END.
    END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2438,6 +2441,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
+PROCEDURE local-exit:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    IF VALID-HANDLE(hNotesProcs) THEN  
+        DELETE OBJECT hNotesProcs.
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -2535,8 +2565,8 @@ IF gvlCheckOrdStat THEN DO:
    
     IF AVAIL oe-ord AND INDEX(oe-ord.stat, "H") GT 0 OR oe-ord.priceHold THEN
       ASSIGN
-        cHoldMessage = "Order " + STRING(oe-ord.ord-no) + " is on ". 
-        cHoldMessage = cHoldMessage + (IF oe-ord.stat EQ "H" THEN "hold." ELSE "price hold. "). 
+        cHoldMessage = "Order " + STRING(oe-ord.ord-no) + " is on " 
+        cHoldMessage = cHoldMessage + (IF oe-ord.stat EQ "H" THEN "hold." ELSE "price hold. ") 
         lIsOnHold = TRUE.
   END.
 END.
@@ -2732,6 +2762,9 @@ END. /* each oe-relh */
 RELEASE oe-boll.
 IF BolPostLog THEN OUTPUT STREAM logFile CLOSE.
 
+IF VALID-HANDLE(hNotesProcs) THEN
+    DELETE OBJECT hNotesProcs.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

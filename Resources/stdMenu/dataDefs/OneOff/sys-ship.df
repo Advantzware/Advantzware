@@ -1,0 +1,8 @@
+UPDATE TABLE "sys-ctrl-shipto"
+  TABLE-TRIGGER "FIND" OVERRIDE PROCEDURE "find.trg/sys-ctrl-shipto.p" CRC "?"
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000006150

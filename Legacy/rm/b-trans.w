@@ -769,7 +769,10 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN rm-rctd.tag2  = lv-tag2.
+  ASSIGN rm-rctd.tag2  = lv-tag2
+         rm-rctd.enteredBy = USERID("asi")
+         rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+         .
 
 END PROCEDURE.
 

@@ -5635,8 +5635,8 @@ PROCEDURE local-assign-record :
   ELSE IF eb.pur-man AND eb.eqty <> viEQtyPrev THEN RUN update-e-itemfg-vend.
 
   /* If unitized and form 1, blank 1, copy to form zero record. */
-  IF eb.pur-man = NO AND eb.form-no = 1 AND eb.blank-no = 1 THEN
-      RUN copy-2-form-zero.
+  IF adm-new-record AND eb.pur-man = NO AND eb.form-no = 1 AND eb.blank-no = 1 THEN  /*Ticket - 34158 */
+      RUN copy-2-form-zero.     
 
   IF is2PieceBox THEN DO:
      FIND b-eb WHERE b-eb.company = est.company AND b-eb.est-no = est.est-no AND b-eb.form-no = 0 AND b-eb.blank-no = 0 EXCLUSIVE-LOCK.
@@ -7929,8 +7929,7 @@ PROCEDURE valid-eb-reckey :
    FIND FIRST bf-eb WHERE bf-eb.rec_key = eb.rec_key AND 
                           RECID(bf-eb) <> RECID(eb) NO-LOCK NO-ERROR.
    IF AVAIL bf-eb OR eb.rec_key = "" THEN DO:
-      ls-key = STRING(TODAY,"99999999") +
-               string(NEXT-VALUE(rec_key_seq,asi),"99999999").
+      ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey").
       FIND CURRENT eb.
       eb.rec_key = ls-key.
       FIND CURRENT eb NO-LOCK.               

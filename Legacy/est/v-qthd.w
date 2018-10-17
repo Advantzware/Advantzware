@@ -81,7 +81,7 @@ ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part"
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR quotehd.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS quotehd.quo-date quotehd.est-no quotehd.rfq ~
+&Scoped-Define ENABLED-FIELDS quotehd.quo-date quotehd.est-no quotehd.expireDate ~
 quotehd.del-date quotehd.cust-no quotehd.billto[1] quotehd.billto[2] ~
 quotehd.billto[3] quotehd.billto[4] quotehd.contact quotehd.ship-id ~
 quotehd.shipto[1] quotehd.shipto[2] quotehd.shipto[3] quotehd.shipto[4] ~
@@ -92,7 +92,7 @@ quotehd.del-zone
 &Scoped-define FIRST-ENABLED-TABLE quotehd
 &Scoped-Define ENABLED-OBJECTS RECT-5 
 &Scoped-Define DISPLAYED-FIELDS quotehd.q-no quotehd.quo-date ~
-quotehd.est-no quotehd.rfq quotehd.del-date quotehd.cust-no ~
+quotehd.est-no quotehd.expireDate quotehd.del-date quotehd.cust-no ~
 quotehd.billto[1] quotehd.billto[2] quotehd.billto[3] quotehd.billto[4] ~
 quotehd.contact quotehd.ship-id quotehd.shipto[1] quotehd.shipto[2] ~
 quotehd.shipto[3] quotehd.shipto[4] quotehd.sold-id quotehd.soldto[1] ~
@@ -190,11 +190,11 @@ DEFINE FRAME F-Main
           SIZE 15 BY 1
      quotehd.est-no AT ROW 1.24 COL 70.8 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-     quotehd.rfq AT ROW 1.24 COL 94.8 COLON-ALIGNED
+          SIZE 13 BY 1
+     quotehd.expireDate AT ROW 1.24 COL 97.9 COLON-ALIGNED FORMAT "99/99/9999"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     ls-status AT ROW 1.24 COL 126.8 COLON-ALIGNED
+          SIZE 15 BY 1
+     ls-status AT ROW 1.24 COL 128.8 COLON-ALIGNED
      quotehd.del-date AT ROW 2.19 COL 41.2 COLON-ALIGNED
           LABEL "Delivery Date"
           VIEW-AS FILL-IN 
@@ -248,7 +248,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 45 BY 1
      quotehd.sman AT ROW 9.33 COL 16 COLON-ALIGNED
-          LABEL "Sales Rep"
+          LABEL "SalesGrp"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
      sman_desc AT ROW 9.33 COL 25.4 COLON-ALIGNED NO-LABEL
@@ -615,7 +615,7 @@ DO:
    IF quotehd.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN RETURN.
    FIND FIRST sman NO-LOCK WHERE sman.sman EQ quotehd.sman:SCREEN-VALUE NO-ERROR.
    IF NOT AVAILABLE sman THEN DO:
-     MESSAGE 'Invalid Sales Rep. Try Help.' VIEW-AS ALERT-BOX ERROR.
+     MESSAGE 'Invalid SalesGrp. Try Help.' VIEW-AS ALERT-BOX ERROR.
      RETURN NO-APPLY.
    END.
    sman_desc:SCREEN-VALUE = sman.sname.
@@ -920,7 +920,7 @@ PROCEDURE enable-detail :
               quotehd.billto[3] quotehd.billto[4]
               quotehd.ship-id quotehd.shipto[1 FOR 4]*/
               {&list-5}
-              quotehd.est-no quotehd.rfq quotehd.sman quotehd.terms
+              quotehd.est-no quotehd.expireDate quotehd.sman quotehd.terms
               quotehd.carrier quotehd.del-zone
        WITH FRAME {&FRAME-NAME}.
 
@@ -1209,7 +1209,7 @@ PROCEDURE local-update-record :
      IF quotehd.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE '' THEN DO:
        FIND FIRST sman NO-LOCK WHERE sman.sman EQ quotehd.sman:SCREEN-VALUE NO-ERROR.
        IF NOT AVAILABLE sman THEN DO:
-         MESSAGE 'Invalid Sales Rep. Try Help.' VIEW-AS ALERT-BOX ERROR.
+         MESSAGE 'Invalid SalesGrp. Try Help.' VIEW-AS ALERT-BOX ERROR.
          APPLY 'ENTRY' TO quotehd.sman.
          RETURN NO-APPLY.
        END.
@@ -1457,7 +1457,7 @@ PROCEDURE print-quote :
 ------------------------------------------------------------------------------*/
   {&methods/lValidateError.i YES}
   IF quotehd.sman = "" THEN DO:
-     MESSAGE "Invalid Sales Rep!" VIEW-AS ALERT-BOX ERROR.
+     MESSAGE "Invalid SalesGrp!" VIEW-AS ALERT-BOX ERROR.
      RETURN.
   END.
 

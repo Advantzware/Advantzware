@@ -11,10 +11,7 @@ DEFINE VARIABLE is-running AS LOGICAL NO-UNDO.
 IF SEARCH("sys/convert/stax-10.r") <> ?
 OR SEARCH("sys/convert/stax-10.p") <> ? THEN 
    RUN sys/convert/stax-10.p NO-ERROR.
-
-
 /* END MAIN BLOCK operative instantiation code */
-
 
 PROCEDURE Check-Exit :
 /* ---------------------------------------------------------------------------
@@ -155,7 +152,6 @@ PROCEDURE Get_Procedure :
   DEFINE OUTPUT PARAMETER run-proc AS CHARACTER.
   DEFINE INPUT PARAMETER run-now AS LOGICAL.
 
-
   IF INDEX(proc-name,"..") NE 0 OR INDEX(proc-name,".") = 0 THEN
   RETURN.
 
@@ -181,11 +177,19 @@ PROCEDURE Get_Procedure :
       run-proc = "".
     END.
     ELSE DO:
-      IF buf-prgrms.track_usage OR g_track_usage THEN DO:
-        FIND FIRST config NO-LOCK.
-        OUTPUT TO VALUE(config.logs_dir + "/trackuse.log") APPEND.
-        EXPORT USERID("NOSWEAT") buf-prgrms.prgmname TODAY FORMAT "99/99/9999" TIME.
-        OUTPUT CLOSE.
+      IF buf-prgrms.track_usage OR g_track_usage THEN DO TRANSACTION:
+        CREATE AuditHdr.
+        ASSIGN
+            AuditHdr.AuditID       = NEXT-VALUE(Audit_Seq,Audit)
+            AuditHdr.AuditDateTime = NOW
+            AuditHdr.AuditType     = "TRACK"
+            AuditHdr.AuditDB       = "ASI"
+            AuditHdr.AuditTable    = proc-name
+            AuditHdr.AuditUser     = USERID("ASI")
+            AuditHdr.AuditKey      = buf-prgrms.mnemonic
+            .
+        CREATE AuditDtl.
+        AuditDtl.AuditID = AuditHdr.AuditID.
       END.
       IF run-now THEN DO:
         IF buf-prgrms.run_persistent THEN DO:
