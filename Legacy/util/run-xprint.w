@@ -119,9 +119,9 @@ ASSIGN
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-9 RECT-10 fi_text rd-dest btn-ok ~
+&Scoped-Define ENABLED-OBJECTS RECT-9 RECT-10 fi_text rd-dest tb_log btn-ok ~
 btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fi_text rd-dest 
+&Scoped-Define DISPLAYED-OBJECTS fi_text rd-dest tb_log begin_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -145,12 +145,15 @@ DEFINE BUTTON btn-ok
     LABEL "&OK" 
     SIZE 15 BY 1.14.
 
-DEFINE VARIABLE fi_text AS CHARACTER FORMAT "X(800)":U 
-    LABEL "Text" 
+DEFINE VARIABLE fi_text    AS CHARACTER 
     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
     SIZE 50 BY 5.24 NO-UNDO.
 
-DEFINE VARIABLE rd-dest AS INTEGER   INITIAL 2 
+DEFINE VARIABLE begin_file AS CHARACTER FORMAT "X(100)" 
+    VIEW-AS FILL-IN 
+    SIZE 39.8 BY 1.
+
+DEFINE VARIABLE rd-dest    AS INTEGER   INITIAL 2 
     VIEW-AS RADIO-SET VERTICAL
     RADIO-BUTTONS 
     "To Printer", 1,
@@ -160,18 +163,26 @@ DEFINE VARIABLE rd-dest AS INTEGER   INITIAL 2
 
 DEFINE RECTANGLE RECT-10
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 60 BY 5.95.
+    SIZE 65 BY 5.95.
 
 DEFINE RECTANGLE RECT-9
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
     SIZE 71.6 BY 18.57.
 
+DEFINE VARIABLE tb_log AS LOGICAL INITIAL NO 
+    LABEL "Create Dbug Log File?" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 33 BY 1 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    fi_text AT ROW 3.38 COL 14 COLON-ALIGNED
+    fi_text AT ROW 3.38 COL 16 NO-LABELS
     rd-dest AT ROW 11.48 COL 11.4 NO-LABELS
+    tb_log AT ROW 14 COL 30 WIDGET-ID 8
+    begin_file AT ROW 15.29 COL 27.6 COLON-ALIGNED HELP
+    "File Path" NO-LABELS WIDGET-ID 10
     btn-ok AT ROW 17.52 COL 20.6
     btn-cancel AT ROW 17.52 COL 36
     "Selection Parameters" VIEW-AS TEXT
@@ -238,6 +249,11 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+/* SETTINGS FOR FILL-IN begin_file IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+    begin_file:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+
 ASSIGN 
     btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
 
@@ -247,6 +263,9 @@ ASSIGN
 ASSIGN 
     fi_text:AUTO-RESIZE IN FRAME FRAME-A  = TRUE
     fi_text:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+
+ASSIGN 
+    tb_log:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
     THEN C-Win:HIDDEN = NO.
@@ -262,7 +281,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Master BOL Creation */
+ON END-ERROR OF C-Win /* Xprint Test */
     OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
@@ -276,11 +295,22 @@ ON END-ERROR OF C-Win /* Master BOL Creation */
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Master BOL Creation */
+ON WINDOW-CLOSE OF C-Win /* Xprint Test */
     DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_file C-Win
+ON LEAVE OF begin_file IN FRAME FRAME-A /* Beginning Customer# */
+    DO:
+        ASSIGN {&self-name}.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -332,7 +362,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 
 &Scoped-define SELF-NAME fi_text
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_text C-Win
-ON ENTRY OF fi_text IN FRAME FRAME-A /* Text */
+ON ENTRY OF fi_text IN FRAME FRAME-A
     DO:
         SELF:MODIFIED = NO.
     END.
@@ -342,7 +372,7 @@ ON ENTRY OF fi_text IN FRAME FRAME-A /* Text */
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_text C-Win
-ON HELP OF fi_text IN FRAME FRAME-A /* Text */
+ON HELP OF fi_text IN FRAME FRAME-A
     DO:
         DEFINE VARIABLE char-val AS cha   NO-UNDO.
         DEFINE VARIABLE rec-val  AS RECID NO-UNDO.
@@ -354,7 +384,7 @@ ON HELP OF fi_text IN FRAME FRAME-A /* Text */
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_text C-Win
-ON LEAVE OF fi_text IN FRAME FRAME-A /* Text */
+ON LEAVE OF fi_text IN FRAME FRAME-A
     DO:
         DO WITH FRAME {&FRAME-NAME}:
 
@@ -374,6 +404,19 @@ ON LEAVE OF fi_text IN FRAME FRAME-A /* Text */
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
     DO:
         ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_log
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_log C-Win
+ON VALUE-CHANGED OF tb_log IN FRAME FRAME-A /* Create Dbug Log File? */
+    DO:
+        ASSIGN {&self-name}.
+        begin_file:SCREEN-VALUE = "Path: c:/temp/debug.csl" .
+
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -431,7 +474,6 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
     /*------------------------------------------------------------------------------
@@ -462,9 +504,9 @@ PROCEDURE enable_UI :
                    These statements here are based on the "Other 
                    Settings" section of the widget Property Sheets.
     ------------------------------------------------------------------------------*/
-    DISPLAY fi_text rd-dest 
+    DISPLAY fi_text rd-dest tb_log begin_file 
         WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE RECT-9 RECT-10 fi_text rd-dest btn-ok btn-cancel 
+    ENABLE RECT-9 RECT-10 fi_text rd-dest tb_log btn-ok btn-cancel 
         WITH FRAME FRAME-A IN WINDOW C-Win.
     {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
     VIEW C-Win.
@@ -476,10 +518,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateReport C-Win 
 PROCEDURE GenerateReport :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
     DEFINE VARIABLE v-trans-lbl AS CHARACTER NO-UNDO .
@@ -520,10 +562,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
 
     DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
@@ -547,10 +589,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
 PROCEDURE output-to-screen :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
 
     DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
@@ -562,6 +604,42 @@ PROCEDURE output-to-screen :
     END.
     ELSE
         RUN custom/scr-rpt2.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt,lv-prt-bypass).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProgram C-Win 
+PROCEDURE pProgram :
+    /* --------------------------------------------- oe/rep/oe-lad.p      RM ---- */
+    /* print bill of ladings                                                      */
+    /* -------------------------------------------------------------------------- */
+  
+    IF tb_log THEN 
+    DO: 
+        PUT "<DEBUG=ALL,FILE=c:/temp/debug.csl>" .
+    END.
+
+    PUT
+        "<FMS Mincho>"
+        "<P14><R4><C52><B>Asi Version #: {&awversion} " "</B><P10> "
+        "<P14><R5><C52><B>Xprint Version #: " "</B><P10> "
+        "<C3><R2><#1><C+3><R+8><C+45><IMAGE#1=" ls-full-img1  SKIP(1)    .
+
+    PUT   "<#=100><AT=3.30,2><FROM><AT=+.8,+4><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" "Bar-test-45008" FORMAT "x(20)"  ">"
+        "<AT=4.25,3>" "Bar-test-45008" FORMAT "x(20)"  .
+
+    PUT SKIP(2)  "<FCourier New>"
+        "Sold To:" SPACE(30) "Ship To:"  SKIP
+        SPACE(5) "IBM CORP"  "1ST SOURCE SERVICE" AT 45 SKIP
+        SPACE(5) "IBM Blvd" "DSC - S.E. - 05" AT 45 SKIP
+        SPACE(5) "2nd Line of Address" "3850 PINSON VALLEY PKWY" AT 45 SKIP
+        SPACE(5) "Rochester,NY 14606" "BIRMINGHAM, AL 35217" AT 45 SKIP .
+    PUT SKIP(5)
+        fi_text FORMAT "x(2000)" .
+      
+
 
 END PROCEDURE.
 
@@ -623,35 +701,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProgram C-Win 
-PROCEDURE pProgram :
-    /* --------------------------------------------- oe/rep/oe-lad.p      RM ---- */
-    /* print bill of ladings                                                      */
-    /* -------------------------------------------------------------------------- */
-  
-    
-    PUT 
-        "<FMS Mincho>"
-        "<P14><R4><C52><B>Asi Version #: {&awversion} " "</B><P10> "
-        "<P14><R5><C52><B>Xprint Version #: " "</B><P10> "
-        "<C3><R2><#1><C+3><R+8><C+45><IMAGE#1=" ls-full-img1  SKIP(1)    .
-
-    PUT   "<#=100><AT=3.30,2><FROM><AT=+.8,+4><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" "Bar-test-45008" FORMAT "x(20)"  ">"
-        "<AT=4.25,3>" "Bar-test-45008" FORMAT "x(20)"  .
-
-    PUT SKIP(2)  "<FCourier New>"
-        "Sold To:" SPACE(30) "Ship To:"  SKIP
-        SPACE(5) "IBM CORP"  "1ST SOURCE SERVICE" AT 45 SKIP
-        SPACE(5) "IBM Blvd" "DSC - S.E. - 05" AT 45 SKIP
-        SPACE(5) "2nd Line of Address" "3850 PINSON VALLEY PKWY" AT 45 SKIP
-        SPACE(5) "Rochester,NY 14606" "BIRMINGHAM, AL 35217" AT 45 SKIP .
-    PUT SKIP(5)
-        fi_text .
-      
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
