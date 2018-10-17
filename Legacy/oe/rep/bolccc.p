@@ -619,7 +619,7 @@ END.
 
 PROCEDURE pFooterLabel:
 
-    PUT 
+    PUT "<FBook Antiqua><P9>"
     "_____________________________________________________________________________________________________________________________" SKIP
     "<B>  Signature of Receipt </B>" SKIP
     "Customer ________________________________________                       Carrier _______________________________________" AT 23 SKIP(1)
@@ -667,3 +667,4 @@ PROCEDURE pHeaderLabel:
      
 END.     
     
+
