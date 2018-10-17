@@ -240,7 +240,8 @@ DO:
   RUN ConvertToArray IN hNotesProcs (INPUT ship_note:SCREEN-VALUE, 
               INPUT 60,
               OUTPUT opcParsedText,
-              OUTPUT opiFilledArraySize).  
+              OUTPUT opiFilledArraySize).               
+    DELETE OBJECT hNotesProcs.
   IF opiFilledArraySize GT 4 THEN DO:
     MESSAGE "Autoparsed lines exceed 4 lines of text. Only first 4 lines will be used." view-as alert-box error.       
   END.  

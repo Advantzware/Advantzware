@@ -259,7 +259,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
       ASSIGN
       v-salesman = TRIM(v-salesman)
       v-po-no = oe-boll.po-no
-      /*v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>"))*/ .
+                /*v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>"))*/ .
       IF v-salesman GT '' THEN
         IF substr(v-salesman,LENGTH(TRIM(v-salesman)),1) EQ "," THEN
           substr(v-salesman,LENGTH(TRIM(v-salesman)),1) = "".
@@ -561,7 +561,8 @@ END.
 
 END. /* for each oe-bolh */
 
-
+IF VALID-HANDLE(hNotesProc) THEN  
+  DELETE OBJECT hNotesProc.     
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */
 
 PROCEDURE get-pallets-num:
