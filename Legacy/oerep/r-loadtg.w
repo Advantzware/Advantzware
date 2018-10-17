@@ -3115,15 +3115,8 @@ PROCEDURE create-loadtag :
       WHERE itemfg.company EQ cocode
         AND itemfg.i-no    EQ w-ord.i-no
       NO-ERROR.
-
-  FIND LAST loadtag NO-LOCK
-      WHERE loadtag.company     EQ cocode
-        AND loadtag.item-type   EQ NO
-        AND loadtag.is-case-tag EQ NO
-        AND loadtag.tag-no      BEGINS w-ord.i-no 
-        AND SUBSTR(loadtag.tag-no,1,15) EQ w-ord.i-no
-      USE-INDEX tag NO-ERROR.
-  io-tag-no = (IF AVAIL loadtag THEN INT(SUBSTR(loadtag.tag-no,16,5)) ELSE 0) + 1.
+  
+  RUN GetNextLoadtagNumber (cocode, w-ord.i-no, OUTPUT io-tag-no).
 
   /* rstark - zoho13731 */
   IF CAN-FIND(FIRST sys-ctrl
@@ -7982,6 +7975,44 @@ FUNCTION win_normalizePath RETURNS CHARACTER
 
 END FUNCTION.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetNextLoadtagNumber C-Win
+PROCEDURE GetNextLoadtagNumber PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opiNextTag AS INTEGER NO-UNDO.
+
+DEFINE VARIABLE iLastFGTag AS INTEGER.
+DEFINE VARIABLE iLastRMTag AS INTEGER.
+
+FIND LAST loadtag NO-LOCK
+      WHERE loadtag.company     EQ ipcCompany
+        AND loadtag.item-type   EQ NO
+        AND loadtag.is-case-tag EQ NO
+        AND loadtag.tag-no      BEGINS ipcFGItemID 
+        AND SUBSTR(loadtag.tag-no,1,15) EQ ipcFGItemID
+      USE-INDEX tag NO-ERROR.
+  iLastFGTag = (IF AVAIL loadtag THEN INT(SUBSTR(loadtag.tag-no,16,5)) ELSE 0) + 1.
+
+FIND LAST loadtag NO-LOCK
+      WHERE loadtag.company     EQ ipcCompany
+        AND loadtag.item-type   EQ YES
+        AND loadtag.is-case-tag EQ NO
+        AND loadtag.tag-no      BEGINS ipcFGItemID 
+        AND SUBSTR(loadtag.tag-no,1,15) EQ ipcFGItemID
+      USE-INDEX tag NO-ERROR.
+  iLastRMTag = (IF AVAIL loadtag THEN INT(SUBSTR(loadtag.tag-no,16,5)) ELSE 0) + 1.
+  
+  opiNextTag = MAX(iLastFGTag, iLastRMTag).
+
+END PROCEDURE.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
