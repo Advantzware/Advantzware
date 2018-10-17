@@ -32,7 +32,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "ImportFolder,ImportLog,TagFormat,FgItemHideCalcFields,VendCostMatrix,RelSkipRecalc,RMAllowAdd,CECostSave,RMOverrunCostProtection,"
            + "SSBOLPassword,BOLImageFooter,InvAddDate,POFGDims,OEPriceHold,POConfigDir,EDILogs,AutoLogout,AutoLogoutLocal,RMTagValidation,"
            + "MenuLink1,MenuLink2,MenuLink3,MenuLink4,MenuLink5,MenuLink6,MenuLink7,MenuLink8,MenuLinkASI,MenuLinkZoHo,MenuLinkUpgrade,"
-           + "BitMap,CEMenu,BOLPartial,OEAutoDateUpdate"
+           + "BitMap,CEMenu,BOLPartial,OEAutoDateUpdate,CTIDir"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -490,6 +490,11 @@ CASE ip-nk1-value:
         INPUT "Updates orders and releases with any change to transit days or dock appointment days",
         INPUT "Transit&Dock" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */).
+    WHEN "CTIDir" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Directory for corrtrim export files",
+        INPUT ".\CustFiles\DataXfer\CorrTrim" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).        
 END CASE.
 ELSE
 CASE ip-nk1-value:
