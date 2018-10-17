@@ -379,7 +379,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
 IF v-printline >= 36 THEN DO:
     PUT 
     "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
-    "Page " AT 150 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
+    "Page " AT 109 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
     PAGE {1}.
     v-printline = 0.
     RUN pHeaderLabel.
@@ -476,6 +476,9 @@ ELSE IF opiArraySize > 50 AND opiArraySize <= 80 THEN DO:
             opcParsedText[i] FORMAT "X(130)" AT 1 SKIP.
             v-printline = v-printline + 1.
     END.
+    PUT 
+    "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
+    "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
     PAGE {1}.
     v-printline = 0.
     RUN pHeaderLabel.
