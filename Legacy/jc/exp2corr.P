@@ -67,7 +67,7 @@ DEF VAR DOWNLOAD-FILLER71    AS C FORMAT "X(71)" no-undo.
     
 DEF VAR DOWNLOADEDORDERS AS C FORMAT "X(11)" EXTENT 5000 no-undo.
 DEF VAR DOWNLOADCOUNT AS I no-undo.
-        
+    
 DEF VAR cocode AS CHAR NO-UNDO.
 DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound  AS LOGICAL   NO-UNDO.
@@ -80,7 +80,7 @@ FOR EACH tt-job-hdr,
     LEAVE.
 END.
 
-RUN sys/ref/nk1look.p (cocode, "oeDateChange", "C", NO, NO, "", "", 
+RUN sys/ref/nk1look.p (cocode, "CitDir", "C", NO, NO, "", "", 
     OUTPUT cReturn, OUTPUT lrecFound).
 IF lRecfound THEN
     cOutputDir = cReturn NO-ERROR.
