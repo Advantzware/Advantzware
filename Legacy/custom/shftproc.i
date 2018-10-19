@@ -20,8 +20,9 @@ PROCEDURE Get-Shift:
         {custom/getshift.i
             &file="shifts"
             &where="WHERE shifts.company EQ ip-company
-                    AND (shifts.useSpecificDays  EQ TRUE 
-                    AND ENTRY(WEEKDAY(TODAY),shifts.dayList) EQ 'YES')"}
+                    AND (shifts.useSpecificDays EQ TRUE 
+                    AND ENTRY(WEEKDAY(TODAY),shifts.dayList) EQ 'YES')
+                     OR (shifts.useSpecificDays EQ FALSE)"}
     END.
 END PROCEDURE.
 
