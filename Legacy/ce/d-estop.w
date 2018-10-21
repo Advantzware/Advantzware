@@ -105,12 +105,12 @@ END.
 est-op.b-num est-op.m-code est-op.m-dscr est-op.n-out est-op.op-mr ~
 est-op.op-waste est-op.op-speed est-op.op-spoil est-op.op-crew[1] ~
 est-op.op-crew[2] est-op.op-rate[1] est-op.op-rate[2] est-op.num-col ~
-est-op.num-coat est-op.plates est-op.fountains est-op.n_out_div 
+est-op.num-coat est-op.plates est-op.fountains est-op.n_out_div est-op.op-pass
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame est-op.isLocked ~
 est-op.s-num est-op.b-num est-op.m-code est-op.m-dscr est-op.n-out ~
 est-op.op-mr est-op.op-waste est-op.op-speed est-op.op-spoil ~
 est-op.op-crew[1] est-op.op-crew[2] est-op.num-col est-op.num-coat ~
-est-op.plates est-op.fountains est-op.n_out_div 
+est-op.plates est-op.fountains est-op.n_out_div est-op.op-pass
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame est-op
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame est-op
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH est-op ~
@@ -127,7 +127,7 @@ est-op.plates est-op.fountains est-op.n_out_div
 est-op.m-code est-op.m-dscr est-op.n-out est-op.op-mr est-op.op-waste ~
 est-op.op-speed est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] ~
 est-op.num-col est-op.num-coat est-op.plates est-op.fountains ~
-est-op.n_out_div 
+est-op.n_out_div est-op.op-pass
 &Scoped-define ENABLED-TABLES est-op
 &Scoped-define FIRST-ENABLED-TABLE est-op
 &Scoped-Define ENABLED-OBJECTS Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
@@ -135,7 +135,7 @@ est-op.n_out_div
 est-op.m-code est-op.m-dscr est-op.n-out est-op.op-mr est-op.op-waste ~
 est-op.op-speed est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] ~
 est-op.op-rate[1] est-op.op-rate[2] est-op.num-col est-op.num-coat ~
-est-op.plates est-op.fountains est-op.n_out_div 
+est-op.plates est-op.fountains est-op.n_out_div est-op.op-pass
 &Scoped-define DISPLAYED-TABLES est-op
 &Scoped-define FIRST-DISPLAYED-TABLE est-op
 
@@ -186,78 +186,82 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     est-op.isLocked AT ROW 9.43 COL 105 WIDGET-ID 2
+     est-op.isLocked AT ROW 9.43 COL 107 WIDGET-ID 2
           VIEW-AS TOGGLE-BOX
           SIZE 13.4 BY .81
-     est-op.s-num AT ROW 1.91 COL 28.4 COLON-ALIGNED
+     est-op.s-num AT ROW 1.91 COL 26.4 COLON-ALIGNED
           LABEL "Sheet #" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     est-op.b-num AT ROW 1.91 COL 63.4 COLON-ALIGNED
+     est-op.b-num AT ROW 1.91 COL 61.4 COLON-ALIGNED
           LABEL "Blank#" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 13.4 BY 1
-     est-op.m-code AT ROW 3.14 COL 28.4 COLON-ALIGNED
+     est-op.m-code AT ROW 3.14 COL 26.4 COLON-ALIGNED
           LABEL "Machine" FORMAT "x(6)"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     est-op.m-dscr AT ROW 3.14 COL 63.2 COLON-ALIGNED
+     est-op.m-dscr AT ROW 3.14 COL 61.2 COLON-ALIGNED
           LABEL "Desc" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 36.4 BY 1
-     est-op.n-out AT ROW 4.38 COL 28.4 COLON-ALIGNED
+     est-op.op-pass AT ROW 3.14 COL 107 COLON-ALIGNED
+          LABEL "Pass#." FORMAT ">9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.n-out AT ROW 4.38 COL 26.4 COLON-ALIGNED
           LABEL "Out." FORMAT ">>>9"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     est-op.op-mr AT ROW 4.38 COL 63.2 COLON-ALIGNED
+     est-op.op-mr AT ROW 4.38 COL 61.2 COLON-ALIGNED
           LABEL "MR-Hrs" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     est-op.op-waste AT ROW 4.38 COL 103 COLON-ALIGNED
+     est-op.op-waste AT ROW 4.38 COL 107 COLON-ALIGNED
           LABEL "Waste" FORMAT ">>>>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     est-op.op-speed AT ROW 5.62 COL 28.4 COLON-ALIGNED
+     est-op.op-speed AT ROW 5.62 COL 26.4 COLON-ALIGNED
           LABEL "Speed" FORMAT ">>>>9"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     est-op.op-spoil AT ROW 5.62 COL 63.2 COLON-ALIGNED
+     est-op.op-spoil AT ROW 5.62 COL 61.2 COLON-ALIGNED
           LABEL "Spoil%" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     est-op.op-crew[1] AT ROW 5.62 COL 103 COLON-ALIGNED
+     est-op.op-crew[1] AT ROW 5.62 COL 107 COLON-ALIGNED
           LABEL "MRCrew" FORMAT "9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     est-op.op-crew[2] AT ROW 6.91 COL 28.4 COLON-ALIGNED
+     est-op.op-crew[2] AT ROW 6.91 COL 26.4 COLON-ALIGNED
           LABEL "RunCrew" FORMAT "9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     est-op.op-rate[1] AT ROW 6.91 COL 63.2 COLON-ALIGNED
+     est-op.op-rate[1] AT ROW 6.91 COL 61.2 COLON-ALIGNED
           LABEL "MRate" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     est-op.op-rate[2] AT ROW 6.91 COL 103 COLON-ALIGNED
+     est-op.op-rate[2] AT ROW 6.91 COL 107 COLON-ALIGNED
           LABEL "RRate" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     est-op.num-col AT ROW 8.1 COL 28.4 COLON-ALIGNED
+     est-op.num-col AT ROW 8.1 COL 26.4 COLON-ALIGNED
           LABEL "Inks" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     est-op.num-coat AT ROW 8.1 COL 63.2 COLON-ALIGNED
+     est-op.num-coat AT ROW 8.1 COL 61.2 COLON-ALIGNED
           LABEL "Varnish" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     est-op.plates AT ROW 8.1 COL 103 COLON-ALIGNED
+     est-op.plates AT ROW 8.1 COL 107 COLON-ALIGNED
           LABEL "Plate changes" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     est-op.fountains AT ROW 9.38 COL 28.4 COLON-ALIGNED
+     est-op.fountains AT ROW 9.38 COL 26.4 COLON-ALIGNED
           LABEL "Fountain Changes" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     est-op.n_out_div AT ROW 9.38 COL 63.2 COLON-ALIGNED
+     est-op.n_out_div AT ROW 9.38 COL 61.2 COLON-ALIGNED
           LABEL "Run Qty Divisor" FORMAT "->>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -338,6 +342,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN est-op.plates IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN est-op.s-num IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN est-op.op-pass IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -606,22 +612,22 @@ DO:
             RUN ImportRouting.
 
         FOR EACH xop
-            WHERE xop.company EQ est-op.company
-            AND xop.est-no  EQ est-op.est-no
-            AND xop.line    LT 500
-            BREAK BY xop.qty
-            BY xop.s-num
-            BY xop.b-num
-            BY xop.dept
-            BY xop.line:
-            
-            IF FIRST-OF(xop.dept) THEN j = 0.
-    
-            ASSIGN
-                j           = j + 1
-                xop.op-pass = j.
-        END.
-
+             WHERE xop.company EQ est-op.company
+             AND xop.est-no  EQ est-op.est-no
+             AND xop.line    LT 500
+             BREAK BY xop.qty
+             BY xop.s-num
+             BY xop.b-num
+             BY xop.dept
+             BY xop.line:
+             
+             IF FIRST-OF(xop.dept) THEN j = 0.
+     
+             ASSIGN
+                 j           = j + 1
+                 xop.op-pass = j.
+         END.
+        
         j = 0.
         FOR EACH xop
             WHERE xop.company EQ est-op.company
@@ -838,6 +844,37 @@ DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-mach NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+            IF ll-import-stds AND LOOKUP(lv-dept,"RC,GU") NE 0 THEN RUN get-stds.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME est-op.op-pass
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.op-pass Dialog-Frame
+ON ENTRY OF est-op.op-pass IN FRAME Dialog-Frame /* Pass#. */
+DO:
+        IF NOT (v-ceroute#out-log EQ YES AND INDEX("GL,DC",lv-dept) GT 0) AND
+            NOT CAN-DO("RC,GU",lv-dept) THEN 
+        DO:
+            APPLY "tab" TO {&self-name} .
+            RETURN NO-APPLY.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.op-pass Dialog-Frame
+ON LEAVE OF est-op.op-pass IN FRAME Dialog-Frame /* Pass#. */
+DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-op-pass NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
             IF ll-import-stds AND LOOKUP(lv-dept,"RC,GU") NE 0 THEN RUN get-stds.
@@ -1149,7 +1186,7 @@ PROCEDURE display-item :
             est-op.m-code est-op.m-dscr est-op.n-out est-op.op-mr est-op.op-waste 
             est-op.op-speed est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] 
             est-op.op-rate[1] est-op.op-rate[2] est-op.num-col est-op.num-coat 
-            est-op.plates est-op.fountains est-op.n_out_div 
+            est-op.plates est-op.fountains est-op.n_out_div est-op.op-pass
             WITH FRAME Dialog-Frame.
     END.
 
@@ -1184,10 +1221,10 @@ PROCEDURE enable_UI :
           est-op.n-out est-op.op-mr est-op.op-waste est-op.op-speed 
           est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] est-op.op-rate[1] 
           est-op.op-rate[2] est-op.num-col est-op.num-coat est-op.plates 
-          est-op.fountains est-op.n_out_div 
+          est-op.fountains est-op.n_out_div est-op.op-pass
       WITH FRAME Dialog-Frame.
   ENABLE est-op.isLocked est-op.s-num est-op.b-num est-op.m-code est-op.m-dscr 
-         est-op.n-out est-op.op-mr est-op.op-waste est-op.op-speed 
+         est-op.n-out est-op.op-mr est-op.op-waste est-op.op-speed est-op.op-pass
          est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] est-op.num-col 
          est-op.num-coat est-op.plates est-op.fountains est-op.n_out_div Btn_OK 
          Btn_Done Btn_Cancel RECT-21 RECT-38 
@@ -1721,3 +1758,40 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-op-pass Dialog-Frame 
+PROCEDURE valid-op-pass :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE BUFFER b-est-op FOR est-op.
+
+
+    DO WITH FRAME {&FRAME-NAME}:
+       
+        IF  (v-ceroute#out-log EQ YES AND INDEX("GL,DC",lv-dept) GT 0) AND
+             CAN-DO("RC,GU",lv-dept) THEN
+        DO:
+            IF INT(est-op.op-pass:SCREEN-VALUE ) NE 1 AND
+                NOT CAN-FIND(FIRST ef-nsh
+                WHERE ef-nsh.company EQ est.company
+                AND ef-nsh.est-no  EQ est.est-no
+                AND ef-nsh.form-no EQ INT(est-op.s-num:SCREEN-VALUE )
+                AND ef-nsh.pass-no EQ INT(est-op.op-pass:SCREEN-VALUE ))
+                THEN 
+            DO:
+                MESSAGE "Net Sheet does not exist for this "                +
+                    TRIM(est-op.op-pass:LABEL ) +
+                    "..."
+                    VIEW-AS ALERT-BOX ERROR.
+                APPLY "entry" TO est-op.op-pass .
+                RETURN ERROR.
+            END.
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
