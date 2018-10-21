@@ -8,16 +8,16 @@ IF AVAIL oe-ctrl THEN
     lHoldOK = oe-ctrl.p-pick.
 
 IF lv-msg EQ '' AND xoe-ord.stat eq 'H' AND NOT lHoldOK THEN
-lv-msg = 'orders on Hold'.
+lv-msg = 'as order#' + ' - ' + STRING(xoe-ord.ord-no) + ' is on Hold'.
 
 IF lv-msg EQ '' AND xoe-ord.priceHold AND NOT lHoldOK THEN
-lv-msg = 'orders on Price Hold'.
+lv-msg = 'as order#' + ' - ' + STRING(xoe-ord.ord-no) + ' is on Price Hold'.
 
 IF lv-msg EQ '' AND xoe-ord.stat EQ 'W' THEN
-lv-msg = 'unapproved web orders'.
+lv-msg = 'items for unapproved web orders'.
 
 IF lv-msg EQ '' AND NOT xoe-ord.opened THEN
-lv-msg = 'closed orders'.
+lv-msg = 'as order#' + ' - ' + STRING(xoe-ord.ord-no) + ' is closed'.
 
 IF lv-msg EQ '' AND TRIM(oe-ordl.job-no) NE ''
                 AND CAN-FIND(FIRST job
@@ -25,11 +25,11 @@ IF lv-msg EQ '' AND TRIM(oe-ordl.job-no) NE ''
                                AND job.job-no  EQ oe-ordl.job-no
                                AND job.job-no2 EQ oe-ordl.job-no2
                                AND job.stat    EQ 'H') THEN
-lv-msg = 'jobs on hold'.
+lv-msg = 'as job#' + ' - ' + STRING(oe-ordl.job-no) + ' is on hold'.
 
 &IF '{&programVersion}' EQ '' &THEN
-IF lv-msg NE '' THEN DO:
-  MESSAGE 'Can~'t release items for ' +
+IF lv-msg NE '' THEN DO:  
+  MESSAGE 'Can~'t release ' +
           TRIM(lv-msg) + '...' VIEW-AS ALERT-BOX ERROR.
   RETURN ERROR.
 END.
