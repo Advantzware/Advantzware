@@ -999,8 +999,7 @@ PROCEDURE auto-post :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-MESSAGE "test in auto post" lPostAuto-log
-VIEW-AS ALERT-BOX.
+
     /* IF no rows are selected and this is run, it will return an error */
     IF lPostAuto-log AND BROWSE Browser-Table:NUM-SELECTED-ROWS GT 0 THEN 
     DO:
@@ -1026,7 +1025,7 @@ VIEW-AS ALERT-BOX.
           INPUT TABLE tt-fgemail BY-reference,
           INPUT TABLE tt-email BY-reference,
           INPUT TABLE tt-inv BY-reference).
-      RUN dispatch ('open-query').
+  
   END.
   ELSE ERROR-STATUS:ERROR = NO .
 
@@ -1903,7 +1902,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE scan-next B-table-Win 
 PROCEDURE scan-next :
 /*------------------------------------------------------------------------------
@@ -1911,8 +1909,7 @@ PROCEDURE scan-next :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-MESSAGE "test scan next"
-VIEW-AS ALERT-BOX.
+
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
   RUN auto-add IN WIDGET-HANDLE(char-hdl).
 END PROCEDURE.
