@@ -19,6 +19,16 @@ DEFINE VARIABLE dtMDate      AS   DATE             NO-UNDO.
 DEFINE VARIABLE iPerDays     AS   INTEGER          NO-UNDO EXTENT 2.
 DEFINE VARIABLE lPrtSqft     AS   LOGICAL          NO-UNDO.
 
+
+/* ************************  Function Prototypes ********************** */
+
+
+FUNCTION fGetRoutingForJob RETURNS CHARACTER 
+    (  ) FORWARD.
+
+FUNCTION fGetInksForJob RETURNS CHARACTER
+    (  ) FORWARD.
+
 FIND FIRST ce-ctrl NO-LOCK 
      WHERE ce-ctrl.company EQ ipcCompany.
 FIND FIRST period NO-LOCK
@@ -34,6 +44,8 @@ FOR EACH oe-ord NO-LOCK
       AND oe-ord.cust-no  LE cEndCustNo
       AND oe-ord.ord-date GE dtTrandate
       AND oe-ord.ord-date LE dtEndOrderDate
+      AND oe-ord.due-date GE dtStartDueDate
+      AND oe-ord.due-date LE dtEndDueDate
       AND oe-ord.type     NE "T"
       AND oe-ord.stat     NE "D"
     BY oe-ord.company 
@@ -476,7 +488,7 @@ PROCEDURE pOrdersBooked2:
                    AND eb.stock-no EQ oe-ordl.i-no
                  NO-ERROR.
         END. /* avail oe-ordl  */
-
+	
         IF iplPrintOrderUnderPct AND iplPrintOrderOverPct THEN DO:
             IF dProfitPer GE ipiUnderValue AND dProfitPer LE ipiOverValue THEN NEXT.
         END.
@@ -524,10 +536,101 @@ PROCEDURE pOrdersBooked2:
             ttOrdersBooked.xxCost       = w-data.cost
             ttOrdersBooked.xxSort       = ttOrdersBooked.salesRep
                                         + STRING(ttOrdersBooked.dueDate,"99/99/9999")
-                                        + STRING(ttOrdersBooked.orderNo)            
+                                        + STRING(ttOrdersBooked.orderNo)  
+	        ttOrdersBooked.MachineCode  = fGetRoutingForJob()
+            ttOrdersBooked.InksCode     = fGetInksForJob()
+            ttOrdersBooked.PrintSheet   = IF AVAILABLE itemfg THEN itemfg.plate-no ELSE ""
+            ttOrdersBooked.dCstPerM     = IF AVAILABLE oe-ordl THEN oe-ordl.cost ELSE 0
+            ttOrdersBooked.dTotStdCost  = IF AVAILABLE oe-ordl THEN oe-ordl.t-cost ELSE 0
+            ttOrdersBooked.dFullCost  = IF AVAILABLE oe-ordl THEN oe-ordl.spare-dec-1 ELSE 0.
             . 
         DELETE w-data.
     END.  /* for each tt-report */
 END PROCEDURE.
 
 {aoa/BL/pBuildCustList.i}
+
+
+/* ************************  Function Implementations ***************** */
+FUNCTION fGetRoutingForJob RETURNS CHARACTER 
+    (  ):
+/*------------------------------------------------------------------------------
+ Purpose: 
+ Notes:
+------------------------------------------------------------------------------*/    
+     DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+
+     IF AVAILABLE oe-ord THEN  
+     FIND FIRST job NO-LOCK
+          WHERE job.company EQ oe-ord.company
+            AND job.job-no  EQ oe-ord.job-no
+            AND job.job-no2 EQ oe-ord.job-no2
+          NO-ERROR.
+    IF AVAILABLE job THEN DO:
+        FOR EACH job-mch NO-LOCK
+            WHERE job-mch.company EQ job.company 
+              AND job-mch.job     EQ job.job 
+              AND job-mch.job-no  EQ job.job-no 
+              AND job-mch.job-no2 EQ job.job-no2 
+            USE-INDEX line-idx
+            BREAK BY job-mch.job
+            :
+            IF NOT LAST(job-mch.job) THEN
+                cResult = cResult + job-mch.m-code + ",".
+            ELSE cResult = cResult + job-mch.m-code.
+        END.
+    END.                
+
+    RETURN cResult.
+
+        
+END FUNCTION.
+
+FUNCTION fGetInksForJob RETURNS CHARACTER 
+    (  ):
+/*------------------------------------------------------------------------------
+ Purpose: 
+ Notes:
+------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+
+    IF AVAILABLE oe-ord THEN  
+     FIND FIRST job NO-LOCK
+          WHERE job.company EQ oe-ord.company
+            AND job.job-no EQ oe-ord.job-no
+            AND job.job-no2 EQ oe-ord.job-no2 NO-ERROR.
+
+    IF AVAILABLE job THEN DO:
+        IF AVAILABLE eb THEN
+        FOR EACH job-mat NO-LOCK
+            WHERE job-mat.company EQ job.company
+              AND job-mat.job     EQ job.job  
+              AND job-mat.frm     EQ eb.form-no,
+            FIRST item NO-LOCK 
+            WHERE (item.company   EQ job.company
+              AND (item.mat-type  EQ "I"
+               OR item.mat-type   EQ "V"))
+              AND item.i-no EQ job-mat.i-no
+            :
+            IF eb.est-type LE 4 THEN DO:
+                DO i = 1 TO 20:
+                    IF eb.i-code2[i] EQ job-mat.i-no THEN DO:
+                        IF LOOKUP(job-mat.i-no,cResult) EQ 0 THEN
+                         cResult = cResult + job-mat.i-no + ",".
+                    END.
+                END. /* loop i */
+            END. /* if est-type */
+            ELSE DO:
+                DO i = 1 TO 10:
+                    IF eb.i-code[i] EQ job-mat.i-no THEN DO:
+                        IF LOOKUP(job-mat.i-no,cResult) EQ 0 THEN
+                        cResult = cResult + job-mat.i-no + ",". 
+                    END. /* if i-code */
+                END. /* loop i */
+            END. /* else */
+        END. /* each job-mat */
+    END. /* if avail */                
+
+    RETURN cResult.
+        
+END FUNCTION.

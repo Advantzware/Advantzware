@@ -106,7 +106,8 @@ def TEMP-TABLE w-ord
   field palls as int format "->>,>>>,>>9"
   FIELD xls-rel-date  LIKE oe-rel.rel-date format "99/99/99"
   FIELD xls-status    AS CHAR
-  FIELD iPro-qty  AS INTEGER .
+  FIELD iPro-qty  AS INTEGER
+  FIELD cDueDate AS CHARACTER FORMAT "x(10)" .
 
 def buffer b-w-ord for w-ord.
 
@@ -145,11 +146,11 @@ DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Customer#,Rel Date,Rel Num,Ship To,Carrier,Order #,Cust Part#,Descrption,Fg Item#," +
-                           "Po Number,Qty On Hand,Release Qty,Sales Value,Skids,Status,Projected Qty"
+                           "Po Number,Qty On Hand,Release Qty,Sales Value,Skids,Status,Projected Qty,Due Date"
        cFieldListToSelect = "cust,rel-date,rel-num,ship,carr,ord,cust-part,desc,fg-item," +
-                            "po-num,Qty-hand,rel-qty,sales,skid,stat,proj-qty"
-       cFieldLength = "9,8,7,8,7,8,15,25,15," + "15,11,11,15,7,6,13"
-       cFieldType = "c,c,i,c,c,i,c,c,c," + "c,i,i,i,i,c,i" 
+                            "po-num,Qty-hand,rel-qty,sales,skid,stat,proj-qty,due-date"
+       cFieldLength = "9,8,7,8,7,8,15,25,15," + "15,11,11,15,7,6,13,8"
+       cFieldType = "c,c,i,c,c,i,c,c,c," + "c,i,i,i,i,c,i,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1970,14 +1971,14 @@ SESSION:SET-WAIT-STATE ("general").
                              IF v-sort EQ "A" THEN oe-relh.carrier
                              ELSE
                              IF v-sort EQ "CR" THEN cust.cr-rating
-                             ELSE
-                              IF v-sort EQ "R" THEN  string(oe-relh.release#,"9999999999")
+                             /*ELSE
+                              IF v-sort EQ "R" THEN  string(oe-relh.release#,"9999999999")*/
                              ELSE oe-relh.cust-no
          tt-report.key-03  = IF v-sort NE "R" THEN
                                (STRING(YEAR(oe-relh.rel-date),"9999") +
                                 STRING(MONTH(oe-relh.rel-date),"99")  +
                                 STRING(DAY(oe-relh.rel-date),"99"))
-                             ELSE STRING(oe-ord.ord-no,"9999999999")
+                             ELSE STRING(oe-relh.release#,"9999999999")
          tt-report.key-04  = STRING(IF v-sort EQ "A" THEN oe-relh.cust-no
                                                      ELSE " ","x(10)") +
                              STRING(oe-ord.ord-no,"9999999999")
@@ -2027,18 +2028,20 @@ SESSION:SET-WAIT-STATE ("general").
       no-lock
       break 
             by tt-report.i-no
+            BY oe-ord.ord-no 
             BY tt-report.rel-date
             :
        
-      IF FIRST-OF(tt-report.i-no) THEN
+      IF FIRST-OF(oe-ord.ord-no) THEN
              iRelqty = 0.
   
       tt-report.pro-qty  = tt-report.onh - iRelqty  .
 
-      IF FIRST-OF(tt-report.i-no) THEN
+      IF FIRST-OF(oe-ord.ord-no) THEN
                 iRelqty = tt-report.qty  .
       ELSE iRelqty = iRelqty + tt-report.qty .
 
+       
      IF tt-report.rel-date LT v-fdate[1] 
          OR tt-report.rel-date GT v-fdate[2]  THEN
          DELETE tt-report .
@@ -2078,8 +2081,8 @@ SESSION:SET-WAIT-STATE ("general").
       no-lock
       break by tt-report.key-01
             by tt-report.key-02 
-            by tt-report.key-03 DESC
-            by tt-report.key-04:
+            by tt-report.key-03 
+            by tt-report.key-04 DESC :
 
     IF v-sort EQ "CR" AND FIRST-OF(tt-report.key-02) THEN DO:
       lv-cr-rating = tt-report.key-02.
@@ -2130,7 +2133,8 @@ SESSION:SET-WAIT-STATE ("general").
      w-ord.is-a-component = oe-ordl.is-a-component
      ld-palls        = w-ord.rel-qty /
                        ((IF oe-ordl.cas-cnt    EQ 0 THEN 1 ELSE oe-ordl.cas-cnt) *
-                        (IF oe-ordl.cases-unit EQ 0 THEN 1 ELSE oe-ordl.cases-unit)).
+                        (IF oe-ordl.cases-unit EQ 0 THEN 1 ELSE oe-ordl.cases-unit))
+     w-ord.cDueDate = IF oe-ordl.req-date NE ? THEN string(oe-ordl.req-date) ELSE "".
 
     {sys/inc/roundup.i ld-palls}
 
@@ -2214,7 +2218,7 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "skid"  THEN cVarValue = STRING(w-ord.palls,">>>,>>9") .
                          WHEN "stat"   THEN cVarValue = STRING(lv-issue,"x(6)") .
                          WHEN "proj-qty"   THEN cVarValue = IF tb_pro-qty THEN STRING(w-ord.iPro-qty,"->>>>,>>>,>>9") ELSE "" .
-
+                         WHEN "due-date"   THEN cVarValue = string(w-ord.cDueDate,"x(8)") .
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -2281,6 +2285,7 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "skid"  THEN cVarValue = STRING(v-tot-pal[1],">>>,>>9") .
                          WHEN "stat"   THEN cVarValue = "" .
                          WHEN "proj-qty"   THEN cVarValue = "" .
+                         WHEN "due-date"   THEN cVarValue = "" .
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -2343,6 +2348,7 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "skid"  THEN cVarValue = STRING(v-tot-pal[2],">>>,>>9") .
                          WHEN "stat"   THEN cVarValue = "" .
                           WHEN "proj-qty"   THEN cVarValue = "" .
+                          WHEN "due-date"   THEN cVarValue = "" .
                     END CASE.
 
                     cExcelVarValue = cVarValue.

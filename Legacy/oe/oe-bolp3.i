@@ -11,18 +11,17 @@ IF FIRST-OF({1}.{2})                   OR
     NOT AVAIL inv-head                  OR
     inv-head.cust-no NE oe-bolh.cust-no THEN 
 DO:
-    fLogMsg("Start create inv-head block in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no).
+    fLogMsg("Start create inv-head block in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " first:" + string(FIRST-OF({1}.{2}))).
     /* Original Code */
     
     v-ref-no = next-value(inv_r_no_seq). 
     fLogMsg("Obtain v-ref-no in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " v-ref-no: " + STRING(v-ref-no)).
   
-  FIND FIRST shipto NO-LOCK
-      WHERE shipto.company EQ oe-bolh.company
-        AND shipto.ship-id EQ oe-bolh.ship-id
-        AND shipto.cust-no EQ oe-bolh.cust-no
-        AND shipto.ship-no NE 1
-      USE-INDEX ship-id NO-ERROR.
+  RUN oe/custxship.p (oe-bolh.company,
+      oe-bolh.cust-no,
+      oe-bolh.ship-id,
+      BUFFER shipto).
+        
   IF NOT AVAIL shipto THEN
   FIND FIRST shipto NO-LOCK
       WHERE shipto.company EQ oe-bolh.company
@@ -95,7 +94,8 @@ DO:
    inv-head.curr-code[1] = cust.curr-code
    rCurrentInvHeadRow = ROWID(inv-head)
    .
-   
+  RUN CopyShipNote IN hNotesProcs (oe-bolh.rec_key, inv-head.rec_key).
+    
   fLogMsg("Done Create inv-head in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " v-ref-no: " + STRING(v-ref-no)).
   IF invStatus-log THEN
       inv-head.stat = "W".
@@ -175,6 +175,7 @@ assign
  oe-relh.ship-i[2] = oe-bolh.ship-i[2]
  oe-relh.ship-i[3] = oe-bolh.ship-i[3]
  oe-relh.ship-i[4] = oe-bolh.ship-i[4].
+RUN CopyShipNote IN hNotesProcs (oe-bolh.rec_key, oe-relh.rec_key).
 
 if oe-rell.link-no eq 0 then do:
   find first oe-rel
@@ -211,7 +212,8 @@ if avail oe-rel THEN DO:
    oe-rel.ship-i[3] = oe-relh.ship-i[3]
    oe-rel.ship-i[4] = oe-relh.ship-i[4]
    oe-rel.po-no     = report.key-07.
-
+   
+   RUN CopyShipNote IN hNotesProcs (oe-relh.rec_key, oe-rel.rec_key).
 /* update back all release with same frt pay as oe-bolh.frt-pay/fob code AH 03/26/10 */
 /*
   FIND FIRST b-reftable 

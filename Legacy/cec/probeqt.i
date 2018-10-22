@@ -55,17 +55,12 @@
      w-probeit.vo-cost    = w-probeit.vo-cost  / (w-probeit.bl-qty / 1000)
      w-probeit.fo-cost    = w-probeit.fo-cost  / (w-probeit.bl-qty / 1000)
      w-probeit.tot-lbs    = xprobe.tot-lbs
-     w-probeit.probe-date = xprobe.probe-date.
-
-    FIND FIRST b-probemk NO-LOCK
-        WHERE b-probemk.reftable EQ "ce/com/probemk.p"
-          AND b-probemk.company  EQ probeit.company
-          AND b-probemk.loc      EQ probeit.est-no
-          AND b-probemk.code     EQ STRING(probeit.line,"9999999999")
-          AND b-probemk.code2    EQ probeit.part-no
-        NO-ERROR.
-     w-probeit.freight = IF AVAIL b-probemk THEN b-probemk.val[1]
+     w-probeit.probe-date = xprobe.probe-date
+     w-probeit.freight = IF AVAIL probeit THEN probeit.releaseCount
                                             ELSE xprobe.freight.
+
+
+
   END.
 
   ELSE

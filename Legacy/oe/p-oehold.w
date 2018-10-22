@@ -387,7 +387,8 @@ PROCEDURE local-row-available :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
-    ENABLE btnHold.
+      IF NOT v-can-update THEN ASSIGN btnHold:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
+      ELSE ENABLE btnHold.
     IF AVAIL oe-ord THEN
       btnHold:LABEL = IF oe-ord.stat EQ "H" THEN "Re&lease" ELSE "&Hold".
   END.

@@ -52,6 +52,24 @@ DEFINE VARIABLE codeDir   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE staticDat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE sbUser    AS CHARACTER NO-UNDO.
 
+IF &IF DEFINED(FWD-VERSION) > 0 &THEN RT-OPSYS &ELSE OPSYS &ENDIF = "unix" THEN DO:
+
+ASSIGN
+  clientDat = SEARCH('{&data}/validID.dat')
+  clientDat = REPLACE(clientDat,REPLACE('{&data}/validID.dat','\','/') ,'')
+  codeDir   = SEARCH('{&startDir}/sbPro.r')
+  codeDir   = REPLACE(codeDir,'{&startDir}/sbPro.r','')
+  staticDat = SEARCH('{&startDir}/about.txt')
+  staticDat = REPLACE(staticDat,'{&startDir}/about.txt','')
+  sbUser    = USERID('{&sbDB}')
+  .
+IF codeDir EQ ? THEN
+ASSIGN
+  codeDir = SEARCH('{&startDir}/sbPro.p')
+  codeDir = REPLACE(codeDir,'{&startDir}/sbPro.p','')
+  .
+END.
+ELSE DO:
 ASSIGN
   clientDat = SEARCH('{&data}\validID.dat')
   clientDat = REPLACE(clientDat,REPLACE('{&data}\validID.dat','/','\') ,'')
@@ -67,6 +85,7 @@ ASSIGN
   codeDir = SEARCH('{&startDir}\sbPro.p')
   codeDir = REPLACE(codeDir,'{&startDir}\sbPro.p','')
   .
+END.
 
 PROCEDURE noEmbeddedWindowForm :
     /* here simply as a dummy procedure to prevent folder.w  */

@@ -169,7 +169,6 @@ DEF BUFFER bf-est FOR est.
     DEFINE VARIABLE CALL_id     AS RECID     NO-UNDO.
     DEFINE VARIABLE dTonCost    AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE iAvg        AS INTEGER   NO-UNDO INIT 0 .
-    DEFINE BUFFER reftable-fm FOR reftable.
     DEFINE BUFFER probe-ref   FOR reftable.
     DEFINE BUFFER probe-fm    FOR reftable.
     ASSIGN 
@@ -671,15 +670,8 @@ DEF BUFFER bf-est FOR est.
                 gsa-war = ce-ctrl.whse-mrkup
                 .
 
-            FIND FIRST reftable-fm NO-LOCK
-                WHERE reftable-fm.reftable EQ "gsa-fm"
-                AND reftable-fm.company  EQ xest.company
-                AND reftable-fm.loc      EQ ""
-                AND reftable-fm.code     EQ xest.est-no
-                NO-ERROR.
-
-            IF AVAILABLE reftable-fm THEN
-                gsa-fm = reftable-fm.val[1].
+            IF probe.gsa-fm NE "" THEN
+                gsa-fm = int(probe.gsa-fm).
             ELSE
                 gsa-fm = ctrl[19].
 
@@ -702,15 +694,7 @@ DEF BUFFER bf-est FOR est.
                 FIND CURRENT calcpcts NO-LOCK NO-ERROR.
             END.
 
-            FIND FIRST probe-fm NO-LOCK
-                WHERE probe-fm.reftable EQ "gsa-fm"
-                AND probe-fm.company  EQ probe.company
-                AND probe-fm.loc      EQ ""
-                AND probe-fm.code     EQ probe.est-no
-                NO-ERROR.
-
-            IF AVAIL probe-fm THEN
-                gsa-fm = probe-fm.val[1].
+            gsa-fm = int(probe.gsa-fm).
    
             ASSIGN
                 ctrl[9]  = gsa-mat / 100 

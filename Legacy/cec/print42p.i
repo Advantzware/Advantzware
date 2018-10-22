@@ -347,6 +347,10 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
    t-blkqty     = 0
    v-qtty[vmcl] = qtty[vmcl].
 
+   IF vprint THEN DO:
+	{custom/statusMsg.i " 'Calculating... Est#  '  + xest.est-no  + ' Qty - ' + string(v-qtty[vmcl]) "}
+    END.
+
   for each blk:
       delete blk.
   end.
@@ -1018,3 +1022,7 @@ hide frame ask     no-pause.
 hide frame ask1    no-pause.
 
 session:set-wait-state("").
+
+IF vprint THEN DO:
+{custom/statusMsg.i " 'Calculating Complete....  '  "}
+END.

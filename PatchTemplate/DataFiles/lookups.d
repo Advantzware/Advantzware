@@ -216,10 +216,12 @@
 "" "" "fg-cat" "fgcat." "0128200300056327"
 "" "" "FILL-IN-1" "" "0829200000003268"
 "" "" "FILL-IN-2" "company." "0829200000003271"
+"" "" "fi_cad-no" "" "0706201802268360"
 "" "" "fi_curr-code" "currency." "0330200700236892"
 "" "" "fi_cust" "cust." "0924200200040699"
 "" "" "fi_cust-no" "cust." "0128200300056200"
 "" "" "fi_est-no" "oeest." "0312200300059034"
+"" "" "fi_i-name" "" "0706201802268419"
 "" "" "fi_i-no" "itemfg." "0924200200040704"
 "" "" "fi_job-no" "jobno." "0128200300056204"
 "" "" "fi_mat-type" "mat." "1224200200049987"
@@ -239,6 +241,7 @@
 "" "" "m_user_id" "users." "0724199800000037"
 "" "" "svEndBOL" "bolh." "0728201700400093"
 "" "" "svEndCompany" "company." "0728201700400032"
+"" "" "svEndCSR" "users." "0621201802234933"
 "" "" "svEndCurrency" "currency." "0728201700400065"
 "" "" "svEndCustNo" "cust." "0728201700400045"
 "" "" "svEndCustPart" "cpart." "0728201700400148"
@@ -259,8 +262,10 @@
 "" "" "svEndStyle" "style." "0728201700400180"
 "" "" "svEndTerms" "terms." "0728201700400072"
 "" "" "svEndUserID" "users." "0728201700400334"
+"" "" "svEndVendNo" "vend." "0521201802189573"
 "" "" "svStartBOL" "bolh." "0728201700400089"
 "" "" "svStartCompany" "company." "0728201700400022"
+"" "" "svStartCSR" "users." "0621201802234930"
 "" "" "svStartCurrency" "currency." "0728201700400055"
 "" "" "svStartCustNo" "cust." "0728201700400035"
 "" "" "svStartCustPart" "cpart." "0728201700400144"
@@ -281,12 +286,15 @@
 "" "" "svStartStyle" "style." "0728201700400176"
 "" "" "svStartTerms" "terms." "0728201700400068"
 "" "" "svStartUserID" "users." "0728201700400330"
+"" "" "svStartVendNo" "vend." "0521201802189570"
 "" "" "to_company" "company." "0808200200034547"
 "" "" "v-bill-item-1" "" "0509200200007339"
 "" "" "v-from-job" "lrmrcpd." "0805200200033927"
 "" "" "v-to-job" "lrmrcpd." "0805200200033943"
+"" "" "vi_part-dscr1" "" "0706201802268387"
 "" "" "vi_stock-no" "itemfg." "0128200300056207"
 "" "" "vi_style" "style." "0130200300056412"
+"" "ttColumn" "cNewValue" "" "0703201802266808"
 "ASI" "account" "actnum" "account." "0724200200032066"
 "ASI" "ap-chk" "bank-code" "bank." "0806200200033956"
 "ASI" "ap-chk" "vend-no" "vend." "0806200200033955"
@@ -330,6 +338,7 @@
 "ASI" "currency" "ap-lia-acct" "accountl." "0718200200031804"
 "ASI" "currency" "ar-ast-acct" "accounta." "0718200200031798"
 "ASI" "currency" "c-code" "currency." "0618200200022628"
+"ASI" "currency" "ex-rate" "" "0705201802268105"
 "ASI" "currency" "pd-aprate-acct" "account." "0724200200032068"
 "ASI" "currency" "pd-arrate-acct" "account." "0724200200032064"
 "ASI" "cust" "carrier" "custcarr." "1007200200041870"
@@ -380,6 +389,7 @@
 "ASI" "prep" "loc" "loc_." "0102200300050539"
 "ASI" "prep" "loc-bin" "" "0102200300050540"
 "ASI" "prep" "mat-type" "matprep." "0828200100016191"
+"ASI" "prgrms" "itemParent" "prgrms." "0920201802411312"
 "ASI" "prod" "aa-fo" "account." "0126200000003161"
 "ASI" "prod" "aa-lab" "account." "0126200000003159"
 "ASI" "prod" "aa-mat" "account." "0126200000003158"
@@ -443,15 +453,3 @@
 "NOSWEAT" "phone" "titlcode" "titlcode." "0724199800000039"
 "NOSWEAT" "prgmxref" "prgmname" "prgrms." "0724199800000040"
 "NOSWEAT" "zipcode" "state" "statecod." "0724199800000041"
-.
-PSC
-filename=lookups
-records=0000000000445
-ldbname=asi
-timestamp=2018/04/28-22:57:39
-numformat=44,46
-dateformat=mdy-1950
-map=NO-MAP
-cpstream=ISO8859-1
-.
-0000023133

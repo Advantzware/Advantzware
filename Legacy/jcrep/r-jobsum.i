@@ -480,6 +480,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
          v-t-act-cost = v-t-act-cost +
                         if v-run-cost ne ? then v-run-cost else 0.
 
+
         if last(work-mch.d-seq) then do:
           assign
            v-gt-est-hrs = v-gt-est-hrs + v-t-est-hrs

@@ -138,14 +138,14 @@ FIND FIRST xeb WHERE xeb.company = xest.company
                  xprep.simon    = est-prep.simon
                  xprep.code     = est-prep.CODE.
       
-          DISPLAY est-prep.dscr FORMAT "x(19)"
-                  v-orig-prep-mat FORMAT "->>9.99"
+          DISPLAY est-prep.dscr FORMAT "x(17)"
+                  v-orig-prep-mat FORMAT "->>>>9.99"
                   v-orig-prep-lab FORMAT "->>9.99"
-                  est-prep.mkup FORMAT ">>9.99" TO 42 SPACE(0) "%"
+                  est-prep.mkup FORMAT "->>9.99" TO 43 SPACE(0) "%"
                   est-prep.amtz TO 50 FORMAT ">>9.99" SPACE(0) "%"
                   est-prep.simon FORMAT "X" TO 58
-                  prep-tot / (qty / 1000) TO 69
-                  prep-tot TO 80 FORMAT ">>>,>>9.99"
+                  prep-tot / (qty / 1000) TO 70
+                  prep-tot TO 82 FORMAT ">>>,>>9.99"
                     WHEN INDEX("SO",est-prep.simon) > 0
                          "      N/C " WHEN est-prep.simon = "N" @ prep-tot
                   SKIP WITH STREAM-IO.
@@ -331,7 +331,7 @@ FIND FIRST xeb WHERE xeb.company = xest.company
 
             IF LOOKUP(cerunc,"Protagon,CERunC 3") NE 0 /*cerunc EQ "Protagon"*/ AND
             xef.mis-simon[i] EQ "S" THEN
-            DO:
+            DO:   
                FIND FIRST b-eb WHERE
                     b-eb.company EQ xef.company AND
                     b-eb.est-no  EQ xef.est-no AND

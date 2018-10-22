@@ -121,6 +121,7 @@ DEF VAR lv-dep AS DEC NO-UNDO.
 DEF VAR lv-dep2 AS DEC NO-UNDO.
 DEFINE VARIABLE dCoreDia AS DECIMAL FORMAT ">,>>9.99<<" NO-UNDO.
 DEFINE VARIABLE cFlueTest AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cMachCode AS CHARACTER NO-UNDO .
 
 v-dash-line = fill ("_",80).
 
@@ -526,7 +527,7 @@ v-printline = 0.
                                   lv-reg-no = "Test: " + ITEM.reg-no.
        ELSE assign lv-flute = ""
                    lv-reg-no = "".
-       ASSIGN cFlueTest = string(lv-flute,"x(11)") + string(lv-reg-no,"x(10)").
+       ASSIGN cFlueTest = string(lv-flute,"x(11)") + string(lv-reg-no,"x(12)").
        IF lv-flute EQ "" AND lv-reg-no EQ "" THEN
               ASSIGN cFlueTest = IF dCoreDia GT 0 AND ITEM.mat-type EQ "P" THEN " Core Dia: " + STRING(dCoreDia,">,>>9.99<<") ELSE ""
                      dCoreDia = 0.
@@ -654,6 +655,22 @@ v-printline = 0.
           END.
         end.
 
+        IF lPrintMach THEN DO:
+         cMachCode = "" .
+         FOR EACH job-mch WHERE job-mch.company EQ cocode
+             AND job-mch.job-no EQ po-ordl.job-no
+             AND job-mch.job-no2 EQ po-ordl.job-no2
+             AND job-mch.frm EQ po-ordl.s-num use-index line-idx NO-LOCK:
+             
+             ASSIGN cMachCode = job-mch.m-code .
+             LEAVE.
+         END. 
+         IF cMachCode NE "" THEN do:
+             PUT  "First Resource: " cMachCode FORM "x(8)"  SKIP.
+             v-printline = v-printline + 1.
+         END.
+        END.
+
     FOR EACH tt-formtext:
         DELETE tt-formtext.
     END.
@@ -696,9 +713,9 @@ v-printline = 0.
          END.
     END.
 
-   /* PUT skip(1).
+    PUT skip(1).
     assign v-line-number = v-line-number + 1.
-    v-printline = v-printline + 1.*/
+    v-printline = v-printline + 1.
   
      IF v-printline > 46 THEN DO:
           PAGE.
@@ -844,11 +861,11 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
   END.
 */
   /*v-printline 46*/
-
+IF AVAIL ITEM AND ITEM.industry EQ "2" OR AVAIL itemfg THEN DO:
       PUT "Grand Total MSF: " +
           TRIM(STRING(v-tot-sqft / 1000,">>>,>>9.9<<")) AT 50 FORMAT "x(30)"
           SKIP.
-
+END.
       v-tot-sqft = 0.
       v-bot-lab[1] = "Tax        :"
                      /*vend.tax-gr + "        :       " */ + STRING(po-ord.tax,"->>>,>>9.99").

@@ -369,6 +369,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
 /*  IF v-printline < 45 THEN PUT SKIP(60 - v-printline). */
   PAGE.
   v-printline = 0.
+  v-tot-cases= 0.
 
   for each report where report.term-id eq v-term-id,
       first oe-boll where recid(oe-boll) eq report.rec-id no-lock:

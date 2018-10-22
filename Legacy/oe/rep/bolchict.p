@@ -53,8 +53,6 @@ def var v-zone like carr-mtx.del-zone no-undo.
 DEF VAR v-lines AS INT NO-UNDO.
 def var v-job-po            as   CHAR NO-UNDO.
 DEFINE VARIABLE lv-tot-pg AS INT NO-UNDO.
-DEF VAR cPc AS CHARACTER  NO-UNDO.
-
 def TEMP-TABLE w2 no-undo
     field cases            as   int format ">9"
     field cas-cnt          as   int format ">>>>9"
@@ -102,6 +100,10 @@ DEF VAR ln-cnt AS INT NO-UNDO.
 def buffer b-itemfg     for itemfg.
 DEF BUFFER bf-ttboll FOR tt-boll.
 DEF VAR v-tot-case-qty AS INT NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+DEFINE VARIABLE lBroker AS LOGICAL NO-UNDO .
 
 form w2.i-no                         format "x(15)"
      w2.job-po                       at 17 format "x(15)"
@@ -407,6 +409,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
   PAGE.
   v-printline = 0.
+  v-tot-cases = 0.
 
   for each report where report.term-id eq v-term-id,
       first oe-boll where recid(oe-boll) eq report.rec-id no-lock:

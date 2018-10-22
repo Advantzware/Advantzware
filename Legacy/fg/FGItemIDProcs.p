@@ -92,7 +92,10 @@ PROCEDURE pBuildIDComponents PRIVATE:
     DEFINE BUFFER bf-eb           FOR eb.
     DEFINE BUFFER bf-est          FOR est.
     
-    FIND FIRST bf-est NO-LOCK OF ipbf-eb NO-ERROR.
+    FIND FIRST bf-est NO-LOCK 
+        WHERE bf-est.company EQ ipbf-eb.company
+        AND bf-est.est-no EQ ipbf-eb.est-no
+        NO-ERROR.
     IF NOT AVAILABLE bf-est THEN LEAVE.
     
     IF bf-est.est-type EQ 2 OR bf-est.est-type EQ 6 THEN 
@@ -229,6 +232,7 @@ PROCEDURE pGetNextSequence PRIVATE:
     DEFINE INPUT PARAMETER ipcSetHeaderID AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE iNextSequence AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iNextSequenceOrd AS INTEGER NO-UNDO.
     DEFINE VARIABLE iUniqueIDSize AS INTEGER NO-UNDO.
     DEFINE VARIABLE iSequenceSize AS INTEGER NO-UNDO.
 
@@ -253,8 +257,21 @@ PROCEDURE pGetNextSequence PRIVATE:
                 ELSE 
                     LEAVE.
             END.
-            iNextSequence = iNextSequence + 1. /* increment */
-            ttFGItemIDComponent.ValueOriginal = STRING(iNextSequence).
+            FOR EACH oe-ordl NO-LOCK 
+                WHERE oe-ordl.company EQ ipcCompany
+                AND oe-ordl.i-no BEGINS ipcUniqueIDToSearch
+                AND oe-ordl.opened
+                BY oe-ordl.i-no DESCENDING:
+                iNextSequenceOrd = INT(SUBSTRING(oe-ordl.i-no,iUniqueIDSize,iSequenceSize)) NO-ERROR.
+                IF ERROR-STATUS:ERROR THEN 
+                    iNextSequenceOrd = 0.
+                ELSE 
+                    LEAVE.   
+            END. 
+            ASSIGN 
+                iNextSequence = MAX(iNextSequence,iNextSequenceOrd)
+                iNextSequence = iNextSequence + 1 /* increment */
+                ttFGItemIDComponent.ValueOriginal = STRING(iNextSequence).
         END.
         ELSE /*Set Header already determined the sequence so use it*/
             ttFGItemIDComponent.ValueOriginal = SUBSTRING(ipcSetHeaderID,iUniqueIDSize,iSequenceSize).

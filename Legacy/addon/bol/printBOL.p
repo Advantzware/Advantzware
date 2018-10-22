@@ -250,10 +250,10 @@ PROCEDURE build-work:
          AND CAN-FIND(FIRST oe-ord
                       WHERE oe-ord.company EQ oe-boll.company
                         AND oe-ord.ord-no  EQ oe-boll.ord-no
-                        AND oe-ord.stat    EQ "H")
+                        AND (oe-ord.stat    EQ "H" OR oe-ord.priceHold))
         NO-LOCK:
 
-      MESSAGE "Order on BOL is on hold, and BOL will not print."
+      MESSAGE "Order on BOL is on " + (IF oe-ord.stat = "H" THEN "hold" ELSE "Price hold") + ", and BOL will not print."
            VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
       NEXT build-work.

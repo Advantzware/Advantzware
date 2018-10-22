@@ -128,7 +128,7 @@ po-ord.tax-gr po-ord.terms po-ord.frt-pay po-ord.fob-code po-ord.t-freight
 &Scoped-define ENABLED-TABLES po-ord
 &Scoped-define FIRST-ENABLED-TABLE po-ord
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
-RECT-1 RECT-13 
+approved_text RECT-1 RECT-13 
 &Scoped-Define DISPLAYED-FIELDS po-ord.po-no po-ord.po-date po-ord.type ~
 po-ord.stat po-ord.vend-no po-ord.ship-id po-ord.ship-name ~
 po-ord.ship-addr[1] po-ord.ship-addr[2] po-ord.ship-city po-ord.ship-state ~
@@ -195,6 +195,10 @@ DEFINE BUTTON btnCalendar-3
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
+DEFINE VARIABLE approved_text AS CHARACTER FORMAT "X(8)":U INITIAL "Approved" 
+      VIEW-AS TEXT 
+     SIZE 12 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fc_app_time AS CHARACTER FORMAT "X(8)":U 
      LABEL "Time" 
      VIEW-AS FILL-IN 
@@ -242,11 +246,7 @@ DEFINE VARIABLE shipPhone AS CHARACTER FORMAT "999-9999"
 
 DEFINE VARIABLE typeDescr AS CHARACTER FORMAT "X(256)":U INITIAL "Type Description" 
       VIEW-AS TEXT 
-     SIZE 20 BY 1 NO-UNDO. 
-
-DEFINE VARIABLE approved_text AS CHARACTER FORMAT "X(8)":U INITIAL "Approved" 
-      VIEW-AS TEXT 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 20 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -381,13 +381,11 @@ DEFINE FRAME F-Main
           LABEL "By"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-          "FOB:" VIEW-AS TEXT
+     approved_text AT ROW 1.24 COL 128.2 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     "FOB:" VIEW-AS TEXT
           SIZE 6 BY .81 AT ROW 15.05 COL 78
      "Freight Payment:" VIEW-AS TEXT
           SIZE 19 BY .81 AT ROW 13.86 COL 65
-     /*"Approved" VIEW-AS TEXT*/
-      approved_text
-          /*SIZE 12 BY .62*/ AT ROW 1.24 COL 130.2 WIDGET-ID 12 NO-LABEL
      RECT-1 AT ROW 1 COL 1
      RECT-13 AT ROW 1.71 COL 128 WIDGET-ID 10
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -527,7 +525,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -665,7 +663,6 @@ DO:
     END.
     {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -811,7 +808,6 @@ DO:
  {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -868,7 +864,6 @@ DO:
     END.
     {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1111,7 +1106,6 @@ PROCEDURE display-shipto :
   {&methods/lValidateError.i NO}
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1148,7 +1142,6 @@ PROCEDURE display-vend :
   END.
   {&methods/lValidateError.i NO}
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1427,7 +1420,6 @@ PROCEDURE is-dropship :
 
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1585,8 +1577,7 @@ PROCEDURE local-assign-record :
      IF po-ord.rec_key = "" THEN DO:
         DEFINE VARIABLE ls-key AS cha NO-UNDO.
         ASSIGN
-        ls-key         = STRING(TODAY,"99999999") +
-                  string(NEXT-VALUE(rec_key_seq,nosweat),"99999999")
+        ls-key         = DYNAMIC-FUNCTION("sfGetNextRecKey")
         po-ord.rec_key = ls-key.               
         CREATE rec_key.
         ASSIGN rec_key.rec_key    = po-ord.rec_key
@@ -1800,6 +1791,14 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   /* == validations ==== */
+
+    /* 33482 - Ensure blank record is not saved - MYT - 08/28/18 */
+    IF adm-new-record 
+    AND po-ord.po-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "0" THEN DO:
+        RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+        RETURN NO-APPLY.
+    END.
+
   {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME} :
     RUN valid-vend-no NO-ERROR.
@@ -1919,7 +1918,6 @@ PROCEDURE local-update-record :
   ll-got-vendor = NO.
 
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2323,7 +2321,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 

@@ -42,6 +42,9 @@ DO bo-try = 1 TO 2:
         
       FIND oe-rel NO-LOCK
           WHERE oe-rel.r-no EQ oe-rell.link-no
+            AND oe-rel.ord-no EQ oe-rell.ord-no
+            AND oe-rel.line EQ oe-rell.line
+            AND oe-rel.i-no EQ oe-rell.i-no
           USE-INDEX seq-no NO-ERROR.
 
       IF AVAIL oe-rel AND oe-rel.tot-qty NE 0 THEN v-rel-qty = oe-rel.tot-qty.
@@ -207,6 +210,9 @@ DO bo-try = 1 TO 2:
     ELSE
     FIND FIRST oe-rel
         WHERE oe-rel.r-no EQ oe-rell.link-no
+          AND oe-rel.ord-no EQ oe-rell.ord-no
+          AND oe-rel.line EQ oe-rell.line
+          AND oe-rel.i-no EQ oe-rell.i-no          
         USE-INDEX seq-no NO-ERROR.
 
     IF AVAIL oe-rel THEN oe-rel.qty = v-bol-qty.
@@ -270,7 +276,9 @@ DO bo-try = 1 TO 2:
        xoe-relh.ship-i[2] = oe-bolh.ship-i[2]
        xoe-relh.ship-i[3] = oe-bolh.ship-i[3]
        xoe-relh.ship-i[4] = oe-bolh.ship-i[4].
-   
+      
+      RUN CopyShipNote IN hNotesProcs (oe-bolh.rec_key, xoe-relh.rec_key).
+      
       RUN oe/release#.p (cocode, OUTPUT xoe-relh.release#).
     END.
     
@@ -367,7 +375,10 @@ DO bo-try = 1 TO 2:
      oe-rel.ship-i[2] = xoe-relh.ship-i[2]
      oe-rel.ship-i[3] = xoe-relh.ship-i[3]
      oe-rel.ship-i[4] = xoe-relh.ship-i[4] NO-ERROR.
-
+    
+    IF AVAILABLE xoe-relh THEN 
+        RUN CopyShipNote IN hNotesProcs (oe-rel.rec_key, xoe-relh.rec_key).
+    
     IF oe-rel.cases EQ ? THEN oe-rel.cases = 0.
     IF oe-boll.s-code = "T" THEN DO:
         oe-rel.s-code = oe-boll.s-code.        

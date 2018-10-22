@@ -65,7 +65,7 @@ DEFINE QUERY external_tables FOR itemfg.
 &Scoped-Define ENABLED-FIELDS itemfg.i-no itemfg.i-name itemfg.i-dscr 
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
-&Scoped-Define ENABLED-OBJECTS RECT-1 btnFirst btnPrevious btnNext btnLast 
+&Scoped-Define ENABLED-OBJECTS btnFirst btnPrevious btnNext btnLast 
 &Scoped-Define DISPLAYED-FIELDS itemfg.i-no itemfg.i-name itemfg.i-dscr 
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
@@ -126,7 +126,7 @@ DEFINE BUTTON btnPrevious
      SIZE 4.8 BY 1.14 TOOLTIP "Previous".
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 155 BY 1.67.
 
 
@@ -219,6 +219,8 @@ ASSIGN
    4                                                                    */
 /* SETTINGS FOR BUTTON btnPrevious IN FRAME F-Main
    4                                                                    */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 

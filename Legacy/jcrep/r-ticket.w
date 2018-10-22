@@ -62,6 +62,7 @@ DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cHoldMessage AS CHARACTER NO-UNDO.
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -895,9 +896,11 @@ DO:
                     /*AND oe-ord.job-no EQ job-hdr.job-no 
                     AND oe-ord.job-no2 EQ job-hdr.job-no2*/ NO-LOCK NO-ERROR.
         IF AVAIL oe-ord THEN DO:
-            IF oe-ord.stat EQ "H" THEN
+            IF oe-ord.stat EQ "H" OR oe-ord.priceHold THEN
                 IF NOT v-oe-ctrl THEN DO:
-                    MESSAGE "Order " + string(job-hdr.ord-no) + " is on HOLD, can not Print Job Card.." VIEW-AS ALERT-BOX ERROR.
+                    IF oe-ord.stat EQ "H" THEN cHoldMessage = "Hold".
+                    ELSE cHoldMessage = "Price Hold". 
+                    MESSAGE "Order " + string(job-hdr.ord-no) + " is on " + cHoldMessage + ".  Can not Print Job Card." VIEW-AS ALERT-BOX ERROR.
                     RETURN no-apply.  /* task 03201401 */
                 END.
         END.
@@ -1787,7 +1790,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                  OR lv-format-f = "Livngstn"  OR lv-format-f = "FibreFC"  OR lv-format-f = "HPB"
                  OR lv-format-f = "metro"     or lv-format-f = "Indiana-XL" OR lv-format-f = "MidYork"
                  OR lv-format-f = "CentBox"   OR lv-format-f = "Keystone" OR lv-format-f = "Frankstn" 
-                 OR lv-format-f = "Colonial" OR lv-format-f = "xml"  OR lv-format-f = "Unipak"   OR lv-format-f = "Ottpkg"
+                 OR lv-format-f = "Colonial"  OR lv-format-f = "xml"  OR lv-format-f = "Unipak"   OR lv-format-f = "Ottpkg"
                  OR lv-format-f = "MWFIbre"   OR lv-format-f = "Shelby"   OR lv-format-f = "CCC"
                  OR lv-format-f = "PPI"       OR lv-format-f = "Accord"   OR lv-format-f = "Knight" 
                  OR lv-format-f = "PackRite"  OR lv-format-f = "Knight***" OR lv-format-f = "Wingate"
@@ -2808,11 +2811,7 @@ PROCEDURE new-job-no :
             lv-format-f NE "Carded2" OR 
             lv-format-f NE "Coburn" OR 
             lv-format-f NE "Knight***") AND AVAIL job-hdr AND
-          can-find(FIRST b-reftable-freeze WHERE
-            b-reftable-freeze.reftable EQ "FREEZENOTE" AND
-            b-reftable-freeze.company  EQ cocode AND
-            b-reftable-freeze.loc      EQ job-hdr.job-no AND
-            b-reftable-freeze.CODE     EQ STRING(job-hdr.job-no2,"99")) THEN ASSIGN
+            job-hdr.freezeNote EQ TRUE THEN ASSIGN
             tb_freeze-note:CHECKED = TRUE
             lFreezeNoteVal = TRUE.
         ELSE ASSIGN

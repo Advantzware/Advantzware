@@ -1,10 +1,11 @@
 /* oe/rep/relacpi2.i */   
    
    PUT "<FArial>" SKIP
-           "<P14><C+35><B>Pick Ticket</B> " SKIP
-            "<C1><#1><R+5><C+25>" SKIP
+           "<P14><C+45><B>Pick Ticket</B> " SKIP
+            /*"<C1><#1><R+5><C+25>" SKIP*/
             "<=1>" SKIP
-           "<=1><C3><FGCOLOR=" trim(lv-comp-color) + ">"
+           "<P10><C3><#1><R+11><C+40>" "<IMAGE#1=" + ls-full-img1 FORM "x(160)" SKIP 
+          /* "<=1><C3><FGCOLOR=" trim(lv-comp-color) + ">"
            "<=1><C3><R+1><P20><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" 
            "<P10></B>"
            "<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"        
@@ -14,7 +15,7 @@
             v-comp-add3 AT 8 SKIP
             v-comp-add4 AT 8 SKIP
             v-comp-add5 AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
-            lv-email AT 8 SKIP(1)
+            lv-email AT 8 SKIP(1)*/
                   "<FCourier New>"
                   "Sold To:" SPACE(30) "Ship To:"  SKIP
                   SPACE(5) cust.name shipto.ship-name AT 45 skip

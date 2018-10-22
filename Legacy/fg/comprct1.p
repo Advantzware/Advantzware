@@ -280,7 +280,8 @@ PROCEDURE bin-qty-used:
     /* Subtract from bin qty the quantity of previous tags used */
     ldQty = bf-fg-bin.qty.
     FOR EACH bf-fg-rctd
-        WHERE bf-fg-rctd.i-no EQ bf-fg-bin.i-no
+        WHERE bf-fg-rctd.company EQ bf-fg-bin.company
+        AND bf-fg-rctd.i-no EQ bf-fg-bin.i-no
         AND bf-fg-rctd.job-no EQ bf-fg-bin.job-no
         AND bf-fg-rctd.job-no2 EQ bf-fg-bin.job-no2
         AND bf-fg-rctd.loc     EQ bf-fg-bin.loc

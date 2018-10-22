@@ -1989,7 +1989,10 @@ PROCEDURE local-create-record :
     ASSIGN
      oe-boll.company = oe-bolh.company
      oe-boll.b-no    = oe-bolh.b-no
-     oe-boll.bol-no  = oe-bolh.bol-no.
+     oe-boll.bol-no  = oe-bolh.bol-no
+     oe-boll.enteredBy = USERID("asi")
+     oe-boll.enteredDT = DATETIME(TODAY, MTIME) 
+     .
 
   FIND FIRST b-oe-boll NO-LOCK
       WHERE b-oe-boll.company EQ oe-bolh.company
@@ -3235,8 +3238,11 @@ PROCEDURE valid-ord-no :
        ELSE
           lv-msg = "Invalid Order#,try help...".
     END.
-
+    IF lv-msg EQ "" AND AVAILABLE oe-ord AND oe-ord.priceHold THEN 
+        lv-msg = "Order is on Price Hold.".
+        
     IF lv-msg EQ ""                              AND
+       AVAILABLE oe-ord                          AND 
        oe-bolh.cust-no NE oe-ord.cust-no         AND
        oe-boll.s-code NE "T"                     AND 
        NOT CAN-FIND(FIRST shipto

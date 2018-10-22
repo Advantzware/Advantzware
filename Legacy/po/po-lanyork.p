@@ -324,16 +324,10 @@ v-printline = 0.
                         +
                       (IF (AVAIL ITEM AND ITEM.vend2-no = po-ord.vend) THEN (" " + ITEM.vend2-item) ELSE "").
 
-        FIND FIRST reftable WHERE
-             reftable.reftable EQ "POORDLDEPTH" AND
-             reftable.company  EQ cocode AND
-             reftable.loc      EQ STRING(po-ordl.po-no) AND
-             reftable.code     EQ STRING(po-ordl.LINE)
-             NO-LOCK NO-ERROR.
-
+        
         ASSIGN v-wid = po-ordl.s-wid
                v-len = po-ordl.s-len
-               lv-dep = IF AVAIL reftable THEN DEC(reftable.code2)
+               lv-dep = IF po-ordl.s-dep GT 0 THEN po-ordl.s-dep
                         ELSE IF AVAIL ITEM AND ITEM.mat-type = "C" THEN item.case-d
                         ELSE IF AVAIL ITEM THEN ITEM.s-dep
                         ELSE 0
@@ -341,7 +335,6 @@ v-printline = 0.
                v-len2 = po-ordl.s-len
                lv-dep2 = lv-dep.
 
-        RELEASE reftable.
         if avail item and item.mat-type eq "B" then do:
           if v-shtsiz then do:
            if v-dec-fld = 0.08 then
@@ -593,10 +586,10 @@ v-printline = 0.
                        ELSE IF AVAILABLE item THEN item.s-dep ELSE 0), INPUT 32, OUTPUT v-dep-frac).
                   IF po-ordl.s-len GT 0 OR po-ordl.s-len GT 0 OR lv-dep GT 0 THEN  
                    PUT "Blank:" AT 25.
-                   IF po-ordl.s-len GT 0 THEN
-                    PUT "L: " AT 32 v-len-frac FORMAT "x(10)" SPACE(1).
                    IF po-ordl.s-wid GT 0 THEN
-                    PUT "W: "  v-wid-frac FORMAT "x(10)" SPACE(1).
+                    PUT "W: " AT 32 v-wid-frac FORMAT "x(10)" SPACE(1).
+                  IF po-ordl.s-len GT 0 THEN
+                    PUT "L: "  v-len-frac FORMAT "x(10)" SPACE(1).
                 IF lv-dep GT 0 THEN
                     PUT "D: "  v-dep-frac FORMAT "x(10)" SPACE(1).
              END.
@@ -649,15 +642,15 @@ v-printline = 0.
                                 RUN sys\inc\decfrac2.p(INPUT lv-val[(lv-int * 10) + x], INPUT 32, OUTPUT len-score).
                         
                          IF lv-val[(lv-int * 10) + x] NE 0 THEN 
-                              v-lscore-c = v-lscore-c + len-score + "   " .
+                              v-lscore-c = v-lscore-c + len-score + " " .
 
                         /* print score type for Premier */
                         IF v-score-types AND lv-typ[(lv-int * 10) + x] NE "" THEN DO:
-                            RUN sys\inc\decfrac2.p(INPUT DEC(lv-typ[(lv-int * 10) + x]), INPUT 32, OUTPUT len-score).
-                            v-lscore-c = v-lscore-c + len-score + " ". 
+/*                            RUN sys\inc\decfrac2.p(INPUT DEC(lv-typ[(lv-int * 10) + x]), INPUT 32, OUTPUT len-score).*/
+                            v-lscore-c = v-lscore-c + lv-typ[(lv-int * 10) + x] + "  ". 
                         END.
                         ELSE DO:
-                            v-lscore-c = v-lscore-c + " ".
+                            v-lscore-c = v-lscore-c + "  ".
                         END.
                     END.
  

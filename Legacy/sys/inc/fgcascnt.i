@@ -22,11 +22,11 @@ FOR EACH e-itemfg-vend NO-LOCK
 
   IF FIRST(e-itemfg-vend.vend-no) THEN DO:
     CREATE e-itemfg.
-    BUFFER-COPY e-itemfg-vend EXCEPT rec_key TO e-itemfg.
+    BUFFER-COPY e-itemfg-vend EXCEPT rec_key TO e-itemfg
     ASSIGN
         e-itemfg.i-no    = {1}.i-no
         .
-    IF e-itemfg-vend.std-uom = "" THEN
+    IF e-itemfg.std-uom = "" THEN
         ASSIGN e-itemfg.std-uom = "EA".
 
 

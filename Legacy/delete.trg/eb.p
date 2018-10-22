@@ -73,14 +73,6 @@ FOR EACH e-itemfg-vend
   DELETE e-itemfg-vend.
 END.
 
-FOR EACH reftable
-    WHERE reftable.reftable EQ "ce/com/selwhif1.w"
-      AND reftable.company  EQ {&TABLENAME}.company
-      AND reftable.loc      EQ {&TABLENAME}.est-no
-      AND reftable.code     EQ STRING({&TABLENAME}.form-no,"9999999999")
-      AND reftable.code2    EQ STRING({&TABLENAME}.blank-no,"9999999999"):
-  DELETE reftable.
-END.
 
 FOR EACH ef OF {&TABLENAME}:
   DO li = 1 TO EXTENT(ef.leaf):

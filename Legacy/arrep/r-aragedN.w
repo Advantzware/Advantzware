@@ -95,14 +95,14 @@ DEFINE NEW SHARED VARIABLE iline AS INTEGER NO-UNDO .
 
 ASSIGN cTextListToSelect = "CUSTOMER,CUST NAME,CONTACT,SALES REP,TERMS,ADDRESS1,ADDRESS2,CITY,STATE,ZIP,CREDIT LIM,PHONE,FAX,CHECK/MEMO," +
                            "DAYS OLD,TYPE,INV#,INV DATE,AMOUNT,CURRENT,ADTP,TD,"
-                         + "PERIOD DAY1,PERIOD DAY2,PERIOD DAY3,CUSTOMER PO#,JOB#,BOL#,INVOICE NOTE,COLLECTION NOTE"
+                         + "PERIOD DAY1,PERIOD DAY2,PERIOD DAY3,CUSTOMER PO#,JOB#,BOL#,INVOICE NOTE,COLLECTION NOTE,PERIOD DAY4"
 
        cFieldListToSelect = "cust,cust-name,cont,sman,term,add1,add2,city,stat,zip,cre-lim,phone,fax,chk-memo," +
                             "day-old,type,inv,inv-date,amount,current,adtp,td," +
-                            "per-1,per-2,per-3,cust-po,job,bol,inv-note,coll-note" 
+                            "per-1,per-2,per-3,cust-po,job,bol,inv-note,coll-note,per-4" 
 
-       cFieldLength = "8,30,15,25,15,25,25,10,5,10,12,13,12,10," + "8,4,8,8,13,13,4,4," + "13,13,13,15,9,8,30,30" 
-       cFieldType = "c,c,c,c,c,c,c,c,c,c,c,c,c,c," + "i,c,i,c,i,i,i,i," + "i,i,i,c,c,c,c,c," 
+       cFieldLength = "8,30,25,25,15,25,25,10,5,10,12,13,12,10," + "8,4,8,8,13,13,4,4," + "13,13,13,15,9,8,30,30,13" 
+       cFieldType = "c,c,c,c,c,c,c,c,c,c,c,c,c,c," + "i,c,i,c,i,i,i,i," + "i,i,i,c,c,c,c,c,i" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -129,17 +129,18 @@ ASSIGN cTextListToDefault  = "CUSTOMER,CUST NAME,CONTACT,SALES REP,TERMS,ADDRESS
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_comp end_comp ~
 btnCustList tb_cust-list begin_cust-no end_cust-no begin_slsmn end_slsmn ~
 begin_curr end_curr begin_term end_term trend_days as-of-date period-days-1 ~
-period-days-2 period-days-3 rs_detail rd_sort rd_sort2 tb_paid ~
-tb_include-factored tb_fuel tb_separate-fc begin_inv-date end_inv-date ~
-tgInactiveCust btn_SelectColumns lv-ornt lines-per-page rd-dest lv-font-no ~
-td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+period-days-2 period-days-3 period-days-4 rs_detail rd_sort rd_sort2 ~
+tb_paid tb_include-factored tb_fuel tb_separate-fc begin_inv-date ~
+end_inv-date tgInactiveCust btn_SelectColumns lv-ornt lines-per-page ~
+rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_comp end_comp tb_cust-list ~
 begin_cust-no end_cust-no begin_slsmn end_slsmn begin_curr end_curr ~
 begin_term end_term trend_days as-of-date period-days-1 period-days-2 ~
-period-days-3 rs_detail lbl_sort rd_sort lbl_sort2 rd_sort2 tb_paid ~
-tb_include-factored tb_fuel tb_separate-fc begin_inv-date end_inv-date ~
-tgInactiveCust lv-ornt lines-per-page rd-dest lv-font-no lv-font-name ~
-td-show-parm tb_excel tb_runExcel fi_file 
+period-days-3 period-days-4 rs_detail lbl_sort rd_sort lbl_sort2 rd_sort2 ~
+tb_paid tb_include-factored tb_fuel tb_separate-fc begin_inv-date ~
+end_inv-date tgInactiveCust lv-ornt lines-per-page rd-dest lv-font-no ~
+lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -288,6 +289,11 @@ DEFINE VARIABLE period-days-3 AS INTEGER FORMAT ">,>>>":U INITIAL 9999
      VIEW-AS FILL-IN 
      SIZE 9 BY 1 NO-UNDO.
 
+DEFINE VARIABLE period-days-4 AS INTEGER FORMAT ">,>>>":U INITIAL 9999 
+     LABEL "4" 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY 1 NO-UNDO.
+
 DEFINE VARIABLE trend_days AS INTEGER FORMAT ">>9":U INITIAL 0 
      LABEL "Days for Recent Trend" 
      VIEW-AS FILL-IN 
@@ -427,6 +433,7 @@ DEFINE FRAME FRAME-A
      period-days-1 AT ROW 9.05 COL 27 COLON-ALIGNED
      period-days-2 AT ROW 9.05 COL 39 COLON-ALIGNED
      period-days-3 AT ROW 9.05 COL 51 COLON-ALIGNED
+     period-days-4 AT ROW 9.05 COL 63 COLON-ALIGNED WIDGET-ID 34
      rs_detail AT ROW 10 COL 29 NO-LABEL WIDGET-ID 6
      lbl_sort AT ROW 11 COL 14 COLON-ALIGNED NO-LABEL
      rd_sort AT ROW 11 COL 29 NO-LABEL
@@ -608,6 +615,10 @@ ASSIGN
 
 ASSIGN 
        period-days-3:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       period-days-4:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -1081,6 +1092,17 @@ END.
 &Scoped-define SELF-NAME period-days-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period-days-3 C-Win
 ON LEAVE OF period-days-3 IN FRAME FRAME-A /* 3 */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME period-days-4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period-days-4 C-Win
+ON LEAVE OF period-days-4 IN FRAME FRAME-A /* 4 */
 DO:
   ASSIGN {&self-name}.
 END.
@@ -1575,19 +1597,19 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_comp end_comp tb_cust-list begin_cust-no end_cust-no begin_slsmn 
           end_slsmn begin_curr end_curr begin_term end_term trend_days 
-          as-of-date period-days-1 period-days-2 period-days-3 rs_detail 
-          lbl_sort rd_sort lbl_sort2 rd_sort2 tb_paid tb_include-factored 
-          tb_fuel tb_separate-fc begin_inv-date end_inv-date tgInactiveCust 
-          lv-ornt lines-per-page rd-dest lv-font-no lv-font-name td-show-parm 
-          tb_excel tb_runExcel fi_file 
+          as-of-date period-days-1 period-days-2 period-days-3 period-days-4 
+          rs_detail lbl_sort rd_sort lbl_sort2 rd_sort2 tb_paid 
+          tb_include-factored tb_fuel tb_separate-fc begin_inv-date end_inv-date 
+          tgInactiveCust lv-ornt lines-per-page rd-dest lv-font-no lv-font-name 
+          td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_comp end_comp btnCustList tb_cust-list 
          begin_cust-no end_cust-no begin_slsmn end_slsmn begin_curr end_curr 
          begin_term end_term trend_days as-of-date period-days-1 period-days-2 
-         period-days-3 rs_detail rd_sort rd_sort2 tb_paid tb_include-factored 
-         tb_fuel tb_separate-fc begin_inv-date end_inv-date tgInactiveCust 
-         btn_SelectColumns lv-ornt lines-per-page rd-dest lv-font-no 
-         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         period-days-3 period-days-4 rs_detail rd_sort rd_sort2 tb_paid 
+         tb_include-factored tb_fuel tb_separate-fc begin_inv-date end_inv-date 
+         tgInactiveCust btn_SelectColumns lv-ornt lines-per-page rd-dest 
+         lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1785,6 +1807,7 @@ ASSIGN
  v-days[1]          = period-days-1
  v-days[2]          = period-days-2
  v-days[3]          = period-days-3
+ v-days[4]          = period-days-4
  det-rpt            = rs_detail
  v-sort             = rd_sort
  v-sort2            = rd_sort2
@@ -1825,7 +1848,7 @@ DO WITH FRAME {&frame-name}:
  FOR EACH w-sort:
     DELETE w-sort.
   END.
-  DO li = 1 TO 3:
+  DO li = 1 TO 4:
     CREATE w-sort.
     w-int = v-days[li].
   END.
@@ -1833,7 +1856,7 @@ DO WITH FRAME {&frame-name}:
   FOR EACH w-sort BY w-int:
     li = li + 1.
     v-days[li] = w-int.
-    IF i GT 2 THEN LEAVE.
+    IF i GT 3 THEN LEAVE.
   END.
   ASSIGN
    period-days-1:screen-value = STRING(v-days[1])
@@ -1841,7 +1864,9 @@ DO WITH FRAME {&frame-name}:
    period-days-2:screen-value = STRING(v-days[2])
    period-days-2
    period-days-3:screen-value = STRING(v-days[3])
-   period-days-3.
+   period-days-3
+   period-days-4:screen-value = STRING(v-days[4])
+   period-days-4.
 END.
 IF lselected THEN DO:
     FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
@@ -1870,7 +1895,7 @@ DEF VAR cslist AS cha NO-UNDO.
            ASSIGN str-tit6 = str-tit6 + 
            (IF ttRptSelected.HeadingFromLeft THEN
                ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
-               ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + "         " + string(v-days[1])) + " "
+               ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + "  " + string( "(" + string(v-days[1]) + "-" + STRING(v-days[2] - 1) + ")","x(9)")) + " "
            str-tit7 = str-tit7 + FILL("-",ttRptSelected.FieldLength) + " "
            excelheader = excelHeader + string(v-days[1]) + "," .       
 
@@ -1878,16 +1903,23 @@ DEF VAR cslist AS cha NO-UNDO.
              ASSIGN str-tit6 = str-tit6 + 
            (IF ttRptSelected.HeadingFromLeft THEN
                ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
-               ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + "         " + string(v-days[2])) + " "
+               ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + "  " + string( "(" + string(v-days[2]) + "-" + STRING(v-days[3] - 1) + ")","x(9)" )) + " "
            str-tit7 = str-tit7 + FILL("-",ttRptSelected.FieldLength) + " "
            excelheader = excelHeader + string(v-days[2]) + "," .
         ELSE IF ttRptSelected.TextList =  "PERIOD DAY3" THEN
             ASSIGN str-tit6 = str-tit6 + 
             (IF ttRptSelected.HeadingFromLeft THEN
                ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
-               ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + "         " + string(v-days[3])) + " "
+               ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + "  " + string( "(" + string(v-days[3]) + "-" + STRING(v-days[4] - 1) + ")","x(9)" )) + " "
            str-tit7 = str-tit7 + FILL("-",ttRptSelected.FieldLength) + " "
            excelheader = excelHeader + string(v-days[3]) + "," .
+       ELSE IF ttRptSelected.TextList =  "PERIOD DAY4" THEN
+            ASSIGN str-tit6 = str-tit6 + 
+            (IF ttRptSelected.HeadingFromLeft THEN
+               ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
+               ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + "  " + string( "Over " + STRING(v-days[4]),"x(9)" )) + " "
+           str-tit7 = str-tit7 + FILL("-",ttRptSelected.FieldLength) + " "
+           excelheader = excelHeader + string(v-days[4]) + "," .
         ELSE
              ASSIGN str-tit6 = str-tit6 + 
            (IF ttRptSelected.HeadingFromLeft THEN
@@ -1900,7 +1932,7 @@ DEF VAR cslist AS cha NO-UNDO.
    END.
           cSlist = cSlist + ttRptSelected.FieldList + ",".
 
-        IF LOOKUP(ttRptSelected.TextList, "AMOUNT,CURRENT,PERIOD DAY1,PERIOD DAY2,PERIOD DAY3") <> 0    THEN
+        IF LOOKUP(ttRptSelected.TextList, "AMOUNT,CURRENT,PERIOD DAY1,PERIOD DAY2,PERIOD DAY3,PERIOD DAY4") <> 0    THEN
          ASSIGN
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
@@ -1922,23 +1954,14 @@ ASSIGN grand-t = 0
   IF tb_excel THEN DO:
     OUTPUT stream s-temp to value(v-exp-name).
 
-    IF det-rpt = 1 THEN DO:
+    IF det-rpt = 1 OR det-rpt = 2 THEN DO:
       v-hdr = v-hdr + trim(STRING(v-days[1],">,>>>")) + "," +
                       trim(STRING(v-days[2],">,>>>")) + "," +
-                      trim(STRING(v-days[3],">,>>>")) + "+". 
-      /*IF tb_cust-po THEN do:
-            v-hdr = v-hdr + "," + trim(string("Customer PO#")) .                /*Task# 02071402*/
-            put stream s-temp unformatted v-hdr skip.
-      END.
-      ELSE*/
+                      trim(STRING(v-days[3],">,>>>")) + "," +
+                      trim(STRING(v-days[4],">,>>>")) + "+". 
+      
           PUT STREAM s-temp UNFORMATTED excelheader SKIP.
-    /*END.*/
-    /*ELSE DO:
-       v-hdr2 = v-hdr2 + trim(string(v-days[1],">,>>>")) + "," +
-                         trim(string(v-days[2],">,>>>")) + "," +
-                         trim(string(v-days[3],">,>>>")) + "+".
-           put stream s-temp unformatted v-hdr2 skip.
-    END.*/
+    
     END.
   END.
 

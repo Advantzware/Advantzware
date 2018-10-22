@@ -267,6 +267,22 @@ SIZE 27 BY .81 NO-UNDO.
 
 /* ************************  Function Prototypes ********************** */
 
+&IF DEFINED(EXCLUDE-fGetTaxable) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable Procedure
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER,
+   ipcCust AS CHARACTER,
+   ipcShipto AS CHARACTER,
+   ipcFGItemID AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-get-handle) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-handle Procedure 
@@ -1219,7 +1235,6 @@ PROCEDURE create-item :
     bf-oe-ordl.prom-code = oe-ord.due-code
     bf-oe-ordl.prom-date = oe-ord.due-date
     bf-oe-ordl.disc      = cust.disc
-    bf-oe-ordl.tax       = cust.SORT EQ "Y" AND oe-ord.tax-gr NE ""
     bf-oe-ordl.over-pct  = oe-ord.over-pct
     bf-oe-ordl.qty       = ipi-qty
     bf-oe-ordl.under-pct = oe-ord.under-pct.
@@ -1235,7 +1250,8 @@ PROCEDURE create-item :
       ASSIGN bf-oe-ordl.req-date = (TODAY + INT(lastship-dec)).
       ASSIGN bf-oe-ordl.prom-date = bf-oe-ordl.req-date.
     END.
-    {custom/shptotax.i oe-ord.cust-no oe-ord.sold-id bf-oe-ordl.tax}
+    bf-oe-ordl.tax = fGetTaxable(oe-ord.company, oe-ord.cust-no, oe-ord.ship-id,""). 
+    
     FOR LAST b-oe-ordl OF oe-ord
       WHERE ROWID(b-oe-ordl) NE ROWID(bf-oe-ordl)
       NO-LOCK
@@ -1514,35 +1530,21 @@ PROCEDURE create-release :
       IF AVAIL shipto THEN DO:
         ASSIGN v-ship-id           = shipto.ship-id.
         /* gdm - 06220908 */
-        IF v-relflg2 THEN
-        ASSIGN oe-rel.ship-no      = shipto.ship-no
-        oe-rel.ship-id      = shipto.ship-id
-        oe-rel.ship-addr[1] = shipto.ship-addr[1]
-        oe-rel.ship-addr[2] = shipto.ship-addr[2]
-        oe-rel.ship-city    = shipto.ship-city
-        oe-rel.ship-state   = shipto.ship-state
-        oe-rel.ship-zip     = shipto.ship-zip
-        oe-rel.ship-i[1] = shipto.notes[1]
-        oe-rel.ship-i[2] = shipto.notes[2]
-        oe-rel.ship-i[3] = shipto.notes[3]
-        oe-rel.ship-i[4] = shipto.notes[4].
-        /* gdm - 06220908 end */
-        /* maybe later
-        IF shipto.notes[1] <> "" OR shipto.notes[2] <> "" OR
-        shipto.notes[3] <> "" OR shipto.notes[4] <> "" THEN DO:
-        FIND FIRST notes WHERE notes.rec_key = oe-rel.rec_key NO-LOCK NO-ERROR.
-        IF NOT AVAIL notes THEN DO:
-        CREATE notes.
-        ASSIGN notes.rec_key = oe-rel.rec_key
-        notes.note_date = TODAY
-        notes.note_title = shipto.notes[1]
-        notes.note_text = shipto.notes[1] + CHR(13) +
-        shipto.notes[2] + CHR(13) +
-        shipto.notes[3] + CHR(13) +
-        ship.notes[4] + CHR(13).
-        END.
-        END.
-        */
+        IF v-relflg2 THEN DO:
+            ASSIGN oe-rel.ship-no      = shipto.ship-no
+            oe-rel.ship-id      = shipto.ship-id
+            oe-rel.ship-addr[1] = shipto.ship-addr[1]
+            oe-rel.ship-addr[2] = shipto.ship-addr[2]
+            oe-rel.ship-city    = shipto.ship-city
+            oe-rel.ship-state   = shipto.ship-state
+            oe-rel.ship-zip     = shipto.ship-zip
+            oe-rel.ship-i[1] = shipto.notes[1]
+            oe-rel.ship-i[2] = shipto.notes[2]
+            oe-rel.ship-i[3] = shipto.notes[3]
+            oe-rel.ship-i[4] = shipto.notes[4].
+            /* gdm - 06220908 end */
+            RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+        END.  
         /* if add mode then use default carrier */
         /*   if sel = 3 /* and NOT oe-rel.carrier ENTERED */ then do: */
         FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -1581,34 +1583,20 @@ PROCEDURE create-release :
       NO-LOCK NO-ERROR.
       IF AVAIL shipto THEN DO:
         /* gdm - 06220908 */
-        IF v-relflg2 THEN
-        ASSIGN oe-rel.ship-no      = shipto.ship-no
-        oe-rel.ship-id      = shipto.ship-id
-        oe-rel.ship-addr[1] = shipto.ship-addr[1]
-        oe-rel.ship-addr[2] = shipto.ship-addr[2]
-        oe-rel.ship-city    = shipto.ship-city
-        oe-rel.ship-state   = shipto.ship-state
-        oe-rel.ship-zip     = shipto.ship-zip
-        oe-rel.ship-i[1] = shipto.notes[1]
-        oe-rel.ship-i[2] = shipto.notes[2]
-        oe-rel.ship-i[3] = shipto.notes[3]
-        oe-rel.ship-i[4] = shipto.notes[4].
-        /* ===== maybe later
-        IF shipto.notes[1] <> "" OR shipto.notes[2] <> "" OR
-        shipto.notes[3] <> "" OR shipto.notes[4] <> "" THEN DO:
-        FIND FIRST notes WHERE notes.rec_key = oe-rel.rec_key NO-LOCK NO-ERROR.
-        IF NOT AVAIL notes THEN DO:
-        CREATE notes.
-        ASSIGN notes.rec_key = oe-rel.rec_key
-        notes.note_date = TODAY
-        notes.note_title = shipto.notes[1]
-        notes.note_text = shipto.notes[1] + CHR(13) +
-        shipto.notes[2] + CHR(13) +
-        shipto.notes[3] + CHR(13) +
-        ship.notes[4] + CHR(13).
+        IF v-relflg2 THEN DO:
+            ASSIGN oe-rel.ship-no      = shipto.ship-no
+            oe-rel.ship-id      = shipto.ship-id
+            oe-rel.ship-addr[1] = shipto.ship-addr[1]
+            oe-rel.ship-addr[2] = shipto.ship-addr[2]
+            oe-rel.ship-city    = shipto.ship-city
+            oe-rel.ship-state   = shipto.ship-state
+            oe-rel.ship-zip     = shipto.ship-zip
+            oe-rel.ship-i[1] = shipto.notes[1]
+            oe-rel.ship-i[2] = shipto.notes[2]
+            oe-rel.ship-i[3] = shipto.notes[3]
+            oe-rel.ship-i[4] = shipto.notes[4].
+            RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
         END.
-        END.
-        ===========*/
         /* if add mode then use default carrier */
         IF ll-new-record /* and NOT oe-rel.carrier ENTERED */ THEN DO:
           /* wfk
@@ -1642,33 +1630,20 @@ PROCEDURE create-release :
     USE-INDEX ship-id NO-LOCK NO-ERROR.
     IF AVAIL shipto THEN DO:
       /* gdm - 06220908 */
-      IF v-relflg2 THEN
-      ASSIGN oe-rel.ship-no      = shipto.ship-no
-      oe-rel.ship-id      = shipto.ship-id
-      oe-rel.ship-addr[1] = shipto.ship-addr[1]
-      oe-rel.ship-addr[2] = shipto.ship-addr[2]
-      oe-rel.ship-city    = shipto.ship-city
-      oe-rel.ship-state   = shipto.ship-state
-      oe-rel.ship-zip     = shipto.ship-zip
-      oe-rel.ship-i[1] = shipto.notes[1]
-      oe-rel.ship-i[2] = shipto.notes[2]
-      oe-rel.ship-i[3] = shipto.notes[3]
-      oe-rel.ship-i[4] = shipto.notes[4].
-      /*   IF shipto.notes[1] <> "" OR shipto.notes[2] <> "" OR
-      shipto.notes[3] <> "" OR shipto.notes[4] <> "" THEN DO:
-      FIND FIRST notes WHERE notes.rec_key = oe-rel.rec_key NO-LOCK NO-ERROR.
-      IF NOT AVAIL notes THEN DO:
-      CREATE notes.
-      ASSIGN notes.rec_key = oe-rel.rec_key
-      notes.note_date = TODAY
-      notes.note_title = shipto.notes[1]
-      notes.note_text = shipto.notes[1] + CHR(13) +
-      shipto.notes[2] + CHR(13) +
-      shipto.notes[3] + CHR(13) +
-      ship.notes[4] + CHR(13).
+      IF v-relflg2 THEN DO:
+          ASSIGN oe-rel.ship-no      = shipto.ship-no
+          oe-rel.ship-id      = shipto.ship-id
+          oe-rel.ship-addr[1] = shipto.ship-addr[1]
+          oe-rel.ship-addr[2] = shipto.ship-addr[2]
+          oe-rel.ship-city    = shipto.ship-city
+          oe-rel.ship-state   = shipto.ship-state
+          oe-rel.ship-zip     = shipto.ship-zip
+          oe-rel.ship-i[1] = shipto.notes[1]
+          oe-rel.ship-i[2] = shipto.notes[2]
+          oe-rel.ship-i[3] = shipto.notes[3]
+          oe-rel.ship-i[4] = shipto.notes[4].
+          RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
       END.
-      END.
-      */
       /* if add mode then use default carrier */
       IF ll-new-record THEN DO:
         FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -1777,11 +1752,8 @@ PROCEDURE crt-itemfg :
   itemfg.ship-meth  = IF AVAIL bf-itemfg THEN bf-itemfg.ship-meth ELSE YES.
   
   ASSIGN
-  itemfg.taxable = IF AVAIL cust
-  THEN cust.SORT EQ "Y" AND cust.tax-gr NE ""
-  ELSE
-  IF AVAIL bf-itemfg THEN bf-itemfg.taxable
-  ELSE NO.
+  itemfg.taxable = fGetTaxable(oe-ord.company, oe-ord.cust-no, oe-ord.ship-id , (IF AVAILABLE bf-itemfg THEN bf-itemfg.i-no ELSE ""))
+  .
   IF fgmaster-cha EQ "FGITEM" THEN
   ASSIGN
   itemfg.sell-uom   = get-sv("oe-ordl.pr-uom")
@@ -2021,16 +1993,8 @@ PROCEDURE display-fgitem :
       END.  /* update and est-no <> "" */
       RUN validate-fgitem NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-      FIND FIRST cust
-      {sys/ref/custW.i}
-      AND cust.cust-no EQ oe-ord.cust-no
-      USE-INDEX cust
-      NO-LOCK NO-ERROR.
-      ll-tax = AVAIL cust AND cust.SORT EQ "Y" AND oe-ord.tax-gr NE "" AND itemfg.taxable.
-      IF NOT ll-tax THEN DO:
-        {custom/shptotax.i oe-ord.cust-no oe-ord.sold-id ll-tax}
-      END.
-      set-sv("oe-ordl.tax", STRING(ll-tax,"Y/N") ).
+      /*35645*/
+      set-sv("oe-ordl.tax", STRING(fGetTaxable(itemfg.company, oe-ordl.cust-no, oe-ordl.ship-id, itemfg.i-no),"Y/N") ).
       RUN default-type (BUFFER itemfg).
       
  /* {custom/fgexempt.i itemfg oe-ordl.disc:SCREEN-VALUE} */
@@ -4626,22 +4590,10 @@ PROCEDURE update-release :
           oe-rel.ship-i[2] = shipto.notes[2]
           oe-rel.ship-i[3] = shipto.notes[3]
           oe-rel.ship-i[4] = shipto.notes[4].
+          
+          RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
           /* if add mode then use default carrier */
-          IF shipto.notes[1] <> "" OR shipto.notes[2] <> "" OR
-          shipto.notes[3] <> "" OR shipto.notes[4] <> "" THEN DO:
-            FIND FIRST notes WHERE notes.rec_key = oe-rel.rec_key NO-LOCK NO-ERROR.
-            IF NOT AVAIL notes THEN DO:
-              CREATE notes.
-              ASSIGN
-              notes.rec_key = oe-rel.rec_key
-              notes.note_date = TODAY
-              notes.note_title = shipto.notes[1]
-              notes.note_text = shipto.notes[1] + CHR(13) +
-              shipto.notes[2] + CHR(13) +
-              shipto.notes[3] + CHR(13) +
-              ship.notes[4] + CHR(13).
-            END.
-          END.
+       
         END.
       END.
       IF li NE oe-ordl.qty                                  AND
@@ -5940,7 +5892,52 @@ END PROCEDURE.
 
 &ENDIF
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 /* ************************  Function Implementations ***************** */
+
+&IF DEFINED(EXCLUDE-fGetTaxable) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable Procedure
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER, ipcCust AS CHARACTER , ipcShipto AS CHARACTER, ipcFGItemID AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: Gets the Taxable flag based on inputs
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+RUN system\TaxProcs.p (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+RETURN lTaxable.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-get-handle) = 0 &THEN
 

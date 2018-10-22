@@ -31,7 +31,6 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF VAR ll-secure AS LOG NO-UNDO.
 
 DEF VAR listname AS cha NO-UNDO.
 listname = "p-updinv." .
@@ -56,7 +55,7 @@ listname = "p-updinv." .
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-26 btn-update tg_showzerobins 
+&Scoped-Define ENABLED-OBJECTS btn-update tg_showzerobins 
 &Scoped-Define DISPLAYED-OBJECTS tg_showzerobins 
 
 /* Custom List Definitions                                              */
@@ -94,28 +93,28 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-update 
      LABEL "&Update Cost/Unit/Count" 
-     SIZE 34.4 BY 1.67.
+     SIZE 26 BY 1.14.
 
 DEFINE RECTANGLE RECT-26
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 36 BY 2.14.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 28 BY 1.52.
 
 DEFINE VARIABLE tg_showzerobins AS LOGICAL INITIAL no 
-     LABEL "Show Bins with Qty = 0" 
+     LABEL "Show Bins with Qty=0" 
      VIEW-AS TOGGLE-BOX
-     SIZE 26 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btn-update AT ROW 1.24 COL 40
-     tg_showzerobins AT ROW 1.71 COL 40 WIDGET-ID 2
-     RECT-26 AT ROW 1 COL 39
+     btn-update AT ROW 1.24 COL 2
+     tg_showzerobins AT ROW 1.48 COL 2 WIDGET-ID 2
+     RECT-26 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 .
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -145,7 +144,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
          HEIGHT             = 6.86
-         WIDTH              = 66.
+         WIDTH              = 107.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -176,6 +175,8 @@ ASSIGN
        btn-update:PRIVATE-DATA IN FRAME F-Main     = 
                 "panel-image".
 
+/* SETTINGS FOR RECTANGLE RECT-26 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -199,21 +200,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-update V-table-Win
 ON CHOOSE OF btn-update IN FRAME F-Main /* Update Cost/Unit/Count */
 DO:
-  def var char-hdl as cha no-undo.
-  DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
-         DEF VAR lResult AS LOG NO-UNDO.
-         RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
-         RUN epCanAccess IN hPgmSecurity ("viewers/p-fg-bj-l.w", "", OUTPUT lResult).
-    DELETE OBJECT hPgmSecurity.
-  IF lResult THEN
-    ASSIGN ll-secure = YES.
-  
-  IF NOT ll-secure THEN do:  
-     RUN sys/ref/d-passwd.w (1, OUTPUT ll-secure). 
-     IF NOT ll-secure THEN RETURN NO-APPLY.
-  END.  
-  run get-link-handle in adm-broker-hdl (this-procedure, "cost-source", output char-hdl).  
-  run update-cost in widget-handle(char-hdl).
+    RUN pUpdate.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -222,7 +209,7 @@ END.
 
 &Scoped-define SELF-NAME tg_showzerobins
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tg_showzerobins V-table-Win
-ON VALUE-CHANGED OF tg_showzerobins IN FRAME F-Main /* Show Bins with Qty = 0 */
+ON VALUE-CHANGED OF tg_showzerobins IN FRAME F-Main /* Show Bins with Qty=0 */
 DO:
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR hContainer AS HANDLE NO-UNDO.
@@ -314,6 +301,20 @@ PROCEDURE local-enable :
    /* IF NOT v-can-update THEN btn-update:SENSITIVE = NO.*/
     tg_showzerobins:HIDDEN = TRUE.
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdate V-table-Win 
+PROCEDURE pUpdate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "cost-source" "update-cost"}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

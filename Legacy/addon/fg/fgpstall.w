@@ -2557,38 +2557,38 @@ if v-pr-tots then do:
   if v-cost-sell then DO:                   
     PUT STREAM before
         " " to 124 skip       
-        "MSF->  FG: " + trim(string(v-msf[5],">>,>>9.9<<")) +
-        "  Wst: " + trim(string(v-msf[6],">>,>>9.9<<"))    +
-        "  Tot: " + trim(string(v-msf[5] + v-msf[6],">>,>>9.9<<"))
-                    format "x(59)" at 15
+        "MSF->  FG: " + trim(string(v-msf[5],"->>,>>9.9<<")) +
+        "  Wst: " + trim(string(v-msf[6],"->>,>>9.9<<"))    +
+        "  Tot: " + trim(string(v-msf[5] + v-msf[6],"->>,>>9.9<<"))
+                    format "x(63)" at 15
         "GRAND TOTALS:" to 97
         v-grd-tot-qty to 110 v-grd-tot-cost to 141 skip. 
 
     PUT STREAM after
         " " to 124 skip       
-        "MSF->  FG: " + trim(string(v-msf[5],">>,>>9.9<<")) +
-        "  Wst: " + trim(string(v-msf[6],">>,>>9.9<<"))    +
-        "  Tot: " + trim(string(v-msf[5] + v-msf[6],">>,>>9.9<<"))
-                    format "x(59)" at 15 
+        "MSF->  FG: " + trim(string(v-msf[5],"->>,>>9.9<<")) +
+        "  Wst: " + trim(string(v-msf[6],"->>,>>9.9<<"))    +
+        "  Tot: " + trim(string(v-msf[5] + v-msf[6],"->>,>>9.9<<"))
+                    format "x(63)" at 15 
         "GRAND TOTALS:" to 97
         v-grd-tot-qty to 110 v-grd-tot-cost to 141 skip.     
   END.
   ELSE DO:
     PUT STREAM before
         " " to 124 skip       
-        "MSF->  FG: " + trim(string(v-msf[5],">>,>>9.9<<")) +
-        "  Wst: " + trim(string(v-msf[6],">>,>>9.9<<"))    +
-        "  Tot: " + trim(string(v-msf[5] + v-msf[6],">>,>>9.9<<"))
-                    format "x(59)" at 15 
+        "MSF->  FG: " + trim(string(v-msf[5],"->>,>>9.9<<")) +
+        "  Wst: " + trim(string(v-msf[6],"->>,>>9.9<<"))    +
+        "  Tot: " + trim(string(v-msf[5] + v-msf[6],"->>,>>9.9<<"))
+                    format "x(63)" at 15 
         "GRAND TOTALS:" to 100
         v-grd-tot-qty to 113 v-grd-tot-value to 144 skip.
 
     PUT STREAM after
         " " to 124 skip       
-        "MSF->  FG: " + trim(string(v-msf[5],">>,>>9.9<<")) +
-        "  Wst: " + trim(string(v-msf[6],">>,>>9.9<<"))    +
-        "  Tot: " + trim(string(v-msf[5] + v-msf[6],">>,>>9.9<<"))
-                    format "x(59)" at 15 
+        "MSF->  FG: " + trim(string(v-msf[5],"->>,>>9.9<<")) +
+        "  Wst: " + trim(string(v-msf[6],"->>,>>9.9<<"))    +
+        "  Tot: " + trim(string(v-msf[5] + v-msf[6],"->>,>>9.9<<"))
+                    format "x(63)" at 15 
         "GRAND TOTALS:" to 97
         v-grd-tot-qty to 110 v-grd-tot-value to 141 skip.
   END.

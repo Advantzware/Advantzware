@@ -825,7 +825,8 @@ PROCEDURE hold-release :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.  
   DEFINE VARIABLE lOrderOnHold AS LOGICAL NO-UNDO.  
-
+  DEFINE VARIABLE cHoldMessage AS CHARACTER NO-UNDO.
+  
     IF AVAILABLE job AND job.opened THEN 
     DO:
         FIND CURRENT job NO-ERROR.
@@ -842,10 +843,11 @@ PROCEDURE hold-release :
                         WHERE oe-ord.company EQ job-hdr.company
                         AND oe-ord.ord-no EQ job-hdr.ord-no
                         NO-LOCK NO-ERROR.
-                    IF AVAILABLE oe-ord AND oe-ord.stat EQ "H" THEN 
+                    IF AVAILABLE oe-ord AND (oe-ord.stat EQ "H" OR oe-ord.priceHold) THEN 
                     DO:
                         lOrderOnHold= TRUE.
-                        MESSAGE "Order " oe-ord.ord-no "is on hold and must be released before this job can be released."
+                        cHoldMessage = IF oe-ord.stat EQ 'H' THEN "hold" ELSE "price hold".
+                        MESSAGE "Order " oe-ord.ord-no "is on " cHoldMessage " and must be released before this job can be released."
                             VIEW-AS ALERT-BOX.
                     END. /* sales order is on hold */
                 END. /* has a sales order defined */
@@ -1347,7 +1349,7 @@ PROCEDURE local-update-record :
 
     FOR EACH xeb WHERE xeb.company = xest.company
                    AND xeb.est-no = xest.est-no
-                 NO-LOCK
+                 EXCLUSIVE-LOCK
         BREAK BY xeb.est-no
               BY xeb.form-no
               BY xeb.blank-no:

@@ -236,7 +236,7 @@ DEFINE RECTANGLE RECT-4
 
 DEFINE FRAME F-Main
      prep.code AT ROW 1.24 COL 17 COLON-ALIGNED
-          LABEL "Prep Code" FORMAT "X(20)"
+          LABEL "Prep Code" FORMAT "X(15)"
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
           BGCOLOR 15 FONT 4
@@ -251,7 +251,7 @@ DEFINE FRAME F-Main
 "Labor", no
           SIZE 25.8 BY 1
      fi_cad-image AT ROW 17.71 COL 18 COLON-ALIGNED
-     prep.cost AT ROW 2.43 COL 48.8 COLON-ALIGNED FORMAT "->>9.99<<"
+     prep.cost AT ROW 2.43 COL 48.8 COLON-ALIGNED FORMAT "->>,>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 4

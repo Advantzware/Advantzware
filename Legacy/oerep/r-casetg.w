@@ -41,8 +41,6 @@ assign
  cocode = g_company
  locode = g_loc.
 
-DEFINE BUFFER ref-lot-no FOR reftable.
-
 DEF VAR lines-per-page AS INT NO-UNDO.
 
 DEF var save_id AS RECID.
@@ -193,7 +191,7 @@ DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job AS CHARACTER FORMAT "X(12)":U 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1 NO-UNDO.
@@ -541,7 +539,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Case Label Creation */
 DO:
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -677,15 +675,14 @@ DO:
       END.
 
       IF v-cust-no NE "" THEN
-         FIND FIRST reftable WHERE
-              reftable.reftable = "cp-lab-p" AND
-              reftable.company = cocode AND
-              reftable.loc     = begin_i-no:SCREEN-VALUE AND
-              reftable.CODE    = v-cust-no
+         FIND FIRST cust-part WHERE
+              cust-part.company = cocode AND
+              cust-part.i-no    = begin_i-no:SCREEN-VALUE AND
+              cust-part.cust-no = v-cust-no
               NO-LOCK NO-ERROR.
 
-      IF AVAIL reftable AND reftable.code2 NE "" THEN
-         scr-label-file:SCREEN-VALUE = reftable.code2.
+      IF AVAIL cust-part AND cust-part.labelCase NE "" THEN
+         scr-label-file:SCREEN-VALUE = cust-part.labelCase.
       ELSE
       IF INT(begin_ord-no:SCREEN-VALUE) NE 0 THEN DO:
 
@@ -796,13 +793,10 @@ END.
 ON LEAVE OF begin_job IN FRAME FRAME-A /* Job# */
 DO:
   /*ESP - Only fire on leave of job no 2*/
-  /*IF LASTKEY NE -1 THEN DO:
-    RUN new-job (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN DO:
-      APPLY "entry" TO begin_job.
-      RETURN NO-APPLY.
-    END.
-  END.*/
+  IF LASTKEY NE -1 THEN DO:
+    RUN get-jobord-info.
+    
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -868,15 +862,14 @@ DO:
          v-cust-no = IF AVAIL oe-ord THEN oe-ord.cust-no ELSE "".
 
          IF AVAIL oe-ord THEN
-            FIND FIRST reftable WHERE
-                 reftable.reftable = "cp-lab-p" AND
-                 reftable.company = cocode AND
-                 reftable.loc     = begin_i-no:SCREEN-VALUE AND
-                 reftable.CODE    = oe-ord.cust-no
+            FIND FIRST cust-part WHERE
+                 cust-part.company = cocode AND
+                 cust-part.i-no    = begin_i-no:SCREEN-VALUE AND
+                 cust-part.cust-no = oe-ord.cust-no
                  NO-LOCK NO-ERROR.
 
-         IF AVAIL reftable AND reftable.code2 NE "" THEN
-            scr-label-file:SCREEN-VALUE = reftable.code2.
+         IF AVAIL cust-part AND cust-part.labelCase NE "" THEN
+            scr-label-file:SCREEN-VALUE = cust-part.labelCase.
          ELSE
          DO:
             IF begin_i-no:SCREEN-VALUE NE "" THEN
@@ -979,7 +972,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
    apply "close" to this-procedure.
 END.
 
@@ -1062,15 +1055,14 @@ DO:
        END.
 
        IF v-cust-no NE "" THEN
-          FIND FIRST reftable WHERE
-               reftable.reftable = "cp-lab-p" AND
-               reftable.company = cocode AND
-               reftable.loc     = begin_i-no:SCREEN-VALUE AND
-               reftable.CODE    = v-cust-no
+          FIND FIRST cust-part WHERE
+               cust-part.company = cocode AND
+               cust-part.i-no    = begin_i-no:SCREEN-VALUE AND
+               cust-part.cust-no = v-cust-no
                NO-LOCK NO-ERROR.
 
-       IF AVAIL reftable AND reftable.code2 NE "" THEN
-          scr-label-file:SCREEN-VALUE = reftable.code2.
+       IF AVAIL cust-part AND cust-part.labelCase NE "" THEN
+          scr-label-file:SCREEN-VALUE = cust-part.labelCase.
        ELSE
        IF INT(begin_ord-no:SCREEN-VALUE) NE 0 THEN DO:
 
@@ -2108,9 +2100,11 @@ PROCEDURE new-job :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DO WITH FRAME {&FRAME-NAME}:
+DO WITH FRAME {&FRAME-NAME}:
     RELEASE job.
     RELEASE job-hdr.
+
+ IF begin_i-no:SCREEN-VALUE EQ "" THEN do:
 
     IF TRIM(begin_job:SCREEN-VALUE) NE "" THEN
     FIND FIRST job NO-LOCK
@@ -2135,15 +2129,14 @@ PROCEDURE new-job :
 
        IF v-auto-print AND LOGICAL(scr-freeze-label:SCREEN-VALUE) = NO THEN
        DO:
-          FIND FIRST reftable WHERE
-               reftable.reftable = "cp-lab-p" AND
-               reftable.company = cocode AND
-               reftable.loc     = begin_i-no:SCREEN-VALUE AND
-               reftable.CODE    = job-hdr.cust-no
+          FIND FIRST cust-part WHERE
+               cust-part.company = cocode AND
+               cust-part.i-no    = begin_i-no:SCREEN-VALUE AND
+               cust-part.cust-no = job-hdr.cust-no
                NO-LOCK NO-ERROR.
 
-          IF AVAIL reftable AND reftable.code2 NE "" THEN
-             scr-label-file:SCREEN-VALUE = reftable.code2.
+          IF AVAIL cust-part AND cust-part.labelCase NE "" THEN
+             scr-label-file:SCREEN-VALUE = cust-part.labelCase.
           ELSE
           DO:
 
@@ -2223,7 +2216,7 @@ PROCEDURE new-job :
              v-lcnt = 2.
     END.
   END.
-
+END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2482,6 +2475,7 @@ DEF VAR lv-how-many-tags AS INT NO-UNDO.
 DEF VAR v-b-word-created AS LOG NO-UNDO.
 DEF VAR op-warning AS LOG NO-UNDO.
 DEF VAR var-display-warning AS LOG NO-UNDO.
+DEFINE VARIABLE iPcs AS INTEGER NO-UNDO .
 
 SESSION:SET-WAIT-STATE ("general").
 
@@ -2894,6 +2888,11 @@ ASSIGN
         /*END.*/
         IF cBarCodeProgram EQ "" THEN
         DO i = 1 TO (lv-how-many-tags ):
+
+           IF i EQ lv-how-many-tags AND w-ord.partial NE 0 THEN
+               iPcs = w-ord.partial .
+           ELSE iPcs = w-ord.pcs .
+
            PUT UNFORMATTED
             "~""  removeChars(w-ord.cust-name)  "~","
             w-ord.ord-no ","
@@ -2905,7 +2904,7 @@ ASSIGN
             "~""  removeChars(w-ord.part-dscr2)  "~","
             "~""  removeChars(w-ord.part-dscr3)  "~","
             "~""  removeChars(w-ord.cust-po-no)  "~","
-            w-ord.pcs ","
+            iPcs ","
             w-ord.bundle ","
             w-ord.total-unit ","
             "~""  removeChars(w-ord.cust-name)  "~","
@@ -3165,6 +3164,145 @@ PROCEDURE update-counts :
    END.
   RELEASE itemfg.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-jobord-info C-Win 
+PROCEDURE get-jobord-info :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE ll AS INTEGER INIT 1 NO-UNDO.
+DEFINE VARIABLE lv-job-no AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-job-no2 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-job AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-job2 AS INTEGER NO-UNDO.
+DEFINE VARIABLE li AS INTEGER NO-UNDO.
+DEFINE VARIABLE lcForm AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iForm AS CHARACTER NO-UNDO .
+DEFINE VARIABLE iBlank-no AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lCheckForm AS LOGICAL INIT YES NO-UNDO .
+DEFINE VARIABLE lCheckBlank AS LOGICAL INIT YES NO-UNDO .
+DEFINE VARIABLE oplCheckForm AS LOGICAL INIT NO NO-UNDO .
+
+DEFINE BUFFER bf-job FOR job.
+DEFINE BUFFER bf-job-hdr-2 FOR job-hdr.
+
+
+   v-job = ENTRY(1,begin_job:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
+
+   DO li = 1 TO LENGTH(v-job):
+      IF INDEX("/:-",SUBSTR(v-job,li,1)) GT 0 THEN
+        ll = ll + 1.
+         /*ELSE LEAVE.*/
+      ELSE do:
+         IF ll EQ 1 THEN lv-job-no = lv-job-no + SUBSTR(v-job,li,1).
+         ELSE IF ll EQ 2 THEN lv-job-no2 = lv-job-no2 + SUBSTR(v-job,li,1).
+         ELSE IF ll EQ 3 THEN iForm = iForm + SUBSTR(v-job,li,1) NO-ERROR .
+         ELSE IF ll EQ 4 THEN iBlank-no = iBlank-no + SUBSTR(v-job,li,1) NO-ERROR .
+      END.
+   END.
+   IF iForm EQ "" THEN
+       lCheckForm = NO .
+   IF iBlank-no EQ "" THEN
+       lCheckBlank = NO .
+
+   ASSIGN
+      lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + lv-job-no
+      v-job2 = INT(lv-job-no2).
+   RUN dispJobInfo (INPUT cocode, INPUT lv-job-no, INPUT v-job2,INPUT iForm, INPUT iBlank-no, INPUT lCheckForm, INPUT lCheckBlank, OUTPUT oplCheckForm ).
+  
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dispJobInfo C-Win 
+PROCEDURE dispJobInfo :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------ ------------------------------------------------*/
+DEF INPUT PARAMETER ipcCompany      AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER ipcJobNo    AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER ipiJobNo2   AS INTEGER     NO-UNDO.
+DEFINE INPUT  PARAMETER ipiForm     AS INTEGER     NO-UNDO.
+DEFINE INPUT  PARAMETER ipiBlank    AS INTEGER     NO-UNDO.
+DEFINE INPUT  PARAMETER iplCheckBar AS LOGICAL     NO-UNDO.
+DEFINE INPUT  PARAMETER iplCheckBarBlank AS LOGICAL     NO-UNDO.
+DEFINE OUTPUT PARAMETER oplCheckBar AS LOGICAL     NO-UNDO.
+
+DEFINE BUFFER bf-job FOR job.
+DEFINE BUFFER bf-job-hdr-2 FOR job-hdr.
+DEFINE VARIABLE v-lncnt AS INT NO-UNDO.
+DEFINE VARIABLE v-frstitem AS CHAR NO-UNDO.
+DEFINE VARIABLE v-lastitem AS CHAR NO-UNDO.
+DEFINE VARIABLE v-first-order AS INT NO-UNDO.
+DEFINE VARIABLE v-last-order AS INT NO-UNDO.
+DO WITH FRAME {&FRAME-NAME}:
+
+   FIND FIRST bf-job WHERE
+        bf-job.company EQ cocode AND
+        bf-job.job-no EQ ipcJobNo AND
+        bf-job.job-no2 EQ ipiJobNo2
+        NO-LOCK NO-ERROR.
+
+   IF AVAIL bf-job THEN
+   DO:
+      FOR EACH bf-job-hdr-2 FIELDS(i-no frm blank-no) NO-LOCK
+          WHERE bf-job-hdr-2.company EQ bf-job.company
+            AND bf-job-hdr-2.job-no  EQ bf-job.job-no
+            AND bf-job-hdr-2.job-no2 EQ bf-job.job-no2
+            AND ( bf-job-hdr-2.frm EQ ipiForm OR NOT iplCheckBar )
+            AND ( bf-job-hdr-2.blank-no EQ ipiBlank OR NOT iplCheckBarBlank )
+           BREAK BY bf-job-hdr-2.i-no:
+
+           v-lncnt = v-lncnt + 1.
+
+           IF FIRST-OF(bf-job-hdr-2.i-no) THEN
+              v-frstitem = bf-job-hdr-2.i-no.
+           IF LAST-OF(bf-job-hdr-2.i-no) THEN
+              v-lastitem = bf-job-hdr-2.i-no.
+      END.
+
+      FOR EACH bf-job-hdr-2 FIELDS(ord-no frm blank-no) NO-LOCK
+          WHERE bf-job-hdr-2.company EQ bf-job.company
+            AND bf-job-hdr-2.job-no  EQ bf-job.job-no
+            AND bf-job-hdr-2.job-no2 EQ bf-job.job-no2
+            AND ( bf-job-hdr-2.frm EQ ipiForm OR NOT iplCheckBar )
+            AND ( bf-job-hdr-2.blank-no EQ ipiBlank OR NOT iplCheckBarBlank )
+           BREAK BY bf-job-hdr-2.ord-no:
+
+           IF FIRST-OF(bf-job-hdr-2.ord-no) THEN
+              v-first-order = bf-job-hdr-2.ord-no.
+           IF LAST-OF(bf-job-hdr-2.ord-no) THEN
+              v-last-order = bf-job-hdr-2.ord-no.
+      END.
+  
+  
+      ASSIGN
+         begin_ord-no:SCREEN-VALUE = STRING(v-first-order)
+         begin_job:SCREEN-VALUE    = ipcJobNo         
+         begin_job2:SCREEN-VALUE   = STRING(ipiJobNo2,"99")
+         begin_i-no:SCREEN-VALUE   = v-lastitem.           
+
+      APPLY "LEAVE" TO begin_i-no.
+      IF v-lncnt EQ 1 THEN
+          oplCheckBar = YES . 
+      /*IF v-lncnt GT 1 THEN
+         MESSAGE "There are multiple FG Items on this order." skip
+                 "Please select an FG Item."
+                VIEW-AS ALERT-BOX INFO BUTTONS OK.*/ /* warning for malti fgitem*/
+   END.
+END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

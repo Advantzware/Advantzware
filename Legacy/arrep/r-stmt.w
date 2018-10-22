@@ -71,6 +71,9 @@ def NEW SHARED temp-table tt-inv no-undo
   FIELD po-no LIKE ar-invl.po-no
   FIELD bol-no AS CHAR 
   FIELD old-day AS INT
+  FIELD check-no AS CHARACTER 
+  FIELD charge AS DECIMAL 
+  FIELD credits AS DECIMAL 
   index tt-inv cust-no inv-date sort-fld trans-date.
 
 DEF NEW SHARED TEMP-TABLE tt-cust-excel NO-UNDO
@@ -1080,7 +1083,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF (v-stmt-char EQ "" OR v-stmt-char EQ "ASI") AND
        lookup("PDFCamp Printer",SESSION:GET-PRINTERS()) GT 0 THEN
        v-pdf-camp = YES.
-    IF (v-stmt-char EQ "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "SouleMed") THEN DO:
+    IF (v-stmt-char EQ "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "StdStatement2" OR v-stmt-char = "SouleMed") THEN DO:
         fi_contact:HIDDEN = NO.
         RUN setAttentionDefault.
     END.
@@ -1664,6 +1667,10 @@ form
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
 find first company where company.company eq cocode no-lock no-error.
 
 IF v-stmt-char = "Badger" THEN do:
@@ -1681,7 +1688,7 @@ ASSIGN ls-image1 = IF v-stmt-char = "Premier" THEN "images\premierinv.jpg"
                    ELSE IF v-stmt-char = "LoyLang" THEN "images\loystmt.jpg"
                    ELSE IF v-stmt-char = "Printers" THEN "images\loyprinters.jpg"
                  /*  ELSE IF v-stmt-char = "Badger" THEN "images\badger statement.JPG" */
-                   ELSE IF v-stmt-char = "RFC" THEN "images\RFC.JPG"
+                   ELSE IF v-stmt-char = "RFC" THEN cRtnChar  
                    ELSE "images\asilogo.jpg"
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
@@ -2153,24 +2160,24 @@ FOR EACH ttCustList
            . 
 
        ELSE IF v-stmt-char = "RFC" THEN          /* task 12231305 */
-       PUT "<C1><#1><R+11><C+45><IMAGE#1=" ls-full-img1 SKIP
-           "<=1><R+3><C+26> 2066 S. East Avenue" 
+       PUT "<FMS Sans Serif><R2><C1><#1><R+12><C+25><IMAGE#1=" ls-full-img1 SKIP
+           /*"<=1><R+3><C+26> 2066 S. East Avenue" 
            "<=1><R+4><C+26> Vineland, NJ 08360" 
            "<=1><R+5><C+26> Phone: 856-692-0404" 
-           "<=1><R+6><C+26> Fax: (856) 692-2085" 
+           "<=1><R+6><C+26> Fax: (856) 692-2085" */
            "<=1><R+10><C+54><B><P22>Statement</B><P12>" SKIP
-           "<=1><R+12>" "<C53>Statement Date  Account #" SKIP
+           "<=1><R+12>" "<C53>Statement Date           Account #" SKIP
            "<=1><R+13><C+52><FROM><C+13><LINE>" SKIP
            "<=1><R+13><C+68><FROM><C+10><LINE>" 
            "<=1><R+13><C+52>" v-stmt-date
            "<=1><R+13><C+68>" cust.cust-no SKIP
-           "<=1><R+11><C18>Attn:" cust.contact SKIP
+           "<=1><R+12><C18>Attn:" cust.contact SKIP
            "<=1><R+13><C18>" ws_addr[1] skip                    /*Task# 01031416*/
            "<=1><R+14><C18>" ws_addr[2] v-remitto[1] skip 
            "<=1><R+15><C18>" ws_addr[3] v-remitto[2] skip
            "<=1><R+16><C18>" ws_addr[4] v-remitto[3] skip
            "<=1><R+17><C18>" ws_addr[5] v-remitto[4] skip
-           "<=1><R+20>Date     Code  Ref#  Description   <C56>Amount        Balance" SKIP
+           "<=1><R+20><C1>Date        <C9>Code      <C16>Ref#     <C25>Description   <C57>Amount       <C71>Balance" SKIP(1)
            "<=1><R+21><FROM><C+80><LINE>"
            . 
        ELSE
@@ -2221,6 +2228,19 @@ FOR EACH ttCustList
              v-balance 
              with frame stmt-line .
            down 1 with frame stmt-line.
+       end.
+       ELSE if v-stmt-char = "RFC" then do:
+            PUT
+            "<C1>" tt-inv.trans-date
+            "<C9>" tt-inv.type
+            "<C15>" tt-inv.inv-no  /*when tt-inv.inv-no gt 0*/
+             /*tt-inv.description*/
+            "<C25>" tt-inv.description
+             /*(IF v-stmt-char = "LoyLang" THEN string(tt-inv.po-no) ELSE tt-inv.description)*/
+            "<C54>" tt-inv.amount
+            "<C68>" v-balance  SKIP.
+             /*with frame no-stmt-line.
+           down 1 with frame no-stmt-line.*/
        end.
        else do:
            display
@@ -2388,6 +2408,11 @@ do xx = 1 to v-inv-type-max:
     + v-inv-type-array[xx] + ' '.
 end.
 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
 form
   ws_letterhead[1]    skip
   ws_letterhead[2]    skip
@@ -2500,7 +2525,7 @@ form
                          ELSE IF v-stmt-char = "LoyLang" THEN "images\loystmt.jpg"
                          ELSE IF v-stmt-char = "Printers" THEN "images\loyprinters.jpg"
                      /*    ELSE IF v-stmt-char = "Badger" THEN "images\badger statement.JPG" */
-                         ELSE IF v-stmt-char = "RFC" THEN "images\RFC.JPG"
+                         ELSE IF v-stmt-char = "RFC" THEN cRtnChar
                          ELSE "images\asilogo.jpg" .
       END.
 
@@ -2937,24 +2962,24 @@ FIRST cust no-lock
            . 
 
        ELSE IF v-stmt-char = "RFC" THEN          /* task 12231305 */
-       PUT "<C1><#1><R+11><C+45><IMAGE#1=" ls-full-img1 SKIP
-           "<=1><R+3><C+26> 2066 S. East Avenue" 
+       PUT "<R2><C1><#1><R+12><C+25><IMAGE#1=" ls-full-img1 SKIP
+           /*"<=1><R+3><C+26> 2066 S. East Avenue" 
            "<=1><R+4><C+26> Vineland, NJ 08360" 
            "<=1><R+5><C+26> Phone: 856-692-0404" 
-           "<=1><R+6><C+26> Fax: (856) 692-2085" 
+           "<=1><R+6><C+26> Fax: (856) 692-2085" */
            "<=1><R+10><C+54><B><P22>Statement</B><P12>" SKIP
-           "<=1><R+12>" "<C53>Statement Date  Account #" SKIP
+           "<=1><R+12>" "<C53>Statement Date           Account #" SKIP
            "<=1><R+13><C+52><FROM><C+13><LINE>" SKIP
            "<=1><R+13><C+68><FROM><C+10><LINE>" 
            "<=1><R+13><C+52>" v-stmt-date
            "<=1><R+13><C+68>" cust.cust-no SKIP
-           "<=1><R+11><C18>Attn:" cust.contact SKIP
+           "<=1><R+12><C18>Attn:" cust.contact SKIP
            "<=1><R+13><C18>" ws_addr[1] skip                        /*Task# 01031416*/
            "<=1><R+14><C18>" ws_addr[2] v-remitto[1] skip 
            "<=1><R+15><C18>" ws_addr[3] v-remitto[2] skip
            "<=1><R+16><C18>" ws_addr[4] v-remitto[3] skip
            "<=1><R+17><C18>" ws_addr[5] v-remitto[4] skip
-           "<=1><R+20>Date     Code  Ref#  Description   <C56>Amount        Balance" SKIP
+           "<=1><R+20><C1>Date        <C9>Code      <C16>Ref#     <C25>Description   <C57>Amount       <C71>Balance" SKIP(1)
            "<=1><R+21><FROM><C+80><LINE>"
            . 
 
@@ -3003,6 +3028,19 @@ FIRST cust no-lock
           v-balance 
           with frame stmt-line-badger .
         down 1 with frame stmt-line-badger.
+    end.
+    ELSE if v-stmt-char = "RFC" then do:
+            PUT
+            "<C1>" tt-inv.trans-date
+            "<C9>" tt-inv.type
+            "<C15>" tt-inv.inv-no  /*when tt-inv.inv-no gt 0*/
+             /*tt-inv.description*/
+            "<C25>" tt-inv.description
+             /*(IF v-stmt-char = "LoyLang" THEN string(tt-inv.po-no) ELSE tt-inv.description)*/
+            "<C54>" tt-inv.amount
+            "<C68>" v-balance  SKIP.
+             /*with frame no-stmt-line.
+           down 1 with frame no-stmt-line.*/
     end.
     else do:
         display
@@ -3120,6 +3158,7 @@ def var v-balance as dec label "Balance" format '->>,>>>,>>>.99CR' NO-UNDO.
 def var v-age as int no-undo. /* number of days old */
 def var v-per as int no-undo. /* hash of v-age into aging periods */
 def var v-aged as dec no-undo extent 5 format ">>,>>>,>>>.99CR" .   /* aging buckets */
+DEFINE VARIABLE dAged as dec no-undo extent 5 format ">>,>>>,>>>.99CR" .   /* aging buckets */
 def var v-days-in-per as int no-undo init 30.
 def var ln-total as int no-undo init 51.
 def var adv as int no-undo.
@@ -3131,6 +3170,7 @@ DEF VAR v-asi-excel AS LOG NO-UNDO.
 DEF VAR v-last-amt  AS DECI NO-UNDO.
 DEF VAR v-last-ref# AS CHAR NO-UNDO.
 DEF VAR v-last-paydate AS DATE NO-UNDO.
+DEFINE VARIABLE cCheckPo AS CHARACTER NO-UNDO .
 
 DEF VAR ld-due AS DEC NO-UNDO.
 
@@ -3178,12 +3218,23 @@ form
   v-balance COLUMN-LABEL "Balance"
   with frame stmt-line no-box stream-io width 90 DOWN NO-LABEL.
 
+FORM SPACE(1)
+  tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date"
+  tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Invoice #" SPACE(1)
+  tt-inv.description FORMAT "x(14)" COLUMN-LABEL "Description"
+  tt-inv.po-no format "x(12)" COLUMN-LABEL "Cust PO#"
+  dAged[1] FORMAT "->>>>>>>9.99" COLUMN-LABEL "0-30"
+  dAged[2] FORMAT "->>>>>>>9.99" COLUMN-LABEL "31-60"
+  dAged[3] FORMAT "->>>>>>>9.99" COLUMN-LABEL "61-90"
+  dAged[4] FORMAT "->>>>>>>9.99" COLUMN-LABEL "90+"
+  with frame lanco-stmt-line no-box stream-io width 98 DOWN NO-LABEL.
+
 form
   v-msg at 15
   v-balance  at 73
   with frame stmt-total-line no-box no-labels STREAM-IO WIDTH 90.
 
-form
+FORM 
   tt-inv.trans-date COLUMN-LABEL "Date"
   tt-inv.inv-no COLUMN-LABEL "Ref#"
   tt-inv.description FORM "x(12)"  COLUMN-LABEL "Description"
@@ -3192,6 +3243,17 @@ form
   tt-inv.amount COLUMN-LABEL "Invoice!Balance"
   v-balance COLUMN-LABEL "Balance"  
   with frame no-stmt-line no-box no-labels stream-io width 90 down.
+
+FORM SPACE(1)
+  tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date"
+  tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Invoice #" SPACE(1)
+  tt-inv.description FORMAT "x(14)" COLUMN-LABEL "Description"
+  tt-inv.po-no format "x(12)" COLUMN-LABEL "Cust PO#"
+  dAged[1] FORMAT "->>>>>>>9.99" COLUMN-LABEL "0-30"
+  dAged[2] FORMAT "->>>>>>>9.99" COLUMN-LABEL "31-60"
+  dAged[3] FORMAT "->>>>>>>9.99" COLUMN-LABEL "61-90"
+  dAged[4] FORMAT "->>>>>>>9.99" COLUMN-LABEL "90+"
+  with frame lanco-no-stmt-line no-box no-labels stream-io width 98 down.
 
 form
   v-msg at 15
@@ -3212,6 +3274,7 @@ DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image1 = (IF v-stmt-char = "Protagon" THEN "images\protinv.jpg"
                    ELSE IF v-stmt-char = "SouleMed" THEN "images\Soulemedical.jpg" 
                    ELSE IF v-stmt-char =  "StdStatement10" THEN cRtnChar 
+                   ELSE IF v-stmt-char =  "StdStatement2" THEN cRtnChar
                     ELSE "images\Soule.jpg") . 
 
 
@@ -3417,7 +3480,9 @@ FIRST cust no-lock
                               ar-inv.tax-amt then ar-inv.net else ar-inv.gross
                           else ar-inv.due
        tt-inv.po-no      = (IF AVAIL ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "")
-       tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "").
+       tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "")
+       tt-inv.charge     = ar-inv.paid + ar-inv.due 
+       tt-inv.credits    = ar-inv.paid                              .
 
      IF v-stmt-char = "Printers" THEN
           tt-inv.bol-no = (IF AVAIL ar-invl AND ar-invl.job-no NE "" 
@@ -3448,7 +3513,10 @@ FIRST cust no-lock
          tt-inv.inv-amt     = ar-inv.gross
          tt-inv.description = ar-cashl.dscr
          tt-inv.po-no       = (IF AVAIL ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "")
-         tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "").
+         tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "")
+         tt-inv.check-no   = string(ar-cash.check-no)
+         tt-inv.charge     = ar-inv.paid + ar-inv.due 
+         tt-inv.credits    = ar-inv.paid .
 
         IF v-stmt-char = "Printers" THEN
           tt-inv.bol-no = (IF AVAIL ar-invl AND ar-invl.job-no NE "" 
@@ -3519,7 +3587,10 @@ FIRST cust no-lock
      tt-inv.inv-no      = ar-cashl.inv-no
      tt-inv.description = ar-cashl.dscr
      tt-inv.po-no       = (IF AVAIL ar-invl THEN ar-invl.po-no ELSE "")
-     tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "").
+     tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "")
+     tt-inv.check-no   = string(ar-cash.check-no) 
+     tt-inv.charge     = ar-cashl.amt-paid + ar-cashl.amt-due 
+     tt-inv.credits    = ar-cashl.amt-paid .
 
     if ar-cashl.memo then
       assign
@@ -3530,7 +3601,7 @@ FIRST cust no-lock
       assign
        tt-inv.amount = (ar-cashl.amt-paid + ar-cashl.amt-disc) * -1
        tt-inv.type   = "P".
-
+      
     end.                                                
 
   /* to get last payment amt, check, date */
@@ -3675,6 +3746,31 @@ FIRST cust no-lock
             .
        END.
 
+       IF v-stmt-char = "StdStatement2" THEN DO: 
+           PUT "<C2><R2><#1><R+8><C+47><IMAGE#1=" ls-full-img1 SKIP
+           "<P11><R4><C50><#3><FROM><R7><C80><RECT><||3>" SKIP
+           "<R5><C50><FROM><R5><C80><LINE><||3>" SKIP
+           "<R6><C50><FROM><R6><C80><LINE><||3>" SKIP
+           "<R4><C65><FROM><R5><C65><LINE><||3>" SKIP
+           "<R5><C65><FROM><R6><C65><LINE><||3>" SKIP
+           "<R6><C65><FROM><R7><C65><LINE><||3>" SKIP.
+           PUT "<P22><=#3><C50><R-2> <B><P22>Statement</B> <P11>" " <B> PAGE: </B>" string(PAGE-NUM,">>9") SKIP
+               "<=#3><R+0>  Customer ID      " cust.cust-no
+               "<=#3><R+1>  Terms            " lv-terms
+               "<=#3><R+2>  Statement Date   " v-stmt-date . 
+          
+          PUT "<=1><R+10><C1>" ws_addr[1] skip
+           "<=1><R+11><C1>" ws_addr[2] v-remitto[1]  skip 
+           "<=1><R+12><C1>" ws_addr[3] v-remitto[2]  skip
+           "<=1><R+13><C1>" ws_addr[4] v-remitto[3]  skip
+           "<=1><R+14><C1>" ws_addr[5] v-remitto[4]  skip
+           /*"<=1><R+15>Attn: " lc-attn FORMAT "x(30)" SKIP*/
+           /*"<=1><R+15>                                                Original<C60>Invoice" SKIP*/
+           "<=1><R+15><C2>Date <c8.5>Invoice <C16>Description <C28>Cust PO# <c46>0-30 <C56>31-60 <C67>61-90  <C78> 90+" SKIP
+           "<=1><R+16><FROM><C+80><LINE><P10>"
+            .
+       END.
+
        v-first = NO.
     end.
 
@@ -3694,37 +3790,82 @@ FIRST cust no-lock
 
     IF NOT v-asi-excel THEN
     DO:
-       if v-print-hdr then do:
-           display
-             tt-inv.trans-date
-             tt-inv.inv-no  when tt-inv.inv-no gt 0  
-             tt-inv.DESCRIPTION
-             tt-inv.po-no
-             tt-inv.inv-amt
-             tt-inv.amount
-             v-balance
-             with frame stmt-line .
-           down 1 with frame stmt-line.
-       end.
-       else do:
-           display
-             tt-inv.trans-date
-             tt-inv.inv-no  when tt-inv.inv-no gt 0
-             tt-inv.DESCRIPTION
-             tt-inv.po-no
-             tt-inv.inv-amt
-             tt-inv.amount
-             v-balance
-             with frame no-stmt-line.
-           down 1 with frame no-stmt-line.
-       end.
+        IF v-stmt-char = "StdStatement2" THEN DO:
+
+            dAged = 0 .
+            v-age = v-stmt-date - tt-inv.inv-date.
+            if v-age = ? or v-age lt 0 then v-age = 0.
+            v-per = trunc(v-age / v-days-in-per, 0) + 1.
+            if v-per gt 4 then
+                v-per = 4.
+            dAged[v-per] = /*v-aged[v-per] +*/ tt-inv.amount.
+
+                       
+            IF tt-inv.check-no NE "" THEN
+               cCheckPo = tt-inv.check-no.
+           ELSE cCheckPo = tt-inv.po-no .
+            if v-print-hdr then do:  
+               display
+                 tt-inv.trans-date
+                 tt-inv.inv-no  when tt-inv.inv-no gt 0
+                 tt-inv.DESCRIPTION FORMAT "x(14)"
+                 tt-inv.po-no FORMAT "x(12)"
+                 dAged[1]
+                 dAged[2]
+                 dAged[3]
+                 dAged[4]
+                 with frame lanco-stmt-line .
+               down 1 with frame lanco-stmt-line.
+           end.
+           else do:
+               display
+                 tt-inv.trans-date
+                 tt-inv.inv-no  when tt-inv.inv-no gt 0
+                 tt-inv.DESCRIPTION FORMAT "x(14)"
+                 tt-inv.po-no FORMAT "x(12)"
+                 dAged[1]
+                 dAged[2]
+                 dAged[3]
+                 dAged[4]
+                 with frame lanco-no-stmt-line.
+               down 1 with frame lanco-no-stmt-line.
+           end.
+
+        END.
+
+       ELSE DO:
+           if v-print-hdr then do:
+               display
+                 tt-inv.trans-date
+                 tt-inv.inv-no  when tt-inv.inv-no gt 0  
+                 tt-inv.DESCRIPTION
+                 tt-inv.po-no
+                 tt-inv.inv-amt
+                 tt-inv.amount
+                 v-balance
+                 with frame stmt-line .
+               down 1 with frame stmt-line.
+           end.
+           else do:
+               display
+                 tt-inv.trans-date
+                 tt-inv.inv-no  when tt-inv.inv-no gt 0
+                 tt-inv.DESCRIPTION
+                 tt-inv.po-no
+                 tt-inv.inv-amt
+                 tt-inv.amount
+                 v-balance
+                 with frame no-stmt-line.
+               down 1 with frame no-stmt-line.
+           end.
+       END.
     END.
 
     v-age = v-stmt-date - tt-inv.inv-date.
     if v-age = ? or v-age lt 0 then v-age = 0.
-    v-per = trunc(v-age / v-days-in-per, 0) + 1.
-    if v-per gt 4 then
-       v-per = 4.
+    v-per = trunc(v-age / v-days-in-per, 0) + 1. 
+    if v-per gt 4 THEN v-per = 4.
+
     v-aged[v-per] = v-aged[v-per] + tt-inv.amount.
 
     if last-of ("1") then do:
@@ -3732,6 +3873,20 @@ FIRST cust no-lock
       IF NOT v-asi-excel THEN
       DO:
          PUT SKIP(1).
+        IF v-stmt-char = "StdStatement2" THEN do:
+               PUT "<R-1><C2><FROM><C+80><LINE>" SKIP
+                   "<R-1><C26>"
+                 "<C40>" v-aged[1] FORMAT "->>>>>>9.99"
+                 "<C51>" v-aged[2] FORMAT "->>>>>>9.99"
+                 "<C62>" v-aged[3] FORMAT "->>>>>>9.99"
+                 "<C73>" v-aged[4] FORMAT "->>>>>>9.99" .
+
+         PUT SKIP(2) "<C61>Total Balance:" (v-aged[1] + v-aged[2] + v-aged[3] + v-aged[4] ) FORMAT "->>>>>>>9.99" . 
+            
+         PUT "<C14><R59.5><#3><R+4><C+7> <b> THANK YOU - YOUR BUSINESS IS APPRECIATED </b>"  SKIP.
+              
+         END.
+         ELSE do:
 
          if v-print-hdr then
          display
@@ -3761,7 +3916,7 @@ FIRST cust no-lock
          "<=3><R+1><C1>" code-legend skip
          "<R+1><C+80><RECT#3>" 
          SKIP. 
-
+         END.
       END.
       ELSE
       DO:
@@ -3810,7 +3965,7 @@ IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,RFC,Premier,ASIExcel,Loy
    RETURN.
 END.
 
-IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,SouleMed") > 0 THEN DO:
+IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,StdStatement2,SouleMed") > 0 THEN DO:
     RUN run-protagonstmt (ip-cust-no, ip-sys-ctrl-shipto, NO).
     RETURN.
 END.
@@ -4358,7 +4513,7 @@ IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,Loylang,RFC,Premier,Badg
    RUN run-asistmt-mail (icCustNo).
    RETURN.
 END.
-IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,SouleMed") > 0 THEN DO:
+IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,StdStatement2,SouleMed") > 0 THEN DO:
     RUN run-protagonstmt (icCustNo, NO, YES).
     RETURN.
 END.
@@ -4936,7 +5091,7 @@ PROCEDURE setAttentionDefault :
 ------------------------------------------------------------------------------*/
 DEFINE BUFFER lbf-cust FOR cust.
 
-IF (v-stmt-char = "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "SouleMed")
+IF (v-stmt-char = "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "StdStatement2" OR v-stmt-char = "SouleMed")
     AND begin_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ end_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} 
     AND begin_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
     FIND FIRST lbf-cust WHERE lbf-cust.company = cocode
