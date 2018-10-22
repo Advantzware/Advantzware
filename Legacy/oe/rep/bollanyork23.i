@@ -127,10 +127,10 @@ DO:
                 "<C2>" TRIM(STRING(w2.qty,"->>,>>>,>>>")) .
             IF i EQ 1 THEN 
             DO:
-                PUT  "<C14>" STRING(w2.cases) + " @ " + STRING(w2.cas-cnt)
-                    "<C24>" STRING(v-tot-case-qty) + " [" + STRING(v-relpc) + "]".
+                PUT "<C12>" STRING(w2.cases,"->>>9") + " @ "
+                    "<C16>" STRING(w2.cas-cnt,">>>,>>>").
             END.
-            PUT "<C35>" w2.job-po.
+            PUT "<C35>" w2.job-po FORMAT "x(15)" .
             .
             IF i EQ 1 THEN
                 PUT "<C48>"  oe-ordl.ord-no .
@@ -189,7 +189,7 @@ DO:
             v-printline = v-printline + 1.
             PUT
                 "<C2>" fg-set.part-no 
-                "<C35>" v-job-po
+                "<C35>" v-job-po FORMAT "x(15)"
                 "<C61>" b-itemfg.i-name FORMAT "x(23)" SKIP.
     
             PUT {1} SKIP(1).

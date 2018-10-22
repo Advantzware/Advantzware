@@ -120,31 +120,17 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         IF TRIM(v-ship-addr3) EQ "," THEN v-ship-addr3 = "".
       
         {oe\rep\coclanyork.i}
-
-        FOR EACH fg-rctd FIELDS(rct-date) WHERE
-            fg-rctd.company EQ cocode AND
-            fg-rctd.i-no EQ oe-ordl.i-no AND
-            fg-rctd.job-no EQ oe-ordl.job-no AND
-            fg-rctd.job-no2 EQ oe-ordl.job-no2
-            NO-LOCK
-            USE-INDEX i-no
-            BY fg-rctd.rct-date:
-      
-            v-manuf-date = fg-rctd.rct-date.
-            LEAVE.
-        END.
-      
-        IF v-manuf-date EQ 12/31/2999 THEN
-            FOR EACH fg-rctd WHERE
-                fg-rctd.company EQ cocode AND
-                fg-rctd.i-no EQ oe-ordl.i-no AND
-                fg-rctd.po-no EQ STRING(oe-ordl.po-no-po) AND
-                fg-rctd.rita-code EQ "R"
+        
+            v-manuf-date = ?.
+            FOR EACH fg-rcpth
+                WHERE fg-rcpth.company = cocode 
+                AND fg-rcpth.i-no    = oe-ordl.i-no
+                AND fg-rcpth.rita-code  = "R" 
+                AND fg-rcpth.job-no  = oe-ordl.job-no 
+                AND fg-rcpth.job-no2 = oe-ordl.job-no2
                 NO-LOCK
-                USE-INDEX i-no
-                BY fg-rctd.rct-date:
-      
-                v-manuf-date = fg-rctd.rct-date.
+                BREAK BY fg-rcpth.trans-date DESCENDING:
+                v-manuf-date = fg-rcpth.trans-date.
                 LEAVE.
             END.
          
