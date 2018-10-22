@@ -94,15 +94,15 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 ASSIGN cTextListToSelect = "Date,Due,Ordered,Item,Cust Part#,Cust PO#," +
                            "Order#,Job#,R#,Ven,PO#,Style,Test,Qty Available," +
                            "Brd Rcpt,Routing,Q-Order,Q-Comp,Q-Onhand,Job Qty,Ship City,Comment," +
-                           "Ship Note 1,Ship Note 2,Ship Note 3,Ship Note 4,Skids,Cust Name"
+                           "Ship Note 1,Ship Note 2,Ship Note 3,Ship Note 4,Skids,Cust Name,Ship To Zip"
        cFieldListToSelect = "w-ord.rel-date,w-ord.prom-code,w-ord.last-date,w-ord.i-no,w-ord.part-no,w-ord.po-num," +
                             "w-ord.ord-no,v-ord-no-text,w-ord.rel-no,lv-vend-no,lv-board-po-no,lc-style-xl,lc-test-xl,v-qtyAvail," +
                             "ld-qty-rec,lv-routing,w-ord.ord-qty,v-comp-qty,w-ord.onh-qty,v-job-qty,v-ship-city,lv-text," + 
-                            "w-ord.v-note1,w-ord.v-note2,w-ord.v-note3,w-ord.v-note4,skids,w-ord.cust-name"
+                            "w-ord.v-note1,w-ord.v-note2,w-ord.v-note3,w-ord.v-note4,skids,w-ord.cust-name,ship-zip"
        cFieldLength = "5,3,7,15,15,15," +
                       "6,11,7,8,7,10,10,13," +
-                      "8,15,7,7,8,7,15,26," + "60,60,60,60,8,30"
-       cFieldType = "c,c,c,c,c,c," + "i,c,i,c,i,c,c,i," + "i,c,i,i,i,i,c,c,"  + "c,c,c,c,i,c"
+                      "8,15,7,7,8,7,15,26," + "60,60,60,60,8,30,11"
+       cFieldType = "c,c,c,c,c,c," + "i,c,i,c,i,c,c,i," + "i,c,i,i,i,i,c,c,"  + "c,c,c,c,i,c,c"
        .
 
 {sys/inc/ttRptSel.i}
