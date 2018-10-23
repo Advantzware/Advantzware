@@ -79,15 +79,15 @@ ASSIGN cTextListToSelect = "Job Qty OH,Tot Qty OH,Customer Name,Ship To,PO#,Orde
                            "Del Zone,Terr,Credit Rating,Routing,Skid Qty,OH-Rel Qty," +
                            "Sample Date,Dock Date,Early Date,Late Date,Transit Days,State,Total Alloc,Total Avail,Ship From,Dock Note," +
                            "Sal Rep,Last User ID,Ship To Add1,Ship To Add2,ShipTo City,ShipTo State,Ship To Zip,Ship To Name,Due Date,Style,Run Complete,FG Category,OverRun %," +
-                           "Job Hold Code,Job Hold Desc,Order Date,Order MFG Date,Completion Date,CSR"
+                           "Job Hold Code,Job Hold Desc,Order Date,Order MFG Date,Completion Date,CSR,Entered By"
            cFieldListToSelect = "w-ord.onh-qty,w-ord.tot-qty,w-ord.cust-name,w-ord.ship-id,w-ord.po-num,w-ord.ord-no,w-ord.rel-no,w-ord.i-no,w-ord.i-name," +
                                 "w-ord.rel-qty,w-ord.xls-rel-date,w-ord.prom-code,w-ord.carrier,w-ord.t-price,w-ord.ord-qty,w-ord.msf,w-ord.job,w-ord.shp-qty,w-ord.xls-status,w-ord.cust-no,w-ord.part-no," +
                                 "v-del-zone,v-terr,v-crRate,routing,w-ord.palls,oh-relqty," +
                                 "sa-ship-date,dock-ship-date,ear-ship-date,lat-ship-date,trans-day,stat,ttl-alc,ttl-avl,w-ord.ship-from,notes," +
                                 "w-ord.sman,w-ord.upd-user,ship-add1,ship-add2,ship-cty,ship-stat,ship-zip,ship-name,due-dt,style,run-comp,fg-cat,over-run," +
-                                "job-h-code,job-h-desc,ord-date,mfg-date,comp-date,w-ord.csrUser_id" 
-           cFieldLength = "10,10,15,8,15,6,6,15,15," + "11,8,9,7,11,13,8,9,14,8,9,15," + "8,4,13,35,8,11," + "11,10,10,10,12,5,11,11,11,20," + "7,12,30,30,15,12,15,30,10,5,12,11,9," + "13,15,10,14,15,9"
-           cFieldType = "i,i,c,c,c,i,i,c,c," + "i,c,c,c,i,i,i,c,i,c,c,c," + "c,c,c,c,i,i," + "c,c,c,c,i,c,i,i,c,c,"  + "c,c,c,c,c,c,c,c,c,c,c,c,i," + "c,c,c,c,c,c"
+                                "job-h-code,job-h-desc,ord-date,mfg-date,comp-date,w-ord.csrUser_id,w-ord.entered-id" 
+           cFieldLength = "10,10,15,8,15,6,6,15,15," + "11,8,9,7,11,13,8,9,14,8,9,15," + "8,4,13,35,8,11," + "11,10,10,10,12,5,11,11,11,20," + "7,12,30,30,15,12,15,30,10,5,12,11,9," + "13,15,10,14,15,9,10"
+           cFieldType = "i,i,c,c,c,i,i,c,c," + "i,c,c,c,i,i,i,c,i,c,c,c," + "c,c,c,c,i,i," + "c,c,c,c,i,c,i,i,c,c,"  + "c,c,c,c,c,c,c,c,c,c,c,c,i," + "c,c,c,c,c,c,c"
            .
 
 {sys/inc/ttRptSel.i}
