@@ -1276,18 +1276,6 @@ PROCEDURE copy-item :
      END.
 
      FOR EACH reftable
-         WHERE reftable.reftable EQ "probe.per-msf"
-           AND reftable.company  EQ bf-probe.company
-           AND reftable.loc      EQ ""
-           AND reftable.code     EQ bf-probe.est-no
-           AND reftable.code2    EQ STRING(bf-probe.line,"9999999999"):
-       CREATE bf-reftable.
-       BUFFER-COPY reftable EXCEPT rec_key TO bf-reftable
-       ASSIGN
-        reftable.code2 = STRING(probe.line,"9999999999").
-     END.
-
-     FOR EACH reftable
          WHERE reftable.reftable EQ "probe.per-ref"
            AND reftable.company  EQ bf-probe.company
            AND reftable.loc      EQ ""
