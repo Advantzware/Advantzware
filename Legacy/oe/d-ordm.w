@@ -516,7 +516,14 @@ ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Misc. Charge Item Update */
         IF AVAILABLE oe-ordm THEN
             op-rowid = ROWID(oe-ordm) .
 
-        APPLY "END-ERROR":U TO SELF.
+        IF lv-item-rowid NE ? THEN 
+        DO:
+            FIND oe-ordm EXCLUSIVE-LOCK
+                WHERE ROWID(oe-ordm) EQ lv-item-rowid  NO-ERROR.
+            IF AVAILABLE oe-ordm THEN DELETE oe-ordm .
+        END.
+
+         APPLY 'GO':U TO FRAME {&FRAME-NAME}.
     END.
 
 /* _UIB-CODE-BLOCK-END */

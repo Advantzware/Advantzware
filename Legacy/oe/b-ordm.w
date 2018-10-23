@@ -1395,29 +1395,17 @@ PROCEDURE pAddRecord :
 
   DEFINE BUFFER bf-oe-ordm FOR oe-ordm.
   DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
-  DEFINE VARIABLE iL AS INTEGER INITIAL 0 EXTENT 2 NO-UNDO.
-
+  
   IF AVAILABLE oe-ord THEN
   DO:
-     FOR EACH bf-oe-ordm OF oe-ord NO-LOCK
-          WHERE bf-oe-ordm.company EQ oe-ord.company
-            AND bf-oe-ordm.line NE 0
-            BY bf-oe-ordm.line:
-         iL[1] = iL[1] + 1.
-     END.
-
+     
      RUN oe/d-ordm.w (?, ROWID(oe-ord), "add",OUTPUT lv-rowid).
      
-     FOR EACH bf-oe-ordm OF oe-ord NO-LOCK
+     FIND FIRST bf-oe-ordm  NO-LOCK
           WHERE bf-oe-ordm.company EQ oe-ord.company
-            AND bf-oe-ordm.line NE 0
-            BY bf-oe-ordm.line:
-         ASSIGN
-             iL[2]    = iL[2] + 1.
-         
-     END.
-
-     IF iL[2] GT 0 AND (iL[1] NE iL[2] OR iL[2] EQ 1) THEN DO:
+            AND ROWID(bf-oe-ordm) EQ  lv-rowid NO-ERROR .
+        
+     IF AVAIL bf-oe-ordm THEN DO:
         RUN reopen-query (lv-rowid).
      END.
   END.
