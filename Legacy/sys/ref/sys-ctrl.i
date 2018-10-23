@@ -178,7 +178,7 @@ ASSIGN
  str-init[95] = "Blank,GrossSH"  /* fgitemsf */
  str-init[96] = ",Michcor,Trilakes,Woodland,PremierPkg,St.Clair,NStock,Blue,Freedman"  /* GP */
  str-init[97] = "DC Only,OE & DC"   /* oeprep */
- str-init[98] = "None,1/8"  /* celayout */
+ str-init[98] = "None,1/8,1/8Up,1/4,1/4Up,1/2,1/2Up,1,1Up"  /* celayout */
  str-init[99] = "Fibre"
  str-init[100] = "Customer,CustX"  /* 1099-MISC */
  str-init[101] = ",Skip Open Order Calc"
