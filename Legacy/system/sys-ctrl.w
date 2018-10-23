@@ -1510,7 +1510,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExport C-Win
 ON CHOOSE OF btnExport IN FRAME DEFAULT-FRAME /* Export */
 DO:
-    RUN pExport.
+    /*RUN pExport.*/ /* Ticket - 36086 */
+    RUN windows/sysctrl-exp.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1593,7 +1594,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnImport C-Win
 ON CHOOSE OF btnImport IN FRAME DEFAULT-FRAME /* Import */
 DO:
-    RUN pImport.
+    /*RUN pImport.*/
+    RUN util/Importer.w (INPUT g_company, 
+                INPUT g_loc, 
+                INPUT "ttImportConfig", INPUT ?).
 END.
 
 /* _UIB-CODE-BLOCK-END */
