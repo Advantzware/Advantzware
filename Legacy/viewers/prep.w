@@ -236,7 +236,7 @@ DEFINE RECTANGLE RECT-4
 
 DEFINE FRAME F-Main
      prep.code AT ROW 1.24 COL 17 COLON-ALIGNED
-          LABEL "Prep Code" FORMAT "X(20)"
+          LABEL "Prep Code" FORMAT "X(15)"
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
           BGCOLOR 15 FONT 4

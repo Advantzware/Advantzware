@@ -1,0 +1,10 @@
+ADD SEQUENCE "cueCard_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT yes
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000037639

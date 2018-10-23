@@ -246,7 +246,7 @@ DEFINE QUERY external_tables FOR oe-ord.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS oe-ord.priceHold oe-ord.priceHoldReason ~
 oe-ord.ship-id oe-ord.ord-no oe-ord.est-no oe-ord.job-no oe-ord.job-no2 ~
-oe-ord.spare-char-2 oe-ord.sold-id oe-ord.csrUser_id oe-ord.ord-date ~
+oe-ord.spare-char-2 oe-ord.sold-id oe-ord.csrUser_id oe-ord.entered-id oe-ord.ord-date ~
 oe-ord.due-code oe-ord.due-date oe-ord.last-date oe-ord.prod-date ~
 oe-ord.po-no oe-ord.contact oe-ord.over-pct oe-ord.under-pct oe-ord.terms ~
 oe-ord.tax-gr oe-ord.managed oe-ord.frt-pay oe-ord.carrier oe-ord.fob-code ~
@@ -261,7 +261,7 @@ btnCalendar-4 btnCalendar-5 RECT-30 RECT-33 RECT-35 RECT-36 RECT-37 RECT-34
 &Scoped-Define DISPLAYED-FIELDS oe-ord.priceHold oe-ord.priceHoldReason ~
 oe-ord.ship-id oe-ord.ord-no oe-ord.est-no oe-ord.job-no oe-ord.job-no2 ~
 oe-ord.user-id oe-ord.stat oe-ord.spare-char-2 oe-ord.cust-no ~
-oe-ord.sold-id oe-ord.csrUser_id oe-ord.ord-date oe-ord.cust-name ~
+oe-ord.sold-id oe-ord.csrUser_id oe-ord.entered-id oe-ord.ord-date oe-ord.cust-name ~
 oe-ord.sold-name oe-ord.due-code oe-ord.due-date oe-ord.last-date ~
 oe-ord.prod-date oe-ord.po-no oe-ord.contact oe-ord.over-pct ~
 oe-ord.under-pct oe-ord.terms oe-ord.terms-d oe-ord.tax-gr oe-ord.managed ~
@@ -274,19 +274,19 @@ oe-ord.approved-date oe-ord.ack-prnt-date
 &Scoped-define DISPLAYED-TABLES oe-ord
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ord
 &Scoped-Define DISPLAYED-OBJECTS fiCustAddress fiHoldType fiShipName ~
-fi_type fi_prev_order fi_sname-lbl fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl ~
+fi_type fi_sname-lbl fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl ~
 fiSoldAddress fiShipAddress 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,calendarPopup,webField,nonWebField,List-6 */
 &Scoped-define ADM-CREATE-FIELDS oe-ord.cust-no 
 &Scoped-define ADM-ASSIGN-FIELDS fi_type oe-ord.stat oe-ord.cust-name ~
-oe-ord.sold-name oe-ord.terms-d fi_prev_order oe-ord.managed ~
+oe-ord.sold-name oe-ord.terms-d oe-ord.managed ~
 oe-ord.sname[1] oe-ord.sname[2] oe-ord.sname[3] 
 &Scoped-define calendarPopup btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
 btnCalendar-4 btnCalendar-5 
 &Scoped-define webField oe-ord.due-code oe-ord.due-date oe-ord.po-no 
-&Scoped-define nonWebField fi_type fi_prev_order oe-ord.managed 
+&Scoped-define nonWebField fi_type oe-ord.managed 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -383,11 +383,6 @@ DEFINE VARIABLE fiSoldAddress AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 64.2 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_prev_order AS CHARACTER FORMAT "X(6)":U 
-     LABEL "Previous Order #" 
-     VIEW-AS FILL-IN 
-     SIZE 14 BY 1.
-
 DEFINE VARIABLE fi_s-comm-lbl AS CHARACTER FORMAT "X(256)":U INITIAL "Comm.%" 
      VIEW-AS FILL-IN 
      SIZE 11 BY .71
@@ -398,7 +393,7 @@ DEFINE VARIABLE fi_s-pct-lbl AS CHARACTER FORMAT "X(256)":U INITIAL "% of Sales"
      SIZE 14 BY .71
      FGCOLOR 9  NO-UNDO.
 
-DEFINE VARIABLE fi_sman-lbl AS CHARACTER FORMAT "X(256)":U INITIAL "Sales Rep" 
+DEFINE VARIABLE fi_sman-lbl AS CHARACTER FORMAT "X(256)":U INITIAL "SalesGrp" 
      VIEW-AS FILL-IN 
      SIZE 13 BY .71
      FGCOLOR 9  NO-UNDO.
@@ -495,7 +490,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
      oe-ord.csrUser_id AT ROW 5.05 COL 93 COLON-ALIGNED
-          LABEL "CSR"
+          LABEL "CSR" 
+          VIEW-AS FILL-IN 
+          SIZE 17.6 BY 1
+     oe-ord.entered-id AT ROW 6.10 COL 93 COLON-ALIGNED
+          LABEL "Entered By"
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
      oe-ord.ord-date AT ROW 2.67 COL 128.2 COLON-ALIGNED
@@ -544,8 +543,7 @@ DEFINE FRAME F-Main
           SIZE 12 BY 1
      oe-ord.terms-d AT ROW 12.43 COL 26.8 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
-          SIZE 47 BY 1
-     fi_prev_order AT ROW 9.29 COL 60 COLON-ALIGNED WIDGET-ID 2
+          SIZE 47 BY 1     
      oe-ord.tax-gr AT ROW 10.33 COL 60 COLON-ALIGNED
           LABEL "Tax Code"
           VIEW-AS FILL-IN 
@@ -762,6 +760,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.csrUser_id IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN oe-ord.entered-id IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.cust-name IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN oe-ord.cust-no IN FRAME F-Main
@@ -782,8 +782,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiSoldAddress IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fi_prev_order IN FRAME F-Main
-   NO-ENABLE 2 5                                                        */
 /* SETTINGS FOR FILL-IN fi_s-comm-lbl IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_s-pct-lbl IN FRAME F-Main
@@ -1129,6 +1127,21 @@ DO:
   
   IF LASTKEY <> -1 THEN DO:
      RUN valid-custcsr NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME oe-ord.entered-id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.entered-id V-table-Win
+ON LEAVE OF oe-ord.entered-id IN FRAME F-Main /* CSR */
+DO:
+  
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-entered-id NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 
@@ -1551,6 +1564,9 @@ DO:
                                                                shipto.ship-city,
                                                                shipto.ship-state,
                                                                 shipto.ship-zip).
+        IF NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN 
+            MESSAGE "Please note: Shipto " shipto.ship-id " is valid but currently inactive"
+            VIEW-AS ALERT-BOX.
             
        END.      
     ELSE DO:
@@ -2591,7 +2607,7 @@ PROCEDURE create-release :
                                 oe-rel.ship-i[2] = shipto.notes[2]
                                 oe-rel.ship-i[3] = shipto.notes[3]
                                oe-rel.ship-i[4] = shipto.notes[4].
-
+            RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
          IF v-ship-from GT "" THEN
              oe-rel.spare-char-1 = v-ship-from.
 
@@ -2641,6 +2657,7 @@ PROCEDURE create-release :
                          oe-rel.ship-i[2] = shipto.notes[2]
                          oe-rel.ship-i[3] = shipto.notes[3]
                          oe-rel.ship-i[4] = shipto.notes[4].
+                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
                IF adm-new-record /* and NOT oe-rel.carrier ENTERED */ THEN DO:
                   FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -2682,6 +2699,7 @@ PROCEDURE create-release :
                        oe-rel.ship-i[2] = shipto.notes[2]
                        oe-rel.ship-i[3] = shipto.notes[3]
                        oe-rel.ship-i[4] = shipto.notes[4].
+                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
            IF adm-new-record THEN DO:                
                  FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -3316,7 +3334,7 @@ PROCEDURE disable-fields :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    DISABLE fi_type fi_prev_order.
+    DISABLE fi_type.
   END.
 
   IF NOT v-oecomm-log THEN RUN hide-comm (YES).
@@ -3888,9 +3906,6 @@ IF AVAIL xest THEN DO:
                v-margin = 0.
       END.
 
-      IF xest.ord-no NE 0 THEN fi_prev_order:screen-value = STRING(xest.ord-no).
-      IF oe-ord.TYPE = "T" AND oe-ord.pord- GT 0 THEN
-          fi_prev_order:SCREEN-VALUE = STRING(oe-ord.pord-).
       IF FIRST(eb.cust-no) THEN 
          fil_id = RECID(xoe-ord).
 
@@ -4635,10 +4650,8 @@ PROCEDURE local-assign-record :
             prodDateChanged = NO
             dueDateChanged  = NO
             oe-ord.type     = fi_type
-            oe-ord.po-no2   = fi_prev_order
             oe-ord.t-fuel   = v-margin.
-
-        oe-ord.pord-no = INT(fi_prev_order) NO-ERROR.
+        
     END.
     FIND CURRENT bf-oe-ord NO-LOCK NO-ERROR.
 
@@ -4926,8 +4939,7 @@ PROCEDURE local-create-record :
         fiShipName:SCREEN-VALUE = ""
         fiShipAddress:SCREEN-VALUE = ""
         fiCustAddress:SCREEN-VALUE = "" 
-        fi_prev_order:SCREEN-VALUE = IF oe-ord.po-no2 NE "" THEN oe-ord.po-no2
-                                     ELSE STRING(oe-ord.pord-no).
+        .
   END.
 
   FOR EACH b-oe-ordl
@@ -5126,11 +5138,7 @@ PROCEDURE local-display-fields :
   IF AVAIL oe-ord AND NOT adm-new-record THEN DO:
      ASSIGN
         fi_type = oe-ord.TYPE
-        fi_prev_order = IF oe-ord.po-no2 NE "" THEN oe-ord.po-no2
-                        ELSE STRING(oe-ord.pord-no).
-     IF oe-ord.TYPE EQ "T" AND oe-ord.pord-no GT 0 THEN
-         fi_prev_order = STRING(oe-ord.pord-no).
-
+        .
   END.
 
   /* Dispatch standard ADM method.                             */
@@ -5188,7 +5196,7 @@ PROCEDURE local-enable-fields :
 
     lv-old-cust-no = oe-ord.cust-no:SCREEN-VALUE.
 
-    ENABLE fi_type fi_prev_order.
+    ENABLE fi_type.
     IF NOT job#-log THEN DISABLE oe-ord.job-no oe-ord.job-no2.
       IF adm-new-record THEN
           ENABLE oe-ord.due-date.
@@ -5320,6 +5328,9 @@ PROCEDURE local-update-record :
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
      RUN valid-custcsr NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+     RUN valid-entered-id NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
      RUN valid-due-date.
@@ -6501,6 +6512,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-entered-id V-table-Win 
+PROCEDURE valid-entered-id :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+  IF oe-ord.entered-id:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:
+      MESSAGE "Can not be blank. Try help." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO oe-ord.entered-id.
+     RETURN ERROR.
+  END.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-due-date V-table-Win 
 PROCEDURE valid-due-date :
 /*------------------------------------------------------------------------------
@@ -6876,6 +6906,27 @@ PROCEDURE valid-type :
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

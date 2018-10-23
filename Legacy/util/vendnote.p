@@ -6,8 +6,7 @@ SESSION:SET-WAIT-STATE("general").
 for each vend where vend.rec_key = "".
 
 
-ls-key = string(today,"99999999") +
-               string(next-value(rec_key_seq,nosweat),"99999999").
+ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey").
 
 vend.rec_key = ls-key.               
 create rec_key.

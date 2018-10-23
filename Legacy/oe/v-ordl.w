@@ -126,6 +126,22 @@ li-backorder li-avail li-reorder
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable V-table-Win
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER,
+   ipcCust AS CHARACTER,
+   ipcShipto AS CHARACTER,
+   ipcFGItemID AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
 /* Actions: ? adm/support/keyedit.w ? ? ? */
@@ -1300,6 +1316,7 @@ PROCEDURE create-release :
                                 oe-rel.ship-i[2] = shipto.notes[2]
                                 oe-rel.ship-i[3] = shipto.notes[3]
                                oe-rel.ship-i[4] = shipto.notes[4].
+             RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
              /* if add mode then use default carrier */
           /*   if sel = 3 /* and NOT oe-rel.carrier ENTERED */ then do: */
             find first sys-ctrl where sys-ctrl.company eq cocode
@@ -1347,6 +1364,7 @@ PROCEDURE create-release :
                          oe-rel.ship-i[2] = shipto.notes[2]
                          oe-rel.ship-i[3] = shipto.notes[3]
                          oe-rel.ship-i[4] = shipto.notes[4].
+                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
                if adm-new-record /* and NOT oe-rel.carrier ENTERED */ then do:
                   find first sys-ctrl where sys-ctrl.company eq cocode
@@ -1388,6 +1406,7 @@ PROCEDURE create-release :
                        oe-rel.ship-i[2] = shipto.notes[2]
                        oe-rel.ship-i[3] = shipto.notes[3]
                        oe-rel.ship-i[4] = shipto.notes[4].
+               RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
            if adm-new-record then do:                
                  find first sys-ctrl where sys-ctrl.company eq cocode
@@ -2027,7 +2046,7 @@ PROCEDURE local-create-record :
     oe-ordl.prom-code = oe-ord.due-code
     oe-ordl.prom-date = oe-ord.due-date
     oe-ordl.disc      = cust.disc
-    oe-ordl.tax       = cust.sort eq "Y" and oe-ord.tax-gr ne "".
+    oe-ordl.tax       = fGetTaxable(oe-ord.company, oe-ord.cust-no, oe-ord.ship-id, "").
 /* already created 
    if oe-ord.est-no ne "" then do:
       for each work-ordl where work-ordl.cust-no eq oe-ord.cust-no
@@ -2390,4 +2409,45 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable V-table-Win
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER, ipcCust AS CHARACTER , ipcShipto AS CHARACTER, ipcFGItemID AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: Gets the Taxable flag based on inputs
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+RUN system\TaxProcs.p (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+RETURN lTaxable.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

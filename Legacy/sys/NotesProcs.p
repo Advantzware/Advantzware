@@ -22,6 +22,7 @@ DEFINE TEMP-TABLE ttWord
     FIELD cTextWord    AS CHARACTER 
     FIELD iLengthWord  AS INTEGER.
      
+DEFINE VARIABLE gTypeShipNote AS CHARACTER NO-UNDO INIT "ES".
     
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -89,6 +90,23 @@ PROCEDURE ConvertToArray:
 
 END PROCEDURE.
 
+PROCEDURE CopyNoteOfType:
+/*------------------------------------------------------------------------------
+ Purpose: Propagates a single note from one rec_key to another
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE cNoteText AS CHARACTER NO-UNDO.
+
+RUN GetNoteOfType (ipcRecKeyFrom, ipcType, OUTPUT cNoteText).
+IF cNoteText NE "" THEN 
+    RUN UpdateNoteOfType (ipcRecKeyTo, ipcType, cNoteText).
+
+END PROCEDURE.
+
 PROCEDURE CopyNotes:
     /*------------------------------------------------------------------------------
      Purpose: Copies all notes from one source record (rec_key) to another 
@@ -113,6 +131,37 @@ PROCEDURE CopyNotes:
     END.
 END PROCEDURE.
 
+PROCEDURE CopyShipNote:
+/*------------------------------------------------------------------------------
+ Purpose: Wrapper of CopyNoteOfType for Ship Note Type
+ Notes:
+------------------------------------------------------------------------------*/
+ DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+ DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+ 
+ RUN CopyNoteOfType (ipcRecKeyFrom, ipcRecKeyTo, gTypeShipNote).
+
+END PROCEDURE.
+
+PROCEDURE GetNoteOfType:
+/*------------------------------------------------------------------------------
+ Purpose: Given a rec_key and type, will return the notes content of first note
+ of given type
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcFullText AS CHARACTER NO-UNDO.
+
+FIND FIRST notes NO-LOCK 
+    WHERE notes.rec_key EQ ipcObjectRecKey
+        AND notes.note_type EQ ipcType
+    NO-ERROR.
+IF AVAILABLE notes THEN 
+    opcFullText = notes.note_text.
+    
+END PROCEDURE.
+
 PROCEDURE GetNotesArrayForObject:
 /*------------------------------------------------------------------------------
  Purpose: Given a rec_key for an object, a set of type and codes, return an array of a max char length 
@@ -135,11 +184,13 @@ DEFINE VARIABLE cFullText AS CHARACTER NO-UNDO.
         :
     IF iplIncludeTitles THEN 
         cFullText = cFullText + TRIM(CAPS(notes.note_title)) + CHR(13).
-    cFullText = cFullText + TRIM(notes.note_text) + CHR(13). 
+    cFullText = cFullText + TRIM(notes.note_text) + CHR(13).  
 END.
-IF cFullText NE "" THEN 
-    RUN ConvertToArray(cFullText, ipiMaxCharCount, OUTPUT opcParsedText, OUTPUT opiArraySize).
 
+IF cFullText NE "" THEN DO:
+    cFullText = TRIM(cFullText,CHR(13)). 
+    RUN ConvertToArray(cFullText, ipiMaxCharCount, OUTPUT opcParsedText, OUTPUT opiArraySize).
+END. 
 END PROCEDURE.
 
 PROCEDURE pParseText PRIVATE:
@@ -198,6 +249,43 @@ PROCEDURE pParseText PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE UpdateNoteOfType:
+/*------------------------------------------------------------------------------
+ Purpose: Given a rec_key and type, this proce will update the first note of that type
+    or add it if it doesn't exist.
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcNoteType AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcNoteText AS CHARACTER NO-UNDO.
+
+FIND FIRST notes EXCLUSIVE-LOCK 
+    WHERE notes.rec_key EQ ipcObjectRecKey
+        AND notes.note_type EQ ipcNoteType
+    NO-ERROR.
+IF NOT AVAILABLE notes THEN DO:
+    CREATE notes.
+    ASSIGN 
+        notes.rec_key = ipcObjectRecKey
+        notes.note_type = ipcNoteType
+        .
+END. /*not avail notes*/
+
+notes.note_text = ipcNoteText.
+
+END PROCEDURE.
+
+PROCEDURE UpdateShipNote:
+/*------------------------------------------------------------------------------
+ Purpose: Wrapper for UpdateNoteofType specifically for Ship Notes
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcNoteText AS CHARACTER NO-UNDO.
+
+RUN UpdateNoteOfType (ipcObjectRecKey, gTypeShipNote, ipcNoteText).
+
+END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 

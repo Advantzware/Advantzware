@@ -1,0 +1,10 @@
+UPDATE TABLE "costHeader"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/costHeader.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/costHeader.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/costHeader.p" CRC "?"
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000001842

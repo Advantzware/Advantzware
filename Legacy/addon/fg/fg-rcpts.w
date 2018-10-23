@@ -1,6 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
@@ -49,6 +50,13 @@ DEF VAR lvlRecFound AS LOG NO-UNDO.
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
+/* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES fg-rctd
+&Scoped-define FIRST-EXTERNAL-TABLE fg-rctd
+
+
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR fg-rctd.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -93,6 +101,7 @@ DEFINE FRAME FRAME-A
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
+   External Tables: ASI.fg-rctd
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 2
    Other Settings: COMPILE
@@ -112,14 +121,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = NO
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = no
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -158,7 +167,7 @@ ASSIGN
        FRAME FRAME-A:SENSITIVE        = FALSE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-THEN W-Win:HIDDEN = YES.
+THEN W-Win:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -230,7 +239,7 @@ END.
 RUN sys/ref/nk1look.p (gcompany, "SSFGSCAN", "I", NO, NO, "", "", 
                        OUTPUT lvcReturnChar, OUTPUT lvlRecFound).
 IF lvlRecFound THEN
-	lvlAutoAdd = IF INT(lvcReturnChar) = 0 THEN YES ELSE NO.
+        lvlAutoAdd = IF INT(lvcReturnChar) = 0 THEN YES ELSE NO.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
@@ -292,7 +301,7 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = Yes':U ,
              OUTPUT h_b-rcptds ).
        RUN set-position IN h_b-rcptds ( 2.43 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_b-rcptds ( 7.14 , 112.00 ) NO-ERROR.
+       RUN set-size IN h_b-rcptds ( 7.14 , 112.40 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-updba2.w':U ,
@@ -302,7 +311,7 @@ PROCEDURE adm-create-objects :
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updba2 ).
        RUN set-position IN h_p-updba2 ( 10.05 , 11.00 ) NO-ERROR.
-       RUN set-size IN h_p-updba2 ( 1.67 , 68.00  ) NO-ERROR.
+       RUN set-size IN h_p-updba2 ( 1.67 , 68.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
@@ -364,7 +373,7 @@ PROCEDURE adm-create-objects :
 
   END CASE.
   /* Select a Startup page. */
-  IF adm-current-page EQ 0 
+  IF adm-current-page eq 0 
   THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
@@ -384,6 +393,15 @@ PROCEDURE adm-row-available :
 
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
+
+  /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "fg-rctd"}
+
+  /* Get the record ROWID's from the RECORD-SOURCE.                  */
+  {src/adm/template/row-get.i}
+
+  /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "fg-rctd"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -489,29 +507,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view W-Win 
-PROCEDURE local-view :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  IF lvlAutoAdd THEN DO:
-      {methods/selectTab.i 1}
-      RUN scan-next IN h_b-rcptds.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -520,9 +515,14 @@ PROCEDURE send-records :
   Parameters:  see template/snd-head.i
 ------------------------------------------------------------------------------*/
 
-  /* SEND-RECORDS does nothing because there are no External
-     Tables specified for this SmartWindow, and there are no
-     tables specified in any contained Browse, Query, or Frame. */
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
+
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "fg-rctd"}
+
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 

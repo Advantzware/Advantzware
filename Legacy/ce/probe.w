@@ -101,7 +101,8 @@ def TEMP-TABLE q-sort1 no-undo field qty as dec field rel as int.
 def TEMP-TABLE q-sort2 no-undo field qty as dec field rel as int.
 
 def new shared temp-table tt-qtty field qtty like qtty
-                                  field rel like rels.
+                                  field rel like rels
+                                  FIELD lRunShip LIKE lRunShips.
 
 DEF TEMP-TABLE tt-bqty NO-UNDO FIELD tt-bqty AS INT FIELD tt-brel AS INT.
 
@@ -2446,6 +2447,7 @@ PROCEDURE local-enable-fields :
 
   DO WITH FRAME {&FRAME-NAME}:
     probe.do-quote:SCREEN-VALUE IN BROWSE {&browse-name} = "Y".
+    APPLY "entry" TO probe.gross-profit.
   END.
 
 END PROCEDURE.

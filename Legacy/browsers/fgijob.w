@@ -24,6 +24,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winReSize
+&SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -39,8 +40,9 @@ assign
 
 DEF VAR ll-show-zero-bins AS LOG NO-UNDO.
 DEF VAR lShowRecalcFields AS LOG NO-UNDO.
-DEFINE VARIABLE lcReturn      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE llRecFound    AS LOG       NO-UNDO.
+DEFINE VARIABLE lcReturn   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE llRecFound AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE ll-secure  AS LOGICAL   NO-UNDO.
 
 RUN sys/ref/nk1look.p (cocode, "FgItemHideCalcFields", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
@@ -212,7 +214,7 @@ w-job.tot-wt
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS br_table 
+&Scoped-Define ENABLED-OBJECTS btnLocationDetails br_table 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -268,6 +270,14 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnBinDetails 
+     LABEL "View Bin Details" 
+     SIZE 24 BY 1.
+
+DEFINE BUTTON btnLocationDetails 
+     LABEL "View Location Details" 
+     SIZE 24 BY 1 TOOLTIP "Click to View Location Details".
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
@@ -322,14 +332,19 @@ ENABLE w-job.job-no-disp
        w-job.tot-wt
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 147 BY 8.57
-         FONT 0.
+    WITH NO-ASSIGN SEPARATORS SIZE 157 BY 20.24
+         FONT 0
+         TITLE "Bin Details".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     br_table AT ROW 1 COL 1
+     btnLocationDetails AT ROW 1 COL 1 HELP
+          "View Location Details" WIDGET-ID 10
+     btnBinDetails AT ROW 1 COL 25 HELP
+          "View Bin Details" WIDGET-ID 12
+     br_table AT ROW 1.95 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -363,8 +378,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 8.67
-         WIDTH              = 147.6.
+         HEIGHT             = 21.19
+         WIDTH              = 157.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -387,11 +402,13 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB br_table 1 F-Main */
+/* BROWSE-TAB br_table btnBinDetails F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btnBinDetails IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -434,7 +451,17 @@ OPEN QUERY {&SELF-NAME}
 &Scoped-define BROWSE-NAME br_table
 &Scoped-define SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON ROW-ENTRY OF br_table IN FRAME F-Main
+ON DEFAULT-ACTION OF br_table IN FRAME F-Main /* Bin Details */
+DO:
+    RUN update-cost.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON ROW-ENTRY OF br_table IN FRAME F-Main /* Bin Details */
 DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}  
@@ -445,7 +472,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON ROW-LEAVE OF br_table IN FRAME F-Main
+ON ROW-LEAVE OF br_table IN FRAME F-Main /* Bin Details */
 DO:
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
@@ -457,42 +484,26 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON START-SEARCH OF br_table IN FRAME F-Main
+ON VALUE-CHANGED OF br_table IN FRAME F-Main /* Bin Details */
 DO:
-  DEF VAR lh-column AS HANDLE NO-UNDO.
-  DEF VAR lv-column-nam AS CHAR NO-UNDO.
-  DEF VAR lv-column-lab AS CHAR NO-UNDO.
+  /* This ADM trigger code must be preserved in order to notify other
+     objects when the browser's current row changes. */
+  {src/adm/template/brschnge.i}
 
-  
-  ASSIGN
-   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
-   lv-column-nam = lh-column:NAME
-   lv-column-lab = lh-column:LABEL.
-
-  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
-
-  ELSE
-    ASSIGN
-     lv-sort-by     = lv-column-nam
-     lv-sort-by-lab = lv-column-lab.
-
-  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
-
-  /*APPLY "choose" TO btn_go.*/
-  RUN resort-query.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON VALUE-CHANGED OF br_table IN FRAME F-Main
+&Scoped-define SELF-NAME btnLocationDetails
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLocationDetails B-table-Win
+ON CHOOSE OF btnLocationDetails IN FRAME F-Main /* View Location Details */
 DO:
-  /* This ADM trigger code must be preserved in order to notify other
-     objects when the browser's current row changes. */
-  {src/adm/template/brschnge.i}
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 
+    {methods/run_link.i "ViewDetail-TARGET" "pViewDetail" "(5)"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -507,103 +518,29 @@ END.
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
 
-ON 'MOUSE-SELECT-DBLCLICK':U OF {&browse-name} DO:
-  
-    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
-    DEF VAR lResult AS LOG NO-UNDO.
-    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
-    RUN epCanAccess IN hPgmSecurity ("browsers/fgijob.w", "Access1", OUTPUT lResult).
-    DELETE OBJECT hPgmSecurity.
-    
-  IF lResult THEN DO:
-    RUN set-read-only (NO).
-
-    APPLY "entry" TO w-job.cust-no IN BROWSE {&browse-name}.
-  END.
-   ELSE DO:
-     RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
-     RUN epCanAccess IN hPgmSecurity ("browsers/fgijob.w", "Access2", OUTPUT lResult).
-     DELETE OBJECT hPgmSecurity.
-     IF lResult THEN DO:
-       DO WITH FRAME {&FRAME-NAME}:
-         w-job.tot-wt:READ-ONLY IN BROWSE {&browse-name} = NO.
-       END.
-
-       APPLY "entry" TO w-job.tot-wt IN BROWSE {&browse-name}.
-     END.
-   end.
-END.
-
-ON 'RETURN':U OF w-job.cust-no IN BROWSE {&browse-name} DO:
-  
-  IF w-job.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
-     w-job.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} NE w-job.cust-no THEN DO:
-  
-     IF itemfg.cust-no NE w-job.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} THEN DO:
-       MESSAGE "Invalid Cust No."
-          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-       RETURN NO-APPLY.
-     END.
-
-     RUN update-record(YES).
-  END.
-END.
-
-ON 'RETURN':U OF w-job.sell-uom IN BROWSE {&browse-name} DO:
-  
-  IF w-job.sell-uom:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
-     w-job.sell-uom:SCREEN-VALUE IN BROWSE {&browse-name} NE w-job.sell-uom THEN DO:
-  
-     IF itemfg.sell-uom NE w-job.sell-uom:SCREEN-VALUE IN BROWSE {&browse-name} THEN DO:
-       MESSAGE "Invalid UOM"
-          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-       RETURN NO-APPLY.
-     END.
-
-     RUN update-record(YES).
-  END.
-END.
-
-ON 'RETURN':U OF w-job.tot-wt IN BROWSE {&browse-name} DO:
-  
-  IF w-job.tot-wt:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
-     w-job.tot-wt:SCREEN-VALUE IN BROWSE {&browse-name} NE STRING(w-job.tot-wt) THEN DO:
-    RUN update-record(YES).
-  END.
-END.
-
-ON 'LEAVE':U OF w-job.tot-wt IN BROWSE {&browse-name} DO:
-  
-  IF w-job.tot-wt:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
-     w-job.tot-wt:SCREEN-VALUE IN BROWSE {&browse-name} NE STRING(w-job.tot-wt) THEN DO:
-    RUN update-record(NO).
-  END.
-END.
-
 RUN set-read-only(YES).
 
-IF fgsecurity-log THEN
-DO:
-   FIND FIRST usergrps WHERE
-        usergrps.usergrps = fgsecurity-char
-        NO-LOCK NO-ERROR.
-
-   IF AVAIL usergrps AND
+IF fgsecurity-log THEN DO:
+    FIND FIRST usergrps NO-LOCK
+         WHERE usergrps.usergrps EQ fgsecurity-char
+         NO-ERROR.
+    IF AVAILABLE usergrps AND
       (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
        TRIM(usergrps.users) NE "*") THEN
-      ASSIGN
-         w-job.std-tot-cost:VISIBLE IN BROWSE {&browse-name} = NO
-         w-job.sell-uom:VISIBLE IN BROWSE {&browse-name} = NO
-         w-job.std-mat-cost:VISIBLE IN BROWSE {&browse-name} = NO
-         w-job.std-lab-cost:VISIBLE IN BROWSE {&browse-name} = NO
-         w-job.std-var-cost:VISIBLE IN BROWSE {&browse-name} = NO
-         w-job.std-fix-cost:VISIBLE IN BROWSE {&browse-name} = NO.
+    ASSIGN
+        w-job.std-tot-cost:VISIBLE IN BROWSE {&browse-name} = NO
+        w-job.sell-uom:VISIBLE IN BROWSE {&browse-name} = NO
+        w-job.std-mat-cost:VISIBLE IN BROWSE {&browse-name} = NO
+        w-job.std-lab-cost:VISIBLE IN BROWSE {&browse-name} = NO
+        w-job.std-var-cost:VISIBLE IN BROWSE {&browse-name} = NO
+        w-job.std-fix-cost:VISIBLE IN BROWSE {&browse-name} = NO
+        .
 END.
 ASSIGN 
-  w-job.avl-qty:VISIBLE IN BROWSE {&browse-name} = lShowRecalcFields 
-  w-job.rel-qty:VISIBLE IN BROWSE {&browse-name} = lShowRecalcFields
-  w-job.bol-qty:VISIBLE IN BROWSE {&browse-name} = lShowRecalcFields
-  .
+    w-job.avl-qty:VISIBLE IN BROWSE {&browse-name} = lShowRecalcFields 
+    w-job.rel-qty:VISIBLE IN BROWSE {&browse-name} = lShowRecalcFields
+    w-job.bol-qty:VISIBLE IN BROWSE {&browse-name} = lShowRecalcFields
+    .
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -888,10 +825,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createWJobs B-table-Win
-PROCEDURE createWJobs:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createWJobs B-table-Win 
+PROCEDURE createWJobs :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -937,11 +873,9 @@ PROCEDURE createWJobs:
     RELEASE w-jobs.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -968,11 +902,15 @@ PROCEDURE filterTagBins :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER iplShowZeroBins AS LOG NO-UNDO.
-DEF INPUT PARAMETER iplTagBins AS CHAR NO-UNDO.
-lv-show-zero-bins = iplShowZeroBins.
-lv-show-tag-no    = iplTagBins .
-RUN local-open-query.
+    DEFINE INPUT PARAMETER iplShowZeroBins AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplTagBins      AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        lv-show-zero-bins = iplShowZeroBins
+        lv-show-tag-no    = iplTagBins 
+        .
+    RUN local-open-query.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -985,9 +923,11 @@ PROCEDURE filterZeroBins :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER iplShowZeroBins AS LOG NO-UNDO.
-lv-show-zero-bins = iplShowZeroBins.
-RUN local-open-query.
+    DEFINE INPUT PARAMETER iplShowZeroBins AS LOGICAL NO-UNDO.
+    
+    lv-show-zero-bins = iplShowZeroBins.
+    RUN local-open-query.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1121,9 +1061,10 @@ PROCEDURE set-pass-loc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER ip-pass-loc AS CHAR NO-UNDO.
-lc-pass-loc = ip-pass-loc.
-RUN local-open-query.
+    DEF INPUT PARAMETER ip-pass-loc AS CHAR NO-UNDO.
+    
+    lc-pass-loc = ip-pass-loc.
+    RUN local-open-query.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1176,9 +1117,25 @@ PROCEDURE update-cost :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR lv-rowid AS ROWID NO-UNDO.
-  DEF VAR char-hdl AS cha NO-UNDO.
   DEF BUFFER bf-w-job FOR w-job.
+
+    DEFINE VARIABLE char-hdl     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hPgmSecurity AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lResult      AS LOGICAL   NO-UNDO.
+    
+    IF NOT AVAILABLE w-job THEN RETURN.
+
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("viewers/p-fg-bj-l.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+    IF lResult THEN
+        ASSIGN ll-secure = YES.
   
+    IF NOT ll-secure THEN DO:  
+        RUN sys/ref/d-passwd.w (1, OUTPUT ll-secure). 
+        IF NOT ll-secure THEN RETURN.
+    END.  
+ 
   FOR EACH hold-job:
     DELETE hold-job.
   END.

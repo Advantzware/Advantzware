@@ -161,10 +161,7 @@ END.
           gsa-com = ce-ctrl.comm-mrkup
           gsa-war = ce-ctrl.whse-mrkup.
      
-   FIND FIRST probe    
-      WHERE probe.company    EQ xest.company
-        AND probe.est-no     EQ xest.est-no NO-LOCK NO-ERROR.
-   IF AVAIL probe THEN
+    IF AVAIL probe THEN
       gsa-fm = int(probe.gsa-fm).    
      
     ELSE

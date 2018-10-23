@@ -385,7 +385,8 @@ PROCEDURE add-rel-for-qty:
             oe-rel.ship-i[4]    = bf-orig-oe-rel.ship-i[4]
             oe-rel.lot-no       = bf-orig-oe-rel.lot-no.
 
-
+        RUN CopyShipNote (bf-orig-oe-rel.rec_key, oe-rel.rec_key).
+        
         IF oe-rel.qty LT 0 THEN oe-rel.qty = 0.
 
         oe-rel.tot-qty = oe-rel.qty.
@@ -396,6 +397,24 @@ PROCEDURE add-rel-for-qty:
 
   
     END.
+
+END PROCEDURE.
+
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
 
 END PROCEDURE.
 
@@ -532,6 +551,7 @@ PROCEDURE fg-post:
     DEFINE VARIABLE lFound         AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lFGSetAssembly AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cFGSetAssembly AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFGSetAdjust   AS CHARACTER NO-UNDO.
 
     fgPostLog = SEARCH('logs/fgpstall.log') NE ?.
     IF fgPostLog THEN
@@ -570,7 +590,16 @@ PROCEDURE fg-post:
         INPUT "",
         OUTPUT cFGSetAssembly,
         OUTPUT lFound).
-
+    RUN sys/ref/nk1look.p (INPUT cocode,
+        INPUT "FGSetAdjustReason",
+        INPUT "C",
+        INPUT NO,
+        INPUT NO,
+        INPUT "",
+        INPUT "",
+        OUTPUT cFGSetAdjust,
+        OUTPUT lFound).
+    
     DISABLE TRIGGERS FOR LOAD OF itemfg.
     DISABLE TRIGGERS FOR LOAD OF b-oe-ordl.
 
@@ -607,7 +636,10 @@ PROCEDURE fg-post:
         DO:
             ASSIGN 
                 b-w-fg-rctd.rita-code = "A"
-                fg-rctd.rita-code   = "A".
+                fg-rctd.rita-code   = "A"
+                b-w-fg-rctd.reject-code = cFGSetAdjust
+                fg-rctd.reject-code   = cFGSetAdjust
+                .
         END.
         RELEASE fg-rctd.
 

@@ -156,6 +156,12 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
                 AND eb.est-no  EQ job-hdr.est-no
                 AND eb.stock-no = job-hdr.i-no
               NO-ERROR.
+            IF NOT AVAIL eb THEN 
+               FIND FIRST eb NO-LOCK 
+                  WHERE eb.company     EQ job-hdr.company
+                    AND eb.est-no      EQ job-hdr.est-no
+                    AND eb.form-no     EQ job-hdr.frm
+                    AND eb.blank-no    GT 0 NO-ERROR.              
             IF AVAILABLE eb THEN DO:        
                 FIND FIRST oe-ord NO-LOCK
                     WHERE oe-ord.company EQ eb.company
@@ -177,7 +183,8 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
                              AND style.style = eb.style
                            NO-ERROR.
                 /* stock-no overrides item number for sales order lookup as jobcard does */
-                cItemOnOrder = eb.stock-no.
+                IF eb.stock-no GT "" THEN 
+                  cItemOnOrder = eb.stock-no.
             END.
             
             cocode = job-hdr.company.
@@ -210,7 +217,7 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
                     ttTempjob.company    = job-hdr.company
                     ttTempjob.jobID      = TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2, "99") + "-" + cSheetBlank
                     ttTempjob.itemRecKey = itemfg.rec_key
-                    ttTempjob.FGItemCode = itemfg.i-no
+                    ttTempjob.FGItemCode = cItemOnOrder
                     ttTempjob.FGName     = itemfg.i-name
                     ttTempjob.CustPart   = cCustPart
                     ttTempjob.ItemStatus = (IF itemfg.stat EQ "A" THEN "Active" ELSE "Inactive") 

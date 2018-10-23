@@ -843,9 +843,11 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
      {po/po-xprnt.i}
   END.
 
-  PUT "Grand Total MSF: " +
+IF AVAIL ITEM AND ITEM.industry EQ "2" OR AVAIL itemfg THEN DO:
+    PUT "Grand Total MSF: " +
       TRIM(STRING(v-tot-sqft / 1000,">>>,>>9.9<<")) AT 50 FORMAT "x(30)"
       SKIP.
+END.
 
   ASSIGN
   v-tot-sqft = 0

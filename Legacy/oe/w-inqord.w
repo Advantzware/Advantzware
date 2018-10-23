@@ -42,6 +42,7 @@ DEF INPUT PARAM ip-open  AS LOG   NO-UNDO.
 def var li-prev-page as int init 1 no-undo.
 def var li-cur-page as int init 1 no-undo.
 def var h-detail as handle no-undo.
+DEFINE VARIABLE lv-initial AS LOGICAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

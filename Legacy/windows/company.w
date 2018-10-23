@@ -630,28 +630,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view W-Win 
-PROCEDURE local-view :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
-
-    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
-    DEF VAR lResult AS LOG NO-UNDO.
-    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
-    RUN epCanAccess IN hPgmSecurity ("windows/company.w", "", OUTPUT lResult).
-    DELETE OBJECT hPgmSecurity.
-    IF NOT lResult THEN 
-        RUN disable-add-button IN h_f-add .
-        
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------

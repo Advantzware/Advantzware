@@ -55,6 +55,7 @@ DEF            VAR ls-fax-file            AS char NO-UNDO.
 DEF            VAR lv-save-spec           AS CHAR NO-UNDO.
 DEF            VAR lv-pdf-file            AS char NO-UNDO.
 DEF VAR v-dir AS CHAR NO-UNDO.
+DEFINE VARIABLE v-print-fmt AS CHARACTER NO-UNDO .
 
 /* Includes */
 {methods/defines/hndldefs.i}
@@ -99,16 +100,17 @@ DEF VAR v-dir AS CHAR NO-UNDO.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_job1 begin_job2 end_job1 ~
-end_job2 begin_mach end_mach begin_form end_form begin_blank end_blank ~
-btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_job1 begin_job2 end_job1 end_job2 ~
-begin_mach end_mach begin_form end_form begin_blank end_blank 
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 end_ord-no begin_ord-no ~
+begin_job1 begin_job2 end_job1 end_job2 begin_mach end_mach end_form ~
+begin_form begin_blank end_blank btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS end_ord-no begin_ord-no begin_job1 ~
+begin_job2 end_job1 end_job2 begin_mach end_mach end_form begin_form ~
+begin_blank end_blank 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 &Scoped-define List-1 begin_job1 begin_job2 end_job1 end_job2 begin_mach ~
-end_mach begin_form end_form begin_blank end_blank tb_reprint tb_box ~
+end_mach end_form begin_form begin_blank end_blank tb_reprint tb_box ~
 tb_fgimage tb_prt-mch tb_prt-shipto tb_prt-sellprc tb_prt-label ~
 td-show-parm 
 
@@ -158,6 +160,12 @@ DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "x(6)"
      SIZE 14 BY 1
      BGCOLOR 3 FGCOLOR 15 .
 
+DEFINE VARIABLE begin_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
+     LABEL "From Order#" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 
+     BGCOLOR 3 FGCOLOR 15.
+
 DEFINE VARIABLE end_blank AS INTEGER FORMAT ">>9" INITIAL 99 
      LABEL "to Blank" 
      VIEW-AS FILL-IN 
@@ -184,6 +192,12 @@ DEFINE VARIABLE end_mach AS CHARACTER FORMAT "x(6)" INITIAL "zzzzzz"
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
      BGCOLOR 3 FGCOLOR 15 .
+
+DEFINE VARIABLE end_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 99999999 
+     LABEL "to Order#" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 
+     BGCOLOR 3 FGCOLOR 15.
 
 DEFINE VARIABLE fi_speed1 AS CHARACTER FORMAT "X(256)":U INITIAL "Print Machine's Speed or Run Hour ?" 
      VIEW-AS FILL-IN 
@@ -310,41 +324,45 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_job1 AT ROW 2.43 COL 23 COLON-ALIGNED HELP
+     begin_ord-no AT ROW 2.52 COL 23 COLON-ALIGNED HELP
+          "Enter Beginning Order Number" WIDGET-ID 12
+     end_ord-no AT ROW 2.48 COL 65 COLON-ALIGNED HELP
+          "Enter Ending Order Number" WIDGET-ID 14
+     begin_job1 AT ROW 3.62 COL 23 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job2 AT ROW 2.43 COL 39 COLON-ALIGNED HELP
+     begin_job2 AT ROW 3.62 COL 39 COLON-ALIGNED HELP
           "Enter Beginning Run#"
-     end_job1 AT ROW 2.43 COL 65 COLON-ALIGNED HELP
+     end_job1 AT ROW 3.62 COL 65 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job2 AT ROW 2.43 COL 81 COLON-ALIGNED HELP
+     end_job2 AT ROW 3.62 COL 81 COLON-ALIGNED HELP
           "Enter Ending Run#"
-     begin_mach AT ROW 3.57 COL 23 COLON-ALIGNED HELP
+     begin_mach AT ROW 4.76 COL 23 COLON-ALIGNED HELP
           "Enter Beginning Machine Number"
-     end_mach AT ROW 3.57 COL 65 COLON-ALIGNED HELP
+     end_mach AT ROW 4.76 COL 65 COLON-ALIGNED HELP
           "Enter Ending Machine Number"
-     begin_form AT ROW 4.71 COL 23 COLON-ALIGNED HELP
+     begin_form AT ROW 5.95 COL 23 COLON-ALIGNED HELP
           "Enter Beginning Form Number"
-     end_form AT ROW 4.71 COL 65 COLON-ALIGNED HELP
+     end_form AT ROW 5.91 COL 65 COLON-ALIGNED HELP
           "Enter Ending Form Number"
-     begin_blank AT ROW 5.91 COL 23 COLON-ALIGNED HELP
+     begin_blank AT ROW 7.1 COL 23 COLON-ALIGNED HELP
           "Enter Beginning Blank Number"
-     end_blank AT ROW 5.91 COL 65 COLON-ALIGNED HELP
+     end_blank AT ROW 7.1 COL 65 COLON-ALIGNED HELP
           "Enter Ending Blank Number"
-     tb_reprint AT ROW 6.95 COL 25.2
-     tb_fold AT ROW 6.95 COL 67.2
-     tb_box AT ROW 7.91 COL 46.2 RIGHT-ALIGNED
-     tb_corr AT ROW 7.91 COL 67.2
-     tb_fgimage AT ROW 8.86 COL 51.2 RIGHT-ALIGNED
-     tb_prt-mch AT ROW 8.86 COL 67.2
-     spec_codes AT ROW 10.05 COL 23 COLON-ALIGNED
-     fi_speed1 AT ROW 11.24 COL 10 COLON-ALIGNED NO-LABEL
-     rd_print-speed AT ROW 11.24 COL 52.4 NO-LABEL
-     tb_prt-shipto AT ROW 12.43 COL 12.8
-     tb_prt-sellprc AT ROW 12.43 COL 52.8
-     tb_prt-label AT ROW 13.38 COL 12.8
-     tb_committed AT ROW 13.38 COL 52.8
-     tb_prt-set-header AT ROW 14.33 COL 12.8
-     tb_prompt-ship AT ROW 14.33 COL 52.8
+     tb_reprint AT ROW 7.91 COL 25.2
+     tb_fold AT ROW 7.91 COL 67.2
+     tb_box AT ROW 8.86 COL 46.2 RIGHT-ALIGNED
+     tb_corr AT ROW 8.86 COL 67.2
+     tb_fgimage AT ROW 9.81 COL 51.2 RIGHT-ALIGNED
+     tb_prt-mch AT ROW 9.81 COL 67.2
+     spec_codes AT ROW 11 COL 23 COLON-ALIGNED
+     fi_speed1 AT ROW 12.19 COL 10 COLON-ALIGNED NO-LABEL
+     rd_print-speed AT ROW 12.19 COL 52.4 NO-LABEL
+     tb_prt-shipto AT ROW 13.38 COL 12.8
+     tb_prt-sellprc AT ROW 13.38 COL 52.8
+     tb_prt-label AT ROW 14.33 COL 12.8
+     tb_committed AT ROW 14.33 COL 52.8
+     tb_prt-set-header AT ROW 15.29 COL 12.8
+     tb_prompt-ship AT ROW 15.29 COL 52.8
      rd-dest AT ROW 17.43 COL 12.8 NO-LABEL
      lines-per-page AT ROW 17.76 COL 50.6 COLON-ALIGNED
      td-show-parm AT ROW 18.71 COL 52.8
@@ -417,16 +435,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 /* SETTINGS FOR FILL-IN begin_blank IN FRAME FRAME-A
    1                                                                    */
 /* SETTINGS FOR FILL-IN begin_form IN FRAME FRAME-A
@@ -449,6 +457,18 @@ ASSIGN
        begin_mach:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+ASSIGN 
+       begin_ord-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
 /* SETTINGS FOR FILL-IN end_blank IN FRAME FRAME-A
    1                                                                    */
 /* SETTINGS FOR FILL-IN end_form IN FRAME FRAME-A
@@ -469,6 +489,10 @@ ASSIGN
    1                                                                    */
 ASSIGN 
        end_mach:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_ord-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR FILL-IN fi_speed1 IN FRAME FRAME-A
@@ -596,7 +620,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -678,6 +702,17 @@ ON LEAVE OF begin_mach IN FRAME FRAME-A /* From Machine */
 DO:
   IF {&self-name}:MODIFIED THEN RUN new-job-no.
   ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_ord-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ord-no C-Win
+ON LEAVE OF begin_ord-no IN FRAME FRAME-A /* From Order# */
+DO:
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -832,6 +867,17 @@ DO:
       ASSIGN {&self-name}.
     end.
   end.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_ord-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ord-no C-Win
+ON LEAVE OF end_ord-no IN FRAME FRAME-A /* to Order# */
+DO:
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1058,9 +1104,9 @@ END.
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                 = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW  = {&WINDOW-NAME}
-       current-window:height          = 8
-       btn-ok:row                     = 7.5
-       btn-cancel:row                 = 7.5
+       current-window:height          = 9
+       btn-ok:row                     = 8.5
+       btn-cancel:row                 = 8.5
        cocode                         = gcompany
        locode                         = gloc.
 
@@ -1083,7 +1129,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-
   FIND FIRST sys-ctrl NO-LOCK
     WHERE sys-ctrl.company EQ cocode
       AND sys-ctrl.name    EQ "SCHDCARD" NO-ERROR.
@@ -1091,43 +1136,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       IF sys-ctrl.char-fld EQ "Indiana"
           THEN ASSIGN is-xprint-form = NO.
           ELSE ASSIGN is-xprint-form = YES.
+          ASSIGN v-print-fmt = sys-ctrl.char-fld .
   END.
 
-/*   FIND FIRST sys-ctrl                                                                                                                                            */
-/*        WHERE sys-ctrl.company EQ cocode                                                                                                                          */
-/*          AND sys-ctrl.name    EQ "CEMENU" NO-LOCK NO-ERROR.                                                                                                      */
-/*                                                                                                                                                                  */
-/*   ASSIGN                                                                                                                                                         */
-/*    tb_fold = NOT AVAIL sys-ctrl           OR                                                                                                                     */
-/*              sys-ctrl.char-fld EQ "Both"  OR                                                                                                                     */
-/*              sys-ctrl.char-fld EQ "Foldware"                                                                                                                     */
-/*    tb_corr = AVAIL sys-ctrl AND                                                                                                                                  */
-/*              (sys-ctrl.char-fld EQ "Both" OR sys-ctrl.char-fld EQ "Corrware").                                                                                   */
-/*                                                                                                                                                                  */
-/*   IF tb_fold THEN DO:                                                                                                                                            */
-/*     {sys/inc/jobcard.i "F"}                                                                                                                                      */
-/*     ASSIGN                                                                                                                                                       */
-/*      lv-format-f = sys-ctrl.char-fld                                                                                                                             */
-/*      lv-int-f    = sys-ctrl.int-fld.                                                                                                                             */
-/*     IF /*index("Interpac,Dayton,FibreFC,Livngstn",lv-format-f) > 0*/                                                                                             */
-/*         lookup(lv-format-f,"Interpac,FibreFC,HPB,metro,Dayton,Livngstn,CentBox,Frankstn,Colonial,Unipak,Ottpkg,Shelby,CCC,Accord") > 0 THEN lines-per-page = 55. */
-/*   END.                                                                                                                                                           */
-/*                                                                                                                                                                  */
-/*   IF tb_corr THEN DO:                                                                                                                                            */
-/*     {sys/inc/jobcard.i "C"}                                                                                                                                      */
-/*     ASSIGN                                                                                                                                                       */
-/*      lv-format-c = sys-ctrl.char-fld                                                                                                                             */
-/*      lv-int-c    = sys-ctrl.int-fld.                                                                                                                             */
-/*   END.                                                                                                                                                           */
-/*                                                       */
-/*   FIND FIRST users WHERE                              */
-/*        users.user_id EQ USERID("NOSWEAT")             */
-/*        NO-LOCK NO-ERROR.                              */
-/*                                                       */
-/*   IF AVAIL users AND users.user_program[2] NE "" THEN */
-/*      init-dir = users.user_program[2].                */
-/*   ELSE                                                */
-/*      init-dir = "c:\tmp".                             */
 
   RUN enable_UI.
 
@@ -1136,62 +1147,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DO WITH FRAME {&frame-name}:
 
     {custom/usrprint.i}
-/*                                                                                                                */
-/*     IF lv-format-c = "pacific" THEN DO:                                                                        */
-/*       lv-ornt:SCREEN-VALUE = "L".                                                                              */
-/*       APPLY "value-changed" TO lv-ornt .                                                                       */
-/*     END.                                                                                                       */
-/*     /*IF tb_corr:SCREEN-VALUE EQ "No" AND lv-format-f NE "ASI" THEN spec_codes:HIDDEN = YES.*/                 */
-/*                                                                                                                */
-/*     IF tb_fold  AND (lv-format-f = "Interpac" OR lv-format-f = "Dayton"                                        */
-/*                  OR  lv-format-f = "Livngstn" OR lv-format-f = "FibreFC"  OR lv-format-f = "HPB"               */
-/*                  OR  lv-format-f = "metro"                                                                     */
-/*                  OR  lv-format-f = "CentBox"  OR lv-format-f = "Keystone" OR lv-format-f = "Frankstn"          */
-/*                  OR  lv-format-f = "Colonial" OR lv-format-f = "Unipak"   OR lv-format-f = "Ottpkg"            */
-/*                  OR  lv-format-f = "MWFIbre"  OR lv-format-f = "Shelby"   OR lv-format-f = "CCC"               */
-/*                  OR  lv-format-f = "Accord")                                                                   */
-/*     THEN                                                                                                       */
-/*       assign                                                                                                   */
-/*         tb_prt-mch:SENSITIVE     = YES                                                                         */
-/*         tb_prt-shipto:SENSITIVE  = YES                                                                         */
-/*         tb_prt-sellprc:SENSITIVE = YES                                                                         */
-/*         rd_print-speed:SENSITIVE = YES .                                                                       */
-/*                                                                                                                */
-/*     ELSE do:                                                                                                   */
-/*                                                                                                                */
-/*       ASSIGN                                                                                                   */
-/*         tb_prt-mch      = NO                                                                                   */
-/*         tb_prt-shipto   = NO                                                                                   */
-/*         tb_prt-sellprc  = NO.                                                                                  */
-/*                                                                                                                */
-/*       ASSIGN                                                                                                   */
-/*         tb_prt-mch:SCREEN-VALUE      = "no"                                                                    */
-/*         tb_prt-shipto:SCREEN-VALUE   = "no"                                                                    */
-/*         tb_prt-sellprc:SCREEN-VALUE  = "no"                                                                    */
-/*         rd_print-speed:SCREEN-VALUE  = "S".                                                                    */
-/*     END.                                                                                                       */
-/*                                                                                                                */
-/*     tb_prt-set-header:SENSITIVE = CAN-DO("Artios,Premier,Xprint,Suthrlnd,United,Hughes,CapCity",lv-format-c).  */
-/*                                                                                                                */
-/*     IF NOT tb_prt-set-header:SENSITIVE THEN                                                                    */
-/*       tb_prt-set-header:SCREEN-VALUE = "no".                                                                   */
-/*                                                                                                                */
-/*     IF TRIM(begin_job1:SCREEN-VALUE)  NE ""                          AND                                       */
-/*        TRIM(begin_job1:SCREEN-VALUE)  EQ TRIM(end_job1:SCREEN-VALUE) AND                                       */
-/*         INT(begin_job2:SCREEN-VALUE)  EQ INT(end_job2:SCREEN-VALUE)  THEN DO:                                  */
-/*                                                                                                                */
-/*       FIND FIRST job-hdr NO-LOCK                                                                               */
-/*           WHERE job-hdr.company EQ cocode                                                                      */
-/*             AND job-hdr.job-no  EQ FILL(" ",6 - LENGTH(begin_job1:SCREEN-VALUE)) +                             */
-/*                                    TRIM(begin_job1:SCREEN-VALUE)                                               */
-/*             AND job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE)                                                */
-/*           NO-ERROR.                                                                                            */
-/*                                                                                                                */
-/*       IF AVAIL job-hdr THEN                                                                                    */
-/*         tb_reprint:SCREEN-VALUE = STRING(job-hdr.ftick-prnt).                                                  */
-/*     END.                                                                                                       */
 
-    APPLY "entry" TO begin_job1.
+       IF AVAIL sys-ctrl AND sys-ctrl.char-fld NE "ScheduleCard1" THEN DO:
+            ASSIGN 
+                 begin_ord-no:HIDDEN = YES
+                  end_ord-no:HIDDEN = YES .
+            APPLY "entry" TO begin_job1 .
+       END.
+       ELSE do: 
+           APPLY "entry" TO begin_ord-no .
+       END.
+    
   END.
 
 /*   RUN new-job-no. */
@@ -1236,11 +1202,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_job1 begin_job2 end_job1 end_job2 begin_mach end_mach begin_form 
-          end_form begin_blank end_blank 
+  DISPLAY end_ord-no begin_ord-no begin_job1 begin_job2 end_job1 end_job2 
+          begin_mach end_mach end_form begin_form begin_blank end_blank 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 begin_job1 begin_job2 end_job1 end_job2 begin_mach 
-         end_mach begin_form end_form begin_blank end_blank btn-ok btn-cancel 
+  ENABLE RECT-6 RECT-7 end_ord-no begin_ord-no begin_job1 begin_job2 end_job1 
+         end_job2 begin_mach end_mach end_form begin_form begin_blank end_blank 
+         btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1557,11 +1524,29 @@ IF NOT is-xprint-form THEN DO:
                                  input  begin_form:screen-value,
                                  input  end_form:screen-value,
                                  input  begin_blank:screen-value,
-                                 input  end_blank:screen-value).
+                                 input  end_blank:SCREEN-VALUE /*,
+                                 INPUT begin_ord-no:SCREEN-VALUE,
+                                 INPUT end_ord-no:SCREEN-VALUE*/ ).
 END.
 ELSE
 IF is-xprint-form THEN  DO:
 
+    IF v-print-fmt EQ "ScheduleCard1" THEN 
+    RUN cerep/jobSchrd1.p (INPUT  yes, 
+                             INPUT  55,
+                             INPUT fjob-no,
+                             INPUT fjob-no2,
+                             INPUT tjob-no,
+                             INPUT tjob-no2,
+                             INPUT begin_mach:screen-value in frame {&frame-name},
+                             INPUT end_mach:screen-value,
+                             INPUT begin_form:screen-value,
+                             INPUT end_form:screen-value,
+                             INPUT begin_blank:screen-value,
+                             INPUT end_blank:screen-value,
+                             INPUT begin_ord-no:SCREEN-VALUE,
+                             INPUT end_ord-no:SCREEN-VALUE) .
+    ELSE
     RUN cerep/jobSLdee.p    (INPUT  yes, 
                              INPUT  55,
                              INPUT fjob-no,
@@ -1573,7 +1558,10 @@ IF is-xprint-form THEN  DO:
                              INPUT begin_form:screen-value,
                              INPUT end_form:screen-value,
                              INPUT begin_blank:screen-value,
-                             INPUT end_blank:screen-value) .
+                             INPUT end_blank:SCREEN-VALUE /*,
+                             INPUT begin_ord-no:SCREEN-VALUE,
+                             INPUT end_ord-no:SCREEN-VALUE*/ ) .
+    
 
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

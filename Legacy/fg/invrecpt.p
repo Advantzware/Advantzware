@@ -48,6 +48,9 @@ DEF VAR dBillAmt AS DECIMAL NO-UNDO.
 DEF VAR lEmailBol AS LOG NO-UNDO.
 DEF VAR iocPrompt AS CHAR NO-UNDO.
 DEF VAR vrRelh AS ROWID NO-UNDO.
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
+  
 
       {oe/rep/oe-lad.i NEW}
       /* {oe/oe-bolpi.i NEW}   */
@@ -314,6 +317,7 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
          oe-rel.spare-char-1 = shipto.loc.
         IF AVAIL sys-ctrl AND sys-ctrl.char-fld EQ "Shipto" THEN
           oe-rel.carrier = shipto.carrier.
+        RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
       END.
       ELSE DO:
           FIND FIRST fg-bin 
@@ -509,7 +513,7 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
       END.
   END.
 END.
-
+DELETE OBJECT hNotesProcs.
 RETURN.
 
 PROCEDURE get-ord-recs:
@@ -567,6 +571,28 @@ PROCEDURE get-ord-recs:
 
   END.
 END.
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs2 AS HANDLE NO-UNDO.
+
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs2 (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs2.   
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 PROCEDURE prompt-for-invoice:
 DEF OUTPUT PARAMETER oplCreateInvoice AS LOG NO-UNDO.

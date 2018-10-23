@@ -209,7 +209,7 @@ PROCEDURE pCreateHeader:
     DEFINE VARIABLE dFormSqIn AS DECIMAL NO-UNDO.
 
     CREATE ttCostHeader.
-    iopcRK = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999").
+    iopcRK = DYNAMIC-FUNCTION("sfGetNextRecKey").
     ASSIGN 
         ttCostHeader.company           = ipbf-est.company
         ttCostHeader.headerDescription = cDescription

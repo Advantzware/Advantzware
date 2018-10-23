@@ -168,7 +168,7 @@ ELSE DO:
 END. 
     
 DO TRANSACTION:
-  RUN system/userLogOut.p.
+  RUN system/userLogOut.p (NO, 0).
 END.
 SESSION:SET-WAIT-STATE("").
 QUIT.

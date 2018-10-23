@@ -68,7 +68,7 @@ ASSIGN
                 "Allwest,COLOR,Badger,LoyLang,Carded,Metro,Nosco,CSC-GA,KDWILLSX,Peachtree,Protagon," +
                 "PremierCX,PeachTreeBC,ACCORDBC,Soule,NSTOCK,TrilakesLot#,Multicell,MetroTags,AllPkg2,PremierBroker,SouleMed,Chillicothe," +
                 "CapitolBC,CardedBC,Axis,BadgerSoldTo,PeachtreeLotPO,Lakeside,CSCINStamp,CCCWPP,Prystup-Excel,Printers,Printers2,RFCX," +
-                "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN,PremierXFooter,Wingate-BOL,BOLfmt15"
+                "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN,PremierXFooter,Wingate-BOL,BOLfmt15,LancoYork"
  str-init[11] = "ASI,Laser,P&P,n,Raritan,ContSrvc,Royal,Triad,Rudd,"   +
                 "Hartford,AIHalper,Brick,Fibre,Herman,ASILaser,TriadLas,"      +
                 "Chillic,Middlesx,Hughes,ASI2000,Unipak,RFC,Inland,Prefered,"  +
@@ -100,7 +100,7 @@ ASSIGN
  str-init[27] = "QOH>QEst,AllItems,QAvail>0"
  str-init[28] = "Penny,Dollar"
  str-init[29] = ",Brick,Xprint,Unipak-XL,PremierPkg,ACPI,PremierPkgU,PremierPkgM,PremierBroker,CCC,LoyLang,CCCWPP,Prystup," +
-                "bolcert 1,bolcert 2,BOLCERT10,CCC2"
+                "bolcert 1,bolcert 2,BOLCERT10,CCC2,LancoYork"
  str-init[30] = "ASI,Clevelnd,McLean,Suthrlnd,Brick,Fibre,Protagon,cerunc 1,cerunc 2,cerunc 3"
  str-init[31] = "ASI,McLean,HOP,Dee,Fibre,cerunf 1,cerunf 2"
  str-init[32] = "XPRINT,Pacific,RFC,Hughes,HPB,MWFIBRE,ARTIOS,P&,MWBox," +
@@ -169,7 +169,7 @@ ASSIGN
  str-init[86] = ",16th's,32nd's,Decimal" /* cecscrn */
  str-init[87] = "RunOnly,MR+Run" /* ceprice */
  str-init[88] = ",AllOrders,SameOrderOnly,SamePo#Only,AllOrders&ShipFromWhse,SamePO#&ShipFromWhse,SameOrder&SameShipFrom,SameOrder&SameShipFrom&SamePO,AllOrders&NotRunShip"  /* relmerge */       
- str-init[89] = ",ASI,ASIXprnt,Premier,ASIExcel,Loylang,Printers,Protagon,Badger,Soule,RFC,SouleMed,stmtprint 1,stmtprint 2,StdStatement10"  /*stmtprin*/
+ str-init[89] = ",ASI,ASIXprnt,Premier,ASIExcel,Loylang,Printers,Protagon,Badger,Soule,RFC,SouleMed,stmtprint 1,stmtprint 2,StdStatement10,StdStatement2"  /*stmtprin*/
  str-init[90] = "All Machines,Last Machine,NO"  /*TSFinish*/
  str-init[91] = "MSF,PO UOM"  /*appaper*/
  str-init[92] = "FluteMtx,AUTOCALC"  /*appaper*/
@@ -178,7 +178,7 @@ ASSIGN
  str-init[95] = "Blank,GrossSH"  /* fgitemsf */
  str-init[96] = ",Michcor,Trilakes,Woodland,PremierPkg,St.Clair,NStock,Blue,Freedman"  /* GP */
  str-init[97] = "DC Only,OE & DC"   /* oeprep */
- str-init[98] = "None,1/8"  /* celayout */
+ str-init[98] = "None,1/8,1/8Up,1/4,1/4Up,1/2,1/2Up,1,1Up"  /* celayout */
  str-init[99] = "Fibre"
  str-init[100] = "Customer,CustX"  /* 1099-MISC */
  str-init[101] = ",Skip Open Order Calc"
@@ -187,7 +187,7 @@ ASSIGN
  str-init[104] = "None,Overrun,Receipts"  /* rmemails */     
  str-init[105] = ",loadtag"
  str-init[106] = "Fibrex,BOLFMTX15"
- str-init[107] = ",Indiana,Dee"
+ str-init[107] = ",Indiana,Dee,ScheduleCard1"
  str-init[108] = "Workstation,Server"  
  str-init[109] = "Reorder Point"   
  str-init[110] = ",HOP,Xprint,AllWest,PremierPkg,SouleMed,Soule,StdCreditMemo10"  
@@ -259,7 +259,7 @@ IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
        str-init[31] = "cerunf 1,cerunf 2"
        str-init[32] = "jobcardc 1,jobcardc 2,jobcardc 20"
        str-init[33] = "jobcardf 1,jobcardf 2"
-       str-init[89] = "stmtprint 1,stmtprint 2,StdStatement10"  /*stmtprin*/
+       str-init[89] = "stmtprint 1,stmtprint 2,StdStatement10,StdStatement2"  /*stmtprin*/
        str-init[141] = "AckMaster 1,AckMaster 2" /*"3CPack"*/
        str-init[151] = "bolfmt1"
        .

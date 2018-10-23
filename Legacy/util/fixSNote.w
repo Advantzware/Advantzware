@@ -29,6 +29,8 @@
 /* Local Variable Definitions ---                                       */
 DEF VAR iNumFixed AS INT.
 
+{system/fSuperRunning.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

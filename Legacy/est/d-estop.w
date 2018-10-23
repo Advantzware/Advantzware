@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi       PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
@@ -103,16 +103,16 @@ END.
 &Scoped-define INTERNAL-TABLES est-op est est-qty
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
-&Scoped-define FIELDS-IN-QUERY-Dialog-Frame est-op.s-num est-op.b-num ~
-est-op.m-code est-op.m-dscr est-op.op-pass est-op.n-out est-op.op-mr ~
-est-op.op-waste est-op.op-speed est-op.op-spoil est-op.op-crew[1] ~
-est-op.op-crew[2] est-op.op-rate[1] est-op.op-rate[2] est-op.plates ~
-est-op.fountains est-op.att-type[1] est-op.att-qty[1] est-op.att-type[2] ~
-est-op.att-qty[2] est-op.att-type[3] est-op.att-qty[3] est-op.spare-char-1 ~
-est-op.n_out_div 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame est-op.s-num ~
+&Scoped-define FIELDS-IN-QUERY-Dialog-Frame est-op.isLocked est-op.s-num ~
 est-op.b-num est-op.m-code est-op.m-dscr est-op.op-pass est-op.n-out ~
 est-op.op-mr est-op.op-waste est-op.op-speed est-op.op-spoil ~
+est-op.op-crew[1] est-op.op-crew[2] est-op.op-rate[1] est-op.op-rate[2] ~
+est-op.plates est-op.fountains est-op.att-type[1] est-op.att-qty[1] ~
+est-op.att-type[2] est-op.att-qty[2] est-op.att-type[3] est-op.att-qty[3] ~
+est-op.spare-char-1 est-op.n_out_div 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame est-op.isLocked ~
+est-op.s-num est-op.b-num est-op.m-code est-op.m-dscr est-op.op-pass ~
+est-op.n-out est-op.op-mr est-op.op-waste est-op.op-speed est-op.op-spoil ~
 est-op.op-crew[1] est-op.op-crew[2] est-op.op-rate[1] est-op.op-rate[2] ~
 est-op.plates est-op.fountains est-op.att-type[1] est-op.att-qty[1] ~
 est-op.att-type[2] est-op.att-qty[2] est-op.att-type[3] est-op.att-qty[3] ~
@@ -120,10 +120,10 @@ est-op.spare-char-1 est-op.n_out_div
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame est-op
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame est-op
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH est-op ~
-      WHERE ASI.est-op.company eq cocode  SHARE-LOCK, ~
+      WHERE est-op.company eq cocode  SHARE-LOCK, ~
       EACH est SHARE-LOCK
 &Scoped-define OPEN-QUERY-Dialog-Frame OPEN QUERY Dialog-Frame FOR EACH est-op ~
-      WHERE ASI.est-op.company eq cocode  SHARE-LOCK, ~
+      WHERE est-op.company eq cocode  SHARE-LOCK, ~
       EACH est SHARE-LOCK.
 &Scoped-define TABLES-IN-QUERY-Dialog-Frame est-op est est-qty
 &Scoped-define FIRST-TABLE-IN-QUERY-Dialog-Frame est-op
@@ -132,21 +132,23 @@ est-op.spare-char-1 est-op.n_out_div
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS est-op.s-num est-op.b-num est-op.m-code ~
-est-op.m-dscr est-op.op-pass est-op.n-out est-op.op-mr est-op.op-waste ~
-est-op.op-speed est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] ~
-est-op.op-rate[1] est-op.op-rate[2] est-op.plates est-op.fountains ~
-est-op.att-type[1] est-op.att-qty[1] est-op.att-type[2] est-op.att-qty[2] ~
-est-op.att-type[3] est-op.att-qty[3] est-op.spare-char-1 est-op.n_out_div 
+&Scoped-Define ENABLED-FIELDS est-op.isLocked est-op.s-num est-op.b-num ~
+est-op.m-code est-op.m-dscr est-op.op-pass est-op.n-out est-op.op-mr ~
+est-op.op-waste est-op.op-speed est-op.op-spoil est-op.op-crew[1] ~
+est-op.op-crew[2] est-op.op-rate[1] est-op.op-rate[2] est-op.plates ~
+est-op.fountains est-op.att-type[1] est-op.att-qty[1] est-op.att-type[2] ~
+est-op.att-qty[2] est-op.att-type[3] est-op.att-qty[3] est-op.spare-char-1 ~
+est-op.n_out_div 
 &Scoped-define ENABLED-TABLES est-op
 &Scoped-define FIRST-ENABLED-TABLE est-op
 &Scoped-Define ENABLED-OBJECTS Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
-&Scoped-Define DISPLAYED-FIELDS est-op.s-num est-op.b-num est-op.m-code ~
-est-op.m-dscr est-op.op-pass est-op.n-out est-op.op-mr est-op.op-waste ~
-est-op.op-speed est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] ~
-est-op.op-rate[1] est-op.op-rate[2] est-op.plates est-op.fountains ~
-est-op.att-type[1] est-op.att-qty[1] est-op.att-type[2] est-op.att-qty[2] ~
-est-op.att-type[3] est-op.att-qty[3] est-op.spare-char-1 est-op.n_out_div 
+&Scoped-Define DISPLAYED-FIELDS est-op.isLocked est-op.s-num est-op.b-num ~
+est-op.m-code est-op.m-dscr est-op.op-pass est-op.n-out est-op.op-mr ~
+est-op.op-waste est-op.op-speed est-op.op-spoil est-op.op-crew[1] ~
+est-op.op-crew[2] est-op.op-rate[1] est-op.op-rate[2] est-op.plates ~
+est-op.fountains est-op.att-type[1] est-op.att-qty[1] est-op.att-type[2] ~
+est-op.att-qty[2] est-op.att-type[3] est-op.att-qty[3] est-op.spare-char-1 ~
+est-op.n_out_div 
 &Scoped-define DISPLAYED-TABLES est-op
 &Scoped-define FIRST-DISPLAYED-TABLE est-op
 
@@ -165,150 +167,153 @@ est-op.att-type[3] est-op.att-qty[3] est-op.spare-char-1 est-op.n_out_div
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
-    LABEL "Cancel" 
-    SIZE 15 BY 1.14
-    BGCOLOR 8 .
+     LABEL "Cancel" 
+     SIZE 15 BY 1.14
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT 
-    LABEL "&Done" 
-    SIZE 15 BY 1.14
-    BGCOLOR 8 .
+     LABEL "&Done" 
+     SIZE 15 BY 1.14
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
-    LABEL "&Save" 
-    SIZE 15 BY 1.14
-    BGCOLOR 8 .
+     LABEL "&Save" 
+     SIZE 15 BY 1.14
+     BGCOLOR 8 .
 
 DEFINE RECTANGLE RECT-21
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 127 BY 3.1.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 127 BY 3.1.
 
 DEFINE RECTANGLE RECT-38
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 127 BY 13.81.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 127 BY 13.81.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Dialog-Frame FOR 
-    est-op, 
-    est, 
-    est-qty SCROLLING.
+      est-op, 
+      est, 
+      est-qty SCROLLING.
 &ANALYZE-RESUME
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-    est-op.s-num AT ROW 1.91 COL 24 COLON-ALIGNED
-    LABEL "Sheet #" FORMAT ">>>"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.b-num AT ROW 1.91 COL 61.8 COLON-ALIGNED
-    LABEL "Blank#" FORMAT ">>>"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.m-code AT ROW 3.14 COL 24 COLON-ALIGNED
-    LABEL "Machine" FORMAT "x(6)"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.m-dscr AT ROW 3.14 COL 61.8 COLON-ALIGNED
-    LABEL "Desc" FORMAT "x(20)"
-    VIEW-AS FILL-IN 
-    SIZE 36.4 BY 1
-    est-op.op-pass AT ROW 4.38 COL 24 COLON-ALIGNED
-    LABEL "Pass#." FORMAT ">9"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.n-out AT ROW 4.38 COL 61.8 COLON-ALIGNED
-    LABEL "Out." FORMAT ">>>9"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.op-mr AT ROW 4.38 COL 103 COLON-ALIGNED
-    LABEL "MR-Hrs" FORMAT ">>9.99"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.op-waste AT ROW 5.62 COL 24 COLON-ALIGNED
-    LABEL "Waste" FORMAT ">>>>>9"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.op-speed AT ROW 5.62 COL 61.8 COLON-ALIGNED
-    LABEL "Speed" FORMAT ">>>>9"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.op-spoil AT ROW 5.62 COL 103 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.op-crew[1] AT ROW 6.81 COL 24 COLON-ALIGNED
-    LABEL "MRCrew" FORMAT "9.99"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.op-crew[2] AT ROW 6.81 COL 61.8 COLON-ALIGNED
-    LABEL "RunCrew" FORMAT "9.99"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.op-rate[1] AT ROW 6.81 COL 103 COLON-ALIGNED
-    LABEL "MRate" FORMAT ">>9.99"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.op-rate[2] AT ROW 8.05 COL 24 COLON-ALIGNED
-    LABEL "RRate" FORMAT ">>9.99"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.plates AT ROW 8.05 COL 61.8 COLON-ALIGNED
-    LABEL "Plate changes" FORMAT ">>>"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.fountains AT ROW 8.05 COL 103 COLON-ALIGNED
-    LABEL "Fountain Changes" FORMAT ">>>"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.att-type[1] AT ROW 9.29 COL 24 COLON-ALIGNED
-    LABEL "Adder 1" FORMAT "x(5)"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.att-qty[1] AT ROW 9.29 COL 61.8 COLON-ALIGNED
-    LABEL "Qty" FORMAT ">>,>>>"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.att-type[2] AT ROW 10.52 COL 24 COLON-ALIGNED
-    LABEL "Adder 2" FORMAT "x(5)"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.att-qty[2] AT ROW 10.52 COL 61.8 COLON-ALIGNED
-    LABEL "Qty" FORMAT ">>,>>>"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.att-type[3] AT ROW 11.76 COL 24 COLON-ALIGNED
-    LABEL "Adder 3" FORMAT "x(5)"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.att-qty[3] AT ROW 11.76 COL 61.8 COLON-ALIGNED
-    LABEL "Qty" FORMAT ">>,>>>"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    est-op.spare-char-1 AT ROW 13 COL 24 COLON-ALIGNED
-    LABEL "Feed" FORMAT "x(1)"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
+     est-op.isLocked AT ROW 13.14 COL 105 WIDGET-ID 2
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.4 BY .81
+     est-op.s-num AT ROW 1.91 COL 24 COLON-ALIGNED
+          LABEL "Sheet #" FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.b-num AT ROW 1.91 COL 61.8 COLON-ALIGNED
+          LABEL "Blank#" FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.m-code AT ROW 3.14 COL 24 COLON-ALIGNED
+          LABEL "Machine" FORMAT "x(6)"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.m-dscr AT ROW 3.14 COL 61.8 COLON-ALIGNED
+          LABEL "Desc" FORMAT "x(20)"
+          VIEW-AS FILL-IN 
+          SIZE 36.4 BY 1
+     est-op.op-pass AT ROW 4.38 COL 24 COLON-ALIGNED
+          LABEL "Pass#." FORMAT ">9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.n-out AT ROW 4.38 COL 61.8 COLON-ALIGNED
+          LABEL "Out." FORMAT ">>>9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.op-mr AT ROW 4.38 COL 103 COLON-ALIGNED
+          LABEL "MR-Hrs" FORMAT ">>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.op-waste AT ROW 5.62 COL 24 COLON-ALIGNED
+          LABEL "Waste" FORMAT ">>>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.op-speed AT ROW 5.62 COL 61.8 COLON-ALIGNED
+          LABEL "Speed" FORMAT ">>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.op-spoil AT ROW 5.62 COL 103 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.op-crew[1] AT ROW 6.81 COL 24 COLON-ALIGNED
+          LABEL "MRCrew" FORMAT "9.99"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.op-crew[2] AT ROW 6.81 COL 61.8 COLON-ALIGNED
+          LABEL "RunCrew" FORMAT "9.99"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.op-rate[1] AT ROW 6.81 COL 103 COLON-ALIGNED
+          LABEL "MRate" FORMAT ">>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.op-rate[2] AT ROW 8.05 COL 24 COLON-ALIGNED
+          LABEL "RRate" FORMAT ">>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.plates AT ROW 8.05 COL 61.8 COLON-ALIGNED
+          LABEL "Plate changes" FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.fountains AT ROW 8.05 COL 103 COLON-ALIGNED
+          LABEL "Fountain Changes" FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.att-type[1] AT ROW 9.29 COL 24 COLON-ALIGNED
+          LABEL "Adder 1" FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.att-qty[1] AT ROW 9.29 COL 61.8 COLON-ALIGNED
+          LABEL "Qty" FORMAT ">>,>>>"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.att-type[2] AT ROW 10.52 COL 24 COLON-ALIGNED
+          LABEL "Adder 2" FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.att-qty[2] AT ROW 10.52 COL 61.8 COLON-ALIGNED
+          LABEL "Qty" FORMAT ">>,>>>"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.att-type[3] AT ROW 11.76 COL 24 COLON-ALIGNED
+          LABEL "Adder 3" FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.att-qty[3] AT ROW 11.76 COL 61.8 COLON-ALIGNED
+          LABEL "Qty" FORMAT ">>,>>>"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FONT 6.
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
-    est-op.n_out_div AT ROW 13 COL 61.8 COLON-ALIGNED
-    LABEL "Run Qty Divisor" FORMAT "->>,>>9.99"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    Btn_OK AT ROW 15.76 COL 37
-    Btn_Done AT ROW 15.76 COL 57
-    Btn_Cancel AT ROW 15.76 COL 77.2
-    RECT-21 AT ROW 14.81 COL 1
-    RECT-38 AT ROW 1 COL 1
-    SPACE(2.19) SKIP(3.28)
+     est-op.spare-char-1 AT ROW 13 COL 24 COLON-ALIGNED
+          LABEL "Feed" FORMAT "x(1)"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     est-op.n_out_div AT ROW 13 COL 61.8 COLON-ALIGNED
+          LABEL "Run Qty Divisor" FORMAT "->>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     Btn_OK AT ROW 15.76 COL 37
+     Btn_Done AT ROW 15.76 COL 57
+     Btn_Cancel AT ROW 15.76 COL 77.2
+     RECT-21 AT ROW 14.81 COL 1
+     RECT-38 AT ROW 1 COL 1
+     SPACE(2.19) SKIP(3.28)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FONT 6
-    TITLE "Estimate Operation Update".
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FONT 6
+         TITLE "Estimate Operation Update".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -338,8 +343,8 @@ DEFINE FRAME Dialog-Frame
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME Custom                                                    */
 ASSIGN 
-    FRAME Dialog-Frame:SCROLLABLE = FALSE
-    FRAME Dialog-Frame:HIDDEN     = TRUE.
+       FRAME Dialog-Frame:SCROLLABLE       = FALSE
+       FRAME Dialog-Frame:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN est-op.att-qty[1] IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
@@ -410,8 +415,8 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON HELP OF FRAME Dialog-Frame /* Estimate Prep Item Update */
-    DO:
+ON HELP OF FRAME Dialog-Frame /* Estimate Operation Update */
+DO:
         DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
         DEFINE VARIABLE lw-focus AS HANDLE    NO-UNDO.
         DEFINE VARIABLE rowidval AS ROWID     NO-UNDO.
@@ -468,8 +473,8 @@ ON HELP OF FRAME Dialog-Frame /* Estimate Prep Item Update */
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON RETURN OF FRAME Dialog-Frame /* Estimate Prep Item Update */
-    ANYWHERE
+ON RETURN OF FRAME Dialog-Frame /* Estimate Operation Update */
+ANYWHERE
     DO:
         APPLY "tab" TO SELF.
         RETURN NO-APPLY.
@@ -480,8 +485,8 @@ ON RETURN OF FRAME Dialog-Frame /* Estimate Prep Item Update */
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Estimate Prep Item Update */
-    DO:
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Estimate Operation Update */
+DO:
         DISABLE TRIGGERS FOR LOAD OF est-op .
 
         IF lv-item-recid NE ? THEN 
@@ -504,7 +509,7 @@ ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Estimate Prep Item Update */
 &Scoped-define SELF-NAME est-op.att-qty[3]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.att-qty[3] Dialog-Frame
 ON LEAVE OF est-op.att-qty[3] IN FRAME Dialog-Frame /* Qty */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             IF ll-import-stds THEN RUN get-stds.
@@ -518,7 +523,7 @@ ON LEAVE OF est-op.att-qty[3] IN FRAME Dialog-Frame /* Qty */
 &Scoped-define SELF-NAME est-op.att-type[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.att-type[1] Dialog-Frame
 ON LEAVE OF est-op.att-type[1] IN FRAME Dialog-Frame /* Adder 1 */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-att-type (FOCUS) NO-ERROR.
@@ -532,7 +537,7 @@ ON LEAVE OF est-op.att-type[1] IN FRAME Dialog-Frame /* Adder 1 */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.att-type[1] Dialog-Frame
 ON VALUE-CHANGED OF est-op.att-type[1] IN FRAME Dialog-Frame /* Adder 1 */
-    DO:
+DO:
         RUN new-att-type (FOCUS).
     END.
 
@@ -543,7 +548,7 @@ ON VALUE-CHANGED OF est-op.att-type[1] IN FRAME Dialog-Frame /* Adder 1 */
 &Scoped-define SELF-NAME est-op.att-type[2]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.att-type[2] Dialog-Frame
 ON LEAVE OF est-op.att-type[2] IN FRAME Dialog-Frame /* Adder 2 */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-att-type (FOCUS) NO-ERROR.
@@ -557,7 +562,7 @@ ON LEAVE OF est-op.att-type[2] IN FRAME Dialog-Frame /* Adder 2 */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.att-type[2] Dialog-Frame
 ON VALUE-CHANGED OF est-op.att-type[2] IN FRAME Dialog-Frame /* Adder 2 */
-    DO:
+DO:
         RUN new-att-type (FOCUS).
     END.
 
@@ -568,7 +573,7 @@ ON VALUE-CHANGED OF est-op.att-type[2] IN FRAME Dialog-Frame /* Adder 2 */
 &Scoped-define SELF-NAME est-op.att-type[3]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.att-type[3] Dialog-Frame
 ON LEAVE OF est-op.att-type[3] IN FRAME Dialog-Frame /* Adder 3 */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-att-type (FOCUS) NO-ERROR.
@@ -582,7 +587,7 @@ ON LEAVE OF est-op.att-type[3] IN FRAME Dialog-Frame /* Adder 3 */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.att-type[3] Dialog-Frame
 ON VALUE-CHANGED OF est-op.att-type[3] IN FRAME Dialog-Frame /* Adder 3 */
-    DO:
+DO:
         RUN new-att-type (FOCUS).
     END.
 
@@ -593,7 +598,7 @@ ON VALUE-CHANGED OF est-op.att-type[3] IN FRAME Dialog-Frame /* Adder 3 */
 &Scoped-define SELF-NAME est-op.b-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.b-num Dialog-Frame
 ON ENTRY OF est-op.b-num IN FRAME Dialog-Frame /* Blank# */
-    DO:
+DO:
         DEFINE VARIABLE ll-1-blank AS LOGICAL NO-UNDO.
 
         DEFINE BUFFER b-eb FOR eb.
@@ -627,7 +632,7 @@ ON ENTRY OF est-op.b-num IN FRAME Dialog-Frame /* Blank# */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.b-num Dialog-Frame
 ON LEAVE OF est-op.b-num IN FRAME Dialog-Frame /* Blank# */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-b-num NO-ERROR.
@@ -642,7 +647,7 @@ ON LEAVE OF est-op.b-num IN FRAME Dialog-Frame /* Blank# */
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel Dialog-Frame
 ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
-    DO:
+DO:
         DISABLE TRIGGERS FOR LOAD OF est-op .
 
         IF lv-item-recid NE ? THEN 
@@ -666,7 +671,7 @@ ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
 &Scoped-define SELF-NAME Btn_Done
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Done Dialog-Frame
 ON CHOOSE OF Btn_Done IN FRAME Dialog-Frame /* Done */
-    DO:
+DO:
   &IF DEFINED (adm-panel) NE 0 &THEN
         RUN dispatch IN THIS-PROCEDURE ('exit').
   &ELSE
@@ -681,7 +686,7 @@ ON CHOOSE OF Btn_Done IN FRAME Dialog-Frame /* Done */
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
-    DO:
+DO:
         DEFINE VARIABLE j        AS INTEGER NO-UNDO.
         DEFINE VARIABLE v-outw   LIKE xef.n-out NO-UNDO.
         DEFINE VARIABLE v-outl   LIKE xef.n-out-l NO-UNDO.
@@ -721,6 +726,17 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
             RUN valid-att-type (est-op.att-type[3]:HANDLE ) NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
         END.
+
+        ll-import-all = NO.
+        IF ll-import-selected THEN 
+            DO WITH FRAME {&FRAME-NAME}:
+                MESSAGE
+                    "NO = Import Standards for Only Machine Imported?" SKIP
+                    "YES = Import Standards for All Machines on Routing?"
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO TITLE "Import Standards"
+                UPDATE ll-import-all.
+            END. /* with frame */
+
   
         DO TRANSACTION:
             FIND CURRENT est-op EXCLUSIVE-LOCK NO-ERROR.
@@ -941,7 +957,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 &Scoped-define SELF-NAME est-op.fountains
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.fountains Dialog-Frame
 ON ENTRY OF est-op.fountains IN FRAME Dialog-Frame /* Fountain Changes */
-    DO:
+DO:
         DEFINE VARIABLE ll AS LOG INIT YES NO-UNDO.
 
 
@@ -962,7 +978,7 @@ ON ENTRY OF est-op.fountains IN FRAME Dialog-Frame /* Fountain Changes */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.fountains Dialog-Frame
 ON LEAVE OF est-op.fountains IN FRAME Dialog-Frame /* Fountain Changes */
-    DO:
+DO:
     /*IF LASTKEY NE -1 THEN DO:
       IF ll-import-stds THEN RUN get-stds.
     END.*/
@@ -975,7 +991,7 @@ ON LEAVE OF est-op.fountains IN FRAME Dialog-Frame /* Fountain Changes */
 &Scoped-define SELF-NAME est-op.m-code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-code Dialog-Frame
 ON ENTRY OF est-op.m-code IN FRAME Dialog-Frame /* Machine */
-    DO:
+DO:
         IF v-estopmch-log = NO AND v-override-mode THEN
         DO:
             APPLY "tab" TO est-op.m-code .
@@ -989,22 +1005,12 @@ ON ENTRY OF est-op.m-code IN FRAME Dialog-Frame /* Machine */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-code Dialog-Frame
 ON LEAVE OF est-op.m-code IN FRAME Dialog-Frame /* Machine */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-mach NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-            ll-import-all = NO.
-            IF ll-import-selected THEN 
-            DO WITH FRAME {&FRAME-NAME}:
-                MESSAGE
-                    "NO = Import Standards for Only Machine Imported?" SKIP
-                    "YES = Import Standards for All Machines on Routing?"
-                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO TITLE "Import Standards"
-                UPDATE ll-import-all.
-            END. /* with frame */
-    
+            
             IF ll-import-stds AND NOT CAN-DO(lv-n-out-depts,lv-dept) THEN 
             DO:
                 IF lv-dept EQ "PR" THEN
@@ -1022,7 +1028,7 @@ ON LEAVE OF est-op.m-code IN FRAME Dialog-Frame /* Machine */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-code Dialog-Frame
 ON VALUE-CHANGED OF est-op.m-code IN FRAME Dialog-Frame /* Machine */
-    DO:
+DO:
         DEFINE VARIABLE li AS INTEGER NO-UNDO.
 
 
@@ -1057,7 +1063,7 @@ ON VALUE-CHANGED OF est-op.m-code IN FRAME Dialog-Frame /* Machine */
 &Scoped-define SELF-NAME est-op.m-dscr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-dscr Dialog-Frame
 ON ENTRY OF est-op.m-dscr IN FRAME Dialog-Frame /* Desc */
-    DO:
+DO:
         APPLY "tab" TO SELF.
         RETURN NO-APPLY.
     END.
@@ -1069,7 +1075,7 @@ ON ENTRY OF est-op.m-dscr IN FRAME Dialog-Frame /* Desc */
 &Scoped-define SELF-NAME est-op.n-out
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.n-out Dialog-Frame
 ON ENTRY OF est-op.n-out IN FRAME Dialog-Frame /* Out. */
-    DO:
+DO:
         RUN is-it-foam.
 
         IF NOT CAN-DO(lv-n-out-depts,lv-dept)                  AND
@@ -1086,7 +1092,7 @@ ON ENTRY OF est-op.n-out IN FRAME Dialog-Frame /* Out. */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.n-out Dialog-Frame
 ON LEAVE OF est-op.n-out IN FRAME Dialog-Frame /* Out. */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-mach NO-ERROR.
@@ -1110,7 +1116,7 @@ ON LEAVE OF est-op.n-out IN FRAME Dialog-Frame /* Out. */
 &Scoped-define SELF-NAME est-op.op-pass
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.op-pass Dialog-Frame
 ON ENTRY OF est-op.op-pass IN FRAME Dialog-Frame /* Pass#. */
-    DO:
+DO:
         RUN is-it-foam.
 
         IF NOT ll-foam OR NOT CAN-DO(lv-foam-depts,lv-dept) THEN 
@@ -1126,7 +1132,7 @@ ON ENTRY OF est-op.op-pass IN FRAME Dialog-Frame /* Pass#. */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.op-pass Dialog-Frame
 ON LEAVE OF est-op.op-pass IN FRAME Dialog-Frame /* Pass#. */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-op-pass NO-ERROR.
@@ -1141,7 +1147,7 @@ ON LEAVE OF est-op.op-pass IN FRAME Dialog-Frame /* Pass#. */
 &Scoped-define SELF-NAME est-op.plates
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.plates Dialog-Frame
 ON ENTRY OF est-op.plates IN FRAME Dialog-Frame /* Plate changes */
-    DO:
+DO:
         DEFINE VARIABLE ll AS LOG INIT YES NO-UNDO.
 
 
@@ -1162,7 +1168,7 @@ ON ENTRY OF est-op.plates IN FRAME Dialog-Frame /* Plate changes */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.plates Dialog-Frame
 ON LEAVE OF est-op.plates IN FRAME Dialog-Frame /* Plate changes */
-    DO:
+DO:
     /*IF LASTKEY NE -1 THEN DO:
       IF ll-import-stds AND lv-dept NE "PR" THEN RUN get-stds.
     END.*/
@@ -1175,7 +1181,7 @@ ON LEAVE OF est-op.plates IN FRAME Dialog-Frame /* Plate changes */
 &Scoped-define SELF-NAME est-op.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.s-num Dialog-Frame
 ON ENTRY OF est-op.s-num IN FRAME Dialog-Frame /* Sheet # */
-    DO:
+DO:
         IF est.est-type EQ 5 THEN 
         DO:
             APPLY "tab" TO SELF.
@@ -1189,7 +1195,7 @@ ON ENTRY OF est-op.s-num IN FRAME Dialog-Frame /* Sheet # */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.s-num Dialog-Frame
 ON LEAVE OF est-op.s-num IN FRAME Dialog-Frame /* Sheet # */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-s-num NO-ERROR.
@@ -1204,7 +1210,7 @@ ON LEAVE OF est-op.s-num IN FRAME Dialog-Frame /* Sheet # */
 &Scoped-define SELF-NAME est-op.spare-char-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.spare-char-1 Dialog-Frame
 ON ENTRY OF est-op.spare-char-1 IN FRAME Dialog-Frame /* Feed */
-    DO:
+DO:
     
     /*DO WITH FRAME {&FRAME-NAME}:
       APPLY "tab" TO {&self-name} .
@@ -1219,7 +1225,7 @@ ON ENTRY OF est-op.spare-char-1 IN FRAME Dialog-Frame /* Feed */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.spare-char-1 Dialog-Frame
 ON LEAVE OF est-op.spare-char-1 IN FRAME Dialog-Frame /* Feed */
-    DO:
+DO:
     
         DO WITH FRAME {&FRAME-NAME}:
             IF est-op.spare-char-1:SCREEN-VALUE  NE "" AND 
@@ -1323,7 +1329,7 @@ RUN disable_UI.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-item Dialog-Frame 
 PROCEDURE create-item :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           PARAMs:  <none>
           Notes:       
@@ -1371,48 +1377,18 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetQty Dialog-Frame 
-PROCEDURE pGetQty :
-    /*------------------------------------------------------------------------------
-          Purpose:     
-          PARAMs:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
-    lv-eqty = 0.
-
-    IF AVAILABLE est AND AVAILABLE est-qty THEN
-        IF est.est-type NE 8 THEN lv-eqty = est-qty.eqty.
-
-        ELSE
-            FOR EACH xop
-                WHERE xop.company EQ est-qty.company
-                AND xop.est-no  EQ est-qty.est-no
-                AND xop.line    LT 500
-                NO-LOCK
-                BY xop.qty:
-                lv-eqty = xop.qty.
-                LEAVE.
-            END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME Dialog-Frame.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME Dialog-Frame.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1420,7 +1396,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-item Dialog-Frame 
 PROCEDURE display-item :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           PARAMs:  <none>
           Notes:       
@@ -1455,34 +1431,35 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    IF AVAILABLE est-op THEN 
-        DISPLAY est-op.s-num est-op.b-num est-op.m-code est-op.m-dscr est-op.op-pass 
-            est-op.n-out est-op.op-mr est-op.op-waste est-op.op-speed 
-            est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] est-op.op-rate[1] 
-            est-op.op-rate[2] est-op.plates est-op.fountains est-op.att-type[1] 
-            est-op.att-qty[1] est-op.att-type[2] est-op.att-qty[2] 
-            est-op.att-type[3] est-op.att-qty[3] est-op.spare-char-1 
-            est-op.n_out_div 
-            WITH FRAME Dialog-Frame.
-    ENABLE est-op.s-num est-op.b-num est-op.m-code est-op.m-dscr est-op.op-pass 
-        est-op.n-out est-op.op-mr est-op.op-waste est-op.op-speed 
-        est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] est-op.op-rate[1] 
-        est-op.op-rate[2] est-op.plates est-op.fountains est-op.att-type[1] 
-        est-op.att-qty[1] est-op.att-type[2] est-op.att-qty[2] 
-        est-op.att-type[3] est-op.att-qty[3] est-op.spare-char-1 
-        est-op.n_out_div Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
-        WITH FRAME Dialog-Frame.
-    VIEW FRAME Dialog-Frame.
-    {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  IF AVAILABLE est-op THEN 
+    DISPLAY est-op.isLocked est-op.s-num est-op.b-num est-op.m-code est-op.m-dscr 
+          est-op.op-pass est-op.n-out est-op.op-mr est-op.op-waste 
+          est-op.op-speed est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] 
+          est-op.op-rate[1] est-op.op-rate[2] est-op.plates est-op.fountains 
+          est-op.att-type[1] est-op.att-qty[1] est-op.att-type[2] 
+          est-op.att-qty[2] est-op.att-type[3] est-op.att-qty[3] 
+          est-op.spare-char-1 est-op.n_out_div 
+      WITH FRAME Dialog-Frame.
+  ENABLE est-op.isLocked est-op.s-num est-op.b-num est-op.m-code est-op.m-dscr 
+         est-op.op-pass est-op.n-out est-op.op-mr est-op.op-waste 
+         est-op.op-speed est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] 
+         est-op.op-rate[1] est-op.op-rate[2] est-op.plates est-op.fountains 
+         est-op.att-type[1] est-op.att-qty[1] est-op.att-type[2] 
+         est-op.att-qty[2] est-op.att-type[3] est-op.att-qty[3] 
+         est-op.spare-char-1 est-op.n_out_div Btn_OK Btn_Done Btn_Cancel 
+         RECT-21 RECT-38 
+      WITH FRAME Dialog-Frame.
+  VIEW FRAME Dialog-Frame.
+  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1490,7 +1467,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE find-mach-attach Dialog-Frame 
 PROCEDURE find-mach-attach :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1513,81 +1490,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-import-stds Dialog-Frame 
-PROCEDURE set-import-stds :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ip-add-update  AS   CHARACTER           NO-UNDO.
-    DEFINE INPUT PARAMETER ip-import-stds LIKE ll-import-stds NO-UNDO.
-
-    IF ip-add-update = "Update" AND ip-import-stds = NO THEN
-        v-override-mode = YES.
-    ELSE
-        v-override-mode = NO.
-
-    IF ip-import-stds THEN
-        FOR EACH xop NO-LOCK
-            WHERE xop.company EQ est.company
-            AND xop.est-no  EQ est.est-no
-            AND xop.line    LT 500
-            AND (NOT AVAILABLE est-op OR ROWID(xop) NE ROWID(est-op)),
-            FIRST mach NO-LOCK
-            {sys/look/machW.i}
-        AND mach.m-code EQ xop.m-code:
-   
-    IF mach.obsolete THEN 
-    DO: 
-        MESSAGE "Machine: " + TRIM(mach.m-code) +
-            " is obsolete, please replace or standards will not be imported"
-            VIEW-AS ALERT-BOX ERROR.
-        ip-import-stds = NO.
-        LEAVE.
-    END.
-END.
-
-ASSIGN
-    ll-import-stds     = ip-import-stds
-    ll-import-selected = ip-import-stds.
-
-IF ip-add-update EQ "update" THEN 
-DO WITH FRAME {&frame-name}:
-    APPLY "entry" TO est-op.s-num .
-END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-stds Dialog-Frame 
-PROCEDURE get-stds :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE chr-handle AS CHARACTER NO-UNDO.
-
-
-    ll-import-stds = NO.
-
-    DO WITH FRAME {&FRAME-NAME}:
-        APPLY "choose" TO btn_ok.
-    END.
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE first-of-mach Dialog-Frame 
 PROCEDURE first-of-mach :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1624,9 +1529,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-stds Dialog-Frame 
+PROCEDURE get-stds :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE chr-handle AS CHARACTER NO-UNDO.
+
+
+    ll-import-stds = NO.
+
+    DO WITH FRAME {&FRAME-NAME}:
+        APPLY "choose" TO btn_ok.
+    END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ImportRouting Dialog-Frame 
 PROCEDURE ImportRouting :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:  Assigns machine data to routing (est-op)   
       Parameters:  estop Row ID
       Notes:       
@@ -1667,7 +1593,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE is-it-foam Dialog-Frame 
 PROCEDURE is-it-foam :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1692,7 +1618,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-att-type Dialog-Frame 
 PROCEDURE new-att-type :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1749,9 +1675,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetQty Dialog-Frame 
+PROCEDURE pGetQty :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          PARAMs:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    lv-eqty = 0.
+
+    IF AVAILABLE est AND AVAILABLE est-qty THEN
+        IF est.est-type NE 8 THEN lv-eqty = est-qty.eqty.
+
+        ELSE
+            FOR EACH xop
+                WHERE xop.company EQ est-qty.company
+                AND xop.est-no  EQ est-qty.est-no
+                AND xop.line    LT 500
+                NO-LOCK
+                BY xop.qty:
+                lv-eqty = xop.qty.
+                LEAVE.
+            END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE release-shared-buffers Dialog-Frame 
 PROCEDURE release-shared-buffers :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1766,9 +1720,63 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-import-stds Dialog-Frame 
+PROCEDURE set-import-stds :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-add-update  AS   CHARACTER           NO-UNDO.
+    DEFINE INPUT PARAMETER ip-import-stds LIKE ll-import-stds NO-UNDO.
+
+    IF ip-add-update = "Update" AND ip-import-stds = NO THEN
+        v-override-mode = YES.
+    ELSE
+        v-override-mode = NO.
+
+    IF ip-import-stds THEN
+        FOR EACH xop NO-LOCK
+            WHERE xop.company EQ est.company
+            AND xop.est-no  EQ est.est-no
+            AND xop.line    LT 500
+            AND (NOT AVAILABLE est-op OR ROWID(xop) NE ROWID(est-op)),
+            FIRST mach NO-LOCK
+            {sys/look/machW.i}
+        AND mach.m-code EQ xop.m-code:
+   
+    IF mach.obsolete THEN 
+    DO: 
+        MESSAGE "Machine: " + TRIM(mach.m-code) +
+            " is obsolete, please replace or standards will not be imported"
+            VIEW-AS ALERT-BOX ERROR.
+        ip-import-stds = NO.
+        LEAVE.
+    END.
+END.
+
+ASSIGN
+    ll-import-stds     = ip-import-stds
+    ll-import-selected = ip-import-stds.
+IF AVAILABLE est-op AND est-op.isLocked THEN 
+    ASSIGN
+        ll-import-stds = NO 
+        ll-import-selected = NO 
+        .
+        
+IF ip-add-update EQ "update" THEN 
+DO WITH FRAME {&frame-name}:
+    APPLY "entry" TO est-op.s-num .
+END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-lock Dialog-Frame 
 PROCEDURE set-lock :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1795,7 +1803,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-att-type Dialog-Frame 
 PROCEDURE valid-att-type :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1850,7 +1858,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-b-num Dialog-Frame 
 PROCEDURE valid-b-num :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1887,7 +1895,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-mach Dialog-Frame 
 PROCEDURE valid-mach :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2244,7 +2252,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-op-pass Dialog-Frame 
 PROCEDURE valid-op-pass :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2296,7 +2304,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-s-num Dialog-Frame 
 PROCEDURE valid-s-num :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       

@@ -1959,6 +1959,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win
+PROCEDURE local-assign-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  ASSIGN 
+        rm-rctd.enteredBy = USERID("asi")
+        rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+        .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-statement B-table-Win 
 PROCEDURE local-assign-statement :
 /*------------------------------------------------------------------------------

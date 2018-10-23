@@ -77,14 +77,14 @@ ASSIGN cTextListToSelect = "DATE,ITEM,DESCRIPTN,PO#,JOB#,VENDOR#,TRANSACTION TYP
                            "COUNT,BIN,CUOM,TOTAL QTY,TOTAL COST,TOT SELL VAL," +
                            "CUSTOMER PART#,DIE#,# UP,CAD#,PLATE#,NUM OF COLORS,SHEET SIZE,CALIPER,USER-ID,WHSE,WT/100,REC TIME,POSTED," +
                            "CATGY,UNIT COST,UNIT SELL,SUOM,PROMISE DATE,ORD DUE DATE,START DATE,SHIPTO,SHIPTO NAME,ORDER#," +
-                           "BEFORE QTY,BIN CHANGE,BOL#"
+                           "BEFORE QTY,BIN CHANGE,BOL#,REASON,REASON CODE,REASON DESCRIPTION"
        cFieldListToSelect = "fg-rcpth.trans-date,fg-rcpth.i-no,fg-rcpth.i-name,fg-rcpth.po-no,fg-rcpth.job-no," +
                             "po-ord.vend-no,v-tran-type,v-tag,v-rfid#,v-cases,v-qty-case,fg-rdtlh.loc-bin,lv-cost-uom,v-fg-qty,v-fg-cost,v-fg-value," +
                             "itemfg.part-no,itemfg.die-no,v-numUp,itemfg.cad-no,itemfg.plate-no,v-numColors,v-SheetSize,v-Caliper,fg-rcpth.user-id,fg-rdtld.loc,wt-h,rec-time,fg-rcpth.post-date," +
                             "itemfg.procat,unt-cst,unt-sel,suom,prom-date,due-date,job-start,shipto,shipname,order-no," +
-                            "bef-qty,bin-qty,bol-no"
+                            "bef-qty,bin-qty,bol-no,Reason,Reason-cd,Reason-dscr"
        cFieldLength = "9,16,11,9,13,11,1,20,24,8," + "8,9,9,10,10,13," + "15,15,4,15,15,13,15,7,10,10,9,8,8," +
-                      "5,11,14,4,12,12,10,8,30,7," + "10,10,8"
+                      "5,11,14,4,12,12,10,8,30,7," + "10,10,8,30,11,25"
        .
 
 {sys/inc/ttRptSel.i}

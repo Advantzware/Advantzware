@@ -59,9 +59,9 @@ PROCEDURE fix-neg:
        fg-bin.qty   = fg-bin.qty + lv-qty
        b-fg-bin.qty = b-fg-bin.qty - lv-qty.
 
-      RUN fg/cre-pchr.p (ROWID(fg-bin), "A", lv-qty, fg-bin.partial-count).
+      RUN fg/cre-pchr.p (ROWID(fg-bin), "A", lv-qty, fg-bin.partial-count,"").
 
-      RUN fg/cre-pchr.p (ROWID(b-fg-bin), "A", lv-qty * -1, fg-bin.partial-count * -1).
+      RUN fg/cre-pchr.p (ROWID(b-fg-bin), "A", lv-qty * -1, fg-bin.partial-count * -1,"").
     END.
   END.
 

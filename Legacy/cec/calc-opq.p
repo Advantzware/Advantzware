@@ -71,7 +71,8 @@ def var v-brd-cost as dec no-undo.
 DEF VAR lv-override AS LOG NO-UNDO.
  
 def new shared temp-table tt-qtty field qtty like qtty
-                                  field rel like rels.
+                                  field rel like rels
+                                  FIELD lRunShip LIKE lRunShips.
 
 DEF TEMP-TABLE tt-bqty NO-UNDO FIELD tt-bqty AS INT FIELD tt-brel AS INT.
 
