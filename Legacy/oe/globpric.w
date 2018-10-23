@@ -720,7 +720,7 @@ ASSIGN
 DO ctr = 1 TO INDEX("DPTF",rd_round):
     li-factor = li-factor * 10.    
 END.
-
+MAIN:
 REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
     WHERE oe-prmtx.company    EQ cocode 
       AND oe-prmtx.cust-no    GE start-cust-no
@@ -732,14 +732,19 @@ REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
       AND oe-prmtx.i-no       GE start-item-no
       AND oe-prmtx.i-no       LE end-item-no
       AND oe-prmtx.eff-date   GE beg_eff_date
-      AND oe-prmtx.eff-date   LE end_eff_date ,
-    FIRST cust  NO-LOCK WHERE cust.company EQ cocode 
-      AND cust.cust-no EQ  oe-prmtx.cust-no 
-      AND (cust.imported EQ NO OR td_imported )  :
+      AND oe-prmtx.eff-date   LE end_eff_date :
   
     FIND NEXT oe-prmtx.
     RELEASE bf-oe-prmtx.
 
+    
+    FIND FIRST cust  NO-LOCK 
+        WHERE cust.company EQ cocode 
+        AND cust.cust-no EQ  oe-prmtx.cust-no 
+        NO-ERROR .
+
+     IF AVAIL cust AND cust.imported EQ YES AND NOT td_imported THEN NEXT MAIN.
+     
 /*     FIND FIRST reftable WHERE                            */
 /*           reftable.rec_key  EQ oe-prmtx.rec_key AND      */
 /*           reftable.company  EQ "oe-prmtx"                */

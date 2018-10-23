@@ -114,7 +114,6 @@ DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_soldto AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_soldto-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-ctcusi AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_cust-cnt AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -722,15 +721,7 @@ PROCEDURE adm-create-objects :
              OUTPUT h_cust-6 ).
        RUN set-position IN h_cust-6 ( 4.57 , 23.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 107.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewerid/custcnt.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_cust-cnt ).
-       RUN set-position IN h_cust-cnt ( 4.57 , 130.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.14 , 107.00 ) */
-
+       
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/custmark.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -781,10 +772,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_custmark-2. */
        RUN add-link IN adm-broker-hdl ( h_custmark , 'Record':U , h_custmark-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_custmark-2 ).
-
-       /* Links to SmartViewer h_cust-cnt. */
-       RUN add-link IN adm-broker-hdl ( h_cust , 'Record':U , h_cust-cnt ).
-
+       
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_cust-6 ,
              h_folder , 'AFTER':U ).
