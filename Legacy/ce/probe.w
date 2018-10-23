@@ -2459,6 +2459,7 @@ PROCEDURE local-enable-fields :
 
   DO WITH FRAME {&FRAME-NAME}:
     probe.do-quote:SCREEN-VALUE IN BROWSE {&browse-name} = "Y".
+    APPLY "entry" TO probe.gross-profit.
   END.
 
 END PROCEDURE.
