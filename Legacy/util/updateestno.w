@@ -793,22 +793,6 @@ PROCEDURE replace-est-proc :
    END.
 
    FOR EACH reftable WHERE
-       reftable.reftable EQ "ce/v-est3.w Unit#" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ new_est:
-
-       DELETE reftable.
-   END.
-
-   FOR EACH reftable WHERE
-       reftable.reftable EQ "ce/v-est3.w Unit#" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ begin_est:
-
-       reftable.loc = NEW_est.
-   END.
-
-   FOR EACH reftable WHERE
        reftable.reftable EQ "cedepth" AND
        reftable.company  EQ cocode AND
        reftable.loc      EQ new_est:

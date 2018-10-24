@@ -3462,6 +3462,46 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
     END METHOD. /*Blank*/
+    METHOD PUBLIC INTEGER CevEst3(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER eb  FOR eb.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF eb.
+        ASSIGN iProcessCount = 0.
+        FOR EACH reftable WHERE reftable.reftable = "ce/v-est3.w Unit#"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST eb WHERE eb.company     = reftable.company
+                                AND eb.est-no      = reftable.loc
+                                AND eb.form-no     = int(reftable.code2)
+                                AND eb.blank-no    = int(reftable.code2)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE eb THEN DO:   
+                    DO i = 1 to 20: 
+                        IF eb.side[i] EQ "" THEN ASSIGN eb.side[i] = reftable.dscr.
+                        IF eb.unitNo[i] EQ 0 THEN ASSIGN eb.unitNo[i] = reftable.val[i].                                      
+                    END.
+                    ASSIGN iProcessCount = iProcessCount + 1.  
+                END.
+                FIND CURRENT eb NO-LOCK NO-ERROR.    
+                RELEASE eb.      
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/          
+        RETURN iCnt.
+    END METHOD. /*CeVest*/
 END CLASS.
 
 

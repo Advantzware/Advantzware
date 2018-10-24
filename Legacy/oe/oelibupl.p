@@ -4197,16 +4197,6 @@ PROCEDURE upd-new-tandem :
           AND itemfg-ink.i-no    EQ eb.stock-no:
           DELETE itemfg-ink.
         END.
-        DO li = 1 TO 2:
-          FOR EACH b-Unit#
-            WHERE b-Unit#.reftable EQ "ce/v-est3.w Unit#" + TRIM(STRING(li - 1,">"))
-            AND b-Unit#.company  EQ eb.company
-            AND b-Unit#.loc      EQ eb.est-no
-            AND b-Unit#.CODE     EQ STRING(eb.form-no,"9999999999")
-            AND b-Unit#.code2    EQ STRING(eb.blank-no,"9999999999"):
-            DELETE b-Unit#.
-          END.
-        END.
         FIND FIRST xest
         WHERE xest.company EQ eb.company
         AND xest.est-no  EQ eb.master-est-no

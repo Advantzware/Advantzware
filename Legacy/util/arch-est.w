@@ -1134,21 +1134,6 @@ if v-process then do:
     END.
 
     FOR EACH reftable WHERE
-        reftable.reftable BEGINS "ce/v-est3.w Unit#" AND
-        reftable.company  EQ est.company AND
-        reftable.loc      EQ est.est-no
-        EXCLUSIVE WITH FRAME f-v-est3:
-
-        if archive then do:
-           output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
-           export reftable.
-           output close.
-        end.
-
-        delete reftable.
-    END.
-
-    FOR EACH reftable WHERE
         reftable.reftable EQ "cedepth" AND
         reftable.company  EQ est.company AND
         reftable.loc      EQ est.est-no

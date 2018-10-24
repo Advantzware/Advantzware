@@ -879,16 +879,9 @@ FOR EACH job-hdr NO-LOCK
                       ).
       END. /* avail stype */
       
-      FIND FIRST reftable NO-LOCK
-           WHERE reftable.reftable EQ 'ce/v-est3.w Unit#'
-             AND reftable.company EQ eb.company
-             AND reftable.loc EQ eb.est-no
-             AND reftable.code EQ STRING(eb.form-no,'9999999999')
-             AND reftable.code2 EQ STRING(eb.blank-no,'9999999999') NO-ERROR.
-      IF AVAILABLE reftable THEN
       DO i = 1 TO 10:
-        IF reftable.val[i] GE 1 AND reftable.val[i] LE 10 THEN
-        userField[INTEGER(reftable.val[i]) + 40] = setUserField(INTEGER(reftable.val[i]) + 40,eb.i-dscr2[i]).
+        IF eb.unitNo[i] GE 1 AND eb.unitNo[i] LE 10 THEN
+        userField[eb.unitNo[i] + 40] = setUserField(eb.unitNo[i] + 40,eb.i-dscr2[i]). 
         unitFound = YES.
       END. /* do i */
     END. /* avail eb */
@@ -1178,7 +1171,8 @@ FOR EACH job-hdr NO-LOCK
               AND sbNote.frm EQ job-mch.frm
             :
           IF traceON THEN
-          PUT UNFORMATTED reftable.dscr AT 20 SKIP.
+/*          PUT UNFORMATTED reftable.dscr AT 20 SKIP.*/
+          PUT UNFORMATTED eb.side AT 20 SKIP. 
           {{&exports}/jobNotes.i &streamName=sJobNotes
             &jobRowID=ENTRY(2,strRowID)
             &noteDate=sbNote.noteDate

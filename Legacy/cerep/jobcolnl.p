@@ -696,14 +696,7 @@ FOR EACH job-hdr NO-LOCK
               STRING(ef.trim-l).
           END.
 
-          FIND FIRST ref-side NO-LOCK WHERE
-               ref-side.reftable EQ "ce/v-est3.w Unit#"  AND
-               ref-side.company  EQ eb.company AND
-               ref-side.loc      EQ eb.est-no AND
-               ref-side.code     EQ STRING(eb.form-no,"9999999999") AND
-               ref-side.code2    EQ STRING(eb.blank-no,"9999999999")
-               NO-ERROR.
-
+          
           /** BUILD INK WORK FILE **/
           FOR EACH job-mat NO-LOCK
               WHERE job-mat.company EQ cocode
@@ -732,28 +725,9 @@ FOR EACH job-hdr NO-LOCK
                    wrk-ink.i-dscr   = eb.i-dscr2[i]
                    wrk-ink.i-pass   = eb.i-ps2[i].
 
-                  IF i LE 12 THEN DO:
-                    FIND FIRST ref-side NO-LOCK WHERE
-                      ref-side.reftable EQ "ce/v-est3.w Unit#"  AND
-                      ref-side.company  EQ eb.company AND
-                      ref-side.loc      EQ eb.est-no AND
-                      ref-side.code     EQ STRING(eb.form-no,"9999999999") AND
-                      ref-side.code2    EQ STRING(eb.blank-no,"9999999999")
-                      NO-ERROR.
-                    IF AVAILABLE ref-side THEN
-                        wrk-ink.i-side = FILL(" ",5) + SUBSTRING(ref-side.dscr,i,1).
-                  END.
-                  ELSE DO:
-                      FIND FIRST ref-side NO-LOCK WHERE
-                          ref-side.reftable EQ "ce/v-est3.w Unit#1"  AND
-                          ref-side.company  EQ eb.company AND
-                          ref-side.loc      EQ eb.est-no AND
-                          ref-side.code     EQ STRING(eb.form-no,"9999999999") AND
-                          ref-side.code2    EQ STRING(eb.blank-no,"9999999999")
-                          NO-ERROR.
-                       IF AVAILABLE ref-side THEN
-                     wrk-ink.i-side = FILL(" ",5) + SUBSTRING(ref-side.dscr,i - 12,1).
-                  END.                                                                
+                  IF i LE 12 THEN DO:                   
+                    wrk-ink.i-side = FILL(" ",5) + SUBSTRING(eb.side[i],1).                  
+                  END.                                                              
                  
                 END.
               END.

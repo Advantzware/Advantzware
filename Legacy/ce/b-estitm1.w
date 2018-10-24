@@ -2112,8 +2112,7 @@ PROCEDURE calc-pass :
          IF counter > (eb.i-pass) THEN counter = eb.i-pass.         
       END.
 
-      {ce/updunit#.i bf-eb 0}
-      {ce/updunit#.i bf-eb 1}
+      {ce/updunit#.i bf-eb}
 
 END PROCEDURE.
 
@@ -3758,8 +3757,7 @@ PROCEDURE local-assign-record :
          eb.i-%2[li]    = inks.pc[1].
     END.
 
-    {ce/updunit#.i eb 0}
-    {ce/updunit#.i eb 1}
+    {ce/updunit#.i eb}
   END.
 
   IF est.est-type GT 1                           AND
