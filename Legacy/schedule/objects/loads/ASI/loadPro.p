@@ -620,7 +620,7 @@ FOR EACH job-hdr NO-LOCK
     ASSIGN
       altResSeq = job-mch.line
       customVal = ''
-      dimFormat = '>>9.99999'
+      dimFormat = '>>>9.99999'
       dueDate = IF job.due-date NE ? THEN job.due-date ELSE {{&includes}/lastDate.i}
       jobSort = job-mch.job-no + '-'
               + STRING(job-mch.job-no2,'99')
