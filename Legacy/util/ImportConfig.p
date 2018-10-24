@@ -35,6 +35,8 @@ DEFINE TEMP-TABLE ttImportConfig
     FIELD cLogicalVal     AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Logical Value" HELP "Optional - Size:3"
     FIELD cLogicalValDef  AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Logical Value - Default" HELP "Optional - Size:3"
     FIELD cLogicalValDesc AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Logical Value - Description" HELP "Optional - Size:30"
+    FIELD iSecLevUser     AS INTEGER   FORMAT ">>>9" COLUMN-LABEL "User Security Level" HELP "Optional - Integer"
+    FIELD iSecUserDef     AS INTEGER   FORMAT ">>>9" COLUMN-LABEL "User Security Level - Default" HELP "Optional - Integer"
     
     .
 
@@ -62,6 +64,8 @@ PROCEDURE pValidate PRIVATE:
 
     DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuperAdmin      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE hPgmMstrSecur    AS HANDLE    NO-UNDO.
 
     RUN util/Validate.p PERSISTENT SET hdValidator.
     
@@ -81,6 +85,49 @@ PROCEDURE pValidate PRIVATE:
                 oplValid = NO
                 opcNote  = "Key Field Blank: Config Name".
     END.
+    RUN system/PgmMstrSecur.p PERSISTENT SET hPgmMstrSecur.
+    IF VALID-HANDLE(hPgmMstrSecur) THEN
+    RUN epCanAccess IN hPgmMstrSecur (
+      "system/sys-ctrl.w",
+      "SuperAdmin",
+      OUTPUT lSuperAdmin
+      ).
+
+    FIND FIRST sys-ctrl EXCLUSIVE-LOCK
+        WHERE sys-ctrl.company EQ ipbf-ttImportConfig.Company
+        AND sys-ctrl.name EQ ipbf-ttImportConfig.cConfigName
+        NO-ERROR.
+    IF AVAIL sys-ctrl AND NOT lSuperAdmin THEN DO:
+        IF ipbf-ttImportConfig.cCharValDef NE sys-ctrl.char_field_default
+            OR ipbf-ttImportConfig.dtDateValDef NE sys-ctrl.date-fld_default 
+            OR ipbf-ttImportConfig.dDecimalValDef NE sys-ctrl.dec-fld_default
+            OR ipbf-ttImportConfig.iIntegerValDef NE sys-ctrl.int-fld_default
+            OR ipbf-ttImportConfig.cLogicalValDef NE string(sys-ctrl.log-fld_default)
+            OR ipbf-ttImportConfig.iSecUserDef NE sys-ctrl.securityLevelDefault
+            OR ipbf-ttImportConfig.iSecLevUser NE sys-ctrl.securityLevelUser  THEN DO:
+
+                ASSIGN 
+                oplValid = NO
+                opcNote  = "System Defaults are limited to ASI changes, only importing company specific settings".
+        END.
+        
+    END.
+    ELSE IF NOT lSuperAdmin THEN  DO:
+        FIND FIRST users NO-LOCK
+            WHERE  users.user_id EQ USERID(LDBNAME(1)) 
+            NO-ERROR.
+        IF AVAIL users THEN DO: 
+            IF ipbf-ttImportConfig.iSecLevUser GT users.securityLevel
+                OR ipbf-ttImportConfig.iSecUserDef GT users.securityLevel THEN DO:
+                
+                ASSIGN 
+                    oplValid = NO
+                    opcNote  = "User sec. level can not be greater than " + string(users.securityLevel) .
+            END.
+        END.
+    
+    END.
+
     IF oplValid THEN 
     DO:
         FIND FIRST sys-ctrl NO-LOCK 
@@ -157,6 +204,8 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueCToL (ipbf-ttImportConfig.cLogicalVal, "YES", iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.log-fld).
     RUN pAssignValueCToL (ipbf-ttImportConfig.cLogicalValDef, "YES", iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.log-fld_default).
     RUN pAssignValueC (ipbf-ttImportConfig.cLogicalValDesc, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.log-fld_descrip).
+    RUN pAssignValueI (ipbf-ttImportConfig.iSecLevUser, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.securityLevelUser).
+    RUN pAssignValueI (ipbf-ttImportConfig.iSecUserDef, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.securityLevelDefault).
     .
 
 END PROCEDURE.

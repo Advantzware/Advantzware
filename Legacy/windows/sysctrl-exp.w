@@ -63,15 +63,15 @@ DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN 
     cTextListToSelect  = "Config Name,Config Description,Category,Sub-category,Module,Allows Context,Character Value,Character Value - Default,Character Value - Description,Date Value,Date Value - Default,Date Value - Description," +
-                          "Decimal Value,Decimal Value - Default,Decimal Value - Description,Integer Value,Integer Value - Default,Integer Value - Description,Logical Value,Logical Value - Default,Logical Value - Description"
+                          "Decimal Value,Decimal Value - Default,Decimal Value - Description,Integer Value,Integer Value - Default,Integer Value - Description,Logical Value,Logical Value - Default,Logical Value - Description,User Sec Level,User Sec Lev - Default"
                            
     cFieldListToSelect = "name,descrip,category,subCategory,module,allowsContext,char-fld,char_field_default,char-fld_descrip,date-fld,date-fld_default,date-fld_descrip," + 
-                          "dec-fld,dec-fld_default,dec-fld_descrip,int-fld,int-fld_default,int-fld_descrip,log-fld,log-fld_default,log-fld_descrip".
+                          "dec-fld,dec-fld_default,dec-fld_descrip,int-fld,int-fld_default,int-fld_descrip,log-fld,log-fld_default,log-fld_descrip,securityLevelUser,securityLevelDefault".
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
     cTextListToDefault = "Config Name,Config Description,Category,Sub-category,Module,Allows Context,Character Value,Character Value - Default,Character Value - Description,Date Value,Date Value - Default,Date Value - Description," +
-                          "Decimal Value,Decimal Value - Default,Decimal Value - Description,Integer Value,Integer Value - Default,Integer Value - Description,Logical Value,Logical Value - Default,Logical Value - Description".
+                          "Decimal Value,Decimal Value - Default,Decimal Value - Description,Integer Value,Integer Value - Default,Integer Value - Description,Logical Value,Logical Value - Default,Logical Value - Description,User Sec Level,User Sec Lev - Default".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -828,11 +828,16 @@ PROCEDURE run-report :
     IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
     IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 
+    FIND FIRST users NO-LOCK
+            WHERE  users.user_id EQ USERID(LDBNAME(1)) 
+            NO-ERROR.
+
     FOR EACH b-sys-ctrl WHERE b-sys-ctrl.company = cocode
         AND b-sys-ctrl.NAME GE begin_name
         AND b-sys-ctrl.NAME LE end_name
         AND b-sys-ctrl.module GE begin_mod
         AND b-sys-ctrl.module LE end_mod
+        AND b-sys-ctrl.securityLevelUser LE users.securityLevel
         NO-LOCK:
 
         v-excel-detail-lines = "".
