@@ -50,7 +50,7 @@ DEF TEMP-TABLE tt-ei NO-UNDO
     FIELD run-cost AS DECIMAL DECIMALS 4 EXTENT 20.
 
 DEFINE NEW SHARED VARIABLE cCEBrowseBaseDir AS CHARACTER NO-UNDO.    
-RUN est/EstimateProcs.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+RUN est/EstimateProcsOld.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
 
 {ce/print42p.i}
 

@@ -186,7 +186,7 @@ END.
   v-cestcalc = sys-ctrl.char-fld.
 
 
-RUN est/EstimateProcs.p (cocode, OUTPUT cCEBrowseBaseDir, OUTPUT tmp-dir ).
+RUN est/EstimateProcsOld.p (cocode, OUTPUT cCEBrowseBaseDir, OUTPUT tmp-dir ).
 
 lv-cebrowse-dir = tmp-dir.
 
@@ -3588,7 +3588,7 @@ PROCEDURE run-whatif :
     RETURN.
    END.
   END.
-  RUN est/EstimateProcs.p (est.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+  RUN est/EstimateProcsOld.p (est.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
   lv-cebrowse-dir = tmp-dir.
   RUN est\CostResetHeaders.p(?,?).
   IF est.est-type EQ 8 THEN

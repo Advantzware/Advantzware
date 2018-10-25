@@ -91,7 +91,7 @@ END.
 {cec/get-vend.i}  /* get vendor number */
 
 DEFINE NEW SHARED VARIABLE cCEBrowseBaseDir AS CHARACTER NO-UNDO.    
-RUN est/EstimateProcs.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+RUN est/EstimateProcsOld.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
 
 find first xef where xef.company = xest.company 
                  AND xef.est-no = xest.est-no.              
