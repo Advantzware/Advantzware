@@ -93,7 +93,7 @@ PROCEDURE pValidate PRIVATE:
       OUTPUT lSuperAdmin
       ).
 
-    FIND FIRST sys-ctrl EXCLUSIVE-LOCK
+    FIND FIRST sys-ctrl NO-LOCK
         WHERE sys-ctrl.company EQ ipbf-ttImportConfig.Company
         AND sys-ctrl.name EQ ipbf-ttImportConfig.cConfigName
         NO-ERROR.
