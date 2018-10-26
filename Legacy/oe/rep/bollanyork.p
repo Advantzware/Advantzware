@@ -513,60 +513,35 @@ END PROCEDURE.
 PROCEDURE get_lot_no:
     ASSIGN 
         v-lot# = "".
-    
-    IF tt-boll.job-no NE "" THEN 
-    DO:
-        RELEASE reftable.
 
-        FIND FIRST job NO-LOCK
-            WHERE job.company EQ tt-boll.company
-            AND job.job-no  EQ tt-boll.job-no
-            AND job.job-no2 EQ tt-boll.job-no2 NO-ERROR.
-        IF AVAILABLE job THEN
-            FIND FIRST reftable NO-LOCK
-                WHERE reftable.reftable EQ "jc/jc-calc.p"
-                AND reftable.company  EQ job.company
-                AND reftable.loc      EQ ""
-                AND reftable.code     EQ STRING(job.job,"999999999")
-                AND reftable.code2    EQ tt-boll.i-no
-                USE-INDEX reftable NO-ERROR.
-        IF NOT AVAILABLE reftable THEN
-            FIND FIRST job-hdr NO-LOCK
-                WHERE job-hdr.company EQ tt-boll.company
-                AND job-hdr.job-no  EQ tt-boll.job-no
-                AND job-hdr.job-no2 EQ tt-boll.job-no2
-                AND job-hdr.i-no    EQ tt-boll.i-no NO-ERROR.
+    IF tt-boll.lot-code NE "" THEN
+        v-lot# = tt-boll.lot-code.
+    ELSE DO:
+        IF tt-boll.job-no NE "" THEN 
+        DO:  
+            FOR EACH fg-rcpth NO-LOCK
+                WHERE fg-rcpth.company      EQ tt-boll.company
+                AND fg-rcpth.i-no         EQ tt-boll.i-no
+                AND fg-rcpth.job-no       EQ tt-boll.job-no
+                AND fg-rcpth.job-no2      EQ tt-boll.job-no2
+                USE-INDEX tran,
 
-        IF AVAILABLE reftable OR AVAILABLE job-hdr THEN
-            FOR EACH rm-rcpth NO-LOCK
-                WHERE rm-rcpth.company   EQ tt-boll.company
-                AND rm-rcpth.job-no    EQ tt-boll.job-no
-                AND rm-rcpth.job-no2   EQ tt-boll.job-no2
-                AND rm-rcpth.rita-code EQ "I" USE-INDEX job,
-                EACH rm-rdtlh NO-LOCK
-                WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
-                AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
-                AND rm-rdtlh.s-num     EQ (IF AVAILABLE reftable 
-                THEN reftable.val[12]
-                ELSE job-hdr.frm)
-                AND rm-rdtlh.tag       NE "",
-                EACH b-rd NO-LOCK
-                WHERE b-rd.company   EQ rm-rdtlh.company
-                AND b-rd.tag       EQ rm-rdtlh.tag
-                AND b-rd.loc       EQ rm-rdtlh.loc
-                AND b-rd.loc-bin   EQ rm-rdtlh.loc-bin
-                AND b-rd.rita-code EQ "R"
-                AND b-rd.tag2      NE "" USE-INDEX tag,
-                FIRST b-rh NO-LOCK
-                WHERE b-rh.r-no      EQ b-rd.r-no
-                AND b-rh.rita-code EQ b-rd.rita-code
-                AND b-rh.i-no      EQ rm-rcpth.i-no:
+                EACH fg-rdtlh NO-LOCK
+                WHERE fg-rdtlh.r-no         EQ fg-rcpth.r-no
+                AND fg-rdtlh.stack-code     NE ""
+                AND fg-rdtlh.rita-code    EQ "R"
+                USE-INDEX rm-rdtl
 
-                v-lot# = b-rd.tag2.                
-                    
-            END. /* for each */
+                BREAK BY fg-rcpth.trans-date
+                      BY fg-rdtlh.trans-time
+                      BY fg-rcpth.r-no:
+                v-lot# = fg-rdtlh.stack-code.
+                LEAVE.
+            END.
+        END.
+    END.
 
-    END. /* get lot # */
+   
 END PROCEDURE.
 
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */
