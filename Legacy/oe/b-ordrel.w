@@ -5648,14 +5648,20 @@ PROCEDURE valid-s-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
-  DO WITH FRAME {&FRAME-NAME}:
-    IF LOOKUP(oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name},lv-s-codes) LE 0 THEN DO:
-      MESSAGE "Invalid " + TRIM(oe-rel.s-code:LABEL IN BROWSE {&browse-name}) +
-              ", try help..." VIEW-AS ALERT-BOX.
-      APPLY "entry" TO oe-rel.s-code IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
+  DEFINE VARIABLE csCodeScreenVal AS CHARACTER NO-UNDO.
+ 
+    DO WITH FRAME {&FRAME-NAME}:
+      csCodeScreenVal =oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name}.
+      /* Screen value for this cell may return a blank in error */
+      IF csCodeScreenVal EQ "" AND AVAILABLE oe-rel THEN 
+        csCodeScreenVal = oe-rel.s-code.
+      IF LOOKUP(csCodeScreenVal,lv-s-codes) LE 0 
+      THEN DO:
+          MESSAGE "Invalid " + TRIM(oe-rel.s-code:LABEL IN BROWSE {&browse-name}) +
+                  ", try help..." VIEW-AS ALERT-BOX.
+          APPLY "entry" TO oe-rel.s-code IN BROWSE {&browse-name}.
+          RETURN ERROR.
+      END.
   END.
 
 END PROCEDURE.
