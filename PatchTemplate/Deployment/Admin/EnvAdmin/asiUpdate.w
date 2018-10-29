@@ -769,7 +769,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         iCurrEnvVer         = fIntVer(fiFromVersion:{&SV})
         iCurrDbVer          = fIntVer(ENTRY(iIndex,cDBVerList))
         .
-        
+
     RUN ipGetPatchList (0).
 
     ASSIGN
@@ -1327,7 +1327,7 @@ PROCEDURE ipProcess :
         RUN ipStatus("Invalid credentials.  Abort.").
         QUIT.
     END.
-        
+
     IF iCurrDbVer LT iPatchDbVer
     OR iCurrEnvVer = 16070000 THEN DO:
                 
@@ -1830,7 +1830,7 @@ FUNCTION fIntVer RETURNS INTEGER
     ASSIGN
         cStrVal[1] = ENTRY(1,cVerString,".")
         cStrVal[2] = ENTRY(2,cVerString,".")
-        cStrVal[3] = ENTRY(3,cVerString,".")
+        cStrVal[3] = IF NUM-ENTRIES(cVerString,".") GT 2 THEN ENTRY(3,cVerString,".") ELSE "0"
         cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GT 3 THEN ENTRY(4,cVerString,".") ELSE "0"
         iIntVal[1] = INT(cStrVal[1])
         iIntVal[2] = INT(cStrVal[2])

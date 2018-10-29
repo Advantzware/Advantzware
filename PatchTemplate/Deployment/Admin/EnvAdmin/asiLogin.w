@@ -785,7 +785,7 @@ PROCEDURE ipAutoLogin :
       .   
   
   RUN ipFindUser.
-      
+
   if avail ttUsers then do:
   assign
               cEnvironmentList = IF cValidEnvs <> "" THEN cValidEnvs ELSE IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE cEnvList
@@ -1378,7 +1378,7 @@ PROCEDURE ipFindUser :
         ttUsers.ttfPdbName = "*"
         NO-ERROR.
         
-       
+     
          
     /* If this has not yet been built, build off of any DB */
     IF NOT AVAIL ttUsers THEN DO:
@@ -1417,7 +1417,7 @@ PROCEDURE ipFindUser :
         ttUsers.ttfUserID = cUserID AND
         ttUsers.ttfPdbName = cbDatabase:{&SV}
         NO-ERROR.
-
+       
     /* Can't find by DB, is there a generic one? (db = '*') */
     IF NOT AVAIL ttUsers THEN DO:
         FIND FIRST ttUsers NO-LOCK WHERE

@@ -2494,7 +2494,7 @@ PROCEDURE ipExpandFiles :
 
     ASSIGN 
         cThisEntry = fiEnvironment:{&SV}
-        cTgtEnv = cMapDir + "\" + cEnvDir + "\" + fiEnvironment:{&SV}.
+        cTgtEnv = cEnvDir + "\" + fiEnvironment:{&SV}.
 
     RUN ipStatus ("  Expanding files...").
 
@@ -2509,7 +2509,9 @@ PROCEDURE ipExpandFiles :
     OS-COMMAND SILENT VALUE(cCmdLine3).
 
     /* Skip the copy part, just MOVE the files  */
-    RUN ipStatus ("  Moving expanded files from Patch to " + cThisEntry + " temp directory").
+    RUN ipStatus ("  Moving expanded files from ").
+    RUN ipStatus ("    " + cUpdProgramDir + " to").
+    RUN ipStatus ("    " + cTgtEnv).
     OS-RENAME VALUE(cUpdProgramDir + "\Override") VALUE(cTgtEnv + "\OverrideN").
     OS-RENAME VALUE(cUpdProgramDir + "\Programs") VALUE(cTgtEnv + "\ProgramsN").
     OS-RENAME VALUE(cUpdProgramDir + "\Resources") VALUE(cTgtEnv + "\ResourcesN").
