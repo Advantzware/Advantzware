@@ -541,6 +541,36 @@ PROCEDURE get_lot_no:
         END.
     END.
 
+    IF v-lot# EQ "" THEN DO:
+
+         FIND FIRST oe-ordl NO-LOCK
+            WHERE oe-ordl.company EQ cocode
+            AND oe-ordl.ord-no  EQ tt-boll.ord-no
+            AND oe-ordl.i-no    EQ tt-boll.i-no
+            AND oe-ordl.line    EQ tt-boll.line
+            NO-ERROR.
+
+        IF AVAIL oe-ordl THEN
+            FOR EACH fg-rcpth NO-LOCK
+               where fg-rcpth.company EQ cocode
+                 and fg-rcpth.i-no    EQ tt-boll.i-no
+                 and fg-rcpth.po-no   EQ string(oe-ordl.po-no-po)
+                 use-index i-no,
+               first fg-rdtlh NO-LOCK
+               where fg-rdtlh.r-no         EQ fg-rcpth.r-no 
+                 AND fg-rdtlh.tag          eq tt-boll.tag
+                 use-index rm-rdtl
+               by fg-rcpth.trans-date
+               BY fg-rdtlh.trans-time
+               by fg-rcpth.r-no:
+                
+                ASSIGN v-lot# = fg-rdtlh.stack-code. /* fg lot# */
+                LEAVE.
+            END.
+
+
+    END.
+
    
 END PROCEDURE.
 
