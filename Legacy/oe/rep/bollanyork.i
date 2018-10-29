@@ -24,7 +24,6 @@ FOR EACH tt-boll,
     END.
     ELSE 
     DO:   
-        RUN get_lot_no.   
         FIND FIRST oe-ordl
             WHERE oe-ordl.company EQ cocode
             AND oe-ordl.ord-no  EQ tt-boll.ord-no
@@ -141,7 +140,6 @@ FOR EACH tt-boll,
 
             DELETE w2.    
         END. /* each w2 */
-        RUN get_lot_no.   
         IF i < 4 THEN
         DO i = i + 1 TO 4:
             /*clear frame bol-mid2 no-pause.*/
@@ -172,7 +170,7 @@ FOR EACH tt-boll,
                 v-job-po = IF tt-boll.job-no EQ "" THEN "" ELSE
                     (TRIM(tt-boll.job-no) + "-" + string(tt-boll.job-no2,"99"))                 .
 
-            IF v-part-dscr NE "" OR v-job-po NE "" OR i LE 2 THEN 
+            IF v-part-dscr NE "" OR v-job-po NE "" OR i LE 2 OR v-lot# NE "" THEN 
             DO:
                 IF v-printline >= 48 THEN 
                 DO:
@@ -180,9 +178,9 @@ FOR EACH tt-boll,
                     PAGE {1}.
                     {oe/rep/bollanyork2.i}
                 END.
-                PUT
-                    "<C48>" v-lot#
-                    "<C61>" v-part-dscr FORMAT "x(23)" SKIP.
+                    IF i = 2 THEN
+                        PUT "<C48>" v-lot# FORMAT "x(20)".
+                   PUT "<C61>" v-part-dscr FORMAT "x(23)" SKIP.
                 v-printline = v-printline + 1.
             END.
         END.

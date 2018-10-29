@@ -79,7 +79,7 @@ DO:
         IF w2.qty = 0 AND w2.i-no = "" AND w2.dscr = "" AND w2.cas-cnt = 0 THEN DELETE w2.
     END.
     i = 0.
-    RUN get_lot_no. 
+   
     FOR EACH w2  BREAK BY w2.cases DESCENDING:
         FIND FIRST bf-ttboll WHERE RECID(bf-ttboll) = w2.rec-id NO-LOCK NO-ERROR.    
         i = i + 1.
@@ -134,6 +134,8 @@ DO:
             .
             IF i EQ 1 THEN
                 PUT "<C48>"  oe-ordl.ord-no .
+            IF i EQ 2 THEN
+            PUT "<C48>" v-lot# FORMAT "x(20)".
             PUT "<C61>" w2.dscr FORMAT "x(23)" SKIP.
             v-printline = v-printline + 1.
         END.
