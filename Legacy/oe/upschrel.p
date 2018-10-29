@@ -22,6 +22,7 @@ IF AVAIL oe-relh THEN DO:
   IF oe-rell.link-no NE 0 THEN
   FIND FIRST oe-rel
       WHERE oe-rel.r-no EQ oe-rell.link-no
+        AND oe-rel.i-no EQ oe-rell.i-no
       EXCLUSIVE-LOCK 
       USE-INDEX seq-no NO-ERROR NO-WAIT.
 
