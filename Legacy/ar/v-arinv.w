@@ -786,7 +786,7 @@ PROCEDURE local-assign-record :
   ar-inv.f-bill = ar-inv.freight GT 0.
   
   DO WITH FRAME {&FRAME-NAME}:     
-     ar-inv.spare-int-1 = (IF tbEdiInvoice:SCREEN-VALUE = "YES" THEN 1 ELSE 0).
+     ar-inv.ediInvoice = tbEdiInvoice:SCREEN-VALUE EQ "YES".
   END. 
   IF adm-adding-record THEN DO:
     FIND FIRST cust WHERE cust.company = g_company
@@ -1026,7 +1026,7 @@ PROCEDURE local-display-fields :
         NO-ERROR.
     IF AVAIL currency THEN
       ar-inv.ex-rate:SCREEN-VALUE = STRING(currency.ex-rate).
-    tbEdiInvoice:SCREEN-VALUE = (IF AVAILABLE(ar-inv) AND ar-inv.spare-int-1 = 1 THEN "YES" ELSE "NO").
+    tbEdiInvoice:SCREEN-VALUE = (IF AVAILABLE(ar-inv) AND ar-inv.ediInvoice = YES THEN "YES" ELSE "NO").
   END.
 
 END PROCEDURE.
