@@ -60,58 +60,32 @@ FIND FIRST job-hdr where job-hdr.company EQ job.company
     NO-LOCK NO-ERROR.
 
 if choice THEN  do:
-    IF AVAIL job-hdr AND job-hdr.ord-no EQ 0 THEN DO:
-        RUN est-qty-eq-job (INPUT RECID(job), OUTPUT lvlQtySame).
-        ll = NO.
-        IF NOT lvlQtySame THEN DO:
-            MESSAGE "Use quantity from job? (NO for quantity from estimate)"
-                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO-CANCEL UPDATE ll.
-            IF ll = ? THEN
-               RETURN NO-APPLY.
-        END.
-         gvlUseJobQty = ll.
-         DEFINE VARIABLE hProc AS HANDLE NO-UNDO.
-         hProc = SESSION:FIRST-PROCEDURE.
-         DO WHILE VALID-HANDLE(hProc):
-            IF index(hProc:FILE-NAME, "v-job") GT 0 THEN
-                LEAVE. /* found it. */
-            hProc = hProc:NEXT-SIBLING.
-         END.
-        
-        
-         IF VALID-HANDLE(hProc) THEN DO:
-            RUN setUseJobQty IN hProc (INPUT gvlUseJobQty).
-         END.
-    END.
+  RUN ipProcessJobQty (BUFFER job, BUFFER job-hdr).
 
   SESSION:SET-WAIT-STATE("general").
 
-  if job.est-no eq "" then do:
-    find first job-hdr
-        where job-hdr.company eq cocode
-          and job-hdr.job     eq job.job
-        no-lock no-error.
-    if avail job-hdr then do:
-      find bf-job where recid(bf-job) eq recid(job) no-error.
-      if avail bf-job then bf-job.est-no = job-hdr.est-no.
-    end.
-  end.
+  RUN ipSetEstNo (BUFFER job).
     
   assign
    nufile   = yes
    hld-stat = job.stat.
-        
-  run jc/jc-calc.p (recid(job), YES).
+
+  RUN ipProcessRecalc (BUFFER job).
 
   fil_id = RECID(job).
   RUN po/doPo.p (YES) /* Yes Indicates to prompt for RM */.
 
   nufile = no.
-       
-  if hld-stat ne "P" then job.stat = hld-stat.
+  RUN ipSetJobHldStat (BUFFER job).
+  
     
   SESSION:SET-WAIT-STATE("").
 END.
+
+
+
+/* **********************  Internal Procedures  *********************** */
+
 
 PROCEDURE est-qty-eq-job:
 /* To determine if the estimate qty is same as the job qty - may not have */
@@ -212,4 +186,87 @@ ASSIGN
 
  oplSameQty = lvlSameQty.
 
+END PROCEDURE.
+
+PROCEDURE ipProcessJobQty:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER bf-job FOR job.
+    DEFINE PARAMETER BUFFER bf-job-hdr FOR job-hdr.
+    
+    IF AVAIL bf-job-hdr AND bf-job-hdr.ord-no EQ 0 THEN 
+    DO:
+        RUN est-qty-eq-job (INPUT RECID(bf-job), OUTPUT lvlQtySame).
+        ll = NO.
+        IF NOT lvlQtySame THEN 
+        DO:
+            MESSAGE "Use quantity from job? (NO for quantity from estimate)"
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO-CANCEL UPDATE ll.
+            IF ll = ? THEN
+                RETURN NO-APPLY.
+        END.
+        gvlUseJobQty = ll.
+        DEFINE VARIABLE hProc AS HANDLE NO-UNDO.
+        hProc = SESSION:FIRST-PROCEDURE.
+        DO WHILE VALID-HANDLE(hProc):
+            IF index(hProc:FILE-NAME, "v-job") GT 0 THEN
+                LEAVE. /* found it. */
+            hProc = hProc:NEXT-SIBLING.
+        END.
+        
+        
+        IF VALID-HANDLE(hProc) THEN 
+        DO:
+            RUN setUseJobQty IN hProc (INPUT gvlUseJobQty).
+        END.
+    END.
+
+END PROCEDURE.
+
+PROCEDURE ipProcessRecalc:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER bf-job FOR job.
+    RUN jc/jc-calc.p (recid(bf-job), YES).
+    
+END PROCEDURE.
+
+PROCEDURE ipSetEstNo:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER bf-job FOR job.
+    DEFINE BUFFER bf2-job FOR job.
+    if bf-job.est-no eq "" then 
+    do:
+        find first job-hdr
+            where job-hdr.company eq cocode
+            and job-hdr.job     eq bf-job.job
+            no-lock no-error.
+        if avail job-hdr then 
+        do:
+            find bf2-job where recid(bf2-job) eq recid(bf-job) no-error.
+            if avail bf2-job then bf2-job.est-no = job-hdr.est-no.
+        end.
+    end.
+
+END PROCEDURE.
+
+PROCEDURE ipSetJobHldStat:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER bf-job FOR job.
+
+    IF AVAILABLE bf-job THEN DO:
+      FIND CURRENT bf-job EXCLUSIVE-LOCK.
+      if hld-stat ne "P" then bf-job.stat = hld-stat.
+      FIND CURRENT bf-job NO-LOCK. 
+    END.
 END PROCEDURE.
