@@ -291,8 +291,9 @@ DEFINE BUTTON btnCalendar-2
     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON Btn_Cancel 
+    IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
     LABEL "Cancel" 
-    SIZE 15 BY 1.14
+    SIZE 8 BY 1.91
     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT 
@@ -301,17 +302,20 @@ DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT
     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
+    IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
     LABEL "&Save" 
-    SIZE 15 BY 1.14
+    SIZE 8 BY 1.91
     BGCOLOR 8 .
 
 DEFINE RECTANGLE RECT-21
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 143.8 BY 3.
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL ROUNDED  
+    SIZE 19 BY 2.38
+    BGCOLOR 15.
 
 DEFINE RECTANGLE RECT-38
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 143.8 BY 12.86.
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED
+    SIZE 143.8 BY 12.86
+    BGCOLOR 15.
 
 DEFINE VARIABLE fi_discount AS DECIMAL FORMAT ">>>,>>9.99":U 
     LABEL "Discount" 
@@ -342,14 +346,17 @@ DEFINE FRAME Dialog-Frame
     "T-Transfer","T"
     DROP-DOWN-LIST
     SIZE 20 BY 1
+    BGCOLOR 15 FONT 1
     tt-report.opened AT ROW 2.43 COL 20 COLON-ALIGNED
     LABEL "Prt" FORMAT "Y/N"
     VIEW-AS FILL-IN 
     SIZE 20 BY 1
+    BGCOLOR 15 FONT 1
     oe-rel.ship-id AT ROW 2.43 COL 106.2 COLON-ALIGNED
     LABEL "Ship To" FORMAT "x(8)"
     VIEW-AS FILL-IN 
     SIZE 24 BY 1
+    BGCOLOR 15 FONT 1
     oe-rel.stat AT ROW 3.57 COL 20 COLON-ALIGNED
     VIEW-AS COMBO-BOX INNER-LINES 8
     LIST-ITEM-PAIRS "S-Scheduled","S",
@@ -362,10 +369,12 @@ DEFINE FRAME Dialog-Frame
     "C-Completed","C"
     DROP-DOWN-LIST
     SIZE 20 BY 1
+    BGCOLOR 15 FONT 1
     oe-rel.carrier AT ROW 3.57 COL 63 COLON-ALIGNED
     LABEL "Via" FORMAT "x(5)"
     VIEW-AS FILL-IN 
     SIZE 24 BY 1
+    BGCOLOR 15 FONT 1
     oe-rel.tot-qty AT ROW 3.57 COL 106.2 COLON-ALIGNED
     LABEL "Sched Qty" FORMAT "->>,>>>,>>9"
     VIEW-AS FILL-IN 
@@ -374,48 +383,60 @@ DEFINE FRAME Dialog-Frame
     LABEL "Actual Qty" FORMAT "->>,>>>,>>9"
     VIEW-AS FILL-IN 
     SIZE 20 BY 1
+    BGCOLOR 15 FONT 1
     tt-report.po-no AT ROW 4.71 COL 63 COLON-ALIGNED
     LABEL "Customer PO#" FORMAT "x(15)"
     VIEW-AS FILL-IN 
     SIZE 24 BY 1
+    BGCOLOR 15 FONT 1
     tt-report.lot-no AT ROW 4.71 COL 106.2 COLON-ALIGNED
     LABEL "Customer Lot #" FORMAT "x(15)"
     VIEW-AS FILL-IN 
     SIZE 24 BY 1
+    BGCOLOR 15 FONT 1
     tt-report.stat AT ROW 5.86 COL 20 COLON-ALIGNED FORMAT "99/99/9999"
     LABEL "Rel Date" 
     VIEW-AS FILL-IN 
     SIZE 15 BY 1
+    BGCOLOR 15 FONT 1
     btnCalendar-1 AT ROW 5.81 COL 37
     oe-rel.ship-addr[1] AT ROW 5.86 COL 63 COLON-ALIGNED
     LABEL "Ship To Address" FORMAT "x(26)"
     VIEW-AS FILL-IN 
     SIZE 24 BY 1
+    BGCOLOR 15 FONT 1
     oe-rel.ship-city AT ROW 5.86 COL 106.2 COLON-ALIGNED
     LABEL "City" FORMAT "x(15)"
     VIEW-AS FILL-IN 
     SIZE 24 BY 1
+    BGCOLOR 15 FONT 1
     oe-rel.ship-state AT ROW 7 COL 20 COLON-ALIGNED
     LABEL "State" FORMAT "x(15)"
     VIEW-AS FILL-IN 
     SIZE 20 BY 1
+    BGCOLOR 15 FONT 1
     tt-report.price AT ROW 7 COL 63 COLON-ALIGNED
     LABEL "Sell Price" FORMAT ">>,>>>,>>9.99<<<<"
     VIEW-AS FILL-IN 
     SIZE 24 BY 1
+    BGCOLOR 15 FONT 1
     tt-report.whsed AT ROW 7 COL 106.2 COLON-ALIGNED
     LABEL "$0" FORMAT "Y/N"
     VIEW-AS FILL-IN 
     SIZE 14 BY 1
+    BGCOLOR 15 FONT 1
     fi_discount AT ROW 8.14 COL 20 COLON-ALIGNED
+    BGCOLOR 15 FONT 1
     fi_totprice AT ROW 8.14 COL 63 COLON-ALIGNED
+    BGCOLOR 15 FONT 1
     tt-report.frt-pay AT ROW 8.14 COL 106.2 COLON-ALIGNED
     LABEL "Frt Pay" FORMAT "x(8)"
     VIEW-AS FILL-IN 
     SIZE 15 BY 1
+    BGCOLOR 15 FONT 1
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
     SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FONT 6.
+    FGCOLOR 1 FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
@@ -423,60 +444,72 @@ DEFINE FRAME Dialog-Frame
     LABEL "FOB" FORMAT "x(1)"
     VIEW-AS FILL-IN 
     SIZE 8 BY 1
+    BGCOLOR 15 FONT 1
     oe-rel.spare-char-1 AT ROW 9.29 COL 20 COLON-ALIGNED
     LABEL "Ship From" FORMAT "x(5)"
     VIEW-AS FILL-IN 
     SIZE 15 BY 1
+    BGCOLOR 15 FONT 1
     oe-rel.spare-char-2 AT ROW 9.29 COL 63 COLON-ALIGNED
     LABEL "Dt Chg Reason" FORMAT "x(30)"
     VIEW-AS FILL-IN 
     SIZE 15 BY 1
+    BGCOLOR 15 FONT 1
     oe-rel.spare-char-3 AT ROW 9.29 COL 106.2 COLON-ALIGNED
     LABEL "Dt Chg User" FORMAT "x(8)"
     VIEW-AS FILL-IN 
     SIZE 15 BY 1
+    BGCOLOR 15 FONT 1
     tt-report.q-rel AT ROW 10.43 COL 20 COLON-ALIGNED
     LABEL "Release #" FORMAT ">>>>>>9"
     VIEW-AS FILL-IN 
     SIZE 15 BY 1
+    BGCOLOR 15 FONT 1
     oe-rel.r-no AT ROW 10.43 COL 63 COLON-ALIGNED
     LABEL "Seq. #" FORMAT ">>>>>>>>9"
     VIEW-AS FILL-IN 
     SIZE 15 BY 1
+    BGCOLOR 15 FONT 1
     oe-rel.link-no AT ROW 10.43 COL 106.2 COLON-ALIGNED
     LABEL "Int. Release" FORMAT ">>>>>>>9"
     VIEW-AS FILL-IN 
     SIZE 15 BY 1
+    BGCOLOR 15 FONT 1
     tt-report.job-start-date AT ROW 11.57 COL 20 COLON-ALIGNED
     LABEL "Shp Date" FORMAT "99/99/9999"
     VIEW-AS FILL-IN 
     SIZE 15 BY 1
+    BGCOLOR 15 FONT 1
     tt-report.qty AT ROW 11.57 COL 63 COLON-ALIGNED
     LABEL "Quantity" FORMAT "->>,>>>,>>9.9<<"
     VIEW-AS FILL-IN 
     SIZE 15 BY 1
+    BGCOLOR 15 FONT 1
     tt-report.prom-date AT ROW 11.57 COL 106.2 COLON-ALIGNED FORMAT "99/99/9999"
     LABEL "Due Date" 
     VIEW-AS FILL-IN 
     SIZE 15 BY 1
+    BGCOLOR 15 FONT 1
     btnCalendar-2 AT ROW 11.57 COL 123.2
     tt-report.prom-code AT ROW 12.71 COL 63 COLON-ALIGNED
     LABEL "Due Dt Chg Usr" FORMAT "x(5)"
     VIEW-AS FILL-IN 
     SIZE 15 BY 1
+    BGCOLOR 15 FONT 1
     tt-report.pr-uom AT ROW 12.71 COL 20.2 COLON-ALIGNED
     LABEL "Due Dt Chg Rsn" FORMAT "x(4)"
     VIEW-AS FILL-IN 
     SIZE 15 BY 1
-    Btn_OK AT ROW 15.33 COL 37
-    Btn_Done AT ROW 15.29 COL 57
-    Btn_Cancel AT ROW 15.29 COL 77.2
-    RECT-21 AT ROW 14.33 COL 1
+    BGCOLOR 15 FONT 1
+    Btn_OK AT ROW 15.13 COL 126
+    Btn_Done AT ROW 15.39 COL 127
+    Btn_Cancel AT ROW 15.13 COL 135
+    RECT-21 AT ROW 14.80 COL 125
     RECT-38 AT ROW 1.48 COL 1
     SPACE(0.99) SKIP(3.27)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
     SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FONT 6
+    FGCOLOR 1 FONT 6
     TITLE "Release - Order Maintenance".
 
 
