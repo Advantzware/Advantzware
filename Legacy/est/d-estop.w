@@ -167,8 +167,9 @@ est-op.n_out_div
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
-     SIZE 15 BY 1.14
+     SIZE 8 BY 1.91
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT 
@@ -177,17 +178,20 @@ DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Save" 
-     SIZE 15 BY 1.14
+     SIZE 8 BY 1.91
      BGCOLOR 8 .
 
 DEFINE RECTANGLE RECT-21
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 127 BY 3.1.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL  ROUNDED 
+     SIZE 30 BY 3.00
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-38
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 127 BY 13.81.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL  ROUNDED 
+     SIZE 127 BY 13.81
+     BGCOLOR 15 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -203,65 +207,81 @@ DEFINE FRAME Dialog-Frame
      est-op.isLocked AT ROW 13.14 COL 105 WIDGET-ID 2
           VIEW-AS TOGGLE-BOX
           SIZE 13.4 BY .81
+          BGCOLOR 15 FONT 1
      est-op.s-num AT ROW 1.91 COL 24 COLON-ALIGNED
           LABEL "Sheet #" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.b-num AT ROW 1.91 COL 61.8 COLON-ALIGNED
           LABEL "Blank#" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.m-code AT ROW 3.14 COL 24 COLON-ALIGNED
           LABEL "Machine" FORMAT "x(6)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.m-dscr AT ROW 3.14 COL 61.8 COLON-ALIGNED
           LABEL "Desc" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 36.4 BY 1
+          BGCOLOR 15 FONT 1
      est-op.op-pass AT ROW 4.38 COL 24 COLON-ALIGNED
           LABEL "Pass#." FORMAT ">9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.n-out AT ROW 4.38 COL 61.8 COLON-ALIGNED
           LABEL "Out." FORMAT ">>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.op-mr AT ROW 4.38 COL 103 COLON-ALIGNED
           LABEL "MR-Hrs" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.op-waste AT ROW 5.62 COL 24 COLON-ALIGNED
           LABEL "Waste" FORMAT ">>>>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.op-speed AT ROW 5.62 COL 61.8 COLON-ALIGNED
           LABEL "Speed" FORMAT ">>>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.op-spoil AT ROW 5.62 COL 103 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.op-crew[1] AT ROW 6.81 COL 24 COLON-ALIGNED
           LABEL "MRCrew" FORMAT "9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.op-crew[2] AT ROW 6.81 COL 61.8 COLON-ALIGNED
           LABEL "RunCrew" FORMAT "9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.op-rate[1] AT ROW 6.81 COL 103 COLON-ALIGNED
           LABEL "MRate" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.op-rate[2] AT ROW 8.05 COL 24 COLON-ALIGNED
           LABEL "RRate" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.plates AT ROW 8.05 COL 61.8 COLON-ALIGNED
           LABEL "Plate changes" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.fountains AT ROW 8.05 COL 103 COLON-ALIGNED
           LABEL "Fountain Changes" FORMAT ">>>"
           VIEW-AS FILL-IN 
@@ -270,29 +290,35 @@ DEFINE FRAME Dialog-Frame
           LABEL "Adder 1" FORMAT "x(5)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.att-qty[1] AT ROW 9.29 COL 61.8 COLON-ALIGNED
           LABEL "Qty" FORMAT ">>,>>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.att-type[2] AT ROW 10.52 COL 24 COLON-ALIGNED
           LABEL "Adder 2" FORMAT "x(5)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.att-qty[2] AT ROW 10.52 COL 61.8 COLON-ALIGNED
           LABEL "Qty" FORMAT ">>,>>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.att-type[3] AT ROW 11.76 COL 24 COLON-ALIGNED
           LABEL "Adder 3" FORMAT "x(5)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.att-qty[3] AT ROW 11.76 COL 61.8 COLON-ALIGNED
           LABEL "Qty" FORMAT ">>,>>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         FONT 6.
+         FGCOLOR 1 FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
@@ -300,19 +326,21 @@ DEFINE FRAME Dialog-Frame
           LABEL "Feed" FORMAT "x(1)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.n_out_div AT ROW 13 COL 61.8 COLON-ALIGNED
           LABEL "Run Qty Divisor" FORMAT "->>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     Btn_OK AT ROW 15.76 COL 37
-     Btn_Done AT ROW 15.76 COL 57
-     Btn_Cancel AT ROW 15.76 COL 77.2
-     RECT-21 AT ROW 14.81 COL 1
+          BGCOLOR 15 FONT 1
+     Btn_OK AT ROW 15.56 COL 105
+     Btn_Done AT ROW 15.76 COL 105
+     Btn_Cancel AT ROW 15.56 COL 115
+     RECT-21 AT ROW 14.91 COL 98
      RECT-38 AT ROW 1 COL 1
      SPACE(2.19) SKIP(3.28)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         FONT 6
+         FGCOLOR 1 FONT 6
          TITLE "Estimate Operation Update".
 
 
