@@ -986,6 +986,10 @@ DO:
     RUN valid-mat-type NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+    FIND mat WHERE mat.mat EQ fi_mat-type:SCREEN-VALUE NO-LOCK NO-ERROR.
+    IF AVAIL mat THEN
+    mat_dscr:SCREEN-VALUE = mat.dscr.
+
    &Scoped-define mat-types-enable YES
     DO WITH FRAME {&FRAME-NAME}:
       {custom/mattypes.i}
