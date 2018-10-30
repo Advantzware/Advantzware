@@ -1419,7 +1419,7 @@ PROCEDURE set-import-stds :
     IF mach.obsolete THEN 
     DO:
         MESSAGE "Machine: " + TRIM(mach.m-code) +
-            " is obsolete, please replace or standards will not be imported"
+            " is Inactive, please replace or standards will not be imported"
             VIEW-AS ALERT-BOX ERROR.
         ip-import-stds = NO.
         LEAVE.
@@ -1552,7 +1552,7 @@ PROCEDURE valid-mach :
         IF v-msg EQ "" THEN
             IF mach.obsolete THEN 
             DO:  
-                v-msg = "Machine is obsolete, please choose a different machine".
+                v-msg = "Machine is Inactive, please choose a different machine".
             END.
         IF v-msg EQ "" THEN 
         DO:

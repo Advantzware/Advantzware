@@ -3285,7 +3285,7 @@ PROCEDURE run-whatif :
         AND mach.m-code EQ est-op.m-code:
    IF mach.obsolete THEN DO:
     MESSAGE "Machine: " + TRIM(mach.m-code) +
-            " is obsolete, please replace to complete calculation..."
+            " is Inactive, please replace to complete calculation..."
         VIEW-AS ALERT-BOX ERROR.
     RETURN.
    END.
