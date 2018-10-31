@@ -163,6 +163,8 @@ ASSIGN
     {refTableConv.i "ShiftDays" 'ShiftDays'}
     {refTableConv.i "EstGetqtyw2" 'est/getqty.w2'}
     {refTableConv.i "ProbePerMsf" 'probe.per-msf'}
+    {refTableConv.i "BlankVendQty" 'blank-vend-qty'}
+    {refTableConv.i "BlankVendCost" 'blank-vend-cost'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */
