@@ -382,11 +382,11 @@ DEFINE BROWSE br_table
                      "T-Transfer","T"
           DROP-DOWN-LIST
       oe-rel.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U COLUMN-FONT 0
-      oe-rel.stat COLUMN-LABEL "S" FORMAT "X(15)":U  WIDTH 25
+      oe-rel.stat COLUMN-LABEL "S" FORMAT "X(15)":U  WIDTH 28
       VIEW-AS COMBO-BOX INNER-LINES 8 
           LIST-ITEM-PAIRS "S-Scheduled","S",
                      "L-Late","L",
-                     "I-Invoice Ready","I",
+                     "I-Invoice Per Terms","I",
                      "A-Actual","A",
                      "P-Posted","P",
                      "B-Backorder","B",
