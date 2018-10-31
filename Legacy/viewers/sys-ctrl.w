@@ -520,7 +520,7 @@ PROCEDURE local-create-record :
   sys-ctrl.company = gcompany. 
   /* same as {methods/triggers/create.i}   */
 
-  assign sys-ctrl.rec_key = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999").
+  ASSIGN sys-ctrl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
 
   CREATE rec_key.
   ASSIGN rec_key.rec_key = sys-ctrl.rec_key

@@ -382,11 +382,11 @@ DEFINE BROWSE br_table
                      "T-Transfer","T"
           DROP-DOWN-LIST
       oe-rel.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U COLUMN-FONT 0
-      oe-rel.stat COLUMN-LABEL "S" FORMAT "X(15)":U  WIDTH 25
+      oe-rel.stat COLUMN-LABEL "S" FORMAT "X(15)":U  WIDTH 28
       VIEW-AS COMBO-BOX INNER-LINES 8 
           LIST-ITEM-PAIRS "S-Scheduled","S",
                      "L-Late","L",
-                     "I-Invoice Ready","I",
+                     "I-Invoice Per Terms","I",
                      "A-Actual","A",
                      "P-Posted","P",
                      "B-Backorder","B",
@@ -423,7 +423,7 @@ DEFINE BROWSE br_table
       tt-report.q-rel COLUMN-LABEL "Release #" FORMAT ">>>>>>9":U
             WIDTH 13.2 COLUMN-FONT 0
       oe-rel.r-no COLUMN-LABEL "Seq. #" FORMAT ">>>>>>>>9":U WIDTH 15
-      oe-rel.link-no COLUMN-LABEL "Int. Release" FORMAT ">>>>>9":U
+      oe-rel.link-no COLUMN-LABEL "Int. Release" FORMAT ">>>>>>>9":U
             WIDTH 16.6
       tt-report.job-start-date COLUMN-LABEL "Shp Date" FORMAT "99/99/9999":U
             WIDTH 14.4
@@ -600,7 +600,7 @@ ASSIGN
      _FldNameList[25]   > ASI.oe-rel.r-no
 "ASI.oe-rel.r-no" "Seq. #" ">>>>>>>>9" "integer" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[26]   > ASI.oe-rel.link-no
-"ASI.oe-rel.link-no" "Int. Release" ? "integer" ? ? ? ? ? ? no ? no no "16.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-rel.link-no" "Int. Release" ">>>>>>>9" "integer" ? ? ? ? ? ? no ? no no "16.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[27]   > Temp-Tables.tt-report.job-start-date
 "Temp-Tables.tt-report.job-start-date" "Shp Date" ? "date" ? ? ? ? ? ? no "Enter the Ship Date" no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[28]   = Temp-Tables.tt-report.qty
@@ -1436,21 +1436,22 @@ FOR EACH fg-set WHERE fg-set.set-no = oe-ordl.i-no
   IF AVAIL shipto THEN DO:
     
    
-    IF v-relflg2 THEN
-    ASSIGN  
-      oe-rel.ship-no      = shipto.ship-no
-      oe-rel.ship-id      = shipto.ship-id
-      oe-rel.ship-addr[1] = shipto.ship-addr[1]
-      oe-rel.ship-addr[2] = shipto.ship-addr[2]
-      oe-rel.ship-city    = shipto.ship-city
-      oe-rel.ship-state   = shipto.ship-state
-      oe-rel.ship-zip     = shipto.ship-zip
-      oe-rel.ship-i[1]    = shipto.notes[1]
-      oe-rel.ship-i[2]    = shipto.notes[2]
-      oe-rel.ship-i[3]    = shipto.notes[3]
-      oe-rel.ship-i[4]    = shipto.notes[4]
-      oe-rel.spare-char-1 = shipto.loc.
-      
+    IF v-relflg2 THEN DO:
+        ASSIGN  
+          oe-rel.ship-no      = shipto.ship-no
+          oe-rel.ship-id      = shipto.ship-id
+          oe-rel.ship-addr[1] = shipto.ship-addr[1]
+          oe-rel.ship-addr[2] = shipto.ship-addr[2]
+          oe-rel.ship-city    = shipto.ship-city
+          oe-rel.ship-state   = shipto.ship-state
+          oe-rel.ship-zip     = shipto.ship-zip
+          oe-rel.ship-i[1]    = shipto.notes[1]
+          oe-rel.ship-i[2]    = shipto.notes[2]
+          oe-rel.ship-i[3]    = shipto.notes[3]
+          oe-rel.ship-i[4]    = shipto.notes[4]
+          oe-rel.spare-char-1 = shipto.loc.
+        RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+    END.  
     /* check that itemfg-loc exists */
     IF oe-rel.spare-char-1 GT "" THEN
     RUN fg/chkfgloc.p (INPUT oe-rel.i-no, INPUT oe-rel.spare-char-1).
@@ -1731,6 +1732,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
          oe-rel.spare-char-1 = oe-rell.loc
          oe-rel.qty       = lv-qty.
         
+        RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key).
         RUN set-lot-from-boll (INPUT ROWID(oe-rel), INPUT ROWID(oe-rell),
                                INPUT ROWID(oe-boll)).
         RUN oe/custxship.p (oe-rel.company,
@@ -1865,6 +1867,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
            oe-rel.spare-char-1 = oe-rell.loc
            oe-rel.qty       = lv-qty.
            
+          RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key). 
           RUN oe/custxship.p (oe-rel.company,
                               oe-rel.cust-no,
                               oe-rel.ship-id,
@@ -3566,6 +3569,7 @@ END.
                                  oe-rel.ship-i[2] = shipto.notes[2]
                                  oe-rel.ship-i[3] = shipto.notes[3]
                                  oe-rel.ship-i[4] = shipto.notes[4].
+        RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
      END.
   END.   
 
@@ -3807,7 +3811,7 @@ PROCEDURE local-create-record :
 
         IF oe-rel.rel-date LE v-lst-rel THEN oe-rel.rel-date = v-lst-rel + 1.
 
-        IF AVAIL shipto THEN
+        IF AVAIL shipto THEN DO:
             ASSIGN oe-rel.ship-addr[1] = shipto.ship-addr[1]
                 oe-rel.ship-city    = shipto.ship-city
                 oe-rel.ship-state   = shipto.ship-state
@@ -3818,6 +3822,8 @@ PROCEDURE local-create-record :
                 oe-rel.ship-i[2]    = shipto.notes[2]
                 oe-rel.ship-i[3]    = shipto.notes[3]
                 oe-rel.ship-i[4]    = shipto.notes[4].
+            RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+        END.
         ELSE ASSIGN oe-rel.ship-no   = oe-ord.sold-no
                 oe-rel.ship-id   = IF v-first-ship-id <> "" THEN v-first-ship-id ELSE oe-ord.ship-id
                 oe-rel.ship-i[1] = oe-ord.ship-i[1]
@@ -3833,18 +3839,20 @@ PROCEDURE local-create-record :
                 WHERE shipto.company EQ cocode
                 AND shipto.cust-no EQ oe-rel.cust-no NO-LOCK BY shipto.ship-id:
 
-            IF AVAIL shipto THEN
-            ASSIGN 
-                oe-rel.ship-id   = shipto.ship-id
-                oe-rel.ship-addr[1] = shipto.ship-addr[1]
-                oe-rel.ship-city    = shipto.ship-city
-                oe-rel.ship-state   = shipto.ship-state
-                oe-rel.ship-zip     = shipto.ship-zip
-                oe-rel.ship-no      = shipto.ship-no
-                oe-rel.ship-i[1]    = shipto.notes[1]
-                oe-rel.ship-i[2]    = shipto.notes[2]
-                oe-rel.ship-i[3]    = shipto.notes[3]
-                oe-rel.ship-i[4]    = shipto.notes[4].
+            IF AVAIL shipto THEN DO:
+                ASSIGN 
+                    oe-rel.ship-id   = shipto.ship-id
+                    oe-rel.ship-addr[1] = shipto.ship-addr[1]
+                    oe-rel.ship-city    = shipto.ship-city
+                    oe-rel.ship-state   = shipto.ship-state
+                    oe-rel.ship-zip     = shipto.ship-zip
+                    oe-rel.ship-no      = shipto.ship-no
+                    oe-rel.ship-i[1]    = shipto.notes[1]
+                    oe-rel.ship-i[2]    = shipto.notes[2]
+                    oe-rel.ship-i[3]    = shipto.notes[3]
+                    oe-rel.ship-i[4]    = shipto.notes[4].
+                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+            END.
             LEAVE .
            END.
         END.
@@ -5640,14 +5648,20 @@ PROCEDURE valid-s-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
-  DO WITH FRAME {&FRAME-NAME}:
-    IF LOOKUP(oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name},lv-s-codes) LE 0 THEN DO:
-      MESSAGE "Invalid " + TRIM(oe-rel.s-code:LABEL IN BROWSE {&browse-name}) +
-              ", try help..." VIEW-AS ALERT-BOX.
-      APPLY "entry" TO oe-rel.s-code IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
+  DEFINE VARIABLE csCodeScreenVal AS CHARACTER NO-UNDO.
+ 
+    DO WITH FRAME {&FRAME-NAME}:
+      csCodeScreenVal =oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name}.
+      /* Screen value for this cell may return a blank in error */
+      IF csCodeScreenVal EQ "" AND AVAILABLE oe-rel THEN 
+        csCodeScreenVal = oe-rel.s-code.
+      IF LOOKUP(csCodeScreenVal,lv-s-codes) LE 0 
+      THEN DO:
+          MESSAGE "Invalid " + TRIM(oe-rel.s-code:LABEL IN BROWSE {&browse-name}) +
+                  ", try help..." VIEW-AS ALERT-BOX.
+          APPLY "entry" TO oe-rel.s-code IN BROWSE {&browse-name}.
+          RETURN ERROR.
+      END.
   END.
 
 END PROCEDURE.
@@ -5673,6 +5687,28 @@ PROCEDURE valid-ship-from :
   END.
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -5746,6 +5782,10 @@ PROCEDURE valid-ship-id :
         END.     /* Task 10241303 */
 
       END.
+      IF AVAILABLE shipto AND NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN 
+            MESSAGE "Please note: Shipto " shipto.ship-id " is valid but currently inactive"
+            VIEW-AS ALERT-BOX.
+            
  END.
 
 END PROCEDURE.

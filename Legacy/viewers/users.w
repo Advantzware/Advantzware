@@ -73,6 +73,7 @@ DEFINE VARIABLE cOldPwd         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hPgmMstrSecur   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lSuperAdmin     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAdmin          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lMenuChanges    AS LOGICAL   NO-UNDO.
     
 DEFINE TEMP-TABLE tempUser NO-UNDO LIKE _User.
 
@@ -112,19 +113,21 @@ DEFINE BUFFER bttUsers FOR ttUsers.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR users, usr.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS users.menuSize users.userLanguage ~
-users.user_name users.phone-cnty users.fax-cnty users.image_filename ~
-users.user_program[1] users.user_program[2] users.user_program[3] ~
-users.track_usage users.use_colors users.use_fonts users.developer ~
-users.isLocked users.userImage[1] 
+&Scoped-Define ENABLED-FIELDS users.positionMnemonic users.showMnemonic ~
+users.menuSize users.userLanguage users.user_name users.phone-cnty ~
+users.fax-cnty users.image_filename users.user_program[1] ~
+users.user_program[2] users.user_program[3] users.track_usage ~
+users.use_colors users.use_fonts users.developer users.isLocked ~
+users.userImage[1] 
 &Scoped-define ENABLED-TABLES users
 &Scoped-define FIRST-ENABLED-TABLE users
-&Scoped-Define DISPLAYED-FIELDS users.menuSize users.userLanguage ~
-users.user_id users.user_name users.userAlias users.phone-cnty users.phone ~
-users.fax-cnty users.fax users.image_filename users.user_program[1] ~
-users.user_program[2] users.user_program[3] users.track_usage ~
-users.use_colors users.use_fonts users.developer users.securityLevel ~
-users.isActive users.isLocked users.userImage[1] 
+&Scoped-Define DISPLAYED-FIELDS users.positionMnemonic users.showMnemonic ~
+users.menuSize users.userLanguage users.user_id users.user_name ~
+users.userAlias users.phone-cnty users.phone users.fax-cnty users.fax ~
+users.image_filename users.user_program[1] users.user_program[2] ~
+users.user_program[3] users.track_usage users.use_colors users.use_fonts ~
+users.developer users.securityLevel users.isActive users.isLocked ~
+users.userImage[1] 
 &Scoped-define DISPLAYED-TABLES users
 &Scoped-define FIRST-DISPLAYED-TABLE users
 &Scoped-Define DISPLAYED-OBJECTS fiPassword cbUserType fi_phone-area ~
@@ -182,7 +185,7 @@ DEFINE BUTTON bAll3
 
 DEFINE BUTTON bChgPwd 
      LABEL "Change" 
-     SIZE 12 BY 1.14
+     SIZE 12 BY 1
      BGCOLOR 15 .
 
 DEFINE BUTTON bDefaults 
@@ -266,22 +269,35 @@ DEFINE VARIABLE slModes AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     users.menuSize AT ROW 14.33 COL 63 COLON-ALIGNED WIDGET-ID 112
+     users.positionMnemonic AT ROW 16.24 COL 66 NO-LABEL WIDGET-ID 126
+          VIEW-AS RADIO-SET HORIZONTAL
+          RADIO-BUTTONS 
+                    "Begin", "Begin":U,
+"End", "End":U
+          SIZE 17 BY 1
+     users.showMnemonic AT ROW 16.24 COL 23 NO-LABEL WIDGET-ID 120
+          VIEW-AS RADIO-SET HORIZONTAL
+          RADIO-BUTTONS 
+                    "None", "None":U,
+"All", "All":U,
+"Programs Only", "Program":U
+          SIZE 33 BY 1
+     users.menuSize AT ROW 13.62 COL 65 COLON-ALIGNED WIDGET-ID 112
           VIEW-AS COMBO-BOX INNER-LINES 3
           LIST-ITEMS "Small","Medium","Large" 
           DROP-DOWN-LIST
           SIZE 16 BY 1
-     users.userLanguage AT ROW 15.52 COL 50 COLON-ALIGNED WIDGET-ID 114
+     users.userLanguage AT ROW 14.81 COL 52 COLON-ALIGNED WIDGET-ID 114
           VIEW-AS COMBO-BOX INNER-LINES 10
           LIST-ITEM-PAIRS "Englist","EN"
           DROP-DOWN-LIST
           SIZE 29 BY 1
-     users.user_id AT ROW 1.24 COL 19 COLON-ALIGNED
+     users.user_id AT ROW 1.24 COL 21 COLON-ALIGNED
           LABEL "User ID"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     users.user_name AT ROW 1.24 COL 44 COLON-ALIGNED
+     users.user_name AT ROW 1.24 COL 46 COLON-ALIGNED
           LABEL "Name"
           VIEW-AS FILL-IN 
           SIZE 35 BY 1
@@ -290,72 +306,72 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 37 BY 1
           BGCOLOR 15 FONT 4
-     fiPassword AT ROW 2.67 COL 19 COLON-ALIGNED WIDGET-ID 80
+     fiPassword AT ROW 2.43 COL 21 COLON-ALIGNED WIDGET-ID 80
      cbUserType AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 48
-     bChgPwd AT ROW 2.67 COL 59 WIDGET-ID 82 NO-TAB-STOP 
-     users.phone-cnty AT ROW 4.1 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     bChgPwd AT ROW 2.43 COL 61 WIDGET-ID 82 NO-TAB-STOP 
+     users.phone-cnty AT ROW 3.62 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 12
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           BGCOLOR 15 FONT 4
-     fi_phone-area AT ROW 4.1 COL 44 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     users.phone AT ROW 4.1 COL 75 COLON-ALIGNED HELP
+     fi_phone-area AT ROW 3.62 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     users.phone AT ROW 3.62 COL 77 COLON-ALIGNED HELP
           "" NO-LABEL WIDGET-ID 84 FORMAT "x(12)"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
           BGCOLOR 15  NO-TAB-STOP 
-     lv-phone-num AT ROW 4.1 COL 57 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     users.fax-cnty AT ROW 5.29 COL 28 COLON-ALIGNED HELP
+     lv-phone-num AT ROW 3.62 COL 59 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     users.fax-cnty AT ROW 4.81 COL 30 COLON-ALIGNED HELP
           "" NO-LABEL WIDGET-ID 18 FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           BGCOLOR 15 FONT 4
-     fi_fax-area AT ROW 5.29 COL 44 COLON-ALIGNED NO-LABEL WIDGET-ID 16
-     lv-fax-num AT ROW 5.29 COL 57 COLON-ALIGNED NO-LABEL WIDGET-ID 20
-     users.fax AT ROW 5.29 COL 75 COLON-ALIGNED HELP
+     fi_fax-area AT ROW 4.81 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     lv-fax-num AT ROW 4.81 COL 59 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     users.fax AT ROW 4.81 COL 77 COLON-ALIGNED HELP
           "" NO-LABEL WIDGET-ID 86 FORMAT "x(12)"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
           BGCOLOR 15  NO-TAB-STOP 
-     users.image_filename AT ROW 6.48 COL 19 COLON-ALIGNED HELP
+     users.image_filename AT ROW 6 COL 21 COLON-ALIGNED HELP
           "Enter Main Menu Image File Name (fully qualified path)" WIDGET-ID 38
           LABEL "Email" FORMAT "X(40)"
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
           BGCOLOR 15 FONT 4
-     users.user_program[1] AT ROW 7.91 COL 19 COLON-ALIGNED
+     users.user_program[1] AT ROW 7.19 COL 21 COLON-ALIGNED
           LABEL "Image Viewer" FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
           BGCOLOR 15 FONT 4
-     users.user_program[2] AT ROW 9.1 COL 19 COLON-ALIGNED HELP
+     users.user_program[2] AT ROW 8.38 COL 21 COLON-ALIGNED HELP
           "" WIDGET-ID 8
           LABEL "Report Path" FORMAT "x(100)"
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
           BGCOLOR 15 FONT 4
-     users.user_program[3] AT ROW 10.29 COL 19 COLON-ALIGNED WIDGET-ID 36
+     users.user_program[3] AT ROW 9.57 COL 21 COLON-ALIGNED WIDGET-ID 36
           LABEL "Document Path" FORMAT "x(100)"
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
           BGCOLOR 15 FONT 4
-     users.track_usage AT ROW 12.67 COL 21
-          VIEW-AS TOGGLE-BOX
-          SIZE 19.8 BY 1
-     users.use_colors AT ROW 13.62 COL 21
-          VIEW-AS TOGGLE-BOX
-          SIZE 27 BY 1
-     users.use_fonts AT ROW 14.57 COL 21
-          VIEW-AS TOGGLE-BOX
-          SIZE 26.2 BY 1
-     users.developer AT ROW 15.52 COL 21
-          VIEW-AS TOGGLE-BOX
-          SIZE 16.8 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     users.track_usage AT ROW 11.95 COL 23
+          VIEW-AS TOGGLE-BOX
+          SIZE 19.8 BY 1
+     users.use_colors AT ROW 12.91 COL 23
+          VIEW-AS TOGGLE-BOX
+          SIZE 27 BY 1
+     users.use_fonts AT ROW 13.86 COL 23
+          VIEW-AS TOGGLE-BOX
+          SIZE 26.2 BY 1
+     users.developer AT ROW 14.81 COL 23
+          VIEW-AS TOGGLE-BOX
+          SIZE 16.8 BY 1
      users.securityLevel AT ROW 3.62 COL 99 COLON-ALIGNED WIDGET-ID 44
           LABEL "Security Level" FORMAT ">999"
           VIEW-AS FILL-IN 
@@ -378,7 +394,7 @@ DEFINE FRAME F-Main
      slModes AT ROW 6.95 COL 108 NO-LABEL WIDGET-ID 54
      bAll3 AT ROW 7.43 COL 97 WIDGET-ID 72
      bNone3 AT ROW 8.14 COL 97 WIDGET-ID 74
-     users.userImage[1] AT ROW 11.48 COL 19 COLON-ALIGNED WIDGET-ID 116
+     users.userImage[1] AT ROW 10.76 COL 21 COLON-ALIGNED WIDGET-ID 116
           LABEL "User Image" FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 48 BY 1
@@ -386,6 +402,22 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
+     "Phone: (Country)" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 3.62 COL 15 WIDGET-ID 92
+     "FAX: (Country)" VIEW-AS TEXT
+          SIZE 14 BY 1 AT ROW 4.81 COL 17 WIDGET-ID 94
+     "(Area)" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 3.62 COL 40 WIDGET-ID 96
+          BGCOLOR 15 
+     " At Login User Can Select:" VIEW-AS TEXT
+          SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
+          FONT 4
+     "Options:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 12.19 COL 14 WIDGET-ID 42
+     "HotKey (Mnemonic:)" VIEW-AS TEXT
+          SIZE 20 BY 1 AT ROW 16.24 COL 2 WIDGET-ID 124
+     "Pos.:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 16.24 COL 61 WIDGET-ID 130
      "Modes:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 6.71 COL 99 WIDGET-ID 62
           FONT 4
@@ -393,31 +425,19 @@ DEFINE FRAME F-Main
           SIZE 13 BY .62 AT ROW 14.1 COL 94 WIDGET-ID 60
           FONT 4
      "(#)" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 4.1 COL 54 WIDGET-ID 106
+          SIZE 4 BY 1 AT ROW 3.62 COL 56 WIDGET-ID 106
           BGCOLOR 15 
      "(Area)" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 5.29 COL 38 WIDGET-ID 108
+          SIZE 8 BY 1 AT ROW 4.81 COL 40 WIDGET-ID 108
           BGCOLOR 15 
      "(#)" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 5.29 COL 54 WIDGET-ID 110
+          SIZE 4 BY 1 AT ROW 4.81 COL 56 WIDGET-ID 110
           BGCOLOR 15 
      "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
           SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
           FONT 1
-     "Phone: (Country)" VIEW-AS TEXT
-          SIZE 18 BY 1 AT ROW 4.1 COL 11 WIDGET-ID 92
-     "FAX: (Country)" VIEW-AS TEXT
-          SIZE 15 BY 1 AT ROW 5.29 COL 14 WIDGET-ID 94
-     "(Area)" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 4.1 COL 38 WIDGET-ID 96
-          BGCOLOR 15 
-     " At Login User Can Select:" VIEW-AS TEXT
-          SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
-          FONT 4
-     "Options:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 12.91 COL 12 WIDGET-ID 42
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
-     cUserImage AT ROW 11.48 COL 70 WIDGET-ID 118
+     cUserImage AT ROW 10.76 COL 72 WIDGET-ID 118
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -704,6 +724,28 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME users.menuSize
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.menuSize V-table-Win
+ON VALUE-CHANGED OF users.menuSize IN FRAME F-Main /* Menu Size */
+DO:
+    lMenuChanges = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME users.positionMnemonic
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.positionMnemonic V-table-Win
+ON VALUE-CHANGED OF users.positionMnemonic IN FRAME F-Main /* Position Mnemonic */
+DO:
+    lMenuChanges = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME users.securityLevel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.securityLevel V-table-Win
 ON LEAVE OF users.securityLevel IN FRAME F-Main /* Security Level */
@@ -714,6 +756,20 @@ DO:
             SELF:SCREEN-VALUE = "700".
     END.
     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME users.showMnemonic
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.showMnemonic V-table-Win
+ON VALUE-CHANGED OF users.showMnemonic IN FRAME F-Main /* Show Mnemonic */
+DO:
+    ASSIGN
+        users.positionMnemonic:SENSITIVE = SELF:SCREEN-VALUE NE "None"
+        lMenuChanges = YES
+        .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -780,7 +836,19 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.userImage[1] V-table-Win
 ON LEAVE OF users.userImage[1] IN FRAME F-Main /* User Image */
 DO:
+    IF SELF:SCREEN-VALUE NE "" THEN 
     cUserImage:LOAD-IMAGE(SELF:SCREEN-VALUE).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME users.userLanguage
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.userLanguage V-table-Win
+ON VALUE-CHANGED OF users.userLanguage IN FRAME F-Main /* Language */
+DO:
+    lMenuChanges = YES.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1298,7 +1366,7 @@ PROCEDURE local-cancel-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
-
+  
     DISABLE 
         users.user_id
         users.user_name
@@ -1320,7 +1388,7 @@ PROCEDURE local-cancel-record :
         bAll3
         bNone3
         bDefaults
-        WITH FRAME {&FRAME-NAME}.
+            WITH FRAME {&FRAME-NAME}.
         
 END PROCEDURE.
 
@@ -1451,7 +1519,6 @@ PROCEDURE local-delete-record :
 
     {methods/template/local/deleteAfter.i}
 
-/*    RUN ipGoBack IN h_Users.*/
     {methods/run_link.i "RECORD-SOURCE" "ipGoBack"}
 
 END PROCEDURE.
@@ -1485,7 +1552,7 @@ PROCEDURE local-display-fields :
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
     
-    IF AVAIL users THEN DO:
+    IF AVAIL users THEN DO WITH FRAME {&frame-name}:
         /* Most elements come from the 'generic' ttUser (ttfPdbname = '*') */
         FIND FIRST ttUsers WHERE
             ttUsers.ttfPdbName = "*" AND
@@ -1496,10 +1563,16 @@ PROCEDURE local-display-fields :
             ASSIGN
                 ttUsers.ttfPdbName = "*"
                 ttUsers.ttfUserID = users.user_id
-                ttUsers.ttfEnvList = slEnvironments:list-items in FRAME {&FRAME-NAME}
-                ttUsers.ttfDbList = slDatabases:list-items
-                ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE
                 .
+                IF ttUsers.ttfEnvlist EQ "" THEN 
+                  ttUsers.ttfEnvList = IF users.envList GT "" THEN REPLACE(users.envList, "|", ",") ELSE "".
+                IF ttUsers.ttfDbList EQ "" THEN 
+                  ttUsers.ttfDbList = IF users.dbList GT "" THEN REPLACE(users.dbList, "|", ",") ELSE "".
+                IF ttUsers.ttfUserAlias EQ "" THEN 
+                  ttUsers.ttfUserAlias = IF users.userAlias GT "" THEN REPLACE(users.userAlias, "|", ",") ELSE "".
+                IF ttUsers.ttfModeList EQ "" THEN 
+                  ttUsers.ttfModeList = IF users.modeList GT "" THEN REPLACE(users.modeList, "|", ",") ELSE "".
+            
         END.
 
         ASSIGN 
@@ -1512,6 +1585,8 @@ PROCEDURE local-display-fields :
             slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
             users.userAlias:SCREEN-VALUE = ttUsers.ttfUserAlias
             users.userAlias:modified = false
+            slModes:screen-value = if ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList
+                                   else slModes:list-items.            
             .
 
         /* But mode-list has a by-db component (ttfPdbname = pdbname(1)) */
@@ -1524,8 +1599,9 @@ PROCEDURE local-display-fields :
             ASSIGN
                 ttUsers.ttfPdbName = PDBNAME(1)
                 ttUsers.ttfUserID = users.user_id
-                ttUsers.ttfModeList = slModes:list-items
                 .
+            IF ttUsers.ttfModeList EQ "" THEN 
+                ttUsers.ttfModeList = IF users.modeList GT "" THEN REPLACE(users.modeList, "|", ",") ELSE slModes:list-items.            
         END.
         slModes:screen-value = if ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList
                                else slModes:list-items.
@@ -1542,6 +1618,7 @@ PROCEDURE local-display-fields :
             bChgPwd:SENSITIVE = IF users.user_id = zusers.user_id OR zusers.securityLevel > 699 THEN TRUE ELSE FALSE
             fiPassword:SENSITIVE = FALSE
             .
+        IF users.userImage[1]:SCREEN-VALUE NE "" THEN 
         cUserImage:LOAD-IMAGE(users.userImage[1]:SCREEN-VALUE).
     END.
     
@@ -1605,6 +1682,7 @@ PROCEDURE local-update-record :
     DEF VAR lPwdOK AS LOG NO-UNDO.
     DEF VAR cCurrentDir AS CHAR NO-UNDO.
     DEF VAR iStat AS INT NO-UNDO.
+    DEFINE VARIABLE hMainMenu AS HANDLE NO-UNDO.
   
     ASSIGN 
         cOldUserID = users.user_id
@@ -1770,22 +1848,6 @@ PROCEDURE local-update-record :
                     prgrms.can_delete = prgrms.can_delete + "," + users.user_id:SCREEN-VALUE.
             END.
         END. /* lCopy */
-        
-        /* Ensure folder available for custom menus */
-        ASSIGN
-            FILE-INFO:FILE-NAME = ".".
-            cCurrentDir = FILE-INFO:FULL-PATHNAME.
-            cCurrentDir = cCurrentDir + "\UserMenu\" + users.user_id:SCREEN-VALUE.
-        OS-CREATE-DIR VALUE(cCurrentDir).
-        ASSIGN
-            iStat = OS-ERROR.
-        IF iStat NE 0 THEN DO:
-            MESSAGE
-                "Unable to create directory " + cCurrentDir + "." SKIP
-                "Be sure to create this directory before customizing menus."
-                VIEW-AS ALERT-BOX ERROR.
-        END.
-        
     END. /* lAdd */
 
         /* Add usr record for new user */
@@ -1889,18 +1951,27 @@ PROCEDURE local-update-record :
         WITH FRAME {&FRAME-NAME}.
     
     IF lAdd THEN DO:
-/*       RUN DISPATCH IN h_Users ('open-query').*/
        {methods/run_link.i "RECORD-SOURCE" "DISPATCH" "('open-query')"}
     END.
     ASSIGN
         lAdd = FALSE
         lCopy = FALSE.
     
-/*    RUN ipReposition IN h_Users (rThisUser).*/
     {methods/run_link.i "RECORD-SOURCE" "ipReposition" "(rThisUser)"}
     RUN local-display-fields.
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
+    IF users.user_id EQ USERID("ASI") AND lMenuChanges AND fSuperRunning("session.") THEN DO:
+        hMainMenu = DYNAMIC-FUNCTION("sfGetMainMenuHandle").
+        IF VALID-HANDLE(hMainMenu) THEN DO:
+            MESSAGE 
+                "You have changes to values effecting the Main Menu." SKIP(1)
+                "Do you wish to apply the changes and rebuild the Main Menu?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+            UPDATE lMenuChanges.
+            RUN pResetByUser IN hMainMenu (lMenuChanges).
+        END. /* if valid-handle */
+    END. /* if super running */ 
         
 END PROCEDURE.
 

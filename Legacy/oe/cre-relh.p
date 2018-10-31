@@ -101,6 +101,8 @@ ASSIGN out-recid         = recid(oe-relh)
        oe-relh.upd-time  = TIME
        oe-relh.upd-date  = TODAY
        oe-relh.w-ord = v-chkflg.
+       
+RUN CopyShipNote (oe-rel.rec_key, oe-relh.rec_key).
 
 IF v-chkflg THEN
 DO:
@@ -112,5 +114,24 @@ DO:
       ASSIGN bf-cust.cr-hold = YES.
 END.
 /* gdm - 06220907 end */
+
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+
 
 /* end ---------------------------------- copr. 1998  advanced software, inc. */

@@ -406,34 +406,22 @@ PROCEDURE reftable-values :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-display AS LOG NO-UNDO.
-
-
-  FIND FIRST reftable
-      WHERE reftable.reftable EQ "probe.per-msf"
-        AND reftable.company  EQ probe.company
-        AND reftable.loc      EQ ""
-        AND reftable.code     EQ probe.est-no
-        AND reftable.code2    EQ STRING(probe.line,"9999999999")
-      NO-ERROR.
-  IF NOT AVAIL reftable THEN DO:
-    CREATE reftable.
-    ASSIGN
-     reftable.reftable = "probe.per-msf"
-     reftable.company  = probe.company
-     reftable.loc      = ""
-     reftable.code     = probe.est-no
-     reftable.code2    = STRING(probe.line,"9999999999")
-     reftable.val[1]   = io-price * (probe.est-qty / 1000) / ld-msf * 100000
-     reftable.val[2]   = 0.
-  END.
+  
+FIND CURRENT probe EXCLUSIVE-LOCK NO-ERROR. 
+ 
+  ASSIGN
+     probe.per-msf  = io-price * (probe.est-qty / 1000) / ld-msf * 100000
+     probe.setup    = 0.
   IF ip-display THEN
     ASSIGN
-     fi_setup = reftable.val[2] / 100000
+     fi_setup = probe.setup / 100000
      fi_prmsf = ((io-price * (probe.est-qty / 1000)) - fi_setup) / ld-msf.
   ELSE
     ASSIGN
-     reftable.val[1] = fi_prmsf * 100000
-     reftable.val[2] = fi_setup * 100000.
+     probe.per-msf = fi_prmsf * 100000
+     probe.setup = fi_setup * 100000.
+     
+FIND CURRENT probe NO-LOCK NO-ERROR.     
 
 END PROCEDURE.
 

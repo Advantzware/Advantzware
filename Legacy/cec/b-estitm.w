@@ -7929,8 +7929,7 @@ PROCEDURE valid-eb-reckey :
    FIND FIRST bf-eb WHERE bf-eb.rec_key = eb.rec_key AND 
                           RECID(bf-eb) <> RECID(eb) NO-LOCK NO-ERROR.
    IF AVAIL bf-eb OR eb.rec_key = "" THEN DO:
-      ls-key = STRING(TODAY,"99999999") +
-               string(NEXT-VALUE(rec_key_seq,asi),"99999999").
+      ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey").
       FIND CURRENT eb.
       eb.rec_key = ls-key.
       FIND CURRENT eb NO-LOCK.               

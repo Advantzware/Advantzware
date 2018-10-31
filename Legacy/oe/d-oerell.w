@@ -126,8 +126,9 @@ oe-rell.rel-no oe-rell.b-ord-no oe-rell.s-code oe-rell.link-no
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
-     SIZE 15 BY 1.14
+     SIZE 8 BY 1.91
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT 
@@ -136,8 +137,9 @@ DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Save" 
-     SIZE 15 BY 1.14
+     SIZE 8 BY 1.91
      BGCOLOR 8 .
 
 DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
@@ -146,12 +148,14 @@ DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U
      SIZE 20 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-21
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 133.8 BY 3.57.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL ROUNDED  
+     SIZE 19 BY 2.38
+     BGCOLOR 15  .
 
 DEFINE RECTANGLE RECT-38
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 133.8 BY 10.71.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL  ROUNDED  
+     SIZE 133.8 BY 10.71
+     BGCOLOR 15 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -166,60 +170,75 @@ DEFINE FRAME Dialog-Frame
      oe-rell.ord-no AT ROW 1.24 COL 29.8 COLON-ALIGNED FORMAT ">>>>>>"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
+          BGCOLOR 15 FONT 1
      oe-rell.i-no AT ROW 2.43 COL 29.8 COLON-ALIGNED HELP
           ""
           LABEL "FG Item#"
           VIEW-AS FILL-IN 
           SIZE 33.6 BY 1
+          BGCOLOR 15 FONT 1
      oe-rell.po-no AT ROW 3.62 COL 29.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 33.6 BY 1
+          BGCOLOR 15 FONT 1
      oe-rell.tag AT ROW 4.76 COL 29.8 COLON-ALIGNED
           LABEL "Tag" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 33.6 BY 1
+          BGCOLOR 15 FONT 1
      oe-rell.loc AT ROW 5.91 COL 29.8 COLON-ALIGNED
           LABEL "Whse"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
+          BGCOLOR 15 FONT 1
      oe-rell.loc-bin AT ROW 7.19 COL 29.8 COLON-ALIGNED
           LABEL "Bin Loc."
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
+          BGCOLOR 15 FONT 1
      oe-rell.job-no AT ROW 8.48 COL 29.8 COLON-ALIGNED
           LABEL "Job Number"
           VIEW-AS FILL-IN 
           SIZE 18.6 BY 1
+          BGCOLOR 15 FONT 1
      oe-rell.job-no2 AT ROW 8.48 COL 48.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
+          BGCOLOR 15 FONT 1
      oe-rell.cust-no AT ROW 9.62 COL 29.8 COLON-ALIGNED
           LABEL "Customer"
           VIEW-AS FILL-IN 
           SIZE 23.6 BY 1
+          BGCOLOR 15 FONT 1
      oe-rell.qty AT ROW 2.43 COL 85.4 COLON-ALIGNED
           LABEL "Qty" FORMAT "->>,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      oe-rell.cases AT ROW 3.62 COL 85.4 COLON-ALIGNED
           LABEL "Units"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      oe-rell.qty-case AT ROW 4.76 COL 85.4 COLON-ALIGNED
           LABEL "Qty/Unit"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      oe-rell.partial AT ROW 5.91 COL 85.4 COLON-ALIGNED
           LABEL "Partial"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      oe-rell.rel-no AT ROW 7.19 COL 85.4 COLON-ALIGNED
           LABEL "Rel#"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
+          BGCOLOR 15 FONT 1
      oe-rell.b-ord-no AT ROW 7.19 COL 94.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
+          BGCOLOR 15 FONT 1
      oe-rell.s-code AT ROW 7.19 COL 109 COLON-ALIGNED
           LABEL "Type"
           VIEW-AS COMBO-BOX INNER-LINES 4 
@@ -228,20 +247,23 @@ DEFINE FRAME Dialog-Frame
                      "I-Invoice","I",
                      "T-Transfer","T"
           DROP-DOWN-LIST
+          BGCOLOR 15 FONT 1
      oe-rell.link-no AT ROW 9.62 COL 85.4 COLON-ALIGNED
           LABEL "Rel. Seq. #" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      fi_part-no AT ROW 8.48 COL 85.4 COLON-ALIGNED
-     Btn_OK AT ROW 13.29 COL 37
-     Btn_Done AT ROW 13.24 COL 57
-     Btn_Cancel AT ROW 13.24 COL 77.2
-     RECT-21 AT ROW 11.71 COL 1
+     BGCOLOR 15 FONT 1
+     Btn_OK AT ROW 12.23 COL 116
+     Btn_Done AT ROW 12.50 COL 117
+     Btn_Cancel AT ROW 12.23 COL 125
+     RECT-21 AT ROW 12 COL 115
      RECT-38 AT ROW 1 COL 1
-     SPACE(0.99) SKIP(4.14)
+     SPACE(0.99) SKIP(3.14)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         FONT 6
+         FGCOLOR 1 FONT 6
          TITLE "Order Release Item Update".
 
 

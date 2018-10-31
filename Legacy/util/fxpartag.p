@@ -57,9 +57,9 @@ PROCEDURE fix-tag:
      b-fg-bin.qty           = b-fg-bin.qty + lv-qty
      fg-bin.qty             = 0.
 
-    RUN fg/cre-pchr.p (ROWID(fg-bin), "A", lv-qty * -1, fg-bin.partial-count * -1).
+    RUN fg/cre-pchr.p (ROWID(fg-bin), "A", lv-qty * -1, fg-bin.partial-count * -1,"").
 
-    RUN fg/cre-pchr.p (ROWID(b-fg-bin), "A", lv-qty, fg-bin.partial-count).
+    RUN fg/cre-pchr.p (ROWID(b-fg-bin), "A", lv-qty, fg-bin.partial-count,"").
   END.
 
 END PROCEDURE.

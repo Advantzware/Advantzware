@@ -164,6 +164,10 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 147 BY 15.95.
 
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 147 BY 3.76.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -234,6 +238,7 @@ DEFINE FRAME F-Main
           SIZE 32 BY 1
           BGCOLOR 15 
      prgrms.mnemonic AT ROW 14.57 COL 129 COLON-ALIGNED WIDGET-ID 6
+          LABEL "HotKey (Mnemonic)"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
           BGCOLOR 15 
@@ -253,22 +258,25 @@ DEFINE FRAME F-Main
      F-2 AT ROW 15.76 COL 31 NO-LABEL WIDGET-ID 12
      "Update:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 7.43 COL 7
-     "Delete:" VIEW-AS TEXT
-          SIZE 7.6 BY .62 AT ROW 9.33 COL 7
      "Parent(s):" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 11.24 COL 5
+     "Add:" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 5.52 COL 10
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     "Add:" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 5.52 COL 10
+     "Delete:" VIEW-AS TEXT
+          SIZE 7.6 BY .62 AT ROW 9.33 COL 7
+     " Menu Fields" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 12.91 COL 3 WIDGET-ID 28
      "View:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 3.62 COL 9
      RECT-1 AT ROW 1 COL 1
      cMenuImage AT ROW 14.57 COL 101 WIDGET-ID 18
+     RECT-2 AT ROW 13.19 COL 1 WIDGET-ID 26
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -358,7 +366,7 @@ ASSIGN
 /* SETTINGS FOR TOGGLE-BOX prgrms.menu_item IN FRAME F-Main
    5                                                                    */
 /* SETTINGS FOR FILL-IN prgrms.mnemonic IN FRAME F-Main
-   5                                                                    */
+   5 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN parentPrgTitle IN FRAME F-Main
    NO-ENABLE 4                                                          */
 /* SETTINGS FOR FILL-IN prgrms.prgmname IN FRAME F-Main
@@ -366,6 +374,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN prgrms.prgtitle IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN prgrms.securityLevelDefault IN FRAME F-Main
    5                                                                    */
@@ -518,7 +528,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.menuImage[1] V-table-Win
 ON LEAVE OF prgrms.menuImage[1] IN FRAME F-Main /* Menu Image */
 DO:
-    cMenuImage:LOAD-IMAGE(SELF:SCREEN-VALUE).
+    cMenuImage:LOAD-IMAGE("Graphics\32x32\" + SELF:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -703,6 +713,9 @@ PROCEDURE pRebuildMenuTree :
     DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
     
     MESSAGE
+        "If changes to any Menu related values were done,"
+        "you can rebuild the Menu Tree now, otherwise the"
+        "changes will be applied after logging out and back in." SKIP(1)
         "Rebuild Menu Tree?"
     VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE "Rebuild?"
     UPDATE lRebuild AS LOGICAL.

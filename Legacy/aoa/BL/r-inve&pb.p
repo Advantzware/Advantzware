@@ -32,6 +32,8 @@ DEFINE VARIABLE cInitDir    AS CHA       NO-UNDO.
 DEFINE VARIABLE cCompCurr   AS cha       NO-UNDO.
 DEFINE VARIABLE oeprep-char AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dProfit     AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
 
 ASSIGN
     gcompany = ipcCompany
@@ -268,6 +270,7 @@ RUN pPrintPost.
 
 DELETE OBJECT Persistent-Handle.
 DELETE OBJECT ListLogic-Handle.
+DELETE OBJECT hNotesProcs.
 OUTPUT STREAM sDebug CLOSE.
 
 

@@ -406,7 +406,7 @@ end.
               and fg-bin.i-no    LE end_i-no
               and fg-bin.qty     le 0:
 
-          IF fg-bin.qty lt 0 then run fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0).
+          IF fg-bin.qty lt 0 then run fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0,"").
 
           delete fg-bin.
         end.

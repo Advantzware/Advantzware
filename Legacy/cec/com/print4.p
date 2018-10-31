@@ -1155,10 +1155,7 @@ FIND FIRST cust WHERE
      cust.cust-no EQ v-cust-no
      NO-LOCK NO-ERROR.
 
-FIND FIRST probe    
-      WHERE probe.company    EQ xest.company
-        AND probe.est-no     EQ xest.est-no NO-LOCK NO-ERROR.
-   IF AVAIL probe THEN
+IF AVAIL probe THEN
       gsa-fm = int(probe.gsa-fm).
 ELSE
    IF AVAIL cust AND cust.scomm NE 0 THEN

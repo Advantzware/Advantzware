@@ -37,6 +37,7 @@ DEF VAR v-col-move AS LOG INIT TRUE NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
+{methods/defines/hndldefs.i}
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/VAR.i NEW SHARED}
@@ -49,7 +50,6 @@ ASSIGN
 
 DEF VAR li-new-estnum LIKE  ce-ctrl.e-num NO-UNDO.
 DEF VAR ll-new-record AS LOG NO-UNDO.
-DEF VAR char-hdl AS cha NO-UNDO.
 DEF VAR lv-frst-rowid AS ROWID NO-UNDO.
 DEF VAR lv-last-rowid AS ROWID NO-UNDO.
 DEF VAR lv-frst-rowid2 AS ROWID NO-UNDO.
@@ -1457,9 +1457,11 @@ PROCEDURE clearFilterValues:
  Notes:
 ------------------------------------------------------------------------------*/
     {methods/clearFilterValues.i}
+/*
 
     RUN local-open-query.
     RUN dispatch ('row-changed').
+*/
 
 END PROCEDURE.
 	
@@ -1726,16 +1728,15 @@ PROCEDURE export-xl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR FromEstNo AS CHAR NO-UNDO.
-DEF VAR ToEstNo AS CHAR NO-UNDO.
-
-IF est.est-no NE "" THEN
+    DEFINE VARIABLE FromEstNo AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE ToEstNo   AS CHARACTER NO-UNDO.
+    
+    IF est.est-no NE "" THEN
     ASSIGN
-    FromEstNo = est.est-no
-    ToEstNo   = est.est-no . 
-
-RUN fg/EstF-exp.w (FromEstNo,ToEstNo).
-
+        FromEstNo = est.est-no
+        ToEstNo   = est.est-no
+        .    
+    RUN fg/EstC-exp.w (FromEstNo, ToEstNo).
 
 END PROCEDURE.
 

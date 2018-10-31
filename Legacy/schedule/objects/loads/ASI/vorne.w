@@ -32,6 +32,7 @@ DEFINE OUTPUT PARAMETER opContinue AS LOGICAL NO-UNDO.
 {{&includes}/sharedVars.i}
 {{&includes}/ttblJob.i}
 {{&includes}/{&Board}/calcEnd.i}
+{system/fSuperRunning.i}
 
 DEFINE VARIABLE lvVorneFile AS CHARACTER NO-UNDO FORMAT 'x(50)'.
 DEFINE VARIABLE lvVorneData AS CHARACTER NO-UNDO.
@@ -1077,7 +1078,12 @@ PROCEDURE postVorne :
 
   RELEASE machtran.
 
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" string("file:///" + lvErrorFile) false.
+&ELSE
+
   OS-COMMAND NO-WAIT notepad.exe VALUE(lvErrorFile).
+&ENDIF
 
 END PROCEDURE.
 

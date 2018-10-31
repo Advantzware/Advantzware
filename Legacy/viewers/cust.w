@@ -146,7 +146,7 @@ cust.fax-country cust.frt-pay cust.fob-code cust.ship-part cust.loc ~
 cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet ~
 cust.case-bundle cust.int-field[1] cust.po-mandatory cust.show-set ~
-cust.log-field[1] 
+cust.log-field[1] cust.imported
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
 &Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-2 RECT-3 RECT-4 
@@ -162,7 +162,7 @@ cust.fax-country cust.frt-pay cust.fob-code cust.ship-part cust.loc ~
 cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet ~
 cust.case-bundle cust.int-field[1] cust.po-mandatory cust.show-set ~
-cust.log-field[1] 
+cust.log-field[1] cust.imported
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS fl_custemail terms_dscr rd_inv-meth ~
@@ -290,11 +290,11 @@ DEFINE RECTANGLE RECT-2
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 71 BY 3.43.
+     SIZE 71 BY 3.82.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 74.4 BY 11.91.
+     SIZE 74.4 BY 12.30.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -465,6 +465,7 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      btn_bank-info AT ROW 2.95 COL 129.2
      cust.sman AT ROW 3.86 COL 73 COLON-ALIGNED
+          LABEL "SalesGrp"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
@@ -566,6 +567,10 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 8.8 BY 1
           FONT 4
+    cust.imported AT ROW 18.43 COL 80.6
+          LABEL "Contract Pricing?"
+          VIEW-AS TOGGLE-BOX
+          SIZE 24 BY .81 
      cust.spare-int-1 AT ROW 12.67 COL 129 COLON-ALIGNED WIDGET-ID 12
           LABEL "Pallet ID" FORMAT ">>>>>>>>9"
           VIEW-AS FILL-IN 
@@ -586,7 +591,7 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      cust.po-mandatory AT ROW 16.62 COL 114.6
           VIEW-AS TOGGLE-BOX
-          SIZE 24 BY .81
+          SIZE 24 BY .81   
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -759,6 +764,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN cust.phone IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR TOGGLE-BOX cust.po-mandatory IN FRAME F-Main
+   2 4                                                                  */
+/* SETTINGS FOR TOGGLE-BOX cust.imported IN FRAME F-Main
    2 4                                                                  */
 /* SETTINGS FOR RADIO-SET rd_inv-meth IN FRAME F-Main
    NO-ENABLE 2                                                          */
@@ -2048,7 +2055,8 @@ PROCEDURE local-assign-record :
                 shipto.carrier = cust.carrier
                 shipto.dest-code = cust.del-zone
                 shipto.loc = cust.loc
-                shipto.tax-code = cust.tax-gr.
+                shipto.tax-code = cust.tax-gr
+                shipto.tax-mandatory = cust.sort EQ "Y".
          LEAVE.  /* just copy first shipto only Task 05250421*/
     end.
     for each bf-soldto of bf-cust NO-LOCK BY bf-soldto.sold-no:
@@ -2102,42 +2110,7 @@ PROCEDURE local-assign-record :
     cust.SwiftBIC  =  cShift  
     cust.Bank-RTN  =  cRouting .
 
-   /*IF adm-new-record AND NOT adm-adding-record THEN DO: /* copy*/
-     FIND FIRST b-cust WHERE RECID(b-cust) = v-cust-recid-prev NO-LOCK NO-ERROR.
-     FOR EACH b-shipto OF b-cust NO-LOCK.
-         CREATE shipto.
-         BUFFER-COPY b-shipto EXCEPT b-shipto.cust b-shipto.rec_key TO shipto.
-         ASSIGN shipto.company = cust.company
-                shipto.cust-no = cust.cust-no
-                shipto.ship-addr[1] = cust.addr[1]
-                shipto.ship-addr[2] = cust.addr[2]
-                shipto.ship-city = cust.city
-                shipto.ship-id = cust.cust-no
-                shipto.ship-name = cust.name
-                shipto.ship-no = 1
-                shipto.ship-state = cust.state
-                shipto.ship-zip = cust.zip
-                shipto.carrier = cust.carrier
-                shipto.dest-code = cust.del-zone
-                shipto.loc = cust.loc
-                shipto.tax-code = cust.tax-gr.
-     END.
-     FOR EACH b-soldto OF b-cust NO-LOCK:
-         CREATE soldto.
-         BUFFER-COPY b-soldto EXCEPT b-soldto.cust b-soldto.rec_key TO soldto.
-         ASSIGN soldto.company = cust.company
-                soldto.cust-no = cust.cust-no
-                soldto.sold-addr[1] = cust.addr[1]
-                soldto.sold-addr[2] = cust.addr[2]
-                soldto.sold-city = cust.city
-                soldto.sold-id = cust.cust-no
-                soldto.sold-name = cust.name
-                soldto.sold-no = 1
-                soldto.sold-state = cust.state
-                soldto.sold-zip = cust.zip.
-     END.
-  END.*/
-
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2488,46 +2461,7 @@ PROCEDURE local-update-record :
 
   RUN disable-fields.
 
-  /*if adm-new-record and not adm-adding-record then do:  /* copy */
-    find bf-cust where bf-cust.company = cust.company and
-                       bf-cust.cust-no = ls-prev-cust-no no-lock no-error.
-
-    for each bf-shipto of bf-cust NO-LOCK BY bf-shipto.ship-no
-         /* WHERE bf-shipto.ship-id = bf-cust.cust-no*/ :
-        create shipto.
-        buffer-copy bf-shipto except bf-shipto.cust-no to shipto.
-        assign shipto.cust-no = cust.cust-no
-                shipto.company = cust.company
-                shipto.ship-addr[1] = cust.addr[1]
-                shipto.ship-addr[2] = cust.addr[2]
-                shipto.ship-city = cust.city
-                shipto.ship-id = cust.cust-no
-                shipto.ship-name = cust.name
-                shipto.ship-state = cust.state
-                shipto.ship-zip = cust.zip
-                shipto.carrier = cust.carrier
-                shipto.dest-code = cust.del-zone
-                shipto.loc = cust.loc
-                shipto.tax-code = cust.tax-gr.
-               .
-         LEAVE.  /* just copy first shipto only Task 05250421*/
-    end.
-    for each bf-soldto of bf-cust NO-LOCK BY bf-soldto.sold-no:
-        create soldto.
-        buffer-copy bf-soldto except bf-soldto.cust-no to soldto.
-        assign soldto.cust-no = cust.cust-no
-                soldto.company = cust.company
-                soldto.sold-addr[1] = cust.addr[1]
-                soldto.sold-addr[2] = cust.addr[2]
-                soldto.sold-city = cust.city
-                soldto.sold-id = cust.cust-no
-                soldto.sold-name = cust.name
-                soldto.sold-state = cust.state
-                soldto.sold-zip = cust.zip.
-        LEAVE. /* just copy first shipto only Task 05250421*/
-    end.                     
-  end.*/
-
+ 
   IF NOT adm-new-record             AND
     cust.cr-hold NE ll-prev-cr-hold THEN
   FOR EACH oe-ord

@@ -571,7 +571,8 @@ do v-local-loop = 1 to v-local-copies:
         K = 0
         lv-got-return = 0.
 
-        FOR EACH notes WHERE notes.rec_key = itemfg.rec_key NO-LOCK.
+        FOR EACH notes WHERE notes.rec_key = itemfg.rec_key
+            AND lookup(notes.note_code,spec-list) NE 0 NO-LOCK.
          
             DO i = 1 TO LENGTH(notes.note_text) :        
                IF i - j >= v-note-length THEN ASSIGN j = i

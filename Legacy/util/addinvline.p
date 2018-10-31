@@ -107,6 +107,10 @@ DEFINE TEMP-TABLE ttblUPS NO-UNDO
 DEFINE VARIABLE rCurrentInvHeadRow AS ROWID NO-UNDO.    
 DEFINE VARIABLE lUseLogs  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cDebugLog AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
+
 DEFINE STREAM sDebug.
 lUseLogs = TRUE. /* Use debug logging unless it's turned off */
 if search("custfiles\logs\" + "block-oe-bolp3-logging.txt") ne ? then 
@@ -508,6 +512,8 @@ FOR EACH w-inv:
 END.
 
 RUN upsFile.
+
+DELETE OBJECT hNotesProcs.
 
 STATUS DEFAULT.
 

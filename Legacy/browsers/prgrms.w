@@ -84,7 +84,7 @@ prgrms.track_usage prgrms.popup prgrms.mfgroup
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table btnRun browse-order auto_find 
 &Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
@@ -99,6 +99,11 @@ prgrms.track_usage prgrms.popup prgrms.mfgroup
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnRun 
+     IMAGE-UP FILE "Graphics/16x16/media_play.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Run" 
+     SIZE 5 BY 1 TOOLTIP "Run Selected Program".
+
 DEFINE BUTTON Btn_Clear_Find 
      LABEL "&Clear Find" 
      SIZE 13 BY 1
@@ -113,7 +118,7 @@ DEFINE VARIABLE browse-order AS INTEGER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 97 BY 1 NO-UNDO.
+     SIZE 91 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -151,7 +156,7 @@ DEFINE BROWSE Browser-Table
       prgrms.menu_item FORMAT "yes/no":U
       prgrms.menuOrder FORMAT ">>>9":U
       prgrms.menuLevel FORMAT ">>9":U
-      prgrms.mnemonic FORMAT "x(8)":U
+      prgrms.mnemonic COLUMN-LABEL "Hotkey" FORMAT "x(6)":U
       prgrms.itemParent FORMAT "x(10)":U
       prgrms.systemType FORMAT "x(8)":U
       prgrms.can_run COLUMN-LABEL "View ID's" FORMAT "X(30)":U
@@ -172,6 +177,8 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     btnRun AT ROW 17.91 COL 98 HELP
+          "Run Selected Program" WIDGET-ID 2
      browse-order AT ROW 17.91 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
      auto_find AT ROW 17.91 COL 112 COLON-ALIGNED HELP
@@ -274,7 +281,8 @@ ASSIGN
      _FldNameList[4]   = ASI.prgrms.menu_item
      _FldNameList[5]   = ASI.prgrms.menuOrder
      _FldNameList[6]   = ASI.prgrms.menuLevel
-     _FldNameList[7]   = ASI.prgrms.mnemonic
+     _FldNameList[7]   > ASI.prgrms.mnemonic
+"mnemonic" "Hotkey" "x(6)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.prgrms.itemParent
 "itemParent" ? "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   = ASI.prgrms.systemType
@@ -339,6 +347,27 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnRun
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRun B-table-Win
+ON CHOOSE OF btnRun IN FRAME F-Main /* Run */
+DO:
+    IF AVAILABLE prgrms        AND
+       prgrms.menu_item EQ YES AND
+       prgrms.menuOrder NE 0   AND
+       prgrms.menuLevel NE 0   AND
+       prgrms.mnemonic  NE ""  AND
+       INDEX(prgrms.prgmname,".") NE 0 THEN
+    RUN Get_Procedure IN Persistent-Handle(prgrms.prgmname,OUTPUT run-proc,YES).
+    ELSE
+    MESSAGE
+        "Selection not an executable Program"
+    VIEW-AS ALERT-BOX ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */

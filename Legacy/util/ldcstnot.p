@@ -27,8 +27,7 @@ REPEAT:
                              cust.cust-no = tt-tbl.KEY-2 NO-LOCK NO-ERROR.
        IF AVAIL cust THEN do:
           if cust.rec_key = '' THEN DO:
-              ls-key = string(today,"99999999") +
-                       string(next-value(rec_key_seq,nosweat),"99999999").             
+              ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey").             
  
              create rec_key.
              assign rec_key.rec_key = ls-key
@@ -73,8 +72,7 @@ REPEAT:
                               cust.cust-no = tt-tbl.KEY NO-LOCK NO-ERROR.
         IF AVAIL cust THEN DO:
            if cust.rec_key = '' THEN DO:
-              ls-key = string(today,"99999999") +
-                       string(next-value(rec_key_seq,nosweat),"99999999").             
+              ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey").             
  
              create rec_key.
              assign rec_key.rec_key = ls-key

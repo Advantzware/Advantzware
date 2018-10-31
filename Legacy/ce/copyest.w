@@ -1087,8 +1087,7 @@ PROCEDURE run-process :
         and est.est-no  eq FILL(" ",8 - LENGTH(TRIM(fest))) + TRIM(fest)
       no-lock no-error.
 
-  ls-key = string(today,"99999999") +
-                  string(next-value(rec_key_seq,nosweat),"99999999").
+  ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey").
   create rec_key.
   assign rec_key.rec_key = ls-key
          rec_key.table_name = "EST".

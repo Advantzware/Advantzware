@@ -556,10 +556,10 @@ ASSIGN lv-prt-sts = /*IF NOT oe-ord.ack-prnt THEN "ORIGINAL" ELSE "REVISED"*/
                assign v-printline = 20.          
             end.
             IF AVAIL shipto THEN DO:
-                put oe-rel.po-no AT 2 shipto.ship-name AT 25 FORM "x(28)" /*lcnt AT 55 FORM ">>9" SPACE(1)*/  ld-date AT 59.
-                     IF oe-rel.link-no EQ 0 THEN
-                         PUT oe-rel.tot-qty FORMAT "->>,>>>,>>9".
-                     ELSE PUT oe-rel.qty FORMAT "->>,>>>,>>9".
+                put tt-oe-rel.po-no AT 2 shipto.ship-name AT 25 FORM "x(28)" /*lcnt AT 55 FORM ">>9" SPACE(1)*/  ld-date AT 59.
+                     IF tt-oe-rel.link-no EQ 0 THEN
+                         PUT tt-oe-rel.tot-qty FORMAT "->>,>>>,>>9".
+                     ELSE PUT tt-oe-rel.qty FORMAT "->>,>>>,>>9".
                   PUT  SKIP .
                 v-printline = v-printline + 1.
               
@@ -613,11 +613,11 @@ ASSIGN lv-prt-sts = /*IF NOT oe-ord.ack-prnt THEN "ORIGINAL" ELSE "REVISED"*/
                 PAGE .
                 {oe/rep/ackunipk.i}
                 assign v-printline = 20.          
-              end.
-              put oe-rel.po-no AT 2  ld-date AT 59.
-                  IF oe-rel.link-no EQ 0 THEN
-                      PUT oe-rel.tot-qty FORMAT "->>,>>>,>>9".
-                  ELSE PUT oe-rel.qty FORMAT "->>,>>>,>>9".
+              end.    
+              put tt-oe-rel.po-no AT 2  ld-date AT 59.
+                  IF tt-oe-rel.link-no EQ 0 THEN
+                      PUT tt-oe-rel.tot-qty FORMAT "->>,>>>,>>9".
+                  ELSE PUT tt-oe-rel.qty FORMAT "->>,>>>,>>9".
                      PUT SKIP .
           END.
           PUT SKIP(1).

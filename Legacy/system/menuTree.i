@@ -14,6 +14,8 @@ Usage:
                cText,
                cImage,
                cMnemonic,
+               cShowMnemonic,
+               cPositionMnemonic,
                lActive
                ).
     3. create PROCEDURE pProcessClick for processing after a menu item click
@@ -73,8 +75,43 @@ SESSION:SET-WAIT-STATE("").
 
 FUNCTION fMnemonic RETURNS CHARACTER 
     (ipcMnemonic AS CHARACTER):
-    RETURN IF ipcMnemonic EQ "" THEN "" ELSE  "[" + ipcMnemonic + "] ".
+    RETURN IF ipcMnemonic EQ "" THEN "" ELSE  "[" + ipcMnemonic + "]".
         
+END FUNCTION.
+
+FUNCTION fTreeText RETURNS CHARACTER 
+	(iplIsMenu AS LOGICAL,
+	 ipcText AS CHARACTER,
+	 ipcMnemonic AS CHARACTER,
+	 ipcShowMnemonic AS CHARACTER,
+	 ipcPositionMnemonic AS CHARACTER
+	):
+
+    DEFINE VARIABLE cTreeText AS CHARACTER NO-UNDO.
+    
+    CASE ipcShowMnemonic:
+        WHEN "None" OR WHEN "" THEN
+        cTreeText = ipcText.
+        WHEN "All" THEN
+            CASE ipcPositionMnemonic:
+                WHEN "Begin" THEN
+                cTreeText = fMnemonic(ipcMnemonic) + " " + ipcText.
+                WHEN "End" THEN
+                cTreeText = ipcText + " " + fMnemonic(ipcMnemonic).
+            END CASE.
+        WHEN "Program" THEN
+            IF iplIsMenu THEN cTreeText = ipcText.
+            ELSE
+            CASE ipcPositionMnemonic:
+                WHEN "Begin" THEN
+                cTreeText = fMnemonic(ipcMnemonic) + " " + ipcText.
+                WHEN "End" THEN
+                cTreeText = ipcText + " " + fMnemonic(ipcMnemonic).
+            END CASE.            
+    END CASE.
+
+	RETURN cTreeText.
+		
 END FUNCTION.
 
 /* **********************  Internal Procedures  *********************** */
@@ -138,17 +175,20 @@ PROCEDURE pClickMenuTree:
 END PROCEDURE.
 
 PROCEDURE pCreatettMenuTree:
-    DEFINE INPUT PARAMETER iphFrame    AS HANDLE    NO-UNDO.
-    DEFINE INPUT PARAMETER ipiOrder    AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipiLevel    AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER iplMenu     AS LOGICAL   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcParent   AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcChild    AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcText     AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcImage    AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcMnemonic AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplActive   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iphFrame            AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOrder            AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiLevel            AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER iplMenu             AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcParent           AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcChild            AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcText             AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcImage            AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMnemonic         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShowMnemonic     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPositionMneminic AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplActive           AS LOGICAL   NO-UNDO.
     
+    DEFINE VARIABLE cTreeText AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMnemonic AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hWidget   AS HANDLE    NO-UNDO.
     DEFINE VARIABLE dWidth    AS DECIMAL   NO-UNDO.
@@ -209,7 +249,16 @@ PROCEDURE pCreatettMenuTree:
         hWidget:LOAD-IMAGE(SEARCH(cImageFolder + ttMenuTree.treeImage)).
     END.
 
-    dWidth = LENGTH(fMnemonic(ttMenuTree.mnemonic) + ttMenuTree.treeText) * 1.6.                    .
+    ASSIGN
+        dWidth    = LENGTH(fMnemonic(ttMenuTree.mnemonic) + ttMenuTree.treeText) * 1.6
+        cTreeText = fTreeText(
+            ttMenuTree.isMenu,
+            fTranslate(ttMenuTree.treeText,NO),
+            ttMenuTree.mnemonic,
+            ipcShowMnemonic,
+            ipcPositionMneminic
+            ) 
+            .
     IF dWidth LT 6 THEN
     dWidth = 6.
     
@@ -230,7 +279,7 @@ PROCEDURE pCreatettMenuTree:
             WORD-WRAP = NO
             READ-ONLY = YES
             BOX = NO
-            SCREEN-VALUE = fMnemonic(ttMenuTree.mnemonic) + fTranslate(ttMenuTree.treeText,NO)
+            SCREEN-VALUE = cTreeText
             PRIVATE-DATA = ttMenuTree.treeText + "," + STRING(ROWID(ttMenuTree))
       TRIGGERS:
         ON MOUSE-SELECT-CLICK
@@ -239,9 +288,10 @@ PROCEDURE pCreatettMenuTree:
     IF VALID-HANDLE(hWidget) THEN DO:
         ASSIGN
             ttMenuTRee.hEditor = hWidget
-            hWidget:TOOLTIP = hWidget:SCREEN-VALUE
+            hWidget:TOOLTIP = IF ipcMnemonic NE "" THEN "HotKey: " + ipcMnemonic
+                              ELSE hWidget:SCREEN-VALUE
             .
-        hWidget:LOAD-MOUSE-POINTER("ARROW").
+        hWidget:LOAD-MOUSE-POINTER("GLOVE").
     END.
     
     &IF "{&isActive}" EQ "YES" &THEN
@@ -252,7 +302,6 @@ PROCEDURE pCreatettMenuTree:
             COL = 1
             ROW = 1
             SENSITIVE = YES
-            HIDDEN = YES
             HIDDEN = YES
             WIDTH = 3
             HEIGHT = dObjectHeight
@@ -441,8 +490,11 @@ END PROCEDURE.
 
 PROCEDURE pSetFocus:
     DEFINE VARIABLE dRow AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE i    AS INTEGER NO-UNDO.
     
     DEFINE BUFFER bttMenuTree FOR ttMenuTree.
+    
+    RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
     
     /* this forces frame to auto adjust to selection */
     IF VALID-HANDLE(hFocus) THEN DO:
@@ -464,6 +516,8 @@ PROCEDURE pSetFocus:
         APPLY "ENTRY":U TO hFocus.
     END.
 
+    RUN LockWindowUpdate (0,OUTPUT i).
+    
 END PROCEDURE.
 
 PROCEDURE pSetisActive:

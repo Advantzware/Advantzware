@@ -61,6 +61,8 @@ FOR EACH oe-rell
      oe-boll.lot-no   = oe-rell.lot-no
      oe-boll.sell-price = oe-rell.sell-price
      oe-boll.zeroPrice = oe-rell.zeroPrice
+     oe-boll.enteredBy = oe-rell.enteredBy
+     oe-boll.enteredDT = oe-rell.enteredDT
      .
 
     /*task 01121106 disable trigger oe-bolh preventing this from happening*/
@@ -68,7 +70,7 @@ FOR EACH oe-rell
   DO:
      CREATE rec_key.
      ASSIGN
-        oe-boll.rec_key = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+        oe-boll.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey")
         rec_key.rec_key = oe-boll.rec_key
         rec_key.table_name = "oe-boll".
      RELEASE rec_key.

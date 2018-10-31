@@ -24,9 +24,8 @@ DEFINE INPUT PARAMETER ip-ord-no LIKE po-ord.po-no NO-UNDO.
 DEFINE INPUT PARAMETER ip-type AS cha NO-UNDO .   /* add,update,view */
 
 {custom/globdefs.i}
-
 {sys/inc/var.i new shared}
-
+{system/fSuperRunning.i}
 
 ASSIGN
     cocode = g_company

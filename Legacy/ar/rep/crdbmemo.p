@@ -55,6 +55,10 @@ DEF VAR v-licnt      AS INT                           NO-UNDO.
 DEF VAR note-count   AS INT                           NO-UNDO. 
 /* gdm - 04210922 logo */
 DEF VAR ls-cust-img  AS CHAR                         NO-UNDO.
+DEF VAR ls-image1    AS CHAR                         NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)"          NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEF VAR v-memo-name  AS CHAR FORMAT "x(30)"          NO-UNDO.
 DEF VAR v-memo-addr  AS CHAR FORMAT "x(30)" EXTENT 2 NO-UNDO.
 DEF VAR v-memo-city  AS CHAR FORMAT "x(15)"          NO-UNDO.
@@ -73,6 +77,12 @@ ASSIGN
     v-memo-state = ""
     v-memo-zip   = ""
     .
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
 

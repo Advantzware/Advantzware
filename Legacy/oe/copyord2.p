@@ -279,8 +279,7 @@ PROCEDURE copyCust :
 
       IF AVAIL cust THEN DO:
       
-        lv-rec_key = STRING(TODAY,"99999999") +
-               STRING(NEXT-VALUE(rec_key_seq,nosweat),"99999999").
+        lv-rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
         CREATE rec_key.
          ASSIGN
           rec_key.rec_key    = lv-rec_key
@@ -416,8 +415,7 @@ PROCEDURE copyEst :
 
             ASSIGN
                 n-est-no   = v-est-no
-                lv-rec_key = STRING(TODAY,"99999999") +
-                      STRING(NEXT-VALUE(rec_key_seq,nosweat),"99999999").
+                lv-rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
             CREATE rec_key.
             ASSIGN
                 rec_key.rec_key    = lv-rec_key
@@ -634,8 +632,7 @@ PROCEDURE copyFG :
                       
     IF AVAIL itemfg THEN DO:    
 
-        lv-rec_key = STRING(TODAY,"99999999") +
-                  STRING(NEXT-VALUE(rec_key_seq,nosweat),"99999999").
+        lv-rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
         CREATE rec_key.
         ASSIGN
             rec_key.rec_key    = lv-rec_key
@@ -985,8 +982,7 @@ PROCEDURE copyOrder :
         AND oe-ord.ord-no  EQ ipFromOrdNo
       NO-LOCK NO-ERROR.
 
-  lv-rec_key = STRING(TODAY,"99999999") +
-               STRING(NEXT-VALUE(rec_key_seq,nosweat),"99999999").
+  lv-rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
   CREATE rec_key.
   ASSIGN
    rec_key.rec_key    = lv-rec_key
@@ -1586,7 +1582,7 @@ PROCEDURE create-rel :
                 END.
       
                 /* gdm - 06220908 */
-                IF v-relflg2 THEN
+                IF v-relflg2 THEN DO:
                     ASSIGN oe-rel.ship-no      = shipto.ship-no
                         oe-rel.ship-id      = shipto.ship-id
                         oe-rel.ship-addr[1] = shipto.ship-addr[1]
@@ -1599,7 +1595,8 @@ PROCEDURE create-rel :
                         oe-rel.ship-i[3]    = shipto.notes[3]
                         oe-rel.ship-i[4]    = shipto.notes[4]
                         oe-rel.spare-char-1 = shipto.loc.
-      
+                    RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                END.
                 FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
                     AND sys-ctrl.NAME    EQ "OECARIER"
                     NO-LOCK NO-ERROR.
@@ -1664,7 +1661,7 @@ PROCEDURE create-rel :
             DO:
       
                 /* gdm - 06220908 */
-                IF v-relflg2 THEN
+                IF v-relflg2 THEN DO:
                     ASSIGN  oe-rel.ship-no      = shipto.ship-no
                         oe-rel.ship-id      = shipto.ship-id
                         oe-rel.ship-addr[1] = shipto.ship-addr[1]
@@ -1677,7 +1674,8 @@ PROCEDURE create-rel :
                         oe-rel.ship-i[3]    = shipto.notes[3]
                         oe-rel.ship-i[4]    = shipto.notes[4]
                         oe-rel.spare-char-1 = shipto.loc.
-      
+                    RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                END.
                 /* check that itemfg-loc exists */
                 IF oe-rel.spare-char-1 GT "" THEN
                     RUN fg/chkfgloc.p (INPUT oe-rel.i-no, INPUT oe-rel.spare-char-1).
@@ -1727,7 +1725,7 @@ PROCEDURE create-rel :
         IF AVAIL shipto THEN 
         DO:
             /* gdm - 06220908 */
-            IF v-relflg2 THEN
+            IF v-relflg2 THEN DO:
                 ASSIGN oe-rel.ship-no      = shipto.ship-no
                     oe-rel.ship-id      = shipto.ship-id
                     oe-rel.ship-addr[1] = shipto.ship-addr[1]
@@ -1740,8 +1738,8 @@ PROCEDURE create-rel :
                     oe-rel.ship-i[3]    = shipto.notes[3]
                     oe-rel.ship-i[4]    = shipto.notes[4]
                     oe-rel.spare-char-1 = shipto.loc.
-    
-
+                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+            END.
             FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
                 AND sys-ctrl.NAME    EQ "OECARIER"
                 NO-LOCK NO-ERROR.
@@ -2151,3 +2149,23 @@ END PROCEDURE.
 
 &ENDIF
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

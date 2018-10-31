@@ -24,6 +24,7 @@
    DEF VAR v-note3             AS CHAR                 NO-UNDO.
    DEF VAR v-note4             AS CHAR                 NO-UNDO.
    DEF VAR ld-palls AS DEC NO-UNDO.
+   DEF VAR cShipZip        LIKE shipto.ship-zip   NO-UNDO.
 
    ASSIGN 
       v-line  = "<C1><FROM><C107><LINE><||3>" .
@@ -442,7 +443,7 @@
             w-ord.po-num    = v-po-no
             w-ord.ord-qty   = v-qty
             w-ord.shp-qty   = oe-ordl.ship-qty
-            w-ord.msf       = w-ord.rel-qty * itemfg.t-sqft / 1000 
+            w-ord.msf       = w-ord.rel-qty * (IF AVAIL itemfg THEN itemfg.t-sqft ELSE 0) / 1000 
             w-ord.prom-code = oe-ordl.prom-code
             w-ord.last-date = oe-ord.ord-date
             w-ord.carrier   = v-carrier
@@ -461,7 +462,7 @@
 
             w-ord.palls = w-ord.palls + ld-palls.
               
-         IF v-comps AND itemfg.isaset THEN DO:
+         IF v-comps AND AVAIL itemfg AND itemfg.isaset THEN DO:
 
             RUN fg/fullset.p (ROWID(itemfg)).
 
@@ -475,9 +476,9 @@
             ASSIGN
                b-w-ord.component = 1
                b-w-ord.cust-name = w-ord.cust-name
-               b-w-ord.part-no   = itemfg.part-no 
+               b-w-ord.part-no   = IF AVAIL itemfg THEN itemfg.part-no ELSE "" 
                b-w-ord.i-no      = tt-fg-set.part-no
-               b-w-ord.i-name    = itemfg.i-name 
+               b-w-ord.i-name    = IF AVAIL itemfg THEN itemfg.i-name ELSE ""
                b-w-ord.price     = 0
                b-w-ord.cost      = 0
                b-w-ord.t-price   = 0
@@ -487,7 +488,7 @@
                b-w-ord.rel-qty   = w-ord.rel-qty * tt-fg-set.part-qty-dec
                b-w-ord.ord-qty   = w-ord.ord-qty * tt-fg-set.part-qty-dec
                b-w-ord.shp-qty   = w-ord.shp-qty * tt-fg-set.part-qty-dec
-               b-w-ord.msf       = b-w-ord.rel-qty * itemfg.t-sqft / 1000.
+               b-w-ord.msf       = b-w-ord.rel-qty * (IF AVAIL itemfg THEN itemfg.t-sqft ELSE 0) / 1000.
             END.
          END.
       
@@ -539,7 +540,7 @@
                w-ord.po-num    = job-hdr.po-no
                w-ord.ord-qty   = v-qty
                w-ord.shp-qty   = 0
-               w-ord.msf       = v-qty * itemfg.t-sqft / 1000 
+               w-ord.msf       = v-qty * (IF AVAIL itemfg THEN itemfg.t-sqft ELSE 0) / 1000 
                w-ord.prom-code = ""
                w-ord.last-date = job-hdr.start-date
                w-ord.carrier   = v-carrier
@@ -550,7 +551,7 @@
                w-ord.v-note3   = v-note3
                w-ord.v-note4   = v-note4.
          
-            IF v-comps AND itemfg.isaset THEN DO:
+            IF v-comps AND AVAIL itemfg AND itemfg.isaset THEN DO:
            
                RUN fg/fullset.p (ROWID(itemfg)).
            
@@ -564,9 +565,9 @@
                ASSIGN
                   b-w-ord.component = 1
                   b-w-ord.cust-name = w-ord.cust-name
-                  b-w-ord.part-no   = itemfg.part-no 
+                  b-w-ord.part-no   = IF AVAIL itemfg THEN itemfg.part-no ELSE "" 
                   b-w-ord.i-no      = tt-fg-set.part-no
-                  b-w-ord.i-name    = itemfg.i-name 
+                  b-w-ord.i-name    = IF AVAIL itemfg THEN itemfg.i-name  ELSE ""
                   b-w-ord.price     = 0
                   b-w-ord.cost      = 0
                   b-w-ord.t-price   = 0
@@ -576,7 +577,7 @@
                   b-w-ord.rel-qty   = w-ord.rel-qty * tt-fg-set.part-qty-dec
                   b-w-ord.ord-qty   = w-ord.ord-qty * tt-fg-set.part-qty-dec
                   b-w-ord.shp-qty   = w-ord.shp-qty * tt-fg-set.part-qty-dec
-                  b-w-ord.msf       = b-w-ord.rel-qty * itemfg.t-sqft / 1000.
+                  b-w-ord.msf       = b-w-ord.rel-qty * (IF AVAIL itemfg THEN itemfg.t-sqft ELSE 0) / 1000.
                END.
             END.
            

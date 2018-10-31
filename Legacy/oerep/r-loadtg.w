@@ -967,7 +967,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Loadtag Creation */
 DO:
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -1166,7 +1166,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
    apply "close" to this-procedure.
 END.
 
@@ -3115,15 +3115,8 @@ PROCEDURE create-loadtag :
       WHERE itemfg.company EQ cocode
         AND itemfg.i-no    EQ w-ord.i-no
       NO-ERROR.
-
-  FIND LAST loadtag NO-LOCK
-      WHERE loadtag.company     EQ cocode
-        AND loadtag.item-type   EQ NO
-        AND loadtag.is-case-tag EQ NO
-        AND loadtag.tag-no      BEGINS w-ord.i-no 
-        AND SUBSTR(loadtag.tag-no,1,15) EQ w-ord.i-no
-      USE-INDEX tag NO-ERROR.
-  io-tag-no = (IF AVAIL loadtag THEN INT(SUBSTR(loadtag.tag-no,16,5)) ELSE 0) + 1.
+  
+  RUN GetNextLoadtagNumber (cocode, w-ord.i-no, OUTPUT io-tag-no).
 
   /* rstark - zoho13731 */
   IF CAN-FIND(FIRST sys-ctrl
@@ -3547,7 +3540,7 @@ PROCEDURE create-text-file :
 
       PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#,"
                        "PalletCode,PalletID,TagCounter,TagCountTotal,"
-                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty".
+                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty,RunShip".
 
       /* rstark - */
       IF lSSCC THEN PUT UNFORMATTED ",SSCC".
@@ -3829,7 +3822,9 @@ PROCEDURE create-w-ord :
             w-ord.sold-state   = oe-ord.sold-state
             w-ord.sold-zip     = oe-ord.sold-zip
             w-ord.linenum      = IF AVAIL oe-ordl THEN oe-ordl.e-num ELSE 0
-            w-ord.lot          = loadtag.misc-char[2].
+            w-ord.lot          = loadtag.misc-char[2]
+            w-ord.runShip      = IF AVAILABLE oe-ordl THEN oe-ordl.whsed ELSE NO 
+            .
 
       IF AVAIL b-job-hdr THEN
          w-ord.due-date-jobhdr = IF b-job-hdr.due-date <> ? THEN STRING(b-job-hdr.due-date, "99/99/9999") ELSE "".
@@ -4645,7 +4640,8 @@ PROCEDURE from-job :
 
                 ASSIGN
                  w-ord.ord-desc1    = oe-ordl.part-dscr1
-                 w-ord.ord-desc2    = oe-ordl.part-dscr2.
+                 w-ord.ord-desc2    = oe-ordl.part-dscr2
+                 w-ord.runShip      = oe-ordl.whsed.
 
                 RELEASE oe-ordl.
                 RELEASE oe-ord.
@@ -4891,6 +4887,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
             w-ord.dont-run-set = oe-ordl.is-a-component
             w-ord.ord-desc1    = oe-ordl.part-dscr1
             w-ord.ord-desc2    = oe-ordl.part-dscr2
+            w-ord.runShip      = oe-ordl.whsed
 
             /* gdm - 08130804*/
             w-ord.linenum      = oe-ordl.e-num
@@ -6709,7 +6706,7 @@ PROCEDURE ok-button :
   IF lv-ok-ran AND NOT tb_reprint-tag AND tb_close THEN do:
      IF program-name(1) matches "*r-loadtg.*"
         and not program-name(2) matches "*persist*" THEN DO:
-         RUN system/userLogOut.p.
+         RUN system/userLogOut.p (NO, 0).
      END.
       APPLY "close" TO THIS-PROCEDURE.
   END.
@@ -7769,8 +7766,9 @@ PROCEDURE write-loadtag-line :
         "~"" replace(w-ord.ship-notes[3],'"', '') "~","
         "~"" replace(w-ord.ship-notes[4],'"', '') "~","
         "~"" loadtag.loc "~","
-        "~"" loadtag.loc-bin "~""
-        .
+        "~"" loadtag.loc-bin "~","
+        "~"" w-ord.job-qty "~","
+        "~"" STRING(w-ord.runShip,"R&S/WHSE")  "~"".
     
     IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".
 END.
@@ -7977,6 +7975,44 @@ FUNCTION win_normalizePath RETURNS CHARACTER
 
 END FUNCTION.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetNextLoadtagNumber C-Win
+PROCEDURE GetNextLoadtagNumber PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opiNextTag AS INTEGER NO-UNDO.
+
+DEFINE VARIABLE iLastFGTag AS INTEGER.
+DEFINE VARIABLE iLastRMTag AS INTEGER.
+
+FIND LAST loadtag NO-LOCK
+      WHERE loadtag.company     EQ ipcCompany
+        AND loadtag.item-type   EQ NO
+        AND loadtag.is-case-tag EQ NO
+        AND loadtag.tag-no      BEGINS ipcFGItemID 
+        AND SUBSTR(loadtag.tag-no,1,15) EQ ipcFGItemID
+      USE-INDEX tag NO-ERROR.
+  iLastFGTag = (IF AVAIL loadtag THEN INT(SUBSTR(loadtag.tag-no,16,5)) ELSE 0) + 1.
+
+FIND LAST loadtag NO-LOCK
+      WHERE loadtag.company     EQ ipcCompany
+        AND loadtag.item-type   EQ YES
+        AND loadtag.is-case-tag EQ NO
+        AND loadtag.tag-no      BEGINS ipcFGItemID 
+        AND SUBSTR(loadtag.tag-no,1,15) EQ ipcFGItemID
+      USE-INDEX tag NO-ERROR.
+  iLastRMTag = (IF AVAIL loadtag THEN INT(SUBSTR(loadtag.tag-no,16,5)) ELSE 0) + 1.
+  
+  opiNextTag = MAX(iLastFGTag, iLastRMTag).
+
+END PROCEDURE.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -192,7 +192,7 @@ DEFINE RECTANGLE RECT-12
      SIZE 75 BY 6.19.
 
 DEFINE VARIABLE tb_obsolete AS LOGICAL INITIAL no 
-     LABEL "Obsolete?" 
+     LABEL "Inactive?" 
      VIEW-AS TOGGLE-BOX
      SIZE 17 BY 1 NO-UNDO.
 
@@ -1986,7 +1986,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+DEFINE VARIABLE lAddRecord AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
     /* 33482 - Ensure blank record is not saved - MYT - 08/28/18 */
     IF adm-new-record 
@@ -1994,7 +1994,7 @@ PROCEDURE local-update-record :
         RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
         RETURN NO-APPLY.
     END.
-
+  ASSIGN lAddRecord = adm-new-record .
   RUN valid-m-code NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -2049,7 +2049,7 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF adm-new-record AND NOT adm-adding-record THEN RUN repo-query (ROWID(mach)).
+  IF lAddRecord THEN RUN repo-query (ROWID(mach)).
 
 END PROCEDURE.
 

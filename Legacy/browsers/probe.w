@@ -105,7 +105,8 @@ DEFINE TEMP-TABLE q-sort1 NO-UNDO FIELD qty AS DECIMAL FIELD rel AS INTEGER.
 DEFINE TEMP-TABLE q-sort2 NO-UNDO FIELD qty AS DECIMAL FIELD rel AS INTEGER.
 
 DEFINE NEW SHARED TEMP-TABLE tt-qtty FIELD qtty LIKE qtty
-                                  FIELD rel LIKE rels.
+                                  FIELD rel LIKE rels
+                                  FIELD lRunShip LIKE lRunShips.
 
 DEFINE TEMP-TABLE tt-bqty NO-UNDO FIELD tt-bqty AS INTEGER FIELD tt-brel AS INTEGER.
 
@@ -249,9 +250,6 @@ END.
     IF lv-sort-by EQ "probe-user"      THEN string(probe.probe-user)                                       ELSE ~
     IF lv-sort-by EQ "vtot-msf"        THEN string(vtot-msf())                                             ELSE ~
     IF lv-sort-by EQ "ls-probetime"    THEN string(cvt-time(probe.probe-time))                             ELSE ~
-    IF lv-sort-by EQ "grossProfitPerM" THEN string(probe.grossProfitPerM)                                        ELSE ~
-    IF lv-sort-by EQ "grossProfitPerManhourAssemb"          THEN string(probe.grossProfitPerManHourAssemb)                                        ELSE ~
-    IF lv-sort-by EQ "grossProfitPerManHourOther"         THEN string(probe.grossProfitPerManHourOther)                                       ELSE ~
     IF lv-sort-by EQ "line"            THEN string(probe.LINE)                                             ELSE ~
     IF lv-sort-by EQ "spare-dec-1"      THEN string(probe.spare-dec-1)                                     ELSE ~
     IF lv-sort-by EQ "dMatPctSellPrice"    THEN string(fDirectMatPctSellPrice(1))                          ELSE ~
@@ -307,14 +305,13 @@ display-gp (1) @ probe.gross-profit probe.gross-profit probe.grossProfitPctTemp 
 probe.comm probe.net-profit probe.sell-price probe.gsh-qty probe.do-quote ~
 voverall(1) @ voverall probe.probe-date probe.boardCostPerM probe.boardCostPct ~
 probe.boardContributionPerM probe.boardContributionTotal probe.probe-user vtot-msf() @ vtot-msf ~
-cvt-time(probe.probe-time) @ ls-probetime probe.grossProfitPerM probe.grossProfitPerManhourAssemb ~
-probe.grossProfitPerManHourOther probe.line probe.spare-dec-1 probe.board-cost ~
+cvt-time(probe.probe-time) @ ls-probetime probe.line probe.spare-dec-1 ~
 fDirectMatPctSellPrice(1) @ dMatPctSellPrice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table probe.full-cost ~
 probe.gross-profit probe.grossProfitPctTemp probe.net-profit ~
 probe.sell-price probe.do-quote probe.boardCostPct probe.boardContributionPerM ~
-probe.boardContributionTotal probe.grossProfitPerM probe.grossProfitPerManhourAssemb probe.grossProfitPerManHourOther 
-&Scoped-define ENABLED-TABLES-IN-QUERY-br_table probe
+probe.boardContributionTotal 
+&Scoped-define ENABLED-TABLES-IN-QUERY-br_table probe reftable
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table probe
 &Scoped-define QUERY-STRING-br_table FOR EACH probe WHERE probe.company = eb.company and ~
 ASI.probe.est-no = eb.est-no ~
@@ -387,28 +384,6 @@ RUN set-attribute-list (
 &ANALYZE-RESUME
 
 /* ************************  Function Prototypes ********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD calc-cm B-table-Win 
-FUNCTION calc-cm RETURNS DECIMAL
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD calc-cmah B-table-Win 
-FUNCTION calc-cmah RETURNS DECIMAL
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD calc-cmoh B-table-Win 
-FUNCTION calc-cmoh RETURNS DECIMAL
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD checkNCBrd B-table-Win 
 FUNCTION checkNCBrd RETURNS LOGICAL
   ( /* parameter-definitions */ )  FORWARD.
@@ -512,12 +487,6 @@ DEFINE BROWSE br_table
       probe.probe-user COLUMN-LABEL "Probe By" FORMAT "X(8)":U
       vtot-msf() @ vtot-msf COLUMN-LABEL "Total!MSF" COLUMN-FONT 0
       cvt-time(probe.probe-time) @ ls-probetime COLUMN-LABEL "Time" FORMAT "x(8)":U
-      probe.grossProfitPerM COLUMN-LABEL "CM$" FORMAT "->>,>>>,>>9.99":U
-            WIDTH 19
-      probe.grossProfitPerManhourAssemb COLUMN-LABEL "CMAH" FORMAT "->>,>>>,>>9.99":U
-            WIDTH 19
-      probe.grossProfitPerManHourOther COLUMN-LABEL "CMOH" FORMAT "->>,>>>,>>9.99":U
-            WIDTH 19
       probe.line FORMAT ">>9":U
       probe.board-cost FORMAT "->>,>>>,>>9.99":U 
       probe.spare-dec-1 COLUMN-LABEL "Direct!Material" FORMAT "->>>,>>9.99":U
@@ -533,9 +502,6 @@ DEFINE BROWSE br_table
       probe.boardCostPct
       probe.boardContributionPerM
       probe.boardContributionTotal
-      probe.grossProfitPerM
-      probe.grossProfitPerManhourAssemb
-      probe.grossProfitPerManHourOther
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 143 BY 13.1
@@ -685,17 +651,11 @@ ASI.probe.est-no = ASI.eb.est-no"
 "vtot-msf() @ vtot-msf" "Total!MSF" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > "_<CALC>"
 "cvt-time(probe.probe-time) @ ls-probetime" "Time" "x(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[22]   > ASI.probe.grossProfitPerM
-"probe.grossProfitPerM" "CM$" "->>,>>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[23]   > ASI.probe.grossProfitPerManhourAssemb
-"probe.grossProfitPerManhourAssemb" "CMAH" "->>,>>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   > ASI.probe.grossProfitPerManHourOther
-"probe.grossProfitPerManHourOther" "CMOH" "->>,>>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[25]   > ASI.probe.line
+     _FldNameList[22]   > ASI.probe.line
 "probe.line" ? ">>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[26]   > ASI.probe.spare-dec-1
+     _FldNameList[23]   > ASI.probe.spare-dec-1
 "probe.spare-dec-1" "Direct!Material" "->>>,>>9.99" "decimal" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[27]   > "_<CALC>"
+     _FldNameList[24]   > "_<CALC>"
 "fDirectMatPctSellPrice(1) @ dMatPctSellPrice" "Dir. Mat%" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
@@ -1450,8 +1410,6 @@ PROCEDURE calc-fields :
       IF lv-changed2 NE "S" THEN 
         probe.gross-profit:{&SVB} = STRING(display-gp (0)).
     END.
-    RUN recalc-multicell.
-     
     RUN save-fields.
 
   END.
@@ -3432,29 +3390,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE recalc-multicell B-table-Win 
-PROCEDURE recalc-multicell :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-/* Special logic for multicell */
-DEFINE VARIABLE v-mr AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-cmah AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-cmoh AS DECIMAL NO-UNDO.
-
-v-mr = calc-cm().
-probe.grossProfitPerM:{&SVB} = STRING(v-mr).
-v-cmah = calc-cmah().
-probe.grossProfitPerManhourAssemb:{&SVB} = STRING(v-cmah).
-v-cmoh = calc-cmoh().
-probe.grossProfitPerManHourOther:{&SVB} = STRING(v-cmoh).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE release-shared-buffers B-table-Win 
 PROCEDURE release-shared-buffers :
 /*------------------------------------------------------------------------------
@@ -3544,7 +3479,7 @@ PROCEDURE run-screen-calc :
         AND mach.m-code EQ est-op.m-code:
     IF mach.obsolete THEN DO:
         MESSAGE "Machine: " + TRIM(mach.m-code) +
-                " is obsolete, please replace to complete calculation..."
+                " is Inactive, please replace to complete calculation..."
             VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
@@ -3648,7 +3583,7 @@ PROCEDURE run-whatif :
         AND mach.m-code EQ est-op.m-code:
    IF mach.obsolete THEN DO:
     MESSAGE "Machine: " + TRIM(mach.m-code) +
-            " is obsolete, please replace to complete calculation..."
+            " is Inactive, please replace to complete calculation..."
         VIEW-AS ALERT-BOX ERROR.
     RETURN.
    END.
@@ -4040,93 +3975,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION calc-cm B-table-Win 
-FUNCTION calc-cm RETURNS DECIMAL
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-DEFINE VARIABLE v-cm AS DECIMAL NO-UNDO.
-v-cm = DECIMAL(probe.sell-price:{&SVB})
-       - DECIMAL(probe.fact-cost:{&SVB}).
-  RETURN v-cm.   /* Function return value. */
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION calc-cmah B-table-Win 
-FUNCTION calc-cmah RETURNS DECIMAL
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-DEFINE VARIABLE v-cmah AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-mr AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-run AS DECIMAL NO-UNDO.
-FIND FIRST tt-est-op NO-LOCK NO-ERROR.
-IF NOT AVAILABLE tt-est-op THEN DO:
-    FIND CURRENT est.
-    FIND xef WHERE RECID(xef) EQ RECID(ef).
-    FIND xeb WHERE RECID(xeb) EQ RECID(eb).
-    /* calc-opq is to get the correct num-sh by calculating
-       est-op records where line > 500 and copying them to 
-       tt-est-op */
-    RUN cec/calc-opq.p (INPUT cocode, INPUT locode,
-                        INPUT ROWID(est),
-                        INPUT ROWID(ef),
-                        INPUT ROWID(eb) ).
-END.
-
-/* Get total assembly machine hours */
-RUN est/calc-mr.p (INPUT probe.est-no, INPUT "A", OUTPUT v-mr, OUTPUT v-run).
-
-IF v-mr GT 0 THEN
-  v-cmah = DECIMAL(probe.grossProfitPerM:{&SVB}) / 
-     ((v-mr + v-run) / (INTEGER(probe.est-qty:{&SVB}) / 1000)).
-ELSE
-  v-cmah = 0.
-/* MESSAGE "probe, calc-cmah, v-mr" v-mr "v-run" v-run           */
-/*    "qty" probe.est-qty:{&SVB}  */
-/*    "cm" probe.grossProfitPerM:{&SVB} */
-/*     "v-cmah" v-cmah                                           */
-/*     VIEW-AS ALERT-BOX INFO BUTTONS OK.                        */
-RETURN v-cmah.   /* Function return value. */
-
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION calc-cmoh B-table-Win 
-FUNCTION calc-cmoh RETURNS DECIMAL
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-DEFINE VARIABLE v-cmoh AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-mr AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-run AS DECIMAL NO-UNDO.
-
-RUN est/calc-mr.p (INPUT probe.est-no, INPUT "N", OUTPUT v-mr, OUTPUT v-run).
-IF v-mr GT 0 THEN
-  v-cmoh = DECIMAL(probe.grossProfitPerM:{&SVB}) / 
-    ((v-mr + v-run) / (INTEGER(probe.est-qty:{&SVB}) / 1000)).
-ELSE
-  v-cmoh = 0.
-
-RETURN v-cmoh.   /* Function return value. */
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION checkNCBrd B-table-Win 
 FUNCTION checkNCBrd RETURNS LOGICAL

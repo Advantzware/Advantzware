@@ -321,7 +321,7 @@ DEFINE FRAME fold
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      eb.sman AT ROW 8.14 COL 21 COLON-ALIGNED
-          LABEL "Sales Rep"
+          LABEL "SalesGrp"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
      sman_sname AT ROW 8.14 COL 28 COLON-ALIGNED NO-LABEL
@@ -3245,7 +3245,7 @@ PROCEDURE valid-sman :
         NO-LOCK NO-ERROR.
 
     IF NOT AVAIL sman THEN DO:
-       MESSAGE "Invalid Sales Rep. Try help." VIEW-AS ALERT-BOX ERROR.
+       MESSAGE "Invalid SalesGrp. Try help." VIEW-AS ALERT-BOX ERROR.
        APPLY "entry" TO eb.sman.
        RETURN ERROR.
     END.

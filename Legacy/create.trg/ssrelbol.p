@@ -2,7 +2,7 @@
 
 TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
 
-{custom/rec_key.i {&TABLENAME}}
+{methods/triggers/create.i}
 
 ASSIGN
    {&TABLENAME}.created-date = TODAY
