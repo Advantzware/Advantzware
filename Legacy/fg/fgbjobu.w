@@ -923,6 +923,7 @@ PROCEDURE build-type-list :
     DELETE OBJECT hPgmReason.
 
     DO WITH FRAME {&FRAME-NAME}:
+        IF cComboList EQ "" THEN cComboList = ?.
         cb_reatype:LIST-ITEM-PAIRS = cComboList .
     END.
 
