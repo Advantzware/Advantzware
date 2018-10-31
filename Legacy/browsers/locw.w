@@ -601,6 +601,7 @@ PROCEDURE build-table :
     DEFINE VARIABLE iTotAlloc   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTotBack    AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTotAvail   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTotReOrder   AS INTEGER NO-UNDO.
     
     EMPTY TEMP-TABLE w-jobs.
     EMPTY TEMP-TABLE w-job.
@@ -640,6 +641,7 @@ PROCEDURE build-table :
             iTotAlloc           = iTotAlloc   + w-jobs.allocated
             iTotBack            = iTotBack    + w-jobs.backOrder
             iTotAvail           = iTotAvail   + w-jobs.qtyAvailable
+            iTotReOrder         = iTotReOrder + w-jobs.ord-level
             .
         IF AVAILABLE loc THEN
             w-jobs.loc-desc = loc.dscr.      
@@ -652,7 +654,7 @@ PROCEDURE build-table :
         w-jobs.loc          = "ALL"
         w-jobs.loc-desc     = "ALL Locations"
         w-jobs.lead-days    = 0
-        w-jobs.ord-level    = 0
+        w-jobs.ord-level    = iTotReOrder
         w-jobs.ord-max      = 0
         w-jobs.ord-min      = 0
         w-jobs.beg-date     = ?     
