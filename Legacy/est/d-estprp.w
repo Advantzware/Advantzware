@@ -999,13 +999,12 @@ PROCEDURE valid-code :
             RETURN ERROR.
         END.
         IF ip-count EQ 1 THEN 
-        DO:
-            IF NOT CAN-FIND(FIRST prep
+        DO:  
+            FIND FIRST prep NO-LOCK
                 WHERE prep.company EQ est.company
-                AND prep.loc     EQ est.loc
-                AND prep.code    EQ est-prep.code:SCREEN-VALUE )
-                THEN 
-            DO:
+                AND prep.code    EQ est-prep.code:SCREEN-VALUE NO-ERROR.
+            IF AVAIL prep AND prep.loc NE "" AND prep.loc  NE est.loc THEN
+            DO: 
                 MESSAGE "Code is at a different location than the estimate" VIEW-AS ALERT-BOX WARNING.
                 APPLY "entry" TO est-prep.code.
             END.
