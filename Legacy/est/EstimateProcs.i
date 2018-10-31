@@ -22,6 +22,14 @@ DEFINE {1} TEMP-TABLE ttCalculationErrors
     FIELD cMessage AS CHARACTER 
     FIELD lCritical AS LOGICAL
     .
+    
+DEFINE {1} TEMP-TABLE ttCostTable NO-UNDO
+    FIELD dRunQty AS DECIMAL EXTENT 20
+    FIELD dRunCost AS DECIMAL EXTENT 20
+    FIELD cRunCostUom AS CHARACTER 
+    FIELD dSetups AS DECIMAL EXTENT 20
+    
+    .
 
 
 /* ********************  Preprocessor Definitions  ******************** */
