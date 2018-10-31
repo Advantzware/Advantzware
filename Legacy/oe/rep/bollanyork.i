@@ -17,13 +17,14 @@ FOR EACH tt-boll,
     BY tt-boll.ord-no
     BY tt-boll.line
     BY tt-boll.cases DESCENDING:
-    RUN get_lot_no.
+    
     IF ll-consol-bolls THEN 
-    DO:
+    DO:  
         {oe/rep/bollanyork23.i}
     END.
     ELSE 
     DO:   
+        RUN get_lot_no.
         FIND FIRST oe-ordl
             WHERE oe-ordl.company EQ cocode
             AND oe-ordl.ord-no  EQ tt-boll.ord-no

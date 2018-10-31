@@ -507,71 +507,63 @@ PROCEDURE create-tt-boll.
                     ((ip-qty-case * ip-cases) / oe-boll.qty * oe-boll.weight).
 
     IF oe-boll.p-c THEN tt-boll.p-c = YES.
+    IF tt-boll.job-diff EQ "" THEN
+        tt-boll.job-diff = oe-boll.job-no .
+    ELSE IF tt-boll.job-diff NE oe-boll.job-no THEN
+        tt-boll.job-diff = "diff-job" .
 
 END PROCEDURE.
 
 PROCEDURE get_lot_no:
     ASSIGN 
         v-lot# = "".
-
-    IF tt-boll.lot-code NE "" THEN
-        v-lot# = tt-boll.lot-code.
-    ELSE DO:
-        IF tt-boll.job-no NE "" THEN 
-        DO:  
+       
             FOR EACH fg-rcpth NO-LOCK
-                WHERE fg-rcpth.company      EQ tt-boll.company
-                AND fg-rcpth.i-no         EQ tt-boll.i-no
-                AND fg-rcpth.job-no       EQ tt-boll.job-no
-                AND fg-rcpth.job-no2      EQ tt-boll.job-no2
+                WHERE fg-rcpth.company EQ tt-boll.company
+                AND fg-rcpth.i-no      EQ tt-boll.i-no
                 USE-INDEX tran,
 
                 EACH fg-rdtlh NO-LOCK
                 WHERE fg-rdtlh.r-no         EQ fg-rcpth.r-no
-                AND fg-rdtlh.stack-code     NE ""
-                AND fg-rdtlh.rita-code    EQ "R"
+                AND fg-rdtlh.rita-code      EQ "R"
+                AND fg-rdtlh.tag            EQ tt-boll.tag
                 USE-INDEX rm-rdtl
 
                 BREAK BY fg-rcpth.trans-date
                       BY fg-rdtlh.trans-time
                       BY fg-rcpth.r-no:
-                v-lot# = fg-rdtlh.stack-code.
-                LEAVE.
+
+                IF fg-rdtlh.stack-code NE "" THEN
+                    v-lot# = fg-rdtlh.stack-code.
+                ELSE IF fg-rcpth.po-no NE "" THEN
+                    v-lot# = fg-rcpth.po-no.
+                ELSE v-lot# = fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2) .
+                     LEAVE.
             END.
-        END.
-    END.
+        
+END PROCEDURE.
 
-    IF v-lot# EQ "" THEN DO:
-
-         FIND FIRST oe-ordl NO-LOCK
+PROCEDURE get_lot_from-oerel:
+   
+        FIND FIRST oe-ordl
             WHERE oe-ordl.company EQ cocode
             AND oe-ordl.ord-no  EQ tt-boll.ord-no
             AND oe-ordl.i-no    EQ tt-boll.i-no
             AND oe-ordl.line    EQ tt-boll.line
-            NO-ERROR.
+            NO-LOCK NO-ERROR.
+           IF AVAIL oe-ordl THEN
+               FOR EACH oe-rel NO-LOCK
+               WHERE oe-rel.company = oe-ordl.company 
+               AND oe-rel.ord-no = oe-ordl.ord-no 
+               AND oe-rel.i-no = oe-ordl.i-no 
+               AND oe-rel.line = oe-ordl.line :
 
-        IF AVAIL oe-ordl THEN
-            FOR EACH fg-rcpth NO-LOCK
-               where fg-rcpth.company EQ cocode
-                 and fg-rcpth.i-no    EQ tt-boll.i-no
-                 and fg-rcpth.po-no   EQ string(oe-ordl.po-no-po)
-                 use-index i-no,
-               first fg-rdtlh NO-LOCK
-               where fg-rdtlh.r-no         EQ fg-rcpth.r-no 
-                 AND fg-rdtlh.tag          eq tt-boll.tag
-                 use-index rm-rdtl
-               by fg-rcpth.trans-date
-               BY fg-rdtlh.trans-time
-               by fg-rcpth.r-no:
-                
-                ASSIGN v-lot# = fg-rdtlh.stack-code. /* fg lot# */
-                LEAVE.
-            END.
-
-
-    END.
-
-   
+                 IF oe-rel.lot-no NE "" THEN DO:
+                    v-lot# = oe-rel.lot-no .
+                    LEAVE.
+                 END.
+               END.
+           
 END PROCEDURE.
 
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */

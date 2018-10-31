@@ -123,12 +123,12 @@ oe-boll.loc-bin oe-boll.job-no oe-boll.job-no2 oe-boll.cust-no ~
 oe-boll.cases oe-boll.qty-case oe-boll.partial oe-boll.qty fgBin() @ fgBin ~
 oe-boll.tot-pallets oe-boll.weight oe-boll.freight oe-boll.p-c ~
 oe-boll.lot-no get-cost() @ li-cost display-cust-item(0) @ lv-part-no ~
-get-release() @ lv-relase oe-boll.lot-code
+get-release() @ lv-relase 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-boll.ord-no ~
 oe-boll.i-no oe-boll.po-no oe-boll.tag oe-boll.loc oe-boll.loc-bin ~
 oe-boll.job-no oe-boll.job-no2 oe-boll.cases oe-boll.qty-case ~
 oe-boll.partial oe-boll.qty oe-boll.tot-pallets oe-boll.weight ~
-oe-boll.freight oe-boll.p-c oe-boll.lot-code
+oe-boll.freight oe-boll.p-c 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table oe-boll
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table oe-boll
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH oe-boll WHERE ~{&KEY-PHRASE} ~
@@ -295,8 +295,6 @@ DEFINE BROWSE Browser-Table
             WIDTH 12
       display-cust-item(0) @ lv-part-no FORMAT "x(15)":U
       get-release() @ lv-relase COLUMN-LABEL "Release" FORMAT "x(8)":U
-      oe-boll.lot-code COLUMN-LABEL "FG Lot#" FORMAT "x(8)":U
-            WIDTH 20
   ENABLE
       oe-boll.ord-no
       oe-boll.i-no
@@ -314,7 +312,6 @@ DEFINE BROWSE Browser-Table
       oe-boll.weight
       oe-boll.freight
       oe-boll.p-c
-      oe-boll.lot-code
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 6.43
@@ -478,8 +475,6 @@ ASSIGN
 "display-cust-item(0) @ lv-part-no" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > "_<CALC>"
 "get-release() @ lv-relase" "Release" "x(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   > ASI.oe-boll.lot-code
-"oe-boll.lot-code" "FG Lot#" ? "character" ? ? ? ? ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

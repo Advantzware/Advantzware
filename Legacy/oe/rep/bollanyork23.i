@@ -16,12 +16,18 @@ DO:
     ASSIGN
         i              = 0
         v-tot-case-qty = 0.
+     
+    RUN get_lot_no.
+
+     IF tt-boll.job-diff = "diff-job"  THEN
+         RUN get_lot_from-oerel.
 
     FOR EACH bf-ttboll WHERE bf-ttboll.i-no = tt-boll.i-no
         AND bf-ttboll.po-no = tt-boll.po-no
         AND bf-ttboll.ord-no = tt-boll.ord-no
         AND bf-ttboll.LINE = tt-boll.LINE
         BREAK BY bf-ttboll.cases DESCENDING.
+        
         FIND FIRST oe-ordl WHERE oe-ordl.company EQ cocode
             AND oe-ordl.ord-no  EQ tt-boll.ord-no
             AND oe-ordl.i-no    EQ tt-boll.i-no
@@ -31,7 +37,7 @@ DO:
             AND oe-ord.ord-no  EQ tt-boll.ord-no NO-LOCK NO-ERROR.
         ASSIGN
             v-tot-case-qty = v-tot-case-qty + bf-ttboll.qty
-            i              = i + 1.
+            i              = i + 1.  
         FIND FIRST w2 WHERE w2.cas-cnt EQ bf-ttboll.qty-case NO-ERROR.
         IF NOT AVAILABLE w2 THEN CREATE w2.
         ASSIGN 
@@ -120,12 +126,13 @@ DO:
         END.
         IF AVAILABLE bf-ttboll THEN 
             v-relpc     = IF bf-ttboll.p-c THEN "C" ELSE "P".
+
         IF w2.qty = 0 AND w2.i-no = "" AND w2.dscr = "" AND NOT last(w2.cases) AND w2.cas-cnt EQ 0 THEN .
         ELSE 
         DO:  
             PUT
                 "<C2>" TRIM(STRING(w2.qty,"->>,>>>,>>>")) .
-            IF i EQ 1 THEN 
+            IF w2.cases NE 0 THEN 
             DO:
                 PUT "<C12>" STRING(w2.cases,"->>>9") + " @ "
                     "<C16>" STRING(w2.cas-cnt,">>>,>>>").
