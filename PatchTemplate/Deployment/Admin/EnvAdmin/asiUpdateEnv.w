@@ -4131,7 +4131,8 @@ PROCEDURE ipRemoveUserAddon :
     RUN ipStatus ("    Removing addon mode from .usr file").
 
     DEF BUFFER bxUserMenu FOR xUserMenu.
-
+    DISABLE TRIGGERS FOR LOAD OF xUserMenu.
+    
     DEF VAR cLine     AS CHAR NO-UNDO.
     DEF VAR cOutline  AS CHAR NO-UNDO.
 
@@ -4160,7 +4161,7 @@ PROCEDURE ipRemoveUserAddon :
                 CREATE bxUserMenu.
                 BUFFER-COPY xUserMenu EXCEPT user_id TO bxUserMenu
                 ASSIGN 
-                    bxUserMenu.user_id = users.user_id.
+                    bxUserMenu.user_id = ttUsers.ttfUserID.
             END. /* each xusermenu */
         END.
         ASSIGN 
