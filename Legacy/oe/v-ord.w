@@ -954,7 +954,8 @@ DO:
                                                                shipto.ship-city,
                                                                shipto.ship-state,
                                                                shipto.ship-zip).
-                 
+                 IF shipto.tax-code NE "" THEN
+                     oe-ord.tax-gr:screen-value = shipto.tax-code .
               END.
          END.  
          WHEN "sman" THEN DO:
@@ -1564,7 +1565,10 @@ DO:
                                                                shipto.ship-city,
                                                                shipto.ship-state,
                                                                 shipto.ship-zip).
-        IF NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN 
+         IF shipto.tax-code NE "" THEN
+         oe-ord.tax-gr:screen-value    =  shipto.tax-code .
+
+         IF NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN 
             MESSAGE "Please note: Shipto " shipto.ship-id " is valid but currently inactive"
             VIEW-AS ALERT-BOX.
             
@@ -3525,7 +3529,8 @@ PROCEDURE display-cust-detail :
               ls-ship-i[1] = shipto.notes[1]
               ls-ship-i[2] = shipto.notes[2]
               ls-ship-i[3] = shipto.notes[3]
-              ls-ship-i[4] = shipto.notes[4].
+              ls-ship-i[4] = shipto.notes[4]
+              oe-ord.tax-gr:screen-value    = IF shipto.tax-code NE "" THEN shipto.tax-code ELSE oe-ord.tax-gr:screen-value .
 
     IF cust.active EQ "X" THEN fi_type:screen-value = "T".
 
@@ -3833,6 +3838,9 @@ IF AVAIL xest THEN DO:
               ls-ship-i[2] = shipto.notes[2]
               ls-ship-i[3] = shipto.notes[3]
               ls-ship-i[4] = shipto.notes[4].
+    IF AVAIL shipto AND shipto.tax-code NE "" THEN
+        oe-ord.tax-gr:screen-value    = shipto.tax-code .
+
 
       IF lastship-cha = "Stock/Custom" THEN DO:
           /* If order has no estimate. */
