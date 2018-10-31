@@ -1415,7 +1415,8 @@ DO:
     IF USERID("ASI") NE "Nosweat" THEN
         MESSAGE 'Exit Advantzware?' VIEW-AS ALERT-BOX
             QUESTION BUTTONS YES-NO UPDATE closeMenu.
-    IF NOT closeMenu THEN RETURN NO-APPLY.        
+    IF NOT closeMenu THEN RETURN NO-APPLY.
+    RUN pSetUserSettings.
     RUN system/userLogOut.p (NO, 0).
     QUIT. /* kills all processes */
 END.
