@@ -380,7 +380,8 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL employee.employeeImage[1] V-table-Win
 ON LEAVE OF employee.employeeImage[1] IN FRAME F-Main /* Image */
-DO:
+DO: 
+    IF SELF:SCREEN-VALUE NE "" THEN 
     cEmployeeImage:LOAD-IMAGE(SELF:SCREEN-VALUE) NO-ERROR.
 END.
 
@@ -664,10 +665,15 @@ PROCEDURE local-display-fields :
 
     /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-
   /* Code placed here will execute AFTER standard behavior.    */
-  cEmployeeImage:LOAD-IMAGE(employee.employeeImage[1]:SCREEN-VALUE)
-    IN FRAME {&FRAME-NAME} NO-ERROR.
+
+  IF employee.employeeImage[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
+      cEmployeeImage:LOAD-IMAGE(employee.employeeImage[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  END.
+  ELSE DO: 
+      cEmployeeImage:LOAD-IMAGE("adeicon/blank").
+  END.
+      
 
  
 END PROCEDURE.
