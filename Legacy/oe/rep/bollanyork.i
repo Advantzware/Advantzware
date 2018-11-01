@@ -125,9 +125,10 @@ FOR EACH tt-boll,
                 "<C12>" STRING(w2.cases,"->>>9") + " @ "
                 "<C16>" STRING(w2.cas-cnt,">>>,>>>")
                 "<C24>" STRING(tt-boll.qty) + " [" + STRING(v-relpc) + "]"
-                "<C35>" v-job-po FORMAT "x(15)"
-                "<C48>" oe-ordl.ord-no 
-                "<C61>" v-part-dscr FORMAT "x(23)" SKIP.
+                "<C35>" v-job-po FORMAT "x(15)".
+            IF i EQ 1 THEN
+                PUT "<C48>" oe-ordl.ord-no  .
+            PUT "<C61>" v-part-dscr FORMAT "x(23)" SKIP.
           
          
             v-printline = v-printline + 1.
