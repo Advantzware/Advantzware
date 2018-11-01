@@ -18,10 +18,7 @@ DO:
         v-tot-case-qty = 0.
      
     RUN get_lot_no.
-
-     IF tt-boll.job-diff = "diff-job"  THEN
-         RUN get_lot_from-oerel.
-
+    
     FOR EACH bf-ttboll WHERE bf-ttboll.i-no = tt-boll.i-no
         AND bf-ttboll.po-no = tt-boll.po-no
         AND bf-ttboll.ord-no = tt-boll.ord-no
@@ -137,6 +134,9 @@ DO:
                 PUT "<C12>" STRING(w2.cases,"->>>9") + " @ "
                     "<C16>" STRING(w2.cas-cnt,">>>,>>>").
             END.
+            IF i EQ 1 THEN
+                PUT "<C21>" string(v-tot-case-qty,"->>,>>>,>>>") + " [" + STRING(v-relpc) + "]" FORMAT "x(16)" .
+
             PUT "<C35>" w2.job-po FORMAT "x(15)" .
             .
             IF i EQ 1 THEN

@@ -517,7 +517,28 @@ END PROCEDURE.
 PROCEDURE get_lot_no:
     ASSIGN 
         v-lot# = "".
-       
+
+         FIND FIRST oe-ordl
+            WHERE oe-ordl.company EQ cocode
+            AND oe-ordl.ord-no  EQ tt-boll.ord-no
+            AND oe-ordl.i-no    EQ tt-boll.i-no
+            AND oe-ordl.line    EQ tt-boll.line
+            NO-LOCK NO-ERROR.
+           IF AVAIL oe-ordl THEN
+               FOR EACH oe-rel NO-LOCK
+               WHERE oe-rel.company = oe-ordl.company 
+               AND oe-rel.ord-no = oe-ordl.ord-no 
+               AND oe-rel.i-no = oe-ordl.i-no 
+               AND oe-rel.line = oe-ordl.line
+               AND oe-rel.po-no = tt-boll.po-no :
+
+                 IF oe-rel.lot-no NE "" THEN DO:
+                    v-lot# = oe-rel.lot-no .
+                    LEAVE.
+                 END.
+               END.
+
+          IF v-lot# EQ "" THEN
             FOR EACH fg-rcpth NO-LOCK
                 WHERE fg-rcpth.company EQ tt-boll.company
                 AND fg-rcpth.i-no      EQ tt-boll.i-no
@@ -536,34 +557,12 @@ PROCEDURE get_lot_no:
                 IF fg-rdtlh.stack-code NE "" THEN
                     v-lot# = fg-rdtlh.stack-code.
                 ELSE IF fg-rcpth.po-no NE "" THEN
-                    v-lot# = fg-rcpth.po-no.
+                    v-lot# = "PO#-" + fg-rcpth.po-no.
                 ELSE v-lot# = fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2) .
                      LEAVE.
             END.
         
 END PROCEDURE.
 
-PROCEDURE get_lot_from-oerel:
-   
-        FIND FIRST oe-ordl
-            WHERE oe-ordl.company EQ cocode
-            AND oe-ordl.ord-no  EQ tt-boll.ord-no
-            AND oe-ordl.i-no    EQ tt-boll.i-no
-            AND oe-ordl.line    EQ tt-boll.line
-            NO-LOCK NO-ERROR.
-           IF AVAIL oe-ordl THEN
-               FOR EACH oe-rel NO-LOCK
-               WHERE oe-rel.company = oe-ordl.company 
-               AND oe-rel.ord-no = oe-ordl.ord-no 
-               AND oe-rel.i-no = oe-ordl.i-no 
-               AND oe-rel.line = oe-ordl.line :
-
-                 IF oe-rel.lot-no NE "" THEN DO:
-                    v-lot# = oe-rel.lot-no .
-                    LEAVE.
-                 END.
-               END.
-           
-END PROCEDURE.
 
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */
