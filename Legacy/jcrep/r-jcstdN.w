@@ -58,13 +58,15 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 ASSIGN cTextListToSelect = "Job #,Item ID,Item Name,Category,Cust Part #,Style,Job Qty,Estimate,Form,Blank,Order,Customer,Customer Name," + 
                            "Calc Tim,Calc By,Std Prep Material,Std Misc Material,Std Prep Labor,Std Misc Labor,Std Direct Material,Std Direct Labor," +
                            "Std Var Overhead,Std Fixed Overhead,Std Total Factory,Std Commission,Std Freight,Std Full Cost,Std Gross Profit,Std Gross Margin," +
-                           "Std Net Profit,Std Net Margin,Std Sell Price,Sell Price,Booked/Std Price" 
+                           "Std Net Profit,Std Net Margin,Std Sell Price,Sell Price,Booked/Std Price," +
+                           "Std Net Margin(Act Price),Std Gross Margin(Act Price),Act Sell Price/MSF,Sales Group,Job Created Date,Job Start Date,Job Qty MSF (FG),Std Sell Price/MSF,Cust Type Desc,Job Status,Order Status"
        cFieldListToSelect = "job,item,item-name,category,cust-part,style,job-qty,est,form,blank,order,cust,cust-name," +
                             "calc-tm,calc-by,std-prp-mat,std-mis-mat,std-prp-lab,std-misc-lab,std-dir-mat,std-dir-lab," +
                             "std-var-over,std-fix-over,std-tot-fac,std-comm,std-frt,std-ful-cst,std-gross-prft,std-gross-mar," +
-                            "std-net-prft,std-net-mar,std-sel-price,ord-itm-s-price,book-std-price"
-       cFieldLength = "9,15,25,11,15,6,13,8,4,5,7,8,30," + "23,8,17,17,14,14,18,16," + "16,18,17,14,11,13,16,16," + "14,14,14,13,16"
-       cFieldType = "c,c,c,c,c,c,c,i,i,i,i,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c" 
+                            "std-net-prft,std-net-mar,std-sel-price,ord-itm-s-price,book-std-price," +
+                            "std-net-margin-act-pr,std-gross-margin-act-pr,act-sell-pri-msf,sales-grp,job-create,job-start,job-qty-msf-fg,std-sell-price-msf,cust-type,job-stat,order-stat"
+       cFieldLength = "9,15,25,11,15,6,13,8,4,5,7,8,30," + "23,8,17,17,14,14,18,16," + "16,18,17,14,11,13,16,16," + "14,14,14,13,16," + "25,27,19,11,16,14,16,18,20,10,12"
+       cFieldType = "c,c,c,c,c,c,c,i,i,i,i,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c," + "i,i,i,c,c,c,i,i,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1409,7 +1411,12 @@ DEFINE VARIABLE cToTStdFac LIKE costHeader.stdCostTotalFactory NO-UNDO.
 DEFINE VARIABLE cToTStdComm LIKE costHeader.stdCostCommission NO-UNDO.
 DEFINE VARIABLE cToTStdFrt LIKE costHeader.stdCostFreight NO-UNDO.
 DEFINE VARIABLE iLineCount AS INTEGER NO-UNDO .
-
+DEFINE VARIABLE cOrderStatus  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cResult  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-sqft LIKE itemfg.t-sqft  FORMAT ">,>>9.999" NO-UNDO.
+DEFINE VARIABLE dprice-per-msf AS DECIMAL COLUMN-LABEL "$/MSF" NO-UNDO.
+DEFINE VARIABLE dstd-sell-price-msf AS DECIMAL COLUMN-LABEL "$/MSF" NO-UNDO.
+DEFINE VARIABLE dJobQtyMsf AS DECIMAL NO-UNDO .
 {sys/form/r-topsw.f}
 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1525,13 +1532,16 @@ FOR EACH costHeader NO-LOCK
             AND job-hdr.job-no EQ costHeader.jobNo
             AND job-hdr.job-no2 EQ costHeader.jobNo2
             AND job-hdr.i-no EQ costHeader.fgItemID
-            NO-ERROR.                       
+            NO-ERROR.   
+        
         IF AVAILABLE job-hdr THEN 
             FIND FIRST oe-ordl NO-LOCK
                 WHERE oe-ordl.company EQ job-hdr.company
                 AND oe-ordl.ord-no EQ job-hdr.ord-no
                 AND oe-ordl.i-no EQ job-hdr.i-no
-                NO-ERROR.  
+                NO-ERROR.              
+        ELSE RELEASE oe-ordl .
+                      
         IF iEstType EQ 6 AND costHeader.formNo NE 0 THEN
             dQtyPerSet = costHeader.quantityPerSet.
         ELSE 
@@ -1556,6 +1566,41 @@ FOR EACH costHeader NO-LOCK
                 SKIP .
           iLineCount = 0 .
         END.
+
+        IF AVAILABLE itemfg THEN 
+                RUN fg/GetFGArea.p (ROWID(itemfg), "MSF", OUTPUT v-sqft).  
+          ELSE 
+            v-sqft = 0.
+          
+          v-sqft = v-sqft * (IF AVAIL job-hdr THEN job-hdr.qty ELSE 0).
+          dprice-per-msf = dOrdPricePerM / v-sqft .
+          dstd-sell-price-msf = (costHeader.stdSellPrice / dQtyInM) / v-sqft .
+
+          dJobQtyMsf = (IF AVAIL job-hdr THEN job-hdr.qty ELSE 0) * ( IF AVAIL itemfg THEN itemfg.t-sqft ELSE 0) / 1000 .
+         
+         IF AVAIL oe-ordl THEN do:
+             cOrderStatus = oe-ordl.stat .
+             IF cOrderStatus EQ "" THEN do:
+                 FIND FIRST oe-ord NO-LOCK
+                WHERE oe-ord.company EQ cocode
+                AND oe-ord.ord-no EQ oe-ordl.ord-no
+                NO-ERROR.
+             cOrderStatus = oe-ord.stat .
+             END.
+
+             RUN oe/getStatusDesc.p( INPUT cOrderStatus, OUTPUT cResult) .
+             IF cResult NE "" THEN
+                 cOrderStatus  = cResult .
+         END.
+         ELSE DO:
+             cOrderStatus = "" .
+         END.
+
+        FIND FIRST custype NO-LOCK
+            WHERE custype.company = cocode
+              AND custype.custype = cust.TYPE 
+            NO-ERROR .
+                   
 
              ASSIGN cDisplay = ""
            cTmpField = ""
@@ -1600,6 +1645,19 @@ FOR EACH costHeader NO-LOCK
                  WHEN "std-sel-price"    THEN cVarValue = STRING((costHeader.stdSellPrice / dQtyInM),"->>,>>>,>>9.99").
                  WHEN "ord-itm-s-price"   THEN cVarValue = STRING((dOrdPricePerM ),"->,>>>,>>9.99").
                  WHEN "book-std-price"     THEN cVarValue = IF costHeader.stdSellPrice GT 0 THEN STRING(((dOrdPricePerM / (costHeader.stdSellPrice / dQtyInM )) * 100),"->>,>>>,>>>,>>9%") ELSE "".
+
+                 WHEN "std-net-margin-act-pr" THEN cVarValue = IF dOrdPricePerM GT 0 THEN STRING((((costHeader.stdProfitNet / dQtyInM  ) / (dOrdPricePerM )) * 100),"->>>>,>>>,>>9%") ELSE "".
+                 WHEN "std-gross-margin-act-pr" THEN cVarValue = IF dOrdPricePerM GT 0 THEN STRING((((costHeader.stdProfitGross / dQtyInM  ) / (dOrdPricePerM )) * 100),"->>>>,>>>,>>9%") ELSE "".
+                 WHEN "act-sell-pri-msf"     THEN cVarValue = IF dprice-per-msf NE ? THEN STRING(dprice-per-msf,"->>,>>>,>>9.99") ELSE "".
+                 WHEN "sales-grp"      THEN cVarValue = IF AVAIL oe-ordl THEN  STRING(oe-ordl.s-man[1]) ELSE STRING(cust.sman).
+                 WHEN "job-create"   THEN cVarValue = IF job.create-date NE ? THEN STRING(job.create-date) ELSE "".
+                 WHEN "job-start"     THEN cVarValue = IF job.start-date NE ? THEN STRING(job.start-date) ELSE "".
+                 WHEN "job-qty-msf-fg"  THEN cVarValue = IF dJobQtyMsf NE ? THEN  STRING(dJobQtyMsf,"->>,>>>,>>>,>>9%") ELSE "" .
+                 WHEN "std-sell-price-msf"  THEN cVarValue = IF dstd-sell-price-msf NE ? THEN STRING(dstd-sell-price-msf,"->>,>>>,>>9.99") ELSE "".
+                 WHEN "cust-type"    THEN cVarValue = IF AVAIL custype THEN STRING(custype.dscr,"x(20)")  ELSE "".
+                 WHEN "job-stat"    THEN cVarValue = STRING(job.stat,"x(10)").
+                 WHEN "order-stat"   THEN cVarValue = STRING(cOrderStatus,"x(12)") .
+                
             END CASE.
 
             cExcelVarValue = cVarValue.
@@ -1669,6 +1727,17 @@ IF tb_totals THEN  DO:
                  WHEN "std-sel-price"      THEN cVarValue = "".
                  WHEN "ord-itm-s-price"    THEN cVarValue = "".
                  WHEN "book-std-price"     THEN cVarValue = "".
+                 WHEN "std-net-margin-act-pr"   THEN cVarValue = "".
+                 WHEN "std-gross-margin-act-pr" THEN cVarValue = "".
+                 WHEN "act-sell-pri-msf"        THEN cVarValue =  "".
+                 WHEN "sales-grp"               THEN cVarValue =  "".
+                 WHEN "job-create"              THEN cVarValue =  "".
+                 WHEN "job-start"               THEN cVarValue =  "".
+                 WHEN "job-qty-msf-fg"          THEN cVarValue =  "".
+                 WHEN "std-sell-price-msf"      THEN cVarValue =  "".
+                 WHEN "cust-type"               THEN cVarValue =  "".
+                 WHEN "job-stat"                THEN cVarValue =  "".
+                 WHEN "order-stat"              THEN cVarValue =  "".
                END CASE.
 
                       cExcelVarValue = cVarValue.
