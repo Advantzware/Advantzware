@@ -389,6 +389,47 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_est
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_est C-Win
+ON HELP OF begin_est IN FRAME FRAME-A /* Beginning Estimate# */
+DO:
+     DEF VAR char-val AS cha NO-UNDO.
+     DEF var lv-eb-tmpid as recid no-undo.
+
+     run windows/l-est.w (g_company,g_loc,focus:screen-value, output char-val).
+
+     if char-val <> "" then do:                 
+            FIND FIRST eb WHERE string(RECID(eb)) = (char-val) NO-LOCK NO-ERROR.
+            IF AVAIL eb THEN ASSIGN FOCUS:SCREEN-VALUE = eb.est-no
+                                           lv-eb-tmpid = RECID(eb)    
+                                begin_est:SCREEN-VALUE = eb.est-no.
+
+     END.
+END.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_est
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_est C-Win
+ON HELP OF end_est IN FRAME FRAME-A /* Ending Estimate# */
+DO:
+     DEF VAR char-val AS cha NO-UNDO.
+     DEF var lv-eb-tmpid as recid no-undo.
+
+     run windows/l-est.w (g_company,g_loc,focus:screen-value, output char-val).
+
+     if char-val <> "" then do:                 
+            FIND FIRST eb WHERE string(RECID(eb)) = (char-val) NO-LOCK NO-ERROR.
+            IF AVAIL eb THEN ASSIGN FOCUS:SCREEN-VALUE = eb.est-no
+                                           lv-eb-tmpid = RECID(eb)    
+                                  end_est:SCREEN-VALUE = eb.est-no.
+
+            END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
