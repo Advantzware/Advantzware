@@ -2322,3 +2322,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE testAvail V-table-Win 
+PROCEDURE testAvail :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER oplAvail AS LOG NO-UNDO.
+FIND first po-ord WHERE 
+    po-ord.company = cocode and
+    po-ord.po-no =  int(po-ord.po-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) 
+    NO-LOCK NO-ERROR.
+ASSIGN oplAvail = AVAIL po-ord.
+IF po-ord.vend-no:SCREEN-VALUE EQ "" THEN ASSIGN
+    oplAvail = false.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
