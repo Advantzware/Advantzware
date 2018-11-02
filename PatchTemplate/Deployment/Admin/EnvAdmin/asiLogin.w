@@ -48,6 +48,8 @@ CREATE WIDGET-POOL.
 
 DEF STREAM usrStream.
 
+def new global shared var fwd-embedded-mode as log no-undo init false.
+
 DEFINE NEW GLOBAL SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g_track_usage AS LOGICAL NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g_header_line AS CHARACTER NO-UNDO.
@@ -292,6 +294,17 @@ PROCEDURE GetLastError EXTERNAL "kernel32.dll":
     DEFINE RETURN PARAMETER iReturnValue AS LONG.
 END.
 
+PROCEDURE fwdRunProgram.
+   def input param pname as char.
+   def input param runPersistent as log.
+   def output param phandle as handle.
+   
+   // these need to be executed in the context of asiLogin.w, in embedded mode
+   if runPersistent
+      then run value(pname) persistent set phandle.
+      else run value(pname).
+END.
+
 
 /* Pre-visualization tasks */
 
@@ -305,11 +318,17 @@ ASSIGN
     origPropath = PROPATH.
 
 IF origDirectoryName = "" THEN DO:
+
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+    ASSIGN origDirectoryName = get-working-directory().
+&ELSE
     SET-SIZE(ptrToString) = 256.
     RUN GetCurrentDirectoryA (INPUT        intBufferSize,
                               INPUT-OUTPUT ptrToString,
                               OUTPUT       intResult).
     ASSIGN origDirectoryName = GET-STRING(ptrToString,1).    
+&ENDIF
+
 END.
 ELSE DO:
     RUN ipSetCurrentDir (origDirectoryName). 
@@ -349,6 +368,7 @@ IF SEARCH(cMapDir + "\" + cAdminDir + "\advantzware.ini") EQ ? THEN DO:
 END.
 
 /* Find the .usr file containing user-level settings */
+RUN ipFindUsrFile.
 IF cUsrLoc EQ "" THEN DO:
     MESSAGE
         "Unable to locate an 'advantzware.usr' file." SKIP
@@ -620,6 +640,10 @@ DO:
     RUN ipFindUser IN THIS-PROCEDURE.
     
     IF NOT AVAIL ttUsers THEN DO:
+        if fwd-embedded-mode then
+            return no-apply "Unable to locate this user in the advantzware.usr file." +
+                            "Please contact your system administrator for assistance.".
+        else do:
         MESSAGE
             "Unable to locate this user in the advantzware.usr file." SKIP
             "Please contact your system administrator for assistance."
@@ -1835,6 +1859,10 @@ PROCEDURE ipSetCurrentDir :
     DEF VAR iResult AS INT NO-UNDO.
     DEF VAR iReturnValue AS INT NO-UNDO.
     
+    &IF DEFINED(FWD-VERSION) > 0 &THEN
+    set-working-directory(ipTgtDir).
+    &ELSE
+    
     RUN SetCurrentDirectoryA (ipTgtDir, OUTPUT iResult).
 
     IF iResult NE 1 THEN DO:
@@ -1844,6 +1872,7 @@ PROCEDURE ipSetCurrentDir :
             "Error code:" iReturnValue 
             VIEW-AS ALERT-BOX.
     END.
+    &ENDIF
 
 END PROCEDURE.
 
