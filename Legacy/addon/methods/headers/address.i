@@ -1,1 +1,0 @@
-'Address: ' + address.zipcode + ' - ' + address.address1 + ' (' + address.name1 + ')'

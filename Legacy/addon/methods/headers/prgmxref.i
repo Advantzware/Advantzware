@@ -1,1 +1,0 @@
-'Table Name: ' + prgmxref.table_name + ' - ' + prgmxref.prgmname
