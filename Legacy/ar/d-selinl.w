@@ -427,9 +427,7 @@ PROCEDURE create-records :
       WHERE b-cashl.invoiceXNo EQ ar-invl.x-no
         AND b-cashl.invoiceLine EQ ar-invl.LINE :
 
-    IF ROWID(ar-cashl) EQ ROWID(b-cashl) THEN ll = YES.
-
-    IF NOT tt-inv.selekt THEN DELETE reftable.
+    IF ROWID(ar-cashl) EQ ROWID(b-cashl) THEN ll = YES.    
 
     DELETE tt-inv.
   END.
