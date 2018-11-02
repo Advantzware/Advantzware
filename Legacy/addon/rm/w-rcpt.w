@@ -304,7 +304,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/rm/b-rcptd.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
              OUTPUT h_b-rcptd ).
        RUN set-position IN h_b-rcptd ( 4.57 , 3.00 ) NO-ERROR.
        RUN set-size IN h_b-rcptd ( 17.14 , 146.00 ) NO-ERROR.
