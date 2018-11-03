@@ -650,6 +650,34 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_part-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_part-no C-Win
+ON HELP OF begin_part-no IN FRAME FRAME-A
+DO:
+    DEFINE VARIABLE lv-eb-tmpid AS RECID NO-UNDO.
+
+    run est/l-ebrfqP.w (cocode, locode, begin_part-no:screen-value, output lv-eb-tmpid) .
+           FIND FIRST eb NO-LOCK WHERE RECID(eb) = lv-eb-tmpid NO-ERROR.
+                 IF AVAIL eb THEN ASSIGN begin_part-no:SCREEN-VALUE = eb.part-no.
+    
+ END.
+ /* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_part-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_part-no C-Win
+ON HELP OF end_part-no IN FRAME FRAME-A
+DO:
+    DEFINE VARIABLE lv-eb-tmpid AS RECID NO-UNDO.
+
+    run est/l-ebrfqP.w (cocode, locode, end_part-no:screen-value, output lv-eb-tmpid) .
+           FIND FIRST eb NO-LOCK WHERE RECID(eb) = lv-eb-tmpid NO-ERROR.
+                 IF AVAIL eb THEN ASSIGN end_part-no:SCREEN-VALUE = eb.part-no.
+    
+ END.
+ /* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
