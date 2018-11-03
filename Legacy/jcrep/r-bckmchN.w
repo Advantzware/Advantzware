@@ -1487,20 +1487,20 @@ SESSION:SET-WAIT-STATE ("general").
             and item.mat-type eq "B"
           no-lock:
 
-        for each mat-act
-            where mat-act.company eq cocode
-              and mat-act.job     eq job-mat.job
-              and mat-act.s-num   eq job-mat.frm
-              and mat-act.b-num   eq job-mat.blank-no
-              and mat-act.i-no    eq job-mat.i-no
-            use-index job no-lock:
+        FOR EACH rm-rcpth 
+              WHERE rm-rcpth.company EQ cocode
+              AND rm-rcpth.i-no      EQ job-mat.i-no
+              AND rm-rcpth.rita-code EQ "R"
+              AND rm-rcpth.job-no    EQ job-mat.job-no
+              AND rm-rcpth.job-no2   EQ job-mat.job-no2 ,
+              EACH  rm-rdtlh    
+              WHERE rm-rdtlh.r-no    EQ rm-rcpth.r-no      
+              AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code 
+              AND rm-rdtlh.tag NE ""
+              USE-INDEX rm-rdtl NO-LOCK:
 
-          run sys/ref/convquom.p(job-mat.qty-uom, "EA", job-mat.basis-w,
-                                 job-mat.len, job-mat.wid, item.s-dep,
-                                 mat-act.qty, output v-qty).
-
-          v-mat-qty = v-mat-qty + v-qty.
-        end.
+               v-mat-qty = v-mat-qty + rm-rdtlh.qty .
+        END.
 
         assign
          v-pct = 1
