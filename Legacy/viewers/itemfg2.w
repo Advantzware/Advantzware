@@ -76,14 +76,16 @@ DEFINE VARIABLE h_w-inqord AS HANDLE      NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR itemfg.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS itemfg.pur-uom itemfg.beg-date itemfg.vend-no itemfg.vend-item ~
+&Scoped-Define ENABLED-FIELDS itemfg.i-dscr itemfg.vend-no itemfg.vend-item ~
 itemfg.vend2-no itemfg.vend2-item itemfg.ord-policy itemfg.stocked ~
-itemfg.pur-man itemfg.isaset itemfg.alloc 
+itemfg.pur-man itemfg.isaset itemfg.alloc itemfg.ord-level itemfg.ord-min ~
+itemfg.ord-max itemfg.pur-uom itemfg.lead-days itemfg.beg-date 
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
-&Scoped-Define DISPLAYED-FIELDS itemfg.i-no itemfg.i-name itemfg.pur-uom itemfg.beg-date ~
+&Scoped-Define DISPLAYED-FIELDS itemfg.i-no itemfg.i-name itemfg.i-dscr ~
 itemfg.vend-no itemfg.vend-item itemfg.vend2-no itemfg.vend2-item ~
-itemfg.ord-policy itemfg.stocked itemfg.pur-man itemfg.isaset itemfg.alloc 
+itemfg.ord-policy itemfg.stocked itemfg.pur-man itemfg.isaset itemfg.alloc ~
+itemfg.ord-level itemfg.ord-min itemfg.ord-max itemfg.lead-days 
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
 
@@ -125,24 +127,31 @@ DEFINE RECTANGLE RECT-22
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 144 BY 5.71.
 
+DEFINE RECTANGLE RECT-25
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 117 BY 4.00.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     itemfg.i-no AT ROW 1.44 COL 14 COLON-ALIGNED
+     itemfg.i-no AT ROW 1.24 COL 14 COLON-ALIGNED
            VIEW-AS TEXT 
           SIZE 27 BY .62
-     itemfg.i-name AT ROW 1.44 COL 41 COLON-ALIGNED NO-LABEL
+     itemfg.i-name AT ROW 1.24 COL 41 COLON-ALIGNED NO-LABEL
            VIEW-AS TEXT 
           SIZE 38 BY .62
-     itemfg.pur-uom AT ROW 1.24 COL 97 COLON-ALIGNED 
+    itemfg.i-dscr AT ROW 1.24 COL 86 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 38 BY 1
+    /* itemfg.pur-uom AT ROW 1.24 COL 97 COLON-ALIGNED 
           LABEL "Purchase UOM"
           VIEW-AS FILL-IN 
           SIZE 10.2 BY 1
      itemfg.beg-date AT ROW 1.24 COL 124 COLON-ALIGNED 
           LABEL "Beg Bal Date"
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1
+          SIZE 16 BY 1*/
      itemfg.vend-no AT ROW 2.91 COL 14 COLON-ALIGNED
           LABEL "Vendor 1"
           VIEW-AS FILL-IN 
@@ -191,6 +200,34 @@ DEFINE FRAME F-Main
 "Unassembled", yes,
 "Assembled w/Part Receipts", ?
           SIZE 36 BY 2.62
+     itemfg.ord-level AT ROW 7.30 COL 34 COLON-ALIGNED FORMAT ">>>,>>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 23 BY 1
+          BGCOLOR 15
+     itemfg.ord-min AT ROW 8.49 COL 34 COLON-ALIGNED
+          LABEL "Minimum Order" FORMAT ">>>,>>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 23 BY 1
+          BGCOLOR 15 
+     itemfg.ord-max AT ROW 9.68 COL 34 COLON-ALIGNED
+          LABEL "Maximum Order" FORMAT ">>>,>>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 23 BY 1
+          BGCOLOR 15 
+     itemfg.pur-uom AT ROW 7.30 COL 105 COLON-ALIGNED
+          LABEL "Purchased Quantity UOM"
+          VIEW-AS FILL-IN 
+          SIZE 6.8 BY 1
+          BGCOLOR 15 
+     itemfg.lead-days AT ROW 8.49 COL 105 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 5.6 BY 1
+          BGCOLOR 15 
+     itemfg.beg-date AT ROW 9.68 COL 105 COLON-ALIGNED
+          LABEL "Beginning Date"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 
      "Set Allocation" VIEW-AS TEXT
           SIZE 17 BY .95 AT ROW 4.57 COL 88
           FGCOLOR 9 
@@ -201,6 +238,14 @@ DEFINE FRAME F-Main
           SIZE 8 BY .95 AT ROW 2.67 COL 95
           FGCOLOR 9 
      RECT-22 AT ROW 1 COL 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     RECT-25 AT ROW 6.95 COL 15
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -267,15 +312,24 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN itemfg.i-no IN FRAME F-Main
    EXP-LABEL                                                             */
+
+/* SETTINGS FOR TOGGLE-BOX itemfg.isaset IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN itemfg.ord-level IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN itemfg.ord-max IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN itemfg.ord-min IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.pur-uom IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN itemfg.beg-date IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR TOGGLE-BOX itemfg.isaset IN FRAME F-Main
-   EXP-LABEL                                                            */
 /* SETTINGS FOR RADIO-SET itemfg.pur-man IN FRAME F-Main
    EXP-HELP                                                             */
 /* SETTINGS FOR RECTANGLE RECT-22 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-25 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX itemfg.stocked IN FRAME F-Main
    EXP-LABEL                                                            */
