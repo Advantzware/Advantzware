@@ -325,7 +325,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'fg/b-phys.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
              OUTPUT h_b-phys ).
        RUN set-position IN h_b-phys ( 5.05 , 4.00 ) NO-ERROR.
        RUN set-size IN h_b-phys ( 17.86 , 145.00 ) NO-ERROR.

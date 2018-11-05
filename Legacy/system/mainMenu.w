@@ -2414,6 +2414,9 @@ PROCEDURE pSearchSelections :
               AND ttMenuTree.isActive EQ YES
               AND ttMenuTree.isMenu   EQ NO
             :
+            IF NOT CAN-FIND(FIRST xUserMenu
+                            WHERE xUserMenu.user_id  EQ USERID("ASI")
+                              AND xUserMenu.prgmname EQ ttMenuTree.treeChild) THEN
             searchSelections:ADD-LAST(fTreeText(ttMenuTree.isMenu,
                                                 ttMenuTree.baseText,
                                                 ttMenuTree.mnemonic,
