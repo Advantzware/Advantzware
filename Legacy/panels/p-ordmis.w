@@ -80,8 +80,8 @@ DEF VAR lv-char-hdl AS cha NO-UNDO.
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Reset Btn-Add Btn-Copy Btn-Inv ~
-Btn-Delete Btn-Cancel 
+&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Add Btn-Copy Btn-Inv ~
+Btn-Delete Btn-View 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -101,8 +101,8 @@ DEFINE BUTTON Btn-Add
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-Cancel 
-     LABEL "Ca&ncel" 
+DEFINE BUTTON Btn-View 
+     LABEL "&View" 
      SIZE 9 BY 1.29
      FONT 4.
 
@@ -120,13 +120,9 @@ DEFINE BUTTON Btn-Inv
      LABEL "&Invoice" 
      SIZE 9 BY 1.29.
 
-DEFINE BUTTON Btn-Reset 
-     LABEL "&Reset" 
-     SIZE 9 BY 1.29
-     FONT 4.
 
 DEFINE BUTTON Btn-Save 
-     LABEL "&Save" 
+     LABEL "&Update" 
      SIZE 9 BY 1.29
      FONT 4.
 
@@ -138,13 +134,12 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
-     Btn-Save AT ROW 1.29 COL 2
-     Btn-Reset AT ROW 1.29 COL 11
+     Btn-View AT ROW 1.29 COL 2
+     Btn-Save AT ROW 1.29 COL 11
      Btn-Add AT ROW 1.29 COL 20
      Btn-Copy AT ROW 1.29 COL 29
      Btn-Inv AT ROW 1.29 COL 38
      Btn-Delete AT ROW 1.29 COL 47
-     Btn-Cancel AT ROW 1.29 COL 56
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -235,12 +230,8 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Add C-WIn
 ON CHOOSE OF Btn-Add IN FRAME Panel-Frame /* Add */
 DO:
-
-    IF NOT v-can-create THEN RETURN no-apply.
-
-   add-active = yes.
-
-  RUN notify ('add-record':U).
+  run get-link-handle in adm-broker-hdl(this-procedure, "tableio-target", output lv-char-hdl).
+  run pAddRecord in widget-handle(lv-char-hdl).
   
 END.
 
@@ -248,14 +239,12 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn-Cancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Cancel C-WIn
-ON CHOOSE OF Btn-Cancel IN FRAME Panel-Frame /* Cancel */
+&Scoped-define SELF-NAME Btn-View
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-View C-WIn
+ON CHOOSE OF Btn-View IN FRAME Panel-Frame /* Cancel */
 DO:
-  DO WITH FRAME Panel-Frame:
-      add-active = no.
-      RUN notify ('cancel-record':U).
-   END.
+     run get-link-handle in adm-broker-hdl(this-procedure, "tableio-target", output lv-char-hdl).
+     run pViewRecord in widget-handle(lv-char-hdl).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -266,9 +255,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Copy C-WIn
 ON CHOOSE OF Btn-Copy IN FRAME Panel-Frame /* Copy */
 DO:
-   IF NOT v-can-create THEN RETURN no-apply.
-
-   RUN notify ('copy-record':U).
+     run get-link-handle in adm-broker-hdl(this-procedure, "tableio-target", output lv-char-hdl).
+     run pCopyRecord in widget-handle(lv-char-hdl).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -302,51 +290,14 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn-Reset
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Reset C-WIn
-ON CHOOSE OF Btn-Reset IN FRAME Panel-Frame /* Reset */
-DO:
-  RUN notify ('reset-record':U).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME Btn-Save
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Save C-WIn
 ON CHOOSE OF Btn-Save IN FRAME Panel-Frame /* Save */
 DO:
-&IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-  /* If we're in a persistent add-mode then don't change any labels. Just make */
-  /* a call to update the last record and then add another record.             */
-  RUN get-attribute IN THIS-PROCEDURE ('AddFunction':U).
-  IF (RETURN-VALUE = 'Multiple-Records':U) AND add-active THEN 
-  DO:
-     RUN notify ('update-record':U).
-     IF RETURN-VALUE NE "ADM-ERROR":U THEN
-         RUN notify ('add-record':U). 
-  END.
-  ELSE 
-&ENDIF
-  DO:
-     IF panel-type = 'UPDATE':U THEN
-     DO WITH FRAME Panel-Frame:
-        IF Btn-Save:LABEL = '&Update' THEN 
-        DO:
-           RUN new-state('update-begin':U).
-           ASSIGN add-active = no.
-        END.
-        ELSE 
-        DO: /* Save */
-           RUN notify ('update-record':U).
-        END.                              
-     END.
-     ELSE 
-     DO: /* Normal 'Save'-style SmartPanel */
-        RUN notify ('update-record':U).
-     END.
-  END.
+
+    run get-link-handle in adm-broker-hdl(this-procedure, "tableio-target", output lv-char-hdl).
+    run pUpdateRecord in widget-handle(lv-char-hdl).
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -505,132 +456,7 @@ PROCEDURE set-buttons :
 DEFINE INPUT PARAMETER panel-state AS CHARACTER NO-UNDO.
 
 DO WITH FRAME Panel-Frame:
-
-  IF panel-state = 'disable-all':U THEN DO:
-
-    /* All buttons are set to insensitive. This only should happen when */
-    /* the link to the smartpanel is deactivated, but not destroyed.    */
-
-&IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Save:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Delete:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Add:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Copy:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Inv":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Inv:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Reset:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Cancel:SENSITIVE = NO.
-&ENDIF
-
-  END. /* panel-state = 'disable-all' */
   
-  ELSE IF panel-state = 'initial':U THEN DO:
-  
-    /* The panel is not actively changing any of its TABLEIO-TARGET(s). */
-
-&IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Save:SENSITIVE = YES.
-             IF panel-type = 'UPDATE':U THEN
-                 Btn-Save:LABEL = "&Update".
-&ENDIF
-&IF LOOKUP("Btn-Delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Delete:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Add:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Copy:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("Btn-Inv":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Inv:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-       IF panel-type = 'Update':U THEN
-             Btn-Reset:SENSITIVE = NO.
-       ELSE
-             Btn-Reset:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Cancel:SENSITIVE = NO.
-&ENDIF
-      
-  END. /* panel-state = 'initial' */
-
-  ELSE IF panel-state = 'add-only':U THEN DO:
-
-    /* All buttons are set to insensitive, except add. This only should */
-    /* happen only when there are no records in the query and the only  */
-    /* thing that can be done to it is add-record.                      */
-
-&IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Save:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Delete:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Add:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Copy:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Inv":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Inv:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Reset:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Cancel:SENSITIVE = NO.
-&ENDIF
-
-  END. /* panel-state = 'add-only' */
- 
-  ELSE DO: /* panel-state = action-chosen */ 
-  
-    /* The panel had one of the buttons capable of changing/adding a record */
-    /* pressed. Always force the SAVE/UPDATE button to be sensitive in the  */
-    /* the event that the smartpanel is disabled and later enabled prior to */
-    /* the action being completed.                                          */
-
-&IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Save:SENSITIVE = YES.
-             IF panel-type = 'UPDATE':U THEN
-               Btn-Save:LABEL = "&Save".
-&ENDIF    
-&IF LOOKUP("Btn-Delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Delete:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Add:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Copy:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Inv":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Inv:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Reset:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Cancel:SENSITIVE = YES.
-&ENDIF
-
-  END. /* panel-state = action-chosen */
-
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT v-can-create THEN Btn-Inv:SENSITIVE = NO.
   END.
