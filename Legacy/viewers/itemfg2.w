@@ -76,12 +76,12 @@ DEFINE VARIABLE h_w-inqord AS HANDLE      NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR itemfg.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS itemfg.i-dscr itemfg.vend-no itemfg.vend-item ~
+&Scoped-Define ENABLED-FIELDS itemfg.pur-uom itemfg.beg-date itemfg.vend-no itemfg.vend-item ~
 itemfg.vend2-no itemfg.vend2-item itemfg.ord-policy itemfg.stocked ~
 itemfg.pur-man itemfg.isaset itemfg.alloc 
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
-&Scoped-Define DISPLAYED-FIELDS itemfg.i-no itemfg.i-name itemfg.i-dscr ~
+&Scoped-Define DISPLAYED-FIELDS itemfg.i-no itemfg.i-name itemfg.pur-uom itemfg.beg-date ~
 itemfg.vend-no itemfg.vend-item itemfg.vend2-no itemfg.vend2-item ~
 itemfg.ord-policy itemfg.stocked itemfg.pur-man itemfg.isaset itemfg.alloc 
 &Scoped-define DISPLAYED-TABLES itemfg
@@ -129,15 +129,20 @@ DEFINE RECTANGLE RECT-22
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     itemfg.i-no AT ROW 1.24 COL 18 COLON-ALIGNED
+     itemfg.i-no AT ROW 1.44 COL 14 COLON-ALIGNED
            VIEW-AS TEXT 
           SIZE 27 BY .62
-     itemfg.i-name AT ROW 1.24 COL 45 COLON-ALIGNED NO-LABEL
+     itemfg.i-name AT ROW 1.44 COL 41 COLON-ALIGNED NO-LABEL
            VIEW-AS TEXT 
           SIZE 38 BY .62
-     itemfg.i-dscr AT ROW 1.24 COL 86 COLON-ALIGNED NO-LABEL
+     itemfg.pur-uom AT ROW 1.24 COL 97 COLON-ALIGNED 
+          LABEL "Purchase UOM"
           VIEW-AS FILL-IN 
-          SIZE 38 BY 1
+          SIZE 10.2 BY 1
+     itemfg.beg-date AT ROW 1.24 COL 124 COLON-ALIGNED 
+          LABEL "Beg Bal Date"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
      itemfg.vend-no AT ROW 2.91 COL 14 COLON-ALIGNED
           LABEL "Vendor 1"
           VIEW-AS FILL-IN 
@@ -193,7 +198,7 @@ DEFINE FRAME F-Main
           SIZE 18 BY .62 AT ROW 5.76 COL 4
           FGCOLOR 9 
      "Item Is" VIEW-AS TEXT
-          SIZE 8 BY .95 AT ROW 2.67 COL 96
+          SIZE 8 BY .95 AT ROW 2.67 COL 95
           FGCOLOR 9 
      RECT-22 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -261,7 +266,11 @@ ASSIGN
 /* SETTINGS FOR FILL-IN itemfg.i-name IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN itemfg.i-no IN FRAME F-Main
+   EXP-LABEL                                                             */
+/* SETTINGS FOR FILL-IN itemfg.pur-uom IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN itemfg.beg-date IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR TOGGLE-BOX itemfg.isaset IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR RADIO-SET itemfg.pur-man IN FRAME F-Main
@@ -401,6 +410,19 @@ DO:
          return no-apply.
     end.
     {&methods/lValidateError.i NO}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME itemfg.vend2-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.pur-uom V-table-Win
+ON LEAVE OF itemfg.pur-uom IN FRAME F-Main /* Purchased UOM */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN pValidatePurUOM NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END. /* if lastkey */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -709,6 +731,29 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidatePurUOM V-table-Win 
+PROCEDURE pValidatePurUOM :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        itemfg.pur-uom:SCREEN-VALUE = CAPS(itemfg.pur-uom:SCREEN-VALUE).
+        IF NOT CAN-FIND(FIRST uom
+                        WHERE uom.uom EQ itemfg.pur-uom:SCREEN-VALUE  
+                          AND CAN-DO(uom-list, uom.uom)) THEN DO:
+            MESSAGE
+                TRIM(itemfg.pur-uom:LABEL) + " is invalid, try help..."       
+            VIEW-AS ALERT-BOX ERROR.                                          
+            RETURN ERROR.                                                         
+        END. /* if not can-find */                                                                    
+    END. /* with frame */
 
 END PROCEDURE.
 
