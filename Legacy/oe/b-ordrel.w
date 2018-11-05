@@ -642,63 +642,6 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON HELP OF br_table IN FRAME F-Main
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-    DEF VAR rec-val AS RECID NO-UNDO.
-    DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
-
-    IF NOT AVAIL oe-rel AND lv-rel-recid NE ? THEN
-    FIND oe-rel WHERE RECID(oe-rel) EQ lv-rel-recid NO-LOCK.
-
-    lw-focus = FOCUS.
-    CASE lw-focus:NAME:
-         WHEN "ship-id" THEN DO:
-              FIND oe-ord NO-LOCK
-                  WHERE oe-ord.company EQ oe-rel.company 
-                    AND oe-ord.ord-no  EQ oe-rel.ord-no.
-              IF oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "T" AND lv-cust-x NE "" THEN
-                RUN windows/l-shipt3.w (g_company, g_loc, oe-ord.cust-no, lw-focus:SCREEN-VALUE, OUTPUT char-val, OUTPUT rec-val).
-              ELSE
-                RUN windows/l-shipt2.w (g_company, g_loc, oe-ord.cust-no, lw-focus:SCREEN-VALUE, OUTPUT char-val, OUTPUT rec-val).
-              FIND shipto WHERE RECID(shipto) EQ rec-val NO-LOCK NO-ERROR. 
-              IF AVAIL shipto AND lw-focus:SCREEN-VALUE NE shipto.ship-id THEN DO:
-                 lw-focus:SCREEN-VALUE = shipto.ship-id.
-                 RUN new-ship-id.
-              END.
-         END.
-         WHEN "carrier" THEN DO:
-              RUN windows/l-carrie.w (g_company, oe-rel.spare-char-1:SCREEN-VALUE, lw-focus:SCREEN-VALUE, OUTPUT char-val).
-              IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
-              RETURN NO-APPLY.
-         END.
-         WHEN "s-code" THEN DO:
-              RUN windows/l-cddscr.w ("Release Types", lv-s-codes, lv-s-dscrs, lw-focus:SCREEN-VALUE, OUTPUT char-val).
-              IF char-val NE "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
-         END.
-
-         WHEN "zero-sprice" THEN
-              RETURN NO-APPLY.         
-
-         WHEN "spare-char-1" THEN DO:
-           RUN windows/l-loc.w  (g_company,FOCUS:SCREEN-VALUE, OUTPUT char-val). 
-           IF char-val <> "" THEN 
-             FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = ENTRY(1,char-val).
-         END.
-         WHEN "spare-char-2" THEN DO:
-           RUN windows/l-rejpo.w  (g_company,FOCUS:SCREEN-VALUE, OUTPUT char-val). 
-           IF char-val <> "" THEN 
-             FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = ENTRY(1,char-val).
-         END.
-    END CASE.
-
-    RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON RETURN OF br_table IN FRAME F-Main
@@ -814,484 +757,6 @@ DO:
   ASSIGN 
     lJustDeletedLine = NO    
     .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tt-report.opened
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.opened br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF tt-report.opened IN BROWSE br_table /* Prt */
-DO:
-  IF INDEX("AB",get-rel-stat()) LE 0 THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-
-  RUN calendarPlacement.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME oe-rel.s-code
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.s-code br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-rel.s-code IN BROWSE br_table /* S/I */
-DO:
-  IF INDEX("AB",get-rel-stat()) GT 0 OR ll-transfer THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-
-  RUN calendarPlacement.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.s-code br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-rel.s-code IN BROWSE br_table /* S/I */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-s-code NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END. 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME oe-rel.ship-id
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.ship-id br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-rel.ship-id IN BROWSE br_table /* Ship To */
-DO:
-  IF INDEX("AB",get-rel-stat()) GT 0 THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.ship-id br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-rel.ship-id IN BROWSE br_table /* Ship To */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-ship-id NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.             
-  
-  IF adm-adding-record THEN
-        RUN new-ship-id.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.ship-id br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF oe-rel.ship-id IN BROWSE br_table /* Ship To */
-DO:
-  RUN new-ship-id.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME oe-rel.stat
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.stat br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF oe-rel.stat IN BROWSE br_table /* S */
-DO:
-    DEF VAR ll-create-oe-rell AS LOG NO-UNDO.
-
-    FIND FIRST oe-rell
-      WHERE oe-rell.company  EQ oe-rel.company
-        AND oe-rell.r-no     EQ oe-rel.link-no
-        AND oe-rell.ord-no   EQ oe-rel.ord-no
-        AND oe-rell.rel-no   EQ oe-rel.rel-no
-        AND oe-rell.b-ord-no EQ oe-rel.b-ord-no
-        AND oe-rell.i-no     EQ oe-rel.i-no
-        AND oe-rell.line     EQ oe-rel.line
-        AND oe-rell.po-no    EQ oe-rel.po-no
-        AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
-      USE-INDEX r-no NO-LOCK NO-ERROR.
-    IF NOT AVAIL oe-rell THEN DO:
-        ll-create-oe-rell = YES.
-        MESSAGE "Create missing oe-rell?" 
-            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-            UPDATE ll-create-oe-rell.
-        IF ll-create-oe-rell THEN DO:
-          RUN create-oe-rell.
-        END.
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME oe-rel.carrier
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.carrier br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-rel.carrier IN BROWSE br_table /* Via */
-DO:
-  IF INDEX("AB",get-rel-stat()) GT 0 THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.carrier br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-rel.carrier IN BROWSE br_table /* Via */
-DO:
-    IF LASTKEY = -1 THEN RETURN.
-    
-    FIND FIRST carrier WHERE carrier.company = g_company AND
-                             carrier.carrier = SELF:screen-value
-                             NO-LOCK NO-ERROR.
-    IF NOT AVAIL carrier THEN DO:
-       MESSAGE "Invalid Carrier. Try Help. " VIEW-AS ALERT-BOX ERROR.
-       RETURN NO-APPLY.
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME oe-rel.tot-qty
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.tot-qty br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-rel.tot-qty IN BROWSE br_table /* Sched Qty */
-DO:
-  IF INDEX("AB",get-rel-stat()) GT 0 THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tt-report.po-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.po-no br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF tt-report.po-no IN BROWSE br_table /* Customer PO# */
-DO:
-  IF INDEX("AB",get-rel-stat()) GT 0 THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.po-no br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF tt-report.po-no IN BROWSE br_table /* Customer PO# */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-po-no NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tt-report.lot-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.lot-no br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF tt-report.lot-no IN BROWSE br_table /* Customer Lot # */
-DO:
-  IF INDEX("AB",get-rel-stat()) GT 0 THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tt-report.prom-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.prom-date br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF tt-report.prom-date IN BROWSE br_table /* Due Date */
-DO:
-    IF LASTKEY NE -1 AND oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
-    DO:
-        {custom/pastDatePrompt.i SELF:SCREEN-VALUE} 
-
-        RUN valid-colonial-date NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.prom-date br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF tt-report.prom-date IN BROWSE br_table /* Due Date */
-DO:
-  IF oeDateAuto-log AND oeDateAuto-char EQ "Colonial" THEN 
-  RUN new-due-date.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tt-report.stat
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.stat br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF tt-report.stat IN BROWSE br_table /* Rel Date */
-DO:
-  ASSIGN
-     btnCalendar:VISIBLE IN FRAME {&FRAME-NAME} = YES
-     btnCalendar:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
-
-  RUN calendarPlacement.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.stat br_table _BROWSE-COLUMN B-table-Win
-ON HELP OF tt-report.stat IN BROWSE br_table /* Rel Date */
-DO:
-  {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.stat br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF tt-report.stat IN BROWSE br_table /* Rel Date */
-DO:
- IF NOT ll-skip THEN DO:
-
-  btnCalendar:HIDDEN IN FRAME {&FRAME-NAME} = YES.
-
-  IF INT(SUBSTR(tt-report.stat:SCREEN-VALUE IN BROWSE {&browse-name},7,4)) LT 1 THEN
-    tt-report.stat:SCREEN-VALUE = SUBSTR(tt-report.stat:SCREEN-VALUE,1,6) +
-                                    STRING(YEAR(TODAY),"9999").
-
-  ELSE
-  IF INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) LT 90 THEN
-    tt-report.stat:SCREEN-VALUE = SUBSTR(tt-report.stat:SCREEN-VALUE,1,6) +
-            STRING(INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) + 2000,"9999").
-
-  ELSE
-  IF INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) LE 99 THEN
-    tt-report.stat:SCREEN-VALUE = SUBSTR(tt-report.stat:SCREEN-VALUE,1,6) +
-            STRING(INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) + 1900,"9999").
-
-  IF LASTKEY NE -1 THEN DO:
-    {custom/pastDatePrompt.i SELF:SCREEN-VALUE}
-
-    RUN valid-key-02 NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-    IF INDEX("AB",lv-stat) GT 0 THEN DO: 
-      IF KEYFUNCTION(LASTKEY) EQ "BACK-TAB" THEN RETURN NO-APPLY.
-      ELSE RUN dispatch ("update-record").
-    END.
-    ELSE DO:
-        APPLY "entry" TO oe-rel.ship-addr[1].
-        APPLY "tab" TO oe-rel.ship-addr[1].     
-        RETURN NO-APPLY.
-    END.
-  END.
- END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tt-report.price
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.price br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF tt-report.price IN BROWSE br_table /* Sell Price */
-DO:
-  IF KEYFUNCTION(LASTKEY) EQ "BACK-TAB" THEN
-  DO:
-     IF DEC(tt-report.price:SCREEN-VALUE IN BROWSE {&browse-name}) <> 0 THEN
-        ASSIGN tt-report.whsed:SCREEN-VALUE = "N".
-
-     APPLY "ENTRY" TO tt-report.stat IN BROWSE {&browse-name}.
-     RETURN NO-APPLY.
-  END.
-
-  IF DEC(tt-report.price:SCREEN-VALUE IN BROWSE {&browse-name}) <> 0 THEN
-  DO:
-     ASSIGN tt-report.whsed:SCREEN-VALUE = "N".
-
-     IF LASTKEY NE -1 THEN
-     DO:
-        APPLY 'entry' TO tt-report.frt-pay.
-        RETURN NO-APPLY.
-     END.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tt-report.whsed
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.whsed br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF tt-report.whsed IN BROWSE br_table /* $0 */
-DO:
-  IF DEC(tt-report.price:SCREEN-VALUE IN BROWSE {&browse-name}) <> 0 THEN
-  DO:
-     ASSIGN tt-report.whsed:SCREEN-VALUE = "N".
-     IF KEYFUNCTION(LASTKEY) EQ "BACK-TAB" THEN
-     DO:
-        APPLY "ENTRY" TO tt-report.price IN BROWSE {&browse-name}.
-        RETURN NO-APPLY.
-     END.
-     ELSE
-     DO:
-        APPLY 'entry' TO tt-report.frt-pay.
-        RETURN NO-APPLY.
-     END.
-  END.
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tt-report.frt-pay
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.frt-pay br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF tt-report.frt-pay IN BROWSE br_table /* Frt Pay */
-DO:
-    IF INDEX("AB",get-rel-stat()) GT 0 THEN DO:
-        APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-        RETURN NO-APPLY.
-    END.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.frt-pay br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF tt-report.frt-pay IN BROWSE br_table /* Frt Pay */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-freight-pay NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END. 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tt-report.flute
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.flute br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF tt-report.flute IN BROWSE br_table /* FOB */
-DO:
-  IF INDEX("AB",get-rel-stat()) GT 0 THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.flute br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF tt-report.flute IN BROWSE br_table /* FOB */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-fob NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END. 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME oe-rel.spare-char-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.spare-char-1 br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-rel.spare-char-1 IN BROWSE br_table /* Ship From */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-ship-from NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME oe-rel.spare-char-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.spare-char-2 br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-rel.spare-char-2 IN BROWSE br_table /* Dt Chg Reason */
-DO:
-/* Can be implemented at a later date to display a button to show notes */
-/*     bt_addnote:FRAME = FRAME {&FRAME-NAME}:HANDLE. */
-/*     bt_addnote:VISIBLE = TRUE.                     */
-/*     bt_addnote:SENSITIVE = TRUE.                   */
-/*     bt_addnote:X = SELF:X + 1.                     */
-/*     bt_addnote:Y = SELF:Y + 14.                    */
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.spare-char-2 br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-rel.spare-char-2 IN BROWSE br_table /* Dt Chg Reason */
-DO:
-
-/*      Could be implemented at a later date */
-/*       bt_addnote:VISIBLE = FALSE. */
-/*     bt_addnote:SENSITIVE = FALSE. */
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-date-change NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-  oe-rel.spare-char-3:SCREEN-VALUE IN BROWSE br_table = USERID("NOSWEAT").
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnCalendar
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar B-table-Win
-ON CHOOSE OF btnCalendar IN FRAME F-Main
-DO:
-  DEFINE VARIABLE calendarDate AS CHARACTER NO-UNDO.
-
-  RUN nosweat/popupcal.w (OUTPUT calendarDate).
-  
-  IF calendarDate NE '' THEN
-     tt-report.stat:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DATE(calendarDate),"99/99/9999").
-
-  RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3561,7 +3026,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
+/*&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
 PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
@@ -4086,7 +3551,7 @@ PROCEDURE local-create-record :
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+&ANALYZE-RESUME*/
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
 PROCEDURE local-delete-record :
@@ -4452,7 +3917,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
+/*&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
@@ -4714,7 +4179,7 @@ PROCEDURE local-update-record :
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+&ANALYZE-RESUME*/
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view B-table-Win 
 PROCEDURE local-view :
@@ -4807,7 +4272,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
+/*
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-ship-id B-table-Win 
 PROCEDURE new-ship-id :
 /*------------------------------------------------------------------------------
@@ -4842,7 +4307,7 @@ DEF BUFFER bf-shipto FOR shipto.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+&ANALYZE-RESUME */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE notify-source B-table-Win 
 PROCEDURE notify-source :
@@ -5669,7 +5134,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-colonial-date B-table-Win 
+/*&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-colonial-date B-table-Win 
 PROCEDURE valid-colonial-date :
 /*------------------------------------------------------------------------------
      Purpose:
@@ -5978,7 +5443,7 @@ PROCEDURE valid-ship-id :
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+&ANALYZE-RESUME*/
 
 /* ************************  Function Implementations ***************** */
 
