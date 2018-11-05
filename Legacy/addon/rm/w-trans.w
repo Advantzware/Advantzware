@@ -311,11 +311,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/rm/b-trans.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Initial-Lock = NO-LOCK,
-                     Hide-on-Init = no,
-                     Disable-on-Init = no,
-                     Layout = ,
-                     Create-On-Add = Yes':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_b-trans ).
        RUN set-position IN h_b-trans ( 4.81 , 3.00 ) NO-ERROR.
        RUN set-size IN h_b-trans ( 17.14 , 146.00 ) NO-ERROR.

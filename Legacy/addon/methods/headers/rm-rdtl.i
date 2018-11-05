@@ -1,1 +1,0 @@
-'Company: ' + rm-rdtl.company

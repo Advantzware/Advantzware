@@ -345,11 +345,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'fg/b-cons.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Initial-Lock = NO-LOCK,
-                     Hide-on-Init = no,
-                     Disable-on-Init = no,
-                     Layout = ,
-                     Create-On-Add = Yes':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_b-cons ).
        RUN set-position IN h_b-cons ( 4.81 , 3.00 ) NO-ERROR.
        RUN set-size IN h_b-cons ( 17.14 , 146.00 ) NO-ERROR.

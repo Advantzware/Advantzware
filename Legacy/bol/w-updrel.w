@@ -7,17 +7,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
 /*------------------------------------------------------------------------
 
-  File: windows/<table>.w
-
-  Description: from cntnrwin.w - ADM SmartWindow Template
-
-  Input Parameters:
-      <none>
-
-  Output Parameters:
-      <none>
-
-  History: 
+  File: addon/bol/w-relbol.w
           
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -33,7 +23,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE winViewPrgmName fg-ucpt
+&SCOPED-DEFINE winViewPrgmName w-updrel
 
 /* Parameters Definitions ---                                           */
 
@@ -41,7 +31,7 @@ CREATE WIDGET-POOL.
 
 {custom/gcompany.i}
 
-&scoped-define asi-exit asi-exit
+&scoped-define asi-exit local-exit
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -80,12 +70,11 @@ DEFINE QUERY external_tables FOR fg-rctd.
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
-DEFINE VARIABLE h_b-ucptd AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_b-updrel AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-updcan AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-relbol AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_v-ucptd AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -96,18 +85,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 23 ROW 2.91
+         SIZE 128 BY 1.43
+         BGCOLOR 15 .
+
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 2.91
-         SIZE 127 BY 1.43
          BGCOLOR 15 .
 
 
@@ -129,9 +118,9 @@ DEFINE FRAME message-frame
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "WAREHOUSE TRANSACTION RECEIPT UPDATE (FINISHED GOODS)"
-         HEIGHT             = 24.19
-         WIDTH              = 150
+         TITLE              = "Update/Release Scan and Create BOL"
+         HEIGHT             = 16.24
+         WIDTH              = 116.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
@@ -177,6 +166,12 @@ ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
 
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
+
+DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
+
+ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-frame:HANDLE)
+/* END-ASSIGN-TABS */.
+
 /* SETTINGS FOR FRAME message-frame
                                                                         */
 /* SETTINGS FOR FRAME OPTIONS-FRAME
@@ -216,7 +211,7 @@ THEN W-Win:HIDDEN = yes.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* WAREHOUSE TRANSACTION RECEIPT UPDATE (FINISHED GOODS) */
+ON END-ERROR OF W-Win /* Update/Release Scan and Create BOL */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -229,15 +224,10 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* WAREHOUSE TRANSACTION RECEIPT UPDATE (FINISHED GOODS) */
+ON WINDOW-CLOSE OF W-Win /* Update/Release Scan and Create BOL */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-  DEF VAR lv-can-exit AS LOG NO-UNDO.
-
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"can-exit-source", OUTPUT char-hdl).
-  RUN can-exit IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-can-exit).
-  IF NOT lv-can-exit THEN RETURN NO-apply.
 
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -299,61 +289,45 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Receipts' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Release Scan' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 2.91 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.91 , 148.00 ) NO-ERROR.
+       RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 14.05 , 117.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
-             FRAME OPTIONS-FRAME:HANDLE , 'AFTER':U ).
+             FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'addon/fg/v-ucptd.w':U ,
+             INPUT  'addon/bol/b-updrel.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_v-ucptd ).
-       RUN set-position IN h_v-ucptd ( 5.05 , 5.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.43 , 116.00 ) */
+             INPUT  '':U ,
+             OUTPUT h_b-updrel ).
+       RUN set-position IN h_b-updrel ( 4.57 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_b-updrel ( 10.24 , 114.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'addon/fg/b-ucptd.w':U ,
+             INPUT  'panels/p-relbol.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_b-ucptd ).
-       RUN set-position IN h_b-ucptd ( 6.71 , 5.00 ) NO-ERROR.
-       RUN set-size IN h_b-ucptd ( 15.71 , 144.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'p-updcan.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 1,
+             INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
-             OUTPUT h_p-updcan ).
-       RUN set-position IN h_p-updcan ( 22.67 , 5.00 ) NO-ERROR.
-       RUN set-size IN h_p-updcan ( 1.76 , 31.00 ) NO-ERROR.
+             OUTPUT h_p-relbol ).
+       RUN set-position IN h_p-relbol ( 15.05 , 3.00 ) NO-ERROR.
+       RUN set-size IN h_p-relbol ( 1.76 , 71.00 ) NO-ERROR.
 
-       /* Links to SmartViewer h_v-ucptd. */
-       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'init-entry':U , h_v-ucptd ).
-
-       /* Links to SmartBrowser h_b-ucptd. */
-       RUN add-link IN adm-broker-hdl ( h_p-updcan , 'TableIO':U , h_b-ucptd ).
-       RUN add-link IN adm-broker-hdl ( h_v-ucptd , 'srch':U , h_b-ucptd ).
-       RUN add-link IN adm-broker-hdl ( h_b-ucptd , 'can-exit':U , THIS-PROCEDURE ).
+       /* Links to SmartObject h_b-updrel. */
+       RUN add-link IN adm-broker-hdl ( h_p-relbol , 'TableIO':U , h_b-updrel ).
+       RUN add-link IN adm-broker-hdl ( h_b-updrel , 'release':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_v-ucptd ,
-             FRAME message-frame:HANDLE , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-ucptd ,
-             h_v-ucptd , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updcan ,
-             h_b-ucptd , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-relbol ,
+             h_folder , 'AFTER':U ).
     END. /* Page 1 */
 
   END CASE.
@@ -391,26 +365,6 @@ PROCEDURE adm-row-available :
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE asi-exit W-Win 
-PROCEDURE asi-exit :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEF VAR lv-can-exit AS LOG NO-UNDO.
-
-   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"can-exit-source", OUTPUT char-hdl).
-   RUN can-exit IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-can-exit).
-
-   IF NOT lv-can-exit THEN RETURN ERROR.
-   
 
 END PROCEDURE.
 
@@ -459,6 +413,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-objects W-Win 
+PROCEDURE local-create-objects :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-objects':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :
 /* -----------------------------------------------------------
@@ -466,9 +440,10 @@ PROCEDURE local-exit :
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
-   APPLY "CLOSE":U TO THIS-PROCEDURE.
+  
+  APPLY "CLOSE":U TO THIS-PROCEDURE.
    
-   RETURN.
+  RETURN.
        
 END PROCEDURE.
 

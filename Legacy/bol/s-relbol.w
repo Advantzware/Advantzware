@@ -1,23 +1,12 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
 /*------------------------------------------------------------------------
 
-  File: windows/<table>.w
-
-  Description: from cntnrwin.w - ADM SmartWindow Template
-
-  Input Parameters:
-      <none>
-
-  Output Parameters:
-      <none>
-
-  History: 
+  File: addon/bol/s-relbol.w
           
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -33,15 +22,9 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE winViewPrgmName fg-ucpt
-
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-
-{custom/gcompany.i}
-
-&scoped-define asi-exit asi-exit
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -59,13 +42,6 @@ CREATE WIDGET-POOL.
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
-/* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES fg-rctd
-&Scoped-define FIRST-EXTERNAL-TABLE fg-rctd
-
-
-/* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR fg-rctd.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -80,12 +56,9 @@ DEFINE QUERY external_tables FOR fg-rctd.
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
-DEFINE VARIABLE h_b-ucptd AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_b-relbol AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-updcan AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_v-ucptd AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-relbol AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -93,22 +66,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 150 BY 24
-         BGCOLOR 15 .
-
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 2.91
-         SIZE 127 BY 1.43
-         BGCOLOR 15 .
+         SIZE 114.6 BY 17.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -116,9 +74,7 @@ DEFINE FRAME message-frame
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: ASI.fg-rctd
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -129,28 +85,22 @@ DEFINE FRAME message-frame
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "WAREHOUSE TRANSACTION RECEIPT UPDATE (FINISHED GOODS)"
-         HEIGHT             = 24.19
-         WIDTH              = 150
-         MAX-HEIGHT         = 33.29
-         MAX-WIDTH          = 204.8
-         VIRTUAL-HEIGHT     = 33.29
-         VIRTUAL-WIDTH      = 204.8
+         TITLE              = "Release Scan and Create BOL"
+         HEIGHT             = 17
+         WIDTH              = 114.6
+         MAX-HEIGHT         = 17
+         MAX-WIDTH          = 152.2
+         VIRTUAL-HEIGHT     = 17
+         VIRTUAL-WIDTH      = 152.2
          RESIZE             = no
          SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         STATUS-AREA        = no
          BGCOLOR            = ?
          FGCOLOR            = ?
          THREE-D            = yes
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
-
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
-    MESSAGE "Unable to load icon: adeicon\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -158,7 +108,6 @@ IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/containr.i}
-{methods/template/windows.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -171,41 +120,12 @@ IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
-/* REPARENT FRAME */
-ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
-       FRAME OPTIONS-FRAME:FRAME = FRAME F-Main:HANDLE.
-
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
-/* SETTINGS FOR FRAME message-frame
-                                                                        */
-/* SETTINGS FOR FRAME OPTIONS-FRAME
-                                                                        */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
-&ANALYZE-RESUME
-
-
-/* Setting information for Queries and Browse Widgets fields            */
-
-&ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
-/* Query rebuild information for FRAME F-Main
-     _Query            is NOT OPENED
-*/  /* FRAME F-Main */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _QUERY-BLOCK FRAME message-frame
-/* Query rebuild information for FRAME message-frame
-     _Query            is NOT OPENED
-*/  /* FRAME message-frame */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _QUERY-BLOCK FRAME OPTIONS-FRAME
-/* Query rebuild information for FRAME OPTIONS-FRAME
-     _Query            is NOT OPENED
-*/  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
  
@@ -216,7 +136,7 @@ THEN W-Win:HIDDEN = yes.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* WAREHOUSE TRANSACTION RECEIPT UPDATE (FINISHED GOODS) */
+ON END-ERROR OF W-Win /* Release Scan and Create BOL */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -229,15 +149,20 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* WAREHOUSE TRANSACTION RECEIPT UPDATE (FINISHED GOODS) */
+ON WINDOW-CLOSE OF W-Win /* Release Scan and Create BOL */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-  DEF VAR lv-can-exit AS LOG NO-UNDO.
 
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"can-exit-source", OUTPUT char-hdl).
-  RUN can-exit IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-can-exit).
-  IF NOT lv-can-exit THEN RETURN NO-apply.
+  DEF VAR is-bol-printed AS LOG NO-UNDO.
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"release-source",OUTPUT char-hdl).
+  RUN check-bol IN WIDGET-HANDLE(char-hdl) (OUTPUT is-bol-printed).
+  IF NOT is-bol-printed AND
+     CAN-FIND(FIRST asi._file WHERE
+     asi._file._File-Name = "ssrelbol") THEN
+     RUN save-relbol IN WIDGET-HANDLE(char-hdl).
 
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -253,8 +178,6 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
-{custom/getcmpny.i}
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
@@ -281,85 +204,43 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'addon/bol/b-relbol.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_b-relbol ).
+       RUN set-position IN h_b-relbol ( 1.48 , 1.00 ) NO-ERROR.
+       RUN set-size IN h_b-relbol ( 10.24 , 114.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 1.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 11.95 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/smartmsg.w':U ,
-             INPUT  FRAME message-frame:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_smartmsg ).
-       RUN set-position IN h_smartmsg ( 1.00 , 32.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.14 , 32.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/folder.w':U ,
+             INPUT  'panels/p-relbol.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Receipts' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
-             OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 2.91 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.91 , 148.00 ) NO-ERROR.
-
-       /* Links to SmartFolder h_folder. */
-       RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
-             FRAME OPTIONS-FRAME:HANDLE , 'AFTER':U ).
-    END. /* Page 0 */
-    WHEN 1 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'addon/fg/v-ucptd.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_v-ucptd ).
-       RUN set-position IN h_v-ucptd ( 5.05 , 5.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.43 , 116.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'addon/fg/b-ucptd.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_b-ucptd ).
-       RUN set-position IN h_b-ucptd ( 6.71 , 5.00 ) NO-ERROR.
-       RUN set-size IN h_b-ucptd ( 15.71 , 144.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'p-updcan.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 1,
+             INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
-             OUTPUT h_p-updcan ).
-       RUN set-position IN h_p-updcan ( 22.67 , 5.00 ) NO-ERROR.
-       RUN set-size IN h_p-updcan ( 1.76 , 31.00 ) NO-ERROR.
+             OUTPUT h_p-relbol ).
+       RUN set-position IN h_p-relbol ( 11.95 , 10.00 ) NO-ERROR.
+       RUN set-size IN h_p-relbol ( 2.86 , 34.00 ) NO-ERROR.
 
-       /* Links to SmartViewer h_v-ucptd. */
-       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'init-entry':U , h_v-ucptd ).
-
-       /* Links to SmartBrowser h_b-ucptd. */
-       RUN add-link IN adm-broker-hdl ( h_p-updcan , 'TableIO':U , h_b-ucptd ).
-       RUN add-link IN adm-broker-hdl ( h_v-ucptd , 'srch':U , h_b-ucptd ).
-       RUN add-link IN adm-broker-hdl ( h_b-ucptd , 'can-exit':U , THIS-PROCEDURE ).
+       /* Links to SmartBrowser h_b-relbol. */
+       RUN add-link IN adm-broker-hdl ( h_p-relbol , 'TableIO':U , h_b-relbol ).
+       RUN add-link IN adm-broker-hdl ( h_b-relbol , 'release':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_v-ucptd ,
-             FRAME message-frame:HANDLE , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-ucptd ,
-             h_v-ucptd , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updcan ,
-             h_b-ucptd , 'AFTER':U ).
-    END. /* Page 1 */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             h_b-relbol , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-relbol ,
+             h_exit , 'AFTER':U ).
+    END. /* Page 0 */
 
   END CASE.
-  /* Select a Startup page. */
-  IF adm-current-page eq 0 
-  THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
 
@@ -379,38 +260,9 @@ PROCEDURE adm-row-available :
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
 
-  /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "fg-rctd"}
-
-  /* Get the record ROWID's from the RECORD-SOURCE.                  */
-  {src/adm/template/row-get.i}
-
-  /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "fg-rctd"}
-
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE asi-exit W-Win 
-PROCEDURE asi-exit :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEF VAR lv-can-exit AS LOG NO-UNDO.
-
-   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"can-exit-source", OUTPUT char-hdl).
-   RUN can-exit IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-can-exit).
-
-   IF NOT lv-can-exit THEN RETURN ERROR.
-   
 
 END PROCEDURE.
 
@@ -449,10 +301,6 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   VIEW FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
-  VIEW FRAME OPTIONS-FRAME IN WINDOW W-Win.
-  {&OPEN-BROWSERS-IN-QUERY-OPTIONS-FRAME}
-  VIEW FRAME message-frame IN WINDOW W-Win.
-  {&OPEN-BROWSERS-IN-QUERY-message-frame}
   VIEW W-Win.
 END PROCEDURE.
 
@@ -466,10 +314,65 @@ PROCEDURE local-exit :
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
-   APPLY "CLOSE":U TO THIS-PROCEDURE.
+  DEF VAR is-bol-printed AS LOG NO-UNDO.
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"release-source",OUTPUT char-hdl).
+  RUN check-bol IN WIDGET-HANDLE(char-hdl) (OUTPUT is-bol-printed).
+  IF NOT is-bol-printed AND
+     CAN-FIND(FIRST asi._file WHERE
+     asi._file._File-Name = "ssrelbol") THEN
+     RUN save-relbol IN WIDGET-HANDLE(char-hdl).
+   
+  APPLY "CLOSE":U TO THIS-PROCEDURE.
+   
+  RETURN.
+       
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view W-Win 
+PROCEDURE local-view :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+  RUN auto-add IN  h_p-relbol.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_exit W-Win 
+PROCEDURE select_exit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR is-bol-printed AS LOG NO-UNDO.
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"release-source",OUTPUT char-hdl).
+  RUN check-bol IN WIDGET-HANDLE(char-hdl) (OUTPUT is-bol-printed).
+  IF NOT is-bol-printed AND
+     CAN-FIND(FIRST asi._file WHERE
+     asi._file._File-Name = "ssrelbol") THEN
+     RUN save-relbol IN WIDGET-HANDLE(char-hdl).
+  
+  APPLY "CLOSE":U TO THIS-PROCEDURE.
    
    RETURN.
-       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -483,14 +386,9 @@ PROCEDURE send-records :
   Parameters:  see template/snd-head.i
 ------------------------------------------------------------------------------*/
 
-  /* Define variables needed by this internal procedure.               */
-  {src/adm/template/snd-head.i}
-
-  /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "fg-rctd"}
-
-  /* Deal with any unexpected table requests before closing.           */
-  {src/adm/template/snd-end.i}
+  /* SEND-RECORDS does nothing because there are no External
+     Tables specified for this SmartWindow, and there are no
+     tables specified in any contained Browse, Query, or Frame. */
 
 END PROCEDURE.
 
