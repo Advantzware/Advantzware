@@ -1622,7 +1622,8 @@ DEFINE VARIABLE Y AS INTEGER NO-UNDO.
           ar-inv.printed       = NO 
           ar-inv.inv-date      = IF oeInvAddDate-Int EQ 0 THEN TODAY ELSE ar-inv.inv-date 
           ar-inv.spare-char-1  = IF cType EQ "Credit" THEN "Credit" ELSE "Rebill" 
-          ar-inv.spare-int-2   = INTEGER(Is-add-dup-inv) .
+          ar-inv.spare-int-2   = INTEGER(Is-add-dup-inv)
+          ar-inv.t-sales       = ar-inv.t-sales * -1      .
           
           FIND FIRST cust NO-LOCK 
               WHERE cust.company EQ g_company
@@ -1667,6 +1668,11 @@ DEFINE VARIABLE Y AS INTEGER NO-UNDO.
             bf-invl.std-mat-cost = bf-invl.std-mat-cost * -1
             bf-invl.std-tot-cost = bf-invl.std-tot-cost * -1  
             bf-invl.std-var-cost = bf-invl.std-var-cost * -1 
+
+            bf-invl.prep-cost    = bf-invl.prep-cost * -1
+            bf-invl.ship-qty     = bf-invl.ship-qty * -1
+            bf-invl.sf-sht       = bf-invl.sf-sht * -1
+            bf-invl.amt-msf      = bf-invl.amt-msf * -1
               .
 
         
