@@ -103,7 +103,7 @@ itemfg.case-pall itemfg.weight-100 itemfg.frt-class itemfg.frt-class-dscr ~
 itemfg.class itemfg.cc-code itemfg.prod-code itemfg.prod-notes ~
 itemfg.std-mat-cost itemfg.std-lab-cost itemfg.std-var-cost ~
 itemfg.std-fix-cost itemfg.spare-dec-1 itemfg.total-std-cost ~
-itemfg.avg-cost itemfg.last-cost itemfg.prod-uom 
+itemfg.avg-cost itemfg.last-cost itemfg.prod-uom itemfg.spare-dec-2
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS tg-Freeze-weight RECT-10 RECT-8 RECT-9 ~
@@ -120,7 +120,7 @@ itemfg.case-pall itemfg.weight-100 itemfg.frt-class itemfg.frt-class-dscr ~
 itemfg.class itemfg.cc-code itemfg.prod-code itemfg.prod-notes ~
 itemfg.std-mat-cost itemfg.std-lab-cost itemfg.std-var-cost ~
 itemfg.std-fix-cost itemfg.spare-dec-1 itemfg.total-std-cost ~
-itemfg.avg-cost itemfg.last-cost itemfg.prod-uom 
+itemfg.avg-cost itemfg.last-cost itemfg.prod-uom itemfg.spare-dec-2
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
 &Scoped-Define DISPLAYED-OBJECTS tb_taxable tgVaried tg-Freeze-weight ~
@@ -412,6 +412,10 @@ DEFINE FRAME F-Main
           LABEL "Full Cost" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+     itemfg.spare-dec-2 AT ROW 16.96 COL 124.6 COLON-ALIGNED WIDGET-ID 4
+          LABEL "C/in/Pallet" FORMAT "->>>>>>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
      itemfg.total-std-cost AT ROW 13.1 COL 124.6 COLON-ALIGNED
           LABEL "Total Std Cost" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
@@ -561,6 +565,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN itemfg.spare-char-1 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.spare-dec-1 IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN itemfg.spare-dec-2 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.spare-int-2 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
