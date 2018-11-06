@@ -121,15 +121,14 @@ cEulaFile = SEARCH("{&EulaFile}").
 &Scoped-define FRAME-NAME FRAME-USER
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS imageSettings imageCompany menuLinkZoHo ~
-favorites 
-&Scoped-Define DISPLAYED-OBJECTS favorites company_name loc_loc ~
-users_user_id Mnemonic 
+&Scoped-Define ENABLED-OBJECTS imageSettings imageCompany menuLinkZoHo 
+&Scoped-Define DISPLAYED-OBJECTS company_name loc_loc users_user_id ~
+Mnemonic 
 
 /* Custom List Definitions                                              */
 /* searchFilters,List-2,List-3,List-4,List-5,List-6                     */
-&Scoped-define searchFilters menuTreeFilter searchSelections btnFavorite ~
-svFavoriteText 
+&Scoped-define searchFilters btnMoveDown btnMoveUp btnRemove menuTreeFilter ~
+searchSelections btnFavorite svFavoriteText 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -153,12 +152,6 @@ DEFINE MENU MENU-BAR-MAINMENU MENUBAR
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE favorites AS CHARACTER FORMAT "X(256)":U INITIAL "." 
-     VIEW-AS COMBO-BOX SORT INNER-LINES 5
-     LIST-ITEM-PAIRS " Favorites","."
-     DROP-DOWN-LIST
-     SIZE 49 BY 1 TOOLTIP "Select Favorite" NO-UNDO.
-
 DEFINE VARIABLE company_name AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 35 BY .62
@@ -287,14 +280,34 @@ DEFINE BUTTON btnFavorite
      LABEL "Fav" 
      SIZE 5 BY 1.19.
 
+DEFINE BUTTON BtnFavorites 
+     IMAGE-UP FILE "Graphics/16x16/star.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.6 BY 1 TOOLTIP "Search Menu / Edit Favorites".
+
+DEFINE BUTTON btnMoveDown 
+     IMAGE-UP FILE "Graphics/16x16/navigate_down.jpg":U NO-FOCUS FLAT-BUTTON
+     LABEL "Move Favorite Down" 
+     SIZE 4.4 BY 1 TOOLTIP "Close".
+
+DEFINE BUTTON btnMoveUp 
+     IMAGE-UP FILE "Graphics/16x16/navigate_up.jpg":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "Move Favorite Up".
+
+DEFINE BUTTON btnRemove 
+     IMAGE-UP FILE "Graphics/16x16/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "Remove Favorite".
+
 DEFINE BUTTON btnSearch 
      IMAGE-UP FILE "Graphics/16x16/filterwindow.bmp":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 4 BY .95 TOOLTIP "Search Menu / Edit Favorites".
+     SIZE 4 BY 1 TOOLTIP "Search Menu / Edit Favorites".
 
 DEFINE VARIABLE menuTreeFilter AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 49 BY 1 TOOLTIP "Name Search"
+     SIZE 41 BY 1 TOOLTIP "Name Search"
      BGCOLOR 15 FGCOLOR 1 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE svFavoriteText AS CHARACTER FORMAT "X(256)":U INITIAL "Favorites" 
@@ -302,9 +315,14 @@ DEFINE VARIABLE svFavoriteText AS CHARACTER FORMAT "X(256)":U INITIAL "Favorites
      SIZE 10 BY .71
      FONT 1 NO-UNDO.
 
+DEFINE VARIABLE favoritesList AS CHARACTER 
+     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     LIST-ITEM-PAIRS "FAVORITES","FAVORITES" 
+     SIZE 45 BY 13.81 NO-UNDO.
+
 DEFINE VARIABLE searchSelections AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
-     SIZE 53 BY 11.43
+     SIZE 45 BY 11.43
      FONT 1 NO-UNDO.
 
 DEFINE BUTTON btnActivateCueCards 
@@ -441,16 +459,14 @@ DEFINE VARIABLE copyToUser AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-USER
-     favorites AT ROW 3.38 COL 1.6 HELP
-          "Select Favorite" NO-LABEL WIDGET-ID 82
      company_name AT ROW 1.71 COL 13 COLON-ALIGNED NO-LABEL
      loc_loc AT ROW 1.71 COL 76 COLON-ALIGNED NO-LABEL
      users_user_id AT ROW 1.71 COL 117 COLON-ALIGNED NO-LABEL
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     "Location:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 68
      "Company:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 4
+     "Location:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.71 COL 68
      "User ID:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 110
      boxes AT ROW 8.62 COL 57
@@ -481,17 +497,44 @@ DEFINE FRAME FRAME-USER
          SIZE 160 BY 28.57
          BGCOLOR 15 .
 
+DEFINE FRAME searchFrame
+     BtnFavorites AT ROW 1 COL 1 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 54
+     btnMoveDown AT ROW 5.76 COL 1 HELP
+          "Move Favorite Down" WIDGET-ID 58
+     btnMoveUp AT ROW 3.38 COL 1 HELP
+          "Move Favorite Up" WIDGET-ID 56
+     btnRemove AT ROW 4.57 COL 1 HELP
+          "Remove Favorite" WIDGET-ID 26
+     btnSearch AT ROW 1 COL 51 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 40
+     favoritesList AT ROW 1 COL 6 NO-LABEL WIDGET-ID 52
+     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
+          "Enter Search Filter" NO-LABEL WIDGET-ID 2
+     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
+     btnFavorite AT ROW 13.62 COL 52 WIDGET-ID 46
+     btnClear AT ROW 13.86 COL 89 HELP
+          "Clear Search Filters" WIDGET-ID 42
+     svFavoriteText AT ROW 13.86 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 3.38
+         SIZE 97 BY 14.05
+         FGCOLOR 1  WIDGET-ID 600.
+
+DEFINE FRAME menuTreeFrame
+     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
+     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
+     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 4.57
+         SIZE 55 BY 24.91
+         BGCOLOR 15  WIDGET-ID 100.
+
 DEFINE FRAME userSettingsFrame
      btnCancel AT ROW 21 COL 12 HELP
           "Cancel" WIDGET-ID 2
-     btnLanguage-1 AT ROW 4.81 COL 6 HELP
-          "Select this Language" WIDGET-ID 24
-     btnLanguage-2 AT ROW 6.48 COL 6 HELP
-          "Select this Language" WIDGET-ID 26
-     btnLanguage-3 AT ROW 8.14 COL 6 HELP
-          "Select this Language" WIDGET-ID 28
-     btnOK AT ROW 21 COL 3 HELP
-          "Save Changes" WIDGET-ID 4
      btnToggle AT ROW 1.71 COL 14 HELP
           "Customize Menu" WIDGET-ID 80
      copyFromUser AT ROW 1.95 COL 60 COLON-ALIGNED HELP
@@ -509,14 +552,16 @@ DEFINE FRAME userSettingsFrame
           "Copy From User to Selected User(s)" WIDGET-ID 94
      btnActivateCueCards AT ROW 21.48 COL 27 HELP
           "Activate Inactive Cue Cards" WIDGET-ID 116
-     " Language" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 4.1 COL 5 WIDGET-ID 86
-     " Menu Size" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 10.29 COL 5 WIDGET-ID 62
+     btnLanguage-1 AT ROW 4.81 COL 6 HELP
+          "Select this Language" WIDGET-ID 24
+     btnLanguage-2 AT ROW 6.48 COL 6 HELP
+          "Select this Language" WIDGET-ID 26
+     btnLanguage-3 AT ROW 8.14 COL 6 HELP
+          "Select this Language" WIDGET-ID 28
+     btnOK AT ROW 21 COL 3 HELP
+          "Save Changes" WIDGET-ID 4
      "Position:" VIEW-AS TEXT
           SIZE 9 BY 1 AT ROW 19.33 COL 12 WIDGET-ID 114
-     " HotKey (Mnemonic)" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 17.43 COL 5 WIDGET-ID 106
      "[S] Scheduling" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 11.24 COL 26 WIDGET-ID 42
           FONT 6
@@ -530,8 +575,14 @@ DEFINE FRAME userSettingsFrame
           FONT 6
      "Show:" VIEW-AS TEXT
           SIZE 7 BY 1 AT ROW 18.14 COL 14 WIDGET-ID 112
+     " Language" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 4.1 COL 5 WIDGET-ID 86
+     " Menu Size" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 10.29 COL 5 WIDGET-ID 62
      " Copy to Selected Users" VIEW-AS TEXT
           SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
+     " HotKey (Mnemonic)" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 17.43 COL 5 WIDGET-ID 106
      IMAGE-1 AT ROW 11.24 COL 18 WIDGET-ID 40
      IMAGE-2 AT ROW 13.14 COL 18 WIDGET-ID 44
      IMAGE-3 AT ROW 15.05 COL 18 WIDGET-ID 50
@@ -551,32 +602,6 @@ DEFINE FRAME userSettingsFrame
          SIZE 103 BY 23.33
          BGCOLOR 15 FGCOLOR 1 
          TITLE "User Settings" WIDGET-ID 200.
-
-DEFINE FRAME searchFrame
-     btnSearch AT ROW 1 COL 1 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 40
-     menuTreeFilter AT ROW 1 COL 4 COLON-ALIGNED HELP
-          "Enter Search Filter" NO-LABEL WIDGET-ID 2
-     searchSelections AT ROW 2.19 COL 2 NO-LABEL WIDGET-ID 44
-     btnFavorite AT ROW 13.62 COL 2 WIDGET-ID 46
-     btnClear AT ROW 13.86 COL 47 HELP
-          "Clear Search Filters" WIDGET-ID 42
-     svFavoriteText AT ROW 13.86 COL 5 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 51.6 ROW 3.38
-         SIZE 55 BY 14.05
-         FGCOLOR 1 FONT 6 WIDGET-ID 600.
-
-DEFINE FRAME menuTreeFrame
-     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
-     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
-     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 4.57
-         SIZE 55 BY 24.91
-         BGCOLOR 15  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -640,8 +665,6 @@ ASSIGN FRAME menuTreeFrame:FRAME = FRAME FRAME-USER:HANDLE
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN company_name IN FRAME FRAME-USER
    NO-ENABLE                                                            */
-/* SETTINGS FOR COMBO-BOX favorites IN FRAME FRAME-USER
-   ALIGN-L                                                              */
 ASSIGN 
        imageCompany:PRIVATE-DATA IN FRAME FRAME-USER     = 
                 "Change Company/Location".
@@ -740,6 +763,12 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnClear IN FRAME searchFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnFavorite IN FRAME searchFrame
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnMoveDown IN FRAME searchFrame
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnMoveUp IN FRAME searchFrame
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnRemove IN FRAME searchFrame
    1                                                                    */
 /* SETTINGS FOR FILL-IN menuTreeFilter IN FRAME searchFrame
    1                                                                    */
@@ -952,10 +981,22 @@ DO:
         ASSIGN
             lFavorite = NOT lFavorite
             ttMenuTree.favorite = lFavorite
+            ttMenuTree.favoriteOrder = 9999
             .
         RUN pLoadFavorites.
         RUN pSearchSelections.
     END. /* if avail */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME BtnFavorites
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BtnFavorites MAINMENU
+ON CHOOSE OF BtnFavorites IN FRAME searchFrame
+DO:
+    APPLY "CHOOSE":U TO btnSearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -999,6 +1040,30 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME searchFrame
+&Scoped-define SELF-NAME btnMoveDown
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMoveDown MAINMENU
+ON CHOOSE OF btnMoveDown IN FRAME searchFrame /* Move Favorite Down */
+DO:
+    RUN pMoveFavorite (1.1).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnMoveUp
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMoveUp MAINMENU
+ON CHOOSE OF btnMoveUp IN FRAME searchFrame
+DO:
+    RUN pMoveFavorite (-1.1).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME userSettingsFrame
 &Scoped-define SELF-NAME btnOK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK MAINMENU
 ON CHOOSE OF btnOK IN FRAME userSettingsFrame /* OK */
@@ -1025,6 +1090,26 @@ END.
 
 
 &Scoped-define FRAME-NAME searchFrame
+&Scoped-define SELF-NAME btnRemove
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRemove MAINMENU
+ON CHOOSE OF btnRemove IN FRAME searchFrame
+DO:
+    FIND FIRST ttMenuTree
+         WHERE ttMenuTree.Mnemonic EQ ENTRY(1,favoritesList:SCREEN-VALUE,"|")
+         NO-ERROR.
+    IF AVAILABLE ttMenuTree THEN DO:
+        ASSIGN
+            ttMenuTree.favorite = NO
+            ttMenuTree.favoriteOrder = 0
+            .
+        RUN pLoadFavorites.
+    END. /* if avail */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnSearch
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSearch MAINMENU
 ON CHOOSE OF btnSearch IN FRAME searchFrame
@@ -1040,6 +1125,7 @@ DO:
                 FRAME searchFrame:VIRTUAL-WIDTH  = btnClear:COL + btnClear:WIDTH  - .4
                 FRAME searchFrame:HEIGHT = FRAME searchFrame:VIRTUAL-HEIGHT
                 FRAME searchFrame:WIDTH  = FRAME searchFrame:VIRTUAL-WIDTH
+                favoritesList:HEIGHT = FRAME searchFrame:HEIGHT - .21
                 .
             VIEW {&searchFilters}.
             ENABLE {&searchFilters} btnClear.
@@ -1049,8 +1135,9 @@ DO:
             DISABLE {&searchFilters} btnClear.
             HIDE {&searchFilters} btnClear.
             ASSIGN
+                favoritesList:HEIGHT = btnSearch:HEIGHT - .1
                 FRAME searchFrame:VIRTUAL-HEIGHT = btnSearch:HEIGHT + .1
-                FRAME searchFrame:VIRTUAL-WIDTH  = btnSearch:WIDTH + .3
+                FRAME searchFrame:VIRTUAL-WIDTH  = btnSearch:COL + btnSearch:WIDTH
                 FRAME searchFrame:HEIGHT = FRAME searchFrame:VIRTUAL-HEIGHT
                 FRAME searchFrame:WIDTH  = FRAME searchFrame:VIRTUAL-WIDTH
                 .
@@ -1112,10 +1199,10 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define FRAME-NAME FRAME-USER
-&Scoped-define SELF-NAME favorites
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL favorites MAINMENU
-ON VALUE-CHANGED OF favorites IN FRAME FRAME-USER
+&Scoped-define FRAME-NAME searchFrame
+&Scoped-define SELF-NAME favoritesList
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL favoritesList MAINMENU
+ON DEFAULT-ACTION OF favoritesList IN FRAME searchFrame
 DO:
     FIND FIRST ttMenuTree
          WHERE ttMenuTree.Mnemonic EQ SELF:SCREEN-VALUE
@@ -1128,6 +1215,7 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME FRAME-USER
 &Scoped-define SELF-NAME imageCompany
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageCompany MAINMENU
 ON MOUSE-SELECT-CLICK OF imageCompany IN FRAME FRAME-USER
@@ -1518,21 +1606,22 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY favorites company_name loc_loc users_user_id Mnemonic 
+  DISPLAY company_name loc_loc users_user_id Mnemonic 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
-  ENABLE imageSettings imageCompany menuLinkZoHo favorites 
+  ENABLE imageSettings imageCompany menuLinkZoHo 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
-  DISPLAY menuTreeFilter searchSelections svFavoriteText 
+  DISPLAY favoritesList menuTreeFilter searchSelections svFavoriteText 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
-  ENABLE btnSearch menuTreeFilter searchSelections btnFavorite 
+  ENABLE BtnFavorites btnMoveDown btnMoveUp btnRemove btnSearch favoritesList 
+         menuTreeFilter searchSelections btnFavorite 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
   VIEW FRAME searchFrame IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-searchFrame}
   DISPLAY copyFromUser copyToUser svLanguageList svMenuSize cShowMnemonic 
           cPositionMnemonic 
       WITH FRAME userSettingsFrame IN WINDOW MAINMENU.
-  ENABLE btnCancel btnOK cShowMnemonic cPositionMnemonic btnActivateCueCards 
+  ENABLE btnCancel cShowMnemonic cPositionMnemonic btnActivateCueCards btnOK 
       WITH FRAME userSettingsFrame IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-userSettingsFrame}
   DISPLAY svFocus upgradeMsg 
@@ -1546,9 +1635,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pActivateCueCards MAINMENU
-PROCEDURE pActivateCueCards:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pActivateCueCards MAINMENU 
+PROCEDURE pActivateCueCards :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1563,11 +1651,9 @@ PROCEDURE pActivateCueCards:
     VIEW-AS ALERT-BOX.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildttMenuTree MAINMENU 
 PROCEDURE pBuildttMenuTree :
@@ -1739,7 +1825,10 @@ PROCEDURE pGetFavorites :
                  WHERE ttMenuTree.treeChild EQ user-print.field-value[idx]
                  NO-ERROR.
             IF AVAILABLE ttMenuTree THEN
-            ttMenuTree.favorite = YES.
+            ASSIGN
+                ttMenuTree.favorite      = YES
+                ttMenuTree.favoriteOrder = idx - 2
+                .
         END. /* do idx */
     END. /* if avail */
 
@@ -2121,24 +2210,27 @@ PROCEDURE pLoadFavorites :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
-        favorites:LIST-ITEM-PAIRS = " Favorites,.".
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    
+    DO WITH FRAME searchFrame:
+        favoritesList:LIST-ITEM-PAIRS = " FAVORITES,.".
         FOR EACH ttMenuTree
             WHERE ttMenuTree.favorite EQ YES
+               BY ttMenuTree.favoriteOrder
             :
-            favorites:ADD-LAST(fTreeText(ttMenuTree.isMenu,
-                                         ttMenuTree.baseText,
-                                         ttMenuTree.mnemonic,
-                                         cShowMnemonic,
-                                         cPositionMnemonic),ttMenuTree.mnemonic
-                )
+            ASSIGN
+                idx = idx + 1
+                ttMenuTree.favoriteOrder = idx
                 .
+            favoritesList:ADD-LAST(
+                fTreeText(ttMenuTree.isMenu,
+                          ttMenuTree.baseText,
+                          ttMenuTree.mnemonic,
+                          cShowMnemonic,
+                          cPositionMnemonic),ttMenuTree.mnemonic
+                          ).
         END. /* each ttmenutree */
-        ASSIGN
-            favorites:INNER-LINES  = favorites:NUM-ITEMS
-            favorites:SCREEN-VALUE = favorites:ENTRY(1)
-            .
-    END. /* with frame */
+    END. /* favoritesFrame */
 
 END PROCEDURE.
 
@@ -2229,6 +2321,44 @@ PROCEDURE pMenuSize :
     
     RUN LockWindowUpdate (0,OUTPUT i).
     SESSION:SET-WAIT-STATE("").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMoveFavorite MAINMENU 
+PROCEDURE pMoveFavorite :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiMove AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE cFavorite AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
+
+    DO WITH FRAME searchFrame:
+        cFavorite = favoritesList:SCREEN-VALUE.
+        FIND FIRST ttMenuTree
+             WHERE ttMenuTree.Mnemonic EQ ENTRY(1,favoritesList:SCREEN-VALUE,"|")
+             NO-ERROR.
+        IF AVAILABLE ttMenuTree THEN DO:
+            ttMenuTree.favoriteOrder = ttMenuTree.favoriteOrder + ipiMove.
+            FOR EACH ttMenuTree
+                WHERE ttMenuTree.favorite EQ YES
+                   BY ttMenuTree.favoriteOrder
+                :
+                ASSIGN
+                    idx = idx + 1
+                    ttMenuTree.favoriteOrder = idx
+                    .
+            END. /* each ttmenutree */
+            RUN pLoadFavorites.
+            favoritesList:SCREEN-VALUE = cFavorite.
+        END. /* if avail */
+    END. /* frame searchframe */
 
 END PROCEDURE.
 
@@ -2483,6 +2613,7 @@ PROCEDURE pSetUserSettings :
         .
     FOR EACH ttMenuTree
         WHERE ttMenuTree.favorite EQ YES
+           BY ttMenuTree.favoriteOrder
         :
         ASSIGN
             idx = idx + 1
