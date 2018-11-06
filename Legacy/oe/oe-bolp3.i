@@ -96,7 +96,8 @@ DO:
    .
   RUN CopyShipNote IN hNotesProcs (oe-bolh.rec_key, inv-head.rec_key).
     
-  fLogMsg("Done Create inv-head in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " v-ref-no: " + STRING(v-ref-no)).
+  fLogMsg("Done Create inv-head in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no 
+          + " v-ref-no: " + STRING(v-ref-no) + " r-no: " + STRING(inv-head.r-no)).
   IF invStatus-log THEN
       inv-head.stat = "W".
   
@@ -332,7 +333,10 @@ fLogMsg("Begin create inv-line in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol
    inv-line.qty        = oe-ordl.qty
    inv-line.p-c        = oe-boll.p-c
    inv-line.po-no      = oe-boll.po-no
-   inv-line.lot-no     = oe-boll.lot-no.
+   inv-line.lot-no     = oe-boll.lot-no
+   inv-line.spare-char-3 = STRING(ROWID(inv-head))
+   inv-line.spare-char-4 = v-term
+   .
    fLogMsg("Done create inv-line in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " avail inv-line: " + STRING(AVAILABLE(inv-line)) 
               + " inv-line.r-no " + STRING(inv-line.r-no) + " inv-line.b-no " + STRING(inv-line.b-no) + " inv-line.line " + STRING(inv-line.line)).
    
