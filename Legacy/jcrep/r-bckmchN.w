@@ -1499,7 +1499,11 @@ SESSION:SET-WAIT-STATE ("general").
               AND rm-rdtlh.tag NE ""
               USE-INDEX rm-rdtl NO-LOCK:
 
-               v-mat-qty = v-mat-qty + rm-rdtlh.qty .
+                run sys/ref/convquom.p(item.cons-uom, "EA", job-mat.basis-w,
+                                  job-mat.len, job-mat.wid, item.s-dep,
+                                  rm-rdtlh.qty, output v-qty).
+
+               v-mat-qty = v-mat-qty + v-qty .
         END.
 
         assign
