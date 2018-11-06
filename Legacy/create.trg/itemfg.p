@@ -81,6 +81,7 @@ IF AVAILABLE b-{&TABLENAME} THEN DO:
         {&TABLENAME}.procat         = b-{&TABLENAME}.procat
         {&TABLENAME}.class          = b-{&TABLENAME}.class
         {&TABLENAME}.sell-uom       = b-{&TABLENAME}.sell-uom
+        {&TABLENAME}.stocked        = b-{&TABLENAME}.stocked
         {&TABLENAME}.prod-uom       = b-{&TABLENAME}.prod-uom
         {&TABLENAME}.curr-code[1]   = b-{&TABLENAME}.curr-code[1]
         {&TABLENAME}.def-loc        = b-{&TABLENAME}.def-loc
@@ -98,6 +99,7 @@ IF AVAILABLE b-{&TABLENAME} THEN DO:
         {&TABLENAME}.ord-policy     = b-{&TABLENAME}.ord-policy
         {&TABLENAME}.alloc          = b-{&TABLENAME}.alloc
         {&TABLENAME}.stat           = b-{&TABLENAME}.stat
+        {&TABLENAME}.ship-meth      = b-{&TABLENAME}.ship-meth
         .
     IF b-{&TABLENAME}.cust-no NE "" THEN
     {&TABLENAME}.cust-no = b-{&TABLENAME}.cust-no. 

@@ -668,6 +668,8 @@ DO:
     def var ls-part-no as cha no-undo.
     def var ls-est-no as cha no-undo.
     def var ls-uom as cha no-undo.
+    DEFINE VARIABLE cLoc AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
 
  if self:modified and self:screen-value <> "0" then do:   
     run display-fgitem no-error.
@@ -685,7 +687,7 @@ DO:
               ls-uom = oe-ordl.pr-uom:screen-value.
 
        run oe/d-citmfg.w (ls-est-no, input-output ls-i-no,
-                          input-output ls-part-no,input-output ls-uom) no-error.
+                          input-output ls-part-no,input-output ls-uom, INPUT-OUTPUT cLoc, INPUT-OUTPUT cLocBin) no-error.
        if ls-i-no = "" then return no-apply.  /* cancel */
 
        if ls-i-no <> "" then do:   
