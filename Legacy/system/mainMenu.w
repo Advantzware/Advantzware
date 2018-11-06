@@ -127,8 +127,8 @@ Mnemonic
 
 /* Custom List Definitions                                              */
 /* searchFilters,List-2,List-3,List-4,List-5,List-6                     */
-&Scoped-define searchFilters btnMoveDown btnMoveUp btnRemove menuTreeFilter ~
-searchSelections btnFavorite svFavoriteText 
+&Scoped-define searchFilters btnMoveDown menuTreeFilter searchSelections ~
+btnMoveUp btnRemove btnFavorite svFavoriteText 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -287,8 +287,8 @@ DEFINE BUTTON BtnFavorites
 
 DEFINE BUTTON btnMoveDown 
      IMAGE-UP FILE "Graphics/16x16/navigate_down.jpg":U NO-FOCUS FLAT-BUTTON
-     LABEL "Move Favorite Down" 
-     SIZE 4.4 BY 1 TOOLTIP "Close".
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "Move Favorite Down".
 
 DEFINE BUTTON btnMoveUp 
      IMAGE-UP FILE "Graphics/16x16/navigate_up.jpg":U NO-FOCUS FLAT-BUTTON
@@ -498,20 +498,20 @@ DEFINE FRAME FRAME-USER
          BGCOLOR 15 .
 
 DEFINE FRAME searchFrame
-     BtnFavorites AT ROW 1 COL 1 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 54
      btnMoveDown AT ROW 5.76 COL 1 HELP
           "Move Favorite Down" WIDGET-ID 58
+     BtnFavorites AT ROW 1 COL 1 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 54
+     favoritesList AT ROW 1 COL 6 NO-LABEL WIDGET-ID 52
+     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
+          "Enter Search Filter" NO-LABEL WIDGET-ID 2
+     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
      btnMoveUp AT ROW 3.38 COL 1 HELP
           "Move Favorite Up" WIDGET-ID 56
      btnRemove AT ROW 4.57 COL 1 HELP
           "Remove Favorite" WIDGET-ID 26
      btnSearch AT ROW 1 COL 51 HELP
           "Search Menu / Edit Favorites" WIDGET-ID 40
-     favoritesList AT ROW 1 COL 6 NO-LABEL WIDGET-ID 52
-     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
-          "Enter Search Filter" NO-LABEL WIDGET-ID 2
-     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
      btnFavorite AT ROW 13.62 COL 52 WIDGET-ID 46
      btnClear AT ROW 13.86 COL 89 HELP
           "Clear Search Filters" WIDGET-ID 42
@@ -522,19 +522,17 @@ DEFINE FRAME searchFrame
          SIZE 97 BY 14.05
          FGCOLOR 1  WIDGET-ID 600.
 
-DEFINE FRAME menuTreeFrame
-     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
-     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
-     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 4.57
-         SIZE 55 BY 24.91
-         BGCOLOR 15  WIDGET-ID 100.
-
 DEFINE FRAME userSettingsFrame
      btnCancel AT ROW 21 COL 12 HELP
           "Cancel" WIDGET-ID 2
+     btnLanguage-1 AT ROW 4.81 COL 6 HELP
+          "Select this Language" WIDGET-ID 24
+     btnLanguage-2 AT ROW 6.48 COL 6 HELP
+          "Select this Language" WIDGET-ID 26
+     btnLanguage-3 AT ROW 8.14 COL 6 HELP
+          "Select this Language" WIDGET-ID 28
+     btnOK AT ROW 21 COL 3 HELP
+          "Save Changes" WIDGET-ID 4
      btnToggle AT ROW 1.71 COL 14 HELP
           "Customize Menu" WIDGET-ID 80
      copyFromUser AT ROW 1.95 COL 60 COLON-ALIGNED HELP
@@ -552,37 +550,29 @@ DEFINE FRAME userSettingsFrame
           "Copy From User to Selected User(s)" WIDGET-ID 94
      btnActivateCueCards AT ROW 21.48 COL 27 HELP
           "Activate Inactive Cue Cards" WIDGET-ID 116
-     btnLanguage-1 AT ROW 4.81 COL 6 HELP
-          "Select this Language" WIDGET-ID 24
-     btnLanguage-2 AT ROW 6.48 COL 6 HELP
-          "Select this Language" WIDGET-ID 26
-     btnLanguage-3 AT ROW 8.14 COL 6 HELP
-          "Select this Language" WIDGET-ID 28
-     btnOK AT ROW 21 COL 3 HELP
-          "Save Changes" WIDGET-ID 4
-     "Position:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 19.33 COL 12 WIDGET-ID 114
+     " HotKey (Mnemonic)" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 17.43 COL 5 WIDGET-ID 106
+     " Menu Size" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 10.29 COL 5 WIDGET-ID 62
+     " Language" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 4.1 COL 5 WIDGET-ID 86
+     "Show:" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 18.14 COL 14 WIDGET-ID 112
      "[S] Scheduling" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 11.24 COL 26 WIDGET-ID 42
+          SIZE 18 BY .62 AT ROW 13.38 COL 29 WIDGET-ID 48
+          FONT 6
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 15.52 COL 33 WIDGET-ID 54
           FONT 6
      " Copy From User" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 98
      "[S] Scheduling" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.52 COL 33 WIDGET-ID 54
+          SIZE 17 BY .62 AT ROW 11.24 COL 26 WIDGET-ID 42
           FONT 6
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 13.38 COL 29 WIDGET-ID 48
-          FONT 6
-     "Show:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 18.14 COL 14 WIDGET-ID 112
-     " Language" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 4.1 COL 5 WIDGET-ID 86
-     " Menu Size" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 10.29 COL 5 WIDGET-ID 62
+     "Position:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 19.33 COL 12 WIDGET-ID 114
      " Copy to Selected Users" VIEW-AS TEXT
           SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
-     " HotKey (Mnemonic)" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 17.43 COL 5 WIDGET-ID 106
      IMAGE-1 AT ROW 11.24 COL 18 WIDGET-ID 40
      IMAGE-2 AT ROW 13.14 COL 18 WIDGET-ID 44
      IMAGE-3 AT ROW 15.05 COL 18 WIDGET-ID 50
@@ -602,6 +592,16 @@ DEFINE FRAME userSettingsFrame
          SIZE 103 BY 23.33
          BGCOLOR 15 FGCOLOR 1 
          TITLE "User Settings" WIDGET-ID 200.
+
+DEFINE FRAME menuTreeFrame
+     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
+     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
+     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 4.57
+         SIZE 55 BY 24.91
+         BGCOLOR 15  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1043,7 +1043,7 @@ END.
 &Scoped-define FRAME-NAME searchFrame
 &Scoped-define SELF-NAME btnMoveDown
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMoveDown MAINMENU
-ON CHOOSE OF btnMoveDown IN FRAME searchFrame /* Move Favorite Down */
+ON CHOOSE OF btnMoveDown IN FRAME searchFrame
 DO:
     RUN pMoveFavorite (1.1).
 END.
@@ -1613,15 +1613,15 @@ PROCEDURE enable_UI :
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   DISPLAY favoritesList menuTreeFilter searchSelections svFavoriteText 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
-  ENABLE BtnFavorites btnMoveDown btnMoveUp btnRemove btnSearch favoritesList 
-         menuTreeFilter searchSelections btnFavorite 
+  ENABLE btnMoveDown BtnFavorites favoritesList menuTreeFilter searchSelections 
+         btnMoveUp btnRemove btnSearch btnFavorite 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
   VIEW FRAME searchFrame IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-searchFrame}
   DISPLAY copyFromUser copyToUser svLanguageList svMenuSize cShowMnemonic 
           cPositionMnemonic 
       WITH FRAME userSettingsFrame IN WINDOW MAINMENU.
-  ENABLE btnCancel cShowMnemonic cPositionMnemonic btnActivateCueCards btnOK 
+  ENABLE btnCancel btnOK cShowMnemonic cPositionMnemonic btnActivateCueCards 
       WITH FRAME userSettingsFrame IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-userSettingsFrame}
   DISPLAY svFocus upgradeMsg 
