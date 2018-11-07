@@ -3941,7 +3941,7 @@ ASSIGN
 /* gdm - 11190901 */
  itemfg.ship-meth  = IF AVAIL bf-itemfg THEN bf-itemfg.ship-meth ELSE YES 
   itemfg.part-no    = oe-ordl.part-no:screen-value
-  itemfg.setupDate  = TODAY.
+  .
 
 ASSIGN
     itemfg.taxable = fGetTaxable(itemfg.company, (IF AVAIL cust THEN cust.cust-no ELSE ""),"", (IF AVAILABLE bf-itemfg THEN bf-itemfg.i-no ELSE "")). 
@@ -3951,8 +3951,6 @@ ASSIGN
     ASSIGN
        itemfg.sell-uom   = oe-ordl.pr-uom:SCREEN-VALUE
        itemfg.prod-uom   = v-uom
-       itemfg.i-code     = "C"
-       itemfg.stocked    = YES
        itemfg.alloc      = IF AVAIL xeb AND xeb.est-type LE 4 THEN v-allocf ELSE v-alloc.
     
  IF fgmaster-cha EQ "FGMASTER" AND AVAIL bf-itemfg THEN

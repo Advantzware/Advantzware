@@ -1774,10 +1774,8 @@ PROCEDURE local-create-record :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    FIND FIRST oe-ctrl WHERE oe-ctrl.company = gcompany NO-LOCK NO-ERROR.
 
     ASSIGN      
-        itemfg.i-code    = IF AVAILABLE oe-ctrl AND oe-ctrl.i-code THEN "S" ELSE "C"
         itemfg.pur-uom   = lv-puruom
         /* gdm - 11190901 */
         itemfg.ship-meth = v-shpmet

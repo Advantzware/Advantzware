@@ -30,6 +30,10 @@ FIND FIRST fgcat
     USE-INDEX fgcat NO-LOCK
     NO-ERROR.
 
+FIND FIRST oe-ctrl NO-LOCK 
+    WHERE oe-ctrl.company EQ g_company 
+    NO-ERROR.
+    
 FIND FIRST cust NO-LOCK
     WHERE cust.company EQ g_company
       AND cust.active  EQ "X"
@@ -44,7 +48,7 @@ ASSIGN
     {&TABLENAME}.def-loc-bin  = IF AVAILABLE fg-bin THEN fg-bin.loc-bin ELSE ""
     {&TABLENAME}.procat       = IF AVAILABLE fgcat THEN fgcat.procat ELSE ""
     {&TABLENAME}.pur-man      = NO
-    {&TABLENAME}.i-code       = "C"
+    {&TABLENAME}.i-code       = IF AVAILABLE oe-ctrl AND oe-ctrl.i-code THEN "S" ELSE "C"
     {&TABLENAME}.curr-code[1] = IF AVAILABLE company THEN company.curr-code ELSE "USD"
     {&TABLENAME}.i-no         = "               " + {&TABLENAME}.rec_key
     {&TABLENAME}.prod-uom     = "M"
@@ -82,6 +86,7 @@ IF AVAILABLE b-{&TABLENAME} THEN DO:
         {&TABLENAME}.class          = b-{&TABLENAME}.class
         {&TABLENAME}.sell-uom       = b-{&TABLENAME}.sell-uom
         {&TABLENAME}.prod-uom       = b-{&TABLENAME}.prod-uom
+        {&TABLENAME}.pur-uom        = b-{&TABLENAME}.pur-uom
         {&TABLENAME}.curr-code[1]   = b-{&TABLENAME}.curr-code[1]
         {&TABLENAME}.def-loc        = b-{&TABLENAME}.def-loc
         {&TABLENAME}.def-loc-bin    = b-{&TABLENAME}.def-loc-bin
