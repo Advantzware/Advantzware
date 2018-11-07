@@ -2543,7 +2543,15 @@ PROCEDURE local-open-query :
  
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT AVAILABLE est THEN RETURN "adm-error".
-
+  FOR EACH probe EXCLUSIVE-LOCK 
+      WHERE probe.company EQ est.company
+        AND probe.est-no  EQ est.est-no:
+    ASSIGN
+     probe.boardCostPerM = probe.boardCostTotal / (probe.est-qty / 1000)
+     probe.boardCostPct = probe.boardCostPerM / probe.sell-price * 100
+     probe.boardContributionPerM = probe.sell-price - probe.boardCostPerM
+     probe.boardContributionTotal = probe.boardContributionPerM * (probe.est-qty / 1000).
+  END.
   FIND xest NO-LOCK WHERE RECID(xest) EQ RECID(est) NO-ERROR.
   FIND xef NO-LOCK WHERE RECID(xef) EQ RECID(ef) NO-ERROR.
   FIND xeb NO-LOCK WHERE RECID(xeb) EQ RECID(eb) NO-ERROR.
