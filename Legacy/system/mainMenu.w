@@ -1415,7 +1415,8 @@ DO:
     IF USERID("ASI") NE "Nosweat" THEN
         MESSAGE 'Exit Advantzware?' VIEW-AS ALERT-BOX
             QUESTION BUTTONS YES-NO UPDATE closeMenu.
-    IF NOT closeMenu THEN RETURN NO-APPLY.        
+    IF NOT closeMenu THEN RETURN NO-APPLY.
+    RUN pSetUserSettings.
     RUN system/userLogOut.p (NO, 0).
     QUIT. /* kills all processes */
 END.
@@ -2413,6 +2414,9 @@ PROCEDURE pSearchSelections :
               AND ttMenuTree.isActive EQ YES
               AND ttMenuTree.isMenu   EQ NO
             :
+            IF NOT CAN-FIND(FIRST xUserMenu
+                            WHERE xUserMenu.user_id  EQ USERID("ASI")
+                              AND xUserMenu.prgmname EQ ttMenuTree.treeChild) THEN
             searchSelections:ADD-LAST(fTreeText(ttMenuTree.isMenu,
                                                 ttMenuTree.baseText,
                                                 ttMenuTree.mnemonic,
