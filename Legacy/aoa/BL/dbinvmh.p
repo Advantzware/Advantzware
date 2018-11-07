@@ -49,7 +49,7 @@ FOR EACH cust NO-LOCK
     WHERE cust.company GT ""
     :
  
-    FOR EACH ar-inv FIELDS () NO-LOCK 
+    FOR EACH ar-inv NO-LOCK 
         WHERE ar-inv.company  EQ cust.company
           AND ar-inv.posted   EQ YES 
           AND ar-inv.cust-no  EQ cust.cust-no

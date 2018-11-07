@@ -188,49 +188,49 @@ DEFINE VARIABLE svUseTime AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 23 COLON-ALIGNED WIDGET-ID 60
-     svStartMachTranDate AT ROW 3.62 COL 23 COLON-ALIGNED HELP
+     svCompany AT ROW 1.24 COL 24 COLON-ALIGNED WIDGET-ID 60
+     svStartMachTranDate AT ROW 3.62 COL 24 COLON-ALIGNED HELP
           "Enter Start Transaction Date" WIDGET-ID 72
-     btnCalendar-1 AT ROW 3.62 COL 41 WIDGET-ID 76
-     svStartMachTranDateOption AT ROW 3.62 COL 44 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 3.62 COL 42 WIDGET-ID 76
+     svStartMachTranDateOption AT ROW 3.62 COL 45 COLON-ALIGNED HELP
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 74
-     svEndMachTranDate AT ROW 4.81 COL 23 COLON-ALIGNED HELP
+     svEndMachTranDate AT ROW 4.81 COL 24 COLON-ALIGNED HELP
           "Enter End Transaction Date" WIDGET-ID 68
-     btnCalendar-2 AT ROW 4.81 COL 41 WIDGET-ID 78
-     svEndMachTranDateOption AT ROW 4.81 COL 44 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 4.81 COL 42 WIDGET-ID 78
+     svEndMachTranDateOption AT ROW 4.81 COL 45 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
-     svAllMachine AT ROW 7.43 COL 25 HELP
+     svAllMachine AT ROW 7.43 COL 26 HELP
           "All Macines?" WIDGET-ID 58
-     svStartMachine AT ROW 8.62 COL 23 COLON-ALIGNED HELP
+     svStartMachine AT ROW 8.62 COL 24 COLON-ALIGNED HELP
           "Enter Start Machine" WIDGET-ID 22
-     startMachineDescription AT ROW 8.62 COL 37 COLON-ALIGNED HELP
+     startMachineDescription AT ROW 8.62 COL 38 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
-     svEndMachine AT ROW 9.81 COL 23 COLON-ALIGNED HELP
+     svEndMachine AT ROW 9.81 COL 24 COLON-ALIGNED HELP
           "Enter End Machine" WIDGET-ID 20
-     endMachineDescription AT ROW 9.81 COL 37 COLON-ALIGNED HELP
+     endMachineDescription AT ROW 9.81 COL 38 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svAllShift AT ROW 12.19 COL 25 HELP
+     svAllShift AT ROW 12.19 COL 26 HELP
           "All Shifts?" WIDGET-ID 216
-     svStartShift AT ROW 13.38 COL 23 COLON-ALIGNED HELP
+     svStartShift AT ROW 13.38 COL 24 COLON-ALIGNED HELP
           "Enter Start Shift" WIDGET-ID 220
-     startShiftDescription AT ROW 13.38 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 214
-     svEndShift AT ROW 14.57 COL 23 COLON-ALIGNED HELP
+     startShiftDescription AT ROW 13.38 COL 29 COLON-ALIGNED NO-LABEL WIDGET-ID 214
+     svEndShift AT ROW 14.57 COL 24 COLON-ALIGNED HELP
           "Enter End Shift" WIDGET-ID 218
-     endShiftDescription AT ROW 14.57 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 212
-     svUseTime AT ROW 15.76 COL 25 HELP
+     endShiftDescription AT ROW 14.57 COL 29 COLON-ALIGNED NO-LABEL WIDGET-ID 212
+     svUseTime AT ROW 15.76 COL 26 HELP
           "Select to Use Time vs Shift Table" WIDGET-ID 248
-     svStartTime AT ROW 16.95 COL 23 COLON-ALIGNED HELP
+     svStartTime AT ROW 16.95 COL 24 COLON-ALIGNED HELP
           "Enter Start Time" WIDGET-ID 222
-     svStartAMPM AT ROW 16.95 COL 31 COLON-ALIGNED HELP
+     svStartAMPM AT ROW 16.95 COL 32 COLON-ALIGNED HELP
           "Select AM/PM" NO-LABEL WIDGET-ID 244
-     svEndTime AT ROW 16.95 COL 52 COLON-ALIGNED HELP
+     svEndTime AT ROW 16.95 COL 53 COLON-ALIGNED HELP
           "Enter End Time" WIDGET-ID 228
-     svEndAMPM AT ROW 16.95 COL 60 COLON-ALIGNED HELP
+     svEndAMPM AT ROW 16.95 COL 61 COLON-ALIGNED HELP
           "Select AM/PM" NO-LABEL WIDGET-ID 246
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 70.6 BY 18.19
+         SIZE 74 BY 18.19
          TITLE "Report Parameters".
 
 
@@ -261,7 +261,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
          HEIGHT             = 18.19
-         WIDTH              = 70.6.
+         WIDTH              = 74.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
