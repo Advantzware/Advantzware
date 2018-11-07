@@ -1404,7 +1404,8 @@ PROCEDURE Job_Data_Collection :
                 WHERE ttTrans.chargeCode EQ cChargeCode
                 :
                 ASSIGN
-                    ttTrans.pct      = ttTrans.totalTime / iTotalTime
+                    ttTrans.pct      = IF ttTrans.totalTime / iTotalTime EQ ? THEN 0
+                                       ELSE ttTrans.totalTime / iTotalTime
                     ttTrans.runQty   = iRunQty * ttTrans.pct
                     ttTrans.wasteQty = iWasteQty * ttTrans.pct
                     iRQty            = iRQty + ttTrans.runQty
