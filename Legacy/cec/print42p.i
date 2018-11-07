@@ -855,12 +855,12 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
       /* adders           */
       run cec/box/pr42-add.p (v-vend-list).
    
-      FIND CURRENT probe-board NO-ERROR.
+      FIND CURRENT probe NO-ERROR.
       
-      IF AVAIL probe-board THEN
-         probe-board.val[1] = probe-board.val[1] + dm-tot[5].
+      IF AVAIL probe THEN
+         probe.boardCostTotal = probe.boardCostTotal + dm-tot[5].
 
-      FIND CURRENT probe-board NO-LOCK NO-ERROR.
+      FIND CURRENT probe NO-LOCK NO-ERROR.
    
       /* i n k s          */
       run cec/box/pr42-ink.p (v-vend-no, INPUT TABLE tt-all-forms-ink).

@@ -4,7 +4,6 @@ DEF VAR lv-time AS INT NO-UNDO.
 DEFINE VARIABLE cCEBrowseSubDir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCEBrowse AS LOGICAL NO-UNDO.
 
-DEF BUFFER probe-board FOR reftable.
 DEF BUFFER bff-probe for probe .
 
 
