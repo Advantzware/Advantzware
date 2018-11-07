@@ -80,7 +80,7 @@ FOR EACH tt-job-hdr,
     LEAVE.
 END.
 
-RUN sys/ref/nk1look.p (cocode, "CitDir", "C", NO, NO, "", "", 
+RUN sys/ref/nk1look.p (cocode, "CTIDir", "C", NO, NO, "", "", 
     OUTPUT cReturn, OUTPUT lrecFound).
 IF lRecfound THEN
     cOutputDir = cReturn NO-ERROR.
