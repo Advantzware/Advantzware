@@ -149,7 +149,9 @@ FOR EACH fg-bin NO-LOCK
   IF v-rec-date NE ? THEN
     tt-fg-bin.first-date = v-rec-date.
   IF tt-fg-bin.first-date EQ ? THEN
-     tt-fg-bin.first-date = DATE(SUBSTR(fg-bin.rec_key,1,8)).
+     tt-fg-bin.first-date = IF fg-bin.rec_key BEGINS "2" THEN
+                               DATE(SUBSTR(fg-bin.rec_key,5,4) + SUBSTRING(fg-bin.rec_key,1,4))
+                          ELSE DATE(SUBSTR(fg-bin.rec_key,1,8)).
 END.
 
 ELSE
