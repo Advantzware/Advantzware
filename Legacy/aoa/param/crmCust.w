@@ -81,14 +81,14 @@ DEFINE VARIABLE svAutoUpdate AS LOGICAL INITIAL no
 
 DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 13 COLON-ALIGNED WIDGET-ID 60
-     svAutoAdd AT ROW 6 COL 15 HELP
+     svAutoAdd AT ROW 6 COL 18 HELP
           "Select to Auto Add New CRM Customers" WIDGET-ID 88
-     svAutoUpdate AT ROW 7.67 COL 15 HELP
+     svAutoUpdate AT ROW 7.67 COL 18 HELP
           "Select to Auto Update Existing CRM Customers" WIDGET-ID 324
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 57 BY 15.33
+         SIZE 74 BY 15.33
          TITLE "Report Parameters".
 
 
@@ -119,7 +119,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
          HEIGHT             = 15.33
-         WIDTH              = 57.
+         WIDTH              = 74.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

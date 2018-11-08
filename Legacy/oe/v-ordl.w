@@ -1509,7 +1509,6 @@ assign
  itemfg.company    = gcompany
  itemfg.loc        = gloc
  itemfg.i-no       = v-item
- itemfg.i-code     = "C"
  itemfg.i-name     = oe-ordl.i-name:screen-value in frame {&frame-name}
  itemfg.part-dscr1 = oe-ordl.part-dscr1:screen-value
  itemfg.part-dscr2 = oe-ordl.part-dscr2:Screen-value
@@ -1518,11 +1517,8 @@ assign
  itemfg.part-no    = oe-ordl.part-no:screen-value
  itemfg.cust-no    = oe-ord.cust-no
  itemfg.cust-name  = oe-ord.cust-name
- itemfg.pur-uom    = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.prod-uom   = IF xeb.pur-man THEN "EA" ELSE "M"
  itemfg.alloc      = v-alloc
- itemfg.stocked    = YES
- itemfg.setupDate  = TODAY.
+ .
   /* Create an itemfg-loc for the default warehouse */
   RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
 
@@ -1583,25 +1579,6 @@ if avail xeb then do:
        end.
     end.
  end.  
-
-
-find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
-itemfg.i-code = if oe-ordl.est-no ne "" then "C"
-                else if avail oe-ctrl then
-                        if oe-ctrl.i-code then "S"
-                        else "C"
-                else "S".
-/* ==== not yet 
-if itemfg.i-code eq "S" then do:
-  fil_id = recid(itemfg).
-  run oe/fg-item.p.
-  fil_id = recid(oe-ordl).
-  {oe/ordlfg.i}
-  display oe-ordl.i-name oe-ordl.i-no oe-ordl.price
-          oe-ordl.pr-uom oe-ordl.cas-cnt oe-ordl.part-dscr2 oe-ordl.cost
-          oe-ordl.part-no oe-ordl.part-dscr1 with frame oe-ordlf.
-end.
-*/
 
 END PROCEDURE.
 

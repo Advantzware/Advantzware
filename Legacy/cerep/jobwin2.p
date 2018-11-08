@@ -1419,7 +1419,7 @@ END FUNCTION.
 
 
         IF lMachSheeter THEN DO:
-            IF ef.roll THEN
+            IF AVAIL ef AND ef.roll THEN
                 droll-len = ef.gsh-len .
             ELSE droll-len = 0 .
             PUT v-thick "<C1><b>Sheeter </b>" SKIP
@@ -1842,7 +1842,7 @@ END FUNCTION.
                 dlayerDepth  = reftable.val[1]
                 ddivider = reftable.val[2].
 
-            IF eb.est-type EQ 1 THEN
+            IF eb.est-type EQ 1 AND AVAIL ef THEN
                 do iv-li = 1 TO 4:
                 find first item WHERE
                     item.company EQ ef.company and
@@ -1864,7 +1864,7 @@ END FUNCTION.
             find first item
                 {sys/look/itemW.i}
                 and item.i-no eq ef.board
-                no-lock.
+                NO-LOCK NO-ERROR.
             IF AVAIL ITEM THEN
                 b-wt   = item.basis-w .
                 ELSE 
