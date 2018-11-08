@@ -573,28 +573,29 @@ PROCEDURE pCalculateSingle PRIVATE:
     RUN pGetVendor(xest.company, iplUI, OUTPUT v-vend-no).  /*Refactor - Prompt for all materials/vendors*/
 /*    {cec/get-vend.i}  /* get vendor number */*/
 
-    FIND FIRST ce-ctrl WHERE ce-ctrl.company EQ cocode AND ce-ctrl.loc EQ locode NO-LOCK NO-ERROR.
-    ASSIGN
-        qtty     = 0
-        ctrl[1]  = ce-ctrl.whse-mrkup / 100
-        ctrl[2]  = ce-ctrl.hand-pct / 100
-        ctrl[3]  = ce-ctrl.rm-rate
-        ctrl[4]  = ce-ctrl.spec-%[1]
-        ctrl[5]  = int(ce-ctrl.comm-add)
-        ctrl[6]  = int(ce-ctrl.shp-add)
-        ctrl[7]  = int(ce-ctrl.sho-labor)
-        ctrl[8]  = int(ce-ctrl.trunc-99)
-        ctrl[11] = ce-ctrl.spec-%[2]
-        ctrl[12] = ce-ctrl.spec-%[3]
-        ctrl[13] = int(ce-ctrl.spec-add[1])
-        ctrl[14] = int(ce-ctrl.spec-add[2])
-        ctrl[15] = int(ce-ctrl.spec-add[3])
-        ctrl[16] = int(ce-ctrl.spec-add[6])
-        ctrl[17] = int(ce-ctrl.spec-add[7])
-        ctrl[18] = int(ce-ctrl.spec-add[8]).
-
-
-    ctrl[19] = ce-ctrl.fold-pct.
+    /*Should all be part of ttCostMaster for a given Qty*/
+/*    FIND FIRST ce-ctrl WHERE ce-ctrl.company EQ cocode AND ce-ctrl.loc EQ locode NO-LOCK NO-ERROR.*/
+/*    ASSIGN                                                                                        */
+/*        qtty     = 0                                                                              */
+/*        ctrl[1]  = ce-ctrl.whse-mrkup / 100                                                       */
+/*        ctrl[2]  = ce-ctrl.hand-pct / 100                                                         */
+/*        ctrl[3]  = ce-ctrl.rm-rate                                                                */
+/*        ctrl[4]  = ce-ctrl.spec-%[1]                                                              */
+/*        ctrl[5]  = int(ce-ctrl.comm-add)                                                          */
+/*        ctrl[6]  = int(ce-ctrl.shp-add)                                                           */
+/*        ctrl[7]  = int(ce-ctrl.sho-labor)                                                         */
+/*        ctrl[8]  = int(ce-ctrl.trunc-99)                                                          */
+/*        ctrl[11] = ce-ctrl.spec-%[2]                                                              */
+/*        ctrl[12] = ce-ctrl.spec-%[3]                                                              */
+/*        ctrl[13] = int(ce-ctrl.spec-add[1])                                                       */
+/*        ctrl[14] = int(ce-ctrl.spec-add[2])                                                       */
+/*        ctrl[15] = int(ce-ctrl.spec-add[3])                                                       */
+/*        ctrl[16] = int(ce-ctrl.spec-add[6])                                                       */
+/*        ctrl[17] = int(ce-ctrl.spec-add[7])                                                       */
+/*        ctrl[18] = int(ce-ctrl.spec-add[8]).                                                      */
+/*                                                                                                  */
+/*                                                                                                  */
+/*    ctrl[19] = ce-ctrl.fold-pct.                                                                  */
 
     IF RETRY THEN OUTPUT close.
 

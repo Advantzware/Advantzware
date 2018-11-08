@@ -28,8 +28,8 @@ DEFINE {1} TEMP-TABLE ttCostTable NO-UNDO
     FIELD dRunCost AS DECIMAL EXTENT 20
     FIELD cRunCostUom AS CHARACTER 
     FIELD dSetups AS DECIMAL EXTENT 20
-    
     .
+
 
 
 /* ********************  Preprocessor Definitions  ******************** */
