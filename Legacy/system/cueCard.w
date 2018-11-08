@@ -1955,8 +1955,8 @@ PROCEDURE pChangeOrder :
          WHERE bCueCardText.cueID EQ cueCardText.cueID
          NO-ERROR.
     IF AVAILABLE bCueCardText THEN DO:
-         /* check if at bottom, can't move down */
-         IF bCueCardText.cueOrder EQ cueCardText.cueOrder AND ipiChangeOrder EQ 1 THEN
+        /* check if at bottom, can't move down */
+        IF bCueCardText.cueOrder EQ cueCardText.cueOrder AND ipiChangeOrder EQ 1 THEN
         RETURN.
     END. /* if avail */
     ELSE RETURN.
@@ -1978,7 +1978,6 @@ PROCEDURE pChangeOrder :
         FIND CURRENT cueCardText NO-LOCK.
     END. /* if avail */
     RUN pReopenBrowse.
-/*    BROWSE cueCardBrowse:REFRESH().*/
     
 END PROCEDURE.
 

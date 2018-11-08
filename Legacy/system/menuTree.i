@@ -40,23 +40,24 @@ DEFINE VARIABLE iMenuSize     AS INTEGER   NO-UNDO INITIAL 1.
 DEFINE VARIABLE iLanguage     AS INTEGER   NO-UNDO INITIAL 1.
 
 DEFINE TEMP-TABLE ttMenuTree NO-UNDO
-    FIELD treeOrder  AS INTEGER
-    FIELD level      AS INTEGER
-    FIELD isMenu     AS LOGICAL
-    FIELD isOpen     AS LOGICAL
-    FIELD isVisible  AS LOGICAL
-    FIELD treeParent AS CHARACTER
-    FIELD treeChild  AS CHARACTER
-    FIELD treeText   AS CHARACTER
-    FIELD baseText   AS CHARACTER 
-    FIELD treeImage  AS CHARACTER
-    FIELD mnemonic   AS CHARACTER
-    FIELD isActive   AS LOGICAL 
-    FIELD favorite   AS LOGICAL
-    FIELD hLevel     AS HANDLE
-    FIELD hImage     AS HANDLE
-    FIELD hEditor    AS HANDLE
-    FIELD hToggle    AS HANDLE 
+    FIELD treeOrder     AS INTEGER
+    FIELD level         AS INTEGER
+    FIELD isMenu        AS LOGICAL
+    FIELD isOpen        AS LOGICAL
+    FIELD isVisible     AS LOGICAL
+    FIELD treeParent    AS CHARACTER
+    FIELD treeChild     AS CHARACTER
+    FIELD treeText      AS CHARACTER
+    FIELD baseText      AS CHARACTER 
+    FIELD treeImage     AS CHARACTER
+    FIELD mnemonic      AS CHARACTER
+    FIELD isActive      AS LOGICAL 
+    FIELD favorite      AS LOGICAL
+    FIELD favoriteOrder AS DECIMAL
+    FIELD hLevel        AS HANDLE
+    FIELD hImage        AS HANDLE
+    FIELD hEditor       AS HANDLE
+    FIELD hToggle       AS HANDLE 
         INDEX ttMenuTree IS PRIMARY
             treeOrder
         INDEX ttMnemonic
