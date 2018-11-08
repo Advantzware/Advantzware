@@ -131,7 +131,7 @@ DEFINE QUERY external_tables FOR itemfg.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table w-jobs.loc w-jobs.loc-desc w-jobs.onHand w-jobs.onOrder w-jobs.allocated w-jobs.backOrder w-jobs.qtyAvailable w-jobs.ord-level w-jobs.ord-min w-jobs.ord-max w-jobs.lead-days w-jobs.beg-date   
+&Scoped-define FIELDS-IN-QUERY-br_table w-jobs.loc w-jobs.loc-desc w-jobs.onHand w-jobs.onOrder w-jobs.allocated w-jobs.backOrder w-jobs.qtyAvailable w-jobs.ord-level w-jobs.ord-min w-jobs.ord-max w-jobs.lead-days    
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table w-jobs.loc   
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table w-jobs
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table w-jobs
@@ -206,7 +206,6 @@ DEFINE BROWSE br_table
     w-jobs.ord-min  
     w-jobs.ord-max
     w-jobs.lead-days
-    w-jobs.beg-date
   ENABLE w-jobs.loc
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -601,6 +600,7 @@ PROCEDURE build-table :
     DEFINE VARIABLE iTotAlloc   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTotBack    AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTotAvail   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTotReOrder   AS INTEGER NO-UNDO.
     
     EMPTY TEMP-TABLE w-jobs.
     EMPTY TEMP-TABLE w-job.
@@ -627,7 +627,6 @@ PROCEDURE build-table :
             w-jobs.ord-level    = itemfg-loc.ord-level
             w-jobs.ord-max      = itemfg-loc.ord-max
             w-jobs.ord-min      = itemfg-loc.ord-min
-            w-jobs.beg-date     = itemfg.beg-date
             w-jobs.onHand       = itemfg-loc.q-onh
             w-jobs.onOrder      = itemfg-loc.q-ono
             w-jobs.allocated    = iAlloc
@@ -640,6 +639,7 @@ PROCEDURE build-table :
             iTotAlloc           = iTotAlloc   + w-jobs.allocated
             iTotBack            = iTotBack    + w-jobs.backOrder
             iTotAvail           = iTotAvail   + w-jobs.qtyAvailable
+            iTotReOrder         = iTotReOrder + w-jobs.ord-level
             .
         IF AVAILABLE loc THEN
             w-jobs.loc-desc = loc.dscr.      
@@ -652,10 +652,9 @@ PROCEDURE build-table :
         w-jobs.loc          = "ALL"
         w-jobs.loc-desc     = "ALL Locations"
         w-jobs.lead-days    = 0
-        w-jobs.ord-level    = 0
+        w-jobs.ord-level    = iTotReOrder
         w-jobs.ord-max      = 0
         w-jobs.ord-min      = 0
-        w-jobs.beg-date     = ?     
         w-jobs.onHand       = iTotOnHand
         w-jobs.onOrder      = iTotOnOrder
         w-jobs.allocated    = iTotAlloc
