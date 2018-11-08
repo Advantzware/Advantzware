@@ -962,7 +962,6 @@ ASSIGN
  itemfg.company    = cocode
  itemfg.loc        = locode
  itemfg.i-no       = v-item
- itemfg.i-code     = "C"
  itemfg.i-name     = oe-ordl.i-name
  itemfg.part-dscr1 = oe-ordl.part-dscr1
  itemfg.part-dscr2 = oe-ordl.part-dscr2
@@ -971,11 +970,8 @@ ASSIGN
  itemfg.part-no    = oe-ordl.part-no
  itemfg.cust-no    = oe-ord.cust-no
  itemfg.cust-name  = oe-ord.cust-name
- itemfg.pur-uom    = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.prod-uom   = IF xeb.pur-man THEN "EA" ELSE "M"
  itemfg.alloc      = v-alloc
- itemfg.stocked    = YES
- itemfg.setupDate  = TODAY.
+ .
   /* Create an itemfg-loc for the default warehouse */
   RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").   
 IF v-graphic-char NE "" THEN 
@@ -1020,13 +1016,6 @@ END.
     END.
  END.  
 
-
-FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
-itemfg.i-code = IF oe-ordl.est-no NE "" THEN "C"
-                ELSE IF AVAIL oe-ctrl THEN
-                        IF oe-ctrl.i-code THEN "S"
-                        ELSE "C"
-                ELSE "S".
 /* ==== not yet 
 if itemfg.i-code eq "S" then do:
   fil_id = recid(itemfg).

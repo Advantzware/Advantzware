@@ -2825,8 +2825,7 @@ ASSIGN
  itemfg.company    = cocode
  itemfg.loc        = locode
  itemfg.i-no       = v-item
- itemfg.i-code     = "C"
- itemfg.i-name     = oe-ordl.i-name
+  itemfg.i-name     = oe-ordl.i-name
  itemfg.part-dscr1 = oe-ordl.part-dscr1
  itemfg.part-dscr2 = oe-ordl.part-dscr2
  itemfg.sell-price = oe-ordl.price
@@ -2834,11 +2833,8 @@ ASSIGN
  itemfg.part-no    = oe-ordl.part-no
  itemfg.cust-no    = oe-ord.cust-no
  itemfg.cust-name  = oe-ord.cust-name
- itemfg.pur-uom    = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.prod-uom   = IF xeb.pur-man THEN "EA" ELSE "M"
  itemfg.alloc      = v-alloc
- itemfg.stocked    = YES
- itemfg.setupDate  = TODAY.
+ .
  /* Create an itemfg-loc for the default warehouse */
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
 
@@ -2884,24 +2880,6 @@ END.
     END.
  END.  
 
-
-FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
-itemfg.i-code = IF oe-ordl.est-no NE "" THEN "C"
-                ELSE IF AVAIL oe-ctrl THEN
-                        IF oe-ctrl.i-code THEN "S"
-                        ELSE "C"
-                ELSE "S".
-/* ==== not yet 
-if itemfg.i-code eq "S" then do:
-  fil_id = recid(itemfg).
-  run oe/fg-item.p.
-  fil_id = recid(oe-ordl).
-  {oe/ordlfg.i}
-  display oe-ordl.i-name oe-ordl.i-no oe-ordl.price
-          oe-ordl.pr-uom oe-ordl.cas-cnt oe-ordl.part-dscr2 oe-ordl.cost
-          oe-ordl.part-no oe-ordl.part-dscr1 with frame oe-ordlf.
-end.
-*/
 
 FIND CURRENT itemfg NO-LOCK.
 
