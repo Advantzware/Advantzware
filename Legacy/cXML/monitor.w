@@ -44,6 +44,13 @@ PROCEDURE postMonitor:
         OS-RENAME VALUE(cXMLFile) VALUE(cXMLError).
         NEXT.
       END. /* if search */
+      FILE-INFO:FILE-NAME = cXMLFile.
+      IF FILE-INFO:FILE-SIZE EQ 0 THEN DO:
+          RUN monitorActivity ('ERROR File: ' + monitorFile + ' is zero size',YES,'').
+          cXMLError = monitorImportDir + '/' + REPLACE(monitorFile,'.xml','.err').
+          OS-RENAME VALUE(cXMLFile) VALUE(cXMLError).
+          NEXT.
+      END. /*if file size is 0 */
       RUN monitorActivity ('cXML',YES,monitorFile).
 
       IF cXMLDir.cXMLName EQ 'cXMLOrder' THEN DO:
