@@ -2321,8 +2321,6 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
       OUTPUT lvCalcFrtCost,
       OUTPUT lvSetupPerCostUom).
       
-    ASSIGN lvCalcStdCost = ABSOLUTE(lvCalcStdCost)
-           lvCalcExtCost = ABSOLUTE(lvCalcExtCost).
     ASSIGN
       lvlTotalCostCalculated = TRUE
       fg-rctd.cost-uom:screen-value IN BROWSE {&browse-name} = lvCalcCostUom
@@ -2486,10 +2484,8 @@ IF LOOKUP(lv-cost-uom,fg-uom-list) EQ 0 THEN
    
  END.
 
- ASSIGN lv-out-cost = ABSOLUTE( lv-out-cost)
-        lv-ext-cost = ABSOLUTE( lv-ext-cost).
 ASSIGN
- lv-ext-cost = ABSOLUTE(lv-out-qty * lv-out-cost)
+ lv-ext-cost = lv-out-qty * lv-out-cost
  fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = lv-cost-uom
  fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-out-cost)
  fg-rctd.ext-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-ext-cost +
@@ -2565,8 +2561,6 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
       OUTPUT lvCalcFrtCost,
       OUTPUT lvSetupPerCostUom).
     
-    ASSIGN lvCalcStdCost = ABSOLUTE( lvCalcStdCost)
-           lvCalcExtCost = ABSOLUTE( lvCalcExtCost).
     ASSIGN
       fg-rctd.cost-uom:screen-value IN BROWSE {&browse-name} = lvCalcCostUom
       fg-rctd.std-cost:screen-value IN BROWSE {&browse-name} = STRING(lvCalcStdCost)
@@ -2627,14 +2621,13 @@ IF LOOKUP(lv-cost-uom,fg-uom-list) EQ 0 THEN
   RUN rm/convquom.p("EA", lv-cost-uom,                   
                     v-bwt, v-len, v-wid, v-dep,
                     lv-out-qty, OUTPUT lv-out-qty).
-IF lv-out-cost LT 0 THEN ASSIGN lv-out-cost = ABSOLUTE( -1 * lv-out-cost).
 
 ASSIGN
  fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = lv-cost-uom
  fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-out-cost)
  fg-rctd.ext-cost:SCREEN-VALUE IN BROWSE {&browse-name} =
-       STRING(ABSOLUTE((lv-out-qty * lv-out-cost) +
-           dec(fg-rctd.frt-cost:screen-value IN BROWSE {&browse-name}))).
+       STRING((lv-out-qty * lv-out-cost) +
+           dec(fg-rctd.frt-cost:screen-value IN BROWSE {&browse-name})).
 
 
 END.
@@ -2868,7 +2861,7 @@ FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ g_company
       b1-fg-rctd.std-cost = lv-recalc-cost.
       ASSIGN
       lv-ext-cost = b1-fg-rctd.t-qty * b1-fg-rctd.std-cost
-      b1-fg-rctd.ext-cost = absolute(lv-ext-cost + b1-fg-rctd.frt-cost).
+      b1-fg-rctd.ext-cost = lv-ext-cost + b1-fg-rctd.frt-cost.
     END.
     
   END.
@@ -2979,7 +2972,7 @@ PROCEDURE get-set-full-qty :
             b1-fg-rctd.std-cost = lv-recalc-cost.
             ASSIGN
              lv-ext-cost = b1-fg-rctd.t-qty * b1-fg-rctd.std-cost                          
-             b1-fg-rctd.ext-cost = ABSOLUTE(lv-ext-cost + b1-fg-rctd.frt-cost).
+             b1-fg-rctd.ext-cost = lv-ext-cost + b1-fg-rctd.frt-cost.
           END.
 
       END.
@@ -3239,11 +3232,10 @@ PROCEDURE local-assign-record :
    fg-rctd.t-qty    = DEC(ls-tmp-qty)
    fg-rctd.pur-uom  = ls-tmp-uom
    fg-rctd.cost-uom = ls-tmp-uom
-   fg-rctd.ext-cost = absolute(fg-rctd.std-cost * fg-rctd.t-qty /
-                      (IF fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1))
    fg-rctd.enteredBy = USERID("asi")
    fg-rctd.enteredDT = DATETIME(TODAY, MTIME)                      
-   . 
+   fg-rctd.ext-cost = fg-rctd.std-cost * fg-rctd.t-qty /
+                      (IF fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1).
   IF fg-rctd.po-no GT "" THEN DO:
       FIND FIRST po-ord WHERE po-ord.company EQ fg-rctd.company
           AND po-ord.po-no EQ INTEGER(fg-rctd.po-no)

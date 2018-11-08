@@ -2494,7 +2494,7 @@ PROCEDURE ipExpandFiles :
 
     ASSIGN 
         cThisEntry = fiEnvironment:{&SV}
-        cTgtEnv = cMapDir + "\" + cEnvDir + "\" + fiEnvironment:{&SV}.
+        cTgtEnv = cEnvDir + "\" + fiEnvironment:{&SV}.
 
     RUN ipStatus ("  Expanding files...").
 
@@ -2509,7 +2509,9 @@ PROCEDURE ipExpandFiles :
     OS-COMMAND SILENT VALUE(cCmdLine3).
 
     /* Skip the copy part, just MOVE the files  */
-    RUN ipStatus ("  Moving expanded files from Patch to " + cThisEntry + " temp directory").
+    RUN ipStatus ("  Moving expanded files from ").
+    RUN ipStatus ("    " + cUpdProgramDir + " to").
+    RUN ipStatus ("    " + cTgtEnv).
     OS-RENAME VALUE(cUpdProgramDir + "\Override") VALUE(cTgtEnv + "\OverrideN").
     OS-RENAME VALUE(cUpdProgramDir + "\Programs") VALUE(cTgtEnv + "\ProgramsN").
     OS-RENAME VALUE(cUpdProgramDir + "\Resources") VALUE(cTgtEnv + "\ResourcesN").
@@ -4129,7 +4131,8 @@ PROCEDURE ipRemoveUserAddon :
     RUN ipStatus ("    Removing addon mode from .usr file").
 
     DEF BUFFER bxUserMenu FOR xUserMenu.
-
+    DISABLE TRIGGERS FOR LOAD OF xUserMenu.
+    
     DEF VAR cLine     AS CHAR NO-UNDO.
     DEF VAR cOutline  AS CHAR NO-UNDO.
 
@@ -4158,7 +4161,7 @@ PROCEDURE ipRemoveUserAddon :
                 CREATE bxUserMenu.
                 BUFFER-COPY xUserMenu EXCEPT user_id TO bxUserMenu
                 ASSIGN 
-                    bxUserMenu.user_id = users.user_id.
+                    bxUserMenu.user_id = ttUsers.ttfUserID.
             END. /* each xusermenu */
         END.
         ASSIGN 

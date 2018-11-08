@@ -1444,7 +1444,7 @@ PROCEDURE valid-m-code :
 
     IF AVAIL mach                             AND
       mach.obsolete THEN DO:
-      MESSAGE "Machine is obsolete, please enter new machine..."
+      MESSAGE "Machine is Inactive, please enter new machine..."
           VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO job-mch.m-code IN BROWSE {&browse-name}.
       RETURN ERROR.

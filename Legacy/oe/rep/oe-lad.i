@@ -29,6 +29,7 @@ def var v-page-tot          as   dec format ">>9".
 DEF TEMP-TABLE tt-boll LIKE oe-boll
     FIELD rec_id AS CHAR
     FIELD unitCount as INTEGER
-    FIELD qty-sum   as INTEGER .
+    FIELD qty-sum   as INTEGER 
+    FIELD job-diff  as CHARACTER.
 
 DEF BUFFER b-tt-boll FOR tt-boll.

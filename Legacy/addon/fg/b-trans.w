@@ -40,7 +40,6 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
- 
 
 def var char-val as cha no-undo.
 def var ext-cost as decimal no-undo.
@@ -50,16 +49,60 @@ def var hd-post as widget-handle no-undo.
 def var hd-post-child as widget-handle no-undo.
 def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
 DEF VAR lv-new-tag-number-chosen AS LOG NO-UNDO.
+DEF VAR v-post-date AS DATE INITIAL TODAY NO-UNDO.
 DEFINE VARIABLE unitsOH LIKE fg-rctd.t-qty NO-UNDO.
 DEFINE VARIABLE iLineCnt AS INTEGER     NO-UNDO.
+DEFINE VARIABLE lPostAuto-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL   NO-UNDO .
+DEFINE VARIABLE cFgEmails AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iFgEmails AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
+{pc/pcprdd4u.i NEW}
+{fg/invrecpt.i NEW}
+{jc/jcgl-sh.i  NEW}
+{fg/fullset.i  NEW}
+{fg/fg-post3.i NEW}
 
+{fg/fgPostBatch.i}    
 DEF TEMP-TABLE tt-line-cnt NO-UNDO
-  FIELD line-rowid AS ROWID 
-  FIELD line-number AS INT .
+    FIELD line-rowid  AS ROWID 
+    FIELD line-number AS INT .
+
+
+/* Existing code */
+DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cFGSetAssembly AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode,
+    INPUT "FgEmails",
+    INPUT "I",
+                       INPUT NO,
+                       INPUT NO,
+                       INPUT "",
+                       INPUT "",
+                       OUTPUT cFgEmails,
+                       OUTPUT lFound).
+IF lFound THEN
+    iFgEmails = INTEGER(cFgEmails) NO-ERROR.
+lFgEmails = (IF iFgEmails EQ 1 THEN YES ELSE NO).
+
+cocode = g_company.
+locode = g_loc.
 
 DO TRANSACTION:
    {sys/inc/sstransf.i}
   END.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "SSPostFGTransfer", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lPostAuto-log = LOGICAL(cRtnChar) NO-ERROR.
+MESSAGE "test post auto?" lPostAuto-Log
+VIEW-AS ALERT-BOX.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -901,6 +944,7 @@ END.
 {custom/getcmpny.i}
 {custom/getloc.i}
 {custom/yellowColumns.i}
+
 ASSIGN
  cocode = gcompany
  locode = gloc.
@@ -941,6 +985,49 @@ PROCEDURE adm-row-available :
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE auto-post B-table-Win 
+PROCEDURE auto-post :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* IF no rows are selected and this is run, it will return an error */
+    IF lPostAuto-log AND BROWSE Browser-Table:NUM-SELECTED-ROWS GT 0 THEN 
+    DO:
+        FOR EACH w-fg-rctd:
+            DELETE w-fg-rctd.
+        END.
+
+        /* Create a single workfile record for the finished good being posted */
+        CREATE w-fg-rctd.
+        BUFFER-COPY fg-rctd TO w-fg-rctd
+            ASSIGN 
+            w-fg-rctd.row-id  = ROWID(fg-rctd)
+            w-fg-rctd.has-rec = YES.        
+      ASSIGN
+          v-post-date = TODAY
+          .       
+      RUN fg/fgpostBatch.p ( 
+          INPUT v-post-date, /* Post date      */
+          INPUT NO,          /* tg-recalc-cost */
+          INPUT "R",         /* Receipts       */
+          INPUT lFgEmails,   /* Send fg emails */
+          INPUT TABLE w-fg-rctd BY-reference,
+          INPUT TABLE tt-fgemail BY-reference,
+          INPUT TABLE tt-email BY-reference,
+          INPUT TABLE tt-inv BY-reference).
+  
+  END.
+  ELSE ERROR-STATUS:ERROR = NO .
 
 END PROCEDURE.
 
@@ -1691,11 +1778,13 @@ v-progstack = (IF PROGRAM-NAME(1) NE ? THEN "," + PROGRAM-NAME(1) ELSE "")
      BROWSE {&BROWSE-NAME}:SELECT-ROW(iNumRows - 1) NO-ERROR.    
   END.
 
-  /*
-  FIND loadtag WHERE loadtag.company = g_company
-                 AND loadtag.ITEM-type = NO
-                 AND loadtag.tag-no = fg-rctd.tag2 NO-LOCK NO-ERROR.
-  */
+    /*
+    FIND loadtag WHERE loadtag.company = g_company
+                   AND loadtag.ITEM-type = NO
+                   AND loadtag.tag-no = fg-rctd.tag2 NO-LOCK NO-ERROR.
+    */
+  IF lPostAuto-log THEN
+     RUN auto-post.
   lv-new-tag-number-chosen = ?.
   /* Workaround: if tab through to row-leave, scan-next doesn't get run */
   /* so if we're not here because of p-updbar, then run it              */
@@ -1820,6 +1909,7 @@ PROCEDURE scan-next :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
   RUN auto-add IN WIDGET-HANDLE(char-hdl).
 END PROCEDURE.

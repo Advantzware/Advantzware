@@ -1080,18 +1080,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO tran-date.
   END.
 
-  IF v-u-inv THEN
+  
     MESSAGE "This will ONLY post invoices that have been PRINTED!" SKIP(1)
-            "If you want your inventory to be updated from this posting,"
-            "The 'Update Inventory When Posting' flag in the Order"
-            "Entry control file must be set to 'INV', Otherwise"
-            "inventory will be updated when Bills of Lading are posted."
-            VIEW-AS ALERT-BOX.
-  ELSE
-    MESSAGE "This will ONLY post invoices that have been PRINTED!" SKIP(1)
-            "Your inventory will be updated from this posting, the"
-            "'Update Inventory When Posting' flag in the Order Entry"
-            "control file is set to 'INV'."
             VIEW-AS ALERT-BOX.
 
   {methods/nowait.i}

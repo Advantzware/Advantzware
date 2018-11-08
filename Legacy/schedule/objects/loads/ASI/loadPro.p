@@ -620,7 +620,7 @@ FOR EACH job-hdr NO-LOCK
     ASSIGN
       altResSeq = job-mch.line
       customVal = ''
-      dimFormat = '>>9.99999'
+      dimFormat = '>>>9.99999'
       dueDate = IF job.due-date NE ? THEN job.due-date ELSE {{&includes}/lastDate.i}
       jobSort = job-mch.job-no + '-'
               + STRING(job-mch.job-no2,'99')
@@ -1037,7 +1037,7 @@ FOR EACH job-hdr NO-LOCK
       userField[53] = setUserField(53,IF AVAILABLE eb THEN STRING(eb.tab-in,'In/Out') ELSE '')
       dRunMSF = 0
       dRunMSF = job-mch.run-qty / iNumUp * itemfg.t-sqft / 1000 WHEN AVAIL itemfg AND job-mch.run-qty NE ?
-      userField[54] = setUserField(54,IF dRunMSF LT 1000 THEN STRING(dRunMSF,'->>>,>>9.99999') ELSE '')
+      userField[54] = setUserField(54,IF dRunMSF LT 1000000 THEN STRING(dRunMSF,'->>>,>>9.99999') ELSE '')
       userField[57] = ''
       userField[57] = setUserField(57,prodQty(job-mch.company,job-mch.m-code,job-mch.job-no,
                                               job-mch.job-no2,job-mch.frm,job-mch.blank-no,
@@ -1056,7 +1056,7 @@ FOR EACH job-hdr NO-LOCK
       iMRWaste = job-mch.mr-waste
       iRunWaste = job-mch.run-qty * job-mch.wst-prct / 100
       dMSF = (iMRWaste + iRunWaste + job-mch.run-qty) / iNumUp * itemfg.t-sqft / 1000 WHEN AVAIL itemfg AND job-mch.run-qty NE ?
-      userField[98] = setUserField(98,IF dMSF LT 1000 THEN STRING(dMSF,'->>>,>>9.99999') ELSE '')
+      userField[98] = setUserField(98,IF dMSF LT 1000000 THEN STRING(dMSF,'->>>,>>9.99999') ELSE '')
       userField[99] = setUserField(99,IF AVAILABLE itemfg THEN STRING(itemfg.t-sqft,'>>>9.999<<') ELSE '')
       userField[100] = setUserField(100,STRING(iMRWaste,'>>>9'))
       userField[101] = setUserField(101,STRING(iRunWaste,'>>>,>>9'))
