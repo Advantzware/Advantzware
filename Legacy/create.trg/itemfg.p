@@ -52,6 +52,8 @@ ASSIGN
     {&TABLENAME}.curr-code[1] = IF AVAILABLE company THEN company.curr-code ELSE "USD"
     {&TABLENAME}.i-no         = "               " + {&TABLENAME}.rec_key
     {&TABLENAME}.prod-uom     = "M"
+    {&TABLENAME}.pur-uom      = "M"
+    {&TABLENAME}.sell-uom     = "M"
     {&TABLENAME}.stat         = "A"
     {&TABLENAME}.exempt-disc  = NO
     {&TABLENAME}.setupDate    = TODAY
