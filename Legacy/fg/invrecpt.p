@@ -583,7 +583,7 @@ DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE hNotesProcs2 AS HANDLE NO-UNDO.
 
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs2.  
 
     RUN CopyShipNote IN hNotesProcs2 (ipcRecKeyFrom, ipcRecKeyTo).
 
