@@ -6,8 +6,8 @@ DEFINE VARIABLE cReasonDesc AS CHARACTER NO-UNDO .
 if chosen eq 2 then DO:
     
     IF rd_printOnhand = "z" AND w-ord.tot-qty <> 0 THEN NEXT.
-    IF rd_printOnHand = "n" AND (w-ord.onh-qty GE w-ord.tot-qty  OR  w-ord.onh-qty EQ 0  ) THEN NEXT.   /* task 04171301 */
-    IF rd_printOnHand = "P" AND (w-ord.onh-qty LE w-ord.tot-qty  OR  w-ord.onh-qty  EQ 0 ) THEN NEXT.   /* task 04171301 */
+    IF rd_printOnHand = "n" AND (w-ord.onh-qty GE w-ord.tot-qty  ) THEN NEXT.   /* task 04171301 */
+    IF rd_printOnHand = "P" AND (w-ord.onh-qty LE w-ord.tot-qty  ) THEN NEXT.   /* task 04171301 */
 
  
      
