@@ -1,5 +1,0 @@
-sirname~firstname~lastname~companyname~address1~address2~city~state~zip~country~
-Mr.~Jeff~Flaucher~Customer One~123 One Way~~Philadelphia~PA~19560~~
-Ms.~Katie~Malinowski~Ashley Of Beverly Hills~500 North Loop 360 Bldg 6~~Austin~TX~78746~~
-Mr.~joe~bob~MAIL MERGE~123 One Way~~Philadelphia~PA~19560~~
-Mr.~Sally~Tester~ZILA PHARMACEUTICALS~123 One Way~~Philadelphia~PA~19560~~
