@@ -219,8 +219,8 @@ do with no-box no-labels frame flute STREAM-IO:
 
    ASSIGN
       adh-qty[2] = 1
-      med-qty = if v-corr then ((brd-l[3] * brd-w[3]) * v-liner-qty) * .000007
-                          else ((brd-l[3] * brd-w[3]) * v-liner-qty) / 144000
+      med-qty = if v-corr then ((brd-l[3] * brd-w[3]) * v-liner-qty / (1 - (item-bom.shrink / 100))) * .000007
+                else ((brd-l[3] * brd-w[3]) * v-liner-qty / (1 - (item-bom.shrink / 100))) / 144000                    
       fg-wt = fg-wt + (fg-qty * (if avail(item) then item.basis-w else 1)).
 
    FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
