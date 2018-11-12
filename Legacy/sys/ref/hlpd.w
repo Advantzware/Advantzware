@@ -291,6 +291,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     /* mod - sewa for Web Services task 08211210 */
     DEF VAR vconn AS CHAR  NO-UNDO.
+    DEF VAR vclint AS CHAR INIT "ASI" NO-UNDO.
     DEF VAR vhWebService AS HANDLE NO-UNDO.
     DEF VAR vhSalesSoap AS HANDLE NO-UNDO.
     DEF VAR parameters1 AS LONGCHAR NO-UNDO.
@@ -300,6 +301,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DEF VAR fr-fram  AS CHARACTER NO-UNDO.
     DEF VAR fr-field  AS CHARACTER NO-UNDO.
     DEF VAR fr-file  AS CHARACTER NO-UNDO.
+    DEF VAR fr-flags AS CHAR NO-UNDO.
     DEF VAR cRtnChar AS CHARACTER NO-UNDO.
     DEF VAR lRecFound AS LOGICAL NO-UNDO.
         
@@ -384,7 +386,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         IF ip-frame EQ ? THEN ASSIGN 
             ip-frame = "" . 
         RUN Service1Soap SET vhSalesSoap ON vhWebService .
-        RUN HelpMain IN vhSalesSoap(INPUT string(ip-field),INPUT STRING(ip-table),INPUT STRING(ip-frame), OUTPUT parameters1,OUTPUT parameters2).
+        RUN HelpMain IN vhSalesSoap(INPUT string(ip-field),INPUT STRING(ip-table),INPUT STRING(ip-frame), INPUT vclint, OUTPUT parameters1,OUTPUT parameters2, OUTPUT fr-flags).
 
         ASSIGN 
             ed-text = parameters2
