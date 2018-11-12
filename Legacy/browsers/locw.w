@@ -648,19 +648,40 @@ PROCEDURE build-table :
     END. /* each itemfg-loc */
     CREATE w-jobs.
     ASSIGN 
-        w-jobs.i-no         = "ALL"
-        w-jobs.loc          = "ALL"
+        w-jobs.i-no         = itemfg.i-no
+        w-jobs.loc          = "*ALL"
         w-jobs.loc-desc     = "ALL Locations"
-        w-jobs.lead-days    = 0
-        w-jobs.ord-level    = iTotReOrder
-        w-jobs.ord-max      = 0
-        w-jobs.ord-min      = 0
-        w-jobs.onHand       = iTotOnHand
-        w-jobs.onOrder      = iTotOnOrder
-        w-jobs.allocated    = iTotAlloc
-        w-jobs.backOrder    = iTotBack
-        w-jobs.qtyAvailable = iTotAvail
+        w-jobs.lead-days    = itemfg.lead-days
+        w-jobs.ord-level    = itemfg.ord-level
+        w-jobs.ord-max      = itemfg.ord-max
+        w-jobs.ord-min      = itemfg.ord-min
+        w-jobs.onHand       = itemfg.q-onh
+        w-jobs.onOrder      = itemfg.q-ono
+        w-jobs.allocated    = itemfg.q-alloc
+        w-jobs.backOrder    = itemfg.q-back
+        w-jobs.qtyAvailable = itemfg.q-avail
         .
+    IF iTotAlloc NE itemfg.q-alloc 
+        OR iTotOnHand NE itemfg.q-onh 
+        OR iTotOnOrder NE itemfg.q-ono
+        OR iTotBack NE itemfg.q-back
+        OR iTotAvail NE itemfg.q-avail THEN DO:
+        CREATE w-jobs.
+        ASSIGN 
+            w-jobs.i-no         = itemfg.i-no
+            w-jobs.loc          = "*UNSP"
+            w-jobs.loc-desc     = "Unspecified Locations"
+            w-jobs.lead-days    = 0
+            w-jobs.ord-level    = 0
+            w-jobs.ord-max      = 0
+            w-jobs.ord-min      = 0
+            w-jobs.onHand       = itemfg.q-onh - iTotOnHand
+            w-jobs.onOrder      = itemfg.q-ono - iTotOnOrder
+            w-jobs.allocated    = itemfg.q-alloc - iTotAlloc
+            w-jobs.backOrder    = itemfg.q-back - iTotBack
+            w-jobs.qtyAvailable = itemfg.q-avail - iTotAvail
+            .
+    END.
 
 END PROCEDURE.
 
