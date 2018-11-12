@@ -13,6 +13,7 @@ def var j as int no-undo.
 def var zzz as int no-undo.
 DEF VAR tmpstore AS CHAR NO-UNDO.
 DEF VAR CALL_id AS RECID NO-UNDO.
+DEF VAR deShrinkPct AS DEC NO-UNDO.
 
 def shared buffer xest for est.
 def shared buffer xef  for ef.
@@ -219,8 +220,9 @@ do with no-box no-labels frame flute STREAM-IO:
 
    ASSIGN
       adh-qty[2] = 1
-      med-qty = if v-corr then ((brd-l[3] * brd-w[3]) * v-liner-qty) * .000007
-                          else ((brd-l[3] * brd-w[3]) * v-liner-qty) / 144000
+      deShrinkPct = IF item-bom.shrink NE 100 THEN item-bom.shrink ELSE 0
+      med-qty = if v-corr then ((brd-l[3] * brd-w[3]) * v-liner-qty / (1 - (deShrinkPct / 100))) * .000007
+                else ((brd-l[3] * brd-w[3]) * v-liner-qty / (1 - (deShrinkPct / 100))) / 144000                    
       fg-wt = fg-wt + (fg-qty * (if avail(item) then item.basis-w else 1)).
 
    FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
