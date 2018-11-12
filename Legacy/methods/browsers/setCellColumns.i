@@ -48,7 +48,7 @@ PROCEDURE setCellColumns:
         /* 25841 - handle condition where the column def in the .dat file no longer exists in the browser */
         IF NOT VALID-HANDLE(cellColumn[k]) THEN DO:
             lAutoSave = YES.
-            NEXT OUTERLOOP.
+            LEAVE OUTERLOOP.
             
         END.
         /* 25841 - end */
@@ -88,7 +88,8 @@ PROCEDURE local-destroy:
   /* check for any columns changes */
   DO i = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
     IF cellColumn[i]:NAME EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):NAME AND
-       columnWidth[i] EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):WIDTH-PIXELS THEN NEXT.
+       columnWidth[i] EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):WIDTH-PIXELS 
+       AND NOT lAutoSave THEN NEXT.
     IF NOT lAutoSave THEN 
         MESSAGE 'Save Column Changes?' VIEW-AS ALERT-BOX
         QUESTION BUTTONS YES-NO UPDATE saveChanges AS LOGICAL.
