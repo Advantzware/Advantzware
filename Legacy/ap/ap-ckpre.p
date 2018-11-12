@@ -16,11 +16,11 @@ def workfile wrk-chk
   field line-amt    as   dec format "->>>,>>9.99".
 
 form 
-     "-----------"      to 79    skip
+     "-----------"      to 81    skip
      "Check Date: " AT 5 ap-chk.check-date
-     "Net Check Amount" to 67
-     ctot               to 79
-    with frame b3 no-box no-labels stream-io no-attr-space.
+     "Net Check Amount" to 69
+     ctot               to 81 format "->>>,>>9.99"
+    with frame b3 width 85 no-box no-labels stream-io no-attr-space.
 
 form skip(9)
      ap-chk.check-date  to 60
@@ -143,16 +143,16 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
           "Reference"       at 16
           "Date"            at 29
           "Inv Amt"         at 37
-          "Amt Paid"        at 48
-          "Disc Taken"      at 58
-          "Net Amt"         at 71
+          "Amt Paid"        at 50
+          "Disc Taken"      at 60
+          "Net Amt"         at 73
           "============"    at 1
           "============"    at 14
           "========"        at 27
-          "=========="      at 36
-          "=========="      at 47
-          "=========="      at 58
-          "==========="     at 69.
+          "==========="      at 36
+          "==========="      at 48
+          "=========="      at 60
+          "==========="     at 71.
     end.
 
     assign
@@ -176,10 +176,10 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
         trim(string(wrk-chk.po-no,">>>>>>"))
                                       to 25 format "x(12)"
         wrk-chk.inv-date              to 34 format "99/99/99"
-        wrk-chk.inv-amt               to 45 format "->>,>>9.99"
-        wrk-chk.amt-paid              to 56 format "->>,>>9.99"
-        wrk-chk.disc-amt              to 67 format "->>,>>9.99"
-        wrk-chk.line-amt              to 79 format "->>>,>>9.99".
+        wrk-chk.inv-amt               to 46 format "->>>,>>9.99"
+        wrk-chk.amt-paid              to 58 format "->>>,>>9.99"
+        wrk-chk.disc-amt              to 69 format "->>,>>9.99"
+        wrk-chk.line-amt              to 81 format "->>>,>>9.99".
 
     assign
      ll      = ll + 1
@@ -235,17 +235,17 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
       put "Invoice No."     at 2
           "Reference"       at 16
           "Date"            at 29
-          "Inv Amt"         at 37
-          "Amt Paid"        at 48
-          "Disc Taken"      at 58
-          "Net Amt"         at 71
+          "Inv Amt"         at 36
+          "Amt Paid"        at 49
+          "Disc Taken"      at 59
+          "Net Amt"         at 72
           "============"    at 1
           "============"    at 14
           "========"        at 27
-          "=========="      at 36
-          "=========="      at 47
-          "=========="      at 58
-          "==========="     at 69.
+          "==========="      at 36
+          "==========="      at 48
+          "=========="      at 60
+          "==========="     at 71.
       
       lv-line-cnt = 0.
       for each wrk-chk:
@@ -253,10 +253,10 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
             trim(string(wrk-chk.po-no,">>>>>>"))
                                           to 25 format "x(12)"
             wrk-chk.inv-date              to 34 format "99/99/99"
-            wrk-chk.inv-amt               to 45 format "->>,>>9.99"
-            wrk-chk.amt-paid              to 56 format "->>,>>9.99"
-            wrk-chk.disc-amt              to 67 format "->>,>>9.99"
-            wrk-chk.line-amt              to 79 format "->>>,>>9.99".
+            wrk-chk.inv-amt               to 46 format "->>>,>>9.99"
+            wrk-chk.amt-paid              to 58 format "->>>,>>9.99"
+            wrk-chk.disc-amt              to 69 format "->>,>>9.99"
+            wrk-chk.line-amt              to 81 format "->>>,>>9.99".
 
         delete wrk-chk.
         lv-line-cnt = lv-line-cnt + 1.
