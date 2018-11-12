@@ -163,6 +163,7 @@ ASSIGN
     {refTableConv.i "ShiftDays" 'ShiftDays'}
     {refTableConv.i "EstGetqtyw2" 'est/getqty.w2'}
     {refTableConv.i "ProbePerMsf" 'probe.per-msf'}
+    {refTableConv.i "v10TaxCode" 'v10-TaxCode-Upgrade'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */
