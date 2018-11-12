@@ -65,17 +65,17 @@ def NEW shared var v-rc-seq as int init 9999 no-undo.
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS begin_est end_est begin_cust end_cust ~
-begin_mach tb_slsmn tb_comm tb_pallet tb_m-r-crew tb_run-crew tb_m-r-rate ~
-tb_run-rate begin_mach-2 end_mach btn-process btn-cancel RECT-17 RECT-41 ~
-RECT-42 RECT-43 
+&Scoped-Define ENABLED-OBJECTS RECT-17 RECT-41 RECT-42 RECT-43 begin_est ~
+end_est begin_cust end_cust begin_mach tb_slsmn tb_comm tb_pallet ~
+tb_m-r-crew tb_run-crew tb_m-r-rate tb_run-rate tb_overrideLocks ~
+begin_mach-2 end_mach btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_est end_est begin_cust end_cust ~
 begin_mach tb_slsmn tb_comm tb_pallet tb_m-r-crew tb_run-crew tb_m-r-rate ~
-tb_run-rate begin_mach-2 end_mach v-status 
+tb_run-rate tb_overrideLocks begin_mach-2 end_mach v-status 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -139,19 +139,19 @@ DEFINE VARIABLE v-status AS CHARACTER FORMAT "X(256)":U
      SIZE 87.4 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 89 BY 15.71.
 
 DEFINE RECTANGLE RECT-41
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 87 BY 5.48.
 
 DEFINE RECTANGLE RECT-42
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 87 BY 3.57.
 
 DEFINE RECTANGLE RECT-43
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 87 BY 1.91.
 
 DEFINE VARIABLE tb_comm AS LOGICAL INITIAL no 
@@ -168,6 +168,11 @@ DEFINE VARIABLE tb_m-r-rate AS LOGICAL INITIAL no
      LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 3 BY .95 NO-UNDO.
+
+DEFINE VARIABLE tb_overrideLocks AS LOGICAL INITIAL no 
+     LABEL "Override Locked Operations" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 30.8 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_pallet AS LOGICAL INITIAL no 
      LABEL "Update Pallet and Case?" 
@@ -206,10 +211,11 @@ DEFINE FRAME FRAME-A
      tb_slsmn AT ROW 11.48 COL 32
      tb_comm AT ROW 12.48 COL 32
      tb_pallet AT ROW 13.48 COL 32
-     tb_m-r-crew AT ROW 16.24 COL 48
-     tb_run-crew AT ROW 16.24 COL 57
-     tb_m-r-rate AT ROW 17.43 COL 48
-     tb_run-rate AT ROW 17.43 COL 57
+     tb_m-r-crew AT ROW 15.91 COL 48
+     tb_run-crew AT ROW 15.91 COL 57
+     tb_m-r-rate AT ROW 16.71 COL 48
+     tb_run-rate AT ROW 16.71 COL 57
+     tb_overrideLocks AT ROW 17.67 COL 38 WIDGET-ID 2
      begin_mach-2 AT ROW 18.86 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Machine"
      end_mach AT ROW 18.86 COL 65 COLON-ALIGNED HELP
@@ -217,25 +223,25 @@ DEFINE FRAME FRAME-A
      v-status AT ROW 20.52 COL 2 NO-LABEL
      btn-process AT ROW 21.95 COL 21
      btn-cancel AT ROW 21.95 COL 53
+     "" VIEW-AS TEXT
+          SIZE 2.2 BY .95 AT ROW 1.95 COL 88
+          BGCOLOR 11 
+     "Update Crew Size?" VIEW-AS TEXT
+          SIZE 19 BY 1 AT ROW 15.91 COL 28
+     "Update Machine Rate?" VIEW-AS TEXT
+          SIZE 23 BY 1 AT ROW 16.71 COL 24
+     "MR" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 15.05 COL 48
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 5.29 COL 5
+     " to all of these estimates..." VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 9.81 COL 47
+     "Run" VIEW-AS TEXT
+          SIZE 6 BY 1 AT ROW 15.05 COL 56
      RECT-17 AT ROW 4.81 COL 1
      RECT-41 AT ROW 14.81 COL 2
      RECT-42 AT ROW 11.24 COL 2
      RECT-43 AT ROW 9.33 COL 2
-     "" VIEW-AS TEXT
-          SIZE 2.2 BY .95 AT ROW 1.95 COL 88
-          BGCOLOR 11 
-     "Run" VIEW-AS TEXT
-          SIZE 6 BY 1 AT ROW 15.05 COL 56
-     " to all of these estimates..." VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 9.81 COL 47
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .62 AT ROW 5.29 COL 5
-     "MR" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 15.05 COL 48
-     "Update Machine Rate?" VIEW-AS TEXT
-          SIZE 23 BY 1 AT ROW 17.43 COL 24
-     "Update Crew Size?" VIEW-AS TEXT
-          SIZE 19 BY 1 AT ROW 16.24 COL 28
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -323,17 +329,7 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
-                                                                        */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
+   FRAME-NAME                                                           */
 ASSIGN 
        begin_mach:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -341,6 +337,14 @@ ASSIGN
 ASSIGN 
        begin_mach-2:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_mach:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -356,7 +360,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -535,12 +539,13 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_est end_est begin_cust end_cust begin_mach tb_slsmn tb_comm 
-          tb_pallet tb_m-r-crew tb_run-crew tb_m-r-rate tb_run-rate begin_mach-2 
-          end_mach v-status 
+          tb_pallet tb_m-r-crew tb_run-crew tb_m-r-rate tb_run-rate 
+          tb_overrideLocks begin_mach-2 end_mach v-status 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE begin_est end_est begin_cust end_cust begin_mach tb_slsmn tb_comm 
-         tb_pallet tb_m-r-crew tb_run-crew tb_m-r-rate tb_run-rate begin_mach-2 
-         end_mach btn-process btn-cancel RECT-17 RECT-41 RECT-42 RECT-43 
+  ENABLE RECT-17 RECT-41 RECT-42 RECT-43 begin_est end_est begin_cust end_cust 
+         begin_mach tb_slsmn tb_comm tb_pallet tb_m-r-crew tb_run-crew 
+         tb_m-r-rate tb_run-rate tb_overrideLocks begin_mach-2 end_mach 
+         btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
