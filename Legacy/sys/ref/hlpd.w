@@ -291,7 +291,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     /* mod - sewa for Web Services task 08211210 */
     DEF VAR vconn AS CHAR  NO-UNDO.
-    DEF VAR vclint AS CHAR NO-UNDO.
+    DEF VAR vclint AS CHAR INIT "ASI" NO-UNDO.
     DEF VAR vhWebService AS HANDLE NO-UNDO.
     DEF VAR vhSalesSoap AS HANDLE NO-UNDO.
     DEF VAR parameters1 AS LONGCHAR NO-UNDO.
@@ -304,14 +304,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DEF VAR fr-flags AS CHAR NO-UNDO.
     DEF VAR cRtnChar AS CHARACTER NO-UNDO.
     DEF VAR lRecFound AS LOGICAL NO-UNDO.
-
-   
-        RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpClientID", "C" /* Logical */, 
-                               NO /* check by cust */, YES /* use cust not vendor */, 
-                               "" /* cust */, "" /* ship-to*/,
-                               OUTPUT cRtnChar, OUTPUT lRecFound).
-        vclint = cRtnChar .
-    
+        
         RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpService", "C" /* Logical */, 
                                NO /* check by cust */, YES /* use cust not vendor */, 
                                "" /* cust */, "" /* ship-to*/,
