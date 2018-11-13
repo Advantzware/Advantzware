@@ -61,7 +61,7 @@ if avail mstd then do:
 
 
   IF op-lock.val[1] EQ 1 AND NOT {&fil2}.isLocked THEN DO:
-    if mstd.rs-x ne 0 and mstd.rs-y ne 0 then do: est-op.
+    if mstd.rs-x ne 0 and mstd.rs-y ne 0 then do: 
       call_id  = recid(mstd).
 
       run ce/kxy-run.p(INPUT {&fil2}.n-out, INPUT {&fil2}.dept).

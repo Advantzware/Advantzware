@@ -3949,8 +3949,7 @@ ASSIGN /*order specific overrides to FGMaster and core defaults*/
  itemfg.cust-no    = oe-ord.cust-no
  itemfg.cust-name  = oe-ord.cust-name
  itemfg.pur-uom    = oe-ordl.pr-uom:SCREEN-VALUE 
- itemfg.ship-meth  = IF AVAIL bf-itemfg THEN bf-itemfg.ship-meth ELSE YES 
-  itemfg.part-no    = oe-ordl.part-no:screen-value
+ itemfg.part-no    = oe-ordl.part-no:screen-value
   .
 
 ASSIGN
