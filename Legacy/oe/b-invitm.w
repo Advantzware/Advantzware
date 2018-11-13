@@ -47,6 +47,7 @@ DEF VAR invcopys-cha AS CHAR NO-UNDO.
 {sys/inc/invcopys.i}
 IF AVAIL sys-ctrl THEN
    invcopys-cha = sys-ctrl.char-fld.
+&Scoped-define SORTBY-PHRASE BY inv-line.line
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
