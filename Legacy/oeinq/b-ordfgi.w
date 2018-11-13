@@ -386,10 +386,9 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      fg-rcpth.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 21
-            LABEL-BGCOLOR 14
+      fg-rcpth.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       fg-rcpth.po-no COLUMN-LABEL "Vendor PO#" FORMAT "x(9)":U
-            WIDTH 14 LABEL-BGCOLOR 14
+            LABEL-BGCOLOR 14
       fg-rcpth.job-no FORMAT "x(6)":U WIDTH 8 LABEL-BGCOLOR 14
       fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14
       display-bol() @ bol-no COLUMN-LABEL "BOL #" FORMAT ">>>>>>>9":U
@@ -401,8 +400,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 6.2 LABEL-BGCOLOR 14
       fg-rdtlh.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
-      fg-rdtlh.loc COLUMN-LABEL "Ware-!house" FORMAT "x(5)":U WIDTH 7
-            LABEL-BGCOLOR 14
+      fg-rdtlh.loc COLUMN-LABEL "Ware-!house" FORMAT "x(5)":U LABEL-BGCOLOR 14
       fg-rdtlh.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
       fg-rdtlh.qty COLUMN-LABEL "Quantity" FORMAT "->>>>,>>9":U
@@ -431,15 +429,21 @@ DEFINE BROWSE Browser-Table
             WIDTH 13
       fg-rcpth.b-no FORMAT ">>>>>9":U
       fg-rcpth.pur-uom COLUMN-LABEL "UOM for Cost" FORMAT "x(3)":U
-      display-ship() @ bol-ship COLUMN-LABEL "BOL Cust" FORMAT "x(8)":U
+      display-ship() @ bol-ship COLUMN-LABEL "BOL Cust" FORMAT "character":U
       fg-rcpth.post-date COLUMN-LABEL "Posted" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
-      get-vend-no() @ vend-no COLUMN-LABEL "Vendor" FORMAT "x(8)":U
-      get-vend-info() @ vend-name COLUMN-LABEL "Name" FORMAT "x(25)":U
+      get-vend-no () @ vend-no COLUMN-LABEL "Vendor" FORMAT "Character":U
+            WIDTH 9.4 LABEL-BGCOLOR 14
+      get-vend-info () @ vend-name COLUMN-LABEL "Name" FORMAT "Character":U
+            WIDTH 9.4 LABEL-BGCOLOR 14
       get-fg-qty (1) @ iBinQtyBef COLUMN-LABEL "Before Qty" FORMAT "->>>>>>9":U
+            WIDTH 9.4 LABEL-BGCOLOR 14
       get-fg-qty (2) @ iBinQty COLUMN-LABEL "Bin Change" FORMAT "->>>>>>9":U
-      fg-rdtlh.reject-code[1] COLUMN-LABEL "Adjustment Reason" FORMAT "x(30)" WIDTH 25
-      VIEW-AS COMBO-BOX INNER-LINES 10
+            WIDTH 9.4 LABEL-BGCOLOR 14
+      fg-rdtlh.reject-code[1] COLUMN-LABEL "Adjustment Reason:" FORMAT "x(2)":U
+            VIEW-AS COMBO-BOX SORT INNER-LINES 5
+                      LIST-ITEM-PAIRS "Item 1"," Item 1"
+                      DROP-DOWN-LIST 
       fg-rdtlh.enteredBy COLUMN-LABEL "Scanned By" FORMAT "x(12)":U
       fg-rdtlh.enteredDT COLUMN-LABEL "Scan Date/Time" FORMAT "99/99/9999 HH:MM:SS.SSS":U
   ENABLE
@@ -602,9 +606,9 @@ ASSIGN
      _JoinCode[2]      = "fg-rdtlh.r-no EQ fg-rcpth.r-no
 AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
      _FldNameList[1]   > ASI.fg-rcpth.i-no
-"fg-rcpth.i-no" "FG Item#" "x(15)" "character" ? ? ? 14 ? ? yes "" no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rcpth.i-no" "FG Item#" "x(15)" "character" ? ? ? 14 ? ? yes "" no no ? yes no no "U" "" "" "FILL-IN" "?" ? ? 5 no 0 no no
      _FldNameList[2]   > ASI.fg-rcpth.po-no
-"fg-rcpth.po-no" "Vendor PO#" ? "character" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rcpth.po-no" "Vendor PO#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.fg-rcpth.job-no
 "fg-rcpth.job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fg-rcpth.job-no2
@@ -620,7 +624,7 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
      _FldNameList[9]   > ASI.fg-rdtlh.cust-no
 "fg-rdtlh.cust-no" "Cust#" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.fg-rdtlh.loc
-"fg-rdtlh.loc" "Ware-!house" ? "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rdtlh.loc" "Ware-!house" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.fg-rdtlh.loc-bin
 "fg-rdtlh.loc-bin" "Bin" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.fg-rdtlh.qty
@@ -664,7 +668,7 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
      _FldNameList[31]   > "_<CALC>"
 "get-fg-qty (2) @ iBinQty" "Bin Change" "->>>>>>9" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[32]   > ASI.fg-rdtlh.reject-code[1]
-"fg-rdtlh.reject-code[1]" "Adjustment Reason:" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rdtlh.reject-code[1]" "Adjustment Reason:" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "DROP-DOWN-LIST" "," ? "Item 1, Item 1" 5 yes 0 no no
      _FldNameList[33]   > ASI.fg-rdtlh.enteredBy
 "fg-rdtlh.enteredBy" "Scanned By" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[34]   > ASI.fg-rdtlh.enteredDT
@@ -1653,6 +1657,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-type-list B-table-Win 
+PROCEDURE build-type-list :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    &IF DEFINED(FWD-VERSION) EQ 0 &THEN
+    DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+     
+    RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
+    RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
+    DELETE OBJECT hPgmReason.
+  
+    DO WITH FRAME {&FRAME-NAME}:
+        fg-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
+    END.
+    &ENDIF
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Disable-Navigation B-table-Win 
 PROCEDURE Disable-Navigation :
 /*------------------------------------------------------------------------------
@@ -2320,29 +2347,6 @@ PROCEDURE valid-tag-no :
     END.
   END.
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-type-list D-Dialog 
-PROCEDURE build-type-list :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
-     
-     RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
-             RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
-    DELETE OBJECT hPgmReason.
-  
-  DO WITH FRAME {&FRAME-NAME}:
-      fg-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
-    
-  END.
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
