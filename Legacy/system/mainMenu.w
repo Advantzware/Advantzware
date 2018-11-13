@@ -127,7 +127,7 @@ Mnemonic
 
 /* Custom List Definitions                                              */
 /* searchFilters,List-2,List-3,List-4,List-5,List-6                     */
-&Scoped-define searchFilters btnMoveDown menuTreeFilter searchSelections ~
+&Scoped-define searchFilters menuTreeFilter btnMoveDown searchSelections ~
 btnMoveUp btnRemove btnFavorite svFavoriteText 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -307,7 +307,7 @@ DEFINE BUTTON btnSearch
 
 DEFINE VARIABLE menuTreeFilter AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 41 BY 1 TOOLTIP "Name Search"
+     SIZE 52 BY 1 TOOLTIP "Name Search"
      BGCOLOR 15 FGCOLOR 1 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE svFavoriteText AS CHARACTER FORMAT "X(256)":U INITIAL "Favorites" 
@@ -315,14 +315,19 @@ DEFINE VARIABLE svFavoriteText AS CHARACTER FORMAT "X(256)":U INITIAL "Favorites
      SIZE 10 BY .71
      FONT 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-23
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 45 BY 1
+     BGCOLOR 15 .
+
 DEFINE VARIABLE favoritesList AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
      LIST-ITEM-PAIRS "FAVORITES","FAVORITES" 
-     SIZE 45 BY 13.81 NO-UNDO.
+     SIZE 45 BY 12.62 NO-UNDO.
 
 DEFINE VARIABLE searchSelections AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
-     SIZE 45 BY 11.43
+     SIZE 56 BY 11.43
      FONT 1 NO-UNDO.
 
 DEFINE BUTTON btnActivateCueCards 
@@ -463,10 +468,10 @@ DEFINE FRAME FRAME-USER
      loc_loc AT ROW 1.71 COL 76 COLON-ALIGNED NO-LABEL
      users_user_id AT ROW 1.71 COL 117 COLON-ALIGNED NO-LABEL
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     "Company:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1.71 COL 4
      "Location:" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.71 COL 68
+     "Company:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1.71 COL 4
      "User ID:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 110
      boxes AT ROW 8.62 COL 57
@@ -498,13 +503,13 @@ DEFINE FRAME FRAME-USER
          BGCOLOR 15 .
 
 DEFINE FRAME searchFrame
-     btnMoveDown AT ROW 5.76 COL 1 HELP
-          "Move Favorite Down" WIDGET-ID 58
      BtnFavorites AT ROW 1 COL 1 HELP
           "Search Menu / Edit Favorites" WIDGET-ID 54
-     favoritesList AT ROW 1 COL 6 NO-LABEL WIDGET-ID 52
      menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
           "Enter Search Filter" NO-LABEL WIDGET-ID 2
+     btnMoveDown AT ROW 5.76 COL 1 HELP
+          "Move Favorite Down" WIDGET-ID 58
+     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
      searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
      btnMoveUp AT ROW 3.38 COL 1 HELP
           "Move Favorite Up" WIDGET-ID 56
@@ -513,13 +518,17 @@ DEFINE FRAME searchFrame
      btnSearch AT ROW 1 COL 51 HELP
           "Search Menu / Edit Favorites" WIDGET-ID 40
      btnFavorite AT ROW 13.62 COL 52 WIDGET-ID 46
-     btnClear AT ROW 13.86 COL 89 HELP
+     btnClear AT ROW 13.86 COL 100 HELP
           "Clear Search Filters" WIDGET-ID 42
      svFavoriteText AT ROW 13.86 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     "FAVORITES" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
+          BGCOLOR 15 
+     RECT-23 AT ROW 1 COL 6 WIDGET-ID 60
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 3.38
-         SIZE 97 BY 14.05
+         SIZE 108 BY 14.05
          FGCOLOR 1  WIDGET-ID 600.
 
 DEFINE FRAME userSettingsFrame
@@ -550,29 +559,29 @@ DEFINE FRAME userSettingsFrame
           "Copy From User to Selected User(s)" WIDGET-ID 94
      btnActivateCueCards AT ROW 21.48 COL 27 HELP
           "Activate Inactive Cue Cards" WIDGET-ID 116
+     " Copy to Selected Users" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
      " HotKey (Mnemonic)" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 17.43 COL 5 WIDGET-ID 106
+     "Position:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 19.33 COL 12 WIDGET-ID 114
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 15.52 COL 33 WIDGET-ID 54
+          FONT 6
+     "Show:" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 18.14 COL 14 WIDGET-ID 112
      " Menu Size" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 10.29 COL 5 WIDGET-ID 62
      " Language" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 4.1 COL 5 WIDGET-ID 86
-     "Show:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 18.14 COL 14 WIDGET-ID 112
      "[S] Scheduling" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 13.38 COL 29 WIDGET-ID 48
           FONT 6
      "[S] Scheduling" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.52 COL 33 WIDGET-ID 54
+          SIZE 17 BY .62 AT ROW 11.24 COL 26 WIDGET-ID 42
           FONT 6
      " Copy From User" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 98
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 11.24 COL 26 WIDGET-ID 42
-          FONT 6
-     "Position:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 19.33 COL 12 WIDGET-ID 114
-     " Copy to Selected Users" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
      IMAGE-1 AT ROW 11.24 COL 18 WIDGET-ID 40
      IMAGE-2 AT ROW 13.14 COL 18 WIDGET-ID 44
      IMAGE-3 AT ROW 15.05 COL 18 WIDGET-ID 50
@@ -772,6 +781,8 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR FILL-IN menuTreeFilter IN FRAME searchFrame
    1                                                                    */
+/* SETTINGS FOR RECTANGLE RECT-23 IN FRAME searchFrame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR SELECTION-LIST searchSelections IN FRAME searchFrame
    1                                                                    */
 /* SETTINGS FOR FILL-IN svFavoriteText IN FRAME searchFrame
@@ -1125,7 +1136,7 @@ DO:
                 FRAME searchFrame:VIRTUAL-WIDTH  = btnClear:COL + btnClear:WIDTH  - .4
                 FRAME searchFrame:HEIGHT = FRAME searchFrame:VIRTUAL-HEIGHT
                 FRAME searchFrame:WIDTH  = FRAME searchFrame:VIRTUAL-WIDTH
-                favoritesList:HEIGHT = FRAME searchFrame:HEIGHT - .21
+                favoritesList:HIDDEN = NO
                 .
             VIEW {&searchFilters}.
             ENABLE {&searchFilters} btnClear.
@@ -1135,7 +1146,7 @@ DO:
             DISABLE {&searchFilters} btnClear.
             HIDE {&searchFilters} btnClear.
             ASSIGN
-                favoritesList:HEIGHT = btnSearch:HEIGHT - .1
+                favoritesList:HIDDEN = YES
                 FRAME searchFrame:VIRTUAL-HEIGHT = btnSearch:HEIGHT + .1
                 FRAME searchFrame:VIRTUAL-WIDTH  = btnSearch:COL + btnSearch:WIDTH
                 FRAME searchFrame:HEIGHT = FRAME searchFrame:VIRTUAL-HEIGHT
@@ -1611,9 +1622,9 @@ PROCEDURE enable_UI :
   ENABLE imageSettings imageCompany menuLinkZoHo 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
-  DISPLAY favoritesList menuTreeFilter searchSelections svFavoriteText 
+  DISPLAY menuTreeFilter favoritesList searchSelections svFavoriteText 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
-  ENABLE btnMoveDown BtnFavorites favoritesList menuTreeFilter searchSelections 
+  ENABLE BtnFavorites menuTreeFilter btnMoveDown favoritesList searchSelections 
          btnMoveUp btnRemove btnSearch btnFavorite 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
   VIEW FRAME searchFrame IN WINDOW MAINMENU.
@@ -2213,7 +2224,7 @@ PROCEDURE pLoadFavorites :
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
     DO WITH FRAME searchFrame:
-        favoritesList:LIST-ITEM-PAIRS = " FAVORITES,.".
+        favoritesList:LIST-ITEM-PAIRS = ?.
         FOR EACH ttMenuTree
             WHERE ttMenuTree.favorite EQ YES
                BY ttMenuTree.favoriteOrder
@@ -2223,6 +2234,7 @@ PROCEDURE pLoadFavorites :
                 ttMenuTree.favoriteOrder = idx
                 .
             favoritesList:ADD-LAST(
+                STRING(ttMenuTree.favoriteOrder) + ".  " +
                 fTreeText(ttMenuTree.isMenu,
                           ttMenuTree.baseText,
                           ttMenuTree.mnemonic,
