@@ -1727,7 +1727,7 @@ FOR EACH ttCustList
          w-tot-msf    = if w-tot-sf-sht ne 0 then
                           (w-amt / (w-tot-sf-sht / 1000)) else 0
          w-procat     = if avail itemfg then itemfg.procat else "MISC"
-         cItemName    = IF AVAILABLE itemfg THEN ar-invl.i-name ELSE "".
+         cItemName    = IF AVAILABLE itemfg THEN itemfg.i-name ELSE "".
       end.
 
       ELSE
