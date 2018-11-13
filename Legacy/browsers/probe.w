@@ -1066,7 +1066,7 @@ END.
 
 &SCOPED-DEFINE cellColumnDat probe
 
-{methods/browsers/setCellColumnsLabel.i}
+{methods/browsers/setCellColumns.i}
 
   FI_moveCol = "Sort".
   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
