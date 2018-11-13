@@ -356,19 +356,31 @@ PROCEDURE setup-ship-from :
                   cbShipFrom:SCREEN-VALUE = loc.loc.
           END.
           ELSE DO: /* MOre than one location */
-              v-ship-id = "".
-              FOR EACH shipto
-                 WHERE shipto.company EQ g_company
-                   AND shipto.cust-no EQ ip-cust-no
-                 NO-LOCK
-                 BREAK BY shipto.ship-no DESC:
-    
-                 IF shipto.ship-id EQ ip-cust-no THEN DO:
-                   v-ship-id = shipto.ship-id.
-                   LEAVE.
-                 END.
-    
-              END. /* each shipto */
+              v-ship-id = op-ship-id . 
+              
+              FIND FIRST shipto NO-LOCK
+                  WHERE shipto.company EQ g_company
+                  AND shipto.ship-id EQ v-ship-id
+                  AND shipto.cust-no EQ ip-cust-no  NO-ERROR.
+              
+              IF AVAIL shipto THEN
+                 cbShipFrom:SCREEN-VALUE = shipto.loc.
+
+            IF NOT AVAIL shipto THEN do:
+                v-ship-id = "".
+                
+                FOR EACH shipto
+                    WHERE shipto.company EQ g_company
+                    AND shipto.cust-no EQ ip-cust-no
+                    NO-LOCK
+                    BREAK BY shipto.ship-no DESC:
+
+                    IF shipto.ship-id EQ ip-cust-no THEN DO:
+                        v-ship-id = shipto.ship-id.
+                        cbShipFrom:SCREEN-VALUE = shipto.loc.
+                        LEAVE.
+                     END.
+                END. /* each shipto */
     
               IF v-ship-id EQ "" THEN DO:
                  FOR EACH shipto
@@ -377,15 +389,11 @@ PROCEDURE setup-ship-from :
                    NO-LOCK
                    BREAK BY shipto.ship-no DESC:
                      v-ship-id = shipto.ship-id.
+                     cbShipFrom:SCREEN-VALUE = shipto.loc.
                    LEAVE.
                  END. /* each shipto */
               END. /* if blank v-ship-id */
-              
-              IF v-ship-id GT "" THEN
-                  FIND FIRST shipto WHERE shipto.company EQ g_company
-                   AND shipto.ship-id EQ v-ship-id  NO-LOCK NO-ERROR.
-              IF AVAIL shipto THEN
-                 cbShipFrom:SCREEN-VALUE = shipto.loc.
+            END. /* not avail shipto */
           END. /* ... else (more than one location) */
     
       END. /* if num-usrx = 0 */
