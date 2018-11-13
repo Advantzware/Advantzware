@@ -2408,6 +2408,8 @@ PROCEDURE pRebuildMenuTree :
     RUN pInitMenuTree.
     RUN pBuildttMenuTree.
     RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
+    RUN pGetFavorites.
+    RUN pLoadFavorites.
     
     RUN LockWindowUpdate (0,OUTPUT i).
     SESSION:SET-WAIT-STATE("").
