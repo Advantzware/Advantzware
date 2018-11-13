@@ -1470,7 +1470,7 @@ PROCEDURE ipJobMaterial:
           IF opPallet EQ '' AND opTotMRP EQ '' THEN
           ASSIGN
             opPallet = item.i-name
-            opTotMRP = STRING(job-mat.qty,'>,>>>,>>9.9<<<<<').
+            opTotMRP = STRING(job-mat.qty,'>>,>>>,>>9.9<<<<<').
         WHEN 'I' THEN
           IF NOT CAN-DO(opInk,job-mat.i-no) THEN
           opInk = opInk + comma(opInk) + job-mat.i-no.
@@ -1484,10 +1484,10 @@ PROCEDURE ipJobMaterial:
     requiredQty = requiredQty + job-mat.qty.
   END. /* each job-mat */
   ASSIGN 
-    opNoCases = STRING(noCases,'>,>>>,>>9.9<<<<<')
-    opMatType5Qty = STRING(matType5Qty,'>,>>>,>>9.9<<<<<')
-    opMatType6Qty = STRING(matType6Qty,'>,>>>,>>9.9<<<<<')
-    opRequiredQty = STRING(requiredQty,'>,>>>,>>9.9<<<<<')
+    opNoCases = STRING(noCases,'>>,>>>,>>9.9<<<<<')
+    opMatType5Qty = STRING(matType5Qty,'>>,>>>,>>9.9<<<<<')
+    opMatType6Qty = STRING(matType6Qty,'>>,>>>,>>9.9<<<<<')
+    opRequiredQty = STRING(requiredQty,'>>,>>>,>>9.9<<<<<')
     .
   IF traceON THEN
   PUT UNFORMATTED
