@@ -51,7 +51,7 @@ DEFINE {1} TEMP-TABLE ttEstimateMaster /*Store estimate-level settings*/
     FIELD dHandlingRatePerCWTFGFarmPct AS DECIMAL 
     FIELD dHandlingChargeFarmPct AS DECIMAL
     .
-DEFINE {1} TEMP-TABLE ttEstimateQuantities  /*Store quantity-level settings and overrides*/
+DEFINE {1} TEMP-TABLE ttQuantities  /*Store quantity-level settings and overrides*/
     LIKE ttEstimateMaster 
     FIELD rec_keyEstimate AS CHARACTER 
     FIELD dMasterQuantity AS DECIMAL  
