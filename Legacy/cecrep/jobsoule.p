@@ -79,6 +79,7 @@ DEF VAR v-inst2 AS cha EXTENT 6 NO-UNDO.
 DEF BUFFER b-eb FOR eb.
 DEF VAR v-job-cust AS LOG NO-UNDO.
 DEF VAR xJobQty LIKE job-hdr.qty NO-UNDO.
+DEFINE BUFFER bf-itemfg FOR itemfg.
 
 DO TRANSACTION:
    {sys/inc/tspostfg.i}
@@ -571,7 +572,11 @@ do v-local-loop = 1 to v-local-copies:
         K = 0
         lv-got-return = 0.
 
-        FOR EACH notes WHERE notes.rec_key = itemfg.rec_key
+        IF v-fg NE "" THEN
+        FIND FIRST bf-itemfg NO-LOCK
+            WHERE bf-itemfg.company EQ cocode
+            AND bf-itemfg.i-no EQ v-fg NO-ERROR.
+        FOR EACH notes WHERE notes.rec_key = bf-itemfg.rec_key
             AND lookup(notes.note_code,spec-list) NE 0 NO-LOCK.
          
             DO i = 1 TO LENGTH(notes.note_text) :        
@@ -855,7 +860,7 @@ do v-local-loop = 1 to v-local-copies:
                 lv-text = lv-text + " " + TRIM(notes.note_text) + CHR(10).
             END.
             FOR EACH notes NO-LOCK WHERE notes.rec_key = itemfg.rec_key
-                                     AND notes.note_code = "SH":
+                                     AND lookup(notes.note_code,spec-list) NE 0:
                 lv-text = lv-text + " " + TRIM(notes.note_text) + CHR(10).
             END.
             DO li = 1 TO 15:
