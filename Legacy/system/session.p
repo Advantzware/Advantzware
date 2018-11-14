@@ -115,6 +115,19 @@ FUNCTION sfGetTtSysCtrlUsageHandle RETURNS HANDLE
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfGetUserID) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetUserID Procedure
+FUNCTION sfGetUserID RETURNS CHARACTER 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfSetMainMenuHandle) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfSetMainMenuHandle Procedure 
@@ -866,6 +879,26 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetUserID) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfGetUserID Procedure
+FUNCTION sfGetUserID RETURNS CHARACTER 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose: Returns the session's user ID
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN IF AVAILABLE users THEN users.user_id ELSE "".
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfSetMainMenuHandle) = 0 &THEN
 
