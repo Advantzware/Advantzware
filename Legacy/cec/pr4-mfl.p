@@ -124,7 +124,7 @@ REPEAT:
             deShrinkPct = IF item-bom.shrink NE 100 THEN item-bom.shrink ELSE 0
             med-qty = IF v-corr THEN ((brd-l[3] * brd-w[3]) * v-medium-qty / (1 - (deShrinkPct / 100))) * .000007
                       ELSE ((brd-l[3] * brd-w[3]) * v-medium-qty / (1 - (deShrinkPct / 100))) / 144000
-            fg-wt   = fg-wt + ((fg-qty / (1 - (item-bom.shrink / 100))) * item.basis-w)
+            fg-wt   = fg-wt + ((fg-qty / (1 - (deShrinkPct / 100))) * item.basis-w)
             b-uom = IF AVAILABLE e-item AND e-item.std-uom NE "" THEN e-item.std-uom
                     ELSE item.cons-uom.
 
@@ -233,7 +233,7 @@ REPEAT:
             deShrinkPct = IF item-bom.shrink NE 100 THEN item-bom.shrink ELSE 0
             med-qty     = IF v-corr THEN ((brd-l[3] * brd-w[3]) * v-liner-qty / (1 - (deShrinkPct / 100))) * .000007
                 ELSE ((brd-l[3] * brd-w[3]) * v-liner-qty / (1 - (deShrinkPct / 100))) / 144000                    
-            fg-wt       = fg-wt + (fg-qty * (IF avail(item) THEN item.basis-w ELSE 1))
+            fg-wt   = fg-wt + ((fg-qty / (1 - (deShrinkPct / 100))) * item.basis-w)
             b-uom = IF AVAILABLE e-item AND e-item.std-uom NE "" THEN e-item.std-uom
                     ELSE item.cons-uom.
 
