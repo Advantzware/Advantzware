@@ -488,7 +488,7 @@ DEFINE BROWSE br_table
       vtot-msf() @ vtot-msf COLUMN-LABEL "Total!MSF" COLUMN-FONT 0
       cvt-time(probe.probe-time) @ ls-probetime COLUMN-LABEL "Time" FORMAT "x(8)":U
       probe.line FORMAT ">>9":U
-      probe.board-cost FORMAT "->>,>>>,>>9.99":U 
+      probe.boardCostTotal FORMAT "->>,>>>,>>9.99":U 
       probe.spare-dec-1 COLUMN-LABEL "Direct!Material" FORMAT "->>>,>>9.99":U
             WIDTH 15
       fDirectMatPctSellPrice(1) @ dMatPctSellPrice COLUMN-LABEL "Dir. Mat%"
@@ -1195,7 +1195,7 @@ PROCEDURE calc-fields :
        
     ASSIGN
         probe.boardCostPerM:{&SVB} = STRING(
-                                        DEC(probe.board-Cost:{&SVB}) / 
+                                        DEC(probe.boardCostTotal:{&SVB}) / 
                                         (DEC(probe.est-qty:{&SVB}) / 1000), 
                                             probe.boardCostPerM:{&FVB}
                                             )
@@ -2543,7 +2543,15 @@ PROCEDURE local-open-query :
  
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT AVAILABLE est THEN RETURN "adm-error".
-
+  FOR EACH probe EXCLUSIVE-LOCK 
+      WHERE probe.company EQ est.company
+        AND probe.est-no  EQ est.est-no:
+    ASSIGN
+     probe.boardCostPerM = probe.boardCostTotal / (probe.est-qty / 1000)
+     probe.boardCostPct = probe.boardCostPerM / probe.sell-price * 100
+     probe.boardContributionPerM = probe.sell-price - probe.boardCostPerM
+     probe.boardContributionTotal = probe.boardContributionPerM * (probe.est-qty / 1000).
+  END.
   FIND xest NO-LOCK WHERE RECID(xest) EQ RECID(est) NO-ERROR.
   FIND xef NO-LOCK WHERE RECID(xef) EQ RECID(ef) NO-ERROR.
   FIND xeb NO-LOCK WHERE RECID(xeb) EQ RECID(eb) NO-ERROR.
