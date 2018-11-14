@@ -242,7 +242,7 @@ DEFINE BUTTON btnDieLookup
 
 DEFINE BUTTON btn_fgitem 
      LABEL "" 
-     SIZE 12 BY 1.
+     SIZE 13 BY 1.
 
 DEFINE BUTTON btn_style
      LABEL "" 
@@ -405,7 +405,7 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
           FONT 6
-     eb.stock-no AT ROW 3.86 COL 124 COLON-ALIGNED
+     eb.stock-no AT ROW 3.86 COL 126 COLON-ALIGNED
           LABEL "FG Item#"
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
@@ -566,7 +566,7 @@ DEFINE FRAME Corr
           LABEL "W"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1     
-     btn_fgitem AT ROW 3.81 COL 114 WIDGET-ID 16
+     btn_fgitem AT ROW 3.81 COL 115 WIDGET-ID 16
      btn_style AT ROW 10.52 COL 8 WIDGET-ID 16
      btn_board AT ROW 11.71 COL 12 WIDGET-ID 16
      btn_cust AT ROW 2.67 COL 15 WIDGET-ID 16
