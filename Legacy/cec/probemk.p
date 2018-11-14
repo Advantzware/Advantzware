@@ -17,7 +17,6 @@ DEFINE SHARED BUFFER xeb  FOR eb.
 {cec/print42.i shared}
 
 DEFINE BUFFER probe-ref   FOR reftable.
-DEFINE BUFFER probe-board FOR reftable.
 
 DEFINE SHARED VARIABLE v-prep-mat         LIKE tprep-mat NO-UNDO.  /* for probemk cost */
 DEFINE SHARED VARIABLE v-prep-lab         LIKE tprep-lab NO-UNDO.
