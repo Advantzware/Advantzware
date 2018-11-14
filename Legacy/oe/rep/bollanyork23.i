@@ -23,8 +23,11 @@ DO:
         AND bf-ttboll.po-no = tt-boll.po-no
         AND bf-ttboll.ord-no = tt-boll.ord-no
         AND bf-ttboll.LINE = tt-boll.LINE
+        AND (bf-ttboll.job-no = tt-boll.job-no OR v-sort)
+        AND (bf-ttboll.job-no2 = tt-boll.job-no2 OR v-sort)
         BREAK BY bf-ttboll.cases DESCENDING.
         
+
         FIND FIRST oe-ordl WHERE oe-ordl.company EQ cocode
             AND oe-ordl.ord-no  EQ tt-boll.ord-no
             AND oe-ordl.i-no    EQ tt-boll.i-no
@@ -149,7 +152,7 @@ DO:
     
         v-tot-cases = v-tot-cases + w2.cases.
 
-    /*delete w2. */
+    delete w2. 
     END. /* each w2 */
 
     PUT {1} SKIP(1).

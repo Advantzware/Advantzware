@@ -485,6 +485,8 @@ PROCEDURE create-tt-boll.
         AND tt-boll.po-no    EQ oe-boll.po-no
         AND tt-boll.ord-no   EQ oe-boll.ord-no
         AND tt-boll.line     EQ oe-boll.line
+        AND tt-boll.job-no   EQ oe-boll.job-no
+        AND tt-boll.job-no2  EQ oe-boll.job-no2
         AND tt-boll.qty-case EQ ip-qty-case
         NO-LOCK NO-ERROR.
 
@@ -516,8 +518,9 @@ END PROCEDURE.
 
 PROCEDURE get_lot_no:
     ASSIGN 
-        v-lot# = "".
+        v-lot# = tt-boll.lot-no .
 
+         IF v-lot# EQ "" THEN
          FIND FIRST oe-ordl
             WHERE oe-ordl.company EQ cocode
             AND oe-ordl.ord-no  EQ tt-boll.ord-no
@@ -554,11 +557,38 @@ PROCEDURE get_lot_no:
                       BY fg-rdtlh.trans-time
                       BY fg-rcpth.r-no:
 
-                IF fg-rdtlh.stack-code NE "" THEN
+                IF fg-rdtlh.stack-code NE "" THEN do:
                     v-lot# = fg-rdtlh.stack-code.
-                ELSE IF fg-rcpth.po-no NE "" THEN
-                    v-lot# = "PO#-" + fg-rcpth.po-no.
-                ELSE v-lot# = fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2) .
+                    FIND FIRST job-hdr NO-LOCK
+                         WHERE job-hdr.company EQ tt-boll.company
+                           AND job-hdr.job-no EQ SUBSTRING(fg-rdtlh.stack-code,1,6)
+                           AND job-hdr.job-no2 EQ  int(SUBSTRING(fg-rdtlh.stack-code,8,2))
+                           AND job-hdr.i-no EQ tt-boll.i-no NO-ERROR . 
+                     IF AVAIL job-hdr THEN
+                         v-lot# = fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2,"99") + "-" + string(job-hdr.frm,"99") .
+
+                END.
+                ELSE IF fg-rcpth.po-no NE "" THEN do:
+                    FIND FIRST po-ordl NO-LOCK
+                        WHERE po-ordl.company EQ tt-boll.company
+                          AND po-ordl.i-no EQ tt-boll.i-no
+                          AND po-ordl.po-no EQ integer(fg-rcpth.po-no) NO-ERROR.
+                    IF AVAIL po-ordl THEN
+                        v-lot# = "PO#-" + fg-rcpth.po-no + "-" + STRING(po-ordl.LINE,"99").
+                    ELSE
+                        v-lot# = "PO#-" + fg-rcpth.po-no .
+                END.
+                ELSE do: 
+                     FIND FIRST job-hdr NO-LOCK
+                         WHERE job-hdr.company EQ tt-boll.company
+                           AND job-hdr.job-no EQ fg-rcpth.job-no
+                           AND job-hdr.job-no2 EQ fg-rcpth.job-no2
+                           AND job-hdr.i-no EQ tt-boll.i-no NO-ERROR . 
+                     IF AVAIL job-hdr THEN
+                     v-lot# = fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2,"99") + "-" + string(job-hdr.frm,"99") .
+                     ELSE
+                     v-lot# = fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2)  .
+                END.
                      LEAVE.
             END.
         
