@@ -202,7 +202,7 @@ DEFINE VARIABLE fi_days AS INTEGER FORMAT ">,>>9":U INITIAL 9999
      SIZE 9 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_fchk AS INTEGER FORMAT ">>>>>>>>>>":U INITIAL 0 
+DEFINE VARIABLE fi_fchk AS DECIMAL FORMAT ">>>>>>>>>>":U INITIAL 0 
      LABEL "Beginning Check#" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1
@@ -225,7 +225,7 @@ DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U
      SIZE 38 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE fi_tchk AS INTEGER FORMAT ">>>>>>>>>>":U INITIAL 2147483647 
+DEFINE VARIABLE fi_tchk AS DECIMAL FORMAT ">>>>>>>>>>":U INITIAL 2147483647 
      LABEL "Ending Check#" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1
@@ -718,7 +718,7 @@ PROCEDURE create-tempfile :
   DEF VAR lv-cust-no LIKE ar-cashl.cust-no NO-UNDO.
   DEF VAR ll-valid AS LOG NO-UNDO.
   DEF VAR li-fchk LIKE ar-cash.check-no NO-UNDO.
-  DEF VAR li-tchk LIKE ar-cash.check-no NO-UNDO.
+  DEFINE VARIABLE li-tchk AS DECIMAL NO-UNDO.
 
 
   SESSION:SET-WAIT-STATE ("general").
@@ -731,7 +731,7 @@ PROCEDURE create-tempfile :
    v-open  = tb_open
    li-seq  = 0
    xsum    = 0
-   li-fchk = fi_fchk
+   li-fchk = int(fi_fchk)
    li-tchk = fi_tchk.
 
   IF NOT CAN-FIND(FIRST ar-cash
@@ -784,8 +784,8 @@ PROCEDURE create-tempfile :
           AND ar-cashl.inv-no  EQ 0,      
         FIRST ar-cash NO-LOCK
         WHERE ar-cash.c-no     EQ ar-cashl.c-no
-          AND ar-cash.check-no GE li-fchk
-          AND ar-cash.check-no LE li-tchk
+          AND DECIMAL(ar-cash.check-no) GE DECIMAL(li-fchk)
+          AND DECIMAL(ar-cash.check-no) LE DECIMAL(li-tchk)
         BY ar-cash.check-date
         BY ar-cash.c-no:
 

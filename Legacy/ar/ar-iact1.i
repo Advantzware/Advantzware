@@ -17,8 +17,8 @@ IF ll-valid AND (fi_fchk NE 0 OR fi_tchk NE 2147483647) THEN DO:
       NO-LOCK,      
       FIRST ar-cash
       WHERE ar-cash.c-no     EQ ar-cashl.c-no 
-        AND ar-cash.check-no GE fi_fchk
-        AND ar-cash.check-no LE fi_tchk
+        AND DECIMAL(ar-cash.check-no) GE fi_fchk
+        AND DECIMAL(ar-cash.check-no) LE DECIMAL(fi_tchk)
       NO-LOCK:
     ll-valid = YES.
     LEAVE.
