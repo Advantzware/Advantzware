@@ -14,7 +14,7 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE {1} TEMP-TABLE ttEstimateMaster /*Store estimate-level settings*/
+DEFINE {1} TEMP-TABLE ttEstMaster /*Store estimate-level settings*/
     FIELD rec_key AS CHARACTER 
     FIELD rec_keyParent AS CHARACTER 
     FIELD riSource AS ROWID 
@@ -50,23 +50,32 @@ DEFINE {1} TEMP-TABLE ttEstimateMaster /*Store estimate-level settings*/
     FIELD dHandlingRatePerCWTRMFarmPct AS DECIMAL 
     FIELD dHandlingRatePerCWTFGFarmPct AS DECIMAL 
     FIELD dHandlingChargeFarmPct AS DECIMAL
+    FIELD lRecalcSetupTime AS LOGICAL 
+    FIELD lRecalcRunSpeed AS LOGICAL 
+    FIELD lRecalcRunWaste AS LOGICAL 
+    FIELD lRecalcSetupCrew AS LOGICAL 
+    FIELD lRecalcRunCrew AS LOGICAL 
+    FIELD lRecalcSetupWaste AS LOGICAL 
+    FIELD lRecalcSetupRates AS LOGICAL 
+    FIELD lRecalcRunRates AS LOGICAL 
     .
-DEFINE {1} TEMP-TABLE ttQuantities  /*Store quantity-level settings and overrides*/
-    LIKE ttEstimateMaster 
+DEFINE {1} TEMP-TABLE ttEstQty  /*Store quantity-level settings and overrides*/
+    LIKE ttEstMaster 
     FIELD rec_keyEstimate AS CHARACTER 
     FIELD dMasterQuantity AS DECIMAL  
+    FIELD dOperationQuantity AS DECIMAL
     FIELD iReleases AS INTEGER 
     FIELD lRunAndShip AS LOGICAL 
     .
     
-DEFINE {1} TEMP-TABLE ttForms
+DEFINE {1} TEMP-TABLE ttEstForm
     FIELD rec_key AS CHARACTER 
     FIELD rec_keyParent AS CHARACTER 
     FIELD rec_keyEstimate AS CHARACTER 
     FIELD iFormNo AS INTEGER
     . 
     
-DEFINE {1} TEMP-TABLE ttBlanks
+DEFINE {1} TEMP-TABLE ttEstBlank
     FIELD rec_key AS CHARACTER /*unique identifier*/
     FIELD rec_keyParent AS CHARACTER 
     FIELD rec_keyEstimate AS CHARACTER /*links to estimate table*/
@@ -76,7 +85,7 @@ DEFINE {1} TEMP-TABLE ttBlanks
     FIELD iBlankNo AS INTEGER 
     .
 
-DEFINE {1} TEMP-TABLE ttItems
+DEFINE {1} TEMP-TABLE ttEstItem
     FIELD rec_key AS CHARACTER 
     FIELD rec_keyParent AS CHARACTER 
     FIELD rec_keyEstimate AS CHARACTER 
@@ -84,22 +93,30 @@ DEFINE {1} TEMP-TABLE ttItems
     FIELD cPartID AS CHARACTER 
     .
 
-DEFINE {1} TEMP-TABLE ttOperations
+DEFINE {1} TEMP-TABLE ttEstOperation
     FIELD rec_key AS CHARACTER 
     FIELD rec_keyParent AS CHARACTER 
     FIELD rec_keyEstimate AS CHARACTER 
+    FIELD rec_keyEstQty AS CHARACTER 
     FIELD rec_keyForm AS CHARACTER 
     FIELD rec_keyBlank AS CHARACTER 
+    FIELD iForm AS INTEGER 
+    FIELD iBlank AS INTEGER 
     FIELD iPass AS INTEGER 
     FIELD cOperationID AS CHARACTER /*m-code*/
     FIELD cOperationDesc AS CHARACTER
+    FIELD dOperationQuantity AS DECIMAL 
     FIELD cTypeFeed AS CHARACTER /*sheets in*/
     FIELD cTypeOut AS CHARACTER   /*Blanks out*/
     FIELD dFeedsPerHour AS DECIMAL 
-    FIELD dFeedsWastedInSetup AS DECIMAL 
+    FIELD dFeedsWastedInSetup AS DECIMAL
+    FIELD dFeedsWastedInSetupPerColor AS DECIMAL 
+    FIELD dFeedsWastedInSetupBase AS DECIMAL 
     FIELD dFeedsWastedInRun AS DECIMAL /*calc*/
     FIELD dFeedsWastedRate AS DECIMAL 
     FIELD dHoursSetup AS DECIMAL /*calc*/
+    FIELD dHoursSetupWashup AS DECIMAL 
+    FIELD cHoursSetupWashupPer AS CHARACTER 
     FIELD dHoursRun AS DECIMAL /*calc*/
     FIELD dHoursDown AS DECIMAL /*calc*/
     FIELD dHours AS DECIMAL /*calc*/ 
@@ -121,12 +138,29 @@ DEFINE {1} TEMP-TABLE ttOperations
     FIELD dCostTotalRunVOH AS DECIMAL 
     FIELD dCostTotalRunFOH AS DECIMAL 
     FIELD dCostTotalRun AS DECIMAL 
+    FIELD dCostMinimum AS DECIMAL 
     FIELD dManHoursSetup AS DECIMAL 
     FIELD dManHoursRun AS DECIMAL 
     FIELD dManHours AS DECIMAL 
+    FIELD lIsLocked AS LOGICAL 
+    FIELD cDepartmentPrimary AS CHARACTER 
+    FIELD cDepartmentList AS CHARACTER
+    FIELD iSequenceEstimate AS INTEGER 
+    FIELD iSequenceDepartment AS INTEGER 
+    FIELD iSequenceWithinDepartment AS INTEGER 
+    FIELD iRunQtyDivisor AS INTEGER 
+    FIELD iRunQtyOut AS INTEGER 
+    FIELD iCountSheets AS INTEGER /*REFACTOR*/
+    FIELD iCountColors AS INTEGER 
+    FIELD iCountCoatings AS INTEGER 
+    FIELD iCountPlateChanges AS INTEGER 
+    FIELD iCountFountainChanges AS INTEGER 
+    FIELD dInkWastedPerMR AS DECIMAL 
+    FIELD dInkWastedPerColor AS DECIMAL 
+    FIELD cInkWastedUOM AS CHARACTER 
     .
         
-DEFINE {1} TEMP-TABLE ttMaterials
+DEFINE {1} TEMP-TABLE ttEstMaterial
     FIELD rec_key AS CHARACTER 
     FIELD rec_keyParent AS CHARACTER 
     FIELD rec_keyEstimate AS CHARACTER 

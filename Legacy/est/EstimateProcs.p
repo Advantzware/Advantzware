@@ -15,7 +15,7 @@
 /* ***************************  Definitions  ************************** */
 {est\EstimateProcs.i}
 {est\CostTempTables.i}
-
+DEFINE STREAM sOutput.
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -35,6 +35,17 @@ FUNCTION fGetUserID RETURNS CHARACTER PRIVATE
     (  ) FORWARD.
 
 /* ***************************  Main Block  *************************** */
+FIND FIRST est NO-LOCK 
+    WHERE est.company EQ '001'
+    AND est.est-no EQ '   13610'
+    NO-ERROR.
+RUN pBuildCalculationTables(ROWID(est),NO).
+RUN pExportXML(TEMP-TABLE ttEstMaster:HANDLE, "C:\temp\ttEstMaster.xml").
+RUN pExportXML(TEMP-TABLE ttEstQty:HANDLE, "C:\temp\ttEstQty.xml").
+RUN pExportXML(TEMP-TABLE ttCalculationErrors:HANDLE, "C:\temp\ttCalcErrors.xml").
+RUN pExportXML(TEMP-TABLE ttEstOperation:HANDLE, "C:\temp\ttEstOperations.xml").
+MESSAGE "Done"
+    VIEW-AS ALERT-BOX.
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -219,27 +230,27 @@ PROCEDURE pAddEstimateMaster PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-est FOR est.
     DEFINE INPUT PARAMETER iplUI AS LOGICAL NO-UNDO.
 
-    CREATE ttEstimateMaster.
+    CREATE ttEstMaster.
     ASSIGN 
-        ttEstimateMaster.rec_key        = fGetRecKey()
-        ttEstimateMaster.riSource       = ROWID(ipbf-est)
-        ttEstimateMaster.cCompany       = ipbf-est.company
-        ttEstimateMaster.cLoc           = ipbf-est.loc
-        ttEstimateMaster.cEstNo         = ipbf-est.est-no
-        ttEstimateMaster.cIndustry      = IF ipbf-est.est-type LT 5 THEN "F" ELSE "C"
-        ttEstimateMaster.cUserID        = fGetUserID()
-        ttEstimateMaster.iEstType       = ipbf-est.est-type
-        ttEstimateMaster.dtCalcDateTime = NOW 
+        ttEstMaster.rec_key        = fGetRecKey()
+        ttEstMaster.riSource       = ROWID(ipbf-est)
+        ttEstMaster.cCompany       = ipbf-est.company
+        ttEstMaster.cLoc           = ipbf-est.loc
+        ttEstMaster.cEstNo         = ipbf-est.est-no
+        ttEstMaster.cIndustry      = IF ipbf-est.est-type LT 5 THEN "F" ELSE "C"
+        ttEstMaster.cUserID        = fGetUserID()
+        ttEstMaster.iEstType       = ipbf-est.est-type
+        ttEstMaster.dtCalcDateTime = NOW 
         .
     CASE ipbf-est.est-type:
         WHEN 1 OR 
         WHEN 5 THEN 
-            ttEstimateMaster.cEstTypeDesc = "Single".
+            ttEstMaster.cEstTypeDesc = "Single".
         WHEN 2 OR 
         WHEN 6 THEN 
-            ttEstimateMaster.cEstTypeDesc = "Set".
+            ttEstMaster.cEstTypeDesc = "Set".
         OTHERWISE 
-        ttEstimateMaster.cEstTypeDesc = "Combo/Tandem".
+        ttEstMaster.cEstTypeDesc = "Combo/Tandem".
     END CASE.
     FIND FIRST ce-ctrl NO-LOCK 
         WHERE ce-ctrl.company EQ ipbf-est.company
@@ -252,31 +263,96 @@ PROCEDURE pAddEstimateMaster PRIVATE:
     ELSE 
     DO:
         ASSIGN /*Initialize the quantity specific CostMaster with values from ce-ctrl*/
-            ttEstimateMaster.cMarginOn                    = ce-ctrl.sell-by
-            ttEstimateMaster.dMarginPct                   = ce-ctrl.prof-mrkup
-            ttEstimateMaster.dWarehouseMarkupPct          = ce-ctrl.whse-mrkup / 100 /*ctrl[1]*/
-            ttEstimateMaster.dHandlingChargePct           = ce-ctrl.hand-pct / 100 /*ctrl[2]*/
-            ttEstimateMaster.dHandlingRatePerCWTRMPct     = ce-ctrl.rm-rate / 100 /*ctrl[3]*/ /*NOTE CHANGED to be /100 */
-            ttEstimateMaster.dSpecial1MarkupPct           = ce-ctrl.spec-%[1] / 100 /*ctrl[4]*/ /*NOTE CHANGED to be /100 */
-            ttEstimateMaster.dSpecial2MarkupPct           = ce-ctrl.spec-%[2] / 100 /*ctrl[11]*/ /*NOTE CHANGED to be /100 */
-            ttEstimateMaster.dSpecial3MarkupPct           = ce-ctrl.spec-%[3] / 100 /*ctrl[12]*/ /*NOTE CHANGED to be /100 */
-            ttEstimateMaster.lShowCommissoins             = ce-ctrl.comm-add /*ctrl[5]*/
-            ttEstimateMaster.lAddToFactCostFreight        = ce-ctrl.shp-add /*ctrl[6]*/
-            ttEstimateMaster.lShowLaborRates              = ce-ctrl.sho-labor /*ctrl[7]*/
-            ttEstimateMaster.lAddToFactCostSpecial1       = ce-ctrl.spec-add[1] /*ctrl[13]*/
-            ttEstimateMaster.lAddToFactCostSpecial2       = ce-ctrl.spec-add[2] /*ctrl[14]*/
-            ttEstimateMaster.lAddToFactCostSpecial3       = ce-ctrl.spec-add[3] /*ctrl[15]*/
-            ttEstimateMaster.lAddToFactCostGSA            = ce-ctrl.spec-add[6] /*ctrl[16]*/
-            ttEstimateMaster.lAddToFactCostRoyalty        = ce-ctrl.spec-add[8] /*ctrl[18]*/
-            ttEstimateMaster.dFoldPct                     = ce-ctrl.fold-pct / 100 /*ctrl[19]*/ /*NOTE CHANGED to be /100 */    
-            ttEstimateMaster.lAddToFactCostComm           = ce-ctrl.spec-add[7] /*ctrl[17]*/
-            ttEstimateMaster.dHandlingRatePerCWTFGPct     = ce-ctrl.fg-rate / 100
-            ttEstimateMaster.dHandlingRatePerCWTRMFarmPct = ce-ctrl.rm-rate-farm / 100
-            ttEstimateMaster.dHandlingRatePerCWTFGFarmPct = ce-ctrl.fg-rate-farm / 100
-            ttEstimateMaster.dHandlingChargeFarmPct       = ce-ctrl.hand-pct-farm / 100
+            ttEstMaster.cMarginOn                    = ce-ctrl.sell-by
+            ttEstMaster.dMarginPct                   = ce-ctrl.prof-mrkup
+            ttEstMaster.dWarehouseMarkupPct          = ce-ctrl.whse-mrkup / 100 /*ctrl[1]*/
+            ttEstMaster.dHandlingChargePct           = ce-ctrl.hand-pct / 100 /*ctrl[2]*/
+            ttEstMaster.dHandlingRatePerCWTRMPct     = ce-ctrl.rm-rate / 100 /*ctrl[3]*/ /*NOTE CHANGED to be /100 */
+            ttEstMaster.dSpecial1MarkupPct           = ce-ctrl.spec-%[1] / 100 /*ctrl[4]*/ /*NOTE CHANGED to be /100 */
+            ttEstMaster.dSpecial2MarkupPct           = ce-ctrl.spec-%[2] / 100 /*ctrl[11]*/ /*NOTE CHANGED to be /100 */
+            ttEstMaster.dSpecial3MarkupPct           = ce-ctrl.spec-%[3] / 100 /*ctrl[12]*/ /*NOTE CHANGED to be /100 */
+            ttEstMaster.lShowCommissoins             = ce-ctrl.comm-add /*ctrl[5]*/
+            ttEstMaster.lAddToFactCostFreight        = ce-ctrl.shp-add /*ctrl[6]*/
+            ttEstMaster.lShowLaborRates              = ce-ctrl.sho-labor /*ctrl[7]*/
+            ttEstMaster.lAddToFactCostSpecial1       = ce-ctrl.spec-add[1] /*ctrl[13]*/
+            ttEstMaster.lAddToFactCostSpecial2       = ce-ctrl.spec-add[2] /*ctrl[14]*/
+            ttEstMaster.lAddToFactCostSpecial3       = ce-ctrl.spec-add[3] /*ctrl[15]*/
+            ttEstMaster.lAddToFactCostGSA            = ce-ctrl.spec-add[6] /*ctrl[16]*/
+            ttEstMaster.lAddToFactCostRoyalty        = ce-ctrl.spec-add[8] /*ctrl[18]*/
+            ttEstMaster.dFoldPct                     = ce-ctrl.fold-pct / 100 /*ctrl[19]*/ /*NOTE CHANGED to be /100 */    
+            ttEstMaster.lAddToFactCostComm           = ce-ctrl.spec-add[7] /*ctrl[17]*/
+            ttEstMaster.dHandlingRatePerCWTFGPct     = ce-ctrl.fg-rate / 100
+            ttEstMaster.dHandlingRatePerCWTRMFarmPct = ce-ctrl.rm-rate-farm / 100
+            ttEstMaster.dHandlingRatePerCWTFGFarmPct = ce-ctrl.fg-rate-farm / 100
+            ttEstMaster.dHandlingChargeFarmPct       = ce-ctrl.hand-pct-farm / 100
             .
     END.
-    RUN pGetAllCalculationConfis(BUFFER ttEstimateMaster).
+    RUN pGetAllCalculationConfigs(BUFFER ttEstMaster).
+
+END PROCEDURE.
+
+PROCEDURE pAddEstimateOperation PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Adds an EstimateOperation for calculation given an qty master, est-op and mach buffer
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttEstQty FOR ttEstQty.
+    DEFINE PARAMETER BUFFER ipbf-est-op   FOR est-op.
+    DEFINE PARAMETER BUFFER ipbf-mach     FOR mach.
+    
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+    
+    CREATE ttEstOperation.
+    ASSIGN 
+        ttEstOperation.rec_key                     = fGetRecKey()
+        ttEstOperation.rec_keyEstQty               = ipbf-ttEstQty.rec_key
+        ttEstOperation.rec_keyEstimate             = ipbf-ttEstQty.rec_keyEstimate
+        ttEstOperation.dOperationQuantity          = ipbf-ttEstQty.dOperationQuantity
+        ttEstOperation.cOperationID                = ipbf-est-op.m-code
+        ttEstOperation.cOperationDesc              = ipbf-est-op.m-dscr
+        ttEstOperation.cDepartmentPrimary          = ipbf-est-op.dept
+        ttEstOperation.iForm                       = ipbf-est-op.s-num
+        ttEstOperation.iBlank                      = ipbf-est-op.b-num
+        ttEstOperation.dHoursSetup                 = ipbf-est-op.op-mr
+        ttEstOperation.dFeedsWastedInSetup         = ipbf-est-op.op-waste 
+        ttEstOperation.dFeedsPerHour               = ipbf-est-op.op-speed
+        ttEstOperation.dFeedsWastedRate            = ipbf-est-op.op-spoil
+        ttEstOperation.dCrewCountSetup             = ipbf-est-op.op-crew[1]
+        ttEstOperation.dCrewCountRun               = ipbf-est-op.op-crew[2]
+        ttEstOperation.dCostTotalSetup             = ipbf-est-op.op-rate[1]
+        ttEstOperation.dCostTotalRun               = ipbf-est-op.op-rate[2]
+        ttEstOperation.iSequenceEstimate           = ipbf-est-op.line
+        ttEstOperation.iSequenceDepartment         = ipbf-est-op.d-seq
+        ttEstOperation.iRunQtyOut                  = MINIMUM(ipbf-est-op.n-out,1)
+        ttEstOperation.iRunQtyDivisor              = ipbf-est-op.n_out_div
+        ttEstOperation.lIsLocked                   = ipbf-est-op.isLocked
+        ttEstOperation.iCountSheets                = ipbf-est-op.num-sh
+        ttEstOperation.iCountColors                = ipbf-est-op.num-col
+        ttEstOperation.iCountCoatings              = ipbf-est-op.num-coat
+        ttEstOperation.iCountPlateChanges          = ipbf-est-op.plates
+        ttEstOperation.iCountFountainChanges       = ipbf-est-op.fountains
+        
+        ttEstOperation.cTypeFeed                   = ipbf-mach.p-type
+        ttEstOperation.iSequenceWithinDepartment   = ipbf-mach.m-seq
+        ttEstOperation.dCostPerHourDLPerCrewSetup  = ipbf-mach.lab-rate[1]
+        ttEstOperation.dCostPerHourDLPerCrewRun    = ipbf-mach.lab-rate[1]
+        ttEstOperation.dCostPerHourFOHSetup        = ipbf-mach.mr-fixoh 
+        ttEstOperation.dCostPerHourFOHRun          = ipbf-mach.run-fixoh
+        ttEstOperation.dCostPerHourVOHSetup        = ipbf-mach.mr-varoh
+        ttEstOperation.dCostPerHourVOHRun          = ipbf-mach.run-varoh
+        ttEstOperation.dCostMinimum                = ipbf-mach.mrk-rate
+        ttEstOperation.dHoursSetupWashup           = ipbf-mach.washup
+        ttEstOperation.cHoursSetupWashupPer        = ipbf-mach.col-pass
+        ttEstOperation.dFeedsWastedInSetupPerColor = ipbf-mach.col-wastesh
+        ttEstOperation.dFeedsWastedInSetupBase     = ipbf-mach.mr-waste
+        ttEstOperation.dInkWastedPerMR             = ipbf-mach.ink-waste
+        ttEstOperation.dInkWastedPerColor          = ipbf-mach.col-wastelb
+        ttEstOperation.cInkWastedUOM               = "LB"
+        .
+    DO iIndex = 1 TO EXTENT(ipbf-mach.dept):
+        ttEstOperation.cDepartmentList = ttEstOperation.cDepartmentList + ipbf-mach.dept[iIndex] + ",".
+    END.
+    ttEstOperation.cDepartmentList = TRIM(ttEstOperation.cDepartmentList,",").
 
 END PROCEDURE.
 
@@ -285,20 +361,33 @@ PROCEDURE pAddEstimateQuantity PRIVATE:
      Purpose: Given Estimate Master, Add Estimate Quantity Record
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-ttEstimateMaster FOR ttEstimateMaster.
+    DEFINE PARAMETER BUFFER ipbf-ttEstMaster FOR ttEstMaster.
     DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipiReleases AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER iplRunShip AS LOGICAL NO-UNDO.
 
-    CREATE ttQuantities.
-    BUFFER-COPY ipbf-ttEstimateMaster EXCEPT rec_key TO ttQuantities.
+    DEFINE BUFFER bf-est-qty FOR est-qty.
+    
+    CREATE ttEstQty.
+    BUFFER-COPY ipbf-ttEstMaster EXCEPT rec_key TO ttEstQty.
     ASSIGN 
-        ttQuantities.rec_key         = fGetRecKey()
-        ttQuantities.rec_keyEstimate = ipbf-ttEstimateMaster.rec_key
-        ttQuantities.dMasterQuantity = ipdQuantity
-        ttQuantities.iReleases       = ipiReleases
-        ttQuantities.lRunAndShip     = iplRunShip
+        ttEstQty.rec_key         = fGetRecKey()
+        ttEstQty.rec_keyEstimate = ipbf-ttEstMaster.rec_key
+        ttEstQty.dMasterQuantity = ipdQuantity
+        ttEstQty.iReleases       = ipiReleases
+        ttEstQty.lRunAndShip     = iplRunShip
         .
+    /*Get the target operation quantity*/
+    FOR EACH bf-est-qty NO-LOCK 
+        WHERE bf-est-qty.company EQ ipbf-ttEstMaster.cCompany
+        AND bf-est-qty.est-no EQ ipbf-ttEstMaster.cEstNo
+        BY bf-est-qty.eqty DESCENDING:
+        IF bf-est-qty.eqty LE ipdQuantity THEN 
+        DO:
+            ttEstQty.dOperationQuantity = bf-est-qty.eqty.
+            LEAVE.
+        END.
+    END.
 
 END PROCEDURE.
 
@@ -328,7 +417,7 @@ PROCEDURE pAddCostHeader PRIVATE:
     DEFINE VARIABLE dFormSqIn AS DECIMAL NO-UNDO.
 
     CREATE ttCostHeader.
-    iopcRK = DYNAMIC-FUNCTION("sfGetNextRecKey").
+    iopcRK = fGetRecKey().
     ASSIGN 
         ttCostHeader.company           = ipbf-est.company
         ttCostHeader.headerDescription = cDescription
@@ -414,17 +503,17 @@ PROCEDURE pBuildCalculationTables PRIVATE:
         RUN pAddError("Invalid Estimate or Job", -1, 0, 0, YES).
     ELSE 
     DO:
-        RUN pResetCalculations.
+        RUN pResetCalculations(BUFFER est).
         RUN pAddEstimateMaster(BUFFER est, iplUi).
     END.
-    FIND FIRST ttEstimateMaster NO-ERROR.
-    IF AVAILABLE ttEstimateMaster THEN 
+    FIND FIRST ttEstMaster NO-ERROR.
+    IF AVAILABLE ttEstMaster THEN 
     DO:
-        RUN pBuildQuantities(BUFFER ttEstimateMaster).
+        RUN pBuildQuantities(BUFFER ttEstMaster).
     END.
-    FOR EACH ttQuantities:
-        RUN pBuildCostHeaders(BUFFER est, BUFFER job, ttQuantities.dMasterQuantity).
-        RUN pBuildOperations(BUFFER ttQuantities).
+    FOR EACH ttEstQty:
+        RUN pBuildCostHeaders(BUFFER est, BUFFER job, ttEstQty.dMasterQuantity).
+        RUN pBuildOperations(BUFFER ttEstQty).
     END.
 END PROCEDURE.
 
@@ -550,20 +639,57 @@ PROCEDURE pBuildCostHeaders PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE pBuildQuantities PRIVATE:
+PROCEDURE pBuildOperations PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: Given Estimate MAster, builds the QUantities Temp Table
+     Purpose: Given an est buffer and quantity master, builds the Operations Temp Table
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-ttEstimateMaster FOR ttEstimateMaster.
+    DEFINE PARAMETER BUFFER ipbf-ttEstQty FOR ttEstQty.
 
-    DEFINE           BUFFER bf-est                FOR est.
-    DEFINE           BUFFER bf-est-qty            FOR est-qty.
+    DEFINE           BUFFER bf-est-op     FOR est-op.
+    DEFINE           BUFFER bf-est-qty    FOR est-qty.
+
+
+    FOR EACH bf-est-op EXCLUSIVE-LOCK 
+        WHERE bf-est-op.company EQ ipbf-ttEstQty.cCompany
+        AND bf-est-op.est-no EQ ipbf-ttEstQty.cEstNo
+        AND bf-est-op.qty EQ ipbf-ttEstQty.dOperationQuantity:
+        FIND FIRST mach NO-LOCK 
+            WHERE mach.company EQ bf-est-op.company
+            AND mach.m-code EQ bf-est-op.m-code
+            NO-ERROR.
+        IF AVAILABLE mach THEN 
+        DO:
+            IF mach.obsolete THEN  
+                RUN pAddError("Machine Code " + bf-est-op.m-code + " is inactive", bf-est-op.s-num, bf-est-op.b-num, bf-est-op.op-pass, NO).
+            RUN pAddEstimateOperation(BUFFER ipbf-ttEstQty, BUFFER bf-est-op, BUFFER mach). 
+        END.
+        ELSE 
+        DO: 
+            RUN pAddError("Machine Code " + bf-est-op.m-code + " is not valid", bf-est-op.s-num, bf-est-op.b-num, bf-est-op.op-pass, YES).
+            LEAVE.
+        END.
+
+    END.        
+    
+ 
+
+END PROCEDURE.
+
+PROCEDURE pBuildQuantities PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given Estimate Master, builds the QUantities Temp Table
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttEstMaster FOR ttEstMaster.
+
+    DEFINE           BUFFER bf-est           FOR est.
+    DEFINE           BUFFER bf-est-qty       FOR est-qty.
 
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
     FIND FIRST bf-est NO-LOCK 
-        WHERE ROWID(bf-est) EQ ipbf-ttEstimateMaster.riSource
+        WHERE ROWID(bf-est) EQ ipbf-ttEstMaster.riSource
         NO-ERROR.
     IF AVAILABLE bf-est THEN 
     DO:
@@ -575,7 +701,8 @@ PROCEDURE pBuildQuantities PRIVATE:
             RUN pAddError("Estimate quantity does not exist for estimate " + bf-est.est-no, -1, 0, 0, YES).
         ELSE 
         DO iCount = 1 TO 20:
-            RUN pAddEstimateQuantity(BUFFER ipbf-ttEstimateMaster, bf-est-qty.qty[iCount], INTEGER(bf-est-qty.qty[iCount + 20]), bf-est-qty.whsed[iCount]).
+            IF bf-est-qty.qty[iCount] GT 0 THEN 
+                RUN pAddEstimateQuantity(BUFFER ipbf-ttEstMaster, bf-est-qty.qty[iCount], INTEGER(bf-est-qty.qty[iCount + 20]), bf-est-qty.whsed[iCount]).
         END.
     END.
 END PROCEDURE.
@@ -585,10 +712,10 @@ PROCEDURE pGetAllCalculationConfigs PRIVATE:
      Purpose: Assigns all master-level NK1 settings to master fields
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-ttEstimateMaster FOR ttEstimateMaster.
+    DEFINE PARAMETER BUFFER ipbf-ttEstMaster FOR ttEstMaster.
 
     ASSIGN 
-        ipbf-ttEstimateMaster.cDisplayFormat = fGetCERun(ipbf-ttEstimateMaster.cCompany, ipbf-ttEstimateMaster.cIndustry)
+        ipbf-ttEstMaster.cDisplayFormat = fGetCERun(ipbf-ttEstMaster.cCompany, ipbf-ttEstMaster.cIndustry)
         .
 
 END PROCEDURE.
@@ -707,9 +834,19 @@ PROCEDURE pResetCalculations PRIVATE:
      Purpose: Clears temp-tables for calculations
      Notes:
     ------------------------------------------------------------------------------*/
-    EMPTY TEMP-TABLE ttEstimateMaster.
-    EMPTY TEMP-TABLE ttQuantities.
-    EMPTY TEMP-TABLE ttOperations.
+    DEFINE PARAMETER BUFFER ipbf-est FOR est.
+    
+    /*Clean up old est-op that were used for calculation only - Now replaced by ttEstOperation*/    
+    FOR EACH est-op EXCLUSIVE-LOCK 
+        WHERE est-op.company EQ ipbf-est.company 
+        AND est-op.est-no  EQ ipbf-est.est-no 
+        AND est-op.line    GE 500:
+        DELETE est-op.
+    END.
+
+    EMPTY TEMP-TABLE ttEstMaster.
+    EMPTY TEMP-TABLE ttEstQty.
+    EMPTY TEMP-TABLE ttEstOperation.
     
 END PROCEDURE.
 
@@ -744,6 +881,75 @@ PROCEDURE pValidateEstimateInputs PRIVATE:
     
     /*Other per operation validations*/
     END.
+
+END PROCEDURE.
+PROCEDURE pExportTempTable PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Exports the contents of any temp-table into CSV   
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcTTname AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER iphTT AS HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE hQuery AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+
+    OUTPUT STREAM sOutput to VALUE(ipcFileName).
+
+    CREATE QUERY hQuery.
+    hQuery:SET-BUFFERS (iphTT:DEFAULT-BUFFER-HANDLE).
+
+    hQuery:QUERY-PREPARE("FOR EACH " + ipcTTName).
+    hQuery:QUERY-OPEN().
+
+    DO iIndex = 1 TO iphTT:DEFAULT-BUFFER-HANDLE:NUM-FIELDS:
+        IF iphTT:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):DATA-TYPE NE "ROWID" THEN
+            PUT STREAM sOutput UNFORMATTED iphTT:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):NAME + ",".
+    END.
+    PUT STREAM sOutput UNFORMATTED SKIP.
+
+    REPEAT:  
+        hQuery:GET-NEXT().  
+        IF hQuery:QUERY-OFF-END THEN LEAVE.  
+
+        DO iIndex = 1 TO iphTT:DEFAULT-BUFFER-HANDLE:NUM-FIELDS:
+            IF iphTT:DEFAULT-BUFFER-HANDLE:buffer-field(iIndex):DATA-TYPE NE "ROWID" THEN 
+                PUT STREAM sOutput UNFORMATTED 
+                    '"' iphTT:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):BUFFER-VALUE '",'.
+        END.
+        PUT STREAM sOutput UNFORMATTED SKIP.
+    END.
+    OUTPUT STREAM sOutput CLOSE.
+
+END PROCEDURE.
+PROCEDURE pExportXML:
+    /*------------------------------------------------------------------------------
+     Purpose: Exports the contents of the temp-table to XML
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphTT AS HANDLE NO-UNDO. 
+    DEFINE INPUT PARAMETER ipcFile AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cTargetType     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFormatted      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cEncoding       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSchemaLocation AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lWriteSchema    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lMinSchema      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lRetOK          AS LOGICAL   NO-UNDO.
+
+    /* Code to populate the temp-table  */
+    ASSIGN
+        cTargetType     = "file"
+        lFormatted      = TRUE
+        cEncoding       = ?
+        cSchemaLocation = ?
+        lWriteSchema    = FALSE
+        lMinSchema      = FALSE.
+
+    lRetOK = iphTT:WRITE-XML(cTargetType, ipcFile,lFormatted, cEncoding,
+        cSchemaLocation, lWriteSchema, lMinSchema).
 
 END PROCEDURE.
 
@@ -805,8 +1011,13 @@ FUNCTION fGetRecKey RETURNS CHARACTER PRIVATE
      Notes:
     ------------------------------------------------------------------------------*/	
 
-    RETURN DYNAMIC-FUNCTION("sfGetNextRecKey").
-
+    /*    RETURN DYNAMIC-FUNCTION("sfGetNextRecKey").*/
+    RETURN STRING(YEAR(TODAY),"9999")
+        + STRING(MONTH(TODAY),"99")
+        + STRING(DAY(TODAY),"99")
+        + STRING(TIME,"99999")
+        + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
+        .
 		
 END FUNCTION.
 
@@ -816,8 +1027,8 @@ FUNCTION fGetUserID RETURNS CHARACTER PRIVATE
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/	
-    RETURN DYNAMIC-FUNCTION("sfGetUserID").
-
+    /*    RETURN DYNAMIC-FUNCTION("sfGetUserID").*/
+    RETURN USERID("asi").
 
 		
 END FUNCTION.
