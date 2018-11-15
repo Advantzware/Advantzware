@@ -1404,7 +1404,8 @@ PROCEDURE Job_Data_Collection :
                 WHERE ttTrans.chargeCode EQ cChargeCode
                 :
                 ASSIGN
-                    ttTrans.pct      = ttTrans.totalTime / iTotalTime
+                    ttTrans.pct      = IF ttTrans.totalTime / iTotalTime EQ ? THEN 0
+                                       ELSE ttTrans.totalTime / iTotalTime
                     ttTrans.runQty   = iRunQty * ttTrans.pct
                     ttTrans.wasteQty = iWasteQty * ttTrans.pct
                     iRQty            = iRQty + ttTrans.runQty
@@ -1454,8 +1455,9 @@ PROCEDURE Job_Data_Collection :
                             iStartTime            = ttTrans.startTime
                             dtEndDate             = ttTrans.endDate
                             iEndTime              = ttTrans.endTime
-                            rRecKey               = bMachTran.rec_key
                             .
+                    {custom/rec_key.i bMachTran}
+                    rRecKey = bMachTran.rec_key.
                 END. /* if rrowid eq ? */
                 ELSE /* update the already created start machtran */
                 ASSIGN 
