@@ -2067,26 +2067,3 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-type-list B-table-Win 
-PROCEDURE build-type-list :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
-     
-     RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
-             RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
-    DELETE OBJECT hPgmReason.
-  
-  DO WITH FRAME {&FRAME-NAME}:
-      rm-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
-    
-  END.
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
