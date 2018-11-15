@@ -1630,6 +1630,8 @@ DO:
   DEF VAR ls-est-no AS cha NO-UNDO.
   DEF VAR ls-uom AS cha NO-UNDO.
   DEF VAR ll-secure AS LOG NO-UNDO.
+  DEFINE VARIABLE cLoc AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
 
   IF LASTKEY EQ -1 AND NOT historyButton THEN DO:
     IF ll-bypass THEN ll-bypass = NO.
@@ -1639,7 +1641,23 @@ DO:
 
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+ 
+  IF NOT AVAIL oe-ord THEN
+       FIND FIRST oe-ord NO-LOCK 
+        WHERE oe-ord.company EQ cocode
+        AND oe-ord.ord-no  EQ oe-ordl.ord-no
+        NO-ERROR.
+  IF AVAILABLE oe-ord THEN 
+    FIND FIRST shipto NO-LOCK 
+        WHERE shipto.company EQ oe-ord.company
+        AND shipto.cust-no EQ oe-ord.cust-no
+        AND shipto.ship-id EQ oe-ord.ship-id
+        NO-ERROR.
+  IF AVAILABLE shipto THEN 
+        ASSIGN 
+            cLoc = shipto.loc
+            cLocBin = shipto.loc-bin
+            . 
   IF ll-bypass THEN DO:
     ll-bypass = NO.
     RETURN.
@@ -1679,7 +1697,7 @@ DO:
        /* Task 04171308 */
        IF (oefgadd-log AND llOEFGAdd-sec) OR ls-est-no GT "" THEN
          RUN oe/d-citmfg.w (ls-est-no, INPUT-OUTPUT ls-i-no,
-                            INPUT-OUTPUT ls-part-no,INPUT-OUTPUT ls-uom) NO-ERROR.
+                            INPUT-OUTPUT ls-part-no,INPUT-OUTPUT ls-uom, INPUT-OUTPUT cLoc, INPUT-OUTPUT cLocBin) NO-ERROR.
        ELSE IF ls-i-no NE "" AND ls-est-no EQ "" THEN DO:
            MESSAGE "Please enter a valid item number."
                VIEW-AS ALERT-BOX INFO BUTTONS OK.
@@ -1720,11 +1738,11 @@ DO:
                             AND xef.form-no = xeb.form-no
                             NO-LOCK NO-ERROR.      
 
-                 RUN crt-itemfg (SELF:screen-value,oe-ordl.pr-uom:SCREEN-VALUE). /*(self:screen-value,"M")*/
+                 RUN crt-itemfg (SELF:screen-value,oe-ordl.pr-uom:SCREEN-VALUE, cLoc, cLocBin). /*(self:screen-value,"M")*/
              END.    
           END.   
           ELSE  /* no xest or oe-ordl.est-no = "" */
-             RUN crt-itemfg (SELF:screen-value,oe-ordl.pr-uom:screen-value).  /*(self:screen-value,"M")*/          
+             RUN crt-itemfg (SELF:screen-value,oe-ordl.pr-uom:screen-value, cLoc, cLocBin).  /*(self:screen-value,"M")*/          
        END. 
        
        RUN display-fgitem NO-ERROR.
@@ -3893,6 +3911,8 @@ PROCEDURE crt-itemfg :
 
 DEF INPUT PARAMETER v-item LIKE itemfg.i-no.
 DEF INPUT PARAMETER v-uom LIKE itemfg.prod-uom.
+DEFINE INPUT PARAMETER ipcLoc AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcLocBin AS CHARACTER NO-UNDO.
 
 DEF VAR tmpstore AS cha NO-UNDO.
 DEF VAR i AS INT NO-UNDO.
@@ -3916,49 +3936,32 @@ FIND FIRST cust  WHERE cust.company EQ cocode
     NO-LOCK NO-ERROR.
 {oe\fgfreight.i}
 
-FIND FIRST sys-ctrl NO-LOCK
-    WHERE sys-ctrl.company EQ cocode
-      AND sys-ctrl.NAME EQ "FGMASTER" NO-ERROR.
-IF AVAIL sys-ctrl THEN
-  FIND FIRST bf-itemfg NO-LOCK
-      WHERE bf-itemfg.company EQ sys-ctrl.company
-        AND bf-itemfg.i-no EQ trim(sys-ctrl.char-fld) NO-ERROR.
 
-CREATE itemfg.
-ASSIGN
- itemfg.company    = cocode
- itemfg.loc        = locode
+CREATE itemfg.  /*create.trg applies all defaults for FGMaster*/
+ASSIGN /*order specific overrides to FGMaster and core defaults*/
  itemfg.i-no       = v-item
- itemfg.i-name     = oe-ordl.i-name:screen-value IN FRAME {&frame-name}
- itemfg.part-dscr1 = oe-ordl.part-dscr1:screen-value
- itemfg.part-dscr2 = oe-ordl.part-dscr2:Screen-value
- itemfg.part-dscr3 = oe-ordl.part-dscr3:Screen-value
- itemfg.sell-price = dec(oe-ordl.price:screen-value)
+ itemfg.i-name     = oe-ordl.i-name:SCREEN-VALUE  IN FRAME {&frame-name}
+ itemfg.part-dscr1 = oe-ordl.part-dscr1:SCREEN-VALUE 
+ itemfg.part-dscr2 = oe-ordl.part-dscr2:SCREEN-VALUE 
+ itemfg.part-dscr3 = oe-ordl.part-dscr3:SCREEN-VALUE 
+ itemfg.sell-price = DECIMAL(oe-ordl.price:SCREEN-VALUE)
 
  itemfg.cust-no    = oe-ord.cust-no
  itemfg.cust-name  = oe-ord.cust-name
- itemfg.pur-uom    = /*IF AVAIL bf-itemfg THEN bf-itemfg.pur-uom ELSE "M" */ oe-ordl.pr-uom:SCREEN-VALUE 
-/* gdm - 11190901 */
- itemfg.ship-meth  = IF AVAIL bf-itemfg THEN bf-itemfg.ship-meth ELSE YES 
-  itemfg.part-no    = oe-ordl.part-no:screen-value
-  itemfg.setupDate  = TODAY.
+ itemfg.pur-uom    = oe-ordl.pr-uom:SCREEN-VALUE 
+ itemfg.part-no    = oe-ordl.part-no:screen-value
+  .
 
 ASSIGN
-    itemfg.taxable = fGetTaxable(itemfg.company, (IF AVAIL cust THEN cust.cust-no ELSE ""),"", (IF AVAILABLE bf-itemfg THEN bf-itemfg.i-no ELSE "")). 
+    itemfg.taxable = fGetTaxable(itemfg.company, (IF AVAIL cust THEN cust.cust-no ELSE ""),"", ""). 
                          
 
  IF fgmaster-cha EQ "FGITEM" THEN
     ASSIGN
        itemfg.sell-uom   = oe-ordl.pr-uom:SCREEN-VALUE
        itemfg.prod-uom   = v-uom
-       itemfg.i-code     = "C"
-       itemfg.stocked    = YES
        itemfg.alloc      = IF AVAIL xeb AND xeb.est-type LE 4 THEN v-allocf ELSE v-alloc.
-    
- IF fgmaster-cha EQ "FGMASTER" AND AVAIL bf-itemfg THEN
-    ASSIGN
-       itemfg.sell-uom   = bf-itemfg.sell-uom 
-       itemfg.stocked    = bf-itemfg.stocked .
+   
 
  IF v-graphic-char NE "" THEN 
  DO:
@@ -4040,6 +4043,8 @@ IF fgmaster-cha EQ "FGITEM" THEN DO:
                            ELSE "C"
                    ELSE "S".
 END.
+IF itemfg.def-loc EQ "" THEN itemfg.def-loc = ipcLoc.
+IF itemfg.def-loc-bin EQ "" THEN itemfg.def-loc-bin = ipcLocBin.
 
 {est/fgupdtax.i oe-ord}
 ll-new-fg-created = YES.
@@ -8995,6 +9000,9 @@ PROCEDURE validate-all :
  DEF VAR ls-est-no AS cha NO-UNDO.
  DEF VAR ls-uom AS cha NO-UNDO.
  DEF VAR ll-secure AS LOG NO-UNDO.
+ DEFINE VARIABLE cLoc AS CHARACTER NO-UNDO.
+ DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
+ 
  /*DEF VAR v-run-schedule AS LOG NO-UNDO.
 
  find first sys-ctrl where sys-ctrl.company eq cocode
@@ -9005,7 +9013,17 @@ PROCEDURE validate-all :
        FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
                              AND oe-ord.ord-no  EQ oe-ordl.ord-no
                            NO-ERROR.
-
+  IF AVAILABLE oe-ord THEN 
+    FIND FIRST shipto NO-LOCK 
+        WHERE shipto.company EQ oe-ord.company
+        AND shipto.cust-no EQ oe-ord.cust-no
+        AND shipto.ship-id EQ oe-ord.ship-id
+        NO-ERROR.
+  IF AVAILABLE shipto THEN 
+        ASSIGN 
+            cLoc = shipto.loc
+            cLocBin = shipto.loc-bin
+            . 
  DO WITH FRAME {&frame-name}:
     IF v-est-fg1 = "Hold" AND oe-ordl.est-no:SCREEN-VALUE <> "" THEN DO:
        FIND FIRST eb WHERE eb.company = cocode AND
@@ -9071,7 +9089,7 @@ PROCEDURE validate-all :
        /* This takes them back to i-no where they can enter a new item # */
           IF oefgadd-log AND ls-est-no GT "" THEN
             RUN oe/d-citmfg.w (ls-est-no, INPUT-OUTPUT ls-i-no,
-                               INPUT-OUTPUT ls-part-no,INPUT-OUTPUT ls-uom) NO-ERROR.
+                               INPUT-OUTPUT ls-part-no,INPUT-OUTPUT ls-uom, INPUT-OUTPUT cLoc, INPUT-OUTPUT cLocBin) NO-ERROR.
           ELSE
           IF ls-est-no EQ "" THEN DO:
             MESSAGE "Please enter a valid item number." VIEW-AS ALERT-BOX INFO BUTTONS OK.
@@ -9108,11 +9126,11 @@ PROCEDURE validate-all :
                             AND xef.form-no = xeb.form-no
                             NO-LOCK NO-ERROR.
 
-                   RUN crt-itemfg (ls-i-no, oe-ordl.pr-uom:SCREEN-VALUE). /*(ls-i-no, "M")*/                   
+                   RUN crt-itemfg (ls-i-no, oe-ordl.pr-uom:SCREEN-VALUE, cLoc, cLocBin). /*(ls-i-no, "M")*/                   
                 END.    
              END.   
              ELSE /* no xest or oe-ordl.est-no = "" */
-                RUN crt-itemfg (ls-i-no, oe-ordl.pr-uom:SCREEN-VALUE).
+                RUN crt-itemfg (ls-i-no, oe-ordl.pr-uom:SCREEN-VALUE, cLoc, cLocBin).
              
           END.  /* ls-i-no */ 
 

@@ -109,6 +109,7 @@ ll-sort-asc = NO /*oeinq*/  .
         STRING(MONTH(oe-boll.bol-date),'99') + ~
         STRING(DAY(oe-boll.bol-date),'99')          ELSE ~
     IF lv-sort-by EQ "release#" THEN string(oe-bolh.release#,"9999999999")  ELSE ~
+    IF lv-sort-by EQ "stat"   THEN oe-bolh.stat ELSE ~
         STRING(oe-bolh.bol-no)
 
 &SCOPED-DEFINE sortby-phrase-asc  ~
@@ -145,10 +146,10 @@ ll-sort-asc = NO /*oeinq*/  .
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-bolh.bol-no oe-boll.ord-no ~
 oe-boll.po-no oe-bolh.cust-no itemfg.part-no oe-boll.i-no itemfg.i-name ~
-oe-bolh.ship-id oe-boll.bol-date get-release() @ lv-release 
+oe-bolh.ship-id oe-boll.bol-date get-release() @ lv-release oe-bolh.stat 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-bolh.bol-no ~
 oe-boll.ord-no oe-boll.po-no oe-bolh.cust-no oe-boll.i-no itemfg.i-name ~
-oe-bolh.ship-id 
+oe-bolh.ship-id
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table oe-bolh oe-boll itemfg
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table oe-bolh
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table oe-boll
@@ -289,6 +290,11 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       oe-boll.bol-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       get-release() @ lv-release COLUMN-LABEL "Release" WIDTH 10.2
+      oe-bolh.stat COLUMN-LABEL "Status" FORMAT "x(10)":U WIDTH 14
+      VIEW-AS COMBO-BOX INNER-LINES 2
+          LIST-ITEM-PAIRS "H-Hold","H",
+                     "R-Released","R"
+          DROP-DOWN-LIST
   ENABLE
       oe-bolh.bol-no
       oe-boll.ord-no
@@ -448,6 +454,8 @@ ASSIGN
 "oe-boll.bol-date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > "_<CALC>"
 "get-release() @ lv-release" "Release" ? ? ? ? ? ? ? ? no ? no no "10.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > ASI.oe-bolh.stat
+"oe-bolh.stat" "Status" "!" "character" ? ? ? ? ? ? yes "" no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

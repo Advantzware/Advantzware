@@ -162,37 +162,37 @@ DEFINE VARIABLE svPurge AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 13 COLON-ALIGNED WIDGET-ID 60
-     svType AT ROW 3.14 COL 13 COLON-ALIGNED HELP
+     svCompany AT ROW 1.24 COL 14 COLON-ALIGNED WIDGET-ID 60
+     svType AT ROW 3.14 COL 14 COLON-ALIGNED HELP
           "Select Audit Type Filter" WIDGET-ID 6
-     svStartDate AT ROW 5.05 COL 13 COLON-ALIGNED HELP
+     svStartDate AT ROW 5.05 COL 14 COLON-ALIGNED HELP
           "Enter Start Date" WIDGET-ID 72
-     btnCalendar-1 AT ROW 5.05 COL 31 WIDGET-ID 76
-     svStartDateOption AT ROW 5.05 COL 34 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 5.05 COL 32 WIDGET-ID 76
+     svStartDateOption AT ROW 5.05 COL 35 COLON-ALIGNED HELP
           "Select Start Date Option" NO-LABEL WIDGET-ID 74
-     svEndDate AT ROW 6.24 COL 13 COLON-ALIGNED HELP
+     svEndDate AT ROW 6.24 COL 14 COLON-ALIGNED HELP
           "Enter End Date" WIDGET-ID 68
-     btnCalendar-2 AT ROW 6.24 COL 31 WIDGET-ID 78
-     svEndDateOption AT ROW 6.24 COL 34 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 6.24 COL 32 WIDGET-ID 78
+     svEndDateOption AT ROW 6.24 COL 35 COLON-ALIGNED HELP
           "Select End Date Option" NO-LABEL WIDGET-ID 70
-     svUser AT ROW 8.14 COL 13 COLON-ALIGNED HELP
+     svUser AT ROW 8.14 COL 14 COLON-ALIGNED HELP
           "Select User Filter" WIDGET-ID 12
-     svDB AT ROW 10.05 COL 13 COLON-ALIGNED HELP
+     svDB AT ROW 10.05 COL 14 COLON-ALIGNED HELP
           "Select Audit DB Filter" WIDGET-ID 14
-     svTable AT ROW 11.24 COL 13 COLON-ALIGNED HELP
+     svTable AT ROW 11.24 COL 14 COLON-ALIGNED HELP
           "Select Audit Table Filter" WIDGET-ID 16
-     svField AT ROW 12.43 COL 13 COLON-ALIGNED HELP
+     svField AT ROW 12.43 COL 14 COLON-ALIGNED HELP
           "Select Audit Field Filter" WIDGET-ID 18
-     svBeforeValueFilter AT ROW 14.33 COL 13 COLON-ALIGNED HELP
+     svBeforeValueFilter AT ROW 14.33 COL 14 COLON-ALIGNED HELP
           "Enter Before Value to Filter" WIDGET-ID 36
-     svAfterValueFilter AT ROW 15.52 COL 13 COLON-ALIGNED HELP
+     svAfterValueFilter AT ROW 15.52 COL 14 COLON-ALIGNED HELP
           "Enter After Value to Filter" WIDGET-ID 38
-     svPurge AT ROW 17.43 COL 15 HELP
+     svPurge AT ROW 17.43 COL 16 HELP
           "Select to Purge Audit History" WIDGET-ID 80
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 60.6 BY 18.38
+         SIZE 74 BY 18.38
          TITLE "Report Parameters".
 
 
@@ -223,7 +223,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
          HEIGHT             = 18.38
-         WIDTH              = 60.6.
+         WIDTH              = 74.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

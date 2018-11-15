@@ -246,7 +246,7 @@ DEFINE QUERY external_tables FOR oe-ord.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS oe-ord.priceHold oe-ord.priceHoldReason ~
 oe-ord.ship-id oe-ord.ord-no oe-ord.est-no oe-ord.job-no oe-ord.job-no2 ~
-oe-ord.spare-char-2 oe-ord.sold-id oe-ord.csrUser_id oe-ord.ord-date ~
+oe-ord.spare-char-2 oe-ord.sold-id oe-ord.csrUser_id oe-ord.entered-id oe-ord.ord-date ~
 oe-ord.due-code oe-ord.due-date oe-ord.last-date oe-ord.prod-date ~
 oe-ord.po-no oe-ord.contact oe-ord.over-pct oe-ord.under-pct oe-ord.terms ~
 oe-ord.tax-gr oe-ord.managed oe-ord.frt-pay oe-ord.carrier oe-ord.fob-code ~
@@ -261,7 +261,7 @@ btnCalendar-4 btnCalendar-5 RECT-30 RECT-33 RECT-35 RECT-36 RECT-37 RECT-34
 &Scoped-Define DISPLAYED-FIELDS oe-ord.priceHold oe-ord.priceHoldReason ~
 oe-ord.ship-id oe-ord.ord-no oe-ord.est-no oe-ord.job-no oe-ord.job-no2 ~
 oe-ord.user-id oe-ord.stat oe-ord.spare-char-2 oe-ord.cust-no ~
-oe-ord.sold-id oe-ord.csrUser_id oe-ord.ord-date oe-ord.cust-name ~
+oe-ord.sold-id oe-ord.csrUser_id oe-ord.entered-id oe-ord.ord-date oe-ord.cust-name ~
 oe-ord.sold-name oe-ord.due-code oe-ord.due-date oe-ord.last-date ~
 oe-ord.prod-date oe-ord.po-no oe-ord.contact oe-ord.over-pct ~
 oe-ord.under-pct oe-ord.terms oe-ord.terms-d oe-ord.tax-gr oe-ord.managed ~
@@ -490,7 +490,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
      oe-ord.csrUser_id AT ROW 5.05 COL 93 COLON-ALIGNED
-          LABEL "CSR"
+          LABEL "CSR" 
+          VIEW-AS FILL-IN 
+          SIZE 17.6 BY 1
+     oe-ord.entered-id AT ROW 6.10 COL 93 COLON-ALIGNED
+          LABEL "Entered By"
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
      oe-ord.ord-date AT ROW 2.67 COL 128.2 COLON-ALIGNED
@@ -756,6 +760,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.csrUser_id IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN oe-ord.entered-id IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.cust-name IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN oe-ord.cust-no IN FRAME F-Main
@@ -948,7 +954,8 @@ DO:
                                                                shipto.ship-city,
                                                                shipto.ship-state,
                                                                shipto.ship-zip).
-                 
+                 IF shipto.tax-code NE "" THEN
+                     oe-ord.tax-gr:screen-value = shipto.tax-code .
               END.
          END.  
          WHEN "sman" THEN DO:
@@ -1121,6 +1128,21 @@ DO:
   
   IF LASTKEY <> -1 THEN DO:
      RUN valid-custcsr NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME oe-ord.entered-id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.entered-id V-table-Win
+ON LEAVE OF oe-ord.entered-id IN FRAME F-Main /* CSR */
+DO:
+  
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-entered-id NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 
@@ -1543,7 +1565,10 @@ DO:
                                                                shipto.ship-city,
                                                                shipto.ship-state,
                                                                 shipto.ship-zip).
-        IF NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN 
+         IF shipto.tax-code NE "" THEN
+         oe-ord.tax-gr:screen-value    =  shipto.tax-code .
+
+         IF NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN 
             MESSAGE "Please note: Shipto " shipto.ship-id " is valid but currently inactive"
             VIEW-AS ALERT-BOX.
             
@@ -2800,8 +2825,7 @@ ASSIGN
  itemfg.company    = cocode
  itemfg.loc        = locode
  itemfg.i-no       = v-item
- itemfg.i-code     = "C"
- itemfg.i-name     = oe-ordl.i-name
+  itemfg.i-name     = oe-ordl.i-name
  itemfg.part-dscr1 = oe-ordl.part-dscr1
  itemfg.part-dscr2 = oe-ordl.part-dscr2
  itemfg.sell-price = oe-ordl.price
@@ -2809,11 +2833,8 @@ ASSIGN
  itemfg.part-no    = oe-ordl.part-no
  itemfg.cust-no    = oe-ord.cust-no
  itemfg.cust-name  = oe-ord.cust-name
- itemfg.pur-uom    = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.prod-uom   = IF xeb.pur-man THEN "EA" ELSE "M"
  itemfg.alloc      = v-alloc
- itemfg.stocked    = YES
- itemfg.setupDate  = TODAY.
+ .
  /* Create an itemfg-loc for the default warehouse */
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
 
@@ -2859,24 +2880,6 @@ END.
     END.
  END.  
 
-
-FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
-itemfg.i-code = IF oe-ordl.est-no NE "" THEN "C"
-                ELSE IF AVAIL oe-ctrl THEN
-                        IF oe-ctrl.i-code THEN "S"
-                        ELSE "C"
-                ELSE "S".
-/* ==== not yet 
-if itemfg.i-code eq "S" then do:
-  fil_id = recid(itemfg).
-  run oe/fg-item.p.
-  fil_id = recid(oe-ordl).
-  {oe/ordlfg.i}
-  display oe-ordl.i-name oe-ordl.i-no oe-ordl.price
-          oe-ordl.pr-uom oe-ordl.cas-cnt oe-ordl.part-dscr2 oe-ordl.cost
-          oe-ordl.part-no oe-ordl.part-dscr1 with frame oe-ordlf.
-end.
-*/
 
 FIND CURRENT itemfg NO-LOCK.
 
@@ -3504,7 +3507,8 @@ PROCEDURE display-cust-detail :
               ls-ship-i[1] = shipto.notes[1]
               ls-ship-i[2] = shipto.notes[2]
               ls-ship-i[3] = shipto.notes[3]
-              ls-ship-i[4] = shipto.notes[4].
+              ls-ship-i[4] = shipto.notes[4]
+              oe-ord.tax-gr:screen-value    = IF shipto.tax-code NE "" THEN shipto.tax-code ELSE oe-ord.tax-gr:screen-value .
 
     IF cust.active EQ "X" THEN fi_type:screen-value = "T".
 
@@ -3812,6 +3816,9 @@ IF AVAIL xest THEN DO:
               ls-ship-i[2] = shipto.notes[2]
               ls-ship-i[3] = shipto.notes[3]
               ls-ship-i[4] = shipto.notes[4].
+    IF AVAIL shipto AND shipto.tax-code NE "" THEN
+        oe-ord.tax-gr:screen-value    = shipto.tax-code .
+
 
       IF lastship-cha = "Stock/Custom" THEN DO:
           /* If order has no estimate. */
@@ -5309,6 +5316,9 @@ PROCEDURE local-update-record :
      RUN valid-custcsr NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+     RUN valid-entered-id NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
      RUN valid-due-date.
      IF ERROR-STATUS:ERROR THEN
         RETURN NO-APPLY.
@@ -6480,6 +6490,25 @@ PROCEDURE valid-custcsr :
        NOT CAN-FIND(FIRST users WHERE users.USER_ID EQ oe-ord.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME})
   THEN DO:
      MESSAGE "Invalid customer CSR. Try help." VIEW-AS ALERT-BOX ERROR.
+     RETURN ERROR.
+  END.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-entered-id V-table-Win 
+PROCEDURE valid-entered-id :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+  IF oe-ord.entered-id:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:
+      MESSAGE "Can not be blank. Try help." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO oe-ord.entered-id.
      RETURN ERROR.
   END.
   {methods/lValidateError.i NO}

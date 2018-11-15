@@ -112,7 +112,7 @@ DEFINE VARIABLE lUseLogs AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cDebugLog AS CHARACTER NO-UNDO.
 DEFINE STREAM sDebug.
 lUseLogs = TRUE. /* Use debug logging unless it's turned off */
-if search("custfiles\logs\" + "block-oe-bolp3-logging.txt") ne ? then 
+IF SEARCH("custfiles\logs\" + "block-oe-bolp3-logging.txt") NE ? THEN 
     lUseLogs = FALSE.
 cDebugLog = "custfiles\logs\" + "oe-bolp3" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,1000)) + ".txt".
 IF lUseLogs THEN 
@@ -121,9 +121,9 @@ IF ERROR-STATUS:ERROR THEN
     lUseLogs = FALSE.
 
 /* First part of the term value */
-cTermPrefix = string(year(today),"9999")      +
-              string(month(today),"99")       +
-              string(day(today),"99").
+cTermPrefix = STRING(YEAR(TODAY),"9999")      +
+              string(MONTH(TODAY),"99")       +
+              string(DAY(TODAY),"99").
 /* ************************  Function Implementations ***************** */
 FUNCTION fLogMsg RETURNS CHARACTER 
     (INPUT ipcMessage AS CHARACTER  ):
@@ -169,21 +169,21 @@ END.
 
 /* Needed for oe/relbo.i & oe/actrelmerg.p */
 DEF NEW SHARED VAR out-recid  AS RECID NO-UNDO.
-DEF NEW SHARED VAR relh-recid as recid no-undo.
+DEF NEW SHARED VAR relh-recid AS RECID NO-UNDO.
 DEF NEW SHARED VAR v-auto     AS LOG NO-UNDO.
 {oe/chkordl.i NEW}
 {oe/relemail.i NEW}
 
 /* Invstatus to determine invoice status when created  */
-RUN sys/ref/nk1look.p (cocode, "INVSTATUS", "L", no, no, "", "", 
-                      Output v-rtn-char, output v-rec-found).
+RUN sys/ref/nk1look.p (cocode, "INVSTATUS", "L", NO, NO, "", "", 
+                      OUTPUT v-rtn-char, OUTPUT v-rec-found).
 invstatus-log = LOGICAL(v-rtn-char).
 /* Invstatus to determine invoice status when created  */
-RUN sys/ref/nk1look.p (cocode, "INVSTATUS", "C", no, no, "", "", 
-                      Output invstatus-char, output v-rec-found).
+RUN sys/ref/nk1look.p (cocode, "INVSTATUS", "C", NO, NO, "", "", 
+                      OUTPUT invstatus-char, OUTPUT v-rec-found).
 /* UPSFILE to for CSV creation in oe-bolh.trailer = "UPS"  */
-RUN sys/ref/nk1look.p (cocode, "UPSFILE", "C", no, no, "", "", 
-                      Output upsFile, output v-rec-found).
+RUN sys/ref/nk1look.p (cocode, "UPSFILE", "C", NO, NO, "", "", 
+                      OUTPUT upsFile, OUTPUT v-rec-found).
 FIND FIRST sys-ctrl
     WHERE sys-ctrl.company EQ cocode
       AND sys-ctrl.name    EQ "INVPRINT"
@@ -210,6 +210,7 @@ fLogMsg("Start oe-bolp3 Pgm: " + PROGRAM-NAME(2)).
 fLogMsg("Start oe-bolp3 Pgm: " + PROGRAM-NAME(3)).
 fLogMsg("Start oe-bolp3 Pgm: " + PROGRAM-NAME(4)).
 fLogMsg("Start oe-bolp3 Pgm: " + PROGRAM-NAME(5)).
+fLogMsg("Start oe-bolp3 Time: " + STRING(TODAY) + STRING(MTIME, "HH:MM")).
     
 EMPTY TEMP-TABLE w-inv.
 
@@ -523,7 +524,7 @@ STATUS DEFAULT "Processing BOL Posting 1........ BOL#: " + STRING(oe-bolh.bol-no
 
       IF LAST-OF(oe-boll.ord-no) THEN DO:
         FIND FIRST oe-rell WHERE oe-rell.r-no EQ oe-boll.r-no
-               and oe-rell.i-no eq oe-boll.i-no
+               AND oe-rell.i-no EQ oe-boll.i-no
             NO-LOCK NO-ERROR.
         IF AVAIL oe-rell THEN           
         FIND FIRST oe-rel WHERE oe-rel.link-no = oe-rell.r-no
@@ -577,10 +578,10 @@ FOR EACH tt-report WHERE tt-report.term-id EQ v-term,
 
       /* If the release is ship-only and we're posting the BOL,               */
       /* clean up the fg-bin records that are placeholders, total the + and - */
-      IF  oe-boll.s-code EQ "S" THEN do: 
+      IF  oe-boll.s-code EQ "S" THEN DO: 
           
           FIND FIRST oe-rell WHERE oe-rell.r-no EQ oe-boll.r-no
-               and oe-rell.i-no eq oe-boll.i-no
+               AND oe-rell.i-no EQ oe-boll.i-no
             NO-LOCK NO-ERROR.          
 
           IF AVAIL oe-rell THEN 
@@ -633,6 +634,7 @@ FOR EACH w-inv:
   IF CAN-FIND(inv-head WHERE ROWID(inv-head) EQ w-rowid) THEN DO:      
       RUN oe/oe-invup.p (w-rowid, INPUT YES).      
   END.
+  RUN checkInvLn (w-rowid).
     
 END.
 
@@ -652,6 +654,11 @@ RETURN.
 FUNCTION fLogMsg RETURNS CHARACTER 
     (INPUT ipcMessage AS CHARACTER  ) FORWARD.
 
+
+
+/* **********************  Internal Procedures  *********************** */
+
+
 PROCEDURE check-posted:
   FOR EACH report WHERE report.term-id EQ v-term,
       FIRST oe-boll NO-LOCK WHERE RECID(oe-boll) EQ report.rec-id,
@@ -661,6 +668,43 @@ PROCEDURE check-posted:
         AND oe-boll.s-code <> "T"  THEN DELETE report.
   END.
 END.
+
+PROCEDURE checkInvLn:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE INPUT  PARAMETER iprInvHeadRow AS ROWID NO-UNDO.
+  DEFINE BUFFER bf-inv-line FOR inv-line.
+  DEFINE BUFFER bf-inv-head FOR inv-head.
+  DEFINE VARIABLE iCorrectRno AS INTEGER NO-UNDO.
+  
+  /* spare-char-3 will contain the rowid of the inv-head at the time the inv-line was created */
+  FOR EACH inv-line NO-LOCK 
+     WHERE inv-line.spare-char-3 = STRING(iprInvHeadRow)    
+       AND NOT CAN-FIND(FIRST inv-head of inv-line) :
+       
+    FIND FIRST bf-inv-head WHERE ROWID(bf-inv-head) EQ iprInvHeadRow NO-LOCK NO-ERROR.
+    
+    IF AVAIL bf-inv-head THEN 
+        iCorrectRno = bf-inv-head.r-no.
+    ELSE
+        iCorrectRno = 0.
+        
+    IF iCorrectRNo EQ 0 THEN 
+    fLogMsg("ChkInv: Correct Invoice NOT Found " + " Rno# " + STRING(iCorrectRno) + " BNO: " + STRING(inv-line.b-no) + " Item: " + inv-line.i-no).
+
+    IF iCorrectRno NE 0 THEN 
+    DO:
+        fLogMsg("ChkInv: Correct Invoice Found " + " Rno# " + STRING(iCorrectRno) + " BNO: " + STRING(inv-line.b-no) + " Item: " + inv-line.i-no).
+        FIND FIRST bf-inv-line WHERE ROWID(bf-inv-line) EQ rowid(inv-line)
+            EXCLUSIVE-LOCK.
+        bf-inv-line.r-no = iCorrectRno.  
+    END.         
+         
+  END.
+      
+END PROCEDURE.
 
 PROCEDURE createUPS:
   DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.
@@ -753,8 +797,8 @@ DEF VAR ll-transfer AS LOG NO-UNDO.
   FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ iprOeRelRow NO-LOCK NO-ERROR.
 
    /* task 04011103*/
-   FIND FIRST sys-ctrl where sys-ctrl.company eq cocode
-                         and sys-ctrl.name eq "RelType" no-lock no-error.
+   FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
+                         AND sys-ctrl.name EQ "RelType" NO-LOCK NO-ERROR.
    IF AVAIL sys-ctrl THEN
       FIND FIRST sys-ctrl-shipto OF sys-ctrl WHERE sys-ctrl-shipto.cust-vend-no = oe-ordl.cust-no
                 AND sys-ctrl-ship.ship-id = bf-oe-rel.ship-id NO-LOCK NO-ERROR.

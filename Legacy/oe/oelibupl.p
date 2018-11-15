@@ -1758,8 +1758,6 @@ PROCEDURE crt-itemfg :
   ASSIGN
   itemfg.sell-uom   = get-sv("oe-ordl.pr-uom")
   itemfg.prod-uom   = v-uom
-  itemfg.i-code     = "C"
-  itemfg.stocked    = YES
   itemfg.alloc      = IF AVAIL xeb AND xeb.est-type LE 4 THEN v-allocf ELSE v-alloc.
   IF v-graphic-char NE "" THEN
   DO:
@@ -1818,14 +1816,6 @@ PROCEDURE crt-itemfg :
         itemfg.def-loc-bin = shipto.loc-bin.
       END.
     END.
-  END.
-  IF fgmaster-cha EQ "FGITEM" THEN DO:
-    FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
-    itemfg.i-code = IF oe-ordl.est-no NE "" THEN "C"
-    ELSE IF AVAIL oe-ctrl THEN
-    IF oe-ctrl.i-code THEN "S"
-    ELSE "C"
-    ELSE "S".
   END.
   {est/fgupdtax.i oe-ord}
   ll-new-fg-created = YES.
@@ -3411,6 +3401,9 @@ PROCEDURE LEAVE_i_no :
           DEF VAR ls-est-no AS cha NO-UNDO.
           DEF VAR ls-uom AS cha NO-UNDO.
           DEF VAR ll-secure AS LOG NO-UNDO.
+          DEFINE VARIABLE cLoc AS CHARACTER NO-UNDO.
+          DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
+          
           IF /*self:modified and*/ SELF:SCREEN-VALUE <> "0" AND NOT ll-ok-i-no /* done in leave trigger */
           THEN DO:
             RUN display-fgitem NO-ERROR.
@@ -3427,6 +3420,7 @@ PROCEDURE LEAVE_i_no :
               ls-part-no = get-sv("oe-ordl.part-no")
               ls-est-no = get-sv("oe-ordl.est-no")
               ls-uom = get-sv("oe-ordl.pr-uom").
+
               RUN default-type (BUFFER itemfg).
               /* need to check security */
               IF oe-ord.est-no = "" AND get-sv("oe-ordl.est-no") = "" THEN DO:
@@ -3434,7 +3428,7 @@ PROCEDURE LEAVE_i_no :
                 IF NOT ll-secure THEN RETURN NO-APPLY.
               END.
               RUN oe/d-citmfg.w (ls-est-no, INPUT-OUTPUT ls-i-no,
-              INPUT-OUTPUT ls-part-no,INPUT-OUTPUT ls-uom) NO-ERROR.
+              INPUT-OUTPUT ls-part-no,INPUT-OUTPUT ls-uom, INPUT-OUTPUT cLoc, INPUT-OUTPUT cLocBin) NO-ERROR.
               IF ls-i-no = "" THEN DO:
                 /* wfk apply "entry" to oe-ordl.i-no. */
                 RETURN NO-APPLY.  /* cancel */
@@ -5473,6 +5467,9 @@ PROCEDURE validate-all :
   DEF VAR ls-est-no AS cha NO-UNDO.
   DEF VAR ls-uom AS cha NO-UNDO.
   DEF VAR ll-secure AS LOG NO-UNDO.
+  DEFINE VARIABLE cLoc AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
+  
   /*DEF VAR v-run-schedule AS LOG NO-UNDO.
   find first sys-ctrl where sys-ctrl.company eq cocode
   and sys-ctrl.name    eq "SCHEDULE" no-lock no-error.
@@ -5547,7 +5544,7 @@ PROCEDURE validate-all :
         IF NOT ll-secure THEN RETURN ERROR.
       END.
       RUN oe/d-citmfg.w (ls-est-no, INPUT-OUTPUT ls-i-no,
-      INPUT-OUTPUT ls-part-no,INPUT-OUTPUT ls-uom) NO-ERROR.
+      INPUT-OUTPUT ls-part-no,INPUT-OUTPUT ls-uom, INPUT-OUTPUT cLoc, INPUT-OUTPUT cLocBin) NO-ERROR.
       IF ls-i-no = "" THEN DO:
         /* wfk APPLY "entry" TO oe-ordl.i-no. */
         RETURN ERROR.  /* cancel */

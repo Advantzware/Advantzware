@@ -47,6 +47,7 @@ DEF VAR invcopys-cha AS CHAR NO-UNDO.
 {sys/inc/invcopys.i}
 IF AVAIL sys-ctrl THEN
    invcopys-cha = sys-ctrl.char-fld.
+&Scoped-define SORTBY-PHRASE BY inv-line.line
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -165,7 +166,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      inv-line.line FORMAT "99":U WIDTH 6.2
+      inv-line.line FORMAT ">>99":U WIDTH 6.2
       inv-line.i-no FORMAT "x(15)":U
       inv-line.i-name FORMAT "x(30)":U
       inv-line.inv-qty COLUMN-LABEL "Quantity" FORMAT "->>,>>>,>>9":U
@@ -279,7 +280,7 @@ ASSIGN
      _TblList          = "ASI.inv-line OF ASI.inv-head"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _FldNameList[1]   > ASI.inv-line.line
-"inv-line.line" ? ? "integer" ? ? ? ? ? ? no ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-line.line" ? ">>99" "integer" ? ? ? ? ? ? no ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   = ASI.inv-line.i-no
      _FldNameList[3]   = ASI.inv-line.i-name
      _FldNameList[4]   > ASI.inv-line.inv-qty

@@ -132,8 +132,9 @@ rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rdtlh.reject-code[1]
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
-     SIZE 15 BY 1.14
+     SIZE 8 BY 1.91
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT 
@@ -142,8 +143,9 @@ DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Save" 
-     SIZE 15 BY 1.14
+     SIZE 8 BY 1.91
      BGCOLOR 8 .
 
 DEFINE VARIABLE fi_ext-cost AS DECIMAL FORMAT "->>,>>>,>>9.99":U 
@@ -157,12 +159,14 @@ DEFINE VARIABLE fi_cost-uom AS CHARACTER FORMAT "x(10)":U
      SIZE 17 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-21
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 143.8 BY 3.57.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL ROUNDED  
+     SIZE 19 BY 2.38
+     BGCOLOR 15.
 
 DEFINE RECTANGLE RECT-38
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 143.8 BY 10.71.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL ROUNDED  
+     SIZE 143.8 BY 10.71
+     BGCOLOR 15.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -178,6 +182,7 @@ DEFINE FRAME Dialog-Frame
           LABEL "Item#" FORMAT "x(10)"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
+          BGCOLOR 15 FONT 1
      rm-rcpth.po-no AT ROW 2.43 COL 63 COLON-ALIGNED HELP
           ""
           LABEL "Vendor PO#" FORMAT "x(9)"
@@ -187,37 +192,46 @@ DEFINE FRAME Dialog-Frame
           LABEL "Job#" FORMAT "x(6)"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
+          BGCOLOR 15 FONT 1
     rm-rcpth.job-no2 AT ROW 2.43 COL 120 COLON-ALIGNED NO-LABEL FORMAT "99"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
+          BGCOLOR 15 FONT 1
      rm-rdtlh.s-num AT ROW 3.62 COL 20 COLON-ALIGNED
           LABEL "S" FORMAT ">9"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
+          BGCOLOR 15 FONT 1
      rm-rcpth.trans-date AT ROW 3.62 COL 63 COLON-ALIGNED
           LABEL "TR Date" FORMAT "99/99/9999"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      rm-rcpth.rita-code AT ROW 3.62 COL 105 COLON-ALIGNED
           LABEL "C" FORMAT "x(1)"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
+          BGCOLOR 15 FONT 1
      rm-rdtlh.loc AT ROW 4.81 COL 20 COLON-ALIGNED
           LABEL "Whs" FORMAT "x(5)"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
+          BGCOLOR 15 FONT 1
      rm-rdtlh.loc-bin AT ROW 4.81 COL 63 COLON-ALIGNED 
           LABEL "Bin" FORMAT "x(8)"      
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      rm-rdtlh.tag AT ROW 4.81 COL 105 COLON-ALIGNED
           LABEL "Tag" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
+          BGCOLOR 15 FONT 1
      rm-rdtlh.qty AT ROW 6 COL 20 COLON-ALIGNED
           LABEL "Qty" FORMAT "->>>>,>>9.9<<<<<"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
+          BGCOLOR 15 FONT 1
      rm-rcpth.pur-uom AT ROW 6 COL 63 COLON-ALIGNED
           LABEL "Qty/UOM" FORMAT "x(8)"
           VIEW-AS FILL-IN 
@@ -226,35 +240,41 @@ DEFINE FRAME Dialog-Frame
           LABEL "Cost" FORMAT "->>>,>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
+          BGCOLOR 15 FONT 1
      fi_cost-uom AT ROW 7.19 COL 20 COLON-ALIGNED
-          
+     BGCOLOR 15 FONT 1
      fi_ext-cost AT ROW 7.19 COL 63 COLON-ALIGNED
+     BGCOLOR 15 FONT 1
      rm-rdtlh.tag2 AT ROW 7.19 COL 105 COLON-ALIGNED 
           LABEL "Cert/Lot/Mill#" FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 33 BY 1
+          BGCOLOR 15 FONT 1
      rm-rdtlh.user-id AT ROW 8.38 COL 20 COLON-ALIGNED
           LABEL "UserID" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
+          BGCOLOR 15 FONT 1
      rm-rdtlh.receiver-no AT ROW 8.38 COL 63 COLON-ALIGNED
           LABEL "Invoice Link" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      rm-rdtlh.reject-code[1] AT ROW 8.38 COL 105 COLON-ALIGNED
      LABEL "Adjustment Reason" 
      VIEW-AS COMBO-BOX INNER-LINES 10
      LIST-ITEM-PAIRS "Item 1","Item 1"
      DROP-DOWN-LIST SIZE 27 BY 1
-     Btn_OK AT ROW 13.29 COL 37
-     Btn_Done AT ROW 13.24 COL 57
-     Btn_Cancel AT ROW 13.24 COL 77.2
-     RECT-21 AT ROW 11.71 COL 1
+     BGCOLOR 15 FONT 1
+     Btn_OK AT ROW 12.23 COL 126
+     Btn_Done AT ROW 12.50 COL 127
+     Btn_Cancel AT ROW 12.23 COL 135
+     RECT-21 AT ROW 12 COL 125
      RECT-38 AT ROW 1 COL 1
-     SPACE(0.99) SKIP(4.14)
+     SPACE(0.99) SKIP(3.14)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         FONT 6
+         FGCOLOR 1 FONT 6
          TITLE "Raw Materials Inventory".
 
 

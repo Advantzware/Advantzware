@@ -16,7 +16,8 @@
 /* ***************************  Definitions  ************************** */
 {util\CompanyProcs.i}
 DEFINE STREAM sTableList.
-
+DEFINE VARIABLE gAccountTables AS CHARACTER NO-UNDO
+    INIT "ar-ctrl,ap-ctrl,gl-ctrl,costtype,fgcat,prod".
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -68,7 +69,7 @@ PROCEDURE pBuildTableListing PRIVATE:
     DEFINE VARIABLE iCount                 AS INTEGER NO-UNDO.
     DEFINE VARIABLE hQuery                 AS HANDLE  NO-UNDO. 
     DEFINE VARIABLE hBuffer                AS HANDLE  NO-UNDO.
-    
+    DEFINE VARIABLE lHasAcctNo             AS LOGICAL NO-UNDO.
     
     EMPTY TEMP-TABLE ttTables.
     FOR EACH _file NO-LOCK
@@ -87,12 +88,14 @@ PROCEDURE pBuildTableListing PRIVATE:
         
         RUN pDoesFileHaveField(BUFFER _file, "company", OUTPUT ttTables.lHasCompany).
         RUN pDoesFileHaveField(BUFFER _file, "cust-no", OUTPUT ttTables.lHasCustID).
-        RUN pDoesFileHaveField(BUFFER _file, "actnum", OUTPUT ttTables.lHasAcctNo).
         RUN pDoesFileHaveField(BUFFER _file, "i-no", OUTPUT ttTables.lHasINo).
         RUN pDoesFileHaveField(BUFFER _file, "rec_key", OUTPUT ttTables.lHasRecKey).
         RUN pDoesFileHaveField(BUFFER _file, "job-no", OUTPUT ttTables.lHasJobNo).
         RUN pDoesFileHaveField(BUFFER _file, "ord-no", OUTPUT ttTables.lHasOrderNo).
         RUN pDoesFileHaveField(BUFFER _file, "vend-no", OUTPUT ttTables.lHasVendID).
+        RUN pDoesFileHaveField(BUFFER _file, "actnum", OUTPUT lHasAcctNo).
+        ttTables.lHasAcctNo = lHasAcctNo OR LOOKUP(ttTables.cTable, gAccountTables) GT 0.
+            
     END.
     
 END PROCEDURE.

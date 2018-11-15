@@ -43,9 +43,6 @@ CREATE WIDGET-POOL.
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
-/* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 
-
 /* Custom List Definitions                                              */
 /* ttblJobFields,List-2,List-3,List-4,List-5,List-6                     */
 
@@ -59,16 +56,27 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 39 BY 1.19.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 73.6 BY 15.24
+     FGCOLOR 1 .
+
+DEFINE RECTANGLE RECT-23
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 47 BY 2.14
+     BGCOLOR 15 .
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     "Report Parameterl Smart Object Holder" VIEW-AS TEXT
-          SIZE 37 BY .62 AT ROW 1.24 COL 2
+     "Minimum Width 74.00 and Height 15.33" VIEW-AS TEXT
+          SIZE 45 BY .62 AT ROW 6.48 COL 16 WIDGET-ID 2
+          BGCOLOR 15 FONT 6
+     "AOA Parameter Smart Object Holder" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 5.52 COL 18
+          BGCOLOR 15 FONT 6
      RECT-1 AT ROW 1 COL 1
+     RECT-23 AT ROW 5.29 COL 15 WIDGET-ID 6
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -100,8 +108,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 1.29
-         WIDTH              = 59.8.
+         HEIGHT             = 15.33
+         WIDTH              = 74.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -128,6 +136,10 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-23 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 

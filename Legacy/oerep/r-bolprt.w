@@ -1695,7 +1695,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   FIND FIRST users WHERE
-       users.user_id EQ USERID("NOSWEAT")
+       users.user_id EQ USERID("ASI")
        NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -1769,7 +1769,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        tb_post-bol:SCREEN-VALUE = "no"
        tb_post-bol:HIDDEN       = YES.
 
-    IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Xprint2,bolfmt 2,bolfmt 20,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell") LE 0 THEN DO:
+    IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Xprint2,bolfmt 2,bolfmt 20,LancoYork,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell") LE 0 THEN DO:
       tb_print-component:SCREEN-VALUE = "no".
       DISABLE tb_print-component.
       tb_print-unassemble-component:SCREEN-VALUE = "no".
@@ -1828,7 +1828,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ASSIGN 
         tb_print-unassemble-component:HIDDEN = YES.
 
-   IF v-print-fmt = "XPrint2" OR v-print-fmt = "bolfmt 2" OR v-print-fmt = "bolfmt 20" THEN  /* task 01121601 */
+   IF v-print-fmt = "XPrint2" OR v-print-fmt = "bolfmt 2" OR v-print-fmt = "bolfmt 20" OR v-print-fmt = "LancoYork" THEN  /* task 01121601 */
        ASSIGN
         lbl_bolsort:HIDDEN = NO
         rd_bol-sort:HIDDEN = NO .
@@ -2591,20 +2591,20 @@ IF AVAILABLE b-prgrms THEN
 DO:
 
   DO num-groups = 1 TO NUM-ENTRIES(g_groups):
-    IF NOT CAN-DO(b-prgrms.can_run,ENTRY(num-groups,g_groups)) AND
-       NOT CAN-DO(b-prgrms.can_update,ENTRY(num-groups,g_groups)) AND
-       NOT CAN-DO(b-prgrms.can_create,ENTRY(num-groups,g_groups)) AND
-       NOT CAN-DO(b-prgrms.can_delete,ENTRY(num-groups,g_groups)) THEN
+    IF NOT CAN-DO(TRIM(b-prgrms.can_run),ENTRY(num-groups,g_groups)) AND
+       NOT CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups)) AND
+       NOT CAN-DO(TRIM(b-prgrms.can_create),ENTRY(num-groups,g_groups)) AND
+       NOT CAN-DO(TRIM(b-prgrms.can_delete),ENTRY(num-groups,g_groups)) THEN
        NEXT.
 
     group-ok = yes.
     LEAVE.
   END.
 
-  IF NOT CAN-DO(b-prgrms.can_run,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_create,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT")) AND NOT group-ok THEN
+  IF NOT CAN-DO(TRIM(b-prgrms.can_run),USERID("ASI")) AND
+     NOT CAN-DO(TRIM(b-prgrms.can_update),USERID("ASI")) AND
+     NOT CAN-DO(TRIM(b-prgrms.can_create),USERID("ASI")) AND
+     NOT CAN-DO(TRIM(b-prgrms.can_delete),USERID("ASI")) AND NOT group-ok THEN
   DO:
     /*MESSAGE 
         "User access to POST BOL this Program Denied - Contact Systems Manager" 
@@ -2776,7 +2776,7 @@ PROCEDURE email-reorderitems :
   DEF VAR v-qty-onOrder AS INT NO-UNDO.
 
   FIND FIRST users WHERE
-        users.user_id EQ USERID("NOSWEAT")
+        users.user_id EQ USERID("ASI")
         NO-LOCK NO-ERROR.
   IF AVAIL users AND users.user_program[2] NE "" THEN v-dir = users.user_program[2] + "\".
   ELSE v-dir = "c:\tmp\".
@@ -3722,11 +3722,7 @@ PROCEDURE run-packing-list :
   IF tb_print_ship :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN
         v-ship-inst = LOGICAL(tb_print_ship:SCREEN-VALUE) .
-
-
-  {sys/inc/print1.i}
-
-  {sys/inc/outprint.i value(lines-per-page)}
+  
 
   /*if td-show-parm then run show-param.*/
 
@@ -3737,6 +3733,13 @@ PROCEDURE run-packing-list :
   v-term-id = v-term.
 
   run build-work ('').
+  FIND FIRST report NO-LOCK WHERE report.term-id  = v-term-id NO-ERROR.
+  IF NOT AVAIL report THEN LEAVE.
+
+  {sys/inc/print1.i}
+
+  {sys/inc/outprint.i value(lines-per-page)}
+
   IF IS-xprint-form THEN DO:
 
       CASE rd-dest:
@@ -3893,11 +3896,7 @@ PROCEDURE run-report :
   IF tb_print_ship :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN
         v-ship-inst = LOGICAL(tb_print_ship:SCREEN-VALUE) .
-
-
-  {sys/inc/print1.i}
-
-  {sys/inc/outprint.i value(lines-per-page)}
+  
 
   /*if td-show-parm then run show-param.*/
 
@@ -3908,6 +3907,12 @@ PROCEDURE run-report :
   v-term-id = v-term.
 
   run build-work ('').
+  FIND FIRST report NO-LOCK WHERE report.term-id  = v-term-id NO-ERROR.
+  IF NOT AVAIL report THEN LEAVE.
+
+  {sys/inc/print1.i}
+
+  {sys/inc/outprint.i value(lines-per-page)}
 
   IF IS-xprint-form THEN DO:
 
@@ -3984,8 +3989,10 @@ PROCEDURE run-report :
               RUN oe/rep/cocprempkgu.p (?).
          ELSE IF v-program = "oe/rep/cocprempkgm.p" THEN
               RUN oe/rep/cocprempkgm.p (?).
-         IF v-program = "oe/rep/cocbcert10.p" THEN
+         ELSE IF v-program = "oe/rep/cocbcert10.p" THEN
               RUN oe/rep/cocbcert10.p (?).
+         ELSE IF v-program = "oe/rep/coclanyork.p" THEN
+              RUN oe/rep/coclanyork.p (?).
          ELSE RUN VALUE(v-program).
       END.
   END.
@@ -4306,10 +4313,6 @@ PROCEDURE run-report-mail :
      ASSIGN
         v-ship-inst = LOGICAL(tb_print_ship:SCREEN-VALUE) .
 
-  {sys/inc/print1.i}
-
-  {sys/inc/outprint.i value(lines-per-page)}
-
   /*if td-show-parm then run show-param.*/
 
   SESSION:SET-WAIT-STATE ("general").
@@ -4319,6 +4322,12 @@ PROCEDURE run-report-mail :
   v-term-id = v-term.
 
   run build-work (ic2ndKey).
+  FIND FIRST report NO-LOCK WHERE report.term-id  = v-term-id NO-ERROR.
+  IF NOT AVAIL report THEN LEAVE.
+
+  {sys/inc/print1.i}
+
+  {sys/inc/outprint.i value(lines-per-page)}
 
   IF NOT vcBOLNums > '' THEN RETURN.
 
@@ -4356,6 +4365,8 @@ PROCEDURE run-report-mail :
             RUN oe/rep/cocloylang.p (?).
          ELSE IF v-program EQ "oe/rep/cocbcert10.p" THEN
             RUN oe/rep/cocbcert10.p (?).
+         ELSE IF v-program EQ "oe/rep/coclanyork.p" THEN
+            RUN oe/rep/coclanyork.p (?).
          ELSE
             RUN value(v-program).
       END.
@@ -4568,6 +4579,10 @@ PROCEDURE SetBOLForm :
             ASSIGN
                is-xprint-form = YES
                v-program = "oe/rep/cocbcert10.p".
+         WHEN "LancoYork" THEN
+            ASSIGN
+               is-xprint-form = YES
+               v-program = "oe/rep/coclanyork.p".
 
          OTHERWISE
             ASSIGN

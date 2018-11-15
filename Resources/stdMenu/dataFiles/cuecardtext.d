@@ -26,7 +26,7 @@ Select the desire Company and/or Location and your selection will be reflected t
 1 "System" yes 6 6 "Using NK1 System Control Parameters, there are 8 MENULINK's that can be utilized to create Web Links of your choosing which will appear in this lower are of the Menu screen.  See your Administrator about having favorite and/or generally used Web Sites accessible with a quick mouse click." 6 3 6.43 84.2 86.2 6.71 14 1 51.4 5.57 3 3.14 3.14 74.8 9.4 2.43 ? ? ? 73 5.86 79 5.86 11.8 5.86 ? 10 1.48 ? "NoSweat" 10/06/18 83235 "" "201810068323502402789"
 1 "System" yes 7 7 "We have added the much requested ability to have a Favorites feature.  Simply pulldown here to access the Menu Options most accessed by you.
 
-But wait Advantzware, that's great but how do I add Menu Options to my Favorites?  Click the Next Cue Card and we will show you." 1 1 7.38 78.6 49.2 4.14 14 1 2 1.24 3 3.14 4.29 70 9 2.43 ? ? ? 67 7 73 7 10 7.19 ? 10 1.48 ? "NoSweat" 10/07/18 586 "" "201810070058602402795"
+But wait Advantzware, that's great but how do I add Menu Options to my Favorites?  Click the Next Cue Card and we will show you." 1 1 7.38 78.6 5.2 4.43 14 1 2 1.24 3 3.14 4.29 70 9 2.43 ? ? ? 67 7 73 7 10 7.19 ? 10 1.48 ? "NoSweat" 10/07/18 586 "" "201810070058602402795"
 1 "System" yes 8 8 "This Filter Icon allows you to access an Advanced Search feature giving you the ability to bypass having to open and close Menu Options when you cannot remember how to navigate to a desired Menu Option and/or you cannot remember the Hotkey to get there.
 
 As promised on the Previous Cue Card, this Filter Icon is where you Add/Remove Menu Options to your Favorites.
@@ -46,12 +46,15 @@ After you have viewed all the Menu Cue Cards, you can click the Gears Icon, wher
 Simply click the Next Cue Card or the Red ""X"" and we are done!
 
 However, don't forget to click either the Filter Icon or the Gears Icon to view the Cue Cards with information about either of these options." 9 1 7.38 80.2 43.4 7.05 14 1 2 1.24 3 3.14 4.29 71.2 9 2.43 ? ? ? 68.2 7 74.2 7 10 7.19 ? 10 1.48 ? "NoSweat" 10/07/18 2265 "" "201810070226502402798"
-2 "System" yes 1 11 "The same way you accessed this Search feature, is how you can close it when done." 1 1 5.67 50.2 4 1.81 14 1 2 1.24 3 3.14 2.57 41.2 9 2.43 ? ? ? 38.2 5.29 44.2 5.29 10.6 5.48 ? 10 1.48 ? "NoSweat" 10/07/18 2902 "" "201810070290202402800"
+2 "System" yes 1 11 "The same way you accessed this Favorites/Search feature, is how you can close it when done." 1 1 5.67 50.2 3 1.81 14 1 2 1.24 3 3.14 2.57 41.2 9 2.43 ? ? ? 38.2 5.29 44.2 5.29 10.6 5.48 ? 10 1.48 ? "NoSweat" 10/07/18 2902 "" "201810070290202402800"
 2 "System" yes 2 12 "Enter your Search value here and any matching Menu Options found will display below.
 
-Once you have located the Option you are looking for, simply Double Mouse Click it." 2 1 8.43 50.2 2.4 2.1 14 1 22.6 1.29 7 1.57 4.29 48 2.2 3 ? ? ? 38.2 7.57 44.2 7.57 3.4 7.57 ? 3.4 8.43 ? "NoSweat" 10/07/18 2902 "" "201810070290202402800"
-2 "System" yes 3 13 "Click here to Clear the Search value and results." 5 1 4.71 50.2 1.2 9.43 14 1 43 3.86 44.2 2.43 1.71 43.2 2.2 1.29 ? ? ? 32.2 3.29 38.2 3.29 3.4 3.29 ? 3.4 4.43 ? "NoSweat" 10/07/18 2902 "" "201810070290202402800"
-2 "System" yes 4 14 "At any time you can select a Search Result Menu Option.  If this Icon is a ""+"" (plus) and you click it, the selection is Auto added to your Favorites.  If the highlighted selection changes this icon to a ""-"" (minus), that indicates it's already a Favorite and clicking it now will remove it." 7 1 7.67 50.4 3.2 6.14 14 1 2.2 6.71 45.4 5.86 4.86 43.2 2.2 1.29 ? ? ? 39.4 7.29 45.4 7.29 13 7.29 ? 9.4 6.43 ? "NoSweat" 10/07/18 2902 "" "201810070290202402800"
+Once you have located the Option you are looking for, simply Double Mouse Click it." 2 1 8.43 50.2 45.6 2.43 14 1 22.6 1.29 7 1.57 4.29 48 2.2 3 ? ? ? 38.2 7.57 44.2 7.57 3.4 7.57 ? 3.4 8.43 ? "NoSweat" 10/07/18 2902 "" "201810070290202402800"
+2 "System" yes 3 13 "Click here to Clear the Search value and results." 5 1 4.71 50.2 39.6 9.53 14 1 43 3.86 44.2 2.43 1.71 43.2 2.2 1.29 ? ? ? 32.2 3.29 38.2 3.29 3.4 3.29 ? 3.4 4.43 ? "NoSweat" 10/07/18 2902 "" "201810070290202402800"
+2 "System" yes 4 14 "At any time you can select a Search Result Menu Option.  If this Icon is a ""+"" (plus) and you click it, the selection is Auto added to your Favorites.  If the highlighted selection changes this icon to a ""-"" (minus), that indicates it's already a Favorite and clicking it now will remove it." 6 1 7.67 50.4 45 6 14 1 7 6.71 45.4 5.86 4.86 43.2 2.2 1.29 ? ? ? 39.4 7.29 45.4 7.29 15.4 7.57 ? 15.4 6.43 ? "NoSweat" 10/07/18 2902 "" "201810070290202402800"
+2 "System" yes 5 27 "Set the Favorite's Order using the Up or Down arrows.  Click the ""X"" to remove the selected Favorite.
+
+Double Click to run the highlighted selection." 8 1 6.81 53 5.4 2.86 14 1 2.2 2.71 2.2 6.14 4 37.6 9.4 2.14 ? ? ? 41.8 6.43 47.8 6.43 15.4 6.43 ? 9.4 1.29 ? "NoSweat" 11/05/18 74393 "" "201811057439302667974"
 3 "System" yes 1 26 "The same way you accessed User Settings, is how you can close it when done." 9 1 5.43 53.4 27 8.91 14 1 2.2 1.29 34 5.05 2 44 9.4 2.71 ? ? ? 41.4 5 47.4 5 9.4 5.24 ? 10.6 1.57 ? "NoSweat" 10/07/18 6846 "" "201810070684602402816"
 3 "System" yes 2 15 "The availability of the Features outlined here depend on your User Security setting. 
 If you desire to have access to any of these settings, please see your Administrator." 9 1 6.52 53 26.2 8.43 14 1 2 1.24 3 3.14 3.43 44 9 2.43 ? ? ? 41.4 6.14 47.4 6.14 9.4 6.38 ? 10 1.48 ? "NoSweat" 10/07/18 4176 "" "201810070417602402805"
@@ -74,12 +77,12 @@ Now select where on the description you want to see them, at the ""Begin"" or ""
 .
 PSC
 filename=cueCardText
-records=0000000000026
+records=0000000000027
 ldbname=ASI
-timestamp=2018/10/08-00:18:53
+timestamp=2018/11/05-21:07:23
 numformat=44,46
 dateformat=mdy-1950
 map=NO-MAP
 cpstream=ISO8859-1
 .
-0000011906
+0000012253

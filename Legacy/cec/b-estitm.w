@@ -4430,16 +4430,11 @@ ASSIGN
  itemfg.company    = gcompany
  itemfg.loc        = gloc
  itemfg.i-no       = v-item
- itemfg.i-code     = "C"
  itemfg.i-name     = xeb.part-dscr1
  itemfg.part-dscr1 = xeb.part-dscr2
- itemfg.sell-uom   = "M"
  itemfg.part-no    = xeb.part-no
  itemfg.cust-no    = xeb.cust-no
  itemfg.cust-name  = IF AVAIL cust THEN cust.name ELSE ""
- itemfg.pur-uom    = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.prod-uom   = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.stocked    = YES
  itemfg.die-no     = xeb.die-no
  itemfg.plate-no   = xeb.plate-no
  itemfg.style      = xeb.style
@@ -4451,7 +4446,7 @@ ASSIGN
                      xeb.form-no EQ 0
  itemfg.pur-man    = xeb.pur-man 
  itemfg.alloc      = xeb.set-is-assembled
- itemfg.setupDate  = TODAY.
+ .
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
 
  {oe/fgfreighta.i xeb}

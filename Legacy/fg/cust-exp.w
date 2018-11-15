@@ -76,7 +76,7 @@ ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zi
                            "PO# Mandatory,Pallet Positions,Show Set Parts,Sales PTD,Sales YDT,Sales LYear,Cost PTD,Cost YDT,Cost LYear,Profits PTD,Profits YDT,Profits LYear," +
                            "Profit Percent PTD,Profit Percent YDT,Profit Percent LYear,Commissions PTD,Commissions YDT,Commissions LYear,MSF PTD,MSF YDT,MSF LYear," +
                            "High Balance,On,Last Payment,On Date,Total# of Inv Paid,Avg# Days to Pay,Open Orders Balance,Account Balance,On Account,Title,CPhone,Ext,CSR," +
-                           "Note 1,Note 2,Note 3,Note 4,ShipTo Name,ShipTo Address 1,ShipTo Address 2,ShipTo City,ShipTo State,ShipTo Zip,Paperless Invoice?"
+                           "Note 1,Note 2,Note 3,Note 4,ShipTo Name,ShipTo Address 1,ShipTo Address 2,ShipTo City,ShipTo State,ShipTo Zip,Paperless Invoice?,Contract Pricing"
 
       cFieldListToSelect = "cust-no,name,active,addr[1],addr[2],city,state,zip,email,spare-char-2,date-field[1],type,custype-dscr,contact,sman,sname," +
                            "flat-comm,area-code,phone,scomm,fax,fax-prefix,fax-country,terms,terms-dscr,cr-use,cr-hold-invdays,cr-hold-invdue,cr-rating," +
@@ -86,7 +86,7 @@ ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zi
                            "po-mand,manf-day,show-set,ptd-sales,ytd-sales,lyr-sales,cost[1],cost[5],cost[6],ptd-profit,ytd-profit,lyr-profit," +
                            "ptd-profit-pct,ytd-profit-pct,lyr-profit-pct,comm[1],comm[5],comm[6],total-msf,ytd-msf,lyytd-msf," +
                            "hibal,hibal-date,lpay,lpay-date,num-inv,avg-pay,ord-bal,acc-bal,on-account,title,cphone,ext,csrUser_id," +
-                           "note1,note2,note3,note4,ship-name,ship-addr1,ship-addr2,ship-city,ship-state,ship-zip,log-field[1]" .
+                           "note1,note2,note3,note4,ship-name,ship-addr1,ship-addr2,ship-city,ship-state,ship-zip,log-field[1],cnt-price" .
 {sys/inc/ttRptSel.i}
 
     ASSIGN cTextListToDefault  = "Customer,Name,Address1,Address2,City,State,Country,Zip,Sales Rep,Area Code,Phone#," +
@@ -1429,6 +1429,9 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
         END.
         WHEN "ext"  THEN DO:
             lc-return = "" .
+        END. 
+        WHEN "cnt-price"  THEN DO:
+            lc-return = IF ipb-itemfg.imported EQ TRUE then "Yes" ELSE "No" .
         END.
         WHEN "dfuncTotMSFPTD"  THEN DO:
             /*IF g_period NE 0 THEN lc-return = STRING(ipb-itemfg.ptd-msf[g_period]).*/

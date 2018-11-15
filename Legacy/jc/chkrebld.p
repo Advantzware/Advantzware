@@ -21,7 +21,7 @@ FOR EACH est-op NO-LOCK
       AND mach.m-code EQ est-op.m-code:
  IF mach.obsolete THEN DO:
   MESSAGE "Machine: " + TRIM(mach.m-code) +
-          " is obsolete, please replace to create/update job standards..."
+          " is Inactive, please replace to create/update job standards..."
       VIEW-AS ALERT-BOX ERROR.
   v-locked = YES.
   RETURN.

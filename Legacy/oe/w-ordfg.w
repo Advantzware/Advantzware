@@ -352,7 +352,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updcan ).
-       RUN set-position IN h_p-updcan ( 10.29 , 22.00 ) NO-ERROR.
+       RUN set-position IN h_p-updcan ( 15.29 , 22.00 ) NO-ERROR.
        RUN set-size IN h_p-updcan ( 2.10 , 31.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */

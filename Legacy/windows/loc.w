@@ -100,6 +100,7 @@ DEFINE VARIABLE h_rm-bin-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_wip-bin AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_wip-bin-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -345,6 +346,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 34.20 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/loc.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Initial-Lock = NO-LOCK,
@@ -358,6 +367,9 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_loc , 'export-xl':U , h_export ).
 
        /* Links to SmartNavBrowser h_loc. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_loc ).

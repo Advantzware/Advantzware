@@ -1,6 +1,6 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v9r12
 &ANALYZE-RESUME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Include 
 /*------------------------------------------------------------------------
     File        : 
     Purpose     :
@@ -17,7 +17,14 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE VARIABLE li AS INTEGER NO-UNDO.
+
+&global-define buildnr    11
+
+&global-define v9_begin   &if integer(entry(1,proversion,'.')) >= 9 &then
+&global-define v9_end     &endif 
+
+&global-define v10_begin  &if integer(entry(1,proversion,'.')) >= 10 &then
+&global-define v10_end    &endif
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -26,9 +33,6 @@ DEFINE VARIABLE li AS INTEGER NO-UNDO.
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
-
-&Scoped-define PROCEDURE-TYPE Procedure
-&Scoped-define DB-AWARE no
 
 
 
@@ -41,11 +45,11 @@ DEFINE VARIABLE li AS INTEGER NO-UNDO.
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: Procedure
+   Type: Include
    Allow: 
    Frames: 0
    Add Fields to: Neither
-   Other Settings: CODE-ONLY COMPILE
+   Other Settings: INCLUDE-ONLY
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -53,9 +57,9 @@ DEFINE VARIABLE li AS INTEGER NO-UNDO.
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
-  CREATE WINDOW Procedure ASSIGN
-         HEIGHT             = 15
-         WIDTH              = 60.
+  CREATE WINDOW Include ASSIGN
+         HEIGHT             = 4.71
+         WIDTH              = 37.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -63,30 +67,10 @@ DEFINE VARIABLE li AS INTEGER NO-UNDO.
  
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Include 
 
 
 /* ***************************  Main Block  *************************** */
-
-find first reftable no-lock where reftable.reftable = "v10-TaxCode-Upgrade"
-                              and reftable.code     = "10 Extents" no-error.
-IF AVAILABLE reftable THEN RETURN "Tax Code Upgrade Already Completed".
-
-DO TRANSACTION:
-    FOR EACH stax EXCLUSIVE-LOCK:
-        DO li = 1 to extent(stax.tax-code): /* synch original with new */
-          Assign stax.tax-code1[li] = stax.tax-code[li]
-                 stax.tax-dscr1[li] = stax.tax-dscr[li]
-                 stax.tax-rate1[li] = stax.tax-rate[li]
-                 stax.tax-acc1[li]  = stax.tax-acc[li]
-                 stax.tax-frt1[li]  = stax.tax-frt[li].
-        END.
-    END.
-    CREATE reftable.
-    ASSIGN reftable.reftable = "v10-TaxCode-Upgrade"
-           reftable.CODE     = "10 Extents"
-           reftable.code2    = STRING(NOW) + " " + USERID("nosweat").
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

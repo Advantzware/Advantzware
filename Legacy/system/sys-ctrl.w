@@ -55,7 +55,7 @@ DEFINE VARIABLE lSuperAdmin      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hPgmMstrSecur    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE correct-error    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcompany         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE gvcMultiSelect   AS CHARACTER NO-UNDO INITIAL "OEDATECHANGE,SSBOLEMAIL".
+DEFINE VARIABLE gvcMultiSelect   AS CHARACTER NO-UNDO INITIAL "OEDATECHANGE,SSBOLEMAIL,OEPriceHold". /* for multi selected value*/
 DEFINE VARIABLE cValidateList    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lValid           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hFieldValue      AS HANDLE    NO-UNDO.
@@ -1510,7 +1510,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExport C-Win
 ON CHOOSE OF btnExport IN FRAME DEFAULT-FRAME /* Export */
 DO:
-    RUN pExport.
+    /*RUN pExport.*/ /* Ticket - 36086 */
+    RUN windows/sysctrl-exp.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1593,7 +1594,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnImport C-Win
 ON CHOOSE OF btnImport IN FRAME DEFAULT-FRAME /* Import */
 DO:
-    RUN pImport.
+    /*RUN pImport.*/
+    RUN util/Importer.w (INPUT g_company, 
+                INPUT g_loc, 
+                INPUT "ttImportConfig", INPUT ?).
 END.
 
 /* _UIB-CODE-BLOCK-END */

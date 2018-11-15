@@ -6,7 +6,7 @@ PSC
 filename=cueCard
 records=0000000000003
 ldbname=ASI
-timestamp=2018/10/08-00:18:53
+timestamp=2018/11/05-21:07:23
 numformat=44,46
 dateformat=mdy-1950
 map=NO-MAP

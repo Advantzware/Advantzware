@@ -1565,7 +1565,9 @@ DEFINE VARIABLE lv-uom  AS   CHARACTER  NO-UNDO.
             AND rm-bin.loc-bin EQ tt-rm-bin.loc-bin
             AND rm-bin.tag     EQ tt-rm-bin.tag
           USE-INDEX loc-bin NO-ERROR.
-      tt-rm-bin.trans-date = DATE(SUBSTRING(rm-bin.rec_key,1,8)) NO-ERROR.
+      tt-rm-bin.trans-date = IF fg-bin.rec_key BEGINS "2" THEN
+                                DATE(SUBSTR(fg-bin.rec_key,5,4) + SUBSTRING(fg-bin.rec_key,1,4))
+                           ELSE DATE(SUBSTRING(rm-bin.rec_key,1,8)) NO-ERROR.
       IF ERROR-STATUS:ERROR THEN tt-rm-bin.trans-date = TODAY.
     END.
     
@@ -2110,7 +2112,7 @@ SESSION:SET-WAIT-STATE ("general").
                 WHEN "v-MSF" THEN cVarValue = STRING(v-MSF,"->>>,>>9.99").
                 WHEN "v-Tons" THEN cVarValue = STRING(v-Tons,"->>>,>>9.99").
                 WHEN "v-CostMSF" THEN cVarValue = STRING(v-costMSF,"->>>,>>9.99").
-                WHEN "cVendTag" THEN cVarValue = cVendTag.
+                WHEN "cVendTag" THEN cVarValue = fPrepareCSV(STRING(cVendTag)).
                 WHEN "trans-date" THEN cVarValue = STRING(lv-lstdt) /*string(lv-fistdt)*/ .
                 WHEN "loc-bin" THEN cVarValue = STRING(tt-rm-bin.loc-bin).
                 WHEN "tag" THEN cVarValue = fPrepareCSV(STRING(tt-rm-bin.tag)) .
@@ -2132,12 +2134,12 @@ SESSION:SET-WAIT-STATE ("general").
                 WHEN "adder" THEN cVarValue = STRING(cAdder,"x(30)").
           END CASE.
           cExcelVarValue = cVarValue.  
-          IF cTmpField = "tag" THEN do:
+          IF cTmpField = "tag" OR cTmpField = "cVendTag" THEN do:
               cVarValue = REPLACE(cVarValue,'"','')  .
               cVarValue = REPLACE(cVarValue,'=','')  .
           END.
           cDisplay = cDisplay + cVarValue +
-                       FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
+                       FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).
           cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
        END.
     END.
