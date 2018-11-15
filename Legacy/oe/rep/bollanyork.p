@@ -574,9 +574,9 @@ PROCEDURE get_lot_no:
                           AND po-ordl.i-no EQ tt-boll.i-no
                           AND po-ordl.po-no EQ integer(fg-rcpth.po-no) NO-ERROR.
                     IF AVAIL po-ordl THEN
-                        v-lot# = "PO#-" + fg-rcpth.po-no + "-" + STRING(po-ordl.LINE,"99").
+                        v-lot# = fg-rcpth.po-no + "-" + STRING(po-ordl.LINE,"999").
                     ELSE
-                        v-lot# = "PO#-" + fg-rcpth.po-no .
+                        v-lot# = fg-rcpth.po-no .
                 END.
                 ELSE do: 
                      FIND FIRST job-hdr NO-LOCK
