@@ -1914,12 +1914,24 @@ PROCEDURE ExcelEmail :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+IF tb_excel THEN DO:
      {custom/asimailx.i &TYPE = "Excel"
                              &begin_cust= begin_cust-no
                              &END_cust=end_cust-no
                              &mail-subject=c-win:title
                              &mail-body=c-win:title
-                             &mail-file=fi_file }   
+                             &mail-file=fi_file }  
+END.
+ELSE DO:
+    {custom/asimailr.i &TYPE = "Customer"
+                             &begin_cust= begin_cust-no
+                             &END_cust=end_cust-no
+                             &mail-subject=c-win:title
+                             &mail-body=c-win:title
+                             &mail-file=list-name }
+
+
+END.
         
 
 END PROCEDURE.
