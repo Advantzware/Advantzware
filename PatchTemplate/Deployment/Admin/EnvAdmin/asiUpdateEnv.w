@@ -815,6 +815,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipActivateParent C-Win 
+PROCEDURE ipActivateParent :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcPrgmName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID   AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER prgrms FOR prgrms.
+    
+    FIND FIRST prgrms NO-LOCK
+         WHERE prgrms.prgmName EQ ipcPrgmName
+         NO-ERROR.
+    IF AVAILABLE prgrms THEN DO:
+        FIND FIRST xUserMenu
+             WHERE xUserMenu.user_id  EQ ipcUserID
+               AND xUserMenu.prgmName EQ ipcPrgmName
+             NO-ERROR.
+        IF AVAILABLE xUserMenu THEN
+        DELETE xUserMenu.
+        IF prgrms.itemParent NE "" THEN
+        RUN ipActivateParent (prgrms.itemParent, ipcUserID).
+    END. /* if avail */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddLocationData C-Win 
 PROCEDURE ipAddLocationData :
 /*------------------------------------------------------------------------------
@@ -3592,8 +3622,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipMoveUsermenusToDatabase C-Win 
-PROCEDURE ipMoveUsermenusToDatabase :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipMoveUserMenusToDatabase C-Win 
+PROCEDURE ipMoveUserMenusToDatabase :
 /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -3639,22 +3669,25 @@ PROCEDURE ipMoveUsermenusToDatabase :
         /* look for each menu option in the user's custom menu.lst */
         FOR EACH prgrms NO-LOCK
             WHERE prgrms.menu_item EQ YES
-            AND prgrms.menuOrder GT 0
-            AND prgrms.menuLevel GT 0
-            AND prgrms.mnemonic  NE ""
+              AND prgrms.menuOrder GT 0
+              AND prgrms.menuLevel GT 0
+              AND prgrms.mnemonic  NE ""
             :
             /* new additions, do not add to user's exceptions */
             IF CAN-DO("r-jcstdN.,translatn.,userLang.",prgrms.prgmname) THEN
-                NEXT.
+            NEXT.
             /* if found, skip to next menu option */
             IF CAN-FIND(FIRST ttUserMenu
-                WHERE ttUserMenu.prgmname EQ prgrms.prgmname) THEN
+                        WHERE ttUserMenu.prgmname EQ prgrms.prgmname) THEN DO:
+                IF prgrms.itemParent NE "" THEN
+                RUN ipActivateParent (prgrms.itemParent, ENTRY(idx,cListUsers)).
                 NEXT.
+            END. /* if can-find */
             /* menu option not found in menu.lst, add as an exception */
-            CREATE xusermenu.                
+            CREATE xUserMenu.
             ASSIGN
-                xusermenu.user_id  = ENTRY(idx,cListUsers)
-                xusermenu.prgmname = prgrms.prgmname
+                xUserMenu.user_id  = ENTRY(idx,cListUsers)
+                xUserMenu.prgmname = prgrms.prgmname
                 .
         END. /* each prgrms */
     END. /* do idx */
