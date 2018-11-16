@@ -239,16 +239,18 @@ DEFINE TEMP-TABLE ediOutFile NO-UNDO
 begin_ord# end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
 tb_print-barcode tb_print-unassemble-component tb_print-binstags ~
-rd_bol-sort fi_specs tb_print-spec rd_bolcert tb_EMailAdvNotice rd-dest ~
-tb_MailBatchMode tb_ComInvoice tb_footer tb_freight-bill lv-ornt lines-per-page ~
-lv-font-no tb_post-bol td-show-parm btn-ok btn-cancel 
+rd_bol-sort fi_specs tb_print-spec rd_bolcert tb_per-bol-line ~
+tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice tb_freight-bill ~
+tb_footer lv-ornt lines-per-page lv-font-no tb_post-bol td-show-parm btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_bol# begin_ord# ~
 end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
 tb_print-barcode tb_print-unassemble-component tb_print-binstags ~
 lbl_bolsort rd_bol-sort fi_specs tb_print-spec lbl_bolcert rd_bolcert ~
-tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice tb_footer tb_freight-bill ~
-lv-ornt lines-per-page lv-font-no lv-font-name tb_post-bol td-show-parm 
+tb_per-bol-line tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice ~
+tb_freight-bill tb_footer lv-ornt lines-per-page lv-font-no lv-font-name ~
+tb_post-bol td-show-parm 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -400,7 +402,7 @@ DEFINE VARIABLE tb_ComInvoice AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_EMailAdvNotice AS LOGICAL INITIAL no 
      LABEL "E-Mail &Advanced Ship Notice?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 34 BY .81 NO-UNDO. 
+     SIZE 34 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_footer AS LOGICAL INITIAL no 
      LABEL "Print Footer?" 
@@ -421,6 +423,11 @@ DEFINE VARIABLE tb_pallet AS LOGICAL INITIAL no
      LABEL "Print Number Of Pallets?" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_per-bol-line AS LOGICAL INITIAL no 
+     LABEL "Per BOL Line" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_post-bol AS LOGICAL INITIAL no 
      LABEL "Post BOL?" 
@@ -523,12 +530,13 @@ DEFINE FRAME FRAME-A
      tb_print-spec AT ROW 14.1 COL 34 WIDGET-ID 10
      lbl_bolcert AT ROW 15.1 COL 24 COLON-ALIGNED NO-LABEL
      rd_bolcert AT ROW 15.1 COL 34.6 NO-LABEL
+     tb_per-bol-line AT ROW 15.19 COL 73.4 WIDGET-ID 20
      tb_EMailAdvNotice AT ROW 16.67 COL 67 RIGHT-ALIGNED
      rd-dest AT ROW 17.48 COL 5 NO-LABEL
      tb_MailBatchMode AT ROW 17.57 COL 59 RIGHT-ALIGNED
      tb_ComInvoice AT ROW 18.48 COL 64 RIGHT-ALIGNED
      tb_freight-bill AT ROW 19.38 COL 61 RIGHT-ALIGNED
-     tb_footer AT ROW 20.28 COL 61 RIGHT-ALIGNED
+     tb_footer AT ROW 20.29 COL 61 RIGHT-ALIGNED
      lv-ornt AT ROW 21.1 COL 34 NO-LABEL
      lines-per-page AT ROW 21.1 COL 83 COLON-ALIGNED
      lv-font-no AT ROW 22.62 COL 32 COLON-ALIGNED
@@ -696,16 +704,16 @@ ASSIGN
        tb_EMailAdvNotice:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-/* SETTINGS FOR TOGGLE-BOX tb_freight-bill IN FRAME FRAME-A
-   ALIGN-R                                                              */
-ASSIGN 
-       tb_freight-bill:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
 /* SETTINGS FOR TOGGLE-BOX tb_footer IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
        tb_footer:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_freight-bill IN FRAME FRAME-A
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_freight-bill:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_MailBatchMode IN FRAME FRAME-A
@@ -718,6 +726,10 @@ ASSIGN
    ALIGN-R                                                              */
 ASSIGN 
        tb_pallet:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_per-bol-line:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -1456,6 +1468,9 @@ END.
 ON VALUE-CHANGED OF rd_bolcert IN FRAME FRAME-A
 DO:
   assign {&self-name}.
+  IF rd_bolcert EQ "BOL" THEN
+            tb_per-bol-line:SENSITIVE = NO.
+        ELSE tb_per-bol-line:SENSITIVE = YES.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1807,6 +1822,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_print_ship:HIDDEN       = YES.
     ELSE
         tb_print_ship:HIDDEN       = NO .
+
+    IF v-coc-fmt EQ "BOLCERT10" THEN DO:
+        assign
+            tb_per-bol-line:HIDDEN       = NO.
+            tb_per-bol-line:screen-value = "NO".
+            tb_per-bol-line:SENSITIVE = NO.
+    END.
+    ELSE DO:
+        tb_per-bol-line:HIDDEN       = YES .
+    END.
 
     IF v-print-fmt = "ACCORDBC" AND v-print-fmt-int = 1 THEN
       tb_print-binstags:HIDDEN = NO.
@@ -2859,17 +2884,17 @@ PROCEDURE enable_UI :
           tb_barcode tb_print_ship tb_print-barcode 
           tb_print-unassemble-component tb_print-binstags lbl_bolsort 
           rd_bol-sort fi_specs tb_print-spec lbl_bolcert rd_bolcert 
-          tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice tb_footer
-          tb_freight-bill lv-ornt lines-per-page lv-font-no lv-font-name 
-          tb_post-bol td-show-parm 
+          tb_per-bol-line tb_EMailAdvNotice rd-dest tb_MailBatchMode 
+          tb_ComInvoice tb_freight-bill tb_footer lv-ornt lines-per-page 
+          lv-font-no lv-font-name tb_post-bol td-show-parm 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 begin_cust end_cust begin_bol# begin_ord# end_ord# begin_date 
          end_date tb_reprint tb_pallet tb_posted tb_print-component 
          tb_print-shipnote tb_barcode tb_print_ship tb_print-barcode 
          tb_print-unassemble-component tb_print-binstags rd_bol-sort fi_specs 
-         tb_print-spec rd_bolcert tb_EMailAdvNotice rd-dest tb_MailBatchMode 
-         tb_ComInvoice tb_footer tb_freight-bill lv-ornt lines-per-page lv-font-no 
-         tb_post-bol td-show-parm btn-ok btn-cancel 
+         tb_print-spec rd_bolcert tb_per-bol-line tb_EMailAdvNotice rd-dest 
+         tb_MailBatchMode tb_ComInvoice tb_freight-bill tb_footer lv-ornt 
+         lines-per-page lv-font-no tb_post-bol td-show-parm btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -3703,7 +3728,8 @@ PROCEDURE run-packing-list :
     lv-run-bol          = ""
     lv-run-commercial   = ""
     v-print-unassembled = tb_print-unassemble-component
-    v-footer            = tb_footer.
+    v-footer            = tb_footer
+    lPerBolLine         = tb_per-bol-line.
 
   IF ip-sys-ctrl-ship-to THEN
      ASSIGN
@@ -3722,6 +3748,10 @@ PROCEDURE run-packing-list :
   IF tb_print_ship :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN
         v-ship-inst = LOGICAL(tb_print_ship:SCREEN-VALUE) .
+
+  IF tb_per-bol-line :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
+     ASSIGN
+        lPerBolLine = LOGICAL(tb_per-bol-line:SCREEN-VALUE) .
   
 
   /*if td-show-parm then run show-param.*/
@@ -3877,7 +3907,8 @@ PROCEDURE run-report :
     lv-run-commercial   = ""
     v-sort              = rd_bol-sort EQ "Item #"
     v-print-unassembled = tb_print-unassemble-component 
-    v-footer            = tb_footer.
+    v-footer            = tb_footer
+    lPerBolLine         = tb_per-bol-line.
 
   IF ip-sys-ctrl-ship-to THEN
      ASSIGN
@@ -3896,6 +3927,10 @@ PROCEDURE run-report :
   IF tb_print_ship :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN
         v-ship-inst = LOGICAL(tb_print_ship:SCREEN-VALUE) .
+
+  IF tb_per-bol-line :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
+     ASSIGN
+        lPerBolLine = LOGICAL(tb_per-bol-line:SCREEN-VALUE) .
   
 
   /*if td-show-parm then run show-param.*/
@@ -4054,7 +4089,8 @@ assign
   v-tmp-is-xprint     = IS-xprint-form
   is-xprint-form      = YES
   v-print-unassembled = tb_print-unassemble-component
-  v-footer            = tb_footer.
+  v-footer            = tb_footer
+  lPerBolLine         = tb_per-bol-line.
 
 IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
    ASSIGN
@@ -4063,6 +4099,10 @@ IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
   IF tb_print_ship :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN
         v-ship-inst = LOGICAL(tb_print_ship:SCREEN-VALUE) .
+
+  IF tb_per-bol-line :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
+     ASSIGN
+        lPerBolLine = LOGICAL(tb_per-bol-line:SCREEN-VALUE) .
 
 {sys/inc/print1.i}
 
@@ -4302,7 +4342,8 @@ PROCEDURE run-report-mail :
     lv-run-bol          = ""
     lv-run-commercial   = ""
     v-print-unassembled = tb_print-unassemble-component
-    v-footer            = tb_footer.
+    v-footer            = tb_footer
+    lPerBolLine         = tb_per-bol-line.
 
   IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN
@@ -4312,6 +4353,11 @@ PROCEDURE run-report-mail :
    IF tb_print_ship :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN
         v-ship-inst = LOGICAL(tb_print_ship:SCREEN-VALUE) .
+
+   IF tb_per-bol-line :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
+     ASSIGN
+        lPerBolLine = LOGICAL(tb_per-bol-line:SCREEN-VALUE) .
+    
 
   /*if td-show-parm then run show-param.*/
 
