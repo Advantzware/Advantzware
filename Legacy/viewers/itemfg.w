@@ -2858,7 +2858,7 @@ DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO .
            WHERE po-ordl.company EQ cocode
            AND po-ordl.i-no EQ  itemfg.i-no:SCREEN-VALUE
            AND po-ordl.opened  :
-           cMessage = " - Po# " + string(po-ordl.po-no ) .
+           cMessage = " Po# " + string(po-ordl.po-no ) .
            LEAVE.
        END.
 
@@ -2867,7 +2867,7 @@ DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO .
            WHERE oe-ordl.company EQ cocode
            AND oe-ordl.i-no EQ itemfg.i-no:SCREEN-VALUE
            AND oe-ordl.opened  :
-           cMessage = " - Order# " + string(oe-ordl.ord-no ) .
+           cMessage = " Order# " + string(oe-ordl.ord-no ) .
            LEAVE.
        END.
        IF cMessage EQ "" THEN
@@ -2875,12 +2875,12 @@ DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO .
         WHERE  job-hdr.company EQ cocode
           AND job-hdr.i-no EQ itemfg.i-no:SCREEN-VALUE
           AND job-hdr.opened EQ YES :
-            cMessage = " - Job# " + string(job-hdr.job-no ) .
+            cMessage = " Job# " + string(job-hdr.job-no ) .
        END.
 
        IF  cMessage NE "" THEN 
-           MESSAGE "'Still open (x) items in the system that will not be able to be processed" SKIP
-               " if this item is made inactive' where (x) is the issue " cMessage VIEW-AS ALERT-BOX WARNING .
+           MESSAGE "You are setting this item to inactive yet it is still included in "  SKIP
+               "open/unprocessed transactions.  This includes:" cMessage VIEW-AS ALERT-BOX WARNING .
 
       END.  /* lCheckMessage */
           
