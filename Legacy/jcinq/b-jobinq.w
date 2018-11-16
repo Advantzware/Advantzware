@@ -124,7 +124,7 @@ END.
     IF lv-sort-by EQ "cust-no"    THEN job-hdr.cust-no                                                                                                  ELSE ~
     IF lv-sort-by EQ "i-no"       THEN job-hdr.i-no                                                                                                     ELSE ~
     IF lv-sort-by EQ "est-no"     THEN job-hdr.est-no                                                                                                   ELSE ~
-    IF lv-sort-by EQ "job-no"     THEN STRING(job-hdr.job-no,"x(6)") + STRING(job-hdr.job-no2,"99")                                                     ELSE ~
+    IF lv-sort-by EQ "job-no"     THEN STRING(job-hdr.job-no,"x(6)") + STRING(job-hdr.job-no2,"999")                                                     ELSE ~
     IF lv-sort-by EQ "close-date" THEN STRING(YEAR(job.close-date),"9999") + STRING(MONTH(job.close-date),"99") + STRING(DAY(job.close-date),"99")      ELSE ~
                                        STRING(YEAR(job.start-date),"9999") + STRING(MONTH(job.start-date),"99") + STRING(DAY(job.start-date),"99")
 
