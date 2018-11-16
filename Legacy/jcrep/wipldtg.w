@@ -1614,7 +1614,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   EMPTY TEMP-TABLE tt-rmtags NO-ERROR.
 
-  ASSIGN vl-InputParameters = IF INDEX(PROGRAM-NAME(2),"b-issued") > 0 THEN TRUE
+  ASSIGN vl-InputParameters = IF INDEX(PROGRAM-NAME(2),"d-issue") > 0 THEN TRUE
                               ELSE FALSE.
 
   FIND FIRST company WHERE company.company EQ gcompany NO-LOCK.
