@@ -1455,9 +1455,8 @@ PROCEDURE Job_Data_Collection :
                             iStartTime            = ttTrans.startTime
                             dtEndDate             = ttTrans.endDate
                             iEndTime              = ttTrans.endTime
+                            rRecKey               = bMachTran.rec_key
                             .
-                    {custom/rec_key.i bMachTran}
-                    rRecKey = bMachTran.rec_key.
                 END. /* if rrowid eq ? */
                 ELSE /* update the already created start machtran */
                 ASSIGN 
