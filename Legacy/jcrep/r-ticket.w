@@ -28,6 +28,7 @@ CREATE WIDGET-POOL.
 
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTitle AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -2624,15 +2625,14 @@ PROCEDURE ExcelEmail :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-/*MESSAGE "email" cExcelOutput          */
-/*    VIEW-AS ALERT-BOX INFO BUTTONS OK.*/
-     {custom/asimailx.i &TYPE = "Excel"
+
+ASSIGN cTitle = "Factory Ticket".
+    {custom/asimailx.i &TYPE = "Excel"
                              &begin_cust= begin_job1
                              &END_cust=end_job1
-                             &mail-subject="Factory Ticket"
-                             &mail-body="Factory Ticket"
-                             &mail-file=cExcelOutput }             
-
+                             &mail-subject=cTitle
+                             &mail-body=cTitle
+                             &mail-file=cExcelOutput } 
 
 END PROCEDURE.
 
