@@ -2008,17 +2008,17 @@ PROCEDURE valid-job-no :
             AND job-hdr.i-no    EQ fg-rctd.i-no:SCREEN-VALUE
           NO-LOCK NO-ERROR.
       IF NOT AVAIL job-hdr THEN DO:
-         IF fg-rctd.i-no:SCREEN-VALUE = "" THEN DO:
+         IF fg-rctd.i-no:SCREEN-VALUE = "" THEN DO: 
             FIND FIRST job-hdr WHERE job-hdr.company EQ fg-rctd.company
                          AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE NO-LOCK NO-ERROR.
             IF NOT AVAIL job-hdr THEN do:
-               MESSAGE "Invalid Job#. Try Help..." fg-rctd.i-no:SCREEN-VALUE VIEW-AS ALERT-BOX ERROR.
+               MESSAGE "Item# - " fg-rctd.i-no:SCREEN-VALUE " is not on Job# - " fg-rctd.job-no:SCREEN-VALUE "-" fg-rctd.job-no2:SCREEN-VALUE  VIEW-AS ALERT-BOX ERROR.
                RETURN ERROR.
             END.
             RUN display-job-hdr (RECID(job-hdr)).
 
          END.
-         ELSE do:   /* components*/
+         ELSE do:   /* components*/ 
              FIND FIRST job-hdr WHERE job-hdr.company EQ g_company
                   AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE NO-LOCK NO-ERROR.
              IF AVAIL job-hdr THEN
@@ -2028,7 +2028,7 @@ PROCEDURE valid-job-no :
                               AND reftable.code     EQ STRING(job-hdr.job,"999999999")
                               AND reftable.code2    EQ fg-rctd.i-no:SCREEN-VALUE NO-ERROR.
              IF NOT AVAIL reftable THEN DO:
-                MESSAGE "Invalid Job#. Try Help..." fg-rctd.i-no:SCREEN-VALUE VIEW-AS ALERT-BOX ERROR.
+                MESSAGE "Item# - " fg-rctd.i-no:SCREEN-VALUE " is not on Job# - " fg-rctd.job-no:SCREEN-VALUE "-" fg-rctd.job-no2:SCREEN-VALUE  VIEW-AS ALERT-BOX ERROR.
                 RETURN ERROR.
              END.
          END.
@@ -2067,17 +2067,23 @@ PROCEDURE valid-job-no2 :
                 AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE 
                 AND job-hdr.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE)
                NO-LOCK NO-ERROR.
-         IF AVAIL job-hdr THEN
-                FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ "jc/jc-calc.p"
+         IF NOT AVAIL job-hdr THEN DO: 
+             MESSAGE "Invalid Job#. Try Help..." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO fg-rctd.job-no IN BROWSE {&browse-name}.
+            RETURN ERROR.
+         END.
+         ELSE DO:
+             FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ "jc/jc-calc.p"
                               AND reftable.company  EQ g_company
                               AND reftable.loc      EQ ""
                               AND reftable.code     EQ STRING(job-hdr.job,"999999999")
                               AND reftable.code2    EQ fg-rctd.i-no:SCREEN-VALUE NO-ERROR.
-         IF NOT AVAIL reftable THEN DO:
-            MESSAGE "Invalid Job#. Try Help..." VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO fg-rctd.job-no IN BROWSE {&browse-name}.
-            RETURN ERROR.
-         END.
+             IF NOT AVAIL reftable THEN DO:
+                MESSAGE "Item# - " fg-rctd.i-no:SCREEN-VALUE " is not on Job# - " fg-rctd.job-no:SCREEN-VALUE "-" fg-rctd.job-no2:SCREEN-VALUE VIEW-AS ALERT-BOX ERROR.
+                APPLY "entry" TO fg-rctd.job-no IN BROWSE {&browse-name}.
+               RETURN ERROR.
+             END.
+      END.
       END.
     END.
   END.
