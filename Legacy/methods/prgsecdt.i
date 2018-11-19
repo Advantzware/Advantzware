@@ -38,27 +38,27 @@ IF NOT AVAILABLE b-prgrms THEN FIND b-prgrms WHERE b-prgrms.prgmname = v-prgmnam
 IF AVAILABLE b-prgrms THEN
 DO:
     DO num-groups = 1 TO NUM-ENTRIES(g_groups):
-        IF NOT CAN-DO(TRIM(b-prgrms.can_run),ENTRY(num-groups,g_groups)) AND
-            NOT CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups)) AND
-            NOT CAN-DO(TRIM(b-prgrms.can_create),ENTRY(num-groups,g_groups)) AND
-            NOT CAN-DO(TRIM(b-prgrms.can_delete),ENTRY(num-groups,g_groups)) THEN
+        IF NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),ENTRY(num-groups,g_groups)) AND
+            NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,g_groups)) AND
+            NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),ENTRY(num-groups,g_groups)) AND
+            NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),ENTRY(num-groups,g_groups)) THEN
             NEXT.
 
-        IF NOT v-can-run AND CAN-DO(TRIM(b-prgrms.can_run),ENTRY(num-groups,g_groups))
+        IF NOT v-can-run AND CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),ENTRY(num-groups,g_groups))
             THEN v-can-run = YES.
-        IF NOT v-can-update AND CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups))
+        IF NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,g_groups))
             THEN v-can-update = YES.
-        IF NOT v-can-create AND CAN-DO(TRIM(b-prgrms.can_create),ENTRY(num-groups,g_groups))
+        IF NOT v-can-create AND CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),ENTRY(num-groups,g_groups))
             THEN v-can-create = YES.
-        IF NOT v-can-delete AND CAN-DO(TRIM(b-prgrms.can_delete),ENTRY(num-groups,g_groups))
+        IF NOT v-can-delete AND CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),ENTRY(num-groups,g_groups))
             THEN v-can-delete = YES.
 
         group-ok = YES.
     END.
-    IF NOT CAN-DO(TRIM(b-prgrms.can_run),USERID("ASI")) AND
-        NOT CAN-DO(TRIM(b-prgrms.can_update),USERID("ASI")) AND
-        NOT CAN-DO(TRIM(b-prgrms.can_create),USERID("ASI")) AND
-        NOT CAN-DO(TRIM(b-prgrms.can_delete),USERID("ASI")) AND NOT group-ok THEN
+    IF NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),USERID("ASI")) AND
+        NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),USERID("ASI")) AND
+        NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),USERID("ASI")) AND
+        NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),USERID("ASI")) AND NOT group-ok THEN
     DO:
         MESSAGE "Program :" PROGRAM-NAME(1) SKIP 
             "Title :" b-prgrms.prgtitle SKIP(1)
@@ -69,11 +69,11 @@ DO:
     DO:
         IF NOT v-can-run AND CAN-DO(TRIM(b-prgrms.can_run),USERID("ASI"))
             THEN v-can-run = YES.
-        IF NOT v-can-update AND CAN-DO(TRIM(b-prgrms.can_update),USERID("ASI"))
+        IF NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),USERID("ASI"))
             THEN v-can-update = YES.
-        IF NOT v-can-create AND CAN-DO(TRIM(b-prgrms.can_create),USERID("ASI"))
+        IF NOT v-can-create AND CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),USERID("ASI"))
             THEN v-can-create = YES.
-        IF NOT v-can-delete AND CAN-DO(TRIM(b-prgrms.can_delete),USERID("ASI"))
+        IF NOT v-can-delete AND CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),USERID("ASI"))
             THEN v-can-delete = YES.
     END.
 END. 

@@ -26,18 +26,18 @@ FIND FIRST b-prgrms NO-LOCK
 IF AVAILABLE b-prgrms THEN 
 DO:
     DO num-groups = 1 TO NUM-ENTRIES(g_groups):
-        IF NOT CAN-DO(TRIM(b-prgrms.can_run),ENTRY(num-groups,g_groups)) AND
-            NOT CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups)) AND
-            NOT CAN-DO(TRIM(b-prgrms.can_create),ENTRY(num-groups,g_groups)) AND
-            NOT CAN-DO(TRIM(b-prgrms.can_delete),ENTRY(num-groups,g_groups)) THEN
+        IF NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),ENTRY(num-groups,g_groups)) AND
+            NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,g_groups)) AND
+            NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),ENTRY(num-groups,g_groups)) AND
+            NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),ENTRY(num-groups,g_groups)) THEN
             NEXT.
         group-ok = YES.
         LEAVE.
     END. /* do num-groups */
-    IF NOT CAN-DO(TRIM(b-prgrms.can_run),USERID("ASI")) AND
-        NOT CAN-DO(TRIM(b-prgrms.can_update),USERID("ASI")) AND
-        NOT CAN-DO(TRIM(b-prgrms.can_create),USERID("ASI")) AND
-        NOT CAN-DO(TRIM(b-prgrms.can_delete),USERID("ASI")) AND
+    IF NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),USERID("ASI")) AND
+        NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),USERID("ASI")) AND
+        NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),USERID("ASI")) AND
+        NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),USERID("ASI")) AND
         NOT group-ok THEN 
     DO:
         MESSAGE "Program :" PROGRAM-NAME(1) SKIP 
