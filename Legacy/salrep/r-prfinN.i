@@ -512,7 +512,10 @@ IF NOT v-smr THEN
       FIND FIRST shipto where shipto.company eq cocode
           and shipto.cust-no eq cust.cust-no NO-LOCK NO-ERROR  .
 
-    
+     cBoardCode = "".
+     IF AVAIL ar-invl THEN 
+           RUN pgetBoard( ROWID(ar-invl) , OUTPUT cBoardCode) .
+
 
        ASSIGN cDisplay = ""
           cTmpField = ""
@@ -547,6 +550,7 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = IF AVAIL cust THEN STRING(cust.spare-char-2,"x(8)") ELSE "".
                  WHEN "mbr-no" THEN cVarValue = IF AVAIL shipto THEN STRING(shipto.spare-char-5,"x(10)") ELSE "".                   
                  WHEN "inv-uom" THEN cVarValue = STRING(v-uom,"x(3)").
+                 WHEN "board-code" THEN cVarValue = STRING(cBoardCode,"x(10)").
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -621,6 +625,7 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = "".
                  WHEN "mbr-no" THEN cVarValue = "". 
                  WHEN "inv-uom" THEN cVarValue =  "".
+                 WHEN "board-code" THEN cVarValue = "".
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -697,6 +702,7 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = "".
                  WHEN "mbr-no" THEN cVarValue = "".
                  WHEN "inv-uom" THEN cVarValue = "".
+                 WHEN "board-code" THEN cVarValue = "".
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -777,6 +783,7 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = "".
                  WHEN "mbr-no" THEN cVarValue = "". 
                  WHEN "inv-uom" THEN cVarValue = "".
+                 WHEN "board-code" THEN cVarValue = "".
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -1048,6 +1055,10 @@ IF NOT v-smr THEN
 
     IF LAST-OF(tt-report2.key-07) THEN do:
 
+        cBoardCode = "".
+        IF AVAIL ar-invl THEN 
+           RUN pgetBoard( ROWID(ar-invl) , OUTPUT cBoardCode) .
+
        ASSIGN cDisplay = ""
           cTmpField = ""
           cVarValue = ""
@@ -1081,6 +1092,7 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = IF AVAIL cust THEN STRING(cust.spare-char-2,"x(8)") ELSE "".
                  WHEN "mbr-no" THEN cVarValue = IF AVAIL shipto THEN STRING(shipto.spare-char-5,"x(10)") ELSE "".                   
                  WHEN "inv-uom" THEN cVarValue = STRING(v-uom,"x(3)").
+                 WHEN "board-code" THEN cVarValue = STRING(cBoardCode,"x(10)").
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -1158,6 +1170,7 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = "".
                  WHEN "mbr-no" THEN cVarValue = "". 
                  WHEN "inv-uom" THEN cVarValue = "".
+                 WHEN "board-code" THEN cVarValue = "".
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
