@@ -560,7 +560,7 @@ DEFINE VARIABLE tb_open AS LOGICAL INITIAL YES
      FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fi_ord-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
-     LABEL "Ord Date"
+     LABEL "From Date"
      VIEW-AS FILL-IN 
      SIZE 15 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -703,7 +703,7 @@ DEFINE FRAME F-Main
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      fi_i-name AT ROW 3.38 COL 30 COLON-ALIGNED NO-LABEL
      fi_po-no-2 AT ROW 3.38 COL 72 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     fi_ord-date AT ROW 3.38 COL 103 COLON-ALIGNED 
+     fi_ord-date AT ROW 3.38 COL 103.5 COLON-ALIGNED 
      btnCalendar-1 AT ROW 3.38 COL 121
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 119
