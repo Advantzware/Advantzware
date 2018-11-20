@@ -101,8 +101,6 @@ RUN sys/ref/nk1look.p (INPUT cocode, "SSPostFGTransfer", "L" /* Logical */, NO /
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lPostAuto-log = LOGICAL(cRtnChar) NO-ERROR.
-MESSAGE "test post auto?" lPostAuto-Log
-VIEW-AS ALERT-BOX.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
