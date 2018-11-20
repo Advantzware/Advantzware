@@ -217,7 +217,12 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                   space(0)
                   v-over-pct
               WITH FRAME det-item no-attr-space NO-LABELS NO-BOX STREAM-IO width 200 down.  */
-
+           IF AVAIL itemfg THEN
+               work-item.sq-ft = v-qty-ord * itemfg.t-sqft / 1000 .
+           ELSE
+               work-item.sq-ft = 0.
+    
+ 
            ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -242,7 +247,8 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                          WHEN "est-spoil"   THEN cVarValue = string(v-est-spo,">>>>>>>9-").
                          WHEN "est-spoil-per"   THEN cVarValue = STRING(v-e-spo-p,">>>>>9").
                          WHEN "over-run"  THEN cVarValue = STRING(v-over-pct,">>>>>9") .
-                        
+                         WHEN "sales-per"  THEN cVarValue = STRING(work-item.sales-rep,"x(3)") .
+                         WHEN "sq-ft"  THEN cVarValue = STRING(work-item.sq-ft,">>>>>>>>9.99") .
                          
                     END CASE.
                       
@@ -345,6 +351,8 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                          WHEN "est-spoil"   THEN cVarValue = string(v-t-est-spo,">>>>>>>9-").
                          WHEN "est-spoil-per"   THEN cVarValue = STRING(v-e-spo-p,">>>9.9").
                          WHEN "over-run"  THEN cVarValue = STRING(v-over-pct,">>>9.9") .
+                         WHEN "sales-per"  THEN cVarValue =  "" .
+                         WHEN "sq-ft"  THEN cVarValue = "" .
                         
                          
                     END CASE.
