@@ -333,7 +333,7 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'addon/fg/b-trans.w':U ,
+             INPUT  'fg/b-trans.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Initial-Lock = NO-LOCK,
                      Hide-on-Init = no,
@@ -345,7 +345,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-trans ( 17.14 , 146.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'p-updbar.w':U ,
+             INPUT  'p-updsav.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
