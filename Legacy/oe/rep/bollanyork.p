@@ -438,7 +438,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
         IF oe-bolh.tot-pallets NE 0 THEN v-tot-palls = oe-bolh.tot-pallets.
 
         PUT "<R54><C50><#8><FROM><R+4><C+30><RECT> " 
-            "<=8><R+1> Total Cases       :" v-tot-cases 
+            "<=8><R+1> Total Units       :" v-tot-cases 
             "<=8><R+3> Total Weight      :" v-tot-wt 
             "<FArial><R51><C1><P12><B>     Shipping Instructions: </B> <P9> " 
             "<R53><C1>" oe-bolh.ship-i[1] AT 7 

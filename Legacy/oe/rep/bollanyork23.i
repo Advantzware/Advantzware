@@ -139,7 +139,7 @@ DO:
             END.
             IF i EQ 1 THEN
                 PUT "<C21>" string(v-tot-case-qty,"->>,>>>,>>>") + " [" + STRING(v-relpc) + "]" FORMAT "x(16)" .
-
+            IF i EQ 1 THEN
             PUT "<C35>" w2.job-po FORMAT "x(15)" .
             .
             IF i EQ 1 THEN
