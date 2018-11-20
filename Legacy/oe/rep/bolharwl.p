@@ -81,7 +81,7 @@ form header
 
 form v-tot-pkgs                     to 3
      v-ord-qty                      to 9  format ">>>>>>"
-     v-part-dscr                    at 12 format "x(30)"
+     v-part-dscr                    at 11 format "x(30)"
      oe-rel.po-no                   at 42 format "x(15)"
      w2.cases                       to 60 format ">>9"
      w2.cas-cnt                     to 67 format ">>,>>9"
