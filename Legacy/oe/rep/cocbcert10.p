@@ -74,15 +74,16 @@ for each report where report.term-id eq v-term-id NO-LOCK,
     first oe-bolh where oe-bolh.b-no   eq oe-boll.b-no no-lock,
     first cust    where cust.cust-no   eq oe-bolh.cust-no no-lock
 
-    break by report.key-01
-          by report.key-02
-          by report.key-03
-          by report.key-04
-          by report.key-06 DESC:
+    break by oe-boll.i-no
+          by oe-boll.ord-no
+          BY oe-boll.line
+          BY oe-boll.po-no
+          BY oe-boll.job-no
+          BY oe-boll.job-no2:
 
     v-bol-qty = v-bol-qty + oe-boll.qty.
    
-    if LAST-OF(report.key-06) then do:
+    if LAST-OF(oe-boll.ord-no) then do:
       
        find first oe-ordl WHERE
             oe-ordl.company eq cocode AND
