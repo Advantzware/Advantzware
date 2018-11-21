@@ -223,33 +223,6 @@ DEFINE TEMP-TABLE tt-fgitm
     FIELD cDockHr AS CHARACTER
     FIELD dDueDt AS DATE
     FIELD dLstDt AS DATE.
-    
-DEFINE TEMP-TABLE ttTempJob
-    FIELD company      AS CHARACTER
-    FIELD jobID        AS CHARACTER
-    FIELD newProject   AS INTEGER
-    FIELD customerID   AS CHARACTER
-    FIELD customerName AS CHARACTER 
-    FIELD FGItemCode   AS CHARACTER
-    FIELD FGName       AS CHARACTER
-    FIELD CustPart     AS CHARACTER 
-    FIELD ItemStatus   AS CHARACTER  
-    FIELD itemRecKey   AS CHARACTER
-    FIELD DateIssued   AS CHARACTER   
-    FIELD ebWIDTH      AS CHARACTER 
-    FIELD ebLENGTH     AS CHARACTER
-    FIELD ebDepth      AS CHARACTER  
-    FIELD FlatWidth    AS CHARACTER
-    FIELD FlatLength   AS CHARACTER
-    FIELD ColorsCoat   AS CHARACTER
-    FIELD CCNumber     AS CHARACTER
-    FIELD Weight       AS CHARACTER
-    FIELD Caliper      AS CHARACTER
-    FIELD Structure    AS CHARACTER
-    FIELD Board        AS CHARACTER
-    FIELD FgCategory   AS CHARACTER
-    .
-     
 DEFINE VARIABLE v-board-po      LIKE oe-ordl.po-no-po NO-UNDO.
 DEFINE VARIABLE v-plate-printed AS LOGICAL NO-UNDO.
 DEFINE BUFFER xoe-ordl FOR oe-ordl.
@@ -331,86 +304,11 @@ DEF VAR lv-cad-image-list AS cha NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOG NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cXMlFinalDest AS CHARACTER NO-UNDO.
-
 RUN sys/ref/nk1look.p (INPUT cocode, "XMLJobTicket", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
    cXMLFinalDest  = cRtnChar NO-ERROR.
- /* temp table populated with UDF data */   
-{UDF/ttUDF.i}                
-
-/* function to get UDF Group */
-{UDF/fUDFGroup.i "itemfg."}                         
-/* ********************  Preprocessor Definitions  ******************** */
-
-/* ************************  Function Prototypes ********************** */
-
-
-FUNCTION fnStripInvalidChar RETURNS CHARACTER 
-    (ipcInput AS CHARACTER  ) FORWARD.
-
-
-
-
-/* ************************  Function Implementations ***************** */
-
-
-FUNCTION fnStripInvalidChar RETURNS CHARACTER 
-    (ipcInput AS CHARACTER  ):
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/    
-
-    DEFINE VARIABLE cResult       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iPos          AS INTEGER   NO-UNDO. 
-    DEFINE VARIABLE lBadCharFound AS LOGICAL   NO-UNDO.  
-    DEFINE VARIABLE iNumTries     AS INTEGER   NO-UNDO.  
-
-    iNumTries = 0.   
-
-    DO WHILE TRUE:   
-        lBadCharFound = FALSE.
-        
-        iPos = INDEX(ipcInput, '"'). 
-        IF iPos GT 0 THEN 
-        DO:  
-            lBadCharFound = TRUE. 
-            ipcInput = REPLACE(ipcInput, '"', '&quot;').            
-        END.  
-        
-        iPos = INDEX(ipcInput, "'"). 
-        IF iPos GT 0 THEN 
-        DO:  
-            lBadCharFound = TRUE. 
-            ipcInput = REPLACE(ipcInput, "'", '&apos;').            
-        END.  
-        
-        iPos = INDEX(ipcInput, "<"). 
-        IF iPos GT 0 THEN 
-        DO:  
-            lBadCharFound = TRUE. 
-            ipcInput = REPLACE(ipcInput, "<", '&lt;').            
-        END. 
-        
-        iPos = INDEX(ipcInput, ">"). 
-        IF iPos GT 0 THEN 
-        DO:  
-            lBadCharFound = TRUE. 
-            ipcInput = REPLACE(ipcInput, ">", '&gt;').            
-        END. 
-        iNumTries = iNumTries + 1.
-        IF lBadCharFound EQ FALSE OR iNumTries GT 200 THEN
-            LEAVE.  
-    END. 
-    cResult = ipcInput.
-    RETURN cResult.
-        
-END FUNCTION.
-   
-   
-/* ***************************  Main Block  *************************** */   
 {XMLOutput/XMLOutput.i &XMLOutput=XMLJobTicket &Company=cocode} /* rstark 05181205 */
 
 ASSIGN
@@ -647,11 +545,7 @@ FOR EACH job-hdr NO-LOCK
            END.
            j = 1.
        END.
-      
-      RUN ipGenJobTempTable (INPUT ROWID(job)). 
-      RUN ipOutputJDFTop. /* start with JDF tag */ 
-      
-      /* This section falls within the JDF tag */
+        
       /* VIEW FRAME head.*/
       RUN XMLOutput (lXMLOutput,'JobTicketHeader','','Row').
       RUN XMLOutput (lXMLOutput,'Job',v-job-no,'Col').
@@ -1202,7 +1096,7 @@ FOR EACH job-hdr NO-LOCK
             x = 2.
              
             FOR EACH wrk-sheet WHERE wrk-sheet.form-no = ef.form-no  
-                        /*break by wrk-sheet.form-no*/ :  
+            /*break by wrk-sheet.form-no*/ :  
                 FIND FIRST ITEM WHERE item.company EQ cocode
                     AND item.i-no    EQ wrk-sheet.i-no NO-LOCK NO-ERROR.
                 FIND FIRST job-mat NO-LOCK 
@@ -1705,10 +1599,6 @@ DO:
     ASSIGN
         i       = 1
         v-fgitm = "".
-                                
-    /* Close JDF section */
-    RUN ipOutputJDFBottom. 
-    
     PAGE.
 END. /* last-of job-hdr.frm */
 
@@ -1753,226 +1643,4 @@ OS-RENAME VALUE(XMLTemp) VALUE(cXMlFinalDest).
 /* Don't show user view xml file */
 /*  os-command silent value(XMLTemp). */
   /* READ-XML( XMLTemp).*/
-
-PROCEDURE ipGenJobTempTable:
-DEFINE INPUT  PARAMETER iprJobRow AS ROWID NO-UNDO.
-
-DEFINE VARIABLE cItemOnOrder AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCustPart    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE rItemfgRow   AS ROWID NO-UNDO.
-DEFINE VARIABLE cSheetBlank  AS CHARACTER NO-UNDO.
-DEFINE BUFFER bf-job FOR job.
-DEFINE BUFFER bf-job-hdr FOR job-hdr.
-DEFINE BUFFER bf-itemfg FOR itemfg.
-DEFINE BUFFER bf-eb FOR eb.
-DEFINE BUFFER bf-ef FOR ef.     
-
-    EMPTY TEMP-TABLE ttTempjob.
-   
-    FIND FIRST bf-job NO-LOCK 
-        WHERE ROWID(bf-job) EQ iprJobRow
-        NO-ERROR.
-    IF NOT AVAILABLE bf-job THEN 
-      RETURN.
-        
-    FOR EACH bf-job-hdr NO-LOCK WHERE bf-job-hdr.company EQ bf-job.company
-        AND bf-job-hdr.job-no  EQ bf-job.job-no
-        AND bf-job-hdr.job-no2 EQ bf-job.job-no2,
-        FIRST bf-itemfg NO-LOCK WHERE bf-itemfg.company EQ bf-job-hdr.company
-        AND bf-itemfg.i-no    EQ bf-job-hdr.i-no
-        :
-        cItemOnOrder = bf-itemfg.i-no.
-        FIND FIRST bf-eb NO-LOCK 
-            WHERE bf-eb.company EQ bf-job-hdr.company
-            AND bf-eb.est-no  EQ bf-job-hdr.est-no
-            AND bf-eb.stock-no = bf-job-hdr.i-no
-            NO-ERROR.
-        IF NOT AVAIL bf-eb THEN 
-            FIND FIRST bf-eb NO-LOCK 
-                WHERE bf-eb.company     EQ bf-job-hdr.company
-                AND bf-eb.est-no      EQ bf-job-hdr.est-no
-                AND bf-eb.form-no     EQ bf-job-hdr.frm
-                AND bf-eb.blank-no    GT 0 NO-ERROR.              
-        IF AVAILABLE bf-eb THEN 
-        DO:        
-            FIND FIRST oe-ord NO-LOCK
-                WHERE oe-ord.company EQ bf-eb.company
-                AND oe-ord.est-no  EQ bf-eb.est-no                  
-                NO-ERROR.             
-            FIND FIRST bf-ef NO-LOCK 
-                WHERE bf-ef.company EQ bf-eb.company
-                AND bf-ef.est-no EQ bf-eb.est-no
-                AND bf-ef.form-no = bf-eb.form-no
-                NO-ERROR.
-            IF NOT AVAILABLE bf-ef THEN 
-                FIND FIRST bf-ef NO-LOCK 
-                    WHERE bf-ef.company EQ bf-eb.company
-                    AND bf-ef.est-no EQ bf-eb.est-no
-                    NO-ERROR.
-            
-            FIND style NO-LOCK 
-                WHERE style.company = bf-eb.company 
-                AND style.style = bf-eb.style
-                NO-ERROR.
-            /* stock-no overrides item number for sales order lookup as jobcard does */
-            IF bf-eb.stock-no GT "" THEN 
-                cItemOnOrder = bf-eb.stock-no.
-        END.
-        
-        cocode = bf-job-hdr.company.
-        FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ bf-job-hdr.company
-            AND sys-ctrl.name EQ "xmljob"
-            NO-ERROR.
-        IF NOT AVAILABLE sys-ctrl THEN RETURN.
-   
-        FIND FIRST cust NO-LOCK WHERE cust.company EQ bf-job-hdr.company
-            AND cust.cust-no EQ bf-job-hdr.cust-no
-            NO-ERROR.
-        
-        rItemfgRow = ROWID(bf-itemfg).
-        cCustPart = bf-itemfg.part-no.
-        RUN custom/getcpart.p (INPUT cust.company, INPUT cust.cust-no, 
-            INPUT-OUTPUT cCustPart, INPUT-OUTPUT rItemfgRow).
-
-        cSheetBlank = STRING(bf-job-hdr.frm, "9") + string(bf-job-hdr.blank-no, "9") .
-
-        FIND FIRST ttTempJob EXCLUSIVE-LOCK WHERE ttTempJob.company EQ bf-job-hdr.company
-            AND ttTempJob.jobID = trim(bf-job-hdr.job-no) + "-" + STRING(bf-job-hdr.job-no2, "99") + "-" + cSheetBlank
-            AND ttTempJob.newProject EQ 1
-            NO-ERROR.
-
-        IF NOT AVAILABLE ttTempJob THEN 
-        DO:
-
-            CREATE ttTempJob.
-            ASSIGN
-                ttTempjob.company    = bf-job-hdr.company
-                ttTempjob.jobID      = TRIM(bf-job-hdr.job-no) + "-" + STRING(bf-job-hdr.job-no2, "99") + "-" + cSheetBlank
-                ttTempjob.itemRecKey = bf-itemfg.rec_key
-                ttTempjob.FGItemCode = cItemOnOrder
-                ttTempjob.FGName     = bf-itemfg.i-name
-                ttTempjob.CustPart   = cCustPart
-                ttTempjob.ItemStatus = (IF bf-itemfg.stat EQ "A" THEN "Active" ELSE "Inactive") 
-                ttTempjob.FgCategory = bf-itemfg.procat-desc
-                .
-
-            /* Override of bf-itemfg.procat-desc to match logic in viewers/itemfg.w */    
-            FIND FIRST fgcat NO-LOCK WHERE fgcat.company = bf-job-hdr.company 
-                AND fgcat.procat = bf-itemfg.procat
-                NO-ERROR.
-            ttTempjob.FgCategory = IF AVAIL fgcat THEN fgcat.dscr ELSE ttTempjob.FgCategory.
-                                
-            IF AVAILABLE cust THEN 
-                ASSIGN ttTempjob.customerID   = cust.cust-no
-                    ttTempJob.customerName = cust.name
-                    .
-            IF AVAILABLE eb THEN 
-                ASSIGN                   
-                    ttTempJob.ebWIDTH    = STRING(bf-eb.wid)
-                    ttTempJob.ebLENGTH   = STRING(bf-eb.len)
-                    ttTempJob.ebDepth    = STRING(bf-eb.dep)
-                    ttTempJob.FlatWidth  = STRING(bf-eb.t-len)
-                    ttTempJob.FlatLength = STRING(bf-eb.t-wid)
-                    ttTempJob.ColorsCoat = bf-eb.i-dscr2[1]
-                    ttTempJob.CCNumber   = bf-eb.cad-no                  
-                    .
-            IF AVAILABLE ef THEN 
-                ASSIGN  ttTempJob.Weight  = STRING(bf-ef.weight)
-                    ttTempJob.Caliper = STRING(bf-ef.cal)                    
-                    ttTempJob.Board   = fnStripInvalidChar(bf-ef.brd-dscr)
-                    .
-            IF AVAILABLE oe-ord THEN 
-                ASSIGN 
-                    ttTempJob.DateIssued = STRING(oe-ord.ord-date)
-                    .
-            IF AVAILABLE style THEN 
-                ASSIGN 
-                    ttTempJob.Structure = style.dscr
-                    .      
-        END.  /* create ttTempJob */
-    END. /* Each bf-job-hdr of job */         
-          
-    
-END PROCEDURE. /* ipGenJobTempTable */
-
-PROCEDURE ipOutputJDFTop:
-   DEFINE VARIABLE cUDFString AS CHARACTER NO-UNDO.        
-    
-    FOR EACH ttTempJob BREAK BY ttTempJob.jobID:
-        
-        IF FIRST-OF(ttTempJob.jobID) THEN 
-        DO:                        
-            RUN XMLOutput (lXMLOutput,'JDF','','Row').
-            RUN XMLOutput (lXMLOutput,'Company',ttTempJob.company,'Col').
-            RUN XMLOutput (lXMLOutput,'JobID',ttTempJob.jobID,'Col').
-            RUN XMLOutput (lXMLOutput,'NewProject',0,'Col').
-            RUN XMLOutput (lXMLOutput,'CustomerID',ttTempJob.customerID,'Col').
-            RUN XMLOutput (lXMLOutput,'CustomerName',ttTempJob.customerName,'Col').
-        END.
-        
-        RUN XMLOutput (lXMLOutput,'ResourcePool','','Row').
-        
-        /* Process Itemfg Level */
-        RUN XMLOutput (lXMLOutput,'Product','','Row').
-        RUN XMLOutput (lXMLOutput,'FGItemCode', ttTempjob.FGItemCode,'Col').
-        RUN XMLOutput (lXMLOutput,'FGName'    , ttTempjob.FGName,'Col').
-        RUN XMLOutput (lXMLOutput,'CustPart'  , ttTempjob.CustPart,'Col').    
-        RUN XMLOutput (lXMLOutput,'FGCategory', ttTempjob.FgCategory,'Col').
-        RUN XMLOutput (lXMLOutput,'ItemStatus', ttTempjob.ItemStatus,'Col').  
-                
-        EMPTY TEMP-TABLE ttUDF.
-        IF CAN-FIND(FIRST mfvalues
-            WHERE mfvalues.rec_key EQ ttTempjob.itemRecKey) THEN 
-        DO:
-            /* get UDF records for this record */
-            RUN UDF/UDF.p (cUDFGroup, ttTempjob.itemRecKey, OUTPUT TABLE ttUDF).
-                     
-                     
-            /* process UDF data found */
-            FOR EACH ttUDF NO-LOCK 
-                WHERE ttUDF.udfEsko EQ YES
-                :                            
-                cUDFSTring = "SmartName " + 'Name="' + ttUDF.udfLabel + '" Value="' + ttUDF.udfValue + '"/'.
-                RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
-            END.  /* each ttudf */     
-        END.        
-                
-        /* Estimate Values */
-        cUDFSTring = "SmartName " + 'Name="Date Issued" Value="' + ttTempJob.DateIssued + '"/'.
-        RUN XMLOutput (lXMLOutput,cUDFString,'','Row').   
-        cUDFSTring = "SmartName " + 'Name="Width" Value="' + ttTempJob.ebWIDTH    + '"/'.
-        RUN XMLOutput (lXMLOutput,cUDFString,'','Row'). 
-        cUDFSTring = "SmartName " + 'Name="Length" Value="' + ttTempJob.ebLENGTH   + '"/'.
-        RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
-        cUDFSTring = "SmartName " + 'Name="Depth" Value="' + ttTempJob.ebDepth    + '"/'.
-        RUN XMLOutput (lXMLOutput,cUDFString,'','Row').  
-        cUDFSTring = "SmartName " + 'Name="Flat Width" Value="' + ttTempJob.FlatWidth  + '"/'.
-        RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
-        cUDFSTring = "SmartName " + 'Name="Flat Length" Value="' + ttTempJob.FlatLength + '"/'.
-        RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
-        cUDFSTring = "SmartName " + 'Name="Colors/Coating" Value="' + ttTempJob.ColorsCoat + '"/'.
-        RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
-        cUDFSTring = "SmartName " + 'Name="CC#" Value="' + ttTempJob.CCNumber   + '"/'.
-        RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
-        cUDFSTring = "SmartName " + 'Name="Weight" Value="' + ttTempJob.Weight     + '"/'.
-        RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
-        cUDFSTring = "SmartName " + 'Name="Caliper" Value="' + ttTempJob.Caliper    + '"/'.
-        RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
-        cUDFSTring = "SmartName " + 'Name="Style Code" Value="' + ttTempJob.Structure  + '"/'.
-        RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
-        cUDFSTring = "SmartName " + 'Name="Board" Value=' + "'" + ttTempJob.Board      + "'/".
-        RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
-       
-    END.
-                               
-  
-END PROCEDURE. /* ipOutputJDFTop */
-
-PROCEDURE ipOutputJDFBottom:
-    
-    RUN XMLOutput (lXMLOutput,'/Product','','Row'). 
-    RUN XMLOutput (lXMLOutput,'/ResourcePool','','Row').
-            
-   /* IF LAST-OF(ttTempJob.jobID) THEN */
-        RUN XMLOutput (lXMLOutput,'/JDF','','Row').      
-END PROCEDURE. /* ipOutputJDFBottom */
+ 
