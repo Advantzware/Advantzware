@@ -71,10 +71,16 @@ IF ipcIndustry EQ "2" THEN
 ELSE 
     ASSIGN 
         cTextListToSelect = "Item#,Name,DESC,Est.DESC,Item Code,Taxable,Mat'l Type,Mat'1 Dscr,Cost Type,Cost Dscr,Category,Category Dscr,QTY Usage PTD,Qty Usage YTD," +
-                            "Qty Usage Last YR,Usage Cost PTD,Usage Cost YTD,Total Cost Last YR,Ink Type,Press Type,Min Lbs/Job,SI/Lb,Wgt/100,Warehouse,Bin,Qty On Hand"
+                            "Qty Usage Last YR,Usage Cost PTD,Usage Cost YTD,Total Cost Last YR,Ink Type,Press Type,Min Lbs/Job,SI/Lb,Wgt/100,Warehouse,Bin,Qty On Hand," +
+                            "Caliper,Basis Weight,Reg. #,Shrink%,Sheet Width,Sheet Length,Roll Width,Core Dia,Department 1,Department 2,Department 3,Department 4,Department 5," +
+                            "Department 6,Department 7,Department 8,Department 9,Department 10,Reduction% 1,Reduction% 2,Reduction% 3,Reduction% 4,Reduction% 5,Reduction% 6,Reduction% 7,Reduction% 8,Reduction% 9,Reduction% 10," +
+                            "Sq In/Lb,Lin In/UOM,Length,Width,Depth,Avg Wt,Qty/Case,Case/Pallet,Flute"
 
         cFieldListToSelect = "i-no,i-name,i-dscr,est-dscr,i-code,tax-rcpt,mat-type,mat-dscr,cost-type,costtype-descr,procat,procat-dscr,q-ptd," +
-                            "q-ytd,q-lyr,u-ptd,u-ytd,u-lyr,ink-type,press-type,min-lbs,yield,weight-100,loc,loc-bin,q-onh" .
+                            "q-ytd,q-lyr,u-ptd,u-ytd,u-lyr,ink-type,press-type,min-lbs,yield,weight-100,loc,loc-bin,q-onh," +
+                            "cal,basis-w,reg-no,shrink,s-wid,s-len,r-wid,ect,dept-name[1],dept-name[2],dept-name[3],dept-name[4],dept-name[5]," +
+                            "dept-name[6],dept-name[7],dept-name[8],dept-name[9],dept-name[10],speed%[1],speed%[2],speed%[3],speed%[4],speed%[5],speed%[6],speed%[7],speed%[8],speed%[9],speed%[10]," +
+                            "sqin-lb,linin-lb,case-l,case-w,case-d,avg-w,box-case,case-pall,flute".
 
 {sys/inc/ttRptSel.i}
     ASSIGN cTextListToDefault  = "Item#,Name,DESC,Item Code,Mat'l Type,Mat'1 Dscr,Cost Type,Cost Dscr,Category,Category Dscr,Warehouse,Bin,Qty On Hand" .
@@ -1165,33 +1171,331 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
             END CASE.
         END.
         WHEN "ink-type"  THEN DO:
-            CASE ipb-itemfg.ink-type :
-                WHEN "I" THEN
-                    lc-return = "Ink".
-                WHEN "L" THEN
-                    lc-return = "Lacquer".
-                WHEN "U" THEN
-                    lc-return = "Ultra Violet".
-                WHEN "V" THEN
-                    lc-return = "Varnish".
-                WHEN "A" THEN
-                    lc-return = "Aqueous".
-            END CASE.
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"I,V") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"I,P,V") > 0  THEN DO:
+                CASE ipb-itemfg.ink-type :
+                    WHEN "I" THEN
+                        lc-return = "Ink".
+                    WHEN "L" THEN
+                        lc-return = "Lacquer".
+                    WHEN "U" THEN
+                        lc-return = "Ultra Violet".
+                    WHEN "V" THEN
+                        lc-return = "Varnish".
+                    WHEN "A" THEN
+                        lc-return = "Aqueous".
+                 END CASE.
+            END.
+            ELSE DO:
+                lc-return = "".
+            END.
         END.
         WHEN "press-type"  THEN DO:
-            CASE ipb-itemfg.press-type :
-                WHEN "F" THEN
-                    lc-return = "Flexo".
-                WHEN "G" THEN
-                    lc-return = "Gravure".
-                WHEN "L" THEN
-                    lc-return = "Letterpress".
-                WHEN "O" THEN
-                    lc-return = "Offset".
-                WHEN "S" THEN
-                    lc-return = "Silkscreen".
-            END CASE.
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"I,V") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"I,P,V") > 0  THEN DO:
+                 CASE ipb-itemfg.press-type :
+                     WHEN "F" THEN
+                         lc-return = "Flexo".
+                     WHEN "G" THEN
+                         lc-return = "Gravure".
+                     WHEN "L" THEN
+                         lc-return = "Letterpress".
+                     WHEN "O" THEN
+                         lc-return = "Offset".
+                     WHEN "S" THEN
+                         lc-return = "Silkscreen".
+                  END CASE.
+            END.
+            ELSE DO:
+                lc-return = "".
+            END.
         END.
+        WHEN "flute"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,D,C,Z,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"D,C,Z,5,6") > 0  THEN
+                lc-return = ipb-itemfg.flute.
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "reg-no"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,D,C,Z,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,R,1,2,3,4,D,C,Z,5,6") > 0  THEN
+                lc-return = ipb-itemfg.reg-no.
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "cal"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,R,1,2,3,4,W") > 0  THEN
+                lc-return = string(ipb-itemfg.cal).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "basis-w"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,D,C,z,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,R,1,2,3,4,W,D,C,Z,5,6") > 0  THEN
+                lc-return = string(ipb-itemfg.basis-w).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "ect"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,R,1,2,3,4") > 0  THEN
+                lc-return = string(ipb-itemfg.ect).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "shrink"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4,W") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = string(ipb-itemfg.shrink).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "s-wid"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,R,1,2,3,4") > 0  THEN
+                lc-return = string(ipb-itemfg.s-wid).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "s-len"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,R,1,2,3,4,W") > 0  THEN
+                lc-return = string(ipb-itemfg.s-len).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "r-wid"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,R,1,2,3,4,W") > 0  THEN
+                lc-return = string(ipb-itemfg.r-wid).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "dept-name[1]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = ipb-itemfg.dept-name[1].
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "dept-name[2]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = ipb-itemfg.dept-name[2].
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "dept-name[3]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = ipb-itemfg.dept-name[3].
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "dept-name[4]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = ipb-itemfg.dept-name[4].
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "dept-name[5]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = ipb-itemfg.dept-name[5].
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "dept-name[6]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = ipb-itemfg.dept-name[6].
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "dept-name[7]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = ipb-itemfg.dept-name[7].
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "dept-name[8]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = ipb-itemfg.dept-name[8].
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "dept-name[9]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = ipb-itemfg.dept-name[9].
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "dept-name[10]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = ipb-itemfg.dept-name[10].
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "speed%[1]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = string(ipb-itemfg.speed%[1]).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "speed%[2]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = string(ipb-itemfg.speed%[2]).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "speed%[3]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = string(ipb-itemfg.speed%[3]).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "speed%[4]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = string(ipb-itemfg.speed%[4]).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "speed%[5]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = string(ipb-itemfg.speed%[5]).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "speed%[6]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = string(ipb-itemfg.speed%[6]).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "speed%[7]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = string(ipb-itemfg.speed%[7]).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "speed%[8]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = string(ipb-itemfg.speed%[8]).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "speed%[9]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = string(ipb-itemfg.speed%[9]).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "speed%[10]" THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"A,B,P,1,2,3,4") > 0  THEN
+                lc-return = string(ipb-itemfg.speed%[10]).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "min-lbs"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"I,V") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"I,P,V") > 0  THEN 
+                lc-return = string(ipb-itemfg.min-lbs).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "yield"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"I,V") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"I,P,V") > 0  THEN 
+                lc-return = string(ipb-itemfg.yield).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "sqin-lb"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"G,S,L,F,T") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"G,W,S,L,F,T") > 0  THEN 
+                lc-return = string(ipb-itemfg.sqin-lb).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "linin-lb"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"G,S,L,F,T") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"G,W,S,L,F,T") > 0  THEN 
+                lc-return = string(ipb-itemfg.linin-lb).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "case-l"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"D,C,z") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"D,C,Z,5,6") > 0  THEN 
+                lc-return = string(ipb-itemfg.case-l).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "case-w"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"D,C,z") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"D,C,Z,5,6") > 0  THEN 
+                lc-return = string(ipb-itemfg.case-w).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "case-d"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"D,C,z") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"D,C,Z,5,6") > 0  THEN 
+                lc-return = string(ipb-itemfg.case-d).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "avg-w"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"D,C,z") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"D,C,Z,5,6") > 0  THEN 
+                lc-return = string(ipb-itemfg.avg-w).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "box-case"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"D,C,z") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"D,C,Z,5,6") > 0  THEN 
+                lc-return = string(ipb-itemfg.box-case).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "case-pall"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"D,C,z") > 0
+             OR ipcIndustry EQ "1" AND lookup(ipb-itemfg.mat-type,"D,C,Z,5,6") > 0  THEN 
+                lc-return = string(ipb-itemfg.case-pall).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "density"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"1,2,3,4") > 0 THEN 
+                lc-return = string(ipb-itemfg.density).
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "color-1"  THEN DO:
+            IF ipcIndustry EQ "2" AND lookup(ipb-itemfg.mat-type,"1,2,3,4") > 0 THEN 
+                lc-return = string(ipb-itemfg.color-1).
+            ELSE
+                lc-return = "".
+        END.
+
         WHEN "dfuncTotMSFPTD"  THEN DO:
             /*IF g_period NE 0 THEN lc-return = STRING(ipb-itemfg.ptd-msf[g_period]).*/
         END.
