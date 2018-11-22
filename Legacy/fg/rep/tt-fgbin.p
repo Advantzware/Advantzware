@@ -33,7 +33,7 @@ DEF BUFFER b-f-rd for fg-rdtlh.
 
 {fg/rep/tt-fgbin.i SHARED}
 
- FUNCTION fGetDate RETURNS CHARACTER
+ FUNCTION fGetDate RETURNS DATE
   (ipcDate AS CHARACTER)  FORWARD.
 
 
@@ -275,7 +275,7 @@ FOR EACH tt-fg-bin
             BY fg-rcpth.r-no:
 
     IF FIRST(fg-rcpth.trans-date) THEN
-      tt-fg-bin.first-date = DATE(fGetDate(string(fg-rcpth.trans-date))) .
+      tt-fg-bin.first-date = fGetDate(string(fg-rcpth.trans-date)) .
 
     {fg/rep/fg-aging.i ip-ager}
 
@@ -306,7 +306,7 @@ FOR EACH tt-fg-bin
             BY fg-rcpth.r-no:
 
     IF FIRST(fg-rcpth.trans-date) THEN
-      tt-fg-bin.first-date = DATE(fGetDate(string(fg-rcpth.trans-date))).
+      tt-fg-bin.first-date = fGetDate(string(fg-rcpth.trans-date)).
 
     {fg/rep/fg-aging.i ip-ager}
 
@@ -502,10 +502,10 @@ DEF VAR v-qty AS INT NO-UNDO.
             BY fg-rcpth.r-no:
     v-qty = v-qty - fg-rdtlh.qty.
 
-    IF date(fGetDate(STRING(fg-rcpth.trans-date))) NE ? THEN
-        v-last-date-found = date(fGetDate(STRING(fg-rcpth.trans-date))) .
+    IF fGetDate(STRING(fg-rcpth.trans-date)) NE ? THEN
+        v-last-date-found = fGetDate(STRING(fg-rcpth.trans-date)) .
     IF v-qty LE 0 THEN DO:
-      out-rec-date = date(fGetDate(STRING(fg-rcpth.trans-date))) .
+      out-rec-date = fGetDate(STRING(fg-rcpth.trans-date)) .
       LEAVE.
     END.
   END.
@@ -534,11 +534,11 @@ DEF VAR v-qty AS INT NO-UNDO.
             BY fg-rcpth.r-no:
 
     v-qty = v-qty - fg-rdtlh.qty.
-    IF date(fGetDate(string(fg-rcpth.trans-date))) NE ? THEN
-        v-last-date-found = date(fGetDate(STRING(fg-rcpth.trans-date))) .
+    IF fGetDate(string(fg-rcpth.trans-date)) NE ? THEN
+        v-last-date-found = fGetDate(STRING(fg-rcpth.trans-date)) .
 
     IF v-qty LE 0 THEN DO:
-      out-rec-date = date(fGetDate(STRING(fg-rcpth.trans-date))) .
+      out-rec-date = fGetDate(STRING(fg-rcpth.trans-date)) .
       LEAVE.
     END.
 
@@ -567,8 +567,8 @@ DEF VAR v-qty AS INT NO-UNDO.
                 BY fg-rdtlh.trans-time
                 BY fg-rcpth.r-no:
     
-        IF date(fGetDate(STRING(fg-rcpth.trans-date))) NE ? THEN DO:
-          v-last-date-found = date(fGetDate(STRING(fg-rcpth.trans-date))) .
+        IF fGetDate(STRING(fg-rcpth.trans-date)) NE ? THEN DO:
+          v-last-date-found = fGetDate(STRING(fg-rcpth.trans-date)) .
           LEAVE.
         END.
                 
@@ -599,10 +599,10 @@ DEF VAR v-qty AS INT NO-UNDO.
                     BY fg-rcpth.r-no:
             v-qty = v-qty - fg-rdtlh.qty.
 
-            IF date(fGetDate(STRING(fg-rcpth.trans-date))) NE ? THEN
-                v-last-date-found = date(fGetDate(STRING(fg-rcpth.trans-date))) .
+            IF fGetDate(STRING(fg-rcpth.trans-date)) NE ? THEN
+                v-last-date-found = fGetDate(STRING(fg-rcpth.trans-date)) .
             IF v-qty LE 0 THEN DO:
-              out-rec-date = date(fGetDate(STRING(fg-rcpth.trans-date))) .
+              out-rec-date = fGetDate(STRING(fg-rcpth.trans-date)) .
               LEAVE.
             END.
           END.
@@ -618,7 +618,7 @@ END PROCEDURE.
 
 
 
-FUNCTION fGetDate RETURNS CHARACTER
+FUNCTION fGetDate RETURNS DATE
   (ipcDate AS CHARACTER) :
 /*------------------------------------------------------------------------------
   Purpose:  
@@ -632,6 +632,6 @@ FUNCTION fGetDate RETURNS CHARACTER
    ASSIGN rtnValue = string(01/01/2011) .
    else rtnValue = ipcDate .
    
-  RETURN rtnValue.
+  RETURN date(rtnValue).
 
 END FUNCTION.
