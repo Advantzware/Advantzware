@@ -640,11 +640,15 @@ PROCEDURE local-enable-fields :
 
       SESSION:SET-WAIT-STATE ("general").
 
+      MAIN:
       FOR EACH b-itemfg
           WHERE b-itemfg.company      EQ cocode
             AND b-itemfg.i-no         MATCHES v-item
             AND TRIM(b-itemfg.est-no) NE "":
 
+            FIND asi._file WHERE asi._file._file-name = "itemfg" AND  asi._lock._lock-recid = int(RECID(b-itemfg)) NO-LOCK NO-ERROR.
+            IF AVAIL _file THEN NEXT MAIN .
+                
         STATUS DEFAULT "Processing Item: " + trim(b-itemfg.i-no).
 
         RELEASE eb.
@@ -700,7 +704,7 @@ PROCEDURE local-enable-fields :
                                   ELSE (eb.cas-cnt * eb.cas-pal).
 
           IF NOT b-itemfg.lockWeight THEN DO:
-              IF b-itemfg.isaset AND eb.form-no EQ 0 THEN
+              IF b-itemfg.isaset AND eb.form-no EQ 0 THEN 
                 RUN fg/updsetdm.p (RECID(eb)).
               ELSE DO:
                 {sys/inc/updfgdim.i "eb" "b-"}
