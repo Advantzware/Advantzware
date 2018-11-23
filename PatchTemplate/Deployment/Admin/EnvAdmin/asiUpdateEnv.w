@@ -1248,7 +1248,7 @@ PROCEDURE ipBackupDBs :
                        cThisDir + "\" +
                        cThisDB + ".lk".
         .
-    
+
         IF SEARCH(cLockFile) EQ ? THEN 
         DO:
             MESSAGE 
@@ -2582,7 +2582,7 @@ PROCEDURE ipExpandVarNames :
         cPatchNo = fiToVer:{&SV}
         cAdminDir = cMapDir + "\" + cAdminDir
         cBackupDir = cMapDir + "\" + cBackupDir
-        cDBDir = cMapDir + "\" + cDbDir
+        /* cDBDir = cMapDir + "\" + cDbDir */
         cDocDir = cMapDir + "\" + cDocDir
         cDeskDir = cMapDir + "\" + cDeskDir
         cEnvDir = cMapDir + "\" + cEnvDir
@@ -2594,12 +2594,12 @@ PROCEDURE ipExpandVarNames :
         cDbBackup = cBackupDir + "\" + cDbBackup
         cPgmBackup = cBackupDir + "\" + cPgmBackup
         cResBackup = cBackupDir + "\" + cResBackup
-        cDbAuditDir = cDbDir + "\" + cDbAuditDir
-        cDbDataDir = cDbDir + "\" + cDbDataDir
-        cDbProdDir = cDbDir + "\" + cDbProdDir
-        cDbShipDir = cDbDir + "\" + cDbShipDir
-        cDbStructDir = cDbDir + "\" + cDbStructDir
-        cDbTestDir = cDbDir + "\" + cDbTestDir
+        cDbAuditDir = cMapDir + "\" + cDbDir + "\" + cDbAuditDir
+        cDbDataDir = cMapDir + "\" + cDbDir + "\" + cDbDataDir
+        cDbProdDir = cMapDir + "\" + cDbDir + "\" + cDbProdDir
+        cDbShipDir = cMapDir + "\" + cDbDir + "\" + cDbShipDir
+        cDbStructDir = cMapDir + "\" + cDbDir + "\" + cDbStructDir
+        cDbTestDir = cMapDir + "\" + cDbDir + "\" + cDbTestDir
         cEnvProdDir = cEnvDir + "\" + cEnvProdDir
         cEnvTestDir = cEnvDir + "\" + cEnvTestDir
         cUpdAdminDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdAdminDir
