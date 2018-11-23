@@ -2075,6 +2075,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix160712.
     IF intVer(cThisEntry) LT 160800 THEN
         RUN ipDataFix160800.
+    IF intVer(cThisEntry) LT 160899 THEN
+        RUN ipDataFix160899.
 
     RUN ipStatus ("Completed Data Fixes").
 
@@ -2318,6 +2320,20 @@ PROCEDURE ipDataFix160800 :
     RUN ipAddLocationData.
     RUN ipVendorMaxValue.
     RUN ipSetImageFiles.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160899 C-Win 
+PROCEDURE ipDataFix160899 :
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160899...").
+
     RUN ipUseOldNK1.
 
 END PROCEDURE.
