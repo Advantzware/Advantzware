@@ -475,9 +475,9 @@ ELSE lv-comp-color = "BLACK".
                 ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
                 v-i-dscr  format "x(25)" SPACE(1)
-                v-price  format "->,>>9.99<<" SPACE(2)
+                v-price  format "$->,>>9.99<<" SPACE(1)
                 v-price-head SPACE(1)
-                ar-invl.amt  format "->>>,>>9.99"                
+                ar-invl.amt  format "$->>>,>>9.99"                
                 SKIP.
           END.
           ELSE DO:
@@ -488,9 +488,9 @@ ELSE lv-comp-color = "BLACK".
                 ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
                 v-i-dscr  format "x(25)" SPACE(1)
-                v-price  format "->,>>9.99<<" SPACE(2)
+                v-price  format "$->,>>9.99<<" SPACE(1)
                 v-price-head SPACE(1)
-                ar-invl.amt  format "->>>,>>9.99"                
+                ar-invl.amt  format "$->>>,>>9.99"                
                 SKIP.
 
           END.    /* else do */
@@ -506,7 +506,7 @@ ELSE lv-comp-color = "BLACK".
                  IF v = 1 THEN DO:
 
                      IF lPrintQtyAll THEN do:
-                      PUT SPACE(1) v-ship-qty FORMAT ">>>>>>9" .
+                      PUT SPACE(1) v-ship-qty FORMAT "->>>>>9" .
 
                          IF LENGTH(ar-invl.po-no) LE 8 THEN DO:
                              PUT  SPACE(8) ar-invl.po-no FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
@@ -701,23 +701,23 @@ ELSE lv-comp-color = "BLACK".
  END.
 
 IF v-bot-lab[4] <> "" THEN
-    PUT "<R58><C60><#8><FROM><R+8><C+20><RECT> " 
-        "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
+    PUT "<R58><C59><#8><FROM><R+8><C+21><RECT> " 
+        "<=8> Sub Total  :" v-subtot-lines FORM "$->>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
         "<=8><R+5> " v-bot-lab[4]
         "<=8><R+6> " v-bot-lab[5]
-        "<=8><R+7> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-t-tax[4] + v-t-tax[5] + v-inv-freight FORM "->>,>>9.99" .
+        "<=8><R+7> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-t-tax[4] + v-t-tax[5] + v-inv-freight FORM "$->>,>>9.99" .
 ELSE
-    PUT "<R58><C60><#8><FROM><R+6><C+20><RECT> " 
-        "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
+    PUT "<R58><C59><#8><FROM><R+6><C+21><RECT> " 
+        "<=8> Sub Total  :" v-subtot-lines FORM "$->>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
-        "<=8><R+5> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORM "->>,>>9.99" .
+        "<=8><R+5> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORM "$->>,>>9.99" .
 
     ASSIGN
        v-printline = v-printline + 6
