@@ -46,8 +46,8 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE hCurrentFilter   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cFilter          AS CHARACTER NO-UNDO INITIAL "ALL".
 DEFINE VARIABLE cSubFilter       AS CHARACTER NO-UNDO INITIAL "ALL".
-DEFINE VARIABLE cColumnLabel     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cSaveLabel       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cColumnLabel     AS CHARACTER NO-UNDO EXTENT 2.
+DEFINE VARIABLE cSaveLabel       AS CHARACTER NO-UNDO EXTENT 2.
 DEFINE VARIABLE cMode            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAscending       AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE lSearchOpen      AS LOGICAL   NO-UNDO INITIAL YES.
@@ -137,10 +137,20 @@ sys-ctrl-shipto.int-fld sys-ctrl-shipto.log-fld
 &Scoped-define ENABLED-FIELDS-IN-QUERY-sysCtrlShipToBrowse 
 &Scoped-define QUERY-STRING-sysCtrlShipToBrowse FOR EACH sys-ctrl-shipto ~
       WHERE sys-ctrl-shipto.company EQ g_company ~
-AND sys-ctrl-shipto.name EQ ttSysCtrl.name NO-LOCK INDEXED-REPOSITION
+AND sys-ctrl-shipto.name EQ ttSysCtrl.name ~
+AND (sys-ctrl-shipto.descrip MATCHES "*" + searchForm + "*" ~
+OR sys-ctrl-shipto.cust-vend-no MATCHES "*" + searchForm + "*" ~
+OR sys-ctrl-shipto.ship-id MATCHES "*" + searchForm + "*" ~
+OR sys-ctrl-shipto.char-fld MATCHES "*" + searchForm + "*") NO-LOCK ~
+    ~{&SORTBY-PHRASE} INDEXED-REPOSITION
 &Scoped-define OPEN-QUERY-sysCtrlShipToBrowse OPEN QUERY sysCtrlShipToBrowse FOR EACH sys-ctrl-shipto ~
       WHERE sys-ctrl-shipto.company EQ g_company ~
-AND sys-ctrl-shipto.name EQ ttSysCtrl.name NO-LOCK INDEXED-REPOSITION.
+AND sys-ctrl-shipto.name EQ ttSysCtrl.name ~
+AND (sys-ctrl-shipto.descrip MATCHES "*" + searchForm + "*" ~
+OR sys-ctrl-shipto.cust-vend-no MATCHES "*" + searchForm + "*" ~
+OR sys-ctrl-shipto.ship-id MATCHES "*" + searchForm + "*" ~
+OR sys-ctrl-shipto.char-fld MATCHES "*" + searchForm + "*") NO-LOCK ~
+    ~{&SORTBY-PHRASE} INDEXED-REPOSITION.
 &Scoped-define TABLES-IN-QUERY-sysCtrlShipToBrowse sys-ctrl-shipto
 &Scoped-define FIRST-TABLE-IN-QUERY-sysCtrlShipToBrowse sys-ctrl-shipto
 
@@ -260,6 +270,11 @@ DEFINE VARIABLE cSysCtrlName AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 18 BY 1
      BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE searchForm AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Search" 
+     VIEW-AS FILL-IN 
+     SIZE 64 BY 1 NO-UNDO.
 
 DEFINE BUTTON btnClear  NO-FOCUS
      LABEL "Clear" 
@@ -685,19 +700,23 @@ ttSysCtrl.dataType LABEL-BGCOLOR 14
 DEFINE BROWSE sysCtrlShipToBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS sysCtrlShipToBrowse C-Win _STRUCTURED
   QUERY sysCtrlShipToBrowse NO-LOCK DISPLAY
-      sys-ctrl-shipto.cust-vend FORMAT "Cust/Vend":U
-      sys-ctrl-shipto.descrip FORMAT "x(40)":U
-      sys-ctrl-shipto.cust-vend-no FORMAT "x(8)":U
-      sys-ctrl-shipto.ship-id FORMAT "x(8)":U
+      sys-ctrl-shipto.cust-vend FORMAT "Cust/Vend":U LABEL-BGCOLOR 14
+      sys-ctrl-shipto.descrip FORMAT "x(40)":U LABEL-BGCOLOR 14
+      sys-ctrl-shipto.cust-vend-no FORMAT "x(8)":U LABEL-BGCOLOR 14
+      sys-ctrl-shipto.ship-id FORMAT "x(8)":U LABEL-BGCOLOR 14
       sys-ctrl-shipto.char-fld COLUMN-LABEL "Character Value" FORMAT "x(20)":U
+            LABEL-BGCOLOR 14
       sys-ctrl-shipto.date-fld COLUMN-LABEL "Date" FORMAT "99/99/9999":U
+            LABEL-BGCOLOR 14
       sys-ctrl-shipto.dec-fld COLUMN-LABEL "Decimal" FORMAT "->>,>>9.99":U
+            LABEL-BGCOLOR 14
       sys-ctrl-shipto.int-fld COLUMN-LABEL "Integer" FORMAT "->,>>>,>>9":U
+            LABEL-BGCOLOR 14
       sys-ctrl-shipto.log-fld COLUMN-LABEL "Log" FORMAT "yes/no":U
-            WIDTH 5
+            WIDTH 5 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 142 BY 12.62
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 142 BY 11.43
          BGCOLOR 15 FGCOLOR 1  ROW-HEIGHT-CHARS .9.
 
 
@@ -723,115 +742,11 @@ DEFINE FRAME DEFAULT-FRAME
          SIZE 160 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
-DEFINE FRAME formsFrame
-     cSysCtrlName AT ROW 1.24 COL 11 COLON-ALIGNED WIDGET-ID 4
-     cSysCtrlDescrip AT ROW 1.24 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 6
-     cSysCtrlDataType AT ROW 2.43 COL 11 COLON-ALIGNED WIDGET-ID 32
-     cSysCtrFieldlDescrip AT ROW 2.43 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 30
-     sysCtrlShipToBrowse AT ROW 3.62 COL 2 WIDGET-ID 800
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 17 ROW 1
-         SIZE 144 BY 28.57
-         FGCOLOR 1 
-         TITLE "System Control Parameter Forms" WIDGET-ID 700.
-
-DEFINE FRAME viewFormFrame
-     btnFirst-2 AT ROW 9.57 COL 109 HELP
-          "First" WIDGET-ID 62
-     sys-ctrl-shipto.cust-vend AT ROW 1.24 COL 24 NO-LABEL WIDGET-ID 48
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "Customer", yes,
-"Vendor", no
-          SIZE 26 BY 1
-     sys-ctrl-shipto.cust-vend-no AT ROW 2.43 COL 21 COLON-ALIGNED WIDGET-ID 34
-          VIEW-AS FILL-IN 
-          SIZE 14.2 BY 1
-          BGCOLOR 15 
-     btnForms-2 AT ROW 1 COL 138 HELP
-          "Close" WIDGET-ID 72
-     type_name AT ROW 2.43 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 76
-     sys-ctrl-shipto.ship-id AT ROW 3.62 COL 21 COLON-ALIGNED WIDGET-ID 44
-          VIEW-AS FILL-IN 
-          SIZE 14.2 BY 1
-          BGCOLOR 15 
-     ship_name AT ROW 3.62 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 74
-     sys-ctrl-shipto.descrip AT ROW 4.81 COL 21 COLON-ALIGNED WIDGET-ID 46 FORMAT "x(256)"
-          VIEW-AS FILL-IN 
-          SIZE 92 BY 1
-          BGCOLOR 15 
-     sys-ctrl-shipto.char-fld AT ROW 6 COL 21 COLON-ALIGNED WIDGET-ID 30
-          LABEL "Character" FORMAT "x(256)"
-          VIEW-AS FILL-IN 
-          SIZE 92 BY 1
-          BGCOLOR 15 
-     sys-ctrl-shipto.date-fld AT ROW 7.19 COL 21 COLON-ALIGNED WIDGET-ID 36
-          LABEL "Date"
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-          BGCOLOR 15 
-     sys-ctrl-shipto.dec-fld AT ROW 8.38 COL 21 COLON-ALIGNED WIDGET-ID 38
-          LABEL "Decimal"
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     sys-ctrl-shipto.int-fld AT ROW 9.57 COL 21 COLON-ALIGNED WIDGET-ID 40
-          LABEL "Integer"
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-          BGCOLOR 15 
-     cLogLabel AT ROW 10.76 COL 15.2 WIDGET-ID 78
-     sys-ctrl-shipto.log-fld AT ROW 10.76 COL 24 NO-LABEL WIDGET-ID 52
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "Yes", yes,
-"No", no,
-"Unknown", ?
-          SIZE 28 BY 1
-     btnLast-2 AT ROW 9.57 COL 133 HELP
-          "Last" WIDGET-ID 68
-     btnNext-2 AT ROW 9.57 COL 125 HELP
-          "Next" WIDGET-ID 66
-     btnPrev-2 AT ROW 9.57 COL 117 HELP
-          "Previous" WIDGET-ID 64
-     btnAdd-2 AT ROW 9.57 COL 66 HELP
-          "Add" WIDGET-ID 20
-     btnCancel-2 AT ROW 9.57 COL 98 HELP
-          "Cancel" WIDGET-ID 28
-     btnCopy-2 AT ROW 9.57 COL 74 HELP
-          "Copy" WIDGET-ID 24
-     btnDelete-2 AT ROW 9.57 COL 82 HELP
-          "Delete" WIDGET-ID 26
-     btnReset-2 AT ROW 9.57 COL 90 HELP
-          "Reset" WIDGET-ID 22
-     btnUpdate-2 AT ROW 9.57 COL 58 HELP
-          "Update/Save" WIDGET-ID 18
-     btnCalendar-2 AT ROW 7.19 COL 39 WIDGET-ID 272
-     "Type:" VIEW-AS TEXT
-          SIZE 6 BY 1 AT ROW 1.24 COL 17 WIDGET-ID 58
-     transPanel-3 AT ROW 9.33 COL 57 WIDGET-ID 16
-     transPanel-4 AT ROW 9.33 COL 108 WIDGET-ID 60
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 16.48
-         SIZE 142 BY 11.86
-         FGCOLOR 1 
-         TITLE "View" WIDGET-ID 900.
-
 DEFINE FRAME viewFrame
      btnFirst-1 AT ROW 9.81 COL 69 HELP
           "First" WIDGET-ID 274
-     btnLast-1 AT ROW 9.81 COL 93 HELP
-          "Last" WIDGET-ID 68
-     btnNext-1 AT ROW 9.81 COL 85 HELP
-          "Next" WIDGET-ID 276
-     btnPrev-1 AT ROW 9.81 COL 77 HELP
-          "Previous" WIDGET-ID 278
      cCategory AT ROW 1.24 COL 18 COLON-ALIGNED WIDGET-ID 2
      cSubcategory AT ROW 1.24 COL 58 COLON-ALIGNED WIDGET-ID 12
-     btnClose AT ROW 1.24 COL 113 HELP
-          "Close" WIDGET-ID 72
      iSecurityLevelUser AT ROW 1.24 COL 92 COLON-ALIGNED WIDGET-ID 10
      iSecurityLevelDefault AT ROW 1.24 COL 102 COLON-ALIGNED WIDGET-ID 44
      cName AT ROW 2.43 COL 18 COLON-ALIGNED WIDGET-ID 8
@@ -839,20 +754,28 @@ DEFINE FRAME viewFrame
      cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
      cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
      cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
+     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
      hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Date Value" NO-LABEL WIDGET-ID 58
-     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Integer Value" NO-LABEL WIDGET-ID 62
      hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Decimal Value" NO-LABEL WIDGET-ID 60
      hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
-     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
+     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Integer Value" NO-LABEL WIDGET-ID 62
      cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
-     btnCalendar-1 AT ROW 6 COL 36 WIDGET-ID 272
      ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
+     btnLast-1 AT ROW 9.81 COL 93 HELP
+          "Last" WIDGET-ID 68
      cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
+     btnNext-1 AT ROW 9.81 COL 85 HELP
+          "Next" WIDGET-ID 276
      cDataType AT ROW 8.38 COL 94 COLON-ALIGNED HELP
           "Select Data Type" WIDGET-ID 52
+     btnPrev-1 AT ROW 9.81 COL 77 HELP
+          "Previous" WIDGET-ID 278
+     btnClose AT ROW 1.24 COL 113 HELP
+          "Close" WIDGET-ID 72
+     btnCalendar-1 AT ROW 6 COL 36 WIDGET-ID 272
      btnAdd AT ROW 9.81 COL 15 HELP
           "Add" WIDGET-ID 20
      btnCancel AT ROW 9.81 COL 47 HELP
@@ -923,6 +846,105 @@ DEFINE FRAME searchFrame
          SIZE 64 BY 12.14
          FGCOLOR 1 FONT 6 WIDGET-ID 600.
 
+DEFINE FRAME formsFrame
+     cSysCtrlName AT ROW 1.24 COL 11 COLON-ALIGNED WIDGET-ID 4
+     cSysCtrlDescrip AT ROW 1.24 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+     cSysCtrlDataType AT ROW 2.43 COL 11 COLON-ALIGNED WIDGET-ID 32
+     cSysCtrFieldlDescrip AT ROW 2.43 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 30
+     searchForm AT ROW 3.62 COL 11 COLON-ALIGNED WIDGET-ID 34
+     sysCtrlShipToBrowse AT ROW 4.81 COL 2 WIDGET-ID 800
+     "Columns: Description, Cust or Vend, Ship To ID and Character Value" VIEW-AS TEXT
+          SIZE 66 BY .62 AT ROW 3.86 COL 78 WIDGET-ID 36
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 17 ROW 1
+         SIZE 144 BY 28.57
+         FGCOLOR 1 
+         TITLE "System Control Parameter Forms" WIDGET-ID 700.
+
+DEFINE FRAME viewFormFrame
+     btnFirst-2 AT ROW 9.57 COL 109 HELP
+          "First" WIDGET-ID 62
+     sys-ctrl-shipto.cust-vend AT ROW 1.24 COL 24 NO-LABEL WIDGET-ID 48
+          VIEW-AS RADIO-SET HORIZONTAL
+          RADIO-BUTTONS 
+                    "Customer", yes,
+"Vendor", no
+          SIZE 26 BY 1
+     sys-ctrl-shipto.cust-vend-no AT ROW 2.43 COL 21 COLON-ALIGNED WIDGET-ID 34
+          VIEW-AS FILL-IN 
+          SIZE 14.2 BY 1
+          BGCOLOR 15 
+     type_name AT ROW 2.43 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 76
+     sys-ctrl-shipto.ship-id AT ROW 3.62 COL 21 COLON-ALIGNED WIDGET-ID 44
+          VIEW-AS FILL-IN 
+          SIZE 14.2 BY 1
+          BGCOLOR 15 
+     ship_name AT ROW 3.62 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 74
+     sys-ctrl-shipto.descrip AT ROW 4.81 COL 21 COLON-ALIGNED WIDGET-ID 46 FORMAT "x(256)"
+          VIEW-AS FILL-IN 
+          SIZE 92 BY 1
+          BGCOLOR 15 
+     sys-ctrl-shipto.char-fld AT ROW 6 COL 21 COLON-ALIGNED WIDGET-ID 30
+          LABEL "Character" FORMAT "x(256)"
+          VIEW-AS FILL-IN 
+          SIZE 92 BY 1
+          BGCOLOR 15 
+     sys-ctrl-shipto.date-fld AT ROW 7.19 COL 21 COLON-ALIGNED WIDGET-ID 36
+          LABEL "Date"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 
+     sys-ctrl-shipto.dec-fld AT ROW 8.38 COL 21 COLON-ALIGNED WIDGET-ID 38
+          LABEL "Decimal"
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     sys-ctrl-shipto.int-fld AT ROW 9.57 COL 21 COLON-ALIGNED WIDGET-ID 40
+          LABEL "Integer"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 
+     btnForms-2 AT ROW 1 COL 138 HELP
+          "Close" WIDGET-ID 72
+     cLogLabel AT ROW 10.76 COL 15.2 WIDGET-ID 78
+     sys-ctrl-shipto.log-fld AT ROW 10.76 COL 24 NO-LABEL WIDGET-ID 52
+          VIEW-AS RADIO-SET HORIZONTAL
+          RADIO-BUTTONS 
+                    "Yes", yes,
+"No", no,
+"Unknown", ?
+          SIZE 28 BY 1
+     btnLast-2 AT ROW 9.57 COL 133 HELP
+          "Last" WIDGET-ID 68
+     btnNext-2 AT ROW 9.57 COL 125 HELP
+          "Next" WIDGET-ID 66
+     btnPrev-2 AT ROW 9.57 COL 117 HELP
+          "Previous" WIDGET-ID 64
+     btnAdd-2 AT ROW 9.57 COL 66 HELP
+          "Add" WIDGET-ID 20
+     btnCancel-2 AT ROW 9.57 COL 98 HELP
+          "Cancel" WIDGET-ID 28
+     btnCopy-2 AT ROW 9.57 COL 74 HELP
+          "Copy" WIDGET-ID 24
+     btnDelete-2 AT ROW 9.57 COL 82 HELP
+          "Delete" WIDGET-ID 26
+     btnReset-2 AT ROW 9.57 COL 90 HELP
+          "Reset" WIDGET-ID 22
+     btnUpdate-2 AT ROW 9.57 COL 58 HELP
+          "Update/Save" WIDGET-ID 18
+     btnCalendar-2 AT ROW 7.19 COL 39 WIDGET-ID 272
+     "Type:" VIEW-AS TEXT
+          SIZE 6 BY 1 AT ROW 1.24 COL 17 WIDGET-ID 58
+     transPanel-3 AT ROW 9.33 COL 57 WIDGET-ID 16
+     transPanel-4 AT ROW 9.33 COL 108 WIDGET-ID 60
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 16.48
+         SIZE 142 BY 11.86
+         FGCOLOR 1 
+         TITLE "View" WIDGET-ID 900.
+
 
 /* *********************** Procedure Settings ************************ */
 
@@ -979,10 +1001,10 @@ ASSIGN FRAME filterFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
-ASSIGN XXTABVALXX = FRAME searchFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+ASSIGN XXTABVALXX = FRAME searchFrame:MOVE-BEFORE-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME filterFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
        XXTABVALXX = FRAME formsFrame:MOVE-BEFORE-TAB-ITEM (searchBar:HANDLE IN FRAME DEFAULT-FRAME)
        XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (FRAME formsFrame:HANDLE)
-       XXTABVALXX = FRAME searchFrame:MOVE-BEFORE-TAB-ITEM (FRAME filterFrame:HANDLE)
 /* END-ASSIGN-TABS */.
 
 /* BROWSE-TAB sysCtrlBrowse btnSortMove DEFAULT-FRAME */
@@ -1004,10 +1026,7 @@ ASSIGN
                                                                         */
 /* SETTINGS FOR FRAME formsFrame
                                                                         */
-ASSIGN XXTABVALXX = FRAME viewFormFrame:MOVE-AFTER-TAB-ITEM (sysCtrlShipToBrowse:HANDLE IN FRAME formsFrame)
-/* END-ASSIGN-TABS */.
-
-/* BROWSE-TAB sysCtrlShipToBrowse cSysCtrFieldlDescrip formsFrame */
+/* BROWSE-TAB sysCtrlShipToBrowse searchForm formsFrame */
 ASSIGN 
        FRAME formsFrame:HIDDEN           = TRUE
        FRAME formsFrame:MOVABLE          = TRUE.
@@ -1025,6 +1044,7 @@ ASSIGN
        cSysCtrlName:READ-ONLY IN FRAME formsFrame        = TRUE.
 
 ASSIGN 
+       sysCtrlShipToBrowse:ALLOW-COLUMN-SEARCHING IN FRAME formsFrame = TRUE
        sysCtrlShipToBrowse:SEPARATOR-FGCOLOR IN FRAME formsFrame      = 1.
 
 /* SETTINGS FOR FRAME searchFrame
@@ -1267,23 +1287,31 @@ WHERE (ttSysCtrl.category EQ cFilter
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE sysCtrlShipToBrowse
 /* Query rebuild information for BROWSE sysCtrlShipToBrowse
      _TblList          = "ASI.sys-ctrl-shipto"
-     _Options          = "NO-LOCK INDEXED-REPOSITION"
+     _Options          = "NO-LOCK INDEXED-REPOSITION SORTBY-PHRASE"
      _Where[1]         = "sys-ctrl-shipto.company EQ g_company
-AND sys-ctrl-shipto.name EQ ttSysCtrl.name"
-     _FldNameList[1]   = ASI.sys-ctrl-shipto.cust-vend
-     _FldNameList[2]   = ASI.sys-ctrl-shipto.descrip
-     _FldNameList[3]   = ASI.sys-ctrl-shipto.cust-vend-no
-     _FldNameList[4]   = ASI.sys-ctrl-shipto.ship-id
+AND sys-ctrl-shipto.name EQ ttSysCtrl.name
+AND (sys-ctrl-shipto.descrip MATCHES ""*"" + searchForm + ""*""
+OR sys-ctrl-shipto.cust-vend-no MATCHES ""*"" + searchForm + ""*""
+OR sys-ctrl-shipto.ship-id MATCHES ""*"" + searchForm + ""*""
+OR sys-ctrl-shipto.char-fld MATCHES ""*"" + searchForm + ""*"")"
+     _FldNameList[1]   > ASI.sys-ctrl-shipto.cust-vend
+"sys-ctrl-shipto.cust-vend" ? ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.sys-ctrl-shipto.descrip
+"sys-ctrl-shipto.descrip" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.sys-ctrl-shipto.cust-vend-no
+"sys-ctrl-shipto.cust-vend-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.sys-ctrl-shipto.ship-id
+"sys-ctrl-shipto.ship-id" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.sys-ctrl-shipto.char-fld
-"sys-ctrl-shipto.char-fld" "Character Value" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"sys-ctrl-shipto.char-fld" "Character Value" "x(20)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.sys-ctrl-shipto.date-fld
-"sys-ctrl-shipto.date-fld" "Date" ? "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"sys-ctrl-shipto.date-fld" "Date" ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.sys-ctrl-shipto.dec-fld
-"sys-ctrl-shipto.dec-fld" "Decimal" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"sys-ctrl-shipto.dec-fld" "Decimal" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.sys-ctrl-shipto.int-fld
-"sys-ctrl-shipto.int-fld" "Integer" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"sys-ctrl-shipto.int-fld" "Integer" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.sys-ctrl-shipto.log-fld
-"sys-ctrl-shipto.log-fld" "Log" ? "logical" ? ? ? ? ? ? no ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"sys-ctrl-shipto.log-fld" "Log" ? "logical" ? ? ? 14 ? ? no ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE sysCtrlShipToBrowse */
 &ANALYZE-RESUME
@@ -2516,6 +2544,19 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME formsFrame
+&Scoped-define SELF-NAME searchForm
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL searchForm C-Win
+ON VALUE-CHANGED OF searchForm IN FRAME formsFrame /* Search */
+DO:
+    ASSIGN {&SELF-NAME}.
+    RUN pReopenShipToBrowse.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define FRAME-NAME viewFormFrame
 &Scoped-define SELF-NAME sys-ctrl-shipto.ship-id
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sys-ctrl-shipto.ship-id C-Win
@@ -2577,11 +2618,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sysCtrlBrowse C-Win
 ON START-SEARCH OF sysCtrlBrowse IN FRAME DEFAULT-FRAME
 DO:
-    IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = BROWSE sysCtrlBrowse:CURRENT-COLUMN:NAME.
-        IF cColumnLabel EQ cSaveLabel THEN
+    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
+        cColumnLabel[1] = BROWSE sysCtrlBrowse:CURRENT-COLUMN:NAME.
+        IF cColumnLabel[1] EQ cSaveLabel[1] THEN
         lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
+        cSaveLabel[1] = cColumnLabel[1].
         RUN pReopenBrowse.
     END.
     RETURN NO-APPLY.
@@ -2633,6 +2674,23 @@ END.
 ON DEFAULT-ACTION OF sysCtrlShipToBrowse IN FRAME formsFrame
 DO:
     APPLY "CHOOSE":U TO btnUpdate-2 IN FRAME viewFormFrame.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sysCtrlShipToBrowse C-Win
+ON START-SEARCH OF sysCtrlShipToBrowse IN FRAME formsFrame
+DO:
+    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
+        cColumnLabel[2] = BROWSE sysCtrlShipToBrowse:CURRENT-COLUMN:NAME.
+        IF cColumnLabel[2] EQ cSaveLabel[2] THEN
+        lAscending = NOT lAscending.
+        cSaveLabel[2] = cColumnLabel[2].
+        RUN pReopenShipToBrowse.
+    END.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2811,9 +2869,10 @@ PROCEDURE enable_UI :
   VIEW FRAME searchFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-searchFrame}
   DISPLAY cSysCtrlName cSysCtrlDescrip cSysCtrlDataType cSysCtrFieldlDescrip 
+          searchForm 
       WITH FRAME formsFrame IN WINDOW C-Win.
   ENABLE cSysCtrlName cSysCtrlDescrip cSysCtrlDataType cSysCtrFieldlDescrip 
-         sysCtrlShipToBrowse 
+         searchForm sysCtrlShipToBrowse 
       WITH FRAME formsFrame IN WINDOW C-Win.
   VIEW FRAME formsFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-formsFrame}
@@ -3005,6 +3064,63 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByCharFld C-Win 
+PROCEDURE pByCharFld :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAscending THEN
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.char-fld
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
+    ELSE
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.char-fld DESCENDING
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByCustVend C-Win 
+PROCEDURE pByCustVend :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAscending THEN
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.cust-vend
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
+    ELSE
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.cust-vend DESCENDING
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByCustVendNo C-Win 
+PROCEDURE pByCustVendNo :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAscending THEN
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.cust-vend-no
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
+    ELSE
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.cust-vend-no DESCENDING
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByDataType C-Win 
 PROCEDURE pByDataType :
 /*------------------------------------------------------------------------------
@@ -3024,6 +3140,44 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByDateFld C-Win 
+PROCEDURE pByDateFld :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAscending THEN
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.date-fld
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
+    ELSE
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.date-fld DESCENDING
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByDecFld C-Win 
+PROCEDURE pByDecFld :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAscending THEN
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.dec-fld
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
+    ELSE
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.dec-fld DESCENDING
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByDescrip C-Win 
 PROCEDURE pByDescrip :
 /*------------------------------------------------------------------------------
@@ -3037,6 +3191,25 @@ PROCEDURE pByDescrip :
     ELSE
     &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.descrip DESCENDING
     {&OPEN-QUERY-sysCtrlBrowse}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByDescrip2 C-Win 
+PROCEDURE pByDescrip2 :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAscending THEN
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.descrip
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
+    ELSE
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.descrip DESCENDING
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
 
 END PROCEDURE.
 
@@ -3100,6 +3273,44 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByIntFld C-Win 
+PROCEDURE pByIntFld :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAscending THEN
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.int-fld
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
+    ELSE
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.int-fld DESCENDING
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByLogFld C-Win 
+PROCEDURE pByLogFld :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAscending THEN
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.log-fld
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
+    ELSE
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.log-fld DESCENDING
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByModule C-Win 
 PROCEDURE pByModule :
 /*------------------------------------------------------------------------------
@@ -3132,6 +3343,25 @@ PROCEDURE pByName :
     ELSE
     &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.name DESCENDING
     {&OPEN-QUERY-sysCtrlBrowse}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByShipID C-Win 
+PROCEDURE pByShipID :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAscending THEN
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.ship-id
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
+    ELSE
+    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.ship-id DESCENDING
+    {&OPEN-QUERY-sysCtrlShipToBrowse}
 
 END PROCEDURE.
 
@@ -4443,7 +4673,7 @@ PROCEDURE pReopenBrowse :
   Notes:       
 ------------------------------------------------------------------------------*/
     SESSION:SET-WAIT-STATE("General").
-    CASE cColumnLabel:
+    CASE cColumnLabel[1]:
         WHEN "category" THEN
         RUN pByCategory.
         WHEN "dataType" THEN
@@ -4473,6 +4703,46 @@ PROCEDURE pReopenBrowse :
     SESSION:SET-WAIT-STATE("").
     IF AVAILABLE ttSysCtrl THEN
     APPLY "VALUE-CHANGED":U TO BROWSE sysCtrlBrowse.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenShipToBrowse C-Win 
+PROCEDURE pReopenShipToBrowse :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    SESSION:SET-WAIT-STATE("General").
+    CASE cColumnLabel[2]:
+        WHEN "cust-vend" THEN
+        RUN pByCustVend.
+        WHEN "descrip" THEN
+        RUN pByDescrip2.
+        WHEN "cust-vend-no" THEN
+        RUN pByCustVendNo.
+        WHEN "ship-id" THEN
+        RUN pByShipID.
+        WHEN "char-fld" THEN
+        RUN pByCharFld.
+        WHEN "date-fld" THEN
+        RUN pByDateFld.
+        WHEN "dec-fld" THEN
+        RUN pByDecFld.
+        WHEN "int-fld" THEN
+        RUN pByIntFld.
+        WHEN "log-fld" THEN
+        RUN pByLogFld.
+        OTHERWISE
+        &SCOPED-DEFINE SORTBY-PHRASE
+        {&OPEN-QUERY-sysCtrlShipToBrowse}
+    END CASE.
+    SESSION:SET-WAIT-STATE("").
+    IF AVAILABLE sys-ctrl-shipto THEN
+    APPLY "VALUE-CHANGED":U TO BROWSE sysCtrlShipToBrowse.
 
 END PROCEDURE.
 
