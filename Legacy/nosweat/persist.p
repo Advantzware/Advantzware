@@ -160,21 +160,42 @@ PROCEDURE Get_Procedure :
   IF NOT SESSION:BATCH-MODE THEN
   RUN Set_Cursor ("WAIT").
   
-  FIND buf-prgrms WHERE buf-prgrms.prgmname = proc-name NO-LOCK NO-ERROR.
+    FIND buf-prgrms WHERE buf-prgrms.prgmname = proc-name NO-LOCK NO-ERROR.
 
-  IF AVAILABLE buf-prgrms THEN DO:
-    run-proc = buf-prgrms.dir_group + "/" + proc-name + "r".
-    IF SEARCH(run-proc) = ? THEN
-    run-proc = buf-prgrms.dir_group + "/" + proc-name + "p".
-    IF SEARCH(run-proc) = ? THEN
-    run-proc = buf-prgrms.dir_group + "/" + proc-name + "w".
-    IF SEARCH(run-proc) = ? THEN DO:
-      IF NOT SESSION:BATCH-MODE THEN DO:
-        RUN Set_Cursor ("").
-        MESSAGE "Procedure" SUBSTR(run-proc,1,LENGTH(run-proc) - 2) "Does Not Exist"
-            VIEW-AS ALERT-BOX ERROR.
-      END.
-      run-proc = "".
+    IF AVAILABLE buf-prgrms THEN DO:
+        run-proc = buf-prgrms.dir_group + "/" + proc-name + "r".
+        IF SEARCH(run-proc) = ? THEN
+            run-proc = buf-prgrms.dir_group + "/" + proc-name + "p".
+        IF SEARCH(run-proc) = ? THEN
+            run-proc = buf-prgrms.dir_group + "/" + proc-name + "w".
+        IF SEARCH(run-proc) = ? THEN DO:
+            IF NOT SESSION:BATCH-MODE THEN DO:
+                RUN Set_Cursor ("").
+                MESSAGE "Procedure" SUBSTR(run-proc,1,LENGTH(run-proc) - 2) "Does Not Exist"
+                    VIEW-AS ALERT-BOX ERROR.
+            END.
+            run-proc = "".
+        END.
+        ELSE DO:
+            IF run-now THEN DO:
+                IF buf-prgrms.run_persistent THEN DO:
+                    IF INDEX(proc-name,"_.") NE 0 THEN DO:
+                        run-proc = "system/listrqst.w".
+                        {methods/smartrun.i (buf-prgrms.prgmname)}
+                    END.
+                    ELSE
+                    {methods/smartrun.i}
+                END.
+                ELSE
+                    IF proc-name= "about." THEN
+                        RUN VALUE(run-proc) (PROGRAM-NAME(2)).
+                    ELSE
+                        IF proc-name= "help." AND INDEX(PROGRAM-NAME(2),"mainmenu") NE 0 THEN
+                            RUN VALUE(run-proc) ("mainmenu.",0).
+                        ELSE RUN VALUE(run-proc).
+                run-proc = "".
+            END.
+        END.
     END.
     ELSE DO:
       IF buf-prgrms.track_usage OR g_track_usage THEN DO TRANSACTION:
