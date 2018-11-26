@@ -741,20 +741,20 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                           AND notes.note_code = "PT" 
                          NO-LOCK
                          BY notes.note_code:
-                        
-                         v-tmp-lines = LENGTH(NOTES.NOTE_TEXT) / 20.
+                         v-tmp-lines = LENGTH(NOTES.NOTE_TEXT) / 80.
                          {SYS/INC/ROUNDUP.I v-tmp-lines}
                         
                          IF v-tmp-lines = 0 THEN
                              v-tmp-lines = 1 .
+                         
                          DO i = 1 TO v-tmp-lines:
                             IF v-printline > 36 THEN DO:
                                PAGE.
                                v-printline = 0.
                                {oe/rep/relpremx2.i}
                             END.
-                            
-                            PUT "<c7>" v-tmp-lines substring(NOTES.NOTE_TEXT,(1 + 20 * (i - 1)), 20) FORM "x(80)" SKIP.
+                               
+                            PUT "<C7>" SUBSTRING(NOTES.NOTE_TEXT,(1 + 80 * (i - 1)), 80) FORM "x(83)" SKIP .
                             v-printline = v-printline + 1.
                          END.
                   END.
