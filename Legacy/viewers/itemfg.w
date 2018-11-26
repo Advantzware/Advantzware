@@ -60,6 +60,7 @@ DEFINE VARIABLE lv-puruom       LIKE itemfg.pur-uom NO-UNDO.
 DEFINE VARIABLE v-shpmet        LIKE itemfg.ship-meth NO-UNDO.
 DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE lFound          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lCheckMessage   AS LOGICAL   NO-UNDO .
 
 DEFINE TEMP-TABLE w-est-no
     FIELD w-est-no LIKE itemfg.est-no
@@ -1115,6 +1116,19 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.stat V-table-Win
+ON VALUE-CHANGED OF itemfg.stat IN FRAME F-Main /* Set Header? */
+DO:
+    IF itemfg.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "I" THEN do:
+        lCheckMessage = YES .
+        RUN pCheckOnHandQty. 
+        lCheckMessage = NO .
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME itemfg.pur-man
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.pur-man V-table-Win
@@ -1962,6 +1976,9 @@ PROCEDURE local-update-record :
     RUN valid-loc NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+    RUN pCheckOnHandQty NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. 
+
     {&methods/lValidateError.i YES}
     DO WITH FRAME {&frame-name}:
         IF itemfg.style:SCREEN-VALUE <> "" AND
@@ -2807,4 +2824,72 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckOnHandQty V-table-Win 
+PROCEDURE pCheckOnHandQty :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+DEFINE VARIABLE iQtyOnHand AS INTEGER NO-UNDO .
+DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO .
+
+  {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+
+        FOR EACH fg-bin FIELDS(qty )
+           WHERE fg-bin.company EQ cocode
+             AND fg-bin.i-no    EQ itemfg.i-no:SCREEN-VALUE
+             NO-LOCK:
+         ASSIGN
+            iQtyOnHand = iQtyOnHand + fg-bin.qty.
+        END.
+
+       IF iQtyOnHand GT 0 THEN DO:
+           MESSAGE "Remove all on hand quantity in order to make an item inactive." VIEW-AS ALERT-BOX ERROR.
+           APPLY "entry" TO itemfg.stat.
+           RETURN ERROR.
+       END.
+
+      IF lCheckMessage EQ YES THEN do:
+       FOR EACH po-ordl FIELDS(po-no )  NO-LOCK
+           WHERE po-ordl.company EQ cocode
+           AND po-ordl.i-no EQ  itemfg.i-no:SCREEN-VALUE
+           AND po-ordl.opened  :
+           cMessage = " Po# " + string(po-ordl.po-no ) .
+           LEAVE.
+       END.
+
+       IF cMessage EQ "" THEN
+       FOR EACH oe-ordl FIELD(ord-no) NO-LOCK
+           WHERE oe-ordl.company EQ cocode
+           AND oe-ordl.i-no EQ itemfg.i-no:SCREEN-VALUE
+           AND oe-ordl.opened  :
+           cMessage = " Order# " + string(oe-ordl.ord-no ) .
+           LEAVE.
+       END.
+       IF cMessage EQ "" THEN
+       FOR EACH job-hdr FIELD(job-no)  NO-LOCK
+        WHERE  job-hdr.company EQ cocode
+          AND job-hdr.i-no EQ itemfg.i-no:SCREEN-VALUE
+          AND job-hdr.opened EQ YES :
+            cMessage = " Job# " + string(job-hdr.job-no ) .
+       END.
+
+       IF  cMessage NE "" THEN 
+           MESSAGE "You are setting this item to inactive yet it is still included in "  SKIP
+               "open/unprocessed transactions.  This includes:" cMessage VIEW-AS ALERT-BOX WARNING .
+
+      END.  /* lCheckMessage */
+          
+    END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
