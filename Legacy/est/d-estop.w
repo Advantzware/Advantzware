@@ -120,10 +120,10 @@ est-op.spare-char-1 est-op.n_out_div
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame est-op
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame est-op
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH est-op ~
-      WHERE est-op.company eq cocode  SHARE-LOCK, ~
+      WHERE ASI.est-op.company eq cocode  SHARE-LOCK, ~
       EACH est SHARE-LOCK
 &Scoped-define OPEN-QUERY-Dialog-Frame OPEN QUERY Dialog-Frame FOR EACH est-op ~
-      WHERE est-op.company eq cocode  SHARE-LOCK, ~
+      WHERE ASI.est-op.company eq cocode  SHARE-LOCK, ~
       EACH est SHARE-LOCK.
 &Scoped-define TABLES-IN-QUERY-Dialog-Frame est-op est est-qty
 &Scoped-define FIRST-TABLE-IN-QUERY-Dialog-Frame est-op
@@ -172,9 +172,10 @@ DEFINE BUTTON Btn_Cancel
      SIZE 8 BY 1.91
      BGCOLOR 8 .
 
-DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT 
+DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Done" 
-     SIZE 15 BY 1.14
+     SIZE 8 BY 1.91
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
@@ -184,12 +185,12 @@ DEFINE BUTTON Btn_OK
      BGCOLOR 8 .
 
 DEFINE RECTANGLE RECT-21
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL  ROUNDED 
-     SIZE 30 BY 3.00
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 30 BY 3
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-38
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL  ROUNDED 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 127 BY 13.81
      BGCOLOR 15 .
 
@@ -204,114 +205,104 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     est-op.isLocked AT ROW 13.14 COL 105 WIDGET-ID 2
+     est-op.isLocked AT ROW 13.48 COL 109.6 WIDGET-ID 2
           VIEW-AS TOGGLE-BOX
           SIZE 13.4 BY .81
           BGCOLOR 15 FONT 1
-     est-op.s-num AT ROW 1.91 COL 24 COLON-ALIGNED
+     est-op.s-num AT ROW 1.43 COL 63.4 COLON-ALIGNED
           LABEL "Sheet #" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     est-op.b-num AT ROW 1.91 COL 61.8 COLON-ALIGNED
+     est-op.b-num AT ROW 2.67 COL 63.4 COLON-ALIGNED
           LABEL "Blank#" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     est-op.m-code AT ROW 3.14 COL 24 COLON-ALIGNED
+     est-op.m-code AT ROW 1.43 COL 15.8 COLON-ALIGNED
           LABEL "Machine" FORMAT "x(6)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     est-op.m-dscr AT ROW 3.14 COL 61.8 COLON-ALIGNED
+     est-op.m-dscr AT ROW 2.62 COL 15.8 COLON-ALIGNED
           LABEL "Desc" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 36.4 BY 1
           BGCOLOR 15 FONT 1
-     est-op.op-pass AT ROW 4.38 COL 24 COLON-ALIGNED
+     est-op.op-pass AT ROW 2.76 COL 92.2 COLON-ALIGNED
           LABEL "Pass#." FORMAT ">9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     est-op.n-out AT ROW 4.38 COL 61.8 COLON-ALIGNED
+     est-op.n-out AT ROW 1.43 COL 91.8 COLON-ALIGNED
           LABEL "Out." FORMAT ">>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     est-op.op-mr AT ROW 4.38 COL 103 COLON-ALIGNED
-          LABEL "MR-Hrs" FORMAT ">>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
-          BGCOLOR 15 FONT 1
-     est-op.op-waste AT ROW 5.62 COL 24 COLON-ALIGNED
-          LABEL "Waste" FORMAT ">>>>>9"
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
-          BGCOLOR 15 FONT 1
-     est-op.op-speed AT ROW 5.62 COL 61.8 COLON-ALIGNED
-          LABEL "Speed" FORMAT ">>>>9"
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
-          BGCOLOR 15 FONT 1
-     est-op.op-spoil AT ROW 5.62 COL 103 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
-          BGCOLOR 15 FONT 1
-     est-op.op-crew[1] AT ROW 6.81 COL 24 COLON-ALIGNED
+     est-op.op-crew[1] AT ROW 5.05 COL 15.8 COLON-ALIGNED
           LABEL "MRCrew" FORMAT "9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     est-op.op-crew[2] AT ROW 6.81 COL 61.8 COLON-ALIGNED
+     est-op.op-crew[2] AT ROW 4.57 COL 59.4 COLON-ALIGNED
           LABEL "RunCrew" FORMAT "9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     est-op.op-rate[1] AT ROW 6.81 COL 103 COLON-ALIGNED
+     est-op.op-rate[1] AT ROW 6.29 COL 15.8 COLON-ALIGNED
           LABEL "MRate" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     est-op.op-rate[2] AT ROW 8.05 COL 24 COLON-ALIGNED
+     est-op.op-rate[2] AT ROW 5.81 COL 59.4 COLON-ALIGNED
           LABEL "RRate" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     est-op.plates AT ROW 8.05 COL 61.8 COLON-ALIGNED
+    est-op.op-mr AT ROW 7.57 COL 15.8 COLON-ALIGNED
+          LABEL "MR-Hrs" FORMAT ">>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+    est-op.op-speed AT ROW 7.05 COL 59.4 COLON-ALIGNED
+          LABEL "Speed" FORMAT ">>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+    est-op.op-waste AT ROW 8.81 COL 15.8 COLON-ALIGNED
+          LABEL "Waste" FORMAT ">>>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+    est-op.op-spoil AT ROW 8.33 COL 59.4 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+    est-op.n_out_div AT ROW 9.57 COL 59.4 COLON-ALIGNED
+          LABEL "Run Qty Divisor" FORMAT "->>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+    est-op.spare-char-1 AT ROW 10.81 COL 59.4 COLON-ALIGNED
+          LABEL "Feed" FORMAT "x(1)"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     est-op.plates AT ROW 4.57 COL 104.4 COLON-ALIGNED
           LABEL "Plate changes" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     est-op.fountains AT ROW 8.05 COL 103 COLON-ALIGNED
+     est-op.fountains AT ROW 5.81 COL 104.4 COLON-ALIGNED
           LABEL "Fountain Changes" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     est-op.att-type[1] AT ROW 9.29 COL 24 COLON-ALIGNED
+     est-op.att-type[1] AT ROW 12.29 COL 15.8 COLON-ALIGNED
           LABEL "Adder 1" FORMAT "x(5)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     est-op.att-qty[1] AT ROW 9.29 COL 61.8 COLON-ALIGNED
-          LABEL "Qty" FORMAT ">>,>>>"
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
-          BGCOLOR 15 FONT 1
-     est-op.att-type[2] AT ROW 10.52 COL 24 COLON-ALIGNED
-          LABEL "Adder 2" FORMAT "x(5)"
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
-          BGCOLOR 15 FONT 1
-     est-op.att-qty[2] AT ROW 10.52 COL 61.8 COLON-ALIGNED
-          LABEL "Qty" FORMAT ">>,>>>"
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
-          BGCOLOR 15 FONT 1
-     est-op.att-type[3] AT ROW 11.76 COL 24 COLON-ALIGNED
-          LABEL "Adder 3" FORMAT "x(5)"
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
-          BGCOLOR 15 FONT 1
-     est-op.att-qty[3] AT ROW 11.76 COL 61.8 COLON-ALIGNED
+     est-op.att-qty[1] AT ROW 13.48 COL 15.8 COLON-ALIGNED
           LABEL "Qty" FORMAT ">>,>>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -322,19 +313,29 @@ DEFINE FRAME Dialog-Frame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
-     est-op.spare-char-1 AT ROW 13 COL 24 COLON-ALIGNED
-          LABEL "Feed" FORMAT "x(1)"
+     est-op.att-type[2] AT ROW 12.29 COL 45.6 COLON-ALIGNED
+          LABEL "Adder 2" FORMAT "x(5)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     est-op.n_out_div AT ROW 13 COL 61.8 COLON-ALIGNED
-          LABEL "Run Qty Divisor" FORMAT "->>,>>9.99"
+     est-op.att-qty[2] AT ROW 13.48 COL 45.6 COLON-ALIGNED
+          LABEL "Qty" FORMAT ">>,>>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     Btn_OK AT ROW 15.56 COL 105
-     Btn_Done AT ROW 15.76 COL 105
-     Btn_Cancel AT ROW 15.56 COL 115
+     est-op.att-type[3] AT ROW 12.29 COL 75.6 COLON-ALIGNED
+          LABEL "Adder 3" FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     est-op.att-qty[3] AT ROW 13.48 COL 75.6 COLON-ALIGNED
+          LABEL "Qty" FORMAT ">>,>>>"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     Btn_OK AT ROW 15.57 COL 105
+     Btn_Done AT ROW 15.57 COL 110
+     Btn_Cancel AT ROW 15.57 COL 115
      RECT-21 AT ROW 14.91 COL 98
      RECT-38 AT ROW 1 COL 1
      SPACE(2.19) SKIP(3.28)
