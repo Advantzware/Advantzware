@@ -172,7 +172,6 @@ PROCEDURE Get_Procedure :
             run-proc = "".
         END.
         ELSE DO:
-            IF buf-prgrms.track_usage OR g_track_usage THEN 
             IF run-now THEN DO:
                 IF buf-prgrms.run_persistent THEN DO:
                     IF INDEX(proc-name,"_.") NE 0 THEN DO:
