@@ -31,18 +31,18 @@ IF AVAILABLE b-prgrms THEN
 DO:
     IF NUM-ENTRIES(v_groups) >= 1 THEN
     DO num-groups = 1 TO NUM-ENTRIES(v_groups):
-        IF NOT CAN-DO(TRIM(b-prgrms.can_run),ENTRY(num-groups,v_groups)) AND
-            NOT CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,v_groups)) AND
-            NOT CAN-DO(TRIM(b-prgrms.can_create),ENTRY(num-groups,v_groups)) AND
-            NOT CAN-DO(TRIM(b-prgrms.can_delete),ENTRY(num-groups,v_groups)) THEN
+        IF NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),ENTRY(num-groups,v_groups)) AND
+            NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,v_groups)) AND
+            NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),ENTRY(num-groups,v_groups)) AND
+            NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),ENTRY(num-groups,v_groups)) THEN
             NEXT.
         group-ok = YES.
         LEAVE.
     END.
-    IF NOT CAN-DO(TRIM(b-prgrms.can_run),USERID("ASI")) AND
-        NOT CAN-DO(TRIM(b-prgrms.can_update),USERID("ASI")) AND
-        NOT CAN-DO(TRIM(b-prgrms.can_create),USERID("ASI")) AND
-        NOT CAN-DO(TRIM(b-prgrms.can_delete),USERID("ASI")) AND NOT group-ok THEN
+    IF NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),USERID("ASI")) AND
+        NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),USERID("ASI")) AND
+        NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),USERID("ASI")) AND
+        NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),USERID("ASI")) AND NOT group-ok THEN
     DO:
         access-close = YES.    /* used later in methods/template/windows.i - local-initialize procedure */
     END.

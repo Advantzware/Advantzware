@@ -97,19 +97,19 @@ IF AVAILABLE b-prgrms THEN
 DO:
   DO num-groups = 1 TO NUM-ENTRIES(v_groups):
     
-    IF NOT CAN-DO(b-prgrms.can_run,ENTRY(num-groups,v_groups)) AND       
-       NOT CAN-DO(b-prgrms.can_update,ENTRY(num-groups,v_groups)) AND
-       NOT CAN-DO(b-prgrms.can_create,ENTRY(num-groups,v_groups)) AND
-       NOT CAN-DO(b-prgrms.can_delete,ENTRY(num-groups,v_groups)) THEN
+    IF NOT CAN-DO(REPLACE(b-prgrms.can_run," ",""),ENTRY(num-groups,v_groups)) AND       
+       NOT CAN-DO(REPLACE(b-prgrms.can_update," ",""),ENTRY(num-groups,v_groups)) AND
+       NOT CAN-DO(REPLACE(b-prgrms.can_create," ",""),ENTRY(num-groups,v_groups)) AND
+       NOT CAN-DO(REPLACE(b-prgrms.can_delete," ",""),ENTRY(num-groups,v_groups)) THEN
     NEXT.
     
-    IF NOT v-can-run AND CAN-DO(b-prgrms.can_run,ENTRY(num-groups,v_groups))
+    IF NOT v-can-run AND CAN-DO(REPLACE(b-prgrms.can_run," ",""),ENTRY(num-groups,v_groups))
           THEN v-can-run = YES.
-    IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,ENTRY(num-groups,v_groups))
+    IF NOT v-can-update AND CAN-DO(REPLACE(b-prgrms.can_update," ",""),ENTRY(num-groups,v_groups))
           THEN v-can-update = YES.
-    IF NOT v-can-create AND CAN-DO(b-prgrms.can_create,ENTRY(num-groups,v_groups))
+    IF NOT v-can-create AND CAN-DO(REPLACE(b-prgrms.can_create," ",""),ENTRY(num-groups,v_groups))
           THEN v-can-create = YES.
-    IF NOT v-can-delete AND CAN-DO(b-prgrms.can_delete,ENTRY(num-groups,v_groups))
+    IF NOT v-can-delete AND CAN-DO(REPLACE(b-prgrms.can_delete," ",""),ENTRY(num-groups,v_groups))
           THEN v-can-delete = YES.
         
     group-ok = yes.
@@ -126,10 +126,10 @@ DO:
     /* LEAVE.  */
   END.
 
-  IF NOT CAN-DO(b-prgrms.can_run,USERID("ASI")) AND
-     NOT CAN-DO(b-prgrms.can_update,USERID("ASI")) AND
-     NOT CAN-DO(b-prgrms.can_create,USERID("ASI")) AND
-     NOT CAN-DO(b-prgrms.can_delete,USERID("ASI")) AND NOT group-ok THEN
+  IF NOT CAN-DO(REPLACE(b-prgrms.can_run," ",""),USERID("ASI")) AND
+     NOT CAN-DO(REPLACE(b-prgrms.can_update," ",""),USERID("ASI")) AND
+     NOT CAN-DO(REPLACE(b-prgrms.can_create," ",""),USERID("ASI")) AND
+     NOT CAN-DO(REPLACE(b-prgrms.can_delete," ",""),USERID("ASI")) AND NOT group-ok THEN
   DO:
     IF ip-show-messages THEN
     MESSAGE "Program :" ip-program SKIP "Title :" b-prgrms.prgtitle SKIP(1)
@@ -149,13 +149,13 @@ DO:
   
   END.
   ELSE DO:
-      IF NOT v-can-run AND CAN-DO(b-prgrms.can_run,USERID("NOSWEAT"))
+      IF NOT v-can-run AND CAN-DO(REPLACE(b-prgrms.can_run," ",""),USERID("NOSWEAT"))
             THEN v-can-run = YES.
-      IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("NOSWEAT"))
+      IF NOT v-can-update AND CAN-DO(REPLACE(b-prgrms.can_update," ",""),USERID("NOSWEAT"))
             THEN v-can-update = YES.
-      IF NOT v-can-create AND CAN-DO(b-prgrms.can_create,USERID("NOSWEAT"))
+      IF NOT v-can-create AND CAN-DO(REPLACE(b-prgrms.can_create," ",""),USERID("NOSWEAT"))
             THEN v-can-create = YES.
-      IF NOT v-can-delete AND CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT"))
+      IF NOT v-can-delete AND CAN-DO(REPLACE(b-prgrms.can_delete," ",""),USERID("NOSWEAT"))
             THEN v-can-delete = YES.
       IF v-can-run THEN
           run-access = NO.
