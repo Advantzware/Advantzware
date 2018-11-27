@@ -627,7 +627,6 @@ FUNCTION fGetDate RETURNS DATE
 
   DEFINE VARIABLE rtnValue AS CHARACTER NO-UNDO.
 
-  display string(ipcDate) .
   if integer(substring(ipcDate,1,2)) gt 12 or  integer(substring(ipcDate,1,2)) le 0 then
    ASSIGN rtnValue = string(01/01/2011) .
    else rtnValue = ipcDate .
