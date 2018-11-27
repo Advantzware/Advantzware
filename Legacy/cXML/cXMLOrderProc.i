@@ -103,36 +103,35 @@ PROCEDURE assignOrderHeader:
     DEFINE BUFFER bf-shipto-state FOR shipto.
     FOR EACH ttOrdHead WHERE ttOrdHead.ttSelectedOrder:
           ASSIGN 
-            ttPayLoadID             =           ttOrdHead.ttPayLoadID        
-            ttfromIdentity          =           ttOrdHead.ttfromIdentity     
-            tttoIdentity            =           ttOrdHead.tttoIdentity       
-            ttsenderIdentity        =           ttOrdHead.ttsenderIdentity   
-            ttorderDate             =           ttOrdHead.ttorderDate        
-            ttorderID               =           ttOrdHead.ttorderID          
-            tttotalMoney            =           ttOrdHead.tttotalMoney       
-            ttpaymentPCard          =           ttOrdHead.ttpaymentPCard     
-            ttpaymentExpiration     =           ttOrdHead.ttpaymentExpiration
-            ttshipToID              =           ttOrdHead.ttshipToID         
-            ttshipToName            =           ttOrdHead.ttshipToName       
-            ttshipToContact         =           ttOrdHead.ttshipToContact    
-            ttshipToAddress1        =           ttOrdHead.ttshipToAddress1   
-            ttshipToAddress2        =           ttOrdHead.ttshipToAddress2   
-            ttshipToCity            =           ttOrdHead.ttshipToCity       
-            ttshipToState           =           ttOrdHead.ttshipToState      
-            ttshipToZip             =           ttOrdHead.ttshipToZip        
-            ttshipToCountry         =           ttOrdHead.ttshipToCountry    
-            ttshipToEmail           =           ttOrdHead.ttshipToEmail      
-            ttshipToAreaCode        =           ttOrdHead.ttshipToAreaCode   
-            ttshipToPhone           =           ttOrdHead.ttshipToPhone      
-            ttbillToID              =           ttOrdHead.ttbillToID         
-            ttbillToName            =           ttOrdHead.ttbillToName       
-            ttbillToAddress1        =           ttOrdHead.ttbillToAddress1   
-            ttbillToAddress2        =           ttOrdHead.ttbillToAddress2   
-            ttbillToCity            =           ttOrdHead.ttbillToCity       
-            ttbillToState           =           ttOrdHead.ttbillToState      
-            ttbillToZip             =           ttOrdHead.ttbillToZip        
-            ttcustNo                =           ttOrdHead.ttcustNo
-            custNo                  =           ttOrdHead.ttCustNo           
+            PayLoadID             =           ttOrdHead.ttPayLoadID        
+            fromIdentity          =           ttOrdHead.ttfromIdentity     
+            toIdentity            =           ttOrdHead.tttoIdentity       
+            senderIdentity        =           ttOrdHead.ttsenderIdentity   
+            orderDate             =           ttOrdHead.ttorderDate        
+            orderID               =           ttOrdHead.ttorderID          
+            totalMoney            =           ttOrdHead.tttotalMoney       
+            paymentPCard          =           ttOrdHead.ttpaymentPCard     
+            paymentExpiration     =           ttOrdHead.ttpaymentExpiration
+            shipToID              =           ttOrdHead.ttshipToID         
+            shipToName            =           ttOrdHead.ttshipToName       
+            shipToContact         =           ttOrdHead.ttshipToContact    
+            shipToAddress1        =           ttOrdHead.ttshipToAddress1   
+            shipToAddress2        =           ttOrdHead.ttshipToAddress2   
+            shipToCity            =           ttOrdHead.ttshipToCity       
+            shipToState           =           ttOrdHead.ttshipToState      
+            shipToZip             =           ttOrdHead.ttshipToZip        
+            shipToCountry         =           ttOrdHead.ttshipToCountry    
+            shipToEmail           =           ttOrdHead.ttshipToEmail      
+            shipToAreaCode        =           ttOrdHead.ttshipToAreaCode   
+            shipToPhone           =           ttOrdHead.ttshipToPhone      
+            billToID              =           ttOrdHead.ttbillToID         
+            billToName            =           ttOrdHead.ttbillToName       
+            billToAddress1        =           ttOrdHead.ttbillToAddress1   
+            billToAddress2        =           ttOrdHead.ttbillToAddress2   
+            billToCity            =           ttOrdHead.ttbillToCity       
+            billToState           =           ttOrdHead.ttbillToState      
+            billToZip             =           ttOrdHead.ttbillToZip        
+            custNo                =           ttOrdHead.ttcustNo           
          .          
         IF INDEX(billToID, ":") > 0 AND NOT INDEX(billToID, ":") EQ LENGTH(TRIM(billToID)) THEN 
           billToID = TRIM(SUBSTRING(billToID, INDEX(billToID, ":") + 1, LENGTH(billToID))).
