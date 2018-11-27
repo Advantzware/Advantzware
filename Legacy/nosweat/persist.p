@@ -172,6 +172,20 @@ PROCEDURE Get_Procedure :
             run-proc = "".
         END.
         ELSE DO:
+            IF buf-prgrms.track_usage OR g_track_usage THEN DO TRANSACTION:  
+                CREATE AuditHdr.  
+                ASSIGN  
+                    AuditHdr.AuditID       = NEXT-VALUE(Audit_Seq,Audit) 
+                    AuditHdr.AuditDateTime = NOW 
+                    AuditHdr.AuditType     = "TRACK" 
+                    AuditHdr.AuditDB       = "ASI"  
+                    AuditHdr.AuditTable    = proc-name 
+                    AuditHdr.AuditUser     = USERID("ASI") 
+                    AuditHdr.AuditKey      = buf-prgrms.mnemonic 
+                    . 
+                CREATE AuditDtl.  
+                AuditDtl.AuditID = AuditHdr.AuditID. 
+            END. /* if tracking usage */
             IF run-now THEN DO:
                 IF buf-prgrms.run_persistent THEN DO:
                     IF INDEX(proc-name,"_.") NE 0 THEN DO:
