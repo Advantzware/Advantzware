@@ -190,6 +190,76 @@ FIND FIRST users NO-LOCK
 
 /* **********************  Internal Procedures  *********************** */
 
+&IF DEFINED(EXCLUDE-spCreateAuditDtl) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCreateAuditDtl Procedure
+PROCEDURE spCreateAuditDtl:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiAuditID          AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAuditField       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiAuditExtent      AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAuditBeforeValue AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAuditAfterValue  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplAuditIdxField    AS LOGICAL   NO-UNDO.
+    
+    CREATE AuditDtl.
+    ASSIGN  
+        AuditDtl.AuditID          = ipiAuditID
+        AuditDtl.AuditField       = ipcAuditField
+        AuditDtl.AuditExtent      = ipiAuditExtent
+        AuditDtl.AuditBeforeValue = ipcAuditBeforeValue
+        AuditDtl.AuditAfterValue  = ipcAuditAfterValue
+        AuditDtl.AuditIdxField    = iplAuditIdxField
+        . 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spCreateAuditHdr) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCreateAuditHdr Procedure
+PROCEDURE spCreateAuditHdr:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcAuditType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAuditDB    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAuditTable AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAuditKey   AS CHARACTER NO-UNDO.
+    
+    DEFINE OUTPUT PARAMETER opiAuditID    AS INTEGER   NO-UNDO. 
+
+    CREATE AuditHdr.  
+    ASSIGN  
+        AuditHdr.AuditID       = NEXT-VALUE(Audit_Seq,Audit) 
+        AuditHdr.AuditDateTime = NOW 
+        AuditHdr.AuditType     = ipcAuditType
+        AuditHdr.AuditDB       = ipcAuditDB
+        AuditHdr.AuditTable    = ipcAuditTable
+        AuditHdr.AuditUser     = USERID("ASI") 
+        AuditHdr.AuditKey      = ipcAuditKey 
+        opiAuditID             = AuditHdr.AuditID 
+        . 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-spCreateSysCtrlUsage) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCreateSysCtrlUsage Procedure 
