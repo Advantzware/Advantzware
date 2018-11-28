@@ -71,8 +71,12 @@ PROCEDURE postMonitor:
         IF errorStatus NE 0 THEN
         RUN monitorActivity ('ERROR: Moving ' + monitorFile,YES,'').
       END. /* success */
-      ELSE
-      RUN monitorActivity ('ERROR: ' + returnValue,YES,'').
+      ELSE DO:
+        RUN monitorActivity ('ERROR: ' + returnValue,YES,'').
+        cXMLError = monitorImportDir + '/' + REPLACE(monitorFile,'.xml','.err').
+        OS-RENAME VALUE(cXMLFile) VALUE(cXMLError).
+        NEXT.        
+      END.
     END. /* os-dir repeat */
     INPUT CLOSE.
   END. /* each cxmldir */
