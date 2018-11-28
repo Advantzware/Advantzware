@@ -1708,17 +1708,11 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
 
            IF NOT(begin_cust EQ "" AND END_cust EQ "zzzzzzzz") THEN
            DO v-date = b-post-date TO e-post-date:
-              FOR EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date) 
+               FOR 
+                  EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date) 
                   WHERE fg-rcpth.company                EQ cocode
                     AND fg-rcpth.rita-code              EQ v-type
                     AND fg-rcpth.post-date              EQ v-date
-                    AND CAN-FIND(FIRST itemfg WHERE
-                        itemfg.company EQ cocode AND
-                        itemfg.i-no    EQ fg-rcpth.i-no AND
-                        itemfg.cust-no GE v-cust[1] AND
-                        itemfg.cust-no LE v-cust[2] AND 
-                        (IF lselected THEN CAN-FIND(FIRST ttCustList WHERE ttCustList.cust-no EQ itemfg.cust-no
-                        AND ttCustList.log-fld NO-LOCK) ELSE TRUE) ) 
                   AND fg-rcpth.USER-ID GE begin_user
                  AND fg-rcpth.USER-ID LE END_user
                   USE-INDEX post-date
@@ -1727,6 +1721,19 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                   WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
                     AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
                   NO-LOCK:
+                  
+                  IF CAN-FIND(FIRST itemfg
+                              WHERE itemfg.company EQ cocode
+                                AND itemfg.i-no    EQ fg-rcpth.i-no
+                                AND itemfg.cust-no GE v-cust[1]
+                                AND itemfg.cust-no LE v-cust[2]
+                                AND (IF lselected 
+                                     THEN CAN-FIND(FIRST ttCustList 
+                                                   WHERE ttCustList.cust-no EQ itemfg.cust-no
+                                                     AND ttCustList.log-fld
+                                                   NO-LOCK)
+                                     ELSE TRUE)) 
+                  THEN DO:
 
 
                   CREATE tt-report.
@@ -1742,28 +1749,38 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                   RELEASE tt-report.
               END.
 
-              FOR EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date)
-                  WHERE fg-rcpth.company                EQ cocode AND
-                        fg-rcpth.rita-code              EQ v-type AND
-                        fg-rcpth.post-date              EQ ? AND
-                        fg-rcpth.trans-date             EQ v-date AND
-                        NOT CAN-FIND(FIRST tt-report WHERE
-                                     tt-report.rec-id2  = recid(fg-rcpth))
-                        AND CAN-FIND(FIRST itemfg WHERE
-                        itemfg.company EQ cocode AND
-                        itemfg.i-no    EQ fg-rcpth.i-no AND
-                        itemfg.cust-no GE v-cust[1] AND
-                        itemfg.cust-no LE v-cust[2] AND 
-                        (IF lselected THEN CAN-FIND(FIRST ttCustList WHERE ttCustList.cust-no EQ itemfg.cust-no
-                        AND ttCustList.log-fld NO-LOCK) ELSE TRUE))             
+               END.
+               
+               FOR
+                  EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date)
+                  WHERE fg-rcpth.company    EQ cocode 
+                    AND fg-rcpth.rita-code  EQ v-type 
+                    AND fg-rcpth.post-date  EQ ? 
+                    AND fg-rcpth.trans-date EQ v-date 
                   AND fg-rcpth.USER-ID GE begin_user
                  AND fg-rcpth.USER-ID LE END_user
                         USE-INDEX post-date
                         NO-LOCK,
-                   EACH fg-rdtlh FIELDS(loc loc-bin tag) WHERE
-                        fg-rdtlh.r-no      EQ fg-rcpth.r-no AND
-                        fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+                  
+                  EACH fg-rdtlh FIELDS(loc loc-bin tag)
+                  WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
+                    AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
                         NO-LOCK:
+                  
+                  IF NOT CAN-FIND(FIRST tt-report 
+                                  WHERE tt-report.rec-id2  = recid(fg-rcpth))
+                     AND CAN-FIND(FIRST itemfg 
+                                  WHERE itemfg.company EQ cocode
+                                    AND itemfg.i-no    EQ fg-rcpth.i-no
+                                    AND itemfg.cust-no GE v-cust[1]
+                                    AND itemfg.cust-no LE v-cust[2]
+                                    AND (IF lselected
+                                         THEN CAN-FIND(FIRST ttCustList
+                                                       WHERE ttCustList.cust-no EQ itemfg.cust-no
+                                                         AND ttCustList.log-fld
+                                                       NO-LOCK)
+                                         ELSE TRUE))
+                  THEN DO:
 
                         CREATE tt-report.
                         ASSIGN
@@ -1776,6 +1793,7 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                            tt-report.DATE    = fg-rcpth.trans-date. 
                         RELEASE tt-report.
               END.
+               END.
            END. /*v-date loop*/
            ELSE
            DO v-date = b-post-date TO e-post-date:
