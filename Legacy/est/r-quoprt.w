@@ -1462,8 +1462,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     tb_booked:SCREEN-VALUE = "NO".
     tb_booked:SENSITIVE = NO.
     /*when printing from estimate*/
-    IF INDEX(PROGRAM-NAME(4),"system/mainmenu") GT 0 THEN
-       ASSIGN v-quo-list:SCREEN-VALUE = "".
+      ASSIGN v-quo-list:SCREEN-VALUE = "".
 
     ASSIGN begin_cust:SCREEN-VALUE = quotehd.cust-no
            end_cust:SCREEN-VALUE   = begin_cust
