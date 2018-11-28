@@ -2075,6 +2075,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix160712.
     IF intVer(cThisEntry) LT 160800 THEN
         RUN ipDataFix160800.
+    IF intVer(cThisEntry) LT 160804 THEN
+        RUN ipDataFix160804.
     IF intVer(cThisEntry) LT 160899 THEN
         RUN ipDataFix160899.
 
@@ -2320,6 +2322,21 @@ PROCEDURE ipDataFix160800 :
     RUN ipAddLocationData.
     RUN ipVendorMaxValue.
     RUN ipSetImageFiles.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160804 C-Win 
+PROCEDURE ipDataFix160804 :
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160804...").
+
+    RUN ipTrackUsage.
 
 END PROCEDURE.
 
@@ -4384,6 +4401,27 @@ PROCEDURE ipStatus :
     
     PROCESS EVENTS.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipTrackUsage C-Win 
+PROCEDURE ipTrackUsage :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN ipStatus("   Turn on user usage tracking").
+    
+    DISABLE TRIGGERS FOR LOAD OF users.
+    
+    FOR EACH users:
+        ASSIGN
+            users.track_usage = TRUE.
+    END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
