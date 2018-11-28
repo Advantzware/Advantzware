@@ -243,3 +243,12 @@ Resources/srta*
 *.propath
 .settings/org.eclipse.wst.common.project.facet.core.xml
 Legacy/vpx.ini
+Legacy/CustFiles/
+*.r
+Legacy/customer/
+Legacy/users/
+Legacy/bolharwl.txt
+*.e
+*.a1
+*.st
+*.d2
