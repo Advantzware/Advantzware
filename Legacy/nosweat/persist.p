@@ -146,6 +146,8 @@ PROCEDURE Get_Procedure :
     DEFINE INPUT  PARAMETER proc-name AS CHARACTER.
     DEFINE OUTPUT PARAMETER run-proc  AS CHARACTER.
     DEFINE INPUT  PARAMETER run-now   AS LOGICAL.
+    
+    DEFINE VARIABLE iAuditID AS INTEGER NO-UNDO.
 
     IF INDEX(proc-name,"..") NE 0 OR INDEX(proc-name,".") = 0 THEN
         RETURN.
@@ -173,18 +175,21 @@ PROCEDURE Get_Procedure :
         END.
         ELSE DO:
             IF buf-prgrms.track_usage OR g_track_usage THEN DO TRANSACTION:  
-                CREATE AuditHdr.  
-                ASSIGN  
-                    AuditHdr.AuditID       = NEXT-VALUE(Audit_Seq,Audit) 
-                    AuditHdr.AuditDateTime = NOW 
-                    AuditHdr.AuditType     = "TRACK" 
-                    AuditHdr.AuditDB       = "ASI"  
-                    AuditHdr.AuditTable    = proc-name 
-                    AuditHdr.AuditUser     = USERID("ASI") 
-                    AuditHdr.AuditKey      = buf-prgrms.mnemonic 
-                    . 
-                CREATE AuditDtl.  
-                AuditDtl.AuditID = AuditHdr.AuditID. 
+                RUN spCreateAuditHdr (
+                    "TRACK",             /* type  */
+                    "ASI",               /* db    */
+                    proc-name,           /* table */
+                    buf-prgrms.mnemonic, /* key   */
+                    OUTPUT iAuditID
+                    ).
+                RUN spCreateAuditDtl (
+                    iAuditID, /* audit id     */
+                    "",       /* field        */
+                    0,        /* extent       */
+                    "",       /* before value */
+                    "",       /* after value  */
+                    NO        /* index field  */
+                    ).
             END. /* if tracking usage */
             IF run-now THEN DO:
                 IF buf-prgrms.run_persistent THEN DO:
