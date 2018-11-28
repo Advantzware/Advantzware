@@ -140,6 +140,13 @@ END.
 DEF VAR v-access-close AS LOG NO-UNDO.
 DEF VAR v-access-list AS CHAR NO-UNDO.
 
+DEFINE VARIABLE v-col-move AS LOGICAL INITIAL TRUE NO-UNDO.
+DEFINE VARIABLE v-called-setCellColumns AS LOGICAL NO-UNDO.
+
+DEFINE VARIABLE lv-sort-by AS CHAR INIT "tag" NO-UNDO.
+DEFINE VARIABLE lv-sort-by-lab AS CHAR INIT "Tag" NO-UNDO.
+DEFINE VARIABLE ll-sort-asc AS LOG NO-UNDO.
+
 RUN methods/prgsecur.p
     (INPUT "OEDateChg",
      INPUT "ALL", /* based on run, create, update, delete or all */
@@ -198,6 +205,61 @@ IF lRecFound THEN
 /*     END TRIGGERS.                                                                   */
 
 /* _UIB-CODE-BLOCK-END */
+
+&SCOPED-DEFINE for-each1    ~
+    FOR EACH oe-rel WHERE oe-rel.company = oe-ordl.company ~
+  AND oe-rel.ord-no = oe-ordl.ord-no ~
+  AND oe-rel.i-no = oe-ordl.i-no ~
+  AND oe-rel.line = oe-ordl.LINE 
+
+&SCOPED-DEFINE for-each2    ~
+    EACH tt-report WHERE tt-report.rec-id = recid(oe-rel) ~
+         NO-LOCK 
+        
+
+&SCOPED-DEFINE sortby-log                                                                                   ~
+    IF lv-sort-by EQ "carrier"        THEN STRING(oe-rel.carrier)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "stat"           THEN STRING(oe-rel.stat)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "s-code"        THEN STRING(oe-rel.s-code)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "ship-id"           THEN STRING(oe-rel.ship-id)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "opened"           THEN STRING(tt-report.opened)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "tot-qty"        THEN STRING(9999999999.99999 + oe-rel.tot-qty,"-9999999999.99999")                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "qty"           THEN STRING(9999999999.99999 + oe-rel.qty,"-9999999999.99999")                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "po-no"        THEN STRING(tt-report.po-no,"9999999999")                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "lot-no"           THEN STRING(tt-report.lot-no)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "prom-date"           THEN STRING(YEAR(tt-report.prom-date),'9999') + STRING(MONTH(tt-report.prom-date),'99') + STRING(DAY(tt-report.prom-date),'99')                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "ship-addr[1]"           THEN oe-rel.ship-addr[1]                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "ship-city"        THEN string(oe-rel.ship-city)                                                                                                                      ELSE ~
+    IF lv-sort-by EQ "ship-state"           THEN string(oe-rel.ship-state )                                                                                                                    ELSE ~
+    IF lv-sort-by EQ "price"           THEN string(tt-report.price,"-9999999999.99")                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "whsed"        THEN STRING(tt-report.whsed)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "tot-qty"           THEN STRING(9999999999.99999 + oe-rel.tot-qty,"-9999999999.99999")                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "t-price"        THEN string(oe-ordl.t-price,"-9999999999.99")                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "frt-pay"           THEN STRING(tt-report.frt-pay)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "flute"           THEN STRING(tt-report.flute)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "spare-char-1"        THEN STRING(oe-rel.spare-char-1)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "spare-char-2"           THEN STRING(oe-rel.spare-char-2)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "spare-char-3"           THEN STRING(oe-rel.spare-char-3)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "q-rel"           THEN STRING(tt-report.q-rel,"9999999999")                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "r-no"        THEN STRING(oe-rel.r-no,"9999999999")                                                                                                                      ELSE ~
+    IF lv-sort-by EQ "link-no"           THEN STRING(oe-rel.link-no,"9999999999")                                                                                                                    ELSE ~
+    IF lv-sort-by EQ "qty"        THEN STRING(9999999999.99999 + tt-report.qty,"-9999999999.99999")                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "prom-code"           THEN STRING(tt-report.prom-code)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "pr-uom"        THEN STRING(tt-report.pr-uom)                                                                                                                      ELSE ~
+    IF lv-sort-by EQ "disc"           THEN STRING(oe-ordl.disc)                                                                                                                    ELSE ~
+        STRING(YEAR(tt-report.job-start-date),'9999') + STRING(MONTH(tt-report.job-start-date),'99') + STRING(DAY(tt-report.job-start-date),'99')
+
+&SCOPED-DEFINE sortby BY tt-report.del-zone BY oe-rel.po-no BY oe-rel.ship-no BY oe-rel.qty 
+
+
+&SCOPED-DEFINE sortby-phrase-asc  ~
+    BY ({&sortby-log})            ~
+    {&sortby}
+
+&SCOPED-DEFINE sortby-phrase-desc ~
+    BY ({&sortby-log}) DESC       ~
+    {&sortby}
+
 &ANALYZE-RESUME
 
 
@@ -249,19 +311,13 @@ tt-report.flute oe-rel.spare-char-1 oe-rel.spare-char-2 tt-report.q-rel
   AND oe-rel.i-no = oe-ordl.i-no ~
   AND oe-rel.line = oe-ordl.line NO-LOCK, ~
       EACH tt-report WHERE tt-report.rec-id = recid(oe-rel) NO-LOCK ~
-    BY tt-report.del-zone ~
-       BY oe-rel.po-no ~
-        BY oe-rel.ship-no ~
-         BY oe-rel.qty
+        ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH oe-rel WHERE oe-rel.company = oe-ordl.company ~
   AND oe-rel.ord-no = oe-ordl.ord-no ~
   AND oe-rel.i-no = oe-ordl.i-no ~
   AND oe-rel.line = oe-ordl.line NO-LOCK, ~
       EACH tt-report WHERE tt-report.rec-id = recid(oe-rel) NO-LOCK ~
-    BY tt-report.del-zone ~
-       BY oe-rel.po-no ~
-        BY oe-rel.ship-no ~
-         BY oe-rel.qty.
+         ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table oe-rel tt-report
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table oe-rel
 &Scoped-define SECOND-TABLE-IN-QUERY-br_table tt-report
@@ -273,6 +329,7 @@ tt-report.flute oe-rel.spare-char-1 oe-rel.spare-char-2 tt-report.q-rel
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS br_table 
+&Scoped-Define DISPLAYED-OBJECTS br_table FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -360,6 +417,11 @@ DEFINE BUTTON btnCalendar
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY .86 TOOLTIP "PopUp Calendar".
+
+DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+     VIEW-AS FILL-IN 
+     SIZE 13 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -451,7 +513,7 @@ DEFINE BROWSE br_table
       tt-report.q-rel
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 147 BY 13.57
+    WITH NO-ASSIGN SEPARATORS SIZE 147 BY 12.57
          FONT 0 ROW-HEIGHT-CHARS .62.
 
 
@@ -460,6 +522,10 @@ DEFINE BROWSE br_table
 DEFINE FRAME F-Main
      btnCalendar AT ROW 1.91 COL 125
      br_table AT ROW 1 COL 1
+      "Browser Col. Mode:" VIEW-AS TEXT
+          SIZE 22.6 BY .62 AT ROW 13.80 COL 112 
+          FONT 6
+     FI_moveCol AT ROW 13.60 COL 133 COLON-ALIGNED NO-LABEL WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -532,6 +598,9 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        btnCalendar:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
+   NO-ENABLE                                                            */
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -706,6 +775,36 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON START-SEARCH OF br_table IN FRAME F-Main
+DO:
+  DEF VAR lh-column AS HANDLE NO-UNDO.
+  DEF VAR lv-column-nam AS CHAR NO-UNDO.
+  DEF VAR lv-column-lab AS CHAR NO-UNDO.
+
+  
+  ASSIGN
+   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+   lv-column-nam = lh-column:NAME
+   lv-column-lab = lh-column:LABEL.
+
+  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
+
+  ELSE
+    ASSIGN
+     lv-sort-by     = lv-column-nam
+     lv-sort-by-lab = lv-column-lab .
+
+  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+
+  /*APPLY "choose" TO btn_go.*/
+  RUN resort-query .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON SCROLL-NOTIFY OF br_table IN FRAME F-Main
@@ -772,6 +871,13 @@ SESSION:DATA-ENTRY-RETURN = YES.
 {sys/inc/f3help.i}
 {sys/inc/oeinq.i}
 {sa/sa-sls01.i}
+
+&SCOPED-DEFINE cellColumnDat oe-rel
+
+{methods/browsers/setCellColumns.i}
+
+  FI_moveCol = "Sort".
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
 
 
  RUN-PROC = "sbo/oerel-recalc-act.p".
@@ -3185,27 +3291,7 @@ PROCEDURE local-delete-record :
   /* Redistribute quantity to itemfg-loc */
   IF AVAIL oe-ordl THEN
     RUN fg/fgitmloc.p (INPUT oe-ordl.i-no, INPUT ROWID(oe-ordl)).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
-PROCEDURE local-destroy :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-  
-  /* Code placed here will execute PRIOR to standard behavior. */
-  IF VALID-HANDLE(lr-rel-lib) THEN
-    DELETE OBJECT lr-rel-lib.
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
-      
-  /* Code placed here will execute AFTER standard behavior.    */
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3357,6 +3443,11 @@ PROCEDURE local-initialize :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
+  IF v-called-setCellColumns = NO THEN DO:
+     RUN setCellColumns.
+     v-called-setCellColumns = YES.
+  END.
+
   /* Code placed here will execute AFTER standard behavior.    */
   /*{methods/winReSizeLocInit.i}*/
   IF NOT l-update-reason-perms OR (oeDateAuto-log AND OeDateAuto-Char = "Colonial") THEN DO:
@@ -3388,6 +3479,49 @@ PROCEDURE local-open-query :
   /* Code placed here will execute AFTER standard behavior.    */
   /*RUN delete-phantoms.*/
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resort-query B-table-Win 
+PROCEDURE resort-query :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ 
+  &SCOPED-DEFINE open-query                         ~
+      OPEN QUERY {&browse-name}                     ~
+          {&for-each1}   NO-LOCK,                    ~
+            {&for-each2}
+  
+  IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                 ELSE {&open-query} {&sortby-phrase-desc}.
+
+  RUN dispatch ("row-changed").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
+PROCEDURE move-columns :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+         br_table:COLUMN-MOVABLE = v-col-move
+         br_table:COLUMN-RESIZABLE = v-col-move
+         v-col-move = NOT v-col-move.
+      FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+      DISPLAY FI_moveCol.
+   END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
