@@ -507,9 +507,9 @@ def var v-billto-zip as char format "x(10)" NO-UNDO.
           end.
 
             put 
-                inv-misc.po-no
-                inv-misc.charge AT 17 
-                inv-misc.dscr 
+                inv-misc.po-no FORMAT "x(30)"
+                inv-misc.charge AT 34 
+                inv-misc.dscr AT 55
                 inv-misc.amt AT 85 SKIP
                 inv-misc.inv-i-no  skip.
             ASSIGN
