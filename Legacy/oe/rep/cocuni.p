@@ -53,7 +53,7 @@ PROCEDURE FillData:
 
 {sa/sa-sls01.i}
 v-total-cases = 0.
-FOR EACH report NO-LOCK WHERE report.term-id EQ v-term-id,
+FOR EACH report EXCLUSIVE WHERE report.term-id EQ v-term-id,
     FIRST oe-bolh WHERE RECID(oe-bolh) EQ report.rec-id :
 
   FOR EACH oe-boll NO-LOCK
