@@ -11,8 +11,8 @@ DEFINE VARIABLE cToIdentity   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAddressType  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPoNumber     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iCurrentOrdLine AS INTEGER NO-UNDO.
-DEFINE VARIABLE iNextOrderShipment AS INTEGER NO-UNDO
-.
+DEFINE VARIABLE iNextOrderShipment AS INTEGER NO-UNDO.
+DEFINE VARIABLE cDocType      AS CHARACTER NO-UNDO.
 {cxml\cxmldefs.i}
 define input parameter table for ttNodes.
 define input-output parameter table for ttOrdHead.
@@ -41,7 +41,16 @@ for each ttNodes:
       ttOrdHead.ttCustNo = getCustNo(cFromIdentity).
       
   END.
-    
+  
+  /* 850 or 860 */
+  IF ttNodes.nodeName EQ "ST01" THEN DO:
+      FIND FIRST ttOrdHead WHERE ttOrdHead.ttPayLoadID EQ STRING(iPayLoadNum)
+          NO-ERROR.
+      IF NOT AVAIL ttOrdHead THEN 
+          NEXT.      
+    ASSIGN cDocType = ttNodes.nodeValue
+           ttOrdHead.ttDocType = cDocType .
+  END.
   IF ttNodes.nodeName EQ "PO101" THEN DO:
     iCurrentOrdLine = INTEGER(ttNodes.nodeValue).
     CREATE ttOrdLines.
@@ -77,13 +86,16 @@ for each ttNodes:
   IF ttNodes.nodeName BEGINS "N1" 
      OR ttNodes.nodeName BEGINS "N3"
      OR ttNodes.nodeName BEGINS "N4" THEN DO:
+         
     FIND FIRST ttOrdHead WHERE ttOrdHead.ttPayLoadID EQ STRING(iPayLoadNum)
       NO-ERROR.
     IF NOT AVAIL ttOrdHead THEN 
       NEXT.
     IF NOT cAddressType EQ "ST" OR ttNodes.nodeValue EQ "" THEN 
       NEXT.
+      
     CASE ttNodes.nodeName:
+        
       WHEN "N102" THEN 
         ttOrdHead.ttshipToID = ttNodes.nodeValue.      
       /*WHEN "N103" THEN 
@@ -111,7 +123,8 @@ for each ttNodes:
      OR ttNodes.nodeName BEGINS "SCH" THEN DO:
          
     FIND FIRST ttOrdLines
-      WHERE ttOrdLines.ttpayLoadID EQ STRING(iPayLoadNum) NO-ERROR.
+      WHERE ttOrdLines.ttpayLoadID EQ STRING(iPayLoadNum) 
+        AND ttOrdLines.ttitemLineNumber EQ STRING(iCurrentOrdLine) NO-ERROR.
     IF NOT AVAILABLE ttOrdLines THEN 
        NEXT.         
     CASE ttNodes.nodeName:
@@ -133,3 +146,4 @@ for each ttNodes:
   END. /* begins "N1" */  
   
 END.
+RUN cxml\ttToEdiTab.p (INPUT TABLE ttNodes, INPUT-OUTPUT TABLE ttOrdHead , INPUT-OUTPUT TABLE ttOrdLines, INPUT-OUTPUT TABLE ttOrdSchedShipments).

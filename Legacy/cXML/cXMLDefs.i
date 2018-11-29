@@ -64,6 +64,7 @@ DEFINE TEMP-TABLE ttOrdHead NO-UNDO
     FIELD ttbillToState       AS CHARACTER 
     FIELD ttbillToZip         AS CHARACTER 
     FIELD ttcustNo            AS CHARACTER 
+    FIELD ttDocType           AS CHARACTER 
     .
 DEFINE TEMP-TABLE ttOrdLines NO-UNDO
     FIELD ttpayLoadID                   AS CHARACTER

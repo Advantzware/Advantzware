@@ -656,6 +656,7 @@ PROCEDURE gencXMLOrder:
         WHERE ttNodes.nodeName EQ "ISA" 
         NO-ERROR. 
   lIsEdiXml = (IF AVAILABLE ttNodes THEN YES ELSE NO).
+
   IF NOT lIsEdiXML THEN DO:
       ASSIGN
         payLoadID = getNodeValue('cXML','payloadID')
@@ -685,7 +686,7 @@ PROCEDURE gencXMLOrder:
         payLoadID = "1".
       FIND FIRST ttNodes WHERE  
          ttNodes.nodeName EQ "ISA06" NO-ERROR.
-        IF AVAILABLE ttNOdes THEN 
+        IF AVAILABLE ttNodes THEN 
           fromIdentity = ttNodes.nodeValue.
         /* fromIdentity = getNodeValue('ISA','ISA06'). */
         orderDate    = getNodeValue('BEG','BEG05'). 
@@ -694,7 +695,8 @@ PROCEDURE gencXMLOrder:
           orderdate = substring(orderDate, 1, 4) + "-" + substring(orderDate, 5, 2) + "-" + substring(orderDate, 7, 2) /* "2018 11 05" */
           custNo = getCustNo(fromIdentity)
           .
-
+MESSAGE "fromid" fromIdentity "cust" custNo
+VIEW-AS ALERT-BOX.
       RUN cxml\xmltoOrderGE.p (INPUT TABLE ttNodes, INPUT-OUTPUT TABLE ttOrdHead , INPUT-OUTPUT TABLE ttOrdLines, INPUT-OUTPUT TABLE ttOrdSchedShipments).
   END.
   DO WHILE TRUE:
