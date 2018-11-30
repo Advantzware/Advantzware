@@ -213,7 +213,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
        v-dim = STRING(itemfg.l-score[50]) + "X" + STRING(itemfg.w-score[50]) + "X" + STRING(itemfg.d-score[50]).  
        chWorkSheet:Range("K42"):VALUE = v-dim.
        
-       IF AVAILABLE eb THEN chWorkSheet:Range("K46"):VALUE = eb.i-coldscr. 
+       IF AVAILABLE eb THEN chWorkSheet:Range("K44"):VALUE = eb.i-coldscr. 
        
        FIND FIRST ef WHERE
             ef.company EQ cocode AND
