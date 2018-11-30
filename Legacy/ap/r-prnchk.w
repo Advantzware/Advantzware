@@ -1519,6 +1519,10 @@ ELSE DO:
              laser-chk = yes
              max-per-chk  = 13
              next-program = "ap/ap-ckacp.p".
+       WHEN "APChkFmt2" then
+          assign
+             max-per-chk  = 12
+             next-program = "ap/ap-ckapfmt2.p".
        OTHERWISE DO:
           assign
              max-per-chk  = if v-print-fmt eq "s" then 20 else 12
