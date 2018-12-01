@@ -41,7 +41,7 @@ ASSIGN
     aoaCustListForm = ENTRY(6,ipcParamStr)
     aoaExcelOnly    = ENTRY(7,ipcParamStr) EQ "aoaExcelOnly"
     aoaHost         = IF OS-GETENV("COMPUTERNAME") NE sys-ctrl.char-fld THEN sys-ctrl.char-fld
-                      ELSE "localhost"
+                      ELSE OS-GETENV("COMPUTERNAME")
     aoaPort         = sys-ctrl.int-fld
     aoaParam        = REPLACE(PROGRAM-NAME(2),aoaProgramID,"param/" + aoaProgramID)
     aoaParam        = REPLACE(aoaParam,".p",".w")
