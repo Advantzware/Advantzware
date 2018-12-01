@@ -559,7 +559,8 @@ FOR EACH job-hdr NO-LOCK
       WHERE mach.company EQ job.company
         AND mach.loc EQ asiLocation
         AND mach.m-code EQ job-mch.m-code
-      BREAK BY job-mch.job
+      BREAK BY job-mch.job-no
+            BY job-mch.job-no2
             BY job-mch.frm
             BY job-mch.blank-no
             BY job-mch.line
@@ -572,6 +573,18 @@ FOR EACH job-hdr NO-LOCK
     END. /* tandem or combo */
 
     IF FIRST-OF(job-mch.frm) OR cascadeJob EQ NO THEN resSeq = 0.
+    IF FIRST-OF(job-mch.frm) THEN
+    itemDescription = IF job-mch.i-no NE '' THEN job-mch.i-no
+                 ELSE IF CAN-FIND(FIRST bJobMch
+                                  WHERE bJobMch.company EQ job-mch.company
+                                    AND bJobMch.job EQ job-mch.job
+                                    AND bJobMch.job-no EQ job-mch.job-no
+                                    AND bJobMch.job-no2 EQ job-mch.job-no2
+                                    AND bJobMch.frm EQ job-mch.frm
+                                    AND bJobMch.i-no NE job-hdr.i-no
+                                    AND bJobMch.i-no NE '') THEN '<Multi Item>'
+                 ELSE job-hdr.i-no.
+              /* ELSE getItemNo(job-mch.company,job-mch.job-no,job-mch.job-no2,job-mch.frm,job-hdr.i-no). */
 
     IF job-mch.est-op_rec_key EQ "" THEN DO:
         FIND FIRST est-op NO-LOCK
@@ -952,19 +965,6 @@ FOR EACH job-hdr NO-LOCK
     IF traceON THEN
     PUT UNFORMATTED 'Assign Fields @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
     
-    IF FIRST-OF(job-mch.frm) THEN
-    itemDescription = IF job-mch.i-no NE '' THEN job-mch.i-no
-                 ELSE IF CAN-FIND(FIRST bJobMch
-                                  WHERE bJobMch.company EQ job-mch.company
-                                    AND bJobMch.job EQ job-mch.job
-                                    AND bJobMch.job-no EQ job-mch.job-no
-                                    AND bJobMch.job-no2 EQ job-mch.job-no2
-                                    AND bJobMch.frm EQ job-mch.frm
-                                    AND bJobMch.i-no NE job-hdr.i-no
-                                    AND bJobMch.i-no NE '') THEN '<Multi Item>'
-                 ELSE job-hdr.i-no.
-              /* ELSE getItemNo(job-mch.company,job-mch.job-no,job-mch.job-no2,job-mch.frm,job-hdr.i-no). */
-
     IF ufDC AND
        CAN-FIND(FIRST mch-act NO-LOCK
         WHERE mch-act.company  EQ job-mch.company
@@ -996,19 +996,18 @@ FOR EACH job-hdr NO-LOCK
       customVal    = SUBSTR(customValueList,2)
       lagTime      = job-mch.lag-time
       liveUpdate   = job-mch.sbLiveUpdate
-/*      liveUpdate = getLiveUpdate(job-mch.company,job-mch.job-no,job-mch.job-no2, */
-/*                                 job-mch.frm,job-mch.m-code,job-mch.sbLiveUpdate)*/
       userField[1] = setUserField(1,custNo)
       userField[2] = setUserField(2,custName)
       userField[5] = setUserField(5,IF AVAILABLE eb THEN eb.die-no ELSE '')
       userField[6] = setUserField(6,IF AVAILABLE eb THEN eb.plate-no ELSE '')
       userField[7] = setUserField(7,IF AVAILABLE po-ordl THEN STRING(po-ordl.po-no,'>>>>>9') ELSE '')
       userField[8] = setUserField(8,IF AVAIL eb AND eb.est-type EQ 6 THEN eb.stock-no /* set */
-                                    ELSE IF job-mch.i-no NE '' THEN job-mch.i-no
-                                    ELSE itemDescription)
-      userField[9] = setUserField(9,IF job-mch.i-name NE '' THEN job-mch.i-name
+                               ELSE IF job-mch.i-no NE '' THEN job-mch.i-no
+                               ELSE IF AVAILABLE itemfg AND itemfg.i-no EQ '' THEN itemfg.i-no
+                               ELSE itemDescription)
+      userField[9] = setUserField(9,IF userField[8] EQ '<Multi Item>' THEN '<Multiple Items>'
+                               ELSE IF job-mch.i-name NE '' THEN job-mch.i-name
                                ELSE IF AVAILABLE itemfg AND itemfg.i-name NE '' THEN itemfg.i-name
-                               ELSE IF userField[8] EQ '<Multi Item>' THEN '<Multiple Items>'
                                ELSE getItemName(job-mch.company,job-mch.job-no,job-mch.job,
                                                 job-mch.job-no2,job-mch.frm,job-mch.blank-no))
       userField[10] = setUserField(10,IF AVAILABLE eb THEN STRING(convBase16(eb.len),dimFormat) ELSE '')
