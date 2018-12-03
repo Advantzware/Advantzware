@@ -129,6 +129,18 @@ DEF VAR v-reljob AS CHAR FORMAT "x(10)" NO-UNDO.
 DEFINE VARIABLE iOrdQtyCust AS INTEGER NO-UNDO.
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl .
 
+DEFINE VARIABLE lv-text AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-text-line AS INTEGER NO-UNDO.
+DEFINE VARIABLE lv-text-line-length AS INTEGER NO-UNDO.
+DEFINE VARIABLE lv-char AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-char-list AS CHARACTER NO-UNDO.
+DEFINE TEMP-TABLE tt-text NO-UNDO
+    FIELD TYPE AS CHARACTER
+    FIELD tt-line AS INTEGER
+    FIELD tt-text AS CHARACTER 
+    FIELD tt-recid AS RECID
+    INDEX tt-text IS PRIMARY TYPE tt-line.
+
 ASSIGN tmpstore = fill("-",130).
 
 find first sys-ctrl where sys-ctrl.company eq cocode
@@ -736,30 +748,62 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                     v-cq = YES.
               END.
               IF AVAIL itemfg THEN DO:
+                  ASSIGN
+                      lv-text = ""
+                      lv-text-line = 0
+                      lv-text-line-length = 0
+                      lv-char = ""
+                      lv-char-list = "".
                   FOR EACH notes WHERE
-                         notes.rec_key EQ itemfg.rec_key AND notes.note_type = "S"
-                          AND notes.note_code = "PT" 
-                         NO-LOCK
-                         BY notes.note_code:
-                         v-tmp-lines = LENGTH(NOTES.NOTE_TEXT) / 80.
-                         {SYS/INC/ROUNDUP.I v-tmp-lines}
-                        
-                         IF v-tmp-lines = 0 THEN
-                             v-tmp-lines = 1 .
-                         
-                         DO i = 1 TO v-tmp-lines:
-                            IF v-printline > 36 THEN DO:
-                               PAGE.
-                               v-printline = 0.
-                               {oe/rep/relpremx2.i}
-                            END.
-                               
-                            PUT "<C7>" SUBSTRING(NOTES.NOTE_TEXT,(1 + 80 * (i - 1)), 80) FORM "x(83)" SKIP .
-                            v-printline = v-printline + 1.
-                         END.
+                      notes.rec_key EQ itemfg.rec_key AND notes.note_type = "S"
+                      AND notes.note_code = "PT" 
+                      NO-LOCK
+                      BREAK BY notes.note_code:
+                      EMPTY TEMP-TABLE tt-text.
+                      ASSIGN
+                      lv-text = ""
+                      lv-text-line = 0
+                      lv-text-line-length = 0
+                      lv-char = ""
+                      lv-char-list = "".
+                      lv-text = lv-text + notes.note_text + CHR(10).
+
+                      ASSIGN
+                          lv-text-line = 0
+                          lv-text-line-length = 80.
+                      DO i = 1 TO LENGTH(lv-text):
+                          ASSIGN lv-char = SUBSTR(lv-text,i,1).
+                          IF lv-char EQ CHR(10) OR lv-char EQ CHR(13) THEN DO: END.
+                          ELSE DO:
+                              lv-char-list = lv-char-list + lv-char.
+                          END.
+                          IF  lv-char EQ CHR(10) OR lv-char EQ CHR(13) OR 
+                              length(lv-char-list) >= lv-text-line-length THEN DO:
+                              lv-text-line = lv-text-line + 1.
+                              CREATE tt-text.
+                              ASSIGN
+                                  tt-text.TYPE = "specnote"
+                                  tt-text.tt-line = lv-text-line
+                                  tt-text.tt-text = lv-char-list
+                                  tt-text.tt-recid = RECID(oe-rell)
+                                  lv-char-list = "".
+                          END.
+                      END.
+                      FOR EACH tt-text WHERE tt-text.TYPE = "specnote" AND tt-text.tt-recid = recid(oe-rell) BY tt-text.tt-line:
+                          IF v-printline > 44 THEN DO:
+                              PAGE.
+                              v-printline = 0.
+                              {oe/rep/relpremx2.i}
+                          END.
+                              PUT "<C7>" tt-text.tt-text FORM "x(80)"  SKIP.
+                              v-printline = v-printline + 1.
+                      END.
+                      IF NOT LAST(notes.note_code) THEN DO:
+                        PUT SKIP(1).
+                        v-printline = v-printline + 1.
+                      END.
                   END.
               END.
-                      
               IF v-printline > 44 THEN DO:
                  PAGE.
                  v-printline = 0.
