@@ -1759,7 +1759,7 @@ IF tb_excel THEN DO:
   excelheader = "Job #,Customer,Item Code,Selling Price,Ordered,Est Hrs,Est Cost,Act Hrs,"
               + "Act Cost,Est Mat Cost,Act Mat Cost,Commission,"
               + "Freight,Boxes Sales,Prep Sales,Total Sales,Total Cost,"
-              + "Customer Part #,Item Name,Category,Actual Board Mat,Actual Other Mat,Actual Labor,Qty Produced"   .
+              + "Customer Part #,Item Name,Category,Actual Board Mat,Actual Other Mat,Actual Labor,Qty Produced,SQ FT PRODUCED"   .
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
