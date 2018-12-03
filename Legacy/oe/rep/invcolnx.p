@@ -502,19 +502,19 @@ def var v-billto-zip as char format "x(10)" NO-UNDO.
           END.
           if first(inv-misc.ord-no) then
           do:
-            put "** Miscellaneous Items **" at 23 skip(1).
-            assign v-printline = v-printline + 2.
+            put "** Miscellaneous Items **" at 23 SKIP.
+            assign v-printline = v-printline + 1.
           end.
-
             put 
-                inv-misc.po-no FORMAT "x(30)"
-                inv-misc.charge AT 34 
-                inv-misc.dscr AT 55
+                inv-misc.charge FORMAT "X(15)" AT 17 
+                inv-misc.dscr AT 33
                 inv-misc.amt AT 85 SKIP
+                inv-misc.po-no FORMAT "x(30)" SKIP
                 inv-misc.inv-i-no  skip.
+                
             ASSIGN
                v-subtot-lines = v-subtot-lines + inv-misc.amt
-               v-printline = v-printline + 2.
+               v-printline = v-printline + 3.
 
             if inv-misc.tax and avail stax then
             do i = 1 to 3:
