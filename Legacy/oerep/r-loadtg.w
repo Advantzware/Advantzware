@@ -7635,10 +7635,10 @@ PROCEDURE write-loadtag-line :
     ASSIGN
         cLoftString = FILL(",",86)
         ENTRY(1,cLoftString) = "!" + scr-label-file
-        ENTRY(2,cLoftString) = '"' + STRING(REPLACE(w-ord.cust-name,'"',""),"x(30)") + '"'
-        ENTRY(3,cLoftString) = '"' + STRING(REPLACE(w-ord.cust-part-no,'"',""),"x(30)") + '"'
-        ENTRY(4,cLoftString) = '"' + STRING(REPLACE(w-ord.cust-po-no,'"',""),"x(15)") + '"'
-        ENTRY(5,cLoftString) = '"' + STRING(REPLACE(w-ord.ship-city,'"',"") + " " + REPLACE(w-ord.ship-state,'"',""),"x(30)") + '"'
+        ENTRY(2,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.cust-name,","," "),'"',""),"x(30)") + '"'
+        ENTRY(3,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.cust-part-no,","," "),'"',""),"x(30)") + '"'
+        ENTRY(4,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.cust-po-no,","," "),'"',""),"x(15)") + '"'
+        ENTRY(5,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.ship-city,","," "),'"',"") + " " + REPLACE(w-ord.ship-state,'"',""),"x(30)") + '"'
         ENTRY(6,cLoftString) = '"' + STRING(w-ord.est-no,"9999999") + '"'
         ENTRY(7,cLoftString) = STRING(w-ord.gross-wt,">>>>9.99")
         ENTRY(9,cLoftString) = "- -"
@@ -7648,15 +7648,15 @@ PROCEDURE write-loadtag-line :
         ENTRY(13,cLoftString) = STRING(w-ord.total-unit,">>>>>9")
         ENTRY(14,cLoftString) = STRING(w-ord.due-date,"99/99/99")
         ENTRY(24,cLoftString) = '"' + STRING(REPLACE(w-ord.cust-no,'"',""),"x(5)") + STRING(REPLACE(w-ord.ship-code,'"',""),"x(3)") + '"'
-        ENTRY(30,cLoftString) = '"' + STRING(REPLACE(w-ord.ship-name,'"',""),"x(60)") + '"'
+        ENTRY(30,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.ship-name,","," "),'"',""),"x(60)") + '"'
         ENTRY(31,cLoftString) = '"' + STRING(REPLACE(w-ord.i-no,'"',""),"x(23)") + '"'
-        ENTRY(32,cLoftString) = '"' + STRING(REPLACE(w-ord.i-name,'"',""),"x(30)") + '"'
-        ENTRY(37,cLoftString) = '"' + STRING(REPLACE(w-ord.ship-add1,'"',"") + " " + REPLACE(w-ord.ship-add2,'"',""),"x(30)") + '"'
+        ENTRY(32,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.i-name,","," "),'"',""),"x(30)") + '"'
+        ENTRY(37,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.ship-add1,","," "),'"',"") + " " + REPLACE(REPLACE(w-ord.ship-add2,","," "),'"',""),"x(30)") + '"'
         ENTRY(38,cLoftString) = "1"
         ENTRY(39,cLoftString) = STRING(w-ord.pcs,">>>>9")
-        ENTRY(41,cLoftString) = STRING(loadtag.tag-no,"x(64)")
-        ENTRY(42,cLoftString) = '"' + STRING(REPLACE(w-ord.ord-desc1,'"',""),"x(64)") + '"'
-        ENTRY(44,cLoftString) = '"' + STRING(REPLACE(w-ord.style-desc,'"',""),"x(15)") + '"'
+        ENTRY(41,cLoftString) = TRIM(STRING(loadtag.tag-no,"x(64)"))
+        ENTRY(42,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.ord-desc1,","," "),'"',""),"x(64)") + '"'
+        ENTRY(44,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.style-desc,","," "),'"',""),"x(15)") + '"'
         ENTRY(45,cLoftString) = STRING(w-ord.box-len,">>>9.99<<<")
         ENTRY(46,cLoftString) = STRING(w-ord.box-wid,">>>9.99<<<")
         ENTRY(47,cLoftString) = STRING(w-ord.box-dep,">>>9.99<<<")
