@@ -59,12 +59,12 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect  = "Est#,Customer Name,Last used,Part #,Description 1,Description 2,Style," +
                             "Blank size,Item Size,Print,Board,Status,Last Order#,Order Date,Cust#,Sales Rep,Commission %," +
-                            "Adder1,Adder2,Adder3,Adder4,Adder5"
+                            "Adder1,Adder2,Adder3,Adder4,Adder5,F/G item"
        cFieldListToSelect = "v_est-no,v_custnm,v_mod-date,eb.part-no,eb.part-dscr1,eb.part-dscr2,v_stydsc," +
                             "v_blksz,v-blk-dim,eb.i-coldscr,v_i-name,v-booked,eb.ord-no,ord-date,eb.cust-no,eb.sman,comm," +
-                            "add1,add2,add3,add4,add5"
+                            "add1,add2,add3,add4,add5,fg-item"
 
-       cFieldLength = "5,30,10,15,30,30,25," + "20,27,30,30,6,11,10,8,9,12," + "10,10,10,10,10"
+       cFieldLength = "5,30,10,15,30,30,25," + "20,27,30,30,6,11,10,8,9,12," + "10,10,10,10,10,15"
        .
 
 {sys/inc/ttRptSel.i}
@@ -1706,6 +1706,14 @@ FOR EACH tt-eb,
     v_blksz  = STRING(eb.t-wid) + " x " + STRING(eb.t-len)
     v_mod-date = STRING(est.mod-date,'99/99/9999')
     v_ord-date = STRING(est.ord-date,'99/99/9999') .
+
+IF v-booked EQ "" THEN DO:
+    v-booked = IF CAN-FIND(FIRST job-hdr
+                   WHERE job-hdr.company EQ est.company
+                  AND job-hdr.est-no  EQ est.est-no)
+                 THEN "Booked" ELSE "".
+END.
+
     IF AVAIL ef THEN
         ASSIGN
         adder[1] = ef.adder[1] 
@@ -1806,7 +1814,9 @@ FOR EACH tt-eb,
                  WHEN "add3" THEN cVarValue = STRING(adder[3]).
                  WHEN "add4" THEN cVarValue = STRING(adder[4]).
                  WHEN "add5" THEN cVarValue = STRING(adder[5]).
-                 WHEN "comm"   THEN cVarValue = STRING(eb.comm,"->>9.99%") .
+                 WHEN "comm"   THEN cVarValue = STRING(eb.comm,"->>9.99%").
+                 WHEN "fg-item" THEN cVarValue = IF AVAIL eb AND eb.stock-no NE "" THEN STRING(eb.stock-no,"x(15)") ELSE "".
+                      
             END CASE.
 
             cExcelVarValue = cVarValue.
