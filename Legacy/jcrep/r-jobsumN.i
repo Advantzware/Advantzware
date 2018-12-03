@@ -14,7 +14,8 @@ DEF VAR cat AS CHAR INIT "" NO-UNDO .
 DEF  VAR acl-brd AS DEC INIT 0 NO-UNDO. 
 DEF  VAR acl-oth AS DEC INIT 0 NO-UNDO.
 DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
-DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO .    
+DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dTotSqft AS DECIMAL NO-UNDO .    
 
     put skip.
 
@@ -82,7 +83,8 @@ DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO .
        v-frate     = 0
        v-act-spo   = 0
        v-est-spo   = 0
-       v-misc-prep = 0.
+       v-misc-prep = 0
+       dTotSqft    = 0.
 
       /***  Get the Item/Order Information  ***/
       run jc/rep/job-sumi.p (recid(job)).
@@ -135,7 +137,7 @@ DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO .
         assign
          v-act-spo = v-act-spo + work-item.act-spo
          v-est-spo = v-est-spo + work-item.est-spo
-         v-qty-ord = v-qty-ord + work-item.qty-ord
+         v-qty-ord = v-qty-ord + work-item.qty-prod
          v-sale    = v-sale    + ((work-item.qty-ord / 1000) * work-item.price).
 
         IF LAST-OF(work-item.i-no) THEN DO:
@@ -205,10 +207,9 @@ DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO .
            RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT dSqft).
 
            IF AVAIL itemfg THEN
-               work-item.sq-ft = v-qty-ord * dSqft / 1000 .
+               work-item.sq-ft = v-qty-ord * dSqft.
            ELSE
                work-item.sq-ft = 0.
-    
  
            ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -235,7 +236,7 @@ DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO .
                          WHEN "est-spoil-per"   THEN cVarValue = STRING(v-e-spo-p,">>>>>9").
                          WHEN "over-run"  THEN cVarValue = STRING(v-over-pct,">>>>>9") .
                          WHEN "sales-per"  THEN cVarValue = STRING(work-item.sales-rep,"x(3)") .
-                         WHEN "sq-ft"  THEN cVarValue = STRING(work-item.sq-ft,">>>>>>>>9.99") .
+                         WHEN "sq-ft"  THEN cVarValue = STRING(work-item.sq-ft,">>>,>>>,>>9.99") .
                          
                     END CASE.
                       
@@ -262,7 +263,8 @@ DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO .
            v-act-spo = 0
            v-est-spo = 0
            v-qty-ord = 0
-           v-qty-all = 0.
+           v-qty-all = 0
+           dTotSqft = dTotSqft + work-item.sq-ft.
           
         END.
       end.
@@ -1052,6 +1054,7 @@ DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO .
             '"' STRING(acl-oth,"->>,>>>,>>9")               '",'
             '"' STRING(acl-lbr,"->>,>>>,>>9")               '",'
             '"' STRING(v-t-prod,"->>,>>>,>>9")               '",'
+            '"' STRING(dTotSqft,">>>,>>>,>>9.99")               '",'
             SKIP.     
 
       IF tb_excel2 THEN DO:
