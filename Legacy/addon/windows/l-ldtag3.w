@@ -529,24 +529,70 @@ PROCEDURE pBuildSearch :
         ASSIGN iItemNo = lv-search .
     ELSE IF rd-sort EQ 3 THEN
         ASSIGN iJobNo = lv-search .
-  EMPTY TEMP-TABLE tt-loadtag .
-  FOR EACH loadtag NO-LOCK
-      WHERE loadtag.company = ip-company AND 
-      loadtag.item-type = ip-itemtype AND
-      (loadtag.tag-no BEGINS cTagNo OR cTagNo EQ "" ) AND 
-      (loadtag.i-no BEGINS iItemNo OR iItemNo EQ "") AND
-      (loadtag.job-no BEGINS iJobNo OR iJobNo EQ "") , 
-      FIRST fg-bin WHERE fg-bin.company = loadtag.company 
-      AND fg-bin.i-no = loadtag.i-no 
-      AND fg-bin.job-no = loadtag.job-no 
-      AND fg-bin.job-no2 = loadtag.job-no2 
-      AND fg-bin.tag = loadtag.tag-no 
-      AND fg-bin.qty > 0 NO-LOCK USE-INDEX tag : 
-      CREATE tt-loadtag .
-      BUFFER-COPY loadtag TO tt-loadtag .
-      iCount = iCount + 1 .
-      IF iCount GE 3000 THEN LEAVE .
-  END.
+  
+    EMPTY TEMP-TABLE tt-loadtag .
+  
+/*    Refactored this to improve index usage.  There will only be one sort order, and it will*/
+/*    determine which field is searched, and therefore which index to use.                   */
+    
+    IF cTagNo NE "" THEN DO:
+        FOR EACH loadtag NO-LOCK WHERE 
+            loadtag.company = ip-company AND 
+            loadtag.item-type = ip-itemtype AND
+            loadtag.tag-no BEGINS cTagNo, 
+        FIRST fg-bin NO-LOCK WHERE 
+            fg-bin.company = loadtag.company AND 
+            fg-bin.i-no = loadtag.i-no AND 
+            fg-bin.job-no = loadtag.job-no AND 
+            fg-bin.job-no2 = loadtag.job-no2 AND 
+            fg-bin.tag = loadtag.tag-no AND 
+            fg-bin.qty > 0: 
+            CREATE tt-loadtag .
+            BUFFER-COPY loadtag TO tt-loadtag .
+            ASSIGN 
+                iCount = iCount + 1 .
+            IF iCount GE 3000 THEN LEAVE .
+        END.
+    END.
+    ELSE IF iItemNo NE "" THEN DO:
+        FOR EACH loadtag NO-LOCK WHERE 
+            loadtag.company = ip-company AND 
+            loadtag.item-type = ip-itemtype AND
+            loadtag.i-no BEGINS iItemNo, 
+            FIRST fg-bin NO-LOCK WHERE 
+            fg-bin.company = loadtag.company AND 
+            fg-bin.i-no = loadtag.i-no AND 
+            fg-bin.job-no = loadtag.job-no AND 
+            fg-bin.job-no2 = loadtag.job-no2 AND 
+            fg-bin.tag = loadtag.tag-no AND 
+            fg-bin.qty > 0: 
+            CREATE tt-loadtag .
+            BUFFER-COPY loadtag TO tt-loadtag .
+            ASSIGN 
+                iCount = iCount + 1 .
+            IF iCount GE 3000 THEN LEAVE .
+        END.
+    END.
+    ELSE IF iJobNo NE "" THEN DO:
+        FOR EACH loadtag NO-LOCK WHERE 
+            loadtag.company = ip-company AND 
+            loadtag.item-type = ip-itemtype AND
+            loadtag.job-no BEGINS iJobNo, 
+            FIRST fg-bin NO-LOCK WHERE 
+            fg-bin.company = loadtag.company AND 
+            fg-bin.i-no = loadtag.i-no AND 
+            fg-bin.job-no = loadtag.job-no AND 
+            fg-bin.job-no2 = loadtag.job-no2 AND 
+            fg-bin.tag = loadtag.tag-no AND 
+            fg-bin.qty > 0: 
+            CREATE tt-loadtag .
+            BUFFER-COPY loadtag TO tt-loadtag .
+            ASSIGN 
+                iCount = iCount + 1 .
+            IF iCount GE 3000 THEN LEAVE .
+        END.
+    END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
