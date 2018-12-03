@@ -56,8 +56,6 @@ for each ttNodes:
       
   END.
   
-
-  
   IF ttNodes.nodeName EQ "PO101" THEN DO:
     iCurrentOrdLine = INTEGER(ttNodes.nodeValue).
     CREATE ttOrdLines.
@@ -77,7 +75,7 @@ for each ttNodes:
            .
   END.
   
-  IF ttNodes.nodeName BEGINS "BEG" THEN DO:
+  IF ttNodes.nodeName BEGINS "BEG" OR ttNodes.nodeName BEGINS "BCH" THEN DO:
     FIND FIRST ttOrdHead WHERE ttOrdHead.ttPayLoadID EQ STRING(iPayLoadNum)
       NO-ERROR.
     IF NOT AVAIL ttOrdHead THEN do:
@@ -85,7 +83,7 @@ for each ttNodes:
      end.
     
     CASE ttNodes.nodeName:
-      WHEN "BEG03" THEN 
+      WHEN "BEG03" OR WHEN "BCH03" THEN 
         ttOrdHead.ttorderID = ttNodes.nodeValue.      
     END CASE.
   END.
@@ -127,7 +125,8 @@ for each ttNodes:
   
   IF ttNodes.nodeName BEGINS "PO1" 
      OR ttNodes.nodeName BEGINS "PID" 
-     OR ttNodes.nodeName BEGINS "SCH" THEN DO:
+     OR ttNodes.nodeName BEGINS "SCH" 
+     OR ttNodes.nodeName BEGINS "POC" THEN DO:
          
     FIND FIRST ttOrdLines
       WHERE ttOrdLines.ttpayLoadID EQ STRING(iPayLoadNum) 
@@ -135,13 +134,13 @@ for each ttNodes:
     IF NOT AVAILABLE ttOrdLines THEN 
        NEXT.         
     CASE ttNodes.nodeName:
-      WHEN "PO102" THEN 
+      WHEN "PO102" OR WHEN "POC03" THEN 
         ttOrdLines.ttitemQuantity = ttNodes.nodeValue.      
-      WHEN "PO103" THEN 
+      WHEN "PO103" OR WHEN "POC0501" THEN 
         ttOrdLines.ttitemUnitOfMeasure = ttNodes.nodeValue.      
-      WHEN "PO104" THEN 
+      WHEN "PO104" OR WHEN "POC06" THEN 
         ttOrdLines.ttitemMoney = ttNodes.nodeValue.      
-      WHEN "PO109" THEN 
+      WHEN "PO109" OR WHEN "POC09" THEN 
         ttOrdLines.ttitemSupplierPartID  = ttNodes.nodeValue.      
       WHEN "PO107" THEN 
         ttOrdLines.ttitemManufacturerPartID = ttNodes.nodeValue.      
