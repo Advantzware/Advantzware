@@ -28,29 +28,36 @@ for each ttNodes:
     cToIdentity = ttNodes.nodeValue.
   IF ttNodes.nodeName EQ "N101" THEN
     cAddressType = ttNodes.nodeValue.  
+
+  /* 850 or 860 */
+  IF ttNodes.nodeName EQ "ST01" AND ttNodes.nodeValue GT "" THEN 
+  DO:
+      iPayLoadNum  = iPayLoadNum  + 1.
+  
+      CREATE ttOrdHead.
+      ASSIGN 
+          ttOrdHead.ttpayLoadID    = STRING(iPayLoadNum)
+          ttOrdHead.ttfromIdentity = cFromIdentity
+          ttOrdHead.ttToIdentity   = cToIdentity 
+          .   
+   
+      ASSIGN 
+          cDocType            = ttNodes.nodeValue
+          ttOrdHead.ttDocType = cDocType .
+  END.    
     
   IF NodeName EQ "BEG03" THEN DO:
 
-    iPayLoadNum  = iPayLoadNum  + 1.
+      FIND FIRST ttOrdHead WHERE ttOrdHead.ttPayLoadID EQ STRING(iPayLoadNum)
+          NO-ERROR.    
     cPoNumber = ttNodes.nodeValue.
-    CREATE ttOrdHead.
-    ASSIGN ttOrdHead.ttpayLoadID = STRING(iPayLoadNum)
-           ttOrdHead.ttfromIdentity = cFromIdentity
-           ttOrdHead.ttToIdentity = cToIdentity 
-           .       
+    
       ttOrdHead.ttCustNo = getCustNo(cFromIdentity).
       
   END.
   
-  /* 850 or 860 */
-  IF ttNodes.nodeName EQ "ST01" THEN DO:
-      FIND FIRST ttOrdHead WHERE ttOrdHead.ttPayLoadID EQ STRING(iPayLoadNum)
-          NO-ERROR.
-      IF NOT AVAIL ttOrdHead THEN 
-          NEXT.      
-    ASSIGN cDocType = ttNodes.nodeValue
-           ttOrdHead.ttDocType = cDocType .
-  END.
+
+  
   IF ttNodes.nodeName EQ "PO101" THEN DO:
     iCurrentOrdLine = INTEGER(ttNodes.nodeValue).
     CREATE ttOrdLines.

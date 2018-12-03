@@ -412,6 +412,7 @@ PROCEDURE genTempOrderHeader:
         ttOrdHead.ttbillToCity        = getNodeValue('billTo','City')
         ttOrdHead.ttbillToState       = getNodeValue('billTo','State')
         ttOrdHead.ttbillToZip         = getNodeValue('billTo','PostalCode')
+        ttOrdHead.ttDocType           = "PO"
         ttOrdHead.ttcustNo            = getCustNo(fromIdentity)
         .             
     
@@ -699,16 +700,24 @@ MESSAGE "fromid" fromIdentity "cust" custNo
 VIEW-AS ALERT-BOX.
       RUN cxml\xmltoOrderGE.p (INPUT TABLE ttNodes, INPUT-OUTPUT TABLE ttOrdHead , INPUT-OUTPUT TABLE ttOrdLines, INPUT-OUTPUT TABLE ttOrdSchedShipments).
   END.
+  EACH-ORDER:
   DO WHILE TRUE:
-      FIND FIRST ttOrdHead WHERE ttOrdHead.ttProcessed EQ NO AND ttSelectedOrder EQ NO NO-ERROR.
-    
-      IF NOT AVAILABLE ttOrdHead THEN LEAVE.
-      ttOrdHead.ttSelectedOrder = TRUE.
+      FIND FIRST ttOrdHead 
+        WHERE ttOrdHead.ttProcessed EQ NO 
+          AND ttOrdHead.ttSelectedOrder EQ NO
+          AND ttOrdHead.ttDocType EQ "PO" 
+        NO-ERROR.    
+      IF NOT AVAILABLE ttOrdHead AND lIsEdiXML THEN LEAVE EACH-ORDER.
+      IF AVAILABLE ttOrdHead THEN 
+        ttOrdHead.ttSelectedOrder = TRUE.
+        
       iNextOrderNumber = GetNextOrder#().
       RUN genOrderHeader (INPUT iNextOrderNumber, INPUT orderDate, OUTPUT rOrdRec).
       IF NOT lIsEdiXML THEN DO:
           RUN genTempOrderHeader (INPUT rOrdRec, OUTPUT cShipToID, OUTPUT cReturn).                                                                                              
-          RUN genTempOrderLines (INPUT rOrdRec, INPUT cShipToID, OUTPUT cReturn).          
+          RUN genTempOrderLines (INPUT rOrdRec, INPUT cShipToID, OUTPUT cReturn).  
+          FIND FIRST ttOrdHead WHERE ttOrdHead.ttProcessed EQ NO AND ttSelectedOrder EQ NO NO-ERROR.    
+          IF NOT AVAILABLE ttOrdHead THEN LEAVE EACH-ORDER.
       END.
       RUN assignOrderHeader (INPUT rOrdRec, OUTPUT cShipToID, OUTPUT cReturn).                                                                                              
       RUN genOrderLines (INPUT rOrdRec, INPUT cShipToID, OUTPUT cReturn).
@@ -717,6 +726,9 @@ VIEW-AS ALERT-BOX.
         ttOrdHead.ttSelectedOrder EQ TRUE NO-ERROR.
       IF AVAILABLE ttOrdHead THEN 
         ASSIGN ttOrdHead.ttSelectedOrder = FALSE ttOrdHead.ttProcessed = TRUE.
+      /* Only one order per xml document for Ariba orders */
+      IF NOT lISEdiXML THEN 
+        LEAVE EACH-ORDER.
   END. 
   RELEASE oe-ord.  
   RELEASE reftable.
