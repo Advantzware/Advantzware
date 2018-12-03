@@ -6,8 +6,6 @@
    FIND FIRST fg-rctd WHERE
              ROWID(fg-rctd)    = i-fg-rctd-rowid EXCLUSIVE-LOCK NO-WAIT NO-ERROR. 
 
-
-   DEF VARIABLE fgPostLog   AS LOGICAL NO-UNDO.
    def var v-autobin        as cha no-undo.
 
 
@@ -103,12 +101,7 @@
 
    ASSIGN
       v-post-date = TODAY
-      fgPostLog = SEARCH('logs/fgpstall.log') NE ?.
-
-   IF fgPostLog THEN
-      OUTPUT STREAM logFile TO VALUE('logs/fgpstall.' + STRING(TODAY,'99999999') + '.' + STRING(TIME) + '.log').
-
-   IF fgPostLog THEN RUN fgPostLog ('Started').
+      .
 
    FIND FIRST period NO-LOCK WHERE period.company EQ cocode
         AND period.pst     LE TODAY
@@ -145,7 +138,6 @@
       IF NOT AVAIL itemfg THEN
         NEXT.
 
-      IF fgPostLog THEN RUN fgPostLog ('Start fg/fg-post.i ' + TRIM(itemfg.i-no)).
       {fg/fg-post.i w-fg-rctd w-fg-rctd}
       FIND CURRENT itemfg NO-LOCK NO-ERROR.
 
@@ -153,13 +145,9 @@
       FIND CURRENT po-ordl NO-LOCK NO-ERROR.
       FIND CURRENT fg-bin NO-LOCK NO-ERROR.
 
-      IF fgPostLog THEN RUN fgPostLog ('End fg/fg-post.i - Start fg/fgemails.i').
-      
       IF w-fg-rctd.rita-code = "R" THEN DO:
          {fg/fgemails.i}
       END.
-
-      IF fgPostLog THEN RUN fgPostLog ('End fg-bin - Start fg-rctd').
 
       FIND FIRST fg-rctd WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id
            EXCLUSIVE-LOCK NO-ERROR.
@@ -181,11 +169,8 @@
 
          FIND CURRENT fg-rctd NO-LOCK.
       END.
-
-      IF fgPostLog THEN RUN fgPostLog ('End loop'). 
   END.  /* for each fg-rctd */
 
-  IF fgPostLog THEN RUN fgPostLog ('End fg/fgemails.i - Start loadtag').
   FOR EACH w-fg-rctd
       BREAK BY w-fg-rctd.i-no
             BY w-fg-rctd.job-no
@@ -214,7 +199,6 @@
             AND loadtag.i-no      EQ w-fg-rctd.i-no
             AND loadtag.job-no    EQ w-fg-rctd.job-no
           USE-INDEX tag EXCLUSIVE-LOCK NO-ERROR.
-      IF fgPostLog THEN RUN fgPostLog ('End loadtag - Start fg-bin').
 
       IF AVAIL loadtag THEN DO:
          FIND FIRST fg-bin
@@ -248,7 +232,6 @@
     DELETE w-inv.
   END.
 
-  IF fgPostLog THEN RUN fgPostLog ('End First - Start Second For Each w-fg-rctd').
   FOR EACH w-fg-rctd WHERE w-fg-rctd.invoiced,
       FIRST itemfg
       WHERE itemfg.company EQ cocode
@@ -258,13 +241,9 @@
     CREATE w-inv.
     w-inv.row-id = w-fg-rctd.row-id.
   END.
-  IF fgPostLog THEN RUN fgPostLog ('End Second For Each w-fg-rctd').
 
-  IF fgPostLog THEN RUN fgPostLog ('Begin Run fg/invrecpt.p').
   RUN fg/invrecpt.p (?, 2).
-  IF fgPostLog THEN RUN fgPostLog ('End Run fg/invrecpt.p').
 
-  IF fgPostLog THEN RUN fgPostLog ('End First - Start Third For Each w-fg-rctd').
   FOR EACH w-fg-rctd WHERE TRIM(w-fg-rctd.tag) EQ "",
       FIRST itemfg
       WHERE itemfg.company EQ cocode
@@ -273,9 +252,7 @@
       BREAK BY w-fg-rctd.i-no:
 
     IF LAST-OF(w-fg-rctd.i-no) THEN DO:
-      IF fgPostLog THEN RUN fgPostLog ('Begin Run fg/updfgcs1.p for ' + w-fg-rctd.i-no).
       RUN fg/updfgcs1.p (RECID(itemfg), NO).
-      IF fgPostLog THEN RUN fgPostLog ('End Run fg/updfgcs1.p for ' + w-fg-rctd.i-no).
 
       FOR EACH oe-ordl
           WHERE oe-ordl.company EQ cocode
@@ -303,7 +280,6 @@
       END.
     END.
   END.
-  IF fgPostLog THEN RUN fgPostLog ('End Third For Each w-fg-rctd').
 
   IF v-fgpostgl NE "None" THEN DO TRANSACTION:
     /* gdm - 11050906 */
@@ -319,18 +295,13 @@
     END. /* REPEAT */
 
 
-    IF fgPostLog THEN RUN fgPostLog ('Begin Run gl-from-work 1').
     RUN gl-from-work (1, v-trnum).
-    IF fgPostLog THEN RUN fgPostLog ('End 1 - Begin Run gl-from-work 2').
     RUN gl-from-work (2, v-trnum).
-    IF fgPostLog THEN RUN fgPostLog ('End Run gl-from-work 2').
   END.
   find first w-job no-error.
   /* Run only when not batch process. */
   if avail w-job AND plBatch = NO THEN DO:
-    IF fgPostLog THEN RUN fgPostLog ('Start jc/d-jclose.p').
     run jc/d-jclose.w.
-    IF fgPostLog THEN RUN fgPostLog ('End jc/d-jclose.p').
   END.
 
   if v-adjustgl then do TRANSACTION:
@@ -347,7 +318,6 @@
       END. /* IF AVAIL gl-ctrl */
     END. /* REPEAT */
 
-    IF fgPostLog THEN RUN fgPostLog ('Start For Each work-job').
     for each work-job break by work-job.actnum:
        create gltrans.
       assign
@@ -367,25 +337,10 @@
          gltrans.tr-amt  = work-job.amt
          gltrans.tr-dscr = "ADJUSTMENT COGS".
     end. /* each work-job */
-    IF fgPostLog THEN RUN fgPostLog ('End For Each work-job').
   end.
   IF v-got-fgemail THEN DO:
-    IF fgPostLog THEN RUN fgPostLog ('Start Run send-fgemail').
     RUN send-fgemail (v-fgemail-file).
-    IF fgPostLog THEN RUN fgPostLog ('End Run send-fgemail').
   END.
-  IF fgPostLog THEN RUN fgPostLog ('End').
-  IF fgPostLog THEN OUTPUT STREAM logFile CLOSE.
-
-
-  PROCEDURE fgPostLog:
-
-      DEFINE INPUT PARAMETER ipLogText AS CHARACTER NO-UNDO.
-        
- PUT STREAM logFile UNFORMATTED STRING(TODAY,'99.99.9999') ' '
-     STRING(TIME,'hh:mm:ss am') ' : ' ipLogText SKIP.
-
-END PROCEDURE.
 
 PROCEDURE gl-from-work:
  DEF INPUT PARAM ip-run AS INT NO-UNDO.
