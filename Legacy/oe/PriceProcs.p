@@ -1009,7 +1009,7 @@ PROCEDURE pGetPriceMatrix PRIVATE:
     IF ipbf-itemfg.i-code NE "S" THEN 
     DO:
         ASSIGN 
-            opcMatchDetail = "FG Item is not 'Stock'"
+            opcMatchDetail = "This FG item is configured as a non-inventoried (Not stocked) item"
             oplMatchFound  = NO 
             .
         RETURN.
