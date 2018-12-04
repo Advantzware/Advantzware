@@ -622,14 +622,12 @@ DO:
 
 
     IF v-start-po EQ v-end-po THEN DO:
-       FOR EACH bff-po-ord NO-LOCK
+       FIND FIRST bff-po-ord NO-LOCK
            WHERE bff-po-ord.company EQ cocode
-           AND bff-po-ord.po-no   GE v-start-po
-           AND bff-po-ord.po-no   LE v-end-po
-           AND bff-po-ord.vend-no GE begin_vend-no
-           AND bff-po-ord.vend-no LE end_vend-no:
+           AND bff-po-ord.po-no   EQ v-start-po
+           NO-ERROR .
 
-           IF bff-po-ord.printed AND NOT v-reprint-po THEN do:
+           IF AVAIL bff-po-ord AND bff-po-ord.printed AND NOT v-reprint-po THEN do:
                MESSAGE "This PO has been printed - Do you want to reprint?"
                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
                UPDATE lMessageUpdate AS LOGICAL .
@@ -639,7 +637,6 @@ DO:
                       v-reprint-po = YES
                       tb_reprint:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Yes" .
            END.
-       END.
     END.
  
     /* If there is are vendor-specific forms, run this way */
