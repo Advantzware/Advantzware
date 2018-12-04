@@ -67,7 +67,7 @@ PROCEDURE CheckPriceHold:
      Purpose: Checks Price Hold for passed criteria.  Adds record to ttPriceHold table.
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipriOeOrd AS ROWID NO-UNDO.
     DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCustID   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcShipID   AS CHARACTER NO-UNDO.
@@ -81,8 +81,13 @@ PROCEDURE CheckPriceHold:
     DEFINE VARIABLE lQtyMatch             AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lEffectiveDateAge     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iEffectiveDateAgeDays AS INTEGER   NO-UNDO.
+    DEFINE BUFFER bf-oe-ord  FOR oe-ord.
 
-    RUN pGetPriceHoldCriteria(ipcCompany, 
+    FIND FIRST bf-oe-ord NO-LOCK 
+        WHERE ROWID(bf-oe-ord) EQ ipriOeOrd
+        NO-ERROR.
+
+    RUN pGetPriceHoldCriteria(ROWID(bf-oe-ord), 
         OUTPUT lPriceHoldSet, OUTPUT lQtyInRange, OUTPUT lQtyMatch, OUTPUT lEffectiveDateAge, OUTPUT iEffectiveDateAgeDays).
     IF NOT lPriceHoldSet THEN 
     DO:
@@ -94,7 +99,7 @@ PROCEDURE CheckPriceHold:
     ELSE 
     DO:
         EMPTY TEMP-TABLE ttPriceHold.
-        RUN pAddPriceHold(0, ipcCompany, ipcFGItemID, ipcCustID, ipcShipID, ipdQuantity,
+        RUN pAddPriceHold(0, bf-oe-ord.company, ipcFGItemID, ipcCustID, ipcShipID, ipdQuantity,
             lQtyMatch, lQtyInRange, lEffectiveDateAge, iEffectiveDateAgeDays). 
         FIND FIRST ttPriceHold NO-LOCK NO-ERROR.
         IF AVAILABLE ttPriceHold THEN 
@@ -132,7 +137,7 @@ PROCEDURE CheckPriceHoldForOrder:
         WHERE ROWID(bf-oe-ord) EQ ipriOeOrd
         NO-ERROR.
 
-    RUN pGetPriceHoldCriteria(bf-oe-ord.company, 
+    RUN pGetPriceHoldCriteria(ROWID(bf-oe-ord), 
         OUTPUT lPriceHoldSet, OUTPUT lQtyInRange, OUTPUT lQtyMatch, OUTPUT lEffectiveDateAge, OUTPUT iEffectiveDateAgeDays).
     IF NOT lPriceHoldSet THEN 
     DO:
@@ -1210,28 +1215,52 @@ PROCEDURE pGetPriceHoldCriteria PRIVATE:
      Purpose: Returns Price hold Criteria Settings
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipriOeOrd AS ROWID NO-UNDO.
     DEFINE OUTPUT PARAMETER oplPriceCheck AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplQtyInRange AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplQtyMatch AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplEffectiveDateAge AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiEffectiveDateAgeDays AS INTEGER NO-UNDO.
 
-    DEFINE VARIABLE lFound    AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cCriteria AS CHARACTER NO-UNDO. 
-    DEFINE VARIABLE cAge      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFoundShip AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cCriteria  AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cAge       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCheckHold AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lcReturn   AS CHAR NO-UNDO.
+    DEFINE BUFFER bf-oe-ord  FOR oe-ord.
+
+    FIND FIRST bf-oe-ord NO-LOCK 
+        WHERE ROWID(bf-oe-ord) EQ ipriOeOrd
+        NO-ERROR.
+
+    RUN sys/ref/nk1look.p (bf-oe-ord.company,
+            "OEPriceHold",
+            "L",
+            YES,
+            YES,
+            bf-oe-ord.cust-no,
+            bf-oe-ord.ship-id,
+            OUTPUT lcReturn,
+            OUTPUT lFoundShip).
+
+    IF lFoundShip THEN
+        lCheckHold = LOGICAL(lcReturn) NO-ERROR.
     
-    RUN sys/ref/nk1look.p (ipcCompany,
+    RUN sys/ref/nk1look.p (bf-oe-ord.company,
         "OEPriceHold",
         "C",
+        YES,
         NO,
-        NO,
-        "",
-        "",
+        bf-oe-ord.cust-no,
+        bf-oe-ord.ship-id,
         OUTPUT cCriteria,
         OUTPUT lFound).
 
-    IF lFound AND cCriteria NE "" THEN 
+    IF lFoundShip AND NOT lCheckHold  THEN do:
+      oplPriceCheck = NO .
+    END.
+    ELSE IF lFound AND cCriteria NE "" THEN 
     DO: 
         ASSIGN 
             oplPriceCheck       = YES
@@ -1242,13 +1271,13 @@ PROCEDURE pGetPriceHoldCriteria PRIVATE:
     END.
     IF oplEffectiveDateAge THEN 
     DO:
-        RUN sys/ref/nk1look.p (ipcCompany,
+        RUN sys/ref/nk1look.p (bf-oe-ord.company,
             "OEPriceHold",
             "I",
+            YES,
             NO,
-            NO,
-            "",
-            "",
+            bf-oe-ord.cust-no,
+            bf-oe-ord.ship-id,
             OUTPUT cAge,
             OUTPUT lFound).
         IF lFound AND cAge NE "" THEN 
