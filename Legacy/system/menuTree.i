@@ -38,6 +38,7 @@ DEFINE VARIABLE dObjectHeight AS DECIMAL   NO-UNDO INITIAL 1.14.
 DEFINE VARIABLE dObjectWidth  AS DECIMAL   NO-UNDO INITIAL 4.8.
 DEFINE VARIABLE iMenuSize     AS INTEGER   NO-UNDO INITIAL 1.
 DEFINE VARIABLE iLanguage     AS INTEGER   NO-UNDO INITIAL 1.
+DEFINE VARIABLE lMenuImage    AS LOGICAL   NO-UNDO INITIAL TRUE.
 
 DEFINE TEMP-TABLE ttMenuTree NO-UNDO
     FIELD treeOrder     AS INTEGER
@@ -246,7 +247,8 @@ PROCEDURE pCreatettMenuTree:
           PERSISTENT RUN pClickMenuTree IN THIS-PROCEDURE (hWidget:HANDLE).
       END TRIGGERS.
     IF VALID-HANDLE(hWidget) THEN DO:
-        ttMenuTree.hImage = hWidget.            
+        ttMenuTree.hImage = hWidget.
+        IF lMenuImage THEN
         hWidget:LOAD-IMAGE(SEARCH(cImageFolder + ttMenuTree.treeImage)).
     END.
 
@@ -389,6 +391,7 @@ PROCEDURE pDisplayMenuTree:
                  .
         ELSE
         &ENDIF
+        IF lMenuImage THEN 
         ASSIGN
             bttMenuTree.hImage:COL = dCol
             bttMenuTree.hImage:ROW = dRow
