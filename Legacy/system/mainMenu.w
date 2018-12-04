@@ -2031,6 +2031,10 @@ PROCEDURE pInit :
     
     DO WITH FRAME {&FRAME-NAME}:
         RUN sys/ref/nk1look.p (
+            g_company,"MENUIMAGE","L",NO,NO,"","",
+            OUTPUT lMenuImage,OUTPUT lFound
+            ).
+        RUN sys/ref/nk1look.p (
             g_company,"MENULINKASI","C",NO,NO,"","",
             OUTPUT cNK1Value[1],OUTPUT lFound
             ).
