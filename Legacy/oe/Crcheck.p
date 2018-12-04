@@ -80,7 +80,7 @@ IF lv-cust NE "" AND lv-stat NE "H" AND
                 /*(cust.cr-hold-invdays + terms.net-days) GT 0 */
                  cust.cr-hold-invdays  GT 0 
                 THEN 
-                  RUN oe/creditid2.p (INPUT RECID(cust), OUTPUT hold_invoice_id).
+                  RUN oe/creditid.p (INPUT RECID(cust), OUTPUT hold_invoice_id).
               
               IF hold_invoice_id NE ? 
                 THEN v-error = "invoice age".

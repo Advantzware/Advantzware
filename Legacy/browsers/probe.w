@@ -499,7 +499,6 @@ DEFINE BROWSE br_table
       probe.net-profit
       probe.sell-price
       probe.do-quote
-      probe.boardCostPct
       probe.boardContributionPerM
       probe.boardContributionTotal
 /* _UIB-CODE-BLOCK-END */
@@ -640,7 +639,7 @@ ASI.probe.est-no = ASI.eb.est-no"
      _FldNameList[15]   > ASI.probe.boardCostPerM
 "probe.boardCostPerM" "Board/M" "->,>>>,>>9.99" "decimal" ? ? ? ? ? ? no ? no no "17" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.probe.boardCostPct
-"probe.boardCostPct" "Board%" "->>9.99" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"probe.boardCostPct" "Board%" "->>9.99" "decimal" ? ? ? ? ? ? ? ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.probe.boardContributionPerM
 "probe.boardContributionPerM" "Board!Contrib/M" "->,>>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "17" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.probe.boardContributionTotal
@@ -985,9 +984,7 @@ END.
 ON LEAVE OF probe.boardCostPct IN BROWSE br_table /* Board% */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    /*RUN valid-profit (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.*/
-
+    
     RUN calc-fields NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.

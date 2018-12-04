@@ -1316,23 +1316,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE fgPostlog B-table-Win 
-PROCEDURE fgPostlog :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ipLogText AS CHARACTER NO-UNDO.
-        
-    PUT STREAM logFile UNFORMATTED STRING(TODAY,'99.99.9999') ' '
-        STRING(TIME,'hh:mm:ss am') ' : ' ipLogText SKIP.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-def-values B-table-Win 
 PROCEDURE get-def-values :
 /*------------------------------------------------------------------------------
@@ -2543,11 +2526,6 @@ PROCEDURE post-finish-goods :
                        "========== =============== ============" SKIP.
    */
   
-   DEFINE VARIABLE fgPostLog AS LOGICAL NO-UNDO.
-  
-   fgPostLog = SEARCH('logs/fgpstall.log') NE ?.
-
-  
    SESSION:SET-WAIT-STATE ("general").
    FIND FIRST period NO-LOCK
        WHERE period.company EQ cocode
@@ -2809,12 +2787,9 @@ PROCEDURE post-finish-goods :
 /*          IF fgPostLog THEN RUN fgPostLog ('End For Each work-job').                                                            */
 /*        END.                                                                                                                    */
         IF v-got-fgemail THEN DO:
-          IF fgPostLog THEN RUN fgPostLog ('Start Run send-fgemail').
           RUN send-fgemail (v-fgemail-file).
-          IF fgPostLog THEN RUN fgPostLog ('End Run send-fgemail').
         END.
 /*        IF fgPostLog THEN RUN fgPostLog ('End').                                                                                */
-        IF fgPostLog THEN OUTPUT STREAM logFile CLOSE.
         SESSION:SET-WAIT-STATE ("").
   
      

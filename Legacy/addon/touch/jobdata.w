@@ -38,9 +38,10 @@ CREATE WIDGET-POOL.
 {custom/emprate.i}
 {methods/defines/globdefs.i}
 
-DEF VAR lv-timer AS INT NO-UNDO. /* clock timer */
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
-DEFINE VARIABLE vTsampmWarn AS CHAR NO-UNDO.
+DEFINE VARIABLE lv-timer     AS INTEGER   NO-UNDO. /* clock timer */
+DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE vTsampmWarn  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lTSBreaksQty AS LOGICAL   NO-UNDO.
 
 {sys/inc/var.i NEW SHARED}
 
@@ -59,9 +60,12 @@ DO TRANSACTION:
    {sys/inc/tskey.i}
 END.
 
-RUN sys/ref/nk1look.p (INPUT cocode, "TSAMPMWarn", "L" /* Logical */, NO /* check by cust */, 
-                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+RUN sys/ref/nk1look.p (cocode, "TSAMPMWarn", "L" /* Logical */, NO /* check by cust */, 
+                       YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT vTsampmWarn, OUTPUT lRecFound).
+RUN sys/ref/nk1look.p (cocode, "TSBREAKSQTY", "L" /* Logical */, NO /* check by cust */, 
+                       YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT lTSBreakSQty, OUTPUT lRecFound).
 
 DEF VAR v-time-clock-off AS LOG  NO-UNDO.
 
@@ -1392,43 +1396,54 @@ PROCEDURE Job_Data_Collection :
                 DELETE ttTrans.
             END. /* each ttTrans */
 
-            /* calculate total run time */
-            FOR EACH ttTrans
-                WHERE ttTrans.chargeCode EQ cChargeCode
-                :
-                iTotalTime = iTotalTime + ttTrans.totalTime.
-            END. /* each ttTrans */
-            
-            /* set qty values based on pct of total time */
-            FOR EACH ttTrans
-                WHERE ttTrans.chargeCode EQ cChargeCode
-                :
+            IF lTSBreaksQty THEN DO:
+                /* calculate total run time */
+                FOR EACH ttTrans
+                    WHERE ttTrans.chargeCode EQ cChargeCode
+                    :
+                    iTotalTime = iTotalTime + ttTrans.totalTime.
+                END. /* each ttTrans */
+                
+                /* set qty values based on pct of total time */
+                FOR EACH ttTrans
+                    WHERE ttTrans.chargeCode EQ cChargeCode
+                    :
+                    ASSIGN
+                        ttTrans.pct      = IF ttTrans.totalTime / iTotalTime EQ ? THEN 0
+                                           ELSE ttTrans.totalTime / iTotalTime
+                        ttTrans.runQty   = iRunQty * ttTrans.pct
+                        ttTrans.wasteQty = iWasteQty * ttTrans.pct
+                        iRQty            = iRQty + ttTrans.runQty
+                        iWQty            = iWQty + ttTrans.wasteQty
+                        .
+                END. /* each ttTrans */
+                
+                /* calculate if any over/under after distributing qty values */
                 ASSIGN
-                    ttTrans.pct      = IF ttTrans.totalTime / iTotalTime EQ ? THEN 0
-                                       ELSE ttTrans.totalTime / iTotalTime
-                    ttTrans.runQty   = iRunQty * ttTrans.pct
-                    ttTrans.wasteQty = iWasteQty * ttTrans.pct
-                    iRQty            = iRQty + ttTrans.runQty
-                    iWQty            = iWQty + ttTrans.wasteQty
+                    iRqty = iRQty - iRunQty
+                    iWQty = iWQty - iWasteQty
                     .
-            END. /* each ttTrans */
-            
-            /* calculate if any over/under after distributing qty values */
-            ASSIGN
-                iRqty = iRQty - iRunQty
-                iWQty = iWQty - iWasteQty
-                .
+            END. /* if ltsbreaksqty */
+
             /* adjust qty values in case of rounding errors */
             /* set run complete value on last transaction */
             FIND LAST ttTrans
                 WHERE ttTrans.chargeCode EQ cChargeCode
                 NO-ERROR.
-            IF AVAILABLE ttTrans THEN
-            ASSIGN
-                ttTrans.runQty    = ttTrans.runQty + iRQty
-                ttTrans.wasteQty  = ttTrans.wasteQty + iWQty
-                ttTrans.completed = lCompleted
-                .
+            IF AVAILABLE ttTrans THEN DO:
+                IF lTSBreaksQty THEN
+                ASSIGN
+                    ttTrans.runQty    = ttTrans.runQty   + iRQty
+                    ttTrans.wasteQty  = ttTrans.wasteQty + iWQty
+                    .
+                ELSE
+                ASSIGN
+                    ttTrans.runQty    = iRunQty
+                    ttTrans.wasteQty  = iWasteQty
+                    .
+                ttTrans.completed = lCompleted.
+            END. /* if ltsbreaksqty */
+            
             FIND FIRST ttTrans
                  WHERE ttTrans.chargeCode EQ cChargeCode
                  NO-ERROR.

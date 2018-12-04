@@ -403,8 +403,7 @@ END FUNCTION.
            lv-prt-date = TODAY
            lv-prt-time = STRING(TIME,"hh:mm am").
 
-    IF vjobreckey = "" THEN
-    FOR FIRST job FIELDS (job.rec_key) NO-LOCK
+    FOR FIRST job FIELDS (job.rec_key) NO-LOCK 
                    WHERE job.company = job-hdr.company
                      AND job.job     = job-hdr.job:
         ASSIGN vjobreckey = job.rec_key.
