@@ -1907,16 +1907,12 @@ SESSION:SET-WAIT-STATE ("general").
 
       IF FIRST(rm-rcpth.trans-date) THEN 
       lv-lstdt = STRING(rm-rcpth.trans-date).
-      
        IF LAST(rm-rcpth.trans-date) THEN 
       lv-fistdt = STRING(rm-rcpth.trans-date).
        
      END.
 
    END.
-
-
-    IF lv-lstdt = "" THEN ASSIGN lv-lstdt = STRING(tt-rm-bin.trans-date) .
     
     v-cost = IF ce-ctrl.r-cost THEN ITEM.avg-cost ELSE tt-rm-bin.cost.
 
