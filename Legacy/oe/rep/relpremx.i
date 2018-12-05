@@ -128,24 +128,11 @@ DEF SHARED VAR s-print-part-no AS LOG NO-UNDO.
 DEF VAR v-reljob AS CHAR FORMAT "x(10)" NO-UNDO.
 DEFINE VARIABLE iOrdQtyCust AS INTEGER NO-UNDO.
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl .
-
 DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
 DEFINE VARIABLE opiArraySize AS INTEGER NO-UNDO.
-Define Variable hNotesProc as Handle NO-UNDO.
+DEFINE VARIABLE hNotesProc as Handle NO-UNDO.
 
 RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProc.
-
-DEFINE VARIABLE lv-text AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-text-line AS INTEGER NO-UNDO.
-DEFINE VARIABLE lv-text-line-length AS INTEGER NO-UNDO.
-DEFINE VARIABLE lv-char AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-char-list AS CHARACTER NO-UNDO.
-DEFINE TEMP-TABLE tt-text NO-UNDO
-    FIELD TYPE AS CHARACTER
-    FIELD tt-line AS INTEGER
-    FIELD tt-text AS CHARACTER 
-    FIELD tt-recid AS RECID
-    INDEX tt-text IS PRIMARY TYPE tt-line.
 
 ASSIGN tmpstore = fill("-",130).
 
@@ -754,7 +741,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                     v-cq = YES.
               END.
               IF AVAIL itemfg THEN DO:
-                   RUN GetNotesArrayForObject IN hNotesProc (INPUT itemfg.rec_key, "S", "PT", 80, NO, OUTPUT opcParsedText, OUTPUT opiArraySize).
+                  RUN GetNotesArrayForObject IN hNotesProc (INPUT itemfg.rec_key, "S", "PT", 80, NO, OUTPUT opcParsedText, OUTPUT opiArraySize).
                    DO i = 1 TO opiArraySize: 
                        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
                        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
@@ -768,6 +755,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                        v-printline = v-printline + 1.    
                    END.
               END.
+                      
               IF v-printline > 44 THEN DO:
                  PAGE.
                  v-printline = 0.
