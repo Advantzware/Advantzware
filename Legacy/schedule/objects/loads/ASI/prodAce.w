@@ -1580,7 +1580,7 @@ PROCEDURE pExport :
                 .
         END. /* each ttblproductid */
         OUTPUT CLOSE.
-        OS-COPY VALUE(SEARCH(cFile)) VALUE(REPLACE(SEARCH(cFile),'.tmp','.dat')).
+        OS-APPEND VALUE(SEARCH(cFile)) VALUE(REPLACE(SEARCH(cFile),'.tmp','.dat')).
         OS-DELETE VALUE(SEARCH(cFile)).
     END. /* jobs */
     ELSE DO:
