@@ -583,6 +583,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
+    DEFINE BUFFER bff-po-ord FOR po-ord .
     SESSION:SET-WAIT-STATE ("general").
 
     DO WITH FRAME {&FRAME-NAME}:
@@ -618,6 +619,25 @@ DO:
         lv-attachments      = tb_attachments
         lCustCode           =  tb_cust-code
         lPrintMach          =  tb_mach .
+
+
+    IF v-start-po EQ v-end-po THEN DO:
+       FIND FIRST bff-po-ord NO-LOCK
+           WHERE bff-po-ord.company EQ cocode
+           AND bff-po-ord.po-no   EQ v-start-po
+           NO-ERROR .
+
+           IF AVAIL bff-po-ord AND bff-po-ord.printed AND NOT v-reprint-po THEN do:
+               MESSAGE "This PO has been printed - Do you want to reprint?"
+               VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+               UPDATE lMessageUpdate AS LOGICAL .
+           IF NOT lMessageUpdate THEN RETURN .
+           ELSE
+               ASSIGN tb_reprint = YES 
+                      v-reprint-po = YES
+                      tb_reprint:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Yes" .
+           END.
+    END.
  
     /* If there is are vendor-specific forms, run this way */
     IF CAN-FIND(FIRST sys-ctrl-shipto WHERE

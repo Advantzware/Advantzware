@@ -193,7 +193,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       rm-rctd.r-no COLUMN-LABEL "Seq#" FORMAT ">>>>>>>9":U
       rm-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U
-      rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U
+      rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(13)":U
       rm-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       rm-rctd.rct-date COLUMN-LABEL "Return Date" FORMAT "99/99/9999":U
       rm-rctd.po-no FORMAT "x(6)":U
@@ -323,7 +323,7 @@ AND rm-rctd.qty LT 0"
      _FldNameList[2]   > asi.rm-rctd.tag
 "tag" "Tag#" "x(20)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.rm-rctd.loc
-"loc" "Whse" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loc" "Whse" "x(13)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.rm-rctd.loc-bin
 "loc-bin" "Bin" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.rm-rctd.rct-date
@@ -665,6 +665,16 @@ END.
 ON LEAVE OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
 DO:
   IF LASTKEY NE -1 THEN DO:
+    DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
+    IF SELF:MODIFIED THEN DO:
+       IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
+
+          cLocBin = SELF:SCREEN-VALUE.
+          ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(cLocBin,1,5)
+                 rm-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(cLocBin,6,8).
+       END.
+    END.
+
     RUN valid-loc-bin-tag (1) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.

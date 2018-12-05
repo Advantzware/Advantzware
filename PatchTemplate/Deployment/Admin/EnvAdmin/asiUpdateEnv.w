@@ -2077,6 +2077,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix160800.
     IF intVer(cThisEntry) LT 160804 THEN
         RUN ipDataFix160804.
+    IF intVer(cThisEntry) LT 160805 THEN
+        RUN ipDataFix160805.
     IF intVer(cThisEntry) LT 160899 THEN
         RUN ipDataFix160899.
 
@@ -2337,6 +2339,21 @@ PROCEDURE ipDataFix160804 :
     RUN ipStatus ("  Data Fix 160804...").
 
     RUN ipTrackUsage.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160805 C-Win 
+PROCEDURE ipDataFix160805 :
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160805...").
+
+    RUN ipRemoveUserMenu.
 
 END PROCEDURE.
 
@@ -4261,6 +4278,51 @@ PROCEDURE ipRemoveUserAddon :
                 bxUserMenu.user_id = users.user_id.
         END. /* each xusermenu */
     END. /* each users */
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRemoveUserMenu C-Win 
+PROCEDURE ipRemoveUserMenu :
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+      ------------------------------------------------------------------------------*/
+    DEF VAR cUserMenuDir AS CHAR NO-UNDO.
+    DEF VAR cAddonUserMenuDir AS CHAR NO-UNDO.
+    DEF VAR cCmdLine AS CHAR NO-UNDO.
+    
+    RUN ipStatus ("    Removing user menu and menu files").
+
+    ASSIGN 
+        cUserMenuDir = cEnvDir + "\" + fiEnvironment:{&SV} + "\UserMenu"
+        cAddonUserMenuDir = cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\UserMenu"
+        .
+
+    OS-DELETE VALUE(cUserMenuDir) RECURSIVE.
+    OS-DELETE VALUE(cAddonUserMenuDir) RECURSIVE.
+
+    OS-DELETE VALUE(cEnvDir + "\Addon\menu.cor").
+    OS-DELETE VALUE(cEnvDir + "\Addon\menu.fol").
+    OS-DELETE VALUE(cEnvDir + "\Addon\menu.lst").
+    OS-DELETE VALUE(cEnvDir + "\Addon\menu_addon.cor").
+    OS-DELETE VALUE(cEnvDir + "\Addon\menu_addon.fol").
+    OS-DELETE VALUE(cEnvDir + "\Addon\menu_addon.lst").
+    OS-DELETE VALUE(cEnvDir + "\Addon\menu_plus.cor").
+    OS-DELETE VALUE(cEnvDir + "\Addon\menu_plus.fol").
+    OS-DELETE VALUE(cEnvDir + "\Addon\menu_plus.lst").
+
+    OS-DELETE VALUE(cEnvDir + "\menu.cor").
+    OS-DELETE VALUE(cEnvDir + "\menu.fol").
+    OS-DELETE VALUE(cEnvDir + "\menu.lst").
+    OS-DELETE VALUE(cEnvDir + "\menu_addon.cor").
+    OS-DELETE VALUE(cEnvDir + "\menu_addon.fol").
+    OS-DELETE VALUE(cEnvDir + "\menu_addon.lst").
+    OS-DELETE VALUE(cEnvDir + "\menu_plus.cor").
+    OS-DELETE VALUE(cEnvDir + "\menu_plus.fol").
+    OS-DELETE VALUE(cEnvDir + "\menu_plus.lst").
     
 END PROCEDURE.
 

@@ -422,14 +422,14 @@ PROCEDURE Print-Check :
 
     ASSIGN dol = trim(dol) + fill("*",70) .  
    
-    Goto-Line(46).
+    Goto-Line(45).
     PUT LineNum() FORMAT "99" AT 1 
         ap-chk.check-date AT 55.
     /* Increment line count */
     incrementLineCount(1).
      
     /* Print check date and total check amount. */
-    Goto-Line(47).
+    Goto-Line(46).
     PUT LineNum() FORMAT "99" AT 1 
         ctot              AT 70.
     /* Increment line count */
@@ -443,7 +443,7 @@ PROCEDURE Print-Check :
 
 
     /* Print vendor remit info and increment line count. */
-    Goto-Line(53).
+    Goto-Line(52).
     PUT LineNum() FORMAT "99" AT 1 
         CAPS(vend.remit)  FORMAT "x(60)" AT 10.
     /* Increment line count */

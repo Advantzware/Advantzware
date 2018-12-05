@@ -124,7 +124,7 @@ DEF TEMP-TABLE tt-inv NO-UNDO  FIELD sorter    LIKE ar-inv.inv-no
                                                          ~
         EACH ar-cashl                                    ~
         FIELDS(check-no c-no posted inv-no company       ~
-               cust-no memo amt-disc amt-paid on-account rec_key) ~
+               cust-no memo amt-disc amt-paid on-account voided rec_key) ~
         NO-LOCK                                          ~
         WHERE ar-cashl.c-no       EQ ar-cash.c-no        ~
           AND ar-cashl.posted     EQ YES                 ~
