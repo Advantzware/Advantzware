@@ -129,6 +129,12 @@ DEF VAR v-reljob AS CHAR FORMAT "x(10)" NO-UNDO.
 DEFINE VARIABLE iOrdQtyCust AS INTEGER NO-UNDO.
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl .
 
+DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
+DEFINE VARIABLE opiArraySize AS INTEGER NO-UNDO.
+Define Variable hNotesProc as Handle NO-UNDO.
+
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProc.
+
 DEFINE VARIABLE lv-text AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-text-line AS INTEGER NO-UNDO.
 DEFINE VARIABLE lv-text-line-length AS INTEGER NO-UNDO.
@@ -748,61 +754,19 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                     v-cq = YES.
               END.
               IF AVAIL itemfg THEN DO:
-                  ASSIGN
-                      lv-text = ""
-                      lv-text-line = 0
-                      lv-text-line-length = 0
-                      lv-char = ""
-                      lv-char-list = "".
-                  FOR EACH notes WHERE
-                      notes.rec_key EQ itemfg.rec_key AND notes.note_type = "S"
-                      AND notes.note_code = "PT" 
-                      NO-LOCK
-                      BREAK BY notes.note_code:
-                      EMPTY TEMP-TABLE tt-text.
-                      ASSIGN
-                      lv-text = ""
-                      lv-text-line = 0
-                      lv-text-line-length = 0
-                      lv-char = ""
-                      lv-char-list = "".
-                      lv-text = lv-text + notes.note_text + CHR(10).
-
-                      ASSIGN
-                          lv-text-line = 0
-                          lv-text-line-length = 80.
-                      DO i = 1 TO LENGTH(lv-text):
-                          ASSIGN lv-char = SUBSTR(lv-text,i,1).
-                          IF lv-char EQ CHR(10) OR lv-char EQ CHR(13) THEN DO: END.
-                          ELSE DO:
-                              lv-char-list = lv-char-list + lv-char.
-                          END.
-                          IF  lv-char EQ CHR(10) OR lv-char EQ CHR(13) OR 
-                              length(lv-char-list) >= lv-text-line-length THEN DO:
-                              lv-text-line = lv-text-line + 1.
-                              CREATE tt-text.
-                              ASSIGN
-                                  tt-text.TYPE = "specnote"
-                                  tt-text.tt-line = lv-text-line
-                                  tt-text.tt-text = lv-char-list
-                                  tt-text.tt-recid = RECID(oe-rell)
-                                  lv-char-list = "".
-                          END.
-                      END.
-                      FOR EACH tt-text WHERE tt-text.TYPE = "specnote" AND tt-text.tt-recid = recid(oe-rell) BY tt-text.tt-line:
-                          IF v-printline > 44 THEN DO:
-                              PAGE.
-                              v-printline = 0.
-                              {oe/rep/relpremx2.i}
-                          END.
-                              PUT "<C7>" tt-text.tt-text FORM "x(80)"  SKIP.
-                              v-printline = v-printline + 1.
-                      END.
-                      IF NOT LAST(notes.note_code) THEN DO:
-                        PUT SKIP(1).
-                        v-printline = v-printline + 1.
-                      END.
-                  END.
+                   RUN GetNotesArrayForObject IN hNotesProc (INPUT itemfg.rec_key, "S", "PT", 80, NO, OUTPUT opcParsedText, OUTPUT opiArraySize).
+                   DO i = 1 TO opiArraySize: 
+                       ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
+                       ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
+                       
+                       IF v-printline > 44 THEN DO:
+                               PAGE.
+                               v-printline = 0.
+                               {oe/rep/relpremx2.i}
+                       END.
+                       PUT "<C7>"  opcParsedText[i] FORMAT "X(80)"  SKIP.
+                       v-printline = v-printline + 1.    
+                   END.
               END.
               IF v-printline > 44 THEN DO:
                  PAGE.
