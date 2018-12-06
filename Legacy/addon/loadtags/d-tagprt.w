@@ -56,7 +56,7 @@ DEFINE VARIABLE scanAgain AS LOGICAL NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
-
+{custom/xprint.i}
 assign
  cocode = gcompany
  locode = gloc.
@@ -193,6 +193,9 @@ DO TRANSACTION:
    {sys/inc/rfidtag.i}
 END.
 
+DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hLoadtagProcs AS HANDLE NO-UNDO.
+
 /* gdm - 09210907 */
 DEF VAR v-bardir AS LOG NO-UNDO.
 DEF VAR v-bardir-chr AS CHAR NO-UNDO.
@@ -204,6 +207,8 @@ DEF BUFFER bf-po-ord  FOR po-ord.
 DEF BUFFER bf-po-ordl FOR po-ordl.
 
 DEF BUFFER bf-jobhdr FOR job-hdr.
+DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
+    FIELD tag-no AS CHARACTER .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -417,6 +422,9 @@ DO:
     scr-auto-print = tgAutoPrint.
   /*  RUN print-loadtag. */
 
+  FOR EACH tt-word-print:
+       DELETE tt-word-print .
+   END.
 
   ASSIGN {&displayed-objects}.
   
@@ -2154,14 +2162,21 @@ PROCEDURE reprint-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  FIND FIRST loadtag WHERE loadtag.company     EQ cocode
+    DEFINE VARIABLE cLoadtagFile AS CHARACTER NO-UNDO.
+    
+    FIND FIRST loadtag WHERE loadtag.company     EQ cocode
                  AND loadtag.item-type   EQ NO
                  AND loadtag.tag-no  eq TRIM(begin_tag:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-LOCK NO-ERROR.
   IF NOT AVAIL loadtag THEN DO:
       MESSAGE "Invalid Loadtag. Try Help." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO scr-label-file.
       RETURN ERROR.
-  END.       
+  END.      
+
+  ASSIGN
+      cBarCodeProgram = IF scr-label-file MATCHES "*.xpr*" THEN "xprint" 
+                        ELSE IF scr-label-file MATCHES "*.lwl" THEN "loftware" 
+                        ELSE "".
   
   RUN create-w-ord.
 
@@ -2170,21 +2185,39 @@ PROCEDURE reprint-tag :
   {sys/inc/outprint.i value(lines-per-page)} 
       VIEW FRAME r-top.
       VIEW FRAME top.
-  IF v-out = "" THEN v-out = "c:~\ba~\label~\loadtag.txt".
+
+  IF cBarCodeProgram EQ 'Loftware' then 
+    cLoadtagFile = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99") + STRING(DAY(TODAY),"99") + STRING(TIME) + SUBSTRING(STRING(NOW),21,3) + '.csv'.
+  ELSE cLoadtagFile = 'loadtag.txt'.
+
+  IF v-out = "" THEN v-out = "c:~\ba~\label~\" + cLoadtagFile. 
   ELSE do:
      IF SUBSTRING(v-out,LENGTH(v-out),1) = "/" OR
         SUBSTRING(v-out,LENGTH(v-out),1) = "\" THEN .
      ELSE v-out = v-out + "/".
-     v-out = v-out + "loadtag.txt".
+     v-out = v-out + cLoadtagFile.
   END.
   IF begin_filename:SCREEN-VALUE = "" THEN 
        begin_filename:SCREEN-VALUE = v-out.
   
   RUN create-text-file.
+ 
   IF NOT is-from-addon() THEN
   MESSAGE "Loadtag reprint is completed." VIEW-AS ALERT-BOX INFORMATION.
   SESSION:SET-WAIT-STATE ("").
-  RUN AutoPrint.
+  
+  IF cBarCodeProgram EQ "" THEN do:    
+     RUN AutoPrint.
+ END.
+ ELSE IF cBarCodeProgram EQ "xprint" AND scr-auto-print THEN do:
+     PAUSE 1.
+     
+     RUN "oerep/LoadtagProcs.p" PERSISTENT SET hLoadtagProcs.
+     RUN pPrintView IN hLoadtagProcs (scr-label-file:SCREEN-VALUE IN FRAME {&FRAME-NAME}, YES).
+     DELETE OBJECT hLoadtagProcs.
+ END.
+
+
 
 END PROCEDURE.
 
@@ -2333,11 +2366,21 @@ PROCEDURE write-loadtag-line :
  PUT SKIP.
 
 
+ /* temp table for xprint */
+IF cBarCodeProgram EQ "xprint" THEN do:
+    CREATE tt-word-print .
+    BUFFER-COPY w-ord TO tt-word-print .
+    ASSIGN 
+        tt-word-print.tag-no = loadtag.tag-no .
+END.
+
+
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 

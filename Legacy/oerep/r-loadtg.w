@@ -114,6 +114,7 @@ DEF VAR v-fgdsc3 LIKE itemfg.part-dscr3 NO-UNDO.
 DEFINE VARIABLE cPrevFromItem AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE cPrevToItem AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE lReturn AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hLoadtagProcs AS HANDLE NO-UNDO.
 
 DEF TEMP-TABLE tt-ordjobs
     FIELD job-no LIKE job.job-no
@@ -199,30 +200,6 @@ DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
 DEFINE VARIABLE i-bardir-int AS INTEGER NO-UNDO .
 DEFINE VARIABLE i-xprint-int AS INTEGER NO-UNDO .
-DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound THEN
-    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.   
-
-RUN sys/ref/nk1look.p (INPUT cocode,
-                       INPUT "LoadTagXprintImage",
-                       INPUT "C",
-                       INPUT NO,
-                       INPUT NO,
-                       INPUT "",
-                       INPUT "",
-                       OUTPUT ls-image1,
-                       OUTPUT lFound).
-
-FILE-INFO:FILE-NAME = ls-image1.
-ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "FGSetAssembly",
@@ -288,7 +265,7 @@ DEF BUFFER bf-po-ord  FOR po-ord.
 DEF BUFFER bf-po-ordl FOR po-ordl.
 
 DEF BUFFER bf-jobhdr FOR job-hdr.
-DEFINE TEMP-TABLE tt-word-print LIKE w-ord 
+DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
     FIELD tag-no AS CHARACTER .
 
 /* _UIB-CODE-BLOCK-END */
@@ -7013,96 +6990,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE print-loadtg C-Win 
-PROCEDURE print-loadtg :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-DEFINE VARIABLE cEmail AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cPhone AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
-
-    {sys/inc/print1.i}
-    {sys/inc/outprint.i value(85)}
-
-    SESSION:SET-WAIT-STATE ("general").
-   
-    IF tb_print-view THEN DO:
-        IF NOT lBussFormModle THEN
-           PUT "<PREVIEW><MODAL=NO></PROGRESS>" FORM "x(50)".
-         ELSE
-           PUT "<PREVIEW></PROGRESS>" FORM "x(50)".
-    END.
-    ELSE DO:
-       PUT "<PRINTER?><FORMAT=LEGAL></PROGRESS>" FORM "x(50)".
-    END.
-
-    DO WITH FRAME {&FRAME-NAME}:
-        FOR EACH tt-word-print NO-LOCK BREAK
-                                BY tt-word-print.ord-no 
-                                BY tt-word-print.i-no:
-                                
-           IF scr-label-file:SCREEN-VALUE EQ "loadtag.xpr" THEN DO:
-               {oe/rep/lodxprntstd.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag1.xpr" THEN DO:
-               {oe/rep/lodxprnt.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag2.xpr" THEN DO:
-               {oe/rep/lodxprnt2.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag3.xpr" THEN DO:
-               {oe/rep/lodxprnt3.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag4.xpr" THEN DO:
-               {oe/rep/lodxprnt4.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag5.xpr" THEN DO:
-               {oe/rep/lodxprnt5.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag6.xpr" THEN DO:
-               {oe/rep/lodxprnt6.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag7.xpr" THEN DO:
-               {oe/rep/lodxprnt7.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag8.xpr" THEN DO:
-               {oe/rep/lodxprnt8.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag9.xpr" THEN DO:
-               {oe/rep/lodxprnt9.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag10.xpr" THEN DO:
-               {oe/rep/lodxprnt10.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag11.xpr" THEN DO:
-               {oe/rep/lodxprnt11.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag12.xpr" THEN DO:
-               {oe/rep/lodxprnt12.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag13.xpr" THEN DO:
-               {oe/rep/lodxprnt13.i}
-           END.
-    
-         IF NOT LAST(tt-word-print.i-no) THEN PAGE .
-        END.
-    END.
-
-
-    OUTPUT CLOSE.
-    SESSION:SET-WAIT-STATE ("").
-
-    FILE-INFO:FILE-NAME = list-name.
-    RUN printfile (FILE-INFO:FILE-NAME).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reprint-tag C-Win 
 PROCEDURE reprint-tag :
@@ -7155,7 +7042,9 @@ PROCEDURE reprint-tag :
   END.
   ELSE IF cBarCodeProgram EQ "xprint" AND scr-auto-print THEN do:
       PAUSE 1.
-      RUN print-loadtg  .
+      RUN "oerep/LoadtagProcs.p" PERSISTENT SET hLoadtagProcs.
+      RUN pPrintView IN hLoadtagProcs (scr-label-file:SCREEN-VALUE IN FRAME {&FRAME-NAME}, tb_print-view).
+      DELETE OBJECT hLoadtagProcs.
   END.
 
   IF (NOT is-from-addons() OR SSLoadTag-log = TRUE) THEN 
@@ -7247,7 +7136,9 @@ IF cBarCodeProgram EQ "" THEN DO:
 END.
 ELSE IF cBarCodeProgram EQ "xprint" AND scr-auto-print THEN do: 
     PAUSE 1.
-    RUN print-loadtg .
+    RUN "oerep/LoadtagProcs.p" PERSISTENT SET hLoadtagProcs.
+    RUN pPrintView IN hLoadtagProcs (scr-label-file:SCREEN-VALUE IN FRAME {&FRAME-NAME}, tb_print-view).
+    DELETE OBJECT hLoadtagProcs.
 END.
 SESSION:SET-WAIT-STATE ("").
 /*     IF scr-auto-print THEN                                                  */
