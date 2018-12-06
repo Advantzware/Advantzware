@@ -101,7 +101,9 @@ PROCEDURE assignOrderHeader:
 
     DEFINE BUFFER bf-shipto FOR shipto.
     DEFINE BUFFER bf-shipto-state FOR shipto.
-    FOR EACH ttOrdHead WHERE ttOrdHead.ttSelectedOrder:
+    FOR EACH ttOrdHead 
+       WHERE ttOrdHead.ttSelectedOrder
+         AND ttOrdHead.ttDocType NE "860":
           ASSIGN 
             PayLoadID             =           ttOrdHead.ttPayLoadID        
             fromIdentity          =           ttOrdHead.ttfromIdentity     
@@ -654,8 +656,10 @@ PROCEDURE gencXMLOrder:
 
   RUN XMLOutput/XMLParser.p (ipcXMLFile).
   FIND FIRST ttNodes NO-LOCK
-        WHERE ttNodes.nodeName EQ "ISA" 
+        WHERE ttNodes.nodeName BEGINS "ISA" 
         NO-ERROR. 
+  MESSAGE "avail node isa" avail(ttnodes)
+  VIEW-AS ALERT-BOX.
   lIsEdiXml = (IF AVAILABLE ttNodes THEN YES ELSE NO).
 
   IF NOT lIsEdiXML THEN DO:

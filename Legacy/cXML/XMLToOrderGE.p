@@ -18,7 +18,9 @@ define input parameter table for ttNodes.
 define input-output parameter table for ttOrdHead.
 define input-output parameter table for ttOrdLines.
 define input-output parameter table for ttOrdSchedShipments.
-
+FIND FIRST ttNodes NO-ERROR.
+MESSAGE "avail tt node" avail(ttnodes)
+VIEW-AS ALERT-BOX.
 for each ttNodes:
   
   /* Values that apply to muliple data elements */
@@ -33,7 +35,8 @@ for each ttNodes:
   IF ttNodes.nodeName EQ "ST01" AND ttNodes.nodeValue GT "" THEN 
   DO:
       iPayLoadNum  = iPayLoadNum  + 1.
-  
+  MESSAGE "create ttordhead"
+  VIEW-AS ALERT-BOX.
       CREATE ttOrdHead.
       ASSIGN 
           ttOrdHead.ttpayLoadID    = STRING(iPayLoadNum)
@@ -56,7 +59,8 @@ for each ttNodes:
       
   END.
   
-  IF ttNodes.nodeName EQ "PO101" THEN DO:
+  IF ttNodes.nodeName EQ "PO101" OR ttnodes.nodeName EQ "POC01" THEN DO:
+      
     iCurrentOrdLine = INTEGER(ttNodes.nodeValue).
     CREATE ttOrdLines.
     ASSIGN ttOrdLines.ttpayLoadID      = STRING(iPayLoadNum)
