@@ -2952,6 +2952,7 @@ PROCEDURE update-sheet :
           xeb.num-dep = 0.
 
   IF NOT lv-foam THEN DO:
+    RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
     {ce/ceroute1.i w id l en}
   END.
 
