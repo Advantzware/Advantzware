@@ -1521,7 +1521,8 @@ ELSE DO:
              next-program = "ap/ap-ckacp.p".
        WHEN "APChkFmt2" then
           assign
-             max-per-chk  = 12
+             ll-is-xprint-form = YES
+             max-per-chk  = 10
              next-program = "ap/ap-ckapfmt2.p".
        OTHERWISE DO:
           assign

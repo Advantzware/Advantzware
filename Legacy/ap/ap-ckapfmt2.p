@@ -13,6 +13,7 @@ DEFINE VARIABLE v-comp-add3 AS CHARACTER FORMAT "x(30)" NO-UNDO.
 DEFINE VARIABLE cBankAdd1   AS CHARACTER FORMAT "x(30)" NO-UNDO.
 DEFINE VARIABLE cBankAdd2   AS CHARACTER FORMAT "x(30)" NO-UNDO.
 DEFINE VARIABLE cBankAdd3   AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEFINE VARIABLE cBankCode AS CHARACTER FORMAT "x(50)" NO-UNDO.
 
 DEFINE WORKFILE wrk-chk
     FIELD inv-no      LIKE ap-sel.inv-no
@@ -26,16 +27,16 @@ DEFINE WORKFILE wrk-chk
 
 
 FORM 
-    "----------"       AT 46
+   /* "----------"       AT 46
     "----------"        AT 57
-    "----------"        AT 71    SKIP
+    "----------"        AT 71   */ SKIP
     "TOTALS:"            AT 38
     cInvAmt            TO 55 FORMAT "$->>,>>9.99" 
     cdis               TO 66 FORMAT "$->>,>>9.99" 
     ctot               TO 80 FORMAT "$->>,>>9.99"
     WITH FRAME b3 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE.
 
-FORM SKIP(8)
+FORM SKIP(4)
     company.NAME AT 1 bank.bank-name AT 34
     ap-chk.check-no AT 70   SKIP
     v-comp-add1 AT 1 cBankAdd1 AT 34 SKIP
@@ -51,7 +52,7 @@ FORM SKIP(8)
     add1               AT 10
     add2               AT 10
     csz                AT 10
-    SKIP(5)                              
+    SKIP(1)                              
 
     WITH FRAME b1 WIDTH 85 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE.
 
@@ -182,7 +183,7 @@ DO:       /* production mode */
             ap-inv.pay-date = wdate.
 
             IF ll EQ 0 THEN 
-            DO:
+            DO:  PUT "</Progress>".
             
                 DISPLAY SKIP
                     company.NAME
@@ -211,7 +212,7 @@ DO:       /* production mode */
                 cgrossl           = cgrossl + ap-sel.amt-paid /*+ ap-sel.disc-amt) */
                 cgross            = cgross + cgrossl
                 cInvAmt           = cInvAmt + IF ap-inv.gross GT 0 THEN ap-inv.gross ELSE ap-inv.net.
-
+                cBankCode = STRING(ap-chk.check-no,">>>>>>") + "   " + STRING(bank.RTN,">>>>>>>>>") + "   " + STRING(bank.bk-act,"x(14)").
             CREATE wrk-chk.
             ASSIGN
                 wrk-chk.inv-no   = ap-sel.inv-no
@@ -241,9 +242,13 @@ DO:       /* production mode */
                 DO:
                     checks-avail = YES.
 
+                    PUT SKIP "<C46>" "----------"       
+                        "<C57>" "----------"     
+                        "<C71>" "----------"  SKIP.
+
                     DISPLAY cInvAmt
                         cdis   
-                        ctot  WITH FRAME b3.  
+                        ctot  WITH FRAME b3 NO-LABELS STREAM-IO NO-BOX .  
         
                     PUT SKIP(max-per-chk - ll ).
 
@@ -267,8 +272,14 @@ DO:       /* production mode */
                         CAPS(add1)        @ add1
                         CAPS(add2)        @ add2
                         CAPS(csz)         @ csz
-                        vend.check-memo
-                        WITH FRAME b1.
+                        /*vend.check-memo*/
+                        WITH NO-LABELS STREAM-IO NO-BOX FRAME b1.
+                    
+                    PUT "<FArial>"
+                        "<FMICR Encoding><P20>"
+                        "<c15>" cBankCode FORMAT "x(30)"
+                        "</FMICR>"
+                        "PUT <FCourier New><P12>".
         
                 END.
      
@@ -294,7 +305,7 @@ DO:       /* production mode */
                     "Date  " AT 56
                     ap-chk.check-date AT 72
                     SKIP(1)
-                    WITH WIDTH 85  NO-LABELS STREAM-IO NO-BOX FRAME abc1.
+                    WITH WIDTH 85   NO-LABELS STREAM-IO NO-BOX FRAME abc1.
 
                 PUT "Invoice Number"     AT 1
                     "Date"            AT 16
@@ -320,9 +331,13 @@ DO:       /* production mode */
 
                 IF LAST(ap-sel.inv-no) THEN 
                 DO: 
+                    PUT SKIP "<C46>" "----------"       
+                        "<C57>" "----------"     
+                        "<C71>" "----------"  SKIP.
+
                     DISPLAY cInvAmt
                         cdis   
-                        ctot  WITH FRAME b3.
+                        ctot  WITH FRAME b3 NO-LABELS STREAM-IO NO-BOX .
                     /*max-per-chk = 12 */
                     PUT SKIP(10 - lv-line-cnt).
 
@@ -343,4 +358,5 @@ DO:       /* production mode */
 
     IF NOT checks-avail THEN PUT "No checks found ready to print!".
 END.
+
 
