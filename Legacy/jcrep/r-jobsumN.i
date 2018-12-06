@@ -663,6 +663,7 @@ DEFINE VARIABLE dTotSqft AS DECIMAL NO-UNDO .
       IF tb_excel THEN
          PUT STREAM excel UNFORMATTED            
             '"' trim(job.job-no) + "-" + string(job.job-no2,"99") '",'
+            '"' STRING(work-item.sales-rep,"x(3)")                '",'
             '"' STRING(v-cust)                                    '",'
             '"' STRING(work-item.i-no)                            '",'
             '"' STRING(work-item.price,">>>>9.99")                '",'            
