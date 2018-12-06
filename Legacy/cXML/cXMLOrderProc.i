@@ -456,6 +456,7 @@ PROCEDURE gencXMLOrder:
   DEFINE OUTPUT PARAMETER opcReturnValue AS CHARACTER NO-UNDO.
 
   DEFINE VARIABLE payLoadID AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE orderID AS CHARACTER NO-UNDO.
   DEFINE VARIABLE fromIdentity AS CHARACTER NO-UNDO.
   DEFINE VARIABLE orderDate AS CHARACTER NO-UNDO.
   DEFINE VARIABLE custNo AS CHARACTER NO-UNDO.
@@ -474,15 +475,28 @@ PROCEDURE gencXMLOrder:
     payLoadID = getNodeValue('cXML','payloadID')
     fromIdentity = getNodeValue('From','Identity')
     orderDate = getNodeValue('OrderRequestHeader','orderDate')
+    orderID = getNodeValue('OrderRequestHeader','orderID')
     custNo = getCustNo(fromIdentity)
     .
-  FIND FIRST cust NO-LOCK
-       WHERE cust.company EQ cocode
-         AND cust.cust-no EQ custNo
+  FIND FIRST oe-ord NO-LOCK
+       WHERE oe-ord.company EQ cocode
+         AND oe-ord.cust-no EQ custNo
+         AND oe-ord.po-no   EQ orderID
+         AND oe-ord.spare-char-3 EQ payLoadID
        NO-ERROR.
-  IF NOT AVAILABLE cust THEN DO:
-    opcReturnValue = 'Customer: ' + custNo + ' not found'.
+  IF AVAILABLE oe-ord AND orderID GT "" THEN DO:
+    opcReturnValue = 'Order already exists with PO#: ' + orderID + ', Payload ID: ' + payloadID.
     RETURN.
+  END.
+  
+  FIND FIRST cust NO-LOCK
+      WHERE cust.company EQ cocode
+      AND cust.cust-no EQ custNo
+      NO-ERROR.
+  IF NOT AVAILABLE cust THEN 
+  DO:
+      opcReturnValue = 'Customer: ' + custNo + ' not found'.
+      RETURN.
   END.
   FIND FIRST ttNodes NO-LOCK 
          WHERE ttNodes.parentName EQ 'itemDetail' 
