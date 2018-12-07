@@ -36,7 +36,7 @@ FORM
     ctot               TO 80 FORMAT "$->>,>>9.99"
     WITH FRAME b3 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE.
 
-FORM SKIP(4)
+FORM SKIP(2)
     company.NAME AT 1 bank.bank-name AT 34
     ap-chk.check-no AT 70   SKIP
     v-comp-add1 AT 1 cBankAdd1 AT 34 SKIP
@@ -183,8 +183,9 @@ DO:       /* production mode */
             ap-inv.pay-date = wdate.
 
             IF ll EQ 0 THEN 
-            DO:  PUT "</Progress>".
-            
+            DO:  
+                PUT "</Progress>".
+
                 DISPLAY SKIP
                     company.NAME
                     "Check Number   " AT 56
@@ -275,17 +276,14 @@ DO:       /* production mode */
                         /*vend.check-memo*/
                         WITH NO-LABELS STREAM-IO NO-BOX FRAME b1.
                     
-                    PUT "<FArial>"
-                        "<FMICR Encoding><P20>"
+                    PUT "<FMICR Encoding><P20>"
                         "<c15>" cBankCode FORMAT "x(30)"
-                        "</FMICR>"
-                        "PUT <FCourier New><P12>".
-        
+                        "<FCourier New><P12>".
                 END.
      
                 ELSE 
                 DO:
-                    DISPLAY SKIP(9)
+                    DISPLAY SKIP(2)
                         "V   V      OOO       III      DDDD"   AT 10 SKIP
                         "V   V     O   O       I       D   D"  AT 10 SKIP
                         "V   V     O   O       I       D   D"  AT 10 SKIP
