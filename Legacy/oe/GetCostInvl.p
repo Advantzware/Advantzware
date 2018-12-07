@@ -117,6 +117,7 @@ PROCEDURE pCalculateCostPerUOMFromBOL PRIVATE:
             OUTPUT dCostPerUOMDMLineDef,
             OUTPUT cCostUOMLineDef,
             OUTPUT lFound).
+        IF cCostUOMLineDef EQ "" THEN cCostUOMLineDef = "M".
         /*Find matching bin first*/
         RUN pGetCostFromBin(oe-boll.company, 
             oe-boll.i-no,
