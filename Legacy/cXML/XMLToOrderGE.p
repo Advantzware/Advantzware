@@ -19,8 +19,7 @@ define input-output parameter table for ttOrdHead.
 define input-output parameter table for ttOrdLines.
 define input-output parameter table for ttOrdSchedShipments.
 FIND FIRST ttNodes NO-ERROR.
-MESSAGE "avail tt node" avail(ttnodes)
-VIEW-AS ALERT-BOX.
+
 for each ttNodes:
   
   /* Values that apply to muliple data elements */
@@ -56,12 +55,16 @@ for each ttNodes:
     cPoNumber = ttNodes.nodeValue.
     
       ttOrdHead.ttCustNo = getCustNo(cFromIdentity).
+      ttOrdHead.ttorderID = cPoNumber.
       
   END.
   
   IF ttNodes.nodeName EQ "PO101" OR ttnodes.nodeName EQ "POC01" THEN DO:
-      
     iCurrentOrdLine = INTEGER(ttNodes.nodeValue).
+      MESSAGE "creating ttordlines ipayload" iPayLoadNum SKIP 
+          "ord line" iCurrentOrdLine
+          VIEW-AS ALERT-BOX.
+
     CREATE ttOrdLines.
     ASSIGN ttOrdLines.ttpayLoadID      = STRING(iPayLoadNum)
            ttOrdLines.ttitemLineNumber = STRING(iCurrentOrdLine)
@@ -89,7 +92,11 @@ for each ttNodes:
     CASE ttNodes.nodeName:
       WHEN "BEG03" OR WHEN "BCH03" THEN 
         ttOrdHead.ttorderID = ttNodes.nodeValue.      
+      WHEN "BEG01" OR WHEN "BCH01" THEN 
+            ttOrdHead.setPurpose = ttNodes.nodeValue.         
     END CASE.
+    MESSAGE "ttordhead.ttordid" ttordhead.ttorderid SKIP "purpose" ttordhead.setpurpose
+    VIEW-AS ALERT-BOX.
   END.
   
   IF ttNodes.nodeName BEGINS "N1" 

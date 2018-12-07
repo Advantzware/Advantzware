@@ -101,9 +101,14 @@ PROCEDURE assignOrderHeader:
 
     DEFINE BUFFER bf-shipto FOR shipto.
     DEFINE BUFFER bf-shipto-state FOR shipto.
+    FIND FIRST ttOrdHead NO-ERROR.
+    FIND FIRST ttordlines NO-ERROR.
+    MESSAGE "avail ttordhead?" avail(ttordhead) ttordhead.ttcustno skip
+    "lines?" avail(ttordlines)
+    VIEW-AS ALERT-BOX.
     FOR EACH ttOrdHead 
-       WHERE ttOrdHead.ttSelectedOrder
-         AND ttOrdHead.ttDocType NE "860":
+       WHERE /*ttOrdHead.ttSelectedOrder
+         AND */ ttOrdHead.ttDocType NE "860":
           ASSIGN 
             PayLoadID             =           ttOrdHead.ttPayLoadID        
             fromIdentity          =           ttOrdHead.ttfromIdentity     
@@ -352,7 +357,8 @@ PROCEDURE genTempOrderHeader:
 
     DEFINE BUFFER bf-shipto       FOR shipto.
     DEFINE BUFFER bf-shipto-state FOR shipto.
-    
+    MESSAGE "in create order tt"
+    VIEW-AS ALERT-BOX.
     ASSIGN
         payLoadID         = getNodeValue('cXML','payloadID')
         fromIdentity      = getNodeValue('From','Identity')
@@ -443,7 +449,8 @@ PROCEDURE genTempOrderLines:
     DEFINE VARIABLE dRequestedDeliveryDate      AS DATE      NO-UNDO.
         
     FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
-
+MESSAGE "in create tt lines"
+VIEW-AS ALERT-BOX.
     FOR EACH ttNodes:
         ASSIGN
             dRequestedDeliveryDate = oe-ord.due-date
@@ -484,9 +491,12 @@ PROCEDURE genTempOrderLines:
                 dRequestedDeliveryDate = DATE(INT(SUBSTR(cRequestedDeliveryDate,6,2))
                     ,INT(SUBSTR(cRequestedDeliveryDate,9,2))
                     ,INT(SUBSTR(cRequestedDeliveryDate,1,4))).
-            FIND FIRST ttOrdHead WHERE ttOrdHead.ttSelected EQ TRUE NO-ERROR.
+            FIND FIRST ttOrdHead WHERE /* ttOrdHead.ttSelected EQ TRUE */ NO-ERROR.
             IF NOT AVAILABLE ttOrdHead THEN 
               RETURN.
+             MESSAGE "create ttordlines"
+             VIEW-AS ALERT-BOX.
+             CREATE ttOrdLines.
             ASSIGN                           
                 ttOrdLines.ttpayLoadID                   = ttOrdHead.ttpayLoadID
                 ttOrdLines.ttItemLineNumber              = itemLineNumber               
@@ -529,7 +539,9 @@ PROCEDURE genOrderLines:
   FIND FIRST cust WHERE cust.cust-no EQ oe-ord.cust-no 
     AND cust.company EQ oe-ord.company NO-LOCK NO-ERROR.
 
-  FOR EACH ttOrdLines:
+  FOR EACH ttOrdLines WHERE 
+      ttOrdLines.ttpayLoadID = ttOrdHead.ttpayLoadID
+      BY ttItemLineNumber:
           
       ASSIGN 
               itemLineNumber                = ttOrdLines.ttItemLineNumber              

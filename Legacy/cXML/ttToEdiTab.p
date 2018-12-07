@@ -83,11 +83,13 @@ ASSIGN
     .
   
 FOR EACH ttOrdHead:
-            
+    ws_docid = ttOrdHead.ttOrderID.
+    MESSAGE "assign dcoid" ws_docid
+    VIEW-AS ALERT-BOX.
     RUN ed/gendoc.p (RECID(edcode), ws_docid, OUTPUT ws_eddoc_rec).
     /* creates eddoc, assigns opening values */
     FIND eddoc WHERE RECID(eddoc) = ws_eddoc_rec EXCLUSIVE.
-    MESSAGE "doc type for eddoc" ttOrdHead.ttDoctype
+    MESSAGE "doc type for eddoc" ttOrdHead.ttDoctype skip "eddoc.po" docid
     VIEW-AS ALERT-BOX.
     ASSIGN
         eddoc.docseq      = INTEGER(location_number)
@@ -128,7 +130,7 @@ FOR EACH ttOrdHead:
         edpotran.cust             = ws_customer
         edpotran.cust-po          = ttOrdHead.ttorderID
         edpotran.cust-dept        = ""
-        edpotran.purpose-code     = ""
+        edpotran.purpose-code     = ttOrdHead.setPurpose
         edpotran.order-type       = ""
         edpotran.scheduled-code1  = ""
         edpotran.ship-method-code = ""
@@ -187,9 +189,20 @@ FOR EACH ttOrdHead:
 
     FOR EACH ttOrdLines WHERE 
         ttOrdLines.ttpayLoadID EQ ttOrdHead.ttPayLoadID:
-            
+
+        FIND FIRST edPOLine EXCLUSIVE-LOCK 
+          WHERE EDPOLine.Partner EQ edPOTran.partner
+            AND edPoLine.seq     EQ edPOTran.seq
+            AND edPoLine.cust-po-line EQ IF INTEGER(ttOrdLines.ttItemLineNumber)  > 0
+                                            THEN STRING(ttOrdLines.ttItemLineNumber )
+                                            ELSE STRING(edpoline.line)
+        NO-ERROR. 
+        MESSAGE "already avail edpoiline?" avail(edpoline)
+            VIEW-AS ALERT-BOX.
         IF NOT AVAILABLE edpoline THEN
         DO:
+            MESSAGE "create edpoilne"
+            VIEW-AS ALERT-BOX.
             CREATE edpoline.
             ASSIGN
                 edpoline.partner   = edpotran.partner
@@ -248,6 +261,7 @@ PROCEDURE process860:
       IF AVAILABLE eddoc THEN DO:
           MESSAGE "avail ttrecs" eddoc.partner SKIP eddoc.docID SKIP eddoc.seq
               VIEW-AS ALERT-BOX.
+          /* Match the 850 to the 860 by PO# */
           FIND FIRST bf-eddoc NO-LOCK 
             WHERE bf-eddoc.setID EQ "850"
               AND bf-eddoc.partner EQ eddoc.partner
