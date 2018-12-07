@@ -524,7 +524,7 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Use Menu Option Images",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT YES /* Logical value */).
 END CASE.
 ELSE
 CASE ip-nk1-value:
