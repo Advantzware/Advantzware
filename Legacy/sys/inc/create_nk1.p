@@ -524,7 +524,8 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Use Menu Option Images",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT YES /* Logical value */).
+        INPUT YES /* Logical value */).
    WHEN "CERouteFromStyle" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Set Layout Machine to first machine in Style",
