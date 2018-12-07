@@ -81,8 +81,10 @@ PROCEDURE CheckPriceHold:
     DEFINE VARIABLE lQtyMatch             AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lEffectiveDateAge     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iEffectiveDateAgeDays AS INTEGER   NO-UNDO.
+    DEFINE BUFFER bf-oe-ord  FOR oe-ord.
 
-    RUN pGetPriceHoldCriteria(ipcCompany, 
+    
+    RUN pGetPriceHoldCriteria(ipcCompany,ipcCustID,ipcShipID, 
         OUTPUT lPriceHoldSet, OUTPUT lQtyInRange, OUTPUT lQtyMatch, OUTPUT lEffectiveDateAge, OUTPUT iEffectiveDateAgeDays).
     IF NOT lPriceHoldSet THEN 
     DO:
@@ -132,7 +134,7 @@ PROCEDURE CheckPriceHoldForOrder:
         WHERE ROWID(bf-oe-ord) EQ ipriOeOrd
         NO-ERROR.
 
-    RUN pGetPriceHoldCriteria(bf-oe-ord.company, 
+    RUN pGetPriceHoldCriteria(bf-oe-ord.company,bf-oe-ord.cust-no,bf-oe-ord.ship-id, 
         OUTPUT lPriceHoldSet, OUTPUT lQtyInRange, OUTPUT lQtyMatch, OUTPUT lEffectiveDateAge, OUTPUT iEffectiveDateAgeDays).
     IF NOT lPriceHoldSet THEN 
     DO:
@@ -1210,26 +1212,40 @@ PROCEDURE pGetPriceHoldCriteria PRIVATE:
      Purpose: Returns Price hold Criteria Settings
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcCustNo     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcShipId     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplPriceCheck AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplQtyInRange AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplQtyMatch AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplEffectiveDateAge AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiEffectiveDateAgeDays AS INTEGER NO-UNDO.
 
-    DEFINE VARIABLE lFound    AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cCriteria AS CHARACTER NO-UNDO. 
-    DEFINE VARIABLE cAge      AS CHARACTER NO-UNDO.
-    
+    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cCriteria  AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cAge       AS CHARACTER NO-UNDO.
+   
     RUN sys/ref/nk1look.p (ipcCompany,
         "OEPriceHold",
         "C",
-        NO,
-        NO,
-        "",
-        "",
+        YES,
+        YES,
+        ipcCustNo,
+        ipcShipId,
         OUTPUT cCriteria,
         OUTPUT lFound).
+
+   /*   sys/ref/nk1look.p file did not find blank character field */
+    FIND FIRST sys-ctrl-shipto NO-LOCK WHERE
+        sys-ctrl-shipto.company = ipcCompany AND
+        sys-ctrl-shipto.NAME = "OEPriceHold" AND
+        sys-ctrl-shipto.cust-vend = YES AND
+        sys-ctrl-shipto.cust-vend-no = ipcCustNo AND
+        (sys-ctrl-shipto.ship-id = ipcShipId OR sys-ctrl-shipto.ship-id eq "" ) NO-ERROR .
+    
+    IF AVAIL sys-ctrl-shipto  THEN
+        ASSIGN cCriteria = sys-ctrl-shipto.char-fld .
+    
 
     IF lFound AND cCriteria NE "" THEN 
     DO: 
@@ -1245,10 +1261,10 @@ PROCEDURE pGetPriceHoldCriteria PRIVATE:
         RUN sys/ref/nk1look.p (ipcCompany,
             "OEPriceHold",
             "I",
-            NO,
-            NO,
-            "",
-            "",
+            YES,
+            YES,
+            ipcCustNo,
+            ipcShipId,
             OUTPUT cAge,
             OUTPUT lFound).
         IF lFound AND cAge NE "" THEN 
