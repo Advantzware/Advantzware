@@ -1991,6 +1991,7 @@ PROCEDURE calc-layout :
 
   IF ll THEN DO:
     IF NOT lv-foam THEN DO:
+      RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
       {ce/ceroute1.i w id l en} 
     END.
     RUN ce/calc-dim.p.
