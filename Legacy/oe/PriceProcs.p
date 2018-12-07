@@ -1235,18 +1235,6 @@ PROCEDURE pGetPriceHoldCriteria PRIVATE:
         OUTPUT cCriteria,
         OUTPUT lFound).
 
-   /*   sys/ref/nk1look.p file did not find blank character field */
-    FIND FIRST sys-ctrl-shipto NO-LOCK WHERE
-        sys-ctrl-shipto.company = ipcCompany AND
-        sys-ctrl-shipto.NAME = "OEPriceHold" AND
-        sys-ctrl-shipto.cust-vend = YES AND
-        sys-ctrl-shipto.cust-vend-no = ipcCustNo AND
-        (sys-ctrl-shipto.ship-id = ipcShipId OR sys-ctrl-shipto.ship-id eq "" ) NO-ERROR .
-    
-    IF AVAIL sys-ctrl-shipto  THEN
-        ASSIGN cCriteria = sys-ctrl-shipto.char-fld .
-    
-
     IF lFound AND cCriteria NE "" THEN 
     DO: 
         ASSIGN 
