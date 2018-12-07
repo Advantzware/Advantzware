@@ -76,7 +76,7 @@ ASSIGN
                 "Midwest,Argvlas,Oracle,Vineland,Lakelas,Imperial,IndianaL,"   +
                 "Frankstn,Pacific,STCLaser,Woodland,Hamilton,PrePkgLS,FibreLsr," +
                 "Action,CAPLasAL,ACPI,Carded,Adaptls,Soule,MidYork,ASSILaser,Laser" +
-                "Protagon,AllLaserHP1536DN,ASIX,CustCorr,chkfmt 1,chkfmt 2,Lovepac,APChkFmt1"
+                "Protagon,AllLaserHP1536DN,ASIX,CustCorr,chkfmt 1,chkfmt 2,Lovepac,APChkFmt1,APChkFmt2"
  str-init[12] = "ASI,Bin/Tag,No Tags".
 ASSIGN
  str-init[13] = "ASI,WesInd,ILWalker,HOP,Brick,Gulf,Pacific,Xprint,SouthPak,"   +
@@ -253,7 +253,7 @@ IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
        str-init[8]  = "poprint 1,poprint 2,poprint 10,poprint 20,POPrint10-CAN"
        str-init[9]  = "relprint 1,relprint 2,relprint 10"
        str-init[10] = "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN,BOLfmt15"
-       str-init[11] = "chkfmt 1,chkfmt 2,APChkFmt1"
+       str-init[11] = "chkfmt 1,chkfmt 2,APChkFmt1,APChkFmt2"
        str-init[13] = "ackhead 1,ackhead 2,ackhead 10,ackhead 20,ackhead10-CAN"
        str-init[29] = "bolcert 1,bolcert 2,BOLCERT10"
        str-init[30] = "cerunc 1,cerunc 2,cerunc 3"
