@@ -50,11 +50,13 @@ DO:
 END.    
    
 /* ***************************  Definitions  ************************** */
- 
+
 /* Parameters Definitions ---                                           */
  
 /* Local Variable Definitions ---                                       */
 
+&Scoped-define mainMenuBGColor 1
+&Scoped-define mainMenuFGColor 15
 &Scoped-define FGColor ?
 &Scoped-define BGColor 8
 
@@ -2395,7 +2397,11 @@ PROCEDURE pProcessClick :
     
     IF AVAILABLE ttMenuTree THEN DO:
         IF ttMenuTree.isMenu AND NOT ttMenuTree.isOpen THEN
-        ttMenuTree.hEditor:FONT = ?.
+        ASSIGN
+            ttMenuTree.hEditor:FONT    = ?
+            ttMenuTree.hEditor:BGCOLOR = ?
+            ttMenuTree.hEditor:FGCOLOR = ?
+            .
         ELSE
         cMnemonic = ttMenuTree.mnemonic.
         IF NOT ttMenuTree.isMenu THEN DO:
@@ -2454,6 +2460,8 @@ PROCEDURE pReset :
         ASSIGN
             ttMenuTree.baseText             = fTranslate(ENTRY(1,ttMenuTree.hEditor:PRIVATE-DATA),NO)
             ttMenuTree.hEditor:FONT         = ?
+            ttMenuTree.hEditor:BGCOLOR      = ?
+            ttMenuTree.hEditor:FGCOLOR      = ?
             ttMenuTree.hEditor:SCREEN-VALUE = fTreeText(ttMenuTree.isMenu,
                                               ttMenuTree.baseText,
                                               ttMenuTree.mnemonic,
