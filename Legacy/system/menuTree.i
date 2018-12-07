@@ -161,15 +161,33 @@ PROCEDURE pClickMenuTree:
     FOR EACH bttMenuTree
         WHERE bttMenuTree.level GE ttMenuTree.level
         :
-        bttMenuTree.hEditor:FONT = ?.
+        ASSIGN
+            bttMenuTree.hEditor:FONT = ?
+            &IF DEFINED(mainMenuBGColor) NE 0 &THEN
+            bttMenuTree.hEditor:BGCOLOR = ?
+            bttMenuTree.hEditor:FGCOLOR = ?
+            &ENDIF
+            .
     END. /* each bttMenuTree */
     FOR EACH bttMenuTree
         WHERE bttMenuTree.level  LT ttMenuTree.level
           AND bttMenuTree.isMenu EQ NO
         :
-        bttMenuTree.hEditor:FONT = ?.
+        ASSIGN
+            bttMenuTree.hEditor:FONT = ?
+            &IF DEFINED(mainMenuBGColor) NE 0 &THEN
+            bttMenuTree.hEditor:BGCOLOR = ?
+            bttMenuTree.hEditor:FGCOLOR = ?
+            &ENDIF
+            .
     END. /* each bttMenuTree */
-    ttMenuTree.hEditor:FONT = 6.
+    ASSIGN
+        ttMenuTree.hEditor:FONT = 6
+        &IF DEFINED(mainMenuBGColor) NE 0 &THEN
+        ttMenuTree.hEditor:BGCOLOR = {&mainMenuBGColor}
+        ttMenuTree.hEditor:FGCOLOR = {&mainMenuFGColor}
+        &ENDIF
+        .
     RUN pSetFocus.
     IF INDEX(THIS-PROCEDURE:INTERNAL-ENTRIES,"pProcessClick") NE 0 THEN
     RUN pProcessClick NO-ERROR.
@@ -399,13 +417,14 @@ PROCEDURE pDisplayMenuTree:
             dCol = bttMenuTree.hImage:COL
                  + bttMenuTree.hImage:WIDTH
                  .
-        /* check to be sure editor widget fits in frame */
-        IF dCol + bttMenuTree.hEditor:WIDTH GE iphFrame:WIDTH THEN
-        bttMenuTree.hEditor:WIDTH = bttMenuTree.hEditor:WIDTH
-                                  - (dCol + bttMenuTree.hEditor:WIDTH
-                                  -  iphFrame:WIDTH)
-                                  .
+/*        /* check to be sure editor widget fits in frame */           */
+/*        IF dCol + bttMenuTree.hEditor:WIDTH GE iphFrame:WIDTH THEN   */
+/*        bttMenuTree.hEditor:WIDTH = bttMenuTree.hEditor:WIDTH        */
+/*                                  - (dCol + bttMenuTree.hEditor:WIDTH*/
+/*                                  -  iphFrame:WIDTH)                 */
+/*                                  .                                  */
         ASSIGN
+            bttMenuTree.hEditor:WIDTH = iphFrame:WIDTH - dCol - 5
             bttMenuTree.hEditor:COL = dCol
             bttMenuTree.hEditor:ROW = dRow
             bttMenuTree.hEditor:HIDDEN = NO
