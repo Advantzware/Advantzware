@@ -84,7 +84,7 @@ DEF VAR lv-rd_print  AS CHAR NO-UNDO.
 DEF VAR v-loadtag       AS CHAR NO-UNDO INIT "ASI".  /* sys ctrl option */
 DEF VAR v-mult          AS INT  NO-UNDO INIT 0.  /* sys ctrl option */
 DEF VAR v-cas-lab       AS LOG  NO-UNDO.  /* sys ctrl option */
-DEF VAR v-tags          AS DEC  NO-UNDO INIT 0.  /* sys ctrl option */
+DEF VAR v-tags          AS DEC  NO-UNDO INIT 1.  /* sys ctrl option */
 DEF VAR v-count         AS INT  NO-UNDO INIT 0.
 DEF VAR v-fgrecpt       AS LOG  NO-UNDO.  /* sys ctrl option */
 
@@ -1417,6 +1417,7 @@ PROCEDURE get-label-file :
             NO-LOCK NO-ERROR.
         IF AVAIL oe-ord THEN
             v-cust-no = oe-ord.cust-no.
+       
     END.
     ELSE DO:
     
@@ -1436,9 +1437,9 @@ PROCEDURE get-label-file :
              cust-part.i-no    EQ bf-tag.i-no AND
              cust-part.cust-no EQ v-cust-no 
              NO-LOCK NO-ERROR.
-
-     IF AVAIL cust-part THEN
-        scr-label-file = (IF cust-part.labelPallet <> "" THEN cust-part.labelPallet ELSE v-bardir-chr).
+ 
+     IF AVAIL cust-part AND cust-part.labelPallet <> "" THEN
+        scr-label-file = cust-part.labelPallet .
 
 
      ELSE
@@ -1836,6 +1837,8 @@ PROCEDURE local-initialize :
                            OUTPUT lUserSpecific).
   begin_filename:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF cBarDirPath NE "" THEN cBarDirPath ELSE "c:\ba\label".
    RUN get-label-file.
+   v-num-of-tags = v-tags .
+   v-num-of-tags:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(v-tags) .
 
   IF v-mult LE 0 THEN v-mult = 1.
   IF v-num-of-tags GT v-mult THEN v-mult = v-num-of-tags.
