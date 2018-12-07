@@ -2711,6 +2711,7 @@ PROCEDURE calc-layout :
 
   IF ll THEN DO:
     IF NOT lv-foam THEN DO:
+      RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
       {sys/inc/ceroute1.i w id l en}
     END.
 
@@ -2771,6 +2772,7 @@ PROCEDURE calc-layout4Artios :
 
   IF ll THEN DO:
     IF NOT lv-foam THEN DO:
+      RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
       {sys/inc/ceroute1.i w id l en}
 
       RUN cec/calc-dim.p.
