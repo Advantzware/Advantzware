@@ -178,14 +178,14 @@ DEFINE FRAME F-Main
      svIncludePrepCharges AT ROW 12.91 COL 21 WIDGET-ID 44
      svDayOld AT ROW 14.57 COL 44 COLON-ALIGNED HELP
           "Show only Invoices with Cash Receipts after" WIDGET-ID 76
-     "Days" VIEW-AS TEXT
-          SIZE 5 BY 1 AT ROW 14.57 COL 55 WIDGET-ID 78
      "Sort?:" VIEW-AS TEXT
           SIZE 6 BY 1 AT ROW 10.52 COL 14 WIDGET-ID 52
+     "Days" VIEW-AS TEXT
+          SIZE 5 BY 1 AT ROW 14.57 COL 55 WIDGET-ID 78
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 74 BY 16
+         SIZE 149.2 BY 17
          TITLE "Report Parameters".
 
 
@@ -215,8 +215,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 16
-         WIDTH              = 74.
+         HEIGHT             = 17
+         WIDTH              = 149.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

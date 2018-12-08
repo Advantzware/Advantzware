@@ -129,6 +129,14 @@ DEFINE VARIABLE svStartInvoiceDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 83.8 BY 4.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 83.8 BY 3.05.
+
 DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
      LABEL "All Customers" 
      VIEW-AS TOGGLE-BOX
@@ -143,32 +151,34 @@ DEFINE VARIABLE svExceptionOnly AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 23 COLON-ALIGNED WIDGET-ID 60
-     svLocation AT ROW 1.24 COL 39 COLON-ALIGNED WIDGET-ID 232
-     svAllCustNo AT ROW 3.14 COL 25 HELP
+     svCompany AT ROW 1.24 COL 121 COLON-ALIGNED WIDGET-ID 60
+     svLocation AT ROW 1.24 COL 137 COLON-ALIGNED WIDGET-ID 232
+     svAllCustNo AT ROW 4.33 COL 57 HELP
           "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 4.33 COL 23 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 5.52 COL 55 COLON-ALIGNED HELP
           "Enter Start Customer" WIDGET-ID 2
-     startCustName AT ROW 4.33 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 5.52 COL 23 COLON-ALIGNED HELP
+     startCustName AT ROW 5.52 COL 71 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     svEndCustNo AT ROW 6.71 COL 55 COLON-ALIGNED HELP
           "Enter End Customer" WIDGET-ID 6
-     endCustName AT ROW 5.52 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     svStartInvoiceDate AT ROW 7.43 COL 23 COLON-ALIGNED HELP
+     endCustName AT ROW 6.71 COL 71 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     svStartInvoiceDate AT ROW 10.05 COL 55 COLON-ALIGNED HELP
           "Enter Start Invoice Date" WIDGET-ID 26
-     btnCalendar-5 AT ROW 7.43 COL 41 WIDGET-ID 80
-     svStartInvoiceDateOption AT ROW 7.43 COL 44 COLON-ALIGNED HELP
+     btnCalendar-5 AT ROW 10.05 COL 73 WIDGET-ID 80
+     svStartInvoiceDateOption AT ROW 10.05 COL 76 COLON-ALIGNED HELP
           "Select Start Invoice Date Option" NO-LABEL WIDGET-ID 64
-     svEndInvoiceDate AT ROW 8.62 COL 23 COLON-ALIGNED HELP
+     svEndInvoiceDate AT ROW 11.24 COL 55 COLON-ALIGNED HELP
           "Enter End Invoice Date" WIDGET-ID 24
-     btnCalendar-6 AT ROW 8.62 COL 41 WIDGET-ID 82
-     svEndInvoiceDateOption AT ROW 8.62 COL 44 COLON-ALIGNED HELP
+     btnCalendar-6 AT ROW 11.24 COL 73 WIDGET-ID 82
+     svEndInvoiceDateOption AT ROW 11.24 COL 76 COLON-ALIGNED HELP
           "Select End Invoice Date Option" NO-LABEL WIDGET-ID 66
-     svExceptionOnly AT ROW 10.52 COL 25 HELP
+     svExceptionOnly AT ROW 13.14 COL 57 HELP
           "Select to Show Exception Only" WIDGET-ID 88
+     RECT-1 AT ROW 4.1 COL 36 WIDGET-ID 234
+     RECT-2 AT ROW 9.57 COL 36 WIDGET-ID 236
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 85.4 BY 15.33
+         SIZE 149.2 BY 17
          TITLE "Report Parameters".
 
 
@@ -198,8 +208,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 15.33
-         WIDTH              = 85.4.
+         HEIGHT             = 17
+         WIDTH              = 149.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -230,6 +240,10 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnCalendar-6 IN FRAME F-Main
    3                                                                    */
 /* SETTINGS FOR FILL-IN endCustName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
    NO-ENABLE                                                            */

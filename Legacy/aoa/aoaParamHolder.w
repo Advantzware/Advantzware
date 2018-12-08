@@ -4,7 +4,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject 
 /*------------------------------------------------------------------------
 
-  File: aoa/aoaParamHolder.w
+  File: AOA/aoaParamHolder.w
 
   Description: from SMART.W - Template for basic ADM2 SmartObject
 
@@ -57,7 +57,7 @@ CREATE WIDGET-POOL.
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 73.6 BY 15.24
+     SIZE 148.8 BY 16.91
      FGCOLOR 1 .
 
 DEFINE RECTANGLE RECT-23
@@ -69,14 +69,14 @@ DEFINE RECTANGLE RECT-23
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     "Minimum Width 74.00 and Height 15.33" VIEW-AS TEXT
-          SIZE 45 BY .62 AT ROW 6.48 COL 16 WIDGET-ID 2
+     "Minimum Width 149.2 and Height 17.00" VIEW-AS TEXT
+          SIZE 45 BY .62 AT ROW 8.86 COL 53 WIDGET-ID 2
           BGCOLOR 15 FONT 6
      "AOA Parameter Smart Object Holder" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 5.52 COL 18
+          SIZE 41 BY .62 AT ROW 7.91 COL 55
           BGCOLOR 15 FONT 6
      RECT-1 AT ROW 1 COL 1
-     RECT-23 AT ROW 5.29 COL 15 WIDGET-ID 6
+     RECT-23 AT ROW 7.67 COL 52 WIDGET-ID 6
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -108,8 +108,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 15.33
-         WIDTH              = 74.
+         HEIGHT             = 17
+         WIDTH              = 149.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

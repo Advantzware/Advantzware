@@ -48,29 +48,29 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svCompany svAllCompany svStartCompany ~
-svEndCompany svCustList btnCustList svAllCustNo svStartCustNo svEndCustNo ~
-svAllSalesRep svStartSalesRep svEndSalesRep svAllCurrency svStartCurrency ~
-svEndCurrency svAllTerms svStartTerms svEndTerms svAsOfDate btnCalendar-3 ~
-svAsOfDateOption svPeriodDays1 svPeriodDays2 svPeriodDays3 svRecenTrendDays ~
-svType svSort1 svSort2 svIncludePaidInvoices svIncludeFactoredFGItems ~
-svIncludeFuelSurchages svSeparateFinanceCharges svStartInvoiceDate ~
-btnCalendar-1 svStartInvoiceDateOption svEndInvoiceDate btnCalendar-2 ~
-svEndInvoiceDateOption svInactiveCustomers 
+svEndCompany svCustList btnCustList svAllSalesRep svStartSalesRep ~
+svEndSalesRep svAllTerms svStartTerms svEndTerms svType svSort1 svSort2 ~
+svAllCustNo svStartCustNo svEndCustNo svInactiveCustomers svAllCurrency ~
+svStartCurrency svEndCurrency svAsOfDate btnCalendar-1 svAsOfDateOption ~
+svStartInvoiceDate btnCalendar-2 svStartInvoiceDateOption svEndInvoiceDate ~
+btnCalendar-3 svEndInvoiceDateOption svPeriodDays1 svPeriodDays2 ~
+svPeriodDays3 svRecenTrendDays svIncludePaidInvoices svIncludeFuelSurchages ~
+svIncludeFactoredFGItems svSeparateFinanceCharges 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svAllCompany svStartCompany ~
-startCompanyName svEndCompany endCompanyName svCustList svAllCustNo ~
-svStartCustNo startCustName svEndCustNo endCustName svAllSalesRep ~
-svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName ~
-svAllCurrency svStartCurrency startCurrencyName svEndCurrency ~
-endCurrencyName svAllTerms svStartTerms startTermsName svEndTerms ~
-endTermsName svAsOfDate svAsOfDateOption svPeriodDays1 svPeriodDays2 ~
-svPeriodDays3 svRecenTrendDays svType svSort1 svSort2 svIncludePaidInvoices ~
-svIncludeFactoredFGItems svIncludeFuelSurchages svSeparateFinanceCharges ~
+svEndCompany svCustList svAllSalesRep svStartSalesRep svEndSalesRep ~
+svAllTerms svStartTerms svEndTerms svType svSort1 svSort2 startCompanyName ~
+endCompanyName startSalesRepName endSalesRepName startTermsName ~
+endTermsName svAllCustNo svStartCustNo startCustName svEndCustNo ~
+endCustName svInactiveCustomers svAllCurrency svStartCurrency ~
+startCurrencyName svEndCurrency endCurrencyName svAsOfDate svAsOfDateOption ~
 svStartInvoiceDate svStartInvoiceDateOption svEndInvoiceDate ~
-svEndInvoiceDateOption svInactiveCustomers 
+svEndInvoiceDateOption svPeriodDays1 svPeriodDays2 svPeriodDays3 ~
+svRecenTrendDays svIncludePaidInvoices svIncludeFuelSurchages ~
+svIncludeFactoredFGItems svSeparateFinanceCharges 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
-&Scoped-define List-3 btnCalendar-3 btnCalendar-1 btnCalendar-2 
+&Scoped-define List-3 btnCalendar-1 btnCalendar-2 btnCalendar-3 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -262,14 +262,46 @@ DEFINE VARIABLE svSort2 AS CHARACTER
           "Due Date", "Due Date",
 "Invoice Date", "Invoice Date",
 "Invoice No", "Invoice No"
-     SIZE 46 BY 1 NO-UNDO.
+     SIZE 57 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svType AS CHARACTER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Summary", "Summary",
 "Totals Only", "Totals Only"
-     SIZE 46 BY 1 NO-UNDO.
+     SIZE 37 BY 1 NO-UNDO.
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79 BY 5.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79 BY 3.81.
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79 BY 3.81.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79 BY 3.81.
+
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 82 BY 5.
+
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 82 BY 3.81.
+
+DEFINE RECTANGLE RECT-7
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 82 BY 3.81.
+
+DEFINE RECTANGLE RECT-8
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 82 BY 3.81.
 
 DEFINE VARIABLE svAllCompany AS LOGICAL INITIAL yes 
      LABEL "All Companies" 
@@ -330,105 +362,113 @@ DEFINE VARIABLE svSeparateFinanceCharges AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 60
-     svAllCompany AT ROW 2.43 COL 21 HELP
+     svCompany AT ROW 1.24 COL 17 COLON-ALIGNED WIDGET-ID 60
+     svAllCompany AT ROW 2.67 COL 19 HELP
           "All Sales Reps?" WIDGET-ID 292
-     svStartCompany AT ROW 3.62 COL 19 COLON-ALIGNED HELP
+     svStartCompany AT ROW 3.86 COL 17 COLON-ALIGNED HELP
           "Enter Start Company" WIDGET-ID 296
-     startCompanyName AT ROW 3.62 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 290
-     svEndCompany AT ROW 4.81 COL 19 COLON-ALIGNED HELP
+     svEndCompany AT ROW 5.05 COL 17 COLON-ALIGNED HELP
           "Enter End Company" WIDGET-ID 294
-     endCompanyName AT ROW 4.81 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 288
-     svCustList AT ROW 6 COL 21 WIDGET-ID 48
-     btnCustList AT ROW 6 COL 51 WIDGET-ID 46
-     svAllCustNo AT ROW 7.19 COL 21 HELP
-          "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 8.38 COL 19 COLON-ALIGNED HELP
-          "Enter Start Customer" WIDGET-ID 2
-     startCustName AT ROW 8.38 COL 35 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 9.57 COL 19 COLON-ALIGNED HELP
-          "Enter End Customer" WIDGET-ID 6
-     endCustName AT ROW 9.57 COL 35 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     svAllSalesRep AT ROW 11 COL 21 HELP
+     svCustList AT ROW 6.24 COL 19 WIDGET-ID 48
+     btnCustList AT ROW 6.24 COL 49 WIDGET-ID 46
+     svAllSalesRep AT ROW 7.91 COL 19 HELP
           "All Sales Reps?" WIDGET-ID 108
-     svStartSalesRep AT ROW 12.19 COL 19 COLON-ALIGNED HELP
+     svStartSalesRep AT ROW 9.1 COL 17 COLON-ALIGNED HELP
           "Enter Start Sales Rep" WIDGET-ID 112
-     startSalesRepName AT ROW 12.19 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 106
-     svEndSalesRep AT ROW 13.38 COL 19 COLON-ALIGNED HELP
+     svEndSalesRep AT ROW 10.29 COL 17 COLON-ALIGNED HELP
           "Enter End Sales Rep" WIDGET-ID 110
-     endSalesRepName AT ROW 13.38 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 104
-     svAllCurrency AT ROW 14.57 COL 21 HELP
-          "All Currency?" WIDGET-ID 302
-     svStartCurrency AT ROW 15.76 COL 19 COLON-ALIGNED HELP
-          "Enter Start Currency" WIDGET-ID 306
-     startCurrencyName AT ROW 15.76 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 300
-     svEndCurrency AT ROW 16.95 COL 19 COLON-ALIGNED HELP
-          "Enter End Currency" WIDGET-ID 304
-     endCurrencyName AT ROW 16.95 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 298
-     svAllTerms AT ROW 18.14 COL 21 HELP
+     svAllTerms AT ROW 11.95 COL 19 HELP
           "All Terms?" WIDGET-ID 312
-     svStartTerms AT ROW 19.33 COL 19 COLON-ALIGNED HELP
+     svStartTerms AT ROW 13.14 COL 17 COLON-ALIGNED HELP
           "Enter Start Terms" WIDGET-ID 316
-     startTermsName AT ROW 19.33 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 310
-     svEndTerms AT ROW 20.52 COL 19 COLON-ALIGNED HELP
+     svEndTerms AT ROW 14.33 COL 17 COLON-ALIGNED HELP
           "Enter End Terms" WIDGET-ID 314
-     endTermsName AT ROW 20.52 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 308
-     svAsOfDate AT ROW 21.71 COL 19 COLON-ALIGNED HELP
-          "Enter As Of Date" WIDGET-ID 274
-     btnCalendar-3 AT ROW 21.71 COL 37 WIDGET-ID 272
-     svAsOfDateOption AT ROW 21.71 COL 40 COLON-ALIGNED HELP
-          "Select Start Date Option" NO-LABEL WIDGET-ID 276
-     svPeriodDays1 AT ROW 23.38 COL 19 COLON-ALIGNED HELP
-          "Enter Days for Period 1" WIDGET-ID 338
-     svPeriodDays2 AT ROW 23.38 COL 30 COLON-ALIGNED HELP
-          "Enter Days for Period 2" WIDGET-ID 340
-     svPeriodDays3 AT ROW 23.38 COL 41 COLON-ALIGNED HELP
-          "Enter Days for Period 3" WIDGET-ID 342
-     svRecenTrendDays AT ROW 23.38 COL 74 COLON-ALIGNED HELP
-          "Enter Days for Recent Trend" WIDGET-ID 344
-     svType AT ROW 24.81 COL 21 HELP
+     svType AT ROW 16 COL 19 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 324
-     svSort1 AT ROW 26 COL 21 HELP
+     svSort1 AT ROW 17.19 COL 19 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 84
+     svSort2 AT ROW 18.38 COL 19 HELP
+          "Select Sort Option" NO-LABEL WIDGET-ID 320
+     startCompanyName AT ROW 3.86 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 290
+     endCompanyName AT ROW 5.05 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 288
+     startSalesRepName AT ROW 9.1 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     endSalesRepName AT ROW 10.29 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+     startTermsName AT ROW 13.14 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 310
+     endTermsName AT ROW 14.33 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 308
+     svAllCustNo AT ROW 2.67 COL 102 HELP
+          "All Customers?" WIDGET-ID 56
+     svStartCustNo AT ROW 3.86 COL 100 COLON-ALIGNED HELP
+          "Enter Start Customer" WIDGET-ID 2
+     startCustName AT ROW 3.86 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     svEndCustNo AT ROW 5.05 COL 100 COLON-ALIGNED HELP
+          "Enter End Customer" WIDGET-ID 6
+     endCustName AT ROW 5.05 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     svInactiveCustomers AT ROW 6.24 COL 102 HELP
+          "Select to Include Inactive Customers" WIDGET-ID 336
+     svAllCurrency AT ROW 7.91 COL 102 HELP
+          "All Currency?" WIDGET-ID 302
+     svStartCurrency AT ROW 9.1 COL 100 COLON-ALIGNED HELP
+          "Enter Start Currency" WIDGET-ID 306
+     startCurrencyName AT ROW 9.1 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 300
+     svEndCurrency AT ROW 10.29 COL 100 COLON-ALIGNED HELP
+          "Enter End Currency" WIDGET-ID 304
+     endCurrencyName AT ROW 10.29 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 298
+     svAsOfDate AT ROW 11.95 COL 100 COLON-ALIGNED HELP
+          "Enter As Of Date" WIDGET-ID 274
+     btnCalendar-1 AT ROW 13.14 COL 118 WIDGET-ID 80
+     svAsOfDateOption AT ROW 11.95 COL 121 COLON-ALIGNED HELP
+          "Select Start Date Option" NO-LABEL WIDGET-ID 276
+     svStartInvoiceDate AT ROW 13.14 COL 100 COLON-ALIGNED HELP
+          "Enter Start Invoice Date" WIDGET-ID 26
+     btnCalendar-2 AT ROW 14.33 COL 118 WIDGET-ID 82
+     svStartInvoiceDateOption AT ROW 13.14 COL 121 COLON-ALIGNED HELP
+          "Select Start Invoice Date Option" NO-LABEL WIDGET-ID 64
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 81.8 BY 34.67.
+         SIZE 164 BY 19.76.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     svSort2 AT ROW 27.19 COL 21 HELP
-          "Select Sort Option" NO-LABEL WIDGET-ID 320
-     svIncludePaidInvoices AT ROW 28.62 COL 20 HELP
-          "Select to Include Paid Invoices" WIDGET-ID 88
-     svIncludeFactoredFGItems AT ROW 28.62 COL 47 HELP
-          "Select to Include Factored FG Items" WIDGET-ID 332
-     svIncludeFuelSurchages AT ROW 29.81 COL 20 HELP
-          "Select to Include Fuel Surchages" WIDGET-ID 330
-     svSeparateFinanceCharges AT ROW 29.81 COL 47 HELP
-          "Select to Separate Finance Charges" WIDGET-ID 334
-     svStartInvoiceDate AT ROW 31.24 COL 18 COLON-ALIGNED HELP
-          "Enter Start Invoice Date" WIDGET-ID 26
-     btnCalendar-1 AT ROW 31.24 COL 36 WIDGET-ID 80
-     svStartInvoiceDateOption AT ROW 31.24 COL 39 COLON-ALIGNED HELP
-          "Select Start Invoice Date Option" NO-LABEL WIDGET-ID 64
-     svEndInvoiceDate AT ROW 32.43 COL 18 COLON-ALIGNED HELP
+     svEndInvoiceDate AT ROW 14.33 COL 100 COLON-ALIGNED HELP
           "Enter End Invoice Date" WIDGET-ID 24
-     btnCalendar-2 AT ROW 32.43 COL 36 WIDGET-ID 82
-     svEndInvoiceDateOption AT ROW 32.43 COL 39 COLON-ALIGNED HELP
+     btnCalendar-3 AT ROW 11.95 COL 118 WIDGET-ID 272
+     svEndInvoiceDateOption AT ROW 14.33 COL 121 COLON-ALIGNED HELP
           "Select End Invoice Date Option" NO-LABEL WIDGET-ID 66
-     svInactiveCustomers AT ROW 33.62 COL 20 HELP
-          "Select to Include Inactive Customers" WIDGET-ID 336
+     svPeriodDays1 AT ROW 16 COL 100 COLON-ALIGNED HELP
+          "Enter Days for Period 1" WIDGET-ID 338
+     svPeriodDays2 AT ROW 16 COL 111 COLON-ALIGNED HELP
+          "Enter Days for Period 2" WIDGET-ID 340
+     svPeriodDays3 AT ROW 16 COL 122 COLON-ALIGNED HELP
+          "Enter Days for Period 3" WIDGET-ID 342
+     svRecenTrendDays AT ROW 16 COL 155 COLON-ALIGNED HELP
+          "Enter Days for Recent Trend" WIDGET-ID 344
+     svIncludePaidInvoices AT ROW 17.19 COL 102 HELP
+          "Select to Include Paid Invoices" WIDGET-ID 88
+     svIncludeFuelSurchages AT ROW 18.38 COL 102 HELP
+          "Select to Include Fuel Surchages" WIDGET-ID 330
+     svIncludeFactoredFGItems AT ROW 17.19 COL 129 HELP
+          "Select to Include Factored FG Items" WIDGET-ID 332
+     svSeparateFinanceCharges AT ROW 18.38 COL 129 HELP
+          "Select to Separate Finance Charges" WIDGET-ID 334
      "Sort By 2:" VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 27.19 COL 10 WIDGET-ID 318
+          SIZE 10 BY 1 AT ROW 18.38 COL 8 WIDGET-ID 318
      "Type:" VIEW-AS TEXT
-          SIZE 6 BY 1 AT ROW 24.81 COL 14 WIDGET-ID 328
+          SIZE 6 BY 1 AT ROW 16 COL 12 WIDGET-ID 328
      "Sort By 1:" VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 26 COL 10 WIDGET-ID 90
+          SIZE 10 BY 1 AT ROW 17.19 COL 8 WIDGET-ID 90
+     RECT-1 AT ROW 2.43 COL 2 WIDGET-ID 346
+     RECT-2 AT ROW 7.67 COL 2 WIDGET-ID 348
+     RECT-3 AT ROW 11.71 COL 2 WIDGET-ID 350
+     RECT-4 AT ROW 15.76 COL 2 WIDGET-ID 352
+     RECT-5 AT ROW 2.43 COL 82 WIDGET-ID 354
+     RECT-6 AT ROW 7.67 COL 82 WIDGET-ID 356
+     RECT-7 AT ROW 11.71 COL 82 WIDGET-ID 358
+     RECT-8 AT ROW 15.76 COL 82 WIDGET-ID 360
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 81.8 BY 34.67
+         SIZE 164 BY 19.76
          TITLE "Report Parameters".
 
 
@@ -458,8 +498,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 34.67
-         WIDTH              = 81.8.
+         HEIGHT             = 19.76
+         WIDTH              = 164.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -481,7 +521,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME                                               */
+   NOT-VISIBLE FRAME-NAME Custom                                        */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
@@ -500,6 +540,22 @@ ASSIGN
 /* SETTINGS FOR FILL-IN endSalesRepName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endTermsName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-7 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-8 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCompanyName IN FRAME F-Main
    NO-ENABLE                                                            */

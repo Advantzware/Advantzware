@@ -48,14 +48,13 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svCompany svCustList btnCustList svAllCustNo ~
-svStartCustNo svEndCustNo svAllBOL svStartBOL svEndBOL svAllOrderNo ~
-svStartOrderNo svEndOrderNo svStartBOLDate btnCalendar-1 ~
-svStartBOLDateOption svEndBOLDate btnCalendar-2 svEndBOLDateOption ~
-svPrinter 
+svStartCustNo svEndCustNo svAllOrderNo svStartOrderNo svEndOrderNo ~
+svStartBOLDate btnCalendar-1 svStartBOLDateOption svEndBOLDate ~
+btnCalendar-2 svEndBOLDateOption svPrinter svAllBOL svStartBOL svEndBOL 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svCustList svAllCustNo ~
-svStartCustNo startCustName svEndCustNo endCustName svAllBOL svStartBOL ~
-svEndBOL svAllOrderNo svStartOrderNo svEndOrderNo svStartBOLDate ~
-svStartBOLDateOption svEndBOLDate svEndBOLDateOption svPrinter 
+svStartCustNo startCustName svEndCustNo endCustName svAllOrderNo ~
+svStartOrderNo svEndOrderNo svStartBOLDate svStartBOLDateOption ~
+svEndBOLDate svEndBOLDateOption svPrinter svAllBOL svStartBOL svEndBOL 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -154,10 +153,26 @@ DEFINE VARIABLE svStartOrderNo AS INTEGER FORMAT ">>>>>9" INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 9 BY 1.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 78.8 BY 5.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 65 BY 5.
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 31 BY 3.81.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 31 BY 3.81.
+
 DEFINE VARIABLE svAllBOL AS LOGICAL INITIAL yes 
      LABEL "All BOLs" 
      VIEW-AS TOGGLE-BOX
-     SIZE 12 BY .95 NO-UNDO.
+     SIZE 12 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
      LABEL "All Customers" 
@@ -178,44 +193,48 @@ DEFINE VARIABLE svCustList AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 16 COLON-ALIGNED WIDGET-ID 60
-     svCustList AT ROW 3.14 COL 18 WIDGET-ID 48
-     btnCustList AT ROW 3.14 COL 48 WIDGET-ID 46
-     svAllCustNo AT ROW 4.33 COL 18 HELP
+     svCompany AT ROW 1.24 COL 142 COLON-ALIGNED WIDGET-ID 60
+     svCustList AT ROW 3.14 COL 32 WIDGET-ID 48
+     btnCustList AT ROW 3.14 COL 62 WIDGET-ID 46
+     svAllCustNo AT ROW 4.33 COL 32 HELP
           "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 5.52 COL 16 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 5.52 COL 30 COLON-ALIGNED HELP
           "Enter Start Customer" WIDGET-ID 2
-     startCustName AT ROW 5.52 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 6.71 COL 16 COLON-ALIGNED HELP
+     startCustName AT ROW 5.52 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     svEndCustNo AT ROW 6.71 COL 30 COLON-ALIGNED HELP
           "Enter End Customer" WIDGET-ID 6
-     endCustName AT ROW 6.71 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     svAllBOL AT ROW 8.62 COL 18 HELP
-          "All BOLs?" WIDGET-ID 246
-     svStartBOL AT ROW 9.81 COL 16 COLON-ALIGNED HELP
-          "Enter Start BOL" WIDGET-ID 250
-     svEndBOL AT ROW 11 COL 16 COLON-ALIGNED HELP
-          "Enter End BOL" WIDGET-ID 248
-     svAllOrderNo AT ROW 12.91 COL 18 HELP
+     endCustName AT ROW 6.71 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     svAllOrderNo AT ROW 4.33 COL 117 HELP
           "All Orders?" WIDGET-ID 196
-     svStartOrderNo AT ROW 14.1 COL 16 COLON-ALIGNED HELP
+     svStartOrderNo AT ROW 5.52 COL 115 COLON-ALIGNED HELP
           "Enter Start Order" WIDGET-ID 200
-     svEndOrderNo AT ROW 15.29 COL 16 COLON-ALIGNED HELP
+     svEndOrderNo AT ROW 6.71 COL 115 COLON-ALIGNED HELP
           "Enter End Order" WIDGET-ID 198
-     svStartBOLDate AT ROW 17.19 COL 16 COLON-ALIGNED HELP
+     svStartBOLDate AT ROW 10.29 COL 45 COLON-ALIGNED HELP
           "Enter Start BOL Date" WIDGET-ID 242
-     btnCalendar-1 AT ROW 17.19 COL 34 WIDGET-ID 234
-     svStartBOLDateOption AT ROW 17.19 COL 37 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 10.29 COL 63 WIDGET-ID 234
+     svStartBOLDateOption AT ROW 10.29 COL 66 COLON-ALIGNED HELP
           "Select Start BOL Date Option" NO-LABEL WIDGET-ID 244
-     svEndBOLDate AT ROW 18.38 COL 16 COLON-ALIGNED HELP
+     svEndBOLDate AT ROW 11.48 COL 45 COLON-ALIGNED HELP
           "Enter End BOL Date" WIDGET-ID 238
-     btnCalendar-2 AT ROW 18.38 COL 34 WIDGET-ID 236
-     svEndBOLDateOption AT ROW 18.38 COL 37 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 11.48 COL 63 WIDGET-ID 236
+     svEndBOLDateOption AT ROW 11.48 COL 66 COLON-ALIGNED HELP
           "Select End BOL Date Option" NO-LABEL WIDGET-ID 240
-     svPrinter AT ROW 20.29 COL 16 COLON-ALIGNED WIDGET-ID 252
+     svPrinter AT ROW 13.86 COL 45 COLON-ALIGNED WIDGET-ID 252
+     svAllBOL AT ROW 10.29 COL 121 HELP
+          "All BOLs?" WIDGET-ID 246
+     svStartBOL AT ROW 11.48 COL 119 COLON-ALIGNED HELP
+          "Enter Start BOL" WIDGET-ID 250
+     svEndBOL AT ROW 12.67 COL 119 COLON-ALIGNED HELP
+          "Enter End BOL" WIDGET-ID 248
+     RECT-1 AT ROW 2.91 COL 15 WIDGET-ID 254
+     RECT-2 AT ROW 10.05 COL 29 WIDGET-ID 256
+     RECT-3 AT ROW 4.1 COL 103 WIDGET-ID 258
+     RECT-4 AT ROW 10.05 COL 103 WIDGET-ID 260
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 78.8 BY 21.48
+         SIZE 149.2 BY 17
          TITLE "Report Parameters".
 
 
@@ -245,8 +264,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 21.48
-         WIDTH              = 78.8.
+         HEIGHT             = 17
+         WIDTH              = 149.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -268,7 +287,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME                                               */
+   NOT-VISIBLE FRAME-NAME Custom                                        */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
@@ -277,6 +296,14 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
    3                                                                    */
 /* SETTINGS FOR FILL-IN endCustName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
    NO-ENABLE                                                            */

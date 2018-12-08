@@ -142,7 +142,7 @@ DEFINE FRAME F-Main
           "Enter Ending Customer" WIDGET-ID 6
      endCustName AT ROW 6.95 COL 36 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 8
-     svInventoryClasses AT ROW 9.1 COL 19 COLON-ALIGNED HELP
+     svInventoryClasses AT ROW 9.1 COL 19.4 COLON-ALIGNED HELP
           "Enter Inventory Class(es)" WIDGET-ID 86
      svSort AT ROW 11.24 COL 21 NO-LABEL WIDGET-ID 88
      svIncludeInactiveCustomers AT ROW 13.38 COL 21 WIDGET-ID 40
@@ -152,7 +152,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 82 BY 16
+         SIZE 149.2 BY 17
          TITLE "Report Parameters".
 
 
@@ -182,8 +182,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 16
-         WIDTH              = 82.
+         HEIGHT             = 17
+         WIDTH              = 149.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
