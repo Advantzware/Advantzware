@@ -186,7 +186,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 82.4 BY 16.24
+         SIZE 149.2 BY 17
          TITLE "Report Parameters".
 
 
@@ -216,8 +216,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 16.24
-         WIDTH              = 82.4.
+         HEIGHT             = 17
+         WIDTH              = 149.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

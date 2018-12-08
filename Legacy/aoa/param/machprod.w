@@ -48,18 +48,18 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svCompany svLocation svAllMachine ~
-svStartMachine svEndMachine svStartOpDate btnCalendar-1 svStartOpDateOption ~
-svEndOpDate btnCalendar-2 svEndOpDateOption svAllShift svStartShift ~
-svEndShift svUseTime svStartTime svStartAMPM svEndTime svEndAMPM svCustList ~
+svStartMachine svEndMachine svAllShift svStartShift svEndShift svUseTime ~
+svStartTime svStartAMPM svEndTime svEndAMPM svStartOpDate btnCalendar-1 ~
+svStartOpDateOption svEndOpDate btnCalendar-2 svEndOpDateOption svCustList ~
 btnCustList svAllCustNo svStartCustNo svEndCustNo svPrintByScheduledMachine ~
 svRoundDecimals 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svAllMachine ~
 svStartMachine startMachineDescription svEndMachine endMachineDescription ~
-svStartOpDate svStartOpDateOption svEndOpDate svEndOpDateOption svAllShift ~
-svStartShift startShiftName svEndShift endShiftName svUseTime svStartTime ~
-svStartAMPM svEndTime svEndAMPM svCustList svAllCustNo svStartCustNo ~
-startCustName svEndCustNo endCustName svPrintByScheduledMachine ~
-svRoundDecimals 
+svAllShift svStartShift startShiftName svEndShift endShiftName svUseTime ~
+svStartTime svStartAMPM svEndTime svEndAMPM svStartOpDate ~
+svStartOpDateOption svEndOpDate svEndOpDateOption svCustList svAllCustNo ~
+svStartCustNo startCustName svEndCustNo endCustName ~
+svPrintByScheduledMachine svRoundDecimals 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -198,6 +198,26 @@ DEFINE VARIABLE svStartTime AS CHARACTER FORMAT "99:99":U INITIAL "1200"
      VIEW-AS FILL-IN 
      SIZE 8 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 81 BY 4.24.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 81 BY 3.1.
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 81 BY 6.43.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 81 BY 5.24.
+
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 81 BY 2.62.
+
 DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
      LABEL "All Customers" 
      VIEW-AS TOGGLE-BOX
@@ -237,66 +257,71 @@ DEFINE VARIABLE svUseTime AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 23 COLON-ALIGNED WIDGET-ID 60
-     svLocation AT ROW 1.24 COL 39 COLON-ALIGNED WIDGET-ID 130
-     svAllMachine AT ROW 3.14 COL 25 HELP
+     svCompany AT ROW 1.24 COL 144 COLON-ALIGNED WIDGET-ID 60
+     svLocation AT ROW 1.24 COL 160 COLON-ALIGNED WIDGET-ID 130
+     svAllMachine AT ROW 3.62 COL 22 HELP
           "All Macines?" WIDGET-ID 58
-     svStartMachine AT ROW 4.33 COL 23 COLON-ALIGNED HELP
+     svStartMachine AT ROW 4.81 COL 20 COLON-ALIGNED HELP
           "Enter Start Machine" WIDGET-ID 22
-     startMachineDescription AT ROW 4.33 COL 37 COLON-ALIGNED HELP
+     startMachineDescription AT ROW 4.81 COL 34 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
-     svEndMachine AT ROW 5.52 COL 23 COLON-ALIGNED HELP
+     svEndMachine AT ROW 6 COL 20 COLON-ALIGNED HELP
           "Enter End Machine" WIDGET-ID 20
-     endMachineDescription AT ROW 5.52 COL 37 COLON-ALIGNED HELP
+     endMachineDescription AT ROW 6 COL 34 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svStartOpDate AT ROW 7.43 COL 23 COLON-ALIGNED HELP
-          "Enter Start Date" WIDGET-ID 72
-     btnCalendar-1 AT ROW 7.43 COL 41 WIDGET-ID 76
-     svStartOpDateOption AT ROW 7.43 COL 44 COLON-ALIGNED HELP
-          "Select Start Date Option" NO-LABEL WIDGET-ID 74
-     svEndOpDate AT ROW 8.62 COL 23 COLON-ALIGNED HELP
-          "Enter End Date" WIDGET-ID 68
-     btnCalendar-2 AT ROW 8.62 COL 41 WIDGET-ID 78
-     svEndOpDateOption AT ROW 8.62 COL 44 COLON-ALIGNED HELP
-          "Select End Date Option" NO-LABEL WIDGET-ID 70
-     svAllShift AT ROW 10.52 COL 25 HELP
+     svAllShift AT ROW 9.81 COL 23 HELP
           "All Shifts?" WIDGET-ID 118
-     svStartShift AT ROW 11.71 COL 23 COLON-ALIGNED HELP
+     svStartShift AT ROW 11 COL 21 COLON-ALIGNED HELP
           "Enter Start Shift" WIDGET-ID 122
-     startShiftName AT ROW 11.71 COL 28 COLON-ALIGNED HELP
+     startShiftName AT ROW 11 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 116
-     svEndShift AT ROW 12.91 COL 23 COLON-ALIGNED HELP
+     svEndShift AT ROW 12.19 COL 21 COLON-ALIGNED HELP
           "Enter End Shift" WIDGET-ID 120
-     endShiftName AT ROW 12.91 COL 28 COLON-ALIGNED HELP
+     endShiftName AT ROW 12.19 COL 26 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 114
-     svUseTime AT ROW 14.1 COL 25 HELP
+     svUseTime AT ROW 13.38 COL 23 HELP
           "Select to Use Time vs Shift Table" WIDGET-ID 248
-     svStartTime AT ROW 15.29 COL 23 COLON-ALIGNED HELP
+     svStartTime AT ROW 14.57 COL 21 COLON-ALIGNED HELP
           "Enter Start Time" WIDGET-ID 222
-     svStartAMPM AT ROW 15.29 COL 31 COLON-ALIGNED HELP
+     svStartAMPM AT ROW 14.57 COL 29 COLON-ALIGNED HELP
           "Select AM/PM" NO-LABEL WIDGET-ID 244
-     svEndTime AT ROW 15.29 COL 52 COLON-ALIGNED HELP
+     svEndTime AT ROW 14.57 COL 50 COLON-ALIGNED HELP
           "Enter End Time" WIDGET-ID 228
-     svEndAMPM AT ROW 15.29 COL 60 COLON-ALIGNED HELP
+     svEndAMPM AT ROW 14.57 COL 58 COLON-ALIGNED HELP
           "Select AM/PM" NO-LABEL WIDGET-ID 246
-     svCustList AT ROW 17.19 COL 25 WIDGET-ID 48
-     btnCustList AT ROW 17.19 COL 55 WIDGET-ID 46
-     svAllCustNo AT ROW 18.38 COL 25 HELP
+     svStartOpDate AT ROW 3.62 COL 103 COLON-ALIGNED HELP
+          "Enter Start Date" WIDGET-ID 72
+     btnCalendar-1 AT ROW 3.62 COL 121 WIDGET-ID 76
+     svStartOpDateOption AT ROW 3.62 COL 124 COLON-ALIGNED HELP
+          "Select Start Date Option" NO-LABEL WIDGET-ID 74
+     svEndOpDate AT ROW 4.81 COL 103 COLON-ALIGNED HELP
+          "Enter End Date" WIDGET-ID 68
+     btnCalendar-2 AT ROW 4.81 COL 121 WIDGET-ID 78
+     svEndOpDateOption AT ROW 4.81 COL 124 COLON-ALIGNED HELP
+          "Select End Date Option" NO-LABEL WIDGET-ID 70
+     svCustList AT ROW 7.43 COL 106 WIDGET-ID 48
+     btnCustList AT ROW 7.43 COL 136 WIDGET-ID 46
+     svAllCustNo AT ROW 8.62 COL 106 HELP
           "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 19.57 COL 23 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 9.81 COL 104 COLON-ALIGNED HELP
           "Enter Beginning Customer" WIDGET-ID 2
-     startCustName AT ROW 19.57 COL 39 COLON-ALIGNED HELP
+     startCustName AT ROW 9.81 COL 120 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 20.76 COL 23 COLON-ALIGNED HELP
+     svEndCustNo AT ROW 11 COL 104 COLON-ALIGNED HELP
           "Enter Ending Customer" WIDGET-ID 6
-     endCustName AT ROW 20.76 COL 39 COLON-ALIGNED HELP
+     endCustName AT ROW 11 COL 120 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 8
-     svPrintByScheduledMachine AT ROW 22.67 COL 25 WIDGET-ID 124
-     svRoundDecimals AT ROW 24.1 COL 25 WIDGET-ID 126
+     svPrintByScheduledMachine AT ROW 13.62 COL 106 WIDGET-ID 124
+     svRoundDecimals AT ROW 14.81 COL 106 WIDGET-ID 126
+     RECT-1 AT ROW 3.14 COL 4 WIDGET-ID 250
+     RECT-2 AT ROW 3.14 COL 87 WIDGET-ID 252
+     RECT-3 AT ROW 9.57 COL 5 WIDGET-ID 254
+     RECT-4 AT ROW 7.19 COL 88 WIDGET-ID 256
+     RECT-5 AT ROW 13.38 COL 88 WIDGET-ID 258
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 85.8 BY 25.43
+         SIZE 172.2 BY 17
          TITLE "Report Parameters".
 
 
@@ -326,8 +351,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 25.43
-         WIDTH              = 85.8.
+         HEIGHT             = 17
+         WIDTH              = 172.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -349,7 +374,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME                                               */
+   NOT-VISIBLE FRAME-NAME Custom                                        */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
@@ -362,6 +387,16 @@ ASSIGN
 /* SETTINGS FOR FILL-IN endMachineDescription IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endShiftName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
    NO-ENABLE                                                            */

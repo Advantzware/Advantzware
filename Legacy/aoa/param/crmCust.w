@@ -66,6 +66,10 @@ DEFINE VARIABLE svCompany AS CHARACTER FORMAT "X(3)"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 44 BY 3.57.
+
 DEFINE VARIABLE svAutoAdd AS LOGICAL INITIAL no 
      LABEL "Auto Add New CRM Customers" 
      VIEW-AS TOGGLE-BOX
@@ -80,15 +84,16 @@ DEFINE VARIABLE svAutoUpdate AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 13 COLON-ALIGNED WIDGET-ID 60
-     svAutoAdd AT ROW 6 COL 18 HELP
+     svCompany AT ROW 1.24 COL 142 COLON-ALIGNED WIDGET-ID 60
+     svAutoAdd AT ROW 6.24 COL 57 HELP
           "Select to Auto Add New CRM Customers" WIDGET-ID 88
-     svAutoUpdate AT ROW 7.67 COL 18 HELP
+     svAutoUpdate AT ROW 7.91 COL 57 HELP
           "Select to Auto Update Existing CRM Customers" WIDGET-ID 324
+     RECT-1 AT ROW 5.76 COL 54 WIDGET-ID 326
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 74 BY 15.33
+         SIZE 149.2 BY 17
          TITLE "Report Parameters".
 
 
@@ -118,8 +123,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 15.33
-         WIDTH              = 74.
+         HEIGHT             = 17
+         WIDTH              = 149.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -145,6 +150,8 @@ END.
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
 ASSIGN 
        svCompany:READ-ONLY IN FRAME F-Main        = TRUE.
 
