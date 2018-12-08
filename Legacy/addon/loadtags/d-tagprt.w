@@ -1837,12 +1837,10 @@ PROCEDURE local-initialize :
                            OUTPUT lUserSpecific).
   begin_filename:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF cBarDirPath NE "" THEN cBarDirPath ELSE "c:\ba\label".
    RUN get-label-file.
-   v-num-of-tags = v-tags .
-   v-num-of-tags:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(v-tags) .
-
-  IF v-mult LE 0 THEN v-mult = 1.
-  IF v-num-of-tags GT v-mult THEN v-mult = v-num-of-tags.
-
+   IF v-mult LE 0 THEN v-mult = 1.
+   v-num-of-tags = v-mult .
+   v-num-of-tags:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(v-mult) .
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
