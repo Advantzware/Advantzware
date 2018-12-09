@@ -42,14 +42,12 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 {sys/ref/sys-ctrl.i}
+{methods/defines/sortByDefs.i "EXTENT 2"}
 
 DEFINE VARIABLE hCurrentFilter   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cFilter          AS CHARACTER NO-UNDO INITIAL "ALL".
 DEFINE VARIABLE cSubFilter       AS CHARACTER NO-UNDO INITIAL "ALL".
-DEFINE VARIABLE cColumnLabel     AS CHARACTER NO-UNDO EXTENT 2.
-DEFINE VARIABLE cSaveLabel       AS CHARACTER NO-UNDO EXTENT 2.
 DEFINE VARIABLE cMode            AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAscending       AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE lSearchOpen      AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE lSuperAdmin      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hPgmMstrSecur    AS HANDLE    NO-UNDO.
@@ -757,12 +755,12 @@ DEFINE FRAME viewFrame
      cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
      cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
      cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
+     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
      hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Integer Value" NO-LABEL WIDGET-ID 62
      cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
      hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Decimal Value" NO-LABEL WIDGET-ID 60
-     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
      hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Date Value" NO-LABEL WIDGET-ID 58
      cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
@@ -1004,8 +1002,8 @@ ASSIGN FRAME filterFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
-ASSIGN XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
-       XXTABVALXX = FRAME searchFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+ASSIGN XXTABVALXX = FRAME searchFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME searchFrame:MOVE-BEFORE-TAB-ITEM (FRAME filterFrame:HANDLE)
 /* END-ASSIGN-TABS */.
 
 /* BROWSE-TAB sysCtrlBrowse btnRestoreDefaults DEFAULT-FRAME */
@@ -2779,6 +2777,30 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
+&Scoped-define sdBrowseName sysCtrlBrowse
+{methods/sortByProc.i "pByCategory" "ttSysCtrl.category"}
+{methods/sortByProc.i "pByDataType" "ttSysCtrl.dataType"}
+{methods/sortByProc.i "pByDescrip" "ttSysCtrl.descrip"}
+{methods/sortByProc.i "pByFieldDescrip" "ttSysCtrl.fieldDescrip"}
+{methods/sortByProc.i "pByFieldSource" "ttSysCtrl.fieldSource"}
+{methods/sortByProc.i "pByModule" "ttSysCtrl.module"}
+{methods/sortByProc.i "pByName" "ttSysCtrl.name"}
+{methods/sortByProc.i "pByFieldValue" "ttSysCtrl.fieldValue"}
+{methods/sortByProc.i "pBySubCategory" "ttSysCtrl.subCategory"}
+{methods/sortByProc.i "pByTableSource" "ttSysCtrl.tableSource"}
+{methods/sortByProc.i "pByTypeCode" "ttSysCtrl.typeCode"}
+
+&Scoped-define sdBrowseName sysCtrlShipToBrowse
+{methods/sortByProc.i "pByCustVend" "sys-ctrl-shipto.cust-vend"}
+{methods/sortByProc.i "pByDescrip2" "sys-ctrl-shipto.descrip"}
+{methods/sortByProc.i "pByCustVendNo" "sys-ctrl-shipto.cust-vend-no"}
+{methods/sortByProc.i "pByShipID" "sys-ctrl-shipto.ship-id"}
+{methods/sortByProc.i "pByCharFld" "sys-ctrl-shipto.char-fld"}
+{methods/sortByProc.i "pByDateFld" "sys-ctrl-shipto.date-fld"}
+{methods/sortByProc.i "pByDecFld" "sys-ctrl-shipto.dec-fld"}
+{methods/sortByProc.i "pByIntFld" "sys-ctrl-shipto.int-fld"}
+{methods/sortByProc.i "pByLogFld" "sys-ctrl-shipto.log-fld"}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3058,386 +3080,6 @@ PROCEDURE pBuildMenuTree :
         "",
         YES
         ).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByCategory C-Win 
-PROCEDURE pByCategory :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.category
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.category DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByCharFld C-Win 
-PROCEDURE pByCharFld :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.char-fld
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.char-fld DESCENDING
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByCustVend C-Win 
-PROCEDURE pByCustVend :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.cust-vend
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.cust-vend DESCENDING
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByCustVendNo C-Win 
-PROCEDURE pByCustVendNo :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.cust-vend-no
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.cust-vend-no DESCENDING
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByDataType C-Win 
-PROCEDURE pByDataType :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.dataType
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.dataType DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByDateFld C-Win 
-PROCEDURE pByDateFld :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.date-fld
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.date-fld DESCENDING
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByDecFld C-Win 
-PROCEDURE pByDecFld :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.dec-fld
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.dec-fld DESCENDING
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByDescrip C-Win 
-PROCEDURE pByDescrip :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.descrip
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.descrip DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByDescrip2 C-Win 
-PROCEDURE pByDescrip2 :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.descrip
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.descrip DESCENDING
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByFieldDescrip C-Win 
-PROCEDURE pByFieldDescrip :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.fieldDescrip
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.fieldDescrip DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByFieldSource C-Win 
-PROCEDURE pByFieldSource :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.fieldSource
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.fieldSource DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByFieldValue C-Win 
-PROCEDURE pByFieldValue :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.fieldValue
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.fieldValue DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByIntFld C-Win 
-PROCEDURE pByIntFld :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.int-fld
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.int-fld DESCENDING
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByLogFld C-Win 
-PROCEDURE pByLogFld :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.log-fld
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.log-fld DESCENDING
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByModule C-Win 
-PROCEDURE pByModule :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.module
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.module DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByName C-Win 
-PROCEDURE pByName :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.name
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.name DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByShipID C-Win 
-PROCEDURE pByShipID :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.ship-id
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY sys-ctrl-shipto.ship-id DESCENDING
-    {&OPEN-QUERY-sysCtrlShipToBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBySubCategory C-Win 
-PROCEDURE pBySubCategory :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.subCategory
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.subCategory DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByTableSource C-Win 
-PROCEDURE pByTableSource :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.tableSource
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.tableSource DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByTypeCode C-Win 
-PROCEDURE pByTypeCode :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.typeCode
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.typeCode DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
 
 END PROCEDURE.
 
