@@ -173,6 +173,26 @@ DEFINE VARIABLE svStartVendNo AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 15 BY 1.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 76.8 BY 1.62.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 84 BY 4.
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 84 BY 2.86.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79.8 BY 4.
+
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79.8 BY 2.86.
+
 DEFINE VARIABLE svAllUserID AS LOGICAL INITIAL yes 
      LABEL "All User IDs" 
      VIEW-AS TOGGLE-BOX
@@ -202,50 +222,55 @@ DEFINE VARIABLE svPostOutOfPeriod AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 60
-     svLocation AT ROW 1.24 COL 35 COLON-ALIGNED WIDGET-ID 130
-     svPostDate AT ROW 2.91 COL 19 COLON-ALIGNED HELP
+     svCompany AT ROW 1.24 COL 139 COLON-ALIGNED WIDGET-ID 60
+     svLocation AT ROW 1.24 COL 155 COLON-ALIGNED WIDGET-ID 130
+     svPostDate AT ROW 3.62 COL 58 COLON-ALIGNED HELP
           "Enter Post Date" WIDGET-ID 274
-     btnCalendar-1 AT ROW 2.91 COL 37 WIDGET-ID 272
-     svPostDateOption AT ROW 2.91 COL 40 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 3.62 COL 76 WIDGET-ID 272
+     svPostDateOption AT ROW 3.62 COL 79 COLON-ALIGNED HELP
           "Select Start Date Option" NO-LABEL WIDGET-ID 276
-     svPeriod AT ROW 2.91 COL 74 COLON-ALIGNED WIDGET-ID 368
-     svAllVendNo AT ROW 4.57 COL 21 HELP
+     svPeriod AT ROW 3.62 COL 113 COLON-ALIGNED WIDGET-ID 368
+     svAllVendNo AT ROW 6.48 COL 22 HELP
           "All Vendors?" WIDGET-ID 362
-     svStartVendNo AT ROW 5.76 COL 19 COLON-ALIGNED HELP
+     svStartVendNo AT ROW 7.67 COL 20 COLON-ALIGNED HELP
           "Enter Start Vendor" WIDGET-ID 366
-     startVendorName AT ROW 5.76 COL 35 COLON-ALIGNED NO-LABEL WIDGET-ID 360
-     svEndVendNo AT ROW 6.95 COL 19 COLON-ALIGNED HELP
+     startVendorName AT ROW 7.67 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 360
+     svEndVendNo AT ROW 8.86 COL 20 COLON-ALIGNED HELP
           "Enter End Vendor" WIDGET-ID 364
-     endVendorName AT ROW 6.95 COL 35 COLON-ALIGNED NO-LABEL WIDGET-ID 358
-     svStartInvoiceDate AT ROW 8.62 COL 19 COLON-ALIGNED HELP
+     endVendorName AT ROW 8.86 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 358
+     svStartInvoiceDate AT ROW 11.71 COL 20 COLON-ALIGNED HELP
           "Enter Start Invoice Date" WIDGET-ID 26
-     btnCalendar-2 AT ROW 8.62 COL 37 WIDGET-ID 80
-     svStartInvoiceDateOption AT ROW 8.62 COL 40 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 11.71 COL 38 WIDGET-ID 80
+     svStartInvoiceDateOption AT ROW 11.71 COL 41 COLON-ALIGNED HELP
           "Select Start Invoice Date Option" NO-LABEL WIDGET-ID 64
-     svEndInvoiceDate AT ROW 9.81 COL 19 COLON-ALIGNED HELP
+     svEndInvoiceDate AT ROW 12.91 COL 20 COLON-ALIGNED HELP
           "Enter End Invoice Date" WIDGET-ID 24
-     btnCalendar-3 AT ROW 9.81 COL 37 WIDGET-ID 82
-     svEndInvoiceDateOption AT ROW 9.81 COL 40 COLON-ALIGNED HELP
+     btnCalendar-3 AT ROW 12.91 COL 38 WIDGET-ID 82
+     svEndInvoiceDateOption AT ROW 12.91 COL 41 COLON-ALIGNED HELP
           "Select End Invoice Date Option" NO-LABEL WIDGET-ID 66
-     svAllUserID AT ROW 11.48 COL 21 HELP
+     svAllUserID AT ROW 6.48 COL 103 HELP
           "All User IDs?" WIDGET-ID 158
-     svStartUserID AT ROW 12.67 COL 19 COLON-ALIGNED HELP
+     svStartUserID AT ROW 7.67 COL 101 COLON-ALIGNED HELP
           "Enter Start User ID" WIDGET-ID 162
-     startUserIDName AT ROW 12.67 COL 35 COLON-ALIGNED NO-LABEL WIDGET-ID 156
-     svEndUserID AT ROW 13.86 COL 19 COLON-ALIGNED HELP
+     startUserIDName AT ROW 7.67 COL 117 COLON-ALIGNED NO-LABEL WIDGET-ID 156
+     svEndUserID AT ROW 8.86 COL 101 COLON-ALIGNED HELP
           "Enter End User ID" WIDGET-ID 160
-     endUserIDName AT ROW 13.86 COL 35 COLON-ALIGNED NO-LABEL WIDGET-ID 154
-     svPostOutOfPeriod AT ROW 15.52 COL 21 HELP
+     endUserIDName AT ROW 8.86 COL 117 COLON-ALIGNED NO-LABEL WIDGET-ID 154
+     svPostOutOfPeriod AT ROW 11.71 COL 103 HELP
           "Select to Post Out of Period" WIDGET-ID 370
-     svPostIntoClosedPeriod AT ROW 16.95 COL 21 HELP
+     svPostIntoClosedPeriod AT ROW 12.91 COL 103 HELP
           "Select to Post Into Closed Period" WIDGET-ID 372
-     svPost AT ROW 16.95 COL 71 HELP
+     svPost AT ROW 12.91 COL 155 HELP
           "Select to Post" WIDGET-ID 344
+     RECT-1 AT ROW 3.38 COL 47 WIDGET-ID 250
+     RECT-2 AT ROW 6.24 COL 2 WIDGET-ID 374
+     RECT-3 AT ROW 11.48 COL 2 WIDGET-ID 376
+     RECT-4 AT ROW 6.24 COL 87 WIDGET-ID 378
+     RECT-5 AT ROW 11.48 COL 87 WIDGET-ID 380
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 81.4 BY 17.95
+         SIZE 167.2 BY 17
          TITLE "Report Parameters".
 
 
@@ -275,8 +300,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 17.95
-         WIDTH              = 81.4.
+         HEIGHT             = 17
+         WIDTH              = 167.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -298,7 +323,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME                                               */
+   NOT-VISIBLE FRAME-NAME Custom                                        */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
@@ -311,6 +336,16 @@ ASSIGN
 /* SETTINGS FOR FILL-IN endUserIDName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endVendorName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startUserIDName IN FRAME F-Main
    NO-ENABLE                                                            */
