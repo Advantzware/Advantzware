@@ -48,20 +48,20 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svCompany svCustList btnCustList svAllCustNo ~
-svStartCustNo svEndCustNo svStartOrderDate btnCalendar-1 ~
-svStartOrderDateOption svEndOrderDate btnCalendar-2 svEndOrderDateOption ~
-svStartDueDate btnCalendar-3 svStartDueDateOption svEndDueDate ~
-btnCalendar-4 svEndDueDateOption svAllSalesRep svStartSalesRep ~
-svEndSalesRep svAllProdCategory svStartProdCategory svEndProdCategory ~
-svIncludePrepMiscChg svExcludeSetComponents svExcludeTransferReleasesOrders ~
-svPrintOrderUnderPct svUnderValue svPrintOrderOverPct svOverValue 
+svStartCustNo svEndCustNo svAllSalesRep svStartSalesRep svEndSalesRep ~
+svAllProdCategory svStartProdCategory svEndProdCategory svStartOrderDate ~
+btnCalendar-1 svStartOrderDateOption svEndOrderDate btnCalendar-2 ~
+svEndOrderDateOption svStartDueDate btnCalendar-3 svStartDueDateOption ~
+svEndDueDate btnCalendar-4 svEndDueDateOption svIncludePrepMiscChg ~
+svExcludeSetComponents svExcludeTransferReleasesOrders svPrintOrderUnderPct ~
+svUnderValue svPrintOrderOverPct svOverValue 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svCustList svAllCustNo ~
-startCustName svStartCustNo endCustName svEndCustNo svStartOrderDate ~
-svStartOrderDateOption svEndOrderDate svEndOrderDateOption svStartDueDate ~
-svStartDueDateOption svEndDueDate svEndDueDateOption svAllSalesRep ~
+svStartCustNo startCustName svEndCustNo endCustName svAllSalesRep ~
 svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName ~
 svAllProdCategory svStartProdCategory startProdCategoryName ~
-svEndProdCategory endProdCategoryName svIncludePrepMiscChg ~
+svEndProdCategory endProdCategoryName svStartOrderDate ~
+svStartOrderDateOption svEndOrderDate svEndOrderDateOption svStartDueDate ~
+svStartDueDateOption svEndDueDate svEndDueDateOption svIncludePrepMiscChg ~
 svExcludeSetComponents svExcludeTransferReleasesOrders svPrintOrderUnderPct ~
 svUnderValue svPrintOrderOverPct svOverValue 
 
@@ -129,27 +129,27 @@ DEFINE VARIABLE svStartOrderDateOption AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE endCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 48.6 BY 1.
+     SIZE 40 BY 1.
 
 DEFINE VARIABLE endProdCategoryName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 49 BY 1.
+     SIZE 40 BY 1.
 
 DEFINE VARIABLE endSalesRepName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 48 BY 1.
+     SIZE 40 BY 1.
 
 DEFINE VARIABLE startCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 48.6 BY 1.
+     SIZE 40 BY 1.
 
 DEFINE VARIABLE startProdCategoryName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 49 BY 1.
+     SIZE 40 BY 1.
 
 DEFINE VARIABLE startSalesRepName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 48 BY 1.
+     SIZE 40 BY 1.
 
 DEFINE VARIABLE svCompany AS CHARACTER FORMAT "X(3)" 
      LABEL "Company" 
@@ -214,25 +214,45 @@ DEFINE VARIABLE svUnderValue AS INTEGER FORMAT ">9" INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 4.4 BY 1.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 82 BY 5.43.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 82 BY 4.29.
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 82 BY 4.29.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 69 BY 5.43.
+
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 69 BY 9.29.
+
 DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
      LABEL "All Customers" 
      VIEW-AS TOGGLE-BOX
-     SIZE 16 BY .95 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svAllProdCategory AS LOGICAL INITIAL yes 
      LABEL "All Product Categories" 
      VIEW-AS TOGGLE-BOX
-     SIZE 26 BY .95 NO-UNDO.
+     SIZE 26 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svAllSalesRep AS LOGICAL INITIAL yes 
      LABEL "All Sales Reps" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .95 NO-UNDO.
+     SIZE 18 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svCustList AS LOGICAL INITIAL no 
      LABEL "Use Defined Customer List" 
      VIEW-AS TOGGLE-BOX
-     SIZE 29 BY .95 NO-UNDO.
+     SIZE 29 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svExcludeSetComponents AS LOGICAL INITIAL no 
      LABEL "Exclude Set Components" 
@@ -263,82 +283,87 @@ DEFINE VARIABLE svPrintOrderUnderPct AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 21.6 COLON-ALIGNED WIDGET-ID 60
-     svCustList AT ROW 2.62 COL 24 WIDGET-ID 48
-     btnCustList AT ROW 2.62 COL 59 WIDGET-ID 46
-     svAllCustNo AT ROW 3.81 COL 24 HELP
+     svCompany AT ROW 1.24 COL 153 COLON-ALIGNED WIDGET-ID 60
+     svCustList AT ROW 3.1 COL 27 WIDGET-ID 48
+     btnCustList AT ROW 3.1 COL 62 WIDGET-ID 46
+     svAllCustNo AT ROW 4.29 COL 27 HELP
           "All Customers?" WIDGET-ID 56
-     startCustName AT ROW 4.91 COL 38.4 COLON-ALIGNED HELP
-          "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 4
-     svStartCustNo AT ROW 4.95 COL 22 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 5.43 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Customer" WIDGET-ID 2
-     endCustName AT ROW 6.1 COL 38.4 COLON-ALIGNED HELP
-          "Enter Ending Customer Name" NO-LABEL WIDGET-ID 8
-     svEndCustNo AT ROW 6.14 COL 22 COLON-ALIGNED HELP
+     startCustName AT ROW 5.38 COL 41.4 COLON-ALIGNED HELP
+          "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 4
+     svEndCustNo AT ROW 6.62 COL 25 COLON-ALIGNED HELP
           "Enter Ending Customer" WIDGET-ID 6
-     svStartOrderDate AT ROW 7.57 COL 22 COLON-ALIGNED HELP
-          "Enter Start Order Date" WIDGET-ID 84
-     btnCalendar-1 AT ROW 7.57 COL 39 WIDGET-ID 76
-     svStartOrderDateOption AT ROW 7.57 COL 42 COLON-ALIGNED HELP
-          "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 86
-     svEndOrderDate AT ROW 8.76 COL 22 COLON-ALIGNED HELP
-          "Enter End Order Date" WIDGET-ID 80
-     btnCalendar-2 AT ROW 8.76 COL 39 WIDGET-ID 78
-     svEndOrderDateOption AT ROW 8.76 COL 42 COLON-ALIGNED HELP
-          "Select End Order Date Option" NO-LABEL WIDGET-ID 82
-     svStartDueDate AT ROW 10.05 COL 22 COLON-ALIGNED HELP
-          "Enter Start Order Date" WIDGET-ID 220
-     btnCalendar-3 AT ROW 10.05 COL 39 WIDGET-ID 212
-     svStartDueDateOption AT ROW 10.05 COL 42 COLON-ALIGNED HELP
-          "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 222
-     svEndDueDate AT ROW 11.24 COL 22 COLON-ALIGNED HELP
-          "Enter End Order Date" WIDGET-ID 216
-     btnCalendar-4 AT ROW 11.24 COL 39 WIDGET-ID 214
-     svEndDueDateOption AT ROW 11.24 COL 42 COLON-ALIGNED HELP
-          "Select End Order Date Option" NO-LABEL WIDGET-ID 218
-     svAllSalesRep AT ROW 12.57 COL 24 HELP
+     endCustName AT ROW 6.57 COL 41.4 COLON-ALIGNED HELP
+          "Enter Ending Customer Name" NO-LABEL WIDGET-ID 8
+     svAllSalesRep AT ROW 9.33 COL 27 HELP
           "All Sales Reps?" WIDGET-ID 58
-     svStartSalesRep AT ROW 13.67 COL 22 COLON-ALIGNED HELP
+     svStartSalesRep AT ROW 10.43 COL 25 COLON-ALIGNED HELP
           "Enter Beginning SalesRep#" WIDGET-ID 22
-     startSalesRepName AT ROW 13.67 COL 39 COLON-ALIGNED HELP
+     startSalesRepName AT ROW 10.43 COL 42 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
-     svEndSalesRep AT ROW 14.86 COL 22 COLON-ALIGNED HELP
+     svEndSalesRep AT ROW 11.62 COL 25 COLON-ALIGNED HELP
           "Enter Ending SalesRep" WIDGET-ID 20
-     endSalesRepName AT ROW 14.86 COL 39 COLON-ALIGNED HELP
+     endSalesRepName AT ROW 11.62 COL 42 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svAllProdCategory AT ROW 16.19 COL 24 HELP
+     svAllProdCategory AT ROW 14.33 COL 27 HELP
           "All Sales Reps?" WIDGET-ID 112
-     svStartProdCategory AT ROW 17.29 COL 22 COLON-ALIGNED HELP
+     svStartProdCategory AT ROW 15.43 COL 25 COLON-ALIGNED HELP
           "Enter Start Product Category" WIDGET-ID 90
-     startProdCategoryName AT ROW 17.29 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 210
-     svEndProdCategory AT ROW 18.48 COL 22 COLON-ALIGNED HELP
+     startProdCategoryName AT ROW 15.43 COL 41 COLON-ALIGNED NO-LABEL WIDGET-ID 210
+     svEndProdCategory AT ROW 16.62 COL 25 COLON-ALIGNED HELP
           "Enter End Product Category" WIDGET-ID 88
-     endProdCategoryName AT ROW 18.48 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 208
-     svIncludePrepMiscChg AT ROW 19.81 COL 24 WIDGET-ID 42
-     svExcludeSetComponents AT ROW 21 COL 24 WIDGET-ID 94
-     svExcludeTransferReleasesOrders AT ROW 22.05 COL 24 WIDGET-ID 96
-     svPrintOrderUnderPct AT ROW 23.14 COL 24 WIDGET-ID 98
-     svUnderValue AT ROW 23.14 COL 48 COLON-ALIGNED HELP
+     endProdCategoryName AT ROW 16.62 COL 41 COLON-ALIGNED NO-LABEL WIDGET-ID 208
+     svStartOrderDate AT ROW 3.14 COL 108 COLON-ALIGNED HELP
+          "Enter Start Order Date" WIDGET-ID 84
+     btnCalendar-1 AT ROW 3.14 COL 125 WIDGET-ID 76
+     svStartOrderDateOption AT ROW 3.14 COL 128 COLON-ALIGNED HELP
+          "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 86
+     svEndOrderDate AT ROW 4.33 COL 108 COLON-ALIGNED HELP
+          "Enter End Order Date" WIDGET-ID 80
+     btnCalendar-2 AT ROW 4.33 COL 125 WIDGET-ID 78
+     svEndOrderDateOption AT ROW 4.33 COL 128 COLON-ALIGNED HELP
+          "Select End Order Date Option" NO-LABEL WIDGET-ID 82
+     svStartDueDate AT ROW 5.62 COL 108 COLON-ALIGNED HELP
+          "Enter Start Order Date" WIDGET-ID 220
+     btnCalendar-3 AT ROW 5.62 COL 125 WIDGET-ID 212
+     svStartDueDateOption AT ROW 5.62 COL 128 COLON-ALIGNED HELP
+          "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 222
+     svEndDueDate AT ROW 6.81 COL 108 COLON-ALIGNED HELP
+          "Enter End Order Date" WIDGET-ID 216
+     btnCalendar-4 AT ROW 6.81 COL 125 WIDGET-ID 214
+     svEndDueDateOption AT ROW 6.81 COL 128 COLON-ALIGNED HELP
+          "Select End Order Date Option" NO-LABEL WIDGET-ID 218
+     svIncludePrepMiscChg AT ROW 9.33 COL 110 WIDGET-ID 42
+     svExcludeSetComponents AT ROW 10.52 COL 110 WIDGET-ID 94
+     svExcludeTransferReleasesOrders AT ROW 11.71 COL 110 WIDGET-ID 96
+     svPrintOrderUnderPct AT ROW 13.14 COL 110 WIDGET-ID 98
+     svUnderValue AT ROW 13.14 COL 134 COLON-ALIGNED HELP
           "Enter Beginning Prod Category#" NO-LABEL WIDGET-ID 104
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89 BY 27.67.
+         SIZE 160.6 BY 18.81.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     svPrintOrderOverPct AT ROW 24.33 COL 24 WIDGET-ID 102
-     svOverValue AT ROW 24.33 COL 48 COLON-ALIGNED HELP
+     svPrintOrderOverPct AT ROW 14.33 COL 110 WIDGET-ID 102
+     svOverValue AT ROW 14.33 COL 134 COLON-ALIGNED HELP
           "Enter Beginning Prod Category#" NO-LABEL WIDGET-ID 106
-     "(Prep / Misc Charges will Display 'P' or 'M' for Product Code)" VIEW-AS TEXT
-          SIZE 58 BY .95 AT ROW 25.76 COL 21 WIDGET-ID 108
      "Note: Profit Includes Estimate Markups and Commissions." VIEW-AS TEXT
-          SIZE 54.6 BY .71 AT ROW 26.81 COL 22.4 WIDGET-ID 110
+          SIZE 54.6 BY .71 AT ROW 17.05 COL 96.4 WIDGET-ID 110
           FGCOLOR 1 
+     "(Prep / Misc Charges will Display 'P' or 'M' for Product Code)" VIEW-AS TEXT
+          SIZE 58 BY .95 AT ROW 16 COL 95 WIDGET-ID 108
+     RECT-1 AT ROW 2.67 COL 4 WIDGET-ID 224
+     RECT-2 AT ROW 8.86 COL 4 WIDGET-ID 226
+     RECT-3 AT ROW 13.86 COL 4 WIDGET-ID 228
+     RECT-4 AT ROW 2.67 COL 89 WIDGET-ID 230
+     RECT-5 AT ROW 8.86 COL 89 WIDGET-ID 232
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89 BY 27.67
+         SIZE 160.6 BY 18.81
          TITLE "Report Parameters".
 
 
@@ -368,8 +393,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 27.67
-         WIDTH              = 89.
+         HEIGHT             = 18.81
+         WIDTH              = 160.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -391,7 +416,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME                                               */
+   NOT-VISIBLE FRAME-NAME Custom                                        */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
@@ -408,6 +433,16 @@ ASSIGN
 /* SETTINGS FOR FILL-IN endProdCategoryName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endSalesRepName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -529,7 +564,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svCompany sObject
 ON ENTRY OF svCompany IN FRAME F-Main /* Company */
 DO:
-  APPLY "ENTRY":U TO svStartCustNo.
+  APPLY "ENTRY":U TO svCustList.
   RETURN NO-APPLY.
 END.
 

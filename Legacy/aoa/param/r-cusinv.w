@@ -47,7 +47,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svCustList btnCustList svAllCustNo ~
+&Scoped-Define ENABLED-OBJECTS svCompany btnCustList svCustList svAllCustNo ~
 svStartCustNo svEndCustNo svInventoryClasses svSort ~
 svIncludeInactiveCustomers svIncludeZeroQty 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svCustList svAllCustNo ~
@@ -105,6 +105,14 @@ DEFINE VARIABLE svSort AS CHARACTER INITIAL "Item"
 "Customer Part No", "Part"
      SIZE 38 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 85.8 BY 5.43.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 86 BY 6.67.
+
 DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
      LABEL "All Customers" 
      VIEW-AS TOGGLE-BOX
@@ -129,26 +137,28 @@ DEFINE VARIABLE svIncludeZeroQty AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 60
-     svCustList AT ROW 3.38 COL 21 WIDGET-ID 48
-     btnCustList AT ROW 3.38 COL 57 WIDGET-ID 46
-     svAllCustNo AT ROW 4.57 COL 21 HELP
+     svCompany AT ROW 1.24 COL 142 COLON-ALIGNED WIDGET-ID 60
+     btnCustList AT ROW 2.91 COL 93 WIDGET-ID 46
+     svCustList AT ROW 2.91 COL 54 WIDGET-ID 48
+     svAllCustNo AT ROW 4.1 COL 54 HELP
           "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 5.76 COL 19 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 5.29 COL 52 COLON-ALIGNED HELP
           "Enter Beginning Customer" WIDGET-ID 2
-     startCustName AT ROW 5.76 COL 36 COLON-ALIGNED HELP
+     startCustName AT ROW 5.29 COL 69 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 6.95 COL 19 COLON-ALIGNED HELP
+     svEndCustNo AT ROW 6.48 COL 52 COLON-ALIGNED HELP
           "Enter Ending Customer" WIDGET-ID 6
-     endCustName AT ROW 6.95 COL 36 COLON-ALIGNED HELP
+     endCustName AT ROW 6.48 COL 69 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 8
-     svInventoryClasses AT ROW 9.1 COL 19.4 COLON-ALIGNED HELP
+     svInventoryClasses AT ROW 9.57 COL 52 COLON-ALIGNED HELP
           "Enter Inventory Class(es)" WIDGET-ID 86
-     svSort AT ROW 11.24 COL 21 NO-LABEL WIDGET-ID 88
-     svIncludeInactiveCustomers AT ROW 13.38 COL 21 WIDGET-ID 40
-     svIncludeZeroQty AT ROW 14.57 COL 21 WIDGET-ID 84
+     svSort AT ROW 11.48 COL 54 NO-LABEL WIDGET-ID 88
+     svIncludeInactiveCustomers AT ROW 13.38 COL 54 WIDGET-ID 40
+     svIncludeZeroQty AT ROW 14.57 COL 54 WIDGET-ID 84
      "Sort By?:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 11.24 COL 12 WIDGET-ID 92
+          SIZE 9 BY 1 AT ROW 11.48 COL 45 WIDGET-ID 92
+     RECT-1 AT ROW 2.43 COL 32 WIDGET-ID 94
+     RECT-2 AT ROW 9.1 COL 32 WIDGET-ID 96
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -205,11 +215,15 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME                                               */
+   NOT-VISIBLE FRAME-NAME Custom                                        */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN endCustName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
    NO-ENABLE                                                            */
