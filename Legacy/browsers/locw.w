@@ -492,6 +492,8 @@ DO:
             IF AVAILABLE fg-set THEN
             RUN jc/w-inqjbc.w (ROWID(itemfg), YES).
         END.
+        IF NOT AVAIL job-hdr AND NOT AVAIL fg-set THEN
+            MESSAGE "No jobs for this item.." VIEW-AS ALERT-BOX INFORMATION . 
     END.          
 END.
 
