@@ -2286,18 +2286,21 @@ PROCEDURE pMenuSize :
             cImageFolder  = "Graphics/16X16/"
             dObjectHeight = .95
             dObjectWidth  = 4
+            iFont         = 32
             .
         WHEN 2 THEN
         ASSIGN
             cImageFolder  = "Graphics/24X24/"
             dObjectHeight = 1.33
             dObjectWidth  = 5.6
+            iFont         = 34
             .
         WHEN 3 THEN
         ASSIGN
             cImageFolder  = "Graphics/32X32/"
             dObjectHeight = 1.67
             dObjectWidth  = 7
+            iFont         = 36
             .
     END CASE.
     
@@ -2328,6 +2331,7 @@ PROCEDURE pMenuSize :
             ttMenuTree.hEditor:HIDDEN = YES
             ttMenuTree.hEditor:ROW    = 1
             ttMenuTree.hEditor:HEIGHT = dObjectHeight
+            ttMenuTree.hEditor:FONT   = iFont
             .
         IF VALID-HANDLE(ttMenuTree.hToggle) THEN
         ASSIGN
@@ -2398,7 +2402,7 @@ PROCEDURE pProcessClick :
     IF AVAILABLE ttMenuTree THEN DO:
         IF ttMenuTree.isMenu AND NOT ttMenuTree.isOpen THEN
         ASSIGN
-            ttMenuTree.hEditor:FONT    = ?
+            ttMenuTree.hEditor:FONT    = iFont
             ttMenuTree.hEditor:BGCOLOR = ?
             ttMenuTree.hEditor:FGCOLOR = ?
             .
@@ -2459,7 +2463,7 @@ PROCEDURE pReset :
     FOR EACH ttMenuTree:
         ASSIGN
             ttMenuTree.baseText             = fTranslate(ENTRY(1,ttMenuTree.hEditor:PRIVATE-DATA),NO)
-            ttMenuTree.hEditor:FONT         = ?
+            ttMenuTree.hEditor:FONT         = iFont
             ttMenuTree.hEditor:BGCOLOR      = ?
             ttMenuTree.hEditor:FGCOLOR      = ?
             ttMenuTree.hEditor:SCREEN-VALUE = fTreeText(ttMenuTree.isMenu,

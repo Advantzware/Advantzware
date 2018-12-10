@@ -39,6 +39,7 @@ DEFINE VARIABLE dObjectWidth  AS DECIMAL   NO-UNDO INITIAL 4.8.
 DEFINE VARIABLE iMenuSize     AS INTEGER   NO-UNDO INITIAL 1.
 DEFINE VARIABLE iLanguage     AS INTEGER   NO-UNDO INITIAL 1.
 DEFINE VARIABLE lMenuImage    AS LOGICAL   NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE iFont         AS INTEGER   NO-UNDO.
 
 DEFINE TEMP-TABLE ttMenuTree NO-UNDO
     FIELD treeOrder     AS INTEGER
@@ -164,6 +165,7 @@ PROCEDURE pClickMenuTree:
         ASSIGN
             bttMenuTree.hEditor:FONT = ?
             &IF DEFINED(mainMenuBGColor) NE 0 &THEN
+            bttMenuTree.hEditor:FONT    = iFont
             bttMenuTree.hEditor:BGCOLOR = ?
             bttMenuTree.hEditor:FGCOLOR = ?
             &ENDIF
@@ -176,6 +178,7 @@ PROCEDURE pClickMenuTree:
         ASSIGN
             bttMenuTree.hEditor:FONT = ?
             &IF DEFINED(mainMenuBGColor) NE 0 &THEN
+            bttMenuTree.hEditor:FONT    = iFont
             bttMenuTree.hEditor:BGCOLOR = ?
             bttMenuTree.hEditor:FGCOLOR = ?
             &ENDIF
@@ -184,6 +187,7 @@ PROCEDURE pClickMenuTree:
     ASSIGN
         ttMenuTree.hEditor:FONT = 6
         &IF DEFINED(mainMenuBGColor) NE 0 &THEN
+        ttMenuTree.hEditor:FONT    = iFont + 1
         ttMenuTree.hEditor:BGCOLOR = {&mainMenuBGColor}
         ttMenuTree.hEditor:FGCOLOR = {&mainMenuFGColor}
         &ENDIF
@@ -293,6 +297,9 @@ PROCEDURE pCreatettMenuTree:
             HIDDEN = YES
             WIDTH = dWidth
             HEIGHT = dObjectHeight
+            &IF DEFINED(mainMenuBGColor) NE 0 &THEN
+            FONT = iFont
+            &ENDIF
             FGCOLOR = 1
             BGCOLOR = ?
             SCROLLBAR-HORIZONTAL = NO
@@ -309,8 +316,8 @@ PROCEDURE pCreatettMenuTree:
     IF VALID-HANDLE(hWidget) THEN DO:
         ASSIGN
             ttMenuTRee.hEditor = hWidget
-            hWidget:TOOLTIP = IF ipcMnemonic NE "" THEN "HotKey: " + ipcMnemonic
-                              ELSE hWidget:SCREEN-VALUE
+            hWidget:TOOLTIP    = IF ipcMnemonic NE "" THEN "HotKey: " + ipcMnemonic
+                                 ELSE hWidget:SCREEN-VALUE
             .
         hWidget:LOAD-MOUSE-POINTER("GLOVE").
     END.
