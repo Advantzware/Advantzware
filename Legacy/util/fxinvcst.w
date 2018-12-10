@@ -437,7 +437,6 @@ END PROCEDURE.
 PROCEDURE run-process :
 DEF VAR v-cost LIKE ar-invl.cost EXTENT 5 NO-UNDO.
 
-
 DO WITH FRAME {&FRAME-NAME}:
   ASSIGN
    fi_finv
@@ -464,10 +463,11 @@ FOR EACH ar-inv
 
   ar-inv.t-cost = ar-inv.t-cost - ar-invl.t-cost.
 
-  run oe/invlcost.p (ROWID(ar-invl),
+  run oe/GetCostInvl.p (ROWID(ar-invl),
                      OUTPUT v-cost[1], OUTPUT v-cost[2],
                      OUTPUT v-cost[3], OUTPUT v-cost[4],
-                     OUTPUT ar-invl.cost, OUTPUT ar-invl.t-cost).
+                     OUTPUT ar-invl.cost, OUTPUT ar-invl.spare-char-2, 
+                     OUTPUT ar-invl.t-cost, OUTPUT ar-invl.spare-char-1).
 
   ASSIGN
    ar-invl.dscr[1] = "M"
@@ -498,10 +498,11 @@ FOR EACH inv-head
 
   inv-head.t-inv-cost = inv-head.t-inv-cost - inv-line.t-cost.
 
-  RUN oe/invlcost.p (ROWID(inv-line),
+  RUN oe/GetCostInvl.p (ROWID(inv-line),
                      OUTPUT v-cost[1], OUTPUT v-cost[2],
                      OUTPUT v-cost[3], OUTPUT v-cost[4],
-                     OUTPUT inv-line.cost, OUTPUT inv-line.t-cost).
+                     OUTPUT inv-line.cost, OUTPUT inv-line.spare-char-2, 
+                     OUTPUT inv-line.t-cost, OUTPUT inv-line.spare-char-1).
 
   inv-head.t-inv-cost = inv-head.t-inv-cost + inv-line.t-cost.
 END.
