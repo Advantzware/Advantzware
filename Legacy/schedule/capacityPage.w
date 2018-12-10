@@ -1345,11 +1345,21 @@ PROCEDURE pLoadDowntime :
     DEFINE VARIABLE cListItems AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
     
+    IF &IF DEFINED(FWD-VERSION) > 0 &THEN RT-OPSYS &ELSE OPSYS &ENDIF = "unix" THEN DO:
+    
+    ASSIGN
+        cSearchDir = SEARCH("schedule/load.log")
+        cSearchDir = REPLACE(cSearchDir,"/load.log","")
+        FILE-INFO:FILE-NAME = cSearchDir.
+    END.
+    ELSE DO:
     ASSIGN
         cSearchDir = SEARCH("schedule/load.log")
         cSearchDir = REPLACE(cSearchDir,"\load.log","")
         FILE-INFO:FILE-NAME = cSearchDir
         .
+    END.
+
     INPUT FROM OS-DIR(cSearchDir) NO-ECHO.
     REPEAT:
         SET cFileName ^ cAttrList.

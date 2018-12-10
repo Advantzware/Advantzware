@@ -121,7 +121,7 @@ IF iLoginCnt GT 0 AND promptMultiSession-log THEN DO:
           oplExit = TRUE.
         WHEN "Exit Application" THEN 
             oplExit = TRUE.          
-        WHEN "Log Out Other Sessions" THEN DO:
+        WHEN "Log Out Other Sessions" THEN DO TRANSACTION:
             FOR EACH userLog EXCLUSIVE-LOCK WHERE userLog.userStatus EQ "Logged In" 
                 AND  userLog.user_id EQ cCurrentUserID:
               iLoginUserNum = userLog.sessionID /* INTEGER(SUBSTRING(userLog.deviceName, R-INDEX(userLog.deviceName,"-") + 1)) */ NO-ERROR. 

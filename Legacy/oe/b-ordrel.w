@@ -437,14 +437,17 @@ DEFINE BROWSE br_table
       tt-report.opened COLUMN-LABEL "Prt" FORMAT "Y/N":U WIDTH 5.4
             COLUMN-FONT 0
       oe-rel.s-code COLUMN-LABEL "S/I" FORMAT "X(12)":U
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
       VIEW-AS COMBO-BOX INNER-LINES 4 
           LIST-ITEM-PAIRS "B-Both","B",
                      "S-Ship","S",
                      "I-Invoice","I",
                      "T-Transfer","T"
           DROP-DOWN-LIST
+&ENDIF
       oe-rel.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U COLUMN-FONT 0
       oe-rel.stat COLUMN-LABEL "S" FORMAT "X(15)":U  WIDTH 28
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
       VIEW-AS COMBO-BOX INNER-LINES 8 
           LIST-ITEM-PAIRS "S-Scheduled","S",
                      "L-Late","L",
@@ -455,6 +458,7 @@ DEFINE BROWSE br_table
                      "Z-Posted BOL","Z",
                      "C-Completed","C"
           DROP-DOWN-LIST
+&ENDIF
       oe-rel.carrier COLUMN-LABEL "Via" FORMAT "x(5)":U COLUMN-FONT 0
       oe-rel.tot-qty COLUMN-LABEL "Sched Qty" FORMAT "->>,>>>,>>9":U
       oe-rel.qty COLUMN-LABEL "Actual Qty" FORMAT "->>,>>>,>>9":U

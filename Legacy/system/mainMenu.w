@@ -1374,7 +1374,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLinkASI MAINMENU
 ON MOUSE-SELECT-CLICK OF menuLinkASI IN FRAME FRAME-USER
 DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+    open-mime-resource "text/html" string(menuLinkASI:PRIVATE-DATA) false.
+&ELSE
     OS-COMMAND NO-WAIT START VALUE(menuLinkasi:PRIVATE-DATA).
+&ENDIF
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1385,7 +1389,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLinkZoHo MAINMENU
 ON MOUSE-SELECT-CLICK OF menuLinkZoHo IN FRAME FRAME-USER
 DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+    open-mime-resource "text/html" string(menuLinkZoHo:PRIVATE-DATA) false.
+&ELSE
     OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
+&ENDIF
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2264,7 +2272,12 @@ PROCEDURE pMenuLinkClick :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiLink AS INTEGER NO-UNDO.
     
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+    open-mime-resource "text/html" string(hMenuLink[ipiLink]:PRIVATE-DATA) false.
+&ELSE
+    
     OS-COMMAND NO-WAIT START VALUE(hMenuLink[ipiLink]:PRIVATE-DATA).
+&ENDIF
 
 END PROCEDURE.
 

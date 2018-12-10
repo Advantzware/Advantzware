@@ -203,9 +203,11 @@ DEFINE BROWSE Browser-Table
       fg-rctd.updated-by COLUMN-LABEL "Last Updated By" FORMAT "x(8)":U
             WIDTH 15
       fg-rctd.reject-code[1] COLUMN-LABEL "Reason" FORMAT "x(2)":U
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
             VIEW-AS COMBO-BOX SORT INNER-LINES 5
                       LIST-ITEM-PAIRS "Item 1"," Item 1"
                       DROP-DOWN-LIST 
+&ENDIF
   ENABLE
       fg-rctd.rct-date
       fg-rctd.i-no
