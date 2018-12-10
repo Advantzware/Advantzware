@@ -337,9 +337,13 @@ DEFINE BROWSE Browser-Table
             WIDTH 40 LABEL-BGCOLOR 14
       rm-rdtlh.user-id COLUMN-LABEL "UserID" FORMAT "x(8)":U WIDTH 12
       rm-rdtlh.receiver-no COLUMN-LABEL "Invoice Link" FORMAT "x(20)":U
-      rm-rdtlh.reject-code[1] COLUMN-LABEL "Adjustment Reason" FORMAT "x(22)":U VIEW-AS COMBO-BOX SORT INNER-LINES 5
+      rm-rdtlh.receiver-no COLUMN-LABEL "Adjustment Reason:" FORMAT "x(20)":U
+      rm-rdtlh.reject-code[1] FORMAT "x(2)":U
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
+                      VIEW-AS COMBO-BOX SORT INNER-LINES 5
                       LIST-ITEM-PAIRS "Item 1","Item 1"
                       DROP-DOWN-LIST 
+&ENDIF
       rm-rdtlh.enteredBy COLUMN-LABEL "Scanned By" FORMAT "x(12)":U
       rm-rdtlh.enteredDT COLUMN-LABEL "Scanned Date/Time" FORMAT "99/99/9999 HH:MM:SS.SSS":U
   ENABLE

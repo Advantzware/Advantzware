@@ -1054,12 +1054,17 @@ PROCEDURE ipClickOk :
     /* This is the normal operation for Mode choices */
     IF NOT cbMode = "Monitor Users" THEN DO: 
         /* Set current dir */
-        RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
+        IF &IF DEFINED(FWD-VERSION) > 0 &THEN RT-OPSYS &ELSE OPSYS &ENDIF = "unix" THEN
+            cPathSep = "/".
+        RUN ipSetCurrentDir (cMapDir + cPathSep + cEnvDir + cPathSep + cbEnvironment).
         IF INDEX(cRunPgm,"mainmenu") <> 0
         AND iEnvLevel LT 16080000
         AND (SEARCH("system/mainmenu2.r") NE ? 
             OR SEARCH("system/mainmenu2.w") NE ?) THEN ASSIGN
             cRunPgm = "system/mainmenu2.w".
+        if FWD-EMBEDDED-MODE then 
+            RUN VALUE(cRunPgm) persistent.
+        else
         RUN VALUE(cRunPgm).
     END.
     /* This is only used to monitor users */
@@ -1070,7 +1075,7 @@ PROCEDURE ipClickOk :
         OS-COMMAND VALUE(cCmdString).
     END.
     
-    QUIT.
+    if not FWD-EMBEDDED-MODE then QUIT.
     
 END PROCEDURE.
 

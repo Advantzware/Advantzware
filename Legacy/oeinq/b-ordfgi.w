@@ -441,9 +441,11 @@ DEFINE BROWSE Browser-Table
       get-fg-qty (2) @ iBinQty COLUMN-LABEL "Bin Change" FORMAT "->>>>>>9":U
             WIDTH 9.4 LABEL-BGCOLOR 14
       fg-rdtlh.reject-code[1] COLUMN-LABEL "Adjustment Reason:" FORMAT "x(2)":U
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
             VIEW-AS COMBO-BOX SORT INNER-LINES 5
                       LIST-ITEM-PAIRS "Item 1"," Item 1"
                       DROP-DOWN-LIST 
+&ENDIF
       fg-rdtlh.enteredBy COLUMN-LABEL "Scanned By" FORMAT "x(12)":U
       fg-rdtlh.enteredDT COLUMN-LABEL "Scan Date/Time" FORMAT "99/99/9999 HH:MM:SS.SSS":U
   ENABLE
