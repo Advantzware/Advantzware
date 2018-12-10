@@ -610,10 +610,10 @@ DEFINE FRAME F-Main
      "Taxable:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 16.14 COL 11
      "Tax Information" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 15.33 COL 4
+          SIZE 16 BY .62 AT ROW 15.33 COL 4
           FGCOLOR 9 FONT 4
      "Credit Information" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 6.95 COL 4
+          SIZE 18 BY .62 AT ROW 6.95 COL 4
           FGCOLOR 9 FONT 4
      "FOB:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 8.67 COL 83.2
