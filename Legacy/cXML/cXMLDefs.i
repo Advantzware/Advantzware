@@ -78,6 +78,7 @@ DEFINE TEMP-TABLE ttOrdLines NO-UNDO
     FIELD ttitemDescription             AS CHARACTER 
     FIELD ttitemUnitOfMeasure           AS CHARACTER 
     FIELD ttItemDueDate                 AS CHARACTER
+    FIELD ttChangePurpose               AS CHARACTER
     .
 DEFINE TEMP-TABLE ttOrdSchedShipments NO-UNDO
     FIELD ttpayLoadID         AS CHARACTER

@@ -37,10 +37,34 @@ DEFINE VARIABLE has_shipto_address AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE note_array         AS CHARACTER NO-UNDO EXTENT 9.    /* 9810 CAH */
 DEFINE TEMP-TABLE ttRecsCreated 
  FIELD saveRow AS ROWID .
-/* ********************  Preprocessor Definitions  ******************** */
+/* ********************  Function Definitions  ******************** */
+FUNCTION getDesc RETURNS CHARACTER (ipcCode AS CHARACTER):
+    DEFINE VARIABLE cDesc AS CHARACTER NO-UNDO.
+    CASE ipcCode:
+        WHEN "CP" THEN 
+            cDesc = "Change to PO".
+        WHEN "RZ" THEN 
+            cDesc = "Replace Values".
+        WHEN "KN" THEN 
+            cDesc = "Cancel Order".
+        OTHERWISE 
+        cDesc = ipcCode.
+    END CASE. 
+    RETURN cDesc.
+END FUNCTION.
 
-
+FUNCTION addRptLine RETURNS CHARACTER (ipcText AS CHARACTER, ipcFullText AS CHARACTER):
+    DEFINE VARIABLE cNL AS CHARACTER NO-UNDO INIT "\n".
+    DEFINE VARIABLE cNewText AS CHARACTER NO-UNDO.
+    IF ipcText NE ? THEN 
+      cNewText = ipcFullText + ipcText + cNL.
+    ELSE 
+      cNewText = ipcFullText.
+    RETURN cNewText.
+END FUNCTION.
 /* ***************************  Main Block  *************************** */
+
+
 ws_company = cocode.
 RUN createEdiRecs.
 FIND FIRST ttRecsCreated NO-ERROR.
@@ -238,6 +262,7 @@ FOR EACH ttOrdHead:
             edpoline.description[2] = second_description
             edpoline.size-desc      = item_size
             edpoline.color-desc     = item_color
+            EDPOLine.Special-svc-code = ttOrdLines.ttChangePurpose
             .
     END. /* EACH ttOrdLines*/
 END. /* EACH ttOrdHead */
@@ -253,6 +278,7 @@ PROCEDURE process860:
     DEFINE BUFFER bf-edPoTran FOR edPoTran.
     DEFINE BUFFER bf-edPOline FOR edPoLine.
     DEFINE BUFFER bf-eddoc FOR eddoc.
+    DEFINE VARIABLE cBody AS CHARACTER NO-UNDO.
    
 
     FOR EACH ttRecsCreated, 
@@ -283,25 +309,27 @@ PROCEDURE process860:
             NO-ERROR.
             MESSAGE "bfedpotran found" avail(bf-edpotran)
             VIEW-AS ALERT-BOX.
+          cBody = "".
           IF AVAILABLE bf-edPoTran THEN DO:
-             BUFFER-COMPARE edPoTran TO bf-edPoTran SAVE RESULT IN cBufferDiff.
+             BUFFER-COMPARE edPoTran EXCEPT seq rec_key TO bf-edPoTran SAVE RESULT IN cBufferDiff.
               CREATE BUFFER bufEdPOTran FOR TABLE "edPoTran".
               CREATE QUERY qryEdPoTran.
               qryEdPoTran:SET-BUFFERS(bufEdPoTran).
-              rMatchRow= bf-edPoTran.seq.
+              rMatchRow= edPoTran.seq.
               qryEdPoTran:QUERY-PREPARE("FOR EACH edPoTran WHERE edPoTran.seq = " + STRING(rMatchRow)).
               qryEdPoTran:QUERY-OPEN().
               qryEdPoTran:GET-FIRST().            
              OUTPUT TO c:\temp\860Report.
-             PUT UNFORMATTED SESSION:TEMP-DIRECTORY skip.
-             PUT UNFORMATTED "Sequence: " edPoTran.seq SKIP.
-             PUT UNFORMATTED "PO#: " edPOTran.cust-po SKIP.
-             PUT UNFORMATTED "Cust#: " ws_partner SKIP.
-             PUT UNFORMATTED cBufferDiff SKIP.
+             cBody = addRptLine("Change Purpose: " + getDesc(EDPOTran.Purpose-code), cBody).
+              /* PUT UNFORMATTED SESSION:TEMP-DIRECTORY skip. */
+              cBody = addRptLine("Sequence: " + STRING(edPoTran.seq), cBody).
+              cBody = addRptLine("PO#: " + edPOTran.cust-po, cBody).
+              cBody = addRptLine("Cust#: " + ws_partner, cBody).
+              cBody = addRptLine(" " , cBody).
              DO ix = 1 TO bufEdPOTran:NUM-FIELDS:
                  fh[ix] = bufEdPOTran:buffer-field(ix).
                  IF LOOKUP(fh[ix]:name, cBufferDiff) > 0 THEN
-                   PUT UNFORMATTED fh[ix]:NAME  + ": " + STRING(fh[ix]:BUFFER-VALUE) SKIP.
+                     cBody = addRptLine(FILL(" ", 30 - LENGTH(fh[ix]:NAME)) + fh[ix]:NAME  + " " + STRING(fh[ix]:BUFFER-VALUE), cBody).
              END.
              OUTPUT CLOSE.
               qryEdPoTran:QUERY-CLOSE.
@@ -317,26 +345,32 @@ PROCEDURE process860:
                       AND bf-edPoLine.Cust-po-line EQ edPoLine.cust-po-line
                     NO-ERROR.
                  IF AVAILABLE bf-edPoLine THEN DO:
-                     BUFFER-COMPARE edPoLine TO bf-edPoLine SAVE RESULT IN cBufferDiff.
+                     BUFFER-COMPARE edPoLine EXCEPT seq rec_key TO bf-edPoLine SAVE RESULT IN cBufferDiff.
                      CREATE BUFFER bufEdPOTran FOR TABLE "edPoLine".
                      CREATE QUERY qryEdPoTran.
                      qryEdPoTran:SET-BUFFERS(bufEdPoTran).
-                     rMatchRow = bf-edPoLine.seq.
+                     rMatchRow = edPoLine.seq.
                      qryEdPoTran:QUERY-PREPARE("FOR EACH edPoLine WHERE edPoLine.seq = " + STRING(rMatchRow)).
                      qryEdPoTran:QUERY-OPEN().
                      qryEdPoTran:GET-FIRST().                     
                      OUTPUT TO c:\temp\860Report append.
-                     PUT UNFORMATTED cBufferDiff SKIP.
+                     PUT UNFORMATTED SKIP(1).
+                     cBody = addRptLine("For Line Number: " +  EDPOLine.cust-po-line, cBody).
+                     cBody = addRptLine("Change Purpose: " + getDesc(EDPOLine.Special-svc-code), cBody).
                      DO ix = 1 TO bufEdPOTran:NUM-FIELDS:
                          fh[ix] = bufEdPOTran:buffer-field(ix).
                          IF LOOKUP(fh[ix]:name, cBufferDiff) > 0 THEN
-                             PUT UNFORMATTED fh[ix]:NAME  + ": " + STRING(fh[ix]:BUFFER-VALUE) SKIP.
+                             cBody = addRptLine(FILL(" ", 30 - length(fh[ix]:NAME)) + fh[ix]:NAME  + " " + STRING(fh[ix]:BUFFER-VALUE), cBody).
                      END.                 
                      OUTPUT CLOSE.
                      qryEdPoTran:QUERY-CLOSE.
                      bufEdPOTran:BUFFER-RELEASE.
                      DELETE OBJECT bufEdPOTran.
                      DELETE OBJECT qryEdPoTran. 
+                     MESSAGE "body" cBody
+                     VIEW-AS ALERT-BOX.
+                     OS-COMMAND "C:\Users\brad\Downloads\CMail_0.7.9b\CMail.exe"  value("-host:wade.kaldawi@advantzware.com:Chester1!@smtp.office365.com:587~
+ -from:wade.kaldawi@advantzware.com -to:wade.kaldawi@advantzware.com -subject:Test -body:" + '"' + cBody + '"' + " -starttls").
                  END. /* if avail matching edPoline */
              END. /* each edPoLine */
           END. /* if avail matching edPOTran */

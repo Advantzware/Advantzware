@@ -20,7 +20,7 @@ define input-output parameter table for ttOrdLines.
 define input-output parameter table for ttOrdSchedShipments.
 FIND FIRST ttNodes NO-ERROR.
 
-for each ttNodes:
+FOR EACH ttNodes:
   
   /* Values that apply to muliple data elements */
   IF NodeName EQ "ISA06" THEN 
@@ -92,7 +92,7 @@ for each ttNodes:
     CASE ttNodes.nodeName:
       WHEN "BEG03" OR WHEN "BCH03" THEN 
         ttOrdHead.ttorderID = ttNodes.nodeValue.      
-      WHEN "BEG01" OR WHEN "BCH01" THEN 
+      WHEN "BEG01" OR WHEN "BCH02" THEN 
             ttOrdHead.setPurpose = ttNodes.nodeValue.         
     END CASE.
     MESSAGE "ttordhead.ttordid" ttordhead.ttorderid SKIP "purpose" ttordhead.setpurpose
