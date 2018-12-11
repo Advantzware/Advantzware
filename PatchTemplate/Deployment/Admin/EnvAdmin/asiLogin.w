@@ -4,9 +4,8 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: 
-
-  Description: 
+  File:             asiLogin.w
+  Description:      General login program for ASI application
 
   Input Parameters:
       <none>
@@ -368,7 +367,7 @@ IF SEARCH(cMapDir + "\" + cAdminDir + "\advantzware.ini") EQ ? THEN DO:
 END.
 
 /* Find the .usr file containing user-level settings */
-RUN ipFindUsrFile.
+RUN ipFindUsrFile ("advantzware.usr").
 IF cUsrLoc EQ "" THEN DO:
     MESSAGE
         "Unable to locate an 'advantzware.usr' file." SKIP
@@ -640,15 +639,16 @@ DO:
     RUN ipFindUser IN THIS-PROCEDURE.
     
     IF NOT AVAIL ttUsers THEN DO:
-        if fwd-embedded-mode then
-            return no-apply "Unable to locate this user in the advantzware.usr file." +
+        IF fwd-embedded-mode THEN 
+            RETURN NO-APPLY "Unable to locate this user in the advantzware.usr file." +
                             "Please contact your system administrator for assistance.".
-        else do:
-        MESSAGE
-            "Unable to locate this user in the advantzware.usr file." SKIP
-            "Please contact your system administrator for assistance."
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN NO-APPLY.
+        ELSE DO:
+            MESSAGE
+                "Unable to locate this user in the advantzware.usr file." SKIP
+                "Please contact your system administrator for assistance."
+                VIEW-AS ALERT-BOX ERROR.
+            RETURN NO-APPLY.
+        END.
     END.
     ELSE DO:
         ASSIGN
@@ -1054,17 +1054,12 @@ PROCEDURE ipClickOk :
     /* This is the normal operation for Mode choices */
     IF NOT cbMode = "Monitor Users" THEN DO: 
         /* Set current dir */
-        IF &IF DEFINED(FWD-VERSION) > 0 &THEN RT-OPSYS &ELSE OPSYS &ENDIF = "unix" THEN
-            cPathSep = "/".
-        RUN ipSetCurrentDir (cMapDir + cPathSep + cEnvDir + cPathSep + cbEnvironment).
+        RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
         IF INDEX(cRunPgm,"mainmenu") <> 0
         AND iEnvLevel LT 16080000
         AND (SEARCH("system/mainmenu2.r") NE ? 
             OR SEARCH("system/mainmenu2.w") NE ?) THEN ASSIGN
             cRunPgm = "system/mainmenu2.w".
-        if FWD-EMBEDDED-MODE then 
-            RUN VALUE(cRunPgm) persistent.
-        else
         RUN VALUE(cRunPgm).
     END.
     /* This is only used to monitor users */
@@ -1075,7 +1070,7 @@ PROCEDURE ipClickOk :
         OS-COMMAND VALUE(cCmdString).
     END.
     
-    if not FWD-EMBEDDED-MODE then QUIT.
+    QUIT.
     
 END PROCEDURE.
 
