@@ -34,8 +34,7 @@ FOR EACH ttNodes:
   IF ttNodes.nodeName EQ "ST01" AND ttNodes.nodeValue GT "" THEN 
   DO:
       iPayLoadNum  = iPayLoadNum  + 1.
-  MESSAGE "create ttordhead"
-  VIEW-AS ALERT-BOX.
+
       CREATE ttOrdHead.
       ASSIGN 
           ttOrdHead.ttpayLoadID    = STRING(iPayLoadNum)
@@ -61,9 +60,6 @@ FOR EACH ttNodes:
   
   IF ttNodes.nodeName EQ "PO101" OR ttnodes.nodeName EQ "POC01" THEN DO:
     iCurrentOrdLine = INTEGER(ttNodes.nodeValue).
-      MESSAGE "creating ttordlines ipayload" iPayLoadNum SKIP 
-          "ord line" iCurrentOrdLine
-          VIEW-AS ALERT-BOX.
 
     CREATE ttOrdLines.
     ASSIGN ttOrdLines.ttpayLoadID      = STRING(iPayLoadNum)
@@ -95,8 +91,6 @@ FOR EACH ttNodes:
       WHEN "BEG01" OR WHEN "BCH02" THEN 
             ttOrdHead.setPurpose = ttNodes.nodeValue.         
     END CASE.
-    MESSAGE "ttordhead.ttordid" ttordhead.ttorderid SKIP "purpose" ttordhead.setpurpose
-    VIEW-AS ALERT-BOX.
   END.
   
   IF ttNodes.nodeName BEGINS "N1" 

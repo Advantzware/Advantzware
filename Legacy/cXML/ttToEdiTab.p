@@ -108,13 +108,11 @@ ASSIGN
   
 FOR EACH ttOrdHead:
     ws_docid = ttOrdHead.ttOrderID.
-    MESSAGE "assign dcoid" ws_docid
-    VIEW-AS ALERT-BOX.
+
     RUN ed/gendoc.p (RECID(edcode), ws_docid, OUTPUT ws_eddoc_rec).
     /* creates eddoc, assigns opening values */
     FIND eddoc WHERE RECID(eddoc) = ws_eddoc_rec EXCLUSIVE.
-    MESSAGE "doc type for eddoc" ttOrdHead.ttDoctype skip "eddoc.po" docid
-    VIEW-AS ALERT-BOX.
+
     ASSIGN
         eddoc.docseq      = INTEGER(location_number)
         eddoc.st-code     = ttOrdHead.ttshipToID
@@ -221,12 +219,10 @@ FOR EACH ttOrdHead:
                                             THEN STRING(ttOrdLines.ttItemLineNumber )
                                             ELSE STRING(edpoline.line)
         NO-ERROR. 
-        MESSAGE "already avail edpoiline?" avail(edpoline)
-            VIEW-AS ALERT-BOX.
+
         IF NOT AVAILABLE edpoline THEN
         DO:
-            MESSAGE "create edpoilne"
-            VIEW-AS ALERT-BOX.
+
             CREATE edpoline.
             ASSIGN
                 edpoline.partner   = edpotran.partner
@@ -285,8 +281,7 @@ PROCEDURE process860:
       FIRST eddoc WHERE ROWID(eddoc) EQ ttRecsCreated.saveRow:
       
       IF AVAILABLE eddoc THEN DO:
-          MESSAGE "avail ttrecs" eddoc.partner SKIP eddoc.docID SKIP eddoc.seq
-              VIEW-AS ALERT-BOX.
+
           /* Match the 850 to the 860 by PO# */
           FIND FIRST bf-eddoc NO-LOCK 
             WHERE bf-eddoc.setID EQ "850"
@@ -299,16 +294,11 @@ PROCEDURE process860:
               AND edpotran.seq EQ eddoc.seq
             NO-ERROR.
             
-            MESSAGE "eddoc 850 found" AVAILABLE(eddoc) skip
-            "ws_part" ws_partner skip
-            "custspo" edPoTran.cust-po
-            VIEW-AS ALERT-BOX.
           FIND FIRST bf-edPoTran NO-LOCK 
             WHERE bf-edPoTran.seq EQ bf-eddoc.seq
               AND bf-edPOTran.partner EQ bf-eddoc.partner
             NO-ERROR.
-            MESSAGE "bfedpotran found" avail(bf-edpotran)
-            VIEW-AS ALERT-BOX.
+
           cBody = "".
           IF AVAILABLE bf-edPoTran THEN DO:
              BUFFER-COMPARE edPoTran EXCEPT seq rec_key TO bf-edPoTran SAVE RESULT IN cBufferDiff.
@@ -367,8 +357,6 @@ PROCEDURE process860:
                      bufEdPOTran:BUFFER-RELEASE.
                      DELETE OBJECT bufEdPOTran.
                      DELETE OBJECT qryEdPoTran. 
-                     MESSAGE "body" cBody
-                     VIEW-AS ALERT-BOX.
                      OS-COMMAND "C:\Users\brad\Downloads\CMail_0.7.9b\CMail.exe"  value("-host:wade.kaldawi@advantzware.com:Chester1!@smtp.office365.com:587~
  -from:wade.kaldawi@advantzware.com -to:wade.kaldawi@advantzware.com -subject:Test -body:" + '"' + cBody + '"' + " -starttls").
                  END. /* if avail matching edPoline */

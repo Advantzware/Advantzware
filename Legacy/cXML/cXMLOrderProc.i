@@ -103,9 +103,7 @@ PROCEDURE assignOrderHeader:
     DEFINE BUFFER bf-shipto-state FOR shipto.
     FIND FIRST ttOrdHead NO-ERROR.
     FIND FIRST ttordlines NO-ERROR.
-    MESSAGE "avail ttordhead?" avail(ttordhead) ttordhead.ttcustno skip
-    "lines?" avail(ttordlines)
-    VIEW-AS ALERT-BOX.
+
     FOR EACH ttOrdHead 
        WHERE /*ttOrdHead.ttSelectedOrder
          AND */ ttOrdHead.ttDocType NE "860":
@@ -357,8 +355,7 @@ PROCEDURE genTempOrderHeader:
 
     DEFINE BUFFER bf-shipto       FOR shipto.
     DEFINE BUFFER bf-shipto-state FOR shipto.
-    MESSAGE "in create order tt"
-    VIEW-AS ALERT-BOX.
+
     ASSIGN
         payLoadID         = getNodeValue('cXML','payloadID')
         fromIdentity      = getNodeValue('From','Identity')
@@ -449,8 +446,7 @@ PROCEDURE genTempOrderLines:
     DEFINE VARIABLE dRequestedDeliveryDate      AS DATE      NO-UNDO.
         
     FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
-MESSAGE "in create tt lines"
-VIEW-AS ALERT-BOX.
+
     FOR EACH ttNodes:
         ASSIGN
             dRequestedDeliveryDate = oe-ord.due-date
@@ -494,9 +490,8 @@ VIEW-AS ALERT-BOX.
             FIND FIRST ttOrdHead WHERE /* ttOrdHead.ttSelected EQ TRUE */ NO-ERROR.
             IF NOT AVAILABLE ttOrdHead THEN 
               RETURN.
-             MESSAGE "create ttordlines"
-             VIEW-AS ALERT-BOX.
-             CREATE ttOrdLines.
+
+            CREATE ttOrdLines.
             ASSIGN                           
                 ttOrdLines.ttpayLoadID                   = ttOrdHead.ttpayLoadID
                 ttOrdLines.ttItemLineNumber              = itemLineNumber               
@@ -670,8 +665,7 @@ PROCEDURE gencXMLOrder:
   FIND FIRST ttNodes NO-LOCK
         WHERE ttNodes.nodeName BEGINS "ISA" 
         NO-ERROR. 
-  MESSAGE "avail node isa" avail(ttnodes)
-  VIEW-AS ALERT-BOX.
+
   lIsEdiXml = (IF AVAILABLE ttNodes THEN YES ELSE NO).
 
   IF NOT lIsEdiXML THEN DO:
@@ -712,8 +706,7 @@ PROCEDURE gencXMLOrder:
           orderdate = substring(orderDate, 1, 4) + "-" + substring(orderDate, 5, 2) + "-" + substring(orderDate, 7, 2) /* "2018 11 05" */
           custNo = getCustNo(fromIdentity)
           .
-MESSAGE "fromid" fromIdentity "cust" custNo
-VIEW-AS ALERT-BOX.
+
       RUN cxml\xmltoOrderGE.p (INPUT TABLE ttNodes, INPUT-OUTPUT TABLE ttOrdHead , INPUT-OUTPUT TABLE ttOrdLines, INPUT-OUTPUT TABLE ttOrdSchedShipments).
   END.
   EACH-ORDER:
