@@ -1023,7 +1023,7 @@ form
 form
   inv-misc.charge at 10 label "Charge"
   inv-misc.dscr label "Description"
-  inv-misc.po-no LABEL "Customer PO#"
+  inv-misc.po-no LABEL "Customer PO#" format "x(30)"
   inv-misc.amt format "->>,>>>,>>9.99" to 132 label "Price"
   skip
   with down STREAM-IO width 132 no-box frame ordm.
@@ -1031,7 +1031,7 @@ form
 form
   inv-misc.charge at 10 label "Charge"
   inv-misc.dscr label "Description"
-  inv-misc.po-no LABEL "Customer PO#"
+  inv-misc.po-no LABEL "Customer PO#" format "x(30)"
   inv-misc.cost format "->>,>>>,>>9.99" to 132 label "Cost"
   inv-misc.amt format "->>,>>>,>>9.99" label "Price"
   ld-margin format "->>,>>9.99" column-label "!Margin%"
