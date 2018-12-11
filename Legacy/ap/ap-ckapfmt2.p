@@ -30,31 +30,33 @@ FORM
    /* "----------"       AT 46
     "----------"        AT 57
     "----------"        AT 71   */ SKIP
-    "TOTALS:"            AT 38
-    cInvAmt            TO 55 FORMAT "$->>,>>9.99" 
-    cdis               TO 66 FORMAT "$->>,>>9.99" 
-    ctot               TO 80 FORMAT "$->>,>>9.99"
+    "<c40>" "TOTALS:"            
+    "<c47>" cInvAmt            FORMAT "$->>,>>9.99" 
+    "<c60>" cdis               FORMAT "$->>,>>9.99" 
+    "<c72>" ctot               FORMAT "$->>,>>9.99"
     WITH FRAME b3 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE.
 
-FORM SKIP(2)
-    company.NAME AT 1 bank.bank-name AT 34
-    ap-chk.check-no AT 70   SKIP
-    v-comp-add1 AT 1 cBankAdd1 AT 34 SKIP
-    v-comp-add2 AT 1 cBankAdd2 AT 34 SKIP
-    v-comp-add3 AT 1 cBankAdd3 AT 34 SKIP(2)
-    "DATE" AT 52
-    "AMOUNT" AT 75 SKIP(2)
-    ap-chk.check-date AT 52 FORMAT "99/99/9999"
-    ctot               TO 80 FORMAT "**,***,**9.99" SKIP(2)
-    "Pay" AT 1
-    dol AT 5 SKIP(3)
-    vend.remit         AT 10
-    add1               AT 10
-    add2               AT 10
-    csz                AT 10
+FORM SKIP(1)
+    "<b><c1>" company.NAME  "<c38>" bank.bank-name 
+    "<c72>" ap-chk.check-no   SKIP
+    "<c1>" v-comp-add1 "<c38>" cBankAdd1 SKIP
+    "<c1>" v-comp-add2 "<c38>" cBankAdd2  SKIP
+    "<c1>" v-comp-add3 "<c38>" cBankAdd3  SKIP(2)
+    "<c57>DATE"
+    "<c69>AMOUNT</b>"  SKIP(2)
+    "<c57>" ap-chk.check-date  FORMAT "99/99/9999"
+    "<c69>" ctot               FORMAT "**,***,**9.99" SKIP(2)
+    "<b>Pay</b>" AT 1
+    dol  "<R-0.5>         ____________________________________________________________________________"
+    SKIP(1)
+    "to the Order of:<b>"  AT 10
+    vend.remit         AT 20
+    add1               AT 20
+    add2               AT 20
+    csz "</b>"         AT 20   "Signature _________________________________" AT 100 
     SKIP(1)                              
 
-    WITH FRAME b1 WIDTH 85 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE.
+    WITH FRAME b1 WIDTH 150 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE.
 
 FIND FIRST company WHERE company.company EQ cocode NO-LOCK. 
 FIND FIRST bank WHERE bank.company = cocode AND bank.bank-code = x-bank NO-ERROR.
@@ -184,26 +186,26 @@ DO:       /* production mode */
 
             IF ll EQ 0 THEN 
             DO:  
-                PUT "</Progress>".
+                PUT "</Progress><FArial>".
 
-                DISPLAY SKIP
-                    company.NAME
-                    "Check Number   " AT 56
-                    TRIM(STRING(ap-chk.check-no,">>>>>>"))  FORMAT "x(6)" AT 72  SKIP(1)
+                DISPLAY /*SKIP*/
+                    "<b>"company.NAME
+                    "<c55>Check Number   <c70></b>" 
+                    TRIM(STRING(ap-chk.check-no,">>>>>>"))  FORMAT "x(6)"   SKIP(1)
                     "To:" AT 1
                     v-vend-no
-                    "Date  " AT 56
-                    ap-chk.check-date AT 72
+                    "<c55><b>Date   </b><c70>" 
+                    ap-chk.check-date 
                     SKIP(1)
                     WITH WIDTH 85 NO-LABELS STREAM-IO NO-BOX FRAME xyz.
 
-                PUT "Invoice Number"     AT 1
-                    "Date"            AT 16
-                    "Description"     AT 27
-                    "Amount"        AT 50
-                    "Discount"      AT 59
-                    "Paid Amount"         AT 70
-                    "  " AT 1.
+                PUT "<b><c1>Invoice Number"     
+                    "<c15>Date"            
+                    "<c25>Description"    
+                    "<c49>Amount"        
+                    "<c60>Discount"      
+                    "<c72>Paid Amount</b>"  SKIP       
+                    .
             END.
 
             ASSIGN
@@ -213,7 +215,7 @@ DO:       /* production mode */
                 cgrossl           = cgrossl + ap-sel.amt-paid /*+ ap-sel.disc-amt) */
                 cgross            = cgross + cgrossl
                 cInvAmt           = cInvAmt + IF ap-inv.gross GT 0 THEN ap-inv.gross ELSE ap-inv.net.
-                cBankCode = STRING(ap-chk.check-no,">>>>>>") + "   " + STRING(bank.RTN,">>>>>>>>>") + "   " + STRING(bank.bk-act,"x(14)").
+                cBankCode = "C" + STRING(ap-chk.check-no,">>>>>>") + "C" + "   A" + STRING(bank.RTN,">>>>>>>>>") + "A   " + STRING(bank.bk-act + "B","x(15)") .
             CREATE wrk-chk.
             ASSIGN
                 wrk-chk.inv-no   = ap-sel.inv-no
@@ -224,12 +226,12 @@ DO:       /* production mode */
                 wrk-chk.line-amt = cgrossl
                 wrk-chk.cDscr    = IF wrk-chk.inv-amt LT 0 THEN "Credit" ELSE "".
 
-            PUT wrk-chk.inv-no                TO 12 FORMAT "x(12)"
-                wrk-chk.inv-date              TO 25 FORMAT "99/99/9999"
-                wrk-chk.cDscr                 TO 41 FORMAT "x(15)"
-                wrk-chk.inv-amt               TO 55 FORMAT "$->>,>>9.99"
-                wrk-chk.disc-amt              TO 66 FORMAT "$->>,>>9.99"
-                wrk-chk.amt-paid              TO 80 FORMAT "$->>,>>9.99".
+           PUT "<c1>" wrk-chk.inv-no                 FORMAT "x(12)"
+               "<c15>" wrk-chk.inv-date              FORMAT "99/99/9999"
+               "<c25>" wrk-chk.cDscr                 FORMAT "x(15)"
+               "<c47>" wrk-chk.inv-amt               FORMAT "$->>,>>9.99"
+               "<c60>" wrk-chk.disc-amt              FORMAT "$->>,>>9.99"
+               "<c72>" wrk-chk.amt-paid              FORMAT "$->>,>>9.99" SKIP.
 
             ASSIGN
                 ll      = ll + 1
@@ -243,9 +245,9 @@ DO:       /* production mode */
                 DO:
                     checks-avail = YES.
 
-                    PUT SKIP "<C46>" "----------"       
-                        "<C57>" "----------"     
-                        "<C71>" "----------"  SKIP.
+                    PUT SKIP "<C47>---------------"       
+                        "<C60>-------------"     
+                        "<C72>---------------"  SKIP.
 
                     DISPLAY cInvAmt
                         cdis   
@@ -277,13 +279,13 @@ DO:       /* production mode */
                         WITH NO-LABELS STREAM-IO NO-BOX FRAME b1.
                     
                     PUT "<FMICR Encoding><P20>"
-                        "<c15>" cBankCode FORMAT "x(30)"
-                        "<FCourier New><P12>".
+                        "<c15>" cBankCode FORMAT "x(50)"
+                        "<FCourier New><FArial><P12>".
                 END.
      
                 ELSE 
                 DO:
-                    DISPLAY SKIP(2)
+                    DISPLAY SKIP(8)
                         "V   V      OOO       III      DDDD"   AT 10 SKIP
                         "V   V     O   O       I       D   D"  AT 10 SKIP
                         "V   V     O   O       I       D   D"  AT 10 SKIP
@@ -294,33 +296,34 @@ DO:       /* production mode */
                         WITH FRAME u NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE.
                     ll-void = YES.
                 END.
+
+              
                 DISPLAY SKIP(1)
-                    company.NAME
-                    "Check Number   " AT 56
-                    TRIM(STRING(ap-chk.check-no,">>>>>>"))  FORMAT "x(6)" AT 72  SKIP(1)
+                    "<b>" company.NAME
+                    "<c55>Check Number   <c70></b>" 
+                    TRIM(STRING(ap-chk.check-no,">>>>>>"))  FORMAT "x(6)"   SKIP(1)
                     "To:" AT 1
                     v-vend-no
-                    "Date  " AT 56
-                    ap-chk.check-date AT 72
+                    "<c55><b>Date  </b><c70>" 
+                    ap-chk.check-date 
                     SKIP(1)
                     WITH WIDTH 85   NO-LABELS STREAM-IO NO-BOX FRAME abc1.
 
-                PUT "Invoice Number"     AT 1
-                    "Date"            AT 16
-                    "Description"     AT 27
-                    "Amount"        AT 50
-                    "Discount"      AT 59
-                    "Paid Amount"         AT 70
-                    "  " AT 1.
+                PUT "<b><c1>Invoice Number"     
+                    "<c15>Date"            
+                    "<c25>Description"    
+                    "<c49>Amount"        
+                    "<c60>Discount"      
+                    "<c72>Paid Amount</b>" SKIP .
       
                 lv-line-cnt = 0.
                 FOR EACH wrk-chk:
-                    PUT wrk-chk.inv-no            TO 12 FORMAT "x(12)"
-                        wrk-chk.inv-date              TO 25 FORMAT "99/99/9999"
-                        wrk-chk.cDscr                 TO 41 FORMAT "x(15)"
-                        wrk-chk.inv-amt               TO 55 FORMAT "$->>,>>9.99"
-                        wrk-chk.disc-amt              TO 66 FORMAT "$->>,>>9.99"
-                        wrk-chk.amt-paid              TO 80 FORMAT "$->>,>>9.99".
+                   PUT "<c1>"  wrk-chk.inv-no             FORMAT "x(12)"
+                       "<c15>" wrk-chk.inv-date           FORMAT "99/99/9999"
+                       "<c25>" wrk-chk.cDscr              FORMAT "x(15)"
+                       "<c47>" wrk-chk.inv-amt            FORMAT "$->>,>>9.99"
+                       "<c60>" wrk-chk.disc-amt           FORMAT "$->>,>>9.99"
+                       "<c72>" wrk-chk.amt-paid           FORMAT "$->>,>>9.99" SKIP.
 
 
                     DELETE wrk-chk.
@@ -329,9 +332,10 @@ DO:       /* production mode */
 
                 IF LAST(ap-sel.inv-no) THEN 
                 DO: 
-                    PUT SKIP "<C46>" "----------"       
-                        "<C57>" "----------"     
-                        "<C71>" "----------"  SKIP.
+                     PUT SKIP "<C47>---------------"       
+                        "<C60>-------------"     
+                        "<C72>---------------"  SKIP.
+
 
                     DISPLAY cInvAmt
                         cdis   
