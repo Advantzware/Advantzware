@@ -1452,6 +1452,9 @@ DEFINE VARIABLE iOldvalueDock AS INTEGER NO-UNDO .
   
   
 /*   RUN ship-zip. */
+IF glShipNotesExpanded THEN 
+    ASSIGN oldShiptoNote = ship_note.
+     
 ASSIGN 
     iOldvalueTrans = integer(shipto.del-time)
     iOldvalueDock  = spare-int-2  .
@@ -1503,7 +1506,7 @@ ASSIGN
                      TRIM(shipto.notes[3]) + "|" +
                      TRIM(shipto.notes[4]).
   
-  IF oldShiptoNote NE ship_note THEN DO:
+  IF glShipNotesExpanded AND oldShiptoNote NE ship_note THEN DO:
       RUN oe\d-shp2nt.w(INPUT shipto.company, 
                         INPUT shipto.cust-no, 
                         INPUT shipto.ship-id,
