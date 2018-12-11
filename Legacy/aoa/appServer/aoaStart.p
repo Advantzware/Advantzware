@@ -2,17 +2,18 @@
 
 DEFINE INPUT PARAMETER cStartup AS CHARACTER NO-UNDO .
 
-DEFINE VARIABLE hProc AS HANDLE NO-UNDO .
-
-IF CONNECTED (LDBNAME (1)) AND LDBNAME (1) EQ "ASI" THEN DO: 
-    CREATE ALIAS nosweat FOR DATABASE VALUE (LDBNAME (1)). 
-    CREATE ALIAS emptrack FOR DATABASE VALUE (LDBNAME (1)). 
-    CREATE ALIAS jobs FOR DATABASE VALUE (LDBNAME (1)). 
-    CREATE ALIAS rfq FOR DATABASE VALUE (LDBNAME (1)). 
-    CREATE ALIAS asihelp FOR DATABASE VALUE (LDBNAME (1)). 
-    CREATE ALIAS asihlp FOR DATABASE VALUE (LDBNAME (1)). 
-    CREATE ALIAS asinos FOR DATABASE VALUE (LDBNAME (1)). 
+IF CONNECTED(LDBNAME(1)) AND LDBNAME(1) EQ "ASI" THEN DO: 
+    CREATE ALIAS nosweat FOR DATABASE VALUE(LDBNAME (1)). 
+    CREATE ALIAS emptrack FOR DATABASE VALUE(LDBNAME (1)). 
+    CREATE ALIAS jobs FOR DATABASE VALUE(LDBNAME (1)). 
+    CREATE ALIAS rfq FOR DATABASE VALUE(LDBNAME (1)). 
+    CREATE ALIAS asihelp FOR DATABASE VALUE(LDBNAME (1)). 
+    CREATE ALIAS asihlp FOR DATABASE VALUE(LDBNAME (1)). 
+    CREATE ALIAS asinos FOR DATABASE VALUE(LDBNAME (1)). 
 END. 
+
+DEFINE VARIABLE hProc    AS HANDLE  NO-UNDO.
+DEFINE VARIABLE iAuditID AS INTEGER NO-UNDO.
 
 RUN AOA\appServer\aoaBin.p PERSISTENT SET hProc.
 SESSION:ADD-SUPER-PROCEDURE (hProc).
@@ -65,6 +66,18 @@ SESSION:ADD-SUPER-PROCEDURE (hProc).
 RUN system\session.p PERSISTENT SET hProc.
 SESSION:ADD-SUPER-PROCEDURE (hProc).
 
-OUTPUT TO 'aoaStart.log' APPEND.
-PUT UNFORMATTED '[' REPLACE(STRING(NOW),' ','@') '] AdvantzwareOA' SKIP.
-OUTPUT CLOSE.
+RUN spCreateAuditHdr (
+    "LOG",       /* type  */
+    "ASI",       /* db    */
+    "aoaStart.", /* table */
+    "",          /* key   */
+    OUTPUT iAuditID
+    ).
+RUN spCreateAuditDtl (
+    iAuditID,        /* audit id    */
+    "AdvantzwareOA", /* field       */
+    0,               /* extent      */
+    STRING(TODAY,"99.99.9999") + " @ " + STRING(TIME,"hh:mm:ss"), /* before value */
+    "",              /* after value */
+    NO               /* index field */
+    ).
