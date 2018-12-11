@@ -1776,9 +1776,18 @@ FOR EACH tt-eb,
         v-booked = IF iOrder NE 0 AND cJob EQ "" 
                     THEN "Booked" ELSE "" .
 
-    ELSE IF rd_book EQ "Job" THEN 
+    ELSE IF rd_book EQ "Job" THEN do: 
         v-booked = IF iOrder EQ 0 AND cJob NE "" 
                     THEN "Booked" ELSE "" .
+       IF iOrder EQ 0 AND cJob NE "" THEN do:
+           FIND FIRST job NO-LOCK 
+               WHERE job.company EQ job-hdr.company
+                 AND job.job EQ job-hdr.job
+                 AND job.job-no EQ job-hdr.job-no NO-ERROR .
+           IF AVAIL job AND job.create-date NE ? THEN
+               v_ord-date = STRING(job.create-date,'99/99/9999') . 
+       END.
+    END.
     ELSE v-booked = IF iOrder NE 0 OR cJob NE ""
                     THEN "Booked" ELSE "" .
 
