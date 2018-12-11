@@ -1303,7 +1303,7 @@ PROCEDURE list-post-inv :
                             END.
                     END.
 
-                    IF dSumRelQty GE oe-ordl.qty AND 
+                    IF AVAILABLE oe-ordl AND  dSumRelQty GE oe-ordl.qty AND 
                         (CAN-FIND(oe-boll WHERE oe-boll.company EQ inv-line.company
                         AND oe-boll.b-no   EQ inv-line.b-no
                         AND oe-boll.ord-no EQ inv-line.ord-no
