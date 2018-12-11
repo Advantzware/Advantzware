@@ -419,7 +419,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   
-  RUN pBuildSearch .
+  
   
    /*&scoped-define key-phrase {&fld-name-2} >= ip-cur-val
    lv-search:screen-value in frame {&frame-name} = ip-cur-val.*/
@@ -428,6 +428,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
     lv-search:SCREEN-VALUE = "".
   END.
+  RUN pBuildSearch .
 
    RUN enable_UI.
    RUN new-rd-sort.
@@ -522,7 +523,8 @@ PROCEDURE pBuildSearch :
     DEFINE VARIABLE iItemNo AS CHARACTER NO-UNDO .
     DEFINE VARIABLE iJobNo AS CHARACTER NO-UNDO .
 
-    
+ DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN rd-sort.   
     IF rd-sort EQ 1 THEN
         ASSIGN cTagNo = lv-search .
     ELSE IF rd-sort EQ 2 THEN
@@ -535,7 +537,7 @@ PROCEDURE pBuildSearch :
 /*    Refactored this to improve index usage.  There will only be one sort order, and it will*/
 /*    determine which field is searched, and therefore which index to use.                   */
     
-    IF cTagNo NE "" THEN DO:
+    IF rd-sort EQ 1 THEN DO:
         FOR EACH loadtag NO-LOCK WHERE 
             loadtag.company = ip-company AND 
             loadtag.item-type = ip-itemtype AND
@@ -554,7 +556,7 @@ PROCEDURE pBuildSearch :
             IF iCount GE 3000 THEN LEAVE .
         END.
     END.
-    ELSE IF iItemNo NE "" THEN DO:
+    ELSE IF rd-sort EQ 2 THEN DO: 
         FOR EACH loadtag NO-LOCK WHERE 
             loadtag.company = ip-company AND 
             loadtag.item-type = ip-itemtype AND
@@ -573,7 +575,7 @@ PROCEDURE pBuildSearch :
             IF iCount GE 3000 THEN LEAVE .
         END.
     END.
-    ELSE IF iJobNo NE "" THEN DO:
+    ELSE IF rd-sort EQ 3 THEN DO:
         FOR EACH loadtag NO-LOCK WHERE 
             loadtag.company = ip-company AND 
             loadtag.item-type = ip-itemtype AND
@@ -586,12 +588,13 @@ PROCEDURE pBuildSearch :
             fg-bin.tag = loadtag.tag-no AND 
             fg-bin.qty > 0: 
             CREATE tt-loadtag .
-            BUFFER-COPY loadtag TO tt-loadtag .
+            BUFFER-COPY loadtag TO tt-loadtag .  
             ASSIGN 
                 iCount = iCount + 1 .
             IF iCount GE 3000 THEN LEAVE .
         END.
     END.
+ END.
 
 END PROCEDURE.
 
