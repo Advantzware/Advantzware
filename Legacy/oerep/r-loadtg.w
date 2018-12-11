@@ -1276,13 +1276,14 @@ DO:
              cust-part.i-no      LE end_i-no:SCREEN-VALUE AND
              cust-part.cust-no     EQ v-cust-no
              NO-LOCK NO-ERROR.
-
-     IF AVAIL cust-part THEN
+     
+     IF AVAIL cust-part AND cust-part.labelPallet <> "" THEN
         scr-label-file:SCREEN-VALUE = (IF cust-part.labelPallet <> "" THEN cust-part.labelPallet ELSE v-bardir-chr).
      ELSE
         IF INT(begin_ord-no:SCREEN-VALUE) NE 0 AND
            INT(end_ord-no:SCREEN-VALUE) NE 0 THEN
         DO:
+           
            FIND FIRST oe-rel WHERE
                 oe-rel.company EQ cocode AND
                 oe-rel.i-no    GE begin_i-no:SCREEN-VALUE AND
