@@ -1448,12 +1448,19 @@ DEF VAR ip-shipnotes AS CHAR NO-UNDO.
 
 DEFINE VARIABLE iOldvalueTrans AS INTEGER NO-UNDO .
 DEFINE VARIABLE iOldvalueDock AS INTEGER NO-UNDO .
+DEFINE VARIABLE cOldShipnotes AS CHARACTER NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
   
   
 /*   RUN ship-zip. */
 IF glShipNotesExpanded THEN 
     ASSIGN oldShiptoNote = ship_note.
+
+ASSIGN
+      cOldShipnotes = TRIM(shipto.notes[1]) + "|" +
+                      TRIM(shipto.notes[2]) + "|" +
+                      TRIM(shipto.notes[3]) + "|" +
+                      TRIM(shipto.notes[4]).
      
 ASSIGN 
     iOldvalueTrans = integer(shipto.del-time)
@@ -1506,7 +1513,8 @@ ASSIGN
                      TRIM(shipto.notes[3]) + "|" +
                      TRIM(shipto.notes[4]).
   
-  IF glShipNotesExpanded AND oldShiptoNote NE ship_note THEN DO:
+  IF (glShipNotesExpanded AND oldShiptoNote NE ship_note) OR
+       ( NOT glShipNotesExpanded AND cOldShipnotes NE ip-shipnotes) THEN DO:
       RUN oe\d-shp2nt.w(INPUT shipto.company, 
                         INPUT shipto.cust-no, 
                         INPUT shipto.ship-id,
