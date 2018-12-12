@@ -19,12 +19,15 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE VARIABLE hMainMenuHandle     AS HANDLE  NO-UNDO.
-DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cModule             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
 /* cue card variables */
-DEFINE VARIABLE iCueOrder           AS INTEGER NO-UNDO.
-DEFINE VARIABLE lNext               AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lCueCardActive      AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lNext               AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 
 {system/ttSysCtrlUsage.i}
 
@@ -370,6 +373,33 @@ PROCEDURE spCueCardFrame:
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
     iphWidget:MOVE-TO-TOP ().
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spGetTaskFilter) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetTaskFilter Procedure
+PROCEDURE spGetTaskFilter:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcModule    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcProgramID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcUserID    AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        opcModule    = cModule
+        opcProgramID = cProgramID
+        opcUserID    = cUserID
+        .
 
 END PROCEDURE.
 	
@@ -817,6 +847,33 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-spSetTaskFilter) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetTaskFilter Procedure
+PROCEDURE spSetTaskFilter:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcModule    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcProgramID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID    AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        cModule    = ipcModule
+        cProgramID = ipcProgramID
+        cUserID    = ipcUserID
+        .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 /* ************************  Function Implementations ***************** */
 
