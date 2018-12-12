@@ -542,11 +542,13 @@ END.
 ON LEAVE OF svPostDate IN FRAME F-Main /* Post Date */
 DO:
     ASSIGN {&SELF-NAME}.
-    RUN pCheckDate (svCompany, {&SELF-NAME}, OUTPUT lInvalid).
-    IF lInvalid THEN RETURN NO-APPLY.
-    RUN pValidateDate (svCompany, {&SELF-NAME}) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN
-    RETURN NO-APPLY.
+    IF {&SELF-NAME} NE ? THEN DO:
+        RUN pCheckDate (svCompany, {&SELF-NAME}, OUTPUT lInvalid).
+        IF lInvalid THEN RETURN /* NO-APPLY */ .
+        RUN pValidateDate (svCompany, {&SELF-NAME}) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN
+        RETURN NO-APPLY.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -704,10 +706,8 @@ PROCEDURE pCheckDate :
     RUN sys/inc/valtrndt.p
         (ipcCompany, ipdtDate, OUTPUT iPeriod) NO-ERROR.
     oplInvalid = ERROR-STATUS:ERROR.
-    IF oplInvalid THEN
-    APPLY "ENTRY" TO svPostDate IN FRAME {&FRAME-NAME}.
-    ELSE
-    svPeriod:SCREEN-VALUE = STRING(iPeriod).
+    IF NOT oplInvalid THEN
+    svPeriod:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(iPeriod).
 
 END PROCEDURE.
 
