@@ -100,8 +100,8 @@ DEFINE VARIABLE cTermPrefix        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE rCurrentInvHeadRow AS ROWID     NO-UNDO.
 DEFINE VARIABLE lFirstReportKey3   AS LOG       NO-UNDO.
 DEFINE VARIABLE lLastReportKey3    AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lUseLogs  AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cDebugLog AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lUseLogs           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cDebugLog          AS CHARACTER NO-UNDO.
 DEFINE STREAM sDebug.
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 DEFINE BUFFER bf-oe-boll FOR oe-boll.
@@ -111,7 +111,24 @@ RUN sys/ref/uom-ea.p (OUTPUT fg-uom-list).
 DEFINE TEMP-TABLE w-inv NO-UNDO 
     FIELD w-rowid AS ROWID.
 
+DEFINE TEMP-TABLE ttPreInvLine
+    FIELD oeBollRow AS ROWID 
+    FIELD oeBolhRow AS ROWID 
+    FIELD oeOrdlRow AS ROWID 
+    FIELD oeRellRow AS ROWID 
+    FIELD oeRelhRow AS ROWID 
+    FIELD custRow   AS ROWID 
+    FIELD oeOrdRow  AS ROWID
+    FIELD itemfgRow AS ROWID 
+    FIELD r-no    AS INTEGER 
+    FIELD tempInvLn AS INTEGER
+    FIELD po-no AS CHARACTER 
+    FIELD cust-no AS CHARACTER 
+    INDEX r-no r-no
+    .
+
 DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report.
+
 
 DEFINE VARIABLE upsFile AS CHARACTER NO-UNDO.
 DEFINE TEMP-TABLE ttblUPS NO-UNDO
@@ -151,6 +168,12 @@ DEFINE NEW SHARED VARIABLE v-auto     AS LOG   NO-UNDO.
 /* ************************  Function Prototypes ********************** */
 FUNCTION fLogMsg RETURNS CHARACTER 
     (INPUT ipcMessage AS CHARACTER) FORWARD.
+
+FUNCTION fnGetFOB RETURNS CHARACTER 
+    (ipcRecKey AS CHARACTER) FORWARD.
+
+FUNCTION fnGetShipto RETURNS ROWID 
+    (ipCompany AS char, ipCustNo AS CHARACTER, ipShipID AS CHARACTER) FORWARD.
 
 FUNCTION fTabChr RETURNS CHARACTER 
     (ipValue AS CHARACTER) FORWARD.
@@ -195,7 +218,7 @@ RUN ipProcessShipOnly.
 RUN ipCalcHeaderTotals.
 
 RUN ipUpsFile.
-
+RUN ipEndLog.
 DELETE OBJECT hNotesProcs.
 
 STATUS DEFAULT.
@@ -262,11 +285,11 @@ PROCEDURE ipCheckInvLn:
     /* spare-char-3 will contain the rowid of the inv-head at the time the inv-line was created */
     FOR EACH inv-line NO-LOCK 
         WHERE inv-line.spare-char-3 = STRING(iprInvHeadRow)    
-        AND NOT CAN-FIND(FIRST inv-head of inv-line) :
+        AND NOT CAN-FIND(FIRST inv-head OF inv-line) :
        
         FIND FIRST bf-inv-head WHERE ROWID(bf-inv-head) EQ iprInvHeadRow NO-LOCK NO-ERROR.
     
-        IF AVAIL bf-inv-head THEN 
+        IF AVAILABLE bf-inv-head THEN 
             iCorrectRno = bf-inv-head.r-no.
         ELSE
             iCorrectRno = 0.
@@ -301,6 +324,121 @@ PROCEDURE ipCheckPosted:
 
 END PROCEDURE.
 
+PROCEDURE ipCreateInvHead:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    DEFINE PARAMETER BUFFER bf-shipto  FOR shipto.
+    DEFINE PARAMETER BUFFER bf-oe-bolh FOR oe-bolh.
+    DEFINE PARAMETER BUFFER bf-oe-ord  FOR oe-ord.
+    DEFINE INPUT PARAMETER ipiRNo AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oprInvHeadRow AS ROWID NO-UNDO.
+    DEFINE BUFFER bf-cust FOR cust.
+    
+    FIND FIRST bf-cust NO-LOCK 
+        WHERE bf-cust.company EQ oe-ord.company
+        AND bf-cust.cust-no EQ oe-ord.cust-no
+        NO-ERROR. 
+      
+    CREATE inv-head.
+    ASSIGN
+        inv-head.sold-no      = bf-shipto.ship-id
+        inv-head.sold-name    = bf-shipto.ship-name
+        inv-head.sold-addr[1] = bf-shipto.ship-addr[1]
+        inv-head.sold-addr[2] = bf-shipto.ship-addr[2]
+        inv-head.sold-state   = bf-shipto.ship-state
+        inv-head.sold-city    = bf-shipto.ship-city
+        inv-head.sold-zip     = bf-shipto.ship-zip
+        inv-head.r-no         = ipiRNo
+        inv-head.company      = bf-oe-bolh.company
+        inv-head.bol-no       = bf-oe-bolh.bol-no
+        inv-head.bill-to      = bf-oe-bolh.cust-no
+        inv-head.cust-no      = bf-oe-bolh.cust-no
+        inv-head.frt-pay      = bf-oe-bolh.frt-pay
+        inv-head.carrier      = bf-oe-bolh.carrier
+        inv-head.ship-i[1]    = bf-oe-bolh.ship-i[1]
+        inv-head.ship-i[2]    = bf-oe-bolh.ship-i[2]
+        inv-head.ship-i[3]    = bf-oe-bolh.ship-i[3]
+        inv-head.ship-i[4]    = bf-oe-bolh.ship-i[4]
+        inv-head.fob-code     = (IF v-fob-code <> "" THEN v-fob-code ELSE bf-oe-ord.fob-code)
+        inv-head.contact      = bf-oe-ord.contact
+        inv-head.terms        = bf-oe-ord.terms
+        inv-head.terms-d      = bf-oe-ord.terms-d
+        inv-head.sman[1]      = bf-oe-ord.sman[1]
+        inv-head.sman[2]      = bf-oe-ord.sman[2]
+        inv-head.sman[3]      = bf-oe-ord.sman[3]
+        inv-head.s-pct[1]     = bf-oe-ord.s-pct[1]
+        inv-head.s-pct[2]     = bf-oe-ord.s-pct[2]
+        inv-head.s-pct[3]     = bf-oe-ord.s-pct[3]
+        inv-head.s-comm[1]    = bf-oe-ord.s-comm[1]
+        inv-head.s-comm[2]    = bf-oe-ord.s-comm[2]
+        inv-head.s-comm[3]    = bf-oe-ord.s-comm[3]
+        inv-head.f-bill       = NO
+        inv-head.tax-gr       = IF AVAILABLE bf-shipto AND bf-shipto.tax-code NE ""
+                           THEN bf-shipto.tax-code ELSE bf-oe-ord.tax-gr
+        inv-head.tot-ord      = 0
+        inv-head.inv-no       = 0
+        inv-head.stat         = ""
+        inv-head.deleted      = NO
+        inv-head.posted       = NO
+        inv-head.inv-date     = IF invdate-chr EQ "Current" THEN TODAY
+                           ELSE bf-oe-bolh.bol-date
+        inv-head.cust-name    = bf-cust.name
+        inv-head.addr[1]      = bf-cust.addr[1]
+        inv-head.addr[2]      = bf-cust.addr[2]
+        inv-head.city         = bf-cust.city
+        inv-head.state        = bf-cust.state
+        inv-head.zip          = bf-cust.zip
+        inv-head.curr-code[1] = bf-cust.curr-code        
+        oprInvHeadRow         = ROWID(inv-head)  
+        .
+    RUN CopyShipNote IN hNotesProcs (bf-oe-bolh.rec_key, inv-head.rec_key).
+    
+    IF invStatus-log THEN
+        inv-head.stat = "W".
+  
+    /*    FIND FIRST usergrps WHERE                                                                               */
+    /*        usergrps.usergrps = "IN"                                                                            */
+    /*        NO-LOCK NO-ERROR.                                                                                   */
+    /*                                                                                                            */
+    /*    IF AVAILABLE usergrps AND TRIM(usergrps.users) NE "" THEN                                               */
+    /*    DO:                                                                                                     */
+    /*        ASSIGN                                                                                              */
+    /*            v-line-count = 0                                                                                */
+    /*            v-start-pos  = 1.                                                                               */
+    /*                                                                                                            */
+    /*        DO li = 1 TO LENGTH(usergrps.users):                                                                */
+    /*            ls = SUBSTR(usergrps.users,li,1).                                                               */
+    /*                                                                                                            */
+    /*            IF v-line-count < 5 AND ls EQ CHR(10) OR ls EQ CHR(13) THEN                                     */
+    /*                ASSIGN                                                                                      */
+    /*                    v-line-count                  = v-line-count + 1                                        */
+    /*                    inv-head.bill-i[v-line-count] = SUBSTR(usergrps.users,v-start-pos,li - v-start-pos)     */
+    /*                    v-start-pos                   = li + 1.                                                 */
+    /*                                                                                                            */
+    /*            IF v-line-count < 5 AND li = LENGTH(usergrps.users) AND                                         */
+    /*                NOT(ls EQ CHR(10) OR ls EQ CHR(13)) THEN                                                    */
+    /*                ASSIGN                                                                                      */
+    /*                    v-line-count                  = v-line-count + 1                                        */
+    /*                    inv-head.bill-i[v-line-count] = SUBSTR(usergrps.users,v-start-pos,li - v-start-pos + 1).*/
+    /*        END.                                                                                                */
+    /*                                                                                                            */
+    /*        RELEASE usergrps.                                                                                   */
+    /*    END.                                                                                                    */
+
+    DO li = 1 TO 4:
+        IF inv-head.bill-i[li] = "" THEN
+            inv-head.bill-i[li] = bf-oe-ord.bill-i[li].
+    END.
+
+    CREATE w-inv.
+    w-rowid = ROWID(inv-head).
+
+
+END PROCEDURE.
+
 PROCEDURE ipCreateInvLine:
     /*------------------------------------------------------------------------------
      Purpose:
@@ -313,6 +451,7 @@ PROCEDURE ipCreateInvLine:
     DEFINE INPUT  PARAMETER ipdOrdDate AS DATE NO-UNDO.
     DEFINE INPUT  PARAMETER ipdRelPrice AS DECIMAL NO-UNDO.
     DEFINE INPUT  PARAMETER iprInvHeadRow AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiTempInvLn AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER oprInvLinerow AS ROWID NO-UNDO.
 
     CREATE inv-line.
@@ -356,13 +495,14 @@ PROCEDURE ipCreateInvLine:
         inv-line.lot-no       = bf-oe-boll.lot-no
         inv-line.spare-char-3 = STRING(iprInvHeadRow)
         inv-line.spare-char-4 = v-term
+        inv-line.spare-int-2  = ipiTempInvLn
         .
     
     IF bf-oe-boll.zeroPrice EQ 1 THEN
         inv-line.price = 0.
     ELSE IF bf-oe-boll.sell-price NE 0 THEN
             inv-line.price = oe-boll.sell-price.
-    oprInvLinerow = rowid(inv-line).
+    oprInvLinerow = ROWID(inv-line).
 END PROCEDURE.
 
 PROCEDURE ipCreateUPS:
@@ -396,6 +536,16 @@ PROCEDURE ipCreateUPS:
 
 END PROCEDURE.
 
+PROCEDURE ipEndLog:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    OUTPUT STREAM sDebug CLOSE. 
+    OS-APPEND VALUE(cDebugLog) VALUE("custfiles\logs\" + "oebolp3Errors.log") .
+
+END PROCEDURE.
+
 PROCEDURE ipGetOeRelSCode:
     /*------------------------------------------------------------------------------
      Purpose:
@@ -404,23 +554,23 @@ PROCEDURE ipGetOeRelSCode:
     /* This should be in a common function library */
     DEFINE INPUT  PARAMETER iprOeRelRow AS ROWID       NO-UNDO.
     DEFINE OUTPUT PARAMETER opcS-code AS CHARACTER   NO-UNDO.
-    DEF BUFFER bf-oe-rel FOR oe-rel.
-    DEF VAR v-reltype   AS CHAR NO-UNDO.
-    DEF VAR ll-transfer AS LOG  NO-UNDO.
+    DEFINE BUFFER bf-oe-rel FOR oe-rel.
+    DEFINE VARIABLE v-reltype   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE ll-transfer AS LOG       NO-UNDO.
 
     FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ iprOeRelRow NO-LOCK NO-ERROR.
 
     /* task 04011103*/
     FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
         AND sys-ctrl.name EQ "RelType" NO-LOCK NO-ERROR.
-    IF AVAIL sys-ctrl THEN
+    IF AVAILABLE sys-ctrl THEN
         FIND FIRST sys-ctrl-shipto OF sys-ctrl WHERE sys-ctrl-shipto.cust-vend-no = oe-ordl.cust-no
             AND sys-ctrl-ship.ship-id = bf-oe-rel.ship-id NO-LOCK NO-ERROR.
-    IF NOT AVAIL sys-ctrl-shipto THEN
+    IF NOT AVAILABLE sys-ctrl-shipto THEN
         FIND FIRST sys-ctrl-shipto OF sys-ctrl WHERE sys-ctrl-shipto.cust-vend-no = oe-ordl.cust-no
             AND sys-ctrl-ship.ship-id = "" NO-LOCK NO-ERROR.
-    IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.log-fld THEN v-reltype = sys-ctrl-shipto.char-fld.
-    ELSE IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN v-reltype = sys-ctrl.char-fld.
+    IF AVAILABLE sys-ctrl-shipto AND sys-ctrl-shipto.log-fld THEN v-reltype = sys-ctrl-shipto.char-fld.
+    ELSE IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN v-reltype = sys-ctrl.char-fld.
 
     opcS-code = /*IF v-reltype <> "" THEN reftable.CODE
                      ELSE */ IF ll-transfer            THEN "T"
@@ -439,6 +589,8 @@ PROCEDURE ipPostBols:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iNextTempLn AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cCurrentCust AS CHARACTER NO-UNDO.
     rCurrentInvHeadRow = ?.
     FOR EACH report WHERE report.term-id EQ v-term,
 
@@ -487,16 +639,61 @@ PROCEDURE ipPostBols:
 
         lFirstReportKey3 = (IF FIRST-OF(report.key-03) THEN TRUE ELSE FALSE).
         lLastReportKey3 = (IF LAST-OF(report.key-03) THEN TRUE ELSE FALSE).
-        /* Note: oe-bolp3 requires locks on oe-ord, oe-ordl, oe-bolh, oe-boll */
-        RUN ipPostSingleBOL.
-    
+                
+        /* get next invoice num */
+        IF FIRST-OF(report.key-03) THEN
+            ASSIGN v-ref-no    = NEXT-VALUE(inv_r_no_seq)
+                   cCurrentCust= oe-bolh.cust-no
+                   .
+            
+        /* Assign an invoice number to each row */
+        CREATE ttPreInvLine.
+        ASSIGN 
+            ttPreInvLine.oeBollRow = ROWID(oe-boll)
+            ttPreInvLine.oeBolhRow = ROWID(oe-bolh)  
+            ttPreInvLine.oeOrdlRow = ROWID(oe-ordl)
+            ttPreInvLine.oeRellRow = ROWID(oe-rell)
+            ttPreInvLine.oeRelhRow = ROWID(oe-relh)
+            ttPreInvLine.custRow   = ROWID(cust)  
+            ttPreInvLine.oeOrdRow  = ROWID(oe-ord) 
+            ttPreInvLine.itemfgRow = ROWID(itemfg)
+            ttPreInvLine.po-no     = report.key-07
+            ttPreInvLine.r-no    = v-ref-no
+            ttPreInvLine.cust-no = cCurrentCust
+            .
         CREATE tt-report.
         BUFFER-COPY report TO tt-report.
         DELETE report.
             
     END.
- 
-
+    
+    /* Assign a line number to each record */
+    iNextTempLn = 0.
+    FOR EACH ttPreInvLine,
+        FIRST oe-boll NO-LOCK 
+        WHERE ROWID(oe-boll) EQ ttPreInvLine.oeBollRow 
+        BREAK BY oe-boll.r-no  
+        BY oe-boll.ord-no
+        BY oe-boll.b-no  
+        BY oe-boll.i-no  
+        BY oe-boll.line  
+        BY oe-boll.po-no 
+        BY oe-boll.lot-no:
+               
+        IF (invlotline-log EQ NO AND FIRST-OF(oe-boll.po-no))
+            OR (invlotline-log EQ YES AND FIRST-OF(oe-boll.lot-no)) THEN             
+            iNextTempLn = iNextTempLn + 1.
+              
+        ttPreInvLine.tempInvLn = iNextTempLn.              
+           
+    END.
+    
+    /* Do actual posting */
+    FOR EACH ttPreInvLine 
+        BREAK BY ttPreInvLine.r-no:
+        IF FIRST-OF(ttPreInvLine.r-no) THEN 
+            RUN ipPostSingleBOL (INPUT ttPreInvLine.r-no).
+    END. 
 
 END PROCEDURE.
 
@@ -505,428 +702,325 @@ PROCEDURE ipPostSingleBOL:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipCurrentRNo AS INTEGER NO-UNDO.
     DEFINE VARIABLE rCreatedInvLine AS ROWID NO-UNDO.
+    DEFINE VARIABLE rCreatedInvHead AS ROWID NO-UNDO.
+    DEFINE VARIABLE rShipToRow      AS ROWID NO-UNDO.
+    DEFINE BUFFER bf-ttPreInvLine FOR ttPreInvLine.
     RELEASE inv-head.
 
-    IF rCurrentInvHeadRow NE ? THEN 
-        FIND FIRST inv-head WHERE ROWID(inv-head) EQ rCurrentInvHeadRow NO-ERROR.
-
-    IF lFirstReportKey3                  
-       OR NOT AVAILABLE inv-head                  
-       OR inv-head.cust-no NE oe-bolh.cust-no THEN 
-    DO:
-       
-        /* Original Code */  
-        v-ref-no = NEXT-VALUE(inv_r_no_seq). 
-       
-  
-        RUN oe/custxship.p (oe-bolh.company,
-            oe-bolh.cust-no,
-            oe-bolh.ship-id,
-            BUFFER shipto).
+    FOR EACH bf-ttPreInvLine 
+        WHERE bf-ttPreInvLine.r-no EQ ipCurrentRNo 
+        BREAK BY bf-ttPreInvLine.r-no:
+            
+        FIND FIRST oe-boll EXCLUSIVE-LOCK 
+            WHERE ROWID(oe-boll) EQ bf-ttPreInvLine.oeBollRow.           
+        FIND FIRST oe-bolh EXCLUSIVE-LOCK 
+            WHERE ROWID(oe-bolh) EQ bf-ttPreInvLine.oeBolhRow.           
+        FIND FIRST oe-ordl EXCLUSIVE-LOCK 
+            WHERE ROWID(oe-ordl) EQ bf-ttPreInvLine.oeOrdlRow.                      
+        FIND FIRST oe-rell NO-LOCK 
+            WHERE ROWID(oe-rell) EQ bf-ttPreInvLine.oeRellRow.           
+        FIND FIRST oe-relh EXCLUSIVE-LOCK 
+            WHERE ROWID(oe-relh) EQ bf-ttPreInvLine.oeRelhRow.           
+        FIND FIRST cust NO-LOCK 
+            WHERE ROWID(cust)    EQ bf-ttPreInvLine.custRow.             
+        FIND FIRST oe-ord EXCLUSIVE-LOCK 
+            WHERE ROWID(oe-ord)  EQ bf-ttPreInvLine.oeOrdRow.            
+        FIND FIRST itemfg NO-LOCK 
+            WHERE ROWID(itemfg)  EQ bf-ttPreInvLine.itemfgRow.            
         
-        IF NOT AVAILABLE shipto THEN
-            FIND FIRST shipto NO-LOCK
-                WHERE shipto.company EQ oe-bolh.company
-                AND shipto.cust-no EQ oe-bolh.cust-no
-                USE-INDEX ship-no NO-ERROR.
-
-        FIND FIRST reftable WHERE
-            reftable.reftable EQ "oe-bolh.lot-no" AND
-            reftable.rec_key  EQ oe-bolh.rec_key
-            USE-INDEX rec_key
-            NO-LOCK NO-ERROR.
-
-        IF AVAILABLE reftable THEN
-            ASSIGN v-fob-code = IF reftable.CODE EQ "O" THEN "ORIG"
-                          ELSE IF reftable.CODE EQ "D" THEN "DEST"
-                          ELSE reftable.CODE.
-        ELSE
-            ASSIGN v-fob-code = "".        
-        RELEASE reftable.
-       
-        CREATE inv-head.
-        ASSIGN
-            inv-head.sold-no      = shipto.ship-id
-            inv-head.sold-name    = shipto.ship-name
-            inv-head.sold-addr[1] = shipto.ship-addr[1]
-            inv-head.sold-addr[2] = shipto.ship-addr[2]
-            inv-head.sold-state   = shipto.ship-state
-            inv-head.sold-city    = shipto.ship-city
-            inv-head.sold-zip     = shipto.ship-zip
-            inv-head.r-no         = v-ref-no
-            inv-head.company      = oe-bolh.company
-            inv-head.bol-no       = oe-bolh.bol-no
-            inv-head.bill-to      = oe-bolh.cust-no
-            inv-head.cust-no      = oe-bolh.cust-no
-            inv-head.frt-pay      = oe-bolh.frt-pay
-            inv-head.carrier      = oe-bolh.carrier
-            inv-head.ship-i[1]    = oe-bolh.ship-i[1]
-            inv-head.ship-i[2]    = oe-bolh.ship-i[2]
-            inv-head.ship-i[3]    = oe-bolh.ship-i[3]
-            inv-head.ship-i[4]    = oe-bolh.ship-i[4]
-            inv-head.fob-code     = (IF v-fob-code <> "" THEN v-fob-code ELSE oe-ord.fob-code)
-            inv-head.contact      = oe-ord.contact
-            inv-head.terms        = oe-ord.terms
-            inv-head.terms-d      = oe-ord.terms-d
-            inv-head.sman[1]      = oe-ord.sman[1]
-            inv-head.sman[2]      = oe-ord.sman[2]
-            inv-head.sman[3]      = oe-ord.sman[3]
-            inv-head.s-pct[1]     = oe-ord.s-pct[1]
-            inv-head.s-pct[2]     = oe-ord.s-pct[2]
-            inv-head.s-pct[3]     = oe-ord.s-pct[3]
-            inv-head.s-comm[1]    = oe-ord.s-comm[1]
-            inv-head.s-comm[2]    = oe-ord.s-comm[2]
-            inv-head.s-comm[3]    = oe-ord.s-comm[3]
-            inv-head.f-bill       = NO
-            inv-head.tax-gr       = IF AVAILABLE shipto AND shipto.tax-code NE ""
-                           THEN shipto.tax-code ELSE oe-ord.tax-gr
-            inv-head.tot-ord      = 0
-            inv-head.inv-no       = 0
-            inv-head.stat         = ""
-            inv-head.deleted      = NO
-            inv-head.posted       = NO
-            inv-head.inv-date     = IF invdate-chr EQ "Current" THEN TODAY
-                           ELSE oe-bolh.bol-date
-            inv-head.cust-name    = cust.name
-            inv-head.addr[1]      = cust.addr[1]
-            inv-head.addr[2]      = cust.addr[2]
-            inv-head.city         = cust.city
-            inv-head.state        = cust.state
-            inv-head.zip          = cust.zip
-            inv-head.curr-code[1] = cust.curr-code
-            rCurrentInvHeadRow    = ROWID(inv-head)
-            .
-        RUN CopyShipNote IN hNotesProcs (oe-bolh.rec_key, inv-head.rec_key).
-    
-        IF invStatus-log THEN
-            inv-head.stat = "W".
-  
-        FIND FIRST usergrps WHERE
-            usergrps.usergrps = "IN"
-            NO-LOCK NO-ERROR.
-
-        IF AVAILABLE usergrps AND TRIM(usergrps.users) NE "" THEN
-        DO:
-            ASSIGN
-                v-line-count = 0
-                v-start-pos  = 1.
-
-            DO li = 1 TO LENGTH(usergrps.users):
-                ls = SUBSTR(usergrps.users,li,1).
-       
-                IF v-line-count < 5 AND ls EQ CHR(10) OR ls EQ CHR(13) THEN
-                    ASSIGN
-                        v-line-count                  = v-line-count + 1
-                        inv-head.bill-i[v-line-count] = SUBSTR(usergrps.users,v-start-pos,li - v-start-pos)
-                        v-start-pos                   = li + 1.
-     
-                IF v-line-count < 5 AND li = LENGTH(usergrps.users) AND
-                    NOT(ls EQ CHR(10) OR ls EQ CHR(13)) THEN
-                    ASSIGN
-                        v-line-count                  = v-line-count + 1
-                        inv-head.bill-i[v-line-count] = SUBSTR(usergrps.users,v-start-pos,li - v-start-pos + 1).
-            END.
-     
-            RELEASE usergrps.
-        END.
-
-        DO li = 1 TO 4:
-            IF inv-head.bill-i[li] = "" THEN
-                inv-head.bill-i[li] = oe-ord.bill-i[li].
-        END.
-
-        CREATE w-inv.
-        w-rowid = ROWID(inv-head).
-    END. /* first {1}.{2} */
-
-    IF oe-bolh.freight NE 0 AND inv-head.frt-pay EQ "B" THEN inv-head.f-bill = YES.
-
-    FOR EACH oe-ordm
-        WHERE oe-ordm.company EQ oe-boll.company
-        AND oe-ordm.ord-no  EQ oe-boll.ord-no
-        AND oe-ordm.bill    EQ "Y":
-          
-        CREATE inv-misc.
-        BUFFER-COPY oe-ordm EXCEPT rec_key TO inv-misc
-            ASSIGN
-            inv-misc.r-no           = inv-head.r-no
-            inv-misc.posted         = NO
-            inv-misc.deleted        = NO
-            inv-misc.inv-i-no       = oe-ordm.ord-i-no
-            inv-misc.inv-line       = oe-ordm.ord-line
-            inv-misc.s-commbasis[1] = oe-ordm.commbasis[1]
-            oe-ordm.bill = "I".   /** Set billing flag to (I)nvoiced **/
-    END.
-
-    FIND FIRST job-hdr
-        WHERE job-hdr.company EQ oe-boll.company
-        AND job-hdr.loc     EQ oe-boll.loc
-        AND job-hdr.i-no    EQ oe-boll.i-no
-        AND job-hdr.ord-no  EQ oe-boll.ord-no
-        AND job-hdr.job-no  EQ oe-ordl.job-no
-        AND job-hdr.job-no2 EQ oe-ordl.job-no2
-        NO-LOCK NO-ERROR.
-
-    /** update release **/
-
-    ASSIGN
-        oe-relh.ship-no   = oe-bolh.ship-no
-        oe-relh.ship-id   = oe-bolh.ship-id
-        oe-relh.ship-i[1] = oe-bolh.ship-i[1]
-        oe-relh.ship-i[2] = oe-bolh.ship-i[2]
-        oe-relh.ship-i[3] = oe-bolh.ship-i[3]
-        oe-relh.ship-i[4] = oe-bolh.ship-i[4].
-    RUN CopyShipNote IN hNotesProcs (oe-bolh.rec_key, oe-relh.rec_key).
-
-    IF oe-rell.link-no EQ 0 THEN 
-    DO:
-        FIND FIRST oe-rel
-            WHERE oe-rel.company  EQ oe-rell.company
-            AND oe-rel.ord-no   EQ oe-rell.ord-no
-            AND oe-rel.line     EQ oe-rell.line
-            AND oe-rel.i-no     EQ oe-rell.i-no
-            AND oe-rel.ship-id  EQ oe-relh.ship-id
-            AND oe-rel.link-no  EQ 0
+        /* validate single customer for invoices by r-no */
+        IF oe-bolh.cust-no NE bf-ttPreInvLine.cust-no THEN 
+            fLogMsg("Error:  Mixed cust-no for an r-no: " + STRING(bf-ttPreInvLine.r-no)).
+        FIND FIRST inv-head EXCLUSIVE-LOCK 
+            WHERE inv-head.r-no  EQ ipCurrentRNo
             NO-ERROR.
+         
+        IF NOT AVAILABLE inv-head THEN  
+        DO:
+       
+            /* Original Code */  
+            /* v-ref-no = NEXT-VALUE(inv_r_no_seq).*/
+            v-ref-no = bf-ttPreInvLine.r-no. 
+       
+            rShipToRow = fnGetShipto(oe-bolh.company, oe-bolh.cust-no, oe-bolh.ship-id).
+            FIND FIRST shipto NO-LOCK 
+                WHERE ROWID(shipto) EQ rShipToRow
+                NO-ERROR.
+                
+            v-fob-code = fnGetFOB(oe-bolh.rec_key).
+            
+            RUN ipCreateInvHead (BUFFER shipto, BUFFER oe-bolh, BUFFER oe-ord, INPUT v-ref-no, OUTPUT rCreatedInvHead).
+            FIND FIRST inv-head EXCLUSIVE-LOCK 
+                WHERE ROWID(inv-head) EQ rCreatedInvHead
+                NO-ERROR. 
+            rCurrentInvHeadRow    = ROWID(inv-head).
+        
+        END. /* not avail inv-head */
 
-        IF NOT AVAILABLE oe-rel THEN
+        IF oe-bolh.freight NE 0 AND inv-head.frt-pay EQ "B" THEN inv-head.f-bill = YES.
+
+        FOR EACH oe-ordm
+            WHERE oe-ordm.company EQ oe-boll.company
+            AND oe-ordm.ord-no  EQ oe-boll.ord-no
+            AND oe-ordm.bill    EQ "Y":
+          
+            CREATE inv-misc.
+            BUFFER-COPY oe-ordm EXCEPT rec_key TO inv-misc
+                ASSIGN
+                inv-misc.r-no           = inv-head.r-no
+                inv-misc.posted         = NO
+                inv-misc.deleted        = NO
+                inv-misc.inv-i-no       = oe-ordm.ord-i-no
+                inv-misc.inv-line       = oe-ordm.ord-line
+                inv-misc.s-commbasis[1] = oe-ordm.commbasis[1]
+                oe-ordm.bill = "I".   /** Set billing flag to (I)nvoiced **/
+        END.
+
+        /** update release **/
+
+        ASSIGN
+            oe-relh.ship-no   = oe-bolh.ship-no
+            oe-relh.ship-id   = oe-bolh.ship-id
+            oe-relh.ship-i[1] = oe-bolh.ship-i[1]
+            oe-relh.ship-i[2] = oe-bolh.ship-i[2]
+            oe-relh.ship-i[3] = oe-bolh.ship-i[3]
+            oe-relh.ship-i[4] = oe-bolh.ship-i[4].
+        RUN CopyShipNote IN hNotesProcs (oe-bolh.rec_key, oe-relh.rec_key).
+
+        IF oe-rell.link-no EQ 0 THEN 
+        DO:
             FIND FIRST oe-rel
                 WHERE oe-rel.company  EQ oe-rell.company
                 AND oe-rel.ord-no   EQ oe-rell.ord-no
                 AND oe-rel.line     EQ oe-rell.line
                 AND oe-rel.i-no     EQ oe-rell.i-no
+                AND oe-rel.ship-id  EQ oe-relh.ship-id
                 AND oe-rel.link-no  EQ 0
                 NO-ERROR.
-    END.
 
-    ELSE
-        FIND FIRST oe-rel
-            WHERE oe-rel.r-no EQ oe-rell.link-no
-            USE-INDEX seq-no NO-ERROR.
-
-    IF AVAILABLE oe-rel THEN 
-    DO:
-
-        ASSIGN
-            oe-rel.ship-no   = oe-relh.ship-no
-            oe-rel.ship-id   = oe-relh.ship-id
-            oe-rel.ship-i[1] = oe-relh.ship-i[1]
-            oe-rel.ship-i[2] = oe-relh.ship-i[2]
-            oe-rel.ship-i[3] = oe-relh.ship-i[3]
-            oe-rel.ship-i[4] = oe-relh.ship-i[4]
-            oe-rel.po-no     = report.key-07.
-   
-        RUN CopyShipNote IN hNotesProcs (oe-relh.rec_key, oe-rel.rec_key).
-    END. /* avail oe-rel */
-   
-    /** Use ship-no to find customer shipto because ship-no is the
-        primary index. **/
-    FIND FIRST shipto
-        WHERE shipto.company EQ oe-relh.company
-        AND shipto.cust-no EQ oe-relh.cust-no
-        AND shipto.ship-no EQ oe-relh.ship-no
-        NO-LOCK NO-ERROR.
-    IF AVAILABLE shipto AND AVAILABLE oe-rel THEN
-        ASSIGN
-            oe-rel.ship-addr[1] = shipto.ship-addr[1]
-            oe-rel.ship-addr[2] = shipto.ship-addr[2]
-            oe-rel.ship-city    = shipto.ship-city
-            oe-rel.ship-state   = shipto.ship-state
-            oe-rel.ship-zip     = shipto.ship-zip.
-    
-    ASSIGN
-        oe-bolh.posted = YES
-        oe-boll.posted = YES.
-
-    IF invlotline-log EQ NO THEN
-        FIND FIRST inv-line
-            WHERE inv-line.r-no   EQ inv-head.r-no
-            AND inv-line.ord-no EQ oe-boll.ord-no
-            AND inv-line.b-no   EQ oe-bolh.b-no
-            AND inv-line.i-no   EQ oe-boll.i-no
-            AND inv-line.line   EQ oe-boll.line
-            AND inv-line.po-no  EQ oe-boll.po-no
-            USE-INDEX r-no NO-ERROR.
-    ELSE
-    DO:
-        FIND FIRST inv-line
-            WHERE inv-line.r-no   EQ inv-head.r-no
-            AND inv-line.ord-no EQ oe-boll.ord-no
-            AND inv-line.b-no   EQ oe-bolh.b-no
-            AND inv-line.i-no   EQ oe-boll.i-no
-            AND inv-line.line   EQ oe-boll.line
-            AND inv-line.po-no  EQ oe-boll.po-no
-            AND inv-line.lot-no EQ oe-boll.lot-no
-            USE-INDEX r-no NO-ERROR.
-    END.
-    
-    IF NOT AVAILABLE inv-line THEN 
-    DO:
-        /* If not avail oe-rel then error */
-        RUN ipCreateInvLine (BUFFER oe-boll, BUFFER oe-ordl, inv-head.r-no,  oe-ord.est-type, oe-ord.ord-date, 
-                             (IF AVAILABLE(oe-rel) THEN oe-rel.price ELSE 0), ROWID(inv-head), OUTPUT rCreatedInvLine).
-        FIND FIRST inv-line EXCLUSIVE-LOCK WHERE ROWID(inv-line) EQ rCreatedInvLine NO-ERROR.
-
-    END. /* Create inv-line */
-    
-    ASSIGN
-        inv-line.t-weight      = inv-line.t-weight + oe-boll.weight
-        inv-head.t-inv-weight  = inv-head.t-inv-weight + oe-boll.weight
-        inv-line.t-freight     = inv-line.t-freight + oe-boll.freight
-        inv-head.t-inv-freight = inv-head.t-inv-freight + oe-boll.freight.
-
-    /* Moved to before extended price calc for inv-qty */
-    /** Increase invoice Qty when invoice or invoice & ship **/
-    IF oe-boll.s-code NE "S" AND NOT oe-ordl.is-a-component THEN
-        inv-line.inv-qty = inv-line.inv-qty + oe-boll.qty.
-  
-    /** Increase ship Qty when ship or invoice & ship **/
-    IF oe-boll.s-code NE "I"                                            OR
-        CAN-FIND(FIRST b-oe-ordl 
-        WHERE b-oe-ordl.company        EQ oe-ordl.company
-        AND b-oe-ordl.ord-no         EQ oe-ordl.ord-no
-        AND b-oe-ordl.is-a-component EQ YES
-        AND b-oe-ordl.set-hdr-line   EQ oe-ordl.line
-        ) THEN
-        inv-line.ship-qty = inv-line.ship-qty + oe-boll.qty.
-
-    IF AVAILABLE oe-rel THEN
-        RUN ipGetOeRelSCode (INPUT ROWID(oe-rel), OUTPUT cRelScode).
-
-    /** 12301405 - If ship only, price must be zero **/
-
-    oe-ordl.stat = "".
-
-    RUN oe/ordlsqty.p (ROWID(oe-ordl), OUTPUT oe-ordl.inv-qty, OUTPUT oe-ordl.ship-qty).
-    IF cRelScode EQ "S"  THEN
-        ASSIGN inv-line.qty     = 0 inv-line.price   = 0 inv-line.inv-qty = 0.
-
-    inv-line.t-price = inv-line.inv-qty / 1000 * inv-line.price.
-
-    IF inv-line.pr-uom BEGINS "L" AND inv-line.pr-uom NE "LB" THEN
-        inv-line.t-price = inv-line.price *
-            IF inv-line.inv-qty LT 0 THEN -1 ELSE IF inv-line.inv-qty EQ 0 THEN 0 ELSE 1.
-    ELSE IF inv-line.pr-uom EQ "CS" THEN
-            inv-line.t-price = inv-line.inv-qty /
-                (IF inv-line.cas-cnt NE 0 THEN
-                inv-line.cas-cnt
-                ELSE
-                IF itemfg.case-count NE 0 THEN
-                itemfg.case-count ELSE 1) *
-                inv-line.price.
-        ELSE IF LOOKUP(inv-line.pr-uom,fg-uom-list) GT 0 THEN
-                inv-line.t-price = inv-line.inv-qty * inv-line.price.
-            ELSE
-                FOR EACH uom
-                    WHERE uom.uom  EQ inv-line.pr-uom
-                    AND uom.mult NE 0
-                    NO-LOCK:
-                    inv-line.t-price = inv-line.inv-qty / uom.mult * inv-line.price.
-                    LEAVE.
-                END.
-    inv-line.t-price = ROUND(inv-line.t-price,2).
-
-    IF inv-line.disc NE 0 THEN
-        inv-line.t-price = 
-            IF ll-calc-disc-first THEN 
-            (inv-line.t-price - ROUND(inv-line.t-price * inv-line.disc / 100,2))
-            ELSE
-            ROUND(inv-line.t-price * (1 - (inv-line.disc / 100)),2).
-
-    RUN oe/invlcost.p (ROWID(inv-line),
-        OUTPUT v-cost[1], OUTPUT v-cost[2],
-        OUTPUT v-cost[3], OUTPUT v-cost[4],
-        OUTPUT inv-line.cost, OUTPUT inv-line.t-cost).
-
-    DO i = 1 TO 3:          /** Calculate Commission Amount **/
-        ASSIGN
-            inv-line.sname[i]  = oe-ord.sname[i]
-            inv-line.s-comm[i] = oe-ordl.s-comm[i]
-            inv-line.s-pct[i]  = oe-ordl.s-pct[i]
-            inv-line.sman[i]   = oe-ordl.s-man[i].
-    END.
-
-    DO i = 1 TO EXTENT(inv-line.sman):    /** Calculate Commission Amount **/
-        RUN custom/combasis.p (oe-boll.company, inv-line.sman[i], cust.type, itemfg.procat, 0,
-            cust.cust-no,
-            OUTPUT v-basis).
-
-        IF v-basis EQ "G" THEN
-            inv-line.comm-amt[i] = ROUND(((inv-line.t-price - inv-line.t-cost)
-                * inv-line.s-comm[i]) / 100,2).
+            IF NOT AVAILABLE oe-rel THEN
+                FIND FIRST oe-rel
+                    WHERE oe-rel.company  EQ oe-rell.company
+                    AND oe-rel.ord-no   EQ oe-rell.ord-no
+                    AND oe-rel.line     EQ oe-rell.line
+                    AND oe-rel.i-no     EQ oe-rell.i-no
+                    AND oe-rel.link-no  EQ 0
+                    NO-ERROR.
+        END.
 
         ELSE
-            inv-line.comm-amt[i] = ROUND((((inv-line.t-price
-                * inv-line.s-pct[i]) / 100)
-                * inv-line.s-comm[i]) / 100,2).        
-      
-    END.
+            FIND FIRST oe-rel
+                WHERE oe-rel.r-no EQ oe-rell.link-no
+                USE-INDEX seq-no NO-ERROR.
 
-    IF AVAILABLE oe-rel THEN
-        RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT oe-rel.stat).
+        IF AVAILABLE oe-rel THEN 
+        DO:
 
-    IF v-u-inv THEN 
-    DO:
-    {oe/oe-bolp.i "oe-ordl"}
- 
-    END.
+            ASSIGN
+                oe-rel.ship-no   = oe-relh.ship-no
+                oe-rel.ship-id   = oe-relh.ship-id
+                oe-rel.ship-i[1] = oe-relh.ship-i[1]
+                oe-rel.ship-i[2] = oe-relh.ship-i[2]
+                oe-rel.ship-i[3] = oe-relh.ship-i[3]
+                oe-rel.ship-i[4] = oe-relh.ship-i[4]
+                oe-rel.po-no     = bf-ttPreInvLine.po-no.
+   
+            RUN CopyShipNote IN hNotesProcs (oe-relh.rec_key, oe-rel.rec_key).
+        END. /* avail oe-rel */
+   
+        /** Use ship-no to find customer shipto because ship-no is the
+            primary index. **/
+        FIND FIRST shipto
+            WHERE shipto.company EQ oe-relh.company
+            AND shipto.cust-no EQ oe-relh.cust-no
+            AND shipto.ship-no EQ oe-relh.ship-no
+            NO-LOCK NO-ERROR.
+        IF AVAILABLE shipto AND AVAILABLE oe-rel THEN
+            ASSIGN
+                oe-rel.ship-addr[1] = shipto.ship-addr[1]
+                oe-rel.ship-addr[2] = shipto.ship-addr[2]
+                oe-rel.ship-city    = shipto.ship-city
+                oe-rel.ship-state   = shipto.ship-state
+                oe-rel.ship-zip     = shipto.ship-zip.
     
-    /** update order status **/
-    ASSIGN
-        oe-ord.stat          = "P"
-        oe-ord.inv-no        = 0
-        oe-ord.inv-date      = ?
-        oe-ord.t-inv-weight  = 0
-        oe-ord.t-inv-tax     = 0
-        oe-ord.t-inv-freight = 0
-        oe-ord.t-inv-rev     = 0
-        oe-ord.t-inv-cost    = 0.
+        ASSIGN
+            oe-bolh.posted = YES
+            oe-boll.posted = YES.
 
-    IF NOT v-u-inv THEN oe-bolh.w-ord = YES.
+        FIND FIRST inv-line EXCLUSIVE-LOCK 
+            WHERE inv-line.r-no EQ bf-ttPreInvLine.r-no
+              AND inv-line.spare-int-2 EQ bf-ttPreInvLine.tempInvln
+            NO-ERROR.
+    
+        IF NOT AVAILABLE inv-line THEN 
+        DO:
+            /* If not avail oe-rel then error */
+            RUN ipCreateInvLine (BUFFER oe-boll, BUFFER oe-ordl, inv-head.r-no,  oe-ord.est-type, oe-ord.ord-date, 
+                (IF AVAILABLE(oe-rel) THEN oe-rel.price ELSE 0), ROWID(inv-head), bf-ttPreInvLine.tempInvLn, OUTPUT rCreatedInvLine).
+            FIND FIRST inv-line EXCLUSIVE-LOCK WHERE ROWID(inv-line) EQ rCreatedInvLine NO-ERROR.
 
-    IF lLastReportKey3 AND AVAILABLE inv-head THEN 
-    DO:
-            
-        FIND xinv-head WHERE ROWID(xinv-head) EQ ROWID(inv-head) NO-LOCK NO-ERROR.
+        END. /* Create inv-line */
+    
+        ASSIGN
+            inv-line.t-weight      = inv-line.t-weight + oe-boll.weight
+            inv-head.t-inv-weight  = inv-head.t-inv-weight + oe-boll.weight
+            inv-line.t-freight     = inv-line.t-freight + oe-boll.freight
+            inv-head.t-inv-freight = inv-head.t-inv-freight + oe-boll.freight.
 
-        IF AVAILABLE xinv-head THEN
-            FOR EACH b-invl WHERE b-invl.r-no EQ inv-head.r-no NO-LOCK,
-                FIRST xoe-ord
-                WHERE xoe-ord.company EQ inv-line.company
-                AND xoe-ord.ord-no  EQ inv-line.ord-no
-                NO-LOCK
-                BREAK BY b-invl.b-no:
+        /* Moved to before extended price calc for inv-qty */
+        /** Increase invoice Qty when invoice or invoice & ship **/
+        IF oe-boll.s-code NE "S" AND NOT oe-ordl.is-a-component THEN
+            inv-line.inv-qty = inv-line.inv-qty + oe-boll.qty.
+  
+        /** Increase ship Qty when ship or invoice & ship **/
+        IF oe-boll.s-code NE "I"                                            OR
+            CAN-FIND(FIRST b-oe-ordl 
+            WHERE b-oe-ordl.company        EQ oe-ordl.company
+            AND b-oe-ordl.ord-no         EQ oe-ordl.ord-no
+            AND b-oe-ordl.is-a-component EQ YES
+            AND b-oe-ordl.set-hdr-line   EQ oe-ordl.line
+            ) THEN
+            inv-line.ship-qty = inv-line.ship-qty + oe-boll.qty.
+
+        IF AVAILABLE oe-rel THEN
+            RUN ipGetOeRelSCode (INPUT ROWID(oe-rel), OUTPUT cRelScode).
+
+        /** 12301405 - If ship only, price must be zero **/
+
+        oe-ordl.stat = "".
+
+        RUN oe/ordlsqty.p (ROWID(oe-ordl), OUTPUT oe-ordl.inv-qty, OUTPUT oe-ordl.ship-qty).
+        IF cRelScode EQ "S"  THEN
+            ASSIGN inv-line.qty     = 0 inv-line.price   = 0 inv-line.inv-qty = 0.
+
+        inv-line.t-price = inv-line.inv-qty / 1000 * inv-line.price.
+
+        IF inv-line.pr-uom BEGINS "L" AND inv-line.pr-uom NE "LB" THEN
+            inv-line.t-price = inv-line.price *
+                IF inv-line.inv-qty LT 0 THEN -1 ELSE IF inv-line.inv-qty EQ 0 THEN 0 ELSE 1.
+        ELSE IF inv-line.pr-uom EQ "CS" THEN
+                inv-line.t-price = inv-line.inv-qty /
+                    (IF inv-line.cas-cnt NE 0 THEN
+                    inv-line.cas-cnt
+                    ELSE
+                    IF itemfg.case-count NE 0 THEN
+                    itemfg.case-count ELSE 1) *
+                    inv-line.price.
+            ELSE IF LOOKUP(inv-line.pr-uom,fg-uom-list) GT 0 THEN
+                    inv-line.t-price = inv-line.inv-qty * inv-line.price.
+                ELSE
+                    FOR EACH uom
+                        WHERE uom.uom  EQ inv-line.pr-uom
+                        AND uom.mult NE 0
+                        NO-LOCK:
+                        inv-line.t-price = inv-line.inv-qty / uom.mult * inv-line.price.
+                        LEAVE.
+                    END.
+        inv-line.t-price = ROUND(inv-line.t-price,2).
+
+        IF inv-line.disc NE 0 THEN
+            inv-line.t-price = 
+                IF ll-calc-disc-first THEN 
+                (inv-line.t-price - ROUND(inv-line.t-price * inv-line.disc / 100,2))
+                ELSE
+                ROUND(inv-line.t-price * (1 - (inv-line.disc / 100)),2).
+
+        RUN oe/GetCostInvl.p (ROWID(inv-line),
+            OUTPUT v-cost[1], OUTPUT v-cost[2],
+            OUTPUT v-cost[3], OUTPUT v-cost[4],
+            OUTPUT inv-line.cost, OUTPUT inv-line.spare-char-2, 
+            OUTPUT inv-line.t-cost, OUTPUT inv-line.spare-char-1).
+
+        DO i = 1 TO 3:          /** Calculate Commission Amount **/
+            ASSIGN
+                inv-line.sname[i]  = oe-ord.sname[i]
+                inv-line.s-comm[i] = oe-ordl.s-comm[i]
+                inv-line.s-pct[i]  = oe-ordl.s-pct[i]
+                inv-line.sman[i]   = oe-ordl.s-man[i]. 
+        END.
+
+        DO i = 1 TO EXTENT(inv-line.sman):    /** Calculate Commission Amount **/
+            RUN custom/combasis.p (oe-boll.company, inv-line.sman[i], cust.type, itemfg.procat, 0,
+                cust.cust-no,
+                OUTPUT v-basis).
+
+            IF v-basis EQ "G" THEN
+                inv-line.comm-amt[i] = ROUND(((inv-line.t-price - inv-line.t-cost)
+                    * inv-line.s-comm[i]) / 100,2).
+
+            ELSE
+                inv-line.comm-amt[i] = ROUND((((inv-line.t-price
+                    * inv-line.s-pct[i]) / 100)
+                    * inv-line.s-comm[i]) / 100,2).        
       
-                /* Lookup Price Matrix for Billable Shipto */
-                IF inv-head.cust-no EQ inv-head.sold-no                          AND
-                    inv-head.cust-no NE xoe-ord.cust-no                           AND
-                    CAN-FIND(FIRST oe-prmtx
-                    {oe/oe-prmtxW.i}
+        END.
+
+        IF AVAILABLE oe-rel THEN
+            RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT oe-rel.stat).
+
+        IF v-u-inv THEN 
+        DO:
+        {oe/oe-bolp.i "oe-ordl"}
+ 
+        END.
+    
+        /** update order status **/
+        ASSIGN
+            oe-ord.stat          = "P"
+            oe-ord.inv-no        = 0
+            oe-ord.inv-date      = ?
+            oe-ord.t-inv-weight  = 0
+            oe-ord.t-inv-tax     = 0
+            oe-ord.t-inv-freight = 0
+            oe-ord.t-inv-rev     = 0
+            oe-ord.t-inv-cost    = 0.
+
+        IF NOT v-u-inv THEN oe-bolh.w-ord = YES.
+
+         
+        IF LAST(bf-ttPreInvLine.r-no) THEN DO:
+            
+            FIND xinv-head WHERE ROWID(xinv-head) EQ ROWID(inv-head) NO-LOCK NO-ERROR.
+
+            IF AVAILABLE xinv-head THEN
+                FOR EACH b-invl WHERE b-invl.r-no EQ inv-head.r-no NO-LOCK,
+                    FIRST xoe-ord
+                    WHERE xoe-ord.company EQ inv-line.company
+                    AND xoe-ord.ord-no  EQ inv-line.ord-no
+                    NO-LOCK
+                    BREAK BY b-invl.b-no:
+      
+                    /* Lookup Price Matrix for Billable Shipto */
+                    IF inv-head.cust-no EQ inv-head.sold-no                          AND
+                        inv-head.cust-no NE xoe-ord.cust-no                           AND
+                        CAN-FIND(FIRST oe-prmtx
+                        {oe/oe-prmtxW.i}
                   AND oe-prmtx.cust-no            EQ inv-head.cust-no
                   AND oe-prmtx.i-no               BEGINS b-invl.i-no
                   AND SUBSTR(oe-prmtx.i-no,1,100) EQ b-invl.i-no)    THEN 
-                DO:
-                    ASSIGN
-                        fil_id    = RECID(b-invl)
-                        save_id   = fil_id
-                        price-ent = YES
-                        v-i-item  = b-invl.i-no
-                        v-i-qty   = b-invl.inv-qty.
+                    DO:
+                        ASSIGN
+                            fil_id    = RECID(b-invl)
+                            save_id   = fil_id
+                            price-ent = YES
+                            v-i-item  = b-invl.i-no
+                            v-i-qty   = b-invl.inv-qty.
 
-                    RUN oe/oe-ipric.p.
-                END.
+                        RUN oe/oe-ipric.p.
+                    END.
 
-                IF v-u-inv THEN RUN oe/invpost4.p (RECID(b-invl), 1).
+                    IF v-u-inv THEN RUN oe/invpost4.p (RECID(b-invl), 1).
     
-                IF oe-bolh.trailer EQ 'UPS' THEN
-                    RUN ipCreateUPS (inv-head.company,inv-head.sold-no,inv-line.ord-no,
-                        inv-head.bol-no,xoe-ord.terms,ROWID(inv-head)).
+                    IF oe-bolh.trailer EQ 'UPS' THEN
+                        RUN ipCreateUPS (inv-head.company,inv-head.sold-no,inv-line.ord-no,
+                            inv-head.bol-no,xoe-ord.terms,ROWID(inv-head)).
 
-            END. /* each b-invl */
+                END. /* each b-invl */
         
-    END. /* if last-of */
-
+        END. /* if last-of */
+    END. /* each ttPreInvoice */
 END PROCEDURE.
 
 PROCEDURE ipProcessBackorders:
@@ -1415,9 +1509,66 @@ FUNCTION fLogMsg RETURNS CHARACTER
     DO:
         OUTPUT STREAM sDebug CLOSE. 
         OUTPUT STREAM sDebug TO VALUE(cDebugLog) append.
-        PUT STREAM sDebug UNFORMATTED ipcMessage SKIP.
+        PUT STREAM sDebug UNFORMATTED v-term " " ipcMessage SKIP.
     END.
     RETURN cResult.
+    
+END FUNCTION.
+
+FUNCTION fnGetFOB RETURNS CHARACTER 
+    (ipcRecKey AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/	
+
+    DEFINE VARIABLE result     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE v-fob-code AS CHARACTER NO-UNDO.
+    
+    FIND FIRST reftable WHERE
+        reftable.reftable EQ "oe-bolh.lot-no" AND
+        reftable.rec_key  EQ ipcRecKey
+        USE-INDEX rec_key
+        NO-LOCK NO-ERROR.
+
+    IF AVAILABLE reftable THEN
+        ASSIGN v-fob-code = IF reftable.CODE EQ "O" THEN "ORIG"
+                          ELSE IF reftable.CODE EQ "D" THEN "DEST"
+                          ELSE reftable.CODE.
+    ELSE
+        ASSIGN v-fob-code = "".
+        
+    RELEASE reftable.
+    
+    RESULT = v-fob-code.
+    RETURN result.
+
+END FUNCTION.
+
+FUNCTION fnGetShipto RETURNS ROWID 
+    (ipCompany AS char, ipCustNo AS CHARACTER, ipShipID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/	
+
+    DEFINE VARIABLE result AS ROWID NO-UNDO.
+    RUN oe/custxship.p (ipCompany,
+        ipCustNo,
+        ipShipID,
+        BUFFER shipto).
+
+    IF NOT AVAILABLE shipto THEN
+        FIND FIRST shipto NO-LOCK
+            WHERE shipto.company EQ ipCompany
+            AND shipto.cust-no EQ ipCustNo
+            USE-INDEX ship-no NO-ERROR.
+    IF AVAILABLE shipto THEN 
+        RESULT = ROWID(shipto) .
+    RETURN result.
+
+
+		
 END FUNCTION.
 
 FUNCTION fTabChr RETURNS CHARACTER 
