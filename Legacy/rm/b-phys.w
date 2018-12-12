@@ -631,9 +631,16 @@ PROCEDURE cancel-item :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   IF AVAIL rm-rctd AND rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" THEN
+   
+   FIND CURRENT rm-rctd NO-LOCK NO-ERROR.
+   IF NOT AVAIL rm-rctd THEN
+       FIND FIRST rm-rctd NO-LOCK
+        WHERE recid(rm-rctd) EQ lv-recid NO-ERROR .
+
+   IF AVAIL rm-rctd AND rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" THEN 
       RUN dispatch IN THIS-PROCEDURE (INPUT 'cancel-record':U).
-END PROCEDURE.
+   
+   END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
