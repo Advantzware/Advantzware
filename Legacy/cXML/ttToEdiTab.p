@@ -151,6 +151,7 @@ FOR EACH ttOrdHead:
     ASSIGN
         edpotran.cust             = ws_customer
         edpotran.cust-po          = ttOrdHead.ttorderID
+        edpotran.release-no       = ttOrdHead.ttRelease
         edpotran.cust-dept        = ""
         edpotran.purpose-code     = ttOrdHead.setPurpose
         edpotran.order-type       = ""
@@ -275,6 +276,8 @@ PROCEDURE process860:
     DEFINE BUFFER bf-edPOline FOR edPoLine.
     DEFINE BUFFER bf-eddoc FOR eddoc.
     DEFINE VARIABLE cBody AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSubject AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMailExec AS CHARACTER NO-UNDO.
    
 
     FOR EACH ttRecsCreated, 
@@ -316,10 +319,13 @@ PROCEDURE process860:
               cBody = addRptLine("PO#: " + edPOTran.cust-po, cBody).
               cBody = addRptLine("Cust#: " + ws_partner, cBody).
               cBody = addRptLine(" " , cBody).
+              cBody = addRptLine("Header Changes:" , cBody).
+              cSubject = "Po Change for PO#" + edPoTran.cust-po 
+                  + (IF edPoTran.release-no GT "" THEN " Rel: " + edpoTran.release-no ELSE "").
              DO ix = 1 TO bufEdPOTran:NUM-FIELDS:
                  fh[ix] = bufEdPOTran:buffer-field(ix).
                  IF LOOKUP(fh[ix]:name, cBufferDiff) > 0 THEN
-                     cBody = addRptLine(FILL(" ", 30 - LENGTH(fh[ix]:NAME)) + fh[ix]:NAME  + " " + STRING(fh[ix]:BUFFER-VALUE), cBody).
+                     cBody = addRptLine(FILL(" ", 5) + fh[ix]:NAME  + ": \t " + STRING(fh[ix]:BUFFER-VALUE), cBody).
              END.
              OUTPUT CLOSE.
               qryEdPoTran:QUERY-CLOSE.
@@ -345,20 +351,24 @@ PROCEDURE process860:
                      qryEdPoTran:GET-FIRST().                     
                      OUTPUT TO c:\temp\860Report append.
                      PUT UNFORMATTED SKIP(1).
+                     cBody = addRptLine(" ", cBody).
                      cBody = addRptLine("For Line Number: " +  EDPOLine.cust-po-line, cBody).
-                     cBody = addRptLine("Change Purpose: " + getDesc(EDPOLine.Special-svc-code), cBody).
+                     cBody = addRptLine("     Change Purpose: " + getDesc(EDPOLine.Special-svc-code), cBody).
                      DO ix = 1 TO bufEdPOTran:NUM-FIELDS:
                          fh[ix] = bufEdPOTran:buffer-field(ix).
                          IF LOOKUP(fh[ix]:name, cBufferDiff) > 0 THEN
-                             cBody = addRptLine(FILL(" ", 30 - length(fh[ix]:NAME)) + fh[ix]:NAME  + " " + STRING(fh[ix]:BUFFER-VALUE), cBody).
+                             cBody = addRptLine(FILL(" ", 5) + fh[ix]:NAME  + ": \t " + STRING(fh[ix]:BUFFER-VALUE), cBody).
                      END.                 
                      OUTPUT CLOSE.
                      qryEdPoTran:QUERY-CLOSE.
                      bufEdPOTran:BUFFER-RELEASE.
                      DELETE OBJECT bufEdPOTran.
                      DELETE OBJECT qryEdPoTran. 
-                     OS-COMMAND "C:\Users\brad\Downloads\CMail_0.7.9b\CMail.exe"  value("-host:wade.kaldawi@advantzware.com:Chester1!@smtp.office365.com:587~
- -from:wade.kaldawi@advantzware.com -to:wade.kaldawi@advantzware.com -subject:Test -body:" + '"' + cBody + '"' + " -starttls").
+
+                     cMailExec = search("sys\cMail.exe").
+                     IF cMailExec NE ? THEN 
+                     OS-COMMAND VALUE(cMailExec + " -host:wade.kaldawi@advantzware.com:Chester1!@smtp.office365.com:587~
+ -from:wade.kaldawi@advantzware.com -to:wade.kaldawi@advantzware.com -subject:" + '"' + cSubject + '"' + " -body:" + '"' + cBody + '"' + " -starttls").
                  END. /* if avail matching edPoline */
              END. /* each edPoLine */
           END. /* if avail matching edPOTran */

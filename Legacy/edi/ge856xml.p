@@ -176,7 +176,7 @@ FOR EACH edshtran WHERE edshTran.seq = ipSeq:
     lOK = hSAXWriter:WRITE-DATA-ELEMENT("N101", "SU")
     lOK = hSAXWriter:WRITE-DATA-ELEMENT("N102", "")
     lOK = hSAXWriter:WRITE-DATA-ELEMENT("N103", "91")
-    lOK = hSAXWriter:WRITE-DATA-ELEMENT("N104", "USS")   
+    lOK = hSAXWriter:WRITE-DATA-ELEMENT("N104", "PP530")   /* Premier supplier code */
     lOK = hSAXWriter:END-ELEMENT("N1")
     
     .
@@ -219,36 +219,12 @@ FOR EACH edshtran WHERE edshTran.seq = ipSeq:
         lOK = hSAXWriter:INSERT-ATTRIBUTE("type", "Segment")        
         lOK = hSAXWriter:WRITE-DATA-ELEMENT("PRF01", edShLine.cust-po)
         lOK = hSAXWriter:END-ELEMENT("PRF") 
-    
-        lOK = hSAXWriter:START-ELEMENT("MEA")
-        lOK = hSAXWriter:INSERT-ATTRIBUTE("type", "Segment")        
-        lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA01", "PD")
-        lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA02", "LN")
-        lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA03", "1")
-        lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA04", "LF")   
-        lOK = hSAXWriter:END-ELEMENT("MEA")
-    
-        lOK = hSAXWriter:START-ELEMENT("MEA")
-        lOK = hSAXWriter:INSERT-ATTRIBUTE("type", "Segment")        
-        lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA01", "PD")
-        lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA02", "WD")
-        lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA03", "30.75")
-        lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA04", "IN")   
-        lOK = hSAXWriter:END-ELEMENT("MEA")
-    
-        lOK = hSAXWriter:START-ELEMENT("MEA")
-        lOK = hSAXWriter:INSERT-ATTRIBUTE("type", "Segment")        
-        lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA01", "PD")
-        lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA02", "TH")
-        lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA03", "0.024")
-        lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA04", "IN")   
-        lOK = hSAXWriter:END-ELEMENT("MEA")
-    
+      
         lOK = hSAXWriter:START-ELEMENT("MEA")
         lOK = hSAXWriter:INSERT-ATTRIBUTE("type", "Segment")        
         lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA01", "PD")
         lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA02", "G")
-        lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA03", "1")
+        lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA03", STRING(edShLine.tot-wght))
         lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA04", "LB")   
         lOK = hSAXWriter:END-ELEMENT("MEA")
     

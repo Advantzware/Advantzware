@@ -66,6 +66,7 @@ DEFINE TEMP-TABLE ttOrdHead NO-UNDO
     FIELD ttcustNo            AS CHARACTER 
     FIELD ttDocType           AS CHARACTER 
     FIELD setPurpose          AS CHARACTER 
+    FIELD ttRelease           AS CHARACTER
     .
 DEFINE TEMP-TABLE ttOrdLines NO-UNDO
     FIELD ttpayLoadID                   AS CHARACTER

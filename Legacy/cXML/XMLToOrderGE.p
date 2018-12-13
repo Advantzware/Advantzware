@@ -14,10 +14,10 @@ DEFINE VARIABLE iCurrentOrdLine AS INTEGER NO-UNDO.
 DEFINE VARIABLE iNextOrderShipment AS INTEGER NO-UNDO.
 DEFINE VARIABLE cDocType      AS CHARACTER NO-UNDO.
 {cxml\cxmldefs.i}
-define input parameter table for ttNodes.
-define input-output parameter table for ttOrdHead.
-define input-output parameter table for ttOrdLines.
-define input-output parameter table for ttOrdSchedShipments.
+DEFINE INPUT PARAMETER table FOR ttNodes.
+DEFINE INPUT-OUTPUT PARAMETER table FOR ttOrdHead.
+DEFINE INPUT-OUTPUT PARAMETER table FOR ttOrdLines.
+DEFINE INPUT-OUTPUT PARAMETER table FOR ttOrdSchedShipments.
 FIND FIRST ttNodes NO-ERROR.
 
 FOR EACH ttNodes:
@@ -81,13 +81,15 @@ FOR EACH ttNodes:
   IF ttNodes.nodeName BEGINS "BEG" OR ttNodes.nodeName BEGINS "BCH" THEN DO:
     FIND FIRST ttOrdHead WHERE ttOrdHead.ttPayLoadID EQ STRING(iPayLoadNum)
       NO-ERROR.
-    IF NOT AVAIL ttOrdHead THEN do:
-      next.
-     end.
+    IF NOT AVAIL ttOrdHead THEN DO:
+      NEXT.
+     END.
     
     CASE ttNodes.nodeName:
       WHEN "BEG03" OR WHEN "BCH03" THEN 
         ttOrdHead.ttorderID = ttNodes.nodeValue.      
+      WHEN "BEG04" OR WHEN "BCH04" THEN 
+            ttOrdHead.ttRelease = ttNodes.nodeValue.          
       WHEN "BEG01" OR WHEN "BCH02" THEN 
             ttOrdHead.setPurpose = ttNodes.nodeValue.         
     END CASE.
