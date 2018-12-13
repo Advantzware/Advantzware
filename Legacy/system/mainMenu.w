@@ -84,6 +84,8 @@ DEFINE VARIABLE iRectangleBGColor AS INTEGER   NO-UNDO INITIAL {&BGColor}.
 DEFINE VARIABLE iRectangleFGColor AS INTEGER   NO-UNDO INITIAL {&FGColor}.
 DEFINE VARIABLE cCEMenu           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBitMap           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cProfilerFile     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iSaveBgColor      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lFound            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSearchOpen       AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE lFavorite         AS LOGICAL   NO-UNDO.
@@ -145,6 +147,7 @@ DEFINE VAR MAINMENU AS WIDGET-HANDLE NO-UNDO.
 /* Menu Definitions                                                     */
 DEFINE SUB-MENU m_Help 
        MENU-ITEM m_SysCtrl_Usage LABEL "SysCtrl Usage" 
+       MENU-ITEM m_Profiler     LABEL "Start/Stop Profiler"
        MENU-ITEM m_Advantzware_Version LABEL "Advantzware Version"
        RULE
        MENU-ITEM m_Exit         LABEL "Exit"          .
@@ -1434,6 +1437,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME m_Profiler
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Profiler MAINMENU
+ON CHOOSE OF MENU-ITEM m_Profiler /* Profiler */
+ DO:
+        RUN pOnOffProfiler.
+ END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME m_SysCtrl_Usage
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_SysCtrl_Usage MAINMENU
@@ -2399,6 +2411,62 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOnOffProfiler MAINMENU
+PROCEDURE pOnOffProfiler:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lProfile AS LOGICAL NO-UNDO.
+    IF PROFILER:ENABLED THEN 
+    DO:
+        ASSIGN 
+            PROFILER:PROFILING                       = FALSE                         
+            PROFILER:ENABLED                         = FALSE
+            company_name:BGCOLOR IN FRAME frame-user = iSaveBgColor
+            . 
+        PROFILER:WRITE-DATA().
+        MESSAGE "Profiler has been turned off and " SKIP 
+            "the data file is ready for use:" SKIP(1)
+            cProfilerFile
+            VIEW-AS ALERT-BOX.
+    END.
+    ELSE 
+    DO:
+        MESSAGE "Warning:  The profiler can create a large file" SKIP
+            "if left on.  Please do not run unless instructed to" SKIP
+            "and remember to turn off profiling" SKIP
+            "as soon as the relevant process is complete." SKIP 
+            SKIP(1)
+            "Do you want to start the profiler?"
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE lProfile.
+        IF lProfile THEN 
+        DO:
+            ASSIGN  
+                cProfilerFile                            = SESSION:TEMP-DIRECTORY + "profile" 
+                                   + STRING(TODAY, "999999") + "_"
+                                   + REPLACE(STRING(TIME, "HH:MM:SS") + ".prof", ":","-")
+                PROFILER:ENABLED                         = TRUE
+                PROFILER:DESCRIPTION                     = STRING(TODAY,"999999") + "_" + STRING(TIME, "HH:MM:SS")
+                PROFILER:FILE-NAME                       = cProfilerFile
+                PROFILER:PROFILING                       = TRUE
+                PROFILER:TRACE-FILTER                    = "*"
+                iSaveBgColor                             = company_name:BGCOLOR IN FRAME frame-user
+                company_name:BGCOLOR IN FRAME frame-user = 14
+                .
+        END.
+    END. 
+   
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProcessClick MAINMENU 
 PROCEDURE pProcessClick :
