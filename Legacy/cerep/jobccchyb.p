@@ -846,9 +846,9 @@ FOR EACH job-hdr NO-LOCK
                                                              
         /*if v-first then*/
         v-upc-lbl = "   CAD#".
-        /*IF FIRST-OF(eb.form-no) THEN
+        IF FIRST-OF(eb.form-no) THEN
             PUT "<P12><B> P R E S S <P9>" SKIP 
-                " F/B         FG Item #       Cust Part #      Artwork #      Description                     Order Qty    MAX QTY    MIN QTY    Job Qty </B>" SKIP.*/
+                " F/B   FG Item #       Cust Part #     Artwork #       Description       Order Qty       MAX QTY      MIN QTY      JOB QTY </B>" SKIP.
               
         v-job-qty = 0.
         FOR EACH xjob-hdr FIELDS(qty) NO-LOCK 
@@ -896,6 +896,18 @@ FOR EACH job-hdr NO-LOCK
         FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ job-hdr.company
             AND itemfg.i-no    EQ job-hdr.i-no NO-ERROR.
 
+        display SPACE(1) trim(string(eb.form-no,">>9")) + "-" +
+                    trim(string(eb.blank-no,">>9")) FORM "x(5)" 
+                    SPACE(1) eb.stock-no @ job-hdr.i-no 
+                    (IF AVAIL oe-ordl  THEN oe-ordl.part-no ELSE IF AVAIL itemfg THEN itemfg.part-no ELSE "") FORM "x(15)"   SPACE(1)
+                    (IF eb.plate-no <> "" THEN eb.plate-no  ELSE IF AVAIL itemfg THEN itemfg.plate-no ELSE "" ) FORM "x(15)"
+                    SPACE(1) v-dsc[1] FORM "x(16)"
+                    oe-ordl.qty WHEN AVAIL oe-ordl format "->,>>>,>>9"  /* Task #01240503*/   SPACE(4)
+                    v-max-qty     SPACE(3)
+                    v-min-qty     SPACE(3)
+                    job-hdr.qty 
+                with stream-io width 175 no-labels no-box frame line-det1.
+
         FIND FIRST ITEM NO-LOCK
             WHERE item.company EQ cocode
             AND item.i-no    EQ eb.cas-no
@@ -905,7 +917,7 @@ FOR EACH job-hdr NO-LOCK
         /* end. /* last-of(eb.form-no) */      */
         IF LAST-OF(eb.form-no) THEN 
         DO:
-            IF v-itm-printed = 1 THEN PUT SKIP(1). 
+            IF v-itm-printed = 1 THEN PUT v-fill SKIP. 
             ELSE PUT SKIP(4 - v-itm-printed).
              
             /* Number of sheets ticket1.p - single board, ticket2.p - multi board */
