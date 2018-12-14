@@ -863,6 +863,8 @@ PROCEDURE cancel-item :
   Parameters:  <none>
   Notes:  when exiting will cancel blank record so it will not create it     
 ------------------------------------------------------------------------------*/
+    IF NOT AVAIL fg-rctd THEN 
+        FIND fg-rctd NO-LOCK WHERE RECID(fg-rctd) EQ lv-recid  NO-ERROR. 
   IF AVAIL fg-rctd AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = "" THEN
     RUN dispatch IN THIS-PROCEDURE (INPUT 'cancel-record':U).
 END PROCEDURE.
