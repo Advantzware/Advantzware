@@ -1564,14 +1564,15 @@ PROCEDURE local-display-fields :
                 ttUsers.ttfPdbName = "*"
                 ttUsers.ttfUserID = users.user_id
                 .
-                IF ttUsers.ttfEnvlist EQ "" THEN 
-                  ttUsers.ttfEnvList = IF users.envList GT "" THEN REPLACE(users.envList, "|", ",") ELSE "".
-                IF ttUsers.ttfDbList EQ "" THEN 
-                  ttUsers.ttfDbList = IF users.dbList GT "" THEN REPLACE(users.dbList, "|", ",") ELSE "".
-                IF ttUsers.ttfUserAlias EQ "" THEN 
-                  ttUsers.ttfUserAlias = IF users.userAlias GT "" THEN REPLACE(users.userAlias, "|", ",") ELSE "".
-                IF ttUsers.ttfModeList EQ "" THEN 
-                  ttUsers.ttfModeList = IF users.modeList GT "" THEN REPLACE(users.modeList, "|", ",") ELSE "".
+/* 39245 - User MODE does not save - 12/10/18 - MYT - remove references to db-based fields; use .usr file only */
+/*                IF ttUsers.ttfEnvlist EQ "" THEN                                                                  */
+/*                  ttUsers.ttfEnvList = IF users.envList GT "" THEN REPLACE(users.envList, "|", ",") ELSE "".      */
+/*                IF ttUsers.ttfDbList EQ "" THEN                                                                   */
+/*                  ttUsers.ttfDbList = IF users.dbList GT "" THEN REPLACE(users.dbList, "|", ",") ELSE "".         */
+/*                IF ttUsers.ttfUserAlias EQ "" THEN                                                                */
+/*                  ttUsers.ttfUserAlias = IF users.userAlias GT "" THEN REPLACE(users.userAlias, "|", ",") ELSE "".*/
+/*                IF ttUsers.ttfModeList EQ "" THEN                                                                 */
+/*                  ttUsers.ttfModeList = IF users.modeList GT "" THEN REPLACE(users.modeList, "|", ",") ELSE "".   */
             
         END.
 
@@ -1600,8 +1601,9 @@ PROCEDURE local-display-fields :
                 ttUsers.ttfPdbName = PDBNAME(1)
                 ttUsers.ttfUserID = users.user_id
                 .
-            IF ttUsers.ttfModeList EQ "" THEN 
-                ttUsers.ttfModeList = IF users.modeList GT "" THEN REPLACE(users.modeList, "|", ",") ELSE slModes:list-items.            
+/* 39245 - User MODE does not save - 12/10/18 - MYT - remove references to db-based fields; use .usr file only */
+/*            IF ttUsers.ttfModeList EQ "" THEN                                                                                */
+/*                ttUsers.ttfModeList = IF users.modeList GT "" THEN REPLACE(users.modeList, "|", ",") ELSE slModes:list-items.*/
         END.
         slModes:screen-value = if ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList
                                else slModes:list-items.
@@ -1881,9 +1883,10 @@ PROCEDURE local-update-record :
             users.userAlias = users.userAlias:screen-value in frame {&frame-name}
             users.securityLevel = INTEGER(users.securityLevel:SCREEN-VALUE)
             users.userType = cbUserType:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-            users.envList = slEnvironments:SCREEN-VALUE
-            users.dbList = slDatabases:SCREEN-VALUE
-            users.modeList = slModes:SCREEN-VALUE
+/* 39245 - User MODE does not save - 12/10/18 - MYT - remove references to db-based fields; use .usr file only */
+/*            users.envList = slEnvironments:SCREEN-VALUE*/
+/*            users.dbList = slDatabases:SCREEN-VALUE    */
+/*            users.modeList = slModes:SCREEN-VALUE      */
             users.phone = fi_phone-area:screen-value + lv-phone-num
             users.fax = fi_fax-area:screen-value + lv-fax-num
             rThisUser = ROWID(users).
