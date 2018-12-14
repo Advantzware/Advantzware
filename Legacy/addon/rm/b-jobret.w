@@ -675,7 +675,7 @@ DO:
        END.
     END.
 
-    RUN valid-loc-bin-tag (1) NO-ERROR.
+    RUN valid-loc-bin (1) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -699,7 +699,7 @@ END.
 ON LEAVE OF rm-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-loc-bin-tag (2) NO-ERROR.
+    RUN valid-loc-bin (2) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -1596,6 +1596,9 @@ PROCEDURE local-update-record :
   RUN valid-job-no2 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN .
 
+  RUN valid-loc-bin (3) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   RUN valid-all NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN .
 
@@ -2205,6 +2208,9 @@ PROCEDURE valid-all :
   RUN valid-loc-bin-tag (3) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
+  RUN valid-loc-bin (3) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   RUN valid-uom NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
@@ -2506,9 +2512,7 @@ PROCEDURE valid-loc-bin-tag :
         IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" AND ip-int GE 3 THEN
         FOR EACH rm-rdtlh
             WHERE rm-rdtlh.company  EQ cocode
-              AND rm-rdtlh.loc      EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
               AND rm-rdtlh.tag      EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-              AND rm-rdtlh.loc-bin  EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
             USE-INDEX tag NO-LOCK,
             FIRST rm-rcpth
             WHERE rm-rcpth.r-no      EQ rm-rdtlh.r-no
@@ -2543,6 +2547,45 @@ PROCEDURE valid-loc-bin-tag :
         RETURN ERROR.
       END.
     END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc-bin B-table-Win 
+PROCEDURE valid-loc-bin :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-int AS INT NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+   IF ip-int EQ 1 OR ip-int EQ 3 THEN do:
+       FIND FIRST loc WHERE loc.company = g_company
+           AND loc.loc = rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+           NO-LOCK NO-ERROR.
+       IF NOT AVAIL loc THEN DO:
+           MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
+           APPLY "entry" TO rm-rctd.loc IN BROWSE {&BROWSE-NAME}.
+           RETURN ERROR .
+       END.
+   END.
+   IF ip-int EQ 2 OR ip-int EQ 3 THEN do:
+       FIND FIRST rm-bin WHERE rm-bin.company = g_company
+           AND rm-bin.i-no = ""
+           AND rm-bin.loc = rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+           AND rm-bin.loc-bin = rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK NO-ERROR.
+       IF NOT AVAIL rm-bin THEN DO:
+           MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
+           APPLY "entry" TO rm-rctd.loc-bin IN BROWSE {&BROWSE-NAME}. 
+           RETURN ERROR .
+       END.
+   END.
+
   END.
 
 END PROCEDURE.
