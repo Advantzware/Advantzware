@@ -2354,6 +2354,7 @@ PROCEDURE ipDataFix160805 :
     RUN ipStatus ("  Data Fix 160805...").
 
     RUN ipRemoveUserMenu.
+    RUN ipFixUserPrint.
 
 END PROCEDURE.
 
@@ -2813,6 +2814,32 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixUserPrint C-Win
+PROCEDURE ipFixUserPrint:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Change 'asi' userprint records to 'admin'").
+
+    DISABLE TRIGGERS FOR LOAD OF user-print.
+    
+    FOR EACH user-print EXCLUSIVE WHERE
+        user-print.user-id EQ "asi":
+        ASSIGN 
+            user-print.user-id = "admin".
+    END. 
+         
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixUsers C-Win 
 PROCEDURE ipFixUsers :
