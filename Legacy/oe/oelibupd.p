@@ -1275,8 +1275,10 @@ PROCEDURE est-from-tandem :
       /* wfk - replace
       APPLY "value-changed" TO oe-ord.est-no.
       */
-      FIND FIRST xest OF eb NO-LOCK NO-ERROR.
-
+        FIND FIRST xest NO-LOCK WHERE 
+            xest.company EQ eb.company AND 
+            xest.est-no EQ eb.est-no 
+            NO-ERROR.
       FOR EACH eb OF xest EXCLUSIVE:
         eb.cust-no = get-sv("oe-ord.cust-no").
 
@@ -1300,8 +1302,11 @@ PROCEDURE est-from-tandem :
     END.
 
     ELSE DO:
-      FIND FIRST est OF eb EXCLUSIVE NO-ERROR.
-      IF AVAIL est THEN DELETE est.
+      FIND FIRST est EXCLUSIVE WHERE 
+            est.company EQ eb.company AND 
+            est.est-no EQ eb.est-no 
+            NO-ERROR.
+        IF AVAIL est THEN DELETE est.
     END.
   END.
 

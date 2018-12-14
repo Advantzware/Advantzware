@@ -631,7 +631,10 @@ ON LEAVE OF tt-eb.yrprice IN BROWSE br_table
 FIND eb NO-LOCK WHERE ROWID(eb) EQ lv-rowid NO-ERROR.
 
 
-IF AVAILABLE eb THEN FIND FIRST est OF eb NO-LOCK.
+IF AVAILABLE eb THEN FIND FIRST est NO-LOCK WHERE 
+    est.company EQ eb.company AND 
+    est.est-no EQ eb.est-no 
+    NO-ERROR.
 
 IF AVAILABLE est THEN 
 DO:
@@ -1151,7 +1154,10 @@ PROCEDURE loadTempTable :
     EMPTY TEMP-TABLE tt-eb.
     FOR EACH eb NO-LOCK WHERE eb.company EQ cCompany
         AND eb.est-no EQ cEstNo  :
-        FIND FIRST est OF eb NO-LOCK.
+        FIND FIRST est NO-LOCK WHERE 
+            est.company EQ eb.company AND 
+            est.est-no EQ eb.est-no 
+            NO-ERROR.
 
         CREATE tt-eb.
         BUFFER-COPY eb TO tt-eb.
