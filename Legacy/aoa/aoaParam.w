@@ -41,14 +41,14 @@ DEFINE INPUT PARAMETER ipcParamStr AS CHARACTER NO-UNDO.
 
 {AOA/includes/aoaParamDefs.i}
 
-DEFINE VARIABLE hParamFrame      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hAppSrv          AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hAppSrvBin       AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hJasper          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hParamFrame      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hTasks           AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx              AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lSecure          AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE hTasks           AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
 
 {AOA/includes/ttColumn.i}
 
@@ -285,7 +285,7 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'src/adm/objects/folder.w':U ,
+             INPUT  'gui/adm/objects/folder.w':U ,
              INPUT  FRAME paramFrame:HANDLE ,
              INPUT  'FOLDER-LABELS = ':U + 'Parameters|Columns|Tasks' + ',
                      FOLDER-TAB-TYPE = 1':U ,
@@ -294,7 +294,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_folder ( 18.57 , 151.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'aoa/aoaPanel.w':U ,
+             INPUT  'AOA/aoaPanel.w':U ,
              INPUT  FRAME paramFrame:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_aoapanel ).
@@ -327,7 +327,7 @@ PROCEDURE adm-create-objects :
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'aoa/aoaColumns.w':U ,
+             INPUT  'AOA/aoaColumns.w':U ,
              INPUT  FRAME paramFrame:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_aoacolumns ).
@@ -340,7 +340,7 @@ PROCEDURE adm-create-objects :
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'aoa/aoaTaskParam.w':U ,
+             INPUT  'AOA/aoaTaskParam.w':U ,
              INPUT  FRAME paramFrame:HANDLE ,
              INPUT  '':U ,
              OUTPUT b_aoataskparam ).
@@ -788,7 +788,7 @@ PROCEDURE pInitColumnsPage :
 ------------------------------------------------------------------------------*/
     IF NOT VALID-HANDLE(h_aoaColumns) THEN DO:
         RUN init-object IN THIS-PROCEDURE (
-               INPUT  'aoa/aoaColumns.w':U ,
+               INPUT  'AOA/aoaColumns.w':U ,
                INPUT  FRAME paramFrame:HANDLE ,
                INPUT  '':U ,
                OUTPUT h_aoacolumns ).
