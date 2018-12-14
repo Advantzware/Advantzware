@@ -1178,6 +1178,7 @@ PROCEDURE local-assign-record :
    
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+   
  
  
   /* Code placed here will execute AFTER standard behavior.    */
@@ -1200,7 +1201,6 @@ PROCEDURE local-assign-record :
             RUN UpdateShipNote IN hNotesProcs (shipto.rec_key,
                                                      ship_note).
             DELETE OBJECT hNotesProcs.
-        FIND CURRENT shipto NO-LOCK NO-ERROR.
         DISABLE ship_note WITH FRAME {&FRAME-NAME}.
   END. /* IF glShipNotesExpanded EQ YES THEN DO: */
 
@@ -1493,7 +1493,7 @@ ASSIGN
   if shipto.pallet:screen-value IN FRAME {&FRAME-NAME} <> "" and
         not can-find(first item where item.company = gcompany and item.mat-type = "D" and
                                       item.i-no = shipto.pallet:screen-value)
-     then do:
+     then do: 
         message "Invalid Pallet Code. Try Help." view-as alert-box error.
         apply "entry" to shipto.pallet.
         return .     
@@ -1503,6 +1503,7 @@ ASSIGN
      shipto.bill:SCREEN-VALUE IN FRAME {&FRAME-NAME} <> "Yes" THEN DO:
 
   END.
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
