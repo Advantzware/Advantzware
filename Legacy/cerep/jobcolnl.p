@@ -981,7 +981,7 @@ FOR EACH job-hdr NO-LOCK
                                               notes.note_form_no EQ wrk-sheet.form-no NO-ERROR.
                v-dept-title = IF AVAILABLE notes THEN notes.note_title ELSE "".
 
-               DISPLAY ITEM.i-no FORMAT "x(10)" SPACE(20)
+               DISPLAY ITEM.i-name FORMAT "x(28)" SPACE(2)
                     TRIM(wrk-sheet.i-no) FORMAT "X(10)" SPACE(2)
                     ef.xgrain FORMAT "x(2)"
                     wrk-sheet.gsh-qty 
@@ -995,7 +995,6 @@ FOR EACH job-hdr NO-LOCK
                   /*  v-case-qty-ext[1]  @ v-case-qty  FORM ">>>>9"    /* #01240503*/
                     v-up-ext[1]        @ v-up*/
                     WITH STREAM-IO WIDTH 170 NO-LABELS NO-BOX FRAME sheet.
-               PUT ITEM.i-name FORMAT "x(28)" SKIP.
                x = 1.
              END. /* each wrk-sheet */
              DO ij = 2 TO 10:
