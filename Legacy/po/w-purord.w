@@ -42,6 +42,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
     def var li-prev-page as int no-undo.
     def var li-cur-page as int no-undo.
+    DEF NEW SHARED VAR lNewOrd AS LOG NO-UNDO.
 
 &scoped-define item_spec FGITEM
 
@@ -680,6 +681,14 @@ PROCEDURE local-change-page :
         RUN dept-pan-image-proc IN h_bi-poord .
     ELSE
         RUN dept-pan-image-proc IN h_b-po-inq .
+       
+    IF li-prev-page EQ 2 
+    AND li-cur-page EQ 3 
+    AND lNewOrd THEN DO:
+        ASSIGN 
+            lNewOrd = FALSE.
+        RUN addItem IN h_vp-poord.
+    END.
 
     {methods/winReSizePgChg.i}
 

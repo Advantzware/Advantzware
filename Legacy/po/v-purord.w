@@ -65,6 +65,7 @@ DEFINE            VARIABLE lv-t-cost          AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE ld-dim-charge      AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE v-index            AS INTEGER   NO-UNDO.
 DEFINE            VARIABLE fg-uom-list        AS CHARACTER NO-UNDO.
+DEF SHARED VAR lNewOrd AS LOG NO-UNDO.
 
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
@@ -948,6 +949,9 @@ PROCEDURE add-po :
   Notes:       
 ------------------------------------------------------------------------------*/
  RUN dispatch ('add-record').
+    ASSIGN 
+        lNewOrd = TRUE.
+         
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1686,6 +1690,7 @@ PROCEDURE local-create-record :
          po-ord.last-ship-date = po-ord.due-date
          fil_id                = RECID (po-ord)
          po-ord.user-id        = USERID('nosweat')
+         lNewOrd               = TRUE 
          .
   
   DISPLAY po-ord.po-no WITH FRAME {&FRAME-NAME}.
