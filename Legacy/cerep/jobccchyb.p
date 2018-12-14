@@ -848,7 +848,7 @@ FOR EACH job-hdr NO-LOCK
         v-upc-lbl = "   CAD#".
         IF FIRST-OF(eb.form-no) THEN
             PUT "<P12><B> P R E S S <P9>" SKIP 
-                " F/B   FG Item #       Cust Part #     Artwork #       Description       Order Qty       MAX QTY      MIN QTY    JOB QTY </B>" SKIP.
+                " F/B   FG Item #       Cust Part #     Artwork #       Description       Order Qty       MAX QTY      MIN QTY      JOB QTY </B>" SKIP.
               
         v-job-qty = 0.
         FOR EACH xjob-hdr FIELDS(qty) NO-LOCK 
@@ -904,7 +904,7 @@ FOR EACH job-hdr NO-LOCK
                     SPACE(1) v-dsc[1] FORM "x(16)"
                     oe-ordl.qty WHEN AVAIL oe-ordl format "->,>>>,>>9"  /* Task #01240503*/   SPACE(4)
                     v-max-qty     SPACE(3)
-                    v-min-qty
+                    v-min-qty     SPACE(3)
                     job-hdr.qty 
                 with stream-io width 175 no-labels no-box frame line-det1.
 
