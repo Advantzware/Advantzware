@@ -51,7 +51,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
  ASSIGN
  cocode = gcompany
  locode = gloc.
-
+DEFINE VARIABLE factor# AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-print-fmt AS CHARACTER NO-UNDO.
 DEFINE VARIABLE is-xprint-form AS LOGICAL.
 DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
@@ -59,7 +59,8 @@ DEFINE VARIABLE v-roll-multp AS DEC DECIMALS 4 NO-UNDO.
 
 DEFINE TEMP-TABLE tt-rm-bin NO-UNDO LIKE rm-bin
                                  FIELD trans-date LIKE rm-rcpth.trans-date
-                                 FIELD tag2 LIKE rm-rdtlh.tag2.
+                                 FIELD tag2 LIKE rm-rdtlh.tag2
+                                 FIELD po-line AS INTEGER .
     
 
 DEFINE STREAM excel.
@@ -77,6 +78,15 @@ DEFINE VARIABLE lv-fistdt AS   CHARACTER   NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lTagFormat AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChar2 AS CHAR NO-UNDO.
+
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar2, OUTPUT lRecFound).
+
+factor# = if avail sys-ctrl and can-do("Premier,Middlesx,16th's",cRtnChar2)
+  then .16 else 1.
 
 ASSIGN cTextListToSelect = "Whse,Item,Description,Bin,Tag,Rolls," +
                            "Last Trans Date,Quantity,Unit Cost,Cost Value,MSF,Tons,Cost/MSF,Vendor Tag,Vendor Po#,Cert/Lot/Mill#,Vendor,Last Recd,Caliper," +
@@ -135,6 +145,13 @@ td-show-parm tb_excel tb_runExcel fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD GetFieldValue C-Win 
 FUNCTION GetFieldValue RETURNS CHARACTER
   ( hipField AS HANDLE )  FORWARD.
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD dim-in-16 C-Win 
+FUNCTION dim-in-16 RETURNS DECIMAL
+  ( ip-dim AS DEC )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1101,6 +1118,8 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+/*RUN po/po-sysct.p.*/
+MESSAGE "hello " VIEW-AS ALERT-BOX ERROR .
 {sys/inc/f3helpw.i}
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
@@ -1554,6 +1573,8 @@ DEFINE VARIABLE lv-uom  AS   CHARACTER  NO-UNDO.
 
       tt-rm-bin.trans-date = rm-rcpth.trans-date.
       tt-rm-bin.tag2 = rm-rdtlh.tag2.
+      tt-rm-bin.po-no = int(rm-rcpth.po-no) .
+      tt-rm-bin.po-line = int(rm-rcpth.po-line).
       LEAVE.
     END.
 
@@ -1991,7 +2012,8 @@ SESSION:SET-WAIT-STATE ("general").
     IF tt-rm-bin.po-no NE 0 AND AVAILABLE po-ord THEN DO:
         FIND FIRST po-ordl  NO-LOCK WHERE po-ordl.company EQ tt-rm-bin.company 
             AND po-ordl.po-no EQ po-ord.po-no
-            AND po-ordl.i-no EQ tt-rm-bin.i-no NO-ERROR.
+            AND po-ordl.i-no EQ tt-rm-bin.i-no 
+            AND (po-ordl.LINE EQ tt-rm-bin.po-line OR tt-rm-bin.po-line EQ 0) NO-ERROR.
         
         IF AVAILABLE po-ordl THEN DO:
             ASSIGN vpo-gl-act = po-ordl.actnum
@@ -1999,6 +2021,7 @@ SESSION:SET-WAIT-STATE ("general").
                     cJobNo2    =  po-ordl.job-no2
                     cSNum      = po-ordl.s-num
                     cBNum      = po-ordl.b-num  .
+
             FIND FIRST job-hdr NO-LOCK
                 WHERE job-hdr.company EQ cocode
                 AND job-hdr.job-no  EQ po-ordl.job-no
@@ -2064,6 +2087,12 @@ SESSION:SET-WAIT-STATE ("general").
                  dShtLen     = job-mat.len
                  dShtDep     = 0
                  dShtRollWid = 0 .
+         END.
+
+         IF AVAILABLE po-ordl THEN DO:
+             ASSIGN
+                 dShtWid     = dim-in-16(po-ordl.s-wid)
+                 dShtLen     = dim-in-16(po-ordl.s-len) .
          END.
 
          cShtSize = (trim(string(dShtLen,">,>>99.99")) + " X " + trim(string(dShtWid,">,>>99.99")) ).
@@ -2829,7 +2858,8 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
     IF tt-rm-bin.po-no NE 0 AND AVAILABLE po-ord THEN DO:
         FIND FIRST po-ordl NO-LOCK WHERE po-ordl.company EQ tt-rm-bin.company 
             AND po-ordl.po-no EQ po-ord.po-no
-            AND po-ordl.i-no EQ tt-rm-bin.i-no NO-ERROR.
+            AND po-ordl.i-no EQ tt-rm-bin.i-no
+            AND (po-ordl.LINE EQ tt-rm-bin.po-line OR tt-rm-bin.po-line EQ 0)  NO-ERROR.
         
         IF AVAILABLE po-ordl THEN DO:
             ASSIGN vpo-gl-act = po-ordl.actnum
@@ -2892,6 +2922,12 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
             dShtLen     = job-mat.len
             dShtDep     = 0
             dShtRollWid = 0 .
+    END.
+
+    IF AVAILABLE po-ordl THEN DO:
+        ASSIGN
+            dShtWid     = dim-in-16(po-ordl.s-wid)
+            dShtLen     = dim-in-16(po-ordl.s-len) .
     END.
 
     cShtSize = (trim(string(dShtLen,">,>>99.99")) + " X " + trim(string(dShtWid,">,>>99.99")) ).
@@ -3222,3 +3258,18 @@ RETURN cReturn.
 
 END FUNCTION.
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION dim-in-16 C-Win 
+FUNCTION dim-in-16 RETURNS DECIMAL
+  ( ip-dim AS DEC ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+
+  RETURN (ip-dim - TRUNC(ip-dim, 0)) * factor# + TRUNC(ip-dim, 0).   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
