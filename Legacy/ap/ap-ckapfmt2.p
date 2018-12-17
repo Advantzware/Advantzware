@@ -36,13 +36,13 @@ FORM
     "<c71>" ctot               FORMAT "$->>,>>9.99"
     WITH FRAME b3 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE.
 
-FORM SKIP(1)
+FORM SKIP(3)
     "<b><c1>" company.NAME  "<c38>" bank.bank-name 
-    "</b><c60>"  bank.Bank-ID FORMAT "x(9)"
+    "</b><c60>"  bank.SwiftBIC FORMAT "x(9)"
     "<c72><b>" ap-chk.check-no "</b>"  SKIP
     "<c1>" v-comp-add1 "<c38>" cBankAdd1 SKIP
     "<c1>" v-comp-add2 "<c38>" cBankAdd2  SKIP
-    "<c1>" v-comp-add3 "<c38>" cBankAdd3  SKIP(2)
+    "<c1>" v-comp-add3 "<c38>" cBankAdd3  SKIP
     "<b><c57>DATE"
     "<c69>AMOUNT</b>"  SKIP(1)
     "<c57>" ap-chk.check-date  FORMAT "99/99/9999"
@@ -261,7 +261,7 @@ DO:       /* production mode */
                     dol = TRIM(dol) + fill("*",70) .  
 
                     DISPLAY CAPS(dol)         @ dol
-                        TRIM(bank.Bank-ID)    @ bank.Bank-ID
+                        TRIM(bank.SwiftBIC)    @ bank.SwiftBIC
                         TRIM(STRING(ap-chk.check-no,">>>>>>")) FORMAT "x(6)" @ ap-chk.check-no
                         ap-chk.check-date
                         ctot 
