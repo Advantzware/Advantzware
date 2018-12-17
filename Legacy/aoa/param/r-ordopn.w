@@ -890,6 +890,35 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME svStartItemNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartItemNo sObject
+ON HELP OF svStartItemNo IN FRAME F-Main /* End Due Date */
+DO:
+    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
+    RUN windows/l-itemfg.w (svCompany,"","",OUTPUT char-val) NO-ERROR .
+    ASSIGN svStartItemNo:SCREEN-VALUE = ENTRY(1,char-val) .
+            APPLY "entry" TO svStartItemNo.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svEndItemNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndItemNo sObject
+ON HELP OF svEndItemNo IN FRAME F-Main /* End Due Date */
+DO:
+    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
+    RUN windows/l-itemfg.w (svCompany,"","",OUTPUT char-val) NO-ERROR .
+    ASSIGN svEndItemNo:SCREEN-VALUE = ENTRY(1,char-val) .
+            APPLY "entry" TO svEndItemNo.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME svEndDueDateOption
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndDueDateOption sObject
