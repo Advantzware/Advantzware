@@ -2089,7 +2089,7 @@ SESSION:SET-WAIT-STATE ("general").
                  dShtRollWid = 0 .
          END.
 
-         IF AVAILABLE po-ordl THEN DO:
+         IF AVAILABLE po-ord AND AVAILABLE po-ordl THEN DO:
              ASSIGN
                  dShtWid     = dim-in-16(po-ordl.s-wid)
                  dShtLen     = dim-in-16(po-ordl.s-len) .
@@ -2924,7 +2924,7 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
             dShtRollWid = 0 .
     END.
 
-    IF AVAILABLE po-ordl THEN DO:
+    IF AVAILABLE po-ord AND AVAILABLE po-ordl THEN DO:
         ASSIGN
             dShtWid     = dim-in-16(po-ordl.s-wid)
             dShtLen     = dim-in-16(po-ordl.s-len) .
