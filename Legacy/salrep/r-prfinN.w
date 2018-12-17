@@ -72,11 +72,11 @@ DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Rep,Rep Name,Name,Customer,Customer Name,Invoice#,Inv Date,FG Item,Catgy,Qty shipped,Total MSF,Order#," +
-                             "$/MSF,Sales Amt,Full Cost,Profit,Group#,Member#,UOM,Cust PO#,Board Code"
+                             "$/MSF,Sales Amt,Full Cost,Profit,Group#,Member#,UOM,Cust PO#,Est Board Code"
        cFieldListToSelect = "rep,rep-name,name,cust,custname,inv-no,inv-date,fg,cat,qty,ttl-msf,pur-ord," +
                             "msf,sal-amt,ful-cst,proft,grp-no,mbr-no,inv-uom,cust-po,board-code"
        cFieldLength = "3,20,20,8,25,8,8,15,5,12,9,8," +
-                      "8,15,11,11,8,10,3,15,10"
+                      "8,15,11,11,8,10,3,15,12"
        cFieldType   = "c,c,c,c,c,i,c,c,c,i,i,i," + "i,i,i,i,c,c,c,c,c"
        .
 ASSIGN cTextListToDefault  = "Rep,Rep Name,Customer,Customer Name,Invoice#,FG Item,Name,Catgy,Qty shipped,Total MSF," +
@@ -1905,34 +1905,24 @@ PROCEDURE pgetBoard :
   FIND FIRST ar-invl NO-LOCK
       WHERE ar-invl.company EQ cocode 
         AND ROWID(ar-invl) EQ iprowid NO-ERROR .
-   IF AVAIL ar-invl THEN
-   FOR EACH oe-boll NO-LOCK WHERE
-            oe-boll.company = cocode AND
-            oe-boll.bol-no = ar-invl.bol-no AND
-            oe-boll.i-no = ar-invl.i-no :
-
-            find first job-hdr no-lock
-                where job-hdr.company eq cocode
-                and job-hdr.job-no  eq oe-boll.job-no
-                and job-hdr.job-no2 eq oe-boll.job-no2
-                and job-hdr.i-no    eq oe-boll.i-no
-                no-error.
-
-            IF AVAIL job-hdr THEN
-                FOR EACH job-mat no-lock
-                where job-mat.company  eq cocode
-                and job-mat.job      eq job-hdr.job
-                and job-mat.frm      eq job-hdr.frm ,
-                first ITEM NO-LOCK
-                where item.company eq cocode
-                and item.i-no    eq job-mat.i-no
-                and index("BA",item.mat-type) gt 0
-                BREAK BY job-mat.i-no:
-                opcBoard = job-mat.i-no .
-                LEAVE.
-            END.
-            IF opcBoard NE "" THEN LEAVE .
-        END.
+   IF AVAIL ar-invl THEN do:
+       FIND FIRST eb NO-LOCK 
+           WHERE eb.company EQ cocode 
+           AND  eb.est-no EQ ar-invl.est-no 
+           AND eb.stock-no EQ ar-invl.i-no NO-ERROR .
+       IF NOT AVAIL eb  THEN
+           FIND FIRST eb NO-LOCK 
+           WHERE eb.company EQ cocode 
+           AND  eb.est-no EQ ar-invl.est-no  NO-ERROR .
+       IF AVAIL eb THEN
+           FIND FIRST ef NO-LOCK
+           WHERE ef.company EQ cocode 
+           AND ef.est-no EQ eb.est-no 
+           AND ef.form-no EQ eb.form-no NO-ERROR .
+       IF AVAIL eb AND AVAIL ef THEN
+           opcBoard = ef.board .
+       ELSE opcBoard = "" .
+   END.
 
 END PROCEDURE.
 
