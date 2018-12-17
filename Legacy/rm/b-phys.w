@@ -1096,6 +1096,29 @@ PROCEDURE new-bin :
 /*       IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN */
         rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(rm-bin.qty).
     END.
+    IF rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} EQ "0.0" AND 
+       rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE ""  THEN DO:
+        FOR EACH rm-rdtlh NO-LOCK
+        WHERE rm-rdtlh.company      EQ cocode
+          AND rm-rdtlh.loc          EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND rm-rdtlh.loc-bin      EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND rm-rdtlh.tag          EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND rm-rdtlh.rita-code    EQ "R"
+        USE-INDEX tag,
+        
+        EACH rm-rcpth NO-LOCK 
+        WHERE rm-rcpth.r-no         EQ rm-rdtlh.r-no
+          AND rm-rcpth.rita-code    EQ rm-rdtlh.rita-code
+          AND rm-rcpth.i-no         EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+        USE-INDEX r-no
+    
+        BY rm-rcpth.trans-date
+        BY rm-rcpth.r-no:
+
+            rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(rm-rdtlh.qty). 
+            LEAVE.
+        END.
+    END.
   END.
 
 END PROCEDURE.

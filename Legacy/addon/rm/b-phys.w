@@ -487,6 +487,8 @@ DO:
       rm-rctd.loc-bin:SCREEN-VALUE = loadtag.loc-bin.
     RUN valid-loc-bin-tag (3) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN new-bin .
+
     APPLY 'ENTRY':U TO rm-rctd.qty.
   END.
 END.
@@ -567,6 +569,33 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
+DO:
+  RUN new-bin.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc-bin Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF rm-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
+DO:
+  RUN new-bin.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF rm-rctd.tag IN BROWSE Browser-Table /* Tag# */
+DO:
+  RUN new-bin.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 
@@ -927,21 +956,45 @@ PROCEDURE new-bin :
   Notes:       
 ------------------------------------------------------------------------------*/
   
-  /*
+
   DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST rm-bin 
-        WHERE rm-bin.company EQ cocode
-          AND rm-bin.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND rm-bin.loc     EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND rm-bin.loc-bin EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND rm-bin.tag     EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+    FIND FIRST rm-bin WHERE rm-bin.company EQ cocode 
+        AND rm-bin.loc     EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}                         
+        AND rm-bin.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+        AND rm-bin.loc-bin EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
+        AND rm-bin.tag     EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
+
     IF AVAIL rm-bin THEN DO:
-      IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN
-        rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(rm-bin.qty).
+        rm-rctd.qty:SCREEN-VALUE = string(rm-bin.qty).
     END.
+    
+    IF rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} EQ "0.0" AND 
+       rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE ""  THEN DO:
+        FOR EACH rm-rdtlh NO-LOCK
+        WHERE rm-rdtlh.company      EQ cocode
+          AND rm-rdtlh.loc          EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND rm-rdtlh.loc-bin      EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND rm-rdtlh.tag          EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND rm-rdtlh.rita-code    EQ "R"
+        USE-INDEX tag,
+        
+        EACH rm-rcpth NO-LOCK 
+        WHERE rm-rcpth.r-no         EQ rm-rdtlh.r-no
+          AND rm-rcpth.rita-code    EQ rm-rdtlh.rita-code
+          AND rm-rcpth.i-no         EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+        USE-INDEX r-no
+    
+        BY rm-rcpth.trans-date
+        BY rm-rcpth.r-no:
+
+            rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(rm-rdtlh.qty). 
+            LEAVE.
+        END.
+    END.
+
   END.
-  */
+  
 
 END PROCEDURE.
 
