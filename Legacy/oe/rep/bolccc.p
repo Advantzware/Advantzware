@@ -376,7 +376,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
     END.
   END.
 /*To Avoid Overlap*/
-IF v-printline >= 36 THEN DO:
+IF v-printline >= 29 THEN DO:
     PUT 
     "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
     "Page " AT 109 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
