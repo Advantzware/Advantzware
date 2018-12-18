@@ -108,7 +108,7 @@ ASSIGN
                 "TriLakes,TriLakes2,Spectrum,Michcor,CapCity,colonialPL," +
                 "Allwest,LoyLang,Badger,Delta,PQP,RFC2,Peachtree,BlueRidg," +
                 "Oklahoma,Protagon,TriState,Soule,Adapt,Freedman,BELL,VINELAND,Axis,Lakeside,PFS," +
-                "jobcardc 1,jobcardc 2,Printers,Valley,jobcardc 20" 
+                "jobcardc 1,jobcardc 2,Printers,Valley,jobcardc 20,Valley20" 
  str-init[33] = "ASI,HOP,Fibre,Century,Interpac,FibreFC,HPB,Dayton,Livngstn,CentBox,Metro,Keystone,Frankstn,Colonial,Unipak,OTTPkg,Shelby,CCC,Indiana-XL,PPI,Accord,Knight,MidYork,Dee,Badger,Rosmar,Carded,Carded2,PackRite,Prystup,Knight***,Coburn," + /*MWFibre=Keystone*/
                 "jobcardf 1,jobcardf 2,xml,Wingate"
  str-init[34] = "Manual,Matrix"

@@ -1915,7 +1915,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF NOT tb_prt-set-header:SENSITIVE THEN
       tb_prt-set-header:SCREEN-VALUE = "no".
 
-    IF LOOKUP(lv-format-c,"jobcardc 20") > 0 THEN
+    IF LOOKUP(lv-format-c,"jobcardc 20,Valley20") > 0 THEN
      ASSIGN tb_fgimage:SENSITIVE = NO
             tb_fgimage:SCREEN-VALUE = "yes" 
             tb_box:SENSITIVE = NO
