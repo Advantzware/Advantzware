@@ -533,11 +533,16 @@ PROCEDURE genOrderLines:
   FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
   FIND FIRST cust WHERE cust.cust-no EQ oe-ord.cust-no 
     AND cust.company EQ oe-ord.company NO-LOCK NO-ERROR.
+  FIND FIRST ttordlines NO-LOCK NO-ERROR.
+
+  IF NOT AVAILABLE ttOrdHead THEN 
+    FIND FIRST ttOrdHead
+      WHERE ttOrdHead.ttOrderID EQ oe-ord.po-no NO-ERROR.
 
   FOR EACH ttOrdLines WHERE 
       ttOrdLines.ttpayLoadID = ttOrdHead.ttpayLoadID
       BY ttItemLineNumber:
-          
+
       ASSIGN 
               itemLineNumber                = ttOrdLines.ttItemLineNumber              
               itemQuantity                  = ttOrdLines.ttItemQuantity                 
@@ -657,6 +662,7 @@ PROCEDURE gencXMLOrder:
   DEFINE VARIABLE cShipToTaxCode AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE rOrdRec AS ROWID NO-UNDO.
   DEFINE VARIABLE cShipToID AS CHARACTER   NO-UNDO.
+  DEFINE VARIABLE cPartnerItem AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cDueDate AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lIsEdiXML AS LOGICAL NO-UNDO.
@@ -697,47 +703,58 @@ PROCEDURE gencXMLOrder:
         payLoadID = "1".
       FIND FIRST ttNodes WHERE  
          ttNodes.nodeName EQ "ISA06" NO-ERROR.
-        IF AVAILABLE ttNodes THEN 
+      IF AVAILABLE ttNodes THEN 
           fromIdentity = ttNodes.nodeValue.
-        /* fromIdentity = getNodeValue('ISA','ISA06'). */
-        orderDate    = getNodeValue('BEG','BEG05'). 
+      /* fromIdentity = getNodeValue('ISA','ISA06'). */
+      orderDate    = getNodeValue('BEG','BEG05'). 
 
-        ASSIGN 
-          orderdate = substring(orderDate, 1, 4) + "-" + substring(orderDate, 5, 2) + "-" + substring(orderDate, 7, 2) /* "2018 11 05" */
+      ASSIGN 
+          orderdate = SUBSTRING(orderDate, 1, 4) + "-" + substring(orderDate, 5, 2) + "-" + substring(orderDate, 7, 2) /* "2018 11 05" */
           custNo = getCustNo(fromIdentity)
           .
+      FIND FIRST cust NO-LOCK
+          WHERE cust.company EQ cocode
+          AND cust.cust-no EQ custNo
+          NO-ERROR.
+      IF NOT AVAILABLE cust THEN 
+      DO:
+          opcReturnValue = 'Customer: ' + custNo + ' not found'.
+          RETURN.
+      END.
+      FOR EACH ttNodes NO-LOCK 
+        WHERE ttNodes.nodeName EQ "PO107":
+            cPartnerItem = ttNodes.nodeValue.
+            FIND FIRST itemfg NO-LOCK 
+                WHERE itemfg.company EQ cocode
+                  AND itemfg.part-no EQ cPartnerItem
+                NO-ERROR.
+
+            IF NOT AVAILABLE itemfg THEN DO:
+                opcReturnValue = 'Part Number is missing from XML file' .
+                RETURN.                
+            END.
+      END.
 
       RUN cxml\xmltoOrderGE.p (INPUT TABLE ttNodes, INPUT-OUTPUT TABLE ttOrdHead , INPUT-OUTPUT TABLE ttOrdLines, INPUT-OUTPUT TABLE ttOrdSchedShipments).
   END.
   EACH-ORDER:
-  DO WHILE TRUE:
-      FIND FIRST ttOrdHead 
-        WHERE ttOrdHead.ttProcessed EQ NO 
-          AND ttOrdHead.ttSelectedOrder EQ NO
-          AND ttOrdHead.ttDocType EQ "PO" 
-        NO-ERROR.    
-      IF NOT AVAILABLE ttOrdHead AND lIsEdiXML THEN LEAVE EACH-ORDER.
-      IF AVAILABLE ttOrdHead THEN 
-        ttOrdHead.ttSelectedOrder = TRUE.
-        
+  FOR EACH  ttOrdHead NO-LOCK  
+         WHERE (ttOrdHead.ttDocType EQ "PO" OR ttOrdHead.ttDocType EQ "850") :
+                 
+
+      ttOrdHead.ttSelectedOrder = TRUE.
+    
       iNextOrderNumber = GetNextOrder#().
       RUN genOrderHeader (INPUT iNextOrderNumber, INPUT orderDate, OUTPUT rOrdRec).
       IF NOT lIsEdiXML THEN DO:
           RUN genTempOrderHeader (INPUT rOrdRec, OUTPUT cShipToID, OUTPUT cReturn).                                                                                              
           RUN genTempOrderLines (INPUT rOrdRec, INPUT cShipToID, OUTPUT cReturn).  
-          FIND FIRST ttOrdHead WHERE ttOrdHead.ttProcessed EQ NO AND ttSelectedOrder EQ NO NO-ERROR.    
-          IF NOT AVAILABLE ttOrdHead THEN LEAVE EACH-ORDER.
       END.
-      RUN assignOrderHeader (INPUT rOrdRec, OUTPUT cShipToID, OUTPUT cReturn).                                                                                              
+      RUN assignOrderHeader (INPUT rOrdRec, OUTPUT cShipToID, OUTPUT cReturn).
       RUN genOrderLines (INPUT rOrdRec, INPUT cShipToID, OUTPUT cReturn).
       RUN touchOrder (INPUT rOrdRec, OUTPUT cReturn).
-      FIND FIRST ttOrdHead WHERE 
-        ttOrdHead.ttSelectedOrder EQ TRUE NO-ERROR.
-      IF AVAILABLE ttOrdHead THEN 
-        ASSIGN ttOrdHead.ttSelectedOrder = FALSE ttOrdHead.ttProcessed = TRUE.
-      /* Only one order per xml document for Ariba orders */
-      IF NOT lISEdiXML THEN 
-        LEAVE EACH-ORDER.
+ 
+      ASSIGN ttOrdHead.ttSelectedOrder = FALSE ttOrdHead.ttProcessed = TRUE.
   END. 
   RELEASE oe-ord.  
   RELEASE reftable.

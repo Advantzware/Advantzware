@@ -35,6 +35,7 @@ DEFINE VARIABLE needs_header       AS LOGICAL   INITIAL TRUE NO-UNDO.
 DEFINE VARIABLE needs_detail       AS LOGICAL   INITIAL FALSE NO-UNDO.
 DEFINE VARIABLE has_shipto_address AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE note_array         AS CHARACTER NO-UNDO EXTENT 9.    /* 9810 CAH */
+DEFINE VARIABLE retcode            AS INTEGER   NO-UNDO.
 DEFINE TEMP-TABLE ttRecsCreated 
  FIELD saveRow AS ROWID .
 /* ********************  Function Definitions  ******************** */
@@ -62,6 +63,16 @@ FUNCTION addRptLine RETURNS CHARACTER (ipcText AS CHARACTER, ipcFullText AS CHAR
       cNewText = ipcFullText.
     RETURN cNewText.
 END FUNCTION.
+
+PROCEDURE mail EXTERNAL "xpMail.dll" :
+    DEF INPUT PARAM mailTo AS CHAR.
+    DEF INPUT PARAM mailsubject AS CHAR.
+    DEF INPUT PARAM mailText AS CHAR.
+    DEF INPUT PARAM mailFiles AS CHAR.
+    DEF INPUT PARAM mailDialog AS LONG.
+    DEF OUTPUT PARAM retCode AS LONG.
+END.
+
 /* ***************************  Main Block  *************************** */
 
 
@@ -312,7 +323,7 @@ PROCEDURE process860:
               qryEdPoTran:QUERY-PREPARE("FOR EACH edPoTran WHERE edPoTran.seq = " + STRING(rMatchRow)).
               qryEdPoTran:QUERY-OPEN().
               qryEdPoTran:GET-FIRST().            
-             OUTPUT TO c:\temp\860Report.
+             
              cBody = addRptLine("Change Purpose: " + getDesc(EDPOTran.Purpose-code), cBody).
               /* PUT UNFORMATTED SESSION:TEMP-DIRECTORY skip. */
               cBody = addRptLine("Sequence: " + STRING(edPoTran.seq), cBody).
@@ -327,7 +338,7 @@ PROCEDURE process860:
                  IF LOOKUP(fh[ix]:name, cBufferDiff) > 0 THEN
                      cBody = addRptLine(FILL(" ", 5) + fh[ix]:NAME  + ": \t " + STRING(fh[ix]:BUFFER-VALUE), cBody).
              END.
-             OUTPUT CLOSE.
+             
               qryEdPoTran:QUERY-CLOSE.
               bufEdPOTran:BUFFER-RELEASE.
               DELETE OBJECT bufEdPOTran.
@@ -349,8 +360,7 @@ PROCEDURE process860:
                      qryEdPoTran:QUERY-PREPARE("FOR EACH edPoLine WHERE edPoLine.seq = " + STRING(rMatchRow)).
                      qryEdPoTran:QUERY-OPEN().
                      qryEdPoTran:GET-FIRST().                     
-                     OUTPUT TO c:\temp\860Report append.
-                     PUT UNFORMATTED SKIP(1).
+                    
                      cBody = addRptLine(" ", cBody).
                      cBody = addRptLine("For Line Number: " +  EDPOLine.cust-po-line, cBody).
                      cBody = addRptLine("     Change Purpose: " + getDesc(EDPOLine.Special-svc-code), cBody).
@@ -359,16 +369,18 @@ PROCEDURE process860:
                          IF LOOKUP(fh[ix]:name, cBufferDiff) > 0 THEN
                              cBody = addRptLine(FILL(" ", 5) + fh[ix]:NAME  + ": \t " + STRING(fh[ix]:BUFFER-VALUE), cBody).
                      END.                 
-                     OUTPUT CLOSE.
+                     
                      qryEdPoTran:QUERY-CLOSE.
                      bufEdPOTran:BUFFER-RELEASE.
                      DELETE OBJECT bufEdPOTran.
                      DELETE OBJECT qryEdPoTran. 
-
+                     /*
                      cMailExec = search("sys\cMail.exe").
                      IF cMailExec NE ? THEN 
                      OS-COMMAND VALUE(cMailExec + " -host:wade.kaldawi@advantzware.com:Chester1!@smtp.office365.com:587~
  -from:wade.kaldawi@advantzware.com -to:wade.kaldawi@advantzware.com -subject:" + '"' + cSubject + '"' + " -body:" + '"' + cBody + '"' + " -starttls").
+                     */
+                     RUN mail("wade.kaldawi@advantzware.com",cSubject,cBody,"",0,OUTPUT retcode).
                  END. /* if avail matching edPoline */
              END. /* each edPoLine */
           END. /* if avail matching edPOTran */

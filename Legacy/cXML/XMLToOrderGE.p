@@ -147,10 +147,17 @@ FOR EACH ttNodes:
         ttOrdLines.ttitemUnitOfMeasure = ttNodes.nodeValue.      
       WHEN "PO104" OR WHEN "POC06" THEN 
         ttOrdLines.ttitemMoney = ttNodes.nodeValue.      
-      WHEN "PO109" OR WHEN "POC09" THEN 
-        ttOrdLines.ttitemSupplierPartID  = ttNodes.nodeValue.      
-      WHEN "PO107" THEN 
-        ttOrdLines.ttitemManufacturerPartID = ttNodes.nodeValue.      
+/*      WHEN "PO109" OR WHEN "POC09" THEN                      */
+/*        ttOrdLines.ttitemSupplierPartID  = ttNodes.nodeValue.*/
+      WHEN "PO107" OR WHEN "POC07" THEN DO:
+        ttOrdLines.ttitemManufacturerPartID = ttNodes.nodeValue.
+        FIND FIRST itemfg NO-LOCK 
+            WHERE itemfg.company EQ cocode
+            AND itemfg.part-no EQ ttOrdLines.ttitemManufacturerPartID 
+            NO-ERROR.
+        IF AVAILABLE itemfg THEN 
+          ttOrdLines.ttitemSupplierPartID = itemfg.i-no.
+      END.
       WHEN "PID05" THEN 
             ttOrdLines.ttitemDescription  = ttNodes.nodeValue.         
       WHEN "SCH06" THEN 
