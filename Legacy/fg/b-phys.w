@@ -45,11 +45,13 @@ DEF VAR lv-job-no2 AS CHAR NO-UNDO.
 DEF VAR lv-prev-job2 AS cha NO-UNDO.
 DEF VAR lv-new-job-ran AS LOG NO-UNDO.
 DEF VAR lv-date LIKE fg-rctd.rct-date NO-UNDO.
+DEF VAR lAddMode AS LOG NO-UNDO.
 
 DEF BUFFER bf-tmp FOR fg-rctd.  /* for tag validation */
 DEF BUFFER xfg-rdtlh FOR fg-rdtlh. /* for tag validation */
 
 &SCOPED-DEFINE item-key-phrase TRUE
+&SCOPED-DEFINE SORTBY-PHRASE BY fg-rctd.r-no DESCENDING
 DEF VAR ll-crt-transfer AS LOG NO-UNDO.
 DEF VAR lv-org-loc AS cha NO-UNDO.
 DEF VAR lv-org-loc-bin AS cha NO-UNDO.
@@ -103,13 +105,11 @@ fg-rctd.cases-unit fg-rctd.partial
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table fg-rctd
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table fg-rctd
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
-      AND fg-rctd.company = g_company and ~
-fg-rctd.rita-code = "C" NO-LOCK ~
-    ~{&SORTBY-PHRASE}
+      AND fg-rctd.company = g_company and fg-rctd.rita-code = "C" NO-LOCK ~
+      BY fg-rctd.r-no DESCENDING 
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
-      AND fg-rctd.company = g_company and ~
-fg-rctd.rita-code = "C" NO-LOCK ~
-    ~{&SORTBY-PHRASE}.
+      AND fg-rctd.company = g_company and fg-rctd.rita-code = "C" NO-LOCK ~
+      BY fg-rctd.r-no DESCENDING. 
 &Scoped-define TABLES-IN-QUERY-Browser-Table fg-rctd
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table fg-rctd
 
@@ -184,7 +184,7 @@ DEFINE BROWSE Browser-Table
       fg-rctd.r-no COLUMN-LABEL "Seq#" FORMAT ">>>>>>>>":U WIDTH 12
             LABEL-BGCOLOR 14
       fg-rctd.rct-date COLUMN-LABEL "Count Date" FORMAT "99/99/9999":U
-            WIDTH 14 LABEL-BGCOLOR 14
+            LABEL-BGCOLOR 14
       fg-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(15)":U WIDTH 23
             LABEL-BGCOLOR 14
       fg-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
@@ -200,7 +200,7 @@ DEFINE BROWSE Browser-Table
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U WIDTH 9
             LABEL-BGCOLOR 14
       fg-rctd.qty-case COLUMN-LABEL "Unit Count" FORMAT ">>>,>>9":U
-            WIDTH 14 LABEL-BGCOLOR 14
+            LABEL-BGCOLOR 14
       fg-rctd.cases-unit COLUMN-LABEL "Units/!Skid" FORMAT ">>>9":U
             WIDTH 17 LABEL-BGCOLOR 14
       fg-rctd.partial COLUMN-LABEL "Partial" FORMAT "->>>,>>9":U
@@ -336,7 +336,7 @@ fg-rctd.rita-code = ""C"""
      _FldNameList[1]   > asi.fg-rctd.r-no
 "fg-rctd.r-no" "Seq#" ">>>>>>>>" "integer" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.fg-rctd.rct-date
-"fg-rctd.rct-date" "Count Date" ? "date" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.rct-date" "Count Date" ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.fg-rctd.i-no
 "fg-rctd.i-no" "Item" "x(15)" "character" ? ? ? 14 ? ? yes ? no no "23" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.fg-rctd.i-name
@@ -356,7 +356,7 @@ fg-rctd.rita-code = ""C"""
      _FldNameList[11]   > asi.fg-rctd.cases
 "fg-rctd.cases" "Units" "->>>,>>9" "integer" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > asi.fg-rctd.qty-case
-"fg-rctd.qty-case" "Unit Count" ? "integer" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.qty-case" "Unit Count" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > asi.fg-rctd.cases-unit
 "fg-rctd.cases-unit" "Units/!Skid" ">>>9" "integer" ? ? ? 14 ? ? yes ? no no "17" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > asi.fg-rctd.partial
@@ -387,6 +387,22 @@ fg-rctd.rita-code = ""C"""
 
 &Scoped-define BROWSE-NAME Browser-Table
 &Scoped-define SELF-NAME Browser-Table
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
+DO:
+   def var phandle as widget-handle no-undo.
+   def var char-hdl as cha no-undo.   
+   RUN get-link-handle IN adm-broker-hdl
+      (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
+   phandle = WIDGET-HANDLE(char-hdl).
+   
+   RUN new-state in phandle ('update-begin':U).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON HELP OF Browser-Table IN FRAME F-Main
 DO:
@@ -467,22 +483,6 @@ DO:
 
   RETURN NO-APPLY.
 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
-DO:
-   def var phandle as widget-handle no-undo.
-   def var char-hdl as cha no-undo.   
-   RUN get-link-handle IN adm-broker-hdl
-      (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
-   phandle = WIDGET-HANDLE(char-hdl).
-   
-   RUN new-state in phandle ('update-begin':U).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -711,7 +711,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fg-rctd.tag
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF fg-rctd.tag IN BROWSE Browser-Table /* Tag# */
 DO:
@@ -800,6 +799,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+&SCOPED-DEFINE SORTBY-PHRASE BY fg-rctd.r-no DESCENDING
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -1313,6 +1313,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record B-table-Win 
+PROCEDURE local-add-record :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF lAddMode THEN DO:
+    MESSAGE 
+        "You must save or cancel this record before adding another."
+        VIEW-AS ALERT-BOX.
+    RETURN.
+  END.
+  ELSE 
+      RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+      
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
 PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
@@ -1395,6 +1425,9 @@ PROCEDURE local-cancel-record :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"trans-source", OUTPUT char-hdl).
   RUN reset-button IN WIDGET-HANDLE(char-hdl) (yes).
+  
+  ASSIGN 
+    lAddMode = FALSE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1454,7 +1487,8 @@ PROCEDURE local-create-record :
      fg-rctd.rct-date     = v_rct-date
      fg-rctd.s-num        = 0
      fg-rctd.units-pallet = 1
-     fg-rctd.cases-unit   = 1.
+     fg-rctd.cases-unit   = 1
+     lAddMode = TRUE.
     DISPLAY fg-rctd.rct-date WITH BROWSE {&browse-name}.
   END.
 
@@ -1570,6 +1604,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win
+PROCEDURE local-open-query:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+&SCOPED-DEFINE SORTBY-PHRASE BY fg-rctd.r-no DESCENDING
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -1637,6 +1697,8 @@ PROCEDURE local-update-record :
   END.
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"trans-source", OUTPUT char-hdl).
   RUN reset-button IN WIDGET-HANDLE(char-hdl) (yes).
+  ASSIGN 
+    lAddMode = FALSE.
 
 END PROCEDURE.
 
@@ -2209,6 +2271,38 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-count B-table-Win 
+PROCEDURE validate-count :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+IF NOT lCheckCount THEN do:
+    IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+        FOR EACH fg-rcpth NO-LOCK
+             WHERE fg-rcpth.company EQ g_company 
+               AND fg-rcpth.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+               AND fg-rcpth.rita-code EQ "C"
+               AND fg-rcpth.trans-date EQ date(fg-rctd.rct-date:SCREEN-VALUE IN BROWSE {&browse-name})  , 
+            EACH fg-rdtlh WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no 
+            AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+            AND fg-rdtlh.tag EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK: 
+            MESSAGE "Note: A count is already entered for this tag for the same date with a count of "
+                    STRING(fg-rdtlh.qty-case) VIEW-AS ALERT-BOX INFO .
+            lCheckCount = YES .
+            LEAVE .
+        END.
+    END.
+   END.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-record B-table-Win 
 PROCEDURE validate-record :
 /*------------------------------------------------------------------------------
@@ -2294,39 +2388,6 @@ PROCEDURE validate-record :
            END.
     END.
   END.
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-count B-table-Win 
-PROCEDURE validate-count :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-IF NOT lCheckCount THEN do:
-    IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
-        FOR EACH fg-rcpth NO-LOCK
-             WHERE fg-rcpth.company EQ g_company 
-               AND fg-rcpth.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-               AND fg-rcpth.rita-code EQ "C"
-               AND fg-rcpth.trans-date EQ date(fg-rctd.rct-date:SCREEN-VALUE IN BROWSE {&browse-name})  , 
-            EACH fg-rdtlh WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no 
-            AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-            AND fg-rdtlh.tag EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK: 
-            MESSAGE "Note: A count is already entered for this tag for the same date with a count of "
-                    STRING(fg-rdtlh.qty-case) VIEW-AS ALERT-BOX INFO .
-            lCheckCount = YES .
-            LEAVE .
-        END.
-    END.
-   END.
 
 
 END PROCEDURE.
