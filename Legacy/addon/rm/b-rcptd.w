@@ -1978,6 +1978,11 @@ PROCEDURE local-assign-record:
         rm-rctd.enteredBy = USERID("asi")
         rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
         .
+  FIND CURRENT po-ordl NO-LOCK NO-ERROR .
+  IF NOT AVAIL po-ordl THEN
+      FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
+  IF AVAIL po-ordl THEN
+      rm-rctd.po-line = po-ordl.LINE .
 
 END PROCEDURE.
 	
