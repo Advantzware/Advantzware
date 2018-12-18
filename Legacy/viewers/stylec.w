@@ -1629,11 +1629,18 @@ PROCEDURE local-delete-record :
 
   FOR EACH bf-flute NO-LOCK:  /* used be reftable */
       /* IF this style/flute not used in any other company, OK to delete non-co-specific data */
-      IF NOT CAN-FIND (FIRST bstyle WHERE 
+      IF CAN-FIND (FIRST bstyle WHERE 
                         bstyle.company NE style.company AND 
                         bstyle.style EQ style.style AND 
-                        bstyle.flute EQ bf-flute.code) THEN 
-      DO j = 1 TO 7:
+                        bstyle.flute EQ bf-flute.code) THEN DO:
+            MESSAGE 
+                "This style/flute combination exists in multiple companies.  If you delete it," SKIP 
+                "you will need to recreate the detail data in the other company style records." SKIP 
+                "Are you sure?"
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lDelete AS LOG.
+            IF NOT lDelete THEN RETURN.
+      END. 
+      ELSE DO j = 1 TO 7:
          FIND FIRST reftable WHERE reftable.reftable = "STYFLU"
                                AND reftable.company = style.style
                                AND reftable.loc = bf-flute.code
