@@ -1778,16 +1778,14 @@ PROCEDURE pCopyToUser :
             END. /* if is-selected */
         END. /* do idx */
     END. /* with frame */
-    RUN pGetCopyUsers.
-    
-    /* if current user, need to rebuild menu and redisplay */
-    IF lCurrentUser THEN
-    RUN pRebuildMenuTree.
-    
     MESSAGE 
         "Copy from User" copyFromUser "Complete."
     VIEW-AS ALERT-BOX.
-    
+    RUN pGetCopyUsers.    
+    /* if current user, need to rebuild menu and redisplay */
+    IF lCurrentUser THEN
+    RUN pRebuildMenuTree.
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
