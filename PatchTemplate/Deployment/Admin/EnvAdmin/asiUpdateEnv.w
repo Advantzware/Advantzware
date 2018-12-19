@@ -3714,7 +3714,7 @@ PROCEDURE ipLoadUtilitiesTable :
     REPEAT:
         CREATE {&tablename}.
         IMPORT {&tablename}.
-        IF {&tablename}.programName = "module" THEN ASSIGN 
+        IF {&tablename}.programName = "module.r" THEN ASSIGN 
             {&tablename}.securityLevel = 1000.
         ELSE ASSIGN 
             {&tablename}.securityLevel = 900.
