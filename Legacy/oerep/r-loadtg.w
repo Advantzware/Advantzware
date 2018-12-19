@@ -1763,6 +1763,16 @@ END.
 ON LEAVE OF fi_cas-lab IN FRAME FRAME-A /* Scan Case Label */
 DO:
   IF SELF:SCREEN-VALUE NE "" AND SELF:MODIFIED THEN DO:
+      ASSIGN {&displayed-objects}.
+    ASSIGN
+      cBarCodeProgram = IF scr-label-file MATCHES "*.xpr*" THEN "xprint" 
+                        ELSE IF scr-label-file MATCHES "*.lwl" THEN "loftware" 
+                        ELSE "".
+     
+    FOR EACH tt-word-print:
+       DELETE tt-word-print .
+    END.
+
     RUN new-cas-lab.
     IF RETURN-VALUE NE 'ERROR' THEN DO:
       SELF:SCREEN-VALUE = ''.
