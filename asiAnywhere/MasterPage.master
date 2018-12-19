@@ -1,0 +1,180 @@
+<%@ Master Language="C#" AutoEventWireup="true" Inherits="MasterPage" Codebehind="~/masterpage.master.cs" %>
+    <%@ Register Src="footer.ascx" TagName="Footer" TagPrefix="ft" %>
+    <%@ Register Src="header.ascx" TagName="Header" TagPrefix="hd" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head id="Head1" runat="server">
+    <title>Order Inquiry</title>
+    <LINK href="include/style.css" type="text/css" rel="stylesheet"/>
+    <LINK href="order_inquiry.css" rel="stylesheet" type="text/css" />
+    <link href="include/tree.css" rel="stylesheet" type="text/css" />
+    <link href="include/tree.css" rel="stylesheet" type="text/css" />
+    <link href="include/tree.css" rel="stylesheet" type="text/css" />
+    <link href="include/tree.css" rel="stylesheet" type="text/css" />
+    <link href="include/tree.css" rel="stylesheet" type="text/css" />
+    <link href="include/tree.css" rel="stylesheet" type="text/css" />
+    <link href="include/tree.css" rel="stylesheet" type="text/css" />
+    <link href="include/tree.css" rel="stylesheet" type="text/css" />
+    <link href="include/tree.css" rel="stylesheet" type="text/css" />
+    <script>
+    function FP_swapImg() {//v1.0
+ var doc=document,args=arguments,elm,n; doc.$imgSwaps=new Array(); for(n=2; n<args.length;
+ n+=2) { elm=FP_getObjectByID(args[n]); if(elm) { doc.$imgSwaps[doc.$imgSwaps.length]=elm;
+ elm.$src=elm.src; elm.src=args[n+1]; } }
+}
+function FP_getObjectByID(id,o) {//v1.0
+ var c,el,els,f,m,n; if(!o)o=document; if(o.getElementById) el=o.getElementById(id);
+ else if(o.layers) c=o.layers; else if(o.all) el=o.all[id]; if(el) return el;
+ if(o.id==id || o.name==id) return o; if(o.childNodes) c=o.childNodes; if(c)
+ for(n=0; n<c.length; n++) { el=FP_getObjectByID(id,c[n]); if(el) return el; }
+ f=o.forms; if(f) for(n=0; n<f.length; n++) { els=f[n].elements;
+ for(m=0; m<els.length; m++){ el=FP_getObjectByID(id,els[n]); if(el) return el; } }
+ return null;
+}
+
+function FP_preloadImgs() {//v1.0
+ var d=document,a=arguments; if(!d.FP_imgs) d.FP_imgs=new Array();
+ for(var i=0; i<a.length; i++) { d.FP_imgs[i]=new Image; d.FP_imgs[i].src=a[i]; }
+}
+
+function orderhelp()
+{
+    var NewWindow = window.open("order_help.aspx","OrderHelpWindow","width=500,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");
+}
+function printrep()
+{
+    var NewWindow = window.open("topbtnorderreport.aspx","OrderReport","width=800,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");    
+}
+function ordernotes()
+{
+  var NewWindow = window.open("toporder_list_notes.aspx","OrderListNotes","width=600,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");    
+}
+function printackrep()
+    {
+        var NewWindow = window.open("topprintorderack_report.aspx","OrderAcknowledgementReport","width=800,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");    
+    }
+    function printspec()
+    {
+    var NewWindow = window.open("topspec_list_notes.aspx","OrderListNotes","width=600,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");    
+    }
+    function topattach()
+    {
+    var NewWindow = window.open("top_attach_list.aspx","Attachment","width=650,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");    
+    }
+    </script>
+    
+</head>
+<body onload="FP_preloadImgs(/*url*/'~/img/brwsorder0.jpg', /*url*/'~/img/brwsorder1.jpg', /*url*/'~/img/vieworder0.jpg', /*url*/'~/img/vieworder1.jpg', /*url*/'~/img/viewitem0.jpg', /*url*/'~/img/viewitem1.jpg', /*url*/'~/img/misccharge0.jpg', /*url*/'~/img/misccharge1.jpg', /*url*/'~/img/releases0.jpg', /*url*/'~/img/releases1.jpg', /*url*/'~/img/ordertotal0.jpg', /*url*/'~/img/ordertotal1.jpg', /*url*/'~/img/invoice0.jpg', /*url*/'~/img/invoice1.jpg', /*url*/'~/img/shipnotes0.jpg', /*url*/'~/img/shipnotes1.jpg', /*url*/'~/img/jobprod0.jpg', /*url*/'~/img/fgitem0.jpg')">
+<form id="form1" runat="server">
+<hd:Header ID="Header1" runat="server" />
+
+<table width="100%"><tr><td>
+    <table align="left" border="1" width="75%">
+                <tr class="headcolor">
+                    
+                    
+                   <td nowrap>
+                        <a href="#" onClick="printackrep(); return false"><asp:Image ID="Image2" Width="35px" runat="server" ImageUrl="~/Images/printAck.bmp" /></a>
+                    </td>
+                    <td nowrap >
+                        <a href="#" onClick="printrep(); return false"><asp:Image ID="Image1" Width="35px" runat="server" ImageUrl="~/Images/print-u.bmp" /></a>
+                    </td>
+                    <td nowrap >
+                        <asp:ImageButton ID="img_btn_add" runat="server" Width="35px" ImageUrl="~/Images/add.bmp" ToolTip="List" OnClick="img_btn_add_click" />
+                      </td>
+                      <td nowrap width="25px";>
+                        <a href="#" onClick="topattach(); return false"><asp:Image ID="Image4" Width="35px" ToolTip="Attachment" runat="server" ImageUrl="~/Images/clip.ico" /></a>                        
+                        </td>
+                     <td nowrap width="25px";>
+                        <a href="#" onClick="ordernotes(); return false"><asp:Image ID="img_btn_notes" Width="35px" ToolTip="Notes" runat="server" ImageUrl="~/Images/edit.ico" /></a>                        
+                        </td>
+                         <td nowrap width="25px";>
+                        <a href="#" onClick="printspec(); return false"><asp:Image ID="Image3" Width="35px" runat="server" ImageUrl="~/Images/dict.ico" /></a>
+                    </td>
+                        <td nowrap >
+                        <a href="#" onClick="orderhelp(); return false"><asp:Image ID="img_help" Width="35px" ToolTip="Help" runat="server" ImageUrl="~/Images/help.ico" /></a>
+                        </td>
+                      <td nowrap>
+                        <asp:ImageButton ID="img_btn_exit" runat="server" ImageUrl="~/Images/exit-au.bmp" Width="35px" ToolTip="LogOut" OnClick="img_btn_exit_click" />
+                    </td>
+                    <td nowrap  width="90%"> &nbsp;</td>
+                </tr>
+      </table>
+     </td>
+     </tr>
+     <tr><td>
+  <div>
+     <TABLE id="tblTop" cellSpacing="3" align="center" border="0" Width="100%">
+        <TR>
+          <TD width=30>&nbsp;</TD>
+          <TD align=center nowrap><font size=+0><b>Order Inquiry&nbsp;:<asp:Label ID="lbl_page" runat="server"></asp:Label></b></font></TD>
+          <TD vAlign="middle">
+            <asp:linkbutton id="LinkButton1" runat="server" OnClick="LinkButton1_Click">Back to menu</asp:linkbutton>
+          </TD>
+          <TD align="right"><font size=+0><b>Users&nbsp;&nbsp;</b></font></TD>
+          <TD vAlign="middle" align="left">Logged as&nbsp;
+            <asp:label id="lblUser" runat="server" Font-Bold="True">&nbsp;</asp:label>&nbsp;&nbsp;&nbsp;
+            <asp:linkbutton id="hlnkLogOut" runat="server" OnClick="hlnkLogOut_Click">Log out</asp:linkbutton>
+            
+            <%--&nbsp;&nbsp;&nbsp;<asp:hyperlink id="hlnkChangePwd" runat="server" NavigateUrl="changepwd.aspx">Change password</asp:hyperlink>
+            &nbsp;&nbsp;&nbsp;--%>
+            Company:&nbsp;
+            <asp:label id="lblComp" runat="server" Font-Bold="True">&nbsp;</asp:label>&nbsp;&nbsp;&nbsp;
+          </TD>
+          
+                    
+          <TD vAlign="middle" width="20">&nbsp;</TD>
+          <td width=30>&nbsp;</td>
+        </TR>
+      </TABLE>  
+  </div>
+  
+  </td></tr></table>
+  
+  <div>
+      
+      <table>
+      <tr style="background-color:Gray;">
+      <td nowrap>
+        <div  id="navigation" style="width:100%">
+		<ul nowrap>
+          <li id="liImageButton4" runat="server" ><asp:LinkButton ID="LinkButton5" runat="server" OnClick="LinkButton5_Click">List Order</asp:LinkButton><%--<asp:ImageButton ID="ImageButton4" ImageUrl="~/img/brwsorder0.jpg" runat="server" OnClick="ImageButton4_Click" />--%></li>
+          <li id="liImageButton5" runat="server" ><asp:LinkButton ID="LinkButton6" runat="server" OnClick="LinkButton6_Click">View Order</asp:LinkButton><%--<asp:ImageButton ID="ImageButton5" ImageUrl="~/img/vieworder0.jpg" runat="server" OnClick="ImageButton5_Click" />--%></li>
+          <li id="liImageButton6" runat="server" ><asp:LinkButton ID="LinkButton7" runat="server" OnClick="LinkButton7_Click">List Item</asp:LinkButton><%--<asp:ImageButton ID="ImageButton6" ImageUrl="~/Images/list item 0.jpg" runat="server" OnClick="ImageButton6_Click" />--%></li>
+          <li id="liImageButton7" runat="server" ><asp:LinkButton ID="LinkButton8" runat="server" OnClick="LinkButton8_Click" >View Item</asp:LinkButton><%--<asp:ImageButton ID="ImageButton7" ImageUrl="~/img/viewitem0.jpg" runat="server" OnClick="ImageButton7_Click" />--%></li>
+           
+      
+          <li id="liImageButton1" runat="server" ><asp:LinkButton ID="LinkButton2" runat="server" OnClick="lnk_brwsorder2_Click">List Order</asp:LinkButton><%--<asp:ImageButton ID="ImageButton1" ImageUrl="~/img/brwsorder0.jpg" runat="server" OnClick="brwsorder2_Click" />--%></li>
+          <li id="liImageButton2" runat="server" ><asp:LinkButton ID="LinkButton3" runat="server" OnClick="lnk_vieworder2_Click">View Order</asp:LinkButton><%--<asp:ImageButton ID="ImageButton2" ImageUrl="~/img/vieworder0.jpg" runat="server" OnClick="vieworder2_Click" />--%></li>
+          <li id="lilistitem" runat="server" ><asp:LinkButton ID="lnk_listitem" runat="server" OnClick="lnk_listitem2_Click">List Item</asp:LinkButton><%--<asp:ImageButton ID="listitem" ImageUrl="~/Images/list item 0.jpg" runat="server" OnClick="listitem2_Click" />--%></li>
+          <li id="liImageButton3" runat="server" ><asp:LinkButton ID="LinkButton4" runat="server" OnClick="lnk_viewitem2_Click" >View Item</asp:LinkButton><%--<asp:ImageButton ID="ImageButton3" ImageUrl="~/img/viewitem0.jpg" runat="server" OnClick="viewitem2_Click" />--%></li>
+          
+        
+		<li id="librowseorder" runat="server" >
+          <asp:LinkButton ID="lnk_brwsorder" runat="server" OnClick="lnk_brwsorder_Click">List Order</asp:LinkButton><%--<asp:ImageButton ID="brwsorder" ImageUrl="~/img/brwsorder0.jpg" runat="server" OnClick="brwsorder_Click" />--%></li>
+          <li id="livieword" runat="server" ><asp:LinkButton ID="lnk_vieworder" runat="server" OnClick="lnk_vieworder_Click">View Order</asp:LinkButton><%--<asp:ImageButton ID="vieworder" ImageUrl="~/img/vieworder0.jpg" runat="server" OnClick="vieworder_Click" />--%></li>
+          <li id="liviewitem" runat="server" ><asp:LinkButton ID="lnk_viewitem" runat="server" OnClick="lnk_viewitem_Click">View Item</asp:LinkButton><%--<asp:ImageButton ID="viewitem" ImageUrl="~/img/viewitem0.jpg" runat="server" OnClick="viewitem_Click" />--%></li>
+          <li id="limischgs" runat="server" ><asp:LinkButton ID="lnk_mischgs" runat="server" OnClick="lnk_mischgs_Click">Misc Chgs</asp:LinkButton><%--<asp:ImageButton ID="misccharge" ImageUrl="~/img/misccharge0.jpg" runat="server" OnClick="misccharge_Click" />--%></li>
+          <li id="lijobprod" runat="server" ><asp:LinkButton ID="lnk_jobprod" runat="server" OnClick="lnk_jobprod_Click">Job Status</asp:LinkButton><%--<asp:ImageButton ID="jobprod" ImageUrl="~/img/jobprod0.jpg" runat="server" OnClick="jobprod_Click" />--%></li>
+          <li id="lireleases" runat="server" ><asp:LinkButton ID="lnk_releases" runat="server" OnClick="lnk_releases_Click">Releases</asp:LinkButton><%--<asp:ImageButton ID="releases" ImageUrl="~/img/releases0.jpg" runat="server" OnClick="releases_Click" />--%></li>
+          <%--<asp:LinkButton ID="LinkButton4" runat="server"><img id="IMG6" name="IMG6" src="img/estimate.jpg" border="0" alt="estimate" width="100px" height="50px" /></asp:LinkButton>--%>
+          <li id="liordertot" runat="server" ><asp:LinkButton ID="lnk_ordertotal" runat="server" OnClick="lnk_ordertotal_Click">Order Total</asp:LinkButton><%--<asp:ImageButton ID="ordertotal" ImageUrl="~/img/ordertotal0.jpg" runat="server" OnClick="ordertotal_Click" />--%></li>
+          <li id="lifgitem" runat="server" ><asp:LinkButton ID="lnk_fgitem" runat="server" OnClick="lnk_fgitem_Click">Item Status</asp:LinkButton><%--<asp:ImageButton ID="fgitem" ImageUrl="~/img/fgitem0.jpg" runat="server" OnClick="fgitem_Click" />--%></li>
+          <li id="liinvoice" runat="server" ><asp:LinkButton ID="lnk_invoices" runat="server" OnClick="lnk_invoices_Click">Invoices</asp:LinkButton><%--<asp:ImageButton ID="invoice" ImageUrl="~/img/invoice0.jpg" runat="server" OnClick="invoice_Click" />--%></li>
+          <li id="lishipnotes" runat="server" ><asp:LinkButton ID="lnk_shipnotes" runat="server" OnClick="lnk_shipnotes_Click">Ship Notes</asp:LinkButton><%--<asp:ImageButton ID="shipnotes" ImageUrl="~/img/shipnotes0.jpg" runat="server" OnClick="shipnotes_Click" />--%></li>
+          </ul></div>
+      </td>
+      </tr>
+      </table>
+     
+
+    </div>
+    
+        <asp:contentplaceholder id="ContentPlaceHolder1" runat="server">
+        </asp:contentplaceholder>
+    <ft:Footer ID="Footer1" runat="server" />
+    </form>
+</body>
+</html>
