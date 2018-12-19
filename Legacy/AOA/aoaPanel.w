@@ -453,6 +453,8 @@ PROCEDURE pPanelSelection :
     END CASE.
     
     IF lJasperStarter THEN DO:
+        {methods/run_link.i "CONTAINER" "pSaveUserPrint" "(NO)"}
+        {methods/run_link.i "CONTAINER" "pSaveJasperUserPrint" "(NO)"}
         {methods/run_link.i "CONTAINER" "pGetUserPrintRowID" "(OUTPUT rUserPrintRowID)"}
         {methods/run_link.i "CONTAINER" "pGethAppSrv" "(OUTPUT hAppSrv)"}
         {methods/run_link.i "CONTAINER" "pGethAppSrvBin" "(OUTPUT hAppSrvBin)"}
