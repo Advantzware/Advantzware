@@ -1869,6 +1869,42 @@ PROCEDURE local-update-record :
                 usr.last-chg = today.
         END.
 
+        /* Most elements come from the 'generic' ttUser (ttfPdbname = '*') */
+        FIND ttUsers WHERE
+            ttUsers.ttfPdbName = "*" AND
+            ttUsers.ttfUserID = users.user_id:SCREEN-VALUE
+            NO-ERROR.
+        IF NOT AVAIL ttUsers THEN DO:
+            CREATE ttUsers.
+            ASSIGN
+                ttUsers.ttfPdbName = "*"
+                ttUsers.ttfUserID = users.user_id:SCREEN-VALUE.
+        END.
+        ASSIGN
+            ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE
+            ttUsers.ttfEnvList = if slEnvironments:SCREEN-VALUE <> slEnvironments:list-items then slEnvironments:SCREEN-VALUE else ""
+            ttUsers.ttfDbList = if slDatabases:SCREEN-VALUE <> slDatabases:list-items then slDatabases:SCREEN-VALUE else ""
+            ttUsers.ttfModeList = ""
+            .
+
+        /* But mode-list has a by-db component (ttfPdbname = pdbname(1)) */
+        FIND ttUsers WHERE
+            ttUsers.ttfPdbName = PDBNAME(1) AND
+            ttUsers.ttfUserID = users.user_id:SCREEN-VALUE
+            NO-ERROR.
+        IF NOT AVAIL ttUsers THEN DO:
+            CREATE ttUsers.
+            ASSIGN
+                ttUsers.ttfPdbName = PDBNAME(1)
+                ttUsers.ttfUserID = users.user_id:SCREEN-VALUE.
+        END.
+        ASSIGN
+            ttUsers.ttfModeList = if slModes:SCREEN-VALUE <> slModes:list-items then slModes:SCREEN-VALUE else ""
+            ttUsers.ttfEnvList = ""
+            ttUsers.ttfDbList = ""
+            ttUsers.ttfUserAlias = ""
+            .
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1892,41 +1928,6 @@ PROCEDURE local-update-record :
             rThisUser = ROWID(users).
     END.
 
-        /* Most elements come from the 'generic' ttUser (ttfPdbname = '*') */
-        FIND ttUsers WHERE
-            ttUsers.ttfPdbName = "*" AND
-            ttUsers.ttfUserID = users.user_id
-            NO-ERROR.
-        IF NOT AVAIL ttUsers THEN DO:
-            CREATE ttUsers.
-            ASSIGN
-                ttUsers.ttfPdbName = "*"
-                ttUsers.ttfUserID = users.user_id.
-        END.
-        ASSIGN
-            ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE
-            ttUsers.ttfEnvList = if slEnvironments:SCREEN-VALUE <> slEnvironments:list-items then slEnvironments:SCREEN-VALUE else ""
-            ttUsers.ttfDbList = if slDatabases:SCREEN-VALUE <> slDatabases:list-items then slDatabases:SCREEN-VALUE else ""
-            ttUsers.ttfModeList = ""
-            .
-
-        /* But mode-list has a by-db component (ttfPdbname = pdbname(1)) */
-        FIND ttUsers WHERE
-            ttUsers.ttfPdbName = PDBNAME(1) AND
-            ttUsers.ttfUserID = users.user_id
-            NO-ERROR.
-        IF NOT AVAIL ttUsers THEN DO:
-            CREATE ttUsers.
-            ASSIGN
-                ttUsers.ttfPdbName = PDBNAME(1)
-                ttUsers.ttfUserID = users.user_id.
-        END.
-        ASSIGN
-            ttUsers.ttfModeList = if slModes:SCREEN-VALUE <> slModes:list-items then slModes:SCREEN-VALUE else ""
-            ttUsers.ttfEnvList = ""
-            ttUsers.ttfDbList = ""
-            ttUsers.ttfUserAlias = ""
-            .
 
     RUN ipWriteUsrFile.
     EMPTY TEMP-TABLE ttUsers.
