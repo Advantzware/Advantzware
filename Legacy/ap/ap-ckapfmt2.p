@@ -38,7 +38,7 @@ FORM
 
 FORM SKIP(3)
     "<b><c1>" company.NAME  "<c38>" bank.bank-name 
-    "</b><c60>"  bank.SwiftBIC FORMAT "x(9)"
+    "</b><c60>"  bank.SwiftBIC FORMAT "x(11)"
     "<c72><b>" ap-chk.check-no "</b>"  SKIP
     "<c1>" v-comp-add1 "<c38>" cBankAdd1 SKIP
     "<c1>" v-comp-add2 "<c38>" cBankAdd2  SKIP
