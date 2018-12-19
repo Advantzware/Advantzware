@@ -81,6 +81,7 @@ DEF VAR ll-new-due AS LOG NO-UNDO.
 DEF VAR lv-type-codes AS CHAR NO-UNDO.
 DEF VAR lv-type-dscrs AS CHAR NO-UNDO.
 DEF VAR K_FRAC AS DEC INIT 6.25 NO-UNDO.
+DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 
 DEFINE VARIABLE prodDateChanged AS LOGICAL NO-UNDO.
 DEFINE VARIABLE dueDateChanged AS LOGICAL NO-UNDO.
@@ -165,6 +166,22 @@ RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 
 
 /* ************************  Function Prototypes ********************** */
+
+&IF DEFINED(EXCLUDE-fGetTaxable) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable Procedure
+FUNCTION fGetTaxable RETURNS LOGICAL 
+  ( ipcCompany AS CHARACTER,
+   ipcCust AS CHARACTER,
+   ipcShipto AS CHARACTER,
+    ipcFGItemID AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-get-handle) = 0 &THEN
 
@@ -586,7 +603,8 @@ PROCEDURE create-misc :
       WHERE cust.company = g_company 
         AND cust.cust-no = oe-ord.cust-no
       NO-ERROR.
-  
+      
+  RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
   FOR EACH est-prep WHERE est-prep.company = g_company
                       AND est-prep.est-no = bf-eb.est-no
                       AND est-prep.simon = "S"     NO-LOCK .
@@ -616,7 +634,7 @@ PROCEDURE create-misc :
                                   (est-prep.cost * est-prep.qty) * (1 + (est-prep.mkup / 100)) * 
                                   (est-prep.amtz / 100)
                 oe-ordm.est-no = est-prep.est-no
-                oe-ordm.tax = cust.sort = "Y" AND oe-ord.tax-gr <> ""
+                oe-ordm.tax =  fGetTaxable(g_company, oe-ord.cust-no, oe-ord.ship-id, "")
                 oe-ordm.cost = (est-prep.cost * est-prep.qty * (est-prep.amtz / 100))
                 oe-ordm.bill  = "Y".
             
@@ -637,6 +655,7 @@ PROCEDURE create-misc :
 
       FIND CURRENT oe-ordm NO-LOCK.
   END.
+  DELETE OBJECT hdTaxProcs.
   FOR EACH ef OF bf-eb /*where ef.company = g_company and
                     ef.est-no = oe-ord.est-no */
                     NO-LOCK:
@@ -3039,6 +3058,32 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
+
+&IF DEFINED(EXCLUDE-fGetTaxable) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable Procedure
+FUNCTION fGetTaxable RETURNS LOGICAL 
+  ( ipcCompany AS CHARACTER,
+    ipcCust AS CHARACTER,
+    ipcShipto AS CHARACTER,
+    ipcFGItemID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+    RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+    RETURN lTaxable.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-get-handle) = 0 &THEN
 

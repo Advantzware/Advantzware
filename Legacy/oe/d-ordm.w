@@ -36,6 +36,7 @@ ASSIGN
 DEFINE VARIABLE lv-item-rowid   AS ROWID   NO-UNDO.
 DEFINE VARIABLE ll-order-warned AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ll-new-record   AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 
 {oe/oe-sysct1.i NEW}
 
@@ -129,6 +130,22 @@ oe-ordm.form-no oe-ordm.blank-no
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable Dialog-Frame
+FUNCTION fGetTaxable RETURNS LOGICAL 
+  ( ipcCompany AS CHARACTER,
+    ipcCust AS CHARACTER,
+    ipcShipto AS CHARACTER,
+    ipcFGItemID AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 
@@ -522,7 +539,7 @@ ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Misc. Charge Item Update */
                 WHERE ROWID(oe-ordm) EQ lv-item-rowid  NO-ERROR.
             IF AVAILABLE oe-ordm THEN DELETE oe-ordm .
         END.
-
+        DELETE OBJECT hdTaxProcs.
          APPLY 'GO':U TO FRAME {&FRAME-NAME}.
     END.
 
@@ -1036,7 +1053,9 @@ IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-
+        
+    RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
+    
     FIND oe-ord NO-LOCK
         WHERE oe-ord.company EQ cocode
         AND ROWID(oe-ord)  EQ ip-rowid2 NO-ERROR .
@@ -1173,8 +1192,6 @@ PROCEDURE create-item :
     IF AVAILABLE ar-ctrl THEN oe-ordm.actnum = ar-ctrl.sales.
     FIND FIRST cust OF oe-ord NO-LOCK.
 
-    oe-ordm.tax = cust.sort = "Y" AND oe-ord.tax-gr <> "".
-  
     FIND FIRST oe-ctrl NO-LOCK
         WHERE oe-ctrl.company = oe-ord.company
         NO-ERROR.
@@ -1187,7 +1204,7 @@ PROCEDURE create-item :
         ASSIGN oe-ordm.spare-char-1 = IF AVAILABLE shipto AND shipto.tax-code NE "" THEN shipto.tax-code
                                     ELSE IF AVAILABLE cust AND cust.spare-char-1 <> "" THEN cust.spare-char-1 
                                     ELSE oe-ord.tax-gr
-            oe-ordm.tax          = TRUE .
+               oe-ordm.tax          = fGetTaxable(cocode, oe-ord.cust-no, (IF AVAILABLE shipto THEN shipto.ship-id ELSE ""), "") .
 
   
     i = 0 .
@@ -2025,4 +2042,28 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable Dialog-Frame
+FUNCTION fGetTaxable RETURNS LOGICAL 
+  ( ipcCompany AS CHARACTER,
+    ipcCust AS CHARACTER,
+    ipcShipto AS CHARACTER,
+    ipcFGItemID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+    RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+    RETURN lTaxable.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

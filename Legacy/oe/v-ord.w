@@ -123,9 +123,10 @@ DEF NEW SHARED BUFFER xeb FOR eb.
 DEF NEW SHARED BUFFER xef FOR ef.
 DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lCreditAccSec AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 {oe/ttPriceHold.i "NEW SHARED"}
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
-
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 &Scoped-define sman-fields oe-ord.sman oe-ord.s-pct oe-ord.s-comm
 
 DEF NEW SHARED TEMP-TABLE w-ord NO-UNDO FIELD w-ord-no LIKE oe-ord.ord-no.
@@ -325,6 +326,19 @@ FUNCTION fBuildAddress RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable V-table-Win
+FUNCTION fGetTaxable RETURNS LOGICAL 
+  ( ipcCompany AS CHARACTER,
+   ipcCust AS CHARACTER,
+   ipcShipto AS CHARACTER,
+   ipcFGItemID AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-colonial-rel-date V-table-Win 
 FUNCTION get-colonial-rel-date RETURNS DATE
@@ -2452,7 +2466,7 @@ PROCEDURE create-misc :
                                   (est-prep.cost * est-prep.qty) * (1 + (est-prep.mkup / 100)) * 
                                   (est-prep.amtz / 100)
                 oe-ordm.est-no = est-prep.est-no
-                oe-ordm.tax = cust.sort = "Y" AND oe-ord.tax-gr <> ""
+                oe-ordm.tax =  fGetTaxable(g_company, oe-ord.cust-no, oe-ord.ship-id, "")
                 oe-ordm.cost = (est-prep.cost * est-prep.qty * (est-prep.amtz / 100))
                 oe-ordm.bill  = "Y".
 
@@ -5225,6 +5239,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit V-table-Win
+PROCEDURE local-exit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DELETE OBJECT hdTaxProcs.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize V-table-Win 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
@@ -6944,6 +6983,29 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable V-table-Win
+FUNCTION fGetTaxable RETURNS LOGICAL 
+  ( ipcCompany AS CHARACTER,
+   ipcCust AS CHARACTER,
+   ipcShipto AS CHARACTER,
+   ipcFGItemID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+    RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+    RETURN lTaxable.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-colonial-rel-date V-table-Win 
 FUNCTION get-colonial-rel-date RETURNS DATE
