@@ -4400,7 +4400,7 @@ PROCEDURE ipSetAsiPwd :
     IF AVAIL (_User) THEN DO:
         BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser.
         ASSIGN 
-            tempUser._Password = "ifaOfSAcSdialAkd".
+            tempUser._Password = "fcpapdfHaSLfnMbA".
         DELETE _User.
         CREATE _User.
         BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
@@ -4409,7 +4409,7 @@ PROCEDURE ipSetAsiPwd :
         CREATE _User.
         ASSIGN
             _User._UserId = "asi"
-            _User._Password = "ifaOfSAcSdialAkd".
+            _User._Password = "fcpapdfHaSLfnMbA".
     END.
 
     RELEASE _user.
