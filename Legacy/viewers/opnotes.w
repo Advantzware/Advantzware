@@ -147,7 +147,7 @@ DEFINE FRAME F-Main
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 106 BY 9.52
           BGCOLOR 15 
-     notes.createDate AT ROW 12.91 COL 23.2 COLON-ALIGNED WIDGET-ID 2
+     notes.createDate AT ROW 12.91 COL 23.4 COLON-ALIGNED WIDGET-ID 2
           LABEL "Created Date"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -331,6 +331,7 @@ ON ENTRY OF notes.note_code IN FRAME F-Main /* Code */
 DO:
     IF v-machine <> "" THEN
     ENABLE btn-dept WITH FRAME {&FRAME-NAME}.
+    {methods/viewers/rowavail/notes.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -509,14 +510,15 @@ PROCEDURE local-display-fields :
   dept-dscr:screen-value in frame {&frame-name} =
       if avail dept then dept.dscr else "".
 
-RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,'container-source', OUTPUT char-hdl).
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,'container-source', OUTPUT char-hdl).
   RUN get-ip-machine IN WIDGET-HANDLE(char-hdl) (OUTPUT v-machine).
 
-IF v-machine EQ "" THEN
-DO WITH FRAME {&FRAME-NAME}:
-btn-dept:HIDDEN = YES.
-END.
-
+  IF v-machine EQ "" THEN
+  DO WITH FRAME {&FRAME-NAME}:
+    btn-dept:HIDDEN = YES.
+  END.
+  {methods/viewers/rowavail/notes.i}
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
