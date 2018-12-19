@@ -1585,9 +1585,7 @@ PROCEDURE local-display-fields :
             slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList else slEnvironments:list-items
             slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
             users.userAlias:SCREEN-VALUE = ttUsers.ttfUserAlias
-            users.userAlias:modified = false
-            slModes:screen-value = if ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList
-                                   else slModes:list-items.            
+            users.userAlias:modified = FALSE.
             .
 
         /* But mode-list has a by-db component (ttfPdbname = pdbname(1)) */
@@ -1605,8 +1603,9 @@ PROCEDURE local-display-fields :
 /*            IF ttUsers.ttfModeList EQ "" THEN                                                                                */
 /*                ttUsers.ttfModeList = IF users.modeList GT "" THEN REPLACE(users.modeList, "|", ",") ELSE slModes:list-items.*/
         END.
-        slModes:screen-value = if ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList
-                               else slModes:list-items.
+        
+        ASSIGN 
+            slModes:SCREEN-VALUE = IF ttUsers.ttfModeList NE "" THEN ttUsers.ttfModeList ELSE slModes:LIST-ITEMS.
 
         FIND _user NO-LOCK WHERE 
             _user._userid = users.user_id
