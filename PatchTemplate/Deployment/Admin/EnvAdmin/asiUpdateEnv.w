@@ -3491,6 +3491,15 @@ PROCEDURE ipLoadPrograms :
     ASSIGN
         {&tablename}.prgtitle = "About". 
         
+    /* Fix "w-head." program master (Help Maint) regardless of existing entry */
+    FIND FIRST {&tablename} EXCLUSIVE-LOCK WHERE
+        {&tablename}.prgmname EQ "w-head." 
+        NO-ERROR.
+    IF AVAILABLE {&tablename} THEN ASSIGN
+        {&tablename}.securityLevelUser = 1000
+        {&tablename}.securityLevelDefault = 1000
+        .
+        
     /* Fix "audit." program master regardless of existing entry */
     FIND FIRST {&tablename} EXCLUSIVE-LOCK WHERE
         {&tablename}.prgmname EQ "audit." 
@@ -3502,7 +3511,7 @@ PROCEDURE ipLoadPrograms :
         {&tablename}.run_persistent = YES
         {&tablename}.menu_item = YES
         .
-        
+
     /* Ensure 'admin' user has same privileges as 'asi' */
     /* This is better handled with new security, but eliminates some access issues */
     /* See ticket 27968 */
@@ -3714,7 +3723,9 @@ PROCEDURE ipLoadUtilitiesTable :
     REPEAT:
         CREATE {&tablename}.
         IMPORT {&tablename}.
-        IF {&tablename}.programName = "module.r" THEN ASSIGN 
+        IF {&tablename}.programName = "module.r" /* Module Maint */
+        OR {&tablename}.programName = "w-head.r" /* Help Maint */
+        OR {&tablename}.programName = "ImpMaster.r" /* Import Master */ THEN ASSIGN 
             {&tablename}.securityLevel = 1000.
         ELSE ASSIGN 
             {&tablename}.securityLevel = 900.
