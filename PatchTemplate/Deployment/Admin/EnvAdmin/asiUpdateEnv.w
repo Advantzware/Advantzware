@@ -339,6 +339,16 @@ tbUpdateIni fiLogFile
 
 /* ************************  Function Prototypes ********************** */
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fFixYear C-Win
+FUNCTION fFixYear RETURNS DATE 
+  (INPUT daDate AS DATE) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD intVer C-Win 
 FUNCTION intVer RETURNS INTEGER
   ( INPUT cVerString AS CHAR )  FORWARD.
@@ -2055,30 +2065,32 @@ PROCEDURE ipDataFix :
     ASSIGN 
         cThisEntry = fiFromVer:{&SV}.
 
-    IF intVer(cThisEntry) LT 160001 THEN
+    IF intVer(cThisEntry) LT 160010 THEN
         RUN ipDataFix160001.
-    IF intVer(cThisEntry) LT 160104 THEN
+    IF intVer(cThisEntry) LT 160140 THEN
         RUN ipDataFix160104.
     IF intVer(cThisEntry) LT 160200 THEN
         RUN ipDataFix160200.
     IF intVer(cThisEntry) LT 160600 THEN
         RUN ipDataFixConfig.
-    IF intVer(cThisEntry) LT 160609 THEN
+    IF intVer(cThisEntry) LT 160690 THEN
         RUN ipDataFix160609.
     IF intVer(cThisEntry) LT 160700 THEN 
         RUN ipDataFix160700.
-    IF intVer(cThisEntry) LT 160704 THEN
+    IF intVer(cThisEntry) LT 160740 THEN
         RUN ipDataFix160704.
-    IF intVer(cThisEntry) LT 160708 THEN
+    IF intVer(cThisEntry) LT 160780 THEN
         RUN ipDataFix160708.
     IF intVer(cThisEntry) LT 160712 THEN
         RUN ipDataFix160712.
     IF intVer(cThisEntry) LT 160800 THEN
         RUN ipDataFix160800.
-    IF intVer(cThisEntry) LT 160804 THEN
+    IF intVer(cThisEntry) LT 160840 THEN
         RUN ipDataFix160804.
-    IF intVer(cThisEntry) LT 160805 THEN
+    IF intVer(cThisEntry) LT 160850 THEN
         RUN ipDataFix160805.
+    IF intVer(cThisEntry) LT 160851 THEN
+        RUN ipDataFix160851.
     IF intVer(cThisEntry) LT 160899 THEN
         RUN ipDataFix160899.
 
@@ -2360,6 +2372,24 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160851 C-Win
+PROCEDURE ipDataFix160851:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160851...").
+
+    RUN ipFixBadYears.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160899 C-Win 
 PROCEDURE ipDataFix160899 :
@@ -2775,6 +2805,56 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixBadYears C-Win
+PROCEDURE ipFixBadYears:
+/*------------------------------------------------------------------------------
+ Purpose:   ensure year values are in 20th or 21st century
+ Notes:     from ticket 41037
+------------------------------------------------------------------------------*/
+    RUN ipStatus("   Fix year values not in this century (41037)").
+
+    FOR EACH oe-ord WHERE (oe-ord.ord-date GT 09/01/2018 
+                           OR oe-ord.ord-date LT 12/31/0100):
+        /* Note: do in multiple assigns, else function only evaluates once */
+        ASSIGN oe-ord.ord-date = fFixYear(oe-ord.ord-date).
+        ASSIGN oe-ord.prod-date = fFixYear(oe-ord.prod-date).
+        ASSIGN oe-ord.due-date = fFixYear(oe-ord.due-date).
+        ASSIGN oe-ord.last-date = fFixYear(oe-ord.last-date).
+        ASSIGN oe-ord.inv-date = fFixYear(oe-ord.inv-date).
+        ASSIGN oe-ord.upd-date = fFixYear(oe-ord.upd-date).
+        ASSIGN oe-ord.approved-date = fFixYear(oe-ord.approved-date).
+        ASSIGN oe-ord.entered-date = fFixYear(oe-ord.entered-date).
+        ASSIGN oe-ord.updated-date = fFixYear(oe-ord.updated-date).
+        ASSIGN oe-ord.closedate = fFixYear(oe-ord.closedate).
+        FOR EACH oe-ordl OF oe-ord:
+            ASSIGN oe-ordl.req-date = fFixYear(oe-ordl.req-date).
+            ASSIGN oe-ordl.prom-date = fFixYear(oe-ordl.prom-date).
+            ASSIGN oe-ordl.upd-date = fFixYear(oe-ordl.upd-date).
+            ASSIGN oe-ordl.job-start-date = fFixYear(oe-ordl.job-start-date).
+        END.
+        FOR EACH oe-rel OF oe-ord:
+            ASSIGN oe-rel.rel-date = fFixYear(oe-rel.rel-date).
+            ASSIGN oe-rel.ship-date = fFixYear(oe-rel.ship-date).
+            ASSIGN oe-rel.upd-date = fFixYear(oe-rel.upd-date).
+            FOR EACH oe-relh OF oe-rel:
+                ASSIGN oe-relh.rel-date = fFixYear(oe-relh.rel-date).
+                ASSIGN oe-relh.upd-date = fFixYear(oe-relh.upd-date).
+                ASSIGN oe-relh.prt-date = fFixYear(oe-relh.prt-date).
+            END.
+            FOR EACH oe-rell OF oe-rel:
+                ASSIGN oe-relh.upd-date = fFixYear(oe-rell.upd-date).
+            END.
+        END.
+    END.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixPoEdiDirs C-Win 
 PROCEDURE ipFixPoEdiDirs :
@@ -4911,6 +4991,33 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fFixYear C-Win
+FUNCTION fFixYear RETURNS DATE 
+  (INPUT daDate AS DATE ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE outDate AS DATE NO-UNDO.
+    
+    IF daDate EQ ? THEN RETURN ?.
+    ELSE DO:
+        IF YEAR(daDate) LT 2000 
+        AND YEAR(daDate) GT 50 THEN ASSIGN 
+            outDate = DATE(MONTH(daDate), DAY(daDate), YEAR(daDate + 1900)).  
+        ELSE IF YEAR(daDate) LT 2000 THEN ASSIGN 
+            outDate = DATE(MONTH(daDate), DAY(daDate), YEAR(daDate + 2000)). 
+        RETURN outDate.
+    END. 
+    
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION intVer C-Win 
 FUNCTION intVer RETURNS INTEGER
   ( INPUT cVerString AS CHAR ) :
@@ -4928,6 +5035,7 @@ FUNCTION intVer RETURNS INTEGER
         iIntVal[1] = INT(cStrVal[1])
         iIntVal[2] = INT(cStrVal[2])
         iIntVal[3] = INT(cStrVal[3])
+        iIntVal[3] = IF iIntVal[3] LT 10 THEN iIntVal[3] * 10 ELSE iIntVal[3]
         iIntVer = (iIntVal[1] * 10000) + (iIntVal[2] * 100) + iIntVal[3]
         NO-ERROR.
     
