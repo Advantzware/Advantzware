@@ -186,12 +186,9 @@ DEFINE BROWSE Browser-Table
       rm-rctd.pur-uom COLUMN-LABEL "UOM" FORMAT "x(4)":U WIDTH 7
       rm-rctd.cost COLUMN-LABEL "Unit Cost" FORMAT "->>>,>>9.99<<<<":U
       rm-rctd.cost-uom COLUMN-LABEL "UOM" FORMAT "x(4)":U WIDTH 7
-      rm-rctd.reject-code[1] FORMAT "x(2)":U 
-&IF DEFINED(FWD-VERSION) EQ 0 &THEN
-                      VIEW-AS COMBO-BOX SORT INNER-LINES 5
+      rm-rctd.reject-code[1] FORMAT "x(2)":U VIEW-AS COMBO-BOX SORT INNER-LINES 5
                       LIST-ITEM-PAIRS "Item 1"," Item 1"
                       DROP-DOWN-LIST 
-&ENDIF
       rm-rctd.user-id COLUMN-LABEL "User ID" FORMAT "x(8)":U WIDTH 15
   ENABLE
       rm-rctd.rct-date
