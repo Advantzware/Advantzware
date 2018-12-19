@@ -160,7 +160,7 @@ FOR EACH ttOrdHead:
             edpotran.seq     = eddoc.seq.
     END.
     ASSIGN
-        edpotran.cust             = ws_customer
+        edpotran.cust             = ttOrdHead.ttcustNo
         edpotran.cust-po          = ttOrdHead.ttorderID
         edpotran.release-no       = ttOrdHead.ttRelease
         edpotran.cust-dept        = ""
@@ -380,7 +380,17 @@ PROCEDURE process860:
                      OS-COMMAND VALUE(cMailExec + " -host:wade.kaldawi@advantzware.com:Chester1!@smtp.office365.com:587~
  -from:wade.kaldawi@advantzware.com -to:wade.kaldawi@advantzware.com -subject:" + '"' + cSubject + '"' + " -body:" + '"' + cBody + '"' + " -starttls").
                      */
-                     RUN mail("wade.kaldawi@advantzware.com",cSubject,cBody,"",0,OUTPUT retcode).
+                     FIND FIRST cust NO-LOCK 
+                        WHERE cust.company EQ cocode
+                          AND cust.cust-no EQ EDPOTran.cust
+                        NO-ERROR.
+                     IF AVAILABLE cust AND cust.csrUser_id GT "" THEN 
+                       FIND FIRST users NO-LOCK 
+                            WHERE users.user_id EQ cust.csrUser_id
+                              AND users.email GT ""
+                            NO-ERROR.
+                     IF AVAILABLE users THEN    
+                         RUN mail(users.email,cSubject,cBody,"",0,OUTPUT retcode).
                  END. /* if avail matching edPoline */
              END. /* each edPoLine */
           END. /* if avail matching edPOTran */
