@@ -1651,7 +1651,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DISABLE po-ord.ship-id WITH FRAME {&FRAME-NAME}.
-
+    lNewOrd = FALSE.
   /* To allow ctrl-o to be picked up */
   APPLY 'entry' TO btnCalendar-1 IN FRAME {&FRAME-NAME}.
 
@@ -1848,6 +1848,8 @@ PROCEDURE local-update-record :
     RUN record-added IN WIDGET-HANDLE(char-hdl).
   END.
 
+    lNewOrd = FALSE.
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1921,7 +1923,6 @@ PROCEDURE local-update-record :
   ELSE RUN dispatch ("display-fields").
 
   ll-got-vendor = NO.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

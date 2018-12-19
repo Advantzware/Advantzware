@@ -666,8 +666,7 @@ PROCEDURE local-change-page :
         li-cur-page = int(return-value).
         
     if li-prev-page eq 2 then do:
-        RUN testAvail in h_v-purord (output lAvail).
-        if not lAvail then do:
+        if lNewOrd then do:
             message "You must save your record with a valid vendor before entering lines."
             view-as alert-box.
             run select-page (2).
