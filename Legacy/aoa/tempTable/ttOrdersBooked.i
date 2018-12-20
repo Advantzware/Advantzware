@@ -34,6 +34,7 @@ DEFINE TEMP-TABLE ttOrdersBooked NO-UNDO
     FIELD dCstPerM     AS DECIMAL   LABEL "Cost/$m"        FORMAT "->>>,>>>,>>9.99"
     FIELD dTotStdCost  AS DECIMAL   LABEL "Total Std Cost" FORMAT "->>>>>>>9.99"
     FIELD dFullCost    AS DECIMAL   LABEL "Full Cost"      FORMAT "->>>>>>>9.99"
+    FIELD cEnterBy     AS CHARACTER LABEL "Entered By"     FORMAT "x(10)"
     FIELD xxCost       AS DECIMAL   LABEL "Cost"           FORMAT "->>,>>9.99"   
     FIELD xxSort       AS CHARACTER LABEL "Sort"           FORMAT "x(100)"
         INDEX ttOrdersBooked IS PRIMARY rowType xxSort
