@@ -135,12 +135,11 @@ oe-ordm.form-no oe-ordm.blank-no
 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable Dialog-Frame
-FUNCTION fGetTaxable RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxableMisc Dialog-Frame
+FUNCTION fGetTaxableMisc RETURNS LOGICAL 
   ( ipcCompany AS CHARACTER,
     ipcCust AS CHARACTER,
-    ipcShipto AS CHARACTER,
-    ipcFGItemID AS CHARACTER ) FORWARD.
+    ipcShipto AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1200,7 +1199,7 @@ PROCEDURE create-item :
         ASSIGN oe-ordm.spare-char-1 = IF AVAILABLE shipto AND shipto.tax-code NE "" THEN shipto.tax-code
                                     ELSE IF AVAILABLE cust AND cust.spare-char-1 <> "" THEN cust.spare-char-1 
                                     ELSE oe-ord.tax-gr
-               oe-ordm.tax          = fGetTaxable(cocode, oe-ord.cust-no, oe-ord.ship-id, "") .
+               oe-ordm.tax          = fGetTaxableMisc(cocode, oe-ord.cust-no, oe-ord.ship-id) .
   
     i = 0 .
     FOR EACH bf-ordl OF oe-ord NO-LOCK:
@@ -2041,19 +2040,18 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable Dialog-Frame
-FUNCTION fGetTaxable RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxableMisc Dialog-Frame
+FUNCTION fGetTaxableMisc RETURNS LOGICAL 
   ( ipcCompany AS CHARACTER,
     ipcCust AS CHARACTER,
-    ipcShipto AS CHARACTER,
-    ipcFGItemID AS CHARACTER ):
+    ipcShipto AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
     RETURN lTaxable.
 
 END FUNCTION.

@@ -173,8 +173,7 @@ RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 FUNCTION fGetTaxable RETURNS LOGICAL 
   ( ipcCompany AS CHARACTER,
    ipcCust AS CHARACTER,
-   ipcShipto AS CHARACTER,
-    ipcFGItemID AS CHARACTER ) FORWARD.
+   ipcShipto AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -634,13 +633,12 @@ PROCEDURE create-misc :
                                   (est-prep.cost * est-prep.qty) * (1 + (est-prep.mkup / 100)) * 
                                   (est-prep.amtz / 100)
                 oe-ordm.est-no = est-prep.est-no
-                oe-ordm.tax =  fGetTaxable(g_company, oe-ord.cust-no, oe-ord.ship-id, "")
+                oe-ordm.tax =  fGetTaxable(g_company, oe-ord.cust-no, oe-ord.ship-id)
                 oe-ordm.cost = (est-prep.cost * est-prep.qty * (est-prep.amtz / 100))
                 oe-ordm.bill  = "Y".
             
          IF PrepTax-log THEN 
-            ASSIGN oe-ordm.tax = TRUE
-                   oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
+            ASSIGN oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
                    .  
          RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
                             OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
@@ -3065,15 +3063,14 @@ END PROCEDURE.
 FUNCTION fGetTaxable RETURNS LOGICAL 
   ( ipcCompany AS CHARACTER,
     ipcCust AS CHARACTER,
-    ipcShipto AS CHARACTER,
-    ipcFGItemID AS CHARACTER ):
+    ipcShipto AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
     RETURN lTaxable.
 
 END FUNCTION.

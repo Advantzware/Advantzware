@@ -36,8 +36,7 @@ END.
 FUNCTION fGetTaxable RETURNS LOGICAL 
 	( ipcCompany AS CHARACTER,
     ipcCust AS CHARACTER,
-    ipcShipto AS CHARACTER,
-    ipcFGItemID AS CHARACTER ) FORWARD.
+    ipcShipto AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
@@ -54,7 +53,7 @@ find first cust of oe-ord no-lock.
 
 run ar/cctaxrt.p (input cocode, oe-ord.tax-gr,
                   output v-tax-rate, output v-frt-tax-rate).
-taxit = fGetTaxable(cocode, oe-ord.cust-no, oe-ord.ship-id, "").
+taxit = fGetTaxable(cocode, oe-ord.cust-no, oe-ord.ship-id).
 
 v-misc-tot = 0.
 
@@ -108,8 +107,7 @@ for each est-prep
 
   if taxit then oe-ordm.tax = true.
   IF PrepTax-log THEN 
-     ASSIGN oe-ordm.tax = TRUE
-            oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
+     ASSIGN oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
             .
   assign
    oe-ordm.dscr = est-prep.dscr
@@ -354,15 +352,14 @@ END PROCEDURE.
 FUNCTION fGetTaxable RETURNS LOGICAL 
 	( ipcCompany AS CHARACTER,
     ipcCust AS CHARACTER,
-    ipcShipto AS CHARACTER,
-    ipcFGItemID AS CHARACTER ):
+    ipcShipto AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/	
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
     RETURN lTaxable.
 
 
