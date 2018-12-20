@@ -243,14 +243,12 @@ DEFINE BROWSE br_table
       oe-rell.rel-no COLUMN-LABEL "Rel#" FORMAT ">>>":U WIDTH 5
       oe-rell.b-ord-no COLUMN-LABEL "" FORMAT ">>":U WIDTH 3
       oe-rell.s-code COLUMN-LABEL "Type" FORMAT "x(12)":U WIDTH 14
-&IF DEFINED(FWD-VERSION) EQ 0 &THEN
       VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "B-Both","B",
                      "S-Ship","S",
                      "I-Invoice","I",
                      "T-Transfer","T"
           DROP-DOWN-LIST
-&ENDIF
       oe-ordl.part-no FORMAT "x(15)":U WIDTH 22
       oe-rell.link-no COLUMN-LABEL "Rel. Seq. #" FORMAT ">>>>>>>>9":U
             WIDTH 15

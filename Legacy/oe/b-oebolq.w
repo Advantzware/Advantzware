@@ -291,12 +291,10 @@ DEFINE BROWSE Browser-Table
       oe-boll.bol-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       get-release() @ lv-release COLUMN-LABEL "Release" WIDTH 10.2
       oe-bolh.stat COLUMN-LABEL "Status" FORMAT "x(10)":U WIDTH 14
-&IF DEFINED(FWD-VERSION) EQ 0 &THEN
       VIEW-AS COMBO-BOX INNER-LINES 2
           LIST-ITEM-PAIRS "H-Hold","H",
                      "R-Released","R"
           DROP-DOWN-LIST
-&ENDIF
   ENABLE
       oe-bolh.bol-no
       oe-boll.ord-no
