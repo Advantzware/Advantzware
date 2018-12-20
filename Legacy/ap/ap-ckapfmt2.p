@@ -54,7 +54,7 @@ FORM SKIP(3)
     vend.remit         AT 20
     add1               AT 20
     add2               AT 20  " _________________________________" AT 100
-    csz "</b>"         AT 20    
+    csz                AT 20   "</b>"
     SKIP(1)                              
 
     WITH FRAME b1 WIDTH 150 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE.
