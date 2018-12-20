@@ -138,8 +138,7 @@ oe-ordm.form-no oe-ordm.blank-no
 FUNCTION fGetTaxable RETURNS LOGICAL 
     (ipcCompany AS CHARACTER,
     ipcCust AS CHARACTER,
-    ipcShipto AS CHARACTER,
-    ipcFGItemID AS CHARACTER  ) FORWARD.
+    ipcShipto AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -994,7 +993,7 @@ PROCEDURE local-create-record :
   IF AVAIL ar-ctrl THEN oe-ordm.actnum = ar-ctrl.sales.
   FIND FIRST cust OF oe-ord NO-LOCK.
 
-  oe-ordm.tax = fGetTaxable(cocode, oe-ord.cust-no, oe-ord.ship-id, "").
+  oe-ordm.tax = fGetTaxable(cocode, oe-ord.cust-no, oe-ord.ship-id).
   
   i = 0 .
   FOR EACH bf-ordl OF oe-ord NO-LOCK:
@@ -1450,15 +1449,14 @@ END PROCEDURE.
 FUNCTION fGetTaxable RETURNS LOGICAL 
     (ipcCompany AS CHARACTER,
     ipcCust AS CHARACTER,
-    ipcShipto AS CHARACTER,
-    ipcFGItemID AS CHARACTER):
+    ipcShipto AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
     RETURN lTaxable.
 
 END FUNCTION.
