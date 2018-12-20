@@ -1195,17 +1195,12 @@ PROCEDURE create-item :
     FIND FIRST oe-ctrl NO-LOCK
         WHERE oe-ctrl.company = oe-ord.company
         NO-ERROR.
-    FIND FIRST shipto NO-LOCK
-        WHERE shipto.company EQ cocode
-        AND shipto.cust-no EQ oe-ord.cust-no
-        NO-ERROR.
    
     IF AVAILABLE oe-ctrl AND oe-ctrl.prep-chrg THEN
         ASSIGN oe-ordm.spare-char-1 = IF AVAILABLE shipto AND shipto.tax-code NE "" THEN shipto.tax-code
                                     ELSE IF AVAILABLE cust AND cust.spare-char-1 <> "" THEN cust.spare-char-1 
                                     ELSE oe-ord.tax-gr
-               oe-ordm.tax          = fGetTaxable(cocode, oe-ord.cust-no, (IF AVAILABLE shipto THEN shipto.ship-id ELSE ""), "") .
-
+               oe-ordm.tax          = fGetTaxable(cocode, oe-ord.cust-no, oe-ord.ship-id, "") .
   
     i = 0 .
     FOR EACH bf-ordl OF oe-ord NO-LOCK:

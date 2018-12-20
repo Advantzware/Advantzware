@@ -994,17 +994,7 @@ PROCEDURE local-create-record :
   IF AVAIL ar-ctrl THEN oe-ordm.actnum = ar-ctrl.sales.
   FIND FIRST cust OF oe-ord NO-LOCK.
 
-  FIND FIRST shipto NO-LOCK
-       WHERE shipto.company EQ cocode
-         AND shipto.cust-no EQ oe-ord.cust-no
-         AND shipto.ship-id EQ oe-ord.ship-id
-         NO-ERROR.
-  IF NOT AVAILABLE shipto THEN 
-      FIND FIRST shipto NO-LOCK
-          WHERE shipto.company EQ cocode
-            AND shipto.cust-no EQ oe-ord.cust-no
-          NO-ERROR.   
-  oe-ordm.tax = fGetTaxable(cocode, oe-ord.cust-no, (IF AVAILABLE shipto THEN shipto.ship-id ELSE ""), "").
+  oe-ordm.tax = fGetTaxable(cocode, oe-ord.cust-no, oe-ord.ship-id, "").
   
   i = 0 .
   FOR EACH bf-ordl OF oe-ord NO-LOCK:
