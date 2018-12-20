@@ -88,14 +88,14 @@ ASSIGN cTextListToSelect  = "Est#,Customer Name,Last used,Part #,Description 1,D
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_cust-no end_cust-no ~
 begin_slsmn end_slsmn begin_est end_est begin_date end_date begin_date-2 ~
-end_date-2 begin_mach end_mach tb_break tb_booked rd_book tb_not-booked ~
-tb_sort Btn_Def sl_selected sl_avail Btn_Add Btn_Remove btn_Up btn_down ~
-rd-dest lines-per-page lv-ornt lv-font-no td-show-parm tb_excel tb_runExcel ~
-fi_file btn-ok btn-cancel 
+end_date-2 begin_mach end_mach tb_not-booked tb_booked tb_booked-job ~
+tb_sort tb_break Btn_Def sl_selected sl_avail Btn_Add Btn_Remove btn_Up ~
+btn_down rd-dest lines-per-page lv-ornt lv-font-no td-show-parm tb_excel ~
+tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_slsmn ~
 end_slsmn begin_est end_est begin_date end_date begin_date-2 end_date-2 ~
-begin_mach end_mach tb_break tb_booked lbl-sort rd_book lbl-booked ~
-tb_not-booked tb_sort sl_selected sl_avail rd-dest lines-per-page lv-ornt ~
+begin_mach end_mach lbl-booked tb_not-booked tb_booked tb_booked-job ~
+tb_sort tb_break sl_selected sl_avail rd-dest lines-per-page lv-ornt ~
 lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
@@ -219,10 +219,6 @@ DEFINE VARIABLE lbl-booked AS CHARACTER FORMAT "X(256)":U INITIAL "Show?"
      VIEW-AS FILL-IN 
      SIZE 9 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lbl-sort AS CHARACTER FORMAT "X(256)":U INITIAL "Booked?" 
-     VIEW-AS FILL-IN 
-     SIZE 10 BY .95 NO-UNDO.
-
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
      VIEW-AS FILL-IN 
@@ -255,14 +251,6 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1
 "To Port Directly", 6
      SIZE 20 BY 6.67 NO-UNDO.
 
-DEFINE VARIABLE rd_book AS CHARACTER INITIAL "Order" 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "Order Only", "Order",
-"Job Only", "Job",
-"Both", "Both"
-     SIZE 34.8 BY .95 NO-UNDO.
-
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 94 BY 9.14.
@@ -280,9 +268,14 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      SIZE 34 BY 5.14 NO-UNDO.
 
 DEFINE VARIABLE tb_booked AS LOGICAL INITIAL yes 
-     LABEL "Booked" 
+     LABEL "Booked Order" 
      VIEW-AS TOGGLE-BOX
-     SIZE 13.4 BY .71 NO-UNDO.
+     SIZE 18.4 BY .71 NO-UNDO.
+
+DEFINE VARIABLE tb_booked-job AS LOGICAL INITIAL yes 
+     LABEL "Booked Job" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18.4 BY .71 NO-UNDO.
 
 DEFINE VARIABLE tb_break AS LOGICAL INITIAL no 
      LABEL "Page Break by Machine#?" 
@@ -342,13 +335,12 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Customer Number"
      end_mach AT ROW 7.19 COL 69 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     tb_break AT ROW 8.29 COL 23.8
-     tb_booked AT ROW 9.24 COL 23.8
-     lbl-sort AT ROW 9.38 COL 46.8 COLON-ALIGNED NO-LABEL WIDGET-ID 58
-     rd_book AT ROW 9.38 COL 58.8 NO-LABEL WIDGET-ID 60
-     lbl-booked AT ROW 9.48 COL 12.8 COLON-ALIGNED NO-LABEL
-     tb_not-booked AT ROW 9.95 COL 23.8
-     tb_sort AT ROW 10.67 COL 23.8
+     lbl-booked AT ROW 8.76 COL 18.2 COLON-ALIGNED NO-LABEL
+     tb_not-booked AT ROW 8.76 COL 29.2
+     tb_booked AT ROW 8.81 COL 47.6
+     tb_booked-job AT ROW 8.81 COL 66 WIDGET-ID 64
+     tb_sort AT ROW 9.71 COL 29.2
+     tb_break AT ROW 10.67 COL 29.2
      Btn_Def AT ROW 12.48 COL 41.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
      sl_selected AT ROW 12.48 COL 60 NO-LABEL WIDGET-ID 28
@@ -373,13 +365,13 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 27.33 COL 56
      "Selected Columns(In Display Order)" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 11.81 COL 60 WIDGET-ID 44
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 11.81 COL 4.4 WIDGET-ID 38
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 18 COL 3
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 18 COL 3
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 11.81 COL 4.4 WIDGET-ID 38
      RECT-6 AT ROW 17.91 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -501,20 +493,14 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN lbl-booked IN FRAME FRAME-A
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN lbl-sort IN FRAME FRAME-A
-   NO-ENABLE                                                            */
-ASSIGN 
-       lbl-sort:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "rd_sort".
-
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-       rd_book:PRIVATE-DATA IN FRAME FRAME-A     = 
+       tb_booked:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
-       tb_booked:PRIVATE-DATA IN FRAME FRAME-A     = 
+       tb_booked-job:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
@@ -968,17 +954,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME rd_book
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_book C-Win
-ON VALUE-CHANGED OF rd_book IN FRAME FRAME-A
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
@@ -1044,7 +1019,18 @@ END.
 
 &Scoped-define SELF-NAME tb_booked
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_booked C-Win
-ON VALUE-CHANGED OF tb_booked IN FRAME FRAME-A /* Booked */
+ON VALUE-CHANGED OF tb_booked IN FRAME FRAME-A /* Booked Order */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_booked-job
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_booked-job C-Win
+ON VALUE-CHANGED OF tb_booked-job IN FRAME FRAME-A /* Booked Job */
 DO:
   assign {&self-name}.
 END.
@@ -1316,16 +1302,16 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust-no end_cust-no begin_slsmn end_slsmn begin_est end_est 
           begin_date end_date begin_date-2 end_date-2 begin_mach end_mach 
-          tb_break tb_booked lbl-sort rd_book lbl-booked tb_not-booked tb_sort 
+          lbl-booked tb_not-booked tb_booked tb_booked-job tb_sort tb_break 
           sl_selected sl_avail rd-dest lines-per-page lv-ornt lv-font-no 
           lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust-no end_cust-no begin_slsmn end_slsmn 
          begin_est end_est begin_date end_date begin_date-2 end_date-2 
-         begin_mach end_mach tb_break tb_booked rd_book tb_not-booked tb_sort 
-         Btn_Def sl_selected sl_avail Btn_Add Btn_Remove btn_Up btn_down 
-         rd-dest lines-per-page lv-ornt lv-font-no td-show-parm tb_excel 
-         tb_runExcel fi_file btn-ok btn-cancel 
+         begin_mach end_mach tb_not-booked tb_booked tb_booked-job tb_sort 
+         tb_break Btn_Def sl_selected sl_avail Btn_Add Btn_Remove btn_Up 
+         btn_down rd-dest lines-per-page lv-ornt lv-font-no td-show-parm 
+         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1583,7 +1569,7 @@ PUT  str-tit4 FORMAT "x(600)"
 FOR EACH tt-eb:
   DELETE tt-eb.
 END.
-
+MAIN:
 FOR EACH est
     WHERE est.company     EQ cocode
       AND est.est-no      GE fest
@@ -1606,14 +1592,18 @@ FOR EACH est
       AND eb.cust-no LE tcust
       AND eb.sman    GE fsman
       AND eb.sman    LE tsman
-      AND ((tb_booked AND
+      AND ((tb_booked-job AND
+            CAN-FIND(FIRST job-hdr
+                     WHERE job-hdr.company EQ est.company
+                       AND (job-hdr.est-no  EQ est.est-no /*OR  job-hdr.i-no  EQ eb.stock-no*/ )  )) OR
+          (tb_booked AND
             CAN-FIND(FIRST oe-ordl
                      WHERE oe-ordl.company EQ est.company
-                       AND (oe-ordl.est-no  EQ est.est-no OR  oe-ordl.i-no  EQ eb.stock-no )  )) OR
+                       AND (oe-ordl.est-no  EQ est.est-no /*OR  oe-ordl.i-no  EQ eb.stock-no*/ )  )) OR
            (tb_not-booked AND
             NOT CAN-FIND(FIRST oe-ordl
                          WHERE oe-ordl.company EQ est.company
-                           AND oe-ordl.est-no  EQ est.est-no OR  oe-ordl.i-no  EQ eb.stock-no)))
+                           AND oe-ordl.est-no  EQ est.est-no /*OR  oe-ordl.i-no  EQ eb.stock-no*/ )))  /* Ticket 40122*/
     NO-LOCK,
 
     FIRST ef
@@ -1623,6 +1613,11 @@ FOR EACH est
     NO-LOCK
 
     BREAK BY est.est-no:
+
+    FIND LAST job-hdr NO-LOCK
+        WHERE job-hdr.company EQ est.company
+        AND job-hdr.est-no  EQ est.est-no NO-ERROR .
+    IF AVAIL job-hdr AND tb_not-booked AND NOT tb_booked-job AND NOT tb_booked  THEN NEXT MAIN.
 
     {custom/statusMsg.i " 'Processing Estimate#:  '  + eb.est-no  "}
 
@@ -1772,12 +1767,7 @@ FOR EACH tt-eb,
 
        cJob = IF AVAIL job-hdr THEN job-hdr.job-no ELSE "" .
 
-    IF rd_book EQ "Order" THEN
-        v-booked = IF iOrder NE 0 AND cJob EQ "" 
-                    THEN "Booked" ELSE "" .
-
-    ELSE IF rd_book EQ "Job" THEN do: 
-        v-booked = IF iOrder EQ 0 AND cJob NE "" 
+        v-booked = IF (iOrder NE 0 OR cJob NE "" )
                     THEN "Booked" ELSE "" .
        IF iOrder EQ 0 AND cJob NE "" THEN do:
            FIND FIRST job NO-LOCK 
@@ -1787,9 +1777,7 @@ FOR EACH tt-eb,
            IF AVAIL job AND job.create-date NE ? THEN
                v_ord-date = STRING(job.create-date,'99/99/9999') . 
        END.
-    END.
-    ELSE v-booked = IF iOrder NE 0 OR cJob NE ""
-                    THEN "Booked" ELSE "" .
+    
 
     IF AVAIL ef THEN
         ASSIGN
