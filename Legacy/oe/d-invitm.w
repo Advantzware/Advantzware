@@ -45,6 +45,8 @@ DEF VAR v-msg AS CHAR NO-UNDO.
 DEF VAR v-print-head LIKE sys-ctrl.log-fld NO-UNDO.
 DEF VAR v-print-fmt LIKE sys-ctrl.char-fld NO-UNDO.
 DEF VAR glInvQtyChanged AS LOG NO-UNDO.
+DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 DEF NEW SHARED BUFFER xinv-line FOR inv-line.
 DEF NEW SHARED BUFFER xinv-head FOR inv-head.
 
@@ -1595,7 +1597,7 @@ FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
 ------------------------------------------------------------------------------*/
 DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-RUN system\TaxProcs.p (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
 RETURN lTaxable.
 
 END FUNCTION.

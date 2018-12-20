@@ -1,0 +1,104 @@
+<%@ Master Language="C#" AutoEventWireup="true" Inherits="MasterReceGds" Codebehind="~/MasterPageReceGds.master.cs" %>
+<%@ Register Src="footer.ascx" TagName="Footer" TagPrefix="ft" %>
+    <%@ Register Src="header.ascx" TagName="Header" TagPrefix="hd" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<script >
+ function ordernotes()
+    {
+    var NewWindow = window.open("toporder_list_notes.aspx","OrderListNotes","width=600,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");    
+    }
+    function printspec()
+    {
+        var NewWindow = window.open("topspec_list_notes.aspx","OrderListNotes","width=600,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");
+    }
+    function orderhelp() {
+        var NewWindow = window.open("corr_help.aspx", "OrderHelpWindow", "width=500,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");
+    }
+</script>
+
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head id="Head1" runat="server">
+    <title>Untitled Page</title>
+    <LINK href="include/style.css" type="text/css" rel="stylesheet"/>
+    <LINK href="order_inquiry.css" rel="stylesheet" type="text/css" />
+    <link href="include/tree.css" rel="stylesheet" type="text/css" />
+    <LINK REL="stylesheet" TYPE="text/css" HREF="include/CalendarControl.css" >
+</head>
+<body>
+    <form id="form1" runat="server">
+    <hd:Header ID="Header1" runat="server" />
+    <table width="100%"><tr><td>
+    <table align="left" border="1" width="75%">
+                <tr align="left" class="topheadcolor">
+                   
+                    
+                    <td nowrap align="left" width="25px";>
+                        <asp:ImageButton ID="img_btn_add" runat="server" Width="35px" ImageUrl="~/Images/add.bmp" OnClick="img_btn_add_click" ToolTip="Add"  />
+                      </td>
+                     <%--<td nowrap width="25px";>
+                        <a href="#" onClick="ordernotes(); return false"><asp:Image ID="img_btn_notes" Width="35px" ToolTip="Notes" runat="server" ImageUrl="~/Images/edit.ico" /></a>                        
+                        </td>
+                        <td nowrap width="25px";>
+                        <a href="#" onClick="printspec(); return false"><asp:Image ID="Image3" Width="35px" runat="server" ToolTip="Spec Notes" ImageUrl="~/Images/dict.ico" /></a>
+                        </td>
+                        <td nowrap width="25px";>
+                        <a href="#" onClick="orderhelp(); return false"><asp:Image ID="img_help" Width="35px" ToolTip="Help" runat="server" ImageUrl="~/Images/help.ico" /></a>
+                        </td>--%>
+                      <td nowrap align="left" width="25px";>
+                        <asp:ImageButton ID="img_btn_exit" runat="server" ImageUrl="~/Images/exit-au.bmp" Width="35px" OnClick="img_btn_exit_click" ToolTip="LogOut"  />
+                    </td>
+                     <td align="left" nowrap> &nbsp;</td>
+                </tr>
+      </table></td></tr>
+    <tr><td>
+    <div>
+     <TABLE id="tblTop" cellSpacing="3" align="center" border="0" Width="100%">
+        <TR>
+          
+          <TD align=left nowrap><font size=+0><b><asp:label id="Label_heading" runat="server" Font-Bold="True"></asp:label> </b></font></TD>
+          <TD vAlign="middle">
+            <asp:linkbutton id="LinkButton1" runat="server" OnClick="LinkButton1_Click">Back to menu</asp:linkbutton>
+          </TD>
+          <TD align="right"><font size=+0><b>Users&nbsp;&nbsp;</b></font></TD>
+          <TD vAlign="middle" align="left">Logged as&nbsp;
+            <asp:label id="lblUser" runat="server" Font-Bold="True">&nbsp;</asp:label>&nbsp;&nbsp;&nbsp;
+            <asp:linkbutton id="hlnkLogOut" runat="server" OnClick="hlnkLogOut_Click">Log out</asp:linkbutton>
+                        
+            Company:&nbsp;
+            <asp:label id="lblComp" runat="server" Font-Bold="True">&nbsp;</asp:label>&nbsp;&nbsp;&nbsp;
+          </TD>
+          
+                    
+          <TD vAlign="middle" width="20">&nbsp;</TD>
+          <td width=30>&nbsp;</td>
+        </TR>
+      </TABLE>  
+  </div>
+     </td></tr></table>
+    <div>
+    <table>
+    <tr style="background-color:Gray;">
+    <td nowrap><div  id="navigation" style="width:100%">
+		<ul nowrap><li id="lilistrcpt" runat="server" >
+    <%--<asp:LinkButton ID="lnk_delete_Button" runat="server"></asp:LinkButton><asp:ImageButton ID="lnk_delete_ImageButton" runat="server" ImageUrl="~/Images/list-receipts.jpg" OnClick="delete_list_rcpt_Click"  />
+    <asp:LinkButton ID="lnk_view_delete_Button" runat="server"></asp:LinkButton><asp:ImageButton ID="lnk_view_deleteImageButton" runat="server" ImageUrl="~/Images/view-receipts1.jpg" OnClick="delete_view_rcpt_Click" />--%>
+    
+    <asp:LinkButton ID="lnkrecelist_rcpt" runat="server" OnClick="recelist_rcpt_Click">List Receipts</asp:LinkButton> </li>
+    <li id="liviewrcpt" runat="server" ><asp:LinkButton ID="lnkreceview_rcpt" runat="server" OnClick="receview_rcpt_Click">View Receipts</asp:LinkButton></li>
+    <li id="lisetitem" runat="server" ><asp:LinkButton ID="lnkrece_setitem" runat="server" OnClick="rece_listitem_click">Set Parts</asp:LinkButton></li>
+    <li id="liviewsetitem" runat="server" ><asp:LinkButton ID="lnkrece_viewsetitem" runat="server" OnClick="rece_viewset_click" >View Set Parts</asp:LinkButton></li></ul></div>    
+    
+    </td>
+    </tr>
+    </table>
+    </div>
+    
+    <div>
+        <asp:contentplaceholder id="ContentPlaceHolder1" runat="server">
+        </asp:contentplaceholder>
+    </div>
+    <ft:Footer ID="Footer1" runat="server" />
+    </form>
+</body>
+</html>

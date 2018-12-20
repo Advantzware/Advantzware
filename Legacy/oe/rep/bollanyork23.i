@@ -48,15 +48,15 @@ DO:
             w2.rec-id  = RECID(bf-ttboll).
 
         IF i = 1 THEN ASSIGN w2.job-po = bf-ttboll.po-no
-                w2.dscr   = oe-ordl.part-no
+                w2.dscr   = oe-ordl.i-no
                 w2.qty    = oe-ordl.qty.
         ELSE IF i = 2 THEN 
                 ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE
                              (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
-                    w2.dscr   = oe-ordl.i-no
+                    w2.dscr   = oe-ordl.part-no
                     w2.i-no   = oe-ordl.i-no.
-            ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
-                ELSE IF i EQ 4 THEN ASSIGN w2.dscr = oe-ordl.part-dscr2.
+            ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.i-name.
+                ELSE IF i EQ 4 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
 
     END.
     IF i < 4 THEN 
@@ -77,10 +77,10 @@ DO:
             IF i = 2 THEN 
                 ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE
                              (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
-                    w2.dscr   = oe-ordl.i-no
+                    w2.dscr   = oe-ordl.part-no
                     w2.i-no   = oe-ordl.i-no.
-            ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
-                ELSE IF i EQ 4 THEN ASSIGN w2.dscr = oe-ordl.part-dscr2.
+            ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.i-name.
+                ELSE IF i EQ 4 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
         END.
         IF w2.qty = 0 AND w2.i-no = "" AND w2.dscr = "" AND w2.cas-cnt = 0 THEN DELETE w2.
     END.
@@ -119,10 +119,10 @@ DO:
             IF i = 2 THEN 
                 ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE
                              (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
-                    w2.dscr   = oe-ordl.i-no
+                    w2.dscr   = oe-ordl.part-no
                     w2.i-no   = oe-ordl.i-no.
-            ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
-                ELSE IF i EQ 4 THEN ASSIGN w2.dscr = oe-ordl.part-dscr2.
+            ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.i-name.
+                ELSE IF i EQ 4 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
         END.
         IF AVAILABLE bf-ttboll THEN 
             v-relpc     = IF bf-ttboll.p-c THEN "C" ELSE "P".

@@ -927,6 +927,7 @@ PROCEDURE valid-job-no :
   
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
+   IF rm-rcpth.job-no:SCREEN-VALUE NE "" THEN DO:
     IF NOT CAN-FIND(FIRST job-hdr
                     WHERE job-hdr.company EQ cocode
                        AND job-hdr.job-no EQ rm-rcpth.job-no:SCREEN-VALUE )
@@ -936,6 +937,7 @@ PROCEDURE valid-job-no :
       APPLY "entry" TO rm-rcpth.job-no .
       RETURN ERROR.
     END.
+   END.
   END.
 
   {methods/lValidateError.i NO}
@@ -1088,6 +1090,7 @@ PROCEDURE valid-job-no2 :
   
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
+   IF rm-rcpth.job-no:SCREEN-VALUE NE "" THEN DO:
     IF NOT CAN-FIND(FIRST job-hdr
                     WHERE job-hdr.company EQ cocode
                        AND job-hdr.job-no EQ rm-rcpth.job-no:SCREEN-VALUE 
@@ -1098,6 +1101,7 @@ PROCEDURE valid-job-no2 :
       APPLY "entry" TO rm-rcpth.job-no2 .
       RETURN ERROR.
     END.
+   END.
   END.
 
   {methods/lValidateError.i NO}

@@ -74,21 +74,21 @@ FOR EACH tt-boll,
 
             IF i EQ 1 THEN
                 ASSIGN
-                    v-part-dscr = oe-ordl.part-no
+                    v-part-dscr = oe-ordl.i-no
                     v-job-po    = tt-boll.po-no.
 
             ELSE
                 IF i EQ 2 THEN
                     ASSIGN
-                        v-part-dscr = oe-ordl.i-name
+                        v-part-dscr = oe-ordl.part-no
                         v-job-po    = IF oe-ordl.job-no EQ "" THEN "" ELSE
                     (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
     
                 ELSE
-                    IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr1.
+                    IF i EQ 3 THEN v-part-dscr = oe-ordl.i-name.
 
                     ELSE
-                        IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr2.
+                        IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr1.
     
             IF v-part-dscr NE "" OR v-job-po NE "" OR i LE 2 THEN v-lines = v-lines + 1.
         END.
@@ -105,19 +105,19 @@ FOR EACH tt-boll,
 
             IF i EQ 1 THEN
                 ASSIGN
-                    v-part-dscr = oe-ordl.part-no
+                    v-part-dscr = oe-ordl.i-no
                     v-job-po    = tt-boll.po-no.
 
             ELSE
                 IF i EQ 2 THEN
                     ASSIGN
-                        v-part-dscr = oe-ordl.i-name
+                        v-part-dscr = oe-ordl.part-no
                         v-job-po    = IF oe-ordl.job-no EQ "" THEN "" ELSE
                     (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
 
-                ELSE IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr1.
+                ELSE IF i EQ 3 THEN v-part-dscr = oe-ordl.i-name.
 
-                    ELSE IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr2.
+                    ELSE IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr1.
             v-relpc     = IF tt-boll.p-c THEN "C" ELSE "P".
 
             PUT
@@ -152,21 +152,21 @@ FOR EACH tt-boll,
 
             IF i EQ 1 THEN
                 ASSIGN
-                    v-part-dscr = oe-ordl.part-no
+                    v-part-dscr = oe-ordl.i-no
                     v-job-po    = tt-boll.po-no.
 
             ELSE
                 IF i EQ 2 THEN
                     ASSIGN
-                        v-part-dscr = oe-ordl.i-no
+                        v-part-dscr = oe-ordl.part-no
                         v-job-po    = IF oe-ordl.job-no EQ "" THEN "" ELSE
                     (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
 
                 ELSE
-                    IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr1.
+                    IF i EQ 3 THEN v-part-dscr = oe-ordl.i-name .
 
                     ELSE
-                        IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr2.
+                        IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr1.
     
             IF i = 2 AND v-job-po = "" THEN
                 v-job-po = IF tt-boll.job-no EQ "" THEN "" ELSE

@@ -21,6 +21,7 @@ def var taxit           as   log init no.
 def var v-tax-rate      as   dec format ">,>>9.99<<<".
 def var v-frt-tax-rate  like v-tax-rate.
 DEF VAR v-tmp-int AS INT NO-UNDO.
+DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 
 {sys/inc/ceprep.i}
 {sys/inc/ceprepprice.i}
@@ -29,6 +30,16 @@ DO TRANSACTION:
   {sys/inc/OEPrepTaxCode.i}
 END.
 
+
+
+/* ************************  Function Prototypes ********************** */
+FUNCTION fGetTaxable RETURNS LOGICAL 
+	( ipcCompany AS CHARACTER,
+    ipcCust AS CHARACTER,
+    ipcShipto AS CHARACTER) FORWARD.
+
+/* ***************************  Main Block  *************************** */
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 find first ar-ctrl {ar/ar-ctrlW.i} no-lock no-error.
 
 find oe-ordl where ROWID(oe-ordl) eq ip-rowid no-lock no-error.
@@ -42,7 +53,7 @@ find first cust of oe-ord no-lock.
 
 run ar/cctaxrt.p (input cocode, oe-ord.tax-gr,
                   output v-tax-rate, output v-frt-tax-rate).
-taxit = cust.sort eq "Y" and oe-ord.tax-gr ne "".
+taxit = fGetTaxable(cocode, oe-ord.cust-no, oe-ord.ship-id).
 
 v-misc-tot = 0.
 
@@ -96,8 +107,7 @@ for each est-prep
 
   if taxit then oe-ordm.tax = true.
   IF PrepTax-log THEN 
-     ASSIGN oe-ordm.tax = TRUE
-            oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
+     ASSIGN oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
             .
   assign
    oe-ordm.dscr = est-prep.dscr
@@ -189,8 +199,10 @@ for each ef OF xeb no-lock:
   end.
 end. /* each ef */
 END. /* each xeb */
-
+DELETE OBJECT hdTaxProcs.
 RETURN.
+
+/* **********************  Internal Procedures  *********************** */
 
 PROCEDURE update-prep.
   ASSIGN
@@ -333,5 +345,25 @@ PROCEDURE update-prep.
   FIND CURRENT cust NO-LOCK.
 
 END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fGetTaxable RETURNS LOGICAL 
+	( ipcCompany AS CHARACTER,
+    ipcCust AS CHARACTER,
+    ipcShipto AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
+    RETURN lTaxable.
+
+
+		
+END FUNCTION.
 
 /* end ---------------------------------- copr. 1992  advanced software, inc. */

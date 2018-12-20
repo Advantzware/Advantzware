@@ -50,11 +50,13 @@ DO:
 END.    
    
 /* ***************************  Definitions  ************************** */
- 
+
 /* Parameters Definitions ---                                           */
  
 /* Local Variable Definitions ---                                       */
 
+&Scoped-define mainMenuBGColor 1
+&Scoped-define mainMenuFGColor 15
 &Scoped-define FGColor ?
 &Scoped-define BGColor 8
 
@@ -1372,7 +1374,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLinkASI MAINMENU
 ON MOUSE-SELECT-CLICK OF menuLinkASI IN FRAME FRAME-USER
 DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+    open-mime-resource "text/html" string(menuLinkASI:PRIVATE-DATA) false.
+&ELSE
     OS-COMMAND NO-WAIT START VALUE(menuLinkasi:PRIVATE-DATA).
+&ENDIF
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1383,7 +1389,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLinkZoHo MAINMENU
 ON MOUSE-SELECT-CLICK OF menuLinkZoHo IN FRAME FRAME-USER
 DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+    open-mime-resource "text/html" string(menuLinkZoHo:PRIVATE-DATA) false.
+&ELSE
     OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
+&ENDIF
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1768,16 +1778,14 @@ PROCEDURE pCopyToUser :
             END. /* if is-selected */
         END. /* do idx */
     END. /* with frame */
-    RUN pGetCopyUsers.
-    
-    /* if current user, need to rebuild menu and redisplay */
-    IF lCurrentUser THEN
-    RUN pRebuildMenuTree.
-    
     MESSAGE 
         "Copy from User" copyFromUser "Complete."
     VIEW-AS ALERT-BOX.
-    
+    RUN pGetCopyUsers.    
+    /* if current user, need to rebuild menu and redisplay */
+    IF lCurrentUser THEN
+    RUN pRebuildMenuTree.
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2031,6 +2039,10 @@ PROCEDURE pInit :
     
     DO WITH FRAME {&FRAME-NAME}:
         RUN sys/ref/nk1look.p (
+            g_company,"MENUIMAGE","L",NO,NO,"","",
+            OUTPUT lMenuImage,OUTPUT lFound
+            ).
+        RUN sys/ref/nk1look.p (
             g_company,"MENULINKASI","C",NO,NO,"","",
             OUTPUT cNK1Value[1],OUTPUT lFound
             ).
@@ -2258,7 +2270,12 @@ PROCEDURE pMenuLinkClick :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiLink AS INTEGER NO-UNDO.
     
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+    open-mime-resource "text/html" string(hMenuLink[ipiLink]:PRIVATE-DATA) false.
+&ELSE
+    
     OS-COMMAND NO-WAIT START VALUE(hMenuLink[ipiLink]:PRIVATE-DATA).
+&ENDIF
 
 END PROCEDURE.
 
@@ -2280,18 +2297,21 @@ PROCEDURE pMenuSize :
             cImageFolder  = "Graphics/16X16/"
             dObjectHeight = .95
             dObjectWidth  = 4
+            iFont         = 32
             .
         WHEN 2 THEN
         ASSIGN
             cImageFolder  = "Graphics/24X24/"
             dObjectHeight = 1.33
             dObjectWidth  = 5.6
+            iFont         = 34
             .
         WHEN 3 THEN
         ASSIGN
             cImageFolder  = "Graphics/32X32/"
             dObjectHeight = 1.67
             dObjectWidth  = 7
+            iFont         = 36
             .
     END CASE.
     
@@ -2322,6 +2342,7 @@ PROCEDURE pMenuSize :
             ttMenuTree.hEditor:HIDDEN = YES
             ttMenuTree.hEditor:ROW    = 1
             ttMenuTree.hEditor:HEIGHT = dObjectHeight
+            ttMenuTree.hEditor:FONT   = iFont
             .
         IF VALID-HANDLE(ttMenuTree.hToggle) THEN
         ASSIGN
@@ -2391,7 +2412,11 @@ PROCEDURE pProcessClick :
     
     IF AVAILABLE ttMenuTree THEN DO:
         IF ttMenuTree.isMenu AND NOT ttMenuTree.isOpen THEN
-        ttMenuTree.hEditor:FONT = ?.
+        ASSIGN
+            ttMenuTree.hEditor:FONT    = iFont
+            ttMenuTree.hEditor:BGCOLOR = ?
+            ttMenuTree.hEditor:FGCOLOR = ?
+            .
         ELSE
         cMnemonic = ttMenuTree.mnemonic.
         IF NOT ttMenuTree.isMenu THEN DO:
@@ -2449,7 +2474,9 @@ PROCEDURE pReset :
     FOR EACH ttMenuTree:
         ASSIGN
             ttMenuTree.baseText             = fTranslate(ENTRY(1,ttMenuTree.hEditor:PRIVATE-DATA),NO)
-            ttMenuTree.hEditor:FONT         = ?
+            ttMenuTree.hEditor:FONT         = iFont
+            ttMenuTree.hEditor:BGCOLOR      = ?
+            ttMenuTree.hEditor:FGCOLOR      = ?
             ttMenuTree.hEditor:SCREEN-VALUE = fTreeText(ttMenuTree.isMenu,
                                               ttMenuTree.baseText,
                                               ttMenuTree.mnemonic,

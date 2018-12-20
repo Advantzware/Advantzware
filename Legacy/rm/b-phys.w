@@ -30,7 +30,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+&SCOPED-DEFINE SVB SCREEN-VALUE IN BROWSE browser-table
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
 
@@ -38,10 +38,11 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {custom/gcompany.i}
+
 {custom/gloc.i}
 {custom/globdefs.i}
 
-{sys/inc/var.i NEW SHARED}
+{sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
 
 DEF NEW SHARED TEMP-TABLE tt-selected NO-UNDO
@@ -57,7 +58,7 @@ DEF VAR hd-post-child AS WIDGET-HANDLE NO-UNDO.
 DEF VAR lv-date-ent AS DATE NO-UNDO.
 DEF VAR lv-prior-date AS DATE NO-UNDO.
 DEF VAR ll-help-run AS LOG NO-UNDO.  /* set on browse help, reset row-entry */
-
+DEF VAR lAddMode AS LOG NO-UNDO.
 DO TRANSACTION:
   {sys/inc/rmrecpt.i}
 END.
@@ -88,7 +89,7 @@ END.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table rm-rctd.r-no rm-rctd.rct-date ~
 rm-rctd.i-no rm-rctd.i-name rm-rctd.loc rm-rctd.loc-bin rm-rctd.tag ~
-rm-rctd.qty rm-rctd.pur-uom 
+rm-rctd.qty rm-rctd.pur-uom rm-rctd.company rm-rctd.rita-code rm-rctd.s-num 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table rm-rctd.rct-date ~
 rm-rctd.i-no rm-rctd.loc rm-rctd.loc-bin rm-rctd.tag rm-rctd.qty ~
 rm-rctd.pur-uom 
@@ -107,6 +108,8 @@ rm-rctd.rita-code = "C" NO-LOCK ~
 
 
 /* Definitions for FRAME F-Main                                         */
+&Scoped-define OPEN-BROWSERS-IN-QUERY-F-Main ~
+    ~{&OPEN-QUERY-Browser-Table}
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
@@ -166,7 +169,6 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       rm-rctd.r-no COLUMN-LABEL "Seq#" FORMAT ">>>>>>>9":U
       rm-rctd.rct-date COLUMN-LABEL "Count Date" FORMAT "99/99/9999":U
-            WIDTH 14
       rm-rctd.i-no COLUMN-LABEL "RM Item#" FORMAT "x(15)":U WIDTH 27
       rm-rctd.i-name COLUMN-LABEL "RM Item Name" FORMAT "x(30)":U
             WIDTH 35
@@ -176,6 +178,9 @@ DEFINE BROWSE Browser-Table
       rm-rctd.qty COLUMN-LABEL "Qty Counted" FORMAT "->>>>>>9.9<<<<<":U
             WIDTH 17
       rm-rctd.pur-uom COLUMN-LABEL "UOM" FORMAT "x(3)":U
+      rm-rctd.company FORMAT "x(3)":U
+      rm-rctd.rita-code FORMAT "x(1)":U
+      rm-rctd.s-num FORMAT ">9":U
   ENABLE
       rm-rctd.rct-date
       rm-rctd.i-no
@@ -268,7 +273,10 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-       rm-rctd.pur-uom:COLUMN-READ-ONLY IN BROWSE Browser-Table = TRUE.
+       rm-rctd.pur-uom:COLUMN-READ-ONLY IN BROWSE Browser-Table = TRUE
+       rm-rctd.company:VISIBLE IN BROWSE Browser-Table = FALSE
+       rm-rctd.rita-code:VISIBLE IN BROWSE Browser-Table = FALSE
+       rm-rctd.s-num:VISIBLE IN BROWSE Browser-Table = FALSE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -285,7 +293,7 @@ rm-rctd.rita-code = ""C"""
      _FldNameList[1]   > asi.rm-rctd.r-no
 "rm-rctd.r-no" "Seq#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.rm-rctd.rct-date
-"rm-rctd.rct-date" "Count Date" ? "date" ? ? ? ? ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rctd.rct-date" "Count Date" ? "date" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.rm-rctd.i-no
 "rm-rctd.i-no" "RM Item#" "x(15)" "character" ? ? ? ? ? ? yes ? no no "27" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.rm-rctd.i-name
@@ -300,7 +308,13 @@ rm-rctd.rita-code = ""C"""
 "rm-rctd.qty" "Qty Counted" ? "decimal" ? ? ? ? ? ? yes ? no no "17" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.rm-rctd.pur-uom
 "rm-rctd.pur-uom" "UOM" ? "character" ? ? ? ? ? ? yes ? no no ? yes no yes "U" "" "" "" "" "" "" 0 no 0 no no
-     _Query            is NOT OPENED
+     _FldNameList[10]   > asi.rm-rctd.company
+"rm-rctd.company" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > asi.rm-rctd.rita-code
+"rm-rctd.rita-code" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[12]   > asi.rm-rctd.s-num
+"rm-rctd.s-num" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _Query            is OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
 
@@ -596,6 +610,15 @@ PROCEDURE add-item :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  IF lAddMode THEN DO:
+    MESSAGE 
+        "You must save or cancel this record before adding another."
+        VIEW-AS ALERT-BOX.
+    RETURN.
+  END.
+  ELSE 
+      RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+  
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
 END PROCEDURE.
 
@@ -631,9 +654,16 @@ PROCEDURE cancel-item :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   IF AVAIL rm-rctd AND rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" THEN
+   
+   FIND CURRENT rm-rctd NO-LOCK NO-ERROR.
+   IF NOT AVAIL rm-rctd THEN
+       FIND FIRST rm-rctd NO-LOCK
+        WHERE recid(rm-rctd) EQ lv-recid NO-ERROR .
+
+   IF AVAIL rm-rctd AND rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" THEN 
       RUN dispatch IN THIS-PROCEDURE (INPUT 'cancel-record':U).
-END PROCEDURE.
+   
+   END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -744,9 +774,42 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
+PROCEDURE local-create-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+ DEF VAR li-nxt-r-no AS INT INIT 0 NO-UNDO.
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win
-PROCEDURE local-assign-record:
+  /* Code placed here will execute PRIOR to standard behavior. */
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+    RUN sys/ref/asiseq.p (INPUT cocode, INPUT "rm_rcpt_seq", OUTPUT li-nxt-r-no) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN
+        MESSAGE "Could not obtain next sequence #, please contact ASI."
+        VIEW-AS ALERT-BOX INFO BUTTONS OK.
+
+    ASSIGN 
+        lAddMode = TRUE 
+        rm-rctd.company  = cocode
+        rm-rctd.loc = locode
+        rm-rctd.r-no = li-nxt-r-no
+        rm-rctd.rita-code = "C"
+        rm-rctd.s-num = 0
+        rm-rctd.rct-date = IF lv-prior-date NE ? THEN lv-prior-date ELSE TODAY
+        lv-recid = RECID(rm-rctd)
+        .  
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
+PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -766,11 +829,9 @@ PROCEDURE local-assign-record:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-statement B-table-Win 
 PROCEDURE local-assign-statement :
@@ -860,49 +921,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
-PROCEDURE local-create-record :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win 
+PROCEDURE local-cancel-record :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
- DEF VAR li-nxt-r-no AS INT INIT 0 NO-UNDO.
-
- DEF BUFFER bf-rctd FOR rm-rctd.
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN sys/ref/asiseq.p (INPUT cocode, INPUT "rm_rcpt_seq", OUTPUT li-nxt-r-no) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN
-    MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
-       VIEW-AS ALERT-BOX INFO BUTTONS OK.
-
 
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN rm-rctd.company = cocode
-         rm-rctd.loc = locode
-         rm-rctd.r-no    = li-nxt-r-no
-         rm-rctd.rita-code = "C"
-         .
+    ASSIGN 
+        lAddMode = FALSE.
 
-  IF adm-adding-record THEN DO:
-    ASSIGN rm-rctd.s-num  = 0
-           rm-rctd.rct-date = TODAY.
-    IF lv-prior-date NE ? THEN
-        rm-rctd.rct-date = lv-prior-date.
-    DISP rm-rctd.rct-date WITH BROWSE {&browse-name}. 
-  END.
-
-  lv-recid = RECID(rm-rctd).  
-
-/*
-  run tag-method (output lv-tag-meth). 
-  /*  if lv-tag-meth and rm-rctd:po-no:screen*/
-  run tag-sequence.
-*/  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -965,7 +1000,6 @@ PROCEDURE local-enable-fields :
   DEF VAR ii AS INT NO-UNDO.
   DEF VAR hd-next AS WIDGET-HANDLE NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
-
 
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-target", OUTPUT out-hd-lst).
@@ -1056,6 +1090,9 @@ PROCEDURE local-update-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
+    ASSIGN 
+        lAddMode = FALSE.
+        
   /* Code placed here will execute AFTER standard behavior.    */
   IF NOT winReSize THEN
   DO WITH FRAME {&FRAME-NAME}:
@@ -1088,6 +1125,29 @@ PROCEDURE new-bin :
     IF AVAIL rm-bin THEN DO:
 /*       IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN */
         rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(rm-bin.qty).
+    END.
+    IF rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} EQ "0.0" AND 
+       rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE ""  THEN DO:
+        FOR EACH rm-rdtlh NO-LOCK
+        WHERE rm-rdtlh.company      EQ cocode
+          AND rm-rdtlh.loc          EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND rm-rdtlh.loc-bin      EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND rm-rdtlh.tag          EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND rm-rdtlh.rita-code    EQ "R"
+        USE-INDEX tag,
+        
+        EACH rm-rcpth NO-LOCK 
+        WHERE rm-rcpth.r-no         EQ rm-rdtlh.r-no
+          AND rm-rcpth.rita-code    EQ rm-rdtlh.rita-code
+          AND rm-rcpth.i-no         EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+        USE-INDEX r-no
+    
+        BY rm-rcpth.trans-date
+        BY rm-rcpth.r-no:
+
+            rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(rm-rdtlh.qty). 
+            LEAVE.
+        END.
     END.
   END.
 
@@ -1244,7 +1304,8 @@ PROCEDURE valid-loc :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST loc
+    IF /* rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} NE ""
+    AND */ NOT CAN-FIND(FIRST loc
                     WHERE loc.company EQ cocode
                       AND loc.loc     EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name})
     THEN DO:

@@ -413,10 +413,11 @@ IF inv-line.disc NE 0 THEN
         ELSE
           ROUND(inv-line.t-price * (1 - (inv-line.disc / 100)),2).
 
-RUN oe/invlcost.p (ROWID(inv-line),
+RUN oe/GetCostInvl.p (ROWID(inv-line),
                      OUTPUT v-cost[1], OUTPUT v-cost[2],
                      OUTPUT v-cost[3], OUTPUT v-cost[4],
-                     OUTPUT inv-line.cost, OUTPUT inv-line.t-cost).
+                     OUTPUT inv-line.cost, OUTPUT inv-line.spare-char-2, 
+                     OUTPUT inv-line.t-cost, OUTPUT inv-line.spare-char-1).
 
 do i = 1 to 3:          /** Calculate Commission Amount **/
   assign

@@ -59,7 +59,8 @@ DEFINE VARIABLE v-roll-multp AS DEC DECIMALS 4 NO-UNDO.
 
 DEFINE TEMP-TABLE tt-rm-bin NO-UNDO LIKE rm-bin
                                  FIELD trans-date LIKE rm-rcpth.trans-date
-                                 FIELD tag2 LIKE rm-rdtlh.tag2.
+                                 FIELD tag2 LIKE rm-rdtlh.tag2
+                                 FIELD po-line AS INTEGER .
     
 
 DEFINE STREAM excel.
@@ -1531,6 +1532,10 @@ DEFINE VARIABLE lv-uom  AS   CHARACTER  NO-UNDO.
 
       tt-rm-bin.trans-date = rm-rcpth.trans-date.
       tt-rm-bin.tag2 = rm-rdtlh.tag2.
+      IF rm-rcpth.po-no NE "" THEN
+          ASSIGN
+          tt-rm-bin.po-no = integer(rm-rcpth.po-no )
+          tt-rm-bin.po-line = rm-rcpth.po-line .
       LEAVE.
     END.
 
@@ -1554,6 +1559,10 @@ DEFINE VARIABLE lv-uom  AS   CHARACTER  NO-UNDO.
 
       tt-rm-bin.trans-date = rm-rcpth.trans-date.
       tt-rm-bin.tag2 = rm-rdtlh.tag2.
+      IF rm-rcpth.po-no NE "" THEN
+          ASSIGN
+          tt-rm-bin.po-no = INTEGER(rm-rcpth.po-no) 
+          tt-rm-bin.po-line = rm-rcpth.po-line .
       LEAVE.
     END.
 
@@ -1907,16 +1916,12 @@ SESSION:SET-WAIT-STATE ("general").
 
       IF FIRST(rm-rcpth.trans-date) THEN 
       lv-lstdt = STRING(rm-rcpth.trans-date).
-      
        IF LAST(rm-rcpth.trans-date) THEN 
       lv-fistdt = STRING(rm-rcpth.trans-date).
        
      END.
 
    END.
-
-
-    IF lv-lstdt = "" THEN ASSIGN lv-lstdt = STRING(tt-rm-bin.trans-date) .
     
     v-cost = IF ce-ctrl.r-cost THEN ITEM.avg-cost ELSE tt-rm-bin.cost.
 
@@ -1995,7 +2000,8 @@ SESSION:SET-WAIT-STATE ("general").
     IF tt-rm-bin.po-no NE 0 AND AVAILABLE po-ord THEN DO:
         FIND FIRST po-ordl  NO-LOCK WHERE po-ordl.company EQ tt-rm-bin.company 
             AND po-ordl.po-no EQ po-ord.po-no
-            AND po-ordl.i-no EQ tt-rm-bin.i-no NO-ERROR.
+            AND po-ordl.i-no EQ tt-rm-bin.i-no
+            AND (po-ordl.LINE EQ tt-rm-bin.po-line OR tt-rm-bin.po-line EQ 0) NO-ERROR.
         
         IF AVAILABLE po-ordl THEN DO:
             ASSIGN vpo-gl-act = po-ordl.actnum
@@ -2833,7 +2839,8 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
     IF tt-rm-bin.po-no NE 0 AND AVAILABLE po-ord THEN DO:
         FIND FIRST po-ordl NO-LOCK WHERE po-ordl.company EQ tt-rm-bin.company 
             AND po-ordl.po-no EQ po-ord.po-no
-            AND po-ordl.i-no EQ tt-rm-bin.i-no NO-ERROR.
+            AND po-ordl.i-no EQ tt-rm-bin.i-no 
+            AND (po-ordl.LINE EQ tt-rm-bin.po-line OR tt-rm-bin.po-line EQ 0) NO-ERROR.
         
         IF AVAILABLE po-ordl THEN DO:
             ASSIGN vpo-gl-act = po-ordl.actnum

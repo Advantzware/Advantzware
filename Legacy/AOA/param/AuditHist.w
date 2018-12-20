@@ -51,11 +51,11 @@ DEFINE VARIABLE dtEndDateTime   AS DATETIME  NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svType svStartDate btnCalendar-1 ~
-svStartDateOption svEndDate btnCalendar-2 svEndDateOption svUser svDB ~
-svTable svField svBeforeValueFilter svAfterValueFilter svPurge 
-&Scoped-Define DISPLAYED-OBJECTS svCompany svType svStartDate ~
-svStartDateOption svEndDate svEndDateOption svUser svDB svTable svField ~
+&Scoped-Define ENABLED-OBJECTS svCompany svType svUser svDB svTable svField ~
+svStartDate btnCalendar-1 svEndDate svStartDateOption btnCalendar-2 ~
+svEndDateOption svBeforeValueFilter svAfterValueFilter svPurge 
+&Scoped-Define DISPLAYED-OBJECTS svCompany svType svUser svDB svTable ~
+svField svStartDate svEndDate svStartDateOption svEndDateOption ~
 svBeforeValueFilter svAfterValueFilter svPurge 
 
 /* Custom List Definitions                                              */
@@ -116,8 +116,8 @@ DEFINE VARIABLE svTable AS CHARACTER FORMAT "X(256)":U INITIAL "All"
 
 DEFINE VARIABLE svType AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      LABEL "Type" 
-     VIEW-AS COMBO-BOX INNER-LINES 6
-     LIST-ITEMS "All","CREATE","DELETE","UPDATE","RESTORED","TRACK" 
+     VIEW-AS COMBO-BOX INNER-LINES 7
+     LIST-ITEMS "All","CREATE","DELETE","UPDATE","RESTORED","TRACK","LOG" 
      DROP-DOWN-LIST
      SIZE 16 BY 1 TOOLTIP "Select Audit Type Filter" NO-UNDO.
 
@@ -153,6 +153,10 @@ DEFINE VARIABLE svStartDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 119 BY 8.33.
+
 DEFINE VARIABLE svPurge AS LOGICAL INITIAL no 
      LABEL "Purge Audit History" 
      VIEW-AS TOGGLE-BOX
@@ -162,37 +166,38 @@ DEFINE VARIABLE svPurge AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 14 COLON-ALIGNED WIDGET-ID 60
-     svType AT ROW 3.14 COL 14 COLON-ALIGNED HELP
+     svCompany AT ROW 1.24 COL 142 COLON-ALIGNED WIDGET-ID 60
+     svType AT ROW 5.52 COL 28 COLON-ALIGNED HELP
           "Select Audit Type Filter" WIDGET-ID 6
-     svStartDate AT ROW 5.05 COL 14 COLON-ALIGNED HELP
-          "Enter Start Date" WIDGET-ID 72
-     btnCalendar-1 AT ROW 5.05 COL 32 WIDGET-ID 76
-     svStartDateOption AT ROW 5.05 COL 35 COLON-ALIGNED HELP
-          "Select Start Date Option" NO-LABEL WIDGET-ID 74
-     svEndDate AT ROW 6.24 COL 14 COLON-ALIGNED HELP
-          "Enter End Date" WIDGET-ID 68
-     btnCalendar-2 AT ROW 6.24 COL 32 WIDGET-ID 78
-     svEndDateOption AT ROW 6.24 COL 35 COLON-ALIGNED HELP
-          "Select End Date Option" NO-LABEL WIDGET-ID 70
-     svUser AT ROW 8.14 COL 14 COLON-ALIGNED HELP
+     svUser AT ROW 6.71 COL 28 COLON-ALIGNED HELP
           "Select User Filter" WIDGET-ID 12
-     svDB AT ROW 10.05 COL 14 COLON-ALIGNED HELP
+     svDB AT ROW 9.1 COL 28 COLON-ALIGNED HELP
           "Select Audit DB Filter" WIDGET-ID 14
-     svTable AT ROW 11.24 COL 14 COLON-ALIGNED HELP
+     svTable AT ROW 10.29 COL 28 COLON-ALIGNED HELP
           "Select Audit Table Filter" WIDGET-ID 16
-     svField AT ROW 12.43 COL 14 COLON-ALIGNED HELP
+     svField AT ROW 11.48 COL 28 COLON-ALIGNED HELP
           "Select Audit Field Filter" WIDGET-ID 18
-     svBeforeValueFilter AT ROW 14.33 COL 14 COLON-ALIGNED HELP
+     svStartDate AT ROW 5.52 COL 84 COLON-ALIGNED HELP
+          "Enter Start Date" WIDGET-ID 72
+     btnCalendar-1 AT ROW 5.52 COL 102 WIDGET-ID 76
+     svEndDate AT ROW 6.71 COL 84 COLON-ALIGNED HELP
+          "Enter End Date" WIDGET-ID 68
+     svStartDateOption AT ROW 5.52 COL 105 COLON-ALIGNED HELP
+          "Select Start Date Option" NO-LABEL WIDGET-ID 74
+     btnCalendar-2 AT ROW 6.71 COL 102 WIDGET-ID 78
+     svEndDateOption AT ROW 6.71 COL 105 COLON-ALIGNED HELP
+          "Select End Date Option" NO-LABEL WIDGET-ID 70
+     svBeforeValueFilter AT ROW 9.1 COL 84 COLON-ALIGNED HELP
           "Enter Before Value to Filter" WIDGET-ID 36
-     svAfterValueFilter AT ROW 15.52 COL 14 COLON-ALIGNED HELP
+     svAfterValueFilter AT ROW 10.29 COL 84 COLON-ALIGNED HELP
           "Enter After Value to Filter" WIDGET-ID 38
-     svPurge AT ROW 17.43 COL 16 HELP
+     svPurge AT ROW 11.48 COL 86 HELP
           "Select to Purge Audit History" WIDGET-ID 80
+     RECT-1 AT ROW 4.81 COL 18 WIDGET-ID 82
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 74 BY 18.38
+         SIZE 149.2 BY 17
          TITLE "Report Parameters".
 
 
@@ -222,8 +227,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 18.38
-         WIDTH              = 74.
+         HEIGHT             = 17
+         WIDTH              = 149.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -245,7 +250,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME                                               */
+   NOT-VISIBLE FRAME-NAME Custom                                        */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
@@ -253,6 +258,8 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
    3                                                                    */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
 ASSIGN 
        svCompany:READ-ONLY IN FRAME F-Main        = TRUE.
 

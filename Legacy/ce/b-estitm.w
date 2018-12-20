@@ -1950,7 +1950,7 @@ PROCEDURE calc-layout :
 
   IF ll THEN DO:
     IF NOT lv-foam THEN DO:
-      /*{sys/inc/ceroute1.i w id l en}  */
+      RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
       {ce/ceroute1.i w id l en} 
     END.
     RUN ce/calc-dim.p.
@@ -3152,7 +3152,10 @@ PROCEDURE est-from-tandem :
                         OUTPUT ll-new-tandem, OUTPUT lv-eb-rowid).
 
     IF ll-new-tandem THEN DO:
-      FIND FIRST xest OF b-eb NO-LOCK NO-ERROR.
+      FIND FIRST xest NO-LOCK WHERE 
+        xest.company EQ b-eb.company AND 
+        xest.est-no EQ b-eb.est-no 
+        NO-ERROR.
 
       RELEASE xeb.
 
@@ -3166,7 +3169,10 @@ PROCEDURE est-from-tandem :
     END.
 
     ELSE DO:
-      FIND FIRST b-est OF b-eb EXCLUSIVE NO-ERROR.
+      FIND FIRST b-est EXCLUSIVE WHERE  
+        b-est.company EQ b-eb.company AND 
+        b-est.est-no EQ b-eb.est-no 
+        NO-ERROR.
       IF AVAIL b-est THEN DELETE b-est.
     END.
   END.

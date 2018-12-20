@@ -43,11 +43,9 @@ CREATE WIDGET-POOL.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
+{methods/defines/sortByDefs.i}
 
 DEFINE VARIABLE lContinue          AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cColumnLabel       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cSaveLabel         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAscending         AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE lHeaderSorting     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dtStartDateTime    AS DATETIME  NO-UNDO.
 DEFINE VARIABLE dtEndDateTime      AS DATETIME  NO-UNDO.
@@ -188,7 +186,7 @@ AuditDtl.AuditAfterValue
     ~{&OPEN-QUERY-AuditHeader}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS AuditHeader btnStack AuditDetail btnPrint ~
+&Scoped-Define ENABLED-OBJECTS AuditHeader AuditDetail btnStack btnPrint ~
 svSortByHdr svSortByDtl 
 &Scoped-Define DISPLAYED-OBJECTS svSortByHdr svSortByDtl 
 
@@ -300,8 +298,8 @@ DEFINE VARIABLE svTable AS CHARACTER FORMAT "X(256)":U INITIAL "All"
 
 DEFINE VARIABLE svType AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      LABEL "Type" 
-     VIEW-AS COMBO-BOX INNER-LINES 6
-     LIST-ITEMS "All","CREATE","DELETE","UPDATE","RESTORED","TRACK" 
+     VIEW-AS COMBO-BOX INNER-LINES 7
+     LIST-ITEMS "All","CREATE","DELETE","UPDATE","RESTORED","TRACK","LOG" 
      DROP-DOWN-LIST
      SIZE 16 BY 1 TOOLTIP "Select Audit Type Filter" NO-UNDO.
 
@@ -425,9 +423,9 @@ DEFINE FRAME DEFAULT-FRAME
      btnRestore AT ROW 9.33 COL 102 HELP
           "Print" WIDGET-ID 284
      AuditHeader AT ROW 6.48 COL 1 WIDGET-ID 200
+     AuditDetail AT ROW 6.48 COL 115 WIDGET-ID 300
      btnStack AT ROW 6.24 COL 106 HELP
           "Click to View Program Stack Trace" WIDGET-ID 282
-     AuditDetail AT ROW 6.48 COL 115 WIDGET-ID 300
      btnPrint AT ROW 6.24 COL 97 HELP
           "Print" WIDGET-ID 280
      svSortByHdr AT ROW 5.76 COL 68 COLON-ALIGNED WIDGET-ID 2
@@ -436,61 +434,6 @@ DEFINE FRAME DEFAULT-FRAME
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 238.2 BY 28.57 WIDGET-ID 100.
-
-DEFINE FRAME AuditSearch
-     svType AT ROW 1.24 COL 8 COLON-ALIGNED HELP
-          "Select Audit Type Filter" WIDGET-ID 6
-     svStartDate AT ROW 1.24 COL 36 COLON-ALIGNED HELP
-          "Enter From Date" WIDGET-ID 20
-     btnCalendar-1 AT ROW 1.24 COL 54 WIDGET-ID 272
-     btnAuditTables AT ROW 2.67 COL 118 HELP
-          "Click to Access Tables to Audit" WIDGET-ID 288
-     svStartDateOption AT ROW 1.24 COL 59 HELP
-          "Select Start Date Option" NO-LABEL WIDGET-ID 74
-     svDB AT ROW 1.24 COL 89 COLON-ALIGNED HELP
-          "Select Audit DB Filter" WIDGET-ID 14
-     maxRows AT ROW 1.24 COL 128 COLON-ALIGNED WIDGET-ID 290
-     AuditHdr.AuditKey AT ROW 1.24 COL 161.6 COLON-ALIGNED WIDGET-ID 26
-          LABEL "Audit Key" FORMAT "x(256)"
-          VIEW-AS FILL-IN 
-          SIZE 70.4 BY 1
-          BGCOLOR 15 
-     svUser AT ROW 2.43 COL 8 COLON-ALIGNED HELP
-          "Select User Filter" WIDGET-ID 12
-     svEndDate AT ROW 2.43 COL 36 COLON-ALIGNED HELP
-          "Enter To Date" WIDGET-ID 22
-     btnCalendar-2 AT ROW 2.43 COL 54 WIDGET-ID 274
-     svEndDateOption AT ROW 2.43 COL 59 HELP
-          "Select End Date Option" NO-LABEL WIDGET-ID 70
-     svTable AT ROW 2.43 COL 89 COLON-ALIGNED HELP
-          "Select Audit Table Filter" WIDGET-ID 16
-     svBeforeValueFilter AT ROW 2.43 COL 161.6 COLON-ALIGNED HELP
-          "Enter Before Value to Filter" WIDGET-ID 36
-     svField AT ROW 3.62 COL 89 COLON-ALIGNED HELP
-          "Select Audit Field Filter" WIDGET-ID 18
-     svAfterValueFilter AT ROW 3.62 COL 161.6 COLON-ALIGNED HELP
-          "Enter After Value to Filter" WIDGET-ID 38
-     btnAfterValueFilterClear AT ROW 3.62 COL 234 HELP
-          "Click to Clear After Value Filter" WIDGET-ID 42
-     btnBeforeValueFilterClear AT ROW 2.43 COL 234 HELP
-          "Click to Clear Before Value Filter" WIDGET-ID 40
-     btnClear AT ROW 2.67 COL 127 HELP
-          "Click to Clear Filters" WIDGET-ID 284
-     btnSearch AT ROW 2.67 COL 136 HELP
-          "Click to Apply Filter Selections" WIDGET-ID 286
-     btnFilterAfterValue AT ROW 3.62 COL 145 HELP
-          "Select to Filter by After Value" WIDGET-ID 34
-     btnFilterAuditKey AT ROW 1.24 COL 145 HELP
-          "Select to Filter by Audit Key" WIDGET-ID 28
-     btnFilterBeforeValue AT ROW 2.43 COL 145 HELP
-          "Select to Filter by Before Value" WIDGET-ID 32
-     btnHistory AT ROW 1.24 COL 234 HELP
-          "Click to View History" WIDGET-ID 30
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 238 BY 4.76
-         TITLE "Search Filters" WIDGET-ID 500.
 
 DEFINE FRAME AuditView
      AuditHdr.AuditDB AT ROW 1.24 COL 6 COLON-ALIGNED WIDGET-ID 16
@@ -551,6 +494,61 @@ DEFINE FRAME AuditView
          AT COL 97 ROW 24.57
          SIZE 142 BY 4.81
          TITLE BGCOLOR 15 "Audit Detail View" WIDGET-ID 400.
+
+DEFINE FRAME AuditSearch
+     svType AT ROW 1.24 COL 8 COLON-ALIGNED HELP
+          "Select Audit Type Filter" WIDGET-ID 6
+     svStartDate AT ROW 1.24 COL 36 COLON-ALIGNED HELP
+          "Enter From Date" WIDGET-ID 20
+     btnCalendar-1 AT ROW 1.24 COL 54 WIDGET-ID 272
+     btnAuditTables AT ROW 2.67 COL 118 HELP
+          "Click to Access Tables to Audit" WIDGET-ID 288
+     svStartDateOption AT ROW 1.24 COL 59 HELP
+          "Select Start Date Option" NO-LABEL WIDGET-ID 74
+     svDB AT ROW 1.24 COL 89 COLON-ALIGNED HELP
+          "Select Audit DB Filter" WIDGET-ID 14
+     maxRows AT ROW 1.24 COL 128 COLON-ALIGNED WIDGET-ID 290
+     AuditHdr.AuditKey AT ROW 1.24 COL 161.6 COLON-ALIGNED WIDGET-ID 26
+          LABEL "Audit Key" FORMAT "x(256)"
+          VIEW-AS FILL-IN 
+          SIZE 70.4 BY 1
+          BGCOLOR 15 
+     svUser AT ROW 2.43 COL 8 COLON-ALIGNED HELP
+          "Select User Filter" WIDGET-ID 12
+     svEndDate AT ROW 2.43 COL 36 COLON-ALIGNED HELP
+          "Enter To Date" WIDGET-ID 22
+     btnCalendar-2 AT ROW 2.43 COL 54 WIDGET-ID 274
+     svEndDateOption AT ROW 2.43 COL 59 HELP
+          "Select End Date Option" NO-LABEL WIDGET-ID 70
+     svTable AT ROW 2.43 COL 89 COLON-ALIGNED HELP
+          "Select Audit Table Filter" WIDGET-ID 16
+     svBeforeValueFilter AT ROW 2.43 COL 161.6 COLON-ALIGNED HELP
+          "Enter Before Value to Filter" WIDGET-ID 36
+     svField AT ROW 3.62 COL 89 COLON-ALIGNED HELP
+          "Select Audit Field Filter" WIDGET-ID 18
+     svAfterValueFilter AT ROW 3.62 COL 161.6 COLON-ALIGNED HELP
+          "Enter After Value to Filter" WIDGET-ID 38
+     btnAfterValueFilterClear AT ROW 3.62 COL 234 HELP
+          "Click to Clear After Value Filter" WIDGET-ID 42
+     btnBeforeValueFilterClear AT ROW 2.43 COL 234 HELP
+          "Click to Clear Before Value Filter" WIDGET-ID 40
+     btnClear AT ROW 2.67 COL 127 HELP
+          "Click to Clear Filters" WIDGET-ID 284
+     btnSearch AT ROW 2.67 COL 136 HELP
+          "Click to Apply Filter Selections" WIDGET-ID 286
+     btnFilterAfterValue AT ROW 3.62 COL 145 HELP
+          "Select to Filter by After Value" WIDGET-ID 34
+     btnFilterAuditKey AT ROW 1.24 COL 145 HELP
+          "Select to Filter by Audit Key" WIDGET-ID 28
+     btnFilterBeforeValue AT ROW 2.43 COL 145 HELP
+          "Select to Filter by Before Value" WIDGET-ID 32
+     btnHistory AT ROW 1.24 COL 234 HELP
+          "Click to View History" WIDGET-ID 30
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 238 BY 4.76
+         TITLE "Search Filters" WIDGET-ID 500.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -713,7 +711,7 @@ ASSIGN XXTABVALXX = FRAME AuditSearch:MOVE-BEFORE-TAB-ITEM (AuditHeader:HANDLE I
 /* END-ASSIGN-TABS */.
 
 /* BROWSE-TAB AuditHeader AuditSearch DEFAULT-FRAME */
-/* BROWSE-TAB AuditDetail btnStack DEFAULT-FRAME */
+/* BROWSE-TAB AuditDetail AuditHeader DEFAULT-FRAME */
 ASSIGN 
        AuditDetail:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
@@ -1165,6 +1163,7 @@ END.
 ON CHOOSE OF btnSearch IN FRAME AuditSearch /* Search */
 DO:
     ASSIGN
+        {&userPrintFields}
         svSortByHdr:SCREEN-VALUE IN FRAME DEFAULT-FRAME = ""
         svSortByDtl:SCREEN-VALUE = ""
         lHeaderSorting = YES
@@ -1451,6 +1450,22 @@ END.
 &SCOPED-DEFINE FilterFrame AuditSearch
 {AOA/includes/pGetAuditQueryFilters.i}
 
+&Scoped-define sdBrowseName AuditHeader
+{methods/sortByProc.i "pByAuditID" "AuditHdr.AuditID"}
+{methods/sortByProc.i "pByAuditType" "AuditHdr.AuditType"}
+{methods/sortByProc.i "pByAuditDateTime" "AuditHdr.AuditDateTime"}
+{methods/sortByProc.i "pByAuditDB" "AuditHdr.AuditDB"}
+{methods/sortByProc.i "pByAuditTable" "AuditHdr.AuditTable"}
+{methods/sortByProc.i "pByAuditUser" "AuditHdr.AuditUser"}
+{methods/sortByProc.i "pByAuditKey" "AuditHdr.AuditKey"}
+
+&Scoped-define sdBrowseName AuditDetail
+{methods/sortByProc.i "pByAuditIdxField" "AuditDtl.AuditIdxField"}
+{methods/sortByProc.i "pByAuditField" "AuditDtl.AuditField BY AuditDtl.AuditExtent"}
+{methods/sortByProc.i "pByAuditExtent" "AuditDtl.AuditExtent"}
+{methods/sortByProc.i "pByAuditBeforeValue" "AuditDtl.AuditBeforeValue"}
+{methods/sortByProc.i "pByAuditAfterValue" "AuditDtl.AuditAfterValue"}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1502,7 +1517,7 @@ PROCEDURE enable_UI :
   {&OPEN-BROWSERS-IN-QUERY-AuditSearch}
   DISPLAY svSortByHdr svSortByDtl 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE AuditHeader btnStack AuditDetail btnPrint svSortByHdr svSortByDtl 
+  ENABLE AuditHeader AuditDetail btnStack btnPrint svSortByHdr svSortByDtl 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   IF AVAILABLE AuditDtl THEN 
@@ -1549,234 +1564,6 @@ PROCEDURE pAuditKeyFilter :
             .
     APPLY 'VALUE-CHANGED':U TO BROWSE AuditHeader.
     
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByAuditAfterValue C-Win 
-PROCEDURE pByAuditAfterValue :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditAfterValue {&MAX-ROWS}
-    {&OPEN-QUERY-AuditDetail}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditAfterValue DESCENDING {&MAX-ROWS}
-    {&OPEN-QUERY-AuditDetail}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByAuditBeforeValue C-Win 
-PROCEDURE pByAuditBeforeValue :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditBeforeValue {&MAX-ROWS}
-    {&OPEN-QUERY-AuditDetail}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditBeforeValue DESCENDING {&MAX-ROWS}
-    {&OPEN-QUERY-AuditDetail}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByAuditDateTime C-Win 
-PROCEDURE pByAuditDateTime :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditDateTime {&MAX-ROWS}
-    {&OPEN-QUERY-AuditHeader}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditDateTime DESCENDING {&MAX-ROWS}
-    {&OPEN-QUERY-AuditHeader}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByAuditDB C-Win 
-PROCEDURE pByAuditDB :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditDB {&MAX-ROWS}
-    {&OPEN-QUERY-AuditHeader}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditDB DESCENDING {&MAX-ROWS}
-    {&OPEN-QUERY-AuditHeader}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByAuditExtent C-Win 
-PROCEDURE pByAuditExtent :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditExtent {&MAX-ROWS}
-    {&OPEN-QUERY-AuditDetail}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditExtent DESCENDING {&MAX-ROWS}
-    {&OPEN-QUERY-AuditDetail}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByAuditField C-Win 
-PROCEDURE pByAuditField :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditField BY AuditDtl.AuditExtent {&MAX-ROWS}
-    {&OPEN-QUERY-AuditDetail}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditField DESCENDING BY AuditDtl.AuditExtent DESCENDING {&MAX-ROWS}
-    {&OPEN-QUERY-AuditDetail}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByAuditID C-Win 
-PROCEDURE pByAuditID :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditID {&MAX-ROWS}
-    {&OPEN-QUERY-AuditHeader}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditID DESCENDING {&MAX-ROWS}
-    {&OPEN-QUERY-AuditHeader}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByAuditIdxField C-Win 
-PROCEDURE pByAuditIdxField :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditIdxField {&MAX-ROWS}
-    {&OPEN-QUERY-AuditDetail}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditIdxField DESCENDING {&MAX-ROWS}
-    {&OPEN-QUERY-AuditDetail}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByAuditKey C-Win 
-PROCEDURE pByAuditKey :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditKey {&MAX-ROWS}
-    {&OPEN-QUERY-AuditHeader}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditKey DESCENDING {&MAX-ROWS}
-    {&OPEN-QUERY-AuditHeader}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByAuditTable C-Win 
-PROCEDURE pByAuditTable :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditTable {&MAX-ROWS}
-    {&OPEN-QUERY-AuditHeader}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditTable DESCENDING {&MAX-ROWS}
-    {&OPEN-QUERY-AuditHeader}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByAuditType C-Win 
-PROCEDURE pByAuditType :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditType {&MAX-ROWS}
-    {&OPEN-QUERY-AuditHeader}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditType DESCENDING {&MAX-ROWS}
-    {&OPEN-QUERY-AuditHeader}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByAuditUser C-Win 
-PROCEDURE pByAuditUser :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditUser {&MAX-ROWS}
-    {&OPEN-QUERY-AuditHeader}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditUser DESCENDING {&MAX-ROWS}
-    {&OPEN-QUERY-AuditHeader}
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

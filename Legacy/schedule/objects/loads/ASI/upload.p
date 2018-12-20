@@ -23,6 +23,8 @@ DEFINE VARIABLE lvJob AS CHARACTER NO-UNDO.
 DEFINE VARIABLE statusStr AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hTtblJob AS HANDLE NO-UNDO.
 DEFINE VARIABLE hPendingJob AS HANDLE NO-UNDO.
+DEFINE VARIABLE iAuditID AS INTEGER NO-UNDO.
+DEFINE VARIABLE iLogEntry AS INTEGER NO-UNDO.
 
 DEFINE TEMP-TABLE ttHTMLFields NO-UNDO
     FIELD fieldType   AS CHARACTER 
@@ -78,8 +80,14 @@ DISABLE TRIGGERS FOR LOAD OF job-mch.
 DISABLE TRIGGERS FOR LOAD OF job-hdr.
 DISABLE TRIGGERS FOR LOAD OF reftable.
 
-OUTPUT TO 'schedule/load.log' APPEND.
-PUT UNFORMATTED 'Start Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' for ' ID ' by ' USERID('nosweat') SKIP.
+RUN spCreateAuditHdr (
+    "LOG",     /* type  */
+    "ASI",     /* db    */
+    "sbPro.", /* table */
+    ID,        /* key   */
+    OUTPUT iAuditID
+    ).
+RUN pLogEntry ("SaveBegin", STRING(TODAY,"99.99.9999") + " @ " + STRING(TIME,"hh:mm:ss")).
 
 ASSIGN 
     hTtblJob    = BUFFER ttblJob:HANDLE
@@ -180,12 +188,6 @@ FOR EACH pendingJob NO-LOCK:
      job-mch.m-code NE pendingJob.altResource THEN
   job-mch.m-code = pendingJob.altResource.
   RUN updateJobStartDate (job-mch.company,job-mch.job,job-mch.start-date-su).
-/*  DO i = 2 TO NUM-ENTRIES(customValueList):                                 */
-/*    IF NOT pendingJob.jobStatus[i - 1] THEN                                 */
-/*    statusStr = statusStr + ',' + ENTRY(i,customValueList).                 */
-/*  END.                                                                      */
-/*  RUN setLiveUpdate (job-mch.company,job-mch.job-no,job-mch.job-no2,        */
-/*                     job-mch.frm,pendingJob.resource,pendingJob.liveUpdate).*/
   RUN statusNote (jobMchRowID,job-mch.company,pendingJob.resource,job-mch.job,job-mch.job-no,job-mch.job-no2,job-mch.frm,
                   pendingJob.jobStatus[1],
                   pendingJob.jobStatus[2],
@@ -276,51 +278,48 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
          AND ROWID(job-mch) EQ jobMchRowID
        NO-ERROR.
   IF NOT AVAILABLE job-mch THEN DO:
-      PUT UNFORMATTED 'ttblJob:' AT 5
-          ' Resource: ' ttblJob.resource
-          ' AltResource: ' ttblJob.altResource
-          ' RowIDs: ' ttblJob.rowIDs 
-          ' KeyValue: ' ttblJob.keyValue
-          ' SB Run?: ' ttblJob.jobCompleted
-          ' ** Not Found **' SKIP.
+      RUN pLogEntry ("ttblJob", "** Not Found **").
+      RUN pLogEntry ("Resource", ttblJob.resource).
+      RUN pLogEntry ("AltResource", ttblJob.altResource).
+      RUN pLogEntry ("RowIDs", ttblJob.rowIDs). 
+      RUN pLogEntry ("KeyValue", ttblJob.keyValue).
+      RUN pLogEntry ("SB Run?", ttblJob.jobCompleted).
       NEXT.
   END.
   IF STRING(ROWID(job-mch)) NE ENTRY(2,ttblJob.rowIDs) THEN DO:
-      PUT UNFORMATTED 'ttblJob: ** RowID Error **' AT 5
-          ' Resource: ' ttblJob.resource
-          ' RowIDs: ' ttblJob.rowIDs ' - RowID: ' STRING(ROWID(job-mch))
-          ' KeyValue: ' ttblJob.keyValue
-          ' RecKey: ' job-mch.rec_key
-          ' EstOPRecKey: ' job-mch.est-op_rec_key
-          ' Run?: ' job-mch.run-complete
-          ' SB Run?: ' ttblJob.jobCompleted
-          ' Current: ' job-mch.m-code
-          ' New: ' ttblJob.altResource SKIP.
-  END.
+      RUN pLogEntry ("ttblJob", "** RowID Error **").
+      RUN pLogEntry ("Resource", ttblJob.resource).
+      RUN pLogEntry ("RowIDs", ttblJob.rowIDs).
+      RUN pLogEntry ("RowID", STRING(ROWID(job-mch))).
+      RUN pLogEntry ("KeyValue", ttblJob.keyValue).
+      RUN pLogEntry ("RecKey", job-mch.rec_key).
+      RUN pLogEntry ("EstOPRecKey", job-mch.est-op_rec_key).
+      RUN pLogEntry ("Run?", job-mch.run-complete).
+      RUN pLogEntry ("SB Run?", ttblJob.jobCompleted).
+      RUN pLogEntry ("Current", job-mch.m-code).
+      RUN pLogEntry ("New", ttblJob.altResource).
+  END. /* if */
   
   IF CAN-FIND(FIRST jobNotes WHERE jobNotes.jobRowID EQ jobMchRowID) THEN
   RUN check4Notes (jobMchRowID,job-mch.company,ttblJob.resource,job-mch.job,job-mch.job-no,job-mch.job-no2,job-mch.frm).
   statusStr = ''.
-/*  DO i = 2 TO NUM-ENTRIES(customValueList):                */
-/*    IF NOT ttblJob.jobStatus[i - 1] THEN                   */
-/*    statusStr = statusStr + ',' + ENTRY(i,customValueList).*/
-/*  END.                                                     */
-  RUN statusNote (jobMchRowID,job-mch.company,ttblJob.resource,job-mch.job,job-mch.job-no,job-mch.job-no2,job-mch.frm,
-                  ttblJob.jobStatus[1],
-                  ttblJob.jobStatus[2],
-                  ttblJob.jobStatus[3],
-                  ttblJob.jobStatus[4],
-                  ttblJob.jobStatus[5],
-                  ttblJob.jobStatus[6],
-                  ttblJob.jobStatus[7],
-                  ttblJob.jobStatus[8],
-                  ttblJob.jobStatus[9],
-                  ttblJob.jobStatus[10],
-                  ttblJob.jobStatus[11],
-                  ttblJob.jobStatus[12],
-                  ttblJob.jobStatus[13],
-                  ttblJob.jobStatus[14]
-                 ).
+  RUN statusNote (
+    jobMchRowID,job-mch.company,ttblJob.resource,job-mch.job,job-mch.job-no,job-mch.job-no2,job-mch.frm,
+    ttblJob.jobStatus[1],
+    ttblJob.jobStatus[2],
+    ttblJob.jobStatus[3],
+    ttblJob.jobStatus[4],
+    ttblJob.jobStatus[5],
+    ttblJob.jobStatus[6],
+    ttblJob.jobStatus[7],
+    ttblJob.jobStatus[8],
+    ttblJob.jobStatus[9],
+    ttblJob.jobStatus[10],
+    ttblJob.jobStatus[11],
+    ttblJob.jobStatus[12],
+    ttblJob.jobStatus[13],
+    ttblJob.jobStatus[14]
+    ).
   RUN downtimeSpan (ttblJob.resource,INTEGER(job-mch.mr-hr * 3600),
                     ttblJob.startDate,ttblJob.startTime,
                     OUTPUT lvEndDate,OUTPUT lvEndTime,OUTPUT lvDowntimeSpan).
@@ -346,29 +345,28 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
     .
   /* only change if not already run-complete */
   IF job-mch.run-complete EQ NO THEN DO:
-      IF ttblJob.jobCompleted THEN
-      PUT UNFORMATTED 'ttblJob:' AT 5
-          ' RowIDs: ' ttblJob.rowIDs ' - RowID: ' STRING(ROWID(job-mch))
-          ' KeyValue: ' ttblJob.keyValue
-          ' RecKey: ' job-mch.rec_key
-          ' Run?: ' job-mch.run-complete
-          ' SB Run?: ' ttblJob.jobCompleted SKIP.
+      IF ttblJob.jobCompleted THEN DO:
+          RUN pLogEntry ("RowIDs", ttblJob.rowIDs).
+          RUN pLogEntry ("RowID", STRING(ROWID(job-mch))).
+          RUN pLogEntry ("KeyValue", ttblJob.keyValue).
+          RUN pLogEntry ("RecKey", job-mch.rec_key).
+          RUN pLogEntry ("Run?", job-mch.run-complete).
+          RUN pLogEntry ("SB Run?", ttblJob.jobCompleted).
+      END. /* if completed */
       job-mch.run-complete = ttblJob.jobCompleted.
   END.
   /* change machine only if not already done by DC or TS */
   IF NOT job-mch.est-op_rec_key BEGINS 'DC' AND
      NOT job-mch.est-op_rec_key BEGINS 'TS' AND
      job-mch.m-code NE ttblJob.altResource THEN DO:
-      PUT UNFORMATTED 'ttblJob:' AT 5
-          ' RowIDs: ' ttblJob.rowIDs ' - RowID: ' STRING(ROWID(job-mch))
-          ' KeyValue: ' ttblJob.keyValue
-          ' RecKey: ' job-mch.rec_key
-          ' Current: ' job-mch.m-code
-          ' New: ' ttblJob.altResource SKIP.
+      RUN pLogEntry ("RowIDs", ttblJob.rowIDs).
+      RUN pLogEntry ("RowID", STRING(ROWID(job-mch))).
+      RUN pLogEntry ("KeyValue", ttblJob.keyValue).
+      RUN pLogEntry ("RecKey", job-mch.rec_key).
+      RUN pLogEntry ("Current", job-mch.m-code).
+      RUN pLogEntry ("New", ttblJob.altResource).
       job-mch.m-code = ttblJob.altResource.
   END.
-/*  RUN setLiveUpdate (job-mch.company,job-mch.job-no,job-mch.job-no2,  */
-/*                     job-mch.frm,ttblJob.resource,ttblJob.liveUpdate).*/
   /* set job-hdr start date based on earliest job-mch start date */
   IF FIRST-OF(ttblJob.jobSort) THEN DO:
     FIND FIRST job-hdr OF job-mch EXCLUSIVE-LOCK NO-ERROR.
@@ -396,10 +394,10 @@ IF AVAILABLE module AND
    htmlPageLocation NE "" THEN
 RUN pHTMLPages.
 
-PUT UNFORMATTED '  End Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' for ' ID ' by ' USERID('nosweat') SKIP(1).
-OUTPUT CLOSE.
+RUN pLogEntry ("SaveEnd", STRING(TODAY,"99.99.9999") + " @ " + STRING(TIME,"hh:mm:ss")).
 
-/*MESSAGE 'Schedule Board Save (upload) Complete.' VIEW-AS ALERT-BOX.*/
+/* **********************  Internal Procedures  *********************** */
+
 
 PROCEDURE check4Notes:
   DEFINE INPUT PARAMETER ipRowID AS ROWID NO-UNDO.
@@ -454,25 +452,7 @@ PROCEDURE check4Notes:
            NO-ERROR.
       IF AVAILABLE reftable THEN 
       DELETE reftable.
-/*      IF (jobNotes.noteKey EQ '' AND NOT jobNotes.deleteNote) OR NOT AVAILABLE reftable THEN DO:*/
-/*        CREATE reftable.                                                                        */
-/*        ASSIGN                                                                                  */
-/*          reftable.reftable = 'SB: Note'                                                        */
-/*          reftable.company = ipCompany                                                          */
-/*          reftable.loc = ''                                                                     */
-/*          reftable.code = lvCode                                                                */
-/*          reftable.code2 = lvCode2                                                              */
-/*          jobNotes.noteKey = 'Added'                                                            */
-/*          .                                                                                     */
-/*      END.                                                                                      */
     END. /* noteText ne '' */
-/*    IF AVAILABLE reftable THEN DO:                                                              */
-/*      IF jobNotes.deleteNote THEN                                                               */
-/*      DELETE reftable.                                                                          */
-/*      ELSE                                                                                      */
-/*      reftable.dscr = jobNotes.noteText.                                                        */
-/*    END.                                                                                        */
-/*    RELEASE reftable.                                                                           */
   END. /* each jobNotes */
 END PROCEDURE.
 
@@ -864,6 +844,26 @@ PROCEDURE pHTMLPages:
     END.
 END PROCEDURE.
 
+PROCEDURE pLogEntry:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcField AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcValue AS CHARACTER NO-UNDO.
+
+    iLogEntry = iLogEntry + 1.
+    RUN spCreateAuditDtl (
+        iAuditID, /* audit id     */
+        STRING(iLogEntry,">>9") + " " + ipcField, /* field */
+        0,        /* extent       */
+        ipcValue, /* before value */
+        "",       /* after value  */
+        NO        /* index field  */
+        ).
+        
+END PROCEDURE.
+
 PROCEDURE pttHTMLFields:
     DEFINE VARIABLE cFieldType   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFieldLabel  AS CHARACTER NO-UNDO.
@@ -887,34 +887,6 @@ PROCEDURE pttHTMLFields:
         INPUT CLOSE.
     END. /* if ne ? */
 END PROCEDURE.
-
-/*PROCEDURE setLiveUpdate:                                                           */
-/*  DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.                           */
-/*  DEFINE INPUT PARAMETER ipJobNo AS CHARACTER NO-UNDO.                             */
-/*  DEFINE INPUT PARAMETER ipJobNo2 AS INTEGER NO-UNDO.                              */
-/*  DEFINE INPUT PARAMETER ipForm AS INTEGER NO-UNDO.                                */
-/*  DEFINE INPUT PARAMETER ipMCode AS CHARACTER NO-UNDO.                             */
-/*  DEFINE INPUT PARAMETER ipLiveUpdate AS LOGICAL NO-UNDO.                          */
-/*                                                                                   */
-/*  DEFINE VARIABLE lvCode AS CHARACTER NO-UNDO.                                     */
-/*                                                                                   */
-/*  lvCode = ipJobNo + ',' + STRING(ipJobNo2) + ',' + STRING(ipForm) + ',' + ipMCode.*/
-/*  FIND FIRST reftable EXCLUSIVE-LOCK                                               */
-/*       WHERE reftable.reftable EQ 'sbLiveUpdate'                                   */
-/*         AND reftable.company EQ ipCompany                                         */
-/*         AND reftable.loc EQ ''                                                    */
-/*         AND reftable.code EQ lvCode NO-ERROR.                                     */
-/*  IF AVAILABLE reftable THEN                                                       */
-/*  DELETE reftable.                                                                 */
-/*/*  IF NOT AVAILABLE reftable THEN DO:                   */                        */
-/*/*    CREATE reftable.                                   */                        */
-/*/*    ASSIGN                                             */                        */
-/*/*      reftable.reftable = 'sbLiveUpdate'               */                        */
-/*/*      reftable.company = ipCompany                     */                        */
-/*/*      reftable.code = lvCode.                          */                        */
-/*/*  END.                                                 */                        */
-/*/*  reftable.code2 = TRIM(STRING(ipLiveUpdate,'Yes/No')).*/                        */
-/*END PROCEDURE.                                                                     */
 
 PROCEDURE statusNote:
   DEFINE INPUT PARAMETER ipRowID AS ROWID NO-UNDO.
@@ -985,20 +957,6 @@ PROCEDURE statusNote:
        NO-ERROR.
   IF AVAILABLE reftable THEN
   DELETE reftable.
-/*  IF NOT AVAILABLE reftable AND ipStatusStr EQ customValueList THEN RETURN.*/
-/*  IF NOT AVAILABLE reftable AND ipStatusStr NE customValueList THEN DO:    */
-/*    CREATE reftable.                                                       */
-/*    ASSIGN                                                                 */
-/*      reftable.reftable = 'SB: Status'                                     */
-/*      reftable.company = ipCompany                                         */
-/*      reftable.loc = ''                                                    */
-/*      reftable.code = lvCode                                               */
-/*      reftable.code2 = STRING(TODAY) + ',' + STRING(TIME).                 */
-/*  END.                                                                     */
-/*  IF ipStatusStr EQ customValueList THEN                                   */
-/*  DELETE reftable.                                                         */
-/*  ELSE                                                                     */
-/*  reftable.dscr = ipStatusStr.                                             */
 END PROCEDURE.
 
 PROCEDURE updateJobStartDate:

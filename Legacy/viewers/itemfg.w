@@ -1124,6 +1124,9 @@ DO:
         RUN pCheckOnHandQty. 
         lCheckMessage = NO .
     END.
+    ELSE DO:
+        lCheckMessage = NO .
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2838,20 +2841,21 @@ DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO .
 
   {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
-
-        FOR EACH fg-bin FIELDS(qty )
-           WHERE fg-bin.company EQ cocode
-             AND fg-bin.i-no    EQ itemfg.i-no:SCREEN-VALUE
-             NO-LOCK:
-         ASSIGN
-            iQtyOnHand = iQtyOnHand + fg-bin.qty.
+        IF itemfg.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "I" THEN do:
+            FOR EACH fg-bin FIELDS(qty )
+               WHERE fg-bin.company EQ cocode
+                 AND fg-bin.i-no    EQ itemfg.i-no:SCREEN-VALUE
+                 NO-LOCK:
+             ASSIGN
+                iQtyOnHand = iQtyOnHand + fg-bin.qty.
+            END.
+            
+            IF iQtyOnHand GT 0 THEN DO:
+               MESSAGE "Remove all on hand quantity in order to make an item inactive." VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO itemfg.stat.
+               RETURN ERROR.
+            END.
         END.
-
-       IF iQtyOnHand GT 0 THEN DO:
-           MESSAGE "Remove all on hand quantity in order to make an item inactive." VIEW-AS ALERT-BOX ERROR.
-           APPLY "entry" TO itemfg.stat.
-           RETURN ERROR.
-       END.
 
       IF lCheckMessage EQ YES THEN do:
        FOR EACH po-ordl FIELDS(po-no )  NO-LOCK

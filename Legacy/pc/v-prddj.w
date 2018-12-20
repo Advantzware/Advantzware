@@ -264,11 +264,6 @@ DO:
        MESSAGE "Invalid Job#. Try Help" VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
     END.
-    ELSE IF AVAIL job AND job.opened EQ NO AND oeDateAuto-log THEN DO:
-        MESSAGE "Job " STRING(job.job-no) " is currently closed. You must re-open the job to add data collection data." VIEW-AS ALERT-BOX ERROR.
-       RETURN NO-APPLY.
-    END.
-    ELSE li-help-job = job.job.
 
 END.
 
@@ -281,6 +276,23 @@ END.
 ON LEAVE OF pc-prdd.job-no2 IN FRAME F-Main /* Run # */
 DO:
    IF LASTKEY = -1 THEN RETURN.
+
+    FIND FIRST job WHERE job.company = g_company AND
+    job.job-no = pc-prdd.job-no:SCREEN-VALUE AND 
+        job.job-no2 = INTEGER(pc-prdd.job-no2:SCREEN-VALUE) 
+        NO-LOCK NO-ERROR.
+    
+    IF NOT AVAIL job THEN 
+    DO:
+        MESSAGE "Invalid Job#. Try Help" VIEW-AS ALERT-BOX ERROR.
+        RETURN NO-APPLY.
+    END.
+    ELSE IF AVAIL job AND job.opened EQ NO AND oeDateAuto-log THEN 
+        DO:
+            MESSAGE "Job " STRING(job.job-no) " is currently closed. You must re-open the job to add data collection data." VIEW-AS ALERT-BOX ERROR.
+            RETURN NO-APPLY.
+        END.
+        ELSE li-help-job = job.job.
 
     FIND FIRST job-hdr WHERE job-hdr.company = g_company 
                    AND job-hdr.job-no = pc-prdd.job-no:SCREEN-VALUE 

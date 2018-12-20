@@ -773,7 +773,10 @@ DO:
               IF char-val NE "" THEN RUN new-job-mat (look-recid).              
             END.
             ELSE DO:
-              RUN windows/l-itmtyp.w (OUTPUT lv-itemtype).
+              IF po-ordl.item-type:SCREEN-VALUE = "" THEN  
+                RUN windows/l-itmtyp.w (OUTPUT lv-itemtype).
+              ELSE ASSIGN 
+                lv-itemtype = po-ordl.item-type:SCREEN-VALUE.
               IF lv-itemtype = "RM" THEN DO:
                 RUN windows/l-itmall.w (g_company, "","", po-ordl.i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
                 IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO:                    
@@ -1345,7 +1348,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.i-no Dialog-Frame
 ON LEAVE OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
     DO:
-        IF LASTKEY NE -1 THEN 
+        IF LASTKEY NE -1 
+        AND SELF:SCREEN-VALUE NE "" THEN 
         DO:
             RUN check-job-bnum . 
             RUN check-workfile.
@@ -1414,11 +1418,11 @@ ON VALUE-CHANGED OF po-ordl.item-type IN FRAME Dialog-Frame /* Item Type */
             ll-item-validated = NO
             ll-poord-warned   = NO
             ll-pojob-warned   = NO.
-
-        RUN validate-i-no NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-        RETURN NO-APPLY.
+        APPLY 'entry' TO po-ordl.i-no.
+/*        RUN validate-i-no NO-ERROR.                */
+/*        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.*/
+/*                                                   */
+/*        RETURN NO-APPLY.                           */
     END.
 
 /* _UIB-CODE-BLOCK-END */

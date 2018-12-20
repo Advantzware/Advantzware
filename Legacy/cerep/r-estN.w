@@ -59,12 +59,12 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect  = "Est#,Customer Name,Last used,Part #,Description 1,Description 2,Style," +
                             "Blank size,Item Size,Print,Board,Status,Last Order#,Order Date,Cust#,Sales Rep,Commission %," +
-                            "Adder1,Adder2,Adder3,Adder4,Adder5"
+                            "Adder1,Adder2,Adder3,Adder4,Adder5,F/G item,Job#"
        cFieldListToSelect = "v_est-no,v_custnm,v_mod-date,eb.part-no,eb.part-dscr1,eb.part-dscr2,v_stydsc," +
                             "v_blksz,v-blk-dim,eb.i-coldscr,v_i-name,v-booked,eb.ord-no,ord-date,eb.cust-no,eb.sman,comm," +
-                            "add1,add2,add3,add4,add5"
+                            "add1,add2,add3,add4,add5,fg-item,job-no"
 
-       cFieldLength = "5,30,10,15,30,30,25," + "20,27,30,30,6,11,10,8,9,12," + "10,10,10,10,10"
+       cFieldLength = "5,30,10,15,30,30,25," + "20,27,30,30,6,11,10,8,9,12," + "10,10,10,10,10,15,9"
        .
 
 {sys/inc/ttRptSel.i}
@@ -88,20 +88,22 @@ ASSIGN cTextListToSelect  = "Est#,Customer Name,Last used,Part #,Description 1,D
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_cust-no end_cust-no ~
 begin_slsmn end_slsmn begin_est end_est begin_date end_date begin_date-2 ~
-end_date-2 begin_mach end_mach tb_break tb_booked tb_not-booked tb_sort ~
-rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel ~
-fi_file btn-ok btn-cancel Btn_Def sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down
+end_date-2 begin_mach end_mach tb_not-booked tb_booked tb_booked-job ~
+tb_sort tb_break Btn_Def sl_selected sl_avail Btn_Add Btn_Remove btn_Up ~
+btn_down rd-dest lines-per-page lv-ornt lv-font-no td-show-parm tb_excel ~
+tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_slsmn ~
 end_slsmn begin_est end_est begin_date end_date begin_date-2 end_date-2 ~
-begin_mach end_mach tb_break tb_booked lbl-booked tb_not-booked tb_sort ~
-rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm ~
-tb_excel tb_runExcel fi_file sl_avail sl_selected
+begin_mach end_mach lbl-booked tb_not-booked tb_booked tb_booked-job ~
+tb_sort tb_break sl_selected sl_avail rd-dest lines-per-page lv-ornt ~
+lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ************************  Function Prototypes ********************** */
 
@@ -266,9 +268,14 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      SIZE 34 BY 5.14 NO-UNDO.
 
 DEFINE VARIABLE tb_booked AS LOGICAL INITIAL yes 
-     LABEL "Booked" 
+     LABEL "Booked Order" 
      VIEW-AS TOGGLE-BOX
-     SIZE 13.4 BY .71 NO-UNDO.
+     SIZE 18.4 BY .71 NO-UNDO.
+
+DEFINE VARIABLE tb_booked-job AS LOGICAL INITIAL yes 
+     LABEL "Booked Job" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18.4 BY .71 NO-UNDO.
 
 DEFINE VARIABLE tb_break AS LOGICAL INITIAL no 
      LABEL "Page Break by Machine#?" 
@@ -328,11 +335,12 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Customer Number"
      end_mach AT ROW 7.19 COL 69 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     tb_break AT ROW 8.29 COL 39
-     tb_booked AT ROW 9.24 COL 39
-     lbl-booked AT ROW 9.48 COL 28 COLON-ALIGNED NO-LABEL
-     tb_not-booked AT ROW 9.95 COL 39
-     tb_sort AT ROW 10.67 COL 39
+     lbl-booked AT ROW 8.76 COL 18.2 COLON-ALIGNED NO-LABEL
+     tb_not-booked AT ROW 8.76 COL 29.2
+     tb_booked AT ROW 8.81 COL 47.6
+     tb_booked-job AT ROW 8.81 COL 66 WIDGET-ID 64
+     tb_sort AT ROW 9.71 COL 29.2
+     tb_break AT ROW 10.67 COL 29.2
      Btn_Def AT ROW 12.48 COL 41.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
      sl_selected AT ROW 12.48 COL 60 NO-LABEL WIDGET-ID 28
@@ -423,16 +431,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -456,6 +454,14 @@ ASSIGN
 ASSIGN 
        begin_slsmn:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -493,6 +499,10 @@ ASSIGN
        tb_booked:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+ASSIGN 
+       tb_booked-job:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
@@ -515,7 +525,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -625,7 +635,7 @@ END.
 
 &Scoped-define SELF-NAME begin_slsmn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_slsmn C-Win
-ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning SalesRep# */
+ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning Sales Rep# */
 DO:
      assign {&self-name}.
 END.
@@ -696,6 +706,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
@@ -775,76 +786,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME sl_avail
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
-ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
-DO:
-
-   IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
-       sl_selected:NUM-ITEMS = 0)
-   THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
-               ldummy = {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE)
-              /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
-               .
-
-
-/* for pairs
-    DEF VAR cSelectedList AS cha NO-UNDO.
-    cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
-    DO i = 1 TO sl_avail:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
-    IF sl_avail:IS-SELECTED(i) AND
-      (NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i)) OR
-         sl_selected:NUM-ITEMS = 0) THEN
-    /*ldummy = sl_selected:ADD-LAST(sl_avail:ENTRY(i)).*/
-        cSelectedList = cSelectedList +
-                        entry(i,cTextListToSelect) + "," + entry(i,cFieldListToSelect) + ",".
-    MESSAGE i sl_avail:IS-SELECTED(i) NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i))
-        sl_selected:NUM-ITEMS
-        SKIP cSelectedList
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
-  END.
-  cSelectedList = SUBSTRING(cSelectedList,1,LENGTH(cSelectedList) - 1).
-  sl_selected:LIST-ITEM-PAIRS = cSelectedList.
-  sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
-  */
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME sl_selected
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_selected C-Win
-ON DEFAULT-ACTION OF sl_selected IN FRAME FRAME-A
-DO:
-   DO i = 1 TO {&SELF-NAME}:NUM-ITEMS:
-    IF {&SELF-NAME}:IS-SELECTED(i) THEN DO:
-       ASSIGN ldummy = sl_Avail:add-last({&SELF-NAME}:SCREEN-VALUE)
-              ldummy = /*{&SELF-NAME}:DELETE(i)*/
-                       {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE)
-              .
-    END.           
-  END.
-  IF {&SELF-NAME}:NUM-ITEMS NE 0 THEN
-  ASSIGN
-    {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
-    .
-
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME end_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
-ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
-DO:
-     assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
@@ -924,7 +865,7 @@ END.
 
 &Scoped-define SELF-NAME end_slsmn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_slsmn C-Win
-ON LEAVE OF end_slsmn IN FRAME FRAME-A /* Ending SalesRep# */
+ON LEAVE OF end_slsmn IN FRAME FRAME-A /* Ending Sales Rep# */
 DO:
      assign {&self-name}.
 END.
@@ -1013,9 +954,83 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME sl_avail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
+ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
+DO:
+
+   IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
+       sl_selected:NUM-ITEMS = 0)
+   THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
+               ldummy = {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE)
+              /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
+               .
+
+
+/* for pairs
+    DEF VAR cSelectedList AS cha NO-UNDO.
+    cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
+    DO i = 1 TO sl_avail:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
+    IF sl_avail:IS-SELECTED(i) AND
+      (NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i)) OR
+         sl_selected:NUM-ITEMS = 0) THEN
+    /*ldummy = sl_selected:ADD-LAST(sl_avail:ENTRY(i)).*/
+        cSelectedList = cSelectedList +
+                        entry(i,cTextListToSelect) + "," + entry(i,cFieldListToSelect) + ",".
+    MESSAGE i sl_avail:IS-SELECTED(i) NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i))
+        sl_selected:NUM-ITEMS
+        SKIP cSelectedList
+        VIEW-AS ALERT-BOX INFO BUTTONS OK.
+  END.
+  cSelectedList = SUBSTRING(cSelectedList,1,LENGTH(cSelectedList) - 1).
+  sl_selected:LIST-ITEM-PAIRS = cSelectedList.
+  sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
+  */
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME sl_selected
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_selected C-Win
+ON DEFAULT-ACTION OF sl_selected IN FRAME FRAME-A
+DO:
+   DO i = 1 TO {&SELF-NAME}:NUM-ITEMS:
+    IF {&SELF-NAME}:IS-SELECTED(i) THEN DO:
+       ASSIGN ldummy = sl_Avail:add-last({&SELF-NAME}:SCREEN-VALUE)
+              ldummy = /*{&SELF-NAME}:DELETE(i)*/
+                       {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE)
+              .
+    END.           
+  END.
+  IF {&SELF-NAME}:NUM-ITEMS NE 0 THEN
+  ASSIGN
+    {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
+    .
+
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_booked
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_booked C-Win
-ON VALUE-CHANGED OF tb_booked IN FRAME FRAME-A /* Booked */
+ON VALUE-CHANGED OF tb_booked IN FRAME FRAME-A /* Booked Order */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_booked-job
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_booked-job C-Win
+ON VALUE-CHANGED OF tb_booked-job IN FRAME FRAME-A /* Booked Job */
 DO:
   assign {&self-name}.
 END.
@@ -1162,6 +1177,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault C-Win 
+PROCEDURE DisplaySelectionDefault :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR cListContents AS cha NO-UNDO.
+  DEF VAR iCount AS INT NO-UNDO.
+
+  DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
+
+     cListContents = cListContents +                   
+                    (IF cListContents = "" THEN ""  ELSE ",") +
+                     ENTRY(iCount,cTextListToDefault)   .
+  END.            
+  sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList C-Win 
 PROCEDURE DisplaySelectionList :
 /*------------------------------------------------------------------------------
@@ -1251,29 +1289,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList C-Win 
-PROCEDURE DisplaySelectionDefault :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
-
-  DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
-
-     cListContents = cListContents +                   
-                    (IF cListContents = "" THEN ""  ELSE ",") +
-                     ENTRY(iCount,cTextListToDefault)   .
-  END.            
-  sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
@@ -1287,15 +1302,16 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust-no end_cust-no begin_slsmn end_slsmn begin_est end_est 
           begin_date end_date begin_date-2 end_date-2 begin_mach end_mach 
-          tb_break tb_booked lbl-booked tb_not-booked tb_sort rd-dest lv-ornt 
-          lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
-          tb_runExcel fi_file sl_avail sl_selected
+          lbl-booked tb_not-booked tb_booked tb_booked-job tb_sort tb_break 
+          sl_selected sl_avail rd-dest lines-per-page lv-ornt lv-font-no 
+          lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust-no end_cust-no begin_slsmn end_slsmn 
          begin_est end_est begin_date end_date begin_date-2 end_date-2 
-         begin_mach end_mach tb_break tb_booked tb_not-booked tb_sort rd-dest 
-         lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel 
-         fi_file btn-ok btn-cancel Btn_Def sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down
+         begin_mach end_mach tb_not-booked tb_booked tb_booked-job tb_sort 
+         tb_break Btn_Def sl_selected sl_avail Btn_Add Btn_Remove btn_Up 
+         btn_down rd-dest lines-per-page lv-ornt lv-font-no td-show-parm 
+         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1442,12 +1458,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-
 DEF VAR str-tit4 AS cha NO-UNDO.
 DEF VAR str-tit5 AS cha NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 /*{sys/form/r-topw.f}*/
-{sys/form/r-top5DL3.f}
+{sys/form/r-topsw.f}
 
 def var fcust like eb.cust-no init "".
 def var tcust like fcust init "zzzzzzzz".
@@ -1492,6 +1507,9 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR cSelectedList AS cha NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF BUFFER beb FOR eb.
+DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
+DEFINE VARIABLE cJob AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iLineCount AS INTEGER NO-UNDO .
 
 FORM HEADER
      "Machine:"
@@ -1540,12 +1558,18 @@ SESSION:SET-WAIT-STATE ("general").
 
 if td-show-parm then run show-param.
 
-VIEW FRAME r-top.
+/*VIEW FRAME r-top.
+
+PUT  str-tit4 FORMAT "x(600)"
+     SKIP
+     str-tit5 FORMAT "x(600)"
+     SKIP
+    .*/
 
 FOR EACH tt-eb:
   DELETE tt-eb.
 END.
-
+MAIN:
 FOR EACH est
     WHERE est.company     EQ cocode
       AND est.est-no      GE fest
@@ -1568,14 +1592,18 @@ FOR EACH est
       AND eb.cust-no LE tcust
       AND eb.sman    GE fsman
       AND eb.sman    LE tsman
-      AND ((tb_booked AND
+      AND ((tb_booked-job AND
+            CAN-FIND(FIRST job-hdr
+                     WHERE job-hdr.company EQ est.company
+                       AND (job-hdr.est-no  EQ est.est-no /*OR  job-hdr.i-no  EQ eb.stock-no*/ )  )) OR
+          (tb_booked AND
             CAN-FIND(FIRST oe-ordl
                      WHERE oe-ordl.company EQ est.company
-                       AND (oe-ordl.est-no  EQ est.est-no OR  oe-ordl.i-no  EQ eb.stock-no )  )) OR
+                       AND (oe-ordl.est-no  EQ est.est-no /*OR  oe-ordl.i-no  EQ eb.stock-no*/ )  )) OR
            (tb_not-booked AND
             NOT CAN-FIND(FIRST oe-ordl
                          WHERE oe-ordl.company EQ est.company
-                           AND oe-ordl.est-no  EQ est.est-no OR  oe-ordl.i-no  EQ eb.stock-no)))
+                           AND oe-ordl.est-no  EQ est.est-no /*OR  oe-ordl.i-no  EQ eb.stock-no*/ )))  /* Ticket 40122*/
     NO-LOCK,
 
     FIRST ef
@@ -1585,6 +1613,11 @@ FOR EACH est
     NO-LOCK
 
     BREAK BY est.est-no:
+
+    FIND LAST job-hdr NO-LOCK
+        WHERE job-hdr.company EQ est.company
+        AND job-hdr.est-no  EQ est.est-no NO-ERROR .
+    IF AVAIL job-hdr AND tb_not-booked AND NOT tb_booked-job AND NOT tb_booked  THEN NEXT MAIN.
 
     {custom/statusMsg.i " 'Processing Estimate#:  '  + eb.est-no  "}
 
@@ -1658,9 +1691,17 @@ FOR EACH tt-eb,
     lv-hdr-m-dscr = TRIM(tt-eb.m-code) + " " +
                     (IF AVAIL mach THEN mach.m-dscr ELSE "Not on File...").
 
-    IF FIRST(tt-eb.m-code) THEN VIEW FRAME r-top2.
-
+   
     PAGE.
+    VIEW FRAME r-top.
+    VIEW FRAME r-top2.
+    PUT  str-tit4 FORMAT "x(600)"
+     SKIP
+     str-tit5 FORMAT "x(600)"
+     SKIP .
+     
+    iLineCount = 0.
+
 
     /* gdm - 10130804 */
     IF tb_excel
@@ -1673,6 +1714,15 @@ FOR EACH tt-eb,
 
 
 
+  END.
+  ELSE IF FIRST(tt-eb.m-code) THEN DO:
+   VIEW FRAME r-top.
+   
+    PUT  str-tit4 FORMAT "x(600)"
+     SKIP
+     str-tit5 FORMAT "x(600)"
+     SKIP .
+    iLineCount = 0.
   END.
 
   find first item
@@ -1698,14 +1748,37 @@ FOR EACH tt-eb,
     v_est-no = trim(eb.est-no)
     v_custnm = IF AVAIL cust THEN cust.name ELSE eb.ship-name   
     v_stydsc = IF avail style THEN style.dscr ELSE ""
-    v-booked = IF CAN-FIND(FIRST oe-ordl
-                   WHERE oe-ordl.company EQ est.company
-                  AND oe-ordl.est-no  EQ est.est-no)
-                 THEN "Booked" ELSE ""
+    
     v_i-name = IF AVAIL item THEN item.i-name ELSE ""
     v_blksz  = STRING(eb.t-wid) + " x " + STRING(eb.t-len)
     v_mod-date = STRING(est.mod-date,'99/99/9999')
     v_ord-date = STRING(est.ord-date,'99/99/9999') .
+
+    FIND LAST oe-ordl NO-LOCK
+        WHERE oe-ordl.company EQ est.company
+        AND oe-ordl.est-no  EQ  FILL(" ",8 - LENGTH(TRIM(est.est-no))) + TRIM(est.est-no)
+        AND oe-ordl.ord-no NE 0  NO-ERROR .
+
+        iOrder = IF AVAIL oe-ordl THEN oe-ordl.ord-no ELSE 0 .
+
+     FIND LAST job-hdr NO-LOCK
+        WHERE job-hdr.company EQ est.company
+        AND job-hdr.est-no  EQ est.est-no NO-ERROR .
+
+       cJob = IF AVAIL job-hdr THEN job-hdr.job-no ELSE "" .
+
+        v-booked = IF (iOrder NE 0 OR cJob NE "" )
+                    THEN "Booked" ELSE "" .
+       IF iOrder EQ 0 AND cJob NE "" THEN do:
+           FIND FIRST job NO-LOCK 
+               WHERE job.company EQ job-hdr.company
+                 AND job.job EQ job-hdr.job
+                 AND job.job-no EQ job-hdr.job-no NO-ERROR .
+           IF AVAIL job AND job.create-date NE ? THEN
+               v_ord-date = STRING(job.create-date,'99/99/9999') . 
+       END.
+    
+
     IF AVAIL ef THEN
         ASSIGN
         adder[1] = ef.adder[1] 
@@ -1717,46 +1790,18 @@ FOR EACH tt-eb,
 
 
   if first-of(eb.cust-no) or tb_sort THEN DO: 
+    
+    IF iLineCount + 9 > lines-per-page THEN DO:
+        PAGE.
+        VIEW FRAME r-top.
+        PUT  str-tit4 FORMAT "x(600)"
+            SKIP
+            str-tit5 FORMAT "x(600)"
+            SKIP .
+        iLineCount = 0.
+    END.
 
-  /*  display trim(eb.est-no)     @ eb.est-no
-             cust.name          when avail cust
-               eb.ship-name     when not avail cust or eb.cust-no eq "TEMP"
-                                @ cust.name
-             eb.part-no
-             style.dscr         when avail style
-             v-blk-dim
-             "Booked"           WHEN CAN-FIND(FIRST oe-ordl
-                                              WHERE oe-ordl.company EQ est.company
-                                                AND oe-ordl.est-no  EQ est.est-no)
-                                @ v-booked
-             skip
-             est.mod-date
-             eb.part-dscr1
-             eb.t-wid                                                                              
-             eb.t-len                                                                               
-             eb.i-coldscr
-             skip
-             eb.part-dscr2
-             item.i-name        when avail item
 
-         with frame est.
-
-    /* gdm - 10130804 */
-    IF tb_excel THEN 
-        PUT STREAM excel UNFORMATTED
-            '"' v_est-no                    '",'
-            '"' v_custnm                    '",'
-            '"' v_mod-date                  '",'
-            '"' eb.part-no                  '",'
-            '"' eb.part-dscr1               '",'
-            '"' eb.part-dscr2               '",'
-            '"' v_stydsc                    '",'
-            '"' v_blksz                     '",'
-            '"' v-blk-dim                   '",'
-            '"' eb.i-coldscr                '",'
-            '"' v_i-name                    '",'
-            '"' v-booked                    '"'
-          SKIP.  */
       BUFFER beb:FIND-BY-ROWID(ROWID(eb), NO-LOCK) .
        ASSIGN cDisplay = ""
            cTmpField = ""
@@ -1806,7 +1851,11 @@ FOR EACH tt-eb,
                  WHEN "add3" THEN cVarValue = STRING(adder[3]).
                  WHEN "add4" THEN cVarValue = STRING(adder[4]).
                  WHEN "add5" THEN cVarValue = STRING(adder[5]).
-                 WHEN "comm"   THEN cVarValue = STRING(eb.comm,"->>9.99%") .
+                 WHEN "comm"   THEN cVarValue = STRING(eb.comm,"->>9.99%").
+                 WHEN "fg-item" THEN cVarValue = IF AVAIL eb AND eb.stock-no NE "" THEN STRING(eb.stock-no,"x(15)") ELSE "".
+                 WHEN "job-no" THEN cVarValue = IF AVAIL job-hdr THEN STRING(job-hdr.job-no + "-" + string(job-hdr.job-no2,"99"),"x(9)") ELSE "".
+                 WHEN "eb-ord-no" THEN cVarValue = IF eb.ord-no NE 0 THEN STRING(eb.ord-no) ELSE STRING(iOrder).
+                      
             END CASE.
 
             cExcelVarValue = cVarValue.
@@ -1816,6 +1865,7 @@ FOR EACH tt-eb,
          END.
       END.
       PUT UNFORMATTED cDisplay SKIP.
+      iLineCount = iLineCount + 1. 
       IF tb_excel THEN DO:
        cExcelDisplay = cExcelDisplay.
        PUT STREAM excel UNFORMATTED  
@@ -1973,3 +2023,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

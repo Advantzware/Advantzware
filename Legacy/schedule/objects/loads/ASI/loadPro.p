@@ -105,9 +105,6 @@ FUNCTION getItemName RETURNS CHARACTER (ipCompany AS CHARACTER,ipJobNo AS CHARAC
 
   DEFINE BUFFER bItemFG FOR itemfg.
 
-  IF traceON THEN
-  PUT UNFORMATTED 'Function getItemName @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
-
   IF AVAILABLE itemfg THEN DO:
     FOR FIRST fg-set NO-LOCK
         WHERE fg-set.company EQ itemfg.company
@@ -142,9 +139,6 @@ FUNCTION getSetPOQtyRec RETURNS CHARACTER (ipCompany AS CHARACTER,ipJobNo AS CHA
                                            ipINo AS CHARACTER):
   DEFINE VARIABLE qty AS DECIMAL NO-UNDO.
   DEFINE VARIABLE rtnQty AS DECIMAL NO-UNDO.
-
-  IF traceON THEN
-  PUT UNFORMATTED 'Function getSetPOQtyRec @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
 
   FOR EACH rm-rcpth NO-LOCK
       WHERE rm-rcpth.company EQ ipCompany
@@ -181,9 +175,6 @@ FUNCTION prodQty RETURNS CHARACTER (ipCompany AS CHARACTER,ipResource AS CHARACT
 
   IF NOT ufProdQty THEN RETURN ''.
 
-  IF traceON THEN
-  PUT UNFORMATTED 'Function prodQty @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
-  
   RUN VALUE(ipProdQtyProgram) (ipCompany,ipResource,ipJobNo,ipJobNo2,ipFrm,ipBlankNo,ipPass,OUTPUT prodQty).
   RETURN LEFT-TRIM(STRING(prodQty,'-zzz,zzz,zz9')).
 END FUNCTION.
@@ -201,23 +192,12 @@ FUNCTION statusCheckOff RETURNS LOGICAL
   DEFINE VARIABLE rtnValue AS LOGICAL NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
-  IF traceON THEN
-  PUT UNFORMATTED 'Function statusCheckOff @ Checking: ' AT 15 ipMatType ' ' STRING(TIME,'hh:mm:ss') ' ' ETIME.
   FOR EACH job-mat NO-LOCK WHERE job-mat.company EQ ipCompany
                              AND job-mat.job EQ ipJob
                              AND job-mat.job-no EQ ipJobNo
                              AND job-mat.job-no2 EQ ipJobNo2
                              AND job-mat.frm EQ ipForm,
       FIRST item OF job-mat NO-LOCK WHERE item.mat-type EQ ipMatType:
-    IF traceON THEN
-    PUT UNFORMATTED 'Mat Type: ' AT 20 item.mat-type ' '
-      job-mat.company ' '
-      job-mat.job ' '
-      job-mat.job-no ' '
-      job-mat.job-no2 ' '
-      job-mat.i-no ' '
-      job-mat.frm ' '
-      job-mat.blank-no.
     IF item.mat-type EQ ipMatType THEN
       rtnvalue = CAN-FIND(FIRST mat-act
          WHERE mat-act.company EQ job-mat.company
@@ -228,8 +208,6 @@ FUNCTION statusCheckOff RETURNS LOGICAL
            AND mat-act.s-num EQ job-mat.frm
            AND mat-act.b-num EQ job-mat.blank-no USE-INDEX job).
   END. /* each job-mat */
-  IF traceON THEN
-  PUT UNFORMATTED ipMatType AT 20 ' ' rtnValue ' ' ETIME SKIP.
   RETURN rtnValue.
 END FUNCTION.
 
@@ -309,9 +287,6 @@ DEFINE TEMP-TABLE tResource NO-UNDO
 DISABLE TRIGGERS FOR LOAD OF reftable.
 
 FUNCTION boardName RETURNS CHARACTER (ipMatType1 AS CHARACTER):
-  IF traceON THEN
-  PUT UNFORMATTED 'Function boardName @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
-
   IF NOT ufBoardName THEN RETURN ''.
   
   FIND FIRST item NO-LOCK WHERE item.company EQ asiCompany
@@ -369,9 +344,6 @@ FUNCTION jobBoard RETURN LOGICAL (ipCompany AS CHARACTER, ipJob AS INTEGER,
                                   ipForm AS INTEGER,
                                   OUTPUT opBoardLength AS DECIMAL,
                                   OUTPUT opBoardWidth AS DECIMAL):
-  IF traceON THEN
-  PUT UNFORMATTED 'Function jobBoard @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
-  
   ASSIGN
     opBoardLength = 0
     opBoardWidth = 0.
@@ -507,11 +479,6 @@ FOR EACH tResource:
       }
 END. /* each tresource */
 
-IF traceON THEN DO:
-  OUTPUT TO 'schedule/load.log' APPEND.
-  ETIME(TRUE).
-END. /* if traceON */
-
 /* set values used for getting internal & end cell Len/Width values in ipJobSet */
 ASSIGN
   decimalFormat = 6
@@ -559,7 +526,8 @@ FOR EACH job-hdr NO-LOCK
       WHERE mach.company EQ job.company
         AND mach.loc EQ asiLocation
         AND mach.m-code EQ job-mch.m-code
-      BREAK BY job-mch.job
+      BREAK BY job-mch.job-no
+            BY job-mch.job-no2
             BY job-mch.frm
             BY job-mch.blank-no
             BY job-mch.line
@@ -572,6 +540,18 @@ FOR EACH job-hdr NO-LOCK
     END. /* tandem or combo */
 
     IF FIRST-OF(job-mch.frm) OR cascadeJob EQ NO THEN resSeq = 0.
+    IF FIRST-OF(job-mch.frm) THEN
+    itemDescription = IF job-mch.i-no NE '' THEN job-mch.i-no
+                 ELSE IF CAN-FIND(FIRST bJobMch
+                                  WHERE bJobMch.company EQ job-mch.company
+                                    AND bJobMch.job EQ job-mch.job
+                                    AND bJobMch.job-no EQ job-mch.job-no
+                                    AND bJobMch.job-no2 EQ job-mch.job-no2
+                                    AND bJobMch.frm EQ job-mch.frm
+                                    AND bJobMch.i-no NE job-hdr.i-no
+                                    AND bJobMch.i-no NE '') THEN '<Multi Item>'
+                 ELSE job-hdr.i-no.
+              /* ELSE getItemNo(job-mch.company,job-mch.job-no,job-mch.job-no2,job-mch.frm,job-hdr.i-no). */
 
     IF job-mch.est-op_rec_key EQ "" THEN DO:
         FIND FIRST est-op NO-LOCK
@@ -590,20 +570,6 @@ FOR EACH job-hdr NO-LOCK
         RELEASE bJobMch.
     END. /* est-op_rec_key eq "" */
 
-    IF traceON THEN DO:
-      debugCount = debugCount + 1.
-      PUT UNFORMATTED
-        debugCount AT 10
-        job-mch.m-code AT 20 ' '
-        job-mch.job-no AT 30 '-'
-        job-mch.job-no2 '.'
-        job-mch.frm ' -- '
-        job-mch.line ' : '
-        STRING(TIME,'hh:mm:ss') ' ' ETIME
-        SKIP
-        .
-    END. /* if traceON */
-    
     scheduleResource = IF mach.sch-m-code NE '' THEN mach.sch-m-code ELSE mach.m-code.
     {{&loads}/resourceUse.i scheduleResource}
     
@@ -678,8 +644,6 @@ FOR EACH job-hdr NO-LOCK
     ELSE /* used for pending job, need to store total job time */
     startTime = timeSpan.
 
-    IF traceON THEN
-    PUT UNFORMATTED 'Access oe-ordl @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
     FIND FIRST oe-ordl NO-LOCK
          WHERE oe-ordl.company EQ job-mch.company
            AND oe-ordl.job-no EQ job-mch.job-no
@@ -753,8 +717,6 @@ FOR EACH job-hdr NO-LOCK
     RELEASE po-ord.
     RELEASE po-ordl.
     
-    IF traceON THEN
-    PUT UNFORMATTED 'Available oe-ordl @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
     IF AVAILABLE oe-ordl THEN DO:
       IF ufOEOrdl THEN
       ASSIGN
@@ -778,8 +740,6 @@ FOR EACH job-hdr NO-LOCK
       IF ufPOOrdl THEN DO:
         FIND FIRST po-ord NO-LOCK WHERE po-ord.company EQ job-mch.company
                                     AND po-ord.po-no EQ oe-ordl.po-no-po NO-ERROR.
-        IF traceON THEN
-        PUT UNFORMATTED 'Available po-ord @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
         IF AVAILABLE po-ord THEN DO:
           FIND FIRST po-ordl NO-LOCK
                WHERE po-ordl.company EQ po-ord.company
@@ -818,8 +778,6 @@ FOR EACH job-hdr NO-LOCK
       END. /* ufpoordl */
     END. /* avail oe-ordl */
     ELSE IF ufPOOrdl THEN DO:
-      IF traceON THEN
-      PUT UNFORMATTED 'Access po-ordl @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
       FIND FIRST po-ordl NO-LOCK
            WHERE po-ordl.company EQ job-mch.company
              AND po-ordl.job-no EQ job-mch.job-no
@@ -851,8 +809,6 @@ FOR EACH job-hdr NO-LOCK
              AND po-ord.po-no EQ po-ordl.po-no NO-ERROR.
     END. /* else avail oe-ordl */
     
-    IF traceON THEN
-    PUT UNFORMATTED 'Access ef and eb @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
     IF ufEF THEN
     FIND FIRST ef NO-LOCK WHERE ef.company EQ job.company
                             AND ef.est-no EQ job.est-no
@@ -949,9 +905,7 @@ FOR EACH job-hdr NO-LOCK
       END. /* cUDFGroup */
     END. /* if ufitemfg */
 
-    IF traceON THEN
-    PUT UNFORMATTED 'Assign Fields @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
-    
+
     IF FIRST-OF(job-mch.frm) THEN
     itemDescription = IF job-mch.i-no NE '' THEN job-mch.i-no
                  ELSE IF CAN-FIND(FIRST bJobMch
@@ -964,6 +918,7 @@ FOR EACH job-hdr NO-LOCK
                                     AND bJobMch.i-no NE '') THEN '<Multi Item>'
                  ELSE job-hdr.i-no.
               /* ELSE getItemNo(job-mch.company,job-mch.job-no,job-mch.job-no2,job-mch.frm,job-hdr.i-no). */
+
 
     IF ufDC AND
        CAN-FIND(FIRST mch-act NO-LOCK
@@ -996,19 +951,18 @@ FOR EACH job-hdr NO-LOCK
       customVal    = SUBSTR(customValueList,2)
       lagTime      = job-mch.lag-time
       liveUpdate   = job-mch.sbLiveUpdate
-/*      liveUpdate = getLiveUpdate(job-mch.company,job-mch.job-no,job-mch.job-no2, */
-/*                                 job-mch.frm,job-mch.m-code,job-mch.sbLiveUpdate)*/
       userField[1] = setUserField(1,custNo)
       userField[2] = setUserField(2,custName)
       userField[5] = setUserField(5,IF AVAILABLE eb THEN eb.die-no ELSE '')
       userField[6] = setUserField(6,IF AVAILABLE eb THEN eb.plate-no ELSE '')
       userField[7] = setUserField(7,IF AVAILABLE po-ordl THEN STRING(po-ordl.po-no,'>>>>>9') ELSE '')
       userField[8] = setUserField(8,IF AVAIL eb AND eb.est-type EQ 6 THEN eb.stock-no /* set */
-                                    ELSE IF job-mch.i-no NE '' THEN job-mch.i-no
-                                    ELSE itemDescription)
-      userField[9] = setUserField(9,IF job-mch.i-name NE '' THEN job-mch.i-name
+                               ELSE IF job-mch.i-no NE '' THEN job-mch.i-no
+                               ELSE IF AVAILABLE itemfg AND itemfg.i-no EQ '' THEN itemfg.i-no
+                               ELSE itemDescription)
+      userField[9] = setUserField(9,IF userField[8] EQ '<Multi Item>' THEN '<Multiple Items>'
+                               ELSE IF job-mch.i-name NE '' THEN job-mch.i-name
                                ELSE IF AVAILABLE itemfg AND itemfg.i-name NE '' THEN itemfg.i-name
-                               ELSE IF userField[8] EQ '<Multi Item>' THEN '<Multiple Items>'
                                ELSE getItemName(job-mch.company,job-mch.job-no,job-mch.job,
                                                 job-mch.job-no2,job-mch.frm,job-mch.blank-no))
       userField[10] = setUserField(10,IF AVAILABLE eb THEN STRING(convBase16(eb.len),dimFormat) ELSE '')
@@ -1154,8 +1108,6 @@ FOR EACH job-hdr NO-LOCK
     END. /* avail eb */
 
     IF useNotes THEN DO:
-      IF traceON THEN
-      PUT UNFORMATTED 'Job Notes @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
       ASSIGN
         lvCode = scheduleResource + ','
                + STRING(job-mch.job) + ','
@@ -1177,8 +1129,6 @@ FOR EACH job-hdr NO-LOCK
               AND sbNote.job-no2 EQ job-mch.job-no2
               AND sbNote.frm EQ job-mch.frm
             :
-          IF traceON THEN
-          PUT UNFORMATTED reftable.dscr AT 20 SKIP.
           {{&exports}/jobNotes.i &streamName=sJobNotes
             &jobRowID=ENTRY(2,strRowID)
             &noteDate=sbNote.noteDate
@@ -1200,8 +1150,6 @@ FOR EACH job-hdr NO-LOCK
               AND reftable.loc EQ ''
               AND reftable.code EQ lvCode
               AND reftable.dscr NE '':
-          IF traceON THEN
-          PUT UNFORMATTED reftable.dscr AT 20 SKIP.
           {{&exports}/jobNotes.i &streamName=sJobNotes
             &jobRowID=ENTRY(2,strRowID)
             &noteDate=ENTRY(1,reftable.code2)
@@ -1213,8 +1161,6 @@ FOR EACH job-hdr NO-LOCK
     END. /* usenotes */
     
     IF useStatus THEN DO:
-      IF traceON THEN
-      PUT UNFORMATTED 'Job Status @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
       FIND FIRST sbStatus NO-LOCK
            WHERE sbStatus.company EQ job-mch.company
              AND sbStatus.m-code EQ scheduleResource
@@ -1223,8 +1169,6 @@ FOR EACH job-hdr NO-LOCK
              AND sbStatus.frm EQ job-mch.frm
            NO-ERROR.
       IF AVAILABLE sbStatus THEN DO:
-        IF traceON THEN
-        PUT UNFORMATTED sbStatus.sbStatus AT 20 SKIP.
         IF NOT useSalesRep THEN
         DO i = 2 TO NUM-ENTRIES(customValueList):
           IF ENTRY(i,customValueList) EQ 'Hold' THEN DO:
@@ -1251,8 +1195,6 @@ FOR EACH job-hdr NO-LOCK
                AND reftable.dscr NE ''
              NO-ERROR.
         IF AVAILABLE reftable THEN DO:
-          IF traceON THEN
-          PUT UNFORMATTED reftable.dscr AT 20 SKIP.
           IF NOT useSalesRep THEN
           DO i = 2 TO NUM-ENTRIES(customValueList):
             IF ENTRY(i,customValueList) EQ 'Hold' THEN DO:
@@ -1290,8 +1232,6 @@ FOR EACH job-hdr NO-LOCK
 
     IF prodDate EQ ? THEN prodDate = dueDate.
 
-    IF traceON THEN
-    PUT UNFORMATTED 'Export Data @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
     IF startDate NE ? THEN
     {{&exports}/job.i &streamName=sScenario
       &resource=scheduleResource
@@ -1418,9 +1358,6 @@ PROCEDURE ipJobMaterial:
   
   IF NOT ufIPJobMaterial THEN RETURN.
 
-  IF traceON THEN
-  PUT UNFORMATTED 'Procedure ipJobMaterial @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME.
-  
   FOR EACH job-mat NO-LOCK
       WHERE job-mat.company EQ ipCompany
         AND job-mat.job EQ ipJob
@@ -1489,20 +1426,6 @@ PROCEDURE ipJobMaterial:
     opMatType6Qty = STRING(matType6Qty,'>>,>>>,>>9.9<<<<<')
     opRequiredQty = STRING(requiredQty,'>>,>>>,>>9.9<<<<<')
     .
-  IF traceON THEN
-  PUT UNFORMATTED
-    '5 ' AT 20 opMatType5 ' ' opMatType5Qty
-    '6 ' AT 20 opMatType6 ' ' opMatType6Qty
-    'A ' AT 20 opAdders
-    'B ' AT 20 opBoard
-    'C ' AT 20 opNoCases ' ' opCasesName
-    'D ' AT 20 opPallet ' ' opTotMRP
-    'I ' AT 20 opInk
-    'V ' AT 20 opVarnish
-    'W ' AT 20 opFilmName
-    'Req Qty ' AT 20 opRequiredQty
-    'Time: ' AT 20 ETIME
-    SKIP.
 END PROCEDURE.
 
 PROCEDURE ipJobMatField:
@@ -1521,9 +1444,6 @@ PROCEDURE ipJobMatField:
 
   IF NOT ufIPJobMatField THEN RETURN ''.
 
-  IF traceON THEN
-  PUT UNFORMATTED 'Function ipJobMatField @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
-  
   FIND FIRST job-mat NO-LOCK
        WHERE job-mat.company  EQ ipCompany
          AND job-mat.j-no     EQ ipJNo

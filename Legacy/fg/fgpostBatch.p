@@ -520,7 +520,6 @@ PROCEDURE fg-post:
     DEFINE VARIABLE v-calc-cost    AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cJob           LIKE oe-ordl.job-no NO-UNDO.
     DEFINE VARIABLE iJobNo2        LIKE oe-ordl.job-no2 NO-UNDO.
-    DEFINE VARIABLE fgPostLog      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iRNo           AS INTEGER   NO-UNDO.
     /*##PN - variable for FGSetAssembly setting*/
 
@@ -529,14 +528,8 @@ PROCEDURE fg-post:
     DEFINE VARIABLE cFGSetAssembly AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFGSetAdjust   AS CHARACTER NO-UNDO.
 
-    fgPostLog = SEARCH('logs/fgpstall.log') NE ?.
-    IF fgPostLog THEN
-        OUTPUT STREAM logFile TO VALUE('logs/fgpstall.' +
-            STRING(TODAY,'99999999') + '.' + STRING(TIME) + '.log').
-
     SESSION:SET-WAIT-STATE ("general").
 
-    IF fgPostLog THEN RUN fgPostLog ('Started').
     FIND FIRST period NO-LOCK
         WHERE period.company EQ cocode
         AND period.pst     LE v-post-date
@@ -647,8 +640,6 @@ PROCEDURE fg-post:
                 IF gv-fgemail = YES AND (itemfg.q-onh = 0 AND itemfg.q-alloc > 0) THEN
                     RUN Process-FGemail-Data (INPUT itemfg.i-no, w-fg-rctd.t-qty,w-fg-rctd.po-no).
 
-                IF fgPostLog THEN RUN fgPostLog ('Start fg/fg-post.i ' + TRIM(itemfg.i-no)).
-
           /* itemfg gets updated here. */
                     {fg/fg-post.i w-fg-rctd w-fg-rctd}
 
@@ -663,14 +654,11 @@ PROCEDURE fg-post:
             END. /* IF AVAIL itemfg */
         END. /* loop1 REPEAT */
 
-        IF fgPostLog THEN RUN fgPostLog ('End fg/fg-post.i - Start fg/fgemails.i').
         IF w-fg-rctd.rita-code = "R" THEN 
         DO:
             /* Creates tt-email records */
         {fg/fgemails.i}
         END.
-
-        IF fgPostLog THEN RUN fgPostLog ('End fg-bin - Start fg-rctd').
 
         FIND FIRST fg-rctd EXCLUSIVE-LOCK 
                      WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id NO-ERROR.
@@ -693,12 +681,8 @@ PROCEDURE fg-post:
             
         END.
         FIND CURRENT fg-rctd NO-LOCK NO-ERROR.
-        
-        IF fgPostLog THEN RUN fgPostLog ('End loop'). 
     END.  /* for each w-fg-rctd */
 
-
-    IF fgPostLog THEN RUN fgPostLog ('End fg/fgemails.i - Start loadtag').
     FOR EACH w-fg-rctd
         BREAK BY w-fg-rctd.i-no
         BY w-fg-rctd.job-no
@@ -740,8 +724,6 @@ PROCEDURE fg-post:
                 AND loadtag.job-no    EQ w-fg-rctd.job-no
                 USE-INDEX tag EXCLUSIVE-LOCK NO-ERROR.
 
-            IF fgPostLog THEN RUN fgPostLog ('End loadtag - Start fg-bin').
-
             IF AVAILABLE loadtag THEN 
             DO:
                 FIND FIRST fg-bin
@@ -778,7 +760,6 @@ PROCEDURE fg-post:
         DELETE w-inv.
     END.
 
-    IF fgPostLog THEN RUN fgPostLog ('End First - Start Second For Each w-fg-rctd').
     FOR EACH w-fg-rctd WHERE w-fg-rctd.invoiced,
         FIRST itemfg
         WHERE itemfg.company EQ cocode
@@ -788,11 +769,8 @@ PROCEDURE fg-post:
         CREATE w-inv.
         w-inv.row-id = w-fg-rctd.row-id.
     END.
-    IF fgPostLog THEN RUN fgPostLog ('End Second For Each w-fg-rctd').
 
-    IF fgPostLog THEN RUN fgPostLog ('Begin Run fg/invrecpt.p').
     RUN fg/invrecpt.p (?, 2).
-    IF fgPostLog THEN RUN fgPostLog ('End Run fg/invrecpt.p').
 
     FOR EACH w-inv:
         /* Save w-inv data to send email bol's */
@@ -800,9 +778,6 @@ PROCEDURE fg-post:
         BUFFER-COPY w-inv TO tt-inv.
 
     END.
-
-
-    IF fgPostLog THEN RUN fgPostLog ('End First - Start Third For Each w-fg-rctd').
 
     FOR EACH w-fg-rctd WHERE (TRIM(w-fg-rctd.tag) EQ "" OR v-cost-from-receipt = "TransferCost"),
         FIRST itemfg
@@ -814,11 +789,7 @@ PROCEDURE fg-post:
         IF LAST-OF(w-fg-rctd.i-no) THEN 
         DO:
 
-            IF fgPostLog THEN RUN fgPostLog ('Third loop  -  Start Last i-no').
-
-            IF fgPostLog THEN RUN fgPostLog ('Begin Run fg/updfgcs1.p for ' + w-fg-rctd.i-no).
             RUN fg/updfgcs1.p (RECID(itemfg), NO).
-            IF fgPostLog THEN RUN fgPostLog ('End Run fg/updfgcs1.p for ' + w-fg-rctd.i-no).
 
             /* Calculate this once per item instead of per order line */
             IF v-cost-from-receipt = "TransferCost" AND itemfg.spare-dec-1 EQ 0 THEN 
@@ -885,18 +856,12 @@ PROCEDURE fg-post:
                 IF b-oe-ordl.cost NE v-calc-cost THEN
                     b-oe-ordl.cost = v-calc-cost.
 
-                IF fgPostLog THEN RUN fgPostLog ('Third loop - End Last i-no').
-
             END. /* each oe-ordl */
         END. /* last of i-no */
     END. /* each w-fg-rctd */
 
-    IF fgPostLog THEN RUN fgPostLog ('Start process releases').
     /* If overage, reset quantity or create a new release */
     RUN process-releases.
-    IF fgPostLog THEN RUN fgPostLog ('End process releases').
-
-    IF fgPostLog THEN RUN fgPostLog ('End Third For Each w-fg-rctd').
 
     IF v-fgpostgl NE "None" THEN 
     DO TRANSACTION:
@@ -914,19 +879,14 @@ PROCEDURE fg-post:
             END.
         END.
 
-        IF fgPostLog THEN RUN fgPostLog ('Begin Run gl-from-work 1').
         RUN gl-from-work (1, v-trnum).
-        IF fgPostLog THEN RUN fgPostLog ('End 1 - Begin Run gl-from-work 2').
         RUN gl-from-work (2, v-trnum).
-        IF fgPostLog THEN RUN fgPostLog ('End Run gl-from-work 2').
     END.
     FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
     FIND FIRST w-job NO-ERROR.
     IF AVAILABLE w-job THEN 
     DO:
-        IF fgPostLog THEN RUN fgPostLog ('Start jc/d-jclose.p').
         RUN jc/d-jclose.w.
-        IF fgPostLog THEN RUN fgPostLog ('End jc/d-jclose.p').
     END.
 
     IF v-adjustgl THEN 
@@ -945,7 +905,6 @@ PROCEDURE fg-post:
             END.
         END.
 
-        IF fgPostLog THEN RUN fgPostLog ('Start For Each work-job').
         FOR EACH work-job BREAK BY work-job.actnum:
             CREATE gltrans.
             ASSIGN
@@ -967,7 +926,6 @@ PROCEDURE fg-post:
 
             RELEASE gltrans.
         END. /* each work-job */
-        IF fgPostLog THEN RUN fgPostLog ('End For Each work-job').
     END.
 
     IF tg-recalc-cost THEN 
@@ -1021,8 +979,6 @@ PROCEDURE fg-post:
 /*        END. /* If email bol */                                                                               */
 /*    END. /* each w-fg-rctd */                                                                                 */
 
-    IF fgPostLog THEN RUN fgPostLog ('End').
-    IF fgPostLog THEN OUTPUT STREAM logFile CLOSE.
     /* WFK - no error message was being returned, so set to no if */
     /*       no return error was encountered                      */
     ERROR-STATUS:ERROR = NO.

@@ -1521,7 +1521,10 @@ PROCEDURE run-report :
         BREAK BY (IF v-sort BEGINS "J" THEN costHeader.jobNo ELSE IF v-sort BEGINS "E" THEN costHeader.estimateNo ELSE STRING(DATE(costHeader.calculationTime))) 
         :   
                 
-        FIND FIRST est OF eb NO-LOCK NO-ERROR.
+        FIND FIRST est NO-LOCK WHERE 
+            est.company EQ eb.company AND 
+            est.est-no EQ eb.est-no 
+            NO-ERROR.
         IF AVAILABLE est THEN iEstType = est.est-type.        
         FIND FIRST itemfg NO-LOCK 
             WHERE itemfg.company EQ costHeader.company

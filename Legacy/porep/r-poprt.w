@@ -583,6 +583,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
+    DEFINE BUFFER bff-po-ord FOR po-ord .
     SESSION:SET-WAIT-STATE ("general").
 
     DO WITH FRAME {&FRAME-NAME}:
@@ -618,6 +619,25 @@ DO:
         lv-attachments      = tb_attachments
         lCustCode           =  tb_cust-code
         lPrintMach          =  tb_mach .
+
+
+    IF v-start-po EQ v-end-po THEN DO:
+       FIND FIRST bff-po-ord NO-LOCK
+           WHERE bff-po-ord.company EQ cocode
+           AND bff-po-ord.po-no   EQ v-start-po
+           NO-ERROR .
+
+           IF AVAIL bff-po-ord AND bff-po-ord.printed AND NOT v-reprint-po THEN do:
+               MESSAGE "This PO has been printed - Do you want to reprint?"
+               VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+               UPDATE lMessageUpdate AS LOGICAL .
+           IF NOT lMessageUpdate THEN RETURN .
+           ELSE
+               ASSIGN tb_reprint = YES 
+                      v-reprint-po = YES
+                      tb_reprint:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Yes" .
+           END.
+    END.
  
     /* If there is are vendor-specific forms, run this way */
     IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
@@ -690,7 +710,18 @@ DO:
             MESSAGE "No Purchase Orders Were Printed."
                 VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
     END. /* Vendor-specific forms */
-    ELSE DO: /* NOT vendor-specific formst */
+    ELSE DO: /* NOT vendor-specific formst */     
+        IF CAN-FIND(FIRST b1-po-ord WHERE  
+                b1-po-ord.company EQ cocode AND 
+                    (b1-po-ord.stat    EQ "N" OR 
+                   b1-po-ord.stat    EQ "O" OR 
+                   b1-po-ord.stat    EQ "U" OR
+                  (tb_reprint-closed AND b1-po-ord.stat EQ "C"))
+              AND  b1-po-ord.printed EQ v-reprint-po
+              AND  b1-po-ord.po-no   GE v-start-po
+              AND  b1-po-ord.po-no   LE v-end-po
+              AND  b1-po-ord.vend-no GE begin_vend-no
+              AND  b1-po-ord.vend-no LE end_vend-no) THEN
         FOR EACH  b1-po-ord /* FIELDS(vend-no company) */
                 WHERE  b1-po-ord.company EQ cocode
                   AND (b1-po-ord.stat    EQ "N" OR 
@@ -727,7 +758,12 @@ DO:
                    RUN GenerateMail .
             END.  /* rd-dest EQ 5 */
         END. /* FOR EACH b1-po-ord */
-    END.
+        ELSE do:
+            MESSAGE "No Purchase Orders Were Printed."
+                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
+        END. /* else do not found record*/             
+ 
+    END.  /* NOT vendor-specific formst */
 END.
 
 /* _UIB-CODE-BLOCK-END */
