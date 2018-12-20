@@ -1461,7 +1461,7 @@ PROCEDURE new-charge :
                 ASSIGN oe-ordm.spare-char-1:SCREEN-VALUE = IF AVAILABLE shipto AND shipto.tax-code NE "" THEN shipto.tax-code
                                                     ELSE IF AVAILABLE cust AND cust.spare-char-1 <> "" THEN cust.spare-char-1 
                                                     ELSE oe-ord.tax-gr
-                    oe-ordm.tax:SCREEN-VALUE          = STRING(TRUE) .
+                    .
 
             FIND FIRST account
                 WHERE account.company EQ oe-ord.company
