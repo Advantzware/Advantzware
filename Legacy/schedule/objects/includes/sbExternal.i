@@ -138,11 +138,6 @@ FOR EACH ttblJob
 END. /* each ttbljob */
 
 cProdAceDat = findProgram('{&data}/',ID,'/ProdAce.dat').
-&ENDIF
-
-if not fwd-embedded-mode
-then do:
-&IF '{&sbExternal}' EQ 'sbDMI' &THEN
 RUN VALUE(findProgram('{&loads}/',ID,'/prodAce.w')) (cProdAceDat, THIS-PROCEDURE, NO, OUTPUT lContinue).
 &ELSEIF '{&sbExternal}' EQ 'sbJScan' &THEN
 RUN {&prompts}/jobSeqScan.w (THIS-PROCEDURE, ENTRY(1,commaList)).

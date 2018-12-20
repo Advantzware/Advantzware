@@ -455,7 +455,6 @@ DEFINE BROWSE br_table
                      "Z-Posted BOL","Z",
                      "C-Completed","C"
           DROP-DOWN-LIST
-&ENDIF
       oe-rel.carrier COLUMN-LABEL "Via" FORMAT "x(5)":U COLUMN-FONT 0
       oe-rel.tot-qty COLUMN-LABEL "Sched Qty" FORMAT "->>,>>>,>>9":U
       oe-rel.qty COLUMN-LABEL "Actual Qty" FORMAT "->>,>>>,>>9":U

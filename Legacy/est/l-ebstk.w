@@ -48,7 +48,7 @@ def var lv-type-dscr as cha no-undo.
           
 &Scoped-define BROWSER-B NO-LOCK, ~
       FIRST ef OF eb NO-LOCK, ~
-      FIRST est WHERE est.compay EQ eb.company AND est.est-no EQ eb.est-no NO-LOCK,  ~
+      FIRST est WHERE est.company EQ eb.company AND est.est-no EQ eb.est-no NO-LOCK,  ~
       FIRST itemfg WHERE itemfg.company EQ eb.company ~
     AND itemfg.i-no EQ eb.stock-no ~
     AND itemfg.stat EQ "A" NO-LOCK ~
