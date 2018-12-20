@@ -55,7 +55,7 @@ FUNCTION getDesc RETURNS CHARACTER (ipcCode AS CHARACTER):
 END FUNCTION.
 
 FUNCTION addRptLine RETURNS CHARACTER (ipcText AS CHARACTER, ipcFullText AS CHARACTER):
-    DEFINE VARIABLE cNL AS CHARACTER NO-UNDO INIT "\n".
+    DEFINE VARIABLE cNL AS CHARACTER NO-UNDO INIT "<br>".
     DEFINE VARIABLE cNewText AS CHARACTER NO-UNDO.
     IF ipcText NE ? THEN 
       cNewText = ipcFullText + ipcText + cNL.
@@ -159,6 +159,7 @@ FOR EACH ttOrdHead:
             edpotran.partner = eddoc.partner
             edpotran.seq     = eddoc.seq.
     END.
+    
     ASSIGN
         edpotran.cust             = ttOrdHead.ttcustNo
         edpotran.cust-po          = ttOrdHead.ttorderID
@@ -313,7 +314,7 @@ PROCEDURE process860:
               AND bf-edPOTran.partner EQ bf-eddoc.partner
             NO-ERROR.
 
-          cBody = "".
+          cBody = "<!DOCTYPE html><html><body><p>".
           IF AVAILABLE bf-edPoTran THEN DO:
              BUFFER-COMPARE edPoTran EXCEPT seq rec_key TO bf-edPoTran SAVE RESULT IN cBufferDiff.
               CREATE BUFFER bufEdPOTran FOR TABLE "edPoTran".
@@ -324,7 +325,7 @@ PROCEDURE process860:
               qryEdPoTran:QUERY-OPEN().
               qryEdPoTran:GET-FIRST().            
              
-             cBody = addRptLine("Change Purpose: " + getDesc(EDPOTran.Purpose-code), cBody).
+             cBody = addRptLine("<b>Change Purpose: <\b>" + getDesc(EDPOTran.Purpose-code), cBody).
               /* PUT UNFORMATTED SESSION:TEMP-DIRECTORY skip. */
               cBody = addRptLine("Sequence: " + STRING(edPoTran.seq), cBody).
               cBody = addRptLine("PO#: " + edPOTran.cust-po, cBody).
@@ -336,7 +337,7 @@ PROCEDURE process860:
              DO ix = 1 TO bufEdPOTran:NUM-FIELDS:
                  fh[ix] = bufEdPOTran:buffer-field(ix).
                  IF LOOKUP(fh[ix]:name, cBufferDiff) > 0 THEN
-                     cBody = addRptLine(FILL(" ", 5) + fh[ix]:NAME  + ": \t " + STRING(fh[ix]:BUFFER-VALUE), cBody).
+                     cBody = addRptLine(FILL(" ", 5) + "<b>" + fh[ix]:NAME  + ": <\b> " + STRING(fh[ix]:BUFFER-VALUE), cBody).
              END.
              
               qryEdPoTran:QUERY-CLOSE.
@@ -367,9 +368,9 @@ PROCEDURE process860:
                      DO ix = 1 TO bufEdPOTran:NUM-FIELDS:
                          fh[ix] = bufEdPOTran:buffer-field(ix).
                          IF LOOKUP(fh[ix]:name, cBufferDiff) > 0 THEN
-                             cBody = addRptLine(FILL(" ", 5) + fh[ix]:NAME  + ": \t " + STRING(fh[ix]:BUFFER-VALUE), cBody).
+                             cBody = addRptLine(FILL(" ", 5) + fh[ix]:NAME  + ":  " + STRING(fh[ix]:BUFFER-VALUE), cBody).
                      END.                 
-                     
+                     cBody = cBody + "</p></body></html>".
                      qryEdPoTran:QUERY-CLOSE.
                      bufEdPOTran:BUFFER-RELEASE.
                      DELETE OBJECT bufEdPOTran.
@@ -389,6 +390,7 @@ PROCEDURE process860:
                             WHERE users.user_id EQ cust.csrUser_id
                               AND users.email GT ""
                             NO-ERROR.
+                            
                      IF AVAILABLE users THEN    
                          RUN mail(users.email,cSubject,cBody,"",0,OUTPUT retcode).
                  END. /* if avail matching edPoline */

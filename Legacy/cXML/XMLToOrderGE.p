@@ -47,7 +47,7 @@ FOR EACH ttNodes:
           ttOrdHead.ttDocType = cDocType .
   END.    
     
-  IF NodeName EQ "BEG03" THEN DO:
+  IF NodeName EQ "BEG03" OR NodeName EQ "BCH03" THEN DO:
 
       FIND FIRST ttOrdHead WHERE ttOrdHead.ttPayLoadID EQ STRING(iPayLoadNum)
           NO-ERROR.    
@@ -55,7 +55,7 @@ FOR EACH ttNodes:
     
       ttOrdHead.ttCustNo = getCustNo(cFromIdentity).
       ttOrdHead.ttorderID = cPoNumber.
-      
+ 
   END.
   
   IF ttNodes.nodeName EQ "PO101" OR ttnodes.nodeName EQ "POC01" THEN DO:

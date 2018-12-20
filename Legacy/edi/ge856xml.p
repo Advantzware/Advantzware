@@ -86,7 +86,7 @@ FOR EACH edshtran WHERE edshTran.seq = ipSeq:
    
     lOK = hSAXWriter:START-ELEMENT("Meta")
     lOK = hSAXWriter:WRITE-DATA-ELEMENT("ST01", "856")
-    lOK = hSAXWriter:WRITE-DATA-ELEMENT("ST02", "0029") /* Temporary */
+    lOK = hSAXWriter:WRITE-DATA-ELEMENT("ST02", "0001") 
     lOK = hSAXWriter:END-ELEMENT("Meta")
 
     lOK = hSAXWriter:START-ELEMENT("BSN")
@@ -105,7 +105,7 @@ FOR EACH edshtran WHERE edshTran.seq = ipSeq:
     lOK = hSAXWriter:START-ELEMENT("DTM")
     lOK = hSAXWriter:INSERT-ATTRIBUTE("type", "Segment")        
     lOK = hSAXWriter:WRITE-DATA-ELEMENT("DTM01", "017")
-    lOK = hSAXWriter:WRITE-DATA-ELEMENT("DTM02", getDate(edShTran.del-date))
+    lOK = hSAXWriter:WRITE-DATA-ELEMENT("DTM02", getDate(edShTran.ship-date + 1))
     lOK = hSAXWriter:END-ELEMENT("DTM")
     
     iHlCnt = iHlCnt + 1
@@ -212,7 +212,7 @@ FOR EACH edshtran WHERE edshTran.seq = ipSeq:
         lOK = hSAXWriter:INSERT-ATTRIBUTE("type", "Segment")        
         lOK = hSAXWriter:WRITE-DATA-ELEMENT("SN101", "")
         lOK = hSAXWriter:WRITE-DATA-ELEMENT("SN102", STRING(EDSHLine.Qty-shipped))
-        lOK = hSAXWriter:WRITE-DATA-ELEMENT("SN103", "LB")
+        lOK = hSAXWriter:WRITE-DATA-ELEMENT("SN103", EDSHLine.Uom-code)
         lOK = hSAXWriter:END-ELEMENT("SN1")  
     
         lOK = hSAXWriter:START-ELEMENT("PRF")
@@ -227,7 +227,7 @@ FOR EACH edshtran WHERE edshTran.seq = ipSeq:
         lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA03", STRING(edShLine.tot-wght))
         lOK = hSAXWriter:WRITE-DATA-ELEMENT("MEA04", "LB")   
         lOK = hSAXWriter:END-ELEMENT("MEA")
-    
+        /*
         lOK = hSAXWriter:START-ELEMENT("REF")
         lOK = hSAXWriter:INSERT-ATTRIBUTE("type", "Segment")        
         lOK = hSAXWriter:WRITE-DATA-ELEMENT("REF01", "HC")
@@ -238,7 +238,8 @@ FOR EACH edshtran WHERE edshTran.seq = ipSeq:
         lOK = hSAXWriter:INSERT-ATTRIBUTE("type", "Segment")        
         lOK = hSAXWriter:WRITE-DATA-ELEMENT("REF01", "LS")
         lOK = hSAXWriter:WRITE-DATA-ELEMENT("REF02", "2127622A")
-        lOK = hSAXWriter:END-ELEMENT("REF")  
+        lOK = hSAXWriter:END-ELEMENT("REF")
+        */  
         .
         
     END. /* Each edShLine */
