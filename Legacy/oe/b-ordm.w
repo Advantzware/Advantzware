@@ -48,6 +48,7 @@ END.
 DEFINE VARIABLE lv-new-recid AS RECID NO-UNDO.
 DEFINE VARIABLE lv-valid-charge AS LOGICAL NO-UNDO.
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 
 DEFINE NEW SHARED VARIABLE v-misc AS LOGICAL INIT NO NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-fr-tax LIKE oe-ctrl.f-tax NO-UNDO.
@@ -128,6 +129,22 @@ oe-ordm.form-no oe-ordm.blank-no
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable B-table-Win
+FUNCTION fGetTaxable RETURNS LOGICAL 
+    (ipcCompany AS CHARACTER,
+    ipcCust AS CHARACTER,
+    ipcShipto AS CHARACTER,
+    ipcFGItemID AS CHARACTER  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" B-table-Win _INLINE
@@ -479,7 +496,8 @@ END.
 /* ***************************  Main Block  *************************** */
 
 RUN oe/oe-sysct.p.
-
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
+ 
  IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.    
@@ -976,22 +994,7 @@ PROCEDURE local-create-record :
   IF AVAIL ar-ctrl THEN oe-ordm.actnum = ar-ctrl.sales.
   FIND FIRST cust OF oe-ord NO-LOCK.
 
-  oe-ordm.tax = cust.sort = "Y" AND oe-ord.tax-gr <> "".
-  
-  FIND FIRST oe-ctrl NO-LOCK
-       WHERE oe-ctrl.company = oe-ord.company
-      NO-ERROR.
-  FIND FIRST shipto NO-LOCK
-       WHERE shipto.company EQ cocode
-         AND shipto.cust-no EQ oe-ord.cust-no
-         NO-ERROR.
-   
-  IF AVAIL oe-ctrl AND oe-ctrl.prep-chrg THEN
-      ASSIGN oe-ordm.spare-char-1 = IF AVAIL shipto AND shipto.tax-code NE "" THEN shipto.tax-code
-                                    ELSE IF AVAIL cust AND cust.spare-char-1 <> "" THEN cust.spare-char-1 
-                                    ELSE oe-ord.tax-gr
-                oe-ordm.tax = TRUE .
-
+  oe-ordm.tax = fGetTaxable(cocode, oe-ord.cust-no, oe-ord.ship-id, "").
   
   i = 0 .
   FOR EACH bf-ordl OF oe-ord NO-LOCK:
@@ -1080,6 +1083,31 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
+PROCEDURE local-exit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    DELETE OBJECT hdTaxProcs.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
@@ -1414,5 +1442,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable B-table-Win
+FUNCTION fGetTaxable RETURNS LOGICAL 
+    (ipcCompany AS CHARACTER,
+    ipcCust AS CHARACTER,
+    ipcShipto AS CHARACTER,
+    ipcFGItemID AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+    RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+    RETURN lTaxable.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 

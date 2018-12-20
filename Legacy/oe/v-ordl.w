@@ -71,6 +71,8 @@ DEF VAR lv-q-no LIKE quotehd.q-no NO-UNDO.
 DEF VAR v-rel AS INT NO-UNDO.
 DEF VAR v-margin AS DEC NO-UNDO.
 DEF VAR v-ship-from AS CHAR NO-UNDO.
+DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2421,7 +2423,7 @@ FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
 ------------------------------------------------------------------------------*/
 DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-RUN system\TaxProcs.p (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
 RETURN lTaxable.
 
 END FUNCTION.

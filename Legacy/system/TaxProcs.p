@@ -15,18 +15,12 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcCustID AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER oplTaxable AS LOGICAL NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
 
 /* ***************************  Main Block  *************************** */
 
-RUN GetTaxableAR(ipcCompany, ipcCustID, ipcShipID, ipcFGItemID, OUTPUT oplTaxable).
 
 
 /* **********************  Internal Procedures  *********************** */
@@ -75,6 +69,26 @@ PROCEDURE CalculateTaxVaried:
 
     RUN pCalculateTaxVaried(BUFFER bf-stax, iplIsThisFreight, ipdTaxableAmount, OUTPUT opdTax).
 
+END PROCEDURE.
+
+PROCEDURE GetTaxableMisc:
+/*------------------------------------------------------------------------------
+ Purpose: Determines if a given combination of customer, shipto and control file
+ should result in taxable misc
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplTaxable AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-cust   FOR cust.
+    DEFINE BUFFER bf-shipto FOR shipto.
+    
+    RUN pSetCustBuffer(ipcCompany, ipcCustID, BUFFER bf-cust).
+    RUN pSetShipToBuffer(ipcCompany, ipcCustID, ipcShipID, BUFFER bf-shipto).
+    RUN pGetTaxableMisc(BUFFER bf-cust, BUFFER bf-shipto, OUTPUT oplTaxable).
+    
 END PROCEDURE.
 
 PROCEDURE GetTaxGroupAR:
@@ -220,6 +234,42 @@ PROCEDURE pCalculateTaxVaried PRIVATE:
   
 END PROCEDURE.
 
+PROCEDURE pGetTaxableMisc PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Given record buffers determine taxable flag for misc items
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-cust   FOR cust.
+    DEFINE PARAMETER BUFFER ipbf-shipto FOR shipto.
+    DEFINE OUTPUT PARAMETER oplTaxable AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE lTaxableCust   AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lTaxableShipTo AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lTaxMiscFromControl AS LOGICAL NO-UNDO.
+    
+    IF NOT AVAILABLE ipbf-cust THEN RETURN.
+    ASSIGN 
+        lTaxableCust = ipbf-cust.sort EQ "Y"
+        .    
+    
+    IF AVAILABLE ipbf-shipto THEN
+        ASSIGN 
+            lTaxableShipTo = ipbf-shipto.tax-mandatory
+            .
+    FIND FIRST oe-ctrl NO-LOCK 
+        WHERE oe-ctrl.company EQ ipbf-cust.company
+        NO-ERROR.
+    IF AVAILABLE oe-ctrl THEN 
+        lTaxMiscFromControl = oe-ctrl.prep-chrg.
+
+    IF AVAILABLE ipbf-shipto THEN 
+        oplTaxable = lTaxableShipTo AND lTaxMiscFromControl.
+    ELSE 
+        oplTaxable = lTaxableCust AND lTaxMiscFromControl.
+    
+
+END PROCEDURE.
+
 PROCEDURE pGetTaxGroup PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given record buffers determine taxable flag
@@ -280,9 +330,11 @@ PROCEDURE pGetTaxable PRIVATE:
 /*        oplTaxable = lTaxableShipTo.                                 */
     
     /*new logic - 35645*/
-    IF AVAILABLE ipbf-itemfg THEN 
-        oplTaxable = lTaxableFGItem.
-    ELSE IF AVAILABLE ipbf-shipto THEN 
+    IF AVAILABLE ipbf-itemfg AND AVAILABLE ipbf-shipto THEN 
+        oplTaxable = lTaxableFGItem AND lTaxableShipTo.
+    ELSE IF AVAILABLE ipbf-itemfg AND NOT AVAILABLE ipbf-shipto THEN
+        oplTaxable = lTaxableFGItem AND lTaxableCust.
+    ELSE IF AVAILABLE ipbf-shipto AND NOT AVAILABLE ipbf-itemfg THEN  
         oplTaxable = lTaxableShipto.
     ELSE 
         oplTaxable = lTaxableCust.
@@ -353,7 +405,7 @@ PROCEDURE pSetShiptoBuffer PRIVATE:
     DEFINE INPUT PARAMETER ipcShipToID AS CHARACTER NO-UNDO.
     DEFINE PARAMETER BUFFER ipbf-shipto FOR shipto.
 
-    IF ipcShipID NE "" AND ipcCustID NE "" THEN 
+    IF ipcShipToID NE "" AND ipcCustID NE "" THEN 
         FIND FIRST ipbf-shipto NO-LOCK 
             WHERE ipbf-shipto.company EQ ipcCompany
             AND ipbf-shipto.cust-no EQ ipcCustID
