@@ -2432,7 +2432,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         loadtagFunction:SCREEN-VALUE = "order".
      END.  /*   PROGRAM-NAME(3) MATCHES "b-ordlt." */
 
-     IF  PROGRAM-NAME(3) MATCHES "*/b-trans.*" THEN DO:
+     IF  (PROGRAM-NAME(3) MATCHES "*/b-trans.*" OR PROGRAM-NAME(3) MATCHES "*/b-ldtag.*" ) THEN DO:
       /*IF SEARCH('IU2-loadtag.txt') NE ? THEN DO:*/
       /* gdm - 06100901 end */
       ASSIGN
