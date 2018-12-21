@@ -175,12 +175,12 @@ PROCEDURE pCalculateCostPerUOMFromBOL PRIVATE:
             /*if no matches found, use standard costs from item*/
             ASSIGN 
                 dCostPerUOMTotalLine = dCostPerUOMTotalLineDef
-                dCostPerUOMDLLine = dCostPerUOMDLLineDef
-                dCostPerUOMFOLine = dCostPerUOMFOLineDef
-                dCostPerUOMVOLine = dCostPerUOMVOLineDef
-                dCostPerUOMDMLine = dCostPerUOMDMLineDef
-                cCostUOMLine = cCostUOMLineDef
-                opcSource = opcSource + "Item" + cBOLLine + ",".
+                dCostPerUOMDLLine    = dCostPerUOMDLLineDef
+                dCostPerUOMFOLine    = dCostPerUOMFOLineDef
+                dCostPerUOMVOLine    = dCostPerUOMVOLineDef
+                dCostPerUOMDMLine    = dCostPerUOMDMLineDef
+                cCostUOMLine         = cCostUOMLineDef
+                opcSource            = opcSource + "Item" + cBOLLine + ",".
         END.
         IF cCostUOMLine EQ "" THEN cCostUOMLine = cCostUOMLineDef.
         IF cCostUOMLine NE "M" THEN /*convert all to per M*/
@@ -210,7 +210,7 @@ PROCEDURE pCalculateCostPerUOMFromBOL PRIVATE:
         opdCostPerUOMFO    = dCostFO / dQtyShippedInM
         opdCostPerUOMVO    = dCostVO / dQtyShippedInM
         opdCostPerUOMDM    = dCostDM / dQtyShippedInM
-        opdCostPerUOMTotal = opdCostPerUOMDL + opdCostPerUOMFO + opdCostPerUOMVO + opdCostPerUOMDM
+        opdCostPerUOMTotal = dCostTotal / dQtyShippedInM
         .
      
     
@@ -292,10 +292,11 @@ PROCEDURE pGetCostFromItem PRIVATE:
         WHERE itemfg.company EQ ipcCompany
         AND itemfg.i-no EQ ipcFGItemID
         NO-ERROR.
-    IF AVAILABLE itemfg THEN DO:
+    IF AVAILABLE itemfg THEN 
+    DO:
         ASSIGN 
-            oplFound           = YES
-            opcCostUOM         = itemfg.prod-uom
+            oplFound   = YES
+            opcCostUOM = itemfg.prod-uom
             .
         IF itemfg.std-tot-cost NE 0 THEN 
             ASSIGN 
@@ -305,7 +306,8 @@ PROCEDURE pGetCostFromItem PRIVATE:
                 opdCostPerUOMVO    = itemfg.std-var-cost
                 opdCostPerUOMDM    = itemfg.std-mat-cost
                 .
-        ELSE DO:
+        ELSE 
+        DO:
             FIND FIRST fg-ctrl NO-LOCK 
                 WHERE fg-ctrl.company EQ itemfg.company
                 NO-ERROR.
@@ -380,26 +382,30 @@ PROCEDURE pGetCostFromReceipt PRIVATE:
     IF ipcTag NE "" THEN 
     DO:
         each-fg:
-        FOR EACH b-fg-rcpth WHERE b-fg-rcpth.company   EQ itemfg.company
-            AND b-fg-rcpth.i-no      EQ itemfg.i-no
+        FOR EACH b-fg-rcpth WHERE b-fg-rcpth.company   EQ ipcCompany
+            AND b-fg-rcpth.i-no      EQ ipcFGItemID
             AND b-fg-rcpth.rita-code EQ "R"
             USE-INDEX tran NO-LOCK  ,
             
             FIRST b-fg-rdtlh WHERE b-fg-rdtlh.r-no    EQ b-fg-rcpth.r-no 
             AND b-fg-rdtlh.rita-code EQ b-fg-rcpth.rita-code
-            AND b-fg-rdtlh.tag EQ oe-boll.tag
+            AND b-fg-rdtlh.tag EQ ipcTag
             NO-LOCK
             BY b-fg-rcpth.trans-date DESCENDING:            
-                
-            ASSIGN
-                opdCostPerUOMFO    = b-fg-rdtlh.std-fix-cost   
-                opdCostPerUOMDL    = b-fg-rdtlh.std-lab-cost   
-                opdCostPerUOMDM    = b-fg-rdtlh.std-mat-cost    
-                opdCostPerUOMTotal = b-fg-rdtlh.std-tot-cost    
-                opdCostPerUOMVO    = b-fg-rdtlh.std-var-cost    
-                opcCostUOM         = b-fg-rcpth.pur-uom
-                oplFound           = YES
-                .
+            
+            IF b-fg-rdtlh.std-tot-cost NE 0 THEN         
+                ASSIGN
+                    opdCostPerUOMFO    = b-fg-rdtlh.std-fix-cost   
+                    opdCostPerUOMDL    = b-fg-rdtlh.std-lab-cost   
+                    opdCostPerUOMDM    = b-fg-rdtlh.std-mat-cost    
+                    opdCostPerUOMTotal = b-fg-rdtlh.std-tot-cost    
+                    opdCostPerUOMVO    = b-fg-rdtlh.std-var-cost    
+                    opcCostUOM         = b-fg-rcpth.pur-uom
+                    oplFound           = YES
+                    .
+            ELSE 
+                ASSIGN 
+                    opdCostPerUOMTotal = b-fg-rdtlh.cost.    
             LEAVE each-fg. 
         END. /* each fg-rcp */
     END.
