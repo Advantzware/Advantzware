@@ -742,6 +742,7 @@ ON CHOOSE OF btnCalendar-1 IN FRAME Dialog-Frame
 ON CHOOSE OF btnCalendar-2 IN FRAME Dialog-Frame
     DO:
     {methods/btnCalendar.i tt-report.prom-date}
+    APPLY 'entry' TO tt-report.prom-date.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1175,6 +1176,10 @@ ON LEAVE OF tt-report.price IN FRAME Dialog-Frame /* Sell Price */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.prom-date Dialog-Frame
 ON LEAVE OF tt-report.prom-date IN FRAME Dialog-Frame /* Due Date */
     DO:
+    
+        IF oeDateAuto-log AND oeDateAuto-char EQ "Colonial" THEN 
+            RUN new-due-date.
+            
         IF LASTKEY NE -1 AND oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
         DO:
         {custom/pastDatePrompt.i SELF:SCREEN-VALUE} 
@@ -1194,16 +1199,6 @@ ON LEAVE OF tt-report.prom-date IN FRAME Dialog-Frame /* Due Date */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.prom-date Dialog-Frame
-ON VALUE-CHANGED OF tt-report.prom-date IN FRAME Dialog-Frame /* Due Date */
-    DO:
-        IF oeDateAuto-log AND oeDateAuto-char EQ "Colonial" THEN 
-            RUN new-due-date.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME oe-rel.s-code
