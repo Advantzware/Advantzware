@@ -369,7 +369,7 @@ DO:
       END. /* gdm - 11050804 end */
 
       /* gdm - 12170903 */
-      ELSE IF opName EQ 'BARDIR' THEN DO:
+      ELSE IF (opName EQ 'BARDIR' OR opName EQ 'RMBARDIR') THEN DO:
 
           MESSAGE "Do you want to display Xprint Values.... "
               VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
@@ -397,7 +397,7 @@ DO:
              ASSIGN sys-ctrl-shipto.char-fld:SCREEN-VALUE = v_chrfld1.
         END.
         ELSE DO:
-            RUN windows/l-typxpr.w (OUTPUT char-val1).
+            RUN windows/l-typxpr.w (INPUT opName, OUTPUT char-val1).
             IF char-val1 NE '' THEN
                 sys-ctrl-shipto.char-fld:SCREEN-VALUE = char-val1.
             RETURN NO-APPLY.
