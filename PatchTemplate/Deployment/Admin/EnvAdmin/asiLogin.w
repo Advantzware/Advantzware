@@ -896,6 +896,26 @@ PROCEDURE ipChangeEnvironment :
         iDbLevel = intVer(ENTRY(iPos,cDbVerList))
         .
     /* Here the format for both is 16070400 */
+
+    if cSessionParam gt "" then do:
+      cbDatabase = ENTRY(1,cDatabaseList).
+      ASSIGN
+        iLookup = LOOKUP(cbEnvironment,cEnvList)
+        cTop = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "\"
+        preProPath = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "," +
+                     cTop + cEnvCustomerDir + "," +
+                     cTop + cEnvOverrideDir + "," +
+                     cTop + cEnvProgramsDir + "," +
+                     cTop + cEnvCustomerDir + "\Addon," +
+                     cTop + cEnvOverrideDir + "\Addon," +
+                     cTop + cEnvProgramsDir + "\Addon" + "," +
+                     cTop + cEnvCustFiles + "," +
+                     cTop + cEnvResourceDir + "," +
+                     cTop + cEnvResourceDir + "\Addon" + "," +
+                     cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ",".
+        PROPATH = preProPath + origPropath.      
+      return.
+    end.
     
     CASE cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME}:
         WHEN "Prod" THEN DO:
@@ -1401,8 +1421,6 @@ PROCEDURE ipFindUser :
         ttUsers.ttfUserAlias = fiUserID AND
         ttUsers.ttfPdbName = "*"
         NO-ERROR.
-        
-     
          
     /* If this has not yet been built, build off of any DB */
     IF NOT AVAIL ttUsers THEN DO:
@@ -1476,7 +1494,14 @@ PROCEDURE ipFindUser :
         cValidDbs = IF cValidDbs EQ "" THEN ttUsers.ttfDbList ELSE cValidDbs
         cValidEnvs = IF cValidEnvs EQ "" THEN ttUsers.ttfEnvList ELSE cValidEnvs
         cValidModes = IF cValidModes EQ "" THEN ttUsers.ttfModeList ELSE cValidModes.
-        
+
+    ELSE ASSIGN
+        cUserID = fiUserID
+        cValidDbs = cbDatabase
+        cValidEnvs = cbEnvironment
+        cValidModes = cbMode
+        .
+         
  END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
