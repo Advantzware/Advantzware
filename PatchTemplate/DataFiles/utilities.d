@@ -158,4 +158,6 @@
 "ImpMaster.r" "SA" "" "Import Master" "Imports are efficient" 1000
 "_colorch.r" "" "" "ProTools Color Changer" "" 900
 "colorchg.r" "" "" "Progress Color Changer" "" 900
+"run-xprint.w" "" "" "run xprint" "test for development" 1000
 "run-xprint.r" "" "" "run xprint" "" 900
+"adddpink.r" "SA" "sa" "Record FG Receipts for Posted Data Collection" "" 1000
