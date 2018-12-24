@@ -1821,8 +1821,8 @@ PROCEDURE batchmail-2-proc :
        v-print-fmt <> "FIBRE-EXCEL"  AND
       v-print-fmt <> "NOSCO-EXCEL" AND 
       v-print-fmt <> "MSPACK-EXCEL" THEN
-      lv-pdf-file = init-dir + "\" + (IF v-print-fmt EQ "Century" THEN "CBXQuote"
-                    ELSE "QT") + STRING(b-quotehd.q-no).
+      lv-pdf-file = init-dir + "\" + (IF v-print-fmt EQ "Century" THEN "CBXQuote" ELSE IF v-print-fmt EQ "PremierX" THEN "Quote # "
+                    ELSE "QT") + STRING(b-quotehd.q-no)  + IF v-print-fmt EQ "PremierX" THEN STRING(" For Estimate " + trim(b-quotehd.est-no)) ELSE ""  .
    ELSE
       ASSIGN
          is-xprint-form   = TRUE
