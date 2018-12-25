@@ -123,6 +123,7 @@ FOR EACH ttblJob
         ttblJob.jobSequence = idx
         .
 END. /* each ttbljob */
+&ENDIF
 
 cProdAceDat = findProgram('{&data}/',ID,'/ProdAce.dat').
 
