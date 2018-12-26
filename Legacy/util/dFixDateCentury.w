@@ -117,7 +117,7 @@ DEFINE VARIABLE FILL-IN-3 AS CHARACTER FORMAT "X(256)":U INITIAL "Choose the typ
 DEFINE VARIABLE tbFgFiles AS LOGICAL INITIAL no 
      LABEL "Finished goods-related files (includes history)" 
      VIEW-AS TOGGLE-BOX
-     SIZE 40 BY .81 NO-UNDO.
+     SIZE 51 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tbInvoiceFiles AS LOGICAL INITIAL no 
      LABEL "Invoice-related tables" 
@@ -132,7 +132,7 @@ DEFINE VARIABLE tbOrderFiles AS LOGICAL INITIAL no
 DEFINE VARIABLE tbRmFiles AS LOGICAL INITIAL no 
      LABEL "Raw materials-related files (includes history)" 
      VIEW-AS TOGGLE-BOX
-     SIZE 40 BY .81 NO-UNDO.
+     SIZE 50 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -148,7 +148,7 @@ DEFINE FRAME gDialog
      tbFgFiles AT ROW 7.19 COL 71
      tbInvoiceFiles AT ROW 8.38 COL 11
      tbRmFiles AT ROW 8.38 COL 71
-     SPACE(26.39) SKIP(0.94)
+     SPACE(16.39) SKIP(0.75)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Fix dates with invalid century values"
@@ -336,6 +336,22 @@ PROCEDURE ipProcessAll :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF oe-ord.
+    DISABLE TRIGGERS FOR LOAD OF oe-ordl.
+    DISABLE TRIGGERS FOR LOAD OF oe-rel.
+    DISABLE TRIGGERS FOR LOAD OF oe-relh.
+    DISABLE TRIGGERS FOR LOAD OF oe-rell.
+    DISABLE TRIGGERS FOR LOAD OF inv-head.
+    DISABLE TRIGGERS FOR LOAD OF inv-line.
+    DISABLE TRIGGERS FOR LOAD OF fg-hist.
+    DISABLE TRIGGERS FOR LOAD OF fg-rcpth.
+    DISABLE TRIGGERS FOR LOAD OF fg-rcpts.
+    DISABLE TRIGGERS FOR LOAD OF fg-rctd.
+    DISABLE TRIGGERS FOR LOAD OF rm-rcpt.
+    DISABLE TRIGGERS FOR LOAD OF rm-rcth.
+    DISABLE TRIGGERS FOR LOAD OF fg-rcpts.
+    DISABLE TRIGGERS FOR LOAD OF rm-rctd.
+    
     IF tbOrderFiles:CHECKED IN FRAME {&frame-name} THEN DO :
         FOR EACH oe-ord EXCLUSIVE where oe-ord.company EQ cCompany AND (oe-ord.ord-date GT 09/01/2018 
                                OR oe-ord.ord-date LT 12/31/0100):
@@ -483,6 +499,8 @@ FUNCTION fFixYear RETURNS DATE
             outDate = DATE(MONTH(daDate), DAY(daDate), YEAR(daDate + 1900)).  
         ELSE IF YEAR(daDate) LT 2000 THEN ASSIGN 
             outDate = DATE(MONTH(daDate), DAY(daDate), YEAR(daDate + 2000)). 
+        ELSE ASSIGN 
+            outDate = daDate. 
         RETURN outDate.
     END. 
         
