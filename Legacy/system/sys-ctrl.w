@@ -2025,7 +2025,7 @@ DO:
                 IF TRIM(cRtnValue) NE "" THEN
                 cFieldValue:SCREEN-VALUE = cRtnValue.      
             END. /* graphic */
-            WHEN "BARDIR" THEN DO:
+            WHEN "BARDIR" OR WHEN "RMBARDIR" THEN DO:
                 MESSAGE
                     "Do you want to display Xprint Values.... "
                 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE ""
@@ -2037,7 +2037,7 @@ DO:
                     cFieldValue:SCREEN-VALUE = cRtnValue. 
                 END. /* if not lchoice */
                 ELSE DO:
-                    RUN windows/l-typxpr.w (OUTPUT cCharValue).
+                    RUN windows/l-typxpr.w (INPUT cNameValue ,OUTPUT cCharValue).
                     IF cCharValue NE "" THEN
                     cFieldValue:SCREEN-VALUE = cCharValue.
                     RETURN NO-APPLY.    
@@ -2176,7 +2176,7 @@ DO:
                 IF TRIM(cCharFieldValue) NE "" THEN
                 sys-ctrl-shipto.char-fld:SCREEN-VALUE = cCharFieldValue.
             END. /* gdm - 11050804 end */
-            WHEN "BARDIR" THEN DO:
+            WHEN "BARDIR" OR WHEN "RMBARDIR" THEN DO:
                 MESSAGE
                     "Do you want to display Xprint Values.... "
                 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE ""
@@ -2199,7 +2199,7 @@ DO:
                     sys-ctrl-shipto.char-fld:SCREEN-VALUE = cCharFieldValue.
                 END.
                 ELSE DO:
-                    RUN windows/l-typxpr.w (OUTPUT cValue).
+                    RUN windows/l-typxpr.w (INPUT ttSysCtrl.name,OUTPUT cValue).
                     IF cValue NE "" THEN
                     sys-ctrl-shipto.char-fld:SCREEN-VALUE = cValue.
                     RETURN NO-APPLY.
