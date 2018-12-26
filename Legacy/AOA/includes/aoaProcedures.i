@@ -203,6 +203,19 @@ PROCEDURE pGetJasperUserPrint :
             ttColumn.ttGroupCalc = fJasperGroupCalc(ttColumn.ttField).
         END. /* if field-value */
     END. /* do idx */
+    ELSE
+    IF AVAILABLE user-print THEN
+    DO TRANSACTION:
+        CREATE jasperUserPrint.
+        ASSIGN
+            jasperUserPrint.company    = user-print.company
+            jasperUserPrint.program-id = user-print.program-id
+            jasperUserPrint.user-id    = "_default"
+            jasperUserPrint.prgmName   = "Jasper"
+            jasperUserPrint.last-date  = TODAY
+            jasperUserPrint.last-time  = TIME
+            .
+    END. /* else no jasper user-print */
 
 END PROCEDURE.
 
