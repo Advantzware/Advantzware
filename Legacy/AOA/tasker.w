@@ -805,7 +805,7 @@ PROCEDURE pTasks :
                         STRING(ROWID(Task))
                         )
                     ).
-            PAUSE 1 NO-MESSAGE.
+            PAUSE 2 NO-MESSAGE.
         END.
         GET NEXT TaskBrowse.
     END. /* do while */
