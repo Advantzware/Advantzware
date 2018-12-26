@@ -2814,6 +2814,12 @@ PROCEDURE ipFixBadYears:
 ------------------------------------------------------------------------------*/
     RUN ipStatus("   Fix year values not in this century (41037)").
 
+    DISABLE TRIGGERS FOR LOAD OF oe-ord.
+    DISABLE TRIGGERS FOR LOAD OF oe-ordl.
+    DISABLE TRIGGERS FOR LOAD OF oe-rel.
+    DISABLE TRIGGERS FOR LOAD OF oe-relh.
+    DISABLE TRIGGERS FOR LOAD OF oe-rell.
+    
     FOR EACH oe-ord WHERE (oe-ord.ord-date GT 09/01/2018 
                            OR oe-ord.ord-date LT 12/31/0100):
         /* Note: do in multiple assigns, else function only evaluates once */
@@ -5020,6 +5026,8 @@ FUNCTION fFixYear RETURNS DATE
             outDate = DATE(MONTH(daDate), DAY(daDate), YEAR(daDate + 1900)).  
         ELSE IF YEAR(daDate) LT 2000 THEN ASSIGN 
             outDate = DATE(MONTH(daDate), DAY(daDate), YEAR(daDate + 2000)). 
+        ELSE ASSIGN
+            outDate = daDate.
         RETURN outDate.
     END. 
     
