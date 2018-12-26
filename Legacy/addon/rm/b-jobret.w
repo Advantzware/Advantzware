@@ -1609,7 +1609,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   
-  RUN rmrep\rmloadtg3.w(INPUT yes, INPUT lv-tag, INPUT DECIMAL(rm-rctd.qty:SCREEN-VALUE) * -1).
+  RUN rmrep/rmloadtg4.w(INPUT yes, INPUT lv-tag).
   
   DO WITH FRAME {&FRAME-NAME}:
     DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
