@@ -332,7 +332,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_aoacolumns ).
        RUN set-position IN h_aoacolumns ( 2.43 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 8.19 , 148.40 ) */
+       /* Size in UIB:  ( 8.19 , 148.60 ) */
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_aoacolumns ,
@@ -827,6 +827,36 @@ PROCEDURE pRefreshColumnsPage :
  Notes:
 ------------------------------------------------------------------------------*/
     RUN pRefreshColumnsPage IN h_aoaColumns.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunNow W-Win 
+PROCEDURE pRunNow :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcTaskFormat AS CHARACTER NO-UNDO.
+    
+    DO TRANSACTION:
+        CREATE Task.
+        ASSIGN
+            Task.company    = aoaCompany
+            Task.user-id    = USERID("ASI")
+            Task.programID  = aoaProgramID
+            Task.taskName   = "Run Now " + aoaTitle
+            Task.taskFormat = ipcTaskFormat
+            Task.runNow     = YES
+            .
+        RELEASE Task.
+    END. /* do trans */
+    MESSAGE
+        "Task ~"" + aoaTitle + "~" has been submitted."
+    VIEW-AS ALERT-BOX TITLE "Run Now".
 
 END PROCEDURE.
 
