@@ -730,6 +730,23 @@ DEFINE FRAME viewFrame
      created AT ROW 14.33 COL 2 NO-LABEL WIDGET-ID 458
      cCuetextFont AT ROW 14.81 COL 35 COLON-ALIGNED HELP
           "Select Font Size" NO-LABEL WIDGET-ID 396
+     "13" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 80.4 WIDGET-ID 436
+          BGCOLOR 13 FGCOLOR 15 
+     "1" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 53 WIDGET-ID 412
+          BGCOLOR 1 FGCOLOR 15 
+     "?" VIEW-AS TEXT
+          SIZE 2 BY .76 AT ROW 11 COL 39 WIDGET-ID 390
+          FGCOLOR 0 FONT 6
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 62 ROW 11
+         SIZE 99 BY 18.4
+         FGCOLOR 1  WIDGET-ID 400.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME viewFrame
      "3" VIEW-AS TEXT
           SIZE 2 BY .71 AT ROW 8.48 COL 67 WIDGET-ID 416
           BGCOLOR 3 FGCOLOR 15 
@@ -739,14 +756,6 @@ DEFINE FRAME viewFrame
      "6" VIEW-AS TEXT
           SIZE 2 BY .71 AT ROW 8.48 COL 88 WIDGET-ID 422
           BGCOLOR 6 FGCOLOR 15 
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 62 ROW 11
-         SIZE 99 BY 18.4
-         FGCOLOR 1  WIDGET-ID 400.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME viewFrame
      "8" VIEW-AS TEXT
           SIZE 2 BY .71 AT ROW 9.71 COL 46 WIDGET-ID 426
           BGCOLOR 8 FGCOLOR 0 
@@ -771,63 +780,54 @@ DEFINE FRAME viewFrame
      "10" VIEW-AS TEXT
           SIZE 3 BY .71 AT ROW 9.71 COL 59.4 WIDGET-ID 430
           BGCOLOR 10 FGCOLOR 0 
-     "13" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 80.4 WIDGET-ID 436
-          BGCOLOR 13 FGCOLOR 15 
-     "BG:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 9.57 COL 26 WIDGET-ID 350
-     "1" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 53 WIDGET-ID 412
-          BGCOLOR 1 FGCOLOR 15 
-     "4" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 74 WIDGET-ID 418
-          BGCOLOR 4 FGCOLOR 15 
-     "12" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 73.4 WIDGET-ID 434
-          BGCOLOR 12 FGCOLOR 15 
-     "7" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 95 WIDGET-ID 424
-          BGCOLOR 7 FGCOLOR 15 
-     "0" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 46 WIDGET-ID 402
-          BGCOLOR 0 FGCOLOR 15 
-     "11" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 66.4 WIDGET-ID 432
-          BGCOLOR 11 FGCOLOR 0 
-     "14" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 87.4 WIDGET-ID 438
-          BGCOLOR 14 FGCOLOR 0 
-     "Zz" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 88 WIDGET-ID 382
-          FGCOLOR 0 FONT 6
-     "Ee" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 95 WIDGET-ID 386
-          FGCOLOR 0 FONT 7
-     "BG:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 8.38 COL 26 WIDGET-ID 348
-     "Frame FG Color:" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 8.38 COL 2 WIDGET-ID 344
-     "Oo" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 53 WIDGET-ID 362
-          FGCOLOR 0 FONT 1
-     "Ss" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 74 WIDGET-ID 374
-          FGCOLOR 0 FONT 4
-     "Ff" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 46 WIDGET-ID 358
-          FGCOLOR 0 FONT 0
-     "Nn" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 60 WIDGET-ID 366
-          FGCOLOR 0 FONT 2
-     "?" VIEW-AS TEXT
-          SIZE 2 BY .76 AT ROW 9.1 COL 39 WIDGET-ID 354
-          FGCOLOR 0 FONT 6
-     "?" VIEW-AS TEXT
-          SIZE 2 BY .76 AT ROW 11 COL 39 WIDGET-ID 390
-          FGCOLOR 0 FONT 6
      "5" VIEW-AS TEXT
           SIZE 2 BY .71 AT ROW 8.48 COL 81 WIDGET-ID 420
           BGCOLOR 5 FGCOLOR 15 
+     "?" VIEW-AS TEXT
+          SIZE 2 BY .76 AT ROW 9.1 COL 39 WIDGET-ID 354
+          FGCOLOR 0 FONT 6
+     "Nn" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 60 WIDGET-ID 366
+          FGCOLOR 0 FONT 2
+     "Ff" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 46 WIDGET-ID 358
+          FGCOLOR 0 FONT 0
+     "Ss" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 74 WIDGET-ID 374
+          FGCOLOR 0 FONT 4
+     "Oo" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 53 WIDGET-ID 362
+          FGCOLOR 0 FONT 1
+     "Frame FG Color:" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 8.38 COL 2 WIDGET-ID 344
+     "BG:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 8.38 COL 26 WIDGET-ID 348
+     "Ee" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 95 WIDGET-ID 386
+          FGCOLOR 0 FONT 7
+     "Zz" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 88 WIDGET-ID 382
+          FGCOLOR 0 FONT 6
+     "14" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 87.4 WIDGET-ID 438
+          BGCOLOR 14 FGCOLOR 0 
+     "11" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 66.4 WIDGET-ID 432
+          BGCOLOR 11 FGCOLOR 0 
+     "0" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 46 WIDGET-ID 402
+          BGCOLOR 0 FGCOLOR 15 
+     "7" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 95 WIDGET-ID 424
+          BGCOLOR 7 FGCOLOR 15 
+     "12" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 73.4 WIDGET-ID 434
+          BGCOLOR 12 FGCOLOR 15 
+     "4" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 74 WIDGET-ID 418
+          BGCOLOR 4 FGCOLOR 15 
+     "BG:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 9.57 COL 26 WIDGET-ID 350
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 62 ROW 11
@@ -1203,9 +1203,9 @@ ASSIGN
 ASSIGN 
        fontChoice-default:SELECTABLE IN FRAME viewFrame       = TRUE.
 
-/* SETTINGS FOR TOGGLE-BOX cueCard.isActive IN FRAME viewFrame
-   NO-ENABLE 4 5                                                        */
 /* SETTINGS FOR TOGGLE-BOX cueCardText.isActive IN FRAME viewFrame
+   NO-ENABLE 4 5                                                        */
+/* SETTINGS FOR TOGGLE-BOX cueCard.isActive IN FRAME viewFrame
    NO-ENABLE 4 5                                                        */
 /* SETTINGS FOR TOGGLE-BOX lDismissFont IN FRAME viewFrame
    NO-ENABLE 6                                                          */
@@ -1870,7 +1870,7 @@ PROCEDURE pBuildMenuTree :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iOrder    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
     
     RUN pInitMenuTree.
 
@@ -2245,10 +2245,14 @@ PROCEDURE pCRUD :
                     END. /* if lcontinue */
                     IF AVAILABLE cueCardText THEN
                     BROWSE cueCardBrowse:REFRESH().
+                    RUN pDisplay.
                 END. /* if avail */
             END. /* delete */
-            WHEN "Reset" THEN
-            RUN pDisplay.            
+            WHEN "Reset" THEN DO:
+                RUN pDisplay.
+                DISABLE {&transPanel}.
+                ENABLE {&transUpdate} {&enabledFields} {&calendarObjects}.
+            END. /* reset */
         END CASE. /* ipcmode:label */
         IF iphMode:LABEL EQ "Add" THEN
         APPLY "ENTRY":U TO cueCardText.cueText.
@@ -2386,10 +2390,7 @@ PROCEDURE pGetSettings :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE hColumn AS HANDLE  NO-UNDO.
     DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
-    DEFINE VARIABLE jdx     AS INTEGER NO-UNDO.
-    DEFINE VARIABLE kdx     AS INTEGER NO-UNDO.
     
     IF NOT CAN-FIND(FIRST user-print
                     WHERE user-print.company    EQ g_company
@@ -2624,8 +2625,6 @@ PROCEDURE pProcessClick :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE BUFFER bttMenuTree FOR ttMenuTree.
-    
     IF AVAILABLE ttMenuTree THEN DO:
         ASSIGN
             cFilter    = ttMenuTree.treeParent
@@ -2708,9 +2707,7 @@ PROCEDURE pSaveSettings :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE hColumn AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
-    DEFINE VARIABLE jdx     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
     FIND FIRST user-print EXCLUSIVE-LOCK
          WHERE user-print.company    EQ g_company

@@ -228,6 +228,7 @@ ENABLE
 
 DEFINE FRAME FRAME-A
      ttColumn AT ROW 4.33 COL 1 WIDGET-ID 700
+     SPACE(0.20) SKIP(0.00)
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -255,7 +256,7 @@ DEFINE FRAME frameShow
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 148 BY 3.19
+         SIZE 148.2 BY 3.19
          BGCOLOR 15 FGCOLOR 1 
          TITLE BGCOLOR 15 FGCOLOR 1 "Show/Hide Sections" WIDGET-ID 300.
 
@@ -1364,8 +1365,6 @@ PROCEDURE pSaveJasperUserPrint :
                 jasperUserPrint.user-id    = user-print.user-id
                 jasperUserPrint.batch      = "Batch"
                 jasperUserPrint.prgmName   = "Jasper"
-                jasperUserPrint.last-date  = TODAY
-                jasperUserPrint.last-time  = TIME
                 .
         END. /* if batch */
         ELSE IF NOT iplBatch THEN DO:

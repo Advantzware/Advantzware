@@ -188,8 +188,8 @@ PROCEDURE pClickMenuTree:
         ttMenuTree.hEditor:FONT = 6
         &IF DEFINED(mainMenuBGColor) NE 0 &THEN
         ttMenuTree.hEditor:FONT    = iFont + 1
-        ttMenuTree.hEditor:BGCOLOR = {&mainMenuBGColor}
-        ttMenuTree.hEditor:FGCOLOR = {&mainMenuFGColor}
+        ttMenuTree.hEditor:BGCOLOR = iBGColor[ttMenuTree.level] 
+        ttMenuTree.hEditor:FGCOLOR = iFGColor[ttMenuTree.level]
         &ENDIF
         .
     RUN pSetFocus.
@@ -489,16 +489,29 @@ PROCEDURE pKeyPress:
         cMnemonic = SUBSTR(cMnemonic,1,1).
         RELEASE ttMenuTree.
     END. /* if 32 */
+    ELSE IF LENGTH(cMnemonic) GE 2 AND ipiLastKey EQ 48 THEN DO:
+        RUN spSetTaskFilter (cMnemonic, "", "").
+        RUN Get_Procedure IN Persistent-Handle("aoaTasks.", OUTPUT run-proc, YES).
+        RETURN.
+    END. /* zero */
     ELSE
     ASSIGN
-        cSave     = SUBSTR(cMnemonic,1,2)
+        cSave     = TRIM(SUBSTR(cMnemonic,1,2))
         cKey      = CAPS(KEYLABEL(ipiLastKey)) WHEN INDEX("{&validKeys}",KEYLABEL(ipiLastKey)) NE 0
         cMnemonic = IF cKey NE "" THEN cSave + cKey ELSE ""
         .
     DO WHILE cMnemonic NE "":
         idx = idx + 1.
-        /* prevents endless loop */
-        IF idx GT 5 THEN LEAVE.
+        /* prevents endless loop, resets menu */
+        IF idx GE 4 THEN DO:
+            FIND FIRST ttMenuTree
+                 WHERE ttMenuTree.isActive EQ YES
+                   AND ttMenuTree.isOpen   EQ YES
+                 NO-ERROR.
+            IF AVAILABLE ttMenuTree THEN
+            RUN pClickMenuTree (ttMenuTree.hEditor).
+            LEAVE.
+        END. /* idx ge 4 */
         FIND FIRST ttMenuTree
              WHERE  ttMenuTree.mnemonic EQ cMnemonic
                AND (ttMenuTree.isActive EQ YES

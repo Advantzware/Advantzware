@@ -3,7 +3,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Procedure 
 /*------------------------------------------------------------------------
     File        : AOA/aoaJasper.p
-    Purpose     : SUPER-PROCEDURE Jasper Function and Procedures
+    Purpose     : SUPER-PROCEDURE Jasper Functions and Procedures
 
     Syntax      : RUN AOA/aoaJasper.p
 
@@ -47,6 +47,7 @@ DEFINE BUFFER jasperUserPrint FOR user-print.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -54,17 +55,19 @@ DEFINE BUFFER jasperUserPrint FOR user-print.
 &Scoped-define PROCEDURE-TYPE Procedure
 &Scoped-define DB-AWARE no
 
+
+
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ************************  Function Prototypes ********************** */
 
 &IF DEFINED(EXCLUDE-fFormatValue) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fFormatValue Procedure
-FUNCTION fFormatValue RETURNS CHARACTER 
-  (iphTable AS HANDLE,
-   ipcField AS CHARACTER) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fFormatValue Procedure 
+FUNCTION fFormatValue RETURNS CHARACTER
+  (iphTable AS HANDLE, ipcField AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -73,17 +76,14 @@ FUNCTION fFormatValue RETURNS CHARACTER
 
 &IF DEFINED(EXCLUDE-fGetModule) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetModule Procedure
-FUNCTION fGetModule RETURNS CHARACTER 
-  (ipcType AS CHARACTER,
-   ipcProgramID AS CHARACTER) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetModule Procedure 
+FUNCTION fGetModule RETURNS CHARACTER
+  ( ipcType AS CHARACTER, ipcProgramID AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-fJasperCalcPattern) = 0 &THEN
 
@@ -95,16 +95,7 @@ FUNCTION fJasperCalcPattern RETURNS CHARACTER
 &ANALYZE-RESUME
 
 &ENDIF
-&IF DEFINED(EXCLUDE-fJasperGroupCalc) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fJasperGroupCalc Procedure 
-FUNCTION fJasperGroupCalc RETURNS CHARACTER
-  (ipcField AS CHARACTER) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
 &IF DEFINED(EXCLUDE-fJasperPattern) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fJasperPattern Procedure 
@@ -126,6 +117,8 @@ FUNCTION fJasperReportSize RETURNS INTEGER
 &ANALYZE-RESUME
 
 &ENDIF
+
+
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
@@ -149,20 +142,24 @@ FUNCTION fJasperReportSize RETURNS INTEGER
                                                                         */
 &ANALYZE-RESUME
 
+ 
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
 
-/* ***************************  Main Block  *************************** */
 
 lJasperStarter = INDEX(OS-GETENV("Path"),"jasperstarter") NE 0.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* **********************  Internal Procedures  *********************** */
+
 &IF DEFINED(EXCLUDE-pGetSelectedColumns) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSelectedColumns Procedure
-PROCEDURE pGetSelectedColumns:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSelectedColumns Procedure 
+PROCEDURE pGetSelectedColumns :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -186,7 +183,7 @@ PROCEDURE pGetSelectedColumns:
     cSelectedColumns = TRIM(cSelectedColumns,",").
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -194,8 +191,8 @@ END PROCEDURE.
 
 &IF DEFINED(EXCLUDE-pGetUserPrint) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUserPrint Procedure
-PROCEDURE pGetUserPrint:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUserPrint Procedure 
+PROCEDURE pGetUserPrint :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -235,92 +232,6 @@ PROCEDURE pGetUserPrint:
         END CASE.
     END. /* do idx */
     
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pJasper) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasper Procedure 
-PROCEDURE pJasper :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcType      AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iprRowID     AS ROWID     NO-UNDO.
-    DEFINE INPUT PARAMETER iphAppSrv    AS HANDLE    NO-UNDO.
-    DEFINE INPUT PARAMETER iphAppSrvBin AS HANDLE    NO-UNDO.
-    
-    DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iSize       AS INTEGER   NO-UNDO.
-
-    IF lJasperStarter EQ NO THEN DO:
-        MESSAGE 
-          "Jasper Starter is NOT installed, please contact" SKIP
-          "your System Administrator for assistance."
-        VIEW-AS ALERT-BOX WARNING.
-        RETURN.
-    END. /* if excel only */
-    ASSIGN
-        hAppSrv    = iphAppSrv
-        hAppSrvBin = iphAppSrvBin
-        .
-    /* find user-print storing parameter values */
-    RUN pGetUserPrint (iprRowID).
-    /* create temp-table ttColumn */
-    RUN pCreateTempTableColumn.
-    /* find user-print storing jasper values */
-    RUN pGetJasperUserPrint.    
-    /* set columns for selected report columns */
-    RUN pGetSelectedColumns.
-    /* calculate width of jasper report */
-    iSize = fJasperReportSize().
-    /* if no active columns, done */
-    IF iSize EQ ? THEN RETURN.    
-    /* create jasper files in local user folder */
-    /* create xml data file */
-    RUN pJasperXML (BUFFER user-print).
-    /* create xml adapter file (used in jasper studio) */
-    RUN pJasperXMLAdapter.    
-    /* create jasper jrxml file */
-    cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".jrxml".    
-    OUTPUT TO VALUE(cJasperFile).    
-    RUN pJasperReport ("Open", ipcType, iSize).
-    RUN pJasperStyles.
-    RUN pJasperQueryString.
-    RUN pJasperFieldDeclarations.
-    RUN pJasperVariableDeclarations.
-    IF svShowGroupHeader OR svShowGroupFooter THEN
-    RUN pJasperGroupDeclarations.
-    RUN pJasperBackgroundBand.    
-    IF svShowReportHeader THEN
-    RUN pJasterTitleBand.    
-    IF svShowPageHeader THEN DO:
-        RUN pJasperPageHeaderBand.    
-        RUN pJasperColumnHeaderBand.
-    END. /* show page header */
-    /*IF svShowGroupHeader THEN*/    
-    RUN pJasperDetailBand (iSize).    
-    IF svShowGroupFooter THEN
-    RUN pJasperColumnFooterBand.    
-    IF svShowPageFooter THEN
-    RUN pJasperPageFooterBand.    
-    IF svShowParameters THEN
-    RUN pJasperLastPageFooter.    
-    IF svShowReportFooter THEN 
-    RUN pJasperSummaryBand.    
-    RUN pJasperReport ("Close", ipcType, iSize).    
-    OUTPUT CLOSE.    
-    /* copy local jasper files to jasper studio workspace */
-    RUN pJasperCopy (cJasperFile).
-    /* command line call to jasperstarter script */
-    RUN pJasperStarter (ipcType).
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -796,6 +707,7 @@ PROCEDURE pJasperLastPageFooter :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cParameter     AS CHARACTER NO-UNDO EXTENT 100.
     DEFINE VARIABLE cValue         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iParameterRow  AS INTEGER   NO-UNDO INITIAL 1.
     
@@ -819,12 +731,16 @@ PROCEDURE pJasperLastPageFooter :
             idx = idx + 2
             .
         ELSE IF user-print.field-label[idx + 1] EQ ? AND
-           INDEX(user-print.field-name[idx + 1],"DateOption") NE 0 THEN
-        ASSIGN
-            cParameter[iParameterRow] = cParameter[iParameterRow] + " (" + user-print.field-value[idx + 1] + ")"
-            cValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, user-print.field-value[idx + 1], user-print.field-value[idx]),"99/99/9999")
-            idx = idx + 1
-            .
+           INDEX(user-print.field-name[idx + 1],"DateOption") NE 0 THEN DO:
+            dtDate = DATE(user-print.field-value[idx]) NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN
+            dtDate = ?.
+            ASSIGN
+                cParameter[iParameterRow] = cParameter[iParameterRow] + " (" + user-print.field-value[idx + 1] + ")"
+                cValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, user-print.field-value[idx + 1], dtDate),"99/99/9999")
+                idx = idx + 1
+                .
+        END.
         ELSE IF INDEX(user-print.field-name[idx + 1],"AMPM") NE 0 THEN
         ASSIGN
             cParameter[iParameterRow] = cParameter[iParameterRow] + " " + user-print.field-value[idx + 1]
@@ -1061,6 +977,7 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
 &IF DEFINED(EXCLUDE-pJasperStarter) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperStarter Procedure 
@@ -1069,22 +986,37 @@ PROCEDURE pJasperStarter :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcType     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcJastFile AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cJasperStarter AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJasperFile    AS CHARACTER NO-UNDO EXTENT 3.
+    DEFINE VARIABLE cJasperFile    AS CHARACTER NO-UNDO EXTENT 4.
+    DEFINE VARIABLE cJasperFolder  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUserFolder    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
     
+    /* ensure needed folders exist */
+    OS-CREATE-DIR "users".
+    cUserFolder = "users/" + aoaUserID + "/".
+    OS-CREATE-DIR VALUE(cUserFolder).
+    cJasperFolder = "users/" + aoaUserID + "/Jasper/".
+    OS-CREATE-DIR VALUE(cJasperFolder).
     ASSIGN 
-        cUserFolder    = "users/" + aoaUserID + "/"
         cJasperFile[1] = SEARCH(cUserFolder + REPLACE(aoaTitle," ","") + ".jrxml")
         cJasperFile[2] = SEARCH(cUserFolder + REPLACE(aoaTitle," ","") + ".xml")
         cJasperFile[3] = REPLACE(cJasperFile[1],"jrxml",ipcType)
         cJasperFile[3] = REPLACE(cJasperFile[3]," -d","")
+        cJasperFile[4] = cJasperFolder
+                       + REPLACE(aoaTitle," ","") + "."
+                       + STRING(YEAR(TODAY),"9999")
+                       + STRING(MONTH(TODAY),"99")
+                       + STRING(DAY(TODAY),"99") + "."
+                       + STRING(TIME,"99999")
+        opcJastFile    = cJasperFile[4] + "." + LC(ipcType)
         cJasperStarter = "jasperstarter process "
                        + "-f " + LC(ipcType) + " "
                        + "-t xml "
+                       + "-o " + cJasperFile[4] + " "
                        + "--data-file "
                        + cJasperFile[2] + " "
                        + "--xml-xpath "
@@ -1103,23 +1035,7 @@ PROCEDURE pJasperStarter :
     END. /* do idx */
     
     OS-DELETE VALUE(cJasperFile[3]).    
-    OS-COMMAND SILENT start VALUE(cJasperStarter).
-/*    IF ipcType NE "view" AND ipcType NE "print -d" THEN DO:  */
-/*        idx = 0.                                             */
-/*        /* bail after 1 minute of waiting */                 */
-/*        DO WHILE idx LE 30:                                  */
-/*            /* have to pause while jasper creates the file */*/
-/*            PAUSE 2 NO-MESSAGE.                              */
-/*            idx = idx + 1.                                   */
-/*            /* check if jasper done creating file */         */
-/*            IF SEARCH(cJasperFile[3]) EQ ? THEN NEXT.        */
-/*            /* additional pause to ensure file exists */     */
-/*            PAUSE 2 NO-MESSAGE.                              */
-/*            /* found it, now show it */                      */
-/*            OS-COMMAND NO-WAIT start VALUE(cJasperFile[3]).  */
-/*            LEAVE.                                           */
-/*        END. /* do while */                                  */
-/*    END. /* if */                                          */
+    OS-COMMAND NO-WAIT start VALUE(cJasperStarter).
 
 END PROCEDURE.
 
@@ -1439,28 +1355,113 @@ END PROCEDURE.
 
 &IF DEFINED(EXCLUDE-pSetColumnOrder) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetColumnOrder Procedure
-PROCEDURE pSetColumnOrder:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetColumnOrder Procedure 
+PROCEDURE pSetColumnOrder :
 /*------------------------------------------------------------------------------
  Purpose: intentionally empty, do not remove
  Notes:
 ------------------------------------------------------------------------------*/
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spJasper) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spJasper Procedure 
+PROCEDURE spJasper :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcType       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iprRowID      AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER iphAppSrv     AS HANDLE    NO-UNDO.
+    DEFINE INPUT  PARAMETER iphAppSrvBin  AS HANDLE    NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcJasperFile AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iSize       AS INTEGER   NO-UNDO.
+
+    IF lJasperStarter EQ NO THEN DO:
+        MESSAGE 
+          "Jasper Starter is NOT installed, please contact" SKIP
+          "your System Administrator for assistance."
+        VIEW-AS ALERT-BOX WARNING.
+        RETURN.
+    END. /* if test for jasperstarter */
+    ASSIGN
+        hAppSrv    = iphAppSrv
+        hAppSrvBin = iphAppSrvBin
+        .
+    /* find user-print storing parameter values */
+    RUN pGetUserPrint (iprRowID).
+    /* create temp-table ttColumn */
+    RUN pCreateTempTableColumn.
+    /* find user-print storing jasper values */
+    RUN pGetJasperUserPrint.    
+    /* set columns for selected report columns */
+    RUN pGetSelectedColumns.
+    /* calculate width of jasper report */
+    iSize = fJasperReportSize().
+    /* if no active columns, done */
+    IF iSize EQ ? THEN RETURN.    
+    /* create jasper files in local user folder */
+    /* create xml data file */
+    RUN pJasperXML (BUFFER user-print).
+    /* create xml adapter file (used in jasper studio) */
+    RUN pJasperXMLAdapter.    
+    /* create jasper jrxml file */
+    cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".jrxml".    
+    OUTPUT TO VALUE(cJasperFile).    
+    RUN pJasperReport ("Open", ipcType, iSize).
+    RUN pJasperStyles.
+    RUN pJasperQueryString.
+    RUN pJasperFieldDeclarations.
+    RUN pJasperVariableDeclarations.
+    IF svShowGroupHeader OR svShowGroupFooter THEN
+    RUN pJasperGroupDeclarations.
+    RUN pJasperBackgroundBand.    
+    IF svShowReportHeader THEN
+    RUN pJasterTitleBand.    
+    IF svShowPageHeader THEN DO:
+        RUN pJasperPageHeaderBand.    
+        RUN pJasperColumnHeaderBand.
+    END. /* show page header */
+    /*IF svShowGroupHeader THEN*/    
+    RUN pJasperDetailBand (iSize).    
+    IF svShowGroupFooter THEN
+    RUN pJasperColumnFooterBand.    
+    IF svShowPageFooter THEN
+    RUN pJasperPageFooterBand.    
+    IF svShowParameters THEN
+    RUN pJasperLastPageFooter.    
+    IF svShowReportFooter THEN 
+    RUN pJasperSummaryBand.    
+    RUN pJasperReport ("Close", ipcType, iSize).    
+    OUTPUT CLOSE.    
+    /* copy local jasper files to jasper studio workspace */
+    RUN pJasperCopy (cJasperFile).
+    /* command line call to jasperstarter script */
+    RUN pJasperStarter (ipcType, OUTPUT opcJasperFile).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fFormatValue) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fFormatValue Procedure
-FUNCTION fFormatValue RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fFormatValue Procedure 
+FUNCTION fFormatValue RETURNS CHARACTER
   (iphTable AS HANDLE, ipcField AS CHARACTER):
 /*------------------------------------------------------------------------------
  Purpose: format field value
@@ -1478,7 +1479,7 @@ FUNCTION fFormatValue RETURNS CHARACTER
     RETURN LEFT-TRIM(TRIM(cStr)).
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1486,8 +1487,8 @@ END FUNCTION.
 
 &IF DEFINED(EXCLUDE-fGetModule) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetModule Procedure
-FUNCTION fGetModule RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetModule Procedure 
+FUNCTION fGetModule RETURNS CHARACTER
   ( ipcType AS CHARACTER, ipcProgramID AS CHARACTER ) :
 /*------------------------------------------------------------------------------
   Purpose:  
@@ -1508,7 +1509,7 @@ FUNCTION fGetModule RETURNS CHARACTER
     RETURN cModule.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1542,6 +1543,7 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
 &IF DEFINED(EXCLUDE-fJasperPattern) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fJasperPattern Procedure 
@@ -1583,3 +1585,4 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+

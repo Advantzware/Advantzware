@@ -51,13 +51,13 @@ DEFINE VARIABLE iWidthPixels   AS INTEGER   NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnPrint btnHTML btnView btnPDF btnDOCX ~
-btnSave btnDataPA btnCSV btnXLS 
+&Scoped-Define ENABLED-OBJECTS btnHTML btnView btnTasks btnPrint btnPDF ~
+btnDOCX btnSave btnDataPA btnCSV btnXLS 
 
 /* Custom List Definitions                                              */
-/* jasperObjects,List-2,List-3,List-4,List-5,List-6                     */
-&Scoped-define jasperObjects btnTasks btnPrint btnHTML btnView btnPDF ~
-btnDOCX 
+/* jasperObjects,taskerObjects,List-3,List-4,List-5,List-6              */
+&Scoped-define jasperObjects btnView btnTasks btnPrint 
+&Scoped-define taskerObjects btnHTML btnPDF btnDOCX 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -122,14 +122,14 @@ DEFINE BUTTON btnXLS
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnTasks AT ROW 1.1 COL 52 HELP
-          "Tasks" WIDGET-ID 42
-     btnPrint AT ROW 1 COL 40 HELP
-          "Print" WIDGET-ID 40
      btnHTML AT ROW 1.1 COL 33 HELP
           "HTML" WIDGET-ID 38
      btnView AT ROW 1.1 COL 45 HELP
           "Jasper Viewer" WIDGET-ID 32
+     btnTasks AT ROW 1.1 COL 52 HELP
+          "Tasks" WIDGET-ID 42
+     btnPrint AT ROW 1 COL 40 HELP
+          "Print" WIDGET-ID 40
      btnPDF AT ROW 1.1 COL 28 HELP
           "PDF" WIDGET-ID 36
      btnDOCX AT ROW 1.1 COL 23 HELP
@@ -203,15 +203,15 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR BUTTON btnDOCX IN FRAME F-Main
-   1                                                                    */
+   2                                                                    */
 /* SETTINGS FOR BUTTON btnHTML IN FRAME F-Main
-   1                                                                    */
+   2                                                                    */
 /* SETTINGS FOR BUTTON btnPDF IN FRAME F-Main
-   1                                                                    */
+   2                                                                    */
 /* SETTINGS FOR BUTTON btnPrint IN FRAME F-Main
    1                                                                    */
 /* SETTINGS FOR BUTTON btnTasks IN FRAME F-Main
-   NO-ENABLE 1                                                          */
+   1                                                                    */
 /* SETTINGS FOR BUTTON btnView IN FRAME F-Main
    1                                                                    */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -397,6 +397,9 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cTasker  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lFound   AS LOGICAL   NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   {methods/run_link.i "CONTAINER" "pGetContainerSize" "(OUTPUT iHeightPixels, OUTPUT iWidthPixels)"}
@@ -407,10 +410,16 @@ PROCEDURE local-initialize :
 
   /* Code placed here will execute AFTER standard behavior.    */
   lJasperStarter = INDEX(OS-GETENV("Path"),"jasperstarter") NE 0.
-    
-  IF lJasperStarter EQ NO THEN
+  {methods/run_link.i "CONTAINER" "pGetCompany" "(OUTPUT cCompany)"}
+  RUN sys/ref/nk1look.p (
+      cCompany,"Tasker","L",NO,NO,"","",
+      OUTPUT cTasker,OUTPUT lFound
+      ).
   DO WITH FRAME {&FRAME-NAME}:
+      IF lJasperStarter EQ NO THEN
       HIDE {&jasperObjects}.
+      IF cTasker EQ "no" THEN
+      HIDE {&taskerObjects}.
   END. /* do with */
 
 END PROCEDURE.
@@ -426,9 +435,10 @@ PROCEDURE pPanelSelection :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcPanelSelection AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE rUserPrintRowID AS ROWID  NO-UNDO.
-    DEFINE VARIABLE hAppSrv         AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hAppSrvBin      AS HANDLE NO-UNDO.
+    DEFINE VARIABLE cJasperFile     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hAppSrv         AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hAppSrvBin      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE rUserPrintRowID AS ROWID     NO-UNDO.
     
     CASE ipcPanelSelection:
         WHEN "DataPA" THEN DO:
@@ -446,6 +456,7 @@ PROCEDURE pPanelSelection :
             RETURN.
         END.
         WHEN "Tasks" THEN DO:
+            {methods/run_link.i "CONTAINER" "pSetTaskFilter"}
             RUN AOA/aoaTasks.w PERSISTENT SET hTasks.
             {methods/run_link.i "CONTAINER" "pSethTasks" "(hTasks)"}
             RETURN.
@@ -453,12 +464,25 @@ PROCEDURE pPanelSelection :
     END CASE.
     
     IF lJasperStarter THEN DO:
-        {methods/run_link.i "CONTAINER" "pSaveUserPrint" "(NO)"}
-        {methods/run_link.i "CONTAINER" "pSaveJasperUserPrint" "(NO)"}
-        {methods/run_link.i "CONTAINER" "pGetUserPrintRowID" "(OUTPUT rUserPrintRowID)"}
-        {methods/run_link.i "CONTAINER" "pGethAppSrv" "(OUTPUT hAppSrv)"}
-        {methods/run_link.i "CONTAINER" "pGethAppSrvBin" "(OUTPUT hAppSrvBin)"}
-        RUN pJasper (ipcPanelSelection, rUserPrintRowID, hAppSrv, hAppSrvBin).
+        IF CAN-DO("Print -d,View",ipcPanelSelection) THEN DO:
+            {methods/run_link.i "CONTAINER" "pSaveUserPrint" "(NO)"}
+            {methods/run_link.i "CONTAINER" "pSaveJasperUserPrint" "(NO)"}
+            {methods/run_link.i "CONTAINER" "pGetUserPrintRowID" "(OUTPUT rUserPrintRowID)"}
+            {methods/run_link.i "CONTAINER" "pGethAppSrv" "(OUTPUT hAppSrv)"}
+            {methods/run_link.i "CONTAINER" "pGethAppSrvBin" "(OUTPUT hAppSrvBin)"}
+            RUN spJasper (
+                ipcPanelSelection,
+                rUserPrintRowID,
+                hAppSrv,
+                hAppSrvBin,
+                OUTPUT cJasperFile
+                ).
+        END. /* if print or view */
+        ELSE DO:
+            {methods/run_link.i "CONTAINER" "pSaveUserPrint" "(NO)"}
+            {methods/run_link.i "CONTAINER" "pSaveJasperUserPrint" "(NO)"}
+            {methods/run_link.i "CONTAINER" "pRunNow" "(ipcPanelSelection)"}
+        END. /* else */
     END. /* if jasper */
     ELSE
     CASE ipcPanelSelection:
