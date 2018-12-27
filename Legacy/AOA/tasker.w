@@ -129,7 +129,9 @@ Task.taskID Task.programID Task.user-id
     ~{&OPEN-QUERY-TaskBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS TaskBrowse EmailBrowse AuditBrowse 
+&Scoped-Define ENABLED-OBJECTS TaskBrowse showLogging EmailBrowse ~
+AuditBrowse 
+&Scoped-Define DISPLAYED-OBJECTS showLogging 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -158,6 +160,13 @@ DEFINE VARIABLE CtrlFrame AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE showLogging AS LOGICAL INITIAL no 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Show Logging", Yes,
+"Hide Logging", No
+     SIZE 34 BY .9 TOOLTIP "Show/Hide Logging Panel" NO-UNDO.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY AuditBrowse FOR 
@@ -215,6 +224,8 @@ DEFINE BROWSE TaskBrowse
 
 DEFINE FRAME DEFAULT-FRAME
      TaskBrowse AT ROW 1 COL 1 WIDGET-ID 200
+     showLogging AT ROW 1 COL 2 HELP
+          "Show/Hide Logging" NO-LABEL WIDGET-ID 4
      EmailBrowse AT ROW 1 COL 122 WIDGET-ID 300
      AuditBrowse AT ROW 15.29 COL 1 WIDGET-ID 400
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -270,7 +281,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
 /* BROWSE-TAB TaskBrowse 1 DEFAULT-FRAME */
-/* BROWSE-TAB EmailBrowse TaskBrowse DEFAULT-FRAME */
+/* BROWSE-TAB EmailBrowse showLogging DEFAULT-FRAME */
 /* BROWSE-TAB AuditBrowse EmailBrowse DEFAULT-FRAME */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -343,14 +354,14 @@ AuditHdr.AuditDateTime GE dttOpenDateTime"
 CREATE CONTROL-FRAME CtrlFrame ASSIGN
        FRAME           = FRAME DEFAULT-FRAME:HANDLE
        ROW             = 1
-       COLUMN          = 1
+       COLUMN          = 37
        HEIGHT          = 4.76
        WIDTH           = 20
        WIDGET-ID       = 2
        HIDDEN          = yes
        SENSITIVE       = yes.
 /* CtrlFrame OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
-      CtrlFrame:MOVE-AFTER(TaskBrowse:HANDLE IN FRAME DEFAULT-FRAME).
+      CtrlFrame:MOVE-AFTER(showLogging:HANDLE IN FRAME DEFAULT-FRAME).
 
 &ENDIF
 
@@ -417,6 +428,18 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME showLogging
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL showLogging C-Win
+ON VALUE-CHANGED OF showLogging IN FRAME DEFAULT-FRAME
+DO:
+    ASSIGN {&SELF-NAME}.
+    RUN pWinReSize.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define BROWSE-NAME AuditBrowse
 &UNDEFINE SELF-NAME
 
@@ -445,8 +468,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pSetTaskerNK1.
   RUN pRunCommand (OUTPUT cRun).
   dttOpenDateTime = NOW.
-  RUN pGetSettings.
   RUN enable_UI.
+  RUN pGetSettings.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -526,7 +549,9 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   RUN control_load.
-  ENABLE TaskBrowse EmailBrowse AuditBrowse 
+  DISPLAY showLogging 
+      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
+  ENABLE TaskBrowse showLogging EmailBrowse AuditBrowse 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -586,8 +611,10 @@ PROCEDURE pRunCommand :
     DEFINE OUTPUT PARAMETER opcRun AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cDLC   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cINI   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParam AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lSkip  AS LOGICAL   NO-UNDO.
     
     GET-KEY-VALUE SECTION 'STARTUP'
@@ -597,12 +624,24 @@ PROCEDURE pRunCommand :
         cParam = ENTRY(idx,SESSION:STARTUP-PARAMETERS).
         IF cParam BEGINS "-p " THEN NEXT.
         IF cParam BEGINS "-debugalert" THEN NEXT.
-        IF lSkip EQ NO THEN
-        opcRun = opcRun + cParam + " ".
+        IF lSkip EQ NO THEN DO:
+            IF ENTRY(1,cParam," ") EQ "-ininame" OR
+               ENTRY(2,cParam," ") EQ "advantzware.pf" THEN
+            ASSIGN
+                FILE-INFO:FILE-NAME = SEARCH(ENTRY(2,cParam," "))
+                ENTRY(2,cParam," ") = FILE-INFO:FULL-PATHNAME
+                .
+            opcRun = opcRun + cParam + " ".
+        END. /* if lskip */
         IF cParam BEGINS "-pf" THEN lSkip = YES.
         IF cParam BEGINS "(end .pf)" THEN lSkip = NO.
     END. /* do idx */
-    opcRun = cDLC + "\bin\prowin " + opcRun
+    IF USERID("ASI") NE "NoSweat" THEN
+    DO idx = 1 TO NUM-DBS:
+        opcRun = opcRun + REPLACE(DBPARAM(idx),","," ") + " ".
+    END. /* do idx */
+    opcRun = cDLC + "\bin\prowin "
+           + REPLACE(opcRun,"-U " + USERID("ASI") + " -P","")
            + "-p &1 -param &2"
            .
 
@@ -698,17 +737,19 @@ PROCEDURE pTaskEmails :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE dttDateTime AS DATETIME NO-UNDO.
-    DEFINE VARIABLE iDay        AS INTEGER  NO-UNDO.
-    DEFINE VARIABLE iMonth      AS INTEGER  NO-UNDO.
-    DEFINE VARIABLE iTime       AS INTEGER  NO-UNDO.
-    DEFINE VARIABLE iYear       AS INTEGER  NO-UNDO.
-    DEFINE VARIABLE lRefresh    AS LOGICAL  NO-UNDO.
-    DEFINE VARIABLE rRowID      AS ROWID    NO-UNDO.
+    DEFINE VARIABLE cRunProgram AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dttDateTime AS DATETIME  NO-UNDO.
+    DEFINE VARIABLE iDay        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iMonth      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTime       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iYear       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lRefresh    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE rRowID      AS ROWID     NO-UNDO.
     
     DEFINE BUFFER bTaskEmail   FOR TaskEmail.
     DEFINE BUFFER bCueCardText FOR cueCardText.
 
+    {&OPEN-QUERY-EmailBrowse}
     FOR EACH bTaskEmail:
         ASSIGN
             iYear       = INTEGER(SUBSTR(bTaskEmail.rec_key,1,4))
@@ -740,18 +781,24 @@ PROCEDURE pTaskEmails :
                             .
                 END. /* if avail */
             END. /* if cue card message */
-            ELSE
-            OS-COMMAND NO-WAIT VALUE(
-                SUBSTITUTE(
-                    cRun,
-                    "AOA\TaskEmail.p",    "~"" +
-                    bTaskEmail.subject    + "+" +
-                    bTaskEmail.body       + "+" +
-                    bTaskEmail.attachment + "+" +
-                    bTaskEmail.recipients + "+" +
-                    bTaskEmail.rec_key    + "~""
-                    )
-                ).
+            ELSE DO:
+                ASSIGN
+                    FILE-INFO:FILE-NAME = "AOA\TaskEmail.r" 
+                    cRunProgram = FILE-INFO:FULL-PATHNAME
+                    .
+                OS-COMMAND NO-WAIT VALUE(
+                    SUBSTITUTE(
+                        cRun,
+                        cRunProgram,           "~"" +
+                        PROPATH               + "+" +
+                        bTaskEmail.subject    + "+" +
+                        bTaskEmail.body       + "+" +
+                        bTaskEmail.attachment + "+" +
+                        bTaskEmail.recipients + "+" +
+                        bTaskEmail.rec_key    + "~""
+                        )
+                    ).
+            END. /* else */
             DELETE bTaskEmail.
             lRefresh = YES.
         END. /* if search */
@@ -775,7 +822,8 @@ PROCEDURE pTasks :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE rRowID AS ROWID NO-UNDO.
+    DEFINE VARIABLE cRunProgram AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE rRowID      AS ROWID     NO-UNDO.
 
     DEFINE BUFFER bTask FOR Task.
 
@@ -798,11 +846,15 @@ PROCEDURE pTasks :
                 bTask.isRunning = YES.
                 RELEASE bTask.
             END. /* do trans */
+            ASSIGN
+                FILE-INFO:FILE-NAME = "AOA\runTask.r"
+                cRunProgram = FILE-INFO:FULL-PATHNAME
+                .
             OS-COMMAND NO-WAIT VALUE(
                     SUBSTITUTE(
                         cRun,
-                        "AOA\runTask.p",
-                        STRING(ROWID(Task))
+                        cRunProgram,
+                        "~"" + PROPATH + "+" + STRING(ROWID(Task)) + "~""
                         )
                     ).
             PAUSE 2 NO-MESSAGE.
@@ -841,6 +893,9 @@ PROCEDURE pWinReSize :
             FRAME {&FRAME-NAME}:HEIGHT = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:WIDTH  = {&WINDOW-NAME}:WIDTH
             BROWSE AuditBrowse:ROW     = 1
+            .
+        IF showLogging then
+        ASSIGN
             BROWSE TaskBrowse:HEIGHT   = FRAME {&FRAME-NAME}:HEIGHT / 2
             BROWSE EmailBrowse:HEIGHT  = BROWSE TaskBrowse:HEIGHT
             BROWSE AuditBrowse:HEIGHT  = FRAME {&FRAME-NAME}:HEIGHT
@@ -850,10 +905,19 @@ PROCEDURE pWinReSize :
             BROWSE AuditBrowse:WIDTH   = FRAME {&FRAME-NAME}:WIDTH - .001
             BROWSE AuditBrowse:ROW     = BROWSE TaskBrowse:HEIGHT + 1
             .
+        ELSE
+        ASSIGN
+            BROWSE TaskBrowse:HEIGHT   = FRAME {&FRAME-NAME}:HEIGHT
+            BROWSE EmailBrowse:HEIGHT  = BROWSE TaskBrowse:HEIGHT
+            BROWSE EmailBrowse:WIDTH   = FRAME {&FRAME-NAME}:WIDTH
+                                       - BROWSE EmailBrowse:COL + 1
+            .
         VIEW FRAME {&FRAME-NAME}.
         VIEW BROWSE TaskBrowse.
         VIEW BROWSE EmailBrowse.
+        IF showLogging THEN
         VIEW BROWSE AuditBrowse.
+        showLogging:MOVE-TO-TOP().
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
 

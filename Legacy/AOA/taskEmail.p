@@ -10,16 +10,17 @@ DEFINE VARIABLE cSubject    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hSession    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iAuditID    AS INTEGER   NO-UNDO.
 
+ASSIGN
+    PROPATH     = ENTRY(1,SESSION:PARAMETER,"+")
+    cSubject    = ENTRY(2,SESSION:PARAMETER,"+")
+    cBody       = ENTRY(3,SESSION:PARAMETER,"+")
+    cAttachment = ENTRY(4,SESSION:PARAMETER,"+")
+    cRecipients = ENTRY(5,SESSION:PARAMETER,"+")
+    cRecKey     = ENTRY(6,SESSION:PARAMETER,"+")
+    .
 RUN system\session.p PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
 
-ASSIGN
-    cSubject    = ENTRY(1,SESSION:PARAMETER,"+")
-    cBody       = ENTRY(2,SESSION:PARAMETER,"+")
-    cAttachment = ENTRY(3,SESSION:PARAMETER,"+")
-    cRecipients = ENTRY(4,SESSION:PARAMETER,"+")
-    cRecKey     = ENTRY(5,SESSION:PARAMETER,"+")
-    .
 RUN spSendEmail (cSubject, cBody, cAttachment, cRecipients).
 RUN spCreateAuditHdr ("TASK", "ASI", "TaskEmail", cRecKey, OUTPUT iAuditID).
 RUN spCreateAuditDtl (iAuditID, "Subject",    0, cSubject,    "", NO).

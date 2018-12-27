@@ -14,10 +14,13 @@ DEFINE VARIABLE hSession    AS HANDLE    NO-UNDO.
 
 {AOA/includes/pCalcNextRun.i}
 
+ASSIGN
+    PROPATH = ENTRY(1,SESSION:PARAMETER,"+")
+    rRowID  = TO-ROWID(ENTRY(2,SESSION:PARAMETER,"+"))
+    .
 RUN system\session.p PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
 
-rRowID = TO-ROWID(SESSION:PARAMETER).
 FIND FIRST Task NO-LOCK WHERE ROWID(Task) EQ rRowID.
 
 FIND FIRST user-print NO-LOCK
@@ -59,6 +62,7 @@ IF AVAILABLE user-print THEN DO:
                         taskEmail.attachment = cJasperFile
                         taskEmail.recipients = Task.recipients
                         taskEmail.mustExist  = YES
+                        taskEmail.rec_key    = Task.rec_key
                         .
                 END. /* if recipients */
                 ELSE IF Task.runNow THEN DO:
@@ -70,6 +74,7 @@ IF AVAILABLE user-print THEN DO:
                         taskEmail.recipients = "Cue Card Message"
                         taskEmail.user-id    = Task.user-id
                         taskEmail.mustExist  = YES
+                        taskEmail.rec_key    = Task.rec_key
                         .
                 END. /* else if runnow */
                 RUN pCalcNextRun (YES).
@@ -132,7 +137,7 @@ PROCEDURE pCreateAuditHdr:
         "TASK",
         "ASI",
         "Task",
-        STRING(Task.taskID),
+        Task.rec_key,
         OUTPUT iAuditID
         ).
 END PROCEDURE.

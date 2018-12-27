@@ -423,38 +423,64 @@ PROCEDURE spSendEmail:
     DEFINE INPUT PARAMETER ipcAttachment AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcRecipients AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE objOutlook       AS COM-HANDLE NO-UNDO.
-    DEFINE VARIABLE objOutlookMsg    AS COM-HANDLE NO-UNDO.
-    DEFINE VARIABLE objOutlookAttach AS COM-HANDLE NO-UNDO.
-    DEFINE VARIABLE objOutlookRecip  AS COM-HANDLE NO-UNDO.
+    DEFINE VARIABLE cHost            AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cLogin           AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cMail            AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cPassword        AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cPort            AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE idx              AS INTEGER    NO-UNDO.
+    DEFINE VARIABLE objOutlook       AS COM-HANDLE NO-UNDO.
+    DEFINE VARIABLE objOutlookAttach AS COM-HANDLE NO-UNDO.
+    DEFINE VARIABLE objOutlookMsg    AS COM-HANDLE NO-UNDO.
+    DEFINE VARIABLE objOutlookRecip  AS COM-HANDLE NO-UNDO.
     
     ASSIGN
+        FILE-INFO:FILE-NAME = SEARCH("CMail.exe")
+        cMail               = FILE-INFO:FULL-PATHNAME
         FILE-INFO:FILE-NAME = ipcAttachment
-        ipcAttachment = FILE-INFO:FULL-PATHNAME
-        ipcRecipients = TRIM(REPLACE(ipcRecipients,";",","))
+        ipcAttachment       = FILE-INFO:FULL-PATHNAME
+        ipcRecipients       = TRIM(REPLACE(ipcRecipients,";",","))
         .
     IF ipcAttachment EQ ?  THEN RETURN.
     IF ipcRecipients EQ "" THEN RETURN.
-
-    CREATE "Outlook.Application" objOutlook.
     
-    objOutlookMsg = objOutlook:CreateItem(0).
-    DO idx = 1 TO NUM-ENTRIES(ipcRecipients):
-        objOutlookRecip = objOutlookMsg:Recipients:Add(ENTRY(idx,ipcRecipients)).
-    END. /* do idx */
-    objOutlookRecip:Type  = 1.
-    objOutlookMsg:Subject = ipcSubject.
-    objOutlookMsg:Body    = ipcBody.
-    
-    objOutlookMsg:Attachments:Add(ipcAttachment).
-    objOutlookRecip:Resolve.
-    objOutlookMsg:Send.
-/*    objOutlook:Quit().*/
-
-    RELEASE OBJECT objOutlook.
-    RELEASE OBJECT objOutlookMsg.
-    RELEASE OBJECT objOutlookRecip.
+    IF TRUE THEN DO:
+        ASSIGN
+            cHost     = "smtp.office365.com"
+            cLogin    = "wade.kaldawi@advantzware.com"
+            cPassword = "Chester1!"
+            cPort     = "587"
+            cMail     = cMail + " -host:"
+                      + cLogin + ":" + cPassword
+                      + "@" + cHost + ":" + cPort
+                      + " -starttls"
+                      + " -a:" + ipcAttachment
+                      + " ~"-subject:" + ipcSubject + "~""
+                      + " ~"-body:" + ipcBody + "~""
+                      + " -from:" + cLogin
+                      .
+        DO idx = 1 TO NUM-ENTRIES(ipcRecipients):
+            cMail = cMail + " -to:" + ENTRY(idx,ipcRecipients).
+        END. /* do idx */
+        OS-COMMAND NO-WAIT VALUE(cMail).
+    END. /* if */
+    ELSE DO:
+        CREATE "Outlook.Application" objOutlook.
+        objOutlookMsg = objOutlook:CreateItem(0).
+        DO idx = 1 TO NUM-ENTRIES(ipcRecipients):
+            objOutlookRecip = objOutlookMsg:Recipients:Add(ENTRY(idx,ipcRecipients)).
+        END. /* do idx */
+        objOutlookRecip:Type  = 1.
+        objOutlookMsg:Subject = ipcSubject.
+        objOutlookMsg:Body    = ipcBody.    
+        objOutlookMsg:Attachments:Add(ipcAttachment).
+        objOutlookRecip:Resolve.
+        objOutlookMsg:Send.
+    /*    objOutlook:Quit().*/
+        RELEASE OBJECT objOutlook.
+        RELEASE OBJECT objOutlookMsg.
+        RELEASE OBJECT objOutlookRecip.
+    END. /* else */
 
 END PROCEDURE.
 	
@@ -479,13 +505,14 @@ PROCEDURE spSetDontShowAgain:
         FIND CURRENT cueCardText EXCLUSIVE-LOCK.
         DELETE cueCardText.
     END. /* if message */
-    ELSE DO:
+    ELSE DO TRANSACTION:
         CREATE xCueCard.
         ASSIGN
             xCueCard.user_id   = USERID("ASI")
             xCueCard.cueType   = cueCard.cueType
             xCueCard.cueTextID = cueCardText.cueTextID
             .
+        RELEASE xCueCard.
     END. /* else */
     RUN spNextCue (iphWidget).
 
