@@ -2,6 +2,7 @@
 &ANALYZE-RESUME
 /* Connected Databases 
           asi              PROGRESS
+          audit            PROGRESS
 */
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
@@ -112,10 +113,28 @@ SESSION:SET-WAIT-STATE("").
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
-&Scoped-define BROWSE-NAME taskBrowse
+&Scoped-define BROWSE-NAME auditBrowse
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES Task
+&Scoped-define INTERNAL-TABLES AuditHdr AuditDtl Task
+
+/* Definitions for BROWSE auditBrowse                                   */
+&Scoped-define FIELDS-IN-QUERY-auditBrowse AuditHdr.AuditDateTime ~
+AuditHdr.AuditTable AuditHdr.AuditUser AuditDtl.AuditField ~
+AuditDtl.AuditBeforeValue AuditDtl.AuditAfterValue 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-auditBrowse 
+&Scoped-define QUERY-STRING-auditBrowse FOR EACH AuditHdr ~
+      WHERE AuditHdr.AuditKey EQ Task.rec_key ~
+AND AuditHdr.AuditType EQ "Task" NO-LOCK, ~
+      EACH AuditDtl OF AuditHdr NO-LOCK INDEXED-REPOSITION
+&Scoped-define OPEN-QUERY-auditBrowse OPEN QUERY auditBrowse FOR EACH AuditHdr ~
+      WHERE AuditHdr.AuditKey EQ Task.rec_key ~
+AND AuditHdr.AuditType EQ "Task" NO-LOCK, ~
+      EACH AuditDtl OF AuditHdr NO-LOCK INDEXED-REPOSITION.
+&Scoped-define TABLES-IN-QUERY-auditBrowse AuditHdr AuditDtl
+&Scoped-define FIRST-TABLE-IN-QUERY-auditBrowse AuditHdr
+&Scoped-define SECOND-TABLE-IN-QUERY-auditBrowse AuditDtl
+
 
 /* Definitions for BROWSE taskBrowse                                    */
 &Scoped-define FIELDS-IN-QUERY-taskBrowse Task.scheduled Task.taskName fPrgmTitle(Task.programID) Task.frequency Task.cTaskTime Task.cFromTime Task.cToTime Task.dayOfWeek1 Task.dayOfWeek2 Task.dayOfWeek3 Task.dayOfWeek4 Task.dayOfWeek5 Task.dayOfWeek6 Task.dayOfWeek7 Task.lastOfMonth Task.taskFormat Task.nextDate Task.cNextTime Task.lastDate Task.cLastTime Task.startDate Task.endDate Task.taskID Task.module Task.programID Task.user-id Task.securityLevel Task.recipients   
@@ -158,9 +177,9 @@ Task.recipients
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnSortMove searchBar taskBrowse btnView ~
-btnRun btnRestoreDefaults 
-&Scoped-Define DISPLAYED-OBJECTS searchBar 
+&Scoped-Define ENABLED-OBJECTS btnRun btnSortMove btnView showTasks ~
+searchBar taskBrowse btnRestoreDefaults 
+&Scoped-Define DISPLAYED-OBJECTS showTasks searchBar 
 
 /* Custom List Definitions                                              */
 /* transPanel,transInit,transUpdate,displayFields,enabledFields,timeRange */
@@ -276,7 +295,14 @@ DEFINE BUTTON btnView
 DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
      VIEW-AS FILL-IN 
-     SIZE 131 BY 1 TOOLTIP "Search Bar" NO-UNDO.
+     SIZE 99 BY 1 TOOLTIP "Search Bar" NO-UNDO.
+
+DEFINE VARIABLE showTasks AS LOGICAL INITIAL yes 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Show Tasks", Yes,
+"Show History", No
+     SIZE 32 BY .91 NO-UNDO.
 
 DEFINE BUTTON btnAdd 
      IMAGE-UP FILE "Graphics/32x32/navigate_plus.ico":U
@@ -414,6 +440,10 @@ DEFINE RECTANGLE transPanel
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
+DEFINE QUERY auditBrowse FOR 
+      AuditHdr, 
+      AuditDtl SCROLLING.
+
 DEFINE QUERY taskBrowse FOR 
       Task SCROLLING.
 
@@ -422,6 +452,20 @@ DEFINE QUERY viewFrame FOR
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
+DEFINE BROWSE auditBrowse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS auditBrowse C-Win _STRUCTURED
+  QUERY auditBrowse NO-LOCK DISPLAY
+      AuditHdr.AuditDateTime FORMAT "99/99/9999 HH:MM:SS.SSS":U
+      AuditHdr.AuditTable FORMAT "x(16)":U WIDTH 12.2
+      AuditHdr.AuditUser FORMAT "x(16)":U WIDTH 13.2
+      AuditDtl.AuditField FORMAT "x(16)":U WIDTH 13.2
+      AuditDtl.AuditBeforeValue FORMAT "x(70)":U WIDTH 71.2
+      AuditDtl.AuditAfterValue FORMAT "x(16)":U
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 4.2
+         TITLE "History".
+
 DEFINE BROWSE taskBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS taskBrowse C-Win _FREEFORM
   QUERY taskBrowse DISPLAY
@@ -462,15 +506,17 @@ Task.recipients
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnSortMove AT ROW 1 COL 6 HELP
-          "Toggle Sort/Move Columns" WIDGET-ID 48
-     searchBar AT ROW 1 COL 28 COLON-ALIGNED HELP
-          "Search" WIDGET-ID 6
-     taskBrowse AT ROW 1.95 COL 1 WIDGET-ID 200
-     btnView AT ROW 1 COL 16 HELP
-          "Viewer" WIDGET-ID 46
      btnRun AT ROW 1 COL 11 HELP
           "Run Now" WIDGET-ID 44
+     btnSortMove AT ROW 1 COL 6 HELP
+          "Toggle Sort/Move Columns" WIDGET-ID 48
+     btnView AT ROW 1 COL 16 HELP
+          "Viewer" WIDGET-ID 46
+     showTasks AT ROW 1 COL 21 NO-LABEL WIDGET-ID 52
+     searchBar AT ROW 1 COL 60 COLON-ALIGNED HELP
+          "Search" WIDGET-ID 6
+     taskBrowse AT ROW 1.95 COL 1 WIDGET-ID 200
+     auditBrowse AT ROW 25.29 COL 1 WIDGET-ID 500
      btnRestoreDefaults AT ROW 1 COL 1 HELP
           "Restore Defaults" WIDGET-ID 42
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -779,10 +825,10 @@ DEFINE FRAME viewFrame
           "Update/Save" WIDGET-ID 18
      "Frequency:" VIEW-AS TEXT
           SIZE 11 BY 1 AT ROW 3.62 COL 2 WIDGET-ID 618
-     "Format:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 13.62 COL 72 WIDGET-ID 614
      "Recipients:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 17.19 COL 3 WIDGET-ID 602
+     "Format:" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 13.62 COL 72 WIDGET-ID 614
      transPanel AT ROW 19.57 COL 14 WIDGET-ID 16
      navPanel AT ROW 19.57 COL 105 WIDGET-ID 280
      RECT-2 AT ROW 5.76 COL 27 WIDGET-ID 620
@@ -850,9 +896,16 @@ ASSIGN FRAME viewFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE.
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME viewFrame:MOVE-AFTER-TAB-ITEM (taskBrowse:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME viewFrame:MOVE-BEFORE-TAB-ITEM (auditBrowse:HANDLE IN FRAME DEFAULT-FRAME)
 /* END-ASSIGN-TABS */.
 
 /* BROWSE-TAB taskBrowse searchBar DEFAULT-FRAME */
+/* BROWSE-TAB auditBrowse viewFrame DEFAULT-FRAME */
+/* SETTINGS FOR BROWSE auditBrowse IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+ASSIGN 
+       auditBrowse:HIDDEN  IN FRAME DEFAULT-FRAME                = TRUE.
+
 ASSIGN 
        taskBrowse:NUM-LOCKED-COLUMNS IN FRAME DEFAULT-FRAME     = 2
        taskBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE
@@ -1059,6 +1112,26 @@ THEN C-Win:HIDDEN = no.
 
 
 /* Setting information for Queries and Browse Widgets fields            */
+
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE auditBrowse
+/* Query rebuild information for BROWSE auditBrowse
+     _TblList          = "Audit.AuditHdr,Audit.AuditDtl OF Audit.AuditHdr"
+     _Options          = "NO-LOCK INDEXED-REPOSITION"
+     _Where[1]         = "AuditHdr.AuditKey EQ Task.rec_key
+AND AuditHdr.AuditType EQ ""Task"""
+     _FldNameList[1]   = Audit.AuditHdr.AuditDateTime
+     _FldNameList[2]   > Audit.AuditHdr.AuditTable
+"AuditHdr.AuditTable" ? ? "character" ? ? ? ? ? ? no ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > Audit.AuditHdr.AuditUser
+"AuditHdr.AuditUser" ? ? "character" ? ? ? ? ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > Audit.AuditDtl.AuditField
+"AuditDtl.AuditField" ? ? "character" ? ? ? ? ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > Audit.AuditDtl.AuditBeforeValue
+"AuditDtl.AuditBeforeValue" ? "x(70)" "character" ? ? ? ? ? ? no ? no no "71.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   = Audit.AuditDtl.AuditAfterValue
+     _Query            is NOT OPENED
+*/  /* BROWSE auditBrowse */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE taskBrowse
 /* Query rebuild information for BROWSE taskBrowse
@@ -1538,6 +1611,29 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME showTasks
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL showTasks C-Win
+ON VALUE-CHANGED OF showTasks IN FRAME DEFAULT-FRAME
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        btnRestoreDefaults:SENSITIVE = {&SELF-NAME}
+        btnSortMove:SENSITIVE        = {&SELF-NAME}
+        btnRun:SENSITIVE             = {&SELF-NAME}
+        btnView:SENSITIVE            = {&SELF-NAME}
+        BROWSE taskBrowse:SENSITIVE  = {&SELF-NAME}
+        BROWSE auditBrowse:HIDDEN    = {&SELF-NAME}
+        .
+    IF BROWSE auditBrowse:HIDDEN EQ NO THEN DO:
+        {&OPEN-QUERY-auditBrowse}
+        auditBrowse:MOVE-TO-TOP().
+    END. /* if not hidden */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define FRAME-NAME viewFrame
 &Scoped-define SELF-NAME Task.startDate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Task.startDate C-Win
@@ -1596,6 +1692,8 @@ END.
 ON VALUE-CHANGED OF taskBrowse IN FRAME DEFAULT-FRAME /* Tasks */
 DO:
     RUN pDisplay.
+    IF BROWSE auditBrowse:HIDDEN EQ NO THEN
+    {&OPEN-QUERY-auditBrowse}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1661,6 +1759,7 @@ END.
 
 
 &Scoped-define FRAME-NAME DEFAULT-FRAME
+&Scoped-define BROWSE-NAME auditBrowse
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -1766,9 +1865,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY searchBar 
+  DISPLAY showTasks searchBar 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnSortMove searchBar taskBrowse btnView btnRun btnRestoreDefaults 
+  ENABLE btnRun btnSortMove btnView showTasks searchBar taskBrowse 
+         btnRestoreDefaults 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   DISPLAY cPrgmTitle startDateOption endDateOption 
@@ -2093,20 +2193,20 @@ PROCEDURE pGetSettings :
                     FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
                     .
                 WHEN "BrowseRowHeight" THEN
-                BROWSE {&BROWSE-NAME}:ROW-HEIGHT = DECIMAL(user-print.field-value[idx]).
+                BROWSE taskBrowse:ROW-HEIGHT = DECIMAL(user-print.field-value[idx]).
             END CASE.
         END. /* do idx */
         DO idx = iUserPrintOffSet + 1 TO EXTENT(user-print.field-name):
             IF user-print.field-name[idx] EQ "" THEN LEAVE.
             /* set browse column width, hidden & order */
-            DO kdx = 1 TO BROWSE {&BROWSE-NAME}:NUM-COLUMNS:
-                IF user-print.field-name[idx] EQ BROWSE {&BROWSE-NAME}:GET-BROWSE-COLUMN(kdx):NAME THEN DO:
+            DO kdx = 1 TO BROWSE taskBrowse:NUM-COLUMNS:
+                IF user-print.field-name[idx] EQ BROWSE taskBrowse:GET-BROWSE-COLUMN(kdx):NAME THEN DO:
                     ASSIGN
                         jdx = idx - iUserPrintOffSet
-                        hColumn = BROWSE {&BROWSE-NAME}:GET-BROWSE-COLUMN(jdx)
+                        hColumn = BROWSE taskBrowse:GET-BROWSE-COLUMN(jdx)
                         hColumn:WIDTH = DECIMAL(user-print.field-value[idx])
                         .
-                    BROWSE {&BROWSE-NAME}:MOVE-COLUMN(kdx,jdx).
+                    BROWSE taskBrowse:MOVE-COLUMN(kdx,jdx).
                 END. /* if name */
             END. /* do kdx */
         END. /* do idx */
@@ -2298,16 +2398,16 @@ PROCEDURE pSaveSettings :
         idx = idx + 1
         user-print.field-name[idx]  = "BrowseRowHeight"
         user-print.field-label[idx] = "BrowseRowHeight"
-        user-print.field-value[idx] = STRING(BROWSE {&BROWSE-NAME}:ROW-HEIGHT)
+        user-print.field-value[idx] = STRING(BROWSE taskBrowse:ROW-HEIGHT)
         .
     /* save browse column order and width */
-    DO jdx = 1 TO BROWSE {&BROWSE-NAME}:NUM-COLUMNS:
+    DO jdx = 1 TO BROWSE taskBrowse:NUM-COLUMNS:
         ASSIGN
             idx = idx + 1
-            hColumn = BROWSE {&BROWSE-NAME}:GET-BROWSE-COLUMN(jdx)
+            hColumn = BROWSE taskBrowse:GET-BROWSE-COLUMN(jdx)
             user-print.field-label[idx] = "BrowseColumn"
             user-print.field-name[idx]  = hColumn:NAME
-            user-print.field-value[idx] = STRING(MAX(hColumn:WIDTH, .2 /*BROWSE {&BROWSE-NAME}:MIN-COLUMN-WIDTH-CHARS*/ ))
+            user-print.field-value[idx] = STRING(MAX(hColumn:WIDTH, .2 /*BROWSE taskBrowse:MIN-COLUMN-WIDTH-CHARS*/ ))
             .
     END. /* do jdx */
 
@@ -2336,6 +2436,9 @@ PROCEDURE pWinReSize :
         IF {&WINDOW-NAME}:WIDTH  LT 160   THEN
         {&WINDOW-NAME}:WIDTH  = 160.
         ASSIGN
+            /* view frame */
+            FRAME viewFrame:COL = 1
+            FRAME viewFrame:ROW = 1
             /* default frame */
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
@@ -2345,10 +2448,14 @@ PROCEDURE pWinReSize :
             searchBar:WIDTH = FRAME {&FRAME-NAME}:WIDTH
                             - searchBar:COL + 1
             /* browse frame */
-            BROWSE {&BROWSE-NAME}:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT
-                                         - BROWSE {&BROWSE-NAME}:ROW + 1
-            BROWSE {&BROWSE-NAME}:WIDTH  = FRAME {&FRAME-NAME}:WIDTH
-                                         - BROWSE {&BROWSE-NAME}:COL + 1
+            BROWSE taskBrowse:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT
+                                     - BROWSE taskBrowse:ROW + 1
+            BROWSE taskBrowse:WIDTH  = FRAME {&FRAME-NAME}:WIDTH
+                                     - BROWSE taskBrowse:COL + 1
+            /* audit browse */
+            BROWSE auditBrowse:COL    = BROWSE taskBrowse:COL
+            BROWSE auditBrowse:ROW    = BROWSE taskBrowse:ROW
+            BROWSE auditBrowse:HEIGHT = BROWSE taskBrowse:HEIGHT
             /* view frame */
             FRAME viewFrame:COL = FRAME {&FRAME-NAME}:WIDTH
                                 - FRAME viewFrame:WIDTH  + 1
