@@ -1390,7 +1390,7 @@ END.
 ON CHOOSE OF btnSortMove IN FRAME DEFAULT-FRAME /* Sort/Move */
 DO:
     ASSIGN
-        BROWSE {&BROWSE-NAME}:COLUMN-MOVABLE = lSortMove
+        BROWSE taskBrowse:COLUMN-MOVABLE = lSortMove
         lSortMove = NOT lSortMove
         .
     SELF:LOAD-IMAGE("Graphics/16x16/"
@@ -1604,7 +1604,7 @@ END.
 ON VALUE-CHANGED OF searchBar IN FRAME DEFAULT-FRAME /* Search */
 DO:
     ASSIGN {&SELF-NAME}.
-    {&OPEN-QUERY-{&BROWSE-NAME}}
+    {&OPEN-QUERY-taskBrowse}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1674,8 +1674,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL taskBrowse C-Win
 ON START-SEARCH OF taskBrowse IN FRAME DEFAULT-FRAME /* Tasks */
 DO:
-    IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
+    IF taskBrowse:CURRENT-COLUMN:NAME NE ? THEN DO:
+        cColumnLabel = BROWSE taskBrowse:CURRENT-COLUMN:NAME.
         IF cColumnLabel EQ cSaveLabel THEN
         lAscending = NOT lAscending.
         cSaveLabel = cColumnLabel.
@@ -2046,7 +2046,7 @@ PROCEDURE pCRUD :
         CASE iphMode:LABEL:
             WHEN "Add" OR WHEN "Copy" OR WHEN "Update" THEN DO:
                 DISABLE {&transPanel}.
-                BROWSE {&BROWSE-NAME}:SENSITIVE = NO.
+                BROWSE taskBrowse:SENSITIVE = NO.
                 ENABLE {&transUpdate} {&enabledFields} {&calendarObjects}.
                 btnUpdate:LOAD-IMAGE("Graphics\32x32\Save_As.ico").
                 IF iphMode:LABEL EQ "Add" THEN DO:
@@ -2073,21 +2073,21 @@ PROCEDURE pCRUD :
                     RUN pAssign.
                     IF cMode EQ "Add" OR cMode EQ "Copy" THEN DO:
                         RUN pReopenBrowse.
-                        REPOSITION {&BROWSE-NAME} TO ROWID rRowID.
+                        REPOSITION taskBrowse TO ROWID rRowID.
                     END. /* if add/copy */
                     ELSE
-                    BROWSE {&BROWSE-NAME}:REFRESH().
+                    BROWSE taskBrowse:REFRESH().
                 END. /* save */
                 DISABLE {&transPanel} {&enabledFields} {&calendarObjects}.
                 ENABLE {&transInit}.
-                BROWSE {&BROWSE-NAME}:SENSITIVE = YES.
+                BROWSE taskBrowse:SENSITIVE = YES.
                 btnUpdate:LOAD-IMAGE("Graphics\32x32\Pencil.ico").
                 ASSIGN
-                    FRAME viewFrame:TITLE           = "View"
-                    btnUpdate:LABEL                 = "Update"
-                    BROWSE {&BROWSE-NAME}:SENSITIVE = YES
+                    FRAME viewFrame:TITLE       = "View"
+                    btnUpdate:LABEL             = "Update"
+                    BROWSE taskBrowse:SENSITIVE = YES
                     .
-                APPLY "VALUE-CHANGED":U TO BROWSE {&BROWSE-NAME}.
+                APPLY "VALUE-CHANGED":U TO BROWSE taskBrowse.
             END. /* cancel save */
             WHEN "Delete" THEN DO:
                 IF AVAILABLE Task THEN DO:
@@ -2099,10 +2099,10 @@ PROCEDURE pCRUD :
                         cMode = iphMode:LABEL.
                         FIND CURRENT Task EXCLUSIVE-LOCK.
                         DELETE Task.
-                        BROWSE {&BROWSE-NAME}:DELETE-CURRENT-ROW().
+                        BROWSE taskBrowse:DELETE-CURRENT-ROW().
                     END. /* if lcontinue */
                     IF AVAILABLE Task THEN
-                    BROWSE {&BROWSE-NAME}:REFRESH().
+                    BROWSE taskBrowse:REFRESH().
                     RUN pDisplay.
                 END. /* if avail */
             END. /* delete */
@@ -2116,7 +2116,7 @@ PROCEDURE pCRUD :
         IF Task.taskName:SENSITIVE THEN
         APPLY "ENTRY":U TO Task.taskName.
         ELSE
-        APPLY "ENTRY":U TO BROWSE {&BROWSE-NAME}.
+        APPLY "ENTRY":U TO BROWSE taskBrowse.
         /* save the mode for when logic returns to this procedure */
         cMode = iphMode:LABEL.
     END. /* do frame */
@@ -2202,8 +2202,8 @@ PROCEDURE pGetSettings :
             DO kdx = 1 TO BROWSE taskBrowse:NUM-COLUMNS:
                 IF user-print.field-name[idx] EQ BROWSE taskBrowse:GET-BROWSE-COLUMN(kdx):NAME THEN DO:
                     ASSIGN
-                        jdx = idx - iUserPrintOffSet
-                        hColumn = BROWSE taskBrowse:GET-BROWSE-COLUMN(jdx)
+                        jdx           = idx - iUserPrintOffSet
+                        hColumn       = BROWSE taskBrowse:GET-BROWSE-COLUMN(jdx)
                         hColumn:WIDTH = DECIMAL(user-print.field-value[idx])
                         .
                     BROWSE taskBrowse:MOVE-COLUMN(kdx,jdx).
@@ -2229,16 +2229,16 @@ PROCEDURE pNavPanel :
     
     CASE iphNavPanel:LABEL:
         WHEN "First" THEN
-        APPLY "HOME":U TO BROWSE {&BROWSE-NAME}.
+        APPLY "HOME":U TO BROWSE taskBrowse.
         WHEN "Previous" THEN
-        BROWSE {&BROWSE-NAME}:SELECT-PREV-ROW().
+        BROWSE taskBrowse:SELECT-PREV-ROW().
         WHEN "Next" THEN
-        BROWSE {&BROWSE-NAME}:SELECT-NEXT-ROW().
+        BROWSE taskBrowse:SELECT-NEXT-ROW().
         WHEN "Last" THEN
-        APPLY "END":U TO BROWSE {&BROWSE-NAME}.
+        APPLY "END":U TO BROWSE taskBrowse.
     END CASE.
     IF AVAILABLE Task THEN
-    APPLY "VALUE-CHANGED":U TO BROWSE {&BROWSE-NAME}.
+    APPLY "VALUE-CHANGED":U TO BROWSE taskBrowse.
 
 END PROCEDURE.
 
@@ -2309,7 +2309,7 @@ PROCEDURE pReopenBrowse :
         WHEN "user-id" THEN
         RUN pByUserID.
         OTHERWISE
-        {&OPEN-QUERY-{&BROWSE-NAME}}
+        {&OPEN-QUERY-taskBrowse}
     END CASE.
 
 END PROCEDURE.
@@ -2403,8 +2403,8 @@ PROCEDURE pSaveSettings :
     /* save browse column order and width */
     DO jdx = 1 TO BROWSE taskBrowse:NUM-COLUMNS:
         ASSIGN
-            idx = idx + 1
-            hColumn = BROWSE taskBrowse:GET-BROWSE-COLUMN(jdx)
+            idx                         = idx + 1
+            hColumn                     = BROWSE taskBrowse:GET-BROWSE-COLUMN(jdx)
             user-print.field-label[idx] = "BrowseColumn"
             user-print.field-name[idx]  = hColumn:NAME
             user-print.field-value[idx] = STRING(MAX(hColumn:WIDTH, .2 /*BROWSE taskBrowse:MIN-COLUMN-WIDTH-CHARS*/ ))

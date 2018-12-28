@@ -738,11 +738,6 @@ PROCEDURE pTaskEmails :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cRunProgram AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dttDateTime AS DATETIME  NO-UNDO.
-    DEFINE VARIABLE iDay        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iMonth      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iTime       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iYear       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lRefresh    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE rRowID      AS ROWID     NO-UNDO.
     
@@ -751,13 +746,6 @@ PROCEDURE pTaskEmails :
 
     {&OPEN-QUERY-EmailBrowse}
     FOR EACH bTaskEmail:
-        ASSIGN
-            iYear       = INTEGER(SUBSTR(bTaskEmail.rec_key,1,4))
-            iMonth      = INTEGER(SUBSTR(bTaskEmail.rec_key,5,2))
-            iDay        = INTEGER(SUBSTR(bTaskEmail.rec_key,7,2))
-            iTime       = INTEGER(SUBSTR(bTaskEmail.rec_key,9,5))
-            dttDateTime = DATETIME(DATE(iMonth,iDay,iYear) + 1,iTime)
-            .
         IF bTaskEmail.mustExist EQ NO OR
            SEARCH(bTaskEmail.attachment) NE ? THEN DO:
             IF bTaskEmail.recipients EQ "Cue Card Message" THEN DO:
@@ -802,10 +790,6 @@ PROCEDURE pTaskEmails :
             DELETE bTaskEmail.
             lRefresh = YES.
         END. /* if search */
-        ELSE IF dttDateTime LT NOW THEN DO:
-            DELETE bTaskEmail.
-            lRefresh = YES.
-        END. /* else if */
     END. /* each bTaskEmail */
     IF lRefresh THEN
     {&OPEN-QUERY-EmailBrowse}
