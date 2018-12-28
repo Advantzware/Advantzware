@@ -177,8 +177,8 @@ Task.recipients
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnRun btnSortMove btnView showTasks ~
-searchBar taskBrowse btnRestoreDefaults 
+&Scoped-Define ENABLED-OBJECTS btnRun showTasks searchBar taskBrowse ~
+btnSortMove btnView btnRestoreDefaults 
 &Scoped-Define DISPLAYED-OBJECTS showTasks searchBar 
 
 /* Custom List Definitions                                              */
@@ -300,8 +300,8 @@ DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE showTasks AS LOGICAL INITIAL yes 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
-          "Show Tasks", Yes,
-"Show History", No
+          "Show Tasks", yes,
+"Show History", no
      SIZE 32 BY .91 NO-UNDO.
 
 DEFINE BUTTON btnAdd 
@@ -463,7 +463,7 @@ DEFINE BROWSE auditBrowse
       AuditDtl.AuditAfterValue FORMAT "x(16)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 4.2
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 4.19
          TITLE "History".
 
 DEFINE BROWSE taskBrowse
@@ -508,15 +508,15 @@ Task.recipients
 DEFINE FRAME DEFAULT-FRAME
      btnRun AT ROW 1 COL 11 HELP
           "Run Now" WIDGET-ID 44
-     btnSortMove AT ROW 1 COL 6 HELP
-          "Toggle Sort/Move Columns" WIDGET-ID 48
-     btnView AT ROW 1 COL 16 HELP
-          "Viewer" WIDGET-ID 46
      showTasks AT ROW 1 COL 21 NO-LABEL WIDGET-ID 52
      searchBar AT ROW 1 COL 60 COLON-ALIGNED HELP
           "Search" WIDGET-ID 6
      taskBrowse AT ROW 1.95 COL 1 WIDGET-ID 200
      auditBrowse AT ROW 25.29 COL 1 WIDGET-ID 500
+     btnSortMove AT ROW 1 COL 6 HELP
+          "Toggle Sort/Move Columns" WIDGET-ID 48
+     btnView AT ROW 1 COL 16 HELP
+          "Viewer" WIDGET-ID 46
      btnRestoreDefaults AT ROW 1 COL 1 HELP
           "Restore Defaults" WIDGET-ID 42
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -757,7 +757,13 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
+     btnRunNow AT ROW 19.81 COL 80 HELP
+          "Run Now" WIDGET-ID 634
      btnCalendar-2 AT ROW 13.62 COL 30 WIDGET-ID 78
+     btnClose AT ROW 1 COL 136 HELP
+          "Close" WIDGET-ID 72
+     btnFirst AT ROW 19.81 COL 106 HELP
+          "First" WIDGET-ID 274
      endDateOption AT ROW 13.62 COL 33 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
      Task.taskFormat AT ROW 13.62 COL 81 NO-LABEL WIDGET-ID 608
@@ -769,10 +775,16 @@ DEFINE FRAME viewFrame
 "PDF", "PDF":U,
 "HTML", "HTML":U
           SIZE 51 BY 1
+     btnLast AT ROW 19.86 COL 130 HELP
+          "Last" WIDGET-ID 68
+     btnNext AT ROW 19.81 COL 122 HELP
+          "Next" WIDGET-ID 276
      Task.nextDate AT ROW 14.81 COL 12 COLON-ALIGNED WIDGET-ID 510
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
+     btnPrev AT ROW 19.81 COL 114 HELP
+          "Previous" WIDGET-ID 278
      Task.cNextTime AT ROW 14.81 COL 36 COLON-ALIGNED WIDGET-ID 596
           LABEL "Time"
           VIEW-AS FILL-IN 
@@ -782,31 +794,19 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
+     btnAdd AT ROW 19.86 COL 23 HELP
+          "Add" WIDGET-ID 20
      Task.cLastTime AT ROW 16 COL 36 COLON-ALIGNED WIDGET-ID 594
           LABEL "Time"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 
+     btnCancel AT ROW 19.86 COL 55 HELP
+          "Cancel" WIDGET-ID 28
      Task.recipients AT ROW 17.19 COL 14 NO-LABEL WIDGET-ID 600
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 125 BY 2.14
           BGCOLOR 15 
-     btnRunNow AT ROW 19.81 COL 80 HELP
-          "Run Now" WIDGET-ID 634
-     btnClose AT ROW 1 COL 136 HELP
-          "Close" WIDGET-ID 72
-     btnFirst AT ROW 19.81 COL 106 HELP
-          "First" WIDGET-ID 274
-     btnLast AT ROW 19.86 COL 130 HELP
-          "Last" WIDGET-ID 68
-     btnNext AT ROW 19.81 COL 122 HELP
-          "Next" WIDGET-ID 276
-     btnPrev AT ROW 19.81 COL 114 HELP
-          "Previous" WIDGET-ID 278
-     btnAdd AT ROW 19.86 COL 23 HELP
-          "Add" WIDGET-ID 20
-     btnCancel AT ROW 19.86 COL 55 HELP
-          "Cancel" WIDGET-ID 28
      btnCopy AT ROW 19.86 COL 31 HELP
           "Copy" WIDGET-ID 24
      btnDelete AT ROW 19.86 COL 39 HELP
@@ -823,10 +823,10 @@ DEFINE FRAME viewFrame
           "Reset" WIDGET-ID 22
      btnUpdate AT ROW 19.86 COL 15 HELP
           "Update/Save" WIDGET-ID 18
-     "Frequency:" VIEW-AS TEXT
-          SIZE 11 BY 1 AT ROW 3.62 COL 2 WIDGET-ID 618
      "Recipients:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 17.19 COL 3 WIDGET-ID 602
+     "Frequency:" VIEW-AS TEXT
+          SIZE 11 BY 1 AT ROW 3.62 COL 2 WIDGET-ID 618
      "Format:" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 13.62 COL 72 WIDGET-ID 614
      transPanel AT ROW 19.57 COL 14 WIDGET-ID 16
@@ -1705,7 +1705,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Task.taskID C-Win
 ON LEAVE OF Task.taskID IN FRAME viewFrame /* Task ID */
 DO:
-    IF NOT Task.runNow THEN
+    IF Task.runNow:SCREEN-VALUE EQ "no" THEN
     DO WITH FRAME viewFrame:
         ASSIGN
             Task.user-id:SCREEN-VALUE   = ""
@@ -1803,6 +1803,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       DYNAMIC-FUNCTION('fDateOptions',startDateOption:HANDLE).
       DYNAMIC-FUNCTION('fDateOptions',endDateOption:HANDLE).
       RUN pGetSettings (USERID("ASI")).
+      IF NOT AVAILABLE Task THEN
+      APPLY "CHOOSE":U TO btnView.
   END. /* if continue */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1867,7 +1869,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY showTasks searchBar 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnRun btnSortMove btnView showTasks searchBar taskBrowse 
+  ENABLE btnRun showTasks searchBar taskBrowse btnSortMove btnView 
          btnRestoreDefaults 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
