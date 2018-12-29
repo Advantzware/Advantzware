@@ -728,6 +728,8 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     btnRunNow AT ROW 19.81 COL 80 HELP
+          "Run Now" WIDGET-ID 634
      Task.runNow AT ROW 11.24 COL 14 WIDGET-ID 652
           VIEW-AS TOGGLE-BOX
           SIZE 12 BY .81
@@ -739,10 +741,14 @@ DEFINE FRAME viewFrame
           LABEL "30"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnClose AT ROW 1 COL 136 HELP
+          "Close" WIDGET-ID 72
      Task.dayOfMonth[31] AT ROW 11.24 COL 44 WIDGET-ID 582
           LABEL "31"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnFirst AT ROW 19.81 COL 106 HELP
+          "First" WIDGET-ID 274
      Task.lastOfMonth AT ROW 11.24 COL 76 WIDGET-ID 586
           VIEW-AS TOGGLE-BOX
           SIZE 21 BY .81
@@ -751,19 +757,19 @@ DEFINE FRAME viewFrame
           SIZE 16 BY 1
           BGCOLOR 15 
      btnCalendar-1 AT ROW 12.43 COL 30 WIDGET-ID 76
+     btnLast AT ROW 19.86 COL 130 HELP
+          "Last" WIDGET-ID 68
+     btnNext AT ROW 19.81 COL 122 HELP
+          "Next" WIDGET-ID 276
      startDateOption AT ROW 12.43 COL 33 COLON-ALIGNED HELP
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 74
      Task.endDate AT ROW 13.62 COL 12 COLON-ALIGNED WIDGET-ID 506
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     btnRunNow AT ROW 19.81 COL 80 HELP
-          "Run Now" WIDGET-ID 634
      btnCalendar-2 AT ROW 13.62 COL 30 WIDGET-ID 78
-     btnClose AT ROW 1 COL 136 HELP
-          "Close" WIDGET-ID 72
-     btnFirst AT ROW 19.81 COL 106 HELP
-          "First" WIDGET-ID 274
+     btnPrev AT ROW 19.81 COL 114 HELP
+          "Previous" WIDGET-ID 278
      endDateOption AT ROW 13.62 COL 33 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
      Task.taskFormat AT ROW 13.62 COL 81 NO-LABEL WIDGET-ID 608
@@ -775,34 +781,28 @@ DEFINE FRAME viewFrame
 "PDF", "PDF":U,
 "HTML", "HTML":U
           SIZE 51 BY 1
-     btnLast AT ROW 19.86 COL 130 HELP
-          "Last" WIDGET-ID 68
-     btnNext AT ROW 19.81 COL 122 HELP
-          "Next" WIDGET-ID 276
      Task.nextDate AT ROW 14.81 COL 12 COLON-ALIGNED WIDGET-ID 510
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-          BGCOLOR 15 
-     btnPrev AT ROW 19.81 COL 114 HELP
-          "Previous" WIDGET-ID 278
-     Task.cNextTime AT ROW 14.81 COL 36 COLON-ALIGNED WIDGET-ID 596
-          LABEL "Time"
-          VIEW-AS FILL-IN 
-          SIZE 9 BY 1
-          BGCOLOR 15 
-     Task.lastDate AT ROW 16 COL 12 COLON-ALIGNED WIDGET-ID 508
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
      btnAdd AT ROW 19.86 COL 23 HELP
           "Add" WIDGET-ID 20
-     Task.cLastTime AT ROW 16 COL 36 COLON-ALIGNED WIDGET-ID 594
+     Task.cNextTime AT ROW 14.81 COL 36 COLON-ALIGNED WIDGET-ID 596
           LABEL "Time"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 
      btnCancel AT ROW 19.86 COL 55 HELP
           "Cancel" WIDGET-ID 28
+     Task.lastDate AT ROW 16 COL 12 COLON-ALIGNED WIDGET-ID 508
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 
+     Task.cLastTime AT ROW 16 COL 36 COLON-ALIGNED WIDGET-ID 594
+          LABEL "Time"
+          VIEW-AS FILL-IN 
+          SIZE 9 BY 1
+          BGCOLOR 15 
      Task.recipients AT ROW 17.19 COL 14 NO-LABEL WIDGET-ID 600
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 125 BY 2.14
@@ -825,10 +825,10 @@ DEFINE FRAME viewFrame
           "Update/Save" WIDGET-ID 18
      "Recipients:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 17.19 COL 3 WIDGET-ID 602
-     "Frequency:" VIEW-AS TEXT
-          SIZE 11 BY 1 AT ROW 3.62 COL 2 WIDGET-ID 618
      "Format:" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 13.62 COL 72 WIDGET-ID 614
+     "Frequency:" VIEW-AS TEXT
+          SIZE 11 BY 1 AT ROW 3.62 COL 2 WIDGET-ID 618
      transPanel AT ROW 19.57 COL 14 WIDGET-ID 16
      navPanel AT ROW 19.57 COL 105 WIDGET-ID 280
      RECT-2 AT ROW 5.76 COL 27 WIDGET-ID 620
@@ -1526,6 +1526,7 @@ END.
 ON VALUE-CHANGED OF Task.frequency IN FRAME viewFrame /* Freguency */
 DO:
     DO WITH FRAME viewFrame:
+        HIDE {&timeRange}.
         CASE SELF:SCREEN-VALUE:
             WHEN "Every" THEN DO:
                 ENABLE {&timeRange}.

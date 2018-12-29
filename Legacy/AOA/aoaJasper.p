@@ -155,7 +155,6 @@ lJasperStarter = INDEX(OS-GETENV("Path"),"jasperstarter") NE 0.
 
 
 /* **********************  Internal Procedures  *********************** */
-
 &IF DEFINED(EXCLUDE-pGetSelectedColumns) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSelectedColumns Procedure 
@@ -1264,7 +1263,7 @@ PROCEDURE pJasperXML :
                     IF cBufferValue NE "" THEN cBufferValue ELSE " "
                     "</" fieldName ">"
                     SKIP.
-            END. /* do iColumn */
+            END. /* each ttColumn */
             PUT UNFORMATTED
                 FILL(" ",4)
                 "</" hTable:NAME ">"
@@ -1455,6 +1454,84 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-spJasperQuery) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spJasperQuery Procedure
+PROCEDURE spJasperQuery:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcType       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTitle      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUserID     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcJasperFile AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iSize       AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        aoaTitle           = ipcTitle
+        aoaUserID          = ipcUserID
+        svShowGroupHeader  = NO
+        svShowGroupFooter  = NO
+        svShowReportHeader = YES
+        svShowReportFooter = YES
+        svShowPageHeader   = YES
+        svShowPageFooter   = YES
+        svShowParameters   = NO
+        .
+    /* set columns for selected report columns */
+    RUN pGetSelectedColumns.
+    /* calculate width of jasper report */
+    iSize = fJasperReportSize().
+    /* if no active columns, done */
+    IF iSize EQ ? THEN RETURN.    
+    /* create xml adapter file (used in jasper studio) */
+    RUN pJasperXMLAdapter.    
+    /* create jasper jrxml file */
+    cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".jrxml".    
+    OUTPUT TO VALUE(cJasperFile).    
+    RUN pJasperReport ("Open", ipcType, iSize).
+    RUN pJasperStyles.
+    RUN pJasperQueryString.
+    RUN pJasperFieldDeclarations.
+    RUN pJasperVariableDeclarations.
+    IF svShowGroupHeader OR svShowGroupFooter THEN
+    RUN pJasperGroupDeclarations.
+    RUN pJasperBackgroundBand.    
+    IF svShowReportHeader THEN
+    RUN pJasterTitleBand.    
+    IF svShowPageHeader THEN DO:
+        RUN pJasperPageHeaderBand.    
+        RUN pJasperColumnHeaderBand.
+    END. /* show page header */
+    /*IF svShowGroupHeader THEN*/    
+    RUN pJasperDetailBand (iSize).    
+    IF svShowGroupFooter THEN
+    RUN pJasperColumnFooterBand.    
+    IF svShowPageFooter THEN
+    RUN pJasperPageFooterBand.    
+    IF svShowParameters THEN
+    RUN pJasperLastPageFooter.    
+    IF svShowReportFooter THEN 
+    RUN pJasperSummaryBand.    
+    RUN pJasperReport ("Close", ipcType, iSize).    
+    OUTPUT CLOSE.    
+    /* copy local jasper files to jasper studio workspace */
+    RUN pJasperCopy (cJasperFile).
+    /* command line call to jasperstarter script */
+    RUN pJasperStarter (ipcType, OUTPUT opcJasperFile).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 /* ************************  Function Implementations ***************** */
 
