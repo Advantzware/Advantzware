@@ -848,7 +848,7 @@ PROCEDURE pRunNow :
             Task.company    = aoaCompany
             Task.user-id    = USERID("ASI")
             Task.programID  = aoaProgramID
-            Task.taskName   = "Run Now " + aoaTitle
+            Task.taskName   = "Run Now Task"
             Task.taskFormat = ipcTaskFormat
             Task.runNow     = YES
             .
