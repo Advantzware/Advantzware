@@ -695,6 +695,117 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-pJasperJSON) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperJSON Procedure
+PROCEDURE pJasperJSON:
+/*------------------------------------------------------------------------------
+  Purpose:     Export temp-table contents to XML Format
+  Parameters:  user-print buffer
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER user-print FOR user-print.
+
+    DEFINE VARIABLE hTable       AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cColumns     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE fieldName    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iColumn      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hQuery       AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hQueryBuf    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cDynFunc     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJasperFile  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBufferValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFirstRow    AS LOGICAL   NO-UNDO INITIAL YES.
+    
+    DEFINE BUFFER ttColumn FOR ttColumn.
+    
+    IF VALID-HANDLE(hAppSrv) THEN DO WITH FRAME frameColumns:
+        hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hAppSrv, aoaProgramID).
+        IF NOT VALID-HANDLE(hTable) THEN RETURN.
+        
+        OS-CREATE-DIR "users".
+        OS-CREATE-DIR VALUE("users\" + aoaUserID).
+        cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".json".
+        OUTPUT TO VALUE(cJasperFile).
+        PUT UNFORMATTED
+            "~{" SKIP
+            FILL(" ",2)
+            "~"" REPLACE(aoaTitle," ","_") "~": ~{" SKIP
+            FILL(" ",4)
+            "~"tt" REPLACE(aoaTitle," ","") "~": [" SKIP
+            .
+        /* run dynamic function (business subject) */
+        ASSIGN
+            cDynFunc = "f" + REPLACE(aoaTitle," ","")
+            hTable = DYNAMIC-FUNCTION(cDynFunc IN hAppSrv, aoaCompany, aoaBatchSeq, aoaUserID)
+            .
+        IF NOT VALID-HANDLE(hTable) THEN RETURN.
+
+        hTable = hTable:DEFAULT-BUFFER-HANDLE.
+
+        /* scroll returned temp-table records */
+        CREATE QUERY hQuery.
+        hQuery:SET-BUFFERS(hTable:HANDLE).
+        hQuery:QUERY-PREPARE("FOR EACH " + hTable:NAME).
+        hQuery:QUERY-OPEN.
+        hQueryBuf = hQuery:GET-BUFFER-HANDLE(hTable:NAME).
+        REPEAT:
+            hQuery:GET-NEXT().
+            IF hQuery:QUERY-OFF-END THEN LEAVE.
+            IF hQueryBuf:BUFFER-FIELD("RowType"):BUFFER-VALUE() NE "Data" THEN NEXT.
+            IF lFirstRow EQ NO THEN
+            PUT UNFORMATTED "," SKIP.
+            ELSE
+            lFirstRow = NO.
+            PUT UNFORMATTED FILL(" ",6) "~{" SKIP.
+            FOR EACH ttColumn
+                WHERE ttColumn.isActive    EQ YES
+                   OR ttColumn.isGroup     EQ YES
+                   OR ttColumn.ttGroupCalc NE ""
+                BREAK BY ttColumn.ttField:
+                ASSIGN 
+                    fieldName    = ttColumn.ttField
+                    cBufferValue = fFormatValue(hTable, hTable:BUFFER-FIELD(fieldName):NAME)
+                    /* remove special characters with escape values */
+                    cBufferValue = REPLACE(cBufferValue,"~&","~&amp;")
+                    cBufferValue = REPLACE(cBufferValue,"~'","~&apos;")
+                    cBufferValue = REPLACE(cBufferValue,"~"","~&quot;")
+                    cBufferValue = REPLACE(cBufferValue,"<","~&lt;")
+                    cBufferValue = REPLACE(cBufferValue,">","~&gt;")
+                    cBufferValue = REPLACE(cBufferValue,"~\","~\~\")
+                    .
+                PUT UNFORMATTED
+                    FILL(" ",8)
+                    "~"" fieldName "~": ~""
+                    IF cBufferValue NE "" THEN cBufferValue ELSE " "
+                    "~""
+                    .
+                IF NOT LAST(ttColumn.ttField) THEN
+                PUT UNFORMATTED "," SKIP.
+            END. /* each ttColumn */
+            PUT UNFORMATTED SKIP FILL(" ",6) "}".
+        END. /* repeat */
+        hQuery:QUERY-CLOSE().
+        DELETE OBJECT hQuery.
+        PUT UNFORMATTED
+            SKIP
+            FILL(" ",4) "]" SKIP
+            FILL(" ",2) "}" SKIP
+            "}" SKIP
+            .
+        OUTPUT CLOSE.
+        RUN pJasperCopy (cJasperFile).
+    END. /* valid happsrv */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-pJasperLastPageFooter) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperLastPageFooter Procedure 
@@ -913,9 +1024,9 @@ PROCEDURE pJasperQueryString :
   Notes:       
 ------------------------------------------------------------------------------*/
     PUT UNFORMATTED
-        "    <queryString language=~"xPath~">" SKIP
-        "        <![CDATA[/" REPLACE(aoaTitle," ","_")
-        "/tt" REPLACE(aoaTitle," ","") "]]>" SKIP
+        "    <queryString language=~"json~">" SKIP
+        "        <![CDATA[" REPLACE(aoaTitle," ","_")
+        ".tt" REPLACE(aoaTitle," ","") "]]>" SKIP
         "    </queryString>" SKIP
         .
 
@@ -954,15 +1065,12 @@ PROCEDURE pJasperReport :
             "http://jasperreports.sourceforge.net/xsd/jasperreport.xsd~" "
             "name=~"" REPLACE(aoaTitle," ","") "~" "
             "pageWidth=~"" ipiSize "~" "
-/*            "pageHeight=~"" 612 "~" "*/
             "orientation=~"Landscape~" "
             "columnWidth=~"" ipiSize - 40 "~" "
             "leftMargin=~"" iMargin "~" "
             "rightMargin=~"" iMargin "~" "
             "topMargin=~"" iMargin "~" "
             "bottomMargin=~"" iMargin "~">" SKIP
-            "    <property name=~"com.jaspersoft.studio.data.defaultdataadapter~" "
-            "value=~"" REPLACE(aoaTitle," ","") "XMLAdapter.xml~"/>" SKIP
             .
         WHEN "Close" THEN
         PUT UNFORMATTED
@@ -1002,7 +1110,7 @@ PROCEDURE pJasperStarter :
     OS-CREATE-DIR VALUE(cJasperFolder).
     ASSIGN 
         cJasperFile[1] = SEARCH(cUserFolder + REPLACE(aoaTitle," ","") + ".jrxml")
-        cJasperFile[2] = SEARCH(cUserFolder + REPLACE(aoaTitle," ","") + ".xml")
+        cJasperFile[2] = SEARCH(cUserFolder + REPLACE(aoaTitle," ","") + ".json")
         cJasperFile[3] = REPLACE(cJasperFile[1],"jrxml",ipcType)
         cJasperFile[3] = REPLACE(cJasperFile[3]," -d","")
         cJasperFile[4] = cJasperFolder
@@ -1014,20 +1122,20 @@ PROCEDURE pJasperStarter :
         opcJastFile    = cJasperFile[4] + "." + LC(ipcType)
         cJasperStarter = "jasperstarter process "
                        + "-f " + LC(ipcType) + " "
-                       + "-t xml "
+                       + "-t json "
                        + "-o " + cJasperFile[4] + " "
                        + "--data-file "
                        + cJasperFile[2] + " "
-                       + "--xml-xpath "
-                       + "/" + REPLACE(aoaTitle," ","_")
-                       + "/tt" + REPLACE(aoaTitle," ","") + " "
+                       + "--json-query "
+                       + REPLACE(aoaTitle," ","_")
+                       + ".tt" + REPLACE(aoaTitle," ","") + " "
                        +  cJasperFile[1]
                        .
     DO idx = 1 TO EXTENT(cJasperFile) - 1:
         IF cJasperFile[idx] EQ ? THEN DO:
             MESSAGE 
                 "Unable to run" aoaTitle "Jasper Report" SKIP 
-                "Jasper Files .jrxml and/or .xml not found!"
+                "Jasper Files .jrxml and/or .json not found!"
             VIEW-AS ALERT-BOX ERROR.
             RETURN.
         END. /* if ? */
@@ -1182,145 +1290,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
-
-&IF DEFINED(EXCLUDE-pJasperXML) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperXML Procedure 
-PROCEDURE pJasperXML :
-/*------------------------------------------------------------------------------
-  Purpose:     Export temp-table contents to XML Format
-  Parameters:  user-print buffer
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER user-print FOR user-print.
-
-    DEFINE VARIABLE hTable       AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE cColumns     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE fieldName    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iColumn      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE hQuery       AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hQueryBuf    AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE cDynFunc     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJasperFile  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cBufferValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lFirstRow    AS LOGICAL   NO-UNDO.
-    
-    DEFINE BUFFER ttColumn FOR ttColumn.
-    
-    IF VALID-HANDLE(hAppSrv) THEN DO WITH FRAME frameColumns:
-        hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hAppSrv, aoaProgramID).
-        IF NOT VALID-HANDLE(hTable) THEN RETURN.
-        
-        OS-CREATE-DIR "users".
-        OS-CREATE-DIR VALUE("users\" + aoaUserID).
-        cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".xml".
-        OUTPUT TO VALUE(cJasperFile).
-        PUT UNFORMATTED
-            "<?xml version=~"1.0~" encoding=~"UTF-8~"?>" SKIP
-            "<" REPLACE(aoaTitle," ","_") ">" SKIP
-            SKIP.
-        /* run dynamic function (business subject) */
-        ASSIGN
-            cDynFunc = "f" + REPLACE(aoaTitle," ","")
-            hTable = DYNAMIC-FUNCTION(cDynFunc IN hAppSrv, aoaCompany, aoaBatchSeq, aoaUserID)
-            .
-        IF NOT VALID-HANDLE(hTable) THEN RETURN.
-
-        hTable = hTable:DEFAULT-BUFFER-HANDLE.
-
-        /* scroll returned temp-table records */
-        CREATE QUERY hQuery.
-        hQuery:SET-BUFFERS(hTable:HANDLE).
-        hQuery:QUERY-PREPARE("FOR EACH " + hTable:NAME).
-        hQuery:QUERY-OPEN.
-        hQueryBuf = hQuery:GET-BUFFER-HANDLE(hTable:NAME).
-        REPEAT:
-            hQuery:GET-NEXT().
-            IF hQuery:QUERY-OFF-END THEN LEAVE.
-            IF hQueryBuf:BUFFER-FIELD("RowType"):BUFFER-VALUE() NE "Data" THEN NEXT.
-            PUT UNFORMATTED
-                FILL(" ",4)
-                "<" hTable:NAME ">"
-                SKIP.
-            FOR EACH ttColumn
-                WHERE ttColumn.isActive    EQ YES
-                   OR ttColumn.isGroup     EQ YES
-                   OR ttColumn.ttGroupCalc NE ""
-                :
-                ASSIGN 
-                    fieldName    = ttColumn.ttField
-                    cBufferValue = fFormatValue(hTable, hTable:BUFFER-FIELD(fieldName):NAME)
-                    /* remove special characters with escape values */
-                    cBufferValue = REPLACE(cBufferValue,"~&","~&amp;")
-                    cBufferValue = REPLACE(cBufferValue,"~'","~&apos;")
-                    cBufferValue = REPLACE(cBufferValue,"~"","~&quot;")
-                    cBufferValue = REPLACE(cBufferValue,"<","~&lt;")
-                    cBufferValue = REPLACE(cBufferValue,">","~&gt;")
-                    .
-                PUT UNFORMATTED
-                    FILL(" ",8)
-                    "<" fieldName ">"
-                    IF cBufferValue NE "" THEN cBufferValue ELSE " "
-                    "</" fieldName ">"
-                    SKIP.
-            END. /* each ttColumn */
-            PUT UNFORMATTED
-                FILL(" ",4)
-                "</" hTable:NAME ">"
-                SKIP.
-        END. /* repeat */
-        hQuery:QUERY-CLOSE().
-        DELETE OBJECT hQuery.
-        PUT UNFORMATTED "</" REPLACE(aoaTitle," ","_") ">" SKIP.
-        OUTPUT CLOSE.
-        RUN pJasperCopy (cJasperFile).
-    END. /* valid happsrv */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pJasperXMLAdapter) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperXMLAdapter Procedure 
-PROCEDURE pJasperXMLAdapter :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
-
-    /* create xml adapter used in Jasper Studio */
-    cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + "XMLAdapter.xml".
-    OUTPUT TO VALUE(cJasperFile).
-    PUT UNFORMATTED
-        "<?xml version=~"1.0~" encoding=~"ISO-8859-1~"?>" SKIP
-        "<xmlDataAdapter class=~"net.sf.jasperreports.data.xml.XmlDataAdapterImpl~">" SKIP
-        "    <name>" aoaTitle " XML Adapter</name>" SKIP
-        "    <dataFile xsi:type=~"repositoryDataLocation~" xmlns:xsi=~"http://www.w3.org/2001/XMLSchema-instance~">" SKIP
-        "        <location>" REPLACE(aoaTitle," ","") ".xml</location>" SKIP
-        "    </dataFile>" SKIP
-        "    <useConnection>true</useConnection>" SKIP
-        "    <namespaceAware>false</namespaceAware>" SKIP
-        "    <selectExpression/>" SKIP
-        "    <locale xsi:type=~"java:java.lang.String~" xmlns:xsi=~"http://www.w3.org/2001/XMLSchema-instance~" xmlns:java=~"http://java.sun.com~">en_US</locale>" SKIP
-        "    <timeZone xsi:type=~"java:java.lang.String~" xmlns:xsi=~"http://www.w3.org/2001/XMLSchema-instance~" xmlns:java=~"http://java.sun.com~">America/New_York</timeZone>" SKIP
-        "</xmlDataAdapter>" SKIP
-        .
-    OUTPUT CLOSE.
-    RUN pJasperCopy (cJasperFile).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 &IF DEFINED(EXCLUDE-pJasterTitleBand) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasterTitleBand Procedure 
@@ -1411,9 +1380,7 @@ PROCEDURE spJasper :
     IF iSize EQ ? THEN RETURN.    
     /* create jasper files in local user folder */
     /* create xml data file */
-    RUN pJasperXML (BUFFER user-print).
-    /* create xml adapter file (used in jasper studio) */
-    RUN pJasperXMLAdapter.    
+    RUN pJasperJSON (BUFFER user-print).
     /* create jasper jrxml file */
     cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".jrxml".    
     OUTPUT TO VALUE(cJasperFile).    
@@ -1488,8 +1455,6 @@ PROCEDURE spJasperQuery:
     iSize = fJasperReportSize().
     /* if no active columns, done */
     IF iSize EQ ? THEN RETURN.    
-    /* create xml adapter file (used in jasper studio) */
-    RUN pJasperXMLAdapter.    
     /* create jasper jrxml file */
     cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".jrxml".    
     OUTPUT TO VALUE(cJasperFile).    

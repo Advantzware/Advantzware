@@ -486,12 +486,6 @@ PROCEDURE pGetUserFolderFiles :
     REPEAT WITH WIDTH 500:
         SET cFileName ^ cAttrList.
         IF cAttrList NE "f" THEN NEXT.
-        IF INDEX(cFileName,".dat")       NE 0 THEN NEXT.
-        IF INDEX(cFileName,".jrxml")     NE 0 THEN NEXT.
-        IF INDEX(cFileName,".rpt")       NE 0 THEN NEXT.
-        IF INDEX(cFileName,".txt")       NE 0 THEN NEXT.
-        IF INDEX(cFileName,".winReSize") NE 0 THEN NEXT.
-        IF INDEX(cFileName,".xml")       NE 0 THEN NEXT.
         CREATE ttFolder.
         ASSIGN
             ttFolder.fileName     = cFileName
