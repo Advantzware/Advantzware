@@ -7,13 +7,10 @@ for each item
       and item.i-no    ge fitm
       and item.i-no    le titm
       and item.i-no    ne ""
-      and item.i-code  eq "R"
-    EXCLUSIVE-LOCK by item.i-no:
+     no-lock by item.i-no:
 
   status default " Processing...    Item: " + item.i-no.
- 
-  item.spare-char-2 = "calc-est-qty".
- 
+
   run rm/rm-mkbin.p (recid(item)).
 
   if vzer then
