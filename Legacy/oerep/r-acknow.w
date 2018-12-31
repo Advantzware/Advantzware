@@ -2904,7 +2904,10 @@ ASSIGN
  IF lAsiUser THEN DO:
      ASSIGN v-print-fmt =  run_format
          vcDefaultForm = v-print-fmt.
-     RUN SetOEAckForm(v-print-fmt).
+     IF v-ack-master THEN
+         RUN SetAckMstForm (v-print-fmt).
+     else
+         RUN SetOEAckForm(v-print-fmt).
      viDefaultLinesPerPage = lines-per-page.
   END.
 
