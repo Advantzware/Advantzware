@@ -116,8 +116,8 @@ PROCEDURE pCreateTempTableColumn :
             IF hTable:BUFFER-FIELD(idx):NAME EQ "recDataType" THEN NEXT.
             RUN pCreatettColumn (
                 hTable:BUFFER-FIELD(idx):NAME,
-                IF cSelectedColumns EQ "" THEN idx ELSE LOOKUP(ttColumn.ttField,cSelectedColumns),
-                CAN-DO(cSelectedColumns,ttColumn.ttField) OR (cSelectedColumns EQ "" AND NOT ttColumn.ttField BEGINS "xx"),
+                IF cSelectedColumns EQ "" THEN idx ELSE LOOKUP(hTable:BUFFER-FIELD(idx):NAME,cSelectedColumns),
+                CAN-DO(cSelectedColumns,hTable:BUFFER-FIELD(idx):NAME) OR (cSelectedColumns EQ "" AND NOT hTable:BUFFER-FIELD(idx):NAME BEGINS "xx"),
                 hTable:BUFFER-FIELD(idx):LABEL,
                 hTable:BUFFER-FIELD(idx):DATA-TYPE,
                 hTable:BUFFER-FIELD(idx):FORMAT,
