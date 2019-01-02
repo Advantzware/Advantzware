@@ -2627,13 +2627,6 @@ PROCEDURE pInit :
                 RUN HelpVersion IN hSalesSoap (OUTPUT cVersion).
                 ASSIGN
                     cThisVer     = "{&awversion}"
-                    /* Convert single digit entries to dbl-digit, so that "5" is greater than "41", etc. */
-                    ENTRY(1,cVersion,".") = IF INTEGER(ENTRY(1,cVersion,".")) LT 10 THEN STRING(ENTRY(1,cVersion,".") * 10) ELSE ENTRY(1,cVersion,".")  
-                    ENTRY(2,cVersion,".") = IF INTEGER(ENTRY(2,cVersion,".")) LT 10 THEN STRING(ENTRY(2,cVersion,".") * 10) ELSE ENTRY(2,cVersion,".")  
-                    ENTRY(3,cVersion,".") = IF INTEGER(ENTRY(3,cVersion,".")) LT 10 THEN STRING(ENTRY(3,cVersion,".") * 10) ELSE ENTRY(3,cVersion,".")  
-                    ENTRY(1,cThisVer,".") = IF INTEGER(ENTRY(1,cThisVer,".")) LT 10 THEN STRING(ENTRY(1,cThisVer,".") * 10) ELSE ENTRY(1,cThisVer,".")  
-                    ENTRY(2,cThisVer,".") = IF INTEGER(ENTRY(2,cThisVer,".")) LT 10 THEN STRING(ENTRY(2,cThisVer,".") * 10) ELSE ENTRY(2,cThisVer,".")  
-                    ENTRY(3,cThisVer,".") = IF INTEGER(ENTRY(3,cThisVer,".")) LT 10 THEN STRING(ENTRY(3,cThisVer,".") * 10) ELSE ENTRY(3,cThisVer,".")  
                     iLastVersion = (INTEGER(ENTRY(1,cVersion,".")) * 10000) +
                                    (INTEGER(ENTRY(2,cVersion,".")) * 100) +
                                    (INTEGER(ENTRY(3,cVersion,".")))

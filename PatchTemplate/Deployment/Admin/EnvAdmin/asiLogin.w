@@ -1682,9 +1682,8 @@ PROCEDURE ipPreRun :
     IF iDbLevel GT 16061200 THEN 
         RUN epSetUpEDI IN hPreRun.
 
-/*    #41926 Remove deprecated references to asiLoad  */
-/*    IF fiUserID = "ASI" THEN*/
-/*        RUN asiload.p.      */
+    IF fiUserID = "ASI" THEN 
+        RUN asiload.p.
 
     RUN epCheckExpiration IN hPreRun (OUTPUT lOK).
     IF NOT lOK THEN QUIT.
