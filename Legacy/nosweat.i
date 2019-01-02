@@ -91,9 +91,9 @@ RUN userRecordCheck.
 &ENDIF
 
 
-&IF "{&runAsiLoad}" EQ "YES"  &THEN
-RUN asiload.p.
-&ENDIF
+/*&IF "{&runAsiLoad}" EQ "YES"  &THEN*/
+/*RUN asiload.p.                     */
+/*&ENDIF                             */
 
 RUN chkdate.p.
   
