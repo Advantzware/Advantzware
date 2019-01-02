@@ -594,8 +594,6 @@ DO:
     lvTag = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
 
     {addon/loadtags/disptagr.i "RMItem" lvTag}
-    
-    rm-rctd.po-no:SCREEN-VALUE = ''.
 
     RUN valid-issued-tag NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1581,7 +1579,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   
-  RUN rmrep/rmloadtg4.w(INPUT yes, INPUT lv-tag).
+/*  RUN rmrep/rmloadtg4.w(INPUT yes, INPUT lv-tag).*/
   
   DO WITH FRAME {&FRAME-NAME}:
     DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
