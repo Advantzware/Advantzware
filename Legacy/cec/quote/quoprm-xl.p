@@ -80,6 +80,7 @@ DEFINE VARIABLE chFile AS CHAR NO-UNDO.
 DEFINE VARIABLE LvLineCnt AS INT NO-UNDO.
 DEFINE VARIABLE CurrDir AS CHAR NO-UNDO.
 DEFINE VARIABLE LvCtr as int no-undo.
+DEFINE VARIABLE cPdfFileName AS CHARACTER NO-UNDO .
 
 /* Build a Table to keep sequence of pdf files */
 DEFINE SHARED TEMP-TABLE tt-filelist
@@ -198,10 +199,12 @@ if not ch-multi then do:
    chExcelApplication:Goto("R1C1") NO-ERROR.
    chExcelApplication:activeSheet:PageSetup:CenterFooter = "PO BOX 39505 / LOUISVILLE KENTUCKY 40233 / 800-518-6305 / FAX: 502-935-8330".
    chExcelApplication:Goto("R19C1") NO-ERROR.
+
+   cPdfFileName = "quote # " + STRING(xquo.q-no) + " for Estimate " + TRIM(xquo.est-no) .
    
     os-delete value(v-dir + "quote.xls").     
    	os-delete value(v-dir + "asi.pdf").
-   	os-delete value(v-dir + "quote.pdf").
+   	os-delete value(v-dir + cPdfFileName + ".pdf").
 
    	IF LvOutputSelection = "PRINTER" THEN
    	DO:
@@ -212,7 +215,7 @@ if not ch-multi then do:
    	DO:
 /*        WshNetwork:SetDefaultPrinter(AdobePrinter). */
        chExcelApplication:ActiveSheet:SaveAs(v-dir + "quote.xls") no-error.
-       NO-RETURN-VALUE chWorkbook:ExportAsFixedFormat(0, v-dir + "quote.pdf").
+       NO-RETURN-VALUE chWorkbook:ExportAsFixedFormat(0, v-dir + cPdfFileName + ".pdf").
 /*        NO-RETURN-VALUE chWorkbook:PrintOut(,,,,AdobePrinter,TRUE,,v-dir + "asi.pdf"). */
 
        chWorkbook:Close(no) no-error.   
@@ -224,7 +227,7 @@ if not ch-multi then do:
        ASSIGN LvCtr = LvCtr + 1.
        CREATE tt-filelist.
        ASSIGN tt-FileCtr  = LvCtr
-       	      tt-FileName = v-dir + "quote.pdf".
+       	      tt-FileName = v-dir + cPdfFileName + ".pdf".
    	END.
    
     RELEASE OBJECT chWorkbook NO-ERROR.
