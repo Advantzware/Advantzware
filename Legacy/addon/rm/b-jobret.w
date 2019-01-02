@@ -621,6 +621,7 @@ DO:
               
              ASSIGN
                rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = rm-rcpth.pur-uom
+               rm-rctd.po-no:SCREEN-VALUE = rm-rcpth.po-no
                rm-rctd.cost:SCREEN-VALUE = STRING(rm-rdtlh.cost)
                rm-rctd.cost-uom:SCREEN-VALUE = rm-rcpth.pur-uom
                rm-rctd.job-no:SCREEN-VALUE = STRING(rm-rcpth.job-no)
@@ -1561,35 +1562,6 @@ PROCEDURE local-update-record :
   RUN valid-po-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
-  DO WITH FRAME {&FRAME-NAME}:
-    IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NE 0 THEN DO:
-      FIND po-ordl
-          WHERE po-ordl.company EQ rm-rctd.company
-            AND po-ordl.po-no   EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-          NO-LOCK NO-ERROR.
-
-      IF AVAIL po-ordl THEN
-        ASSIGN
-         lv-i-no = po-ordl.i-no
-         lv-line = po-ordl.line.
-
-      IF lv-i-no EQ "" OR lv-line EQ 0 THEN DO:
-        RUN windows/l-poords.w (rm-rctd.company, rm-rctd.po-no, INT(rm-rctd.po-no), OUTPUT char-val).
-
-        IF char-val NE "" THEN
-          ASSIGN
-           lv-i-no = ENTRY(2,char-val)
-           lv-line = INT(ENTRY(6,char-val)).
-      END.
-
-      IF lv-i-no EQ "" OR lv-line EQ 0 THEN DO:
-        MESSAGE "Must select PO Line to Issue to..." VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO rm-rctd.po-no IN BROWSE {&BROWSE-NAME}.
-        RETURN NO-APPLY.
-      END.
-    END.
-  END.
-
   RUN valid-job-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN .
 
@@ -2376,18 +2348,12 @@ PROCEDURE valid-job-no :
       IF NOT CAN-FIND(FIRST job
                       WHERE job.company EQ cocode
                         AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-                      USE-INDEX job-no) OR lv-po-no NE 0
+                      USE-INDEX job-no)
       THEN DO:
-        IF lv-po-no NE 0 THEN
-          MESSAGE "You may not enter both " +
-                  TRIM(rm-rctd.job-no:LABEL IN BROWSE {&BROWSE-NAME}) + " and " +
-                  TRIM(rm-rctd.po-no:LABEL IN BROWSE {&BROWSE-NAME}) + "..."
-              VIEW-AS ALERT-BOX ERROR.
-        ELSE
-          MESSAGE "Invalid " +
-                  TRIM(rm-rctd.job-no:LABEL IN BROWSE {&BROWSE-NAME}) +
-                  ", try help..."
-              VIEW-AS ALERT-BOX ERROR.
+        MESSAGE "Invalid " +
+              TRIM(rm-rctd.job-no:LABEL IN BROWSE {&BROWSE-NAME}) +
+              ", try help..."
+          VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO rm-rctd.job-no IN BROWSE {&BROWSE-NAME}.
         RETURN ERROR.
       END.
@@ -2607,12 +2573,6 @@ PROCEDURE valid-po-no :
     v-msg = "".
 
     IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NE 0 THEN DO:
-      IF v-msg EQ "" THEN
-        IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN
-          v-msg = "You may not enter both " +
-                  TRIM(rm-rctd.job-no:LABEL IN BROWSE {&BROWSE-NAME}) + " and " +
-                  TRIM(rm-rctd.po-no:LABEL IN BROWSE {&BROWSE-NAME}).
-
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
@@ -2622,7 +2582,7 @@ PROCEDURE valid-po-no :
       IF v-msg EQ "" THEN
         IF NOT AVAIL po-ordl THEN v-msg = "is invalid, try help".
 
-      IF v-msg EQ "" AND
+      IF v-msg EQ "" AND rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} EQ "" AND
          NOT CAN-FIND(FIRST po-ord WHERE
          po-ord.company EQ po-ordl.company AND
          po-ord.po-no EQ po-ordl.po-no AND
@@ -2766,7 +2726,8 @@ PROCEDURE validate-jobmat :
             job-mat.i-no = rm-rctd.i-no:SCREEN-VALUE AND
             (ip-for-item-only OR
             (job-mat.frm = INT(rm-rctd.s-num:SCREEN-VALUE) AND
-            job-mat.blank-no = INT(rm-rctd.b-num:SCREEN-VALUE)))
+            (job-mat.blank-no = INT(rm-rctd.b-num:SCREEN-VALUE)
+            OR job-mat.blank-no EQ 0)))
             USE-INDEX seq-idx NO-LOCK NO-ERROR.
 
     IF NOT AVAIL job-mat AND rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:
