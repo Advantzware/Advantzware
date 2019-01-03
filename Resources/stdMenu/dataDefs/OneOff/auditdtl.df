@@ -1,0 +1,20 @@
+ADD INDEX "AuditAfterValue" ON "AuditDtl" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Audit After Value"
+  INDEX-FIELD "AuditAfterValue" ASCENDING 
+
+ADD INDEX "AuditBeforeValue" ON "AuditDtl" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Audit Before Value"
+  INDEX-FIELD "AuditBeforeValue" ASCENDING 
+
+ADD INDEX "AuditField" ON "AuditDtl" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Audit Field"
+  INDEX-FIELD "AuditField" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000002072
