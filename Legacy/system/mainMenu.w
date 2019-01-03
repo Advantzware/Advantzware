@@ -144,6 +144,19 @@ FGColor-2 FGColor-3 BGColor-1 BGColor-2 BGColor-3
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetVersionInInteger MAINMENU
+FUNCTION fGetVersionInInteger RETURNS INTEGER 
+  (ipcVersion AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -2625,22 +2638,9 @@ PROCEDURE pInit :
             IF hWebService:CONNECTED() THEN DO:
                 RUN Service1Soap SET hSalesSoap ON hWebService .
                 RUN HelpVersion IN hSalesSoap (OUTPUT cVersion).
-                ASSIGN
-                    cThisVer     = "{&awversion}" 
-                    /* Convert single digit entries to dbl-digit, so that "5" is greater than "41", etc. */
-                    ENTRY(1,cVersion,".") = IF INTEGER(ENTRY(1,cVersion,".")) LT 10 THEN STRING(ENTRY(1,cVersion,".") * 10) ELSE ENTRY(1,cVersion,".")  
-                    ENTRY(2,cVersion,".") = IF INTEGER(ENTRY(2,cVersion,".")) LT 10 THEN STRING(ENTRY(2,cVersion,".") * 10) ELSE ENTRY(2,cVersion,".")  
-                    ENTRY(3,cVersion,".") = IF INTEGER(ENTRY(3,cVersion,".")) LT 10 THEN STRING(ENTRY(3,cVersion,".") * 10) ELSE ENTRY(3,cVersion,".")  
-                    ENTRY(1,cThisVer,".") = IF INTEGER(ENTRY(1,cThisVer,".")) LT 10 THEN STRING(ENTRY(1,cThisVer,".") * 10) ELSE ENTRY(1,cThisVer,".")  
-                    ENTRY(2,cThisVer,".") = IF INTEGER(ENTRY(2,cThisVer,".")) LT 10 THEN STRING(ENTRY(2,cThisVer,".") * 10) ELSE ENTRY(2,cThisVer,".")  
-                    ENTRY(3,cThisVer,".") = IF INTEGER(ENTRY(3,cThisVer,".")) LT 10 THEN STRING(ENTRY(3,cThisVer,".") * 10) ELSE ENTRY(3,cThisVer,".")  
-                    iLastVersion = (INTEGER(ENTRY(1,cVersion,".")) * 10000) +
-                                   (INTEGER(ENTRY(2,cVersion,".")) * 100) +
-                                   (INTEGER(ENTRY(3,cVersion,".")))
-                    iThisVersion = (INTEGER(ENTRY(1,cThisVer,".")) * 10000) +
-                                   (INTEGER(ENTRY(2,cThisVer,".")) * 100) +
-                                   (INTEGER(ENTRY(3,cThisVer,".")))
-                                   .
+                cThisVer     = "{&awversion}". 
+                iLastVersion = fGetVersionInInteger(cVersion).
+                iThisVersion = fGetVersionInInteger(cThisVer).
                 IF iLastVersion GT iThisVersion THEN DO:
                     RUN sys/ref/nk1look.p (
                         g_company,"MENULINKUPGRADE","C",NO,NO,"","",
@@ -3314,4 +3314,36 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetVersionInInteger MAINMENU
+FUNCTION fGetVersionInInteger RETURNS INTEGER 
+    (ipcVersion AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iVersion AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cComponent AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iComponent AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iComponentEntry AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iExponent AS INTEGER EXTENT 3 INITIAL [4,2,0] .
+    
+    DO iComponentEntry = 1 TO 3:
+        ASSIGN 
+            cComponent = ENTRY(iComponentEntry, ipcVersion, ".")
+            iComponent = INTEGER(cComponent)
+            iComponent = IF iComponent LT 10 AND iComponentEntry EQ 3 THEN iComponent * 10 ELSE iComponent
+            iVersion = iVersion + iComponent * EXP(10,iExponent[iComponentEntry])
+            .
+    END.
+    RETURN iVersion.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
