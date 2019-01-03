@@ -42,6 +42,7 @@ DEFINE VARIABLE lv-timer     AS INTEGER   NO-UNDO. /* clock timer */
 DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE vTsampmWarn  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lTSBreaksQty AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cTSBreaksQty AS CHARACTER NO-UNDO.
 
 {sys/inc/var.i NEW SHARED}
 
@@ -60,12 +61,11 @@ DO TRANSACTION:
    {sys/inc/tskey.i}
 END.
 
-RUN sys/ref/nk1look.p (cocode, "TSAMPMWarn", "L" /* Logical */, NO /* check by cust */, 
-                       YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-                       OUTPUT vTsampmWarn, OUTPUT lRecFound).
-RUN sys/ref/nk1look.p (cocode, "TSBREAKSQTY", "L" /* Logical */, NO /* check by cust */, 
-                       YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-                       OUTPUT lTSBreakSQty, OUTPUT lRecFound).
+RUN sys/ref/nk1look.p (cocode,"TSAMPMWarn","L",NO,YES,"","",OUTPUT vTsampmWarn,OUTPUT lRecFound).
+RUN sys/ref/nk1look.p (cocode,"TSBREAKSQTY","L",NO,YES,"","",OUTPUT cTSBreakSQty,OUTPUT lRecFound).
+
+ASSIGN 
+    lTSBreakSQty = IF cTSBreakSQty EQ "yes" THEN TRUE ELSE FALSE.
 
 DEF VAR v-time-clock-off AS LOG  NO-UNDO.
 
