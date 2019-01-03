@@ -25,33 +25,33 @@ FOR EACH item
   
   DISPLAY item.i-no FORMAT "x(15)" LABEL "RM Item#" WITH DOWN.
 
-  FOR EACH b-rm-rcpth NO-LOCK
-      WHERE b-rm-rcpth.company EQ item.company
-        AND b-rm-rcpth.i-no    EQ item.i-no
-      USE-INDEX i-no,
-
-      EACH b-rm-rdtlh NO-LOCK
-      WHERE b-rm-rdtlh.r-no EQ b-rm-rcpth.r-no
-        AND b-rm-rdtlh.qty  NE 0
-      USE-INDEX rm-rdtl
-
-      BREAK BY b-rm-rdtlh.loc
-            BY b-rm-rdtlh.loc-bin
-            BY b-rm-rdtlh.tag
-            BY b-rm-rdtlh.r-no desc:
-
-    IF NOT CAN-FIND(FIRST tt-rm-bin
-                    WHERE tt-rm-bin.company EQ item.company
-                      AND tt-rm-bin.i-no    EQ item.i-no
-                      AND tt-rm-bin.loc     EQ b-rm-rdtlh.loc
-                      AND tt-rm-bin.loc-bin EQ b-rm-rdtlh.loc-bin
-                      AND tt-rm-bin.tag     EQ b-rm-rdtlh.tag
-                    USE-INDEX loc-bin) THEN DO:
-      CREATE tt-rm-bin.
-      BUFFER-COPY b-rm-rcpth EXCEPT po-no TO tt-rm-bin.
-      BUFFER-COPY b-rm-rdtlh TO tt-rm-bin.
-    END.  
-  END.
+/*  FOR EACH b-rm-rcpth NO-LOCK                                    */
+/*      WHERE b-rm-rcpth.company EQ item.company                   */
+/*        AND b-rm-rcpth.i-no    EQ item.i-no                      */
+/*      USE-INDEX i-no,                                            */
+/*                                                                 */
+/*      EACH b-rm-rdtlh NO-LOCK                                    */
+/*      WHERE b-rm-rdtlh.r-no EQ b-rm-rcpth.r-no                   */
+/*        AND b-rm-rdtlh.qty  NE 0                                 */
+/*      USE-INDEX rm-rdtl                                          */
+/*                                                                 */
+/*      BREAK BY b-rm-rdtlh.loc                                    */
+/*            BY b-rm-rdtlh.loc-bin                                */
+/*            BY b-rm-rdtlh.tag                                    */
+/*            BY b-rm-rdtlh.r-no desc:                             */
+/*                                                                 */
+/*    IF NOT CAN-FIND(FIRST tt-rm-bin                              */
+/*                    WHERE tt-rm-bin.company EQ item.company      */
+/*                      AND tt-rm-bin.i-no    EQ item.i-no         */
+/*                      AND tt-rm-bin.loc     EQ b-rm-rdtlh.loc    */
+/*                      AND tt-rm-bin.loc-bin EQ b-rm-rdtlh.loc-bin*/
+/*                      AND tt-rm-bin.tag     EQ b-rm-rdtlh.tag    */
+/*                    USE-INDEX loc-bin) THEN DO:                  */
+/*      CREATE tt-rm-bin.                                          */
+/*      BUFFER-COPY b-rm-rcpth EXCEPT po-no TO tt-rm-bin.          */
+/*      BUFFER-COPY b-rm-rdtlh TO tt-rm-bin.                       */
+/*    END.                                                         */
+/*  END.                                                           */
 
   FOR EACH tt-rm-bin TRANSACTION:
     x = 0.
@@ -72,7 +72,9 @@ FOR EACH item
      rm-rcpth.i-no       = item.i-no
      rm-rcpth.post-date  = today
      rm-rcpth.i-name     = item.i-name
-     rm-rcpth.pur-uom    = item.pur-uom.
+     rm-rcpth.pur-uom    = item.pur-uom
+     rm-rcpth.po-no      = STRING(tt-rm-bin.po-no)
+     .
 
     CREATE rm-rdtlh.
     ASSIGN
@@ -82,7 +84,9 @@ FOR EACH item
      rm-rdtlh.rita-code = "C"
      rm-rdtlh.loc-bin   = tt-rm-bin.loc-bin
      rm-rdtlh.tag       = tt-rm-bin.tag
-     rm-rdtlh.qty       = 0.
+     rm-rdtlh.qty       = 0
+     rm-rdtlh.cost      = tt-rm-bin.cost
+     .
   END.
 
   DO TRANSACTION:

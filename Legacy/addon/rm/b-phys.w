@@ -724,32 +724,45 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win
-PROCEDURE local-assign-record:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
+PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
 
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-    rm-rctd.enteredBy = USERID("asi")
-    rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
-    .
+    /* Code placed here will execute AFTER standard behavior.    */
+    FIND FIRST item WHERE item.company EQ rm-rctd.company
+        AND item.i-no    EQ rm-rctd.i-no NO-LOCK NO-ERROR.
+    IF AVAIL item THEN rm-rctd.pur-uom = item.cons-uom.
+      
+    FOR EACH rm-rdtlh NO-LOCK 
+        WHERE rm-rdtlh.company EQ rm-rctd.company 
+        AND rm-rdtlh.tag EQ rm-rctd.tag 
+        AND rm-rdtlh.rita-code EQ "R",
+        EACH rm-rcpth NO-LOCK 
+        WHERE rm-rcpth.r-no EQ rm-rdtlh.r-no
+        AND rm-rcpth.rita-code EQ rm-rdtlh.rita-code:
+        ASSIGN 
+            rm-rctd.po-no = rm-rcpth.po-no
+            rm-rctd.cost  = rm-rdtlh.cost
+            .
+    END.
+    ASSIGN
+        rm-rctd.enteredBy = USERID("asi")
+        rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+        .
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-statement B-table-Win 
 PROCEDURE local-assign-statement :
