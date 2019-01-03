@@ -136,11 +136,11 @@ RUN ipGetLists (OUTPUT cEnvList, OUTPUT cModeList, OUTPUT cDbList,
     OUTPUT cValidEnvs, OUTPUT cValidModes).
     
 RUN ipAutoLogin (OUTPUT cRunPgm).
-
+RUN ipChooseOK.
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE chooseOK:
+PROCEDURE ipChooseOK:
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
