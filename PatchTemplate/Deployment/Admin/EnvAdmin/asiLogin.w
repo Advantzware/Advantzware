@@ -372,33 +372,7 @@ ON LEAVE OF fiUserID IN FRAME DEFAULT-FRAME /* User ID */
 DO:
     RUN ipAssignSV.
     RUN ipFindUser IN THIS-PROCEDURE.
-    /* wfk
-    IF NOT AVAIL ttUsers THEN DO:
-        IF fwd-embedded-mode THEN 
-            RETURN NO-APPLY "Unable to locate this user in the advantzware.usr file." +
-                            "Please contact your system administrator for assistance.".
-        ELSE DO:
-            MESSAGE
-                "Unable to locate this user in the advantzware.usr file." SKIP
-                "Please contact your system administrator for assistance."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
-        END.
-    END.
-    ELSE DO:
-        ASSIGN
-            cbEnvironment:LIST-ITEMS = IF cValidEnvs <> "" THEN cValidEnvs ELSE IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE cEnvList
-            cbDatabase:LIST-ITEMS = IF cValidDbs <> "" THEN cValidDbs ELSE IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE cDbList
-            cbEnvironment:SCREEN-VALUE = ENTRY(1,cbEnvironment:LIST-ITEMS)
-            cbDatabase:SCREEN-VALUE = ENTRY(1,cbDatabase:LIST-ITEMS).
-        APPLY 'value-changed' TO cbEnvironment.
-        APPLY 'value-changed' to cbDatabase.
 
-        RUN ipFindUser IN THIS-PROCEDURE.
-
-        
-    END.
-        */
     /* Super procedure has values for lists */
     RUN ipGetLists (OUTPUT cEnvList, OUTPUT cModeList, OUTPUT cDbList,
                     OUTPUT cModeScrList, OUTPUT cEnvironmentList,
@@ -409,6 +383,7 @@ DO:
         cbMode:LIST-ITEMS = IF cValidModes <> "" THEN cValidModes ELSE cModeList
         cbMode:SCREEN-VALUE = ENTRY(1, cbMode:LIST-ITEMS).
         APPLY 'value-changed' TO cbMode.
+        
     ASSIGN
         cbEnvironment:LIST-ITEMS = IF cValidEnvs <> "" THEN cValidEnvs ELSE  /*IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE */ cEnvList
         cbDatabase:LIST-ITEMS = IF cValidDbs <> "" THEN cValidDbs ELSE /* IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE */ cDbList
@@ -447,8 +422,9 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
        
-        RUN asiLoginProc.p PERSISTENT SET hAsiLoginProc.
-        SESSION:ADD-SUPER-PROCEDURE (hAsiLoginProc).       
+    RUN asiLoginProc.p PERSISTENT SET hAsiLoginProc.
+    SESSION:ADD-SUPER-PROCEDURE (hAsiLoginProc).
+           
     /* Read advantzware.ini, etc */
     RUN ipInit.
     
@@ -629,11 +605,7 @@ DEFINE VARIABLE cUsrList      AS CHARACTER NO-UNDO.
 
     RUN epUserRecordCheck IN hPreRun (OUTPUT lOK, OUTPUT g_track_usage).
     IF NOT lOK THEN QUIT.
-    /* wfk
-    RUN epUpdateUsrFile IN hPreRun (OUTPUT cUsrList).
 
-    RUN ipUpdUsrFile IN THIS-PROCEDURE (cUsrList).
-    */
     RUN epGetUserGroups IN hPreRun (OUTPUT g_groups).
 
     IF iDbLevel GT 16061200 THEN 
