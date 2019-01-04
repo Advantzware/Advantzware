@@ -327,7 +327,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-phys ( 16.91 , 136.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'p-updsav.r':U ,
+             INPUT  'p-updsav.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
