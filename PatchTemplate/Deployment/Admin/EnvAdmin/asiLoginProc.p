@@ -388,7 +388,6 @@ PROCEDURE ipChangeDatabase :
        /* APPLY 'choose' TO btn_Cancel IN FRAME {&FRAME-NAME}. */
         RETURN NO-APPLY.
     END.
-        
     RUN ipChangeMode.
 END PROCEDURE.
 
@@ -639,9 +638,8 @@ PROCEDURE ipConnectDb :
     /* Force user id and password from screen values, trap errors in ERROR-STATUS */
     IF fiPassword NE "" THEN ASSIGN
             cStatement = cStatement + " -U " + cUserID + " -P '" + fiPassword + "'".
-    ELSE ASSIGN
+    ELSE IF INDEX(cStatement, "aud") EQ 0 THEN ASSIGN
             cStatement = cStatement + " -U " + cUserID.
-    
     CONNECT VALUE(cStatement) NO-ERROR.
     
     IF ERROR-STATUS:ERROR THEN 

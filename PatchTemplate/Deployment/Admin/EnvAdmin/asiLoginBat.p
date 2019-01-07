@@ -146,7 +146,7 @@ PROCEDURE ipChooseOK:
      Notes:
     ------------------------------------------------------------------------------*/
     RUN ipAssignSV.
-    RUN ipClickOK (OUTPUT cRunPgm).
+    /* RUN ipClickOK (OUTPUT cRunPgm). */
     
     /* Before directory change */
     IF SEARCH("preRun" + STRING(iTruncLevel,"9999") + ".r") NE ? THEN
@@ -156,7 +156,7 @@ PROCEDURE ipChooseOK:
     RUN ipChangeDir.
     
     /* Persistent procedures after directory change */
-    RUN ipPreRun.
+    /* RUN ipPreRun. */
     
     RUN ipRunMenu (INPUT cRunPgm).
     
