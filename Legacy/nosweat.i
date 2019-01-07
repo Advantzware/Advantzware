@@ -15,7 +15,6 @@
     &SCOPED-DEFINE overrideCompany 10
     &SCOPED-DEFINE overrideLoc MAIN
     &SCOPED-DEFINE getCompanyProc CUSTOM/getcomp.p
-    &SCOPED-DEFINE sharpshooterFlag YES
     &SCOPED-DEFINE checkBlankCompany YES
     &SCOPED-DEFINE addonPersist YES
     &SCOPED-DEFINE appName(touchscreen, advantzware, sharpshooter)
@@ -32,18 +31,11 @@ DEFINE                   VARIABLE m_id            AS CHARACTER NO-UNDO.
 DEFINE                   VARIABLE ldummy          AS LOGICAL   NO-UNDO.
 DEFINE                   VARIABLE i               AS INTEGER   NO-UNDO.
 DEFINE                   VARIABLE lExit           AS LOGICAL   NO-UNDO.
-DEFINE NEW GLOBAL SHARED VARIABLE g-sharpshooter  AS LOG       NO-UNDO.  /* no, it's yes only from sharpsh.p */
 DEFINE                   VARIABLE tslogin-log     AS LOGICAL   NO-UNDO.
 DEFINE                   VARIABLE lFound          AS LOGICAL   NO-UNDO.
 DEFINE                   VARIABLE cTsLogin        AS CHARACTER NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE cIniLoc         AS CHARACTER NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE cUsrLoc         AS CHARACTER NO-UNDO.
-
-&IF "{&sharpshooterFlag}" EQ "YES"  &THEN
-  g-sharpshooter = YES.
-&ELSE
-  g-sharpshooter = NO.
-&ENDIF
 
 ASSIGN
     ldummy    = SESSION:SET-WAIT-STATE("GENERAL")

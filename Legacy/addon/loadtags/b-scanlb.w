@@ -56,7 +56,6 @@ DEF VAR lv-new-job-ran AS LOG NO-UNDO.
 
 {pc/pcprdd4u.i NEW}
 
-DEF SHARED VAR g-sharpshooter AS LOG NO-UNDO.
 DEF VAR char-hdl AS cha NO-UNDO.
 
 DEF VAR v-out AS INT NO-UNDO.
@@ -1337,7 +1336,7 @@ PROCEDURE local-update-record :
          lv-prev-job2 = "".
 
 
- /* IF g-sharpshooter THEN*/  RUN scan-next.
+  RUN scan-next.
 
 
 END PROCEDURE.
