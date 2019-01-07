@@ -32,7 +32,6 @@ CREATE WIDGET-POOL.
 
 {methods/defines/hndldefs.i}
 
-DEF SHARED VAR g-sharpshooter AS LOG NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -181,8 +180,7 @@ ON CHOOSE OF Btn_bol IN FRAME F-Main /* Create BOL */
 DO:
     
 
-    IF g-sharpshooter THEN RUN addon/bol/s-relbol.w.
-    ELSE RUN addon/bol/w-relbol.w.
+    RUN addon/bol/w-relbol.w.
     
   
 END.
@@ -226,8 +224,7 @@ DO:
       asi._file._File-Name = "ssrelbol") THEN
    DO:      
 
-      IF g-sharpshooter THEN RUN addon/bol/s-updrel.w.
-      ELSE RUN addon/bol/w-updrel.w.
+        RUN addon/bol/w-updrel.w.
       
    END.
 END.

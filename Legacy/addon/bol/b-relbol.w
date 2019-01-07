@@ -35,8 +35,6 @@ ASSIGN cocode = g_company
 
 DEF NEW SHARED BUFFER xoe-relh FOR oe-relh.
 
-DEF SHARED VAR g-sharpshooter AS LOG NO-UNDO.
-
 DEF TEMP-TABLE tt-rell NO-UNDO LIKE oe-rell
                        FIELD release# LIKE oe-relh.release#
                        FIELD row-id   AS   ROWID
@@ -622,8 +620,7 @@ DO:
                                     AND oe-relh.release# = INT(SELF:SCREEN-VALUE)
                                     AND oe-relh.printed AND NOT oe-relh.posted )
     THEN DO:
-        IF NOT g-sharpshooter THEN MESSAGE "Invalid Release#. Not printed? or Already posted?   Try help..." VIEW-AS ALERT-BOX ERROR. 
-        ELSE RUN custom/d-msg.w ("Error","","Invalid Release#.  Not printed? or Already posted? ","",1,"OK", OUTPUT v-msgreturn).         
+        MESSAGE "Invalid Release#. Not printed? or Already posted?   Try help..." VIEW-AS ALERT-BOX ERROR.          
         RETURN NO-APPLY.
     END.
 
@@ -639,11 +636,8 @@ DO:
           /* If record was created within this session, don't prompt user that ssrelbol already exists */
           IF v-release-in-process AND ssupdrelpmpt-log AND NOT AVAILABLE(ttNewlyEntered) THEN
           DO:
-             IF NOT g-sharpshooter THEN
-                MESSAGE "Release In Process. Please Exit and Use Update Release Button."
+             MESSAGE "Release In Process. Please Exit and Use Update Release Button."
                    VIEW-AS ALERT-BOX ERROR. 
-             ELSE
-                RUN custom/d-msg.w ("Error","Release In Process.","Please Exit and Use","Update Release Button.",1,"OK", OUTPUT v-msgreturn).
          
              RETURN NO-APPLY.
           END.
@@ -713,8 +707,7 @@ DO:
          AND loadtag.item-type EQ NO
          AND loadtag.tag-no    EQ tt-relbol.tag:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF NOT AVAIL loadtag THEN DO:
-     IF NOT  g-sharpshooter THEN MESSAGE "Invalid Loadtag for the Release..." VIEW-AS ALERT-BOX ERROR.
-     ELSE RUN custom/d-msg.w ("Error","","Invalid Loadtag for the Release...","",1,"OK", OUTPUT v-msgreturn).         
+     MESSAGE "Invalid Loadtag for the Release..." VIEW-AS ALERT-BOX ERROR.        
      RETURN NO-APPLY.
    END.
 /*    IF AVAIL oe-relh THEN                                                                                               */
@@ -768,8 +761,7 @@ DO:
    IF CAN-FIND(FIRST bf-tmp WHERE bf-tmp.tag# = tt-relbol.tag#:SCREEN-VALUE
                    AND RECID(bf-tmp) <> RECID(tt-relbol) ) 
    THEN DO:
-     IF NOT  g-sharpshooter THEN MESSAGE "Tag# already scanned..." VIEW-AS ALERT-BOX ERROR.
-     ELSE RUN custom/d-msg.w ("Error","","Tag# already scanned...","",1,"OK", OUTPUT v-msgreturn).         
+     MESSAGE "Tag# already scanned..." VIEW-AS ALERT-BOX ERROR.         
      RETURN NO-APPLY.
    END.
    IF NOT CAN-FIND(FIRST fg-bin
@@ -780,8 +772,7 @@ DO:
 /*                      AND fg-bin.job-no2 EQ loadtag.job-no2 */
                      AND fg-bin.qty     GT 0)
    THEN DO:
-     IF NOT  g-sharpshooter THEN MESSAGE "Tag# has no inventory..." VIEW-AS ALERT-BOX ERROR.
-     ELSE RUN custom/d-msg.w ("Error","","Tag# has no inventory...","",1,"OK", OUTPUT v-msgreturn).         
+     MESSAGE "Tag# has no inventory..." VIEW-AS ALERT-BOX ERROR.         
      RETURN NO-APPLY.
    END.
    IF relmerge-int EQ 0 AND
@@ -793,8 +784,7 @@ DO:
                            oe-ordl.job-no2 EQ loadtag.job-no2) OR
                           TRIM(oe-ordl.job-no) EQ ""))
    THEN DO:
-     IF NOT  g-sharpshooter THEN MESSAGE "Job# not on Order..." v-ord-no VIEW-AS ALERT-BOX ERROR.
-     ELSE RUN custom/d-msg.w ("Error","","Job# not on Order...","",1,"OK", OUTPUT v-msgreturn).         
+     MESSAGE "Job# not on Order..." v-ord-no VIEW-AS ALERT-BOX ERROR.         
      RETURN NO-APPLY.
    END.
    FOR EACH oe-ordl
@@ -810,8 +800,7 @@ DO:
        LEAVE.
    END.
    IF NOT AVAIL oe-ordl AND loadtag.ord-no <> 0 THEN DO:
-     IF NOT  g-sharpshooter THEN MESSAGE "Tag# Order/FG# invalid..." VIEW-AS ALERT-BOX ERROR.
-     ELSE RUN custom/d-msg.w ("Error","","Tag# Order#/FG# invalid...","",1,"OK", OUTPUT v-msgreturn).         
+     MESSAGE "Tag# Order/FG# invalid..." VIEW-AS ALERT-BOX ERROR.         
      RETURN NO-APPLY.
    END.
    IF NOT CAN-FIND(FIRST oe-rell
@@ -822,20 +811,13 @@ DO:
                    USE-INDEX r-no) THEN DO:
      ll = NO.
      IF ssbol-log OR ssbol-log = ? THEN  DO:
-       IF NOT  g-sharpshooter THEN
-          MESSAGE "This Order# " + TRIM(STRING(v-ord-no),">>>>>>>>") + " FG# " 
+       MESSAGE "This Order# " + TRIM(STRING(v-ord-no),">>>>>>>>") + " FG# " 
                 + TRIM(loadtag.i-no) +
                 " is not on release, do you want to ADD TO RELEASE? "
                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll. 
-       ELSE DO:
-            RUN custom/d-msg.w ("Question","This Order# " + TRIM(STRING(v-ord-no),">>>>>>>>") + " FG#" + TRIM(loadtag.i-no) +
-               " is not on release." , "Do you want to ADD TO RELEASE? ","",2,"Yes,No",OUTPUT v-msgreturn).
-            IF v-msgreturn = 1 THEN ll = YES.
-       END.
      END.
      ELSE DO:
-        IF NOT  g-sharpshooter THEN MESSAGE "Invalid Tag# for the Release#. Try again..." VIEW-AS ALERT-BOX ERROR.
-        ELSE RUN custom/d-msg.w ("Error","","Invalid Tag# for this Release#.  Try again...","",1,"OK", OUTPUT v-msgreturn).
+        MESSAGE "Invalid Tag# for the Release#. Try again..." VIEW-AS ALERT-BOX ERROR.
      END.
      IF NOT ll THEN RETURN NO-APPLY.
      tt-relbol.warned = YES.
@@ -862,17 +844,10 @@ DO:
    END.
    ll = NO.
    IF lv-qty-tag GT lv-qty-rel THEN DO:
-      IF NOT g-sharpshooter THEN
-         MESSAGE "Qty scanned exceeds qty released for Order# " + TRIM(STRING(v-ord-no),">>>>>>>>")
+      MESSAGE "Qty scanned exceeds qty released for Order# " + TRIM(STRING(v-ord-no),">>>>>>>>")
               + " FG# "  + TRIM(loadtag.i-no) +
              ", accept this tag anyway?"
          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll.
-     ELSE DO:
-        RUN custom/d-msg.w ("Question","Qty scanned exceeds qty released for Order# " +
-                      TRIM(STRING(v-ord-no),">>>>>>>>") + " FG# " +
-                      TRIM(loadtag.i-no) + "." , "Accept this tag anyway? ","",2,"Yes,No",OUTPUT v-msgreturn).
-        IF v-msgreturn = 1 THEN ll = YES.
-     END.
      IF NOT ll THEN DO:
        APPLY "entry" TO tt-relbol.tag# .
        RETURN NO-APPLY.
@@ -1013,8 +988,7 @@ DO:
            truck.company EQ cocode AND
            truck.truck-code EQ tt-relbol.trailer#:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
        DO:
-          IF NOT g-sharpshooter THEN MESSAGE "Invalid Trailer#." VIEW-AS ALERT-BOX ERROR. 
-          ELSE RUN custom/d-msg.w ("Error","","Invalid Trailer#.","",1,"OK", OUTPUT v-msgreturn).         
+          MESSAGE "Invalid Trailer#." VIEW-AS ALERT-BOX ERROR.          
           RETURN NO-APPLY.
        END.
 
@@ -1030,15 +1004,8 @@ DO:
 
           ll = NO.
 
-          IF NOT g-sharpshooter THEN
-             MESSAGE "Trailer # does not match Release Trailer#.  Is this the Correct Trailer#?"
+          MESSAGE "Trailer # does not match Release Trailer#.  Is this the Correct Trailer#?"
                 VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll.
-          ELSE
-          DO:
-             RUN custom/d-msg.w ("Question","","Is this the Correct Trailer#?","",2,"YES,NO", OUTPUT v-msgreturn).
-             IF v-msgreturn = 1 THEN ll = YES.
-          END.
-
           IF NOT ll THEN
              RETURN NO-APPLY.
        END.
@@ -2665,19 +2632,6 @@ PROCEDURE print-bol :
 
   IF ERROR-STATUS:ERROR THEN RETURN .
 
-  /*IF v-scan-qty LT v-rel-qty THEN
-  DO:
-     IF NOT g-sharpshooter THEN
-        MESSAGE "The scanned qty is less than the release qty, Do you want to proceed?"
-                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll.
-      ELSE DO:
-        RUN custom/d-msg.w ("Question","Scanned Qty is less than Release Qty.","Continue?","",2,"Yes,No",OUTPUT v-msgreturn).
-        IF v-msgreturn = 1 THEN ll = YES.
-      END.
-
-      IF NOT ll THEN RETURN.
-  END.*/
-
    /* Ticket 13130 */
   FOR EACH tt-relbol NO-LOCK BREAK BY tt-relbol.release# 
                                    BY tt-relbol.i-no:
@@ -3224,8 +3178,7 @@ PROCEDURE validate-item :
   DEF VAR v-ttqty AS INT NO-UNDO.
 
   IF tt-relbol.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" THEN DO:
-     IF NOT g-sharpshooter THEN MESSAGE "Item must be entered. " VIEW-AS ALERT-BOX ERROR. 
-     ELSE RUN custom/d-msg.w ("Error","","Item must be entered...","",1,"OK", OUTPUT v-msgreturn).         
+     MESSAGE "Item must be entered. " VIEW-AS ALERT-BOX ERROR.          
      APPLY "entry" TO tt-relbol.tag#.
      RETURN ERROR.
   END.
@@ -3274,9 +3227,7 @@ PROCEDURE validate-rel# :
                                     AND oe-relh.release# = INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name} )
                                     AND oe-relh.printed AND NOT oe-relh.posted )
   THEN DO:
-      IF NOT g-sharpshooter THEN
-         MESSAGE "Invalid Release#. Not printed? or Already posted?   Try help..." VIEW-AS ALERT-BOX ERROR. 
-      ELSE RUN custom/d-msg.w ("Error","","Invalid Release#. Not printed? or Already posted? ","",1,"OK", OUTPUT v-msgreturn).         
+      MESSAGE "Invalid Release#. Not printed? or Already posted?   Try help..." VIEW-AS ALERT-BOX ERROR.          
       APPLY "entry" TO tt-relbol.release#.
       RETURN ERROR.
   END.
@@ -3340,36 +3291,20 @@ PROCEDURE validate-scan :
                     TRIM(oe-rell.i-no).
             ll    = NO.
          IF ssbol-log OR ssbol-log = ? THEN DO: /*mod to suppress prompt*/
-        
-            IF NOT g-sharpshooter THEN
-            DO:
-               IF ssbol-log <> ? THEN
-                MESSAGE TRIM(v-msg + " was not scanned") + ", do you want to DELETE it from Release?" SKIP
-                    VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO-CANCEL UPDATE ll.
-               IF ll EQ NO THEN
-                  op-create-backorder = YES.
-               IF ll NE ? THEN
-                  ll = YES.
-               ELSE
-                  ll = NO.
-            END.
-            ELSE DO:
-               IF ssbol-log <> ? THEN
-                    RUN custom/d-msg.w ("Question",TRIM(v-msg), "was not scanned", "Do you want to Delete it from Release? ",3,"Yes,No,Cancel",OUTPUT v-msgreturn).
-               ELSE
-                   v-msgreturn = 2.
-               IF v-msgreturn = 2 THEN
-                  op-create-backorder = YES.
-               IF v-msgreturn NE 3 THEN
-                  ll = YES.
-            END.
+           IF ssbol-log <> ? THEN
+            MESSAGE TRIM(v-msg + " was not scanned") + ", do you want to DELETE it from Release?" SKIP
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO-CANCEL UPDATE ll.
+           IF ll EQ NO THEN
+              op-create-backorder = YES.
+           IF ll NE ? THEN
+              ll = YES.
+           ELSE
+              ll = NO.
          END.
          ELSE DO:
-            IF NOT g-sharpshooter THEN
-               MESSAGE TRIM(v-msg + " was not scanned") + "," SKIP
+            MESSAGE TRIM(v-msg + " was not scanned") + "," SKIP
                        "scan all items for the Release before printing BOL..."
                VIEW-AS ALERT-BOX ERROR.
-            ELSE RUN custom/d-msg.w ("Error",TRIM(v-msg),"was not scanned","scan all items for the Release before printing BOL...",1,"OK",OUTPUT v-msgreturn).
          END.
          IF NOT ll THEN RETURN ERROR.
       END.
