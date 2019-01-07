@@ -145,6 +145,15 @@ DEF VAR iPatchEnvVer AS INT NO-UNDO.
 DEF VAR cLogFile AS CHAR NO-UNDO.
 DEF VAR cOutFile AS CHAR NO-UNDO.
 DEF VAR cOutDir AS CHAR NO-UNDO.
+DEF VAR cNewAsiDbVer AS CHAR NO-UNDO.
+DEF VAR cNewAudDbVer AS CHAR NO-UNDO.
+DEF VAR iNewAsiDbVer AS INT NO-UNDO.
+DEF VAR iNewAudDbVer AS INT NO-UNDO.
+DEF VAR cOldAsiDbVer AS CHAR NO-UNDO.
+DEF VAR cOldAudDbVer AS CHAR NO-UNDO.
+DEF VAR iOldAsiDbVer AS INT NO-UNDO.
+DEF VAR iOldAudDbVer AS INT NO-UNDO.
+
 
 /* Ensure that these lists always match, 'c' is always the prefix */
 ASSIGN cIniVarList = 
@@ -1311,6 +1320,14 @@ PROCEDURE ipGetPatchList :
         iPatchDbVer  = iPatchEnvVer - (iPatchEnvVer MODULO 10000)
         .
         
+    INPUT FROM VALUE (cUpdatesDir + "\patch.mft").
+    IMPORT UNFORMATTED cNewAsiDbVer. 
+    IMPORT UNFORMATTED cNewAudDbVer.
+    INPUT CLOSE. 
+    
+    iNewAsiDbVer = fIntVer(ENTRY(2,cNewAsiDbVer,"=")).
+    iNewAudDbVer = fIntVer(ENTRY(2,cNewAudDbVer,"=")).
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1851,8 +1868,8 @@ FUNCTION fIntVer RETURNS INTEGER
         cStrVal[2] = ENTRY(2,cVerString,".")
         cStrVal[3] = IF NUM-ENTRIES(cVerString,".") GT 2 THEN ENTRY(3,cVerString,".") ELSE "0"
         cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GT 3 THEN ENTRY(4,cVerString,".") ELSE "0"
-        iIntVal[1] = IF INT(cStrVal[1]) LT 10 THEN INT(cStrVal[1]) * 10 ELSE INT(cStrVal[1])
-        iIntVal[2] = IF INT(cStrVal[2]) LT 10 THEN INT(cStrVal[2]) * 10 ELSE INT(cStrVal[2])
+        iIntVal[1] = INT(cStrVal[1])
+        iIntVal[2] = INT(cStrVal[2])
         iIntVal[3] = IF INT(cStrVal[3]) LT 10 THEN INT(cStrVal[3]) * 10 ELSE INT(cStrVal[3])
         iIntVal[4] = IF INT(cStrVal[4]) LT 10 THEN INT(cStrVal[4]) * 10 ELSE INT(cStrVal[4])
         iIntVer = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
