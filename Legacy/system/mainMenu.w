@@ -144,6 +144,19 @@ FGColor-2 FGColor-3 BGColor-1 BGColor-2 BGColor-3
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIntVer MAINMENU
+FUNCTION fIntVer RETURNS INTEGER 
+  ( INPUT cVerString AS CHAR ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -2661,12 +2674,12 @@ PROCEDURE pInit :
                     IF SEARCH(cNK1Value[1]) NE ? AND
                        cNK1Value[2] NE "" THEN DO:
                         ASSIGN
-                            menuLinkZoHo:PRIVATE-DATA   = cNK1Value[2]
+                            menuLinkZoHo:PRIVATE-DATA   = "https://34.203.15.64/patches/asiUpdate.exe"
                             menuLinkZoHo:HIDDEN         = NO
                             menuLinkZoHo:SENSITIVE      = YES
                             menuLinkZoHo:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
                             menuLinkZoHo:TRANSPARENT    = cNK1Value[3] EQ "1"
-                            menuLinkZoHo:TOOLTIP        = "Version " + cVersion + " Upgrade Available"
+                            menuLinkZoHo:TOOLTIP        = "Version " + cVersion + " Upgrade Available. Click to download."
                             .
                         menuLinkZoHo:LOAD-IMAGE(SEARCH(cNK1Value[1])).
                     END. /* if avail */
@@ -3314,4 +3327,38 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIntVer MAINMENU
+FUNCTION fIntVer RETURNS INTEGER 
+  ( INPUT cVerString AS CHAR ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Converts a version string like "16.4.8" or "16.7.12.2" to an integer
+    Notes:  In the cases above, these would be 16040800 and 16071202
+            Useful for version comparisons
+------------------------------------------------------------------------------*/
+
+    DEF VAR cStrVal AS CHAR EXTENT 4 NO-UNDO.
+    DEF VAR iIntVal AS INT EXTENT 4 NO-UNDO.
+    DEF VAR iIntVer AS INT NO-UNDO.
+    ASSIGN
+        cStrVal[1] = ENTRY(1,cVerString,".")
+        cStrVal[2] = ENTRY(2,cVerString,".")
+        cStrVal[3] = IF NUM-ENTRIES(cVerString,".") GT 2 THEN ENTRY(3,cVerString,".") ELSE "0"
+        cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GT 3 THEN ENTRY(4,cVerString,".") ELSE "0"
+        iIntVal[1] = INT(cStrVal[1])
+        iIntVal[2] = INT(cStrVal[2])
+        iIntVal[3] = IF INT(cStrVal[3]) LT 10 THEN INT(cStrVal[3]) * 10 ELSE INT(cStrVal[3])
+        iIntVal[4] = IF INT(cStrVal[4]) LT 10 THEN INT(cStrVal[4]) * 10 ELSE INT(cStrVal[4])
+        iIntVer = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
+        NO-ERROR.
+    
+    RETURN iIntVer.   /* Function return value. */
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
