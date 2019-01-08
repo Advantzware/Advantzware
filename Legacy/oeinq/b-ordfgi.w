@@ -429,13 +429,14 @@ DEFINE BROWSE Browser-Table
             WIDTH 13
       fg-rcpth.b-no FORMAT ">>>>>9":U
       fg-rcpth.pur-uom COLUMN-LABEL "UOM for Cost" FORMAT "x(3)":U
-      display-ship() @ bol-ship COLUMN-LABEL "BOL Cust" FORMAT "character":U
+      display-ship() @ bol-ship COLUMN-LABEL "BOL Cust" FORMAT "x(14)":U
+            WIDTH 14
       fg-rcpth.post-date COLUMN-LABEL "Posted" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
-      get-vend-no () @ vend-no COLUMN-LABEL "Vendor" FORMAT "Character":U
+      get-vend-no () @ vend-no COLUMN-LABEL "Vendor" FORMAT "x(10)":U
             WIDTH 9.4 LABEL-BGCOLOR 14
-      get-vend-info () @ vend-name COLUMN-LABEL "Name" FORMAT "Character":U
-            WIDTH 9.4 LABEL-BGCOLOR 14
+      get-vend-info () @ vend-name COLUMN-LABEL "Name" FORMAT "x(20)":U
+            WIDTH 19.4 LABEL-BGCOLOR 14
       get-fg-qty (1) @ iBinQtyBef COLUMN-LABEL "Before Qty" FORMAT "->>>>>>9":U
             WIDTH 9.4 LABEL-BGCOLOR 14
       get-fg-qty (2) @ iBinQty COLUMN-LABEL "Bin Change" FORMAT "->>>>>>9":U
@@ -656,13 +657,13 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
      _FldNameList[25]   > ASI.fg-rcpth.pur-uom
 "fg-rcpth.pur-uom" "UOM for Cost" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[26]   > "_<CALC>"
-"display-ship() @ bol-ship" "BOL Cust" "character" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-ship() @ bol-ship" "BOL Cust" "x(14)" ? ? ? ? ? ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[27]   > ASI.fg-rcpth.post-date
 "fg-rcpth.post-date" "Posted" ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[28]   > "_<CALC>"
-"get-vend-no () @ vend-no" "Vendor" "Character" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-vend-no () @ vend-no" "Vendor" "x(10)" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[29]   > "_<CALC>"
-"get-vend-info () @ vend-name" "Name" "Character" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-vend-info () @ vend-name" "Name" "x(20)" ? ? ? ? 14 ? ? no ? no no "19.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[30]   > "_<CALC>"
 "get-fg-qty (1) @ iBinQtyBef" "Before Qty" "->>>>>>9" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[31]   > "_<CALC>"
