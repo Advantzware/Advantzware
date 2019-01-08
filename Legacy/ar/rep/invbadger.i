@@ -1,6 +1,6 @@
 /* oe/rep/invBadger.i */
 PUT "<FArial>".
-       PUT "<C3><R2><#1><R+13><C+40><IMAGE#1=" ls-full-img1 SKIP  /* company image */ 
+       PUT "<C3><R2><#1><R+10><C+40><IMAGE#1=" ls-full-img1 SKIP  /* company image */ 
           /*  "<P10><=2><R+9>"
             space(3) v-comp-add1 SKIP
             space(3) v-comp-add2 space(74) "Attn: Account Payable Dept."  SKIP
