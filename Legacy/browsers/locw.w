@@ -131,7 +131,7 @@ DEFINE QUERY external_tables FOR itemfg.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table w-jobs.loc w-jobs.loc-desc w-jobs.onHand w-jobs.onOrder w-jobs.allocated w-jobs.backOrder w-jobs.qtyAvailable w-jobs.ord-level w-jobs.ord-min w-jobs.ord-max w-jobs.lead-days    
+&Scoped-define FIELDS-IN-QUERY-br_table w-jobs.loc w-jobs.loc-desc w-jobs.onHand w-jobs.onOrder w-jobs.allocated w-jobs.backOrder w-jobs.qtyAvailable w-jobs.ord-level w-jobs.ord-min w-jobs.ord-max w-jobs.lead-days   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table w-jobs.loc   
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table w-jobs
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table w-jobs
@@ -209,7 +209,7 @@ DEFINE BROWSE br_table
   ENABLE w-jobs.loc
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN NO-ROW-MARKERS NO-COLUMN-SCROLLING SEPARATORS SIZE 157 BY 22.24
+    WITH NO-ASSIGN NO-ROW-MARKERS NO-COLUMN-SCROLLING SEPARATORS NO-VALIDATE SIZE 156 BY 22.14
          FONT 0
          TITLE "Location Details".
 
@@ -263,8 +263,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 23.19
-         WIDTH              = 157.
+         HEIGHT             = 23.1
+         WIDTH              = 156.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -771,7 +771,10 @@ PROCEDURE local-initialize :
         BROWSE br_table:SELECT-FOCUSED-ROW().
         BROWSE br_table:SELECT-ROW(1).
     END.
-    APPLY 'entry' TO BROWSE br_table.
+    APPLY "FOCUS":U TO btnBinDetails IN FRAME {&FRAME-NAME}.
+    /*
+    APPLY "ENTRY":U TO BROWSE br_table.
+    */
 
     DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
     {methods/winReSizeLocInit.i}
