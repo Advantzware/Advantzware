@@ -3918,8 +3918,8 @@ IF AVAIL xest THEN DO:
       END.
 
       IF xest.ord-no NE 0 THEN fi_prev_order:screen-value = STRING(xest.ord-no).
-      IF oe-ord.TYPE = "T" AND oe-ord.pord- GT 0 THEN
-          fi_prev_order:SCREEN-VALUE = STRING(oe-ord.pord-).
+      IF oe-ord.TYPE = "T" AND oe-ord.pord-no GT 0 THEN
+          fi_prev_order:SCREEN-VALUE = STRING(oe-ord.pord-no).
 
       IF FIRST(eb.cust-no) THEN 
          fil_id = RECID(xoe-ord).
