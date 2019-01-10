@@ -1917,8 +1917,18 @@ PROCEDURE GenerateMail :
                v-print-fmt EQ "MSPACK-EXCEL") THEN
            RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
 
-        IF tb_HideDialog:CHECKED THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', lv-pdf-file + ".pdf", ip-quote-no).
-        ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer',  lv-pdf-file + ".pdf",ip-quote-no).
+        IF v-print-fmt EQ "PREMIER-EXCEL" THEN do:
+            FIND FIRST tt-filelist NO-LOCK NO-ERROR .
+            IF AVAIL tt-filelist THEN DO:
+                ASSIGN lv-pdf-file = tt-filelist.tt-FileName .
+            END.
+            IF tb_HideDialog:CHECKED THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', lv-pdf-file , ip-quote-no).
+            ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer',  lv-pdf-file ,ip-quote-no).
+        END.
+        ELSE do:
+            IF tb_HideDialog:CHECKED THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', lv-pdf-file + ".pdf", ip-quote-no).
+            ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer',  lv-pdf-file + ".pdf",ip-quote-no).
+        END.
      END.
 
      ELSE DO:
