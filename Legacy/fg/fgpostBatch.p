@@ -23,15 +23,14 @@ DEFINE INPUT PARAMETER TABLE FOR tt-fgemail.
 DEFINE INPUT PARAMETER TABLE FOR tt-email. 
 DEFINE INPUT PARAMETER TABLE FOR tt-inv.  
 /* Need to return w-job for prompting */
-
-DEFINE VARIABLE ll              AS LOG       NO-UNDO.
-DEFINE VARIABLE dBillAmt        AS DECIMAL   NO-UNDO. /* set, not used */
-DEFINE VARIABLE lEmailBol       AS LOG       NO-UNDO. /* set and used internally */
+DEFINE VARIABLE ll        AS LOG     NO-UNDO.
+DEFINE VARIABLE dBillAmt  AS DECIMAL NO-UNDO. /* set, not used */
+DEFINE VARIABLE lEmailBol AS LOG     NO-UNDO. /* set and used internally */
 DEFINE VARIABLE lInvFrt         AS LOG       NO-UNDO. /* set not used? */
 DEFINE VARIABLE lvReturnChar    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvFound         AS LOG       NO-UNDO.
 DEFINE VARIABLE autofgissue-log AS LOGICAL   NO-UNDO. /* set and used */
-DEFINE VARIABLE v-fgpostgl AS CHARACTER NO-UNDO. /* set by fgpostgl nk1 value */
+DEFINE VARIABLE v-fgpostgl      AS CHARACTER NO-UNDO. /* set by fgpostgl nk1 value */
 
 DEFINE VARIABLE fg-uom-list     AS CHARACTER NO-UNDO.
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
@@ -74,7 +73,60 @@ END.
 
 ASSIGN
     v-fgpostgl = fgpostgl.
-  
+/* Needed for fg/rep/fg-post.i */
+
+def    var      v-fg-value      as dec       format "->,>>>,>>9.99".
+def    var      v-msf           as dec       format ">,>>9.999" extent 6.
+DEF    VAR      is-xprint-form  AS LOG       NO-UNDO.
+DEF    VAR      ls-fax-file     AS CHAR      NO-UNDO.
+DEFINE VARIABLE v-corr          AS LOG.
+DEFINE VARIABLE rd-Itm#Cst#     AS INTEGER.
+DEFINE VARIABLE rd-ItmPo        AS INTEGER.
+
+DEF    VAR      ip-rowid        AS ROWID     NO-UNDO.
+DEF    VAR      t-setup         AS LOG       NO-UNDO.
+DEF    VAR      ext-cost        AS DEC       NO-UNDO.
+def    var      type            as ch        format "X" initial "R".
+def    var      type-prt        as ch        format "X(11)" init "".
+def    var      v-fg-qty        like fg-rctd.t-qty.
+def    var      v-fg-cost       as dec       format "->,>>>,>>9.99<<".
+def    var      v-tot-qty       as int       format "->>>,>>>,>>9".
+def    var      v-tot-cost      as dec       format "->>>,>>9.99<<".
+def    var      v-grd-tot-qty   as int       format "->>>,>>>,>>9".
+def    var      v-grd-tot-cost  as dec       format "->>,>>>,>>9.99<<".                     
+def    var      v-grd-tot-value as dec       format "->>,>>>,>>9.99<<".                     
+def    var      v-tot-value     as dec       format "->>,>>>,>>9.99".
+def    var      v-cum-tot       as de.                                   
+def    var      v-tran-type     as char      format "x(1)".      
+def    var      v-entrytype     as char      initial "REC ,TRAN,ADJ ,SHIP,RET ,INIT".
+def    var      v-on            like eb.num-up.
+def    var      v-qty-pallet    as decimal   format "->>,>>>,>>9" no-undo.
+def    var      v-whse          like fg-rctd.loc.            
+def    var      v-one           as integer   format "->>,>>9" init 1.
+def    var      v-ftime         as logical   init no.
+def    var      v-dscr          like account.dscr.
+def    var      v-disp-actnum   like account.actnum.
+def    var      v-disp-amt      as dec       format ">>,>>>,>>9.99cr".
+def    var      v-hdr           as char      format "x(12)".
+def    var      v-postlst       as cha       no-undo.
+DEF    VAR      ll-wip          AS LOG       NO-UNDO.
+DEF    VAR      li              AS INT       NO-UNDO.
+DEF    VAR      li-loop         AS INT       NO-UNDO.
+DEF    VAR      v-time          AS CHAR      FORMAT "X(5)" NO-UNDO.
+
+DEF    VAR      v-itm-lbl       AS CHAR      FORMAT "x(15)" NO-UNDO.
+DEF    VAR      v-itm-dsh       AS CHAR      FORMAT "x(15)" NO-UNDO.
+DEF    VAR      v-desc-lbl      AS CHAR      FORMAT "x(30)" NO-UNDO.
+DEF    VAR      v-Po-lbl        AS CHAR      FORMAT "x(30)" NO-UNDO.
+DEF    VAR      v-vend-lbl      AS CHAR      FORMAT "x(30)" NO-UNDO.
+DEF    VAR      v-desc-dsh      AS CHAR      FORMAT "x(30)" NO-UNDO.
+DEF    VAR      v-Po-dsh        AS CHAR      FORMAT "x(30)" NO-UNDO.
+DEF    VAR      v-vend-dsh      AS CHAR      FORMAT "x(30)" NO-UNDO.
+DEF    VAR      v-uom-lbl       AS CHAR      FORMAT "x(10)" NO-UNDO.
+DEF    VAR      v-uom-dsh       AS CHAR      FORMAT "x(10)" NO-UNDO.
+DEF    VAR      v-cstprt        AS CHAR      FORMAT "x(15)" NO-UNDO.
+DEF    VAR      v-pr-tots2      LIKE v-pr-tots NO-UNDO.
+DEFINE VARIABLE tb_excel        AS LOGICAL   NO-UNDO.
 DEFINE TEMP-TABLE tt-posted-items
     FIELD i-no LIKE w-fg-rctd.i-no
     INDEX i-no i-no.
@@ -103,18 +155,20 @@ END.
 DEFINE STREAM logFile.
 DEF STREAM st-email.
 /* ********************  Preprocessor Definitions  ******************** */
-
+&SCOPED-DEFINE NOOUTPUT NOOUTPUT
 /* ************************  Function Prototypes ********************** */
 
 
 FUNCTION get-act-rel-qty RETURNS INTEGER 
-	(  ) FORWARD.
+    (  ) FORWARD.
 
 FUNCTION get-tot-rcv-qty RETURNS INTEGER 
-	(  ) FORWARD.
+    (  ) FORWARD.
 
 /* ***************************  Main Block  *************************** */
 
+
+{fg/rep/fg-post.i "itemxA" "v-fg-cost" "itempxA" "v-tot-cost"}
 RUN fg-post.
 
 
@@ -373,6 +427,95 @@ PROCEDURE add-rel-for-qty:
 
   
     END.
+
+END PROCEDURE.
+
+PROCEDURE calc-partial:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    /*find first item finished goods based on the item number*/
+    find first itemfg
+        where itemfg.company eq cocode
+        and itemfg.i-no    eq w-fg-rctd.i-no
+        use-index i-no no-lock no-error.
+
+    if avail itemfg then 
+    do:
+        find first uom
+            where uom.uom  eq itemfg.sell-uom
+            and uom.mult ne 0
+            no-lock no-error.
+
+        if itemfg.sell-uom begins "L" then
+            v-fg-value = 0.
+
+        else
+            if itemfg.sell-uom eq "CS" then
+                v-fg-value = 0.
+
+            else
+                if avail uom then
+                    v-fg-value = itemfg.sell-price * w-fg-rctd.partial / uom.mult.
+
+                else
+                    v-fg-value = itemfg.sell-price * w-fg-rctd.partial / 1000.
+
+        if w-fg-rctd.rita-code eq "R" then 
+        do:
+            if v-msf[1] gt w-fg-rctd.partial * itemfg.t-sqft then
+                v-msf[2] = v-msf[2] + (v-msf[1] - (w-fg-rctd.partial * itemfg.t-sqft)).
+
+            v-msf[1] = w-fg-rctd.partial * itemfg.t-sqft.
+        end.
+    end. /* avail */
+
+
+END PROCEDURE.
+
+PROCEDURE calc-total:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    /*find first item finished goods based on the item number*/
+    find first itemfg
+        where itemfg.company eq cocode
+        and itemfg.i-no    eq w-fg-rctd.i-no
+        use-index i-no no-lock no-error.
+
+    if avail itemfg then 
+    do:
+        find first uom
+            where uom.uom  eq itemfg.sell-uom
+            and uom.mult ne 0
+            no-lock no-error.
+
+        if itemfg.sell-uom begins "L" then
+            v-fg-value = itemfg.sell-price * IF w-fg-rctd.t-qty LT 0 THEN -1 ELSE 1.
+
+        else
+            if itemfg.sell-uom eq "CS" then
+                v-fg-value = itemfg.sell-price * w-fg-rctd.cases.
+
+            else
+                if avail uom then
+                    v-fg-value = itemfg.sell-price * ((w-fg-rctd.cases * w-fg-rctd.qty-case) / uom.mult).
+
+                else
+                    v-fg-value = itemfg.sell-price * ((w-fg-rctd.cases * w-fg-rctd.qty-case) / 1000).
+
+        if w-fg-rctd.rita-code eq "R" then 
+        do:
+            if v-msf[1] gt w-fg-rctd.t-qty * itemfg.t-sqft then
+                v-msf[2] = v-msf[2] + (v-msf[1] - ((w-fg-rctd.cases * w-fg-rctd.qty-case) * itemfg.t-sqft)).
+
+            v-msf[1] = (w-fg-rctd.cases * w-fg-rctd.qty-case) * itemfg.t-sqft.
+        end.
+    end. /* avail itemfg */
+
 
 END PROCEDURE.
 
@@ -1196,6 +1339,53 @@ PROCEDURE manualFarmout:
 
 
     END.
+
+END PROCEDURE.
+
+PROCEDURE orig:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    /*find first item finished goods based on the item number*/
+    find first itemfg
+        where itemfg.company eq cocode
+        and itemfg.i-no    eq w-fg-rctd.i-no
+        use-index i-no no-lock no-error.
+
+    if avail itemfg then 
+    do:
+        find first uom
+            where uom.uom  eq itemfg.sell-uom
+            and uom.mult ne 0
+            no-lock no-error.
+
+      if itemfg.sell-uom begins "L" then
+        v-fg-value = itemfg.sell-price * IF w-fg-rctd.t-qty LT 0 THEN -1 ELSE 1.
+
+      else
+      if itemfg.sell-uom eq "CS" then
+        v-fg-value = itemfg.sell-price * w-fg-rctd.cases.
+
+      else
+      if avail uom then
+        v-fg-value = itemfg.sell-price * w-fg-rctd.t-qty / uom.mult.
+
+      else
+        v-fg-value = itemfg.sell-price * w-fg-rctd.t-qty / 1000.
+
+      if w-fg-rctd.rita-code eq "R" then do:
+        if v-msf[1] gt w-fg-rctd.t-qty * itemfg.t-sqft then
+          v-msf[2] = v-msf[2] + (v-msf[1] - (w-fg-rctd.t-qty * itemfg.t-sqft)).
+
+        v-msf[1] = w-fg-rctd.t-qty * itemfg.t-sqft.
+      end.
+    end. /* avail itemfg */
+
+    assign
+     v-msf[1] = v-msf[1] / 1000
+     v-msf[2] = v-msf[2] / 1000.
+
 
 END PROCEDURE.
 
