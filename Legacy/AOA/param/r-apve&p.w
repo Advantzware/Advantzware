@@ -53,13 +53,14 @@ DEFINE VARIABLE lSecure  AS LOGICAL NO-UNDO.
 btnCalendar-1 svPostDateOption svPeriod svAllVendNo svStartVendNo ~
 svEndVendNo svStartInvoiceDate btnCalendar-2 svStartInvoiceDateOption ~
 svEndInvoiceDate btnCalendar-3 svEndInvoiceDateOption svAllUserID ~
-svStartUserID svEndUserID svPostOutOfPeriod svPostIntoClosedPeriod svPost 
+svStartUserID svEndUserID svPostOutOfPeriod svPostIntoClosedPeriod svPost ~
+btnAddEmail svRecipients 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svPostDate ~
 svPostDateOption svPeriod svAllVendNo svStartVendNo startVendorName ~
 svEndVendNo endVendorName svStartInvoiceDate svStartInvoiceDateOption ~
 svEndInvoiceDate svEndInvoiceDateOption svAllUserID svStartUserID ~
 startUserIDName svEndUserID endUserIDName svPostOutOfPeriod ~
-svPostIntoClosedPeriod svPost 
+svPostIntoClosedPeriod svPost svRecipients 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -74,6 +75,11 @@ svPostIntoClosedPeriod svPost
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
 DEFINE BUTTON btnCalendar-1 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
@@ -106,6 +112,11 @@ DEFINE VARIABLE svStartInvoiceDateOption AS CHARACTER FORMAT "X(256)":U
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 70 BY 2.86
+     BGCOLOR 15 .
 
 DEFINE VARIABLE endUserIDName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -193,6 +204,10 @@ DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 79.8 BY 2.86.
 
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 83 BY 3.57.
+
 DEFINE VARIABLE svAllUserID AS LOGICAL INITIAL yes 
      LABEL "All User IDs" 
      VIEW-AS TOGGLE-BOX
@@ -224,49 +239,57 @@ DEFINE VARIABLE svPostOutOfPeriod AS LOGICAL INITIAL no
 DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 139 COLON-ALIGNED WIDGET-ID 60
      svLocation AT ROW 1.24 COL 155 COLON-ALIGNED WIDGET-ID 130
-     svPostDate AT ROW 3.62 COL 58 COLON-ALIGNED HELP
+     svPostDate AT ROW 2.43 COL 58 COLON-ALIGNED HELP
           "Enter Post Date" WIDGET-ID 274
-     btnCalendar-1 AT ROW 3.62 COL 76 WIDGET-ID 272
-     svPostDateOption AT ROW 3.62 COL 79 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 2.43 COL 76 WIDGET-ID 272
+     svPostDateOption AT ROW 2.43 COL 79 COLON-ALIGNED HELP
           "Select Start Date Option" NO-LABEL WIDGET-ID 276
-     svPeriod AT ROW 3.62 COL 113 COLON-ALIGNED WIDGET-ID 368
-     svAllVendNo AT ROW 6.48 COL 22 HELP
+     svPeriod AT ROW 2.43 COL 113 COLON-ALIGNED WIDGET-ID 368
+     svAllVendNo AT ROW 4.57 COL 22 HELP
           "All Vendors?" WIDGET-ID 362
-     svStartVendNo AT ROW 7.67 COL 20 COLON-ALIGNED HELP
+     svStartVendNo AT ROW 5.76 COL 20 COLON-ALIGNED HELP
           "Enter Start Vendor" WIDGET-ID 366
-     startVendorName AT ROW 7.67 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 360
-     svEndVendNo AT ROW 8.86 COL 20 COLON-ALIGNED HELP
+     startVendorName AT ROW 5.76 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 360
+     svEndVendNo AT ROW 6.95 COL 20 COLON-ALIGNED HELP
           "Enter End Vendor" WIDGET-ID 364
-     endVendorName AT ROW 8.86 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 358
-     svStartInvoiceDate AT ROW 11.71 COL 20 COLON-ALIGNED HELP
+     endVendorName AT ROW 6.95 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 358
+     svStartInvoiceDate AT ROW 9.81 COL 20 COLON-ALIGNED HELP
           "Enter Start Invoice Date" WIDGET-ID 26
-     btnCalendar-2 AT ROW 11.71 COL 38 WIDGET-ID 80
-     svStartInvoiceDateOption AT ROW 11.71 COL 41 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 9.81 COL 38 WIDGET-ID 80
+     svStartInvoiceDateOption AT ROW 9.81 COL 41 COLON-ALIGNED HELP
           "Select Start Invoice Date Option" NO-LABEL WIDGET-ID 64
-     svEndInvoiceDate AT ROW 12.91 COL 20 COLON-ALIGNED HELP
+     svEndInvoiceDate AT ROW 11 COL 20 COLON-ALIGNED HELP
           "Enter End Invoice Date" WIDGET-ID 24
-     btnCalendar-3 AT ROW 12.91 COL 38 WIDGET-ID 82
-     svEndInvoiceDateOption AT ROW 12.91 COL 41 COLON-ALIGNED HELP
+     btnCalendar-3 AT ROW 11 COL 38 WIDGET-ID 82
+     svEndInvoiceDateOption AT ROW 11 COL 41 COLON-ALIGNED HELP
           "Select End Invoice Date Option" NO-LABEL WIDGET-ID 66
-     svAllUserID AT ROW 6.48 COL 103 HELP
+     svAllUserID AT ROW 4.57 COL 103 HELP
           "All User IDs?" WIDGET-ID 158
-     svStartUserID AT ROW 7.67 COL 101 COLON-ALIGNED HELP
+     svStartUserID AT ROW 5.76 COL 101 COLON-ALIGNED HELP
           "Enter Start User ID" WIDGET-ID 162
-     startUserIDName AT ROW 7.67 COL 117 COLON-ALIGNED NO-LABEL WIDGET-ID 156
-     svEndUserID AT ROW 8.86 COL 101 COLON-ALIGNED HELP
+     startUserIDName AT ROW 5.76 COL 117 COLON-ALIGNED NO-LABEL WIDGET-ID 156
+     svEndUserID AT ROW 6.95 COL 101 COLON-ALIGNED HELP
           "Enter End User ID" WIDGET-ID 160
-     endUserIDName AT ROW 8.86 COL 117 COLON-ALIGNED NO-LABEL WIDGET-ID 154
-     svPostOutOfPeriod AT ROW 11.71 COL 103 HELP
+     endUserIDName AT ROW 6.95 COL 117 COLON-ALIGNED NO-LABEL WIDGET-ID 154
+     svPostOutOfPeriod AT ROW 9.81 COL 103 HELP
           "Select to Post Out of Period" WIDGET-ID 370
-     svPostIntoClosedPeriod AT ROW 12.91 COL 103 HELP
+     svPostIntoClosedPeriod AT ROW 11 COL 103 HELP
           "Select to Post Into Closed Period" WIDGET-ID 372
-     svPost AT ROW 12.91 COL 155 HELP
+     svPost AT ROW 11 COL 155 HELP
           "Select to Post" WIDGET-ID 344
-     RECT-1 AT ROW 3.38 COL 47 WIDGET-ID 250
-     RECT-2 AT ROW 6.24 COL 2 WIDGET-ID 374
-     RECT-3 AT ROW 11.48 COL 2 WIDGET-ID 376
-     RECT-4 AT ROW 6.24 COL 87 WIDGET-ID 378
-     RECT-5 AT ROW 11.48 COL 87 WIDGET-ID 380
+     btnAddEmail AT ROW 15.29 COL 49 HELP
+          "Add Recipents" WIDGET-ID 636
+     svRecipients AT ROW 13.62 COL 55 NO-LABEL WIDGET-ID 600
+     "Email" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 13.62 COL 49 WIDGET-ID 640
+     "Recipients:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 14.33 COL 44 WIDGET-ID 602
+     RECT-1 AT ROW 2.19 COL 47 WIDGET-ID 250
+     RECT-2 AT ROW 4.33 COL 2 WIDGET-ID 374
+     RECT-3 AT ROW 9.57 COL 2 WIDGET-ID 376
+     RECT-4 AT ROW 4.33 COL 87 WIDGET-ID 378
+     RECT-5 AT ROW 9.57 COL 87 WIDGET-ID 380
+     RECT-6 AT ROW 13.14 COL 43 WIDGET-ID 638
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -347,6 +370,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startUserIDName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startVendorName IN FRAME F-Main
@@ -378,6 +403,21 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail sObject
+ON CHOOSE OF btnAddEmail IN FRAME F-Main /* Email */
+DO:
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    cRecipients = svRecipients:SCREEN-VALUE.
+    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    svRecipients:SCREEN-VALUE = cRecipients.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btnCalendar-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 sObject

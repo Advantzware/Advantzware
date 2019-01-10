@@ -47,10 +47,10 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svLocation svCustList btnCustList ~
-svAllLoc svAllCustNo svStartTranDate btnCalendar-1 svStartTranDateOption ~
-svStartLoc svStartCustNo svEndTranDate btnCalendar-2 svEndTranDateOption ~
-svEndLoc svEndCustNo svStartReceiptDate btnCalendar-3 ~
+&Scoped-Define ENABLED-OBJECTS btnAddEmail svCompany svLocation svCustList ~
+btnCustList svAllLoc svAllCustNo svStartTranDate btnCalendar-1 ~
+svStartTranDateOption svStartLoc svStartCustNo svEndTranDate btnCalendar-2 ~
+svEndTranDateOption svEndLoc svEndCustNo svStartReceiptDate btnCalendar-3 ~
 svStartReceiptDateOption svAllCompany svAllMachine svEndReceiptDate ~
 btnCalendar-4 svEndReceiptDateOption svStartCompany svStartMachine ~
 svStartInvoiceDate btnCalendar-5 svStartInvoiceDateOption svEndCompany ~
@@ -64,13 +64,13 @@ svStartCAD svStartTerms svEndPONumber svEndCAD svEndTerms svStartShipDate ~
 btnCalendar-11 svStartShipDateOption svEndShipDate btnCalendar-12 ~
 svEndShipDateOption svAllUserID svStartUserID svStartBOLDate btnCalendar-13 ~
 svStartBOLDateOption svEndUserID svEndBOLDate btnCalendar-14 ~
-svEndBOLDateOption svAllItemNo svAsOfDate btnCalendar-15 svAsOfDateOption ~
-svStartItemNo svSort svEndItemNo svSubRpt_SubReportName svAllJobNo ~
-svAllOrderNo svAllBOL svAllLocBin svAllInvNo svStartJobNo svStartJobNo2 ~
-svStartOrderNo svStartBOL svStartLocBin svStartInvNo svEndJobNo svEndJobNo2 ~
-svEndOrderNo svEndBOL svEndLocBin svEndInvNo svAllProdCategory ~
-svStartProdCategory svEndProdCategory svAllShift svStartShift svEndShift ~
-svAllDept svStartDept svEndDept 
+svEndBOLDateOption svRecipients svAllItemNo svAsOfDate btnCalendar-15 ~
+svAsOfDateOption svStartItemNo svSort svEndItemNo svSubRpt_SubReportName ~
+svAllJobNo svAllOrderNo svAllBOL svAllLocBin svAllInvNo svStartJobNo ~
+svStartJobNo2 svStartOrderNo svStartBOL svStartLocBin svStartInvNo ~
+svEndJobNo svEndJobNo2 svEndOrderNo svEndBOL svEndLocBin svEndInvNo ~
+svAllProdCategory svStartProdCategory svEndProdCategory svAllShift ~
+svStartShift svEndShift svAllDept svStartDept svEndDept 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svCustList svAllLoc ~
 svAllCustNo svStartTranDate svStartTranDateOption svStartLoc startLocName ~
 svStartCustNo startCustName svEndTranDate svEndTranDateOption svEndLoc ~
@@ -88,12 +88,12 @@ svEndDueDateOption svStartPONumber svStartCAD svStartTerms startTermsName ~
 svEndPONumber svEndCAD svEndTerms endTermsName svStartShipDate ~
 svStartShipDateOption svEndShipDate svEndShipDateOption svAllUserID ~
 svStartUserID startUserIDName svStartBOLDate svStartBOLDateOption ~
-svEndUserID endUserIDName svEndBOLDate svEndBOLDateOption svAllItemNo ~
-svAsOfDate svAsOfDateOption svStartItemNo startItemName svSort svEndItemNo ~
-endItemName svSubRpt_SubReportName svAllJobNo svAllOrderNo svAllBOL ~
-svAllLocBin svAllInvNo svStartJobNo svStartJobNo2 svStartOrderNo svStartBOL ~
-svStartLocBin svStartInvNo svEndJobNo svEndJobNo2 svEndOrderNo svEndBOL ~
-svEndLocBin svEndInvNo svAllProdCategory svStartProdCategory ~
+svEndUserID endUserIDName svEndBOLDate svEndBOLDateOption svRecipients ~
+svAllItemNo svAsOfDate svAsOfDateOption svStartItemNo startItemName svSort ~
+svEndItemNo endItemName svSubRpt_SubReportName svAllJobNo svAllOrderNo ~
+svAllBOL svAllLocBin svAllInvNo svStartJobNo svStartJobNo2 svStartOrderNo ~
+svStartBOL svStartLocBin svStartInvNo svEndJobNo svEndJobNo2 svEndOrderNo ~
+svEndBOL svEndLocBin svEndInvNo svAllProdCategory svStartProdCategory ~
 startProdCategoryName svEndProdCategory endProdCategoryName svAllShift ~
 svStartShift startShiftDescription svEndShift endShiftDescription svAllDept ~
 svStartDept startDeptName svEndDept endDeptName 
@@ -114,6 +114,11 @@ btnCalendar-14 btnCalendar-15
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
 DEFINE BUTTON btnCalendar-1 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
@@ -282,6 +287,11 @@ DEFINE VARIABLE svStartTranDateOption AS CHARACTER FORMAT "X(256)":U
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 70 BY 2.86
+     BGCOLOR 15 .
 
 DEFINE VARIABLE endCompanyName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -672,6 +682,10 @@ DEFINE VARIABLE svSort AS CHARACTER
 "Sort Option 3", "Sort Option 3"
      SIZE 17.4 BY 3.33 NO-UNDO.
 
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 83 BY 3.57.
+
 DEFINE VARIABLE svAllBOL AS LOGICAL INITIAL yes 
      LABEL "All BOLs" 
      VIEW-AS TOGGLE-BOX
@@ -781,6 +795,8 @@ DEFINE VARIABLE svSubRpt_SubReportName AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnAddEmail AT ROW 23.38 COL 156 HELP
+          "Add Recipents" WIDGET-ID 636
      svCompany AT ROW 1.24 COL 23 COLON-ALIGNED WIDGET-ID 60
      svLocation AT ROW 1.24 COL 39 COLON-ALIGNED WIDGET-ID 232
      svCustList AT ROW 1.24 COL 91 WIDGET-ID 48
@@ -838,7 +854,6 @@ DEFINE FRAME F-Main
           "Select Start Invoice Date Option" NO-LABEL WIDGET-ID 64
      svEndCompany AT ROW 8.62 COL 170 COLON-ALIGNED HELP
           "Enter End Company" WIDGET-ID 294
-     endCompanyName AT ROW 8.62 COL 179 COLON-ALIGNED NO-LABEL WIDGET-ID 288
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -846,6 +861,7 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     endCompanyName AT ROW 8.62 COL 179 COLON-ALIGNED NO-LABEL WIDGET-ID 288
      svEndMachine AT ROW 8.86 COL 89 COLON-ALIGNED HELP
           "Enter End Machine" WIDGET-ID 20
      endMachineDescription AT ROW 8.86 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 16
@@ -900,8 +916,6 @@ DEFINE FRAME F-Main
           "Enter Start PO Number" WIDGET-ID 146
      svStartCAD AT ROW 15.76 COL 128 COLON-ALIGNED HELP
           "Enter Start CAD" WIDGET-ID 152
-     svStartTerms AT ROW 15.76 COL 170 COLON-ALIGNED HELP
-          "Enter Start Terms" WIDGET-ID 316
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -909,6 +923,8 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     svStartTerms AT ROW 15.76 COL 170 COLON-ALIGNED HELP
+          "Enter Start Terms" WIDGET-ID 316
      startTermsName AT ROW 15.76 COL 179 COLON-ALIGNED NO-LABEL WIDGET-ID 310
      svEndPONumber AT ROW 16.95 COL 89 COLON-ALIGNED HELP
           "Enter End PO Number" WIDGET-ID 144
@@ -945,6 +961,7 @@ DEFINE FRAME F-Main
      btnCalendar-14 AT ROW 21.24 COL 41 WIDGET-ID 236
      svEndBOLDateOption AT ROW 21.24 COL 44 COLON-ALIGNED HELP
           "Select End BOL Date Option" NO-LABEL WIDGET-ID 240
+     svRecipients AT ROW 21.71 COL 162 NO-LABEL WIDGET-ID 600
      svAllItemNo AT ROW 22.67 COL 91 HELP
           "All Items?" WIDGET-ID 164
      svAsOfDate AT ROW 22.91 COL 23 COLON-ALIGNED HELP
@@ -962,10 +979,6 @@ DEFINE FRAME F-Main
      endItemName AT ROW 25.05 COL 112 COLON-ALIGNED NO-LABEL WIDGET-ID 170
      svSubRpt_SubReportName AT ROW 25.76 COL 46.4 HELP
           "Select to Show Sub Report" WIDGET-ID 88
-     svAllJobNo AT ROW 26.71 COL 91 HELP
-          "All Jobs?" WIDGET-ID 174
-     svAllOrderNo AT ROW 26.71 COL 118 HELP
-          "All Orders?" WIDGET-ID 196
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -973,6 +986,10 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     svAllJobNo AT ROW 26.71 COL 91 HELP
+          "All Jobs?" WIDGET-ID 174
+     svAllOrderNo AT ROW 26.71 COL 118 HELP
+          "All Orders?" WIDGET-ID 196
      svAllBOL AT ROW 26.71 COL 140 HELP
           "All BOLs?" WIDGET-ID 246
      svAllLocBin AT ROW 26.71 COL 162 HELP
@@ -1029,8 +1046,20 @@ DEFINE FRAME F-Main
           "Enter End Department" WIDGET-ID 228
      endDeptName AT ROW 41.24 COL 98 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 222
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 233 BY 42.43.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     "Email" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 21.71 COL 156 WIDGET-ID 640
+     "Recipients:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 22.43 COL 151 WIDGET-ID 602
      "Sort By:" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 24.57 COL 15 WIDGET-ID 90
+     RECT-6 AT ROW 21.24 COL 150 WIDGET-ID 638
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -1145,6 +1174,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endUserIDName IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCompanyName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCurrencyName IN FRAME F-Main
@@ -1193,6 +1224,21 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail sObject
+ON CHOOSE OF btnAddEmail IN FRAME F-Main /* Email */
+DO:
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    cRecipients = svRecipients:SCREEN-VALUE.
+    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    svRecipients:SCREEN-VALUE = cRecipients.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btnCalendar-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 sObject

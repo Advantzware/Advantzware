@@ -465,6 +465,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+  FIND FIRST config NO-LOCK.
   RUN pSetTaskerNK1.
   RUN pRunCommand (OUTPUT cRun).
   dttOpenDateTime = NOW.
@@ -749,25 +750,27 @@ PROCEDURE pTaskEmails :
         IF bTaskEmail.mustExist EQ NO OR
            SEARCH(bTaskEmail.attachment) NE ? THEN DO:
             IF bTaskEmail.recipients EQ "Cue Card Message" THEN DO:
-                FIND LAST cueCardText NO-LOCK
-                     WHERE cueCardText.cueID     EQ 0
-                       AND cueCardText.cueTextID EQ 0
-                       AND cueCardText.cueType   EQ "Message"
-                     NO-ERROR.
-                IF AVAILABLE cueCardText THEN DO:
-                    CREATE bCueCardText.
-                    BUFFER-COPY cueCardText EXCEPT rec_key TO bCueCardText
-                        ASSIGN
-                            bCueCardText.cueText     = "Submitted Run Now Request is Available"
-                                                     + CHR(10) + CHR(10) + "File: "
-                                                     + bTaskEmail.attachment
-                            bCueCardText.isActive    = YES
-                            bCueCardText.cueOrder    = cueCardText.cueOrder + 1
-                            bCueCardText.createdDate = TODAY
-                            bCueCardText.createdTime = TIME
-                            bCueCardText.createdFor  = bTaskEmail.user-id
-                            .
-                END. /* if avail */
+                IF AVAILABLE config AND config.cueCard THEN DO:
+                    FIND LAST cueCardText NO-LOCK
+                         WHERE cueCardText.cueID     EQ 0
+                           AND cueCardText.cueTextID EQ 0
+                           AND cueCardText.cueType   EQ "Message"
+                         NO-ERROR.
+                    IF AVAILABLE cueCardText THEN DO:
+                        CREATE bCueCardText.
+                        BUFFER-COPY cueCardText EXCEPT rec_key TO bCueCardText
+                            ASSIGN
+                                bCueCardText.cueText     = "Submitted Run Now Request is Available"
+                                                         + CHR(10) + CHR(10) + "File: "
+                                                         + bTaskEmail.attachment
+                                bCueCardText.isActive    = YES
+                                bCueCardText.cueOrder    = cueCardText.cueOrder + 1
+                                bCueCardText.createdDate = TODAY
+                                bCueCardText.createdTime = TIME
+                                bCueCardText.createdFor  = bTaskEmail.user-id
+                                .
+                    END. /* if avail cuecardtext */
+                END. /* ifavail config and cuecard */
             END. /* if cue card message */
             ELSE DO:
                 ASSIGN

@@ -53,10 +53,11 @@ DEFINE VARIABLE dtEndDateTime   AS DATETIME  NO-UNDO.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svCompany svType svUser svDB svTable svField ~
 svStartDate btnCalendar-1 svEndDate svStartDateOption btnCalendar-2 ~
-svEndDateOption svBeforeValueFilter svAfterValueFilter svPurge 
+svEndDateOption svBeforeValueFilter svAfterValueFilter svPurge btnAddEmail ~
+svRecipients 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svType svUser svDB svTable ~
 svField svStartDate svEndDate svStartDateOption svEndDateOption ~
-svBeforeValueFilter svAfterValueFilter svPurge 
+svBeforeValueFilter svAfterValueFilter svPurge svRecipients 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -71,6 +72,11 @@ svBeforeValueFilter svAfterValueFilter svPurge
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
 DEFINE BUTTON btnCalendar-1 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
@@ -128,6 +134,11 @@ DEFINE VARIABLE svUser AS CHARACTER FORMAT "X(256)":U INITIAL "All"
      DROP-DOWN-LIST
      SIZE 16 BY 1 TOOLTIP "Select User Filter" NO-UNDO.
 
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 70 BY 2.86
+     BGCOLOR 15 .
+
 DEFINE VARIABLE svAfterValueFilter AS CHARACTER FORMAT "X(256)":U 
      LABEL "After Value" 
      VIEW-AS FILL-IN 
@@ -157,6 +168,10 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 119 BY 8.33.
 
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 83 BY 3.57.
+
 DEFINE VARIABLE svPurge AS LOGICAL INITIAL no 
      LABEL "Purge Audit History" 
      VIEW-AS TOGGLE-BOX
@@ -167,37 +182,45 @@ DEFINE VARIABLE svPurge AS LOGICAL INITIAL no
 
 DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 142 COLON-ALIGNED WIDGET-ID 60
-     svType AT ROW 5.52 COL 28 COLON-ALIGNED HELP
+     svType AT ROW 3.86 COL 27 COLON-ALIGNED HELP
           "Select Audit Type Filter" WIDGET-ID 6
-     svUser AT ROW 6.71 COL 28 COLON-ALIGNED HELP
+     svUser AT ROW 5.05 COL 27 COLON-ALIGNED HELP
           "Select User Filter" WIDGET-ID 12
-     svDB AT ROW 9.1 COL 28 COLON-ALIGNED HELP
+     svDB AT ROW 7.43 COL 27 COLON-ALIGNED HELP
           "Select Audit DB Filter" WIDGET-ID 14
-     svTable AT ROW 10.29 COL 28 COLON-ALIGNED HELP
+     svTable AT ROW 8.62 COL 27 COLON-ALIGNED HELP
           "Select Audit Table Filter" WIDGET-ID 16
-     svField AT ROW 11.48 COL 28 COLON-ALIGNED HELP
+     svField AT ROW 9.81 COL 27 COLON-ALIGNED HELP
           "Select Audit Field Filter" WIDGET-ID 18
-     svStartDate AT ROW 5.52 COL 84 COLON-ALIGNED HELP
+     svStartDate AT ROW 3.86 COL 83 COLON-ALIGNED HELP
           "Enter Start Date" WIDGET-ID 72
-     btnCalendar-1 AT ROW 5.52 COL 102 WIDGET-ID 76
-     svEndDate AT ROW 6.71 COL 84 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 3.86 COL 101 WIDGET-ID 76
+     svEndDate AT ROW 5.05 COL 83 COLON-ALIGNED HELP
           "Enter End Date" WIDGET-ID 68
-     svStartDateOption AT ROW 5.52 COL 105 COLON-ALIGNED HELP
+     svStartDateOption AT ROW 3.86 COL 104 COLON-ALIGNED HELP
           "Select Start Date Option" NO-LABEL WIDGET-ID 74
-     btnCalendar-2 AT ROW 6.71 COL 102 WIDGET-ID 78
-     svEndDateOption AT ROW 6.71 COL 105 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 5.05 COL 101 WIDGET-ID 78
+     svEndDateOption AT ROW 5.05 COL 104 COLON-ALIGNED HELP
           "Select End Date Option" NO-LABEL WIDGET-ID 70
-     svBeforeValueFilter AT ROW 9.1 COL 84 COLON-ALIGNED HELP
+     svBeforeValueFilter AT ROW 7.43 COL 83 COLON-ALIGNED HELP
           "Enter Before Value to Filter" WIDGET-ID 36
-     svAfterValueFilter AT ROW 10.29 COL 84 COLON-ALIGNED HELP
+     svAfterValueFilter AT ROW 8.62 COL 83 COLON-ALIGNED HELP
           "Enter After Value to Filter" WIDGET-ID 38
-     svPurge AT ROW 11.48 COL 86 HELP
+     svPurge AT ROW 9.81 COL 85 HELP
           "Select to Purge Audit History" WIDGET-ID 80
-     RECT-1 AT ROW 4.81 COL 18 WIDGET-ID 82
+     btnAddEmail AT ROW 13.86 COL 39 HELP
+          "Add Recipents" WIDGET-ID 636
+     svRecipients AT ROW 12.19 COL 45 NO-LABEL WIDGET-ID 600
+     "Email" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 12.19 COL 39 WIDGET-ID 640
+     "Recipients:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 12.91 COL 34 WIDGET-ID 602
+     RECT-1 AT ROW 3.14 COL 17 WIDGET-ID 82
+     RECT-6 AT ROW 11.71 COL 33 WIDGET-ID 638
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 149.2 BY 17
+         SIZE 149.2 BY 17.19
          TITLE "Report Parameters".
 
 
@@ -227,7 +250,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 17
+         HEIGHT             = 17.19
          WIDTH              = 149.2.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -260,6 +283,8 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
+   NO-ENABLE                                                            */
 ASSIGN 
        svCompany:READ-ONLY IN FRAME F-Main        = TRUE.
 
@@ -281,6 +306,21 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail sObject
+ON CHOOSE OF btnAddEmail IN FRAME F-Main /* Email */
+DO:
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    cRecipients = svRecipients:SCREEN-VALUE.
+    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    svRecipients:SCREEN-VALUE = cRecipients.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btnCalendar-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 sObject

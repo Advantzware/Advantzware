@@ -54,7 +54,7 @@ btnCalendar-1 svStartOrderDateOption svEndOrderDate btnCalendar-2 ~
 svEndOrderDateOption svStartDueDate btnCalendar-3 svStartDueDateOption ~
 svEndDueDate btnCalendar-4 svEndDueDateOption svIncludePrepMiscChg ~
 svExcludeSetComponents svExcludeTransferReleasesOrders svPrintOrderUnderPct ~
-svUnderValue svPrintOrderOverPct svOverValue 
+svUnderValue svPrintOrderOverPct svOverValue btnAddEmail svRecipients 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svCustList svAllCustNo ~
 svStartCustNo startCustName svEndCustNo endCustName svAllSalesRep ~
 svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName ~
@@ -63,7 +63,7 @@ svEndProdCategory endProdCategoryName svStartOrderDate ~
 svStartOrderDateOption svEndOrderDate svEndOrderDateOption svStartDueDate ~
 svStartDueDateOption svEndDueDate svEndDueDateOption svIncludePrepMiscChg ~
 svExcludeSetComponents svExcludeTransferReleasesOrders svPrintOrderUnderPct ~
-svUnderValue svPrintOrderOverPct svOverValue 
+svUnderValue svPrintOrderOverPct svOverValue svRecipients 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -79,6 +79,11 @@ btnCalendar-4
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
 DEFINE BUTTON btnCalendar-1 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
@@ -126,6 +131,11 @@ DEFINE VARIABLE svStartOrderDateOption AS CHARACTER FORMAT "X(256)":U
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 70 BY 2.86
+     BGCOLOR 15 .
 
 DEFINE VARIABLE endCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -233,6 +243,10 @@ DEFINE RECTANGLE RECT-4
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 69 BY 9.29.
+
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 83 BY 3.57.
 
 DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
      LABEL "All Customers" 
@@ -343,27 +357,35 @@ DEFINE FRAME F-Main
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 160.6 BY 18.81.
+         SIZE 160.6 BY 22.71.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
      svPrintOrderOverPct AT ROW 14.33 COL 110 WIDGET-ID 102
      svOverValue AT ROW 14.33 COL 134 COLON-ALIGNED HELP
           "Enter Beginning Prod Category#" NO-LABEL WIDGET-ID 106
+     btnAddEmail AT ROW 21 COL 46 HELP
+          "Add Recipents" WIDGET-ID 636
+     svRecipients AT ROW 19.33 COL 52 NO-LABEL WIDGET-ID 600
      "Note: Profit Includes Estimate Markups and Commissions." VIEW-AS TEXT
           SIZE 54.6 BY .71 AT ROW 17.05 COL 96.4 WIDGET-ID 110
           FGCOLOR 1 
      "(Prep / Misc Charges will Display 'P' or 'M' for Product Code)" VIEW-AS TEXT
           SIZE 58 BY .95 AT ROW 16 COL 95 WIDGET-ID 108
+     "Email" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 19.33 COL 46 WIDGET-ID 640
+     "Recipients:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 20.05 COL 41 WIDGET-ID 602
      RECT-1 AT ROW 2.67 COL 4 WIDGET-ID 224
      RECT-2 AT ROW 8.86 COL 4 WIDGET-ID 226
      RECT-3 AT ROW 13.86 COL 4 WIDGET-ID 228
      RECT-4 AT ROW 2.67 COL 89 WIDGET-ID 230
      RECT-5 AT ROW 8.86 COL 89 WIDGET-ID 232
+     RECT-6 AT ROW 18.86 COL 40 WIDGET-ID 638
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 160.6 BY 18.81
+         SIZE 160.6 BY 22.71
          TITLE "Report Parameters".
 
 
@@ -393,7 +415,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 18.81
+         HEIGHT             = 22.71
          WIDTH              = 160.6.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -444,6 +466,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startProdCategoryName IN FRAME F-Main
@@ -471,6 +495,21 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail sObject
+ON CHOOSE OF btnAddEmail IN FRAME F-Main /* Email */
+DO:
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    cRecipients = svRecipients:SCREEN-VALUE.
+    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    svRecipients:SCREEN-VALUE = cRecipients.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btnCalendar-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 sObject

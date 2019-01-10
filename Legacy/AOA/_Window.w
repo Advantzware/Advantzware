@@ -1,15 +1,14 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: userFoldr.w
+  File: AOA/_window.w
 
-  Description: User Folder Viewer
+  Description: Window Template
 
   Input Parameters: <none>
 
@@ -17,7 +16,7 @@
 
   Author: Ron Stark
 
-  Created: 12.17.2018
+  Created: 12.31.2018
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
@@ -33,20 +32,30 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&Scoped-define program-id userFoldr.
+MESSAGE
+    "Set scoped-define program-id value"
+VIEW-AS ALERT-BOX.
+&Scoped-define program-id _Window.
 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE VARIABLE lSortMove          AS LOGICAL   NO-UNDO INITIAL YES.
+
+{methods/defines/hndldefs.i}
+{methods/prgsecur.i}
 {methods/defines/sortByDefs.i}
 
-DEFINE VARIABLE cFolderFile AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cUserFolder AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAdmin      AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE rRowID      AS ROWID     NO-UNDO.
+DEFINE TEMP-TABLE ttUserPrint NO-UNDO
+    FIELD user-id    AS CHARACTER FORMAT "x(20)" LABEL "User ID"
+    FIELD prog-title AS CHARACTER FORMAT "x(30)" LABEL "Parameter Name"
+    FIELD program-id AS CHARACTER FORMAT "x(10)" LABEL "Program"
+    FIELD prgmtitle  AS CHARACTER FORMAT "x(30)" LABEL "Title"
+    FIELD mneumonic  AS CHARACTER FORMAT "x(3)"  LABEL "HotKey"
+    .
 
-DEFINE BUFFER bTaskResult FOR taskResult.
+{methods/lockWindowUpdate.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -61,39 +70,29 @@ DEFINE BUFFER bTaskResult FOR taskResult.
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
-&Scoped-define BROWSE-NAME taskResultBrowse
+&Scoped-define BROWSE-NAME ttUserPrint
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES taskResult
+&Scoped-define INTERNAL-TABLES ttUserPrint
 
-/* Definitions for BROWSE taskResultBrowse                              */
-&Scoped-define FIELDS-IN-QUERY-taskResultBrowse taskResult.fileDateTime ~
-taskResult.fileType taskResult.user-id taskResult.viewed ~
-taskResult.archived taskResult.folderFile 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-taskResultBrowse 
-&Scoped-define QUERY-STRING-taskResultBrowse FOR EACH taskResult ~
-      WHERE (lAdmin EQ YES AND ~
-TaskResult.folderFile BEGINS "TaskResults") ~
-OR (lAdmin EQ NO ~
-AND TaskResult.user-id EQ USERID("ASI")) NO-LOCK ~
-    ~{&SORTBY-PHRASE} INDEXED-REPOSITION
-&Scoped-define OPEN-QUERY-taskResultBrowse OPEN QUERY taskResultBrowse FOR EACH taskResult ~
-      WHERE (lAdmin EQ YES AND ~
-TaskResult.folderFile BEGINS "TaskResults") ~
-OR (lAdmin EQ NO ~
-AND TaskResult.user-id EQ USERID("ASI")) NO-LOCK ~
-    ~{&SORTBY-PHRASE} INDEXED-REPOSITION.
-&Scoped-define TABLES-IN-QUERY-taskResultBrowse taskResult
-&Scoped-define FIRST-TABLE-IN-QUERY-taskResultBrowse taskResult
+/* Definitions for BROWSE ttUserPrint                                   */
+&Scoped-define FIELDS-IN-QUERY-ttUserPrint ttUserPrint.user-id ttUserPrint.prog-title ttUserPrint.program-id ttUserPrint.prgmtitle ttUserPrint.mneumonic   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-ttUserPrint   
+&Scoped-define SELF-NAME ttUserPrint
+&Scoped-define QUERY-STRING-ttUserPrint FOR EACH ttUserPrint ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-ttUserPrint OPEN QUERY {&SELF-NAME} FOR EACH ttUserPrint ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-ttUserPrint ttUserPrint
+&Scoped-define FIRST-TABLE-IN-QUERY-ttUserPrint ttUserPrint
 
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME ~
-    ~{&OPEN-QUERY-taskResultBrowse}
+    ~{&OPEN-QUERY-ttUserPrint}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS taskResultBrowse btnArchive btnView ~
-btnDelete btnRefresh 
+&Scoped-Define ENABLED-OBJECTS btnSortMove searchBar ttUserPrint lActive ~
+lScheduled cAccess btnRun btnRestoreDefaults 
+&Scoped-Define DISPLAYED-OBJECTS searchBar lActive lScheduled cAccess 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -109,61 +108,112 @@ btnDelete btnRefresh
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnArchive 
-     IMAGE-UP FILE "AOA/images/element_copy.gif":U NO-FOCUS FLAT-BUTTON
-     LABEL "Archive" 
-     SIZE 5 BY .95 TOOLTIP "Archive to User Folder".
+DEFINE BUTTON btnRestoreDefaults 
+     IMAGE-UP FILE "Graphics/16x16/rename.jpg":U NO-FOCUS FLAT-BUTTON
+     LABEL "Defaults" 
+     SIZE 4 BY .95 TOOLTIP "Restore Defaults".
 
-DEFINE BUTTON btnDelete 
-     IMAGE-UP FILE "AOA/images/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
-     LABEL "Delete" 
-     SIZE 5 BY .95 TOOLTIP "Delete Folder File".
+DEFINE BUTTON btnRun 
+     IMAGE-UP FILE "Graphics/16x16/media_play.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Run" 
+     SIZE 4 BY .95 TOOLTIP "Run Now".
 
-DEFINE BUTTON btnRefresh 
-     IMAGE-UP FILE "AOA/images/aoaapply.jpg":U NO-FOCUS FLAT-BUTTON
-     LABEL "Refresh" 
-     SIZE 5 BY .95 TOOLTIP "Refresh Folder Files".
+DEFINE BUTTON btnSortMove 
+     IMAGE-UP FILE "Graphics/16x16/sort_up_down2.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Sort/Move" 
+     SIZE 4 BY .95 TOOLTIP "Toggle Sort/Move Columns".
 
-DEFINE BUTTON btnView 
-     IMAGE-UP FILE "AOA/images/media_play.gif":U NO-FOCUS FLAT-BUTTON
-     LABEL "View" 
-     SIZE 5 BY .95 TOOLTIP "View Folder File".
+DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Search" 
+     VIEW-AS FILL-IN 
+     SIZE 131 BY 1 TOOLTIP "Search Bar" NO-UNDO.
+
+DEFINE VARIABLE cAccess AS CHARACTER INITIAL "All" 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "All", "All",
+"System", "System",
+"Company", "Company",
+"Group", "Group",
+"User", "User"
+     SIZE 16 BY 5 NO-UNDO.
+
+DEFINE VARIABLE lActive AS LOGICAL 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "Active", yes,
+"Inactive", no,
+"Both", ?
+     SIZE 16 BY 3 NO-UNDO.
+
+DEFINE VARIABLE lScheduled AS LOGICAL 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "Scheduled", yes,
+"NotScheduled", no,
+"Both", ?
+     SIZE 16 BY 3 NO-UNDO.
+
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 18 BY 3.33.
+
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 18 BY 3.57.
+
+DEFINE RECTANGLE RECT-7
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 18 BY 5.48.
+
+DEFINE RECTANGLE RECT-8
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 18 BY 1.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY taskResultBrowse FOR 
-      taskResult SCROLLING.
+DEFINE QUERY ttUserPrint FOR 
+      ttUserPrint SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
-DEFINE BROWSE taskResultBrowse
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS taskResultBrowse C-Win _STRUCTURED
-  QUERY taskResultBrowse NO-LOCK DISPLAY
-      taskResult.fileDateTime FORMAT "99/99/9999 HH:MM:SS.SSS":U
-            LABEL-BGCOLOR 14
-      taskResult.fileType FORMAT "x(8)":U LABEL-BGCOLOR 14
-      taskResult.user-id FORMAT "x(10)":U LABEL-BGCOLOR 14
-      taskResult.viewed FORMAT "yes/no":U LABEL-BGCOLOR 14 VIEW-AS TOGGLE-BOX
-      taskResult.archived FORMAT "99/99/9999 HH:MM:SS.SSS":U LABEL-BGCOLOR 14
-      taskResult.folderFile FORMAT "x(256)":U LABEL-BGCOLOR 14
+DEFINE BROWSE ttUserPrint
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttUserPrint C-Win _FREEFORM
+  QUERY ttUserPrint DISPLAY
+      ttUserPrint.user-id LABEL-BGCOLOR 14
+ttUserPrint.prog-title LABEL-BGCOLOR 14
+ttUserPrint.program-id LABEL-BGCOLOR 14
+ttUserPrint.prgmtitle LABEL-BGCOLOR 14
+ttUserPrint.mneumonic LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 28.57
-         TITLE "Task Results" ROW-HEIGHT-CHARS .76.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 140 BY 27.62
+         TITLE "User Reports".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     taskResultBrowse AT ROW 1 COL 1 WIDGET-ID 200
-     btnArchive AT ROW 1 COL 20 HELP
-          "Click to Delete Folder File" WIDGET-ID 8
-     btnView AT ROW 1 COL 14 HELP
-          "Click to View Selected Folder File" WIDGET-ID 6
-     btnDelete AT ROW 1 COL 8 HELP
-          "Click to Delete Folder File" WIDGET-ID 4
-     btnRefresh AT ROW 1 COL 2 HELP
-          "Click to Refresh Folder Files" WIDGET-ID 2
+     btnSortMove AT ROW 1 COL 8 HELP
+          "Toggle Sort/Move Columns" WIDGET-ID 48
+     searchBar AT ROW 1 COL 28 COLON-ALIGNED HELP
+          "Search" WIDGET-ID 6
+     ttUserPrint AT ROW 1.95 COL 21 WIDGET-ID 200
+     lActive AT ROW 3.62 COL 3 HELP
+          "Select Active/Inactive/Both" NO-LABEL WIDGET-ID 50
+     lScheduled AT ROW 7.19 COL 3 HELP
+          "Select Schedule/Not Scheduled/Both" NO-LABEL WIDGET-ID 54
+     cAccess AT ROW 11 COL 3 NO-LABEL WIDGET-ID 58
+     btnRun AT ROW 1 COL 13 HELP
+          "Run Now" WIDGET-ID 44
+     btnRestoreDefaults AT ROW 1 COL 3 HELP
+          "Restore Defaults" WIDGET-ID 42
+     "Filters" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 2.43 COL 8 WIDGET-ID 70
+     RECT-5 AT ROW 3.38 COL 2 WIDGET-ID 64
+     RECT-6 AT ROW 6.95 COL 2 WIDGET-ID 66
+     RECT-7 AT ROW 10.76 COL 2 WIDGET-ID 68
+     RECT-8 AT ROW 2.19 COL 2 WIDGET-ID 72
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -187,7 +237,7 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "User Folder"
+         TITLE              = "Template Window"
          HEIGHT             = 28.57
          WIDTH              = 160
          MAX-HEIGHT         = 320
@@ -216,9 +266,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB taskResultBrowse 1 DEFAULT-FRAME */
+/* BROWSE-TAB ttUserPrint searchBar DEFAULT-FRAME */
+/* SETTINGS FOR RECTANGLE RECT-5 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-7 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-8 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 ASSIGN 
-       taskResultBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
+       ttUserPrint:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -229,28 +287,13 @@ THEN C-Win:HIDDEN = no.
 
 /* Setting information for Queries and Browse Widgets fields            */
 
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE taskResultBrowse
-/* Query rebuild information for BROWSE taskResultBrowse
-     _TblList          = "ASI.taskResult"
-     _Options          = "NO-LOCK INDEXED-REPOSITION SORTBY-PHRASE"
-     _Where[1]         = "(lAdmin EQ YES AND
-TaskResult.folderFile BEGINS ""TaskResults"")
-OR (lAdmin EQ NO
-AND TaskResult.user-id EQ USERID(""ASI""))"
-     _FldNameList[1]   > ASI.taskResult.fileDateTime
-"taskResult.fileDateTime" ? ? "datetime" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.taskResult.fileType
-"taskResult.fileType" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.taskResult.user-id
-"taskResult.user-id" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.taskResult.viewed
-"taskResult.viewed" ? ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "?" ? ? 5 no 0 no no
-     _FldNameList[5]   > ASI.taskResult.archived
-"taskResult.archived" ? ? "datetime" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.taskResult.folderFile
-"taskResult.folderFile" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE ttUserPrint
+/* Query rebuild information for BROWSE ttUserPrint
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH ttUserPrint ~{&SORTBY-PHRASE}.
+     _END_FREEFORM
      _Query            is OPENED
-*/  /* BROWSE taskResultBrowse */
+*/  /* BROWSE ttUserPrint */
 &ANALYZE-RESUME
 
  
@@ -261,7 +304,7 @@ AND TaskResult.user-id EQ USERID(""ASI""))"
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* User Folder */
+ON END-ERROR OF C-Win /* Template Window */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -274,7 +317,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* User Folder */
+ON WINDOW-CLOSE OF C-Win /* Template Window */
 DO:
   /* This event will close the window and terminate the procedure.  */
   RUN pSaveSettings.
@@ -287,7 +330,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-RESIZED OF C-Win /* User Folder */
+ON WINDOW-RESIZED OF C-Win /* Template Window */
 DO:
     RUN pWinReSize.
 END.
@@ -296,67 +339,87 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnArchive
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnArchive C-Win
-ON CHOOSE OF btnArchive IN FRAME DEFAULT-FRAME /* Archive */
+&Scoped-define SELF-NAME btnRestoreDefaults
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestoreDefaults C-Win
+ON CHOOSE OF btnRestoreDefaults IN FRAME DEFAULT-FRAME /* Defaults */
 DO:
-    IF NOT AVAILABLE taskResult THEN
-    RETURN NO-APPLY.
+    RUN pGetSettings ("_default").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnRun
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRun C-Win
+ON CHOOSE OF btnRun IN FRAME DEFAULT-FRAME /* Run */
+DO:
+    RUN pRunNow.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnSortMove
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSortMove C-Win
+ON CHOOSE OF btnSortMove IN FRAME DEFAULT-FRAME /* Sort/Move */
+DO:
     ASSIGN
-        cFolderFile = taskResult.folderFile
-        cFolderFile = REPLACE(cFolderFile,"TaskResults","users/"
-                    + taskResult.user-id
-                    + "/Jasper")
-                    .
-    IF SEARCH(cFolderFile) EQ ? THEN DO TRANSACTION:
-        FIND CURRENT taskResult EXCLUSIVE-LOCK.
-        CREATE bTaskResult.
-        BUFFER-COPY taskResult EXCEPT rec_key TO bTaskResult.
-        ASSIGN
-            bTaskResult.folderFile = cFolderFile
-            bTaskResult.archived   = DATETIME(TODAY,TIME)
-            bTaskResult.viewed     = NO
-            taskResult.viewed      = YES
-            rRowID                 = ROWID(bTaskResult)
-            .
-        FIND CURRENT taskResult NO-LOCK.
-        OS-COPY VALUE(taskResult.folderFile) VALUE(bTaskResult.folderFile).
-        RELEASE bTaskResult.
-        {&OPEN-QUERY-{&BROWSE-NAME}}
-        REPOSITION taskResultBrowse TO ROWID rRowID.
-    END. /* if search */
+        BROWSE {&BROWSE-NAME}:COLUMN-MOVABLE = lSortMove
+        lSortMove = NOT lSortMove
+        .
+    SELF:LOAD-IMAGE("Graphics/16x16/"
+        + IF lSortMove THEN "sort_up_down2.gif"
+          ELSE "left_right_arrows.gif")
+        .
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnDelete
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDelete C-Win
-ON CHOOSE OF btnDelete IN FRAME DEFAULT-FRAME /* Delete */
+&Scoped-define SELF-NAME cAccess
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cAccess C-Win
+ON VALUE-CHANGED OF cAccess IN FRAME DEFAULT-FRAME
 DO:
-    IF NOT AVAILABLE taskResult THEN
-    RETURN NO-APPLY.
-    MESSAGE
-        "Permanantly Remove ~"" + taskResult.folderFile + "~"?"
-    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-    UPDATE lDelete AS LOGICAL.
-    IF lDelete THEN DO TRANSACTION:
-        OS-DELETE VALUE(taskResult.folderFile).
-        FIND CURRENT taskResult EXCLUSIVE-LOCK.
-        DELETE taskResult.
-        {&OPEN-QUERY-{&BROWSE-NAME}}
-    END. /* if delete */
+    ASSIGN {&SELF-NAME}.
+    RUN pReopenBrowse.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnRefresh
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRefresh C-Win
-ON CHOOSE OF btnRefresh IN FRAME DEFAULT-FRAME /* Refresh */
+&Scoped-define SELF-NAME lActive
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lActive C-Win
+ON VALUE-CHANGED OF lActive IN FRAME DEFAULT-FRAME
 DO:
+    ASSIGN {&SELF-NAME}.
+    RUN pReopenBrowse.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lScheduled
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lScheduled C-Win
+ON VALUE-CHANGED OF lScheduled IN FRAME DEFAULT-FRAME
+DO:
+    ASSIGN {&SELF-NAME}.
+    RUN pReopenBrowse.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME searchBar
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL searchBar C-Win
+ON VALUE-CHANGED OF searchBar IN FRAME DEFAULT-FRAME /* Search */
+DO:
+    ASSIGN {&SELF-NAME}.
     {&OPEN-QUERY-{&BROWSE-NAME}}
 END.
 
@@ -364,44 +427,10 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnView
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnView C-Win
-ON CHOOSE OF btnView IN FRAME DEFAULT-FRAME /* View */
-DO:
-    IF AVAILABLE TaskResult THEN DO:
-        IF SEARCH(taskResult.folderFile) NE ? THEN DO TRANSACTION:
-            OS-COMMAND NO-WAIT start VALUE(taskResult.folderFile).
-            FIND CURRENT TaskResult EXCLUSIVE-LOCK.
-            TaskResult.viewed = YES.
-            FIND CURRENT TaskResult NO-LOCK.
-            BROWSE TaskResultBrowse:REFRESH().
-        END. /* if search */
-        ELSE
-        MESSAGE
-            "Result File: ~"" + taskResult.folderFile +
-            "~" cannot be found!"
-        VIEW-AS ALERT-BOX ERROR.
-    END. /* if avail */
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define BROWSE-NAME taskResultBrowse
-&Scoped-define SELF-NAME taskResultBrowse
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL taskResultBrowse C-Win
-ON DEFAULT-ACTION OF taskResultBrowse IN FRAME DEFAULT-FRAME /* Task Results */
-DO:
-    APPLY "CHOOSE":U TO btnView.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL taskResultBrowse C-Win
-ON START-SEARCH OF taskResultBrowse IN FRAME DEFAULT-FRAME /* Task Results */
+&Scoped-define BROWSE-NAME ttUserPrint
+&Scoped-define SELF-NAME ttUserPrint
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttUserPrint C-Win
+ON START-SEARCH OF ttUserPrint IN FRAME DEFAULT-FRAME /* User Reports */
 DO:
     IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
@@ -441,22 +470,17 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  {&WINDOW-NAME}:TITLE = "~"" + USERID("ASI") + "~" " + {&WINDOW-NAME}:TITLE.
   RUN pGetSettings.
   RUN enable_UI.
-  btnRefresh:MOVE-TO-TOP().
-  btnDelete:MOVE-TO-TOP().
-  btnView:MOVE-TO-TOP().
-  btnArchive:MOVE-TO-TOP().
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
-{methods/sortByProc.i "pByArchived" "taskResult.archived"}
-{methods/sortByProc.i "pByFileDateTime" "taskResult.fileDateTime"}
-{methods/sortByProc.i "pByFileType" "taskResult.fileType"}
-{methods/sortByProc.i "pByFolderFile" "taskResult.folderFile"}
-{methods/sortByProc.i "pByUserID" "taskResult.user-id"}
+{methods/sortByProc.i "pByUserID" "ttUserPrint.user-id"}
+{methods/sortByProc.i "pByProgTitle" "ttUserPrint.prog-title"}
+{methods/sortByProc.i "pByProgramID" "ttUserPrint.program-id"}
+{methods/sortByProc.i "pByPrgmTitle" "ttUserPrint.prgmtitle"}
+{methods/sortByProc.i "pByMNeumonic" "ttUserPrint.mneumonic"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -494,7 +518,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE taskResultBrowse btnArchive btnView btnDelete btnRefresh 
+  DISPLAY searchBar lActive lScheduled cAccess 
+      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
+  ENABLE btnSortMove searchBar ttUserPrint lActive lScheduled cAccess btnRun 
+         btnRestoreDefaults 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -552,16 +579,18 @@ PROCEDURE pReopenBrowse :
   Notes:       
 ------------------------------------------------------------------------------*/
     CASE cColumnLabel:
-        WHEN "archived" THEN
-        RUN pByArchived.
-        WHEN "fileDateTime" THEN
-        RUN pByFileDateTime.
-        WHEN "fileType" THEN
-        RUN pByFileType.
-        WHEN "folderFile" THEN
-        RUN pByFolderFile.
         WHEN "user-id" THEN
         RUN pByUserID.
+        WHEN "prog-title" THEN
+        RUN pByProgTitle.
+        WHEN "program-id" THEN
+        RUN pByProgramID.
+        WHEN "prgmtitle" THEN
+        RUN pByPrgmTitle.
+        WHEN "mneumonic" THEN
+        RUN pByMNeumonic.
+        OTHERWISE
+        {&OPEN-QUERY-{&BROWSE-NAME}}
     END CASE.
 
 END PROCEDURE.
@@ -627,7 +656,9 @@ PROCEDURE pWinReSize :
 ------------------------------------------------------------------------------*/
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
+        /*
         HIDE BROWSE {&BROWSE-NAME}.
+        */
         HIDE FRAME {&FRAME-NAME}.
         IF {&WINDOW-NAME}:HEIGHT LT 28.57 THEN
         {&WINDOW-NAME}:HEIGHT = 28.57.
@@ -638,12 +669,16 @@ PROCEDURE pWinReSize :
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
             FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
+            /*
             BROWSE {&BROWSE-NAME}:HEIGHT       = FRAME {&FRAME-NAME}:HEIGHT
                                                - BROWSE {&BROWSE-NAME}:ROW + 1
             BROWSE {&BROWSE-NAME}:WIDTH        = FRAME {&FRAME-NAME}:WIDTH
+            */
             .
         VIEW FRAME {&FRAME-NAME}.
+        /*
         VIEW BROWSE {&BROWSE-NAME}.
+        */
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
 

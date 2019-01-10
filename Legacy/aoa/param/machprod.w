@@ -52,14 +52,14 @@ svStartMachine svEndMachine svAllShift svStartShift svEndShift svUseTime ~
 svStartTime svStartAMPM svEndTime svEndAMPM svStartOpDate btnCalendar-1 ~
 svStartOpDateOption svEndOpDate btnCalendar-2 svEndOpDateOption svCustList ~
 btnCustList svAllCustNo svStartCustNo svEndCustNo svPrintByScheduledMachine ~
-svRoundDecimals 
+svRoundDecimals btnAddEmail svRecipients 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svAllMachine ~
 svStartMachine startMachineDescription svEndMachine endMachineDescription ~
 svAllShift svStartShift startShiftName svEndShift endShiftName svUseTime ~
 svStartTime svStartAMPM svEndTime svEndAMPM svStartOpDate ~
 svStartOpDateOption svEndOpDate svEndOpDateOption svCustList svAllCustNo ~
 svStartCustNo startCustName svEndCustNo endCustName ~
-svPrintByScheduledMachine svRoundDecimals 
+svPrintByScheduledMachine svRoundDecimals svRecipients 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -74,6 +74,11 @@ svPrintByScheduledMachine svRoundDecimals
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
 DEFINE BUTTON btnCalendar-1 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
@@ -113,6 +118,11 @@ DEFINE VARIABLE svStartOpDateOption AS CHARACTER FORMAT "X(256)":U
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 68 BY 2.86
+     BGCOLOR 15 .
 
 DEFINE VARIABLE endCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -218,6 +228,10 @@ DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 81 BY 2.62.
 
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 81 BY 3.57.
+
 DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
      LABEL "All Customers" 
      VIEW-AS TOGGLE-BOX
@@ -269,25 +283,25 @@ DEFINE FRAME F-Main
           "Enter End Machine" WIDGET-ID 20
      endMachineDescription AT ROW 6 COL 34 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svAllShift AT ROW 9.81 COL 22 HELP
+     svAllShift AT ROW 7.91 COL 22 HELP
           "All Shifts?" WIDGET-ID 118
-     svStartShift AT ROW 11 COL 20 COLON-ALIGNED HELP
+     svStartShift AT ROW 9.1 COL 20 COLON-ALIGNED HELP
           "Enter Start Shift" WIDGET-ID 122
-     startShiftName AT ROW 11 COL 25 COLON-ALIGNED HELP
+     startShiftName AT ROW 9.1 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 116
-     svEndShift AT ROW 12.19 COL 20 COLON-ALIGNED HELP
+     svEndShift AT ROW 10.29 COL 20 COLON-ALIGNED HELP
           "Enter End Shift" WIDGET-ID 120
-     endShiftName AT ROW 12.19 COL 25 COLON-ALIGNED HELP
+     endShiftName AT ROW 10.29 COL 25 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 114
-     svUseTime AT ROW 13.38 COL 22 HELP
+     svUseTime AT ROW 11.48 COL 22 HELP
           "Select to Use Time vs Shift Table" WIDGET-ID 248
-     svStartTime AT ROW 14.57 COL 20 COLON-ALIGNED HELP
+     svStartTime AT ROW 12.67 COL 20 COLON-ALIGNED HELP
           "Enter Start Time" WIDGET-ID 222
-     svStartAMPM AT ROW 14.57 COL 28 COLON-ALIGNED HELP
+     svStartAMPM AT ROW 12.67 COL 28 COLON-ALIGNED HELP
           "Select AM/PM" NO-LABEL WIDGET-ID 244
-     svEndTime AT ROW 14.57 COL 49 COLON-ALIGNED HELP
+     svEndTime AT ROW 12.67 COL 49 COLON-ALIGNED HELP
           "Enter End Time" WIDGET-ID 228
-     svEndAMPM AT ROW 14.57 COL 57 COLON-ALIGNED HELP
+     svEndAMPM AT ROW 12.67 COL 57 COLON-ALIGNED HELP
           "Select AM/PM" NO-LABEL WIDGET-ID 246
      svStartOpDate AT ROW 3.62 COL 104 COLON-ALIGNED HELP
           "Enter Start Date" WIDGET-ID 72
@@ -299,29 +313,44 @@ DEFINE FRAME F-Main
      btnCalendar-2 AT ROW 4.81 COL 122 WIDGET-ID 78
      svEndOpDateOption AT ROW 4.81 COL 125 COLON-ALIGNED HELP
           "Select End Date Option" NO-LABEL WIDGET-ID 70
-     svCustList AT ROW 7.43 COL 106 WIDGET-ID 48
-     btnCustList AT ROW 7.43 COL 136 WIDGET-ID 46
-     svAllCustNo AT ROW 8.62 COL 106 HELP
+     svCustList AT ROW 8.38 COL 106 WIDGET-ID 48
+     btnCustList AT ROW 8.38 COL 136 WIDGET-ID 46
+     svAllCustNo AT ROW 9.57 COL 106 HELP
           "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 9.81 COL 104 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 10.76 COL 104 COLON-ALIGNED HELP
           "Enter Beginning Customer" WIDGET-ID 2
-     startCustName AT ROW 9.81 COL 120 COLON-ALIGNED HELP
+     startCustName AT ROW 10.76 COL 120 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 11 COL 104 COLON-ALIGNED HELP
+     svEndCustNo AT ROW 11.95 COL 104 COLON-ALIGNED HELP
           "Enter Ending Customer" WIDGET-ID 6
-     endCustName AT ROW 11 COL 120 COLON-ALIGNED HELP
+     endCustName AT ROW 11.95 COL 120 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 8
-     svPrintByScheduledMachine AT ROW 13.62 COL 106 WIDGET-ID 124
-     svRoundDecimals AT ROW 14.81 COL 106 WIDGET-ID 126
-     RECT-1 AT ROW 3.14 COL 4 WIDGET-ID 250
-     RECT-2 AT ROW 3.14 COL 88 WIDGET-ID 252
-     RECT-3 AT ROW 9.57 COL 4 WIDGET-ID 254
-     RECT-4 AT ROW 7.19 COL 88 WIDGET-ID 256
-     RECT-5 AT ROW 13.38 COL 88 WIDGET-ID 258
+     svPrintByScheduledMachine AT ROW 15.52 COL 106 WIDGET-ID 124
+     svRoundDecimals AT ROW 16.71 COL 106 WIDGET-ID 126
+     btnAddEmail AT ROW 16.48 COL 10 HELP
+          "Add Recipents" WIDGET-ID 636
+     svRecipients AT ROW 14.81 COL 16 NO-LABEL WIDGET-ID 600
+     "Email" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 14.81 COL 10 WIDGET-ID 640
+     "Recipients:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 15.52 COL 5 WIDGET-ID 602
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 172.2 BY 17
+         SIZE 172.2 BY 18.19.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     RECT-1 AT ROW 3.14 COL 4 WIDGET-ID 250
+     RECT-2 AT ROW 3.14 COL 88 WIDGET-ID 252
+     RECT-3 AT ROW 7.67 COL 4 WIDGET-ID 254
+     RECT-4 AT ROW 8.14 COL 88 WIDGET-ID 256
+     RECT-5 AT ROW 15.29 COL 88 WIDGET-ID 258
+     RECT-6 AT ROW 14.33 COL 4 WIDGET-ID 638
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 172.2 BY 18.19
          TITLE "Report Parameters".
 
 
@@ -351,7 +380,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 17
+         HEIGHT             = 18.19
          WIDTH              = 172.2.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -398,6 +427,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startMachineDescription IN FRAME F-Main
@@ -428,6 +459,21 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail sObject
+ON CHOOSE OF btnAddEmail IN FRAME F-Main /* Email */
+DO:
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    cRecipients = svRecipients:SCREEN-VALUE.
+    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    svRecipients:SCREEN-VALUE = cRecipients.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btnCalendar-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 sObject

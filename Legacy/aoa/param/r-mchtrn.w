@@ -47,17 +47,17 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svStartMachTranDate btnCalendar-1 ~
-svStartMachTranDateOption svEndMachTranDate btnCalendar-2 ~
+&Scoped-Define ENABLED-OBJECTS btnAddEmail svCompany svStartMachTranDate ~
+btnCalendar-1 svStartMachTranDateOption svEndMachTranDate btnCalendar-2 ~
 svEndMachTranDateOption svAllMachine svStartMachine svEndMachine svAllShift ~
 svStartShift svEndShift svUseTime svStartTime svStartAMPM svEndTime ~
-svEndAMPM svSort svSubRpt_EmployeeTransactions 
+svEndAMPM svSort svSubRpt_EmployeeTransactions svRecipients 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svStartMachTranDate ~
 svStartMachTranDateOption svEndMachTranDate svEndMachTranDateOption ~
 svAllMachine svStartMachine startMachineDescription svEndMachine ~
 endMachineDescription svAllShift svStartShift startShiftDescription ~
 svEndShift endShiftDescription svUseTime svStartTime svStartAMPM svEndTime ~
-svEndAMPM svSort svSubRpt_EmployeeTransactions 
+svEndAMPM svSort svSubRpt_EmployeeTransactions svRecipients 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -72,6 +72,11 @@ svEndAMPM svSort svSubRpt_EmployeeTransactions
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
 DEFINE BUTTON btnCalendar-1 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
@@ -107,6 +112,11 @@ DEFINE VARIABLE svStartMachTranDateOption AS CHARACTER FORMAT "X(256)":U
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 70 BY 2.86
+     BGCOLOR 15 .
 
 DEFINE VARIABLE endMachineDescription AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -201,6 +211,10 @@ DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 83 BY 3.33.
 
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 83 BY 3.33.
+
 DEFINE VARIABLE svAllMachine AS LOGICAL INITIAL yes 
      LABEL "All Machines" 
      VIEW-AS TOGGLE-BOX
@@ -225,6 +239,8 @@ DEFINE VARIABLE svUseTime AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnAddEmail AT ROW 20.05 COL 40 HELP
+          "Add Recipents" WIDGET-ID 636
      svCompany AT ROW 1.24 COL 142 COLON-ALIGNED WIDGET-ID 60
      svStartMachTranDate AT ROW 1.71 COL 66 COLON-ALIGNED HELP
           "Enter Start Transaction Date" WIDGET-ID 72
@@ -267,17 +283,23 @@ DEFINE FRAME F-Main
      svSort AT ROW 15.05 COL 91 NO-LABEL WIDGET-ID 84
      svSubRpt_EmployeeTransactions AT ROW 15.81 COL 37 HELP
           "Select to Show Employee Transactions" WIDGET-ID 88
+     svRecipients AT ROW 18.38 COL 46 NO-LABEL WIDGET-ID 600
+     "Recipients:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 19.1 COL 35 WIDGET-ID 602
      "Sort By:" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 14.81 COL 82 WIDGET-ID 90
+     "Email" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 18.38 COL 40 WIDGET-ID 640
      RECT-1 AT ROW 1.24 COL 34 WIDGET-ID 250
      RECT-2 AT ROW 4.57 COL 34 WIDGET-ID 252
      RECT-3 AT ROW 7.91 COL 34 WIDGET-ID 254
      RECT-4 AT ROW 11.24 COL 34 WIDGET-ID 256
      RECT-5 AT ROW 14.57 COL 34 WIDGET-ID 258
+     RECT-6 AT ROW 18.14 COL 34 WIDGET-ID 638
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 149.2 BY 18.19
+         SIZE 149.2 BY 21.67
          FGCOLOR 1 
          TITLE "Report Parameters".
 
@@ -308,7 +330,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 18.19
+         HEIGHT             = 21.67
          WIDTH              = 149.2.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -353,6 +375,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startMachineDescription IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startShiftDescription IN FRAME F-Main
@@ -378,6 +402,21 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail sObject
+ON CHOOSE OF btnAddEmail IN FRAME F-Main /* Email */
+DO:
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    cRecipients = svRecipients:SCREEN-VALUE.
+    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    svRecipients:SCREEN-VALUE = cRecipients.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btnCalendar-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 sObject

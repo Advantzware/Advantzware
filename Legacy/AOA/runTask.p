@@ -4,6 +4,7 @@
 
 DEFINE VARIABLE cAppSrv     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSubject    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dttDateTime AS DATETIME  NO-UNDO.
 DEFINE VARIABLE hAppSrv     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hAppSrvBin  AS HANDLE    NO-UNDO.
@@ -21,6 +22,7 @@ ASSIGN
 RUN system\session.p PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
 
+FIND FIRST config NO-LOCK.
 FIND FIRST Task NO-LOCK WHERE ROWID(Task) EQ rRowID.
 
 FIND FIRST user-print NO-LOCK
@@ -55,10 +57,24 @@ IF AVAILABLE user-print THEN DO:
                 RUN pCreateAuditHdr.
                 RUN spCreateAuditDtl (iAuditID, "programID", 0, cJasperFile, Task.programID,  NO).
                 IF Task.recipients NE "" THEN DO:
+                    IF AVAILABLE config THEN DO:
+                        IF config.taskName THEN
+                        cSubject = cSubject + Task.taskName + " ".
+                        IF config.taskType THEN
+                        cSubject = cSubject + Task.taskFormat + " ".
+                        IF config.taskDate THEN
+                        cSubject = cSubject + STRING(TODAY,"99/99/9999") + " ".
+                        IF config.taskTime THEN
+                        cSubject = cSubject + STRING(TIME,"HH:MM:SS am").
+                        cSubject = TRIM(cSubject).
+                    END. /* if avail */
+                    ELSE
+                    cSubject = "AOA Task Result".
                     CREATE taskEmail.
                     ASSIGN
-                        taskEmail.subject    = "AOA Task Result"
-                        taskEmail.body       = "AOA Task Result Attached"
+                        taskEmail.subject    = cSubject
+                        taskEmail.body       = IF AVAILABLE config AND config.emailBody NE "" THEN
+                                               config.emailBody ELSE "AOA Task Result Attached"
                         taskEmail.attachment = cJasperFile
                         taskEmail.recipients = Task.recipients
                         taskEmail.mustExist  = YES
@@ -66,16 +82,18 @@ IF AVAILABLE user-print THEN DO:
                         .
                 END. /* if recipients */
                 ELSE IF Task.runNow THEN DO:
-                    CREATE taskEmail.
-                    ASSIGN
-                        taskEmail.subject    = "Submitted Run Now Request"
-                        taskEmail.body       = ""
-                        taskEmail.attachment = cJasperFile
-                        taskEmail.recipients = "Cue Card Message"
-                        taskEmail.user-id    = Task.user-id
-                        taskEmail.mustExist  = YES
-                        taskEmail.rec_key    = Task.rec_key
-                        .
+                    IF AVAILABLE config AND config.cueCard THEN DO:
+                        CREATE taskEmail.
+                        ASSIGN
+                            taskEmail.subject    = "Submitted Run Now Request"
+                            taskEmail.body       = ""
+                            taskEmail.attachment = cJasperFile
+                            taskEmail.recipients = "Cue Card Message"
+                            taskEmail.user-id    = Task.user-id
+                            taskEmail.mustExist  = YES
+                            taskEmail.rec_key    = Task.rec_key
+                            .
+                    END. /* if avail */
                 END. /* else if runnow */
                 RUN pCalcNextRun (YES).
             END. /* if search */

@@ -151,7 +151,7 @@ AND AuditHdr.AuditType EQ "Task" NO-LOCK, ~
     ~{&OPEN-QUERY-taskBrowse}
 
 /* Definitions for FRAME viewFrame                                      */
-&Scoped-define FIELDS-IN-QUERY-viewFrame Task.taskName Task.taskID ~
+&Scoped-define FIELDS-IN-QUERY-viewFrame Task.taskID Task.taskName ~
 Task.user-id Task.securityLevel Task.scheduled Task.programID Task.module ~
 Task.frequency Task.cTaskTime Task.cFromTime Task.cToTime Task.dayOfWeek1 ~
 Task.dayOfWeek2 Task.dayOfWeek3 Task.dayOfWeek4 Task.dayOfWeek5 ~
@@ -178,7 +178,7 @@ Task.recipients
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnRun showTasks searchBar taskBrowse ~
-btnSortMove btnView btnRestoreDefaults 
+auditBrowse btnSortMove btnView btnRestoreDefaults 
 &Scoped-Define DISPLAYED-OBJECTS showTasks searchBar 
 
 /* Custom List Definitions                                              */
@@ -188,7 +188,7 @@ btnNext btnPrev btnAdd btnCancel btnCopy btnDelete btnReset btnUpdate
 &Scoped-define transInit btnRunNow btnClose btnFirst btnLast btnNext ~
 btnPrev btnAdd btnCopy btnDelete btnUpdate 
 &Scoped-define transUpdate btnAddEmail btnCancel btnReset btnUpdate 
-&Scoped-define displayFields Task.taskName Task.taskID Task.user-id ~
+&Scoped-define displayFields Task.taskID Task.taskName Task.user-id ~
 Task.securityLevel Task.scheduled Task.programID Task.module Task.frequency ~
 Task.cTaskTime Task.cFromTime Task.cToTime Task.dayOfWeek1 Task.dayOfWeek2 ~
 Task.dayOfWeek3 Task.dayOfWeek4 Task.dayOfWeek5 Task.dayOfWeek6 ~
@@ -204,7 +204,7 @@ Task.dayOfMonth[26] Task.dayOfMonth[27] Task.dayOfMonth[28] Task.runNow ~
 Task.dayOfMonth[29] Task.dayOfMonth[30] Task.dayOfMonth[31] ~
 Task.lastOfMonth Task.startDate Task.endDate Task.taskFormat Task.nextDate ~
 Task.cNextTime Task.lastDate Task.cLastTime Task.recipients 
-&Scoped-define enabledFields Task.taskName Task.taskID Task.securityLevel ~
+&Scoped-define enabledFields Task.taskID Task.taskName Task.securityLevel ~
 Task.scheduled Task.frequency Task.cTaskTime Task.cFromTime Task.cToTime ~
 Task.dayOfWeek1 Task.dayOfWeek2 Task.dayOfWeek3 Task.dayOfWeek4 ~
 Task.dayOfWeek5 Task.dayOfWeek6 Task.dayOfWeek7 Task.dayOfMonth[1] ~
@@ -528,13 +528,13 @@ DEFINE FRAME DEFAULT-FRAME
 DEFINE FRAME viewFrame
      btnAddEmail AT ROW 17.91 COL 8 HELP
           "Add Recipents" WIDGET-ID 636
-     Task.taskName AT ROW 1.24 COL 12 COLON-ALIGNED WIDGET-ID 480
-          VIEW-AS FILL-IN 
-          SIZE 26 BY 1
-          BGCOLOR 15 
-     Task.taskID AT ROW 1.24 COL 48 COLON-ALIGNED WIDGET-ID 504
+     Task.taskID AT ROW 1.24 COL 12 COLON-ALIGNED WIDGET-ID 504
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
+          BGCOLOR 15 
+     Task.taskName AT ROW 1.24 COL 41 COLON-ALIGNED WIDGET-ID 480
+          VIEW-AS FILL-IN 
+          SIZE 26 BY 1
           BGCOLOR 15 
      Task.user-id AT ROW 1.24 COL 77 COLON-ALIGNED WIDGET-ID 516
           VIEW-AS FILL-IN 
@@ -547,7 +547,7 @@ DEFINE FRAME viewFrame
      Task.scheduled AT ROW 2.43 COL 14 WIDGET-ID 482
           VIEW-AS TOGGLE-BOX
           SIZE 13 BY 1
-     Task.programID AT ROW 2.43 COL 48 COLON-ALIGNED WIDGET-ID 512
+     Task.programID AT ROW 2.43 COL 41 COLON-ALIGNED WIDGET-ID 512
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
@@ -656,6 +656,8 @@ DEFINE FRAME viewFrame
           LABEL "12"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnRunNow AT ROW 19.81 COL 80 HELP
+          "Run Now" WIDGET-ID 634
      Task.dayOfMonth[13] AT ROW 8.38 COL 68 WIDGET-ID 548
           LABEL "13"
           VIEW-AS TOGGLE-BOX
@@ -684,6 +686,8 @@ DEFINE FRAME viewFrame
           LABEL "19"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnClose AT ROW 1 COL 136 HELP
+          "Close" WIDGET-ID 72
      Task.dayOfMonth[20] AT ROW 9.33 COL 68 WIDGET-ID 558
           LABEL "20"
           VIEW-AS TOGGLE-BOX
@@ -696,6 +700,8 @@ DEFINE FRAME viewFrame
           LABEL "22"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnFirst AT ROW 19.81 COL 106 HELP
+          "First" WIDGET-ID 274
      Task.dayOfMonth[23] AT ROW 10.29 COL 36 WIDGET-ID 576
           LABEL "23"
           VIEW-AS TOGGLE-BOX
@@ -712,14 +718,6 @@ DEFINE FRAME viewFrame
           LABEL "26"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     Task.dayOfMonth[27] AT ROW 10.29 COL 68 WIDGET-ID 572
-          LABEL "27"
-          VIEW-AS TOGGLE-BOX
-          SIZE 6 BY .81
-     Task.dayOfMonth[28] AT ROW 10.29 COL 76 WIDGET-ID 574
-          LABEL "28"
-          VIEW-AS TOGGLE-BOX
-          SIZE 6 BY .81
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 21 ROW 7.43
@@ -728,8 +726,16 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     btnRunNow AT ROW 19.81 COL 80 HELP
-          "Run Now" WIDGET-ID 634
+     Task.dayOfMonth[27] AT ROW 10.29 COL 68 WIDGET-ID 572
+          LABEL "27"
+          VIEW-AS TOGGLE-BOX
+          SIZE 6 BY .81
+     Task.dayOfMonth[28] AT ROW 10.29 COL 76 WIDGET-ID 574
+          LABEL "28"
+          VIEW-AS TOGGLE-BOX
+          SIZE 6 BY .81
+     btnLast AT ROW 19.86 COL 130 HELP
+          "Last" WIDGET-ID 68
      Task.runNow AT ROW 11.24 COL 14 WIDGET-ID 652
           VIEW-AS TOGGLE-BOX
           SIZE 12 BY .81
@@ -741,14 +747,12 @@ DEFINE FRAME viewFrame
           LABEL "30"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnClose AT ROW 1 COL 136 HELP
-          "Close" WIDGET-ID 72
      Task.dayOfMonth[31] AT ROW 11.24 COL 44 WIDGET-ID 582
           LABEL "31"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnFirst AT ROW 19.81 COL 106 HELP
-          "First" WIDGET-ID 274
+     btnNext AT ROW 19.81 COL 122 HELP
+          "Next" WIDGET-ID 276
      Task.lastOfMonth AT ROW 11.24 COL 76 WIDGET-ID 586
           VIEW-AS TOGGLE-BOX
           SIZE 21 BY .81
@@ -757,10 +761,6 @@ DEFINE FRAME viewFrame
           SIZE 16 BY 1
           BGCOLOR 15 
      btnCalendar-1 AT ROW 12.43 COL 30 WIDGET-ID 76
-     btnLast AT ROW 19.86 COL 130 HELP
-          "Last" WIDGET-ID 68
-     btnNext AT ROW 19.81 COL 122 HELP
-          "Next" WIDGET-ID 276
      startDateOption AT ROW 12.43 COL 33 COLON-ALIGNED HELP
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 74
      Task.endDate AT ROW 13.62 COL 12 COLON-ALIGNED WIDGET-ID 506
@@ -785,30 +785,30 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
+     Task.cNextTime AT ROW 14.81 COL 36 COLON-ALIGNED WIDGET-ID 596
+          LABEL "Time"
+          VIEW-AS FILL-IN 
+          SIZE 9 BY 1
+          BGCOLOR 15 
+     Task.lastDate AT ROW 16 COL 12 COLON-ALIGNED WIDGET-ID 508
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 
      btnAdd AT ROW 19.86 COL 23 HELP
           "Add" WIDGET-ID 20
-     Task.cNextTime AT ROW 14.81 COL 36 COLON-ALIGNED WIDGET-ID 596
+     Task.cLastTime AT ROW 16 COL 36 COLON-ALIGNED WIDGET-ID 594
           LABEL "Time"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 
      btnCancel AT ROW 19.86 COL 55 HELP
           "Cancel" WIDGET-ID 28
-     Task.lastDate AT ROW 16 COL 12 COLON-ALIGNED WIDGET-ID 508
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-          BGCOLOR 15 
-     Task.cLastTime AT ROW 16 COL 36 COLON-ALIGNED WIDGET-ID 594
-          LABEL "Time"
-          VIEW-AS FILL-IN 
-          SIZE 9 BY 1
-          BGCOLOR 15 
+     btnCopy AT ROW 19.86 COL 31 HELP
+          "Copy" WIDGET-ID 24
      Task.recipients AT ROW 17.19 COL 14 NO-LABEL WIDGET-ID 600
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 125 BY 2.14
           BGCOLOR 15 
-     btnCopy AT ROW 19.86 COL 31 HELP
-          "Copy" WIDGET-ID 24
      btnDelete AT ROW 19.86 COL 39 HELP
           "Delete" WIDGET-ID 26
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -901,8 +901,6 @@ ASSIGN XXTABVALXX = FRAME viewFrame:MOVE-AFTER-TAB-ITEM (taskBrowse:HANDLE IN FR
 
 /* BROWSE-TAB taskBrowse searchBar DEFAULT-FRAME */
 /* BROWSE-TAB auditBrowse viewFrame DEFAULT-FRAME */
-/* SETTINGS FOR BROWSE auditBrowse IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
 ASSIGN 
        auditBrowse:HIDDEN  IN FRAME DEFAULT-FRAME                = TRUE.
 
@@ -1722,6 +1720,7 @@ DO:
              NO-ERROR.
         IF AVAILABLE bUserPrint THEN DO:
             ASSIGN
+                Task.taskName:SCREEN-VALUE  = bUserPrint.prog-title
                 Task.user-id:SCREEN-VALUE   = bUserPrint.user-id
                 Task.programID:SCREEN-VALUE = bUserPrint.program-id
                 .
@@ -1870,14 +1869,14 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY showTasks searchBar 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnRun showTasks searchBar taskBrowse btnSortMove btnView 
+  ENABLE btnRun showTasks searchBar taskBrowse auditBrowse btnSortMove btnView 
          btnRestoreDefaults 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   DISPLAY cPrgmTitle startDateOption endDateOption 
       WITH FRAME viewFrame IN WINDOW C-Win.
   IF AVAILABLE Task THEN 
-    DISPLAY Task.taskName Task.taskID Task.user-id Task.securityLevel 
+    DISPLAY Task.taskID Task.taskName Task.user-id Task.securityLevel 
           Task.scheduled Task.programID Task.module Task.frequency 
           Task.cTaskTime Task.cFromTime Task.cToTime Task.dayOfWeek1 
           Task.dayOfWeek2 Task.dayOfWeek3 Task.dayOfWeek4 Task.dayOfWeek5 
@@ -2117,7 +2116,7 @@ PROCEDURE pCRUD :
             END. /* reset */
         END CASE. /* ipcmode:label */
         IF Task.taskName:SENSITIVE THEN
-        APPLY "ENTRY":U TO Task.taskName.
+        APPLY "ENTRY":U TO Task.taskID.
         ELSE
         APPLY "ENTRY":U TO BROWSE taskBrowse.
         /* save the mode for when logic returns to this procedure */

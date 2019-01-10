@@ -423,11 +423,7 @@ PROCEDURE spSendEmail:
     DEFINE INPUT PARAMETER ipcAttachment AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcRecipients AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cHost            AS CHARACTER  NO-UNDO.
-    DEFINE VARIABLE cLogin           AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE cMail            AS CHARACTER  NO-UNDO.
-    DEFINE VARIABLE cPassword        AS CHARACTER  NO-UNDO.
-    DEFINE VARIABLE cPort            AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE idx              AS INTEGER    NO-UNDO.
     DEFINE VARIABLE objOutlook       AS COM-HANDLE NO-UNDO.
     DEFINE VARIABLE objOutlookAttach AS COM-HANDLE NO-UNDO.
@@ -444,21 +440,17 @@ PROCEDURE spSendEmail:
     IF ipcAttachment EQ ?  THEN RETURN.
     IF ipcRecipients EQ "" THEN RETURN.
     
-    IF TRUE THEN DO:
-        ASSIGN
-            cHost     = "smtp.office365.com"
-            cLogin    = "wade.kaldawi@advantzware.com"
-            cPassword = "Chester1!"
-            cPort     = "587"
-            cMail     = cMail + " -host:"
-                      + cLogin + ":" + cPassword
-                      + "@" + cHost + ":" + cPort
-                      + " -starttls"
-                      + " -a:" + ipcAttachment
-                      + " ~"-subject:" + ipcSubject + "~""
-                      + " ~"-body:" + ipcBody + "~""
-                      + " -from:" + cLogin
-                      .
+    FIND FIRST config NO-LOCK.
+    IF AVAILABLE config AND config.smtpServer NE "" THEN DO:
+        cMail = cMail + " -host:"
+              + config.smtpUser + ":" + config.smtpPassword
+              + "@" + config.smtpServer + ":" + STRING(config.smtpPort)
+              + " -starttls"
+              + " -a:" + ipcAttachment
+              + " ~"-subject:" + ipcSubject + "~""
+              + " ~"-body:" + config.emailBody + "~""
+              + " -from:" + config.smtpUser
+              .
         DO idx = 1 TO NUM-ENTRIES(ipcRecipients):
             cMail = cMail + " -to:" + ENTRY(idx,ipcRecipients).
         END. /* do idx */

@@ -1100,25 +1100,30 @@ PROCEDURE pJasperStarter :
     DEFINE VARIABLE cJasperFile    AS CHARACTER NO-UNDO EXTENT 4.
     DEFINE VARIABLE cJasperFolder  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUserFolder    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTime          AS INTEGER   NO-UNDO.
     
     /* ensure needed folders exist */
+    OS-CREATE-DIR "TaskResults".
     OS-CREATE-DIR "users".
     cUserFolder = "users/" + aoaUserID + "/".
     OS-CREATE-DIR VALUE(cUserFolder).
     cJasperFolder = "users/" + aoaUserID + "/Jasper/".
     OS-CREATE-DIR VALUE(cJasperFolder).
-    ASSIGN 
+    ASSIGN
+        dtDate         = TODAY
+        iTime          = TIME
         cJasperFile[1] = SEARCH(cUserFolder + REPLACE(aoaTitle," ","") + ".jrxml")
         cJasperFile[2] = SEARCH(cUserFolder + REPLACE(aoaTitle," ","") + ".json")
         cJasperFile[3] = REPLACE(cJasperFile[1],"jrxml",ipcType)
         cJasperFile[3] = REPLACE(cJasperFile[3]," -d","")
-        cJasperFile[4] = cJasperFolder
+        cJasperFile[4] = "TaskResults/"
                        + REPLACE(aoaTitle," ","") + "."
-                       + STRING(YEAR(TODAY),"9999")
-                       + STRING(MONTH(TODAY),"99")
-                       + STRING(DAY(TODAY),"99") + "."
-                       + STRING(TIME,"99999")
+                       + STRING(YEAR(dtDate),"9999")
+                       + STRING(MONTH(dtDate),"99")
+                       + STRING(DAY(dtDate),"99") + "."
+                       + STRING(iTime,"99999")
         opcJastFile    = cJasperFile[4] + "." + LC(ipcType)
         cJasperStarter = "jasperstarter process "
                        + "-f " + LC(ipcType) + " "
@@ -1141,6 +1146,13 @@ PROCEDURE pJasperStarter :
         END. /* if ? */
     END. /* do idx */
     
+    CREATE TaskResult.
+    ASSIGN
+        TaskResult.fileDateTime = DATETIME(dtDate,iTime)
+        TaskResult.fileType     = ipcType
+        TaskResult.user-id      = aoaUserID
+        TaskResult.folderFile   = opcJastFile
+        .
     OS-DELETE VALUE(cJasperFile[3]).    
     OS-COMMAND NO-WAIT start VALUE(cJasperStarter).
 

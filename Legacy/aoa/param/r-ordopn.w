@@ -58,7 +58,7 @@ svStartDueDateOption svEndDueDate btnCalendar-4 svEndDueDateOption ~
 svAllSalesRep svStartSalesRep svEndSalesRep svAllPONumber svStartPONumber ~
 svEndPONumber svAllJobNo svStartJobNo svStartJobNo2 svEndJobNo svEndJobNo2 ~
 svAllCAD svStartCAD svEndCAD svPrimarySort svSecondarySort svJobStatus ~
-svOrderStatus svWIPQty 
+svOrderStatus svWIPQty btnAddEmail svRecipients 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svCustList svAllCustNo ~
 svStartCustNo startCustName svEndCustNo endCustName svAllUserID ~
 svStartUserID startUserIDName svEndUserID endUserIDName svAllItemNo ~
@@ -71,7 +71,8 @@ svStartDueDate svStartDueDateOption svEndDueDate svEndDueDateOption ~
 svAllSalesRep svStartSalesRep startSalesRepName svEndSalesRep ~
 endSalesRepName svAllPONumber svStartPONumber svEndPONumber svAllJobNo ~
 svStartJobNo svStartJobNo2 svEndJobNo svEndJobNo2 svAllCAD svStartCAD ~
-svEndCAD svPrimarySort svSecondarySort svJobStatus svOrderStatus svWIPQty 
+svEndCAD svPrimarySort svSecondarySort svJobStatus svOrderStatus svWIPQty ~
+svRecipients 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -87,6 +88,11 @@ btnCalendar-4
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
 DEFINE BUTTON btnCalendar-1 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
@@ -134,6 +140,11 @@ DEFINE VARIABLE svStartOrderDateOption AS CHARACTER FORMAT "X(256)":U
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 70 BY 2.86
+     BGCOLOR 15 .
 
 DEFINE VARIABLE endCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -324,6 +335,10 @@ DEFINE RECTANGLE RECT-10
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 109 BY 5.24.
 
+DEFINE RECTANGLE RECT-11
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 83 BY 3.57.
+
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 109 BY 5.24.
@@ -496,7 +511,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 192.2 BY 22.1.
+         SIZE 192.2 BY 26.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
@@ -543,6 +558,9 @@ DEFINE FRAME F-Main
           "Select Order Status" NO-LABEL WIDGET-ID 214
      svWIPQty AT ROW 20.52 COL 103 HELP
           "Select QIP Qty" NO-LABEL WIDGET-ID 218
+     btnAddEmail AT ROW 24.33 COL 61 HELP
+          "Add Recipents" WIDGET-ID 636
+     svRecipients AT ROW 22.67 COL 67 NO-LABEL WIDGET-ID 600
      "Primary Sort By:" VIEW-AS TEXT
           SIZE 16 BY 1 AT ROW 16.95 COL 86 WIDGET-ID 90
      "Job Status:" VIEW-AS TEXT
@@ -551,9 +569,20 @@ DEFINE FRAME F-Main
           SIZE 16 BY 1 AT ROW 18.14 COL 86 WIDGET-ID 208
      "WIP Qty:" VIEW-AS TEXT
           SIZE 9 BY 1 AT ROW 20.52 COL 93 WIDGET-ID 246
+     "Email" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 22.67 COL 61 WIDGET-ID 640
+     "Recipients:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 23.38 COL 56 WIDGET-ID 602
      "Order Status:" VIEW-AS TEXT
           SIZE 13 BY 1 AT ROW 19.33 COL 148 WIDGET-ID 244
      RECT-1 AT ROW 2.67 COL 2 WIDGET-ID 248
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 192.2 BY 26.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      RECT-2 AT ROW 2.67 COL 83 WIDGET-ID 250
      RECT-3 AT ROW 12.43 COL 83 WIDGET-ID 252
      RECT-4 AT ROW 12.43 COL 127 WIDGET-ID 254
@@ -561,19 +590,13 @@ DEFINE FRAME F-Main
      RECT-6 AT ROW 12.43 COL 156 WIDGET-ID 258
      RECT-7 AT ROW 12.43 COL 2 WIDGET-ID 260
      RECT-8 AT ROW 8.14 COL 2 WIDGET-ID 262
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 192.2 BY 22.1.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      RECT-9 AT ROW 8.14 COL 83 WIDGET-ID 264
      RECT-10 AT ROW 16.71 COL 83 WIDGET-ID 266
+     RECT-11 AT ROW 22.19 COL 55 WIDGET-ID 638
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 192.2 BY 22.1
+         SIZE 192.2 BY 26
          TITLE "Report Parameters".
 
 
@@ -603,7 +626,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 22.1
+         HEIGHT             = 26
          WIDTH              = 192.2.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -650,6 +673,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-10 IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-11 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
@@ -695,6 +720,21 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail sObject
+ON CHOOSE OF btnAddEmail IN FRAME F-Main /* Email */
+DO:
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    cRecipients = svRecipients:SCREEN-VALUE.
+    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    svRecipients:SCREEN-VALUE = cRecipients.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btnCalendar-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 sObject

@@ -46,8 +46,10 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svAutoAdd svAutoUpdate 
-&Scoped-Define DISPLAYED-OBJECTS svCompany svAutoAdd svAutoUpdate 
+&Scoped-Define ENABLED-OBJECTS btnAddEmail svCompany svAutoAdd svAutoUpdate ~
+svRecipients 
+&Scoped-Define DISPLAYED-OBJECTS svCompany svAutoAdd svAutoUpdate ~
+svRecipients 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -61,6 +63,16 @@ CREATE WIDGET-POOL.
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 70 BY 2.86
+     BGCOLOR 15 .
+
 DEFINE VARIABLE svCompany AS CHARACTER FORMAT "X(3)" 
      LABEL "Company" 
      VIEW-AS FILL-IN 
@@ -69,6 +81,10 @@ DEFINE VARIABLE svCompany AS CHARACTER FORMAT "X(3)"
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 44 BY 3.57.
+
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 83 BY 3.57.
 
 DEFINE VARIABLE svAutoAdd AS LOGICAL INITIAL no 
      LABEL "Auto Add New CRM Contacts" 
@@ -84,12 +100,20 @@ DEFINE VARIABLE svAutoUpdate AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnAddEmail AT ROW 13.86 COL 39 HELP
+          "Add Recipents" WIDGET-ID 636
      svCompany AT ROW 1.24 COL 142 COLON-ALIGNED WIDGET-ID 60
      svAutoAdd AT ROW 6.24 COL 57 HELP
           "Select to Auto Add New CRM Contacts" WIDGET-ID 88
      svAutoUpdate AT ROW 7.91 COL 57 HELP
           "Select to Auto Update Existing CRM Contacts" WIDGET-ID 324
+     svRecipients AT ROW 12.19 COL 45 NO-LABEL WIDGET-ID 600
+     "Email" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 12.19 COL 39 WIDGET-ID 640
+     "Recipients:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 12.91 COL 34 WIDGET-ID 602
      RECT-1 AT ROW 5.76 COL 54 WIDGET-ID 326
+     RECT-6 AT ROW 11.71 COL 33 WIDGET-ID 638
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -152,6 +176,8 @@ ASSIGN
 
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
+   NO-ENABLE                                                            */
 ASSIGN 
        svCompany:READ-ONLY IN FRAME F-Main        = TRUE.
 
@@ -173,6 +199,21 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail sObject
+ON CHOOSE OF btnAddEmail IN FRAME F-Main /* Email */
+DO:
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    cRecipients = svRecipients:SCREEN-VALUE.
+    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    svRecipients:SCREEN-VALUE = cRecipients.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME svCompany
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svCompany sObject

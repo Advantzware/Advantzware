@@ -47,11 +47,12 @@ DEFINE TEMP-TABLE ttUserPrint NO-UNDO LIKE user-print
     FIELD userPrintRowID AS ROWID EXTENT 2
     .
 DEFINE TEMP-TABLE ttParamValue NO-UNDO
-    FIELD paramOrder AS INTEGER
+    FIELD paramOrder AS INTEGER   LABEL "Index"       FORMAT ">>9"
     FIELD batch-seq  AS INTEGER
     FIELD prgmName   AS CHARACTER 
     FIELD paramLabel AS CHARACTER LABEL "Param Label" FORMAT "x(31)"
     FIELD paramValue AS CHARACTER LABEL "Param Value" FORMAT "x(30)"
+    FIELD paramName  AS CHARACTER LABEL "Param Name"  FORMAT "x(20)"
         INDEX paramOrder IS PRIMARY
             paramOrder
             .
@@ -77,7 +78,7 @@ DEFINE BUFFER jasperUserPrint FOR user-print.
 &Scoped-define INTERNAL-TABLES ttParamValue ttUserPrint
 
 /* Definitions for BROWSE browseParamValue                              */
-&Scoped-define FIELDS-IN-QUERY-browseParamValue ttParamValue.paramLabel ttParamValue.paramValue   
+&Scoped-define FIELDS-IN-QUERY-browseParamValue ttParamValue.paramLabel ttParamValue.paramValue ttParamValue.paramName ttParamValue.paramOrder   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseParamValue   
 &Scoped-define SELF-NAME browseParamValue
 &Scoped-define QUERY-STRING-browseParamValue FOR EACH ttParamValue      WHERE ttParamValue.batch-seq EQ ttUserPrint.batch-seq      AND ttParamValue.prgmName EQ ttUserPrint.prgmName
@@ -160,7 +161,9 @@ DEFINE BROWSE browseParamValue
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browseParamValue sObject _FREEFORM
   QUERY browseParamValue DISPLAY
       ttParamValue.paramLabel
-    ttParamValue.paramValue
+ttParamValue.paramValue
+ttParamValue.paramName
+ttParamValue.paramOrder
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 67 BY 7.14
@@ -250,7 +253,7 @@ END.
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB browseUserPrint 1 F-Main */
-/* BROWSE-TAB browseParamValue browseUserPrint F-Main */
+/* BROWSE-TAB browseParamValue RECT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -313,6 +316,16 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttUserPrint.
 
 &Scoped-define BROWSE-NAME browseUserPrint
 &Scoped-define SELF-NAME browseUserPrint
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseUserPrint sObject
+ON DEFAULT-ACTION OF browseUserPrint IN FRAME F-Main /* Tasks */
+DO:
+    APPLY "CHOOSE":U TO btnApply.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseUserPrint sObject
 ON VALUE-CHANGED OF browseUserPrint IN FRAME F-Main /* Tasks */
 DO:
@@ -444,8 +457,9 @@ PROCEDURE pAddTask :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iTaskID AS INTEGER NO-UNDO.
-    DEFINE VARIABLE rRowID  AS ROWID   NO-UNDO EXTENT 2.
+    DEFINE VARIABLE cTitle  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iTaskID AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE rRowID  AS ROWID     NO-UNDO EXTENT 2.
     
     FOR EACH user-print NO-LOCK
         WHERE user-print.company EQ aoaCompany
@@ -461,12 +475,17 @@ PROCEDURE pAddTask :
     {methods/run_link.i "CONTAINER" "pGetUserPrintRowID" "(OUTPUT rRowID[1])"}
     {methods/run_link.i "CONTAINER" "pGetJasperUserPrintRowID" "(OUTPUT rRowID[2])"}
 
+    cTitle = aoaTitle.
+    UPDATE cTitle FORMAT "x(30)" LABEL "Task Title"
+        WITH FRAME fTitle CENTERED ROW 10 SIDE-LABELS OVERLAY.
+    HIDE FRAME fTitle.
+    
     DO TRANSACTION:
         FIND FIRST user-print EXCLUSIVE-LOCK
              WHERE ROWID(user-print) EQ rRowID[1].
         ASSIGN
             user-print.batch-seq  = iTaskID
-            user-print.prog-title = aoaTitle
+            user-print.prog-title = cTitle
             user-print.frequency  = ""
             .
     END. /* do transaction */
@@ -507,33 +526,36 @@ PROCEDURE pApplyTask :
     DEFINE VARIABLE jdx    AS INTEGER NO-UNDO.
     DEFINE VARIABLE rRowID AS ROWID   NO-UNDO EXTENT 2.
     
-    {methods/run_link.i "CONTAINER" "pGetUserPrintRowID" "(OUTPUT rRowID[1])"}
-    {methods/run_link.i "CONTAINER" "pGetJasperUserPrintRowID" "(OUTPUT rRowID[2])"}
-    DO jdx = 1 TO 2:
-        FIND FIRST bUserPrint NO-LOCK
-             WHERE ROWID(bUserPrint) EQ ttUserPrint.userPrintRowID[jdx].
-        DO TRANSACTION:
-            FIND FIRST user-print EXCLUSIVE-LOCK
-                 WHERE ROWID(user-print) EQ rRowID[jdx].
-            ASSIGN
-                user-print.field-name  = ""
-                user-print.field-label = ""
-                user-print.field-value = ""
-                .
-            DO idx = 1 TO EXTENT(bUserPrint.field-name):
-                IF bUserPrint.field-name[idx] EQ "" THEN LEAVE.
+    IF ttUserPrint.batch-seq NE 0 THEN DO:
+        {methods/run_link.i "CONTAINER" "pGetUserPrintRowID" "(OUTPUT rRowID[1])"}
+        {methods/run_link.i "CONTAINER" "pGetJasperUserPrintRowID" "(OUTPUT rRowID[2])"}
+        DO jdx = 1 TO 2:
+            FIND FIRST bUserPrint NO-LOCK
+                 WHERE ROWID(bUserPrint) EQ ttUserPrint.userPrintRowID[jdx].
+            DO TRANSACTION:
+                FIND FIRST user-print EXCLUSIVE-LOCK
+                     WHERE ROWID(user-print) EQ rRowID[jdx].
                 ASSIGN
-                    user-print.field-name[idx]  = bUserPrint.field-name[idx]
-                    user-print.field-label[idx] = bUserPrint.field-label[idx]
-                    user-print.field-value[idx] = bUserPrint.field-value[idx]
+                    user-print.field-name  = ""
+                    user-print.field-label = ""
+                    user-print.field-value = ""
                     .
-            END. /* do idx */
-        END. /* do trans */
-        FIND CURRENT user-print NO-LOCK.
-    END. /* do jdx */
-    {methods/run_link.i "CONTAINER" "pGetUserPrint" "(?)"}
-    {methods/run_link.i "CONTAINER" "pRefreshColumnsPage"}
+                DO idx = 1 TO EXTENT(bUserPrint.field-name):
+                    IF bUserPrint.field-name[idx] EQ "" THEN LEAVE.
+                    ASSIGN
+                        user-print.field-name[idx]  = bUserPrint.field-name[idx]
+                        user-print.field-label[idx] = bUserPrint.field-label[idx]
+                        user-print.field-value[idx] = bUserPrint.field-value[idx]
+                        .
+                END. /* do idx */
+                FIND CURRENT user-print NO-LOCK.
+            END. /* do trans */
+        END. /* do jdx */
+        {methods/run_link.i "CONTAINER" "pGetUserPrint" "(?)"}
+        {methods/run_link.i "CONTAINER" "pRefreshColumnsPage"}
+    END. /* if batch-seq ne 0 */
     {methods/run_link.i "CONTAINER" "pSelectPage" "(1)"}
+    RUN pGetUserPrintTask.
 
 END PROCEDURE.
 
@@ -546,23 +568,29 @@ PROCEDURE pDeleteTask :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    MESSAGE "Delete Task" ttUserPrint.batch-seq "?"
-        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-        TITLE "Delete Task Record"
-        UPDATE deleteTask AS LOGICAL
-        .
-    IF deleteTask THEN DO TRANSACTION:
-        FOR EACH user-print EXCLUSIVE-LOCK
-            WHERE user-print.program-id EQ ttUserPrint.program-id
-              AND user-print.user-id    EQ ttUserPrint.user-id
-              AND user-print.batch-seq  EQ ttUserPrint.batch-seq
-              AND user-print.batch      EQ ttUserPrint.batch
-            :
-            DELETE user-print.
-        END. /* each user-print */
-    END. /* if delete */
-    IF deleteTask THEN
-    RUN pGetUserPrintTask.
+    IF ttUserPrint.batch-seq NE 0 THEN DO:
+        MESSAGE "Delete Task" ttUserPrint.batch-seq "?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+            TITLE "Delete Task Record"
+            UPDATE deleteTask AS LOGICAL
+            .
+        IF deleteTask THEN DO TRANSACTION:
+            FOR EACH user-print EXCLUSIVE-LOCK
+                WHERE user-print.program-id EQ ttUserPrint.program-id
+                  AND user-print.user-id    EQ ttUserPrint.user-id
+                  AND user-print.batch-seq  EQ ttUserPrint.batch-seq
+                  AND user-print.batch      EQ ttUserPrint.batch
+                :
+                DELETE user-print.
+            END. /* each user-print */
+        END. /* if delete */
+        IF deleteTask THEN
+        RUN pGetUserPrintTask.
+    END. /* if batch-seq ne 0 */
+    ELSE
+    MESSAGE 
+        "User Default Task cannot be Deleted!"
+    VIEW-AS ALERT-BOX.
 
 END PROCEDURE.
 
@@ -585,8 +613,10 @@ PROCEDURE pGetUserPrintTask :
         WHERE user-print.company    EQ aoaCompany
           AND user-print.program-id EQ aoaProgramID
           AND user-print.user-id    EQ aoaUserID
+          /*
           AND user-print.batch      EQ "Batch"
           AND user-print.batch-seq  GT 0
+          */
           AND user-print.prgmName   EQ "",
         FIRST jasperUserPrint NO-LOCK
         WHERE jasperUserPrint.company    EQ user-print.company
@@ -610,6 +640,7 @@ PROCEDURE pGetUserPrintTask :
                 ttParamValue.paramLabel = IF user-print.field-label[idx] NE ? THEN user-print.field-label[idx]
                                           ELSE "[ " + user-print.field-name[idx] + " ]"
                 ttParamValue.paramValue = user-print.field-value[idx]
+                ttParamValue.paramName  = user-print.field-name[idx]
                 .
         END. /* do idx */
     END. /* each user-print */
@@ -617,19 +648,6 @@ PROCEDURE pGetUserPrintTask :
     {&OPEN-QUERY-browseUserPrint}
     
     APPLY "VALUE-CHANGED":U TO BROWSE browseUserPrint.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveJasperUserPrint sObject 
-PROCEDURE pSaveJasperUserPrint :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
 
 END PROCEDURE.
 

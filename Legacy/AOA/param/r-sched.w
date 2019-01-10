@@ -58,7 +58,8 @@ svStartReleaseDateOption svEndReleaseDate btnCalendar-2 ~
 svEndReleaseDateOption svSubTotalByCustomerNo svOnlyNegativeAvailable ~
 svOnlyNegOHRelQty svSubRpt_PrintScheduleStats svSort svScheduled svLate ~
 svPastLastShipDate svActual svBackorder svBillOfLading svInvoiceUnposted ~
-svCompleted svSubRpt_PrintSpecNotes svStartSpecNote svEndSpecNote 
+svCompleted svSubRpt_PrintSpecNotes svStartSpecNote svEndSpecNote ~
+btnAddEmail svRecipients 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svCustList ~
 svAllCustNo svStartCustNo startCustName svEndCustNo endCustName ~
 svAllOrderNo svStartOrderNo svEndOrderNo svAllShipFrom svStartShipFrom ~
@@ -73,7 +74,7 @@ svStartReleaseDateOption svEndReleaseDate svEndReleaseDateOption ~
 svSubTotalByCustomerNo svOnlyNegativeAvailable svOnlyNegOHRelQty ~
 svSubRpt_PrintScheduleStats svSort svScheduled svLate svPastLastShipDate ~
 svActual svBackorder svBillOfLading svInvoiceUnposted svCompleted ~
-svSubRpt_PrintSpecNotes svStartSpecNote svEndSpecNote 
+svSubRpt_PrintSpecNotes svStartSpecNote svEndSpecNote svRecipients 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -88,6 +89,11 @@ svSubRpt_PrintSpecNotes svStartSpecNote svEndSpecNote
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
 DEFINE BUTTON btnCalendar-1 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
@@ -113,6 +119,11 @@ DEFINE VARIABLE svStartReleaseDateOption AS CHARACTER FORMAT "X(256)":U
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 70 BY 2.86
+     BGCOLOR 15 .
 
 DEFINE VARIABLE endCarrierName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -339,6 +350,10 @@ DEFINE RECTANGLE RECT-15
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 34 BY 10.71.
 
+DEFINE RECTANGLE RECT-16
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 83 BY 3.57.
+
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 33 BY 4.05.
@@ -540,14 +555,14 @@ DEFINE FRAME F-Main
      endCSRName AT ROW 22.91 COL 33 COLON-ALIGNED NO-LABEL
      svPrintOHQty AT ROW 3.86 COL 81 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 340
-     svAllItemNo AT ROW 7.91 COL 90 HELP
+     svAllItemNo AT ROW 7.91 COL 89 HELP
           "All Items?" WIDGET-ID 164
-     svStartItemNo AT ROW 9.1 COL 88 COLON-ALIGNED HELP
+     svStartItemNo AT ROW 9.1 COL 87 COLON-ALIGNED HELP
           "Enter Start Item" WIDGET-ID 168
-     startItemName AT ROW 9.1 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 172
-     svEndItemNo AT ROW 10.29 COL 88 COLON-ALIGNED HELP
+     startItemName AT ROW 9.1 COL 108 COLON-ALIGNED NO-LABEL WIDGET-ID 172
+     svEndItemNo AT ROW 10.29 COL 87 COLON-ALIGNED HELP
           "Enter End Item" WIDGET-ID 166
-     endItemName AT ROW 10.29 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 170
+     endItemName AT ROW 10.29 COL 108 COLON-ALIGNED NO-LABEL WIDGET-ID 170
      svAllCarrier AT ROW 12.19 COL 90 HELP
           "All Carriers?" WIDGET-ID 328
      svStartCarrier AT ROW 13.38 COL 88 COLON-ALIGNED HELP
@@ -556,7 +571,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 174 BY 24.57.
+         SIZE 174 BY 28.29.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
@@ -613,22 +628,29 @@ DEFINE FRAME F-Main
           "Enter Start Spec Note" WIDGET-ID 352
      svEndSpecNote AT ROW 23.14 COL 163 COLON-ALIGNED HELP
           "Enter End Spec Note" WIDGET-ID 350
+     btnAddEmail AT ROW 26.71 COL 52 HELP
+          "Add Recipents" WIDGET-ID 636
+     svRecipients AT ROW 25.05 COL 58 NO-LABEL WIDGET-ID 600
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 174 BY 28.29.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      "Sort:" VIEW-AS TEXT
           SIZE 5 BY 1 AT ROW 2.67 COL 144 WIDGET-ID 90
      "Release Types:" VIEW-AS TEXT
           SIZE 15 BY 1 AT ROW 9.81 COL 141 WIDGET-ID 354
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 174 BY 24.57.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      "Print OH Qty:" VIEW-AS TEXT
           SIZE 13 BY 1 AT ROW 2.67 COL 75 WIDGET-ID 136
+     "Email" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 25.05 COL 52 WIDGET-ID 640
+     "Recipients:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 25.76 COL 47 WIDGET-ID 602
      RECT-1 AT ROW 2.43 COL 2 WIDGET-ID 248
      RECT-2 AT ROW 7.67 COL 2 WIDGET-ID 372
-     RECT-3 AT ROW 7.67 COL 75 WIDGET-ID 374
+     RECT-3 AT ROW 7.67 COL 74 WIDGET-ID 374
      RECT-4 AT ROW 11.95 COL 2 WIDGET-ID 376
      RECT-5 AT ROW 16.24 COL 2 WIDGET-ID 378
      RECT-6 AT ROW 20.29 COL 74 WIDGET-ID 380
@@ -641,10 +663,11 @@ DEFINE FRAME F-Main
      RECT-13 AT ROW 2.43 COL 140 WIDGET-ID 394
      RECT-14 AT ROW 2.43 COL 110 WIDGET-ID 396
      RECT-15 AT ROW 9.57 COL 140 WIDGET-ID 398
+     RECT-16 AT ROW 24.57 COL 46 WIDGET-ID 638
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 174 BY 24.57
+         SIZE 174 BY 28.29
          TITLE "Report Parameters".
 
 
@@ -674,7 +697,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 24.57
+         HEIGHT             = 28.29
          WIDTH              = 174.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -733,6 +756,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-15 IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-16 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
@@ -787,6 +812,21 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail sObject
+ON CHOOSE OF btnAddEmail IN FRAME F-Main /* Email */
+DO:
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    cRecipients = svRecipients:SCREEN-VALUE.
+    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    svRecipients:SCREEN-VALUE = cRecipients.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btnCalendar-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 sObject

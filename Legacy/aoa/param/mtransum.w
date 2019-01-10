@@ -51,13 +51,13 @@ CREATE WIDGET-POOL.
 svStartMachTranDateOption svEndMachTranDate btnCalendar-2 ~
 svEndMachTranDateOption svAllMachine svStartMachine svEndMachine svAllShift ~
 svStartShift svEndShift svUseTime svStartTime svStartAMPM svEndTime ~
-svEndAMPM 
+svEndAMPM btnAddEmail svRecipients 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svStartMachTranDate ~
 svStartMachTranDateOption svEndMachTranDate svEndMachTranDateOption ~
 svAllMachine svStartMachine startMachineDescription svEndMachine ~
 endMachineDescription svAllShift svStartShift startShiftDescription ~
 svEndShift endShiftDescription svUseTime svStartTime svStartAMPM svEndTime ~
-svEndAMPM 
+svEndAMPM svRecipients 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -72,6 +72,11 @@ svEndAMPM
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
 DEFINE BUTTON btnCalendar-1 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
@@ -107,6 +112,11 @@ DEFINE VARIABLE svStartMachTranDateOption AS CHARACTER FORMAT "X(256)":U
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 70 BY 2.86
+     BGCOLOR 15 .
 
 DEFINE VARIABLE endMachineDescription AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -181,6 +191,10 @@ DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 63 BY 7.38.
 
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 83 BY 3.57.
+
 DEFINE VARIABLE svAllMachine AS LOGICAL INITIAL yes 
      LABEL "All Machines" 
      VIEW-AS TOGGLE-BOX
@@ -201,47 +215,55 @@ DEFINE VARIABLE svUseTime AS LOGICAL INITIAL no
 
 DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 142 COLON-ALIGNED WIDGET-ID 60
-     svStartMachTranDate AT ROW 5.52 COL 28 COLON-ALIGNED HELP
+     svStartMachTranDate AT ROW 4.57 COL 28 COLON-ALIGNED HELP
           "Enter Start Transaction Date" WIDGET-ID 72
-     btnCalendar-1 AT ROW 5.52 COL 46 WIDGET-ID 76
-     svStartMachTranDateOption AT ROW 5.52 COL 49 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 4.57 COL 46 WIDGET-ID 76
+     svStartMachTranDateOption AT ROW 4.57 COL 49 COLON-ALIGNED HELP
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 74
-     svEndMachTranDate AT ROW 6.71 COL 28 COLON-ALIGNED HELP
+     svEndMachTranDate AT ROW 5.76 COL 28 COLON-ALIGNED HELP
           "Enter End Transaction Date" WIDGET-ID 68
-     btnCalendar-2 AT ROW 6.71 COL 46 WIDGET-ID 78
-     svEndMachTranDateOption AT ROW 6.71 COL 49 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 5.76 COL 46 WIDGET-ID 78
+     svEndMachTranDateOption AT ROW 5.76 COL 49 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
-     svAllMachine AT ROW 8.62 COL 30 HELP
+     svAllMachine AT ROW 7.67 COL 30 HELP
           "All Macines?" WIDGET-ID 58
-     svStartMachine AT ROW 9.81 COL 28 COLON-ALIGNED HELP
+     svStartMachine AT ROW 8.86 COL 28 COLON-ALIGNED HELP
           "Enter Start Machine" WIDGET-ID 22
-     startMachineDescription AT ROW 9.81 COL 42 COLON-ALIGNED HELP
+     startMachineDescription AT ROW 8.86 COL 42 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
-     svEndMachine AT ROW 11 COL 28 COLON-ALIGNED HELP
+     svEndMachine AT ROW 10.05 COL 28 COLON-ALIGNED HELP
           "Enter End Machine" WIDGET-ID 20
-     endMachineDescription AT ROW 11 COL 42 COLON-ALIGNED HELP
+     endMachineDescription AT ROW 10.05 COL 42 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svAllShift AT ROW 5.52 COL 97 HELP
+     svAllShift AT ROW 4.57 COL 97 HELP
           "All Shifts?" WIDGET-ID 216
-     svStartShift AT ROW 6.71 COL 95 COLON-ALIGNED HELP
+     svStartShift AT ROW 5.76 COL 95 COLON-ALIGNED HELP
           "Enter Start Shift" WIDGET-ID 220
-     startShiftDescription AT ROW 6.71 COL 100 COLON-ALIGNED NO-LABEL WIDGET-ID 214
-     svEndShift AT ROW 7.91 COL 95 COLON-ALIGNED HELP
+     startShiftDescription AT ROW 5.76 COL 100 COLON-ALIGNED NO-LABEL WIDGET-ID 214
+     svEndShift AT ROW 6.95 COL 95 COLON-ALIGNED HELP
           "Enter End Shift" WIDGET-ID 218
-     endShiftDescription AT ROW 7.91 COL 100 COLON-ALIGNED NO-LABEL WIDGET-ID 212
-     svUseTime AT ROW 9.81 COL 97 HELP
+     endShiftDescription AT ROW 6.95 COL 100 COLON-ALIGNED NO-LABEL WIDGET-ID 212
+     svUseTime AT ROW 8.86 COL 97 HELP
           "Select to Use Time vs Shift Table" WIDGET-ID 248
-     svStartTime AT ROW 11 COL 95 COLON-ALIGNED HELP
+     svStartTime AT ROW 10.05 COL 95 COLON-ALIGNED HELP
           "Enter Start Time" WIDGET-ID 222
-     svStartAMPM AT ROW 11 COL 103 COLON-ALIGNED HELP
+     svStartAMPM AT ROW 10.05 COL 103 COLON-ALIGNED HELP
           "Select AM/PM" NO-LABEL WIDGET-ID 244
-     svEndTime AT ROW 11 COL 124 COLON-ALIGNED HELP
+     svEndTime AT ROW 10.05 COL 124 COLON-ALIGNED HELP
           "Enter End Time" WIDGET-ID 228
-     svEndAMPM AT ROW 11 COL 132 COLON-ALIGNED HELP
+     svEndAMPM AT ROW 10.05 COL 132 COLON-ALIGNED HELP
           "Select AM/PM" NO-LABEL WIDGET-ID 246
-     RECT-1 AT ROW 5.05 COL 5 WIDGET-ID 250
-     RECT-2 AT ROW 8.38 COL 5 WIDGET-ID 252
-     RECT-3 AT ROW 5.05 COL 83 WIDGET-ID 254
+     btnAddEmail AT ROW 13.86 COL 39 HELP
+          "Add Recipents" WIDGET-ID 636
+     svRecipients AT ROW 12.19 COL 45 NO-LABEL WIDGET-ID 600
+     "Email" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 12.19 COL 39 WIDGET-ID 640
+     "Recipients:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 12.91 COL 34 WIDGET-ID 602
+     RECT-1 AT ROW 4.1 COL 5 WIDGET-ID 250
+     RECT-2 AT ROW 7.43 COL 5 WIDGET-ID 252
+     RECT-3 AT ROW 4.1 COL 83 WIDGET-ID 254
+     RECT-6 AT ROW 11.71 COL 33 WIDGET-ID 638
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -316,6 +338,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startMachineDescription IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startShiftDescription IN FRAME F-Main
@@ -341,6 +365,21 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail sObject
+ON CHOOSE OF btnAddEmail IN FRAME F-Main /* Email */
+DO:
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    cRecipients = svRecipients:SCREEN-VALUE.
+    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    svRecipients:SCREEN-VALUE = cRecipients.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btnCalendar-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 sObject

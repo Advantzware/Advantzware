@@ -47,14 +47,14 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svLocation svAllCustNo ~
+&Scoped-Define ENABLED-OBJECTS btnAddEmail svCompany svLocation svAllCustNo ~
 svStartCustNo svEndCustNo svStartInvoiceDate btnCalendar-5 ~
 svStartInvoiceDateOption svEndInvoiceDate btnCalendar-6 ~
-svEndInvoiceDateOption svExceptionOnly 
+svEndInvoiceDateOption svRecipients svExceptionOnly 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svAllCustNo ~
 svStartCustNo startCustName svEndCustNo endCustName svStartInvoiceDate ~
 svStartInvoiceDateOption svEndInvoiceDate svEndInvoiceDateOption ~
-svExceptionOnly 
+svRecipients svExceptionOnly 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -69,6 +69,11 @@ svExceptionOnly
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
 DEFINE BUTTON btnCalendar-5 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
@@ -90,6 +95,11 @@ DEFINE VARIABLE svStartInvoiceDateOption AS CHARACTER FORMAT "X(256)":U
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 71 BY 2.86
+     BGCOLOR 15 .
 
 DEFINE VARIABLE endCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -137,6 +147,10 @@ DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 83.8 BY 3.05.
 
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 84 BY 3.57.
+
 DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
      LABEL "All Customers" 
      VIEW-AS TOGGLE-BOX
@@ -151,30 +165,38 @@ DEFINE VARIABLE svExceptionOnly AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnAddEmail AT ROW 14.57 COL 41 HELP
+          "Add Recipents" WIDGET-ID 636
      svCompany AT ROW 1.24 COL 121 COLON-ALIGNED WIDGET-ID 60
      svLocation AT ROW 1.24 COL 137 COLON-ALIGNED WIDGET-ID 232
-     svAllCustNo AT ROW 4.33 COL 57 HELP
+     svAllCustNo AT ROW 2.91 COL 56 HELP
           "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 5.52 COL 55 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 4.1 COL 54 COLON-ALIGNED HELP
           "Enter Start Customer" WIDGET-ID 2
-     startCustName AT ROW 5.52 COL 71 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 6.71 COL 55 COLON-ALIGNED HELP
+     startCustName AT ROW 4.1 COL 70 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     svEndCustNo AT ROW 5.29 COL 54 COLON-ALIGNED HELP
           "Enter End Customer" WIDGET-ID 6
-     endCustName AT ROW 6.71 COL 71 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     svStartInvoiceDate AT ROW 10.05 COL 55 COLON-ALIGNED HELP
+     endCustName AT ROW 5.29 COL 70 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     svStartInvoiceDate AT ROW 8.62 COL 54 COLON-ALIGNED HELP
           "Enter Start Invoice Date" WIDGET-ID 26
-     btnCalendar-5 AT ROW 10.05 COL 73 WIDGET-ID 80
-     svStartInvoiceDateOption AT ROW 10.05 COL 76 COLON-ALIGNED HELP
+     btnCalendar-5 AT ROW 8.62 COL 72 WIDGET-ID 80
+     svStartInvoiceDateOption AT ROW 8.62 COL 75 COLON-ALIGNED HELP
           "Select Start Invoice Date Option" NO-LABEL WIDGET-ID 64
-     svEndInvoiceDate AT ROW 11.24 COL 55 COLON-ALIGNED HELP
+     svEndInvoiceDate AT ROW 9.81 COL 54 COLON-ALIGNED HELP
           "Enter End Invoice Date" WIDGET-ID 24
-     btnCalendar-6 AT ROW 11.24 COL 73 WIDGET-ID 82
-     svEndInvoiceDateOption AT ROW 11.24 COL 76 COLON-ALIGNED HELP
+     btnCalendar-6 AT ROW 9.81 COL 72 WIDGET-ID 82
+     svEndInvoiceDateOption AT ROW 9.81 COL 75 COLON-ALIGNED HELP
           "Select End Invoice Date Option" NO-LABEL WIDGET-ID 66
-     svExceptionOnly AT ROW 13.14 COL 57 HELP
+     svRecipients AT ROW 12.91 COL 47 NO-LABEL WIDGET-ID 600
+     svExceptionOnly AT ROW 15.05 COL 127 HELP
           "Select to Show Exception Only" WIDGET-ID 88
-     RECT-1 AT ROW 4.1 COL 36 WIDGET-ID 234
-     RECT-2 AT ROW 9.57 COL 36 WIDGET-ID 236
+     "Email" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 12.91 COL 41 WIDGET-ID 640
+     "Recipients:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 13.62 COL 36 WIDGET-ID 602
+     RECT-1 AT ROW 2.67 COL 35 WIDGET-ID 234
+     RECT-2 AT ROW 8.14 COL 35 WIDGET-ID 236
+     RECT-6 AT ROW 12.43 COL 35 WIDGET-ID 638
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -245,6 +267,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -271,6 +295,21 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail sObject
+ON CHOOSE OF btnAddEmail IN FRAME F-Main /* Email */
+DO:
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    cRecipients = svRecipients:SCREEN-VALUE.
+    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    svRecipients:SCREEN-VALUE = cRecipients.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btnCalendar-5
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-5 sObject

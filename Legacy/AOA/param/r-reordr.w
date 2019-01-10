@@ -49,12 +49,13 @@ CREATE WIDGET-POOL.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svCompany svLocation svAllLoc svStartLoc ~
 svEndLoc svAllItemNo svStartItemNo svEndItemNo svAllProdCategory ~
-svStartProdCategory svEndProdCategory includeQtyOnHand 
+svStartProdCategory svEndProdCategory includeQtyOnHand btnAddEmail ~
+svRecipients 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svAllLoc svStartLoc ~
 startLocName svEndLoc endLocName svAllItemNo svStartItemNo startItemName ~
 svEndItemNo endItemName svAllProdCategory svStartProdCategory ~
 startProdCategoryName svEndProdCategory endProdCategoryName ~
-includeQtyOnHand 
+includeQtyOnHand svRecipients 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -68,6 +69,16 @@ includeQtyOnHand
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 72 BY 2.86
+     BGCOLOR 15 .
+
 DEFINE VARIABLE endItemName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
      SIZE 38 BY 1.
@@ -148,6 +159,10 @@ DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 85.8 BY 1.62.
 
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 85 BY 3.57.
+
 DEFINE VARIABLE includeQtyOnHand AS LOGICAL INITIAL no 
      LABEL "Include Qty on Order with Qty On Hand?" 
      VIEW-AS TOGGLE-BOX
@@ -199,14 +214,22 @@ DEFINE FRAME F-Main
           "Enter End Product Category" WIDGET-ID 204
      endProdCategoryName AT ROW 13.62 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 208
      includeQtyOnHand AT ROW 15.52 COL 55 WIDGET-ID 324
+     btnAddEmail AT ROW 19.33 COL 39 HELP
+          "Add Recipents" WIDGET-ID 636
+     svRecipients AT ROW 17.67 COL 45 NO-LABEL WIDGET-ID 600
+     "Email" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 17.67 COL 39 WIDGET-ID 640
+     "Recipients:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 18.38 COL 34 WIDGET-ID 602
      RECT-1 AT ROW 2.43 COL 33 WIDGET-ID 326
      RECT-2 AT ROW 6.71 COL 33 WIDGET-ID 328
      RECT-3 AT ROW 11 COL 33 WIDGET-ID 330
      RECT-4 AT ROW 15.29 COL 33 WIDGET-ID 332
+     RECT-6 AT ROW 17.19 COL 33 WIDGET-ID 638
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 149.2 BY 17
+         SIZE 149.2 BY 20.91
          TITLE "Report Parameters".
 
 
@@ -236,7 +259,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 17
+         HEIGHT             = 20.91
          WIDTH              = 149.2.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -277,6 +300,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startItemName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startLocName IN FRAME F-Main
@@ -307,6 +332,21 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail sObject
+ON CHOOSE OF btnAddEmail IN FRAME F-Main /* Email */
+DO:
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    cRecipients = svRecipients:SCREEN-VALUE.
+    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    svRecipients:SCREEN-VALUE = cRecipients.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME includeQtyOnHand
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL includeQtyOnHand sObject
