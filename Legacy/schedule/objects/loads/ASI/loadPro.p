@@ -780,48 +780,48 @@ FOR EACH job-hdr NO-LOCK
     ELSE IF ufPOOrdl THEN DO:
       FIND FIRST po-ordl NO-LOCK
            WHERE po-ordl.company EQ job-mch.company
-             AND po-ordl.job-no EQ job-mch.job-no
+             AND po-ordl.job-no  EQ job-mch.job-no
              AND po-ordl.job-no2 EQ job-mch.job-no2
-             AND po-ordl.i-no EQ job-mch.i-no
-             AND po-ordl.s-num EQ job-mch.frm
-             AND po-ordl.b-num EQ job-mch.blank-no NO-ERROR.
+             AND po-ordl.i-no    EQ job-mch.i-no
+             AND po-ordl.s-num   EQ job-mch.frm
+             AND po-ordl.b-num   EQ job-mch.blank-no NO-ERROR.
       IF NOT AVAILABLE po-ordl THEN
       FIND FIRST po-ordl NO-LOCK
            WHERE po-ordl.company EQ job-mch.company
-             AND po-ordl.job-no EQ job-mch.job-no
+             AND po-ordl.job-no  EQ job-mch.job-no
              AND po-ordl.job-no2 EQ job-mch.job-no2
-             AND po-ordl.i-no EQ job-mch.i-no
-             AND po-ordl.b-num EQ job-mch.blank-no NO-ERROR.
+             AND po-ordl.i-no    EQ job-mch.i-no
+             AND po-ordl.b-num   EQ job-mch.blank-no NO-ERROR.
       IF NOT AVAILABLE po-ordl THEN
       FIND FIRST po-ordl NO-LOCK
            WHERE po-ordl.company EQ job-mch.company
-             AND po-ordl.job-no EQ job-mch.job-no
+             AND po-ordl.job-no  EQ job-mch.job-no
              AND po-ordl.job-no2 EQ job-mch.job-no2
-             AND po-ordl.b-num EQ job-mch.blank-no NO-ERROR.
+             AND po-ordl.b-num   EQ job-mch.blank-no NO-ERROR.
       IF NOT AVAILABLE po-ordl THEN
       FIND FIRST po-ordl NO-LOCK
            WHERE po-ordl.company EQ job-mch.company
-             AND po-ordl.job-no EQ job-mch.job-no
+             AND po-ordl.job-no  EQ job-mch.job-no
              AND po-ordl.job-no2 EQ job-mch.job-no2 NO-ERROR.
       IF AVAILABLE po-ordl THEN
       FIND FIRST po-ord NO-LOCK
            WHERE po-ord.company EQ po-ordl.company
-             AND po-ord.po-no EQ po-ordl.po-no NO-ERROR.
+             AND po-ord.po-no   EQ po-ordl.po-no NO-ERROR.
     END. /* else avail oe-ordl */
     
     IF ufEF THEN
     FIND FIRST ef NO-LOCK WHERE ef.company EQ job.company
-                            AND ef.est-no EQ job.est-no
+                            AND ef.est-no  EQ job.est-no
                             AND ef.form-no EQ job-mch.frm NO-ERROR.
     IF ufEB THEN
-    FIND FIRST eb NO-LOCK WHERE eb.company EQ job.company
-                            AND eb.est-no EQ job.est-no
-                            AND eb.form-no EQ job-mch.frm
+    FIND FIRST eb NO-LOCK WHERE eb.company   EQ job.company
+                            AND eb.est-no    EQ job.est-no
+                            AND eb.form-no   EQ job-mch.frm
                             AND (eb.blank-no EQ job-mch.blank-no
                              OR job-mch.blank-no EQ 0) NO-ERROR.
     IF AVAILABLE eb THEN DO:
       FIND style NO-LOCK WHERE style.company EQ job.company
-                           AND style.style EQ eb.style NO-ERROR.
+                           AND style.style   EQ eb.style NO-ERROR.
       IF AVAILABLE style THEN DO:
         IF style.industry EQ '2' AND est.est-type LT 5 THEN dimFormat = '->>9.99'.
         RUN ipJobSet (job.company
@@ -837,10 +837,10 @@ FOR EACH job-hdr NO-LOCK
       
       FIND FIRST reftable NO-LOCK
            WHERE reftable.reftable EQ 'ce/v-est3.w Unit#'
-             AND reftable.company EQ eb.company
-             AND reftable.loc EQ eb.est-no
-             AND reftable.code EQ STRING(eb.form-no,'9999999999')
-             AND reftable.code2 EQ STRING(eb.blank-no,'9999999999') NO-ERROR.
+             AND reftable.company  EQ eb.company
+             AND reftable.loc      EQ eb.est-no
+             AND reftable.code     EQ STRING(eb.form-no,'9999999999')
+             AND reftable.code2    EQ STRING(eb.blank-no,'9999999999') NO-ERROR.
       IF AVAILABLE reftable THEN
       DO i = 1 TO 10:
         IF reftable.val[i] GE 1 AND reftable.val[i] LE 10 THEN
@@ -982,15 +982,16 @@ FOR EACH job-hdr NO-LOCK
       userField[25] = setUserField(25,IF AVAILABLE eb THEN STRING(eb.i-coat,'z9') ELSE '')
       userField[28] = setUserField(28,IF AVAILABLE eb THEN eb.i-coldscr ELSE '')
       userField[34] = setUserField(34,IF AVAILABLE itemfg THEN itemfg.cad-no ELSE '')
-      userField[35] = setUserField(35,IF AVAILABLE eb AND eb.est-type EQ 6 THEN getSetPOQtyRec(job-mch.company,job-mch.job-no,job-mch.job-no2,eb.form-no,eb.stock-no)
+      userField[35] = setUserField(35,IF AVAILABLE eb AND eb.est-type EQ 6 AND eb.form-no NE 0 THEN
+                                      getSetPOQtyRec(job-mch.company,job-mch.job-no,job-mch.job-no2,eb.form-no,eb.stock-no)
                                  ELSE IF AVAILABLE po-ordl THEN STRING(po-ordl.t-rec-qty,'->,>>>,>>>,>>9.99<<<')
                                  ELSE '')
       userField[51] = setUserField(51,IF AVAILABLE eb THEN eb.tr-no ELSE '')
-      iNumUp = IF INTEGER(userField[31]) LT 1 THEN 1 ELSE INTEGER(userField[31])
+      iNumUp        = IF INTEGER(userField[31]) LT 1 THEN 1 ELSE INTEGER(userField[31])
       userField[52] = setUserField(52,IF AVAILABLE itemfg THEN STRING(DECIMAL(userField[52]) / iNumUp * itemfg.t-sqft / 1000,'->,>>9.999') ELSE '')
       userField[53] = setUserField(53,IF AVAILABLE eb THEN STRING(eb.tab-in,'In/Out') ELSE '')
-      dRunMSF = 0
-      dRunMSF = job-mch.run-qty / iNumUp * itemfg.t-sqft / 1000 WHEN AVAIL itemfg AND job-mch.run-qty NE ?
+      dRunMSF       = 0
+      dRunMSF       = job-mch.run-qty / iNumUp * itemfg.t-sqft / 1000 WHEN AVAIL itemfg AND job-mch.run-qty NE ?
       userField[54] = setUserField(54,IF dRunMSF LT 1000000 THEN STRING(dRunMSF,'->>>,>>9.99999') ELSE '')
       userField[57] = ''
       userField[57] = setUserField(57,prodQty(job-mch.company,job-mch.m-code,job-mch.job-no,
@@ -1006,10 +1007,10 @@ FOR EACH job-hdr NO-LOCK
       userField[89] = setUserField(89,STRING(job.create-date,'99/99/9999'))
       userField[96] = setUserField(96,STRING(job-mch.mr-hr,'>,>>9.99'))
       userField[97] = setUserField(97,STRING(job-mch.run-hr,'>,>>9.99'))
-      dMSF = 0
-      iMRWaste = job-mch.mr-waste
-      iRunWaste = job-mch.run-qty * job-mch.wst-prct / 100
-      dMSF = (iMRWaste + iRunWaste + job-mch.run-qty) / iNumUp * itemfg.t-sqft / 1000 WHEN AVAIL itemfg AND job-mch.run-qty NE ?
+      dMSF          = 0
+      iMRWaste      = job-mch.mr-waste
+      iRunWaste     = job-mch.run-qty * job-mch.wst-prct / 100
+      dMSF          = (iMRWaste + iRunWaste + job-mch.run-qty) / iNumUp * itemfg.t-sqft / 1000 WHEN AVAIL itemfg AND job-mch.run-qty NE ?
       userField[98] = setUserField(98,IF dMSF LT 1000000 THEN STRING(dMSF,'->>>,>>9.99999') ELSE '')
       userField[99] = setUserField(99,IF AVAILABLE itemfg THEN STRING(itemfg.t-sqft,'>>>9.999<<') ELSE '')
       userField[100] = setUserField(100,STRING(iMRWaste,'>>>9'))
@@ -1092,7 +1093,7 @@ FOR EACH job-hdr NO-LOCK
                       ELSE STRING(convBase16(boardLength),dimFormat)
       userField[27] = IF est.est-type GE 5 THEN STRING(boardWidth,dimFormat)
                       ELSE STRING(convBase16(boardWidth),dimFormat)
-      userField[4] = boardName(ENTRY(1,userField[3])).
+      userField[4]  = boardName(ENTRY(1,userField[3])).
     IF userField[3] EQ '' THEN
     userField[3] = IF AVAILABLE ef THEN ef.board ELSE ''.
     IF AVAILABLE eb THEN DO:
