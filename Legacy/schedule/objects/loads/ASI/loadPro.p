@@ -1,4 +1,4 @@
-/* loadPro.p - ASI as of 2.3.2016 @ 5:45pm */
+/* loadPro.p - ASI as of 1.9.2019 @ 7:58pm */
 
 &SCOPED-DEFINE sbDB nosweat
 &SCOPED-DEFINE ID ASI/ALL
