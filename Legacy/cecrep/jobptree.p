@@ -804,7 +804,7 @@ ASSIGN
            dSheetPerHours = v-sht-qty / ( iRunHours + (dMinute / 60)) .
         
         IF w-m.dscr <> "" THEN
-        DISPLAY "<C2>" w-m.dscr FORMAT "x(20)"  cStdHours FORMAT "x(6)"  cRunHours FORMAT "x(6)"  dSheetPerHours FORMAT ">>>99.9" "<P10>"  /*"<P8><U>Received:</U><P10>" WHEN i = 1 AT 29*/
+        DISPLAY "<C2><P8>" w-m.dscr FORMAT "x(20)"  cStdHours FORMAT "x(6)"  cRunHours FORMAT "x(6)"  dSheetPerHours FORMAT ">>>99.9" "<P10>"  /*"<P8><U>Received:</U><P10>" WHEN i = 1 AT 29*/
             WITH NO-BOX NO-LABELS FRAME oo1 WIDTH 150 NO-ATTR-SPACE DOWN STREAM-IO.
         
       END.
