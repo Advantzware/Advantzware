@@ -1193,6 +1193,9 @@ DO:
             APPLY 'entry' TO SELF.
             RETURN NO-APPLY.
         END.
+        IF INDEX(users.user_id:SCREEN-VALUE,",") NE 0 THEN
+           users.user_id:SCREEN-VALUE = REPLACE(users.user_id:SCREEN-VALUE,",","") .
+        users.user_id:SCREEN-VALUE = TRIM(users.user_id:SCREEN-VALUE) .
     END.
   
 END.
