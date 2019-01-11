@@ -570,29 +570,36 @@ PROCEDURE AutoPrint :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR v-int AS INT NO-UNDO.
-DEF VAR cFileName AS CHAR NO-UNDO.
-DEF VAR v-path AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cBarDir AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE cDB AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE lUserSpecific AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cPath         AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE cLockPath     AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE lLockWasRemoved AS LOGICAL     NO-UNDO.
+    def var cProtocol        as char no-undo.
+    def var cComputerName    as char no-undo.
+    def var cSharedFolder    as char no-undo.
+    def var cDrive           as char no-undo.
+    def var cDir             as char no-undo.
+    def var cFile            as char no-undo.
+    def var cExt             as char no-undo.
 
-IF scr-auto-print THEN
-    DO:
+IF scr-auto-print THEN DO:
+    RUN sys/ref/GetBarDir.p (INPUT cocode,
+                             INPUT "loadtag",
+                             OUTPUT cBarDir,
+                             OUTPUT cDB,
+                             OUTPUT lUserSpecific).
 
-       LOAD "SOFTWARE" BASE-KEY "HKEY_LOCAL_MACHINE".
-       USE "SOFTWARE".
-       GET-KEY-VALUE SECTION "Teklynx\Label Matrix"
-                     KEY "PATH"
-                     VALUE v-path.
-       UNLOAD "SOFTWARE".
-       v-path = TRIM(v-path,"\").
-       ASSIGN
-          v-path = v-path + "\lmwprint.exe "
-          cFileName = "/L=" + scr-label-file.
-
-          RUN WinExec (INPUT v-path + CHR(32) + cFileName , INPUT 1, OUTPUT
-                       v-int).
-    END.
-
-
+    IF lUserSpecific THEN 
+        RUN custom/lmprint.p (INPUT scr-label-file, 
+                              INPUT cDB,
+                              INPUT cBarDir).
+    ELSE
+        RUN custom/lmprint.p (INPUT scr-label-file,
+                              INPUT "",
+                              INPUT "").
+END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
