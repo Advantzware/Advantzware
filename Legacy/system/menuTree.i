@@ -424,12 +424,6 @@ PROCEDURE pDisplayMenuTree:
             dCol = bttMenuTree.hImage:COL
                  + bttMenuTree.hImage:WIDTH
                  .
-/*        /* check to be sure editor widget fits in frame */           */
-/*        IF dCol + bttMenuTree.hEditor:WIDTH GE iphFrame:WIDTH THEN   */
-/*        bttMenuTree.hEditor:WIDTH = bttMenuTree.hEditor:WIDTH        */
-/*                                  - (dCol + bttMenuTree.hEditor:WIDTH*/
-/*                                  -  iphFrame:WIDTH)                 */
-/*                                  .                                  */
         ASSIGN
             bttMenuTree.hEditor:WIDTH = iphFrame:WIDTH - dCol - 5
             bttMenuTree.hEditor:COL = dCol

@@ -1146,14 +1146,16 @@ PROCEDURE pJasperStarter :
         END. /* if ? */
     END. /* do idx */
     
-    CREATE TaskResult.
-    ASSIGN
-        TaskResult.fileDateTime = DATETIME(dtDate,iTime)
-        TaskResult.fileType     = ipcType
-        TaskResult.user-id      = aoaUserID
-        TaskResult.folderFile   = opcJastFile
-        .
-    OS-DELETE VALUE(cJasperFile[3]).    
+    IF NOT CAN-DO("print -d,view",ipcType) THEN DO:
+        CREATE TaskResult.
+        ASSIGN
+            TaskResult.fileDateTime = DATETIME(dtDate,iTime)
+            TaskResult.fileType     = ipcType
+            TaskResult.user-id      = aoaUserID
+            TaskResult.folderFile   = opcJastFile
+            .
+    END. /* if not can-do */
+    OS-DELETE VALUE(cJasperFile[3]).
     OS-COMMAND NO-WAIT start VALUE(cJasperStarter).
 
 END PROCEDURE.

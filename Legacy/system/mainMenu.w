@@ -265,7 +265,7 @@ DEFINE RECTANGLE RECT-5
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 28 BY 1.19
+     SIZE 27 BY 1.19
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-7
@@ -609,7 +609,7 @@ DEFINE FRAME FRAME-USER
      users_user_id AT ROW 1.71 COL 106 COLON-ALIGNED NO-LABEL
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      "User ID:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.71 COL 100
+          SIZE 8 BY .62 AT ROW 1.71 COL 99
      "Location:" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.71 COL 66
      "Company:" VIEW-AS TEXT
@@ -618,7 +618,7 @@ DEFINE FRAME FRAME-USER
      menu-image AT ROW 3.62 COL 58
      RECT-2 AT ROW 1 COL 1
      RECT-5 AT ROW 1.48 COL 3 WIDGET-ID 38
-     RECT-6 AT ROW 1.48 COL 96 WIDGET-ID 40
+     RECT-6 AT ROW 1.48 COL 97 WIDGET-ID 40
      RECT-7 AT ROW 1.48 COL 60 WIDGET-ID 42
      RECT-8 AT ROW 1.48 COL 141 WIDGET-ID 44
      RECT-9 AT ROW 3.29 COL 1 WIDGET-ID 46
@@ -655,8 +655,6 @@ DEFINE FRAME userSettingsFrame
      copyToUser AT ROW 3.86 COL 62 NO-LABEL WIDGET-ID 88
      svLanguageList AT ROW 4.33 COL 16 HELP
           "Select Language" NO-LABEL WIDGET-ID 30
-     btnLanguage-1 AT ROW 4.33 COL 6 HELP
-          "Select this Language" WIDGET-ID 24
      svMenuSize AT ROW 10.29 COL 5 HELP
           "Select Menu Size" NO-LABEL WIDGET-ID 34
      svMenuImage AT ROW 15.76 COL 5 HELP
@@ -669,6 +667,8 @@ DEFINE FRAME userSettingsFrame
           "Copy From User to Selected User(s)" WIDGET-ID 94
      btnActivateCueCards AT ROW 21 COL 27 HELP
           "Activate Inactive Cue Cards" WIDGET-ID 116
+     btnLanguage-1 AT ROW 4.33 COL 6 HELP
+          "Select this Language" WIDGET-ID 24
      btnLanguage-2 AT ROW 6 COL 6 HELP
           "Select this Language" WIDGET-ID 26
      btnLanguage-3 AT ROW 7.67 COL 6 HELP

@@ -36,7 +36,7 @@ DEFINE       OUTPUT PARAMETER oplSave       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE ipcLabel      AS CHARACTER NO-UNDO INITIAL "ttLabel".
 DEFINE VARIABLE ipcField      AS CHARACTER NO-UNDO INITIAL "ttField".
 DEFINE VARIABLE ipcGroups     AS CHARACTER NO-UNDO INITIAL
-    "Column,[Group] Group1,Page,Report".
+    "Column,[Group] Group1,[Group] Group2,Page,Report".
 DEFINE VARIABLE ipcFields     AS CHARACTER NO-UNDO INITIAL
     "$F~{Field1},$F~{Field2},$F~{Field3},$F~{Field4},$F~{Field5}".
 DEFINE VARIABLE ipcVariables  AS CHARACTER NO-UNDO INITIAL
@@ -112,41 +112,52 @@ DEFINE RECTANGLE RECT-0
 
 DEFINE RECTANGLE RECTCALC
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 81 BY 2.14.
+     SIZE 75 BY 30.24.
 
 DEFINE VARIABLE cField AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
-     SIZE 30 BY 1 NO-UNDO.
+     SIZE 30 BY 29.05 NO-UNDO.
 
 DEFINE VARIABLE cVariable AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
-     SIZE 48 BY 1 NO-UNDO.
+     SIZE 42 BY 29.05 NO-UNDO.
+
+DEFINE VARIABLE cFocus AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE .2 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     btnSave AT ROW 1.48 COL 54 HELP
+     btnSave AT ROW 29.33 COL 55 HELP
           "Click to Save"
-     cField AT ROW 2.19 COL 81 NO-LABEL WIDGET-ID 10
-     cVariable AT ROW 2.19 COL 112 NO-LABEL WIDGET-ID 12
-     btnCancel AT ROW 1.48 COL 70 HELP
+     cField AT ROW 2.19 COL 87 NO-LABEL WIDGET-ID 10
+     cVariable AT ROW 2.19 COL 118 NO-LABEL WIDGET-ID 12
+     btnCancel AT ROW 29.33 COL 71 HELP
           "Click to Cancel"
-     btnReset AT ROW 1.48 COL 62 HELP
+     btnReset AT ROW 29.33 COL 63 HELP
           "Click to Reset" WIDGET-ID 2
      "Variables" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.48 COL 116 WIDGET-ID 14
+          SIZE 9 BY .62 AT ROW 1.48 COL 122 WIDGET-ID 14
      "Fields" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.48 COL 81 WIDGET-ID 8
-     RECT-0 AT ROW 1.24 COL 53 WIDGET-ID 4
-     RECTCALC AT ROW 1.24 COL 80 WIDGET-ID 6
-     IMAGE-1 AT ROW 1.48 COL 112 WIDGET-ID 16
-     SPACE(45.00) SKIP(1.38)
+          SIZE 6 BY .62 AT ROW 1.48 COL 87 WIDGET-ID 8
+     RECT-0 AT ROW 29.1 COL 54 WIDGET-ID 4
+     RECTCALC AT ROW 1.24 COL 86 WIDGET-ID 6
+     IMAGE-1 AT ROW 1.48 COL 118 WIDGET-ID 16
+     SPACE(38.99) SKIP(29.28)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 
          TITLE FGCOLOR 1 "Jasper Groups/Calc Types for Column:"
          CANCEL-BUTTON btnCancel WIDGET-ID 100.
+
+DEFINE FRAME calcGroupFrame
+     cFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 2
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 84 BY 27.86 WIDGET-ID 200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -164,6 +175,16 @@ DEFINE FRAME Dialog-Frame
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
+/* REPARENT FRAME */
+ASSIGN FRAME calcGroupFrame:FRAME = FRAME Dialog-Frame:HANDLE.
+
+/* SETTINGS FOR FRAME calcGroupFrame
+                                                                        */
+ASSIGN 
+       FRAME calcGroupFrame:HIDDEN           = TRUE.
+
+/* SETTINGS FOR FILL-IN cFocus IN FRAME calcGroupFrame
+   ALIGN-L                                                              */
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
 ASSIGN 
@@ -177,6 +198,15 @@ ASSIGN
 /* SETTINGS FOR RECTANGLE RECTCALC IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
+&ANALYZE-RESUME
+
+
+/* Setting information for Queries and Browse Widgets fields            */
+
+&ANALYZE-SUSPEND _QUERY-BLOCK FRAME calcGroupFrame
+/* Query rebuild information for FRAME calcGroupFrame
+     _Query            is NOT OPENED
+*/  /* FRAME calcGroupFrame */
 &ANALYZE-RESUME
 
  
@@ -266,6 +296,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pCreateGroups (ipcGroups).
   RUN pSetGroupCalcValues (iopcGrougCalc).
   RUN enable_UI.
+  APPLY "ENTRY":U TO cFocus.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
@@ -287,6 +318,7 @@ PROCEDURE disable_UI :
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
   /* Hide all frames. */
+  HIDE FRAME calcGroupFrame.
   HIDE FRAME Dialog-Frame.
 END PROCEDURE.
 
@@ -310,6 +342,12 @@ PROCEDURE enable_UI :
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+  DISPLAY cFocus 
+      WITH FRAME calcGroupFrame.
+  ENABLE cFocus 
+      WITH FRAME calcGroupFrame.
+  VIEW FRAME calcGroupFrame.
+  {&OPEN-BROWSERS-IN-QUERY-calcGroupFrame}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -336,7 +374,7 @@ PROCEDURE pCreateGroups :
     DO idx = 1 TO NUM-ENTRIES(ipcGroups):
         CREATE RECTANGLE hRect IN WIDGET-POOL "GroupPool"
             ASSIGN
-                FRAME = FRAME {&FRAME-NAME}:HANDLE
+                FRAME = FRAME calcGroupFrame:HANDLE
                 NAME = "RECT-" + STRING(idx)
                 GRAPHIC-EDGE = YES
                 ROUNDED = YES
@@ -350,17 +388,12 @@ PROCEDURE pCreateGroups :
                 FILLED = NO
                 .
         ASSIGN
-            FRAME {&FRAME-NAME}:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT + 5.24
-            RECT-0:ROW    = RECT-0:ROW + 5.24
-            btnSave:ROW   = btnSave:ROW + 5.24              
-            btnReset:ROW  = btnReset:ROW + 5.24
-            btnCancel:ROW = btnCancel:ROW + 5.24
-            hRect:HIDDEN  = NO
-            dRow          = dRow + 2.62
+            hRect:HIDDEN = NO
+            dRow         = dRow + 2.62
             .
         CREATE EDITOR hEditor IN WIDGET-POOL "GroupPool"
             ASSIGN
-                FRAME = FRAME {&FRAME-NAME}:HANDLE
+                FRAME = FRAME calcGroupFrame:HANDLE
                 NAME = "Editor" + REPLACE(ENTRY(idx,ipcGroups)," ","")
                 COL = 3
                 ROW = dRow
@@ -382,7 +415,7 @@ PROCEDURE pCreateGroups :
             END TRIGGERS.
         CREATE RADIO-SET hDataType IN WIDGET-POOL "GroupPool"
             ASSIGN
-                FRAME = FRAME {&FRAME-NAME}:HANDLE
+                FRAME = FRAME calcGroupFrame:HANDLE
                 NAME = "DataType" + REPLACE(ENTRY(idx,ipcGroups)," ","")
                 RADIO-BUTTONS = "String,String,Integer,Integer,Double,Double"
                 COL = hEditor:COL + hEditor:WIDTH + 1
@@ -396,7 +429,7 @@ PROCEDURE pCreateGroups :
                 .
         CREATE RADIO-SET hRadioSet IN WIDGET-POOL "GroupPool"
             ASSIGN
-                FRAME = FRAME {&FRAME-NAME}:HANDLE
+                FRAME = FRAME calcGroupFrame:HANDLE
                 NAME = "RadioSet" + REPLACE(ENTRY(idx,ipcGroups)," ","")
                 RADIO-BUTTONS = "Sum,Sum,Count,Count,Average,Averag,Lowest,Lowest,Highest,Highest,Calculated,Calculated"
                 HORIZONTAL = YES
@@ -414,7 +447,7 @@ PROCEDURE pCreateGroups :
             END TRIGGERS.
         CREATE TOGGLE-BOX hToggleBox IN WIDGET-POOL "GroupPool"
             ASSIGN
-                FRAME = FRAME {&FRAME-NAME}:HANDLE
+                FRAME = FRAME calcGroupFrame:HANDLE
                 NAME = "Toggle" + REPLACE(ENTRY(idx,ipcGroups)," ","")
                 LABEL = ENTRY(idx,ipcGroups)
                 COL = 3
@@ -437,11 +470,10 @@ PROCEDURE pCreateGroups :
             .
     END. /* do idx */
     ASSIGN
-        RECTCALC:HEIGHT      = RECT-0:ROW + RECT-0:HEIGHT - 1.24
-        cField:HEIGHT        = RECTCALC:HEIGHT - 1.14
-        cField:LIST-ITEMS    = ipcFields
-        cVariable:HEIGHT     = RECTCALC:HEIGHT - 1.14
+        cField:LIST-ITEMS IN FRAME {&FRAME-NAME} = ipcFields
         cVariable:LIST-ITEMS = ipcVariables
+        FRAME calcGroupFrame:VIRTUAL-HEIGHT = dRow - 1
+        FRAME calcGroupFrame:HIDDEN = NO
         .
 
 END PROCEDURE.
@@ -488,7 +520,7 @@ PROCEDURE pGetGroupCalcValues :
     DEFINE VARIABLE idx       AS INTEGER NO-UNDO.
     
     ASSIGN
-        hWidget = FRAME {&FRAME-NAME}:HANDLE
+        hWidget = FRAME calcGroupFrame:HANDLE
         hWidget = hWidget:FIRST-CHILD
         hWidget = hWidget:FIRST-CHILD
         .
@@ -538,7 +570,7 @@ PROCEDURE pRadioSet :
     DEFINE INPUT PARAMETER iphDataType  AS HANDLE NO-UNDO.
     
     ASSIGN
-        iphEditor:SENSITIVE = iphRadioSet:SCREEN-VALUE EQ "Calculated"
+        iphEditor:SENSITIVE   = iphRadioSet:SCREEN-VALUE EQ "Calculated"
         iphDataType:SENSITIVE = iphEditor:SENSITIVE
         .    
     IF iphEditor:SENSITIVE THEN
@@ -565,7 +597,7 @@ PROCEDURE pSetGroupCalcValues :
     DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
     
     ASSIGN
-        hWidget = FRAME {&FRAME-NAME}:HANDLE
+        hWidget = FRAME calcGroupFrame:HANDLE
         hWidget = hWidget:FIRST-CHILD
         hWidget = hWidget:FIRST-CHILD
         hActiveEditor = ?
@@ -620,7 +652,7 @@ PROCEDURE pSetGroupCalcValues :
         hWidget = hWidget:NEXT-SIBLING.
     END. /* do while */
     ASSIGN
-        cField:LIST-ITEMS    = ipcFields
+        cField:LIST-ITEMS IN FRAME {&FRAME-NAME} = ipcFields
         cVariable:LIST-ITEMS = ipcVariables
         .
     IF VALID-HANDLE(hActiveEditor) THEN

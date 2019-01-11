@@ -613,10 +613,8 @@ PROCEDURE pGetUserPrintTask :
         WHERE user-print.company    EQ aoaCompany
           AND user-print.program-id EQ aoaProgramID
           AND user-print.user-id    EQ aoaUserID
-          /*
-          AND user-print.batch      EQ "Batch"
-          AND user-print.batch-seq  GT 0
-          */
+/*          AND user-print.batch      EQ "Batch"*/
+/*          AND user-print.batch-seq  GT 0      */
           AND user-print.prgmName   EQ "",
         FIRST jasperUserPrint NO-LOCK
         WHERE jasperUserPrint.company    EQ user-print.company
