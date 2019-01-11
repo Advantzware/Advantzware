@@ -861,12 +861,20 @@ PROCEDURE pRunProcess :
     DEFINE VARIABLE lProcess AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iUpdated AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iAdded   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCount   AS INTEGER   NO-UNDO.
+
+    FOR EACH ttImportData NO-LOCK :
+          iCount = iCount + 1 .
+    END.
     
     SESSION:SET-WAIT-STATE("general").   
     IF NOT CAN-FIND(FIRST ttImportData WHERE ttImportData.lValid) THEN 
         MESSAGE "No valid data to import" VIEW-AS ALERT-BOX.       
-    ELSE 
-    DO:
+    ELSE IF iCount GT 1000 THEN do:
+         MESSAGE "Must limit import file to a maximum of 1,000 rows" VIEW-AS ALERT-BOX. 
+         APPLY "ENTRY" TO fiFileName IN FRAME {&FRAME-NAME} . 
+    END.
+    ELSE DO:
         MESSAGE "Are you ready to process the import file and update or add records in the system?"
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
             UPDATE lProcess.
