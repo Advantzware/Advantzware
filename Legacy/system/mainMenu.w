@@ -93,6 +93,9 @@ DEFINE VARIABLE lSuperAdmin       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hColorWidget      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iFGColor          AS INTEGER   NO-UNDO EXTENT 3.
 DEFINE VARIABLE iBGColor          AS INTEGER   NO-UNDO EXTENT 3.
+DEFINE VARIABLE iThisVersion  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iLastVersion  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lUpgradeAvail AS LOGICAL NO-UNDO.
 
 ASSIGN
     g_mainmenu = THIS-PROCEDURE
@@ -144,19 +147,15 @@ FGColor-2 FGColor-3 BGColor-1 BGColor-2 BGColor-3
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ************************  Function Prototypes ********************** */
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIntVer MAINMENU
-FUNCTION fIntVer RETURNS INTEGER 
-  ( INPUT cVerString AS CHAR ) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIntVer MAINMENU 
+FUNCTION fIntVer RETURNS INTEGER
+  ( INPUT cVerString AS CHAR )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -615,10 +614,10 @@ DEFINE FRAME FRAME-USER
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      "User ID:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 114
-     "Location:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 68
      "Company:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 4
+     "Location:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.71 COL 68
      boxes AT ROW 8.62 COL 57
      menu-image AT ROW 3.62 COL 58
      RECT-2 AT ROW 1 COL 1
@@ -690,30 +689,8 @@ DEFINE FRAME userSettingsFrame
           FONT 35
      " Language" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 3.62 COL 5 WIDGET-ID 86
-     "Show:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 17.67 COL 14 WIDGET-ID 112
-     " Menu Size" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 9.81 COL 5 WIDGET-ID 62
      "2" VIEW-AS TEXT
           SIZE 2 BY .62 AT ROW 22.91 COL 26 WIDGET-ID 462
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 28 BY 1.43 AT ROW 13.86 COL 31 WIDGET-ID 54
-          FONT 37
-     " HotKey (Mnemonic)" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 16.95 COL 5 WIDGET-ID 106
-     " Copy From User" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 98
-     "?" VIEW-AS TEXT
-          SIZE 2 BY .76 AT ROW 24.33 COL 43 WIDGET-ID 354
-          FGCOLOR 0 FONT 6
-     "3" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 22.91 COL 33 WIDGET-ID 464
-     "BG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 24.81 COL 7 WIDGET-ID 460
-     "Menu Level 1" VIEW-AS TEXT
-          SIZE 13 BY .67 AT ROW 22.91 COL 7 WIDGET-ID 458
-     "FG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 23.62 COL 7 WIDGET-ID 454
      IMAGE-1 AT ROW 10.76 COL 17 WIDGET-ID 40
      IMAGE-2 AT ROW 12.19 COL 17 WIDGET-ID 44
      IMAGE-3 AT ROW 13.86 COL 17 WIDGET-ID 50
@@ -764,45 +741,6 @@ DEFINE FRAME userSettingsFrame
          SIZE 103 BY 25.95
          BGCOLOR 15 FGCOLOR 1 
          TITLE "User Settings" WIDGET-ID 200.
-
-DEFINE FRAME menuTreeFrame
-     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
-     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
-     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 4.57
-         SIZE 55 BY 24.91
-         BGCOLOR 15  WIDGET-ID 100.
-
-DEFINE FRAME searchFrame
-     BtnFavorites AT ROW 1 COL 1 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 54
-     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
-          "Enter Search Filter" NO-LABEL WIDGET-ID 2
-     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
-     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
-     btnMoveDown AT ROW 5.76 COL 1 HELP
-          "Move Favorite Down" WIDGET-ID 58
-     btnMoveUp AT ROW 3.38 COL 1 HELP
-          "Move Favorite Up" WIDGET-ID 56
-     btnRemove AT ROW 4.57 COL 1 HELP
-          "Remove Favorite" WIDGET-ID 26
-     btnSearch AT ROW 1 COL 51 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 40
-     btnFavorite AT ROW 13.62 COL 52 WIDGET-ID 46
-     btnClear AT ROW 13.86 COL 100 HELP
-          "Clear Search Filters" WIDGET-ID 42
-     svFavoriteText AT ROW 13.86 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-     "FAVORITES" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
-          BGCOLOR 15 
-     RECT-23 AT ROW 1 COL 6 WIDGET-ID 60
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 3.38
-         SIZE 108 BY 14.05
-         FGCOLOR 1  WIDGET-ID 600.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1792,7 +1730,18 @@ DO:
 &IF DEFINED(FWD-VERSION) > 0 &THEN
     open-mime-resource "text/html" string(menuLinkZoHo:PRIVATE-DATA) false.
 &ELSE
-    OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
+    IF lUpgradeAvail THEN DO:
+        MESSAGE 
+            "About to download and install a system update.  This" SKIP 
+            "window will now close until the update is complete."
+            VIEW-AS ALERT-BOX INFO.
+        OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
+        QUIT.
+        
+    END.
+    ELSE DO:
+        OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
+    END.
 &ENDIF
 END.
 
@@ -2021,7 +1970,7 @@ PROCEDURE control_load :
 DEFINE VARIABLE UIB_S    AS LOGICAL    NO-UNDO.
 DEFINE VARIABLE OCXFile  AS CHARACTER  NO-UNDO.
 
-OCXFile = SEARCH( "mainMenu1.wrx":U ).
+OCXFile = SEARCH( "mainMenu.wrx":U ).
 IF OCXFile = ? THEN
   OCXFile = SEARCH(SUBSTRING(THIS-PROCEDURE:FILE-NAME, 1,
                      R-INDEX(THIS-PROCEDURE:FILE-NAME, ".":U), "CHARACTER":U) + "wrx":U).
@@ -2035,7 +1984,7 @@ DO:
   .
   RUN initialize-controls IN THIS-PROCEDURE NO-ERROR.
 END.
-ELSE MESSAGE "mainMenu1.wrx":U SKIP(1)
+ELSE MESSAGE "mainMenu.wrx":U SKIP(1)
              "The binary control file could not be found. The controls cannot be loaded."
              VIEW-AS ALERT-BOX TITLE "Controls Not Loaded".
 
@@ -2503,8 +2452,6 @@ PROCEDURE pInit :
     DEFINE VARIABLE hPgmMstrSecur AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lAdmin        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cThisVer      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iThisVersion  AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iLastVersion  AS INTEGER   NO-UNDO.
     
     RUN sys/ref/nk1look.p (
         g_company,"CEMenu","C",NO,NO,"","",
@@ -2638,23 +2585,12 @@ PROCEDURE pInit :
             IF hWebService:CONNECTED() THEN DO:
                 RUN Service1Soap SET hSalesSoap ON hWebService .
                 RUN HelpVersion IN hSalesSoap (OUTPUT cVersion).
-                ASSIGN
-                    cThisVer     = "{&awversion}" 
-                    /* Convert single digit entries to dbl-digit, so that "5" is greater than "41", etc. */
-                    ENTRY(1,cVersion,".") = IF INTEGER(ENTRY(1,cVersion,".")) LT 10 THEN STRING(ENTRY(1,cVersion,".") * 10) ELSE ENTRY(1,cVersion,".")  
-                    ENTRY(2,cVersion,".") = IF INTEGER(ENTRY(2,cVersion,".")) LT 10 THEN STRING(ENTRY(2,cVersion,".") * 10) ELSE ENTRY(2,cVersion,".")  
-                    ENTRY(3,cVersion,".") = IF INTEGER(ENTRY(3,cVersion,".")) LT 10 THEN STRING(ENTRY(3,cVersion,".") * 10) ELSE ENTRY(3,cVersion,".")  
-                    ENTRY(1,cThisVer,".") = IF INTEGER(ENTRY(1,cThisVer,".")) LT 10 THEN STRING(ENTRY(1,cThisVer,".") * 10) ELSE ENTRY(1,cThisVer,".")  
-                    ENTRY(2,cThisVer,".") = IF INTEGER(ENTRY(2,cThisVer,".")) LT 10 THEN STRING(ENTRY(2,cThisVer,".") * 10) ELSE ENTRY(2,cThisVer,".")  
-                    ENTRY(3,cThisVer,".") = IF INTEGER(ENTRY(3,cThisVer,".")) LT 10 THEN STRING(ENTRY(3,cThisVer,".") * 10) ELSE ENTRY(3,cThisVer,".")  
-                    iLastVersion = (INTEGER(ENTRY(1,cVersion,".")) * 10000) +
-                                   (INTEGER(ENTRY(2,cVersion,".")) * 100) +
-                                   (INTEGER(ENTRY(3,cVersion,".")))
-                    iThisVersion = (INTEGER(ENTRY(1,cThisVer,".")) * 10000) +
-                                   (INTEGER(ENTRY(2,cThisVer,".")) * 100) +
-                                   (INTEGER(ENTRY(3,cThisVer,".")))
+                cThisVer     = "{&awversion}". 
+                iLastVersion = fIntVer(cVersion).
+                iThisVersion = fIntVer(cThisVer).
                                    .
                 IF iLastVersion GT iThisVersion THEN DO:
+                    lUpgradeAvail = TRUE.
                     RUN sys/ref/nk1look.p (
                         g_company,"MENULINKUPGRADE","C",NO,NO,"","",
                         OUTPUT cNK1Value[1],OUTPUT lFound
@@ -2674,7 +2610,7 @@ PROCEDURE pInit :
                     IF SEARCH(cNK1Value[1]) NE ? AND
                        cNK1Value[2] NE "" THEN DO:
                         ASSIGN
-                            menuLinkZoHo:PRIVATE-DATA   = "https://34.203.15.64/patches/asiUpdate.exe"
+                            menuLinkZoHo:PRIVATE-DATA   = cNK1Value[2]
                             menuLinkZoHo:HIDDEN         = NO
                             menuLinkZoHo:SENSITIVE      = YES
                             menuLinkZoHo:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
@@ -3328,11 +3264,10 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIntVer MAINMENU
-FUNCTION fIntVer RETURNS INTEGER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIntVer MAINMENU 
+FUNCTION fIntVer RETURNS INTEGER
   ( INPUT cVerString AS CHAR ) :
 /*------------------------------------------------------------------------------
   Purpose:  Converts a version string like "16.4.8" or "16.7.12.2" to an integer
@@ -3357,8 +3292,7 @@ FUNCTION fIntVer RETURNS INTEGER
     
     RETURN iIntVer.   /* Function return value. */
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
