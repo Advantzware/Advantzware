@@ -791,7 +791,7 @@ PROCEDURE pRunNow :
         RELEASE Task.
     END. /* do trans */
     MESSAGE
-        "Task ~"" + aoaTitle + "~" has been submitted."
+        "Task ~"" + "aoaTitle" + "~" has been submitted."
     VIEW-AS ALERT-BOX TITLE "Run Now".
 
 END PROCEDURE.
