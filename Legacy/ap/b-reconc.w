@@ -75,7 +75,7 @@ DEFINE VARIABLE lv-save-char            AS CHARACTER INIT "" NO-UNDO.
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table reconcile
 &Scoped-define SELF-NAME Browser-Table
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH reconcile WHERE ~{&KEY-PHRASE} ~
-AND (reconcile.tt-bank EQ fi_bank-code OR fi_bank-code EQ "") ~
+AND (reconcile.tt-bank EQ begin_bank OR begin_bank EQ "") ~
 AND (reconcile.tt-date GE fi_start-date OR fi_start-date EQ ?) ~
 AND (reconcile.tt-date LE fi_end-date OR fi_end-date EQ ?) ~
 AND (reconcile.tt-number EQ fi_check OR fi_check EQ "") ~
@@ -83,7 +83,7 @@ AND (reconcile.tt-vend EQ fi_vend OR fi_vend EQ "") ~
 AND (reconcile.tt-cleared EQ logical(rd-drop-list) OR rd-drop-list EQ "All") ~
  ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY {&SELF-NAME} FOR EACH reconcile WHERE ~{&KEY-PHRASE} ~
-AND (reconcile.tt-bank = fi_bank-code  OR fi_bank-code EQ "") ~
+AND (reconcile.tt-bank = begin_bank  OR begin_bank EQ "") ~
 AND (reconcile.tt-date GE fi_start-date OR fi_start-date EQ ?) ~
 AND (reconcile.tt-date LE fi_end-date OR fi_end-date EQ ?) ~
 AND (reconcile.tt-number EQ fi_check OR fi_check EQ "") ~
@@ -99,10 +99,12 @@ AND (reconcile.tt-cleared EQ logical(rd-drop-list) OR rd-drop-list EQ "All") ~
     ~{&OPEN-QUERY-Browser-Table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 btn_go btn_clear fi_bank-code ~
-fi_start-date fi_check fi_vend fi_end-date rd-drop-list Browser-Table 
-&Scoped-Define DISPLAYED-OBJECTS fi_bank-code fi_bank-name fi_start-date ~
-fi_check fi_vend fi_name fi_end-date rd-drop-list fi_sortBy 
+&Scoped-Define ENABLED-OBJECTS RECT-1 btn_go btn_clear begin_bank ~
+fi_start-date fi_check fi_vend fi_end-date rd-drop-list Browser-Table ~
+btnCalendar-1 btnCalendar-2
+&Scoped-Define DISPLAYED-OBJECTS begin_bank fi_bank-name fi_start-date ~
+fi_check fi_vend fi_name fi_end-date rd-drop-list fi_sortBy ~
+btnCalendar-1 btnCalendar-2
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -116,6 +118,16 @@ fi_check fi_vend fi_name fi_end-date rd-drop-list fi_sortBy
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-2 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
 DEFINE BUTTON btn_clear 
     LABEL "Clear" 
     SIZE 12 BY 1.
@@ -124,7 +136,7 @@ DEFINE BUTTON btn_go
     LABEL "Search" 
     SIZE 12 BY 1.
 
-DEFINE VARIABLE fi_bank-code  AS CHARACTER FORMAT "X(8)":U 
+DEFINE VARIABLE begin_bank  AS CHARACTER FORMAT "X(8)":U 
     LABEL "Bank Code" 
     VIEW-AS FILL-IN 
     SIZE 16.2 BY 1
@@ -141,7 +153,7 @@ DEFINE VARIABLE fi_check      AS CHARACTER FORMAT "X(13)":U
     SIZE 18.8 BY 1
     BGCOLOR 15 NO-UNDO.
 
-DEFINE VARIABLE fi_end-date   AS DATE      FORMAT "99/99/9999":U 
+DEFINE VARIABLE fi_end-date   AS DATE      FORMAT "99/99/9999":U INIT 12/31/2999
     LABEL "End Date" 
     VIEW-AS FILL-IN 
     SIZE 16.2 BY 1
@@ -157,7 +169,7 @@ DEFINE VARIABLE fi_sortBy     AS CHARACTER FORMAT "X(256)":U
     SIZE 28 BY 1
     BGCOLOR 14 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE fi_start-date AS DATE      FORMAT "99/99/9999":U 
+DEFINE VARIABLE fi_start-date AS DATE      FORMAT "99/99/9999":U INIT 01/01/0001
     LABEL "Start Date" 
     VIEW-AS FILL-IN 
     SIZE 16.2 BY 1
@@ -209,25 +221,27 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-    btn_go AT ROW 1.24 COL 117.4 WIDGET-ID 16
-    btn_clear AT ROW 1.24 COL 131 WIDGET-ID 32
-    fi_bank-code AT ROW 1.33 COL 11.6 COLON-ALIGNED WIDGET-ID 24
+    btn_go AT ROW 1.24 COL 119.4 WIDGET-ID 16
+    btn_clear AT ROW 1.24 COL 133 WIDGET-ID 32
+    begin_bank AT ROW 1.33 COL 11.6 COLON-ALIGNED WIDGET-ID 24
     fi_bank-name AT ROW 1.33 COL 27.8 COLON-ALIGNED HELP
     "Enter Finished Goods Name used for Alpha Numeric Searches." NO-LABELS WIDGET-ID 22
     fi_start-date AT ROW 1.33 COL 70.6 COLON-ALIGNED WIDGET-ID 26
-    fi_check AT ROW 1.33 COL 94.2 COLON-ALIGNED WIDGET-ID 30
+    btnCalendar-1 AT ROW 1.33 COL 88
+    fi_check AT ROW 1.33 COL 98.2 COLON-ALIGNED WIDGET-ID 30
     fi_vend AT ROW 2.62 COL 11.4 COLON-ALIGNED WIDGET-ID 20
     fi_name AT ROW 2.62 COL 27.6 COLON-ALIGNED HELP
     "Enter Finished Goods Name used for Alpha Numeric Searches." NO-LABELS WIDGET-ID 18
     fi_end-date AT ROW 2.62 COL 70.6 COLON-ALIGNED WIDGET-ID 28
-    rd-drop-list AT ROW 2.67 COL 97 COLON-ALIGNED NO-LABELS
+    btnCalendar-2 AT ROW 2.62 COL 88
+    rd-drop-list AT ROW 2.67 COL 99 COLON-ALIGNED NO-LABELS
     fi_sortBy AT ROW 2.67 COL 115 COLON-ALIGNED NO-LABELS WIDGET-ID 12
     Browser-Table AT ROW 4.1 COL 1 HELP
     "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
     "Sort:" VIEW-AS TEXT
     SIZE 5 BY .95 AT ROW 2.71 COL 112 WIDGET-ID 14
     "Cleared:" VIEW-AS TEXT
-    SIZE 9 BY .95 AT ROW 2.67 COL 90 
+    SIZE 9 BY .95 AT ROW 2.67 COL 93 
     RECT-1 AT ROW 1 COL 1 WIDGET-ID 34
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
     SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -303,6 +317,10 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_sortBy IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
+   3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
+   3                                                                    */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -393,10 +411,10 @@ ON CHOOSE OF btn_clear IN FRAME F-Main /* Clear */
  
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN
-                fi_bank-code:SCREEN-VALUE  = ""
+                begin_bank:SCREEN-VALUE  = ""
                 fi_vend:SCREEN-VALUE       = ""
-                fi_start-date:SCREEN-VALUE = ""
-                fi_end-date:SCREEN-VALUE   = ""
+                fi_start-date:SCREEN-VALUE = "01/01/0001"
+                fi_end-date:SCREEN-VALUE   = "12/31/2999"
                 fi_check:SCREEN-VALUE      = ""
                 fi_bank-name:SCREEN-VALUE  = ""
                 fi_name:SCREEN-VALUE       = "" .
@@ -404,7 +422,7 @@ ON CHOOSE OF btn_clear IN FRAME F-Main /* Clear */
 
 
             ASSIGN
-                fi_bank-code
+                begin_bank
                 fi_vend
                 fi_start-date
                 fi_end-date
@@ -428,7 +446,7 @@ ON CHOOSE OF btn_go IN FRAME F-Main /* Search */
  
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN
-                fi_bank-code
+                begin_bank
                 fi_vend
                 fi_start-date
                 fi_end-date
@@ -445,9 +463,53 @@ ON CHOOSE OF btn_go IN FRAME F-Main /* Search */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_bank-code
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_bank-code B-table-Win
-ON ENTRY OF fi_bank-code IN FRAME F-Main /* Bank Code */
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 B-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i fi_start-date}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 B-table-Win
+ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i fi_end-date}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_end-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_end-date B-table-Win
+ON HELP OF fi_end-date IN FRAME F-Main /* begin. Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_start-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_start-date B-table-Win
+ON HELP OF fi_start-date IN FRAME F-Main /* end Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_bank
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_bank B-table-Win
+ON ENTRY OF begin_bank IN FRAME F-Main /* Bank Code */
     DO:
         IF lv-save-char NE {&self-name}:SCREEN-VALUE THEN RUN new-bank.
 
@@ -458,8 +520,8 @@ ON ENTRY OF fi_bank-code IN FRAME F-Main /* Bank Code */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_bank-code B-table-Win
-ON LEAVE OF fi_bank-code IN FRAME F-Main /* Bank Code */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_bank B-table-Win
+ON LEAVE OF begin_bank IN FRAME F-Main /* Bank Code */
     DO:
         IF LASTKEY NE -1 THEN 
         DO:
@@ -474,8 +536,8 @@ ON LEAVE OF fi_bank-code IN FRAME F-Main /* Bank Code */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_bank-code B-table-Win
-ON VALUE-CHANGED OF fi_bank-code IN FRAME F-Main /* Bank Code */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_bank B-table-Win
+ON VALUE-CHANGED OF begin_bank IN FRAME F-Main /* Bank Code */
     DO:
         RUN new-bank.
     END.
@@ -688,7 +750,7 @@ RUN get-security.
 DO WITH FRAME {&FRAME-NAME}:
     rd-drop-list:SCREEN-VALUE = "All" .
     rd-drop-list = "All" .
-    APPLY "entry" TO fi_bank-code .
+    APPLY "entry" TO begin_bank .
 END.
 
 
@@ -907,7 +969,7 @@ PROCEDURE new-bank :
     DO WITH FRAME {&FRAME-NAME}:
         FIND FIRST bank NO-LOCK
             WHERE bank.company EQ cocode
-            AND bank.bank-code EQ fi_bank-code:SCREEN-VALUE
+            AND bank.bank-code EQ begin_bank:SCREEN-VALUE
             NO-ERROR.
         IF AVAILABLE bank THEN fi_bank-name:SCREEN-VALUE = bank.bank-name.
     END.
@@ -991,12 +1053,12 @@ PROCEDURE valid-bank :
 
     DO WITH FRAME {&FRAME-NAME}:
     
-        IF fi_bank-code:SCREEN-VALUE NE "" AND NOT CAN-FIND(FIRST bank WHERE bank.company EQ cocode
-            AND bank.bank-code EQ fi_bank-code:SCREEN-VALUE)
+        IF begin_bank:SCREEN-VALUE NE "" AND NOT CAN-FIND(FIRST bank WHERE bank.company EQ cocode
+            AND bank.bank-code EQ begin_bank:SCREEN-VALUE)
             THEN 
         DO:
             MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO fi_bank-code.
+            APPLY "entry" TO begin_bank.
             RETURN ERROR.
         END.
     END.
