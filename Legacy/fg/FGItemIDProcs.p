@@ -188,11 +188,11 @@ FIND FIRST bf-eb NO-LOCK
 IF NOT AVAILABLE bf-eb THEN RETURN.  /*Can't process without valid subject record*/
 /*Set default fall back to passed in partID*/
 
-IF cFGItemFormat NE "Manual" THEN
-    opcFGItemID = bf-eb.part-no.  /* Ticket - 39141 */
-      
 IF cFGItemFormat EQ "" THEN 
     cFGItemFormat = fGetFGItemFormat (bf-eb.company).
+
+IF cFGItemFormat NE "Manual" THEN
+    opcFGItemID = bf-eb.part-no.  /* Ticket - 39141 */
 
 CASE cFGItemFormat:
     WHEN "Manual" OR 
