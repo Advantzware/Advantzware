@@ -816,6 +816,7 @@ PROCEDURE pLoad :
     DEFINE VARIABLE lGo               AS LOGICAL   NO-UNDO. 
     DEFINE VARIABLE cFile             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lUpdateDuplicates AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iCount            AS INTEGER   NO-UNDO.
     
     cFile = iphdImportFileName:SCREEN-VALUE.
     lUpdateDuplicates = rdDuplicates EQ 1.
@@ -827,8 +828,22 @@ PROCEDURE pLoad :
         RUN pSetType IN ghdImportProcs (ipcType).
         RUN pConvertExceltoCSV IN ghdImportProcs (cFile, OUTPUT cFile).
         RUN pCheckContinue("load import data from " + cFile, OUTPUT lGo).
+         
         IF lGo THEN 
             RUN pLoad IN ghdImportProcs (ipcCompany, ipcLocation, cFile, lHeaderRow, lUpdateDuplicates, lFieldValidation, gcFileType, OUTPUT lGo).
+
+        FOR EACH ttImportData NO-LOCK :
+	          iCount = iCount + 1 .
+	    END.
+        IF iCount GT 1000 THEN do:
+	         MESSAGE "Must limit import file to a maximum of 1,000 rows" VIEW-AS ALERT-BOX. 
+             lGo = NO .
+             FOR EACH ttImportData NO-LOCK :
+	          ttImportData.lValid = NO .
+	         END.
+	         APPLY "ENTRY" TO fiFileName IN FRAME {&FRAME-NAME} . 
+	     END.
+       
         IF lGo THEN 
         DO:
             RUN pShowPreview.
@@ -861,20 +876,12 @@ PROCEDURE pRunProcess :
     DEFINE VARIABLE lProcess AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iUpdated AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iAdded   AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iCount   AS INTEGER   NO-UNDO.
-
-    FOR EACH ttImportData NO-LOCK :
-          iCount = iCount + 1 .
-    END.
     
     SESSION:SET-WAIT-STATE("general").   
     IF NOT CAN-FIND(FIRST ttImportData WHERE ttImportData.lValid) THEN 
         MESSAGE "No valid data to import" VIEW-AS ALERT-BOX.       
-    ELSE IF iCount GT 1000 THEN do:
-         MESSAGE "Must limit import file to a maximum of 1,000 rows" VIEW-AS ALERT-BOX. 
-         APPLY "ENTRY" TO fiFileName IN FRAME {&FRAME-NAME} . 
-    END.
-    ELSE DO:
+    ELSE 
+    DO:
         MESSAGE "Are you ready to process the import file and update or add records in the system?"
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
             UPDATE lProcess.
