@@ -39,7 +39,7 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 
-DEF INPUT PARAMETER ipcName AS CHAR NO-UNDO.
+DEF INPUT PARAMETER ipcName AS CHAR NO-UNDO. 
 DEF INPUT PARAMETER ipcPort AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcDir AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcVer AS CHAR NO-UNDO.
@@ -328,7 +328,7 @@ tbBackupDBs tbUserControl fiEnvironment tbUserCleanup fiAsiDbName ~
 fiAudDbName tbDelBadData fiAsiPortNo fiAudPortNo tbUpdateMaster fiFromVer ~
 tbRunDataFix fiToVer tbUpdateNK1s fiLicensedUsers tbUpdateFileLocs ~
 tbReftableConv tbLoadMenus tbRelNotes eStatus tbBackupFiles tbInstallFiles ~
-tbUpdateIni fiLogFile 
+tbUpdateIni 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -339,15 +339,12 @@ tbUpdateIni fiLogFile
 
 /* ************************  Function Prototypes ********************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fFixYear C-Win
-FUNCTION fFixYear RETURNS DATE 
-  (INPUT daDate AS DATE) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fFixYear C-Win 
+FUNCTION fFixYear RETURNS DATE
+  (INPUT daDate AS DATE ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD intVer C-Win 
 FUNCTION intVer RETURNS INTEGER
@@ -370,7 +367,7 @@ DEFINE BUTTON bProcess
 
 DEFINE VARIABLE eStatus AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 75 BY 9.52 NO-UNDO.
+     SIZE 75 BY 3.81 NO-UNDO.
 
 DEFINE VARIABLE fiAsiDbName AS CHARACTER FORMAT "X(256)":U 
      LABEL "and databases (ASI)" 
@@ -402,7 +399,7 @@ DEFINE VARIABLE fiFromVer AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiHostname AS CHARACTER FORMAT "X(256)":U INITIAL "DEMO" 
+DEFINE VARIABLE fiHostname AS CHARACTER FORMAT "X(256)":U 
      LABEL "Server Name" 
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
@@ -412,27 +409,23 @@ DEFINE VARIABLE fiLicensedUsers AS INTEGER FORMAT ">>>>9":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 9 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiLogFile AS CHARACTER FORMAT "X(256)":U INITIAL "Log of actions will be stored in N:~\Admin~\EnvAdmin~\UpdateLog.txt" 
-      VIEW-AS TEXT 
-     SIZE 65 BY .62 NO-UNDO.
-
 DEFINE VARIABLE fiOptions AS CHARACTER FORMAT "X(256)":U INITIAL "Options:" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiSiteName AS CHARACTER FORMAT "X(256)":U INITIAL "DEMO" 
+DEFINE VARIABLE fiSiteName AS CHARACTER FORMAT "X(256)":U 
      LABEL "Site Name" 
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiToVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.16" 
+DEFINE VARIABLE fiToVer AS CHARACTER FORMAT "X(256)":U 
      LABEL "to version" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 39 BY 16.19.
+     SIZE 39 BY 14.76.
 
 DEFINE VARIABLE tbBackupDBs AS LOGICAL INITIAL no 
      LABEL "Backup Databases" 
@@ -509,40 +502,39 @@ DEFINE VARIABLE tbUserControl AS LOGICAL INITIAL no
 
 DEFINE FRAME DEFAULT-FRAME
      fiSiteName AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 68
-     fiOptions AT ROW 1.24 COL 79 COLON-ALIGNED NO-LABEL
+     fiOptions AT ROW 1.24 COL 87 COLON-ALIGNED NO-LABEL
      fiHostname AT ROW 2.19 COL 19 COLON-ALIGNED WIDGET-ID 36
-     tbBackupDBs AT ROW 2.43 COL 82 WIDGET-ID 384
-     tbUserControl AT ROW 3.38 COL 82 WIDGET-ID 370
+     tbBackupDBs AT ROW 2.43 COL 90 WIDGET-ID 384
+     tbUserControl AT ROW 3.38 COL 90 WIDGET-ID 370
      fiEnvironment AT ROW 3.86 COL 29 COLON-ALIGNED
-     tbUserCleanup AT ROW 4.33 COL 82 WIDGET-ID 368
+     tbUserCleanup AT ROW 4.33 COL 90 WIDGET-ID 368
      fiAsiDbName AT ROW 4.81 COL 29 COLON-ALIGNED
      fiAudDbName AT ROW 4.81 COL 56 COLON-ALIGNED
-     tbDelBadData AT ROW 5.29 COL 82 WIDGET-ID 374
+     tbDelBadData AT ROW 5.29 COL 90 WIDGET-ID 374
      fiAsiPortNo AT ROW 5.76 COL 29 COLON-ALIGNED
      fiAudPortNo AT ROW 5.76 COL 56 COLON-ALIGNED
-     tbUpdateMaster AT ROW 6.24 COL 82 WIDGET-ID 376
+     tbUpdateMaster AT ROW 6.24 COL 90 WIDGET-ID 376
      fiFromVer AT ROW 6.71 COL 29 COLON-ALIGNED
-     tbRunDataFix AT ROW 7.19 COL 82 WIDGET-ID 400
+     tbRunDataFix AT ROW 7.19 COL 90 WIDGET-ID 400
      fiToVer AT ROW 7.67 COL 29 COLON-ALIGNED WIDGET-ID 46
-     tbUpdateNK1s AT ROW 8.14 COL 82 WIDGET-ID 396
+     tbUpdateNK1s AT ROW 8.14 COL 90 WIDGET-ID 396
      fiLicensedUsers AT ROW 8.62 COL 29 COLON-ALIGNED WIDGET-ID 440
-     tbUpdateFileLocs AT ROW 9.1 COL 82 WIDGET-ID 398
-     tbReftableConv AT ROW 10.05 COL 82 WIDGET-ID 504
+     tbUpdateFileLocs AT ROW 9.1 COL 90 WIDGET-ID 398
+     tbReftableConv AT ROW 10.05 COL 90 WIDGET-ID 504
      bProcess AT ROW 10.29 COL 15 WIDGET-ID 404
-     tbLoadMenus AT ROW 11 COL 82 WIDGET-ID 378
-     tbRelNotes AT ROW 11.95 COL 82 WIDGET-ID 382
-     eStatus AT ROW 12.67 COL 2 NO-LABEL
-     tbBackupFiles AT ROW 12.91 COL 82 WIDGET-ID 386
-     tbInstallFiles AT ROW 13.86 COL 82 WIDGET-ID 388
-     tbUpdateIni AT ROW 14.81 COL 82 WIDGET-ID 450
-     fiLogFile AT ROW 22.43 COL 5 COLON-ALIGNED NO-LABEL
+     tbLoadMenus AT ROW 11 COL 90 WIDGET-ID 378
+     tbRelNotes AT ROW 11.95 COL 90 WIDGET-ID 382
+     eStatus AT ROW 12.43 COL 3 NO-LABEL
+     tbBackupFiles AT ROW 12.91 COL 90 WIDGET-ID 386
+     tbInstallFiles AT ROW 13.86 COL 90 WIDGET-ID 388
+     tbUpdateIni AT ROW 14.81 COL 90 WIDGET-ID 450
      "Status:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 11.95 COL 3 WIDGET-ID 54
-     RECT-5 AT ROW 1.48 COL 79
+          SIZE 8 BY .62 AT ROW 11.71 COL 3 WIDGET-ID 54
+     RECT-5 AT ROW 1.48 COL 87
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 120 BY 22.67 WIDGET-ID 100.
+         SIZE 130 BY 15.43 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -560,9 +552,9 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "ASIupdate 160800-01 Environment"
-         HEIGHT             = 22.67
-         WIDTH              = 120
+         TITLE              = "Advantzware Update - Programs/Data"
+         HEIGHT             = 15.48
+         WIDTH              = 130
          MAX-HEIGHT         = 34.29
          MAX-WIDTH          = 166.2
          VIRTUAL-HEIGHT     = 34.29
@@ -603,8 +595,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiHostname IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiLogFile IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiOptions IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiSiteName IN FRAME DEFAULT-FRAME
@@ -629,7 +619,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* ASIupdate 160800-01 Environment */
+ON END-ERROR OF C-Win /* Advantzware Update - Programs/Data */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -643,7 +633,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* ASIupdate 160800-01 Environment */
+ON WINDOW-CLOSE OF C-Win /* Advantzware Update - Programs/Data */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -811,7 +801,7 @@ PROCEDURE enable_UI :
           fiAsiPortNo fiAudPortNo tbUpdateMaster fiFromVer tbRunDataFix fiToVer 
           tbUpdateNK1s fiLicensedUsers tbUpdateFileLocs tbReftableConv 
           tbLoadMenus tbRelNotes eStatus tbBackupFiles tbInstallFiles 
-          tbUpdateIni fiLogFile 
+          tbUpdateIni 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE RECT-5 tbBackupDBs tbUserControl tbUserCleanup tbDelBadData 
          tbUpdateMaster tbRunDataFix tbUpdateNK1s fiLicensedUsers 
@@ -2345,7 +2335,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160804 C-Win 
 PROCEDURE ipDataFix160804 :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
          Purpose:
          Notes:
         ------------------------------------------------------------------------------*/
@@ -2358,7 +2348,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160805 C-Win 
 PROCEDURE ipDataFix160805 :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
          Purpose:
          Notes:
         ------------------------------------------------------------------------------*/
@@ -2372,9 +2362,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160851 C-Win
-PROCEDURE ipDataFix160851:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160851 C-Win 
+PROCEDURE ipDataFix160851 :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -2384,15 +2373,13 @@ PROCEDURE ipDataFix160851:
     RUN ipFixBadYears.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160899 C-Win 
 PROCEDURE ipDataFix160899 :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
          Purpose:
          Notes:
         ------------------------------------------------------------------------------*/
@@ -2805,9 +2792,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixBadYears C-Win
-PROCEDURE ipFixBadYears:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixBadYears C-Win 
+PROCEDURE ipFixBadYears :
 /*------------------------------------------------------------------------------
  Purpose:   ensure year values are in 20th or 21st century
  Notes:     from ticket 41037
@@ -2855,11 +2841,9 @@ PROCEDURE ipFixBadYears:
     END.
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixPoEdiDirs C-Win 
 PROCEDURE ipFixPoEdiDirs :
@@ -2900,9 +2884,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixUserPrint C-Win
-PROCEDURE ipFixUserPrint:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixUserPrint C-Win 
+PROCEDURE ipFixUserPrint :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -2920,11 +2903,9 @@ PROCEDURE ipFixUserPrint:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixUsers C-Win 
 PROCEDURE ipFixUsers :
@@ -4411,7 +4392,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRemoveUserMenu C-Win 
 PROCEDURE ipRemoveUserMenu :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
          Purpose:
          Notes:
       ------------------------------------------------------------------------------*/
@@ -5009,9 +4990,8 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fFixYear C-Win
-FUNCTION fFixYear RETURNS DATE 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fFixYear C-Win 
+FUNCTION fFixYear RETURNS DATE
   (INPUT daDate AS DATE ):
 /*------------------------------------------------------------------------------
  Purpose:
@@ -5032,11 +5012,9 @@ FUNCTION fFixYear RETURNS DATE
     END. 
     
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION intVer C-Win 
 FUNCTION intVer RETURNS INTEGER
