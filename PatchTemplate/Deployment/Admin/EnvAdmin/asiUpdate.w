@@ -978,9 +978,10 @@ PROCEDURE ipExpandVarNames :
     ------------------------------------------------------------------------------*/
     /* Modify variables for ease of use */
     ASSIGN
+        cMapDir = cDrive + "\" + cTopDir
         cAdminDir = cMapDir + "\" + cAdminDir
         cBackupDir = cMapDir + "\" + cBackupDir
-        cDBDir = cMapDir + "\" + cDbDir 
+        cDBDir = cDbDrive + "\" + cTopDir + "\" + cDbDir 
         cDocDir = cMapDir + "\" + cDocDir
         cDeskDir = cMapDir + "\" + cDeskDir
         cEnvDir = cMapDir + "\" + cEnvDir

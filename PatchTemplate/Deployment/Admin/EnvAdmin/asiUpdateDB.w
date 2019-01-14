@@ -926,10 +926,12 @@ PROCEDURE ipExpandVarNames :
 ------------------------------------------------------------------------------*/
 
     /* Modify variables for ease of use */
+    /* Modify variables for ease of use */
     ASSIGN
+        cMapDir = cDrive + "\" + cTopDir
         cAdminDir = cMapDir + "\" + cAdminDir
         cBackupDir = cMapDir + "\" + cBackupDir
-/*        cDBDir = cMapDir + "\" + cDbDir  */
+        cDBDir = cDbDrive + "\" + cTopDir + "\" + cDbDir 
         cDocDir = cMapDir + "\" + cDocDir
         cDeskDir = cMapDir + "\" + cDeskDir
         cEnvDir = cMapDir + "\" + cEnvDir
@@ -949,23 +951,22 @@ PROCEDURE ipExpandVarNames :
         cDbTestDir = cDbDir + "\" + cDbTestDir
         cEnvProdDir = cEnvDir + "\" + cEnvProdDir
         cEnvTestDir = cEnvDir + "\" + cEnvTestDir
-        cUpdAdminDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdAdminDir
-        cUpdCompressDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdCompressDir
-        cUpdDataDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdDataDir
-        cUpdDeskDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdDeskDir
-        cUpdMenuDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdMenuDir
-        cUpdProgramDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdProgramDir
-        cUpdRelNotesDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdRelNotesDir
-        cUpdStructureDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdStructureDir
+        cUpdAdminDir = cUpdatesDir + "\" + cUpdAdminDir
+        cUpdCompressDir = cUpdatesDir + "\" + cUpdCompressDir
+        cUpdDataDir = cUpdatesDir + "\" + cUpdDataDir
+        cUpdDeskDir = cUpdatesDir + "\" + cUpdDeskDir
+        cUpdMenuDir = cUpdatesDir + "\" + cUpdMenuDir
+        cUpdProgramDir = cUpdatesDir + "\" + cUpdProgramDir
+        cUpdRelNotesDir = cUpdatesDir + "\" + cUpdRelNotesDir
+        cUpdStructureDir = cUpdatesDir + "\" + cUpdStructureDir
         lmakeBackup = IF INDEX(cMakeBackup,"Y") NE 0 OR INDEX(cMakeBackup,"T") NE 0 THEN TRUE ELSE FALSE
         lConnectAudit = IF INDEX(cConnectAudit,"Y") NE 0 OR INDEX(cConnectAudit,"T") NE 0 THEN TRUE ELSE FALSE
         cLockoutTries = SUBSTRING(cLockoutTries,1,1)
         iLockoutTries = IF cLockoutTries NE "" 
                         AND ASC(cLockoutTries) GE 48
                         AND ASC(cLockoutTries) LE 57 THEN INT(cLockoutTries) ELSE 0
-        cPatchNo = fiToVer:{&SV}
         .
-        
+                
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
