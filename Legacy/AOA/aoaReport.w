@@ -698,7 +698,7 @@ PROCEDURE pGetUserPrint :
     DEFINE BUFFER bUserPrint FOR user-print.
     
     FOR EACH prgrms NO-LOCK
-        WHERE prgrms.mnemonic BEGINS "{&module}"
+        WHERE prgrms.itemParent EQ "{&module}"
            OR "{&module}" EQ "ALL",
         EACH user-print EXCLUSIVE-LOCK
         WHERE user-print.company    EQ g_company
