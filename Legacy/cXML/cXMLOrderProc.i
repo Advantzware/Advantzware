@@ -683,6 +683,14 @@ PROCEDURE gencXMLOrder:
     orderID = getNodeValue('OrderRequestHeader','orderID')
         custNo = getCustNo(fromIdentity)
         .
+  ASSIGN
+    payLoadID = getNodeValue('cXML','payloadID')
+    fromIdentity = getNodeValue('From','Identity')
+    orderDate = getNodeValue('OrderRequestHeader','orderDate')
+    orderID = getNodeValue('OrderRequestHeader','orderID')
+    custNo = getCustNo(fromIdentity)
+    .
+
   FIND FIRST oe-ord NO-LOCK
        WHERE oe-ord.company EQ cocode
          AND oe-ord.cust-no EQ custNo
@@ -694,6 +702,7 @@ PROCEDURE gencXMLOrder:
     RETURN.
   END.
   
+<<<<<<< HEAD
       FIND FIRST cust NO-LOCK
            WHERE cust.company EQ cocode
              AND cust.cust-no EQ custNo
@@ -755,6 +764,32 @@ PROCEDURE gencXMLOrder:
   FOR EACH  ttOrdHead NO-LOCK  
          WHERE (ttOrdHead.ttDocType EQ "PO" OR ttOrdHead.ttDocType EQ "850") :
                  
+=======
+  FIND FIRST cust NO-LOCK
+      WHERE cust.company EQ cocode
+      AND cust.cust-no EQ custNo
+      NO-ERROR.
+  IF NOT AVAILABLE cust THEN 
+  DO:
+      opcReturnValue = 'Customer: ' + custNo + ' not found'.
+      RETURN.
+  END.
+  FIND FIRST ttNodes NO-LOCK 
+         WHERE ttNodes.parentName EQ 'itemDetail' 
+           AND ttNodes.nodeName EQ 'ManufacturerPartID'
+         NO-ERROR.
+  IF NOT AVAILABLE ttNodes THEN DO:
+      opcReturnValue = 'Part Number is missing from XML file' .
+      RETURN.
+  END. 
+    
+    
+  iNextOrderNumber = GetNextOrder#().
+  RUN genOrderHeader (INPUT iNextOrderNumber, INPUT orderDate, OUTPUT rOrdRec).
+  RUN assignOrderHeader (INPUT rOrdRec, OUTPUT cShipToID, OUTPUT cReturn).  
+  RUN genOrderLines (INPUT rOrdRec, INPUT cShipToID, OUTPUT cReturn).
+  RUN touchOrder (INPUT rOrdRec, OUTPUT cReturn).
+>>>>>>> 40344 Create Hotfix 16.8.41 on version 16.8.4
 
       ttOrdHead.ttSelectedOrder = TRUE.
     
