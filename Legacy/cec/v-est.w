@@ -334,14 +334,14 @@ DEFINE FRAME Corr
      eb.form-no AT ROW 1.24 COL 46.8 COLON-ALIGNED
           LABEL "Frm"
           VIEW-AS FILL-IN 
-          SIZE 5 BY 1
+          SIZE 4 BY 1
      est.form-qty AT ROW 1.24 COL 54 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
      eb.blank-no AT ROW 1.24 COL 64.2 COLON-ALIGNED
           LABEL "Blk"
           VIEW-AS FILL-IN 
-          SIZE 5 BY 1
+          SIZE 4 BY 1
      fi_blank-qty AT ROW 1.24 COL 71.6 COLON-ALIGNED NO-LABEL
      est.mod-date AT ROW 1.24 COL 84.4 COLON-ALIGNED
           LABEL "Mod"
