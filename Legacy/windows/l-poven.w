@@ -590,9 +590,7 @@ PROCEDURE SaveColumns :
       NEXT.
     IF cellColumn[i]:NAME EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):NAME AND
        columnWidth[i] EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):WIDTH-PIXELS THEN NEXT.    
-    MESSAGE 'Save Column Changes?' VIEW-AS ALERT-BOX
-      QUESTION BUTTONS YES-NO UPDATE saveChanges AS LOGICAL.
-    IF saveChanges THEN DO:
+    DO:
       OUTPUT TO VALUE(cellColumnDat).
       DO j = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
         h = {&BROWSE-NAME}:GET-BROWSE-COLUMN(j) NO-ERROR.

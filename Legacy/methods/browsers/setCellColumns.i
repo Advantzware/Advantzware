@@ -20,7 +20,7 @@ PROCEDURE setCellColumns:
   DEFINE VARIABLE k AS INTEGER NO-UNDO.
   DEFINE VARIABLE v-index AS INT NO-UNDO.
   
-  lAutoSave = NO.
+  lAutoSave = YES.
   IF SEARCH(cellColumnDat) NE ? THEN DO:
      /* get user cell column order */
      INPUT FROM VALUE(cellColumnDat) NO-ECHO.
