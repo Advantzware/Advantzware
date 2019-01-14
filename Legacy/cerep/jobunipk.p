@@ -1172,10 +1172,10 @@ for each job-hdr NO-LOCK
       if last-of(tt-reftable.val[12]) then do:
          PUT "<R-1.4>".
          IF s-run-speed THEN
-            PUT "<B>MACHINE                            MR WASTE     MR HRS    RUN SPEED     SPOIL%           INPUT        OUTPUT</B>"
+            PUT "<B>MACHINE                            MR WASTE     MR HRS       RUN SPEED    SPOIL%           INPUT        OUTPUT</B>"
                 SKIP.
          else
-            PUT "<B>MACHINE                            MR WASTE     MR HRS      RUN HOUR      SPOIL%            INPUT        OUTPUT</B>"
+            PUT "<B>MACHINE                            MR WASTE     MR HRS      RUN HOUR       SPOIL%            INPUT        OUTPUT</B>"
                 SKIP.
           j = 0.
           z = 0.
@@ -1237,8 +1237,8 @@ for each job-hdr NO-LOCK
                        PUT wrk-op.m-dscr   SPACE(5)
                            "<C25>" wrk-op.mr-waste[reftable-frm-int]   SPACE(5)
                            "<C33>" wrk-op.mr[reftable-frm-int]         SPACE(5)
-                           "<C44>" wrk-op.speed[reftable-frm-int]      SPACE(5)
-                           "<C52>" /*wrk-op.spoil[job-hdr.frm]*/ v-spoil FORM ">>>,>>9"     SPACE(5)
+                           "<C44>" wrk-op.speed[reftable-frm-int]  FORM ">>>,>>9"    SPACE(4)
+                           "<C52>" /*wrk-op.spoil[job-hdr.frm]*/ v-spoil FORM ">>>,>>9"     SPACE(4)
                            "<C60>" wrk-op.num-sh[reftable-frm-int] SPACE(3)
                            /* v-mat-for-mach FORM "x(60)"*/
                            "<C70>" v-output 
@@ -1247,8 +1247,8 @@ for each job-hdr NO-LOCK
                        PUT wrk-op.m-dscr   SPACE(5)
                           "<C25>" wrk-op.mr-waste[reftable-frm-int]   SPACE(5)
                           "<C33>" wrk-op.mr[reftable-frm-int]         SPACE(5)
-                          "<C44>"  wrk-op.run-hr[reftable-frm-int]     SPACE(5)
-                          "<C52>" /*wrk-op.spoil[job-hdr.frm]*/ v-spoil   FORM ">>>,>>9"   SPACE(5)
+                          "<C44>"  wrk-op.run-hr[reftable-frm-int] FORM ">>>,>>9"    SPACE(4)
+                          "<C52>" /*wrk-op.spoil[job-hdr.frm]*/ v-spoil   FORM ">>>,>>9"   SPACE(4)
                           "<C60>" wrk-op.num-sh[reftable-frm-int] SPACE(3)
                           "<C70>" v-output 
                            /*v-mat-for-mach FORM "x(60)"    */
