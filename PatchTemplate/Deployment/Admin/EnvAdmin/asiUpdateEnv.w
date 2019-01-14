@@ -346,12 +346,15 @@ FUNCTION fFixYear RETURNS DATE
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD intVer C-Win 
-FUNCTION intVer RETURNS INTEGER
-  ( INPUT cVerString AS CHAR )  FORWARD.
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIntVer C-Win
+FUNCTION fIntVer RETURNS INTEGER 
+  ( INPUT cVerString AS CHAR ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -2055,33 +2058,35 @@ PROCEDURE ipDataFix :
     ASSIGN 
         cThisEntry = fiFromVer:{&SV}.
 
-    IF intVer(cThisEntry) LT 160010 THEN
+    IF fIntVer(cThisEntry) LT 16001000 THEN
         RUN ipDataFix160001.
-    IF intVer(cThisEntry) LT 160140 THEN
+    IF fIntVer(cThisEntry) LT 16014000 THEN
         RUN ipDataFix160104.
-    IF intVer(cThisEntry) LT 160200 THEN
+    IF fIntVer(cThisEntry) LT 16020000 THEN
         RUN ipDataFix160200.
-    IF intVer(cThisEntry) LT 160600 THEN
+    IF fIntVer(cThisEntry) LT 16060000 THEN
         RUN ipDataFixConfig.
-    IF intVer(cThisEntry) LT 160690 THEN
+    IF fIntVer(cThisEntry) LT 16069000 THEN
         RUN ipDataFix160609.
-    IF intVer(cThisEntry) LT 160700 THEN 
+    IF fIntVer(cThisEntry) LT 16070000 THEN 
         RUN ipDataFix160700.
-    IF intVer(cThisEntry) LT 160740 THEN
+    IF fIntVer(cThisEntry) LT 16074000 THEN
         RUN ipDataFix160704.
-    IF intVer(cThisEntry) LT 160780 THEN
+    IF fIntVer(cThisEntry) LT 16078000 THEN
         RUN ipDataFix160708.
-    IF intVer(cThisEntry) LT 160712 THEN
+    IF fIntVer(cThisEntry) LT 16071200 THEN
         RUN ipDataFix160712.
-    IF intVer(cThisEntry) LT 160800 THEN
+    IF fIntVer(cThisEntry) LT 16080000 THEN
         RUN ipDataFix160800.
-    IF intVer(cThisEntry) LT 160840 THEN
-        RUN ipDataFix160804.
-    IF intVer(cThisEntry) LT 160850 THEN
-        RUN ipDataFix160805.
-    IF intVer(cThisEntry) LT 160851 THEN
+    IF fIntVer(cThisEntry) LT 16084000 THEN
+        RUN ipDataFix160840.
+    IF fIntVer(cThisEntry) LT 16085000 THEN
+        RUN ipDataFix160850.
+    IF fIntVer(cThisEntry) LT 16085100 THEN
         RUN ipDataFix160851.
-    IF intVer(cThisEntry) LT 160899 THEN
+    IF fIntVer(cThisEntry) LT 16086000 THEN
+        RUN ipDataFix160860.
+    IF fIntVer(cThisEntry) LT 16089900 THEN
         RUN ipDataFix160899.
 
     RUN ipStatus ("Completed Data Fixes").
@@ -2333,26 +2338,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160804 C-Win 
-PROCEDURE ipDataFix160804 :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160840 C-Win 
+PROCEDURE ipDataFix160840 :
 /*------------------------------------------------------------------------------
          Purpose:
          Notes:
         ------------------------------------------------------------------------------*/
-    RUN ipStatus ("  Data Fix 160804...").
+    RUN ipStatus ("  Data Fix 160840...").
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160805 C-Win 
-PROCEDURE ipDataFix160805 :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160850 C-Win 
+PROCEDURE ipDataFix160850 :
 /*------------------------------------------------------------------------------
          Purpose:
          Notes:
         ------------------------------------------------------------------------------*/
-    RUN ipStatus ("  Data Fix 160805...").
+    RUN ipStatus ("  Data Fix 160850...").
 
     RUN ipRemoveUserMenu.
     RUN ipFixUserPrint.
@@ -2377,12 +2382,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160860 C-Win
+PROCEDURE ipDataFix160860:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160860...").
+
+    FIND FIRST module NO-LOCK WHERE 
+        module.module = "audit." AND 
+        module.is-Used = true
+        NO-ERROR.
+    IF AVAIL module THEN DO:
+    END.
+        
+    RUN ipDeleteAudit.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160899 C-Win 
 PROCEDURE ipDataFix160899 :
 /*------------------------------------------------------------------------------
-         Purpose:
-         Notes:
-        ------------------------------------------------------------------------------*/
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 160899...").
 
     RUN ipUseOldNK1.
@@ -2567,6 +2596,36 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDeleteAudit C-Win
+PROCEDURE ipDeleteAudit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Deleting audit records (unlicensed)...").
+
+    RUN ipStatus ("      Deleting audit headers...").
+    FOR EACH AuditHdr:
+        DELETE AuditHdr.
+    END.
+    RUN ipStatus ("      Deleting audit details...").
+    FOR EACH AuditDtl:
+        DELETE AuditDtl.
+    END.
+    RUN ipStatus ("      Deleting audit stack...").
+    FOR EACH AuditStack:
+        DELETE AuditStack.
+    END.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipExpandFiles C-Win 
 PROCEDURE ipExpandFiles :
@@ -5016,31 +5075,37 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION intVer C-Win 
-FUNCTION intVer RETURNS INTEGER
-  ( INPUT cVerString AS CHAR ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEF VAR cStrVal AS CHAR EXTENT 3 NO-UNDO.
-    DEF VAR iIntVal AS INT EXTENT 3 NO-UNDO.
-    DEF VAR iIntVer AS INT NO-UNDO.
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIntVer C-Win
+FUNCTION fIntVer RETURNS INTEGER 
+  ( INPUT cVerString AS CHAR ):
+    /*------------------------------------------------------------------------------
+      Purpose:  Converts a version string like "16.4.8" or "16.7.12.2" to an integer
+        Notes:  In the cases above, these would be 16040800 and 16071202
+                Useful for version comparisons
+    ------------------------------------------------------------------------------*/
+
+    DEFINE VARIABLE cStrVal AS CHARACTER EXTENT 4 NO-UNDO.
+    DEFINE VARIABLE iIntVal AS INTEGER EXTENT 4 NO-UNDO.
+    DEFINE VARIABLE iIntVer AS INTEGER NO-UNDO.
     ASSIGN
         cStrVal[1] = ENTRY(1,cVerString,".")
         cStrVal[2] = ENTRY(2,cVerString,".")
-        cStrVal[3] = ENTRY(3,cVerString,".")
+        cStrVal[3] = IF NUM-ENTRIES(cVerString,".") GT 2 THEN ENTRY(3,cVerString,".") ELSE "0"
+        cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GT 3 THEN ENTRY(4,cVerString,".") ELSE "0"
         iIntVal[1] = INT(cStrVal[1])
         iIntVal[2] = INT(cStrVal[2])
-        iIntVal[3] = INT(cStrVal[3])
-        iIntVal[3] = IF iIntVal[3] LT 10 THEN iIntVal[3] * 10 ELSE iIntVal[3]
-        iIntVer = (iIntVal[1] * 10000) + (iIntVal[2] * 100) + iIntVal[3]
+        iIntVal[3] = IF INT(cStrVal[3]) LT 10 THEN INT(cStrVal[3]) * 10 ELSE INT(cStrVal[3])
+        iIntVal[4] = INT(cStrVal[4])
+        iIntVer = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
         NO-ERROR.
     
-  RETURN iIntVer.   /* Function return value. */
+    RETURN iIntVer.   /* Function return value. */
 
 END FUNCTION.
-
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
