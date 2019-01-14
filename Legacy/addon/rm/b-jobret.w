@@ -193,7 +193,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       rm-rctd.r-no COLUMN-LABEL "Seq#" FORMAT ">>>>>>>9":U
       rm-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U
-      rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U
+      rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(13)":U
       rm-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       rm-rctd.rct-date COLUMN-LABEL "Return Date" FORMAT "99/99/9999":U
       rm-rctd.po-no FORMAT "x(6)":U
@@ -323,7 +323,7 @@ AND rm-rctd.qty LT 0"
      _FldNameList[2]   > asi.rm-rctd.tag
 "tag" "Tag#" "x(20)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.rm-rctd.loc
-"loc" "Whse" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loc" "Whse" "x(13)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.rm-rctd.loc-bin
 "loc-bin" "Bin" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.rm-rctd.rct-date
@@ -594,8 +594,6 @@ DO:
     lvTag = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
 
     {addon/loadtags/disptagr.i "RMItem" lvTag}
-    
-    rm-rctd.po-no:SCREEN-VALUE = ''.
 
     RUN valid-issued-tag NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -621,6 +619,7 @@ DO:
               
              ASSIGN
                rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = rm-rcpth.pur-uom
+               rm-rctd.po-no:SCREEN-VALUE = rm-rcpth.po-no
                rm-rctd.cost:SCREEN-VALUE = STRING(rm-rdtlh.cost)
                rm-rctd.cost-uom:SCREEN-VALUE = rm-rcpth.pur-uom
                rm-rctd.job-no:SCREEN-VALUE = STRING(rm-rcpth.job-no)
@@ -665,7 +664,17 @@ END.
 ON LEAVE OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-loc-bin-tag (1) NO-ERROR.
+    DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
+    IF SELF:MODIFIED THEN DO:
+       IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
+
+          cLocBin = SELF:SCREEN-VALUE.
+          ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(cLocBin,1,5)
+                 rm-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(cLocBin,6,8).
+       END.
+    END.
+
+    RUN valid-loc-bin (1) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -689,7 +698,7 @@ END.
 ON LEAVE OF rm-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-loc-bin-tag (2) NO-ERROR.
+    RUN valid-loc-bin (2) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -1551,40 +1560,14 @@ PROCEDURE local-update-record :
   RUN valid-po-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
-  DO WITH FRAME {&FRAME-NAME}:
-    IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NE 0 THEN DO:
-      FIND po-ordl
-          WHERE po-ordl.company EQ rm-rctd.company
-            AND po-ordl.po-no   EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-          NO-LOCK NO-ERROR.
-
-      IF AVAIL po-ordl THEN
-        ASSIGN
-         lv-i-no = po-ordl.i-no
-         lv-line = po-ordl.line.
-
-      IF lv-i-no EQ "" OR lv-line EQ 0 THEN DO:
-        RUN windows/l-poords.w (rm-rctd.company, rm-rctd.po-no, INT(rm-rctd.po-no), OUTPUT char-val).
-
-        IF char-val NE "" THEN
-          ASSIGN
-           lv-i-no = ENTRY(2,char-val)
-           lv-line = INT(ENTRY(6,char-val)).
-      END.
-
-      IF lv-i-no EQ "" OR lv-line EQ 0 THEN DO:
-        MESSAGE "Must select PO Line to Issue to..." VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO rm-rctd.po-no IN BROWSE {&BROWSE-NAME}.
-        RETURN NO-APPLY.
-      END.
-    END.
-  END.
-
   RUN valid-job-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN .
 
   RUN valid-job-no2 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN .
+
+  RUN valid-loc-bin (3) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   RUN valid-all NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN .
@@ -1596,7 +1579,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   
-  RUN rmrep\rmloadtg3.w(INPUT yes, INPUT lv-tag, INPUT DECIMAL(rm-rctd.qty:SCREEN-VALUE) * -1).
+/*  RUN rmrep/rmloadtg4.w(INPUT yes, INPUT lv-tag).*/
   
   DO WITH FRAME {&FRAME-NAME}:
     DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
@@ -2195,6 +2178,9 @@ PROCEDURE valid-all :
   RUN valid-loc-bin-tag (3) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
+  RUN valid-loc-bin (3) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   RUN valid-uom NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
@@ -2360,18 +2346,12 @@ PROCEDURE valid-job-no :
       IF NOT CAN-FIND(FIRST job
                       WHERE job.company EQ cocode
                         AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-                      USE-INDEX job-no) OR lv-po-no NE 0
+                      USE-INDEX job-no)
       THEN DO:
-        IF lv-po-no NE 0 THEN
-          MESSAGE "You may not enter both " +
-                  TRIM(rm-rctd.job-no:LABEL IN BROWSE {&BROWSE-NAME}) + " and " +
-                  TRIM(rm-rctd.po-no:LABEL IN BROWSE {&BROWSE-NAME}) + "..."
-              VIEW-AS ALERT-BOX ERROR.
-        ELSE
-          MESSAGE "Invalid " +
-                  TRIM(rm-rctd.job-no:LABEL IN BROWSE {&BROWSE-NAME}) +
-                  ", try help..."
-              VIEW-AS ALERT-BOX ERROR.
+        MESSAGE "Invalid " +
+              TRIM(rm-rctd.job-no:LABEL IN BROWSE {&BROWSE-NAME}) +
+              ", try help..."
+          VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO rm-rctd.job-no IN BROWSE {&BROWSE-NAME}.
         RETURN ERROR.
       END.
@@ -2496,9 +2476,7 @@ PROCEDURE valid-loc-bin-tag :
         IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" AND ip-int GE 3 THEN
         FOR EACH rm-rdtlh
             WHERE rm-rdtlh.company  EQ cocode
-              AND rm-rdtlh.loc      EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
               AND rm-rdtlh.tag      EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-              AND rm-rdtlh.loc-bin  EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
             USE-INDEX tag NO-LOCK,
             FIRST rm-rcpth
             WHERE rm-rcpth.r-no      EQ rm-rdtlh.r-no
@@ -2540,6 +2518,45 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc-bin B-table-Win 
+PROCEDURE valid-loc-bin :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-int AS INT NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+   IF ip-int EQ 1 OR ip-int EQ 3 THEN do:
+       FIND FIRST loc WHERE loc.company = g_company
+           AND loc.loc = rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+           NO-LOCK NO-ERROR.
+       IF NOT AVAIL loc THEN DO:
+           MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
+           APPLY "entry" TO rm-rctd.loc IN BROWSE {&BROWSE-NAME}.
+           RETURN ERROR .
+       END.
+   END.
+   IF ip-int EQ 2 OR ip-int EQ 3 THEN do:
+       FIND FIRST rm-bin WHERE rm-bin.company = g_company
+           AND rm-bin.i-no = ""
+           AND rm-bin.loc = rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+           AND rm-bin.loc-bin = rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK NO-ERROR.
+       IF NOT AVAIL rm-bin THEN DO:
+           MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
+           APPLY "entry" TO rm-rctd.loc-bin IN BROWSE {&BROWSE-NAME}. 
+           RETURN ERROR .
+       END.
+   END.
+
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-no B-table-Win 
 PROCEDURE valid-po-no :
 /*------------------------------------------------------------------------------
@@ -2554,12 +2571,6 @@ PROCEDURE valid-po-no :
     v-msg = "".
 
     IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NE 0 THEN DO:
-      IF v-msg EQ "" THEN
-        IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN
-          v-msg = "You may not enter both " +
-                  TRIM(rm-rctd.job-no:LABEL IN BROWSE {&BROWSE-NAME}) + " and " +
-                  TRIM(rm-rctd.po-no:LABEL IN BROWSE {&BROWSE-NAME}).
-
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
@@ -2569,7 +2580,7 @@ PROCEDURE valid-po-no :
       IF v-msg EQ "" THEN
         IF NOT AVAIL po-ordl THEN v-msg = "is invalid, try help".
 
-      IF v-msg EQ "" AND
+      IF v-msg EQ "" AND rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} EQ "" AND
          NOT CAN-FIND(FIRST po-ord WHERE
          po-ord.company EQ po-ordl.company AND
          po-ord.po-no EQ po-ordl.po-no AND
@@ -2713,7 +2724,8 @@ PROCEDURE validate-jobmat :
             job-mat.i-no = rm-rctd.i-no:SCREEN-VALUE AND
             (ip-for-item-only OR
             (job-mat.frm = INT(rm-rctd.s-num:SCREEN-VALUE) AND
-            job-mat.blank-no = INT(rm-rctd.b-num:SCREEN-VALUE)))
+            (job-mat.blank-no = INT(rm-rctd.b-num:SCREEN-VALUE)
+            OR job-mat.blank-no EQ 0)))
             USE-INDEX seq-idx NO-LOCK NO-ERROR.
 
     IF NOT AVAIL job-mat AND rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:
