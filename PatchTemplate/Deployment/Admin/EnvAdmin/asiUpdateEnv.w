@@ -70,6 +70,7 @@ ASSIGN
 &SCOPED-DEFINE SV SCREEN-VALUE IN FRAME DEFAULT-FRAME
 
 DEF STREAM s1.
+DEF STREAM s2.
 
 DEF TEMP-TABLE ttAuditTbl LIKE AuditTbl.
 DEF TEMP-TABLE ttCueCard LIKE cueCard.
@@ -94,6 +95,13 @@ DEFINE TEMP-TABLE ttUserMenu NO-UNDO
     prgmname
     .            
         
+DEFINE TEMP-TABLE ttDBMS NO-UNDO 
+    FIELD iLineNo AS INTEGER 
+    FIELD cLine AS CHARACTER 
+    INDEX iLine IS PRIMARY 
+    iLineNo
+    .
+            
 
 DEF TEMP-TABLE tempUser NO-UNDO LIKE _User.
 DEF TEMP-TABLE ttIniFile
@@ -847,6 +855,103 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddDbmsFonts C-Win
+PROCEDURE ipAddDbmsFonts:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcDir AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcTgtDir AS CHAR NO-UNDO.
+    DEF VAR cFileStream AS CHAR NO-UNDO.
+    DEF VAR cThisEntry AS CHAR NO-UNDO.
+    DEF VAR cTgtEnv AS CHAR NO-UNDO.
+    DEF VAR iThisLine AS INT NO-UNDO.
+    DEF VAR cLineText AS CHAR NO-UNDO.
+    DEF VAR iNextLine AS INT NO-UNDO.
+    
+    RUN ipStatus ("  Fixing dbms.ini files").
+    
+    ASSIGN 
+        cTgtEnv = cEnvAdmin.
+
+    INPUT FROM OS-DIR (ipcDir).
+
+    REPEAT:
+        IMPORT cFileStream.
+        FILE-INFO:FILE-NAME = ipcDir + "\" + cFileStream.
+        IF SUBSTRING(FILE-INFO:FILE-NAME,LENGTH(FILE-INFO:FILE-NAME),1) EQ "." THEN DO:
+            NEXT.
+        END.
+        ELSE IF FILE-INFO:FILE-TYPE BEGINS "F" 
+        AND FILE-INFO:FILE-NAME BEGINS "dbms" 
+        AND INDEX(FILE-INFO:FILE-NAME,".ini") NE 0 THEN DO:
+            EMPTY TEMP-TABLE ttDbms.
+            ASSIGN 
+                iThisLine = 100.
+            
+            INPUT STREAM s1 FROM FILE-INFO:FULL-PATHNAME.
+            REPEAT:
+                IMPORT STREAM s1 cLineText.
+                CREATE ttDbms.
+                ASSIGN 
+                    ttDbms.iLineNo = iThisLine
+                    ttDbms.cLine = cLineText
+                    iThisLine = iThisLine + 100.
+            END.
+            INPUT STREAM s1 CLOSE.
+            
+            FIND FIRST ttDbms NO-LOCK WHERE 
+                ttDbms.cLine BEGINS "font32"
+                NO-ERROR.
+            IF NOT AVAIL ttDbms THEN DO:
+                FIND FIRST ttDbms NO-LOCK WHERE 
+                    ttDbms.cLine BEGINS "font31"
+                    NO-ERROR.
+                ASSIGN 
+                    iNextLine = ttDbms.iLineNo.
+                CREATE ttDbms.
+                ASSIGN 
+                    ttDbms.iLineNO = iNextLine + 1
+                    ttDbms.cLine = "font32=Tahoma, size=8".
+                CREATE ttDbms.
+                ASSIGN 
+                    ttDbms.iLineNO = iNextLine + 2
+                    ttDbms.cLine = "font32=Tahoma, size=8, bold".
+                CREATE ttDbms.
+                ASSIGN 
+                    ttDbms.iLineNO = iNextLine + 3
+                    ttDbms.cLine = "font32=Tahoma, size=10".
+                CREATE ttDbms.
+                ASSIGN 
+                    ttDbms.iLineNO = iNextLine + 4
+                    ttDbms.cLine = "font32=Tahoma, size=10, bold".
+                CREATE ttDbms.
+                ASSIGN 
+                    ttDbms.iLineNO = iNextLine + 5
+                    ttDbms.cLine = "font32=Tahoma, size=12".
+                CREATE ttDbms.
+                ASSIGN 
+                    ttDbms.iLineNO = iNextLine + 6
+                    ttDbms.cLine = "font32=Tahoma, size=12, bold".
+                
+                OUTPUT STREAM s2 TO FILE-INFO:FULL-PATHNAME.
+                FOR EACH ttDbms:
+                    PUT STREAM s2 UNFORMATTED ttDbms.cLine + CHR(10).
+                END.
+            END.
+        END.
+    END.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddLocationData C-Win 
 PROCEDURE ipAddLocationData :
@@ -2361,6 +2466,7 @@ PROCEDURE ipDataFix160850 :
 
     RUN ipRemoveUserMenu.
     RUN ipFixUserPrint.
+    RUN ipAddDbmsFonts.
 
 END PROCEDURE.
 
@@ -2702,13 +2808,12 @@ PROCEDURE ipExpandVarNames :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
     /* Modify variables for ease of use */
     ASSIGN
-        cPatchNo = fiToVer:{&SV}
+        cMapDir = cDrive + "\" + cTopDir
         cAdminDir = cMapDir + "\" + cAdminDir
         cBackupDir = cMapDir + "\" + cBackupDir
-        /* cDBDir = cMapDir + "\" + cDbDir */
+        cDBDir = cDbDrive + "\" + cTopDir + "\" + cDbDir 
         cDocDir = cMapDir + "\" + cDocDir
         cDeskDir = cMapDir + "\" + cDeskDir
         cEnvDir = cMapDir + "\" + cEnvDir
@@ -2720,22 +2825,22 @@ PROCEDURE ipExpandVarNames :
         cDbBackup = cBackupDir + "\" + cDbBackup
         cPgmBackup = cBackupDir + "\" + cPgmBackup
         cResBackup = cBackupDir + "\" + cResBackup
-        cDbAuditDir = cMapDir + "\" + cDbDir + "\" + cDbAuditDir
-        cDbDataDir = cMapDir + "\" + cDbDir + "\" + cDbDataDir
-        cDbProdDir = cMapDir + "\" + cDbDir + "\" + cDbProdDir
-        cDbShipDir = cMapDir + "\" + cDbDir + "\" + cDbShipDir
-        cDbStructDir = cMapDir + "\" + cDbDir + "\" + cDbStructDir
-        cDbTestDir = cMapDir + "\" + cDbDir + "\" + cDbTestDir
+        cDbAuditDir = cDbDir + "\" + cDbAuditDir
+        cDbDataDir = cDbDir + "\" + cDbDataDir
+        cDbProdDir = cDbDir + "\" + cDbProdDir
+        cDbShipDir = cDbDir + "\" + cDbShipDir
+        cDbStructDir = cDbDir + "\" + cDbStructDir
+        cDbTestDir = cDbDir + "\" + cDbTestDir
         cEnvProdDir = cEnvDir + "\" + cEnvProdDir
         cEnvTestDir = cEnvDir + "\" + cEnvTestDir
-        cUpdAdminDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdAdminDir
-        cUpdCompressDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdCompressDir
-        cUpdDataDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdDataDir
-        cUpdDeskDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdDeskDir
-        cUpdMenuDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdMenuDir
-        cUpdProgramDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdProgramDir
-        cUpdRelNotesDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdRelNotesDir
-        cUpdStructureDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdStructureDir
+        cUpdAdminDir = cUpdatesDir + "\" + cUpdAdminDir
+        cUpdCompressDir = cUpdatesDir + "\" + cUpdCompressDir
+        cUpdDataDir = cUpdatesDir + "\" + cUpdDataDir
+        cUpdDeskDir = cUpdatesDir + "\" + cUpdDeskDir
+        cUpdMenuDir = cUpdatesDir + "\" + cUpdMenuDir
+        cUpdProgramDir = cUpdatesDir + "\" + cUpdProgramDir
+        cUpdRelNotesDir = cUpdatesDir + "\" + cUpdRelNotesDir
+        cUpdStructureDir = cUpdatesDir + "\" + cUpdStructureDir
         lmakeBackup = IF INDEX(cMakeBackup,"Y") NE 0 OR INDEX(cMakeBackup,"T") NE 0 THEN TRUE ELSE FALSE
         lConnectAudit = IF INDEX(cConnectAudit,"Y") NE 0 OR INDEX(cConnectAudit,"T") NE 0 THEN TRUE ELSE FALSE
         cLockoutTries = SUBSTRING(cLockoutTries,1,1)
@@ -2903,6 +3008,9 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixPoEdiDirs C-Win 
 PROCEDURE ipFixPoEdiDirs :
