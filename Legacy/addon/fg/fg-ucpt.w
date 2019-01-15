@@ -324,7 +324,12 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/fg/b-ucptd.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Key-Name = ,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
              OUTPUT h_b-ucptd ).
        RUN set-position IN h_b-ucptd ( 6.71 , 5.00 ) NO-ERROR.
        RUN set-size IN h_b-ucptd ( 15.71 , 144.00 ) NO-ERROR.

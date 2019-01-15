@@ -1276,8 +1276,8 @@ DO:
         AND bf-est-op.isLocked
         NO-ERROR. 
       IF AVAILABLE bf-est-op THEN DO:
-            MESSAGE "You have opted to recalculate machine standards yet the estimate has locked operations." SKIP 
-            "Do you want to continue calculating using standards from machine file?"
+            MESSAGE "You have opted to recalculate machine standards yet the estimate has locked operations.  These locked operations will not be recalculated." SKIP 
+            "Do you want to continue calculating using standards from machine file for operations that are not locked?"
             VIEW-AS ALERT-BOX BUTTONS YES-NO UPDATE lContinue.
             IF NOT lContinue THEN 
                 APPLY "choose" TO btn_cancel.

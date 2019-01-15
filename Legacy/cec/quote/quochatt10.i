@@ -9,17 +9,20 @@ PUT "<C2><R2><#1><R+11><C+50><IMAGE#1=" ls-full-img1  SKIP
     SPACE(5) bill[4]  xquo.shipto[4] AT 55 SKIP.
 
 v-printline = v-printline + 15.
-PUT "<|10><R4><C50><#3><FROM><R8><C80><RECT>" SKIP
+PUT "<|10><R4><C50><#3><FROM><R9.5><C80><RECT>" SKIP
     "<R6><C50><FROM><R6><C80><LINE>"       
     "<R4><C62><FROM><R6><C62><LINE>" 
     "<R6><C62><FROM><R8><C62><LINE>"
+    "<R8><C50><FROM><R8><C80><LINE>"
     "<FArial><P12><=#3>"
     "<=#3><R-2> <B>Quotation#: " v-first-q-no "</B>" "           Page#: " + string(PAGE-NUMBER /*- lv-pg-num*/ ,">>9") /*+ " of " + string(lv-tot-pg)*/ FORM "x(30)"
     "<P10>" SKIP
     "<=#3> Customer ID             Contact"
-    "<=#3><R+2> Telephone                 Email <FCourier New>" 
+    "<=#3><R+2> Telephone                 Fax # " 
+    "<=#3><R+4.3> Email: <FCourier New>" 
     "<=3><R+1> " xquo.cust-no  space(6) xquo.contact
-    "<=3><R+3> " cust.area-code + cust.phone format "(999)999-9999"  space(1) cust.email
+    "<=3><R+3> " cust.area-code + cust.phone format "(999)999-9999"  space(1) string(cust.fax,"(999)999-9999") FORMAT "x(14)"
+    "<=3><R+4.3> " SPACE(5) cust.email
     .
 
 PUT "<|10><R20><C1><#4><FROM><R24><C80><RECT>" SKIP

@@ -1050,7 +1050,7 @@ PROCEDURE set-import-stds :
         AND mach.m-code EQ xop.m-code:
    IF mach.obsolete THEN DO:
     MESSAGE "Machine: " + TRIM(mach.m-code) +
-            " is obsolete, please replace or standards will not be imported"
+            " is Inactive, please replace or standards will not be imported"
         VIEW-AS ALERT-BOX ERROR.
     ip-import-stds = NO.
     LEAVE.

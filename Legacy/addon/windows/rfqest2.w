@@ -983,8 +983,7 @@ FOR EACH rfqitem OF rfq WHERE INDEX(ls-seq-list,STRING(rfqitem.seq,">>9")) > 0 :
     CREATE eb.
     {rfq/asn-eb.i}
 
-    {ce/updunit#.i eb 0}
-    {ce/updunit#.i eb 1}
+    {ce/updunit#.i eb}
 
    ASSIGN rfqitem.est-no = est.est-no
           rfqitem.form-no = li-form-no
@@ -1062,8 +1061,7 @@ FOR EACH rfqitem OF rfq WHERE INDEX(ls-seq-list,STRING(rfqitem.seq,">>9")) > 0
 
            CREATE eb.
            {rfq/asn-eb.i}
-           {ce/updunit#.i eb 0}
-           {ce/updunit#.i eb 1}
+           {ce/updunit#.i eb}
         END.
 
         RELEASE ITEM.
@@ -1146,8 +1144,7 @@ FOR EACH rfqitem OF rfq WHERE INDEX(ls-seq-list,STRING(rfqitem.seq,">>9")) > 0
        CREATE eb.
        li-blank-no = li-cnt.
        {rfq/asn-eb.i}  
-       {ce/updunit#.i eb 0}
-       {ce/updunit#.i eb 1}
+       {ce/updunit#.i eb}
     END.  /* do */
 
     rfqitem.est-no = est.est-no.
@@ -1273,8 +1270,7 @@ PROCEDURE trx-rfq-to-est-4 :
              li-cnt2 = li-cnt2 + 1
              li-blank-no = li-cnt2.
              {rfq/asn-eb.i}
-             {ce/updunit#.i eb 0}
-             {ce/updunit#.i eb 1}
+             {ce/updunit#.i eb}
       /*    end.
        end.
       */
@@ -1405,8 +1401,7 @@ PROCEDURE trx-rfq-to-est-6 :
       li-cnt2 = li-cnt2 + 1
       li-blank-no = li-cnt2.
       {rfq/asn-eb.i}
-      {ce/updunit#.i eb 0}
-      {ce/updunit#.i eb 1}
+      {ce/updunit#.i eb}
       
       ASSIGN rfqitem.est-no = est.est-no
              rfqitem.form-no = li-form-no

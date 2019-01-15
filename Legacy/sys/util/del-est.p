@@ -63,7 +63,7 @@ END.
 FOR EACH eb WHERE NOT CAN-FIND(FIRST est-qty WHERE est-qty.company EQ eb.company
                                                AND est-qty.est-no  EQ eb.est-no
                                                AND est-qty.eqty EQ eb.eqty)
-               OR NOT CAN-FIND(FIRST est OF eb)
+               OR NOT CAN-FIND(FIRST est WHERE est.company EQ eb.company AND est.est-no EQ eb.est-no)
                OR NOT CAN-FIND(FIRST ef OF eb WHERE eb.form-no NE 0):
     DELETE eb.
 END.

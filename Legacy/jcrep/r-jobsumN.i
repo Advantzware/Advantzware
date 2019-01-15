@@ -14,7 +14,8 @@ DEF VAR cat AS CHAR INIT "" NO-UNDO .
 DEF  VAR acl-brd AS DEC INIT 0 NO-UNDO. 
 DEF  VAR acl-oth AS DEC INIT 0 NO-UNDO.
 DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
-    
+DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dTotSqft AS DECIMAL NO-UNDO .    
 
     put skip.
 
@@ -82,7 +83,8 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
        v-frate     = 0
        v-act-spo   = 0
        v-est-spo   = 0
-       v-misc-prep = 0.
+       v-misc-prep = 0
+       dTotSqft    = 0.
 
       /***  Get the Item/Order Information  ***/
       run jc/rep/job-sumi.p (recid(job)).
@@ -135,7 +137,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
         assign
          v-act-spo = v-act-spo + work-item.act-spo
          v-est-spo = v-est-spo + work-item.est-spo
-         v-qty-ord = v-qty-ord + work-item.qty-ord
+         v-qty-ord = v-qty-ord + work-item.qty-prod
          v-sale    = v-sale    + ((work-item.qty-ord / 1000) * work-item.price).
 
         IF LAST-OF(work-item.i-no) THEN DO:
@@ -202,22 +204,13 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
           if v-e-spo-p = ? then v-e-spo-p = 0.
           if v-over-pct = ? or v-over-pct lt 0 then v-over-pct = 0.    
                   
-         /* display work-item.i-no
-                  itemfg.i-name         FORMAT "x(29)"
-                  work-item.price       format ">>>>>9.99"   when v-tot
-                  v-qty-ord             format ">>,>>>,>>9"
-                  work-item.press-1     format ">>,>>>,>>9"
-                  work-item.qty-prod    format ">>,>>>,>>9"
-                  v-qty-all             format ">>,>>>,>>9"
-                  v-act-spo WHEN NOT tb_waste-from-issued
-                  v-a-spo-p WHEN NOT tb_waste-from-issued
-                  v-est-spo             format ">>>>>>>9-"
-                  space(0)
-                  v-e-spo-p
-                  space(0)
-                  v-over-pct
-              WITH FRAME det-item no-attr-space NO-LABELS NO-BOX STREAM-IO width 200 down.  */
+           RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT dSqft).
 
+           IF AVAIL itemfg THEN
+               work-item.sq-ft = v-qty-ord * dSqft.
+           ELSE
+               work-item.sq-ft = 0.
+ 
            ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -242,7 +235,8 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                          WHEN "est-spoil"   THEN cVarValue = string(v-est-spo,">>>>>>>9-").
                          WHEN "est-spoil-per"   THEN cVarValue = STRING(v-e-spo-p,">>>>>9").
                          WHEN "over-run"  THEN cVarValue = STRING(v-over-pct,">>>>>9") .
-                        
+                         WHEN "sales-per"  THEN cVarValue = STRING(work-item.sales-rep,"x(3)") .
+                         WHEN "sq-ft"  THEN cVarValue = STRING(work-item.sq-ft,">>>,>>>,>>9.99") .
                          
                     END CASE.
                       
@@ -269,7 +263,8 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
            v-act-spo = 0
            v-est-spo = 0
            v-qty-ord = 0
-           v-qty-all = 0.
+           v-qty-all = 0
+           dTotSqft = dTotSqft + work-item.sq-ft.
           
         END.
       end.
@@ -345,6 +340,8 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                          WHEN "est-spoil"   THEN cVarValue = string(v-t-est-spo,">>>>>>>9-").
                          WHEN "est-spoil-per"   THEN cVarValue = STRING(v-e-spo-p,">>>9.9").
                          WHEN "over-run"  THEN cVarValue = STRING(v-over-pct,">>>9.9") .
+                         WHEN "sales-per"  THEN cVarValue =  "" .
+                         WHEN "sq-ft"  THEN cVarValue = "" .
                         
                          
                     END CASE.
@@ -666,6 +663,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
       IF tb_excel THEN
          PUT STREAM excel UNFORMATTED            
             '"' trim(job.job-no) + "-" + string(job.job-no2,"99") '",'
+            '"' STRING(work-item.sales-rep,"x(3)")                '",'
             '"' STRING(v-cust)                                    '",'
             '"' STRING(work-item.i-no)                            '",'
             '"' STRING(work-item.price,">>>>9.99")                '",'            
@@ -1057,6 +1055,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
             '"' STRING(acl-oth,"->>,>>>,>>9")               '",'
             '"' STRING(acl-lbr,"->>,>>>,>>9")               '",'
             '"' STRING(v-t-prod,"->>,>>>,>>9")               '",'
+            '"' STRING(dTotSqft,">>>,>>>,>>9.99")               '",'
             SKIP.     
 
       IF tb_excel2 THEN DO:

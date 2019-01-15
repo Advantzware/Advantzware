@@ -339,6 +339,16 @@ tbUpdateIni fiLogFile
 
 /* ************************  Function Prototypes ********************** */
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fFixYear C-Win
+FUNCTION fFixYear RETURNS DATE 
+  (INPUT daDate AS DATE) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD intVer C-Win 
 FUNCTION intVer RETURNS INTEGER
   ( INPUT cVerString AS CHAR )  FORWARD.
@@ -815,6 +825,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipActivateParent C-Win 
+PROCEDURE ipActivateParent :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcPrgmName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID   AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER prgrms FOR prgrms.
+    
+    FIND FIRST prgrms NO-LOCK
+         WHERE prgrms.prgmName EQ ipcPrgmName
+         NO-ERROR.
+    IF AVAILABLE prgrms THEN DO:
+        FIND FIRST xUserMenu
+             WHERE xUserMenu.user_id  EQ ipcUserID
+               AND xUserMenu.prgmName EQ ipcPrgmName
+             NO-ERROR.
+        IF AVAILABLE xUserMenu THEN
+        DELETE xUserMenu.
+        IF prgrms.itemParent NE "" THEN
+        RUN ipActivateParent (prgrms.itemParent, ipcUserID).
+    END. /* if avail */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddLocationData C-Win 
 PROCEDURE ipAddLocationData :
 /*------------------------------------------------------------------------------
@@ -1218,7 +1258,7 @@ PROCEDURE ipBackupDBs :
                        cThisDir + "\" +
                        cThisDB + ".lk".
         .
-    
+
         IF SEARCH(cLockFile) EQ ? THEN 
         DO:
             MESSAGE 
@@ -2025,26 +2065,34 @@ PROCEDURE ipDataFix :
     ASSIGN 
         cThisEntry = fiFromVer:{&SV}.
 
-    IF intVer(cThisEntry) LT 160001 THEN
+    IF intVer(cThisEntry) LT 160010 THEN
         RUN ipDataFix160001.
-    IF intVer(cThisEntry) LT 160104 THEN
+    IF intVer(cThisEntry) LT 160140 THEN
         RUN ipDataFix160104.
     IF intVer(cThisEntry) LT 160200 THEN
         RUN ipDataFix160200.
     IF intVer(cThisEntry) LT 160600 THEN
         RUN ipDataFixConfig.
-    IF intVer(cThisEntry) LT 160609 THEN
+    IF intVer(cThisEntry) LT 160690 THEN
         RUN ipDataFix160609.
     IF intVer(cThisEntry) LT 160700 THEN 
         RUN ipDataFix160700.
-    IF intVer(cThisEntry) LT 160704 THEN
+    IF intVer(cThisEntry) LT 160740 THEN
         RUN ipDataFix160704.
-    IF intVer(cThisEntry) LT 160708 THEN
+    IF intVer(cThisEntry) LT 160780 THEN
         RUN ipDataFix160708.
     IF intVer(cThisEntry) LT 160712 THEN
         RUN ipDataFix160712.
     IF intVer(cThisEntry) LT 160800 THEN
         RUN ipDataFix160800.
+    IF intVer(cThisEntry) LT 160840 THEN
+        RUN ipDataFix160804.
+    IF intVer(cThisEntry) LT 160850 THEN
+        RUN ipDataFix160805.
+    IF intVer(cThisEntry) LT 160851 THEN
+        RUN ipDataFix160851.
+    IF intVer(cThisEntry) LT 160899 THEN
+        RUN ipDataFix160899.
 
     RUN ipStatus ("Completed Data Fixes").
 
@@ -2288,6 +2336,68 @@ PROCEDURE ipDataFix160800 :
     RUN ipAddLocationData.
     RUN ipVendorMaxValue.
     RUN ipSetImageFiles.
+    RUN ipTrackUsage.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160804 C-Win 
+PROCEDURE ipDataFix160804 :
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160804...").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160805 C-Win 
+PROCEDURE ipDataFix160805 :
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160805...").
+
+    RUN ipRemoveUserMenu.
+    RUN ipFixUserPrint.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160851 C-Win
+PROCEDURE ipDataFix160851:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160851...").
+
+    RUN ipFixBadYears.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160899 C-Win 
+PROCEDURE ipDataFix160899 :
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160899...").
+
     RUN ipUseOldNK1.
 
 END PROCEDURE.
@@ -2552,7 +2662,7 @@ PROCEDURE ipExpandVarNames :
         cPatchNo = fiToVer:{&SV}
         cAdminDir = cMapDir + "\" + cAdminDir
         cBackupDir = cMapDir + "\" + cBackupDir
-        cDBDir = cMapDir + "\" + cDbDir
+        /* cDBDir = cMapDir + "\" + cDbDir */
         cDocDir = cMapDir + "\" + cDocDir
         cDeskDir = cMapDir + "\" + cDeskDir
         cEnvDir = cMapDir + "\" + cEnvDir
@@ -2564,12 +2674,12 @@ PROCEDURE ipExpandVarNames :
         cDbBackup = cBackupDir + "\" + cDbBackup
         cPgmBackup = cBackupDir + "\" + cPgmBackup
         cResBackup = cBackupDir + "\" + cResBackup
-        cDbAuditDir = cDbDir + "\" + cDbAuditDir
-        cDbDataDir = cDbDir + "\" + cDbDataDir
-        cDbProdDir = cDbDir + "\" + cDbProdDir
-        cDbShipDir = cDbDir + "\" + cDbShipDir
-        cDbStructDir = cDbDir + "\" + cDbStructDir
-        cDbTestDir = cDbDir + "\" + cDbTestDir
+        cDbAuditDir = cMapDir + "\" + cDbDir + "\" + cDbAuditDir
+        cDbDataDir = cMapDir + "\" + cDbDir + "\" + cDbDataDir
+        cDbProdDir = cMapDir + "\" + cDbDir + "\" + cDbProdDir
+        cDbShipDir = cMapDir + "\" + cDbDir + "\" + cDbShipDir
+        cDbStructDir = cMapDir + "\" + cDbDir + "\" + cDbStructDir
+        cDbTestDir = cMapDir + "\" + cDbDir + "\" + cDbTestDir
         cEnvProdDir = cEnvDir + "\" + cEnvProdDir
         cEnvTestDir = cEnvDir + "\" + cEnvTestDir
         cUpdAdminDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdAdminDir
@@ -2695,6 +2805,62 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixBadYears C-Win
+PROCEDURE ipFixBadYears:
+/*------------------------------------------------------------------------------
+ Purpose:   ensure year values are in 20th or 21st century
+ Notes:     from ticket 41037
+------------------------------------------------------------------------------*/
+    RUN ipStatus("   Fix year values not in this century (41037)").
+
+    DISABLE TRIGGERS FOR LOAD OF oe-ord.
+    DISABLE TRIGGERS FOR LOAD OF oe-ordl.
+    DISABLE TRIGGERS FOR LOAD OF oe-rel.
+    DISABLE TRIGGERS FOR LOAD OF oe-relh.
+    DISABLE TRIGGERS FOR LOAD OF oe-rell.
+    
+    FOR EACH oe-ord WHERE (oe-ord.ord-date GT 09/01/2018 
+                           OR oe-ord.ord-date LT 12/31/0100):
+        /* Note: do in multiple assigns, else function only evaluates once */
+        ASSIGN oe-ord.ord-date = fFixYear(oe-ord.ord-date).
+        ASSIGN oe-ord.prod-date = fFixYear(oe-ord.prod-date).
+        ASSIGN oe-ord.due-date = fFixYear(oe-ord.due-date).
+        ASSIGN oe-ord.last-date = fFixYear(oe-ord.last-date).
+        ASSIGN oe-ord.inv-date = fFixYear(oe-ord.inv-date).
+        ASSIGN oe-ord.upd-date = fFixYear(oe-ord.upd-date).
+        ASSIGN oe-ord.approved-date = fFixYear(oe-ord.approved-date).
+        ASSIGN oe-ord.entered-date = fFixYear(oe-ord.entered-date).
+        ASSIGN oe-ord.updated-date = fFixYear(oe-ord.updated-date).
+        ASSIGN oe-ord.closedate = fFixYear(oe-ord.closedate).
+        FOR EACH oe-ordl OF oe-ord:
+            ASSIGN oe-ordl.req-date = fFixYear(oe-ordl.req-date).
+            ASSIGN oe-ordl.prom-date = fFixYear(oe-ordl.prom-date).
+            ASSIGN oe-ordl.upd-date = fFixYear(oe-ordl.upd-date).
+            ASSIGN oe-ordl.job-start-date = fFixYear(oe-ordl.job-start-date).
+        END.
+        FOR EACH oe-rel OF oe-ord:
+            ASSIGN oe-rel.rel-date = fFixYear(oe-rel.rel-date).
+            ASSIGN oe-rel.ship-date = fFixYear(oe-rel.ship-date).
+            ASSIGN oe-rel.upd-date = fFixYear(oe-rel.upd-date).
+            FOR EACH oe-relh OF oe-rel:
+                ASSIGN oe-relh.rel-date = fFixYear(oe-relh.rel-date).
+                ASSIGN oe-relh.upd-date = fFixYear(oe-relh.upd-date).
+                ASSIGN oe-relh.prt-date = fFixYear(oe-relh.prt-date).
+            END.
+            FOR EACH oe-rell OF oe-rel:
+                ASSIGN oe-relh.upd-date = fFixYear(oe-rell.upd-date).
+            END.
+        END.
+    END.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixPoEdiDirs C-Win 
 PROCEDURE ipFixPoEdiDirs :
 /*------------------------------------------------------------------------------
@@ -2733,6 +2899,32 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixUserPrint C-Win
+PROCEDURE ipFixUserPrint:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Change 'asi' userprint records to 'admin'").
+
+    DISABLE TRIGGERS FOR LOAD OF user-print.
+    
+    FOR EACH user-print EXCLUSIVE WHERE
+        user-print.user-id EQ "asi":
+        ASSIGN 
+            user-print.user-id = "admin".
+    END. 
+         
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixUsers C-Win 
 PROCEDURE ipFixUsers :
@@ -3035,7 +3227,7 @@ PROCEDURE ipLoadMenus :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
-  Notes:       
+  Notes:       Deprecated in 16.8.5
 ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ipcDir AS CHAR NO-UNDO.
     DEF INPUT PARAMETER ipcTgtDir AS CHAR NO-UNDO.
@@ -3304,6 +3496,15 @@ PROCEDURE ipLoadPrograms :
     ASSIGN
         {&tablename}.prgtitle = "About". 
         
+    /* Fix "w-head." program master (Help Maint) regardless of existing entry */
+    FIND FIRST {&tablename} EXCLUSIVE-LOCK WHERE
+        {&tablename}.prgmname EQ "w-head." 
+        NO-ERROR.
+    IF AVAILABLE {&tablename} THEN ASSIGN
+        {&tablename}.securityLevelUser = 1000
+        {&tablename}.securityLevelDefault = 1000
+        .
+        
     /* Fix "audit." program master regardless of existing entry */
     FIND FIRST {&tablename} EXCLUSIVE-LOCK WHERE
         {&tablename}.prgmname EQ "audit." 
@@ -3315,7 +3516,7 @@ PROCEDURE ipLoadPrograms :
         {&tablename}.run_persistent = YES
         {&tablename}.menu_item = YES
         .
-        
+
     /* Ensure 'admin' user has same privileges as 'asi' */
     /* This is better handled with new security, but eliminates some access issues */
     /* See ticket 27968 */
@@ -3527,7 +3728,9 @@ PROCEDURE ipLoadUtilitiesTable :
     REPEAT:
         CREATE {&tablename}.
         IMPORT {&tablename}.
-        IF {&tablename}.programName = "module" THEN ASSIGN 
+        IF {&tablename}.programName = "module.r" /* Module Maint */
+        OR {&tablename}.programName = "w-head.r" /* Help Maint */
+        OR {&tablename}.programName = "ImpMaster.r" /* Import Master */ THEN ASSIGN 
             {&tablename}.securityLevel = 1000.
         ELSE ASSIGN 
             {&tablename}.securityLevel = 900.
@@ -3592,8 +3795,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipMoveUsermenusToDatabase C-Win 
-PROCEDURE ipMoveUsermenusToDatabase :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipMoveUserMenusToDatabase C-Win 
+PROCEDURE ipMoveUserMenusToDatabase :
 /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -3639,22 +3842,25 @@ PROCEDURE ipMoveUsermenusToDatabase :
         /* look for each menu option in the user's custom menu.lst */
         FOR EACH prgrms NO-LOCK
             WHERE prgrms.menu_item EQ YES
-            AND prgrms.menuOrder GT 0
-            AND prgrms.menuLevel GT 0
-            AND prgrms.mnemonic  NE ""
+              AND prgrms.menuOrder GT 0
+              AND prgrms.menuLevel GT 0
+              AND prgrms.mnemonic  NE ""
             :
             /* new additions, do not add to user's exceptions */
             IF CAN-DO("r-jcstdN.,translatn.,userLang.",prgrms.prgmname) THEN
-                NEXT.
+            NEXT.
             /* if found, skip to next menu option */
             IF CAN-FIND(FIRST ttUserMenu
-                WHERE ttUserMenu.prgmname EQ prgrms.prgmname) THEN
+                        WHERE ttUserMenu.prgmname EQ prgrms.prgmname) THEN DO:
+                IF prgrms.itemParent NE "" THEN
+                RUN ipActivateParent (prgrms.itemParent, ENTRY(idx,cListUsers)).
                 NEXT.
+            END. /* if can-find */
             /* menu option not found in menu.lst, add as an exception */
-            CREATE xusermenu.                
+            CREATE xUserMenu.
             ASSIGN
-                xusermenu.user_id  = ENTRY(idx,cListUsers)
-                xusermenu.prgmname = prgrms.prgmname
+                xUserMenu.user_id  = ENTRY(idx,cListUsers)
+                xUserMenu.prgmname = prgrms.prgmname
                 .
         END. /* each prgrms */
     END. /* do idx */
@@ -3701,7 +3907,9 @@ PROCEDURE ipProcessAll :
         /* RUN ipVerifyNK1Changes. */
     END.
     IF tbLoadMenus:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+        /* Deprecated in 16.8.5 
         RUN ipLoadMenus (cUpdMenuDir,cEnvProdDir).
+        */
     END.
     IF tbRelNotes:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipCopyRelNotes.
@@ -4131,7 +4339,8 @@ PROCEDURE ipRemoveUserAddon :
     RUN ipStatus ("    Removing addon mode from .usr file").
 
     DEF BUFFER bxUserMenu FOR xUserMenu.
-
+    DISABLE TRIGGERS FOR LOAD OF xUserMenu.
+    
     DEF VAR cLine     AS CHAR NO-UNDO.
     DEF VAR cOutline  AS CHAR NO-UNDO.
 
@@ -4160,7 +4369,7 @@ PROCEDURE ipRemoveUserAddon :
                 CREATE bxUserMenu.
                 BUFFER-COPY xUserMenu EXCEPT user_id TO bxUserMenu
                 ASSIGN 
-                    bxUserMenu.user_id = users.user_id.
+                    bxUserMenu.user_id = ttUsers.ttfUserID.
             END. /* each xusermenu */
         END.
         ASSIGN 
@@ -4194,6 +4403,51 @@ PROCEDURE ipRemoveUserAddon :
                 bxUserMenu.user_id = users.user_id.
         END. /* each xusermenu */
     END. /* each users */
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRemoveUserMenu C-Win 
+PROCEDURE ipRemoveUserMenu :
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+      ------------------------------------------------------------------------------*/
+    DEF VAR cUserMenuDir AS CHAR NO-UNDO.
+    DEF VAR cAddonUserMenuDir AS CHAR NO-UNDO.
+    DEF VAR cCmdLine AS CHAR NO-UNDO.
+    RUN ipStatus ("    Removing user menu and menu files").
+
+    ASSIGN 
+        cUserMenuDir = cEnvDir + "\" + fiEnvironment:{&SV} + "\UserMenu"
+        cAddonUserMenuDir = cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\UserMenu"
+        .
+
+    OS-DELETE VALUE(cUserMenuDir) RECURSIVE.
+    OS-DELETE VALUE(cAddonUserMenuDir) RECURSIVE.
+
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu.lst").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_addon.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_addon.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_addon.lst").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_plus.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_plus.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_plus.lst").
+
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu.lst") RECURSIVE.
+
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_addon.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_addon.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_addon.lst").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_plus.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_plus.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_plus.lst").
     
 END PROCEDURE.
 
@@ -4244,7 +4498,7 @@ PROCEDURE ipSetAsiPwd :
     IF AVAIL (_User) THEN DO:
         BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser.
         ASSIGN 
-            tempUser._Password = "ifaOfSAcSdialAkd".
+            tempUser._Password = "fcpapdfHaSLfnMbA".
         DELETE _User.
         CREATE _User.
         BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
@@ -4253,7 +4507,7 @@ PROCEDURE ipSetAsiPwd :
         CREATE _User.
         ASSIGN
             _User._UserId = "asi"
-            _User._Password = "ifaOfSAcSdialAkd".
+            _User._Password = "fcpapdfHaSLfnMbA".
     END.
 
     RELEASE _user.
@@ -4334,6 +4588,27 @@ PROCEDURE ipStatus :
     
     PROCESS EVENTS.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipTrackUsage C-Win 
+PROCEDURE ipTrackUsage :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN ipStatus("   Turn on user usage tracking").
+    
+    DISABLE TRIGGERS FOR LOAD OF users.
+    
+    FOR EACH users:
+        ASSIGN
+            users.track_usage = TRUE.
+    END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4734,6 +5009,35 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fFixYear C-Win
+FUNCTION fFixYear RETURNS DATE 
+  (INPUT daDate AS DATE ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE outDate AS DATE NO-UNDO.
+    
+    IF daDate EQ ? THEN RETURN ?.
+    ELSE DO:
+        IF YEAR(daDate) LT 2000 
+        AND YEAR(daDate) GT 50 THEN ASSIGN 
+            outDate = DATE(MONTH(daDate), DAY(daDate), YEAR(daDate + 1900)).  
+        ELSE IF YEAR(daDate) LT 2000 THEN ASSIGN 
+            outDate = DATE(MONTH(daDate), DAY(daDate), YEAR(daDate + 2000)). 
+        ELSE ASSIGN
+            outDate = daDate.
+        RETURN outDate.
+    END. 
+    
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION intVer C-Win 
 FUNCTION intVer RETURNS INTEGER
   ( INPUT cVerString AS CHAR ) :
@@ -4751,6 +5055,7 @@ FUNCTION intVer RETURNS INTEGER
         iIntVal[1] = INT(cStrVal[1])
         iIntVal[2] = INT(cStrVal[2])
         iIntVal[3] = INT(cStrVal[3])
+        iIntVal[3] = IF iIntVal[3] LT 10 THEN iIntVal[3] * 10 ELSE iIntVal[3]
         iIntVer = (iIntVal[1] * 10000) + (iIntVal[2] * 100) + iIntVal[3]
         NO-ERROR.
     

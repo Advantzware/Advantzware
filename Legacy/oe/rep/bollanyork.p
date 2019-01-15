@@ -438,7 +438,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
         IF oe-bolh.tot-pallets NE 0 THEN v-tot-palls = oe-bolh.tot-pallets.
 
         PUT "<R54><C50><#8><FROM><R+4><C+30><RECT> " 
-            "<=8><R+1> Total Cases       :" v-tot-cases 
+            "<=8><R+1> Total Units       :" v-tot-cases 
             "<=8><R+3> Total Weight      :" v-tot-wt 
             "<FArial><R51><C1><P12><B>     Shipping Instructions: </B> <P9> " 
             "<R53><C1>" oe-bolh.ship-i[1] AT 7 
@@ -485,6 +485,8 @@ PROCEDURE create-tt-boll.
         AND tt-boll.po-no    EQ oe-boll.po-no
         AND tt-boll.ord-no   EQ oe-boll.ord-no
         AND tt-boll.line     EQ oe-boll.line
+        AND tt-boll.job-no   EQ oe-boll.job-no
+        AND tt-boll.job-no2  EQ oe-boll.job-no2
         AND tt-boll.qty-case EQ ip-qty-case
         NO-LOCK NO-ERROR.
 
@@ -507,71 +509,90 @@ PROCEDURE create-tt-boll.
                     ((ip-qty-case * ip-cases) / oe-boll.qty * oe-boll.weight).
 
     IF oe-boll.p-c THEN tt-boll.p-c = YES.
+    IF tt-boll.job-diff EQ "" THEN
+        tt-boll.job-diff = oe-boll.job-no .
+    ELSE IF tt-boll.job-diff NE oe-boll.job-no THEN
+        tt-boll.job-diff = "diff-job" .
 
 END PROCEDURE.
 
 PROCEDURE get_lot_no:
     ASSIGN 
-        v-lot# = "".
+        v-lot# = tt-boll.lot-no .
 
-    IF tt-boll.lot-code NE "" THEN
-        v-lot# = tt-boll.lot-code.
-    ELSE DO:
-        IF tt-boll.job-no NE "" THEN 
-        DO:  
+         IF v-lot# EQ "" THEN
+         FIND FIRST oe-ordl
+            WHERE oe-ordl.company EQ cocode
+            AND oe-ordl.ord-no  EQ tt-boll.ord-no
+            AND oe-ordl.i-no    EQ tt-boll.i-no
+            AND oe-ordl.line    EQ tt-boll.line
+            NO-LOCK NO-ERROR.
+           IF AVAIL oe-ordl THEN
+               FOR EACH oe-rel NO-LOCK
+               WHERE oe-rel.company = oe-ordl.company 
+               AND oe-rel.ord-no = oe-ordl.ord-no 
+               AND oe-rel.i-no = oe-ordl.i-no 
+               AND oe-rel.line = oe-ordl.line
+               AND oe-rel.po-no = tt-boll.po-no :
+
+                 IF oe-rel.lot-no NE "" THEN DO:
+                    v-lot# = oe-rel.lot-no .
+                    LEAVE.
+                 END.
+               END.
+
+          IF v-lot# EQ "" THEN
             FOR EACH fg-rcpth NO-LOCK
-                WHERE fg-rcpth.company      EQ tt-boll.company
-                AND fg-rcpth.i-no         EQ tt-boll.i-no
-                AND fg-rcpth.job-no       EQ tt-boll.job-no
-                AND fg-rcpth.job-no2      EQ tt-boll.job-no2
+                WHERE fg-rcpth.company EQ tt-boll.company
+                AND fg-rcpth.i-no      EQ tt-boll.i-no
                 USE-INDEX tran,
 
                 EACH fg-rdtlh NO-LOCK
                 WHERE fg-rdtlh.r-no         EQ fg-rcpth.r-no
-                AND fg-rdtlh.stack-code     NE ""
-                AND fg-rdtlh.rita-code    EQ "R"
+                AND fg-rdtlh.rita-code      EQ "R"
+                AND fg-rdtlh.tag            EQ tt-boll.tag
                 USE-INDEX rm-rdtl
 
                 BREAK BY fg-rcpth.trans-date
                       BY fg-rdtlh.trans-time
                       BY fg-rcpth.r-no:
-                v-lot# = fg-rdtlh.stack-code.
-                LEAVE.
+
+                IF fg-rdtlh.stack-code NE "" THEN do:
+                    v-lot# = fg-rdtlh.stack-code.
+                    FIND FIRST job-hdr NO-LOCK
+                         WHERE job-hdr.company EQ tt-boll.company
+                           AND job-hdr.job-no EQ SUBSTRING(fg-rdtlh.stack-code,1,6)
+                           AND job-hdr.job-no2 EQ  int(SUBSTRING(fg-rdtlh.stack-code,8,2))
+                           AND job-hdr.i-no EQ tt-boll.i-no NO-ERROR . 
+                     IF AVAIL job-hdr THEN
+                         v-lot# = fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2,"99") + "-" + string(job-hdr.frm,"99") .
+
+                END.
+                ELSE IF fg-rcpth.po-no NE "" THEN do:
+                    FIND FIRST po-ordl NO-LOCK
+                        WHERE po-ordl.company EQ tt-boll.company
+                          AND po-ordl.i-no EQ tt-boll.i-no
+                          AND po-ordl.po-no EQ integer(fg-rcpth.po-no) NO-ERROR.
+                    IF AVAIL po-ordl THEN
+                        v-lot# = fg-rcpth.po-no + "-" + STRING(po-ordl.LINE,"999").
+                    ELSE
+                        v-lot# = fg-rcpth.po-no .
+                END.
+                ELSE do: 
+                     FIND FIRST job-hdr NO-LOCK
+                         WHERE job-hdr.company EQ tt-boll.company
+                           AND job-hdr.job-no EQ fg-rcpth.job-no
+                           AND job-hdr.job-no2 EQ fg-rcpth.job-no2
+                           AND job-hdr.i-no EQ tt-boll.i-no NO-ERROR . 
+                     IF AVAIL job-hdr THEN
+                     v-lot# = fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2,"99") + "-" + string(job-hdr.frm,"99") .
+                     ELSE
+                     v-lot# = fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2)  .
+                END.
+                     LEAVE.
             END.
-        END.
-    END.
-
-    IF v-lot# EQ "" THEN DO:
-
-         FIND FIRST oe-ordl NO-LOCK
-            WHERE oe-ordl.company EQ cocode
-            AND oe-ordl.ord-no  EQ tt-boll.ord-no
-            AND oe-ordl.i-no    EQ tt-boll.i-no
-            AND oe-ordl.line    EQ tt-boll.line
-            NO-ERROR.
-
-        IF AVAIL oe-ordl THEN
-            FOR EACH fg-rcpth NO-LOCK
-               where fg-rcpth.company EQ cocode
-                 and fg-rcpth.i-no    EQ tt-boll.i-no
-                 and fg-rcpth.po-no   EQ string(oe-ordl.po-no-po)
-                 use-index i-no,
-               first fg-rdtlh NO-LOCK
-               where fg-rdtlh.r-no         EQ fg-rcpth.r-no 
-                 AND fg-rdtlh.tag          eq tt-boll.tag
-                 use-index rm-rdtl
-               by fg-rcpth.trans-date
-               BY fg-rdtlh.trans-time
-               by fg-rcpth.r-no:
-                
-                ASSIGN v-lot# = fg-rdtlh.stack-code. /* fg lot# */
-                LEAVE.
-            END.
-
-
-    END.
-
-   
+        
 END PROCEDURE.
+
 
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */

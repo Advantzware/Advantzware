@@ -16,12 +16,18 @@ DO:
     ASSIGN
         i              = 0
         v-tot-case-qty = 0.
-
+     
+    RUN get_lot_no.
+    
     FOR EACH bf-ttboll WHERE bf-ttboll.i-no = tt-boll.i-no
         AND bf-ttboll.po-no = tt-boll.po-no
         AND bf-ttboll.ord-no = tt-boll.ord-no
         AND bf-ttboll.LINE = tt-boll.LINE
+        AND (bf-ttboll.job-no = tt-boll.job-no OR v-sort)
+        AND (bf-ttboll.job-no2 = tt-boll.job-no2 OR v-sort)
         BREAK BY bf-ttboll.cases DESCENDING.
+        
+
         FIND FIRST oe-ordl WHERE oe-ordl.company EQ cocode
             AND oe-ordl.ord-no  EQ tt-boll.ord-no
             AND oe-ordl.i-no    EQ tt-boll.i-no
@@ -31,7 +37,7 @@ DO:
             AND oe-ord.ord-no  EQ tt-boll.ord-no NO-LOCK NO-ERROR.
         ASSIGN
             v-tot-case-qty = v-tot-case-qty + bf-ttboll.qty
-            i              = i + 1.
+            i              = i + 1.  
         FIND FIRST w2 WHERE w2.cas-cnt EQ bf-ttboll.qty-case NO-ERROR.
         IF NOT AVAILABLE w2 THEN CREATE w2.
         ASSIGN 
@@ -42,15 +48,15 @@ DO:
             w2.rec-id  = RECID(bf-ttboll).
 
         IF i = 1 THEN ASSIGN w2.job-po = bf-ttboll.po-no
-                w2.dscr   = oe-ordl.part-no
+                w2.dscr   = oe-ordl.i-no
                 w2.qty    = oe-ordl.qty.
         ELSE IF i = 2 THEN 
                 ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE
                              (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
-                    w2.dscr   = oe-ordl.i-no
+                    w2.dscr   = oe-ordl.part-no
                     w2.i-no   = oe-ordl.i-no.
-            ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
-                ELSE IF i EQ 4 THEN ASSIGN w2.dscr = oe-ordl.part-dscr2.
+            ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.i-name.
+                ELSE IF i EQ 4 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
 
     END.
     IF i < 4 THEN 
@@ -71,10 +77,10 @@ DO:
             IF i = 2 THEN 
                 ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE
                              (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
-                    w2.dscr   = oe-ordl.i-no
+                    w2.dscr   = oe-ordl.part-no
                     w2.i-no   = oe-ordl.i-no.
-            ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
-                ELSE IF i EQ 4 THEN ASSIGN w2.dscr = oe-ordl.part-dscr2.
+            ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.i-name.
+                ELSE IF i EQ 4 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
         END.
         IF w2.qty = 0 AND w2.i-no = "" AND w2.dscr = "" AND w2.cas-cnt = 0 THEN DELETE w2.
     END.
@@ -113,23 +119,27 @@ DO:
             IF i = 2 THEN 
                 ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE
                              (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
-                    w2.dscr   = oe-ordl.i-no
+                    w2.dscr   = oe-ordl.part-no
                     w2.i-no   = oe-ordl.i-no.
-            ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
-                ELSE IF i EQ 4 THEN ASSIGN w2.dscr = oe-ordl.part-dscr2.
+            ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.i-name.
+                ELSE IF i EQ 4 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
         END.
         IF AVAILABLE bf-ttboll THEN 
             v-relpc     = IF bf-ttboll.p-c THEN "C" ELSE "P".
+
         IF w2.qty = 0 AND w2.i-no = "" AND w2.dscr = "" AND NOT last(w2.cases) AND w2.cas-cnt EQ 0 THEN .
         ELSE 
         DO:  
             PUT
                 "<C2>" TRIM(STRING(w2.qty,"->>,>>>,>>>")) .
-            IF i EQ 1 THEN 
+            IF w2.cases NE 0 THEN 
             DO:
                 PUT "<C12>" STRING(w2.cases,"->>>9") + " @ "
                     "<C16>" STRING(w2.cas-cnt,">>>,>>>").
             END.
+            IF i EQ 1 THEN
+                PUT "<C21>" string(v-tot-case-qty,"->>,>>>,>>>") + " [" + STRING(v-relpc) + "]" FORMAT "x(16)" .
+            IF i EQ 1 THEN
             PUT "<C35>" w2.job-po FORMAT "x(15)" .
             .
             IF i EQ 1 THEN
@@ -142,7 +152,7 @@ DO:
     
         v-tot-cases = v-tot-cases + w2.cases.
 
-    /*delete w2. */
+    delete w2. 
     END. /* each w2 */
 
     PUT {1} SKIP(1).

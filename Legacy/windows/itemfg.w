@@ -139,18 +139,18 @@ DEFINE FRAME F-Main
          SIZE 160 BY 28.57
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 3 ROW 1
-         SIZE 52 BY 2
-         BGCOLOR 15 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 61 ROW 1
          SIZE 99 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 3 ROW 1
+         SIZE 52 BY 2
          BGCOLOR 15 .
 
 
@@ -530,14 +530,14 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_itemfg2 ).
        RUN set-position IN h_itemfg2 ( 6.00 , 9.00 ) NO-ERROR.
-       /* Size in UIB:  ( 5.71 , 144.00 ) */
+       /* Size in UIB:  ( 9.95 , 144.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'est/v-navest.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navest ).
-       RUN set-position IN h_v-navest ( 11.95 , 9.00 ) NO-ERROR.
+       RUN set-position IN h_v-navest ( 17.95 , 23.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 34.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -547,7 +547,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updinv ).
-       RUN set-position IN h_p-updinv ( 11.95 , 122.00 ) NO-ERROR.
+       RUN set-position IN h_p-updinv ( 17.95 , 115.00 ) NO-ERROR.
        RUN set-size IN h_p-updinv ( 2.24 , 31.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -625,10 +625,14 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/locw.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = ?':U ,
              OUTPUT h_locw ).
        RUN set-position IN h_locw ( 6.24 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_locw ( 23.19 , 157.00 ) NO-ERROR.
+       RUN set-size IN h_locw ( 23.10 , 156.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1,3':U) NO-ERROR.
@@ -1005,12 +1009,16 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_fgijob ).
        RUN set-position IN h_fgijob ( 6.24 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_fgijob ( 21.19 , 157.00 ) NO-ERROR.
+       RUN set-size IN h_fgijob ( 21.19 , 156.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/p-calcq.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = ?':U ,
              OUTPUT h_p-calcq ).
        RUN set-position IN h_p-calcq ( 27.67 , 133.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.52 , 26.00 ) */
@@ -1018,7 +1026,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/p-fg-bj-2.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = ?':U ,
              OUTPUT h_p-fg-bj-2 ).
        RUN set-position IN h_p-fg-bj-2 ( 27.91 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.10 , 95.00 ) */

@@ -1764,7 +1764,7 @@ DEF VAR v-trnum LIKE gl-ctrl.trnum NO-UNDO.
 DEF VAR v-r-qty     AS   DEC                    NO-UNDO.
 DEF VAR v-i-qty     AS   DEC                    NO-UNDO.
 DEF VAR v-t-qty     AS   DEC                    NO-UNDO.
-DEF VAR cost        AS   DEC                    NO-UNDO.
+DEF VAR dCost        AS   DEC                    NO-UNDO.
 DEF VAR out-qty     AS   DEC                    NO-UNDO.
 DEF VAR v-bwt       LIKE item.basis-w           NO-UNDO.
 DEF VAR v-len       LIKE item.s-len             NO-UNDO.
@@ -1932,15 +1932,15 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
                                       v-bwt, v-len, v-wid, v-dep,
                                       rm-rctd.qty, OUTPUT out-qty).
 
-            cost = rm-rctd.cost.
+            dCost = rm-rctd.cost.
             IF rm-rctd.pur-uom NE job-mat.sc-uom AND rm-rctd.pur-uom NE "" THEN
                RUN sys/ref/convcuom.p(rm-rctd.pur-uom, job-mat.sc-uom,
                                       v-bwt, v-len, v-wid, v-dep,
-                                      rm-rctd.cost, OUTPUT cost).
+                                      rm-rctd.cost, OUTPUT dCost).
 
             ASSIGN
              mat-act.qty-uom = job-mat.qty-uom
-             mat-act.cost    = cost
+             mat-act.cost    = dCost
              mat-act.qty     = mat-act.qty     + out-qty
              job-mat.qty-iss = job-mat.qty-iss + out-qty
              job-mat.qty-all = job-mat.qty-all - out-qty
@@ -1950,7 +1950,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
                                    v-bwt, v-len, v-wid, v-dep,
                                    rm-rctd.qty, OUTPUT out-qty).
 
-            mat-act.ext-cost = mat-act.ext-cost + (cost * out-qty).
+            mat-act.ext-cost = mat-act.ext-cost + (dCost * out-qty).
 
             /* Don't relieve more than were allocated */
             IF job-mat.qty-all LT 0 THEN DO:
@@ -2077,7 +2077,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
         IF FIRST(rm-bin.i-no) THEN
           ASSIGN
            v-i-qty = 0
-           cost    = 0.
+           dCost    = 0.
 
         v-r-qty = rm-bin.qty.
 
@@ -2085,13 +2085,13 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
 
         ASSIGN
          v-i-qty = v-i-qty + v-r-qty
-         cost    = cost    + (v-r-qty * rm-bin.cost).
+         dCost    = dCost    + (v-r-qty * rm-bin.cost).
 
-        IF cost EQ ? THEN cost = 0.
+        IF dCost EQ ? THEN dCost = 0.
 
-        IF LAST(rm-bin.i-no) AND v-i-qty NE 0 AND cost NE 0  
-            AND v-i-qty NE ? AND cost NE ? THEN 
-          item.avg-cost = cost / v-i-qty.
+        IF LAST(rm-bin.i-no) AND v-i-qty NE 0 AND dCost NE 0  
+            AND v-i-qty NE ? AND dCost NE ? THEN 
+          item.avg-cost = dCost / v-i-qty.
 
       END. /* each rm-bin */      
 

@@ -87,7 +87,9 @@ FOR EACH w-b-no,
                            AND xoe-bolh.posted EQ YES)
       USE-INDEX ord-no NO-LOCK:
     MESSAGE "Can not delete invoice until all subsequent " +
-            "invoices and bills of lading are deleted."
+            "invoices and bills of lading are deleted." SKIP 
+            "See BOL# " xoe-boll.bol-no SKIP
+            "for Order " xoe-boll.ord-no 
         VIEW-AS ALERT-BOX ERROR.
     RETURN ERROR.
   END.

@@ -719,7 +719,9 @@ FUNCTION are-items-for-cust RETURNS LOGICAL
      END.
 
     IF RESULT = FALSE THEN DO:
-    FOR EACH bfCust WHERE bfCust.ACTIVE = "X"
+    FOR EACH bfCust 
+      WHERE bfCust.company EQ cocode 
+        AND bfCust.ACTIVE = "X"
       NO-LOCK,
       FIRST ASI.itemfg WHERE itemfg.company = cocode 
           AND itemfg.cust-no EQ ASI.bfCust.cust-no 

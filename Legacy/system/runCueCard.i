@@ -5,5 +5,5 @@ IF fSuperRunning("session.") THEN DO:
     hCueWindow = {&WINDOW-NAME}:HANDLE.
     IF NOT VALID-HANDLE(hCueFrame) THEN 
     hCueFrame = FRAME {&FRAME-NAME}:HANDLE. 
-    RUN spRunCueCard (cCuePrgmName, hCueWindow, hCueFrame, lCueActive).
+    RUN spRunCueCard ("System", cCuePrgmName, hCueWindow, hCueFrame, lCueActive).
 END. /* if super running */

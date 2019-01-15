@@ -720,10 +720,10 @@ PROCEDURE local-row-available :
   FIND b-prgrms WHERE b-prgrms.prgmname = v-prgmname NO-LOCK NO-ERROR.
   IF AVAILABLE b-prgrms THEN
   DO:
-    IF NOT CAN-DO(b-prgrms.can_run,USERID(LDBNAME(1))) AND
-       NOT CAN-DO(b-prgrms.can_update,USERID(LDBNAME(1))) AND
-       NOT CAN-DO(b-prgrms.can_create,USERID(LDBNAME(1))) AND
-       NOT CAN-DO(b-prgrms.can_delete,USERID(LDBNAME(1))) THEN
+    IF NOT CAN-DO(TRIM(b-prgrms.can_run),USERID(LDBNAME(1))) AND
+       NOT CAN-DO(TRIM(b-prgrms.can_update),USERID(LDBNAME(1))) AND
+       NOT CAN-DO(TRIM(b-prgrms.can_create),USERID(LDBNAME(1))) AND
+       NOT CAN-DO(TRIM(b-prgrms.can_delete),USERID(LDBNAME(1))) THEN
     DO:
        RUN disable-folder-page IN h_folder (3) .
     END.

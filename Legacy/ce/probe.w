@@ -865,7 +865,7 @@ END.
 
 &SCOPED-DEFINE cellColumnDat probe
 
-{methods/browsers/setCellColumnsLabel.i}
+{methods/browsers/setCellColumns.i}
 
   FI_moveCol = "Sort".
   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
@@ -2668,14 +2668,14 @@ DO:
   END.
 
   DO num-groups = 1 TO NUM-ENTRIES(g_groups):
-     IF NOT CAN-DO(b-prgrms.can_update,ENTRY(num-groups,g_groups)) THEN
+     IF NOT CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups)) THEN
         NEXT.
     
-     IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,ENTRY(num-groups,g_groups)) THEN
+     IF NOT v-can-update AND CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups)) THEN
         v-can-update = YES.
   END.
   
-  IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) THEN
+  IF NOT v-can-update AND CAN-DO(TRIM(b-prgrms.can_update),USERID("ASI")) THEN
      v-can-update = YES.
 
 END. 
@@ -3272,7 +3272,7 @@ PROCEDURE run-whatif :
         AND mach.m-code EQ est-op.m-code:
    IF mach.obsolete THEN DO:
     MESSAGE "Machine: " + TRIM(mach.m-code) +
-            " is obsolete, please replace to complete calculation..."
+            " is Inactive, please replace to complete calculation..."
         VIEW-AS ALERT-BOX ERROR.
     RETURN.
    END.

@@ -610,10 +610,10 @@ DEFINE FRAME F-Main
      "Taxable:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 16.14 COL 11
      "Tax Information" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 15.33 COL 4
+          SIZE 16 BY .62 AT ROW 15.33 COL 4
           FGCOLOR 9 FONT 4
      "Credit Information" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 6.95 COL 4
+          SIZE 18 BY .62 AT ROW 6.95 COL 4
           FGCOLOR 9 FONT 4
      "FOB:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 8.67 COL 83.2
@@ -2268,6 +2268,8 @@ PROCEDURE local-update-record :
   DEF VAR ll-prev-cr-hold LIKE cust.cr-hold NO-UNDO.
   DEF VAR ls-prev-sman LIKE cust.sman NO-UNDO.
   DEF VAR ll-new-record AS LOG NO-UNDO.
+  DEFINE VARIABLE cOld-fob    AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cOld-freight AS CHARACTER NO-UNDO.
 
   def buffer bf-cust for cust.
   /*def buffer bf-shipto for shipto.
@@ -2453,6 +2455,8 @@ PROCEDURE local-update-record :
 
 
   /* ============== end of validations ==================*/
+  ASSIGN cOld-fob = cust.fob-code
+         cOld-freight = cust.frt-pay  .
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -2476,6 +2480,11 @@ PROCEDURE local-update-record :
      IF ll-ans THEN 
          RUN update-sman.
   END.
+
+  IF NOT adm-new-record AND (cOld-fob NE cust.fob-code OR  cOld-freight NE cust.frt-pay) THEN DO:
+      RUN fg/custfobudt.w(ROWID(cust)) .
+  END.
+
 
   IF ll-new-record THEN DO:
     /* Reposition browse to new record so other tabs are refreshed */

@@ -47,7 +47,7 @@
                 "<R24><C35><FROM><R27><C35><LINE>" SKIP  
                 "<R24><C47><FROM><R27><C47><LINE>" SKIP
                 "<R24><C60><FROM><R27><C60><LINE>" SKIP 
-            "<FArial><=5><R+1><C2>Qty<C14>Units / Unit<C24>Qty Shipped<C39>PO#<C48>Order# / Lot#<C61>Part# / Item# / Desc" SKIP(1)
+            "<FArial><=5><R+1><C2>Qty<C14>Units / Unit<C24>Qty Shipped<C39>PO#<C48>Order# / Lot#<C61>Item# / Part# / Description" SKIP(1)
             "<FArial><=5><R+2><C2>Ordered<C14>Count<C24>[P/C]" SKIP(1)
             "<FCourier New>"                                  
             .

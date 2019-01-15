@@ -11,7 +11,7 @@
  END.
      FIND FIRST company NO-LOCK
           WHERE company.company  = cocode  NO-ERROR.
-    IF tb_print-view THEN do: 
+    IF iplPrintView THEN do: 
         PUT  "<FArial>".
         PUT  "<C+25><#1>".
         PUT  "<=1>" SKIP.

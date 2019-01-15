@@ -17,13 +17,14 @@ FOR EACH tt-boll,
     BY tt-boll.ord-no
     BY tt-boll.line
     BY tt-boll.cases DESCENDING:
-    RUN get_lot_no.
+    
     IF ll-consol-bolls THEN 
-    DO:
+    DO:  
         {oe/rep/bollanyork23.i}
     END.
     ELSE 
     DO:   
+        RUN get_lot_no.
         FIND FIRST oe-ordl
             WHERE oe-ordl.company EQ cocode
             AND oe-ordl.ord-no  EQ tt-boll.ord-no
@@ -73,21 +74,21 @@ FOR EACH tt-boll,
 
             IF i EQ 1 THEN
                 ASSIGN
-                    v-part-dscr = oe-ordl.part-no
+                    v-part-dscr = oe-ordl.i-no
                     v-job-po    = tt-boll.po-no.
 
             ELSE
                 IF i EQ 2 THEN
                     ASSIGN
-                        v-part-dscr = oe-ordl.i-name
+                        v-part-dscr = oe-ordl.part-no
                         v-job-po    = IF oe-ordl.job-no EQ "" THEN "" ELSE
                     (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
     
                 ELSE
-                    IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr1.
+                    IF i EQ 3 THEN v-part-dscr = oe-ordl.i-name.
 
                     ELSE
-                        IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr2.
+                        IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr1.
     
             IF v-part-dscr NE "" OR v-job-po NE "" OR i LE 2 THEN v-lines = v-lines + 1.
         END.
@@ -104,19 +105,19 @@ FOR EACH tt-boll,
 
             IF i EQ 1 THEN
                 ASSIGN
-                    v-part-dscr = oe-ordl.part-no
+                    v-part-dscr = oe-ordl.i-no
                     v-job-po    = tt-boll.po-no.
 
             ELSE
                 IF i EQ 2 THEN
                     ASSIGN
-                        v-part-dscr = oe-ordl.i-name
+                        v-part-dscr = oe-ordl.part-no
                         v-job-po    = IF oe-ordl.job-no EQ "" THEN "" ELSE
                     (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
 
-                ELSE IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr1.
+                ELSE IF i EQ 3 THEN v-part-dscr = oe-ordl.i-name.
 
-                    ELSE IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr2.
+                    ELSE IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr1.
             v-relpc     = IF tt-boll.p-c THEN "C" ELSE "P".
 
             PUT
@@ -124,9 +125,10 @@ FOR EACH tt-boll,
                 "<C12>" STRING(w2.cases,"->>>9") + " @ "
                 "<C16>" STRING(w2.cas-cnt,">>>,>>>")
                 "<C24>" STRING(tt-boll.qty) + " [" + STRING(v-relpc) + "]"
-                "<C35>" v-job-po FORMAT "x(15)"
-                "<C48>" oe-ordl.ord-no 
-                "<C61>" v-part-dscr FORMAT "x(23)" SKIP.
+                "<C35>" v-job-po FORMAT "x(15)".
+            IF i EQ 1 THEN
+                PUT "<C48>" oe-ordl.ord-no  .
+            PUT "<C61>" v-part-dscr FORMAT "x(23)" SKIP.
           
          
             v-printline = v-printline + 1.
@@ -150,21 +152,21 @@ FOR EACH tt-boll,
 
             IF i EQ 1 THEN
                 ASSIGN
-                    v-part-dscr = oe-ordl.part-no
+                    v-part-dscr = oe-ordl.i-no
                     v-job-po    = tt-boll.po-no.
 
             ELSE
                 IF i EQ 2 THEN
                     ASSIGN
-                        v-part-dscr = oe-ordl.i-no
+                        v-part-dscr = oe-ordl.part-no
                         v-job-po    = IF oe-ordl.job-no EQ "" THEN "" ELSE
                     (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
 
                 ELSE
-                    IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr1.
+                    IF i EQ 3 THEN v-part-dscr = oe-ordl.i-name .
 
                     ELSE
-                        IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr2.
+                        IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr1.
     
             IF i = 2 AND v-job-po = "" THEN
                 v-job-po = IF tt-boll.job-no EQ "" THEN "" ELSE

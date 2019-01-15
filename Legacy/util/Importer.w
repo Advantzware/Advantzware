@@ -816,6 +816,7 @@ PROCEDURE pLoad :
     DEFINE VARIABLE lGo               AS LOGICAL   NO-UNDO. 
     DEFINE VARIABLE cFile             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lUpdateDuplicates AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lCheck            AS LOGICAL   NO-UNDO.
     
     cFile = iphdImportFileName:SCREEN-VALUE.
     lUpdateDuplicates = rdDuplicates EQ 1.
@@ -827,8 +828,19 @@ PROCEDURE pLoad :
         RUN pSetType IN ghdImportProcs (ipcType).
         RUN pConvertExceltoCSV IN ghdImportProcs (cFile, OUTPUT cFile).
         RUN pCheckContinue("load import data from " + cFile, OUTPUT lGo).
+
         IF lGo THEN 
-            RUN pLoad IN ghdImportProcs (ipcCompany, ipcLocation, cFile, lHeaderRow, lUpdateDuplicates, lFieldValidation, gcFileType, OUTPUT lGo).
+            RUN pLoad IN ghdImportProcs (ipcCompany, ipcLocation, cFile, lHeaderRow, lUpdateDuplicates, lFieldValidation, gcFileType, OUTPUT lGo,OUTPUT lCheck).
+
+        IF lCheck THEN DO:
+            lGo = NO .
+            FOR EACH ttImportData NO-LOCK :
+                ttImportData.lValid = NO .
+            END.
+            MESSAGE "Must limit import file to a maximum of 1,000 rows" VIEW-AS ALERT-BOX. 
+	         APPLY "ENTRY" TO fiFileName IN FRAME {&FRAME-NAME} . 
+        END.
+
         IF lGo THEN 
         DO:
             RUN pShowPreview.

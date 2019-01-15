@@ -1308,42 +1308,6 @@ PROCEDURE run-process :
        RELEASE reftable.
     END.
     END.
-
-    DO lj = 1 TO 2:
-      FOR EACH reftable
-          WHERE reftable.reftable EQ "ce/v-est3.w Unit#" + TRIM(STRING(lj - 1,">"))
-            AND reftable.company  EQ eb.company
-            AND reftable.loc      EQ eb.est-no
-            AND reftable.code     EQ STRING(eb.form-no,"9999999999")
-            AND reftable.code2    EQ STRING(eb.blank-no,"9999999999")
-          NO-LOCK:
-
-        FIND FIRST kref
-            WHERE kref.reftable EQ reftable.reftable
-              AND kref.company  EQ keb.company
-              AND kref.loc      EQ keb.est-no
-              AND kref.code     EQ STRING(keb.form-no,"9999999999")
-              AND kref.code2    EQ STRING(keb.blank-no,"9999999999")
-            NO-ERROR.
-        IF NOT AVAIL kref THEN DO:
-          CREATE kref.
-          ASSIGN
-           kref.reftable = reftable.reftable
-           kref.company  = keb.company
-           kref.loc      = keb.est-no
-           kref.code     = STRING(keb.form-no,"9999999999")
-           kref.code2    = STRING(keb.blank-no,"9999999999").
-        END.
-
-        DO li = 1 TO 12:
-          kref.val[li] = reftable.val[li].
-        END.
-
-        kref.dscr = reftable.dscr.
-
-        LEAVE.
-      END.
-    END.
   end.
 
   for each est-qty

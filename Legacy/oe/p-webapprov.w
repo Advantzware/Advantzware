@@ -286,7 +286,7 @@ PROCEDURE local-row-available :
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE btn-update.
-    IF AVAILABLE oe-ord AND INDEX("HW",oe-ord.stat) GT 0 THEN
+    IF AVAILABLE oe-ord AND INDEX("W",oe-ord.stat) GT 0 THEN
     ENABLE btn-update.
   END.
 

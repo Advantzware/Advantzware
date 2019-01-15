@@ -192,7 +192,7 @@ DEFINE RECTANGLE RECT-12
      SIZE 75 BY 6.19.
 
 DEFINE VARIABLE tb_obsolete AS LOGICAL INITIAL no 
-     LABEL "Obsolete?" 
+     LABEL "Inactive?" 
      VIEW-AS TOGGLE-BOX
      SIZE 17 BY 1 NO-UNDO.
 

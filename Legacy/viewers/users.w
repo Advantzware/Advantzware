@@ -74,6 +74,9 @@ DEFINE VARIABLE hPgmMstrSecur   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lSuperAdmin     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAdmin          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lMenuChanges    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hColorWidget    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iFGColor        AS INTEGER   NO-UNDO EXTENT 3.
+DEFINE VARIABLE iBGColor        AS INTEGER   NO-UNDO EXTENT 3.
     
 DEFINE TEMP-TABLE tempUser NO-UNDO LIKE _User.
 
@@ -118,7 +121,7 @@ users.menuSize users.userLanguage users.user_name users.phone-cnty ~
 users.fax-cnty users.image_filename users.user_program[1] ~
 users.user_program[2] users.user_program[3] users.track_usage ~
 users.use_colors users.use_fonts users.developer users.isLocked ~
-users.userImage[1] 
+users.userImage[1] users.showMenuImages 
 &Scoped-define ENABLED-TABLES users
 &Scoped-define FIRST-ENABLED-TABLE users
 &Scoped-Define DISPLAYED-FIELDS users.positionMnemonic users.showMnemonic ~
@@ -127,7 +130,7 @@ users.userAlias users.phone-cnty users.phone users.fax-cnty users.fax ~
 users.image_filename users.user_program[1] users.user_program[2] ~
 users.user_program[3] users.track_usage users.use_colors users.use_fonts ~
 users.developer users.securityLevel users.isActive users.isLocked ~
-users.userImage[1] 
+users.userImage[1] users.showMenuImages 
 &Scoped-define DISPLAYED-TABLES users
 &Scoped-define FIRST-DISPLAYED-TABLE users
 &Scoped-Define DISPLAYED-OBJECTS fiPassword cbUserType fi_phone-area ~
@@ -140,6 +143,11 @@ lv-phone-num fi_fax-area lv-fax-num slEnvironments slDatabases slModes
 lv-phone-num users.fax-cnty fi_fax-area lv-fax-num users.image_filename 
 &Scoped-define DISPLAY-FIELDS users.phone-cnty fi_phone-area lv-phone-num ~
 users.fax-cnty fi_fax-area lv-fax-num users.image_filename 
+&Scoped-define F1 colorChoice-0 colorChoice-1 colorChoice-2 colorChoice-3 ~
+colorChoice-4 colorChoice-5 colorChoice-6 colorChoice-7 colorChoice-8 ~
+colorChoice-9 colorChoice-10 colorChoice-11 colorChoice-12 colorChoice-13 ~
+colorChoice-14 colorChoice-15 colorChoice-default FGColor-1 FGColor-2 ~
+FGColor-3 BGColor-1 BGColor-2 BGColor-3 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -243,6 +251,122 @@ DEFINE IMAGE cUserImage
      FILENAME "adeicon/blank":U TRANSPARENT
      SIZE 11 BY 2.62.
 
+DEFINE RECTANGLE BGColor-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1.
+
+DEFINE RECTANGLE BGColor-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1.
+
+DEFINE RECTANGLE BGColor-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1.
+
+DEFINE RECTANGLE colorChoice-0
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 0 .
+
+DEFINE RECTANGLE colorChoice-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 1 .
+
+DEFINE RECTANGLE colorChoice-10
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 10 .
+
+DEFINE RECTANGLE colorChoice-11
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 11 .
+
+DEFINE RECTANGLE colorChoice-12
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 12 .
+
+DEFINE RECTANGLE colorChoice-13
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 13 .
+
+DEFINE RECTANGLE colorChoice-14
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 14 .
+
+DEFINE RECTANGLE colorChoice-15
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE colorChoice-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 2 .
+
+DEFINE RECTANGLE colorChoice-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 3 .
+
+DEFINE RECTANGLE colorChoice-4
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 4 .
+
+DEFINE RECTANGLE colorChoice-5
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 5 .
+
+DEFINE RECTANGLE colorChoice-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 6 .
+
+DEFINE RECTANGLE colorChoice-7
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 7 .
+
+DEFINE RECTANGLE colorChoice-8
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 8 .
+
+DEFINE RECTANGLE colorChoice-9
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 9 .
+
+DEFINE RECTANGLE colorChoice-default
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 6 BY 1.19.
+
+DEFINE RECTANGLE FGColor-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1.
+
+DEFINE RECTANGLE FGColor-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1.
+
+DEFINE RECTANGLE FGColor-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1.
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 100 BY 3.57.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 142 BY 20.71.
+
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 53 BY 12.38.
@@ -269,13 +393,13 @@ DEFINE VARIABLE slModes AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     users.positionMnemonic AT ROW 16.24 COL 66 NO-LABEL WIDGET-ID 126
+     users.positionMnemonic AT ROW 16.71 COL 66 NO-LABEL WIDGET-ID 126
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "Begin", "Begin":U,
 "End", "End":U
           SIZE 17 BY 1
-     users.showMnemonic AT ROW 16.24 COL 23 NO-LABEL WIDGET-ID 120
+     users.showMnemonic AT ROW 16.71 COL 23 NO-LABEL WIDGET-ID 120
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "None", "None":U,
@@ -399,45 +523,92 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 48 BY 1
           BGCOLOR 15 
+     users.showMenuImages AT ROW 15.76 COL 23 WIDGET-ID 528
+          VIEW-AS TOGGLE-BOX
+          SIZE 22 BY 1
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
-     "Phone: (Country)" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 3.62 COL 15 WIDGET-ID 92
-     "FAX: (Country)" VIEW-AS TEXT
-          SIZE 14 BY 1 AT ROW 4.81 COL 17 WIDGET-ID 94
-     "(Area)" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 3.62 COL 40 WIDGET-ID 96
-          BGCOLOR 15 
-     " At Login User Can Select:" VIEW-AS TEXT
-          SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
-          FONT 4
-     "Options:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 12.19 COL 14 WIDGET-ID 42
-     "HotKey (Mnemonic:)" VIEW-AS TEXT
-          SIZE 20 BY 1 AT ROW 16.24 COL 2 WIDGET-ID 124
+     "HotKey (Mnemonic):" VIEW-AS TEXT
+          SIZE 20 BY 1 AT ROW 16.71 COL 3 WIDGET-ID 124
      "Pos.:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 16.24 COL 61 WIDGET-ID 130
-     "Modes:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 6.71 COL 99 WIDGET-ID 62
-          FONT 4
+          SIZE 4 BY 1 AT ROW 16.71 COL 61 WIDGET-ID 130
      "Databases:" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 14.1 COL 94 WIDGET-ID 60
+          FONT 4
+     "Modes:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 6.71 COL 99 WIDGET-ID 62
           FONT 4
      "(#)" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 3.62 COL 56 WIDGET-ID 106
           BGCOLOR 15 
-     "(Area)" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 4.81 COL 40 WIDGET-ID 108
-          BGCOLOR 15 
      "(#)" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 4.81 COL 56 WIDGET-ID 110
+          BGCOLOR 15 
+     "(Area)" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 4.81 COL 40 WIDGET-ID 108
           BGCOLOR 15 
      "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
           SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
           FONT 1
+     "3" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 18.14 COL 38 WIDGET-ID 512
+     "2" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 18.14 COL 31 WIDGET-ID 514
+     "Menu Level 1" VIEW-AS TEXT
+          SIZE 13 BY .67 AT ROW 18.14 COL 12 WIDGET-ID 518
+     "BG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 20.05 COL 12 WIDGET-ID 516
+     "FG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 18.86 COL 12 WIDGET-ID 520
+     "Phone: (Country)" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 3.62 COL 15 WIDGET-ID 92
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE .
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     "?" VIEW-AS TEXT
+          SIZE 2 BY .76 AT ROW 19.57 COL 48 WIDGET-ID 522
+          FGCOLOR 0 FONT 6
+     "FAX: (Country)" VIEW-AS TEXT
+          SIZE 14 BY 1 AT ROW 4.81 COL 17 WIDGET-ID 94
+     " At Login User Can Select:" VIEW-AS TEXT
+          SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
+          FONT 4
+     "(Area)" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 3.62 COL 40 WIDGET-ID 96
+          BGCOLOR 15 
+     "Options:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 12.19 COL 14 WIDGET-ID 42
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
      cUserImage AT ROW 10.76 COL 72 WIDGET-ID 118
+     colorChoice-0 AT ROW 18.86 COL 53 WIDGET-ID 472
+     colorChoice-1 AT ROW 18.86 COL 60 WIDGET-ID 474
+     colorChoice-2 AT ROW 18.86 COL 67 WIDGET-ID 488
+     colorChoice-3 AT ROW 18.86 COL 74 WIDGET-ID 490
+     colorChoice-4 AT ROW 18.86 COL 81 WIDGET-ID 492
+     colorChoice-5 AT ROW 18.86 COL 88 WIDGET-ID 494
+     colorChoice-6 AT ROW 18.86 COL 95 WIDGET-ID 496
+     colorChoice-7 AT ROW 18.86 COL 102 WIDGET-ID 498
+     colorChoice-8 AT ROW 20.05 COL 53 WIDGET-ID 500
+     colorChoice-9 AT ROW 20.05 COL 60 WIDGET-ID 502
+     colorChoice-10 AT ROW 20.05 COL 67 WIDGET-ID 476
+     colorChoice-11 AT ROW 20.05 COL 74 WIDGET-ID 478
+     colorChoice-12 AT ROW 20.05 COL 81 WIDGET-ID 480
+     colorChoice-13 AT ROW 20.05 COL 88 WIDGET-ID 482
+     colorChoice-14 AT ROW 20.05 COL 95 WIDGET-ID 484
+     colorChoice-15 AT ROW 20.05 COL 102 WIDGET-ID 486
+     colorChoice-default AT ROW 19.33 COL 46 WIDGET-ID 504
+     FGColor-1 AT ROW 18.86 COL 22 WIDGET-ID 506
+     FGColor-2 AT ROW 18.86 COL 29 WIDGET-ID 508
+     FGColor-3 AT ROW 18.86 COL 36 WIDGET-ID 510
+     BGColor-1 AT ROW 20.05 COL 22 WIDGET-ID 466
+     BGColor-2 AT ROW 20.05 COL 29 WIDGET-ID 468
+     BGColor-3 AT ROW 20.05 COL 36 WIDGET-ID 470
+     RECT-1 AT ROW 17.91 COL 10 WIDGET-ID 524
+     RECT-2 AT ROW 1 COL 1 WIDGET-ID 526
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -470,7 +641,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 16.43
+         HEIGHT             = 20.76
          WIDTH              = 142.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -508,6 +679,21 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON bDefaults IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE BGColor-1 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       BGColor-1:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE BGColor-2 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       BGColor-2:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE BGColor-3 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       BGColor-3:SELECTABLE IN FRAME F-Main       = TRUE.
+
 /* SETTINGS FOR BUTTON bNone1 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON bNone2 IN FRAME F-Main
@@ -516,6 +702,91 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR COMBO-BOX cbUserType IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE colorChoice-0 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-0:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-1 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-1:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-10 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-10:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-11 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-11:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-12 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-12:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-13 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-13:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-14 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-14:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-15 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-15:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-2 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-2:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-3 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-3:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-4 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-4:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-5 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-5:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-6 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-6:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-7 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-7:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-8 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-8:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-9 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-9:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-default IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-default:SELECTABLE IN FRAME F-Main       = TRUE.
+
 /* SETTINGS FOR IMAGE cUserImage IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN users.fax IN FRAME F-Main
@@ -525,6 +796,21 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN users.fax-cnty IN FRAME F-Main
    2 4 EXP-LABEL EXP-FORMAT EXP-HELP                                    */
+/* SETTINGS FOR RECTANGLE FGColor-1 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       FGColor-1:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE FGColor-2 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       FGColor-2:SELECTABLE IN FRAME F-Main       = TRUE.
+
+/* SETTINGS FOR RECTANGLE FGColor-3 IN FRAME F-Main
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       FGColor-3:SELECTABLE IN FRAME F-Main       = TRUE.
+
 /* SETTINGS FOR FILL-IN fiPassword IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_fax-area IN FRAME F-Main
@@ -549,6 +835,10 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN users.phone-cnty IN FRAME F-Main
    2 4 EXP-LABEL                                                        */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN users.securityLevel IN FRAME F-Main
@@ -675,6 +965,37 @@ DO:
         WHEN "Full User" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "100".
         WHEN "Administrator" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "900".
     END CASE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME colorChoice-0
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL colorChoice-0 V-table-Win
+ON SELECTION OF colorChoice-0 IN FRAME F-Main
+,colorChoice-1,colorChoice-2,colorChoice-3,colorChoice-4,colorChoice-5
+,colorChoice-6,colorChoice-7,colorChoice-8,colorChoice-9,colorChoice-10
+,colorChoice-11,colorChoice-12,colorChoice-13,colorChoice-14,colorChoice-15
+,colorChoice-default
+DO:
+    IF VALID-HANDLE(hColorWidget) THEN
+    ASSIGN
+        hColorWidget:BGCOLOR = SELF:BGCOLOR
+        hColorWidget:FILLED  = TRUE
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME FGColor-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FGColor-1 V-table-Win
+ON SELECTION OF FGColor-1 IN FRAME F-Main
+,FGColor-2,FGColor-3,BGColor-1,BGColor-2,BGColor-3
+DO:
+    hColorWidget = SELF:HANDLE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -872,6 +1193,9 @@ DO:
             APPLY 'entry' TO SELF.
             RETURN NO-APPLY.
         END.
+        IF INDEX(users.user_id:SCREEN-VALUE,",") NE 0 THEN
+           users.user_id:SCREEN-VALUE = REPLACE(users.user_id:SCREEN-VALUE,",","") .
+        users.user_id:SCREEN-VALUE = TRIM(users.user_id:SCREEN-VALUE) .
     END.
   
 END.
@@ -1564,14 +1888,15 @@ PROCEDURE local-display-fields :
                 ttUsers.ttfPdbName = "*"
                 ttUsers.ttfUserID = users.user_id
                 .
-                IF ttUsers.ttfEnvlist EQ "" THEN 
-                  ttUsers.ttfEnvList = IF users.envList GT "" THEN REPLACE(users.envList, "|", ",") ELSE "".
-                IF ttUsers.ttfDbList EQ "" THEN 
-                  ttUsers.ttfDbList = IF users.dbList GT "" THEN REPLACE(users.dbList, "|", ",") ELSE "".
-                IF ttUsers.ttfUserAlias EQ "" THEN 
-                  ttUsers.ttfUserAlias = IF users.userAlias GT "" THEN REPLACE(users.userAlias, "|", ",") ELSE "".
-                IF ttUsers.ttfModeList EQ "" THEN 
-                  ttUsers.ttfModeList = IF users.modeList GT "" THEN REPLACE(users.modeList, "|", ",") ELSE "".
+/* 39245 - User MODE does not save - 12/10/18 - MYT - remove references to db-based fields; use .usr file only */
+/*                IF ttUsers.ttfEnvlist EQ "" THEN                                                                  */
+/*                  ttUsers.ttfEnvList = IF users.envList GT "" THEN REPLACE(users.envList, "|", ",") ELSE "".      */
+/*                IF ttUsers.ttfDbList EQ "" THEN                                                                   */
+/*                  ttUsers.ttfDbList = IF users.dbList GT "" THEN REPLACE(users.dbList, "|", ",") ELSE "".         */
+/*                IF ttUsers.ttfUserAlias EQ "" THEN                                                                */
+/*                  ttUsers.ttfUserAlias = IF users.userAlias GT "" THEN REPLACE(users.userAlias, "|", ",") ELSE "".*/
+/*                IF ttUsers.ttfModeList EQ "" THEN                                                                 */
+/*                  ttUsers.ttfModeList = IF users.modeList GT "" THEN REPLACE(users.modeList, "|", ",") ELSE "".   */
             
         END.
 
@@ -1584,9 +1909,13 @@ PROCEDURE local-display-fields :
             slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList else slEnvironments:list-items
             slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
             users.userAlias:SCREEN-VALUE = ttUsers.ttfUserAlias
-            users.userAlias:modified = false
-            slModes:screen-value = if ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList
-                                   else slModes:list-items.            
+            users.userAlias:modified = FALSE
+            FGColor-1:BGCOLOR = users.menuFGColor[1]
+            FGColor-2:BGCOLOR = users.menuFGColor[2]
+            FGColor-3:BGCOLOR = users.menuFGColor[3]
+            BGColor-1:BGCOLOR = users.menuBGColor[1]
+            BGColor-2:BGCOLOR = users.menuBGColor[2]
+            BGColor-3:BGCOLOR = users.menuBGColor[3]
             .
 
         /* But mode-list has a by-db component (ttfPdbname = pdbname(1)) */
@@ -1600,11 +1929,11 @@ PROCEDURE local-display-fields :
                 ttUsers.ttfPdbName = PDBNAME(1)
                 ttUsers.ttfUserID = users.user_id
                 .
-            IF ttUsers.ttfModeList EQ "" THEN 
-                ttUsers.ttfModeList = IF users.modeList GT "" THEN REPLACE(users.modeList, "|", ",") ELSE slModes:list-items.            
+/* 39245 - User MODE does not save - 12/10/18 - MYT - remove references to db-based fields; use .usr file only */
+/*            IF ttUsers.ttfModeList EQ "" THEN                                                                                */
+/*                ttUsers.ttfModeList = IF users.modeList GT "" THEN REPLACE(users.modeList, "|", ",") ELSE slModes:list-items.*/
         END.
-        slModes:screen-value = if ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList
-                               else slModes:list-items.
+        slModes:SCREEN-VALUE = IF ttUsers.ttfModeList NE "" THEN ttUsers.ttfModeList ELSE slModes:LIST-ITEMS.
 
         FIND _user NO-LOCK WHERE 
             _user._userid = users.user_id
@@ -1867,6 +2196,42 @@ PROCEDURE local-update-record :
                 usr.last-chg = today.
         END.
 
+        /* Most elements come from the 'generic' ttUser (ttfPdbname = '*') */
+        FIND ttUsers WHERE
+            ttUsers.ttfPdbName = "*" AND
+            ttUsers.ttfUserID = users.user_id:SCREEN-VALUE
+            NO-ERROR.
+        IF NOT AVAIL ttUsers THEN DO:
+            CREATE ttUsers.
+            ASSIGN
+                ttUsers.ttfPdbName = "*"
+                ttUsers.ttfUserID = users.user_id:SCREEN-VALUE.
+        END.
+        ASSIGN
+            ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE
+            ttUsers.ttfEnvList = if slEnvironments:SCREEN-VALUE <> slEnvironments:list-items then slEnvironments:SCREEN-VALUE else ""
+            ttUsers.ttfDbList = if slDatabases:SCREEN-VALUE <> slDatabases:list-items then slDatabases:SCREEN-VALUE else ""
+            ttUsers.ttfModeList = ""
+            .
+
+        /* But mode-list has a by-db component (ttfPdbname = pdbname(1)) */
+        FIND ttUsers WHERE
+            ttUsers.ttfPdbName = PDBNAME(1) AND
+            ttUsers.ttfUserID = users.user_id:SCREEN-VALUE
+            NO-ERROR.
+        IF NOT AVAIL ttUsers THEN DO:
+            CREATE ttUsers.
+            ASSIGN
+                ttUsers.ttfPdbName = PDBNAME(1)
+                ttUsers.ttfUserID = users.user_id:SCREEN-VALUE.
+        END.
+        ASSIGN
+            ttUsers.ttfModeList = if slModes:SCREEN-VALUE <> slModes:list-items then slModes:SCREEN-VALUE else ""
+            ttUsers.ttfEnvList = ""
+            ttUsers.ttfDbList = ""
+            ttUsers.ttfUserAlias = ""
+            .
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1881,49 +2246,21 @@ PROCEDURE local-update-record :
             users.userAlias = users.userAlias:screen-value in frame {&frame-name}
             users.securityLevel = INTEGER(users.securityLevel:SCREEN-VALUE)
             users.userType = cbUserType:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-            users.envList = slEnvironments:SCREEN-VALUE
-            users.dbList = slDatabases:SCREEN-VALUE
-            users.modeList = slModes:SCREEN-VALUE
+/* 39245 - User MODE does not save - 12/10/18 - MYT - remove references to db-based fields; use .usr file only */
+/*            users.envList = slEnvironments:SCREEN-VALUE*/
+/*            users.dbList = slDatabases:SCREEN-VALUE    */
+/*            users.modeList = slModes:SCREEN-VALUE      */
             users.phone = fi_phone-area:screen-value + lv-phone-num
             users.fax = fi_fax-area:screen-value + lv-fax-num
-            rThisUser = ROWID(users).
+            rThisUser = ROWID(users)
+            users.menuFGColor[1] = FGColor-1:BGCOLOR
+            users.menuFGColor[2] = FGColor-2:BGCOLOR
+            users.menuFGColor[3] = FGColor-3:BGCOLOR
+            users.menuBGColor[1] = BGColor-1:BGCOLOR
+            users.menuBGColor[2] = BGColor-2:BGCOLOR
+            users.menuBGColor[3] = BGColor-3:BGCOLOR
+            .
     END.
-
-        /* Most elements come from the 'generic' ttUser (ttfPdbname = '*') */
-        FIND ttUsers WHERE
-            ttUsers.ttfPdbName = "*" AND
-            ttUsers.ttfUserID = users.user_id
-            NO-ERROR.
-        IF NOT AVAIL ttUsers THEN DO:
-            CREATE ttUsers.
-            ASSIGN
-                ttUsers.ttfPdbName = "*"
-                ttUsers.ttfUserID = users.user_id.
-        END.
-        ASSIGN
-            ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE
-            ttUsers.ttfEnvList = if slEnvironments:SCREEN-VALUE <> slEnvironments:list-items then slEnvironments:SCREEN-VALUE else ""
-            ttUsers.ttfDbList = if slDatabases:SCREEN-VALUE <> slDatabases:list-items then slDatabases:SCREEN-VALUE else ""
-            ttUsers.ttfModeList = ""
-            .
-
-        /* But mode-list has a by-db component (ttfPdbname = pdbname(1)) */
-        FIND ttUsers WHERE
-            ttUsers.ttfPdbName = PDBNAME(1) AND
-            ttUsers.ttfUserID = users.user_id
-            NO-ERROR.
-        IF NOT AVAIL ttUsers THEN DO:
-            CREATE ttUsers.
-            ASSIGN
-                ttUsers.ttfPdbName = PDBNAME(1)
-                ttUsers.ttfUserID = users.user_id.
-        END.
-        ASSIGN
-            ttUsers.ttfModeList = if slModes:SCREEN-VALUE <> slModes:list-items then slModes:SCREEN-VALUE else ""
-            ttUsers.ttfEnvList = ""
-            ttUsers.ttfDbList = ""
-            ttUsers.ttfUserAlias = ""
-            .
 
     RUN ipWriteUsrFile.
     EMPTY TEMP-TABLE ttUsers.

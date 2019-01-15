@@ -83,6 +83,14 @@ RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
 RUN epCanAccess IN hPgmSecurity ("browsers/fgijob.w", "Access1", OUTPUT lAccess1).
 RUN epCanAccess IN hPgmSecurity ("browsers/fgijob.w", "Access2", OUTPUT lAccess2).
 DELETE OBJECT hPgmSecurity.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lReqReasonCode AS LOGICAL NO-UNDO .
+RUN sys/ref/nk1look.p (INPUT cocode, "AdjustReason", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lReqReasonCode = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -448,7 +456,17 @@ DO:
     END.
     ASSIGN 
         cReasonCode = cb_reatype:SCREEN-VALUE IN FRAME {&frame-name} .
+
     IF NOT AVAILABLE w-job THEN RETURN.
+
+    IF lReqReasonCode AND (cReasonCode EQ "" OR cReasonCode EQ ?) AND ld-v2 NE w-job.qty THEN DO:
+        MESSAGE  "Adjustment Reason is required, please enter..."
+          VIEW-AS ALERT-BOX INFORMATION .
+      APPLY "entry" TO cb_reatype IN FRAME {&frame-name} .
+      RETURN NO-APPLY.
+    END.
+
+    
     
     ASSIGN
         w-job.cases         = ld-v1
@@ -861,7 +879,7 @@ IF AVAILABLE w-job THEN DO:
           AND fg-rcpth.i-no      EQ fg-bin.i-no
           AND fg-rcpth.po-no     EQ TRIM(STRING(fg-bin.po-no,">>>>>>>>>>")) 
         BY fg-rcpth.trans-date
-        :
+        : 
         cb_reatype:SCREEN-VALUE IN FRAME {&frame-name} = fg-rdtlh.reject-code[1] NO-ERROR. 
         LEAVE .
     END.
@@ -923,6 +941,7 @@ PROCEDURE build-type-list :
     DELETE OBJECT hPgmReason.
 
     DO WITH FRAME {&FRAME-NAME}:
+        IF cComboList EQ "" THEN cComboList = ?.
         cb_reatype:LIST-ITEM-PAIRS = cComboList .
     END.
 

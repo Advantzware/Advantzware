@@ -167,106 +167,106 @@ FOR EACH oe-ord
 
       
         PUT UNFORMATTED 
-            "<r2.8><#1><UNITS=INCHES><C63><FROM><c79><r4.9><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
+            "<r2.8><#1><UNITS=INCHES><C66><FROM><c82><r4.9><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
             oe-ordl.ord-no  ">".
+        
+        PUT "<AT=0.4,4.2><angle=270>" "----------------------------------------------------------------------------------" "</angle>" SKIP .
 
-        PUT "<AT=0.4,3.3><angle=270>" "----------------------------------------------------------------------------------" "</angle>" SKIP .
 
-
-        PUT  "<R4><C4.5><FROM><R4><c28><LINE>" SKIP .
-        PUT "<FArial><R4.3><B><C5><p11>" iSheetsCount[1] "<c19> " iSheetsReq[1]  "</B>" SKIP.
-        PUT  "<R5.5><C4.5><FROM><R5.5><c28><LINE>" SKIP .
+        PUT  "<R4><C4.5><FROM><R4><c39><LINE>" SKIP .
+        PUT "<FArial><R4.3><B><C5><p11>" iSheetsCount[1] "<c29> " iSheetsReq[1]  "</B>" SKIP.
+        PUT  "<R5.5><C4.5><FROM><R5.5><c39><LINE>" SKIP .
         IF iSheetsReq[2] NE 0 THEN
-            PUT "<FArial><R5.8><B><C5><p11>" iSheetsCount[2] "<c19> "  iSheetsReq[2] "</B>" SKIP.
-        PUT  "<R7><C4.5><FROM><R7><c28><LINE>" SKIP .
+            PUT "<FArial><R5.8><B><C5><p11>" iSheetsCount[2] "<c29> "  iSheetsReq[2] "</B>" SKIP.
+        PUT  "<R7><C4.5><FROM><R7><c39><LINE>" SKIP .
         IF iSheetsReq[3] NE 0 THEN
-            PUT "<FArial><R7.3><B><C5><p11>" iSheetsCount[3] "<c19> "  iSheetsReq[3] "</B>" SKIP.
-        PUT  "<R8.5><C4.5><FROM><R8.5><c28><LINE>" SKIP .
+            PUT "<FArial><R7.3><B><C5><p11>" iSheetsCount[3] "<c29> "  iSheetsReq[3] "</B>" SKIP.
+        PUT  "<R8.5><C4.5><FROM><R8.5><c39><LINE>" SKIP .
         IF iSheetsReq[4] NE 0 THEN
-            PUT "<FArial><R8.8><B><C5><p11>" iSheetsCount[4] "<c19> "  iSheetsReq[4] "</B>" SKIP.
-        PUT  "<R10><C4.5><FROM><R10><c28><LINE>" SKIP .
+            PUT "<FArial><R8.8><B><C5><p11>" iSheetsCount[4] "<c29> "  iSheetsReq[4] "</B>" SKIP.
+        PUT  "<R10><C4.5><FROM><R10><c39><LINE>" SKIP .
         IF iSheetsReq[5] NE 0 THEN
-            PUT "<FArial><R10.3><B><C5><p11>" iSheetsCount[5] "<c19> " iSheetsReq[5]  "</B>" SKIP.
-        PUT  "<R11.5><C4.5><FROM><R11.5><c28><LINE>" SKIP .
+            PUT "<FArial><R10.3><B><C5><p11>" iSheetsCount[5] "<c29> " iSheetsReq[5]  "</B>" SKIP.
+        PUT  "<R11.5><C4.5><FROM><R11.5><c39><LINE>" SKIP .
         IF iSheetsReq[6] NE 0 THEN
-            PUT "<FArial><R11.8><B><C5><p11>" iSheetsCount[6] "<c19> " iSheetsReq[6]  "</B>" SKIP.
-        PUT  "<R13><C4.5><FROM><R13><c28><LINE>" SKIP .
+            PUT "<FArial><R11.8><B><C5><p11>" iSheetsCount[6] "<c29> " iSheetsReq[6]  "</B>" SKIP.
+        PUT  "<R13><C4.5><FROM><R13><c39><LINE>" SKIP .
         IF iSheetsReq[7] NE 0 THEN
-            PUT "<FArial><R13.3><B><C5><p11>" iSheetsCount[7] "<c19> " iSheetsReq[7]  "</B>" SKIP.
-        PUT  "<R14.5><C4.5><FROM><R14.5><c28><LINE>" SKIP .
+            PUT "<FArial><R13.3><B><C5><p11>" iSheetsCount[7] "<c29> " iSheetsReq[7]  "</B>" SKIP.
+        PUT  "<R14.5><C4.5><FROM><R14.5><c39><LINE>" SKIP .
         IF iSheetsReq[8] NE 0 THEN
-            PUT "<FArial><R14.8><B><C5><p11>" iSheetsCount[8] "<c19> " iSheetsReq[8]  "</B>" SKIP.
-        PUT  "<R16><C4.5><FROM><R16><c28><LINE>" SKIP .
+            PUT "<FArial><R14.8><B><C5><p11>" iSheetsCount[8] "<c29> " iSheetsReq[8]  "</B>" SKIP.
+        PUT  "<R16><C4.5><FROM><R16><c39><LINE>" SKIP .
         IF iSheetsReq[9] NE 0 THEN
-            PUT "<FArial><R16.3><B><C5><p11>" iSheetsCount[9] "<c19> " iSheetsReq[9]  "</B>" SKIP.
-        PUT  "<R17.5><C4.5><FROM><R17.5><c28><LINE>" SKIP .
+            PUT "<FArial><R16.3><B><C5><p11>" iSheetsCount[9] "<c29> " iSheetsReq[9]  "</B>" SKIP.
+        PUT  "<R17.5><C4.5><FROM><R17.5><c39><LINE>" SKIP .
         IF iSheetsReq[10] NE 0 THEN
-            PUT "<FArial><R17.8><B><C5><p11>" iSheetsCount[10] "<c19> " iSheetsReq[10]  "</B>" SKIP.
-        PUT  "<R19><C4.5><FROM><R19><c28><LINE>" SKIP .
+            PUT "<FArial><R17.8><B><C5><p11>" iSheetsCount[10] "<c29> " iSheetsReq[10]  "</B>" SKIP.
+        PUT  "<R19><C4.5><FROM><R19><c39><LINE>" SKIP .
         IF iSheetsReq[11] NE 0 THEN
-            PUT "<FArial><R19.3><B><C5><p11>" iSheetsCount[11] "<c19> " iSheetsReq[11]  "</B>" SKIP.
-        PUT  "<R20.5><C4.5><FROM><R20.5><c28><LINE>" SKIP .
+            PUT "<FArial><R19.3><B><C5><p11>" iSheetsCount[11] "<c29> " iSheetsReq[11]  "</B>" SKIP.
+        PUT  "<R20.5><C4.5><FROM><R20.5><c39><LINE>" SKIP .
         IF iSheetsReq[12] NE 0 THEN
-            PUT "<FArial><R20.8><B><C5><p11>" iSheetsCount[12] "<c19> " iSheetsReq[12]  "</B>" SKIP.
-        PUT  "<R22><C4.5><FROM><R22><c28><LINE>" SKIP .
+            PUT "<FArial><R20.8><B><C5><p11>" iSheetsCount[12] "<c29> " iSheetsReq[12]  "</B>" SKIP.
+        PUT  "<R22><C4.5><FROM><R22><c39><LINE>" SKIP .
         IF iSheetsReq[13] NE 0 THEN
-            PUT "<FArial><R22.3><B><C5><p11>" iSheetsCount[13] "<c19> " iSheetsReq[13]  "</B>" SKIP.
-        PUT  "<R23.5><C4.5><FROM><R23.5><c28><LINE>" SKIP .
+            PUT "<FArial><R22.3><B><C5><p11>" iSheetsCount[13] "<c29> " iSheetsReq[13]  "</B>" SKIP.
+        PUT  "<R23.5><C4.5><FROM><R23.5><c39><LINE>" SKIP .
         IF iSheetsReq[14] NE 0 THEN
-            PUT "<FArial><R23.8><B><C5><p11>" iSheetsCount[14] "<c19> " iSheetsReq[14]  "</B>" SKIP.
-        PUT "<R24.5><B><C5><p11> Total sheets:   " iSheetTot "</B>" SKIP.
+            PUT "<FArial><R23.8><B><C5><p11>" iSheetsCount[14] "<c29> " iSheetsReq[14]  "</B>" SKIP.
+        PUT "<R24.5><B><C16><p11> Total sheets:   " iSheetTot "</B>" SKIP.
 
-        PUT "<FArial><R2.7><B><C6><p11> Form        Sheets Required   </B>" SKIP.
+        PUT "<FArial><R2.7><B><C6><p11> Form  <C23> Sheets Required   </B>" SKIP.
 
-        PUT "<FArial><R3><C35><p10> Max # of Colors: <B>" string(iColorCount) "</B>" "  # of Forms: <B>" STRING(iFormCount) "</B>" SKIP.
-        PUT "<FArial><R4.5><C35.8><p10> Customer: <B>" IF AVAILABLE cust THEN cust.NAME ELSE "" FORMAT "x(30)"  "</B>" SKIP.
-        PUT "<FArial><R5><C65.8><p10> Order # : <B>" oe-ordl.ord-no "</B>" skip  .
-        PUT "<FArial><R6><C37.9><p10> Carton: <B>" cDieDescr "</B>" SKIP.
+        PUT "<FArial><R3><C43><p9> Max # of Colors: <B>" string(iColorCount) "</B>" "  # of Forms: <B>" STRING(iFormCount) "</B>" SKIP.
+        PUT "<FArial><R4.5><C43.8><p9> Customer: <B>" IF AVAILABLE cust THEN cust.NAME ELSE "" FORMAT "x(30)"  "</B>" SKIP.
+        PUT "<FArial><R5><C68.8><p9> Order # : <B>" oe-ordl.ord-no "</B>" skip  .
+        PUT "<FArial><R6><C45.9><p9> Carton: <B>" cDieDescr "</B>" SKIP.
 
-        PUT "<FArial><R7.5><C34.8><p10> Order Date: <B>" oe-ord.ord-date "</B>" SKIP.
-        PUT "<FArial><R7.5><C60><p10> Delivery Date: <B>" oe-ord.due-date "</B>" SKIP.
-        PUT "<FArial><R9><C35><p10> Sheet Size: <B>" IF AVAILABLE ef THEN string(ef.lsh-wid) + " X " + STRING(ef.lsh-len)  ELSE "" FORMAT  "x(37)" "</B>"   "Over/Under %: <B>" trim(string(oe-ord.over-pct,">>9")) + " / " + trim(string(oe-ord.under-pct,">>9")) "</B>" SKIP.
-        PUT "<FArial><R10.5><C38.4><p10> Stock: <B>" IF AVAILABLE ef THEN ef.board ELSE "" FORMAT "x(10)" "</B>" SKIP.
-        PUT "<FArial><R10.5><C64><p10> Caliper:  <B>" IF AVAILABLE ef THEN ef.cal ELSE 0 FORMAT  "->9.9999" "</B>" SKIP.
+        PUT "<FArial><R7.5><C42.8><p9> Order Date: <B>" oe-ord.ord-date "</B>" SKIP.
+        PUT "<FArial><R7.5><C63><p9> Delivery Date: <B>" oe-ord.due-date "</B>" SKIP.
+        PUT "<FArial><R9><C43><p9> Sheet Size: <B>" IF AVAILABLE ef THEN string(ef.lsh-wid) + " X " + STRING(ef.lsh-len)  ELSE "" FORMAT  "x(37)" "</B>"   "<C63>Over/Under %: <B>" trim(string(oe-ord.over-pct,">>9")) + " / " + trim(string(oe-ord.under-pct,">>9")) "</B>" SKIP.
+        PUT "<FArial><R10.5><C46.4><p9> Stock: <B>" IF AVAILABLE ef THEN ef.board ELSE "" FORMAT "x(10)" "</B>" SKIP.
+        PUT "<FArial><R10.5><C66.5><p9> Caliper:  <B>" IF AVAILABLE ef THEN ef.cal ELSE 0 FORMAT  "->9.9999" "</B>" SKIP.
 
-        PUT "<FArial><R12><B><C38><p10> Roll Size: "  "</B>" SKIP.
-        PUT  "<R13><C46><FROM><R13><c50.5><LINE>" SKIP .
-        PUT "<FArial><R13.5><C50><p10> Sheets Ordered: "  SKIP.
-        PUT  "<R14.5><C62><FROM><R14.5><c78.5><LINE>" SKIP .
+        PUT "<FArial><R12><B><C46><p9> Roll Size: "  "</B>" SKIP.
+        PUT  "<R13><C53><FROM><R13><c58.5><LINE>" SKIP .
+        PUT "<FArial><R13.5><C58><p9> Sheets Ordered: "  SKIP.
+        PUT  "<R14.5><C69><FROM><R14.5><c81.5><LINE>" SKIP .
 
-        PUT "<FArial><R15><C46><p10> Received/Press Count: "  SKIP.
-        PUT  "<R16><C62><FROM><R16><c78.5><LINE>" SKIP .
+        PUT "<FArial><R15><C54><p9> Received/Press Count: "  SKIP.
+        PUT  "<R16><C69><FROM><R16><c81.5><LINE>" SKIP .
 
-        PUT "<FArial><R16.5><B><C51><p10> Stock Arrival: "  "</B>" SKIP.
-        PUT  "<R17.5><C62><FROM><R17.5><c78.5><LINE>" SKIP .
+        PUT "<FArial><R16.5><B><C59><p9> Stock Arrival: "  "</B>" SKIP.
+        PUT  "<R17.5><C69><FROM><R17.5><c81.5><LINE>" SKIP .
 
-        PUT "<FArial><R19><B><C35><p10> Materials   </B>    Artwork     Plates      Ink          Stock  " SKIP.
-        PUT  "<R20><C35><FROM><R20><c41.5><LINE>" SKIP .
-        PUT "<FArial><R20.5><B><C35><p10> Awaiting   </B>   " SKIP.
-        PUT "<FArial><R22.3><B><C35><p10> On Hand   </B>   " SKIP.
+        PUT "<FArial><R19><B><C43><p9> Materials   </B>      Artwork       Plates         Ink           Stock  " SKIP.
+        PUT  "<R20><C43><FROM><R20><c49.5><LINE>" SKIP .
+        PUT "<FArial><R20.5><B><C43><p9> Awaiting   </B>   " SKIP.
+        PUT "<FArial><R22.3><B><C43><p9> On Hand   </B>   " SKIP.
 
-        PUT "<||><R20.5><C45><#4><FROM><R21.8><C47.2><RECT>" SKIP.
-        PUT "<||><R20.5><C51><#4><FROM><R21.8><C53.2><RECT>" SKIP.
-        PUT "<||><R20.5><C57><#4><FROM><R21.8><C59.2><RECT>" SKIP.
-        PUT "<||><R20.5><C63><#4><FROM><R21.8><C65.2><RECT>" SKIP.
+        PUT "<||><R20.5><C53><#4><FROM><R21.8><C55.2><RECT>" SKIP.
+        PUT "<||><R20.5><C59><#4><FROM><R21.8><C61.2><RECT>" SKIP.
+        PUT "<||><R20.5><C65><#4><FROM><R21.8><C67.2><RECT>" SKIP.
+        PUT "<||><R20.5><C71><#4><FROM><R21.8><C73.2><RECT>" SKIP.
 
-        PUT "<||><R22.3><C45><#4><FROM><R23.6><C47.2><RECT>" SKIP.
-        PUT "<||><R22.3><C51><#4><FROM><R23.6><C53.2><RECT>" SKIP.
-        PUT "<||><R22.3><C57><#4><FROM><R23.6><C59.2><RECT>" SKIP.
-        PUT "<||><R22.3><C63><#4><FROM><R23.6><C65.2><RECT>" SKIP.
+        PUT "<||><R22.3><C53><#4><FROM><R23.6><C55.2><RECT>" SKIP.
+        PUT "<||><R22.3><C59><#4><FROM><R23.6><C61.2><RECT>" SKIP.
+        PUT "<||><R22.3><C65><#4><FROM><R23.6><C67.2><RECT>" SKIP.
+        PUT "<||><R22.3><C71><#4><FROM><R23.6><C73.2><RECT>" SKIP.
       
-        PUT "<FArial><R24.5><C35><p10> # up:    <B>" IF AVAILABLE eb THEN string(eb.num-up,">>>>") ELSE "0" "</B>" SKIP.
-        PUT "<FArial><R24.5><C50><p10> L#:   <B>" cDie "</B>" SKIP.
+        PUT "<FArial><R24.5><C43><p9> # up:    <B>" IF AVAILABLE eb THEN string(eb.num-up,">>>>") ELSE "0" "</B>" SKIP.
+        PUT "<FArial><R24.5><C58><p9> L#:   <B>" cDie "</B>" SKIP.
 
-        PUT "<FArial><R26><C35><p10> Corg.: <B>" IF AVAILABLE eb THEN STRING(eb.cas-len) + " X " + STRING(eb.cas-wid) + " X " + STRING(eb.cas-dep) ELSE "" FORMAT "x(50)" "</B>" SKIP.
-        PUT "<FArial><R26><C50><p10> Qty : <B>" IF AVAILABLE eb THEN STRING(eb.cas-cnt * eb.cas-pal) ELSE ""  "</B>" SKIP.
+        PUT "<FArial><R26><C43><p9> Corg.: <B>" IF AVAILABLE eb THEN STRING(eb.cas-len) + " X " + STRING(eb.cas-wid) + " X " + STRING(eb.cas-dep) ELSE "" FORMAT "x(50)" "</B>" SKIP.
+        PUT "<FArial><R26><C58><p9> Qty : <B>" IF AVAILABLE eb THEN STRING(eb.cas-cnt * eb.cas-pal) ELSE ""  "</B>" SKIP.
 
-        PUT "<FArial><R27.7><C35><p10> HSC " SKIP.
-        PUT "<||><R27.5><C39><#4><FROM><R28.8><C41.2><RECT>" SKIP.
-        PUT "<FArial><R27.7><C44><p10> RSC " SKIP.
-        PUT "<||><R27.5><C50><#4><FROM><R28.8><C52.2><RECT>" SKIP.
-        PUT "<FArial><R27.7><C54><p10> Add: " SKIP.
-        PUT "<FArial><R29.5><C35><p10> <b>CSR: </b>" cUserName FORMAT "x(30)" SKIP.
+        PUT "<FArial><R27.7><C43><p9> HSC " SKIP.
+        PUT "<||><R27.5><C47><#4><FROM><R28.8><C49.2><RECT>" SKIP.
+        PUT "<FArial><R27.7><C52><p9> RSC " SKIP.
+        PUT "<||><R27.5><C58><#4><FROM><R28.8><C60.2><RECT>" SKIP.
+        PUT "<FArial><R27.7><C62><p9> Add: " SKIP.
+        PUT "<FArial><R29.5><C43><p9> <b>CSR: </b>" cUserName FORMAT "x(30)" SKIP.
 
         PUT "<FCourier New>".
 

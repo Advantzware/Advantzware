@@ -658,7 +658,8 @@ DO:
       FIND FIRST job-hdr WHERE
            job-hdr.company EQ cocode AND
            job-hdr.job-no EQ begin_job:SCREEN-VALUE AND
-           job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
+           job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE) AND
+           begin_job:SCREEN-VALUE NE ""
            NO-LOCK NO-ERROR.
 
       IF AVAIL job-hdr THEN

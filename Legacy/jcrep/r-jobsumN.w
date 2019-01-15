@@ -57,7 +57,7 @@ ASSIGN
     fi_file = "c:\tmp\r-jobsumN2.csv".
 
 
-DEFINE VARIABLE v-header-1 AS CHARACTER INIT "FG ITEM,FG ITEM DESCRIPTION,SELLING PRICE/M,ORDERED,POSTED,FINISHED,ALLOWED,ACTUAL SPOILAGE,ACT SPL%,ESTIMATE SPOILAGE,EST SPL%,OVER-RUN %" NO-UNDO .
+DEFINE VARIABLE v-header-1 AS CHARACTER INIT "FG ITEM,FG ITEM DESCRIPTION,SELLING PRICE/M,ORDERED,POSTED,FINISHED,ALLOWED,ACTUAL SPOILAGE,ACT SPL%,ESTIMATE SPOILAGE,EST SPL%,OVER-RUN %,SALESPERSON,SQ FT PRODUCED" NO-UNDO .
 DEFINE VARIABLE v-header-2 AS CHARACTER INIT "MACH CODE,MACH DESCRIPTION,M R,QUANTITY PRODUCED,EST HOURS,EST SPEED,MACH EST COST,ACT HOURS,ACT SPEED,MACH ACT COST,MACH COST VARIANCE,MACH COST VAR%,MACH EST QTY,MACH ACTUAL,MACH VAR %" NO-UNDO .
 DEFINE VARIABLE v-header-3 AS CHARACTER INIT "ITEM CODE,ITEM DESCRIPTION,ITEM EST QUANTITY,ITEM EST UM,ITEM EST COST,ITEM ACT QUANTITY,ITEM ACT UM,ITEM ACT COST,ITEM COST VARI,ITEM COST VAR%" NO-UNDO .
 DEFINE VARIABLE v-header-4 AS CHARACTER INIT "MISC CODE,MISC DESCRIPTION,MISC EST COST,MISC ACT COST,MISC VARI,MISC VAR%" NO-UNDO .
@@ -70,24 +70,24 @@ DEFINE VARIABLE cColumnInit AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 
-ASSIGN cTextListToSelect = "FG ITEM,FG ITEM DESCRIPTION,SELLING PRICE/M,ORDERED,POSTED,FINISHED,ALLOWED,ACTUAL SPOILAGE,ACT SPL%,ESTIMATE SPOILAGE,EST SPL%,OVER-RUN %," + 
+ASSIGN cTextListToSelect = "FG ITEM,FG ITEM DESCRIPTION,SELLING PRICE/M,ORDERED,POSTED,FINISHED,ALLOWED,ACTUAL SPOILAGE,ACT SPL%,ESTIMATE SPOILAGE,EST SPL%,OVER-RUN %,SALESPERSON,SQ FT PRODUCED," + 
                            "---MACHINE HEADER------,MACH CODE,MACH DESCRIPTION,M R,QUANTITY PRODUCED,EST HOURS,EST SPEED,MACH EST COST,ACT HOURS,ACT SPEED,MACH ACT COST,MACH COST VARIANCE,MACH COST VAR%,MACH EST QTY,MACH ACTUAL,MACH VAR %," +
                            "---ITEM HEADER---,ITEM CODE,ITEM DESCRIPTION,ITEM EST QUANTITY,ITEM EST UM,ITEM EST COST,ITEM ACT QUANTITY,ITEM ACT UM,ITEM ACT COST,ITEM COST VARI,ITEM COST VAR%," +
                            "---MISC HEADER---,MISC CODE,MISC DESCRIPTION,MISC EST COST,MISC ACT COST,MISC VARI,MISC VAR%"
-       cFieldListToSelect = "fg-item,fgitem-desc,sel-price,order,posted,finished,allowed,act-spoil,act-spoil%,est-spoil,est-spoil-per,over-run," +
+       cFieldListToSelect = "fg-item,fgitem-desc,sel-price,order,posted,finished,allowed,act-spoil,act-spoil%,est-spoil,est-spoil-per,over-run,sales-per,sq-ft," +
                             "machheader,machine,mach-desc,mr,qty-prod,est-hours,est-speed,est-cost,act-hours,act-speed,act-cost,cost-vari,cost-var%,est-qty,actual,var-per," +
                             "itemheader,item-code,item-desc,item-est-qty,item-est-um,item-est-cost,item-act-qty,item-act-um,item-act-cost,item-cost-var,item-cost-var-per," +
                             "mischeader,misc-code,misc-desc,misc-est-cost,misc-act-cost,misc-vari,misc-vari-per"
 
-       cFieldLength = "15,30,10,10,10,10,10,9,5,9,6,6," +
+       cFieldLength = "15,30,10,10,10,10,10,9,5,9,6,7,11,14," +
                       "15,7,16,2,8,7,6,8,7,6,6,12,8,12,9,9," +
                       "15,15,20,10,3,10,9,3,10,10,9," +
                       "15,11,25,10,10,10,10"   
 
-        cFieldType = "c,c,i,i,i,i,i,i,i,i,i,i," + "c,c,c,c,i,i,i,i,i,i,i,i,i,i,i,i," + "c,c,c,i,i,i,i,i,i,i,i," + "c,c,c,i,i,i,i"    .
+        cFieldType = "c,c,i,i,i,i,i,i,i,i,i,i,c,i," + "c,c,c,c,i,i,i,i,i,i,i,i,i,i,i,i," + "c,c,c,i,i,i,i,i,i,i,i," + "c,c,c,i,i,i,i"    .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "FG ITEM,FG ITEM DESCRIPTION,SELLING PRICE/M,ORDERED,POSTED,FINISHED,ALLOWED,ACTUAL SPOILAGE,ACT SPL%,ESTIMATE SPOILAGE,EST SPL%,OVER-RUN %," + 
+ASSIGN cTextListToDefault  = "FG ITEM,FG ITEM DESCRIPTION,SELLING PRICE/M,ORDERED,POSTED,FINISHED,ALLOWED,ACTUAL SPOILAGE,ACT SPL%,ESTIMATE SPOILAGE,EST SPL%,OVER-RUN %,SALESPERSON,SQ FT PRODUCED," + 
                            "---MACHINE HEADER------,MACH CODE,MACH DESCRIPTION,M R,QUANTITY PRODUCED,EST HOURS,EST SPEED,MACH EST COST,ACT HOURS,ACT SPEED,MACH ACT COST,MACH COST VARIANCE,MACH COST VAR%,MACH EST QTY,MACH ACTUAL,MACH VAR %," +
                            "---ITEM HEADER---,ITEM CODE,ITEM DESCRIPTION,ITEM EST QUANTITY,ITEM EST UM,ITEM EST COST,ITEM ACT QUANTITY,ITEM ACT UM,ITEM ACT COST,ITEM COST VARI,ITEM COST VAR%," +
                            "---MISC HEADER---,MISC CODE,MISC DESCRIPTION,MISC EST COST,MISC ACT COST,MISC VARI,MISC VAR%" 
@@ -1446,10 +1446,10 @@ DEFINE VARIABLE cVarValue AS cha NO-UNDO.
 DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
 DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 DEFINE VARIABLE cFieldName AS cha NO-UNDO.
-DEFINE VARIABLE fg-str-tit AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE fg-str-tit2 AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE fg-str-tit3 AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE fg-str-line AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE fg-str-tit AS cha FORM "x(170)" NO-UNDO.
+DEFINE VARIABLE fg-str-tit2 AS cha FORM "x(170)" NO-UNDO.
+DEFINE VARIABLE fg-str-tit3 AS cha FORM "x(170)" NO-UNDO.
+DEFINE VARIABLE fg-str-line AS cha FORM "x(170)" NO-UNDO.
 
 DEFINE VARIABLE mach-str-tit AS cha FORM "x(150)" NO-UNDO.
 DEFINE VARIABLE mach-str-tit2 AS cha FORM "x(150)" NO-UNDO.
@@ -1756,10 +1756,10 @@ END.
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
-  excelheader = "Job #,Customer,Item Code,Selling Price,Ordered,Est Hrs,Est Cost,Act Hrs,"
+  excelheader = "Job #,SalesPerson,Customer,Item Code,Selling Price,Ordered,Est Hrs,Est Cost,Act Hrs,"
               + "Act Cost,Est Mat Cost,Act Mat Cost,Commission,"
               + "Freight,Boxes Sales,Prep Sales,Total Sales,Total Cost,"
-              + "Customer Part #,Item Name,Category,Actual Board Mat,Actual Other Mat,Actual Labor,Qty Produced"   .
+              + "Customer Part #,Item Name,Category,Actual Board Mat,Actual Other Mat,Actual Labor,Qty Produced,Sq Ft Produced"   .
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 

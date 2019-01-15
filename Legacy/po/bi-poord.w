@@ -92,12 +92,12 @@ po-ordl.cust-no po-ordl.due-date po-ordl.item-type po-ordl.LINE ~
 getOrdQty() @ po-ordl.ord-qty getCost() @ po-ordl.cost po-ordl.spare-int-1 ~
 po-ordl.spare-int-2 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH po-ordl WHERE po-ordl.company eq po-ord.company and ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH po-ordl WHERE  ~{&KEY-PHRASE} AND po-ordl.company eq po-ord.company and ~
 po-ordl.po-no eq po-ord.po-no ~
       AND po-ordl.line GT 0 AND ~
 ASI.po-ordl.line LT 99999999 NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH po-ordl WHERE po-ordl.company eq po-ord.company and ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH po-ordl WHERE  ~{&KEY-PHRASE} AND po-ordl.company eq po-ord.company and ~
 po-ordl.po-no eq po-ord.po-no ~
       AND po-ordl.line GT 0 AND ~
 ASI.po-ordl.line LT 99999999 NO-LOCK ~
@@ -303,7 +303,7 @@ ASSIGN
      _TblOptList       = "USED,"
      _JoinCode[1]      = "po-ordl.company eq po-ord.company and
 po-ordl.po-no eq po-ord.po-no"
-     _Where[1]         = "ASI.po-ordl.line GT 0 AND
+     _Where[1]         = "~{&KEY-PHRASE} and ASI.po-ordl.line GT 0 AND
 ASI.po-ordl.line LT 99999999"
      _FldNameList[1]   > ASI.po-ordl.i-no
 "po-ordl.i-no" "RM/FG Item#" ? "character" ? ? ? ? ? ? no ? no no "25" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -379,6 +379,16 @@ DO:
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
    {src/adm/template/brsleave.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON START-SEARCH OF Browser-Table IN FRAME F-Main
+DO:
+  RUN startSearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */

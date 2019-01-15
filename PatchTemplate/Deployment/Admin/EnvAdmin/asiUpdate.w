@@ -144,6 +144,7 @@ DEF VAR iCurrEnvVer AS INT NO-UNDO.
 DEF VAR iPatchEnvVer AS INT NO-UNDO.
 DEF VAR cLogFile AS CHAR NO-UNDO.
 DEF VAR cOutFile AS CHAR NO-UNDO.
+DEF VAR cOutDir AS CHAR NO-UNDO.
 
 /* Ensure that these lists always match, 'c' is always the prefix */
 ASSIGN cIniVarList = 
@@ -534,6 +535,10 @@ ON CHOOSE OF bCancel IN FRAME DEFAULT-FRAME /* Exit */
 OR CHOOSE of bGetFiles
 OR CHOOSE of bUpdate
 DO:
+    DEF VAR cFTPxmit AS CHAR NO-UNDO.
+    
+    ASSIGN
+        cFTPxmit = cEnvAdmin + "\FTPout.txt".
     
     CASE SELF:NAME:
         WHEN "bCancel" THEN DO:
@@ -544,6 +549,17 @@ DO:
                 OS-RENAME VALUE (cRunCfg) VALUE(cDLC + "\progress.cfg").
                 RUN ipStatus("Resetting Progress mode").
             END.
+            RUN ipStatus("  Cleaning work files").
+            
+            OS-DELETE VALUE(cFTPInstrFile).
+            OS-DELETE VALUE(cFTPOutputFile).
+            OS-DELETE VALUE(cFTPErrFile).
+            OS-DELETE VALUE(c7zOutputFile).
+            OS-DELETE VALUE(c7zErrFile).
+            OS-DELETE VALUE(cEnvAdmin + "\" + cOutFile).
+            OS-DELETE VALUE(cFTPxmit).
+            OS-DELETE VALUE(cEnvAdmin + "\cOutputFile").
+            
             APPLY 'close' TO THIS-PROCEDURE.
             QUIT.
         END.
@@ -709,7 +725,7 @@ DO:
                 fiFromVersion:{&SV} = ENTRY(iIndex,cEnvVerList)
                 iCurrEnvVer = fIntVer(fiFromVersion:{&SV})
                 iCurrDbVer = fIntVer(ENTRY(iIndex,cDBVerList))
-                .
+                ENTRY(3,cOutDir,"-") = SELF:{&SV}.
         END.
     END CASE.
 END.
@@ -789,6 +805,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                    STRING(YEAR(TODAY),"9999") +
                    STRING(MONTH(TODAY),"99") +
                    STRING(DAY(TODAY),"99") + ".txt"
+        cOutDir = cSiteName + "-" +
+                   STRING(YEAR(TODAY),"9999") +
+                   STRING(MONTH(TODAY),"99") +
+                   STRING(DAY(TODAY),"99") + "-" + "ENV"
         .    
     
     /* Look in Progress dir to find out which mode (RUN/DEV) we're in */
@@ -1645,7 +1665,14 @@ PROCEDURE ipSendVerification :
     PUT STREAM sInstr UNFORMATTED "PROMPT " SKIP.
     PUT STREAM sInstr UNFORMATTED "USER " + cFtpUser + " " + cFtpPassword SKIP.
     PUT STREAM sInstr UNFORMATTED "CD Results" SKIP.
+    PUT STREAM sInstr UNFORMATTED "MKDIR " + cOutDir SKIP.
+    PUT STREAM sInstr UNFORMATTED "CD " + cOutDir SKIP.
     PUT STREAM sInstr UNFORMATTED "PUT " + cOutFile SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cAdminDir + "\advantzware.ini" SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cAdminDir + "\advantzware.usr" SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cEnvAdmin + "\advantzware.pf" SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cDLCDir + "\properties\AdminServerPlugins.properties" SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cDLCDir + "\properties\conmgr.properties" SKIP.
     PUT STREAM sInstr UNFORMATTED "BYE".
     OUTPUT STREAM sInstr CLOSE.
     
@@ -1658,15 +1685,7 @@ PROCEDURE ipSendVerification :
     OS-COMMAND SILENT VALUE("FTP -n -s:" + cFTPxmit + " >> " + cFtpOutputFile + " 2>> " + cFtpErrFile).
 
     /* File cleanup */
-    RUN ipStatus("  Cleaning work files").
-    OS-DELETE VALUE(cFTPInstrFile).
-    OS-DELETE VALUE(cFTPOutputFile).
-    OS-DELETE VALUE(cFTPErrFile).
-    OS-DELETE VALUE(c7zOutputFile).
-    OS-DELETE VALUE(c7zErrFile).
-    OS-DELETE VALUE(cEnvAdmin + "\" + cOutFile).
-    OS-DELETE VALUE(cFTPxmit).
-    OS-DELETE VALUE(cEnvAdmin + "\cOutputFile").
+    RUN ipStatus("Upgrade Complete.  Press EXIT to quit.").
    
 END PROCEDURE.
 
@@ -1832,10 +1851,10 @@ FUNCTION fIntVer RETURNS INTEGER
         cStrVal[2] = ENTRY(2,cVerString,".")
         cStrVal[3] = IF NUM-ENTRIES(cVerString,".") GT 2 THEN ENTRY(3,cVerString,".") ELSE "0"
         cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GT 3 THEN ENTRY(4,cVerString,".") ELSE "0"
-        iIntVal[1] = INT(cStrVal[1])
-        iIntVal[2] = INT(cStrVal[2])
-        iIntVal[3] = INT(cStrVal[3])
-        iIntVal[4] = INT(cStrVal[4])
+        iIntVal[1] = IF INT(cStrVal[1]) LT 10 THEN INT(cStrVal[1]) * 10 ELSE INT(cStrVal[1])
+        iIntVal[2] = IF INT(cStrVal[2]) LT 10 THEN INT(cStrVal[2]) * 10 ELSE INT(cStrVal[2])
+        iIntVal[3] = IF INT(cStrVal[3]) LT 10 THEN INT(cStrVal[3]) * 10 ELSE INT(cStrVal[3])
+        iIntVal[4] = IF INT(cStrVal[4]) LT 10 THEN INT(cStrVal[4]) * 10 ELSE INT(cStrVal[4])
         iIntVer = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
         NO-ERROR.
     

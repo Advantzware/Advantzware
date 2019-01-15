@@ -54,9 +54,6 @@ DEF VAR lv-job-no AS CHAR NO-UNDO.
 DEF VAR lv-job-no2 AS CHAR NO-UNDO.
 DEF VAR v-out AS INT NO-UNDO.
 
-DEF SHARED VAR g-sharpshooter AS LOG NO-UNDO.
-
-
 DEF VAR lv-overrun-checked AS LOG NO-UNDO.
 DEF VAR lv-closed-checked AS LOG NO-UNDO.
 DEF VAR lv-new-job-ran AS LOG NO-UNDO.
@@ -759,7 +756,6 @@ DO:
     /*      MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO fg-rctd.loc .                               */
           RUN custom/d-msg.w ("Error","","Invalid Bin#. Try Help...","",1,"OK", OUTPUT v-msgreturn).
-          IF NOT g-sharpshooter THEN RETURN.
           RETURN NO-APPLY.
        END.
       /* APPLY "entry" TO fg-rctd.t-qty.
@@ -1179,7 +1175,7 @@ PROCEDURE local-update-record :
   ASSIGN lv-new-job-ran = NO
          lv-prev-job2 = "".
 
- /* IF g-sharpshooter THEN*/  RUN scan-next.
+  RUN scan-next.
 
 END PROCEDURE.
 
