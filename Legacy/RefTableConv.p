@@ -156,6 +156,7 @@ ASSIGN
     {refTableConv.i "CpLabP" 'cp-lab-p'}
     {refTableConv.i "PoordlDepth" 'POORDLDEPTH'}
     {refTableConv.i "EstGlobquot" 'est/globquot.w'}
+    {refTableConv.i "ArcashlInvline" 'ar-cashl.inv-line'}
     {refTableConv.i "BlankRefTable" ''}
     {refTableConv.i "OeBollSelected" 'oe-boll.selected'}
     {refTableConv.i "GsaFm" 'gsa-fm'}
