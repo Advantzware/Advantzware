@@ -2969,6 +2969,43 @@ CLASS RefTableMigration:
             END.              
         END.  /*FOR EACH reftable*/  
     END METHOD. /*e-itemfg-vend*/ 
+    METHOD PUBLIC INTEGER ArCashlReturn(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER ar-cashl     FOR ar-cashl.
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF ar-cashl.
+        ASSIGN iProcessCount = 0.
+        FOR EACH reftable WHERE reftable.reftable = "ar-cashl.return"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST ar-cashl WHERE ar-cashl.c-no    = int(reftable.code)
+                                      AND ar-cashl.company = reftable.company
+                                      AND ar-cashl.line    = int(reftable.code2)         
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE ar-cashl THEN    
+                    DO:
+                        IF ar-cashl.r-no EQ 0 THEN ASSIGN reftable.val[1] = ar-cashl.r-no.
+                        IF ar-cashl.dscr EQ "" THEN ASSIGN reftable.dscr = ar-cashl.dscr 
+                        . 
+                    ASSIGN iProcessCount = iProcessCount + 1.
+                    END.    
+                FIND CURRENT ar-cashl NO-LOCK NO-ERROR.    
+                RELEASE ar-cashl.      
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
+        RETURN iCnt.
+    END METHOD. /*ArCashlReturn*/   
     METHOD PUBLIC INTEGER Proboard(INPUT ipCount AS INTEGER):
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         DEFINE BUFFER reftable1 FOR reftable1.
@@ -3297,10 +3334,6 @@ CLASS RefTableMigration:
         DEFINE BUFFER reftable1 FOR reftable1.
         DEFINE BUFFER Breftable FOR reftable. 
         DEFINE BUFFER ar-cashl   FOR ar-cashl.
-        
-        DISABLE TRIGGERS FOR LOAD OF reftable.        
-        DISABLE TRIGGERS FOR LOAD OF ar-cashl.
-        ASSIGN iProcessCount = 0.
         FOR EACH reftable WHERE reftable.reftable = "ARCASHLVDDATE"
             NO-LOCK:
             DO TRANSACTION:    
