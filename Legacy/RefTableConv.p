@@ -162,6 +162,7 @@ ASSIGN
     {refTableConv.i "TruckRunPrint" 'trp-car'}
     {refTableConv.i "ShiftDays" 'ShiftDays'}
     {refTableConv.i "EstGetqtyw2" 'est/getqty.w2'}
+    {refTableConv.i "CevEst3" 'ce/v-est3.w Unit#'}
     {refTableConv.i "ProbePerMsf" 'probe.per-msf'}
     {refTableConv.i "v10TaxCode" 'v10-TaxCode-Upgrade'}
 
