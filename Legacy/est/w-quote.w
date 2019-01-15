@@ -45,7 +45,7 @@ CREATE WIDGET-POOL.
 
 &scoped-define item_spec  FGITEM
 DEF VAR rQuoteRow AS ROWID NO-UNDO.
-
+{methods\defines\phone.i &new="NEW"}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -204,7 +204,7 @@ ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-frame:HANDLE)
-/* END-ASSIGN-TABS */.
+    /* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME message-frame
                                                                         */
