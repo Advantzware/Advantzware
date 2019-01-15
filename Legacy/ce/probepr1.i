@@ -2,48 +2,45 @@
 
 v-yld = IF eb.quantityPerSet LT 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet.
 
-FIND FIRST b-probemk
-    WHERE b-probemk.reftable EQ "ce/com/probemk.p"
-      AND b-probemk.company  EQ probeit.company
-      AND b-probemk.loc      EQ probeit.est-no
-      AND b-probemk.code     EQ STRING(probeit.line,"9999999999")
-      AND b-probemk.code2    EQ probeit.part-no
-    NO-ERROR.
     
 v-comm = (probeit.sell-price - (IF v-basis EQ "G" THEN probeit.fact-cost ELSE 0)) *
          (v-com / 100) * qm.
 
-IF cerunf EQ "Dee" AND AVAIL b-probemk THEN
+
+
+ IF cerunf EQ "Dee" THEN
   PUT "Royalty"                                     FORMAT "x(19)"
-      STRING(b-probemk.val[3],">>9.99%")            TO 30
-      b-probemk.val[7] / qm                         TO {1} FORMAT ">>>,>>9.99"
-      b-probemk.val[7]                              TO 80  FORMAT ">>>>,>>9.99"
+      STRING(probeit.pctRoyalty,">>9.99%")            TO 30
+      probeit.totCostRoyalty / qm                         TO {1} FORMAT ">>>,>>9.99"
+      probeit.totCostRoyalty                              TO 80  FORMAT ">>>>,>>9.99"
       SKIP
 
       "Warehouse Markup"                            FORMAT "x(19)"
-      STRING(b-probemk.val[4],">>9.99%")            TO 30
-      b-probemk.val[8] / qm                         TO {1} FORMAT ">>>,>>9.99"
-      b-probemk.val[8]                              TO 80  FORMAT ">>>>,>>9.99"
+      STRING(probeit.pctWarehouse,">>9.99%")            TO 30
+      probeit.totCostWarehousr / qm                         TO {1} FORMAT ">>>,>>9.99"
+      probeit.totCostWarehousr                              TO 80  FORMAT ">>>>,>>9.99"
       SKIP
 
       "Customer Markup"                             FORMAT "x(19)"
-      STRING(b-probemk.val[5],">>9.99%")            TO 30
-      b-probemk.val[9] / qm                         TO {1} FORMAT ">>>,>>9.99"
-      b-probemk.val[9]                              TO 80  FORMAT ">>>>,>>9.99"
+      STRING(probeit.pctCustMargin,">>9.99%")            TO 30
+      probeit.totCostCustMargin / qm                         TO {1} FORMAT ">>>,>>9.99"
+      probeit.totCostCustMargin                              TO 80  FORMAT ">>>>,>>9.99"
       SKIP
 
       "Commission"                                  FORMAT "x(19)"
-      STRING(b-probemk.val[2],">>9.99%")            TO 30
-      b-probemk.val[6] / qm                         TO {1} FORMAT ">>>,>>9.99"
-      b-probemk.val[6]                              TO 80  FORMAT ">>>>,>>9.99"
+      STRING(probeit.pctCommission,">>9.99%")            TO 30
+      probeit.totCostCommission / qm                         TO {1} FORMAT ">>>,>>9.99"
+      probeit.totCostCommission                              TO 80  FORMAT ">>>>,>>9.99"
       SKIP
 
       "NON MANF. COST"                              FORMAT "x(19)"
-      (b-probemk.val[6] + b-probemk.val[7] +
-       b-probemk.val[8] + b-probemk.val[9]) / qm    TO {1} FORMAT ">>>,>>9.99"
-      (b-probemk.val[6] + b-probemk.val[7] +
-       b-probemk.val[8] + b-probemk.val[9])         TO 80  FORMAT ">>>>,>>9.99"
+      (probeit.totCostCommission + probeit.totCostRoyalty +
+       probeit.totCostWarehousr + probeit.totCostCustMargin) / qm    TO {1} FORMAT ">>>,>>9.99"
+      (probeit.totCostCommission + probeit.totCostRoyalty +
+       probeit.totCostWarehousr + probeit.totCostCustMargin)         TO 80  FORMAT ">>>>,>>9.99"
       SKIP.
+
+
 ELSE
   PUT "Commission on " +
       (IF v-basis EQ "G" THEN "GM"

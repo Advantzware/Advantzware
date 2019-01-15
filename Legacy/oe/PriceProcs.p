@@ -81,8 +81,10 @@ PROCEDURE CheckPriceHold:
     DEFINE VARIABLE lQtyMatch             AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lEffectiveDateAge     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iEffectiveDateAgeDays AS INTEGER   NO-UNDO.
+    DEFINE BUFFER bf-oe-ord  FOR oe-ord.
 
-    RUN pGetPriceHoldCriteria(ipcCompany, 
+    
+    RUN pGetPriceHoldCriteria(ipcCompany,ipcCustID,ipcShipID, 
         OUTPUT lPriceHoldSet, OUTPUT lQtyInRange, OUTPUT lQtyMatch, OUTPUT lEffectiveDateAge, OUTPUT iEffectiveDateAgeDays).
     IF NOT lPriceHoldSet THEN 
     DO:
@@ -132,7 +134,7 @@ PROCEDURE CheckPriceHoldForOrder:
         WHERE ROWID(bf-oe-ord) EQ ipriOeOrd
         NO-ERROR.
 
-    RUN pGetPriceHoldCriteria(bf-oe-ord.company, 
+    RUN pGetPriceHoldCriteria(bf-oe-ord.company,bf-oe-ord.cust-no,bf-oe-ord.ship-id, 
         OUTPUT lPriceHoldSet, OUTPUT lQtyInRange, OUTPUT lQtyMatch, OUTPUT lEffectiveDateAge, OUTPUT iEffectiveDateAgeDays).
     IF NOT lPriceHoldSet THEN 
     DO:
@@ -506,9 +508,13 @@ PROCEDURE GetPriceMatrixPrice:
         ELSE 
             iLevel = iLevelStart.
     END.
-            
-    RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, dItemSellPrice, cItemSellPriceUom, OUTPUT iopdPrice, OUTPUT iopcUom).
-
+    IF oplQtyWithinRange THEN
+        RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, dItemSellPrice, cItemSellPriceUom, OUTPUT iopdPrice, OUTPUT iopcUom).
+    ELSE 
+        ASSIGN 
+            oplMatrixMatchFound = NO
+            opcMatrixMatchDetail = opcMatrixMatchDetail + " but price level " + STRING(iLevel) + " not valid."
+            .
 
 END PROCEDURE.
 
@@ -566,7 +572,7 @@ PROCEDURE GetPriceTotal:
     IF ipdQuantity EQ 0 THEN
         opdPriceTotal = 0.
     CASE ipcPriceUOM:
-        WHEN "LOT" THEN 
+        WHEN "LOT" OR WHEN "L" THEN 
             opdPriceTotal = ipdPrice * IF ipdQuantity LT 0 THEN -1 ELSE 1.
         WHEN "CS" THEN 
             DO:
@@ -933,15 +939,19 @@ PROCEDURE pGetPriceAtLevel PRIVATE:
     DEFINE OUTPUT PARAMETER opdPrice AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcUom AS CHARACTER NO-UNDO.
 
-    IF ipbf-oe-prmtx.meth THEN
-        ASSIGN 
-            opdPrice = ipbf-oe-prmtx.price[ipiLevel]
-            opcUom   = ipbf-oe-prmtx.uom[ipiLevel].
-    ELSE /*discount method - discount off of item price*/
-        ASSIGN 
-            opdPrice = ipdItemSellPrice - 
-            ROUND((ipdItemSellPrice * ipbf-oe-prmtx.discount[ipiLevel]) / 100, 2)
-            opcUom   = ipcItemSellPriceUom.
+    IF ipiLevel GT 0 AND ipiLevel LE EXTENT(ipbf-oe-prmtx.price) THEN DO:  /*31620 - protect against a level request out of range of the array*/
+           
+        IF ipbf-oe-prmtx.meth THEN
+            ASSIGN 
+                opdPrice = ipbf-oe-prmtx.price[ipiLevel]
+                opcUom   = ipbf-oe-prmtx.uom[ipiLevel].
+        ELSE /*discount method - discount off of item price*/
+            ASSIGN 
+                opdPrice = ipdItemSellPrice - 
+                ROUND((ipdItemSellPrice * ipbf-oe-prmtx.discount[ipiLevel]) / 100, 2)
+                opcUom   = ipcItemSellPriceUom.
+            
+    END.
 
 END PROCEDURE.
 
@@ -1001,7 +1011,7 @@ PROCEDURE pGetPriceMatrix PRIVATE:
     IF ipbf-itemfg.i-code NE "S" THEN 
     DO:
         ASSIGN 
-            opcMatchDetail = "FG Item is not 'Stock'"
+            opcMatchDetail = "This FG item is configured as a non-inventoried (Not stocked) item"
             oplMatchFound  = NO 
             .
         RETURN.
@@ -1031,12 +1041,12 @@ PROCEDURE pGetPriceMatrix PRIVATE:
         AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
         AND opbf-oe-prmtx.custShipID EQ "")
     /*Sort the resulting data set so that actual matches take priority over blank matches*/
-        BY opbf-oe-prmtx.eff-date DESCENDING 
         BY opbf-oe-prmtx.i-no DESCENDING
         BY opbf-oe-prmtx.cust-no DESCENDING 
         BY opbf-oe-prmtx.procat DESCENDING 
         BY opbf-oe-prmtx.custype DESCENDING 
         BY opbf-oe-prmtx.custShipID DESCENDING
+        BY opbf-oe-prmtx.eff-date DESCENDING 
         :
         LEAVE.  /*After first/best match, leave*/
     END.
@@ -1109,7 +1119,7 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
        IF NOT AVAIL ipbf-oe-prmtx THEN RETURN .
  
     /*process matrix array completely, one time*/
-    DO iLevel = ipiLevelStart TO 10: /* IF customer has higher starting level set otherwise start with 1st level*/
+    DO iLevel = ipiLevelStart TO EXTENT(ipbf-oe-prmtx.qty): /* IF customer has higher starting level set otherwise start with 1st level*/
         IF ipdQuantityTarget LE ipbf-oe-prmtx.qty[iLevel] THEN /*As soon as a qty level is found, greater than qty, all set*/
         DO:
             IF ipdQuantityTarget EQ ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
@@ -1202,24 +1212,26 @@ PROCEDURE pGetPriceHoldCriteria PRIVATE:
      Purpose: Returns Price hold Criteria Settings
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcCustNo     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcShipId     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplPriceCheck AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplQtyInRange AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplQtyMatch AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplEffectiveDateAge AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiEffectiveDateAgeDays AS INTEGER NO-UNDO.
 
-    DEFINE VARIABLE lFound    AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cCriteria AS CHARACTER NO-UNDO. 
-    DEFINE VARIABLE cAge      AS CHARACTER NO-UNDO.
-    
+    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cCriteria  AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cAge       AS CHARACTER NO-UNDO.
+   
     RUN sys/ref/nk1look.p (ipcCompany,
         "OEPriceHold",
         "C",
-        NO,
-        NO,
-        "",
-        "",
+        YES,
+        YES,
+        ipcCustNo,
+        ipcShipId,
         OUTPUT cCriteria,
         OUTPUT lFound).
 
@@ -1237,10 +1249,10 @@ PROCEDURE pGetPriceHoldCriteria PRIVATE:
         RUN sys/ref/nk1look.p (ipcCompany,
             "OEPriceHold",
             "I",
-            NO,
-            NO,
-            "",
-            "",
+            YES,
+            YES,
+            ipcCustNo,
+            ipcShipId,
             OUTPUT cAge,
             OUTPUT lFound).
         IF lFound AND cAge NE "" THEN 

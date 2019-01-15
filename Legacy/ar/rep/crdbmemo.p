@@ -55,6 +55,10 @@ DEF VAR v-licnt      AS INT                           NO-UNDO.
 DEF VAR note-count   AS INT                           NO-UNDO. 
 /* gdm - 04210922 logo */
 DEF VAR ls-cust-img  AS CHAR                         NO-UNDO.
+DEF VAR ls-image1    AS CHAR                         NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)"          NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEF VAR v-memo-name  AS CHAR FORMAT "x(30)"          NO-UNDO.
 DEF VAR v-memo-addr  AS CHAR FORMAT "x(30)" EXTENT 2 NO-UNDO.
 DEF VAR v-memo-city  AS CHAR FORMAT "x(15)"          NO-UNDO.
@@ -73,6 +77,12 @@ ASSIGN
     v-memo-state = ""
     v-memo-zip   = ""
     .
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
 
@@ -106,18 +116,10 @@ FOR EACH ar-cash
       AND ar-cash.check-date LE v-enddt
       AND CAN-FIND(FIRST ar-cashl WHERE ar-cashl.c-no EQ ar-cash.c-no)
       AND ((v-reprint AND 
-            CAN-FIND(FIRST reftable
-                        WHERE reftable.reftable EQ  "AR-CASH"
-                          AND reftable.code     EQ 
-                              STRING(ar-cash.c-no,"9999999999")
-                     use-index CODE)
+             ar-cash.printed    EQ YES
            ) or
            (NOT v-reprint AND
-            NOT CAN-FIND(FIRST reftable
-                         WHERE reftable.reftable EQ "AR-CASH"
-                           AND reftable.code     EQ 
-                               STRING(ar-cash.c-no,"9999999999")
-                         use-index CODE)
+             ar-cash.printed    EQ NO
            ))
     USE-INDEX posted        
     BREAK BY ar-cash.cust-no
@@ -127,8 +129,6 @@ FOR EACH ar-cash
     IF ar-cash.stat EQ "H" THEN
         NEXT.
 
-
-    RELEASE reftable NO-ERROR.
 
     IF CAN-FIND(FIRST ar-cashl WHERE ar-cashl.company = cocode 
                                AND ar-cashl.c-no = ar-cash.c-no 
@@ -207,18 +207,12 @@ FOR EACH ar-cash
                        v-po-no  = ""
                        v-bol-no = ""
                        v-s-man  = "".
-
-                     FIND FIRST reftable NO-LOCK
-                         WHERE reftable.reftable EQ "ar-cashl.inv-line"
-                         AND reftable.code    EQ STRING(ar-cashl.c-no,"9999999999")  +
-                                                 STRING(ar-cashl.line,"9999999999")
-                         USE-INDEX CODE NO-ERROR.
              
                     FIND FIRST ar-invl WHERE
                          ar-invl.company EQ oe-reth.company AND
                          ar-invl.x-no EQ ar-inv.x-no AND
                          ar-invl.i-no EQ oe-retl.i-no AND 
-                         (IF AVAIL reftable THEN ar-invl.LINE eq INT(SUBSTRING(reftable.code2,11,10)) ELSE TRUE)
+                         (ar-invl.LINE EQ ar-cashl.invoiceLine OR TRUE)
                          NO-LOCK NO-ERROR.
                    
                     IF AVAIL ar-invl THEN
@@ -243,15 +237,10 @@ FOR EACH ar-cash
            END.
 
            ELSE do:
-               FIND FIRST reftable NO-LOCK
-               WHERE reftable.reftable EQ "ar-cashl.inv-line"
-                  AND reftable.code    EQ STRING(ar-cashl.c-no,"9999999999")  +
-                                          STRING(ar-cashl.line,"9999999999")
-               USE-INDEX CODE NO-ERROR.
                
                FOR EACH ar-invl NO-LOCK
                    WHERE ar-invl.x-no EQ ar-inv.x-no
-                   AND (IF AVAIL reftable THEN ar-invl.LINE eq INT(SUBSTRING(reftable.code2,11,10)) ELSE ar-invl.LINE EQ ar-cashl.LINE)  :              /*Task# 11221303*/
+                   AND ( (ar-invl.LINE EQ ar-cashl.invoiceLine ) OR ar-invl.LINE EQ ar-cashl.LINE)  :              /*Task# 11221303*/
 
                    ASSIGN v-po-no  = STRING(ar-invl.po-no)
                        v-ord-no = STRING(ar-invl.ord-no)
@@ -408,19 +397,10 @@ FOR EACH ar-cash
           v-debamt = 0.
     END.     
 
-    FIND FIRST reftable NO-LOCK
-        WHERE reftable.reftable EQ "AR-CASH"
-          AND reftable.code     EQ STRING(ar-cash.c-no,"9999999999")
-        USE-INDEX CODE NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN 
-          reftable.reftable = "AR-CASH"
-          reftable.code     = STRING(ar-cash.c-no,"9999999999").
-    END.
-
+    
     /* gdm 07010903 */
-    ASSIGN ar-cash.ret-memo = YES.
+    ASSIGN ar-cash.ret-memo = YES
+           ar-cash.printed = YES.
 
 END. /* each ar-cash */
 

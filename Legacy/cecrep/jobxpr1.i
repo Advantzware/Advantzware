@@ -87,7 +87,7 @@ FORM HEADER
        "Location:" AT 145  "<P10>"       
        "Job#:"                         at 2
        v-job-prt
-       "Overrun:"  AT 17 lv-over-run format "x(7)"       
+       " Overrun:"  AT 17 lv-over-run format "x(7)"       
        "Our Order#:" AT 40 v-ord-no
        "Ord Date:" AT 80  v-ord-date
        "Whs:" AT 109 v-loc 

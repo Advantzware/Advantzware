@@ -902,7 +902,6 @@ PROCEDURE check-for-commit :
         NO-LOCK NO-ERROR.
 
     op-commit = INDEX("LRAW",job.stat) GT 0                               AND
-                job-mat.post:SCREEN-VALUE IN BROWSE {&browse-name} EQ "N" AND 
                 AVAIL ITEM AND
                 (lv-allocated OR job-mat.all-flg:SCREEN-VALUE IN BROWSE {&browse-name} EQ "y").
   END.

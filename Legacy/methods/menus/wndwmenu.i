@@ -51,12 +51,6 @@ help-page = INTEGER(RETURN-VALUE). ~
 RUN Get_Procedure IN Persistent-Handle ('help.',OUTPUT run-proc,no). ~
 IF run-proc NE '' THEN ~
 RUN VALUE(run-proc) (b-prgrms.prgmname,help-page).
-&Scoped-define ITEM9 Help_Index
-&Scoped-define LABEL9 Help Index
-&Scoped-define PROC9 ~
-RUN Get_Procedure IN Persistent-Handle ('help.',OUTPUT run-proc,no). ~
-IF run-proc NE '' THEN ~
-RUN VALUE(run-proc) ('index.',0).
 &Scoped-define ITEM10 About
 &Scoped-define LABEL10 About
 &Scoped-define PROC10 ~
@@ -64,12 +58,11 @@ RUN Get_Procedure IN Persistent-Handle ('about.',OUTPUT run-proc,yes).
 &Scoped-define ITEM11 Util_frac
 &Scoped-define LABEL11 Util_frac
 &Scoped-define PROC11 RUN Select_frac.
+DEFINE VARIABLE hCallAudit AS HANDLE NO-UNDO.
 &Scoped-define ITEM12 Audit_Hist
 &Scoped-define LABEL12 Audit History
 &Scoped-define PROC12 ~
-RUN Get_Procedure IN Persistent-Handle ('CallAudit.',OUTPUT run-proc,no). ~
-IF run-proc NE '' THEN ~
-RUN VALUE(run-proc) ('{&FIRST-EXTERNAL-TABLE}',hTable,'Window',PROGRAM-NAME(1)).
+RUN system/CallAudit.p PERSISTENT SET hCallAudit ('{&FIRST-EXTERNAL-TABLE}',hTable,'Window',PROGRAM-NAME(1)).
 &Scoped-define ITEM13 SysCtrlUsage
 &Scoped-define LABEL13 Sys Ctrl Usage
 &Scoped-define PROC13 ~
@@ -94,7 +87,6 @@ DEFINE SUB-MENU m_File
 
 DEFINE SUB-MENU m_Help
        {methods/menus/menuitem.i 8 m}  
-       {methods/menus/menuitem.i 9 m}
        RULE
        {methods/menus/menuitem.i 12 m}
        {methods/menus/menuitem.i 13 m}  
@@ -104,7 +96,6 @@ DEFINE SUB-MENU m_Help
 
 DEFINE SUB-MENU p_Help
        {methods/menus/menuitem.i 8 p} 
-       {methods/menus/menuitem.i 9 p}
        RULE
        {methods/menus/menuitem.i 12 p} 
        {methods/menus/menuitem.i 13 p} 
@@ -148,7 +139,6 @@ ASSIGN {&WINDOW-NAME}:MENUBAR    = MENU MENU-BAR-W-Win:HANDLE
 {methods/menus/menutrig.i 6}
 {methods/menus/menutrig.i 7}
 {methods/menus/menutrig.i 8}
-{methods/menus/menutrig.i 9}
 {methods/menus/menutrig.i 10}
 {methods/menus/menutrig.i 11}
 {methods/menus/menutrig.i 12}

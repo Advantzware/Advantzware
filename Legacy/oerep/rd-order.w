@@ -81,17 +81,17 @@ DEF TEMP-TABLE tt-report NO-UNDO
 ASSIGN cTextListToSelect  = "Order#,Customer#,Order Date,FG Item#,Cust Part#,Item Name,Cust PO#,Ordered Qty,Prod. Qty," +
                             "Shipped Qty,Job On Hand,Sell Price,UOM,Unit Count,Pallet Count,Skids,Status,Due Date," +
                             "Customer Name,Est#,Job#,CAD#,Invoice Qty,Act. Rel. Quantity,Production Balance,O/U%,Rep," +
-                            "Rep Name,Release Date,Carrier,Ship To,FG On Hand,Orders Due,Items Due,Last User ID,Hold Reason Code,Hold/Approved Date," +
-                            "Scheduled Rel. Qty,Ship From"
+                            "Rep Name,Release Date,Carrier,Ship To Code,FG On Hand,Orders Due,Items Due,Last User ID,Hold Reason Code,Hold/Approved Date," +
+                            "Scheduled Rel. Qty,Ship From,Ship To Name"
 
        cFieldListToSelect = "oe-ordl.ord-no,oe-ordl.cust-no,oe-ord.ord-date,oe-ordl.i-no,oe-ordl.part-no,oe-ordl.i-name,oe-ordl.po-no,oe-ordl.qty,v-prod-qty," +
                             "oe-ordl.ship-qty,v-bal,oe-ordl.price,oe-ordl.pr-uom,case-count,pallet-count,skid-count,oe-ord.stat,oe-ordl.req-date," +
                             "oe-ord.cust-name,oe-ordl.est-no,job,cad-no,oe-ordl.inv-qty,act-rel-qty,wip-qty,pct,sman," +
                             "sname,reldate,carrier,shipid,fg-oh,oe-ord.due-date,oe-ordl.req-date,oe-ord.user-id,oe-ord.spare-char-2,approved-date," +
-                            "sch-rel-qty,ship-from"
+                            "sch-rel-qty,ship-from,ship-name"
                             
-        cFieldLength = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,8,16,18," + "18,9"
-           cFieldType = "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c," + "c,c"
+        cFieldLength = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,8,16,18," + "18,9,30"
+           cFieldType = "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c," + "c,c,c"
        .
 
 {sys/inc/ttRptSel.i}
@@ -198,7 +198,7 @@ DEFINE VARIABLE begin_reldt AS DATE FORMAT "99/99/9999"
      SIZE 17 BY 1.
 
 DEFINE VARIABLE begin_shipfrom AS CHARACTER FORMAT "X(5)":U 
-     LABEL "Beginning Ship From" 
+     LABEL "Beginning Ship From WH" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -233,7 +233,7 @@ DEFINE VARIABLE end_reldt AS DATE FORMAT "99/99/9999"
      SIZE 17 BY 1.
 
 DEFINE VARIABLE end_shipfrom AS CHARACTER FORMAT "X(5)":U INITIAL "zzzz" 
-     LABEL "ending Ship From" 
+     LABEL "Ending Ship From WH" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -505,6 +505,22 @@ DEF VAR char-val AS CHAR NO-UNDO.
            end.
            return no-apply.
        end.  /* cust-no*/
+       when "begin_shipfrom" then do:
+           ls-cur-val = lw-focus:screen-value.
+           run windows/l-loc.w  (cocode,ls-cur-val, output char-val). 
+           if char-val <> "" then do:
+              lw-focus:screen-value =  ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* Ship From*/
+       when "end_shipfrom" then do:
+           ls-cur-val = lw-focus:screen-value.
+           run windows/l-loc.w  (cocode,ls-cur-val, output char-val). 
+           if char-val <> "" then do:
+              lw-focus:screen-value =  ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* Ship From*/
    END CASE.
 END.
 
@@ -1158,6 +1174,7 @@ DEF VAR vsman  AS CHAR NO-UNDO .
 DEF VAR vsname  AS CHAR NO-UNDO .
 DEFINE VARIABLE cShipFr LIKE oe-rel.spare-char-1 NO-UNDO.
 DEFINE VARIABLE dSchRelQty AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cShipName AS CHARACTER NO-UNDO .
 ASSIGN
    v-fcust[1]   = begin_cust-no
    v-fcust[2]   = end_cust-no
@@ -1209,8 +1226,8 @@ IF tb_excel THEN
                (NOT oe-ordl.opened AND RS-open-closed EQ "Closed")),
       FIRST oe-ord OF oe-ordl WHERE oe-ord.stat NE "W" AND
            (oe-ord.ord-date >= date(begin_date) AND oe-ord.ord-date <= date(end_date)) AND
-       ((oe-ord.stat NE "H" AND RS-ord-stat = 3) OR 
-           (oe-ord.stat EQ "H" AND RS-ord-stat = 2) OR oe-ord.stat EQ "" OR RS-ord-stat = 1)
+       ((oe-ord.stat NE "H" AND NOT oe-ord.priceHold AND RS-ord-stat = 3) OR 
+           ((oe-ord.stat EQ "H" OR oe-ord.priceHold) AND RS-ord-stat = 2) OR oe-ord.stat EQ "" OR RS-ord-stat = 1)
 /*                                 AND (oe-ord.type    NE "T" OR NOT NO) */
                           USE-INDEX ord-no NO-LOCK, 
       FIRST itemfg NO-LOCK WHERE itemfg.company EQ oe-ordl.company 
@@ -1407,13 +1424,19 @@ IF tb_excel THEN
            vcarrier = tt-report.carrier
            vshipid  = tt-report.shipid
            vreldate = string(tt-report.vdate)
-           cShipFr = tt-report.cShipFrom .
+           cShipFr = tt-report.cShipFrom
+           cShipName = "" .
 
        find first carrier where carrier.company = g_company and
            carrier.carrier = vcarrier 
            no-lock no-error.
        IF AVAIL carrier THEN
            ASSIGN vcarrier = carrier.dscr .
+       find first shipto no-lock
+            where shipto.company = g_company and
+           shipto.ship-id = vshipid 
+           no-error.  
+       cShipName = IF AVAIL shipto THEN shipto.ship-name ELSE "" .
 
        RUN oe/rel-stat.p (tt-report.row-id, OUTPUT v-stat).
        FIND FIRST oe-rel NO-LOCK 
@@ -1482,6 +1505,7 @@ IF tb_excel THEN
                   WHEN "approved-date" THEN cVarValue = IF oe-ord.approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE ""    .
                   WHEN "sch-rel-qty" THEN cVarValue = string(dSchRelQty).
                   WHEN "ship-from" THEN cVarValue = string(cShipFr,"x(9)").
+                  WHEN "ship-name" THEN cVarValue = string(cShipName,"x(30)").
              END CASE.
 
              cExcelVarValue = cVarValue.

@@ -290,14 +290,22 @@ END.
 IF notepad-log THEN
 DO:
     IF notepad-chr = "" THEN do: /* task 02101509 */
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+        open-mime-resource "text/plain" string("file:///" + list-name) false.
+&ELSE
         OS-COMMAND NO-WAIT notepad VALUE(list-name).
+&ENDIF
         RETURN.
     END.
     ELSE do:
         FIND FIRST usergrps WHERE usergrps.usergrps = "Notepad" 
             NO-LOCK NO-ERROR.
         IF AVAIL usergrps AND LOOKUP(string(USERID("NOSWEAT")),usergrps.users) <> 0 THEN DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+            open-mime-resource "text/plain" string("file:///" + list-name) false.
+&ELSE
             OS-COMMAND NO-WAIT notepad VALUE(list-name).
+&ENDIF
             RETURN.
         END.
         ELSE DO:

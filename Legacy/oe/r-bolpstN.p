@@ -1713,7 +1713,17 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
           run create-nopost ("Order Lines Were Not Found").
           next mainblok.
         end.
-
+        RUN oe/custxship.p (oe-bolh.company,
+            oe-bolh.cust-no,
+            oe-bolh.ship-id,
+            BUFFER shipto).
+          
+        IF NOT AVAILABLE shipto THEN 
+        DO:
+          RUN create-nopost ("Invalid Shipto").
+          NEXT mainblok.            
+        END. 
+        
         find first oe-rell where oe-rell.company = oe-boll.company and
                oe-rell.r-no = oe-boll.r-no AND
                oe-rell.i-no = oe-boll.i-no and

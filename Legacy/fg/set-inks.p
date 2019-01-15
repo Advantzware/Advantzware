@@ -5,8 +5,9 @@ DEF INPUT PARAM ip-rowid2 AS ROWID NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR rec-list AS CHAR NO-UNDO.
 
-DISABLE TRIGGERS FOR LOAD OF itemfg-ink.
+{system/fSuperRunning.i}
 
+DISABLE TRIGGERS FOR LOAD OF itemfg-ink.
     
 FIND itemfg WHERE ROWID(itemfg) EQ ip-rowid1 NO-LOCK NO-ERROR.
 FIND eb     WHERE ROWID(eb)     EQ ip-rowid2 NO-LOCK NO-ERROR.

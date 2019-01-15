@@ -51,7 +51,7 @@ DEFINE TEMP-TABLE ttBOLLineProblems
     FIELD ord-no          LIKE oe-boll.ord-no COLUMN-LABEL 'Order #'
     FIELD CustNo          LIKE oe-bolh.cust-no
     FIELD InvDate         LIKE inv-head.inv-date    
-    FIELD ErrorType       AS CHARACTER
+    FIELD ErrorType       AS CHARACTER FORMAT "X(9)"
     FIELD TableType       AS CHARACTER
     FIELD CalcQty         AS DECIMAL
     FIELD ActQty          AS DECIMAL
@@ -460,12 +460,14 @@ PROCEDURE run-process :
     DEFINE VARIABLE cRecFound     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE linvoiceFound AS LOG       NO-UNDO.
     DEFINE VARIABLE cExcludeList  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lOrphanLn    AS LOGICAL NO-UNDO.
 
     ASSIGN 
         dFromBolDate = fiFromBolDate
         dToBolDate   = fiToBolDate
         dTotQty      = 0
         cExcludeList = "T"
+        lOrphanLn    = FALSE
         .
        
     IF tgExcludeShipOnly THEN 
@@ -508,6 +510,7 @@ PROCEDURE run-process :
                 iinvFound         = 0
                 iArFound          = 0
                 lSkipForSetHeader = FALSE
+                lOrphanLn         = FALSE
                 .
                
             FOR EACH bf-inv-line NO-LOCK 
@@ -521,6 +524,18 @@ PROCEDURE run-process :
                     iInvFound     = bf-inv-line.inv-no
                     dInvQty       = dInvQty + bf-inv-line.inv-qty
                     .
+                FIND FIRST inv-head NO-LOCK OF bf-inv-line NO-ERROR.
+                IF NOT AVAIL inv-head THEN 
+                DO:
+                  
+                    FIND FIRST ttBOLLineProblems NO-LOCK
+                        WHERE ttBOLLineProblems.BolNo EQ oe-boll.bol-no
+                          AND ttBOLLineProblems.ItemNo EQ oe-boll.i-no
+                        NO-ERROR.
+                    IF NOT AVAILABLE ttBOLLineProblems THEN
+                        lOrphanLn = TRUE. 
+                END.
+                
             END.
             FOR EACH  ar-invl NO-LOCK
                 WHERE ar-invl.company EQ oe-boll.company
@@ -564,8 +579,24 @@ PROCEDURE run-process :
             ELSE 
             DO:
 
-               
-                IF dInvQty NE dTotQty THEN 
+                IF lOrphanLn THEN  
+                DO:
+                    CREATE ttBOLLineProblems.
+                    ASSIGN 
+                        ttBOLLineProblems.BolNo           = oe-boll.bol-no
+                        ttBOLLineProblems.ItemNo          = oe-boll.i-no
+                        ttBOLLineProblems.CustNo          = oe-bolh.cust-no
+                        ttBOLLineProblems.InvDate         = oe-bolh.bol-date
+                        ttBOLLineProblems.company         = oe-bolh.company
+                        ttBOLLineProblems.ord-no          = oe-boll.ord-no
+                        ttBOLLineProblems.errorType       = "Orphan Ln"
+                        ttBOLLineProblems.CalcQty         = dTotQty
+                        ttBOLLineProblems.ActQty          = dInvQty         
+                        ttBOLLineProblems.PostedInvoice   = iArFound
+                        ttBOLLineProblems.UnPostedInvoice = iInvFound                        
+                        .
+                END. /* If lOrdphanLn */
+                ELSE IF dInvQty NE dTotQty THEN 
                 DO:
                     FOR EACH fg-set NO-LOCK WHERE fg-set.company EQ oe-boll.company 
                         AND fg-set.part-no EQ oe-boll.i-no:
@@ -599,8 +630,10 @@ PROCEDURE run-process :
                             ttBOLLineProblems.PostedInvoice   = iArFound
                             ttBOLLineProblems.UnPostedInvoice = iInvFound                               
                             .           
-                    END.
-                END.
+                    END. /* not lskipForsetHeader */
+                END. /* If quantity difference */
+
+                
             END. /* else invoice was found */
         
             ASSIGN 
@@ -610,7 +643,6 @@ PROCEDURE run-process :
         END. /* LAST PO-NO*/
     
     END.
-
 
     /* output to "clipboard". */
     FOR EACH bf-inv-head NO-LOCK WHERE bf-inv-head.multi-invoice = TRUE
@@ -647,9 +679,35 @@ PROCEDURE run-process :
                     .                        
             END.                     
             t-inv = 0.
-    
         END.
     END.
+
+    FOR EACH company NO-LOCK,
+      EACH oe-bolh NO-LOCK 
+        WHERE oe-bolh.company EQ company.company
+          AND oe-bolh.posted EQ NO,
+      EACH oe-boll NO-LOCK 
+        WHERE oe-boll.b-no EQ oe-bolh.b-no:
+        FIND FIRST ar-invl NO-LOCK
+            WHERE ar-invl.company EQ oe-bolh.company
+              AND ar-invl.bol-no EQ oe-boll.bol-no 
+            NO-ERROR .
+        IF AVAILABLE ar-invl THEN 
+        DO: 
+            CREATE ttBOLLineProblems.
+            ASSIGN 
+                ttBOLLineProblems.BolNo           = oe-bolh.bol-no
+                ttBOLLineProblems.ItemNo          = ""
+                ttBOLLineProblems.CustNo          = oe-bolh.cust-no
+                ttBOLLineProblems.InvDate         = ar-invl.inv-date
+                ttBOLLineProblems.company         = ar-invl.company                
+                ttBOLLineProblems.errorType       = "BOL Posted"
+                ttBOLLineProblems.CalcQty         = 0
+                ttBOLLineProblems.ActQty          = 0                             
+                ttBOLLineProblems.UnPostedInvoice = ar-invl.inv-no                               
+                .   
+        END.
+    END.    
     FOR EACH ttBOLLineProblems:
         DISPLAY STREAM sReport ttBOLLineProblems.company ttBOLLineProblems.CustNo 
             ttBOLLineProblems.BolNo ttBOLLineProblems.ord-no ttBOLLineProblems.ItemNo 
@@ -668,7 +726,11 @@ PROCEDURE run-process :
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE ll.
     IF ll THEN 
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+        open-mime-resource "text/plain" string("file:///" + fi_file_path) false.
+&ELSE
         OS-COMMAND NO-WAIT NOTEPAD VALUE(fi_file_path).
+&ENDIF
    
     STATUS DEFAULT ''.   
 END PROCEDURE.

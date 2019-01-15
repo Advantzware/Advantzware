@@ -821,6 +821,8 @@ PROCEDURE run-report :
 ------------------------------------------------------------------------------*/
 DEF VAR v-excelheader AS CHAR NO-UNDO.
 DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
+DEFINE VARIABLE d-period$ AS DECIMAL NO-UNDO EXTENT 20.
+DEFINE VARIABLE cVarValue AS CHARACTER NO-UNDO .
 DEF BUFFER b-account FOR account.
 
 v-excelheader = buildHeader().
@@ -836,11 +838,55 @@ FOR EACH b-account WHERE b-account.company = cocode
         AND b-account.TYPE LE end_type
         NO-LOCK:
 
+      do li = 1 to 13:
+          d-period$[li] = b-account.cyr[li].
+      end.
+
+      for each period
+          where period.company eq b-account.company
+          and period.pstat   eq yes
+          no-lock,
+
+          each gltrans
+          where gltrans.company eq b-account.company
+          and gltrans.actnum  eq b-account.actnum
+          and gltrans.period  eq period.pnum
+          and gltrans.tr-date ge period.pst
+          and gltrans.tr-date le period.pend
+          no-lock:
+
+          d-period$[period.pnum] = d-period$[period.pnum] + gltrans.tr-amt.
+    end.
+
+
     v-excel-detail-lines = "".
 
     FOR EACH ttRptSelected:
-        v-excel-detail-lines = v-excel-detail-lines + 
-            appendXLLine(getValue-account(BUFFER b-account,ttRptSelected.FieldList)).
+
+        IF LOOKUP(ttRptSelected.FieldList, "cyr[1],cyr[2],cyr[3],cyr[4],cyr[5],cyr[6],cyr[7],cyr[8],cyr[9],cyr[10],cyr[11],cyr[12],cyr[13]") <> 0 THEN do:
+             CASE ttRptSelected.FieldList:             
+                         WHEN "cyr[1]"    THEN cVarValue = STRING(d-period$[1]) .
+                         WHEN "cyr[2]"    THEN cVarValue = STRING(d-period$[2]).
+                         WHEN "cyr[3]"    THEN cVarValue = STRING(d-period$[3]).
+                         WHEN "cyr[4]"    THEN cVarValue = STRING(d-period$[4]) .
+                         WHEN "cyr[5]"    THEN cVarValue = STRING(d-period$[5]) .
+                         WHEN "cyr[6]"    THEN cVarValue = STRING(d-period$[6]) .
+                         WHEN "cyr[7]"    THEN cVarValue = STRING(d-period$[7]) .
+                         WHEN "cyr[8]"    THEN cVarValue = STRING(d-period$[8]) .
+                         WHEN "cyr[9]"    THEN cVarValue = STRING(d-period$[9]) .
+                         WHEN "cyr[10]"   THEN cVarValue = STRING(d-period$[10]) .
+                         WHEN "cyr[11]"   THEN cVarValue = STRING(d-period$[11]) .
+                         WHEN "cyr[12]"   THEN cVarValue = STRING(d-period$[12]) .
+                         WHEN "cyr[13]"   THEN cVarValue = STRING(d-period$[13]) .
+
+                    END CASE.
+                    
+                    v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cVarValue).
+        END.
+        ELSE do:
+            v-excel-detail-lines = v-excel-detail-lines + 
+                appendXLLine(getValue-account(BUFFER b-account,ttRptSelected.FieldList)).
+        END.
 
 
     END.

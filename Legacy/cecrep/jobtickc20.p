@@ -27,6 +27,7 @@ DEFINE        VARIABLE lv-fg-name       AS cha     NO-UNDO.
 DEFINE        VARIABLE tb_app-unprinted AS LOG     NO-UNDO.
 DEFINE        VARIABLE iset-qty         AS INTEGER NO-UNDO.
 DEFINE        VARIABLE lPrintScores     AS LOGICAL NO-UNDO.
+DEFINE        VARIABLE  cCustName       AS CHARACTER NO-UNDO.
 
 {jcrep/r-ticket.i "shared"}
 
@@ -76,6 +77,7 @@ DEFINE SHARED VARIABLE v-dept-codes  AS CHARACTER NO-UNDO.
 DEFINE SHARED VARIABLE v-dept-log    AS LOG       NO-UNDO.
 DEFINE        VARIABLE cBarCodeVal   AS CHARACTER NO-UNDO .
 DEFINE        VARIABLE v-shipto      AS cha       NO-UNDO.
+DEFINE        VARIABLE dJobQty       AS DECIMAL   NO-UNDO .   
 
 DEFINE BUFFER bf-itemfg         FOR itemfg .
 
@@ -226,9 +228,10 @@ DO v-local-loop = 1 TO v-local-copies:
                     iover-run    = DECIMAL(cust.over-pct)
                              .
                ASSIGN cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(xeb.form-no,"99") + "-" + STRING(xeb.blank-no,"99") .
-          
+             ASSIGN  cCustName = cust.NAME 
+               {sys/inc/ctrtext.i cCustName 30}.
       
-        PUT "<C1><R1><#Start>"
+        PUT "<C1><R1.2><#Start>"
             "<=Start><FROM><C108><R50><RECT><|1>"
             "<=Start><#JobStart>"
             "<=JobStart><C+20><#JobTR>"
@@ -243,32 +246,35 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=HeaderTR><#BarCodeStart>"
             "<=BarCodeStart><C108><R+3><#BarCodeEnd>"
             "<=BarCodeStart><FROM><RECT#BarCodeEnd><|1>"
-            "<=JobStart><C+.5><R+1><#JobLabel>"
-            "<=JobLabel><C+8><#JobNum>"
-            "<=HeaderStart><C+1><R+1><#FormLabel>"
-            "<=HeaderStart><C+1><R+2><#BlankLabel>"
+            "<=JobStart><C+.5><R+0.6><#JobLabel>"
+            "<=JobLabel><C+7><#JobNum>"
+            "<=HeaderStart><C+1><R+0.6><#FormLabel>"
+            "<=HeaderStart><C+1><R+1.6><#BlankLabel>"
             "<=FormLabel><C+4><#Form>"
             "<=BlankLabel><C+4><#Blank>"
-            "<=HeaderStart><C+14><R+1><#PartLabel>"
+            "<=HeaderStart><C+10><R+0.6><#PartLabel>"
             "<=PartLabel><R+1><#Part>"
-            "<=HeaderStart><C+45><R+1><#PrintedLabel>"
-            "<=PrintedLabel><R+1><#Printed> "
-
-            "<=BarCodeStart><C+2><R+.1><FROM><C108><R3.9><BARCODE,TYPE=39,CHECKSUM=TRUE,VALUE=" cBarCodeVal ">"
+            "<=HeaderStart><C+22><R+0.6><#CustomerName>"
+           
+            "<=BarCodeStart><C+2><R+.3><FROM><C108><R3.9><BARCODE,TYPE=39,CHECKSUM=TRUE,VALUE=" cBarCodeVal ">"
             "<P14>                  "
             "<=JobLabel>Job #:"
-            "<FGColor=Blue><B>    "
-            "<=JobNum>" job-hdr.job-no + "-" + string(job-hdr.job-no2)
+            "<FGColor=Blue><B>   "
+            "<=JobNum>" job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") FORMAT "x(10)"
             "</B><FGColor=Black>"
             "<P8> "
             "<=BlankLabel>Blank:"
             "<=FormLabel>Form: "
             "<=PartLabel>Customer Part #"
-            "<=PrintedLabel>Printed"
+            "<P14>"
+            "<FGColor=Blue>"
+            "<=CustomerName><B>" cCustName FORMAT "x(30)" "</B>"
+            "<FGColor=Black>"
+            "<P8> "
             "<=Form><B>" IF AVAILABLE xeb THEN STRING(xeb.form-no,"99") ELSE "" FORMAT "x(2)" "</B>  "
             "<=Blank><B>" IF AVAILABLE xeb THEN STRING(xeb.BLANK-no,"99") ELSE ""  FORMAT "x(2)" "</B>"
             "<=Part><B>" v-cp FORMAT "x(15)" "</B>"
-            "<=Printed><B>" TODAY  "</B>" .
+             .
 
         PUT 
             "<=Start><R+3><#PageStart>"
@@ -349,9 +355,9 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=OrderStart><C108><#OrderTR>"
             "<=OrderStart><R+8><#OrderBL>"
             "<=OrderStart><C108><R+8><#OrderEnd>"
-            "<=OrderStart><R+1><RIGHT=C+10>Our Order #: <#OrderNum>"
-            "<=OrderStart><R+2><RIGHT=C+10>Customer PO: <#CustomerPO>"
-            "<=OrderStart><R+3><C+1><#CustomerName>"
+            "<=OrderStart><R+0.5><RIGHT=C+10>Job Card printed: <#Printed>"
+            "<=OrderStart><R+2><RIGHT=C+10>Our Order #: <#OrderNum>"
+            "<=OrderStart><R+3><RIGHT=C+10>Customer PO: <#CustomerPO>"
             "<=OrderStart><R+4><RIGHT=C+10>Order Quantity: <#OrderQuantity>"
             "<=OrderStart><R+5><RIGHT=C+10>Order Date: <#OrderDate>"
             "<=OrderStart><R+6><RIGHT=C+10>Due Date: <#OrderDueDate>"
@@ -464,10 +470,10 @@ DO v-local-loop = 1 TO v-local-copies:
               iset-qty = IF AVAILABLE xeb AND xeb.est-type EQ 6 THEN
                           IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE job-hdr.qty
                            ELSE 0 .
-
+              dJobQty  = job-hdr.qty * (IF xeb.est-type EQ 6 AND xeb.quantityPerSet GT 0 THEN xeb.quantityPerSet ELSE 1) .
           
          PUT "<FGColor=Blue><B>"
-              "<=JobQuantity>" job-hdr.qty FORMAT "->>,>>>,>>9"
+              "<=JobQuantity>" dJobQty FORMAT "->>,>>>,>>9"
               "</B><FGColor=Black>"
               "<=Overrun>" STRING( (job-hdr.qty * iover-run) / 100,"->>>>>>9") /*FORMAT "->>,>>>,>>9"*/
               "<=Underrun>" STRING( (job-hdr.qty * iunder-run) / 100,"->>>>>>9")  /*FORMAT "->>,>>>,>>9"*/
@@ -490,10 +496,11 @@ DO v-local-loop = 1 TO v-local-copies:
                       trim(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
                       trim(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99"))) ELSE ""  FORM "x(30)" 
               "<=CAD>" IF AVAILABLE xeb THEN xeb.cad-no ELSE "" FORMAT "x(15)"
+              "<=Printed><B>" TODAY  "</B>"
               "<=OrderNum>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.ord-no) ELSE "" 
               "<=CustomerPO>" IF AVAILABLE xoe-ordl AND xoe-ord.po-no NE "" THEN xoe-ordl.po-no ELSE IF AVAILABLE xoe-ord THEN xoe-ord.po-no ELSE "" FORMAT "x(15)"
               "<FGColor=Blue><B>"
-              "<=CustomerName>" cust.NAME FORMAT "x(30)"
+             /* "<=CustomerName>" cust.NAME FORMAT "x(30)"*/
               "</B><FGColor=Black>"
               "<=OrderQuantity>"  IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE 0 
               "<=OrderDate>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.ord-date) ELSE "" 
@@ -505,8 +512,9 @@ DO v-local-loop = 1 TO v-local-copies:
               "</B>"
               "<=SheetsRequired>" TRIM(STRING(v-sht-qty))   FORMAT "x(9)"
 /*              "<=SheetsReceived>"*/
-              "<=SheetsSize>" IF AVAILABLE xeb THEN "W:" + TRIM(STRING({sys/inc/k16v.i xeb.t-wid},">,>>9.99"))  + "  " +
-                              "L:" + TRIM(STRING({sys/inc/k16v.i xeb.t-len},">,>>9.99")) ELSE "" FORMAT "X(30)"
+              "<=SheetsSize>" "W:" + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) + "  " +
+                              "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))  format "x(30)"
+
               "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) FORMAT "x(11)"
               "<=Scores>" SUBSTRING(v-len-score,1,30) FORMAT "x(30)" 
               "<=Adders1>" IF LENGTH(xef.adder[7]) GT 10 THEN  string(string(xef.adder[7],"x(17)") + "...") ELSE xef.adder[7]  FORMAT "x(20)"
@@ -770,7 +778,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=NotesStart><C+1><R+13><#SpecNotes5>"
               "<=NotesStart><C+1><R+17><#SpecNotes6>"
              
-              "<P6><=Notes1>" v-dept-note[1] FORMAT "x(100)" SKIP
+              "<P8><=Notes1>" v-dept-note[1] FORMAT "x(100)" SKIP
               "<=Notes2>" v-dept-note[2] FORMAT "x(100)" SKIP
               "<=Notes3>" v-dept-note[3] FORMAT "x(100)"  SKIP 
               "<=Notes4>" v-dept-note[4] FORMAT "x(100)" SKIP
@@ -801,7 +809,7 @@ DO v-local-loop = 1 TO v-local-copies:
            FIND FIRST stackPattern NO-LOCK 
             WHERE stackPattern.stackcode EQ xeb.stack-code NO-ERROR .
 
-        PUT  "<C1><R1><#Start>"
+        PUT  "<C1><R1.2><#Start>"
               "<=Start><FROM><C108><R50><RECT><|1>  "
               "<=Start><#JobStart>"
               "<=JobStart><C+20><#JobTR>"
@@ -816,17 +824,18 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=HeaderTR><#BarCodeStart>"
               "<=BarCodeStart><C108><R+3><#BarCodeEnd>"
               "<=BarCodeStart><FROM><RECT#BarCodeEnd><|1>"
-              "<=JobStart><C+.5><R+1><#JobLabel>"
+              "<=JobStart><C+.5><R+0.6><#JobLabel>"
               "<=JobLabel><C+8><#JobNum>"
-              "<=HeaderStart><C+1><R+1><#FormLabel>"
-              "<=HeaderStart><C+1><R+2><#BlankLabel>"
+              "<=HeaderStart><C+1><R+0.6><#FormLabel>"
+              "<=HeaderStart><C+1><R+1.6><#BlankLabel>"
               "<=FormLabel><C+4><#Form>"
               "<=BlankLabel><C+4><#Blank>"
-              "<=HeaderStart><C+14><R+1><#PartLabel>"
+              "<=HeaderStart><C+14><R+0.6><#PartLabel>"
               "<=PartLabel><R+1><#Part>"
-              "<=HeaderStart><C+45><R+1><#PrintedLabel>"
-              "<=PrintedLabel><R+1><#Printed>"
-              "<=BarCodeStart><C+2><R+.1><FROM><C108><R3.9><BARCODE,TYPE=39,CHECKSUM=TRUE,VALUE=" cBarCodeVal FORMAT "x(20)" ">"
+              "<=HeaderStart><C+35><R+0.6><#PrintedLabel>"
+              "<=PrintedLabel><R+1><#PrintedDate>"
+              "<=BarCodeStart><C+2><R+.3><FROM><C108><R3.9><BARCODE,TYPE=39,CHECKSUM=TRUE,VALUE=" cBarCodeVal FORMAT "x(20)" ">"
+              
               
               "<P14>"
               "<=JobLabel>Job #:"
@@ -835,13 +844,13 @@ DO v-local-loop = 1 TO v-local-copies:
               "</B><FGColor=Black>"
               "<P8>"
               "<=BlankLabel>Blank:"
+              "<=PrintedLabel>Printed"
               "<=FormLabel>Form:"
               "<=PartLabel>Customer Part #"
-              "<=PrintedLabel>Printed"
               "<=Form><B>" IF AVAILABLE xeb THEN STRING(xeb.form-no,"99") ELSE "" FORMAT "x(2)" "</B>  "
               "<=Blank><B>" IF AVAILABLE xeb THEN STRING(xeb.BLANK-no,"99") ELSE ""  FORMAT "x(2)" "</B>"
               "<=Part><B>" v-cp FORMAT "x(15)" "</B>"
-              " <=Printed><B>"  TODAY  "</B>" 
+              " <=PrintedDate><B>"  TODAY  "</B>"
               
               "<=Start><R+3><#PageStart>"
               "<=PageStart><#PackingStart>"

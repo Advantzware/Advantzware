@@ -14,6 +14,8 @@ def {1} shared TEMP-TABLE work-item no-undo
    field act-spo as dec
    field est-spo as dec
    FIELD avg-qty AS INT
+   FIELD sales-rep AS CHARACTER
+   FIELD sq-ft AS DECIMAL
    INDEX cust cust-no i-no
    INDEX form-no form-no qty-prod
    INDEX i-no i-no form-no.

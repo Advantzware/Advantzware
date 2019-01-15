@@ -288,9 +288,11 @@
 "" "" "to_company" "company." "0808200200034547"
 "" "" "v-bill-item-1" "" "0509200200007339"
 "" "" "v-from-job" "lrmrcpd." "0805200200033927"
+"" "" "v-ord-list" "" "0713201802271038"
 "" "" "v-to-job" "lrmrcpd." "0805200200033943"
 "" "" "vi_stock-no" "itemfg." "0128200300056207"
 "" "" "vi_style" "style." "0130200300056412"
+"" "ttColumn" "cNewValue" "" "0703201802266808"
 "ASI" "account" "actnum" "account." "0724200200032066"
 "ASI" "ap-chk" "bank-code" "bank." "0806200200033956"
 "ASI" "ap-chk" "vend-no" "vend." "0806200200033955"
@@ -369,6 +371,7 @@
 "ASI" "item" "procat" "procat." "0202200000003184"
 "ASI" "item" "vend-no" "" "0904200100016775"
 "ASI" "itemfg" "i-no" "itemfg." "0911200100019215"
+"ASI" "oe-ctrl" "prcom" "OE" "0713201802271052"
 "ASI" "oe-prmtx" "cust-no" "cust." "0824200000003238"
 "ASI" "oe-prmtx" "custype" "custype." "0824200000003243"
 "asi" "oe-prmtx" "i-no" "i-no." "0106200600215894"
@@ -450,12 +453,12 @@
 .
 PSC
 filename=lookups
-records=0000000000449
+records=0000000000452
 ldbname=ASI
-timestamp=2018/06/30-12:37:52
+timestamp=2018/07/29-13:46:13
 numformat=44,46
 dateformat=mdy-1950
 map=NO-MAP
-cpstream=ISO8859-1
+cpstream=ibm850
 .
-0000023325
+0000023465

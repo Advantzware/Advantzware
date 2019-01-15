@@ -37,12 +37,22 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE op-company AS CHARACTER NO-UNDO.
 DEFINE VARIABLE op-cust-no AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
+DEFINE VARIABLE opiFilledArraySize AS INTEGER NO-UNDO.
+/*DEFINE VARIABLE ShipNotesExpanded AS LOGICAL NO-UNDO.*/
+DEFINE VARIABLE glShipNotesExpanded AS LOGICAL NO-UNDO.
+DEFINE VARIABLE oldShiptoNote AS CHARACTER NO-UNDO.
+
 DEF VAR lv-bolwhse LIKE sys-ctrl.char-fld NO-UNDO.
 DEF VAR lv-autopost LIKE sys-ctrl.char-fld NO-UNDO.
 DEF VAR lv-tax-mand AS LOG NO-UNDO.
 DEF VAR v-cust-fmt AS CHAR NO-UNDO.
 DEF VAR v-cust-log AS LOGICAL NO-UNDO.
-
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE oeDateAuto-char AS CHARACTER NO-UNDO .
+DEFINE VARIABLE oeDateAuto-int AS INTEGER NO-UNDO .
+DEFINE VARIABLE oeDateAuto-log AS LOGICAL NO-UNDO .
 {sys/inc/var.i NEW SHARED}
 
 &scoped-define copy-proc proc-copy
@@ -85,6 +95,31 @@ end.
 
 DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "OEAutoDateUpdate", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+    oeDateAuto-char = cRtnChar NO-ERROR. 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEAutoDateUpdate", "I" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+    oeDateAuto-int = INTEGER(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEAutoDateUpdate", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+    oeDateAuto-log = LOGICAL(cRtnChar) NO-ERROR.
+    
+/*RUN sys/ref/nk1look.p (INPUT cocode, "ShipNotesExpanded", "L" /* Logical */, NO /* check by cust */,*/
+/*    INPUT NO /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,                             */
+/*OUTPUT cRtnChar, OUTPUT lRecFound).                                                                 */
+/*                                                                                                    */
+/*    ShipNotesExpanded = LOGICAL(cRtnChar) NO-ERROR.                                                 */
+    
+
 &SCOPED-DEFINE enable-shipto enable-shipto
 
 /* _UIB-CODE-BLOCK-END */
@@ -122,7 +157,7 @@ shipto.del-time shipto.spare-int-1 shipto.spare-int-2 shipto.spare-int-3 ~
 shipto.spare-int-4 shipto.ship-meth shipto.broker shipto.bill 
 &Scoped-define ENABLED-TABLES shipto
 &Scoped-define FIRST-ENABLED-TABLE shipto
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 
+&Scoped-Define ENABLED-OBJECTS ship_note RECT-1 RECT-2 RECT-3 
 &Scoped-Define DISPLAYED-FIELDS shipto.ship-id shipto.ship-name ~
 shipto.ship-addr[1] shipto.ship-addr[2] shipto.ship-city shipto.ship-state ~
 shipto.ship-zip shipto.contact shipto.area-code shipto.phone ~
@@ -135,7 +170,7 @@ shipto.spare-int-3 shipto.spare-int-4 shipto.ship-meth shipto.broker ~
 shipto.bill 
 &Scoped-define DISPLAYED-TABLES shipto
 &Scoped-define FIRST-DISPLAYED-TABLE shipto
-&Scoped-Define DISPLAYED-OBJECTS fi_sname faxAreaCode faxNumber 
+&Scoped-Define DISPLAYED-OBJECTS tg_inactive fi_sname faxAreaCode faxNumber 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -143,7 +178,7 @@ shipto.bill
 &Scoped-define ADM-ASSIGN-FIELDS shipto.tax-mandatory shipto.exportCustID 
 &Scoped-define DISPLAY-FIELD shipto.ship-state shipto.tax-code shipto.loc ~
 shipto.carrier shipto.dest-code 
-&Scoped-define List-5 faxAreaCode faxNumber 
+&Scoped-define List-5 tg_inactive faxAreaCode faxNumber 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -184,6 +219,11 @@ FUNCTION getSalesmanName RETURNS CHARACTER
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE ship_note AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 103 BY 5
+     BGCOLOR 15  NO-UNDO.
+
 DEFINE VARIABLE faxAreaCode AS CHARACTER FORMAT "(xxx)":U 
      LABEL "Fax #" 
      VIEW-AS FILL-IN 
@@ -209,10 +249,16 @@ DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 35.2 BY 5.29.
 
+DEFINE VARIABLE tg_inactive AS LOGICAL INITIAL no 
+     LABEL "Inactive" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 13.4 BY .81 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     tg_inactive AT ROW 10.05 COL 42 WIDGET-ID 8
      fi_sname AT ROW 13 COL 77.6 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      shipto.ship-id AT ROW 10 COL 14.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -257,7 +303,7 @@ DEFINE FRAME F-Main
      faxAreaCode AT ROW 12.05 COL 68.6 COLON-ALIGNED AUTO-RETURN 
      faxNumber AT ROW 12.05 COL 76.4 COLON-ALIGNED NO-LABEL
      shipto.spare-char-1 AT ROW 13 COL 68.6 COLON-ALIGNED
-          LABEL "Sales Rep" FORMAT "xxx"
+          LABEL "SalesGrp" FORMAT "xxx"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
      shipto.tax-code AT ROW 13.95 COL 68.6 COLON-ALIGNED
@@ -266,13 +312,13 @@ DEFINE FRAME F-Main
           SIZE 15 BY 1
           FONT 4
      shipto.tax-mandatory AT ROW 14.19 COL 87.8
-          LABEL "Mandatory Tax?"
+          LABEL "Taxable"
           VIEW-AS TOGGLE-BOX
           SIZE 21.8 BY .81
      shipto.notes[1] AT ROW 15.67 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 100.6 BY 1
-     shipto.notes[2] AT ROW 16.57 COL 5 COLON-ALIGNED NO-LABEL
+     shipto.notes[2] AT ROW 16.52 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 100.6 BY 1
      shipto.notes[3] AT ROW 17.48 COL 5 COLON-ALIGNED NO-LABEL
@@ -281,6 +327,7 @@ DEFINE FRAME F-Main
      shipto.notes[4] AT ROW 18.38 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 100.6 BY 1
+     ship_note AT ROW 14.91 COL 5 NO-LABEL
      shipto.loc AT ROW 1.62 COL 125 COLON-ALIGNED
           LABEL "Warehouse"
           VIEW-AS FILL-IN 
@@ -304,10 +351,6 @@ DEFINE FRAME F-Main
           LABEL "Pallet"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     shipto.spare-char-4 AT ROW 6.43 COL 124.8 COLON-ALIGNED
-          LABEL "Shipper ID"
-          VIEW-AS FILL-IN 
-          SIZE 20 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -315,6 +358,10 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     shipto.spare-char-4 AT ROW 6.43 COL 124.8 COLON-ALIGNED
+          LABEL "Shipper ID"
+          VIEW-AS FILL-IN 
+          SIZE 20 BY 1
      shipto.spare-char-5 AT ROW 7.43 COL 124.8 COLON-ALIGNED
           LABEL "Member #"
           VIEW-AS FILL-IN 
@@ -522,6 +569,8 @@ ASSIGN
    4 EXP-LABEL                                                          */
 /* SETTINGS FOR TOGGLE-BOX shipto.tax-mandatory IN FRAME F-Main
    2 EXP-LABEL                                                          */
+/* SETTINGS FOR TOGGLE-BOX tg_inactive IN FRAME F-Main
+   NO-ENABLE 5                                                          */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -846,9 +895,30 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME ship_note
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ship_note V-table-Win
+ON LEAVE OF ship_note IN FRAME F-Main
+DO:
+  Define Variable hNotesProcs as Handle NO-UNDO. 
+  RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+  RUN ConvertToArray IN hNotesProcs (INPUT ship_note:SCREEN-VALUE, 
+              INPUT 60,
+              OUTPUT opcParsedText,
+              OUTPUT opiFilledArraySize).  
+    DELETE OBJECT hNotesProcs.
+  IF opiFilledArraySize GT 4 THEN DO:
+    MESSAGE "Autoparsed lines exceed 4 lines of text. Only first 4 lines will be used." view-as alert-box error.       
+  END. 
+  {methods/dispflds.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME shipto.spare-char-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL shipto.spare-char-1 V-table-Win
-ON LEAVE OF shipto.spare-char-1 IN FRAME F-Main /* Sales Rep */
+ON LEAVE OF shipto.spare-char-1 IN FRAME F-Main /* SalesGrp */
 DO:
    IF LASTKEY NE -1 THEN DO:
     RUN valid-sman NO-ERROR.
@@ -889,7 +959,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+/*  RUN enable_notes.*/
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -930,7 +1000,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -1008,9 +1077,38 @@ PROCEDURE enable-shipto :
       ENABLE
        shipto.bill
        shipto.broker.
-    ENABLE faxareacode faxnumber .
+    ENABLE tg_inactive faxareacode faxnumber.
+    IF glShipNotesExpanded EQ YES THEN DO:
+       ENABLE ship_note.
+    END.
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_notes V-table-Win 
+PROCEDURE enable_notes :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  
+  IF glShipNotesExpanded EQ YES THEN DO:
+      ASSIGN 
+         shipto.notes[1]:HIDDEN IN FRAME F-Main           = TRUE
+         shipto.notes[2]:HIDDEN IN FRAME F-Main           = TRUE
+         shipto.notes[3]:HIDDEN IN FRAME F-Main           = TRUE
+         shipto.notes[4]:HIDDEN IN FRAME F-Main           = TRUE
+         .      
+  END.
+  ELSE DO:
+      ASSIGN 
+         ship_note:HIDDEN IN FRAME F-Main           = TRUE
+         .      
+  END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1064,7 +1162,7 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
   DEF BUFFER ycust FOR cust.
   DEF BUFFER yshipto FOR shipto.
-
+  Define Variable hNotesProcs as Handle NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
    IF shipto.spare-char-1:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" AND AVAIL cust THEN do:
    ASSIGN shipto.spare-char-1:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cust.sman .
@@ -1077,11 +1175,35 @@ PROCEDURE local-assign-record :
         fi_sname:SCREEN-VALUE IN FRAME {&FRAME-NAME} = sman.sname
         fi_sname = sman.sname .
    END.
-
+   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
-
+   
+ 
+ 
   /* Code placed here will execute AFTER standard behavior.    */
+  
+  IF glShipNotesExpanded EQ YES THEN DO:
+        ASSIGN ship_note = ship_note:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
+        
+        RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+        RUN ConvertToArray IN hNotesProcs (INPUT ship_note, 
+              INPUT 60,
+              OUTPUT opcParsedText,
+              OUTPUT opiFilledArraySize).         
+        
+            ASSIGN
+               shipto.notes[1] =  opcParsedText[1]
+               shipto.notes[2] =  opcParsedText[2]
+               shipto.notes[3] =  opcParsedText[3]
+               shipto.notes[4] =  opcParsedText[4]
+               .               
+            RUN UpdateShipNote IN hNotesProcs (shipto.rec_key,
+                                                     ship_note).
+            DELETE OBJECT hNotesProcs.
+        DISABLE ship_note WITH FRAME {&FRAME-NAME}.
+  END. /* IF glShipNotesExpanded EQ YES THEN DO: */
+
 
   IF cust.active EQ "X" THEN DO: 
     SESSION:SET-WAIT-STATE ("general").
@@ -1099,7 +1221,16 @@ PROCEDURE local-assign-record :
   END.
 
   shipto.fax = faxAreaCode + faxNumber.
-  disable faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
+    IF tg_inactive:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "YES" AND DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN DO:
+     RUN AddTagInactive(shipto.rec_key,"shipto").
+     shipto.statusCode = "I".
+  END.
+  ELSE IF tg_inactive:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO" AND NOT DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN DO: 
+     RUN ClearTagsInactive(shipto.rec_key).
+     shipto.statusCode = "".
+  END.
+    
+  disable tg_inactive faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
 
   IF adm-new-record THEN DO:
      IF v-cust-log THEN 
@@ -1130,8 +1261,8 @@ PROCEDURE local-cancel-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
-  disable faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
+  DISABLE ship_note WITH FRAME {&FRAME-NAME}.
+  disable tg_inactive faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -1146,13 +1277,18 @@ PROCEDURE local-create-record :
 ------------------------------------------------------------------------------*/
   DEF BUFFER bfr-cust FOR cust.
   /* Code placed here will execute BEFORE standard behavior.   */
-
+  
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/shipto.i}
    fi_sname:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "". 
+   IF glShipNotesExpanded EQ YES THEN DO:
+       ship_note:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
+   END.
+   
 
 END PROCEDURE.
 
@@ -1259,23 +1395,43 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  Define Variable hNotesProcs as Handle NO-UNDO.
+  IF AVAILABLE shipto THEN DO:
+    RUN pSetShipToExpanded(shipto.company).
+  END.
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  
   IF NOT adm-new-record AND AVAIL shipto THEN
   DO:
       ASSIGN
         faxAreaCode = SUBSTR(shipto.fax,1,3)
         faxNumber = SUBSTR(shipto.fax,4)
-        fi_sname = getSalesmanName(shipto.spare-char-1).
+        fi_sname = getSalesmanName(shipto.spare-char-1)
+            tg_inactive = DYNAMIC-FUNCTION("IsActive",shipto.rec_key) EQ NO
+        .
 
-      DISPLAY faxareacode faxnumber fi_sname WITH FRAME {&FRAME-NAME}.
-
+      DISPLAY tg_inactive faxareacode faxnumber fi_sname WITH FRAME {&FRAME-NAME}.
+        
   END.
+  
+  RUN enable_notes.
+  ASSIGN ship_note = "".
+  IF glShipNotesExpanded THEN DO:
+      DISABLE ship_note WITH FRAME {&FRAME-NAME}.
+      IF AVAILABLE shipto THEN DO:
+          RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
+          RUN GetNoteOfType IN hNotesProcs (shipto.rec_key, "ES", OUTPUT ship_note).
+          ASSIGN oldShiptoNote = ship_note.
+          DELETE OBJECT hNotesProcs.
+      END. /*IF AVAILABLE oe-rel THEN DO:*/
+      DISPLAY ship_note WITH FRAME {&FRAME-NAME}.    
+  END.  /*IF glShipNotesExpanded THEN DO:*/
+  
 
 END PROCEDURE.
 
@@ -1290,8 +1446,25 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 DEF VAR ip-shipnotes AS CHAR NO-UNDO.
 
+DEFINE VARIABLE iOldvalueTrans AS INTEGER NO-UNDO .
+DEFINE VARIABLE iOldvalueDock AS INTEGER NO-UNDO .
+DEFINE VARIABLE cOldShipnotes AS CHARACTER NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
+  
+  
 /*   RUN ship-zip. */
+IF glShipNotesExpanded THEN 
+    ASSIGN oldShiptoNote = ship_note.
+
+ASSIGN
+      cOldShipnotes = TRIM(shipto.notes[1]) + "|" +
+                      TRIM(shipto.notes[2]) + "|" +
+                      TRIM(shipto.notes[3]) + "|" +
+                      TRIM(shipto.notes[4]).
+     
+ASSIGN 
+    iOldvalueTrans = integer(shipto.del-time)
+    iOldvalueDock  = spare-int-2  .
 
   RUN valid-ship-id NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1320,7 +1493,7 @@ DEF VAR ip-shipnotes AS CHAR NO-UNDO.
   if shipto.pallet:screen-value IN FRAME {&FRAME-NAME} <> "" and
         not can-find(first item where item.company = gcompany and item.mat-type = "D" and
                                       item.i-no = shipto.pallet:screen-value)
-     then do:
+     then do: 
         message "Invalid Pallet Code. Try Help." view-as alert-box error.
         apply "entry" to shipto.pallet.
         return .     
@@ -1330,22 +1503,32 @@ DEF VAR ip-shipnotes AS CHAR NO-UNDO.
      shipto.bill:SCREEN-VALUE IN FRAME {&FRAME-NAME} <> "Yes" THEN DO:
 
   END.
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+  /* Code placed here will execute AFTER standard behavior.    */  
   ASSIGN
       ip-shipnotes = TRIM(shipto.notes[1]) + "|" +
                      TRIM(shipto.notes[2]) + "|" +
                      TRIM(shipto.notes[3]) + "|" +
                      TRIM(shipto.notes[4]).
+  
+  IF (glShipNotesExpanded AND oldShiptoNote NE ship_note) OR
+       ( NOT glShipNotesExpanded AND cOldShipnotes NE ip-shipnotes) THEN DO:
+      RUN oe\d-shp2nt.w(INPUT shipto.company, 
+                        INPUT shipto.cust-no, 
+                        INPUT shipto.ship-id,
+                        INPUT ip-shipnotes,
+                        INPUT shipto.rec_key).
+  END.                   
 
-  RUN oe\d-shp2nt.w(INPUT shipto.company, 
-                    INPUT shipto.cust-no, 
-                    INPUT shipto.ship-id,
-                    INPUT ip-shipnotes).
+  ASSIGN 
+      iOldvalueTrans = iOldvalueTrans - integer(shipto.del-time)
+      iOldvalueDock  = iOldvalueDock - shipto.spare-int-2.
 
-
+  RUN update-date (iOldvalueTrans,iOldvalueDock)  . 
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1379,6 +1562,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetShipToExpanded V-table-Win
+PROCEDURE pSetShipToExpanded:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+
+RUN sys/ref/nk1look.p (ipcCompany, "ShipNotesExpanded", "L" /* Logical */, NO /* check by cust */, 
+          INPUT NO /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+      OUTPUT cRtnChar, OUTPUT lRecFound).
+  glShipNotesExpanded = LOGICAL(cRtnChar) NO-ERROR.
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
@@ -1487,7 +1694,7 @@ DEFINE BUFFER buff-shipto FOR shipto .
      ASSIGN thisOne = ENTRY(i,v-cust-fmt).
      CREATE buff-shipto .
      ASSIGN buff-shipto.company = thisone.
-     BUFFER-COPY shipto EXCEPT company  TO buff-shipto.
+     BUFFER-COPY shipto EXCEPT company rec_key TO buff-shipto.
  END.
 END PROCEDURE.
 
@@ -1513,12 +1720,12 @@ DEFINE BUFFER buff-shipto FOR shipto .
                           AND buff-shipto.ship-id = shipto.ship-id 
                           AND buff-shipto.company = thisOne EXCLUSIVE-LOCK NO-ERROR.
      IF AVAIL buff-shipto THEN do:
-     BUFFER-COPY shipto EXCEPT cust-no company ship-id TO buff-shipto.
+     BUFFER-COPY shipto EXCEPT cust-no company ship-id rec_key TO buff-shipto.
      END.
      ELSE DO:
         CREATE buff-shipto .
         ASSIGN buff-shipto.company = thisone.
-        BUFFER-COPY shipto EXCEPT company  TO buff-shipto.
+        BUFFER-COPY shipto EXCEPT company rec_key TO buff-shipto.
      END.
     END.
 
@@ -1542,6 +1749,106 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-date V-table-Win 
+PROCEDURE update-date :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipOldvalueTrans AS INTEGER NO-UNDO .
+    DEFINE INPUT PARAMETER ipOldvalueDock AS INTEGER NO-UNDO .
+    DEFINE VARIABLE lCheckUpdate AS LOGICAL NO-UNDO .
+
+    IF oeDateAuto-int EQ 0 THEN DO:
+
+      FIND FIRST sys-ctrl NO-LOCK WHERE 
+          sys-ctrl.company EQ cocode AND 
+          sys-ctrl.name    EQ "OEAutoDateUpdate"
+          NO-ERROR.
+
+      ASSIGN oeDateAuto-log = IF AVAIL sys-ctrl THEN sys-ctrl.log-fld ELSE NO . 
+      
+      IF oeDateAuto-log EQ ? THEN
+          MESSAGE "The Transit or Dock Appt value(s) has changed " + 
+          "- Do you want to update Order date and Release dates for open orders for this ship to?"
+          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+         UPDATE lCheckUpdate .
+
+      IF oeDateAuto-log EQ NO  THEN lCheckUpdate = NO .
+      IF oeDateAuto-log EQ YES  THEN lCheckUpdate = YES .
+
+      IF lCheckUpdate THEN do:
+           
+              FOR EACH oe-ordl EXCLUSIVE-LOCK
+                  WHERE oe-ordl.company EQ cocode 
+                    AND oe-ordl.cust-no EQ shipto.cust-no
+                    AND oe-ordl.ship-id EQ shipto.ship-id  
+                    AND oe-ordl.opened EQ YES AND oe-ordl.stat NE "C":
+                     
+                     IF oeDateAuto-char  EQ "Transit Days" THEN
+                         ASSIGN oe-ordl.prom-date  = oe-ordl.prom-date + ipOldvalueTrans .
+                     ELSE IF oeDateAuto-char  EQ "Dock Appt Days" THEN
+                        ASSIGN oe-ordl.prom-date  = oe-ordl.prom-date + ipOldvalueDock .
+                     ELSE IF ipOldvalueTrans GT 0 THEN
+                         ASSIGN oe-ordl.prom-date  = oe-ordl.prom-date + ipOldvalueTrans .
+                     ELSE oe-ordl.prom-date  = oe-ordl.prom-date + ipOldvalueDock .
+
+                   FOR EACH oe-rel WHERE oe-rel.company = oe-ordl.company 
+                       AND oe-rel.ord-no = oe-ordl.ord-no 
+                       AND oe-rel.i-no = oe-ordl.i-no 
+                       AND oe-rel.line = oe-ordl.line
+                       AND oe-rel.ship-id = shipto.ship-id EXCLUSIVE-LOCK:
+
+                       FIND FIRST oe-rell
+                           WHERE oe-rell.company EQ oe-rel.company
+                           AND oe-rell.ord-no  EQ oe-rel.ord-no      
+                           AND oe-rell.i-no    EQ oe-rel.i-no
+                           AND oe-rell.line    EQ oe-rel.line
+                           AND oe-rell.link-no EQ oe-rel.r-no
+                           NO-LOCK NO-ERROR.
+                       IF AVAIL oe-rell THEN
+                           FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no EXCLUSIVE-LOCK NO-ERROR.
+
+                       IF AVAIL oe-rell AND AVAIL oe-relh THEN do:
+                           IF oeDateAuto-char  EQ "Transit Days" THEN
+                               ASSIGN oe-relh.rel-date  = oe-relh.rel-date + ipOldvalueTrans .
+                           ELSE IF oeDateAuto-char  EQ "Dock Appt Days" THEN
+                               ASSIGN oe-relh.rel-date  = oe-relh.rel-date + ipOldvalueDock .
+                           ELSE IF ipOldvalueTrans GT 0 THEN
+                               ASSIGN oe-relh.rel-date  = oe-relh.rel-date + ipOldvalueTrans .
+                           ELSE oe-relh.rel-date  = oe-relh.rel-date + ipOldvalueDock .
+
+                       END. /* oe-relh */
+                       ELSE DO:
+                           IF oeDateAuto-char  EQ "Transit Days" THEN
+                               ASSIGN oe-rel.rel-date  = oe-rel.rel-date + ipOldvalueTrans .
+                           ELSE IF oeDateAuto-char  EQ "Dock Appt Days" THEN
+                               ASSIGN oe-rel.rel-date  = oe-rel.rel-date + ipOldvalueDock .
+                           ELSE IF ipOldvalueTrans GT 0 THEN
+                               ASSIGN oe-rel.rel-date  = oe-rel.rel-date + ipOldvalueTrans .
+                           ELSE oe-rel.rel-date  = oe-rel.rel-date + ipOldvalueDock .
+
+                       END. /* oe-rel.rel-date */
+
+                       
+                   END. /* for each or-rel*/
+
+           END. /* for each oe-ordl  */
+
+       END. /*  lCheckUpdate  */
+       RELEASE oe-ordl .
+       RELEASE oe-rel.
+       RELEASE oe-relh .
+
+    END.  /* oeDateAuto-int EQ 0 */
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

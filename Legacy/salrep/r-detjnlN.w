@@ -71,11 +71,11 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Cust#,Name,BOL#,C/R,INV Date,Order#,Inv#," +
-                           "QTY Shipped/M,Sq Ft,Total Sq Ft,$/MSF,Prod,Inv Amount"
+                           "QTY Shipped/M,Sq Ft,Total Sq Ft,$/MSF,Prod,Inv Amount,Order Item Name"
        cFieldListToSelect = "cust,name,bol,ct,inv-date,ord,inv," +
-                            "qty-ship,sqft,tot-sqt,msf,prod-code,inv-amt"
-       cFieldLength = "8,30,6,3,8,7,6," + "13,9,11,10,5,14"
-       cFieldType = "c,c,i,c,c,i,i," + "i,i,i,i,c,i" 
+                            "qty-ship,sqft,tot-sqt,msf,prod-code,inv-amt,i-name"
+       cFieldLength = "8,30,6,3,8,7,6," + "13,9,11,10,5,14,30"
+       cFieldType = "c,c,i,c,c,i,i," + "i,i,i,i,c,i,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1387,6 +1387,7 @@ def var w-tot-sf-sht like v-tot-sf-sht column-label "Total!Sq Ft".
 def var w-tot-msf   like v-tot-msf column-label "$/MSF".
 def var w-procat    like itemfg.procat column-label "Prod!Code".
 def var w-amt       like ar-invl.amt column-label "Invoice!Amount".
+DEFINE VARIABLE cItemName AS CHARACTER NO-UNDO.
 
 DEF VAR cDisplay AS cha NO-UNDO.
 DEF VAR cExcelDisplay AS cha NO-UNDO.
@@ -1634,6 +1635,7 @@ FOR EACH ttCustList
        w-data.w-recid    = tt-report.rec-id
        v-sq-ft           = 0.
 
+      cItemName = "".
       if w-data.w-type eq 1 then do:
         find first ar-invl where recid(ar-invl) eq w-data.w-recid no-lock.
 
@@ -1641,7 +1643,8 @@ FOR EACH ttCustList
          v-amt    = ar-invl.amt
          v-qty    = ar-invl.inv-qty / 1000
          v-sq-ft  = ar-invl.amt-msf * 1000 / ar-invl.ship-qty
-         v-procat = "MISC".
+         v-procat = "MISC"
+         cItemName = ar-invl.i-name.
 
         if v-sq-ft eq ? then v-sq-ft = 0.
 
@@ -1652,6 +1655,7 @@ FOR EACH ttCustList
                 no-lock no-error.
           if avail itemfg then do:
             v-procat = itemfg.procat.
+            cItemName = itemfg.i-name.
             if v-sq-ft eq 0 then v-sq-ft = itemfg.t-sqft.
           end.
 
@@ -1722,7 +1726,8 @@ FOR EACH ttCustList
          w-tot-sf-sht = - w-tot-sf-sht
          w-tot-msf    = if w-tot-sf-sht ne 0 then
                           (w-amt / (w-tot-sf-sht / 1000)) else 0
-         w-procat     = if avail itemfg then itemfg.procat else "MISC".
+         w-procat     = if avail itemfg then itemfg.procat else "MISC"
+         cItemName    = IF AVAILABLE itemfg THEN itemfg.i-name ELSE "".
       end.
 
       ELSE
@@ -1734,7 +1739,8 @@ FOR EACH ttCustList
          w-tot-sf-sht = 0
          w-tot-msf    = 0
          w-procat     = ""
-         w-amt        = tt-report.freight.
+         w-amt        = tt-report.freight
+         .
       END.
 
       accumulate w-qty (total by tt-report.cred).
@@ -1780,7 +1786,7 @@ FOR EACH ttCustList
                          WHEN "msf"  THEN cVarValue = IF tb_summary THEN STRING(ACCUMULATE TOTAL BY tt-report.key-04 w-tot-msf,"->>,>>9.99") ELSE STRING(w-tot-msf,"->>,>>9.99") .
                          WHEN "prod-code"   THEN cVarValue = STRING(w-procat,"x(5)") .
                          WHEN "inv-amt"  THEN cVarValue = IF tb_summary THEN STRING(ACCUMULATE TOTAL BY tt-report.key-04 w-amt,"->>,>>>,>>9.99") ELSE STRING(w-amt,"->>,>>>,>>9.99") .
-
+                         WHEN "i-name"   THEN cVarValue = string(cItemName,"x(30)").
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -1828,7 +1834,7 @@ FOR EACH ttCustList
                          WHEN "msf"  THEN cVarValue = "" .
                          WHEN "prod-code"   THEN cVarValue = "" .
                          WHEN "inv-amt"  THEN cVarValue =  STRING(cust-amt,"->>,>>>,>>9.99") .
-
+                         WHEN "i-name"   THEN cVarValue = "".
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -1875,7 +1881,7 @@ FOR EACH ttCustList
                          WHEN "msf"  THEN cVarValue = "" .
                          WHEN "prod-code"   THEN cVarValue = "" .
                          WHEN "inv-amt"  THEN cVarValue =  STRING(cust-amt,"->>,>>>,>>9.99") .
-
+                         WHEN "i-name"   THEN cVarValue = "".
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -1929,7 +1935,7 @@ FOR EACH ttCustList
                          WHEN "msf"  THEN cVarValue = "" .
                          WHEN "prod-code"   THEN cVarValue = "" .
                          WHEN "inv-amt"  THEN cVarValue =  STRING(tot-amt,"->>,>>>,>>9.99") .
-
+                         WHEN "i-name"   THEN cVarValue =  "".
                     END CASE.
 
                     cExcelVarValue = cVarValue.

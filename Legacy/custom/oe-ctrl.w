@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi       PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
@@ -65,9 +65,9 @@ DEF VAR giCurrOrd AS INT NO-UNDO.
 &Scoped-Define ENABLED-OBJECTS n-ord Btn_Update Btn_Close RECT-15 RECT-17 ~
 RECT-18 RECT-19 
 &Scoped-Define DISPLAYED-FIELDS oe-ctrl.i-code ar-ctrl.last-inv ~
-oe-ctrl.n-bol oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-chrg oe-ctrl.prep-comm ~
-oe-ctrl.ship-from oe-ctrl.p-fact oe-ctrl.p-bol oe-ctrl.p-pick ~
-oe-ctrl.p-ack oe-ctrl.p-sep oe-ctrl.pr-broker 
+oe-ctrl.n-bol oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-comm ~
+oe-ctrl.prep-chrg oe-ctrl.ship-from oe-ctrl.p-fact oe-ctrl.p-bol ~
+oe-ctrl.p-pick oe-ctrl.p-ack oe-ctrl.p-sep oe-ctrl.pr-broker 
 &Scoped-define DISPLAYED-TABLES oe-ctrl ar-ctrl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ctrl
 &Scoped-define SECOND-DISPLAYED-TABLE ar-ctrl
@@ -76,9 +76,9 @@ oe-ctrl.p-ack oe-ctrl.p-sep oe-ctrl.pr-broker
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 &Scoped-define List-1 tgCreateSSBol oe-ctrl.i-code n-ord oe-ctrl.n-bol ~
-oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-chrg oe-ctrl.prep-comm oe-ctrl.p-fact ~
-oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-ack oe-ctrl.p-sep oe-ctrl.pr-broker ~
-fNextRFIDNum 
+oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-comm oe-ctrl.prep-chrg ~
+oe-ctrl.p-fact oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-ack oe-ctrl.p-sep ~
+oe-ctrl.pr-broker fNextRFIDNum 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -120,22 +120,22 @@ DEFINE RECTANGLE RECT-17
 
 DEFINE RECTANGLE RECT-18
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 39 BY 5.48.
+     SIZE 57 BY 5.24.
 
 DEFINE RECTANGLE RECT-19
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 39 BY 5.48.
+     SIZE 57 BY 5.48.
 
 DEFINE VARIABLE tgCreateSSBol AS LOGICAL INITIAL no 
-     LABEL "Create Sharp Shooter BOL?" 
+     LABEL "Allow Creating of BOL in Sharp Shooter" 
      VIEW-AS TOGGLE-BOX
-     SIZE 32 BY .81 NO-UNDO.
+     SIZE 45 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME oe-ctrl
-     tgCreateSSBol AT ROW 12.14 COL 72.2 WIDGET-ID 8
+     tgCreateSSBol AT ROW 11.52 COL 55 WIDGET-ID 8
      oe-ctrl.i-code AT ROW 17.33 COL 27 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
@@ -156,19 +156,19 @@ DEFINE FRAME oe-ctrl
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     oe-ctrl.prcom AT ROW 8.57 COL 7
+     oe-ctrl.prcom AT ROW 8.5 COL 7
           LABEL "Print Company Name on Invoices"
           VIEW-AS TOGGLE-BOX
           SIZE 36 BY .81
-     oe-ctrl.f-tax AT ROW 9.76 COL 7
+     oe-ctrl.f-tax AT ROW 9.5 COL 7
           LABEL "Charge Tax on Freight"
           VIEW-AS TOGGLE-BOX
           SIZE 25 BY .81
-     oe-ctrl.prep-comm AT ROW 10.86 COL 7
+     oe-ctrl.prep-comm AT ROW 10.5 COL 7
           LABEL "Pay Commissions on Prep Charges"
           VIEW-AS TOGGLE-BOX
           SIZE 39 BY .81
-     oe-ctrl.prep-chrg AT ROW 12.00 COL 7
+     oe-ctrl.prep-chrg AT ROW 11.5 COL 7
           LABEL "Charge Tax on Prep Charges"
           VIEW-AS TOGGLE-BOX
           SIZE 37 BY .81
@@ -177,27 +177,27 @@ DEFINE FRAME oe-ctrl
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
           BGCOLOR 15 
-     oe-ctrl.p-fact AT ROW 8.81 COL 72
-          LABEL "Print Factory Ticket"
+     oe-ctrl.p-fact AT ROW 8.5 COL 55
+          LABEL "Allow Factory Ticket Printing"
           VIEW-AS TOGGLE-BOX
           SIZE 23 BY .81
-     oe-ctrl.p-bol AT ROW 10 COL 72
-          LABEL "Print Bill of Lading"
+     oe-ctrl.p-bol AT ROW 9.5 COL 55
+          LABEL "Allow Bill of Lading Printing"
           VIEW-AS TOGGLE-BOX
-          SIZE 21 BY .81
-     oe-ctrl.p-pick AT ROW 11.19 COL 72
-          LABEL "Release/Print Release Ticket"
+          SIZE 35 BY .81
+     oe-ctrl.p-pick AT ROW 10.5 COL 55
+          LABEL "Allow Releases and Release Ticket Printing"
           VIEW-AS TOGGLE-BOX
-          SIZE 34 BY .81
-     oe-ctrl.p-ack AT ROW 15.71 COL 73
+          SIZE 37 BY .81
+     oe-ctrl.p-ack AT ROW 15.5 COL 55
           LABEL "Print Totals on Acknowledgement"
           VIEW-AS TOGGLE-BOX
           SIZE 37 BY .81
-     oe-ctrl.p-sep AT ROW 17.14 COL 73
+     oe-ctrl.p-sep AT ROW 16.5 COL 55
           LABEL "Print Seperate Invoice per Release"
           VIEW-AS TOGGLE-BOX
           SIZE 37 BY .81
-     oe-ctrl.pr-broker AT ROW 18.33 COL 73
+     oe-ctrl.pr-broker AT ROW 17.5 COL 55
           LABEL "Print Broker on Release / BOL"
           VIEW-AS TOGGLE-BOX
           SIZE 33 BY .81
@@ -211,16 +211,16 @@ DEFINE FRAME oe-ctrl
           FGCOLOR 9 FONT 6
      "Default Box Type:" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 17.38 COL 9
-     "Credit Control" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 7.38 COL 72
+     "Order Credit or Price Hold Control" VIEW-AS TEXT
+          SIZE 39 BY .62 AT ROW 7.19 COL 53
           FGCOLOR 9 FONT 6
      "Print Operations" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 14.05 COL 72
+          SIZE 19 BY .62 AT ROW 14.1 COL 53
           FGCOLOR 9 FONT 6
      RECT-15 AT ROW 21.33 COL 43
      RECT-17 AT ROW 7.86 COL 5
-     RECT-18 AT ROW 8.1 COL 71
-     RECT-19 AT ROW 14.76 COL 72
+     RECT-18 AT ROW 7.91 COL 53
+     RECT-19 AT ROW 14.81 COL 53
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -320,7 +320,6 @@ ASSIGN
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR TOGGLE-BOX tgCreateSSBol IN FRAME oe-ctrl
    NO-ENABLE 1                                                          */
-
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -514,8 +513,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN.
   END.
 
-
-  DISABLE tgCreateSSBol.
   DO TRANSACTION:
     IF NOT CAN-FIND(FIRST ar-ctrl WHERE ar-ctrl.company EQ gcompany) THEN DO:
       CREATE ar-ctrl.
@@ -532,11 +529,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ gcompany NO-LOCK NO-ERROR.
   FIND FIRST ar-ctrl WHERE ar-ctrl.company EQ gcompany NO-LOCK NO-ERROR.
-  ENABLE tgCreateSSBol.
-  tgCreateSSBol:SCREEN-VALUE = (IF oe-ctrl.spare-int-1 EQ 1 THEN "YES" ELSE "NO").
-  DISABLE tgCreateSSBol.
+ 
   RUN enable_UI.
-
+  DO WITH FRAME {&FRAME-NAME}:
   ASSIGN fNextRFIDNum:SCREEN-VALUE = IF oe-ctrl.spare-char-1 = "" THEN "111110000000000000000000"
                                      ELSE oe-ctrl.spare-char-1
          tgCreateSSBol:SCREEN-VALUE = (IF oe-ctrl.spare-int-1 EQ 1 THEN "YES" ELSE "NO").
@@ -547,6 +542,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>").
   n-ord:SENSITIVE = NO.
+  END.
   {methods/nowait.i}
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -595,8 +591,8 @@ PROCEDURE enable_UI :
     DISPLAY ar-ctrl.last-inv 
       WITH FRAME oe-ctrl IN WINDOW C-Win.
   IF AVAILABLE oe-ctrl THEN 
-    DISPLAY oe-ctrl.i-code oe-ctrl.n-bol oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-chrg
-          oe-ctrl.prep-comm oe-ctrl.ship-from oe-ctrl.p-fact 
+    DISPLAY oe-ctrl.i-code oe-ctrl.n-bol oe-ctrl.prcom oe-ctrl.f-tax 
+          oe-ctrl.prep-comm oe-ctrl.prep-chrg oe-ctrl.ship-from oe-ctrl.p-fact 
           oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-ack oe-ctrl.p-sep 
           oe-ctrl.pr-broker 
       WITH FRAME oe-ctrl IN WINDOW C-Win.

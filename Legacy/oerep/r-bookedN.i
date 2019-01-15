@@ -1,5 +1,9 @@
 DEFINE VARIABLE dNetprct LIKE probe.net-profit.
 DEFINE VARIABLE cUsers-id AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cInks AS CHARACTER NO-UNDO .
+DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+DEFINE BUFFER bf-oe-rel FOR oe-rel.
          FORMAT oe-ord.due-date COLUMN-LABEL " !Due!Date"
                                 FORMAT "99/99/99"
                 w-data.ord-no
@@ -226,13 +230,16 @@ FORMAT wkrecap.procat
          NO-ERROR.
 
   lo_trandate = IF AVAILABLE period THEN MINIMUM(fdate,period.pst) ELSE fdate.
-
-  FOR EACH oe-ord NO-LOCK
+ FOR EACH oe-ord NO-LOCK
       WHERE oe-ord.company  EQ cocode
         AND oe-ord.cust-no  GE begin_cust-no
         AND oe-ord.cust-no  LE end_cust-no
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq oe-ord.cust-no
+        AND ttCustList.log-fld no-lock) else true)
         AND oe-ord.ord-date GE lo_trANDate
         AND oe-ord.ord-date LE tdate
+        AND oe-ord.due-date GE dSDueDate
+        AND oe-ord.due-date LE dEDueDate
         AND oe-ord.stat     NE "D"
       BY oe-ord.company BY oe-ord.ord-date BY oe-ord.ord-no:
 
@@ -259,7 +266,7 @@ FORMAT wkrecap.procat
     END.  
 
     {custom/statusMsg.i "'Processing Order # ' + string(oe-ord.ord-no)"} 
-
+    MAIN:
     FOR EACH oe-ordl NO-LOCK
         WHERE oe-ordl.company EQ cocode
           AND oe-ordl.ord-no  EQ oe-ord.ord-no
@@ -269,18 +276,41 @@ FORMAT wkrecap.procat
         WHERE itemfg.company EQ cocode
           AND itemfg.i-no    EQ oe-ordl.i-no
           AND itemfg.procat  GE begin_fg-cat
-          AND itemfg.procat  LE end_fg-cat,
-
-        FIRST oe-rel
-        where oe-rel.company   eq cocode
-          and oe-rel.ord-no    eq oe-ordl.ord-no
-          and oe-rel.i-no      eq oe-ordl.i-no
-          and oe-rel.line      eq oe-ordl.line
-          and oe-rel.spare-char-1   ge begin_shipfrom
-          and oe-rel.spare-char-1   le end_shipfrom
+          AND itemfg.procat  LE end_fg-cat
 
         BREAK BY oe-ordl.line:
-        
+
+        FIND FIRST oe-rel NO-LOCK
+            where oe-rel.company   eq cocode
+            and oe-rel.ord-no    eq oe-ordl.ord-no
+            and oe-rel.i-no      eq oe-ordl.i-no
+            and oe-rel.line      eq oe-ordl.LINE NO-ERROR.
+
+        IF NOT AVAIL oe-rel THEN DO:
+            FIND FIRST bf-oe-ordl NO-LOCK
+                WHERE bf-oe-ordl.company EQ oe-ordl.company
+                AND bf-oe-ordl.ord-no  EQ oe-ordl.ord-no
+                AND bf-oe-ordl.is-a-component EQ YES NO-ERROR.
+            
+            IF AVAIL bf-oe-ordl THEN
+                FIND FIRST bf-oe-rel NO-LOCK
+                   where bf-oe-rel.company   eq bf-oe-ordl.company
+                   and bf-oe-rel.ord-no    eq bf-oe-ordl.ord-no
+                   and bf-oe-rel.i-no      eq bf-oe-ordl.i-no
+                   and bf-oe-rel.line      eq bf-oe-ordl.LINE NO-ERROR.
+
+            IF AVAIL bf-oe-rel AND NOT(bf-oe-rel.spare-char-1   ge begin_shipfrom
+              and bf-oe-rel.spare-char-1   le end_shipfrom) THEN NEXT.
+            ELSE IF NOT AVAIL bf-oe-rel THEN NEXT.
+            
+        END.
+        ELSE DO:   
+            IF AVAIL oe-rel AND NOT(oe-rel.spare-char-1   ge begin_shipfrom
+            and oe-rel.spare-char-1   le end_shipfrom) THEN NEXT.
+            ELSE IF NOT AVAIL oe-rel THEN NEXT.
+
+        END.
+      
       v-exclude = YES.
       DO i = 1 TO 3:
         IF v-exclude                 AND
@@ -323,7 +353,7 @@ FORMAT wkrecap.procat
            tt-report.key-02 = IF tb_sortby THEN
                                  STRING(oe-ord.ord-no,">>>>>>>>>>") ELSE ""
            tt-report.key-03  = STRING(i,"9")
-           tt-report.key-04  = STRING(oe-rel.spare-char-1)
+           tt-report.key-04  = IF AVAIL oe-rel THEN STRING(oe-rel.spare-char-1) ELSE IF AVAIL bf-oe-rel THEN STRING(bf-oe-rel.spare-char-1) ELSE ""
            tt-report.rec-id  = RECID(oe-ordl)
                                      .           
         END.    /* date in selected period */
@@ -423,7 +453,7 @@ FORMAT wkrecap.procat
            tt-report.key-02  = IF tb_sortby THEN
                                  STRING(oe-ord.ord-no,">>>>>>>>>>") ELSE ""
            tt-report.key-03  = STRING(i,"9")
-           tt-report.key-04  = STRING(oe-rel.spare-char-1)
+           tt-report.key-04  = IF AVAIL oe-rel THEN STRING(oe-rel.spare-char-1) ELSE IF AVAIL bf-oe-rel THEN STRING(bf-oe-rel.spare-char-1) ELSE ""
            tt-report.rec-id  = RECID(oe-ordm).
         END.
         
@@ -455,6 +485,9 @@ FORMAT wkrecap.procat
         END.
       END.
     END.
+
+
+
   END.  /* for each oe-ord */
 
    FOR EACH tt-report WHERE tt-report.term-id EQ ""
@@ -559,12 +592,7 @@ FORMAT wkrecap.procat
          FOR EACH probe NO-LOCK WHERE probe.company EQ oe-ordl.company
          AND probe.est-no EQ oe-ordl.est-no
             AND probe.probe-date NE ?
-            AND INT(probe.est-qty) EQ INT(oe-ordl.qty) ,
-            FIRST reftable NO-LOCK WHERE reftable.reftable EQ "probe.board" AND ~
-            reftable.company  EQ probe.company AND 
-            reftable.loc      EQ ""            AND 
-            reftable.code     EQ probe.est-no  AND 
-            reftable.code2    EQ STRING(probe.line,"9999999999")  
+            AND INT(probe.est-qty) EQ INT(oe-ordl.qty)
             BY probe.company 
             BY probe.est-no 
             BY probe.probe-date 
@@ -593,12 +621,14 @@ FORMAT wkrecap.procat
      w-data.cost   (TOTAL BY tt-report.key-01).
 
     cUsers-id = "".
+    cMachine = "" .
+    cInks = "" .
     IF AVAIL oe-ord THEN  
      FIND FIRST job NO-LOCK
           WHERE job.company EQ cocode
             AND job.job-no EQ oe-ord.job-no
             AND job.job-no2 EQ oe-ord.job-no2 NO-ERROR.
-
+   
      cUsers-id = IF AVAIL job AND job.csrUser_id NE "" THEN job.csrUser_id ELSE IF AVAIL oe-ord THEN oe-ord.csrUser_id ELSE "".
      IF AVAILABLE oe-ordl THEN do:
         FIND FIRST itemfg NO-LOCK
@@ -609,6 +639,9 @@ FORMAT wkrecap.procat
             AND eb.est-no  EQ oe-ordl.est-no
             AND eb.stock-no EQ oe-ordl.i-no NO-ERROR .
     END. /* avail oe-ordl  */
+
+    cMachine = fGetRoutingForJob() .
+    cInks    = fGetInksForJob(). 
 
     IF prt-sqft THEN do:       
        /*==== new with selectable columns ====*/
@@ -680,6 +713,10 @@ FORMAT wkrecap.procat
                  WHEN "csrUser_id" THEN cVarValue = STRING(cUsers-id,"X(8)").
                  WHEN "ack-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.ack-prnt-date NE ? THEN STRING(oe-ord.ack-prnt-date) ELSE "".
                  WHEN "ship-from" THEN cVarValue = STRING(w-data.cShip-from,"X(9)").
+                 WHEN "v-mach" THEN cVarValue = STRING(cMachine,"X(30)").
+                 WHEN "v-ink" THEN cVarValue = STRING(cInks,"X(40)").
+                 WHEN "print-sheet" THEN cVarValue =  IF AVAIL itemfg THEN STRING(itemfg.plate-no,"X(20)") ELSE "".
+                 WHEN "full-cost" THEN cVarValue = STRING(oe-ordl.spare-dec-1,"->>>>>>>9.99") .                                                                                               
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
             cExcelVarValue = cVarValue.
@@ -759,6 +796,12 @@ FORMAT wkrecap.procat
                    WHEN "ack-date" THEN cVarValue = "".
                    WHEN "oe-ordl.pr-uom" THEN cVarValue = "".
                    WHEN "Ship-from" THEN cVarValue = "".
+                   WHEN "v-mach" THEN cVarValue = "".
+                   WHEN "v-ink" THEN cVarValue = "" .
+                   WHEN "print-sheet" THEN cVarValue =  "".
+                   WHEN "oe-ordl.cost" THEN cVarValue = "" .
+                   WHEN "oe-ordl.t-cost" THEN cVarValue = "".
+                   WHEN "full-cost" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -831,7 +874,12 @@ FORMAT wkrecap.procat
                    WHEN "ack-date" THEN cVarValue = "".
 	               WHEN "oe-ordl.pr-uom" THEN cVarValue = "".
                    WHEN "Ship-from" THEN cVarValue = "".
-		
+                   WHEN "v-mach" THEN cVarValue = "".
+                   WHEN "v-ink" THEN cVarValue = "" .
+                   WHEN "print-sheet" THEN cVarValue =  "".
+		           WHEN "oe-ordl.cost" THEN cVarValue = "" .
+                   WHEN "oe-ordl.t-cost" THEN cVarValue = "".
+                   WHEN "full-cost" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -903,6 +951,10 @@ FORMAT wkrecap.procat
                 WHEN "csrUser_id" THEN cVarValue = STRING(cUsers-id,"X(8)").
                 WHEN "ack-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.ack-prnt-date NE ? THEN STRING(oe-ord.ack-prnt-date) ELSE "".
                 WHEN "Ship-from" THEN cVarValue = STRING(w-data.cShip-from,"X(9)").
+                WHEN "v-mach" THEN cVarValue = STRING(cMachine,"X(30)").
+                WHEN "v-ink" THEN cVarValue = STRING(cInks,"X(40)").
+                WHEN "print-sheet" THEN cVarValue =  IF AVAIL itemfg THEN STRING(itemfg.plate-no,"X(20)") ELSE "".
+                WHEN "full-cost" THEN cVarValue = STRING(oe-ordl.spare-dec-1,"->>>>>>>9.99").   
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.  
             cExcelVarValue = cVarValue.
@@ -979,6 +1031,12 @@ FORMAT wkrecap.procat
                    WHEN "ack-date" THEN cVarValue = "".
                    WHEN "oe-ordl.pr-uom" THEN cVarValue = "".
                    WHEN "Ship-from" THEN cVarValue = "".
+                   WHEN "v-mach" THEN cVarValue = "".
+                   WHEN "v-ink" THEN cVarValue = "" .
+                   WHEN "print-sheet" THEN cVarValue =  "".
+                   WHEN "oe-ordl.cost" THEN cVarValue = "" .
+                   WHEN "oe-ordl.t-cost" THEN cVarValue = "".
+                   WHEN "full-cost" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1050,6 +1108,12 @@ FORMAT wkrecap.procat
                    WHEN "ack-date" THEN cVarValue = "".
                    WHEN "oe-ordl.pr-uom" THEN cVarValue = "".
                    WHEN "Ship-from" THEN cVarValue = "".
+                   WHEN "v-mach" THEN cVarValue = "".
+                   WHEN "v-ink" THEN cVarValue = "" .
+                   WHEN "print-sheet" THEN cVarValue =  "".
+                   WHEN "oe-ordl.cost" THEN cVarValue = "" .
+                   WHEN "oe-ordl.t-cost" THEN cVarValue = "".
+                   WHEN "full-cost" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.

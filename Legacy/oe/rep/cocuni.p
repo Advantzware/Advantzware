@@ -53,7 +53,7 @@ PROCEDURE FillData:
 
 {sa/sa-sls01.i}
 v-total-cases = 0.
-FOR EACH report NO-LOCK WHERE report.term-id EQ v-term-id,
+FOR EACH report EXCLUSIVE WHERE report.term-id EQ v-term-id,
     FIRST oe-bolh WHERE RECID(oe-bolh) EQ report.rec-id :
 
   FOR EACH oe-boll NO-LOCK
@@ -163,21 +163,21 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
        END.
 
     ASSIGN
-      chWorkSheet:Range("k58"):VALUE = IF v-manuf-date NE 12/31/2999 THEN
+      chWorkSheet:Range("k56"):VALUE = IF v-manuf-date NE 12/31/2999 THEN
                                           STRING(v-manuf-date) ELSE ""
       chWorkSheet:Range("AH6"):VALUE = TODAY
-      chWorkSheet:Range("J16"):VALUE = cust.NAME
-      chWorkSheet:Range("J17"):VALUE = cust.addr[1]
-      chWorkSheet:Range("J18"):VALUE = cust.addr[2]
-      chWorkSheet:Range("J19"):VALUE = v-cust-addr3
-      chWorkSheet:Range("K25"):VALUE = oe-boll.po-no
-      chWorkSheet:Range("K56"):VALUE = v-bol-qty. 
+      chWorkSheet:Range("J14"):VALUE = cust.NAME
+      chWorkSheet:Range("J15"):VALUE = cust.addr[1]
+      chWorkSheet:Range("J16"):VALUE = cust.addr[2]
+      chWorkSheet:Range("J17"):VALUE = v-cust-addr3
+      chWorkSheet:Range("K23"):VALUE = oe-boll.po-no
+      chWorkSheet:Range("K54"):VALUE = v-bol-qty. 
 
     IF AVAILABLE oe-ordl THEN
     DO:
        ASSIGN
-         chWorkSheet:Range("K27"):VALUE = "'" + oe-ordl.part-no
-         chWorkSheet:Range("K50"):VALUE = oe-ordl.ord-no.
+         chWorkSheet:Range("K25"):VALUE = "'" + oe-ordl.part-no
+         chWorkSheet:Range("K48"):VALUE = oe-ordl.ord-no.
 
        FIND FIRST eb NO-LOCK WHERE
             eb.company EQ cocode AND
@@ -187,42 +187,42 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             NO-ERROR.
 
        IF AVAILABLE eb AND eb.part-dscr1 NE "" THEN
-          chWorkSheet:Range("K29"):VALUE = eb.part-dscr1.
+          chWorkSheet:Range("K27"):VALUE = eb.part-dscr1.
        ELSE
-          chWorkSheet:Range("K29"):VALUE = oe-ordl.i-name.
+          chWorkSheet:Range("K27"):VALUE = oe-ordl.i-name.
 
        IF AVAILABLE eb AND eb.part-dscr1 NE "" THEN
-          chWorkSheet:Range("K31"):VALUE = ITEMfg.part-dscr1.
+          chWorkSheet:Range("K29"):VALUE = ITEMfg.part-dscr1.
 
        IF AVAILABLE eb AND eb.part-dscr1 NE "" THEN
-          chWorkSheet:Range("K33"):VALUE = itemfg.part-dscr2.
+          chWorkSheet:Range("K31"):VALUE = itemfg.part-dscr2.
 
        IF AVAILABLE eb AND eb.part-dscr1 NE "" THEN
-          chWorkSheet:Range("K35"):VALUE = itemfg.part-dscr3.
+          chWorkSheet:Range("K33"):VALUE = itemfg.part-dscr3.
 
        IF AVAILABLE eb AND eb.cad-no NE "" THEN
-          chWorkSheet:Range("K37"):VALUE = eb.cad-no.
+          chWorkSheet:Range("K35"):VALUE = eb.cad-no.
        ELSE
-          chWorkSheet:Range("K37"):VALUE = itemfg.cad-no.
+          chWorkSheet:Range("K35"):VALUE = itemfg.cad-no.
        
        IF AVAILABLE eb AND eb.die-no NE "" THEN
-           chWorkSheet:Range("K42"):VALUE = eb.die-no.
+           chWorkSheet:Range("K40"):VALUE = eb.die-no.
        ELSE
-           chWorkSheet:Range("K42"):VALUE = itemfg.die-no.
+           chWorkSheet:Range("K40"):VALUE = itemfg.die-no.
        
        v-dim = STRING(itemfg.l-score[50]) + "X" + STRING(itemfg.w-score[50]) + "X" + STRING(itemfg.d-score[50]).  
-       chWorkSheet:Range("K44"):VALUE = v-dim.
+       chWorkSheet:Range("K42"):VALUE = v-dim.
        
-       IF AVAILABLE eb THEN chWorkSheet:Range("K46"):VALUE = eb.i-coldscr. 
+       IF AVAILABLE eb THEN chWorkSheet:Range("K44"):VALUE = eb.i-coldscr. 
        
        FIND FIRST ef WHERE
             ef.company EQ cocode AND
             ef.est-no EQ oe-ordl.est-no AND
             ef.form-no EQ oe-ordl.form-no
             NO-LOCK NO-ERROR.
-       IF AVAILABLE ef THEN chWorkSheet:Range("K48"):VALUE = ef.brd-dscr.
+       IF AVAILABLE ef THEN chWorkSheet:Range("K46"):VALUE = ef.brd-dscr.
        
-       chWorkSheet:Range("K54"):VALUE = v-total-cases.
+       chWorkSheet:Range("K52"):VALUE = v-total-cases.
        
        FOR EACH oe-rel NO-LOCK
            WHERE oe-rel.company   EQ oe-ordl.company
@@ -240,7 +240,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
        END.
 
        IF v-rel-date NE 12/31/2999 THEN
-          chWorkSheet:Range("K60"):VALUE =  v-rel-date.
+          chWorkSheet:Range("K58"):VALUE =  v-rel-date.
     END.
 
     IF SEARCH(FILE-INFO:FULL-PATHNAME) NE ? THEN DO:

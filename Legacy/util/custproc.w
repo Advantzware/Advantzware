@@ -37,6 +37,13 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
+DEFINE VARIABLE iSecurtyLvl             AS INTEGER NO-UNDO.
+FIND FIRST users NO-LOCK WHERE 
+    users.user_id EQ USERID(LDBNAME(1)) 
+    NO-ERROR.
+IF AVAILABLE users THEN 
+    ASSIGN iSecurtyLvl = users.securityLevel.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -215,7 +222,18 @@ END.
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK W-Win
 ON CHOOSE OF Btn_OK IN FRAME F-Main /* Run */
-DO:
+DO:   
+     FIND FIRST utilities NO-LOCK
+            WHERE  utilities.programName EQ substring(ls-proc,6,50) 
+              AND  utilities.securityLevel LE iSecurtyLvl NO-ERROR .
+     
+     IF NOT AVAIL utilities AND SEARCH(ls-proc) <> ? AND ls-proc NE "util/UtilsN.r" THEN DO:
+      MESSAGE "Procedure " ls-proc " access is denied. Please contact system administrator for help."
+              VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+     END.
+  
+
     IF SEARCH(ls-proc) <> ? THEN DO WITH FRAME {&FRAME-NAME}:
         fi_please-wait:SCREEN-VALUE = "Processing, please wait...".
         RUN VALUE(ls-proc).

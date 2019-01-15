@@ -108,9 +108,25 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
     IF w2.qty = 0 and w2.i-no = "" AND w2.dscr = "" AND w2.cas-cnt = 0 THEN DELETE w2.
   END.
 
+    IF NOT LAST(tt-boll.cases) THEN do:
+        IF v-printline >= 60 THEN DO: 
+           v-printline = 0.
+           PAGE {1}.
+           {oe/rep/bolprem2.i}
+        END.
+    END.
+    ELSE do: 
+         IF v-printline >= 48 THEN DO: 
+          v-printline = 0.
+          PAGE {1}.
+          {oe/rep/bolprem2.i}
+      END.
+    END.
+
   ASSIGN i = 0 v-case-tot = 0.
   IF comp-ctr = 0 THEN ASSIGN comp-ctr = 4.
   FOR EACH w2 BREAK BY w2.cases DESC:
+   
     FIND FIRST bf-ttboll WHERE recid(bf-ttboll) = w2.rec-id NO-LOCK NO-ERROR.    
     i = i + 1.
 
@@ -169,23 +185,6 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
 
     END.
     
-   
-    IF j >= 30 THEN do:
-        IF v-printline >= 62 THEN DO: 
-           v-printline = 0.
-           j = j - 30.
-           PAGE {1}.
-           {oe/rep/bolprem2.i}
-        END.
-    END.
-    ELSE do: 
-         IF v-printline >= 50 THEN DO: 
-          v-printline = 0.
-          PAGE {1}.
-          {oe/rep/bolprem2.i}
-      END.
-    END.
-
     ASSIGN
       v-tot-cases = v-tot-cases + w2.cases.
           /*delete w2. */
@@ -215,6 +214,21 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
   /* rstark 05181205 */
       
   put {1} skip(1).
+  
+  IF NOT LAST(tt-boll.cases) THEN do:
+        IF v-printline >= 60 THEN DO: 
+           v-printline = 0.
+           PAGE {1}.
+           {oe/rep/bolprem2.i}
+        END.
+    END.
+    ELSE do: 
+         IF v-printline >= 48 THEN DO: 
+          v-printline = 0.
+          PAGE {1}.
+          {oe/rep/bolprem2.i}
+      END.
+    END.
 
   ASSIGN
      v-printline = v-printline + 1
@@ -235,17 +249,16 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
         break by fg-set.set-no:
         
       {sys/inc/part-qty.i v-part-qty fg-set}
-  
-    IF j >= 30 THEN do:
-        IF v-printline >= 62 THEN DO: 
+    
+      IF NOT LAST(tt-boll.cases) THEN do:
+        IF v-printline >= 60 THEN DO: 
            v-printline = 0.
-           j = j - 30.
            PAGE {1}.
            {oe/rep/bolprem2.i}
         END.
     END.
     ELSE do:  
-         IF v-printline >= 50 THEN DO: 
+         IF v-printline >= 48 THEN DO: 
           v-printline = 0.
           PAGE {1}.
           {oe/rep/bolprem2.i}

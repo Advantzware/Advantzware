@@ -51,6 +51,7 @@ DEFINE VARIABLE oeInvAddDate-Int AS INTEGER NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lEDI810Visible AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lEDI810NewValue AS LOGICAL NO-UNDO.
 {sys/inc/VAR.i "new shared"}
 ASSIGN cocode = g_company
        locode = g_loc.
@@ -606,6 +607,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tbEdiInvoice
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbEdiInvoice V-table-Win
+ON VALUE-CHANGED OF tbEdiInvoice IN FRAME F-Main /* EDI Invoice? */
+DO:
+  ASSIGN tbEdiInvoice.
+  
+  lEDI810NewValue = tbEdiInvoice.
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME ar-inv.terms
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-inv.terms V-table-Win
 ON ENTRY OF ar-inv.terms IN FRAME F-Main /* Terms Code */
@@ -786,7 +801,7 @@ PROCEDURE local-assign-record :
   ar-inv.f-bill = ar-inv.freight GT 0.
   
   DO WITH FRAME {&FRAME-NAME}:     
-     ar-inv.spare-int-1 = (IF tbEdiInvoice:SCREEN-VALUE = "YES" THEN 1 ELSE 0).
+     ar-inv.ediInvoice = tbEdiInvoice:SCREEN-VALUE EQ "YES".    
   END. 
   IF adm-adding-record THEN DO:
     FIND FIRST cust WHERE cust.company = g_company
@@ -1026,7 +1041,12 @@ PROCEDURE local-display-fields :
         NO-ERROR.
     IF AVAIL currency THEN
       ar-inv.ex-rate:SCREEN-VALUE = STRING(currency.ex-rate).
-    tbEdiInvoice:SCREEN-VALUE = (IF AVAILABLE(ar-inv) AND ar-inv.spare-int-1 = 1 THEN "YES" ELSE "NO").
+ 
+    If NOT adm-new-record THEN 
+      tbEdiInvoice:SCREEN-VALUE = (IF AVAILABLE(ar-inv) AND ar-inv.ediInvoice = YES THEN "YES" ELSE "NO").
+    ELSE
+      tbEdiInvoice:SCREEN-VALUE = (IF lEdi810NewValue = YES THEN "YES" ELSE "NO").
+
   END.
 
 END PROCEDURE.
@@ -1622,7 +1642,8 @@ DEFINE VARIABLE Y AS INTEGER NO-UNDO.
           ar-inv.printed       = NO 
           ar-inv.inv-date      = IF oeInvAddDate-Int EQ 0 THEN TODAY ELSE ar-inv.inv-date 
           ar-inv.spare-char-1  = IF cType EQ "Credit" THEN "Credit" ELSE "Rebill" 
-          ar-inv.spare-int-2   = INTEGER(Is-add-dup-inv) .
+          ar-inv.spare-int-2   = INTEGER(Is-add-dup-inv)
+          ar-inv.t-sales       = ar-inv.t-sales * -1      .
           
           FIND FIRST cust NO-LOCK 
               WHERE cust.company EQ g_company
@@ -1667,6 +1688,11 @@ DEFINE VARIABLE Y AS INTEGER NO-UNDO.
             bf-invl.std-mat-cost = bf-invl.std-mat-cost * -1
             bf-invl.std-tot-cost = bf-invl.std-tot-cost * -1  
             bf-invl.std-var-cost = bf-invl.std-var-cost * -1 
+
+            bf-invl.prep-cost    = bf-invl.prep-cost * -1
+            bf-invl.ship-qty     = bf-invl.ship-qty * -1
+            bf-invl.sf-sht       = bf-invl.sf-sht * -1
+            bf-invl.amt-msf      = bf-invl.amt-msf * -1
               .
 
         

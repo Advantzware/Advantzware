@@ -203,7 +203,7 @@ DEFINE NEW SHARED WORKFILE work-vend NO-UNDO
     FIELD v-cost-num AS INTEGER 
     FIELD v-recid AS RECID.
 
-DEFINE TEMP-TABLE w-job-mat NO-UNDO LIKE job-mat
+DEFINE TEMP-TABLE w-job-mat NO-UNDO like job-mat
     FIELD w-rowid      AS ROWID
     FIELD w-recid      AS RECID
     FIELD this-is-a-rm AS LOG
@@ -212,7 +212,11 @@ DEFINE TEMP-TABLE w-job-mat NO-UNDO LIKE job-mat
     FIELD fg-i-no      LIKE job-hdr.i-no
     FIELD est-no       LIKE eb.est-no
     FIELD eqty         LIKE eb.eqty
-    FIELD prep         AS LOG.
+    FIELD prep         AS LOG
+    field estPrepEQty  AS DEC
+    field estPrepLine  as int
+    field miscType     as int
+    field miscInd      as char.
 
 DEFINE TEMP-TABLE tt-itemfg NO-UNDO 
     FIELD isaset       LIKE itemfg.isaset
@@ -1248,6 +1252,11 @@ PROCEDURE calcEstValues :
 
         END. /* NOT v-po-qty OR bf-w-job-mat.n-up EQ 0 OR ... */
 
+        IF bf-po-ordl.pr-qty-uom NE "EA" THEN
+            RUN sys/ref/convquom.p (bf-w-job-mat.qty-uom,bf-po-ordl.pr-qty-uom,
+                                bf-w-job-mat.basis-w, bf-w-job-mat.len, bf-w-job-mat.wid, bf-w-job-mat.dep,
+                                ld-line-qty, OUTPUT ld-line-qty).
+
         bf-po-ordl.ord-qty = ld-line-qty.
     END. /* If po-ordl.item-type */
     RELEASE bf-po-ordl.
@@ -1422,25 +1431,8 @@ PROCEDURE calcMSF :
     ASSIGN
         bf-po-ordl.s-len = v-len
         bf-po-ordl.s-wid = v-wid.
-    IF v-dep GT 0 THEN DO:
-        FIND FIRST reftable WHERE
-            reftable.reftable EQ "POORDLDEPTH" AND
-            reftable.company  EQ cocode AND
-            reftable.loc      EQ STRING(bf-po-ordl.po-no) AND
-            reftable.code     EQ STRING(bf-po-ordl.LINE)
-            EXCLUSIVE-LOCK NO-ERROR.   
-        IF NOT AVAILABLE reftable THEN 
-        DO:
-            CREATE reftable.
-            ASSIGN
-                reftable.reftable = "POORDLDEPTH"
-                reftable.company  = cocode 
-                reftable.loc      = STRING(bf-po-ordl.po-no)
-                reftable.code     = STRING(po-ordl.LINE).
-        END.
-        reftable.code2 = STRING(v-dep).
-        FIND CURRENT reftable NO-LOCK NO-ERROR.
-        RELEASE reftable.
+    IF v-dep GT 0 THEN DO:        
+        bf-po-ordl.s-dep = v-dep.
     END.
     RELEASE bf-po-ordl.
 END PROCEDURE.
@@ -3988,6 +3980,10 @@ PROCEDURE setPoOrdRm :
         v-part-dscr1          = b-item.i-dscr
         v-part-dscr2          = b-item.est-dscr
         v-op-type             = YES.
+   
+        ASSIGN bf-po-ordl.pr-qty-uom = IF pouom-chr EQ "Purchase" THEN b-item.pur-uom
+                                                                      ELSE b-item.cons-uom .
+   
     bf-po-ordl.ord-no = IF AVAILABLE bf-ordl THEN bf-ordl.ord-no ELSE 0.
     FIND CURRENT bf-po-ordl NO-LOCK.
     RELEASE bf-po-ordl.
@@ -4570,7 +4566,7 @@ PROCEDURE wJobFromOrdm :
         IF gvlDebug THEN             
             PUT STREAM sDebug UNFORMATTED "Create w-job-mat from est-prep " prep.i-no  SKIP.      
         CREATE w-job-mat.
-        BUFFER-COPY oe-ordm TO w-job-mat
+        BUFFER-COPY oe-ordm except po-no TO w-job-mat 
             ASSIGN
             w-job-mat.w-rowid      = ROWID(est-prep)
             w-job-mat.w-recid      = RECID(est-prep)
@@ -4589,7 +4585,8 @@ PROCEDURE wJobFromOrdm :
             w-job-mat.frm          = est-prep.s-num
             w-job-mat.blank-no     = est-prep.b-num
             w-job-mat.std-cost     = oe-ordm.cost
-            w-job-mat.sc-uom       = "EA".
+            w-job-mat.sc-uom       = "EA"
+            w-job-mat.po-no        = integer(oe-ordm.po-no).
     END.
 
 END PROCEDURE.

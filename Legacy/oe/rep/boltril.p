@@ -54,7 +54,7 @@ FORM
   space(2) tt-oe-boll.po-no format "x(36)"
   space(2) tt-oe-boll.ord-no
   space(2) tt-oe-boll.p-c
-  space(1) tt-oe-boll.weight skip
+  space(1) tt-oe-boll.weight format ">>>>>>9" skip
   with frame ln-s down no-box no-labels stream-io width 90.
 
 FORM
@@ -211,7 +211,7 @@ do:     /* production mode */
                  "Order# P/C  Wt." skip
                  "--------- ---------- -- ------"
                  "-------------------------------------"
-                 "------ --- ----" skip
+                 "------ --- -------" skip
               with frame hd-top-comp no-box no-labels page-top stream-io width 90.
           VIEW frame hd-top-comp.
         end.

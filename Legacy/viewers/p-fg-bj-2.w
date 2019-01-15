@@ -94,10 +94,10 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnPreFix 
      LABEL "<== Prefix FG Item#" 
-     SIZE 21 BY 1.
+     SIZE 21 BY 1.1.
 
 DEFINE VARIABLE fi_tag# AS CHARACTER FORMAT "X(20)":U 
-     LABEL "Tag#" 
+     LABEL "Tag" 
      VIEW-AS FILL-IN 
      SIZE 39 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -105,15 +105,15 @@ DEFINE VARIABLE fi_tag# AS CHARACTER FORMAT "X(20)":U
 DEFINE VARIABLE tg_showzerobins AS LOGICAL INITIAL no 
      LABEL "Show Bins with Qty = 0" 
      VIEW-AS TOGGLE-BOX
-     SIZE 26 BY .81 NO-UNDO.
+     SIZE 26 BY 1.1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fi_tag# AT ROW 1.43 COL 34 COLON-ALIGNED
-     btnPreFix AT ROW 1.43 COL 76
-     tg_showzerobins AT ROW 2.71 COL 70 WIDGET-ID 2
+     fi_tag# AT ROW 1 COL 6 COLON-ALIGNED
+     btnPreFix AT ROW 1 COL 48
+     tg_showzerobins AT ROW 1 COL 70 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -146,8 +146,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 2.95
-         WIDTH              = 99.2.
+         HEIGHT             = 1.81
+         WIDTH              = 99.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -210,7 +210,7 @@ END.
 
 &Scoped-define SELF-NAME fi_tag#
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_tag# V-table-Win
-ON LEAVE OF fi_tag# IN FRAME F-Main /* Tag# */
+ON LEAVE OF fi_tag# IN FRAME F-Main /* Tag */
 DO:
   IF LASTKEY NE -1 THEN
   /*APPLY 'CHOOSE':U TO btn_go.*/
@@ -231,7 +231,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_tag# V-table-Win
-ON RETURN OF fi_tag# IN FRAME F-Main /* Tag# */
+ON RETURN OF fi_tag# IN FRAME F-Main /* Tag */
 DO: 
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR hContainer AS HANDLE NO-UNDO.

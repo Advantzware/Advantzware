@@ -24,9 +24,8 @@ DEFINE INPUT PARAMETER ip-ord-no LIKE po-ord.po-no NO-UNDO.
 DEFINE INPUT PARAMETER ip-type AS cha NO-UNDO .   /* add,update,view */
 
 {custom/globdefs.i}
-
 {sys/inc/var.i new shared}
-
+{system/fSuperRunning.i}
 
 ASSIGN
     cocode = g_company
@@ -774,7 +773,10 @@ DO:
               IF char-val NE "" THEN RUN new-job-mat (look-recid).              
             END.
             ELSE DO:
-              RUN windows/l-itmtyp.w (OUTPUT lv-itemtype).
+              IF po-ordl.item-type:SCREEN-VALUE = "" THEN  
+                RUN windows/l-itmtyp.w (OUTPUT lv-itemtype).
+              ELSE ASSIGN 
+                lv-itemtype = po-ordl.item-type:SCREEN-VALUE.
               IF lv-itemtype = "RM" THEN DO:
                 RUN windows/l-itmall.w (g_company, "","", po-ordl.i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
                 IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO:                    
@@ -1066,6 +1068,8 @@ DO:
   lv-save-ord-no = po-ordl.ord-no.
 
   DO WITH FRAME {&FRAME-NAME}:
+    IF po-ordl.vend-i-no:SCREEN-VALUE EQ "?" THEN
+        ASSIGN po-ordl.vend-i-no:SCREEN-VALUE = "" .
     FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
 
     IF (po-ordl.vend-i-no:MODIFIED OR po-ordl.ord-qty:MODIFIED OR
@@ -1111,30 +1115,12 @@ DO:
      /* wfk - to make sure cons-qty was being updated */
     FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
     {po/podisdet.i}
-    
+   
+   ASSIGN po-ordl.s-dep = v-dep . 
     
 IF TRIM(po-ordl.job-no) EQ "" THEN po-ordl.job-no2 = 0.
 FIND CURRENT po-ordl NO-LOCK NO-ERROR.
-FIND FIRST reftable WHERE
-    reftable.reftable EQ "POORDLDEPTH" AND
-    reftable.company  EQ cocode AND
-    reftable.loc      EQ STRING(ip-ord-no) AND
-    reftable.code     EQ STRING(po-ordl.LINE)
-    EXCLUSIVE-LOCK NO-ERROR.
 
-IF NOT AVAILABLE reftable THEN 
-DO:
-    CREATE reftable.
-    ASSIGN
-        reftable.reftable = "POORDLDEPTH"
-        reftable.company  = cocode 
-        reftable.loc      = STRING(ip-ord-no)
-        reftable.code     = STRING(po-ordl.LINE).
-END.
-
-reftable.code2 = STRING(v-dep).
-FIND CURRENT reftable NO-LOCK NO-ERROR.
-RELEASE reftable.
 END.
 FIND CURRENT po-ord NO-LOCK NO-ERROR.
 FIND CURRENT po-ordl NO-LOCK NO-ERROR.
@@ -1362,7 +1348,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.i-no Dialog-Frame
 ON LEAVE OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
     DO:
-        IF LASTKEY NE -1 THEN 
+        IF LASTKEY NE -1 
+        AND SELF:SCREEN-VALUE NE "" THEN 
         DO:
             RUN check-job-bnum . 
             RUN check-workfile.
@@ -1431,11 +1418,11 @@ ON VALUE-CHANGED OF po-ordl.item-type IN FRAME Dialog-Frame /* Item Type */
             ll-item-validated = NO
             ll-poord-warned   = NO
             ll-pojob-warned   = NO.
-
-        RUN validate-i-no NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-        RETURN NO-APPLY.
+        APPLY 'entry' TO po-ordl.i-no.
+/*        RUN validate-i-no NO-ERROR.                */
+/*        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.*/
+/*                                                   */
+/*        RETURN NO-APPLY.                           */
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2930,6 +2917,8 @@ PROCEDURE display-fgitem :
     DEFINE VARIABLE v-dep     AS DECIMAL NO-UNDO.
     DEFINE VARIABLE v-op-type AS LOG     NO-UNDO.
     DEFINE VARIABLE lv-cost   LIKE po-ordl.cost NO-UNDO.
+    DEFINE VARIABLE cAccount AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAccountDesc AS CHARACTER NO-UNDO.
 
     FIND FIRST itemfg NO-LOCK WHERE /*itemfg.company eq cocode and
                   itemfg.i-no eq po-ordl.i-no use-index i-no */
@@ -3019,41 +3008,15 @@ PROCEDURE display-fgitem :
             v-po-len-frac:SCREEN-VALUE IN FRAME {&FRAME-NAME} = v-len-frac
             v-po-dep-frac:SCREEN-VALUE IN FRAME {&FRAME-NAME} = v-dep-frac.
 
-        /* populate GL# from reftable if it exists using itemfg AH 02-23-10*/
+        RUN pGetGL("FG",
+                   ROWID(itemfg),
+                   INPUT-OUTPUT cAccount,
+                   INPUT-OUTPUT cAccountDesc).
+       IF cAccount NE "" THEN
         ASSIGN 
-            v-charge = "".
-        FIND FIRST surcharge NO-LOCK WHERE surcharge.company = g_company
-            AND surcharge.charge <> "" NO-ERROR.
-        IF AVAILABLE surcharge THEN
-            ASSIGN v-charge = surcharge.charge.
-        FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ "chargecode"
-            AND reftable.company  EQ itemfg.company
-            AND reftable.loc      EQ itemfg.procat
-            /*AND reftable.code     EQ v-charge*/
-            /* AND reftable.code2 = "" */
-            NO-ERROR.
-        IF AVAILABLE reftable AND reftable.dscr <> "" THEN 
-            ASSIGN po-ordl.actnum:SCREEN-VALUE = reftable.dscr.
-        /* AH */
-        ELSE 
-            FOR EACH prodl NO-LOCK
-                WHERE prodl.company EQ cocode
-                AND prodl.procat  EQ itemfg.procat
-                ,
-                FIRST prod NO-LOCK
-                WHERE prod.company EQ cocode
-                AND prod.prolin  EQ prodl.prolin
-                :
-
-                po-ordl.actnum:SCREEN-VALUE = prod.fg-mat.
-                LEAVE.
-            END.
-
-        RELEASE reftable.
-
-        FIND FIRST account NO-LOCK WHERE account.company EQ cocode AND
-            account.actnum EQ po-ordl.actnum:SCREEN-VALUE NO-ERROR.
-        v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
+            po-ordl.actnum:SCREEN-VALUE = cAccount
+            v-gl-desc:SCREEN-VALUE = cAccountDesc
+            .
 
         IF AVAILABLE e-itemfg THEN
             FIND FIRST e-itemfg-vend OF e-itemfg NO-LOCK
@@ -3066,9 +3029,7 @@ PROCEDURE display-fgitem :
 
         RUN fg-qtys (ROWID(itemfg)).
     END.
-    FIND FIRST account WHERE account.company EQ cocode AND
-        account.actnum EQ po-ordl.actnum:SCREEN-VALUE NO-LOCK NO-ERROR.
-    v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
+    
 
     RUN vend-cost (YES).
 
@@ -3160,21 +3121,10 @@ PROCEDURE display-item :
             lv-save-s-num              = po-ordl.s-num:SCREEN-VALUE
             lv-save-b-num              = po-ordl.b-num:SCREEN-VALUE.
 
-        FIND FIRST reftable NO-LOCK WHERE
-            reftable.reftable EQ "POORDLDEPTH" AND
-            reftable.company  EQ cocode AND
-            reftable.loc      EQ STRING(ip-ord-no) AND
-            reftable.code     EQ STRING(po-ordl.LINE)
-            NO-ERROR.
-
-        IF AVAILABLE reftable THEN 
-        DO:
             ASSIGN
-                v-dep                 = DEC(reftable.code2)
+                v-dep                 = po-ordl.s-dep
         {po/calc16.i v-dep}
                 v-po-dep:SCREEN-VALUE = STRING(v-dep).
-            RELEASE reftable.
-        END.
  
         RUN sys\inc\decfrac2.p(INPUT DEC(po-ordl.s-wid:SCREEN-VALUE), INPUT 32, OUTPUT v-wid-frac).
         RUN sys\inc\decfrac2.p(INPUT DEC(po-ordl.s-len:SCREEN-VALUE), INPUT 32, OUTPUT v-len-frac).
@@ -4529,6 +4479,86 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetGL Dialog-Frame
+PROCEDURE pGetGL PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipriBaseRecord AS ROWID NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcAccount AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcAccountDesc AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAccount AS CHARACTER NO-UNDO.
+
+    CASE ipcType:
+        WHEN "FG" OR 
+        WHEN "RMJob" THEN 
+            DO:
+                FIND FIRST bf-itemfg NO-LOCK 
+                    WHERE ROWID(bf-itemfg) EQ ipriBaseRecord
+                    NO-ERROR.
+                IF AVAILABLE bf-itemfg THEN 
+                DO:
+                    cCompany = bf-itemfg.company.
+                    IF ipcType EQ "FG" THEN 
+                    DO:
+                        FOR EACH prodl NO-LOCK
+                            WHERE prodl.company EQ bf-itemfg.company
+                            AND prodl.procat  EQ bf-itemfg.procat
+                            ,
+                            FIRST prod NO-LOCK
+                            WHERE prod.company EQ prodl.company
+                            AND prod.prolin  EQ prodl.prolin
+                            :
+                            cAccount = prod.fg-mat.
+                            LEAVE.
+                        END.
+                    END.
+                    IF cAccount EQ "" THEN 
+                    DO:
+                        FIND FIRST reftable NO-LOCK 
+                            WHERE reftable.reftable EQ "chargecode"
+                            AND reftable.company  EQ bf-itemfg.company
+                            AND reftable.loc      EQ bf-itemfg.procat
+                            NO-ERROR.
+                        IF AVAILABLE reftable AND reftable.dscr NE "" AND ipcType EQ "FG" THEN 
+                            cAccount = reftable.dscr.
+                        IF AVAILABLE reftable AND reftable.code2 NE "" AND ipcType EQ "RMJob" THEN 
+                            cAccount = reftable.code2.
+                        RELEASE reftable.       
+                    END. 
+                END.
+            END.  /*End FG or RMJob*/
+        WHEN "RMNoJob" THEN 
+            DO:
+                /*Default for RMs without jobs*/
+            END.
+        WHEN "Vend" THEN 
+            DO:
+                /*Meta default for Vendor*/
+            END.
+    END CASE.
+    IF cAccount NE "" AND cCompany NE "" THEN  
+    DO:
+        FIND FIRST account NO-LOCK 
+            WHERE account.company EQ cCompany 
+            AND account.actnum EQ cAccount 
+            NO-ERROR.
+        ASSIGN 
+            iopcAccount     = cAccount
+            iopcAccountDesc = IF AVAILABLE account THEN account.dscr ELSE ''.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE po-adder2 Dialog-Frame 
 PROCEDURE po-adder2 :

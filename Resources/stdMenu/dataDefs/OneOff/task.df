@@ -1,0 +1,515 @@
+ADD TABLE "Task"
+  AREA "Data"
+  LABEL "Task"
+  DESCRIPTION "Tasks for Batch Scheduler"
+  DUMP-NAME "task"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\task.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\task.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\task.p" CRC "?" 
+
+ADD FIELD "scheduled" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Scheduled"
+  POSITION 2
+  MAX-WIDTH 1
+  HELP "Scheduled (yes/no)"
+  ORDER 30
+
+ADD FIELD "company" OF "Task" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 3
+  MAX-WIDTH 6
+  HELP "Enter Company"
+  ORDER 10
+
+ADD FIELD "taskName" OF "Task" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "Task Name"
+  POSITION 4
+  MAX-WIDTH 48
+  HELP "Enter Task Name"
+  ORDER 40
+
+ADD FIELD "taskID" OF "Task" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Task ID"
+  POSITION 5
+  MAX-WIDTH 4
+  HELP "Enter Task ID"
+  ORDER 50
+
+ADD FIELD "programID" OF "Task" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Program ID"
+  POSITION 6
+  MAX-WIDTH 40
+  HELP "Enter Program ID"
+  ORDER 70
+
+ADD FIELD "user-id" OF "Task" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 7
+  MAX-WIDTH 20
+  HELP "Enter User ID"
+  ORDER 80
+
+ADD FIELD "frequency" OF "Task" AS character 
+  FORMAT "x(8)"
+  INITIAL "Daily"
+  LABEL "Freguency"
+  POSITION 8
+  MAX-WIDTH 16
+  HELP "Enter Frequency"
+  ORDER 90
+
+ADD FIELD "taskTime" OF "Task" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Task Time"
+  POSITION 9
+  MAX-WIDTH 4
+  COLUMN-LABEL "Time"
+  HELP "Enter Task Time"
+  ORDER 100
+
+ADD FIELD "dayOfWeek" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Day Of Week"
+  POSITION 10
+  MAX-WIDTH 56
+  HELP "Select Day of the Week"
+  EXTENT 7
+  ORDER 130
+
+ADD FIELD "lastOfMonth" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Last Day of Month"
+  POSITION 12
+  MAX-WIDTH 1
+  COLUMN-LABEL "LastDay"
+  HELP "Select for Last Day of Month"
+  ORDER 150
+
+ADD FIELD "taskFormat" OF "Task" AS character 
+  FORMAT "x(6)"
+  INITIAL "PDF"
+  LABEL "Format"
+  POSITION 13
+  MAX-WIDTH 12
+  HELP "Enter Output Format"
+  ORDER 160
+
+ADD FIELD "recipients" OF "Task" AS character 
+  FORMAT "x(256)"
+  INITIAL ""
+  LABEL "Recipients"
+  POSITION 14
+  MAX-WIDTH 512
+  HELP "Enter Recipients"
+  ORDER 170
+
+ADD FIELD "startDate" OF "Task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Start Date"
+  POSITION 15
+  MAX-WIDTH 4
+  HELP "Enter Start Date"
+  ORDER 180
+
+ADD FIELD "startTime" OF "Task" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Start Time"
+  POSITION 16
+  MAX-WIDTH 4
+  COLUMN-LABEL "STime"
+  HELP "Enter Start Time"
+  ORDER 190
+
+ADD FIELD "endDate" OF "Task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "End Date"
+  POSITION 17
+  MAX-WIDTH 4
+  HELP "Enter End Date"
+  ORDER 200
+
+ADD FIELD "endTime" OF "Task" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "End Time"
+  POSITION 18
+  MAX-WIDTH 4
+  COLUMN-LABEL "ETime"
+  HELP "Enter End Time"
+  ORDER 210
+
+ADD FIELD "nextDate" OF "Task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Next Date"
+  POSITION 19
+  MAX-WIDTH 4
+  HELP "Enter Next Date"
+  ORDER 220
+
+ADD FIELD "nextTime" OF "Task" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Next Time"
+  POSITION 20
+  MAX-WIDTH 4
+  HELP "Enter Next Time"
+  ORDER 230
+
+ADD FIELD "lastDate" OF "Task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Last Date"
+  POSITION 21
+  MAX-WIDTH 4
+  HELP "Enter Last Date"
+  ORDER 240
+
+ADD FIELD "lastTime" OF "Task" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Last Time"
+  POSITION 22
+  MAX-WIDTH 4
+  HELP "Enter Last Time"
+  ORDER 250
+
+ADD FIELD "rec_key" OF "Task" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 23
+  MAX-WIDTH 42
+  HELP "Enter Rec Key Value"
+  ORDER 450
+
+ADD FIELD "allData" OF "Task" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "All Date"
+  POSITION 24
+  MAX-WIDTH 16
+  HELP "Enter ALL Data"
+  ORDER 270
+
+ADD FIELD "dayOfWeek1" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Sunday"
+  POSITION 25
+  MAX-WIDTH 1
+  COLUMN-LABEL "Su"
+  HELP "Select Sunday"
+  ORDER 280
+
+ADD FIELD "dayOfWeek2" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Monday"
+  POSITION 26
+  MAX-WIDTH 1
+  COLUMN-LABEL "Mo"
+  HELP "Select Monday"
+  ORDER 290
+
+ADD FIELD "dayOfWeek3" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Tuesday"
+  POSITION 27
+  MAX-WIDTH 1
+  COLUMN-LABEL "Tu"
+  HELP "Select Tuesday"
+  ORDER 300
+
+ADD FIELD "dayOfWeek4" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Wednesday"
+  POSITION 28
+  MAX-WIDTH 1
+  COLUMN-LABEL "We"
+  HELP "Select Wednesday"
+  ORDER 310
+
+ADD FIELD "dayOfWeek5" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Thursday"
+  POSITION 29
+  MAX-WIDTH 1
+  COLUMN-LABEL "Th"
+  HELP "Select Thursday"
+  ORDER 320
+
+ADD FIELD "dayOfWeek6" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Friday"
+  POSITION 30
+  MAX-WIDTH 1
+  COLUMN-LABEL "Fr"
+  HELP "Select Friday"
+  ORDER 330
+
+ADD FIELD "dayOfWeek7" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Saturday"
+  POSITION 31
+  MAX-WIDTH 1
+  COLUMN-LABEL "Sa"
+  HELP "Select Saturday"
+  ORDER 340
+
+ADD FIELD "dayOfMonth" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Day of Month"
+  POSITION 33
+  MAX-WIDTH 248
+  HELP "Select Day of Month"
+  EXTENT 31
+  ORDER 140
+
+ADD FIELD "cTaskTime" OF "Task" AS character 
+  FORMAT "99:99"
+  INITIAL "0000"
+  LABEL "Task Time"
+  POSITION 34
+  MAX-WIDTH 10
+  COLUMN-LABEL "Time"
+  HELP "Enter Task Time"
+  ORDER 350
+
+ADD FIELD "cNextTime" OF "Task" AS character 
+  FORMAT "99:99"
+  INITIAL "0000"
+  LABEL "Next Time"
+  POSITION 35
+  MAX-WIDTH 10
+  COLUMN-LABEL "Time"
+  HELP "Enter Next Time"
+  ORDER 370
+
+ADD FIELD "cLastTime" OF "Task" AS character 
+  FORMAT "99:99"
+  INITIAL "0000"
+  LABEL "Last Time"
+  POSITION 36
+  MAX-WIDTH 10
+  COLUMN-LABEL "Time"
+  HELP "Enter Last Time"
+  ORDER 390
+
+ADD FIELD "fromTime" OF "Task" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "From Time"
+  POSITION 37
+  MAX-WIDTH 4
+  COLUMN-LABEL "From"
+  HELP "Enter Task From Time"
+  ORDER 110
+
+ADD FIELD "toTime" OF "Task" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "To Time"
+  POSITION 38
+  MAX-WIDTH 4
+  COLUMN-LABEL "To"
+  HELP "Enter Task To Time"
+  ORDER 120
+
+ADD FIELD "cFromTime" OF "Task" AS character 
+  FORMAT "99:99"
+  INITIAL "0000"
+  LABEL "From Time"
+  POSITION 39
+  MAX-WIDTH 10
+  COLUMN-LABEL "From"
+  HELP "Enter Task From Time"
+  ORDER 360
+
+ADD FIELD "cToTime" OF "Task" AS character 
+  FORMAT "99:99"
+  INITIAL "0000"
+  LABEL "To Time"
+  POSITION 40
+  MAX-WIDTH 10
+  COLUMN-LABEL "To"
+  HELP "Enter Task To Time"
+  ORDER 380
+
+ADD FIELD "securityLevel" OF "Task" AS integer 
+  FORMAT ">>>9"
+  INITIAL "0"
+  LABEL "Security Level"
+  POSITION 41
+  MAX-WIDTH 4
+  COLUMN-LABEL "Security"
+  HELP "Enter Security Level"
+  ORDER 400
+
+ADD FIELD "runNow" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Run Now"
+  POSITION 42
+  MAX-WIDTH 1
+  COLUMN-LABEL "Run"
+  HELP "Run Now (yes/no)"
+  ORDER 430
+
+ADD FIELD "access" OF "Task" AS character 
+  FORMAT "x(8)"
+  INITIAL "System"
+  LABEL "Access"
+  POSITION 43
+  MAX-WIDTH 16
+  HELP "Enter Access Type"
+  ORDER 410
+
+ADD FIELD "permissions" OF "Task" AS character 
+  FORMAT "x(20)"
+  INITIAL "*"
+  LABEL "Permissions"
+  POSITION 44
+  MAX-WIDTH 40
+  HELP "Enter Permissions"
+  ORDER 420
+
+ADD FIELD "lastUser" OF "Task" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Last User"
+  POSITION 45
+  MAX-WIDTH 20
+  HELP "Enter Last User"
+  ORDER 260
+
+ADD FIELD "module" OF "Task" AS character 
+  FORMAT "x(4)"
+  INITIAL ""
+  LABEL "Module"
+  POSITION 46
+  MAX-WIDTH 8
+  HELP "Enter Module"
+  ORDER 60
+
+ADD FIELD "isActive" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Active"
+  POSITION 47
+  MAX-WIDTH 1
+  HELP "Enter Is Active"
+  ORDER 20
+
+ADD FIELD "isRunning" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Is Running"
+  POSITION 48
+  MAX-WIDTH 1
+  COLUMN-LABEL "Running"
+  HELP "Toggle Is Running"
+  ORDER 440
+
+ADD INDEX "pi-task" ON "Task" 
+  AREA "Index"
+  PRIMARY
+  DESCRIPTION "Primary Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "scheduled" ASCENDING 
+  INDEX-FIELD "taskName" ASCENDING 
+
+ADD INDEX "si-access" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Access"
+  INDEX-FIELD "access" ASCENDING 
+
+ADD INDEX "si-frequency" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Frequency"
+  INDEX-FIELD "frequency" ASCENDING 
+
+ADD INDEX "si-isActive" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Is Active"
+  INDEX-FIELD "isActive" ASCENDING 
+
+ADD INDEX "si-isRunning" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Is Running"
+  INDEX-FIELD "isRunning" ASCENDING 
+
+ADD INDEX "si-lastUser" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Last User"
+  INDEX-FIELD "lastUser" ASCENDING 
+
+ADD INDEX "si-program-id" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Program ID"
+  INDEX-FIELD "programID" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Rec Key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "si-runNow" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Run Now"
+  INDEX-FIELD "runNow" ASCENDING 
+
+ADD INDEX "si-scheduled" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Scheduled"
+  INDEX-FIELD "scheduled" ASCENDING 
+
+ADD INDEX "si-securityLevel" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Security Level"
+  INDEX-FIELD "securityLevel" ASCENDING 
+
+ADD INDEX "si-taskID" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Task ID"
+  INDEX-FIELD "taskID" ASCENDING 
+
+ADD INDEX "si-taskName" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Task Name"
+  INDEX-FIELD "taskName" ASCENDING 
+
+ADD INDEX "si-user-id" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by User ID"
+  INDEX-FIELD "user-id" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000010566

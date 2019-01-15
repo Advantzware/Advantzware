@@ -847,10 +847,17 @@ PROCEDURE setUpdateButtons :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER iplSetUpdateButtons AS LOGICAL NO-UNDO.
   
+  DEFINE VARIABLE cBoardType AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE char-hdl   AS CHARACTER NO-UNDO.
+  
   IF iplSetUpdateButtons THEN
   DISABLE {&updateButtons} WITH FRAME {&FRAME-NAME}.
-  ELSE
-  ENABLE btnSave WITH FRAME {&FRAME-NAME}.
+  ELSE DO:
+    ENABLE btnSave WITH FRAME {&FRAME-NAME}.
+    {methods/run_link.i "CONTAINER" "pGetBoardType" "(OUTPUT cBoardType)"}
+    IF cBoardType EQ "View" THEN
+    btnSave:SENSITIVE = NO.
+  END. /* else */
 
 END PROCEDURE.
 

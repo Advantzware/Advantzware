@@ -54,6 +54,7 @@ def var lv-type-dscr as cha no-undo.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE DIALOG-BOX
+&Scoped-define DB-AWARE no
 
 /* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME Dialog-Frame
@@ -70,11 +71,17 @@ def var lv-type-dscr as cha no-undo.
 shipto.ship-addr[1] shipto.ship-city shipto.ship-state shipto.ship-zip ~
 shipto.carrier 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
-&Scoped-define FIELD-PAIRS-IN-QUERY-BROWSE-1
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH shipto WHERE ~{&KEY-PHRASE} ~
+      AND shipto.company = ip-company and  ~
+ASI.shipto.loc = ip-loc and ~
+shipto.cust-no = ip-cust-no ~
+and shipto.statusCode ne "I" NO-LOCK ~
+    ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH shipto WHERE ~{&KEY-PHRASE} ~
       AND shipto.company = ip-company and  ~
 ASI.shipto.loc = ip-loc and ~
-shipto.cust-no = ip-cust-no NO-LOCK ~
+shipto.cust-no = ip-cust-no ~
+and shipto.statusCode ne "I" NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 shipto
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 shipto
@@ -85,7 +92,7 @@ shipto.cust-no = ip-cust-no NO-LOCK ~
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 BROWSE-1 rd-sort bt-clear lv-search ~
+&Scoped-Define ENABLED-OBJECTS BROWSE-1 RECT-1 rd-sort bt-clear lv-search ~
 bt-ok bt-cancel 
 &Scoped-Define DISPLAYED-OBJECTS rd-sort lv-search 
 
@@ -127,7 +134,7 @@ DEFINE VARIABLE rd-sort AS INTEGER
      SIZE 45 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 91 BY 1.43.
 
 /* Query definitions                                                    */
@@ -140,13 +147,13 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      shipto.ship-id COLUMN-FONT 2
-      shipto.ship-name COLUMN-FONT 2
-      shipto.ship-addr[1] COLUMN-FONT 2
-      shipto.ship-city COLUMN-FONT 2
-      shipto.ship-state COLUMN-FONT 2
-      shipto.ship-zip COLUMN-FONT 2
-      shipto.carrier COLUMN-FONT 2
+      shipto.ship-id FORMAT "x(8)":U COLUMN-FONT 2
+      shipto.ship-name FORMAT "x(30)":U COLUMN-FONT 2
+      shipto.ship-addr[1] FORMAT "x(30)":U COLUMN-FONT 2
+      shipto.ship-city FORMAT "x(15)":U COLUMN-FONT 2
+      shipto.ship-state FORMAT "x(2)":U COLUMN-FONT 2
+      shipto.ship-zip FORMAT "x(10)":U COLUMN-FONT 2
+      shipto.carrier FORMAT "x(5)":U COLUMN-FONT 2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 92 BY 11.19
@@ -162,10 +169,10 @@ DEFINE FRAME Dialog-Frame
      lv-search AT ROW 14.1 COL 21 COLON-ALIGNED
      bt-ok AT ROW 14.1 COL 69
      bt-cancel AT ROW 14.1 COL 81
-     RECT-1 AT ROW 12.43 COL 1
      "Sort By:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 12.91 COL 4
-     SPACE(81.39) SKIP(1.84)
+     RECT-1 AT ROW 12.43 COL 1
+     SPACE(1.39) SKIP(1.51)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Ship To Information".
@@ -182,7 +189,8 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
@@ -204,27 +212,27 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.shipto.company = ip-company and 
 ASI.shipto.loc = ip-loc and
-shipto.cust-no = ip-cust-no"
+shipto.cust-no = ip-cust-no
+and shipto.statusCode ne ""I"""
      _FldNameList[1]   > ASI.shipto.ship-id
-"ship-id" ? ? "character" ? ? 2 ? ? ? no ?
+"shipto.ship-id" ? ? "character" ? ? 2 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.shipto.ship-name
-"ship-name" ? ? "character" ? ? 2 ? ? ? no ?
+"shipto.ship-name" ? ? "character" ? ? 2 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.shipto.ship-addr[1]
-"ship-addr[1]" ? ? "character" ? ? 2 ? ? ? no ?
+"shipto.ship-addr[1]" ? ? "character" ? ? 2 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.shipto.ship-city
-"ship-city" ? ? "character" ? ? 2 ? ? ? no ?
+"shipto.ship-city" ? ? "character" ? ? 2 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.shipto.ship-state
-"ship-state" ? ? "character" ? ? 2 ? ? ? no ?
+"shipto.ship-state" ? ? "character" ? ? 2 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.shipto.ship-zip
-"ship-zip" ? ? "character" ? ? 2 ? ? ? no ?
+"shipto.ship-zip" ? ? "character" ? ? 2 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.shipto.carrier
-"carrier" ? ? "character" ? ? 2 ? ? ? no ?
+"shipto.carrier" ? ? "character" ? ? 2 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
 
  
-
 
 
 
@@ -362,7 +370,7 @@ RUN disable_UI.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -379,8 +387,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -393,7 +400,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY rd-sort lv-search 
       WITH FRAME Dialog-Frame.
-  ENABLE RECT-1 BROWSE-1 rd-sort bt-clear lv-search bt-ok bt-cancel 
+  ENABLE BROWSE-1 RECT-1 rd-sort bt-clear lv-search bt-ok bt-cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -401,5 +408,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

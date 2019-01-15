@@ -368,7 +368,7 @@ ASSIGN
 
 
         if avail oe-ord then
-          if not oe-ctrl.p-fact and oe-ord.stat eq "H" then next.
+          if not oe-ctrl.p-fact and (oe-ord.stat eq "H" OR oe-ord.priceHold) then next.
 
         v-due-date = if avail oe-ord then oe-ord.due-date else ?.
         v-start-date = IF AVAIL oe-ord THEN oe-ord.ord-date ELSE job-hdr.start-date.
@@ -646,29 +646,10 @@ ASSIGN
               first item
               {sys/look/itemivW.i}
                 and item.i-no eq job-mat.i-no
-              no-lock:
-
-              FIND FIRST reftable
-                  WHERE reftable EQ "ce/v-est3.w Unit#"
-                    AND reftable.company EQ b-eb.company
-                    AND reftable.loc     EQ eb.est-no
-                    AND reftable.code    EQ STRING(eb.form-no,"9999999999")
-                    AND reftable.code2   EQ STRING(eb.blank-no,"9999999999")
-                  NO-LOCK NO-ERROR.
-
-              FIND FIRST b-rt
-                  WHERE b-rt.reftable EQ "ce/v-est3.w Unit#1"
-                    AND b-rt.company  EQ b-eb.company
-                    AND b-rt.loc      EQ eb.est-no
-                    AND b-rt.code     EQ STRING(eb.form-no,"9999999999")
-                    AND b-rt.code2    EQ STRING(eb.blank-no,"9999999999")
-                  NO-LOCK NO-ERROR.
-
-            do i = 1 to 20:
-              v-unit = IF i LE 12 AND AVAIL reftable THEN reftable.val[i]
-                       ELSE
-                       IF AVAIL b-rt                 THEN b-rt.val[i - 12]
-                                                     ELSE 0.
+              no-lock:              
+              
+            do i = 1 to 20:      
+                        v-unit = eb.unitNo[i].                                         
 
               if eb.i-code2[i] eq job-mat.i-no then do:
                 find first wrk-ink

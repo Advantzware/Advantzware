@@ -86,6 +86,8 @@ DEF VAR v-gltrans-desc AS CHAR NO-UNDO.
 &SCOPED-DEFINE SORTBY-DES DESCENDING
 
 DEF VAR lv-save-char AS CHAR INIT "" NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 find first sys-ctrl
     where sys-ctrl.company eq cocode
@@ -103,6 +105,11 @@ if not avail sys-ctrl then do on error undo, retry transaction:
   if lookup(sys-ctrl.char-fld,"ASI,Fibre") eq 0 then undo, retry.
 end.
 v-format = sys-ctrl.char-fld.
+
+DO TRANSACTION:
+     {sys/ref/CustList.i NEW}
+    RUN sys/inc/custlistform.p ("AQ2",cocode,OUTPUT ou-log, OUTPUT ou-cust-int ) .
+ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -459,6 +466,9 @@ DO:
   RUN valid-cust NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+  RUN valid-cust-user NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
@@ -588,6 +598,8 @@ ON LEAVE OF fi_cust IN FRAME F-Main /* Customer# */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-cust NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-cust-user NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -1027,6 +1039,46 @@ PROCEDURE valid-cust :
       RETURN ERROR.
     END.
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-user V-table-Win 
+PROCEDURE valid-cust-user :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   
+    DEF VAR v-cust-chk AS CHAR NO-UNDO .
+    DEF VAR v-est-no AS CHAR NO-UNDO .
+  {methods/lValidateError.i YES}
+custcount = "".
+DEF VAR lActive AS LOG NO-UNDO.
+
+IF ou-log THEN
+    DO WITH FRAME {&FRAME-NAME}:
+
+        RUN sys/ref/CustList.p (INPUT cocode,
+                            INPUT 'AQ2',
+                            INPUT YES,
+                            OUTPUT lActive).
+        {sys/inc/chblankcust.i ""AQ2""}
+
+         v-cust-chk = fi_cust:SCREEN-VALUE .
+  
+      IF LOOKUP(v-cust-chk,custcount) = 0 THEN DO:
+          MESSAGE "Customer is not on Users Customer List.  "  SKIP
+              "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
+                        
+          APPLY "entry" TO fi_cust .
+          RETURN ERROR.
+      END.
+    END.
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

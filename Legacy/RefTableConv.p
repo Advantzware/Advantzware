@@ -143,10 +143,30 @@ ASSIGN
     {refTableConv.i "StdUom" 'e-itemfg-vend.std-uom'}
     {refTableConv.i "relcredconv" 'relcredconv'}
     {refTableConv.i "Arcashhold" 'ARCASHHOLD'}
+    {refTableConv.i "Saletool" 'SALETOOL'}
+    {refTableConv.i "EitemvendAdders" 'e-item-vend.adders'}
+    {refTableConv.i "Batchrpt" 'Batchrpt'}
+    {refTableConv.i "CeComProbemk" 'ce/com/probemk.p'}
+    {refTableConv.i "CeComSelwhif1" 'ce/com/selwhif1.w'}
+    {refTableConv.i "Arcashlvdate" 'ARCASHLVDDATE'}
     {refTableConv.i "print42" 'print42'}
     {refTableConv.i "ColorAudit" 'COLOR' + chr(32) + 'AUDIT'}
     {refTableConv.i "Machcrew" 'MACH-CREW'}
     {refTableConv.i "ArCashlReturn" 'ar-cashl.return'}
+    {refTableConv.i "Proboard" 'probe.board'}
+    {refTableConv.i "CpLabP" 'cp-lab-p'}
+    {refTableConv.i "PoordlDepth" 'POORDLDEPTH'}
+    {refTableConv.i "EstGlobquot" 'est/globquot.w'}
+    {refTableConv.i "ArcashlInvline" 'ar-cashl.inv-line'}
+    {refTableConv.i "BlankRefTable" ''}
+    {refTableConv.i "OeBollSelected" 'oe-boll.selected'}
+    {refTableConv.i "GsaFm" 'gsa-fm'}
+    {refTableConv.i "TruckRunPrint" 'trp-car'}
+    {refTableConv.i "ShiftDays" 'ShiftDays'}
+    {refTableConv.i "EstGetqtyw2" 'est/getqty.w2'}
+    {refTableConv.i "CevEst3" 'ce/v-est3.w Unit#'}
+    {refTableConv.i "ProbePerMsf" 'probe.per-msf'}
+    {refTableConv.i "v10TaxCode" 'v10-TaxCode-Upgrade'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */

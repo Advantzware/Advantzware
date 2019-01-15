@@ -16,7 +16,7 @@ FOR EACH tt-boll,
           BY tt-boll.ord-no
           BY tt-boll.line
           BY tt-boll.cases DESC:
-IF ll-consol-bolls THEN DO:
+IF ll-consol-bolls THEN DO:   
      {oe/rep/bolxpr23.i}
 END.
 ELSE DO:

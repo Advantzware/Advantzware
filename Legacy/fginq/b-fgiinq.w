@@ -60,6 +60,14 @@ DEF VAR li-qty-pal AS INT NO-UNDO.
 DEF VAR lv-char-val AS CHAR NO-UNDO.
 DEF VAR lv-item-list AS cha NO-UNDO.
 DEF VAR v-col-move AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
+DEF VAR lActive AS LOG NO-UNDO.
+
+DO TRANSACTION:
+     {sys/ref/CustList.i NEW}
+    RUN sys/inc/custlistform.p ("IQ1",cocode,OUTPUT ou-log, OUTPUT ou-cust-int ) .
+ END.
 
 {sys/inc/oeinq.i}
 ll-sort-asc = NOT oeinq.
@@ -634,6 +642,11 @@ DO:
     RUN valid-i-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+    RUN valid-cust-user(1) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-cust-user(2) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
     ASSIGN {&goFields}
       fi_tag# = fi_tag# + '*'
       ll-first = NO.
@@ -706,7 +719,21 @@ DO:
 
   RUN valid-job (1) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-cust-user(2) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-no B-table-Win
+ON LEAVE OF fi_i-no IN FRAME F-Main /* Customer# */
+DO:
+  IF LASTKEY NE -1 THEN DO: 
+    RUN valid-cust-user(1) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -733,6 +760,8 @@ DO:
     IF LASTKEY = -1 THEN RETURN.
 
     RUN valid-job (2) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-cust-user(2) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
 END.
@@ -832,7 +861,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &SCOPED-DEFINE cellColumnDat b-fgiinq
 {methods/browsers/setCellColumns.i}
 
-    FI_moveCol = "Sort".
+ FI_moveCol = "Sort".
 DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1229,6 +1258,78 @@ ELSE IF ip-what = 2 THEN DO:
    ELSE IF lv-cnt = 1 THEN fi_i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = lv-i-no.
 END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-user V-table-Win 
+PROCEDURE valid-cust-user :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER i AS INTEGER NO-UNDO.
+    DEF VAR v-cust-chk AS CHAR NO-UNDO .
+    DEF VAR v-est-no AS CHAR NO-UNDO .
+  {methods/lValidateError.i YES}
+custcount = "".
+DEF VAR lActive AS LOG NO-UNDO.
+
+
+IF ou-log THEN
+    DO WITH FRAME {&FRAME-NAME}:
+
+        RUN sys/ref/CustList.p (INPUT cocode,
+                            INPUT 'IQ1',
+                            INPUT YES,
+                            OUTPUT lActive).
+        {sys/inc/chblankcust.i ""IQ1""}
+
+
+      IF i EQ 1 AND fi_i-no:SCREEN-VALUE NE ""  THEN DO:
+          FIND FIRST itemfg NO-LOCK
+            WHERE itemfg.company EQ cocode
+            AND itemfg.i-no EQ fi_i-no:SCREEN-VALUE NO-ERROR.
+
+        IF AVAIL itemfg THEN DO:
+            v-cust-chk = itemfg.cust-no.
+
+            IF LOOKUP(v-cust-chk,custcount) = 0 THEN DO:   
+                MESSAGE "Customer is not on Users Customer List.  "  SKIP
+                    "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
+                APPLY "entry" TO fi_i-no .
+                RETURN ERROR.
+            END.
+        END.
+      END.
+      ELSE IF i EQ 2  THEN DO:
+          IF fi_job-no NE "" AND length(fi_job-no) < 6 THEN 
+          fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
+
+          FIND FIRST job-hdr no-lock
+              WHERE job-hdr.company = cocode
+              AND job-hdr.job-no =  fi_job-no
+              AND job-hdr.job-no  NE "" 
+              AND job-hdr.job-no2 = fi_job-no2 NO-ERROR.
+          
+        IF AVAIL job-hdr THEN DO:
+            v-cust-chk = job-hdr.cust-no.
+
+            IF LOOKUP(v-cust-chk,custcount) = 0 THEN DO:  
+                MESSAGE "Customer is not on Users Customer List.  "  SKIP
+                    "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
+                APPLY "entry" TO fi_job-no .
+                RETURN ERROR.
+            END.
+        END.
+
+      END.
+        
+    END.
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

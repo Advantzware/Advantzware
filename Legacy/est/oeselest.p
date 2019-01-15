@@ -8,7 +8,10 @@ DEF VAR lv-form-no LIKE eb.form-no INIT 0 NO-UNDO.
 
 
 IF AVAIL xeb THEN DO:
-  FIND FIRST xest OF xeb NO-LOCK NO-ERROR.
+    FIND FIRST xest NO-LOCK WHERE 
+        xest.company EQ xeb.company AND 
+        xest.est-no EQ xeb.est-no 
+        NO-ERROR.  
   lv-form-no = xeb.form-no.
 END.
 

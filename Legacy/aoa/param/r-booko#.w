@@ -47,23 +47,23 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svAllOrderNo svStartOrderNo ~
-svEndOrderNo svCustList btnCustList svAllCustNo svStartCustNo svEndCustNo ~
-svAllItemNo svStartItemNo svEndItemNo svStartOrderDate btnCalendar-1 ~
+&Scoped-Define ENABLED-OBJECTS svCompany svCustList btnCustList svAllCustNo ~
+svStartCustNo svEndCustNo svAllItemNo svStartItemNo svEndItemNo ~
+svAllOrderNo svStartOrderNo svEndOrderNo svPrintOrderedRemaining ~
+svPrintMiscCharges svPrintContribution svStartOrderDate btnCalendar-1 ~
 svStartOrderDateOption svEndOrderDate btnCalendar-2 svEndOrderDateOption ~
 svStartReceiptDate btnCalendar-3 svStartReceiptDateOption svEndReceiptDate ~
 btnCalendar-4 svEndReceiptDateOption svUseReceiptDate svStartShipDate ~
 btnCalendar-5 svStartShipDateOption svEndShipDate btnCalendar-6 ~
-svEndShipDateOption svUseShipDate svPrintOrderedRemaining ~
-svPrintMiscCharges svPrintContribution 
-&Scoped-Define DISPLAYED-OBJECTS svCompany svAllOrderNo svStartOrderNo ~
-svEndOrderNo svCustList svAllCustNo svStartCustNo startCustName svEndCustNo ~
-endCustName svAllItemNo svStartItemNo startItemName svEndItemNo endItemName ~
-svStartOrderDate svStartOrderDateOption svEndOrderDate svEndOrderDateOption ~
-svStartReceiptDate svStartReceiptDateOption svEndReceiptDate ~
-svEndReceiptDateOption svUseReceiptDate svStartShipDate ~
-svStartShipDateOption svEndShipDate svEndShipDateOption svUseShipDate ~
-svPrintOrderedRemaining svPrintMiscCharges svPrintContribution 
+svEndShipDateOption svUseShipDate 
+&Scoped-Define DISPLAYED-OBJECTS svCompany svCustList svAllCustNo ~
+svStartCustNo startCustName svEndCustNo endCustName svAllItemNo ~
+svStartItemNo startItemName svEndItemNo endItemName svAllOrderNo ~
+svStartOrderNo svEndOrderNo svPrintOrderedRemaining svPrintMiscCharges ~
+svPrintContribution svStartOrderDate svStartOrderDateOption svEndOrderDate ~
+svEndOrderDateOption svStartReceiptDate svStartReceiptDateOption ~
+svEndReceiptDate svEndReceiptDateOption svUseReceiptDate svStartShipDate ~
+svStartShipDateOption svEndShipDate svEndShipDateOption svUseShipDate 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -237,6 +237,30 @@ DEFINE VARIABLE svPrintOrderedRemaining AS CHARACTER INITIAL "Ordered"
 "Remaining", "Remaining"
      SIZE 28 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 81.8 BY 5.43.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 81.8 BY 4.29.
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 81.8 BY 4.29.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79 BY 5.43.
+
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79 BY 4.29.
+
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79 BY 4.29.
+
 DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
      LABEL "All Customers" 
      VIEW-AS TOGGLE-BOX
@@ -281,84 +305,90 @@ DEFINE VARIABLE svUseShipDate AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 60
-     svAllOrderNo AT ROW 2.91 COL 21 HELP
-          "All Orders?" WIDGET-ID 202
-     svStartOrderNo AT ROW 4.1 COL 19 COLON-ALIGNED HELP
-          "Enter Start Order" WIDGET-ID 206
-     svEndOrderNo AT ROW 5.29 COL 19 COLON-ALIGNED HELP
-          "Enter End Order" WIDGET-ID 204
-     svCustList AT ROW 6.95 COL 21 WIDGET-ID 48
-     btnCustList AT ROW 6.95 COL 51 WIDGET-ID 46
-     svAllCustNo AT ROW 8.14 COL 21 HELP
+     svCompany AT ROW 1.24 COL 163 COLON-ALIGNED WIDGET-ID 60
+     svCustList AT ROW 3.14 COL 22 WIDGET-ID 48
+     btnCustList AT ROW 3.14 COL 52 WIDGET-ID 46
+     svAllCustNo AT ROW 4.33 COL 22 HELP
           "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 9.33 COL 19 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 5.52 COL 20 COLON-ALIGNED HELP
           "Enter Start Customer" WIDGET-ID 214
-     startCustName AT ROW 9.33 COL 35 COLON-ALIGNED NO-LABEL WIDGET-ID 210
-     svEndCustNo AT ROW 10.52 COL 19 COLON-ALIGNED HELP
+     startCustName AT ROW 5.52 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 210
+     svEndCustNo AT ROW 6.71 COL 20 COLON-ALIGNED HELP
           "Enter End Customer" WIDGET-ID 212
-     endCustName AT ROW 10.52 COL 35 COLON-ALIGNED NO-LABEL WIDGET-ID 208
-     svAllItemNo AT ROW 12.19 COL 21 HELP
+     endCustName AT ROW 6.71 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 208
+     svAllItemNo AT ROW 9.1 COL 22 HELP
           "All Items?" WIDGET-ID 164
-     svStartItemNo AT ROW 13.38 COL 19 COLON-ALIGNED HELP
+     svStartItemNo AT ROW 10.29 COL 20 COLON-ALIGNED HELP
           "Enter Start Item" WIDGET-ID 168
-     startItemName AT ROW 13.38 COL 42 COLON-ALIGNED NO-LABEL WIDGET-ID 172
-     svEndItemNo AT ROW 14.57 COL 19 COLON-ALIGNED HELP
+     startItemName AT ROW 10.29 COL 43 COLON-ALIGNED NO-LABEL WIDGET-ID 172
+     svEndItemNo AT ROW 11.48 COL 20 COLON-ALIGNED HELP
           "Enter End Item" WIDGET-ID 166
-     endItemName AT ROW 14.57 COL 42 COLON-ALIGNED NO-LABEL WIDGET-ID 170
-     svStartOrderDate AT ROW 16.24 COL 19 COLON-ALIGNED HELP
+     endItemName AT ROW 11.48 COL 43 COLON-ALIGNED NO-LABEL WIDGET-ID 170
+     svAllOrderNo AT ROW 13.86 COL 22 HELP
+          "All Orders?" WIDGET-ID 202
+     svStartOrderNo AT ROW 15.05 COL 20 COLON-ALIGNED HELP
+          "Enter Start Order" WIDGET-ID 206
+     svEndOrderNo AT ROW 16.24 COL 20 COLON-ALIGNED HELP
+          "Enter End Order" WIDGET-ID 204
+     svPrintOrderedRemaining AT ROW 13.86 COL 55 HELP
+          "Print Qty Ordered or Remaining" NO-LABEL WIDGET-ID 216
+     svPrintMiscCharges AT ROW 15.29 COL 55 HELP
+          "Select to Use Misc. Charges" WIDGET-ID 40
+     svPrintContribution AT ROW 16.48 COL 55 HELP
+          "Select to Print Contribution" WIDGET-ID 222
+     svStartOrderDate AT ROW 4.33 COL 109 COLON-ALIGNED HELP
           "Enter Start Order Date" WIDGET-ID 122
-     btnCalendar-1 AT ROW 16.24 COL 37 WIDGET-ID 114
-     svStartOrderDateOption AT ROW 16.24 COL 40 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 4.33 COL 127 WIDGET-ID 114
+     svStartOrderDateOption AT ROW 4.33 COL 130 COLON-ALIGNED HELP
           "Select Start Order Date Option" NO-LABEL WIDGET-ID 124
-     svEndOrderDate AT ROW 17.43 COL 19 COLON-ALIGNED HELP
+     svEndOrderDate AT ROW 5.52 COL 109 COLON-ALIGNED HELP
           "Enter End Order Date" WIDGET-ID 118
-     btnCalendar-2 AT ROW 17.43 COL 37 WIDGET-ID 116
-     svEndOrderDateOption AT ROW 17.43 COL 40 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 5.52 COL 127 WIDGET-ID 116
+     svEndOrderDateOption AT ROW 5.52 COL 130 COLON-ALIGNED HELP
           "Select End Order Date Option" NO-LABEL WIDGET-ID 120
-     svStartReceiptDate AT ROW 19.1 COL 19 COLON-ALIGNED HELP
+     svStartReceiptDate AT ROW 9.81 COL 109 COLON-ALIGNED HELP
           "Enter Start Receipt Date" WIDGET-ID 100
-     btnCalendar-3 AT ROW 19.1 COL 37.2 WIDGET-ID 92
-     svStartReceiptDateOption AT ROW 19.1 COL 40.2 COLON-ALIGNED HELP
+     btnCalendar-3 AT ROW 9.81 COL 127.2 WIDGET-ID 92
+     svStartReceiptDateOption AT ROW 9.81 COL 130.2 COLON-ALIGNED HELP
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 102
-     svEndReceiptDate AT ROW 20.29 COL 19.2 COLON-ALIGNED HELP
+     svEndReceiptDate AT ROW 11 COL 109.2 COLON-ALIGNED HELP
           "Enter End Receipt Date" WIDGET-ID 96
-     btnCalendar-4 AT ROW 20.29 COL 37.2 WIDGET-ID 94
-     svEndReceiptDateOption AT ROW 20.29 COL 40.2 COLON-ALIGNED HELP
+     btnCalendar-4 AT ROW 11 COL 127.2 WIDGET-ID 94
+     svEndReceiptDateOption AT ROW 11 COL 130.2 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 98
-     svUseReceiptDate AT ROW 20.29 COL 68 HELP
+     svUseReceiptDate AT ROW 11 COL 158 HELP
           "Select to Use Receipt Date Range" WIDGET-ID 42
-     svStartShipDate AT ROW 21.95 COL 19 COLON-ALIGNED HELP
+     svStartShipDate AT ROW 14.57 COL 109 COLON-ALIGNED HELP
           "Enter Start Ship Date" WIDGET-ID 192
-     btnCalendar-5 AT ROW 21.95 COL 37 WIDGET-ID 186
-     svStartShipDateOption AT ROW 21.95 COL 40 COLON-ALIGNED HELP
+     btnCalendar-5 AT ROW 14.57 COL 127 WIDGET-ID 186
+     svStartShipDateOption AT ROW 14.57 COL 130 COLON-ALIGNED HELP
           "Select Start Ship Date Option" NO-LABEL WIDGET-ID 194
-     svEndShipDate AT ROW 23.14 COL 19 COLON-ALIGNED HELP
+     svEndShipDate AT ROW 15.76 COL 109 COLON-ALIGNED HELP
           "Enter End Ship Date" WIDGET-ID 188
-     btnCalendar-6 AT ROW 23.14 COL 37 WIDGET-ID 184
-     svEndShipDateOption AT ROW 23.14 COL 40 COLON-ALIGNED HELP
-          "Select End Ship Date Option" NO-LABEL WIDGET-ID 190
-     svUseShipDate AT ROW 23.14 COL 68 HELP
-          "Select to Use Ship Date Range" WIDGET-ID 44
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 81.8 BY 28.48.
+         SIZE 170.4 BY 18.29.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     svPrintOrderedRemaining AT ROW 24.81 COL 21 HELP
-          "Print Qty Ordered or Remaining" NO-LABEL WIDGET-ID 216
-     svPrintMiscCharges AT ROW 26.24 COL 21 HELP
-          "Select to Use Misc. Charges" WIDGET-ID 40
-     svPrintContribution AT ROW 27.43 COL 21 HELP
-          "Select to Print Contribution" WIDGET-ID 222
+     btnCalendar-6 AT ROW 15.76 COL 127 WIDGET-ID 184
+     svEndShipDateOption AT ROW 15.76 COL 130 COLON-ALIGNED HELP
+          "Select End Ship Date Option" NO-LABEL WIDGET-ID 190
+     svUseShipDate AT ROW 15.76 COL 158 HELP
+          "Select to Use Ship Date Range" WIDGET-ID 44
      "Print Quantity:" VIEW-AS TEXT
-          SIZE 14 BY 1 AT ROW 24.57 COL 7 WIDGET-ID 220
+          SIZE 14 BY 1 AT ROW 13.86 COL 40 WIDGET-ID 220
+     RECT-1 AT ROW 2.67 COL 4 WIDGET-ID 224
+     RECT-2 AT ROW 8.62 COL 4 WIDGET-ID 226
+     RECT-3 AT ROW 13.38 COL 4 WIDGET-ID 228
+     RECT-4 AT ROW 2.67 COL 89 WIDGET-ID 230
+     RECT-5 AT ROW 8.62 COL 89 WIDGET-ID 232
+     RECT-6 AT ROW 13.38 COL 89 WIDGET-ID 234
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 81.8 BY 28.48
+         SIZE 170.4 BY 18.29
          TITLE "Report Parameters".
 
 
@@ -388,8 +418,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 28.48
-         WIDTH              = 81.8.
+         HEIGHT             = 18.29
+         WIDTH              = 170.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -411,7 +441,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME                                               */
+   NOT-VISIBLE FRAME-NAME Custom                                        */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
@@ -430,6 +460,18 @@ ASSIGN
 /* SETTINGS FOR FILL-IN endCustName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endItemName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -571,7 +613,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svCompany sObject
 ON ENTRY OF svCompany IN FRAME F-Main /* Company */
 DO:
-  APPLY "ENTRY":U TO svStartOrderNo.
+  APPLY "ENTRY":U TO svCustList.
   RETURN NO-APPLY.
 END.
 

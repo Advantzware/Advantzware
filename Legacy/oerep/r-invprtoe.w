@@ -65,7 +65,7 @@ ASSIGN
     locode = gloc.
 
 {oe/rep/invoice.i "new"}
-
+{sys/ref/CustList.i NEW}
 DEF VAR v-program      AS CHAR NO-UNDO.
 DEF VAR is-xprint-form AS LOG  NO-UNDO.
 DEF VAR ls-fax-file    AS cha  NO-UNDO.
@@ -143,6 +143,9 @@ DEFINE            VARIABLE vlSkipRec         AS LOGICAL   NO-UNDO.
 DEFINE            VARIABLE vcHoldStats       AS CHAR      INIT "H,W" NO-UNDO.
 
 DEFINE            VARIABLE glPaperless       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
+DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
 {XMLOutput/XMLOutput.i &NEW=NEW &XMLSysCtrl=XMLInvoice &Company=cocode} /* rstark 05181205 */
 {XMLOutput/XMLOutput.i &NEW=NEW &cXMLSysCtrl=cXMLInvoice &Company=cocode &c=c} /* rstark 05291402 */
@@ -167,16 +170,16 @@ v-prgmname = ipcPrgmnameOverride.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_cust end_cust begin_inv ~
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tb_cust-list btnCustList ~
+begin_cust end_cust begin_inv end_inv begin_date end_date tb_reprint ~
+tb_posted tb_setcomp tb_prt-inst tb_qty-all rd_sort tb_BatchMail ~
+tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page lv-font-no ~
+tb_email-orig tb_override-email td-show-parm btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust end_cust begin_inv ~
 end_inv begin_date end_date tb_reprint tb_posted tb_setcomp tb_prt-inst ~
-tb_qty-all rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt ~
-lines-per-page lv-font-no tb_email-orig tb_override-email td-show-parm ~
-btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_inv end_inv ~
-begin_date end_date tb_reprint tb_posted tb_setcomp tb_prt-inst tb_qty-all ~
-lbl_sort rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt ~
-lines-per-page lv-font-no lv-font-name tb_email-orig tb_override-email ~
-td-show-parm tb_splitPDF fiEndDateLabel fiBeginDateLabel 
+tb_qty-all lbl_sort rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest ~
+lv-ornt lines-per-page lv-font-no lv-font-name tb_email-orig ~
+tb_override-email td-show-parm tb_splitPDF fiEndDateLabel fiBeginDateLabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -208,6 +211,10 @@ DEFINE BUTTON btn-cancel AUTO-END-KEY
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
      SIZE 15 BY 1.14.
+
+DEFINE BUTTON btnCustList 
+     LABEL "Preview" 
+     SIZE 9.8 BY .81.
 
 DEFINE VARIABLE begin_bol AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
      LABEL "Beginning BOL#" 
@@ -352,6 +359,11 @@ DEFINE VARIABLE tb_cust-copy AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 22 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
+     LABEL "Use Defined Customer List" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 30.8 BY .95 NO-UNDO.
+
 DEFINE VARIABLE tb_email-orig AS LOGICAL INITIAL no 
      LABEL "Email as Original?" 
      VIEW-AS TOGGLE-BOX
@@ -426,21 +438,23 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_cust AT ROW 2.43 COL 26 COLON-ALIGNED HELP
+     tb_cust-list AT ROW 1.43 COL 29.4 WIDGET-ID 32
+     btnCustList AT ROW 1.52 COL 63 WIDGET-ID 30
+     begin_cust AT ROW 2.52 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     end_cust AT ROW 2.43 COL 69 COLON-ALIGNED HELP
+     end_cust AT ROW 2.52 COL 69 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     begin_inv AT ROW 3.38 COL 26 COLON-ALIGNED HELP
+     begin_inv AT ROW 3.48 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Invoice Number"
-     end_inv AT ROW 3.38 COL 69 COLON-ALIGNED HELP
+     end_inv AT ROW 3.48 COL 69 COLON-ALIGNED HELP
           "Enter Ending Invoice Number"
-     begin_date AT ROW 4.33 COL 26 COLON-ALIGNED HELP
+     begin_date AT ROW 4.43 COL 26 COLON-ALIGNED HELP
           "Enter Beginning BOL Date" NO-LABEL
-     end_date AT ROW 4.33 COL 69 COLON-ALIGNED HELP
+     end_date AT ROW 4.43 COL 69 COLON-ALIGNED HELP
           "Enter Ending BOL Date" NO-LABEL
-     begin_bol AT ROW 5.29 COL 26 COLON-ALIGNED HELP
+     begin_bol AT ROW 5.38 COL 26 COLON-ALIGNED HELP
           "Enter Beginning BOL Number"
-     end_bol AT ROW 5.29 COL 69 COLON-ALIGNED HELP
+     end_bol AT ROW 5.38 COL 69 COLON-ALIGNED HELP
           "Enter Ending BOL Number"
      tb_reprint AT ROW 6.62 COL 28.2
      lv-scr-num-copies AT ROW 6.62 COL 69.8 COLON-ALIGNED
@@ -658,6 +672,10 @@ ASSIGN
        tb_cust-copy:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 ASSIGN 
+       tb_cust-list:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        tb_email-orig:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -826,7 +844,11 @@ DO:
         DEFINE    VARIABLE      cBadStatusInvoice AS CHARACTER NO-UNDO.
         DEFINE    VARIABLE      cBadStatusBol     AS CHARACTER NO-UNDO.
         DEFINE    VARIABLE      lCheckHoldStat    AS LOGICAL NO-UNDO .
+        DEFINE    VARIABLE      lselected         AS LOGICAL NO-UNDO .
+        DEFINE    VARIABLE      cCustNo           AS CHARACTER NO-UNDO .
         DEFINE BUFFER bf-cust FOR cust.
+        DEFINE BUFFER bf-ar-inv FOR ar-inv .
+        DEFINE BUFFER bf-inv-head FOR inv-head .
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}
@@ -839,6 +861,9 @@ DO:
 
             IF fi_broker-bol:SENSITIVE THEN
                 ASSIGN fi_broker-bol.
+
+            IF tb_cust-list:SENSITIVE THEN
+                lselected = tb_cust-list .
         END.
 
         IF rs_no_PN:HIDDEN = NO THEN
@@ -881,13 +906,69 @@ DO:
             APPLY "entry" TO rd_sort.
             RETURN.
         END.
-
+        
         IF v-invpass THEN
         DO:
             RUN sys/ref/d-passwd.w(6, OUTPUT ll-secure).
             IF NOT ll-secure THEN LEAVE.
         END.
-        
+
+        FIND FIRST  ttCustList NO-LOCK NO-ERROR.
+        IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+            EMPTY TEMP-TABLE ttCustList.
+            RUN BuildCustList(INPUT cocode,
+                              INPUT tb_cust-list AND glCustListActive,
+                              INPUT begin_cust,
+                              INPUT END_cust).
+        END.
+
+         IF lselected THEN DO:
+             
+                 IF tb_posted THEN do:
+                   FIND FIRST bf-ar-inv WHERE bf-ar-inv.company = cocode
+                     AND (bf-ar-inv.cust-no GE begin_cust )
+                     AND (bf-ar-inv.cust-no LE end_cust )
+                     AND (bf-ar-inv.inv-no GE begin_inv )
+                     AND (bf-ar-inv.inv-no LE end_inv )
+                     AND (bf-ar-inv.inv-date GE begin_date )
+                     AND (bf-ar-inv.inv-date LE end_date )
+                     /*AND (bf-ar-inv.b-no GE begin_bol )
+                     AND (bf-ar-inv.b-no LE end_bol )*/
+                     NO-LOCK NO-ERROR.
+                 
+                   IF  AVAIL  bf-ar-inv THEN
+                     cCustNo = bf-ar-inv.cust-no .
+                 END.
+                 ELSE DO:
+                     FIND FIRST bf-inv-head WHERE bf-inv-head.company = cocode
+                     AND (bf-inv-head.cust-no GE begin_cust )
+                     AND (bf-inv-head.cust-no LE end_cust )
+                     AND (bf-inv-head.inv-no GE begin_inv )
+                     AND (bf-inv-head.inv-no LE end_inv )
+                     AND (bf-inv-head.inv-date GE begin_date )
+                     AND (bf-inv-head.inv-date LE end_date )
+                     AND (bf-inv-head.bol-no GE begin_bol )
+                     AND (bf-inv-head.bol-no LE end_bol )
+                     NO-LOCK NO-ERROR.
+                 
+                   IF  AVAIL  bf-inv-head THEN
+                     cCustNo = bf-inv-head.cust-no .
+                 END.
+
+             FIND FIRST cust WHERE cust.company = cocode 
+                 AND cust.cust-no = cCustNo NO-LOCK NO-ERROR.
+             IF AVAIL cust AND ou-log AND LOOKUP(cust.cust-no,custcount) = 0 THEN
+                 MESSAGE "Customer is not on Users Customer List.  "  SKIP
+                 "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+
+             FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+             IF AVAIL ttCustList THEN ASSIGN begin_cust = ttCustList.cust-no .
+             FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+             IF AVAIL ttCustList THEN ASSIGN end_cust = ttCustList.cust-no .
+         END.
+
+            
+       
         RUN assignScreenValues
             (fi_depts:HIDDEN           ,
             tb_print-dept:SCREEN-VALUE,
@@ -947,7 +1028,8 @@ DO:
             td-show-parm       ,
             tbPostedAR         ,
             tb_splitPDF        ,
-            tb_qty-all
+            tb_qty-all         ,
+            tb_cust-list
             ).
 
         IF begin_bol EQ end_bol THEN 
@@ -1061,6 +1143,18 @@ DO:
         
  /*   END. */
     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCustList
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCustList C-Win
+ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
+DO:
+  RUN CustList.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1282,6 +1376,19 @@ ON VALUE-CHANGED OF tb_collate IN FRAME FRAME-A /* Collate? */
 DO:
         ASSIGN {&self-name}.
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_cust-list
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cust-list C-Win
+ON VALUE-CHANGED OF tb_cust-list IN FRAME FRAME-A /* Use Defined Customer List */
+DO:
+  assign {&self-name}.
+  EMPTY TEMP-TABLE ttCustList.
+  RUN SetCustRange(INPUT tb_cust-list).
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1582,6 +1689,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     {methods/nowait.i}
 
+   RUN sys/inc/CustListForm.p ( "OB3",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+
     IF LOOKUP(v-print-fmt,"Peachtreefgl3,SouleMed,SoulePO,Peachtree") GT 0 THEN
         ASSIGN rs_no_PN:HIDDEN    = FALSE
             rs_no_PN:SENSITIVE = TRUE.
@@ -1685,6 +1796,39 @@ fi_broker-bol:SCREEN-VALUE  IN FRAME frame-a = "".
 
 RUN set-broker-bol-proc.
 
+RUN sys/ref/CustList.p (INPUT cocode,
+                          INPUT 'OB3',
+                          INPUT NO,
+                          OUTPUT glCustListActive).
+
+ {sys/inc/chblankcust.i ""OB3""}
+
+ IF ou-log THEN DO:
+      ASSIGN 
+        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+        btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = YES
+        tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "yes"
+        tb_cust-list = YES 
+        .
+      RUN SetCustRange(INPUT tb_cust-list).
+  END.
+  ELSE
+      ASSIGN
+        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+        tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
+        btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+        .
+ IF ou-log AND ou-cust-int = 0 THEN do:
+       ASSIGN 
+        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
+        btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+        tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No"
+        tb_cust-list = NO
+        .
+      RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
+   END.
+
+
 APPLY "entry" TO begin_cust  IN FRAME frame-a.
 
 ASSIGN 
@@ -1701,6 +1845,66 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildCustList C-Win 
+PROCEDURE BuildCustList :
+/*------------------------------------------------------------------------------
+  Purpose:     Builds the temp table of customers   
+  Parameters:  Company Code, Customer list logical and/or customer range
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER iplList AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER ipcBeginCust AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcEndCust AS CHARACTER NO-UNDO.
+
+DEFINE BUFFER bf-cust FOR cust.
+
+DEFINE VARIABLE lActive AS LOGICAL     NO-UNDO.
+
+IF iplList THEN DO:
+    RUN sys/ref/CustList.p (INPUT ipcCompany,
+                            INPUT 'OB3',
+                            INPUT YES,
+                            OUTPUT lActive).
+END.
+ELSE DO:
+    FOR EACH bf-cust
+        WHERE bf-cust.company EQ ipcCompany
+          AND bf-cust.cust-no GE ipcBeginCust
+          AND bf-cust.cust-no LE ipcEndCust
+        NO-LOCK:
+        CREATE ttCustList.
+        ASSIGN 
+            ttCustList.cust-no = bf-cust.cust-no
+            ttCustList.log-fld = YES
+        .
+    END.
+END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CustList C-Win 
+PROCEDURE CustList :
+/*------------------------------------------------------------------------------
+  Purpose:  Display a UI of selected customers   
+  Parameters:  
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    RUN sys/ref/CustListManager.w(INPUT cocode,
+                                  INPUT 'OB3').
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -1732,17 +1936,17 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_cust end_cust begin_inv end_inv begin_date end_date tb_reprint 
-          tb_posted tb_setcomp tb_prt-inst tb_qty-all lbl_sort rd_sort 
-          tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page 
-          lv-font-no lv-font-name tb_email-orig tb_override-email td-show-parm 
-          tb_splitPDF fiEndDateLabel fiBeginDateLabel 
+  DISPLAY tb_cust-list begin_cust end_cust begin_inv end_inv begin_date end_date 
+          tb_reprint tb_posted tb_setcomp tb_prt-inst tb_qty-all lbl_sort 
+          rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt 
+          lines-per-page lv-font-no lv-font-name tb_email-orig tb_override-email 
+          td-show-parm tb_splitPDF fiEndDateLabel fiBeginDateLabel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 begin_cust end_cust begin_inv end_inv begin_date 
-         end_date tb_reprint tb_posted tb_setcomp tb_prt-inst tb_qty-all 
-         rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt 
-         lines-per-page lv-font-no tb_email-orig tb_override-email td-show-parm 
-         btn-ok btn-cancel 
+  ENABLE RECT-6 RECT-7 tb_cust-list btnCustList begin_cust end_cust begin_inv 
+         end_inv begin_date end_date tb_reprint tb_posted tb_setcomp 
+         tb_prt-inst tb_qty-all rd_sort tb_BatchMail tb_HideDialog tb_attachBOL 
+         rd-dest lv-ornt lines-per-page lv-font-no tb_email-orig 
+         tb_override-email td-show-parm btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1854,6 +2058,30 @@ PROCEDURE SetEmailBoxes :
             tb_attachBOL:CHECKED    = FALSE.
     IF glPaperless THEN
         tb_override-email:CHECKED = FALSE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetCustRange C-Win 
+PROCEDURE SetCustRange :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+        begin_cust:SENSITIVE = NOT iplChecked
+        end_cust:SENSITIVE = NOT iplChecked
+        begin_cust:VISIBLE = NOT iplChecked
+        end_cust:VISIBLE = NOT iplChecked
+        btnCustList:SENSITIVE = iplChecked
+       .
+  END.
 
 END PROCEDURE.
 

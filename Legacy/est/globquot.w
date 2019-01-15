@@ -78,11 +78,11 @@ DEF STREAM excel.
 &Scoped-Define ENABLED-OBJECTS RECT-17 begin_cust end_cust begin_date ~
 end_date begin_part-no end_part-no begin_fg-cat end_fg-cat begin_rm-no ~
 end_rm-no percent_chg rd_i-code rd_pur-man rd_round-EA rd_round tb_prmtx ~
-tb_undo fi_file btn-process btn-cancel 
+tb_undo fi_file td_imported btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_date end_date ~
 begin_part-no end_part-no begin_fg-cat end_fg-cat begin_rm-no end_rm-no ~
 percent_chg rd_i-code lbl_i-code rd_pur-man lbl_pur-man rd_round-EA ~
-rd_round tb_prmtx tb_undo fi_file
+rd_round tb_prmtx tb_undo fi_file td_imported
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -223,6 +223,10 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-priceitm
      SIZE 43 BY 1
      FGCOLOR 9 .
 
+DEFINE VARIABLE td_imported AS LOGICAL INITIAL no 
+     LABEL "Include Contract Pricing Customers?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 40.8 BY .81 NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -246,7 +250,8 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Board Code" WIDGET-ID 16
      end_rm-no AT ROW 6.24 COL 73 COLON-ALIGNED HELP
           "Enter Ending Board Code" WIDGET-ID 18
-     percent_chg AT ROW 8.05 COL 35 COLON-ALIGNED HELP
+    td_imported AT ROW 8.1 COL 10 
+    percent_chg AT ROW 8.05 COL 70 COLON-ALIGNED HELP
           "Enter a Negative or Positive Percentage"
      rd_i-code AT ROW 9.24 COL 38 NO-LABEL
      lbl_i-code AT ROW 9.29 COL 23 COLON-ALIGNED NO-LABEL
@@ -417,7 +422,9 @@ ASSIGN
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
+ASSIGN 
+       td_imported:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -643,6 +650,34 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_part-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_part-no C-Win
+ON HELP OF begin_part-no IN FRAME FRAME-A
+DO:
+    DEFINE VARIABLE lv-eb-tmpid AS RECID NO-UNDO.
+
+    run est/l-ebrfqP.w (cocode, locode, begin_part-no:screen-value, output lv-eb-tmpid) .
+           FIND FIRST eb NO-LOCK WHERE RECID(eb) = lv-eb-tmpid NO-ERROR.
+                 IF AVAIL eb THEN ASSIGN begin_part-no:SCREEN-VALUE = eb.part-no.
+    
+ END.
+ /* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_part-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_part-no C-Win
+ON HELP OF end_part-no IN FRAME FRAME-A
+DO:
+    DEFINE VARIABLE lv-eb-tmpid AS RECID NO-UNDO.
+
+    run est/l-ebrfqP.w (cocode, locode, end_part-no:screen-value, output lv-eb-tmpid) .
+           FIND FIRST eb NO-LOCK WHERE RECID(eb) = lv-eb-tmpid NO-ERROR.
+                 IF AVAIL eb THEN ASSIGN end_part-no:SCREEN-VALUE = eb.part-no.
+    
+ END.
+ /* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -725,12 +760,12 @@ PROCEDURE enable_UI :
   DISPLAY begin_cust end_cust begin_date end_date begin_part-no end_part-no 
           begin_fg-cat end_fg-cat begin_rm-no end_rm-no percent_chg rd_i-code 
           lbl_i-code rd_pur-man lbl_pur-man rd_round-EA rd_round tb_prmtx 
-          tb_undo fi_file
+          tb_undo fi_file td_imported
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-17 begin_cust end_cust begin_date end_date begin_part-no 
          end_part-no begin_fg-cat end_fg-cat begin_rm-no end_rm-no percent_chg 
          rd_i-code rd_pur-man rd_round-EA rd_round tb_prmtx tb_undo fi_file  
-         btn-process btn-cancel 
+         td_imported btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -870,16 +905,6 @@ session:set-wait-state("General").
 EMPTY TEMP-TABLE tt-rowid.
 EMPTY TEMP-TABLE tt-quoteqty .
 
-lv-reft = "est/globquot.w"              + " " +
-          STRING(cocode,"x(10)")        + " " +
-          STRING(YEAR(TODAY),"9999")    +
-          STRING(MONTH(TODAY),"99")     +
-          STRING(DAY(TODAY),"99")       + " " +
-          STRING(TIME,"99999")          + " " +
-          USERID("nosweat")             + " " +
-          STRING(cocode,"x(10)")        + " " +
-          STRING(locode,"x(10)").
-
 RUN get-params (OUTPUT lv-dscr).
 
 v = index("DP",v-round).
@@ -890,7 +915,7 @@ OUTPUT STREAM excel TO VALUE(fi_file).
                .
 
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
-
+MAIN:
 for each quotehd
     where quotehd.company  eq cocode
       and quotehd.loc      eq locode
@@ -911,6 +936,11 @@ for each quotehd
     break by quotehd.q-no:
 
     RELEASE eb .
+
+    FIND FIRST cust  NO-LOCK WHERE cust.company EQ cocode 
+      AND cust.cust-no EQ  quotehd.cust-no NO-ERROR .
+
+    IF AVAIL cust AND cust.imported EQ YES AND NOT td_imported THEN NEXT MAIN.
 
     IF quotehd.est-no NE "" THEN
     FIND FIRST eb
@@ -1133,18 +1163,6 @@ for each quotehd
     CREATE tt-rowid.
     tt-rowid.row-id = ROWID(quoteqty).
 
-    CREATE reftable.
-    ASSIGN
-     reftable.reftable = lv-reft
-     reftable.company  = STRING(quoteqty.q-no,"9999999999")
-     reftable.loc      = STRING(quoteqty.line,"9999999999")
-     reftable.code     = STRING(quoteqty.qty,"9999999999")
-     reftable.code2    = STRING(quoteqty.rels,"9999999999")
-     reftable.dscr     = lv-dscr
-     reftable.val[1]   = quoteqty.price * 1000
-     reftable.val[2]   = v-pct
-     reftable.val[3]   = v.
-
     v-orig-price = quoteqty.price.
     if v-undo then
       quoteqty.price = quoteqty.price / (1 - (v-pct / 100)).
@@ -1163,9 +1181,7 @@ for each quotehd
         IF quoteqty.price LT v-orig-price THEN
           RUN round-up (INPUT v-orig-price, INPUT quoteqty.price, INPUT v-round-EA, OUTPUT quoteqty.price).
     END.
-
-
-     reftable.val[4]   = quoteqty.price * 1000.
+     
   end.
 
   for each quoteqty

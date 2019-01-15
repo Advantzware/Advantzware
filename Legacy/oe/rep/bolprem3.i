@@ -59,7 +59,6 @@ FOR EACH tt-boll,
          IF NOT LAST(tt-boll.cases) THEN do:
         IF v-printline >= 60 THEN DO: 
            v-printline = 0.
-           j = j - 30.
            PAGE {1}.
            {oe/rep/bolprem2.i}
         END.
@@ -265,7 +264,6 @@ FOR EACH tt-boll,
       IF NOT LAST(tt-boll.cases) THEN do:
                 IF v-printline >= 60 THEN DO: 
                    v-printline = 0.
-                   j = j - 30.
                    PAGE {1}.
                    {oe/rep/bolprem2.i}
                 END.
@@ -291,7 +289,6 @@ FOR EACH tt-boll,
             IF NOT LAST(tt-boll.cases) THEN do:
             IF v-printline >= 60 THEN DO: 
                v-printline = 0.
-               j = j - 30.
                PAGE {1}.
                {oe/rep/bolprem2.i}
             END.

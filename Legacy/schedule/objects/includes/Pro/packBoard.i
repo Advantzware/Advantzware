@@ -6,8 +6,7 @@
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE ipValue AS CHARACTER NO-UNDO INITIAL 'All,,,,,'.
-  DEFINE VARIABLE opContinue AS LOGICAL NO-UNDO.
-  
+  DEFINE VARIABLE opContinue AS LOGICAL NO-UNDO.  
   DEFINE VARIABLE condition AS LOGICAL NO-UNDO EXTENT 4.
   DEFINE VARIABLE endlessLoop AS LOGICAL NO-UNDO.
   DEFINE VARIABLE firstDate AS DATE NO-UNDO.
@@ -121,12 +120,9 @@
   END. /* if endlessloop */
   
   opContinue = YES.
-  OUTPUT TO VALUE(clientDat + '{&data}/' + ID + '/packBoard.log').
-  PUT UNFORMATTED ipValue ' ' firstDateTime ' ' lastDateTime SKIP.
   FOR EACH ttblJob NO-LOCK USE-INDEX packIdx
       WHERE ttblJob.endDateTime GE firstDateTime
         AND ttblJob.startDateTime LE lastDateTime:
-    {{&includes}/{&Board}/packBoard1.i}
     ASSIGN
       lvStartDate = ttblJob.startDate
       lvStartTime = ttblJob.startTime
@@ -198,13 +194,8 @@
   END. /* each ttblJob */
   RUN msgFrame ('Auto Schedule: Update Jobs from Stack').
   FOR EACH jobStacker NO-LOCK:
-    {{&includes}/{&Board}/packBoard2.i}
     IF NOT jobStacker.jobChanged THEN NEXT.
     FIND ttblJob EXCLUSIVE-LOCK WHERE ROWID(ttblJob) EQ jobStacker.ttblRowID.
-    /* want to remove this functionality
-    RUN jobMoveHistory (ROWID(ttblJob),jobStacker.startDate,jobStacker.startTime,
-                        jobStacker.endDate,jobStacker.endTime,ttblJob.jobLocked,
-                        jobStacker.downtimeSpan). */
     ASSIGN
       ttblJob.startDate = jobStacker.startDate
       ttblJob.startTime = jobStacker.startTime
@@ -220,7 +211,6 @@
       ttblJob.statusLabel = jobStatus()
       .
   END. /* each jobStacker */
-  OUTPUT CLOSE.
   EMPTY TEMP-TABLE jobStacker.
   RUN msgFrame ('Setting Job Sequence Values').
   RUN setJobSequence.

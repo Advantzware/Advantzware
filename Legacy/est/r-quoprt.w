@@ -1462,8 +1462,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     tb_booked:SCREEN-VALUE = "NO".
     tb_booked:SENSITIVE = NO.
     /*when printing from estimate*/
-    IF INDEX(PROGRAM-NAME(4),"system/mainmenu") GT 0 THEN
-       ASSIGN v-quo-list:SCREEN-VALUE = "".
+      ASSIGN v-quo-list:SCREEN-VALUE = "".
 
     ASSIGN begin_cust:SCREEN-VALUE = quotehd.cust-no
            end_cust:SCREEN-VALUE   = begin_cust
@@ -1474,7 +1473,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DISABLE lines-per-page.
     IF NOT AVAIL est OR est.est-type LE 4 THEN DISABLE tb_note tb_comm.
     IF NOT AVAIL est OR est.est-type LE 4 OR 
-      (v-print-fmt NE "XPrint" AND v-print-fmt NE "quoprint 1" AND v-print-fmt NE "quoprint 2" AND v-print-fmt NE "quoprint 10" AND v-print-fmt NE "quoprint 11" AND v-print-fmt NE "quoprint 20" AND v-print-fmt NE "Printers"  AND v-print-fmt NE "Hughes" AND v-print-fmt NE "Simkins" AND v-print-fmt NE "Oklahoma")
+      (v-print-fmt NE "XPrint" AND v-print-fmt NE "RFC" AND v-print-fmt NE "quoprint 1" AND v-print-fmt NE "quoprint 2" AND v-print-fmt NE "quoprint 10" AND v-print-fmt NE "quoprint 11" AND v-print-fmt NE "quoprint 20" AND v-print-fmt NE "Chattanooga"  AND v-print-fmt NE "Printers"  AND v-print-fmt NE "Hughes" AND v-print-fmt NE "Simkins" AND v-print-fmt NE "Oklahoma")
       THEN DO:
       ASSIGN
         tb_boardDescription:SCREEN-VALUE = 'Est'
@@ -1918,8 +1917,18 @@ PROCEDURE GenerateMail :
                v-print-fmt EQ "MSPACK-EXCEL") THEN
            RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
 
-        IF tb_HideDialog:CHECKED THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', lv-pdf-file + ".pdf", ip-quote-no).
-        ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer',  lv-pdf-file + ".pdf",ip-quote-no).
+        IF v-print-fmt EQ "PREMIER-EXCEL" THEN do:
+            FIND FIRST tt-filelist NO-LOCK NO-ERROR .
+            IF AVAIL tt-filelist THEN DO:
+                ASSIGN lv-pdf-file = tt-filelist.tt-FileName .
+            END.
+            IF tb_HideDialog:CHECKED THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', lv-pdf-file , ip-quote-no).
+            ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer',  lv-pdf-file ,ip-quote-no).
+        END.
+        ELSE do:
+            IF tb_HideDialog:CHECKED THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', lv-pdf-file + ".pdf", ip-quote-no).
+            ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer',  lv-pdf-file + ".pdf",ip-quote-no).
+        END.
      END.
 
      ELSE DO:
@@ -2631,7 +2640,7 @@ PROCEDURE SetQuoForm :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAM icPrintFormat AS CHAR NO-UNDO.
-   IF INDEX("Pacific,Xprint,quoprint 1,quoprint 2,quoprint 10,quoprint 11,quoprint 20,Printers,Hughes,SouthPak,ABox,Midwest,Axis,MWFIBRE,century,Concepts,oracle,Harwell,quoprint10-CAN,PremierX,Elite,Unipak,Ottpkg,Frankstn,Mirpkg,APC,Perform,FibreX,Boss,Protagon,Loylang,LoylangBSF,PPI,Packrite,Xprint30,StClair,AllWest,Soule,Sultana,SouleMed,Simkins,CCC,Peachtree,Oklahoma,Accord",icPrintFormat) > 0 THEN
+   IF INDEX("Pacific,Xprint,RFC,quoprint 1,quoprint 2,quoprint 10,quoprint 11,quoprint 20,Chattanooga,Printers,Hughes,SouthPak,ABox,Midwest,Axis,MWFIBRE,century,Concepts,oracle,Harwell,quoprint10-CAN,PremierX,Elite,Unipak,Ottpkg,Frankstn,Mirpkg,APC,Perform,FibreX,Boss,Protagon,Loylang,LoylangBSF,PPI,Packrite,Xprint30,StClair,AllWest,Soule,Sultana,SouleMed,Simkins,CCC,Peachtree,Oklahoma,Accord",icPrintFormat) > 0 THEN
       is-xprint-form = YES.     
    ELSE is-xprint-form = NO.
 
@@ -2695,7 +2704,9 @@ PROCEDURE SetQuoForm :
        WHEN "SouleMed" THEN ASSIGN v-program = "cec/quote/quosoulemed.p" lines-per-page = 66.    
        WHEN "Simkins" THEN ASSIGN v-program = "cec/quote/quosmkct.p" lines-per-page = 66.
        WHEN "CCC" THEN ASSIGN v-program = "cec/quote/quoccc.p" lines-per-page = 66.
-       WHEN "Peachtree" THEN ASSIGN v-program = "cec/quote/quoxptree.p" lines-per-page = 66.     
+       WHEN "Peachtree" THEN ASSIGN v-program = "cec/quote/quoxptree.p" lines-per-page = 66.
+       WHEN "RFC" THEN ASSIGN v-program = "cec/quote/quorfc.p" lines-per-page = 66.
+       WHEN "Chattanooga" THEN ASSIGN v-program = "cec/quote/quochatt.p" lines-per-page = 66.
        OTHERWISE DO:
           IF AVAIL est AND est.est-type GT 4 THEN
              ASSIGN

@@ -1,0 +1,66 @@
+ADD TABLE "xCueCard"
+  AREA "Data"
+  LABEL "x Cue Card"
+  DESCRIPTION "Cue Card not active per User"
+  DUMP-NAME "xcuecard"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\xCueCard.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\xCueCard.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\xCueCard.p" CRC "?" 
+
+ADD FIELD "user_id" OF "xCueCard" AS character 
+  FORMAT "X(16)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 2
+  MAX-WIDTH 32
+  HELP "Enter User ID"
+  ORDER 10
+
+ADD FIELD "rec_key" OF "xCueCard" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 5
+  MAX-WIDTH 42
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 40
+
+ADD FIELD "cueTextID" OF "xCueCard" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Cue Text ID"
+  POSITION 6
+  MAX-WIDTH 4
+  COLUMN-LABEL "Text ID"
+  HELP "Enter Cue Text ID"
+  ORDER 30
+
+ADD FIELD "cueType" OF "xCueCard" AS character 
+  FORMAT "x(8)"
+  INITIAL "System"
+  LABEL "Cue Type"
+  POSITION 7
+  MAX-WIDTH 16
+  HELP "Enter Cue Card Type"
+  ORDER 20
+
+ADD INDEX "pi-xCueCard" ON "xCueCard" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Primary Index"
+  INDEX-FIELD "user_id" ASCENDING 
+  INDEX-FIELD "cueType" ASCENDING 
+  INDEX-FIELD "cueTextID" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "xCueCard" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000001467

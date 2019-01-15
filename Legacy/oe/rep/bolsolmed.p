@@ -104,6 +104,8 @@ DEF VAR v-ship-i AS cha EXTENT 4 FORM "x(60)" NO-UNDO.
 DEF VAR v-tmp-lines AS DEC NO-UNDO.
 DEF VAR v-print-barTag AS LOG NO-UNDO.
 
+DEF VAR lv-pg-num AS INT NO-UNDO.
+
 
 ASSIGN
   ls-image1 = "images\Soulemedical.jpg"
@@ -345,8 +347,10 @@ for each xxreport where xxreport.term-id eq v-term-id,
   IF oe-bolh.tot-pallets NE 0 THEN v-tot-palls = oe-bolh.tot-pallets.
 
   PUT "<R58><C50><#8><FROM><R+4><C+30><RECT> " 
-    "<=8><R+1> Total Units       :" v-tot-unit 
+    "<=8><R+1> Total Cases       :" v-tot-unit 
     "<=8><R+3> " /*v-tot-wt*/ /*fORM ">>,>>9.99"*/ .
+
+  PUT "<R63><C65>Page:" string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)".
     
   ASSIGN v-ship-i = "".
   IF v-print-shipnotes THEN 
@@ -372,10 +376,12 @@ for each xxreport where xxreport.term-id eq v-term-id,
     .
 
   v-printline = v-printline + 14.
+  IF last-of(oe-bolh.bol-no) THEN lv-pg-num = PAGE-NUM .
  
 /*  IF v-printline < 45 THEN PUT SKIP(60 - v-printline). */
   PAGE.
   v-printline = 0.
+  v-tot-unit = 0.
 
   IF v-Print-BarTag THEN RUN PrintBarTag.
 

@@ -245,6 +245,7 @@ DEFINE VARIABLE ord-qty AS INTEGER NO-UNDO .
 
 DEFINE VARIABLE cDraftImage AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDraftImageFull AS CHARACTER FORMAT "x(50)" NO-UNDO.
+DEFINE BUFFER bf-job-mch FOR job-mch .
 ASSIGN cDraftImage = "images\draft.jpg"
 
 FILE-INFO:FILE-NAME = cDraftImage.
@@ -315,6 +316,17 @@ FOR EACH job-hdr NO-LOCK
 
        IF AVAILABLE eb THEN
        DO:
+          FIND FIRST bf-job-mch NO-LOCK
+              WHERE bf-job-mch.company EQ cocode
+              AND bf-job-mch.job     EQ job-hdr.job
+              AND bf-job-mch.job-no  EQ job-hdr.job-no
+              AND bf-job-mch.job-no2 EQ job-hdr.job-no2 
+              AND bf-job-mch.m-code  EQ "303" NO-ERROR .
+          IF AVAIL bf-job-mch THEN do: 
+              RUN cerep/jobccchyb.p(job-hdr.job-no, job-hdr.job-no2)  .
+              NEXT .
+          END.
+
           IF CAN-FIND(FIRST prodl WHERE prodl.company EQ cocode AND
                             (prodl.prolin EQ 'Printed' 
                              OR prodl.prolin EQ 'Labels') AND
@@ -401,7 +413,7 @@ FOR EACH job-hdr NO-LOCK
         
 
         IF AVAILABLE oe-ord THEN
-          IF NOT oe-ctrl.p-fact AND oe-ord.stat EQ "H" THEN NEXT.
+          IF NOT oe-ctrl.p-fact AND (oe-ord.stat EQ "H" OR oe-ord.priceHold) THEN NEXT.
 
           FIND FIRST cust NO-LOCK WHERE cust.company EQ job-hdr.company AND
                                         cust.cust-no EQ job-hdr.cust-no NO-ERROR.
@@ -696,14 +708,7 @@ FOR EACH job-hdr NO-LOCK
               STRING(ef.trim-l).
           END.
 
-          FIND FIRST ref-side NO-LOCK WHERE
-               ref-side.reftable EQ "ce/v-est3.w Unit#"  AND
-               ref-side.company  EQ eb.company AND
-               ref-side.loc      EQ eb.est-no AND
-               ref-side.code     EQ STRING(eb.form-no,"9999999999") AND
-               ref-side.code2    EQ STRING(eb.blank-no,"9999999999")
-               NO-ERROR.
-
+          
           /** BUILD INK WORK FILE **/
           FOR EACH job-mat NO-LOCK
               WHERE job-mat.company EQ cocode
@@ -732,28 +737,9 @@ FOR EACH job-hdr NO-LOCK
                    wrk-ink.i-dscr   = eb.i-dscr2[i]
                    wrk-ink.i-pass   = eb.i-ps2[i].
 
-                  IF i LE 12 THEN DO:
-                    FIND FIRST ref-side NO-LOCK WHERE
-                      ref-side.reftable EQ "ce/v-est3.w Unit#"  AND
-                      ref-side.company  EQ eb.company AND
-                      ref-side.loc      EQ eb.est-no AND
-                      ref-side.code     EQ STRING(eb.form-no,"9999999999") AND
-                      ref-side.code2    EQ STRING(eb.blank-no,"9999999999")
-                      NO-ERROR.
-                    IF AVAILABLE ref-side THEN
-                        wrk-ink.i-side = FILL(" ",5) + SUBSTRING(ref-side.dscr,i,1).
-                  END.
-                  ELSE DO:
-                      FIND FIRST ref-side NO-LOCK WHERE
-                          ref-side.reftable EQ "ce/v-est3.w Unit#1"  AND
-                          ref-side.company  EQ eb.company AND
-                          ref-side.loc      EQ eb.est-no AND
-                          ref-side.code     EQ STRING(eb.form-no,"9999999999") AND
-                          ref-side.code2    EQ STRING(eb.blank-no,"9999999999")
-                          NO-ERROR.
-                       IF AVAILABLE ref-side THEN
-                     wrk-ink.i-side = FILL(" ",5) + SUBSTRING(ref-side.dscr,i - 12,1).
-                  END.                                                                
+                  IF i LE 12 THEN DO:                   
+                    wrk-ink.i-side = FILL(" ",5) + SUBSTRING(eb.side[i],1).                  
+                  END.                                                              
                  
                 END.
               END.

@@ -477,7 +477,7 @@ for each job-hdr NO-LOCK
          v-job-no  = job-hdr.job-no
          v-job-no2 = job-hdr.job-no2 .
 
-       if avail oe-ord AND not oe-ctrl.p-fact and oe-ord.stat eq "H" then next.
+       if avail oe-ord AND not oe-ctrl.p-fact and (oe-ord.stat eq "H" OR oe-ord.priceHold) then next.
        v-due-date = if avail oe-ord then oe-ord.due-date else ?.
        v-start-date = job-hdr.start-date.
        v-set-fg = IF est.est-type = 2 THEN "SET FG#: <B>" + job-hdr.i-no + "</B>" ELSE "".

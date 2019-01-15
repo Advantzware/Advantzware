@@ -26,45 +26,45 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/gcompany.i}
-{custom/gloc.i}
-
-{sys/inc/var.i NEW SHARED}
-
-DEF BUFFER bitemfg FOR itemfg.
-
-DEF VAR old-est-no      LIKE itemfg.est-no NO-UNDO.
-DEF VAR old-part-no#    LIKE itemfg.part-no NO-UNDO.
-DEF VAR old-i-name      LIKE itemfg.i-name NO-UNDO.
-DEF VAR old-part-dscr1  LIKE itemfg.part-dscr1 NO-UNDO.
-DEF VAR old-part-dscr2  LIKE itemfg.part-dscr2 NO-UNDO.
-DEF VAR old-part-dscr3  LIKE itemfg.part-dscr3 NO-UNDO.
-DEF VAR old-die-no      LIKE itemfg.die-no NO-UNDO.
-DEF VAR old-plate-no    LIKE itemfg.plate-no NO-UNDO.
-DEF VAR old-cad-no      LIKE itemfg.cad-no NO-UNDO.
-DEF VAR old-spc-no      LIKE itemfg.spc-no NO-UNDO.
-DEF VAR old-upc-no      LIKE itemfg.upc-no NO-UNDO.
-DEF VAR old-procat      LIKE itemfg.procat NO-UNDO.
-DEF VAR uom-list AS cha INIT "C,CS,EA,L,M,LB,DRM,ROL,PKG,SET,DOZ,BDL" NO-UNDO.
-DEF VAR lv-type-codes AS CHAR NO-UNDO.
-DEF VAR lv-type-dscrs AS CHAR NO-UNDO.
-DEF VAR v-mat AS LOG INIT YES NO-UNDO.
-DEF VAR cDefaultProdUom AS CHAR NO-UNDO.
-DEF VAR cFGMasterINo AS CHAR NO-UNDO.
-DEF VAR v-cpyspc AS LOG NO-UNDO.
-DEF VAR v-begspc AS CHAR NO-UNDO.
-DEF VAR v-endspc AS CHAR NO-UNDO .
-DEF VAR lv-puruom       LIKE itemfg.pur-uom NO-UNDO.
-DEF VAR v-shpmet        LIKE itemfg.ship-meth NO-UNDO.
-DEF VAR lCheckPurMan AS LOGICAL NO-UNDO .
-DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
-
 &scoped-define copy-proc proc-copy
 &SCOPED-DEFINE itemfg-maint itemfg-maint
 
-DEF TEMP-TABLE w-est-no
+{custom/gcompany.i}
+{custom/gloc.i}
+{sys/inc/var.i NEW SHARED}
+
+DEFINE BUFFER bitemfg FOR itemfg.
+
+DEFINE VARIABLE old-est-no      LIKE itemfg.est-no NO-UNDO.
+DEFINE VARIABLE old-part-no#    LIKE itemfg.part-no NO-UNDO.
+DEFINE VARIABLE old-i-name      LIKE itemfg.i-name NO-UNDO.
+DEFINE VARIABLE old-part-dscr1  LIKE itemfg.part-dscr1 NO-UNDO.
+DEFINE VARIABLE old-part-dscr2  LIKE itemfg.part-dscr2 NO-UNDO.
+DEFINE VARIABLE old-part-dscr3  LIKE itemfg.part-dscr3 NO-UNDO.
+DEFINE VARIABLE old-die-no      LIKE itemfg.die-no NO-UNDO.
+DEFINE VARIABLE old-plate-no    LIKE itemfg.plate-no NO-UNDO.
+DEFINE VARIABLE old-cad-no      LIKE itemfg.cad-no NO-UNDO.
+DEFINE VARIABLE old-spc-no      LIKE itemfg.spc-no NO-UNDO.
+DEFINE VARIABLE old-upc-no      LIKE itemfg.upc-no NO-UNDO.
+DEFINE VARIABLE old-procat      LIKE itemfg.procat NO-UNDO.
+DEFINE VARIABLE uom-list        AS CHARACTER INIT "C,CS,EA,L,M,LB,DRM,ROL,PKG,SET,DOZ,BDL" NO-UNDO.
+DEFINE VARIABLE lv-type-codes   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-type-dscrs   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-mat           AS LOG       INIT YES NO-UNDO.
+DEFINE VARIABLE cDefaultProdUom AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFGMasterINo    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-cpyspc        AS LOG       NO-UNDO.
+DEFINE VARIABLE v-begspc        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-endspc        AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lv-puruom       LIKE itemfg.pur-uom NO-UNDO.
+DEFINE VARIABLE v-shpmet        LIKE itemfg.ship-meth NO-UNDO.
+DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO .
+DEFINE VARIABLE lFound          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lCheckMessage   AS LOGICAL   NO-UNDO .
+
+DEFINE TEMP-TABLE w-est-no
     FIELD w-est-no LIKE itemfg.est-no
-    FIELD w-run AS LOG.
+    FIELD w-run    AS LOG.
 
 RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 
@@ -104,7 +104,7 @@ itemfg.case-pall itemfg.weight-100 itemfg.frt-class itemfg.frt-class-dscr ~
 itemfg.class itemfg.cc-code itemfg.prod-code itemfg.prod-notes ~
 itemfg.std-mat-cost itemfg.std-lab-cost itemfg.std-var-cost ~
 itemfg.std-fix-cost itemfg.spare-dec-1 itemfg.total-std-cost ~
-itemfg.avg-cost itemfg.last-cost itemfg.prod-uom 
+itemfg.avg-cost itemfg.last-cost itemfg.prod-uom itemfg.spare-dec-2
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS tg-Freeze-weight RECT-10 RECT-8 RECT-9 ~
@@ -121,7 +121,7 @@ itemfg.case-pall itemfg.weight-100 itemfg.frt-class itemfg.frt-class-dscr ~
 itemfg.class itemfg.cc-code itemfg.prod-code itemfg.prod-notes ~
 itemfg.std-mat-cost itemfg.std-lab-cost itemfg.std-var-cost ~
 itemfg.std-fix-cost itemfg.spare-dec-1 itemfg.total-std-cost ~
-itemfg.avg-cost itemfg.last-cost itemfg.prod-uom 
+itemfg.avg-cost itemfg.last-cost itemfg.prod-uom itemfg.spare-dec-2
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
 &Scoped-Define DISPLAYED-OBJECTS tb_taxable tgVaried tg-Freeze-weight ~
@@ -413,6 +413,10 @@ DEFINE FRAME F-Main
           LABEL "Full Cost" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+     itemfg.spare-dec-2 AT ROW 16.96 COL 124.6 COLON-ALIGNED WIDGET-ID 4
+          LABEL "C/in/Pallet" FORMAT "->>>>>>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
      itemfg.total-std-cost AT ROW 13.1 COL 124.6 COLON-ALIGNED
           LABEL "Total Std Cost" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
@@ -563,6 +567,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.spare-dec-1 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN itemfg.spare-dec-2 IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.spare-int-2 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN itemfg.spc-no IN FRAME F-Main
@@ -612,117 +618,145 @@ ASSIGN
 
 &Scoped-define SELF-NAME F-Main
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
+ON END-ERROR OF FRAME F-Main
+OR ENDKEY OF FRAME F-Main
+DO:
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
 DO:
-   DEF VAR char-val AS cha NO-UNDO.
-   DEF VAR lv-prep-type AS cha NO-UNDO.
-   DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
+        DEFINE VARIABLE char-val     AS cha           NO-UNDO.
+        DEFINE VARIABLE lv-prep-type AS cha           NO-UNDO.
+        DEFINE VARIABLE lw-focus     AS WIDGET-HANDLE NO-UNDO.
+
+        lw-focus = FOCUS.
+
+        CASE lw-focus:NAME :
+            WHEN "sell-uom" THEN 
+                DO:
+                    /*run sys/ref/uom-rm.p  (item.mat-type, output uom-list). */
+                    RUN windows/l-stduom.w (gcompany,uom-list, lw-focus:SCREEN-VALUE, OUTPUT char-val).
+                    /*    run windows/l-uom.w (lw-focus:SCREEN-VALUE, output char-val).     display all Uom */
+                    IF char-val <> "" THEN 
+                        ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
+                            .
+                END.
+            WHEN "def-loc" THEN 
+                DO:
+                    RUN windows/l-loc.w (gcompany,lw-focus:SCREEN-VALUE, OUTPUT char-val).
+                    IF char-val <> "" THEN 
+                        ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
+                            .
+                END.
+            WHEN "cust-no" THEN 
+                DO:
+                    RUN windows/l-cust.w (gcompany, lw-focus:SCREEN-VALUE, OUTPUT char-val).
+                    IF char-val NE "" AND lw-focus:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
+                    DO:
+                        lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+                        APPLY "value-changed" TO lw-focus.
+                    END.
+                END.
+            WHEN "def-loc-bin" THEN 
+                DO:
+                    RUN windows/l-fgbin.w (gcompany,itemfg.def-loc:SCREEN-VALUE,lw-focus:SCREEN-VALUE, OUTPUT char-val).
+                    /*       run windows/l-locbin.w (gcompany,itemfg.def-loc:SCREEN-VALUE,lw-focus:SCREEN-VALUE, output char-val).  
+                    */  
+                    IF char-val <> "" THEN 
+                        ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
+                            .
+                END.
+            WHEN "est-no" THEN 
+                DO:
+                    RUN windows/l-fgest.w (gcompany, itemfg.cust-no:SCREEN-VALUE, lw-focus:SCREEN-VALUE, OUTPUT char-val).
+                    FIND FIRST eb WHERE RECID(eb) EQ INT(char-val) NO-LOCK NO-ERROR.
+                    IF AVAILABLE eb AND TRIM(lw-focus:SCREEN-VALUE) NE TRIM(eb.est-no) THEN 
+                    DO:
+                        lw-focus:SCREEN-VALUE = eb.est-no.
+                        APPLY "value-changed" TO lw-focus.
+                    END. 
+                END.
+            WHEN "procat" THEN 
+                DO:
+                    RUN windows/l-fgcat.w (gcompany,lw-focus:SCREEN-VALUE, OUTPUT char-val).
+                    IF char-val <> "" THEN 
+                        ASSIGN lw-focus:SCREEN-VALUE           = ENTRY(1,char-val)
+                            itemfg.procat-desc:SCREEN-VALUE = ENTRY(2,char-val)
+                            .
+                END.
+            WHEN "type-code" THEN 
+                DO:
+                    RUN windows/l-ordtyp.w (itemfg.type-code:SCREEN-VALUE, OUTPUT char-val).
+                    IF char-val NE "" AND itemfg.type-code:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
+                    DO:
+                        itemfg.type-code:SCREEN-VALUE = ENTRY(1,char-val).
+                        RUN new-type.
+                    END.
+                END.
+            WHEN "style" THEN 
+                DO:
+                    RUN windows/l-style.w (gcompany,lw-focus:SCREEN-VALUE, OUTPUT char-val).
+                    IF char-val <> "" THEN 
+                        ASSIGN lw-focus:SCREEN-VALUE          = ENTRY(1,char-val)
+                            itemfg.style-desc:SCREEN-VALUE = ENTRY(2,char-val)
+                            .
+                END.
+            WHEN "plate-no" OR 
+            WHEN "die-no" THEN 
+                DO:
+                    lv-prep-type = IF lw-focus:NAME = "Plate-no" THEN "P" ELSE "".
+                    RUN windows/l-diepl.w (gcompany,lv-prep-type,lw-focus:SCREEN-VALUE, OUTPUT char-val). 
+                    IF char-val <> "" THEN 
+                        lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+                END.
+            WHEN "frt-class" THEN 
+                DO:
+                    RUN windows/l-frtcls.w (itemfg.frt-class:SCREEN-VALUE, OUTPUT char-val).
+                    IF char-val <> "" THEN 
+                        ASSIGN itemfg.frt-class:SCREEN-VALUE      = ENTRY(1,char-val)
+                            itemfg.frt-class-dscr:SCREEN-VALUE = ENTRY(2,char-val)
+                            .
+                END.
+
+            WHEN "spare-char-1" THEN 
+                DO:
+                    RUN windows/l-usrgrp.w (INPUT "SALES GROUPS", OUTPUT char-val).
+                    IF char-val <> "" THEN
+                        ASSIGN lw-focus:SCREEN-VALUE = char-val.
+                END.
+
+            WHEN "cc-code" THEN 
+                DO:
+                    RUN windows/l-usrgrp.w (INPUT "FG Cycle Code", OUTPUT char-val).
+                    IF char-val <> "" THEN
+                        ASSIGN lw-focus:SCREEN-VALUE = char-val.
+                END.
+
+            WHEN "prod-code" THEN 
+                DO:
+                    RUN windows/l-usrgrp.w (INPUT "FG Production Code", OUTPUT char-val).
+                    IF char-val <> "" THEN
+                        ASSIGN lw-focus:SCREEN-VALUE = char-val.
+                END.
+
+            WHEN "class" THEN 
+                DO:
+                    RUN windows/l-usrgrp.w (INPUT "FG CLASS", OUTPUT char-val).
+                    IF char-val <> "" THEN
+                        ASSIGN lw-focus:SCREEN-VALUE = char-val.
+                END.
 
 
-   lw-focus = FOCUS.
-
-   CASE lw-focus:NAME :
-        WHEN "sell-uom" THEN DO:
-             /*run sys/ref/uom-rm.p  (item.mat-type, output uom-list). */
-             RUN windows/l-stduom.w (gcompany,uom-list, lw-focus:SCREEN-VALUE, OUTPUT char-val).
-         /*    run windows/l-uom.w (lw-focus:SCREEN-VALUE, output char-val).     display all Uom */
-             IF char-val <> "" THEN 
-                ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
-                       .
-        END.
-        WHEN "def-loc" THEN DO:
-             RUN windows/l-loc.w (gcompany,lw-focus:SCREEN-VALUE, OUTPUT char-val).
-             IF char-val <> "" THEN 
-                ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
-                       .
-        END.
-        WHEN "cust-no" THEN DO:
-             RUN windows/l-cust.w (gcompany, lw-focus:SCREEN-VALUE, OUTPUT char-val).
-             IF char-val NE "" AND lw-focus:SCREEN-VALUE NE ENTRY(1,char-val) THEN DO:
-               lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
-               APPLY "value-changed" TO lw-focus.
-             END.
-        END.
-        WHEN "def-loc-bin" THEN DO:
-             RUN windows/l-fgbin.w (gcompany,itemfg.def-loc:SCREEN-VALUE,lw-focus:SCREEN-VALUE, OUTPUT char-val).
-      /*       run windows/l-locbin.w (gcompany,itemfg.def-loc:SCREEN-VALUE,lw-focus:SCREEN-VALUE, output char-val).  
-      */  
-             IF char-val <> "" THEN 
-                ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
-                       .
-        END.
-        WHEN "est-no" THEN DO:
-             RUN windows/l-fgest.w (gcompany, itemfg.cust-no:SCREEN-VALUE, lw-focus:SCREEN-VALUE, OUTPUT char-val).
-             FIND FIRST eb WHERE RECID(eb) EQ INT(char-val) NO-LOCK NO-ERROR.
-             IF AVAIL eb AND TRIM(lw-focus:SCREEN-VALUE) NE TRIM(eb.est-no) THEN DO:
-               lw-focus:SCREEN-VALUE = eb.est-no.
-               APPLY "value-changed" TO lw-focus.
-             END. 
-        END.
-        WHEN "procat" THEN DO:
-             RUN windows/l-fgcat.w (gcompany,lw-focus:SCREEN-VALUE, OUTPUT char-val).
-             IF char-val <> "" THEN 
-                ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
-                       itemfg.procat-desc:SCREEN-VALUE = ENTRY(2,char-val)
-                       .
-        END.
-        WHEN "type-code" THEN DO:
-             RUN windows/l-ordtyp.w (itemfg.type-code:SCREEN-VALUE, OUTPUT char-val).
-             IF char-val NE "" AND itemfg.type-code:SCREEN-VALUE NE ENTRY(1,char-val) THEN DO:
-               itemfg.type-code:SCREEN-VALUE = ENTRY(1,char-val).
-               RUN new-type.
-             END.
-        END.
-        WHEN "style" THEN DO:
-             RUN windows/l-style.w (gcompany,lw-focus:SCREEN-VALUE, OUTPUT char-val).
-             IF char-val <> "" THEN 
-                ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
-                       itemfg.style-desc:SCREEN-VALUE = ENTRY(2,char-val)
-                       .
-        END.
-        WHEN "plate-no" OR WHEN "die-no" THEN DO:
-           lv-prep-type = IF lw-focus:NAME = "Plate-no" THEN "P" ELSE "".
-           RUN windows/l-diepl.w (gcompany,lv-prep-type,lw-focus:SCREEN-VALUE, OUTPUT char-val). 
-           IF char-val <> "" THEN 
-              lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
-       END.
-       WHEN "frt-class" THEN DO:
-             RUN windows/l-frtcls.w (itemfg.frt-class:SCREEN-VALUE, OUTPUT char-val).
-             IF char-val <> "" THEN 
-                ASSIGN itemfg.frt-class:SCREEN-VALUE = ENTRY(1,char-val)
-                       itemfg.frt-class-dscr:SCREEN-VALUE = ENTRY(2,char-val)
-                       .
-        END.
-
-       WHEN "spare-char-1" THEN DO:
-           RUN windows/l-usrgrp.w (INPUT "SALES GROUPS", OUTPUT char-val).
-           IF char-val <> "" THEN
-               ASSIGN lw-focus:SCREEN-VALUE = char-val.
-       END.
-
-       WHEN "cc-code" THEN DO:
-           RUN windows/l-usrgrp.w (INPUT "FG Cycle Code", OUTPUT char-val).
-           IF char-val <> "" THEN
-               ASSIGN lw-focus:SCREEN-VALUE = char-val.
-       END.
-
-       WHEN "prod-code" THEN DO:
-           RUN windows/l-usrgrp.w (INPUT "FG Production Code", OUTPUT char-val).
-           IF char-val <> "" THEN
-               ASSIGN lw-focus:SCREEN-VALUE = char-val.
-       END.
-
-       WHEN "class" THEN DO:
-           RUN windows/l-usrgrp.w (INPUT "FG CLASS", OUTPUT char-val).
-           IF char-val <> "" THEN
-               ASSIGN lw-focus:SCREEN-VALUE = char-val.
-       END.
+        END.    
 
 
-    END.    
-
-
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -732,16 +766,17 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.case-count V-table-Win
 ON LEAVE OF itemfg.case-count IN FRAME F-Main /* Count */
 DO:
-    {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 AND 
-       (/*itemfg.i-code:SCREEN-VALUE = "S" and*/
-         int(itemfg.case-count:SCREEN-VALUE) < 1 ) 
-    THEN DO:
-         MESSAGE "Case count can not less than ONE !!! " VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.
+        {&methods/lValidateError.i YES}
+        IF LASTKEY <> -1 AND 
+            (/*itemfg.i-code:SCREEN-VALUE = "S" and*/
+            int(itemfg.case-count:SCREEN-VALUE) < 1 ) 
+            THEN 
+        DO:
+            MESSAGE "Case count can not less than ONE !!! " VIEW-AS ALERT-BOX ERROR.
+            RETURN NO-APPLY.
+        END.
+        {&methods/lValidateError.i NO}
     END.
-    {&methods/lValidateError.i NO}
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -751,14 +786,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.cust-no V-table-Win
 ON LEAVE OF itemfg.cust-no IN FRAME F-Main /* Cust# */
 DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-cust-no NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-cust-no NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    RUN valid-cust-user NO-ERROR.
-      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.                  
-END.
+            RUN valid-cust-user NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        END.                  
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -767,17 +803,17 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.cust-no V-table-Win
 ON VALUE-CHANGED OF itemfg.cust-no IN FRAME F-Main /* Cust# */
 DO:
-  FIND cust
-      WHERE cust.company EQ gcompany
-        AND cust.cust-no EQ {&self-name}:SCREEN-VALUE
+        FIND cust
+            WHERE cust.company EQ gcompany
+            AND cust.cust-no EQ {&self-name}:SCREEN-VALUE
       NO-LOCK NO-ERROR.
-  IF AVAIL cust THEN
-    ASSIGN
-     {&self-name}:SCREEN-VALUE        = cust.cust-no
+        IF AVAILABLE cust THEN
+            ASSIGN
+                {&self-name}:SCREEN-VALUE        = cust.cust-no
      itemfg.cust-name:SCREEN-VALUE    = cust.name
      itemfg.curr-code[1]:SCREEN-VALUE = cust.curr-code
      tb_taxable:SCREEN-VALUE          = STRING(cust.sort EQ "Y" AND cust.tax-gr NE "").
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -787,13 +823,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.def-loc V-table-Win
 ON LEAVE OF itemfg.def-loc IN FRAME F-Main /* Warehse */
 DO:
-    {&methods/lValidateError.i YES}
-IF LASTKEY <> -1 THEN DO:
-        RUN valid-loc NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        {&methods/lValidateError.i YES}
+        IF LASTKEY <> -1 THEN 
+        DO:
+            RUN valid-loc NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        END.
+        {&methods/lValidateError.i NO}
     END.
-    {&methods/lValidateError.i NO}
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -803,13 +840,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.def-loc-bin V-table-Win
 ON LEAVE OF itemfg.def-loc-bin IN FRAME F-Main /* Bin */
 DO: 
-    {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 THEN DO:
-        RUN valid-loc NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        {&methods/lValidateError.i YES}
+        IF LASTKEY <> -1 THEN 
+        DO:
+            RUN valid-loc NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        END.
+        {&methods/lValidateError.i NO}
     END.
-    {&methods/lValidateError.i NO}
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -819,11 +857,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.est-no V-table-Win
 ON LEAVE OF itemfg.est-no IN FRAME F-Main /* Est# */
 DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-est-no NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
+        IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-est-no NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -833,21 +872,21 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.frt-class V-table-Win
 ON LEAVE OF itemfg.frt-class IN FRAME F-Main /* Freight Class */
 DO:
-   DO WITH FRAME {&FRAME-NAME} :
+        DO WITH FRAME {&FRAME-NAME} :
 
-      FIND FIRST freight-class WHERE
-           freight-class.freight-class = itemfg.frt-class:SCREEN-VALUE
-           NO-LOCK NO-ERROR.
+            FIND FIRST freight-class WHERE
+                freight-class.freight-class = itemfg.frt-class:SCREEN-VALUE
+                NO-LOCK NO-ERROR.
 
-      IF AVAIL freight-class THEN
-      DO:
-         itemfg.frt-class-dscr:SCREEN-VALUE = freight-class.DESCRIPTION.
-         RELEASE freight-class.
-      END.
-      ELSE
-         itemfg.frt-class-dscr:SCREEN-VALUE = "".
-   END.
-END.
+            IF AVAILABLE freight-class THEN
+            DO:
+                itemfg.frt-class-dscr:SCREEN-VALUE = freight-class.DESCRIPTION.
+                RELEASE freight-class.
+            END.
+            ELSE
+                itemfg.frt-class-dscr:SCREEN-VALUE = "".
+        END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -857,8 +896,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.i-code V-table-Win
 ON RETURN OF itemfg.i-code IN FRAME F-Main /* Item Code */
 DO:
-  APPLY "tab" TO SELF.
-END.
+        APPLY "tab" TO SELF.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -867,14 +906,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.i-code V-table-Win
 ON VALUE-CHANGED OF itemfg.i-code IN FRAME F-Main /* Item Code */
 DO:
-  IF {&self-name}:SCREEN-VALUE EQ "C" THEN DO:
+        IF {&self-name}:SCREEN-VALUE EQ "C" THEN DO:
 
-      itemfg.prod-uom:SCREEN-VALUE = "M".
+        itemfg.prod-uom:SCREEN-VALUE = "M".
 
-      APPLY "LEAVE" TO itemfg.prod-uom IN FRAME F-MAIN.
-   END.
+        APPLY "LEAVE" TO itemfg.prod-uom IN FRAME F-MAIN.
+    END.
 
-  RUN prod-uom-able.
+RUN prod-uom-able.
 
 
 END.
@@ -887,12 +926,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.i-no V-table-Win
 ON ENTRY OF itemfg.i-no IN FRAME F-Main /* FG Item # */
 DO:
-  RUN enable-itemfg-field.
-  IF NOT adm-new-record THEN DO:
-    APPLY "tab" TO {&self-name}.
-    RETURN NO-APPLY.
-  END.
-END.
+        RUN enable-itemfg-field.
+        IF NOT adm-new-record THEN 
+        DO:
+            APPLY "tab" TO {&self-name}.
+            RETURN NO-APPLY.
+        END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -901,11 +941,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.i-no V-table-Win
 ON LEAVE OF itemfg.i-no IN FRAME F-Main /* FG Item # */
 DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-i-no NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
+        IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-i-no NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -915,8 +956,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.isaset V-table-Win
 ON RETURN OF itemfg.isaset IN FRAME F-Main /* Set Header? */
 DO:
-   APPLY "tab" TO SELF.
-END.
+        APPLY "tab" TO SELF.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -925,8 +966,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.isaset V-table-Win
 ON VALUE-CHANGED OF itemfg.isaset IN FRAME F-Main /* Set Header? */
 DO:
-  RUN SetPurMan(itemfg.isaset:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Y").
-END.
+        RUN SetPurMan(itemfg.isaset:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Y").
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -936,10 +977,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.part-no V-table-Win
 ON LEAVE OF itemfg.part-no IN FRAME F-Main /* Cust Part # */
 DO:
-  IF LASTKEY NE -1 AND itemfg.part-no:SCREEN-VALUE EQ "" THEN DO:
-    itemfg.part-no:SCREEN-VALUE = itemfg.i-no:SCREEN-VALUE.
-  END.
-END.
+        IF LASTKEY NE -1 AND itemfg.part-no:SCREEN-VALUE EQ "" THEN 
+        DO:
+            itemfg.part-no:SCREEN-VALUE = itemfg.i-no:SCREEN-VALUE.
+        END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -949,21 +991,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.procat V-table-Win
 ON LEAVE OF itemfg.procat IN FRAME F-Main /* Category */
 DO:
-    {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 AND SELF:SCREEN-VALUE <> "" AND
-       NOT CAN-FIND(FIRST fgcat WHERE fgcat.company = gcompany AND
-                                      fgcat.procat = SELF:SCREEN-VALUE)
-    THEN DO:
-         MESSAGE "Invalid Product Category. Try Help." VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.
-    END.
+        {&methods/lValidateError.i YES}
+        IF LASTKEY <> -1 AND SELF:SCREEN-VALUE <> "" AND
+            NOT CAN-FIND(FIRST fgcat WHERE fgcat.company = gcompany AND
+            fgcat.procat = SELF:SCREEN-VALUE)
+            THEN 
+        DO:
+            MESSAGE "Invalid Product Category. Try Help." VIEW-AS ALERT-BOX ERROR.
+            RETURN NO-APPLY.
+        END.
 
-    FIND FIRST fgcat WHERE fgcat.company = gcompany AND
-                           fgcat.procat = SELF:SCREEN-VALUE
-                           NO-LOCK NO-ERROR.
-   itemfg.procat-desc:SCREEN-VALUE = IF AVAIL fgcat THEN fgcat.dscr ELSE "".
-   {&methods/lValidateError.i NO}
-END.
+        FIND FIRST fgcat WHERE fgcat.company = gcompany AND
+            fgcat.procat = SELF:SCREEN-VALUE
+            NO-LOCK NO-ERROR.
+        itemfg.procat-desc:SCREEN-VALUE = IF AVAILABLE fgcat THEN fgcat.dscr ELSE "".
+        {&methods/lValidateError.i NO}
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -973,96 +1016,117 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.prod-uom V-table-Win
 ON LEAVE OF itemfg.prod-uom IN FRAME F-Main /* Cost UOM */
 DO:
-    {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 AND 
-       ( (itemfg.i-code:SCREEN-VALUE = "S" AND
-          can-do("EA,M",itemfg.prod-uom:SCREEN-VALUE )) OR
-         (itemfg.i-code:SCREEN-VALUE = "C" AND can-do("M",itemfg.prod-uom:SCREEN-VALUE) )
-        )
-    THEN DO:  END.
-    ELSE IF LASTKEY <>  -1 THEN DO:
-         MESSAGE "Enter M for Box Products, Enter EA or M for Non Box Products."
-                   VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.
-    END.     
-    DEF VAR cocode AS cha NO-UNDO.
-    cocode = gcompany.
+        {&methods/lValidateError.i YES}
+        IF LASTKEY <> -1 AND 
+            ( (itemfg.i-code:SCREEN-VALUE = "S" AND
+            can-do("EA,M",itemfg.prod-uom:SCREEN-VALUE )) OR
+            (itemfg.i-code:SCREEN-VALUE = "C" AND can-do("M",itemfg.prod-uom:SCREEN-VALUE) )
+            )
+            THEN 
+        DO:  
+        END.
+        ELSE IF LASTKEY <>  -1 THEN 
+            DO:
+                MESSAGE "Enter M for Box Products, Enter EA or M for Non Box Products."
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN NO-APPLY.
+            END.     
+        DEFINE VARIABLE cocode AS cha NO-UNDO.
+        cocode = gcompany.
 
-    FIND CURRENT itemfg NO-WAIT NO-ERROR.
+        FIND CURRENT itemfg NO-WAIT NO-ERROR.
 
-    ASSIGN itemfg.prod-uom:SCREEN-VALUE  = INPUT itemfg.prod-uom.
+        ASSIGN 
+            itemfg.prod-uom:SCREEN-VALUE = INPUT itemfg.prod-uom.
 
-    RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
-                            0, 0, 0, 0, itemfg.avg-cost,
-                                 OUTPUT itemfg.avg-cost).
+        RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
+            0, 0, 0, 0, itemfg.avg-cost,
+            OUTPUT itemfg.avg-cost).
 
-    RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
-                            0, 0, 0, 0, itemfg.last-cost,
-                                 OUTPUT itemfg.last-cost).
+        RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
+            0, 0, 0, 0, itemfg.last-cost,
+            OUTPUT itemfg.last-cost).
 
-    RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
-                            0, 0, 0, 0, itemfg.std-mat-cost,
-                                 OUTPUT itemfg.std-mat-cost).
+        RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
+            0, 0, 0, 0, itemfg.std-mat-cost,
+            OUTPUT itemfg.std-mat-cost).
 
-    RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
-                            0, 0, 0, 0, itemfg.std-lab-cost,
-                                 OUTPUT itemfg.std-lab-cost).
+        RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
+            0, 0, 0, 0, itemfg.std-lab-cost,
+            OUTPUT itemfg.std-lab-cost).
 
-    RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
-                            0, 0, 0, 0, itemfg.std-var-cost,
-                                 OUTPUT itemfg.std-var-cost).
+        RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
+            0, 0, 0, 0, itemfg.std-var-cost,
+            OUTPUT itemfg.std-var-cost).
 
-    RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
-                            0, 0, 0, 0, itemfg.std-fix-cost,
-                                 OUTPUT itemfg.std-fix-cost).
+        RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
+            0, 0, 0, 0, itemfg.std-fix-cost,
+            OUTPUT itemfg.std-fix-cost).
 
-    ASSIGN itemfg.avg-cost:SCREEN-VALUE = STRING(itemfg.avg-cost)
-           itemfg.last-cost:SCREEN-VALUE = STRING(itemfg.last-cost)
-           itemfg.std-mat-cost:SCREEN-VALUE = STRING(itemfg.std-mat-cost)
-           itemfg.std-lab-cost:SCREEN-VALUE = STRING(itemfg.std-lab-cost)
-           itemfg.std-var-cost:SCREEN-VALUE = STRING(itemfg.std-var-cost)
-           itemfg.std-fix-cost:SCREEN-VALUE = STRING(itemfg.std-fix-cost).
+        ASSIGN 
+            itemfg.avg-cost:SCREEN-VALUE     = STRING(itemfg.avg-cost)
+            itemfg.last-cost:SCREEN-VALUE    = STRING(itemfg.last-cost)
+            itemfg.std-mat-cost:SCREEN-VALUE = STRING(itemfg.std-mat-cost)
+            itemfg.std-lab-cost:SCREEN-VALUE = STRING(itemfg.std-lab-cost)
+            itemfg.std-var-cost:SCREEN-VALUE = STRING(itemfg.std-var-cost)
+            itemfg.std-fix-cost:SCREEN-VALUE = STRING(itemfg.std-fix-cost).
 
-    RUN calc-std-cost.    
+        RUN calc-std-cost.    
 
-    FOR EACH fg-bin  WHERE fg-bin.company EQ gcompany
-                       AND fg-bin.i-no    EQ itemfg.i-no:SCREEN-VALUE
-                       AND fg-bin.pur-uom NE INPUT itemfg.prod-uom:
+        FOR EACH fg-bin  WHERE fg-bin.company EQ gcompany
+            AND fg-bin.i-no    EQ itemfg.i-no:SCREEN-VALUE
+            AND fg-bin.pur-uom NE INPUT itemfg.prod-uom:
 
 
-        RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
-                                0, 0, 0, 0, fg-bin.avg-cost,
-                                     OUTPUT fg-bin.avg-cost).
+            RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
+                0, 0, 0, 0, fg-bin.avg-cost,
+                OUTPUT fg-bin.avg-cost).
 
-        RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
-                                0, 0, 0, 0, fg-bin.last-cost,
-                                     OUTPUT fg-bin.last-cost).
+            RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
+                0, 0, 0, 0, fg-bin.last-cost,
+                OUTPUT fg-bin.last-cost).
 
-        RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
-                                0, 0, 0, 0, fg-bin.std-mat-cost,
-                                     OUTPUT fg-bin.std-mat-cost).
+            RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
+                0, 0, 0, 0, fg-bin.std-mat-cost,
+                OUTPUT fg-bin.std-mat-cost).
 
-        RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
-                                0, 0, 0, 0, fg-bin.std-lab-cost,
-                                     OUTPUT fg-bin.std-lab-cost).
+            RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
+                0, 0, 0, 0, fg-bin.std-lab-cost,
+                OUTPUT fg-bin.std-lab-cost).
 
-        RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
-                                0, 0, 0, 0, fg-bin.std-var-cost,
-                                     OUTPUT fg-bin.std-var-cost).
+            RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
+                0, 0, 0, 0, fg-bin.std-var-cost,
+                OUTPUT fg-bin.std-var-cost).
 
-        RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
-                                0, 0, 0, 0, fg-bin.std-fix-cost,
-                                     OUTPUT fg-bin.std-fix-cost).
+            RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
+                0, 0, 0, 0, fg-bin.std-fix-cost,
+                OUTPUT fg-bin.std-fix-cost).
 
-        ASSIGN
-         fg-bin.std-tot-cost = fg-bin.std-mat-cost +
+            ASSIGN
+                fg-bin.std-tot-cost = fg-bin.std-mat-cost +
                                fg-bin.std-lab-cost +
                                fg-bin.std-var-cost +
                                fg-bin.std-fix-cost
-         fg-bin.pur-uom      = INPUT itemfg.prod-uom.
+                fg-bin.pur-uom      = INPUT itemfg.prod-uom.
 
+        END.
+        {&methods/lValidateError.i NO}
     END.
-    {&methods/lValidateError.i NO}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.stat V-table-Win
+ON VALUE-CHANGED OF itemfg.stat IN FRAME F-Main /* Set Header? */
+DO:
+    IF itemfg.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "I" THEN do:
+        lCheckMessage = YES .
+        RUN pCheckOnHandQty. 
+        lCheckMessage = NO .
+    END.
+    ELSE DO:
+        lCheckMessage = NO .
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1073,8 +1137,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.pur-man V-table-Win
 ON RETURN OF itemfg.pur-man IN FRAME F-Main /* Purchased or Manf */
 DO:
-   APPLY "tab" TO SELF.
-END.
+        APPLY "tab" TO SELF.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1083,27 +1147,28 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.pur-man V-table-Win
 ON VALUE-CHANGED OF itemfg.pur-man IN FRAME F-Main /* Purchased or Manf */
 DO:
-    DEFINE BUFFER bf-eb FOR eb.
+        DEFINE BUFFER bf-eb FOR eb.
     
-    IF itemfg.pur-man:SCREEN-VALUE EQ "no" THEN ASSIGN
-        itemfg.prod-uom:SCREEN-VALUE = "M".
+        IF itemfg.pur-man:SCREEN-VALUE EQ "no" THEN ASSIGN
+                itemfg.prod-uom:SCREEN-VALUE = "M".
     
-    FIND FIRST bf-eb NO-LOCK WHERE 
-        bf-eb.company EQ cocode AND 
-        bf-eb.stock-no EQ itemfg.i-no:SCREEN-VALUE AND 
-        bf-eb.pur-man NE logical(itemfg.pur-man:SCREEN-VALUE) 
-        NO-ERROR.
+        FIND FIRST bf-eb NO-LOCK WHERE 
+            bf-eb.company EQ cocode AND 
+            bf-eb.stock-no EQ itemfg.i-no:SCREEN-VALUE AND 
+            bf-eb.pur-man NE logical(itemfg.pur-man:SCREEN-VALUE) 
+            NO-ERROR.
 
-    IF AVAIL bf-eb THEN DO:
-        MESSAGE "Purchased / Manufactured Field" SKIP 
+        IF AVAILABLE bf-eb THEN 
+        DO:
+            MESSAGE "Purchased / Manufactured Field" SKIP 
                 "Estimate Does Not Match Finished Goods." SKIP
                 "Reset Both? "
-            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-            UPDATE lCheckPurMan . 
-     END.
-     ELSE lCheckPurMan = NO .
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+                UPDATE lCheckPurMan . 
+        END.
+        ELSE lCheckPurMan = NO .
 
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1113,27 +1178,30 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.sell-uom V-table-Win
 ON LEAVE OF itemfg.sell-uom IN FRAME F-Main /* UOM */
 DO:
-    {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 THEN DO:
-      IF SELF:SCREEN-VALUE EQ "" THEN DO:
-        MESSAGE 
-              "Unit of Measure can't be blank. Please enter a valid UOM." 
-             VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.
-      END.
+        {&methods/lValidateError.i YES}
+        IF LASTKEY <> -1 THEN 
+        DO:
+            IF SELF:SCREEN-VALUE EQ "" THEN 
+            DO:
+                MESSAGE 
+                    "Unit of Measure can't be blank. Please enter a valid UOM." 
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN NO-APPLY.
+            END.
 
-      IF SELF:SCREEN-VALUE <> "" AND
-         NOT CAN-FIND(FIRST uom WHERE uom.uom = SELF:SCREEN-VALUE AND
-                         lookup(uom.uom, uom-list) > 0 )
-        THEN DO:
-          MESSAGE 
-              "Invalid Unit of Measure. Try help." 
-             VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-      END.
+            IF SELF:SCREEN-VALUE <> "" AND
+                NOT CAN-FIND(FIRST uom WHERE uom.uom = SELF:SCREEN-VALUE AND
+                lookup(uom.uom, uom-list) > 0 )
+                THEN 
+            DO:
+                MESSAGE 
+                    "Invalid Unit of Measure. Try help." 
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN NO-APPLY.
+            END.
+        END.
+        {&methods/lValidateError.i NO}
     END.
-    {&methods/lValidateError.i NO}
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1143,8 +1211,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.std-fix-cost V-table-Win
 ON LEAVE OF itemfg.std-fix-cost IN FRAME F-Main /* Std Fix OH Cost */
 DO:
-  RUN calc-std-cost.
-END.
+        RUN calc-std-cost.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1154,8 +1222,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.std-lab-cost V-table-Win
 ON LEAVE OF itemfg.std-lab-cost IN FRAME F-Main /* Std Labor Cost */
 DO:
-  RUN calc-std-cost.
-END.
+        RUN calc-std-cost.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1165,8 +1233,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.std-mat-cost V-table-Win
 ON LEAVE OF itemfg.std-mat-cost IN FRAME F-Main /* Std Mat'l Cost */
 DO:
-  RUN calc-std-cost.
-END.
+        RUN calc-std-cost.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1176,8 +1244,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.std-var-cost V-table-Win
 ON LEAVE OF itemfg.std-var-cost IN FRAME F-Main /* Std Var OH Cost */
 DO:
-  RUN calc-std-cost.
-END.
+        RUN calc-std-cost.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1187,22 +1255,23 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.style V-table-Win
 ON LEAVE OF itemfg.style IN FRAME F-Main /* Style */
 DO:  
-    {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 AND SELF:SCREEN-VALUE <> "" AND
-       NOT CAN-FIND(FIRST style WHERE style.company = gcompany AND
-                                      style.style = SELF:SCREEN-VALUE)
-    THEN DO:
-         MESSAGE "Invalid Style. Try Help." VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.
+        {&methods/lValidateError.i YES}
+        IF LASTKEY <> -1 AND SELF:SCREEN-VALUE <> "" AND
+            NOT CAN-FIND(FIRST style WHERE style.company = gcompany AND
+            style.style = SELF:SCREEN-VALUE)
+            THEN 
+        DO:
+            MESSAGE "Invalid Style. Try Help." VIEW-AS ALERT-BOX ERROR.
+            RETURN NO-APPLY.
+        END.
+
+        FIND FIRST style WHERE style.company = gcompany AND
+            style.style = SELF:SCREEN-VALUE
+            NO-LOCK NO-ERROR.
+        itemfg.style-desc:SCREEN-VALUE = IF AVAILABLE style THEN style.dscr ELSE "".
+        {&methods/lValidateError.i NO}
+
     END.
-
-    FIND FIRST style WHERE style.company = gcompany AND
-                                      style.style = SELF:SCREEN-VALUE
-                                      NO-LOCK NO-ERROR.
-    itemfg.style-desc:SCREEN-VALUE = IF AVAIL style THEN style.dscr ELSE "".
-    {&methods/lValidateError.i NO}
-
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1212,11 +1281,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.type-code V-table-Win
 ON LEAVE OF itemfg.type-code IN FRAME F-Main /* Type Code */
 DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-type NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
+        IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-type NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1225,8 +1295,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.type-code V-table-Win
 ON VALUE-CHANGED OF itemfg.type-code IN FRAME F-Main /* Type Code */
 DO:
-  RUN new-type.
-END.
+        RUN new-type.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1242,52 +1312,33 @@ END.
 {custom/getloc.i}
 
 ASSIGN
- cocode = gcompany
- locode = gloc.
+    cocode = gcompany
+    locode = gloc.
 {sys/ref/CustList.i NEW}
 DO TRANSACTION:
-   {sys/inc/graphic.i}
-   {sys/inc/fgsecur.i}
-   {sys/inc/custlistform.i ""IF1"" }
+    {sys/inc/graphic.i}
+    {sys/inc/fgsecur.i}
+    {sys/inc/custlistform.i ""IF1"" }
 END.
 
 SESSION:DATA-ENTRY-RETURN = YES.
 
-/* IF fgsecurity-log THEN                                  */
-/* DO:                                                     */
-/*    FIND FIRST usergrps WHERE                            */
-/*         usergrps.usergrps = fgsecurity-char             */
-/*         NO-LOCK NO-ERROR.                               */
-/*                                                         */
-/*    IF AVAIL usergrps AND                                */
-/*       (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND */
-/*        TRIM(usergrps.users) NE "*") THEN                */
-/*        ASSIGN itemfg.std-mat-cost:VISIBLE = NO          */
-/*               itemfg.std-lab-cost:VISIBLE = NO          */
-/*               itemfg.std-var-cost:VISIBLE = NO          */
-/*               itemfg.std-fix-cost:VISIBLE = NO          */
-/*               itemfg.total-std-cost:VISIBLE = NO        */
-/*               itemfg.avg-cost:VISIBLE = NO              */
-/*               itemfg.last-cost:VISIBLE = NO             */
-/*               itemfg.spare-dec-1:VISIBLE = NO           */
-/*               itemfg.prod-uom:VISIBLE = NO.             */
-/* END.                                                    */
-     RUN sys/ref/nk1Look.p(INPUT cocode,
-                          INPUT "FGMASTER",
-                          INPUT "C",
-                          INPUT NO,
-                          INPUT NO,
-                          INPUT "",
-                          INPUT "",
-                          OUTPUT cFGMasterINo,
-                          OUTPUT lFound).
-    IF lFound AND cFGMasterINo EQ "FGITEM" THEN 
-        cFGMasterINo = "".
+RUN sys/ref/nk1Look.p(INPUT cocode,
+    INPUT "FGMASTER",
+    INPUT "C",
+    INPUT NO,
+    INPUT NO,
+    INPUT "",
+    INPUT "",
+    OUTPUT cFGMasterINo,
+    OUTPUT lFound).
+IF lFound AND cFGMasterINo EQ "FGITEM" THEN 
+    cFGMasterINo = "".
 
 RUN hide-fgsecure-fields.
 tg-Freeze-weight:SENSITIVE = FALSE. /* Was enabled initially without doing update */
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
-    RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
+RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
 
   /************************ INTERNAL PROCEDURES ********************/
@@ -1301,11 +1352,11 @@ tg-Freeze-weight:SENSITIVE = FALSE. /* Was enabled initially without doing updat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE add-item V-table-Win 
 PROCEDURE add-item :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  RUN dispatch ('add-record').
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    RUN dispatch ('add-record').
 
 END PROCEDURE.
 
@@ -1346,18 +1397,18 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-std-cost V-table-Win 
 PROCEDURE calc-std-cost :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DO WITH FRAME {&frame-name}:
-    itemfg.total-std-cost:SCREEN-VALUE =
-       STRING(dec(itemfg.std-mat-cost:SCREEN-VALUE) +
-              dec(itemfg.std-lab-cost:SCREEN-VALUE) +
-              dec(itemfg.std-var-cost:SCREEN-VALUE) +
-              dec(itemfg.std-fix-cost:SCREEN-VALUE)).
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&frame-name}:
+        itemfg.total-std-cost:SCREEN-VALUE =
+            STRING(dec(itemfg.std-mat-cost:SCREEN-VALUE) +
+            dec(itemfg.std-lab-cost:SCREEN-VALUE) +
+            dec(itemfg.std-var-cost:SCREEN-VALUE) +
+            dec(itemfg.std-fix-cost:SCREEN-VALUE)).
 
-  END.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1397,75 +1448,79 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable-itemfg-field V-table-Win 
 PROCEDURE enable-itemfg-field :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF BUFFER bf-itemfg FOR itemfg.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-itemfg FOR itemfg.
 
-  DEF VAR ll AS LOG NO-UNDO.
+    DEFINE VARIABLE ll AS LOG NO-UNDO.
 
-  DO WITH FRAME {&frame-name}:
-    ENABLE ALL.
+    DO WITH FRAME {&frame-name}:
+        ENABLE ALL.
 
-    ASSIGN
-       old-est-no = IF AVAIL itemfg THEN itemfg.est-no ELSE ""
-       lv-puruom = ""
-       cDefaultProdUom = "".
+        ASSIGN
+            old-est-no      = IF AVAILABLE itemfg THEN itemfg.est-no ELSE ""
+            lv-puruom       = ""
+            cDefaultProdUom = "".
 
-    DISABLE itemfg.cust-name
+        DISABLE itemfg.cust-name
             itemfg.procat-desc
             itemfg.style-desc
             fi_type-dscr.
 
-    IF NOT adm-new-record THEN DO:
-      DISABLE itemfg.i-no .
-      /*IF itemfg.est-no:SCREEN-VALUE NE "" THEN DO:
-        MESSAGE "IMPORT Estimate Info (Part#, Unit Count, Style, Die#, Plate#, etc.) for FG?"
-            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-            UPDATE ll.
-        IF ll THEN RUN new-est-no.
-      END.*/
+        IF NOT adm-new-record THEN 
+        DO:
+            DISABLE itemfg.i-no .
+        /*IF itemfg.est-no:SCREEN-VALUE NE "" THEN DO:
+          MESSAGE "IMPORT Estimate Info (Part#, Unit Count, Style, Die#, Plate#, etc.) for FG?"
+              VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+              UPDATE ll.
+          IF ll THEN RUN new-est-no.
+        END.*/
+        END.
+        ELSE
+            IF adm-adding-record THEN 
+            DO: 
+                ASSIGN 
+                    tb_taxable:SCREEN-VALUE = "No".
+
+                FIND FIRST sys-ctrl NO-LOCK
+                    WHERE sys-ctrl.company EQ cocode
+                    AND sys-ctrl.NAME EQ "FGMASTER" NO-ERROR.
+                IF AVAILABLE sys-ctrl THEN
+                    FIND FIRST bf-itemfg NO-LOCK
+                        WHERE bf-itemfg.company EQ sys-ctrl.company
+                        AND bf-itemfg.i-no EQ trim(sys-ctrl.char-fld) NO-ERROR.
+                IF AVAILABLE bf-itemfg 
+                    THEN ASSIGN tb_taxable:SCREEN-VALUE = STRING(bf-itemfg.taxable)
+                        lv-puruom               = bf-itemfg.pur-uom
+                        /* gdm - 11190901 */  
+                        v-shpmet                = bf-itemfg.ship-meth
+                        cDefaultProdUom         = bf-itemfg.prod-uom
+                        .  
+
+            END.
+
+        IF AVAILABLE itemfg THEN 
+        DO:
+            IF itemfg.q-onh NE 0 THEN
+                DISABLE itemfg.std-mat-cost
+                    itemfg.std-lab-cost
+                    itemfg.std-var-cost
+                    itemfg.std-fix-cost
+                    itemfg.total-std-cost
+                    itemfg.avg-cost
+                    itemfg.last-cost.
+
+            RUN prod-uom-able.
+        END.
     END.
-    ELSE
-    IF adm-adding-record THEN DO: 
-        ASSIGN tb_taxable:SCREEN-VALUE = "No".
-
-        FIND FIRST sys-ctrl NO-LOCK
-            WHERE sys-ctrl.company EQ cocode
-              AND sys-ctrl.NAME EQ "FGMASTER" NO-ERROR.
-        IF AVAIL sys-ctrl THEN
-            FIND FIRST bf-itemfg NO-LOCK
-                WHERE bf-itemfg.company EQ sys-ctrl.company
-                  AND bf-itemfg.i-no EQ trim(sys-ctrl.char-fld) NO-ERROR.
-            IF AVAIL bf-itemfg 
-              THEN ASSIGN tb_taxable:SCREEN-VALUE = STRING(bf-itemfg.taxable)
-                          lv-puruom               = bf-itemfg.pur-uom
-                          /* gdm - 11190901 */  
-                          v-shpmet                = bf-itemfg.ship-meth
-                          cDefaultProdUom         = bf-itemfg.prod-uom
-                           .  
-
-    END.
-
-    IF AVAIL itemfg THEN DO:
-      IF itemfg.q-onh NE 0 THEN
-        DISABLE itemfg.std-mat-cost
-                itemfg.std-lab-cost
-                itemfg.std-var-cost
-                itemfg.std-fix-cost
-                itemfg.total-std-cost
-                itemfg.avg-cost
-                itemfg.last-cost.
-
-      RUN prod-uom-able.
-    END.
-  END.
     RUN hide-fgsecure-fields.
 
-  /* Per validation code, M should be valid in all cases */ 
-  IF cDefaultProdUom EQ "" THEN
-     cDefaultProdUom = "M".
+    /* Per validation code, M should be valid in all cases */ 
+    IF cDefaultProdUom EQ "" THEN
+        cDefaultProdUom = "M".
 
 
 END PROCEDURE.
@@ -1489,38 +1544,38 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hide-fgsecure-fields V-table-Win 
 PROCEDURE hide-fgsecure-fields :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-IF fgsecurity-log THEN
-DO WITH FRAME {&FRAME-NAME}:
-   FIND FIRST usergrps WHERE
-        usergrps.usergrps = fgsecurity-char
-        NO-LOCK NO-ERROR.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    IF fgsecurity-log THEN
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND FIRST usergrps WHERE
+            usergrps.usergrps = fgsecurity-char
+            NO-LOCK NO-ERROR.
 
-   IF AVAIL usergrps AND
-      (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
-       TRIM(usergrps.users) NE "*") THEN
-       ASSIGN itemfg.std-mat-cost:SENSITIVE = NO
-              itemfg.std-lab-cost:SENSITIVE = NO
-              itemfg.std-var-cost:SENSITIVE = NO
-              itemfg.std-fix-cost:SENSITIVE = NO
-              itemfg.total-std-cost:SENSITIVE = NO
-              itemfg.avg-cost:SENSITIVE = NO
-              itemfg.last-cost:SENSITIVE = NO
-              itemfg.spare-dec-1:SENSITIVE = NO
-              itemfg.prod-uom:SENSITIVE = NO
-              itemfg.std-mat-cost:VISIBLE = NO
-              itemfg.std-lab-cost:VISIBLE = NO
-              itemfg.std-var-cost:VISIBLE = NO
-              itemfg.std-fix-cost:VISIBLE = NO
-              itemfg.total-std-cost:VISIBLE = NO
-              itemfg.avg-cost:VISIBLE = NO
-              itemfg.last-cost:VISIBLE = NO
-              itemfg.spare-dec-1:VISIBLE = NO
-              itemfg.prod-uom:VISIBLE = NO.
-END.
+        IF AVAILABLE usergrps AND
+            (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
+            TRIM(usergrps.users) NE "*") THEN
+            ASSIGN itemfg.std-mat-cost:SENSITIVE   = NO
+                itemfg.std-lab-cost:SENSITIVE   = NO
+                itemfg.std-var-cost:SENSITIVE   = NO
+                itemfg.std-fix-cost:SENSITIVE   = NO
+                itemfg.total-std-cost:SENSITIVE = NO
+                itemfg.avg-cost:SENSITIVE       = NO
+                itemfg.last-cost:SENSITIVE      = NO
+                itemfg.spare-dec-1:SENSITIVE    = NO
+                itemfg.prod-uom:SENSITIVE       = NO
+                itemfg.std-mat-cost:VISIBLE     = NO
+                itemfg.std-lab-cost:VISIBLE     = NO
+                itemfg.std-var-cost:VISIBLE     = NO
+                itemfg.std-fix-cost:VISIBLE     = NO
+                itemfg.total-std-cost:VISIBLE   = NO
+                itemfg.avg-cost:VISIBLE         = NO
+                itemfg.last-cost:VISIBLE        = NO
+                itemfg.spare-dec-1:VISIBLE      = NO
+                itemfg.prod-uom:VISIBLE         = NO.
+    END.
 
 END PROCEDURE.
 
@@ -1530,13 +1585,13 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE IsASet V-table-Win 
 PROCEDURE IsASet :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER opIsASet AS LOGICAL NO-UNDO.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opIsASet AS LOGICAL NO-UNDO.
 
-  opIsASet = AVAILABLE itemfg AND itemfg.isaset.
+    opIsASet = AVAILABLE itemfg AND itemfg.isaset.
 
 END PROCEDURE.
 
@@ -1546,147 +1601,161 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
 PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR lv-custype      LIKE oe-prmtx.custype NO-UNDO.
-  DEF VAR lv-cust-no      LIKE oe-prmtx.cust-no NO-UNDO.
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-custype LIKE oe-prmtx.custype NO-UNDO.
+    DEFINE VARIABLE lv-cust-no LIKE oe-prmtx.cust-no NO-UNDO.
 
 
-  DEF BUFFER b-i   FOR itemfg.
-  DEF BUFFER b-ei  FOR e-itemfg.
-  DEF BUFFER b-eiv FOR e-itemfg-vend.
-  DEF BUFFER bf-eb FOR eb.
-  DEF BUFFER bf-notes FOR notes.
+    DEFINE BUFFER b-i      FOR itemfg.
+    DEFINE BUFFER b-ei     FOR e-itemfg.
+    DEFINE BUFFER b-eiv    FOR e-itemfg-vend.
+    DEFINE BUFFER bf-eb    FOR eb.
+    DEFINE BUFFER bf-notes FOR notes.
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  FIND FIRST b-i 
-      WHERE b-i.company EQ itemfg.company
+    /* Code placed here will execute PRIOR to standard behavior. */
+    FIND FIRST b-i 
+        WHERE b-i.company EQ itemfg.company
         AND b-i.i-no    EQ itemfg.i-no
-      NO-LOCK NO-ERROR.
+        NO-LOCK NO-ERROR.
 
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN tg-Freeze-weight.
-  END.
-   IF adm-new-record AND NOT adm-adding-record THEN
-       lv-puruom = itemfg.pur-uom.
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN tg-Freeze-weight.
+    END.
+    IF adm-new-record AND NOT adm-adding-record THEN
+        lv-puruom = itemfg.pur-uom.
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+    /* Code placed here will execute AFTER standard behavior.    */
   
 
-  IF tg-freeze-weight THEN
-      itemfg.spare-int-1 = 1.
-  ELSE
-      itemfg.spare-int-1 = 0.
+    IF tg-freeze-weight THEN
+        itemfg.spare-int-1 = 1.
+    ELSE
+        itemfg.spare-int-1 = 0.
 
-  IF adm-new-record AND NOT adm-adding-record AND AVAIL b-i THEN DO: /* copy */
+    IF adm-new-record AND NOT adm-adding-record AND AVAILABLE b-i THEN 
+    DO: /* copy */
 
-    FOR EACH b-ei OF b-i NO-LOCK:
-      FIND FIRST e-itemfg OF itemfg NO-LOCK NO-ERROR.
+        FOR EACH b-ei OF b-i NO-LOCK:
+            FIND FIRST e-itemfg OF itemfg NO-LOCK NO-ERROR.
 
-      IF NOT AVAIL e-itemfg THEN DO:
-        CREATE e-itemfg.
-        BUFFER-COPY b-ei EXCEPT rec_key TO e-itemfg
-        ASSIGN
-         e-itemfg.i-no = itemfg.i-no.
-        RELEASE e-itemfg.
-      END.
+            IF NOT AVAILABLE e-itemfg THEN 
+            DO:
+                CREATE e-itemfg.
+                BUFFER-COPY b-ei EXCEPT rec_key TO e-itemfg
+                    ASSIGN
+                    e-itemfg.i-no = itemfg.i-no.
+                RELEASE e-itemfg.
+            END.
 
-      FOR EACH b-eiv OF b-ei NO-LOCK:
-        CREATE e-itemfg-vend.
-        BUFFER-COPY b-eiv EXCEPT rec_key TO e-itemfg-vend
-        ASSIGN
-         e-itemfg-vend.i-no = itemfg.i-no.
-        RELEASE e-itemfg-vend.
-      END.
+            FOR EACH b-eiv OF b-ei NO-LOCK:
+                CREATE e-itemfg-vend.
+                BUFFER-COPY b-eiv EXCEPT rec_key TO e-itemfg-vend
+                    ASSIGN
+                    e-itemfg-vend.i-no = itemfg.i-no.
+                RELEASE e-itemfg-vend.
+            END.
 
-      LEAVE.
+            LEAVE.
+        END.
+        IF v-cpyspc THEN 
+        DO:
+            FOR EACH notes WHERE notes.rec_key = b-i.rec_key
+                AND notes.note_type EQ "S" 
+                AND notes.note_code GE v-begspc 
+                AND notes.note_code LE v-endspc NO-LOCK:
+
+                CREATE bf-notes .
+                BUFFER-COPY notes EXCEPT rec_key TO bf-notes .
+                ASSIGN
+                    bf-notes.rec_key = itemfg.rec_key .
+
+            END. /*FOR EACH notes */
+            ASSIGN 
+                v-cpyspc = NO .
+
+        END. /*IF v-cpyspc THEN */
+
     END.
-    IF v-cpyspc THEN DO:
-         FOR EACH notes WHERE notes.rec_key = b-i.rec_key
-             AND notes.note_type EQ "S" 
-             AND notes.note_code GE v-begspc 
-             AND notes.note_code LE v-endspc NO-LOCK:
 
-             CREATE bf-notes .
-             BUFFER-COPY notes EXCEPT rec_key TO bf-notes .
-             ASSIGN
-                 bf-notes.rec_key = itemfg.rec_key .
+    /*Task# 04121312*/
+    FIND FIRST fg-set WHERE fg-set.company = itemfg.company 
+        AND fg-set.set-no = itemfg.i-no NO-LOCK NO-ERROR.
 
-         END. /*FOR EACH notes */
-         ASSIGN v-cpyspc = NO .
+    IF AVAILABLE itemfg AND (AVAILABLE fg-set OR lCheckPurMan) THEN
+        FOR EACH eb NO-LOCK      
+            WHERE eb.company EQ itemfg.company
+            AND eb.cust-no EQ itemfg.cust-no
+            AND eb.stock-no EQ itemfg.i-no:
 
-     END. /*IF v-cpyspc THEN */
+            FIND bf-eb WHERE ROWID(bf-eb) EQ ROWID(eb) EXCLUSIVE NO-WAIT NO-ERROR.
+            IF AVAILABLE bf-eb THEN 
+            DO:
+                ASSIGN 
+                    bf-eb.pur-man = itemfg.pur-man.
+            END.
+            RELEASE bf-eb.
+        END. /* each eb */
+    ASSIGN 
+        lCheckPurMan = NO .
 
-  END.
+    IF NOT  v-mat AND adm-new-record AND NOT adm-adding-record THEN 
+    DO: /* task 06161508 */
 
-  /*Task# 04121312*/
- FIND FIRST fg-set WHERE fg-set.company = itemfg.company 
-     AND fg-set.set-no = itemfg.i-no NO-LOCK NO-ERROR.
+        FOR EACH e-itemfg OF itemfg  NO-LOCK:
 
- IF AVAIL itemfg AND (AVAIL fg-set OR lCheckPurMan) THEN
-   FOR EACH eb NO-LOCK      
-       WHERE eb.company EQ itemfg.company
-         AND eb.cust-no EQ itemfg.cust-no
-         AND eb.stock-no EQ itemfg.i-no:
+            FOR EACH e-itemfg-vend OF e-itemfg 
+                WHERE e-itemfg-vend.est-no EQ "" NO-LOCK:
+                FIND b-eiv WHERE ROWID(b-eiv) EQ ROWID(e-itemfg-vend) EXCLUSIVE-LOCK NO-WAIT NO-ERROR.
+                IF AVAILABLE b-eiv THEN
+                    DELETE b-eiv .
+            END.
 
-     FIND bf-eb WHERE ROWID(bf-eb) EQ ROWID(eb) EXCLUSIVE NO-WAIT NO-ERROR.
-     IF AVAIL bf-eb THEN DO:
-       ASSIGN bf-eb.pur-man = itemfg.pur-man.
-     END.
-     RELEASE bf-eb.
-   END. /* each eb */
-   ASSIGN lCheckPurMan = NO .
+            FIND b-ei WHERE ROWID(b-ei) EQ ROWID(e-itemfg) EXCLUSIVE-LOCK NO-ERROR.
 
-  IF NOT  v-mat AND adm-new-record AND NOT adm-adding-record THEN DO: /* task 06161508 */
+            IF AVAILABLE b-ei THEN
+                DELETE b-ei.
 
-         FOR EACH e-itemfg OF itemfg  NO-LOCK:
+        END.
+        ASSIGN 
+            v-mat = YES .
+    END. /* if copy and not v-mat */
+    ELSE IF adm-new-record AND NOT adm-adding-record THEN 
+        DO:  /* task 06161508 Blank vander problem on test */
 
-             FOR EACH e-itemfg-vend OF e-itemfg 
-                 WHERE e-itemfg-vend.est-no EQ "" NO-LOCK:
-               FIND b-eiv WHERE ROWID(b-eiv) EQ ROWID(e-itemfg-vend) EXCLUSIVE-LOCK NO-WAIT NO-ERROR.
-               IF AVAIL b-eiv THEN
-                 DELETE b-eiv .
-             END.
+            ASSIGN 
+                i = 0 .
+            FOR EACH e-itemfg OF itemfg  EXCLUSIVE-LOCK:
 
-             FIND b-ei WHERE ROWID(b-ei) EQ ROWID(e-itemfg) EXCLUSIVE-LOCK NO-ERROR.
+                FOR EACH e-itemfg-vend OF e-itemfg 
+                    WHERE e-itemfg-vend.est-no EQ "" 
+                    AND e-itemfg-vend.vend-no EQ "" NO-LOCK :
 
-             IF AVAIL b-ei THEN
-               DELETE b-ei.
+                    ASSIGN 
+                        i = i + 1.
 
-         END.
-         ASSIGN v-mat = YES .
-  END. /* if copy and not v-mat */
-  ELSE IF adm-new-record AND NOT adm-adding-record THEN DO:  /* task 06161508 Blank vander problem on test */
-
-     ASSIGN i = 0 .
-     FOR EACH e-itemfg OF itemfg  EXCLUSIVE-LOCK:
-
-          FOR EACH e-itemfg-vend OF e-itemfg 
-                 WHERE e-itemfg-vend.est-no EQ "" 
-                 AND e-itemfg-vend.vend-no EQ "" NO-LOCK :
-
-                    ASSIGN i =  i + 1.
-
-                    IF i = 2  THEN DO:
-                      FIND b-eiv WHERE ROWID(b-eiv) EQ ROWID(e-itemfg-vend) EXCLUSIVE-LOCK NO-WAIT NO-ERROR.
-                      IF AVAIL b-eiv THEN
-                        DELETE b-eiv .
+                    IF i = 2  THEN 
+                    DO:
+                        FIND b-eiv WHERE ROWID(b-eiv) EQ ROWID(e-itemfg-vend) EXCLUSIVE-LOCK NO-WAIT NO-ERROR.
+                        IF AVAILABLE b-eiv THEN
+                            DELETE b-eiv .
                     END. /* if i = 2 */
 
-          END. /* each e-itemfg-vend ... */
+                END. /* each e-itemfg-vend ... */
 
-     END. /* each e-itemfg ... */
-  END. /* if copy */
+            END. /* each e-itemfg ... */
+        END. /* if copy */
 
-  ASSIGN itemfg.taxable = tb_taxable
-         itemfg.spare-char-2 = (IF tgVaried:CHECKED IN FRAME {&FRAME-NAME} THEN 'YES' ELSE 'NO').
+    ASSIGN 
+        itemfg.taxable      = tb_taxable
+        itemfg.spare-char-2 = (IF tgVaried:CHECKED IN FRAME {&FRAME-NAME} THEN 'YES' ELSE 'NO').
 
-  /* btr - refresh the screen */
-  RUN local-display-fields.
+    /* btr - refresh the screen */
+    RUN local-display-fields.
 
 END PROCEDURE.
 
@@ -1696,19 +1765,19 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
 PROCEDURE local-cancel-record :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  DO WITH FRAME {&frame-name}:
-    DISABLE ALL.
-  END.
+    /* Code placed here will execute AFTER standard behavior.    */
+    DO WITH FRAME {&frame-name}:
+        DISABLE ALL.
+    END.
 
 END PROCEDURE.
 
@@ -1718,43 +1787,41 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  FIND FIRST oe-ctrl WHERE oe-ctrl.company = gcompany NO-LOCK NO-ERROR.
+    /* Code placed here will execute AFTER standard behavior.    */
 
-  ASSIGN      
-         itemfg.i-code = IF AVAIL oe-ctrl AND oe-ctrl.i-code THEN "S" ELSE "C"
-         itemfg.pur-uom = lv-puruom
-         /* gdm - 11190901 */
-         itemfg.ship-meth =  v-shpmet
+    ASSIGN      
+        itemfg.pur-uom   = lv-puruom
+        /* gdm - 11190901 */
+        itemfg.ship-meth = v-shpmet
          
-         .
+        .
 
-  DO WITH FRAME {&FRAME-NAME}:
+    DO WITH FRAME {&FRAME-NAME}:
 
-    IF itemfg.prod-uom:VISIBLE EQ FALSE THEN 
-       itemfg.prod-uom = cDefaultProdUom.
+        IF itemfg.prod-uom:VISIBLE EQ FALSE THEN 
+            itemfg.prod-uom = cDefaultProdUom.
 
-  END.
+    END.
 
-  /* Create an itemfg-loc for the default warehouse */
-  DO WITH FRAME {&FRAME-NAME}:                                                                           
-    RUN fg/chkfgloc.p (INPUT itemfg.i-no:SCREEN-VALUE, INPUT "").
-  END.
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
-     tb_taxable:SCREEN-VALUE     = STRING(itemfg.taxable).
-/*      rd_status:SCREEN-VALUE      = "A"   */
-/*      tb_exempt-disc:SCREEN-VALUE = "no". */
-  END.
+    /* Create an itemfg-loc for the default warehouse */
+    DO WITH FRAME {&FRAME-NAME}:                                                                           
+        RUN fg/chkfgloc.p (INPUT itemfg.i-no:SCREEN-VALUE, INPUT "").
+    END.
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            tb_taxable:SCREEN-VALUE = STRING(itemfg.taxable).
+    /*      rd_status:SCREEN-VALUE      = "A"   */
+    /*      tb_exempt-disc:SCREEN-VALUE = "no". */
+    END.
 
    
 
@@ -1766,36 +1833,39 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  IF AVAIL itemfg AND NOT adm-new-record THEN DO:
-    tb_taxable = itemfg.taxable.
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF AVAILABLE itemfg AND NOT adm-new-record THEN 
+    DO:
+        tb_taxable = itemfg.taxable.
 
 
-  END.
+    END.
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-/*   DISABLE rd_status tb_exempt-disc WITH FRAME {&FRAME-NAME}. */
+    /* Code placed here will execute AFTER standard behavior.    */
+    /*   DISABLE rd_status tb_exempt-disc WITH FRAME {&FRAME-NAME}. */
 
-  IF AVAIL itemfg THEN DO:
+    IF AVAILABLE itemfg THEN 
+    DO:
 
-    FIND FIRST cust WHERE cust.company = itemfg.company
-                      AND cust.cust-no = itemfg.cust-no NO-LOCK NO-ERROR.
-    IF AVAIL cust AND cust.name <> itemfg.cust-name THEN
-       itemfg.cust-name:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cust.name.
+        FIND FIRST cust WHERE cust.company = itemfg.company
+            AND cust.cust-no = itemfg.cust-no NO-LOCK NO-ERROR.
+        IF AVAILABLE cust AND cust.name <> itemfg.cust-name THEN
+            itemfg.cust-name:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cust.name.
 
-    ASSIGN tgVaried:CHECKED = (IF itemfg.spare-char-2 = 'YES' THEN TRUE ELSE FALSE)
-           tg-freeze-weight:CHECKED = (IF itemfg.spare-int-1 = 1 THEN TRUE ELSE FALSE).
-    RUN SetPurMan(itemfg.isaset).
-  END. /* avail itemfg */
+        ASSIGN 
+            tgVaried:CHECKED         = (IF itemfg.spare-char-2 = 'YES' THEN TRUE ELSE FALSE)
+            tg-freeze-weight:CHECKED = (IF itemfg.spare-int-1 = 1 THEN TRUE ELSE FALSE).
+        RUN SetPurMan(itemfg.isaset).
+    END. /* avail itemfg */
 
-  RUN new-type.
+    RUN new-type.
 
 
 END PROCEDURE.
@@ -1806,26 +1876,26 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-hide V-table-Win 
 PROCEDURE local-hide :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  RUN GET-ATTRIBUTE("FIELDS-ENABLED":U).
-  IF RETURN-VALUE = "YES":U THEN
-  DO:
-    MESSAGE "Would you like to save changes before changing pages?":U
-       VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE vlChangePages AS LOG.
-    RUN dispatch IN THIS-PROCEDURE (IF vlChangePages THEN
-                                      'update-record':U
-                                    ELSE
-                                      'cancel-record':U).
-  END.
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN GET-ATTRIBUTE("FIELDS-ENABLED":U).
+    IF RETURN-VALUE = "YES":U THEN
+    DO:
+        MESSAGE "Would you like to save changes before changing pages?":U
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE vlChangePages AS LOG.
+        RUN dispatch IN THIS-PROCEDURE (IF vlChangePages THEN
+            'update-record':U
+            ELSE
+            'cancel-record':U).
+    END.
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'hide':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'hide':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+/* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
 
@@ -1835,17 +1905,17 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize V-table-Win 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-tg-Freeze-weight:SENSITIVE IN FRAME f-main = NO.
+    /* Code placed here will execute AFTER standard behavior.    */
+    tg-Freeze-weight:SENSITIVE IN FRAME f-main = NO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1854,194 +1924,216 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR ll-tax LIKE itemfg.taxable NO-UNDO.
-  DEF VAR ll-add-record AS LOG NO-UNDO.
-  DEF VAR ll-new-record AS LOG NO-UNDO.
-  DEF VAR op-upd-die AS LOG NO-UNDO.
-  DEFINE VARIABLE ll-copy AS LOGICAL  INIT  NO  NO-UNDO.
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE ll-tax            LIKE itemfg.taxable NO-UNDO.
+    DEFINE VARIABLE ll-add-record     AS LOG     NO-UNDO.
+    DEFINE VARIABLE ll-new-record     AS LOG     NO-UNDO.
+    DEFINE VARIABLE op-upd-die        AS LOG     NO-UNDO.
+    DEFINE VARIABLE ll-copy           AS LOGICAL INIT NO NO-UNDO.
 
-  DEF VAR ll-new-part-no AS LOG NO-UNDO.
-  DEF VAR ll-new-part-dscr1 AS LOG NO-UNDO.
-  DEF VAR ll-new-part-dscr2 AS LOG NO-UNDO.
-  DEF VAR ll-new-part-dscr3 AS LOG NO-UNDO.
-  DEF VAR ll-new-i-name AS LOG NO-UNDO.
-  DEF VAR ll-new-die-no AS LOG NO-UNDO.
-  DEF VAR ll-new-plate-no AS LOG NO-UNDO.
-  DEF VAR ll-new-cad-no AS LOG NO-UNDO.
-  DEF VAR ll-new-spc-no AS LOG NO-UNDO.
-  DEF VAR ll-new-upc-no AS LOG NO-UNDO.
-  DEF VAR ll-new-procat AS LOG NO-UNDO.
+    DEFINE VARIABLE ll-new-part-no    AS LOG     NO-UNDO.
+    DEFINE VARIABLE ll-new-part-dscr1 AS LOG     NO-UNDO.
+    DEFINE VARIABLE ll-new-part-dscr2 AS LOG     NO-UNDO.
+    DEFINE VARIABLE ll-new-part-dscr3 AS LOG     NO-UNDO.
+    DEFINE VARIABLE ll-new-i-name     AS LOG     NO-UNDO.
+    DEFINE VARIABLE ll-new-die-no     AS LOG     NO-UNDO.
+    DEFINE VARIABLE ll-new-plate-no   AS LOG     NO-UNDO.
+    DEFINE VARIABLE ll-new-cad-no     AS LOG     NO-UNDO.
+    DEFINE VARIABLE ll-new-spc-no     AS LOG     NO-UNDO.
+    DEFINE VARIABLE ll-new-upc-no     AS LOG     NO-UNDO.
+    DEFINE VARIABLE ll-new-procat     AS LOG     NO-UNDO.
 
-  tg-Freeze-weight:SENSITIVE  IN FRAME f-main = TRUE.
-  /* Code placed here will execute PRIOR to standard behavior. */
-  ll-add-record = adm-adding-record.
 
-  /* copy records */
-  IF adm-new-record AND NOT adm-adding-record THEN 
-      ll-copy = TRUE.
+    tg-Freeze-weight:SENSITIVE  IN FRAME f-main = TRUE.
+    /* Code placed here will execute PRIOR to standard behavior. */
+    ll-add-record = adm-adding-record.
 
-  RUN valid-i-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    /* copy records */
+    IF adm-new-record AND NOT adm-adding-record THEN 
+        ll-copy = TRUE.
 
-  RUN valid-est-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    /* 33482 - Ensure blank record is not saved - MYT - 08/28/18 */
+    IF adm-new-record 
+    AND itemfg.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:
+        RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+        RETURN NO-APPLY.
+    END.
+    
+    RUN valid-i-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  RUN valid-cust-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-est-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  RUN valid-cust-user NO-ERROR.
-     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-cust-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  RUN valid-cust-part NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-cust-user NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+    RUN valid-cust-part NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   
     RUN valid-loc NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  {&methods/lValidateError.i YES}
-  DO WITH FRAME {&frame-name}:
-    IF itemfg.style:SCREEN-VALUE <> "" AND
-       NOT CAN-FIND(FIRST style WHERE style.company = gcompany AND
-                                      style.style = itemfg.style:SCREEN-VALUE)
-    THEN DO:
-         MESSAGE "Invalid Style. Try Help." VIEW-AS ALERT-BOX ERROR.
-         APPLY "entry" TO itemfg.style.
-         RETURN NO-APPLY.
-    END.
-    IF itemfg.procat:SCREEN-VALUE <> "" AND
-       NOT CAN-FIND(FIRST fgcat WHERE fgcat.company = gcompany AND
-                                      fgcat.procat = itemfg.procat:SCREEN-VALUE)
-    THEN DO:
-         MESSAGE "Invalid Product Category. Try Help." VIEW-AS ALERT-BOX ERROR.
-         APPLY "entry" TO itemfg.procat.
-         RETURN NO-APPLY.
-    END.
+    RUN pCheckOnHandQty NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. 
 
-    RUN valid-type NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    {&methods/lValidateError.i YES}
+    DO WITH FRAME {&frame-name}:
+        IF itemfg.style:SCREEN-VALUE <> "" AND
+            NOT CAN-FIND(FIRST style WHERE style.company = gcompany AND
+            style.style = itemfg.style:SCREEN-VALUE)
+            THEN 
+        DO:
+            MESSAGE "Invalid Style. Try Help." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO itemfg.style.
+            RETURN NO-APPLY.
+        END.
+        IF itemfg.procat:SCREEN-VALUE <> "" AND
+            NOT CAN-FIND(FIRST fgcat WHERE fgcat.company = gcompany AND
+            fgcat.procat = itemfg.procat:SCREEN-VALUE)
+            THEN 
+        DO:
+            MESSAGE "Invalid Product Category. Try Help." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO itemfg.procat.
+            RETURN NO-APPLY.
+        END.
+
+        RUN valid-type NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     
-      IF itemfg.prod-uom:VISIBLE = YES THEN 
-      DO:
-        IF (itemfg.i-code:SCREEN-VALUE = "S" AND can-do("EA,M",itemfg.prod-uom:SCREEN-VALUE )) OR
-           (itemfg.i-code:SCREEN-VALUE = "C" AND can-do("M",itemfg.prod-uom:SCREEN-VALUE) )
-        THEN DO:  END.
-        ELSE DO:
-
-            IF fgsecurity-log AND ((itemfg.i-code:SCREEN-VALUE = "S" AND can-do("EA,M",itemfg.prod-uom )) OR
-           (itemfg.i-code:SCREEN-VALUE = "C" AND can-do("M",itemfg.prod-uom) )) THEN DO: END.
-           ELSE DO:
-                MESSAGE "Enter M for Box Products, Enter EA or M for Non Box Products."
-                       VIEW-AS ALERT-BOX ERROR.
-                APPLY "entry" TO itemfg.prod-uom.
-                RETURN NO-APPLY.
+        IF itemfg.prod-uom:VISIBLE = YES THEN 
+        DO:
+            IF (itemfg.i-code:SCREEN-VALUE = "S" AND can-do("EA,M",itemfg.prod-uom:SCREEN-VALUE )) OR
+                (itemfg.i-code:SCREEN-VALUE = "C" AND can-do("M",itemfg.prod-uom:SCREEN-VALUE) )
+                THEN 
+            DO:  
             END.
-        END.     
-    END.
-    IF int(itemfg.case-count:SCREEN-VALUE) < 1  
-    THEN DO:
-         MESSAGE "Case count can not less than ONE !!! " VIEW-AS ALERT-BOX ERROR.
-         APPLY "entry" TO itemfg.case-count.
-         RETURN NO-APPLY.
-    END.
-    ll-tax = tb_taxable:SCREEN-VALUE EQ "YES".
-  END.
-
-  /* gdm - 10080910 */
-  IF itemfg.sell-uom:SCREEN-VALUE EQ "" THEN DO:
-    MESSAGE 
-      "Unit of Measure can't be blank. Please enter a valid UOM." 
-     VIEW-AS ALERT-BOX ERROR.
-     RETURN NO-APPLY.
-  END.
-  /* gdm - 10080910 end */
-  IF itemfg.prod-uom:SCREEN-VALUE EQ "" AND  itemfg.prod-uom:VISIBLE = YES THEN DO:
-    MESSAGE 
-      "Cost Unit of Measure can't be blank. Please enter a valid UOM." 
-     VIEW-AS ALERT-BOX ERROR.
-     RETURN NO-APPLY.
-  END.
-  {&methods/lValidateError.i NO}
-  RUN calc-std-cost.
-
-  ASSIGN
-   old-part-no#   = itemfg.part-no
-   old-part-dscr1 = itemfg.part-dscr1
-   old-part-dscr2 = itemfg.part-dscr2
-   old-part-dscr3 = itemfg.part-dscr3
-   old-i-name     = itemfg.i-name
-   old-die-no     = itemfg.die-no
-   old-plate-no   = itemfg.plate-no
-   old-cad-no     = itemfg.cad-no
-   old-spc-no     = itemfg.spc-no
-   old-upc-no     = itemfg.upc-no
-   old-procat     = itemfg.procat
-   ll-new-record  = adm-new-record.
-
-  /* Create an itemfg-loc for the default warehouse */
-  DO WITH FRAME {&FRAME-NAME}:
-    RUN fg/chkfgloc.p (INPUT itemfg.i-no:SCREEN-VALUE, INPUT "").
-  END.
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  DO WITH FRAME {&FRAME-NAME}:
-    DISABLE ALL.
-
-    /* Overcome Write trigger */
-    DO TRANSACTION:
-      FIND CURRENT itemfg EXCLUSIVE NO-ERROR.
-      IF AVAIL itemfg THEN
-      DO:
-         itemfg.taxable = ll-tax.
-
-         IF ll-new-record AND v-graphic-char NE "" AND itemfg.box-image EQ "" THEN 
-         DO:
-            IF LOOKUP(SUBSTR(v-graphic-char,LENGTH(v-graphic-char)),"\,/") EQ 0 THEN
-               v-graphic-char = v-graphic-char + "\".
-
-            IF SEARCH(v-graphic-char + itemfg.i-no:SCREEN-VALUE + ".jpg") NE ? THEN
+            ELSE 
             DO:
-               /*FIND CURRENT itemfg EXCLUSIVE-LOCK NO-ERROR.
-               IF AVAIL itemfg THEN 
-               DO: */
-                  itemfg.box-image = v-graphic-char + itemfg.i-no:SCREEN-VALUE + ".jpg".
-                  /*FIND CURRENT itemfg NO-LOCK NO-ERROR.
-               END. */
-            END.
-         END.
-      END.
+
+                IF fgsecurity-log AND ((itemfg.i-code:SCREEN-VALUE = "S" AND can-do("EA,M",itemfg.prod-uom )) OR
+                    (itemfg.i-code:SCREEN-VALUE = "C" AND can-do("M",itemfg.prod-uom) )) THEN 
+                DO: 
+                END.
+                ELSE 
+                DO:
+                    MESSAGE "Enter M for Box Products, Enter EA or M for Non Box Products."
+                        VIEW-AS ALERT-BOX ERROR.
+                    APPLY "entry" TO itemfg.prod-uom.
+                    RETURN NO-APPLY.
+                END.
+            END.     
+        END.
+        IF int(itemfg.case-count:SCREEN-VALUE) < 1  
+            THEN 
+        DO:
+            MESSAGE "Case count can not less than ONE !!! " VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO itemfg.case-count.
+            RETURN NO-APPLY.
+        END.
+        ll-tax = tb_taxable:SCREEN-VALUE EQ "YES".
     END.
 
-    tb_taxable:SCREEN-VALUE = STRING(itemfg.taxable).
-  END.
+    /* gdm - 10080910 */
+    IF itemfg.sell-uom:SCREEN-VALUE EQ "" THEN 
+    DO:
+        MESSAGE 
+            "Unit of Measure can't be blank. Please enter a valid UOM." 
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN NO-APPLY.
+    END.
+    /* gdm - 10080910 end */
+    IF itemfg.prod-uom:SCREEN-VALUE EQ "" AND  itemfg.prod-uom:VISIBLE = YES THEN 
+    DO:
+        MESSAGE 
+            "Cost Unit of Measure can't be blank. Please enter a valid UOM." 
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN NO-APPLY.
+    END.
+    {&methods/lValidateError.i NO}
+    RUN calc-std-cost.
+
     ASSIGN
-        ll-new-part-no = old-part-no# NE itemfg.part-no
-        ll-new-i-name =  old-i-name  NE itemfg.i-name 
+        old-part-no#   = itemfg.part-no
+        old-part-dscr1 = itemfg.part-dscr1
+        old-part-dscr2 = itemfg.part-dscr2
+        old-part-dscr3 = itemfg.part-dscr3
+        old-i-name     = itemfg.i-name
+        old-die-no     = itemfg.die-no
+        old-plate-no   = itemfg.plate-no
+        old-cad-no     = itemfg.cad-no
+        old-spc-no     = itemfg.spc-no
+        old-upc-no     = itemfg.upc-no
+        old-procat     = itemfg.procat
+        ll-new-record  = adm-new-record.
+
+    /* Create an itemfg-loc for the default warehouse */
+    DO WITH FRAME {&FRAME-NAME}:
+        RUN fg/chkfgloc.p (INPUT itemfg.i-no:SCREEN-VALUE, INPUT "").
+    END.
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    DO WITH FRAME {&FRAME-NAME}:
+        DISABLE ALL.
+
+        /* Overcome Write trigger */
+        DO TRANSACTION:
+            FIND CURRENT itemfg EXCLUSIVE NO-ERROR.
+            IF AVAILABLE itemfg THEN
+            DO:
+                itemfg.taxable = ll-tax.
+
+                IF ll-new-record AND v-graphic-char NE "" AND itemfg.box-image EQ "" THEN 
+                DO:
+                    IF LOOKUP(SUBSTR(v-graphic-char,LENGTH(v-graphic-char)),"\,/") EQ 0 THEN
+                        v-graphic-char = v-graphic-char + "\".
+
+                    IF SEARCH(v-graphic-char + itemfg.i-no:SCREEN-VALUE + ".jpg") NE ? THEN
+                    DO:
+                        /*FIND CURRENT itemfg EXCLUSIVE-LOCK NO-ERROR.
+                        IF AVAIL itemfg THEN 
+                        DO: */
+                        itemfg.box-image = v-graphic-char + itemfg.i-no:SCREEN-VALUE + ".jpg".
+                    /*FIND CURRENT itemfg NO-LOCK NO-ERROR.
+                 END. */
+                    END.
+                END.
+            END.
+        END.
+
+        tb_taxable:SCREEN-VALUE = STRING(itemfg.taxable).
+    END.
+    ASSIGN
+        ll-new-part-no    = old-part-no# NE itemfg.part-no
+        ll-new-i-name     = old-i-name  NE itemfg.i-name 
         ll-new-part-dscr1 = old-part-dscr1 NE itemfg.part-dscr1 
         ll-new-part-dscr2 = old-part-dscr2 NE itemfg.part-dscr2
         ll-new-part-dscr3 = old-part-dscr3 NE itemfg.part-dscr3 
-        ll-new-plate-no = old-plate-no   NE itemfg.plate-no 
-        ll-new-spc-no = old-spc-no     NE itemfg.spc-no 
-        ll-new-upc-no = old-upc-no     NE itemfg.upc-no 
-        ll-new-die-no = old-die-no    NE itemfg.die-no 
-        ll-new-cad-no = old-cad-no NE itemfg.cad-no
-        ll-new-procat =  old-procat     NE itemfg.procat.
+        ll-new-plate-no   = old-plate-no   NE itemfg.plate-no 
+        ll-new-spc-no     = old-spc-no     NE itemfg.spc-no 
+        ll-new-upc-no     = old-upc-no     NE itemfg.upc-no 
+        ll-new-die-no     = old-die-no    NE itemfg.die-no 
+        ll-new-cad-no     = old-cad-no NE itemfg.cad-no
+        ll-new-procat     = old-procat     NE itemfg.procat.
 
-/*   if old-part-no#   ne itemfg.part-no or     */
-/*      old-i-name     ne itemfg.i-name or      */
-/*      old-part-dscr1 ne itemfg.part-dscr1 or  */
-/*      old-plate-no   ne itemfg.plate-no or    */
-/*      old-spc-no     ne itemfg.spc-no or      */
-/*      old-upc-no     ne itemfg.upc-no OR      */
-/*      old-die-no     NE itemfg.die-no or      */
-/*      old-procat     NE itemfg.procat then    */
-/*         run update-order(OUTPUT op-upd-die). */
+    /*   if old-part-no#   ne itemfg.part-no or     */
+    /*      old-i-name     ne itemfg.i-name or      */
+    /*      old-part-dscr1 ne itemfg.part-dscr1 or  */
+    /*      old-plate-no   ne itemfg.plate-no or    */
+    /*      old-spc-no     ne itemfg.spc-no or      */
+    /*      old-upc-no     ne itemfg.upc-no OR      */
+    /*      old-die-no     NE itemfg.die-no or      */
+    /*      old-procat     NE itemfg.procat then    */
+    /*         run update-order(OUTPUT op-upd-die). */
     IF ll-new-part-no OR ll-new-i-name 
         OR ll-new-part-dscr1 OR ll-new-part-dscr2 OR ll-new-part-dscr3 THEN
         RUN update-order(OUTPUT op-upd-die).
@@ -2052,37 +2144,38 @@ PROCEDURE local-update-record :
         AND TRIM(itemfg.est-no) GT "" THEN
         RUN fg/estupdt.w (ROWID(itemfg),old-part-no#,OUTPUT op-upd-die).
 
-/*     IF old-die-no NE itemfg.die-no OR old-cad-no NE itemfg.cad-no THEN                  */
-/*     RUN est/updiecad.p (ROWID(itemfg), old-die-no, old-cad-no, "","itemfg",op-upd-die). */
+    /*     IF old-die-no NE itemfg.die-no OR old-cad-no NE itemfg.cad-no THEN                  */
+    /*     RUN est/updiecad.p (ROWID(itemfg), old-die-no, old-cad-no, "","itemfg",op-upd-die). */
     IF ll-new-die-no OR ll-new-cad-no THEN
         RUN est/updiecad.p (ROWID(itemfg), old-die-no, old-cad-no, "","itemfg",op-upd-die).
 
-  FIND CURRENT itemfg NO-LOCK NO-ERROR.
-
-  IF ll-add-record THEN DO:
-
     FIND CURRENT itemfg NO-LOCK NO-ERROR.
 
-    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
-    RUN repo-query2 IN WIDGET-HANDLE(char-hdl) (ROWID(itemfg)).
-  END.
-  IF ll-copy = TRUE THEN 
-  DO:
-    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
-    RUN repo-query2 IN WIDGET-HANDLE(char-hdl) (ROWID(itemfg)).
-  END.
+    IF ll-add-record THEN 
+    DO:
 
-  /* disable/enable set parts tab */
+        FIND CURRENT itemfg NO-LOCK NO-ERROR.
 
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "container-source", OUTPUT char-hdl).  
-  RUN get-link-handle IN adm-broker-hdl(WIDGET-HANDLE(char-hdl), "page-source", OUTPUT char-hdl). 
+        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
+        RUN repo-query2 IN WIDGET-HANDLE(char-hdl) (ROWID(itemfg)).
+    END.
+    IF ll-copy = TRUE THEN 
+    DO:
+        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
+        RUN repo-query2 IN WIDGET-HANDLE(char-hdl) (ROWID(itemfg)).
+    END.
 
-  IF itemfg.isaset AND 
-    char-hdl NE ""
-      THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6).
-      ELSE 
+    /* disable/enable set parts tab */
+
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "container-source", OUTPUT char-hdl).  
+    RUN get-link-handle IN adm-broker-hdl(WIDGET-HANDLE(char-hdl), "page-source", OUTPUT char-hdl). 
+
+    IF itemfg.isaset AND 
+        char-hdl NE ""
+        THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6).
+    ELSE 
         IF char-hdl NE ""
-          THEN RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6).
+            THEN RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6).
 
 END PROCEDURE.
 
@@ -2092,51 +2185,52 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-est-no V-table-Win 
 PROCEDURE new-est-no :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR lv-cust-no LIKE eb.cust-no NO-UNDO.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-cust-no LIKE eb.cust-no NO-UNDO.
 
 
-  DO WITH FRAME {&FRAME-NAME}:
-    lv-cust-no = itemfg.cust-no:SCREEN-VALUE.
-    ASSIGN
-       old-est-no  = itemfg.est-no:SCREEN-VALUE .
+    DO WITH FRAME {&FRAME-NAME}:
+        lv-cust-no = itemfg.cust-no:SCREEN-VALUE.
+        ASSIGN
+            old-est-no = itemfg.est-no:SCREEN-VALUE .
 
-    FIND FIRST eb
-        WHERE eb.company   EQ gcompany
-          AND eb.est-no    EQ STRING(INT(itemfg.est-no:SCREEN-VALUE),">>>>>>>>")
-          AND (eb.part-no  EQ itemfg.part-no:SCREEN-VALUE OR
-               eb.stock-no EQ itemfg.i-no:SCREEN-VALUE)
-        NO-LOCK NO-ERROR.
+        FIND FIRST eb
+            WHERE eb.company   EQ gcompany
+            AND eb.est-no    EQ STRING(INT(itemfg.est-no:SCREEN-VALUE),">>>>>>>>")
+            AND (eb.part-no  EQ itemfg.part-no:SCREEN-VALUE OR
+            eb.stock-no EQ itemfg.i-no:SCREEN-VALUE)
+            NO-LOCK NO-ERROR.
 
-    IF AVAIL eb THEN DO:
-      ASSIGN
-       itemfg.cad-no:SCREEN-VALUE   = CAPS(eb.cad-no)
-       itemfg.spc-no:SCREEN-VALUE   = CAPS(eb.spc-no)
-       itemfg.upc-no:SCREEN-VALUE   = CAPS(eb.upc-no)
-       itemfg.plate-no:SCREEN-VALUE = CAPS(eb.plate-no)
-       itemfg.die-no:SCREEN-VALUE   = CAPS(eb.die-no)
-       itemfg.cust-no:SCREEN-VALUE  = CAPS(eb.cust-no)
-       itemfg.part-no:SCREEN-VALUE  = CAPS(eb.part-no)
-       itemfg.style:SCREEN-VALUE    = eb.style  .   /* Task 01311402 */
+        IF AVAILABLE eb THEN 
+        DO:
+            ASSIGN
+                itemfg.cad-no:SCREEN-VALUE   = CAPS(eb.cad-no)
+                itemfg.spc-no:SCREEN-VALUE   = CAPS(eb.spc-no)
+                itemfg.upc-no:SCREEN-VALUE   = CAPS(eb.upc-no)
+                itemfg.plate-no:SCREEN-VALUE = CAPS(eb.plate-no)
+                itemfg.die-no:SCREEN-VALUE   = CAPS(eb.die-no)
+                itemfg.cust-no:SCREEN-VALUE  = CAPS(eb.cust-no)
+                itemfg.part-no:SCREEN-VALUE  = CAPS(eb.part-no)
+                itemfg.style:SCREEN-VALUE    = eb.style  .   /* Task 01311402 */
 
-      itemfg.case-count:SCREEN-VALUE = STRING(eb.cas-cnt).
+            itemfg.case-count:SCREEN-VALUE = STRING(eb.cas-cnt).
 
-      FIND FIRST sys-ctrl
-          WHERE sys-ctrl.company EQ cocode
-            AND sys-ctrl.name    EQ "OECOUNT"
-          NO-LOCK NO-ERROR.
-      IF AVAIL sys-ctrl AND NOT sys-ctrl.log-fld THEN
-        itemfg.case-count:SCREEN-VALUE =
-                            STRING(IF eb.tr-cnt NE 0 THEN eb.tr-cnt
-                                   ELSE (eb.cas-cnt * eb.cas-pal)).
+            FIND FIRST sys-ctrl
+                WHERE sys-ctrl.company EQ cocode
+                AND sys-ctrl.name    EQ "OECOUNT"
+                NO-LOCK NO-ERROR.
+            IF AVAILABLE sys-ctrl AND NOT sys-ctrl.log-fld THEN
+                itemfg.case-count:SCREEN-VALUE =
+                    STRING(IF eb.tr-cnt NE 0 THEN eb.tr-cnt
+                    ELSE (eb.cas-cnt * eb.cas-pal)).
+        END.
+
+        IF itemfg.cust-no:SCREEN-VALUE NE lv-cust-no THEN
+            APPLY "value-changed" TO itemfg.cust-no.
     END.
-
-    IF itemfg.cust-no:SCREEN-VALUE NE lv-cust-no THEN
-      APPLY "value-changed" TO itemfg.cust-no.
-  END.
 
 END PROCEDURE.
 
@@ -2146,23 +2240,24 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-type V-table-Win 
 PROCEDURE new-type :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR li AS INT NO-UNDO.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE li AS INTEGER NO-UNDO.
 
 
-  DO WITH FRAME {&FRAME-NAME}:
-    itemfg.type-code:SCREEN-VALUE = CAPS(itemfg.type-code:SCREEN-VALUE).
+    DO WITH FRAME {&FRAME-NAME}:
+        itemfg.type-code:SCREEN-VALUE = CAPS(itemfg.type-code:SCREEN-VALUE).
 
-    li = LOOKUP(itemfg.type-code:SCREEN-VALUE,lv-type-codes) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN li = 0.
+        li = LOOKUP(itemfg.type-code:SCREEN-VALUE,lv-type-codes) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN li = 0.
 
-    IF li GT 0 AND li LE NUM-ENTRIES(lv-type-dscrs) THEN DO:
-      fi_type-dscr:SCREEN-VALUE = ENTRY(li,lv-type-dscrs).
+        IF li GT 0 AND li LE NUM-ENTRIES(lv-type-dscrs) THEN 
+        DO:
+            fi_type-dscr:SCREEN-VALUE = ENTRY(li,lv-type-dscrs).
+        END.
     END.
-  END.
 
 END PROCEDURE.
 
@@ -2172,12 +2267,12 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE print-speccard V-table-Win 
 PROCEDURE print-speccard :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   RUN fgrep/d-spcard.w (ROWID(itemfg)). 
-  /* RUN fgrep/r-spcard.p (ROWID(itemfg)).*/
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    RUN fgrep/d-spcard.w (ROWID(itemfg)). 
+/* RUN fgrep/r-spcard.p (ROWID(itemfg)).*/
 
 
 END PROCEDURE.
@@ -2188,31 +2283,32 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-copy V-table-Win 
 PROCEDURE proc-copy :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR ll-copied AS LOG NO-UNDO.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE ll-copied AS LOG       NO-UNDO.
 
-  DEF VAR ls-focus AS CHAR NO-UNDO.
-  DEF VAR v-cost AS LOG INIT YES NO-UNDO.
+    DEFINE VARIABLE ls-focus  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE v-cost    AS LOG       INIT YES NO-UNDO.
 
-  IF AVAIL itemfg THEN DO WITH FRAME {&FRAME-NAME}:
+    IF AVAILABLE itemfg THEN 
+    DO WITH FRAME {&FRAME-NAME}:
 
-      RUN oeinq/d-cpyfg.w (OUTPUT v-cost, OUTPUT v-mat, OUTPUT v-cpyspc, OUTPUT v-begspc, OUTPUT v-endspc).
-     IF NOT v-cost THEN
-         ASSIGN
-         itemfg.std-mat-cost:SCREEN-VALUE    = "0"
-         itemfg.std-lab-cost:SCREEN-VALUE    = "0"
-         itemfg.std-var-cost:SCREEN-VALUE    = "0"
-         itemfg.std-fix-cost:SCREEN-VALUE    = "0"
-         itemfg.total-std-cost:SCREEN-VALUE  = "0"
-         itemfg.avg-cost:SCREEN-VALUE        = "0"
-         itemfg.last-cost:SCREEN-VALUE       = "0"
-         itemfg.spare-dec-1:SCREEN-VALUE     = "0" .
+        RUN oeinq/d-cpyfg.w (OUTPUT v-cost, OUTPUT v-mat, OUTPUT v-cpyspc, OUTPUT v-begspc, OUTPUT v-endspc).
+        IF NOT v-cost THEN
+            ASSIGN
+                itemfg.std-mat-cost:SCREEN-VALUE   = "0"
+                itemfg.std-lab-cost:SCREEN-VALUE   = "0"
+                itemfg.std-var-cost:SCREEN-VALUE   = "0"
+                itemfg.std-fix-cost:SCREEN-VALUE   = "0"
+                itemfg.total-std-cost:SCREEN-VALUE = "0"
+                itemfg.avg-cost:SCREEN-VALUE       = "0"
+                itemfg.last-cost:SCREEN-VALUE      = "0"
+                itemfg.spare-dec-1:SCREEN-VALUE    = "0" .
 
 
-  END. /*IF AVAIL itemfg THEN DO WITH  */
+    END. /*IF AVAIL itemfg THEN DO WITH  */
 
 END PROCEDURE.
 
@@ -2222,18 +2318,18 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE prod-uom-able V-table-Win 
 PROCEDURE prod-uom-able :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  DO WITH FRAME {&FRAME-NAME}:
-    IF (itemfg.i-code:SCREEN-VALUE EQ "S" AND itemfg.q-onh EQ 0) OR
-       itemfg.prod-uom:SCREEN-VALUE EQ ""                        THEN
-      ENABLE itemfg.prod-uom.
-    ELSE 
-      DISABLE itemfg.prod-uom.
-  END.
+    DO WITH FRAME {&FRAME-NAME}:
+        IF (itemfg.i-code:SCREEN-VALUE EQ "S" AND itemfg.q-onh EQ 0) OR
+            itemfg.prod-uom:SCREEN-VALUE EQ ""                        THEN
+            ENABLE itemfg.prod-uom.
+        ELSE 
+            DISABLE itemfg.prod-uom.
+    END.
 
 END PROCEDURE.
 
@@ -2243,18 +2339,18 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE recalc-cost V-table-Win 
 PROCEDURE recalc-cost :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR char-hdl AS cha NO-UNDO.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE char-hdl AS cha NO-UNDO.
 
 
-  RUN fg/d-recost.w (ROWID(itemfg)).
+    RUN fg/d-recost.w (ROWID(itemfg)).
 
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
 
-  RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(itemfg)).
+    RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(itemfg)).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2263,14 +2359,14 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query V-table-Win 
 PROCEDURE repo-query :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
-  FIND CURRENT itemfg NO-LOCK NO-ERROR.
-  RUN dispatch ('display-fields').
+    FIND CURRENT itemfg NO-LOCK NO-ERROR.
+    RUN dispatch ('display-fields').
 
 
 END PROCEDURE.
@@ -2303,25 +2399,27 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetPurMan V-table-Win 
 PROCEDURE SetPurMan :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER iplSetHeader AS LOGICAL NO-UNDO.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplSetHeader AS LOGICAL NO-UNDO.
 
-DO WITH FRAME {&FRAME-NAME}:
-    IF iplSetHeader THEN DO:
-        itemfg.pur-man:REPLACE("Unitized",YES,"Purchased") NO-ERROR.
-        itemfg.pur-man:REPLACE("Not Unitized",NO,"Manufactured") NO-ERROR.
-        itemfg.pur-man:HELP = "Is the Set Unitized?".
+    DO WITH FRAME {&FRAME-NAME}:
+        IF iplSetHeader THEN 
+        DO:
+            itemfg.pur-man:REPLACE("Unitized",YES,"Purchased") NO-ERROR.
+            itemfg.pur-man:REPLACE("Not Unitized",NO,"Manufactured") NO-ERROR.
+            itemfg.pur-man:HELP = "Is the Set Unitized?".
+        END.
+        ELSE 
+        DO:
+            itemfg.pur-man:REPLACE("Purchased",YES,"Unitized") NO-ERROR.
+            itemfg.pur-man:REPLACE("Manufactured",NO,"Not Unitized") NO-ERROR.
+            itemfg.pur-man:HELP = "Is the Item (P)urchased or (M)anufactured?".
+        END.
+
     END.
-     ELSE DO:
-        itemfg.pur-man:REPLACE("Purchased",YES,"Unitized") NO-ERROR.
-        itemfg.pur-man:REPLACE("Manufactured",NO,"Not Unitized") NO-ERROR.
-        itemfg.pur-man:HELP = "Is the Item (P)urchased or (M)anufactured?".
-     END.
-
-END.
 
 END PROCEDURE.
 
@@ -2331,18 +2429,18 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
--------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
-  DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    -------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
 
-  CASE p-state:
+    CASE p-state:
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
-      {src/adm/template/vstates.i}
-  END CASE.
+    {src/adm/template/vstates.i}
+    END CASE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2351,116 +2449,116 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-order V-table-Win 
 PROCEDURE update-order :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER op-upd-die AS LOG NO-UNDO.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER op-upd-die AS LOG NO-UNDO.
 
-  RUN fg/ordrupdt.w (ROWID(itemfg),old-part-no#).
+    RUN fg/ordrupdt.w (ROWID(itemfg),old-part-no#).
 /*   IF TRIM(itemfg.est-no) GT "" THEN                                */
 /*   RUN fg/estupdt.w (ROWID(itemfg),old-part-no#,OUTPUT op-upd-die). */
 
-   /* -- this code replaced with above dialog run -- per joe 9.13.2005
-   def var yn# AS log format "Yes/No" no-undo.
-   DEF VAR lv-est-no LIKE itemfg.est-no NO-UNDO.
+/* -- this code replaced with above dialog run -- per joe 9.13.2005
+def var yn# AS log format "Yes/No" no-undo.
+DEF VAR lv-est-no LIKE itemfg.est-no NO-UNDO.
 
-   def buffer b-eb for eb.
+def buffer b-eb for eb.
 
-   &SCOPED-DEFINE where-phrase WHERE eb.company    EQ itemfg.company   ~
-                                 AND eb.cust-no    EQ itemfg.cust-no   ~
-                                 AND ((eb.part-no  EQ old-part-no# AND ~
-                                       eb.stock-no EQ "") OR           ~
-                                      eb.stock-no  EQ itemfg.i-no)
+&SCOPED-DEFINE where-phrase WHERE eb.company    EQ itemfg.company   ~
+                              AND eb.cust-no    EQ itemfg.cust-no   ~
+                              AND ((eb.part-no  EQ old-part-no# AND ~
+                                    eb.stock-no EQ "") OR           ~
+                                   eb.stock-no  EQ itemfg.i-no)
 
-   MESSAGE "Update Information for Order?"
-       VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE yn#.
-   if yn# then do:
-      if old-part-no# ne itemfg.part-no then
-      for each oe-ordl where oe-ordl.company eq itemfg.company
-                         and oe-ordl.i-no    eq itemfg.i-no
-                         and oe-ordl.part-no eq old-part-no# exclusive-lock:
-           oe-ordl.part-no = itemfg.part-no.
-      end.
-
-      for each oe-ordl where oe-ordl.company eq itemfg.company
-                         and oe-ordl.i-no    eq itemfg.i-no exclusive-lock:
-            assign
-                oe-ordl.i-name     = itemfg.i-name
-                oe-ordl.part-no    = itemfg.part-no
-                oe-ordl.part-dscr1 = itemfg.part-dscr1
-                oe-ordl.part-dscr2 = itemfg.part-dscr2.
-      end.    
+MESSAGE "Update Information for Order?"
+    VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE yn#.
+if yn# then do:
+   if old-part-no# ne itemfg.part-no then
+   for each oe-ordl where oe-ordl.company eq itemfg.company
+                      and oe-ordl.i-no    eq itemfg.i-no
+                      and oe-ordl.part-no eq old-part-no# exclusive-lock:
+        oe-ordl.part-no = itemfg.part-no.
    end.
 
-   yn# = TRIM(itemfg.est-no) GT "".
+   for each oe-ordl where oe-ordl.company eq itemfg.company
+                      and oe-ordl.i-no    eq itemfg.i-no exclusive-lock:
+         assign
+             oe-ordl.i-name     = itemfg.i-name
+             oe-ordl.part-no    = itemfg.part-no
+             oe-ordl.part-dscr1 = itemfg.part-dscr1
+             oe-ordl.part-dscr2 = itemfg.part-dscr2.
+   end.    
+end.
 
-   IF yn# THEN DO:
-     yn# = NO.
-     MESSAGE "Update Information for Estimate?"
-         VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE yn#.
-   END. /* if yn# */
+yn# = TRIM(itemfg.est-no) GT "".
 
-   if yn# then do:
-     FOR EACH w-est-no:
-       DELETE w-est-no.
-     END. /* each w-est-no */
+IF yn# THEN DO:
+  yn# = NO.
+  MESSAGE "Update Information for Estimate?"
+      VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE yn#.
+END. /* if yn# */
 
-     CREATE w-est-no.
-     w-est-no = itemfg.est-no.
+if yn# then do:
+  FOR EACH w-est-no:
+    DELETE w-est-no.
+  END. /* each w-est-no */
 
-     DO WHILE AVAIL w-est-no:
-       ASSIGN
-        w-run     = YES
-        lv-est-no = w-est-no.
+  CREATE w-est-no.
+  w-est-no = itemfg.est-no.
 
-       FOR EACH eb
-           {&where-phrase}
-             AND eb.est-no              EQ lv-est-no
-             AND TRIM(eb.master-est-no) NE ""
-             AND NOT CAN-FIND(FIRST w-est-no WHERE w-est-no EQ eb.master-est-no)
-           NO-LOCK:
+  DO WHILE AVAIL w-est-no:
+    ASSIGN
+     w-run     = YES
+     lv-est-no = w-est-no.
 
-         CREATE w-est-no.
-         w-est-no = eb.master-est-no.
-       END. /* each eb */
+    FOR EACH eb
+        {&where-phrase}
+          AND eb.est-no              EQ lv-est-no
+          AND TRIM(eb.master-est-no) NE ""
+          AND NOT CAN-FIND(FIRST w-est-no WHERE w-est-no EQ eb.master-est-no)
+        NO-LOCK:
 
-       FIND FIRST w-est-no WHERE w-run EQ NO NO-ERROR.
-     END. /* do while */
+      CREATE w-est-no.
+      w-est-no = eb.master-est-no.
+    END. /* each eb */
 
-     FOR EACH w-est-no BREAK BY w-est-no:
-       IF NOT FIRST-OF(w-est-no) THEN DELETE w-est-no.
-     END. /* each w-est-no */
+    FIND FIRST w-est-no WHERE w-run EQ NO NO-ERROR.
+  END. /* do while */
 
-     for each w-est-no,
-         each eb 
-         {&where-phrase}
-           and eb.est-no eq w-est-no
-         exclusive-lock:
+  FOR EACH w-est-no BREAK BY w-est-no:
+    IF NOT FIRST-OF(w-est-no) THEN DELETE w-est-no.
+  END. /* each w-est-no */
 
-          find first b-eb where b-eb.company eq eb.company
-                            and b-eb.est-no  eq w-est-no
-                            and w-est-no     eq itemfg.est-no
-                            and b-eb.form-no eq eb.form-no
-                            and b-eb.part-no eq itemfg.part-no
-                            and recid(b-eb)  ne recid(eb)
-                            no-lock no-error.
-          if not avail b-eb then eb.part-no = itemfg.part-no.  
-          assign eb.part-dscr1 = itemfg.i-name
-                 eb.part-dscr2 = itemfg.part-dscr1
-                 eb.plate-no   = itemfg.plate-no
-                 eb.spc-no     = itemfg.spc-no
-                 eb.upc-no     = itemfg.upc-no.
-     end. /* each w-est-no */
+  for each w-est-no,
+      each eb 
+      {&where-phrase}
+        and eb.est-no eq w-est-no
+      exclusive-lock:
 
-     if avail b-eb then do:
-        itemfg.part-no = old-part-no#.
-        message "ERROR: Customer Part# already exists on form,"
-                "please update estimate."
-                view-as alert-box error.
-     end. /* if avail b-eb */
-   end. /* if yn# */
-   -- this code replaced with above dialog run -- per joe 9.12.2005 */
+       find first b-eb where b-eb.company eq eb.company
+                         and b-eb.est-no  eq w-est-no
+                         and w-est-no     eq itemfg.est-no
+                         and b-eb.form-no eq eb.form-no
+                         and b-eb.part-no eq itemfg.part-no
+                         and recid(b-eb)  ne recid(eb)
+                         no-lock no-error.
+       if not avail b-eb then eb.part-no = itemfg.part-no.  
+       assign eb.part-dscr1 = itemfg.i-name
+              eb.part-dscr2 = itemfg.part-dscr1
+              eb.plate-no   = itemfg.plate-no
+              eb.spc-no     = itemfg.spc-no
+              eb.upc-no     = itemfg.upc-no.
+  end. /* each w-est-no */
+
+  if avail b-eb then do:
+     itemfg.part-no = old-part-no#.
+     message "ERROR: Customer Part# already exists on form,"
+             "please update estimate."
+             view-as alert-box error.
+  end. /* if avail b-eb */
+end. /* if yn# */
+-- this code replaced with above dialog run -- per joe 9.12.2005 */
 
 END PROCEDURE.
 
@@ -2470,29 +2568,48 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-no V-table-Win 
 PROCEDURE valid-cust-no :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-    IF (itemfg.cust-no:SCREEN-VALUE EQ "" AND
-        itemfg.i-code:SCREEN-VALUE  EQ "C")                              OR
-       (itemfg.cust-no:SCREEN-VALUE NE "" AND
-        NOT CAN-FIND(FIRST cust
-                     WHERE cust.company EQ gcompany
-                       AND cust.cust-no EQ itemfg.cust-no:SCREEN-VALUE)) THEN DO:
-      MESSAGE "Invalid " + TRIM(itemfg.cust-no:LABEL) + ", try help..."
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO itemfg.cust-no.
-      RETURN ERROR.
+    DO WITH FRAME {&FRAME-NAME}:
+        IF itemfg.cust-no:SCREEN-VALUE EQ "" THEN 
+        DO:
+            MESSAGE "Customer ID is required. Use Customer X?"
+                VIEW-AS ALERT-BOX QUESTION
+                BUTTON YES-NO UPDATE ll-ans AS LOG.
+            IF ll-ans THEN 
+            DO:
+                FIND FIRST cust NO-LOCK
+                    WHERE cust.company EQ gcompany
+                    AND cust.active  EQ "X" NO-ERROR.
+                IF AVAILABLE cust THEN 
+                    itemfg.cust-no:SCREEN-VALUE = cust.cust-no.
+            END.
+            ELSE 
+            DO:
+                APPLY "entry" TO itemfg.cust-no.
+                RETURN ERROR.
+            END.
+        END.
+        IF (itemfg.cust-no:SCREEN-VALUE NE "" AND
+            NOT CAN-FIND(FIRST cust
+            WHERE cust.company EQ gcompany
+            AND cust.cust-no EQ itemfg.cust-no:SCREEN-VALUE)) THEN 
+        DO:
+            MESSAGE "Invalid " + TRIM(itemfg.cust-no:LABEL) + ", try help..."
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO itemfg.cust-no.
+            RETURN ERROR.
+        END.
+    
+        FIND cust WHERE cust.company EQ gcompany
+            AND cust.cust-no EQ itemfg.cust-no:SCREEN-VALUE
+            NO-LOCK NO-ERROR.
+        IF AVAILABLE cust THEN ASSIGN itemfg.cust-name:SCREEN-VALUE = cust.name.
     END.
-    FIND cust WHERE cust.company EQ gcompany
-                AND cust.cust-no EQ itemfg.cust-no:SCREEN-VALUE
-                NO-LOCK NO-ERROR.
-    IF AVAIL cust THEN ASSIGN itemfg.cust-name:SCREEN-VALUE    = cust.name.
-  END.
 
   {methods/lValidateError.i NO}
 END PROCEDURE.
@@ -2503,23 +2620,24 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-part V-table-Win 
 PROCEDURE valid-cust-part :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-       IF itemfg.part-no:SCREEN-VALUE EQ "" THEN
-           ASSIGN itemfg.part-no:SCREEN-VALUE = itemfg.i-no:SCREEN-VALUE .
+    DO WITH FRAME {&FRAME-NAME}:
+        IF itemfg.part-no:SCREEN-VALUE EQ "" THEN
+            ASSIGN itemfg.part-no:SCREEN-VALUE = itemfg.i-no:SCREEN-VALUE .
 
-       IF itemfg.part-no:SCREEN-VALUE EQ "" THEN DO:
-         MESSAGE "Cust part# can't be blank." VIEW-AS ALERT-BOX ERROR.
-         APPLY "entry" TO itemfg.part-no.
-         RETURN ERROR.
+        IF itemfg.part-no:SCREEN-VALUE EQ "" THEN 
+        DO:
+            MESSAGE "Cust part# can't be blank." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO itemfg.part-no.
+            RETURN ERROR.
+        END.
+
     END.
-
-  END.
 
   {methods/lValidateError.i NO}
 END PROCEDURE.
@@ -2530,28 +2648,29 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-user V-table-Win 
 PROCEDURE valid-cust-user :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
-custcount = "".
-DEF VAR lActive AS LOG NO-UNDO.
-RUN sys/ref/CustList.p (INPUT cocode,
-                            INPUT 'IF1',
-                            INPUT YES,
-                            OUTPUT lActive).
+    custcount = "".
+    DEFINE VARIABLE lActive AS LOG NO-UNDO.
+    RUN sys/ref/CustList.p (INPUT cocode,
+        INPUT 'IF1',
+        INPUT YES,
+        OUTPUT lActive).
 
-{sys/inc/chblankcust.i ""IF1""}
+    {sys/inc/chblankcust.i ""IF1""}
 
-  IF ou-log THEN
+    IF ou-log THEN
     DO WITH FRAME {&FRAME-NAME}:
-      IF LOOKUP(itemfg.cust-no:SCREEN-VALUE,custcount) = 0 THEN DO:
-          MESSAGE "Customer is not on Users Customer List.  "  SKIP
-              "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO itemfg.cust-no .
-          RETURN ERROR.
-      END.
+        IF LOOKUP(itemfg.cust-no:SCREEN-VALUE,custcount) = 0 THEN 
+        DO:
+            MESSAGE "Customer is not on Users Customer List.  "  SKIP
+                "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO itemfg.cust-no .
+            RETURN ERROR.
+        END.
     END.
 
   {methods/lValidateError.i NO}
@@ -2563,26 +2682,27 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-est-no V-table-Win 
 PROCEDURE valid-est-no :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  DO WITH FRAME {&frame-name}:
-    IF INT(old-est-no) NE INT(itemfg.est-no:SCREEN-VALUE) THEN RUN new-est-no.
+    DO WITH FRAME {&frame-name}:
+        IF INT(old-est-no) NE INT(itemfg.est-no:SCREEN-VALUE) THEN RUN new-est-no.
 
-    IF INT(itemfg.est-no:SCREEN-VALUE) GT 0 AND
-       NOT CAN-FIND(FIRST eb WHERE eb.company   EQ gcompany
-                               AND eb.est-no    EQ STRING(INT(itemfg.est-no:SCREEN-VALUE),">>>>>>>>")
-                               AND (eb.part-no  EQ itemfg.part-no:SCREEN-VALUE OR
-                                    eb.stock-no EQ itemfg.i-no:SCREEN-VALUE))
-    THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO itemfg.est-no.
-      RETURN ERROR.
+        IF INT(itemfg.est-no:SCREEN-VALUE) GT 0 AND
+            NOT CAN-FIND(FIRST eb WHERE eb.company   EQ gcompany
+            AND eb.est-no    EQ STRING(INT(itemfg.est-no:SCREEN-VALUE),">>>>>>>>")
+            AND (eb.part-no  EQ itemfg.part-no:SCREEN-VALUE OR
+            eb.stock-no EQ itemfg.i-no:SCREEN-VALUE))
+            THEN 
+        DO:
+            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO itemfg.est-no.
+            RETURN ERROR.
+        END.
     END.
-  END.
 
   {methods/lValidateError.i NO}
 END PROCEDURE.
@@ -2593,34 +2713,35 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-i-no V-table-Win 
 PROCEDURE valid-i-no :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF BUFFER b-itemfg FOR itemfg.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE BUFFER b-itemfg FOR itemfg.
 
-  DEF VAR v-msg AS CHAR NO-UNDO.
+    DEFINE VARIABLE v-msg AS CHARACTER NO-UNDO.
 
 
   {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-    v-msg = "".
+    DO WITH FRAME {&FRAME-NAME}:
+        v-msg = "".
 
-    IF itemfg.i-no:SCREEN-VALUE EQ "" THEN v-msg = "may not be spaces".
+        IF itemfg.i-no:SCREEN-VALUE EQ "" THEN v-msg = "may not be spaces".
 
-    ELSE
-    IF CAN-FIND(FIRST b-itemfg WHERE b-itemfg.company EQ gcompany
-                                 AND b-itemfg.i-no    EQ itemfg.i-no:SCREEN-VALUE
-                                 AND ROWID(b-itemfg)  NE ROWID(itemfg))
-    THEN v-msg = "already exists".
+        ELSE
+            IF CAN-FIND(FIRST b-itemfg WHERE b-itemfg.company EQ gcompany
+                AND b-itemfg.i-no    EQ itemfg.i-no:SCREEN-VALUE
+                AND ROWID(b-itemfg)  NE ROWID(itemfg))
+                THEN v-msg = "already exists".
 
-    IF v-msg NE "" THEN DO:
-      MESSAGE "Sorry, " + TRIM(itemfg.i-no:LABEL) + " " + TRIM(v-msg)
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO itemfg.i-no.
-      RETURN ERROR.
+        IF v-msg NE "" THEN 
+        DO:
+            MESSAGE "Sorry, " + TRIM(itemfg.i-no:LABEL) + " " + TRIM(v-msg)
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO itemfg.i-no.
+            RETURN ERROR.
+        END.
     END.
-  END.
 
   {methods/lValidateError.i NO}
 END PROCEDURE.
@@ -2631,22 +2752,25 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc V-table-Win 
 PROCEDURE valid-loc :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         
         /* If you're not modifying the FGMASTER item then blanks aren't allowed */
-        IF cFGMasterINo NE itemfg.i-no:SCREEN-VALUE THEN DO: 
+        IF cFGMasterINo NE itemfg.i-no:SCREEN-VALUE THEN 
+        DO: 
             IF  itemfg.def-loc:SCREEN-VALUE EQ "" 
-            THEN DO:
+                THEN 
+            DO:
                 MESSAGE "Default Warehouse cannot be blank." VIEW-AS ALERT-BOX ERROR.
                 APPLY "entry" TO itemfg.def-loc.
                 RETURN ERROR.
             END.
             IF itemfg.def-loc-bin:SCREEN-VALUE EQ ""
-            THEN DO:
+                THEN 
+            DO:
                 MESSAGE "Default Bin Location cannot be blank." VIEW-AS ALERT-BOX ERROR.
                 APPLY "entry" TO itemfg.def-loc-bin.
                 RETURN ERROR.
@@ -2654,51 +2778,122 @@ PROCEDURE valid-loc :
         END.
         IF itemfg.def-loc:SCREEN-VALUE <> ""
             AND NOT CAN-FIND(FIRST loc WHERE 
-                            loc.company = gcompany AND 
-                            loc.loc = itemfg.def-loc:SCREEN-VALUE)
-        THEN DO:
+            loc.company = gcompany AND 
+            loc.loc = itemfg.def-loc:SCREEN-VALUE)
+            THEN 
+        DO:
             MESSAGE "Invalid Default Warehouse." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO itemfg.def-loc.
             RETURN ERROR.
         END.
         IF itemfg.def-loc-bin:SCREEN-VALUE <> "" 
             AND NOT CAN-FIND(FIRST fg-bin WHERE 
-                            fg-bin.company = gcompany AND 
-                            fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
-                            fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
-        THEN DO:
+            fg-bin.company = gcompany AND 
+            fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
+            fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
+            THEN 
+        DO:
             MESSAGE "Invalid Default Bin Location for Warehouse " itemfg.def-loc:SCREEN-VALUE VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO itemfg.def-loc-bin.
             RETURN ERROR.
         END.
-   END.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-type V-table-Win 
 PROCEDURE valid-type :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-    IF TRIM(itemfg.type-code:SCREEN-VALUE) NE ""                AND
-       LOOKUP(itemfg.type-code:SCREEN-VALUE,lv-type-codes) LE 0 THEN DO:
-      MESSAGE "Invalid Type, try help..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO itemfg.type-code.
-      RETURN ERROR.
+    DO WITH FRAME {&FRAME-NAME}:
+        IF TRIM(itemfg.type-code:SCREEN-VALUE) NE ""                AND
+            LOOKUP(itemfg.type-code:SCREEN-VALUE,lv-type-codes) LE 0 THEN 
+        DO:
+            MESSAGE "Invalid Type, try help..." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO itemfg.type-code.
+            RETURN ERROR.
+        END.
     END.
-  END.
 
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckOnHandQty V-table-Win 
+PROCEDURE pCheckOnHandQty :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+DEFINE VARIABLE iQtyOnHand AS INTEGER NO-UNDO .
+DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO .
+
+  {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+        IF itemfg.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "I" THEN do:
+            FOR EACH fg-bin FIELDS(qty )
+               WHERE fg-bin.company EQ cocode
+                 AND fg-bin.i-no    EQ itemfg.i-no:SCREEN-VALUE
+                 NO-LOCK:
+             ASSIGN
+                iQtyOnHand = iQtyOnHand + fg-bin.qty.
+            END.
+            
+            IF iQtyOnHand GT 0 THEN DO:
+               MESSAGE "Remove all on hand quantity in order to make an item inactive." VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO itemfg.stat.
+               RETURN ERROR.
+            END.
+        END.
+
+      IF lCheckMessage EQ YES THEN do:
+       FOR EACH po-ordl FIELDS(po-no )  NO-LOCK
+           WHERE po-ordl.company EQ cocode
+           AND po-ordl.i-no EQ  itemfg.i-no:SCREEN-VALUE
+           AND po-ordl.opened  :
+           cMessage = " Po# " + string(po-ordl.po-no ) .
+           LEAVE.
+       END.
+
+       IF cMessage EQ "" THEN
+       FOR EACH oe-ordl FIELD(ord-no) NO-LOCK
+           WHERE oe-ordl.company EQ cocode
+           AND oe-ordl.i-no EQ itemfg.i-no:SCREEN-VALUE
+           AND oe-ordl.opened  :
+           cMessage = " Order# " + string(oe-ordl.ord-no ) .
+           LEAVE.
+       END.
+       IF cMessage EQ "" THEN
+       FOR EACH job-hdr FIELD(job-no)  NO-LOCK
+        WHERE  job-hdr.company EQ cocode
+          AND job-hdr.i-no EQ itemfg.i-no:SCREEN-VALUE
+          AND job-hdr.opened EQ YES :
+            cMessage = " Job# " + string(job-hdr.job-no ) .
+       END.
+
+       IF  cMessage NE "" THEN 
+           MESSAGE "You are setting this item to inactive yet it is still included in "  SKIP
+               "open/unprocessed transactions.  This includes:" cMessage VIEW-AS ALERT-BOX WARNING .
+
+      END.  /* lCheckMessage */
+          
+    END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

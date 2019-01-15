@@ -510,7 +510,7 @@ END FUNCTION.
           v-job-no2 = job-hdr.job-no2.
 
         if avail oe-ord then
-          if not oe-ctrl.p-fact and oe-ord.stat eq "H" then next.
+          if not oe-ctrl.p-fact and (oe-ord.stat eq "H" OR oe-ord.priceHold) then next.
 
         v-due-date = if avail oe-ord 
                      then oe-ord.due-date 
@@ -813,21 +813,7 @@ END FUNCTION.
                     {sys/look/itemivW.i}
                        and item.i-no eq job-mat.i-no:
 
-                    FIND FIRST reftable 
-                         WHERE reftable EQ "ce/v-est3.w Unit#"
-                           AND reftable.company EQ b-eb.company
-                           AND reftable.loc     EQ eb.est-no
-                           AND reftable.code    EQ STRING(eb.form-no,"9999999999")
-                           AND reftable.code2   EQ STRING(eb.blank-no,"9999999999")
-                         NO-LOCK NO-ERROR.
 
-                    FIND FIRST b-rt
-                         WHERE b-rt.reftable EQ "ce/v-est3.w Unit#1"
-                           AND b-rt.company  EQ b-eb.company
-                           AND b-rt.loc      EQ eb.est-no
-                           AND b-rt.code     EQ STRING(eb.form-no,"9999999999")
-                           AND b-rt.code2    EQ STRING(eb.blank-no,"9999999999")
-                         NO-LOCK NO-ERROR.
                      /*
                     IF AVAIL reftable THEN
                         MESSAGE "ref" 
@@ -855,12 +841,11 @@ END FUNCTION.
                         VIEW-AS ALERT-BOX.
                       */
                     v-next-unit = 0.
-                    do i = 1 to 19:
-                        v-unit = IF i LE 12 AND AVAIL reftable 
-                                 THEN reftable.val[i]
-                                 ELSE
-                                 IF AVAIL b-rt THEN b-rt.val[i - 12]
-                                               ELSE 0.
+                    
+                    do i = 1 to 19:      
+                        v-unit = eb.unitNo[i].                   
+
+
                         /*MESSAGE  "v-unit " + STRING(v-unit) + "  " + STRING(eb.i-code2[i]) VIEW-AS ALERT-BOX ERROR.*/
                         if eb.i-code2[i] eq job-mat.i-no then do:
                             find first wrk-ink
@@ -878,9 +863,8 @@ END FUNCTION.
                                   wrk-ink.blank-no = eb.blank-no
                                   wrk-ink.i-dscr   = eb.i-dscr2[i]
                                   wrk-ink.i-pass   = eb.i-ps2[i]
-                                  wrk-ink.i-unit   = v-unit 
-                                  wrk-ink.i-bf     = IF AVAIL reftable THEN SUBSTRING(reftable.dscr,i,1) ELSE "" . /*task 12231302 */
-                                
+                                  wrk-ink.i-unit   = v-unit
+                                  wrk-ink.i-bf     = SUBSTRING(eb.side[i],1) .
                               
                                 IF wrk-ink.i-unit = 0 THEN DO:
                                    /* v-next-unit = v-next-unit + 1.

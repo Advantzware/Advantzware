@@ -1,5 +1,13 @@
 /* oe/rep/bolxpr23.i*/
+DEFINE VARIABLE cBolFormat AS CHARACTER NO-UNDO .
+
 IF FIRST-OF(tt-boll.LINE) THEN DO:
+    
+    RUN sys/ref/nk1look.p (INPUT cocode, "BOLFMT", "C" /* Logical */, YES /* check by cust */, 
+    INPUT YES /* use cust not vendor */, oe-bolh.cust-no /* cust */, oe-bolh.ship-id /* ship-to*/,
+        OUTPUT cRtnChar, OUTPUT lRecFound).
+    ASSIGN cBolFormat = cRtnChar .
+         
   FOR EACH w2.
       DELETE w2.
   END.
@@ -70,6 +78,21 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
     FIND FIRST bf-ttboll WHERE recid(bf-ttboll) = w2.rec-id NO-LOCK NO-ERROR.    
     i = i + 1.
 
+    IF cBolFormat = "bolfmt 20" THEN do:
+        IF v-printline >= 48 THEN DO:
+           v-printline = 0.
+           PAGE {1}.
+           {oe/rep/bolxpr220.i}
+        END.
+    END. /* bolfmt20*/
+    ELSE DO:
+        IF v-printline >= 48 THEN DO:
+           v-printline = 0.
+           PAGE {1}.
+           {oe/rep/bolxpr22.i}
+        END.
+    END.
+
     IF w2.rec-id = ? THEN DO:
         find first oe-ordl where oe-ordl.company eq cocode
          and oe-ordl.ord-no  eq tt-boll.ord-no
@@ -84,9 +107,8 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
        else if i eq 3 then ASSIGN w2.dscr = oe-ordl.part-dscr1.
        ELSE if i eq 4 then ASSIGN w2.dscr = oe-ordl.part-dscr2.
     END.
-    IF w2.qty = 0 and w2.i-no = "" AND w2.dscr = "" AND NOT last(w2.cases) THEN .
-    ELSE DO: 
-    RUN  pGetP-C(OUTPUT cPc).   
+    IF w2.qty = 0 and w2.i-no = "" AND w2.dscr = "" AND NOT last(w2.cases) AND w2.cas-cnt EQ 0 THEN .
+    ELSE DO:      
         DISPLAY w2.i-no                       
            trim(string(w2.qty,"->>,>>>,>>>")) WHEN i = 1 @ w2.i-no
             w2.job-po
@@ -94,7 +116,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
             w2.cases
             w2.cas-cnt
             v-tot-case-qty when first (w2.cases) @ tt-boll.qty
-            /*bf-ttboll.p-c*/ cPc FORMAT "X(1)"  WHEN AVAIL bf-ttboll AND FIRST (w2.cases) @ bf-ttboll.p-c                         
+            bf-ttboll.p-c  WHEN AVAIL bf-ttboll AND FIRST (w2.cases) @ bf-ttboll.p-c                         
            /* 1  WHEN i = 2 AND bf-ttboll.partial > 0  @ w2.cases
             tt-boll.partial WHEN i = 2 AND tt-boll.partial > 0 @ w2.cas-cnt */
            with frame bol-mid.
@@ -102,11 +124,6 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
        v-printline = v-printline + 1.
     END.
     
-    IF v-printline >= 48 THEN DO:
-       v-printline = 0.
-       PAGE {1}.
-       {oe/rep/bolxpr22.i}
-    END.
     v-tot-cases = v-tot-cases + w2.cases.
 
     /*delete w2. */
@@ -131,10 +148,19 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
       
     {sys/inc/part-qty.i v-part-qty fg-set}
 
-    IF v-printline >= 48 THEN DO:
-        v-printline = 0.
-        PAGE {1}.
-        {oe/rep/bolxpr22.i}
+    IF cBolFormat = "bolfmt 20" THEN do:
+        IF v-printline >= 48 THEN DO:
+           v-printline = 0.
+           PAGE {1}.
+           {oe/rep/bolxpr220.i}
+        END.
+    END. /* bolfmt20*/
+    ELSE DO:
+        IF v-printline >= 48 THEN DO:
+           v-printline = 0.
+           PAGE {1}.
+           {oe/rep/bolxpr22.i}
+        END.
     END.
 
     display {1}

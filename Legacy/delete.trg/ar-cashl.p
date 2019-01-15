@@ -15,11 +15,4 @@ FOR EACH reftable
   DELETE reftable.
 END.
 
-FOR EACH reftable
-    WHERE reftable.reftable EQ "ar-cashl.inv-line"
-      AND reftable.company  EQ {&TABLENAME}.company
-      AND reftable.loc      EQ ""
-      AND reftable.code     EQ STRING({&TABLENAME}.c-no,"9999999999") +
-                               STRING({&TABLENAME}.line,"9999999999"):
-  DELETE reftable.
-END.
+

@@ -79,7 +79,7 @@ ASSIGN cTextListToSelect = "Code,Desc.,Customer Name,Whse,Bin Loc,Dspsl Dt,Lst U
                              "cust,lst-est,lst-job,has-not,prep.box-style,prep.spare-dec-1," +
                              "prep.carton-l,prep.carton-w,prep.carton-d,prep.number-up,prep.die-w,prep.die-l,prep.no-of-impressions,received-date," +
                              "prep.fgcat,prep.procat,prep.i-no,owner1,owner%1,owner2,owner%2"
-       cFieldLength = "15,30,30,5,8,10,10," + "6,10,3,6,6,9,3,5,6,30,15,15," + "10,13,10,8,10,8," + "10,10,10,10,10,10,15,13," + "11,11,15,25,9,25,9"
+       cFieldLength = "15,30,30,5,8,10,10," + "7,10,3,6,6,9,3,5,6,30,15,15," + "10,13,10,8,10,8," + "10,10,10,10,10,10,15,13," + "11,11,15,25,9,25,9"
        cFieldType = "c,c,c,c,c,c,c," + "i,i,c,i,c,c,c,c,c,c,c,c," + "c,c,c,c,c,i," + "i,i,i,i,i,i,i,c," + "c,c,c,c,i,c,i"
     .
 
@@ -310,7 +310,7 @@ DEFINE FRAME FRAME-A
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Preparation Code List"
+         TITLE              = "Prep and Die File Listing"
          HEIGHT             = 23.57
          WIDTH              = 96
          MAX-HEIGHT         = 33.29
@@ -1285,7 +1285,7 @@ FOR EACH prep WHERE prep.company = g_company
                          WHEN "bin"                    THEN cVarValue = STRING(prep.loc-bin) .
                          WHEN "dis-dt"                 THEN cVarValue = IF prep.disposal-date NE ? THEN STRING(prep.disposal-date)  ELSE "" .
                          WHEN "lst-dt"                  THEN cVarValue = IF prep.last-date NE ? THEN STRING(prep.last-date)  ELSE "".
-                         WHEN "mrkup"                THEN cVarValue = STRING(prep.mkup,">>9.99") .
+                         WHEN "mrkup"                THEN cVarValue = STRING(prep.mkup,"->>9.99") .
                          WHEN "cst"                     THEN cVarValue = STRING(prep.cost,"->>,>>9.99") .
                          WHEN "ml"                      THEN cVarValue = STRING(v_ML) .
                          WHEN "amtz"                  THEN cVarValue =  STRING(prep.amtz,">>9.99") .

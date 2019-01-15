@@ -38,6 +38,12 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE SV SCREEN-VALUE IN FRAME DEFAULT-FRAME
 
 DEF STREAM s1.
+DEF STREAM sInstr.
+DEF STREAM outFile.
+DEF STREAM logFile.
+DEF STREAM outStream.
+DEF STREAM logStream.
+DEF STREAM iniStream.
 
 DEF TEMP-TABLE ttIniFile
     FIELD iPos AS INT
@@ -54,10 +60,11 @@ DEF TEMP-TABLE ttDatabases
     FIELD cAudName AS CHAR
     FIELD cAudPort AS CHAR.
 
-DEF STREAM outStream.
-DEF STREAM logStream.
-DEF STREAM iniStream.
-
+DEFINE VARIABLE cDLC    AS CHARACTER NO-UNDO.
+DEF    VAR      cDevCfg AS CHAR      NO-UNDO.
+DEF    VAR      cRunCfg AS CHAR      NO-UNDO.
+DEF    VAR      cCfgCfg AS CHAR      NO-UNDO.
+DEF    VAR      cState  AS CHAR      NO-UNDO.
 DEF VAR deMinLevel AS DECI NO-UNDO INITIAL 16.7.
 DEF VAR delCtr AS INT NO-UNDO.
 DEF VAR dupCtr AS INT NO-UNDO.
@@ -85,8 +92,10 @@ DEF VAR iLastIni AS INT NO-UNDO.
 DEF VAR iUserLevel AS INT NO-UNDO.
 DEF VAR iNumUsers AS INT NO-UNDO.
 DEF VAR iListEntry AS INT NO-UNDO.
+DEF VAR iIndex AS INT NO-UNDO.
 DEF VAR cIniLine AS CHAR NO-UNDO.
 DEF VAR cIniLoc AS CHAR NO-UNDO.
+DEF VAR cUsrLoc AS CHAR NO-UNDO.
 DEF VAR cUsrLine AS CHAR NO-UNDO.
 DEF VAR lConnectAudit AS LOG NO-UNDO.
 DEF VAR lFoundIni AS LOG NO-UNDO.
@@ -96,6 +105,7 @@ DEF VAR lSuccess AS LOG NO-UNDO.
 DEF VAR lSysError AS LOG NO-UNDO.
 DEF VAR lMakeBackup AS LOG NO-UNDO.
 DEF VAR lValidDB AS LOG NO-UNDO.
+DEF VAR lHeader AS LOG NO-UNDO.
 DEF VAR origPropath AS CHAR NO-UNDO.
 DEF VAR connectStatement AS CHAR NO-UNDO.
 DEF VAR cRunPgm AS CHAR NO-UNDO.
@@ -115,6 +125,26 @@ DEF VAR cfrom AS CHAR.
 DEF VAR cTo AS CHAR.
 DEF VAR iDBCurrVer AS INT NO-UNDO.
 DEF VAR iDBTgtVer AS INT NO-UNDO.
+DEF VAR cDLList AS CHAR NO-UNDO.
+DEF VAR cPatchList AS CHAR NO-UNDO.
+DEF VAR cFtpInstrFile AS CHAR NO-UNDO.
+DEF VAR lOKtoProceed AS LOG  NO-UNDO.
+DEF VAR cCmdLine     AS CHAR NO-UNDO.
+DEF VAR cIpAddress AS CHAR NO-UNDO.
+DEF VAR cFtpUser AS CHAR NO-UNDO.
+DEF VAR cFtpPassword AS CHAR NO-UNDO.
+DEF VAR cInstallerFile AS CHAR NO-UNDO.
+DEF VAR cFtpOutputFile AS CHAR NO-UNDO.
+DEF VAR cFtpErrFile AS CHAR NO-UNDO.
+DEF VAR c7ZOutputFile AS CHAR NO-UNDO.
+DEF VAR c7ZErrFile AS CHAR NO-UNDO.
+DEF VAR iCurrDbVer AS INT NO-UNDO.
+DEF VAR iPatchDbVer AS INT NO-UNDO.
+DEF VAR iCurrEnvVer AS INT NO-UNDO.
+DEF VAR iPatchEnvVer AS INT NO-UNDO.
+DEF VAR cLogFile AS CHAR NO-UNDO.
+DEF VAR cOutFile AS CHAR NO-UNDO.
+DEF VAR cOutDir AS CHAR NO-UNDO.
 
 /* Ensure that these lists always match, 'c' is always the prefix */
 ASSIGN cIniVarList = 
@@ -271,9 +301,10 @@ END.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fiUserID fiPassword bCancel 
-&Scoped-Define DISPLAYED-OBJECTS fiUserID fiPassword slDBname fiVersion ~
-fiPort fiDirectory 
+&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-3 RECT-4 fiUserID bCancel ~
+fiPassword bGetFiles slEnvList eStatus 
+&Scoped-Define DISPLAYED-OBJECTS fiUserID fiPassword slEnvList ~
+fiFromVersion fiToVersion eStatus tbClearLog fiLogFile 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -281,6 +312,15 @@ fiPort fiDirectory
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIntVer C-Win 
+FUNCTION fIntVer RETURNS INTEGER
+  ( INPUT cVerString AS CHAR )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -290,62 +330,96 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bCancel AUTO-END-KEY 
-     LABEL "Cancel" 
-     SIZE 15 BY 1.91.
+     LABEL "Exit" 
+     SIZE 11 BY 1.91.
+
+DEFINE BUTTON bGetFiles 
+     LABEL "Download" 
+     SIZE 40 BY 1.91.
 
 DEFINE BUTTON bUpdate 
-     LABEL "Update" 
-     SIZE 15 BY 1.91.
+     LABEL "Start Update" 
+     SIZE 40 BY 1.91.
 
-DEFINE VARIABLE fiDirectory AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Directory" 
+DEFINE VARIABLE eStatus AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 75 BY 9.52 NO-UNDO.
+
+DEFINE VARIABLE fiFromVersion AS CHARACTER FORMAT "X(256)":U INITIAL "99.99.99.99" 
+     LABEL "From Version" 
      VIEW-AS FILL-IN 
-     SIZE 59 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiLogFile AS CHARACTER FORMAT "X(256)":U INITIAL "Log of actions will be stored in N:~\Admin~\EnvAdmin~\UpdateLog.txt" 
+      VIEW-AS TEXT 
+     SIZE 65 BY .62 NO-UNDO.
 
 DEFINE VARIABLE fiPassword AS CHARACTER FORMAT "X(256)":U 
      LABEL "Password" 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1 NO-UNDO.
+     SIZE 30 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiPort AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Port Number" 
+DEFINE VARIABLE fiToVersion AS CHARACTER FORMAT "X(256)":U INITIAL "99.99.99.99" 
+     LABEL "To Version" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiUserID AS CHARACTER FORMAT "X(256)":U 
      LABEL "User ID" 
      VIEW-AS FILL-IN 
-     SIZE 22 BY 1 NO-UNDO.
+     SIZE 30 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiVersion AS CHARACTER FORMAT "X(256)":U 
-     LABEL "DB Version" 
-     VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 78 BY 3.33.
 
-DEFINE VARIABLE slDBname AS CHARACTER 
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 78 BY 3.33.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 78 BY 2.86.
+
+DEFINE VARIABLE slEnvList AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 28 BY 4.76 NO-UNDO.
+     SIZE 30 BY 1.67 NO-UNDO.
+
+DEFINE VARIABLE tbClearLog AS LOGICAL INITIAL yes 
+     LABEL "" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 4 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     fiUserID AT ROW 1.95 COL 11 COLON-ALIGNED WIDGET-ID 18
-     fiPassword AT ROW 1.95 COL 49 COLON-ALIGNED WIDGET-ID 20 PASSWORD-FIELD 
-     slDBname AT ROW 5.05 COL 16 NO-LABEL WIDGET-ID 2
-     fiVersion AT ROW 5.05 COL 59 COLON-ALIGNED WIDGET-ID 12
-     fiPort AT ROW 6.48 COL 59 COLON-ALIGNED WIDGET-ID 10
-     fiDirectory AT ROW 10.29 COL 14 COLON-ALIGNED WIDGET-ID 8
-     bUpdate AT ROW 11.71 COL 21 WIDGET-ID 14
-     bCancel AT ROW 11.71 COL 46 WIDGET-ID 16
-     "Select an environment to upgrade:" VIEW-AS TEXT
-          SIZE 53 BY .62 AT ROW 3.86 COL 6 WIDGET-ID 4
-     "DB Name:" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 5.05 COL 4 WIDGET-ID 6
+     fiUserID AT ROW 2.19 COL 19 COLON-ALIGNED WIDGET-ID 18
+     bCancel AT ROW 2.19 COL 63 WIDGET-ID 16 NO-TAB-STOP 
+     fiPassword AT ROW 3.38 COL 19 COLON-ALIGNED WIDGET-ID 20 PASSWORD-FIELD 
+     bGetFiles AT ROW 6.24 COL 21 WIDGET-ID 32
+     slEnvList AT ROW 10.29 COL 21 NO-LABEL WIDGET-ID 58
+     bUpdate AT ROW 13.14 COL 6 WIDGET-ID 14
+     fiFromVersion AT ROW 13.14 COL 63 COLON-ALIGNED WIDGET-ID 38
+     fiToVersion AT ROW 14.33 COL 63 COLON-ALIGNED
+     eStatus AT ROW 16.71 COL 3 NO-LABEL WIDGET-ID 52
+     tbClearLog AT ROW 26.48 COL 74 WIDGET-ID 60
+     fiLogFile AT ROW 26.71 COL 5 COLON-ALIGNED NO-LABEL WIDGET-ID 56
+     " Step 2 - Download and uncompress the latest ASI upgrade files" VIEW-AS TEXT
+          SIZE 62 BY .62 AT ROW 5.29 COL 3 WIDGET-ID 30
+     "Status:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 15.76 COL 4 WIDGET-ID 54
+     " Step 1 - Enter a valid user id and password" VIEW-AS TEXT
+          SIZE 43 BY .62 AT ROW 1.24 COL 3 WIDGET-ID 22
+     " Step 3 - Choose the environment to upgrade" VIEW-AS TEXT
+          SIZE 44 BY .62 AT ROW 9.33 COL 3 WIDGET-ID 24
+     RECT-2 AT ROW 1.48 COL 2 WIDGET-ID 44
+     RECT-3 AT ROW 5.52 COL 2 WIDGET-ID 46
+     RECT-4 AT ROW 9.57 COL 2 WIDGET-ID 48
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 79.8 BY 13.67 WIDGET-ID 100.
+         SIZE 79.8 BY 26.62 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -364,12 +438,12 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "ASIupdate Launcher"
-         HEIGHT             = 13.67
+         TITLE              = "ASIupdate 160800-01"
+         HEIGHT             = 26.62
          WIDTH              = 79.8
-         MAX-HEIGHT         = 16
+         MAX-HEIGHT         = 26.67
          MAX-WIDTH          = 81
-         VIRTUAL-HEIGHT     = 16
+         VIRTUAL-HEIGHT     = 26.67
          VIRTUAL-WIDTH      = 81
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -395,13 +469,13 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    FRAME-NAME                                                           */
 /* SETTINGS FOR BUTTON bUpdate IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiDirectory IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN fiFromVersion IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiPort IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN fiLogFile IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiVersion IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN fiToVersion IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR SELECTION-LIST slDBname IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR TOGGLE-BOX tbClearLog IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -417,7 +491,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* ASIupdate Launcher */
+ON END-ERROR OF C-Win /* ASIupdate 160800-01 */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -431,7 +505,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* ASIupdate Launcher */
+ON WINDOW-CLOSE OF C-Win /* ASIupdate 160800-01 */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -442,18 +516,91 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME DEFAULT-FRAME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL DEFAULT-FRAME C-Win
+ON ALT-C OF FRAME DEFAULT-FRAME
+ANYWHERE
+DO:
+    ASSIGN
+        tbClearLog:CHECKED IN FRAME {&FRAME-NAME} = NOT tbClearLog:CHECKED.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME bCancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bCancel C-Win
-ON CHOOSE OF bCancel IN FRAME DEFAULT-FRAME /* Cancel */
+ON CHOOSE OF bCancel IN FRAME DEFAULT-FRAME /* Exit */
+OR CHOOSE of bGetFiles
 OR CHOOSE of bUpdate
 DO:
+    DEF VAR cFTPxmit AS CHAR NO-UNDO.
+    
+    ASSIGN
+        cFTPxmit = cEnvAdmin + "\FTPout.txt".
+    
     CASE SELF:NAME:
         WHEN "bCancel" THEN DO:
+            RUN ipStatus("User chose Exit button").
+            IF cState EQ "Dev" THEN 
+            DO:
+                OS-RENAME VALUE (cCfgCfg) VALUE(cDLC + "\progress.dev").
+                OS-RENAME VALUE (cRunCfg) VALUE(cDLC + "\progress.cfg").
+                RUN ipStatus("Resetting Progress mode").
+            END.
+            RUN ipStatus("  Cleaning work files").
+            
+            OS-DELETE VALUE(cFTPInstrFile).
+            OS-DELETE VALUE(cFTPOutputFile).
+            OS-DELETE VALUE(cFTPErrFile).
+            OS-DELETE VALUE(c7zOutputFile).
+            OS-DELETE VALUE(c7zErrFile).
+            OS-DELETE VALUE(cEnvAdmin + "\" + cOutFile).
+            OS-DELETE VALUE(cFTPxmit).
+            OS-DELETE VALUE(cEnvAdmin + "\cOutputFile").
+            
             APPLY 'close' TO THIS-PROCEDURE.
-            quit.
+            QUIT.
+        END.
+        WHEN "bGetFiles" THEN DO:
+            RUN ipStatus("User chose Download button").
+            RUN ipGetPatchList (1).
+            RUN ipBuildVerification (1).
+            RUN ipDownload.
+            RUN ipExpand.
+            RUN ipGetPatchList (2).
+            RUN ipBuildVerification (2).
+            ASSIGN
+                slEnvList:SENSITIVE = TRUE
+                bGetFiles:SENSITIVE = TRUE
+                bGetFiles:LABEL = "Download"
+                bUpdate:SENSITIVE = TRUE.
+            APPLY 'entry' to slEnvList.
+            RETURN NO-APPLY.
         END.
         WHEN "bUpdate" THEN DO:
-            RUN ipProcess IN THIS-PROCEDURE.
+            RUN ipStatus("User chose Start Update button").
+            
+            RUN ipValidateChoices (OUTPUT lOKtoProceed).
+            IF NOT lOKtoProceed THEN DO:
+                RUN ipStatus("User made invalid choices for application").
+                RETURN.
+            END.
+    
+            RUN ipStatus(" ").
+            RUN ipStatus("UPGRADING ENVIRONMENT " + slEnvList:{&SV}).
+            RUN ipStatus("  from version " + fiFromVersion:{&SV} + " to version: " + fiToVersion:{&SV}).
+            RUN ipStatus(" ").
+    
+            RUN ipCopyDeploy.
+            RUN ipProcess.
+            RUN ipStatus("Upgrade Complete.").
+            RUN ipStatus(" ").
+            
+            RUN ipStatus("Sending report to ASI").
+            RUN ipBuildVerification (3).
+            RUN ipSendVerification.
         END.
     END CASE.
 END.
@@ -462,56 +609,125 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fiUserID
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiUserID C-Win
-ON LEAVE OF fiUserID IN FRAME DEFAULT-FRAME /* User ID */
-OR LEAVE OF fiPassword
-OR RETURN OF fiPassword
+&Scoped-define SELF-NAME fiPassword
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPassword C-Win
+ON LEAVE OF fiPassword IN FRAME DEFAULT-FRAME /* Password */
 DO:
-    IF (fiUserID:{&SV} = "asi" AND fiPassword:{&SV} = "Package99")
-    OR (fiUserID:{&SV} = "admin" AND fiPassword:{&SV} = "installme") THEN ASSIGN
-        bUpdate:SENSITIVE = TRUE.
-    ELSE DO: 
-        ASSIGN
-            bUpdate:SENSITIVE = FALSE.
-        RETURN.
+    IF SELF:{&SV} EQ "" THEN DO:
+        RUN ipStatus("  Entered blank Password").
+        RUN ipStatus("  Advised that this is not allowed in upgrade process").
+        MESSAGE
+            "This function does not allow blank passwords." SKIP
+            "If your user id has a blank password, you must" SKIP
+            "use a userid with higher-level privileges."
+            VIEW-AS ALERT-BOX ERROR.
+        APPLY 'entry' to fiUserID.
+        RETURN NO-APPLY.
     END.
-        
-    IF bUpdate:SENSITIVE = TRUE
-    AND NUM-ENTRIES(slDBName:LIST-ITEMS) GT 1 THEN ASSIGN
-        slDbName:SENSITIVE = TRUE.
-    ELSE ASSIGN
-        slDbName:SENSITIVE = FALSE.
-        
-    IF slDbName:SENSITIVE = TRUE THEN 
-        APPLY 'entry' TO slDBName.
-    ELSE APPLY 'entry' to bUpdate.
     
-    IF bUpdate:SENSITIVE EQ TRUE 
-    AND slDbName:SENSITIVE = FALSE
-    AND ((fiUserID:{&SV} = "asi" AND fiPassword:{&SV} = "Package99")
-        OR (fiUserID:{&SV} = "admin" AND fiPassword:{&SV} = "installme")) THEN
-        APPLY 'choose' TO bUpdate.
+    IF (fiUserID:{&SV} EQ "asi" AND NOT SELF:{&SV} EQ "Package99")
+    OR (fiUserID:{&SV} EQ "admin" AND NOT SELF:{&SV} EQ "installme") THEN DO:
+        MESSAGE 
+            "The UserID and Password you entered do not match." SKIP 
+            "Please re-enter or cancel."
+            VIEW-AS ALERT-BOX ERROR.
+        ASSIGN 
+            SELF:{&SV} = "".
+        APPLY 'entry' TO fiUserID.
+        RETURN NO-APPLY.
+    END. 
         
+    ASSIGN
+        bGetFiles:SENSITIVE = TRUE
+        slEnvList:SENSITIVE = TRUE
+        bUpdate:SENSITIVE = TRUE
+        tbClearLog:SENSITIVE = fiUserID:{&SV} EQ "asi".
+    
+    APPLY 'entry' TO bGetFiles.
     RETURN NO-APPLY.
-
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME slDBname
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL slDBname C-Win
-ON VALUE-CHANGED OF slDBname IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME fiUserID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiUserID C-Win
+ON ENTRY OF fiUserID IN FRAME DEFAULT-FRAME /* User ID */
+OR ENTRY OF fiPassword
+OR ENTRY OF bGetFiles
+OR ENTRY OF slEnvList
+OR ENTRY OF bUpdate
 DO:
-    FIND ttDatabases WHERE
-        ttDatabases.cName = SELF:{&SV}.
-    ASSIGN
-        fiVersion:{&SV} = ttDatabases.cVer
-        fiPort:{&SV} = ttDatabases.cPort
-        fiDirectory:{&SV} = cDbDir + "\" + ttDatabases.cDir.
-        
+    CASE SELF:NAME:
+        WHEN "fiUserID" THEN ASSIGN
+            eStatus:{&SV}       = eStatus:{&SV} + "Enter a valid user id for your database..." + CHR(10)
+            eStatus:CURSOR-LINE = eStatus:NUM-LINES.
+        WHEN "fiPassword" THEN ASSIGN
+            eStatus:{&SV}       = eStatus:{&SV} + "Enter a valid password for this user..." + CHR(10)
+                eStatus:CURSOR-LINE = eStatus:NUM-LINES.
+        WHEN "bGetFiles" THEN ASSIGN
+                eStatus:{&SV}       = eStatus:{&SV} + "Choose to download new patch files..." + CHR(10)
+                eStatus:CURSOR-LINE = eStatus:NUM-LINES.
+        WHEN "slEnvList" THEN ASSIGN
+                eStatus:{&SV}       = eStatus:{&SV} + "Select the environment to update..." + CHR(10)
+                eStatus:CURSOR-LINE = eStatus:NUM-LINES.
+        WHEN "bUpdate" THEN ASSIGN
+                eStatus:{&SV}       = eStatus:{&SV} + "Choose to start the update process..." + CHR(10)
+                eStatus:CURSOR-LINE = eStatus:NUM-LINES.
+    END CASE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiUserID C-Win
+ON LEAVE OF fiUserID IN FRAME DEFAULT-FRAME /* User ID */
+DO:
+    IF SELF:{&SV} = "" THEN 
+    DO:
+        RUN ipStatus("  Blank UserID - ENTRY to Exit button").
+        APPLY 'entry' TO bCancel.
+        RETURN NO-APPLY.
+    END.
+
+    IF SELF:{&SV} NE "asi"
+    AND SELF:{&SV} NE "admin" THEN DO:
+        MESSAGE 
+            "This is not a valid user id for this function." SKIP 
+            "Please re-enter or Exit."
+            VIEW-AS ALERT-BOX ERROR.
+        APPLY 'entry' TO SELF.
+        RETURN NO-APPLY.
+    END.
+    
+    RUN ipStatus("  Entered UserID " + SELF:{&SV}).
+    
+    APPLY 'entry' to fiPassword.
+    RETURN NO-APPLY.
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME slEnvList
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL slEnvList C-Win
+ON VALUE-CHANGED OF slEnvList IN FRAME DEFAULT-FRAME
+DO:
+    CASE SELF:NAME:
+        WHEN "slEnvList" THEN DO:
+            ASSIGN
+                iIndex = LOOKUP(SELF:{&SV},SELF:LIST-ITEMS)
+                fiFromVersion:{&SV} = ENTRY(iIndex,cEnvVerList)
+                iCurrEnvVer = fIntVer(fiFromVersion:{&SV})
+                iCurrDbVer = fIntVer(ENTRY(iIndex,cDBVerList))
+                ENTRY(3,cOutDir,"-") = SELF:{&SV}.
+        END.
+    END CASE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -549,44 +765,93 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DEF VAR lGoodNos AS CHAR NO-UNDO.
     DEF VAR lGoodList AS CHAR NO-UNDO.
 
+    /* There should not be any connected DBs at this point.  If there are, disconnect */
+    DO ictr = 1 TO NUM-DBS:
+        DISCONNECT VALUE (LDBNAME(ictr)).
+    END. 
+    
     RUN ipCreateTTiniFile.
     RUN ipFindIniFile.
     IF cIniLoc NE "" THEN 
         RUN ipReadIniFile.
     RUN ipExpandVarNames.
+    
+    ASSIGN
+        lMakeBackup = TRUE 
+        slEnvList:LIST-ITEMS = cEnvList
+        slEnvList:SCREEN-VALUE = ENTRY(1,cEnvList)
+        iIndex              = LOOKUP(slEnvList:{&SV},slEnvList:LIST-ITEMS)
+        fiFromVersion:{&SV} = ENTRY(iIndex,cEnvVerList)
+        iCurrEnvVer         = fIntVer(fiFromVersion:{&SV})
+        iCurrDbVer          = fIntVer(ENTRY(iIndex,cDBVerList))
+        .
 
-    DO iCtr = 1 to NUM-ENTRIES(cDbList):
-        CREATE ttDatabases.
-        ASSIGN
-            ttDatabases.cName = ENTRY(iCtr,cDBList)
-            ttDatabases.cDir = ENTRY(iCtr,cDbDirList)
-            ttDatabases.cPort = ENTRY(iCtr,cDBPortList)
-            ttDatabases.cVer = ENTRY(iCtr,cDBVerList)
-            ttDatabases.cAudName = ENTRY(iCtr,cAudDbList)
-            ttDatabases.cAudPort = ENTRY(iCtr,cAudPortList).
-    END.
+    RUN ipGetPatchList (0).
+
+    ASSIGN
+        bGetFiles:SENSITIVE = FALSE
+        slEnvList:SENSITIVE = FALSE
+        bUpdate:SENSITIVE = FALSE
+        cIpAddress     = "34.203.15.64"
+        cFtpUser       = "ftptest"
+        cFtpPassword   = "TestFTP1!"
+        cInstallerFile = "*.7z"
+        cFtpOutputFile = cEnvAdmin + "\ftpOutput.txt"
+        cFtpErrFile    = cEnvAdmin + "\ftpErrs.txt"
+        c7ZOutputFile  = cEnvAdmin + "\7zOutput.txt"
+        c7ZErrFile     = cEnvAdmin + "\7zErrs.txt"
+        cFtpInstrFile  = cEnvAdmin + "\ftpInstr.txt"
+        cOutFile = cEnvAdmin + "\" + cSiteName + "-" +
+                   STRING(YEAR(TODAY),"9999") +
+                   STRING(MONTH(TODAY),"99") +
+                   STRING(DAY(TODAY),"99") + ".txt"
+        cOutDir = cSiteName + "-" +
+                   STRING(YEAR(TODAY),"9999") +
+                   STRING(MONTH(TODAY),"99") +
+                   STRING(DAY(TODAY),"99") + "-" + "ENV"
+        .    
     
-    FOR EACH ttDatabases:
-        slDBName:ADD-LAST(ttDatabases.cName).
-    END.
-    slDBName:SCREEN-VALUE = ENTRY(1,slDBName:list-items).
-    APPLY 'value-changed' to slDBName.
+    /* Look in Progress dir to find out which mode (RUN/DEV) we're in */
+    GET-KEY-VALUE SECTION 'Startup' KEY 'DLC' VALUE cDLC.
+    ASSIGN 
+        cDevCfg = cDLC + "\progress.dev"
+        cRunCfg = cDLC + "\progress.run"
+        cCfgCfg = cDLC + "\progress.cfg".
+        
+    /* Make sure progress.cfg is where we expect it; otherwise disable this feature */    
+    IF SEARCH (cCfgCfg) EQ ? THEN MESSAGE 
+            "Unable to locate a valid progress.cfg."
+            VIEW-AS ALERT-BOX ERROR.
     
-    IF NUM-ENTRIES(slDBName:LIST-ITEMS) EQ 1 THEN DO:
-        ASSIGN
-            slDBName:SENSITIVE = FALSE.
-        APPLY 'entry' TO fiUserID.          
-    END.
-    ELSE DO:
-        ASSIGN
-            slDBName:SENSITIVE = FALSE.
-        APPLY 'entry' TO fiUserID.          
+    /* Make sure progress.dev has been installed */    
+    IF SEARCH (cDevCfg) EQ ? 
+    AND SEARCH (cRunCfg) EQ ? THEN DO:
+        OS-COPY VALUE(cUpdStructureDir + "\STFiles\progress.dev") VALUE(cDLC).
     END. 
-            
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+    
+    /* Now figure out if we're in dev mode or run mode */
+    IF SEARCH (cDevCfg) NE ? THEN ASSIGN
+        cState              = "Run".       
+    ELSE IF SEARCH (cRunCfg) NE ? THEN ASSIGN
+        cState              = "Dev".
+                       
+    IF SEARCH(cFtpOutputFile) NE ? THEN
+      OS-DELETE VALUE(SEARCH(cFtpOutputFile)).
+    IF SEARCH(cFtpErrFile) NE ? THEN
+        OS-DELETE VALUE(SEARCH(cFtpErrFile)).
+    IF SEARCH(c7zOutputFile) NE ? THEN
+        OS-DELETE VALUE(SEARCH(c7zOutputFile)).
+    IF SEARCH(c7zErrFile) NE ? THEN
+      OS-DELETE VALUE(SEARCH(c7zErrFile)).
+    
+    IF SEARCH(cFtpInstrFile) NE ? THEN
+      OS-DELETE VALUE(SEARCH(cFtpInstrFile)).
+      
+    RUN ipStatus("Initialize").
+    
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
-APPLY 'choose' TO bCancel.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -624,9 +889,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiUserID fiPassword slDBname fiVersion fiPort fiDirectory 
+  DISPLAY fiUserID fiPassword slEnvList fiFromVersion fiToVersion eStatus 
+          tbClearLog fiLogFile 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE fiUserID fiPassword bCancel 
+  ENABLE RECT-2 RECT-3 RECT-4 fiUserID bCancel fiPassword bGetFiles slEnvList 
+         eStatus 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -635,7 +902,71 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCreateTTIniFile C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipBuildVerification C-Win 
+PROCEDURE ipBuildVerification :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipiPhase AS INT NO-UNDO.
+    DEF VAR cLine AS CHAR NO-UNDO.
+    
+    IF NOT lHeader THEN DO:
+        OUTPUT STREAM outFile TO VALUE(cOutFile).
+        OUTPUT STREAM outFile CLOSE.
+        ASSIGN
+            lHeader = TRUE.
+    END.
+    
+    CASE ipiPhase:
+        WHEN 1 THEN DO:
+            RUN ipStatus("  Building FTP Verification file").
+            OUTPUT STREAM outFile TO VALUE(cOutFile).
+            PUT STREAM outFile UNFORMATTED "Download started " + STRING(TODAY) + " at " + STRING(TIME,"HH:MM:SS") + CHR(10).
+            OUTPUT STREAM outFile CLOSE.
+        END.
+        WHEN 2 THEN DO:
+            OUTPUT STREAM outFile TO VALUE(cOutFile) APPEND.
+            PUT STREAM outFile UNFORMATTED "Downloads: " + cDLList + CHR(10).
+            OUTPUT STREAM outFile CLOSE.
+        END.
+        WHEN 3 THEN DO:
+            OUTPUT STREAM outFile TO VALUE(cOutFile) APPEND.
+            INPUT STREAM logFile FROM VALUE(cLogFile).
+            REPEAT:
+                IMPORT STREAM logFile UNFORMATTED cLine.
+                PUT STREAM outFile UNFORMATTED "  " + cLine + CHR(10).
+            END.
+            INPUT STREAM logFile CLOSE.
+            OUTPUT STREAM outFile CLOSE.
+        END.
+    END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCopyDeploy C-Win 
+PROCEDURE ipCopyDeploy :
+/*------------------------------------------------------------------------------
+  Purpose:     Copy Patch Deployment Directory Entries to Base Structure
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    ASSIGN
+        cCmdLine = "XCOPY " + cUpdatesDir + "\" + cPatchList + "\Deployment\Admin\*.* " + cMapDir + "\Admin\" + " /C /E /Q /Y".
+    OS-COMMAND SILENT VALUE(cCmdLine).
+    ASSIGN
+        cCmdLine = "XCOPY " + cUpdatesDir + "\" + cPatchList + "\Deployment\Databases " + cMapDir + "\Databases"+ " /C /E /Q /Y".
+    OS-COMMAND SILENT VALUE(cCmdLine).
+    ASSIGN
+        cCmdLine = "XCOPY " + cUpdatesDir + "\" + cPatchList + "\Deployment\Desktop " + cMapDir + "\Desktop" + " /C /E /Q /Y".
+    OS-COMMAND SILENT VALUE(cCmdLine).
+
+END PROCEDURE.
+
 PROCEDURE ipCreateTTIniFile :
 /*------------------------------------------------------------------------------
   Purpose:     Builds initial ttIniFile with sequences correct for output
@@ -655,6 +986,104 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDownload C-Win 
+PROCEDURE ipDownload :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF VAR l7ZExists AS LOGICAL NO-UNDO.
+    
+    RUN ipStatus("  Building FTP Instruction file").
+    RUN ipStatus("    File: " + cFtpInstrFile).
+    RUN ipStatus("    FTP Addr: " + cIpAddress).
+    OUTPUT STREAM sInstr TO VALUE(cFtpInstrFile).
+    PUT STREAM sInstr UNFORMATTED "OPEN " + cIpAddress SKIP.
+    PUT STREAM sInstr UNFORMATTED "PROMPT " SKIP.
+    PUT STREAM sInstr UNFORMATTED "USER " + cFtpUser + " " + cFtpPassword SKIP.
+    PUT STREAM sInstr UNFORMATTED "LCD " + cUpdatesDir SKIP.
+    PUT STREAM sInstr UNFORMATTED "MGET PATCH" + "*.7z" SKIP.
+    PUT STREAM sInstr UNFORMATTED "BYE".
+    OUTPUT STREAM sInstr CLOSE.
+    IF SEARCH(cFtpInstrFile) EQ ? THEN DO:
+        RUN ipStatus("  FTP Instr File build failed. Aborting...").
+        APPLY 'choose' to bCancel IN FRAME {&FRAME-NAME}.
+    END.
+
+    ASSIGN
+        bGetFiles:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE
+        bGetFiles:LABEL = "Downloading...".
+        
+    RUN ipStatus("  Starting FTP session").
+    OS-COMMAND SILENT VALUE("FTP -n -s:" + cFtpInstrFile + " > " + cFtpOutputFile + " 2> " + cFtpErrFile).
+    RUN ipStatus("  Checking for downloaded files").
+    RUN ipGetDlList.
+    IF cDLList EQ "" THEN DO:
+        MESSAGE
+            "The download process was unable to retrieve the patch files" SKIP
+            "from the Advantzware server.  This can happen for several" SKIP
+            "reasons, but is usually a problem with a firewall or anti-" SKIP
+            "virus program.  Please contact Advantzware support for an" SKIP
+            "alternate method of retrieving the Patch files."
+            VIEW-AS ALERT-BOX INFO.
+        RUN ipStatus("    No files were downloaded. Continuing...").
+    END.
+    ELSE DO iCtr = 1 to NUM-ENTRIES(cDLList):
+        RUN ipStatus("    Downloaded file: " + ENTRY(iCtr,cDLList)).
+    END.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipExpand C-Win 
+PROCEDURE ipExpand :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF VAR cCmdLine1 AS CHAR NO-UNDO.
+    DEF VAR cFileName AS CHAR NO-UNDO.
+    DEF VAR cDirName AS CHAR NO-UNDO.
+    DEF VAR cCmdLine AS CHAR NO-UNDO.
+    
+    /* Make sure that 7z executables are in place to expand */
+    OS-COPY VALUE(cUpdatesDir + "\" + "Patch" + cPatchNo + "\Deployment\Admin\EnvAdmin\7z.*")
+            VALUE(cEnvAdmin).
+    
+    ASSIGN
+        bGetFiles:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE
+        bGetFiles:LABEL = "Extracting...".
+    RUN ipStatus("  Expanding downloaded files").
+    DO iCtr = 1 TO NUM-ENTRIES(cDLList):
+        RUN ipStatus("    File name: " + ENTRY(iCtr,cDLList)).
+        ASSIGN
+            cFileName = ENTRY(iCtr,cDLList)
+            cDirName = REPLACE(cFileName,".7z","")
+            cCmdLine1 = cEnvAdmin + "\7z.exe x " + 
+                        cFileName + " -y -o" + 
+                        cDirName.
+        IF SEARCH(cFileName) NE ? THEN
+            OS-COMMAND SILENT VALUE(cCmdLine1).
+
+        IF SEARCH(cDirName + "\StartUpdate.bat") EQ ? THEN DO:
+            RUN ipStatus("      Expansion failed. Aborting...").
+            APPLY 'choose' to bCancel IN FRAME {&FRAME-NAME}.
+        END.
+        ELSE DO:
+            RUN ipStatus("    Expansion succeeded").
+        END.
+    END.
+    RUN ipStatus("  File expansion complete").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipExpandVarNames C-Win 
 PROCEDURE ipExpandVarNames :
 /*------------------------------------------------------------------------------
@@ -666,7 +1095,7 @@ PROCEDURE ipExpandVarNames :
     ASSIGN
         cAdminDir = cMapDir + "\" + cAdminDir
         cBackupDir = cMapDir + "\" + cBackupDir
-        cDBDir = cMapDir + "\" + cDbDir
+        cDBDir = cMapDir + "\" + cDbDir 
         cDocDir = cMapDir + "\" + cDocDir
         cDeskDir = cMapDir + "\" + cDeskDir
         cEnvDir = cMapDir + "\" + cEnvDir
@@ -809,6 +1238,84 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipGetDlList C-Win 
+PROCEDURE ipGetDlList :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF VAR cTestName AS CHAR.
+    DEF VAR cLongName AS CHAR.
+    DEF VAR cAttribs AS CHAR.
+    
+    INPUT FROM OS-DIR (cUpdatesDir).
+    REPEAT:
+        IMPORT 
+            cTestName
+            cLongName
+            cAttribs.
+        IF INDEX(cAttribs,"F") NE 0
+        AND cTestName BEGINS "PATCH" THEN ASSIGN
+            cDLList = cDLList + cLongName + ",".
+    END.
+    ASSIGN
+        cDLList = TRIM(cDLList,",").
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipGetPatchList C-Win 
+PROCEDURE ipGetPatchList :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipiCallNo AS INT NO-UNDO.
+    
+    DEF VAR cTestName AS CHAR.
+    DEF VAR cLongName AS CHAR.
+    DEF VAR cAttribs AS CHAR.
+    
+    ASSIGN
+        cPatchList = "".
+    INPUT FROM OS-DIR (cUpdatesDir).
+    REPEAT:
+        IMPORT 
+            cTestName
+            cLongName
+            cAttribs.
+
+        IF INDEX(cAttribs,"F") <> 0             /* Patch .7z file */ 
+        AND cTestName BEGINS "PATCH"
+        AND INDEX(cTestName,".7z") <> 0 THEN
+            OS-DELETE VALUE(cLongName).
+        ELSE IF ipiCallNo EQ 1 
+        AND INDEX(cAttribs,"D") NE 0 
+        AND cTestName BEGINS "PATCH" THEN DO:   /* Remove all old directories */
+            RUN ipStatus("  Removing patch " + cTestName).
+            OS-DELETE VALUE(cLongName) RECURSIVE.
+        END.
+        ELSE IF INDEX(cAttribs,"D") NE 0        /* Should ONLY be new patch */ 
+        AND cTestName BEGINS "PATCH" THEN ASSIGN
+            cPatchList = cPatchList + cTestName + ",".
+    END.
+
+    ASSIGN
+        cPatchList = ENTRY(1,cPatchList,",")
+        iPatchEnvVer = fIntVer(REPLACE(cPatchList,"PATCH",""))
+        fiToVersion:{&SV} = REPLACE(cPatchList,"PATCH","")
+        iPatchDbVer  = iPatchEnvVer - (iPatchEnvVer MODULO 10000)
+        .
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipProcess C-Win 
 PROCEDURE ipProcess :
 /*------------------------------------------------------------------------------
@@ -821,10 +1328,11 @@ PROCEDURE ipProcess :
     DEF VAR cPort AS CHAR NO-UNDO.
     DEF VAR iListItem AS INT NO-UNDO.
     DEF VAR cEnvVer AS CHAR NO-UNDO.
+    DEF VAR iEnv AS INT NO-UNDO.
+    DEF VAR cFileToRun AS CHAR NO-UNDO.
         
-    ASSIGN
-        iListItem = LOOKUP(slDBName:{&SV},slDBName:LIST-ITEMS)
-        cEnvVer = ENTRY(iListItem,cEnvVerList).
+    ASSIGN 
+        lSuccess = TRUE.
         
     IF fiUserID:{&SV} EQ "asi" 
     AND fiPassword:{&SV} EQ "Package99" THEN ASSIGN
@@ -832,26 +1340,63 @@ PROCEDURE ipProcess :
     ELSE IF fiUserID:{&SV} EQ "admin" 
     AND fiPassword:{&SV} EQ "installme" THEN ASSIGN
         iUserLevel = 6.
-        
-    FIND ttDatabases WHERE
-        ttDatabases.cName EQ slDBName:{&SV} AND
-        ttDatabases.cPort EQ fiPort:{&SV}
-        NO-ERROR.
-    IF AVAIL ttDatabases THEN ASSIGN
-        cAudDb = ttDatabases.cAudName
-        cPort = ttDatabases.cAudPort.
+    ELSE DO:
+        MESSAGE 
+            "Unable to start this process with the credentials supplied."
+            VIEW-AS ALERT-BOX.
+        RUN ipStatus("Invalid credentials.  Abort.").
+        QUIT.
+    END.
 
-    IF DECIMAL(fiVersion:{&SV}) LT deMinLevel 
-    OR cEnvVer = "16.7.0" THEN DO:
+    IF iCurrDbVer LT iPatchDbVer
+    OR iCurrEnvVer = 16070000 THEN DO:
+                
+        RUN ipStatus("Database requires upgrade...").
+        
+        /* Needs .cfg update.  Execute, then force user to restart pgm */
+        IF cState EQ "Run" THEN 
+        DO:
+            RUN ipStatus("  Switching progress.cfg").
+            OS-RENAME VALUE (cCfgCfg) VALUE(cDLC + "\progress.run").
+            OS-RENAME VALUE (cDevCfg) VALUE(cDLC + "\progress.cfg").
+            MESSAGE
+                "Modified configuration to support DB changes." SKIP  
+                "You need to restart the update program now."
+                VIEW-AS ALERT-BOX INFO.
+            QUIT.
+        END.
+        
         ASSIGN
-            c-Win:visible = false.
-        RUN asiUpdateDB.w (ttDatabases.cName,
-                        ttDatabases.cPort,
-                        ttDatabases.cDir,
-                        ttDatabases.cVer,
-                        iUserLevel,
-                        OUTPUT lSuccess)
-                        .
+            iEnv = LOOKUP (slEnvList:{&SV},slEnvList:list-items)
+            c-Win:visible = FALSE 
+            lSuccess = FALSE 
+            .
+
+        RUN ipStatus("Initiating asiUpdateDB.w").
+        
+        IF SEARCH("asiUpdateDB.r") NE ? 
+        OR SEARCH("asiUpdateDB.w") NE ? THEN DO:
+            ASSIGN 
+                cFileToRun = "asiUpdateDB.w".
+        END.
+        ELSE ASSIGN 
+            cFileToRun = "N:\Repository\PatchTemplate\Deployment\Admin\EnvAdmin\asiUpdateDB.w".
+        
+        RUN  VALUE (cFileToRun) (ENTRY(iEnv,cDBList),
+                                ENTRY(iEnv,cDBPortList),
+                                ENTRY(iEnv,cDbDirList),
+                                fiFromVersion:{&SV},
+                                fiToVersion:{&SV},
+                                iUserLevel,
+                                OUTPUT lSuccess).
+        RUN ipStatus("Return from asiUpdateDB.w").
+
+        IF cState EQ "Dev" THEN 
+        DO:
+            RUN ipStatus("  Restoring original progress.cfg").
+            OS-RENAME VALUE (cCfgCfg) VALUE(cDLC + "\progress.dev").
+            OS-RENAME VALUE (cRunCfg) VALUE(cDLC + "\progress.cfg").
+        END.
 
         IF lSuccess THEN DO:
             /* asiUpdateDB could change audit variables in ini file; must reread */
@@ -868,66 +1413,107 @@ PROCEDURE ipProcess :
                     ttDatabases.cAudName = ENTRY(iCtr,cAudDbList)
                     ttDatabases.cAudPort = ENTRY(iCtr,cAudPortList).
             END.
-            FIND ttDatabases WHERE
-                ttDatabases.cName EQ slDBName:{&SV} AND
-                ttDatabases.cPort EQ fiPort:{&SV}
-                NO-ERROR.
-            IF AVAIL ttDatabases THEN ASSIGN
-                cAudDb = ttDatabases.cAudName
-                cPort = ttDatabases.cAudPort.
-
-            ASSIGN
-                cConnect = "-db " + slDBName:{&SV} + 
-                           " -H " + chostName +
-                           " -S " + fiPort:{&SV} +
-                           " -N tcp -ld ASI".
-            CONNECT VALUE(cConnect).
-            IF cAudName NE "" THEN DO:
-                ASSIGN
-                    cConnect = "-db " + cAudDb + 
-                               " -H " + chostName +
-                               " -S " + cPort +
-                               " -N tcp -ld Audit".
-                CONNECT VALUE(cConnect).
-            END.
-            RUN asiUpdateENV.w (ttDatabases.cName,
-                            ttDatabases.cPort,
-                            ttDatabases.cDir,
-                            ttDatabases.cVer,
-                            iUserLevel,
-                            OUTPUT lSuccess)
-                            .
-        END.                        
-    END.
-    ELSE DO:
-        ASSIGN
-            c-Win:visible = false.
-        ASSIGN
-            cConnect = "-db " + slDBName:{&SV} + 
-                       " -H " + chostName +
-                       " -S " + fiPort:{&SV} +
-                       " -N tcp -ld ASI".
-        CONNECT VALUE(cConnect).
-        IF cAudName NE "" THEN DO:
-            ASSIGN
-                cConnect = "-db " + cAudName + 
-                           " -H " + chostName +
-                           " -S " + cPort +
-                           " -N tcp -ld Audit".
-            CONNECT VALUE(cConnect).
+            ASSIGN 
+                lMakeBackup = FALSE.
+            
+        END. 
+        ELSE DO:
+            MESSAGE 
+                "The system upgrade was NOT successful.  Please" SKIP  
+                "contact Advantzware technical support for assistance."
+                VIEW-AS ALERT-BOX ERROR.
+            QUIT.
         END.
-        RUN asiUpdateENV.w (ttDatabases.cName,
-                        ttDatabases.cPort,
-                        ttDatabases.cDir,
-                        ttDatabases.cVer,
-                        iUserLevel,
-                        OUTPUT lSuccess)
-                        .
+    END.
+  
+    ASSIGN
+        iEnv = LOOKUP (slEnvList:{&SV},slEnvList:list-items)
+        .
+
+    DO iCtr = 1 to NUM-ENTRIES(cDbList):
+        CREATE ttDatabases.
+        ASSIGN
+            ttDatabases.cName = ENTRY(iCtr,cDBList)
+            ttDatabases.cDir = ENTRY(iCtr,cDbDirList)
+            ttDatabases.cPort = ENTRY(iCtr,cDBPortList)
+            ttDatabases.cVer = ENTRY(iCtr,cDBVerList)
+            ttDatabases.cAudName = ENTRY(iCtr,cAudDbList)
+            ttDatabases.cAudPort = ENTRY(iCtr,cAudPortList).
     END.
         
-    APPLY 'close' TO THIS-PROCEDURE.
-    QUIT.
+    FIND FIRST ttDatabases WHERE
+        ttDatabases.cName EQ ENTRY(iEnv,cDBList) AND
+        ttDatabases.cPort EQ ENTRY(iEnv,cDBPortList)
+        NO-ERROR.
+    IF AVAIL ttDatabases THEN ASSIGN
+        cAudDb = ttDatabases.cAudName
+        cPort = ttDatabases.cAudPort.
 
+    RUN ipStatus("Connecting databases").
+    RUN ipStatus("  Connecting ASI DB with statement...").
+    ASSIGN
+        cConnect = "-db " + ENTRY(iEnv,cDBList) + 
+                   " -H " + chostName +
+                   " -S " + ENTRY(iEnv,cDBPortList) +
+                   " -N tcp -ld ASI".
+    RUN ipStatus("    " + cConnect).
+    CONNECT VALUE(cConnect) NO-ERROR.
+    IF NOT CONNECTED ("asi") THEN DO:
+        RUN ipStatus("  DB connection failed.  Cancelling.").
+        DO iCtr = 1 TO ERROR-STATUS:NUM-MESSAGES:
+            RUN ipStatus ("    " + ERROR-STATUS:GET-MESSAGE(iCtr)).
+        END.
+        MESSAGE 
+            "Unable to connect to the asi database.  Cannot continue." SKIP 
+            "Please contact Advantzware Support for assistance."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+    
+    IF cAudName NE "" THEN DO:
+        RUN ipStatus("  Connecting Audit DB with statement...").
+        ASSIGN
+            cConnect = "-db " + cAudName + 
+                       " -H " + chostName +
+                       " -S " + cPort +
+                       " -N tcp -ld Audit".
+        RUN ipStatus("    " + cConnect).
+        CONNECT VALUE(cConnect) NO-ERROR.
+    END.
+    IF NOT CONNECTED ("audit") THEN DO:
+        RUN ipStatus("  DB connection failed.  Cancelling.").
+        DO iCtr = 1 TO ERROR-STATUS:NUM-MESSAGES:
+            RUN ipStatus ("    " + ERROR-STATUS:GET-MESSAGE(iCtr)).
+        END.
+        MESSAGE 
+            "Unable to connect to the audit database.  Cannot continue." SKIP 
+            "Please contact Advantzware Support for assistance."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+
+    IF SEARCH("asiUpdateENV.r") NE ? 
+        OR SEARCH("asiUpdateENV.w") NE ? THEN ASSIGN 
+            cFileToRun = "asiUpdateENV.w".
+    ELSE ASSIGN 
+            cFileToRun = "N:\Repository\PatchTemplate\Deployment\Admin\EnvAdmin\asiUpdateENV.w".
+
+    RUN ipStatus("Initiating asiUpdateENV.w").
+    RUN VALUE(cFileToRun) (ttDatabases.cName,
+                          ttDatabases.cPort,
+                          ttDatabases.cDir,
+                          ttDatabases.cVer,
+                          slEnvList:{&SV},
+                          fiFromVersion:{&SV},
+                          fiToVersion:{&SV},
+                          iUserLevel,
+                          lMakeBackup, /* Need backup? */
+                          OUTPUT lSuccess).
+    RUN ipStatus("Return from asiUpdateENV.w").
+
+    ASSIGN
+        c-Win:visible = TRUE.
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1054,6 +1640,227 @@ PROCEDURE ipReadIniFile :
     END.
     
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSendVerification C-Win 
+PROCEDURE ipSendVerification :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF VAR cFTPxmit AS CHAR NO-UNDO.
+    
+    ASSIGN
+        cFTPxmit = cEnvAdmin + "\FTPout.txt".
+        
+    RUN ipStatus("  Building FTP Transmit file").
+    RUN ipStatus("    File: " + cFTPxmit).
+    RUN ipStatus("    FTP Addr: " + cIpAddress).
+    
+    OUTPUT STREAM sInstr TO VALUE(cFTPxmit).
+    PUT STREAM sInstr UNFORMATTED "OPEN " + cIpAddress SKIP.
+    PUT STREAM sInstr UNFORMATTED "PROMPT " SKIP.
+    PUT STREAM sInstr UNFORMATTED "USER " + cFtpUser + " " + cFtpPassword SKIP.
+    PUT STREAM sInstr UNFORMATTED "CD Results" SKIP.
+    PUT STREAM sInstr UNFORMATTED "MKDIR " + cOutDir SKIP.
+    PUT STREAM sInstr UNFORMATTED "CD " + cOutDir SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cOutFile SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cAdminDir + "\advantzware.ini" SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cAdminDir + "\advantzware.usr" SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cEnvAdmin + "\advantzware.pf" SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cDLCDir + "\properties\AdminServerPlugins.properties" SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cDLCDir + "\properties\conmgr.properties" SKIP.
+    PUT STREAM sInstr UNFORMATTED "BYE".
+    OUTPUT STREAM sInstr CLOSE.
+    
+    IF SEARCH(cFtpxmit) EQ ? THEN DO:
+        RUN ipStatus("  FTP Transmit File build failed. Aborting...").
+        APPLY 'choose' to bCancel IN FRAME {&FRAME-NAME}.
+    END.
+
+    RUN ipStatus("  Starting 2d FTP session").
+    OS-COMMAND SILENT VALUE("FTP -n -s:" + cFTPxmit + " >> " + cFtpOutputFile + " 2>> " + cFtpErrFile).
+
+    /* File cleanup */
+    RUN ipStatus("Upgrade Complete.  Press EXIT to quit.").
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipStatus C-Win 
+PROCEDURE ipStatus :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcStatus AS CHAR NO-UNDO.
+                
+    ASSIGN
+        cLogFile = cEnvAdmin + "\UpdateLog.txt".
+
+    IF ipcStatus = "Initialize" THEN DO:
+        IF tbClearLog:CHECKED IN FRAME {&FRAME-NAME} THEN    
+            OUTPUT STREAM logStream TO VALUE(cLogFile) .
+        ELSE OUTPUT STREAM logStream TO VALUE(cLogFile) APPEND.
+
+        PUT STREAM logStream UNFORMATTED "---------------------------------------------------------------" + CHR(10).
+        PUT STREAM logStream UNFORMATTED "Customer Site: " + cSiteName + CHR(10).
+        PUT STREAM logStream UNFORMATTED "Host Server: " + cHostName + CHR(10).
+        PUT STREAM logStream UNFORMATTED "Environments: " + cEnvList + CHR(10).
+        PUT STREAM logStream UNFORMATTED "Env. Versions: " + cEnvVerList + CHR(10).
+        PUT STREAM logStream UNFORMATTED "Action Date: " + STRING(TODAY,"99/99/99") + CHR(10).
+        PUT STREAM logStream UNFORMATTED "Action Time: " + STRING(TIME,"HH:MM:SS") + CHR(10).
+        PUT STREAM logStream UNFORMATTED "---------------------------------------------------------------" + CHR(10).
+        PUT STREAM logStream UNFORMATTED CHR(10).
+        PUT STREAM logStream
+            STRING(TODAY,"99/99/99") AT 1
+            STRING(TIME,"HH:MM:SS") AT 12
+            "Initializing log" FORMAT "x(160)" AT 25
+            SKIP.
+        OUTPUT STREAM logStream CLOSE.
+        RETURN.
+    END.
+    ELSE DO:
+        ASSIGN
+            eStatus:{&SV} = eStatus:{&SV} + ipcStatus + CHR(10)
+            eStatus:CURSOR-LINE = eStatus:NUM-LINES.
+
+        IF INDEX(ipcStatus,"duplicate") EQ 0 THEN DO:
+            ASSIGN
+                iMsgCtr = iMsgCtr + 1
+                cMsgStr[iMsgCtr] = ipcStatus.
+            OUTPUT STREAM logStream TO VALUE(cLogFile) APPEND.
+            PUT STREAM logStream
+                STRING(TODAY,"99/99/99") AT 1
+                STRING(TIME,"HH:MM:SS") AT 12
+                cMsgStr[iMsgCtr] FORMAT "x(160)" AT 25
+                SKIP.
+            OUTPUT STREAM logStream CLOSE.
+        END.
+    END.
+        
+    PROCESS EVENTS.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipValidateChoices C-Win 
+PROCEDURE ipValidateChoices :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF OUTPUT PARAMETER lOK AS LOG NO-UNDO.
+    
+    IF iCurrEnvVer GT iPatchEnvVer THEN DO:
+        MESSAGE
+            "You have chosen to apply a patch OLDER than your current version.  " +
+            "This is not allowed in this version of the automated update.  " +
+            "Please contact Advantzware Support for more assistance."
+            VIEW-AS ALERT-BOX ERROR.
+        ASSIGN
+            lOK = NO.
+        RETURN.
+    END.
+    ELSE IF iCurrEnvVer EQ iPatchEnvVer THEN DO:
+        MESSAGE
+            "You have chosen to apply a patch that is EQUAL to your current " +
+            "version. This is allowed in this version of the automated update, " +
+            "but should only be performed under certain circumstances.  Are you sure?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lSure AS LOG.
+        ASSIGN
+            lOK = lSure.
+        RETURN.
+    END.
+    ELSE ASSIGN
+        lOK = YES.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipValidUser C-Win 
+PROCEDURE ipValidUser :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF OUTPUT PARAMETER oplValidUser AS LOG.
+    DEF VAR cInpString AS CHAR.
+    
+    ASSIGN
+        oplValidUser = FALSE.
+        cUsrLoc = REPLACE(cIniLoc,".ini",".usr").
+    
+    INPUT FROM VALUE(cUsrLoc).
+    REPEAT:
+        IMPORT UNFORMATTED cInpString.
+        IF ENTRY(2,cInpString,"|") NE "*" THEN DO:
+            RUN ipStatus("  User name NOT validated. Usr file problem.").
+            MESSAGE
+                "Can't validate user with this version" SKIP
+                "of the system. Continuing..."
+                VIEW-AS ALERT-BOX.
+            ASSIGN
+                oplValidUser = TRUE.
+            RETURN.
+        END.
+        IF ENTRY(1,cInpString,"|") EQ fiUserID:{&SV} THEN DO:
+            RUN ipStatus("  User name validated.").
+            ASSIGN
+                oplValidUser = TRUE.
+            RETURN.
+        END.
+    END.
+    IF NOT oplValidUser THEN 
+        RUN ipStatus("  User name failed validation.").
+    
+    RETURN.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIntVer C-Win 
+FUNCTION fIntVer RETURNS INTEGER
+  ( INPUT cVerString AS CHAR ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Converts a version string like "16.4.8" or "16.7.12.2" to an integer
+    Notes:  In the cases above, these would be 16040800 and 16071202
+            Useful for version comparisons
+------------------------------------------------------------------------------*/
+
+    DEF VAR cStrVal AS CHAR EXTENT 4 NO-UNDO.
+    DEF VAR iIntVal AS INT EXTENT 4 NO-UNDO.
+    DEF VAR iIntVer AS INT NO-UNDO.
+    ASSIGN
+        cStrVal[1] = ENTRY(1,cVerString,".")
+        cStrVal[2] = ENTRY(2,cVerString,".")
+        cStrVal[3] = IF NUM-ENTRIES(cVerString,".") GT 2 THEN ENTRY(3,cVerString,".") ELSE "0"
+        cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GT 3 THEN ENTRY(4,cVerString,".") ELSE "0"
+        iIntVal[1] = IF INT(cStrVal[1]) LT 10 THEN INT(cStrVal[1]) * 10 ELSE INT(cStrVal[1])
+        iIntVal[2] = IF INT(cStrVal[2]) LT 10 THEN INT(cStrVal[2]) * 10 ELSE INT(cStrVal[2])
+        iIntVal[3] = IF INT(cStrVal[3]) LT 10 THEN INT(cStrVal[3]) * 10 ELSE INT(cStrVal[3])
+        iIntVal[4] = IF INT(cStrVal[4]) LT 10 THEN INT(cStrVal[4]) * 10 ELSE INT(cStrVal[4])
+        iIntVer = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
+        NO-ERROR.
+    
+    RETURN iIntVer.   /* Function return value. */
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

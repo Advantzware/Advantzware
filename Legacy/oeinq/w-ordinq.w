@@ -40,6 +40,7 @@ def var li-prev-page as int init 1 no-undo.
 def var li-cur-page as int init 1 no-undo.
 def var h-detail as handle no-undo.
 DEF VAR li-last-page AS INT NO-UNDO.  /* for folding estimate page */
+DEFINE VARIABLE lv-initial AS LOGICAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

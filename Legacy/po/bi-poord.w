@@ -88,16 +88,16 @@ DEFINE QUERY external_tables FOR po-ord.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table po-ordl.i-no po-ordl.i-name ~
 po-ordl.job-no po-ordl.job-no2 po-ordl.s-num po-ordl.ord-qty po-ordl.cost ~
-po-ordl.cust-no po-ordl.due-date po-ordl.item-type ~
+po-ordl.cust-no po-ordl.due-date po-ordl.item-type po-ordl.LINE ~
 getOrdQty() @ po-ordl.ord-qty getCost() @ po-ordl.cost po-ordl.spare-int-1 ~
 po-ordl.spare-int-2 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH po-ordl WHERE po-ordl.company eq po-ord.company and ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH po-ordl WHERE  ~{&KEY-PHRASE} AND po-ordl.company eq po-ord.company and ~
 po-ordl.po-no eq po-ord.po-no ~
       AND po-ordl.line GT 0 AND ~
 ASI.po-ordl.line LT 99999999 NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH po-ordl WHERE po-ordl.company eq po-ord.company and ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH po-ordl WHERE  ~{&KEY-PHRASE} AND po-ordl.company eq po-ord.company and ~
 po-ordl.po-no eq po-ord.po-no ~
       AND po-ordl.line GT 0 AND ~
 ASI.po-ordl.line LT 99999999 NO-LOCK ~
@@ -178,7 +178,8 @@ DEFINE QUERY Browser-Table FOR
       po-ordl.ord-qty
       po-ordl.cost
       po-ordl.spare-int-1
-      po-ordl.spare-int-2) SCROLLING.
+      po-ordl.spare-int-2
+      po-ordl.LINE) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -200,6 +201,7 @@ DEFINE BROWSE Browser-Table
       getCost() @ po-ordl.cost COLUMN-LABEL "Unit Cost" FORMAT "->,>>>,>>9.99<<<<":U
       po-ordl.spare-int-1 FORMAT "->,>>>,>>9":U
       po-ordl.spare-int-2 FORMAT "->,>>>,>>9":U
+      po-ordl.LINE  COLUMN-LABEL "Line #" FORMAT ">>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 13.33
@@ -301,7 +303,7 @@ ASSIGN
      _TblOptList       = "USED,"
      _JoinCode[1]      = "po-ordl.company eq po-ord.company and
 po-ordl.po-no eq po-ord.po-no"
-     _Where[1]         = "ASI.po-ordl.line GT 0 AND
+     _Where[1]         = "~{&KEY-PHRASE} and ASI.po-ordl.line GT 0 AND
 ASI.po-ordl.line LT 99999999"
      _FldNameList[1]   > ASI.po-ordl.i-no
 "po-ordl.i-no" "RM/FG Item#" ? "character" ? ? ? ? ? ? no ? no no "25" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -326,6 +328,8 @@ ASI.po-ordl.line LT 99999999"
 "po-ordl.spare-int-1" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.po-ordl.spare-int-2
 "po-ordl.spare-int-2" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[15]   > ASI.po-ordl.line
+"po-ordl.line" "Line #" ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -375,6 +379,16 @@ DO:
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
    {src/adm/template/brsleave.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON START-SEARCH OF Browser-Table IN FRAME F-Main
+DO:
+  RUN startSearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */

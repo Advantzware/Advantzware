@@ -121,6 +121,8 @@ DEF VAR lv-dep AS DEC NO-UNDO.
 DEF VAR lv-dep2 AS DEC NO-UNDO.
 DEFINE VARIABLE dCoreDia AS DECIMAL FORMAT ">,>>9.99<<" NO-UNDO.
 DEFINE VARIABLE cFlueTest AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cMachCode AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lPrintMsf AS LOGICAL NO-UNDO .
 
 v-dash-line = fill ("_",80).
 
@@ -441,11 +443,34 @@ v-printline = 0.
             v-change-dscr  SKIP.
         v-printline = v-printline + 1.
         assign v-line-number = v-line-number + 3.
+
+        IF po-ordl.item-type THEN
+          FIND FIRST ITEM WHERE ITEM.company EQ po-ord.company
+                            AND ITEM.i-no    EQ po-ordl.i-no
+                     NO-LOCK NO-ERROR.
+       IF AVAIL ITEM THEN
+          ASSIGN v-basis-w = item.basis-w
+                 v-dep     = item.s-dep.
+
+       IF po-ordl.pr-qty-uom EQ "MSF" THEN v-qty = po-ordl.ord-qty.
+       ELSE RUN sys/ref/convquom.p(po-ordl.pr-qty-uom, "MSF",
+                             v-basis-w, po-ordl.s-len, po-ordl.s-wid, v-dep,
+                             po-ordl.ord-qty, OUTPUT v-qty).
+
+       v-tot-sqft = v-qty .
+       lPrintMsf = NO .
+        IF AVAIL ITEM AND (item.mat-type EQ "B" OR item.mat-type EQ "P") AND
+             ITEM.industry EQ "2" THEN DO:
+            ASSIGN lPrintMsf = YES .
+        END.
         
         if po-ordl.dscr[1] ne "" OR v-setup <> 0 OR v-adder[3] <> "" then do:
           put po-ordl.dscr[1] format "x(26)"  at 25 " "             
-              v-adder[3] 
-              skip.
+              v-adder[3]  .
+              IF lPrintMsf THEN
+                  PUT "MSF: " trim(string(v-tot-sqft,">>>>>9.99<<")) .
+              PUT skip.
+              lPrintMsf = FALSE .
           v-line-number = v-line-number + 1.
           v-printline = v-printline + 1.
         end.
@@ -453,13 +478,21 @@ v-printline = 0.
     
         if po-ordl.dscr[2] ne "" OR v-adder[4] <> "" then do:
           put po-ordl.dscr[2] format "x(26)" at 25              
-              " " v-adder[4] skip.
+              " " v-adder[4] .
+          IF lPrintMsf THEN
+                  PUT "MSF: " trim(string(v-tot-sqft,">>>>>9.99<<")) .
+              PUT skip.
+              lPrintMsf = FALSE .
           v-line-number = v-line-number + 1.
           v-printline = v-printline + 1.
         end.
         IF v-adder[5] <> "" OR v-vend-item <> "" THEN DO:
             put v-vend-item  FORM "x(26)" AT 25              
-                " " v-adder[5] skip.
+                " " v-adder[5] .
+            IF lPrintMsf THEN
+                  PUT "MSF: " trim(string(v-tot-sqft,">>>>>9.99<<")) .
+              PUT skip.
+              lPrintMsf = FALSE .
             v-line-number = v-line-number + 1.
             v-printline = v-printline + 1.
         END.
@@ -481,6 +514,9 @@ v-printline = 0.
         ELSE IF v-itemDescription THEN /* fg item */ DO:
             IF po-ordl.dscr[2] NE '' THEN DO:
                 PUT po-ordl.dscr[2] AT 25.
+                IF lPrintMsf THEN
+                  PUT "MSF: " trim(string(v-tot-sqft,">>>>>9.99<<")) .
+                   lPrintMsf = FALSE .
                 ASSIGN
                     v-line-number = v-line-number + 1
                     v-printline = v-printline + 1.
@@ -489,6 +525,9 @@ v-printline = 0.
         ELSE DO:
             IF po-ordl.vend-i-no NE '' THEN DO:
                 PUT po-ordl.vend-i-no AT 25.
+                IF lPrintMsf THEN
+                  PUT "MSF: " trim(string(v-tot-sqft,">>>>>9.99<<")) .
+                  lPrintMsf = FALSE .
                 ASSIGN
                     v-line-number = v-line-number + 1
                     v-printline = v-printline + 1.
@@ -496,22 +535,7 @@ v-printline = 0.
         END.
         ASSIGN v-basis-w = 0
                v-dep     = 0.
-
-       IF po-ordl.item-type THEN
-          FIND FIRST ITEM WHERE ITEM.company EQ po-ord.company
-                            AND ITEM.i-no    EQ po-ordl.i-no
-                     NO-LOCK NO-ERROR.
-       IF AVAIL ITEM THEN
-          ASSIGN v-basis-w = item.basis-w
-                 v-dep     = item.s-dep.
-
-       IF po-ordl.pr-qty-uom EQ "MSF" THEN v-qty = po-ordl.ord-qty.
-       ELSE RUN sys/ref/convquom.p(po-ordl.pr-qty-uom, "MSF",
-                             v-basis-w, po-ordl.s-len, po-ordl.s-wid, v-dep,
-                             po-ordl.ord-qty, OUTPUT v-qty).
-
-       v-tot-sqft = v-tot-sqft + (v-qty * 1000).
-
+       
        dCoreDia = 0.
        IF AVAIL ITEM THEN DO:
         IF ITEM.industry EQ "2" THEN
@@ -526,7 +550,7 @@ v-printline = 0.
                                   lv-reg-no = "Test: " + ITEM.reg-no.
        ELSE assign lv-flute = ""
                    lv-reg-no = "".
-       ASSIGN cFlueTest = string(lv-flute,"x(11)") + string(lv-reg-no,"x(10)").
+       ASSIGN cFlueTest = string(lv-flute,"x(11)") + string(lv-reg-no,"x(12)").
        IF lv-flute EQ "" AND lv-reg-no EQ "" THEN
               ASSIGN cFlueTest = IF dCoreDia GT 0 AND ITEM.mat-type EQ "P" THEN " Core Dia: " + STRING(dCoreDia,">,>>9.99<<") ELSE ""
                      dCoreDia = 0.
@@ -625,6 +649,14 @@ v-printline = 0.
         ELSE
            PUT SKIP.
 
+       IF lPrintMsf  THEN do:
+            PUT  "MSF: " AT 30 trim(string(v-tot-sqft,">>>>>9.99<<")) SKIP .
+            lPrintMsf = FALSE.
+            ASSIGN
+                v-line-number = v-line-number + 1
+                v-printline = v-printline + 1.
+        END.
+
         len-score = "".   
         run po/po-ordls.p (recid(po-ordl)).
         {po/poprints.i}       
@@ -653,6 +685,22 @@ v-printline = 0.
           end.
           END.
         end.
+
+        IF lPrintMach THEN DO:
+         cMachCode = "" .
+         FOR EACH job-mch WHERE job-mch.company EQ cocode
+             AND job-mch.job-no EQ po-ordl.job-no
+             AND job-mch.job-no2 EQ po-ordl.job-no2
+             AND job-mch.frm EQ po-ordl.s-num use-index line-idx NO-LOCK:
+             
+             ASSIGN cMachCode = job-mch.m-code .
+             LEAVE.
+         END. 
+         IF cMachCode NE "" THEN do:
+             PUT  "First Resource: " cMachCode FORM "x(8)"  SKIP.
+             v-printline = v-printline + 1.
+         END.
+        END.
 
     FOR EACH tt-formtext:
         DELETE tt-formtext.
@@ -696,9 +744,9 @@ v-printline = 0.
          END.
     END.
 
-   /* PUT skip(1).
+    PUT skip(1).
     assign v-line-number = v-line-number + 1.
-    v-printline = v-printline + 1.*/
+    v-printline = v-printline + 1.
   
      IF v-printline > 46 THEN DO:
           PAGE.
@@ -844,10 +892,6 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
   END.
 */
   /*v-printline 46*/
-
-      PUT "Grand Total MSF: " +
-          TRIM(STRING(v-tot-sqft / 1000,">>>,>>9.9<<")) AT 50 FORMAT "x(30)"
-          SKIP.
 
       v-tot-sqft = 0.
       v-bot-lab[1] = "Tax        :"

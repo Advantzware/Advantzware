@@ -111,12 +111,12 @@ DEFINE QUERY external_tables FOR est, est-qty.
 
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table est-op.s-num est-op.b-num ~
-est-op.m-code est-op.m-dscr est-op.op-pass est-op.n-out est-op.op-mr ~
-est-op.op-waste est-op.op-speed est-op.op-spoil est-op.op-crew[1] ~
-est-op.op-crew[2] est-op.op-rate[1] est-op.op-rate[2] est-op.plates ~
-est-op.fountains est-op.att-type[1] est-op.att-qty[1] est-op.att-type[2] ~
-est-op.att-qty[2] est-op.att-type[3] est-op.att-qty[3] est-op.spare-char-1 ~
-est-op.n_out_div 
+est-op.m-code est-op.isLocked est-op.m-dscr est-op.op-pass est-op.n-out ~
+est-op.op-mr est-op.op-waste est-op.op-speed est-op.op-spoil ~
+est-op.op-crew[1] est-op.op-crew[2] est-op.op-rate[1] est-op.op-rate[2] ~
+est-op.plates est-op.fountains est-op.att-type[1] est-op.att-qty[1] ~
+est-op.att-type[2] est-op.att-qty[2] est-op.att-type[3] est-op.att-qty[3] ~
+est-op.spare-char-1 est-op.n_out_div 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table est-op.s-num est-op.b-num ~
 est-op.m-code est-op.m-dscr est-op.op-pass est-op.n-out est-op.op-mr ~
 est-op.op-waste est-op.op-speed est-op.op-spoil est-op.op-crew[1] ~
@@ -221,6 +221,7 @@ DEFINE BROWSE br_table
       est-op.b-num COLUMN-LABEL "B" FORMAT ">9":U
       est-op.m-code COLUMN-LABEL "Machine" FORMAT "x(6)":U COLUMN-FONT 0
             LABEL-BGCOLOR 14
+      est-op.isLocked COLUMN-LABEL "Lock" FORMAT "y/n":U VIEW-AS TOGGLE-BOX
       est-op.m-dscr FORMAT "x(20)":U COLUMN-FONT 0 LABEL-BGCOLOR 14
       est-op.op-pass COLUMN-LABEL "Pass#" FORMAT ">9":U
       est-op.n-out COLUMN-LABEL "Out" FORMAT ">>>9":U
@@ -228,11 +229,11 @@ DEFINE BROWSE br_table
       est-op.op-waste FORMAT ">>>>>9":U
       est-op.op-speed FORMAT ">>>>9":U
       est-op.op-spoil FORMAT ">>9.99":U
-      est-op.op-crew[1] COLUMN-LABEL "MRCrew" FORMAT ">9.99":U WIDTH 9.2
-      est-op.op-crew[2] COLUMN-LABEL "RunCrew" FORMAT ">9.99":U
+      est-op.op-crew[1] COLUMN-LABEL "MRCrew" FORMAT "9.99":U WIDTH 9.2
+      est-op.op-crew[2] COLUMN-LABEL "RunCrew" FORMAT "9.99":U
             WIDTH 10.2
       est-op.op-rate[1] COLUMN-LABEL "MRate" FORMAT ">>>9.99":U
-            WIDTH 7.8
+            WIDTH 9.6
       est-op.op-rate[2] COLUMN-LABEL "RRate" FORMAT ">>>9.99":U
       est-op.plates FORMAT ">>>":U
       est-op.fountains FORMAT ">>>":U
@@ -245,7 +246,7 @@ DEFINE BROWSE br_table
       est-op.att-type[3] COLUMN-LABEL "Adder 3" FORMAT "X(5)":U
             WIDTH 11.2
       est-op.att-qty[3] COLUMN-LABEL "Qty" FORMAT ">>,>>>":U
-      est-op.spare-char-1 COLUMN-LABEL "Feed" FORMAT "x(1)":U
+      est-op.spare-char-1 COLUMN-LABEL "Re" FORMAT "N/R":U COLUMN-FONT 0
       est-op.n_out_div COLUMN-LABEL "Run Qty Divisor" FORMAT "->>,>>9.99":U
   ENABLE
       est-op.s-num
@@ -315,8 +316,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 11
-         WIDTH              = 151.6.
+         HEIGHT             = 8.52
+         WIDTH              = 130.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -371,47 +372,49 @@ ASSIGN
 "est-op.b-num" "B" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.est-op.m-code
 "est-op.m-code" "Machine" ? "character" ? ? 0 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.est-op.m-dscr
+     _FldNameList[4]   > ASI.est-op.isLocked
+"est-op.isLocked" "Lock" "y/n" "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "?" ? ? 5 no 0 no no
+     _FldNameList[5]   > ASI.est-op.m-dscr
 "est-op.m-dscr" ? ? "character" ? ? 0 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.est-op.op-pass
+     _FldNameList[6]   > ASI.est-op.op-pass
 "est-op.op-pass" "Pass#" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.est-op.n-out
+     _FldNameList[7]   > ASI.est-op.n-out
 "est-op.n-out" "Out" ">>>9" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > ASI.est-op.op-mr
+     _FldNameList[8]   > ASI.est-op.op-mr
 "est-op.op-mr" "MR-Hrs." ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.est-op.op-waste
+     _FldNameList[9]   > ASI.est-op.op-waste
 "est-op.op-waste" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > ASI.est-op.op-speed
+     _FldNameList[10]   > ASI.est-op.op-speed
 "est-op.op-speed" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > ASI.est-op.op-spoil
+     _FldNameList[11]   > ASI.est-op.op-spoil
 "est-op.op-spoil" ? ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.est-op.op-crew[1]
+     _FldNameList[12]   > ASI.est-op.op-crew[1]
 "est-op.op-crew[1]" "MRCrew" ? "decimal" ? ? ? ? ? ? yes ? no no "9.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > ASI.est-op.op-crew[2]
+     _FldNameList[13]   > ASI.est-op.op-crew[2]
 "est-op.op-crew[2]" "RunCrew" ? "decimal" ? ? ? ? ? ? yes ? no no "10.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.est-op.op-rate[1]
-"est-op.op-rate[1]" "MRate" ">>>9.99" "decimal" ? ? ? ? ? ? no ? no no "7.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > ASI.est-op.op-rate[2]
+     _FldNameList[14]   > ASI.est-op.op-rate[1]
+"est-op.op-rate[1]" "MRate" ">>>9.99" "decimal" ? ? ? ? ? ? no ? no no "9.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[15]   > ASI.est-op.op-rate[2]
 "est-op.op-rate[2]" "RRate" ">>>9.99" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > ASI.est-op.plates
+     _FldNameList[16]   > ASI.est-op.plates
 "est-op.plates" ? ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > ASI.est-op.fountains
+     _FldNameList[17]   > ASI.est-op.fountains
 "est-op.fountains" ? ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > ASI.est-op.att-type[1]
+     _FldNameList[18]   > ASI.est-op.att-type[1]
 "est-op.att-type[1]" "Adder 1" ? "character" ? ? ? ? ? ? yes ? no no "11.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > ASI.est-op.att-qty[1]
+     _FldNameList[19]   > ASI.est-op.att-qty[1]
 "est-op.att-qty[1]" "Qty" ">>,>>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[19]   > ASI.est-op.att-type[2]
+     _FldNameList[20]   > ASI.est-op.att-type[2]
 "est-op.att-type[2]" "Adder 2" ? "character" ? ? ? ? ? ? yes ? no no "11.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[20]   > ASI.est-op.att-qty[2]
+     _FldNameList[21]   > ASI.est-op.att-qty[2]
 "est-op.att-qty[2]" "Qty" ">>,>>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[21]   > ASI.est-op.att-type[3]
+     _FldNameList[22]   > ASI.est-op.att-type[3]
 "est-op.att-type[3]" "Adder 3" ? "character" ? ? ? ? ? ? yes ? no no "11.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[22]   > ASI.est-op.att-qty[3]
+     _FldNameList[23]   > ASI.est-op.att-qty[3]
 "est-op.att-qty[3]" "Qty" ">>,>>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[23]   > ASI.est-op.spare-char-1
+     _FldNameList[24]   > ASI.est-op.spare-char-1
 "est-op.spare-char-1" "Re" "N/R" "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   > ASI.est-op.n_out_div
+     _FldNameList[25]   > ASI.est-op.n_out_div
 "est-op.n_out_div" "Run Qty Divisor" ? "decimal" ? ? ? ? ? ? yes "Enter Divisor for Out Reduction" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
@@ -433,32 +436,14 @@ ASSIGN
 &Scoped-define BROWSE-NAME br_table
 &Scoped-define SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON HELP OF br_table IN FRAME F-Main /* Operations */
+ON DEFAULT-ACTION OF br_table IN FRAME F-Main /* Operations */
 DO:
-  DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lw-focus AS HANDLE NO-UNDO.
+   def var phandle as widget-handle no-undo.
+   def var char-hdl as cha no-undo.   
 
-
-  lw-focus = FOCUS.
-
-  CASE lw-focus:NAME:
-    WHEN "m-code" THEN DO:
-      RUN windows/l-mach.w (est.company, est.loc, lw-focus:SCREEN-VALUE, OUTPUT char-val).
-      IF char-val NE "" AND lw-focus:SCREEN-VALUE NE ENTRY(1,char-val) THEN
-        ASSIGN
-         lw-focus:SCREEN-VALUE                               = ENTRY(1,char-val)
-         est-op.m-dscr:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(2,char-val).
-    END.
-    WHEN "att-type" THEN DO:
-      RUN windows/l-mchatt.w (est.company, est-op.m-code:SCREEN-VALUE IN BROWSE {&browse-name}, lw-focus:SCREEN-VALUE, OUTPUT char-val).
-      IF char-val NE "" AND lw-focus:SCREEN-VALUE NE ENTRY(1,char-val) THEN DO:
-        lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
-        RUN new-att-type (lw-focus).
-      END.
-    END.
-  END CASE.
-
-  RETURN NO-APPLY.
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"buttons-target",OUTPUT char-hdl).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) 
+       THEN RUN browser-dbclicked IN WIDGET-HANDLE(char-hdl).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -509,412 +494,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-op.s-num
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.s-num br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF est-op.s-num IN BROWSE br_table /* S */
-DO:
-  IF est.est-type EQ 5 THEN DO:
-    APPLY "tab" TO SELF.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.s-num br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-op.s-num IN BROWSE br_table /* S */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-s-num NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-op.b-num
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.b-num br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF est-op.b-num IN BROWSE br_table /* B */
-DO:
-  DEFINE VARIABLE ll-1-blank AS LOG NO-UNDO.
-
-  DEFINE BUFFER b-eb FOR eb.
-
-  FIND mach WHERE mach.company = est.company 
-              AND mach.m-code = est-op.m-code
-            NO-LOCK NO-ERROR.
-  
-  FOR EACH b-eb
-      WHERE b-eb.company EQ est.company
-        AND b-eb.est-no  EQ est.est-no
-        AND b-eb.form-no EQ INT(est-op.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
-      NO-LOCK
-      BREAK BY b-eb.blank-no:
-
-    ll-1-blank = FIRST(b-eb.blank-no) AND LAST(b-eb.blank-no).
-
-    LEAVE.
-  END.
-
-  IF ll-1-blank AND NOT (avail(mach) AND LOOKUP(mach.p-type, "A,P") GT 0) THEN DO:
-    APPLY "tab" TO {&self-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.b-num br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-op.b-num IN BROWSE br_table /* B */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-b-num NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-op.m-code
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-code br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF est-op.m-code IN BROWSE br_table /* Machine */
-DO:
-   IF v-estopmch-log = NO AND v-override-mode THEN
-   DO:
-      APPLY "tab" TO est-op.m-code IN BROWSE {&browse-name}.
-      RETURN NO-APPLY.
-   END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-code br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-op.m-code IN BROWSE br_table /* Machine */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-mach NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-    IF ll-import-stds AND NOT CAN-DO(lv-n-out-depts,lv-dept) THEN DO:
-      IF lv-dept EQ "PR" THEN
-        APPLY "entry" TO est-op.plates IN BROWSE {&browse-name}.
-      ELSE
-        APPLY "entry" TO est-op.att-type[1] IN BROWSE {&browse-name}.
-      RETURN NO-APPLY.
-    END.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-code br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF est-op.m-code IN BROWSE br_table /* Machine */
-DO:
-  DEFINE VARIABLE li AS INTEGER NO-UNDO.
-
-
-  FIND mach
-      {sys/look/machW.i}
-        AND mach.m-code EQ {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}
-      NO-LOCK NO-ERROR.
-  IF AVAILABLE MACH THEN DO:
-    ASSIGN
-     {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}  = CAPS(mach.m-code)
-     est-op.m-dscr:SCREEN-VALUE IN BROWSE {&browse-name} = mach.m-dscr
-     lv-dept                                             = mach.dept[1].
-
-    DO li = 1 TO LENGTH({&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}):
-      APPLY "cursor-right" TO {&self-name} IN BROWSE {&browse-name}.
-    END.
- 
-    IF mach.p-type EQ "B"                                           AND
-      INT(est-op.b-num:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
-      est-op.b-num:SCREEN-VALUE IN BROWSE {&browse-name} = "1".
-
-    IF mach.p-type NE "B" AND NOT LOOKUP(mach.p-type, "P,A") GT 0 THEN
-      est-op.b-num:SCREEN-VALUE IN BROWSE {&browse-name} = "0".
-  END. 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-op.m-dscr
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-dscr br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF est-op.m-dscr IN BROWSE br_table /* Desc */
-DO:
-  APPLY "tab" TO SELF.
-  RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-op.op-pass
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.op-pass br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF est-op.op-pass IN BROWSE br_table /* Pass# */
-DO:
-  RUN is-it-foam.
-
-  IF NOT ll-foam OR NOT CAN-DO(lv-foam-depts,lv-dept) THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.op-pass br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-op.op-pass IN BROWSE br_table /* Pass# */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-op-pass NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-op.n-out
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.n-out br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF est-op.n-out IN BROWSE br_table /* Out */
-DO:
-  RUN is-it-foam.
-
-  IF NOT CAN-DO(lv-n-out-depts,lv-dept)                  AND
-     (NOT CAN-DO(lv-foam-depts,lv-dept) OR NOT ll-foam)  THEN DO:
-    APPLY "tab" TO SELF.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.n-out br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-op.n-out IN BROWSE br_table /* Out */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-mach NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-    IF ll-import-stds AND CAN-DO(lv-n-out-depts,lv-dept) THEN DO:
-      IF lv-dept EQ "PR" THEN
-        APPLY "entry" TO est-op.plates IN BROWSE {&browse-name}.
-      ELSE
-        APPLY "entry" TO est-op.att-type[1] IN BROWSE {&browse-name}.
-      RETURN NO-APPLY.
-    END.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-op.plates
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.plates br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF est-op.plates IN BROWSE br_table /* Plate Changes */
-DO:
-  DEFINE VARIABLE ll AS LOG INIT YES NO-UNDO.
-
-
-  IF lv-dept EQ "PR" THEN
-    RUN first-of-mach (est-op.m-code:SCREEN-VALUE IN BROWSE {&browse-name},
-                       OUTPUT ll).
-
-  IF ll THEN DO WITH FRAME {&FRAME-NAME}:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.plates br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-op.plates IN BROWSE br_table /* Plate Changes */
-DO:
-  /*IF LASTKEY NE -1 THEN DO:
-    IF ll-import-stds AND lv-dept NE "PR" THEN RUN get-stds.
-  END.*/
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-op.fountains  
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.fountains br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF est-op.fountains IN BROWSE br_table /* Fountain Changes */
-DO:
-  DEFINE VARIABLE ll AS LOG INIT YES NO-UNDO.
-
-
-  IF lv-dept EQ "PR" THEN
-    RUN first-of-mach (est-op.m-code:SCREEN-VALUE IN BROWSE {&browse-name},
-                       OUTPUT ll).
-
-  IF ll THEN DO WITH FRAME {&FRAME-NAME}:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.fountains br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-op.fountains IN BROWSE br_table /* Fountain Changes */
-DO:
-  /*IF LASTKEY NE -1 THEN DO:
-    IF ll-import-stds THEN RUN get-stds.
-  END.*/
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-op.att-type[1]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.att-type[1] br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-op.att-type[1] IN BROWSE br_table /* Adder 1 */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-att-type (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.att-type[1] br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF est-op.att-type[1] IN BROWSE br_table /* Adder 1 */
-DO:
-  RUN new-att-type (FOCUS).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-op.att-type[2]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.att-type[2] br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-op.att-type[2] IN BROWSE br_table /* Adder 2 */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-att-type (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.att-type[2] br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF est-op.att-type[2] IN BROWSE br_table /* Adder 2 */
-DO:
-  RUN new-att-type (FOCUS).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-op.att-type[3]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.att-type[3] br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-op.att-type[3] IN BROWSE br_table /* Adder 3 */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-att-type (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.att-type[3] br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF est-op.att-type[3] IN BROWSE br_table /* Adder 3 */
-DO:
-  RUN new-att-type (FOCUS).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-op.att-qty[3]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.att-qty[3] br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-op.att-qty[3] IN BROWSE br_table /* Qty */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    IF ll-import-stds THEN RUN get-stds.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME est-op.spare-char-1    
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.spare-char-1 br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF est-op.spare-char-1 IN BROWSE br_table /* Spare char 1 Changes */
-DO:
-    
-  /*DO WITH FRAME {&FRAME-NAME}:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.*/
-   
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME est-op.spare-char-1    
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.spare-char-1 br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-op.spare-char-1 IN BROWSE br_table /* Spare char 1 Changes */
-DO:
-    
-  DO WITH FRAME {&FRAME-NAME}:
-   IF est-op.spare-char-1:SCREEN-VALUE IN  BROWSE {&browse-name} NE "" AND 
-        est-op.spare-char-1:SCREEN-VALUE IN  BROWSE {&browse-name} NE "R" THEN DO:
-       APPLY "Entry" TO est-op.spare-char-1 IN BROWSE {&browse-name}.
-        RETURN NO-APPLY.
-   END.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 &UNDEFINE SELF-NAME
@@ -1208,257 +787,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record B-table-Win 
-PROCEDURE local-add-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  {custom/checkuse.i}
-
-  v-override-mode = NO.
-  ll-add-record = YES.
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
-PROCEDURE local-assign-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE j AS INTEGER NO-UNDO.
-  DEFINE VARIABLE v-outw     LIKE xef.n-out NO-UNDO.
-  DEFINE VARIABLE v-outl     LIKE xef.n-out-l NO-UNDO.
-  DEFINE VARIABLE v-rate     LIKE est-op.op-rate NO-UNDO.
-  DEFINE VARIABLE v-recid    AS   RECID NO-UNDO.
-  DEFINE BUFFER bf-est-op FOR est-op.
- 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  fil_id = RECID(est-op).  /* for sub-program */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ).
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  FIND xest WHERE RECID(xest) EQ RECID(est).
-
-  FIND FIRST mach
-      {sys/look/machW.i}
-        AND mach.m-code EQ est-op.m-code
-      NO-LOCK NO-ERROR.
-
-  FIND FIRST xef
-      WHERE xef.company EQ est-op.company
-        AND xef.est-no  EQ est-op.est-no
-        AND xef.form-no EQ est-op.s-num
-      NO-LOCK NO-ERROR.
-
-  RELEASE xeb.
-  IF AVAILABLE xef THEN
-  FIND FIRST xeb
-      WHERE xeb.company   EQ xef.company
-        AND xeb.est-no    EQ xef.est-no
-        AND xeb.form-no   EQ xef.form-no
-        AND (xeb.blank-no EQ est-op.b-num OR est-op.b-num EQ 0)
-      NO-LOCK NO-ERROR.
-
-  ASSIGN
-   est-op.d-seq  = mach.d-seq
-   est-op.dept   = mach.dept[1]
-   est-op.op-sb  = mach.p-type NE "B"
-   est-op.m-code = mach.m-code
-   est-op.m-dscr = mach.m-dscr.
-
-  IF est-op.op-crew[1] EQ 0 OR ll-import-selected THEN DO:
-    est-op.op-crew[1] = mach.mr-crusiz.
-    RUN est/getcrusz.p (ROWID(mach), ROWID(xeb), est-op.dept, "M R",
-                        INPUT-OUTPUT est-op.op-crew[1]).
-  END.
-
-  IF est-op.op-crew[2] EQ 0 OR ll-import-selected THEN DO:
-    est-op.op-crew[2] = mach.run-crusiz.
-    RUN est/getcrusz.p (ROWID(mach), ROWID(xeb), est-op.dept, "RUN",
-                        INPUT-OUTPUT est-op.op-crew[2]).
-  END.
-
-  ASSIGN
-   est-op.op-rate[1] = (mach.lab-rate[mach.lab-drate] * est-op.op-crew[1]) + 
-                       mach.mr-varoh  + mach.mr-fixoh
-   est-op.op-rate[2] = (mach.lab-rate[mach.lab-drate] * est-op.op-crew[2]) + 
-                       mach.run-varoh + mach.run-fixoh.
-         
-  IF ll-import-selected THEN est-op.op-spoil = mach.run-spoil.
-  IF LOOKUP(mach.p-type, "P,A") EQ 0 THEN DO:
-      /* Allow override for types P and A (task 09281204) */
-      IF mach.p-type NE "B" THEN
-        est-op.b-num = IF xest.est-type EQ 5 THEN 1 ELSE 0.
-         
-      ELSE
-      IF est-op.b-num EQ 0 THEN est-op.b-num = 1.
-
-  END.
-  ELSE DO:
-      /* If adding a P or A, make it the last machine */
-      IF ll-add-record THEN DO:
-         FOR EACH bf-est-op WHERE bf-est-op.company EQ est-op.company
-                             AND bf-est-op.est-no  EQ est-op.est-no
-                           NO-LOCK
-                           BY bf-est-op.s-num DESCENDING.
-             LEAVE.
-         END.
-         IF AVAILABLE bf-est-op THEN DO:
-             ASSIGN est-op.s-num = bf-est-op.s-num 
-                    est-op.b-num = 1.
-         END.
-      END.      
-  END.
-
-  RUN is-it-foam.
-     
-  IF NOT CAN-DO(lv-n-out-depts,lv-dept)                 AND
-     (NOT CAN-DO(lv-foam-depts,lv-dept) OR NOT ll-foam) THEN est-op.n-out = 0.
-    
-  FOR EACH xop
-      WHERE xop.company EQ est-op.company
-        AND xop.est-no  EQ est-op.est-no
-        AND xop.line    LT 500
-        AND (NOT ll-foam OR NOT CAN-DO(lv-foam-depts,xop.dept))
-      BREAK BY xop.qty
-            BY xop.s-num
-            BY xop.b-num
-            BY xop.dept
-            BY xop.line:
-            
-    IF FIRST-OF(xop.dept) THEN j = 0.
-    
-    ASSIGN
-     j           = j + 1
-     xop.op-pass = j.
-  END.
-  
-  j = 0.
-  FOR EACH xop
-      WHERE xop.company EQ est-op.company
-        AND xop.est-no  EQ est-op.est-no
-        AND xop.line    LT 500
-      BY xop.qty
-      BY xop.s-num
-      BY xop.b-num
-      BY xop.d-seq
-      BY xop.op-pass
-      BY xop.rec_key:
-      
-    {sys/inc/outstrPL.i xop share}  
-    ASSIGN
-     j        = j + 1
-     xop.line = j.
-     
-    IF AVAILABLE reftable THEN reftable.loc = STRING(xop.line,"9999999999"). 
-
-  END.
-
-  IF NOT xef.op-lock AND NOT ll-foam THEN DO:
-     v-outw = xef.n-out.    
-     IF v-outw GT 1 THEN
-     FOR EACH xop
-         WHERE xop.company EQ est-op.company
-           AND xop.est-no  EQ est-op.est-no
-           AND xop.qty     EQ est-op.qty
-           AND xop.s-num   EQ est-op.s-num
-           AND lookup(xop.dept,lv-n-out-depts) GT 0
-           AND xop.line    LT 500
-         NO-LOCK BY xop.d-seq BY xop.line:
-        
-       v-outw = v-outw - xop.n-out.  
-       IF v-outw LE 0 THEN DO:
-         v-recid = RECID(xop).
-         LEAVE.
-       END.
-     END.
-     
-     v-outl = xef.n-out-l.    
-     IF v-outl GT 1 THEN
-     FOR EACH xop
-         WHERE xop.company EQ est-op.company
-           AND xop.est-no  EQ est-op.est-no
-           AND xop.qty     EQ est-op.qty
-           AND xop.s-num   EQ est-op.s-num
-           AND lookup(xop.dept,lv-n-out-depts) GT 0
-           AND xop.line    LT 500
-         NO-LOCK BY xop.d-seq DESCENDING BY xop.line DESCENDING:
-         
-       IF RECID(xop) EQ v-recid THEN LEAVE.       
-       v-outl = v-outl - xop.n-out.      
-       IF v-outl LE 0 THEN LEAVE.
-     END.
-     
-     IF v-outw + v-outl LT 0 THEN DO ON ENDKEY UNDO, RETRY:
-       MESSAGE "Number Out for 'CR or RC' machine passes do not match layout..."
-               VIEW-AS ALERT-BOX.
-       RETURN ERROR.
-     END.
-  END.    
-  
-  ASSIGN
-   fil_id  = RECID(est-op)
-   v-recid = fil_id.
-
-  FOR EACH ef 
-      WHERE ef.company EQ est-op.company
-        AND ef.est-no  EQ est-op.est-no
-      NO-LOCK:
-    RUN set-lock (ef.form-no, NOT ll-import-selected).
-  END.
-
-  RUN cec/mach-rek.p (IF ll-import-all THEN ? ELSE ROWID(est-op)).
-
-  FOR EACH ef 
-      WHERE ef.company EQ est-op.company
-        AND ef.est-no  EQ est-op.est-no
-      NO-LOCK:
-    RUN set-lock (ef.form-no, YES).
-  END.
-  ASSIGN  fil_id = v-recid
-          ll-add-record = NO.
-  RUN release-shared-buffers.
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win 
-PROCEDURE local-cancel-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  v-override-mode = NO.
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  RUN release-shared-buffers.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record B-table-Win 
 PROCEDURE local-copy-record :
 /*------------------------------------------------------------------------------
@@ -1475,46 +803,6 @@ PROCEDURE local-copy-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
-PROCEDURE local-create-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lv-qty LIKE est-op.qty NO-UNDO.
-
-                          
-  /* Code placed here will execute PRIOR to standard behavior. */
-  i = 1.
-  FOR EACH xop
-      WHERE xop.company EQ est.company
-        AND xop.est-no  EQ est.est-no
-        AND xop.line    LT 500
-      NO-LOCK
-      BY xop.line DESCENDING:
-    i = xop.line + 1.
-    LEAVE.
-  END.
-  
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-   est-op.company = est.company
-   est-op.est-no  = est.est-no
-   est-op.auto    = FALSE
-   est-op.line    = i
-   est-op.s-num   = 1
-   est-op.b-num   = IF est.est-type EQ 5 THEN 1 ELSE 0
-   est-op.op-pass = 1
-   est-op.qty     = IF est.est-type NE 8 THEN est-qty.eqty ELSE lv-eqty.
 
 END PROCEDURE.
 
@@ -1568,40 +856,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields B-table-Win 
-PROCEDURE local-enable-fields :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  {custom/checkuse.i}
-
-    IF NOT winReSize THEN
-    DO WITH FRAME {&FRAME-NAME}:
-    DO li-cnt = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
-      APPLY 'cursor-left' TO {&BROWSE-NAME}.
-    END.
-  END.
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  DO WITH FRAME {&FRAME-NAME}:
-    APPLY "entry" TO est-op.s-num IN BROWSE {&browse-name}.
-  END.
-
-  RUN release-shared-buffers.
-  
-  prev-m-code = est-op.m-code:SCREEN-VALUE IN BROWSE {&browse-name}.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
@@ -1613,6 +867,31 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  ASSIGN 
+      est-op.s-num:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.b-num:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.m-code:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.m-dscr:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.op-pass:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.n-out:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.op-mr:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.op-waste:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.op-speed:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.op-spoil:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.op-crew[1]:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.op-crew[2]:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.plates:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.fountains:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.att-type[1]:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.att-qty[1]:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.att-type[2]:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.att-qty[2]:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.att-type[3]:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.att-qty[3]:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.spare-char-1:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.n_out_div:READ-ONLY IN BROWSE {&browse-name} = YES 
+      .
 
   /* Code placed here will execute AFTER standard behavior.    */
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
@@ -1655,65 +934,6 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
-PROCEDURE local-update-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  DO WITH FRAME {&FRAME-NAME}:
-    RUN valid-s-num NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-    RUN valid-b-num NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-    RUN valid-mach NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-    RUN valid-op-pass NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-    RUN valid-att-type (est-op.att-type[1]:HANDLE IN BROWSE {&browse-name}) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-    RUN valid-att-type (est-op.att-type[2]:HANDLE IN BROWSE {&browse-name}) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-    RUN valid-att-type (est-op.att-type[3]:HANDLE IN BROWSE {&browse-name}) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-  
-  ll-import-all = NO.
-  IF ll-import-selected THEN DO WITH FRAME {&FRAME-NAME}:
-    MESSAGE "NO = Import Standards for Only Machine Imported?" SKIP
-            "YES = Import Standards for All Machines on Routing?"
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-        UPDATE ll-import-all.
-  END.
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  RUN repo-query (ROWID(est-op)).
-
-  IF NOT winReSize THEN
-  DO li-cnt = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
-    APPLY 'cursor-left' TO {&BROWSE-NAME} IN FRAME {&FRAME-NAME}.
-  END.
-
-  ll-import-selected = NO.
-
-  RUN release-shared-buffers.
 
 END PROCEDURE.
 
@@ -1909,7 +1129,7 @@ PROCEDURE set-import-stds :
    
    IF mach.obsolete THEN DO: 
     MESSAGE "Machine: " + TRIM(mach.m-code) +
-            " is obsolete, please replace or standards will not be imported"
+            " is Inactive, please replace or standards will not be imported"
         VIEW-AS ALERT-BOX ERROR.
     ip-import-stds = NO.
     LEAVE.
@@ -1970,498 +1190,6 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-att-type B-table-Win 
-PROCEDURE valid-att-type :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-focus AS HANDLE NO-UNDO.
-
-  DEFINE VARIABLE lv-msg AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lv-type LIKE est-op.att-type NO-UNDO.
-  DEFINE VARIABLE li AS INTEGER NO-UNDO.
-
-
-  DO WITH FRAME {&FRAME-NAME}:
-    IF ip-focus:SCREEN-VALUE NE "" THEN DO:
-      ASSIGN
-       lv-type[1] = est-op.att-type[1]:SCREEN-VALUE IN BROWSE {&browse-name}
-       lv-type[2] = est-op.att-type[2]:SCREEN-VALUE IN BROWSE {&browse-name}
-       lv-type[3] = est-op.att-type[3]:SCREEN-VALUE IN BROWSE {&browse-name}.
-
-      RUN find-mach-attach (BUFFER mach-attach, ip-focus).
-    
-      IF NOT AVAILABLE mach-attach THEN
-        lv-msg = "Invalid Attachment Type for Machine, try help".
-
-      ELSE
-        ip-focus:SCREEN-VALUE = mach-attach.att-type.
-
-      IF lv-msg EQ "" THEN
-      DO li = 1 TO EXTENT(lv-type):
-        IF ip-focus:INDEX NE li                 AND
-           ip-focus:SCREEN-VALUE EQ lv-type[li] THEN DO:
-          lv-msg = TRIM(ip-focus:LABEL) +
-                   " may not be the same as one of the other two".
-          LEAVE.
-        END.
-      END.
-    END.
-
-    IF lv-msg NE "" THEN DO:
-      MESSAGE TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO ip-focus.
-      RETURN ERROR.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-b-num B-table-Win 
-PROCEDURE valid-b-num :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&frame-name}:
-    APPLY "value-changed" TO est-op.m-code IN BROWSE {&browse-name}.
-
-    FIND FIRST mach
-        {sys/look/machW.i}
-          AND mach.m-code EQ est-op.m-code:SCREEN-VALUE IN BROWSE {&browse-name}
-        NO-LOCK NO-ERROR.
-
-    IF ((AVAILABLE mach AND mach.p-type EQ "B") OR
-        int(est-op.b-num:screen-value IN BROWSE {&browse-name}) NE 0) AND
-       NOT CAN-FIND(FIRST eb
-                    WHERE eb.company  EQ est.company
-                      AND eb.est-no   EQ est.est-no
-                      AND eb.form-no  EQ int(est-op.s-num:screen-value IN BROWSE {&browse-name})
-                      AND eb.blank-no EQ int(est-op.b-num:screen-value IN BROWSE {&browse-name}))
-    THEN DO:
-      MESSAGE "Must enter a valid Blank#" VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO est-op.b-num IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  END.
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-mach B-table-Win 
-PROCEDURE valid-mach :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE i AS INTEGER NO-UNDO.
-  DEFINE VARIABLE chr-handle AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE ls-tmp AS cha NO-UNDO.
-  DEFINE VARIABLE v-run AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE v-on-f AS INTEGER NO-UNDO.
-  DEFINE VARIABLE sh-dep AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE li-aqueous AS INTEGER NO-UNDO.
-  DEFINE VARIABLE cMachType  AS CHARACTER NO-UNDO .
-  DEFINE VARIABLE v-msgreturn AS INTEGER NO-UNDO .
-  DEFINE VARIABLE dNshLen AS DECIMAL NO-UNDO .
-  DEFINE VARIABLE dTrimL  AS DECIMAL NO-UNDO .
-  DEFINE VARIABLE dMachMaxLen AS DECIMAL NO-UNDO .
-  DEFINE VARIABLE dMachMaxWid AS DECIMAL NO-UNDO .
-
-  DEFINE BUFFER b-est-op FOR est-op.
-  DEFINE BUFFER b-mach FOR mach.
-  DEFINE BUFFER bf-ef FOR ef.
-  
-
-/*  {sys/inc/cepanel.i} - deprecated with 17756*/
-
-  RUN is-it-foam.
-
-  DO WITH FRAME {&frame-name}:
-    FIND FIRST mach
-        {sys/look/machW.i}
-          AND mach.m-code EQ est-op.m-code:screen-value IN BROWSE {&browse-name}
-        NO-LOCK NO-ERROR.
-
-    IF NOT AVAILABLE mach THEN DO:
-      MESSAGE "Must enter a valid Machine Code, try help"
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO est-op.m-code IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-
-
-     IF mach.obsolete THEN DO:
-      MESSAGE "Machine is obsolete, please choose a different machine"
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO est-op.m-code IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  
-    ASSIGN
-     est-op.m-code:screen-value IN BROWSE {&browse-name} = mach.m-code
-     est-op.m-dscr:screen-value IN BROWSE {&browse-name} = mach.m-dscr
-     lv-d-seq = mach.d-seq
-     lv-dept  = mach.dept[1].
-
-    FIND FIRST xef
-        WHERE xef.company EQ est.company
-          AND xef.est-no  EQ est.est-no
-          AND xef.form-no EQ int(est-op.s-num:screen-value IN BROWSE {&browse-name})
-        NO-LOCK NO-ERROR.
-
-    FIND FIRST xeb
-        WHERE xeb.company EQ est.company
-          AND xeb.est-no  EQ est.est-no
-          AND xeb.form-no EQ xef.form-no
-          AND (xeb.blank-no EQ int(est-op.b-num:screen-value IN BROWSE {&browse-name}) OR
-               int(est-op.b-num:screen-value IN BROWSE {&browse-name}) EQ 0)
-        NO-LOCK NO-ERROR.
-
-    FIND FIRST style
-        {sys/ref/styleW.i}
-          AND style.style EQ xeb.style
-        NO-LOCK NO-ERROR.
-
-    FIND xest WHERE RECID(xest) EQ recid(est) NO-LOCK.
-
-    IF ll-import-stds THEN RUN get-n-out.
-
-    v-on-f = int(est-op.n-out:screen-value IN BROWSE {&browse-name}).
-
-    IF v-on-f NE 0 OR NOT CAN-DO(lv-n-out-depts,lv-dept) THEN DO:
-      IF xef.lam-dscr EQ "R"                         /*or
-         (xef.lam-dscr ne "R" and xef.xgrain eq "S")*/ THEN
-        ASSIGN
-         sh-wid = xef.nsh-wid
-         sh-len = xef.nsh-len.
-      ELSE
-        ASSIGN
-         sh-wid = xef.nsh-len
-         sh-len = xef.nsh-wid.
-
-      DO WHILE TRUE:
-        sh-dep = xef.cal.
-
-        IF mach.p-type EQ "B" THEN
-          ASSIGN
-           sh-len = xeb.t-wid
-           sh-wid = xeb.t-len.
-
-        IF ll-foam THEN DO:
-          sh-dep = xeb.t-dep.
-
-          IF mach.p-type NE "B" THEN DO:
-            {sys/inc/outstrPL.i est-op NO}
-         
-            IF AVAILABLE reftable THEN
-            DO i = 1 TO 3:
-              CASE reftable.val[i]:
-                WHEN 1.0 THEN sh-len = reftable.val[i + 3].
-                WHEN 2.0 THEN sh-wid = reftable.val[i + 3].
-                WHEN 3.0 THEN sh-dep = reftable.val[i + 3].
-              END CASE.
-            END.
-          END.
-        END.
-
-        ASSIGN cMachType = IF AVAILABLE mach THEN mach.p-type ELSE "" 
-               dMachMaxLen = IF AVAILABLE mach THEN mach.max-len ELSE 0 
-               dMachMaxWid = IF AVAILABLE mach THEN mach.max-wid ELSE 0
-               qty = lv-eqty. /*20108 - qty variable needed for mach-seq.i->mach-qty.p setting equal to selected routing qty*/
-
-        IF lv-dept EQ "RC" THEN DO:
-          xcal = sh-dep.
-          RUN cec/rc-mach.p (BUFFER mach, v-on-f, NO).
-          IF AVAILABLE mach THEN LEAVE.
-        END.
-
-        ELSE DO:
-          {cec/mach-seq.i sh-len sh-wid sh-dep}
-        END.
-                      
-        IF NOT AVAILABLE mach THEN DO:
-            IF (cMachType = "S" AND ( (sh-wid < sh-len AND  (dMachMaxLen LT sh-len OR dMachMaxWid LT sh-wid) ) OR (sh-wid > sh-len AND ( dMachMaxLen LT sh-len OR dMachMaxWid LT sh-wid)  ) )) THEN DO:
-
-                RUN custom/d-msg-mach.w ("Warning","","Sheet size outside machine limits ","",2,"Reverse Feed Direction,OK", OUTPUT v-msgreturn).         
-                IF v-msgreturn = 1  THEN DO:
-                    FIND FIRST bf-ef EXCLUSIVE-LOCK WHERE 
-                               bf-ef.company EQ xef.company AND
-                               RECID(bf-ef)  EQ RECID(xef) NO-ERROR.
-                    IF AVAILABLE bf-ef THEN
-                        ASSIGN
-                        dNshLen       = xef.nsh-len  
-                        dTrimL        = xef.trim-l
-                        bf-ef.nsh-len = xef.nsh-wid
-                        bf-ef.nsh-wid = dNshLen
-                        bf-ef.trim-l  = xef.trim-w
-                        bf-ef.trim-w  = dTrimL
-                         .
-                    FIND FIRST mach
-                        {sys/look/machW.i}
-                        AND mach.m-code EQ est-op.m-code:screen-value IN BROWSE {&browse-name}
-                        NO-LOCK NO-ERROR.
-                    LEAVE.
-                    
-                END.
-                ELSE DO:
-                    APPLY "entry" TO est-op.m-code IN BROWSE {&browse-name}.
-                    RETURN ERROR.
-                END.
-
-            END.  /* cMachType = "S" */   
-            ELSE IF cMachType = "B" AND est-op.spare-char-1:screen-value IN BROWSE {&browse-name} NE "R" 
-            AND ( (sh-wid < sh-len AND  (dMachMaxLen LT sh-len OR dMachMaxWid LT sh-wid) ) OR (sh-wid > sh-len AND ( dMachMaxLen LT sh-len OR dMachMaxWid LT sh-wid)  ) ) THEN DO: 
-                  RUN custom/d-msg-mach.w ("Warning","","Blank size outside machine limits","",2,"Reverse Blank Feed,OK", OUTPUT v-msgreturn).        
-                 IF v-msgreturn = 1  THEN DO:
-                    est-op.spare-char-1:screen-value IN BROWSE {&browse-name} = "R" .
-                    FIND FIRST mach
-                        {sys/look/machW.i}
-                        AND mach.m-code EQ est-op.m-code:screen-value IN BROWSE {&browse-name}
-                        NO-LOCK NO-ERROR.
-                     {cec/mach-seq.i sh-wid sh-len sh-dep}
-                     IF NOT AVAILABLE mach THEN  DO:
-                        MESSAGE "Blank size outside machine limits, when reversed" VIEW-AS ALERT-BOX ERROR.
-                        APPLY "entry" TO est-op.m-code IN BROWSE {&browse-name}.
-                        RETURN ERROR.
-                     END.
-                    LEAVE.
-                 END.
-                 
-                 ELSE DO:
-                     APPLY "entry" TO est-op.m-code IN BROWSE {&browse-name}.
-                     RETURN ERROR.
-                 END.
-
-            END.
-            ELSE IF cMachType = "B" AND est-op.spare-char-1:screen-value IN BROWSE {&browse-name} EQ "R" THEN DO:
-                FIND FIRST mach
-                    {sys/look/machW.i}
-                    AND mach.m-code EQ est-op.m-code:screen-value IN BROWSE {&browse-name}
-                    NO-LOCK NO-ERROR.
-                    {cec/mach-seq.i sh-wid sh-len sh-dep}
-                     IF NOT AVAILABLE mach THEN  DO:
-                        MESSAGE "Blank size outside machine limits, when reversed" VIEW-AS ALERT-BOX ERROR.
-                        APPLY "entry" TO est-op.m-code IN BROWSE {&browse-name}.
-                        RETURN ERROR.
-                     END.
-                    LEAVE.
-            END. 
-            ELSE DO:
-                 MESSAGE "Estimate specifications outside machine limits" VIEW-AS ALERT-BOX ERROR.
-                 APPLY "entry" TO est-op.m-code IN BROWSE {&browse-name}.
-                 RETURN ERROR.
-            END.
-
-         
-        END.
-      END.
-    END.
-        
-    IF CAN-DO(lv-n-out-depts,lv-dept) AND v-on-f LE 0 AND 
-       FOCUS:NAME IN BROWSE {&browse-name} NE "m-code" THEN DO:
-      MESSAGE TRIM(est-op.n-out:LABEL IN BROWSE {&browse-name}) +
-              " must not be zero..."
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO est-op.n-out IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-
-    IF mach.p-type NE "B" THEN
-      ASSIGN
-       lv-op-sb = YES
-       lv-b-num = IF xest.est-type EQ 5 THEN 1 ELSE 0.
-       
-    ELSE
-      ASSIGN
-       lv-op-sb = NO
-       lv-b-num = IF int(est-op.b-num:screen-value) EQ 0 THEN 1 ELSE int(est-op.b-num:screen-value).
-       
-    IF NOT CAN-DO(lv-n-out-depts,lv-dept) THEN lv-n-out = 0.
-
-    IF xeb.i-pass GT 0 THEN DO:
-          /* press, check ink */
-          IF mach.dept[1] EQ "PR" OR mach.dept[2] EQ "PR" OR
-             mach.dept[3] EQ "PR" OR mach.dept[4] EQ "PR" THEN DO:
-                FIND FIRST item {sys/look/itemivW.i}
-                                AND item.i-no EQ xeb.i-code[1]
-                     NO-LOCK NO-ERROR.
-                IF NOT AVAILABLE item AND mach.dept[2] EQ "" AND
-                  mach.dept[3] EQ "" AND mach.dept[4] EQ "" 
-                THEN DO:
-                     MESSAGE "No Inks defined !" VIEW-AS ALERT-BOX.
-                     APPLY "entry" TO est-op.m-code IN BROWSE {&browse-name}.
-                     RETURN ERROR.                   
-                END.
-                ELSE IF AVAILABLE item AND item.press-type NE mach.pr-type THEN DO:
-                    MESSAGE "WRONG PRESS TYPE for selected Ink!" VIEW-AS ALERT-BOX ERROR.
-                    APPLY "entry" TO est-op.m-code IN BROWSE {&browse-name}.
-                    RETURN ERROR.
-                END.
-                ASSIGN
-                  maxco    = 0
-                  v-passes = INT(adm-new-record).
-
-                FOR EACH b-est-op
-                    WHERE b-est-op.company EQ est-op.company
-                      AND b-est-op.est-no  EQ est-op.est-no
-                      AND (b-est-op.eqty   EQ est-op.eqty OR est.est-type GE 7)
-                      AND b-est-op.s-num   EQ INT(est-op.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
-                      AND b-est-op.line    LT 500
-                      AND (ROWID(b-est-op) NE ROWID(est-op) OR NOT adm-new-record)
-                      AND CAN-FIND(FIRST b-mach
-                                   WHERE b-mach.company EQ b-est-op.company
-                                     AND b-mach.m-code  EQ b-est-op.m-code
-                                     AND (b-mach.dept[1] EQ "PR" OR
-                                          b-mach.dept[2] EQ "PR" OR
-                                          b-mach.dept[3] EQ "PR" OR
-                                          b-mach.dept[4] EQ "PR" OR
-                                          b-mach.dept[1] EQ "CT" OR
-                                          b-mach.dept[2] EQ "CT" OR
-                                          b-mach.dept[3] EQ "CT" OR
-                                          b-mach.dept[4] EQ "CT"))
-                    NO-LOCK BY b-est-op.d-seq BY b-est-op.line:
-
-                   v-passes = v-passes + 1.
-                   IF ROWID(b-est-op) EQ ROWID(est-op) THEN LEAVE.
-                END.
-
-                DO i = 1 TO 10:
-                   IF xeb.i-ps[i] NE v-passes THEN NEXT.
-                   FIND FIRST item NO-LOCK
-                       {sys/look/itemW.i}
-                         AND item.i-no     EQ xeb.i-code[i]
-                         AND INDEX("IV",item.mat-type) GT 0
-                         AND item.ink-type NE "A"
-                       NO-ERROR.
-                   IF AVAILABLE item THEN maxco = maxco + 1.
-                END.
-
-                IF mach.max-color LT maxco THEN DO:
-                   MESSAGE "NOT ENOUGH COLORS on PRESS for selected Inks!" VIEW-AS ALERT-BOX ERROR.
-                   APPLY "entry" TO est-op.m-code IN BROWSE {&browse-name}.
-                   RETURN ERROR.
-                END.
-          END.  /* dept = "PR" */
-    END.  /* x-eb.i-pass */
-
-    /*RUN cec/mach-qty.p (ROWID(mach), ROWID(xeb), v-on-f, sh-len, OUTPUT v-run).
-
-    if v-run lt mach.min-run then do:
-            message "RUN QTY. too small for Machine!" view-as alert-box error.
-            apply "entry" to est-op.m-code in browse {&browse-name}.
-            return error.
-    end.
-    if (xest.est-qty[1] / xest.prod-runs) gt mach.max-run then do:
-            message "RUN QTY. too large for Machine!" view-as alert-box error.
-            apply "entry" to est-op.m-code in browse {&browse-name}.
-            return error.
-    end.
-    if mach.min-cal gt xef.cal then do:
-            message "BOARD CALIPER too small for Machine!" view-as alert-box.
-            apply "entry" to est-op.m-code in browse {&browse-name}.
-            return error.
-    end.
-    if mach.max-cal lt xef.cal then do:
-            message "BOARD CALIPER too large for Machine!" view-as alert-box.
-            apply "entry" to est-op.m-code in browse {&browse-name}.
-            return error.
-    end.*/
-    
-    ll-machine-modified = est-op.m-code:MODIFIED IN BROWSE {&browse-name}.
-  END.
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-op-pass B-table-Win 
-PROCEDURE valid-op-pass :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE BUFFER b-est-op FOR est-op.
-
-
-  DO WITH FRAME {&FRAME-NAME}:
-    RUN is-it-foam.
-
-    IF ll-foam AND CAN-DO(lv-foam-depts,lv-dept) THEN DO:
-      /*IF CAN-FIND(FIRST b-est-op
-                  WHERE b-est-op.company EQ est.company
-                    AND b-est-op.est-no  EQ est.est-no
-                    AND b-est-op.s-num   EQ INT(est-op.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
-                    AND b-est-op.op-pass EQ INT(est-op.op-pass:SCREEN-VALUE IN BROWSE {&browse-name})
-                    AND ROWID(b-est-op)  NE ROWID(est-op))
-      THEN DO:
-        MESSAGE TRIM(est-op.op-pass:LABEL IN BROWSE {&browse-name}) +
-                " already exists for this Form#..."
-            VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" to est-op.op-pass IN BROWSE {&browse-name}.
-        RETURN ERROR.
-      END.*/
-
-      IF INT(est-op.op-pass:SCREEN-VALUE IN BROWSE {&browse-name}) NE 1 AND
-         NOT CAN-FIND(FIRST ef-nsh
-                      WHERE ef-nsh.company EQ est.company
-                        AND ef-nsh.est-no  EQ est.est-no
-                        AND ef-nsh.form-no EQ INT(est-op.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
-                        AND ef-nsh.pass-no EQ INT(est-op.op-pass:SCREEN-VALUE IN BROWSE {&browse-name}))
-      THEN DO:
-        MESSAGE "Net Sheet does not exist for this "                +
-                TRIM(est-op.op-pass:LABEL IN BROWSE {&browse-name}) +
-                "..."
-            VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO est-op.op-pass IN BROWSE {&browse-name}.
-        RETURN ERROR.
-      END.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-s-num B-table-Win 
-PROCEDURE valid-s-num :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  
-  DO WITH FRAME {&frame-name}:
-    IF NOT CAN-FIND(FIRST ef
-                    WHERE ef.company EQ est.company
-                      AND ef.est-no  EQ est.est-no
-                      AND ef.form-no EQ int(est-op.s-num:screen-value IN BROWSE {&browse-name}))
-    THEN DO:
-      MESSAGE "Must enter a valid Form#" VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO est-op.s-num IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  END.
-  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

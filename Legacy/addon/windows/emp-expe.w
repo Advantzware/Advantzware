@@ -65,7 +65,7 @@ DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 ASSIGN cTextListToSelect = "Emp.ID,First Name,Middle Name,Last Name,Social Security," + 
-                           "Rate Usage,Emp Type,KeyBoard Type,Start Date,Manager Id,GL Acct,Dock Time,Lunch Paid" 
+                           "Rate Usage,Emp Type,KeyBoard Type,Start Date,Manager Id,Note,Dock Time,Lunch Paid" 
       cFieldListToSelect = "empid,first-n,midd-n,last-n,soc," +
                            "rate-u,emp-type,key-type,start-date,manag,gl-acc,dock-time,lunch"  .
 

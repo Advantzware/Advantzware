@@ -1,0 +1,37 @@
+ADD FIELD "showMenuImages" OF "users" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Show Menu Images"
+  POSITION 52
+  MAX-WIDTH 1
+  COLUMN-LABEL "Images"
+  HELP "Toggle to Show Menu Images"
+  ORDER 471
+
+ADD FIELD "menuBGColor" OF "users" AS integer 
+  FORMAT ">9"
+  INITIAL "1"
+  LABEL "Menu BG Color"
+  POSITION 53
+  MAX-WIDTH 18
+  COLUMN-LABEL "BG"
+  HELP "Enter Menu BG Color"
+  EXTENT 3
+  ORDER 491
+
+ADD FIELD "menuFGColor" OF "users" AS integer 
+  FORMAT ">9"
+  INITIAL "15"
+  LABEL "Menu FG Color"
+  POSITION 54
+  MAX-WIDTH 18
+  COLUMN-LABEL "FG"
+  HELP "Enter Menu FG Color"
+  EXTENT 3
+  ORDER 481
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000009876

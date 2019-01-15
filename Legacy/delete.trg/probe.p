@@ -79,15 +79,6 @@ FOR EACH reftable {est/probreft.i reftable {&TABLENAME}}:
 END.
 
 FOR EACH reftable
-    WHERE reftable.reftable EQ "probe.per-msf"
-      AND reftable.company  EQ {&TABLENAME}.company
-      AND reftable.loc      EQ ""
-      AND reftable.code     EQ {&TABLENAME}.est-no
-      AND reftable.code2    EQ STRING({&TABLENAME}.line,"9999999999"):
-  DELETE reftable.
-END.
-
-FOR EACH reftable
     WHERE reftable.reftable EQ "probe-ref"
       AND reftable.company  EQ {&TABLENAME}.company
       AND reftable.loc      EQ ""
@@ -96,11 +87,4 @@ FOR EACH reftable
   DELETE reftable.
 END.
 
-FOR EACH reftable
-    WHERE reftable.reftable EQ "probe-board"
-      AND reftable.company  EQ {&TABLENAME}.company
-      AND reftable.loc      EQ ""
-      AND reftable.code     EQ {&TABLENAME}.est-no
-      AND reftable.code2    EQ STRING({&TABLENAME}.line,"9999999999"):
-  DELETE reftable.
-END.
+
