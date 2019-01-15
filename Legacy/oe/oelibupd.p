@@ -81,6 +81,7 @@ DEF VAR ll-new-due AS LOG NO-UNDO.
 DEF VAR lv-type-codes AS CHAR NO-UNDO.
 DEF VAR lv-type-dscrs AS CHAR NO-UNDO.
 DEF VAR K_FRAC AS DEC INIT 6.25 NO-UNDO.
+DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 
 DEFINE VARIABLE prodDateChanged AS LOGICAL NO-UNDO.
 DEFINE VARIABLE dueDateChanged AS LOGICAL NO-UNDO.
@@ -165,6 +166,21 @@ RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 
 
 /* ************************  Function Prototypes ********************** */
+
+&IF DEFINED(EXCLUDE-fGetTaxable) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable Procedure
+FUNCTION fGetTaxable RETURNS LOGICAL 
+  ( ipcCompany AS CHARACTER,
+   ipcCust AS CHARACTER,
+   ipcShipto AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-get-handle) = 0 &THEN
 
@@ -586,7 +602,8 @@ PROCEDURE create-misc :
       WHERE cust.company = g_company 
         AND cust.cust-no = oe-ord.cust-no
       NO-ERROR.
-  
+      
+  RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
   FOR EACH est-prep WHERE est-prep.company = g_company
                       AND est-prep.est-no = bf-eb.est-no
                       AND est-prep.simon = "S"     NO-LOCK .
@@ -616,13 +633,12 @@ PROCEDURE create-misc :
                                   (est-prep.cost * est-prep.qty) * (1 + (est-prep.mkup / 100)) * 
                                   (est-prep.amtz / 100)
                 oe-ordm.est-no = est-prep.est-no
-                oe-ordm.tax = cust.sort = "Y" AND oe-ord.tax-gr <> ""
+                oe-ordm.tax =  fGetTaxable(g_company, oe-ord.cust-no, oe-ord.ship-id)
                 oe-ordm.cost = (est-prep.cost * est-prep.qty * (est-prep.amtz / 100))
                 oe-ordm.bill  = "Y".
             
          IF PrepTax-log THEN 
-            ASSIGN oe-ordm.tax = TRUE
-                   oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
+            ASSIGN oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
                    .  
          RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
                             OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
@@ -637,6 +653,7 @@ PROCEDURE create-misc :
 
       FIND CURRENT oe-ordm NO-LOCK.
   END.
+  DELETE OBJECT hdTaxProcs.
   FOR EACH ef OF bf-eb /*where ef.company = g_company and
                     ef.est-no = oe-ord.est-no */
                     NO-LOCK:
@@ -774,6 +791,7 @@ PROCEDURE create-release :
                                 oe-rel.ship-i[2] = shipto.notes[2]
                                 oe-rel.ship-i[3] = shipto.notes[3]
                                oe-rel.ship-i[4] = shipto.notes[4].
+            RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
             IF v-ship-from GT "" THEN
                 oe-rel.spare-char-1 = v-ship-from.
              /* if add mode then use default carrier */
@@ -823,6 +841,7 @@ PROCEDURE create-release :
                          oe-rel.ship-i[2] = shipto.notes[2]
                          oe-rel.ship-i[3] = shipto.notes[3]
                          oe-rel.ship-i[4] = shipto.notes[4].
+                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
                IF TRUE /* wfk - replace adm-new-record */ THEN DO:
                   FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -866,6 +885,7 @@ PROCEDURE create-release :
                        oe-rel.ship-i[2] = shipto.notes[2]
                        oe-rel.ship-i[3] = shipto.notes[3]
                        oe-rel.ship-i[4] = shipto.notes[4].
+           RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
            IF TRUE /* wfk - replace logical(get-val("adm-new-record")) */ THEN DO:                
                  FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -959,7 +979,6 @@ ASSIGN
  itemfg.company    = cocode
  itemfg.loc        = locode
  itemfg.i-no       = v-item
- itemfg.i-code     = "C"
  itemfg.i-name     = oe-ordl.i-name
  itemfg.part-dscr1 = oe-ordl.part-dscr1
  itemfg.part-dscr2 = oe-ordl.part-dscr2
@@ -968,11 +987,8 @@ ASSIGN
  itemfg.part-no    = oe-ordl.part-no
  itemfg.cust-no    = oe-ord.cust-no
  itemfg.cust-name  = oe-ord.cust-name
- itemfg.pur-uom    = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.prod-uom   = IF xeb.pur-man THEN "EA" ELSE "M"
  itemfg.alloc      = v-alloc
- itemfg.stocked    = YES
- itemfg.setupDate  = TODAY.
+ .
   /* Create an itemfg-loc for the default warehouse */
   RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").   
 IF v-graphic-char NE "" THEN 
@@ -1017,13 +1033,6 @@ END.
     END.
  END.  
 
-
-FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
-itemfg.i-code = IF oe-ordl.est-no NE "" THEN "C"
-                ELSE IF AVAIL oe-ctrl THEN
-                        IF oe-ctrl.i-code THEN "S"
-                        ELSE "C"
-                ELSE "S".
 /* ==== not yet 
 if itemfg.i-code eq "S" then do:
   fil_id = recid(itemfg).
@@ -1283,8 +1292,10 @@ PROCEDURE est-from-tandem :
       /* wfk - replace
       APPLY "value-changed" TO oe-ord.est-no.
       */
-      FIND FIRST xest OF eb NO-LOCK NO-ERROR.
-
+        FIND FIRST xest NO-LOCK WHERE 
+            xest.company EQ eb.company AND 
+            xest.est-no EQ eb.est-no 
+            NO-ERROR.
       FOR EACH eb OF xest EXCLUSIVE:
         eb.cust-no = get-sv("oe-ord.cust-no").
 
@@ -1308,8 +1319,11 @@ PROCEDURE est-from-tandem :
     END.
 
     ELSE DO:
-      FIND FIRST est OF eb EXCLUSIVE NO-ERROR.
-      IF AVAIL est THEN DELETE est.
+      FIND FIRST est EXCLUSIVE WHERE 
+            est.company EQ eb.company AND 
+            est.est-no EQ eb.est-no 
+            NO-ERROR.
+        IF AVAIL est THEN DELETE est.
     END.
   END.
 
@@ -3020,8 +3034,53 @@ END PROCEDURE.
 
 &ENDIF
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
+
+&IF DEFINED(EXCLUDE-fGetTaxable) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable Procedure
+FUNCTION fGetTaxable RETURNS LOGICAL 
+  ( ipcCompany AS CHARACTER,
+    ipcCust AS CHARACTER,
+    ipcShipto AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
+    RETURN lTaxable.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-get-handle) = 0 &THEN
 

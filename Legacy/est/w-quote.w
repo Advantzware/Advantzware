@@ -45,7 +45,7 @@ CREATE WIDGET-POOL.
 
 &scoped-define item_spec  FGITEM
 DEF VAR rQuoteRow AS ROWID NO-UNDO.
-
+{methods\defines\phone.i &new="NEW"}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -108,6 +108,7 @@ DEFINE VARIABLE h_vi-qtitm AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-qtqty AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-prmtx AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-qtrpc AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -203,7 +204,7 @@ ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-frame:HANDLE)
-/* END-ASSIGN-TABS */.
+    /* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME message-frame
                                                                         */
@@ -384,6 +385,15 @@ PROCEDURE adm-create-objects :
              h_phone , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 61.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'est/b-qthd.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -391,6 +401,10 @@ PROCEDURE adm-create-objects :
              OUTPUT h_b-qthd ).
        RUN set-position IN h_b-qthd ( 4.81 , 7.00 ) NO-ERROR.
        RUN set-size IN h_b-qthd ( 19.52 , 138.00 ) NO-ERROR.
+
+      
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_b-qthd , 'export-xl':U , h_export ).
 
        /* Links to SmartNavBrowser h_b-qthd. */
        RUN add-link IN adm-broker-hdl ( h_b-qthd , 'Record':U , THIS-PROCEDURE ).

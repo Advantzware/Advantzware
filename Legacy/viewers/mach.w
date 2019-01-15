@@ -101,10 +101,9 @@ mach.min-triml mach.min-cal mach.max-cal mach.min-pan-l mach.max-pan-l ~
 mach.min-pan-w mach.max-pan-w mach.min_pan_lw mach.max_pan_lw ~
 mach.min_slot_score mach.max_slot_score mach.min_hd_hd mach.max_hd_hd ~
 mach.min-dep mach.max-dep mach.min-run mach.max-run mach.tan-mrp ~
-mach.num-wid mach.num-len mach.spare-int-1 
+mach.num-wid mach.num-len mach.spare-int-1 mach.machineImage[1] 
 &Scoped-define ENABLED-TABLES mach
 &Scoped-define FIRST-ENABLED-TABLE mach
-&Scoped-Define ENABLED-OBJECTS RECT-10 RECT-11 RECT-12 
 &Scoped-Define DISPLAYED-FIELDS mach.m-code mach.m-dscr mach.sch-m-code ~
 mach.spare-int-2 mach.loc mach.dept[1] mach.dept[2] mach.dept[3] ~
 mach.dept[4] mach.d-seq mach.m-seq mach.p-type mach.run-spoil mach.mr-waste ~
@@ -119,7 +118,7 @@ mach.min_slot_score mach.max_slot_score mach.min_hd_hd mach.max_hd_hd ~
 mach.min-dep mach.max-dep mach.min-run mach.max-run mach.pr-type ~
 mach.washup mach.col-pass mach.max-color mach.coater mach.col-wastesh ~
 mach.ink-waste mach.col-wastelb mach.tan-mrp mach.tan-mrf mach.num-wid ~
-mach.num-len mach.spare-int-1 
+mach.num-len mach.spare-int-1 mach.machineImage[1] 
 &Scoped-define DISPLAYED-TABLES mach
 &Scoped-define FIRST-DISPLAYED-TABLE mach
 &Scoped-Define DISPLAYED-OBJECTS cb_industry tb_plain-jobs tb_obsolete ~
@@ -175,21 +174,25 @@ DEFINE VARIABLE ls-limit-lbl AS CHARACTER FORMAT "X(256)":U INITIAL "LIMITS"
      SIZE 9 BY .62
      FGCOLOR 9  NO-UNDO.
 
+DEFINE IMAGE cMachImage
+     FILENAME "adeicon/blank":U TRANSPARENT
+     SIZE 11 BY 2.62.
+
 DEFINE RECTANGLE RECT-10
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 146 BY 4.29
      FGCOLOR 3 .
 
 DEFINE RECTANGLE RECT-11
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 71 BY 9.19.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 71 BY 9.29.
 
 DEFINE RECTANGLE RECT-12
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 75 BY 7.14.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 75 BY 6.19.
 
 DEFINE VARIABLE tb_obsolete AS LOGICAL INITIAL no 
-     LABEL "Obsolete?" 
+     LABEL "Inactive?" 
      VIEW-AS TOGGLE-BOX
      SIZE 17 BY 1 NO-UNDO.
 
@@ -425,47 +428,47 @@ DEFINE FRAME F-Main
      mach.max-run AT ROW 17.67 COL 40 COLON-ALIGNED NO-LABEL FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
-     mach.pr-type AT ROW 10.76 COL 99 COLON-ALIGNED
+     mach.pr-type AT ROW 9.81 COL 105 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     mach.washup AT ROW 11.71 COL 99 COLON-ALIGNED
+     mach.washup AT ROW 10.76 COL 105 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     mach.col-pass AT ROW 11.71 COL 132 COLON-ALIGNED
+     mach.col-pass AT ROW 10.76 COL 135 COLON-ALIGNED
           LABEL "Color/Pass"
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     mach.max-color AT ROW 12.67 COL 99 COLON-ALIGNED
+     mach.max-color AT ROW 11.71 COL 105 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     mach.coater AT ROW 12.67 COL 132 COLON-ALIGNED
+     mach.coater AT ROW 11.71 COL 135 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     mach.col-wastesh AT ROW 13.62 COL 99 COLON-ALIGNED
+     mach.col-wastesh AT ROW 12.67 COL 105 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 6.8 BY 1
-     mach.ink-waste AT ROW 14.57 COL 99 COLON-ALIGNED
+     mach.ink-waste AT ROW 13.62 COL 105 COLON-ALIGNED
           LABEL "Ink Waste Lbs/MR"
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     mach.col-wastelb AT ROW 14.57 COL 132 COLON-ALIGNED
+     mach.col-wastelb AT ROW 13.62 COL 135 COLON-ALIGNED
           LABEL "Lbs/Color"
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     mach.tan-mrp AT ROW 15.52 COL 99 COLON-ALIGNED
+     mach.tan-mrp AT ROW 14.57 COL 105 COLON-ALIGNED
           LABEL "Tandem MR/Plate"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     mach.tan-mrf AT ROW 15.52 COL 132 COLON-ALIGNED
+     mach.tan-mrf AT ROW 14.57 COL 135 COLON-ALIGNED
           LABEL "/Fountain"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
      ls-limit-lbl AT ROW 9.76 COL 9 COLON-ALIGNED NO-LABEL
-     mach.num-wid AT ROW 16.95 COL 99 COLON-ALIGNED
+     mach.num-wid AT ROW 16 COL 105 COLON-ALIGNED
           LABEL "Max Num  Width"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     mach.num-len AT ROW 16.95 COL 132 COLON-ALIGNED
+     mach.num-len AT ROW 16 COL 135 COLON-ALIGNED
           LABEL "Max Num Length"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
@@ -481,8 +484,12 @@ DEFINE FRAME F-Main
           LABEL "Kicks/Hr" FORMAT ">>,>>9"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
+     mach.machineImage[1] AT ROW 17.67 COL 92 COLON-ALIGNED WIDGET-ID 120
+          LABEL "Image" FORMAT "x(256)"
+          VIEW-AS FILL-IN 
+          SIZE 53 BY 1
      "Printing Press" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 9.81 COL 84
+          SIZE 17 BY .62 AT ROW 9.81 COL 73
           FGCOLOR 9 
      "R A T E S" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 5.05 COL 72
@@ -499,6 +506,7 @@ DEFINE FRAME F-Main
      RECT-10 AT ROW 5.29 COL 1
      RECT-11 AT ROW 9.57 COL 1
      RECT-12 AT ROW 9.57 COL 72
+     cMachImage AT ROW 16 COL 73 WIDGET-ID 118
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -563,6 +571,8 @@ ASSIGN
 
 /* SETTINGS FOR COMBO-BOX cb_industry IN FRAME F-Main
    NO-ENABLE 2                                                          */
+/* SETTINGS FOR IMAGE cMachImage IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN mach.coater IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN mach.col-pass IN FRAME F-Main
@@ -593,6 +603,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN mach.m-code IN FRAME F-Main
    NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
+/* SETTINGS FOR FILL-IN mach.machineImage[1] IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.max-cal IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN mach.max-color IN FRAME F-Main
@@ -647,6 +659,12 @@ ASSIGN
    EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN mach.pr-type IN FRAME F-Main
    NO-ENABLE 2                                                          */
+/* SETTINGS FOR RECTANGLE RECT-10 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-11 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-12 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN mach.run-crusiz IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.run-fixoh IN FRAME F-Main
@@ -1096,6 +1114,47 @@ DO:
     RUN valid-m-seq NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.                        
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME mach.machineImage[1]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mach.machineImage[1] V-table-Win
+ON HELP OF mach.machineImage[1] IN FRAME F-Main /* Image */
+DO:
+    DEFINE VARIABLE cImageFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cInitDir   AS CHARACTER NO-UNDO INITIAL ".\".
+    DEFINE VARIABLE lOK        AS LOGICAL   NO-UNDO.
+
+    SYSTEM-DIALOG GET-FILE cImageFile 
+        TITLE "Select Image File"
+        FILTERS "PNG Files    (*.png)" "*.png",
+                "Bitmap files (*.bmp)" "*.bmp",
+                "ICO Files    (*.ico)" "*.ico",
+                "JPG Files    (*.jpg)" "*.jpg",                 
+                "JPEG Files   (*.jpeg)" "*.jpeg",
+                "All Files    (*.*) " "*.*"
+        INITIAL-DIR cInitDir
+        MUST-EXIST
+        USE-FILENAME
+        UPDATE lOK
+        .
+    IF lOK THEN DO:
+        cMachImage:LOAD-IMAGE(cImageFile).
+        SELF:SCREEN-VALUE = REPLACE(cImageFile,cInitDir,"").
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mach.machineImage[1] V-table-Win
+ON LEAVE OF mach.machineImage[1] IN FRAME F-Main /* Image */
+DO:
+    cMachImage:LOAD-IMAGE(SELF:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1913,6 +1972,8 @@ PROCEDURE local-display-fields :
   DISABLE tb_plain-jobs tb_obsolete WITH FRAME {&FRAME-NAME}.
 
   RUN label-display.
+  
+  cMachImage:LOAD-IMAGE(mach.machineImage[1]:SCREEN-VALUE).
 
 END PROCEDURE.
 
@@ -1925,7 +1986,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+DEFINE VARIABLE lAddRecord AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
     /* 33482 - Ensure blank record is not saved - MYT - 08/28/18 */
     IF adm-new-record 
@@ -1933,7 +1994,7 @@ PROCEDURE local-update-record :
         RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
         RETURN NO-APPLY.
     END.
-
+  ASSIGN lAddRecord = adm-new-record .
   RUN valid-m-code NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1988,7 +2049,7 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF adm-new-record AND NOT adm-adding-record THEN RUN repo-query (ROWID(mach)).
+  IF lAddRecord THEN RUN repo-query (ROWID(mach)).
 
 END PROCEDURE.
 

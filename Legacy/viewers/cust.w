@@ -146,7 +146,7 @@ cust.fax-country cust.frt-pay cust.fob-code cust.ship-part cust.loc ~
 cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet ~
 cust.case-bundle cust.int-field[1] cust.po-mandatory cust.show-set ~
-cust.log-field[1] 
+cust.log-field[1] cust.imported
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
 &Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-2 RECT-3 RECT-4 
@@ -162,7 +162,7 @@ cust.fax-country cust.frt-pay cust.fob-code cust.ship-part cust.loc ~
 cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet ~
 cust.case-bundle cust.int-field[1] cust.po-mandatory cust.show-set ~
-cust.log-field[1] 
+cust.log-field[1] cust.imported
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS fl_custemail terms_dscr rd_inv-meth ~
@@ -290,11 +290,11 @@ DEFINE RECTANGLE RECT-2
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 71 BY 3.43.
+     SIZE 71 BY 3.82.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 74.4 BY 11.91.
+     SIZE 74.4 BY 12.30.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -465,6 +465,7 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      btn_bank-info AT ROW 2.95 COL 129.2
      cust.sman AT ROW 3.86 COL 73 COLON-ALIGNED
+          LABEL "SalesGrp"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
@@ -566,6 +567,10 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 8.8 BY 1
           FONT 4
+    cust.imported AT ROW 18.43 COL 80.6
+          LABEL "Contract Pricing?"
+          VIEW-AS TOGGLE-BOX
+          SIZE 24 BY .81 
      cust.spare-int-1 AT ROW 12.67 COL 129 COLON-ALIGNED WIDGET-ID 12
           LABEL "Pallet ID" FORMAT ">>>>>>>>9"
           VIEW-AS FILL-IN 
@@ -586,7 +591,7 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      cust.po-mandatory AT ROW 16.62 COL 114.6
           VIEW-AS TOGGLE-BOX
-          SIZE 24 BY .81
+          SIZE 24 BY .81   
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -605,10 +610,10 @@ DEFINE FRAME F-Main
      "Taxable:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 16.14 COL 11
      "Tax Information" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 15.33 COL 4
+          SIZE 16 BY .62 AT ROW 15.33 COL 4
           FGCOLOR 9 FONT 4
      "Credit Information" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 6.95 COL 4
+          SIZE 18 BY .62 AT ROW 6.95 COL 4
           FGCOLOR 9 FONT 4
      "FOB:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 8.67 COL 83.2
@@ -759,6 +764,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN cust.phone IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR TOGGLE-BOX cust.po-mandatory IN FRAME F-Main
+   2 4                                                                  */
+/* SETTINGS FOR TOGGLE-BOX cust.imported IN FRAME F-Main
    2 4                                                                  */
 /* SETTINGS FOR RADIO-SET rd_inv-meth IN FRAME F-Main
    NO-ENABLE 2                                                          */
@@ -1762,13 +1769,13 @@ PROCEDURE cust-city :
 
   DO WITH FRAME {&FRAME-NAME}:
     IF cust.city:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.city EQ cust.city:SCREEN-VALUE
+    FIND FIRST zipcode
+        WHERE zipcode.city EQ cust.city:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.zipcode THEN do:
+    IF AVAIL zipcode THEN do:
       ASSIGN
-        cust.state:SCREEN-VALUE = nosweat.zipcode.state
-        cust.zip:SCREEN-VALUE = nosweat.zipcode.zipcode  .      
+        cust.state:SCREEN-VALUE = zipcode.state
+        cust.zip:SCREEN-VALUE = zipcode.zipcode  .      
     END.   
   END.
 END PROCEDURE.
@@ -1793,16 +1800,16 @@ DEF VAR thisOne AS CHAR NO-UNDO.
      ASSIGN thisOne = ENTRY(i,v-cust-fmt).
      CREATE buff-cust .
      ASSIGN buff-cust.company = thisone.
-     BUFFER-COPY cust EXCEPT company  TO buff-cust.
+     BUFFER-COPY cust EXCEPT company rec_key  TO buff-cust.
      for each shipto of cust NO-LOCK BY shipto.ship-no:
         create buff-shipto.
         ASSIGN buff-shipto.company = thisOne .
-        buffer-copy shipto except shipto.company to buff-shipto.
+        buffer-copy shipto except shipto.company shipto.rec_key to buff-shipto.
      END.
      for each soldto of cust NO-LOCK BY soldto.sold-no:
         create buff-soldto.
         assign buff-soldto.company = thisOne .
-        buffer-copy soldto except soldto.company to buff-soldto.
+        buffer-copy soldto except soldto.company soldto.rec_key to buff-soldto.
      END.
  END.
 END PROCEDURE.
@@ -1830,22 +1837,22 @@ PROCEDURE cust-update-log :
                           AND buff-cust.company = thisOne EXCLUSIVE-LOCK NO-ERROR.
      IF AVAIL buff-cust THEN do:
      BUFFER-COPY cust EXCEPT cust-no company ytd-sales lyr-sales cost comm ytd-msf lyytd-msf hibal hibal-date num-inv 
-         lpay lpay-date avg-pay ord-bal acc-bal on-account TO buff-cust.
+         lpay lpay-date avg-pay ord-bal acc-bal on-account rec_key TO buff-cust.
      END.
      ELSE DO:
          CREATE buff-cust .
          ASSIGN buff-cust.company = thisone.
          BUFFER-COPY cust EXCEPT company ytd-sales lyr-sales cost comm ytd-msf lyytd-msf hibal hibal-date num-inv 
-         lpay lpay-date avg-pay ord-bal acc-bal on-account TO buff-cust.
+         lpay lpay-date avg-pay ord-bal acc-bal on-account rec_key TO buff-cust.
         for each shipto of cust NO-LOCK BY shipto.ship-no:
             create buff-shipto.
             ASSIGN buff-shipto.company = thisOne .
-            buffer-copy shipto except shipto.company to buff-shipto.
+            buffer-copy shipto except shipto.company shipto.rec_key to buff-shipto.
          END.
          for each soldto of cust NO-LOCK BY soldto.sold-no:
              create buff-soldto.
              assign buff-soldto.company = thisOne .
-             buffer-copy soldto except soldto.company to buff-soldto.
+             buffer-copy soldto except soldto.company soldto.rec_key to buff-soldto.
           END.
       END.
     END.
@@ -1865,23 +1872,23 @@ PROCEDURE cust-zip :
 
   DO WITH FRAME {&FRAME-NAME}:
     IF cust.zip:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.zipcode EQ cust.zip:SCREEN-VALUE 
-        AND (nosweat.zipcode.city EQ cust.city:SCREEN-VALUE OR cust.city:SCREEN-VALUE = "" )
+    FIND FIRST zipcode
+        WHERE zipcode.zipcode EQ cust.zip:SCREEN-VALUE 
+        AND (zipcode.city EQ cust.city:SCREEN-VALUE OR cust.city:SCREEN-VALUE = "" )
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.zipcode THEN do:
+    IF AVAIL zipcode THEN do:
       ASSIGN
-        cust.state:SCREEN-VALUE = nosweat.zipcode.state
-        cust.city:SCREEN-VALUE = nosweat.zipcode.city.    
+        cust.state:SCREEN-VALUE = zipcode.state
+        cust.city:SCREEN-VALUE = zipcode.city.    
     END.
-    ELSE IF NOT AVAIL nosweat.zipcode  THEN DO:
-        FIND FIRST nosweat.zipcode
-            WHERE nosweat.zipcode.zipcode EQ cust.zip:SCREEN-VALUE 
+    ELSE IF NOT AVAIL zipcode  THEN DO:
+        FIND FIRST zipcode
+            WHERE zipcode.zipcode EQ cust.zip:SCREEN-VALUE 
             NO-LOCK NO-ERROR.
-        IF AVAIL nosweat.zipcode THEN do:
+        IF AVAIL zipcode THEN do:
             ASSIGN
-                cust.state:SCREEN-VALUE = nosweat.zipcode.state
-                cust.city:SCREEN-VALUE = nosweat.zipcode.city.    
+                cust.state:SCREEN-VALUE = zipcode.state
+                cust.city:SCREEN-VALUE = zipcode.city.    
         END.
     END.
    /* gdm - 11190903 */
@@ -2008,23 +2015,23 @@ PROCEDURE local-assign-record :
   IF v-zipflg THEN DO:
     IF cust.zip:SCREEN-VALUE NE "" THEN
     DO:
-       FIND FIRST nosweat.zipcode NO-LOCK 
-           WHERE nosweat.zipcode.zipcode EQ cust.zip NO-ERROR.
+       FIND FIRST zipcode NO-LOCK 
+           WHERE zipcode.zipcode EQ cust.zip NO-ERROR.
        IF NOT AVAIL zipcode THEN DO:
-         CREATE nosweat.zipcode.
-         ASSIGN nosweat.zipcode.zipcode   = cust.zip
-                nosweat.zipcode.pref_type = "P"
-                nosweat.zipcode.pref#     = 01
-                nosweat.zipcode.city      = cust.city
-                nosweat.zipcode.state     = cust.state
-                nosweat.zipcode.area_code = IF cust.area-code EQ "" 
+         CREATE zipcode.
+         ASSIGN zipcode.zipcode   = cust.zip
+                zipcode.pref_type = "P"
+                zipcode.pref#     = 01
+                zipcode.city      = cust.city
+                zipcode.state     = cust.state
+                zipcode.area_code = IF cust.area-code EQ "" 
                                               THEN 000 
                                               ELSE INT(cust.area-code) 
-                nosweat.zipcode.carrier   = cust.carrier
-                nosweat.zipcode.del-zone  = cust.del-zone.
+                zipcode.carrier   = cust.carrier
+                zipcode.del-zone  = cust.del-zone.
        END.
        v-zipflg = FALSE.
-       RELEASE nosweat.zipcode.
+       RELEASE zipcode.
     END.
   END.
   /* gdm - 11190903 end */
@@ -2035,7 +2042,7 @@ PROCEDURE local-assign-record :
 
     for each bf-shipto of bf-cust NO-LOCK BY bf-shipto.ship-no:
         create shipto.
-        buffer-copy bf-shipto except bf-shipto.cust-no to shipto.
+        buffer-copy bf-shipto except bf-shipto.rec_key bf-shipto.cust-no to shipto.
         assign shipto.cust-no = cust.cust-no
                 shipto.company = cust.company
                 shipto.ship-addr[1] = cust.addr[1]
@@ -2048,12 +2055,13 @@ PROCEDURE local-assign-record :
                 shipto.carrier = cust.carrier
                 shipto.dest-code = cust.del-zone
                 shipto.loc = cust.loc
-                shipto.tax-code = cust.tax-gr.
+                shipto.tax-code = cust.tax-gr
+                shipto.tax-mandatory = cust.sort EQ "Y".
          LEAVE.  /* just copy first shipto only Task 05250421*/
     end.
     for each bf-soldto of bf-cust NO-LOCK BY bf-soldto.sold-no:
         create soldto.
-        buffer-copy bf-soldto except bf-soldto.cust-no to soldto.
+        buffer-copy bf-soldto EXCEPT bf-soldto.rec_key bf-soldto.cust-no to soldto.
         assign soldto.cust-no = cust.cust-no
                 soldto.company = cust.company
                 soldto.sold-addr[1] = cust.addr[1]
@@ -2102,42 +2110,7 @@ PROCEDURE local-assign-record :
     cust.SwiftBIC  =  cShift  
     cust.Bank-RTN  =  cRouting .
 
-   /*IF adm-new-record AND NOT adm-adding-record THEN DO: /* copy*/
-     FIND FIRST b-cust WHERE RECID(b-cust) = v-cust-recid-prev NO-LOCK NO-ERROR.
-     FOR EACH b-shipto OF b-cust NO-LOCK.
-         CREATE shipto.
-         BUFFER-COPY b-shipto EXCEPT b-shipto.cust b-shipto.rec_key TO shipto.
-         ASSIGN shipto.company = cust.company
-                shipto.cust-no = cust.cust-no
-                shipto.ship-addr[1] = cust.addr[1]
-                shipto.ship-addr[2] = cust.addr[2]
-                shipto.ship-city = cust.city
-                shipto.ship-id = cust.cust-no
-                shipto.ship-name = cust.name
-                shipto.ship-no = 1
-                shipto.ship-state = cust.state
-                shipto.ship-zip = cust.zip
-                shipto.carrier = cust.carrier
-                shipto.dest-code = cust.del-zone
-                shipto.loc = cust.loc
-                shipto.tax-code = cust.tax-gr.
-     END.
-     FOR EACH b-soldto OF b-cust NO-LOCK:
-         CREATE soldto.
-         BUFFER-COPY b-soldto EXCEPT b-soldto.cust b-soldto.rec_key TO soldto.
-         ASSIGN soldto.company = cust.company
-                soldto.cust-no = cust.cust-no
-                soldto.sold-addr[1] = cust.addr[1]
-                soldto.sold-addr[2] = cust.addr[2]
-                soldto.sold-city = cust.city
-                soldto.sold-id = cust.cust-no
-                soldto.sold-name = cust.name
-                soldto.sold-no = 1
-                soldto.sold-state = cust.state
-                soldto.sold-zip = cust.zip.
-     END.
-  END.*/
-
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2295,6 +2268,8 @@ PROCEDURE local-update-record :
   DEF VAR ll-prev-cr-hold LIKE cust.cr-hold NO-UNDO.
   DEF VAR ls-prev-sman LIKE cust.sman NO-UNDO.
   DEF VAR ll-new-record AS LOG NO-UNDO.
+  DEFINE VARIABLE cOld-fob    AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cOld-freight AS CHARACTER NO-UNDO.
 
   def buffer bf-cust for cust.
   /*def buffer bf-shipto for shipto.
@@ -2480,6 +2455,8 @@ PROCEDURE local-update-record :
 
 
   /* ============== end of validations ==================*/
+  ASSIGN cOld-fob = cust.fob-code
+         cOld-freight = cust.frt-pay  .
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -2488,46 +2465,7 @@ PROCEDURE local-update-record :
 
   RUN disable-fields.
 
-  /*if adm-new-record and not adm-adding-record then do:  /* copy */
-    find bf-cust where bf-cust.company = cust.company and
-                       bf-cust.cust-no = ls-prev-cust-no no-lock no-error.
-
-    for each bf-shipto of bf-cust NO-LOCK BY bf-shipto.ship-no
-         /* WHERE bf-shipto.ship-id = bf-cust.cust-no*/ :
-        create shipto.
-        buffer-copy bf-shipto except bf-shipto.cust-no to shipto.
-        assign shipto.cust-no = cust.cust-no
-                shipto.company = cust.company
-                shipto.ship-addr[1] = cust.addr[1]
-                shipto.ship-addr[2] = cust.addr[2]
-                shipto.ship-city = cust.city
-                shipto.ship-id = cust.cust-no
-                shipto.ship-name = cust.name
-                shipto.ship-state = cust.state
-                shipto.ship-zip = cust.zip
-                shipto.carrier = cust.carrier
-                shipto.dest-code = cust.del-zone
-                shipto.loc = cust.loc
-                shipto.tax-code = cust.tax-gr.
-               .
-         LEAVE.  /* just copy first shipto only Task 05250421*/
-    end.
-    for each bf-soldto of bf-cust NO-LOCK BY bf-soldto.sold-no:
-        create soldto.
-        buffer-copy bf-soldto except bf-soldto.cust-no to soldto.
-        assign soldto.cust-no = cust.cust-no
-                soldto.company = cust.company
-                soldto.sold-addr[1] = cust.addr[1]
-                soldto.sold-addr[2] = cust.addr[2]
-                soldto.sold-city = cust.city
-                soldto.sold-id = cust.cust-no
-                soldto.sold-name = cust.name
-                soldto.sold-state = cust.state
-                soldto.sold-zip = cust.zip.
-        LEAVE. /* just copy first shipto only Task 05250421*/
-    end.                     
-  end.*/
-
+ 
   IF NOT adm-new-record             AND
     cust.cr-hold NE ll-prev-cr-hold THEN
   FOR EACH oe-ord
@@ -2542,6 +2480,11 @@ PROCEDURE local-update-record :
      IF ll-ans THEN 
          RUN update-sman.
   END.
+
+  IF NOT adm-new-record AND (cOld-fob NE cust.fob-code OR  cOld-freight NE cust.frt-pay) THEN DO:
+      RUN fg/custfobudt.w(ROWID(cust)) .
+  END.
+
 
   IF ll-new-record THEN DO:
     /* Reposition browse to new record so other tabs are refreshed */
@@ -3131,18 +3074,18 @@ PROCEDURE zip-carrier :
    DO WITH FRAME {&FRAME-NAME}:
 
    /* gdm - 10010913 */
-   FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.zipcode EQ cust.zip:SCREEN-VALUE
+   FIND FIRST zipcode
+        WHERE zipcode.zipcode EQ cust.zip:SCREEN-VALUE
         NO-LOCK NO-ERROR.
 
    ASSIGN
       cust.carrier:SCREEN-VALUE = IF AVAIL zipcode AND 
-                                     TRIM(nosweat.zipcode.carrier) NE "" 
-                                    THEN nosweat.zipcode.carrier 
+                                     TRIM(zipcode.carrier) NE "" 
+                                    THEN zipcode.carrier 
                                     ELSE cust.carrier:SCREEN-VALUE
       cust.del-zone:SCREEN-VALUE = IF AVAIL zipcode AND 
-                                      TRIM(nosweat.zipcode.del-zone) NE "" 
-                                     THEN nosweat.zipcode.del-zone            
+                                      TRIM(zipcode.del-zone) NE "" 
+                                     THEN zipcode.del-zone            
                                      ELSE cust.del-zone:SCREEN-VALUE.
       /* gdm - 10010913 end*/
    END.

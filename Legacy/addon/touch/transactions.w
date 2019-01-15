@@ -40,9 +40,8 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE start-time   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE end-time     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE total-time   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cColumnLabel AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAscending   AS LOGICAL   NO-UNDO INITIAL YES.
 
+{methods/defines/sortByDefs.i}
 {custom/globdefs.i}
 {custom/gcompany.i}
 
@@ -228,27 +227,27 @@ THEN C-Win:HIDDEN = no.
      _Where[1]         = "machtran.company EQ gcompany
 AND machtran.posted EQ NO"
      _FldNameList[1]   > ASI.machtran.machine
-"machine" ? ? "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"machtran.machine" ? ? "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.machtran.job_number
-"job_number" ? ? "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"machtran.job_number" ? ? "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   = ASI.machtran.job_sub
      _FldNameList[4]   = ASI.machtran.form_number
      _FldNameList[5]   = ASI.machtran.blank_number
      _FldNameList[6]   = ASI.machtran.pass_sequence
      _FldNameList[7]   > ASI.machtran.charge_code
-"charge_code" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"machtran.charge_code" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.machtran.start_date
-"start_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"machtran.start_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"
 "Time_String(machtran.start_time,YES) @ start-time" "Log In" "x(8)" ? ? ? ? ? ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.machtran.end_date
-"end_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"machtran.end_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > "_<CALC>"
 "Time_String(machtran.end_time,YES) @ end-time" "Log Out" "x(8)" ? ? ? ? ? ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.machtran.shift
-"shift" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"machtran.shift" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.machtran.run_qty
-"run_qty" "Run Qty" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"machtran.run_qty" "Run Qty" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > "_<CALC>"
 "Time_String(machtran.total_time,NO) @ total-time" "Total" "x(5)" ? ? ? ? ? ? ? no ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
@@ -292,10 +291,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL MachTrans C-Win
 ON START-SEARCH OF MachTrans IN FRAME DEFAULT-FRAME
 DO:
-    IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? AND
-       {&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR EQ 14 THEN DO:
+    IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
+        IF cColumnLabel EQ cSaveLabel THEN
         lAscending = NOT lAscending.
+        cSaveLabel = cColumnLabel.
         RUN pReopenBrowse.
     END.
     RETURN NO-APPLY.
@@ -333,6 +333,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
+
+{methods/sortByProc.i "pByMacine" "machtran.machine"}
+{methods/sortByProc.i "pByJobNumber" "machtran.job_number"}
+{methods/sortByProc.i "pByChargeCode" "machtran.charge_code"}
+{methods/sortByProc.i "pByStartDate" "machtran.start_date BY machtran.start_time"}
+{methods/sortByProc.i "pByEndDate" "machtran.end_date"}
+{methods/sortByProc.i "pByShift" "machtran.shift"}
+{methods/sortByProc.i "pByRunQty" "machtran.run_qty"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -374,139 +382,6 @@ PROCEDURE enable_UI :
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByChargeCode C-Win 
-PROCEDURE pByChargeCode :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY machtran.charge_code
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY machtran.charge_code DESCENDING
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByEndDate C-Win 
-PROCEDURE pByEndDate :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY machtran.end_date BY machtran.end_time
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY machtran.end_date DESCENDING BY machtran.end_time DESCENDING
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByJobNumber C-Win 
-PROCEDURE pByJobNumber :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY machtran.job_number
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY machtran.job_number DESCENDING
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByMacine C-Win 
-PROCEDURE pByMacine :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY machtran.machine
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY machtran.machine DESCENDING
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByRunQty C-Win 
-PROCEDURE pByRunQty :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY machtran.run_qty
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY machtran.run_qty DESCENDING
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByShift C-Win 
-PROCEDURE pByShift :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY machtran.shift
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY machtran.shift DESCENDING
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByStartDate C-Win 
-PROCEDURE pByStartDate :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY machtran.start_date BY machtran.start_time
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY machtran.start_date DESCENDING BY machtran.start_time DESCENDING
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

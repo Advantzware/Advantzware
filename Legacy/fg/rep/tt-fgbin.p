@@ -33,6 +33,9 @@ DEF BUFFER b-f-rd for fg-rdtlh.
 
 {fg/rep/tt-fgbin.i SHARED}
 
+ FUNCTION fGetDate RETURNS DATE
+  (ipcDate AS CHARACTER)  FORWARD.
+
 
 STATUS DEFAULT "Processing FG Item#: " + TRIM(io-itemfg.i-no).
 
@@ -87,59 +90,6 @@ FOR EACH fg-bin NO-LOCK
 
       tt-fg-bin.po-no = fg-rcpth.po-no.
   END.
-
-  /*tt-fg-bin.first-date = tt-fg-bin.aging-date.*/
-  
-/*   IF TRIM(tt-fg-bin.tag) EQ "" THEN                          */
-/*      FOR EACH fg-rcpth NO-LOCK                               */
-/*          WHERE fg-rcpth.company      EQ io-itemfg.company    */
-/*            AND fg-rcpth.i-no         EQ io-itemfg.i-no       */
-/*            AND fg-rcpth.job-no       EQ tt-fg-bin.job-no     */
-/*            AND fg-rcpth.job-no2      EQ tt-fg-bin.job-no2    */
-/*          USE-INDEX tran,                                     */
-/*                                                              */
-/*          EACH fg-rdtlh NO-LOCK                               */
-/*          WHERE fg-rdtlh.r-no         EQ fg-rcpth.r-no        */
-/*            /*AND fg-rdtlh.loc          EQ tt-fg-bin.loc      */
-/*            AND fg-rdtlh.loc-bin      EQ tt-fg-bin.loc-bin*/  */
-/*            AND fg-rdtlh.tag          EQ tt-fg-bin.tag        */
-/*            AND fg-rdtlh.cust-no      EQ tt-fg-bin.cust-no    */
-/*            AND fg-rdtlh.rita-code    EQ "R"                  */
-/*          USE-INDEX rm-rdtl                                   */
-/*                                                              */
-/*          BREAK BY fg-rcpth.trans-date                        */
-/*                BY fg-rdtlh.trans-time                        */
-/*                BY fg-rcpth.r-no:                             */
-/*                                                              */
-/*          IF FIRST(fg-rcpth.trans-date) THEN                  */
-/*             tt-fg-bin.first-date = fg-rcpth.trans-date.      */
-/*                                                              */
-/*          LEAVE.                                              */
-/*      END.                                                    */
-/*   ELSE                                                       */
-/*      FOR EACH fg-rdtlh                                       */
-/*          WHERE fg-rdtlh.company      EQ tt-fg-bin.company    */
-/*            AND fg-rdtlh.tag          EQ tt-fg-bin.tag        */
-/*            /*AND fg-rdtlh.loc          EQ tt-fg-bin.loc      */
-/*            AND fg-rdtlh.loc-bin      EQ tt-fg-bin.loc-bin*/  */
-/*            AND fg-rdtlh.cust-no      EQ tt-fg-bin.cust-no    */
-/*          USE-INDEX tag NO-LOCK,                              */
-/*                                                              */
-/*          FIRST fg-rcpth NO-LOCK                              */
-/*          WHERE fg-rcpth.r-no         EQ fg-rdtlh.r-no        */
-/*            AND fg-rcpth.i-no         EQ tt-fg-bin.i-no       */
-/*            AND fg-rcpth.job-no       EQ tt-fg-bin.job-no     */
-/*            AND fg-rcpth.job-no2      EQ tt-fg-bin.job-no2    */
-/*            AND fg-rcpth.rita-code    EQ "R"                  */
-/*          USE-INDEX r-no                                      */
-/*                                                              */
-/*          BREAK BY fg-rcpth.trans-date                        */
-/*                BY fg-rdtlh.trans-time                        */
-/*                BY fg-rcpth.r-no:                             */
-/*                                                              */
-/*         IF FIRST(fg-rcpth.trans-date) THEN                   */
-/*            tt-fg-bin.first-date = fg-rcpth.trans-date.       */
-/*      END.                                                    */
   /* At this point, we know the inventory value for the as-of date,
      so need to backtrack through the receipts only until the
      quantity is covered by the receipts */
@@ -149,7 +99,9 @@ FOR EACH fg-bin NO-LOCK
   IF v-rec-date NE ? THEN
     tt-fg-bin.first-date = v-rec-date.
   IF tt-fg-bin.first-date EQ ? THEN
-     tt-fg-bin.first-date = DATE(SUBSTR(fg-bin.rec_key,1,8)).
+     tt-fg-bin.first-date = IF fg-bin.rec_key BEGINS "2" THEN
+                               DATE(fGetDate(SUBSTR(fg-bin.rec_key,5,4) + SUBSTRING(fg-bin.rec_key,1,4))) 
+                          ELSE DATE(fGetDate(SUBSTR(fg-bin.rec_key,1,8))) .
 END.
 
 ELSE
@@ -164,7 +116,6 @@ FOR EACH fg-rcpth NO-LOCK
                  TRIM(fg-rcpth.job-no) + STRING(fg-rcpth.job-no2,"99"))
                               LE ip-tjob
     USE-INDEX tran,
-
     EACH fg-rdtlh NO-LOCK
     WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
       AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
@@ -176,16 +127,17 @@ FOR EACH fg-rcpth NO-LOCK
     BY fg-rcpth.trans-date
     BY fg-rdtlh.trans-time:
 
-  IF NOT CAN-FIND(FIRST tt-fg-bin
-                  WHERE tt-fg-bin.company EQ fg-rcpth.company
-                    AND tt-fg-bin.i-no    EQ fg-rcpth.i-no
-                    AND tt-fg-bin.job-no  EQ fg-rcpth.job-no
-                    AND tt-fg-bin.job-no2 EQ fg-rcpth.job-no2
-                    AND tt-fg-bin.loc     EQ fg-rdtlh.loc
-                    AND tt-fg-bin.loc-bin EQ fg-rdtlh.loc-bin
-                    AND tt-fg-bin.tag     EQ fg-rdtlh.tag
-                    AND tt-fg-bin.cust-no EQ fg-rdtlh.cust-no) THEN DO:
-
+  FIND FIRST tt-fg-bin
+       WHERE tt-fg-bin.company EQ fg-rcpth.company
+         AND tt-fg-bin.i-no    EQ fg-rcpth.i-no
+         AND tt-fg-bin.job-no  EQ fg-rcpth.job-no
+         AND tt-fg-bin.job-no2 EQ fg-rcpth.job-no2
+         AND tt-fg-bin.loc     EQ fg-rdtlh.loc
+         AND tt-fg-bin.loc-bin EQ fg-rdtlh.loc-bin
+         AND tt-fg-bin.tag     EQ fg-rdtlh.tag
+         AND tt-fg-bin.cust-no EQ fg-rdtlh.cust-no
+       NO-ERROR.
+  IF NOT AVAILABLE tt-fg-bin THEN DO:
     CREATE tt-fg-bin.
 
     ASSIGN
@@ -223,7 +175,7 @@ FOR EACH fg-rcpth NO-LOCK
        tt-fg-bin.std-lab-cost = fg-bin.std-lab-cost
        tt-fg-bin.std-var-cost = fg-bin.std-var-cost
        tt-fg-bin.std-fix-cost = fg-bin.std-fix-cost.
-  END.
+  END. /* if not avail */
 
   IF tt-fg-bin.case-count   LE 0 AND fg-rdtlh.qty-case     GT 0 THEN
     tt-fg-bin.case-count   = fg-rdtlh.qty-case.
@@ -270,7 +222,7 @@ FOR EACH tt-fg-bin
             BY fg-rcpth.r-no:
 
     IF FIRST(fg-rcpth.trans-date) THEN
-      tt-fg-bin.first-date = fg-rcpth.trans-date.
+      tt-fg-bin.first-date = fGetDate(string(fg-rcpth.trans-date)) .
 
     {fg/rep/fg-aging.i ip-ager}
 
@@ -286,7 +238,6 @@ FOR EACH tt-fg-bin
         AND fg-rdtlh.loc-bin      EQ tt-fg-bin.loc-bin
         AND fg-rdtlh.cust-no      EQ tt-fg-bin.cust-no
       USE-INDEX tag NO-LOCK,
-
       FIRST fg-rcpth NO-LOCK
       WHERE fg-rcpth.r-no         EQ fg-rdtlh.r-no
         AND fg-rcpth.i-no         EQ tt-fg-bin.i-no
@@ -295,13 +246,12 @@ FOR EACH tt-fg-bin
         AND fg-rcpth.rita-code    EQ fg-rdtlh.rita-code
         AND fg-rcpth.trans-date   LE vdat 
       USE-INDEX r-no
-
       BREAK BY fg-rcpth.trans-date
             BY fg-rdtlh.trans-time
             BY fg-rcpth.r-no:
 
     IF FIRST(fg-rcpth.trans-date) THEN
-      tt-fg-bin.first-date = fg-rcpth.trans-date.
+      tt-fg-bin.first-date = fGetDate(string(fg-rcpth.trans-date)).
 
     {fg/rep/fg-aging.i ip-ager}
 
@@ -497,10 +447,10 @@ DEF VAR v-qty AS INT NO-UNDO.
             BY fg-rcpth.r-no:
     v-qty = v-qty - fg-rdtlh.qty.
 
-    IF fg-rcpth.trans-date NE ? THEN
-        v-last-date-found = fg-rcpth.trans-date.
+    IF fGetDate(STRING(fg-rcpth.trans-date)) NE ? THEN
+        v-last-date-found = fGetDate(STRING(fg-rcpth.trans-date)) .
     IF v-qty LE 0 THEN DO:
-      out-rec-date = fg-rcpth.trans-date.
+      out-rec-date = fGetDate(STRING(fg-rcpth.trans-date)) .
       LEAVE.
     END.
   END.
@@ -529,11 +479,11 @@ DEF VAR v-qty AS INT NO-UNDO.
             BY fg-rcpth.r-no:
 
     v-qty = v-qty - fg-rdtlh.qty.
-    IF fg-rcpth.trans-date NE ? THEN
-        v-last-date-found = fg-rcpth.trans-date.
+    IF fGetDate(string(fg-rcpth.trans-date)) NE ? THEN
+        v-last-date-found = fGetDate(STRING(fg-rcpth.trans-date)) .
 
     IF v-qty LE 0 THEN DO:
-      out-rec-date = fg-rcpth.trans-date.
+      out-rec-date = fGetDate(STRING(fg-rcpth.trans-date)) .
       LEAVE.
     END.
 
@@ -562,8 +512,8 @@ DEF VAR v-qty AS INT NO-UNDO.
                 BY fg-rdtlh.trans-time
                 BY fg-rcpth.r-no:
     
-        IF fg-rcpth.trans-date NE ? THEN DO:
-          v-last-date-found = fg-rcpth.trans-date.
+        IF fGetDate(STRING(fg-rcpth.trans-date)) NE ? THEN DO:
+          v-last-date-found = fGetDate(STRING(fg-rcpth.trans-date)) .
           LEAVE.
         END.
                 
@@ -594,10 +544,10 @@ DEF VAR v-qty AS INT NO-UNDO.
                     BY fg-rcpth.r-no:
             v-qty = v-qty - fg-rdtlh.qty.
 
-            IF fg-rcpth.trans-date NE ? THEN
-                v-last-date-found = fg-rcpth.trans-date.
+            IF fGetDate(STRING(fg-rcpth.trans-date)) NE ? THEN
+                v-last-date-found = fGetDate(STRING(fg-rcpth.trans-date)) .
             IF v-qty LE 0 THEN DO:
-              out-rec-date = fg-rcpth.trans-date.
+              out-rec-date = fGetDate(STRING(fg-rcpth.trans-date)) .
               LEAVE.
             END.
           END.
@@ -610,3 +560,22 @@ DEF VAR v-qty AS INT NO-UNDO.
     out-rec-date = v-last-date-found.
 
 END PROCEDURE.
+
+
+
+FUNCTION fGetDate RETURNS DATE
+  (ipcDate AS CHARACTER) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+
+  DEFINE VARIABLE rtnValue AS CHARACTER NO-UNDO.
+
+  if integer(substring(ipcDate,1,2)) gt 12 or  integer(substring(ipcDate,1,2)) le 0 then
+   ASSIGN rtnValue = string(01/01/2011) .
+   else rtnValue = ipcDate .
+   
+  RETURN date(rtnValue).
+
+END FUNCTION.

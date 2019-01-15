@@ -128,14 +128,11 @@ def input parameter ipcDateToUse as char no-undo.
             FIELD posted   LIKE ar-cashl.posted
             FIELD cust-no  LIKE ar-cashl.cust-no 
             FIELD check-no LIKE ar-cashl.check-no
+            FIELD voided   LIKE ar-cashl.voided
+            FIELD voidDate LIKE ar-cashl.voidDate
             INDEX inv-no company posted cust-no inv-no 
             INDEX c-no   c-no
             . 
-    DEF TEMP-TABLE tt-reftable
-        FIELD reftable LIKE reftable.reftable
-        FIELD rec_key  LIKE reftable.rec_key
-        FIELD CODE     LIKE reftable.CODE
-        INDEX rec_key reftable rec_key. 
                             
     FORM HEADER SKIP(1)
         lv-page-break FORMAT "x(200)"
@@ -372,23 +369,11 @@ DEF VAR cToCust AS CHAR NO-UNDO.
             tt-ar-cashl.posted   = ar-cashl.posted
             tt-ar-cashl.cust-no  = ar-cashl.cust-no  
             tt-ar-cashl.check-no = ar-cashl.check-no
+            tt-ar-cashl.voided   = ar-cashl.voided
+            tt-ar-cashl.voidDate = ar-cashl.voidDate            
             .
 
-
-        FIND FIRST reftable WHERE
-            reftable.reftable EQ "ARCASHLVDDATE" AND
-            reftable.rec_key EQ tt-ar-cashl.rec_key
-            USE-INDEX rec_key
-            NO-LOCK NO-ERROR.
-        IF AVAIL reftable THEN 
-        DO:
-            CREATE tt-reftable.
-            ASSIGN
-                tt-reftable.reftable = reftable.reftable
-                tt-reftable.rec_key  = reftable.rec_key
-                tt-reftable.CODE     = reftable.CODE.
-        END.
-
+                              
     END.
 /* end tt creation section */
 
@@ -471,13 +456,8 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                 END.                                                    
                 IF ar-cashl.amt-paid GT 0 THEN 
                 DO:                      
-                    FIND FIRST reftable WHERE                                    
-                        reftable.reftable EQ "ARCASHLVDDATE" AND                
-                        reftable.rec_key EQ ar-cashl.rec_key                    
-                        USE-INDEX rec_key                                      
-                        NO-LOCK NO-ERROR.                                  
-                    IF AVAIL reftable THEN                                     
-                        v-check-date = DATE(reftable.CODE).                  
+                     IF ar-cashl.voided THEN
+                          v-check-date = ar-cashl.voidDate.
                     ELSE                                                    
                     DO:                                                        
                         v-gltrans-desc = "VOID " + cust.cust-no + " " +                          
@@ -621,13 +601,8 @@ DEF VAR cToCust AS CHAR NO-UNDO.
 
                 IF tt-ar-cashl.amt-paid GT 0 THEN
                 DO:
-                    FIND FIRST tt-reftable WHERE                        
-                        tt-reftable.reftable EQ "ARCASHLVDDATE" AND      
-                        tt-reftable.rec_key EQ tt-ar-cashl.rec_key          
-                        USE-INDEX rec_key
-                        NO-LOCK NO-ERROR.                             
-                    IF AVAIL tt-reftable THEN                             
-                        v-check-date = DATE(tt-reftable.CODE).             
+                      IF tt-ar-cashl.voided THEN
+                        v-check-date = tt-ar-cashl.voidDate.             
                     ELSE                                               
                     DO:                                                
                         v-gltrans-desc = "VOID " + cust.cust-no + " " + 
@@ -846,13 +821,8 @@ DEF VAR cToCust AS CHAR NO-UNDO.
 
                     IF tt-ar-cashl.amt-paid GT 0 THEN
                     DO:
-                        FIND FIRST tt-reftable WHERE                        
-                            tt-reftable.reftable EQ "ARCASHLVDDATE" AND      
-                            tt-reftable.rec_key EQ tt-ar-cashl.rec_key
-                            USE-INDEX rec_key
-                            NO-LOCK NO-ERROR.                             
-                        IF AVAIL tt-reftable THEN                             
-                            v-check-date = DATE(tt-reftable.CODE).             
+                        IF tt-ar-cashl.voided THEN
+                        v-check-date = tt-ar-cashl.voidDate.             
                         ELSE                                               
                         DO:                                                
                             v-gltrans-desc = "VOID " + cust.cust-no + " " + 
@@ -900,10 +870,8 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                             + " Inv# " + STRING(tt-ar-cashl.inv-no).
 
                         IF tt-ar-cashl.amt-paid GT 0 AND
-                            (CAN-FIND(FIRST tt-reftable WHERE
-                            tt-reftable.reftable = "ARCASHLVDDATE" AND
-                            tt-reftable.rec_key = tt-ar-cashl.rec_key
-                            USE-INDEX rec_key) OR
+                            (tt-ar-cashl.voided = YES                        
+                             OR
                             CAN-FIND(FIRST gltrans WHERE
                             gltrans.company EQ cust.company AND
                             gltrans.jrnl EQ "CASHRVD" AND
@@ -1137,14 +1105,8 @@ DEF VAR cToCust AS CHAR NO-UNDO.
 
                             IF v-type EQ "VD" THEN
                             DO:
-                                FIND FIRST tt-reftable WHERE
-                                    tt-reftable.reftable EQ "ARCASHLVDDATE" AND
-                                    tt-reftable.rec_key EQ tt-ar-cashl.rec_key
-                                    USE-INDEX rec_key
-                                    NO-LOCK NO-ERROR.
-
-                                IF AVAIL tt-reftable THEN
-                                    v-check-date = DATE(tt-reftable.CODE).
+                                IF tt-ar-cashl.voided THEN
+                                   v-check-date = tt-ar-cashl.voidDate.
                                 ELSE
                                 DO:
                                     v-gltrans-desc = "VOID " + cust.cust-no + " " +
@@ -1302,8 +1264,8 @@ DEF VAR cToCust AS CHAR NO-UNDO.
             END.                                                     
             IF tt-ar-cashl.amt-paid GT 0 THEN 
             DO:                       
-                FIND FIRST tt-reftable WHERE                                     tt-reftable.reftable EQ "ARCASHLVDDATE" AND                 tt-reftable.rec_key EQ tt-ar-cashl.rec_key                     USE-INDEX rec_key                                        NO-LOCK NO-ERROR.                                   
-                IF AVAIL tt-reftable THEN                                      v-check-date = DATE(tt-reftable.CODE).                   
+                IF tt-ar-cashl.voided THEN
+                        v-check-date = tt-ar-cashl.voidDate.                  
                 ELSE                                                     
                 DO:                                                         
                     v-gltrans-desc = "VOID " + cust.cust-no + " " +                           STRING(tt-ar-cash.check-no,"9999999999") +                          " Inv# " + STRING(tt-ar-cashl.inv-no).          
@@ -1376,8 +1338,8 @@ DEF VAR cToCust AS CHAR NO-UNDO.
             END.                                                     
             IF tt-ar-cashl.amt-paid GT 0 THEN 
             DO:                       
-                FIND FIRST tt-reftable WHERE                                     tt-reftable.reftable EQ "ARCASHLVDDATE" AND                 tt-reftable.rec_key EQ tt-ar-cashl.rec_key                     USE-INDEX rec_key                                        NO-LOCK NO-ERROR.                                   
-                IF AVAIL tt-reftable THEN                                      v-check-date = DATE(tt-reftable.CODE).                   
+                IF tt-ar-cashl.voided THEN
+                        v-check-date = tt-ar-cashl.voidDate.                   
                 ELSE                                                     
                 DO:                                                         
                     v-gltrans-desc = "VOID " + cust.cust-no + " " +                           STRING(tt-ar-cash.check-no,"9999999999") +                          " Inv# " + STRING(tt-ar-cashl.inv-no).          
@@ -1455,10 +1417,9 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                     + STRING(tt-ar-cash.check-no,"9999999999")
                     + " Inv# " + STRING(tt-ar-cashl.inv-no).
 
-                IF CAN-FIND(FIRST tt-reftable WHERE
-                    tt-reftable.reftable = "ARCASHLVDDATE" AND
-                    tt-reftable.rec_key = tt-ar-cashl.rec_key
-                    USE-INDEX rec_key) OR
+                IF 
+                    tt-ar-cashl.voided EQ YES
+                     OR
                     CAN-FIND(FIRST gltrans WHERE
                     gltrans.company EQ cust.company AND
                     gltrans.jrnl EQ "CASHRVD" AND
@@ -1467,7 +1428,6 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                     ASSIGN
                         v-type     = "VD"
                         v-neg-text = "VOID".
-                    RELEASE tt-reftable.
                 END.
                 ELSE
                     v-type = "PY".
@@ -1487,14 +1447,8 @@ DEF VAR cToCust AS CHAR NO-UNDO.
             DO:
                 IF v-type EQ "VD" THEN
                 DO:
-                    FIND FIRST tt-reftable WHERE
-                        tt-reftable.reftable EQ "ARCASHLVDDATE" AND
-                        tt-reftable.rec_key EQ tt-ar-cashl.rec_key
-                        USE-INDEX rec_key
-                        NO-LOCK NO-ERROR.
-           
-                    IF AVAIL tt-reftable THEN
-                        v-check-date = DATE(tt-reftable.CODE).
+                    IF tt-ar-cashl.voided THEN
+                         v-check-date = tt-ar-cashl.voidDate.
                     ELSE
                     DO:
                         v-gltrans-desc = "VOID " + cust.cust-no + " " +
@@ -1626,14 +1580,8 @@ DEF VAR cToCust AS CHAR NO-UNDO.
 
                 IF v-type EQ "VD" THEN
                 DO:
-                    FIND FIRST tt-reftable WHERE
-                        tt-reftable.reftable EQ "ARCASHLVDDATE" AND
-                        tt-reftable.rec_key EQ tt-ar-cashl.rec_key
-                        USE-INDEX rec_key
-                        NO-LOCK NO-ERROR.
-          
-                    IF AVAIL tt-reftable THEN
-                        v-check-date = DATE(tt-reftable.CODE).
+                    IF tt-ar-cashl.voided THEN
+                       v-check-date = tt-ar-cashl.voidDate.
                     ELSE
                     DO:
                         v-gltrans-desc = "VOID " + cust.cust-no + " " +

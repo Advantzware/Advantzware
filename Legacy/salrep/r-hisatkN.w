@@ -70,18 +70,40 @@ DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lEndYear AS LOGICAL NO-UNDO .
 
-ASSIGN cTextListToSelect = "Rep,SalesRep Name,Customer,Name,January,February,March,April,May,June," +
-                                               "July,August,September,October,November,December,YTD Amt"
-       cFieldListToSelect = "rep,rname,cust,name,p1,p2,p3,p4,p5,p6," +
-                                        "p7,p8,p9,p10,p11,p12,ytd-amt"
-       cFieldLength = "3,25,8,30,17,17,17,17,17,17," + "17,17,17,17,17,17,17"
-       cFieldType = "c,c,c,c,i,i,i,i,i,i," + "i,i,i,i,i,i,i" 
-    .
+FIND FIRST company NO-LOCK
+    WHERE company.company EQ cocode NO-ERROR .
+
+IF company.yend-off EQ 12 THEN do:
+    
+    ASSIGN cTextListToSelect = "Rep,SalesRep Name,Customer,Name,January,February,March,April,May,June," +
+                                "July,August,September,October,November,December,YTD Amt"
+          cFieldListToSelect = "rep,rname,cust,name,p1,p2,p3,p4,p5,p6," +
+                                "p7,p8,p9,p10,p11,p12,ytd-amt"
+          cFieldLength = "3,25,8,30,17,17,17,17,17,17," + "17,17,17,17,17,17,17"
+          cFieldType = "c,c,c,c,i,i,i,i,i,i," + "i,i,i,i,i,i,i" 
+             .
+
+    ASSIGN cTextListToDefault  = "Customer,Name,January,February,March,April,May,June," +
+                                               "July,August,September,October,November,December,YTD Amt".
+END.
+ELSE DO:
+    ASSIGN lEndYear = YES .
+    ASSIGN cTextListToSelect = "Rep,SalesRep Name,Customer,Name,Period 01,Period 02,Period 03,Period 04,Period 05,Period 06," +
+                                "Period 07,Period 08,Period 09,Period 10,Period 11,Period 12,YTD Amt"
+          cFieldListToSelect = "rep,rname,cust,name,p1,p2,p3,p4,p5,p6," +
+                                "p7,p8,p9,p10,p11,p12,ytd-amt"
+          cFieldLength = "3,25,8,30,17,17,17,17,17,17," + "17,17,17,17,17,17,17"
+          cFieldType = "c,c,c,c,i,i,i,i,i,i," + "i,i,i,i,i,i,i" 
+             .
+
+    ASSIGN cTextListToDefault  = "Customer,Name,Period 01,Period 02,Period 03,Period 04,Period 05,Period 06," +
+                                               "Period 07,Period 08,Period 09,Period 10,Period 11,Period 12,YTD Amt".
+
+END.
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "Customer,Name,January,February,March,April,May,June," +
-                                               "July,August,September,October,November,December,YTD Amt".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1045,7 +1067,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
    DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
-     RUN DisplaySelectionList2.
+    RUN DisplaySelectionList2.
 
    APPLY "entry" TO begin_date IN FRAME {&FRAME-NAME}.
   END.
@@ -1245,6 +1267,7 @@ PROCEDURE DisplaySelectionList2 :
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
   DEF VAR cTmpList AS cha NO-UNDO.
+  DEFINE VARIABLE cCheckValue AS CHARACTER NO-UNDO .
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
@@ -1280,7 +1303,35 @@ PROCEDURE DisplaySelectionList2 :
 
    DO iCount = 1 TO sl_selected:NUM-ITEMS:
        IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
+       ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)) . 
+  END.
+  IF NOT lEndYear THEN DO:
+       ldummy = sl_selected:DELETE("Period 01") .
+       ldummy = sl_selected:DELETE("Period 02") .
+       ldummy = sl_selected:DELETE("Period 03") .
+       ldummy = sl_selected:DELETE("Period 04") .
+       ldummy = sl_selected:DELETE("Period 05") .
+       ldummy = sl_selected:DELETE("Period 06") . 
+       ldummy = sl_selected:DELETE("Period 07") .
+       ldummy = sl_selected:DELETE("Period 08") .
+       ldummy = sl_selected:DELETE("Period 09") .
+       ldummy = sl_selected:DELETE("Period 11") .
+       ldummy = sl_selected:DELETE("Period 10") .
+       ldummy = sl_selected:DELETE("Period 12") .
+  END.
+  ELSE DO:              
+      ldummy = sl_selected:DELETE("January") .
+       ldummy = sl_selected:DELETE("February") .
+       ldummy = sl_selected:DELETE("March") .
+       ldummy = sl_selected:DELETE("April") .
+       ldummy = sl_selected:DELETE("May") .
+       ldummy = sl_selected:DELETE("June") . 
+       ldummy = sl_selected:DELETE("July") .
+       ldummy = sl_selected:DELETE("August") .
+       ldummy = sl_selected:DELETE("September") .
+       ldummy = sl_selected:DELETE("October") .
+       ldummy = sl_selected:DELETE("November") .
+       ldummy = sl_selected:DELETE("December") .
   END.
 
 END PROCEDURE.
@@ -1837,6 +1888,8 @@ IF v-inc THEN
             AND ttCustList.log-fld no-lock) else true) AND
        NOT CAN-FIND(FIRST tt-report WHERE
            tt-report.key-02 EQ cust.cust-no)
+           AND cust.sman GE fsman
+           AND cust.sman LE tsman
        NO-LOCK:
 
        CREATE tt-report.

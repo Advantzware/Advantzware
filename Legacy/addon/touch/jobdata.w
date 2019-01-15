@@ -38,9 +38,11 @@ CREATE WIDGET-POOL.
 {custom/emprate.i}
 {methods/defines/globdefs.i}
 
-DEF VAR lv-timer AS INT NO-UNDO. /* clock timer */
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
-DEFINE VARIABLE vTsampmWarn AS CHAR NO-UNDO.
+DEFINE VARIABLE lv-timer     AS INTEGER   NO-UNDO. /* clock timer */
+DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE vTsampmWarn  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lTSBreaksQty AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cTSBreaksQty AS CHARACTER NO-UNDO.
 
 {sys/inc/var.i NEW SHARED}
 
@@ -59,9 +61,11 @@ DO TRANSACTION:
    {sys/inc/tskey.i}
 END.
 
-RUN sys/ref/nk1look.p (INPUT cocode, "TSAMPMWarn", "L" /* Logical */, NO /* check by cust */, 
-                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-                       OUTPUT vTsampmWarn, OUTPUT lRecFound).
+RUN sys/ref/nk1look.p (cocode,"TSAMPMWarn","L",NO,YES,"","",OUTPUT vTsampmWarn,OUTPUT lRecFound).
+RUN sys/ref/nk1look.p (cocode,"TSBREAKSQTY","L",NO,YES,"","",OUTPUT cTSBreakSQty,OUTPUT lRecFound).
+
+ASSIGN 
+    lTSBreakSQty = IF cTSBreakSQty EQ "yes" THEN TRUE ELSE FALSE.
 
 DEF VAR v-time-clock-off AS LOG  NO-UNDO.
 
@@ -1047,9 +1051,9 @@ PROCEDURE job-start :
 
             IF NOT CAN-FIND(FIRST machemp
                             WHERE machemp.table_rec_key = machtran.rec_key
-                            AND machemp.employee = emplogin.employee
-                            AND machemp.start_date = machtran.start_date
-                            AND machemp.start_time = machtran.start_time) THEN DO:
+                              AND machemp.employee = emplogin.employee
+                              AND machemp.start_date = machtran.start_date
+                              AND machemp.start_time = machtran.start_time) THEN DO:
                 CREATE machemp.
                 ASSIGN
                     machemp.table_rec_key = machtran.rec_key
@@ -1365,6 +1369,7 @@ PROCEDURE Job_Data_Collection :
                             bttTrans.endDate    = ttTrans.endDate
                             bttTrans.endTime    = shift_break.end_time
                             bttTrans.totalTime  = fTotalTime(bttTrans.startDate,bttTrans.endDate,bttTrans.startTime,bttTrans.endTime)
+                            bttTrans.machEmp    = YES
                             .
                         CREATE bttTrans.
                         BUFFER-COPY ttTrans EXCEPT machemp loginTime logoutTime TO bttTrans
@@ -1372,6 +1377,7 @@ PROCEDURE Job_Data_Collection :
                                 bttTrans.endTime   = shift_break.start_time
                                 bttTrans.totalTime = fTotalTime(bttTrans.startDate,bttTrans.endDate,bttTrans.startTime,bttTrans.endTime)
                                 bttTrans.done      = YES
+                                bttTrans.machEmp   = YES
                                 .
                         ASSIGN
                             ttTrans.startTime = shift_break.end_time
@@ -1381,42 +1387,63 @@ PROCEDURE Job_Data_Collection :
                 END. /* each ttTrans */
             END. /* if tsbreaks */
             
-            /* calculate total run time */
+            /* remove done tttrans that have zeroed out */
             FOR EACH ttTrans
-                WHERE ttTrans.chargeCode EQ cChargeCode
+                WHERE ttTrans.done      EQ YES
+                  AND ttTrans.startDate EQ ttTrans.endDate
+                  AND ttTrans.startTime EQ ttTrans.endTime
                 :
-                iTotalTime = iTotalTime + ttTrans.totalTime.
+                DELETE ttTrans.
             END. /* each ttTrans */
-            
-            /* set qty values based on pct of total time */
-            FOR EACH ttTrans
-                WHERE ttTrans.chargeCode EQ cChargeCode
-                :
+
+            IF lTSBreaksQty THEN DO:
+                /* calculate total run time */
+                FOR EACH ttTrans
+                    WHERE ttTrans.chargeCode EQ cChargeCode
+                    :
+                    iTotalTime = iTotalTime + ttTrans.totalTime.
+                END. /* each ttTrans */
+                
+                /* set qty values based on pct of total time */
+                FOR EACH ttTrans
+                    WHERE ttTrans.chargeCode EQ cChargeCode
+                    :
+                    ASSIGN
+                        ttTrans.pct      = IF ttTrans.totalTime / iTotalTime EQ ? THEN 0
+                                           ELSE ttTrans.totalTime / iTotalTime
+                        ttTrans.runQty   = iRunQty * ttTrans.pct
+                        ttTrans.wasteQty = iWasteQty * ttTrans.pct
+                        iRQty            = iRQty + ttTrans.runQty
+                        iWQty            = iWQty + ttTrans.wasteQty
+                        .
+                END. /* each ttTrans */
+                
+                /* calculate if any over/under after distributing qty values */
                 ASSIGN
-                    ttTrans.pct      = ttTrans.totalTime / iTotalTime
-                    ttTrans.runQty   = iRunQty * ttTrans.pct
-                    ttTrans.wasteQty = iWasteQty * ttTrans.pct
-                    iRQty            = iRQty + ttTrans.runQty
-                    iWQty            = iWQty + ttTrans.wasteQty
+                    iRqty = iRQty - iRunQty
+                    iWQty = iWQty - iWasteQty
                     .
-            END. /* each ttTrans */
-            
-            /* calculate if any over/under after distributing qty values */
-            ASSIGN
-                iRqty = iRQty - iRunQty
-                iWQty = iWQty - iWasteQty
-                .
+            END. /* if ltsbreaksqty */
+
             /* adjust qty values in case of rounding errors */
             /* set run complete value on last transaction */
             FIND LAST ttTrans
                 WHERE ttTrans.chargeCode EQ cChargeCode
                 NO-ERROR.
-            IF AVAILABLE ttTrans THEN
-            ASSIGN
-                ttTrans.runQty    = ttTrans.runQty + iRQty
-                ttTrans.wasteQty  = ttTrans.wasteQty + iWQty
-                ttTrans.completed = lCompleted
-                .
+            IF AVAILABLE ttTrans THEN DO:
+                IF lTSBreaksQty THEN
+                ASSIGN
+                    ttTrans.runQty    = ttTrans.runQty   + iRQty
+                    ttTrans.wasteQty  = ttTrans.wasteQty + iWQty
+                    .
+                ELSE
+                ASSIGN
+                    ttTrans.runQty    = iRunQty
+                    ttTrans.wasteQty  = iWasteQty
+                    .
+                ttTrans.completed = lCompleted.
+            END. /* if ltsbreaksqty */
+            
             FIND FIRST ttTrans
                  WHERE ttTrans.chargeCode EQ cChargeCode
                  NO-ERROR.
@@ -1440,9 +1467,9 @@ PROCEDURE Job_Data_Collection :
                             bMachTran.total_time  = ttTrans.totalTime
                             bMachTran.completed   = ttTrans.completed
                             dtStartDate           = ttTrans.startDate
-                            iStartTime            = ttTrans.loginTime
+                            iStartTime            = ttTrans.startTime
                             dtEndDate             = ttTrans.endDate
-                            iEndTime              = ttTrans.logoutTime
+                            iEndTime              = ttTrans.endTime
                             rRecKey               = bMachTran.rec_key
                             .
                 END. /* if rrowid eq ? */
@@ -1457,12 +1484,11 @@ PROCEDURE Job_Data_Collection :
                     machtran.total_time = ttTrans.totalTime
                     machtran.completed  = ttTrans.completed
                     dtStartDate         = ttTrans.startDate
-                    iStartTime          = ttTrans.loginTime
+                    iStartTime          = ttTrans.startTime
                     dtEndDate           = ttTrans.endDate
-                    iEndTime            = ttTrans.logoutTime
+                    iEndTime            = ttTrans.endTime
                     rRecKey             = machtran.rec_key
-                    .
-                
+                    .                
                 /* create machaine employee transactions */
                 IF ttTrans.machemp THEN DO:
                     FIND FIRST mach NO-LOCK
@@ -1527,8 +1553,8 @@ PROCEDURE Job_Data_Collection :
                                 ).                            
                         END. /* not avail */
                         ASSIGN
-                            machemp.end_date = dtEndDate
-                            machemp.end_time = iEndTime
+                            machemp.end_date   = dtEndDate
+                            machemp.end_time   = iEndTime
                             machemp.total_time = fTotalTime(machemp.start_date,machemp.end_date,machemp.start_time,machemp.end_time)
                             .
                         RELEASE machemp.
@@ -1624,141 +1650,141 @@ PROCEDURE Job_Data_Collection_2:
     DEFINE VARIABLE lCompleted   AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lLastMachine AS LOGICAL NO-UNDO.
     
-            FIND FIRST job-hdr NO-LOCK
-                WHERE job-hdr.company EQ company_code
-                  AND job-hdr.job-no  EQ job_number
-                  AND job-hdr.job-no2 EQ INTEGER(job_sub)
-                NO-ERROR.
-            ASSIGN
-                iJobQty    = IF AVAILABLE job-hdr THEN job-hdr.qty ELSE 0
-                lCompleted = YES
-                iRunQty    = 0
-                .
-            FOR EACH bMachTran NO-LOCK
-                WHERE bMachTran.company       EQ company_code
-                  AND bMachTran.machine       EQ machine_code
-                  AND bMachTran.job_number    EQ job_number
-                  AND bMachTran.job_sub       EQ INTEGER(job_sub)
-                  AND bMachTran.form_number   EQ INTEGER(form_number)
-                  AND bMachTran.blank_number  EQ INTEGER(blank_number)
-                  AND bMachTran.pass_sequence EQ INTEGER(pass_sequence)
-                :        
-                iRunQty = iRunQty + bMachTran.RUN_qty.
-            END. /* each bmachtran */
-            IF charge_code EQ "RUN" THEN DO:
-                IF fgrecpt-char EQ "TSPARTS" THEN
-                    RUN proc-tsparts (ipdtToday).
+    FIND FIRST job-hdr NO-LOCK
+         WHERE job-hdr.company EQ company_code
+           AND job-hdr.job-no  EQ job_number
+           AND job-hdr.job-no2 EQ INTEGER(job_sub)
+        NO-ERROR.
+    ASSIGN
+        iJobQty    = IF AVAILABLE job-hdr THEN job-hdr.qty ELSE 0
+        lCompleted = YES
+        iRunQty    = 0
+        .
+    FOR EACH bMachTran NO-LOCK
+        WHERE bMachTran.company       EQ company_code
+          AND bMachTran.machine       EQ machine_code
+          AND bMachTran.job_number    EQ job_number
+          AND bMachTran.job_sub       EQ INTEGER(job_sub)
+          AND bMachTran.form_number   EQ INTEGER(form_number)
+          AND bMachTran.blank_number  EQ INTEGER(blank_number)
+          AND bMachTran.pass_sequence EQ INTEGER(pass_sequence)
+        :        
+        iRunQty = iRunQty + bMachTran.RUN_qty.
+    END. /* each bmachtran */
+    IF charge_code EQ "RUN" THEN DO:
+        IF fgrecpt-char EQ "TSPARTS" THEN
+            RUN proc-tsparts (ipdtToday).
+        ELSE DO:
+            FIND LAST job-mch NO-LOCK
+                WHERE job-mch.company EQ company_code
+                  AND job-mch.job-no  EQ job_number
+                  AND job-mch.job-no2 EQ INTEGER(job_sub)
+                  AND job-mch.frm     EQ integer(form_number)                                 
+                USE-INDEX line-idx NO-ERROR.
+            IF AVAILABLE job-mch AND
+                LOOKUP(job-mch.m-code,tspostfg-char) GT 0 AND
+                tspostfg-int EQ 1 THEN DO:
+                FIND PREV job-mch NO-LOCK
+                    WHERE job-mch.company EQ company_code
+                      AND job-mch.job-no  EQ job_number
+                      AND job-mch.job-no2 EQ INTEGER(job_sub)
+                      AND job-mch.frm     EQ INTEGER(form_number)                                 
+                    USE-INDEX line-idx NO-ERROR.
+                IF AVAILABLE job-mch AND job-mch.m-code EQ machine_code THEN DO:
+                    IF tspostfg-log THEN RUN proc-form-cmplt (ipdtToday).
+                END. /* avail job-mch */
+            END. /* avail / lookup */
+
+            /* form closing procedure only for last machine */
+            FIND LAST job-mch NO-LOCK
+                WHERE job-mch.company EQ company_code
+                  AND job-mch.job-no  EQ job_number
+                  AND job-mch.job-no2 EQ INTEGER(job_sub)
+                  AND job-mch.frm     EQ integer(form_number)                                 
+                USE-INDEX line-idx NO-ERROR.
+            IF AVAILABLE job-mch AND job-mch.m-code EQ machine_code THEN DO:
+                IF LOOKUP(machine_code,tspostfg-char) GT 0 AND tspostfg-int EQ 1 THEN DO:
+                    IF tspostfg-log THEN RUN proc-set-cmplt (ipdtToday).
+                END. /* if lookup */
                 ELSE DO:
-                    FIND LAST job-mch NO-LOCK
-                        WHERE job-mch.company EQ company_code
-                          AND job-mch.job-no  EQ job_number
-                          AND job-mch.job-no2 EQ INTEGER(job_sub)
-                          AND job-mch.frm     EQ integer(form_number)                                 
-                        USE-INDEX line-idx NO-ERROR.
-                    IF AVAILABLE job-mch AND
-                        LOOKUP(job-mch.m-code,tspostfg-char) GT 0 AND
-                        tspostfg-int EQ 1 THEN DO:
-                        FIND PREV job-mch NO-LOCK
-                            WHERE job-mch.company EQ company_code
-                              AND job-mch.job-no  EQ job_number
-                              AND job-mch.job-no2 EQ INTEGER(job_sub)
-                              AND job-mch.frm     EQ INTEGER(form_number)                                 
-                            USE-INDEX line-idx NO-ERROR.
-                        IF AVAILABLE job-mch AND job-mch.m-code EQ machine_code THEN DO:
-                            IF tspostfg-log THEN RUN proc-form-cmplt (ipdtToday).
-                        END. /* avail job-mch */
-                    END. /* avail / lookup */
-    
-                    /* form closing procedure only for last machine */
-                    FIND LAST job-mch NO-LOCK
-                        WHERE job-mch.company EQ company_code
-                          AND job-mch.job-no  EQ job_number
-                          AND job-mch.job-no2 EQ INTEGER(job_sub)
-                          AND job-mch.frm     EQ integer(form_number)                                 
-                        USE-INDEX line-idx NO-ERROR.
-                    IF AVAILABLE job-mch AND job-mch.m-code EQ machine_code THEN DO:
-                        IF LOOKUP(machine_code,tspostfg-char) GT 0 AND tspostfg-int EQ 1 THEN DO:
-                            IF tspostfg-log THEN RUN proc-set-cmplt (ipdtToday).
-                        END. /* if lookup */
-                        ELSE DO:
-                            IF tspostfg-log THEN RUN proc-form-cmplt (ipdtToday).
-                        END. /* components receoipt */
-                    END. /* avail job-mch */
-                END. /* else,  no TSPARTS*/
-            END. /* charge code run */
-    
-            FIND LAST jobseq NO-LOCK NO-ERROR.
-            IF AVAILABLE jobseq AND jobseq.charge_code EQ charge_code THEN DO:
-                IF v-tsfinish-char-val EQ "Last Machine" AND lCompleted THEN
-                RUN touch-finish.
-    
-                FOR EACH bMachTran FIELDS(complete) NO-LOCK
-                    WHERE bMachTran.company       EQ company_code
-                      AND bMachTran.machine       EQ machine_code
-                      AND bMachTran.job_number    EQ job_number
-                      AND bMachTran.job_sub       EQ INTEGER(job_sub)
-                      AND bMachTran.form_number   EQ INTEGER(form_number)
-                      AND bMachTran.blank_number  EQ INTEGER(blank_number)
-                      AND bMachTran.pass_sequence EQ INTEGER(pass_sequence)
-                    :
-                    lCompleted = IF NOT lCompleted THEN lCompleted
-                                 ELSE bMachTran.complete.
-                END. /* for each */
-         
-                IF NOT lCompleted AND tscomplete-log THEN
-                    MESSAGE "IS OPERATION FOR MACHINE" CAPS(machine_code) "COMPLETE?" SKIP
-                        "Job Qty:" iJobQty "  Total Run Qty:" iRunQty  
-                        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-                        UPDATE lCompleted.
-                IF lCompleted THEN DO:
-                    CREATE cmpltjob.
-                    ASSIGN 
-                        cmpltjob.company       = company_code
-                        cmpltjob.machine       = machine_code
-                        cmpltjob.job_number    = job_number
-                        cmpltjob.job_sub       = INTEGER(job_sub)
-                        cmpltjob.form_number   = INTEGER(form_number)
-                        cmpltjob.blank_number  = INTEGER(blank_number)
-                        cmpltjob.pass_sequence = INTEGER(pass_sequence)
-                        .
-                    RELEASE cmpltjob.
-    
-                    /* update job-mch.run-complete , mr-complete for scheduling */
-                    /* completeJobMch created b/c this procedure exceeded action code
-                       seqment size of 63k */
-                    RUN completeJobMch (
-                        company_code,
-                        machine_code,
-                        job_number,
-                        INTEGER(job_sub),
-                        INTEGER(form_number),
-                        INTEGER(blank_number)
-                        ).
-                    RUN updateRouting (
-                        company_code,
-                        machine_code,
-                        job_number,
-                        INTEGER(job_sub),
-                        INTEGER(form_number),
-                        INTEGER(blank_number)
-                        ).
-                    /* task# 06200526*/
-                    FIND LAST job-mch NO-LOCK
-                        WHERE job-mch.company EQ company_code
-                          AND job-mch.job-no  EQ job_number
-                          AND job-mch.job-no2 EQ INTEGER(job_sub)
-                          AND job-mch.frm     EQ integer(form_number)                                 
-                        USE-INDEX line-idx NO-ERROR.
-                    lLastMachine = AVAILABLE job-mch AND job-mch.m-code EQ machine_code.
-                    IF fgrecpt-char = "TSPARTS" AND
-                        CAN-FIND(FIRST est
-                                 WHERE est.company  EQ company_code
-                                   AND est.est-no   EQ job-hdr.est-no
-                                   AND est.est-type GT 5) THEN .
-                    ELSE IF lLastMachine THEN RUN close-job (company_code,job_number,job_sub).
-                    RELEASE machtran.
-                END. /* if lcompleted */
-            END.  /* last seq */
+                    IF tspostfg-log THEN RUN proc-form-cmplt (ipdtToday).
+                END. /* components receoipt */
+            END. /* avail job-mch */
+        END. /* else,  no TSPARTS*/
+    END. /* charge code run */
+
+    FIND LAST jobseq NO-LOCK NO-ERROR.
+    IF AVAILABLE jobseq AND jobseq.charge_code EQ charge_code THEN DO:
+        IF v-tsfinish-char-val EQ "Last Machine" AND lCompleted THEN
+        RUN touch-finish.
+
+        FOR EACH bMachTran FIELDS(complete) NO-LOCK
+            WHERE bMachTran.company       EQ company_code
+              AND bMachTran.machine       EQ machine_code
+              AND bMachTran.job_number    EQ job_number
+              AND bMachTran.job_sub       EQ INTEGER(job_sub)
+              AND bMachTran.form_number   EQ INTEGER(form_number)
+              AND bMachTran.blank_number  EQ INTEGER(blank_number)
+              AND bMachTran.pass_sequence EQ INTEGER(pass_sequence)
+            :
+            lCompleted = IF NOT lCompleted THEN lCompleted
+                         ELSE bMachTran.complete.
+        END. /* for each */
+ 
+        IF NOT lCompleted AND tscomplete-log THEN
+            MESSAGE "IS OPERATION FOR MACHINE" CAPS(machine_code) "COMPLETE?" SKIP
+                "Job Qty:" iJobQty "  Total Run Qty:" iRunQty  
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+                UPDATE lCompleted.
+        IF lCompleted THEN DO:
+            CREATE cmpltjob.
+            ASSIGN 
+                cmpltjob.company       = company_code
+                cmpltjob.machine       = machine_code
+                cmpltjob.job_number    = job_number
+                cmpltjob.job_sub       = INTEGER(job_sub)
+                cmpltjob.form_number   = INTEGER(form_number)
+                cmpltjob.blank_number  = INTEGER(blank_number)
+                cmpltjob.pass_sequence = INTEGER(pass_sequence)
+                .
+            RELEASE cmpltjob.
+
+            /* update job-mch.run-complete , mr-complete for scheduling */
+            /* completeJobMch created b/c this procedure exceeded action code
+               seqment size of 63k */
+            RUN completeJobMch (
+                company_code,
+                machine_code,
+                job_number,
+                INTEGER(job_sub),
+                INTEGER(form_number),
+                INTEGER(blank_number)
+                ).
+            RUN updateRouting (
+                company_code,
+                machine_code,
+                job_number,
+                INTEGER(job_sub),
+                INTEGER(form_number),
+                INTEGER(blank_number)
+                ).
+            /* task# 06200526*/
+            FIND LAST job-mch NO-LOCK
+                WHERE job-mch.company EQ company_code
+                  AND job-mch.job-no  EQ job_number
+                  AND job-mch.job-no2 EQ INTEGER(job_sub)
+                  AND job-mch.frm     EQ integer(form_number)                                 
+                USE-INDEX line-idx NO-ERROR.
+            lLastMachine = AVAILABLE job-mch AND job-mch.m-code EQ machine_code.
+            IF fgrecpt-char = "TSPARTS" AND
+                CAN-FIND(FIRST est
+                         WHERE est.company  EQ company_code
+                           AND est.est-no   EQ job-hdr.est-no
+                           AND est.est-type GT 5) THEN .
+            ELSE IF lLastMachine THEN RUN close-job (company_code,job_number,job_sub).
+            RELEASE machtran.
+        END. /* if lcompleted */
+    END.  /* last seq */
 
 END PROCEDURE.
 	

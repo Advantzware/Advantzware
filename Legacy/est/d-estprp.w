@@ -109,8 +109,9 @@ est-prep.spare-dec-1 est-prep.ml est-prep.amtz
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
+    IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
     LABEL "Cancel" 
-    SIZE 15 BY 1.14
+    SIZE 8 BY 1.91
     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT 
@@ -119,17 +120,20 @@ DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT
     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
+    IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
     LABEL "&Save" 
-    SIZE 15 BY 1.14
+    SIZE 8 BY 1.91
     BGCOLOR 8 .
 
 DEFINE RECTANGLE RECT-21
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 127 BY 3.57.
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL ROUNDED  
+    SIZE 30 BY 3.00
+    BGCOLOR 15.
 
 DEFINE RECTANGLE RECT-38
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 127 BY 10.71.
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL ROUNDED  
+    SIZE 127 BY 10.71
+    BGCOLOR 15.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -145,55 +149,66 @@ DEFINE FRAME Dialog-Frame
     LABEL "Sheet #" FORMAT ">>>"
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
+    BGCOLOR 15 FONT 1
     est-prep.b-num AT ROW 2.43 COL 80.6 COLON-ALIGNED
     LABEL "Blank#" FORMAT ">>>"
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
+    BGCOLOR 15 FONT 1
     est-prep.code AT ROW 3.67 COL 28.4 COLON-ALIGNED
     LABEL "Code" FORMAT "x(20)"
     VIEW-AS FILL-IN 
     SIZE 31.6 BY 1
+    BGCOLOR 15 FONT 1
     est-prep.qty AT ROW 3.67 COL 80.6 COLON-ALIGNED
     LABEL "Qty" FORMAT "->>,>>9.9"
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
+    BGCOLOR 15 FONT 1
     est-prep.dscr AT ROW 4.91 COL 28.4 COLON-ALIGNED
     LABEL "Desc." FORMAT "x(20)"
     VIEW-AS FILL-IN 
     SIZE 31.6 BY 1
+    BGCOLOR 15 FONT 1
     est-prep.simon AT ROW 4.91 COL 80.6 COLON-ALIGNED
     LABEL "SIMON" FORMAT "x"
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
+    BGCOLOR 15 FONT 1
     est-prep.cost AT ROW 6.14 COL 28.4 COLON-ALIGNED
     LABEL "Cost" FORMAT "->>,>>9.99"
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
+    BGCOLOR 15 FONT 1
     est-prep.mkup AT ROW 6.14 COL 80.6 COLON-ALIGNED
     LABEL "Markup" FORMAT "->>9.9999"
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
+    BGCOLOR 15 FONT 1
     est-prep.spare-dec-1 AT ROW 7.38 COL 28.4 COLON-ALIGNED
     LABEL "Price" FORMAT "->>,>>9.99"
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
+    BGCOLOR 15 FONT 1
     est-prep.ml AT ROW 7.38 COL 80.6 COLON-ALIGNED
-    LABEL "M/L" FORMAT "M/L"
+    LABEL "Mat'l or Labor" FORMAT "M/L"
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
+    BGCOLOR 15 FONT 1
     est-prep.amtz AT ROW 8.67 COL 28.4 COLON-ALIGNED
     LABEL "Amort" FORMAT ">>9.99"
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
-    Btn_OK AT ROW 13.29 COL 37
-    Btn_Done AT ROW 13.24 COL 57
-    Btn_Cancel AT ROW 13.24 COL 77.2
-    RECT-21 AT ROW 11.71 COL 1
+    BGCOLOR 15 FONT 1
+    Btn_OK AT ROW 12.40 COL 105
+    Btn_Done AT ROW 12.80 COL 105
+    Btn_Cancel AT ROW 12.40 COL 115
+    RECT-21 AT ROW 11.81 COL 98
     RECT-38 AT ROW 1 COL 1
-    SPACE(1.39) SKIP(4.14)
+    SPACE(1.39) SKIP(3.14)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
     SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FONT 6
+    FGCOLOR 1 FONT 6
     TITLE "Estimate Preparation Update".
 
 
@@ -344,6 +359,8 @@ ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
                 WHERE RECID(est-prep) EQ lv-item-recid  NO-ERROR.
             IF AVAILABLE est-prep THEN DELETE est-prep .
         END.
+        IF AVAIL est-prep THEN
+            ip-rowid = ROWID(est-prep).
 
         APPLY 'GO':U TO FRAME {&FRAME-NAME}.
     END.
@@ -997,13 +1014,12 @@ PROCEDURE valid-code :
             RETURN ERROR.
         END.
         IF ip-count EQ 1 THEN 
-        DO:
-            IF NOT CAN-FIND(FIRST prep
+        DO:  
+            FIND FIRST prep NO-LOCK
                 WHERE prep.company EQ est.company
-                AND prep.loc     EQ est.loc
-                AND prep.code    EQ est-prep.code:SCREEN-VALUE )
-                THEN 
-            DO:
+                AND prep.code    EQ est-prep.code:SCREEN-VALUE NO-ERROR.
+            IF AVAIL prep AND prep.loc NE "" AND prep.loc  NE est.loc THEN
+            DO: 
                 MESSAGE "Code is at a different location than the estimate" VIEW-AS ALERT-BOX WARNING.
                 APPLY "entry" TO est-prep.code.
             END.

@@ -327,9 +327,6 @@ DO:
   DEFINE VARIABLE lAns AS LOGICAL     NO-UNDO.
   DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
   DEFINE VARIABLE lResult AS LOG NO-UNDO.
-  DEFINE VARIABLE cUserKillFile AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE iLoginUserNum     AS INTEGER  NO-UNDO.
-  DEFINE VARIABLE iAsiConnectPid      AS INTEGER NO-UNDO.
         RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
         RUN epCanAccess IN hPgmSecurity ("browsers/userlog.w", "", OUTPUT lResult).
     DELETE OBJECT hPgmSecurity.
@@ -351,27 +348,9 @@ DO:
       DO li = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
         {&browse-name}:FETCH-SELECTED-ROW (li) NO-ERROR.
         IF AVAIL userLog THEN DO:
-   
-          IF INDEX(userLog.deviceName, "-") GT 0 THEN DO:
-            iLoginUserNum = INTEGER(SUBSTRING(userLog.deviceName, R-INDEX(userLog.deviceName,"-") + 1)) NO-ERROR.
-            IF NOT ERROR-STATUS:ERROR THEN DO:
-              
-              /* _connect id is one more than the database user number shown in _myconnection */
-              FIND FIRST asi._connect NO-LOCK WHERE asi._connect._connect-id EQ iLoginUserNum + 1 NO-ERROR.
-              
-              IF AVAILABLE asi._connect AND asi._connect._connect-name EQ userLog.user_id THEN DO:
-                iAsiConnectPid = asi._connect._connect-pid.        
-
-                  cUserKillFile = userlog.user_id 
-                                 + STRING(iLoginUserNum)
-                                 + STRING(TODAY, "99999999") + STRING(TIME) + ".TXT".
-                  OUTPUT STREAM sLogOut TO VALUE(cLogoutFolder + "\" + cUserkillFile).
-                  EXPORT STREAM sLogOut "ASI" userlog.user_id iLoginUserNum iAsiConnectPid.
-                  OUTPUT STREAM sLogOut CLOSE.
-                                  
-              END. /* If avail _connect */
-            END. /* If no error converting to integer */
-          END. /* iF Devicename contains a dash */
+            
+          RUN system/userLogout.p (YES, userLog.sessionID).
+             
           FIND FIRST bf-userLog EXCLUSIVE-LOCK WHERE ROWID(bf-userLog) EQ ROWID(userLog)
                   NO-ERROR.
           IF AVAIL bf-userLog THEN

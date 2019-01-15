@@ -15,7 +15,10 @@ IF NOT AVAIL est THEN
 FIND eb WHERE ROWID(eb) EQ ip-rowid NO-LOCK NO-ERROR.
 
 IF AVAIL eb THEN
-FIND FIRST est OF eb NO-ERROR.
+FIND FIRST est NO-LOCK WHERE 
+    est.company EQ eb.company AND 
+    est.est-no EQ eb.est-no 
+    NO-ERROR.
 
 RELEASE ef.
 RELEASE eb.

@@ -379,7 +379,9 @@ IF NOT v-smr THEN
          v-amt[1]  = ar-cashl.amt-paid - ar-cashl.amt-disc
          v-uom     = ""
          v-qty[1]  = 0
-         v-cst[1]  = 0.
+         v-cst[1]  = 0
+         v-custpo = ""
+         item-name = "".
 
         release ar-inv.
 
@@ -416,6 +418,10 @@ IF NOT v-smr THEN
               no-lock:
             v-po-no-po = ar-invl.po-no-po.
             v-ord-no   = ar-invl.ord-no .
+            v-custpo = ar-invl.po-no.
+            item-name = ar-invl.i-name .
+             IF item-name = "" AND AVAIL itemfg THEN
+                 item-name = itemfg.i-name .
             leave.
           end.
 
@@ -506,7 +512,10 @@ IF NOT v-smr THEN
       FIND FIRST shipto where shipto.company eq cocode
           and shipto.cust-no eq cust.cust-no NO-LOCK NO-ERROR  .
 
-    
+     cBoardCode = "".
+     IF AVAIL ar-invl THEN 
+           RUN pgetBoard( ROWID(ar-invl) , OUTPUT cBoardCode) .
+
 
        ASSIGN cDisplay = ""
           cTmpField = ""
@@ -541,6 +550,7 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = IF AVAIL cust THEN STRING(cust.spare-char-2,"x(8)") ELSE "".
                  WHEN "mbr-no" THEN cVarValue = IF AVAIL shipto THEN STRING(shipto.spare-char-5,"x(10)") ELSE "".                   
                  WHEN "inv-uom" THEN cVarValue = STRING(v-uom,"x(3)").
+                 WHEN "board-code" THEN cVarValue = STRING(cBoardCode,"x(10)").
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -615,6 +625,7 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = "".
                  WHEN "mbr-no" THEN cVarValue = "". 
                  WHEN "inv-uom" THEN cVarValue =  "".
+                 WHEN "board-code" THEN cVarValue = "".
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -691,6 +702,7 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = "".
                  WHEN "mbr-no" THEN cVarValue = "".
                  WHEN "inv-uom" THEN cVarValue = "".
+                 WHEN "board-code" THEN cVarValue = "".
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -771,6 +783,7 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = "".
                  WHEN "mbr-no" THEN cVarValue = "". 
                  WHEN "inv-uom" THEN cVarValue = "".
+                 WHEN "board-code" THEN cVarValue = "".
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -899,8 +912,9 @@ IF NOT v-smr THEN
          v-amt[1]  = ar-cashl.amt-paid - ar-cashl.amt-disc
          v-uom     = ""
          v-qty[1]  = 0
-         v-cst[1]  = 0.
-
+         v-cst[1]  = 0
+         v-custpo = ""
+         item-name = "". 
         release ar-inv.
 
         RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
@@ -936,6 +950,10 @@ IF NOT v-smr THEN
               no-lock:
             v-po-no-po = ar-invl.po-no-po.
             v-ord-no   = ar-invl.ord-no .
+            v-custpo = ar-invl.po-no.
+            item-name = ar-invl.i-name .
+             IF item-name = "" AND AVAIL itemfg THEN
+                 item-name = itemfg.i-name .
             leave.
           end.
 
@@ -1037,6 +1055,10 @@ IF NOT v-smr THEN
 
     IF LAST-OF(tt-report2.key-07) THEN do:
 
+        cBoardCode = "".
+        IF AVAIL ar-invl THEN 
+           RUN pgetBoard( ROWID(ar-invl) , OUTPUT cBoardCode) .
+
        ASSIGN cDisplay = ""
           cTmpField = ""
           cVarValue = ""
@@ -1070,6 +1092,7 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = IF AVAIL cust THEN STRING(cust.spare-char-2,"x(8)") ELSE "".
                  WHEN "mbr-no" THEN cVarValue = IF AVAIL shipto THEN STRING(shipto.spare-char-5,"x(10)") ELSE "".                   
                  WHEN "inv-uom" THEN cVarValue = STRING(v-uom,"x(3)").
+                 WHEN "board-code" THEN cVarValue = STRING(cBoardCode,"x(10)").
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -1147,6 +1170,7 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = "".
                  WHEN "mbr-no" THEN cVarValue = "". 
                  WHEN "inv-uom" THEN cVarValue = "".
+                 WHEN "board-code" THEN cVarValue = "".
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +

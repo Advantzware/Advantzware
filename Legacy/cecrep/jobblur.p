@@ -359,7 +359,7 @@ do v-local-loop = 1 to v-local-copies:
            run cec/desprnt3.p (recid(xef),
                                input-output v-lines,
                                recid(xest)).
-        ELSE PAGE.
+        PAGE.
        
       end.  /* for each w-ef */
     end.  /* each job */

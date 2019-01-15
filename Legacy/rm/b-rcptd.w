@@ -147,7 +147,7 @@ rm-rctd.qty rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom ~
 calc-ext-cost() @ ext-cost display-dimension('W') @ lv-po-wid ~
 display-dimension('L') @ lv-po-len display-setup() @ lv-setup ~
 display-adder() @ lv-adder display-msf() @ lv-msf rm-rctd.user-id ~
-rm-rctd.tag2 
+rm-rctd.tag2 rm-rctd.enteredBy rm-rctd.enteredDT 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table rm-rctd.rct-date ~
 rm-rctd.po-no rm-rctd.job-no rm-rctd.job-no2 rm-rctd.s-num rm-rctd.b-num ~
 rm-rctd.i-no rm-rctd.i-name rm-rctd.loc rm-rctd.loc-bin rm-rctd.tag ~
@@ -169,7 +169,7 @@ rm-rctd.rita-code = "R" NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-4 RECT-5 Browser-Table browse-order ~
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 RECT-5 browse-order ~
 auto_find Btn_Clear_Find 
 &Scoped-Define DISPLAYED-OBJECTS browse-order fi_sortby auto_find 
 
@@ -319,6 +319,8 @@ DEFINE BROWSE Browser-Table
       rm-rctd.user-id COLUMN-LABEL "User ID" FORMAT "x(8)":U WIDTH 15
       rm-rctd.tag2 COLUMN-LABEL "Cert/Lot/Mill#" FORMAT "x(30)":U
             WIDTH 40
+      rm-rctd.enteredBy FORMAT "x(12)":U
+      rm-rctd.enteredDT FORMAT "99/99/9999 HH:MM:SS.SSS":U
   ENABLE
       rm-rctd.rct-date
       rm-rctd.po-no
@@ -417,7 +419,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table RECT-5 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -443,37 +445,37 @@ ASSIGN
      _Where[1]         = "rm-rctd.company = cocode and
 rm-rctd.rita-code = ""R"""
      _FldNameList[1]   > asi.rm-rctd.r-no
-"rm-rctd.r-no" "Seq#" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"r-no" "Seq#" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.rm-rctd.rct-date
-"rm-rctd.rct-date" ? ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rct-date" ? ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.rm-rctd.po-no
-"rm-rctd.po-no" ? "x(6)" "character" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"po-no" ? "x(6)" "character" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.rm-rctd.job-no
-"rm-rctd.job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.rm-rctd.job-no2
-"rm-rctd.job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.rm-rctd.s-num
-"rm-rctd.s-num" "S" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"s-num" "S" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.rm-rctd.b-num
-"rm-rctd.b-num" "B" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"b-num" "B" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.rm-rctd.i-no
-"rm-rctd.i-no" "Item" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"i-no" "Item" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.rm-rctd.i-name
-"rm-rctd.i-name" "Name/Desc" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"i-name" "Name/Desc" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > asi.rm-rctd.loc
-"rm-rctd.loc" "Whse" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loc" "Whse" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > asi.rm-rctd.loc-bin
-"rm-rctd.loc-bin" "Bin" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loc-bin" "Bin" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > asi.rm-rctd.tag
-"rm-rctd.tag" "Tag#" "x(20)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tag" "Tag#" "x(20)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > asi.rm-rctd.qty
-"rm-rctd.qty" "Qty" "->>>,>>>,>>9.9<<" "decimal" ? ? ? 14 ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"qty" "Qty" "->>>,>>>,>>9.9<<" "decimal" ? ? ? 14 ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > asi.rm-rctd.pur-uom
-"rm-rctd.pur-uom" "PUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"pur-uom" "PUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > asi.rm-rctd.cost
-"rm-rctd.cost" "Cost" "->,>>>,>>9.99<<<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cost" "Cost" "->,>>>,>>9.99<<<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > asi.rm-rctd.cost-uom
-"rm-rctd.cost-uom" "CUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cost-uom" "CUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > "_<CALC>"
 "calc-ext-cost() @ ext-cost" "Ext.Amount" "->,>>>,>>9.99<<" ? 14 ? ? ? ? ? no ? no no "20.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > "_<CALC>"
@@ -487,9 +489,11 @@ rm-rctd.rita-code = ""R"""
      _FldNameList[22]   > "_<CALC>"
 "display-msf() @ lv-msf" "MSF" "->>>>,>>9.999" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > asi.rm-rctd.user-id
-"rm-rctd.user-id" "User ID" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"user-id" "User ID" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > asi.rm-rctd.tag2
-"rm-rctd.tag2" "Cert/Lot/Mill#" "x(30)" "character" ? ? ? ? ? ? yes ? no no "40" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tag2" "Cert/Lot/Mill#" "x(30)" "character" ? ? ? ? ? ? yes ? no no "40" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[25]   = asi.rm-rctd.enteredBy
+     _FldNameList[26]   = asi.rm-rctd.enteredDT
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -1854,6 +1858,7 @@ PROCEDURE create-rcptd :
 
         ASSIGN              
             rm-rctd.po-no    = STRING(po-ordl.po-no)
+            rm-rctd.po-line  = po-ordl.LINE
             rm-rctd.i-no     = po-ordl.i-no
             rm-rctd.i-name   = po-ordl.i-name
             rm-rctd.job-no   = po-ordl.job-no
@@ -2013,7 +2018,6 @@ PROCEDURE display-item :
                 rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} = item.cons-uom.
                 
            /* Description may be overridden on PO */
-           IF  rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = "" THEN 
               rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = item.i-name       .         
             IF v-bin NE "user entered" THEN
             ASSIGN
@@ -2724,10 +2728,19 @@ PROCEDURE local-assign-record :
     /* Code placed here will execute PRIOR to standard behavior. */
     ASSIGN
         v-copy-mode       = NO
-        v-copy-mode-dec-1 = NO.
+        v-copy-mode-dec-1 = NO
+        rm-rctd.enteredBy:SCREEN-VALUE IN BROWSE {&browse-name} = USERID("asi")
+        rm-rctd.enteredDT:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DATETIME(TODAY, MTIME),"99/99/99") 
+        .
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+
+    FIND CURRENT po-ordl NO-LOCK NO-ERROR .
+    IF NOT AVAIL po-ordl THEN
+        FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
+    IF AVAIL po-ordl THEN
+        rm-rctd.po-line = po-ordl.LINE .
 
 /* Code placed here will execute AFTER standard behavior.    */
 

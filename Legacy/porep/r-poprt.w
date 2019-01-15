@@ -133,13 +133,13 @@ IF lRecFound THEN
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_po-no end_po-no ~
 begin_vend-no end_vend-no tb_reprint tb_reprint-closed tb_delete ~
-tb_print-terms tb_spec tb_attachments tb_cust-code tb_corr tb_group-notes ~
+tb_print-terms tb_spec tb_attachments tb_cust-code tb_mach tb_corr tb_group-notes ~
 tb_Summarize-by-item tb_itemDescription tb_score-types tb_metric ~
 tb_print-prices rd-dest lv-ornt lines-per-page lv-font-no td-show-parm ~
 btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_po-no end_po-no begin_vend-no ~
 end_vend-no tb_reprint tb_reprint-closed tb_delete tb_print-terms tb_spec ~
-tb_attachments tb_cust-code tb_corr tb_group-notes tb_Summarize-by-item ~
+tb_attachments tb_cust-code tb_mach tb_corr tb_group-notes tb_Summarize-by-item ~
 tb_itemDescription tb_score-types tb_metric tb_print-prices rd-dest lv-ornt ~
 lines-per-page lv-font-no lv-font-name td-show-parm 
 
@@ -249,6 +249,11 @@ DEFINE VARIABLE tb_cust-code AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 41.8 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tb_mach AS LOGICAL INITIAL no 
+     LABEL "Print First Resource?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 41.8 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tb_delete AS LOGICAL INITIAL no 
      LABEL "Do you want to print deleted line items?" 
      VIEW-AS TOGGLE-BOX
@@ -330,6 +335,7 @@ DEFINE FRAME FRAME-A
      tb_cust-code AT ROW 7.86 COL 53 WIDGET-ID 4
      tb_corr AT ROW 7.91 COL 10.6
      tb_group-notes AT ROW 8.86 COL 10.6
+     tb_mach AT ROW 8.86 COL 53 WIDGET-ID 4
      tb_Summarize-by-item AT ROW 9.81 COL 10.6
      tb_itemDescription AT ROW 10.76 COL 10.6
      tb_score-types AT ROW 11.71 COL 10.6
@@ -443,6 +449,9 @@ ASSIGN
 
 ASSIGN 
        tb_cust-code:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+ASSIGN 
+       tb_mach:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -574,6 +583,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
+    DEFINE BUFFER bff-po-ord FOR po-ord .
     SESSION:SET-WAIT-STATE ("general").
 
     DO WITH FRAME {&FRAME-NAME}:
@@ -607,7 +617,27 @@ DO:
         s-print-prices      = tb_print-prices
         v-print-terms       = tb_print-terms
         lv-attachments      = tb_attachments
-        lCustCode           =  tb_cust-code.
+        lCustCode           =  tb_cust-code
+        lPrintMach          =  tb_mach .
+
+
+    IF v-start-po EQ v-end-po THEN DO:
+       FIND FIRST bff-po-ord NO-LOCK
+           WHERE bff-po-ord.company EQ cocode
+           AND bff-po-ord.po-no   EQ v-start-po
+           NO-ERROR .
+
+           IF AVAIL bff-po-ord AND bff-po-ord.printed AND NOT v-reprint-po THEN do:
+               MESSAGE "This PO has been printed - Do you want to reprint?"
+               VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+               UPDATE lMessageUpdate AS LOGICAL .
+           IF NOT lMessageUpdate THEN RETURN .
+           ELSE
+               ASSIGN tb_reprint = YES 
+                      v-reprint-po = YES
+                      tb_reprint:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Yes" .
+           END.
+    END.
  
     /* If there is are vendor-specific forms, run this way */
     IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
@@ -680,7 +710,18 @@ DO:
             MESSAGE "No Purchase Orders Were Printed."
                 VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
     END. /* Vendor-specific forms */
-    ELSE DO: /* NOT vendor-specific formst */
+    ELSE DO: /* NOT vendor-specific formst */     
+        IF CAN-FIND(FIRST b1-po-ord WHERE  
+                b1-po-ord.company EQ cocode AND 
+                    (b1-po-ord.stat    EQ "N" OR 
+                   b1-po-ord.stat    EQ "O" OR 
+                   b1-po-ord.stat    EQ "U" OR
+                  (tb_reprint-closed AND b1-po-ord.stat EQ "C"))
+              AND  b1-po-ord.printed EQ v-reprint-po
+              AND  b1-po-ord.po-no   GE v-start-po
+              AND  b1-po-ord.po-no   LE v-end-po
+              AND  b1-po-ord.vend-no GE begin_vend-no
+              AND  b1-po-ord.vend-no LE end_vend-no) THEN
         FOR EACH  b1-po-ord /* FIELDS(vend-no company) */
                 WHERE  b1-po-ord.company EQ cocode
                   AND (b1-po-ord.stat    EQ "N" OR 
@@ -703,9 +744,11 @@ DO:
                     cPoMailList     = "" .
             END. /* FIRST-OF (b1-po-ord.vend-no) */
             IF rd-dest NE 5 THEN DO: /* rd-dest ne 5*/
-                RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
-                RUN run-report(0,b1-po-ord.vend-no, TRUE) . 
-                RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
+                IF FIRST-OF (b1-po-ord.vend-no) THEN DO:
+                   RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
+                   RUN run-report(0,b1-po-ord.vend-no, TRUE) . 
+                   RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
+                END.
             END.    /* rd-dest ne 5*/
             IF rd-dest EQ 5 THEN do:
                 IF FIRST-OF (b1-po-ord.po-no) THEN DO:
@@ -717,7 +760,12 @@ DO:
                    RUN GenerateMail .
             END.  /* rd-dest EQ 5 */
         END. /* FOR EACH b1-po-ord */
-    END.
+        ELSE do:
+            MESSAGE "No Purchase Orders Were Printed."
+                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
+        END. /* else do not found record*/             
+ 
+    END.  /* NOT vendor-specific formst */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -845,6 +893,16 @@ END.
 &Scoped-define SELF-NAME tb_cust-code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cust-code C-Win
 ON VALUE-CHANGED OF tb_cust-code IN FRAME FRAME-A /* Print Customer Code for each PO Line? */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME tb_mach
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_mach C-Win
+ON VALUE-CHANGED OF tb_mach IN FRAME FRAME-A /* Print Machine for each PO Line? */
 DO:
   ASSIGN {&self-name}.
 END.
@@ -1044,7 +1102,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   ASSIGN
    v-pre-printed-forms = po-ctrl.pre-printed-forms
    v-company           = po-ctrl.prcom
-   vcDefaultForm = v-print-fmt.
+   vcDefaultForm = v-print-fmt .
 
   FIND FIRST users WHERE
        users.user_id EQ USERID("NOSWEAT")
@@ -1104,8 +1162,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                    tb_print-prices:SENSITIVE = NO.
    
     IF LOOKUP(v-print-fmt,"poprint 10,poprint 20,POPrint10-CAN") = 0 THEN 
-       DISABLE tb_cust-code.
-
+       DISABLE tb_cust-code tb_mach.
+    
     IF NOT poPaperClip-log THEN 
         ASSIGN tb_attachments:SCREEN-VALUE = "NO"
                tb_attachments:SENSITIVE    = NO.
@@ -1173,13 +1231,13 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_po-no end_po-no begin_vend-no end_vend-no tb_reprint 
           tb_reprint-closed tb_delete tb_print-terms tb_spec tb_attachments 
-          tb_cust-code tb_corr tb_group-notes tb_Summarize-by-item 
+          tb_cust-code tb_mach tb_corr tb_group-notes tb_Summarize-by-item 
           tb_itemDescription tb_score-types tb_metric tb_print-prices rd-dest 
           lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_po-no end_po-no begin_vend-no end_vend-no 
          tb_reprint tb_reprint-closed tb_delete tb_print-terms tb_spec 
-         tb_attachments tb_cust-code tb_corr tb_group-notes 
+         tb_attachments tb_cust-code tb_mach tb_corr tb_group-notes 
          tb_Summarize-by-item tb_itemDescription tb_score-types tb_metric 
          tb_print-prices rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
          btn-ok btn-cancel 
@@ -1595,7 +1653,8 @@ PROCEDURE run-report :
     s-print-prices      = tb_print-prices
     v-print-terms       = tb_print-terms
     lv-attachments      = tb_attachments
-    lCustCode           =  tb_cust-code.
+    lCustCode           =  tb_cust-code
+    lPrintMach          =  tb_mach.
 
   IF ip-sys-ctrl-shipto THEN
      ASSIGN

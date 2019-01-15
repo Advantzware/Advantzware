@@ -2711,6 +2711,7 @@ PROCEDURE calc-layout :
 
   IF ll THEN DO:
     IF NOT lv-foam THEN DO:
+      RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
       {sys/inc/ceroute1.i w id l en}
     END.
 
@@ -2771,6 +2772,7 @@ PROCEDURE calc-layout4Artios :
 
   IF ll THEN DO:
     IF NOT lv-foam THEN DO:
+      RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
       {sys/inc/ceroute1.i w id l en}
 
       RUN cec/calc-dim.p.
@@ -4430,16 +4432,11 @@ ASSIGN
  itemfg.company    = gcompany
  itemfg.loc        = gloc
  itemfg.i-no       = v-item
- itemfg.i-code     = "C"
  itemfg.i-name     = xeb.part-dscr1
  itemfg.part-dscr1 = xeb.part-dscr2
- itemfg.sell-uom   = "M"
  itemfg.part-no    = xeb.part-no
  itemfg.cust-no    = xeb.cust-no
  itemfg.cust-name  = IF AVAIL cust THEN cust.name ELSE ""
- itemfg.pur-uom    = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.prod-uom   = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.stocked    = YES
  itemfg.die-no     = xeb.die-no
  itemfg.plate-no   = xeb.plate-no
  itemfg.style      = xeb.style
@@ -4451,7 +4448,7 @@ ASSIGN
                      xeb.form-no EQ 0
  itemfg.pur-man    = xeb.pur-man 
  itemfg.alloc      = xeb.set-is-assembled
- itemfg.setupDate  = TODAY.
+ .
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
 
  {oe/fgfreighta.i xeb}
@@ -4746,7 +4743,10 @@ PROCEDURE est-from-tandem :
                         OUTPUT ll-new-tandem, OUTPUT lv-eb-rowid).
 
     IF ll-new-tandem THEN DO:
-      FIND FIRST xest OF b-eb NO-LOCK NO-ERROR.
+      FIND FIRST xest NO-LOCK WHERE 
+        xest.company EQ b-eb.company AND 
+        xest.est-no EQ b-eb.est-no 
+        NO-ERROR.
       IF AVAIL xest THEN
          v-log = xest.est-type EQ 8.
 
@@ -4760,7 +4760,10 @@ PROCEDURE est-from-tandem :
     END.
 
     ELSE DO:
-      FIND FIRST b-est OF b-eb EXCLUSIVE NO-ERROR.
+      FIND FIRST b-est EXCLUSIVE WHERE 
+        b-est.company EQ b-eb.company AND 
+        b-est.est-no EQ b-eb.est-no 
+        NO-ERROR.
       IF AVAIL b-est THEN DELETE b-est.
     END.
   END.
@@ -7123,7 +7126,8 @@ PROCEDURE set-auto-add-item :
   DEF VAR lvr-eb AS ROWID NO-UNDO.
   DEF BUFFER bf-est FOR est.
   DEF VAR l-est-type AS INT NO-UNDO.
-
+  DEFINE VARIABLE phandle AS WIDGET-HANDLE NO-UNDO.
+  DEFINE VARIABLE char-hdl AS cha NO-UNDO. 
   
   GET FIRST {&browse-name}.
   IF AVAIL eb THEN DO:
@@ -7136,6 +7140,18 @@ PROCEDURE set-auto-add-item :
 
   IF NOT AVAIL xest THEN
       RETURN.
+  
+  IF v-est-fg1 EQ "Manual" THEN DO:
+      IF eb.stock-no EQ "" THEN do:
+          RUN get-link-handle IN adm-broker-hdl
+              (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
+          phandle = WIDGET-HANDLE(char-hdl).
+          RUN new-state IN phandle ('update-begin':U).
+          APPLY "entry" TO eb.stock-no IN BROWSE {&browse-name} .
+          RETURN .
+      END.
+  END.
+
   IF xest.est-type EQ 2 OR xest.est-type EQ 6 THEN DO:
     lv-num-created = lv-num-created + 1.    
     RUN auto-create-item (INPUT lv-i-no).    
@@ -7929,8 +7945,7 @@ PROCEDURE valid-eb-reckey :
    FIND FIRST bf-eb WHERE bf-eb.rec_key = eb.rec_key AND 
                           RECID(bf-eb) <> RECID(eb) NO-LOCK NO-ERROR.
    IF AVAIL bf-eb OR eb.rec_key = "" THEN DO:
-      ls-key = STRING(TODAY,"99999999") +
-               string(NEXT-VALUE(rec_key_seq,asi),"99999999").
+      ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey").
       FIND CURRENT eb.
       eb.rec_key = ls-key.
       FIND CURRENT eb NO-LOCK.               

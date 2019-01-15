@@ -1,0 +1,95 @@
+ADD TABLE "taskEmail"
+  AREA "Data"
+  LABEL "Task Email"
+  DESCRIPTION "Pending Task Email"
+  DUMP-NAME "taskemail"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\taskEmail.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\taskEmail.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\taskEmail.p" CRC "?" 
+
+ADD FIELD "attachment" OF "taskEmail" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Attachment"
+  POSITION 2
+  MAX-WIDTH 120
+  HELP "Enter Attachment File"
+  ORDER 30
+
+ADD FIELD "recipients" OF "taskEmail" AS character 
+  FORMAT "x(256)"
+  INITIAL ""
+  LABEL "Recipients"
+  POSITION 3
+  MAX-WIDTH 512
+  HELP "Enter Recipients"
+  ORDER 40
+
+ADD FIELD "rec_key" OF "taskEmail" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 4
+  MAX-WIDTH 42
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 70
+
+ADD FIELD "subject" OF "taskEmail" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Subject"
+  POSITION 5
+  MAX-WIDTH 80
+  HELP "Enter Subject"
+  ORDER 10
+
+ADD FIELD "body" OF "taskEmail" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Body"
+  POSITION 6
+  MAX-WIDTH 80
+  HELP "Enter Body Text"
+  ORDER 20
+
+ADD FIELD "mustExist" OF "taskEmail" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Must Exist"
+  POSITION 7
+  MAX-WIDTH 1
+  COLUMN-LABEL "Must"
+  HELP "Toggle Must Exist"
+  ORDER 50
+
+ADD FIELD "user-id" OF "taskEmail" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 8
+  MAX-WIDTH 16
+  HELP "Enter User ID"
+  ORDER 60
+
+ADD INDEX "pi-subject" ON "taskEmail" 
+  AREA "Index"
+  PRIMARY
+  DESCRIPTION "Primary Index by Subject"
+  INDEX-FIELD "subject" ASCENDING 
+
+ADD INDEX "si-attachment" ON "taskEmail" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Attachment"
+  INDEX-FIELD "attachment" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "taskEmail" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000002053

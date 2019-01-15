@@ -24,9 +24,8 @@ DEFINE INPUT PARAMETER ip-ord-no LIKE po-ord.po-no NO-UNDO.
 DEFINE INPUT PARAMETER ip-type AS cha NO-UNDO .   /* add,update,view */
 
 {custom/globdefs.i}
-
 {sys/inc/var.i new shared}
-
+{system/fSuperRunning.i}
 
 ASSIGN
     cocode = g_company
@@ -774,7 +773,10 @@ DO:
               IF char-val NE "" THEN RUN new-job-mat (look-recid).              
             END.
             ELSE DO:
-              RUN windows/l-itmtyp.w (OUTPUT lv-itemtype).
+              IF po-ordl.item-type:SCREEN-VALUE = "" THEN  
+                RUN windows/l-itmtyp.w (OUTPUT lv-itemtype).
+              ELSE ASSIGN 
+                lv-itemtype = po-ordl.item-type:SCREEN-VALUE.
               IF lv-itemtype = "RM" THEN DO:
                 RUN windows/l-itmall.w (g_company, "","", po-ordl.i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
                 IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO:                    
@@ -1113,30 +1115,12 @@ DO:
      /* wfk - to make sure cons-qty was being updated */
     FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
     {po/podisdet.i}
-    
+   
+   ASSIGN po-ordl.s-dep = v-dep . 
     
 IF TRIM(po-ordl.job-no) EQ "" THEN po-ordl.job-no2 = 0.
 FIND CURRENT po-ordl NO-LOCK NO-ERROR.
-FIND FIRST reftable WHERE
-    reftable.reftable EQ "POORDLDEPTH" AND
-    reftable.company  EQ cocode AND
-    reftable.loc      EQ STRING(ip-ord-no) AND
-    reftable.code     EQ STRING(po-ordl.LINE)
-    EXCLUSIVE-LOCK NO-ERROR.
 
-IF NOT AVAILABLE reftable THEN 
-DO:
-    CREATE reftable.
-    ASSIGN
-        reftable.reftable = "POORDLDEPTH"
-        reftable.company  = cocode 
-        reftable.loc      = STRING(ip-ord-no)
-        reftable.code     = STRING(po-ordl.LINE).
-END.
-
-reftable.code2 = STRING(v-dep).
-FIND CURRENT reftable NO-LOCK NO-ERROR.
-RELEASE reftable.
 END.
 FIND CURRENT po-ord NO-LOCK NO-ERROR.
 FIND CURRENT po-ordl NO-LOCK NO-ERROR.
@@ -1364,7 +1348,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.i-no Dialog-Frame
 ON LEAVE OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
     DO:
-        IF LASTKEY NE -1 THEN 
+        IF LASTKEY NE -1 
+        AND SELF:SCREEN-VALUE NE "" THEN 
         DO:
             RUN check-job-bnum . 
             RUN check-workfile.
@@ -1433,11 +1418,11 @@ ON VALUE-CHANGED OF po-ordl.item-type IN FRAME Dialog-Frame /* Item Type */
             ll-item-validated = NO
             ll-poord-warned   = NO
             ll-pojob-warned   = NO.
-
-        RUN validate-i-no NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-        RETURN NO-APPLY.
+        APPLY 'entry' TO po-ordl.i-no.
+/*        RUN validate-i-no NO-ERROR.                */
+/*        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.*/
+/*                                                   */
+/*        RETURN NO-APPLY.                           */
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3136,21 +3121,10 @@ PROCEDURE display-item :
             lv-save-s-num              = po-ordl.s-num:SCREEN-VALUE
             lv-save-b-num              = po-ordl.b-num:SCREEN-VALUE.
 
-        FIND FIRST reftable NO-LOCK WHERE
-            reftable.reftable EQ "POORDLDEPTH" AND
-            reftable.company  EQ cocode AND
-            reftable.loc      EQ STRING(ip-ord-no) AND
-            reftable.code     EQ STRING(po-ordl.LINE)
-            NO-ERROR.
-
-        IF AVAILABLE reftable THEN 
-        DO:
             ASSIGN
-                v-dep                 = DEC(reftable.code2)
+                v-dep                 = po-ordl.s-dep
         {po/calc16.i v-dep}
                 v-po-dep:SCREEN-VALUE = STRING(v-dep).
-            RELEASE reftable.
-        END.
  
         RUN sys\inc\decfrac2.p(INPUT DEC(po-ordl.s-wid:SCREEN-VALUE), INPUT 32, OUTPUT v-wid-frac).
         RUN sys\inc\decfrac2.p(INPUT DEC(po-ordl.s-len:SCREEN-VALUE), INPUT 32, OUTPUT v-len-frac).

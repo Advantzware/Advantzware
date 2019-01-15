@@ -32,7 +32,8 @@ CREATE WIDGET-POOL.
 DEF INPUT PARAMETER ipcName AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcPort AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcDir AS CHAR NO-UNDO.
-DEF INPUT PARAMETER ipcVer AS CHAR NO-UNDO.
+DEF INPUT PARAMETER ipcFromVer AS CHAR NO-UNDO.
+DEF INPUT PARAMETER ipcToVer AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipiLevel AS INT NO-UNDO.
 
 DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
@@ -57,6 +58,7 @@ DEF VAR cCurrDir AS CHAR NO-UNDO.
 DEF VAR ptrToString      AS MEMPTR    NO-UNDO.
 DEF VAR intBufferSize    AS INTEGER   NO-UNDO INITIAL 256.
 DEF VAR intResult        AS INTEGER   NO-UNDO.
+DEF VAR iDbCtr AS INT NO-UNDO.
 DEF VAR delCtr AS INT NO-UNDO.
 DEF VAR dupCtr AS INT NO-UNDO.
 DEF VAR cIniVarList AS CHAR NO-UNDO.
@@ -114,6 +116,15 @@ DEF VAR iDBCurrVer AS INT NO-UNDO.
 DEF VAR iDBTgtVer AS INT NO-UNDO.
 DEF VAR iInstance AS INT NO-UNDO.
 DEF VAR cEnvVer AS CHAR NO-UNDO.
+DEF VAR iFromDelta AS INT NO-UNDO.
+DEF VAR iToDelta AS INT NO-UNDO.
+DEF VAR cDeltaFile AS CHAR NO-UNDO.
+DEF VAR wDbList AS CHAR NO-UNDO.
+DEF VAR wDbVerList AS CHAR NO-UNDO.
+DEF VAR wAudDbList AS CHAR NO-UNDO.
+DEF VAR wAudPortList AS CHAR NO-UNDO.
+DEF VAR wAudDirList AS CHAR NO-UNDO.
+
 
 /* Ensure that these lists always match, 'c' is always the prefix */
 ASSIGN cIniVarList = 
@@ -218,7 +229,7 @@ DEF VAR cDbPortList AS CHAR INITIAL "2826" NO-UNDO.
 DEF VAR cAudDirList AS CHAR INITIAL "Audit" NO-UNDO.
 DEF VAR cAudDBList AS CHAR INITIAL "audProd" NO-UNDO.
 DEF VAR cAudPortList AS CHAR INITIAL "2836" NO-UNDO.
-DEF VAR cEnvVerList AS CHAR INITIAL "16.7.16" NO-UNDO.
+DEF VAR cEnvVerList AS CHAR INITIAL "16.7.20" NO-UNDO.
 DEF VAR cDbVerList AS CHAR INITIAL "16.7" NO-UNDO.
 /* # Basic DB Elements */
 DEF VAR cAudDbName AS CHAR INITIAL "audProd" NO-UNDO.
@@ -235,8 +246,8 @@ DEF VAR cTestDbPort AS CHAR INITIAL "2827" NO-UNDO.
 DEF VAR cTestDbStFile AS CHAR INITIAL "asiTest.st" NO-UNDO.
 /* # Misc Elements */
 DEF VAR cAdminPort AS CHAR INITIAL "20942" NO-UNDO.
-DEF VAR cDfFileName AS CHAR INITIAL "asi167.df" NO-UNDO.
-DEF VAR cDeltaFileName AS CHAR INITIAL "asi166167.df" NO-UNDO.
+DEF VAR cDfFileName AS CHAR INITIAL "asi168.df" NO-UNDO.
+DEF VAR cDeltaFileName AS CHAR INITIAL "asi167168.df" NO-UNDO.
 
 /* END advantzware.ini Variables */
 
@@ -280,13 +291,9 @@ END.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-3 tbBackupDBs tbUpgradeDBs ~
-slDatabases bProcess 
-&Scoped-Define DISPLAYED-OBJECTS fiCurrVer fiVerDate fiNewVer fiBackupDir ~
-fiDbBackup fiSiteName fiHostname fiPgmBackup fiResBackup fiDrive fiTopDir ~
-fiMapDir fiDbDir fiDlcDir fiDBDrive fiDbAuditDir fiDbDataDir ~
-fiDeltaFilename tbBackupDBs tbUpgradeDBs fiDbProdDir fiDbShipDir ~
-fiDbStructDir fiDbTestDir slDatabases fiUpdatesDir fiPatchDir 
+&Scoped-Define ENABLED-OBJECTS bProcess eStatus 
+&Scoped-Define DISPLAYED-OBJECTS fiSiteName fiHostname fiDbName fiDbDir ~
+fiPortNo fiFromVer fiToVer fiDeltaFilename eStatus fiLogFile 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -294,6 +301,15 @@ fiDbStructDir fiDbTestDir slDatabases fiUpdatesDir fiPatchDir
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIntVer C-Win 
+FUNCTION fIntVer RETURNS INTEGER
+  ( INPUT cVerString AS CHAR ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -303,214 +319,79 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bProcess AUTO-END-KEY 
-     LABEL "Start  Update" 
-     SIZE 21 BY 1.43
+     LABEL "No User Action Required" 
+     SIZE 46 BY 1.43
      FONT 6.
 
-DEFINE VARIABLE fiBackupDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiCurrVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.6.0" 
-     LABEL "Current Version" 
-     VIEW-AS FILL-IN 
-     SIZE 14 BY 1
-     FONT 6 NO-UNDO.
-
-DEFINE VARIABLE fiDbAuditDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiDbBackup AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiDbDataDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
+DEFINE VARIABLE eStatus AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 75 BY 9.52 NO-UNDO.
 
 DEFINE VARIABLE fiDbDir AS CHARACTER FORMAT "X(256)":U 
+     LABEL "in directory" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
+     SIZE 41 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiDBDrive AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Database Drive" 
+DEFINE VARIABLE fiDbName AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Upgrading Database" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiDbProdDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiDbShipDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiDbStructDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiDbTestDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiDeltaFilename AS CHARACTER FORMAT "X(256)":U INITIAL "asi166_167.df" 
-     LABEL "Delta Filename" 
+DEFINE VARIABLE fiDeltaFilename AS CHARACTER FORMAT "X(256)":U 
+     LABEL "using delta file" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiDlcDir AS CHARACTER FORMAT "X(256)":U INITIAL "C:~\PROGRESS~\OE116" 
-     LABEL "DBMS Directory" 
+DEFINE VARIABLE fiFromVer AS CHARACTER FORMAT "X(256)":U 
+     LABEL "from ASI version" 
      VIEW-AS FILL-IN 
-     SIZE 44 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiDrive AS CHARACTER FORMAT "X(256)":U INITIAL "C:" 
-     LABEL "Physical Drive" 
-     VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiHostname AS CHARACTER FORMAT "X(256)":U INITIAL "DEMO" 
      LABEL "Server Name" 
      VIEW-AS FILL-IN 
      SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiMapDir AS CHARACTER FORMAT "X(256)":U INITIAL "N:" 
-     LABEL "Mapped Drive" 
-     VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+DEFINE VARIABLE fiLogFile AS CHARACTER FORMAT "X(256)":U INITIAL "Log of actions will be stored in N:~\Admin~\EnvAdmin~\UpdateLog.txt" 
+      VIEW-AS TEXT 
+     SIZE 65 BY .62 NO-UNDO.
 
-DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.16" 
-     LABEL "New Version" 
+DEFINE VARIABLE fiPortNo AS CHARACTER FORMAT "X(256)":U 
+     LABEL "running on port" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1
-     FONT 6 NO-UNDO.
-
-DEFINE VARIABLE fiPatchDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiPgmBackup AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiResBackup AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiSiteName AS CHARACTER FORMAT "X(256)":U INITIAL "DEMO" 
      LABEL "Site Name" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
+     SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiTopDir AS CHARACTER FORMAT "X(256)":U INITIAL "ASIGUI" 
-     LABEL "ASI Directory" 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiUpdatesDir AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fiVerDate AS DATE FORMAT "99/99/99":U INITIAL 10/01/17 
-     LABEL "Installed On" 
+DEFINE VARIABLE fiToVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.20" 
+     LABEL "to version" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
-
-DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 6.91.
-
-DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 54 BY 5.71.
-
-DEFINE VARIABLE slDatabases AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 43 BY 4.29 NO-UNDO.
-
-DEFINE VARIABLE tbBackupDBs AS LOGICAL INITIAL no 
-     LABEL "Backup Database" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 23 BY 1 NO-UNDO.
-
-DEFINE VARIABLE tbUpgradeDBs AS LOGICAL INITIAL no 
-     LABEL "Upgrade Databases" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 26 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     fiCurrVer AT ROW 2.43 COL 21 COLON-ALIGNED WIDGET-ID 66
-     fiVerDate AT ROW 2.43 COL 51 COLON-ALIGNED WIDGET-ID 56
-     fiNewVer AT ROW 2.43 COL 84 COLON-ALIGNED WIDGET-ID 46
-     fiBackupDir AT ROW 2.43 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 502
-     fiDbBackup AT ROW 3.14 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 506
-     fiSiteName AT ROW 3.62 COL 25 COLON-ALIGNED WIDGET-ID 68
-     fiHostname AT ROW 3.62 COL 69 COLON-ALIGNED WIDGET-ID 36
-     fiPgmBackup AT ROW 3.86 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 520
-     fiResBackup AT ROW 4.57 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 522
-     fiDrive AT ROW 4.81 COL 25 COLON-ALIGNED WIDGET-ID 64
-     fiTopDir AT ROW 4.81 COL 45 COLON-ALIGNED WIDGET-ID 62
-     fiMapDir AT ROW 4.81 COL 89 COLON-ALIGNED WIDGET-ID 42
-     fiDbDir AT ROW 5.29 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 510
-     fiDlcDir AT ROW 6 COL 25 COLON-ALIGNED WIDGET-ID 44
-     fiDBDrive AT ROW 6 COL 89 COLON-ALIGNED WIDGET-ID 478
-     fiDbAuditDir AT ROW 6 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 504
-     fiDbDataDir AT ROW 6.71 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 508
-     fiDeltaFilename AT ROW 7.19 COL 25 COLON-ALIGNED WIDGET-ID 50
-     tbBackupDBs AT ROW 7.19 COL 49 WIDGET-ID 384
-     tbUpgradeDBs AT ROW 7.19 COL 75 WIDGET-ID 494
-     fiDbProdDir AT ROW 7.43 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 512
-     fiDbShipDir AT ROW 8.14 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 514
-     fiDbStructDir AT ROW 8.86 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 516
-     fiDbTestDir AT ROW 9.57 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 518
-     slDatabases AT ROW 10.05 COL 11 NO-LABEL WIDGET-ID 484
-     fiUpdatesDir AT ROW 10.29 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 548
-     fiPatchDir AT ROW 11 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 546
-     bProcess AT ROW 12.43 COL 111 WIDGET-ID 404
-     "This program will automatically close when completed." VIEW-AS TEXT
-          SIZE 52 BY .62 AT ROW 14.57 COL 65 WIDGET-ID 576
-     "This is expected, and can be ignored." VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 13.86 COL 65 WIDGET-ID 574
-     "~"not responding~" message in the title bar~;" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 13.14 COL 65 WIDGET-ID 572
-     "changes to the database.  You may see a" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 12.43 COL 65 WIDGET-ID 570
-     " General Variables" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 1.48 COL 8 WIDGET-ID 356
-          FONT 6
-     " Your Directory Structure" VIEW-AS TEXT
-          SIZE 30 BY .62 AT ROW 1.48 COL 107 WIDGET-ID 558
-          FONT 6
-     " Databases" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 9.1 COL 9 WIDGET-ID 482
-          FONT 6
-     "unexpectedly.  Then, we will apply some" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 11.71 COL 65 WIDGET-ID 568
-     "before we start, just to be sure nothing goes" VIEW-AS TEXT
-          SIZE 43 BY .62 AT ROW 11 COL 65 WIDGET-ID 566
-     "hood.~"  We're going to back up the DB" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 10.29 COL 65 WIDGET-ID 564
-     "have to make some changes ~"under the" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 9.57 COL 65 WIDGET-ID 562
-     "Because of the age of your database, we" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 8.86 COL 65 WIDGET-ID 560
+     fiSiteName AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 68
+     fiHostname AT ROW 2.19 COL 19 COLON-ALIGNED WIDGET-ID 36
+     fiDbName AT ROW 3.86 COL 29 COLON-ALIGNED
+     fiDbDir AT ROW 4.81 COL 29 COLON-ALIGNED
+     fiPortNo AT ROW 5.76 COL 29 COLON-ALIGNED
+     fiFromVer AT ROW 6.71 COL 29 COLON-ALIGNED
+     fiToVer AT ROW 7.67 COL 29 COLON-ALIGNED WIDGET-ID 46
+     fiDeltaFilename AT ROW 8.62 COL 29 COLON-ALIGNED WIDGET-ID 50
+     bProcess AT ROW 10.29 COL 15 WIDGET-ID 404
+     eStatus AT ROW 12.67 COL 2 NO-LABEL WIDGET-ID 52
+     fiLogFile AT ROW 22.43 COL 5 COLON-ALIGNED NO-LABEL
+     "Status:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 11.95 COL 3 WIDGET-ID 54
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 166.2 BY 32.57
-         DEFAULT-BUTTON bProcess WIDGET-ID 100.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME DEFAULT-FRAME
-     RECT-2 AT ROW 1.71 COL 5 WIDGET-ID 358
-     RECT-3 AT ROW 9.33 COL 5 WIDGET-ID 362
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 166.2 BY 32.57
+         SIZE 77 BY 22.67
          DEFAULT-BUTTON bProcess WIDGET-ID 100.
 
 
@@ -530,9 +411,9 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "ASI Database Upgrade Processor"
-         HEIGHT             = 14.33
-         WIDTH              = 136.4
+         TITLE              = "ASIupdate 160800-01 Database"
+         HEIGHT             = 22.67
+         WIDTH              = 77
          MAX-HEIGHT         = 39.29
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 39.29
@@ -559,53 +440,23 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* SETTINGS FOR FILL-IN fiBackupDir IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiCurrVer IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiDbAuditDir IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiDbBackup IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiDbDataDir IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiDbDir IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiDBDrive IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiDbProdDir IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiDbShipDir IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiDbStructDir IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiDbTestDir IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN fiDbName IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiDeltaFilename IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiDlcDir IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiDrive IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN fiFromVer IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiHostname IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiMapDir IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN fiLogFile IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiNewVer IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiPatchDir IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiPgmBackup IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiResBackup IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN fiPortNo IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiSiteName IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiTopDir IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiUpdatesDir IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiVerDate IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN fiToVer IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -621,7 +472,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* ASI Database Upgrade Processor */
+ON END-ERROR OF C-Win /* ASIupdate 160800-01 Database */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -635,7 +486,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* ASI Database Upgrade Processor */
+ON WINDOW-CLOSE OF C-Win /* ASIupdate 160800-01 Database */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -646,34 +497,12 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME DEFAULT-FRAME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL DEFAULT-FRAME C-Win
-ON LEAVE OF FRAME DEFAULT-FRAME
-ANYWHERE DO:
-    RUN ipUpdateTTIniFile.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME bProcess
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bProcess C-Win
-ON CHOOSE OF bProcess IN FRAME DEFAULT-FRAME /* Start  Update */
+ON CHOOSE OF bProcess IN FRAME DEFAULT-FRAME /* No User Action Required */
 DO:
-    RUN ipProcessRequest IN THIS-PROCEDURE.              
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tbUpgradeDBs
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbUpgradeDBs C-Win
-ON VALUE-CHANGED OF tbUpgradeDBs IN FRAME DEFAULT-FRAME /* Upgrade Databases */
-DO:
-    IF SELF:CHECKED THEN ASSIGN
-        tbBackupDBs:CHECKED = TRUE.
+    RUN ipProcessRequest IN THIS-PROCEDURE.  
+    APPLY 'close' TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -733,39 +562,29 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
     RUN ipExpandVarNames.
     RUN ipSetDispVars.
 
-    DO i = 1 TO NUM-ENTRIES(PROGRAM-NAME(1),"\"):
-        IF ENTRY(i,PROGRAM-NAME(1),"\") BEGINS "PATCH" THEN ASSIGN
-            cThisPatch = ENTRY(i,PROGRAM-NAME(1),"\").
-    END.
-    ASSIGN
-        cThisPatch = SUBSTRING(cThisPatch,6).
-    IF cThisPatch NE "" 
-    AND cThisPatch NE ? THEN DO:
-        ASSIGN
-            fiNewVer:{&SV} = cThisPatch.
-        APPLY 'leave' TO fiNewVer.
-    END.
-    ASSIGN
-        tbUpgradeDBs:CHECKED = TRUE.
-    APPLY 'value-changed' TO tbUpgradeDBs.
-    
-    APPLY 'entry' TO bProcess.
-    
-    IF NUM-ENTRIES(slDatabases:LIST-ITEMS) EQ 1 THEN DO:
-        DISABLE
-            slDatabases
-            tbUpgradeDbs
-            tbBackupDbs
-            WITH FRAME {&FRAME-NAME}.
-        STATUS INPUT "Upgrading selected database...".
-        APPLY 'choose' TO bProcess.
+    ASSIGN 
+        fiDbName:{&SV} = ipcName
+        fiPortNo:{&SV} = ipcPort
+        fiDbDir:{&SV} = ipcDir
+        fiFromVer:{&SV} = ipcFromVer
+        fiToVer:{&SV} = ipcToVer
+        iFromDelta = (INTEGER(ENTRY(1,ipcFromVer,".")) * 10) + (INTEGER(ENTRY(2,ipcFromVer,".")))
+        iToDelta = (INTEGER(ENTRY(1,ipcToVer,".")) * 10) + (INTEGER(ENTRY(2,ipcToVer,".")))
+        cDeltaFile = "asi" + STRING(iFromDelta,"999") + "_" + STRING(iToDelta,"999") + ".df"
+        fiDeltaFileName:{&SV} = cDeltaFile.
+
+    IF ipiLevel LT 10 THEN APPLY 'choose' TO bProcess.
+    ELSE DO:
+        ASSIGN 
+            bProcess:LABEL = "Start Update".
+        APPLY 'entry' TO bProcess.
     END.
     
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
-    
-IF KEYFUNCTION(LASTKEY) = "END-ERROR" THEN QUIT.
+
+RETURN.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -803,13 +622,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiCurrVer fiVerDate fiNewVer fiBackupDir fiDbBackup fiSiteName 
-          fiHostname fiPgmBackup fiResBackup fiDrive fiTopDir fiMapDir fiDbDir 
-          fiDlcDir fiDBDrive fiDbAuditDir fiDbDataDir fiDeltaFilename 
-          tbBackupDBs tbUpgradeDBs fiDbProdDir fiDbShipDir fiDbStructDir 
-          fiDbTestDir slDatabases fiUpdatesDir fiPatchDir 
+  DISPLAY fiSiteName fiHostname fiDbName fiDbDir fiPortNo fiFromVer fiToVer 
+          fiDeltaFilename eStatus fiLogFile 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-2 RECT-3 tbBackupDBs tbUpgradeDBs slDatabases bProcess 
+  ENABLE bProcess eStatus 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -825,51 +641,75 @@ PROCEDURE ipBackupDBs :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcDBIdent AS CHAR NO-UNDO.
     DEF VAR cCmdLine AS CHAR NO-UNDO.
     DEF VAR cLocItem AS CHAR NO-UNDO.
     DEF VAR cLocDir AS CHAR NO-UNDO.
     DEF VAR cLocName AS CHAR NO-UNDO.
     DEF VAR cLocPort AS CHAR NO-UNDO.
-    
-    RUN ipStatus ("Backing Up database").
-    
-        ASSIGN
-            cLocItem = ipcDbIdent
-            cLocDir  = ENTRY(1,cLocItem,"-")
-            cLocName = ENTRY(2,cLocItem,"-")
-            cLocPort = ENTRY(3,cLocItem,"-").
-        IF fiDbDrive:{&SV} EQ fiDrive:{&SV} THEN ASSIGN
-            cCmdLine = fiDlcDir:{&SV} + "\bin\probkup online " + 
-                       fiDrive:{&SV} + "\" + 
-                       fiTopDir:{&SV} + "\" + 
-                       fiDbDir:{&SV} + "\" +
-                       cLocDir + "\" +
-                       cLocName + " " + 
-                       cDbBackup + "\" + cLocName + 
-                       STRING(YEAR(TODAY)) +
-                       STRING(MONTH(TODAY),"99") +
-                       STRING(DAY(TODAY),"99") + 
-                       STRING(TIME) + ".bak".
-        ELSE ASSIGN
-            cCmdLine = fiDlcDir:{&SV} + "\bin\probkup online " + 
-                       fiDBDrive:{&SV} + "\" + 
-                       fiDbDir:{&SV} + "\" +
-                       cLocDir + "\" +
-                       cLocName + " " + 
-                       cDbBackup + "\" + cLocName + 
-                       STRING(YEAR(TODAY)) +
-                       STRING(MONTH(TODAY),"99") +
-                       STRING(DAY(TODAY),"99") + 
-                       STRING(TIME) + ".bak".
-    
-        OS-COMMAND SILENT VALUE(cCmdLine).
+    DEF VAR cBackupName AS CHAR NO-UNDO.
+    DEF VAR cLockFile AS CHAR NO-UNDO.  
+    DEF VAR cPrefix  AS CHAR NO-UNDO.
+    DEF VAR cThisDir AS CHAR NO-UNDO.
+      
+    ASSIGN 
+        cPrefix = SUBSTRING(fiDbName:{&SV},1,3).
         
-        IF SEARCH(cDbBackup + "\" + cLocName + 
-                  STRING(YEAR(TODAY)) +
-                  STRING(MONTH(TODAY),"99") +
-                  STRING(DAY(TODAY),"99") + ".bak") NE ? THEN ASSIGN
+    IF cPrefix = "asi" THEN ASSIGN 
+        iListEntry = LOOKUP(fiDbName:{&SV},cDbList)
+        cThisDir = ENTRY(iListEntry,cDbDirList).
+    ELSE ASSIGN 
+        iListEntry = LOOKUP(fiDbName:{&SV},cAudDbList)
+        cThisDir = ENTRY(iListEntry,cAudDirList).
+    
+    ASSIGN
+        cLocDir  = fiDbDir:{&SV}
+        cLocName = fiDbName:{&SV}
+        cLocPort = fiPortNo:{&SV}
+        cBackupName = cDbBackup + "\" + cLocName + "_" +
+                   STRING(YEAR(TODAY)) +
+                   STRING(MONTH(TODAY),"99") +
+                   STRING(DAY(TODAY),"99") + "_" +
+                   STRING(TIME) + ".bak" 
+        cCmdLine = cDLCDir + "\bin\probkup online " + 
+                   cDBDrive + "\" + 
+                   cTopDir + "\" + 
+                   cDbDir + "\" +
+                   cLocDir + "\" +
+                   cLocName + " " + 
+                   cBackupName
+        cLockFile = cDbDrive + "\" +
+                   cTopDir + "\" + cDbDir + "\" + 
+                   cThisDir + "\" +
+                   fiDBName:{&SV} + ".lk".
+    .
+
+    IF SEARCH(cLockFile) EQ ? THEN DO:
+        MESSAGE 
+            "The " + fiDbName:{&SV} + " database is not currently running." SKIP 
+            "This means that it will not be possible to back up the data-" SKIP 
+            "base, or to upgrade it with this program.  You should exit" SKIP 
+            "this program now, and make sure that the databases are" SKIP 
+            "running before you attempt to upgrade the system again."
+            VIEW-AS ALERT-BOX ERROR.
+        ASSIGN 
+            lSuccess = FALSE.
+        RETURN.
+    END.
+    
+    RUN ipStatus ("  Backing Up database " + fiDbName:{&SV}).
+    
+    OS-COMMAND SILENT VALUE(cCmdLine).
+    
+    IF SEARCH(cBackupName) NE ? THEN DO:
+        ASSIGN
             lSuccess = TRUE.
+        RUN ipStatus ("    Backup successful").
+    END.
+    ELSE DO:
+        ASSIGN
+            lSuccess = FALSE.
+        RUN ipStatus ("    Backup FAILED").
+    END.
 
 END PROCEDURE.
 
@@ -907,34 +747,34 @@ PROCEDURE ipCreateAudit :
         cLocDir  = ENTRY(1,cLocItem,"-")
         cLocName = ENTRY(2,cLocItem,"-")
         cLocPort = ENTRY(3,cLocItem,"-")
-        cStructureST = fiDrive:{&SV} + "\" + fiTopDir:{&SV} + "\" +
-                   fiUpdatesDir:{&SV} + "\" + fiPatchDir:{&SV} + "\" +
+        cStructureST = cDrive + "\" + cTopDir + "\" +
+                   cUpdatesDir + "\PATCH" + fiToVer:{&SV} + "\" +
                    "StructureUpdate\STFiles\audit.st"
-        cAuditDf = fiDrive:{&SV} + "\" + fiTopDir:{&SV} + "\" +
-                   fiUpdatesDir:{&SV} + "\" + fiPatchDir:{&SV} + "\" +
+        cAuditDf = cDrive + "\" + cTopDir + "\" +
+                   cUpdatesDir + "\PATCH" + fiToVer:{&SV} + "\" +
                    "StructureUpdate\DFFiles\asiAudit.df"
         cAudName = "aud" + SUBSTRING(cLocName,4,8)
         cAudPort = STRING(INT(cLocPort) + 10,"9999").
 
-    IF fiDbDrive:{&SV} EQ fiDrive:{&SV} THEN ASSIGN
-        cCmdLine = fiDlcDir:{&SV} + '\bin\prostrct create ' + 
+    IF cDbDrive EQ cDrive THEN ASSIGN
+        cCmdLine = cDlcDir + '\bin\prostrct create ' + 
                    cAudName + ' ' + 
                    cStructureST.
     ELSE ASSIGN
-        cCmdLine = fiDlcDir:{&SV} + '\bin\prostrct create ' + 
+        cCmdLine = cDlcDir + '\bin\prostrct create ' + 
                    cAudName + ' ' + 
                    cStructureST.
 
     OS-COMMAND SILENT VALUE(cCmdLine).
 
     
-    IF fiDbDrive:{&SV} EQ fiDrive:{&SV} THEN ASSIGN
-        cCmdLine = fiDlcDir:{&SV} + "\bin\procopy " + 
-                   fiDlcDir:{&SV} + "\empty4 " + 
+    IF cDbDrive EQ cDrive THEN ASSIGN
+        cCmdLine = cDlcDir + "\bin\procopy " + 
+                   cDlcDir + "\empty4 " + 
                    cAudName.
     ELSE ASSIGN
-        cCmdLine = fiDlcDir:{&SV} + "\bin\procopy " + 
-                   fiDlcDir:{&SV} + "\empty4 " + 
+        cCmdLine = cDlcDir + "\bin\procopy " + 
+                   cDlcDir + "\empty4 " + 
                    cAudName.
 
     RUN ipStatus ("  Copying metaschema data...").
@@ -988,10 +828,10 @@ PROCEDURE ipCreateAudit :
     OUTPUT CLOSE.
     
     ASSIGN
-        cCmdLine     = fiDlcDir:{&SV} + "\bin\mergeprop -type database -action create -delta " + 
+        cCmdLine     = cDlcDir + "\bin\mergeprop -type database -action create -delta " + 
                        "c:\tmp\conmgrdelta.txt -silent"
-        cStartString = fiDlcDir:{&SV} + "\bin\dbman" + 
-                       " -host " + fiHostName:{&SV} + 
+        cStartString = cDlcDir + "\bin\dbman" + 
+                       " -host " + cHostName + 
                        " -port " + cAdminPort + 
                        " -database " + cAudName + 
                        " -start".
@@ -1039,7 +879,7 @@ PROCEDURE ipCreateAudit :
             "I will generate the needed information to continue the update."
             VIEW-AS ALERT-BOX INFO.
             
-        cCmdLine = fiDlcDir:{&SV} + "\bin\proserve " + 
+        cCmdLine = cDlcDir + "\bin\proserve " + 
                    "-db " + cDbAuditDir + "\" + cAudName + 
                    " -H " + cHostName +
                    " -S " + cAudPort +
@@ -1068,8 +908,6 @@ PROCEDURE ipCreateTTIniFile :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Creating ttIniFile...").
-
     EMPTY TEMP-TABLE ttIniFile.
     DO i = 1 to NUM-ENTRIES(cIniVarList):
         CREATE ttIniFile.
@@ -1090,14 +928,12 @@ PROCEDURE ipExpandVarNames :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Expanding variable names...").
-
 
     /* Modify variables for ease of use */
     ASSIGN
         cAdminDir = cMapDir + "\" + cAdminDir
         cBackupDir = cMapDir + "\" + cBackupDir
-        cDBDir = cMapDir + "\" + cDbDir
+/*        cDBDir = cMapDir + "\" + cDbDir  */
         cDocDir = cMapDir + "\" + cDocDir
         cDeskDir = cMapDir + "\" + cDeskDir
         cEnvDir = cMapDir + "\" + cEnvDir
@@ -1131,11 +967,7 @@ PROCEDURE ipExpandVarNames :
         iLockoutTries = IF cLockoutTries NE "" 
                         AND ASC(cLockoutTries) GE 48
                         AND ASC(cLockoutTries) LE 57 THEN INT(cLockoutTries) ELSE 0
-        cPatchNo = fiNewVer:{&SV}
-        iDbCurrVer = (INTEGER(ENTRY(1,fiCurrVer:{&SV},".")) * 10) +
-                     INTEGER(ENTRY(2,fiCurrVer:{&SV},"."))
-        iDbTgtVer = (INTEGER(ENTRY(1,fiNewVer:{&SV},".")) * 10) +
-                     INTEGER(ENTRY(2,fiNewVer:{&SV},"."))
+        cPatchNo = fiToVer:{&SV}
         .
         
 END PROCEDURE.
@@ -1150,7 +982,6 @@ PROCEDURE ipFindIniFile :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Locating advantzware.ini file...").
 
     /* Start guessing where the file might be */
     DO:
@@ -1254,39 +1085,58 @@ PROCEDURE ipProcessRequest :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Beginning Patch Application").
-    ASSIGN
-        SELF:LABEL = "Processing..."
-        SELF:SENSITIVE = FALSE.
-
-    RUN ipStatus ("Connecting selected database").
+    DEF VAR iLookup AS INT NO-UNDO.
     
-    IF tbBackupDBs:CHECKED IN FRAME {&FRAME-NAME} 
-    AND tbBackupDBs:SENSITIVE THEN DO:
-        DO iCtr = 1 TO NUM-ENTRIES(slDatabases:{&SV}):
-            RUN ipBackupDBs (ENTRY(iCtr,slDatabases:{&SV})).
-        END.        
-        
+    RUN ipStatus ("Beginning Database Schema Update").
+    /* Process "regular" database (asixxxx.db) */
+    RUN ipBackupDBs.
+    IF NOT lSuccess THEN 
+    DO:
+        ASSIGN 
+            oplSuccess = FALSE.
+        RUN ipStatus ("  Upgrade failed in ipBackupDBs for database " + fiDbName:{&SV}).
+        RETURN.
     END.
     
-    IF tbUpgradeDbs:CHECKED THEN DO:
-        RUN ipUpgradeDBs.
+    RUN ipUpgradeDBs.
+    IF NOT lSuccess THEN 
+    DO:
+        ASSIGN 
+            oplSuccess = FALSE.
+        RUN ipStatus ("  Upgrade failed in ipUpgradeDBs for database " + fiDbName:{&SV}).
+        RETURN.
+    END.
+    
+    /* Process "audit" database (audxxxx.db) */
+    ASSIGN 
+        iLookup = LOOKUP(fiDbName:{&SV},cDbList)
+        fiDbName:{&SV} = REPLACE(fiDbName:{&SV},"asi","aud")
+        fiDbDir:{&SV} = "audit"
+        fiPortNo:{&SV} = ENTRY(iLookup,cAudPortList). 
+    
+    RUN ipBackupDBs.
+    IF NOT lSuccess THEN 
+    DO:
+        ASSIGN 
+            oplSuccess = FALSE.
+        RUN ipStatus ("  Upgrade failed in ipBackupDBs for database " + fiDbName:{&SV}).
+        RETURN.
+    END.
+    
+    RUN ipUpgradeDBs.
+    IF NOT lSuccess THEN 
+    DO:
+        ASSIGN 
+            oplSuccess = FALSE.
+        RUN ipStatus ("  Upgrade failed in ipUpgradeDBs for database " + fiDbName:{&SV}).
+        RETURN.
     END.
     
     RUN ipStatus ("Database Schema Update Complete").
     RUN ipWriteIniFile.
 
     ASSIGN
-        SELF:LABEL = "Start Update"
-        SELF:SENSITIVE = TRUE
-        fiCurrVer:{&SV} = fiNewVer:{&SV}
-        fiVerDate:{&SV} = STRING(TODAY,"99/99/99").
-        
-    APPLY 'leave' to fiCurrVer.
-    
-    STATUS INPUT.
-
-    ASSIGN
+        fiFromVer:{&SV} = fiToVer:{&SV}
         oplSuccess = lSuccess.
 
 END PROCEDURE.
@@ -1301,7 +1151,6 @@ PROCEDURE ipReadIniFile :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Reading advantzware.ini file...").
 
     INPUT FROM VALUE(SEARCH(cIniLoc)).
     REPEAT:
@@ -1406,15 +1255,25 @@ PROCEDURE ipReadIniFile :
             WHEN "updStructureDir" THEN ASSIGN cUpdStructureDir = ttIniFile.cVarValue.
             WHEN "modeList" THEN ASSIGN cModeList = ttIniFile.cVarValue.
             WHEN "envList" THEN ASSIGN cEnvList = ttIniFile.cVarValue.
-            WHEN "dbList" THEN ASSIGN cDbList = ttIniFile.cVarValue.
+            WHEN "dbList" THEN ASSIGN 
+                cDbList = ttIniFile.cVarValue
+                wDbList = ttIniFile.cVarValue.
             WHEN "pgmList" THEN ASSIGN cPgmList = ttIniFile.cVarValue.
             WHEN "dbDirList" THEN ASSIGN cDbDirList = ttIniFile.cVarValue.
             WHEN "dbPortList" THEN ASSIGN cDbPortList = ttIniFile.cVarValue.
-            WHEN "audDirList" THEN ASSIGN cAudDirList = ttIniFile.cVarValue.
-            WHEN "audDbList" THEN ASSIGN cAudDbList = ttIniFile.cVarValue.
-            WHEN "audPortList" THEN ASSIGN cAudPortList = ttIniFile.cVarValue.
+            WHEN "audDirList" THEN ASSIGN 
+                cAudDirList = ttIniFile.cVarValue
+                wAudDirList = ttIniFile.cVarValue.
+            WHEN "audDbList" THEN ASSIGN 
+                cAudDbList = ttIniFile.cVarValue
+                wAudDbList = ttIniFile.cVarValue.
+            WHEN "audPortList" THEN ASSIGN 
+                cAudPortList = ttIniFile.cVarValue
+                wAudPortList = ttIniFile.cVarValue.
             WHEN "envVerList" THEN ASSIGN cEnvVerList = ttIniFile.cVarValue.
-            WHEN "dbVerList" THEN ASSIGN cDbVerList = ttIniFile.cVarValue.
+            WHEN "dbVerList" THEN ASSIGN 
+                cDbVerList = ttIniFile.cVarValue
+                wDbVerList = ttIniFile.cVarValue.
             WHEN "prodDbName" THEN ASSIGN cProdDbName = ttIniFile.cVarValue.
             WHEN "prodDbPort" THEN ASSIGN cProdDbPort = ttIniFile.cVarValue.
             WHEN "prodDbStFile" THEN ASSIGN cProdDbStFile = ttIniFile.cVarValue.
@@ -1446,8 +1305,6 @@ PROCEDURE ipSetCurrentDir :
     DEF VAR iResult AS INT NO-UNDO.
     DEF VAR iReturnValue AS INT NO-UNDO.
     
-    RUN ipStatus ("Setting current directory to " + ipTgtDir).
-
     RUN SetCurrentDirectoryA (ipTgtDir, OUTPUT iResult).
 
     IF iResult NE 1 THEN DO:
@@ -1470,55 +1327,15 @@ PROCEDURE ipSetDispVars :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Setting display variables...").
-
     DO:
-        ASSIGN
-            slDatabases:LIST-ITEMS IN FRAME {&FRAME-NAME} = "".
-        
         FOR EACH ttIniFile:
             CASE ttIniFile.cVarName:
                 WHEN "siteName" THEN ASSIGN fiSiteName:{&SV} = ttIniFile.cVarValue.
-                WHEN "hostname" THEN ASSIGN fiHostname:{&SV} = ttIniFile.cVarValue.
-                WHEN "drive" THEN ASSIGN fiDrive:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbDrive" THEN ASSIGN fiDbDrive:{&SV} = ttIniFile.cVarValue.
-                WHEN "topDir" THEN ASSIGN fiTopDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "mapDir" THEN ASSIGN fiMapDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "DLCDir" THEN ASSIGN fiDLCDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "currVer" THEN ASSIGN fiCurrVer:{&SV} = ttIniFile.cVarValue.
-                WHEN "verDate" THEN ASSIGN fiVerDate:{&SV} = ttIniFile.cVarValue.
-                WHEN "connectAudit" THEN.
-                WHEN "makeBackup" THEN.
-                WHEN "backupDir" THEN ASSIGN fiBackupDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbDir" THEN ASSIGN fiDbDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "updatesDir" THEN ASSIGN fiUpdatesDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbBackup" THEN ASSIGN fiDbBackup:{&SV} = ttIniFile.cVarValue.
-                WHEN "pgmBackup" THEN ASSIGN fiPgmBackup:{&SV} = ttIniFile.cVarValue.
-                WHEN "resBackup" THEN ASSIGN fiResBackup:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbAuditDir" THEN ASSIGN fiDbAuditDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbDataDir" THEN ASSIGN fiDbDataDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbProdDir" THEN ASSIGN fiDbProdDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbShipDir" THEN ASSIGN fiDbShipDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbStructDir" THEN ASSIGN fiDbStructDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "dbTestDir" THEN ASSIGN fiDbTestDir:{&SV} = ttIniFile.cVarValue.
-                WHEN "deltaFileName" THEN ASSIGN fiDeltaFileName:{&SV} = ttIniFile.cVarValue.
-                
-                WHEN "dbList" THEN DO iCtr = 1 TO NUM-ENTRIES(ttIniFile.cVarValue):
-                    slDatabases:ADD-LAST(ENTRY(iCtr,cDbDirList) + "-" + ENTRY(iCtr,cDbList) + "-" + 
-                                         ENTRY(iCtr,cDbPortList) + "-" + ENTRY(iCtr,cDbVerList)).
-                END. 
-                
-
+                WHEN "hostname" THEN ASSIGN cHostName = ttIniFile.cVarValue.
             END CASE.
         END.
     END.
 
-    slDatabases:SCREEN-VALUE = ipcDir + "-" + ipcName + "-" + ipcPort + "-" + ipcVer.
-    APPLY 'value-changed' TO slDatabases.
-    
-    ASSIGN
-        fiPatchDir:{&SV} = "PATCH" + fiNewVer:{&SV}.
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1534,187 +1351,26 @@ PROCEDURE ipStatus :
     DEF INPUT PARAMETER ipcStatus AS CHAR NO-UNDO.
     DEF VAR cLogFile AS CHAR NO-UNDO.
                 
-    STATUS INPUT ipcStatus + "...".
-
-    IF cUpdatesDir <> "Updates" THEN DO:
-        IF INDEX(ipcStatus,"duplicate") EQ 0 THEN DO:
-            ASSIGN
-                cLogFile = cEnvAdmin + "\UpdateLog.txt"
-                iMsgCtr = iMsgCtr + 1
-                cMsgStr[iMsgCtr] = ipcStatus + "...".
-            OUTPUT STREAM logStream TO VALUE(cLogFile) APPEND.
-            PUT STREAM logStream
-                STRING(TODAY,"99/99/99") AT 1
-                STRING(TIME,"HH:MM:SS") AT 12
-                cMsgStr[iMsgCtr] FORMAT "x(160)" AT 25
-                SKIP.
-            OUTPUT STREAM logStream CLOSE.
-        END.
+                
+    IF INDEX(ipcStatus,"duplicate") EQ 0 THEN DO:
+        ASSIGN
+            eStatus:{&SV}       = eStatus:{&SV} + ipcStatus + CHR(10)
+            eStatus:CURSOR-LINE = eStatus:NUM-LINES.
+        ASSIGN
+            cLogFile = cEnvAdmin + "\UpdateLog.txt"
+            iMsgCtr = iMsgCtr + 1
+            cMsgStr[iMsgCtr] = ipcStatus.
+        OUTPUT STREAM logStream TO VALUE(cLogFile) APPEND.
+        PUT STREAM logStream
+            STRING(TODAY,"99/99/99") AT 1
+            STRING(TIME,"HH:MM:SS") AT 12
+            cMsgStr[iMsgCtr] FORMAT "x(160)" AT 25
+            SKIP.
+        OUTPUT STREAM logStream CLOSE.
     END.
         
     PROCESS EVENTS.
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateTTIniFile C-Win 
-PROCEDURE ipUpdateTTIniFile :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    RUN ipStatus ("Update ttIniFile").
-
-    FOR EACH ttIniFile:
-        CASE ttIniFile.cVarName:
-            WHEN "siteName" THEN ASSIGN ttIniFile.cVarValue = fiSiteName:{&SV}.
-            WHEN "hostname" THEN ASSIGN ttIniFile.cVarValue = fiHostName:{&SV}.
-            WHEN "drive" THEN ASSIGN ttIniFile.cVarValue = fiDrive:{&SV}.
-            WHEN "topDir" THEN ASSIGN ttIniFile.cVarValue = fiTopDir:{&SV}.
-            WHEN "mapDir" THEN ASSIGN ttIniFile.cVarValue = fiMapDir:{&SV}.
-            WHEN "currVer" THEN ASSIGN ttIniFile.cVarValue = fiCurrVer:{&SV}.
-            WHEN "verDate" THEN ASSIGN ttIniFile.cVarValue = fiVerDate:{&SV}.
-            WHEN "DLCDir" THEN ASSIGN ttIniFile.cVarValue = fiDLCDir:{&SV}.
-            WHEN "backupDir" THEN ASSIGN ttIniFile.cVarValue = fiBackupDir:{&SV}.
-            WHEN "dbDir" THEN ASSIGN ttIniFile.cVarValue = fiDbDir:{&SV}.
-            WHEN "updateDir" THEN ASSIGN ttIniFile.cVarValue = fiUpdatesDir:{&SV}.
-            WHEN "dbBackup" THEN ASSIGN ttIniFile.cVarValue = fiDbBackup:{&SV}.
-            WHEN "pgmBackup" THEN ASSIGN ttIniFile.cVarValue = fiPgmBackup:{&SV}.
-            WHEN "resBackup" THEN ASSIGN ttIniFile.cVarValue = fiResBackup:{&SV}.
-            WHEN "dbDataDir" THEN ASSIGN ttIniFile.cVarValue = fiDbDataDir:{&SV}.
-            WHEN "dbProdDir" THEN ASSIGN ttIniFile.cVarValue = fiDbProdDir:{&SV}.
-            WHEN "dbShipDir" THEN ASSIGN ttIniFile.cVarValue = fiDbShipDir:{&SV}.
-            WHEN "dbStructDir" THEN ASSIGN ttIniFile.cVarValue = fiDbStructDir:{&SV}.
-            WHEN "dbTestDir" THEN ASSIGN ttIniFile.cVarValue = fiDbTestDir:{&SV}.
-            WHEN "deltaFileName" THEN ASSIGN ttIniFile.cVarValue = fiDeltaFileName:{&SV}.
-        END CASE.
-    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpgradeAudit C-Win 
-PROCEDURE ipUpgradeAudit :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEF VAR cStopString AS CHAR NO-UNDO.
-    DEF VAR cStartString AS CHAR NO-UNDO.
-    DEF VAR cStatement AS CHAR NO-UNDO.
-    DEF VAR cDeltaDf AS CHAR NO-UNDO.
-    DEF VAR cLockFile AS CHAR NO-UNDO.
-    DEF VAR cNewList AS CHAR NO-UNDO.
-    DEF VAR cNewSel AS CHAR NO-UNDO.
-    DEF VAR cThisEntry AS CHAR NO-UNDO.
-    DEF VAR cReplEntry AS CHAR NO-UNDO.
-    DEF VAR cAudName AS CHAR NO-UNDO.
-    DEF VAR iEntry AS INT NO-UNDO.
-    DEF VAR cStructureST AS CHAR NO-UNDO.    
-    DEF VAR cAuditDF AS CHAR NO-UNDO.
-    DEF VAR cAudPort AS CHAR NO-UNDO.
-    DEF VAR cCmdLine AS CHAR NO-UNDO.
-
-    RUN ipStatus ("Upgrade audit database").
-
-    ASSIGN
-        cAudName = REPLACE(ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-"),"asi","aud")
-        cStopString = fiDlcDir:{&SV} + "\bin\dbman" + 
-                      " -host " + fiHostName:{&SV} + 
-                      " -port " + cAdminPort + 
-                      " -database " + cAudName + 
-                      " -stop"
-        cStartString = fiDlcDir:{&SV} + "\bin\dbman" + 
-                      " -host " + fiHostName:{&SV} + 
-                      " -port " + cAdminPort + 
-                      " -database " + cAudName + 
-                      " -start"
-        cLockFile = fiDbDrive:{&SV} + "\" +
-                      fiTopDir:{&SV} + "\" + fiDbDir:{&SV} + "\Audit\" + 
-                      cAudName + ".lk".
-                
-    /* Unserve the database */
-    RUN ipStatus ("  Stopping database service").
-    OS-COMMAND SILENT VALUE(cStopString).
-    /* May have to wait for DB to shut down */
-    DO WHILE SEARCH(cLockFile) NE ?:
-        RUN ipStatus ("  Waiting for removal of lock file").
-        PAUSE 2 NO-MESSAGE.
-    END.
-     
-    /* Move to Audit dir and delete old audit files */
-    RUN ipSetCurrentDir (cDbDrive + "\" + cTopDir + "\databases\audit"). 
-
-    RUN ipStatus ("  Removing old audit files").
-    OS-COMMAND SILENT VALUE("DEL /Q " + cDbDrive + "\" + cTopDir + "\databases\audit\" + cAudName + ".*").
-    OS-COMMAND SILENT VALUE("DEL /Q " + cDbDrive + "\" + cTopDir + "\databases\audit\" + cAudName + "*.*").
-
-    ASSIGN
-        iEntry = LOOKUP(slDatabases:{&SV},slDatabases:LIST-ITEMS)
-        cStructureST = fiDrive:{&SV} + "\" + fiTopDir:{&SV} + "\" +
-                   fiUpdatesDir:{&SV} + "\" + fiPatchDir:{&SV} + "\" +
-                   "StructureUpdate\STFiles\audit.st"
-        cAuditDf = fiDrive:{&SV} + "\" + fiTopDir:{&SV} + "\" +
-                   fiUpdatesDir:{&SV} + "\" + fiPatchDir:{&SV} + "\" +
-                   "StructureUpdate\DFFiles\asiAudit.df"
-        cAudPort = ENTRY(iEntry,cAudPortList).
-
-    /* Create empty DB */
-    RUN ipStatus ("  Creating empty DB").
-    IF fiDbDrive:{&SV} EQ fiDrive:{&SV} THEN ASSIGN
-        cCmdLine = fiDlcDir:{&SV} + '\bin\prostrct create ' + 
-                   cAudName + ' ' + 
-                   cStructureST.
-    ELSE ASSIGN
-        cCmdLine = fiDlcDir:{&SV} + '\bin\prostrct create ' + 
-                   cAudName + ' ' + 
-                   cStructureST.
-    OS-COMMAND SILENT VALUE(cCmdLine).
-    
-    /* Copy metadata from Progress dir to DB */
-    IF fiDbDrive:{&SV} EQ fiDrive:{&SV} THEN ASSIGN
-        cCmdLine = fiDlcDir:{&SV} + "\bin\procopy " + 
-                   fiDlcDir:{&SV} + "\empty4 " + 
-                   cAudName.
-    ELSE ASSIGN
-        cCmdLine = fiDlcDir:{&SV} + "\bin\procopy " + 
-                   fiDlcDir:{&SV} + "\empty4 " + 
-                   cAudName.
-    RUN ipStatus ("  Copying metaschema data...").
-    OS-COMMAND SILENT VALUE(cCmdLine).
-
-    ASSIGN
-        /* Single user connect statment */
-        cStatement = "-db " + 
-                     cDbDrive + "\" + cTopDir + "\databases\audit\" + cAudName +
-                     " -1 -ld audit".
-
-    /* Connect to the database single user */
-    RUN ipStatus ("  Connecting audit DB single-user...").
-    CONNECT VALUE(cStatement).
-    CREATE ALIAS DICTDB FOR DATABASE audit.
-
-    /* Load the .df file */
-    RUN ipStatus ("  Loading schema...").
-    RUN prodict/load_df.p (cAuditDf). 
-    /* Table contents are loaded in upgradeENV */
-                
-    /* Disconnect it */
-    RUN ipStatus ("  Disconnecting.").
-    DISCONNECT audit.
-
-    /* Re-Serve it */
-    RUN ipStatus ("  Serving " + cAudName).
-    OS-COMMAND SILENT VALUE(cStartString).
-    
-    /* Return current dir to starting */
-    RUN ipSetCurrentDir (cCurrDir). 
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1736,124 +1392,163 @@ PROCEDURE ipUpgradeDBs :
     DEF VAR cNewSel AS CHAR NO-UNDO.
     DEF VAR cThisEntry AS CHAR NO-UNDO.
     DEF VAR cReplEntry AS CHAR NO-UNDO.
+    DEF VAR cDelta AS CHAR NO-UNDO.
+    DEF VAR cPrefix AS CHAR NO-UNDO.
+    DEF VAR cThisDb AS CHAR NO-UNDO. 
+    DEF VAR cThisDir AS CHAR NO-UNDO.
+    DEF VAR iWaitCount AS INT NO-UNDO.
+    DEF VAR lAlternate AS LOG NO-UNDO.
+    DEF VAR cFullDelta AS CHAR NO-UNDO.
+    DEF VAR cThisPort AS CHAR NO-UNDO.
 
-    DO iCtr = 1 TO NUM-ENTRIES(slDatabases:{&SV}):
-        ASSIGN
-            cEnvVer = ENTRY(iCtr,cEnvVerList)
-            cThisEntry = ENTRY(iCtr,slDatabases:{&SV})
-            iListEntry = LOOKUP(cThisEntry,slDatabases:LIST-ITEMS).          
+    RUN ipStatus ("  Upgrading database " + fiDbName:{&SV}).
 
-        IF DECIMAL(ENTRY(4,ENTRY(iCtr,slDatabases:{&SV}),"-")) * 10 LT iDbTgtVer THEN DO:
-            /*
-            MESSAGE 
-                "Database " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + " is currently at version " +
-                STRING(DECIMAL(ENTRY(4,ENTRY(iCtr,slDatabases:{&SV}),"-"))) + "." SKIP
-                "You are about to upgrade it to version " + STRING(iDbTgtVer / 10) + "." SKIP
-                "Is this correct?" VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lUpdNow AS LOG.
-            IF lUpdNow THEN */
-            DO:
-                RUN ipBackupDBs (ENTRY(iCtr,slDatabases:{&SV})).
-                RUN ipStatus ("Upgrading " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-")).
-                ASSIGN
-                    /* This results in a value similar to 'asi166_167.df' */
-                    cDeltaDf = "asi" + 
-                               STRING(DECIMAL(ENTRY(4,ENTRY(iCtr,slDatabases:{&SV}),"-")) * 10) +
-                               "_" + STRING(iDbTgtVer) + ".df"
-                    /* This fully qualifies the path name to the delta */
-                    cDeltaDf = fiDrive:{&SV} + "\" + fiTopDir:{&SV} + "\" +
-                               fiUpdatesDir:{&SV} + "\" + fiPatchDir:{&SV} + "\" +
-                               "StructureUpdate\DFFiles\" + cDeltaDf
-                    cStopString = fiDlcDir:{&SV} + "\bin\dbman" + 
-                                 " -host " + fiHostName:{&SV} + 
-                                 " -port " + cAdminPort + 
-                                 " -database " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + 
-                                 " -stop"
-                    cStartString = fiDlcDir:{&SV} + "\bin\dbman" + 
-                                 " -host " + fiHostName:{&SV} + 
-                                 " -port " + cAdminPort + 
-                                 " -database " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + 
-                                 " -start"
-                    /* Single user connect statment */
-                    cStatement = "-db " + fiDbDrive:{&SV} + "\" +
-                                 fiTopDir:{&SV} + "\" + fiDbDir:{&SV} + "\" + 
-                                 ENTRY(1,ENTRY(iCtr,slDatabases:{&SV}),"-") + "\" +
-                                 ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + 
-                                 " -1 -ld updDB" + STRING(iCtr)
-                    cLockFile = fiDbDrive:{&SV} + "\" +
-                                 fiTopDir:{&SV} + "\" + fiDbDir:{&SV} + "\" + 
-                                 ENTRY(1,ENTRY(iCtr,slDatabases:{&SV}),"-") + "\" +
-                                 ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + ".lk".
-                
-                /* Unserve the database */
-                RUN ipStatus ("  Stopping database service").
-                OS-COMMAND SILENT VALUE(cStopString).
-                /* May have to wait for DB to shut down */
-                DO WHILE SEARCH(cLockFile) NE ?:
-                    RUN ipStatus ("  Waiting for removal of lock file").
-                    PAUSE 2 NO-MESSAGE.
-                END.
-                /* Connect to the database single user */
-                RUN ipStatus ("  Connecting single-user mode").
-                CONNECT VALUE(cStatement).
-                RUN ipStatus ("  Creating DICTDB alias").
-                CREATE ALIAS DICTDB FOR DATABASE VALUE("updDB" + STRING(iCtr)).
-                
-                /* Load the delta */
-                RUN ipStatus ("  Loading delta " + STRING(cDeltaDf)).
-                RUN prodict/load_df.p (cDeltaDf). 
-                
-                /* Disconnect it */
-                RUN ipStatus ("  Disconnecting").
-                DISCONNECT VALUE("updDB" + STRING(iCtr)).
-                
-                /* Re-Serve it */
-                RUN ipStatus ("  Serving " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-")).
-                OS-COMMAND SILENT VALUE(cStartString).
-                ASSIGN
-                    lSuccess = TRUE
-                    cThisEntry = ENTRY(iCtr,slDatabases:{&SV})
-                    cReplEntry = REPLACE(cThisEntry,
-                                     ("-" + STRING(DECIMAL(ENTRY(4,ENTRY(iCtr,slDatabases:{&SV}),"-")))),
-                                     "-" + STRING(DECIMAL(iDbTgtVer / 10)))
-                    cNewList = REPLACE(slDatabases:LIST-ITEMS,cThisEntry,cReplEntry)
-                    cNewSel = REPLACE(slDatabases:{&SV},cThisEntry,cReplEntry)
-                    slDatabases:list-items = cNewList
-                    slDatabases:{&SV} = cNewSel
-                    cNewList = ""
-                    cNewSel = "".
-            END.
-        END.
-        /*
-        ELSE MESSAGE
-            "Database " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + " is already at the current" SKIP
-            "version level.  It should not be updated again"
-            VIEW-AS ALERT-BOX INFO.
-        */
+    ASSIGN 
+        cPrefix = SUBSTRING(fiDbName:{&SV},1,3)
+        iDbCtr = iDbCtr + 1
+        iWaitCount = 0
+        cDelta = REPLACE(cDeltaFile,"asi",cPrefix)
+        cFullDelta = REPLACE(cUpdStructureDir,"PATCH","PATCH" + fiToVer:{&SV}) + "\DFFiles\" + cDelta.
         
-        IF ENTRY(iListEntry,cAudDbList) = "x" 
-        OR ENTRY(iListEntry,cAudDbList) = "" THEN DO:
-            /*
-            MESSAGE
-                "There is no audit database associated with database " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + "." SKIP
-                "The upgrade process requires an audit database to complete normally." SKIP
-                "Would you like to create one now?"
-                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lCreate AS LOG.
-            */
-            DO:
-                RUN ipCreateAudit (cThisEntry, iListEntry).
-            END.
-            /*
-            ELSE DO:
-                RUN ipStatus("No audit db...aborting").
-                ASSIGN
-                    lSuccess = FALSE.
-            END.
-            */
+    IF cPrefix = "asi" THEN ASSIGN 
+        iListEntry = LOOKUP(fiDbName:{&SV},cDbList)
+        cThisDir = ENTRY(iListEntry,cDbDirList)
+        cThisPort = ENTRY(iListEntry,cDbPortList).
+    ELSE ASSIGN 
+        iListEntry = LOOKUP(fiDbName:{&SV},cAudDbList)
+        cThisDir = ENTRY(iListEntry,cAudDirList)
+        cThisPort = ENTRY(iListEntry,cAudPortList).
+
+    IF iToDelta LE iFromDelta THEN DO:
+        RUN ipStatus ("    Database is already upgraded.  Cancelling.").
+        ASSIGN 
+            lSuccess = FALSE.
+        RETURN.
+    END.
+    
+    IF SEARCH(cFullDelta) EQ ? THEN DO:
+        IF cPrefix EQ "asi" THEN DO:
+            RUN ipStatus ("    Unable to locate delta file " + cDelta + ".  Cancelling.").
+            RUN ipStatus ("      " + cFullDelta).
+            ASSIGN 
+                lSuccess = FALSE.
+            RETURN.
         END.
-        ELSE IF cEnvVer = "16.7.0" THEN DO:
-            RUN ipUpgradeAudit.
+        ELSE DO:
+            RUN ipStatus ("    Unable to locate AUDIT delta file " + cDelta + ".  Continuing.").
+            RETURN.
         END.
     END.
+            
+    ASSIGN
+        /* This results in a value similar to 'asi167_168.df' */
+        cDeltaDf = cDelta
+        /* This fully qualifies the path name to the delta */
+        cDeltaDf = cDrive + "\" + cTopDir + "\" +
+                   cUpdatesDir + "\Patch" + fiToVer:{&SV} + "\" +
+                   "StructureUpdate\DFFiles\" + cDeltaDf
+        cStopString = cDlcDir + "\bin\dbman" + 
+                     " -host " + cHostName + 
+                     " -port " + cAdminPort + 
+                     " -database " + fiDbName:{&SV} + 
+                     " -stop"
+        cStartString = cDlcDir + "\bin\dbman" + 
+                     " -host " + cHostName + 
+                     " -port " + cAdminPort + 
+                     " -database " + fiDBName:{&SV} + 
+                     " -start"
+        /* Single user connect statment */
+        cStatement = "-db " + cDbDrive + "\" +
+                     cTopDir + "\" + cDbDir + "\" + 
+                     cThisDir + "\" +
+                     fiDBName:{&SV} + 
+                     " -1 -ld updDB" + STRING(iDbCtr)
+        cLockFile = cDbDrive + "\" +
+                     cTopDir + "\" + cDbDir + "\" + 
+                     cThisDir + "\" +
+                     fiDBName:{&SV} + ".lk".
+    
+    /* Unserve the database */
+    RUN ipStatus ("    Stopping database service").
+    OS-COMMAND SILENT VALUE(cStopString).
+    /* May have to wait for DB to shut down */
+    WaitBlock:
+    DO WHILE SEARCH(cLockFile) NE ?:
+        RUN ipStatus ("    Waiting for removal of lock file").
+        ASSIGN 
+            iWaitCount = iWaitCount + 1.
+        PAUSE 5 NO-MESSAGE.
+        IF iWaitCount EQ 3 THEN DO:
+            RUN ipStatus ("    Normal shutdown failed.  Trying alternate method").
+            ASSIGN 
+                lAlternate = TRUE.
+            LEAVE waitblock.
+        END.
+    END.
+    
+    /* Database didn't shut down normally, try with proshut */
+    IF lAlternate THEN DO:
+        ASSIGN 
+            cStopString = cDlcDir + "\bin\_mprshut -by -db " + 
+                          cDbDrive + "\" +
+                          cTopDir + "\" + cDbDir + "\" + 
+                          cThisDir + "\" +
+                          fiDBName:{&SV}
+            cStartString = cDlcDir + "\bin\_mprosrv -db " + 
+                           cDbDrive + "\" +
+                           cTopDir + "\" + cDbDir + "\" + 
+                           cThisDir + "\" +
+                           fiDBName:{&SV} +
+                           " -H " + cHostName +
+                           " -S " + cThisPort +
+                           " -N tcp"
+                          .
+                          
+        OS-COMMAND SILENT VALUE(cStopString).
+        Waitblock2:
+        DO WHILE SEARCH(cLockFile) NE ?:
+            RUN ipStatus ("    Waiting for removal of lock file").
+            ASSIGN 
+                iWaitCount = iWaitCount + 1.
+            PAUSE 5 NO-MESSAGE.
+            IF iWaitCount EQ 3 THEN 
+            DO:
+                RUN ipStatus ("    Alternate shutdown failed.  Cancelling.").
+                LEAVE waitblock2.
+            END.
+        END.
+    END.
+    IF SEARCH(cLockFile) NE ? THEN DO:
+        RUN ipStatus (    "Unable to shut down server for " + fiDbName:{&SV} + ".  Cancelling.").
+        ASSIGN 
+            lSuccess = FALSE.
+        RETURN.
+    END.
+        
+    /* Connect to the database single user */
+    RUN ipStatus ("    Connecting single-user mode").
+    CONNECT VALUE(cStatement).
+    RUN ipStatus ("    Creating DICTDB alias").
+    CREATE ALIAS DICTDB FOR DATABASE VALUE("updDB" + STRING(iDbCtr)).
+    
+    /* Load the delta */
+    RUN ipStatus ("    Loading delta " + STRING(cDeltaDf)).
+    RUN prodict/load_df.p (cFullDelta). 
+    
+    /* Disconnect it */
+    RUN ipStatus ("    Disconnecting").
+    DISCONNECT VALUE("updDB" + STRING(iDbCtr)).
+    
+    /* Re-Serve it */
+    RUN ipStatus ("    Serving " + fiDbName:{&SV}).
+    
+    OS-COMMAND SILENT VALUE(cStartString).
+        
+    IF cPrefix EQ "asi" THEN DO: 
+        ASSIGN 
+            ENTRY(iListEntry,wDbVerList) = STRING(iToDelta / 10,"99.9").
+    END.
+
     ASSIGN
         lSuccess = TRUE.
 
@@ -1873,41 +1568,12 @@ PROCEDURE ipWriteIniFile :
 
     RUN ipStatus ("Writing advantzware.ini file...").
 
-    FIND ttIniFile WHERE ttIniFile.cVarName = "dbDirList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = "".
-    FIND ttIniFile WHERE ttIniFile.cVarName = "dbList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = "".
-    FIND ttIniFile WHERE ttIniFile.cVarName = "dbPortList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = "".
     FIND ttIniFile WHERE ttIniFile.cVarName = "dbVerList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = "".
-    DO iCtr = 1 TO NUM-ENTRIES(slDatabases:LIST-ITEMS IN FRAME {&FRAME-NAME}):
-        ASSIGN
-            cThisElement = ENTRY(iCtr,slDatabases:LIST-ITEMS).
-        FIND ttIniFile WHERE ttIniFile.cVarName = "dbDirList" NO-ERROR.
-        ASSIGN ttIniFile.cVarValue = ttIniFile.cVarValue + ENTRY(1,cThisElement,"-") + ",".
-        FIND ttIniFile WHERE ttIniFile.cVarName = "dbList" NO-ERROR.
-        ASSIGN ttIniFile.cVarValue = ttIniFile.cVarValue + ENTRY(2,cThisElement,"-") + ",".
-        FIND ttIniFile WHERE ttIniFile.cVarName = "dbPortList" NO-ERROR.
-        ASSIGN ttIniFile.cVarValue = ttIniFile.cVarValue + ENTRY(3,cThisElement,"-") + ",".
-        FIND ttIniFile WHERE ttIniFile.cVarName = "dbVerList" NO-ERROR.
-        ASSIGN ttIniFile.cVarValue = ttIniFile.cVarValue + ENTRY(4,cThisElement,"-") + ",".
-    END.
-    FIND ttIniFile WHERE ttIniFile.cVarName = "dbDirList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = TRIM(ttIniFile.cVarValue,",").
-    FIND ttIniFile WHERE ttIniFile.cVarName = "dbList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = TRIM(ttIniFile.cVarValue,",").
-    FIND ttIniFile WHERE ttIniFile.cVarName = "dbPortList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = TRIM(ttIniFile.cVarValue,",").
-    FIND ttIniFile WHERE ttIniFile.cVarName = "dbVerList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = TRIM(ttIniFile.cVarValue,",").
-
-    FIND ttIniFile WHERE ttIniFile.cVarName = "audDbList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = cAudDbList.
+    ASSIGN ttIniFile.cVarValue = wDbVerList.
     FIND ttIniFile WHERE ttIniFile.cVarName = "audDirList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = cAudDirList.
+    ASSIGN ttIniFile.cVarValue = wAudDirList.
     FIND ttIniFile WHERE ttIniFile.cVarName = "audPortList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = cAudPortList.
+    ASSIGN ttIniFile.cVarValue = wAudPortList.
 
     OUTPUT TO VALUE(cIniLoc).
     FOR EACH ttIniFile BY ttIniFile.iPos:
@@ -1920,6 +1586,37 @@ PROCEDURE ipWriteIniFile :
     OUTPUT CLOSE.
 
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIntVer C-Win 
+FUNCTION fIntVer RETURNS INTEGER
+  ( INPUT cVerString AS CHAR ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF VAR cStrVal AS CHAR EXTENT 4 NO-UNDO.
+    DEF VAR iIntVal AS INT  EXTENT 4 NO-UNDO.
+    DEF VAR iIntVer AS INT  NO-UNDO.
+    ASSIGN
+        cStrVal[1] = ENTRY(1,cVerString,".")
+        cStrVal[2] = ENTRY(2,cVerString,".")
+        cStrVal[3] = ENTRY(3,cVerString,".")
+        cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GT 3 THEN ENTRY(4,cVerString,".") ELSE "0"
+        iIntVal[1] = IF INT(cStrVal[1]) LT 10 THEN INT(cStrVal[1]) * 10 ELSE INT(cStrVal[1])
+        iIntVal[2] = IF INT(cStrVal[2]) LT 10 THEN INT(cStrVal[2]) * 10 ELSE INT(cStrVal[2])
+        iIntVal[3] = IF INT(cStrVal[3]) LT 10 THEN INT(cStrVal[3]) * 10 ELSE INT(cStrVal[3])
+        iIntVal[4] = IF INT(cStrVal[4]) LT 10 THEN INT(cStrVal[4]) * 10 ELSE INT(cStrVal[4])
+        iIntVer    = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
+        NO-ERROR.
+    
+    RETURN iIntVer.   /* Function return value. */
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

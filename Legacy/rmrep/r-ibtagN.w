@@ -59,7 +59,8 @@ DEFINE VARIABLE v-roll-multp AS DEC DECIMALS 4 NO-UNDO.
 
 DEFINE TEMP-TABLE tt-rm-bin NO-UNDO LIKE rm-bin
                                  FIELD trans-date LIKE rm-rcpth.trans-date
-                                 FIELD tag2 LIKE rm-rdtlh.tag2.
+                                 FIELD tag2 LIKE rm-rdtlh.tag2
+                                 FIELD po-line AS INTEGER .
     
 
 DEFINE STREAM excel.
@@ -1531,6 +1532,10 @@ DEFINE VARIABLE lv-uom  AS   CHARACTER  NO-UNDO.
 
       tt-rm-bin.trans-date = rm-rcpth.trans-date.
       tt-rm-bin.tag2 = rm-rdtlh.tag2.
+      IF rm-rcpth.po-no NE "" THEN
+          ASSIGN
+          tt-rm-bin.po-no = integer(rm-rcpth.po-no )
+          tt-rm-bin.po-line = rm-rcpth.po-line .
       LEAVE.
     END.
 
@@ -1554,6 +1559,10 @@ DEFINE VARIABLE lv-uom  AS   CHARACTER  NO-UNDO.
 
       tt-rm-bin.trans-date = rm-rcpth.trans-date.
       tt-rm-bin.tag2 = rm-rdtlh.tag2.
+      IF rm-rcpth.po-no NE "" THEN
+          ASSIGN
+          tt-rm-bin.po-no = INTEGER(rm-rcpth.po-no) 
+          tt-rm-bin.po-line = rm-rcpth.po-line .
       LEAVE.
     END.
 
@@ -1565,7 +1574,9 @@ DEFINE VARIABLE lv-uom  AS   CHARACTER  NO-UNDO.
             AND rm-bin.loc-bin EQ tt-rm-bin.loc-bin
             AND rm-bin.tag     EQ tt-rm-bin.tag
           USE-INDEX loc-bin NO-ERROR.
-      tt-rm-bin.trans-date = DATE(SUBSTRING(rm-bin.rec_key,1,8)) NO-ERROR.
+      tt-rm-bin.trans-date = IF fg-bin.rec_key BEGINS "2" THEN
+                                DATE(SUBSTR(fg-bin.rec_key,5,4) + SUBSTRING(fg-bin.rec_key,1,4))
+                           ELSE DATE(SUBSTRING(rm-bin.rec_key,1,8)) NO-ERROR.
       IF ERROR-STATUS:ERROR THEN tt-rm-bin.trans-date = TODAY.
     END.
     
@@ -1905,16 +1916,12 @@ SESSION:SET-WAIT-STATE ("general").
 
       IF FIRST(rm-rcpth.trans-date) THEN 
       lv-lstdt = STRING(rm-rcpth.trans-date).
-      
        IF LAST(rm-rcpth.trans-date) THEN 
       lv-fistdt = STRING(rm-rcpth.trans-date).
        
      END.
 
    END.
-
-
-    IF lv-lstdt = "" THEN ASSIGN lv-lstdt = STRING(tt-rm-bin.trans-date) .
     
     v-cost = IF ce-ctrl.r-cost THEN ITEM.avg-cost ELSE tt-rm-bin.cost.
 
@@ -1993,7 +2000,8 @@ SESSION:SET-WAIT-STATE ("general").
     IF tt-rm-bin.po-no NE 0 AND AVAILABLE po-ord THEN DO:
         FIND FIRST po-ordl  NO-LOCK WHERE po-ordl.company EQ tt-rm-bin.company 
             AND po-ordl.po-no EQ po-ord.po-no
-            AND po-ordl.i-no EQ tt-rm-bin.i-no NO-ERROR.
+            AND po-ordl.i-no EQ tt-rm-bin.i-no
+            AND (po-ordl.LINE EQ tt-rm-bin.po-line OR tt-rm-bin.po-line EQ 0) NO-ERROR.
         
         IF AVAILABLE po-ordl THEN DO:
             ASSIGN vpo-gl-act = po-ordl.actnum
@@ -2110,7 +2118,7 @@ SESSION:SET-WAIT-STATE ("general").
                 WHEN "v-MSF" THEN cVarValue = STRING(v-MSF,"->>>,>>9.99").
                 WHEN "v-Tons" THEN cVarValue = STRING(v-Tons,"->>>,>>9.99").
                 WHEN "v-CostMSF" THEN cVarValue = STRING(v-costMSF,"->>>,>>9.99").
-                WHEN "cVendTag" THEN cVarValue = cVendTag.
+                WHEN "cVendTag" THEN cVarValue = fPrepareCSV(STRING(cVendTag)).
                 WHEN "trans-date" THEN cVarValue = STRING(lv-lstdt) /*string(lv-fistdt)*/ .
                 WHEN "loc-bin" THEN cVarValue = STRING(tt-rm-bin.loc-bin).
                 WHEN "tag" THEN cVarValue = fPrepareCSV(STRING(tt-rm-bin.tag)) .
@@ -2132,12 +2140,12 @@ SESSION:SET-WAIT-STATE ("general").
                 WHEN "adder" THEN cVarValue = STRING(cAdder,"x(30)").
           END CASE.
           cExcelVarValue = cVarValue.  
-          IF cTmpField = "tag" THEN do:
+          IF cTmpField = "tag" OR cTmpField = "cVendTag" THEN do:
               cVarValue = REPLACE(cVarValue,'"','')  .
               cVarValue = REPLACE(cVarValue,'=','')  .
           END.
           cDisplay = cDisplay + cVarValue +
-                       FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
+                       FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).
           cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
        END.
     END.
@@ -2831,7 +2839,8 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
     IF tt-rm-bin.po-no NE 0 AND AVAILABLE po-ord THEN DO:
         FIND FIRST po-ordl NO-LOCK WHERE po-ordl.company EQ tt-rm-bin.company 
             AND po-ordl.po-no EQ po-ord.po-no
-            AND po-ordl.i-no EQ tt-rm-bin.i-no NO-ERROR.
+            AND po-ordl.i-no EQ tt-rm-bin.i-no 
+            AND (po-ordl.LINE EQ tt-rm-bin.po-line OR tt-rm-bin.po-line EQ 0) NO-ERROR.
         
         IF AVAILABLE po-ordl THEN DO:
             ASSIGN vpo-gl-act = po-ordl.actnum

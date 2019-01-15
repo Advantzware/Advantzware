@@ -677,3 +677,17 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE loadtag-rm B-table-Win 
+PROCEDURE loadtag-rm :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF AVAIL loadtag THEN
+        RUN rmrep/rmloadtg4.w(INPUT YES,INPUT loadtag.tag-no)  .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

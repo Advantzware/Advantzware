@@ -537,9 +537,13 @@ PROCEDURE pOrdersBooked2:
             ttOrdersBooked.xxSort       = ttOrdersBooked.salesRep
                                         + STRING(ttOrdersBooked.dueDate,"99/99/9999")
                                         + STRING(ttOrdersBooked.orderNo)  
-	    ttOrdersBooked.MachineCode  = fGetRoutingForJob()
+	        ttOrdersBooked.MachineCode  = fGetRoutingForJob()
             ttOrdersBooked.InksCode     = fGetInksForJob()
-            ttOrdersBooked.PrintSheet   = IF AVAILABLE itemfg THEN itemfg.plate-no ELSE ""           
+            ttOrdersBooked.PrintSheet   = IF AVAILABLE itemfg THEN itemfg.plate-no ELSE ""
+            ttOrdersBooked.dCstPerM     = IF AVAILABLE oe-ordl THEN oe-ordl.cost ELSE 0
+            ttOrdersBooked.dTotStdCost  = IF AVAILABLE oe-ordl THEN oe-ordl.t-cost ELSE 0
+            ttOrdersBooked.dFullCost    = IF AVAILABLE oe-ordl THEN oe-ordl.spare-dec-1 ELSE 0
+            ttOrdersBooked.cEnterBy     = oe-ord.entered-id
             . 
         DELETE w-data.
     END.  /* for each tt-report */

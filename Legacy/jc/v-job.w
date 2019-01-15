@@ -1349,7 +1349,7 @@ PROCEDURE local-update-record :
 
     FOR EACH xeb WHERE xeb.company = xest.company
                    AND xeb.est-no = xest.est-no
-                 NO-LOCK
+                 EXCLUSIVE-LOCK
         BREAK BY xeb.est-no
               BY xeb.form-no
               BY xeb.blank-no:
@@ -2307,7 +2307,7 @@ PROCEDURE validate-est :
             AND mach.m-code EQ est-op.m-code:
        IF mach.obsolete THEN DO:
         MESSAGE "Machine: " + TRIM(mach.m-code) +
-                " is obsolete, please replace to create job..."
+                " is Inactive, please replace to create job..."
             VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO job.est-no.
         RETURN NO-APPLY.

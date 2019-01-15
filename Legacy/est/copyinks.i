@@ -78,8 +78,7 @@
        b-eb.i-%2[li]    = eb.i-%2[li].
     END.
 
-    {ce/updunit#.i b-eb 0}
-    {ce/updunit#.i b-eb 1}
+    {ce/updunit#.i b-eb}
 
     ASSIGN
      b-eb.i-col      = eb.i-col

@@ -423,6 +423,48 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-insensitive s-object 
+PROCEDURE make-insensitive :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ASSIGN
+  Select_frac:SENSITIVE IN FRAME F-Main = FALSE
+  Select_List:SENSITIVE IN FRAME F-Main = FALSE
+  Select_appl:SENSITIVE IN FRAME F-Main = FALSE
+  Select_help:SENSITIVE IN FRAME F-Main = FALSE
+  Select_Notes:SENSITIVE IN FRAME F-Main = FALSE
+  Select_spec:SENSITIVE IN FRAME F-Main = FALSE
+  UDF:SENSITIVE IN FRAME F-Main = FALSE.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-sensitive s-object 
+PROCEDURE make-sensitive :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ASSIGN
+  Select_frac:SENSITIVE IN FRAME F-Main = TRUE
+  Select_List:SENSITIVE IN FRAME F-Main = TRUE
+  Select_appl:SENSITIVE IN FRAME F-Main = TRUE
+  Select_help:SENSITIVE IN FRAME F-Main = TRUE
+  Select_Notes:SENSITIVE IN FRAME F-Main = TRUE
+  Select_spec:SENSITIVE IN FRAME F-Main = TRUE
+  UDF:SENSITIVE IN FRAME F-Main = TRUE .
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Spec-Book-Image s-object 
 PROCEDURE Spec-Book-Image :
 /*------------------------------------------------------------------------------

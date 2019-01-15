@@ -347,6 +347,10 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
    t-blkqty     = 0
    v-qtty[vmcl] = qtty[vmcl].
 
+   IF vprint THEN DO:
+	{custom/statusMsg.i " 'Calculating... Est#  '  + xest.est-no  + ' Qty - ' + string(v-qtty[vmcl]) "}
+    END.
+
   for each blk:
       delete blk.
   end.
@@ -851,12 +855,12 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
       /* adders           */
       run cec/box/pr42-add.p (v-vend-list).
    
-      FIND CURRENT probe-board NO-ERROR.
+      FIND CURRENT probe NO-ERROR.
       
-      IF AVAIL probe-board THEN
-         probe-board.val[1] = probe-board.val[1] + dm-tot[5].
+      IF AVAIL probe THEN
+         probe.boardCostTotal = probe.boardCostTotal + dm-tot[5].
 
-      FIND CURRENT probe-board NO-LOCK NO-ERROR.
+      FIND CURRENT probe NO-LOCK NO-ERROR.
    
       /* i n k s          */
       run cec/box/pr42-ink.p (v-vend-no, INPUT TABLE tt-all-forms-ink).
@@ -1018,3 +1022,7 @@ hide frame ask     no-pause.
 hide frame ask1    no-pause.
 
 session:set-wait-state("").
+
+IF vprint THEN DO:
+{custom/statusMsg.i " 'Calculating Complete....  '  "}
+END.

@@ -20,8 +20,7 @@ FIND FIRST est NO-LOCK
 IF AVAIL est THEN DO:
   ASSIGN
      v-old-job-rec_key = io-job.rec_key
-     io-job.rec_key = STRING(TODAY,"99999999") +
-                      STRING(NEXT-VALUE(rec_key_seq,nosweat),"99999999").
+     io-job.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
 
   CREATE rec_key.
   ASSIGN

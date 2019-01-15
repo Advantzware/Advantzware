@@ -25,7 +25,7 @@ DO li = 1 TO NUM-ENTRIES(spec_codes):
 END.
 
 /*FibreFC,*/
-IF tb_fold  AND CAN-DO("Interpac,Dayton,Livngstn,CentBox,Wingate,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Badger,Carded,Carded2,Coburn,Knight***",lv-format-f) THEN 
+IF tb_fold  AND CAN-DO("Interpac,Dayton,Livngstn,CentBox,Wingate,Frankstn,Colonial,CCC-Hybrid,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Badger,Carded,Carded2,Coburn,Knight***",lv-format-f) THEN 
   lines-per-page = 50. /*55*/
 ELSE IF tb_fold AND CAN-DO("FibreFC,HPB,METRO,Dee",lv-format-f) THEN 
   lines-per-page = 70 /* 58 lines-per-page*/.
@@ -53,7 +53,7 @@ IF tb_freeze-note THEN
           and job.job                       eq job-hdr.job
           and job.job-no                    eq job-hdr.job-no
           and job.job-no2                   eq job-hdr.job-no2
-          and (job.stat                      ne "H" OR lv-format-f EQ 'Colonial')
+          and (job.stat                      ne "H" OR lv-format-f EQ 'Colonial' OR lv-format-f EQ 'CCC-Hybrid' )
           AND (job.pr-printed EQ reprint OR NOT production)
           AND (tb_app-unprinted EQ NO OR
               (tb_app-unprinted AND job.pr-printed = NO AND
@@ -61,9 +61,14 @@ IF tb_freeze-note THEN
         EXCLUSIVE-LOCK:
         RUN jc\jobnotes.p(BUFFER job).
 
+        ASSIGN job.freezeNote = YES 
+               job.freezeNotesDate = TODAY    
+               .
 
         FIND CURRENT job-hdr EXCLUSIVE-LOCK NO-ERROR. 
-        ASSIGN job-hdr.freezeNote = YES .
+        ASSIGN job-hdr.freezeNote = YES 
+               job-hdr.freezeNotesDate = TODAY    
+               .
         FIND CURRENT job-hdr NO-LOCK NO-ERROR.     
   END.
 
@@ -339,7 +344,7 @@ SESSION:SET-WAIT-STATE ("general").
 
 /*Change similar lines in jcrep\r-tickt2.w can-do ... in multiple places*/
 is-xprint-form = (ip-industry EQ "Corr") OR 
-                  CAN-DO("Interpac,FibreFC,Metro,HPB,Dayton,Livngstn,CentBox,Wingate,Keystone,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2",lv-format-f).
+                  CAN-DO("Interpac,FibreFC,Metro,HPB,Dayton,Livngstn,CentBox,Wingate,Keystone,Frankstn,Colonial,CCC-Hybrid,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2",lv-format-f).
 
 IF is-xprint-form THEN DO:
 
@@ -365,7 +370,7 @@ IF is-xprint-form THEN DO:
        (can-do ('PEACHTREE,PACIFIC,MWBox,Hughes,Protagon,Freedman,ARTIOS,Suthrlnd,United,oklahoma,Spectrum,CapCity,Allwest,RFC2,Loylang,Soule,HPB,MulticellGA,MCPartitions,ColonialPL,Delta,Bell',lv-format-c))  OR 
        (can-do ("Xprint,Valley,Lakeside,VINELAND,TriLakes,Axis,TriLakes2,Michcor",lv-format-c) AND lv-ornt = "L")) OR
        (ip-industry = "FOLD" AND 
-       can-do ('Interpac,Frankstn,OTTPkg,Colonial,CCC,Dayton,Livngstn,Shelby,HPB,METRO,FibreFC,PPI,PackRite,Rosmar,Knight,MidYork,Carded,Dee,Badger',lv-format-f)) THEN 
+       can-do ('Interpac,Frankstn,OTTPkg,Colonial,CCC-Hybrid,CCC,Dayton,Livngstn,Shelby,HPB,METRO,FibreFC,PPI,PackRite,Rosmar,Knight,MidYork,Carded,Dee,Badger',lv-format-f)) THEN 
       PUT UNFORMATTED "<OLANDSCAPE>".
     
     PUT "<PRINT=NO><PDF-LEFT=1mm><PDF-TOP=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
@@ -376,7 +381,7 @@ END.
 /* FOLDING */
 IF ip-industry EQ "Fold" THEN DO:
     /* Colonial */
-   IF NOT CAN-DO('ASI,CentBox,Wingate,UniPak,HPB,METRO,FibreFC,Indiana-XL,Accord,Dee,Colonial,xml,Carded,Carded2,Coburn,Knight***',lv-format-f) THEN spec-list = "".
+   IF NOT CAN-DO('ASI,CentBox,Wingate,UniPak,HPB,METRO,FibreFC,Indiana-XL,Accord,Dee,Colonial,CCC-Hybrid,xml,Carded,Carded2,Coburn,Knight***',lv-format-f) THEN spec-list = "".
    
    if  lv-format-f = 'Indiana-XL'      and 
        (logical (tb_RS:screen-value in frame {&frame-name}) = true or
@@ -430,7 +435,7 @@ IF ip-industry EQ "Fold" THEN DO:
    ELSE IF lv-format-f EQ "Colonial" THEN DO:
       PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>".
       RUN cerep/jobcolnl.p (lv-format-f).
-   END.
+   END.   
    ELSE IF lv-format-f EQ "xml" THEN DO: 
       RUN cerep/job_xml.p.
    END.
@@ -743,6 +748,10 @@ ELSE IF ip-industry EQ "Corr" THEN DO:
   ELSE IF lv-format-c = "jobcardc 20" THEN do:
       PUT UNFORMATTED "<OLANDSCAPE><FTahoma><P10></PROGRESS>" skip.
       RUN cecrep/jobtickc20.p (lv-format-c).
+  END.
+  ELSE IF lv-format-c = "Valley20" THEN do:
+      PUT UNFORMATTED "<OLANDSCAPE><FTahoma><P10></PROGRESS>" skip.
+      RUN cecrep/jobvalley20.p (lv-format-c).
   END.
   ELSE IF lv-ornt = "P" THEN do:
       PUT UNFORMATTED "</PROGRESS><P7>" skip.

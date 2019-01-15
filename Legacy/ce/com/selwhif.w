@@ -51,7 +51,8 @@ def output parameter op-error as log no-undo.
 def shared buffer xest for est.
 
 def shared temp-table tt-qtty field qtty like qtty
-                              field rel like rels.  
+                              field rel like rels
+                              FIELD lRunShip LIKE lRunShips.  
 def var i as int no-undo.
 
 def shared var cocode as cha no-undo.
@@ -255,9 +256,26 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK D-Dialog
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
 DO:
+  DEFINE VARIABLE lContinue AS LOGICAL.
+  DEFINE BUFFER bf-est-op FOR est-op.
+  
   do with frame {&frame-name}:
      assign v-do-speed v-do-mr v-do-gsa v-drop-rc lv-match-up.
   end.
+   IF AVAILABLE xest AND (v-do-speed OR v-do-mr) THEN DO:
+      FIND FIRST bf-est-op NO-LOCK 
+        WHERE bf-est-op.company EQ xest.company
+        AND bf-est-op.est-no EQ xest.est-no
+        AND bf-est-op.isLocked
+        NO-ERROR. 
+      IF AVAILABLE bf-est-op THEN DO:
+           MESSAGE "You have opted to recalculate machine standards yet the estimate has locked operations.  These locked operations will not be recalculated." SKIP 
+            "Do you want to continue calculating using standards from machine file for operations that are not locked?"
+            VIEW-AS ALERT-BOX BUTTONS YES-NO UPDATE lContinue.
+            IF NOT lContinue THEN 
+                APPLY "choose" TO btn_cancel.
+      END.
+  END.
   assign io-do-speed = v-do-speed
          io-do-mr = v-do-mr
          io-do-gsa = v-do-gsa

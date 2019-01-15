@@ -46,8 +46,9 @@
    
    else do:
 
-     IF op-lock.val[1] EQ 1                          AND 
-        (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN DO:
+     IF op-lock.val[1] EQ 1
+        AND NOT est-op.isLocked                          
+        AND (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN DO:
         est-op.op-waste = mach.mr-waste.
 
         if est-op.dept eq "PR" or est-op.dept eq "CT" then 
@@ -129,8 +130,9 @@
    END.
 
 
-   IF (op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1) AND 
-      (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN DO:
+   IF (op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1) 
+    AND NOT est-op.isLocked
+    AND (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN DO:
    /* flip dimensions if corr. xgrain */
    if est-op.dept = "LM" and
       ((xef.n-out-l ne 0 and
@@ -186,11 +188,11 @@
    end.
        
 
-     IF op-lock.val[1] EQ 1 THEN
+     IF op-lock.val[1] EQ 1 AND NOT est-op.isLocked THEN
        est-op.op-waste = mach.mr-waste + (mach.col-wastesh * maxco).
 
 
-     IF op-lock.val[2] EQ 1 THEN DO:
+     IF op-lock.val[2] EQ 1 AND NOT est-op.isLocked THEN DO:
        assign
         j             = 0
         v-pass-colors = 0.

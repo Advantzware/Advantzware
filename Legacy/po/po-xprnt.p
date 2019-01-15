@@ -275,16 +275,11 @@ v-printline = 0.
                         +
                       (IF (AVAIL ITEM AND ITEM.vend2-no = po-ord.vend) THEN (" " + ITEM.vend2-item) ELSE "").
 
-        FIND FIRST reftable WHERE
-             reftable.reftable EQ "POORDLDEPTH" AND
-             reftable.company  EQ cocode AND
-             reftable.loc      EQ STRING(po-ordl.po-no) AND
-             reftable.code     EQ STRING(po-ordl.LINE)
-             NO-LOCK NO-ERROR.
+        
 
         ASSIGN v-wid = po-ordl.s-wid
                v-len = po-ordl.s-len
-               lv-dep = IF AVAIL reftable THEN DEC(reftable.code2)
+               lv-dep = IF po-ordl.s-dep GT 0 THEN po-ordl.s-dep
                         ELSE IF AVAIL ITEM AND ITEM.mat-type = "C" THEN item.case-d
                         ELSE IF AVAIL ITEM THEN ITEM.s-dep
                         ELSE 0
@@ -292,7 +287,7 @@ v-printline = 0.
                v-len2 = po-ordl.s-len
                lv-dep2 = lv-dep.
 
-        RELEASE reftable.
+        
         if avail item and item.mat-type eq "B" then do:
           if v-shtsiz then do:
            if v-dec-fld = 0.08 then
@@ -848,9 +843,11 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
      {po/po-xprnt.i}
   END.
 
-  PUT "Grand Total MSF: " +
+IF AVAIL ITEM AND ITEM.industry EQ "2" OR AVAIL itemfg THEN DO:
+    PUT "Grand Total MSF: " +
       TRIM(STRING(v-tot-sqft / 1000,">>>,>>9.9<<")) AT 50 FORMAT "x(30)"
       SKIP.
+END.
 
   ASSIGN
   v-tot-sqft = 0

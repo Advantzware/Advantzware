@@ -84,14 +84,14 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 150 BY 24
+         SIZE 155 BY 25.76
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 2.91
-         SIZE 126 BY 1.43
+         AT COL 25 ROW 2.91
+         SIZE 134.6 BY 1.43
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
@@ -120,8 +120,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Bank Reconciliation"
-         HEIGHT             = 24
-         WIDTH              = 150
+         HEIGHT             = 24.76
+         WIDTH              = 155.2
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -281,7 +281,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME message-frame:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
-       RUN set-position IN h_smartmsg ( 1.00 , 72.00 ) NO-ERROR.
+       RUN set-position IN h_smartmsg ( 1.00 , 81.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -299,7 +299,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 22.67 , 154.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).

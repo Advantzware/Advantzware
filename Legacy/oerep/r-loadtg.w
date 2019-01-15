@@ -114,6 +114,7 @@ DEF VAR v-fgdsc3 LIKE itemfg.part-dscr3 NO-UNDO.
 DEFINE VARIABLE cPrevFromItem AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE cPrevToItem AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE lReturn AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hLoadtagProcs AS HANDLE NO-UNDO.
 
 DEF TEMP-TABLE tt-ordjobs
     FIELD job-no LIKE job.job-no
@@ -199,30 +200,6 @@ DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
 DEFINE VARIABLE i-bardir-int AS INTEGER NO-UNDO .
 DEFINE VARIABLE i-xprint-int AS INTEGER NO-UNDO .
-DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound THEN
-    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.   
-
-RUN sys/ref/nk1look.p (INPUT cocode,
-                       INPUT "LoadTagXprintImage",
-                       INPUT "C",
-                       INPUT NO,
-                       INPUT NO,
-                       INPUT "",
-                       INPUT "",
-                       OUTPUT ls-image1,
-                       OUTPUT lFound).
-
-FILE-INFO:FILE-NAME = ls-image1.
-ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "FGSetAssembly",
@@ -288,7 +265,7 @@ DEF BUFFER bf-po-ord  FOR po-ord.
 DEF BUFFER bf-po-ordl FOR po-ordl.
 
 DEF BUFFER bf-jobhdr FOR job-hdr.
-DEFINE TEMP-TABLE tt-word-print LIKE w-ord 
+DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
     FIELD tag-no AS CHARACTER .
 
 /* _UIB-CODE-BLOCK-END */
@@ -967,7 +944,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Loadtag Creation */
 DO:
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -1166,7 +1143,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
    apply "close" to this-procedure.
 END.
 
@@ -1293,20 +1270,20 @@ DO:
         END.
     END.
      IF v-cust-no NE "" THEN
-        FIND FIRST reftable WHERE
-             reftable.reftable EQ "cp-lab-p" AND
-             reftable.company  EQ cocode AND
-             reftable.loc      GE begin_i-no:SCREEN-VALUE AND
-             reftable.loc      LE end_i-no:SCREEN-VALUE AND
-             reftable.CODE     EQ v-cust-no
+        FIND FIRST cust-part WHERE
+             cust-part.company  EQ cocode AND
+             cust-part.i-no      GE begin_i-no:SCREEN-VALUE AND
+             cust-part.i-no      LE end_i-no:SCREEN-VALUE AND
+             cust-part.cust-no     EQ v-cust-no
              NO-LOCK NO-ERROR.
-
-     IF AVAIL reftable AND reftable.dscr NE "" THEN
-        scr-label-file:SCREEN-VALUE = (IF reftable.dscr <> "" THEN reftable.dscr ELSE v-bardir-chr).
+     
+     IF AVAIL cust-part AND cust-part.labelPallet <> "" THEN
+        scr-label-file:SCREEN-VALUE = (IF cust-part.labelPallet <> "" THEN cust-part.labelPallet ELSE v-bardir-chr).
      ELSE
         IF INT(begin_ord-no:SCREEN-VALUE) NE 0 AND
            INT(end_ord-no:SCREEN-VALUE) NE 0 THEN
         DO:
+           
            FIND FIRST oe-rel WHERE
                 oe-rel.company EQ cocode AND
                 oe-rel.i-no    GE begin_i-no:SCREEN-VALUE AND
@@ -1574,15 +1551,14 @@ DO:
           DO:
              v-cust-no = oe-ord.cust-no.
 
-             FIND FIRST reftable NO-LOCK
-               WHERE reftable.reftable EQ "cp-lab-p" 
-                 AND reftable.company  EQ cocode 
-                 AND reftable.loc      EQ begin_i-no:SCREEN-VALUE
-                 AND reftable.loc      EQ end_i-no:SCREEN-VALUE
-                 AND reftable.CODE     EQ oe-ord.cust-no NO-ERROR.
+             FIND FIRST cust-part NO-LOCK 
+               WHERE cust-part.company   EQ cocode 
+                 AND cust-part.i-no      EQ begin_i-no:SCREEN-VALUE
+                 AND cust-part.i-no      EQ end_i-no:SCREEN-VALUE
+                 AND cust-part.cust-no   EQ oe-ord.cust-no NO-ERROR.
 
-             IF AVAIL reftable AND reftable.code2 NE "" THEN
-                scr-label-file:SCREEN-VALUE = (IF reftable.dscr <> "" THEN reftable.dscr ELSE v-bardir-chr).
+             IF AVAIL cust-part AND cust-part.labelCase NE "" THEN
+                scr-label-file:SCREEN-VALUE = (IF cust-part.labelPallet <> "" THEN cust-part.labelPallet ELSE v-bardir-chr).
              ELSE
              DO:
                 IF begin_i-no:SCREEN-VALUE NE "" AND 
@@ -1730,15 +1706,14 @@ DO:
                         end_i-no:SCREEN-VALUE   = bf-po-ordl.i-no
                         v-cust-no = bf-po-ordl.cust-no.
 
-                     FIND FIRST reftable NO-LOCK
-                         WHERE reftable.reftable EQ "cp-lab-p" 
-                         AND reftable.company  EQ cocode 
-                         AND reftable.loc      EQ begin_i-no:SCREEN-VALUE
-                         AND reftable.loc      EQ end_i-no:SCREEN-VALUE
-                         AND reftable.CODE     EQ v-cust-no NO-ERROR.
+                     FIND FIRST cust-part NO-LOCK
+                         WHERE cust-part.company EQ cocode 
+                         AND cust-part.i-no      EQ begin_i-no:SCREEN-VALUE
+                         AND cust-part.i-no      EQ end_i-no:SCREEN-VALUE
+                         AND cust-part.cust-no   EQ v-cust-no NO-ERROR.
 
-                     IF AVAIL reftable  THEN
-                         scr-label-file:SCREEN-VALUE = (IF reftable.dscr <> "" THEN reftable.dscr ELSE v-bardir-chr).
+                     IF AVAIL cust-part  THEN
+                         scr-label-file:SCREEN-VALUE = (IF cust-part.labelPallet <> "" THEN cust-part.labelPallet ELSE v-bardir-chr).
 
 
                 END.
@@ -1788,6 +1763,16 @@ END.
 ON LEAVE OF fi_cas-lab IN FRAME FRAME-A /* Scan Case Label */
 DO:
   IF SELF:SCREEN-VALUE NE "" AND SELF:MODIFIED THEN DO:
+      ASSIGN {&displayed-objects}.
+    ASSIGN
+      cBarCodeProgram = IF scr-label-file MATCHES "*.xpr*" THEN "xprint" 
+                        ELSE IF scr-label-file MATCHES "*.lwl" THEN "loftware" 
+                        ELSE "".
+     
+    FOR EACH tt-word-print:
+       DELETE tt-word-print .
+    END.
+
     RUN new-cas-lab.
     IF RETURN-VALUE NE 'ERROR' THEN DO:
       SELF:SCREEN-VALUE = ''.
@@ -2447,7 +2432,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         loadtagFunction:SCREEN-VALUE = "order".
      END.  /*   PROGRAM-NAME(3) MATCHES "b-ordlt." */
 
-     IF  PROGRAM-NAME(3) MATCHES "*/b-trans.*" THEN DO:
+     IF  (PROGRAM-NAME(3) MATCHES "*/b-trans.*" OR PROGRAM-NAME(3) MATCHES "*/b-ldtag.*" ) THEN DO:
       /*IF SEARCH('IU2-loadtag.txt') NE ? THEN DO:*/
       /* gdm - 06100901 end */
       ASSIGN
@@ -2754,15 +2739,14 @@ PROCEDURE cas-lab-label-mat-file :
 
         IF AVAIL oe-ord THEN
         DO:
-           FIND FIRST reftable WHERE
-                reftable.reftable EQ "cp-lab-p" AND
-                reftable.company  EQ cocode AND
-                reftable.loc      EQ begin_i-no:SCREEN-VALUE AND
-                reftable.loc      EQ end_i-no:SCREEN-VALUE AND
-                reftable.CODE     EQ oe-ord.cust-no
+           FIND FIRST cust-part WHERE
+                cust-part.company  EQ cocode AND
+                cust-part.i-no     EQ begin_i-no:SCREEN-VALUE AND
+                cust-part.i-no     EQ end_i-no:SCREEN-VALUE AND
+                cust-part.cust-no  EQ oe-ord.cust-no
                 NO-LOCK NO-ERROR.
-           IF AVAIL reftable AND reftable.code2 NE "" THEN
-              scr-label-file:SCREEN-VALUE = (IF reftable.dscr <> "" THEN reftable.dscr ELSE bardir-chr).
+           IF AVAIL cust-part AND cust-part.labelCase NE "" THEN
+              scr-label-file:SCREEN-VALUE = (IF cust-part.labelPallet <> "" THEN cust-part.labelPallet ELSE bardir-chr).
            ELSE DO:
               IF begin_i-no:SCREEN-VALUE NE "" AND 
                  end_i-no:SCREEN-VALUE NE "" THEN
@@ -3119,15 +3103,8 @@ PROCEDURE create-loadtag :
       WHERE itemfg.company EQ cocode
         AND itemfg.i-no    EQ w-ord.i-no
       NO-ERROR.
-
-  FIND LAST loadtag NO-LOCK
-      WHERE loadtag.company     EQ cocode
-        AND loadtag.item-type   EQ NO
-        AND loadtag.is-case-tag EQ NO
-        AND loadtag.tag-no      BEGINS w-ord.i-no 
-        AND SUBSTR(loadtag.tag-no,1,15) EQ w-ord.i-no
-      USE-INDEX tag NO-ERROR.
-  io-tag-no = (IF AVAIL loadtag THEN INT(SUBSTR(loadtag.tag-no,16,5)) ELSE 0) + 1.
+  
+  RUN GetNextLoadtagNumber (cocode, w-ord.i-no, OUTPUT io-tag-no).
 
   /* rstark - zoho13731 */
   IF CAN-FIND(FIRST sys-ctrl
@@ -3271,7 +3248,6 @@ PROCEDURE create-loadtag :
 
 
       RELEASE job.
-      RELEASE reftable.
 
       IF TRIM(fg-rctd.job-no) NE "" THEN
       FIND FIRST job
@@ -3552,7 +3528,7 @@ PROCEDURE create-text-file :
 
       PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#,"
                        "PalletCode,PalletID,TagCounter,TagCountTotal,"
-                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty".
+                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty,RunShip".
 
       /* rstark - */
       IF lSSCC THEN PUT UNFORMATTED ",SSCC".
@@ -3834,7 +3810,9 @@ PROCEDURE create-w-ord :
             w-ord.sold-state   = oe-ord.sold-state
             w-ord.sold-zip     = oe-ord.sold-zip
             w-ord.linenum      = IF AVAIL oe-ordl THEN oe-ordl.e-num ELSE 0
-            w-ord.lot          = loadtag.misc-char[2].
+            w-ord.lot          = loadtag.misc-char[2]
+            w-ord.runShip      = IF AVAILABLE oe-ordl THEN oe-ordl.whsed ELSE NO 
+            .
 
       IF AVAIL b-job-hdr THEN
          w-ord.due-date-jobhdr = IF b-job-hdr.due-date <> ? THEN STRING(b-job-hdr.due-date, "99/99/9999") ELSE "".
@@ -4650,7 +4628,8 @@ PROCEDURE from-job :
 
                 ASSIGN
                  w-ord.ord-desc1    = oe-ordl.part-dscr1
-                 w-ord.ord-desc2    = oe-ordl.part-dscr2.
+                 w-ord.ord-desc2    = oe-ordl.part-dscr2
+                 w-ord.runShip      = oe-ordl.whsed.
 
                 RELEASE oe-ordl.
                 RELEASE oe-ord.
@@ -4896,6 +4875,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
             w-ord.dont-run-set = oe-ordl.is-a-component
             w-ord.ord-desc1    = oe-ordl.part-dscr1
             w-ord.ord-desc2    = oe-ordl.part-dscr2
+            w-ord.runShip      = oe-ordl.whsed
 
             /* gdm - 08130804*/
             w-ord.linenum      = oe-ordl.e-num
@@ -5481,17 +5461,6 @@ DO WITH FRAME {&FRAME-NAME}:
         ASSIGN begin_i-no:SCREEN-VALUE = bf-oe-ordl.i-no
                end_i-no:SCREEN-VALUE   = bf-oe-ordl.i-no.           
 
-  /*    
-      FIND FIRST reftable NO-LOCK
-        WHERE reftable.reftable EQ "cp-lab-p" 
-          AND reftable.company  EQ cocode
-          AND reftable.loc      EQ begin_i-no:SCREEN-VALUE
-          AND reftable.loc      EQ end_i-no:SCREEN-VALUE
-          AND reftable.CODE     EQ bf-oe-ord.cust-no NO-ERROR.
-
-      IF AVAIL reftable 
-        THEN ASSIGN scr-label-file:SCREEN-VALUE =  reftable.dscr.
-  */
       APPLY "LEAVE" TO END_i-no.
     END.
     ELSE DO:
@@ -5881,17 +5850,7 @@ IF AVAIL bf-oe-ord THEN DO:
     IF AVAIL bf-oe-ordl THEN
       ASSIGN begin_i-no:SCREEN-VALUE = bf-oe-ordl.i-no
              end_i-no:SCREEN-VALUE   = bf-oe-ordl.i-no.           
-/*    
-    FIND FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "cp-lab-p" 
-        AND reftable.company  EQ cocode
-        AND reftable.loc      EQ begin_i-no:SCREEN-VALUE
-        AND reftable.loc      EQ end_i-no:SCREEN-VALUE
-        AND reftable.CODE     EQ bf-oe-ord.cust-no NO-ERROR.
 
-    IF AVAIL reftable 
-      THEN ASSIGN scr-label-file:SCREEN-VALUE =  reftable.dscr.
-*/
     APPLY "LEAVE" TO END_i-no.
   END.
   ELSE DO:
@@ -5998,17 +5957,7 @@ IF AVAIL bf-po-ord THEN DO:
 
     ASSIGN begin_i-no:SCREEN-VALUE = bf-po-ordl.i-no
            end_i-no:SCREEN-VALUE   = bf-po-ordl.i-no.           
-/*    
-    FIND FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "cp-lab-p" 
-        AND reftable.company  EQ cocode
-        AND reftable.loc      EQ begin_i-no:SCREEN-VALUE
-        AND reftable.loc      EQ end_i-no:SCREEN-VALUE
-        AND reftable.CODE     EQ bf-po-ord.cust-no NO-ERROR.
 
-    IF AVAIL reftable 
-      THEN ASSIGN scr-label-file:SCREEN-VALUE =  reftable.dscr.
-*/
     APPLY "LEAVE" TO END_i-no.
 
   END.
@@ -6391,16 +6340,15 @@ PROCEDURE leave-job-label :
         IF AVAIL oe-ord THEN
            v-cust-no = oe-ord.cust-no.
 
-        FIND FIRST reftable WHERE
-             reftable.reftable EQ "cp-lab-p" AND
-             reftable.company  EQ cocode AND
-             reftable.loc      EQ job-hdr.i-no AND
-             reftable.CODE     EQ v-cust-no
+        FIND FIRST cust-part WHERE
+             cust-part.company  EQ cocode AND
+             cust-part.i-no     EQ job-hdr.i-no AND
+             cust-part.cust-no  EQ v-cust-no
              NO-LOCK NO-ERROR.
 
-         IF AVAIL reftable AND reftable.code2 NE "" THEN
-            scr-label-file:SCREEN-VALUE = (IF reftable.dscr <> "" THEN
-                                              reftable.dscr
+         IF AVAIL cust-part AND cust-part.labelCase NE "" THEN
+            scr-label-file:SCREEN-VALUE = (IF cust-part.labelPallet <> "" THEN
+                                              cust-part.labelPallet
                                            ELSE bardir-chr).
          ELSE DO:
             IF AVAIL oe-ord THEN
@@ -6746,7 +6694,7 @@ PROCEDURE ok-button :
   IF lv-ok-ran AND NOT tb_reprint-tag AND tb_close THEN do:
      IF program-name(1) matches "*r-loadtg.*"
         and not program-name(2) matches "*persist*" THEN DO:
-         RUN system/userLogOut.p.
+         RUN system/userLogOut.p (NO, 0).
      END.
       APPLY "close" TO THIS-PROCEDURE.
   END.
@@ -7053,96 +7001,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE print-loadtg C-Win 
-PROCEDURE print-loadtg :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-DEFINE VARIABLE cEmail AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cPhone AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
-
-    {sys/inc/print1.i}
-    {sys/inc/outprint.i value(85)}
-
-    SESSION:SET-WAIT-STATE ("general").
-   
-    IF tb_print-view THEN DO:
-        IF NOT lBussFormModle THEN
-           PUT "<PREVIEW><MODAL=NO></PROGRESS>" FORM "x(50)".
-         ELSE
-           PUT "<PREVIEW></PROGRESS>" FORM "x(50)".
-    END.
-    ELSE DO:
-       PUT "<PRINTER?><FORMAT=LEGAL></PROGRESS>" FORM "x(50)".
-    END.
-
-    DO WITH FRAME {&FRAME-NAME}:
-        FOR EACH tt-word-print NO-LOCK BREAK
-                                BY tt-word-print.ord-no 
-                                BY tt-word-print.i-no:
-                                
-           IF scr-label-file:SCREEN-VALUE EQ "loadtag.xpr" THEN DO:
-               {oe/rep/lodxprntstd.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag1.xpr" THEN DO:
-               {oe/rep/lodxprnt.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag2.xpr" THEN DO:
-               {oe/rep/lodxprnt2.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag3.xpr" THEN DO:
-               {oe/rep/lodxprnt3.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag4.xpr" THEN DO:
-               {oe/rep/lodxprnt4.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag5.xpr" THEN DO:
-               {oe/rep/lodxprnt5.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag6.xpr" THEN DO:
-               {oe/rep/lodxprnt6.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag7.xpr" THEN DO:
-               {oe/rep/lodxprnt7.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag8.xpr" THEN DO:
-               {oe/rep/lodxprnt8.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag9.xpr" THEN DO:
-               {oe/rep/lodxprnt9.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag10.xpr" THEN DO:
-               {oe/rep/lodxprnt10.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag11.xpr" THEN DO:
-               {oe/rep/lodxprnt11.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag12.xpr" THEN DO:
-               {oe/rep/lodxprnt12.i}
-           END.
-           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag13.xpr" THEN DO:
-               {oe/rep/lodxprnt13.i}
-           END.
-    
-         IF NOT LAST(tt-word-print.i-no) THEN PAGE .
-        END.
-    END.
-
-
-    OUTPUT CLOSE.
-    SESSION:SET-WAIT-STATE ("").
-
-    FILE-INFO:FILE-NAME = list-name.
-    RUN printfile (FILE-INFO:FILE-NAME).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reprint-tag C-Win 
 PROCEDURE reprint-tag :
@@ -7195,7 +7053,9 @@ PROCEDURE reprint-tag :
   END.
   ELSE IF cBarCodeProgram EQ "xprint" AND scr-auto-print THEN do:
       PAUSE 1.
-      RUN print-loadtg  .
+      RUN "oerep/LoadtagProcs.p" PERSISTENT SET hLoadtagProcs.
+      RUN pPrintView IN hLoadtagProcs (scr-label-file:SCREEN-VALUE IN FRAME {&FRAME-NAME}, tb_print-view).
+      DELETE OBJECT hLoadtagProcs.
   END.
 
   IF (NOT is-from-addons() OR SSLoadTag-log = TRUE) THEN 
@@ -7287,7 +7147,9 @@ IF cBarCodeProgram EQ "" THEN DO:
 END.
 ELSE IF cBarCodeProgram EQ "xprint" AND scr-auto-print THEN do: 
     PAUSE 1.
-    RUN print-loadtg .
+    RUN "oerep/LoadtagProcs.p" PERSISTENT SET hLoadtagProcs.
+    RUN pPrintView IN hLoadtagProcs (scr-label-file:SCREEN-VALUE IN FRAME {&FRAME-NAME}, tb_print-view).
+    DELETE OBJECT hLoadtagProcs.
 END.
 SESSION:SET-WAIT-STATE ("").
 /*     IF scr-auto-print THEN                                                  */
@@ -7675,10 +7537,10 @@ PROCEDURE write-loadtag-line :
     ASSIGN
         cLoftString = FILL(",",86)
         ENTRY(1,cLoftString) = "!" + scr-label-file
-        ENTRY(2,cLoftString) = '"' + STRING(REPLACE(w-ord.cust-name,'"',""),"x(30)") + '"'
-        ENTRY(3,cLoftString) = '"' + STRING(REPLACE(w-ord.cust-part-no,'"',""),"x(30)") + '"'
-        ENTRY(4,cLoftString) = '"' + STRING(REPLACE(w-ord.cust-po-no,'"',""),"x(15)") + '"'
-        ENTRY(5,cLoftString) = '"' + STRING(REPLACE(w-ord.ship-city,'"',"") + " " + REPLACE(w-ord.ship-state,'"',""),"x(30)") + '"'
+        ENTRY(2,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.cust-name,","," "),'"',""),"x(30)") + '"'
+        ENTRY(3,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.cust-part-no,","," "),'"',""),"x(30)") + '"'
+        ENTRY(4,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.cust-po-no,","," "),'"',""),"x(15)") + '"'
+        ENTRY(5,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.ship-city,","," "),'"',"") + " " + REPLACE(w-ord.ship-state,'"',""),"x(30)") + '"'
         ENTRY(6,cLoftString) = '"' + STRING(w-ord.est-no,"9999999") + '"'
         ENTRY(7,cLoftString) = STRING(w-ord.gross-wt,">>>>9.99")
         ENTRY(9,cLoftString) = "- -"
@@ -7688,15 +7550,15 @@ PROCEDURE write-loadtag-line :
         ENTRY(13,cLoftString) = STRING(w-ord.total-unit,">>>>>9")
         ENTRY(14,cLoftString) = STRING(w-ord.due-date,"99/99/99")
         ENTRY(24,cLoftString) = '"' + STRING(REPLACE(w-ord.cust-no,'"',""),"x(5)") + STRING(REPLACE(w-ord.ship-code,'"',""),"x(3)") + '"'
-        ENTRY(30,cLoftString) = '"' + STRING(REPLACE(w-ord.ship-name,'"',""),"x(60)") + '"'
+        ENTRY(30,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.ship-name,","," "),'"',""),"x(60)") + '"'
         ENTRY(31,cLoftString) = '"' + STRING(REPLACE(w-ord.i-no,'"',""),"x(23)") + '"'
-        ENTRY(32,cLoftString) = '"' + STRING(REPLACE(w-ord.i-name,'"',""),"x(30)") + '"'
-        ENTRY(37,cLoftString) = '"' + STRING(REPLACE(w-ord.ship-add1,'"',"") + " " + REPLACE(w-ord.ship-add2,'"',""),"x(30)") + '"'
+        ENTRY(32,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.i-name,","," "),'"',""),"x(30)") + '"'
+        ENTRY(37,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.ship-add1,","," "),'"',"") + " " + REPLACE(REPLACE(w-ord.ship-add2,","," "),'"',""),"x(30)") + '"'
         ENTRY(38,cLoftString) = "1"
         ENTRY(39,cLoftString) = STRING(w-ord.pcs,">>>>9")
-        ENTRY(41,cLoftString) = STRING(loadtag.tag-no,"x(64)")
-        ENTRY(42,cLoftString) = '"' + STRING(REPLACE(w-ord.ord-desc1,'"',""),"x(64)") + '"'
-        ENTRY(44,cLoftString) = '"' + STRING(REPLACE(w-ord.style-desc,'"',""),"x(15)") + '"'
+        ENTRY(41,cLoftString) = TRIM(STRING(loadtag.tag-no,"x(64)"))
+        ENTRY(42,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.ord-desc1,","," "),'"',""),"x(64)") + '"'
+        ENTRY(44,cLoftString) = '"' + STRING(REPLACE(REPLACE(w-ord.style-desc,","," "),'"',""),"x(15)") + '"'
         ENTRY(45,cLoftString) = STRING(w-ord.box-len,">>>9.99<<<")
         ENTRY(46,cLoftString) = STRING(w-ord.box-wid,">>>9.99<<<")
         ENTRY(47,cLoftString) = STRING(w-ord.box-dep,">>>9.99<<<")
@@ -7806,8 +7668,9 @@ PROCEDURE write-loadtag-line :
         "~"" replace(w-ord.ship-notes[3],'"', '') "~","
         "~"" replace(w-ord.ship-notes[4],'"', '') "~","
         "~"" loadtag.loc "~","
-        "~"" loadtag.loc-bin "~""
-        .
+        "~"" loadtag.loc-bin "~","
+        "~"" w-ord.job-qty "~","
+        "~"" STRING(w-ord.runShip,"R&S/WHSE")  "~"".
     
     IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".
 END.
@@ -8014,6 +7877,44 @@ FUNCTION win_normalizePath RETURNS CHARACTER
 
 END FUNCTION.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetNextLoadtagNumber C-Win
+PROCEDURE GetNextLoadtagNumber PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opiNextTag AS INTEGER NO-UNDO.
+
+DEFINE VARIABLE iLastFGTag AS INTEGER.
+DEFINE VARIABLE iLastRMTag AS INTEGER.
+
+FIND LAST loadtag NO-LOCK
+      WHERE loadtag.company     EQ ipcCompany
+        AND loadtag.item-type   EQ NO
+        AND loadtag.is-case-tag EQ NO
+        AND loadtag.tag-no      BEGINS ipcFGItemID 
+        AND SUBSTR(loadtag.tag-no,1,15) EQ ipcFGItemID
+      USE-INDEX tag NO-ERROR.
+  iLastFGTag = (IF AVAIL loadtag THEN INT(SUBSTR(loadtag.tag-no,16,5)) ELSE 0) + 1.
+
+FIND LAST loadtag NO-LOCK
+      WHERE loadtag.company     EQ ipcCompany
+        AND loadtag.item-type   EQ YES
+        AND loadtag.is-case-tag EQ NO
+        AND loadtag.tag-no      BEGINS ipcFGItemID 
+        AND SUBSTR(loadtag.tag-no,1,15) EQ ipcFGItemID
+      USE-INDEX tag NO-ERROR.
+  iLastRMTag = (IF AVAIL loadtag THEN INT(SUBSTR(loadtag.tag-no,16,5)) ELSE 0) + 1.
+  
+  opiNextTag = MAX(iLastFGTag, iLastRMTag).
+
+END PROCEDURE.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

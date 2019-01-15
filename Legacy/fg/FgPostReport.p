@@ -539,19 +539,19 @@ DO:
     DO:                   
         PUT STREAM before
             " " TO 124 SKIP       
-            "MSF->  FG: " + trim(STRING(v-msf[5],">>,>>9.9<<")) +
-            "  Wst: " + trim(STRING(v-msf[6],">>,>>9.9<<"))    +
-            "  Tot: " + trim(STRING(v-msf[5] + v-msf[6],">>,>>9.9<<"))
-            FORMAT "x(59)" AT 15
+            "MSF->  FG: " + trim(STRING(v-msf[5],"->>,>>9.9<<")) +
+            "  Wst: " + trim(STRING(v-msf[6],"->>,>>9.9<<"))    +
+            "  Tot: " + trim(STRING(v-msf[5] + v-msf[6],"->>,>>9.9<<"))
+            FORMAT "x(63)" AT 15
             "GRAND TOTALS:" TO 97
             v-grd-tot-qty TO 110 v-grd-tot-cost TO 141 SKIP. 
 
         PUT STREAM after
             " " TO 124 SKIP       
-            "MSF->  FG: " + trim(STRING(v-msf[5],">>,>>9.9<<")) +
-            "  Wst: " + trim(STRING(v-msf[6],">>,>>9.9<<"))    +
-            "  Tot: " + trim(STRING(v-msf[5] + v-msf[6],">>,>>9.9<<"))
-            FORMAT "x(59)" AT 15 
+            "MSF->  FG: " + trim(STRING(v-msf[5],"->>,>>9.9<<")) +
+            "  Wst: " + trim(STRING(v-msf[6],"->>,>>9.9<<"))    +
+            "  Tot: " + trim(STRING(v-msf[5] + v-msf[6],"->>,>>9.9<<"))
+            FORMAT "x(63)" AT 15 
             "GRAND TOTALS:" TO 97
             v-grd-tot-qty TO 110 v-grd-tot-cost TO 141 SKIP.     
     END.
@@ -559,19 +559,19 @@ DO:
     DO:
         PUT STREAM before
             " " TO 124 SKIP       
-            "MSF->  FG: " + trim(STRING(v-msf[5],">>,>>9.9<<")) +
-            "  Wst: " + trim(STRING(v-msf[6],">>,>>9.9<<"))    +
-            "  Tot: " + trim(STRING(v-msf[5] + v-msf[6],">>,>>9.9<<"))
-            FORMAT "x(59)" AT 15 
+            "MSF->  FG: " + trim(STRING(v-msf[5],"->>,>>9.9<<")) +
+            "  Wst: " + trim(STRING(v-msf[6],"->>,>>9.9<<"))    +
+            "  Tot: " + trim(STRING(v-msf[5] + v-msf[6],"->>,>>9.9<<"))
+            FORMAT "x(63)" AT 15 
             "GRAND TOTALS:" TO 100
             v-grd-tot-qty TO 113 v-grd-tot-value TO 144 SKIP.
 
         PUT STREAM after
             " " TO 124 SKIP       
-            "MSF->  FG: " + trim(STRING(v-msf[5],">>,>>9.9<<")) +
-            "  Wst: " + trim(STRING(v-msf[6],">>,>>9.9<<"))    +
-            "  Tot: " + trim(STRING(v-msf[5] + v-msf[6],">>,>>9.9<<"))
-            FORMAT "x(59)" AT 15 
+            "MSF->  FG: " + trim(STRING(v-msf[5],"->>,>>9.9<<")) +
+            "  Wst: " + trim(STRING(v-msf[6],"->>,>>9.9<<"))    +
+            "  Tot: " + trim(STRING(v-msf[5] + v-msf[6],"->>,>>9.9<<"))
+            FORMAT "x(63)" AT 15 
             "GRAND TOTALS:" TO 97
             v-grd-tot-qty TO 110 v-grd-tot-value TO 141 SKIP.
     END.

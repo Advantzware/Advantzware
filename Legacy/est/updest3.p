@@ -53,10 +53,6 @@ IF AVAIL eb THEN DO:
       {est/copyinks.i}
     END.
 
-    IF ip-which EQ 2 OR ip-which EQ ? THEN DO:
-      {est/copyunit.i}
-    END.
-
     IF ip-which EQ 3 OR ip-which EQ ? THEN DO:
       {est/copypack.i}
     END.

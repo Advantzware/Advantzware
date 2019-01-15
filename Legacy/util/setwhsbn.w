@@ -486,7 +486,7 @@ for each oe-boll
             and fg-bin.i-no    eq itemfg.i-no
             and fg-bin.qty     lt 0:
 
-        RUN fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0).
+        RUN fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0,"").
 
         delete fg-bin.
       end.

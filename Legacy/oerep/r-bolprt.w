@@ -239,16 +239,18 @@ DEFINE TEMP-TABLE ediOutFile NO-UNDO
 begin_ord# end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
 tb_print-barcode tb_print-unassemble-component tb_print-binstags ~
-rd_bol-sort fi_specs tb_print-spec rd_bolcert tb_EMailAdvNotice rd-dest ~
-tb_MailBatchMode tb_ComInvoice tb_footer tb_freight-bill lv-ornt lines-per-page ~
-lv-font-no tb_post-bol td-show-parm btn-ok btn-cancel 
+rd_bol-sort fi_specs tb_print-spec rd_bolcert tb_per-bol-line ~
+tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice tb_freight-bill ~
+tb_footer lv-ornt lines-per-page lv-font-no tb_post-bol td-show-parm btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_bol# begin_ord# ~
 end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
 tb_print-barcode tb_print-unassemble-component tb_print-binstags ~
 lbl_bolsort rd_bol-sort fi_specs tb_print-spec lbl_bolcert rd_bolcert ~
-tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice tb_footer tb_freight-bill ~
-lv-ornt lines-per-page lv-font-no lv-font-name tb_post-bol td-show-parm 
+tb_per-bol-line tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice ~
+tb_freight-bill tb_footer lv-ornt lines-per-page lv-font-no lv-font-name ~
+tb_post-bol td-show-parm 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -400,7 +402,7 @@ DEFINE VARIABLE tb_ComInvoice AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_EMailAdvNotice AS LOGICAL INITIAL no 
      LABEL "E-Mail &Advanced Ship Notice?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 34 BY .81 NO-UNDO. 
+     SIZE 34 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_footer AS LOGICAL INITIAL no 
      LABEL "Print Footer?" 
@@ -421,6 +423,11 @@ DEFINE VARIABLE tb_pallet AS LOGICAL INITIAL no
      LABEL "Print Number Of Pallets?" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_per-bol-line AS LOGICAL INITIAL no 
+     LABEL "Per BOL Line" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_post-bol AS LOGICAL INITIAL no 
      LABEL "Post BOL?" 
@@ -523,12 +530,13 @@ DEFINE FRAME FRAME-A
      tb_print-spec AT ROW 14.1 COL 34 WIDGET-ID 10
      lbl_bolcert AT ROW 15.1 COL 24 COLON-ALIGNED NO-LABEL
      rd_bolcert AT ROW 15.1 COL 34.6 NO-LABEL
+     tb_per-bol-line AT ROW 15.19 COL 73.4 WIDGET-ID 20
      tb_EMailAdvNotice AT ROW 16.67 COL 67 RIGHT-ALIGNED
      rd-dest AT ROW 17.48 COL 5 NO-LABEL
      tb_MailBatchMode AT ROW 17.57 COL 59 RIGHT-ALIGNED
      tb_ComInvoice AT ROW 18.48 COL 64 RIGHT-ALIGNED
      tb_freight-bill AT ROW 19.38 COL 61 RIGHT-ALIGNED
-     tb_footer AT ROW 20.28 COL 61 RIGHT-ALIGNED
+     tb_footer AT ROW 20.29 COL 61 RIGHT-ALIGNED
      lv-ornt AT ROW 21.1 COL 34 NO-LABEL
      lines-per-page AT ROW 21.1 COL 83 COLON-ALIGNED
      lv-font-no AT ROW 22.62 COL 32 COLON-ALIGNED
@@ -696,16 +704,16 @@ ASSIGN
        tb_EMailAdvNotice:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-/* SETTINGS FOR TOGGLE-BOX tb_freight-bill IN FRAME FRAME-A
-   ALIGN-R                                                              */
-ASSIGN 
-       tb_freight-bill:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
 /* SETTINGS FOR TOGGLE-BOX tb_footer IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
        tb_footer:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_freight-bill IN FRAME FRAME-A
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_freight-bill:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_MailBatchMode IN FRAME FRAME-A
@@ -718,6 +726,10 @@ ASSIGN
    ALIGN-R                                                              */
 ASSIGN 
        tb_pallet:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_per-bol-line:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -1456,6 +1468,9 @@ END.
 ON VALUE-CHANGED OF rd_bolcert IN FRAME FRAME-A
 DO:
   assign {&self-name}.
+  IF rd_bolcert EQ "BOL" THEN
+            tb_per-bol-line:SENSITIVE = NO.
+        ELSE tb_per-bol-line:SENSITIVE = YES.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1695,7 +1710,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   FIND FIRST users WHERE
-       users.user_id EQ USERID("NOSWEAT")
+       users.user_id EQ USERID("ASI")
        NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -1769,7 +1784,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        tb_post-bol:SCREEN-VALUE = "no"
        tb_post-bol:HIDDEN       = YES.
 
-    IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Xprint2,bolfmt 2,bolfmt 20,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell") LE 0 THEN DO:
+    IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Delta,Xprint2,bolfmt 2,bolfmt 20,LancoYork,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell") LE 0 THEN DO:
       tb_print-component:SCREEN-VALUE = "no".
       DISABLE tb_print-component.
       tb_print-unassemble-component:SCREEN-VALUE = "no".
@@ -1808,6 +1823,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ELSE
         tb_print_ship:HIDDEN       = NO .
 
+    IF v-coc-fmt EQ "BOLCERT10" THEN DO:
+        assign
+            tb_per-bol-line:HIDDEN       = NO.
+            tb_per-bol-line:screen-value = "NO".
+            tb_per-bol-line:SENSITIVE = NO.
+    END.
+    ELSE DO:
+        tb_per-bol-line:HIDDEN       = YES .
+    END.
+
     IF v-print-fmt = "ACCORDBC" AND v-print-fmt-int = 1 THEN
       tb_print-binstags:HIDDEN = NO.
     ELSE
@@ -1828,7 +1853,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ASSIGN 
         tb_print-unassemble-component:HIDDEN = YES.
 
-   IF v-print-fmt = "XPrint2" OR v-print-fmt = "bolfmt 2" OR v-print-fmt = "bolfmt 20" THEN  /* task 01121601 */
+   IF v-print-fmt = "XPrint2" OR v-print-fmt = "Delta" OR v-print-fmt = "bolfmt 2" OR v-print-fmt = "bolfmt 20" OR v-print-fmt = "LancoYork" THEN  /* task 01121601 */
        ASSIGN
         lbl_bolsort:HIDDEN = NO
         rd_bol-sort:HIDDEN = NO .
@@ -2432,8 +2457,20 @@ PROCEDURE build-work :
                        AND oe-boll.b-no    EQ oe-bolh.b-no
                        AND oe-boll.ord-no  GE v-s-ord
                        AND oe-boll.ord-no  LE v-e-ord)
-      USE-INDEX post:
-
+     USE-INDEX post:
+          
+    RUN oe/custxship.p (oe-bolh.company,
+        oe-bolh.cust-no,
+          oe-bolh.ship-id,
+          BUFFER shipto).
+          
+    IF NOT AVAILABLE shipto THEN 
+    DO:
+        MESSAGE "BOL has an invalid shipto."
+           VIEW-AS ALERT-BOX INFO BUTTONS OK.
+        NEXT build-work.            
+    END. 
+        
     IF NOT oe-ctrl.p-bol THEN
     FOR EACH oe-boll
        WHERE oe-boll.company EQ oe-bolh.company
@@ -2579,20 +2616,20 @@ IF AVAILABLE b-prgrms THEN
 DO:
 
   DO num-groups = 1 TO NUM-ENTRIES(g_groups):
-    IF NOT CAN-DO(b-prgrms.can_run,ENTRY(num-groups,g_groups)) AND
-       NOT CAN-DO(b-prgrms.can_update,ENTRY(num-groups,g_groups)) AND
-       NOT CAN-DO(b-prgrms.can_create,ENTRY(num-groups,g_groups)) AND
-       NOT CAN-DO(b-prgrms.can_delete,ENTRY(num-groups,g_groups)) THEN
+    IF NOT CAN-DO(TRIM(b-prgrms.can_run),ENTRY(num-groups,g_groups)) AND
+       NOT CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups)) AND
+       NOT CAN-DO(TRIM(b-prgrms.can_create),ENTRY(num-groups,g_groups)) AND
+       NOT CAN-DO(TRIM(b-prgrms.can_delete),ENTRY(num-groups,g_groups)) THEN
        NEXT.
 
     group-ok = yes.
     LEAVE.
   END.
 
-  IF NOT CAN-DO(b-prgrms.can_run,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_create,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT")) AND NOT group-ok THEN
+  IF NOT CAN-DO(TRIM(b-prgrms.can_run),USERID("ASI")) AND
+     NOT CAN-DO(TRIM(b-prgrms.can_update),USERID("ASI")) AND
+     NOT CAN-DO(TRIM(b-prgrms.can_create),USERID("ASI")) AND
+     NOT CAN-DO(TRIM(b-prgrms.can_delete),USERID("ASI")) AND NOT group-ok THEN
   DO:
     /*MESSAGE 
         "User access to POST BOL this Program Denied - Contact Systems Manager" 
@@ -2764,7 +2801,7 @@ PROCEDURE email-reorderitems :
   DEF VAR v-qty-onOrder AS INT NO-UNDO.
 
   FIND FIRST users WHERE
-        users.user_id EQ USERID("NOSWEAT")
+        users.user_id EQ USERID("ASI")
         NO-LOCK NO-ERROR.
   IF AVAIL users AND users.user_program[2] NE "" THEN v-dir = users.user_program[2] + "\".
   ELSE v-dir = "c:\tmp\".
@@ -2847,17 +2884,17 @@ PROCEDURE enable_UI :
           tb_barcode tb_print_ship tb_print-barcode 
           tb_print-unassemble-component tb_print-binstags lbl_bolsort 
           rd_bol-sort fi_specs tb_print-spec lbl_bolcert rd_bolcert 
-          tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice tb_footer
-          tb_freight-bill lv-ornt lines-per-page lv-font-no lv-font-name 
-          tb_post-bol td-show-parm 
+          tb_per-bol-line tb_EMailAdvNotice rd-dest tb_MailBatchMode 
+          tb_ComInvoice tb_freight-bill tb_footer lv-ornt lines-per-page 
+          lv-font-no lv-font-name tb_post-bol td-show-parm 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 begin_cust end_cust begin_bol# begin_ord# end_ord# begin_date 
          end_date tb_reprint tb_pallet tb_posted tb_print-component 
          tb_print-shipnote tb_barcode tb_print_ship tb_print-barcode 
          tb_print-unassemble-component tb_print-binstags rd_bol-sort fi_specs 
-         tb_print-spec rd_bolcert tb_EMailAdvNotice rd-dest tb_MailBatchMode 
-         tb_ComInvoice tb_footer tb_freight-bill lv-ornt lines-per-page lv-font-no 
-         tb_post-bol td-show-parm btn-ok btn-cancel 
+         tb_print-spec rd_bolcert tb_per-bol-line tb_EMailAdvNotice rd-dest 
+         tb_MailBatchMode tb_ComInvoice tb_freight-bill tb_footer lv-ornt 
+         lines-per-page lv-font-no tb_post-bol td-show-parm btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -3691,7 +3728,8 @@ PROCEDURE run-packing-list :
     lv-run-bol          = ""
     lv-run-commercial   = ""
     v-print-unassembled = tb_print-unassemble-component
-    v-footer            = tb_footer.
+    v-footer            = tb_footer
+    lPerBolLine         = tb_per-bol-line.
 
   IF ip-sys-ctrl-ship-to THEN
      ASSIGN
@@ -3711,10 +3749,10 @@ PROCEDURE run-packing-list :
      ASSIGN
         v-ship-inst = LOGICAL(tb_print_ship:SCREEN-VALUE) .
 
-
-  {sys/inc/print1.i}
-
-  {sys/inc/outprint.i value(lines-per-page)}
+  IF tb_per-bol-line :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
+     ASSIGN
+        lPerBolLine = LOGICAL(tb_per-bol-line:SCREEN-VALUE) .
+  
 
   /*if td-show-parm then run show-param.*/
 
@@ -3725,13 +3763,20 @@ PROCEDURE run-packing-list :
   v-term-id = v-term.
 
   run build-work ('').
+  FIND FIRST report NO-LOCK WHERE report.term-id  = v-term-id NO-ERROR.
+  IF NOT AVAIL report THEN LEAVE.
+
+  {sys/inc/print1.i}
+
+  {sys/inc/outprint.i value(lines-per-page)}
+
   IF IS-xprint-form THEN DO:
 
       CASE rd-dest:
           WHEN 1 THEN DO: 
             IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
               PUT "<PRINTER?><LEFT=" + trim(STRING(7 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
-            ELSE IF v-print-fmt = "Carded" THEN
+            ELSE IF v-print-fmt = "Carded" OR v-print-fmt = "GPI2" THEN
               PUT "<PRINTER?><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
             ELSE IF d-print-fmt-dec > 0 THEN
               PUT "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
@@ -3742,7 +3787,7 @@ PROCEDURE run-packing-list :
            IF NOT lBussFormModle THEN do:
                IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
                    PUT "<PREVIEW><LEFT=" + trim(STRING(7 + d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)".
-               ELSE IF  v-print-fmt = "Carded"  THEN
+               ELSE IF  v-print-fmt = "Carded" OR v-print-fmt = "GPI2" THEN
                    PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)".
                ELSE IF d-print-fmt-dec > 0 THEN
                    PUT "<PREVIEW><LEFT=" + trim(string(d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)".
@@ -3752,7 +3797,7 @@ PROCEDURE run-packing-list :
            ELSE DO:
              IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
                  PUT "<PREVIEW><LEFT=" + trim(STRING(7 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
-             ELSE IF v-print-fmt = "Carded" THEN
+             ELSE IF v-print-fmt = "Carded" OR v-print-fmt = "GPI2" THEN
                  PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
              ELSE IF d-print-fmt-dec > 0 THEN
                  PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
@@ -3764,7 +3809,7 @@ PROCEDURE run-packing-list :
                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
                 IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
                   PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
-                ELSE IF v-print-fmt = "Carded" THEN
+                ELSE IF v-print-fmt = "Carded" OR v-print-fmt = "GPI2" THEN
                   PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
                 ELSE IF d-print-fmt-dec > 0 THEN
                   PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
@@ -3777,7 +3822,7 @@ PROCEDURE run-packing-list :
               ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF d-print-fmt-dec > 0 THEN PUT "<PREVIEW><LEFT=" + trim(string(d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE  PUT "<PREVIEW><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
           END.
@@ -3862,7 +3907,8 @@ PROCEDURE run-report :
     lv-run-commercial   = ""
     v-sort              = rd_bol-sort EQ "Item #"
     v-print-unassembled = tb_print-unassemble-component 
-    v-footer            = tb_footer.
+    v-footer            = tb_footer
+    lPerBolLine         = tb_per-bol-line.
 
   IF ip-sys-ctrl-ship-to THEN
      ASSIGN
@@ -3882,10 +3928,10 @@ PROCEDURE run-report :
      ASSIGN
         v-ship-inst = LOGICAL(tb_print_ship:SCREEN-VALUE) .
 
-
-  {sys/inc/print1.i}
-
-  {sys/inc/outprint.i value(lines-per-page)}
+  IF tb_per-bol-line :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
+     ASSIGN
+        lPerBolLine = LOGICAL(tb_per-bol-line:SCREEN-VALUE) .
+  
 
   /*if td-show-parm then run show-param.*/
 
@@ -3896,6 +3942,12 @@ PROCEDURE run-report :
   v-term-id = v-term.
 
   run build-work ('').
+  FIND FIRST report NO-LOCK WHERE report.term-id  = v-term-id NO-ERROR.
+  IF NOT AVAIL report THEN LEAVE.
+
+  {sys/inc/print1.i}
+
+  {sys/inc/outprint.i value(lines-per-page)}
 
   IF IS-xprint-form THEN DO:
 
@@ -3903,7 +3955,7 @@ PROCEDURE run-report :
           WHEN 1 THEN do: 
               IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
                   PUT "<PRINTER?><LEFT=" + trim(STRING(7 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
-              ELSE IF v-print-fmt = "Carded" THEN
+              ELSE IF v-print-fmt = "Carded" OR v-print-fmt = "GPI2" THEN
                   PUT "<PRINTER?><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
               ELSE IF d-print-fmt-dec > 0 THEN
                   PUT "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
@@ -3913,7 +3965,7 @@ PROCEDURE run-report :
            IF NOT lBussFormModle THEN do:
                IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
                    PUT "<PREVIEW><LEFT=" + trim(STRING(7 + d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)".
-               ELSE IF v-print-fmt = "Carded" THEN
+               ELSE IF v-print-fmt = "Carded" OR v-print-fmt = "GPI2" THEN
                    PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)".
                ELSE IF d-print-fmt-dec > 0 THEN 
                    PUT "<PREVIEW><LEFT=" + trim(string(d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)".
@@ -3922,7 +3974,7 @@ PROCEDURE run-report :
            ELSE do:
                IF v-print-fmt = "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
                    PUT "<PREVIEW><LEFT=" + trim(STRING(7 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)". 
-               ELSE IF v-print-fmt = "Carded" THEN
+               ELSE IF v-print-fmt = "Carded" OR v-print-fmt = "GPI2" THEN
                    PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
                ELSE IF d-print-fmt-dec > 0 THEN
                    PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
@@ -3934,7 +3986,7 @@ PROCEDURE run-report :
                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
                 IF v-print-fmt = "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
                     PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(7 + d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
-                ELSE IF v-print-fmt = "Carded" THEN
+                ELSE IF v-print-fmt = "Carded" OR v-print-fmt = "GPI2" THEN
                     PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
                 ELSE IF d-print-fmt-dec > 0 THEN
                     PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
@@ -3946,7 +3998,7 @@ PROCEDURE run-report :
               ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF d-print-fmt-dec > 0 THEN PUT "<PREVIEW><LEFT=" + trim(string(d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
           END.
@@ -3972,8 +4024,10 @@ PROCEDURE run-report :
               RUN oe/rep/cocprempkgu.p (?).
          ELSE IF v-program = "oe/rep/cocprempkgm.p" THEN
               RUN oe/rep/cocprempkgm.p (?).
-         IF v-program = "oe/rep/cocbcert10.p" THEN
+         ELSE IF v-program = "oe/rep/cocbcert10.p" THEN
               RUN oe/rep/cocbcert10.p (?).
+         ELSE IF v-program = "oe/rep/coclanyork.p" THEN
+              RUN oe/rep/coclanyork.p (?).
          ELSE RUN VALUE(v-program).
       END.
   END.
@@ -4035,7 +4089,8 @@ assign
   v-tmp-is-xprint     = IS-xprint-form
   is-xprint-form      = YES
   v-print-unassembled = tb_print-unassemble-component
-  v-footer            = tb_footer.
+  v-footer            = tb_footer
+  lPerBolLine         = tb_per-bol-line.
 
 IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
    ASSIGN
@@ -4044,6 +4099,10 @@ IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
   IF tb_print_ship :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN
         v-ship-inst = LOGICAL(tb_print_ship:SCREEN-VALUE) .
+
+  IF tb_per-bol-line :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
+     ASSIGN
+        lPerBolLine = LOGICAL(tb_per-bol-line:SCREEN-VALUE) .
 
 {sys/inc/print1.i}
 
@@ -4140,7 +4199,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
         WHEN 1 THEN do:
              IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
                  PUT  "<PRINTER?><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
-             ELSE IF v-print-fmt EQ "Carded" THEN
+             ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN
                  PUT  "<PRINTER?><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
              ELSE IF d-print-fmt-dec > 0 THEN
                  PUT "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
@@ -4151,7 +4210,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
            IF NOT lBussFormModle THEN do:
                IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
                    PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)". 
-               ELSE IF v-print-fmt EQ "Carded" THEN
+               ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN
                    PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)".
                ELSE IF d-print-fmt-dec > 0 THEN
                    PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)".
@@ -4161,7 +4220,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
            ELSE do:
                IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
                    PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
-               ELSE IF v-print-fmt EQ "Carded" THEN
+               ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN
                    PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
                ELSE IF d-print-fmt-dec > 0 THEN
                    PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
@@ -4173,7 +4232,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
               IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
                   PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
-              ELSE IF v-print-fmt EQ "Carded" THEN
+              ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN
                   PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
               ELSE IF d-print-fmt-dec > 0 THEN
                   PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
@@ -4185,7 +4244,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
                  ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-            ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+            ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE IF d-print-fmt-dec > 0 THEN
                 PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
@@ -4283,7 +4342,8 @@ PROCEDURE run-report-mail :
     lv-run-bol          = ""
     lv-run-commercial   = ""
     v-print-unassembled = tb_print-unassemble-component
-    v-footer            = tb_footer.
+    v-footer            = tb_footer
+    lPerBolLine         = tb_per-bol-line.
 
   IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN
@@ -4294,9 +4354,10 @@ PROCEDURE run-report-mail :
      ASSIGN
         v-ship-inst = LOGICAL(tb_print_ship:SCREEN-VALUE) .
 
-  {sys/inc/print1.i}
-
-  {sys/inc/outprint.i value(lines-per-page)}
+   IF tb_per-bol-line :HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
+     ASSIGN
+        lPerBolLine = LOGICAL(tb_per-bol-line:SCREEN-VALUE) .
+    
 
   /*if td-show-parm then run show-param.*/
 
@@ -4307,6 +4368,12 @@ PROCEDURE run-report-mail :
   v-term-id = v-term.
 
   run build-work (ic2ndKey).
+  FIND FIRST report NO-LOCK WHERE report.term-id  = v-term-id NO-ERROR.
+  IF NOT AVAIL report THEN LEAVE.
+
+  {sys/inc/print1.i}
+
+  {sys/inc/outprint.i value(lines-per-page)}
 
   IF NOT vcBOLNums > '' THEN RETURN.
 
@@ -4322,7 +4389,7 @@ PROCEDURE run-report-mail :
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE IF v-print-fmt EQ "Prystup-Excel" THEN PUT "<PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
-        ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
+        ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE IF d-print-fmt-dec > 0 THEN
             PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
@@ -4344,6 +4411,8 @@ PROCEDURE run-report-mail :
             RUN oe/rep/cocloylang.p (?).
          ELSE IF v-program EQ "oe/rep/cocbcert10.p" THEN
             RUN oe/rep/cocbcert10.p (?).
+         ELSE IF v-program EQ "oe/rep/coclanyork.p" THEN
+            RUN oe/rep/coclanyork.p (?).
          ELSE
             RUN value(v-program).
       END.
@@ -4556,6 +4625,10 @@ PROCEDURE SetBOLForm :
             ASSIGN
                is-xprint-form = YES
                v-program = "oe/rep/cocbcert10.p".
+         WHEN "LancoYork" THEN
+            ASSIGN
+               is-xprint-form = YES
+               v-program = "oe/rep/coclanyork.p".
 
          OTHERWISE
             ASSIGN

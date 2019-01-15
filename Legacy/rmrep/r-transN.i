@@ -55,7 +55,9 @@
            AND po-ordl.po-no EQ int(rm-rcpth.po-no) 
            AND po-ordl.job-no EQ rm-rcpth.job-no
            AND po-ordl.job-no2 EQ rm-rcpth.job-no2
-           AND po-ordl.i-no EQ rm-rcpth.i-no  NO-LOCK NO-ERROR .
+           AND po-ordl.i-no EQ rm-rcpth.i-no
+           AND (po-ordl.LINE EQ rm-rcpth.po-line OR rm-rcpth.po-line EQ 0 ) 
+           AND (po-ordl.s-num EQ rm-rdtlh.s-num ) NO-LOCK NO-ERROR .
      
      ld-rqty = rm-rdtlh.qty .
      IF AVAIL po-ordl  THEN DO:
@@ -112,24 +114,40 @@
            run sys/ref/convquom.p (rm-rcpth.pur-uom, "TON",
                                    v-bwt, v-len, v-wid, v-dep,
                                    rm-rdtlh.qty, output v-ton).
-         
+           ASSIGN cReason = "".
+           
+             FIND FIRST rejct-cd NO-LOCK WHERE rejct-cd.CODE EQ rm-rdtlh.reject-code[1] NO-ERROR.
+             IF rm-rdtlh.reject-code[1] NE "" THEN
+               ASSIGN cReason = rm-rdtlh.reject-code[1] + IF AVAIL rejct-cd AND rejct-cd.dscr NE "" THEN ( " - " + rejct-cd.dscr) ELSE "".
+             ELSE cReason = "".
 
-     /*display rm-rcpth.trans-date when first-of(rm-rcpth.trans-date)
-             rm-rcpth.i-no
-             rm-rcpth.i-name
-             rm-rcpth.po-no
-             rm-rcpth.rita-code
-             rm-rdtlh.tag
-             v-job-no
-             rm-rdtlh.qty
-             rm-rdtlh.loc
-             rm-rdtlh.loc-bin
-             rm-rdtlh.loc2
-             rm-rdtlh.loc-bin2
-             rm-rdtlh.cost
-             v-value
-         with frame itemx.
-     down with frame itemx.*/
+                   dShtWid     = 0  .
+                   dShtLen     = 0  .
+                  IF ITEM.i-code EQ "R" THEN do:
+                      IF item.industry = "1" THEN
+                          ASSIGN
+                          dShtWid     = ITEM.case-w 
+                          dShtLen     = ITEM.case-l.
+                      ELSE
+                          ASSIGN
+                              dShtWid     = ITEM.s-wid 
+                              dShtLen     = ITEM.s-len.
+                  END.
+                  ELSE DO:
+                      IF AVAIL po-ordl THEN
+                      FIND FIRST job-mat NO-LOCK
+                          WHERE job-mat.company EQ cocode
+                          AND job-mat.job-no  EQ po-ordl.job-no
+                          AND job-mat.job-no2 EQ po-ordl.job-no2
+                          AND job-mat.i-no EQ ITEM.i-no
+                          AND job-mat.frm EQ po-ordl.s-num
+                          AND job-mat.blank-no EQ po-ordl.b-num NO-ERROR .
+                      IF AVAIL po-ordl AND AVAIL job-mat THEN
+                          ASSIGN
+                          dShtWid     = job-mat.wid 
+                          dShtLen     = job-mat.len .
+                  END.
+            cShtSize = (trim(string(dShtLen,">,>>99.99")) + " X " + trim(string(dShtWid,">,>>99.99")) ).
 
           ASSIGN cDisplay = ""
              cTmpField = ""
@@ -168,6 +186,10 @@
                      WHEN "ovrpct" THEN cVarValue = IF AVAIL po-ordl THEN STRING(po-ordl.over-pct,">>9.99%") ELSE "".
                      WHEN "undpct" THEN cVarValue = IF AVAIL po-ordl THEN STRING(po-ordl.under-pct,">>9.99%") ELSE "".
                      WHEN "tons" THEN cVarValue = STRING(v-ton,"->>>>>9.9999").
+                     WHEN "Reason" THEN cVarValue =  string(cReason,"x(30)")      .
+                     WHEN "Reason-cd" THEN cVarValue = IF AVAIL rm-rdtlh AND rm-rdtlh.reject-code[1] NE "" THEN string(rm-rdtlh.reject-code[1],"x(2)") ELSE ""    .
+                     WHEN "Reason-dscr" THEN cVarValue = IF AVAIL rejct-cd AND rejct-cd.dscr NE "" THEN string(rejct-cd.dscr,"x(25)") ELSE ""   .
+                     WHEN "sheet-size" THEN cVarValue = string(cShtSize,"x(20)")    .
                  END CASE.
                  
                  cExcelVarValue = cVarValue.  
@@ -238,6 +260,10 @@
                      WHEN "ovrpct" THEN cVarValue = "".
                      WHEN "undpct" THEN cVarValue = "".
                      WHEN "tons" THEN cVarValue = STRING(v-t-ton[1],"->>>>>9.9999").
+                     WHEN "Reason" THEN cVarValue =  ""      .
+                     WHEN "Reason-cd" THEN cVarValue = "".
+                     WHEN "Reason-dscr" THEN cVarValue =  ""   .
+                     WHEN "sheet-size" THEN cVarValue = ""    .
                  END CASE.
                  
                  cExcelVarValue = cVarValue.  
@@ -314,6 +340,10 @@
                      WHEN "ovrpct" THEN cVarValue = "".
                      WHEN "undpct" THEN cVarValue = "".
                      WHEN "tons" THEN cVarValue = STRING(v-t-ton[2],"->>>>>9.9999").
+                     WHEN "Reason" THEN cVarValue =  ""      .
+                     WHEN "Reason-cd" THEN cVarValue = "".
+                     WHEN "Reason-dscr" THEN cVarValue =  ""   .
+                     WHEN "sheet-size" THEN cVarValue = ""    .
                  END CASE.
                  
                  cExcelVarValue = cVarValue.  
@@ -392,6 +422,10 @@
                      WHEN "ovrpct" THEN cVarValue = "".
                      WHEN "undpct" THEN cVarValue = "".
                      WHEN "tons" THEN cVarValue = STRING(v-t-ton[3],"->>>>>9.9999").
+                     WHEN "Reason" THEN cVarValue =  ""      .
+                     WHEN "Reason-cd" THEN cVarValue = "".
+                     WHEN "Reason-dscr" THEN cVarValue =  ""   .
+                     WHEN "sheet-size" THEN cVarValue = ""    .
                  END CASE.
                  
                  cExcelVarValue = cVarValue.  

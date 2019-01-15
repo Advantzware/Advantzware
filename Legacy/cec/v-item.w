@@ -1403,6 +1403,9 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-mat-type NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    FIND mat WHERE mat.mat EQ fi_mat-type:SCREEN-VALUE NO-LOCK NO-ERROR.
+    IF AVAIL mat THEN
+    mat_dscr:SCREEN-VALUE = mat.dscr.
     IF LOOKUP(fi_mat-type:SCREEN-VALUE IN FRAME {&frame-name},"B,P") = 0 THEN
       asi.item.spare-char-1:HIDDEN = TRUE.
     ELSE

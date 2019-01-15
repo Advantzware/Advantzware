@@ -1,7 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
@@ -98,18 +97,18 @@ DEFINE FRAME F-Main
          SIZE 150.4 BY 21.91
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 149 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 105 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 149 BY 1.91
          BGCOLOR 15 .
 
 
@@ -132,7 +131,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Program Master"
-         HEIGHT             = 21.9
+         HEIGHT             = 21.91
          WIDTH              = 150.4
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
@@ -338,8 +337,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_prgrms ).
-       RUN set-position IN h_prgrms ( 4.81 , 4.00 ) NO-ERROR.
-       RUN set-size IN h_prgrms ( 17.14 , 144.00 ) NO-ERROR.
+       RUN set-position IN h_prgrms ( 4.57 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_prgrms ( 18.10 , 148.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
@@ -358,8 +357,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_prgrms-2 ).
-       RUN set-position IN h_prgrms-2 ( 4.81 , 26.00 ) NO-ERROR.
-       /* Size in UIB:  ( 14.76 , 100.00 ) */
+       RUN set-position IN h_prgrms-2 ( 4.57 , 3.00 ) NO-ERROR.
+       /* Size in UIB:  ( 15.95 , 147.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
@@ -368,7 +367,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = NAV-ICON,
                      Right-to-Left = First-On-Left':U ,
              OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 19.81 , 21.00 ) NO-ERROR.
+       RUN set-position IN h_p-navico ( 20.52 , 3.00 ) NO-ERROR.
        RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -378,7 +377,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 19.81 , 72.00 ) NO-ERROR.
+       RUN set-position IN h_p-updsav ( 20.52 , 94.00 ) NO-ERROR.
        RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */

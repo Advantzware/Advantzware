@@ -140,6 +140,13 @@ END.
 DEF VAR v-access-close AS LOG NO-UNDO.
 DEF VAR v-access-list AS CHAR NO-UNDO.
 
+DEFINE VARIABLE v-col-move AS LOGICAL INITIAL TRUE NO-UNDO.
+DEFINE VARIABLE v-called-setCellColumns AS LOGICAL NO-UNDO.
+
+DEFINE VARIABLE lv-sort-by AS CHAR INIT "tag" NO-UNDO.
+DEFINE VARIABLE lv-sort-by-lab AS CHAR INIT "Tag" NO-UNDO.
+DEFINE VARIABLE ll-sort-asc AS LOG NO-UNDO.
+
 RUN methods/prgsecur.p
     (INPUT "OEDateChg",
      INPUT "ALL", /* based on run, create, update, delete or all */
@@ -198,6 +205,61 @@ IF lRecFound THEN
 /*     END TRIGGERS.                                                                   */
 
 /* _UIB-CODE-BLOCK-END */
+
+&SCOPED-DEFINE for-each1    ~
+    FOR EACH oe-rel WHERE oe-rel.company = oe-ordl.company ~
+  AND oe-rel.ord-no = oe-ordl.ord-no ~
+  AND oe-rel.i-no = oe-ordl.i-no ~
+  AND oe-rel.line = oe-ordl.LINE 
+
+&SCOPED-DEFINE for-each2    ~
+    EACH tt-report WHERE tt-report.rec-id = recid(oe-rel) ~
+         NO-LOCK 
+        
+
+&SCOPED-DEFINE sortby-log                                                                                   ~
+    IF lv-sort-by EQ "carrier"        THEN STRING(oe-rel.carrier)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "stat"           THEN STRING(oe-rel.stat)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "s-code"        THEN STRING(oe-rel.s-code)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "ship-id"           THEN STRING(oe-rel.ship-id)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "opened"           THEN STRING(tt-report.opened)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "tot-qty"        THEN STRING(9999999999.99999 + oe-rel.tot-qty,"-9999999999.99999")                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "qty"           THEN STRING(9999999999.99999 + oe-rel.qty,"-9999999999.99999")                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "po-no"        THEN STRING(tt-report.po-no,"9999999999")                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "lot-no"           THEN STRING(tt-report.lot-no)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "prom-date"           THEN STRING(YEAR(tt-report.prom-date),'9999') + STRING(MONTH(tt-report.prom-date),'99') + STRING(DAY(tt-report.prom-date),'99')                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "ship-addr[1]"           THEN oe-rel.ship-addr[1]                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "ship-city"        THEN string(oe-rel.ship-city)                                                                                                                      ELSE ~
+    IF lv-sort-by EQ "ship-state"           THEN string(oe-rel.ship-state )                                                                                                                    ELSE ~
+    IF lv-sort-by EQ "price"           THEN string(tt-report.price,"-9999999999.99")                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "whsed"        THEN STRING(tt-report.whsed)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "tot-qty"           THEN STRING(9999999999.99999 + oe-rel.tot-qty,"-9999999999.99999")                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "t-price"        THEN string(oe-ordl.t-price,"-9999999999.99")                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "frt-pay"           THEN STRING(tt-report.frt-pay)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "flute"           THEN STRING(tt-report.flute)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "spare-char-1"        THEN STRING(oe-rel.spare-char-1)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "spare-char-2"           THEN STRING(oe-rel.spare-char-2)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "spare-char-3"           THEN STRING(oe-rel.spare-char-3)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "q-rel"           THEN STRING(tt-report.q-rel,"9999999999")                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "r-no"        THEN STRING(oe-rel.r-no,"9999999999")                                                                                                                      ELSE ~
+    IF lv-sort-by EQ "link-no"           THEN STRING(oe-rel.link-no,"9999999999")                                                                                                                    ELSE ~
+    IF lv-sort-by EQ "qty"        THEN STRING(9999999999.99999 + tt-report.qty,"-9999999999.99999")                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "prom-code"           THEN STRING(tt-report.prom-code)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "pr-uom"        THEN STRING(tt-report.pr-uom)                                                                                                                      ELSE ~
+    IF lv-sort-by EQ "disc"           THEN STRING(oe-ordl.disc)                                                                                                                    ELSE ~
+        STRING(YEAR(tt-report.job-start-date),'9999') + STRING(MONTH(tt-report.job-start-date),'99') + STRING(DAY(tt-report.job-start-date),'99')
+
+&SCOPED-DEFINE sortby BY tt-report.del-zone BY oe-rel.po-no BY oe-rel.ship-no BY oe-rel.qty 
+
+
+&SCOPED-DEFINE sortby-phrase-asc  ~
+    BY ({&sortby-log})            ~
+    {&sortby}
+
+&SCOPED-DEFINE sortby-phrase-desc ~
+    BY ({&sortby-log}) DESC       ~
+    {&sortby}
+
 &ANALYZE-RESUME
 
 
@@ -249,19 +311,13 @@ tt-report.flute oe-rel.spare-char-1 oe-rel.spare-char-2 tt-report.q-rel
   AND oe-rel.i-no = oe-ordl.i-no ~
   AND oe-rel.line = oe-ordl.line NO-LOCK, ~
       EACH tt-report WHERE tt-report.rec-id = recid(oe-rel) NO-LOCK ~
-    BY tt-report.del-zone ~
-       BY oe-rel.po-no ~
-        BY oe-rel.ship-no ~
-         BY oe-rel.qty
+        ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH oe-rel WHERE oe-rel.company = oe-ordl.company ~
   AND oe-rel.ord-no = oe-ordl.ord-no ~
   AND oe-rel.i-no = oe-ordl.i-no ~
   AND oe-rel.line = oe-ordl.line NO-LOCK, ~
       EACH tt-report WHERE tt-report.rec-id = recid(oe-rel) NO-LOCK ~
-    BY tt-report.del-zone ~
-       BY oe-rel.po-no ~
-        BY oe-rel.ship-no ~
-         BY oe-rel.qty.
+         ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table oe-rel tt-report
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table oe-rel
 &Scoped-define SECOND-TABLE-IN-QUERY-br_table tt-report
@@ -273,6 +329,7 @@ tt-report.flute oe-rel.spare-char-1 oe-rel.spare-char-2 tt-report.q-rel
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS br_table 
+&Scoped-Define DISPLAYED-OBJECTS br_table FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -361,6 +418,11 @@ DEFINE BUTTON btnCalendar
      LABEL "" 
      SIZE 4.6 BY .86 TOOLTIP "PopUp Calendar".
 
+DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+     VIEW-AS FILL-IN 
+     SIZE 13 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
@@ -382,7 +444,17 @@ DEFINE BROWSE br_table
                      "T-Transfer","T"
           DROP-DOWN-LIST
       oe-rel.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U COLUMN-FONT 0
-      oe-rel.stat COLUMN-LABEL "S" FORMAT "X":U WIDTH 2
+      oe-rel.stat COLUMN-LABEL "S" FORMAT "X(15)":U  WIDTH 28
+      VIEW-AS COMBO-BOX INNER-LINES 8 
+          LIST-ITEM-PAIRS "S-Scheduled","S",
+                     "L-Late","L",
+                     "I-Invoice Per Terms","I",
+                     "A-Actual","A",
+                     "P-Posted","P",
+                     "B-Backorder","B",
+                     "Z-Posted BOL","Z",
+                     "C-Completed","C"
+          DROP-DOWN-LIST
       oe-rel.carrier COLUMN-LABEL "Via" FORMAT "x(5)":U COLUMN-FONT 0
       oe-rel.tot-qty COLUMN-LABEL "Sched Qty" FORMAT "->>,>>>,>>9":U
       oe-rel.qty COLUMN-LABEL "Actual Qty" FORMAT "->>,>>>,>>9":U
@@ -413,7 +485,7 @@ DEFINE BROWSE br_table
       tt-report.q-rel COLUMN-LABEL "Release #" FORMAT ">>>>>>9":U
             WIDTH 13.2 COLUMN-FONT 0
       oe-rel.r-no COLUMN-LABEL "Seq. #" FORMAT ">>>>>>>>9":U WIDTH 15
-      oe-rel.link-no COLUMN-LABEL "Int. Release" FORMAT ">>>>>9":U
+      oe-rel.link-no COLUMN-LABEL "Int. Release" FORMAT ">>>>>>>9":U
             WIDTH 16.6
       tt-report.job-start-date COLUMN-LABEL "Shp Date" FORMAT "99/99/9999":U
             WIDTH 14.4
@@ -441,7 +513,7 @@ DEFINE BROWSE br_table
       tt-report.q-rel
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 147 BY 13.57
+    WITH NO-ASSIGN SEPARATORS SIZE 147 BY 12.57
          FONT 0 ROW-HEIGHT-CHARS .62.
 
 
@@ -450,6 +522,10 @@ DEFINE BROWSE br_table
 DEFINE FRAME F-Main
      btnCalendar AT ROW 1.91 COL 125
      br_table AT ROW 1 COL 1
+      "Browser Col. Mode:" VIEW-AS TEXT
+          SIZE 22.6 BY .62 AT ROW 13.80 COL 112 
+          FONT 6
+     FI_moveCol AT ROW 13.60 COL 133 COLON-ALIGNED NO-LABEL WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -523,6 +599,9 @@ ASSIGN
 ASSIGN 
        btnCalendar:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
+   NO-ENABLE                                                            */
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -590,7 +669,7 @@ ASSIGN
      _FldNameList[25]   > ASI.oe-rel.r-no
 "ASI.oe-rel.r-no" "Seq. #" ">>>>>>>>9" "integer" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[26]   > ASI.oe-rel.link-no
-"ASI.oe-rel.link-no" "Int. Release" ? "integer" ? ? ? ? ? ? no ? no no "16.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-rel.link-no" "Int. Release" ">>>>>>>9" "integer" ? ? ? ? ? ? no ? no no "16.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[27]   > Temp-Tables.tt-report.job-start-date
 "Temp-Tables.tt-report.job-start-date" "Shp Date" ? "date" ? ? ? ? ? ? no "Enter the Ship Date" no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[28]   = Temp-Tables.tt-report.qty
@@ -620,76 +699,17 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
-   DEF VAR phandle AS WIDGET-HANDLE NO-UNDO.
-   DEF VAR char-hdl AS cha NO-UNDO.   
-
-   RUN get-link-handle IN adm-broker-hdl
-      (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
-   phandle = WIDGET-HANDLE(char-hdl).  
-   RUN new-state IN phandle ('update-begin':U).
+ DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
+    
+  RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
+  RUN reopen-query .
+  RUN repo-query (ROWID(oe-rel)).
   
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON HELP OF br_table IN FRAME F-Main
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-    DEF VAR rec-val AS RECID NO-UNDO.
-    DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
-
-    IF NOT AVAIL oe-rel AND lv-rel-recid NE ? THEN
-    FIND oe-rel WHERE RECID(oe-rel) EQ lv-rel-recid NO-LOCK.
-
-    lw-focus = FOCUS.
-    CASE lw-focus:NAME:
-         WHEN "ship-id" THEN DO:
-              FIND oe-ord NO-LOCK
-                  WHERE oe-ord.company EQ oe-rel.company 
-                    AND oe-ord.ord-no  EQ oe-rel.ord-no.
-              IF oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "T" AND lv-cust-x NE "" THEN
-                RUN windows/l-shipt3.w (g_company, g_loc, oe-ord.cust-no, lw-focus:SCREEN-VALUE, OUTPUT char-val, OUTPUT rec-val).
-              ELSE
-                RUN windows/l-shipt2.w (g_company, g_loc, oe-ord.cust-no, lw-focus:SCREEN-VALUE, OUTPUT char-val, OUTPUT rec-val).
-              FIND shipto WHERE RECID(shipto) EQ rec-val NO-LOCK NO-ERROR. 
-              IF AVAIL shipto AND lw-focus:SCREEN-VALUE NE shipto.ship-id THEN DO:
-                 lw-focus:SCREEN-VALUE = shipto.ship-id.
-                 RUN new-ship-id.
-              END.
-         END.
-         WHEN "carrier" THEN DO:
-              RUN windows/l-carrie.w (g_company, oe-rel.spare-char-1:SCREEN-VALUE, lw-focus:SCREEN-VALUE, OUTPUT char-val).
-              IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
-              RETURN NO-APPLY.
-         END.
-         WHEN "s-code" THEN DO:
-              RUN windows/l-cddscr.w ("Release Types", lv-s-codes, lv-s-dscrs, lw-focus:SCREEN-VALUE, OUTPUT char-val).
-              IF char-val NE "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
-         END.
-
-         WHEN "zero-sprice" THEN
-              RETURN NO-APPLY.         
-
-         WHEN "spare-char-1" THEN DO:
-           RUN windows/l-loc.w  (g_company,FOCUS:SCREEN-VALUE, OUTPUT char-val). 
-           IF char-val <> "" THEN 
-             FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = ENTRY(1,char-val).
-         END.
-         WHEN "spare-char-2" THEN DO:
-           RUN windows/l-rejpo.w  (g_company,FOCUS:SCREEN-VALUE, OUTPUT char-val). 
-           IF char-val <> "" THEN 
-             FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = ENTRY(1,char-val).
-         END.
-    END CASE.
-
-    RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
@@ -755,6 +775,36 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON START-SEARCH OF br_table IN FRAME F-Main
+DO:
+  DEF VAR lh-column AS HANDLE NO-UNDO.
+  DEF VAR lv-column-nam AS CHAR NO-UNDO.
+  DEF VAR lv-column-lab AS CHAR NO-UNDO.
+
+  
+  ASSIGN
+   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+   lv-column-nam = lh-column:NAME
+   lv-column-lab = lh-column:LABEL.
+
+  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
+
+  ELSE
+    ASSIGN
+     lv-sort-by     = lv-column-nam
+     lv-sort-by-lab = lv-column-lab .
+
+  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+
+  /*APPLY "choose" TO btn_go.*/
+  RUN resort-query .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON SCROLL-NOTIFY OF br_table IN FRAME F-Main
@@ -812,484 +862,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tt-report.opened
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.opened br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF tt-report.opened IN BROWSE br_table /* Prt */
-DO:
-  IF INDEX("AB",get-rel-stat()) LE 0 THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-
-  RUN calendarPlacement.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME oe-rel.s-code
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.s-code br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-rel.s-code IN BROWSE br_table /* S/I */
-DO:
-  IF INDEX("AB",get-rel-stat()) GT 0 OR ll-transfer THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-
-  RUN calendarPlacement.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.s-code br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-rel.s-code IN BROWSE br_table /* S/I */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-s-code NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END. 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME oe-rel.ship-id
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.ship-id br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-rel.ship-id IN BROWSE br_table /* Ship To */
-DO:
-  IF INDEX("AB",get-rel-stat()) GT 0 THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.ship-id br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-rel.ship-id IN BROWSE br_table /* Ship To */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-ship-id NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.             
-  
-  IF adm-adding-record THEN
-        RUN new-ship-id.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.ship-id br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF oe-rel.ship-id IN BROWSE br_table /* Ship To */
-DO:
-  RUN new-ship-id.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME oe-rel.stat
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.stat br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF oe-rel.stat IN BROWSE br_table /* S */
-DO:
-    DEF VAR ll-create-oe-rell AS LOG NO-UNDO.
-
-    FIND FIRST oe-rell
-      WHERE oe-rell.company  EQ oe-rel.company
-        AND oe-rell.r-no     EQ oe-rel.link-no
-        AND oe-rell.ord-no   EQ oe-rel.ord-no
-        AND oe-rell.rel-no   EQ oe-rel.rel-no
-        AND oe-rell.b-ord-no EQ oe-rel.b-ord-no
-        AND oe-rell.i-no     EQ oe-rel.i-no
-        AND oe-rell.line     EQ oe-rel.line
-        AND oe-rell.po-no    EQ oe-rel.po-no
-        AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
-      USE-INDEX r-no NO-LOCK NO-ERROR.
-    IF NOT AVAIL oe-rell THEN DO:
-        ll-create-oe-rell = YES.
-        MESSAGE "Create missing oe-rell?" 
-            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-            UPDATE ll-create-oe-rell.
-        IF ll-create-oe-rell THEN DO:
-          RUN create-oe-rell.
-        END.
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME oe-rel.carrier
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.carrier br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-rel.carrier IN BROWSE br_table /* Via */
-DO:
-  IF INDEX("AB",get-rel-stat()) GT 0 THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.carrier br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-rel.carrier IN BROWSE br_table /* Via */
-DO:
-    IF LASTKEY = -1 THEN RETURN.
-    
-    FIND FIRST carrier WHERE carrier.company = g_company AND
-                             carrier.carrier = SELF:screen-value
-                             NO-LOCK NO-ERROR.
-    IF NOT AVAIL carrier THEN DO:
-       MESSAGE "Invalid Carrier. Try Help. " VIEW-AS ALERT-BOX ERROR.
-       RETURN NO-APPLY.
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME oe-rel.tot-qty
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.tot-qty br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-rel.tot-qty IN BROWSE br_table /* Sched Qty */
-DO:
-  IF INDEX("AB",get-rel-stat()) GT 0 THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tt-report.po-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.po-no br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF tt-report.po-no IN BROWSE br_table /* Customer PO# */
-DO:
-  IF INDEX("AB",get-rel-stat()) GT 0 THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.po-no br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF tt-report.po-no IN BROWSE br_table /* Customer PO# */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-po-no NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tt-report.lot-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.lot-no br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF tt-report.lot-no IN BROWSE br_table /* Customer Lot # */
-DO:
-  IF INDEX("AB",get-rel-stat()) GT 0 THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tt-report.prom-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.prom-date br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF tt-report.prom-date IN BROWSE br_table /* Due Date */
-DO:
-    IF LASTKEY NE -1 AND oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
-    DO:
-        {custom/pastDatePrompt.i SELF:SCREEN-VALUE} 
-
-        RUN valid-colonial-date NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.prom-date br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF tt-report.prom-date IN BROWSE br_table /* Due Date */
-DO:
-  IF oeDateAuto-log AND oeDateAuto-char EQ "Colonial" THEN 
-  RUN new-due-date.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tt-report.stat
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.stat br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF tt-report.stat IN BROWSE br_table /* Rel Date */
-DO:
-  ASSIGN
-     btnCalendar:VISIBLE IN FRAME {&FRAME-NAME} = YES
-     btnCalendar:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
-
-  RUN calendarPlacement.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.stat br_table _BROWSE-COLUMN B-table-Win
-ON HELP OF tt-report.stat IN BROWSE br_table /* Rel Date */
-DO:
-  {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.stat br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF tt-report.stat IN BROWSE br_table /* Rel Date */
-DO:
- IF NOT ll-skip THEN DO:
-
-  btnCalendar:HIDDEN IN FRAME {&FRAME-NAME} = YES.
-
-  IF INT(SUBSTR(tt-report.stat:SCREEN-VALUE IN BROWSE {&browse-name},7,4)) LT 1 THEN
-    tt-report.stat:SCREEN-VALUE = SUBSTR(tt-report.stat:SCREEN-VALUE,1,6) +
-                                    STRING(YEAR(TODAY),"9999").
-
-  ELSE
-  IF INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) LT 90 THEN
-    tt-report.stat:SCREEN-VALUE = SUBSTR(tt-report.stat:SCREEN-VALUE,1,6) +
-            STRING(INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) + 2000,"9999").
-
-  ELSE
-  IF INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) LE 99 THEN
-    tt-report.stat:SCREEN-VALUE = SUBSTR(tt-report.stat:SCREEN-VALUE,1,6) +
-            STRING(INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) + 1900,"9999").
-
-  IF LASTKEY NE -1 THEN DO:
-    {custom/pastDatePrompt.i SELF:SCREEN-VALUE}
-
-    RUN valid-key-02 NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-    IF INDEX("AB",lv-stat) GT 0 THEN DO: 
-      IF KEYFUNCTION(LASTKEY) EQ "BACK-TAB" THEN RETURN NO-APPLY.
-      ELSE RUN dispatch ("update-record").
-    END.
-    ELSE DO:
-        APPLY "entry" TO oe-rel.ship-addr[1].
-        APPLY "tab" TO oe-rel.ship-addr[1].     
-        RETURN NO-APPLY.
-    END.
-  END.
- END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tt-report.price
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.price br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF tt-report.price IN BROWSE br_table /* Sell Price */
-DO:
-  IF KEYFUNCTION(LASTKEY) EQ "BACK-TAB" THEN
-  DO:
-     IF DEC(tt-report.price:SCREEN-VALUE IN BROWSE {&browse-name}) <> 0 THEN
-        ASSIGN tt-report.whsed:SCREEN-VALUE = "N".
-
-     APPLY "ENTRY" TO tt-report.stat IN BROWSE {&browse-name}.
-     RETURN NO-APPLY.
-  END.
-
-  IF DEC(tt-report.price:SCREEN-VALUE IN BROWSE {&browse-name}) <> 0 THEN
-  DO:
-     ASSIGN tt-report.whsed:SCREEN-VALUE = "N".
-
-     IF LASTKEY NE -1 THEN
-     DO:
-        APPLY 'entry' TO tt-report.frt-pay.
-        RETURN NO-APPLY.
-     END.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tt-report.whsed
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.whsed br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF tt-report.whsed IN BROWSE br_table /* $0 */
-DO:
-  IF DEC(tt-report.price:SCREEN-VALUE IN BROWSE {&browse-name}) <> 0 THEN
-  DO:
-     ASSIGN tt-report.whsed:SCREEN-VALUE = "N".
-     IF KEYFUNCTION(LASTKEY) EQ "BACK-TAB" THEN
-     DO:
-        APPLY "ENTRY" TO tt-report.price IN BROWSE {&browse-name}.
-        RETURN NO-APPLY.
-     END.
-     ELSE
-     DO:
-        APPLY 'entry' TO tt-report.frt-pay.
-        RETURN NO-APPLY.
-     END.
-  END.
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tt-report.frt-pay
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.frt-pay br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF tt-report.frt-pay IN BROWSE br_table /* Frt Pay */
-DO:
-    IF INDEX("AB",get-rel-stat()) GT 0 THEN DO:
-        APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-        RETURN NO-APPLY.
-    END.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.frt-pay br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF tt-report.frt-pay IN BROWSE br_table /* Frt Pay */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-freight-pay NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END. 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tt-report.flute
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.flute br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF tt-report.flute IN BROWSE br_table /* FOB */
-DO:
-  IF INDEX("AB",get-rel-stat()) GT 0 THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.flute br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF tt-report.flute IN BROWSE br_table /* FOB */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-fob NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END. 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME oe-rel.spare-char-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.spare-char-1 br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-rel.spare-char-1 IN BROWSE br_table /* Ship From */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-ship-from NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME oe-rel.spare-char-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.spare-char-2 br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-rel.spare-char-2 IN BROWSE br_table /* Dt Chg Reason */
-DO:
-/* Can be implemented at a later date to display a button to show notes */
-/*     bt_addnote:FRAME = FRAME {&FRAME-NAME}:HANDLE. */
-/*     bt_addnote:VISIBLE = TRUE.                     */
-/*     bt_addnote:SENSITIVE = TRUE.                   */
-/*     bt_addnote:X = SELF:X + 1.                     */
-/*     bt_addnote:Y = SELF:Y + 14.                    */
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.spare-char-2 br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-rel.spare-char-2 IN BROWSE br_table /* Dt Chg Reason */
-DO:
-
-/*      Could be implemented at a later date */
-/*       bt_addnote:VISIBLE = FALSE. */
-/*     bt_addnote:SENSITIVE = FALSE. */
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-date-change NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-  oe-rel.spare-char-3:SCREEN-VALUE IN BROWSE br_table = USERID("NOSWEAT").
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnCalendar
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar B-table-Win
-ON CHOOSE OF btnCalendar IN FRAME F-Main
-DO:
-  DEFINE VARIABLE calendarDate AS CHARACTER NO-UNDO.
-
-  RUN nosweat/popupcal.w (OUTPUT calendarDate).
-  
-  IF calendarDate NE '' THEN
-     tt-report.stat:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DATE(calendarDate),"99/99/9999").
-
-  RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
@@ -1299,6 +871,13 @@ SESSION:DATA-ENTRY-RETURN = YES.
 {sys/inc/f3help.i}
 {sys/inc/oeinq.i}
 {sa/sa-sls01.i}
+
+&SCOPED-DEFINE cellColumnDat oe-rel
+
+{methods/browsers/setCellColumns.i}
+
+  FI_moveCol = "Sort".
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
 
 
  RUN-PROC = "sbo/oerel-recalc-act.p".
@@ -1426,21 +1005,22 @@ FOR EACH fg-set WHERE fg-set.set-no = oe-ordl.i-no
   IF AVAIL shipto THEN DO:
     
    
-    IF v-relflg2 THEN
-    ASSIGN  
-      oe-rel.ship-no      = shipto.ship-no
-      oe-rel.ship-id      = shipto.ship-id
-      oe-rel.ship-addr[1] = shipto.ship-addr[1]
-      oe-rel.ship-addr[2] = shipto.ship-addr[2]
-      oe-rel.ship-city    = shipto.ship-city
-      oe-rel.ship-state   = shipto.ship-state
-      oe-rel.ship-zip     = shipto.ship-zip
-      oe-rel.ship-i[1]    = shipto.notes[1]
-      oe-rel.ship-i[2]    = shipto.notes[2]
-      oe-rel.ship-i[3]    = shipto.notes[3]
-      oe-rel.ship-i[4]    = shipto.notes[4]
-      oe-rel.spare-char-1 = shipto.loc.
-      
+    IF v-relflg2 THEN DO:
+        ASSIGN  
+          oe-rel.ship-no      = shipto.ship-no
+          oe-rel.ship-id      = shipto.ship-id
+          oe-rel.ship-addr[1] = shipto.ship-addr[1]
+          oe-rel.ship-addr[2] = shipto.ship-addr[2]
+          oe-rel.ship-city    = shipto.ship-city
+          oe-rel.ship-state   = shipto.ship-state
+          oe-rel.ship-zip     = shipto.ship-zip
+          oe-rel.ship-i[1]    = shipto.notes[1]
+          oe-rel.ship-i[2]    = shipto.notes[2]
+          oe-rel.ship-i[3]    = shipto.notes[3]
+          oe-rel.ship-i[4]    = shipto.notes[4]
+          oe-rel.spare-char-1 = shipto.loc.
+        RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+    END.  
     /* check that itemfg-loc exists */
     IF oe-rel.spare-char-1 GT "" THEN
     RUN fg/chkfgloc.p (INPUT oe-rel.i-no, INPUT oe-rel.spare-char-1).
@@ -1721,6 +1301,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
          oe-rel.spare-char-1 = oe-rell.loc
          oe-rel.qty       = lv-qty.
         
+        RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key).
         RUN set-lot-from-boll (INPUT ROWID(oe-rel), INPUT ROWID(oe-rell),
                                INPUT ROWID(oe-boll)).
         RUN oe/custxship.p (oe-rel.company,
@@ -1855,6 +1436,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
            oe-rel.spare-char-1 = oe-rell.loc
            oe-rel.qty       = lv-qty.
            
+          RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key). 
           RUN oe/custxship.p (oe-rel.company,
                               oe-rel.cust-no,
                               oe-rel.ship-id,
@@ -2394,6 +1976,231 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddRecord B-table-Win 
+PROCEDURE pAddRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE BUFFER bf-oe-rel FOR oe-rel.
+  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
+  DEFINE VARIABLE lv-rowid2 AS ROWID NO-UNDO.
+  DEFINE VARIABLE iL AS INTEGER INITIAL 0 EXTENT 2 NO-UNDO.
+  DEFINE VARIABLE lv-repos-recid AS RECID NO-UNDO.
+  DEFINE VARIABLE v-nxt-r-no AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lMatchingSRecordFound AS LOGICAL NO-UNDO.
+  DEFINE BUFFER bf-add-oe-rel FOR oe-rel.
+
+  DEFINE BUFFER b-oe-ordl FOR oe-ordl.
+  DEFINE BUFFER b-oe-rel FOR oe-rel.
+
+  DEFINE VARIABLE cShipTo   AS CHAR NO-UNDO.
+  DEFINE VARIABLE iRelQty   AS INT  NO-UNDO.
+  DEFINE VARIABLE dtRelDate AS DATE NO-UNDO.
+  DEFINE VARIABLE dtDelDate AS DATE NO-UNDO.
+  DEFINE VARIABLE cPO       AS CHAR NO-UNDO.
+  DEFINE VARIABLE lRelease  AS LOG  NO-UNDO.
+  DEFINE VARIABLE lCancel AS LOG NO-UNDO.
+
+  lv-rowid2 = IF AVAIL oe-rel THEN ROWID(oe-rel) ELSE ? .
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF CAN-FIND(FIRST b-oe-ordl {sys/inc/ordlcomp.i b-oe-ordl oe-ordl}) THEN DO:
+
+      RUN prompt-set-release (OUTPUT lCancel, OUTPUT cShipTo, OUTPUT iRelQty, OUTPUT dtRelDate,
+                              OUTPUT cPO, OUTPUT lRelease, OUTPUT dtDelDate).
+      IF lCancel THEN
+        RETURN "ADM-ERROR". 
+      RUN add-set-releases (INPUT cShipTo, INPUT iRelQty, INPUT dtRelDate, INPUT lRelease, INPUT dtDelDate, INPUT cPO).
+      MESSAGE "Releases Created"
+          VIEW-AS ALERT-BOX INFO BUTTONS OK.
+     RETURN "ADM-ERROR". 
+  END.
+
+  
+  IF AVAILABLE oe-ordl THEN
+  DO:
+     FOR EACH bf-oe-rel NO-LOCK 
+         WHERE bf-oe-rel.company EQ oe-ordl.company
+           AND bf-oe-rel.ord-no = oe-ordl.ord-no
+           AND bf-oe-rel.i-no = oe-ordl.i-no
+           AND bf-oe-rel.line = oe-ordl.line
+           AND bf-oe-rel.line NE 0
+           BY bf-oe-rel.line:
+         iL[1] = iL[1] + 1.
+     END.
+
+     RUN oe/d-ordrel.w (?, ROWID(oe-ordl), "add",OUTPUT lv-rowid).
+     
+     FOR EACH bf-oe-rel NO-LOCK 
+         WHERE bf-oe-rel.company EQ oe-ordl.company
+           AND bf-oe-rel.ord-no = oe-ordl.ord-no
+           AND bf-oe-rel.i-no = oe-ordl.i-no
+           AND bf-oe-rel.line = oe-ordl.line
+           AND bf-oe-rel.line NE 0
+           BY bf-oe-rel.line:
+         ASSIGN
+             iL[2]    = iL[2] + 1.
+     END.
+
+     IF iL[2] GT 0 AND (iL[1] NE iL[2] OR iL[2] EQ 1) THEN DO:
+         IF lv-rowid NE ? THEN do:
+             RUN reopen-query . 
+             RUN repo-query (lv-rowid).
+         END.
+     END.
+     ELSE DO:
+       RUN repo-query (lv-rowid2).
+     END.
+
+  END.
+
+  IF RelType-int = 1 AND AVAIL tt-report AND oe-rel.s-code EQ "I" THEN DO:
+
+     /* Check if a matching 'S' record already exists */
+     lMatchingSRecordFound = NO.
+     FOR EACH bf-add-oe-rel WHERE bf-add-oe-rel.company EQ oe-rel.company
+         AND bf-add-oe-rel.ord-no EQ oe-rel.ord-no
+         AND bf-add-oe-rel.LINE   EQ oe-rel.LINE
+         AND bf-add-oe-rel.i-no   EQ oe-rel.i-no
+         AND bf-add-oe-rel.s-code EQ "S"
+         NO-LOCK:
+        lMatchingSRecordFound = YES.
+         
+     END.
+
+     IF  lMatchingSRecordFound EQ NO  THEN DO:
+     
+       ASSIGN  v-inv-ship        = YES
+               v-qty-inv-only    = oe-rel.qty
+               v-totqty-inv-only = oe-rel.tot-qty.
+  
+       /* Add a new oe-rel */
+       RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+       
+       CREATE bf-add-oe-rel.
+       BUFFER-COPY oe-rel EXCEPT r-no rec_key TO bf-add-oe-rel.
+       ASSIGN bf-add-oe-rel.s-code = "S"
+              bf-add-oe-rel.r-no = v-nxt-r-no.
+
+       /* Reset everything */
+       RUN build-report-file.
+  
+       lv-repos-recid = RECID(bf-add-oe-rel).
+
+       RUN oe/d-ordrel.w (ROWID(bf-add-oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
+
+       RUN reopen-query .
+       RUN repo-query (lv-rowid).
+
+     END. /* If 'S' record not found */
+  END. /* If updating an invoice only "I" record */
+
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecord B-table-Win 
+PROCEDURE pUpdateRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE ll       AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+    DEFINE VARIABLE lv-repos-recid AS RECID NO-UNDO.
+    DEFINE VARIABLE v-nxt-r-no AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lMatchingSRecordFound AS LOGICAL NO-UNDO.
+    DEFINE BUFFER bf-add-oe-rel FOR oe-rel.
+    
+    IF AVAILABLE oe-ordl AND AVAILABLE oe-rel THEN
+    DO:
+       RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) . 
+       
+          IF lv-rowid NE ? THEN do: 
+              RUN reopen-query .
+              RUN repo-query (lv-rowid).
+          END.
+     END.
+
+     IF RelType-int = 1 AND AVAIL tt-report AND oe-rel.s-code EQ "I" THEN DO:
+
+     /* Check if a matching 'S' record already exists */
+     lMatchingSRecordFound = NO.
+     FOR EACH bf-add-oe-rel WHERE bf-add-oe-rel.company EQ oe-rel.company
+         AND bf-add-oe-rel.ord-no EQ oe-rel.ord-no
+         AND bf-add-oe-rel.LINE   EQ oe-rel.LINE
+         AND bf-add-oe-rel.i-no   EQ oe-rel.i-no
+         AND bf-add-oe-rel.s-code EQ "S"
+         NO-LOCK:
+        lMatchingSRecordFound = YES.
+         
+     END.
+
+     IF  lMatchingSRecordFound EQ NO  THEN DO:
+     
+       ASSIGN  v-inv-ship        = YES
+               v-qty-inv-only    = oe-rel.qty
+               v-totqty-inv-only = oe-rel.tot-qty.
+  
+       /* Add a new oe-rel */
+       RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+       
+       CREATE bf-add-oe-rel.
+       BUFFER-COPY oe-rel EXCEPT r-no rec_key TO bf-add-oe-rel.
+       ASSIGN bf-add-oe-rel.s-code = "S"
+              bf-add-oe-rel.r-no = v-nxt-r-no.
+  
+
+  
+       /* Reset everything */
+       RUN build-report-file.
+  
+       lv-repos-recid = RECID(bf-add-oe-rel).
+
+       RUN oe/d-ordrel.w (ROWID(bf-add-oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
+
+       RUN reopen-query .
+       RUN repo-query (lv-rowid).
+
+     END. /* If 'S' record not found */
+  END. /* If updating an invoice only "I" record */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pViewRecord B-table-Win 
+PROCEDURE pViewRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE ll       AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+    
+    IF AVAILABLE oe-ordl AND AVAILABLE oe-rel THEN
+    DO:
+       RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "view", OUTPUT lv-rowid) . 
+       RUN reopen-query .
+       RUN repo-query (lv-rowid).
+          
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-job B-table-Win 
 PROCEDURE create-job :
@@ -3328,533 +3135,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
-PROCEDURE local-assign-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR ll-ans AS LOG NO-UNDO.
-  DEF VAR ldt-ship AS DATE FORM "99/99/9999" NO-UNDO.
-  DEF BUFFER bf-rel FOR oe-rel .
-  DEF VAR ld-prev-rel-qty AS INT NO-UNDO.
-  DEF VAR v-qty-sum AS INT NO-UNDO.
-  DEF VAR ls-key-02 LIKE tt-report.stat NO-UNDO.
-  DEF VAR v-date-change-reason AS CHAR NO-UNDO.
-  DEF VAR h_reasonwin AS HANDLE NO-UNDO.
-  DEF VAR v-added-rowid AS ROWID NO-UNDO.
-  DEF BUFFER b-ordl FOR oe-ordl.
-  DEF VAR val1 AS CHAR NO-UNDO.
-  DEF VAR val2 AS CHAR NO-UNDO.
-  DEF VAR cOrigLoc AS CHAR NO-UNDO.
-  DEF VAR lLocChanged AS LOG NO-UNDO.
-  DEF VAR v-q-back AS INT NO-UNDO.
-  /* Code placed here will execute PRIOR to standard behavior. */
-  IF NOT AVAIL oe-rel AND lv-rel-recid <> ? THEN
-     FIND oe-rel WHERE RECID(oe-rel) = lv-rel-recid.
-  ld-prev-rel-qty = IF adm-new-record THEN 0 ELSE oe-rel.qty.
-  
-  FIND oe-ord OF oe-ordl NO-LOCK.
-
-  lLocChanged = NO.
-  ldt-ship = oe-rel.rel-date.
-  ls-po = tt-report.po-no.
-  IF oe-rel.spare-char-1 NE oe-rel.spare-char-1:SCREEN-VALUE IN BROWSE br_table THEN
-  DO:
-      ASSIGN cOrigLoc = oe-rel.spare-char-1.
-             lLocChanged = YES.
-      /* Make sure to create this location if it's not there */
-      RUN fg/chkfgloc.p (INPUT oe-rel.i-no, INPUT oe-rel.spare-char-1:SCREEN-VALUE IN BROWSE br_table).
-      /* Deallocate from inventory before changing the location */
-      FIND itemfg-loc 
-             WHERE itemfg-loc.company EQ oe-rel.company
-               AND itemfg-loc.i-no    EQ oe-rel.i-no
-               AND itemfg-loc.loc     EQ oe-rel.spare-char-1
-             EXCLUSIVE-LOCK NO-ERROR.
-      FIND CURRENT oe-rel EXCLUSIVE-LOCK.
-      IF AVAIL(itemfg-loc) THEN
-         ASSIGN itemfg-loc.q-alloc = itemfg-loc.q-alloc -  oe-rel.spare-dec-1
-                oe-rel.spare-dec-1 = 0.
-      FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
-  END.
-
-
-  val1 = STRING(tt-report.stat).
-  val2 = tt-report.stat:SCREEN-VALUE IN BROWSE br_table.
-  val2 = SUBSTR(val2,1,2) + SUBSTR(val2,4,2)
-                           + SUBSTR(val2,7,4).
-  val1 = TRIM(val1).
-  val2 = TRIM(val2).
-
-
-  IF val1 NE val2 
-    AND oeDateChange-log 
-    AND (oeDateChange-char EQ "" OR LOOKUP("release date", oeDateChange-char) GT 0)
-    AND NOT adm-new-record THEN DO:
-    /* prompt user for reason for date change */.
-
-    RUN oe/d-rsnnot.w
-    (INPUT oe-rel.rec_key, INPUT "R", INPUT "", INPUT "", INPUT 0, INPUT "RDC", INPUT "",
-     OUTPUT v-date-change-reason, OUTPUT v-added-rowid)  .
-    /*
-    RUN set-position IN h_reasonWin ( 5.00 , 154.20 ) NO-ERROR.
-    IF VALID-HANDLE(h_reasonWin) THEN
-        DELETE OBJECT h_reasonWin. */
-    FIND CURRENT oe-rel EXCLUSIVE-LOCK.
-    IF v-date-change-reason GT "" THEN
-        ASSIGN oe-rel.spare-char-2:SCREEN-VALUE = v-date-change-reason
-               oe-rel.spare-char-3:SCREEN-VALUE = USERID("NOSWEAT")
-               oe-rel.spare-char-3 = USERID("NOSWEAT").
-    FIND CURRENT oe-rel NO-LOCK.
-  END.
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
-
-  /* Allocate the quantity to inventory record per location */
-  RUN fg/fgitmloc.p (INPUT oe-rel.i-no, INPUT ROWID(oe-rel)).
-
-  IF lLocChanged THEN DO:
-    /* Recalculate the q-alloc on original itemfg-loc to make sure it's reduced */
-    FIND itemfg 
-        WHERE itemfg.company EQ oe-rel.company
-          AND itemfg.i-no EQ oe-rel.i-no
-        NO-LOCK NO-ERROR.
-    FIND itemfg-loc 
-       WHERE itemfg-loc.company EQ oe-rel.company
-         AND itemfg-loc.i-no    EQ oe-rel.i-no
-         AND itemfg-loc.loc     EQ cOrigLoc
-       EXCLUSIVE-LOCK NO-ERROR.
-
-    IF AVAIL itemfg AND avail(itemfg-loc) THEN
-      RUN fg/calcqabl.p (ROWID(itemfg), cOrigLoc, OUTPUT itemfg-loc.q-alloc, OUTPUT v-q-back).
-    FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
-  END.
-
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  oe-rel.po-no = tt-report.po-no.
-
-  
-  IF oe-ordl.is-a-component AND CAN-DO("B,I",oe-rel.s-code) THEN oe-rel.s-code = "S".
-  
-  /* Storing due date, due date change reason, due date change user */
-  oe-rel.spare-char-4 = (IF tt-report.prom-date EQ ? THEN "" ELSE STRING(tt-report.prom-date)) + ","
-                         + USERID("nosweat") + ","
-                         + tt-report.pr-uom.
-
-  
-  ASSIGN
-     oe-rel.lot-no  = tt-report.lot-no:SCREEN-VALUE IN BROWSE {&browse-name}
-     oe-rel.frt-pay = tt-report.frt-pay:SCREEN-VALUE IN BROWSE {&browse-name}
-     oe-rel.fob-code  = tt-report.flute:SCREEN-VALUE IN BROWSE {&browse-name}.
-
- 
-
-  ASSIGN oe-rel.sell-price = DEC(tt-report.price:SCREEN-VALUE IN BROWSE {&browse-name})
-         oe-rel.zeroPrice = (IF tt-report.whsed:SCREEN-VALUE IN BROWSE {&browse-name} BEGINS "Y" THEN 1 ELSE 0) .
-
-  FIND CURRENT ref-lot-no NO-LOCK NO-ERROR.
-  FIND CURRENT ref-sell-price NO-LOCK NO-ERROR.
-
-  RELEASE ref-lot-no.
-  RELEASE ref-sell-price.
-   
-  IF INDEX("AB",lv-stat) LE 0 THEN
-    oe-rel.rel-date = DATE(INT(SUBSTR(tt-report.stat,1,2)),
-                           INT(SUBSTR(tt-report.stat,3,2)),
-                           INT(SUBSTR(tt-report.stat,5,4))).
-
-  v-qty-sum = 0.
-  FOR EACH bf-rel WHERE bf-rel.company = oe-ord.company
-                       AND bf-rel.ord-no = oe-ord.ord-no 
-                       AND bf-rel.LINE = oe-ordl.LINE    /* 01/20/03 YSK TASK 01170303*/
-                       AND bf-rel.i-no = oe-ordl.i-no NO-LOCK :
-      RUN oe/rel-stat.p (ROWID(bf-rel), OUTPUT lv-stat).
-
-      IF (bf-rel.s-code = "" OR INDEX("BS",bf-rel.s-code) GT 0) AND
-         NOT CAN-DO("C,Z",lv-stat)                          THEN
-        v-qty-sum = v-qty-sum + bf-rel.qty. 
-  END.
-
-  IF v-qty-sum + oe-ordl.ship-qty GT oe-ordl.qty + 
-    (oe-ordl.qty * (oe-ordl.over-pct / 100)) 
-  THEN MESSAGE "Total Planned release quantity will exceed the Or" +
-                        "der quantity + the Overrun %..."
-                VIEW-AS ALERT-BOX WARNING.
-
-  IF ldt-ship NE oe-rel.rel-date                      AND
-     NOT adm-new-record                               AND
-     CAN-FIND(FIRST bf-rel
-              WHERE bf-rel.company  EQ oe-rel.company
-                AND bf-rel.ord-no   EQ oe-rel.ord-no
-                AND bf-rel.link-no  EQ 0
-                AND bf-rel.rel-date EQ ldt-ship
-                AND ROWID(bf-rel)   NE ROWID(oe-rel)) THEN DO:
-    MESSAGE "Update all other Scheduled Releases for this order with a" SKIP
-            "release date of " + STRING(ldt-ship,"99/99/9999") + " to " +
-            STRING(oe-rel.rel-date,"99/99/9999")
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-        UPDATE ll-ans.
-    IF ll-ans THEN        
-    FOR EACH bf-rel
-        WHERE bf-rel.company  EQ oe-rel.company
-          AND bf-rel.ord-no   EQ oe-rel.ord-no
-          AND bf-rel.link-no  EQ 0
-          AND bf-rel.rel-date EQ ldt-ship
-          AND ROWID(bf-rel)   NE ROWID(oe-rel):
-      RUN oe/rel-stat.p (ROWID(bf-rel), OUTPUT lv-stat).
-      IF INDEX("SLI",lv-stat) GT 0 THEN bf-rel.rel-date = oe-rel.rel-date.
-    END.        
-END.
-
-  IF ls-po NE tt-report.po-no                AND
-     CAN-FIND(FIRST bf-rel
-              WHERE bf-rel.company  EQ oe-rel.company
-                AND bf-rel.ord-no   EQ oe-rel.ord-no
-                AND bf-rel.link-no  EQ 0
-                AND ROWID(bf-rel)   NE ROWID(oe-rel)) THEN DO:
-    MESSAGE "Change item PO Number on all items? "
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans.
-    IF ll-ans THEN DO:
-      ll-ans = NO.
-      MESSAGE "All ship dates?"
-          VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans.
-      IF NOT ll-ans THEN DO:
-        ldt-ship = oe-rel.rel-date.
-        MESSAGE "Which ship date do you wish to update? " UPDATE ldt-ship.
-      END.         
-      FOR EACH  bf-rel
-          WHERE bf-rel.company EQ oe-rel.company
-            AND bf-rel.ord-no  EQ oe-rel.ord-no
-            AND bf-rel.link-no EQ 0
-            AND (ll-ans OR (bf-rel.rel-date EQ ldt-ship)):
-        RUN oe/rel-stat.p (ROWID(bf-rel), OUTPUT lv-stat).
-        IF INDEX("SLI",lv-stat) GT 0 THEN bf-rel.po-no = tt-report.po-no.               
-      END.
-    END.        
-  END.
-
-  IF (li-ship-no <> 0 AND li-ship-no <> oe-rel.ship-no) /* or
-     adm-adding-record */ THEN DO:
-     FIND oe-ord WHERE oe-ord.company = oe-rel.company 
-                   AND oe-ord.ord-no = oe-rel.ord-no NO-LOCK .
-
-     RUN oe/custxship.p (oe-rel.company,
-                         oe-ord.cust-no,
-                         oe-rel.ship-id,
-                         BUFFER shipto).
-
-     IF AVAIL shipto THEN DO:
-        ASSIGN oe-rel.ship-no = shipto.ship-no
-                                 oe-rel.ship-addr[1] = shipto.ship-addr[1]
-                                 oe-rel.ship-addr[2] = shipto.ship-addr[2]
-                                 oe-rel.ship-city = shipto.ship-city
-                                 oe-rel.ship-state = shipto.ship-state
-                                 oe-rel.ship-zip = shipto.ship-zip
-                                 oe-rel.ship-i[1] = shipto.notes[1]
-                                 oe-rel.ship-i[2] = shipto.notes[2]
-                                 oe-rel.ship-i[3] = shipto.notes[3]
-                                 oe-rel.ship-i[4] = shipto.notes[4].
-     END.
-  END.   
-
-  FIND b-ordl WHERE ROWID(b-ordl) EQ ROWID(oe-ordl).
-  b-ordl.t-rel-qty = b-ordl.t-rel-qty + oe-rel.qty - ld-prev-rel-qty.
-  FIND b-ordl WHERE ROWID(b-ordl) EQ ROWID(oe-ordl) NO-LOCK.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win 
-PROCEDURE local-cancel-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR i AS INT NO-UNDO.
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  ll-canceled = YES.
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  RUN release-shared-buffers.
-
-  ASSIGN
-     btnCalendar:SENSITIVE IN FRAME {&FRAME-NAME} = NO 
-     btnCalendar:HIDDEN IN FRAME {&FRAME-NAME} = YES.
-
-  DO i = 1 TO 9:
-     APPLY "CURSOR-LEFT":U TO BROWSE {&browse-name}.
-  END.
-
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"ordbol-source", OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-  RUN reset-button IN WIDGET-HANDLE(char-hdl) (YES).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
-PROCEDURE local-create-record :
-/*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEF VAR v-qty-sum    AS INT  NO-UNDO.
-    DEF VAR v-nxt-r-no   AS INT  NO-UNDO.
-    DEF VAR v-lst-rel    AS DATE INIT TODAY NO-UNDO.
-    DEF VAR v-pct-chg    AS DEC  NO-UNDO.
-    DEF VAR v-ship-id    LIKE oe-rel.ship-id NO-UNDO.
-    DEF VAR v-carrier    LIKE oe-rel.carrier NO-UNDO.
-    DEF VAR v-shipfrom   LIKE loc.loc NO-UNDO.
-    DEF VAR v-num-shipto AS INT  NO-UNDO.
-    DEF VAR v-qty-mod    AS LOG  NO-UNDO.
-    DEF BUFFER bf-rel  FOR oe-rel.
-    DEF BUFFER bf-cust FOR cust.
-    DEF    VAR      v-first-ship-id     AS cha     NO-UNDO.
-    DEF    VAR      v-qty-released      AS INT     NO-UNDO.
-    DEFINE VARIABLE rShipTo AS ROWID NO-UNDO.
-    DEFINE VARIABLE lFirstReleaseOfItem AS LOGICAL NO-UNDO.
-  
-    /* Code placed here will execute PRIOR to standard behavior. */
-
-    RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
-    FIND FIRST bf-cust WHERE bf-cust.cust-no EQ oe-ord.cust-no NO-LOCK NO-ERROR.
-    ASSIGN
-        v-ship-id = IF AVAIL oe-rel THEN oe-rel.ship-id ELSE ""
-        v-carrier = IF AVAIL oe-rel THEN oe-rel.carrier ELSE ""
-        .
-    IF AVAIL(bf-cust) AND bf-cust.ACTIVE = "X" AND v-last-shipto GT "" THEN
-        v-ship-id = v-last-shipto.
-    FIND FIRST bf-rel WHERE bf-rel.company = oe-ord.company
-        AND bf-rel.ord-no = oe-ord.ord-no
-        AND bf-rel.i-no = oe-ordl.i-no 
-        AND bf-rel.LINE = oe-ordl.LINE
-        NO-LOCK NO-ERROR.
-    v-first-ship-id = IF AVAIL bf-rel THEN bf-rel.ship-id ELSE "".
-    adm-cur-state = "ADD".
-    
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
-    
-    /* --------------------------------------------------- oe/oe-rel.a   6/93 rd  */
-    /* add module - order entry release lines                                     */
-    /* -------------------------------------------------------------------------- */
-
-    lv-rel-recid = RECID(oe-rel).
-    ASSIGN 
-        v-qty-sum      = 0
-        v-qty-released = 0.
-
-    IF AVAIL oe-ordl THEN 
-    DO:
-        FIND FIRST oe-ord OF oe-ordl NO-LOCK.
-
-        FOR EACH bf-rel WHERE bf-rel.company = oe-ord.company
-            AND bf-rel.ord-no = oe-ord.ord-no
-            AND bf-rel.i-no = oe-ordl.i-no 
-            AND bf-rel.LINE = oe-ordl.LINE
-            NO-LOCK:
-
-            IF bf-rel.s-code = "" OR CAN-DO("B,S",bf-rel.s-code) THEN 
-            DO:
-                v-qty-sum = v-qty-sum + bf-rel.qty.
-                IF LOOKUP(bf-rel.stat, "C,Z,P,A,B") GT 0 THEN
-                    v-qty-released = v-qty-released + bf-rel.qty .  /*Task 11011304  */ /* task  09021403*/
-                ELSE
-                    v-qty-released = v-qty-released + bf-rel.tot-qty .  /*Task 11011304  */ /* task  09021403*/
-            END.
-        END.
-
-        IF v-qty-sum GE oe-ordl.qty + (oe-ordl.qty * (oe-ordl.over-pct / 100)) THEN
-            MESSAGE "Total Planned release quantity will exceed the Or" +
-                "der quantity + the Underrun %."
-                VIEW-AS ALERT-BOX WARNING.
-
-        FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
-            AND sys-ctrl.name    EQ "OECARIER"
-            NO-LOCK NO-ERROR.
-        IF NOT AVAIL sys-ctrl THEN 
-        DO:
-            CREATE sys-ctrl.
-            ASSIGN 
-                sys-ctrl.company  = cocode
-                sys-ctrl.name     = "OECARIER"
-                sys-ctrl.descrip  = "Default carrier from Header or ShipTo:"
-                sys-ctrl.char-fld = "ShipTo".       
-            DO WHILE TRUE:
-                MESSAGE "Default Shipping Carrier from Header or Shipto?" UPDATE sys-ctrl.char-fld.
-                IF sys-ctrl.char-fld = "Header" OR sys-ctrl.char-fld = "ShipTo" THEN LEAVE. 
-            END.
-        END.
-
-        RELEASE shipto.
-
-        IF v-carrier = "" THEN 
-        DO:  /* NK1 OECARIER */
-            IF sys-ctrl.char-fld EQ "ShipTo" THEN 
-            DO:
-                FIND FIRST shipto NO-LOCK
-                    WHERE shipto.company EQ oe-ord.company
-                    AND shipto.cust-no EQ oe-ord.cust-no
-                    AND shipto.ship-id EQ v-ship-id NO-ERROR.
-                v-carrier = IF AVAIL shipto THEN shipto.carrier ELSE "".
-            END.
-            ELSE IF sys-ctrl.char-fld EQ "Header" THEN v-carrier = oe-ord.carrier.
-        END.
-    
-        IF NOT AVAIL shipto THEN
-            FOR EACH shipto
-                WHERE shipto.company  EQ cocode
-                AND shipto.cust-no EQ (IF lv-cust-x NE ""         AND
-                oe-rel.s-code EQ "T" THEN lv-cust-x
-                ELSE oe-ord.cust-no)
-                NO-LOCK
-                BREAK BY shipto.ship-no DESC:
-                IF shipto.ship-id EQ oe-ord.cust-no OR LAST(shipto.ship-no) THEN LEAVE.
-            END.
-     
-        IF v-carrier EQ "" AND AVAIL shipto THEN v-carrier = shipto.carrier.
-        IF v-shipfrom EQ "" AND AVAIL shipto THEN v-shipfrom = shipto.loc. 
-        FIND FIRST bf-rel WHERE bf-rel.company EQ cocode
-            AND bf-rel.ord-no EQ oe-ord.ord-no
-            AND bf-rel.i-no EQ oe-ordl.i-no
-            AND ROWID(bf-rel) NE ROWID(oe-rel)
-            NO-LOCK NO-ERROR.
-    
-        lFirstReleaseOfItem = IF AVAIL bf-rel THEN NO ELSE YES.  
-
-        ASSIGN 
-            oe-rel.company      = cocode
-            oe-rel.loc          = locode
-            oe-rel.ord-no       = oe-ordl.ord-no
-            oe-rel.i-no         = oe-ordl.i-no
-            oe-rel.cust-no      = oe-ord.cust-no
-            oe-rel.po-no        = IF oe-ordl.po-no NE "" THEN oe-ordl.po-no 
-                                                     ELSE oe-ord.po-no
-            oe-rel.qty          = 0 /*oe-ordl.qty - v-qty-sum*/
-            oe-rel.line         = oe-ordl.line
-            oe-rel.s-comm[1]    = oe-ord.s-comm[1]
-            oe-rel.s-comm[2]    = oe-ord.s-comm[2]
-            oe-rel.s-comm[3]    = oe-ord.s-comm[3]
-            oe-rel.s-name[1]    = oe-ord.sname[1]
-            oe-rel.s-name[2]    = oe-ord.sname[2]
-            oe-rel.s-name[3]    = oe-ord.sname[3]
-            oe-rel.s-pct[1]     = oe-ord.s-pct[1]
-            oe-rel.s-pct[2]     = oe-ord.s-pct[2]
-            oe-rel.s-pct[3]     = oe-ord.s-pct[3]
-            oe-rel.sman[1]      = oe-ord.sman[1]
-            oe-rel.sman[2]      = oe-ord.sman[2]
-            oe-rel.sman[3]      = oe-ord.sman[3]
-            oe-rel.sold-no      = oe-ord.sold-no
-            oe-rel.carrier      = /*if sys-ctrl.char-fld = "Shipto" and avail shipto then shipto.carrier
-                              else*/ v-carrier
-            oe-rel.r-no         = v-nxt-r-no
-            oe-rel.spare-char-1 = v-shipfrom.
-
-        IF oereleas-cha EQ "LastShip" THEN
-            oe-rel.rel-date = oe-ord.last-date.
-        ELSE IF oereleas-cha EQ "Due Date" THEN
-                oe-rel.rel-date = oe-ordl.req-date.
-            ELSE /*DueDate+1Day*/
-            DO:
-                oe-rel.rel-date = oe-ordl.req-date + 1.
-                IF WEEKDAY(oe-rel.rel-date) EQ 7 THEN
-                    oe-rel.rel-date = oe-rel.rel-date + 2.
-                ELSE
-                    IF WEEKDAY(oe-rel.rel-date) EQ 1 THEN
-                        oe-rel.rel-date = oe-rel.rel-date + 1.
-            END.
-            
-        IF NOT (oeDateAuto-log AND OeDateAuto-Char EQ "Colonial") THEN 
-        DO:
-            RUN sys/ref/shipToOfRel.p (INPUT ROWID(oe-rel), OUTPUT rShipTo).
-            FIND shipto WHERE ROWID(shipto) EQ rShipTo NO-LOCK NO-ERROR.
-            
-            IF AVAIL shipto THEN 
-            oe-rel.rel-date = get-date(oe-ordl.req-date, INT(shipto.del-time), "-").
-            
-        END.
-        
-                /* stores oe-rel due date */
-        IF lfirstReleaseofItem THEN 
-            oe-rel.spare-char-4 = STRING(oe-ord.due-date) + ",,". 
-      
-                                  
-        IF oe-rel.qty LT 0 THEN oe-rel.qty = 0.
-
-        oe-rel.tot-qty = oe-ordl.qty - v-qty-released /*oe-rel.qty*/ .
-
-        IF oe-rel.rel-date LE v-lst-rel THEN oe-rel.rel-date = v-lst-rel + 1.
-
-        IF AVAIL shipto THEN
-            ASSIGN oe-rel.ship-addr[1] = shipto.ship-addr[1]
-                oe-rel.ship-city    = shipto.ship-city
-                oe-rel.ship-state   = shipto.ship-state
-                oe-rel.ship-zip     = shipto.ship-zip
-                oe-rel.ship-no      = shipto.ship-no
-                oe-rel.ship-id      = IF v-first-ship-id <> "" THEN v-first-ship-id ELSE oe-ord.ship-id
-                oe-rel.ship-i[1]    = shipto.notes[1]
-                oe-rel.ship-i[2]    = shipto.notes[2]
-                oe-rel.ship-i[3]    = shipto.notes[3]
-                oe-rel.ship-i[4]    = shipto.notes[4].
-        ELSE ASSIGN oe-rel.ship-no   = oe-ord.sold-no
-                oe-rel.ship-id   = IF v-first-ship-id <> "" THEN v-first-ship-id ELSE oe-ord.ship-id
-                oe-rel.ship-i[1] = oe-ord.ship-i[1]
-                oe-rel.ship-i[2] = oe-ord.ship-i[2]
-                oe-rel.ship-i[3] = oe-ord.ship-i[3]
-                oe-rel.ship-i[4] = oe-ord.ship-i[4].
-
-        IF NOT CAN-FIND(FIRST shipto 
-               WHERE shipto.company EQ cocode
-               AND shipto.ship-id EQ oe-rel.ship-id) THEN do:
-            
-           FOR EACH shipto
-                WHERE shipto.company EQ cocode
-                AND shipto.cust-no EQ oe-rel.cust-no NO-LOCK BY shipto.ship-id:
-
-            IF AVAIL shipto THEN
-            ASSIGN 
-                oe-rel.ship-id   = shipto.ship-id
-                oe-rel.ship-addr[1] = shipto.ship-addr[1]
-                oe-rel.ship-city    = shipto.ship-city
-                oe-rel.ship-state   = shipto.ship-state
-                oe-rel.ship-zip     = shipto.ship-zip
-                oe-rel.ship-no      = shipto.ship-no
-                oe-rel.ship-i[1]    = shipto.notes[1]
-                oe-rel.ship-i[2]    = shipto.notes[2]
-                oe-rel.ship-i[3]    = shipto.notes[3]
-                oe-rel.ship-i[4]    = shipto.notes[4].
-            LEAVE .
-           END.
-        END.
-        
-
-        RUN create-report-record-1 (NO, oe-rel.rel-date).
-    END.
-
-    ELSE 
-    DO:
-        MESSAGE " Order Line item record is not avail..." VIEW-AS ALERT-BOX ERROR.
-        RETURN ERROR.
-    END.
-
- 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
 PROCEDURE local-delete-record :
 /*------------------------------------------------------------------------------
@@ -4011,27 +3291,7 @@ PROCEDURE local-delete-record :
   /* Redistribute quantity to itemfg-loc */
   IF AVAIL oe-ordl THEN
     RUN fg/fgitmloc.p (INPUT oe-ordl.i-no, INPUT ROWID(oe-ordl)).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
-PROCEDURE local-destroy :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-  
-  /* Code placed here will execute PRIOR to standard behavior. */
-  IF VALID-HANDLE(lr-rel-lib) THEN
-    DELETE OBJECT lr-rel-lib.
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
-      
-  /* Code placed here will execute AFTER standard behavior.    */
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4183,6 +3443,11 @@ PROCEDURE local-initialize :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
+  IF v-called-setCellColumns = NO THEN DO:
+     RUN setCellColumns.
+     v-called-setCellColumns = YES.
+  END.
+
   /* Code placed here will execute AFTER standard behavior.    */
   /*{methods/winReSizeLocInit.i}*/
   IF NOT l-update-reason-perms OR (oeDateAuto-log AND OeDateAuto-Char = "Colonial") THEN DO:
@@ -4219,265 +3484,44 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
-PROCEDURE local-update-record :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resort-query B-table-Win 
+PROCEDURE resort-query :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
+  Purpose:     
+  Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER bf-rel FOR oe-rel .
-  DEF VAR lv-repos-recid AS RECID NO-UNDO.
-  DEF VAR lv-key-02 LIKE tt-report.stat NO-UNDO.
-  DEF VAR lv-printed LIKE tt-report.opened NO-UNDO.
-  DEF VAR char-hdl AS cha NO-UNDO.
-  DEF VAR i AS INT NO-UNDO.
-  DEF VAR v-qty-inv AS INT INIT 0 NO-UNDO.
-  DEF VAR v-qty-ship AS INT INIT 0 NO-UNDO.
-  DEF VAR v-date-change-reason AS CHAR NO-UNDO.
-  DEF VAR v-added-rowid AS ROWID NO-UNDO.
-  DEF VAR v-nxt-r-no AS INT NO-UNDO.
-  DEF VAR lMatchingSRecordFound AS LOG NO-UNDO.
-  DEF BUFFER bf-add-oe-rel FOR oe-rel.
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  RUN valid-s-code NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  RUN valid-ship-id NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-      
-  RUN valid-po-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  RUN valid-key-02 NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+ 
+  &SCOPED-DEFINE open-query                         ~
+      OPEN QUERY {&browse-name}                     ~
+          {&for-each1}   NO-LOCK,                    ~
+            {&for-each2}
   
-  IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN
-    RUN valid-colonial-date NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    
-  RUN valid-freight-pay NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                 ELSE {&open-query} {&sortby-phrase-desc}.
 
-  RUN valid-fob NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-   
-  RUN valid-ship-from NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN dispatch ("row-changed").
 
-  RUN valid-date-change NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
-  /* Disable button during update */
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"ordrel-source", OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-  RUN reset-button IN WIDGET-HANDLE(char-hdl) (NO).
-  /* ==== validation ==========*/
- /* if int(oe-rel.qty:screen-value in browse {&browse-name}) <= 0 then do:
-       message "Planned release quantity must be greater than 0." view-as alert-box error.
-       apply "entry" to oe-rel.qty.
-       return no-apply.
-  end.
-  */  /* Task 11041309 */
-  IF adm-new-record  THEN DO:
-    FOR EACH bf-rel WHERE bf-rel.company = oe-ord.company
-                       AND bf-rel.ord-no = oe-ord.ord-no
-                       AND bf-rel.i-no = oe-ordl.i-no 
-                       AND bf-rel.LINE = oe-ordl.LINE
-                       NO-LOCK:
+END PROCEDURE.
 
-          IF bf-rel.s-code = "" OR CAN-DO("I",bf-rel.s-code) THEN
-             ASSIGN
-             v-qty-inv = v-qty-inv + bf-rel.qty .
-          IF bf-rel.s-code = "" OR CAN-DO("S",bf-rel.s-code) THEN
-             ASSIGN
-             v-qty-ship = v-qty-ship + bf-rel.qty .
-     END.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
 
-      IF  oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "B"  THEN DO:
-        IF  v-qty-inv > (v-qty-ship ) THEN DO:
-          MESSAGE "Invoice Only Quantity Exceeds Ship Only Quantity." +
-              "Ship Only Release should be added to Offset Invoice Only Quantity." +
-              "Please Change Release Type to S for Ship Only."
-             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ansp AS LOG.
-            IF ll-ansp THEN DO:
-                APPLY "entry" TO oe-rel.s-code IN BROWSE {&browse-name}.
-                RETURN NO-APPLY.
-            END.   
-        END.
-    END.
-    IF  oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "I"  THEN DO:
-        IF  (v-qty-inv + INT(oe-rel.qty:SCREEN-VALUE IN BROWSE {&browse-name})) > oe-ordl.qty THEN DO:
-          MESSAGE "Invoice Only Quantity Exceeds Order Quantity." +
-                  " Do you want continue.."
-             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-invex AS LOG.
-            IF NOT ll-invex THEN DO:
-                APPLY "entry" TO oe-rel.qty IN BROWSE {&browse-name}.
-                RETURN NO-APPLY.
-            END.   
-        END.
-    END.
-  END.  /* Task 11041309 */
-
-  FIND FIRST bf-rel WHERE bf-rel.company = oe-rel.company 
-                      AND bf-rel.ord-no = oe-rel.ord-no 
-                      AND bf-rel.line = oe-rel.line
-                      AND bf-rel.rel-date = ld-date
-                      AND bf-rel.ship-id = oe-rel.ship-id:SCREEN-VALUE IN BROWSE {&browse-name}
-                          /*bf-rel.ship-no = oe-rel.ship-no:screen-value */
-                      AND bf-rel.i-no = oe-rel.i-no
-                      AND recid(bf-rel) <> recid(oe-rel)
-                      NO-LOCK NO-ERROR.
-  IF AVAIL bf-rel THEN DO:
-     MESSAGE "Shipto already exists for this date. Continue with unique PO#?"
-             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
-     IF NOT ll-ans THEN DO:
-        APPLY "entry" TO oe-rel.s-code.
-        RETURN NO-APPLY.
-     END.   
-  END.
-
- /*
-  if tt-report.stat:modified and ld-date LT today then do:
-       message "Release date can not be earlier than Today." view-as alert-box error.
-       apply "entry" to tt-report.stat.
-       return no-apply.
-  end.
- */
-   
-  ASSIGN
-   lv-repos-recid = RECID(oe-rel)
-   lv-key-02      = tt-report.stat
-   lv-printed     = tt-report.opened
-   ll-skip        = YES
-   dtPrevDueDate  = tt-report.prom-date
-   btnCalendar:SENSITIVE IN FRAME {&FRAME-NAME} = NO 
-   btnCalendar:HIDDEN IN FRAME {&FRAME-NAME} = YES.
-
-  RUN release-shared-buffers.
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  v-last-shipto = oe-rel.ship-id:SCREEN-VALUE IN BROWSE {&browse-name}.
-
-  RUN release-shared-buffers.
-
-  ll-skip = NO.
-
-  IF tt-report.opened NE lv-printed THEN DO:
-    {oe/rel-stat.i lv-stat}
-
-    IF AVAIL oe-relh AND INDEX("AB",lv-stat) GT 0 THEN DO TRANSACTION:
-      FIND CURRENT oe-relh.
-      oe-relh.printed = tt-report.opened.
-      FIND CURRENT oe-relh NO-LOCK.
-    END.
-  END.
-  
-  IF oeDateChange-log 
-      AND  NOT adm-new-record
-      AND  LOOKUP("Release Due Date", oeDateChange-char) GT 0
-      AND  tt-report.prom-date NE dtPrevDueDate 
-      AND  dtPrevDueDate NE ? 
-      THEN 
-    DO:
-    FIND FIRST bf-rel WHERE ROWID(bf-rel) EQ ROWID(oe-rel) EXCLUSIVE-LOCK NO-ERROR.
-    IF AVAIL bf-rel THEN DO:    
-        RUN oe/d-pdcnot.w /* PERSISTENT SET h_reasonWin */
-            (INPUT bf-rel.rec_key, INPUT "L", INPUT "", INPUT "", INPUT 0, INPUT "DRC", INPUT "",
-            OUTPUT v-date-change-reason, OUTPUT v-added-rowid)  .
-        IF v-date-change-reason NE ? THEN
-            ASSIGN bf-rel.spare-char-4 = STRING(tt-report.prom-date) + "," 
-                   + USERID("NOSWEAT") + "," + v-date-change-reason.  
-    END. /* If avail bf-rel */
-  END. /* If oeDateChange-log */
-  
-  IF tt-report.stat NE lv-key-02 AND NOT adm-new-record THEN DO:  
-    RUN update-dates.
-
-    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'record-source':U,OUTPUT char-hdl).
-    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN get-link-handle IN adm-broker-hdl (WIDGET-HANDLE(char-hdl),'record-source':U,OUTPUT char-hdl).
-    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN dispatch IN WIDGET-HANDLE(char-hdl) ("display-fields").
-  END.
-  adm-brs-in-update = NO.
-
-  RUN dispatch('open-query').
-  REPOSITION {&browse-name} TO RECID lv-repos-recid NO-ERROR.
-  IF NOT ERROR-STATUS:ERROR THEN RUN dispatch ('row-changed').
-
-  ASSIGN
-   lv-rel-recid       = ?
-   v-browse-in-update = NO.
-
-  RUN set-buttons.
-
-  DO i = 1 TO 9:
-     APPLY "CURSOR-LEFT":U TO BROWSE {&browse-name}.
-  END.
-
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"ordrel-source", OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-  RUN reset-button IN WIDGET-HANDLE(char-hdl) (YES).
-
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"ordbol-source", OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-  RUN reset-button IN WIDGET-HANDLE(char-hdl) (YES).
-
-  IF RelType-int = 1 AND AVAIL tt-report AND oe-rel.s-code EQ "I" THEN DO:
-
-     /* Check if a matching 'S' record already exists */
-     lMatchingSRecordFound = NO.
-     FOR EACH bf-add-oe-rel WHERE bf-add-oe-rel.company EQ oe-rel.company
-         AND bf-add-oe-rel.ord-no EQ oe-rel.ord-no
-         AND bf-add-oe-rel.LINE   EQ oe-rel.LINE
-         AND bf-add-oe-rel.i-no   EQ oe-rel.i-no
-         AND bf-add-oe-rel.s-code EQ "S"
-         NO-LOCK:
-        lMatchingSRecordFound = YES.
-         
-     END.
-
-     IF  lMatchingSRecordFound EQ NO  THEN DO:
-     
-       ASSIGN  v-inv-ship        = YES
-               v-qty-inv-only    = oe-rel.qty
-               v-totqty-inv-only = oe-rel.tot-qty.
-  
-       /* Add a new oe-rel */
-       RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
-       
-       CREATE bf-add-oe-rel.
-       BUFFER-COPY oe-rel EXCEPT r-no rec_key TO bf-add-oe-rel.
-       ASSIGN bf-add-oe-rel.s-code = "S"
-              bf-add-oe-rel.r-no = v-nxt-r-no.
-  
-
-  
-       /* Reset everything */
-       RUN build-report-file.
-  
-       lv-repos-recid = RECID(bf-add-oe-rel).
-  
-       /* Open query to view the new record and position to it */
-       RUN local-open-query.
-       REPOSITION {&browse-name} TO RECID lv-repos-recid NO-ERROR.
-  
-       /* simulate clicking the update button */
-       RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"TableIO-source", OUTPUT char-hdl).
-       RUN start-update IN WIDGET-HANDLE(char-hdl).
-
-
-     END. /* If 'S' record not found */
-  END. /* If updating an invoice only "I" record */
-   IF adm-new-record THEN
-       ASSIGN
-       adm-new-record    = NO
-       adm-adding-record = NO.
-  
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
+PROCEDURE move-columns :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+         br_table:COLUMN-MOVABLE = v-col-move
+         br_table:COLUMN-RESIZABLE = v-col-move
+         v-col-move = NOT v-col-move.
+      FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+      DISPLAY FI_moveCol.
+   END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4569,42 +3613,6 @@ DEFINE VARIABLE dTempDate AS DATE NO-UNDO.
              .
       
     END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-ship-id B-table-Win 
-PROCEDURE new-ship-id :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF BUFFER bf-shipto FOR shipto.
-  DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST oe-ord
-        WHERE oe-ord.company EQ oe-ordl.company 
-          AND oe-ord.ord-no  EQ oe-ordl.ord-no
-        NO-LOCK.
-
-    RUN oe/custxship.p (oe-ordl.company,
-                        oe-ord.cust-no,
-                        oe-rel.ship-id:SCREEN-VALUE IN BROWSE {&browse-name},
-                        BUFFER bf-shipto).
-
-    IF AVAIL bf-shipto THEN                           
-      ASSIGN
-       oe-rel.ship-addr[1]:SCREEN-VALUE IN BROWSE {&browse-name} = bf-shipto.ship-addr[1]
-       oe-rel.ship-city:SCREEN-VALUE IN BROWSE {&browse-name}    = bf-shipto.ship-city
-       oe-rel.ship-state:SCREEN-VALUE IN BROWSE {&browse-name}   = bf-shipto.ship-state 
-       oe-rel.carrier:SCREEN-VALUE IN BROWSE {&browse-name}      = bf-shipto.carrier
-       oe-rel.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name}      = bf-shipto.loc
-       li-ship-no = bf-shipto.ship-no.
-     IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN
-         RUN new-due-date.
-  END.
 
 END PROCEDURE.
 
@@ -5436,313 +4444,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-colonial-date B-table-Win 
-PROCEDURE valid-colonial-date :
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
+PROCEDURE CopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lValid    AS LOGICAL NO-UNDO.
-  
-    DO WITH FRAME {&FRAME-NAME}:
-        ld-date = DATE(INT(SUBSTR(tt-report.stat:SCREEN-VALUE IN BROWSE {&browse-name},1,2)),
-            INT(SUBSTR(tt-report.stat:SCREEN-VALUE IN BROWSE {&browse-name},4,2)),
-            INT(SUBSTR(tt-report.stat:SCREEN-VALUE IN BROWSE {&browse-name},7,4))) NO-ERROR.
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-        IF ERROR-STATUS:ERROR THEN 
-        DO:
-            MESSAGE ERROR-STATUS:GET-MESSAGE(1) VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO tt-report.stat IN BROWSE {&browse-name}.
-            RETURN ERROR.
-        END.
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
 
-        ELSE tt-report.stat:SCREEN-VALUE IN BROWSE {&browse-name} =
-                STRING(ld-date,tt-report.stat:FORMAT IN BROWSE {&browse-name}).
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
     
-        RUN oe/dateFuture.p (INPUT cocode, INPUT ld-date, INPUT YES /* prompt */, OUTPUT lValid, OUTPUT lContinue).
-        IF NOT lValid AND  NOT lContinue THEN 
-        DO:
-            APPLY "entry" TO tt-report.prom-date IN BROWSE {&browse-name}.
-            RETURN ERROR.
-        END. 
-      
-    END.
-
-END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-date-change B-table-Win 
-PROCEDURE valid-date-change :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DO WITH FRAME {&FRAME-NAME}:
-    DEF VAR v-reject-code AS CHAR NO-UNDO.
-    v-reject-code = oe-rel.spare-char-2:SCREEN-VALUE IN BROWSE {&browse-name}.
-                       
-   FIND FIRST rejct-cd 
-       WHERE rejct-cd.TYPE = "R" 
-         AND rejct-cd.CODE = v-reject-code
-       NO-LOCK NO-ERROR.
-   
-
-    IF NOT AVAIL rejct-cd AND v-reject-code GT "" THEN DO:
-      MESSAGE "Invalid " + TRIM(oe-rel.spare-char-2:LABEL IN BROWSE {&browse-name}) +
-              ", try help..." VIEW-AS ALERT-BOX.
-      APPLY "entry" TO oe-rel.spare-char-2 IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-fob B-table-Win 
-PROCEDURE valid-fob :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  
-  DO WITH FRAME {&FRAME-NAME}:
-      
-      IF NOT CAN-DO("O,D,",tt-report.flute:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) THEN DO:
-         MESSAGE "Invalid FOB, please enter (D)est or (O)rig." VIEW-AS ALERT-BOX ERROR.
-         APPLY "entry" TO tt-report.flute IN BROWSE {&browse-name}.
-         RETURN ERROR.
-      END.
-      ASSIGN tt-report.flute:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = CAPS(tt-report.flute:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-freight-pay B-table-Win 
-PROCEDURE valid-freight-pay :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DO WITH FRAME {&FRAME-NAME}:
-
-      IF NOT CAN-DO("P,C,B,T,",tt-report.frt-pay:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) THEN DO:
-          MESSAGE "Invalid Freight Pay code, pls enter P,C,B or T" VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO tt-report.frt-pay IN BROWSE {&browse-name}.
-          RETURN ERROR.
-      END.
-      ASSIGN tt-report.frt-pay:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = CAPS(tt-report.frt-pay:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}). 
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-key-02 B-table-Win 
-PROCEDURE valid-key-02 :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE lValid    AS LOGICAL NO-UNDO.
-  
-  DO WITH FRAME {&FRAME-NAME}:
-    ld-date = DATE(INT(SUBSTR(tt-report.stat:SCREEN-VALUE IN BROWSE {&browse-name},1,2)),
-                   INT(SUBSTR(tt-report.stat:SCREEN-VALUE IN BROWSE {&browse-name},4,2)),
-                   INT(SUBSTR(tt-report.stat:SCREEN-VALUE IN BROWSE {&browse-name},7,4))) NO-ERROR.
-
-    IF ERROR-STATUS:ERROR THEN DO:
-      MESSAGE ERROR-STATUS:GET-MESSAGE(1) VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO tt-report.stat IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-
-    ELSE tt-report.stat:SCREEN-VALUE IN BROWSE {&browse-name} =
-             STRING(ld-date,tt-report.stat:FORMAT IN BROWSE {&browse-name}).
-    
-    RUN oe/dateFuture.p (INPUT cocode, INPUT ld-date, INPUT YES /* prompt */, OUTPUT lValid, OUTPUT lContinue).
-    IF NOT lValid AND  NOT lContinue THEN DO:
-      APPLY "entry" TO tt-report.stat IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END. 
-      
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-no B-table-Win 
-PROCEDURE valid-po-no :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF BUFFER cust-po-mand FOR reftable.
-
-  
-  DO WITH FRAME {&FRAME-NAME}:
-    RELEASE cust.
-
-    FIND FIRST oe-ord NO-LOCK
-        WHERE oe-ord.company EQ oe-rel.company
-          AND oe-ord.ord-no  EQ oe-rel.ord-no
-        NO-ERROR.
-
-    IF AVAIL oe-ord THEN
-    FIND FIRST cust NO-LOCK
-        WHERE cust.company EQ oe-ord.company
-          AND cust.cust-no EQ oe-ord.cust-no
-          AND cust.po-mandatory
-        NO-ERROR.
-    
-    IF AVAIL cust AND TRIM(tt-report.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) EQ "" THEN DO:
-      MESSAGE "PO# is mandatory for this Customer..."
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO tt-report.po-no IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-s-code B-table-Win 
-PROCEDURE valid-s-code :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  
-  DO WITH FRAME {&FRAME-NAME}:
-    IF LOOKUP(oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name},lv-s-codes) LE 0 THEN DO:
-      MESSAGE "Invalid " + TRIM(oe-rel.s-code:LABEL IN BROWSE {&browse-name}) +
-              ", try help..." VIEW-AS ALERT-BOX.
-      APPLY "entry" TO oe-rel.s-code IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-from B-table-Win 
-PROCEDURE valid-ship-from :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST loc WHERE loc.company EQ cocode
-                                AND loc.loc     EQ TRIM(oe-rel.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name})) THEN DO:       
-      MESSAGE "Invalid ship from entered."
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO oe-rel.spare-char-1 IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-id B-table-Win 
-PROCEDURE valid-ship-id :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST oe-ord
-        WHERE oe-ord.company EQ oe-rel.company 
-          AND oe-ord.ord-no  EQ oe-rel.ord-no
-        NO-LOCK.
-
-    /*RUN oe/custxship.p (oe-rel.company,
-                        oe-ord.cust-no,
-                        oe-rel.ship-id:SCREEN-VALUE IN BROWSE {&browse-name},
-                        BUFFER shipto).*/   /* Task 10241303 */
-
-     /* Task 10241303 */     
-    FIND FIRST shipto NO-LOCK
-        WHERE shipto.company EQ oe-rel.company
-        AND shipto.cust-no EQ oe-ord.cust-no
-        AND shipto.ship-id EQ oe-rel.ship-id:SCREEN-VALUE IN BROWSE {&browse-name}
-        USE-INDEX ship-id NO-ERROR.
-
-    IF NOT AVAIL shipto AND oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "T" THEN DO:
-        FOR EACH cust NO-LOCK
-        WHERE cust.company EQ oe-rel.company
-        AND cust.active  EQ "X",
-        EACH shipto
-        WHERE shipto.company EQ cust.company
-        AND shipto.cust-no EQ cust.cust-no
-        AND shipto.ship-id EQ oe-rel.ship-id:SCREEN-VALUE IN BROWSE {&browse-name}:
-        LEAVE.
-        END.
-        IF NOT AVAIL shipto THEN  DO:
-            MESSAGE "Invalid " + TRIM(oe-rel.ship-id:LABEL IN BROWSE {&browse-name}) +
-              ", try help..." VIEW-AS ALERT-BOX.
-            APPLY "entry" TO oe-rel.ship-id IN BROWSE {&browse-name}.
-            RETURN ERROR.
-        END.
-    END.
-
-    IF AVAIL shipto THEN li-ship-no = shipto.ship-no.
-    ELSE
-      IF NOT AVAIL shipto AND LOOKUP(oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name},"B,I,S")  <> 0 THEN DO:
-            FOR EACH cust NO-LOCK
-                WHERE cust.company EQ oe-rel.company
-                AND cust.active  EQ "X",
-                EACH shipto
-                WHERE shipto.company EQ cust.company
-                AND shipto.cust-no EQ cust.cust-no
-                AND shipto.ship-id EQ oe-rel.ship-id:SCREEN-VALUE IN BROWSE {&browse-name}:
-                LEAVE.
-            END.
-        IF AVAIL shipto THEN DO:
-            MESSAGE "Billable Releases must be shipped to Ship To Locations for Customer on Order.." VIEW-AS ALERT-BOX.
-            APPLY "entry" TO oe-rel.ship-id IN BROWSE {&browse-name}.
-            RETURN ERROR.
-        END.
-
-        ELSE DO:
-            MESSAGE "Invalid " + TRIM(oe-rel.ship-id:LABEL IN BROWSE {&browse-name}) +
-              ", try help..." VIEW-AS ALERT-BOX.
-            APPLY "entry" TO oe-rel.ship-id IN BROWSE {&browse-name}.
-            RETURN ERROR.
-        END.     /* Task 10241303 */
-
-      END.
- END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-rel-qty B-table-Win 

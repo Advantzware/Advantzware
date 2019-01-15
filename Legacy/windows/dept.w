@@ -351,7 +351,8 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 3.81 , 49.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             /*INPUT  'adm/objects/p-updsav.r':U ,*/
+             INPUT  'p-updsav.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -376,6 +377,9 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_dept-2. */
        RUN add-link IN adm-broker-hdl ( h_dept , 'Record':U , h_dept-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_dept-2 ).
+
+       /* Links to SmartPanel h_p-updsav. */
+       RUN add-link IN adm-broker-hdl ( h_dept-2 , 'buttons':U , h_p-updsav ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_dept-2 ,
@@ -488,7 +492,7 @@ PROCEDURE local-change-page :
 
     IF il-cur-page = 2 THEN DO:
         RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
-        RUN epCanAccess IN hPgmSecurity ("windows/company.w", "", OUTPUT lResult).
+        RUN epCanAccess IN hPgmSecurity ("windows/dept.w", "", OUTPUT lResult).
         DELETE OBJECT hPgmSecurity.
         IF NOT lResult THEN 
             RUN set-buttons IN h_p-updsav ('disable-all').

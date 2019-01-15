@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
@@ -68,9 +68,10 @@ ASSIGN cocode = g_company
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table prgrms.prgmname ~
-prgrms.prgtitle prgrms.dir_group prgrms.menu_item prgrms.can_run ~
-prgrms.can_create prgrms.can_update prgrms.can_delete prgrms.track_usage ~
-prgrms.popup prgrms.mfgroup 
+prgrms.prgtitle prgrms.dir_group prgrms.menu_item prgrms.menuOrder ~
+prgrms.menuLevel prgrms.mnemonic prgrms.itemParent prgrms.systemType ~
+prgrms.can_run prgrms.can_create prgrms.can_update prgrms.can_delete ~
+prgrms.track_usage prgrms.popup prgrms.mfgroup 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH prgrms WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -83,7 +84,7 @@ prgrms.popup prgrms.mfgroup
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table btnRun browse-order auto_find 
 &Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
@@ -98,6 +99,11 @@ prgrms.popup prgrms.mfgroup
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnRun 
+     IMAGE-UP FILE "Graphics/16x16/media_play.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Run" 
+     SIZE 5 BY 1 TOOLTIP "Run Selected Program".
+
 DEFINE BUTTON Btn_Clear_Find 
      LABEL "&Clear Find" 
      SIZE 13 BY 1
@@ -112,11 +118,11 @@ DEFINE VARIABLE browse-order AS INTEGER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 93 BY 1 NO-UNDO.
+     SIZE 91 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 144 BY 1.43.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 148 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -126,6 +132,11 @@ DEFINE QUERY Browser-Table FOR
       prgrms.prgtitle
       prgrms.dir_group
       prgrms.menu_item
+      prgrms.menuOrder
+      prgrms.menuLevel
+      prgrms.mnemonic
+      prgrms.itemParent
+      prgrms.systemType
       prgrms.can_run
       prgrms.can_create
       prgrms.can_update
@@ -141,8 +152,13 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       prgrms.prgmname FORMAT "X(10)":U
       prgrms.prgtitle FORMAT "X(30)":U
-      prgrms.dir_group FORMAT "X(8)":U
+      prgrms.dir_group FORMAT "X(20)":U
       prgrms.menu_item FORMAT "yes/no":U
+      prgrms.menuOrder FORMAT ">>>9":U
+      prgrms.menuLevel FORMAT ">>9":U
+      prgrms.mnemonic COLUMN-LABEL "Hotkey" FORMAT "x(6)":U
+      prgrms.itemParent FORMAT "x(10)":U
+      prgrms.systemType FORMAT "x(8)":U
       prgrms.can_run COLUMN-LABEL "View ID's" FORMAT "X(30)":U
       prgrms.can_create COLUMN-LABEL "Add ID's" FORMAT "X(30)":U
       prgrms.can_update FORMAT "X(30)":U
@@ -152,8 +168,8 @@ DEFINE BROWSE Browser-Table
       prgrms.mfgroup COLUMN-LABEL "Parent(s)" FORMAT "X(50)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 144 BY 15.71
-         FONT 4.
+    WITH NO-ASSIGN SEPARATORS SIZE 148 BY 16.67
+         FGCOLOR 1 FONT 4.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -161,19 +177,21 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 16.95 COL 6 HELP
+     btnRun AT ROW 17.91 COL 98 HELP
+          "Run Selected Program" WIDGET-ID 2
+     browse-order AT ROW 17.91 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 16.95 COL 108 COLON-ALIGNED HELP
+     auto_find AT ROW 17.91 COL 112 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 16.95 COL 131 HELP
+     Btn_Clear_Find AT ROW 17.91 COL 135 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 16.95 COL 2
-     RECT-4 AT ROW 16.71 COL 1
+          SIZE 4 BY 1 AT ROW 17.91 COL 2
+     RECT-4 AT ROW 17.67 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 0 .
+         BGCOLOR 15 FGCOLOR 0 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -202,8 +220,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 17.14
-         WIDTH              = 144.8.
+         HEIGHT             = 18.1
+         WIDTH              = 148.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -238,9 +256,12 @@ ASSIGN
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
                 "2"
        Browser-Table:COLUMN-RESIZABLE IN FRAME F-Main       = TRUE
-       Browser-Table:COLUMN-MOVABLE IN FRAME F-Main         = TRUE.
+       Browser-Table:COLUMN-MOVABLE IN FRAME F-Main         = TRUE
+       Browser-Table:SEPARATOR-FGCOLOR IN FRAME F-Main      = 1.
 
 /* SETTINGS FOR BUTTON Btn_Clear_Find IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -250,25 +271,33 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "NOSWEAT.prgrms"
+     _TblList          = "ASI.prgrms"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _FldNameList[1]   = NOSWEAT.prgrms.prgmname
-     _FldNameList[2]   = NOSWEAT.prgrms.prgtitle
-     _FldNameList[3]   = NOSWEAT.prgrms.dir_group
-     _FldNameList[4]   = NOSWEAT.prgrms.menu_item
-     _FldNameList[5]   > NOSWEAT.prgrms.can_run
-"prgrms.can_run" "View ID's" "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > NOSWEAT.prgrms.can_create
-"prgrms.can_create" "Add ID's" "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > NOSWEAT.prgrms.can_update
-"prgrms.can_update" ? "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > NOSWEAT.prgrms.can_delete
-"prgrms.can_delete" ? "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   = NOSWEAT.prgrms.track_usage
-     _FldNameList[10]   = NOSWEAT.prgrms.popup
-     _FldNameList[11]   > NOSWEAT.prgrms.mfgroup
-"prgrms.mfgroup" "Parent(s)" "X(50)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[1]   = ASI.prgrms.prgmname
+     _FldNameList[2]   = ASI.prgrms.prgtitle
+     _FldNameList[3]   > ASI.prgrms.dir_group
+"dir_group" ? "X(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   = ASI.prgrms.menu_item
+     _FldNameList[5]   = ASI.prgrms.menuOrder
+     _FldNameList[6]   = ASI.prgrms.menuLevel
+     _FldNameList[7]   > ASI.prgrms.mnemonic
+"mnemonic" "Hotkey" "x(6)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   > ASI.prgrms.itemParent
+"itemParent" ? "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   = ASI.prgrms.systemType
+     _FldNameList[10]   > ASI.prgrms.can_run
+"can_run" "View ID's" "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > ASI.prgrms.can_create
+"can_create" "Add ID's" "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[12]   > ASI.prgrms.can_update
+"can_update" ? "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[13]   > ASI.prgrms.can_delete
+"can_delete" ? "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[14]   = ASI.prgrms.track_usage
+     _FldNameList[15]   = ASI.prgrms.popup
+     _FldNameList[16]   > ASI.prgrms.mfgroup
+"mfgroup" "Parent(s)" "X(50)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -318,6 +347,27 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnRun
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRun B-table-Win
+ON CHOOSE OF btnRun IN FRAME F-Main /* Run */
+DO:
+    IF AVAILABLE prgrms        AND
+       prgrms.menu_item EQ YES AND
+       prgrms.menuOrder NE 0   AND
+       prgrms.menuLevel NE 0   AND
+       prgrms.mnemonic  NE ""  AND
+       INDEX(prgrms.prgmname,".") NE 0 THEN
+    RUN Get_Procedure IN Persistent-Handle(prgrms.prgmname,OUTPUT run-proc,YES).
+    ELSE
+    MESSAGE
+        "Selection not an executable Program"
+    VIEW-AS ALERT-BOX ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */
