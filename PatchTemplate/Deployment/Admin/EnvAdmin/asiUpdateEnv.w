@@ -2499,12 +2499,12 @@ PROCEDURE ipDataFix160860:
 
     FIND FIRST module NO-LOCK WHERE 
         module.module = "audit." AND 
-        module.is-Used = true
+        module.is-Used = false
         NO-ERROR.
     IF AVAIL module THEN DO:
+	RUN ipDeleteAudit.
     END.
         
-    RUN ipDeleteAudit.
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
