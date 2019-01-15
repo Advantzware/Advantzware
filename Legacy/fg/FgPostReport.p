@@ -132,7 +132,8 @@ DEF            VAR lInvFrt        AS LOG     NO-UNDO.
 DEF            VAR dBillAmt       AS DECIMAL NO-UNDO.
 DEF            VAR lEmailBol      AS LOG     NO-UNDO.
 DEF            VAR ll             AS LOG     NO-UNDO.
-
+DEFINE VARIABLE li AS INTEGER NO-UNDO.
+{fg/fgPostProc.i}
 {sys/form/r-top.i}
 
 {sys/inc/ctrtext.i str-tit 112}.
@@ -146,49 +147,6 @@ DEF TEMP-TABLE tt-set
     INDEX i1 part-no.
 
 {oerep/r-loadtg.i NEW}  /*w-ord for loadtag reprint */
-    
-DEF VAR ext-cost        AS DEC     NO-UNDO.
-DEF VAR type            AS ch      FORMAT "X" INITIAL "R".
-DEF VAR type-prt        AS ch      FORMAT "X(11)" INIT "".
-DEF VAR v-fg-qty        LIKE fg-rctd.t-qty.
-DEF VAR v-fg-cost       AS DEC     FORMAT "->,>>>,>>9.99<<".
-DEF VAR v-tot-qty       AS INT     FORMAT "->>>,>>>,>>9".
-DEF VAR v-tot-cost      AS DEC     FORMAT "->>>,>>9.99<<".
-DEF VAR v-grd-tot-qty   AS INT     FORMAT "->>>,>>>,>>9".
-DEF VAR v-grd-tot-cost  AS DEC     FORMAT "->>,>>>,>>9.99<<".                     
-DEF VAR v-grd-tot-value AS DEC     FORMAT "->>,>>>,>>9.99<<".                     
-DEF VAR v-tot-value     AS DEC     FORMAT "->>,>>>,>>9.99".
-DEF VAR v-cum-tot       AS de.                                   
-DEF VAR v-tran-type     AS CHAR    FORMAT "x(1)".      
-DEF VAR v-entrytype     AS CHAR    INITIAL "REC ,TRAN,ADJ ,SHIP,RET ,INIT".
-DEF VAR v-on            LIKE eb.num-up.
-DEF VAR v-qty-pallet    AS DECIMAL FORMAT "->>,>>>,>>9" NO-UNDO.
-DEF VAR v-whse          LIKE fg-rctd.loc.            
-DEF VAR v-one           AS INTEGER FORMAT "->>,>>9" INIT 1.
-DEF VAR v-ftime         AS LOGICAL INIT NO.
-DEF VAR v-dscr          LIKE account.dscr.
-DEF VAR v-disp-actnum   LIKE account.actnum.
-DEF VAR v-disp-amt      AS DEC     FORMAT ">>,>>>,>>9.99cr".
-DEF VAR v-hdr           AS CHAR    FORMAT "x(12)".
-DEF VAR v-postlst       AS cha     NO-UNDO.
-DEF VAR ll-wip          AS LOG     NO-UNDO.
-DEF VAR li              AS INT     NO-UNDO.
-DEF VAR li-loop         AS INT     NO-UNDO.
-DEF VAR v-time          AS CHAR    FORMAT "X(5)" NO-UNDO.
-
-DEF VAR v-itm-lbl       AS CHAR    FORMAT "x(15)" NO-UNDO.
-DEF VAR v-itm-dsh       AS CHAR    FORMAT "x(15)" NO-UNDO.
-DEF VAR v-desc-lbl      AS CHAR    FORMAT "x(30)" NO-UNDO.
-DEF VAR v-Po-lbl        AS CHAR    FORMAT "x(30)" NO-UNDO.
-DEF VAR v-vend-lbl      AS CHAR    FORMAT "x(30)" NO-UNDO.
-DEF VAR v-desc-dsh      AS CHAR    FORMAT "x(30)" NO-UNDO.
-DEF VAR v-Po-dsh        AS CHAR    FORMAT "x(30)" NO-UNDO.
-DEF VAR v-vend-dsh      AS CHAR    FORMAT "x(30)" NO-UNDO.
-DEF VAR v-uom-lbl       AS CHAR    FORMAT "x(10)" NO-UNDO.
-DEF VAR v-uom-dsh       AS CHAR    FORMAT "x(10)" NO-UNDO.
-DEF VAR v-cstprt        AS CHAR    FORMAT "x(15)" NO-UNDO.
-DEF VAR v-pr-tots2      LIKE v-pr-tots NO-UNDO.
-
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -755,97 +713,6 @@ PROCEDURE build-tables:
 
 END PROCEDURE.
 
-PROCEDURE calc-partial:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-
-    /*find first item finished goods based on the item number*/
-    FIND FIRST itemfg
-        WHERE itemfg.company EQ cocode
-        AND itemfg.i-no    EQ w-fg-rctd.i-no
-        USE-INDEX i-no NO-LOCK NO-ERROR.
-
-    IF AVAIL itemfg THEN 
-    DO:
-        FIND FIRST uom
-            WHERE uom.uom  EQ itemfg.sell-uom
-            AND uom.mult NE 0
-            NO-LOCK NO-ERROR.
-
-        IF itemfg.sell-uom BEGINS "L" THEN
-            v-fg-value = 0.
-
-        ELSE
-            IF itemfg.sell-uom EQ "CS" THEN
-                v-fg-value = 0.
-
-            ELSE
-                IF AVAIL uom THEN
-                    v-fg-value = itemfg.sell-price * w-fg-rctd.partial / uom.mult.
-
-                ELSE
-                    v-fg-value = itemfg.sell-price * w-fg-rctd.partial / 1000.
-
-        IF w-fg-rctd.rita-code EQ "R" THEN 
-        DO:
-            IF v-msf[1] GT w-fg-rctd.partial * itemfg.t-sqft THEN
-                v-msf[2] = v-msf[2] + (v-msf[1] - (w-fg-rctd.partial * itemfg.t-sqft)).
-
-            v-msf[1] = w-fg-rctd.partial * itemfg.t-sqft.
-        END.
-    END. /* avail */
-
-
-
-END PROCEDURE.
-
-PROCEDURE calc-total:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-
-    /*find first item finished goods based on the item number*/
-    FIND FIRST itemfg
-        WHERE itemfg.company EQ cocode
-        AND itemfg.i-no    EQ w-fg-rctd.i-no
-        USE-INDEX i-no NO-LOCK NO-ERROR.
-
-    IF AVAIL itemfg THEN 
-    DO:
-        FIND FIRST uom
-            WHERE uom.uom  EQ itemfg.sell-uom
-            AND uom.mult NE 0
-            NO-LOCK NO-ERROR.
-
-        IF itemfg.sell-uom BEGINS "L" THEN
-            v-fg-value = itemfg.sell-price * IF w-fg-rctd.t-qty LT 0 THEN -1 ELSE 1.
-
-        ELSE
-            IF itemfg.sell-uom EQ "CS" THEN
-                v-fg-value = itemfg.sell-price * w-fg-rctd.cases.
-
-            ELSE
-                IF AVAIL uom THEN
-                    v-fg-value = itemfg.sell-price * ((w-fg-rctd.cases * w-fg-rctd.qty-case) / uom.mult).
-
-                ELSE
-                    v-fg-value = itemfg.sell-price * ((w-fg-rctd.cases * w-fg-rctd.qty-case) / 1000).
-
-        IF w-fg-rctd.rita-code EQ "R" THEN 
-        DO:
-            IF v-msf[1] GT w-fg-rctd.t-qty * itemfg.t-sqft THEN
-                v-msf[2] = v-msf[2] + (v-msf[1] - ((w-fg-rctd.cases * w-fg-rctd.qty-case) * itemfg.t-sqft)).
-
-            v-msf[1] = (w-fg-rctd.cases * w-fg-rctd.qty-case) * itemfg.t-sqft.
-        END.
-    END. /* avail itemfg */
-
-
-END PROCEDURE.
-
 PROCEDURE createComponentList:
     /*------------------------------------------------------------------------------
      Purpose:
@@ -874,55 +741,6 @@ PROCEDURE createComponentList:
         END.
 
     END.
-
-
-END PROCEDURE.
-
-PROCEDURE orig:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-
-    /*find first item finished goods based on the item number*/
-    FIND FIRST itemfg
-        WHERE itemfg.company EQ cocode
-        AND itemfg.i-no    EQ w-fg-rctd.i-no
-        USE-INDEX i-no NO-LOCK NO-ERROR.
-
-    IF AVAIL itemfg THEN 
-    DO:
-        FIND FIRST uom
-            WHERE uom.uom  EQ itemfg.sell-uom
-            AND uom.mult NE 0
-            NO-LOCK NO-ERROR.
-
-        IF itemfg.sell-uom BEGINS "L" THEN
-            v-fg-value = itemfg.sell-price * IF w-fg-rctd.t-qty LT 0 THEN -1 ELSE 1.
-
-        ELSE
-            IF itemfg.sell-uom EQ "CS" THEN
-                v-fg-value = itemfg.sell-price * w-fg-rctd.cases.
-
-            ELSE
-                IF AVAIL uom THEN
-                    v-fg-value = itemfg.sell-price * w-fg-rctd.t-qty / uom.mult.
-
-                ELSE
-                    v-fg-value = itemfg.sell-price * w-fg-rctd.t-qty / 1000.
-
-        IF w-fg-rctd.rita-code EQ "R" THEN 
-        DO:
-            IF v-msf[1] GT w-fg-rctd.t-qty * itemfg.t-sqft THEN
-                v-msf[2] = v-msf[2] + (v-msf[1] - (w-fg-rctd.t-qty * itemfg.t-sqft)).
-
-            v-msf[1] = w-fg-rctd.t-qty * itemfg.t-sqft.
-        END.
-    END. /* avail itemfg */
-
-    ASSIGN
-        v-msf[1] = v-msf[1] / 1000
-        v-msf[2] = v-msf[2] / 1000.
 
 
 END PROCEDURE.
