@@ -7126,7 +7126,8 @@ PROCEDURE set-auto-add-item :
   DEF VAR lvr-eb AS ROWID NO-UNDO.
   DEF BUFFER bf-est FOR est.
   DEF VAR l-est-type AS INT NO-UNDO.
-
+  DEFINE VARIABLE phandle AS WIDGET-HANDLE NO-UNDO.
+  DEFINE VARIABLE char-hdl AS cha NO-UNDO. 
   
   GET FIRST {&browse-name}.
   IF AVAIL eb THEN DO:
@@ -7139,6 +7140,18 @@ PROCEDURE set-auto-add-item :
 
   IF NOT AVAIL xest THEN
       RETURN.
+  
+  IF v-est-fg1 EQ "Manual" THEN DO:
+      IF eb.stock-no EQ "" THEN do:
+          RUN get-link-handle IN adm-broker-hdl
+              (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
+          phandle = WIDGET-HANDLE(char-hdl).
+          RUN new-state IN phandle ('update-begin':U).
+          APPLY "entry" TO eb.stock-no IN BROWSE {&browse-name} .
+          RETURN .
+      END.
+  END.
+
   IF xest.est-type EQ 2 OR xest.est-type EQ 6 THEN DO:
     lv-num-created = lv-num-created + 1.    
     RUN auto-create-item (INPUT lv-i-no).    
