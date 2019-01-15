@@ -19,12 +19,15 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE VARIABLE hMainMenuHandle     AS HANDLE  NO-UNDO.
-DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cModule             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
 /* cue card variables */
-DEFINE VARIABLE iCueOrder           AS INTEGER NO-UNDO.
-DEFINE VARIABLE lNext               AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lCueCardActive      AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lNext               AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 
 {system/ttSysCtrlUsage.i}
 
@@ -190,6 +193,76 @@ FIND FIRST users NO-LOCK
 
 /* **********************  Internal Procedures  *********************** */
 
+&IF DEFINED(EXCLUDE-spCreateAuditDtl) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCreateAuditDtl Procedure
+PROCEDURE spCreateAuditDtl:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiAuditID          AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAuditField       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiAuditExtent      AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAuditBeforeValue AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAuditAfterValue  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplAuditIdxField    AS LOGICAL   NO-UNDO.
+    
+    CREATE AuditDtl.
+    ASSIGN  
+        AuditDtl.AuditID          = ipiAuditID
+        AuditDtl.AuditField       = ipcAuditField
+        AuditDtl.AuditExtent      = ipiAuditExtent
+        AuditDtl.AuditBeforeValue = ipcAuditBeforeValue
+        AuditDtl.AuditAfterValue  = ipcAuditAfterValue
+        AuditDtl.AuditIdxField    = iplAuditIdxField
+        . 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spCreateAuditHdr) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCreateAuditHdr Procedure
+PROCEDURE spCreateAuditHdr:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcAuditType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAuditDB    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAuditTable AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAuditKey   AS CHARACTER NO-UNDO.
+    
+    DEFINE OUTPUT PARAMETER opiAuditID    AS INTEGER   NO-UNDO. 
+
+    CREATE AuditHdr.  
+    ASSIGN  
+        AuditHdr.AuditID       = NEXT-VALUE(Audit_Seq,Audit) 
+        AuditHdr.AuditDateTime = NOW 
+        AuditHdr.AuditType     = ipcAuditType
+        AuditHdr.AuditDB       = ipcAuditDB
+        AuditHdr.AuditTable    = ipcAuditTable
+        AuditHdr.AuditUser     = USERID("ASI") 
+        AuditHdr.AuditKey      = ipcAuditKey 
+        opiAuditID             = AuditHdr.AuditID 
+        . 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-spCreateSysCtrlUsage) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCreateSysCtrlUsage Procedure 
@@ -310,6 +383,114 @@ END PROCEDURE.
 &ENDIF
 
 
+&IF DEFINED(EXCLUDE-spGetTaskFilter) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetTaskFilter Procedure
+PROCEDURE spGetTaskFilter:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcModule    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcProgramID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcUserID    AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        opcModule    = cModule
+        opcProgramID = cProgramID
+        opcUserID    = cUserID
+        .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spSendEmail) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSendEmail Procedure
+PROCEDURE spSendEmail:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcSubject    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBody       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAttachment AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRecipients AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cHost            AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cLogin           AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cMail            AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cPassword        AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cPort            AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE idx              AS INTEGER    NO-UNDO.
+    DEFINE VARIABLE objOutlook       AS COM-HANDLE NO-UNDO.
+    DEFINE VARIABLE objOutlookAttach AS COM-HANDLE NO-UNDO.
+    DEFINE VARIABLE objOutlookMsg    AS COM-HANDLE NO-UNDO.
+    DEFINE VARIABLE objOutlookRecip  AS COM-HANDLE NO-UNDO.
+    
+    ASSIGN
+        FILE-INFO:FILE-NAME = SEARCH("CMail.exe")
+        cMail               = FILE-INFO:FULL-PATHNAME
+        FILE-INFO:FILE-NAME = ipcAttachment
+        ipcAttachment       = FILE-INFO:FULL-PATHNAME
+        ipcRecipients       = TRIM(REPLACE(ipcRecipients,";",","))
+        .
+    IF ipcAttachment EQ ?  THEN RETURN.
+    IF ipcRecipients EQ "" THEN RETURN.
+    
+    IF TRUE THEN DO:
+        ASSIGN
+            cHost     = "smtp.office365.com"
+            cLogin    = "wade.kaldawi@advantzware.com"
+            cPassword = "Chester1!"
+            cPort     = "587"
+            cMail     = cMail + " -host:"
+                      + cLogin + ":" + cPassword
+                      + "@" + cHost + ":" + cPort
+                      + " -starttls"
+                      + " -a:" + ipcAttachment
+                      + " ~"-subject:" + ipcSubject + "~""
+                      + " ~"-body:" + ipcBody + "~""
+                      + " -from:" + cLogin
+                      .
+        DO idx = 1 TO NUM-ENTRIES(ipcRecipients):
+            cMail = cMail + " -to:" + ENTRY(idx,ipcRecipients).
+        END. /* do idx */
+        OS-COMMAND NO-WAIT VALUE(cMail).
+    END. /* if */
+    ELSE DO:
+        CREATE "Outlook.Application" objOutlook.
+        objOutlookMsg = objOutlook:CreateItem(0).
+        DO idx = 1 TO NUM-ENTRIES(ipcRecipients):
+            objOutlookRecip = objOutlookMsg:Recipients:Add(ENTRY(idx,ipcRecipients)).
+        END. /* do idx */
+        objOutlookRecip:Type  = 1.
+        objOutlookMsg:Subject = ipcSubject.
+        objOutlookMsg:Body    = ipcBody.    
+        objOutlookMsg:Attachments:Add(ipcAttachment).
+        objOutlookRecip:Resolve.
+        objOutlookMsg:Send.
+    /*    objOutlook:Quit().*/
+        RELEASE OBJECT objOutlook.
+        RELEASE OBJECT objOutlookMsg.
+        RELEASE OBJECT objOutlookRecip.
+    END. /* else */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-spSetDontShowAgain) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetDontShowAgain Procedure
@@ -320,11 +501,19 @@ PROCEDURE spSetDontShowAgain:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
-    CREATE xCueCard.
-    ASSIGN
-        xCueCard.user_id   = USERID("ASI")
-        xCueCard.cueTextID = cueCardText.cueTextID
-        .
+    IF cueCard.cueType EQ "Message" THEN DO TRANSACTION:
+        FIND CURRENT cueCardText EXCLUSIVE-LOCK.
+        DELETE cueCardText.
+    END. /* if message */
+    ELSE DO TRANSACTION:
+        CREATE xCueCard.
+        ASSIGN
+            xCueCard.user_id   = USERID("ASI")
+            xCueCard.cueType   = cueCard.cueType
+            xCueCard.cueTextID = cueCardText.cueTextID
+            .
+        RELEASE xCueCard.
+    END. /* else */
     RUN spNextCue (iphWidget).
 
 END PROCEDURE.
@@ -346,18 +535,24 @@ PROCEDURE spSetDismiss:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
+    DEFINE BUFFER bCueCard     FOR cueCard.
     DEFINE BUFFER bCueCardText FOR cueCardText.
     
     FOR EACH bCueCardText NO-LOCK
-        WHERE bCueCardText.cueID EQ cueCardText.cueID
+        WHERE bCueCardText.cueID EQ cueCardText.cueID,
+        FIRST bCueCard NO-LOCK
+        WHERE bCueCard.cueType   EQ cueCard.cueType
+          AND bCueCard.cueID     EQ cueCardText.cueID
         :
         IF CAN-FIND(FIRST xCueCard
                     WHERE xCueCard.user_id   EQ USERID("ASI")
+                      AND xCueCard.cueType   EQ bCueCard.cueType
                       AND xCueCard.cueTextID EQ bCueCardText.cueTextID) THEN
         NEXT.
         CREATE xCueCard.
         ASSIGN
             xCueCard.user_id   = USERID("ASI")
+            xCueCard.cueType   = bCueCard.cueType
             xCueCard.cueTextID = bCueCardText.cueTextID
             .
     END. /* each bcuecardtext */
@@ -431,6 +626,7 @@ PROCEDURE spRunCueCard :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCueType   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcPrgmName  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iphContainer AS HANDLE    NO-UNDO.
     DEFINE INPUT PARAMETER iphFrame     AS HANDLE    NO-UNDO.
@@ -450,11 +646,14 @@ PROCEDURE spRunCueCard :
     DEFINE VARIABLE dRow                AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dTitle              AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE iPosition           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE idx                 AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cOrientation        AS CHARACTER NO-UNDO INITIAL ~
-"default_LeftUp,default_Up,default_RightUp,default_Right,default_RightDown,~
-default_Down,default_LeftDown,default_Left,default_SidebarCollapse,default_SidebarExpand".
+"default_LeftUp,default_Up,default_RightUp,default_Right,default_RightDown,default_Down,~
+default_LeftDown,default_Left,information,default_SidebarCollapse,default_SidebarExpand".
     
     IF iphFrame:SENSITIVE EQ NO THEN RETURN.
+    
+    IF lCueCardActive THEN RETURN.
     
     cCueCardPool = "CueCardPool" + STRING(TIME,"99999").
     DELETE WIDGET-POOL cCueCardPool NO-ERROR.
@@ -463,9 +662,11 @@ default_Down,default_LeftDown,default_Left,default_SidebarCollapse,default_Sideb
     /* check for active cue card */
     IF CAN-FIND(FIRST cueCard
                 WHERE cueCard.cuePrgmName EQ ipcPrgmName
+                  AND cueCard.cueType     EQ ipcCueType
                   AND cueCard.isActive    EQ YES) THEN 
     FOR EACH cueCard NO-LOCK
         WHERE cueCard.cuePrgmName EQ ipcPrgmName
+          AND cueCard.cueType     EQ ipcCueType
           AND cueCard.isActive    EQ YES
         :
         ASSIGN
@@ -475,13 +676,20 @@ default_Down,default_LeftDown,default_Left,default_SidebarCollapse,default_Sideb
             .
         /* check to be sure there are active cue card texts */
         IF CAN-FIND(FIRST cueCardText
-                    WHERE cueCardText.cueID    EQ cueCard.cueID
-                      AND cueCardText.isActive EQ YES) THEN
+                    WHERE cueCardText.cueID       EQ cueCard.cueID
+                      AND cueCardText.cueType     EQ cueCard.cueType
+                      AND cueCardText.isActive    EQ YES
+                      AND (cueCardText.createdFor EQ USERID("ASI")
+                       OR  cueCardText.createdFor EQ "")) THEN
         DO WHILE TRUE:
+            /* done, no more cue card texts */
             IF iCueOrder EQ ? THEN LEAVE.
             FIND FIRST cueCardText NO-LOCK
-                 WHERE cueCardText.cueID    EQ cueCard.cueID
-                   AND cueCardText.cueOrder EQ iCueOrder
+                 WHERE cueCardText.cueID       EQ cueCard.cueID
+                   AND cueCardText.cueType     EQ cueCard.cueType
+                   AND cueCardText.cueOrder    EQ iCueOrder
+                   AND (cueCardText.createdFor EQ USERID("ASI")
+                    OR  cueCardText.createdFor EQ "")
                  NO-ERROR.
             /* if can't find, done, no more cue card texts */
             IF NOT AVAILABLE cueCardText THEN LEAVE.
@@ -491,6 +699,7 @@ default_Down,default_LeftDown,default_Left,default_SidebarCollapse,default_Sideb
               (iplActive EQ YES AND 
                CAN-FIND(FIRST xCueCard
                         WHERE xCueCard.user_id   EQ USERID("ASI")
+                          AND xCueCard.cueType   EQ cueCardText.cueType
                           AND xCueCard.cueTextID EQ cueCardText.cueTextID)) THEN DO:
                 IF lNext THEN
                 RUN spNextCue (hMainMenuHandle).
@@ -498,7 +707,17 @@ default_Down,default_LeftDown,default_Left,default_SidebarCollapse,default_Sideb
                 RUN spPrevCue (hMainMenuHandle).
                 NEXT.
             END.
-            /* calculate the cue card screen position */
+            /* check security level of user vs cue card security */
+            IF sfUserSecurityLevel() LT cueCard.securityLevel THEN
+            DO TRANSACTION:
+                CREATE xCueCard.
+                ASSIGN
+                    xCueCard.user_id   = USERID("ASI")
+                    xCueCard.cueType   = cueCard.cueType
+                    xCueCard.cueTextID = cueCardText.cueTextID
+                    .
+                NEXT.
+            END. /* if securitylevel */
             /* calculate the cue card screen position */
             CASE cueCardText.cuePosition:
                 /* arrows: 1=absolute */
@@ -517,13 +736,13 @@ default_Down,default_LeftDown,default_Left,default_SidebarCollapse,default_Sideb
                 WHEN 3 THEN 
                 ASSIGN 
                     dCol = iphFrame:WIDTH  - cueCardText.frameCol
-                    dRow = iphFrame:HEIGHT - cueCardText.frameRow
+                    dRow = iphFrame:HEIGHT - cueCardText.frameRow - dTitle
                     .
                 /* arrows: 4=height */
                 WHEN 4 THEN  
                 ASSIGN 
                     dCol = cueCardText.frameCol
-                    dRow = iphFrame:HEIGHT - cueCardText.frameRow
+                    dRow = iphFrame:HEIGHT - cueCardText.frameRow - dTitle
                     .
             END CASE.
             IF dRow LT 1 THEN dRow = 1.
@@ -615,7 +834,7 @@ default_Down,default_LeftDown,default_Left,default_SidebarCollapse,default_Sideb
                 ON CHOOSE
                   PERSISTENT RUN spPrevCue IN THIS-PROCEDURE (hMainMenuHandle).
               END TRIGGERS.
-            hCueCardPrev:LOAD-IMAGE("Graphics\24x24\" + ENTRY(9,cOrientation) + ".gif").
+            hCueCardPrev:LOAD-IMAGE("Graphics\24x24\" + ENTRY(10,cOrientation) + ".gif").
             hCueCardPrev:MOVE-TO-TOP().
             /* NEXT BUTTON */
             CREATE BUTTON hCueCardNext IN WIDGET-POOL cCueCardPool
@@ -634,7 +853,7 @@ default_Down,default_LeftDown,default_Left,default_SidebarCollapse,default_Sideb
                 ON CHOOSE
                   PERSISTENT RUN spNextCue IN THIS-PROCEDURE (hMainMenuHandle).
               END TRIGGERS.
-            hCueCardNext:LOAD-IMAGE("Graphics\24x24\" + ENTRY(10,cOrientation) + ".gif").
+            hCueCardNext:LOAD-IMAGE("Graphics\24x24\" + ENTRY(11,cOrientation) + ".gif").
             hCueCardNext:MOVE-TO-TOP().
             /* EDITOR */
             CREATE EDITOR hCueCardText IN WIDGET-POOL cCueCardPool
@@ -679,7 +898,7 @@ default_Down,default_LeftDown,default_Left,default_SidebarCollapse,default_Sideb
             hDontShowAgain:MOVE-TO-TOP().
             ASSIGN
                 hDontShowAgain:SENSITIVE = iplActive
-                hDontShowAgain:HIDDEN    = NOT cueCard.allowDontShowAgain
+                hDontShowAgain:HIDDEN    = NOT cueCard.enableDontShowAgain
                 .
             /* TOGGLE BOX DISMISS */
             CREATE TOGGLE-BOX hDismiss IN WIDGET-POOL cCueCardPool
@@ -702,7 +921,7 @@ default_Down,default_LeftDown,default_Left,default_SidebarCollapse,default_Sideb
             hDismiss:MOVE-TO-TOP().
             ASSIGN 
                 hDismiss:SENSITIVE = iplActive
-                hDismiss:HIDDEN    = NOT cueCard.allowDismiss
+                hDismiss:HIDDEN    = NOT cueCard.enableDismiss
                 lCueCardActive     = YES
                 .            
             WAIT-FOR "U1":U OF hMainMenuHandle.
@@ -718,6 +937,33 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-spSetTaskFilter) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetTaskFilter Procedure
+PROCEDURE spSetTaskFilter:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcModule    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcProgramID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID    AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        cModule    = ipcModule
+        cProgramID = ipcProgramID
+        cUserID    = ipcUserID
+        .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 /* ************************  Function Implementations ***************** */
 

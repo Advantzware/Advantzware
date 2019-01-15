@@ -154,10 +154,11 @@ FOR EACH inv-head OF {&TABLENAME}
           ROUND({&TABLENAME}.t-price * (1 - ({&TABLENAME}.disc / 100)),2).
 
   IF {&TABLENAME}.ord-no NE 0 THEN
-    RUN oe/invlcost.p (ROWID({&TABLENAME}),
+    RUN oe/GetCostInvl.p (ROWID({&TABLENAME}),
                        OUTPUT v-cost[1], OUTPUT v-cost[2],
                        OUTPUT v-cost[3], OUTPUT v-cost[4],
-                       OUTPUT {&TABLENAME}.cost, OUTPUT {&TABLENAME}.t-cost).
+                       OUTPUT {&TABLENAME}.cost, OUTPUT {&TABLENAME}.spare-char-2, 
+                       OUTPUT {&TABLENAME}.t-cost, OUTPUT {&TABLENAME}.spare-char-1).
 
   DO i = 1 TO EXTENT({&TABLENAME}.sman):    /** Calculate Commission Amount **/
     RUN custom/combasis.p (cocode, {&TABLENAME}.sman[i], cust.type, itemfg.procat, 0,

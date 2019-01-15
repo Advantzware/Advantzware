@@ -49,31 +49,31 @@ CREATE WIDGET-POOL.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svCompany svLocation svCustList btnCustList ~
 svAllCustNo svStartCustNo svEndCustNo svAllOrderNo svStartOrderNo ~
-svEndOrderNo svAllItemNo svStartItemNo svEndItemNo svAllLoc svStartLoc ~
-svEndLoc svAllSalesRep svStartSalesRep svEndSalesRep svStartReleaseDate ~
-btnCalendar-1 svStartReleaseDateOption svEndReleaseDate btnCalendar-2 ~
-svEndReleaseDateOption svAllCarrier svStartCarrier svEndCarrier ~
-svAllProdCategory svStartProdCategory svEndProdCategory svAllShipFrom ~
-svStartShipFrom svEndShipFrom svSubRpt_PrintSpecNotes svStartSpecNote ~
-svEndSpecNote svAllCSR svStartCSR svEndCSR svPrintOHQty svSort ~
-svSubTotalByCustomerNo svOnlyNegativeAvailable svOnlyNegOHRelQty ~
-svSubRpt_PrintScheduleStats svScheduled svLate svPastLastShipDate svActual ~
-svBackorder svBillOfLading svInvoiceUnposted svCompleted 
-&Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svCustList ~
-svAllCustNo svStartCustNo svEndCustNo svAllOrderNo svStartOrderNo ~
-svEndOrderNo svAllItemNo svStartItemNo svEndItemNo svAllLoc svStartLoc ~
-svEndLoc svAllSalesRep svStartSalesRep svEndSalesRep svStartReleaseDate ~
-svStartReleaseDateOption svEndReleaseDate svEndReleaseDateOption ~
+svEndOrderNo svAllShipFrom svStartShipFrom svEndShipFrom svAllLoc ~
+svStartLoc svEndLoc svAllSalesRep svStartSalesRep svEndSalesRep svAllCSR ~
+svStartCSR svEndCSR svPrintOHQty svAllItemNo svStartItemNo svEndItemNo ~
 svAllCarrier svStartCarrier svEndCarrier svAllProdCategory ~
-svStartProdCategory svEndProdCategory svAllShipFrom svStartShipFrom ~
-svEndShipFrom svSubRpt_PrintSpecNotes svStartSpecNote svEndSpecNote ~
-svAllCSR svStartCSR svEndCSR startSalesRepName endSalesRepName ~
-startCarrierName endCarrierName startCustName endCustName startLocName ~
-endLocName startProdCategoryName endProdCategoryName startItemName ~
-endItemName startCSRName endCSRName svPrintOHQty svSort ~
+svStartProdCategory svEndProdCategory svStartReleaseDate btnCalendar-1 ~
+svStartReleaseDateOption svEndReleaseDate btnCalendar-2 ~
+svEndReleaseDateOption svSubTotalByCustomerNo svOnlyNegativeAvailable ~
+svOnlyNegOHRelQty svSubRpt_PrintScheduleStats svSort svScheduled svLate ~
+svPastLastShipDate svActual svBackorder svBillOfLading svInvoiceUnposted ~
+svCompleted svSubRpt_PrintSpecNotes svStartSpecNote svEndSpecNote 
+&Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svCustList ~
+svAllCustNo svStartCustNo startCustName svEndCustNo endCustName ~
+svAllOrderNo svStartOrderNo svEndOrderNo svAllShipFrom svStartShipFrom ~
+svEndShipFrom svAllLoc svStartLoc startLocName svEndLoc endLocName ~
+svAllSalesRep svStartSalesRep startSalesRepName svEndSalesRep ~
+endSalesRepName svAllCSR svStartCSR startCSRName svEndCSR endCSRName ~
+svPrintOHQty svAllItemNo svStartItemNo startItemName svEndItemNo ~
+endItemName svAllCarrier svStartCarrier startCarrierName svEndCarrier ~
+endCarrierName svAllProdCategory svStartProdCategory startProdCategoryName ~
+svEndProdCategory endProdCategoryName svStartReleaseDate ~
+svStartReleaseDateOption svEndReleaseDate svEndReleaseDateOption ~
 svSubTotalByCustomerNo svOnlyNegativeAvailable svOnlyNegOHRelQty ~
-svSubRpt_PrintScheduleStats svScheduled svLate svPastLastShipDate svActual ~
-svBackorder svBillOfLading svInvoiceUnposted svCompleted 
+svSubRpt_PrintScheduleStats svSort svScheduled svLate svPastLastShipDate ~
+svActual svBackorder svBillOfLading svInvoiceUnposted svCompleted ~
+svSubRpt_PrintSpecNotes svStartSpecNote svEndSpecNote 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -116,11 +116,11 @@ DEFINE VARIABLE svStartReleaseDateOption AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE endCarrierName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 38 BY 1.
+     SIZE 39 BY 1.
 
 DEFINE VARIABLE endCSRName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 35 BY 1.
+     SIZE 37 BY 1.
 
 DEFINE VARIABLE endCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -128,7 +128,7 @@ DEFINE VARIABLE endCustName AS CHARACTER FORMAT "X(30)"
 
 DEFINE VARIABLE endItemName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 28 BY 1.
+     SIZE 27 BY 1.
 
 DEFINE VARIABLE endLocName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -136,7 +136,7 @@ DEFINE VARIABLE endLocName AS CHARACTER FORMAT "X(30)"
 
 DEFINE VARIABLE endProdCategoryName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 35 BY 1.
+     SIZE 32 BY 1.
 
 DEFINE VARIABLE endSalesRepName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -144,11 +144,11 @@ DEFINE VARIABLE endSalesRepName AS CHARACTER FORMAT "X(30)"
 
 DEFINE VARIABLE startCarrierName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 38 BY 1.
+     SIZE 39 BY 1.
 
 DEFINE VARIABLE startCSRName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 35 BY 1.
+     SIZE 37 BY 1.
 
 DEFINE VARIABLE startCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -156,7 +156,7 @@ DEFINE VARIABLE startCustName AS CHARACTER FORMAT "X(30)"
 
 DEFINE VARIABLE startItemName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 28 BY 1.
+     SIZE 27 BY 1.
 
 DEFINE VARIABLE startLocName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -164,7 +164,7 @@ DEFINE VARIABLE startLocName AS CHARACTER FORMAT "X(30)"
 
 DEFINE VARIABLE startProdCategoryName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 35 BY 1.
+     SIZE 32 BY 1.
 
 DEFINE VARIABLE startSalesRepName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -297,7 +297,7 @@ DEFINE VARIABLE svPrintOHQty AS CHARACTER
 "Qty OH < Order Qty", "Qty OH < Order Qty",
 "Qty OH > Order Qty", "Qty OH > Order Qty",
 "All", "All"
-     SIZE 23 BY 2.86 NO-UNDO.
+     SIZE 23 BY 3.33 NO-UNDO.
 
 DEFINE VARIABLE svSort AS CHARACTER INITIAL "Customer No" 
      VIEW-AS RADIO-SET VERTICAL
@@ -309,7 +309,67 @@ DEFINE VARIABLE svSort AS CHARACTER INITIAL "Customer No"
 "Territory", "Territory",
 "Carrier", "Carrier",
 "Credit", "Credit"
-     SIZE 17.4 BY 6.67 NO-UNDO.
+     SIZE 17.4 BY 6.43 NO-UNDO.
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 71 BY 5.
+
+DEFINE RECTANGLE RECT-10
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 33.8 BY 3.81.
+
+DEFINE RECTANGLE RECT-11
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 71 BY 4.
+
+DEFINE RECTANGLE RECT-12
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 35 BY 5.
+
+DEFINE RECTANGLE RECT-13
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 34 BY 6.91.
+
+DEFINE RECTANGLE RECT-14
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 29 BY 5.
+
+DEFINE RECTANGLE RECT-15
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 34 BY 10.71.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 33 BY 4.05.
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 65 BY 4.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 70.8 BY 4.05.
+
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 71 BY 3.76.
+
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 65 BY 4.05.
+
+DEFINE RECTANGLE RECT-7
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 65 BY 4.
+
+DEFINE RECTANGLE RECT-8
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 65 BY 3.76.
+
+DEFINE RECTANGLE RECT-9
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 37 BY 4.05.
 
 DEFINE VARIABLE svActual AS LOGICAL INITIAL yes 
      LABEL "Actual" 
@@ -329,7 +389,7 @@ DEFINE VARIABLE svAllCSR AS LOGICAL INITIAL yes
 DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
      LABEL "All Customers" 
      VIEW-AS TOGGLE-BOX
-     SIZE 16 BY .95 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svAllItemNo AS LOGICAL INITIAL yes 
      LABEL "All" 
@@ -379,7 +439,7 @@ DEFINE VARIABLE svCompleted AS LOGICAL INITIAL no
 DEFINE VARIABLE svCustList AS LOGICAL INITIAL no 
      LABEL "Use Defined Customer List" 
      VIEW-AS TOGGLE-BOX
-     SIZE 29 BY .95 NO-UNDO.
+     SIZE 29 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svInvoiceUnposted AS LOGICAL INITIAL no 
      LABEL "Invoice Unposted" 
@@ -430,146 +490,161 @@ DEFINE VARIABLE svSubTotalByCustomerNo AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 17 COLON-ALIGNED WIDGET-ID 60
-     svLocation AT ROW 1.24 COL 33 COLON-ALIGNED WIDGET-ID 232
-     svCustList AT ROW 2.43 COL 19 WIDGET-ID 48
-     btnCustList AT ROW 2.43 COL 49 WIDGET-ID 46
-     svAllCustNo AT ROW 3.38 COL 19 HELP
+     svCompany AT ROW 1.24 COL 146 COLON-ALIGNED WIDGET-ID 60
+     svLocation AT ROW 1.24 COL 162 COLON-ALIGNED WIDGET-ID 232
+     svCustList AT ROW 2.67 COL 21 WIDGET-ID 48
+     btnCustList AT ROW 2.67 COL 62 WIDGET-ID 46
+     svAllCustNo AT ROW 3.86 COL 21 HELP
           "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 4.33 COL 17 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 5.05 COL 19 COLON-ALIGNED HELP
           "Enter Start Customer" WIDGET-ID 2
-     svEndCustNo AT ROW 5.52 COL 17 COLON-ALIGNED HELP
+     startCustName AT ROW 5.05 COL 35 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     svEndCustNo AT ROW 6.24 COL 19 COLON-ALIGNED HELP
           "Enter End Customer" WIDGET-ID 6
-     svAllOrderNo AT ROW 6.71 COL 19 HELP
+     endCustName AT ROW 6.24 COL 35 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     svAllOrderNo AT ROW 7.91 COL 21 HELP
           "All Orders?" WIDGET-ID 196
-     svStartOrderNo AT ROW 6.71 COL 44 COLON-ALIGNED HELP
+     svStartOrderNo AT ROW 9.1 COL 19 COLON-ALIGNED HELP
           "Enter Start Order" WIDGET-ID 200
-     svEndOrderNo AT ROW 6.71 COL 59 COLON-ALIGNED HELP
+     svEndOrderNo AT ROW 10.29 COL 19 COLON-ALIGNED HELP
           "Enter End Order" WIDGET-ID 198
-     svAllItemNo AT ROW 7.91 COL 2 HELP
-          "All Items?" WIDGET-ID 164
-     svStartItemNo AT ROW 7.91 COL 19 COLON-ALIGNED HELP
-          "Enter Start Item" WIDGET-ID 168
-     svEndItemNo AT ROW 9.1 COL 19 COLON-ALIGNED HELP
-          "Enter End Item" WIDGET-ID 166
-     svAllLoc AT ROW 10.29 COL 19 HELP
-          "All Warehouses?" WIDGET-ID 262
-     svStartLoc AT ROW 11.24 COL 17.2 COLON-ALIGNED HELP
-          "Enter Start Warehouse" WIDGET-ID 270
-     svEndLoc AT ROW 12.43 COL 17 COLON-ALIGNED HELP
-          "Enter End Warehouse" WIDGET-ID 266
-     svAllSalesRep AT ROW 13.62 COL 19 HELP
-          "All Sales Reps?" WIDGET-ID 108
-     svStartSalesRep AT ROW 14.57 COL 17 COLON-ALIGNED HELP
-          "Enter Beginning Sales Rep#" WIDGET-ID 112
-     svEndSalesRep AT ROW 15.76 COL 17 COLON-ALIGNED HELP
-          "Enter Ending Sales Rep" WIDGET-ID 110
-     svStartReleaseDate AT ROW 16.95 COL 17 COLON-ALIGNED HELP
-          "Enter Start Release Date" WIDGET-ID 72
-     btnCalendar-1 AT ROW 16.95 COL 35 WIDGET-ID 76
-     svStartReleaseDateOption AT ROW 16.95 COL 38 COLON-ALIGNED HELP
-          "Select Start Date Option" NO-LABEL WIDGET-ID 74
-     svEndReleaseDate AT ROW 18.14 COL 17 COLON-ALIGNED HELP
-          "Enter End Release Date" WIDGET-ID 68
-     btnCalendar-2 AT ROW 18.14 COL 35 WIDGET-ID 78
-     svEndReleaseDateOption AT ROW 18.14 COL 38 COLON-ALIGNED HELP
-          "Select End Date Option" NO-LABEL WIDGET-ID 70
-     svAllCarrier AT ROW 19.33 COL 2 HELP
-          "All Carriers?" WIDGET-ID 328
-     svStartCarrier AT ROW 19.33 COL 21 COLON-ALIGNED HELP
-          "Enter Start Carrier" WIDGET-ID 332
-     svEndCarrier AT ROW 20.52 COL 21 COLON-ALIGNED HELP
-          "Enter End Carrier" WIDGET-ID 330
-     svAllProdCategory AT ROW 21.71 COL 19 HELP
-          "All Sales Reps?" WIDGET-ID 202
-     svStartProdCategory AT ROW 22.67 COL 17 COLON-ALIGNED HELP
-          "Enter Start Product Category" WIDGET-ID 206
-     svEndProdCategory AT ROW 23.86 COL 17 COLON-ALIGNED HELP
-          "Enter End Product Category" WIDGET-ID 204
-     svAllShipFrom AT ROW 25.05 COL 7 HELP
+     svAllShipFrom AT ROW 7.91 COL 38 HELP
           "All Ship From?" WIDGET-ID 334
-     svStartShipFrom AT ROW 25.05 COL 40 COLON-ALIGNED HELP
+     svStartShipFrom AT ROW 9.33 COL 62 COLON-ALIGNED HELP
           "Enter Start Ship From" WIDGET-ID 338
-     svEndShipFrom AT ROW 25.05 COL 60 COLON-ALIGNED HELP
+     svEndShipFrom AT ROW 10.52 COL 62 COLON-ALIGNED HELP
           "Enter End Ship From" WIDGET-ID 336
-     svSubRpt_PrintSpecNotes AT ROW 26.24 COL 7 HELP
-          "Select to Print Spec Notes" WIDGET-ID 348
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 93.4 BY 30.1.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
-     svStartSpecNote AT ROW 26.24 COL 40 COLON-ALIGNED HELP
-          "Enter Start Spec Note" WIDGET-ID 352
-     svEndSpecNote AT ROW 26.24 COL 60 COLON-ALIGNED HELP
-          "Enter End Spec Note" WIDGET-ID 350
-     svAllCSR AT ROW 27.43 COL 2 HELP
+     svAllLoc AT ROW 12.19 COL 21 HELP
+          "All Warehouses?" WIDGET-ID 262
+     svStartLoc AT ROW 13.38 COL 19 COLON-ALIGNED HELP
+          "Enter Start Warehouse" WIDGET-ID 270
+     startLocName AT ROW 13.38 COL 35 COLON-ALIGNED NO-LABEL WIDGET-ID 258
+     svEndLoc AT ROW 14.57 COL 19 COLON-ALIGNED HELP
+          "Enter End Warehouse" WIDGET-ID 266
+     endLocName AT ROW 14.57 COL 35 COLON-ALIGNED NO-LABEL WIDGET-ID 254
+     svAllSalesRep AT ROW 16.48 COL 21 HELP
+          "All Sales Reps?" WIDGET-ID 108
+     svStartSalesRep AT ROW 17.43 COL 19 COLON-ALIGNED HELP
+          "Enter Beginning Sales Rep#" WIDGET-ID 112
+     startSalesRepName AT ROW 17.43 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     svEndSalesRep AT ROW 18.62 COL 19 COLON-ALIGNED HELP
+          "Enter Ending Sales Rep" WIDGET-ID 110
+     endSalesRepName AT ROW 18.62 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+     svAllCSR AT ROW 20.52 COL 21 HELP
           "All Orders?"
-     svStartCSR AT ROW 27.43 COL 19 COLON-ALIGNED HELP
+     svStartCSR AT ROW 21.71 COL 19 COLON-ALIGNED HELP
           "Enter Start CSR"
-     svEndCSR AT ROW 28.62 COL 19 COLON-ALIGNED HELP
+     startCSRName AT ROW 21.71 COL 33 COLON-ALIGNED NO-LABEL
+     svEndCSR AT ROW 22.91 COL 19 COLON-ALIGNED HELP
           "Enter End CSR"
-     startSalesRepName AT ROW 14.57 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 106
-     endSalesRepName AT ROW 15.76 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 104
-     startCarrierName AT ROW 19.33 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 326
-     endCarrierName AT ROW 20.52 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 324
-     startCustName AT ROW 4.33 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     endCustName AT ROW 5.52 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     startLocName AT ROW 11.24 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 258
-     endLocName AT ROW 12.43 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 254
-     startProdCategoryName AT ROW 22.67 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 210
-     endProdCategoryName AT ROW 23.86 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 208
-     startItemName AT ROW 7.91 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 172
-     endItemName AT ROW 9.1 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 170
-     startCSRName AT ROW 27.43 COL 33 COLON-ALIGNED NO-LABEL
-     endCSRName AT ROW 28.62 COL 33 COLON-ALIGNED NO-LABEL
-     svPrintOHQty AT ROW 2.43 COL 71 HELP
+     endCSRName AT ROW 22.91 COL 33 COLON-ALIGNED NO-LABEL
+     svPrintOHQty AT ROW 3.86 COL 81 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 340
-     svSort AT ROW 6.95 COL 71 HELP
-          "Select Sort Option" NO-LABEL WIDGET-ID 84
-     svSubTotalByCustomerNo AT ROW 14.33 COL 71 HELP
-          "Select to Show Sub Total By Customer No" WIDGET-ID 88
-     svOnlyNegativeAvailable AT ROW 15.52 COL 71 HELP
-          "Select to Show Only Negative Available" WIDGET-ID 162
-     svOnlyNegOHRelQty AT ROW 16.71 COL 71 HELP
-          "Select to Show Only Neg OH RelQty" WIDGET-ID 156
-     svSubRpt_PrintScheduleStats AT ROW 17.91 COL 71 HELP
-          "Select to Show Print Schedule Stats" WIDGET-ID 346
-     svScheduled AT ROW 20.76 COL 71 HELP
-          "Select to Show Scheduled" WIDGET-ID 356
-     svLate AT ROW 21.95 COL 71 HELP
-          "Select to Show Late" WIDGET-ID 358
-     svPastLastShipDate AT ROW 23.14 COL 71 HELP
-          "Select to Show Past Last Ship Date" WIDGET-ID 360
-     svActual AT ROW 24.33 COL 71 HELP
-          "Select to Show Actual" WIDGET-ID 362
-     svBackorder AT ROW 25.52 COL 71 HELP
-          "Select to Show Backorder" WIDGET-ID 364
-     svBillOfLading AT ROW 26.71 COL 71 HELP
-          "Select to Show Bil lOf Lading" WIDGET-ID 366
-     svInvoiceUnposted AT ROW 27.91 COL 71 HELP
-          "Select to Show Invoice Unposted" WIDGET-ID 368
-     svCompleted AT ROW 29.1 COL 71 HELP
-          "Select to Show Completed" WIDGET-ID 370
-     "Sort:" VIEW-AS TEXT
-          SIZE 5 BY 1 AT ROW 5.76 COL 71 WIDGET-ID 90
-     "Print OH Qty:" VIEW-AS TEXT
-          SIZE 13 BY 1 AT ROW 1.24 COL 71 WIDGET-ID 136
+     svAllItemNo AT ROW 7.91 COL 90 HELP
+          "All Items?" WIDGET-ID 164
+     svStartItemNo AT ROW 9.1 COL 88 COLON-ALIGNED HELP
+          "Enter Start Item" WIDGET-ID 168
+     startItemName AT ROW 9.1 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 172
+     svEndItemNo AT ROW 10.29 COL 88 COLON-ALIGNED HELP
+          "Enter End Item" WIDGET-ID 166
+     endItemName AT ROW 10.29 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 170
+     svAllCarrier AT ROW 12.19 COL 90 HELP
+          "All Carriers?" WIDGET-ID 328
+     svStartCarrier AT ROW 13.38 COL 88 COLON-ALIGNED HELP
+          "Enter Start Carrier" WIDGET-ID 332
+     startCarrierName AT ROW 13.38 COL 97 COLON-ALIGNED NO-LABEL WIDGET-ID 326
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 93.4 BY 30.1.
+         SIZE 174 BY 24.57.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     svEndCarrier AT ROW 14.57 COL 88 COLON-ALIGNED HELP
+          "Enter End Carrier" WIDGET-ID 330
+     endCarrierName AT ROW 14.57 COL 97 COLON-ALIGNED NO-LABEL WIDGET-ID 324
+     svAllProdCategory AT ROW 16.48 COL 90 HELP
+          "All Sales Reps?" WIDGET-ID 202
+     svStartProdCategory AT ROW 17.43 COL 88 COLON-ALIGNED HELP
+          "Enter Start Product Category" WIDGET-ID 206
+     startProdCategoryName AT ROW 17.43 COL 104 COLON-ALIGNED NO-LABEL WIDGET-ID 210
+     svEndProdCategory AT ROW 18.62 COL 88 COLON-ALIGNED HELP
+          "Enter End Product Category" WIDGET-ID 204
+     endProdCategoryName AT ROW 18.62 COL 104 COLON-ALIGNED NO-LABEL WIDGET-ID 208
+     svStartReleaseDate AT ROW 21.71 COL 88 COLON-ALIGNED HELP
+          "Enter Start Release Date" WIDGET-ID 72
+     btnCalendar-1 AT ROW 21.71 COL 106 WIDGET-ID 76
+     svStartReleaseDateOption AT ROW 21.71 COL 109 COLON-ALIGNED HELP
+          "Select Start Date Option" NO-LABEL WIDGET-ID 74
+     svEndReleaseDate AT ROW 22.91 COL 88 COLON-ALIGNED HELP
+          "Enter End Release Date" WIDGET-ID 68
+     btnCalendar-2 AT ROW 22.91 COL 106 WIDGET-ID 78
+     svEndReleaseDateOption AT ROW 22.91 COL 109 COLON-ALIGNED HELP
+          "Select End Date Option" NO-LABEL WIDGET-ID 70
+     svSubTotalByCustomerNo AT ROW 2.67 COL 113 HELP
+          "Select to Show Sub Total By Customer No" WIDGET-ID 88
+     svOnlyNegativeAvailable AT ROW 3.86 COL 113 HELP
+          "Select to Show Only Negative Available" WIDGET-ID 162
+     svOnlyNegOHRelQty AT ROW 5.05 COL 113 HELP
+          "Select to Show Only Neg OH RelQty" WIDGET-ID 156
+     svSubRpt_PrintScheduleStats AT ROW 6.24 COL 113 HELP
+          "Select to Show Print Schedule Stats" WIDGET-ID 346
+     svSort AT ROW 2.67 COL 150 HELP
+          "Select Sort Option" NO-LABEL WIDGET-ID 84
+     svScheduled AT ROW 10.76 COL 150 HELP
+          "Select to Show Scheduled" WIDGET-ID 356
+     svLate AT ROW 11.95 COL 150 HELP
+          "Select to Show Late" WIDGET-ID 358
+     svPastLastShipDate AT ROW 13.14 COL 150 HELP
+          "Select to Show Past Last Ship Date" WIDGET-ID 360
+     svActual AT ROW 14.33 COL 150 HELP
+          "Select to Show Actual" WIDGET-ID 362
+     svBackorder AT ROW 15.52 COL 150 HELP
+          "Select to Show Backorder" WIDGET-ID 364
+     svBillOfLading AT ROW 16.71 COL 150 HELP
+          "Select to Show Bil lOf Lading" WIDGET-ID 366
+     svInvoiceUnposted AT ROW 17.91 COL 150 HELP
+          "Select to Show Invoice Unposted" WIDGET-ID 368
+     svCompleted AT ROW 19.1 COL 150 HELP
+          "Select to Show Completed" WIDGET-ID 370
+     svSubRpt_PrintSpecNotes AT ROW 20.76 COL 150 HELP
+          "Select to Print Spec Notes" WIDGET-ID 348
+     svStartSpecNote AT ROW 21.95 COL 163 COLON-ALIGNED HELP
+          "Enter Start Spec Note" WIDGET-ID 352
+     svEndSpecNote AT ROW 23.14 COL 163 COLON-ALIGNED HELP
+          "Enter End Spec Note" WIDGET-ID 350
+     "Sort:" VIEW-AS TEXT
+          SIZE 5 BY 1 AT ROW 2.67 COL 144 WIDGET-ID 90
      "Release Types:" VIEW-AS TEXT
-          SIZE 15 BY 1 AT ROW 19.81 COL 71 WIDGET-ID 354
+          SIZE 15 BY 1 AT ROW 9.81 COL 141 WIDGET-ID 354
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 93.4 BY 30.1
+         SIZE 174 BY 24.57.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     "Print OH Qty:" VIEW-AS TEXT
+          SIZE 13 BY 1 AT ROW 2.67 COL 75 WIDGET-ID 136
+     RECT-1 AT ROW 2.43 COL 2 WIDGET-ID 248
+     RECT-2 AT ROW 7.67 COL 2 WIDGET-ID 372
+     RECT-3 AT ROW 7.67 COL 75 WIDGET-ID 374
+     RECT-4 AT ROW 11.95 COL 2 WIDGET-ID 376
+     RECT-5 AT ROW 16.24 COL 2 WIDGET-ID 378
+     RECT-6 AT ROW 20.29 COL 74 WIDGET-ID 380
+     RECT-7 AT ROW 11.95 COL 74 WIDGET-ID 382
+     RECT-8 AT ROW 16.24 COL 74 WIDGET-ID 384
+     RECT-9 AT ROW 7.67 COL 36 WIDGET-ID 386
+     RECT-10 AT ROW 20.52 COL 140 WIDGET-ID 388
+     RECT-11 AT ROW 20.29 COL 2 WIDGET-ID 390
+     RECT-12 AT ROW 2.43 COL 74 WIDGET-ID 392
+     RECT-13 AT ROW 2.43 COL 140 WIDGET-ID 394
+     RECT-14 AT ROW 2.43 COL 110 WIDGET-ID 396
+     RECT-15 AT ROW 9.57 COL 140 WIDGET-ID 398
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 174 BY 24.57
          TITLE "Report Parameters".
 
 
@@ -599,8 +674,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 30.1
-         WIDTH              = 93.4.
+         HEIGHT             = 24.57
+         WIDTH              = 174.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -643,6 +718,36 @@ ASSIGN
 /* SETTINGS FOR FILL-IN endProdCategoryName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endSalesRepName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-10 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-11 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-12 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-13 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-14 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-15 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-7 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-8 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-9 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCarrierName IN FRAME F-Main
    NO-ENABLE                                                            */

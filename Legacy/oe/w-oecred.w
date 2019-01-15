@@ -418,7 +418,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'oe/b-crdinqa.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
              OUTPUT h_b-crdinqa ).
        RUN set-position IN h_b-crdinqa ( 4.81 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 19.52 , 148.00 ) */
@@ -626,7 +630,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_b-ordrel ).
        /* Position in AB:  ( 9.57 , 2.00 ) */
-       /* Size in UIB:  ( 13.57 , 147.00 ) */       
+       /* Size in UIB:  ( 13.57 , 147.00 ) */
        RUN set-position IN h_b-ordrel ( 9.10 , 3.00 ) NO-ERROR.
        RUN set-size IN h_b-ordrel ( 13.57 , 147.00 ) NO-ERROR.
 

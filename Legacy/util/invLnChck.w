@@ -579,8 +579,24 @@ PROCEDURE run-process :
             ELSE 
             DO:
 
-               
-                IF dInvQty NE dTotQty THEN 
+                IF lOrphanLn THEN  
+                DO:
+                    CREATE ttBOLLineProblems.
+                    ASSIGN 
+                        ttBOLLineProblems.BolNo           = oe-boll.bol-no
+                        ttBOLLineProblems.ItemNo          = oe-boll.i-no
+                        ttBOLLineProblems.CustNo          = oe-bolh.cust-no
+                        ttBOLLineProblems.InvDate         = oe-bolh.bol-date
+                        ttBOLLineProblems.company         = oe-bolh.company
+                        ttBOLLineProblems.ord-no          = oe-boll.ord-no
+                        ttBOLLineProblems.errorType       = "Orphan Ln"
+                        ttBOLLineProblems.CalcQty         = dTotQty
+                        ttBOLLineProblems.ActQty          = dInvQty         
+                        ttBOLLineProblems.PostedInvoice   = iArFound
+                        ttBOLLineProblems.UnPostedInvoice = iInvFound                        
+                        .
+                END. /* If lOrdphanLn */
+                ELSE IF dInvQty NE dTotQty THEN 
                 DO:
                     FOR EACH fg-set NO-LOCK WHERE fg-set.company EQ oe-boll.company 
                         AND fg-set.part-no EQ oe-boll.i-no:
@@ -614,25 +630,9 @@ PROCEDURE run-process :
                             ttBOLLineProblems.PostedInvoice   = iArFound
                             ttBOLLineProblems.UnPostedInvoice = iInvFound                               
                             .           
-                    END.
-                END.
-                IF lOrphanLn THEN  
-                DO:
-                    CREATE ttBOLLineProblems.
-                    ASSIGN 
-                        ttBOLLineProblems.BolNo           = oe-boll.bol-no
-                        ttBOLLineProblems.ItemNo          = oe-boll.i-no
-                        ttBOLLineProblems.CustNo          = oe-bolh.cust-no
-                        ttBOLLineProblems.InvDate         = oe-bolh.bol-date
-                        ttBOLLineProblems.company         = oe-bolh.company
-                        ttBOLLineProblems.ord-no          = oe-boll.ord-no
-                        ttBOLLineProblems.errorType       = "Orphan Ln"
-                        ttBOLLineProblems.CalcQty         = dTotQty
-                        ttBOLLineProblems.ActQty          = dInvQty         
-                        ttBOLLineProblems.PostedInvoice   = iArFound
-                        ttBOLLineProblems.UnPostedInvoice = iInvFound                        
-                        .
-                END.
+                    END. /* not lskipForsetHeader */
+                END. /* If quantity difference */
+
                 
             END. /* else invoice was found */
         
@@ -726,7 +726,11 @@ PROCEDURE run-process :
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE ll.
     IF ll THEN 
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+        open-mime-resource "text/plain" string("file:///" + fi_file_path) false.
+&ELSE
         OS-COMMAND NO-WAIT NOTEPAD VALUE(fi_file_path).
+&ENDIF
    
     STATUS DEFAULT ''.   
 END PROCEDURE.

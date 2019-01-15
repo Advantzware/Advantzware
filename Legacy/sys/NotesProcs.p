@@ -22,6 +22,7 @@ DEFINE TEMP-TABLE ttWord
     FIELD cTextWord    AS CHARACTER 
     FIELD iLengthWord  AS INTEGER.
      
+DEFINE VARIABLE gTypeShipNote AS CHARACTER NO-UNDO INIT "ES".
     
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -89,6 +90,23 @@ PROCEDURE ConvertToArray:
 
 END PROCEDURE.
 
+PROCEDURE CopyNoteOfType:
+/*------------------------------------------------------------------------------
+ Purpose: Propagates a single note from one rec_key to another
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE cNoteText AS CHARACTER NO-UNDO.
+
+RUN GetNoteOfType (ipcRecKeyFrom, ipcType, OUTPUT cNoteText).
+IF cNoteText NE "" THEN 
+    RUN UpdateNoteOfType (ipcRecKeyTo, ipcType, cNoteText).
+
+END PROCEDURE.
+
 PROCEDURE CopyNotes:
     /*------------------------------------------------------------------------------
      Purpose: Copies all notes from one source record (rec_key) to another 
@@ -111,6 +129,18 @@ PROCEDURE CopyNotes:
         ASSIGN 
             b-notes.rec_key = ipcRecKeyTo.
     END.
+END PROCEDURE.
+
+PROCEDURE CopyShipNote:
+/*------------------------------------------------------------------------------
+ Purpose: Wrapper of CopyNoteOfType for Ship Note Type
+ Notes:
+------------------------------------------------------------------------------*/
+ DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+ DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+ 
+ RUN CopyNoteOfType (ipcRecKeyFrom, ipcRecKeyTo, gTypeShipNote).
+
 END PROCEDURE.
 
 PROCEDURE GetNoteOfType:
@@ -245,59 +275,15 @@ notes.note_text = ipcNoteText.
 
 END PROCEDURE.
 
-PROCEDURE UpdateNoteShipOeBolh:
+PROCEDURE UpdateShipNote:
 /*------------------------------------------------------------------------------
- Purpose:
+ Purpose: Wrapper for UpdateNoteofType specifically for Ship Notes
  Notes:
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcNoteText AS CHARACTER NO-UNDO.
 
-RUN UpdateNoteOfType (ipcObjectRecKey,
-                      "ES",
-                      ipcNoteText).
-
-END PROCEDURE.
-
-PROCEDURE UpdateNoteShipOeRel:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcNoteText AS CHARACTER NO-UNDO.
-
-RUN UpdateNoteOfType (ipcObjectRecKey,
-                      "ES",
-                      ipcNoteText).
-
-END PROCEDURE.
-
-PROCEDURE UpdateNoteShipOeRelh:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcNoteText AS CHARACTER NO-UNDO.
-
-RUN UpdateNoteOfType (ipcObjectRecKey,
-                      "ES",
-                      ipcNoteText).
-
-END PROCEDURE.
-
-PROCEDURE UpdateNoteShipShipto:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcNoteText AS CHARACTER NO-UNDO.
-
-RUN UpdateNoteOfType (ipcObjectRecKey,
-                      "ES",
-                      ipcNoteText).
+RUN UpdateNoteOfType (ipcObjectRecKey, gTypeShipNote, ipcNoteText).
 
 END PROCEDURE.
 

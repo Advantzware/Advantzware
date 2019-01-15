@@ -81,18 +81,19 @@ DEFINE QUERY external_tables FOR prgrms.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS prgrms.prgtitle prgrms.securityLevelUser ~
 prgrms.dir_group prgrms.run_persistent prgrms.track_usage prgrms.popup ~
-prgrms.can_run prgrms.can_create prgrms.can_update prgrms.can_delete ~
-prgrms.mfgroup prgrms.menu_item prgrms.securityLevelDefault ~
-prgrms.menuOrder prgrms.menuLevel prgrms.menuImage[1] prgrms.mnemonic ~
-prgrms.itemParent prgrms.systemType 
+prgrms.module prgrms.can_run prgrms.can_create prgrms.can_update ~
+prgrms.can_delete prgrms.mfgroup prgrms.menu_item ~
+prgrms.securityLevelDefault prgrms.menuOrder prgrms.menuLevel ~
+prgrms.menuImage[1] prgrms.mnemonic prgrms.itemParent prgrms.systemType 
 &Scoped-define ENABLED-TABLES prgrms
 &Scoped-define FIRST-ENABLED-TABLE prgrms
 &Scoped-Define DISPLAYED-FIELDS prgrms.prgmname prgrms.prgtitle ~
 prgrms.securityLevelUser prgrms.dir_group prgrms.run_persistent ~
-prgrms.track_usage prgrms.popup prgrms.can_run prgrms.can_create ~
-prgrms.can_update prgrms.can_delete prgrms.mfgroup prgrms.menu_item ~
-prgrms.securityLevelDefault prgrms.menuOrder prgrms.menuLevel ~
-prgrms.menuImage[1] prgrms.mnemonic prgrms.itemParent prgrms.systemType 
+prgrms.track_usage prgrms.popup prgrms.module prgrms.can_run ~
+prgrms.can_create prgrms.can_update prgrms.can_delete prgrms.mfgroup ~
+prgrms.menu_item prgrms.securityLevelDefault prgrms.menuOrder ~
+prgrms.menuLevel prgrms.menuImage[1] prgrms.mnemonic prgrms.itemParent ~
+prgrms.systemType 
 &Scoped-define DISPLAYED-TABLES prgrms
 &Scoped-define FIRST-DISPLAYED-TABLE prgrms
 &Scoped-Define DISPLAYED-OBJECTS parentPrgTitle F1 F-3 F-2 
@@ -197,6 +198,10 @@ DEFINE FRAME F-Main
      prgrms.popup AT ROW 2.43 COL 87
           VIEW-AS TOGGLE-BOX
           SIZE 11 BY 1
+     prgrms.module AT ROW 2.43 COL 129 COLON-ALIGNED WIDGET-ID 30
+          VIEW-AS FILL-IN 
+          SIZE 14.2 BY 1
+          BGCOLOR 15 
      prgrms.can_run AT ROW 3.62 COL 15 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 132 BY 1.91
@@ -256,24 +261,24 @@ DEFINE FRAME F-Main
      F1 AT ROW 2.43 COL 31 NO-LABEL
      F-3 AT ROW 14.57 COL 98 NO-LABEL WIDGET-ID 16
      F-2 AT ROW 15.76 COL 31 NO-LABEL WIDGET-ID 12
-     "Update:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 7.43 COL 7
-     "Parent(s):" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 11.24 COL 5
-     "Add:" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 5.52 COL 10
+     "Delete:" VIEW-AS TEXT
+          SIZE 7.6 BY .62 AT ROW 9.33 COL 7
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     "Delete:" VIEW-AS TEXT
-          SIZE 7.6 BY .62 AT ROW 9.33 COL 7
      " Menu Fields" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 12.91 COL 3 WIDGET-ID 28
      "View:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 3.62 COL 9
+     "Parent(s):" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 11.24 COL 5
+     "Update:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 7.43 COL 7
+     "Add:" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 5.52 COL 10
      RECT-1 AT ROW 1 COL 1
      cMenuImage AT ROW 14.57 COL 101 WIDGET-ID 18
      RECT-2 AT ROW 13.19 COL 1 WIDGET-ID 26
@@ -682,14 +687,40 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF lSuperAdmin THEN DO:
+    IF prgrms.menu_item EQ NO AND
+       CAN-FIND(FIRST bPrgrms
+                WHERE bPrgrms.itemParent EQ prgrms.prgmname
+                  AND bPrgrms.menu_item  EQ YES) THEN DO:
+        MESSAGE
+            "Child Menu Items exist for this Menu Item,"
+            "cannot inactivate this Menu Item unless Child"
+            "Menu Items also inactivated." SKIP(1)
+            "Inactivate Child Menu Items?"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+        UPDATE lContinue AS LOGICAL.
+        IF lContinue THEN DO:
+            FOR EACH bPrgrms EXCLUSIVE-LOCK
+                WHERE bPrgrms.itemParent EQ prgrms.prgmname
+                  AND bPrgrms.menu_item  EQ YES 
+                :
+                bPrgrms.menu_item = NO.
+            END. /* each prgrms */
+        END. /* if lcontinue */
+        ELSE
+        ASSIGN
+            prgrms.menu_item:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "yes"
+            prgrms.menu_item
+            .
+    END.
+
     IF prgrms.menu_item EQ YES AND
        prgrms.menuOrder GT 0   AND
        CAN-FIND(FIRST bPrgrms
                 WHERE bPrgrms.menuOrder EQ prgrms.menuOrder
-                  AND ROWID(bPrgrms) NE ROWID(prgrms)) THEN DO:
+                  AND ROWID(bPrgrms)    NE ROWID(prgrms)) THEN DO:
       FOR EACH bPrgrms EXCLUSIVE-LOCK
           WHERE bPrgrms.menuOrder GE prgrms.menuOrder
-            AND ROWID(bPrgrms) NE ROWID(prgrms)
+            AND ROWID(bPrgrms)    NE ROWID(prgrms)
              BY bPrgrms.prgmname
           :
           bPrgrms.menuOrder = bPrgrms.menuOrder + 1.

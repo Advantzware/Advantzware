@@ -98,6 +98,7 @@ DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_loadtag AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_miscflds AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_oe-hold AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_optonote AS HANDLE NO-UNDO.
@@ -806,7 +807,6 @@ PROCEDURE adm-create-objects :
              h_p-ordmis , 'AFTER':U ).
     END. /* Page 4 */
     WHEN 5 THEN DO:
-
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/relnote.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
@@ -814,6 +814,13 @@ PROCEDURE adm-create-objects :
              OUTPUT h_relnote ).
        RUN set-position IN h_relnote ( 1.00 , 1.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_movecol-2 ).
+       RUN set-position IN h_movecol-2 ( 1.00 , 16.20 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'oe/vi-ordl.w':U ,
@@ -841,7 +848,7 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = Yes':U ,
              OUTPUT h_b-ordrel ).
        RUN set-position IN h_b-ordrel ( 9.10 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_b-ordrel ( 13.57 , 147.00 ) NO-ERROR.
+       RUN set-size IN h_b-ordrel ( 12.57 , 147.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
@@ -885,6 +892,9 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('3':U) NO-ERROR.
+
+       /* Links to SmartNavBrowser h_b-ordrel. */
+       RUN add-link IN adm-broker-hdl ( h_b-ordrel , 'move-columns':U , h_movecol-2 ).
 
        /* Links to SmartViewer h_vi-ordl. */
        RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'Record':U , h_vi-ordl ).
@@ -1440,6 +1450,8 @@ PROCEDURE make-buttons-insensitive :
        RUN make-insensitive IN h_options3.
     IF VALID-HANDLE(h_movecol) THEN
        RUN make-insensitive IN h_movecol.
+    IF VALID-HANDLE(h_movecol-2) THEN
+       RUN make-insensitive IN h_movecol-2.
    RETURN.
        
 END PROCEDURE.
@@ -1468,7 +1480,9 @@ PROCEDURE make-buttons-sensitive :
     IF VALID-HANDLE(h_options3) THEN
        RUN make-sensitive IN h_options3.
     IF VALID-HANDLE(h_movecol) THEN
-       RUN make-sensitive IN h_movecol.   
+       RUN make-sensitive IN h_movecol. 
+    IF VALID-HANDLE(h_movecol-2) THEN
+       RUN make-insensitive IN h_movecol-2.
    RETURN.
        
 END PROCEDURE.

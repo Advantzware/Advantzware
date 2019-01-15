@@ -143,26 +143,7 @@ IF "{1}" EQ "FGItem" THEN DO:
            ASSIGN fg-rctd.std-cost:SCREEN-VALUE = string(oe-ordl.cost)
                   fg-rctd.cost-uom:SCREEN-VALUE = "M".
    END.
-   
-/* not for receipt
-    IF g-sharpshooter = YES THEN DO: 
-       /*FIND FIRST itemfg WHERE itemfg.company = g_company
-                           AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE NO-LOCK NO-ERROR.
-       IF AVAIL ITEMfg AND itemfg.ship-meth THEN DO: /* case */
-          APPLY "entry" TO fg-rctd.cases.
-       END.
-       ELSE*/  APPLY "row-leave" TO BROWSE {&browse-name}.
-    END.
-    ELSE DO:
-       IF loadtag.job-no = "" AND loadtag.po-no = 0 THEN APPLY "entry" TO fg-rctd.t-qty.
-       ELSE    APPLY "entry" TO fg-rctd.loc.
-    END.
-    
-    IF loadtag.job-no = "" AND loadtag.po-no = 0 THEN APPLY "entry" TO fg-rctd.t-qty.
-    ELSE    APPLY "entry" TO fg-rctd.loc.
 
-    RETURN NO-APPLY.
-*/
 END.
 ELSE IF "{1}}" = "RMItem" THEN DO:
 

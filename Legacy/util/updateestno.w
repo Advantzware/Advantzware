@@ -669,24 +669,6 @@ PROCEDURE replace-est-proc :
    END.
 
    FOR EACH reftable WHERE
-       reftable.reftable EQ "probe.per-msf" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ "" AND
-       reftable.code     EQ new_est:
-
-       DELETE reftable.
-   END.
-
-   FOR EACH reftable WHERE
-       reftable.reftable EQ "probe.per-msf" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ "" AND
-       reftable.code     EQ begin_est:
-
-       reftable.CODE = NEW_est.
-   END.
-
-   FOR EACH reftable WHERE
        reftable.reftable EQ "probe.per-ref" AND
        reftable.company  EQ cocode AND
        reftable.loc      EQ "" AND

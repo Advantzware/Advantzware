@@ -245,6 +245,7 @@ DEFINE VARIABLE ord-qty AS INTEGER NO-UNDO .
 
 DEFINE VARIABLE cDraftImage AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDraftImageFull AS CHARACTER FORMAT "x(50)" NO-UNDO.
+DEFINE BUFFER bf-job-mch FOR job-mch .
 ASSIGN cDraftImage = "images\draft.jpg"
 
 FILE-INFO:FILE-NAME = cDraftImage.
@@ -315,6 +316,17 @@ FOR EACH job-hdr NO-LOCK
 
        IF AVAILABLE eb THEN
        DO:
+          FIND FIRST bf-job-mch NO-LOCK
+              WHERE bf-job-mch.company EQ cocode
+              AND bf-job-mch.job     EQ job-hdr.job
+              AND bf-job-mch.job-no  EQ job-hdr.job-no
+              AND bf-job-mch.job-no2 EQ job-hdr.job-no2 
+              AND bf-job-mch.m-code  EQ "303" NO-ERROR .
+          IF AVAIL bf-job-mch THEN do: 
+              RUN cerep/jobccchyb.p(job-hdr.job-no, job-hdr.job-no2)  .
+              NEXT .
+          END.
+
           IF CAN-FIND(FIRST prodl WHERE prodl.company EQ cocode AND
                             (prodl.prolin EQ 'Printed' 
                              OR prodl.prolin EQ 'Labels') AND
@@ -943,7 +955,7 @@ FOR EACH job-hdr NO-LOCK
                                               notes.note_form_no EQ wrk-sheet.form-no NO-ERROR.
                v-dept-title = IF AVAILABLE notes THEN notes.note_title ELSE "".
 
-               DISPLAY ITEM.i-no FORMAT "x(10)" SPACE(20)
+               DISPLAY ITEM.i-name FORMAT "x(28)" SPACE(2)
                     TRIM(wrk-sheet.i-no) FORMAT "X(10)" SPACE(2)
                     ef.xgrain FORMAT "x(2)"
                     wrk-sheet.gsh-qty 
@@ -957,7 +969,6 @@ FOR EACH job-hdr NO-LOCK
                   /*  v-case-qty-ext[1]  @ v-case-qty  FORM ">>>>9"    /* #01240503*/
                     v-up-ext[1]        @ v-up*/
                     WITH STREAM-IO WIDTH 170 NO-LABELS NO-BOX FRAME sheet.
-               PUT ITEM.i-name FORMAT "x(28)" SKIP.
                x = 1.
              END. /* each wrk-sheet */
              DO ij = 2 TO 10:

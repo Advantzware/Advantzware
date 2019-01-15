@@ -27,8 +27,8 @@
 
 /* Parameters Definitions ---                                           */
 
-DEFINE PARAMETER BUFFER itemfg     FOR itemfg.
-DEFINE PARAMETER BUFFER itemfg-loc FOR itemfg-loc.
+DEFINE INPUT PARAMETER iprItemFGRowID    AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER iprItemFGLocRowID AS ROWID NO-UNDO.
 
 DEFINE OUTPUT PARAMETER oplUpdated AS LOGICAL NO-UNDO.
 
@@ -54,9 +54,9 @@ DEFINE VARIABLE cUOMList AS CHARACTER NO-UNDO INITIAL "C,CS,EA,L,M".
 &Scoped-define INTERNAL-TABLES itemfg
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
-&Scoped-define FIELDS-IN-QUERY-Dialog-Frame itemfg.pur-uom itemfg.beg-date 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame itemfg.pur-uom ~
-itemfg.beg-date 
+&Scoped-define FIELDS-IN-QUERY-Dialog-Frame   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame ~
+ 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame itemfg
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame itemfg
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH itemfg SHARE-LOCK
@@ -67,13 +67,13 @@ itemfg.beg-date
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS itemfg-loc.ord-level itemfg-loc.ord-max ~
-itemfg-loc.ord-min itemfg.pur-uom itemfg-loc.lead-days itemfg.beg-date 
+itemfg-loc.ord-min itemfg-loc.lead-days  
 &Scoped-define ENABLED-TABLES itemfg-loc itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg-loc
 &Scoped-define SECOND-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS btnOK btnCancel 
 &Scoped-Define DISPLAYED-FIELDS itemfg-loc.ord-level itemfg-loc.ord-max ~
-itemfg-loc.ord-min itemfg.pur-uom itemfg-loc.lead-days itemfg.beg-date 
+itemfg-loc.ord-min itemfg-loc.lead-days  
 &Scoped-define DISPLAYED-TABLES itemfg-loc itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg-loc
 &Scoped-define SECOND-DISPLAYED-TABLE itemfg
@@ -106,11 +106,11 @@ DEFINE BUTTON btnOK AUTO-GO
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 84 BY 3.81.
+     SIZE 86 BY 2.70.
 
 DEFINE RECTANGLE RECT-28
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 19 BY 2.38
+     SIZE 19 BY 2.30
      BGCOLOR 15 .
 
 /* Query definitions                                                    */
@@ -122,8 +122,8 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     btnOK AT ROW 5.52 COL 68 WIDGET-ID 18
-     btnCancel AT ROW 5.52 COL 77 WIDGET-ID 16
+     btnOK AT ROW 4.48 COL 70 WIDGET-ID 18
+     btnCancel AT ROW 4.48 COL 79 WIDGET-ID 16
      itemfg-loc.ord-level AT ROW 1.48 COL 21 COLON-ALIGNED WIDGET-ID 26
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
@@ -132,23 +132,15 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
           BGCOLOR 15 FONT 1
-     itemfg-loc.ord-min AT ROW 3.86 COL 21 COLON-ALIGNED WIDGET-ID 30
+     itemfg-loc.ord-min AT ROW 2.67 COL 67 COLON-ALIGNED WIDGET-ID 30
           VIEW-AS FILL-IN 
-          SIZE 23 BY 1
+          SIZE 18 BY 1
           BGCOLOR 15 FONT 1
-     itemfg.pur-uom AT ROW 1.48 COL 67 COLON-ALIGNED WIDGET-ID 32
-          VIEW-AS FILL-IN 
-          SIZE 10.2 BY 1
-          BGCOLOR 15 FONT 1
-     itemfg-loc.lead-days AT ROW 2.67 COL 67 COLON-ALIGNED WIDGET-ID 24
+     itemfg-loc.lead-days AT ROW 1.48 COL 67 COLON-ALIGNED WIDGET-ID 24
           VIEW-AS FILL-IN 
           SIZE 6.2 BY 1
           BGCOLOR 15 FONT 1
-     itemfg.beg-date AT ROW 3.86 COL 67 COLON-ALIGNED WIDGET-ID 22
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-          BGCOLOR 15 FONT 1
-     RECT-28 AT ROW 5.29 COL 67 WIDGET-ID 14
+     RECT-28 AT ROW 4.20 COL 69 WIDGET-ID 14
      RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 20
      SPACE(0.00) SKIP(2.62)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -235,35 +227,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&Scoped-define SELF-NAME itemfg.pur-uom
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.pur-uom Dialog-Frame
-ON HELP OF itemfg.pur-uom IN FRAME Dialog-Frame /* Purchased UOM */
-DO:
-    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
-    
-    RUN windows/l-stduom.w (itemfg.company ,cUOMList, SELF:SCREEN-VALUE, OUTPUT cReturnValue).
-    IF cReturnValue NE "" THEN
-    SELF:SCREEN-VALUE = CAPS(ENTRY(1,cReturnValue)).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.pur-uom Dialog-Frame
-ON LEAVE OF itemfg.pur-uom IN FRAME Dialog-Frame /* Purchased UOM */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN pValidatePurUOM NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    END. /* if lastkey */
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
@@ -272,9 +235,11 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
-IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
+FIND itemfg     NO-LOCK WHERE ROWID(itemfg)     EQ iprItemFGRowID.
+FIND itemfg-loc NO-LOCK WHERE ROWID(itemfg-loc) EQ iprItemFGLocRowID.
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
@@ -282,7 +247,6 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   FRAME {&FRAME-NAME}:TITLE = FRAME {&FRAME-NAME}:TITLE + itemfg-loc.loc.
-  RUN sys/ref/uom-fg.p (NO, OUTPUT cUOMList).
   RUN enable_UI.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -325,15 +289,12 @@ PROCEDURE enable_UI :
 
   {&OPEN-QUERY-Dialog-Frame}
   GET FIRST Dialog-Frame.
-  IF AVAILABLE itemfg THEN 
-    DISPLAY itemfg.pur-uom itemfg.beg-date 
-      WITH FRAME Dialog-Frame.
   IF AVAILABLE itemfg-loc THEN 
     DISPLAY itemfg-loc.ord-level itemfg-loc.ord-max itemfg-loc.ord-min 
           itemfg-loc.lead-days 
       WITH FRAME Dialog-Frame.
   ENABLE btnOK btnCancel itemfg-loc.ord-level itemfg-loc.ord-max 
-         itemfg-loc.ord-min itemfg.pur-uom itemfg-loc.lead-days itemfg.beg-date 
+         itemfg-loc.ord-min itemfg-loc.lead-days  
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -373,30 +334,6 @@ PROCEDURE pUpdate :
             IF AVAILABLE bEB THEN
             bEB.pur-man = itemfg.pur-man.
         END. /* each eb */
-    END. /* with frame */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidatePurUOM Dialog-Frame 
-PROCEDURE pValidatePurUOM :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
-        itemfg.pur-uom:SCREEN-VALUE = CAPS(itemfg.pur-uom:SCREEN-VALUE).
-        /* take out per Joe - task 10021210 */ /* ticket 24648 */
-        IF NOT CAN-FIND(FIRST uom
-                        WHERE uom.uom EQ itemfg.pur-uom:SCREEN-VALUE  
-                          AND CAN-DO(cUOMList, uom.uom)) THEN DO:
-            MESSAGE
-                TRIM(itemfg.pur-uom:LABEL) + " is invalid, try help..."       
-            VIEW-AS ALERT-BOX ERROR.                                          
-            RETURN ERROR.                                                         
-        END. /* if not can-find */                                                                    
     END. /* with frame */
 
 END PROCEDURE.

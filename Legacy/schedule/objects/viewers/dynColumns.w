@@ -1624,7 +1624,11 @@ PROCEDURE testPrint :
   IF ipExcel THEN
   OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(printFile)).
   ELSE
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" string("file:///" + printFile) false.
+&ELSE
   OS-COMMAND NO-WAIT notepad.exe VALUE(printFile).
+&ENDIF
 
 END PROCEDURE.
 

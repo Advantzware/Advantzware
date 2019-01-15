@@ -89,11 +89,14 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
     FOR EACH utilities                               ~
         WHERE {&key-phrase}                       ~
           AND utilities.securityLevel LE iSecurtyLvl   ~
-          AND utilities.programName      BEGINS fi_pro-name     ~
+          AND (IF fi_pro-name BEGINS '*' THEN  utilities.programName MATCHES (fi_pro-name + "*") ~
+              ELSE utilities.programName      BEGINS fi_pro-name)     ~
           AND utilities.module           BEGINS fi_module       ~
-          AND (utilities.hotkey           BEGINS fi_hotkey OR fi_hotkey EQ "ALL"   )   ~
-          AND utilities.description      BEGINS fi_desc         ~
-          AND utilities.notes            BEGINS fi_notes        ~
+          AND (utilities.hotkey           BEGINS fi_hotkey OR fi_hotkey EQ "ALL"   )     ~
+          AND ( IF fi_desc BEGINS '*' THEN utilities.description MATCHES (fi_desc + "*")        ~
+              ELSE utilities.description      BEGINS fi_desc ) ~
+          AND ( IF fi_notes BEGINS '*' THEN utilities.notes            MATCHES (fi_notes + "*") ~
+              ELSE utilities.notes            BEGINS fi_notes) ~
           AND utilities.securityLevel    GE  fi_seclevel 
 
 
@@ -720,7 +723,7 @@ PROCEDURE export-xl :
     ASSIGN 
         last-util = utilities.programName .
 
-    RUN util/util-exp.w (first-util ,last-util).
+    RUN util/util-exp.w .
 
 
 END PROCEDURE.

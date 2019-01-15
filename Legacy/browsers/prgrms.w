@@ -84,7 +84,7 @@ prgrms.track_usage prgrms.popup prgrms.mfgroup
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnRun Browser-Table browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table btnRun browse-order auto_find 
 &Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
@@ -156,7 +156,7 @@ DEFINE BROWSE Browser-Table
       prgrms.menu_item FORMAT "yes/no":U
       prgrms.menuOrder FORMAT ">>>9":U
       prgrms.menuLevel FORMAT ">>9":U
-      prgrms.mnemonic FORMAT "x(8)":U
+      prgrms.mnemonic COLUMN-LABEL "Hotkey" FORMAT "x(6)":U
       prgrms.itemParent FORMAT "x(10)":U
       prgrms.systemType FORMAT "x(8)":U
       prgrms.can_run COLUMN-LABEL "View ID's" FORMAT "X(30)":U
@@ -175,10 +175,10 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnRun AT ROW 17.91 COL 98 HELP
-          "Run Selected Program" WIDGET-ID 2
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     btnRun AT ROW 17.91 COL 98 HELP
+          "Run Selected Program" WIDGET-ID 2
      browse-order AT ROW 17.91 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
      auto_find AT ROW 17.91 COL 112 COLON-ALIGNED HELP
@@ -246,7 +246,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -277,26 +277,27 @@ ASSIGN
      _FldNameList[1]   = ASI.prgrms.prgmname
      _FldNameList[2]   = ASI.prgrms.prgtitle
      _FldNameList[3]   > ASI.prgrms.dir_group
-"prgrms.dir_group" ? "X(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"dir_group" ? "X(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   = ASI.prgrms.menu_item
      _FldNameList[5]   = ASI.prgrms.menuOrder
      _FldNameList[6]   = ASI.prgrms.menuLevel
-     _FldNameList[7]   = ASI.prgrms.mnemonic
+     _FldNameList[7]   > ASI.prgrms.mnemonic
+"mnemonic" "Hotkey" "x(6)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.prgrms.itemParent
-"prgrms.itemParent" ? "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemParent" ? "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   = ASI.prgrms.systemType
      _FldNameList[10]   > ASI.prgrms.can_run
-"prgrms.can_run" "View ID's" "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"can_run" "View ID's" "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.prgrms.can_create
-"prgrms.can_create" "Add ID's" "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"can_create" "Add ID's" "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.prgrms.can_update
-"prgrms.can_update" ? "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"can_update" ? "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.prgrms.can_delete
-"prgrms.can_delete" ? "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"can_delete" ? "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   = ASI.prgrms.track_usage
      _FldNameList[15]   = ASI.prgrms.popup
      _FldNameList[16]   > ASI.prgrms.mfgroup
-"prgrms.mfgroup" "Parent(s)" "X(50)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"mfgroup" "Parent(s)" "X(50)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

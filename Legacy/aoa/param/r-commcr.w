@@ -47,19 +47,18 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svStartReceiptDate btnCalendar-1 ~
-svStartReceiptDateOption svEndReceiptDate btnCalendar-2 ~
-svEndReceiptDateOption svStartInvoiceDate btnCalendar-3 ~
+&Scoped-Define ENABLED-OBJECTS svCompany svCustList btnCustList svAllCustNo ~
+svStartCustNo svEndCustNo svAllSalesRep svStartSalesRep svEndSalesRep ~
+svStartReceiptDate btnCalendar-1 svStartReceiptDateOption svEndReceiptDate ~
+btnCalendar-2 svEndReceiptDateOption svStartInvoiceDate btnCalendar-3 ~
 svStartInvoiceDateOption svEndInvoiceDate btnCalendar-4 ~
-svEndInvoiceDateOption svAllSalesRep svStartSalesRep svEndSalesRep ~
-svCustList btnCustList svAllCustNo svStartCustNo svEndCustNo svShowInvoice ~
-svDetailed svPrep svCalc 
-&Scoped-Define DISPLAYED-OBJECTS svCompany svStartReceiptDate ~
-svStartReceiptDateOption svEndReceiptDate svEndReceiptDateOption ~
-svStartInvoiceDate svStartInvoiceDateOption svEndInvoiceDate ~
-svEndInvoiceDateOption svAllSalesRep svStartSalesRep startSalesRepName ~
-svEndSalesRep endSalesRepName svCustList svAllCustNo svStartCustNo ~
-startCustName svEndCustNo endCustName svShowInvoice svDetailed svPrep ~
+svEndInvoiceDateOption svShowInvoice svDetailed svPrep svCalc 
+&Scoped-Define DISPLAYED-OBJECTS svCompany svCustList svAllCustNo ~
+svStartCustNo startCustName svEndCustNo endCustName svAllSalesRep ~
+svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName ~
+svStartReceiptDate svStartReceiptDateOption svEndReceiptDate ~
+svEndReceiptDateOption svStartInvoiceDate svStartInvoiceDateOption ~
+svEndInvoiceDate svEndInvoiceDateOption svShowInvoice svDetailed svPrep ~
 svCalc 
 
 /* Custom List Definitions                                              */
@@ -193,6 +192,22 @@ DEFINE VARIABLE svShowInvoice AS CHARACTER INITIAL "Paid"
 "All", "All"
      SIZE 32 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 83.8 BY 5.67.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 83.8 BY 4.
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 71 BY 5.67.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 71 BY 4.
+
 DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
      LABEL "All Customers" 
      VIEW-AS TOGGLE-BOX
@@ -227,59 +242,63 @@ DEFINE VARIABLE svPrep AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 60
-     svStartReceiptDate AT ROW 3.62 COL 18.8 COLON-ALIGNED HELP
-          "Enter Start Receipt Date" WIDGET-ID 72
-     btnCalendar-1 AT ROW 3.62 COL 37 WIDGET-ID 76
-     svStartReceiptDateOption AT ROW 3.62 COL 40 COLON-ALIGNED HELP
-          "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 74
-     svEndReceiptDate AT ROW 4.81 COL 19 COLON-ALIGNED HELP
-          "Enter End Receipt Date" WIDGET-ID 68
-     btnCalendar-2 AT ROW 4.81 COL 37 WIDGET-ID 78
-     svEndReceiptDateOption AT ROW 4.81 COL 40 COLON-ALIGNED HELP
-          "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
-     svStartInvoiceDate AT ROW 7.19 COL 19 COLON-ALIGNED HELP
-          "Enter Start Invoice Date" WIDGET-ID 26
-     btnCalendar-3 AT ROW 7.19 COL 37 WIDGET-ID 80
-     svStartInvoiceDateOption AT ROW 7.19 COL 40 COLON-ALIGNED HELP
-          "Select Start Invoice Date Option" NO-LABEL WIDGET-ID 64
-     svEndInvoiceDate AT ROW 8.38 COL 19 COLON-ALIGNED HELP
-          "Enter End Invoice Date" WIDGET-ID 24
-     btnCalendar-4 AT ROW 8.38 COL 37 WIDGET-ID 82
-     svEndInvoiceDateOption AT ROW 8.38 COL 40 COLON-ALIGNED HELP
-          "Select End Invoice Date Option" NO-LABEL WIDGET-ID 66
-     svAllSalesRep AT ROW 10.76 COL 21 HELP
-          "All Sales Reps?" WIDGET-ID 58
-     svStartSalesRep AT ROW 11.95 COL 19 COLON-ALIGNED HELP
-          "Enter Beginning Sales Rep#" WIDGET-ID 22
-     startSalesRepName AT ROW 11.95 COL 28 COLON-ALIGNED HELP
-          "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
-     svEndSalesRep AT ROW 13.14 COL 19 COLON-ALIGNED HELP
-          "Enter Ending Sales Rep" WIDGET-ID 20
-     endSalesRepName AT ROW 13.14 COL 28 COLON-ALIGNED HELP
-          "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svCustList AT ROW 15.52 COL 21 WIDGET-ID 48
-     btnCustList AT ROW 15.52 COL 57 WIDGET-ID 46
-     svAllCustNo AT ROW 16.71 COL 21 HELP
+     svCompany AT ROW 1.24 COL 165 COLON-ALIGNED WIDGET-ID 60
+     svCustList AT ROW 3.86 COL 27 WIDGET-ID 48
+     btnCustList AT ROW 3.86 COL 63 WIDGET-ID 46
+     svAllCustNo AT ROW 5.05 COL 27 HELP
           "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 17.91 COL 19 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 6.24 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Customer" WIDGET-ID 2
-     startCustName AT ROW 17.91 COL 36 COLON-ALIGNED HELP
+     startCustName AT ROW 6.24 COL 42 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 19.1 COL 19 COLON-ALIGNED HELP
+     svEndCustNo AT ROW 7.43 COL 25 COLON-ALIGNED HELP
           "Enter Ending Customer" WIDGET-ID 6
-     endCustName AT ROW 19.1 COL 36 COLON-ALIGNED HELP
+     endCustName AT ROW 7.43 COL 42 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 8
-     svShowInvoice AT ROW 21.48 COL 21 NO-LABEL WIDGET-ID 28
-     svDetailed AT ROW 23.86 COL 22 WIDGET-ID 42
-     svPrep AT ROW 23.86 COL 39 WIDGET-ID 44
-     svCalc AT ROW 25.05 COL 22 WIDGET-ID 40
+     svAllSalesRep AT ROW 10.52 COL 27 HELP
+          "All Sales Reps?" WIDGET-ID 58
+     svStartSalesRep AT ROW 11.71 COL 25 COLON-ALIGNED HELP
+          "Enter Beginning Sales Rep#" WIDGET-ID 22
+     startSalesRepName AT ROW 11.71 COL 34 COLON-ALIGNED HELP
+          "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
+     svEndSalesRep AT ROW 12.91 COL 25 COLON-ALIGNED HELP
+          "Enter Ending Sales Rep" WIDGET-ID 20
+     endSalesRepName AT ROW 12.91 COL 34 COLON-ALIGNED HELP
+          "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
+     svStartReceiptDate AT ROW 3.86 COL 116 COLON-ALIGNED HELP
+          "Enter Start Receipt Date" WIDGET-ID 72
+     btnCalendar-1 AT ROW 3.86 COL 134.2 WIDGET-ID 76
+     svStartReceiptDateOption AT ROW 3.86 COL 137.2 COLON-ALIGNED HELP
+          "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 74
+     svEndReceiptDate AT ROW 5.05 COL 116.2 COLON-ALIGNED HELP
+          "Enter End Receipt Date" WIDGET-ID 68
+     btnCalendar-2 AT ROW 5.05 COL 134.2 WIDGET-ID 78
+     svEndReceiptDateOption AT ROW 5.05 COL 137.2 COLON-ALIGNED HELP
+          "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
+     svStartInvoiceDate AT ROW 6.24 COL 116.2 COLON-ALIGNED HELP
+          "Enter Start Invoice Date" WIDGET-ID 26
+     btnCalendar-3 AT ROW 6.24 COL 134.2 WIDGET-ID 80
+     svStartInvoiceDateOption AT ROW 6.24 COL 137.2 COLON-ALIGNED HELP
+          "Select Start Invoice Date Option" NO-LABEL WIDGET-ID 64
+     svEndInvoiceDate AT ROW 7.43 COL 116.2 COLON-ALIGNED HELP
+          "Enter End Invoice Date" WIDGET-ID 24
+     btnCalendar-4 AT ROW 7.43 COL 134.2 WIDGET-ID 82
+     svEndInvoiceDateOption AT ROW 7.43 COL 137.2 COLON-ALIGNED HELP
+          "Select End Invoice Date Option" NO-LABEL WIDGET-ID 66
+     svShowInvoice AT ROW 10.76 COL 115 NO-LABEL WIDGET-ID 28
+     svDetailed AT ROW 11.95 COL 115 WIDGET-ID 42
+     svPrep AT ROW 11.95 COL 132 WIDGET-ID 44
+     svCalc AT ROW 13.14 COL 115 WIDGET-ID 40
      "Show Invoices?:" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 21.48 COL 5 WIDGET-ID 52
+          SIZE 16 BY 1 AT ROW 10.76 COL 98 WIDGET-ID 52
+     RECT-1 AT ROW 3.38 COL 7 WIDGET-ID 84
+     RECT-2 AT ROW 10.29 COL 7 WIDGET-ID 86
+     RECT-3 AT ROW 3.38 COL 96 WIDGET-ID 88
+     RECT-4 AT ROW 10.29 COL 96 WIDGET-ID 90
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 82 BY 26.05
+         SIZE 172.6 BY 17
          TITLE "Report Parameters".
 
 
@@ -309,8 +328,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 26.05
-         WIDTH              = 82.
+         HEIGHT             = 17
+         WIDTH              = 172.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -332,7 +351,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME                                               */
+   NOT-VISIBLE FRAME-NAME Custom                                        */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
@@ -347,6 +366,14 @@ ASSIGN
 /* SETTINGS FOR FILL-IN endCustName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endSalesRepName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -455,7 +482,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svCompany sObject
 ON ENTRY OF svCompany IN FRAME F-Main /* Company */
 DO:
-  APPLY "ENTRY":U TO svStartReceiptDate.
+  APPLY "ENTRY":U TO svCustList.
   RETURN NO-APPLY.
 END.
 

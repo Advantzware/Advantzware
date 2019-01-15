@@ -111,6 +111,7 @@ DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE dCoreDia AS DECIMAL FORMAT ">,>>9.99<<" NO-UNDO.
 DEFINE VARIABLE cFlueTest AS CHARACTER FORMAT "x(30)" NO-UNDO.
 DEFINE VARIABLE cMachCode AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lPrintMsf AS LOGICAL NO-UNDO .
 DEF TEMP-TABLE tt-text NO-UNDO
     FIELD TYPE AS cha
     FIELD tt-line AS INT
@@ -493,12 +494,41 @@ v-printline = 0.
         ASSIGN
            v-printline = v-printline + 1
            v-line-number = v-line-number + 3.
+
+
+         ASSIGN v-basis-w = 0
+               v-dep     = 0.
+
+        RELEASE ITEM.
+
+        IF po-ordl.item-type THEN
+           FIND FIRST ITEM WHERE ITEM.company EQ po-ord.company
+                            AND ITEM.i-no    EQ po-ordl.i-no
+                     NO-LOCK NO-ERROR.
+        IF AVAIL ITEM THEN
+           ASSIGN v-basis-w = item.basis-w
+                  v-dep     = ITEM.s-dep.
+                  
+
+        IF po-ordl.pr-qty-uom EQ "MSF" THEN v-qty = po-ordl.ord-qty.
+        ELSE RUN sys/ref/convquom.p(po-ordl.pr-qty-uom, "MSF",
+                             v-basis-w, po-ordl.s-len, po-ordl.s-wid, v-dep,
+                             po-ordl.ord-qty, OUTPUT v-qty).
+        ASSIGN
+        v-tot-sqft = v-qty  .
+        lPrintMsf = NO .
+        IF AVAIL ITEM AND (item.mat-type EQ "B" OR item.mat-type EQ "P") AND
+             ITEM.industry EQ "2" THEN DO:
+            ASSIGN lPrintMsf = YES .
+        END.
         
         if po-ordl.dscr[1] ne "" OR v-adder[3] <> "" then do:
            put po-ordl.dscr[1] format "x(30)"  at 25 " "             
-               v-adder[3] 
-               skip.
-
+               v-adder[3] SPACE(1) .
+              IF lPrintMsf THEN
+                  PUT "MSF: " trim(string(v-tot-sqft,">>>>>9.99<<")) .
+              PUT skip.
+              lPrintMsf = FALSE .
            ASSIGN
               v-line-number = v-line-number + 1
               v-printline = v-printline + 1.
@@ -506,8 +536,11 @@ v-printline = 0.
     
         if po-ordl.dscr[2] ne "" OR v-adder[4] <> "" then do:
           put po-ordl.dscr[2] format "x(30)" at 25              
-              " " v-adder[4] skip.
-
+              " " v-adder[4] .
+              IF lPrintMsf  THEN
+                  PUT "MSF: " trim(string(v-tot-sqft,">>>>>9.99<<")) .
+                  lPrintMsf = FALSE.
+              PUT SKIP .
           ASSIGN
           v-line-number = v-line-number + 1
           v-printline = v-printline + 1.
@@ -515,7 +548,11 @@ v-printline = 0.
         
         IF v-adder[5] <> "" OR v-vend-item <> "" THEN DO:
             put v-vend-item  FORM "x(30)" AT 25              
-                " " v-adder[5] skip.
+                " " v-adder[5] .
+            IF lPrintMsf  THEN
+                PUT "MSF: " trim(string(v-tot-sqft,">>>>>9.99<<")) .
+                  lPrintMsf = FALSE.
+              PUT SKIP .
             ASSIGN
             v-line-number = v-line-number + 1
             v-printline = v-printline + 1.
@@ -538,6 +575,9 @@ v-printline = 0.
         ELSE IF v-itemDescription THEN /* fg item */ DO:
            IF po-ordl.dscr[2] NE '' THEN DO:
            PUT po-ordl.dscr[2] AT 25.
+           IF lPrintMsf  THEN
+               PUT SPACE(5) "MSF: " trim(string(v-tot-sqft,">>>>>9.99<<")) .
+               lPrintMsf = FALSE.
               ASSIGN
                 v-line-number = v-line-number + 1
                 v-printline = v-printline + 1.
@@ -547,33 +587,16 @@ v-printline = 0.
        ELSE DO:
            IF po-ordl.vend-i-no NE '' THEN DO:
            PUT po-ordl.vend-i-no AT 25.
+           IF lPrintMsf  THEN
+               PUT SPACE(5) "MSF: " trim(string(v-tot-sqft,">>>>>9.99<<")) .
+               lPrintMsf = FALSE.
               ASSIGN
                 v-line-number = v-line-number + 1
                 v-printline = v-printline + 1.
            END.
        END.
 
-        
-        ASSIGN v-basis-w = 0
-               v-dep     = 0.
-
-        RELEASE ITEM.
-
-        IF po-ordl.item-type THEN
-           FIND FIRST ITEM WHERE ITEM.company EQ po-ord.company
-                            AND ITEM.i-no    EQ po-ordl.i-no
-                     NO-LOCK NO-ERROR.
-        IF AVAIL ITEM THEN
-           ASSIGN v-basis-w = item.basis-w
-                  v-dep     = ITEM.s-dep.
-                  
-
-        IF po-ordl.pr-qty-uom EQ "MSF" THEN v-qty = po-ordl.ord-qty.
-        ELSE RUN sys/ref/convquom.p(po-ordl.pr-qty-uom, "MSF",
-                             v-basis-w, po-ordl.s-len, po-ordl.s-wid, v-dep,
-                             po-ordl.ord-qty, OUTPUT v-qty).
-        ASSIGN
-        v-tot-sqft = v-tot-sqft + (v-qty * 1000)
+       ASSIGN
         v-setup = po-ordl.setup
         v-cost = lv-cost. /* reclac cost from setup */
         dCoreDia = 0.
@@ -623,6 +646,14 @@ v-printline = 0.
         END.
         ELSE
            PUT SKIP.
+
+        IF lPrintMsf  THEN do:
+            PUT  "MSF: " AT 30 trim(string(v-tot-sqft,">>>>>9.99<<")) SKIP .
+            lPrintMsf = FALSE.
+            ASSIGN
+                v-line-number = v-line-number + 1
+                v-printline = v-printline + 1.
+        END.
 
         assign v-line-number = v-line-number + 1
                v-printline = v-printline + 1
@@ -842,10 +873,6 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
      v-printline = 0.
      {po/po-xprnt10.i}
   END.
-
-  PUT "Grand Total MSF: " +
-      TRIM(STRING(v-tot-sqft / 1000,">>>,>>9.9<<")) AT 50 FORMAT "x(30)"
-      SKIP.
 
   ASSIGN
   v-tot-sqft = 0

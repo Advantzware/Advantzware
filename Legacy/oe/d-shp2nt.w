@@ -332,6 +332,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 
 END.
+IF VALID-HANDLE(hNotesProc) THEN  
+    DELETE OBJECT hNotesProc.
 RUN disable_UI.
 
 /* _UIB-CODE-BLOCK-END */
@@ -406,7 +408,7 @@ PROCEDURE ip-upd-BOL :
             oe-bolh.ship-i[3] = v-ship-i[3]
             oe-bolh.ship-i[4] = v-ship-i[4].
             
-        RUN CopyNotes IN hNotesProc (INPUT ip-shipnotesreckey, oe-bolh.rec_key, "", "").
+        RUN CopyShipNote IN hNotesProc (INPUT ip-shipnotesreckey, oe-bolh.rec_key).
         
                              
     END.
@@ -446,7 +448,7 @@ PROCEDURE ip-upd-ORDrel :
             oe-rel.ship-i[3] = v-ship-i[3] 
             oe-rel.ship-i[4] = v-ship-i[4].
             
-         RUN CopyNotes IN hNotesProc (INPUT ip-shipnotesreckey, oe-rel.rec_key, "", "").   
+         RUN CopyShipNote IN hNotesProc (INPUT ip-shipnotesreckey, oe-rel.rec_key).   
             
     END.
 
@@ -481,7 +483,7 @@ PROCEDURE ip-upd-REL :
             oe-relh.ship-i[3] = v-ship-i[3]
             oe-relh.ship-i[4] = v-ship-i[4].
 
-         RUN CopyNotes IN hNotesProc (INPUT ip-shipnotesreckey, oe-relh.rec_key, "", "").
+         RUN CopyShipNote IN hNotesProc (INPUT ip-shipnotesreckey, oe-relh.rec_key).
 
     END.
 

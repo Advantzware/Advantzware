@@ -121,7 +121,7 @@ IF iLoginCnt GT 0 AND promptMultiSession-log THEN DO:
           oplExit = TRUE.
         WHEN "Exit Application" THEN 
             oplExit = TRUE.          
-        WHEN "Log Out Other Sessions" THEN DO:
+        WHEN "Log Out Other Sessions" THEN DO TRANSACTION:
             FOR EACH userLog EXCLUSIVE-LOCK WHERE userLog.userStatus EQ "Logged In" 
                 AND  userLog.user_id EQ cCurrentUserID:
               iLoginUserNum = userLog.sessionID /* INTEGER(SUBSTRING(userLog.deviceName, R-INDEX(userLog.deviceName,"-") + 1)) */ NO-ERROR. 
@@ -135,9 +135,11 @@ IF iLoginCnt GT 0 AND promptMultiSession-log THEN DO:
 END.
 
 
+
 /* IF adding, CHECK nk1 VALUE AND determine IF the USER COUNT IS over the limit */
 IF NOT oplExit AND enforceUserCount-log THEN DO:
     
+    FIND FIRST asi._myconnection NO-LOCK NO-ERROR.    
     iAllUserCount = 0.
     FOR EACH userLog NO-LOCK WHERE userLog.userStatus EQ "Logged In" 
         BREAK BY userLog.IpAddress 
@@ -145,6 +147,13 @@ IF NOT oplExit AND enforceUserCount-log THEN DO:
               BY userLog.user_id:
         IF FIRST-OF(userLog.user_id) THEN 
           iAllUserCount = iAllUserCount + 1.
+          
+        IF AVAILABLE asi._myconnection THEN DO:
+            iLoginUserNum = INTEGER(SUBSTRING(userLog.deviceName, R-INDEX(userLog.deviceName,"-") + 1)) NO-ERROR.
+            /* Check if there is an old session with the same database user # - if so, set it to logged out */
+            IF iLoginUserNum EQ asi._myconnection._myconn-userid THEN 
+                RUN system/userLogout.p (NO, userLog.sessionID).              
+        END.
     END.            
     
 

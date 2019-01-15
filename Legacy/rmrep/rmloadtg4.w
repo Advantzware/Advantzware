@@ -28,6 +28,9 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 
+DEFINE INPUT PARAMETER ip-param AS LOG NO-UNDO.
+DEFINE INPUT PARAMETER ip-tag-no AS CHAR NO-UNDO.
+
 /* Local Variable Definitions ---                                       */
 
 def var list-name as cha no-undo.
@@ -901,6 +904,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   DO WITH FRAME {&FRAME-NAME}:
 
+      IF ip-param = YES THEN
+          ASSIGN
+          reprintTag = YES
+          reprintTag:SCREEN-VALUE = "YES".
+
     RUN enable_UI.
 
     /* {custom/usrprint.i} */
@@ -927,6 +935,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
 
     {methods/nowait.i}
+
+    IF ip-param = YES THEN
+    DO:
+       APPLY "VALUE-CHANGED":U TO reprintTag IN FRAME {&FRAME-NAME}.
+       reprintLoadtag:SCREEN-VALUE = ip-tag-no. 
+    END.
 
     APPLY "entry" TO v-po-list.
   END.
@@ -2693,7 +2707,7 @@ PROCEDURE xprint-tag :
       PUT "<PREVIEW>".  
 
       FOR EACH tt-po-print  NO-LOCK
-          WHERE tt-po-print.rcpt-qty GT 0 BREAK BY tt-po-print.ord-no :
+           BREAK BY tt-po-print.ord-no :
           {rm/rep/rmtagxprnt.i}
           IF NOT LAST(tt-po-print.ord-no) THEN PAGE .
       END.

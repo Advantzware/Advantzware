@@ -394,7 +394,9 @@ DO li = 1 TO NUM-ENTRIES(v-est-list):
             AND b-eb.part-no  EQ eb.part-no
             AND b-eb.est-type EQ 4
             AND b-eb.est-no   NE eb.est-no,
-          FIRST b-est OF b-eb NO-LOCK:
+          FIRST b-est WHERE 
+            b-est.company EQ b-eb.company AND 
+            b-est.est-no EQ b-eb.est-no NO-LOCK:
 
         RUN ce/com/istandem.p (ROWID(b-est), OUTPUT ll-tandem).
 

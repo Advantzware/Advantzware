@@ -124,7 +124,7 @@ DEF TEMP-TABLE tt-inv NO-UNDO  FIELD sorter    LIKE ar-inv.inv-no
                                                          ~
         EACH ar-cashl                                    ~
         FIELDS(check-no c-no posted inv-no company       ~
-               cust-no memo amt-disc amt-paid on-account rec_key) ~
+               cust-no memo amt-disc amt-paid on-account voided rec_key) ~
         NO-LOCK                                          ~
         WHERE ar-cashl.c-no       EQ ar-cash.c-no        ~
           AND ar-cashl.posted     EQ YES                 ~
@@ -582,6 +582,8 @@ END.
                 cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                IF cTmpField EQ "cust-name" THEN
+                   cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
         END.
         
@@ -743,7 +745,10 @@ END.
                      cExcelVarValue = cVarValue.
                      cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                     IF cTmpField EQ "cust-name" THEN
+                        cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
+                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+
             END.
 
             PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
@@ -806,6 +811,8 @@ END.
                      cExcelVarValue = cVarValue.
                      cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                     IF cTmpField EQ "cust-name" THEN
+                        cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
                      cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
 
@@ -900,6 +907,8 @@ END.
                      cExcelVarValue = cVarValue.
                      cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                     IF cTmpField EQ "cust-name" THEN
+                        cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
                      cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
 
@@ -1112,6 +1121,8 @@ END.
                 cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                IF cTmpField EQ "cust-name" THEN
+                        cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
         END.
         
@@ -1222,6 +1233,9 @@ END.
                 cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                IF cTmpField EQ "cust-name" THEN
+                        cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
+                
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
         END.
         
@@ -1860,7 +1874,11 @@ END.
                      WHEN "stat"      THEN cVarValue = "" .
                      WHEN "zip"       THEN cVarValue = ""  .
                      WHEN "cre-lim"   THEN cVarValue = "" .
-                     WHEN "phone"     THEN cVarValue = "" .
+                     WHEN "phone"    THEN DO:
+                         IF vname = "cust.cust-no" THEN
+                              cVarValue = trim(string(cust.area-code,"(xxx)") + string(cust.phone,"xxx-xxxx")) .
+                          ELSE cVarValue = "" .
+                     END.                      
                      WHEN "fax"       THEN cVarValue = "".
                      WHEN "chk-memo"  THEN cVarValue = "".
                      WHEN "day-old"   THEN cVarValue = "".
@@ -1890,15 +1908,15 @@ END.
         END.
         
 
-        IF vname = "cust.cust-no" THEN do:
-            PUT UNFORMATTED   cust.cust-no FORMAT "x(8)" space(1)  cust.name  FORMAT "x(25)"   substring(cDisplay,35,400) SKIP.
+        IF vname = "cust.cust-no" THEN do:  
+            PUT UNFORMATTED   cust.cust-no FORMAT "x(8)" space(1) cust.NAME FORMAT "x(25)"   substring(cDisplay,35,400) SKIP.
             iLinePerPage = iLinePerPage + 1.
             IF v-export THEN DO: 
                 PUT STREAM s-temp UNFORMATTED   
-                   cust.cust-no FORMAT "x(8)" ','  cust.name  FORMAT "x(25)" ','  substring(cExcelDisplay,7,400) SKIP(1).
+                   cust.cust-no FORMAT "x(8)" ','  REPLACE(cust.NAME, ',', ' ')  FORMAT "x(25)" ','  substring(cExcelDisplay,7,400) SKIP(1).
             END.
         END.
-        ELSE DO:
+        ELSE DO: 
             PUT SKIP(1) str-line SKIP . 
             PUT UNFORMATTED  "          " vname  substring(cDisplay,33,400) SKIP.
             iLinePerPage = iLinePerPage + 4 .

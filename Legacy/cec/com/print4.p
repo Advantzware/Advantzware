@@ -277,7 +277,7 @@ ELSE DO:
 END.
 
 
-  FOR EACH eb fields(company est-no form-no blank-no) NO-LOCK
+  FOR EACH eb NO-LOCK
       WHERE eb.company EQ xest.company
         AND eb.est-no  EQ xest.est-no:
     CREATE tt-rel. 
@@ -803,10 +803,10 @@ v-brd-cost = v-brd-cost + dm-tot[5].
   
 /* adders           */ RUN cec/box/pr42-add.p (v-vend-list).
 
-FIND CURRENT probe-board NO-ERROR.
-IF AVAIL probe-board THEN
-  probe-board.val[1] = probe-board.val[1] + dm-tot[5].
-FIND CURRENT probe-board NO-LOCK NO-ERROR.
+FIND CURRENT probe NO-ERROR.
+IF AVAIL probe THEN
+  probe.boardCostTotal = probe.boardCostTotal + dm-tot[5].
+FIND CURRENT probe NO-LOCK NO-ERROR.
 
 /* i n k s          */ RUN cec/com/pr4-ink.p.
 

@@ -5,8 +5,16 @@
 /*------------------------------------------------------------------------
   File: asiInstaller.w
   Description: utility to install ASI patches and releases
-  Input Parameters:  <none>
-  Output Parameters: <none>
+  Input Parameters:  ipcName - name of database to update
+                     ipcPort - database port number
+                     ipcDir - environment directory name
+                     ipcVer - current version
+                     ipcEnv - current Environment 
+                     ipcFromVer - from Env version
+                     ipcToVer - to Env version
+                     ipiLevel - users security level
+                     iplNeedBackup - backup database?
+  Output Parameters: oplSuccess - upgrade successful
   Author: MYT
   Created: 10/1/2017 and highly modified/adapted over next several months
   Change History:
@@ -14,6 +22,7 @@
                         added Clean Before Install to suppress deletion
                         of existing programs/resources directories prior
                         to install of new (lets customers stay live)
+    10/04/2018 - MYT - documented process flow in asiUpdateENV_process_flow.txt
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
@@ -63,7 +72,9 @@ ASSIGN
 DEF STREAM s1.
 
 DEF TEMP-TABLE ttAuditTbl LIKE AuditTbl.
-DEF TEMP-TABLE ttPrgms LIKE prgrms.
+DEF TEMP-TABLE ttCueCard LIKE cueCard.
+DEF TEMP-TABLE ttCueCardText LIKE cueCardText.
+DEF TEMP-TABLE ttPrgrms LIKE prgrms.
 DEF TEMP-TABLE ttPrgmxref LIKE prgmxref.
 DEF TEMP-TABLE ttEmailcod LIKE emailcod.
 DEF TEMP-TABLE ttNotes LIKE notes.
@@ -309,15 +320,15 @@ DEF VAR cDeltaFileName AS CHAR INITIAL "asi166167.df" NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-5 tbBackupDBs tbUserControl ~
-tbUserCleanup tbDelBadData tbUpdateMaster tbRunDataFix tbDelDupeNotes ~
-fiLicensedUsers tbUpdateNK1s bProcess tbReftableConv tbLoadMenus eStatus ~
-tbRelNotes tbInstallFiles tbUpdateIni 
+tbUserCleanup tbDelBadData tbUpdateMaster tbRunDataFix tbUpdateNK1s ~
+fiLicensedUsers tbReftableConv bProcess tbLoadMenus tbRelNotes eStatus ~
+tbInstallFiles tbUpdateIni 
 &Scoped-Define DISPLAYED-OBJECTS fiSiteName fiOptions fiHostname ~
 tbBackupDBs tbUserControl fiEnvironment tbUserCleanup fiAsiDbName ~
 fiAudDbName tbDelBadData fiAsiPortNo fiAudPortNo tbUpdateMaster fiFromVer ~
-tbRunDataFix fiToVer tbDelDupeNotes fiLicensedUsers tbUpdateNK1s ~
-tbUpdateFileLocs tbReftableConv tbLoadMenus eStatus tbRelNotes ~
-tbBackupFiles tbInstallFiles tbUpdateIni fiLogFile 
+tbRunDataFix fiToVer tbUpdateNK1s fiLicensedUsers tbUpdateFileLocs ~
+tbReftableConv tbLoadMenus tbRelNotes eStatus tbBackupFiles tbInstallFiles ~
+tbUpdateIni fiLogFile 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -327,6 +338,16 @@ tbBackupFiles tbInstallFiles tbUpdateIni fiLogFile
 
 
 /* ************************  Function Prototypes ********************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fFixYear C-Win
+FUNCTION fFixYear RETURNS DATE 
+  (INPUT daDate AS DATE) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD intVer C-Win 
 FUNCTION intVer RETURNS INTEGER
@@ -428,11 +449,6 @@ DEFINE VARIABLE tbDelBadData AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbDelDupeNotes AS LOGICAL INITIAL no 
-     LABEL "Delete duplicate notes" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 34 BY .81 NO-UNDO.
-
 DEFINE VARIABLE tbInstallFiles AS LOGICAL INITIAL no 
      LABEL "Install new System Files" 
      VIEW-AS TOGGLE-BOX
@@ -508,18 +524,17 @@ DEFINE FRAME DEFAULT-FRAME
      fiFromVer AT ROW 6.71 COL 29 COLON-ALIGNED
      tbRunDataFix AT ROW 7.19 COL 82 WIDGET-ID 400
      fiToVer AT ROW 7.67 COL 29 COLON-ALIGNED WIDGET-ID 46
-     tbDelDupeNotes AT ROW 8.14 COL 82 WIDGET-ID 390
+     tbUpdateNK1s AT ROW 8.14 COL 82 WIDGET-ID 396
      fiLicensedUsers AT ROW 8.62 COL 29 COLON-ALIGNED WIDGET-ID 440
-     tbUpdateNK1s AT ROW 9.1 COL 82 WIDGET-ID 396
-     tbUpdateFileLocs AT ROW 10.05 COL 82 WIDGET-ID 398
+     tbUpdateFileLocs AT ROW 9.1 COL 82 WIDGET-ID 398
+     tbReftableConv AT ROW 10.05 COL 82 WIDGET-ID 504
      bProcess AT ROW 10.29 COL 15 WIDGET-ID 404
-     tbReftableConv AT ROW 11 COL 82 WIDGET-ID 504
-     tbLoadMenus AT ROW 11.95 COL 82 WIDGET-ID 378
+     tbLoadMenus AT ROW 11 COL 82 WIDGET-ID 378
+     tbRelNotes AT ROW 11.95 COL 82 WIDGET-ID 382
      eStatus AT ROW 12.67 COL 2 NO-LABEL
-     tbRelNotes AT ROW 12.91 COL 82 WIDGET-ID 382
-     tbBackupFiles AT ROW 13.86 COL 82 WIDGET-ID 386
-     tbInstallFiles AT ROW 14.81 COL 82 WIDGET-ID 388
-     tbUpdateIni AT ROW 15.76 COL 82 WIDGET-ID 450
+     tbBackupFiles AT ROW 12.91 COL 82 WIDGET-ID 386
+     tbInstallFiles AT ROW 13.86 COL 82 WIDGET-ID 388
+     tbUpdateIni AT ROW 14.81 COL 82 WIDGET-ID 450
      fiLogFile AT ROW 22.43 COL 5 COLON-ALIGNED NO-LABEL
      "Status:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 11.95 COL 3 WIDGET-ID 54
@@ -545,7 +560,7 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "ASI Install/Update Processor"
+         TITLE              = "ASIupdate 160800-01 Environment"
          HEIGHT             = 22.67
          WIDTH              = 120
          MAX-HEIGHT         = 34.29
@@ -614,7 +629,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* ASI Install/Update Processor */
+ON END-ERROR OF C-Win /* ASIupdate 160800-01 Environment */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -628,7 +643,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* ASI Install/Update Processor */
+ON WINDOW-CLOSE OF C-Win /* ASIupdate 160800-01 Environment */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -732,7 +747,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         tbUpdateMaster:CHECKED = TRUE
         tbLoadMenus:CHECKED = TRUE
         tbRunDataFix:CHECKED = TRUE
-        tbDelDupeNotes:CHECKED = TRUE
         tbUpdateNK1s:CHECKED = TRUE
         tbUpdateFileLocs:CHECKED = TRUE
         tbRefTableConv:CHECKED = TRUE
@@ -795,14 +809,14 @@ PROCEDURE enable_UI :
   DISPLAY fiSiteName fiOptions fiHostname tbBackupDBs tbUserControl 
           fiEnvironment tbUserCleanup fiAsiDbName fiAudDbName tbDelBadData 
           fiAsiPortNo fiAudPortNo tbUpdateMaster fiFromVer tbRunDataFix fiToVer 
-          tbDelDupeNotes fiLicensedUsers tbUpdateNK1s tbUpdateFileLocs 
-          tbReftableConv tbLoadMenus eStatus tbRelNotes tbBackupFiles 
-          tbInstallFiles tbUpdateIni fiLogFile 
+          tbUpdateNK1s fiLicensedUsers tbUpdateFileLocs tbReftableConv 
+          tbLoadMenus tbRelNotes eStatus tbBackupFiles tbInstallFiles 
+          tbUpdateIni fiLogFile 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE RECT-5 tbBackupDBs tbUserControl tbUserCleanup tbDelBadData 
-         tbUpdateMaster tbRunDataFix tbDelDupeNotes fiLicensedUsers 
-         tbUpdateNK1s bProcess tbReftableConv tbLoadMenus eStatus tbRelNotes 
-         tbInstallFiles tbUpdateIni 
+         tbUpdateMaster tbRunDataFix tbUpdateNK1s fiLicensedUsers 
+         tbReftableConv bProcess tbLoadMenus tbRelNotes eStatus tbInstallFiles 
+         tbUpdateIni 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -811,9 +825,38 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipActivateParent C-Win 
+PROCEDURE ipActivateParent :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcPrgmName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID   AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER prgrms FOR prgrms.
+    
+    FIND FIRST prgrms NO-LOCK
+         WHERE prgrms.prgmName EQ ipcPrgmName
+         NO-ERROR.
+    IF AVAILABLE prgrms THEN DO:
+        FIND FIRST xUserMenu
+             WHERE xUserMenu.user_id  EQ ipcUserID
+               AND xUserMenu.prgmName EQ ipcPrgmName
+             NO-ERROR.
+        IF AVAILABLE xUserMenu THEN
+        DELETE xUserMenu.
+        IF prgrms.itemParent NE "" THEN
+        RUN ipActivateParent (prgrms.itemParent, ipcUserID).
+    END. /* if avail */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddLocationData C-Win
-PROCEDURE ipAddLocationData:
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddLocationData C-Win 
+PROCEDURE ipAddLocationData :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -839,11 +882,9 @@ PROCEDURE ipAddLocationData:
     END.
  
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddSuppUserRecords C-Win 
 PROCEDURE ipAddSuppUserRecords :
@@ -1063,8 +1104,6 @@ PROCEDURE ipBackupDataFiles :
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
-        CREATE ttAuditTbl.
-        BUFFER-COPY {&cFile} TO ttAuditTbl.
     END.
     OUTPUT CLOSE.
 
@@ -1072,8 +1111,6 @@ PROCEDURE ipBackupDataFiles :
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
-        CREATE ttSysCtrl.
-        BUFFER-COPY {&cFile} TO ttSysCtrl.
     END.
     OUTPUT CLOSE.
 
@@ -1081,8 +1118,6 @@ PROCEDURE ipBackupDataFiles :
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
-        CREATE ttSysCtrlShipto.
-        BUFFER-COPY {&cFile} TO ttSysCtrlShipto.
     END.
     OUTPUT CLOSE.
 
@@ -1136,6 +1171,20 @@ PROCEDURE ipBackupDataFiles :
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile xusermenu
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile cueCard
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile cueCardText
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
@@ -1209,7 +1258,7 @@ PROCEDURE ipBackupDBs :
                        cThisDir + "\" +
                        cThisDB + ".lk".
         .
-    
+
         IF SEARCH(cLockFile) EQ ? THEN 
         DO:
             MESSAGE 
@@ -1600,17 +1649,20 @@ PROCEDURE ipConvertModule :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcFrom AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcTo AS CHAR NO-UNDO.
+    
     FIND FIRST module NO-LOCK WHERE 
-        module.module = cfrom 
+        module.module = ipcfrom 
         NO-ERROR.
     IF NOT AVAIL module THEN RETURN.
   
-    RUN ipStatus ("    Converting module " + cFrom + " to " + cTo).
+    RUN ipStatus ("    Converting module " + ipcFrom + " to " + ipcTo).
 
     FIND FIRST bf-module EXCLUSIVE WHERE 
         ROWID(bf-module) = ROWID(module) NO-ERROR.
     IF AVAIL bf-module THEN ASSIGN
-        bf-module.module = cTo.
+        bf-module.module = ipcTo.
         
 END PROCEDURE.
 
@@ -2013,26 +2065,34 @@ PROCEDURE ipDataFix :
     ASSIGN 
         cThisEntry = fiFromVer:{&SV}.
 
-    IF intVer(cThisEntry) LT 160001 THEN
+    IF intVer(cThisEntry) LT 160010 THEN
         RUN ipDataFix160001.
-    IF intVer(cThisEntry) LT 160104 THEN
+    IF intVer(cThisEntry) LT 160140 THEN
         RUN ipDataFix160104.
     IF intVer(cThisEntry) LT 160200 THEN
         RUN ipDataFix160200.
     IF intVer(cThisEntry) LT 160600 THEN
         RUN ipDataFixConfig.
-    IF intVer(cThisEntry) LT 160609 THEN
+    IF intVer(cThisEntry) LT 160690 THEN
         RUN ipDataFix160609.
     IF intVer(cThisEntry) LT 160700 THEN 
         RUN ipDataFix160700.
-    IF intVer(cThisEntry) LT 160704 THEN
+    IF intVer(cThisEntry) LT 160740 THEN
         RUN ipDataFix160704.
-    IF intVer(cThisEntry) LT 160708 THEN
+    IF intVer(cThisEntry) LT 160780 THEN
         RUN ipDataFix160708.
     IF intVer(cThisEntry) LT 160712 THEN
         RUN ipDataFix160712.
     IF intVer(cThisEntry) LT 160800 THEN
         RUN ipDataFix160800.
+    IF intVer(cThisEntry) LT 160840 THEN
+        RUN ipDataFix160804.
+    IF intVer(cThisEntry) LT 160850 THEN
+        RUN ipDataFix160805.
+    IF intVer(cThisEntry) LT 160851 THEN
+        RUN ipDataFix160851.
+    IF intVer(cThisEntry) LT 160899 THEN
+        RUN ipDataFix160899.
 
     RUN ipStatus ("Completed Data Fixes").
 
@@ -2053,30 +2113,6 @@ PROCEDURE ipDataFix160001 :
     DISABLE TRIGGERS FOR LOAD OF bf-reftable.
 
     RUN ipStatus ("  Data Fix 160001...").
-
-    OUTPUT STREAM s1 TO reftable-phone-save.d APPEND.
-
-    FOR EACH emailcod NO-LOCK:
-        FOR EACH reftable NO-LOCK WHERE 
-            reftable.reftable = "" AND 
-            reftable.code = emailcod.emailcod:
-            FIND FIRST phone NO-LOCK WHERE 
-                RECID(phone) = INT(reftable.rec_key)
-                NO-ERROR.
-            IF AVAIL phone THEN DO:
-                EXPORT STREAM s1 reftable.
-                FIND bf-reftable EXCLUSIVE WHERE 
-                    ROWID(bf-reftable) EQ ROWID(reftable)
-                    NO-ERROR.
-                IF AVAIL bf-reftable THEN ASSIGN
-                    bf-reftable.rec_key = STRING(phone.rec_key).
-                ASSIGN 
-                    cnt = cnt + 1.
-            END. /* If matching phone record found */
-        END. /* each reftable */
-    END. /* each emailcod */
-
-    OUTPUT STREAM s1 CLOSE.
 
 END PROCEDURE.
 
@@ -2139,6 +2175,22 @@ PROCEDURE ipDataFix160200 :
                 vend.payment-type = "Check".
         END.
     END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160600 C-Win 
+PROCEDURE ipDataFix160600 :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160600...").
+
+    RUN ipDelDupeNotes.
+
 
 END PROCEDURE.
 
@@ -2283,6 +2335,70 @@ PROCEDURE ipDataFix160800 :
     RUN ipMoveUserMenusToDatabase.
     RUN ipAddLocationData.
     RUN ipVendorMaxValue.
+    RUN ipSetImageFiles.
+    RUN ipTrackUsage.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160804 C-Win 
+PROCEDURE ipDataFix160804 :
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160804...").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160805 C-Win 
+PROCEDURE ipDataFix160805 :
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160805...").
+
+    RUN ipRemoveUserMenu.
+    RUN ipFixUserPrint.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160851 C-Win
+PROCEDURE ipDataFix160851:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160851...").
+
+    RUN ipFixBadYears.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160899 C-Win 
+PROCEDURE ipDataFix160899 :
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160899...").
+
+    RUN ipUseOldNK1.
 
 END PROCEDURE.
 
@@ -2488,7 +2604,7 @@ PROCEDURE ipExpandFiles :
 
     ASSIGN 
         cThisEntry = fiEnvironment:{&SV}
-        cTgtEnv = cMapDir + "\" + cEnvDir + "\" + fiEnvironment:{&SV}.
+        cTgtEnv = cEnvDir + "\" + fiEnvironment:{&SV}.
 
     RUN ipStatus ("  Expanding files...").
 
@@ -2503,7 +2619,9 @@ PROCEDURE ipExpandFiles :
     OS-COMMAND SILENT VALUE(cCmdLine3).
 
     /* Skip the copy part, just MOVE the files  */
-    RUN ipStatus ("  Moving expanded files from Patch to " + cThisEntry + " temp directory").
+    RUN ipStatus ("  Moving expanded files from ").
+    RUN ipStatus ("    " + cUpdProgramDir + " to").
+    RUN ipStatus ("    " + cTgtEnv).
     OS-RENAME VALUE(cUpdProgramDir + "\Override") VALUE(cTgtEnv + "\OverrideN").
     OS-RENAME VALUE(cUpdProgramDir + "\Programs") VALUE(cTgtEnv + "\ProgramsN").
     OS-RENAME VALUE(cUpdProgramDir + "\Resources") VALUE(cTgtEnv + "\ResourcesN").
@@ -2544,7 +2662,7 @@ PROCEDURE ipExpandVarNames :
         cPatchNo = fiToVer:{&SV}
         cAdminDir = cMapDir + "\" + cAdminDir
         cBackupDir = cMapDir + "\" + cBackupDir
-        cDBDir = cMapDir + "\" + cDbDir
+        /* cDBDir = cMapDir + "\" + cDbDir */
         cDocDir = cMapDir + "\" + cDocDir
         cDeskDir = cMapDir + "\" + cDeskDir
         cEnvDir = cMapDir + "\" + cEnvDir
@@ -2556,12 +2674,12 @@ PROCEDURE ipExpandVarNames :
         cDbBackup = cBackupDir + "\" + cDbBackup
         cPgmBackup = cBackupDir + "\" + cPgmBackup
         cResBackup = cBackupDir + "\" + cResBackup
-        cDbAuditDir = cDbDir + "\" + cDbAuditDir
-        cDbDataDir = cDbDir + "\" + cDbDataDir
-        cDbProdDir = cDbDir + "\" + cDbProdDir
-        cDbShipDir = cDbDir + "\" + cDbShipDir
-        cDbStructDir = cDbDir + "\" + cDbStructDir
-        cDbTestDir = cDbDir + "\" + cDbTestDir
+        cDbAuditDir = cMapDir + "\" + cDbDir + "\" + cDbAuditDir
+        cDbDataDir = cMapDir + "\" + cDbDir + "\" + cDbDataDir
+        cDbProdDir = cMapDir + "\" + cDbDir + "\" + cDbProdDir
+        cDbShipDir = cMapDir + "\" + cDbDir + "\" + cDbShipDir
+        cDbStructDir = cMapDir + "\" + cDbDir + "\" + cDbStructDir
+        cDbTestDir = cMapDir + "\" + cDbDir + "\" + cDbTestDir
         cEnvProdDir = cEnvDir + "\" + cEnvProdDir
         cEnvTestDir = cEnvDir + "\" + cEnvTestDir
         cUpdAdminDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdAdminDir
@@ -2687,6 +2805,62 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixBadYears C-Win
+PROCEDURE ipFixBadYears:
+/*------------------------------------------------------------------------------
+ Purpose:   ensure year values are in 20th or 21st century
+ Notes:     from ticket 41037
+------------------------------------------------------------------------------*/
+    RUN ipStatus("   Fix year values not in this century (41037)").
+
+    DISABLE TRIGGERS FOR LOAD OF oe-ord.
+    DISABLE TRIGGERS FOR LOAD OF oe-ordl.
+    DISABLE TRIGGERS FOR LOAD OF oe-rel.
+    DISABLE TRIGGERS FOR LOAD OF oe-relh.
+    DISABLE TRIGGERS FOR LOAD OF oe-rell.
+    
+    FOR EACH oe-ord WHERE (oe-ord.ord-date GT 09/01/2018 
+                           OR oe-ord.ord-date LT 12/31/0100):
+        /* Note: do in multiple assigns, else function only evaluates once */
+        ASSIGN oe-ord.ord-date = fFixYear(oe-ord.ord-date).
+        ASSIGN oe-ord.prod-date = fFixYear(oe-ord.prod-date).
+        ASSIGN oe-ord.due-date = fFixYear(oe-ord.due-date).
+        ASSIGN oe-ord.last-date = fFixYear(oe-ord.last-date).
+        ASSIGN oe-ord.inv-date = fFixYear(oe-ord.inv-date).
+        ASSIGN oe-ord.upd-date = fFixYear(oe-ord.upd-date).
+        ASSIGN oe-ord.approved-date = fFixYear(oe-ord.approved-date).
+        ASSIGN oe-ord.entered-date = fFixYear(oe-ord.entered-date).
+        ASSIGN oe-ord.updated-date = fFixYear(oe-ord.updated-date).
+        ASSIGN oe-ord.closedate = fFixYear(oe-ord.closedate).
+        FOR EACH oe-ordl OF oe-ord:
+            ASSIGN oe-ordl.req-date = fFixYear(oe-ordl.req-date).
+            ASSIGN oe-ordl.prom-date = fFixYear(oe-ordl.prom-date).
+            ASSIGN oe-ordl.upd-date = fFixYear(oe-ordl.upd-date).
+            ASSIGN oe-ordl.job-start-date = fFixYear(oe-ordl.job-start-date).
+        END.
+        FOR EACH oe-rel OF oe-ord:
+            ASSIGN oe-rel.rel-date = fFixYear(oe-rel.rel-date).
+            ASSIGN oe-rel.ship-date = fFixYear(oe-rel.ship-date).
+            ASSIGN oe-rel.upd-date = fFixYear(oe-rel.upd-date).
+            FOR EACH oe-relh OF oe-rel:
+                ASSIGN oe-relh.rel-date = fFixYear(oe-relh.rel-date).
+                ASSIGN oe-relh.upd-date = fFixYear(oe-relh.upd-date).
+                ASSIGN oe-relh.prt-date = fFixYear(oe-relh.prt-date).
+            END.
+            FOR EACH oe-rell OF oe-rel:
+                ASSIGN oe-relh.upd-date = fFixYear(oe-rell.upd-date).
+            END.
+        END.
+    END.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixPoEdiDirs C-Win 
 PROCEDURE ipFixPoEdiDirs :
 /*------------------------------------------------------------------------------
@@ -2725,6 +2899,32 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixUserPrint C-Win
+PROCEDURE ipFixUserPrint:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Change 'asi' userprint records to 'admin'").
+
+    DISABLE TRIGGERS FOR LOAD OF user-print.
+    
+    FOR EACH user-print EXCLUSIVE WHERE
+        user-print.user-id EQ "asi":
+        ASSIGN 
+            user-print.user-id = "admin".
+    END. 
+         
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixUsers C-Win 
 PROCEDURE ipFixUsers :
@@ -2853,15 +3053,105 @@ PROCEDURE ipLoadAuditRecs :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading AuditTbl Records").
 
-    DISABLE TRIGGERS FOR LOAD OF audittbl.
+    &SCOPED-DEFINE tablename audittbl
     
-    INPUT FROM VALUE(cUpdDataDir + "\audittbl.d") NO-ECHO.
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
-        CREATE AuditTbl.
-        IMPORT AuditTbl.
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.auditTable EQ tt{&tablename}.auditTable
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
+        END.
+    END.
+    INPUT CLOSE.
+
+    /* Delete records no longer used */
+    FOR EACH {&tablename} EXCLUSIVE WHERE
+        NOT CAN-FIND(FIRST tt{&tablename} WHERE tt{&tablename}.auditTable = {&tablename}.auditTable ):
+        DELETE {&tablename}.
+    END.
+    
+    EMPTY TEMP-TABLE tt{&tablename}.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadCueCard C-Win 
+PROCEDURE ipLoadCueCard :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading Cue Cards").
+
+    &SCOPED-DEFINE tablename cueCard
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.cuePrgmName EQ tt{&tablename}.cuePrgmName AND 
+            {&tablename}.isActive EQ tt{&tablename}.isActive AND 
+            {&tablename}.cueID EQ tt{&tablename}.cueID 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
+        END.
     END.
     INPUT CLOSE.
         
+    EMPTY TEMP-TABLE tt{&tablename}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadCueCardText C-Win 
+PROCEDURE ipLoadCueCardText :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading Cue Card Text").
+
+    &SCOPED-DEFINE tablename cueCardText
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.cueID EQ tt{&tablename}.cueID AND 
+            {&tablename}.isActive EQ tt{&tablename}.isActive AND 
+            {&tablename}.cueOrder EQ tt{&tablename}.cueOrder 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
+        END.
+    END.
+    INPUT CLOSE.
+        
+    EMPTY TEMP-TABLE tt{&tablename}.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2876,24 +3166,25 @@ PROCEDURE ipLoadEmailCodes :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Email codes").
 
-    DISABLE TRIGGERS FOR LOAD OF emailcod.
+    &SCOPED-DEFINE tablename emailcod
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     
-    INPUT FROM VALUE(cUpdDataDir + "\emailcod.d") NO-ECHO.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
-        CREATE ttEmailcod.
-        IMPORT 
-            ttEmailcod.
-        FIND FIRST emailcod EXCLUSIVE WHERE 
-            emailcod.emailcod EQ ttEmailcod.emailcod
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.emailcod EQ tt{&tablename}.emailcod
             NO-ERROR.
-        IF NOT AVAIL emailcod THEN DO:
-            CREATE emailcod.
-            BUFFER-COPY ttEmailcod TO emailcod.
+        IF NOT AVAIL {&tablename} THEN DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
         END.
     END.
     INPUT CLOSE.
         
-    EMPTY TEMP-TABLE ttEmailcod.
+    EMPTY TEMP-TABLE tt{&tablename}.
   
 END PROCEDURE.
 
@@ -2909,20 +3200,22 @@ PROCEDURE ipLoadLookups :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Lookups").
 
-    DISABLE TRIGGERS FOR LOAD OF lookups.
+    &SCOPED-DEFINE tablename lookups
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     
-    FOR EACH lookups:
-        DELETE lookups.
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
     END.
     
-    INPUT FROM VALUE(cUpdDataDir + "\lookups.d") NO-ECHO.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
-        CREATE lookups.
-        IMPORT lookups.
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
     END.
     INPUT CLOSE.
         
-    EMPTY TEMP-TABLE ttLookups.
+    EMPTY TEMP-TABLE tt{&tablename}.
 
 END PROCEDURE.
 
@@ -2934,7 +3227,7 @@ PROCEDURE ipLoadMenus :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
-  Notes:       
+  Notes:       Deprecated in 16.8.5
 ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ipcDir AS CHAR NO-UNDO.
     DEF INPUT PARAMETER ipcTgtDir AS CHAR NO-UNDO.
@@ -2943,7 +3236,6 @@ PROCEDURE ipLoadMenus :
     DEF VAR cTgtEnv AS CHAR NO-UNDO.
 
     RUN ipStatus ("Loading New Menus").
-
     
     ASSIGN 
         cTgtEnv = cEnvDir + "\" + fiEnvironment:{&SV}.
@@ -2979,45 +3271,51 @@ PROCEDURE ipLoadModules :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Module Records").
 
-    DISABLE TRIGGERS FOR LOAD OF module.
+    &SCOPED-DEFINE tablename module
     
-    INPUT FROM VALUE(cUpdDataDir + "\module.d") NO-ECHO.
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
-        CREATE ttModule.
-        IMPORT ttModule.
-        IF CAN-FIND(module WHERE 
-                    module.db-name EQ ttModule.db-name AND
-                    module.module EQ ttModule.module) THEN DO:
-            DELETE ttModule.
-            NEXT.
-        END.
-        ELSE DO:
-            CREATE module.
-            BUFFER-COPY ttModule TO module.
-            DELETE ttModule.
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.db-name EQ tt{&tablename}.db-name AND 
+            {&tablename}.module EQ tt{&tablename}.module
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
         END.
     END.
     INPUT CLOSE.
+
+    /* Delete records no longer used */
+    FOR EACH {&tablename} EXCLUSIVE WHERE 
+        NOT CAN-FIND(FIRST tt{&tablename} WHERE 
+                    tt{&tablename}.db-name EQ {&tablename}.db-name AND
+                    tt{&tablename}.module EQ {&tablename}.module):
+        DELETE {&tablename}.
+    END.
         
-    EMPTY TEMP-TABLE ttmodule.
+    EMPTY TEMP-TABLE tt{&tablename}.
 
-/* From Wade's convertModule.p in ticket 23532 */
-cfrom = "m2." . cTo = "outboundProcess." . RUN ipConvertModule.
-
-cfrom = "m31." . cTo = "eddoc." . RUN ipConvertModule.
-cfrom = "m33." . cTo = "edivtran." . RUN ipConvertModule.
-cfrom = "m34." . cTo = "wedshtr." . RUN ipConvertModule.
-cfrom = "m36." . cTo = "edcat." . RUN ipConvertModule.
-
-cfrom = "m41." . cTo = "edmast." . RUN ipConvertModule.
-cfrom = "m42." . cTo = "edcode." . RUN ipConvertModule.
-cfrom = "m43." . cTo = "edShipTo." . RUN ipConvertModule.
-cfrom = "m44." . cTo = "edICXRef." . RUN ipConvertModule.
-cfrom = "m45." . cTo = "edshipvia." . RUN ipConvertModule.
-cfrom = "m46." . cTo = "edco." . RUN ipConvertModule.
-cfrom = "m47." . cTo = "edSetID." . RUN ipConvertModule.
-cfrom = "m48." . cTo = "edPartnerGrp." . RUN ipConvertModule.
-cfrom = "m49." . cTo = "ediPartnerSegment." . RUN ipConvertModule.
+    /* From Wade's convertModule.p in ticket 23532 */
+    RUN ipConvertModule ("m2.", "outboundProcess.").
+    RUN ipConvertModule ("m31.", "eddoc.").
+    RUN ipConvertModule ("m33.", "edivtran.").
+    RUN ipConvertModule ("m34.", "wedshtr.").
+    RUN ipConvertModule ("m36.", "edcat.").
+    RUN ipConvertModule ("m41.", "edmast.").
+    RUN ipConvertModule ("m42.", "edcode.").
+    RUN ipConvertModule ("m43.", "edShipto.").
+    RUN ipConvertModule ("m44.", "edICXRef.").
+    RUN ipConvertModule ("m45.", "edshipvia.").
+    RUN ipConvertModule ("m46.", "edco.").
+    RUN ipConvertModule ("m47.", "edSetID.").
+    RUN ipConvertModule ("m48.", "edPartnerGrp.").
+    RUN ipConvertModule ("m49.", "edPartnerSegment.").
 
 END PROCEDURE.
 
@@ -3039,6 +3337,14 @@ PROCEDURE ipLoadNewUserData :
 
     /* Add/convert data for new users table fields */
     FOR EACH users EXCLUSIVE:
+
+        ASSIGN
+            users.userImage[1] = IF users.userImage[1] = "" THEN "Graphics\32x32\user.png" ELSE users.userImage[1]
+            users.showMnemonic = IF users.showMnemonic = "" THEN "All" ELSE users.showMnemonic
+            users.positionMnemonic = IF users.positionMnemonic = "" THEN "Begin" ELSE users.positionMnemonic
+            users.use_colors = FALSE
+            users.use_fonts = FALSE.
+
         IF users.userType = "" OR users.userType = ? THEN DO:
             CASE users.user_id:
                 WHEN "ASI" OR
@@ -3055,12 +3361,7 @@ PROCEDURE ipLoadNewUserData :
                 OTHERWISE ASSIGN users.securityLevel = 100.
             END CASE.
         END.
-        /* Ticket 30974 - disable colors/fonts */
-        ASSIGN
-            users.use_colors = FALSE
-            users.use_fonts = FALSE.
-            
-
+        
         FOR EACH reftable EXCLUSIVE WHERE 
             reftable.reftable EQ "users.user-docs" AND
             reftable.company EQ users.user_id:
@@ -3107,7 +3408,6 @@ PROCEDURE ipLoadNewUserData :
         END.
     END. /* each users */
 
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3122,119 +3422,117 @@ PROCEDURE ipLoadPrograms :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Program Master Records").
 
-    DISABLE TRIGGERS FOR LOAD OF prgrms.
-    
-    INPUT FROM VALUE(cUpdDataDir + "\prgrms.d") NO-ECHO.
-    REPEAT:
-        CREATE ttPrgms.
-        IMPORT 
-            ttPrgms.prgmname
-            ttPrgms.prgtitle
-            ttPrgms.run_persistent
-            ttPrgms.can_run
-            ttPrgms.can_create
-            ttPrgms.can_update
-            ttPrgms.can_delete
-            ttPrgms.dir_group
-            ttPrgms.use_colors
-            ttPrgms.use_fonts
-            ttPrgms.widget_bgc
-            ttPrgms.widget_fgc
-            ttPrgms.widget_font
-            ttPrgms.track_usage
-            ttPrgms.popup
-            ttPrgms.prgm_ver
-            ttPrgms.menu_item
-            ttPrgms.mfgroup 
-            ttPrgms.rec_key.
+    &SCOPED-DEFINE tablename prgrms
 
-        FIND FIRST prgrms EXCLUSIVE WHERE 
-            prgrms.prgmname EQ ttPrgms.prgmname 
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.prgmname EQ tt{&tablename}.prgmname 
             NO-ERROR.
-        IF NOT AVAIL prgrms THEN DO:
-            CREATE prgrms.
-            BUFFER-COPY ttPrgms TO prgrms
+        IF NOT AVAIL {&tablename} THEN DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}
             ASSIGN 
-                prgrms.can_run = '*'
-                prgrms.can_create = '*'
-                prgrms.can_update = '*'
-                prgrms.can_delete = '*'.
+                {&tablename}.can_run = '*'
+                {&tablename}.can_create = '*'
+                {&tablename}.can_update = '*'
+                {&tablename}.can_delete = '*'.
         END.
         ELSE DO:
             ASSIGN 
-                prgrms.prgtitle = ttPrgms.prgtitle
-                prgrms.run_persistent = ttPrgms.RUN_persistent
-                prgrms.dir_group = ttPrgms.DIR_group
-                prgrms.use_colors = ttPrgms.USE_colors
-                prgrms.use_fonts = ttPrgms.USE_fonts
-                prgrms.track_usage = ttPrgms.track_usage
-                prgrms.popup = ttPrgms.popup
-                prgrms.prgm_ver = ttPrgms.prgm_ver
-                prgrms.menu_item = ttPrgms.MENU_item
-                prgrms.mfgroup = ttPrgms.mfgroup.
+                {&tablename}.prgtitle = tt{&tablename}.prgtitle
+                {&tablename}.run_persistent = tt{&tablename}.run_persistent
+                {&tablename}.dir_group = tt{&tablename}.dir_group
+                {&tablename}.use_colors = tt{&tablename}.use_colors
+                {&tablename}.use_fonts = tt{&tablename}.use_fonts
+                {&tablename}.track_usage = tt{&tablename}.track_usage
+                {&tablename}.popup = tt{&tablename}.popup
+                {&tablename}.prgm_ver = tt{&tablename}.prgm_ver
+                {&tablename}.menu_item = tt{&tablename}.MENU_item
+                {&tablename}.mfgroup = tt{&tablename}.mfgroup
+                {&tablename}.menuOrder = tt{&tablename}.menuOrder
+                {&tablename}.menuLevel = tt{&tablename}.menuLevel
+                {&tablename}.itemParent = tt{&tablename}.itemParent
+                {&tablename}.mnemonic = tt{&tablename}.mnemonic
+                {&tablename}.systemType = tt{&tablename}.systemType
+                {&tablename}.menuImage = tt{&tablename}.menuImage
+                {&tablename}.translation = tt{&tablename}.translation.
              DO i = 1 TO 13:
                 ASSIGN 
-                    prgrms.widget_bgc[i] = ttPrgms.WIDGET_bgc[i]
-                    prgrms.widget_fgc[i] = ttPrgms.WIDGET_fgc[i]
-                    prgrms.widget_font[i] = ttPrgms.WIDGET_font[i].
+                    {&tablename}.widget_bgc[i] = tt{&tablename}.WIDGET_bgc[i]
+                    {&tablename}.widget_fgc[i] = tt{&tablename}.WIDGET_fgc[i]
+                    {&tablename}.widget_font[i] = tt{&tablename}.WIDGET_font[i].
             END.
         END.
     END.
     INPUT CLOSE.
         
     /* Delete records no longer used */
-    FOR EACH prgrms EXCLUSIVE WHERE 
-        NOT CAN-FIND(FIRST ttPrgms WHERE ttPrgms.prgmname = prgrms.prgmname ):
-        DELETE prgrms.
+    FOR EACH {&tablename} EXCLUSIVE WHERE 
+        NOT CAN-FIND(FIRST tt{&tablename} WHERE tt{&tablename}.prgmname = {&tablename}.prgmname ):
+        DELETE {&tablename}.
     END.
     
-    EMPTY TEMP-TABLE ttPrgms.
+    EMPTY TEMP-TABLE tt{&tablename}.
 
     /* Fix "about." prgrms record description */
-    FIND FIRST prgrms EXCLUSIVE-LOCK WHERE
-        prgrms.prgmname EQ "about." 
+    FIND FIRST {&tablename} EXCLUSIVE-LOCK WHERE
+        {&tablename}.prgmname EQ "about." 
         NO-ERROR.
-    IF NOT AVAILABLE prgrms THEN DO:
-        CREATE prgrms.
+    IF NOT AVAILABLE {&tablename} THEN DO:
+        CREATE {&tablename}.
         ASSIGN
-            prgrms.prgmname = "about."
-            prgrms.dir_group = "nosweat"
-            prgrms.run_persistent = YES
-            prgrms.menu_item = YES
+            {&tablename}.prgmname = "about."
+            {&tablename}.dir_group = "nosweat"
+            {&tablename}.run_persistent = YES
+            {&tablename}.menu_item = YES
             .
     END.
     ASSIGN
-        prgrms.prgtitle = "About". 
+        {&tablename}.prgtitle = "About". 
         
-    /* Fix "audit." program master regardless of existing entry */
-    FIND FIRST prgrms EXCLUSIVE-LOCK WHERE
-        prgrms.prgmname EQ "audit." 
+    /* Fix "w-head." program master (Help Maint) regardless of existing entry */
+    FIND FIRST {&tablename} EXCLUSIVE-LOCK WHERE
+        {&tablename}.prgmname EQ "w-head." 
         NO-ERROR.
-    IF NOT AVAILABLE prgrms THEN
-        CREATE prgrms.
-    ASSIGN
-        prgrms.prgmname = "audit."
-        prgrms.dir_group = "system"
-        prgrms.run_persistent = YES
-        prgrms.menu_item = YES
+    IF AVAILABLE {&tablename} THEN ASSIGN
+        {&tablename}.securityLevelUser = 1000
+        {&tablename}.securityLevelDefault = 1000
         .
         
+    /* Fix "audit." program master regardless of existing entry */
+    FIND FIRST {&tablename} EXCLUSIVE-LOCK WHERE
+        {&tablename}.prgmname EQ "audit." 
+        NO-ERROR.
+    IF NOT AVAILABLE {&tablename} THEN
+        CREATE {&tablename}.
+    ASSIGN
+        {&tablename}.dir_group = "system"
+        {&tablename}.run_persistent = YES
+        {&tablename}.menu_item = YES
+        .
+
     /* Ensure 'admin' user has same privileges as 'asi' */
     /* This is better handled with new security, but eliminates some access issues */
     /* See ticket 27968 */
-    FOR EACH prgrms:
-        IF CAN-DO(prgrms.can_run,"asi") 
-        AND NOT CAN-DO(prgrms.can_run,"admin") THEN ASSIGN
-            prgrms.can_run = prgrms.can_run + ",admin".
-        IF CAN-DO(prgrms.can_create,"asi") 
-        AND NOT CAN-DO(prgrms.can_create,"admin") THEN ASSIGN
-            prgrms.can_create = prgrms.can_create + ",admin".
-        IF CAN-DO(prgrms.can_update,"asi") 
-        AND NOT CAN-DO(prgrms.can_update,"admin") THEN ASSIGN
-            prgrms.can_update = prgrms.can_update + ",admin".
-        IF CAN-DO(prgrms.can_delete,"asi") 
-        AND NOT CAN-DO(prgrms.can_delete,"admin") THEN ASSIGN
-            prgrms.can_delete = prgrms.can_delete + ",admin".
+    FOR EACH {&tablename}:
+        IF CAN-DO({&tablename}.can_run,"asi") 
+        AND NOT CAN-DO({&tablename}.can_run,"admin") THEN ASSIGN
+            {&tablename}.can_run = {&tablename}.can_run + ",admin".
+        IF CAN-DO({&tablename}.can_create,"asi") 
+        AND NOT CAN-DO({&tablename}.can_create,"admin") THEN ASSIGN
+            {&tablename}.can_create = {&tablename}.can_create + ",admin".
+        IF CAN-DO({&tablename}.can_update,"asi") 
+        AND NOT CAN-DO({&tablename}.can_update,"admin") THEN ASSIGN
+            {&tablename}.can_update = {&tablename}.can_update + ",admin".
+        IF CAN-DO({&tablename}.can_delete,"asi") 
+        AND NOT CAN-DO({&tablename}.can_delete,"admin") THEN ASSIGN
+            {&tablename}.can_delete = prgrms.can_delete + ",admin".
     END.
     
     /* Added usergrp test per BV request - same ticket */
@@ -3248,40 +3546,43 @@ PROCEDURE ipLoadPrograms :
     /* 35628 - ensure additional field content is loaded */
     INPUT FROM VALUE(cUpdDataDir + "\prgrms.d") NO-ECHO.
     REPEAT:
-        CREATE ttPrgms.
-        IMPORT ttPrgms.
+        CREATE ttPrgrms.
+        IMPORT ttPrgrms.
         FIND FIRST prgrms EXCLUSIVE WHERE 
-            prgrms.prgmname EQ ttPrgms.prgmname 
+            prgrms.prgmname EQ ttPrgrms.prgmname 
             NO-ERROR.
         IF NOT AVAIL prgrms THEN DO:
             CREATE prgrms.
-            BUFFER-COPY ttPrgms TO prgrms.
+            BUFFER-COPY ttPrgrms TO prgrms.
         END.
         ELSE DO:
             ASSIGN 
-                prgrms.menuOrder = ttPrgms.menuOrder
-                prgrms.menuLevel = ttPrgms.menuLevel
-                prgrms.itemParent = ttPrgms.itemParent
-                prgrms.mnemonic = ttPrgms.mnemonic
-                prgrms.systemType = ttPrgms.systemType
-                prgrms.menuImage = ttPrgms.menuImage
-                prgrms.translation = ttPrgms.translation.
+                prgrms.menuOrder = ttPrgrms.menuOrder
+                prgrms.menuLevel = ttPrgrms.menuLevel
+                prgrms.itemParent = ttPrgrms.itemParent
+                prgrms.mnemonic = ttPrgrms.mnemonic
+                prgrms.systemType = ttPrgrms.systemType
+                prgrms.menuImage = ttPrgrms.menuImage
+                prgrms.translation = ttPrgrms.translation.
         END.
-        DELETE ttPrgms.
+        DELETE ttPrgrms.
     END.
 
+    DISABLE TRIGGERS FOR LOAD OF employee.
     FOR EACH employee EXCLUSIVE-LOCK:
         employee.employeeImage[1] = "Graphics\32x32\user.png".
     END. /* each users */
 
+    DISABLE TRIGGERS FOR LOAD OF mach.
     FOR EACH mach EXCLUSIVE-LOCK:
         mach.machineImage[1] = "Graphics\32x32\gearwheels.png".
     END. /* each users */
 
+    DISABLE TRIGGERS FOR LOAD OF users.
     FOR EACH users EXCLUSIVE-LOCK:
         ASSIGN
             users.userImage[1] = if users.userImage[1] = "" then "Graphics\32x32\user.png" else users.userImage[1]
-            users.showMnemonic = users.showMnemonic = "" then "All" else users.showMnemonic
+            users.showMnemonic = IF users.showMnemonic = "" then "All" else users.showMnemonic
             users.positionMnemonic = if users.positionMnemonic = "" then "Begin" else users.positionMnemonic.
     END. /* each users */ 
 
@@ -3299,37 +3600,36 @@ PROCEDURE ipLoadProgramXref :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Program Master Cross-References").
 
-    DISABLE TRIGGERS FOR LOAD OF prgmxref.
+    &SCOPED-DEFINE tablename prgmxref
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     
-    INPUT FROM VALUE(cUpdDataDir + "\prgmxref.d") NO-ECHO.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
-        CREATE ttPrgmxref.
-        IMPORT 
-            ttPrgmxref.table_name
-            ttPrgmxref.prgmname
-            ttPrgmxref.pageno.
-        FIND FIRST prgmxref EXCLUSIVE WHERE 
-            prgmxref.table_name EQ ttPrgmxref.table_name 
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.table_name EQ tt{&tablename}.table_name 
             NO-ERROR.
-        IF NOT AVAIL prgmxref THEN DO:
-            CREATE prgmxref.
-            BUFFER-COPY ttPrgmxref TO prgmxref.
+        IF NOT AVAIL {&tablename} THEN DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
         END.
         ELSE DO:
             ASSIGN 
-                prgmxref.prgmname = ttPrgmxref.prgmname
-                prgmxref.pageno = ttPrgmxref.pageno.
+                {&tablename}.prgmname = tt{&tablename}.prgmname
+                {&tablename}.pageno = tt{&tablename}.pageno.
         END.
     END.
     INPUT CLOSE.
         
     /* Delete records no longer used */
-    FOR EACH prgmxref EXCLUSIVE WHERE
-        NOT CAN-FIND(FIRST ttPrgmxref WHERE ttPrgmxref.table_name = prgmxref.table_name ):
-        DELETE prgmxref.
+    FOR EACH {&tablename} EXCLUSIVE WHERE
+        NOT CAN-FIND(FIRST tt{&tablename} WHERE tt{&tablename}.table_name = {&tablename}.table_name ):
+        DELETE {&tablename}.
     END.
     
-    EMPTY TEMP-TABLE ttPrgmxref.
+    EMPTY TEMP-TABLE tt{&tablename}.
 
 END PROCEDURE.
 
@@ -3344,27 +3644,26 @@ PROCEDURE ipLoadTranslation :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Translation Records").
 
-    DISABLE TRIGGERS FOR LOAD OF translation.
+    &SCOPED-DEFINE tablename translation
     
-    INPUT FROM VALUE(cUpdDataDir + "\translation.d") NO-ECHO.
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
-        CREATE ttTranslation.
-        IMPORT ttTranslation.
-        IF CAN-FIND(translation WHERE 
-            translation.rec_key EQ ttTranslation.rec_key) THEN DO:
-            DELETE ttTranslation.
-            NEXT.
-        END.
-        ELSE DO:
-            CREATE translation.
-            BUFFER-COPY ttTranslation TO translation.
-            DELETE ttTranslation.
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.rec_key EQ tt{&tablename}.rec_key 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
         END.
     END.
     INPUT CLOSE.
         
-    EMPTY TEMP-TABLE ttTranslation.
-
+    EMPTY TEMP-TABLE tt{&tablename}.
 
 END PROCEDURE.
 
@@ -3379,66 +3678,26 @@ PROCEDURE ipLoadUserLanguage :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading UserLanguage Records").
 
-    DISABLE TRIGGERS FOR LOAD OF UserLanguage.
+    &SCOPED-DEFINE tablename userlanguage
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     
-    INPUT FROM VALUE(cUpdDataDir + "\UserLanguage.d") NO-ECHO.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
-        CREATE ttUserLanguage.
-        IMPORT ttUserLanguage.
-        IF CAN-FIND(UserLanguage WHERE 
-            UserLanguage.rec_key EQ ttUserLanguage.rec_key) THEN DO:
-            DELETE ttUserLanguage.
-            NEXT.
-        END.
-        ELSE DO:
-            CREATE UserLanguage.
-            BUFFER-COPY ttUserLanguage TO UserLanguage.
-            DELETE ttUserLanguage.
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.rec_key EQ tt{&tablename}.rec_key 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
         END.
     END.
-    
     INPUT CLOSE.
         
-    EMPTY TEMP-TABLE ttUserLanguage.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadUtilCodes C-Win 
-PROCEDURE ipLoadUtilCodes :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    RUN ipStatus ("  Loading New Utilities").
-
-    DISABLE TRIGGERS FOR LOAD OF reftable.
-    
-    FOR EACH reftable WHERE 
-        reftable.reftable EQ 'Utilities':
-        DELETE reftable.
-    END. 
-
-    INPUT FROM VALUE(cUpdDataDir + "\reftable.d") NO-ECHO.
-    REPEAT:
-        CREATE ttReftable.
-        IMPORT ttReftable.
-        IF NOT ttRefTable.reftable EQ "Utilities" THEN DO:
-            DELETE ttRefTable.
-            NEXT.
-        END.
-        ELSE DO:
-            CREATE reftable.
-            BUFFER-COPY ttReftable TO reftable.
-            DELETE ttRefTable.
-        END.
-    END. 
-    INPUT CLOSE.
-        
-    EMPTY TEMP-TABLE ttReftable.
+    EMPTY TEMP-TABLE tt{&tablename}.
 
 END PROCEDURE.
 
@@ -3453,97 +3712,45 @@ PROCEDURE ipLoadUtilitiesTable :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Utilities Records").
 
+    &SCOPED-DEFINE tablename utilities
+
     DISABLE TRIGGERS FOR LOAD OF reftable.
     DISABLE TRIGGERS FOR LOAD OF notes.
-    DISABLE TRIGGERS FOR LOAD OF Utilities.
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     
-    INPUT FROM VALUE(cUpdDataDir + "\Utilities.d") NO-ECHO.
-    REPEAT:
-        CREATE ttUtilities.
-        IMPORT ttUtilities.
-        IF CAN-FIND(Utilities WHERE 
-            Utilities.programName EQ ttUtilities.programName) THEN 
-        DO:
-            DELETE ttUtilities.
-            NEXT.
-        END.
-        ELSE 
-        DO:
-            CREATE Utilities.
-            BUFFER-COPY ttUtilities TO Utilities.
-            IF Utilities.programName = "module" THEN ASSIGN 
-                utilities.securityLevel = 1000.
-            ELSE ASSIGN 
-                utilities.securityLevel = 900.
-            
-            DELETE ttUtilities.
-        END.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
     END.
     
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+        IF {&tablename}.programName = "module.r" /* Module Maint */
+        OR {&tablename}.programName = "w-head.r" /* Help Maint */
+        OR {&tablename}.programName = "ImpMaster.r" /* Import Master */ THEN ASSIGN 
+            {&tablename}.securityLevel = 1000.
+        ELSE ASSIGN 
+            {&tablename}.securityLevel = 900.
+    END.
     INPUT CLOSE.
         
-    EMPTY TEMP-TABLE ttUtilities.
-    
+    EMPTY TEMP-TABLE tt{&tablename}.
+
     /* 25458 - Delete utilities reftables */
-    FOR EACH reftable NO-LOCK WHERE 
+    FOR EACH reftable EXCLUSIVE WHERE 
         reftable.reftable EQ 'Utilities':
         FOR EACH notes EXCLUSIVE WHERE 
             notes.rec_key EQ reftable.rec_key:
             DELETE notes.
         END. 
-    END. 
-    FOR EACH reftable WHERE 
-        reftable.reftable EQ 'Utilities':
         CREATE reftable1.
         BUFFER-COPY reftable TO reftable1.
         DELETE reftable.
     END. 
 
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadUtilNotes C-Win 
-PROCEDURE ipLoadUtilNotes :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    RUN ipStatus ("  Loading Utility Notes").
-
-    DISABLE TRIGGERS FOR LOAD OF notes.
-    
-    FOR EACH reftable NO-LOCK WHERE 
-        reftable.reftable EQ 'Utilities':
-        FOR EACH notes EXCLUSIVE WHERE 
-            notes.rec_key EQ reftable.rec_key:
-            DELETE notes.
-        END. 
-    END. 
-    
-    INPUT FROM VALUE(cUpdDataDir + "\notes.d") NO-ECHO.
-    REPEAT:
-        CREATE ttNotes.
-        IMPORT ttNotes.
-        IF NOT CAN-FIND (FIRST reftable WHERE
-                reftable.reftable EQ "Utilities" AND
-                reftable.rec_key EQ ttNotes.rec_key) THEN DO:
-            DELETE ttNotes.
-            NEXT.
-        END.
-        ELSE DO:
-            CREATE notes.
-            BUFFER-COPY ttNotes TO notes.
-            DELETE ttNotes.
-        END.
-    END. 
-    INPUT CLOSE.
-        
-    EMPTY TEMP-TABLE ttNotes.
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3557,39 +3764,39 @@ PROCEDURE ipLoadXuserMenu :
     ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading xusermenu Records").
 
-    DISABLE TRIGGERS FOR LOAD OF xUserMenu.
+    &SCOPED-DEFINE tablename xusermenu
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     
-    INPUT FROM VALUE(cUpdDataDir + "\xUserMenu.d") NO-ECHO.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
-        CREATE ttxUserMenu.
-        IMPORT ttxUserMenu.
-        IF ttxUserMenu.user_id NE "AddonUsr" THEN DO:
-            DELETE ttxUserMenu.
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        IF tt{&tablename}.user_id NE "AddonUsr" THEN DO:
+            DELETE tt{&tablename}.
             NEXT.
         END.
-        IF CAN-FIND(xUserMenu WHERE 
-            xUserMenu.rec_key EQ ttXuserMenu.rec_key) THEN DO:
-            DELETE ttxUserMenu.
-            NEXT.
-        END.
-        ELSE DO:
-            CREATE xUserMenu.
-            BUFFER-COPY ttxUserMenu TO xUserMenu.
-            DELETE ttxUserMenu.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.rec_key EQ tt{&tablename}.rec_key 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
         END.
     END.
     
     INPUT CLOSE.
         
-    EMPTY TEMP-TABLE ttxUserMenu.
+    EMPTY TEMP-TABLE tt{&tablename}.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipMoveUsermenusToDatabase C-Win 
-PROCEDURE ipMoveUsermenusToDatabase :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipMoveUserMenusToDatabase C-Win 
+PROCEDURE ipMoveUserMenusToDatabase :
 /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -3602,6 +3809,8 @@ PROCEDURE ipMoveUsermenusToDatabase :
     DEFINE VARIABLE cMenuList  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPrgmName  AS CHARACTER NO-UNDO.
 
+    DISABLE TRIGGERS FOR LOAD OF xUserMenu.
+    
     ASSIGN 
         cSearchDir =  cEnvDir + "/" + fiEnvironment:{&SV} + "/usermenu".
                 
@@ -3633,26 +3842,28 @@ PROCEDURE ipMoveUsermenusToDatabase :
         /* look for each menu option in the user's custom menu.lst */
         FOR EACH prgrms NO-LOCK
             WHERE prgrms.menu_item EQ YES
-            AND prgrms.menuOrder GT 0
-            AND prgrms.menuLevel GT 0
-            AND prgrms.mnemonic  NE ""
+              AND prgrms.menuOrder GT 0
+              AND prgrms.menuLevel GT 0
+              AND prgrms.mnemonic  NE ""
             :
             /* new additions, do not add to user's exceptions */
             IF CAN-DO("r-jcstdN.,translatn.,userLang.",prgrms.prgmname) THEN
-                NEXT.
+            NEXT.
             /* if found, skip to next menu option */
             IF CAN-FIND(FIRST ttUserMenu
-                WHERE ttUserMenu.prgmname EQ prgrms.prgmname) THEN
+                        WHERE ttUserMenu.prgmname EQ prgrms.prgmname) THEN DO:
+                IF prgrms.itemParent NE "" THEN
+                RUN ipActivateParent (prgrms.itemParent, ENTRY(idx,cListUsers)).
                 NEXT.
+            END. /* if can-find */
             /* menu option not found in menu.lst, add as an exception */
-            CREATE xUserMenu.                
+            CREATE xUserMenu.
             ASSIGN
                 xUserMenu.user_id  = ENTRY(idx,cListUsers)
                 xUserMenu.prgmname = prgrms.prgmname
                 .
         END. /* each prgrms */
     END. /* do idx */
-
 
 END PROCEDURE.
 
@@ -3691,15 +3902,14 @@ PROCEDURE ipProcessAll :
     IF tbRunDataFix:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipDataFix.
     END.
-    IF tbDelDupeNotes:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-        RUN ipDelDupeNotes.
-    END.
     IF tbUpdateNK1s:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipUpdateNK1s.
         /* RUN ipVerifyNK1Changes. */
     END.
     IF tbLoadMenus:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+        /* Deprecated in 16.8.5 
         RUN ipLoadMenus (cUpdMenuDir,cEnvProdDir).
+        */
     END.
     IF tbRelNotes:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipCopyRelNotes.
@@ -4128,6 +4338,9 @@ PROCEDURE ipRemoveUserAddon :
 
     RUN ipStatus ("    Removing addon mode from .usr file").
 
+    DEF BUFFER bxUserMenu FOR xUserMenu.
+    DISABLE TRIGGERS FOR LOAD OF xUserMenu.
+    
     DEF VAR cLine     AS CHAR NO-UNDO.
     DEF VAR cOutline  AS CHAR NO-UNDO.
 
@@ -4145,9 +4358,22 @@ PROCEDURE ipRemoveUserAddon :
     END.
     INPUT CLOSE.
 
-    FOR EACH ttUsers:
+    FOR EACH ttUsers WHERE
+        ttUsers.ttfDbName EQ ipcName:
+       
+        /* This condition implies user can access Addon menu, but not Main menu */
+        IF INDEX(ttfModeList,"Addon") NE 0 
+        AND INDEX(ttfModeList,"Advantzware") EQ 0 THEN DO:
+            FOR EACH xUserMenu NO-LOCK WHERE 
+                xUserMenu.user_id EQ "AddOnUsr":
+                CREATE bxUserMenu.
+                BUFFER-COPY xUserMenu EXCEPT user_id TO bxUserMenu
+                ASSIGN 
+                    bxUserMenu.user_id = ttUsers.ttfUserID.
+            END. /* each xusermenu */
+        END.
         ASSIGN 
-            ttfModeList = REPLACE(ttfModeList,"Addon","")
+            ttfModeList = REPLACE(ttfModeList,"Addon","") 
             ttfModeList = REPLACE(ttfModeList,",,",",").
     END.
 
@@ -4164,7 +4390,65 @@ PROCEDURE ipRemoveUserAddon :
     END.
     OUTPUT CLOSE.  
 
+    RUN ipStatus ("    Modifying menu for Prod Floor users").
+    FOR EACH users NO-LOCK WHERE 
+        users.userType EQ "Production Floor":
+        IF CAN-FIND(FIRST xUserMenu WHERE 
+                    xUserMenu.user_id EQ users.user_id) THEN NEXT.    
+        FOR EACH xUserMenu NO-LOCK WHERE 
+            xUserMenu.user_id EQ "AddOnUsr":
+            CREATE bxUserMenu.
+            BUFFER-COPY xUserMenu EXCEPT user_id TO bxUserMenu
+            ASSIGN 
+                bxUserMenu.user_id = users.user_id.
+        END. /* each xusermenu */
+    END. /* each users */
+    
+END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRemoveUserMenu C-Win 
+PROCEDURE ipRemoveUserMenu :
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+      ------------------------------------------------------------------------------*/
+    DEF VAR cUserMenuDir AS CHAR NO-UNDO.
+    DEF VAR cAddonUserMenuDir AS CHAR NO-UNDO.
+    DEF VAR cCmdLine AS CHAR NO-UNDO.
+    RUN ipStatus ("    Removing user menu and menu files").
+
+    ASSIGN 
+        cUserMenuDir = cEnvDir + "\" + fiEnvironment:{&SV} + "\UserMenu"
+        cAddonUserMenuDir = cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\UserMenu"
+        .
+
+    OS-DELETE VALUE(cUserMenuDir) RECURSIVE.
+    OS-DELETE VALUE(cAddonUserMenuDir) RECURSIVE.
+
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu.lst").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_addon.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_addon.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_addon.lst").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_plus.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_plus.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_plus.lst").
+
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu.lst") RECURSIVE.
+
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_addon.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_addon.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_addon.lst").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_plus.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_plus.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_plus.lst").
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4214,7 +4498,7 @@ PROCEDURE ipSetAsiPwd :
     IF AVAIL (_User) THEN DO:
         BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser.
         ASSIGN 
-            tempUser._Password = "ifaOfSAcSdialAkd".
+            tempUser._Password = "fcpapdfHaSLfnMbA".
         DELETE _User.
         CREATE _User.
         BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
@@ -4223,7 +4507,7 @@ PROCEDURE ipSetAsiPwd :
         CREATE _User.
         ASSIGN
             _User._UserId = "asi"
-            _User._Password = "ifaOfSAcSdialAkd".
+            _User._Password = "fcpapdfHaSLfnMbA".
     END.
 
     RELEASE _user.
@@ -4248,6 +4532,27 @@ PROCEDURE ipSetDispVars :
         END.
     END.
     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetImageFiles C-Win 
+PROCEDURE ipSetImageFiles :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Setting Image files").
+    
+    FOR EACH employee EXCLUSIVE-LOCK:
+        employee.employeeImage[1] = "Graphics\32x32\user.png".
+    END. /* each users */
+
+    FOR EACH mach EXCLUSIVE-LOCK:
+        mach.machineImage[1] = "Graphics\32x32\gearwheels.png".
+    END. /* each users */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4283,6 +4588,27 @@ PROCEDURE ipStatus :
     
     PROCESS EVENTS.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipTrackUsage C-Win 
+PROCEDURE ipTrackUsage :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN ipStatus("   Turn on user usage tracking").
+    
+    DISABLE TRIGGERS FOR LOAD OF users.
+    
+    FOR EACH users:
+        ASSIGN
+            users.track_usage = TRUE.
+    END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4329,12 +4655,6 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadLookups IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\emailcod.d") <> ? THEN
         RUN ipLoadEmailCodes IN THIS-PROCEDURE.
-    /*
-    IF SEARCH(cUpdDataDir + "\reftable.d") <> ? THEN
-        RUN ipLoadUtilCodes IN THIS-PROCEDURE.
-    IF SEARCH(cUpdDataDir + "\notes.d") <> ? THEN
-        RUN ipLoadUtilNotes IN THIS-PROCEDURE.
-    */
     IF SEARCH(cUpdDataDir + "\module.d") <> ? THEN
         RUN ipLoadModules IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\translation.d") <> ? THEN
@@ -4345,10 +4665,12 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadXuserMenu IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\utilities.d") <> ? THEN
         RUN ipLoadUtilitiesTable IN THIS-PROCEDURE.
-
-    IF NOT CAN-FIND(FIRST audit.audittbl) 
-    AND SEARCH(cUpdDataDir + "\audittbl.d") <> ? THEN
+    IF SEARCH(cUpdDataDir + "\audittbl.d") <> ? THEN
         RUN ipLoadAuditRecs IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\cuecard.d") <> ? THEN
+        RUN ipLoadCueCard IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\cuecardtext.d") <> ? THEN
+        RUN ipLoadCueCardText IN THIS-PROCEDURE.
 
 END PROCEDURE.
 
@@ -4533,6 +4855,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUseOldNK1 C-Win 
+PROCEDURE ipUseOldNK1 :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+        
+    RUN ipStatus ("  Setting NK1 to old view").
+    
+    DISABLE TRIGGERS FOR LOAD OF prgrms.
+    
+    FIND FIRST prgrms EXCLUSIVE WHERE
+        prgrms.prgmname EQ "sys-ctrl."
+        NO-ERROR.
+    IF AVAIL prgrms THEN ASSIGN
+        prgrms.dir_group = "windows".
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipValidateDB C-Win 
 PROCEDURE ipValidateDB :
 /*------------------------------------------------------------------------------
@@ -4664,6 +5009,35 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fFixYear C-Win
+FUNCTION fFixYear RETURNS DATE 
+  (INPUT daDate AS DATE ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE outDate AS DATE NO-UNDO.
+    
+    IF daDate EQ ? THEN RETURN ?.
+    ELSE DO:
+        IF YEAR(daDate) LT 2000 
+        AND YEAR(daDate) GT 50 THEN ASSIGN 
+            outDate = DATE(MONTH(daDate), DAY(daDate), YEAR(daDate + 1900)).  
+        ELSE IF YEAR(daDate) LT 2000 THEN ASSIGN 
+            outDate = DATE(MONTH(daDate), DAY(daDate), YEAR(daDate + 2000)). 
+        ELSE ASSIGN
+            outDate = daDate.
+        RETURN outDate.
+    END. 
+    
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION intVer C-Win 
 FUNCTION intVer RETURNS INTEGER
   ( INPUT cVerString AS CHAR ) :
@@ -4681,6 +5055,7 @@ FUNCTION intVer RETURNS INTEGER
         iIntVal[1] = INT(cStrVal[1])
         iIntVal[2] = INT(cStrVal[2])
         iIntVal[3] = INT(cStrVal[3])
+        iIntVal[3] = IF iIntVal[3] LT 10 THEN iIntVal[3] * 10 ELSE iIntVal[3]
         iIntVer = (iIntVal[1] * 10000) + (iIntVal[2] * 100) + iIntVal[3]
         NO-ERROR.
     

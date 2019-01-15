@@ -584,7 +584,7 @@ end.
   run ce/pr4-mis.p .
 
   put skip(1)
-    "Machine Description    MR (Hrs) Run  Speed    Rate   MR $    Run $    Total Cost" .
+    "Machine Description   MR (Hrs) Run  Speed   Rate     MR $      Run $  Total Cost" .
 
   run ce/pr4-mch.p.
   if ctrl2[2] ne 0 or ctrl2[3] ne 0 then do:

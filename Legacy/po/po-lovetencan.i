@@ -301,6 +301,13 @@ FOR EACH po-ordl
           ASSIGN cMachCode = job-mch.m-code .
           LEAVE.
       END.
+
+      lPrintMsf = NO .
+        IF AVAIL ITEM AND (item.mat-type EQ "B" OR item.mat-type EQ "P") AND
+             ITEM.industry EQ "2" THEN DO:
+            ASSIGN lPrintMsf = YES .
+        END.
+
      
   PUT {1} v-ord-qty FORMAT "X(6)" TO 6
           v-line-2 FORMAT "X(28)" AT 8
@@ -316,12 +323,23 @@ FOR EACH po-ordl
           v-cost FORMAT "->,>>>,>>9.99<<<" TO 80
           po-ordl.dscr[2] format "x(28)" at 8.
 
+          
   DO v-count = 3 TO 6:
      IF v-adder[v-count] <> "" THEN
      DO:
         v-print-lines = v-print-lines + 1.
-        PUT {1} v-adder[v-count] AT 37 SKIP.
+        PUT {1} v-adder[v-count] AT 37 .
+        IF lPrintMsf  THEN DO:
+            PUT {1} "MSF: " AT 49 trim(string(v-sqft,">>>>>9.99<<")) .
+             lPrintMsf = NO .
+        END.
+        PUT SKIP .
      END.
+  END.
+
+  IF lPrintMsf  THEN DO:
+      PUT {1} "MSF: " AT 49 trim(string(v-sqft,">>>>>9.99<<")) .
+      lPrintMsf = NO .
   END.
 
   DISPLAY {1}

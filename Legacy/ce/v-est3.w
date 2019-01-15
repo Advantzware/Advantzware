@@ -2769,6 +2769,7 @@ PROCEDURE find-depth-reftable :
     END.
 
     op-rowid = ROWID(b-rt).
+    RELEASE b-rt.
   END.
 END PROCEDURE.
 

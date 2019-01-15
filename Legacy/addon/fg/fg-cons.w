@@ -98,18 +98,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 24 ROW 2.91
          SIZE 127 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -345,10 +345,14 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'fg/b-cons.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
              OUTPUT h_b-cons ).
-       /* Position in AB:  ( 4.81 , 1.00 ) */
-       /* Size in UIB:  ( 17.14 , 146.00 ) */
+       RUN set-position IN h_b-cons ( 4.81 , 3.00 ) NO-ERROR.
+       RUN set-size IN h_b-cons ( 17.14 , 146.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updbar.w':U ,
@@ -371,13 +375,15 @@ PROCEDURE adm-create-objects :
        /* Links to SmartObject h_loadtag. */
        RUN add-link IN adm-broker-hdl ( h_b-cons , 'loadtag':U , h_loadtag ).
 
-       /* Links to  h_b-cons. */
+       /* Links to SmartNavBrowser h_b-cons. */
        RUN add-link IN adm-broker-hdl ( h_p-updbar , 'TableIO':U , h_b-cons ).
        RUN add-link IN adm-broker-hdl ( h_v-post , 'State':U , h_b-cons ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updbar ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-cons ,
              h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updbar ,
+             h_b-cons , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-post ,
              h_p-updbar , 'AFTER':U ).
     END. /* Page 1 */

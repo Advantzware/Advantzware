@@ -156,20 +156,8 @@ for each report where report.term-id eq v-term-id,
     lv-cases = lv-cases-tot.
     IF AVAIL oe-ordl THEN FIND oe-ord OF oe-ordl NO-LOCK NO-ERROR.
 
-    IF LAST(report.key-03) AND v-printline >= 31  THEN do:
-        PUT {1} "<R49><C1>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts
-                     "<C69>Page " STRING(PAGE-NUMBER) + " of <#PAGES> "  FORM "x(20)" .
-             PAGE {1}.
-             v-printline = 0.  
-             IF cPrintFormat EQ "CCC" THEN do:
-                 {oe/rep/bolccc1.i}
-             END.
-             ELSE DO:
-                 {oe/rep/bolcent2.i}
-             END.
-    END.
-    ELSE IF v-printline >= 33 THEN DO:
-             PUT {1} "<R49><C1>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts
+    IF v-printline >= 50 THEN DO: 
+             PUT {1} "<R63><C1>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts
                      "<C69>Page " /*string(PAGE-NUM - lv-pg-num,">>9")*/ STRING(PAGE-NUMBER) + " of <#PAGES> "  FORM "x(20)" .
              PAGE {1}.
              v-printline = 0.  
@@ -198,9 +186,9 @@ for each report where report.term-id eq v-term-id,
     down {1} with frame bol-mid1.
     v-printline = v-printline + 1.
 
-    IF v-printline >= 33 THEN DO:
-             PUT {1} "<R49><C1>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts
-                     "<C69>Page " /*string(PAGE-NUM - lv-pg-num,">>9")*/ STRING(PAGE-NUMBER) + " of <#PAGES> "  FORM "x(20)" .
+    IF v-printline >= 50 THEN DO:
+             PUT {1} "<R63.5><C1>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts
+                     "<C69>Page " AT 150 /*string(PAGE-NUM - lv-pg-num,">>9")*/ STRING(PAGE-NUMBER) + " of <#PAGES> "  FORM "x(20)" .
              PAGE {1}.
              v-printline = 0.  
              IF cPrintFormat EQ "CCC" THEN do:
@@ -236,10 +224,10 @@ for each report where report.term-id eq v-term-id,
    /* display componets of set */
     if itemfg.isaset then
       for each fg-set where fg-set.company eq cocode
-	                    and fg-set.set-no  eq itemfg.i-no   no-lock:
+                        and fg-set.set-no  eq itemfg.i-no   no-lock:
 
           find first xitemfg where xitemfg.company eq cocode
-	                           and xitemfg.i-no    eq fg-set.part-no no-lock no-error.
+                               and xitemfg.i-no    eq fg-set.part-no no-lock no-error.
 
           FIND FIRST fg-bin where fg-bin.company eq cocode
                             and fg-bin.i-no    eq xitemfg.i-no
@@ -252,8 +240,8 @@ for each report where report.term-id eq v-term-id,
                     .
           ELSE lv-comp-unit = 0.
 
-          IF v-printline >= 33 THEN DO:
-             PUT {1} "<R49><C1>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts
+          IF v-printline >= 50 THEN DO:
+             PUT {1} "<R63><C1>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts
                  "<C69>Page " /*string(PAGE-NUM - lv-pg-num,">>9")*/ STRING(PAGE-NUMBER) + " of <#PAGES> "  FORM "x(20)" .
             /* PUT {1} SKIP(5) "*CONTINUED*" AT 52.*/
              PAGE {1}.
@@ -268,14 +256,14 @@ for each report where report.term-id eq v-term-id,
           END.
 
           v-part-dscr = string(fg-set.part-no,"x(16)") +
-		                (if avail xitemfg then xitemfg.i-name else "").
+                        (if avail xitemfg then xitemfg.i-name else "").
 
           {sys/inc/part-qty.i v-part-qty fg-set}
 
           IF AVAIL fg-bin THEN DO:
              put {1}
-	          v-part-dscr              at 32 format "x(39)"
-              oe-boll.cases TO 81  FORM ">>>9" " @ " 
+              v-part-dscr              at 32 format "x(39)"
+              oe-boll.cases TO 95  FORM ">>>9" " @ " 
               fg-bin.case-count FORM "->>>>>z"
               skip.              
 
@@ -287,7 +275,7 @@ for each report where report.term-id eq v-term-id,
           END.
           ELSE DO:
               put {1}
-	             v-part-dscr              at 32 format "x(39)"   
+                 v-part-dscr              at 32 format "x(39)"   
                  skip.
               v-printline = v-printline + 1.
           END.

@@ -768,6 +768,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN DisplaySelectionList2.
     RUN Set-Sort-Data.
 
+   end_chk:SCREEN-VALUE = "2147483647" .  /* Default value as given in AQ2 */
+
     APPLY "entry" TO begin_cust.
   END. 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.

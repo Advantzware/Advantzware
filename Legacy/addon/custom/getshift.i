@@ -33,7 +33,6 @@ ELSE DO:
    
     FOR EACH {&file} NO-LOCK {&where}
         :
-          
         IF (op-shift EQ '' AND
             ip-time GE {&file}.start_time AND ip-time LE {&file}.end_time) OR
            (op-shift EQ '' AND {&file}.start_time GT {&file}.end_time AND

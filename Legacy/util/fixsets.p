@@ -7,8 +7,9 @@ DEF BUFFER b-eb FOR eb.
 SESSION:SET-WAIT-STATE ("general").
 
 FOR EACH eb WHERE eb.form-no NE 0,    
-    FIRST est OF eb
-    WHERE est.est-type GE 5
+    FIRST est WHERE est.company EQ eb.company
+      AND est.est-no EQ eb.est-no
+      AND est.est-type GE 5
       AND est.est-type LE 6
     BREAK BY eb.company
           BY eb.est-no:

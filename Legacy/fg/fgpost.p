@@ -71,18 +71,6 @@ run ProcFGPosting.
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE fgPostLog:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ipLogText AS CHARACTER NO-UNDO.
-        
-   PUT STREAM logFile UNFORMATTED STRING(TODAY,'99.99.9999') ' '
-     STRING(TIME,'hh:mm:ss am') ' : ' ipLogText SKIP.
-
-END PROCEDURE.
-
 PROCEDURE get-next-tag:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -213,7 +201,6 @@ PROCEDURE ProcFGPosting:
   DEF VAR ll-qty-changed AS LOG NO-UNDO.
   DEF VAR ll-whs-item AS LOG NO-UNDO.
 
-  DEFINE VARIABLE fgPostLog AS LOGICAL NO-UNDO.
   /*define var cocode as cha no-undo.*/
   /*define var g_company as cha no-undo.*/
   DEF VAR fg-uom-list  AS CHAR NO-UNDO.
@@ -231,15 +218,6 @@ PROCEDURE ProcFGPosting:
   
   RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
   
-  fgPostLog = SEARCH('logs/fgpstall.log') NE ?.
-  IF fgPostLog THEN do:
-     file-info:file-name = search('logs/fgpstall.log').
-     OUTPUT STREAM logFile TO
-        VALUE(substring(file-info:full-pathname,1,length(file-info:full-pathname) - 17) + 'logs/fgpstall.' +
-         STRING(TODAY,'99999999') + '.' + STRING(TIME) + '.log').
-  end.
-  IF fgPostLog THEN RUN fgPostLog ('Started').
- 
   for each FGReceiptRow no-lock /* where FGReceiptRow.TableRowid <> ? */ : 
   /*assign cocode = FGReceiptRow.company
          g_company = FGReceiptRow.company
@@ -279,18 +257,14 @@ PROCEDURE ProcFGPosting:
         BY w-fg-rctd.rct-date
         BY w-fg-rctd.r-no:
 
-      IF fgPostLog THEN RUN fgPostLog ('Start fg/fg-post.i ' + TRIM(itemfg.i-no)).
       {fg/fg-post.i w-fg-rctd w-fg-rctd}
 
       FIND CURRENT po-ordl NO-LOCK NO-ERROR.
       FIND CURRENT fg-bin NO-LOCK NO-ERROR.
 
-      IF fgPostLog THEN RUN fgPostLog ('End fg/fg-post.i - Start fg/fgemails.i').
       IF w-fg-rctd.rita-code = "R" THEN DO:
          {fg/fgemails.i}
       END.
-
-      IF fgPostLog THEN RUN fgPostLog ('End fg-bin - Start fg-rctd').
 
       FIND FIRST fg-rctd WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id NO-ERROR.
 
@@ -306,13 +280,10 @@ PROCEDURE ProcFGPosting:
           fg-rcpts.rita-code = fg-rctd.rita-code.
         END.
       END.
-
-      IF fgPostLog THEN RUN fgPostLog ('End loop'). 
     END.  /* for each fg-rctd */
 
     FIND CURRENT itemfg NO-LOCK NO-ERROR.
 
-    IF fgPostLog THEN RUN fgPostLog ('End fg/fgemails.i - Start loadtag').
     FOR EACH w-fg-rctd
         BREAK BY w-fg-rctd.i-no
               BY w-fg-rctd.job-no
@@ -341,7 +312,6 @@ PROCEDURE ProcFGPosting:
               AND loadtag.i-no      EQ w-fg-rctd.i-no
               AND loadtag.job-no    EQ w-fg-rctd.job-no
             USE-INDEX tag EXCLUSIVE-LOCK NO-ERROR.
-        IF fgPostLog THEN RUN fgPostLog ('End loadtag - Start fg-bin').
 
         IF AVAIL loadtag THEN DO:
           FIND FIRST fg-bin
@@ -375,7 +345,6 @@ PROCEDURE ProcFGPosting:
       DELETE w-inv.
     END.
 
-    IF fgPostLog THEN RUN fgPostLog ('End First - Start Second For Each w-fg-rctd').
     FOR EACH w-fg-rctd WHERE w-fg-rctd.invoiced,
         FIRST itemfg
         WHERE itemfg.company EQ cocode
@@ -385,13 +354,9 @@ PROCEDURE ProcFGPosting:
       CREATE w-inv.
       w-inv.row-id = w-fg-rctd.row-id.
     END.
-    IF fgPostLog THEN RUN fgPostLog ('End Second For Each w-fg-rctd').
 
-    IF fgPostLog THEN RUN fgPostLog ('Begin Run fg/invrecpt.p').
     RUN fg/invrecpt.p (?, 2).
-    IF fgPostLog THEN RUN fgPostLog ('End Run fg/invrecpt.p').
 
-    IF fgPostLog THEN RUN fgPostLog ('End First - Start Third For Each w-fg-rctd').
     FOR EACH w-fg-rctd WHERE TRIM(w-fg-rctd.tag) EQ "",
         FIRST itemfg
         WHERE itemfg.company EQ cocode
@@ -400,9 +365,7 @@ PROCEDURE ProcFGPosting:
         BREAK BY w-fg-rctd.i-no:
 
       IF LAST-OF(w-fg-rctd.i-no) THEN DO:
-        IF fgPostLog THEN RUN fgPostLog ('Begin Run fg/updfgcs1.p for ' + w-fg-rctd.i-no).
         RUN fg/updfgcs1.p (RECID(itemfg), NO).
-        IF fgPostLog THEN RUN fgPostLog ('End Run fg/updfgcs1.p for ' + w-fg-rctd.i-no).
 
         FOR EACH oe-ordl
             WHERE oe-ordl.company EQ cocode
@@ -430,7 +393,6 @@ PROCEDURE ProcFGPosting:
         END.
       END.
     END.
-    IF fgPostLog THEN RUN fgPostLog ('End Third For Each w-fg-rctd').
 
     IF v-fgpostgl NE "None" THEN DO TRANSACTION:
       /* gdm - 11050906 */
@@ -443,12 +405,9 @@ PROCEDURE ProcFGPosting:
 
          FIND CURRENT gl-ctrl NO-LOCK.
          
-         IF fgPostLog THEN RUN fgPostLog ('Begin Run gl-from-work 1').         
          RUN gl-from-work (1, v-trnum).
-         IF fgPostLog THEN RUN fgPostLog ('End 1 - Begin Run gl-from-work 2').
          RUN gl-from-work (2, v-trnum).
-         IF fgPostLog THEN RUN fgPostLog ('End Run gl-from-work 2').
-         
+
          LEAVE.
         END. /* IF AVAIL gl-ctrl */
       END. /* REPEAT */
@@ -456,9 +415,7 @@ PROCEDURE ProcFGPosting:
     END.
     FIND FIRST w-job NO-ERROR.
     IF AVAIL w-job THEN DO:
-      IF fgPostLog THEN RUN fgPostLog ('Start jc/d-jclose.p').
       RUN jc/d-jclose.w.
-      IF fgPostLog THEN RUN fgPostLog ('End jc/d-jclose.p').
     END.
 
     IF v-adjustgl THEN DO TRANSACTION:
@@ -468,7 +425,6 @@ PROCEDURE ProcFGPosting:
        v-trnum       = gl-ctrl.trnum + 1
        gl-ctrl.trnum = v-trnum.
       FIND CURRENT gl-ctrl NO-LOCK.
-      IF fgPostLog THEN RUN fgPostLog ('Start For Each work-job').
       FOR EACH work-job BREAK BY work-job.actnum:
          CREATE gltrans.
         ASSIGN
@@ -490,16 +446,10 @@ PROCEDURE ProcFGPosting:
 
         RELEASE gltrans.
       END. /* each work-job */
-      IF fgPostLog THEN RUN fgPostLog ('End For Each work-job').
     END.
     IF v-got-fgemail THEN DO:
-      IF fgPostLog THEN RUN fgPostLog ('Start Run send-fgemail').
       RUN send-fgemail (v-fgemail-file).
-      IF fgPostLog THEN RUN fgPostLog ('End Run send-fgemail').
     END.
-    IF fgPostLog THEN RUN fgPostLog ('End').
-    IF fgPostLog THEN OUTPUT STREAM logFile CLOSE.
-    
   end. /* for each FGReceiptRow */
 
 

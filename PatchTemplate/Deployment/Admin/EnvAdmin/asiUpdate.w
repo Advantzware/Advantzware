@@ -144,6 +144,7 @@ DEF VAR iCurrEnvVer AS INT NO-UNDO.
 DEF VAR iPatchEnvVer AS INT NO-UNDO.
 DEF VAR cLogFile AS CHAR NO-UNDO.
 DEF VAR cOutFile AS CHAR NO-UNDO.
+DEF VAR cOutDir AS CHAR NO-UNDO.
 
 /* Ensure that these lists always match, 'c' is always the prefix */
 ASSIGN cIniVarList = 
@@ -437,7 +438,7 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "ASIupdate Launcher"
+         TITLE              = "ASIupdate 160800-01"
          HEIGHT             = 26.62
          WIDTH              = 79.8
          MAX-HEIGHT         = 26.67
@@ -476,9 +477,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX tbClearLog IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-ASSIGN 
-       tbClearLog:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
-
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -493,7 +491,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* ASIupdate Launcher */
+ON END-ERROR OF C-Win /* ASIupdate 160800-01 */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -507,7 +505,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* ASIupdate Launcher */
+ON WINDOW-CLOSE OF C-Win /* ASIupdate 160800-01 */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -537,6 +535,10 @@ ON CHOOSE OF bCancel IN FRAME DEFAULT-FRAME /* Exit */
 OR CHOOSE of bGetFiles
 OR CHOOSE of bUpdate
 DO:
+    DEF VAR cFTPxmit AS CHAR NO-UNDO.
+    
+    ASSIGN
+        cFTPxmit = cEnvAdmin + "\FTPout.txt".
     
     CASE SELF:NAME:
         WHEN "bCancel" THEN DO:
@@ -547,6 +549,17 @@ DO:
                 OS-RENAME VALUE (cRunCfg) VALUE(cDLC + "\progress.cfg").
                 RUN ipStatus("Resetting Progress mode").
             END.
+            RUN ipStatus("  Cleaning work files").
+            
+            OS-DELETE VALUE(cFTPInstrFile).
+            OS-DELETE VALUE(cFTPOutputFile).
+            OS-DELETE VALUE(cFTPErrFile).
+            OS-DELETE VALUE(c7zOutputFile).
+            OS-DELETE VALUE(c7zErrFile).
+            OS-DELETE VALUE(cEnvAdmin + "\" + cOutFile).
+            OS-DELETE VALUE(cFTPxmit).
+            OS-DELETE VALUE(cEnvAdmin + "\cOutputFile").
+            
             APPLY 'close' TO THIS-PROCEDURE.
             QUIT.
         END.
@@ -612,13 +625,23 @@ DO:
         RETURN NO-APPLY.
     END.
     
-    RUN ipStatus("  Entered Password (hidden)").
-    RUN ipStatus("  Password validation deferred until DB connected").
-    
+    IF (fiUserID:{&SV} EQ "asi" AND NOT SELF:{&SV} EQ "Package99")
+    OR (fiUserID:{&SV} EQ "admin" AND NOT SELF:{&SV} EQ "installme") THEN DO:
+        MESSAGE 
+            "The UserID and Password you entered do not match." SKIP 
+            "Please re-enter or cancel."
+            VIEW-AS ALERT-BOX ERROR.
+        ASSIGN 
+            SELF:{&SV} = "".
+        APPLY 'entry' TO fiUserID.
+        RETURN NO-APPLY.
+    END. 
+        
     ASSIGN
         bGetFiles:SENSITIVE = TRUE
         slEnvList:SENSITIVE = TRUE
-        bUpdate:SENSITIVE = TRUE.
+        bUpdate:SENSITIVE = TRUE
+        tbClearLog:SENSITIVE = fiUserID:{&SV} EQ "asi".
     
     APPLY 'entry' TO bGetFiles.
     RETURN NO-APPLY.
@@ -663,26 +686,28 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiUserID C-Win
 ON LEAVE OF fiUserID IN FRAME DEFAULT-FRAME /* User ID */
 DO:
-    DEF VAR lValidUser AS LOG NO-UNDO.
-    
-    IF SELF:{&SV} = "" THEN DO:
+    IF SELF:{&SV} = "" THEN 
+    DO:
         RUN ipStatus("  Blank UserID - ENTRY to Exit button").
         APPLY 'entry' TO bCancel.
         RETURN NO-APPLY.
     END.
+
+    IF SELF:{&SV} NE "asi"
+    AND SELF:{&SV} NE "admin" THEN DO:
+        MESSAGE 
+            "This is not a valid user id for this function." SKIP 
+            "Please re-enter or Exit."
+            VIEW-AS ALERT-BOX ERROR.
+        APPLY 'entry' TO SELF.
+        RETURN NO-APPLY.
+    END.
     
     RUN ipStatus("  Entered UserID " + SELF:{&SV}).
-    RUN ipStatus("  Validating against advantzware.usr file").
-    RUN ipValidUser (OUTPUT lValidUser).
-    IF NOT lValidUser THEN DO:
-        ASSIGN
-            SELF:{&SV} = "".
-        RETURN NO-APPLY.
-    END.
-    ELSE DO:
-        APPLY 'entry' to fiPassword.
-        RETURN NO-APPLY.
-    END.
+    
+    APPLY 'entry' to fiPassword.
+    RETURN NO-APPLY.
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -699,8 +724,8 @@ DO:
                 iIndex = LOOKUP(SELF:{&SV},SELF:LIST-ITEMS)
                 fiFromVersion:{&SV} = ENTRY(iIndex,cEnvVerList)
                 iCurrEnvVer = fIntVer(fiFromVersion:{&SV})
-                iCurrDbVer = iCurrEnvVer - (iCurrEnvVer MODULO 10000)
-                .
+                iCurrDbVer = fIntVer(ENTRY(iIndex,cDBVerList))
+                ENTRY(3,cOutDir,"-") = SELF:{&SV}.
         END.
     END CASE.
 END.
@@ -758,9 +783,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         iIndex              = LOOKUP(slEnvList:{&SV},slEnvList:LIST-ITEMS)
         fiFromVersion:{&SV} = ENTRY(iIndex,cEnvVerList)
         iCurrEnvVer         = fIntVer(fiFromVersion:{&SV})
-        iCurrDbVer          = iCurrEnvVer - (iCurrEnvVer MODULO 10000)
+        iCurrDbVer          = fIntVer(ENTRY(iIndex,cDBVerList))
         .
-        
+
     RUN ipGetPatchList (0).
 
     ASSIGN
@@ -779,8 +804,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         cOutFile = cEnvAdmin + "\" + cSiteName + "-" +
                    STRING(YEAR(TODAY),"9999") +
                    STRING(MONTH(TODAY),"99") +
-                   STRING(DAY(TODAY),"99") +
-                   STRING(TIME) + ".txt"
+                   STRING(DAY(TODAY),"99") + ".txt"
+        cOutDir = cSiteName + "-" +
+                   STRING(YEAR(TODAY),"9999") +
+                   STRING(MONTH(TODAY),"99") +
+                   STRING(DAY(TODAY),"99") + "-" + "ENV"
         .    
     
     /* Look in Progress dir to find out which mode (RUN/DEV) we're in */
@@ -797,9 +825,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     
     /* Make sure progress.dev has been installed */    
     IF SEARCH (cDevCfg) EQ ? 
-    AND SEARCH (cRunCfg) EQ ? THEN MESSAGE 
-            "Unable to locate progress.cfg options"
-            VIEW-AS ALERT-BOX ERROR.
+    AND SEARCH (cRunCfg) EQ ? THEN DO:
+        OS-COPY VALUE(cUpdStructureDir + "\STFiles\progress.dev") VALUE(cDLC).
+    END. 
     
     /* Now figure out if we're in dev mode or run mode */
     IF SEARCH (cDevCfg) NE ? THEN ASSIGN
@@ -919,7 +947,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCreateTTIniFile C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCopyDeploy C-Win 
 PROCEDURE ipCopyDeploy :
 /*------------------------------------------------------------------------------
   Purpose:     Copy Patch Deployment Directory Entries to Base Structure
@@ -1312,7 +1340,14 @@ PROCEDURE ipProcess :
     ELSE IF fiUserID:{&SV} EQ "admin" 
     AND fiPassword:{&SV} EQ "installme" THEN ASSIGN
         iUserLevel = 6.
-        
+    ELSE DO:
+        MESSAGE 
+            "Unable to start this process with the credentials supplied."
+            VIEW-AS ALERT-BOX.
+        RUN ipStatus("Invalid credentials.  Abort.").
+        QUIT.
+    END.
+
     IF iCurrDbVer LT iPatchDbVer
     OR iCurrEnvVer = 16070000 THEN DO:
                 
@@ -1630,7 +1665,14 @@ PROCEDURE ipSendVerification :
     PUT STREAM sInstr UNFORMATTED "PROMPT " SKIP.
     PUT STREAM sInstr UNFORMATTED "USER " + cFtpUser + " " + cFtpPassword SKIP.
     PUT STREAM sInstr UNFORMATTED "CD Results" SKIP.
+    PUT STREAM sInstr UNFORMATTED "MKDIR " + cOutDir SKIP.
+    PUT STREAM sInstr UNFORMATTED "CD " + cOutDir SKIP.
     PUT STREAM sInstr UNFORMATTED "PUT " + cOutFile SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cAdminDir + "\advantzware.ini" SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cAdminDir + "\advantzware.usr" SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cEnvAdmin + "\advantzware.pf" SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cDLCDir + "\properties\AdminServerPlugins.properties" SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cDLCDir + "\properties\conmgr.properties" SKIP.
     PUT STREAM sInstr UNFORMATTED "BYE".
     OUTPUT STREAM sInstr CLOSE.
     
@@ -1643,15 +1685,7 @@ PROCEDURE ipSendVerification :
     OS-COMMAND SILENT VALUE("FTP -n -s:" + cFTPxmit + " >> " + cFtpOutputFile + " 2>> " + cFtpErrFile).
 
     /* File cleanup */
-    RUN ipStatus("  Cleaning work files").
-    OS-DELETE VALUE(cFTPInstrFile).
-    OS-DELETE VALUE(cFTPOutputFile).
-    OS-DELETE VALUE(cFTPErrFile).
-    OS-DELETE VALUE(c7zOutputFile).
-    OS-DELETE VALUE(c7zErrFile).
-    OS-DELETE VALUE(cEnvAdmin + "\" + cOutFile).
-    OS-DELETE VALUE(cFTPxmit).
-    OS-DELETE VALUE(cEnvAdmin + "\cOutputFile").
+    RUN ipStatus("Upgrade Complete.  Press EXIT to quit.").
    
 END PROCEDURE.
 
@@ -1815,12 +1849,12 @@ FUNCTION fIntVer RETURNS INTEGER
     ASSIGN
         cStrVal[1] = ENTRY(1,cVerString,".")
         cStrVal[2] = ENTRY(2,cVerString,".")
-        cStrVal[3] = ENTRY(3,cVerString,".")
+        cStrVal[3] = IF NUM-ENTRIES(cVerString,".") GT 2 THEN ENTRY(3,cVerString,".") ELSE "0"
         cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GT 3 THEN ENTRY(4,cVerString,".") ELSE "0"
-        iIntVal[1] = INT(cStrVal[1])
-        iIntVal[2] = INT(cStrVal[2])
-        iIntVal[3] = INT(cStrVal[3])
-        iIntVal[4] = INT(cStrVal[4])
+        iIntVal[1] = IF INT(cStrVal[1]) LT 10 THEN INT(cStrVal[1]) * 10 ELSE INT(cStrVal[1])
+        iIntVal[2] = IF INT(cStrVal[2]) LT 10 THEN INT(cStrVal[2]) * 10 ELSE INT(cStrVal[2])
+        iIntVal[3] = IF INT(cStrVal[3]) LT 10 THEN INT(cStrVal[3]) * 10 ELSE INT(cStrVal[3])
+        iIntVal[4] = IF INT(cStrVal[4]) LT 10 THEN INT(cStrVal[4]) * 10 ELSE INT(cStrVal[4])
         iIntVer = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
         NO-ERROR.
     

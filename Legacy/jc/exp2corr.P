@@ -67,8 +67,11 @@ DEF VAR DOWNLOAD-FILLER71    AS C FORMAT "X(71)" no-undo.
     
 DEF VAR DOWNLOADEDORDERS AS C FORMAT "X(11)" EXTENT 5000 no-undo.
 DEF VAR DOWNLOADCOUNT AS I no-undo.
-        
+    
 DEF VAR cocode AS CHAR NO-UNDO.
+DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cOutputDir AS CHARACTER NO-UNDO.
 
 FOR EACH tt-job-hdr,
     first job-hdr where rowid(job-hdr) = tt-job-hdr.jobhdr-rowid:
@@ -76,6 +79,18 @@ FOR EACH tt-job-hdr,
     cocode = job-hdr.company.
     LEAVE.
 END.
+
+RUN sys/ref/nk1look.p (cocode, "CTIDir", "C", NO, NO, "", "", 
+    OUTPUT cReturn, OUTPUT lrecFound).
+IF lRecfound THEN
+    cOutputDir = cReturn NO-ERROR.
+IF cOutputDir EQ "" THEN 
+    cOutputDir = ".\CustFiles\DataXfer\CorrTrim\".
+IF SEARCH(cOutputDir) EQ ? THEN 
+    OS-CREATE-DIR VALUE(cOutputDir).
+IF SUBSTRING(cOutputDir, LENGTH(cOutputDir), 1) NE "\" THEN 
+    cOutputDir = cOutputDir + "\".
+    
 
 {sys/inc/f16to32.i}
     
@@ -187,17 +202,17 @@ END.
     
 =========*/
 
-OUTPUT TO Q:\DELTA\CORRTRIM\CONTROLA.
+OUTPUT TO VALUE(cOutputDir + "CONTROLA").
 
 DISP "DO_NOT_DOWNLOAD" WITH FRAME NN NO-LABELS NO-BOX.
 OUTPUT CLOSE.
 
-OUTPUT TO Q:\DELTA\CORRTRIM\CONTROLB.
+OUTPUT TO VALUE(cOutputDir + "CONTROLB").
 
 DISP "DO_NOT_DOWNLOAD" WITH FRAME NN NO-LABELS NO-BOX.
 OUTPUT CLOSE.
 
-OUTPUT TO Q:\DELTA\CORRTRIM\DNLOADA.
+OUTPUT TO VALUE(cOutputDir + "DNLOADA").
 
 DOWNLOAD-RECORD1 = "$BEGIN$  7".
 PUT UNFORMATTED download-record1 SKIP.
@@ -295,7 +310,7 @@ ASSIGN
 download-record1 = ""
 substring(download-record1,1,1) = "A"  /* download type */ 
 substring(download-record1,2,4) = "86  " /* Corr-ID*/
-SUBSTRING(download-record1,6,12) = ef.TEST + ef.Flute
+SUBSTRING(download-record1,6,12) = ef.board /* ef.TEST + "-" + ef.Flute ef. */
 SUBSTRING(download-record1,18,6) = "      "
 SUBSTRING(download-record1,18,6) = "      "
 SUBSTRING(download-record1,24,6) = if job-hdr.due-date <> ? then (SUBSTRING(STRING(YEAR(job-hdr.due-date)),3,2)
@@ -331,7 +346,8 @@ DO:
    v-sheets = job-mch.run-qty * ef.n-out * ef.n-out-l.
    RELEASE job-mch.
 END.
-
+IF v-sheets EQ 0 THEN 
+  v-sheets = job-hdr.qty.
 ASSIGN
 SUBSTRING(download-record1,102,6) = string(v-sheets)  /*download-quantity*/
 SUBSTRING(download-record1,111,3) = "   " /* std-over-pct*/

@@ -480,18 +480,6 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
          v-t-act-cost = v-t-act-cost +
                         if v-run-cost ne ? then v-run-cost else 0.
 
-         IF v-lab  AND (work-mch.est-mr-cost1 NE 0 OR work-mch.mr-cost1 NE 0 ) THEN
-             ASSIGN
-             v-t-est-cost = v-t-est-cost + work-mch.est-mr-cost1 
-             v-t-act-cost = v-t-act-cost + work-mch.mr-cost1 .
-         IF v-foh AND (work-mch.est-mr-cost2 NE 0 OR work-mch.mr-cost2 NE 0) THEN 
-             ASSIGN
-             v-t-est-cost = v-t-est-cost + work-mch.est-mr-cost2 
-             v-t-act-cost = v-t-act-cost + work-mch.mr-cost2.
-         IF v-voh AND (work-mch.est-mr-cost3 NE 0 OR work-mch.mr-cost3 NE 0 ) THEN
-             ASSIGN
-             v-t-est-cost = v-t-est-cost + work-mch.est-mr-cost3 
-             v-t-act-cost = v-t-act-cost + work-mch.mr-cost3 .
 
         if last(work-mch.d-seq) then do:
           assign

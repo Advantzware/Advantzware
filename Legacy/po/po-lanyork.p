@@ -659,7 +659,10 @@ v-printline = 0.
                         if v-lscore-c ne ""  AND v-score-types then do:
                             put 
                                 "Score: " AT 25
-                                v-lscore-c format "x(80)" SKIP .
+                                substring(v-lscore-c,1,66) format "x(66)" SKIP .
+                            IF(SUBSTRING(v-lscore-c,67,60) NE "") THEN
+                              PUT  "<c27>" substring(v-lscore-c,67,60) format "x(70)" SKIP .
+
                         END.
                     END.
                 END.

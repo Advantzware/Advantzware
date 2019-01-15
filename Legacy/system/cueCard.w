@@ -42,11 +42,17 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
-DEFINE VARIABLE cFilter      AS CHARACTER NO-UNDO INITIAL "ALL".
-DEFINE VARIABLE cSubFilter   AS CHARACTER NO-UNDO INITIAL "ALL".
-DEFINE VARIABLE cMode        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hColorWidget AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hFontWidget  AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cFilter            AS CHARACTER NO-UNDO INITIAL "ALL".
+DEFINE VARIABLE cSubFilter         AS CHARACTER NO-UNDO INITIAL "ALL".
+DEFINE VARIABLE cMode              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hColorWidget       AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hFontWidget        AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hTargetFrame       AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cLayoutStatus      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hLayoutHandle      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hLayoutParent      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lContinue          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iUserSecurityLevel AS INTEGER   NO-UNDO.
 
 DEFINE TEMP-TABLE ttIsRunning NO-UNDO
     FIELD prgTitle AS CHARACTER 
@@ -59,6 +65,8 @@ DEFINE TEMP-TABLE ttIsRunning NO-UNDO
             .
 {system/menuTree.i}
 {methods/lockWindowUpdate.i}
+
+iUserSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -80,13 +88,16 @@ DEFINE TEMP-TABLE ttIsRunning NO-UNDO
 
 /* Definitions for BROWSE cueCardBrowse                                 */
 &Scoped-define FIELDS-IN-QUERY-cueCardBrowse cueCard.cueID ~
-cueCardText.cueOrder cueCardText.isActive cueCardText.cueText 
+cueCardText.cueOrder cueCardText.isActive cueCard.cueType ~
+cueCardText.cueText 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-cueCardBrowse 
 &Scoped-define QUERY-STRING-cueCardBrowse FOR EACH cueCard ~
-      WHERE cueCard.cuePrgmName EQ cSubFilter NO-LOCK, ~
+      WHERE cueCard.cuePrgmName EQ cSubFilter ~
+AND cueCard.securityLevel LE iUserSecurityLevel NO-LOCK, ~
       EACH cueCardText WHERE cueCardText.cueID EQ cueCard.cueID NO-LOCK INDEXED-REPOSITION
 &Scoped-define OPEN-QUERY-cueCardBrowse OPEN QUERY cueCardBrowse FOR EACH cueCard ~
-      WHERE cueCard.cuePrgmName EQ cSubFilter NO-LOCK, ~
+      WHERE cueCard.cuePrgmName EQ cSubFilter ~
+AND cueCard.securityLevel LE iUserSecurityLevel NO-LOCK, ~
       EACH cueCardText WHERE cueCardText.cueID EQ cueCard.cueID NO-LOCK INDEXED-REPOSITION.
 &Scoped-define TABLES-IN-QUERY-cueCardBrowse cueCard cueCardText
 &Scoped-define FIRST-TABLE-IN-QUERY-cueCardBrowse cueCard
@@ -99,12 +110,9 @@ cueCardText.cueOrder cueCardText.isActive cueCardText.cueText
 
 /* Definitions for FRAME viewFrame                                      */
 &Scoped-define FIELDS-IN-QUERY-viewFrame cueCard.cueID cueCard.isActive ~
-cueCard.cuePrgmName cueCard.allowDismiss cueCard.allowDontShowAgain ~
-cueCardText.cueTextID cueCardText.isActive cueCardText.cueOrder ~
-cueCardText.cueText cueCardText.cueType 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-viewFrame cueCardText.cueType 
-&Scoped-define ENABLED-TABLES-IN-QUERY-viewFrame cueCardText
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-viewFrame cueCardText
+cueCard.cuePrgmName cueCard.enableDismiss cueCard.cueType ~
+cueCard.enableDontShowAgain cueCard.securityLevel cueCardText.cueTextID ~
+cueCardText.isActive cueCardText.cueOrder cueCardText.cueText 
 &Scoped-define QUERY-STRING-viewFrame FOR EACH cueCardText SHARE-LOCK, ~
       EACH cueCard WHERE TRUE /* Join to cueCardText incomplete */ SHARE-LOCK
 &Scoped-define OPEN-QUERY-viewFrame OPEN QUERY viewFrame FOR EACH cueCardText SHARE-LOCK, ~
@@ -115,8 +123,8 @@ cueCardText.cueText cueCardText.cueType
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnView svFocus cueCardBrowse btnReload ~
-btnRunCueCard btnRestoreDefaults 
+&Scoped-Define ENABLED-OBJECTS btnReload svFocus cueCardBrowse ~
+btnRestoreDefaults btnView btnRunCueCard 
 &Scoped-Define DISPLAYED-OBJECTS svFocus 
 
 /* Custom List Definitions                                              */
@@ -128,12 +136,12 @@ btnUpdate
 btnCueCardLayout btnClose btnAdd btnCopy btnDelete btnUpdate 
 &Scoped-define transUpdate btnCancel btnReset btnUpdate 
 &Scoped-define displayFields cueCard.cueID cueCard.isActive ~
-cueCard.cuePrgmName cueCard.allowDismiss cueCard.allowDontShowAgain ~
-cueCardText.cueTextID cueCardText.isActive cueCardText.cueOrder ~
-cueCardText.cueText cueCardText.cueType 
-&Scoped-define enabledFields cueCard.isActive cueCard.allowDismiss ~
-cueCard.allowDontShowAgain cueCardText.isActive cueCardText.cueText ~
-cueCardText.cueType 
+cueCard.cuePrgmName cueCard.enableDismiss cueCard.cueType ~
+cueCard.enableDontShowAgain cueCard.securityLevel cueCardText.cueTextID ~
+cueCardText.isActive cueCardText.cueOrder cueCardText.cueText 
+&Scoped-define enabledFields cueCard.isActive cueCard.enableDismiss ~
+cueCard.cueType cueCard.enableDontShowAgain cueCard.securityLevel ~
+cueCardText.isActive cueCardText.cueText 
 &Scoped-define colorFontPalette colorChoice-0 colorChoice-1 colorChoice-2 ~
 colorChoice-3 colorChoice-4 colorChoice-5 colorChoice-6 colorChoice-7 ~
 colorChoice-8 colorChoice-9 colorChoice-10 colorChoice-11 colorChoice-12 ~
@@ -177,6 +185,130 @@ DEFINE VARIABLE svFocus AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE .2 BY 1
      BGCOLOR 8  NO-UNDO.
+
+DEFINE BUTTON checkLayout 
+     IMAGE-UP FILE "Graphics/32x32/check.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Check Layout" 
+     SIZE 8 BY 1.91 TOOLTIP "Reset Layout".
+
+DEFINE BUTTON resetLayout 
+     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Reset Layout" 
+     SIZE 8 BY 1.91 TOOLTIP "Reset Layout".
+
+DEFINE VARIABLE layoutMessage AS CHARACTER 
+     VIEW-AS EDITOR
+     SIZE 57 BY 3.1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE layoutFrameCol AS DECIMAL FORMAT "->>9.99":U INITIAL 0 
+     LABEL "Column" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE layoutFrameHeight AS DECIMAL FORMAT "->>9.99":U INITIAL 0 
+     LABEL "Height" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE layoutFrameRow AS DECIMAL FORMAT "->>9.99":U INITIAL 0 
+     LABEL "Row" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE layoutFrameWidth AS DECIMAL FORMAT "->>9.99":U INITIAL 0 
+     LABEL "Width" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE moveValue AS DECIMAL FORMAT ">9.99":U INITIAL 1 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE targetFrameCol AS DECIMAL FORMAT "->>9.99":U INITIAL 0 
+     LABEL "Column" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE targetFrameHeight AS DECIMAL FORMAT "->>9.99":U INITIAL 0 
+     LABEL "Height" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE targetFrameRow AS DECIMAL FORMAT "->>9.99":U INITIAL 0 
+     LABEL "Row" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE targetFrameWidth AS DECIMAL FORMAT "->>9.99":U INITIAL 0 
+     LABEL "Width" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE IMAGE cueStatusCol
+     FILENAME "Graphics/24x24/check.png":U TRANSPARENT
+     SIZE 5 BY 1.19.
+
+DEFINE IMAGE cueStatusHeight
+     FILENAME "Graphics/24x24/check.png":U TRANSPARENT
+     SIZE 5 BY 1.19.
+
+DEFINE IMAGE cueStatusRow
+     FILENAME "Graphics/24x24/delete.png":U TRANSPARENT
+     SIZE 5 BY 1.19.
+
+DEFINE IMAGE cueStatusWidth
+     FILENAME "Graphics/24x24/delete.png":U TRANSPARENT
+     SIZE 5 BY 1.19.
+
+DEFINE IMAGE moveDown
+     FILENAME "Graphics/24x24/default_down.gif":U TRANSPARENT
+     SIZE 7 BY 1.67 TOOLTIP "Move Down".
+
+DEFINE IMAGE moveLeft
+     FILENAME "Graphics/24x24/default_left.gif":U TRANSPARENT
+     SIZE 7 BY 1.67 TOOLTIP "Move Left".
+
+DEFINE IMAGE moveLeftDown
+     FILENAME "Graphics/24x24/default_leftdown.gif":U TRANSPARENT
+     SIZE 7 BY 1.67 TOOLTIP "Move Left and Down".
+
+DEFINE IMAGE moveLeftUp
+     FILENAME "Graphics/24x24/default_leftup.gif":U TRANSPARENT
+     SIZE 7 BY 1.67 TOOLTIP "Move Left and Up".
+
+DEFINE IMAGE moveRight
+     FILENAME "Graphics/24x24/default_right.gif":U TRANSPARENT
+     SIZE 7 BY 1.67 TOOLTIP "Move Right".
+
+DEFINE IMAGE moveRightDown
+     FILENAME "Graphics/24x24/default_rightdown.gif":U TRANSPARENT
+     SIZE 7 BY 1.67 TOOLTIP "Move Right and Down".
+
+DEFINE IMAGE moveRightUp
+     FILENAME "Graphics/24x24/default_rightup.gif":U TRANSPARENT
+     SIZE 7 BY 1.67 TOOLTIP "Move Right and Up".
+
+DEFINE IMAGE moveUp
+     FILENAME "Graphics/24x24/default_up.gif":U TRANSPARENT
+     SIZE 7 BY 1.67 TOOLTIP "Move Up".
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 9.8 BY 2.38.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 9.8 BY 2.38.
 
 DEFINE BUTTON btnAdd 
      IMAGE-UP FILE "Graphics/32x32/navigate_plus.ico":U
@@ -453,6 +585,7 @@ DEFINE BROWSE cueCardBrowse
       cueCard.cueID FORMAT ">>>>9":U
       cueCardText.cueOrder FORMAT ">>>9":U
       cueCardText.isActive FORMAT "yes/no":U VIEW-AS TOGGLE-BOX
+      cueCard.cueType FORMAT "x(8)":U
       cueCardText.cueText FORMAT "x(256)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -462,21 +595,62 @@ DEFINE BROWSE cueCardBrowse
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnView AT ROW 1 COL 70 HELP
-          "Access View" WIDGET-ID 48
-     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 4
-     cueCardBrowse AT ROW 1.95 COL 62 WIDGET-ID 500
      btnReload AT ROW 1 COL 66 HELP
           "Reload Running Frames" WIDGET-ID 46
-     btnRunCueCard AT ROW 1 COL 74 HELP
-          "Test Run" WIDGET-ID 44
+     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 4
+     cueCardBrowse AT ROW 1.95 COL 62 WIDGET-ID 500
      btnRestoreDefaults AT ROW 1 COL 62 HELP
           "Restore Defaults" WIDGET-ID 42
+     btnView AT ROW 1 COL 70 HELP
+          "Access View" WIDGET-ID 48
+     btnRunCueCard AT ROW 1 COL 74 HELP
+          "Test Run" WIDGET-ID 44
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 160 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
+
+DEFINE FRAME helperFrame
+     checkLayout AT ROW 12.91 COL 46 HELP
+          "Check Layout" WIDGET-ID 52
+     resetLayout AT ROW 12.91 COL 7 HELP
+          "Reset Layout" WIDGET-ID 50
+     targetFrameCol AT ROW 2.19 COL 10 COLON-ALIGNED WIDGET-ID 2
+     layoutFrameCol AT ROW 2.19 COL 33 COLON-ALIGNED WIDGET-ID 10
+     targetFrameRow AT ROW 3.62 COL 10 COLON-ALIGNED WIDGET-ID 4
+     layoutFrameRow AT ROW 3.62 COL 33 COLON-ALIGNED WIDGET-ID 14
+     targetFrameHeight AT ROW 5.05 COL 10 COLON-ALIGNED WIDGET-ID 6
+     layoutFrameHeight AT ROW 5.05 COL 33 COLON-ALIGNED WIDGET-ID 12
+     targetFrameWidth AT ROW 6.48 COL 10 COLON-ALIGNED WIDGET-ID 8
+     layoutFrameWidth AT ROW 6.48 COL 33 COLON-ALIGNED WIDGET-ID 16
+     layoutMessage AT ROW 7.91 COL 2 NO-LABEL WIDGET-ID 30
+     moveValue AT ROW 13.38 COL 24 COLON-ALIGNED HELP
+          "Enter Value to Move Cue Card Layout" NO-LABEL WIDGET-ID 48
+     "Cue Card" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1.24 COL 36 WIDGET-ID 20
+     "Target Frame" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 1.24 COL 9 WIDGET-ID 18
+     cueStatusCol AT ROW 2.19 COL 50 WIDGET-ID 22
+     cueStatusRow AT ROW 3.62 COL 50 WIDGET-ID 24
+     cueStatusHeight AT ROW 5.05 COL 50 WIDGET-ID 26
+     cueStatusWidth AT ROW 6.48 COL 50 WIDGET-ID 28
+     moveUp AT ROW 11.48 COL 27 WIDGET-ID 32
+     moveRightUp AT ROW 11.48 COL 34 WIDGET-ID 34
+     moveLeftUp AT ROW 11.48 COL 20 WIDGET-ID 36
+     moveLeft AT ROW 13.14 COL 20 WIDGET-ID 38
+     moveRight AT ROW 13.14 COL 34 WIDGET-ID 40
+     moveLeftDown AT ROW 14.81 COL 20 WIDGET-ID 42
+     moveRightDown AT ROW 14.81 COL 34 WIDGET-ID 44
+     moveDown AT ROW 14.81 COL 27 WIDGET-ID 46
+     RECT-3 AT ROW 12.67 COL 6 WIDGET-ID 54
+     RECT-4 AT ROW 12.67 COL 45 WIDGET-ID 56
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS TOP-ONLY NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 11
+         SIZE 59 BY 17.14
+         FGCOLOR 1 
+         TITLE "Cue Card Layout Helper" WIDGET-ID 600.
 
 DEFINE FRAME viewFrame
      btnDown AT ROW 17.19 COL 60 HELP
@@ -518,14 +692,22 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
-     cueCard.allowDismiss AT ROW 2.67 COL 31 WIDGET-ID 448
-          LABEL "Allow User to Dismiss Cue Card Set"
+     cueCard.enableDismiss AT ROW 2.67 COL 31 WIDGET-ID 448
+          LABEL "Enable Dismiss Cue Card Set"
           VIEW-AS TOGGLE-BOX
-          SIZE 38 BY 1
-     cueCard.allowDontShowAgain AT ROW 3.86 COL 31 WIDGET-ID 450
-          LABEL "Allow User to Don't Show Again"
+          SIZE 32 BY 1
+     cueCard.cueType AT ROW 2.67 COL 70.6 WIDGET-ID 446
+          VIEW-AS COMBO-BOX INNER-LINES 3
+          LIST-ITEMS "System","Note","Message" 
+          DROP-DOWN-LIST
+          SIZE 17 BY 1
+     cueCard.enableDontShowAgain AT ROW 3.86 COL 31 WIDGET-ID 450
+          LABEL "Enable Don't Show Again"
           VIEW-AS TOGGLE-BOX
-          SIZE 34 BY 1
+          SIZE 32 BY 1
+     cueCard.securityLevel AT ROW 3.86 COL 88 COLON-ALIGNED WIDGET-ID 460
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
      cueCardText.cueTextID AT ROW 5.29 COL 16 COLON-ALIGNED WIDGET-ID 288
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
@@ -541,11 +723,6 @@ DEFINE FRAME viewFrame
           VIEW-AS EDITOR
           SIZE 81 BY 1.67
           BGCOLOR 15 
-     cueCardText.cueType AT ROW 12.43 COL 6.6 WIDGET-ID 446
-          VIEW-AS COMBO-BOX INNER-LINES 3
-          LIST-ITEMS "System","Message","Note" 
-          DROP-DOWN-LIST
-          SIZE 17 BY 1
      lDismissFont AT ROW 12.43 COL 37 HELP
           "Select to Set Font" WIDGET-ID 394
      lDontShowAgainFont AT ROW 13.62 COL 37 HELP
@@ -553,18 +730,15 @@ DEFINE FRAME viewFrame
      created AT ROW 14.33 COL 2 NO-LABEL WIDGET-ID 458
      cCuetextFont AT ROW 14.81 COL 35 COLON-ALIGNED HELP
           "Select Font Size" NO-LABEL WIDGET-ID 396
-     "3" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 67 WIDGET-ID 416
-          BGCOLOR 3 FGCOLOR 15 
+     "13" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 80.4 WIDGET-ID 436
+          BGCOLOR 13 FGCOLOR 15 
+     "1" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 53 WIDGET-ID 412
+          BGCOLOR 1 FGCOLOR 15 
      "?" VIEW-AS TEXT
           SIZE 2 BY .76 AT ROW 11 COL 39 WIDGET-ID 390
           FGCOLOR 0 FONT 6
-     "0" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 46 WIDGET-ID 402
-          BGCOLOR 0 FGCOLOR 15 
-     "9" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 9.71 COL 53 WIDGET-ID 428
-          BGCOLOR 9 FGCOLOR 15 
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 62 ROW 11
@@ -573,85 +747,87 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     "14" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 87.4 WIDGET-ID 438
-          BGCOLOR 14 FGCOLOR 0 
-     "2" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 60 WIDGET-ID 414
-          BGCOLOR 2 FGCOLOR 15 
-     "5" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 81 WIDGET-ID 420
-          BGCOLOR 5 FGCOLOR 15 
-     "4" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 74 WIDGET-ID 418
-          BGCOLOR 4 FGCOLOR 15 
-     "Tt" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 67 WIDGET-ID 370
-          FGCOLOR 0 FONT 3
-     "11" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 66.4 WIDGET-ID 432
-          BGCOLOR 11 FGCOLOR 0 
+     "3" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 67 WIDGET-ID 416
+          BGCOLOR 3 FGCOLOR 15 
+     "15" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 94.4 WIDGET-ID 440
+          BGCOLOR 15 FGCOLOR 0 
      "6" VIEW-AS TEXT
           SIZE 2 BY .71 AT ROW 8.48 COL 88 WIDGET-ID 422
           BGCOLOR 6 FGCOLOR 15 
+     "8" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 9.71 COL 46 WIDGET-ID 426
+          BGCOLOR 8 FGCOLOR 0 
+     "Tt" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 67 WIDGET-ID 370
+          FGCOLOR 0 FONT 3
+     "2" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 60 WIDGET-ID 414
+          BGCOLOR 2 FGCOLOR 15 
+     "Cue Card Text:" VIEW-AS TEXT
+          SIZE 15 BY .81 AT ROW 6.48 COL 3 WIDGET-ID 298
      "Fonts:" VIEW-AS TEXT
           SIZE 6 BY .71 AT ROW 11 COL 30 WIDGET-ID 398
-     "BG:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 9.57 COL 26 WIDGET-ID 350
+     "Text FG Color:" VIEW-AS TEXT
+          SIZE 14 BY 1 AT ROW 9.57 COL 4 WIDGET-ID 346
+     "Ii" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 81 WIDGET-ID 378
+          FGCOLOR 0 FONT 5
+     "9" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 9.71 COL 53 WIDGET-ID 428
+          BGCOLOR 9 FGCOLOR 15 
      "10" VIEW-AS TEXT
           SIZE 3 BY .71 AT ROW 9.71 COL 59.4 WIDGET-ID 430
           BGCOLOR 10 FGCOLOR 0 
-     "Zz" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 88 WIDGET-ID 382
+     "5" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 81 WIDGET-ID 420
+          BGCOLOR 5 FGCOLOR 15 
+     "?" VIEW-AS TEXT
+          SIZE 2 BY .76 AT ROW 9.1 COL 39 WIDGET-ID 354
           FGCOLOR 0 FONT 6
+     "Nn" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 60 WIDGET-ID 366
+          FGCOLOR 0 FONT 2
      "Ff" VIEW-AS TEXT
           SIZE 3 BY .76 AT ROW 11 COL 46 WIDGET-ID 358
           FGCOLOR 0 FONT 0
-     "BG:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 8.38 COL 26 WIDGET-ID 348
-     "12" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 73.4 WIDGET-ID 434
-          BGCOLOR 12 FGCOLOR 15 
-     "7" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 95 WIDGET-ID 424
-          BGCOLOR 7 FGCOLOR 15 
-     "13" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 80.4 WIDGET-ID 436
-          BGCOLOR 13 FGCOLOR 15 
-     "Text FG Color:" VIEW-AS TEXT
-          SIZE 14 BY 1 AT ROW 9.57 COL 4 WIDGET-ID 346
+     "Ss" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 74 WIDGET-ID 374
+          FGCOLOR 0 FONT 4
      "Oo" VIEW-AS TEXT
           SIZE 3 BY .76 AT ROW 11 COL 53 WIDGET-ID 362
           FGCOLOR 0 FONT 1
      "Frame FG Color:" VIEW-AS TEXT
           SIZE 16 BY 1 AT ROW 8.38 COL 2 WIDGET-ID 344
-     "Nn" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 60 WIDGET-ID 366
-          FGCOLOR 0 FONT 2
+     "BG:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 8.38 COL 26 WIDGET-ID 348
      "Ee" VIEW-AS TEXT
           SIZE 3 BY .76 AT ROW 11 COL 95 WIDGET-ID 386
           FGCOLOR 0 FONT 7
-     "1" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 8.48 COL 53 WIDGET-ID 412
-          BGCOLOR 1 FGCOLOR 15 
-     "8" VIEW-AS TEXT
-          SIZE 2 BY .71 AT ROW 9.71 COL 46 WIDGET-ID 426
-          BGCOLOR 8 FGCOLOR 0 
-     "?" VIEW-AS TEXT
-          SIZE 2 BY .76 AT ROW 9.1 COL 39 WIDGET-ID 354
+     "Zz" VIEW-AS TEXT
+          SIZE 3 BY .76 AT ROW 11 COL 88 WIDGET-ID 382
           FGCOLOR 0 FONT 6
-     "Ss" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 74 WIDGET-ID 374
-          FGCOLOR 0 FONT 4
-     "Ii" VIEW-AS TEXT
-          SIZE 3 BY .76 AT ROW 11 COL 81 WIDGET-ID 378
-          FGCOLOR 0 FONT 5
-     "15" VIEW-AS TEXT
-          SIZE 3 BY .71 AT ROW 9.71 COL 94.4 WIDGET-ID 440
-          BGCOLOR 15 FGCOLOR 0 
-     "Cue Card Text:" VIEW-AS TEXT
-          SIZE 15 BY .81 AT ROW 6.48 COL 3 WIDGET-ID 298
-     transPanel AT ROW 15.95 COL 1 WIDGET-ID 16
+     "14" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 87.4 WIDGET-ID 438
+          BGCOLOR 14 FGCOLOR 0 
+     "11" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 66.4 WIDGET-ID 432
+          BGCOLOR 11 FGCOLOR 0 
+     "0" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 46 WIDGET-ID 402
+          BGCOLOR 0 FGCOLOR 15 
+     "7" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 95 WIDGET-ID 424
+          BGCOLOR 7 FGCOLOR 15 
+     "12" VIEW-AS TEXT
+          SIZE 3 BY .71 AT ROW 9.71 COL 73.4 WIDGET-ID 434
+          BGCOLOR 12 FGCOLOR 15 
+     "4" VIEW-AS TEXT
+          SIZE 2 BY .71 AT ROW 8.48 COL 74 WIDGET-ID 418
+          BGCOLOR 4 FGCOLOR 15 
+     "BG:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 9.57 COL 26 WIDGET-ID 350
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 62 ROW 11
@@ -660,6 +836,7 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     transPanel AT ROW 15.95 COL 1 WIDGET-ID 16
      transPanel-8 AT ROW 15.95 COL 65 WIDGET-ID 280
      transPanel-2 AT ROW 15.95 COL 51 WIDGET-ID 32
      colorChoice-0 AT ROW 8.38 COL 44 WIDGET-ID 48
@@ -754,6 +931,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* REPARENT FRAME */
 ASSIGN FRAME filterFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
+       FRAME helperFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
        FRAME viewFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE.
 
 /* SETTINGS FOR FRAME DEFAULT-FRAME
@@ -761,24 +939,60 @@ ASSIGN FRAME filterFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
-ASSIGN XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
-       XXTABVALXX = FRAME viewFrame:MOVE-AFTER-TAB-ITEM (cueCardBrowse:HANDLE IN FRAME DEFAULT-FRAME)
+ASSIGN XXTABVALXX = FRAME filterFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (cueCardBrowse:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME helperFrame:MOVE-AFTER-TAB-ITEM (cueCardBrowse:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME helperFrame:MOVE-BEFORE-TAB-ITEM (FRAME viewFrame:HANDLE)
 /* END-ASSIGN-TABS */.
 
-/* BROWSE-TAB cueCardBrowse svFocus DEFAULT-FRAME */
+/* BROWSE-TAB cueCardBrowse filterFrame DEFAULT-FRAME */
 /* SETTINGS FOR FILL-IN svFocus IN FRAME DEFAULT-FRAME
    ALIGN-L                                                              */
 /* SETTINGS FOR FRAME filterFrame
                                                                         */
+/* SETTINGS FOR FRAME helperFrame
+   NOT-VISIBLE                                                          */
+ASSIGN 
+       FRAME helperFrame:HIDDEN           = TRUE.
+
+/* SETTINGS FOR IMAGE cueStatusCol IN FRAME helperFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR IMAGE cueStatusHeight IN FRAME helperFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR IMAGE cueStatusRow IN FRAME helperFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR IMAGE cueStatusWidth IN FRAME helperFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN layoutFrameCol IN FRAME helperFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN layoutFrameHeight IN FRAME helperFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN layoutFrameRow IN FRAME helperFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN layoutFrameWidth IN FRAME helperFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR EDITOR layoutMessage IN FRAME helperFrame
+   NO-DISPLAY                                                           */
+ASSIGN 
+       layoutMessage:READ-ONLY IN FRAME helperFrame        = TRUE.
+
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME helperFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME helperFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN targetFrameCol IN FRAME helperFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN targetFrameHeight IN FRAME helperFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN targetFrameRow IN FRAME helperFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN targetFrameWidth IN FRAME helperFrame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME viewFrame
                                                                         */
 ASSIGN 
        FRAME viewFrame:MOVABLE          = TRUE.
 
-/* SETTINGS FOR TOGGLE-BOX cueCard.allowDismiss IN FRAME viewFrame
-   NO-ENABLE 4 5 EXP-LABEL                                              */
-/* SETTINGS FOR TOGGLE-BOX cueCard.allowDontShowAgain IN FRAME viewFrame
-   NO-ENABLE 4 5 EXP-LABEL                                              */
 /* SETTINGS FOR BUTTON btnAdd IN FRAME viewFrame
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnCancel IN FRAME viewFrame
@@ -912,8 +1126,12 @@ ASSIGN
    NO-ENABLE 4 5                                                        */
 /* SETTINGS FOR FILL-IN cueCardText.cueTextID IN FRAME viewFrame
    NO-ENABLE 4                                                          */
-/* SETTINGS FOR COMBO-BOX cueCardText.cueType IN FRAME viewFrame
-   ALIGN-L 4 5                                                          */
+/* SETTINGS FOR COMBO-BOX cueCard.cueType IN FRAME viewFrame
+   NO-ENABLE ALIGN-L 4 5                                                */
+/* SETTINGS FOR TOGGLE-BOX cueCard.enableDismiss IN FRAME viewFrame
+   NO-ENABLE 4 5 EXP-LABEL                                              */
+/* SETTINGS FOR TOGGLE-BOX cueCard.enableDontShowAgain IN FRAME viewFrame
+   NO-ENABLE 4 5 EXP-LABEL                                              */
 /* SETTINGS FOR RECTANGLE fBGColor IN FRAME viewFrame
    NO-ENABLE 6                                                          */
 ASSIGN 
@@ -1001,6 +1219,8 @@ ASSIGN
 
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME viewFrame
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cueCard.securityLevel IN FRAME viewFrame
+   NO-ENABLE 4 5                                                        */
 /* SETTINGS FOR RECTANGLE tBGColor IN FRAME viewFrame
    NO-ENABLE 6                                                          */
 ASSIGN 
@@ -1031,13 +1251,15 @@ THEN C-Win:HIDDEN = no.
      _TblList          = "ASI.cueCard,ASI.cueCardText WHERE ASI.cueCard ..."
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _TblOptList       = ","
-     _Where[1]         = "cueCard.cuePrgmName EQ cSubFilter"
+     _Where[1]         = "cueCard.cuePrgmName EQ cSubFilter
+AND cueCard.securityLevel LE iUserSecurityLevel"
      _JoinCode[2]      = "cueCardText.cueID EQ cueCard.cueID"
      _FldNameList[1]   = ASI.cueCard.cueID
      _FldNameList[2]   = ASI.cueCardText.cueOrder
      _FldNameList[3]   > ASI.cueCardText.isActive
 "cueCardText.isActive" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
-     _FldNameList[4]   > ASI.cueCardText.cueText
+     _FldNameList[4]   = ASI.cueCard.cueType
+     _FldNameList[5]   > ASI.cueCardText.cueText
 "cueCardText.cueText" ? "x(256)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE cueCardBrowse */
@@ -1053,6 +1275,12 @@ THEN C-Win:HIDDEN = no.
 /* Query rebuild information for FRAME filterFrame
      _Query            is NOT OPENED
 */  /* FRAME filterFrame */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _QUERY-BLOCK FRAME helperFrame
+/* Query rebuild information for FRAME helperFrame
+     _Query            is NOT OPENED
+*/  /* FRAME helperFrame */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME viewFrame
@@ -1325,6 +1553,19 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME helperFrame
+&Scoped-define SELF-NAME checkLayout
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL checkLayout C-Win
+ON CHOOSE OF checkLayout IN FRAME helperFrame /* Check Layout */
+DO:
+    RUN pLayoutHelper IN hLayoutParent.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME viewFrame
 &Scoped-define SELF-NAME colorChoice-0
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL colorChoice-0 C-Win
 ON SELECTION OF colorChoice-0 IN FRAME viewFrame
@@ -1369,6 +1610,27 @@ END.
 
 
 &Scoped-define FRAME-NAME viewFrame
+&Scoped-define SELF-NAME cueCardText.cueText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cueCardText.cueText C-Win
+ON ENTRY OF cueCardText.cueText IN FRAME viewFrame /* Cue Card Text */
+DO:
+    SELF:HEIGHT = 9.29.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cueCardText.cueText C-Win
+ON LEAVE OF cueCardText.cueText IN FRAME viewFrame /* Cue Card Text */
+DO:
+    SELF:HEIGHT = 1.67.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fFGColor
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fFGColor C-Win
 ON SELECTION OF fFGColor IN FRAME viewFrame
@@ -1417,6 +1679,42 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME helperFrame
+&Scoped-define SELF-NAME moveLeftUp
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL moveLeftUp C-Win
+ON MOUSE-SELECT-CLICK OF moveLeftUp IN FRAME helperFrame
+,moveUp,moveRightUp,moveRight,moveRightDown,moveDown,moveLeftDown,moveLeft
+DO:
+    RUN pMoveLayout (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME moveValue
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL moveValue C-Win
+ON VALUE-CHANGED OF moveValue IN FRAME helperFrame
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME resetLayout
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL resetLayout C-Win
+ON CHOOSE OF resetLayout IN FRAME helperFrame /* Reset Layout */
+DO:
+    RUN pDisplayCueCardLayout IN hLayoutParent.
+    RUN pLayoutHelper IN hLayoutParent.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 &UNDEFINE SELF-NAME
 
@@ -1437,17 +1735,27 @@ ON CLOSE OF THIS-PROCEDURE
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
 
+&IF DEFINED(UIB_is_Running) EQ 0 &THEN
+RUN util/CheckModule.p ("ASI","CueCard", YES, OUTPUT lContinue).
+&ELSE
+lContinue = YES.
+&ENDIF
+
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  RUN enable_UI.
-  hFocus = svFocus:HANDLE.
-  RUN pGetSettings (USERID("ASI")).
-  RUN pInit.
+  IF lContinue THEN DO:
+      RUN enable_UI.
+      hFocus = svFocus:HANDLE.
+      RUN pGetSettings (USERID("ASI")).
+      RUN pInit.
+  END. /* if continue */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
+  IF NOT lContinue THEN
+  APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1488,24 +1796,33 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY svFocus 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnView svFocus cueCardBrowse btnReload btnRunCueCard 
-         btnRestoreDefaults 
+  ENABLE btnReload svFocus cueCardBrowse btnRestoreDefaults btnView 
+         btnRunCueCard 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW FRAME filterFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-filterFrame}
+  DISPLAY targetFrameCol layoutFrameCol targetFrameRow layoutFrameRow 
+          targetFrameHeight layoutFrameHeight targetFrameWidth layoutFrameWidth 
+          moveValue 
+      WITH FRAME helperFrame IN WINDOW C-Win.
+  ENABLE checkLayout resetLayout moveUp moveRightUp moveLeftUp moveLeft 
+         moveRight moveLeftDown moveRightDown moveDown layoutMessage moveValue 
+      WITH FRAME helperFrame IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-helperFrame}
   DISPLAY lDismissFont lDontShowAgainFont created cCuetextFont 
       WITH FRAME viewFrame IN WINDOW C-Win.
   IF AVAILABLE cueCard THEN 
     DISPLAY cueCard.cueID cueCard.isActive cueCard.cuePrgmName 
-          cueCard.allowDismiss cueCard.allowDontShowAgain 
+          cueCard.enableDismiss cueCard.cueType cueCard.enableDontShowAgain 
+          cueCard.securityLevel 
       WITH FRAME viewFrame IN WINDOW C-Win.
   IF AVAILABLE cueCardText THEN 
     DISPLAY cueCardText.cueTextID cueCardText.isActive cueCardText.cueOrder 
-          cueCardText.cueText cueCardText.cueType 
+          cueCardText.cueText 
       WITH FRAME viewFrame IN WINDOW C-Win.
   ENABLE btnDown btnUp btnFirst btnLast btnNext btnPrev btnCueCardLayout 
-         btnClose btnAdd btnCopy btnDelete btnUpdate cueCardText.cueType 
+         btnClose btnAdd btnCopy btnDelete btnUpdate 
       WITH FRAME viewFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-viewFrame}
   VIEW C-Win.
@@ -1553,7 +1870,7 @@ PROCEDURE pBuildMenuTree :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iOrder    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
     
     RUN pInitMenuTree.
 
@@ -1638,8 +1955,8 @@ PROCEDURE pChangeOrder :
          WHERE bCueCardText.cueID EQ cueCardText.cueID
          NO-ERROR.
     IF AVAILABLE bCueCardText THEN DO:
-         /* check if at bottom, can't move down */
-         IF bCueCardText.cueOrder EQ cueCardText.cueOrder AND ipiChangeOrder EQ 1 THEN
+        /* check if at bottom, can't move down */
+        IF bCueCardText.cueOrder EQ cueCardText.cueOrder AND ipiChangeOrder EQ 1 THEN
         RETURN.
     END. /* if avail */
     ELSE RETURN.
@@ -1661,7 +1978,6 @@ PROCEDURE pChangeOrder :
         FIND CURRENT cueCardText NO-LOCK.
     END. /* if avail */
     RUN pReopenBrowse.
-/*    BROWSE cueCardBrowse:REFRESH().*/
     
 END PROCEDURE.
 
@@ -1690,8 +2006,8 @@ PROCEDURE pClearView :
     END. /* do while */
     ASSIGN 
         cueCard.cuePrgmName:SCREEN-VALUE   = cSubFilter
+        cueCard.cueType:SCREEN-VALUE       = cueCard.cueType:ENTRY(1) 
         cueCardText.cueText:SCREEN-VALUE   = "Enter Cue Card Text Here"
-        cueCardText.cueType:SCREEN-VALUE   = cueCardText.cueType:ENTRY(1) 
         fFGColor:BGCOLOR                   = ?
         fBGColor:BGCOLOR                   = ?
         tFGColor:BGCOLOR                   = ?
@@ -1827,10 +2143,10 @@ PROCEDURE pCRUD :
                                 cueCardText.dontShowAgainFont = ?
                                 cueCardText.frameCol          = 2
                                 cueCardText.frameRow          = 2
-                                cueCardText.frameBGColor      = IF cueCardText.cueType EQ "System"  THEN 14
-                                                           ELSE IF cueCardText.cueType EQ "Message" THEN 11
+                                cueCardText.frameBGColor      = IF cueCard.cueType EQ "System"  THEN 14
+                                                           ELSE IF cueCard.cueType EQ "Message" THEN 11
                                                            ELSE 9
-                                cueCardText.frameFGColor      = IF cueCardText.cueType EQ "Note" THEN 0 ELSE 1
+                                cueCardText.frameFGColor      = IF cueCard.cueType EQ "Note" THEN 0 ELSE 1
                                 cueCardText.frameHeight       = 7.38
                                 cueCardText.frameWidth        = 53
                                 cueCardText.dismissCol        = 10
@@ -1846,6 +2162,7 @@ PROCEDURE pCRUD :
                                 cueCardText.textRow           = 2.43
                                 cueCardText.textHeight        = 4.29
                                 cueCardText.textWidth         = 44
+                                cueCardText.textFont          = ?
                                 fFGColor:BGCOLOR              = cueCardText.frameFGColor
                                 fBGColor:BGCOLOR              = cueCardText.frameBGColor
                                 tFGColor:BGCOLOR              = cueCardText.textFGColor
@@ -1856,7 +2173,8 @@ PROCEDURE pCRUD :
                                 .
                         END. /* else add */
                         ASSIGN 
-                            cueCardText.cueID = cueCard.cueID
+                            cueCardText.cueID   = cueCard.cueID
+                            cueCardText.cueType = cueCard.cueType
                             cueCardText.cueTextID:SCREEN-VALUE = STRING(cueCardText.cueTextID)
                             .
                     END. /* if add/copy */
@@ -1915,7 +2233,8 @@ PROCEDURE pCRUD :
                         DELETE cueCardText.
                         /* check if all cue card text records deleted */
                         IF NOT CAN-FIND(FIRST cueCardText
-                                        WHERE cueCardText.cueID EQ cueCard.cueID) THEN DO:
+                                        WHERE cueCardText.cueType EQ cueCard.cueType
+                                          AND cueCardText.cueID   EQ cueCard.cueID) THEN DO:
                             FIND CURRENT cueCard EXCLUSIVE-LOCK.
                             DELETE cueCard.
                             HIDE FRAME viewFrame.
@@ -1926,10 +2245,14 @@ PROCEDURE pCRUD :
                     END. /* if lcontinue */
                     IF AVAILABLE cueCardText THEN
                     BROWSE cueCardBrowse:REFRESH().
+                    RUN pDisplay.
                 END. /* if avail */
             END. /* delete */
-            WHEN "Reset" THEN
-            RUN pDisplay.            
+            WHEN "Reset" THEN DO:
+                RUN pDisplay.
+                DISABLE {&transPanel}.
+                ENABLE {&transUpdate} {&enabledFields} {&calendarObjects}.
+            END. /* reset */
         END CASE. /* ipcmode:label */
         IF iphMode:LABEL EQ "Add" THEN
         APPLY "ENTRY":U TO cueCardText.cueText.
@@ -1969,7 +2292,8 @@ PROCEDURE pCueCardLayout :
             RETURN.
         END. /* else */
     END. /* if avail */
-    RUN system/cueCardLayout.w (BUFFER cueCardText, ttIsRunning.hFrame).
+    hTargetFrame = ttIsRunning.hFrame.
+    RUN system/cueCardLayout.w (BUFFER cueCardText, hTargetFrame, THIS-PROCEDURE).
 
 END PROCEDURE.
 
@@ -2002,7 +2326,7 @@ PROCEDURE pDisplay :
         RUN pClearView.
         ASSIGN 
             cueCard.cueID:SCREEN-VALUE = ""
-            cueCardTExt.cueTextID:SCREEN-VALUE = ""
+            cueCardText.cueTextID:SCREEN-VALUE = ""
             cueCardText.cueOrder:SCREEN-VALUE  = "9999"
             created:SCREEN-VALUE = ""
             .
@@ -2066,10 +2390,7 @@ PROCEDURE pGetSettings :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE hColumn AS HANDLE  NO-UNDO.
     DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
-    DEFINE VARIABLE jdx     AS INTEGER NO-UNDO.
-    DEFINE VARIABLE kdx     AS INTEGER NO-UNDO.
     
     IF NOT CAN-FIND(FIRST user-print
                     WHERE user-print.company    EQ g_company
@@ -2129,6 +2450,147 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLayoutHelper C-Win 
+PROCEDURE pLayoutHelper :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    &Scoped-define imageFolder Graphics\24x24\
+    &Scoped-define checkImage {&imageFolder}check.png
+    &Scoped-define deleteImage {&imageFolder}delete.png
+    
+    DEFINE INPUT PARAMETER iphLayout AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE dTitle AS DECIMAL NO-UNDO.
+    
+    IF VALID-HANDLE(iphLayout) EQ NO THEN DO:
+        HIDE FRAME helperFrame.
+        RETURN.
+    END. /* if valid */
+    
+    VIEW FRAME helperFrame. 
+    DO WITH FRAME helperFrame:        
+        FRAME helperFrame:MOVE-TO-TOP().
+        ASSIGN
+            dTitle            = IF hTargetFrame:TITLE EQ ? THEN 0 ELSE 1
+            targetFrameCol    = hTargetFrame:COL
+            targetFrameRow    = hTargetFrame:ROW 
+            targetFrameHeight = hTargetFrame:HEIGHT 
+            targetFrameWidth  = hTargetFrame:WIDTH 
+            layoutFrameCol    = iphLayout:COL 
+            layoutFrameRow    = iphLayout:ROW - 1 - dTitle
+            layoutFrameHeight = iphLayout:HEIGHT
+            layoutFrameWidth  = iphLayout:WIDTH 
+            cLayoutStatus     = ""
+            .
+        /* check column position of cue vs frame */
+        cueStatusCol:LOAD-IMAGE("{&checkImage}").
+        IF layoutFrameCol LT targetFrameCol THEN DO:
+            cueStatusCol:LOAD-IMAGE("{&deleteImage}").
+            cLayoutStatus = cLayoutStatus + "Cue Card Column Postion Invalid" + CHR(10).
+        END.
+        /* check row position of cue vs frame */ 
+        cueStatusRow:LOAD-IMAGE("{&checkImage}").
+        IF layoutFrameRow LT targetFrameRow THEN DO:
+            cueStatusRow:LOAD-IMAGE("{&deleteImage}").
+            cLayoutStatus = cLayoutStatus + "Cue Card Row Postion Invalid" + CHR(10).
+        END.
+        /* check height of cue vs frame */
+        cueStatusHeight:LOAD-IMAGE("{&checkImage}").
+        IF layoutFrameRow + layoutFrameHeight + dTitle GT targetFrameRow + targetFrameHeight THEN DO:
+            cueStatusHeight:LOAD-IMAGE("{&deleteImage}").
+            cLayoutStatus = cLayoutStatus + "Cue Card Exceeds Height Limit" + CHR(10).
+        END.
+        /* check width of cue vs frame */
+        cueStatusWidth:LOAD-IMAGE("{&checkImage}").
+        IF layoutFrameCol + layoutFrameWidth GT targetFrameCol + targetFrameWidth THEN DO:
+            cueStatusWidth:LOAD-IMAGE("{&deleteImage}").
+            cLayoutStatus = cLayoutStatus + "Cue Card Exceeds Width Limit" + CHR(10).
+        END.
+
+        layoutMessage = cLayoutStatus.
+        DISPLAY
+            targetFrameCol
+            targetFrameRow 
+            targetFrameHeight 
+            targetFrameWidth 
+            layoutFrameCol 
+            layoutFrameRow 
+            layoutFrameHeight 
+            layoutFrameWidth
+            layoutMessage
+            .
+    END. /* with frame */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLayoutStatus C-Win 
+PROCEDURE pLayoutStatus :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcLayoutStatus AS CHARACTER NO-UNDO.
+    
+    IF cLayoutStatus NE "" THEN 
+    cLayoutStatus = "WARNING:" + CHR(10) + cLayoutStatus + CHR(10).
+    opcLayoutStatus = cLayoutStatus.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMoveLayout C-Win 
+PROCEDURE pMoveLayout :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    CASE iphWidget:NAME:
+        WHEN "moveLeftUp" THEN
+        ASSIGN
+            hLayoutHandle:COL = hLayoutHandle:COL - moveValue
+            hLayoutHandle:ROW = hLayoutHandle:ROW - moveValue
+            .
+        WHEN "moveUp" THEN
+            hLayoutHandle:ROW = hLayoutHandle:ROW - moveValue.
+        WHEN "moveRightUp" THEN
+        ASSIGN
+            hLayoutHandle:COL = hLayoutHandle:COL + moveValue
+            hLayoutHandle:ROW = hLayoutHandle:ROW - moveValue
+            .
+        WHEN "moveRight" THEN
+            hLayoutHandle:COL = hLayoutHandle:COL + moveValue.
+        WHEN "moveRightDown" THEN
+        ASSIGN
+            hLayoutHandle:COL = hLayoutHandle:COL + moveValue
+            hLayoutHandle:ROW = hLayoutHandle:ROW + moveValue
+            .
+        WHEN "moveDown" THEN
+            hLayoutHandle:ROW = hLayoutHandle:ROW + moveValue.
+        WHEN "moveLeftDown" THEN
+        ASSIGN
+            hLayoutHandle:COL = hLayoutHandle:COL - moveValue
+            hLayoutHandle:ROW = hLayoutHandle:ROW + moveValue
+            .
+        WHEN "moveLeft" THEN
+            hLayoutHandle:COL = hLayoutHandle:COL - moveValue.
+    END CASE.
+    RUN pLayoutHelper (hLayoutHandle).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pNavPanel C-Win 
 PROCEDURE pNavPanel :
 /*------------------------------------------------------------------------------
@@ -2163,8 +2625,6 @@ PROCEDURE pProcessClick :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE BUFFER bttMenuTree FOR ttMenuTree.
-    
     IF AVAILABLE ttMenuTree THEN DO:
         ASSIGN
             cFilter    = ttMenuTree.treeParent
@@ -2247,9 +2707,7 @@ PROCEDURE pSaveSettings :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE hColumn AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
-    DEFINE VARIABLE jdx     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
     FIND FIRST user-print EXCLUSIVE-LOCK
          WHERE user-print.company    EQ g_company
@@ -2302,7 +2760,8 @@ PROCEDURE pSetCueOrder :
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
     FOR EACH cueCardText EXCLUSIVE-LOCK 
-        WHERE cueCardText.cueID EQ cueCard.cueID
+        WHERE cueCardText.cueType EQ cueCard.cueType
+          AND cueCardText.cueID   EQ cueCard.cueID
            BY cueCardText.cueOrder 
         :
         ASSIGN 
@@ -2311,6 +2770,24 @@ PROCEDURE pSetCueOrder :
             .
     END. /* each bcuecardtext */
     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetLayoutHandle C-Win 
+PROCEDURE pSetLayoutHandle :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphLayoutHandle AS HANDLE NO-UNDO.
+
+    ASSIGN    
+        hLayoutHandle = iphLayoutHandle
+        hLayoutParent = iphLayoutHandle:INSTANTIATING-PROCEDURE
+        .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

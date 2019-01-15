@@ -86,7 +86,8 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD cGroup        AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Group" HELP "Optional - Character" 
     FIELD dBrkComm      AS DECIMAL   FORMAT ">>9.99" COLUMN-LABEL "Broker Comm%" HELP "Optional - Decimal" 
     FIELD dFltComm      AS DECIMAL   FORMAT ">>9.99" COLUMN-LABEL "Flat Comm%" HELP "Optional - Decimal" 
-    FIELD cPrefix    AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Prefix" HELP "Optional - Size:3"
+    FIELD cPrefix       AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Prefix" HELP "Optional - Size:3"
+    FIELD cCntPrice     AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Contract Pricing" HELP "Optional - Yes or N0"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -351,6 +352,7 @@ PROCEDURE pValidate PRIVATE:
          ipbf-ttImportCust.cTaxable = "Y".
     ELSE ipbf-ttImportCust.cTaxable = "N".
 
+
     
 END PROCEDURE.
 
@@ -443,7 +445,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportCust.dBrkComm, iplIgnoreBlanks, INPUT-OUTPUT cust.scomm).
     RUN pAssignValueD (ipbf-ttImportCust.dFltComm, iplIgnoreBlanks, INPUT-OUTPUT cust.flatCommPct).
     RUN pAssignValueC (ipbf-ttImportCust.cPrefix, iplIgnoreBlanks, INPUT-OUTPUT cust.fax-prefix).
-
+    RUN pAssignValueC (ipbf-ttImportCust.cCntPrice, YES, INPUT-OUTPUT cust.imported).
 
     FIND FIRST shipto EXCLUSIVE-LOCK 
         WHERE shipto.company EQ cust.company

@@ -411,7 +411,7 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "ASI Database Upgrade Processor"
+         TITLE              = "ASIupdate 160800-01 Database"
          HEIGHT             = 22.67
          WIDTH              = 77
          MAX-HEIGHT         = 39.29
@@ -472,7 +472,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* ASI Database Upgrade Processor */
+ON END-ERROR OF C-Win /* ASIupdate 160800-01 Database */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -486,7 +486,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* ASI Database Upgrade Processor */
+ON WINDOW-CLOSE OF C-Win /* ASIupdate 160800-01 Database */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -584,8 +584,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
-RETURN.    
-
+RETURN.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1608,10 +1607,10 @@ FUNCTION fIntVer RETURNS INTEGER
         cStrVal[2] = ENTRY(2,cVerString,".")
         cStrVal[3] = ENTRY(3,cVerString,".")
         cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GT 3 THEN ENTRY(4,cVerString,".") ELSE "0"
-        iIntVal[1] = INT(cStrVal[1])
-        iIntVal[2] = INT(cStrVal[2])
-        iIntVal[3] = INT(cStrVal[3])
-        iIntVal[4] = INT(cStrVal[4])
+        iIntVal[1] = IF INT(cStrVal[1]) LT 10 THEN INT(cStrVal[1]) * 10 ELSE INT(cStrVal[1])
+        iIntVal[2] = IF INT(cStrVal[2]) LT 10 THEN INT(cStrVal[2]) * 10 ELSE INT(cStrVal[2])
+        iIntVal[3] = IF INT(cStrVal[3]) LT 10 THEN INT(cStrVal[3]) * 10 ELSE INT(cStrVal[3])
+        iIntVal[4] = IF INT(cStrVal[4]) LT 10 THEN INT(cStrVal[4]) * 10 ELSE INT(cStrVal[4])
         iIntVer    = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
         NO-ERROR.
     

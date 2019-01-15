@@ -107,7 +107,7 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE ship_note AS CHARACTER 
-     VIEW-AS EDITOR
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
      SIZE 104 BY 4
      BGCOLOR 15  NO-UNDO.
 
@@ -226,7 +226,8 @@ DO:
   RUN ConvertToArray IN hNotesProcs (INPUT ship_note:SCREEN-VALUE, 
               INPUT 60,
               OUTPUT opcParsedText,
-              OUTPUT opiFilledArraySize).  
+              OUTPUT opiFilledArraySize). 
+    DELETE OBJECT hNotesProcs. 
   IF opiFilledArraySize GT 4 THEN DO:
     MESSAGE "Autoparsed lines exceed 4 lines of text. Only first 4 lines will be used." view-as alert-box error.       
   END.   
@@ -517,7 +518,7 @@ PROCEDURE local-update-record:
                oe-relh.ship-i[3] =  opcParsedText[3]
                oe-relh.ship-i[4] =  opcParsedText[4]
                .               
-            RUN UpdateNoteShipOeRelh IN hNotesProcs (oe-relh.rec_key,
+            RUN UpdateShipNote IN hNotesProcs (oe-relh.rec_key,
                                                      ship_note).
             DELETE OBJECT hNotesProcs.        
         END.
