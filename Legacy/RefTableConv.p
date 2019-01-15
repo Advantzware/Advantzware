@@ -166,6 +166,8 @@ ASSIGN
     {refTableConv.i "EstGetqtyw2" 'est/getqty.w2'}
     {refTableConv.i "CevEst3" 'ce/v-est3.w Unit#'}
     {refTableConv.i "ProbePerMsf" 'probe.per-msf'}
+    {refTableConv.i "BlankVendQty" 'blank-vend-qty'}
+    {refTableConv.i "BlankVendCost" 'blank-vend-cost'}
     {refTableConv.i "v10TaxCode" 'v10-TaxCode-Upgrade'}
 
 /* Deferred for 16.7.0                                              */
