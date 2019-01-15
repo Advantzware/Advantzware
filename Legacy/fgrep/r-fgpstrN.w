@@ -1666,7 +1666,15 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                EACH fg-rdtlh
                WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
                  AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-               NO-LOCK:
+               NO-LOCK,
+                FIRST itemfg WHERE
+              itemfg.company EQ cocode AND
+              itemfg.i-no    EQ fg-rcpth.i-no AND
+              itemfg.cust-no GE v-cust[1] AND
+              itemfg.cust-no LE v-cust[2] AND 
+              (IF lselected THEN CAN-FIND(FIRST ttCustList WHERE ttCustList.cust-no EQ itemfg.cust-no
+              AND ttCustList.log-fld NO-LOCK) ELSE TRUE)
+              NO-LOCK:
 
                CREATE tt-report.
                ASSIGN
@@ -1809,6 +1817,14 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                     AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
                   AND fg-rcpth.USER-ID GE begin_user
                  AND fg-rcpth.USER-ID LE END_user
+                  NO-LOCK,
+                  FIRST itemfg WHERE
+                  itemfg.company EQ cocode AND
+                  itemfg.i-no    EQ fg-rcpth.i-no AND
+                  itemfg.cust-no GE v-cust[1] AND
+                  itemfg.cust-no LE v-cust[2] AND 
+                  (IF lselected THEN CAN-FIND(FIRST ttCustList WHERE ttCustList.cust-no EQ itemfg.cust-no
+                                              AND ttCustList.log-fld NO-LOCK) ELSE TRUE)
                   NO-LOCK:
 
                   CREATE tt-report.
@@ -1838,7 +1854,15 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                    EACH fg-rdtlh FIELDS(loc loc-bin tag) WHERE
                         fg-rdtlh.r-no      EQ fg-rcpth.r-no AND
                         fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-                        NO-LOCK:
+                        NO-LOCK,
+                  FIRST itemfg WHERE
+                  itemfg.company EQ cocode AND
+                  itemfg.i-no    EQ fg-rcpth.i-no AND
+                  itemfg.cust-no GE v-cust[1] AND
+                  itemfg.cust-no LE v-cust[2] AND 
+                  (IF lselected THEN CAN-FIND(FIRST ttCustList WHERE ttCustList.cust-no EQ itemfg.cust-no
+                                              AND ttCustList.log-fld NO-LOCK) ELSE TRUE)
+                  NO-LOCK:
 
                         CREATE tt-report.
                         ASSIGN
