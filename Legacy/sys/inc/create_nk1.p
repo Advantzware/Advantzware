@@ -337,7 +337,7 @@ CASE ip-nk1-value:
     WHEN "BusinessFormLogo" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Define the path to the logo to be used on the standard Business forms",
-        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT "Images\noLogo.png" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */).
     WHEN "CalcBtnImage" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
