@@ -926,7 +926,6 @@ PROCEDURE ipExpandVarNames :
 ------------------------------------------------------------------------------*/
 
     /* Modify variables for ease of use */
-    /* Modify variables for ease of use */
     ASSIGN
         cMapDir = cDrive + "\" + cTopDir
         cAdminDir = cMapDir + "\" + cAdminDir
@@ -1085,7 +1084,9 @@ PROCEDURE ipProcessRequest :
     DEF VAR iLookup AS INT NO-UNDO.
     
     RUN ipStatus ("Beginning Database Schema Update").
-    /* Process "regular" database (asixxxx.db) */
+	RUN ipReadAdminServiceProps.    
+
+	/* Process "regular" database (asixxxx.db) */
     RUN ipBackupDBs.
     IF NOT lSuccess THEN 
     DO:

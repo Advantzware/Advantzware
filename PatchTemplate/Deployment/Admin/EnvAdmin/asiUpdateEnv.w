@@ -2499,12 +2499,12 @@ PROCEDURE ipDataFix160860:
 
     FIND FIRST module NO-LOCK WHERE 
         module.module = "audit." AND 
-        module.is-Used = true
+        module.is-Used = FALSE
         NO-ERROR.
     IF AVAIL module THEN DO:
+	    RUN ipDeleteAudit.
     END.
         
-    RUN ipDeleteAudit.
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -4894,6 +4894,18 @@ PROCEDURE ipUpdateNK1s :
         sys-ctrl.descrip = "https://desk.zoho.com/portal/advantzware/kb"
         sys-ctrl.char-fld = "Graphics\32x32\question.ico"
         sys-ctrl.log-fld = TRUE.
+    
+	/* Upgrade Button */
+    RUN ipStatus ("  MenuLinkUpdate").
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.name EQ "MenuLinkUpgrade"
+        NO-ERROR.
+    IF AVAIL sys-ctrl 
+    AND sys-ctrl.descrip EQ "" THEN ASSIGN
+        sys-ctrl.descrip = "https://34.203.15.64/patches/asiUpdate.html"
+        sys-ctrl.char-fld = "Graphics\32x32\question_and_answer.ico"
+        sys-ctrl.log-fld = TRUE
+        sys-ctrl.securityLevelUser = 1000.
         
     /* - future: update CustFile locations
     FOR EACH sys-ctrl WHERE
