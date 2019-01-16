@@ -65,25 +65,25 @@ END.
        /* Original Code */
        v-wt = itemfg.weight-100 * work-item.qty-prod / 100.
     
-       IF eb.fr-out-c ne 0 THEN
+       IF AVAIL eb AND eb.fr-out-c ne 0 THEN
          v-frate = v-frate + (eb.fr-out-c * (v-wt / 100)).
     
        ELSE
-       IF eb.fr-out-m ne 0 THEN
+       IF AVAIL eb AND eb.fr-out-m ne 0 THEN
          v-frate = v-frate + (eb.fr-out-m * (work-item.qty-prod / 1000)).
     
        ELSE DO:
          v-rate = 0.
     
        RELEASE carr-mtx.
-    
+     IF AVAIL eb THEN
        FIND FIRST carrier
            WHERE carrier.company EQ cocode
            AND carrier.loc     EQ locode
            AND carrier.carrier EQ eb.carrier
            NO-LOCK NO-ERROR.
             
-       IF AVAIL carrier THEN
+       IF AVAIL carrier AND AVAIL eb THEN
        FIND FIRST carr-mtx NO-LOCK
            WHERE carr-mtx.company  EQ cocode
            AND carr-mtx.loc      EQ locode
