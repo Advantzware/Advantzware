@@ -334,7 +334,11 @@
 
         IF oe-ordl.disc NE 0 THEN
            dOrdVal = ROUND(dOrdVal * (1 - (oe-ordl.disc / 100)),2).
-
+        
+        lc-result = oe-ord.stat .
+        RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
+        IF cResult NE "" THEN
+            lc-result  = cResult .
              
 
             ASSIGN cDisplay = ""
@@ -367,6 +371,7 @@
                    WHEN "ord-value"  THEN cVarValue =  STRING(dOrdVal,"->>>,>>>,>>9.99") .
                    WHEN "ack-date" THEN cVarValue = IF oe-ord.ack-prnt-date NE ? THEN STRING(oe-ord.ack-prnt-date) ELSE "".
                    WHEN "ord-date" THEN cVarValue = IF oe-ord.ord-date NE ? THEN STRING(oe-ord.ord-date) ELSE "".
+                   WHEN "status" THEN cVarValue = STRING(lc-result,"x(20)").
                   /* WHEN "bin-job"  THEN cVarValue = STRING(v-bin-job)              .
                    WHEN "whs"      THEN cVarValue = STRING(v-whs)              .
                    WHEN "bin"      THEN cVarValue = STRING(v-bin)              .
