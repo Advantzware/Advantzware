@@ -1,8 +1,8 @@
 /* pSetOrder.i - rstark - 12.20.2018 - used in queryBldr.w */
 
 FOR EACH {1}
-    WHERE {1}.queryID EQ ttQueryName.queryID
-    &IF "{1}" EQ "ttQueryWhere" &THEN
+    WHERE {1}.subjectID EQ ttSubject.subjectID
+    &IF "{1}" EQ "ttSubjectWhere" &THEN
       AND {1}.whereTable EQ tableList
     &ENDIF
        BY {1}.sortOrder

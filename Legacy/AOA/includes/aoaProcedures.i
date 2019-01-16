@@ -136,7 +136,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreatettColumn Include
 PROCEDURE pCreatettColumn:
 /*------------------------------------------------------------------------------
@@ -174,9 +173,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEmptyttColumn Include
 PROCEDURE pEmptyttColumn:
 /*------------------------------------------------------------------------------
@@ -189,8 +185,6 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetJasperUserPrint Include 
 PROCEDURE pGetJasperUserPrint :
