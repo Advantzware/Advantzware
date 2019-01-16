@@ -3347,7 +3347,7 @@ FUNCTION fIntVer RETURNS INTEGER
         iIntVal[1] = INT(cStrVal[1])
         iIntVal[2] = INT(cStrVal[2])
         iIntVal[3] = IF INT(cStrVal[3]) LT 10 THEN INT(cStrVal[3]) * 10 ELSE INT(cStrVal[3])
-        iIntVal[4] = IF INT(cStrVal[4]) LT 10 THEN INT(cStrVal[4]) * 10 ELSE INT(cStrVal[4])
+        iIntVal[4] = INT(cStrVal[4])
         iIntVer = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
         NO-ERROR.
     
