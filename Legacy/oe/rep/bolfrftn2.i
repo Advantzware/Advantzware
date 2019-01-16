@@ -128,6 +128,7 @@ FOR EACH tt-boll,
                  w2.dscr
                   w2.cases
                   w2.cas-cnt @ icountpallet
+                  w2.partial @  tt-boll.partial
                  v-tot-case-qty when first (w2.cases * w2.cas-cnt ) @ tt-boll.qty
                  bf-ttboll.p-c  WHEN AVAILABLE bf-ttboll AND FIRST(w2.cases * w2.cas-cnt ) @ bf-ttboll.p-c
                WITH FRAME bol-mid.
@@ -325,6 +326,7 @@ FOR EACH tt-boll,
              v-part-dscr
              /*1 @*/ w2.cases
              w2.cas-cnt /*@ icountpallet */
+             w2.partial @  tt-boll.partial
              tt-boll.qty /*+ tt-boll.partial*/ WHEN LAST(w2.cases)  @ tt-boll.qty
              tt-boll.p-c                   WHEN LAST(w2.cases)                
              1  WHEN i = 2 AND tt-boll.partial > 0  @ w2.cases

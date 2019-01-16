@@ -130,18 +130,20 @@ FORM w2.i-no                         FORMAT "x(15)"
      w2.job-po                       AT 17 FORMAT "x(15)"
      w2.dscr                         AT 33 FORMAT "x(30)"
      w2.cases                        TO 70 FORMAT "->>>>"
-     icountpallet                      TO 77 FORMAT "->>>>>>"
-     tt-boll.qty                     TO 85 FORMAT "->>>>>>"
-     bf-ttboll.p-c                   AT 92
+     icountpallet                    TO 77 FORMAT "->>>>>>"
+     tt-boll.partial                 TO 85 FORMAT "->>>>>>"
+     tt-boll.qty                     TO 92 FORMAT "->>>>>>"
+     bf-ttboll.p-c                   AT 96
     WITH FRAME bol-mid DOWN NO-BOX NO-LABELS STREAM-IO WIDTH 110.
 
 FORM oe-ordl.i-no                         FORMAT "x(15)"
      v-job-po                       AT 17 FORMAT "x(15)"
      v-part-dscr                    AT 33 FORMAT "x(30)"
      w2.cases                       TO 70 FORMAT "->>>9"
-     w2.cas-cnt                    TO 77 FORMAT "->>>>>9"
-     tt-boll.qty                    TO 85 FORMAT "->>>>>9"
-     tt-boll.p-c                    AT 92
+     w2.cas-cnt                     TO 77 FORMAT "->>>>>9"
+     tt-boll.partial                TO 85 FORMAT "->>>9"
+     tt-boll.qty                    TO 93 FORMAT "->>>>>9"
+     tt-boll.p-c                    AT 96
     WITH FRAME bol-mid2 DOWN NO-BOX NO-LABELS STREAM-IO WIDTH 100.
 
 /* gdm - 04160923 
@@ -356,8 +358,8 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
       IF (oe-boll.qty-case * oe-boll.cases) NE 0 THEN
         RUN create-tt-boll (oe-boll.qty-case, oe-boll.cases).
     
-      IF oe-boll.qty - (oe-boll.qty-case * oe-boll.cases) NE 0 THEN
-        RUN create-tt-boll (oe-boll.qty - (oe-boll.qty-case * oe-boll.cases), 1).
+      /*IF oe-boll.qty - (oe-boll.qty-case * oe-boll.cases) NE 0 THEN
+        RUN create-tt-boll (oe-boll.qty - (oe-boll.qty-case * oe-boll.cases), 1).*/
         
     END.
 
