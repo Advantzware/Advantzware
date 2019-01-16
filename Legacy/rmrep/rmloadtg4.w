@@ -2087,12 +2087,11 @@ PROCEDURE reprintTag :
   END.
 
   IF cBarCodeProgram EQ "xprint" THEN do:
-      IF cBarCodeProgram EQ "xprint" THEN do:
-            CREATE tt-po-print .
-            BUFFER-COPY w-po TO tt-po-print .
-            ASSIGN 
-                tt-po-print.tag-no = IF AVAIL loadtag THEN loadtag.tag-no ELSE "" .
-      END.
+      CREATE tt-po-print .
+      BUFFER-COPY w-po TO tt-po-print .
+      ASSIGN 
+          tt-po-print.tag-no = IF AVAIL loadtag THEN loadtag.tag-no ELSE "" .
+
       RUN xprint-tag .
   END.
 
@@ -2703,12 +2702,12 @@ PROCEDURE xprint-tag :
 
       {sys/inc/print1.i}
       {sys/inc/outprint.i value(85)}
-
+ 
       PUT "<PREVIEW>".  
-
+      RELEASE tt-po-print .
       FOR EACH tt-po-print  NO-LOCK
            BREAK BY tt-po-print.ord-no :
-          {rm/rep/rmtagxprnt.i}
+           {rm/rep/rmtagxprnt.i}
           IF NOT LAST(tt-po-print.ord-no) THEN PAGE .
       END.
 
