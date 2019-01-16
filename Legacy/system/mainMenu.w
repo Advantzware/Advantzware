@@ -93,6 +93,9 @@ DEFINE VARIABLE lSuperAdmin       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hColorWidget      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iFGColor          AS INTEGER   NO-UNDO EXTENT 3.
 DEFINE VARIABLE iBGColor          AS INTEGER   NO-UNDO EXTENT 3.
+DEFINE VARIABLE iThisVersion  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iLastVersion  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lUpgradeAvail AS LOGICAL NO-UNDO.
 
 ASSIGN
     g_mainmenu = THIS-PROCEDURE
@@ -144,6 +147,15 @@ FGColor-2 FGColor-3 BGColor-1 BGColor-2 BGColor-3
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIntVer MAINMENU 
+FUNCTION fIntVer RETURNS INTEGER
+  ( INPUT cVerString AS CHAR )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -1779,7 +1791,18 @@ DO:
 &IF DEFINED(FWD-VERSION) > 0 &THEN
     open-mime-resource "text/html" string(menuLinkZoHo:PRIVATE-DATA) false.
 &ELSE
-    OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
+    IF lUpgradeAvail THEN DO:
+        MESSAGE 
+            "About to download and install a system update.  This" SKIP 
+            "window will now close until the update is complete."
+            VIEW-AS ALERT-BOX INFO.
+        OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
+        QUIT.
+        
+    END.
+    ELSE DO:
+        OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
+    END.
 &ENDIF
 END.
 
@@ -2008,7 +2031,7 @@ PROCEDURE control_load :
 DEFINE VARIABLE UIB_S    AS LOGICAL    NO-UNDO.
 DEFINE VARIABLE OCXFile  AS CHARACTER  NO-UNDO.
 
-OCXFile = SEARCH( "mainMenu1.wrx":U ).
+OCXFile = SEARCH( "mainMenu.wrx":U ).
 IF OCXFile = ? THEN
   OCXFile = SEARCH(SUBSTRING(THIS-PROCEDURE:FILE-NAME, 1,
                      R-INDEX(THIS-PROCEDURE:FILE-NAME, ".":U), "CHARACTER":U) + "wrx":U).
@@ -2022,7 +2045,7 @@ DO:
   .
   RUN initialize-controls IN THIS-PROCEDURE NO-ERROR.
 END.
-ELSE MESSAGE "mainMenu1.wrx":U SKIP(1)
+ELSE MESSAGE "mainMenu.wrx":U SKIP(1)
              "The binary control file could not be found. The controls cannot be loaded."
              VIEW-AS ALERT-BOX TITLE "Controls Not Loaded".
 
@@ -2490,8 +2513,6 @@ PROCEDURE pInit :
     DEFINE VARIABLE hPgmMstrSecur AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lAdmin        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cThisVer      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iThisVersion  AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iLastVersion  AS INTEGER   NO-UNDO.
     
     RUN sys/ref/nk1look.p (
         g_company,"CEMenu","C",NO,NO,"","",
@@ -2625,23 +2646,12 @@ PROCEDURE pInit :
             IF hWebService:CONNECTED() THEN DO:
                 RUN Service1Soap SET hSalesSoap ON hWebService .
                 RUN HelpVersion IN hSalesSoap (OUTPUT cVersion).
-                ASSIGN
-                    cThisVer     = "{&awversion}" 
-                    /* Convert single digit entries to dbl-digit, so that "5" is greater than "41", etc. */
-                    ENTRY(1,cVersion,".") = IF INTEGER(ENTRY(1,cVersion,".")) LT 10 THEN STRING(ENTRY(1,cVersion,".") * 10) ELSE ENTRY(1,cVersion,".")  
-                    ENTRY(2,cVersion,".") = IF INTEGER(ENTRY(2,cVersion,".")) LT 10 THEN STRING(ENTRY(2,cVersion,".") * 10) ELSE ENTRY(2,cVersion,".")  
-                    ENTRY(3,cVersion,".") = IF INTEGER(ENTRY(3,cVersion,".")) LT 10 THEN STRING(ENTRY(3,cVersion,".") * 10) ELSE ENTRY(3,cVersion,".")  
-                    ENTRY(1,cThisVer,".") = IF INTEGER(ENTRY(1,cThisVer,".")) LT 10 THEN STRING(ENTRY(1,cThisVer,".") * 10) ELSE ENTRY(1,cThisVer,".")  
-                    ENTRY(2,cThisVer,".") = IF INTEGER(ENTRY(2,cThisVer,".")) LT 10 THEN STRING(ENTRY(2,cThisVer,".") * 10) ELSE ENTRY(2,cThisVer,".")  
-                    ENTRY(3,cThisVer,".") = IF INTEGER(ENTRY(3,cThisVer,".")) LT 10 THEN STRING(ENTRY(3,cThisVer,".") * 10) ELSE ENTRY(3,cThisVer,".")  
-                    iLastVersion = (INTEGER(ENTRY(1,cVersion,".")) * 10000) +
-                                   (INTEGER(ENTRY(2,cVersion,".")) * 100) +
-                                   (INTEGER(ENTRY(3,cVersion,".")))
-                    iThisVersion = (INTEGER(ENTRY(1,cThisVer,".")) * 10000) +
-                                   (INTEGER(ENTRY(2,cThisVer,".")) * 100) +
-                                   (INTEGER(ENTRY(3,cThisVer,".")))
+                cThisVer     = "{&awversion}". 
+                iLastVersion = fIntVer(cVersion).
+                iThisVersion = fIntVer(cThisVer).
                                    .
                 IF iLastVersion GT iThisVersion THEN DO:
+                    lUpgradeAvail = TRUE.
                     RUN sys/ref/nk1look.p (
                         g_company,"MENULINKUPGRADE","C",NO,NO,"","",
                         OUTPUT cNK1Value[1],OUTPUT lFound
@@ -2666,7 +2676,7 @@ PROCEDURE pInit :
                             menuLinkZoHo:SENSITIVE      = YES
                             menuLinkZoHo:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
                             menuLinkZoHo:TRANSPARENT    = cNK1Value[3] EQ "1"
-                            menuLinkZoHo:TOOLTIP        = "Version " + cVersion + " Upgrade Available"
+                            menuLinkZoHo:TOOLTIP        = "Version " + cVersion + " Upgrade Available. Click to download."
                             .
                         menuLinkZoHo:LOAD-IMAGE(SEARCH(cNK1Value[1])).
                     END. /* if avail */
@@ -3311,6 +3321,38 @@ PROCEDURE Set-Comp_Loc :
     IF lFound AND cBitMap NE "" THEN boxes:LOAD-IMAGE(cBitMap).
 
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIntVer MAINMENU 
+FUNCTION fIntVer RETURNS INTEGER
+  ( INPUT cVerString AS CHAR ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Converts a version string like "16.4.8" or "16.7.12.2" to an integer
+    Notes:  In the cases above, these would be 16040800 and 16071202
+            Useful for version comparisons
+------------------------------------------------------------------------------*/
+
+    DEF VAR cStrVal AS CHAR EXTENT 4 NO-UNDO.
+    DEF VAR iIntVal AS INT EXTENT 4 NO-UNDO.
+    DEF VAR iIntVer AS INT NO-UNDO.
+    ASSIGN
+        cStrVal[1] = ENTRY(1,cVerString,".")
+        cStrVal[2] = ENTRY(2,cVerString,".")
+        cStrVal[3] = IF NUM-ENTRIES(cVerString,".") GT 2 THEN ENTRY(3,cVerString,".") ELSE "0"
+        cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GT 3 THEN ENTRY(4,cVerString,".") ELSE "0"
+        iIntVal[1] = INT(cStrVal[1])
+        iIntVal[2] = INT(cStrVal[2])
+        iIntVal[3] = IF INT(cStrVal[3]) LT 10 THEN INT(cStrVal[3]) * 10 ELSE INT(cStrVal[3])
+        iIntVal[4] = IF INT(cStrVal[4]) LT 10 THEN INT(cStrVal[4]) * 10 ELSE INT(cStrVal[4])
+        iIntVer = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
+        NO-ERROR.
+    
+    RETURN iIntVer.   /* Function return value. */
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
