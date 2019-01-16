@@ -324,7 +324,7 @@ CASE ip-nk1-value:
         INPUT "Default Metric flag to be set",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */).
-    WHEN "CEImportForm" THEN 
+    WHEN "CEImportForm" THEN  
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Enable Import Estimate Form from Excel",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
