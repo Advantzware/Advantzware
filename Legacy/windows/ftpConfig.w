@@ -185,7 +185,19 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+DEF VAR lResult      AS LOG    NO-UNDO.
+RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+RUN epCanAccess IN hPgmSecurity ("windows/ftpConfig.w", "", OUTPUT lResult).
+DELETE OBJECT hPgmSecurity.
 
+IF NOT lResult THEN 
+ 
+DO: 
+    MESSAGE "You are not authorized to access this application." VIEW-AS ALERT-BOX.
+    APPLY 'CLOSE' TO THIS-PROCEDURE. 
+    RETURN.
+END.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
 
