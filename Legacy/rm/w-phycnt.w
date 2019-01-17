@@ -7,7 +7,17 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
 /*------------------------------------------------------------------------
 
-  File: rm\w-phycnt.w
+  File: windows/<table>.w
+
+  Description: from cntnrwin.w - ADM SmartWindow Template
+
+  Input Parameters:
+      <none>
+
+  Output Parameters:
+      <none>
+
+  History: 
           
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -23,12 +33,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE winReSize
-&SCOPED-DEFINE h_Browse01 h_b-phys
-&SCOPED-DEFINE h_Object01 h_v-phycnt
-&SCOPED-DEFINE h_Object02 h_p-updsav-2
-
-&SCOPED-DEFINE winViewPrgmName w-phycnt
+&SCOPED-DEFINE winViewPrgmName addon_w-phycnt
 
 /* Parameters Definitions ---                                           */
 
@@ -77,12 +82,10 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_b-phys AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-updsav-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_v-phycnt AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_v-post AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -93,18 +96,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 24 ROW 2.91
          SIZE 127 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -129,10 +132,10 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "RM Physical Count Processing"
          HEIGHT             = 24
          WIDTH              = 150
-         MAX-HEIGHT         = 320
-         MAX-WIDTH          = 320
-         VIRTUAL-HEIGHT     = 320
-         VIRTUAL-WIDTH      = 320
+         MAX-HEIGHT         = 33.29
+         MAX-WIDTH          = 204.8
+         VIRTUAL-HEIGHT     = 33.29
+         VIRTUAL-WIDTH      = 204.8
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -236,7 +239,7 @@ ON WINDOW-CLOSE OF W-Win /* RM Physical Count Processing */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-  RUN setUserExit.
+RUN setUserExit.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -279,28 +282,20 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/smartmsg.w':U ,
-             INPUT  FRAME message-frame:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_smartmsg ).
-       RUN set-position IN h_smartmsg ( 1.00 , 32.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.14 , 32.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/options.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 85.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 55.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 141.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.00 , 1.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/smartmsg.w':U ,
+             INPUT  FRAME message-frame:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_smartmsg ).
+       RUN set-position IN h_smartmsg ( 1.00 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
@@ -315,58 +310,52 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
-             h_options , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/f-add.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 77.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'rm/b-phys.w':U ,
+             INPUT  'addon/rm/b-phys.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
              OUTPUT h_b-phys ).
-       RUN set-position IN h_b-phys ( 4.81 , 5.00 ) NO-ERROR.
-       RUN set-size IN h_b-phys ( 10.95 , 140.00 ) NO-ERROR.
+       RUN set-position IN h_b-phys ( 4.81 , 4.00 ) NO-ERROR.
+       RUN set-size IN h_b-phys ( 16.91 , 136.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'rm/v-phycnt.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_v-phycnt ).
-       RUN set-position IN h_v-phycnt ( 16.48 , 4.00 ) NO-ERROR.
-       /* Size in UIB:  ( 4.19 , 145.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  'p-updsav.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
-             OUTPUT h_p-updsav-2 ).
-       RUN set-position IN h_p-updsav-2 ( 21.95 , 39.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsav-2 ( 2.24 , 56.00 ) NO-ERROR.
+             OUTPUT h_p-updsav ).
+       RUN set-position IN h_p-updsav ( 22.19 , 4.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsav ( 2.24 , 56.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'addon/rm/v-post.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_v-post ).
+       RUN set-position IN h_v-post ( 22.43 , 62.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 17.00 ) */
 
        /* Links to SmartNavBrowser h_b-phys. */
-       RUN add-link IN adm-broker-hdl ( h_p-updsav-2 , 'TableIO':U , h_b-phys ).
-       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_b-phys ).
+       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_b-phys ).
+       RUN add-link IN adm-broker-hdl ( h_v-post , 'State':U , h_b-phys ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'focus':U , h_b-phys ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-phys ,
              h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_v-phycnt ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
              h_b-phys , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-2 ,
-             h_v-phycnt , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_v-post ,
+             h_p-updsav , 'AFTER':U ).
     END. /* Page 1 */
 
   END CASE.
@@ -468,23 +457,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_add W-Win 
-PROCEDURE select_add :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  def var char-hdl as cha no-undo.
-  
-  run get-link-handle in adm-broker-hdl(this-procedure,"add-item-target", output char-hdl).
-  run add-item in widget-handle(char-hdl).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -514,10 +486,10 @@ PROCEDURE setUserExit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   def var char-hdl as cha no-undo.
+  def var char-hdl as cha no-undo.
   
-   run get-link-handle in adm-broker-hdl(this-procedure,"add-item-target", output char-hdl).
-   run cancel-item in widget-handle(char-hdl).
+  run get-link-handle in adm-broker-hdl(this-procedure,"focus-target", output char-hdl).
+  run cancel-item in widget-handle(char-hdl).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
