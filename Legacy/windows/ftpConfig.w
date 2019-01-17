@@ -4,9 +4,15 @@
 */
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
+/*********************************************************************
+* Copyright (C) 2000 by Progress Software Corporation. All rights    *
+* reserved. Prior versions of this work may contain portions         *
+* contributed by participants of Possenet.                           *
+*                                                                    *
+*********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: windows/<table>.w
+  File: 
 
   Description: from cntnrwin.w - ADM SmartWindow Template
 
@@ -67,13 +73,11 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_ftpconfig AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_ftpconfig-2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_exit-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_folder-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_ftpconfig-4 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_ftpconfig-5 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -81,22 +85,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 150 BY 24
-         BGCOLOR 15  WIDGET-ID 100.
-
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15  WIDGET-ID 100.
-
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 46 ROW 2.91
-         SIZE 105 BY 1.43
-         BGCOLOR 15  WIDGET-ID 100.
+         SIZE 183.8 BY 40.76 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -105,8 +94,6 @@ DEFINE FRAME message-frame
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
-   Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -116,28 +103,22 @@ DEFINE FRAME message-frame
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "<Enter Title>"
-         HEIGHT             = 24
-         WIDTH              = 150
-         MAX-HEIGHT         = 24
-         MAX-WIDTH          = 150
-         VIRTUAL-HEIGHT     = 24
-         VIRTUAL-WIDTH      = 150
+         TITLE              = "Ftp Config Maintenance"
+         HEIGHT             = 21.48
+         WIDTH              = 143.6
+         MAX-HEIGHT         = 41.19
+         MAX-WIDTH          = 184.6
+         VIRTUAL-HEIGHT     = 41.19
+         VIRTUAL-WIDTH      = 184.6
          RESIZE             = no
          SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         STATUS-AREA        = no
          BGCOLOR            = ?
          FGCOLOR            = ?
          THREE-D            = yes
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
-
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
-    MESSAGE "Unable to load icon: adeicon\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -145,7 +126,6 @@ IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/containr.i}
-{methods/template/windows.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -158,47 +138,12 @@ IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
-/* REPARENT FRAME */
-ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
-       FRAME OPTIONS-FRAME:FRAME = FRAME F-Main:HANDLE.
-
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
-
-DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
-
-ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-frame:HANDLE)
-/* END-ASSIGN-TABS */.
-
-/* SETTINGS FOR FRAME message-frame
-                                                                        */
-/* SETTINGS FOR FRAME OPTIONS-FRAME
-                                                                        */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
-&ANALYZE-RESUME
-
-
-/* Setting information for Queries and Browse Widgets fields            */
-
-&ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
-/* Query rebuild information for FRAME F-Main
-     _Query            is NOT OPENED
-*/  /* FRAME F-Main */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _QUERY-BLOCK FRAME message-frame
-/* Query rebuild information for FRAME message-frame
-     _Query            is NOT OPENED
-*/  /* FRAME message-frame */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _QUERY-BLOCK FRAME OPTIONS-FRAME
-/* Query rebuild information for FRAME OPTIONS-FRAME
-     _Query            is NOT OPENED
-*/  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
  
@@ -209,7 +154,7 @@ THEN W-Win:HIDDEN = yes.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* <Enter Title> */
+ON END-ERROR OF W-Win /* Ftp Config Maintenance */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -222,7 +167,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* <Enter Title> */
+ON WINDOW-CLOSE OF W-Win /* Ftp Config Maintenance */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
@@ -266,109 +211,83 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/options.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 92.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 55.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/smartmsg.w':U ,
-             INPUT  FRAME message-frame:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_smartmsg ).
-       RUN set-position IN h_smartmsg ( 1.00 , 72.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.14 , 32.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 141.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.24 , 135.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/folder.w':U ,
+             INPUT  'smartobj/exit.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'FtpConfig|Config' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
-             OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
+             INPUT  '':U ,
+             OUTPUT h_exit-2 ).
+       RUN set-position IN h_exit-2 ( 1.24 , 150.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
 
-       /* Links to SmartFolder h_folder. */
-       RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'src/adm/objects/folder.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'FOLDER-LABELS = ':U + 'Browse Config|View Config' + ',
+                     FOLDER-TAB-TYPE = 1':U ,
+             OUTPUT h_folder-2 ).
+       RUN set-position IN h_folder-2 ( 2.43 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_folder-2 ( 19.52 , 141.00 ) NO-ERROR.
+
+       /* Links to SmartFolder h_folder-2. */
+       RUN add-link IN adm-broker-hdl ( h_folder-2 , 'Page':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
-             h_options , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
-             FRAME message-frame:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit-2 ,
+             h_exit , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder-2 ,
+             h_exit-2 , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/ftpconfig.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_ftpconfig ).
-       RUN set-position IN h_ftpconfig ( 4.81 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_ftpconfig ( 19.52 , 145.00 ) NO-ERROR.
-
-       /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
-
-       /* Links to SmartNavBrowser h_ftpconfig. */
-       RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_ftpconfig ).
+             OUTPUT h_ftpconfig-4 ).
+       RUN set-position IN h_ftpconfig-4 ( 4.10 , 4.00 ) NO-ERROR.
+       RUN set-size IN h_ftpconfig-4 ( 17.14 , 137.00 ) NO-ERROR.
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_ftpconfig ,
-             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_ftpconfig-4 ,
+             h_folder-2 , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/ftpconfig.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_ftpconfig-2 ).
-       RUN set-position IN h_ftpconfig-2 ( 4.81 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 17.14 , 144.00 ) */
+             OUTPUT h_ftpconfig-5 ).
+       RUN set-position IN h_ftpconfig-5 ( 4.57 , 7.00 ) NO-ERROR.
+       /* Size in UIB:  ( 9.67 , 126.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-navico.r':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = NAV-ICON,
-                     Right-to-Left = First-On-Left':U ,
-             OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 22.19 , 4.00 ) NO-ERROR.
-       RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  'src/adm/objects/p-updsav.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 22.19 , 92.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
+       RUN set-position IN h_p-updsav ( 14.81 , 42.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsav ( 1.76 , 56.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartViewer h_ftpconfig-2. */
-       RUN add-link IN adm-broker-hdl ( h_ftpconfig , 'Record':U , h_ftpconfig-2 ).
-       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_ftpconfig-2 ).
+       /* Links to SmartViewer h_ftpconfig-5. */
+       RUN add-link IN adm-broker-hdl ( h_ftpconfig-4 , 'Record':U , h_ftpconfig-5 ).
+       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_ftpconfig-5 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_ftpconfig-2 ,
-             h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
-             h_ftpconfig-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_ftpconfig-5 ,
+             h_folder-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
-             h_p-navico , 'AFTER':U ).
+             h_ftpconfig-5 , 'AFTER':U ).
     END. /* Page 2 */
 
   END CASE.
@@ -435,10 +354,6 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   VIEW FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
-  VIEW FRAME OPTIONS-FRAME IN WINDOW W-Win.
-  {&OPEN-BROWSERS-IN-QUERY-OPTIONS-FRAME}
-  VIEW FRAME message-frame IN WINDOW W-Win.
-  {&OPEN-BROWSERS-IN-QUERY-message-frame}
   VIEW W-Win.
 END PROCEDURE.
 
@@ -461,6 +376,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_exit W-Win 
+PROCEDURE select_exit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+run local-exit.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -472,19 +400,6 @@ PROCEDURE send-records :
   /* SEND-RECORDS does nothing because there are no External
      Tables specified for this SmartWindow, and there are no
      tables specified in any contained Browse, Query, or Frame. */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setBrowseFocus W-Win 
-PROCEDURE setBrowseFocus :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
 
 END PROCEDURE.
 
