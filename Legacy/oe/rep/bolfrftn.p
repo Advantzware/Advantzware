@@ -153,7 +153,7 @@ form
 **********************/
 
 FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
-                      AND sys-ctrl.name    EQ "BOLFMT" NO-LOCK NO-ERROR.
+                      AND sys-ctrl.name    EQ "BOLFMTX" NO-LOCK NO-ERROR.
 ASSIGN
  ll-display-comp = AVAILABLE sys-ctrl AND sys-ctrl.log-fld
  ll-consol-bolls = AVAILABLE sys-ctrl AND sys-ctrl.int-fld NE 0
