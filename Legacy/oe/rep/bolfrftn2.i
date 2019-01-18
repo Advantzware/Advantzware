@@ -39,8 +39,8 @@ FOR EACH tt-boll,
              AND oe-ordl.line    EQ tt-boll.LINE NO-LOCK NO-ERROR.
 
          ASSIGN v-tot-case-qty = v-tot-case-qty + bf-ttboll.qty.
-         /*IF bf-ttboll.partial GT 0 THEN
-            v-tot-case-qty = v-tot-case-qty +   bf-ttboll.partial .*/
+         IF bf-ttboll.partial GT 0 THEN
+            v-tot-case-qty = v-tot-case-qty +   bf-ttboll.partial .
          FIND FIRST oe-ord 
            WHERE oe-ord.company EQ cocode 
              AND oe-ord.ord-no  EQ tt-boll.ord-no NO-LOCK NO-ERROR.
@@ -326,8 +326,8 @@ FOR EACH tt-boll,
              v-part-dscr
              /*1 @*/ w2.cases
              w2.cas-cnt /*@ icountpallet */
-             w2.partial @  tt-boll.partial
-             tt-boll.qty /*+ tt-boll.partial*/ WHEN LAST(w2.cases)  @ tt-boll.qty
+             tt-boll.partial
+             tt-boll.qty  WHEN LAST(w2.cases)  @ tt-boll.qty
              tt-boll.p-c                   WHEN LAST(w2.cases)                
              1  WHEN i = 2 AND tt-boll.partial > 0  @ w2.cases
              tt-boll.partial WHEN i = 2 AND tt-boll.partial > 0 @ w2.cas-cnt
@@ -414,11 +414,7 @@ FOR EACH tt-boll,
                 oe-ordl.i-no    WHEN i EQ 2
                 v-job-po
                 v-part-dscr                          
-                1               WHEN tt-boll.partial > 0 AND 
-                                i = 2                    @ w2.cases
-                tt-boll.partial WHEN tt-boll.partial > 0 AND 
-                                i = 2                    @ w2.cas-cnt
-         WITH FRAME bol-mid2.
+                WITH FRAME bol-mid2.
          DOWN {1} WITH FRAME bol-mid2.
 
         ASSIGN v-printline = v-printline + 1.
