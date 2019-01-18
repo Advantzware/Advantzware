@@ -25,7 +25,7 @@
 {ap/ap-chk.i}
 
 /* Variables defined by the user or programmer. */
-DEF VAR viLn-Section-1  AS INT NO-UNDO INIT 2.  /* Line to start printing top section details. */
+DEF VAR viLn-Section-1  AS INT NO-UNDO INIT 3.  /* Line to start printing top section details. */
 DEF VAR viLn-Section-2  AS INT NO-UNDO INIT 24. /* Line to start printing middle section details. */
 DEF VAR viLn-Check      AS INT NO-UNDO INIT 47. /* Line to start printing the check. */
 DEF VAR viLn-Void       AS INT NO-UNDO INIT 43. /* Line to start printing VOID. */
@@ -422,9 +422,9 @@ PROCEDURE Print-Check :
 
     ASSIGN dol = trim(dol) + fill("*",70) .  
    
-    Goto-Line(45).
+    Goto-Line(44).
     PUT LineNum() FORMAT "99" AT 1 
-        ap-chk.check-date AT 55.
+        ap-chk.check-date AT 67.
     /* Increment line count */
     incrementLineCount(1).
      
