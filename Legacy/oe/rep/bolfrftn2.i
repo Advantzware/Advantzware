@@ -39,8 +39,8 @@ FOR EACH tt-boll,
              AND oe-ordl.line    EQ tt-boll.LINE NO-LOCK NO-ERROR.
 
          ASSIGN v-tot-case-qty = v-tot-case-qty + bf-ttboll.qty.
-         /*IF bf-ttboll.partial GT 0 THEN
-            v-tot-case-qty = v-tot-case-qty +   bf-ttboll.partial .*/
+         IF bf-ttboll.partial GT 0 THEN
+            v-tot-case-qty = v-tot-case-qty +   bf-ttboll.partial .
          FIND FIRST oe-ord 
            WHERE oe-ord.company EQ cocode 
              AND oe-ord.ord-no  EQ tt-boll.ord-no NO-LOCK NO-ERROR.
@@ -327,7 +327,7 @@ FOR EACH tt-boll,
              /*1 @*/ w2.cases
              w2.cas-cnt /*@ icountpallet */
              tt-boll.partial
-             tt-boll.qty /*+ tt-boll.partial*/ WHEN LAST(w2.cases)  @ tt-boll.qty
+             tt-boll.qty  WHEN LAST(w2.cases)  @ tt-boll.qty
              tt-boll.p-c                   WHEN LAST(w2.cases)                
              1  WHEN i = 2 AND tt-boll.partial > 0  @ w2.cases
              tt-boll.partial WHEN i = 2 AND tt-boll.partial > 0 @ w2.cas-cnt
