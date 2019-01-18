@@ -91,6 +91,7 @@ DEFINE VARIABLE h_b-qtitm AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-qtqty AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_changevalue AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-qtitem AS HANDLE NO-UNDO.
@@ -98,7 +99,6 @@ DEFINE VARIABLE h_p-qtmisc AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-qtnote AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-qtqty AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-quote AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_phone AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_printquo AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-qthd AS HANDLE NO-UNDO.
@@ -108,7 +108,6 @@ DEFINE VARIABLE h_vi-qtitm AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-qtqty AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-prmtx AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-qtrpc AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -117,21 +116,21 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 150 BY 25.71
-         BGCOLOR 15  .
+         BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
-        BGCOLOR 15  .
+         BGCOLOR 15 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 112 ROW 2.91
          SIZE 39 BY 1.43
-         BGCOLOR 15  .
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -204,7 +203,7 @@ ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-frame:HANDLE)
-    /* END-ASSIGN-TABS */.
+/* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME message-frame
                                                                         */
@@ -347,14 +346,6 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/phone.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_phone ).
-       RUN set-position IN h_phone ( 1.00 , 133.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'FOLDER-LABELS = ':U + 'Browse Quote|View Quote|Quantities|Prep/Misc Chg|Notes' + ',
@@ -377,21 +368,18 @@ PROCEDURE adm-create-objects :
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_printquo ,
              h_options , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_phone ,
-             h_printquo , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
-             h_phone , 'AFTER':U ).
+             h_printquo , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
-       
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 61.00 ) NO-ERROR.
+       RUN set-position IN h_export ( 1.00 , 69.20 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -400,13 +388,14 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_b-qthd ).
        RUN set-position IN h_b-qthd ( 4.81 , 7.00 ) NO-ERROR.
-       RUN set-size IN h_b-qthd ( 19.52 , 138.00 ) NO-ERROR.
+       RUN set-size IN h_b-qthd ( 19.52 , 141.60 ) NO-ERROR.
 
-      
+
        /* Links to SmartObject h_export. */
        RUN add-link IN adm-broker-hdl ( h_b-qthd , 'export-xl':U , h_export ).
 
        /* Links to SmartNavBrowser h_b-qthd. */
+       RUN add-link IN adm-broker-hdl ( h_b-qtitm , 'itemqt':U , h_b-qthd ).
        RUN add-link IN adm-broker-hdl ( h_b-qthd , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
@@ -899,33 +888,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-/* Compiler says this is defined elsewhere
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_phone W-Win 
-PROCEDURE select_phone :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF VAR lv-cust-rowid AS ROWID NO-UNDO.
-
-RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
-RUN GET-cust-rowid IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-cust-rowid).
-
-IF lv-cust-rowid <> ? THEN FIND cust WHERE ROWID(cust) = lv-cust-rowid NO-LOCK NO-ERROR.
-IF NOT AVAIL cust THEN RETURN.
-/*
-RUN Get_Procedure IN Persistent-Handle ('phone.',OUTPUT run-proc,no). 
-IF run-proc NE '' THEN 
-     /* {methods/smartrun.i cust.rec_key, {methods/headers/cust.i}}.*/
-*/
-RUN windows/phone2.w (cust.rec_key,{methods/headers/cust.i} ).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-*/
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
