@@ -607,7 +607,7 @@ PROCEDURE calc-total-proc :
 
    DO WITH FRAME {&FRAME-NAME}:
 
-      iop-vend-tot = iop-vend-tot + (ap-payl.amt-paid - ap-payl.amt-disc).
+      iop-vend-tot = iop-vend-tot + (ap-payl.amt-paid ).
 
      if ip-last-of-vend then do:
        IF tb_zero-ven:CHECKED THEN DO:
