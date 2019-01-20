@@ -1186,6 +1186,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAuditSysCtrl C-Win
+PROCEDURE ipAuditSysCtrl:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Turn on sys-ctrl (NK1) auditing").
+
+    FIND FIRST auditTbl EXCLUSIVE WHERE
+        auditTbl.auditTable EQ "sys-ctrl"
+        NO-ERROR.
+    IF AVAIL auditTbl THEN ASSIGN 
+        auditTbl.auditCreate = TRUE 
+        auditTbl.auditDelete = TRUE 
+        auditTbl.auditUpdate = TRUE 
+        .
+                
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipBackupDataFiles C-Win 
 PROCEDURE ipBackupDataFiles :
 /*------------------------------------------------------------------------------
@@ -2521,6 +2546,7 @@ PROCEDURE ipDataFix160899 :
     RUN ipStatus ("  Data Fix 160899...").
 
     RUN ipUseOldNK1.
+    RUN ipAuditSysCtrl.
 
 END PROCEDURE.
 
@@ -4843,111 +4869,74 @@ PROCEDURE ipUpdateNK1s :
     DISABLE TRIGGERS FOR DUMP OF sys-ctrl.
     DISABLE TRIGGERS FOR DUMP OF sys-ctrl-shipto.
     
+    /* 01/18/19 - MYT - ensure all these defaults/overrides apply to all companies in DB, not just first record found */
     /* Verify system help WSDL NK1 */
     RUN ipStatus ("  Help Service entries").
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "AsiHelpService"
-        NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN
-        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "AsiHelpService"
-        NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN
-        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "AsiHelpService"
-        NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN
-        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
-    
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "UpdateService"
-        NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN
-        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/updatehelpServices/helpupdate.asmx?WSDL'".
+    FOR EACH sys-ctrl WHERE
+        sys-ctrl.name EQ "AsiHelpService":
+        ASSIGN
+            sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
+    END. 
+    FOR EACH sys-ctrl WHERE
+        sys-ctrl.name EQ "UpdateService":
+        ASSIGN
+            sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/updatehelpServices/helpupdate.asmx?WSDL'".
+    END.
     
     /* Reports - set LV = true */
     RUN ipStatus ("  REPORTS - set log value to TRUE").
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "Reports"
-        NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN
-        sys-ctrl.log-fld = TRUE.
+    FOR EACH sys-ctrl WHERE
+        sys-ctrl.name EQ "Reports":
+        ASSIGN
+            sys-ctrl.log-fld = TRUE.
+    END. 
 
     /* RelType - set Default to "B" */
     RUN ipStatus ("  RelType - if empty, set char value to Bill and Ship").
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "RelType"
-        NO-ERROR.
-    IF AVAIL sys-ctrl 
-    AND sys-ctrl.char-fld EQ "" THEN ASSIGN
+    FOR EACH sys-ctrl WHERE
+        sys-ctrl.name EQ "RelType":
+        IF sys-ctrl.char-fld EQ "" THEN ASSIGN
             sys-ctrl.char-fld = "Bill and Ship".
+    END.
 
     /* Zoho Support Button */
     RUN ipStatus ("  MenuLinkZoho").
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "MenuLinkZoho"
-        NO-ERROR.
-    IF AVAIL sys-ctrl 
-    AND sys-ctrl.descrip EQ "" THEN ASSIGN
-        sys-ctrl.descrip = "https://desk.zoho.com/portal/advantzware/kb"
-        sys-ctrl.char-fld = "Graphics\32x32\question.ico"
-        sys-ctrl.log-fld = TRUE.
+    FOR EACH sys-ctrl WHERE
+        sys-ctrl.name EQ "MenuLinkZoho":
+        IF sys-ctrl.descrip EQ "" THEN ASSIGN
+            sys-ctrl.descrip = "https://desk.zoho.com/portal/advantzware/kb"
+            sys-ctrl.char-fld = "Graphics\32x32\question.ico"
+            sys-ctrl.log-fld = TRUE.
+    END.
     
 	/* Upgrade Button */
     RUN ipStatus ("  MenuLinkUpdate").
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "MenuLinkUpgrade"
-        NO-ERROR.
-    IF AVAIL sys-ctrl 
-    AND sys-ctrl.descrip EQ "" THEN ASSIGN
-        sys-ctrl.descrip = "https://34.203.15.64/patches/asiUpdate.html"
-        sys-ctrl.char-fld = "Graphics\32x32\question_and_answer.ico"
-        sys-ctrl.log-fld = TRUE
-        sys-ctrl.securityLevelUser = 1000.
+    FOR EACH  sys-ctrl WHERE
+        sys-ctrl.name EQ "MenuLinkUpgrade":
+        IF sys-ctrl.descrip EQ "" THEN ASSIGN
+            sys-ctrl.descrip = "https://34.203.15.64/patches/asiUpdate.html"
+            sys-ctrl.char-fld = "Graphics\32x32\question_and_answer.ico"
+            sys-ctrl.log-fld = TRUE
+            sys-ctrl.securityLevelUser = 1000.
+    END.
         
     /* BusinessFormLogo */
     RUN ipStatus ("  BusinessFormLogo").
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "BusinessFormLogo"
-        NO-ERROR.
-    IF NOT AVAIL sys-ctrl THEN DO: 
-        CREATE sys-ctrl.
-        ASSIGN 
-            sys-ctrl.name = "BusinessFormLogo"
-            sys-ctrl.descrip = "Define the path to the logo to be used on the standard business forms"
-            sys-ctrl.char-fld = ".\images\NoLogo.png".
-    END.
-       
-    /* - future: update CustFile locations
-    FOR EACH sys-ctrl WHERE
-        INDEX(sys-ctrl.descrip,".") NE 0 OR
-        INDEX(sys-ctrl.descrip,":") NE 0 OR
-        INDEX(sys-ctrl.descrip,"\") NE 0 OR
-        INDEX(sys-ctrl.descrip,"/") NE 0:
-        ASSIGN
-            FILE-INFO:FILE-NAME = sys-ctrl.descrip
-            lIsDir = FILE-INFO:FULL-PATHNAME NE ?.
-        IF lIsDir THEN DO:
-            IF sys-ctrl.descrip BEGINS "C:\" THEN NEXT.
-            IF INDEX(sys-ctrl.descrip,"CustFiles") NE 0 THEN NEXT.
-            ASSIGN
-                cOrigValue = sys-ctrl.descrip.
-            DISP 
-                sys-ctrl.name LABEL "NK1 Name" SKIP
-                sys-ctrl.descrip LABEL "VALUE"
-                WITH FRAME sysctl VIEW-AS DIALOG-BOX THREE-D SIDE-LABELS 1 DOWN.
-            UPDATE sys-ctrl.descrip LABEL "Value"
-                WITH FRAME sysctl.
-            IF sys-ctrl.descrip NE cOrigValue THEN DO:
-                ASSIGN
-                    cTgtDir = REPLACE(sys-ctrl.descrip,".",cEnvProdDir).
-                RUN ipCopyDirs IN THIS-PROCEDURE (cOrigValue, cTgtDir).
-            END.
+    FOR EACH company:
+        FIND FIRST sys-ctrl WHERE
+            sys-ctrl.company EQ company.company AND 
+            sys-ctrl.name EQ "BusinessFormLogo"
+            NO-ERROR.
+        IF NOT AVAIL sys-ctrl THEN DO: 
+            CREATE sys-ctrl.
+            ASSIGN 
+                sys-ctrl.company = company.company
+                sys-ctrl.name = "BusinessFormLogo"
+                sys-ctrl.descrip = "Define the path to the logo to be used on the standard business forms"
+                sys-ctrl.char-fld = ".\images\NoLogo.png".
         END.
     END.
-    */
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
