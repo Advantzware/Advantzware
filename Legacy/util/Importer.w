@@ -816,7 +816,8 @@ PROCEDURE pLoad :
     DEFINE VARIABLE lGo               AS LOGICAL   NO-UNDO. 
     DEFINE VARIABLE cFile             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lUpdateDuplicates AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lCheck            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lLimitReached     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iProcessed        AS INTEGER   NO-UNDO.
     
     cFile = iphdImportFileName:SCREEN-VALUE.
     lUpdateDuplicates = rdDuplicates EQ 1.
@@ -830,15 +831,11 @@ PROCEDURE pLoad :
         RUN pCheckContinue("load import data from " + cFile, OUTPUT lGo).
 
         IF lGo THEN 
-            RUN pLoad IN ghdImportProcs (ipcCompany, ipcLocation, cFile, lHeaderRow, lUpdateDuplicates, lFieldValidation, gcFileType, OUTPUT lGo,OUTPUT lCheck).
+            RUN pLoad IN ghdImportProcs (ipcCompany, ipcLocation, cFile, lHeaderRow, lUpdateDuplicates, lFieldValidation, gcFileType, OUTPUT lGo, OUTPUT lLimitReached, OUTPUT iProcessed).
 
-        IF lCheck THEN DO:
-            lGo = NO .
-            FOR EACH ttImportData NO-LOCK :
-                ttImportData.lValid = NO .
-            END.
-            MESSAGE "Must limit import file to a maximum of 1,000 rows" VIEW-AS ALERT-BOX. 
-	         APPLY "ENTRY" TO fiFileName IN FRAME {&FRAME-NAME} . 
+        IF lLimitReached THEN DO:
+            MESSAGE "Record limit of " iProcessed " was reached." SKIP 
+                "Continue loading only first " iProcessed " records?"  VIEW-AS ALERT-BOX BUTTONS YES-NO UPDATE lGo . 
         END.
 
         IF lGo THEN 
