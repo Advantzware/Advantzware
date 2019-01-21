@@ -551,7 +551,9 @@
                 WHEN "set-header" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.set-no,"X(15)") ELSE "" .
                 WHEN "qty-per-set" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.qtyPerSet) ELSE "" .
                 WHEN "cust-name" THEN cVarValue = STRING(v-cust-name,"X(30)") .
-                
+                WHEN "units" THEN cVarValue = STRING((tt-fg-bin.qty - tt-fg-bin.partial-count) / tt-fg-bin.case-count).
+		WHEN "unit-count" THEN cVarValue = STRING(tt-fg-bin.case-count,">>>,>>9").	
+		WHEN "partial" THEN cVarValue = STRING(tt-fg-bin.partial-count,"->>,>>9").	              
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
