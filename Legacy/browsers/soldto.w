@@ -315,10 +315,10 @@ DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
-  /*{methods/template/local/setvalue.i}   not to have own's specnotes */
+  {methods/template/local/setvalue.i}   /*not to have own's specnotes */
 
   def var char-hdl as cha no-undo.
-
+  RUN pen-book-image-proc .
   IF AVAIL soldto THEN
   DO:
      run get-link-handle in adm-broker-hdl(this-procedure,"soldTo-source", output char-hdl).
@@ -503,6 +503,31 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pen-book-image-proc B-table-Win 
+PROCEDURE pen-book-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+  
+  IF AVAIL soldto THEN
+      v-spec = CAN-FIND(FIRST notes WHERE
+               notes.rec_key = soldto.rec_key AND
+               notes.note_type <> "o").
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachcustsold-target':U, OUTPUT char-hdl).
+  
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 
