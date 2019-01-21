@@ -75,15 +75,9 @@ IF reload EQ ? THEN DO:
   IF reload EQ ? THEN RETURN.
 END.
 
-def new global shared var fwd-embedded-mode as log no-undo.
-
-if not fwd-embedded-mode
-then do:
-
 DISPLAY SKIP(1) 'Getting Schedule Board Jobs' SKIP(1)
   WITH FRAME fMsg1 OVERLAY COL 10 ROW 10 BGCOLOR 14 FONT 6
   TITLE ' Schedule Board ({&sbExternal})'.
-end.
 
 PROCESS EVENTS.
 
@@ -93,23 +87,16 @@ ELSE DO:
   {{&includes}/loadProgram.i} /* runs load{&Board}.p program */
 END. /* else do */
 
-if not fwd-embedded-mode
-then do:
-
 HIDE FRAME fMsg1 NO-PAUSE.
 DISPLAY SKIP(1) 'Loading Schedule Board Jobs' SKIP(1)
   WITH FRAME fMsg2 OVERLAY COL 10 ROW 10 BGCOLOR 14 FONT 6
   TITLE ' Schedule Board ({&sbExternal})'.
-end.
 
 PROCESS EVENTS.
 
 RUN getScenario.
 
-if not fwd-embedded-mode
-then do:
 HIDE FRAME fMsg2 NO-PAUSE.
-end.
 
 &IF '{&sbExternal}' EQ 'sbDMI' &THEN
 FOR EACH mach NO-LOCK 
@@ -136,8 +123,11 @@ FOR EACH ttblJob
         ttblJob.jobSequence = idx
         .
 END. /* each ttbljob */
+&ENDIF
 
 cProdAceDat = findProgram('{&data}/',ID,'/ProdAce.dat').
+
+&IF '{&sbExternal}' EQ 'sbDMI' &THEN
 RUN VALUE(findProgram('{&loads}/',ID,'/prodAce.w')) (cProdAceDat, THIS-PROCEDURE, NO, OUTPUT lContinue).
 &ELSEIF '{&sbExternal}' EQ 'sbJScan' &THEN
 RUN {&prompts}/jobSeqScan.w (THIS-PROCEDURE, ENTRY(1,commaList)).
@@ -148,7 +138,7 @@ RUN {&prompts}/fieldFilter.w ('{&Board}','','',NO,NO,?,'print').
 &ELSEIF '{&sbExternal}' EQ 'sbStatus' &THEN
 RUN {&objects}/sbStatus.w.
 &ENDIF
-else do:
+
 &IF '{&sbExternal}' EQ 'sbDMI' &THEN
 RUN VALUE(findProgram('{&loads}/',ID,'/prodAce.w')) persistent (cProdAceDat, THIS-PROCEDURE, NO, OUTPUT lContinue).
 &ELSEIF '{&sbExternal}' EQ 'sbJScan' &THEN
@@ -160,7 +150,7 @@ RUN {&prompts}/fieldFilter.w persistent ('{&Board}','','',NO,NO,?,'print').
 &ELSEIF '{&sbExternal}' EQ 'sbStatus' &THEN
 RUN {&objects}/sbStatus.w persistent.
 &ENDIF
-end.
+
 
 /* *** internal procedures ********************************************* */
 PROCEDURE asiCommaList:
