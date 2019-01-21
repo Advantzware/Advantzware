@@ -590,7 +590,9 @@ PROCEDURE cpost :
                     rm-bin.loc-bin = rm-rctd.loc-bin
                     rm-bin.tag     = rm-rctd.tag
                     rm-bin.i-no    = rm-rctd.i-no
-                    rm-bin.cost    = rm-rctd.cost.
+                    rm-bin.cost    = rm-rctd.cost
+                    rm-bin.po-no   = INTEGER(rm-rctd.po-no)
+                    .
             END. /* not avail rm-bin */
 
             rm-bin.qty = rm-rctd.qty.
