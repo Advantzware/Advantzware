@@ -28,7 +28,7 @@ CREATE WIDGET-POOL.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
-
+{cXml/ttOrd.i}
 def new shared buffer xest for est.
 def new shared buffer xef for ef.
 def new shared buffer xeb for eb.

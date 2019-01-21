@@ -38,25 +38,28 @@ DEFINE VARIABLE dObjectHeight AS DECIMAL   NO-UNDO INITIAL 1.14.
 DEFINE VARIABLE dObjectWidth  AS DECIMAL   NO-UNDO INITIAL 4.8.
 DEFINE VARIABLE iMenuSize     AS INTEGER   NO-UNDO INITIAL 1.
 DEFINE VARIABLE iLanguage     AS INTEGER   NO-UNDO INITIAL 1.
+DEFINE VARIABLE lMenuImage    AS LOGICAL   NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE iFont         AS INTEGER   NO-UNDO.
 
 DEFINE TEMP-TABLE ttMenuTree NO-UNDO
-    FIELD treeOrder  AS INTEGER
-    FIELD level      AS INTEGER
-    FIELD isMenu     AS LOGICAL
-    FIELD isOpen     AS LOGICAL
-    FIELD isVisible  AS LOGICAL
-    FIELD treeParent AS CHARACTER
-    FIELD treeChild  AS CHARACTER
-    FIELD treeText   AS CHARACTER
-    FIELD baseText   AS CHARACTER 
-    FIELD treeImage  AS CHARACTER
-    FIELD mnemonic   AS CHARACTER
-    FIELD isActive   AS LOGICAL 
-    FIELD favorite   AS LOGICAL
-    FIELD hLevel     AS HANDLE
-    FIELD hImage     AS HANDLE
-    FIELD hEditor    AS HANDLE
-    FIELD hToggle    AS HANDLE 
+    FIELD treeOrder     AS INTEGER
+    FIELD level         AS INTEGER
+    FIELD isMenu        AS LOGICAL
+    FIELD isOpen        AS LOGICAL
+    FIELD isVisible     AS LOGICAL
+    FIELD treeParent    AS CHARACTER
+    FIELD treeChild     AS CHARACTER
+    FIELD treeText      AS CHARACTER
+    FIELD baseText      AS CHARACTER 
+    FIELD treeImage     AS CHARACTER
+    FIELD mnemonic      AS CHARACTER
+    FIELD isActive      AS LOGICAL 
+    FIELD favorite      AS LOGICAL
+    FIELD favoriteOrder AS DECIMAL
+    FIELD hLevel        AS HANDLE
+    FIELD hImage        AS HANDLE
+    FIELD hEditor       AS HANDLE
+    FIELD hToggle       AS HANDLE 
         INDEX ttMenuTree IS PRIMARY
             treeOrder
         INDEX ttMnemonic
@@ -159,15 +162,36 @@ PROCEDURE pClickMenuTree:
     FOR EACH bttMenuTree
         WHERE bttMenuTree.level GE ttMenuTree.level
         :
-        bttMenuTree.hEditor:FONT = ?.
+        ASSIGN
+            bttMenuTree.hEditor:FONT = ?
+            &IF DEFINED(mainMenuBGColor) NE 0 &THEN
+            bttMenuTree.hEditor:FONT    = iFont
+            bttMenuTree.hEditor:BGCOLOR = ?
+            bttMenuTree.hEditor:FGCOLOR = ?
+            &ENDIF
+            .
     END. /* each bttMenuTree */
     FOR EACH bttMenuTree
         WHERE bttMenuTree.level  LT ttMenuTree.level
           AND bttMenuTree.isMenu EQ NO
         :
-        bttMenuTree.hEditor:FONT = ?.
+        ASSIGN
+            bttMenuTree.hEditor:FONT = ?
+            &IF DEFINED(mainMenuBGColor) NE 0 &THEN
+            bttMenuTree.hEditor:FONT    = iFont
+            bttMenuTree.hEditor:BGCOLOR = ?
+            bttMenuTree.hEditor:FGCOLOR = ?
+            &ENDIF
+            .
     END. /* each bttMenuTree */
-    ttMenuTree.hEditor:FONT = 6.
+    ASSIGN
+        ttMenuTree.hEditor:FONT = 6
+        &IF DEFINED(mainMenuBGColor) NE 0 &THEN
+        ttMenuTree.hEditor:FONT    = iFont + 1
+        ttMenuTree.hEditor:BGCOLOR = {&mainMenuBGColor}
+        ttMenuTree.hEditor:FGCOLOR = {&mainMenuFGColor}
+        &ENDIF
+        .
     RUN pSetFocus.
     IF INDEX(THIS-PROCEDURE:INTERNAL-ENTRIES,"pProcessClick") NE 0 THEN
     RUN pProcessClick NO-ERROR.
@@ -245,7 +269,8 @@ PROCEDURE pCreatettMenuTree:
           PERSISTENT RUN pClickMenuTree IN THIS-PROCEDURE (hWidget:HANDLE).
       END TRIGGERS.
     IF VALID-HANDLE(hWidget) THEN DO:
-        ttMenuTree.hImage = hWidget.            
+        ttMenuTree.hImage = hWidget.
+        IF lMenuImage THEN
         hWidget:LOAD-IMAGE(SEARCH(cImageFolder + ttMenuTree.treeImage)).
     END.
 
@@ -272,6 +297,9 @@ PROCEDURE pCreatettMenuTree:
             HIDDEN = YES
             WIDTH = dWidth
             HEIGHT = dObjectHeight
+            &IF DEFINED(mainMenuBGColor) NE 0 &THEN
+            FONT = iFont
+            &ENDIF
             FGCOLOR = 1
             BGCOLOR = ?
             SCROLLBAR-HORIZONTAL = NO
@@ -288,8 +316,8 @@ PROCEDURE pCreatettMenuTree:
     IF VALID-HANDLE(hWidget) THEN DO:
         ASSIGN
             ttMenuTRee.hEditor = hWidget
-            hWidget:TOOLTIP = IF ipcMnemonic NE "" THEN "HotKey: " + ipcMnemonic
-                              ELSE hWidget:SCREEN-VALUE
+            hWidget:TOOLTIP    = IF ipcMnemonic NE "" THEN "HotKey: " + ipcMnemonic
+                                 ELSE hWidget:SCREEN-VALUE
             .
         hWidget:LOAD-MOUSE-POINTER("GLOVE").
     END.
@@ -388,6 +416,7 @@ PROCEDURE pDisplayMenuTree:
                  .
         ELSE
         &ENDIF
+        IF lMenuImage THEN 
         ASSIGN
             bttMenuTree.hImage:COL = dCol
             bttMenuTree.hImage:ROW = dRow
@@ -395,13 +424,14 @@ PROCEDURE pDisplayMenuTree:
             dCol = bttMenuTree.hImage:COL
                  + bttMenuTree.hImage:WIDTH
                  .
-        /* check to be sure editor widget fits in frame */
-        IF dCol + bttMenuTree.hEditor:WIDTH GE iphFrame:WIDTH THEN
-        bttMenuTree.hEditor:WIDTH = bttMenuTree.hEditor:WIDTH
-                                  - (dCol + bttMenuTree.hEditor:WIDTH
-                                  -  iphFrame:WIDTH)
-                                  .
+/*        /* check to be sure editor widget fits in frame */           */
+/*        IF dCol + bttMenuTree.hEditor:WIDTH GE iphFrame:WIDTH THEN   */
+/*        bttMenuTree.hEditor:WIDTH = bttMenuTree.hEditor:WIDTH        */
+/*                                  - (dCol + bttMenuTree.hEditor:WIDTH*/
+/*                                  -  iphFrame:WIDTH)                 */
+/*                                  .                                  */
         ASSIGN
+            bttMenuTree.hEditor:WIDTH = iphFrame:WIDTH - dCol - 5
             bttMenuTree.hEditor:COL = dCol
             bttMenuTree.hEditor:ROW = dRow
             bttMenuTree.hEditor:HIDDEN = NO

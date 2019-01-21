@@ -80,14 +80,14 @@ form header
    with frame bol-top page-top no-box no-underline stream-io width 85.
 
 form v-tot-pkgs                     to 3
-     v-ord-qty                      to 11  format ">>>>>>>>"
-     v-part-dscr                    at 13 format "x(30)"
-     oe-rel.po-no                   at 44 format "x(15)"
-     w2.cases                       to 62 format ">>9"
-     w2.cas-cnt                     to 69 format ">>,>>9"
-     v-bol-qty                      to 77 format ">>>>>>>9"
-     oe-boll.p-c                    at 79
-     v-bol-wt                       to 85 format ">>>>>9"
+     v-ord-qty                      to 9  format ">>>>>>"
+     v-part-dscr                    at 11 format "x(30)"
+     oe-rel.po-no                   at 42 format "x(15)"
+     w2.cases                       to 60 format ">>9"
+     w2.cas-cnt                     to 67 format ">>,>>9"
+     v-bol-qty                      to 73 format ">>>>>9"
+     oe-boll.p-c                    at 75
+     v-bol-wt                       to 82 format ">>>>>9"
      
     with frame bol-mid1 down no-box no-labels stream-io width 85.
 

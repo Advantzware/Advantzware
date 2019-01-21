@@ -146,7 +146,7 @@ cust.fax-country cust.frt-pay cust.fob-code cust.ship-part cust.loc ~
 cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet ~
 cust.case-bundle cust.int-field[1] cust.po-mandatory cust.show-set ~
-cust.log-field[1] 
+cust.log-field[1] cust.imported
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
 &Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-2 RECT-3 RECT-4 
@@ -162,7 +162,7 @@ cust.fax-country cust.frt-pay cust.fob-code cust.ship-part cust.loc ~
 cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet ~
 cust.case-bundle cust.int-field[1] cust.po-mandatory cust.show-set ~
-cust.log-field[1] 
+cust.log-field[1] cust.imported
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS fl_custemail terms_dscr rd_inv-meth ~
@@ -290,11 +290,11 @@ DEFINE RECTANGLE RECT-2
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 71 BY 3.43.
+     SIZE 71 BY 3.82.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 74.4 BY 11.91.
+     SIZE 74.4 BY 12.30.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -567,6 +567,10 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 8.8 BY 1
           FONT 4
+    cust.imported AT ROW 18.43 COL 80.6
+          LABEL "Contract Pricing?"
+          VIEW-AS TOGGLE-BOX
+          SIZE 24 BY .81 
      cust.spare-int-1 AT ROW 12.67 COL 129 COLON-ALIGNED WIDGET-ID 12
           LABEL "Pallet ID" FORMAT ">>>>>>>>9"
           VIEW-AS FILL-IN 
@@ -587,7 +591,7 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      cust.po-mandatory AT ROW 16.62 COL 114.6
           VIEW-AS TOGGLE-BOX
-          SIZE 24 BY .81
+          SIZE 24 BY .81   
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -606,10 +610,10 @@ DEFINE FRAME F-Main
      "Taxable:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 16.14 COL 11
      "Tax Information" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 15.33 COL 4
+          SIZE 16 BY .62 AT ROW 15.33 COL 4
           FGCOLOR 9 FONT 4
      "Credit Information" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 6.95 COL 4
+          SIZE 18 BY .62 AT ROW 6.95 COL 4
           FGCOLOR 9 FONT 4
      "FOB:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 8.67 COL 83.2
@@ -760,6 +764,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN cust.phone IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR TOGGLE-BOX cust.po-mandatory IN FRAME F-Main
+   2 4                                                                  */
+/* SETTINGS FOR TOGGLE-BOX cust.imported IN FRAME F-Main
    2 4                                                                  */
 /* SETTINGS FOR RADIO-SET rd_inv-meth IN FRAME F-Main
    NO-ENABLE 2                                                          */

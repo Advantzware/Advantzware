@@ -93,7 +93,7 @@ DEFINE VARIABLE h_v-polinq-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-purord AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-poord-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
-
+DEF NEW SHARED VAR lNewOrd AS LOG NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main

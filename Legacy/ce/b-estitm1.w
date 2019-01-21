@@ -1991,6 +1991,7 @@ PROCEDURE calc-layout :
 
   IF ll THEN DO:
     IF NOT lv-foam THEN DO:
+      RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
       {ce/ceroute1.i w id l en} 
     END.
     RUN ce/calc-dim.p.
@@ -2922,16 +2923,11 @@ ASSIGN
  itemfg.company    = gcompany
  itemfg.loc        = gloc
  itemfg.i-no       = v-item
- itemfg.i-code     = "C"
  itemfg.i-name     = xeb.part-dscr1
  itemfg.part-dscr1 = xeb.part-dscr2
- itemfg.sell-uom   = "M"
  itemfg.part-no    = xeb.part-no
  itemfg.cust-no    = xeb.cust-no
  itemfg.cust-name  = IF AVAIL cust THEN cust.name ELSE ""
- itemfg.pur-uom    = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.prod-uom   = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.stocked    = YES
  itemfg.die-no     = xeb.die-no
  itemfg.plate-no   = xeb.plate-no
  itemfg.style      = xeb.style
@@ -3188,7 +3184,10 @@ PROCEDURE est-from-tandem :
                         OUTPUT ll-new-tandem, OUTPUT lv-eb-rowid).
 
     IF ll-new-tandem THEN DO:
-      FIND FIRST xest OF b-eb NO-LOCK NO-ERROR.
+      FIND FIRST xest NO-LOCK WHERE 
+        xest.company EQ b-eb.company AND 
+        xest.est-no EQ b-eb.est-no 
+        NO-ERROR.
       RUN ce/com/mach-seq.p (b-eb.form-no).
 
       RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'Record-source':U,OUTPUT char-hdl).
@@ -3199,7 +3198,10 @@ PROCEDURE est-from-tandem :
     END.
 
     ELSE DO:
-      FIND FIRST b-est OF b-eb EXCLUSIVE NO-ERROR.
+      FIND FIRST b-est EXCLUSIVE WHERE 
+        b-est.company EQ b-eb.company AND 
+        b-est.est-no EQ b-eb.est-no 
+        NO-ERROR.
       IF AVAIL b-est THEN DELETE b-est.
     END.
   END.

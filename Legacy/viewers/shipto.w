@@ -1178,6 +1178,7 @@ PROCEDURE local-assign-record :
    
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+   
  
  
   /* Code placed here will execute AFTER standard behavior.    */
@@ -1200,7 +1201,6 @@ PROCEDURE local-assign-record :
             RUN UpdateShipNote IN hNotesProcs (shipto.rec_key,
                                                      ship_note).
             DELETE OBJECT hNotesProcs.
-        FIND CURRENT shipto NO-LOCK NO-ERROR.
         DISABLE ship_note WITH FRAME {&FRAME-NAME}.
   END. /* IF glShipNotesExpanded EQ YES THEN DO: */
 
@@ -1448,10 +1448,20 @@ DEF VAR ip-shipnotes AS CHAR NO-UNDO.
 
 DEFINE VARIABLE iOldvalueTrans AS INTEGER NO-UNDO .
 DEFINE VARIABLE iOldvalueDock AS INTEGER NO-UNDO .
+DEFINE VARIABLE cOldShipnotes AS CHARACTER NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
   
   
 /*   RUN ship-zip. */
+IF glShipNotesExpanded THEN 
+    ASSIGN oldShiptoNote = ship_note.
+
+ASSIGN
+      cOldShipnotes = TRIM(shipto.notes[1]) + "|" +
+                      TRIM(shipto.notes[2]) + "|" +
+                      TRIM(shipto.notes[3]) + "|" +
+                      TRIM(shipto.notes[4]).
+     
 ASSIGN 
     iOldvalueTrans = integer(shipto.del-time)
     iOldvalueDock  = spare-int-2  .
@@ -1483,7 +1493,7 @@ ASSIGN
   if shipto.pallet:screen-value IN FRAME {&FRAME-NAME} <> "" and
         not can-find(first item where item.company = gcompany and item.mat-type = "D" and
                                       item.i-no = shipto.pallet:screen-value)
-     then do:
+     then do: 
         message "Invalid Pallet Code. Try Help." view-as alert-box error.
         apply "entry" to shipto.pallet.
         return .     
@@ -1493,6 +1503,7 @@ ASSIGN
      shipto.bill:SCREEN-VALUE IN FRAME {&FRAME-NAME} <> "Yes" THEN DO:
 
   END.
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1503,7 +1514,8 @@ ASSIGN
                      TRIM(shipto.notes[3]) + "|" +
                      TRIM(shipto.notes[4]).
   
-  IF oldShiptoNote NE ship_note THEN DO:
+  IF (glShipNotesExpanded AND oldShiptoNote NE ship_note) OR
+       ( NOT glShipNotesExpanded AND cOldShipnotes NE ip-shipnotes) THEN DO:
       RUN oe\d-shp2nt.w(INPUT shipto.company, 
                         INPUT shipto.cust-no, 
                         INPUT shipto.ship-id,

@@ -836,7 +836,9 @@ PROCEDURE pProcessRecord PRIVATE:
         NO-ERROR.
     FIND FIRST ef OF eb
         NO-ERROR.
-    FIND FIRST est OF eb  
+    FIND FIRST est NO-LOCK WHERE 
+        est.company EQ eb.company AND 
+        est.est-no EQ eb.est-no 
         NO-ERROR.
     FIND est-qty 
         WHERE est-qty.company EQ ef.company

@@ -98,7 +98,7 @@ DEF VAR lv-show-tag-no AS CHAR NO-UNDO.
 /*-sort-by = NOT oeinq.*/
 
 &SCOPED-DEFINE for-each1    ~
-    FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "ALL") THEN TRUE ~
+    FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "*ALL") THEN TRUE ~
                            ELSE w-job.loc EQ lc-pass-loc)
      
     /*~
@@ -205,8 +205,8 @@ w-job.tot-wt
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table w-job
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table w-job
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "ALL") THEN TRUE       ELSE w-job.loc EQ lc-pass-loc)       BY (IF oeinq THEN w-job.job-no ELSE "") DESC       BY (IF oeinq THEN w-job.job-no2 ELSE 0) DESC       BY w-job.cust-no       BY w-job.job-no       BY w-job.job-no2       BY w-job.loc       BY w-job.loc-bin       BY w-job.tag
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME}   FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "ALL") THEN TRUE       ELSE w-job.loc EQ lc-pass-loc)       BY (IF oeinq THEN w-job.job-no ELSE "") DESC       BY (IF oeinq THEN w-job.job-no2 ELSE 0) DESC       BY w-job.cust-no       BY w-job.job-no       BY w-job.job-no2       BY w-job.loc       BY w-job.loc-bin       BY w-job.tag.
+&Scoped-define QUERY-STRING-br_table FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "*ALL") THEN TRUE       ELSE w-job.loc EQ lc-pass-loc)       BY (IF oeinq THEN w-job.job-no ELSE "") DESC       BY (IF oeinq THEN w-job.job-no2 ELSE 0) DESC       BY w-job.cust-no       BY w-job.job-no       BY w-job.job-no2       BY w-job.loc       BY w-job.loc-bin       BY w-job.tag
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME}   FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "*ALL") THEN TRUE       ELSE w-job.loc EQ lc-pass-loc)       BY (IF oeinq THEN w-job.job-no ELSE "") DESC       BY (IF oeinq THEN w-job.job-no2 ELSE 0) DESC       BY w-job.cust-no       BY w-job.job-no       BY w-job.job-no2       BY w-job.loc       BY w-job.loc-bin       BY w-job.tag.
 &Scoped-define TABLES-IN-QUERY-br_table w-job
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table w-job
 
@@ -477,6 +477,42 @@ DO:
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
    {src/adm/template/brsleave.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON START-SEARCH OF br_table IN FRAME F-Main
+DO:
+  DEF VAR lh-column AS HANDLE NO-UNDO.
+  DEF VAR lv-column-nam AS CHAR NO-UNDO.
+  DEF VAR lv-column-lab AS CHAR NO-UNDO.
+
+
+  ASSIGN
+   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+   lv-column-nam = lh-column:NAME
+   lv-column-lab = lh-column:LABEL.
+
+  IF lv-column-nam BEGINS "li-" THEN DO:
+    APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+    RETURN NO-APPLY.
+  END.
+
+ 
+  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
+
+  ELSE
+    ASSIGN
+     lv-sort-by     = lv-column-nam
+     lv-sort-by-lab = lv-column-lab.
+
+  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+
+  RUN resort-query.
+ 
 END.
 
 /* _UIB-CODE-BLOCK-END */

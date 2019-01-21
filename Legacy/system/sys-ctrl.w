@@ -42,20 +42,18 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 {sys/ref/sys-ctrl.i}
+{methods/defines/sortByDefs.i "EXTENT 2"}
 
 DEFINE VARIABLE hCurrentFilter   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cFilter          AS CHARACTER NO-UNDO INITIAL "ALL".
 DEFINE VARIABLE cSubFilter       AS CHARACTER NO-UNDO INITIAL "ALL".
-DEFINE VARIABLE cColumnLabel     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cSaveLabel       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMode            AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAscending       AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE lSearchOpen      AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE lSuperAdmin      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hPgmMstrSecur    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE correct-error    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcompany         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE gvcMultiSelect   AS CHARACTER NO-UNDO INITIAL "OEDATECHANGE,SSBOLEMAIL".
+DEFINE VARIABLE gvcMultiSelect   AS CHARACTER NO-UNDO INITIAL "OEDATECHANGE,SSBOLEMAIL,OEPriceHold". /* for multi selected value*/
 DEFINE VARIABLE cValidateList    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lValid           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hFieldValue      AS HANDLE    NO-UNDO.
@@ -122,8 +120,8 @@ CREATE tempSysCtrl.
 &Scoped-define FIELDS-IN-QUERY-sysCtrlBrowse ttSysCtrl.name ttSysCtrl.fieldDescrip ttSysCtrl.fieldValue ttSysCtrl.descrip ttSysCtrl.module ttSysCtrl.typeCode ttSysCtrl.category ttSysCtrl.subCategory ttSysCtrl.securityLevelUser ttSysCtrl.tableSource ttSysCtrl.fieldSource ttSysCtrl.fieldExtent ttSysCtrl.dataType   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-sysCtrlBrowse   
 &Scoped-define SELF-NAME sysCtrlBrowse
-&Scoped-define QUERY-STRING-sysCtrlBrowse FOR EACH ttSysCtrl WHERE (ttSysCtrl.category EQ cFilter    OR  cFilter EQ "ALL")   AND (ttSysCtrl.subCategory EQ cSubFilter    OR  cSubFilter EQ "ALL")   AND ((lExactMatch EQ YES   AND (ttSysCtrl.name         EQ cNameFilter         OR cNameFilter         EQ "")   AND (ttSysCtrl.fieldDescrip EQ cFieldDescripFilter OR cFieldDescripFilter EQ "")   AND (ttSysCtrl.fieldValue   EQ cValueFilter        OR cValueFilter        EQ "")   AND (ttSysCtrl.descrip      EQ cDescripFilter      OR cDescripFilter      EQ "")   AND (ttSysCtrl.module       EQ cModuleFilter       OR cModuleFilter       EQ "")   AND (ttSysCtrl.typeCode     EQ cTypeCodeFilter     OR cTypeCodeFilter     EQ "")   AND (ttSysCtrl.category     EQ cCategoryFilter     OR cCategoryFilter     EQ "")   AND (ttSysCtrl.subCategory  EQ cSubCategoryFilter  OR cSubCategoryFilter  EQ "")   AND (ttSysCtrl.tableSource  EQ cTableSourceFilter  OR cTableSourceFilter  EQ "")   AND (ttSysCtrl.fieldSource  EQ cFieldSourceFilter  OR cFieldSourceFilter  EQ "")   AND (ttSysCtrl.dataType     EQ cDataTypeFilter     OR cDataTypeFilter     EQ ""))    OR (lExactMatch EQ NO   AND ttSysCtrl.name         MATCHES "*" + cNameFilter         + "*"   AND ttSysCtrl.fieldDescrip MATCHES "*" + cFieldDescripFilter + "*"   AND ttSysCtrl.fieldValue   MATCHES "*" + cValueFilter        + "*"   AND ttSysCtrl.descrip      MATCHES "*" + cDescripFilter      + "*"   AND ttSysCtrl.module       MATCHES "*" + cModuleFilter       + "*"   AND ttSysCtrl.typeCode     MATCHES "*" + cTypeCodeFilter     + "*"   AND ttSysCtrl.category     MATCHES "*" + cCategoryFilter     + "*"   AND ttSysCtrl.subCategory  MATCHES "*" + cSubCategoryFilter  + "*"   AND ttSysCtrl.tableSource  MATCHES "*" + cTableSourceFilter  + "*"   AND ttSysCtrl.fieldSource  MATCHES "*" + cFieldSourceFilter  + "*"   AND ttSysCtrl.dataType     MATCHES "*" + cDataTypeFilter     + "*"   AND ttSysCtrl.allData      MATCHES "*" + searchBar           + "*"))   ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-sysCtrlBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttSysCtrl WHERE (ttSysCtrl.category EQ cFilter    OR  cFilter EQ "ALL")   AND (ttSysCtrl.subCategory EQ cSubFilter    OR  cSubFilter EQ "ALL")   AND ((lExactMatch EQ YES   AND (ttSysCtrl.name         EQ cNameFilter         OR cNameFilter         EQ "")   AND (ttSysCtrl.fieldDescrip EQ cFieldDescripFilter OR cFieldDescripFilter EQ "")   AND (ttSysCtrl.fieldValue   EQ cValueFilter        OR cValueFilter        EQ "")   AND (ttSysCtrl.descrip      EQ cDescripFilter      OR cDescripFilter      EQ "")   AND (ttSysCtrl.module       EQ cModuleFilter       OR cModuleFilter       EQ "")   AND (ttSysCtrl.typeCode     EQ cTypeCodeFilter     OR cTypeCodeFilter     EQ "")   AND (ttSysCtrl.category     EQ cCategoryFilter     OR cCategoryFilter     EQ "")   AND (ttSysCtrl.subCategory  EQ cSubCategoryFilter  OR cSubCategoryFilter  EQ "")   AND (ttSysCtrl.tableSource  EQ cTableSourceFilter  OR cTableSourceFilter  EQ "")   AND (ttSysCtrl.fieldSource  EQ cFieldSourceFilter  OR cFieldSourceFilter  EQ "")   AND (ttSysCtrl.dataType     EQ cDataTypeFilter     OR cDataTypeFilter     EQ ""))    OR (lExactMatch EQ NO   AND ttSysCtrl.name         MATCHES "*" + cNameFilter         + "*"   AND ttSysCtrl.fieldDescrip MATCHES "*" + cFieldDescripFilter + "*"   AND ttSysCtrl.fieldValue   MATCHES "*" + cValueFilter        + "*"   AND ttSysCtrl.descrip      MATCHES "*" + cDescripFilter      + "*"   AND ttSysCtrl.module       MATCHES "*" + cModuleFilter       + "*"   AND ttSysCtrl.typeCode     MATCHES "*" + cTypeCodeFilter     + "*"   AND ttSysCtrl.category     MATCHES "*" + cCategoryFilter     + "*"   AND ttSysCtrl.subCategory  MATCHES "*" + cSubCategoryFilter  + "*"   AND ttSysCtrl.tableSource  MATCHES "*" + cTableSourceFilter  + "*"   AND ttSysCtrl.fieldSource  MATCHES "*" + cFieldSourceFilter  + "*"   AND ttSysCtrl.dataType     MATCHES "*" + cDataTypeFilter     + "*"   AND ttSysCtrl.allData      MATCHES "*" + searchBar           + "*"))   ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-sysCtrlBrowse FOR EACH ttSysCtrl WHERE (ttSysCtrl.category EQ cFilter    OR  cFilter EQ "ALL")   AND (ttSysCtrl.subCategory EQ cSubFilter    OR  cSubFilter EQ "ALL")   AND ((lExactMatch EQ YES   AND (ttSysCtrl.name         EQ cNameFilter         OR cNameFilter         EQ "")   AND (ttSysCtrl.fieldDescrip EQ cFieldDescripFilter OR cFieldDescripFilter EQ "")   AND (ttSysCtrl.fieldValue   EQ cValueFilter        OR cValueFilter        EQ "")   AND (ttSysCtrl.descrip      EQ cDescripFilter      OR cDescripFilter      EQ "")   AND (ttSysCtrl.module       EQ cModuleFilter       OR cModuleFilter       EQ "")   AND (ttSysCtrl.typeCode     EQ cTypeCodeFilter     OR cTypeCodeFilter     EQ "")   AND (ttSysCtrl.category     EQ cCategoryFilter     OR cCategoryFilter     EQ "")   AND (ttSysCtrl.subCategory  EQ cSubCategoryFilter  OR cSubCategoryFilter  EQ "")   AND (ttSysCtrl.tableSource  EQ cTableSourceFilter  OR cTableSourceFilter  EQ "")   AND (ttSysCtrl.fieldSource  EQ cFieldSourceFilter  OR cFieldSourceFilter  EQ "")   AND (ttSysCtrl.dataType     EQ cDataTypeFilter     OR cDataTypeFilter     EQ "")   AND (ttSysCtrl.allData      MATCHES "*" + searchBar + "*"))    OR ((lExactMatch EQ NO   AND (ttSysCtrl.name         BEGINS cNameFilter         OR cNameFilter         EQ "")   AND (ttSysCtrl.fieldDescrip BEGINS cFieldDescripFilter OR cFieldDescripFilter EQ "")   AND (ttSysCtrl.fieldValue   BEGINS cValueFilter        OR cValueFilter        EQ "")   AND (ttSysCtrl.descrip      BEGINS cDescripFilter      OR cDescripFilter      EQ "")   AND (ttSysCtrl.module       BEGINS cModuleFilter       OR cModuleFilter       EQ "")   AND (ttSysCtrl.typeCode     BEGINS cTypeCodeFilter     OR cTypeCodeFilter     EQ "")   AND (ttSysCtrl.category     BEGINS cCategoryFilter     OR cCategoryFilter     EQ "")   AND (ttSysCtrl.subCategory  BEGINS cSubCategoryFilter  OR cSubCategoryFilter  EQ "")   AND (ttSysCtrl.tableSource  BEGINS cTableSourceFilter  OR cTableSourceFilter  EQ "")   AND (ttSysCtrl.fieldSource  BEGINS cFieldSourceFilter  OR cFieldSourceFilter  EQ "")   AND (ttSysCtrl.dataType     BEGINS cDataTypeFilter     OR cDataTypeFilter     EQ "")   AND (ttSysCtrl.allData      MATCHES "*" + searchBar + "*")))    OR (lExactMatch EQ ?   AND ttSysCtrl.name         MATCHES "*" + cNameFilter         + "*"   AND ttSysCtrl.fieldDescrip MATCHES "*" + cFieldDescripFilter + "*"   AND ttSysCtrl.fieldValue   MATCHES "*" + cValueFilter        + "*"   AND ttSysCtrl.descrip      MATCHES "*" + cDescripFilter      + "*"   AND ttSysCtrl.module       MATCHES "*" + cModuleFilter       + "*"   AND ttSysCtrl.typeCode     MATCHES "*" + cTypeCodeFilter     + "*"   AND ttSysCtrl.category     MATCHES "*" + cCategoryFilter     + "*"   AND ttSysCtrl.subCategory  MATCHES "*" + cSubCategoryFilter  + "*"   AND ttSysCtrl.tableSource  MATCHES "*" + cTableSourceFilter  + "*"   AND ttSysCtrl.fieldSource  MATCHES "*" + cFieldSourceFilter  + "*"   AND ttSysCtrl.dataType     MATCHES "*" + cDataTypeFilter     + "*"   AND ttSysCtrl.allData      MATCHES "*" + searchBar           + "*"))   ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-sysCtrlBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttSysCtrl WHERE (ttSysCtrl.category EQ cFilter    OR  cFilter EQ "ALL")   AND (ttSysCtrl.subCategory EQ cSubFilter    OR  cSubFilter EQ "ALL")   AND ((lExactMatch EQ YES   AND (ttSysCtrl.name         EQ cNameFilter         OR cNameFilter         EQ "")   AND (ttSysCtrl.fieldDescrip EQ cFieldDescripFilter OR cFieldDescripFilter EQ "")   AND (ttSysCtrl.fieldValue   EQ cValueFilter        OR cValueFilter        EQ "")   AND (ttSysCtrl.descrip      EQ cDescripFilter      OR cDescripFilter      EQ "")   AND (ttSysCtrl.module       EQ cModuleFilter       OR cModuleFilter       EQ "")   AND (ttSysCtrl.typeCode     EQ cTypeCodeFilter     OR cTypeCodeFilter     EQ "")   AND (ttSysCtrl.category     EQ cCategoryFilter     OR cCategoryFilter     EQ "")   AND (ttSysCtrl.subCategory  EQ cSubCategoryFilter  OR cSubCategoryFilter  EQ "")   AND (ttSysCtrl.tableSource  EQ cTableSourceFilter  OR cTableSourceFilter  EQ "")   AND (ttSysCtrl.fieldSource  EQ cFieldSourceFilter  OR cFieldSourceFilter  EQ "")   AND (ttSysCtrl.dataType     EQ cDataTypeFilter     OR cDataTypeFilter     EQ "")   AND (ttSysCtrl.allData      MATCHES "*" + searchBar + "*"))    OR ((lExactMatch EQ NO   AND (ttSysCtrl.name         BEGINS cNameFilter         OR cNameFilter         EQ "")   AND (ttSysCtrl.fieldDescrip BEGINS cFieldDescripFilter OR cFieldDescripFilter EQ "")   AND (ttSysCtrl.fieldValue   BEGINS cValueFilter        OR cValueFilter        EQ "")   AND (ttSysCtrl.descrip      BEGINS cDescripFilter      OR cDescripFilter      EQ "")   AND (ttSysCtrl.module       BEGINS cModuleFilter       OR cModuleFilter       EQ "")   AND (ttSysCtrl.typeCode     BEGINS cTypeCodeFilter     OR cTypeCodeFilter     EQ "")   AND (ttSysCtrl.category     BEGINS cCategoryFilter     OR cCategoryFilter     EQ "")   AND (ttSysCtrl.subCategory  BEGINS cSubCategoryFilter  OR cSubCategoryFilter  EQ "")   AND (ttSysCtrl.tableSource  BEGINS cTableSourceFilter  OR cTableSourceFilter  EQ "")   AND (ttSysCtrl.fieldSource  BEGINS cFieldSourceFilter  OR cFieldSourceFilter  EQ "")   AND (ttSysCtrl.dataType     BEGINS cDataTypeFilter     OR cDataTypeFilter     EQ "")   AND (ttSysCtrl.allData      MATCHES "*" + searchBar + "*")))    OR (lExactMatch EQ ?   AND ttSysCtrl.name         MATCHES "*" + cNameFilter         + "*"   AND ttSysCtrl.fieldDescrip MATCHES "*" + cFieldDescripFilter + "*"   AND ttSysCtrl.fieldValue   MATCHES "*" + cValueFilter        + "*"   AND ttSysCtrl.descrip      MATCHES "*" + cDescripFilter      + "*"   AND ttSysCtrl.module       MATCHES "*" + cModuleFilter       + "*"   AND ttSysCtrl.typeCode     MATCHES "*" + cTypeCodeFilter     + "*"   AND ttSysCtrl.category     MATCHES "*" + cCategoryFilter     + "*"   AND ttSysCtrl.subCategory  MATCHES "*" + cSubCategoryFilter  + "*"   AND ttSysCtrl.tableSource  MATCHES "*" + cTableSourceFilter  + "*"   AND ttSysCtrl.fieldSource  MATCHES "*" + cFieldSourceFilter  + "*"   AND ttSysCtrl.dataType     MATCHES "*" + cDataTypeFilter     + "*"   AND ttSysCtrl.allData      MATCHES "*" + searchBar           + "*"))   ~{&SORTBY-PHRASE}   .
 &Scoped-define TABLES-IN-QUERY-sysCtrlBrowse ttSysCtrl
 &Scoped-define FIRST-TABLE-IN-QUERY-sysCtrlBrowse ttSysCtrl
 
@@ -137,10 +135,20 @@ sys-ctrl-shipto.int-fld sys-ctrl-shipto.log-fld
 &Scoped-define ENABLED-FIELDS-IN-QUERY-sysCtrlShipToBrowse 
 &Scoped-define QUERY-STRING-sysCtrlShipToBrowse FOR EACH sys-ctrl-shipto ~
       WHERE sys-ctrl-shipto.company EQ g_company ~
-AND sys-ctrl-shipto.name EQ ttSysCtrl.name NO-LOCK INDEXED-REPOSITION
+AND sys-ctrl-shipto.name EQ ttSysCtrl.name ~
+AND (sys-ctrl-shipto.descrip MATCHES "*" + searchForm + "*" ~
+OR sys-ctrl-shipto.cust-vend-no MATCHES "*" + searchForm + "*" ~
+OR sys-ctrl-shipto.ship-id MATCHES "*" + searchForm + "*" ~
+OR sys-ctrl-shipto.char-fld MATCHES "*" + searchForm + "*") NO-LOCK ~
+    ~{&SORTBY-PHRASE} INDEXED-REPOSITION
 &Scoped-define OPEN-QUERY-sysCtrlShipToBrowse OPEN QUERY sysCtrlShipToBrowse FOR EACH sys-ctrl-shipto ~
       WHERE sys-ctrl-shipto.company EQ g_company ~
-AND sys-ctrl-shipto.name EQ ttSysCtrl.name NO-LOCK INDEXED-REPOSITION.
+AND sys-ctrl-shipto.name EQ ttSysCtrl.name ~
+AND (sys-ctrl-shipto.descrip MATCHES "*" + searchForm + "*" ~
+OR sys-ctrl-shipto.cust-vend-no MATCHES "*" + searchForm + "*" ~
+OR sys-ctrl-shipto.ship-id MATCHES "*" + searchForm + "*" ~
+OR sys-ctrl-shipto.char-fld MATCHES "*" + searchForm + "*") NO-LOCK ~
+    ~{&SORTBY-PHRASE} INDEXED-REPOSITION.
 &Scoped-define TABLES-IN-QUERY-sysCtrlShipToBrowse sys-ctrl-shipto
 &Scoped-define FIRST-TABLE-IN-QUERY-sysCtrlShipToBrowse sys-ctrl-shipto
 
@@ -170,8 +178,8 @@ sys-ctrl-shipto.dec-fld sys-ctrl-shipto.int-fld sys-ctrl-shipto.log-fld
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svFocus btnRestoreDefaults searchBar ~
-btnSortMove sysCtrlBrowse 
+&Scoped-Define ENABLED-OBJECTS svFocus searchBar btnRestoreDefaults ~
+sysCtrlBrowse btnSortMove 
 &Scoped-Define DISPLAYED-OBJECTS svFocus searchBar 
 
 /* Custom List Definitions                                              */
@@ -261,6 +269,11 @@ DEFINE VARIABLE cSysCtrlName AS CHARACTER FORMAT "X(256)":U
      SIZE 18 BY 1
      BGCOLOR 15  NO-UNDO.
 
+DEFINE VARIABLE searchForm AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Search" 
+     VIEW-AS FILL-IN 
+     SIZE 64 BY 1 NO-UNDO.
+
 DEFINE BUTTON btnClear  NO-FOCUS
      LABEL "Clear" 
      SIZE 8.4 BY 1.05 TOOLTIP "Clear Search Filters"
@@ -337,10 +350,13 @@ DEFINE VARIABLE cValueFilter AS CHARACTER FORMAT "X(256)":U
      SIZE 40.8 BY 1 TOOLTIP "Value Search"
      BGCOLOR 15 FGCOLOR 1 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE lExactMatch AS LOGICAL INITIAL no 
-     LABEL "Exact Match" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 TOOLTIP "Select for Exact Match" NO-UNDO.
+DEFINE VARIABLE lExactMatch AS LOGICAL 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "&Exact Find", yes,
+"&Begins", no,
+"&Matches", ?
+     SIZE 45 BY 1 TOOLTIP "Select How to Apply Filter Value(s)" NO-UNDO.
 
 DEFINE BUTTON btnAdd-2 
      IMAGE-UP FILE "Graphics/32x32/navigate_plus.ico":U
@@ -685,19 +701,23 @@ ttSysCtrl.dataType LABEL-BGCOLOR 14
 DEFINE BROWSE sysCtrlShipToBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS sysCtrlShipToBrowse C-Win _STRUCTURED
   QUERY sysCtrlShipToBrowse NO-LOCK DISPLAY
-      sys-ctrl-shipto.cust-vend FORMAT "Cust/Vend":U
-      sys-ctrl-shipto.descrip FORMAT "x(40)":U
-      sys-ctrl-shipto.cust-vend-no FORMAT "x(8)":U
-      sys-ctrl-shipto.ship-id FORMAT "x(8)":U
+      sys-ctrl-shipto.cust-vend FORMAT "Cust/Vend":U LABEL-BGCOLOR 14
+      sys-ctrl-shipto.descrip FORMAT "x(40)":U LABEL-BGCOLOR 14
+      sys-ctrl-shipto.cust-vend-no FORMAT "x(8)":U LABEL-BGCOLOR 14
+      sys-ctrl-shipto.ship-id FORMAT "x(8)":U LABEL-BGCOLOR 14
       sys-ctrl-shipto.char-fld COLUMN-LABEL "Character Value" FORMAT "x(20)":U
+            LABEL-BGCOLOR 14
       sys-ctrl-shipto.date-fld COLUMN-LABEL "Date" FORMAT "99/99/9999":U
+            LABEL-BGCOLOR 14
       sys-ctrl-shipto.dec-fld COLUMN-LABEL "Decimal" FORMAT "->>,>>9.99":U
+            LABEL-BGCOLOR 14
       sys-ctrl-shipto.int-fld COLUMN-LABEL "Integer" FORMAT "->,>>>,>>9":U
+            LABEL-BGCOLOR 14
       sys-ctrl-shipto.log-fld COLUMN-LABEL "Log" FORMAT "yes/no":U
-            WIDTH 5
+            WIDTH 5 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 142 BY 12.62
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 142 BY 11.43
          BGCOLOR 15 FGCOLOR 1  ROW-HEIGHT-CHARS .9.
 
 
@@ -705,13 +725,13 @@ DEFINE BROWSE sysCtrlShipToBrowse
 
 DEFINE FRAME DEFAULT-FRAME
      svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 4
-     btnRestoreDefaults AT ROW 1 COL 39 HELP
-          "Restore Defaults" WIDGET-ID 42
      searchBar AT ROW 1 COL 54 COLON-ALIGNED HELP
           "Search" WIDGET-ID 6
+     btnRestoreDefaults AT ROW 1 COL 39 HELP
+          "Restore Defaults" WIDGET-ID 42
+     sysCtrlBrowse AT ROW 2 COL 39 WIDGET-ID 300
      btnSortMove AT ROW 1 COL 43 HELP
           "Toggle Sort/Move Columns" WIDGET-ID 44
-     sysCtrlBrowse AT ROW 2 COL 39 WIDGET-ID 300
      btnExport AT ROW 27.43 COL 11 HELP
           "Export" WIDGET-ID 36
      btnImport AT ROW 27.43 COL 20 HELP
@@ -723,12 +743,84 @@ DEFINE FRAME DEFAULT-FRAME
          SIZE 160 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
+DEFINE FRAME viewFrame
+     cCategory AT ROW 1.24 COL 18 COLON-ALIGNED WIDGET-ID 2
+     btnFirst-1 AT ROW 9.81 COL 69 HELP
+          "First" WIDGET-ID 274
+     cSubcategory AT ROW 1.24 COL 58 COLON-ALIGNED WIDGET-ID 12
+     iSecurityLevelUser AT ROW 1.24 COL 92 COLON-ALIGNED WIDGET-ID 10
+     iSecurityLevelDefault AT ROW 1.24 COL 102 COLON-ALIGNED WIDGET-ID 44
+     cName AT ROW 2.43 COL 18 COLON-ALIGNED WIDGET-ID 8
+     cTypeCode AT ROW 2.43 COL 58 COLON-ALIGNED WIDGET-ID 14
+     cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
+     cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
+     cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
+     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
+     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Integer Value" NO-LABEL WIDGET-ID 62
+     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
+     hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Decimal Value" NO-LABEL WIDGET-ID 60
+     hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Date Value" NO-LABEL WIDGET-ID 58
+     cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
+     ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
+     cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
+     cDataType AT ROW 8.38 COL 94 COLON-ALIGNED HELP
+          "Select Data Type" WIDGET-ID 52
+     btnLast-1 AT ROW 9.81 COL 93 HELP
+          "Last" WIDGET-ID 68
+     btnNext-1 AT ROW 9.81 COL 85 HELP
+          "Next" WIDGET-ID 276
+     btnPrev-1 AT ROW 9.81 COL 77 HELP
+          "Previous" WIDGET-ID 278
+     btnClose AT ROW 1.24 COL 113 HELP
+          "Close" WIDGET-ID 72
+     btnCalendar-1 AT ROW 6 COL 36 WIDGET-ID 272
+     btnAdd AT ROW 9.81 COL 15 HELP
+          "Add" WIDGET-ID 20
+     btnCancel AT ROW 9.81 COL 47 HELP
+          "Cancel" WIDGET-ID 28
+     btnCopy AT ROW 9.81 COL 23 HELP
+          "Copy" WIDGET-ID 24
+     btnDefaults AT ROW 9.81 COL 58 HELP
+          "Restore Defaults" WIDGET-ID 34
+     btnDelete AT ROW 9.81 COL 31 HELP
+          "Delete" WIDGET-ID 26
+     btnForms AT ROW 9.81 COL 104 HELP
+          "Forms" WIDGET-ID 54
+     btnReset AT ROW 9.81 COL 39 HELP
+          "Reset" WIDGET-ID 22
+     btnUpdate AT ROW 9.81 COL 7 HELP
+          "Update/Save" WIDGET-ID 18
+     transPanel AT ROW 9.57 COL 6 WIDGET-ID 16
+     transPanel-2 AT ROW 9.57 COL 57 WIDGET-ID 32
+     transPanel-5 AT ROW 9.57 COL 103 WIDGET-ID 56
+     transPanel-8 AT ROW 9.57 COL 68 WIDGET-ID 280
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 40 ROW 10.52
+         SIZE 117 BY 12.14
+         FGCOLOR 1 
+         TITLE "View" WIDGET-ID 400.
+
+DEFINE FRAME filterFrame
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 38 BY 26
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE BGCOLOR 8 "Category / SubCategory" WIDGET-ID 200.
+
 DEFINE FRAME formsFrame
      cSysCtrlName AT ROW 1.24 COL 11 COLON-ALIGNED WIDGET-ID 4
      cSysCtrlDescrip AT ROW 1.24 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 6
      cSysCtrlDataType AT ROW 2.43 COL 11 COLON-ALIGNED WIDGET-ID 32
      cSysCtrFieldlDescrip AT ROW 2.43 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 30
-     sysCtrlShipToBrowse AT ROW 3.62 COL 2 WIDGET-ID 800
+     searchForm AT ROW 3.62 COL 11 COLON-ALIGNED WIDGET-ID 34
+     sysCtrlShipToBrowse AT ROW 4.81 COL 2 WIDGET-ID 800
+     "Columns: Description, Cust or Vend, Ship To ID and Character Value" VIEW-AS TEXT
+          SIZE 66 BY .62 AT ROW 3.86 COL 78 WIDGET-ID 36
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 17 ROW 1
@@ -749,8 +841,6 @@ DEFINE FRAME viewFormFrame
           VIEW-AS FILL-IN 
           SIZE 14.2 BY 1
           BGCOLOR 15 
-     btnForms-2 AT ROW 1 COL 138 HELP
-          "Close" WIDGET-ID 72
      type_name AT ROW 2.43 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 76
      sys-ctrl-shipto.ship-id AT ROW 3.62 COL 21 COLON-ALIGNED WIDGET-ID 44
           VIEW-AS FILL-IN 
@@ -789,6 +879,8 @@ DEFINE FRAME viewFormFrame
 "No", no,
 "Unknown", ?
           SIZE 28 BY 1
+     btnForms-2 AT ROW 1 COL 138 HELP
+          "Close" WIDGET-ID 72
      btnLast-2 AT ROW 9.57 COL 133 HELP
           "Last" WIDGET-ID 68
      btnNext-2 AT ROW 9.57 COL 125 HELP
@@ -819,75 +911,6 @@ DEFINE FRAME viewFormFrame
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 900.
 
-DEFINE FRAME viewFrame
-     btnFirst-1 AT ROW 9.81 COL 69 HELP
-          "First" WIDGET-ID 274
-     btnLast-1 AT ROW 9.81 COL 93 HELP
-          "Last" WIDGET-ID 68
-     btnNext-1 AT ROW 9.81 COL 85 HELP
-          "Next" WIDGET-ID 276
-     btnPrev-1 AT ROW 9.81 COL 77 HELP
-          "Previous" WIDGET-ID 278
-     cCategory AT ROW 1.24 COL 18 COLON-ALIGNED WIDGET-ID 2
-     cSubcategory AT ROW 1.24 COL 58 COLON-ALIGNED WIDGET-ID 12
-     btnClose AT ROW 1.24 COL 113 HELP
-          "Close" WIDGET-ID 72
-     iSecurityLevelUser AT ROW 1.24 COL 92 COLON-ALIGNED WIDGET-ID 10
-     iSecurityLevelDefault AT ROW 1.24 COL 102 COLON-ALIGNED WIDGET-ID 44
-     cName AT ROW 2.43 COL 18 COLON-ALIGNED WIDGET-ID 8
-     cTypeCode AT ROW 2.43 COL 58 COLON-ALIGNED WIDGET-ID 14
-     cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
-     cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
-     cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
-     hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Date Value" NO-LABEL WIDGET-ID 58
-     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Integer Value" NO-LABEL WIDGET-ID 62
-     hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Decimal Value" NO-LABEL WIDGET-ID 60
-     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
-     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
-     cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
-     btnCalendar-1 AT ROW 6 COL 36 WIDGET-ID 272
-     ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
-     cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
-     cDataType AT ROW 8.38 COL 94 COLON-ALIGNED HELP
-          "Select Data Type" WIDGET-ID 52
-     btnAdd AT ROW 9.81 COL 15 HELP
-          "Add" WIDGET-ID 20
-     btnCancel AT ROW 9.81 COL 47 HELP
-          "Cancel" WIDGET-ID 28
-     btnCopy AT ROW 9.81 COL 23 HELP
-          "Copy" WIDGET-ID 24
-     btnDefaults AT ROW 9.81 COL 58 HELP
-          "Restore Defaults" WIDGET-ID 34
-     btnDelete AT ROW 9.81 COL 31 HELP
-          "Delete" WIDGET-ID 26
-     btnForms AT ROW 9.81 COL 104 HELP
-          "Forms" WIDGET-ID 54
-     btnReset AT ROW 9.81 COL 39 HELP
-          "Reset" WIDGET-ID 22
-     btnUpdate AT ROW 9.81 COL 7 HELP
-          "Update/Save" WIDGET-ID 18
-     transPanel AT ROW 9.57 COL 6 WIDGET-ID 16
-     transPanel-2 AT ROW 9.57 COL 57 WIDGET-ID 32
-     transPanel-5 AT ROW 9.57 COL 103 WIDGET-ID 56
-     transPanel-8 AT ROW 9.57 COL 68 WIDGET-ID 280
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 40 ROW 10.52
-         SIZE 117 BY 12.14
-         FGCOLOR 1 
-         TITLE "View" WIDGET-ID 400.
-
-DEFINE FRAME filterFrame
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 38 BY 26
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE BGCOLOR 8 "Category / SubCategory" WIDGET-ID 200.
-
 DEFINE FRAME searchFrame
      btnSearch AT ROW 1 COL 1 HELP
           "Advanced Search" WIDGET-ID 40
@@ -913,8 +936,8 @@ DEFINE FRAME searchFrame
           "Field Source Search" WIDGET-ID 48
      cDataTypeFilter AT ROW 10.76 COL 21 COLON-ALIGNED HELP
           "Data Type Search" WIDGET-ID 50
-     lExactMatch AT ROW 11.95 COL 23 HELP
-          "Select for Exact Match" WIDGET-ID 52
+     lExactMatch AT ROW 11.95 COL 10 HELP
+          "Select How to Apply Filter Value(s)" NO-LABEL WIDGET-ID 54
      btnClear AT ROW 11.95 COL 56 HELP
           "Clear Search Filters" WIDGET-ID 42
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -980,12 +1003,10 @@ ASSIGN FRAME filterFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME searchFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
-       XXTABVALXX = FRAME formsFrame:MOVE-BEFORE-TAB-ITEM (searchBar:HANDLE IN FRAME DEFAULT-FRAME)
-       XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (FRAME formsFrame:HANDLE)
        XXTABVALXX = FRAME searchFrame:MOVE-BEFORE-TAB-ITEM (FRAME filterFrame:HANDLE)
 /* END-ASSIGN-TABS */.
 
-/* BROWSE-TAB sysCtrlBrowse btnSortMove DEFAULT-FRAME */
+/* BROWSE-TAB sysCtrlBrowse btnRestoreDefaults DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btnExport IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnImport IN FRAME DEFAULT-FRAME
@@ -1004,10 +1025,7 @@ ASSIGN
                                                                         */
 /* SETTINGS FOR FRAME formsFrame
                                                                         */
-ASSIGN XXTABVALXX = FRAME viewFormFrame:MOVE-AFTER-TAB-ITEM (sysCtrlShipToBrowse:HANDLE IN FRAME formsFrame)
-/* END-ASSIGN-TABS */.
-
-/* BROWSE-TAB sysCtrlShipToBrowse cSysCtrFieldlDescrip formsFrame */
+/* BROWSE-TAB sysCtrlShipToBrowse searchForm formsFrame */
 ASSIGN 
        FRAME formsFrame:HIDDEN           = TRUE
        FRAME formsFrame:MOVABLE          = TRUE.
@@ -1025,6 +1043,7 @@ ASSIGN
        cSysCtrlName:READ-ONLY IN FRAME formsFrame        = TRUE.
 
 ASSIGN 
+       sysCtrlShipToBrowse:ALLOW-COLUMN-SEARCHING IN FRAME formsFrame = TRUE
        sysCtrlShipToBrowse:SEPARATOR-FGCOLOR IN FRAME formsFrame      = 1.
 
 /* SETTINGS FOR FRAME searchFrame
@@ -1058,8 +1077,11 @@ ASSIGN
    6                                                                    */
 /* SETTINGS FOR FILL-IN cValueFilter IN FRAME searchFrame
    6                                                                    */
-/* SETTINGS FOR TOGGLE-BOX lExactMatch IN FRAME searchFrame
-   6                                                                    */
+/* SETTINGS FOR RADIO-SET lExactMatch IN FRAME searchFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       lExactMatch:HIDDEN IN FRAME searchFrame           = TRUE.
+
 /* SETTINGS FOR FRAME viewFormFrame
                                                                         */
 /* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME viewFormFrame
@@ -1244,8 +1266,22 @@ WHERE (ttSysCtrl.category EQ cFilter
   AND (ttSysCtrl.subCategory  EQ cSubCategoryFilter  OR cSubCategoryFilter  EQ "")
   AND (ttSysCtrl.tableSource  EQ cTableSourceFilter  OR cTableSourceFilter  EQ "")
   AND (ttSysCtrl.fieldSource  EQ cFieldSourceFilter  OR cFieldSourceFilter  EQ "")
-  AND (ttSysCtrl.dataType     EQ cDataTypeFilter     OR cDataTypeFilter     EQ ""))
-   OR (lExactMatch EQ NO
+  AND (ttSysCtrl.dataType     EQ cDataTypeFilter     OR cDataTypeFilter     EQ "")
+  AND (ttSysCtrl.allData      MATCHES "*" + searchBar + "*"))
+   OR ((lExactMatch EQ NO
+  AND (ttSysCtrl.name         BEGINS cNameFilter         OR cNameFilter         EQ "")
+  AND (ttSysCtrl.fieldDescrip BEGINS cFieldDescripFilter OR cFieldDescripFilter EQ "")
+  AND (ttSysCtrl.fieldValue   BEGINS cValueFilter        OR cValueFilter        EQ "")
+  AND (ttSysCtrl.descrip      BEGINS cDescripFilter      OR cDescripFilter      EQ "")
+  AND (ttSysCtrl.module       BEGINS cModuleFilter       OR cModuleFilter       EQ "")
+  AND (ttSysCtrl.typeCode     BEGINS cTypeCodeFilter     OR cTypeCodeFilter     EQ "")
+  AND (ttSysCtrl.category     BEGINS cCategoryFilter     OR cCategoryFilter     EQ "")
+  AND (ttSysCtrl.subCategory  BEGINS cSubCategoryFilter  OR cSubCategoryFilter  EQ "")
+  AND (ttSysCtrl.tableSource  BEGINS cTableSourceFilter  OR cTableSourceFilter  EQ "")
+  AND (ttSysCtrl.fieldSource  BEGINS cFieldSourceFilter  OR cFieldSourceFilter  EQ "")
+  AND (ttSysCtrl.dataType     BEGINS cDataTypeFilter     OR cDataTypeFilter     EQ "")
+  AND (ttSysCtrl.allData      MATCHES "*" + searchBar + "*")))
+   OR (lExactMatch EQ ?
   AND ttSysCtrl.name         MATCHES "*" + cNameFilter         + "*"
   AND ttSysCtrl.fieldDescrip MATCHES "*" + cFieldDescripFilter + "*"
   AND ttSysCtrl.fieldValue   MATCHES "*" + cValueFilter        + "*"
@@ -1258,7 +1294,8 @@ WHERE (ttSysCtrl.category EQ cFilter
   AND ttSysCtrl.fieldSource  MATCHES "*" + cFieldSourceFilter  + "*"
   AND ttSysCtrl.dataType     MATCHES "*" + cDataTypeFilter     + "*"
   AND ttSysCtrl.allData      MATCHES "*" + searchBar           + "*"))
-  ~{&SORTBY-PHRASE}.
+  ~{&SORTBY-PHRASE}
+  .
      _END_FREEFORM
      _Query            is NOT OPENED
 */  /* BROWSE sysCtrlBrowse */
@@ -1267,23 +1304,31 @@ WHERE (ttSysCtrl.category EQ cFilter
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE sysCtrlShipToBrowse
 /* Query rebuild information for BROWSE sysCtrlShipToBrowse
      _TblList          = "ASI.sys-ctrl-shipto"
-     _Options          = "NO-LOCK INDEXED-REPOSITION"
+     _Options          = "NO-LOCK INDEXED-REPOSITION SORTBY-PHRASE"
      _Where[1]         = "sys-ctrl-shipto.company EQ g_company
-AND sys-ctrl-shipto.name EQ ttSysCtrl.name"
-     _FldNameList[1]   = ASI.sys-ctrl-shipto.cust-vend
-     _FldNameList[2]   = ASI.sys-ctrl-shipto.descrip
-     _FldNameList[3]   = ASI.sys-ctrl-shipto.cust-vend-no
-     _FldNameList[4]   = ASI.sys-ctrl-shipto.ship-id
+AND sys-ctrl-shipto.name EQ ttSysCtrl.name
+AND (sys-ctrl-shipto.descrip MATCHES ""*"" + searchForm + ""*""
+OR sys-ctrl-shipto.cust-vend-no MATCHES ""*"" + searchForm + ""*""
+OR sys-ctrl-shipto.ship-id MATCHES ""*"" + searchForm + ""*""
+OR sys-ctrl-shipto.char-fld MATCHES ""*"" + searchForm + ""*"")"
+     _FldNameList[1]   > ASI.sys-ctrl-shipto.cust-vend
+"sys-ctrl-shipto.cust-vend" ? ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.sys-ctrl-shipto.descrip
+"sys-ctrl-shipto.descrip" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.sys-ctrl-shipto.cust-vend-no
+"sys-ctrl-shipto.cust-vend-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.sys-ctrl-shipto.ship-id
+"sys-ctrl-shipto.ship-id" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.sys-ctrl-shipto.char-fld
-"sys-ctrl-shipto.char-fld" "Character Value" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"sys-ctrl-shipto.char-fld" "Character Value" "x(20)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.sys-ctrl-shipto.date-fld
-"sys-ctrl-shipto.date-fld" "Date" ? "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"sys-ctrl-shipto.date-fld" "Date" ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.sys-ctrl-shipto.dec-fld
-"sys-ctrl-shipto.dec-fld" "Decimal" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"sys-ctrl-shipto.dec-fld" "Decimal" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.sys-ctrl-shipto.int-fld
-"sys-ctrl-shipto.int-fld" "Integer" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"sys-ctrl-shipto.int-fld" "Integer" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.sys-ctrl-shipto.log-fld
-"sys-ctrl-shipto.log-fld" "Log" ? "logical" ? ? ? ? ? ? no ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"sys-ctrl-shipto.log-fld" "Log" ? "logical" ? ? ? 14 ? ? no ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE sysCtrlShipToBrowse */
 &ANALYZE-RESUME
@@ -1510,7 +1555,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExport C-Win
 ON CHOOSE OF btnExport IN FRAME DEFAULT-FRAME /* Export */
 DO:
-    RUN pExport.
+    /*RUN pExport.*/ /* Ticket - 36086 */
+    RUN windows/sysctrl-exp.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1593,7 +1639,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnImport C-Win
 ON CHOOSE OF btnImport IN FRAME DEFAULT-FRAME /* Import */
 DO:
-    RUN pImport.
+    /*RUN pImport.*/
+    RUN util/Importer.w (INPUT g_company, 
+                INPUT g_loc, 
+                INPUT "ttImportConfig", INPUT ?).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2474,10 +2523,10 @@ END.
 &Scoped-define FRAME-NAME searchFrame
 &Scoped-define SELF-NAME lExactMatch
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lExactMatch C-Win
-ON VALUE-CHANGED OF lExactMatch IN FRAME searchFrame /* Exact Match */
+ON VALUE-CHANGED OF lExactMatch IN FRAME searchFrame
 DO:
     ASSIGN {&SELF-NAME}.
-    RUN pReopenBrowse.
+    RUN pReOpenBrowse.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2506,6 +2555,19 @@ ON VALUE-CHANGED OF searchBar IN FRAME DEFAULT-FRAME /* Search */
 DO:
     ASSIGN {&SELF-NAME}.
     RUN pReopenBrowse.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME formsFrame
+&Scoped-define SELF-NAME searchForm
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL searchForm C-Win
+ON VALUE-CHANGED OF searchForm IN FRAME formsFrame /* Search */
+DO:
+    ASSIGN {&SELF-NAME}.
+    RUN pReopenShipToBrowse.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2573,11 +2635,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sysCtrlBrowse C-Win
 ON START-SEARCH OF sysCtrlBrowse IN FRAME DEFAULT-FRAME
 DO:
-    IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = BROWSE sysCtrlBrowse:CURRENT-COLUMN:NAME.
-        IF cColumnLabel EQ cSaveLabel THEN
+    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
+        cColumnLabel[1] = BROWSE sysCtrlBrowse:CURRENT-COLUMN:NAME.
+        IF cColumnLabel[1] EQ cSaveLabel[1] THEN
         lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
+        cSaveLabel[1] = cColumnLabel[1].
         RUN pReopenBrowse.
     END.
     RETURN NO-APPLY.
@@ -2629,6 +2691,23 @@ END.
 ON DEFAULT-ACTION OF sysCtrlShipToBrowse IN FRAME formsFrame
 DO:
     APPLY "CHOOSE":U TO btnUpdate-2 IN FRAME viewFormFrame.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sysCtrlShipToBrowse C-Win
+ON START-SEARCH OF sysCtrlShipToBrowse IN FRAME formsFrame
+DO:
+    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
+        cColumnLabel[2] = BROWSE sysCtrlShipToBrowse:CURRENT-COLUMN:NAME.
+        IF cColumnLabel[2] EQ cSaveLabel[2] THEN
+        lAscending = NOT lAscending.
+        cSaveLabel[2] = cColumnLabel[2].
+        RUN pReopenShipToBrowse.
+    END.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2697,6 +2776,30 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
+
+&Scoped-define sdBrowseName sysCtrlBrowse
+{methods/sortByProc.i "pByCategory" "ttSysCtrl.category"}
+{methods/sortByProc.i "pByDataType" "ttSysCtrl.dataType"}
+{methods/sortByProc.i "pByDescrip" "ttSysCtrl.descrip"}
+{methods/sortByProc.i "pByFieldDescrip" "ttSysCtrl.fieldDescrip"}
+{methods/sortByProc.i "pByFieldSource" "ttSysCtrl.fieldSource"}
+{methods/sortByProc.i "pByModule" "ttSysCtrl.module"}
+{methods/sortByProc.i "pByName" "ttSysCtrl.name"}
+{methods/sortByProc.i "pByFieldValue" "ttSysCtrl.fieldValue"}
+{methods/sortByProc.i "pBySubCategory" "ttSysCtrl.subCategory"}
+{methods/sortByProc.i "pByTableSource" "ttSysCtrl.tableSource"}
+{methods/sortByProc.i "pByTypeCode" "ttSysCtrl.typeCode"}
+
+&Scoped-define sdBrowseName sysCtrlShipToBrowse
+{methods/sortByProc.i "pByCustVend" "sys-ctrl-shipto.cust-vend"}
+{methods/sortByProc.i "pByDescrip2" "sys-ctrl-shipto.descrip"}
+{methods/sortByProc.i "pByCustVendNo" "sys-ctrl-shipto.cust-vend-no"}
+{methods/sortByProc.i "pByShipID" "sys-ctrl-shipto.ship-id"}
+{methods/sortByProc.i "pByCharFld" "sys-ctrl-shipto.char-fld"}
+{methods/sortByProc.i "pByDateFld" "sys-ctrl-shipto.date-fld"}
+{methods/sortByProc.i "pByDecFld" "sys-ctrl-shipto.dec-fld"}
+{methods/sortByProc.i "pByIntFld" "sys-ctrl-shipto.int-fld"}
+{methods/sortByProc.i "pByLogFld" "sys-ctrl-shipto.log-fld"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2791,7 +2894,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY svFocus searchBar 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE svFocus btnRestoreDefaults searchBar btnSortMove sysCtrlBrowse 
+  ENABLE svFocus searchBar btnRestoreDefaults sysCtrlBrowse btnSortMove 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW FRAME filterFrame IN WINDOW C-Win.
@@ -2802,14 +2905,15 @@ PROCEDURE enable_UI :
       WITH FRAME searchFrame IN WINDOW C-Win.
   ENABLE btnSearch cNameFilter cFieldDescripFilter cValueFilter cDescripFilter 
          cModuleFilter cTypeCodeFilter cCategoryFilter cSubCategoryFilter 
-         cTableSourceFilter cFieldSourceFilter cDataTypeFilter lExactMatch 
+         cTableSourceFilter cFieldSourceFilter cDataTypeFilter 
       WITH FRAME searchFrame IN WINDOW C-Win.
   VIEW FRAME searchFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-searchFrame}
   DISPLAY cSysCtrlName cSysCtrlDescrip cSysCtrlDataType cSysCtrFieldlDescrip 
+          searchForm 
       WITH FRAME formsFrame IN WINDOW C-Win.
   ENABLE cSysCtrlName cSysCtrlDescrip cSysCtrlDataType cSysCtrFieldlDescrip 
-         sysCtrlShipToBrowse 
+         searchForm sysCtrlShipToBrowse 
       WITH FRAME formsFrame IN WINDOW C-Win.
   VIEW FRAME formsFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-formsFrame}
@@ -2976,215 +3080,6 @@ PROCEDURE pBuildMenuTree :
         "",
         YES
         ).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByCategory C-Win 
-PROCEDURE pByCategory :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.category
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.category DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByDataType C-Win 
-PROCEDURE pByDataType :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.dataType
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.dataType DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByDescrip C-Win 
-PROCEDURE pByDescrip :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.descrip
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.descrip DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByFieldDescrip C-Win 
-PROCEDURE pByFieldDescrip :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.fieldDescrip
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.fieldDescrip DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByFieldSource C-Win 
-PROCEDURE pByFieldSource :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.fieldSource
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.fieldSource DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByFieldValue C-Win 
-PROCEDURE pByFieldValue :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.fieldValue
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.fieldValue DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByModule C-Win 
-PROCEDURE pByModule :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.module
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.module DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByName C-Win 
-PROCEDURE pByName :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.name
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.name DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBySubCategory C-Win 
-PROCEDURE pBySubCategory :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.subCategory
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.subCategory DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByTableSource C-Win 
-PROCEDURE pByTableSource :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.tableSource
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.tableSource DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByTypeCode C-Win 
-PROCEDURE pByTypeCode :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.typeCode
-    {&OPEN-QUERY-sysCtrlBrowse}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttSysCtrl.typeCode DESCENDING
-    {&OPEN-QUERY-sysCtrlBrowse}
 
 END PROCEDURE.
 
@@ -4439,7 +4334,7 @@ PROCEDURE pReopenBrowse :
   Notes:       
 ------------------------------------------------------------------------------*/
     SESSION:SET-WAIT-STATE("General").
-    CASE cColumnLabel:
+    CASE cColumnLabel[1]:
         WHEN "category" THEN
         RUN pByCategory.
         WHEN "dataType" THEN
@@ -4469,6 +4364,46 @@ PROCEDURE pReopenBrowse :
     SESSION:SET-WAIT-STATE("").
     IF AVAILABLE ttSysCtrl THEN
     APPLY "VALUE-CHANGED":U TO BROWSE sysCtrlBrowse.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenShipToBrowse C-Win 
+PROCEDURE pReopenShipToBrowse :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    SESSION:SET-WAIT-STATE("General").
+    CASE cColumnLabel[2]:
+        WHEN "cust-vend" THEN
+        RUN pByCustVend.
+        WHEN "descrip" THEN
+        RUN pByDescrip2.
+        WHEN "cust-vend-no" THEN
+        RUN pByCustVendNo.
+        WHEN "ship-id" THEN
+        RUN pByShipID.
+        WHEN "char-fld" THEN
+        RUN pByCharFld.
+        WHEN "date-fld" THEN
+        RUN pByDateFld.
+        WHEN "dec-fld" THEN
+        RUN pByDecFld.
+        WHEN "int-fld" THEN
+        RUN pByIntFld.
+        WHEN "log-fld" THEN
+        RUN pByLogFld.
+        OTHERWISE
+        &SCOPED-DEFINE SORTBY-PHRASE
+        {&OPEN-QUERY-sysCtrlShipToBrowse}
+    END CASE.
+    SESSION:SET-WAIT-STATE("").
+    IF AVAILABLE sys-ctrl-shipto THEN
+    APPLY "VALUE-CHANGED":U TO BROWSE sysCtrlShipToBrowse.
 
 END PROCEDURE.
 

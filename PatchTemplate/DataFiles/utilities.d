@@ -155,6 +155,7 @@
 "CopyCust.w" "AR" "AF1" "Copy Customer From 1 Company to Another Company" "" 960
 "adddcrec.w" "SA" "NR" "Record FG Receipts for Posted Data Collection" "" 900
 "module.r" "" "" "License Modules" "License File - Restricted to ASI user only" 1000
-"ImpMaster.r" "SA" "" "Import Master" "" 1000
+"ImpMaster.r" "SA" "" "Import Master" "Imports are efficient" 1000
 "_colorch.r" "" "" "ProTools Color Changer" "" 900
 "colorchg.r" "" "" "Progress Color Changer" "" 900
+"run-xprint.r" "" "" "run xprint" "" 900

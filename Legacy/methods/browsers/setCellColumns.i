@@ -3,6 +3,7 @@
 DEFINE VARIABLE cellColumn AS WIDGET-HANDLE NO-UNDO EXTENT 200.
 DEFINE VARIABLE columnWidth AS DECIMAL NO-UNDO EXTENT 200.
 DEFINE VARIABLE cellColumnDat AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAutoSave AS LOGICAL NO-UNDO.
 
 /* create a &SCOPED-DEFINE cellColumnDat value prior to this include
    if another file name is desired to store user cell column order */
@@ -18,7 +19,8 @@ PROCEDURE setCellColumns:
   DEFINE VARIABLE j AS INTEGER NO-UNDO INITIAL 1.
   DEFINE VARIABLE k AS INTEGER NO-UNDO.
   DEFINE VARIABLE v-index AS INT NO-UNDO.
-
+  
+  lAutoSave = NO.
   IF SEARCH(cellColumnDat) NE ? THEN DO:
      /* get user cell column order */
      INPUT FROM VALUE(cellColumnDat) NO-ECHO.
@@ -33,6 +35,7 @@ PROCEDURE setCellColumns:
      END.
     
      j = j - 1.
+     OUTERLOOP:
      DO i = 1 TO j:
      
         DO k = 1 TO j:
@@ -43,8 +46,11 @@ PROCEDURE setCellColumns:
         END.
 
         /* 25841 - handle condition where the column def in the .dat file no longer exists in the browser */
-        IF NOT VALID-HANDLE(cellColumn[k]) THEN
-            LEAVE.
+        IF NOT VALID-HANDLE(cellColumn[k]) THEN DO:
+            lAutoSave = YES.
+            LEAVE OUTERLOOP.
+            
+        END.
         /* 25841 - end */
         
         IF columnWidth[i] NE cellColumn[k]:WIDTH-PIXELS THEN
@@ -82,10 +88,12 @@ PROCEDURE local-destroy:
   /* check for any columns changes */
   DO i = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
     IF cellColumn[i]:NAME EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):NAME AND
-       columnWidth[i] EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):WIDTH-PIXELS THEN NEXT.
-    MESSAGE 'Save Column Changes?' VIEW-AS ALERT-BOX
-      QUESTION BUTTONS YES-NO UPDATE saveChanges AS LOGICAL.
-    IF saveChanges THEN DO:
+       columnWidth[i] EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):WIDTH-PIXELS 
+       AND NOT lAutoSave THEN NEXT.
+    IF NOT lAutoSave THEN 
+        MESSAGE 'Save Column Changes?' VIEW-AS ALERT-BOX
+        QUESTION BUTTONS YES-NO UPDATE saveChanges AS LOGICAL.
+    IF saveChanges OR lAutoSave THEN DO:
       OS-CREATE-DIR VALUE("./users/" + USERID("ASI")). 
       OUTPUT TO VALUE(cellColumnDat).
       DO j = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:

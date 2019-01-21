@@ -1,3 +1,3 @@
 /* WFK - 3/25/16 - Include to store constants for system programs */
-&Global-define awversion 16.8.02
+&Global-define awversion 16.8.5
 &Global-define EulaFile Eula.txt

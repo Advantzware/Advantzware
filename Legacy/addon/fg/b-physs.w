@@ -2152,6 +2152,36 @@ PROCEDURE valid-tag :
 
      END.
   */   
+
+    IF fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name} EQ "0" 
+         AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+         FOR EACH fg-rcpth
+             WHERE fg-rcpth.company   EQ cocode
+             AND fg-rcpth.i-no      EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+             AND fg-rcpth.job-no    EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
+             AND fg-rcpth.job-no2   EQ int(fg-rctd.job-no2:SCREEN-VALUE)
+           AND fg-rcpth.rita-code EQ "R"
+             USE-INDEX i-no NO-LOCK,
+
+             FIRST fg-rdtlh
+             WHERE fg-rdtlh.r-no        EQ fg-rcpth.r-no
+             AND fg-rdtlh.loc         EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} 
+             AND fg-rdtlh.loc-bin     EQ fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
+             AND fg-rdtlh.tag         EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+          USE-INDEX rm-rdtl NO-LOCK
+             BY fg-rcpth.trans-date
+             BY fg-rcpth.r-no :
+             ASSIGN
+                 fg-rctd.cases:SCREEN-VALUE = STRING(TRUNC((fg-rdtlh.qty - fg-rdtlh.partial) / fg-rdtlh.cases,0))
+                 fg-rctd.qty-case:SCREEN-VALUE = string(fg-rdtlh.cases)
+                 fg-rctd.cases-unit:SCREEN-VALUE = string(fg-rdtlh.qty-case)
+                 fg-rctd.partial:SCREEN-VALUE = string(fg-rdtlh.partial)
+                 fg-rctd.t-qty:SCREEN-VALUE = string(fg-rdtlh.qty).
+             LEAVE.
+         END.
+     END.
+
+
   END.
 
 END PROCEDURE.

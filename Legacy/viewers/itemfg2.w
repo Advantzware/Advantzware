@@ -76,14 +76,14 @@ DEFINE VARIABLE h_w-inqord AS HANDLE      NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR itemfg.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS itemfg.i-dscr itemfg.vend-no itemfg.vend-item ~
-itemfg.vend2-no itemfg.vend2-item itemfg.ord-policy itemfg.stocked ~
-itemfg.pur-man itemfg.isaset itemfg.alloc itemfg.ord-level itemfg.ord-min ~
-itemfg.ord-max itemfg.pur-uom itemfg.lead-days itemfg.beg-date 
+&Scoped-Define ENABLED-FIELDS itemfg.i-dscr itemfg.pur-uom itemfg.beg-date ~
+itemfg.vend-no itemfg.vend-item itemfg.vend2-no itemfg.vend2-item ~
+itemfg.ord-policy itemfg.stocked itemfg.pur-man itemfg.isaset itemfg.alloc ~
+itemfg.ord-level itemfg.ord-min itemfg.ord-max itemfg.pur-uom itemfg.lead-days
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
-&Scoped-Define DISPLAYED-FIELDS itemfg.i-no itemfg.i-name itemfg.i-dscr ~
-itemfg.vend-no itemfg.vend-item itemfg.vend2-no itemfg.vend2-item ~
+&Scoped-Define DISPLAYED-FIELDS itemfg.i-no itemfg.i-name itemfg.pur-uom ~
+itemfg.i-dscr itemfg.vend-no itemfg.vend-item itemfg.vend2-no itemfg.vend2-item ~
 itemfg.ord-policy itemfg.stocked itemfg.pur-man itemfg.isaset itemfg.alloc ~
 itemfg.ord-level itemfg.ord-min itemfg.ord-max itemfg.lead-days 
 &Scoped-define DISPLAYED-TABLES itemfg

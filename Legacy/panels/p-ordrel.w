@@ -99,7 +99,7 @@ END.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR oe-ordl.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn-save btn-add btn-delete btn-cancel ~
+&Scoped-Define ENABLED-OBJECTS btn-save btn-add btn-delete btn-view ~
 btn-job btn-unrel 
 
 /* Custom List Definitions                                              */
@@ -120,8 +120,8 @@ DEFINE BUTTON btn-add
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON btn-cancel 
-     LABEL "Ca&ncel" 
+DEFINE BUTTON btn-view 
+     LABEL "View" 
      SIZE 9 BY 1.29
      FONT 4.
 
@@ -135,7 +135,7 @@ DEFINE BUTTON btn-job
      SIZE 11 BY 1.29.
 
 DEFINE BUTTON btn-save 
-     LABEL "&Save" 
+     LABEL "Update" 
      SIZE 9 BY 1.29
      FONT 4.
 
@@ -151,10 +151,10 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
-     btn-save AT ROW 1.24 COL 2
-     btn-add AT ROW 1.24 COL 11
-     btn-delete AT ROW 1.24 COL 20
-     btn-cancel AT ROW 1.24 COL 29
+     btn-view AT ROW 1.24 COL 2
+     btn-save AT ROW 1.24 COL 11
+     btn-add AT ROW 1.24 COL 20
+     btn-delete AT ROW 1.24 COL 29
      btn-job AT ROW 1.24 COL 38
      btn-unrel AT ROW 1.24 COL 49
      RECT-1 AT ROW 1 COL 1
@@ -252,23 +252,27 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-add C-WIn
 ON CHOOSE OF btn-add IN FRAME Panel-Frame /* Add */
 DO:
-  add-active = yes.
+  /*add-active = yes.
 
-  RUN notify ('add-record':U).
+  RUN notify ('add-record':U).*/
+  run get-link-handle in adm-broker-hdl(this-procedure, "tableio-target", output lv-char-hdl).
+    run pAddRecord in widget-handle(lv-char-hdl).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-cancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-WIn
-ON CHOOSE OF btn-cancel IN FRAME Panel-Frame /* Cancel */
+&Scoped-define SELF-NAME btn-view
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-view C-WIn
+ON CHOOSE OF btn-view IN FRAME Panel-Frame /* View */
 DO:
-  DO WITH FRAME Panel-Frame:
+    run get-link-handle in adm-broker-hdl(this-procedure, "tableio-target", output lv-char-hdl).
+    run pViewRecord in widget-handle(lv-char-hdl).
+  /*DO WITH FRAME Panel-Frame:
       add-active = no.
       RUN notify ('cancel-record':U).
-   END.
+   END.*/
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -302,7 +306,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-save C-WIn
 ON CHOOSE OF btn-save IN FRAME Panel-Frame /* Save */
 DO:
-&IF LOOKUP("btn-add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+
+  run get-link-handle in adm-broker-hdl(this-procedure, "tableio-target", output lv-char-hdl).
+  run pUpdateRecord in widget-handle(lv-char-hdl).
+/*&IF LOOKUP("btn-add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
   /* If we're in a persistent add-mode then don't change any labels. Just make */
   /* a call to update the last record and then add another record.             */
   RUN get-attribute IN THIS-PROCEDURE ('AddFunction':U).
@@ -331,7 +338,7 @@ DO:
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
      END.
-  END.
+  END.*/
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -512,7 +519,7 @@ IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
   IF ll-no-bol OR ll-no-job THEN panel-state = prev-panel.
 END.
 
-DO WITH FRAME Panel-Frame:
+/*DO WITH FRAME Panel-Frame:
 
   IF panel-state = 'disable-all':U THEN DO:
 
@@ -528,8 +535,8 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("btn-add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              btn-add:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("btn-cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-cancel:SENSITIVE = NO.
+&IF LOOKUP("btn-view":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-view:SENSITIVE = NO.
 &ENDIF
 &IF LOOKUP("btn-release":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              btn-release:SENSITIVE = NO.
@@ -561,8 +568,8 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("btn-add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              btn-add:SENSITIVE = YES.
 &ENDIF
-&IF LOOKUP("btn-cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-cancel:SENSITIVE = NO.
+&IF LOOKUP("btn-view":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-view:SENSITIVE = NO.
 &ENDIF
 &IF LOOKUP("btn-release":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              btn-release:SENSITIVE = YES.
@@ -593,8 +600,8 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("btn-add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              btn-add:SENSITIVE = YES.
 &ENDIF
-&IF LOOKUP("btn-cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-cancel:SENSITIVE = NO.
+&IF LOOKUP("btn-view":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-view:SENSITIVE = NO.
 &ENDIF
 &IF LOOKUP("btn-release":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              btn-release:SENSITIVE = NO.
@@ -629,8 +636,8 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("btn-add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              btn-add:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("btn-cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-cancel:SENSITIVE = YES.
+&IF LOOKUP("btn-view":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-view:SENSITIVE = YES.
 &ENDIF
 &IF LOOKUP("btn-release":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              btn-release:SENSITIVE = NO.
@@ -645,7 +652,7 @@ DO WITH FRAME Panel-Frame:
              btn-unrel:SENSITIVE = NO.
 &ENDIF
 
-  END. /* panel-state = action-chosen */
+  END. /* panel-state = action-chosen */ */
 
   DO WITH FRAME {&FRAME-NAME}:     
     IF NOT v-can-create THEN ASSIGN btn-add:SENSITIVE = NO.
@@ -657,7 +664,7 @@ DO WITH FRAME Panel-Frame:
     IF NOT v-can-delete THEN btn-delete:SENSITIVE = NO.
 
     IF v-can-create                    AND
-       btn-save:LABEL EQ "&Save"       AND
+       btn-save:LABEL EQ "&Update"       AND
        panel-state    NE "disable-all" AND
        panel-state    NE "add-only"    THEN btn-save:SENSITIVE = YES.
 
@@ -667,7 +674,7 @@ DO WITH FRAME Panel-Frame:
   END.
 
 
-END. /* DO WITH FRAME */
+/*END. /* DO WITH FRAME */*/
 
 END PROCEDURE.
 

@@ -48,6 +48,7 @@ END.
 DEFINE VARIABLE lv-new-recid AS RECID NO-UNDO.
 DEFINE VARIABLE lv-valid-charge AS LOGICAL NO-UNDO.
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 
 DEFINE NEW SHARED VARIABLE v-misc AS LOGICAL INIT NO NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-fr-tax LIKE oe-ctrl.f-tax NO-UNDO.
@@ -128,6 +129,21 @@ oe-ordm.form-no oe-ordm.blank-no
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable B-table-Win
+FUNCTION fGetTaxable RETURNS LOGICAL 
+    (ipcCompany AS CHARACTER,
+    ipcCust AS CHARACTER,
+    ipcShipto AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" B-table-Win _INLINE
@@ -407,94 +423,15 @@ ASSIGN
 &SCOPED-DEFINE BROWSE-NAME br_table
 &SCOPED-DEFINE SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON HELP OF br_table IN FRAME F-Main
-DO:
-  DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE look-recid AS RECID NO-UNDO.
-  DEFINE VARIABLE v-li AS INTEGER NO-UNDO.
-  DEFINE VARIABLE lw-focus AS WIDGET-HANDLE NO-UNDO.
-  DEFINE VARIABLE lv-handle AS HANDLE NO-UNDO.
-
-  lw-focus = FOCUS.
-
-  CASE lw-focus:NAME :
-       WHEN "charge" THEN DO:
-            RUN windows/l-prep.w (oe-ord.company, oe-ordm.charge:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
-            IF char-val NE "" AND ENTRY(1,char-val) NE oe-ordm.charge:SCREEN-VALUE IN BROWSE {&browse-name} THEN DO:
-              oe-ordm.charge:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
-              RUN new-charge.
-            END.
-       END.
-       WHEN "actnum" THEN DO:
-            RUN windows/l-acct2.w (oe-ord.company, "", oe-ordm.actnum:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
-            if char-val <> "" THEN oe-ordm.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
-       END.
-       WHEN "ord-i-no" THEN RUN job-help.
-       WHEN "ord-line" THEN RUN job-help.
-       WHEN "s-man" THEN DO:
-           v-li = FRAME-INDEX.
-           RUN windows/l-sman.w (oe-ord.company, OUTPUT char-val).
-           IF char-val NE "" THEN DO:
-             IF v-li EQ 1 AND oe-ordm.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name} NE ENTRY(1,char-val) THEN 
-               oe-ordm.s-man[1]:SCREEN-VALUE = ENTRY(1,char-val).
-             ELSE
-             IF v-li EQ 2 AND oe-ordm.s-man[2]:SCREEN-VALUE IN BROWSE {&browse-name} NE ENTRY(1,char-val) THEN 
-               oe-ordm.s-man[2]:SCREEN-VALUE = ENTRY(1,char-val).
-             ELSE
-             IF v-li EQ 3 AND oe-ordm.s-man[3]:SCREEN-VALUE IN BROWSE {&browse-name} NE ENTRY(1,char-val) THEN 
-               oe-ordm.s-man[3]:SCREEN-VALUE = ENTRY(1,char-val).
-             ELSE v-li = 0.
-             IF v-li NE 0 THEN RUN new-s-man (v-li).
-           END.
-       END.
-       WHEN "po-no-po" THEN DO:
-           RUN windows/l-ponopo.w (oe-ord.company,yes,lw-focus:SCREEN-VALUE, OUTPUT char-val).
-           IF char-val <> "" THEN ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val) .         
-      END.
-     /* when "est-no" then do:
-           run windows/l-est3.w (oe-ord.company,"",oe-ordm.est-no:SCREEN-VALUE IN BROWSE {&browse-name}, output char-val).
-           if char-val <> "" then assign oe-ordm.est-no:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val) .         
-      end.*/
-      WHEN "spare-char-2" THEN DO:
-           RUN windows/l-itmfgo.w (oe-ord.company,"",oe-ord.ord-no,oe-ordm.spare-char-2:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
-           IF char-val <> "" THEN ASSIGN oe-ordm.spare-char-2:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val) .         
-      END. 
-      when "spare-char-1" then do:
-           RUN windows/l-stax.w (oe-ord.company,oe-ordm.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
-           if char-val <> "" then assign oe-ordm.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val) .         
-      end.
-
-  END CASE.
-
-  APPLY "entry" TO lw-focus.
-  RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON MOUSE-SELECT-DBLCLICK OF br_table IN FRAME F-Main
 DO:
-   DEFINE VARIABLE confirm AS LOGICAL NO-UNDO.
-
-   DO WITH FRAME {&FRAME-NAME}:
    
-      IF USERID("NOSWEAT") EQ "ASI" AND AVAIL oe-ordm AND
-         oe-ordm.bill EQ "I" THEN
-      DO:
-         MESSAGE "Change Bill to 'B'?"
-             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE confirm.
-
-         IF confirm THEN
-         DO:
-            oe-ordm.bill:SCREEN-VALUE IN BROWSE {&browse-name} = 'B'.
-            RUN local-update-record.
-            RUN reopen-query(ROWID(oe-ordm)).
-         END.
-      END.
+   DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
+   IF AVAIL oe-ordm THEN do:
+       RUN oe/d-ordm.w (ROWID(oe-ordm),ROWID(oe-ord), "update", OUTPUT lv-rowid) .
+       RUN reopen-query (lv-rowid).
    END.
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -550,331 +487,6 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.charge
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.charge br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-ordm.charge IN BROWSE br_table /* Charge */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-charge (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.charge br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF oe-ordm.charge IN BROWSE br_table /* Charge */
-DO:
-  RUN new-charge.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-ordm.actnum
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.actnum br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-ordm.actnum IN BROWSE br_table /* Account# */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-actnum NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-ordm.ord-i-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.ord-i-no br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-ordm.ord-i-no IN BROWSE br_table /* Job# */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-ord-i-no NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-ordm.ord-line
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.ord-line br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-ordm.ord-line IN BROWSE br_table
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-ord-line NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-ordm.po-no-po
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.po-no-po br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-ordm.po-no-po IN BROWSE br_table /* Vendor PO# */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-po-no-po NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-man[1]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-man[1] br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-ordm.s-man[1] IN BROWSE br_table /* Sls Rep */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-s-man (1) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-man[1] br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF oe-ordm.s-man[1] IN BROWSE br_table /* Sls Rep */
-DO:
-  RUN new-s-man (1).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-pct[1]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-pct[1] br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-ordm.s-pct[1] IN BROWSE br_table /* % of Sale */
-DO:
-  IF oe-ordm.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
-    {&self-name}:SCREEN-VALUE = "".
-    APPLY "tab" TO {&self-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-comm[1]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-comm[1] br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-ordm.s-comm[1] IN BROWSE br_table /* Comm% */
-DO:
-  IF oe-ordm.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
-    {&self-name}:SCREEN-VALUE = "".
-    APPLY "tab" TO {&self-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-man[2]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-man[2] br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-ordm.s-man[2] IN BROWSE br_table /* Sls Rep */
-DO:
-  IF oe-ordm.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
-    {&self-name}:SCREEN-VALUE = "".
-    APPLY "tab" TO {&self-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-man[2] br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-ordm.s-man[2] IN BROWSE br_table /* Sls Rep */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-s-man (2) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-man[2] br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF oe-ordm.s-man[2] IN BROWSE br_table /* Sls Rep */
-DO:
-  RUN new-s-man (2).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-pct[2]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-pct[2] br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-ordm.s-pct[2] IN BROWSE br_table /* % of Sale */
-DO:
-  IF oe-ordm.s-man[2]:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
-    {&self-name}:SCREEN-VALUE = "".
-    APPLY "tab" TO {&self-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-comm[2]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-comm[2] br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-ordm.s-comm[2] IN BROWSE br_table /* Comm% */
-DO:
-  IF oe-ordm.s-man[2]:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
-    {&self-name}:SCREEN-VALUE = "".
-    APPLY "tab" TO {&self-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-man[3]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-man[3] br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-ordm.s-man[3] IN BROWSE br_table /* Sls Rep */
-DO:
-  IF oe-ordm.s-man[2]:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
-    {&self-name}:SCREEN-VALUE = "".
-    APPLY "tab" TO {&self-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-man[3] br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-ordm.s-man[3] IN BROWSE br_table /* Sls Rep */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-s-man (3) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-man[3] br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF oe-ordm.s-man[3] IN BROWSE br_table /* Sls Rep */
-DO:
-  RUN new-s-man (3).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-pct[3]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-pct[3] br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-ordm.s-pct[3] IN BROWSE br_table /* % of Sale */
-DO:
-  IF oe-ordm.s-man[3]:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
-    {&self-name}:SCREEN-VALUE = "".
-    APPLY "tab" TO {&self-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-comm[3]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-comm[3] br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF oe-ordm.s-comm[3] IN BROWSE br_table /* Comm% */
-DO:
-  IF oe-ordm.s-man[3]:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
-    {&self-name}:SCREEN-VALUE = "".
-    APPLY "tab" TO {&self-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-ordm.tax
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.tax br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-ordm.tax IN BROWSE br_table /* Tax */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-tax NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN /* NO-APPLY */.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-ordm.bill
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.bill br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-ordm.bill IN BROWSE br_table /* Bill */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-bill NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-ordm.est-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.est-no br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-ordm.est-no IN BROWSE br_table /* Estimate */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-est (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.spare-char-1 Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF oe-ordm.spare-char-1 IN BROWSE br_table /* Tax */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-tax-gr NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.   
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
@@ -883,7 +495,8 @@ END.
 /* ***************************  Main Block  *************************** */
 
 RUN oe/oe-sysct.p.
-
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
+ 
  IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.    
@@ -970,26 +583,6 @@ IF AVAIL prep THEN DO:
   ASSIGN prep.last-order  = oe-ordm.ord-no
          prep.last-est-no = oe-ordm.est-no.
   
-  /*FIND FIRST reftable EXCLUSIVE-LOCK
-    WHERE reftable.reftable EQ "PREPLASTJOB"
-      AND reftable.company  EQ prep.company 
-      AND reftable.loc      EQ prep.loc     
-      AND reftable.code     EQ prep.CODE NO-ERROR.
-  IF NOT AVAIL reftable THEN DO:
-    CREATE reftable.
-    ASSIGN reftable.reftable = "PREPLASTJOB"
-           reftable.company  = prep.company
-           reftable.loc      = prep.loc
-           reftable.code     = prep.CODE 
-           reftable.code2    = oe-ord.job-no
-           reftable.val[1]   = oe-ord.job-no2.
-  END.
-  ELSE
-  IF AVAIL reftable THEN DO:
-    ASSIGN reftable.code2    = oe-ord.job-no
-           reftable.val[1]   = oe-ord.job-no2.
-  END.*/
-
   FIND CURRENT prep NO-LOCK.
   RELEASE prep.
 END.
@@ -1400,22 +993,7 @@ PROCEDURE local-create-record :
   IF AVAIL ar-ctrl THEN oe-ordm.actnum = ar-ctrl.sales.
   FIND FIRST cust OF oe-ord NO-LOCK.
 
-  oe-ordm.tax = cust.sort = "Y" AND oe-ord.tax-gr <> "".
-  
-  FIND FIRST oe-ctrl NO-LOCK
-       WHERE oe-ctrl.company = oe-ord.company
-      NO-ERROR.
-  FIND FIRST shipto NO-LOCK
-       WHERE shipto.company EQ cocode
-         AND shipto.cust-no EQ oe-ord.cust-no
-         NO-ERROR.
-   
-  IF AVAIL oe-ctrl AND oe-ctrl.prep-chrg THEN
-      ASSIGN oe-ordm.spare-char-1 = IF AVAIL shipto AND shipto.tax-code NE "" THEN shipto.tax-code
-                                    ELSE IF AVAIL cust AND cust.spare-char-1 <> "" THEN cust.spare-char-1 
-                                    ELSE oe-ord.tax-gr
-                oe-ordm.tax = TRUE .
-
+  oe-ordm.tax = fGetTaxable(cocode, oe-ord.cust-no, oe-ord.ship-id).
   
   i = 0 .
   FOR EACH bf-ordl OF oe-ord NO-LOCK:
@@ -1504,6 +1082,31 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
+PROCEDURE local-exit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    DELETE OBJECT hdTaxProcs.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
@@ -1597,176 +1200,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-charge B-table-Win 
-PROCEDURE new-charge :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE markUp AS DECIMAL NO-UNDO.
-  
-  DO WITH FRAME {&FRAME-NAME}:
-    FIND prep  NO-LOCK
-        WHERE prep.company EQ oe-ord.company 
-          AND prep.code    EQ oe-ordm.charge:SCREEN-VALUE IN BROWSE {&browse-name}
-        NO-ERROR.
-    IF AVAIL prep THEN DO:
-
-      IF ceprepprice-chr EQ "Profit" THEN
-         markUp = prep.cost / (1 - (prep.mkup / 100)).
-      ELSE
-         markUp = prep.cost * (1 + (prep.mkup / 100)).
-
-      ASSIGN
-        oe-ordm.dscr:SCREEN-VALUE IN BROWSE {&browse-name} = prep.dscr
-        oe-ordm.cost:SCREEN-VALUE = STRING(prep.cost)
-        oe-ordm.amt:SCREEN-VALUE = STRING(markUp).
-
-      FIND cust OF oe-ord NO-LOCK.
-
-      FIND FIRST oe-ctrl NO-LOCK
-       WHERE oe-ctrl.company = oe-ord.company
-      NO-ERROR.
-      FIND FIRST shipto NO-LOCK
-          WHERE shipto.company EQ cocode
-          AND shipto.cust-no EQ oe-ord.cust-no
-         NO-ERROR.
-      IF AVAIL oe-ctrl AND oe-ctrl.prep-chrg THEN
-         ASSIGN oe-ordm.spare-char-1:SCREEN-VALUE = IF AVAIL shipto AND shipto.tax-code NE "" THEN shipto.tax-code
-                                                    ELSE IF AVAIL cust AND cust.spare-char-1 <> "" THEN cust.spare-char-1 
-                                                    ELSE oe-ord.tax-gr
-                oe-ordm.tax:SCREEN-VALUE = STRING(TRUE) .
-
-      FIND FIRST account
-          WHERE account.company EQ oe-ord.company
-            AND account.actnum  EQ prep.actnum
-          NO-LOCK NO-ERROR.
-      IF AVAIL account THEN oe-ordm.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = prep.actnum.
-
-      RUN new-comm (0).
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-comm B-table-Win 
-PROCEDURE new-comm :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-int AS INTEGER NO-UNDO.
-
-  DEFINE VARIABLE v-li AS INTEGER NO-UNDO.
-  DEFINE VARIABLE ld AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE lv AS CHARACTER NO-UNDO.
-
-
-  DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST prep
-        WHERE prep.company EQ oe-ord.company 
-          AND prep.code    EQ oe-ordm.charge:SCREEN-VALUE IN BROWSE {&browse-name}
-        NO-LOCK NO-ERROR.
-
-   IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ YES THEN DO:             /*Task# 11271302*/
-        
-    DO v-li = 1 TO IF ip-int EQ 0 THEN 3 ELSE ip-int:
-      lv = IF v-li EQ 1 THEN oe-ordm.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name} ELSE
-           IF v-li EQ 2 THEN oe-ordm.s-man[2]:SCREEN-VALUE IN BROWSE {&browse-name} ELSE
-                           oe-ordm.s-man[3]:SCREEN-VALUE IN BROWSE {&browse-name}.
-
-      IF lv NE "" THEN DO:
-        RUN sys/inc/getsmncm.p (oe-ord.cust-no,
-                                INPUT-OUTPUT lv,
-                                IF AVAIL prep THEN prep.fgcat ELSE "",
-                                0,
-                                OUTPUT ld).          
-
-        CASE v-li:
-          WHEN 1 THEN oe-ordm.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(ld).
-          WHEN 2 THEN oe-ordm.s-comm[2]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(ld).
-          WHEN 3 THEN oe-ordm.s-comm[3]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(ld).
-        END CASE.
-      END.
-    END.
-   END.  /*IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ YES THEN do:  */           /*Task# 11271302*/
-  END.
-
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-s-man B-table-Win 
-PROCEDURE new-s-man :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-int AS INTEGER NO-UNDO.
-
-  DEFINE VARIABLE lv-sman LIKE sman.sman NO-UNDO.
-
-
-  DO WITH FRAME {&FRAME-NAME}:
-    lv-sman = IF ip-int EQ 3 THEN oe-ordm.s-man[3]:SCREEN-VALUE IN BROWSE {&browse-name} 
-              ELSE
-              IF ip-int EQ 2 THEN oe-ordm.s-man[2]:SCREEN-VALUE IN BROWSE {&browse-name}
-                             ELSE oe-ordm.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name}.
-
-    IF lv-sman NE "" THEN DO:
-      FIND FIRST sman
-          WHERE sman.company EQ cocode
-            AND sman.sman    EQ lv-sman
-          NO-LOCK NO-ERROR.
-      IF AVAIL sman THEN DO:
-        IF ip-int EQ 3 THEN DO:
-          IF DECIMAL(oe-ordm.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
-            oe-ordm.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name} = "100".
-          IF DECIMAL(oe-ordm.s-comm[3]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN do:
-              IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ YES THEN        /*Task# 11271302*/
-                  oe-ordm.s-comm[3]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(sman.scomm).
-          END.
-
-          RUN new-comm (3).
-        END.
-        ELSE
-        IF ip-int EQ 2 THEN DO:
-          IF DECIMAL(oe-ordm.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
-            oe-ordm.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name} = "100".
-          IF DECIMAL(oe-ordm.s-comm[2]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN do:
-              IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ YES THEN        /*Task# 11271302*/
-                  oe-ordm.s-comm[2]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(sman.scomm).
-          END.
-
-          RUN new-comm (2).
-        END.
-        ELSE DO:
-          IF DECIMAL(oe-ordm.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
-            oe-ordm.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name} = "100".
-          IF DECIMAL(oe-ordm.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN do:
-              IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ YES THEN        /*Task# 11271302*/
-                  oe-ordm.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(sman.scomm).
-          END.
-
-          RUN new-comm (1).
-        END.
-      END.
-
-    END.
-  END.
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reopen-query B-table-Win 
 PROCEDURE reopen-query :
@@ -1781,7 +1214,7 @@ PROCEDURE reopen-query :
   RUN dispatch ('open-query').
 
   DO WITH FRAME {&FRAME-NAME}:
-    REPOSITION {&browse-name} TO ROWID ip-rowid.
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
     RUN dispatch ('row-changed').
   END.
 
@@ -1880,389 +1313,156 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-actnum B-table-Win 
-PROCEDURE valid-actnum :
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecord V-table-Win 
+PROCEDURE pUpdateRecord :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DO WITH FRAME {&FRAME-NAME}:
-    IF oe-ordm.actnum:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" OR
-       NOT CAN-FIND(FIRST account
-                    WHERE account.company EQ oe-ord.company 
-                      AND account.actnum  EQ oe-ordm.actnum:SCREEN-VALUE IN BROWSE {&browse-name}
-                      /*AND account.type    EQ "R"*/)
-    THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO oe-ordm.actnum IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-bill B-table-Win 
-PROCEDURE valid-bill :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-DO("Y,N,I",oe-ordm.bill:SCREEN-VALUE IN BROWSE {&browse-name})       
-    THEN DO:
-      MESSAGE "Invalid entry. Enter (Y)es, (N)o, or (I)nvoiced." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO oe-ordm.bill IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-charge B-table-Win 
-PROCEDURE valid-charge :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-focus AS HANDLE NO-UNDO.
-
-  DEFINE VARIABLE ll AS LOGICAL INIT YES NO-UNDO.
-
-  
-  DO WITH FRAME {&FRAME-NAME}:
-    ll = ip-focus:SCREEN-VALUE NE "" AND
-         CAN-FIND(FIRST prep
-                  WHERE prep.company EQ oe-ord.company 
-                    AND prep.code    EQ ip-focus:SCREEN-VALUE).
-
-    IF NOT ll THEN DO:
-      
-
-      ll = AVAIL oe-ordm and
-           CAN-FIND(FIRST ef
-                    WHERE ef.company EQ oe-ordm.company
-                      AND ef.est-no  EQ oe-ordm.est-no
-                      AND ef.eqty    EQ oe-ordm.estPrepEqty
-                      AND ef.form-no EQ oe-ordm.estPrepLine
-                      AND ef.mis-cost[INTEGER(oe-ordm.miscInd)] EQ oe-ordm.charge).
-    END.
-
-    IF NOT ll THEN DO:
-      MESSAGE TRIM(ip-focus:LABEL) + " is invalid, try help..."
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO ip-focus.
-      RETURN ERROR.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-est B-table-Win 
-PROCEDURE valid-est :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-focus AS HANDLE NO-UNDO.
-  DEFINE VARIABLE lv-est-no LIKE oe-ordm.est-no NO-UNDO.
-  DEFINE BUFFER bf-oe-ordl FOR oe-ordl .
- DO WITH FRAME {&FRAME-NAME}:
-  IF AVAIL oe-ordm THEN do:
-    ASSIGN 
-        lv-est-no = TRIM(oe-ordm.est-no:SCREEN-VALUE IN BROWSE {&browse-name})
-     lv-est-no = FILL(" ", 8 - LENGTH(TRIM(lv-est-no))) + TRIM(lv-est-no)
-     oe-ordm.est-no:SCREEN-VALUE IN BROWSE {&browse-name} = lv-est-no.
-
-   IF oe-ordm.est-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
-    FIND FIRST bf-oe-ordl WHERE bf-oe-ordl.company EQ oe-ordm.company
-        AND bf-oe-ordl.ord-no EQ oe-ordm.ord-no
-       AND bf-oe-ordl.est-no EQ oe-ordm.est-no:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK NO-ERROR.
-
-        IF NOT AVAIL bf-oe-ordl THEN DO:
-            MESSAGE "Estimate is not on order..."
-                VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO ip-focus.
-            RETURN ERROR.
-        END.
+    DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
+   IF AVAIL oe-ordm THEN do:
+       RUN oe/d-ordm.w (ROWID(oe-ordm),ROWID(oe-ord), "update", OUTPUT lv-rowid) .
+       RUN reopen-query (lv-rowid).
    END.
-  END.
- END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ord-i-no B-table-Win 
-PROCEDURE valid-ord-i-no :
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyRecord V-table-Win 
+PROCEDURE pCopyRecord :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
-  Notes: ord-i-no is used for job-no
+  Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lv-job-no LIKE job.job-no NO-UNDO.
 
+   DEFINE BUFFER bf-oe-ordm FOR oe-ordm.
+   DEFINE BUFFER bf-ordm FOR oe-ordm .
+   DEFINE VARIABLE li-line AS INTEGER NO-UNDO.
+   DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
+   DEFINE VARIABLE lv-rowid2 AS ROWID NO-UNDO.
+   DEFINE VARIABLE iL AS INTEGER INITIAL 0 EXTENT 2 NO-UNDO.
 
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
-     lv-job-no = oe-ordm.ord-i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-     lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no)
-     oe-ordm.ord-i-no:SCREEN-VALUE IN BROWSE {&browse-name} = lv-job-no.
-
-    IF lv-job-no NE "" THEN DO:
-      FIND FIRST job NO-LOCK
-          WHERE job.company EQ cocode
-            AND job.job-no  EQ lv-job-no
-           NO-ERROR.
-      IF NOT AVAIL job THEN DO:
-        MESSAGE TRIM(oe-ordm.ord-i-no:LABEL IN BROWSE {&browse-name}) +
-                " is invalid..." VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO oe-ordm.ord-i-no IN BROWSE {&browse-name}.
-        RETURN ERROR.
+   IF AVAILABLE oe-ordm THEN
+   DO:
+       ASSIGN lv-rowid2 = ROWID(oe-ordm) .
+      FOR EACH bf-oe-ordm OF oe-ord NO-LOCK
+          WHERE bf-oe-ordm.company EQ oe-ord.company
+            AND bf-oe-ordm.line NE 0
+            BY bf-oe-ordm.line:
+          iL[1] = iL[1] + 1.
       END.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ord-line B-table-Win 
-PROCEDURE valid-ord-line :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-   DEFINE VARIABLE lv-job-no LIKE job.job-no NO-UNDO.
-
-
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
-     lv-job-no = oe-ordm.ord-i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-     lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no)
-     oe-ordm.ord-i-no:SCREEN-VALUE IN BROWSE {&browse-name} = lv-job-no.
-
-    IF lv-job-no NE "" THEN DO:
-      FIND FIRST job
-          WHERE job.company EQ cocode
-            AND job.job-no  EQ lv-job-no
-            AND job.job-no2 EQ INT(oe-ordm.ord-line:SCREEN-VALUE IN BROWSE {&browse-name})
-          NO-LOCK NO-ERROR.
-      IF NOT AVAIL job THEN DO:
-        MESSAGE TRIM(oe-ordm.ord-i-no:LABEL IN BROWSE {&browse-name}) +
-                " is invalid..." VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO oe-ordm.ord-line IN BROWSE {&browse-name}.
-        RETURN ERROR.
+     
+      FIND LAST bf-ordm NO-LOCK
+      WHERE bf-ordm.company EQ oe-ord.company
+        AND bf-ordm.ord-no  EQ oe-ord.ord-no
+      USE-INDEX oe-misc NO-ERROR.
+      li-line = IF AVAIL bf-ordm THEN bf-ordm.line ELSE 0.
+      
+      CREATE bf-oe-ordm.
+      BUFFER-COPY oe-ordm EXCEPT rec_key line TO bf-oe-ordm.
+      bf-oe-ordm.line = li-line + 1 .
+     
+      RUN oe/d-ordm.w (ROWID(bf-oe-ordm), ROWID(oe-ord), "Copy",OUTPUT lv-rowid).
+     
+      FOR EACH bf-oe-ordm OF oe-ord NO-LOCK
+          WHERE bf-oe-ordm.company EQ oe-ord.company
+            AND bf-oe-ordm.line NE 0
+            BY bf-oe-ordm.line:
+          ASSIGN
+              iL[2]    = iL[2] + 1.
       END.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-no-po B-table-Win 
-PROCEDURE valid-po-no-po :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&FRAME-NAME}:
-    IF INTEGER(oe-ordm.po-no-po:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 AND
-       NOT CAN-FIND(FIRST po-ord
-                    WHERE po-ord.company EQ oe-ord.company 
-                      AND po-ord.po-no   EQ INTEGER(oe-ordm.po-no-po:SCREEN-VALUE IN BROWSE {&browse-name}))
-    THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO oe-ordm.po-no-po IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-s-man B-table-Win 
-PROCEDURE valid-s-man :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-int AS INTEGER NO-UNDO.
-
-   DEFINE VARIABLE v-li AS INTEGER NO-UNDO.
-   DEFINE VARIABLE lv-sman LIKE sman.sman NO-UNDO.
-
-  v-li = ip-int.
-
-  IF v-li EQ 0 THEN
-    ASSIGN
-     ip-int = 1
-     v-li     = 3.
-
-  DO ip-int = ip-int TO v-li WITH FRAME {&FRAME-NAME}:
-    lv-sman = IF ip-int EQ 3 THEN oe-ordm.s-man[3]:SCREEN-VALUE IN BROWSE {&browse-name}
-              ELSE
-              IF ip-int EQ 2 THEN oe-ordm.s-man[2]:SCREEN-VALUE IN BROWSE {&browse-name}
-                             ELSE oe-ordm.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name}.
-    
-    IF lv-sman NE "" THEN DO:
-      IF NOT CAN-FIND(FIRST sman
-                      WHERE sman.company EQ cocode
-                        AND sman.sman    EQ lv-sman) THEN DO:
-        MESSAGE "Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
-        IF ip-int EQ 3 THEN APPLY "entry" TO oe-ordm.s-man[3] IN BROWSE {&browse-name}.
-        ELSE
-        IF ip-int EQ 2 THEN APPLY "entry" TO oe-ordm.s-man[2] IN BROWSE {&browse-name}.
-                       ELSE APPLY "entry" TO oe-ordm.s-man[1] IN BROWSE {&browse-name}.
-        RETURN ERROR.
+     
+      IF iL[2] GT 0 AND (iL[1] NE iL[2] OR iL[2] EQ 1) THEN DO:
+       RUN reopen-query (lv-rowid).
       END.
-    END.
-
-    ELSE DO:
-      IF ip-int EQ 3 THEN
-        ASSIGN
-         oe-ordm.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name}  = "0"
-         oe-ordm.s-comm[3]:SCREEN-VALUE IN BROWSE {&browse-name} = "0".
-      ELSE
-      IF ip-int EQ 2 THEN
-        ASSIGN
-         oe-ordm.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name}  = "0"
-         oe-ordm.s-comm[2]:SCREEN-VALUE IN BROWSE {&browse-name} = "0".
-      ELSE
-        ASSIGN
-         oe-ordm.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name}  = "0"
-         oe-ordm.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name} = "0".
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-s-pct B-table-Win 
-PROCEDURE valid-s-pct :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-int AS INTEGER NO-UNDO.
-
-   DEFINE VARIABLE ld-pct AS DECIMAL NO-UNDO.
-   DEFINE VARIABLE ll AS LOGICAL NO-UNDO.
-
-   
-  DO WITH FRAME {&FRAME-NAME}:
-    ld-pct = IF ip-int EQ 1 THEN DECIMAL(oe-ordm.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name})
-             ELSE
-             IF ip-int EQ 2 THEN DECIMAL(oe-ordm.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name})
-             ELSE
-             IF ip-int EQ 3 THEN DECIMAL(oe-ordm.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name})
-             ELSE (DECIMAL(oe-ordm.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name}) +
-                   DECIMAL(oe-ordm.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name}) +
-                   DECIMAL(oe-ordm.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name})).
-
-    IF (oe-ordm.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name} NE "" OR
-        oe-ordm.s-man[2]:SCREEN-VALUE IN BROWSE {&browse-name} NE "" OR
-        oe-ordm.s-man[3]:SCREEN-VALUE IN BROWSE {&browse-name} NE "")   AND
-       ((ip-int EQ 0 AND ld-pct NE 100) OR
-        (ip-int NE 0 AND ld-pct GT 100)) THEN DO:
-      IF ip-int EQ 0 THEN
-        MESSAGE "Charge's Sales Rep Commission % of Sales does not equal 100%, continue?"
-            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-            UPDATE ll.
-      ELSE
-        MESSAGE "Sales Rep Commission % of Sales is over 100%..."
-            VIEW-AS ALERT-BOX ERROR.
-      IF NOT ll THEN DO:
-        IF ip-int EQ 3 THEN APPLY "entry" TO oe-ordm.s-pct[3] IN BROWSE {&browse-name}.
-        ELSE
-        IF ip-int EQ 2 THEN APPLY "entry" TO oe-ordm.s-pct[2] IN BROWSE {&browse-name}.
-                       ELSE APPLY "entry" TO oe-ordm.s-pct[1] IN BROWSE {&browse-name}.
-        RETURN ERROR.
+      ELSE do: 
+         RUN reopen-query (lv-rowid2).
       END.
-    END.
-  END.
-
+   END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tax B-table-Win 
-PROCEDURE valid-tax :
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pViewRecord V-table-Win 
+PROCEDURE pViewRecord :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DO WITH FRAME {&FRAME-NAME}:
-    IF oe-ordm.tax:SCREEN-VALUE IN BROWSE {&browse-name} EQ "Y" AND
-       oe-ord.tax-gr EQ ""                                      THEN DO:
-      MESSAGE /*"Order has no tax group! " */
-          "Misc. charge can't be taxable if order's not taxable. Make sure order's taxable."
-          VIEW-AS ALERT-BOX ERROR.
-      oe-ordm.tax:SCREEN-VALUE = "N".
-      APPLY "entry" TO oe-ordm.tax.
-      RETURN ERROR.     
-    END.
-  END.
-
+    DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
+   IF AVAIL oe-ordm THEN do:
+       RUN oe/d-ordm.w (ROWID(oe-ordm),ROWID(oe-ord), "view", OUTPUT lv-rowid) .
+       RUN reopen-query (lv-rowid).
+   END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tax-gr V-table-Win 
-PROCEDURE valid-tax-gr :
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddRecord V-table-Win 
+PROCEDURE pAddRecord :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-    IF oe-ordm.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
-       NOT CAN-FIND(FIRST stax
-                    WHERE stax.company   EQ cocode
-                      AND stax.tax-group EQ oe-ordm.spare-char-1:SCREEN-VALUE)
-    THEN DO:
-      MESSAGE TRIM(oe-ordm.spare-char-1:LABEL) + " is invalid, try help ..."
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO oe-ordm.spare-char-1.
-      RETURN ERROR.
-    END.
+  DEFINE BUFFER bf-oe-ordm FOR oe-ordm.
+  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
+  
+  IF AVAILABLE oe-ord THEN
+  DO:
+     
+     RUN oe/d-ordm.w (?, ROWID(oe-ord), "add",OUTPUT lv-rowid).
+     
+     FIND FIRST bf-oe-ordm  NO-LOCK
+          WHERE bf-oe-ordm.company EQ oe-ord.company
+            AND ROWID(bf-oe-ordm) EQ  lv-rowid NO-ERROR .
+        
+     IF AVAIL bf-oe-ordm THEN DO:
+        RUN reopen-query (lv-rowid).
+     END.
   END.
-
-  {methods/lValidateError.i NO}
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable B-table-Win
+FUNCTION fGetTaxable RETURNS LOGICAL 
+    (ipcCompany AS CHARACTER,
+    ipcCust AS CHARACTER,
+    ipcShipto AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
+    RETURN lTaxable.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+

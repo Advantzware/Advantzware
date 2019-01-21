@@ -13,20 +13,15 @@
       assign
        itemfg.company     = cocode
        itemfg.loc         = locode
-       itemfg.i-code      = "C"
        itemfg.job-date    = today
        itemfg.i-no        = /*input */ xeb.stock-no
        itemfg.est-no      = xest.est-no
        itemfg.i-name      = xeb.part-dscr1
        itemfg.part-dscr1  = xeb.part-dscr2
-       itemfg.sell-uom    = "M"
        itemfg.part-no     = xeb.part-no
        itemfg.cust-no     = xeb.cust-no
        itemfg.cust-name   = if avail cust then cust.name else ""
        itemfg.cust-job-no = string(job.job-no) + "-" + string(job.job-no2)
-       itemfg.pur-uom     = IF xeb.pur-man THEN "EA" ELSE "M"
-       itemfg.prod-uom    = IF xeb.pur-man THEN "EA" ELSE "M"
-       itemfg.stocked     = yes
        itemfg.die-no      = xeb.die-no
        itemfg.plate-no    = xeb.plate-no
        itemfg.style       = xeb.style
@@ -38,7 +33,7 @@
        itemfg.pur-man     = xeb.pur-man
        itemfg.alloc       = xeb.set-is-assembled
        itemfg.type-code   = "O"
-       itemfg.setupDate   = TODAY.
+       .
 
       IF itemfg.alloc NE ? THEN itemfg.alloc = NOT itemfg.alloc.
 

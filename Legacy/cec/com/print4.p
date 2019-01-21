@@ -277,7 +277,7 @@ ELSE DO:
 END.
 
 
-  FOR EACH eb fields(company est-no form-no blank-no) NO-LOCK
+  FOR EACH eb NO-LOCK
       WHERE eb.company EQ xest.company
         AND eb.est-no  EQ xest.est-no:
     CREATE tt-rel. 

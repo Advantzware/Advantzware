@@ -167,8 +167,6 @@ RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
 /* bol print/post */
 DEF NEW SHARED VAR out-recid AS RECID NO-UNDO.
 
-DEFINE VARIABLE BolPostLog AS LOGICAL NO-UNDO.
-DEF STREAM logFile.
 DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lSSBOLPassword AS LOGICAL NO-UNDO.
@@ -1188,22 +1186,6 @@ DO WITH FRAME {&FRAME-NAME}:
       DISPLAY tt-relbol.trailer# WITH BROWSE {&browse-name}.
    END.
 END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BolPostLog B-table-Win 
-PROCEDURE BolPostLog :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipLogText AS CHARACTER NO-UNDO.
-
-  PUT STREAM logFile UNFORMATTED STRING(TODAY,'99.99.9999') ' '
-    STRING(TIME,'hh:mm:ss am') ' : ' ipLogText SKIP.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2609,13 +2591,6 @@ DEF VAR v-relpost-hld LIKE relpost-chr NO-UNDO.
 DEF VAR lv-bol-no LIKE oe-bolh.bol-no NO-UNDO.
 DEF VAR ll-exception AS LOG NO-UNDO.
 
-BolPostLog = SEARCH('logs/bolpstall.log') NE ?.
-IF BolPostLog THEN
-OUTPUT STREAM logFile TO VALUE('logs/bolpstall.' +
-     STRING(TODAY,'99999999') + '.' + STRING(TIME) + '.log').
-IF BolPostLog THEN RUN BolPostLog ('Started updrel ' + USERID("NOSWEAT")).
-IF BolPostLog AND avail(tt-relbol) THEN RUN BolPostLog ('Current Release ' + STRING(tt-relbol.release#)).
-
 {sa/sa-sls01.i}
 
 DO TRANSACTION:
@@ -2634,7 +2609,6 @@ ASSIGN
  v-relpost-hld = relpost-chr
  lv-bol-no     = 0.
 
-IF BolPostLog THEN RUN BolPostLog ('Each oe-relh oe-relp2.i').
 headblok:
 FOR EACH oe-relh NO-LOCK
     WHERE oe-relh.company EQ cocode
@@ -2661,7 +2635,6 @@ EMPTY TEMP-TABLE tt-boll.
 
 FOR EACH report WHERE report.term-id EQ v-term NO-LOCK,
     FIRST oe-boll WHERE RECID(oe-boll) EQ report.rec-id:
-  IF BolPostLog THEN RUN BolPostLog ('Delete BOL' + STRING(oe-boll.bol-no)).
   CREATE tt-boll.
   BUFFER-COPY oe-boll EXCEPT rec_key TO tt-boll. 
   DELETE oe-boll.
@@ -2674,7 +2647,6 @@ FOR EACH report WHERE report.term-id EQ v-term:
   THEN DELETE report.
 END.
 
-IF BolPostLog THEN RUN BolPostLog ('Run Update Bol').
 RUN update-bol (v-term).
 
 FOR EACH report WHERE report.term-id EQ v-term:
@@ -2693,7 +2665,6 @@ FOR EACH report WHERE report.term-id EQ v-term,
   BUFFER-COPY report TO tt-report.
   DELETE report.
 END.
-IF BolPostLog THEN RUN BolPostLog ('Start Printing').
 FOR EACH report WHERE report.term-id EQ v-term,
     FIRST oe-boll NO-LOCK WHERE RECID(oe-boll) EQ report.rec-id,
     FIRST oe-bolh NO-LOCK WHERE oe-bolh.b-no EQ oe-boll.b-no
@@ -2739,13 +2710,10 @@ FOR EACH tt-report:
   BUFFER-COPY tt-report TO report.
   DELETE tt-report.
 END.
-IF BolPostLog THEN RUN BolPostLog ('Run oe-bolp3').
 RUN oe/oe-bolp3.p (v-term).    
-IF BolPostLog THEN RUN BolPostLog ('Run upd-actual-rel').
 RUN upd-actual-rel (v-term).
 EMPTY TEMP-TABLE tt-report-a.
 
-IF BolPostLog THEN RUN BolPostLog ('Delete Releases').
 delete-blok:
 FOR EACH oe-relh
     WHERE oe-relh.company EQ cocode
@@ -2760,11 +2728,7 @@ FOR EACH oe-relh
   DELETE oe-relh.
 END. /* each oe-relh */
 RELEASE oe-boll.
-IF BolPostLog THEN OUTPUT STREAM logFile CLOSE.
-
-IF VALID-HANDLE(hNotesProcs) THEN
-    DELETE OBJECT hNotesProcs.
-    
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

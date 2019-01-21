@@ -646,6 +646,19 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME fi_i-name
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-name V-table-Win
+ON HELP OF fi_i-name IN FRAME F-Main /* Whs */
+DO:
+     DEF VAR char-val AS CHAR.
+     run windows/l-vendno.w (cocode,"","", output char-val).
+     if char-val <> "" then 
+        assign fi_i-name:SCREEN-VALUE = entry(2,char-val).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:

@@ -123,9 +123,10 @@ DEF NEW SHARED BUFFER xeb FOR eb.
 DEF NEW SHARED BUFFER xef FOR ef.
 DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lCreditAccSec AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 {oe/ttPriceHold.i "NEW SHARED"}
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
-
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 &Scoped-define sman-fields oe-ord.sman oe-ord.s-pct oe-ord.s-comm
 
 DEF NEW SHARED TEMP-TABLE w-ord NO-UNDO FIELD w-ord-no LIKE oe-ord.ord-no.
@@ -246,7 +247,7 @@ DEFINE QUERY external_tables FOR oe-ord.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS oe-ord.priceHold oe-ord.priceHoldReason ~
 oe-ord.ship-id oe-ord.ord-no oe-ord.est-no oe-ord.job-no oe-ord.job-no2 ~
-oe-ord.spare-char-2 oe-ord.sold-id oe-ord.csrUser_id oe-ord.ord-date ~
+oe-ord.spare-char-2 oe-ord.sold-id oe-ord.csrUser_id oe-ord.entered-id oe-ord.ord-date ~
 oe-ord.due-code oe-ord.due-date oe-ord.last-date oe-ord.prod-date ~
 oe-ord.po-no oe-ord.contact oe-ord.over-pct oe-ord.under-pct oe-ord.terms ~
 oe-ord.tax-gr oe-ord.managed oe-ord.frt-pay oe-ord.carrier oe-ord.fob-code ~
@@ -261,7 +262,7 @@ btnCalendar-4 btnCalendar-5 RECT-30 RECT-33 RECT-35 RECT-36 RECT-37 RECT-34
 &Scoped-Define DISPLAYED-FIELDS oe-ord.priceHold oe-ord.priceHoldReason ~
 oe-ord.ship-id oe-ord.ord-no oe-ord.est-no oe-ord.job-no oe-ord.job-no2 ~
 oe-ord.user-id oe-ord.stat oe-ord.spare-char-2 oe-ord.cust-no ~
-oe-ord.sold-id oe-ord.csrUser_id oe-ord.ord-date oe-ord.cust-name ~
+oe-ord.sold-id oe-ord.csrUser_id oe-ord.entered-id oe-ord.ord-date oe-ord.cust-name ~
 oe-ord.sold-name oe-ord.due-code oe-ord.due-date oe-ord.last-date ~
 oe-ord.prod-date oe-ord.po-no oe-ord.contact oe-ord.over-pct ~
 oe-ord.under-pct oe-ord.terms oe-ord.terms-d oe-ord.tax-gr oe-ord.managed ~
@@ -325,6 +326,18 @@ FUNCTION fBuildAddress RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable V-table-Win
+FUNCTION fGetTaxable RETURNS LOGICAL 
+  ( ipcCompany AS CHARACTER,
+   ipcCust AS CHARACTER,
+   ipcShipto AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-colonial-rel-date V-table-Win 
 FUNCTION get-colonial-rel-date RETURNS DATE
@@ -490,7 +503,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
      oe-ord.csrUser_id AT ROW 5.05 COL 93 COLON-ALIGNED
-          LABEL "CSR"
+          LABEL "CSR" 
+          VIEW-AS FILL-IN 
+          SIZE 17.6 BY 1
+     oe-ord.entered-id AT ROW 6.10 COL 93 COLON-ALIGNED
+          LABEL "Entered By"
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
      oe-ord.ord-date AT ROW 2.67 COL 128.2 COLON-ALIGNED
@@ -756,6 +773,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.csrUser_id IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN oe-ord.entered-id IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.cust-name IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN oe-ord.cust-no IN FRAME F-Main
@@ -948,7 +967,8 @@ DO:
                                                                shipto.ship-city,
                                                                shipto.ship-state,
                                                                shipto.ship-zip).
-                 
+                 IF shipto.tax-code NE "" THEN
+                     oe-ord.tax-gr:screen-value = shipto.tax-code .
               END.
          END.  
          WHEN "sman" THEN DO:
@@ -1121,6 +1141,21 @@ DO:
   
   IF LASTKEY <> -1 THEN DO:
      RUN valid-custcsr NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME oe-ord.entered-id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.entered-id V-table-Win
+ON LEAVE OF oe-ord.entered-id IN FRAME F-Main /* CSR */
+DO:
+  
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-entered-id NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 
@@ -1543,7 +1578,10 @@ DO:
                                                                shipto.ship-city,
                                                                shipto.ship-state,
                                                                 shipto.ship-zip).
-        IF NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN 
+         IF shipto.tax-code NE "" THEN
+         oe-ord.tax-gr:screen-value    =  shipto.tax-code .
+
+         IF NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN 
             MESSAGE "Please note: Shipto " shipto.ship-id " is valid but currently inactive"
             VIEW-AS ALERT-BOX.
             
@@ -2427,13 +2465,12 @@ PROCEDURE create-misc :
                                   (est-prep.cost * est-prep.qty) * (1 + (est-prep.mkup / 100)) * 
                                   (est-prep.amtz / 100)
                 oe-ordm.est-no = est-prep.est-no
-                oe-ordm.tax = cust.sort = "Y" AND oe-ord.tax-gr <> ""
+                oe-ordm.tax =  fGetTaxable(g_company, oe-ord.cust-no, oe-ord.ship-id)
                 oe-ordm.cost = (est-prep.cost * est-prep.qty * (est-prep.amtz / 100))
                 oe-ordm.bill  = "Y".
 
          IF PrepTax-log THEN 
-            ASSIGN oe-ordm.tax = TRUE
-                   oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
+            ASSIGN oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
                    .  
          RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
                             OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
@@ -2800,8 +2837,7 @@ ASSIGN
  itemfg.company    = cocode
  itemfg.loc        = locode
  itemfg.i-no       = v-item
- itemfg.i-code     = "C"
- itemfg.i-name     = oe-ordl.i-name
+  itemfg.i-name     = oe-ordl.i-name
  itemfg.part-dscr1 = oe-ordl.part-dscr1
  itemfg.part-dscr2 = oe-ordl.part-dscr2
  itemfg.sell-price = oe-ordl.price
@@ -2809,11 +2845,8 @@ ASSIGN
  itemfg.part-no    = oe-ordl.part-no
  itemfg.cust-no    = oe-ord.cust-no
  itemfg.cust-name  = oe-ord.cust-name
- itemfg.pur-uom    = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.prod-uom   = IF xeb.pur-man THEN "EA" ELSE "M"
  itemfg.alloc      = v-alloc
- itemfg.stocked    = YES
- itemfg.setupDate  = TODAY.
+ .
  /* Create an itemfg-loc for the default warehouse */
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
 
@@ -2859,24 +2892,6 @@ END.
     END.
  END.  
 
-
-FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
-itemfg.i-code = IF oe-ordl.est-no NE "" THEN "C"
-                ELSE IF AVAIL oe-ctrl THEN
-                        IF oe-ctrl.i-code THEN "S"
-                        ELSE "C"
-                ELSE "S".
-/* ==== not yet 
-if itemfg.i-code eq "S" then do:
-  fil_id = recid(itemfg).
-  run oe/fg-item.p.
-  fil_id = recid(oe-ordl).
-  {oe/ordlfg.i}
-  display oe-ordl.i-name oe-ordl.i-no oe-ordl.price
-          oe-ordl.pr-uom oe-ordl.cas-cnt oe-ordl.part-dscr2 oe-ordl.cost
-          oe-ordl.part-no oe-ordl.part-dscr1 with frame oe-ordlf.
-end.
-*/
 
 FIND CURRENT itemfg NO-LOCK.
 
@@ -3504,7 +3519,8 @@ PROCEDURE display-cust-detail :
               ls-ship-i[1] = shipto.notes[1]
               ls-ship-i[2] = shipto.notes[2]
               ls-ship-i[3] = shipto.notes[3]
-              ls-ship-i[4] = shipto.notes[4].
+              ls-ship-i[4] = shipto.notes[4]
+              oe-ord.tax-gr:screen-value    = IF shipto.tax-code NE "" THEN shipto.tax-code ELSE oe-ord.tax-gr:screen-value .
 
     IF cust.active EQ "X" THEN fi_type:screen-value = "T".
 
@@ -3562,8 +3578,10 @@ PROCEDURE est-from-tandem :
       oe-ord.est-no:SCREEN-VALUE = eb.est-no.
       APPLY "value-changed" TO oe-ord.est-no.
 
-      FIND FIRST xest OF eb NO-LOCK NO-ERROR.
-
+      FIND FIRST xest NO-LOCK WHERE 
+        xest.company EQ eb.company AND 
+        xest.est-no EQ eb.est-no 
+        NO-ERROR.
       FOR EACH eb OF xest EXCLUSIVE:
         eb.cust-no = oe-ord.cust-no:SCREEN-VALUE.
 
@@ -3587,7 +3605,10 @@ PROCEDURE est-from-tandem :
     END.
 
     ELSE DO:
-      FIND FIRST est OF eb EXCLUSIVE NO-ERROR.
+        FIND FIRST est EXCLUSIVE WHERE 
+            est.company EQ eb.company AND 
+            est.est-no EQ eb.est-no 
+            NO-ERROR.
       IF AVAIL est THEN DELETE est.
     END.
   END.
@@ -3812,6 +3833,9 @@ IF AVAIL xest THEN DO:
               ls-ship-i[2] = shipto.notes[2]
               ls-ship-i[3] = shipto.notes[3]
               ls-ship-i[4] = shipto.notes[4].
+    IF AVAIL shipto AND shipto.tax-code NE "" THEN
+        oe-ord.tax-gr:screen-value    = shipto.tax-code .
+
 
       IF lastship-cha = "Stock/Custom" THEN DO:
           /* If order has no estimate. */
@@ -5213,6 +5237,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit V-table-Win
+PROCEDURE local-exit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DELETE OBJECT hdTaxProcs.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize V-table-Win 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
@@ -5307,6 +5356,9 @@ PROCEDURE local-update-record :
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
      RUN valid-custcsr NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+     RUN valid-entered-id NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
      RUN valid-due-date.
@@ -6488,6 +6540,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-entered-id V-table-Win 
+PROCEDURE valid-entered-id :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+  IF oe-ord.entered-id:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:
+      MESSAGE "Can not be blank. Try help." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO oe-ord.entered-id.
+     RETURN ERROR.
+  END.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-due-date V-table-Win 
 PROCEDURE valid-due-date :
 /*------------------------------------------------------------------------------
@@ -6910,6 +6981,28 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable V-table-Win
+FUNCTION fGetTaxable RETURNS LOGICAL 
+  ( ipcCompany AS CHARACTER,
+   ipcCust AS CHARACTER,
+   ipcShipto AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
+    RETURN lTaxable.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-colonial-rel-date V-table-Win 
 FUNCTION get-colonial-rel-date RETURNS DATE

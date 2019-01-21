@@ -67,11 +67,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "DATE,ITEM,DESCRIPTION,P.O.#,TY,Job #,TAG#,REC QTY,WHSE,BIN,WHSETO,BIN TO,COST,VALUE," +
-                           "PO QTY,DUE DATE,VENDOR,OVER/UNDER%,FORM,CUST,FG ITEM#,ITEM DESC,Over%,Under%,TONS,QUANTITY,REASON,REASON CODE,REASON DESCRIPTION"
+                           "PO QTY,DUE DATE,VENDOR,OVER/UNDER%,FORM,CUST,FG ITEM#,ITEM DESC,Over%,Under%,TONS,QUANTITY,REASON,REASON CODE,REASON DESCRIPTION," +
+                           "SHEET SIZE"
            cFieldListToSelect = "trans-date,i-no,i-name,po-no,rita-code,v-job-no,tag,qty,loc,loc-bin,loc2,loc-bin2,cost,v-value," +
-                                "poqty,due,vend,per,form,cust,fgitem,itemdesc,ovrpct,undpct,tons,qty,Reason,Reason-cd,Reason-dscr"
-           cFieldLength = "8,10,30,8,2,10,20,10,5,8,6,8,10,10," + "12,8,20,12,4,25,15,30,7,7,12,10,30,11,25"
-           cFieldType = "c,c,c,c,c,c,c,i,c,c,c,c,i,i," + "i,c,c,c,i,c,c,c,i,i,i,i,c,c,c"
+                                "poqty,due,vend,per,form,cust,fgitem,itemdesc,ovrpct,undpct,tons,qty,Reason,Reason-cd,Reason-dscr," +
+                                "sheet-size"
+           cFieldLength = "8,10,30,8,2,10,20,10,5,8,6,8,10,10," + "12,8,20,12,4,25,15,30,7,7,12,10,30,11,25," + "25"
+           cFieldType = "c,c,c,c,c,c,c,i,c,c,c,c,i,i," + "i,c,c,c,i,c,c,c,i,i,i,i,c,c,c," + "c"
            .
 
 {sys/inc/ttRptSel.i}
@@ -1605,6 +1607,9 @@ DEF VAR cFieldName AS cha NO-UNDO.
  cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
  DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
  DEFINE VARIABLE cReason AS CHARACTER NO-UNDO.
+ DEFINE VARIABLE cShtSize AS CHARACTER FORMAT "x(30)" NO-UNDO.
+ DEFINE VARIABLE dShtWid AS DECIMAL NO-UNDO .
+ DEFINE VARIABLE dShtLen AS DECIMAL NO-UNDO .
 
  {custom/statusMsg.i "'Processing...'"} 
 

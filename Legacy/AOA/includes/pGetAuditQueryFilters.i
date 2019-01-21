@@ -42,26 +42,6 @@ PROCEDURE pGetFilterValues:
                         ttUser.AuditUser = users.user_id.
                     END. /* if can-find */
                 END. /* each users */
-/*                FOR EACH AuditHdr NO-LOCK,                                                */
-/*                    EACH AuditDtl OF AuditHdr NO-LOCK                                     */
-/*                    :                                                                     */
-/*                    IF NOT CAN-FIND(FIRST ttUser                                          */
-/*                                    WHERE ttUser.AuditUser EQ AuditHdr.AuditUser) THEN DO:*/
-/*                        CREATE ttUser.                                                    */
-/*                        ttUser.AuditUser = AuditHdr.AuditUser.                            */
-/*                    END. /* if not can-find */                                            */
-/*                    IF CAN-FIND(FIRST ttAudit                                             */
-/*                                WHERE ttAudit.AuditDB    EQ AuditHdr.AuditDB              */
-/*                                  AND ttAudit.AuditTable EQ AuditHdr.AuditTable           */
-/*                                  AND ttAudit.AuditField EQ AuditDtl.AuditField) THEN     */
-/*                    NEXT.                                                                 */
-/*                    CREATE ttAudit.                                                       */
-/*                    ASSIGN                                                                */
-/*                        ttAudit.AuditDB    = AuditHdr.AuditDB                             */
-/*                        ttAudit.AuditTable = AuditHdr.AuditTable                          */
-/*                        ttAudit.AuditField = AuditDtl.AuditField                          */
-/*                        .                                                                 */
-/*                END. /* each audithdr */                                                  */
             END. /* when init */
             WHEN "ALL" THEN DO:
                 /* From and To Date Range */

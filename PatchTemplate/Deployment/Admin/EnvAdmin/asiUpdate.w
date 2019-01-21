@@ -534,6 +534,10 @@ ON CHOOSE OF bCancel IN FRAME DEFAULT-FRAME /* Exit */
 OR CHOOSE of bGetFiles
 OR CHOOSE of bUpdate
 DO:
+    DEF VAR cFTPxmit AS CHAR NO-UNDO.
+    
+    ASSIGN
+        cFTPxmit = cEnvAdmin + "\FTPout.txt".
     
     CASE SELF:NAME:
         WHEN "bCancel" THEN DO:
@@ -544,6 +548,15 @@ DO:
                 OS-RENAME VALUE (cRunCfg) VALUE(cDLC + "\progress.cfg").
                 RUN ipStatus("Resetting Progress mode").
             END.
+            RUN ipStatus("  Cleaning work files").
+            OS-DELETE VALUE(cFTPInstrFile).
+            OS-DELETE VALUE(cFTPOutputFile).
+            OS-DELETE VALUE(cFTPErrFile).
+            OS-DELETE VALUE(c7zOutputFile).
+            OS-DELETE VALUE(c7zErrFile).
+            OS-DELETE VALUE(cEnvAdmin + "\" + cOutFile).
+            OS-DELETE VALUE(cFTPxmit).
+            OS-DELETE VALUE(cEnvAdmin + "\cOutputFile").
             APPLY 'close' TO THIS-PROCEDURE.
             QUIT.
         END.
@@ -769,7 +782,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         iCurrEnvVer         = fIntVer(fiFromVersion:{&SV})
         iCurrDbVer          = fIntVer(ENTRY(iIndex,cDBVerList))
         .
-        
+
     RUN ipGetPatchList (0).
 
     ASSIGN
@@ -1327,7 +1340,7 @@ PROCEDURE ipProcess :
         RUN ipStatus("Invalid credentials.  Abort.").
         QUIT.
     END.
-        
+
     IF iCurrDbVer LT iPatchDbVer
     OR iCurrEnvVer = 16070000 THEN DO:
                 
@@ -1645,7 +1658,14 @@ PROCEDURE ipSendVerification :
     PUT STREAM sInstr UNFORMATTED "PROMPT " SKIP.
     PUT STREAM sInstr UNFORMATTED "USER " + cFtpUser + " " + cFtpPassword SKIP.
     PUT STREAM sInstr UNFORMATTED "CD Results" SKIP.
+    PUT STREAM sInstr UNFORMATTED "MKDIR " + REPLACE(cOutfile,".txt","") SKIP.
+    PUT STREAM sInstr UNFORMATTED "CD " + REPLACE(cOutfile,".txt","") SKIP.
     PUT STREAM sInstr UNFORMATTED "PUT " + cOutFile SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cAdminDir + "\advantzware.ini" SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cAdminDir + "\advantzware.usr" SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cEnvAdmin + "\advantzware.pf" SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cDLCDir + "\properties\AdminServerPlugins.properties" SKIP.
+    PUT STREAM sInstr UNFORMATTED "PUT " + cDLCDir + "\properties\conmgr.properties" SKIP.
     PUT STREAM sInstr UNFORMATTED "BYE".
     OUTPUT STREAM sInstr CLOSE.
     
@@ -1658,15 +1678,7 @@ PROCEDURE ipSendVerification :
     OS-COMMAND SILENT VALUE("FTP -n -s:" + cFTPxmit + " >> " + cFtpOutputFile + " 2>> " + cFtpErrFile).
 
     /* File cleanup */
-    RUN ipStatus("  Cleaning work files").
-    OS-DELETE VALUE(cFTPInstrFile).
-    OS-DELETE VALUE(cFTPOutputFile).
-    OS-DELETE VALUE(cFTPErrFile).
-    OS-DELETE VALUE(c7zOutputFile).
-    OS-DELETE VALUE(c7zErrFile).
-    OS-DELETE VALUE(cEnvAdmin + "\" + cOutFile).
-    OS-DELETE VALUE(cFTPxmit).
-    OS-DELETE VALUE(cEnvAdmin + "\cOutputFile").
+    RUN ipStatus("Upgrade Complete.  Press EXIT to quit.").
    
 END PROCEDURE.
 
@@ -1830,7 +1842,7 @@ FUNCTION fIntVer RETURNS INTEGER
     ASSIGN
         cStrVal[1] = ENTRY(1,cVerString,".")
         cStrVal[2] = ENTRY(2,cVerString,".")
-        cStrVal[3] = ENTRY(3,cVerString,".")
+        cStrVal[3] = IF NUM-ENTRIES(cVerString,".") GT 2 THEN ENTRY(3,cVerString,".") ELSE "0"
         cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GT 3 THEN ENTRY(4,cVerString,".") ELSE "0"
         iIntVal[1] = INT(cStrVal[1])
         iIntVal[2] = INT(cStrVal[2])

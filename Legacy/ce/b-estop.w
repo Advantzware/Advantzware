@@ -109,12 +109,12 @@ DEFINE QUERY external_tables FOR est, est-qty.
 
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table est-op.s-num est-op.b-num ~
-est-op.m-code est-op.isLocked est-op.m-dscr est-op.n-out est-op.op-mr ~
+est-op.m-code est-op.isLocked est-op.m-dscr est-op.op-pass est-op.n-out est-op.op-mr ~
 est-op.op-waste est-op.op-speed est-op.op-spoil est-op.op-crew[1] ~
 est-op.op-crew[2] est-op.op-rate[1] est-op.op-rate[2] est-op.num-col ~
 est-op.num-coat est-op.plates est-op.fountains est-op.n_out_div 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table est-op.s-num est-op.b-num ~
-est-op.m-code est-op.m-dscr est-op.n-out est-op.op-mr est-op.op-waste ~
+est-op.m-code est-op.m-dscr est-op.op-pass est-op.n-out est-op.op-mr est-op.op-waste ~
 est-op.op-speed est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] ~
 est-op.num-col est-op.num-coat est-op.plates est-op.fountains ~
 est-op.n_out_div 
@@ -221,6 +221,7 @@ DEFINE BROWSE br_table
       est-op.isLocked COLUMN-LABEL "Lock" FORMAT "y/n":U WIDTH 5.6
             VIEW-AS TOGGLE-BOX
       est-op.m-dscr FORMAT "x(20)":U COLUMN-FONT 0 LABEL-BGCOLOR 14
+      est-op.op-pass COLUMN-LABEL "Pass#" FORMAT ">9":U
       est-op.n-out COLUMN-LABEL "Out" FORMAT ">>>9":U
       est-op.op-mr COLUMN-LABEL "MR-Hrs." FORMAT ">>9.99":U
       est-op.op-waste FORMAT ">>>>>9":U
@@ -242,6 +243,7 @@ DEFINE BROWSE br_table
       est-op.b-num
       est-op.m-code
       est-op.m-dscr
+      est-op.op-pass
       est-op.n-out
       est-op.op-mr
       est-op.op-waste
@@ -360,33 +362,35 @@ ASSIGN
 "est-op.isLocked" "Lock" "y/n" "logical" ? ? ? ? ? ? no ? no no "5.6" yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _FldNameList[5]   > ASI.est-op.m-dscr
 "est-op.m-dscr" ? ? "character" ? ? 0 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.est-op.n-out
+     _FldNameList[6]   > ASI.est-op.op-pass
+"est-op.op-pass" "Pass#" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > ASI.est-op.n-out
 "est-op.n-out" "Out" ">>>9" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > ASI.est-op.op-mr
+     _FldNameList[8]   > ASI.est-op.op-mr
 "est-op.op-mr" "MR-Hrs." ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.est-op.op-waste
+     _FldNameList[9]   > ASI.est-op.op-waste
 "est-op.op-waste" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > ASI.est-op.op-speed
+     _FldNameList[10]   > ASI.est-op.op-speed
 "est-op.op-speed" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > ASI.est-op.op-spoil
+     _FldNameList[11]   > ASI.est-op.op-spoil
 "est-op.op-spoil" ? ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.est-op.op-crew[1]
+     _FldNameList[12]   > ASI.est-op.op-crew[1]
 "est-op.op-crew[1]" "MRCrew" ? "decimal" ? ? ? ? ? ? yes ? no no "9.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > ASI.est-op.op-crew[2]
+     _FldNameList[13]   > ASI.est-op.op-crew[2]
 "est-op.op-crew[2]" "RunCrew" ? "decimal" ? ? ? ? ? ? yes ? no no "9.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.est-op.op-rate[1]
+     _FldNameList[14]   > ASI.est-op.op-rate[1]
 "est-op.op-rate[1]" "MRate" ? "decimal" ? ? ? ? ? ? no ? no no "8.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > ASI.est-op.op-rate[2]
+     _FldNameList[15]   > ASI.est-op.op-rate[2]
 "est-op.op-rate[2]" "RRate" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > ASI.est-op.num-col
+     _FldNameList[16]   > ASI.est-op.num-col
 "est-op.num-col" "Inks" ">>>" "integer" ? ? ? ? ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > ASI.est-op.num-coat
+     _FldNameList[17]   > ASI.est-op.num-coat
 "est-op.num-coat" "Varnish" ">>>" "integer" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > ASI.est-op.plates
+     _FldNameList[18]   > ASI.est-op.plates
 "est-op.plates" ? ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > ASI.est-op.fountains
+     _FldNameList[19]   > ASI.est-op.fountains
 "est-op.fountains" ? ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[19]   > ASI.est-op.n_out_div
+     _FldNameList[20]   > ASI.est-op.n_out_div
 "est-op.n_out_div" "Run Qty Divisor" ? "decimal" ? ? ? ? ? ? yes "Enter Divisor for Out Reduction" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
@@ -857,6 +861,7 @@ PROCEDURE local-initialize :
       est-op.b-num:READ-ONLY IN BROWSE {&browse-name} = YES
       est-op.m-code:READ-ONLY IN BROWSE {&browse-name} = YES
       est-op.m-dscr:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.op-pass:READ-ONLY IN BROWSE {&browse-name} = YES
       est-op.n-out:READ-ONLY IN BROWSE {&browse-name} = YES
       est-op.op-mr:READ-ONLY IN BROWSE {&browse-name} = YES
       est-op.op-waste:READ-ONLY IN BROWSE {&browse-name} = YES
@@ -1045,7 +1050,7 @@ PROCEDURE set-import-stds :
         AND mach.m-code EQ xop.m-code:
    IF mach.obsolete THEN DO:
     MESSAGE "Machine: " + TRIM(mach.m-code) +
-            " is obsolete, please replace or standards will not be imported"
+            " is Inactive, please replace or standards will not be imported"
         VIEW-AS ALERT-BOX ERROR.
     ip-import-stds = NO.
     LEAVE.

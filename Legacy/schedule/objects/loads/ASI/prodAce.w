@@ -1580,7 +1580,7 @@ PROCEDURE pExport :
                 .
         END. /* each ttblproductid */
         OUTPUT CLOSE.
-        OS-COPY VALUE(SEARCH(cFile)) VALUE(REPLACE(SEARCH(cFile),'.tmp','.dat')).
+        OS-APPEND VALUE(SEARCH(cFile)) VALUE(REPLACE(SEARCH(cFile),'.tmp','.dat')).
         OS-DELETE VALUE(SEARCH(cFile)).
     END. /* jobs */
     ELSE DO:
@@ -1678,7 +1678,12 @@ PROCEDURE postProdAce :
   RELEASE machtran.
 
   IF iplAutoMonitor EQ NO THEN 
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" string("file:///" + lvErrorFile) false.
+&ELSE
   OS-COMMAND NO-WAIT notepad.exe VALUE(lvErrorFile).
+
+&ENDIF
 
 END PROCEDURE.
 

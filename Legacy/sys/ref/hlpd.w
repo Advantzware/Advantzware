@@ -291,7 +291,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     /* mod - sewa for Web Services task 08211210 */
     DEF VAR vconn AS CHAR  NO-UNDO.
-    DEF VAR vclint AS CHAR NO-UNDO.
+    DEF VAR vclint AS CHAR INIT "ASI" NO-UNDO.
     DEF VAR vhWebService AS HANDLE NO-UNDO.
     DEF VAR vhSalesSoap AS HANDLE NO-UNDO.
     DEF VAR parameters1 AS LONGCHAR NO-UNDO.
@@ -304,14 +304,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DEF VAR fr-flags AS CHAR NO-UNDO.
     DEF VAR cRtnChar AS CHARACTER NO-UNDO.
     DEF VAR lRecFound AS LOGICAL NO-UNDO.
-
-   
-        RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpClientID", "C" /* Logical */, 
-                               NO /* check by cust */, YES /* use cust not vendor */, 
-                               "" /* cust */, "" /* ship-to*/,
-                               OUTPUT cRtnChar, OUTPUT lRecFound).
-        vclint = cRtnChar .
-    
+        
         RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpService", "C" /* Logical */, 
                                NO /* check by cust */, YES /* use cust not vendor */, 
                                "" /* cust */, "" /* ship-to*/,
@@ -393,7 +386,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         IF ip-frame EQ ? THEN ASSIGN 
             ip-frame = "" . 
         RUN Service1Soap SET vhSalesSoap ON vhWebService .
-        RUN HelpMain IN vhSalesSoap(INPUT string(ip-field),INPUT STRING(ip-table),INPUT STRING(ip-frame), INPUT STRING(vclint),  OUTPUT parameters1,OUTPUT parameters2,OUTPUT fr-flags).
+        RUN HelpMain IN vhSalesSoap(INPUT string(ip-field),INPUT STRING(ip-table),INPUT STRING(ip-frame), INPUT vclint, OUTPUT parameters1,OUTPUT parameters2, OUTPUT fr-flags).
 
         ASSIGN 
             ed-text = parameters2
@@ -402,14 +395,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             fr-title = STRING(entry(4,parameters1))
             fr-fram  = STRING(entry(2,parameters1))
             fr-txt = parameters2 NO-ERROR.
-
-        IF fr-flags EQ "No" 
-        OR fr-flags EQ "" THEN DO:
-            MESSAGE 
-                "Support money not paid, can't access help." 
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN.
-        END.
 
         IF ip-field NE "" 
         AND ip-table NE "" 

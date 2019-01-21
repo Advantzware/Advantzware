@@ -2882,7 +2882,7 @@ PROCEDURE valid-m-code :
 
     IF lv-msg EQ ""                           AND
       mach.obsolete THEN DO:
-      lv-msg = "Machine is obsolete, please enter new machine".
+      lv-msg = "Machine is Inactive, please enter new machine".
     END.
     IF lv-msg NE "" THEN DO:
       MESSAGE TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX ERROR.

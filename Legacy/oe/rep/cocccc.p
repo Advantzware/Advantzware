@@ -225,8 +225,8 @@ FOR EACH report
                 ASSIGN 
                     xCaseCountPartial = 1
                     xQtyPerCasePartial = bf-oe-boll.partial.
-            
-            IF bf-oe-boll.lot-no EQ "TAILGATE" THEN 
+           
+            IF bf-oe-boll.lot-no MATCHES "TAIL*" THEN 
                 ASSIGN
                     xCaseCountTail = 1
                     xQtyPerCaseTail = bf-oe-boll.qty-case.

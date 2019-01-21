@@ -4,6 +4,8 @@ PROCEDURE pBuildReasonCode:
     DEFINE INPUT  PARAMETER ipCodeType  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opComboList AS CHARACTER NO-UNDO.   
   
+     /* ensure blank option avaiable */
+     opComboList = ",".
      FOR EACH rejct-cd NO-LOCK
          WHERE rejct-cd.type EQ ipCodeType
          BREAK BY rejct-cd.type
