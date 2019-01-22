@@ -564,7 +564,22 @@
 
        /* Close transfer orders */
        IF {2}.bol-no GT 0 THEN DO:
-           RUN oe/clsorditm.p (INPUT {2}.company, INPUT {2}.bol-no, INPUT {2}.i-no).
+           FIND FIRST oe-boll NO-LOCK
+               WHERE oe-boll.company EQ {2}.company
+                 AND oe-boll.bol-no  EQ {2}.bol-no
+                 AND oe-boll.i-no    EQ {2}.i-no
+               NO-ERROR.
+           IF AVAIL oe-boll THEN
+               FIND FIRST oe-bolh NO-LOCK
+                    WHERE oe-bolh.company EQ {2}.company
+                      AND oe-bolh.b-no EQ oe-boll.b-no NO-ERROR .
+           IF AVAIL oe-boll AND AVAIL oe-bolh THEN
+               FIND FIRST cust NO-LOCK
+               WHERE cust.company EQ {2}.company
+                 AND cust.cust-no EQ oe-bolh.cust-no NO-ERROR .
+
+           IF AVAIL oe-boll AND AVAIL cust AND cust.ACTIVE EQ "X" THEN
+               RUN oe/clsorditm.p (INPUT {2}.company, INPUT {2}.bol-no, INPUT {2}.i-no).
        END.
 
   END.
