@@ -5,15 +5,9 @@
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
-/*********************************************************************
-* Copyright (C) 2000 by Progress Software Corporation. All rights    *
-* reserved. Prior versions of this work may contain portions         *
-* contributed by participants of Possenet.                           *
-*                                                                    *
-*********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:
+  File: viewers/<table>.w
 
   Description: from VIEWER.W - Template for SmartViewer Objects
 
@@ -72,6 +66,7 @@ ftpConfig.ftpDir ftpConfig.ftpScript ftpConfig.ftpDirection ~
 ftpConfig.ftpDeleteFile ftpConfig.ftpMode 
 &Scoped-define ENABLED-TABLES ftpConfig
 &Scoped-define FIRST-ENABLED-TABLE ftpConfig
+&Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS ftpConfig.ediType ftpConfig.ftpCode ~
 ftpConfig.partner ftpConfig.ftpSite ftpConfig.ftpBinary ftpConfig.ftpUser ~
 ftpConfig.ftpPassword ftpConfig.ftpSoftware ftpConfig.ftpCommand ~
@@ -82,7 +77,7 @@ ftpConfig.ftpDeleteFile ftpConfig.ftpMode
 
 
 /* Custom List Definitions                                              */
-/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -114,65 +109,71 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 144 BY 17.14.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     ftpConfig.ediType AT ROW 1.95 COL 25.4 COLON-ALIGNED WIDGET-ID 36
+     ftpConfig.ediType AT ROW 1.95 COL 33.2 COLON-ALIGNED WIDGET-ID 36
           VIEW-AS COMBO-BOX INNER-LINES 2
           LIST-ITEMS "PoExport" 
           DROP-DOWN-LIST
           SIZE 16 BY 1
-     ftpConfig.ftpCode AT ROW 2.91 COL 25.4 COLON-ALIGNED WIDGET-ID 6
+     ftpConfig.ftpCode AT ROW 2.91 COL 33.2 COLON-ALIGNED WIDGET-ID 6
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
-     ftpConfig.partner AT ROW 3.86 COL 25.4 COLON-ALIGNED WIDGET-ID 28
+     ftpConfig.partner AT ROW 3.86 COL 33.2 COLON-ALIGNED WIDGET-ID 28
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     ftpConfig.ftpSite AT ROW 4.81 COL 25.4 COLON-ALIGNED WIDGET-ID 22
+     ftpConfig.ftpSite AT ROW 4.81 COL 33.2 COLON-ALIGNED WIDGET-ID 22
           VIEW-AS FILL-IN 
           SIZE 52 BY 1
-     ftpConfig.ftpBinary AT ROW 4.81 COL 94 COLON-ALIGNED WIDGET-ID 38
+     ftpConfig.ftpBinary AT ROW 4.81 COL 107.4 COLON-ALIGNED WIDGET-ID 38
           VIEW-AS COMBO-BOX INNER-LINES 2
           LIST-ITEMS "ASC","BIN" 
           DROP-DOWN-LIST
           SIZE 16 BY 1 TOOLTIP "Select ASCII data or Binary"
-     ftpConfig.ftpUser AT ROW 5.76 COL 25.4 COLON-ALIGNED WIDGET-ID 26
+     ftpConfig.ftpUser AT ROW 5.76 COL 33.2 COLON-ALIGNED WIDGET-ID 26
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
-     ftpConfig.ftpPassword AT ROW 5.81 COL 93.8 COLON-ALIGNED WIDGET-ID 18
+     ftpConfig.ftpPassword AT ROW 5.81 COL 107.2 COLON-ALIGNED WIDGET-ID 18
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
-     ftpConfig.ftpSoftware AT ROW 6.71 COL 25.8 COLON-ALIGNED WIDGET-ID 40
+     ftpConfig.ftpSoftware AT ROW 6.71 COL 33 COLON-ALIGNED WIDGET-ID 40
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEMS "FTP","WinSCP" 
           DROP-DOWN-LIST
           SIZE 16 BY 1
-     ftpConfig.ftpCommand AT ROW 6.76 COL 93.8 COLON-ALIGNED WIDGET-ID 8
+     ftpConfig.ftpCommand AT ROW 6.76 COL 107.2 COLON-ALIGNED WIDGET-ID 8
           VIEW-AS FILL-IN 
           SIZE 13.6 BY 1
-     ftpConfig.ftpDir AT ROW 7.67 COL 25.4 COLON-ALIGNED WIDGET-ID 12
+     ftpConfig.ftpDir AT ROW 7.67 COL 33.2 COLON-ALIGNED WIDGET-ID 2
           VIEW-AS FILL-IN 
-          SIZE 49.2 BY 1
-     ftpConfig.ftpScript AT ROW 7.71 COL 93.8 COLON-ALIGNED WIDGET-ID 20
+          SIZE 54 BY 1
+     ftpConfig.ftpScript AT ROW 7.71 COL 107.2 COLON-ALIGNED WIDGET-ID 20
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
-     ftpConfig.ftpDirection AT ROW 8.62 COL 25.6 COLON-ALIGNED WIDGET-ID 32
+     ftpConfig.ftpDirection AT ROW 8.62 COL 33.2 COLON-ALIGNED WIDGET-ID 32
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEMS "IN","OUT" 
           DROP-DOWN-LIST
           SIZE 16 BY 1
-     ftpConfig.ftpDeleteFile AT ROW 8.71 COL 95.8 WIDGET-ID 30
+     ftpConfig.ftpDeleteFile AT ROW 8.71 COL 109.2 WIDGET-ID 30
           VIEW-AS TOGGLE-BOX
           SIZE 18.2 BY .81
-     ftpConfig.ftpMode AT ROW 9.57 COL 25.6 COLON-ALIGNED WIDGET-ID 34
+     ftpConfig.ftpMode AT ROW 9.57 COL 33.2 COLON-ALIGNED WIDGET-ID 34
           VIEW-AS COMBO-BOX INNER-LINES 3
           LIST-ITEMS "FTP","SFTP" 
           DROP-DOWN-LIST
           SIZE 16 BY 1
+     RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -202,8 +203,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 12.81
-         WIDTH              = 131.2.
+         HEIGHT             = 17.14
+         WIDTH              = 144.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -212,6 +213,7 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/viewer.i}
+{methods/template/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -244,6 +246,13 @@ ASSIGN
 &ANALYZE-RESUME
 
  
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartViewerCues" V-table-Win _INLINE
+/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
+/* SmartViewer,uib,49270
+Destroy on next read */
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 

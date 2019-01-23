@@ -4,34 +4,16 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-
-/* Temp-Table and Buffer definitions                                    */
-DEFINE TEMP-TABLE parmfile NO-UNDO LIKE parmfile
-       field folderType as char
-       field folderName as char
-       field keepDays as int.
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
-/*********************************************************************
-* Copyright (C) 2000 by Progress Software Corporation. All rights    *
-* reserved. Prior versions of this work may contain portions         *
-* contributed by participants of Possenet.                           *
-*                                                                    *
-*********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:  
+  File:  browsers/<table>.w
 
   Description: from BROWSER.W - Basic SmartBrowser Object Template
 
-  Input Parameters:
-      <none>
+  Input Parameters: <none>
 
-  Output Parameters:
-      <none>
+  Output Parameters: <none>
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -47,9 +29,19 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE setBrowseFocus
+&SCOPED-DEFINE winReSize
+&SCOPED-DEFINE sizeOption HEIGHT
+{methods/defines/winReSize.i}
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+
+{custom/gcompany.i}
+{custom/globdefs.i}
+{sys/inc/var.i NEW SHARED}
+{sys/inc/varasgn.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -59,14 +51,14 @@ CREATE WIDGET-POOL.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartBrowser
+&Scoped-define PROCEDURE-TYPE SmartNavBrowser
 &Scoped-define DB-AWARE no
 
-&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
-&Scoped-define BROWSE-NAME br_table
+&Scoped-define BROWSE-NAME Browser-Table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES ftpConfig
@@ -74,25 +66,27 @@ CREATE WIDGET-POOL.
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
-/* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table ftpConfig.ediType ftpConfig.partner ~
-ftpConfig.ftpCode ftpConfig.ftpDir ftpConfig.ftpDirection ftpConfig.ftpMode ~
-ftpConfig.ftpUser ftpConfig.ftpSoftware ftpConfig.ftpPassword ~
-ftpConfig.ftpBinary ftpConfig.ftpCommand ftpConfig.ftpScript ~
-ftpConfig.ftpSite ftpConfig.ftpDeleteFile 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
-&Scoped-define QUERY-STRING-br_table FOR EACH ftpConfig WHERE ~{&KEY-PHRASE} NO-LOCK ~
+/* Definitions for BROWSE Browser-Table                                 */
+&Scoped-define FIELDS-IN-QUERY-Browser-Table ftpConfig.ftpDeleteFile ~
+ftpConfig.ftpBinary ftpConfig.ftpCommand ftpConfig.ftpSoftware ~
+ftpConfig.ftpScript ftpConfig.ftpMode ftpConfig.ftpDirection ~
+ftpConfig.ftpDir ftpConfig.ftpPassword ftpConfig.ftpUser ftpConfig.ftpSite ~
+ftpConfig.partner ftpConfig.ftpCode ftpConfig.ediType 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH ftpConfig WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH ftpConfig WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH ftpConfig WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-br_table ftpConfig
-&Scoped-define FIRST-TABLE-IN-QUERY-br_table ftpConfig
+&Scoped-define TABLES-IN-QUERY-Browser-Table ftpConfig
+&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table ftpConfig
 
 
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS br_table 
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -101,109 +95,104 @@ ftpConfig.ftpSite ftpConfig.ftpDeleteFile
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" B-table-Win _INLINE
-/* Actions: ? adm/support/keyedit.w ? ? ? */
-/* STRUCTURED-DATA
-<KEY-OBJECT>
-&BROWSE-NAME
-</KEY-OBJECT>
-<FOREIGN-KEYS>
-</FOREIGN-KEYS>
-<EXECUTING-CODE>
-**************************
-* Set attributes related to FOREIGN KEYS
-*/
-RUN set-attribute-list (
-    'Keys-Accepted = "",
-     Keys-Supplied = ""':U).
-/**************************
-</EXECUTING-CODE> */   
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Advanced Query Options" B-table-Win _INLINE
-/* Actions: ? adm/support/advqedit.w ? ? ? */
-/* STRUCTURED-DATA
-<KEY-OBJECT>
-&BROWSE-NAME
-</KEY-OBJECT>
-<SORTBY-OPTIONS>
-</SORTBY-OPTIONS> 
-<SORTBY-RUN-CODE>
-************************
-* Set attributes related to SORTBY-OPTIONS */
-RUN set-attribute-list (
-    'SortBy-Options = ""':U).
-/************************
-</SORTBY-RUN-CODE> 
-<FILTER-ATTRIBUTES>
-</FILTER-ATTRIBUTES> */   
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 /* ***********************  Control Definitions  ********************** */
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
+
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 60 BY 1 NO-UNDO.
+
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 55 BY 1 NO-UNDO.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY br_table FOR 
-      ftpConfig SCROLLING.
+DEFINE QUERY Browser-Table FOR 
+      ftpConfig
+    FIELDS(ftpConfig.ftpDeleteFile
+      ftpConfig.ftpBinary
+      ftpConfig.ftpCommand
+      ftpConfig.ftpSoftware
+      ftpConfig.ftpScript
+      ftpConfig.ftpMode
+      ftpConfig.ftpDirection
+      ftpConfig.ftpDir
+      ftpConfig.ftpPassword
+      ftpConfig.ftpUser
+      ftpConfig.ftpSite
+      ftpConfig.partner
+      ftpConfig.ftpCode
+      ftpConfig.ediType) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
-DEFINE BROWSE br_table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
-  QUERY br_table NO-LOCK DISPLAY
-      ftpConfig.ediType FORMAT "x(8)":U
-      ftpConfig.partner FORMAT "x(15)":U
-      ftpConfig.ftpCode FORMAT "x(20)":U
-      ftpConfig.ftpDir FORMAT "x(30)":U
-      ftpConfig.ftpDirection FORMAT "x(8)":U
-      ftpConfig.ftpMode FORMAT "x(8)":U
-      ftpConfig.ftpUser FORMAT "x(20)":U
-      ftpConfig.ftpSoftware FORMAT "x(25)":U
-      ftpConfig.ftpPassword FORMAT "x(30)":U
+DEFINE BROWSE Browser-Table
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
+  QUERY Browser-Table NO-LOCK DISPLAY
+      ftpConfig.ftpDeleteFile FORMAT "yes/no":U
       ftpConfig.ftpBinary FORMAT "x(8)":U
       ftpConfig.ftpCommand FORMAT "x(8)":U
+      ftpConfig.ftpSoftware FORMAT "x(25)":U
       ftpConfig.ftpScript FORMAT "x(12)":U
+      ftpConfig.ftpMode FORMAT "x(8)":U
+      ftpConfig.ftpDirection FORMAT "x(8)":U
+      ftpConfig.ftpDir FORMAT "x(30)":U
+      ftpConfig.ftpPassword FORMAT "x(30)":U
+      ftpConfig.ftpUser FORMAT "x(20)":U
       ftpConfig.ftpSite FORMAT "x(50)":U
-      ftpConfig.ftpDeleteFile FORMAT "yes/no":U
+      ftpConfig.partner FORMAT "x(15)":U
+      ftpConfig.ftpCode FORMAT "x(20)":U
+      ftpConfig.ediType FORMAT "x(8)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 134 BY 11.43
-         BGCOLOR 8 .
+    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 18.1
+         FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     br_table AT ROW 1 COL 1
+     Browser-Table AT ROW 1 COL 1 HELP
+          "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 19.33 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 19.33 COL 70 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 19.33 COL 132 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 19.33 COL 2
+     RECT-4 AT ROW 19.1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 8 FGCOLOR 0  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartBrowser
+   Type: SmartNavBrowser
    Allow: Basic,Browse
    Frames: 1
-   Add Fields to: EXTERNAL-TABLES
+   Add Fields to: External-Tables
    Other Settings: PERSISTENT-ONLY COMPILE
-   Temp-Tables and Buffers:
-      TABLE: parmfile T "?" NO-UNDO ASI parmfile
-      ADDITIONAL-FIELDS:
-          field folderType as char
-          field folderName as char
-          field keepDays as int
-      END-FIELDS.
-   END-TABLES.
  */
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
@@ -221,8 +210,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 11.62
-         WIDTH              = 134.8.
+         HEIGHT             = 19.52
+         WIDTH              = 145.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -231,6 +220,8 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/browser.i}
+{src/adm/method/query.i}
+{methods/template/browser.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -245,7 +236,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB br_table 1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -256,45 +247,53 @@ ASSIGN
 
 /* Setting information for Queries and Browse Widgets fields            */
 
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
-/* Query rebuild information for BROWSE br_table
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
+/* Query rebuild information for BROWSE Browser-Table
      _TblList          = "asi.ftpConfig"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _FldNameList[1]   = asi.ftpConfig.ediType
-     _FldNameList[2]   = asi.ftpConfig.partner
-     _FldNameList[3]   = asi.ftpConfig.ftpCode
-     _FldNameList[4]   = asi.ftpConfig.ftpDir
-     _FldNameList[5]   = asi.ftpConfig.ftpDirection
+     _TblOptList       = "USED"
+     _FldNameList[1]   = asi.ftpConfig.ftpDeleteFile
+     _FldNameList[2]   = asi.ftpConfig.ftpBinary
+     _FldNameList[3]   = asi.ftpConfig.ftpCommand
+     _FldNameList[4]   = asi.ftpConfig.ftpSoftware
+     _FldNameList[5]   = asi.ftpConfig.ftpScript
      _FldNameList[6]   = asi.ftpConfig.ftpMode
-     _FldNameList[7]   = asi.ftpConfig.ftpUser
-     _FldNameList[8]   = asi.ftpConfig.ftpSoftware
+     _FldNameList[7]   = asi.ftpConfig.ftpDirection
+     _FldNameList[8]   = asi.ftpConfig.ftpDir
      _FldNameList[9]   = asi.ftpConfig.ftpPassword
-     _FldNameList[10]   = asi.ftpConfig.ftpBinary
-     _FldNameList[11]   = asi.ftpConfig.ftpCommand
-     _FldNameList[12]   = asi.ftpConfig.ftpScript
-     _FldNameList[13]   = asi.ftpConfig.ftpSite
-     _FldNameList[14]   = asi.ftpConfig.ftpDeleteFile
+     _FldNameList[10]   = asi.ftpConfig.ftpUser
+     _FldNameList[11]   = asi.ftpConfig.ftpSite
+     _FldNameList[12]   = asi.ftpConfig.partner
+     _FldNameList[13]   = asi.ftpConfig.ftpCode
+     _FldNameList[14]   = asi.ftpConfig.ediType
      _Query            is NOT OPENED
-*/  /* BROWSE br_table */
+*/  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
 /* Query rebuild information for FRAME F-Main
-     _Options          = "NO-LOCK KEEP-EMPTY"
+     _Options          = "NO-LOCK"
      _Query            is NOT OPENED
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
  
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartBrowserCues" B-table-Win _INLINE
+/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
+/* SmartBrowser,uib,49266
+Destroy on next read */
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define BROWSE-NAME br_table
-&Scoped-define SELF-NAME br_table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON ROW-ENTRY OF br_table IN FRAME F-Main
+&Scoped-define BROWSE-NAME Browser-Table
+&Scoped-define SELF-NAME Browser-Table
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}
@@ -304,8 +303,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON ROW-LEAVE OF br_table IN FRAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
 DO:
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
@@ -316,12 +315,13 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON VALUE-CHANGED OF br_table IN FRAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
 DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
+  {methods/template/local/setvalue.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -334,10 +334,13 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{sys/inc/f3help.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{methods/winReSize.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
