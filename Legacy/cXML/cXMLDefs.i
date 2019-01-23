@@ -31,6 +31,7 @@ DEFINE TEMP-TABLE cXMLDir NO-UNDO
   FIELD cXMLName AS CHARACTER
   FIELD cXMLDir  AS CHARACTER
   .
+{cXml/ttOrd.i}
 
 FOR EACH sys-ctrl NO-LOCK
     WHERE sys-ctrl.company  EQ g_company

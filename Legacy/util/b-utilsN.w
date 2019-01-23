@@ -723,7 +723,7 @@ PROCEDURE export-xl :
     ASSIGN 
         last-util = utilities.programName .
 
-    RUN util/util-exp.w (first-util ,last-util).
+    RUN util/util-exp.w .
 
 
 END PROCEDURE.

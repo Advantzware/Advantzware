@@ -1120,9 +1120,8 @@ do transaction on error undo with width 255:
       /* Create eddoc for invoice if required */
       FIND FIRST edmast NO-LOCK
           WHERE edmast.cust EQ ar-inv.cust-no
-          NO-ERROR.
-      /* ar-inv.spare-int-1 indicates selected for EDI */
-      IF AVAILABLE edmast AND ar-inv.spare-int-1 EQ 1 THEN DO:   
+          NO-ERROR.      
+      IF AVAILABLE edmast AND ar-inv.ediInvoice THEN DO:   
           FIND FIRST eddoc NO-LOCK 
             WHERE eddoc.setid EQ '810'
               AND eddoc.partner EQ edmast.partner

@@ -134,13 +134,13 @@ rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date ~
 rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty ~
 rm-rcpth.pur-uom rm-rdtlh.cost disp-uom () @ rm-rcpth.loc rm-rcpth.loc ~
 disp-uom () @ rm-rcpth.loc rm-rdtlh.qty * rm-rdtlh.cost @ ld-ext-cost ~
-rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rdtlh.receiver-no rm-rdtlh.reject-code[1]~
-rm-rdtlh.enteredBy rm-rdtlh.enteredDT 
+rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no  ~
+rm-rdtlh.reject-code[1] rm-rdtlh.enteredBy rm-rdtlh.enteredDT 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table rm-rcpth.i-no ~
 rm-rcpth.po-no rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num ~
 rm-rcpth.trans-date rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin ~
 rm-rdtlh.tag rm-rdtlh.qty rm-rcpth.pur-uom rm-rdtlh.cost rm-rdtlh.tag2 ~
-rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rdtlh.reject-code[1] 
+rm-rdtlh.user-id rm-rdtlh.receiver-no  
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table rm-rcpth rm-rdtlh
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table rm-rcpth
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table rm-rdtlh
@@ -162,8 +162,8 @@ rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rdtlh.reject-code[1]
 fi_tag# fi_job-no fi_job-no2 fi_rita-code fi_date btn_go btn_show fi_po-no ~
 RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS fi_rm-i-no fi_tag# fi_job-no fi_job-no2 ~
-fi_rita-code fi_date fi_sort-by fi_name fi_q-onh fi_q-ton fi_q-lf fi_q-msf ~
-fi_po-no FI_moveCol
+fi_rita-code fi_date fi_sort-by FI_moveCol fi_name fi_q-onh fi_q-ton ~
+fi_q-lf fi_q-msf fi_po-no 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -221,6 +221,11 @@ DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 4 BY 1
      BGCOLOR 15  NO-UNDO.
 
+DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.
+
 DEFINE VARIABLE fi_name AS CHARACTER FORMAT "x(30)" 
      LABEL "Item Name" 
      VIEW-AS FILL-IN 
@@ -232,11 +237,6 @@ DEFINE VARIABLE fi_po-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 16 BY 1
      BGCOLOR 15  NO-UNDO.
-
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
-     VIEW-AS FILL-IN 
-     SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fi_q-lf AS INTEGER FORMAT "->>>,>>>,>>9.9<<<<" INITIAL 0 
      LABEL "LF" 
@@ -312,7 +312,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       rm-rcpth.i-no COLUMN-LABEL "Item#" FORMAT "x(10)":U LABEL-BGCOLOR 14
       rm-rcpth.po-no COLUMN-LABEL "Vendor PO#" FORMAT "x(9)":U
-            WIDTH 14 LABEL-BGCOLOR 14
+            LABEL-BGCOLOR 14
       rm-rcpth.job-no FORMAT "x(6)":U LABEL-BGCOLOR 14
       rm-rcpth.job-no2 COLUMN-LABEL "" FORMAT "99":U LABEL-BGCOLOR 14
       rm-rdtlh.s-num COLUMN-LABEL "S" FORMAT ">9":U WIDTH 3 LABEL-BGCOLOR 14
@@ -329,7 +329,7 @@ DEFINE BROWSE Browser-Table
       rm-rdtlh.cost COLUMN-LABEL "Cost" FORMAT "->>>,>>9.99<<<<":U
             LABEL-BGCOLOR 14
       disp-uom () @ rm-rcpth.loc
-      rm-rcpth.loc COLUMN-LABEL "Cost/UOM" FORMAT "x(3)":U
+      rm-rcpth.loc COLUMN-LABEL "Cost/UOM" FORMAT "x(3)":U LABEL-BGCOLOR 14
       disp-uom () @ rm-rcpth.loc
       rm-rdtlh.qty * rm-rdtlh.cost @ ld-ext-cost COLUMN-LABEL "Ext Cost" FORMAT "->>,>>>,>>9.99":U
             LABEL-BGCOLOR 14
@@ -337,8 +337,9 @@ DEFINE BROWSE Browser-Table
             WIDTH 40 LABEL-BGCOLOR 14
       rm-rdtlh.user-id COLUMN-LABEL "UserID" FORMAT "x(8)":U WIDTH 12
       rm-rdtlh.receiver-no COLUMN-LABEL "Invoice Link" FORMAT "x(20)":U
-      rm-rdtlh.reject-code[1] COLUMN-LABEL "Adjustment Reason" WIDTH 25
-      VIEW-AS COMBO-BOX INNER-LINES 10
+      rm-rdtlh.reject-code[1] COLUMN-LABEL "Adjustment Reason" FORMAT "x(22)":U VIEW-AS COMBO-BOX SORT INNER-LINES 5
+                      LIST-ITEM-PAIRS "Item 1","Item 1"
+                      DROP-DOWN-LIST 
       rm-rdtlh.enteredBy COLUMN-LABEL "Scanned By" FORMAT "x(12)":U
       rm-rdtlh.enteredDT COLUMN-LABEL "Scanned Date/Time" FORMAT "99/99/9999 HH:MM:SS.SSS":U
   ENABLE
@@ -358,7 +359,7 @@ DEFINE BROWSE Browser-Table
       rm-rdtlh.tag2
       rm-rdtlh.user-id
       rm-rdtlh.receiver-no
-      rm-rdtlh.reject-code[1]
+      
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 148 BY 15
@@ -380,7 +381,7 @@ DEFINE FRAME F-Main
      fi_date AT ROW 1.48 COL 130 COLON-ALIGNED
      btn_go AT ROW 2.91 COL 2
      btn_show AT ROW 2.91 COL 15
-     fi_sort-by AT ROW 2.91 COL 36.40 COLON-ALIGNED
+     fi_sort-by AT ROW 2.91 COL 36.4 COLON-ALIGNED
      FI_moveCol AT ROW 2.91 COL 80.4 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      fi_name AT ROW 4.33 COL 1.6 HELP
           "Enter Finished Goods Name used for Alpha Numeric Searches."
@@ -390,7 +391,7 @@ DEFINE FRAME F-Main
      fi_q-msf AT ROW 4.33 COL 131 COLON-ALIGNED
      fi_po-no AT ROW 2.91 COL 130 COLON-ALIGNED
      "BrwsCol. Mode:" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 3.10 COL 64.60 WIDGET-ID 6
+          SIZE 17 BY .62 AT ROW 3.1 COL 64.6 WIDGET-ID 6
           FONT 6
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -458,6 +459,8 @@ ASSIGN
 ASSIGN 
        Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 2.
 
+/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_name IN FRAME F-Main
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN fi_po-no IN FRAME F-Main
@@ -474,8 +477,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_tag# IN FRAME F-Main
    1                                                                    */
-/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -488,9 +489,9 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,"
      _FldNameList[1]   > ASI.rm-rcpth.i-no
-"rm-rcpth.i-no" "Item#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rcpth.i-no" "Item#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "FILL-IN" "," ? ? 5 no 0 no no
      _FldNameList[2]   > ASI.rm-rcpth.po-no
-"rm-rcpth.po-no" "Vendor PO#" ? "character" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rcpth.po-no" "Vendor PO#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.rm-rcpth.job-no
 "rm-rcpth.job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.rm-rcpth.job-no2
@@ -527,8 +528,8 @@ ASSIGN
 "rm-rdtlh.user-id" "UserID" ? "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > ASI.rm-rdtlh.receiver-no
 "rm-rdtlh.receiver-no" "Invoice Link" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[21]   > ASI.rm-rdtlh.receiver-no
-"rm-rdtlh.reject-code[1]" "Adjustment Reason:" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[21]   > ASI.rm-rdtlh.reject-code[1]
+"rm-rdtlh.reject-code[1]" "Adjustment Reason" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "DROP-DOWN-LIST" "," ? "Item 1,Item 1" 5 yes 0 no no
      _FldNameList[22]   > ASI.rm-rdtlh.enteredBy
 "rm-rdtlh.enteredBy" "Scanned By" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > ASI.rm-rdtlh.enteredDT
@@ -1176,6 +1177,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-type-list B-table-Win 
+PROCEDURE build-type-list :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    &IF DEFINED(FWD-VERSION) EQ 0 &THEN
+    DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+     
+    RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
+    RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
+    DELETE OBJECT hPgmReason.
+  
+    DO WITH FRAME {&FRAME-NAME}:
+        rm-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
+    END.
+    &ENDIF
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE convert-uoms B-table-Win 
 PROCEDURE convert-uoms :
 /*------------------------------------------------------------------------------
@@ -1697,7 +1721,6 @@ PROCEDURE set-read-only :
      rm-rdtlh.tag2:READ-ONLY IN BROWSE {&browse-name}       = ip-log
      rm-rdtlh.receiver-no:READ-ONLY IN BROWSE {&browse-name} = ip-log
      rm-rdtlh.user-id:READ-ONLY IN BROWSE {&browse-name}    = ip-log.
-    rm-rdtlh.reject-code[1]:READ-ONLY IN BROWSE {&browse-name} = ip-log.
   END.
 
 END PROCEDURE.
@@ -1924,25 +1947,25 @@ PROCEDURE valid-tag-no :
   DEF BUFFER b-rm-rdtlh FOR rm-rdtlh.
 
   DO WITH FRAME {&FRAME-NAME}:
-    lv-tag = rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name}.
+      lv-tag = rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name}.
 
    IF rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
        rm-rcpth.rita-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "R" AND  
        int(rm-rdtlh.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN do:
 
        FIND FIRST  b-rm-rdtlh NO-LOCK
-                      WHERE b-rm-rdtlh.company EQ cocode
+           WHERE b-rm-rdtlh.company EQ cocode
            /*AND b-rm-rcpth.i-no EQ fi_rm-i-no*/
-                        AND b-rm-rdtlh.tag     EQ lv-tag
+           AND b-rm-rdtlh.tag     EQ lv-tag 
            AND ROWID(b-rm-rdtlh)  NE ROWID(rm-rdtlh) NO-ERROR .
 
        IF AVAIL b-rm-rdtlh THEN DO:
            MESSAGE "This Tag Number has already been used..." VIEW-AS ALERT-BOX INFO.
-      rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} = rm-rdtlh.tag.
-      APPLY "entry" TO rm-rdtlh.tag IN BROWSE {&browse-name}.
-      RETURN ERROR.
+           rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} = rm-rdtlh.tag.
+           APPLY "entry" TO rm-rdtlh.tag IN BROWSE {&browse-name}.
+           RETURN ERROR.
+       END.
     END.
-  END.
   END.
 
 END PROCEDURE.
@@ -1964,7 +1987,7 @@ PROCEDURE valid-tag :
 
 
   DO WITH FRAME {&FRAME-NAME}:
-      lv-tag = rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name}.
+    lv-tag = rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name}.
 
     IF lv-tag NE rm-rdtlh.tag AND
        (lv-tag EQ ""       OR
@@ -1974,15 +1997,15 @@ PROCEDURE valid-tag :
                         AND loadtag.i-no      EQ rm-rcpth.i-no:SCREEN-VALUE
                         AND loadtag.tag-no    EQ lv-tag)             AND
          NOT CAN-FIND(FIRST b-rm-rdtlh
-           WHERE b-rm-rdtlh.company EQ cocode
-           AND b-rm-rdtlh.tag     EQ lv-tag 
+                      WHERE b-rm-rdtlh.company EQ cocode
+                        AND b-rm-rdtlh.tag     EQ lv-tag
                         AND ROWID(b-rm-rdtlh)  NE ROWID(rm-rdtlh)))) THEN DO:
       MESSAGE "Invalid Tag# Change..." VIEW-AS ALERT-BOX ERROR.
-           rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} = rm-rdtlh.tag.
-           APPLY "entry" TO rm-rdtlh.tag IN BROWSE {&browse-name}.
-           RETURN ERROR.
-       END.
+      rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} = rm-rdtlh.tag.
+      APPLY "entry" TO rm-rdtlh.tag IN BROWSE {&browse-name}.
+      RETURN ERROR.
     END.
+  END.
 
 END PROCEDURE.
 
@@ -2036,29 +2059,6 @@ ASSIGN last-item = rm-rcpth.i-no .
 RUN rminq/rmiinq-exp.w (first-item, last-item).
 
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-type-list B-table-Win 
-PROCEDURE build-type-list :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
-     
-     RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
-             RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
-    DELETE OBJECT hPgmReason.
-  
-  DO WITH FRAME {&FRAME-NAME}:
-      rm-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
-    
-  END.
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

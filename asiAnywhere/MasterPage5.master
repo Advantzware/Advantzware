@@ -1,0 +1,110 @@
+<%@ Master Language="C#" AutoEventWireup="true" Inherits="Master5" Codebehind="~/MasterPage5.master.cs" %>
+<%@ Register Src="footer.ascx" TagName="Footer" TagPrefix="ft" %>
+    <%@ Register Src="header.ascx" TagName="Header" TagPrefix="hd" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<script >
+ function ordernotes()
+    {
+    var NewWindow = window.open("toporder_list_notes.aspx","OrderListNotes","width=600,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");    
+    }
+    function printspec()
+    {
+        var NewWindow = window.open("topspec_list_notes.aspx","OrderListNotes","width=600,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");
+    }
+    function orderhelp() {
+        var NewWindow = window.open("corr_help.aspx", "OrderHelpWindow", "width=500,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");
+    }
+</script>
+
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head id="Head1" runat="server">
+    <title>Untitled Page</title>
+    <LINK href="include/style.css" type="text/css" rel="stylesheet"/>
+    <LINK href="order_inquiry.css" rel="stylesheet" type="text/css" />
+    <link href="include/tree.css" rel="stylesheet" type="text/css" />
+    <LINK REL="stylesheet" TYPE="text/css" HREF="include/CalendarControl.css" >
+</head>
+<body>
+    <form id="form1" runat="server" >
+    <hd:Header ID="Header1" runat="server" />
+    <table width="100%"><tr><td>
+    <table align="left" border="1" width="90%">
+                <tr align="left" class="topheadcolor">
+                     <td nowrap align="left" width="1px";>
+                        <asp:ImageButton ID="ImageButton1" runat="server" Width="1px" ImageUrl="~/Images/add.bmp"  />
+                      </td>
+                   <td nowrap align="left" width="25px";>
+                        <asp:ImageButton ID="img_btn_add" runat="server" Width="35px" ImageUrl="~/Images/add.bmp" OnClick="img_btn_add_click" ToolTip="Add"  />
+                      </td>
+                     <%--<td nowrap width="25px";>
+                        <a href="#" onClick="ordernotes(); return false"><asp:Image ID="img_btn_notes" Width="35px" ToolTip="Notes" runat="server" ImageUrl="~/Images/edit.ico" /></a>                        
+                        </td>
+                        <td nowrap width="25px";>
+                        <a href="#" onClick="printspec(); return false"><asp:Image ID="Image3" Width="35px" runat="server" ToolTip="Spec Notes" ImageUrl="~/Images/dict.ico" /></a>
+                        </td>
+                        <td nowrap width="25px";>
+                        <a href="#" onClick="orderhelp(); return false"><asp:Image ID="img_help" Width="35px" ToolTip="Help" runat="server" ImageUrl="~/Images/help.ico" /></a>
+                        </td>--%>
+                      <td nowrap align="left" width="25px";>
+                        <asp:ImageButton ID="img_btn_exit" runat="server" ImageUrl="~/Images/exit-au.bmp" Width="35px" OnClick="img_btn_exit_click" ToolTip="LogOut"  />
+                    </td>
+                     <td align="left" nowrap> &nbsp;</td>
+                </tr>
+      </table></td></tr>
+    <tr><td>
+    <div>
+     <TABLE id="tblTop" cellSpacing="3" align="center" border="0" Width="100%">
+        <TR>
+          
+          <TD align=center nowrap><font size=+0><b>Request For Quote&nbsp;:<asp:Label ID="lbl_page" runat="server"></asp:Label></b></font></TD>
+          <TD vAlign="middle">
+            <asp:linkbutton id="LinkButton1" runat="server" OnClick="LinkButton1_Click">Back to menu</asp:linkbutton>
+          </TD>
+          <TD align="right"><font size=+0><b>Users&nbsp;&nbsp;</b></font></TD>
+          <TD vAlign="middle" align="left">Logged as&nbsp;
+            <asp:label id="lblUser" runat="server" Font-Bold="True">&nbsp;</asp:label>&nbsp;&nbsp;&nbsp;
+            <asp:linkbutton id="hlnkLogOut" runat="server" OnClick="hlnkLogOut_Click">Log out</asp:linkbutton>
+            
+            <%--&nbsp;&nbsp;&nbsp;<asp:hyperlink id="hlnkChangePwd" runat="server" NavigateUrl="changepwd.aspx">Change password</asp:hyperlink>
+            &nbsp;&nbsp;&nbsp;--%>
+            Company:&nbsp;
+            <asp:label id="lblComp" runat="server" Font-Bold="True">&nbsp;</asp:label>&nbsp;&nbsp;&nbsp;
+          </TD>
+          
+                    
+          <TD vAlign="middle" width="20">&nbsp;</TD>
+          <td width=30>&nbsp;</td>
+        </TR>
+      </TABLE>  
+  </div>
+     </td></tr></table>
+    <div>
+    <table>
+    <tr style="background-color:Gray;">
+    <td nowrap><div  id="navigation" style="width:100%">
+	<ul nowrap>
+    <li id="lilist_rfqs" runat="server" >
+    <asp:LinkButton ID="lnklist_rfqs" runat="server" OnClick="list_rfqs_Click" >List RFQS</asp:LinkButton><%--<asp:ImageButton ID="list_rfqs" runat="server" ImageUrl="~/Images/list RFQS0 .jpg"  />--%></li>
+    <li id="liview_rfqs" runat="server" ><asp:LinkButton ID="lnkview_rfqs" runat="server" OnClick="view_rfqs_Click" >View RFQ</asp:LinkButton><%--<asp:ImageButton ID="view_rfqs" runat="server" ImageUrl="~/Images/view RFQ0 .jpg" />--%></li>
+    <li id="lilist_item" runat="server" ><asp:LinkButton ID="lnk_listrfqitem" runat="server" OnClick="lnk_listitem_click">List Item</asp:LinkButton><%--<asp:ImageButton ID="list_item" runat="server" ImageUrl="~/Images/list item 0.jpg"  />--%></li>
+    <li id="lirfq_item" runat="server" ><asp:LinkButton ID="lnkrfq_item" runat="server" OnClick="lnkrfq_item_Click">View Item</asp:LinkButton><%--<asp:ImageButton ID="rfq_item" runat="server" ImageUrl="~/Images/view item 0.jpg"  />--%></li>
+    <li id="lirfq_size" runat="server" ><asp:LinkButton ID="lnkrfq_size" runat="server" OnClick="rfq_size_Click">Size</asp:LinkButton><%--<asp:ImageButton ID="rfq_size" runat="server" ImageUrl="~/Images/rfqsize0 .jpg"  />--%></li>
+    <li id="lirfq_itemspec" runat="server" ><asp:LinkButton ID="lnkrfq_itemspec" runat="server"  OnClick="rfq_itemspec_Click" >Item Spec.</asp:LinkButton><%--<asp:ImageButton ID="rfq_itemspec" runat="server" ImageUrl="~/Images/rfqitem spec0.jpg"/>--%></li>
+    <li id="lirfq_material" runat="server" ><asp:LinkButton ID="lnkrfq_material" runat="server" OnClick="lnkrfq_material_Click">Materials</asp:LinkButton><%--<asp:ImageButton ID="rfq_material" runat="server" ImageUrl="~/Images/rfqmaterials0.jpg"   />--%></li>
+    <li id="lirfq_printing" runat="server" ><asp:LinkButton ID="lnkrfq_printing" runat="server" OnClick="lnkrfq_printing_Click" >Inks</asp:LinkButton><%--<asp:ImageButton ID="rfq_printing" runat="server" ImageUrl="~/Images/rfqprinting0.jpg" />--%></li>
+    <li id="lirfq_shipping" runat="server" ><asp:LinkButton ID="lnkrfq_shipping" runat="server" OnClick="lnkrfq_shipping_Click">Shipping</asp:LinkButton><%--<asp:ImageButton ID="rfq_shipping" runat="server" ImageUrl="~/Images/rfqshipping0.jpg" />--%></li>
+    <li id="liquote" runat="server" ><asp:LinkButton ID="lnkrfq_quote" runat="server" OnClick="ImageQuote_Click">Quote</asp:LinkButton><%--<asp:ImageButton ID="ImageQuote" runat="server" ImageUrl="~/Images/quote 0.jpg" OnClick="ImageQuote_Click"/>--%></li></ul></div>
+    </td>
+    </tr>
+    </table>
+    </div>
+    
+    <div>
+        <asp:contentplaceholder id="ContentPlaceHolder1" runat="server">
+        </asp:contentplaceholder>
+    </div>
+    <ft:Footer ID="Footer1" runat="server" />
+    </form>
+</body>
+</html>

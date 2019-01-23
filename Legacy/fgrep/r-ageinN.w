@@ -1011,6 +1011,11 @@ END.
 ON LEAVE OF aged-days-2 IN FRAME FRAME-A /* 2 */
 DO:
   ASSIGN {&self-name}.
+  IF aged-days-2 LE aged-days-1 THEN DO:
+      MESSAGE "Aged Days must be greater than " aged-days-1 VIEW-AS ALERT-BOX ERROR .
+      APPLY "entry" TO {&self-name} .
+      RETURN NO-APPLY.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1022,6 +1027,11 @@ END.
 ON LEAVE OF aged-days-3 IN FRAME FRAME-A /* 3 */
 DO:
   ASSIGN {&self-name}.
+  IF aged-days-3 LE aged-days-2 THEN DO:
+      MESSAGE "Aged Days must be greater than " aged-days-2 VIEW-AS ALERT-BOX ERROR .
+      APPLY "entry" TO {&self-name} .
+      RETURN NO-APPLY.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1033,6 +1043,11 @@ END.
 ON LEAVE OF aged-days-4 IN FRAME FRAME-A /* 4 */
 DO:
   ASSIGN {&self-name}.
+  IF aged-days-4 LE aged-days-3 THEN DO:
+      MESSAGE "Aged Days must be greater than " aged-days-3 VIEW-AS ALERT-BOX ERROR .
+      APPLY "entry" TO {&self-name} .
+      RETURN NO-APPLY.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1043,7 +1058,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL as-of-date C-Win
 ON LEAVE OF as-of-date IN FRAME FRAME-A /* As of */
 DO:
-  ASSIGN {&self-name}.
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1144,6 +1159,22 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
+    IF aged-days-1 EQ 0  THEN
+        ASSIGN
+        aged-days-1:SCREEN-VALUE = "30"
+        aged-days-1 = 30.
+    IF aged-days-2 EQ 0 THEN
+        ASSIGN
+        aged-days-2:SCREEN-VALUE = "60"
+        aged-days-2 = 60.
+    IF aged-days-3 EQ 0 THEN
+        ASSIGN
+        aged-days-3:SCREEN-VALUE = "90"
+        aged-days-3 = 90.
+    IF aged-days-4 EQ 0 THEN
+        ASSIGN
+        aged-days-4:SCREEN-VALUE = "120"
+        aged-days-4 = 120.
   END.
 
   SESSION:SET-WAIT-STATE("general").

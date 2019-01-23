@@ -1594,26 +1594,12 @@ IF AVAIL e-item THEN DO:
           tt-e-i-v.roll-w[v-index] = e-item.roll-w[v-index].
     END.
 
-    FIND FIRST b-blank-vend-qty NO-LOCK WHERE
-         b-blank-vend-qty.reftable = "blank-vend-qty" AND
-         b-blank-vend-qty.company = e-item.company AND
-             b-blank-vend-qty.CODE    = e-item.i-no
-         NO-ERROR.
-
-    IF AVAIL b-blank-vend-qty THEN
-    DO:
-       FIND FIRST b-blank-vend-cost NO-LOCK WHERE
-            b-blank-vend-cost.reftable = "blank-vend-cost" AND
-            b-blank-vend-cost.company = e-item.company AND
-                b-blank-vend-cost.CODE    = e-item.i-no
-            NO-ERROR.
-
+    
        DO v-index = 1 TO 10:
           ASSIGN
-             tt-e-i-v.run-qty[v-index + 10] = b-blank-vend-qty.val[v-index]
-             tt-e-i-v.run-cost[v-index + 10] = b-blank-vend-cost.val[v-index].
+             tt-e-i-v.run-qty[v-index + 10] = e-item.runQty[v-index]
+             tt-e-i-v.run-cost[v-index + 10] = e-item.runCost[v-index].
        END.
-    END.
 
     RELEASE tt-e-i-v.
 

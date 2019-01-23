@@ -87,6 +87,8 @@ DEF VAR cPoNo LIKE ar-inv.po-no NO-UNDO.
 DEFINE VARIABLE cBolNo AS CHARACTER NO-UNDO.
 DEF VAR cJobStr AS CHAR FORMAT "x(9)" NO-UNDO.
 DEF VAR iLinePerPage AS INTEGER NO-UNDO .
+DEFINE VARIABLE dAmountDue AS DECIMAL NO-UNDO .
+
 DEF TEMP-TABLE tt-cust NO-UNDO FIELD curr-code LIKE cust.curr-code
                                FIELD sorter    LIKE cust.cust-no
                                FIELD row-id    AS   ROWID
@@ -124,7 +126,7 @@ DEF TEMP-TABLE tt-inv NO-UNDO  FIELD sorter    LIKE ar-inv.inv-no
                                                          ~
         EACH ar-cashl                                    ~
         FIELDS(check-no c-no posted inv-no company       ~
-               cust-no memo amt-disc amt-paid on-account rec_key) ~
+               cust-no memo amt-disc amt-paid on-account voided rec_key) ~
         NO-LOCK                                          ~
         WHERE ar-cashl.c-no       EQ ar-cash.c-no        ~
           AND ar-cashl.posted     EQ YES                 ~
@@ -379,7 +381,11 @@ END.
       else
         amt = ar-inv.gross.
 
+     dAmountDue = ar-inv.due .
+        
       IF amt EQ ? THEN amt = 0.
+      IF dAmountDue EQ ? THEN dAmountDue = 0.
+
 
       /* if fuel surcharge should not be aged, get it out of 'amt' */
       IF NOT v-include-fuel THEN FOR EACH ar-invl NO-LOCK 
@@ -519,7 +525,8 @@ END.
        ASSIGN
         cust-t[v-int] = cust-t[v-int] + ag
         v-dec         = 0
-        v-dec[v-int]  = ag.
+        v-dec[v-int]  = ag
+        cust-t[6] = cust-t[6] +  dAmountDue .
 
        IF v-sep-fc THEN
        DO:
@@ -574,6 +581,8 @@ END.
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(9)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
+                     WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  . 
+                     WHEN "tot-due"  THEN cVarValue = STRING(dAmountDue,"->,>>>,>>>.99")  .
                      WHEN "inv-note"  THEN  NEXT  .
                      WHEN "coll-note" THEN  NEXT  .
                     
@@ -582,6 +591,8 @@ END.
                 cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                IF cTmpField EQ "cust-name" THEN
+                   cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
         END.
         
@@ -736,6 +747,8 @@ END.
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
+                         WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
+                         WHEN "tot-due"  THEN cVarValue = "0"  .
                          WHEN "inv-note"  THEN NEXT .
                          WHEN "coll-note" THEN NEXT .
                      END CASE.
@@ -743,7 +756,10 @@ END.
                      cExcelVarValue = cVarValue.
                      cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                     IF cTmpField EQ "cust-name" THEN
+                        cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
+                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+
             END.
 
             PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
@@ -799,6 +815,8 @@ END.
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
+                         WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
+                         WHEN "tot-due"  THEN cVarValue = "0"  .
                          WHEN "inv-note"  THEN NEXT .
                          WHEN "coll-note" THEN NEXT .
                      END CASE.
@@ -806,6 +824,8 @@ END.
                      cExcelVarValue = cVarValue.
                      cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                     IF cTmpField EQ "cust-name" THEN
+                        cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
                      cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
 
@@ -893,6 +913,8 @@ END.
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
+                         WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
+                         WHEN "tot-due"  THEN cVarValue = /*STRING(dAmountDue,"->,>>>,>>>.99")*/ ""  .
                          WHEN "inv-note"  THEN NEXT .
                          WHEN "coll-note" THEN NEXT .
                      END CASE.
@@ -900,6 +922,8 @@ END.
                      cExcelVarValue = cVarValue.
                      cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                     IF cTmpField EQ "cust-name" THEN
+                        cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
                      cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
 
@@ -923,7 +947,9 @@ END.
            unapp[2] = 0
            unapp[3] = 0
            unapp[4] = 0
-           unapp[5] = 0.
+           unapp[5] = 0
+           unapp[6] = 0
+        .
 
     /* This loop finds all unapplied balances and totals by age */
     {&for-each-arcsh}
@@ -976,7 +1002,8 @@ END.
            m3 = ""
            ni = 0
            cust-t-pri = 0
-           cust-t-fc = 0.
+           cust-t-fc = 0
+             .
 
         if cust.area-code ne "" then
            m3 = string(cust.area-code,"(999) ").
@@ -1104,6 +1131,8 @@ END.
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
+                     WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
+                     WHEN "tot-due"  THEN cVarValue = "0"  .
                      WHEN "inv-note"  THEN NEXT .
                      WHEN "coll-note" THEN NEXT .
                     
@@ -1112,6 +1141,8 @@ END.
                 cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                IF cTmpField EQ "cust-name" THEN
+                        cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
         END.
         
@@ -1124,6 +1155,7 @@ END.
             END. /*det-prt = 1 */
 
          assign
+          cust-t[6] = cust-t[6] + unapp[6]
           cust-t[5] = cust-t[5] + unapp[5]
           cust-t[4] = cust-t[4] + unapp[4]
           cust-t[3] = cust-t[3] + unapp[3]
@@ -1132,6 +1164,7 @@ END.
 
          IF v-sep-fc THEN
             ASSIGN
+             cust-t-pri[6] = cust-t-pri[6] + unapp[6]
              cust-t-pri[5] = cust-t-pri[5] + unapp[5]
              cust-t-pri[4] = cust-t-pri[4] + unapp[4]
              cust-t-pri[3] = cust-t-pri[3] + unapp[3]
@@ -1214,6 +1247,8 @@ END.
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
+                     WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
+                     WHEN "tot-due"  THEN cVarValue = "0"  .
                      WHEN "inv-note"  THEN NEXT .
                      WHEN "coll-note" THEN NEXT .
                     
@@ -1222,6 +1257,9 @@ END.
                 cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                IF cTmpField EQ "cust-name" THEN
+                        cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
+                
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
         END.
         
@@ -1237,6 +1275,7 @@ END.
 
     c1 = cust-t[1] + cust-t[2] + cust-t[3] + cust-t[4] + cust-t[5].
 
+
     if (not v-first-cust) or c1 ne 0 then do:
       if det-rpt = 1 then do:
 
@@ -1244,7 +1283,7 @@ END.
                 cust-t[2] to 94 cust-t[3] to 112 cust-t[4] to 131 skip(1)
             with frame a3 no-labels no-box no-attr-space stream-io width 200.*/
            RUN total-head("****** CUSTOMER TOTALS",c1,cust-t[1],cust-t[2],
-                           cust-t[3],cust-t[4],cust-t[5]).
+                           cust-t[3],cust-t[4],cust-t[5],cust-t[6]).
         
         IF v-sep-fc THEN
         DO:
@@ -1257,13 +1296,13 @@ END.
             with frame a4 no-labels no-box no-attr-space stream-io width 200.*/
 
            RUN total-head("***** PRINCIPAL AMOUNT",c1-pri,cust-t-pri[1],cust-t-pri[2],
-                           cust-t-pri[3],cust-t-pri[4],cust-t-pri[5]).
+                           cust-t-pri[3],cust-t-pri[4],cust-t-pri[5],0).
 
            /*display skip(1) "***** FINANCE CHARGES" at 4 c1-fc to 54 cust-t-fc[1] to 77
                 cust-t-fc[2] to 94 cust-t-fc[3] to 112 cust-t-fc[4] to 131 skip(1)
             with frame a5 no-labels no-box no-attr-space stream-io width 200.*/
            RUN total-head("****** FINANCE CHARGES",c1-fc,cust-t-fc[1],cust-t-fc[2],
-                           cust-t-fc[3],cust-t-fc[4],cust-t-fc[5]).
+                           cust-t-fc[3],cust-t-fc[4],cust-t-fc[5],0).
         END.
 
         if not last-of(tt-cust.sorter) or "{&sort-by}" ne "cust.sman" then
@@ -1272,7 +1311,7 @@ END.
       ELSE IF det-rpt = 2 THEN DO:
 
           RUN total-head("cust.cust-no",c1,cust-t[1],cust-t[2],
-                           cust-t[3],cust-t[4],cust-t[5]).
+                           cust-t[3],cust-t[4],cust-t[5],cust-t[6]).
 
         /*display cust.cust-no space(2) cust.name + "  " + m3 format "x(50)" skip
                 c1        to 54
@@ -1286,8 +1325,9 @@ END.
             
          END.
       END.
-            
-      do i = 1 to 5:
+
+      
+      do i = 1 to 6:
          ASSIGN
             sman-t[i] = sman-t[i] + cust-t[i]
             cust-t[i] = 0.
@@ -1307,7 +1347,7 @@ END.
       if "{&sort-by}" eq "cust.sman" THEN DO:
         IF det-rpt <> 3 THEN
             RUN total-head("****** SALESREP TOTALS",c1,sman-t[1],sman-t[2],
-                           sman-t[3],sman-t[4],0).
+                           sman-t[3],sman-t[4],0,sman-t[6]).
         /*display v-sman                  at 4    format "x(33)"
                 "TOTALS: " + v-sman                  @ v-sman
                 "***** SALESREP TOTALS" when det-rpt = 1 @ v-sman
@@ -1352,7 +1392,7 @@ END.
         END.
       END.
 
-      do i = 1 to 4:
+      do i = 1 to 6:
         ASSIGN
            curr-t[i] = curr-t[i] + sman-t[i]
            sman-t[i] = 0
@@ -1368,7 +1408,7 @@ END.
         c1 = curr-t[1] + curr-t[2] + curr-t[3] + curr-t[4].
         IF NOT det-rpt = 3 THEN
              RUN total-head("        CURRENCY TOTAL",c1,curr-t[1],curr-t[2],
-                           curr-t[3],curr-t[4],0).
+                           curr-t[3],curr-t[4],0,curr-t[6]).
         /*display fill("_",132) format "x(131)"
                 "CURRENCY TOTAL"        at 12
                 c1                      to 54
@@ -1386,7 +1426,7 @@ END.
             with frame curr2 STREAM-IO WIDTH 200 no-labels no-box no-attr-space.*/
 
         RUN total-head("PERCENTAGE COMPOSITION",0,(IF c1 NE 0 THEN (curr-t[1] / c1) * 100 ELSE 0),(IF c1 NE 0 THEN (curr-t[2] / c1) * 100 ELSE 0),
-                           (IF c1 NE 0 THEN (curr-t[3] / c1) * 100 ELSE 0),(IF c1 NE 0 THEN (curr-t[4] / c1) * 100 ELSE 0),0).
+                           (IF c1 NE 0 THEN (curr-t[3] / c1) * 100 ELSE 0),(IF c1 NE 0 THEN (curr-t[4] / c1) * 100 ELSE 0),0,0).
 
         IF v-export THEN DO:
            IF NOT det-rpt = 1 THEN DO:
@@ -1424,7 +1464,7 @@ END.
         END.
       END.
 
-      do i = 1 to 5:
+      do i = 1 to 6:
         ASSIGN
            grand-t[i] = grand-t[i] + curr-t[i]
            curr-t[i]  = 0.
@@ -1462,10 +1502,10 @@ END.
     with frame grand1 no-box no-labels no-attr-space STREAM-IO WIDTH 200.*/
     
     RUN total-head("           GRAND TOTAL",t1,grand-t[1],grand-t[2],
-                           grand-t[3],grand-t[4],grand-t[5]).
+                           grand-t[3],grand-t[4],grand-t[5],grand-t[6]).
 
     RUN total-head("PERCENTAGE COMPOSITION",0,(IF t1 NE 0 THEN (grand-t[1] / t1) * 100 ELSE 0),(IF t1 NE 0 THEN (grand-t[2] / t1) * 100 ELSE 0),
-                           (IF t1 NE 0 THEN (grand-t[3] / t1) * 100 ELSE 0),(IF t1 NE 0 THEN (grand-t[4] / t1) * 100 ELSE 0),(IF t1 NE 0 THEN (grand-t[5] / t1) * 100 ELSE 0)).
+                           (IF t1 NE 0 THEN (grand-t[3] / t1) * 100 ELSE 0),(IF t1 NE 0 THEN (grand-t[4] / t1) * 100 ELSE 0),(IF t1 NE 0 THEN (grand-t[5] / t1) * 100 ELSE 0),0).
 
   /*display SPACE(11) "PERCENTAGE COMPOSITION"
     (IF t1 NE 0 THEN (grand-t[1] / t1) * 100 ELSE 0) to 77 format "->,>>>,>>>,>>9.99"
@@ -1542,7 +1582,7 @@ END.
         t1-fc =  grand-t-fc[1] + grand-t-fc[2] + grand-t-fc[3] + grand-t-fc[4] + + grand-t-fc[5].
 
      RUN total-head("      PRINCIPAL AMOUNT",t1-pri,grand-t-pri[1],grand-t-pri[2],
-                           grand-t-pri[3],grand-t-pri[4],grand-t-pri[5]).
+                           grand-t-pri[3],grand-t-pri[4],grand-t-pri[5],0).
 
      /*DISPLAY 
        "PRINCIPAL AMOUNT " AT 12  t1-pri to 54
@@ -1553,7 +1593,7 @@ END.
        with frame grand-pri no-box no-labels no-attr-space STREAM-IO WIDTH 200.*/
 
      RUN total-head("       FINANCE CHARGES",t1-fc,grand-t-fc[1],grand-t-fc[2],
-                           grand-t-fc[3],grand-t-fc[4],grand-t-fc[5]).
+                           grand-t-fc[3],grand-t-fc[4],grand-t-fc[5],0).
 
      /*DISPLAY
        "FINANCE CHARGES " AT 12  t1-fc to 54
@@ -1835,6 +1875,7 @@ END.
      DEF INPUT PARAMETER per-day2 AS DECIMAL.
      DEF INPUT PARAMETER per-day3 AS DECIMAL.
      DEF INPUT PARAMETER per-day4 AS DECIMAL.
+     DEF INPUT PARAMETER ipdAmountDue AS DECIMAL.
 
         ASSIGN cDisplay = ""
                cTmpField = ""
@@ -1882,6 +1923,8 @@ END.
                      WHEN "cust-po"   THEN cVarValue = "" .
                      WHEN "job"       THEN cVarValue = ""  .
                      WHEN "bol"       THEN cVarValue = "" .
+                     WHEN "currency"  THEN cVarValue = ""  .
+                     WHEN "tot-due"  THEN cVarValue = STRING(ipdAmountDue,"->,>>>,>>9.99")  .
                      WHEN "inv-note"  THEN cVarValue = "".
                      WHEN "coll-note" THEN cVarValue = "".
                     
@@ -1894,15 +1937,15 @@ END.
         END.
         
 
-        IF vname = "cust.cust-no" THEN do:
-            PUT UNFORMATTED   cust.cust-no FORMAT "x(8)" space(1)  cust.name  FORMAT "x(25)"   substring(cDisplay,35,400) SKIP.
+        IF vname = "cust.cust-no" THEN do:  
+            PUT UNFORMATTED   cust.cust-no FORMAT "x(8)" space(1) cust.NAME FORMAT "x(25)"   substring(cDisplay,35,400) SKIP.
             iLinePerPage = iLinePerPage + 1.
             IF v-export THEN DO: 
                 PUT STREAM s-temp UNFORMATTED   
-                   cust.cust-no FORMAT "x(8)" ','  cust.name  FORMAT "x(25)" ','  substring(cExcelDisplay,7,400) SKIP(1).
+                   cust.cust-no FORMAT "x(8)" ','  REPLACE(cust.NAME, ',', ' ')  FORMAT "x(25)" ','  substring(cExcelDisplay,7,400) SKIP(1).
             END.
         END.
-        ELSE DO:
+        ELSE DO: 
             PUT SKIP(1) str-line SKIP . 
             PUT UNFORMATTED  "          " vname  substring(cDisplay,33,400) SKIP.
             iLinePerPage = iLinePerPage + 4 .

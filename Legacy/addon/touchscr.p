@@ -21,7 +21,7 @@ DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
 DEFINE NEW SHARED VARIABLE quit_login AS LOGICAL NO-UNDO.
 DEFINE VARIABLE m_id AS CHAR NO-UNDO.
-DEF NEW GLOBAL SHARED VAR g-sharpshooter AS LOG NO-UNDO.  /* no, it's yes only from sharpsh.p */
+DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
 
 ldummy = SESSION:SET-WAIT-STATE("GENERAL").
 
@@ -99,6 +99,8 @@ RUN custom/gettime.p.   /* time-source */
 IF CONNECTED(ldbname(1)) THEN DO:
     /* WFK - 15626 - Made path relative */
     RUN addon/nosweat/persist.p PERSISTENT SET Persistent-Handle.
+    RUN system/session.p  PERSISTENT SET hSession.
+    SESSION:ADD-SUPER-PROCEDURE (hSession).
     RUN touch/touchscr.w.
 END.
 ELSE

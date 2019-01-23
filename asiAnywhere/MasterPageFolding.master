@@ -1,0 +1,169 @@
+<%@ Master Language="C#" AutoEventWireup="true" Inherits="MasterPageFolding" Codebehind="~/MasterPageFolding.master.cs" %>
+
+<%@ Register Src="~/footer.ascx" TagName="Footer" TagPrefix="ft" %>
+    <%@ Register Src="~/header.ascx" TagName="Header" TagPrefix="hd" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head id="Head1" runat="server">
+    <title>Untitled Page</title>
+     
+    <LINK href="~/include/style.css" type="text/css" rel="stylesheet"/>
+    <LINK href="~/order_inquiry.css" rel="stylesheet" type="text/css" />
+    <link href="~/include/tree.css" rel="stylesheet" type="text/css" />
+    <LINK REL="~/stylesheet" TYPE="text/css" HREF="~/include/CalendarControl.css" >
+   
+    
+</head>
+<script>
+    function orderhelp()
+    {
+        var NewWindow = window.open("fold_help.aspx","OrderHelpWindow","width=500,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");
+    }
+    function ordernotes()
+    {
+        var NewWindow = window.open("toporder_list_notes.aspx","OrderListNotes","width=600,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");    
+    }
+    function printspec()
+    {
+        var NewWindow = window.open("topspec_list_notes.aspx","OrderListNotes","width=600,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");    
+    }
+    function topattach()
+    {
+        var NewWindow = window.open("top_attach_list.aspx","Attachment","width=650,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");    
+    }
+    function select_col()
+    {
+        var NewWindow = window.open("show_avail_order_entry.aspx","SelectColumnWindow","width=600,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");
+    }
+</script>
+<body >
+    <form id="form1" runat="server">
+    <hd:Header ID="Header1" runat="server" />
+    <table width="100%"><tr><td>
+        <table align="left" border="1" width="75%">
+                <tr class="topheadcolor">
+                    
+                    <td nowrap width="1px";>
+                        <a href="#" onClick="select_col(); return false"><asp:Image ID="Image5" Width="35px" runat="server" ImageUrl="~/Images/moveCol.ico" /></a>
+                    </td>
+                    <td nowrap width="25px";>
+                        <asp:ImageButton ID="img_btn_add" runat="server" Width="35px" ImageUrl="~/Images/add.bmp" ToolTip="List" OnClick="img_btn_add_click" />
+                      </td>
+                      <td nowrap width="25px";>
+                        <a href="#" onClick="topattach(); return false"><asp:Image ID="Image1" Width="35px" ToolTip="Attachment" runat="server" ImageUrl="~/Images/clip.ico" /></a>                        
+                        </td>
+                      <td nowrap width="25px";>
+                        <a href="#" onClick="ordernotes(); return false"><asp:Image ID="img_btn_notes" Width="35px" ToolTip="Notes" runat="server" ImageUrl="~/Images/edit.ico" /></a>                        
+                        </td>
+                        <td nowrap width="25px";>
+                        <a href="#" onClick="printspec(); return false"><asp:Image ID="Image3" ToolTip="Spec Notes" Width="35px" runat="server" ImageUrl="~/Images/dict.ico" /></a>
+                        </td>
+                        <td nowrap width="25px";>
+                        <a href="#" onClick="orderhelp(); return false"><asp:Image ID="img_help" Width="35px" ToolTip="Help" runat="server" ImageUrl="~/Images/help.ico" /></a>
+                        </td>
+                      <td nowrap width="25px";>
+                        <asp:ImageButton ID="img_btn_exit" runat="server" ImageUrl="~/Images/exit-au.bmp" Width="35px" ToolTip="LogOut" OnClick="img_btn_exit_click" />
+                    </td>
+                    <td nowrap> &nbsp;</td>
+                </tr>
+      </table>
+    </td></tr>
+    <tr><td>
+    <div>
+     <TABLE id="tblTop" cellSpacing="3" align="center" border="0" Width="100%">
+        <TR>
+          <TD >&nbsp;</TD>
+          <TD  nowrap><font size=+0><b>Estimate- &nbsp;<asp:Label ID="lbl_page" runat="server"></asp:Label></b></font></TD>
+          <TD nowrap valign="middle" >
+            <asp:linkbutton id="LinkButton1" runat="server" OnClick="LinkButton1_Click">Back to menu</asp:linkbutton>
+          </TD>
+          <TD align="right"><font size=+0><b></b></font></TD>
+          <TD nowrap valign="middle" >Logged as&nbsp;
+            <asp:label id="lblUser" runat="server" Font-Bold="True">&nbsp;</asp:label>&nbsp;
+            <asp:linkbutton id="hlnkLogOut" runat="server" OnClick="hlnkLogOut_Click">Log out</asp:linkbutton>
+            
+            <%--&nbsp;<asp:hyperlink id="hlnkChangePwd" runat="server" NavigateUrl="changepwd.aspx">Change password</asp:hyperlink>
+            &nbsp;&nbsp;--%>
+            Company:&nbsp;
+            <asp:label id="lblComp" runat="server" Font-Bold="True">&nbsp;</asp:label>&nbsp;&nbsp;&nbsp;
+          </TD>
+          
+                    
+          <TD vAlign="middle" width="20">&nbsp;</TD>
+          <td width=30>&nbsp;</td>
+        </TR>
+      </TABLE>  
+  </div>
+  </td></tr></table>
+  <div>
+    <table>
+        <tr >
+            <td nowrap>
+            <div  id="navigation" style="width:100%">
+					<ul nowrap>
+						<li id="corrugate" runat="server" >
+							<asp:LinkButton ID="lnk_CorrugatedBrow" onclick="lnk_brwsCorrugated_Click" runat="server">List Estimate</asp:LinkButton>
+						</li>
+						<li id="viewest" runat="server" >							
+							<asp:LinkButton ID="imgbtn_view_estimate" onclick="imgbtn_view_estimate_click" runat="server">View Estimate</asp:LinkButton>
+						</li>
+						<li id="specs" runat="server"  >
+							
+							<asp:LinkButton ID="Ink_specs" onclick="lnk_Specs_click" runat="server">Specs</asp:LinkButton>
+						</li>
+						<li id="layout" runat="server">
+							
+							<asp:LinkButton ID="img_layout" onclick="img_layout_click" runat="server">Layout</asp:LinkButton>
+						</li>
+						<li id="inkpack" runat="server">
+							
+							<asp:LinkButton ID="img_inks" onclick="img_Inks_Click" runat="server">Inks/Pack</asp:LinkButton>
+						</li>
+						<li id="preprout" runat="server">
+							
+							<asp:LinkButton ID="Img_prep" onclick="img_prep_Click" runat="server">Prep/Route</asp:LinkButton>
+						</li>
+						<li id="miscsub" runat="server">
+							
+							<asp:LinkButton ID="Img_MiscSub" onclick="Img_MiscSub_Click" runat="server">Misc/Sub</asp:LinkButton>
+						</li>
+						<li id="Boxdesign" runat="server">
+							
+							<asp:LinkButton ID="img_BoxDesign" onclick="img_box_design_click" runat="server">Box Design</asp:LinkButton>
+						</li>
+						<li id="printout" runat="server">
+							
+							<asp:LinkButton ID="Img_Print" onclick="Img_Print_Click" runat="server">Print</asp:LinkButton>
+						</li>
+						<li id="quoteprint" runat="server">
+						<asp:LinkButton ID="ImageQuote" onclick="ImageQuote_Click" runat="server">Quote</asp:LinkButton>
+							
+							
+						</li>
+					</ul>
+				
+                </div>
+                <%--<asp:LinkButton ID="lnk_CorrugatedBrow" runat="server" OnClick="lnk_brwsCorrugated_Click"></asp:LinkButton><asp:ImageButton ID="brwsCorrugated" ImageUrl="~/images/list_estimate_0.jpg" runat="server" OnClick="brwscorrugated_Click" />
+                <asp:ImageButton ID="imgbtn_view_estimate" runat="server" OnClick="imgbtn_view_estimate_click" ImageUrl="~/images/view_estimate_0.jpg" />          
+                <asp:ImageButton ID="Ink_specs" runat="server" OnClick="lnk_Specs_click" ImageUrl="~/images/specs_0.jpg" />          
+                <asp:ImageButton ID="img_layout" runat="Server" OnClick="img_layout_click" ImageUrl="~/Images/layout_0.jpg" />
+                <asp:ImageButton ID="img_inks" runat="Server" OnClick="img_Inks_Click" ImageUrl="~/Images/inks_pack_0.jpg" />
+                <asp:ImageButton ID="Img_prep" runat="Server" OnClick="img_prep_Click" ImageUrl="~/Images/prep_route_0.jpg" />
+                <asp:ImageButton ID="Img_MiscSub" runat="Server" OnClick="Img_MiscSub_Click" ImageUrl="~/Images/misc_sub_0.jpg" />
+                <asp:ImageButton ID="img_BoxDesign" runat="server" OnClick="img_box_design_click" ImageUrl="~/Images/box_design_0.jpg" />
+                
+                <asp:ImageButton ID="Img_Print" runat="server" OnClick="Img_Print_Click" ImageUrl="~/Images/print_0.jpg" />
+                <asp:ImageButton ID="ImageQuote" runat="server" ImageUrl="~/Images/quote 0.jpg" OnClick="ImageQuote_Click"/>--%>
+            </td>
+        </tr>
+    </table>
+  
+  </div>
+    <div>
+        <asp:contentplaceholder id="ContentPlaceHolder1" runat="server">
+        </asp:contentplaceholder>
+    </div>
+    </form>
+</body>
+</html>

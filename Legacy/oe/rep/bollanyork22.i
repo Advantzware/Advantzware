@@ -2,21 +2,27 @@
  
    put 
          "<FArial>"  SKIP
-          "<P14><C+48.5><B>Bill Of Lading</B>    " SKIP
-          "<C1><#1><R+5><C+25>"
-          "<=1><C3><FGCOLOR=" trim(lv-comp-color) + ">"
-          "<=1><C3><R+1><P20><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" 
-          "<P10></B>"
+          "<P14><C+48.5><B>Bill Of Lading</B>    " SKIP .
+          if NOT lBroker THEN DO:
+              Put "<C2><R2><#1><R+10><C+37><IMAGE#1=" ls-full-img1  SKIP .
+          END.
+          ELSE DO:
+              Put "<C1><#1><R+5><C+25>"
+                  "<=1><C3><FGCOLOR=" trim(lv-comp-color) + ">"
+                  "<=1><C3><R+1><P20><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" 
+                  "<P10></B>"
 
-          "<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
-         "<P10><=1><R+3>"  
-         v-comp-add1 AT 8 SKIP
-         v-comp-add2 AT 8  SKIP
-         v-comp-add3 AT 8 SKIP
-         v-comp-add4 AT 8 SKIP
-         v-comp-add5 AT 8 SKIP
-         lv-email AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP(1)
-               "<FCourier New>"
+                  "<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
+                  "<P10><=1><R+3>"  
+                  v-comp-add1 AT 8 SKIP
+                  v-comp-add2 AT 8  SKIP
+                  v-comp-add3 AT 8 SKIP
+                  v-comp-add4 AT 8 SKIP
+                  v-comp-add5 AT 8 SKIP
+                  lv-email AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP(1) .
+           END.
+
+           Put   "<FCourier New>"
                SPACE(30) "Ship To:" AT 59  SKIP
                SPACE(5) v-comp-name v-ship-name AT 45 skip
                SPACE(5) v-comp-addr[1] v-ship-addr[1] AT 45 SKIP
@@ -41,7 +47,7 @@
                 "<R24><C35><FROM><R27><C35><LINE>" SKIP  
                 "<R24><C47><FROM><R27><C47><LINE>" SKIP
                 "<R24><C60><FROM><R27><C60><LINE>" SKIP 
-            "<FArial><=5><R+1><C2>Qty<C14>Units / Unit<C24>Qty Shipped<C39>PO#<C48>Order# / Lot#<C61>Part# / Item# / Desc" SKIP(1)
+            "<FArial><=5><R+1><C2>Qty<C14>Units / Unit<C24>Qty Shipped<C39>PO#<C48>Order# / Lot#<C61>Item# / Part# / Description" SKIP(1)
             "<FArial><=5><R+2><C2>Ordered<C14>Count<C24>[P/C]" SKIP(1)
             "<FCourier New>"                                  
             .

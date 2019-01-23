@@ -369,7 +369,7 @@ DO:
         UPDATE lOK
         .
     IF lOK THEN DO:
-        cEmployeeImage:LOAD-IMAGE(cImageFile).
+        cEmployeeImage:LOAD-IMAGE(cImageFile) .
         SELF:SCREEN-VALUE = REPLACE(cImageFile,cInitDir,"").
     END.
 END.
@@ -380,8 +380,9 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL employee.employeeImage[1] V-table-Win
 ON LEAVE OF employee.employeeImage[1] IN FRAME F-Main /* Image */
-DO:
-    cEmployeeImage:LOAD-IMAGE(SELF:SCREEN-VALUE).
+DO: 
+    IF SELF:SCREEN-VALUE NE "" THEN 
+    cEmployeeImage:LOAD-IMAGE(SELF:SCREEN-VALUE) NO-ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -664,10 +665,15 @@ PROCEDURE local-display-fields :
 
     /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-
   /* Code placed here will execute AFTER standard behavior.    */
-  cEmployeeImage:LOAD-IMAGE(employee.employeeImage[1]:SCREEN-VALUE)
-    IN FRAME {&FRAME-NAME}.
+
+  IF employee.employeeImage[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
+      cEmployeeImage:LOAD-IMAGE(employee.employeeImage[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  END.
+  ELSE DO: 
+      cEmployeeImage:LOAD-IMAGE("adeicon/blank").
+  END.
+      
 
  
 END PROCEDURE.

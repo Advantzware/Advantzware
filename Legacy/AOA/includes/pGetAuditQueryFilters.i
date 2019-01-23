@@ -10,29 +10,44 @@ PROCEDURE pGetFilterValues:
     DO WITH FRAME {&FilterFrame}:
         CASE ipcFilter:
             WHEN "INIT" THEN DO:
+                EMPTY TEMP-TABLE ttAuditDBTable.
                 EMPTY TEMP-TABLE ttAudit.
                 EMPTY TEMP-TABLE ttuser.
                 FOR EACH ASI._file NO-LOCK
                     :
                     IF CAN-FIND(FIRST AuditHdr
                                 WHERE AuditHdr.AuditDB    EQ "ASI"
-                                  AND AuditHdr.AuditTable EQ ASI._file._file-name) THEN 
-                    FOR EACH ASI._field OF ASI._file NO-LOCK
-                        :
-                        CREATE ttAudit.
+                                  AND AuditHdr.AuditTable EQ ASI._file._file-name) THEN DO: 
+                        CREATE ttAuditDBTable.
                         ASSIGN
-                            ttAudit.AuditDB    = "ASI"
-                            ttAudit.AuditTable = ASI._file._file-name
-                            ttAudit.AuditField = ASI._field._field-name
+                            ttAuditDBTable.AuditDB    = "ASI"
+                            ttAuditDBTable.AuditTable = ASI._file._file-name
                             .
-                    END. /* each _field */
+                        FOR EACH ASI._field OF ASI._file NO-LOCK
+                            :
+                            CREATE ttAudit.
+                            ASSIGN
+                                ttAudit.AuditDB    = "ASI"
+                                ttAudit.AuditTable = ASI._file._file-name
+                                ttAudit.AuditField = ASI._field._field-name
+                                .
+                        END. /* each _field */
+                    END. /* if can-find */
                 END. /* each _file */
                 FOR EACH prgrms NO-LOCK:
                     IF CAN-FIND(FIRST AuditHdr
                                 WHERE AuditHdr.AuditDB    EQ "ASI"
                                   AND AuditHdr.AuditTable EQ prgrms.prgmname) THEN DO:
+                        CREATE ttAuditDBTable.
+                        ASSIGN
+                            ttAuditDBTable.AuditDB    = "ASI"
+                            ttAuditDBTable.AuditTable = prgrms.prgmname
+                            .
                         CREATE ttAudit.
-                        ttAudit.AuditTable = prgrms.prgmname.
+                        ASSIGN
+                            ttAudit.AuditDB    = "ASI"
+                            ttAudit.AuditTable = prgrms.prgmname
+                            .
                     END. /* if can-find */
                 END. /* each prgrms */
                 FOR EACH users NO-LOCK:
@@ -42,44 +57,14 @@ PROCEDURE pGetFilterValues:
                         ttUser.AuditUser = users.user_id.
                     END. /* if can-find */
                 END. /* each users */
-/*                FOR EACH AuditHdr NO-LOCK,                                                */
-/*                    EACH AuditDtl OF AuditHdr NO-LOCK                                     */
-/*                    :                                                                     */
-/*                    IF NOT CAN-FIND(FIRST ttUser                                          */
-/*                                    WHERE ttUser.AuditUser EQ AuditHdr.AuditUser) THEN DO:*/
-/*                        CREATE ttUser.                                                    */
-/*                        ttUser.AuditUser = AuditHdr.AuditUser.                            */
-/*                    END. /* if not can-find */                                            */
-/*                    IF CAN-FIND(FIRST ttAudit                                             */
-/*                                WHERE ttAudit.AuditDB    EQ AuditHdr.AuditDB              */
-/*                                  AND ttAudit.AuditTable EQ AuditHdr.AuditTable           */
-/*                                  AND ttAudit.AuditField EQ AuditDtl.AuditField) THEN     */
-/*                    NEXT.                                                                 */
-/*                    CREATE ttAudit.                                                       */
-/*                    ASSIGN                                                                */
-/*                        ttAudit.AuditDB    = AuditHdr.AuditDB                             */
-/*                        ttAudit.AuditTable = AuditHdr.AuditTable                          */
-/*                        ttAudit.AuditField = AuditDtl.AuditField                          */
-/*                        .                                                                 */
-/*                END. /* each audithdr */                                                  */
             END. /* when init */
             WHEN "ALL" THEN DO:
                 /* From and To Date Range */
-                FIND FIRST AuditHdr NO-LOCK
-                     USE-INDEX AuditDateTime
-                     NO-ERROR.
                 ASSIGN
-                    dtStartDateTime = IF AVAILABLE AuditHdr THEN AuditHdr.AuditDateTime
-                                      ELSE DATETIME(STRING(TODAY,"99/99/9999") + " 00:00:00")
+                    dtStartDateTime = DATETIME(STRING(TODAY - 90,"99/99/9999") + " 00:00:00")
                     svStartDate = DATE(dtStartDateTime)
                     svStartDate:SCREEN-VALUE = STRING(svStartDate)
-                    .
-                FIND LAST AuditHdr NO-LOCK
-                     USE-INDEX AuditDateTime
-                     NO-ERROR.
-                ASSIGN
-                    dtEndDateTime = IF AVAILABLE AuditHdr THEN AuditHdr.AuditDateTime
-                                      ELSE DATETIME(STRING(TODAY,"99/99/9999") + " 23:59:59")
+                    dtEndDateTime = DATETIME(STRING(TODAY,"99/99/9999") + " 23:59:59")
                     svEndDate = DATE(dtEndDateTime)
                     svEndDate:SCREEN-VALUE = STRING(svEndDate)
                     .

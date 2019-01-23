@@ -21,6 +21,7 @@ def workfile w-bin
    field w-cas as   dec
    field w-pal as   dec
    field w-par like oe-ordl.part-dscr1
+   FIELD w-partial AS INTEGER
    field w-x   as   log
    FIELD w-i-no AS cha
    FIELD w-po-no AS cha 
@@ -60,10 +61,11 @@ format w-oe-rell.ord-no                 to 6
        w-x                              at 60   format "X/"
        w-pal                            to 65   format "->>>>"
        w-cas                            to 70   format "->>>>"
-       w-c-c                            to 80   format "->>>>>>>>"
-       w-qty[1]                         to 90   format "->>>>>>>>"
+       w-c-c                            to 78   format "->>>>>>>"
+       w-partial                        TO 85   FORMAT "->>>>>>"
+       w-qty[1]                         to 94   format "->>>>>>>>"
     
-    with down frame rel-mid no-box no-label STREAM-IO width 95.
+    with down frame rel-mid no-box no-label STREAM-IO width 96.
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
@@ -631,6 +633,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
              w-qty[1] = fg-bin.qty
              w-qty[2] = fg-bin.qty 
              w-c-c    = fg-bin.case-count
+             w-partial = fg-bin.partial-count 
              w-x      = CAN-FIND(FIRST oe-rell
                                  WHERE oe-rell.company  EQ w-oe-rell.company
                                    AND oe-rell.r-no     EQ w-oe-rell.r-no
@@ -799,6 +802,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                     w-pal
                     w-cas
                     w-c-c
+                    w-partial
                     w-qty[1]
                    
                 with frame rel-mid. 
@@ -815,7 +819,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               END.
 
               display {2}
-                      "  Rel Qty"       @ w-c-c
+                      "Rel Qty"       @ w-partial
                       v-rel-qty         @ w-qty[1]
 
                   with frame rel-mid. 

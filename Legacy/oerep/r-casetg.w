@@ -123,13 +123,13 @@ DEF VAR userLabelPath AS cha NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-7 fi_cas-lab begin_job begin_job2 ~
-begin_ord-no begin_i-no tb_per-unit tb_per-pallet tb_over tb_print-comp ~
-scr-auto-print scr-freeze-label scr-label-file rd_print begin_date end_date ~
-btn-cancel btn-ok 
+begin_ord-no begin_i-no begin_rel tb_per-unit tb_per-pallet tb_over ~
+tb_print-comp scr-auto-print scr-freeze-label scr-label-file rd_print ~
+begin_date end_date btn-cancel btn-ok 
 &Scoped-Define DISPLAYED-OBJECTS fi_cas-lab begin_job begin_job2 ~
-begin_ord-no begin_i-no tb_per-unit tb_per-pallet tb_over tb_print-comp ~
-scr-auto-print scr-freeze-label scr-label-file rd_print begin_date end_date ~
-begin_filename lbl_po-no 
+begin_ord-no begin_i-no begin_rel tb_per-unit tb_per-pallet tb_over ~
+tb_print-comp scr-auto-print scr-freeze-label scr-label-file rd_print ~
+begin_date end_date begin_filename lbl_po-no 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -208,6 +208,11 @@ DEFINE VARIABLE begin_labels AS INTEGER FORMAT ">>>>":U INITIAL 2
 
 DEFINE VARIABLE begin_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "Order#" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
+
+DEFINE VARIABLE begin_rel AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
+     LABEL "Release#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
@@ -311,34 +316,36 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Order Number"
      begin_i-no AT ROW 5.24 COL 40 COLON-ALIGNED HELP
           "Enter Beginning Item Number"
-     tb_per-unit AT ROW 6.57 COL 52
-     tb_per-pallet AT ROW 6.57 COL 68
-     tb_over AT ROW 7.57 COL 40
-     tb_print-comp AT ROW 8.52 COL 40
-     scr-auto-print AT ROW 9.48 COL 40
-     scr-freeze-label AT ROW 9.48 COL 63.2
-     scr-label-file AT ROW 10.62 COL 38 COLON-ALIGNED
-     rd_print AT ROW 11.95 COL 55 NO-LABEL
-     begin_date AT ROW 13 COL 54 COLON-ALIGNED HELP
+     begin_rel AT ROW 6.19 COL 40 COLON-ALIGNED HELP
+          "Enter Beginning Item Number" WIDGET-ID 6
+     tb_per-unit AT ROW 7.29 COL 52
+     tb_per-pallet AT ROW 7.29 COL 68
+     tb_over AT ROW 8.29 COL 40
+     tb_print-comp AT ROW 9.24 COL 40
+     scr-auto-print AT ROW 10.19 COL 40
+     scr-freeze-label AT ROW 10.19 COL 63.2
+     scr-label-file AT ROW 11.33 COL 38 COLON-ALIGNED
+     rd_print AT ROW 12.67 COL 55 NO-LABEL
+     begin_date AT ROW 13.71 COL 54 COLON-ALIGNED HELP
           "Enter Beginning Release Date" WIDGET-ID 2
-     end_date AT ROW 13 COL 79.6 COLON-ALIGNED HELP
+     end_date AT ROW 13.71 COL 79.6 COLON-ALIGNED HELP
           "Enter Ending Release Date" WIDGET-ID 4
-     rd_order-sts AT ROW 14.48 COL 55 NO-LABEL
-     rd_comps AT ROW 15.67 COL 55 NO-LABEL
+     rd_order-sts AT ROW 15.19 COL 55 NO-LABEL
      begin_form AT ROW 16.38 COL 19 COLON-ALIGNED
-     tb_rel AT ROW 17.1 COL 37
-     tb_16ths AT ROW 17.1 COL 76
+     rd_comps AT ROW 16.38 COL 55 NO-LABEL
      begin_labels AT ROW 17.33 COL 19 COLON-ALIGNED
+     tb_rel AT ROW 17.38 COL 37
+     tb_16ths AT ROW 17.38 COL 76
      begin_filename AT ROW 18.52 COL 19 COLON-ALIGNED
      btn-cancel AT ROW 20.19 COL 66
      btn-ok AT ROW 20.29 COL 24
-     lbl_po-no AT ROW 11.95 COL 38 COLON-ALIGNED HELP
+     lbl_po-no AT ROW 12.67 COL 38 COLON-ALIGNED HELP
           "Print Customer's PO Number from Header, Line item or Release" NO-LABEL
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 2
           BGCOLOR 2 
      "Update Estimate, Order and FG Item --->" VIEW-AS TEXT
-          SIZE 39 BY 1 AT ROW 6.57 COL 12
+          SIZE 39 BY 1 AT ROW 7.29 COL 12
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -397,16 +404,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 /* SETTINGS FOR FILL-IN begin_date IN FRAME FRAME-A
    2                                                                    */
 ASSIGN 
@@ -448,6 +445,18 @@ ASSIGN
 ASSIGN 
        begin_ord-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       begin_rel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 /* SETTINGS FOR FILL-IN end_date IN FRAME FRAME-A
    2                                                                    */
@@ -515,7 +524,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -573,15 +582,22 @@ DO:
     WHEN "begin_ord-no" THEN DO:
       RUN windows/l-ordl.w (g_company, begin_ord-no:screen-value, output char-val, output rec-val). 
       FIND oe-ordl WHERE RECID(oe-ordl) EQ rec-val NO-LOCK NO-ERROR.
-      IF AVAIL oe-ordl THEN
+      IF AVAIL oe-ordl THEN do:
         ASSIGN
          begin_ord-no:SCREEN-VALUE = STRING(oe-ordl.ord-no)
          begin_job:SCREEN-VALUE    = oe-ordl.job-no
          begin_job2:SCREEN-VALUE   = STRING(oe-ordl.job-no2)
          begin_i-no:SCREEN-VALUE   = oe-ordl.i-no.
+         RUN check-release .
+      END.
     END.
     WHEN "begin_i-no" THEN DO:
       RUN windows/l-itemf3.w (g_company,begin_ord-no,begin_job,begin_job2,begin_i-no, OUTPUT char-val, OUTPUT rec-val).
+      IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+      RUN check-release .
+    END.
+    WHEN "begin_rel" THEN DO:
+      RUN windows/l-ordrel.w (g_company,begin_ord-no:screen-value,begin_i-no:screen-value, OUTPUT char-val, OUTPUT rec-val).
       IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
     END.
     OTHERWISE do:
@@ -658,7 +674,8 @@ DO:
       FIND FIRST job-hdr WHERE
            job-hdr.company EQ cocode AND
            job-hdr.job-no EQ begin_job:SCREEN-VALUE AND
-           job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
+           job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE) AND
+           begin_job:SCREEN-VALUE NE ""
            NO-LOCK NO-ERROR.
 
       IF AVAIL job-hdr THEN
@@ -830,6 +847,8 @@ DO:
                         AND oe-ordl.ord-no = INT(begin_ord-no:SCREEN-VALUE) NO-LOCK NO-ERROR.
    IF AVAIL oe-ordl THEN begin_i-no:SCREEN-VALUE = oe-ordl.i-no.
 
+   RUN check-release .
+
    IF v-auto-print AND LOGICAL(scr-freeze-label:SCREEN-VALUE) EQ NO THEN
    DO:
       IF INT(begin_ord-no:SCREEN-VALUE) NE 0 THEN DO:
@@ -961,6 +980,17 @@ DO:
          END.         
       END.
    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_rel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_rel C-Win
+ON LEAVE OF begin_rel IN FRAME FRAME-A /* Release# */
+DO:
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1334,7 +1364,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      begin_ord-no:SCREEN-VALUE = ""
      begin_job:SCREEN-VALUE    = ""
      begin_job2:SCREEN-VALUE   = ""
-     begin_i-no:SCREEN-VALUE   = "".
+     begin_i-no:SCREEN-VALUE   = ""
+     begin_rel:SCREEN-VALUE    = ""
+     begin_rel:SENSITIVE   = NO.
 
     FIND FIRST sys-ctrl WHERE
          sys-ctrl.company eq gcompany AND
@@ -1437,6 +1469,90 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dispJobInfo C-Win 
+PROCEDURE dispJobInfo :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------ ------------------------------------------------*/
+DEF INPUT PARAMETER ipcCompany      AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER ipcJobNo    AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER ipiJobNo2   AS INTEGER     NO-UNDO.
+DEFINE INPUT  PARAMETER ipiForm     AS INTEGER     NO-UNDO.
+DEFINE INPUT  PARAMETER ipiBlank    AS INTEGER     NO-UNDO.
+DEFINE INPUT  PARAMETER iplCheckBar AS LOGICAL     NO-UNDO.
+DEFINE INPUT  PARAMETER iplCheckBarBlank AS LOGICAL     NO-UNDO.
+DEFINE OUTPUT PARAMETER oplCheckBar AS LOGICAL     NO-UNDO.
+
+DEFINE BUFFER bf-job FOR job.
+DEFINE BUFFER bf-job-hdr-2 FOR job-hdr.
+DEFINE VARIABLE v-lncnt AS INT NO-UNDO.
+DEFINE VARIABLE v-frstitem AS CHAR NO-UNDO.
+DEFINE VARIABLE v-lastitem AS CHAR NO-UNDO.
+DEFINE VARIABLE v-first-order AS INT NO-UNDO.
+DEFINE VARIABLE v-last-order AS INT NO-UNDO.
+DO WITH FRAME {&FRAME-NAME}:
+
+   FIND FIRST bf-job WHERE
+        bf-job.company EQ cocode AND
+        bf-job.job-no EQ ipcJobNo AND
+        bf-job.job-no2 EQ ipiJobNo2
+        NO-LOCK NO-ERROR.
+
+   IF AVAIL bf-job THEN
+   DO:
+      FOR EACH bf-job-hdr-2 FIELDS(i-no frm blank-no) NO-LOCK
+          WHERE bf-job-hdr-2.company EQ bf-job.company
+            AND bf-job-hdr-2.job-no  EQ bf-job.job-no
+            AND bf-job-hdr-2.job-no2 EQ bf-job.job-no2
+            AND ( bf-job-hdr-2.frm EQ ipiForm OR NOT iplCheckBar )
+            AND ( bf-job-hdr-2.blank-no EQ ipiBlank OR NOT iplCheckBarBlank )
+           BREAK BY bf-job-hdr-2.i-no:
+
+           v-lncnt = v-lncnt + 1.
+
+           IF FIRST-OF(bf-job-hdr-2.i-no) THEN
+              v-frstitem = bf-job-hdr-2.i-no.
+           IF LAST-OF(bf-job-hdr-2.i-no) THEN
+              v-lastitem = bf-job-hdr-2.i-no.
+      END.
+
+      FOR EACH bf-job-hdr-2 FIELDS(ord-no frm blank-no) NO-LOCK
+          WHERE bf-job-hdr-2.company EQ bf-job.company
+            AND bf-job-hdr-2.job-no  EQ bf-job.job-no
+            AND bf-job-hdr-2.job-no2 EQ bf-job.job-no2
+            AND ( bf-job-hdr-2.frm EQ ipiForm OR NOT iplCheckBar )
+            AND ( bf-job-hdr-2.blank-no EQ ipiBlank OR NOT iplCheckBarBlank )
+           BREAK BY bf-job-hdr-2.ord-no:
+
+           IF FIRST-OF(bf-job-hdr-2.ord-no) THEN
+              v-first-order = bf-job-hdr-2.ord-no.
+           IF LAST-OF(bf-job-hdr-2.ord-no) THEN
+              v-last-order = bf-job-hdr-2.ord-no.
+      END.
+  
+  
+      ASSIGN
+         begin_ord-no:SCREEN-VALUE = STRING(v-first-order)
+         begin_job:SCREEN-VALUE    = ipcJobNo         
+         begin_job2:SCREEN-VALUE   = STRING(ipiJobNo2,"99")
+         begin_i-no:SCREEN-VALUE   = v-lastitem.           
+
+      APPLY "LEAVE" TO begin_i-no.
+      IF v-lncnt EQ 1 THEN
+          oplCheckBar = YES . 
+      /*IF v-lncnt GT 1 THEN
+         MESSAGE "There are multiple FG Items on this order." skip
+                 "Please select an FG Item."
+                VIEW-AS ALERT-BOX INFO BUTTONS OK.*/ /* warning for malti fgitem*/
+   END.
+END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
@@ -1448,14 +1564,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fi_cas-lab begin_job begin_job2 begin_ord-no begin_i-no tb_per-unit 
-          tb_per-pallet tb_over tb_print-comp scr-auto-print scr-freeze-label 
-          scr-label-file rd_print begin_date end_date begin_filename lbl_po-no 
+  DISPLAY fi_cas-lab begin_job begin_job2 begin_ord-no begin_i-no begin_rel 
+          tb_per-unit tb_per-pallet tb_over tb_print-comp scr-auto-print 
+          scr-freeze-label scr-label-file rd_print begin_date end_date 
+          begin_filename lbl_po-no 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-7 fi_cas-lab begin_job begin_job2 begin_ord-no begin_i-no 
-         tb_per-unit tb_per-pallet tb_over tb_print-comp scr-auto-print 
-         scr-freeze-label scr-label-file rd_print begin_date end_date 
-         btn-cancel btn-ok 
+         begin_rel tb_per-unit tb_per-pallet tb_over tb_print-comp 
+         scr-auto-print scr-freeze-label scr-label-file rd_print begin_date 
+         end_date btn-cancel btn-ok 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1558,6 +1675,17 @@ DEF OUTPUT PARAM vlWarning AS LOG NO-UNDO.
                      oe-rel.i-no    eq oe-ordl.i-no AND
                      oe-rel.ord-no  eq oe-ordl.ord-no
                      NO-LOCK NO-ERROR.
+
+                FIND FIRST oe-relh NO-LOCK
+                    WHERE oe-relh.company EQ cocode 
+                    AND oe-relh.release# EQ begin_rel NO-ERROR .
+                IF AVAIL oe-relh THEN
+                    FIND FIRST oe-rell  NO-LOCK     
+                    WHERE oe-rell.company   EQ oe-relh.company  
+                    AND oe-rell.r-no      EQ oe-relh.r-no NO-ERROR.   
+
+                IF AVAIL oe-rell THEN
+                    w-ord.ord-qty      = oe-rell.qty .
 
            
                 RELEASE oe-ordl.
@@ -1699,9 +1827,10 @@ PROCEDURE from-ord :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+  DEFINE VARIABLE iRno   AS INTEGER NO-UNDO .
+  DEFINE VARIABLE iRelNo AS INTEGER NO-UNDO .
 
   DEF VAR ld-over AS DEC NO-UNDO.
-
 
     FIND FIRST oe-ord
         WHERE ROWID(oe-ord) EQ ip-rowid
@@ -1817,6 +1946,18 @@ PROCEDURE from-ord :
              w-ord.box-dep    = itemfg.d-score[50]
              w-ord.prod-notes = itemfg.prod-notes.
 
+          
+          FIND FIRST oe-relh NO-LOCK
+              WHERE oe-relh.company EQ cocode 
+                AND oe-relh.release# EQ begin_rel NO-ERROR .
+          IF AVAIL oe-relh THEN
+              FIND FIRST oe-rell  NO-LOCK     
+              WHERE oe-rell.company   EQ oe-relh.company  
+              AND oe-rell.r-no      EQ oe-relh.r-no NO-ERROR.   
+          
+          IF AVAIL oe-rell THEN
+              w-ord.ord-qty      = oe-rell.qty .
+         
           FIND FIRST oe-rel WHERE oe-rel.company eq cocode
                             AND oe-rel.i-no    eq oe-ordl.i-no
                             AND oe-rel.ord-no  eq oe-ordl.ord-no
@@ -1862,12 +2003,13 @@ PROCEDURE from-ord :
         END.  /* first-of */
       END.  /* not by-release */
 
-      ELSE 
+     ELSE 
       FOR EACH oe-rel
           WHERE oe-rel.company eq cocode
           AND oe-rel.i-no    eq oe-ordl.i-no
           AND oe-rel.ord-no  eq oe-ordl.ord-no
-          AND oe-rel.link-no ne 0 NO-LOCK:
+          AND oe-rel.link-no ne 0
+          NO-LOCK:
 
         FIND FIRST shipto
             WHERE shipto.company EQ cocode
@@ -1969,7 +2111,61 @@ PROCEDURE from-ord :
         ASSIGN w-ord.rel-lot# = oe-rel.lot-no.
       END.
     END.
+   
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-jobord-info C-Win 
+PROCEDURE get-jobord-info :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE ll AS INTEGER INIT 1 NO-UNDO.
+DEFINE VARIABLE lv-job-no AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-job-no2 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-job AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-job2 AS INTEGER NO-UNDO.
+DEFINE VARIABLE li AS INTEGER NO-UNDO.
+DEFINE VARIABLE lcForm AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iForm AS CHARACTER NO-UNDO .
+DEFINE VARIABLE iBlank-no AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lCheckForm AS LOGICAL INIT YES NO-UNDO .
+DEFINE VARIABLE lCheckBlank AS LOGICAL INIT YES NO-UNDO .
+DEFINE VARIABLE oplCheckForm AS LOGICAL INIT NO NO-UNDO .
+
+DEFINE BUFFER bf-job FOR job.
+DEFINE BUFFER bf-job-hdr-2 FOR job-hdr.
+
+
+   v-job = ENTRY(1,begin_job:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
+
+   DO li = 1 TO LENGTH(v-job):
+      IF INDEX("/:-",SUBSTR(v-job,li,1)) GT 0 THEN
+        ll = ll + 1.
+         /*ELSE LEAVE.*/
+      ELSE do:
+         IF ll EQ 1 THEN lv-job-no = lv-job-no + SUBSTR(v-job,li,1).
+         ELSE IF ll EQ 2 THEN lv-job-no2 = lv-job-no2 + SUBSTR(v-job,li,1).
+         ELSE IF ll EQ 3 THEN iForm = iForm + SUBSTR(v-job,li,1) NO-ERROR .
+         ELSE IF ll EQ 4 THEN iBlank-no = iBlank-no + SUBSTR(v-job,li,1) NO-ERROR .
+      END.
+   END.
+   IF iForm EQ "" THEN
+       lCheckForm = NO .
+   IF iBlank-no EQ "" THEN
+       lCheckBlank = NO .
+
+   ASSIGN
+      lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + lv-job-no
+      v-job2 = INT(lv-job-no2).
+   RUN dispJobInfo (INPUT cocode, INPUT lv-job-no, INPUT v-job2,INPUT iForm, INPUT iBlank-no, INPUT lCheckForm, INPUT lCheckBlank, OUTPUT oplCheckForm ).
+  
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3170,153 +3366,102 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-jobord-info C-Win 
-PROCEDURE get-jobord-info :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-release C-Win 
+PROCEDURE check-release :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE ll AS INTEGER INIT 1 NO-UNDO.
-DEFINE VARIABLE lv-job-no AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-job-no2 AS CHARACTER NO-UNDO.
-DEFINE VARIABLE v-job AS CHARACTER NO-UNDO.
-DEFINE VARIABLE v-job2 AS INTEGER NO-UNDO.
-DEFINE VARIABLE li AS INTEGER NO-UNDO.
-DEFINE VARIABLE lcForm AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iForm AS CHARACTER NO-UNDO .
-DEFINE VARIABLE iBlank-no AS CHARACTER NO-UNDO .
-DEFINE VARIABLE lCheckForm AS LOGICAL INIT YES NO-UNDO .
-DEFINE VARIABLE lCheckBlank AS LOGICAL INIT YES NO-UNDO .
-DEFINE VARIABLE oplCheckForm AS LOGICAL INIT NO NO-UNDO .
+    DEFINE VARIABLE lv-stat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCheckRel AS LOGICAL NO-UNDO .
+    IF AVAIL oe-ordl THEN
+    FOR EACH oe-rel NO-LOCK
+        WHERE oe-rel.company EQ oe-ordl.company
+        AND oe-rel.ord-no  EQ oe-ordl.ord-no
+        AND oe-rel.i-no    EQ oe-ordl.i-no
+        AND oe-rel.line    EQ oe-ordl.line
+        USE-INDEX ord-item
 
-DEFINE BUFFER bf-job FOR job.
-DEFINE BUFFER bf-job-hdr-2 FOR job-hdr.
+        BREAK BY oe-rel.rel-no
+              BY oe-rel.b-ord-no
+              BY oe-rel.po-no
+          TRANSACTION:
+
+          IF LAST-OF(oe-rel.po-no) OR oe-rel.rel-no EQ 0 THEN DO:
+              
+              FIND FIRST oe-rell
+                WHERE oe-rell.company  EQ oe-rel.company
+                AND oe-rell.r-no     EQ oe-rel.link-no
+                AND oe-rell.ord-no   EQ oe-rel.ord-no
+                AND oe-rell.rel-no   EQ oe-rel.rel-no
+                AND oe-rell.b-ord-no EQ oe-rel.b-ord-no
+                AND oe-rell.i-no     EQ oe-rel.i-no
+                AND oe-rell.line     EQ oe-rel.line
+                AND oe-rell.po-no    EQ oe-rel.po-no
+                AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
+                USE-INDEX r-no NO-LOCK NO-ERROR.
+            IF NOT AVAIL oe-rell THEN
+                FIND FIRST oe-rell
+                WHERE oe-rell.company  EQ oe-rel.company
+                AND oe-rell.link-no  EQ oe-rel.r-no
+                AND oe-rell.ord-no   EQ oe-rel.ord-no
+                AND oe-rell.rel-no   EQ oe-rel.rel-no
+                AND oe-rell.b-ord-no EQ oe-rel.b-ord-no
+                AND oe-rell.i-no     EQ oe-rel.i-no
+                AND oe-rell.line     EQ oe-rel.line
+                AND oe-rell.po-no    EQ oe-rel.po-no
+                AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
+                NO-LOCK NO-ERROR.
+            /* Needed because line was sometimes different between the two */
+            IF NOT AVAIL oe-rell THEN
+                FIND FIRST oe-rell
+                WHERE oe-rell.company  EQ oe-rel.company
+                AND oe-rell.ord-no   EQ oe-rel.ord-no              
+                AND oe-rell.i-no     EQ oe-rel.i-no
+                AND oe-rell.link-no  EQ oe-rel.r-no
+                AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
+                NO-LOCK NO-ERROR.
+
+            IF AVAIL oe-rell THEN
+                FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK NO-ERROR.
+                
+ 
+            DO WITH FRAME {&FRAME-NAME}:
+                IF AVAIL oe-relh AND oe-relh.release# NE 0 THEN do:
+                    ASSIGN
+                        begin_rel:SCREEN-VALUE   = STRING(oe-relh.release#)
+                        begin_rel:SENSITIVE   = YES
+                        lCheckRel = YES .
+                    LEAVE .
+                END.
+            END.
+          END.
+    END.
+    IF NOT lCheckRel THEN DO:
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN
+                begin_rel:SCREEN-VALUE   = ""
+                begin_rel:SENSITIVE   = NO .
+        END.
+    END.
+ 
+
+    END PROCEDURE.
+
+    /* _UIB-CODE-BLOCK-END */
+    &ANALYZE-RESUME
 
 
-   v-job = ENTRY(1,begin_job:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
+    /* ************************  Function Implementations ***************** */
 
-   DO li = 1 TO LENGTH(v-job):
-      IF INDEX("/:-",SUBSTR(v-job,li,1)) GT 0 THEN
-        ll = ll + 1.
-         /*ELSE LEAVE.*/
-      ELSE do:
-         IF ll EQ 1 THEN lv-job-no = lv-job-no + SUBSTR(v-job,li,1).
-         ELSE IF ll EQ 2 THEN lv-job-no2 = lv-job-no2 + SUBSTR(v-job,li,1).
-         ELSE IF ll EQ 3 THEN iForm = iForm + SUBSTR(v-job,li,1) NO-ERROR .
-         ELSE IF ll EQ 4 THEN iBlank-no = iBlank-no + SUBSTR(v-job,li,1) NO-ERROR .
-      END.
-   END.
-   IF iForm EQ "" THEN
-       lCheckForm = NO .
-   IF iBlank-no EQ "" THEN
-       lCheckBlank = NO .
-
-   ASSIGN
-      lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + lv-job-no
-      v-job2 = INT(lv-job-no2).
-   RUN dispJobInfo (INPUT cocode, INPUT lv-job-no, INPUT v-job2,INPUT iForm, INPUT iBlank-no, INPUT lCheckForm, INPUT lCheckBlank, OUTPUT oplCheckForm ).
-  
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dispJobInfo C-Win 
-PROCEDURE dispJobInfo :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
------------------------------- ------------------------------------------------*/
-DEF INPUT PARAMETER ipcCompany      AS CHARACTER   NO-UNDO.
-DEFINE INPUT  PARAMETER ipcJobNo    AS CHARACTER   NO-UNDO.
-DEFINE INPUT  PARAMETER ipiJobNo2   AS INTEGER     NO-UNDO.
-DEFINE INPUT  PARAMETER ipiForm     AS INTEGER     NO-UNDO.
-DEFINE INPUT  PARAMETER ipiBlank    AS INTEGER     NO-UNDO.
-DEFINE INPUT  PARAMETER iplCheckBar AS LOGICAL     NO-UNDO.
-DEFINE INPUT  PARAMETER iplCheckBarBlank AS LOGICAL     NO-UNDO.
-DEFINE OUTPUT PARAMETER oplCheckBar AS LOGICAL     NO-UNDO.
-
-DEFINE BUFFER bf-job FOR job.
-DEFINE BUFFER bf-job-hdr-2 FOR job-hdr.
-DEFINE VARIABLE v-lncnt AS INT NO-UNDO.
-DEFINE VARIABLE v-frstitem AS CHAR NO-UNDO.
-DEFINE VARIABLE v-lastitem AS CHAR NO-UNDO.
-DEFINE VARIABLE v-first-order AS INT NO-UNDO.
-DEFINE VARIABLE v-last-order AS INT NO-UNDO.
-DO WITH FRAME {&FRAME-NAME}:
-
-   FIND FIRST bf-job WHERE
-        bf-job.company EQ cocode AND
-        bf-job.job-no EQ ipcJobNo AND
-        bf-job.job-no2 EQ ipiJobNo2
-        NO-LOCK NO-ERROR.
-
-   IF AVAIL bf-job THEN
-   DO:
-      FOR EACH bf-job-hdr-2 FIELDS(i-no frm blank-no) NO-LOCK
-          WHERE bf-job-hdr-2.company EQ bf-job.company
-            AND bf-job-hdr-2.job-no  EQ bf-job.job-no
-            AND bf-job-hdr-2.job-no2 EQ bf-job.job-no2
-            AND ( bf-job-hdr-2.frm EQ ipiForm OR NOT iplCheckBar )
-            AND ( bf-job-hdr-2.blank-no EQ ipiBlank OR NOT iplCheckBarBlank )
-           BREAK BY bf-job-hdr-2.i-no:
-
-           v-lncnt = v-lncnt + 1.
-
-           IF FIRST-OF(bf-job-hdr-2.i-no) THEN
-              v-frstitem = bf-job-hdr-2.i-no.
-           IF LAST-OF(bf-job-hdr-2.i-no) THEN
-              v-lastitem = bf-job-hdr-2.i-no.
-      END.
-
-      FOR EACH bf-job-hdr-2 FIELDS(ord-no frm blank-no) NO-LOCK
-          WHERE bf-job-hdr-2.company EQ bf-job.company
-            AND bf-job-hdr-2.job-no  EQ bf-job.job-no
-            AND bf-job-hdr-2.job-no2 EQ bf-job.job-no2
-            AND ( bf-job-hdr-2.frm EQ ipiForm OR NOT iplCheckBar )
-            AND ( bf-job-hdr-2.blank-no EQ ipiBlank OR NOT iplCheckBarBlank )
-           BREAK BY bf-job-hdr-2.ord-no:
-
-           IF FIRST-OF(bf-job-hdr-2.ord-no) THEN
-              v-first-order = bf-job-hdr-2.ord-no.
-           IF LAST-OF(bf-job-hdr-2.ord-no) THEN
-              v-last-order = bf-job-hdr-2.ord-no.
-      END.
-  
-  
-      ASSIGN
-         begin_ord-no:SCREEN-VALUE = STRING(v-first-order)
-         begin_job:SCREEN-VALUE    = ipcJobNo         
-         begin_job2:SCREEN-VALUE   = STRING(ipiJobNo2,"99")
-         begin_i-no:SCREEN-VALUE   = v-lastitem.           
-
-      APPLY "LEAVE" TO begin_i-no.
-      IF v-lncnt EQ 1 THEN
-          oplCheckBar = YES . 
-      /*IF v-lncnt GT 1 THEN
-         MESSAGE "There are multiple FG Items on this order." skip
-                 "Please select an FG Item."
-                VIEW-AS ALERT-BOX INFO BUTTONS OK.*/ /* warning for malti fgitem*/
-   END.
-END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-/* ************************  Function Implementations ***************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION blockAccess C-Win 
-FUNCTION blockAccess RETURNS LOGICAL
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
+    &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION blockAccess C-Win 
+    FUNCTION blockAccess RETURNS LOGICAL
+      ( /* parameter-definitions */ ) :
+    /*------------------------------------------------------------------------------
+      Purpose:  
+        Notes:  
+    ------------------------------------------------------------------------------*/
 DEF VAR llAllowed AS LOGICAL NO-UNDO.
 DEF VAR llAccessClose AS LOG NO-UNDO.
 DEF VAR lcAccessList AS CHARACTER NO-UNDO.

@@ -148,6 +148,7 @@ ASSIGN
     FIRST oe-ord NO-LOCK                              ~
         WHERE oe-ord.company  EQ oe-ordl.company      ~
           AND oe-ord.ord-no   EQ oe-ordl.ord-no       ~
+          AND oe-ord.ord-date  GE fi_ord-date         ~
           AND (oe-ord.type    NE "T" OR NOT ll-alloc) ~
           AND (oe-ord.po-no    BEGINS fi_po-no1 OR    ~
               (INDEX(fi_po-no1,'*') NE 0 AND oe-ord.po-no    MATCHES fi_po-no1)) ~
@@ -271,10 +272,12 @@ oe-ordl.ord-no eq 999999999 NO-LOCK, ~
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS fi_ord-no fi_cust-no fi_i-no fi_part-no ~
 fi_po-no1 fi_est-no fi_job-no fi_job-no2 tb_open tb_closed btn_go btn_show ~
-btn_prev Browser-Table fi_po-no-2 RECT-1 fi_i-name 
+btn_prev Browser-Table fi_po-no-2 RECT-1 fi_i-name fi_ord-date btnCalendar-1 
 &Scoped-Define DISPLAYED-OBJECTS fiTotal FI_moveCol fi_ord-no fi_cust-no ~
 fi_i-no fi_part-no fi_po-no1 fi_est-no fi_job-no fi_job-no2 tb_open ~
-tb_closed fi_sort-by fi_po-no-2 fi_i-name
+tb_closed fi_sort-by fi_po-no-2 fi_i-name fi_ord-date
+
+&Scoped-define btnCalendar-1 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -556,6 +559,17 @@ DEFINE VARIABLE tb_open AS LOGICAL INITIAL YES
      SIZE 13 BY 1
      FONT 6 NO-UNDO.
 
+DEFINE VARIABLE fi_ord-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
+     LABEL "From Date"
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
@@ -668,7 +682,7 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiTotal AT ROW 3.57 COL 134.6 COLON-ALIGNED WIDGET-ID 12
+     fiTotal AT ROW 3.57 COL 141 COLON-ALIGNED WIDGET-ID 12
      FI_moveCol AT ROW 4.57 COL 135.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      fi_ord-no AT ROW 2.19 COL 2 NO-LABEL
      fi_cust-no AT ROW 2.19 COL 15 COLON-ALIGNED NO-LABEL
@@ -689,6 +703,8 @@ DEFINE FRAME F-Main
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      fi_i-name AT ROW 3.38 COL 30 COLON-ALIGNED NO-LABEL
      fi_po-no-2 AT ROW 3.38 COL 72 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     fi_ord-date AT ROW 3.38 COL 103.5 COLON-ALIGNED 
+     btnCalendar-1 AT ROW 3.38 COL 121
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 119
           FGCOLOR 9 FONT 6
@@ -1066,7 +1082,8 @@ DO:
      fi_po-no-2
      fi_est-no
      fi_job-no
-     fi_job-no2.
+     fi_job-no2
+     fi_ord-date.
 
     ll-first = NO.
 
@@ -1314,6 +1331,26 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME fi_ord-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_ord-date B-table-Win
+ON HELP OF fi_ord-date IN FRAME F-Main /*  Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 B-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i fi_ord-date}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME fi_po-no1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_po-no1 B-table-Win
@@ -1347,6 +1384,16 @@ RUN sys/ref/CustList.p (INPUT cocode,
 {sys/inc/chblankcust.i ""OQ1""}
 
 SESSION:DATA-ENTRY-RETURN = YES.
+
+
+DO WITH FRAME {&FRAME-NAME}:
+   /* fi_ord-date = DATE(fi_ord-date:SCREEN-VALUE)   .*/
+    
+    IF fi_ord-date LT TODAY - 365  THEN
+        ASSIGN
+           fi_ord-date:SCREEN-VALUE = STRING(TODAY - 365) 
+           fi_ord-date = TODAY - 365 .
+  END.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -2130,7 +2177,7 @@ PROCEDURE query-first :
         AND oe-ordl.opened EQ YES
         USE-INDEX opened NO-LOCK,
         {&for-each2}
-        BREAK BY oe-ordl.ord-no DESC:
+        BREAK BY oe-ordl.ord-no DESC:  
       IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
       lv-ord-no = oe-ordl.ord-no.
       IF li GE sys-ctrl.int-fld THEN LEAVE.
@@ -2364,7 +2411,7 @@ PROCEDURE query-go :
 
     IF fi_cust-no EQ "" AND fi_i-no EQ "" AND
        fi_part-no EQ "" AND fi_po-no1 EQ "" AND
-       fi_est-no EQ "" AND fi_job-no EQ "" THEN
+       fi_est-no EQ "" AND fi_job-no EQ ""  THEN
     DO:
        {&for-eachblank}
          USE-INDEX opened NO-LOCK,
@@ -2573,6 +2620,8 @@ PROCEDURE set-defaults :
      fi_est-no:SCREEN-VALUE  = ""
      fi_job-no:SCREEN-VALUE  = ""
      fi_job-no2:SCREEN-VALUE = "".
+    IF fi_ord-date:SCREEN-VALUE = "" THEN
+     fi_ord-date:SCREEN-VALUE  = STRING(TODAY - 365) .
   END.
 
 END PROCEDURE.

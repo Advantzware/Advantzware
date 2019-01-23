@@ -242,7 +242,7 @@ DEFINE BUTTON btnDieLookup
 
 DEFINE BUTTON btn_fgitem 
      LABEL "" 
-     SIZE 12 BY 1.
+     SIZE 13 BY 1.
 
 DEFINE BUTTON btn_style
      LABEL "" 
@@ -334,14 +334,14 @@ DEFINE FRAME Corr
      eb.form-no AT ROW 1.24 COL 46.8 COLON-ALIGNED
           LABEL "Frm"
           VIEW-AS FILL-IN 
-          SIZE 5 BY 1
+          SIZE 4 BY 1
      est.form-qty AT ROW 1.24 COL 54 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
      eb.blank-no AT ROW 1.24 COL 64.2 COLON-ALIGNED
           LABEL "Blk"
           VIEW-AS FILL-IN 
-          SIZE 5 BY 1
+          SIZE 4 BY 1
      fi_blank-qty AT ROW 1.24 COL 71.6 COLON-ALIGNED NO-LABEL
      est.mod-date AT ROW 1.24 COL 84.4 COLON-ALIGNED
           LABEL "Mod"
@@ -405,7 +405,7 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
           FONT 6
-     eb.stock-no AT ROW 3.86 COL 124 COLON-ALIGNED
+     eb.stock-no AT ROW 3.86 COL 126 COLON-ALIGNED
           LABEL "FG Item#"
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
@@ -566,7 +566,7 @@ DEFINE FRAME Corr
           LABEL "W"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1     
-     btn_fgitem AT ROW 3.81 COL 114 WIDGET-ID 16
+     btn_fgitem AT ROW 3.81 COL 115 WIDGET-ID 16
      btn_style AT ROW 10.52 COL 8 WIDGET-ID 16
      btn_board AT ROW 11.71 COL 12 WIDGET-ID 16
      btn_cust AT ROW 2.67 COL 15 WIDGET-ID 16
@@ -2808,16 +2808,11 @@ assign
  itemfg.company    = cocode
  itemfg.loc        = locode
  itemfg.i-no       = v-item
- itemfg.i-code     = "C"
  itemfg.i-name     = xeb.part-dscr1
  itemfg.part-dscr1 = xeb.part-dscr2
- itemfg.sell-uom   = "M"
  itemfg.part-no    = xeb.part-no
  itemfg.cust-no    = xeb.cust-no
  itemfg.cust-name  = if avail cust then cust.name else ""
- itemfg.pur-uom    = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.prod-uom   = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.stocked    = yes
  itemfg.die-no     = xeb.die-no
  itemfg.plate-no   = xeb.plate-no
  itemfg.style      = xeb.style
@@ -2829,7 +2824,7 @@ assign
                      xeb.form-no eq 0
  itemfg.pur-man    = xeb.pur-man  
  itemfg.alloc      = xeb.set-is-assembled
- itemfg.setupDate  = TODAY.
+ .
 
  IF itemfg.alloc NE ? THEN itemfg.alloc = NOT itemfg.alloc.
 
@@ -4504,6 +4499,7 @@ PROCEDURE update-sheet :
   /*     find xest where recid(xest) = recid(est).  */
 
   IF NOT lv-foam THEN DO:
+    RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
     {sys/inc/ceroute1.i w id l en}
   END.
 

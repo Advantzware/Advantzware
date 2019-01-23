@@ -708,14 +708,7 @@ FOR EACH job-hdr NO-LOCK
               STRING(ef.trim-l).
           END.
 
-          FIND FIRST ref-side NO-LOCK WHERE
-               ref-side.reftable EQ "ce/v-est3.w Unit#"  AND
-               ref-side.company  EQ eb.company AND
-               ref-side.loc      EQ eb.est-no AND
-               ref-side.code     EQ STRING(eb.form-no,"9999999999") AND
-               ref-side.code2    EQ STRING(eb.blank-no,"9999999999")
-               NO-ERROR.
-
+          
           /** BUILD INK WORK FILE **/
           FOR EACH job-mat NO-LOCK
               WHERE job-mat.company EQ cocode
@@ -744,28 +737,9 @@ FOR EACH job-hdr NO-LOCK
                    wrk-ink.i-dscr   = eb.i-dscr2[i]
                    wrk-ink.i-pass   = eb.i-ps2[i].
 
-                  IF i LE 12 THEN DO:
-                    FIND FIRST ref-side NO-LOCK WHERE
-                      ref-side.reftable EQ "ce/v-est3.w Unit#"  AND
-                      ref-side.company  EQ eb.company AND
-                      ref-side.loc      EQ eb.est-no AND
-                      ref-side.code     EQ STRING(eb.form-no,"9999999999") AND
-                      ref-side.code2    EQ STRING(eb.blank-no,"9999999999")
-                      NO-ERROR.
-                    IF AVAILABLE ref-side THEN
-                        wrk-ink.i-side = FILL(" ",5) + SUBSTRING(ref-side.dscr,i,1).
-                  END.
-                  ELSE DO:
-                      FIND FIRST ref-side NO-LOCK WHERE
-                          ref-side.reftable EQ "ce/v-est3.w Unit#1"  AND
-                          ref-side.company  EQ eb.company AND
-                          ref-side.loc      EQ eb.est-no AND
-                          ref-side.code     EQ STRING(eb.form-no,"9999999999") AND
-                          ref-side.code2    EQ STRING(eb.blank-no,"9999999999")
-                          NO-ERROR.
-                       IF AVAILABLE ref-side THEN
-                     wrk-ink.i-side = FILL(" ",5) + SUBSTRING(ref-side.dscr,i - 12,1).
-                  END.                                                                
+                  IF i LE 12 THEN DO:                   
+                    wrk-ink.i-side = FILL(" ",5) + SUBSTRING(eb.side[i],1).                  
+                  END.                                                              
                  
                 END.
               END.
@@ -981,7 +955,7 @@ FOR EACH job-hdr NO-LOCK
                                               notes.note_form_no EQ wrk-sheet.form-no NO-ERROR.
                v-dept-title = IF AVAILABLE notes THEN notes.note_title ELSE "".
 
-               DISPLAY ITEM.i-no FORMAT "x(10)" SPACE(20)
+               DISPLAY ITEM.i-name FORMAT "x(28)" SPACE(2)
                     TRIM(wrk-sheet.i-no) FORMAT "X(10)" SPACE(2)
                     ef.xgrain FORMAT "x(2)"
                     wrk-sheet.gsh-qty 
@@ -995,7 +969,6 @@ FOR EACH job-hdr NO-LOCK
                   /*  v-case-qty-ext[1]  @ v-case-qty  FORM ">>>>9"    /* #01240503*/
                     v-up-ext[1]        @ v-up*/
                     WITH STREAM-IO WIDTH 170 NO-LABELS NO-BOX FRAME sheet.
-               PUT ITEM.i-name FORMAT "x(28)" SKIP.
                x = 1.
              END. /* each wrk-sheet */
              DO ij = 2 TO 10:

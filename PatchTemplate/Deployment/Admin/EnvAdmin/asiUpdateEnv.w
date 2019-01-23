@@ -39,7 +39,7 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 
-DEF INPUT PARAMETER ipcName AS CHAR NO-UNDO.
+DEF INPUT PARAMETER ipcName AS CHAR NO-UNDO. 
 DEF INPUT PARAMETER ipcPort AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcDir AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcVer AS CHAR NO-UNDO.
@@ -70,6 +70,7 @@ ASSIGN
 &SCOPED-DEFINE SV SCREEN-VALUE IN FRAME DEFAULT-FRAME
 
 DEF STREAM s1.
+DEF STREAM s2.
 
 DEF TEMP-TABLE ttAuditTbl LIKE AuditTbl.
 DEF TEMP-TABLE ttCueCard LIKE cueCard.
@@ -94,6 +95,13 @@ DEFINE TEMP-TABLE ttUserMenu NO-UNDO
     prgmname
     .            
         
+DEFINE TEMP-TABLE ttDBMS NO-UNDO 
+    FIELD iLineNo AS INTEGER 
+    FIELD cLine AS CHARACTER 
+    INDEX iLine IS PRIMARY 
+    iLineNo
+    .
+            
 
 DEF TEMP-TABLE tempUser NO-UNDO LIKE _User.
 DEF TEMP-TABLE ttIniFile
@@ -328,7 +336,7 @@ tbBackupDBs tbUserControl fiEnvironment tbUserCleanup fiAsiDbName ~
 fiAudDbName tbDelBadData fiAsiPortNo fiAudPortNo tbUpdateMaster fiFromVer ~
 tbRunDataFix fiToVer tbUpdateNK1s fiLicensedUsers tbUpdateFileLocs ~
 tbReftableConv tbLoadMenus tbRelNotes eStatus tbBackupFiles tbInstallFiles ~
-tbUpdateIni fiLogFile 
+tbUpdateIni 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -339,12 +347,22 @@ tbUpdateIni fiLogFile
 
 /* ************************  Function Prototypes ********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD intVer C-Win 
-FUNCTION intVer RETURNS INTEGER
-  ( INPUT cVerString AS CHAR )  FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fFixYear C-Win 
+FUNCTION fFixYear RETURNS DATE
+  (INPUT daDate AS DATE ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIntVer C-Win
+FUNCTION fIntVer RETURNS INTEGER 
+  ( INPUT cVerString AS CHAR ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -360,7 +378,7 @@ DEFINE BUTTON bProcess
 
 DEFINE VARIABLE eStatus AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 75 BY 9.52 NO-UNDO.
+     SIZE 75 BY 3.81 NO-UNDO.
 
 DEFINE VARIABLE fiAsiDbName AS CHARACTER FORMAT "X(256)":U 
      LABEL "and databases (ASI)" 
@@ -392,7 +410,7 @@ DEFINE VARIABLE fiFromVer AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiHostname AS CHARACTER FORMAT "X(256)":U INITIAL "DEMO" 
+DEFINE VARIABLE fiHostname AS CHARACTER FORMAT "X(256)":U 
      LABEL "Server Name" 
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
@@ -402,27 +420,23 @@ DEFINE VARIABLE fiLicensedUsers AS INTEGER FORMAT ">>>>9":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 9 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiLogFile AS CHARACTER FORMAT "X(256)":U INITIAL "Log of actions will be stored in N:~\Admin~\EnvAdmin~\UpdateLog.txt" 
-      VIEW-AS TEXT 
-     SIZE 65 BY .62 NO-UNDO.
-
 DEFINE VARIABLE fiOptions AS CHARACTER FORMAT "X(256)":U INITIAL "Options:" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiSiteName AS CHARACTER FORMAT "X(256)":U INITIAL "DEMO" 
+DEFINE VARIABLE fiSiteName AS CHARACTER FORMAT "X(256)":U 
      LABEL "Site Name" 
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiToVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.16" 
+DEFINE VARIABLE fiToVer AS CHARACTER FORMAT "X(256)":U 
      LABEL "to version" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 39 BY 16.19.
+     SIZE 39 BY 14.76.
 
 DEFINE VARIABLE tbBackupDBs AS LOGICAL INITIAL no 
      LABEL "Backup Databases" 
@@ -499,40 +513,39 @@ DEFINE VARIABLE tbUserControl AS LOGICAL INITIAL no
 
 DEFINE FRAME DEFAULT-FRAME
      fiSiteName AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 68
-     fiOptions AT ROW 1.24 COL 79 COLON-ALIGNED NO-LABEL
+     fiOptions AT ROW 1.24 COL 87 COLON-ALIGNED NO-LABEL
      fiHostname AT ROW 2.19 COL 19 COLON-ALIGNED WIDGET-ID 36
-     tbBackupDBs AT ROW 2.43 COL 82 WIDGET-ID 384
-     tbUserControl AT ROW 3.38 COL 82 WIDGET-ID 370
+     tbBackupDBs AT ROW 2.43 COL 90 WIDGET-ID 384
+     tbUserControl AT ROW 3.38 COL 90 WIDGET-ID 370
      fiEnvironment AT ROW 3.86 COL 29 COLON-ALIGNED
-     tbUserCleanup AT ROW 4.33 COL 82 WIDGET-ID 368
+     tbUserCleanup AT ROW 4.33 COL 90 WIDGET-ID 368
      fiAsiDbName AT ROW 4.81 COL 29 COLON-ALIGNED
      fiAudDbName AT ROW 4.81 COL 56 COLON-ALIGNED
-     tbDelBadData AT ROW 5.29 COL 82 WIDGET-ID 374
+     tbDelBadData AT ROW 5.29 COL 90 WIDGET-ID 374
      fiAsiPortNo AT ROW 5.76 COL 29 COLON-ALIGNED
      fiAudPortNo AT ROW 5.76 COL 56 COLON-ALIGNED
-     tbUpdateMaster AT ROW 6.24 COL 82 WIDGET-ID 376
+     tbUpdateMaster AT ROW 6.24 COL 90 WIDGET-ID 376
      fiFromVer AT ROW 6.71 COL 29 COLON-ALIGNED
-     tbRunDataFix AT ROW 7.19 COL 82 WIDGET-ID 400
+     tbRunDataFix AT ROW 7.19 COL 90 WIDGET-ID 400
      fiToVer AT ROW 7.67 COL 29 COLON-ALIGNED WIDGET-ID 46
-     tbUpdateNK1s AT ROW 8.14 COL 82 WIDGET-ID 396
+     tbUpdateNK1s AT ROW 8.14 COL 90 WIDGET-ID 396
      fiLicensedUsers AT ROW 8.62 COL 29 COLON-ALIGNED WIDGET-ID 440
-     tbUpdateFileLocs AT ROW 9.1 COL 82 WIDGET-ID 398
-     tbReftableConv AT ROW 10.05 COL 82 WIDGET-ID 504
+     tbUpdateFileLocs AT ROW 9.1 COL 90 WIDGET-ID 398
+     tbReftableConv AT ROW 10.05 COL 90 WIDGET-ID 504
      bProcess AT ROW 10.29 COL 15 WIDGET-ID 404
-     tbLoadMenus AT ROW 11 COL 82 WIDGET-ID 378
-     tbRelNotes AT ROW 11.95 COL 82 WIDGET-ID 382
-     eStatus AT ROW 12.67 COL 2 NO-LABEL
-     tbBackupFiles AT ROW 12.91 COL 82 WIDGET-ID 386
-     tbInstallFiles AT ROW 13.86 COL 82 WIDGET-ID 388
-     tbUpdateIni AT ROW 14.81 COL 82 WIDGET-ID 450
-     fiLogFile AT ROW 22.43 COL 5 COLON-ALIGNED NO-LABEL
+     tbLoadMenus AT ROW 11 COL 90 WIDGET-ID 378
+     tbRelNotes AT ROW 11.95 COL 90 WIDGET-ID 382
+     eStatus AT ROW 12.43 COL 3 NO-LABEL
+     tbBackupFiles AT ROW 12.91 COL 90 WIDGET-ID 386
+     tbInstallFiles AT ROW 13.86 COL 90 WIDGET-ID 388
+     tbUpdateIni AT ROW 14.81 COL 90 WIDGET-ID 450
      "Status:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 11.95 COL 3 WIDGET-ID 54
-     RECT-5 AT ROW 1.48 COL 79
+          SIZE 8 BY .62 AT ROW 11.71 COL 3 WIDGET-ID 54
+     RECT-5 AT ROW 1.48 COL 87
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 120 BY 22.67 WIDGET-ID 100.
+         SIZE 130 BY 15.43 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -550,9 +563,9 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "ASIupdate 160800-01 Environment"
-         HEIGHT             = 22.67
-         WIDTH              = 120
+         TITLE              = "Advantzware Update - Programs/Data"
+         HEIGHT             = 15.48
+         WIDTH              = 130
          MAX-HEIGHT         = 34.29
          MAX-WIDTH          = 166.2
          VIRTUAL-HEIGHT     = 34.29
@@ -593,8 +606,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiHostname IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiLogFile IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiOptions IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiSiteName IN FRAME DEFAULT-FRAME
@@ -619,7 +630,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* ASIupdate 160800-01 Environment */
+ON END-ERROR OF C-Win /* Advantzware Update - Programs/Data */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -633,7 +644,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* ASIupdate 160800-01 Environment */
+ON WINDOW-CLOSE OF C-Win /* Advantzware Update - Programs/Data */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -801,7 +812,7 @@ PROCEDURE enable_UI :
           fiAsiPortNo fiAudPortNo tbUpdateMaster fiFromVer tbRunDataFix fiToVer 
           tbUpdateNK1s fiLicensedUsers tbUpdateFileLocs tbReftableConv 
           tbLoadMenus tbRelNotes eStatus tbBackupFiles tbInstallFiles 
-          tbUpdateIni fiLogFile 
+          tbUpdateIni 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE RECT-5 tbBackupDBs tbUserControl tbUserCleanup tbDelBadData 
          tbUpdateMaster tbRunDataFix tbUpdateNK1s fiLicensedUsers 
@@ -814,6 +825,133 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipActivateParent C-Win 
+PROCEDURE ipActivateParent :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcPrgmName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID   AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER prgrms FOR prgrms.
+    
+    FIND FIRST prgrms NO-LOCK
+         WHERE prgrms.prgmName EQ ipcPrgmName
+         NO-ERROR.
+    IF AVAILABLE prgrms THEN DO:
+        FIND FIRST xUserMenu
+             WHERE xUserMenu.user_id  EQ ipcUserID
+               AND xUserMenu.prgmName EQ ipcPrgmName
+             NO-ERROR.
+        IF AVAILABLE xUserMenu THEN
+        DELETE xUserMenu.
+        IF prgrms.itemParent NE "" THEN
+        RUN ipActivateParent (prgrms.itemParent, ipcUserID).
+    END. /* if avail */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddDbmsFonts C-Win
+PROCEDURE ipAddDbmsFonts:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcDir AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcTgtDir AS CHAR NO-UNDO.
+    DEF VAR cFileStream AS CHAR NO-UNDO.
+    DEF VAR cThisEntry AS CHAR NO-UNDO.
+    DEF VAR cTgtEnv AS CHAR NO-UNDO.
+    DEF VAR iThisLine AS INT NO-UNDO.
+    DEF VAR cLineText AS CHAR NO-UNDO.
+    DEF VAR iNextLine AS INT NO-UNDO.
+    
+    RUN ipStatus ("  Fixing dbms.ini files").
+    
+    ASSIGN 
+        cTgtEnv = cEnvAdmin.
+
+    INPUT FROM OS-DIR (ipcDir).
+
+    REPEAT:
+        IMPORT cFileStream.
+        FILE-INFO:FILE-NAME = ipcDir + "\" + cFileStream.
+        IF SUBSTRING(FILE-INFO:FILE-NAME,LENGTH(FILE-INFO:FILE-NAME),1) EQ "." THEN DO:
+            NEXT.
+        END.
+        ELSE IF FILE-INFO:FILE-TYPE BEGINS "F" 
+        AND FILE-INFO:FILE-NAME BEGINS "dbms" 
+        AND INDEX(FILE-INFO:FILE-NAME,".ini") NE 0 THEN DO:
+            EMPTY TEMP-TABLE ttDbms.
+            ASSIGN 
+                iThisLine = 100.
+            
+            INPUT STREAM s1 FROM FILE-INFO:FULL-PATHNAME.
+            REPEAT:
+                IMPORT STREAM s1 cLineText.
+                CREATE ttDbms.
+                ASSIGN 
+                    ttDbms.iLineNo = iThisLine
+                    ttDbms.cLine = cLineText
+                    iThisLine = iThisLine + 100.
+            END.
+            INPUT STREAM s1 CLOSE.
+            
+            FIND FIRST ttDbms NO-LOCK WHERE 
+                ttDbms.cLine BEGINS "font32"
+                NO-ERROR.
+            IF NOT AVAIL ttDbms THEN DO:
+                FIND FIRST ttDbms NO-LOCK WHERE 
+                    ttDbms.cLine BEGINS "font31"
+                    NO-ERROR.
+                ASSIGN 
+                    iNextLine = ttDbms.iLineNo.
+                CREATE ttDbms.
+                ASSIGN 
+                    ttDbms.iLineNO = iNextLine + 1
+                    ttDbms.cLine = "font32=Tahoma, size=8".
+                CREATE ttDbms.
+                ASSIGN 
+                    ttDbms.iLineNO = iNextLine + 2
+                    ttDbms.cLine = "font32=Tahoma, size=8, bold".
+                CREATE ttDbms.
+                ASSIGN 
+                    ttDbms.iLineNO = iNextLine + 3
+                    ttDbms.cLine = "font32=Tahoma, size=10".
+                CREATE ttDbms.
+                ASSIGN 
+                    ttDbms.iLineNO = iNextLine + 4
+                    ttDbms.cLine = "font32=Tahoma, size=10, bold".
+                CREATE ttDbms.
+                ASSIGN 
+                    ttDbms.iLineNO = iNextLine + 5
+                    ttDbms.cLine = "font32=Tahoma, size=12".
+                CREATE ttDbms.
+                ASSIGN 
+                    ttDbms.iLineNO = iNextLine + 6
+                    ttDbms.cLine = "font32=Tahoma, size=12, bold".
+                
+                OUTPUT STREAM s2 TO FILE-INFO:FULL-PATHNAME.
+                FOR EACH ttDbms:
+                    PUT STREAM s2 UNFORMATTED ttDbms.cLine + CHR(10).
+                END.
+            END.
+        END.
+    END.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddLocationData C-Win 
 PROCEDURE ipAddLocationData :
@@ -1048,6 +1186,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAuditSysCtrl C-Win
+PROCEDURE ipAuditSysCtrl:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Turn on sys-ctrl (NK1) auditing").
+
+    FIND FIRST auditTbl EXCLUSIVE WHERE
+        auditTbl.auditTable EQ "sys-ctrl"
+        NO-ERROR.
+    IF AVAIL auditTbl THEN ASSIGN 
+        auditTbl.auditCreate = TRUE 
+        auditTbl.auditDelete = TRUE 
+        auditTbl.auditUpdate = TRUE 
+        .
+                
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipBackupDataFiles C-Win 
 PROCEDURE ipBackupDataFiles :
 /*------------------------------------------------------------------------------
@@ -1218,7 +1381,7 @@ PROCEDURE ipBackupDBs :
                        cThisDir + "\" +
                        cThisDB + ".lk".
         .
-    
+
         IF SEARCH(cLockFile) EQ ? THEN 
         DO:
             MESSAGE 
@@ -2025,26 +2188,36 @@ PROCEDURE ipDataFix :
     ASSIGN 
         cThisEntry = fiFromVer:{&SV}.
 
-    IF intVer(cThisEntry) LT 160001 THEN
+    IF fIntVer(cThisEntry) LT 16001000 THEN
         RUN ipDataFix160001.
-    IF intVer(cThisEntry) LT 160104 THEN
+    IF fIntVer(cThisEntry) LT 16014000 THEN
         RUN ipDataFix160104.
-    IF intVer(cThisEntry) LT 160200 THEN
+    IF fIntVer(cThisEntry) LT 16020000 THEN
         RUN ipDataFix160200.
-    IF intVer(cThisEntry) LT 160600 THEN
+    IF fIntVer(cThisEntry) LT 16060000 THEN
         RUN ipDataFixConfig.
-    IF intVer(cThisEntry) LT 160609 THEN
+    IF fIntVer(cThisEntry) LT 16069000 THEN
         RUN ipDataFix160609.
-    IF intVer(cThisEntry) LT 160700 THEN 
+    IF fIntVer(cThisEntry) LT 16070000 THEN 
         RUN ipDataFix160700.
-    IF intVer(cThisEntry) LT 160704 THEN
+    IF fIntVer(cThisEntry) LT 16074000 THEN
         RUN ipDataFix160704.
-    IF intVer(cThisEntry) LT 160708 THEN
+    IF fIntVer(cThisEntry) LT 16078000 THEN
         RUN ipDataFix160708.
-    IF intVer(cThisEntry) LT 160712 THEN
+    IF fIntVer(cThisEntry) LT 16071200 THEN
         RUN ipDataFix160712.
-    IF intVer(cThisEntry) LT 160800 THEN
+    IF fIntVer(cThisEntry) LT 16080000 THEN
         RUN ipDataFix160800.
+    IF fIntVer(cThisEntry) LT 16084000 THEN
+        RUN ipDataFix160840.
+    IF fIntVer(cThisEntry) LT 16085000 THEN
+        RUN ipDataFix160850.
+    IF fIntVer(cThisEntry) LT 16085100 THEN
+        RUN ipDataFix160851.
+    IF fIntVer(cThisEntry) LT 16086000 THEN
+        RUN ipDataFix160860.
+    IF fIntVer(cThisEntry) LT 16089900 THEN
+        RUN ipDataFix160899.
 
     RUN ipStatus ("Completed Data Fixes").
 
@@ -2288,7 +2461,92 @@ PROCEDURE ipDataFix160800 :
     RUN ipAddLocationData.
     RUN ipVendorMaxValue.
     RUN ipSetImageFiles.
+    RUN ipTrackUsage.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160840 C-Win 
+PROCEDURE ipDataFix160840 :
+/*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160840...").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160850 C-Win 
+PROCEDURE ipDataFix160850 :
+/*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160850...").
+
+    RUN ipRemoveUserMenu.
+    RUN ipFixUserPrint.
+    RUN ipAddDbmsFonts.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160851 C-Win 
+PROCEDURE ipDataFix160851 :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160851...").
+
+    RUN ipFixBadYears.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160860 C-Win
+PROCEDURE ipDataFix160860:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160860...").
+
+    FIND FIRST module NO-LOCK WHERE 
+        module.module = "audit." AND 
+        module.is-Used = FALSE
+        NO-ERROR.
+    IF AVAIL module THEN DO:
+	    RUN ipDeleteAudit.
+    END.
+        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160899 C-Win 
+PROCEDURE ipDataFix160899 :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160899...").
+
     RUN ipUseOldNK1.
+    RUN ipAuditSysCtrl.
 
 END PROCEDURE.
 
@@ -2471,6 +2729,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDeleteAudit C-Win
+PROCEDURE ipDeleteAudit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Deleting audit records (unlicensed)...").
+
+    RUN ipStatus ("      Deleting audit headers...").
+    FOR EACH AuditHdr:
+        DELETE AuditHdr.
+    END.
+    RUN ipStatus ("      Deleting audit details...").
+    FOR EACH AuditDtl:
+        DELETE AuditDtl.
+    END.
+    RUN ipStatus ("      Deleting audit stack...").
+    FOR EACH AuditStack:
+        DELETE AuditStack.
+    END.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipExpandFiles C-Win 
 PROCEDURE ipExpandFiles :
 /*------------------------------------------------------------------------------
@@ -2494,7 +2782,7 @@ PROCEDURE ipExpandFiles :
 
     ASSIGN 
         cThisEntry = fiEnvironment:{&SV}
-        cTgtEnv = cMapDir + "\" + cEnvDir + "\" + fiEnvironment:{&SV}.
+        cTgtEnv = cEnvDir + "\" + fiEnvironment:{&SV}.
 
     RUN ipStatus ("  Expanding files...").
 
@@ -2509,7 +2797,9 @@ PROCEDURE ipExpandFiles :
     OS-COMMAND SILENT VALUE(cCmdLine3).
 
     /* Skip the copy part, just MOVE the files  */
-    RUN ipStatus ("  Moving expanded files from Patch to " + cThisEntry + " temp directory").
+    RUN ipStatus ("  Moving expanded files from ").
+    RUN ipStatus ("    " + cUpdProgramDir + " to").
+    RUN ipStatus ("    " + cTgtEnv).
     OS-RENAME VALUE(cUpdProgramDir + "\Override") VALUE(cTgtEnv + "\OverrideN").
     OS-RENAME VALUE(cUpdProgramDir + "\Programs") VALUE(cTgtEnv + "\ProgramsN").
     OS-RENAME VALUE(cUpdProgramDir + "\Resources") VALUE(cTgtEnv + "\ResourcesN").
@@ -2544,13 +2834,12 @@ PROCEDURE ipExpandVarNames :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
     /* Modify variables for ease of use */
     ASSIGN
-        cPatchNo = fiToVer:{&SV}
+        cMapDir = cDrive + "\" + cTopDir
         cAdminDir = cMapDir + "\" + cAdminDir
         cBackupDir = cMapDir + "\" + cBackupDir
-        cDBDir = cMapDir + "\" + cDbDir
+        cDBDir = cDbDrive + "\" + cTopDir + "\" + cDbDir 
         cDocDir = cMapDir + "\" + cDocDir
         cDeskDir = cMapDir + "\" + cDeskDir
         cEnvDir = cMapDir + "\" + cEnvDir
@@ -2570,14 +2859,14 @@ PROCEDURE ipExpandVarNames :
         cDbTestDir = cDbDir + "\" + cDbTestDir
         cEnvProdDir = cEnvDir + "\" + cEnvProdDir
         cEnvTestDir = cEnvDir + "\" + cEnvTestDir
-        cUpdAdminDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdAdminDir
-        cUpdCompressDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdCompressDir
-        cUpdDataDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdDataDir
-        cUpdDeskDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdDeskDir
-        cUpdMenuDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdMenuDir
-        cUpdProgramDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdProgramDir
-        cUpdRelNotesDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdRelNotesDir
-        cUpdStructureDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdStructureDir
+        cUpdAdminDir = cUpdatesDir + "\" + cUpdAdminDir
+        cUpdCompressDir = cUpdatesDir + "\" + cUpdCompressDir
+        cUpdDataDir = cUpdatesDir + "\" + cUpdDataDir
+        cUpdDeskDir = cUpdatesDir + "\" + cUpdDeskDir
+        cUpdMenuDir = cUpdatesDir + "\" + cUpdMenuDir
+        cUpdProgramDir = cUpdatesDir + "\" + cUpdProgramDir
+        cUpdRelNotesDir = cUpdatesDir + "\" + cUpdRelNotesDir
+        cUpdStructureDir = cUpdatesDir + "\" + cUpdStructureDir
         lmakeBackup = IF INDEX(cMakeBackup,"Y") NE 0 OR INDEX(cMakeBackup,"T") NE 0 THEN TRUE ELSE FALSE
         lConnectAudit = IF INDEX(cConnectAudit,"Y") NE 0 OR INDEX(cConnectAudit,"T") NE 0 THEN TRUE ELSE FALSE
         cLockoutTries = SUBSTRING(cLockoutTries,1,1)
@@ -2693,6 +2982,62 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixBadYears C-Win 
+PROCEDURE ipFixBadYears :
+/*------------------------------------------------------------------------------
+ Purpose:   ensure year values are in 20th or 21st century
+ Notes:     from ticket 41037
+------------------------------------------------------------------------------*/
+    RUN ipStatus("   Fix year values not in this century (41037)").
+
+    DISABLE TRIGGERS FOR LOAD OF oe-ord.
+    DISABLE TRIGGERS FOR LOAD OF oe-ordl.
+    DISABLE TRIGGERS FOR LOAD OF oe-rel.
+    DISABLE TRIGGERS FOR LOAD OF oe-relh.
+    DISABLE TRIGGERS FOR LOAD OF oe-rell.
+    
+    FOR EACH oe-ord WHERE (oe-ord.ord-date GT 09/01/2018 
+                           OR oe-ord.ord-date LT 12/31/0100):
+        /* Note: do in multiple assigns, else function only evaluates once */
+        ASSIGN oe-ord.ord-date = fFixYear(oe-ord.ord-date).
+        ASSIGN oe-ord.prod-date = fFixYear(oe-ord.prod-date).
+        ASSIGN oe-ord.due-date = fFixYear(oe-ord.due-date).
+        ASSIGN oe-ord.last-date = fFixYear(oe-ord.last-date).
+        ASSIGN oe-ord.inv-date = fFixYear(oe-ord.inv-date).
+        ASSIGN oe-ord.upd-date = fFixYear(oe-ord.upd-date).
+        ASSIGN oe-ord.approved-date = fFixYear(oe-ord.approved-date).
+        ASSIGN oe-ord.entered-date = fFixYear(oe-ord.entered-date).
+        ASSIGN oe-ord.updated-date = fFixYear(oe-ord.updated-date).
+        ASSIGN oe-ord.closedate = fFixYear(oe-ord.closedate).
+        FOR EACH oe-ordl OF oe-ord:
+            ASSIGN oe-ordl.req-date = fFixYear(oe-ordl.req-date).
+            ASSIGN oe-ordl.prom-date = fFixYear(oe-ordl.prom-date).
+            ASSIGN oe-ordl.upd-date = fFixYear(oe-ordl.upd-date).
+            ASSIGN oe-ordl.job-start-date = fFixYear(oe-ordl.job-start-date).
+        END.
+        FOR EACH oe-rel OF oe-ord:
+            ASSIGN oe-rel.rel-date = fFixYear(oe-rel.rel-date).
+            ASSIGN oe-rel.ship-date = fFixYear(oe-rel.ship-date).
+            ASSIGN oe-rel.upd-date = fFixYear(oe-rel.upd-date).
+            FOR EACH oe-relh OF oe-rel:
+                ASSIGN oe-relh.rel-date = fFixYear(oe-relh.rel-date).
+                ASSIGN oe-relh.upd-date = fFixYear(oe-relh.upd-date).
+                ASSIGN oe-relh.prt-date = fFixYear(oe-relh.prt-date).
+            END.
+            FOR EACH oe-rell OF oe-rel:
+                ASSIGN oe-relh.upd-date = fFixYear(oe-rell.upd-date).
+            END.
+        END.
+    END.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixPoEdiDirs C-Win 
 PROCEDURE ipFixPoEdiDirs :
 /*------------------------------------------------------------------------------
@@ -2727,6 +3072,29 @@ PROCEDURE ipFixPoEdiDirs :
         RUN ipCopyDirs (cEnvDir + "\" + fiEnvironment:{&SV} + "\PO",
                         cEnvDir + "\" + fiEnvironment:{&SV} + "\CustFiles\EDIfiles\POs").
     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixUserPrint C-Win 
+PROCEDURE ipFixUserPrint :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Change 'asi' userprint records to 'admin'").
+
+    DISABLE TRIGGERS FOR LOAD OF user-print.
+    
+    FOR EACH user-print EXCLUSIVE WHERE
+        user-print.user-id EQ "asi":
+        ASSIGN 
+            user-print.user-id = "admin".
+    END. 
+         
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3033,7 +3401,7 @@ PROCEDURE ipLoadMenus :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
-  Notes:       
+  Notes:       Deprecated in 16.8.5
 ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ipcDir AS CHAR NO-UNDO.
     DEF INPUT PARAMETER ipcTgtDir AS CHAR NO-UNDO.
@@ -3302,6 +3670,15 @@ PROCEDURE ipLoadPrograms :
     ASSIGN
         {&tablename}.prgtitle = "About". 
         
+    /* Fix "w-head." program master (Help Maint) regardless of existing entry */
+    FIND FIRST {&tablename} EXCLUSIVE-LOCK WHERE
+        {&tablename}.prgmname EQ "w-head." 
+        NO-ERROR.
+    IF AVAILABLE {&tablename} THEN ASSIGN
+        {&tablename}.securityLevelUser = 1000
+        {&tablename}.securityLevelDefault = 1000
+        .
+        
     /* Fix "audit." program master regardless of existing entry */
     FIND FIRST {&tablename} EXCLUSIVE-LOCK WHERE
         {&tablename}.prgmname EQ "audit." 
@@ -3313,7 +3690,7 @@ PROCEDURE ipLoadPrograms :
         {&tablename}.run_persistent = YES
         {&tablename}.menu_item = YES
         .
-        
+
     /* Ensure 'admin' user has same privileges as 'asi' */
     /* This is better handled with new security, but eliminates some access issues */
     /* See ticket 27968 */
@@ -3525,7 +3902,9 @@ PROCEDURE ipLoadUtilitiesTable :
     REPEAT:
         CREATE {&tablename}.
         IMPORT {&tablename}.
-        IF {&tablename}.programName = "module" THEN ASSIGN 
+        IF {&tablename}.programName = "module.r" /* Module Maint */
+        OR {&tablename}.programName = "w-head.r" /* Help Maint */
+        OR {&tablename}.programName = "ImpMaster.r" /* Import Master */ THEN ASSIGN 
             {&tablename}.securityLevel = 1000.
         ELSE ASSIGN 
             {&tablename}.securityLevel = 900.
@@ -3590,8 +3969,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipMoveUsermenusToDatabase C-Win 
-PROCEDURE ipMoveUsermenusToDatabase :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipMoveUserMenusToDatabase C-Win 
+PROCEDURE ipMoveUserMenusToDatabase :
 /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -3637,22 +4016,25 @@ PROCEDURE ipMoveUsermenusToDatabase :
         /* look for each menu option in the user's custom menu.lst */
         FOR EACH prgrms NO-LOCK
             WHERE prgrms.menu_item EQ YES
-            AND prgrms.menuOrder GT 0
-            AND prgrms.menuLevel GT 0
-            AND prgrms.mnemonic  NE ""
+              AND prgrms.menuOrder GT 0
+              AND prgrms.menuLevel GT 0
+              AND prgrms.mnemonic  NE ""
             :
             /* new additions, do not add to user's exceptions */
             IF CAN-DO("r-jcstdN.,translatn.,userLang.",prgrms.prgmname) THEN
-                NEXT.
+            NEXT.
             /* if found, skip to next menu option */
             IF CAN-FIND(FIRST ttUserMenu
-                WHERE ttUserMenu.prgmname EQ prgrms.prgmname) THEN
+                        WHERE ttUserMenu.prgmname EQ prgrms.prgmname) THEN DO:
+                IF prgrms.itemParent NE "" THEN
+                RUN ipActivateParent (prgrms.itemParent, ENTRY(idx,cListUsers)).
                 NEXT.
+            END. /* if can-find */
             /* menu option not found in menu.lst, add as an exception */
-            CREATE xusermenu.                
+            CREATE xUserMenu.
             ASSIGN
-                xusermenu.user_id  = ENTRY(idx,cListUsers)
-                xusermenu.prgmname = prgrms.prgmname
+                xUserMenu.user_id  = ENTRY(idx,cListUsers)
+                xUserMenu.prgmname = prgrms.prgmname
                 .
         END. /* each prgrms */
     END. /* do idx */
@@ -3699,7 +4081,9 @@ PROCEDURE ipProcessAll :
         /* RUN ipVerifyNK1Changes. */
     END.
     IF tbLoadMenus:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+        /* Deprecated in 16.8.5 
         RUN ipLoadMenus (cUpdMenuDir,cEnvProdDir).
+        */
     END.
     IF tbRelNotes:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipCopyRelNotes.
@@ -4129,7 +4513,8 @@ PROCEDURE ipRemoveUserAddon :
     RUN ipStatus ("    Removing addon mode from .usr file").
 
     DEF BUFFER bxUserMenu FOR xUserMenu.
-
+    DISABLE TRIGGERS FOR LOAD OF xUserMenu.
+    
     DEF VAR cLine     AS CHAR NO-UNDO.
     DEF VAR cOutline  AS CHAR NO-UNDO.
 
@@ -4158,7 +4543,7 @@ PROCEDURE ipRemoveUserAddon :
                 CREATE bxUserMenu.
                 BUFFER-COPY xUserMenu EXCEPT user_id TO bxUserMenu
                 ASSIGN 
-                    bxUserMenu.user_id = users.user_id.
+                    bxUserMenu.user_id = ttUsers.ttfUserID.
             END. /* each xusermenu */
         END.
         ASSIGN 
@@ -4192,6 +4577,51 @@ PROCEDURE ipRemoveUserAddon :
                 bxUserMenu.user_id = users.user_id.
         END. /* each xusermenu */
     END. /* each users */
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRemoveUserMenu C-Win 
+PROCEDURE ipRemoveUserMenu :
+/*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+      ------------------------------------------------------------------------------*/
+    DEF VAR cUserMenuDir AS CHAR NO-UNDO.
+    DEF VAR cAddonUserMenuDir AS CHAR NO-UNDO.
+    DEF VAR cCmdLine AS CHAR NO-UNDO.
+    RUN ipStatus ("    Removing user menu and menu files").
+
+    ASSIGN 
+        cUserMenuDir = cEnvDir + "\" + fiEnvironment:{&SV} + "\UserMenu"
+        cAddonUserMenuDir = cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\UserMenu"
+        .
+
+    OS-DELETE VALUE(cUserMenuDir) RECURSIVE.
+    OS-DELETE VALUE(cAddonUserMenuDir) RECURSIVE.
+
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu.lst").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_addon.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_addon.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_addon.lst").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_plus.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_plus.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\Addon\menu_plus.lst").
+
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu.lst") RECURSIVE.
+
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_addon.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_addon.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_addon.lst").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_plus.cor").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_plus.fol").
+    OS-DELETE VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\menu_plus.lst").
     
 END PROCEDURE.
 
@@ -4242,7 +4672,7 @@ PROCEDURE ipSetAsiPwd :
     IF AVAIL (_User) THEN DO:
         BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser.
         ASSIGN 
-            tempUser._Password = "ifaOfSAcSdialAkd".
+            tempUser._Password = "fcpapdfHaSLfnMbA".
         DELETE _User.
         CREATE _User.
         BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
@@ -4251,7 +4681,7 @@ PROCEDURE ipSetAsiPwd :
         CREATE _User.
         ASSIGN
             _User._UserId = "asi"
-            _User._Password = "ifaOfSAcSdialAkd".
+            _User._Password = "fcpapdfHaSLfnMbA".
     END.
 
     RELEASE _user.
@@ -4332,6 +4762,27 @@ PROCEDURE ipStatus :
     
     PROCESS EVENTS.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipTrackUsage C-Win 
+PROCEDURE ipTrackUsage :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN ipStatus("   Turn on user usage tracking").
+    
+    DISABLE TRIGGERS FOR LOAD OF users.
+    
+    FOR EACH users:
+        ASSIGN
+            users.track_usage = TRUE.
+    END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4418,86 +4869,74 @@ PROCEDURE ipUpdateNK1s :
     DISABLE TRIGGERS FOR DUMP OF sys-ctrl.
     DISABLE TRIGGERS FOR DUMP OF sys-ctrl-shipto.
     
+    /* 01/18/19 - MYT - ensure all these defaults/overrides apply to all companies in DB, not just first record found */
     /* Verify system help WSDL NK1 */
     RUN ipStatus ("  Help Service entries").
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "AsiHelpService"
-        NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN
-        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "AsiHelpService"
-        NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN
-        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "AsiHelpService"
-        NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN
-        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
-    
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "UpdateService"
-        NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN
-        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/updatehelpServices/helpupdate.asmx?WSDL'".
+    FOR EACH sys-ctrl WHERE
+        sys-ctrl.name EQ "AsiHelpService":
+        ASSIGN
+            sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
+    END. 
+    FOR EACH sys-ctrl WHERE
+        sys-ctrl.name EQ "UpdateService":
+        ASSIGN
+            sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/updatehelpServices/helpupdate.asmx?WSDL'".
+    END.
     
     /* Reports - set LV = true */
     RUN ipStatus ("  REPORTS - set log value to TRUE").
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "Reports"
-        NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN
-        sys-ctrl.log-fld = TRUE.
+    FOR EACH sys-ctrl WHERE
+        sys-ctrl.name EQ "Reports":
+        ASSIGN
+            sys-ctrl.log-fld = TRUE.
+    END. 
 
     /* RelType - set Default to "B" */
     RUN ipStatus ("  RelType - if empty, set char value to Bill and Ship").
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "RelType"
-        NO-ERROR.
-    IF AVAIL sys-ctrl 
-    AND sys-ctrl.char-fld EQ "" THEN ASSIGN
+    FOR EACH sys-ctrl WHERE
+        sys-ctrl.name EQ "RelType":
+        IF sys-ctrl.char-fld EQ "" THEN ASSIGN
             sys-ctrl.char-fld = "Bill and Ship".
+    END.
 
     /* Zoho Support Button */
     RUN ipStatus ("  MenuLinkZoho").
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "MenuLinkZoho"
-        NO-ERROR.
-    IF AVAIL sys-ctrl 
-    AND sys-ctrl.descrip EQ "" THEN ASSIGN
-        sys-ctrl.descrip = "https://desk.zoho.com/portal/advantzware/kb"
-        sys-ctrl.char-fld = "Graphics\32x32\question.ico"
-        sys-ctrl.log-fld = TRUE.
-        
-    /* - future: update CustFile locations
     FOR EACH sys-ctrl WHERE
-        INDEX(sys-ctrl.descrip,".") NE 0 OR
-        INDEX(sys-ctrl.descrip,":") NE 0 OR
-        INDEX(sys-ctrl.descrip,"\") NE 0 OR
-        INDEX(sys-ctrl.descrip,"/") NE 0:
-        ASSIGN
-            FILE-INFO:FILE-NAME = sys-ctrl.descrip
-            lIsDir = FILE-INFO:FULL-PATHNAME NE ?.
-        IF lIsDir THEN DO:
-            IF sys-ctrl.descrip BEGINS "C:\" THEN NEXT.
-            IF INDEX(sys-ctrl.descrip,"CustFiles") NE 0 THEN NEXT.
-            ASSIGN
-                cOrigValue = sys-ctrl.descrip.
-            DISP 
-                sys-ctrl.name LABEL "NK1 Name" SKIP
-                sys-ctrl.descrip LABEL "VALUE"
-                WITH FRAME sysctl VIEW-AS DIALOG-BOX THREE-D SIDE-LABELS 1 DOWN.
-            UPDATE sys-ctrl.descrip LABEL "Value"
-                WITH FRAME sysctl.
-            IF sys-ctrl.descrip NE cOrigValue THEN DO:
-                ASSIGN
-                    cTgtDir = REPLACE(sys-ctrl.descrip,".",cEnvProdDir).
-                RUN ipCopyDirs IN THIS-PROCEDURE (cOrigValue, cTgtDir).
-            END.
+        sys-ctrl.name EQ "MenuLinkZoho":
+        IF sys-ctrl.descrip EQ "" THEN ASSIGN
+            sys-ctrl.descrip = "https://desk.zoho.com/portal/advantzware/kb"
+            sys-ctrl.char-fld = "Graphics\32x32\question.ico"
+            sys-ctrl.log-fld = TRUE.
+    END.
+    
+	/* Upgrade Button */
+    RUN ipStatus ("  MenuLinkUpdate").
+    FOR EACH  sys-ctrl WHERE
+        sys-ctrl.name EQ "MenuLinkUpgrade":
+        IF sys-ctrl.descrip EQ "" THEN ASSIGN
+            sys-ctrl.descrip = "https://34.203.15.64/patches/asiUpdate.html"
+            sys-ctrl.char-fld = "Graphics\32x32\question_and_answer.ico"
+            sys-ctrl.log-fld = TRUE
+            sys-ctrl.securityLevelUser = 1000.
+    END.
+        
+    /* BusinessFormLogo */
+    RUN ipStatus ("  BusinessFormLogo").
+    FOR EACH company:
+        FIND FIRST sys-ctrl WHERE
+            sys-ctrl.company EQ company.company AND 
+            sys-ctrl.name EQ "BusinessFormLogo"
+            NO-ERROR.
+        IF NOT AVAIL sys-ctrl THEN DO: 
+            CREATE sys-ctrl.
+            ASSIGN 
+                sys-ctrl.company = company.company
+                sys-ctrl.name = "BusinessFormLogo"
+                sys-ctrl.descrip = "Define the path to the logo to be used on the standard business forms"
+                sys-ctrl.char-fld = ".\images\NoLogo.png".
         END.
     END.
-    */
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4732,30 +5171,63 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION intVer C-Win 
-FUNCTION intVer RETURNS INTEGER
-  ( INPUT cVerString AS CHAR ) :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fFixYear C-Win 
+FUNCTION fFixYear RETURNS DATE
+  (INPUT daDate AS DATE ):
 /*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
-    DEF VAR cStrVal AS CHAR EXTENT 3 NO-UNDO.
-    DEF VAR iIntVal AS INT EXTENT 3 NO-UNDO.
-    DEF VAR iIntVer AS INT NO-UNDO.
-    ASSIGN
-        cStrVal[1] = ENTRY(1,cVerString,".")
-        cStrVal[2] = ENTRY(2,cVerString,".")
-        cStrVal[3] = ENTRY(3,cVerString,".")
-        iIntVal[1] = INT(cStrVal[1])
-        iIntVal[2] = INT(cStrVal[2])
-        iIntVal[3] = INT(cStrVal[3])
-        iIntVer = (iIntVal[1] * 10000) + (iIntVal[2] * 100) + iIntVal[3]
-        NO-ERROR.
+    DEFINE VARIABLE outDate AS DATE NO-UNDO.
     
-  RETURN iIntVer.   /* Function return value. */
-
+    IF daDate EQ ? THEN RETURN ?.
+    ELSE DO:
+        IF YEAR(daDate) LT 2000 
+        AND YEAR(daDate) GT 50 THEN ASSIGN 
+            outDate = DATE(MONTH(daDate), DAY(daDate), YEAR(daDate + 1900)).  
+        ELSE IF YEAR(daDate) LT 2000 THEN ASSIGN 
+            outDate = DATE(MONTH(daDate), DAY(daDate), YEAR(daDate + 2000)). 
+        ELSE ASSIGN
+            outDate = daDate.
+        RETURN outDate.
+    END. 
+    
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIntVer C-Win
+FUNCTION fIntVer RETURNS INTEGER 
+  ( INPUT cVerString AS CHAR ):
+    /*------------------------------------------------------------------------------
+      Purpose:  Converts a version string like "16.4.8" or "16.7.12.2" to an integer
+        Notes:  In the cases above, these would be 16040800 and 16071202
+                Useful for version comparisons
+    ------------------------------------------------------------------------------*/
+
+    DEFINE VARIABLE cStrVal AS CHARACTER EXTENT 4 NO-UNDO.
+    DEFINE VARIABLE iIntVal AS INTEGER EXTENT 4 NO-UNDO.
+    DEFINE VARIABLE iIntVer AS INTEGER NO-UNDO.
+    ASSIGN
+        cStrVal[1] = ENTRY(1,cVerString,".")
+        cStrVal[2] = ENTRY(2,cVerString,".")
+        cStrVal[3] = IF NUM-ENTRIES(cVerString,".") GT 2 THEN ENTRY(3,cVerString,".") ELSE "0"
+        cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GT 3 THEN ENTRY(4,cVerString,".") ELSE "0"
+        iIntVal[1] = INT(cStrVal[1])
+        iIntVal[2] = INT(cStrVal[2])
+        iIntVal[3] = IF INT(cStrVal[3]) LT 10 THEN INT(cStrVal[3]) * 10 ELSE INT(cStrVal[3])
+        iIntVal[4] = INT(cStrVal[4])
+        iIntVer = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
+        NO-ERROR.
+    
+    RETURN iIntVer.   /* Function return value. */
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 

@@ -43,8 +43,6 @@ DEF TEMP-TABLE tt-ink NO-UNDO FIELD i-code LIKE ink.i-code
                               FIELD i-dscr LIKE ink.i-dscr
                               FIELD pass AS INT.
 
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-setup FOR reftable.
 
 DEF TEMP-TABLE tt-ei NO-UNDO

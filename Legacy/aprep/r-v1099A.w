@@ -827,7 +827,7 @@ IF rs-date EQ "Invoice" THEN DO:
 
        {custom/statusMsg.i " 'Processing Vendor #  '  + string(vend.vend-no) "}
 
-       v-vend-tot = v-vend-tot + (ap-payl.amt-paid - ap-payl.amt-disc).
+       v-vend-tot = v-vend-tot + (ap-payl.amt-paid ).
 
        if last-of(vend.vend-no) then 
        do:
@@ -908,7 +908,7 @@ IF rs-date EQ "Invoice" THEN DO:
 
        {custom/statusMsg.i " 'Processing Vendor #  '  + string(vend.vend-no) "}
 
-       v-vend-tot = v-vend-tot + (ap-payl.amt-paid - ap-payl.amt-disc).
+       v-vend-tot = v-vend-tot + (ap-payl.amt-paid ).
 
        if last-of(vend.vend-no) then 
        do:

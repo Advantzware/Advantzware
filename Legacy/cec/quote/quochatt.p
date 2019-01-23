@@ -259,19 +259,15 @@ do:
         {cec/quote/quochatt10.i}
     END.
 
-    PUT "<FArial><R58><C1><P12><B> Comments </B> <P9> " .
+    PUT "<FArial><R58><C1><P12><B> Comments </B> <P10> " .
+    PUT "<FArial><R58><C13> ***PRICING DOES NOT INCLUDE PRINT PLATE(S) OR CUTTING DIE(S), IF APPLICABLE*** " .
+    PUT "<FArial><R59><C13> ***PRICING DOES NOT CONSIDER SALES TAX, IF APPLICABLE***" .
+    PUT "<FArial><R61><C13> Thank you for allowing Chattanooga Box Company the opportunity to quote your corrugated needs." .
+    PUT "<FArial><R62><C13> Our Business Hours are Monday through Friday, 8:00 am to 4:30 pm, EST " .
       
     ASSIGN
         v-tmp-lines = 0
         li-cline    = 1.
-    do i = 1 to 5:
-        if xquo.comment[i] ne "" THEN 
-        DO: 
-            put "<C1><R" string(58 + li-cline,">9") + "><C6>" xquo.comment[i]. 
-            li-cline = li-cline + 1.
-        END.
-    end.
-
     v-printline = v-printline + 6.
     IF v-printline < 50 THEN PAGE.
 
@@ -457,18 +453,15 @@ do:
 
         IF (ch-multi and (v-last OR s-sep-page)) then 
         do:
-            PUT "<FArial><R58><C1><P12><B> Comments </B> <P9> " .
+            PUT "<FArial><R58><C1><P12><B> Comments </B> <P10> " .
+            PUT "<FArial><R58><C13> ***PRICING DOES NOT INCLUDE PRINT PLATE(S) OR CUTTING DIE(S), IF APPLICABLE*** " .
+            PUT "<FArial><R59><C13> ***PRICING DOES NOT CONSIDER SALES TAX, IF APPLICABLE***" .
+            PUT "<FArial><R61><C13> Thank you for allowing Chattanooga Box Company the opportunity to quote your corrugated needs." .
+            PUT "<FArial><R62><C13> Our Business Hours are Monday through Friday, 8:00 am to 4:30 pm, EST " .
 
             FIND bf-quo WHERE RECID(bf-quo) = lv-first-qrecid NO-LOCK NO-ERROR. 
             li-cline = 0.
-            do i = 1 to 5:      
-                if bf-quo.comment[i] ne "" then 
-                DO:
-                    li-cline = li-cline + 1.
-                    put "<C1><R" string(58 + li-cline,">9") + "><C6>" bf-quo.comment[i]  .            
-                END.
             
-            end.
             v-printline = v-printline + 6.
             IF v-printline < 50 THEN 
             DO:

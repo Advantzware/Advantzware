@@ -211,7 +211,7 @@ DEFINE BUTTON btn_fgitem
 
 DEFINE BUTTON btn_from 
      LABEL "From:" 
-     SIZE 7.6 BY 1.
+     SIZE 8 BY 1.
 
 DEFINE BUTTON btn_style 
      LABEL "" 
@@ -267,14 +267,14 @@ DEFINE FRAME fold
      eb.form-no AT ROW 1.24 COL 48.2 COLON-ALIGNED
           LABEL "Frm" FORMAT ">9"
           VIEW-AS FILL-IN 
-          SIZE 5 BY 1
+          SIZE 4 BY 1
      est.form-qty AT ROW 1.24 COL 56 COLON-ALIGNED NO-LABEL FORMAT ">9"
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
      eb.blank-no AT ROW 1.24 COL 66.2 COLON-ALIGNED
           LABEL "Blk"
           VIEW-AS FILL-IN 
-          SIZE 5 BY 1
+          SIZE 4 BY 1
      fi_blank-qty AT ROW 1.24 COL 73.8 COLON-ALIGNED NO-LABEL
      est.mod-date AT ROW 1.24 COL 86.2 COLON-ALIGNED
           LABEL "Mod"
@@ -1701,16 +1701,11 @@ assign
  itemfg.company    = cocode
  itemfg.loc        = locode
  itemfg.i-no       = v-item
- itemfg.i-code     = "C"
  itemfg.i-name     = xeb.part-dscr1
  itemfg.part-dscr1 = xeb.part-dscr2
- itemfg.sell-uom   = "M"
  itemfg.part-no    = xeb.part-no
  itemfg.cust-no    = xeb.cust-no
  itemfg.cust-name  = if avail cust then cust.name else ""
- itemfg.pur-uom    = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.prod-uom   = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.stocked    = yes
  itemfg.die-no     = xeb.die-no
  itemfg.plate-no   = xeb.plate-no
  itemfg.style      = xeb.style
@@ -1722,7 +1717,7 @@ assign
                      xeb.form-no eq 0
  itemfg.pur-man    = xeb.pur-man 
  itemfg.alloc      = xeb.set-is-assembled
- itemfg.setupDate  = TODAY.
+ .
 
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
 
@@ -2957,6 +2952,7 @@ PROCEDURE update-sheet :
           xeb.num-dep = 0.
 
   IF NOT lv-foam THEN DO:
+    RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
     {ce/ceroute1.i w id l en}
   END.
 

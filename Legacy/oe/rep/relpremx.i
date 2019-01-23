@@ -128,6 +128,11 @@ DEF SHARED VAR s-print-part-no AS LOG NO-UNDO.
 DEF VAR v-reljob AS CHAR FORMAT "x(10)" NO-UNDO.
 DEFINE VARIABLE iOrdQtyCust AS INTEGER NO-UNDO.
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl .
+DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
+DEFINE VARIABLE opiArraySize AS INTEGER NO-UNDO.
+DEFINE VARIABLE hNotesProc as Handle NO-UNDO.
+
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProc.
 
 ASSIGN tmpstore = fill("-",130).
 
@@ -736,28 +741,19 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                     v-cq = YES.
               END.
               IF AVAIL itemfg THEN DO:
-                  FOR EACH notes WHERE
-                         notes.rec_key EQ itemfg.rec_key AND notes.note_type = "S"
-                          AND notes.note_code = "PT" 
-                         NO-LOCK
-                         BY notes.note_code:
-                        
-                         v-tmp-lines = LENGTH(NOTES.NOTE_TEXT) / 20.
-                         {SYS/INC/ROUNDUP.I v-tmp-lines}
-                        
-                         IF v-tmp-lines = 0 THEN
-                             v-tmp-lines = 1 .
-                         DO i = 1 TO v-tmp-lines:
-                            IF v-printline > 36 THEN DO:
+                  RUN GetNotesArrayForObject IN hNotesProc (INPUT itemfg.rec_key, "S", "PT", 80, NO, OUTPUT opcParsedText, OUTPUT opiArraySize).
+                   DO i = 1 TO opiArraySize: 
+                       ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
+                       ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 
+                       
+                       IF v-printline > 44 THEN DO:
                                PAGE.
                                v-printline = 0.
                                {oe/rep/relpremx2.i}
-                            END.
-                            
-                            PUT "<c7>" v-tmp-lines substring(NOTES.NOTE_TEXT,(1 + 20 * (i - 1)), 20) FORM "x(80)" SKIP.
-                            v-printline = v-printline + 1.
-                         END.
-                  END.
+                       END.
+                       PUT "<C7>"  opcParsedText[i] FORMAT "X(80)"  SKIP.
+                       v-printline = v-printline + 1.    
+                   END.
               END.
                       
               IF v-printline > 44 THEN DO:

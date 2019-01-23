@@ -76,7 +76,7 @@ IF reload EQ ? THEN DO:
 END.
 
 DISPLAY SKIP(1) 'Getting Schedule Board Jobs' SKIP(1)
-  WITH FRAME fMsg1 OVERLAY CENTERED ROW 10 BGCOLOR 14 FONT 6
+  WITH FRAME fMsg1 OVERLAY COL 10 ROW 10 BGCOLOR 14 FONT 6
   TITLE ' Schedule Board ({&sbExternal})'.
 
 PROCESS EVENTS.
@@ -89,12 +89,13 @@ END. /* else do */
 
 HIDE FRAME fMsg1 NO-PAUSE.
 DISPLAY SKIP(1) 'Loading Schedule Board Jobs' SKIP(1)
-  WITH FRAME fMsg2 OVERLAY CENTERED ROW 10 BGCOLOR 14 FONT 6
+  WITH FRAME fMsg2 OVERLAY COL 10 ROW 10 BGCOLOR 14 FONT 6
   TITLE ' Schedule Board ({&sbExternal})'.
 
 PROCESS EVENTS.
 
 RUN getScenario.
+
 HIDE FRAME fMsg2 NO-PAUSE.
 
 &IF '{&sbExternal}' EQ 'sbDMI' &THEN
@@ -122,8 +123,11 @@ FOR EACH ttblJob
         ttblJob.jobSequence = idx
         .
 END. /* each ttbljob */
+&ENDIF
 
 cProdAceDat = findProgram('{&data}/',ID,'/ProdAce.dat').
+
+&IF '{&sbExternal}' EQ 'sbDMI' &THEN
 RUN VALUE(findProgram('{&loads}/',ID,'/prodAce.w')) (cProdAceDat, THIS-PROCEDURE, NO, OUTPUT lContinue).
 &ELSEIF '{&sbExternal}' EQ 'sbJScan' &THEN
 RUN {&prompts}/jobSeqScan.w (THIS-PROCEDURE, ENTRY(1,commaList)).
@@ -134,6 +138,19 @@ RUN {&prompts}/fieldFilter.w ('{&Board}','','',NO,NO,?,'print').
 &ELSEIF '{&sbExternal}' EQ 'sbStatus' &THEN
 RUN {&objects}/sbStatus.w.
 &ENDIF
+
+&IF '{&sbExternal}' EQ 'sbDMI' &THEN
+RUN VALUE(findProgram('{&loads}/',ID,'/prodAce.w')) persistent (cProdAceDat, THIS-PROCEDURE, NO, OUTPUT lContinue).
+&ELSEIF '{&sbExternal}' EQ 'sbJScan' &THEN
+RUN {&prompts}/jobSeqScan.w persistent (THIS-PROCEDURE, ENTRY(1,commaList)).
+&ELSEIF '{&sbExternal}' EQ 'sbNotes' &THEN
+RUN {&objects}/sbNotes.w persistent.
+&ELSEIF '{&sbExternal}' EQ 'sbReport' &THEN
+RUN {&prompts}/fieldFilter.w persistent ('{&Board}','','',NO,NO,?,'print').
+&ELSEIF '{&sbExternal}' EQ 'sbStatus' &THEN
+RUN {&objects}/sbStatus.w persistent.
+&ENDIF
+
 
 /* *** internal procedures ********************************************* */
 PROCEDURE asiCommaList:

@@ -37,6 +37,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 DEF INPUT PARAM ip-open  AS LOG   NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
+DEF NEW SHARED VAR lNewOrd AS LOG NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -718,21 +718,6 @@ FOR EACH job-hdr NO-LOCK
                 END.
 
                 /** BUILD INK WORK FILE **/
-                FIND FIRST reftable NO-LOCK WHERE 
-                    reftable.reftable EQ "ce/v-est3.w Unit#" AND
-                    reftable.company EQ eb.company AND
-                    reftable.loc     EQ eb.est-no AND
-                    reftable.code    EQ STRING(eb.form-no,"9999999999") AND
-                    reftable.code2   EQ STRING(eb.blank-no,"9999999999")
-                    NO-ERROR.
-
-                FIND FIRST b-rt NO-LOCK WHERE
-                    b-rt.reftable EQ "ce/v-est3.w Unit#1" AND
-                    b-rt.company  EQ b-eb.company AND
-                    b-rt.loc      EQ eb.est-no AND
-                    b-rt.code     EQ STRING(eb.form-no,"9999999999") AND
-                    b-rt.code2    EQ STRING(eb.blank-no,"9999999999")
-                    NO-ERROR.
 
                 FOR EACH job-mat NO-LOCK
                     WHERE job-mat.company EQ cocode
@@ -748,8 +733,8 @@ FOR EACH job-hdr NO-LOCK
                     DO:
 
                         cSide = "".
-                        IF AVAIL(reftable) THEN
-                            cSide = FILL(" ",5) + SUBSTRING(reftable.dscr,i,1).
+                        cSide = FILL(" ",5) + SUBSTRING(eb.side[i],1).
+                        
                         FIND FIRST wrk-ink WHERE wrk-ink.i-code EQ eb.i-code2[i]
                             AND wrk-ink.form-no  EQ eb.form-no
                             AND wrk-ink.blank-no EQ eb.blank-no
@@ -765,35 +750,11 @@ FOR EACH job-hdr NO-LOCK
                                 wrk-ink.blank-no = eb.blank-no
                                 wrk-ink.i-dscr   = eb.i-dscr2[i]
                                 wrk-ink.i-pass   = eb.i-ps2[i]
-                                wrk-ink.i-unit   = IF i LE 12 AND AVAILABLE reftable THEN reftable.val[i]
-                                        ELSE IF i > 12 AND AVAILABLE b-rt THEN b-rt.val[i - 12]
-                                        ELSE 1.
+                                wrk-ink.i-unit   = eb.unitNo[i].
                             
-                            IF i LE 12 THEN 
-                            DO:
-                                FIND FIRST ref-side NO-LOCK WHERE
-                                    ref-side.reftable EQ "ce/v-est3.w Unit#"  AND
-                                    ref-side.company  EQ eb.company AND
-                                    ref-side.loc      EQ eb.est-no AND
-                                    ref-side.code     EQ STRING(eb.form-no,"9999999999") AND
-                                    ref-side.code2    EQ STRING(eb.blank-no,"9999999999")
-                                    NO-ERROR.
-                                IF AVAILABLE ref-side THEN
-                                    wrk-ink.i-side = FILL(" ",5) + SUBSTRING(ref-side.dscr,i,1).
-                            END.
-                            ELSE 
-                            DO:
-                                FIND FIRST ref-side WHERE
-                                    ref-side.reftable EQ "ce/v-est3.w Unit#1"  AND
-                                    ref-side.company  EQ eb.company AND
-                                    ref-side.loc      EQ eb.est-no AND
-                                    ref-side.code     EQ STRING(eb.form-no,"9999999999") AND
-                                    ref-side.code2    EQ STRING(eb.blank-no,"9999999999")
-                                    NO-ERROR.
-                                IF AVAILABLE ref-side THEN
-                                    wrk-ink.i-side = FILL(" ",5) + SUBSTRING(ref-side.dscr,i - 12,1).
-                            END.          
-                        
+                            DO:                                
+                               wrk-ink.i-side = FILL(" ",5) + SUBSTRING(eb.side[i],1).   
+                            END.                        
                             IF wrk-ink.i-unit EQ 0 THEN
                                 wrk-ink.i-unit = 1.
                         END.
@@ -846,9 +807,9 @@ FOR EACH job-hdr NO-LOCK
                                                              
         /*if v-first then*/
         v-upc-lbl = "   CAD#".
-        /*IF FIRST-OF(eb.form-no) THEN
+        IF FIRST-OF(eb.form-no) THEN
             PUT "<P12><B> P R E S S <P9>" SKIP 
-                " F/B         FG Item #       Cust Part #      Artwork #      Description                     Order Qty    MAX QTY    MIN QTY    Job Qty </B>" SKIP.*/
+                " F/B   FG Item #       Cust Part #     Artwork #       Description       Order Qty       MAX QTY      MIN QTY      JOB QTY </B>" SKIP.
               
         v-job-qty = 0.
         FOR EACH xjob-hdr FIELDS(qty) NO-LOCK 
@@ -896,6 +857,18 @@ FOR EACH job-hdr NO-LOCK
         FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ job-hdr.company
             AND itemfg.i-no    EQ job-hdr.i-no NO-ERROR.
 
+        display SPACE(1) trim(string(eb.form-no,">>9")) + "-" +
+                    trim(string(eb.blank-no,">>9")) FORM "x(5)" 
+                    SPACE(1) eb.stock-no @ job-hdr.i-no 
+                    (IF AVAIL oe-ordl  THEN oe-ordl.part-no ELSE IF AVAIL itemfg THEN itemfg.part-no ELSE "") FORM "x(15)"   SPACE(1)
+                    (IF eb.plate-no <> "" THEN eb.plate-no  ELSE IF AVAIL itemfg THEN itemfg.plate-no ELSE "" ) FORM "x(15)"
+                    SPACE(1) v-dsc[1] FORM "x(16)"
+                    oe-ordl.qty WHEN AVAIL oe-ordl format "->,>>>,>>9"  /* Task #01240503*/   SPACE(4)
+                    v-max-qty     SPACE(3)
+                    v-min-qty     SPACE(3)
+                    job-hdr.qty 
+                with stream-io width 175 no-labels no-box frame line-det1.
+
         FIND FIRST ITEM NO-LOCK
             WHERE item.company EQ cocode
             AND item.i-no    EQ eb.cas-no
@@ -905,7 +878,7 @@ FOR EACH job-hdr NO-LOCK
         /* end. /* last-of(eb.form-no) */      */
         IF LAST-OF(eb.form-no) THEN 
         DO:
-            IF v-itm-printed = 1 THEN PUT SKIP(1). 
+            IF v-itm-printed = 1 THEN PUT v-fill SKIP. 
             ELSE PUT SKIP(4 - v-itm-printed).
              
             /* Number of sheets ticket1.p - single board, ticket2.p - multi board */

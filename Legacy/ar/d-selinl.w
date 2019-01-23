@@ -384,14 +384,8 @@ PROCEDURE build-table :
     CREATE tt-inv.
     ASSIGN
      tt-inv.row-id   = ROWID(ar-invl)
-     tt-inv.selekt   = CAN-FIND(FIRST reftable NO-LOCK
-                                WHERE reftable.reftable EQ "ar-cashl.inv-line"
-                                  AND reftable.company  EQ ar-cash.company
-                                  AND reftable.loc      EQ ""
-                                  AND reftable.code2    EQ STRING(ar-invl.x-no,"9999999999") +
-                                                           STRING(ar-invl.line,"9999999999")
-                                  AND reftable.code     BEGINS STRING(ar-cash.c-no,"9999999999")
-                                USE-INDEX code2)
+     tt-inv.selekt   =  IF ar-cashl.invoiceXNo EQ ar-invl.x-no AND 
+                                ar-cashl.invoiceLine EQ ar-invl.line THEN TRUE ELSE FALSE
      tt-inv.inv-no   = ar-inv.inv-no
      tt-inv.inv-date = ar-inv.inv-date
      tt-inv.i-no     = ar-invl.i-no
@@ -399,16 +393,10 @@ PROCEDURE build-table :
      tt-inv.net      = ar-invl.amt
      lv-num-rec      = lv-num-rec + 1.
 
-    FOR EACH reftable NO-LOCK
-        WHERE reftable.reftable EQ "ar-cashl.inv-line"
-          AND reftable.company  EQ ar-cash.company
-          AND reftable.loc      EQ ""
-          AND reftable.code2    EQ STRING(ar-invl.x-no,"9999999999") +
-                                   STRING(ar-invl.line,"9999999999")
-        USE-INDEX code2,
-        FIRST b-cashl
-        WHERE b-cashl.c-no   EQ INT(SUBSTR(reftable.code,01,10))
-          AND b-cashl.line   EQ INT(SUBSTR(reftable.code,11,10)):
+    
+        FOR EACH b-cashl
+        WHERE b-cashl.invoiceLine   EQ ar-invl.line
+          AND b-cashl.invoiceXNo EQ ar-invl.x-no :
 
       tt-inv.paid = tt-inv.paid + (b-cashl.amt-paid * -1).
     END.
@@ -434,22 +422,12 @@ PROCEDURE create-records :
 
 
   FOR EACH tt-inv,
-      FIRST ar-invl WHERE ROWID(ar-invl) EQ tt-inv.row-id NO-LOCK,
-      FIRST reftable
-      WHERE reftable.reftable EQ "ar-cashl.inv-line"
-        AND reftable.company  EQ ar-invl.company
-        AND reftable.loc      EQ ""
-        AND reftable.code2    EQ STRING(ar-invl.x-no,"9999999999") +
-                                 STRING(ar-invl.line,"9999999999")
-        AND reftable.code     BEGINS STRING(ar-cash.c-no,"9999999999")
-      USE-INDEX code2,
+      FIRST ar-invl WHERE ROWID(ar-invl) EQ tt-inv.row-id NO-LOCK,     
       FIRST b-cashl
-      WHERE b-cashl.c-no EQ INT(SUBSTR(reftable.code,01,10))
-        AND b-cashl.line EQ INT(SUBSTR(reftable.code,11,10)):
+      WHERE b-cashl.invoiceXNo EQ ar-invl.x-no
+        AND b-cashl.invoiceLine EQ ar-invl.LINE :
 
-    IF ROWID(ar-cashl) EQ ROWID(b-cashl) THEN ll = YES.
-
-    IF NOT tt-inv.selekt THEN DELETE reftable.
+    IF ROWID(ar-cashl) EQ ROWID(b-cashl) THEN ll = YES.    
 
     DELETE tt-inv.
   END.
@@ -486,7 +464,9 @@ PROCEDURE create-records :
      b-cashl.inv-no   = tt-inv.inv-no
      b-cashl.inv-date = tt-inv.inv-date
      b-cashl.amt-paid = - tt-inv.due
-     b-cashl.dscr     = lv-dscr.
+     b-cashl.dscr     = lv-dscr
+     b-cashl.invoiceXNo = ar-invl.x-no
+     b-cashl.invoiceLine = ar-invl.LINE.
 
     IF b-cashl.actnum EQ "" THEN DO:
       find first ar-ctrl where ar-ctrl.company = ar-cash.company no-lock no-error.
@@ -506,16 +486,6 @@ PROCEDURE create-records :
          if avail account THEN assign b-cashl.actnum = account.actnum.
       end.
     END.
-
-    CREATE reftable.
-    ASSIGN
-     reftable.reftable = "ar-cashl.inv-line"
-     reftable.company  = b-cashl.company
-     reftable.loc      = ""
-     reftable.code     = STRING(b-cashl.c-no,"9999999999") +
-                         STRING(b-cashl.line,"9999999999")
-     reftable.code2    = STRING(ar-invl.x-no,"9999999999") +
-                         STRING(ar-invl.line,"9999999999").
   END.
 
 END PROCEDURE.

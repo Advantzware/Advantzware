@@ -52,9 +52,10 @@
                    "<R24><C49><FROM><R26><C49><LINE>" SKIP                   
                    "<R24><C51.5><FROM><R26><C51.5><LINE>" SKIP
                    "<R24><C56><FROM><R26><C56><LINE>" SKIP 
-                   "<R24><C62><FROM><R26><C62><LINE>" SKIP   
-                   "<R24><C70><FROM><R26><C70><LINE>" SKIP  
-               "<FArial><=5><R+1> Order# <C10>Item / Desc / Lot #<C28>TAG/Whs/Bin <C50>X   #Pal     #Cas<C64.2>Count<C72>Bin Qty" SKIP(1)
+                   "<R24><C61><FROM><R26><C61><LINE>" SKIP   
+                   "<R24><C67><FROM><R26><C67><LINE>" SKIP 
+                   "<R24><C72><FROM><R26><C72><LINE>" SKIP  
+               "<FArial><=5><R+1> Order# <C10>Item / Desc / Lot #<C28>TAG/Whs/Bin <C50>X   #Pal     #Cas<C62.2>Count<C67.5>Partial <C75>Bin Qty" SKIP(1)
                "<FCourier New>"          
                .
                v-printline = v-printline + 16.

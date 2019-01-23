@@ -96,7 +96,7 @@ DEF BUFFER b2-fg-rctd FOR fg-rctd.
 DO TRANSACTION:
   {sys/inc/fgpost.i}   
 END.
-
+{fg/fgPostProc.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1101,100 +1101,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-partial C-Win 
-PROCEDURE calc-partial :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-    /*find first item finished goods based on the item number*/
-    find first itemfg
-        where itemfg.company eq cocode
-          and itemfg.i-no    eq w-fg-rctd.i-no
-        use-index i-no no-lock no-error.
-
-    if avail itemfg then do:
-      find first uom
-          where uom.uom  eq itemfg.sell-uom
-            and uom.mult ne 0
-          no-lock no-error.
-
-      if itemfg.sell-uom begins "L" then
-        v-fg-value = 0.
-
-      else
-      if itemfg.sell-uom eq "CS" then
-        v-fg-value = 0.
-
-      else
-      if avail uom then
-        v-fg-value = itemfg.sell-price * w-fg-rctd.partial / uom.mult.
-
-      else
-        v-fg-value = itemfg.sell-price * w-fg-rctd.partial / 1000.
-
-      if w-fg-rctd.rita-code eq "R" then do:
-        if v-msf[1] gt w-fg-rctd.partial * itemfg.t-sqft then
-          v-msf[2] = v-msf[2] + (v-msf[1] - (w-fg-rctd.partial * itemfg.t-sqft)).
-
-        v-msf[1] = w-fg-rctd.partial * itemfg.t-sqft.
-      end.
-    end. /* avail */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-total C-Win 
-PROCEDURE calc-total :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-    /*find first item finished goods based on the item number*/
-    find first itemfg
-        where itemfg.company eq cocode
-          and itemfg.i-no    eq w-fg-rctd.i-no
-        use-index i-no no-lock no-error.
-
-    if avail itemfg then do:
-      find first uom
-          where uom.uom  eq itemfg.sell-uom
-            and uom.mult ne 0
-          no-lock no-error.
-
-      if itemfg.sell-uom begins "L" then
-        v-fg-value = itemfg.sell-price * IF w-fg-rctd.t-qty LT 0 THEN -1 ELSE 1.
-
-      else
-      if itemfg.sell-uom eq "CS" then
-        v-fg-value = itemfg.sell-price * w-fg-rctd.cases.
-
-      else
-      if avail uom then
-        v-fg-value = itemfg.sell-price * ((w-fg-rctd.cases * w-fg-rctd.qty-case) / uom.mult).
-
-      else
-        v-fg-value = itemfg.sell-price * ((w-fg-rctd.cases * w-fg-rctd.qty-case) / 1000).
-
-      if w-fg-rctd.rita-code eq "R" then do:
-        if v-msf[1] gt w-fg-rctd.t-qty * itemfg.t-sqft then
-          v-msf[2] = v-msf[2] + (v-msf[1] - ((w-fg-rctd.cases * w-fg-rctd.qty-case) * itemfg.t-sqft)).
-
-        v-msf[1] = (w-fg-rctd.cases * w-fg-rctd.qty-case) * itemfg.t-sqft.
-      end.
-    end. /* avail itemfg */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-phy-count-proc C-Win 
 PROCEDURE create-phy-count-proc :
 /*------------------------------------------------------------------------------
@@ -1475,15 +1381,7 @@ PROCEDURE fg-post :
   DEF VAR ll-qty-changed AS LOG NO-UNDO.
   DEF VAR ll-whs-item AS LOG NO-UNDO.
 
-  DEFINE VARIABLE fgPostLog AS LOGICAL NO-UNDO.
-
-  fgPostLog = SEARCH('logs/fgpstall.log') NE ?.
-  IF fgPostLog THEN
-  OUTPUT STREAM logFile TO VALUE('logs/fgpstall.' +
-         STRING(TODAY,'99999999') + '.' + STRING(TIME) + '.log').
-
   SESSION:SET-WAIT-STATE ("general").
-  IF fgPostLog THEN RUN fgPostLog ('Started').
   FIND FIRST period NO-LOCK
       WHERE period.company EQ cocode
         AND period.pst     LE v-post-date
@@ -1518,9 +1416,8 @@ PROCEDURE fg-post :
 
        IF AVAIL itemfg THEN
        DO:
-          IF fgPostLog THEN RUN fgPostLog ('Start fg/fg-post.i ' + TRIM(itemfg.i-no)).
           {fg/fg-post.i w-fg-rctd w-fg-rctd}
-
+          
           FIND CURRENT po-ordl NO-LOCK NO-ERROR.
           FIND CURRENT fg-bin NO-LOCK NO-ERROR.
 
@@ -1530,12 +1427,9 @@ PROCEDURE fg-post :
        END.
     END.
 
-    IF fgPostLog THEN RUN fgPostLog ('End fg/fg-post.i - Start fg/fgemails.i').
     IF w-fg-rctd.rita-code = "R" THEN DO:
        {fg/fgemails.i}
     END.
-
-    IF fgPostLog THEN RUN fgPostLog ('End fg-bin - Start fg-rctd').
 
     FIND FIRST fg-rctd WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id NO-ERROR.
 
@@ -1552,11 +1446,8 @@ PROCEDURE fg-post :
         fg-rcpts.rita-code = fg-rctd.rita-code.
       END.
     END.
-
-    IF fgPostLog THEN RUN fgPostLog ('End loop'). 
   END.  /* for each w-fg-rctd */
 
-  IF fgPostLog THEN RUN fgPostLog ('End fg/fgemails.i - Start loadtag').
   FOR EACH w-fg-rctd
       BREAK BY w-fg-rctd.i-no
             BY w-fg-rctd.job-no
@@ -1584,7 +1475,6 @@ PROCEDURE fg-post :
             AND loadtag.i-no      EQ w-fg-rctd.i-no
             AND loadtag.job-no    EQ w-fg-rctd.job-no
           USE-INDEX tag EXCLUSIVE-LOCK NO-ERROR.
-      IF fgPostLog THEN RUN fgPostLog ('End loadtag - Start fg-bin').
 
       IF AVAIL loadtag THEN DO:
         FIND FIRST fg-bin
@@ -1621,7 +1511,6 @@ PROCEDURE fg-post :
     DELETE w-inv.
   END.
 
-  IF fgPostLog THEN RUN fgPostLog ('End First - Start Second For Each w-fg-rctd').
   FOR EACH w-fg-rctd WHERE w-fg-rctd.invoiced,
       FIRST itemfg
       WHERE itemfg.company EQ cocode
@@ -1631,13 +1520,9 @@ PROCEDURE fg-post :
     CREATE w-inv.
     w-inv.row-id = w-fg-rctd.row-id.
   END.
-  IF fgPostLog THEN RUN fgPostLog ('End Second For Each w-fg-rctd').
 
-  IF fgPostLog THEN RUN fgPostLog ('Begin Run fg/invrecpt.p').
   RUN fg/invrecpt.p (?, 2).
-  IF fgPostLog THEN RUN fgPostLog ('End Run fg/invrecpt.p').
 
-  IF fgPostLog THEN RUN fgPostLog ('End First - Start Third For Each w-fg-rctd').
   FOR EACH w-fg-rctd WHERE TRIM(w-fg-rctd.tag) EQ "",
       FIRST itemfg
       WHERE itemfg.company EQ cocode
@@ -1646,9 +1531,7 @@ PROCEDURE fg-post :
       BREAK BY w-fg-rctd.i-no:
 
     IF LAST-OF(w-fg-rctd.i-no) THEN DO:
-      IF fgPostLog THEN RUN fgPostLog ('Begin Run fg/updfgcs1.p for ' + w-fg-rctd.i-no).
       RUN fg/updfgcs1.p (RECID(itemfg), NO).
-      IF fgPostLog THEN RUN fgPostLog ('End Run fg/updfgcs1.p for ' + w-fg-rctd.i-no).
 
       FOR EACH oe-ordl
           WHERE oe-ordl.company EQ cocode
@@ -1676,7 +1559,6 @@ PROCEDURE fg-post :
       END.
     END.
   END.
-  IF fgPostLog THEN RUN fgPostLog ('End Third For Each w-fg-rctd').
 
   IF v-fgpostgl NE "None" THEN DO TRANSACTION:
     /* gdm - 11050906 */
@@ -1689,11 +1571,8 @@ PROCEDURE fg-post :
               gl-ctrl.trnum = v-trnum.
 
        FIND CURRENT gl-ctrl NO-LOCK.
-       IF fgPostLog THEN RUN fgPostLog ('Begin Run gl-from-work 1').
        RUN gl-from-work (1, v-trnum).
-       IF fgPostLog THEN RUN fgPostLog ('End 1 - Begin Run gl-from-work 2').
        RUN gl-from-work (2, v-trnum).
-       IF fgPostLog THEN RUN fgPostLog ('End Run gl-from-work 2').
        LEAVE loop2.
      END. /* IF AVAIL gl-ctrl */
     END. /* REPEAT */
@@ -1701,9 +1580,7 @@ PROCEDURE fg-post :
   END.
   find first w-job no-error.
   if avail w-job THEN DO:
-    IF fgPostLog THEN RUN fgPostLog ('Start jc/d-jclose.p').
     run jc/d-jclose.w.
-    IF fgPostLog THEN RUN fgPostLog ('End jc/d-jclose.p').
   END.
 
   if v-adjustgl then do TRANSACTION:
@@ -1713,7 +1590,6 @@ PROCEDURE fg-post :
      v-trnum       = gl-ctrl.trnum + 1
      gl-ctrl.trnum = v-trnum.
     FIND CURRENT gl-ctrl NO-LOCK.
-    IF fgPostLog THEN RUN fgPostLog ('Start For Each work-job').
     for each work-job break by work-job.actnum:
       create gltrans.
       assign
@@ -1733,15 +1609,10 @@ PROCEDURE fg-post :
          gltrans.tr-amt  = work-job.amt
          gltrans.tr-dscr = "ADJUSTMENT COGS".
     end. /* each work-job */
-    IF fgPostLog THEN RUN fgPostLog ('End For Each work-job').
   end.
   IF v-got-fgemail THEN DO:
-    IF fgPostLog THEN RUN fgPostLog ('Start Run send-fgemail').
     RUN send-fgemail (v-fgemail-file).
-    IF fgPostLog THEN RUN fgPostLog ('End Run send-fgemail').
   END.
-  IF fgPostLog THEN RUN fgPostLog ('End').
-  IF fgPostLog THEN OUTPUT STREAM logFile CLOSE.
   SESSION:SET-WAIT-STATE ("").
 
 END PROCEDURE.
@@ -1971,57 +1842,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE orig C-Win 
-PROCEDURE orig :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-    /*find first item finished goods based on the item number*/
-    find first itemfg
-        where itemfg.company eq cocode
-          and itemfg.i-no    eq w-fg-rctd.i-no
-        use-index i-no no-lock no-error.
-
-    if avail itemfg then do:
-      find first uom
-          where uom.uom  eq itemfg.sell-uom
-            and uom.mult ne 0
-          no-lock no-error.
-
-      if itemfg.sell-uom begins "L" then
-        v-fg-value = itemfg.sell-price * IF w-fg-rctd.t-qty LT 0 THEN -1 ELSE 1.
-
-      else
-      if itemfg.sell-uom eq "CS" then
-        v-fg-value = itemfg.sell-price * w-fg-rctd.cases.
-
-      else
-      if avail uom then
-        v-fg-value = itemfg.sell-price * w-fg-rctd.t-qty / uom.mult.
-
-      else
-        v-fg-value = itemfg.sell-price * w-fg-rctd.t-qty / 1000.
-
-      if w-fg-rctd.rita-code eq "R" then do:
-        if v-msf[1] gt w-fg-rctd.t-qty * itemfg.t-sqft then
-          v-msf[2] = v-msf[2] + (v-msf[1] - (w-fg-rctd.t-qty * itemfg.t-sqft)).
-
-        v-msf[1] = w-fg-rctd.t-qty * itemfg.t-sqft.
-      end.
-    end. /* avail itemfg */
-
-    assign
-     v-msf[1] = v-msf[1] / 1000
-     v-msf[2] = v-msf[2] / 1000.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-file C-Win 
 PROCEDURE output-to-file :
 /*------------------------------------------------------------------------------
@@ -2183,48 +2003,6 @@ PROCEDURE run-report PRIVATE :
 {sys/form/r-top3w1.f "Before"}
 
 {sys/form/r-top3w1.f "After"}
-
-DEF VAR ext-cost AS DEC NO-UNDO.
-def var type as ch format "X" initial "R".
-def var type-prt as ch format "X(11)" init "".
-def var v-fg-qty like fg-rctd.t-qty.
-def var v-fg-cost as dec format "->,>>>,>>9.99<<".
-def var v-tot-qty as int format "->>>,>>>,>>9".
-def var v-tot-cost as dec format "->>>,>>9.99<<".
-def var v-grd-tot-qty as int format "->>>,>>>,>>9".
-def var v-grd-tot-cost as dec format "->>,>>>,>>9.99<<".                     
-def var v-grd-tot-value as dec format "->>,>>>,>>9.99<<".                     
-def var v-tot-value as dec format "->>,>>>,>>9.99".
-def var v-cum-tot as de.                                   
-def var v-tran-type as char format "x(1)".      
-def var v-entrytype as char initial "REC ,TRAN,ADJ ,SHIP,RET ,INIT".
-def var v-on like eb.num-up.
-def var v-qty-pallet as decimal format "->>,>>>,>>9" no-undo.
-def var v-whse like fg-rctd.loc.            
-def var v-one as integer format "->>,>>9" init 1.
-def var v-ftime as logical init no.
-def var v-dscr          like account.dscr.
-def var v-disp-actnum   like account.actnum.
-def var v-disp-amt      as   dec format ">>,>>>,>>9.99cr".
-def var v-hdr as char format "x(12)".
-def var v-postlst  as cha no-undo.
-DEF VAR ll-wip AS LOG NO-UNDO.
-DEF VAR li AS INT NO-UNDO.
-DEF VAR li-loop AS INT NO-UNDO.
-DEF VAR v-time AS CHAR FORMAT "X(5)" NO-UNDO.
-
-DEF VAR v-itm-lbl  AS CHAR FORMAT "x(15)" NO-UNDO.
-DEF VAR v-itm-dsh  AS CHAR FORMAT "x(15)" NO-UNDO.
-DEF VAR v-desc-lbl AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-Po-lbl   AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-vend-lbl AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-desc-dsh AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-Po-dsh   AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-vend-dsh AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-uom-lbl  AS CHAR FORMAT "x(10)" NO-UNDO.
-DEF VAR v-uom-dsh  AS CHAR FORMAT "x(10)" NO-UNDO.
-DEF VAR v-cstprt   AS CHAR FORMAT "x(15)" NO-UNDO.
-DEF VAR v-pr-tots2 LIKE v-pr-tots         NO-UNDO.
 
 IF rd-Itm#Cst# EQ 1 
   THEN ASSIGN v-itm-lbl = "ITEM"
@@ -2518,7 +2296,7 @@ if v-cost-sell then do:
   END.
 
    IF rd-ItmPo EQ 1 THEN DO:
-     {fg/rep/fg-post.i "itemxA" "v-fg-cost" "itempxA" "v-tot-cost"}
+     {fg/rep/fg-post.i "itemxA" "v-fg-cost" "itempxA" "v-tot-cost"}     
    END.
    ELSE DO:
      {fg/rep/fg-post.i "itemx" "v-fg-cost" "itempx" "v-tot-cost"}

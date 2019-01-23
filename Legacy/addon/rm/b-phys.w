@@ -147,7 +147,7 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       rm-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U WIDTH 25
-      rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U WIDTH 8
+      rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(13)":U WIDTH 8
       rm-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U WIDTH 12
       rm-rctd.rct-date COLUMN-LABEL "Count Date" FORMAT "99/99/9999":U
             WIDTH 14
@@ -261,7 +261,7 @@ rm-rctd.rita-code = ""C"""
      _FldNameList[1]   > asi.rm-rctd.tag
 "tag" "Tag#" "x(20)" "character" ? ? ? ? ? ? yes ? no no "25" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.rm-rctd.loc
-"loc" "Whse" ? "character" ? ? ? ? ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loc" "Whse" "x(13)" "character" ? ? ? ? ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.rm-rctd.loc-bin
 "loc-bin" "Bin" ? "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.rm-rctd.rct-date
@@ -487,6 +487,8 @@ DO:
       rm-rctd.loc-bin:SCREEN-VALUE = loadtag.loc-bin.
     RUN valid-loc-bin-tag (3) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN new-bin .
+
     APPLY 'ENTRY':U TO rm-rctd.qty.
   END.
 END.
@@ -500,6 +502,15 @@ END.
 ON LEAVE OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
 DO:
   IF LASTKEY NE -1 THEN DO:
+     DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
+    IF SELF:MODIFIED THEN DO:
+       IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
+
+          cLocBin = SELF:SCREEN-VALUE.
+          ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(cLocBin,1,5)
+                 rm-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(cLocBin,6,8).
+       END.
+    END.
     RUN valid-loc-bin-tag (1) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
@@ -558,6 +569,33 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
+DO:
+  RUN new-bin.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc-bin Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF rm-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
+DO:
+  RUN new-bin.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF rm-rctd.tag IN BROWSE Browser-Table /* Tag# */
+DO:
+  RUN new-bin.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 
@@ -686,32 +724,45 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win
-PROCEDURE local-assign-record:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
+PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
 
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-    rm-rctd.enteredBy = USERID("asi")
-    rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
-    .
+    /* Code placed here will execute AFTER standard behavior.    */
+    FIND FIRST item WHERE item.company EQ rm-rctd.company
+        AND item.i-no    EQ rm-rctd.i-no NO-LOCK NO-ERROR.
+    IF AVAIL item THEN rm-rctd.pur-uom = item.cons-uom.
+      
+    FOR EACH rm-rdtlh NO-LOCK 
+        WHERE rm-rdtlh.company EQ rm-rctd.company 
+        AND rm-rdtlh.tag EQ rm-rctd.tag 
+        AND rm-rdtlh.rita-code EQ "R",
+        EACH rm-rcpth NO-LOCK 
+        WHERE rm-rcpth.r-no EQ rm-rdtlh.r-no
+        AND rm-rcpth.rita-code EQ rm-rdtlh.rita-code:
+        ASSIGN 
+            rm-rctd.po-no = rm-rcpth.po-no
+            rm-rctd.cost  = rm-rdtlh.cost
+            .
+    END.
+    ASSIGN
+        rm-rctd.enteredBy = USERID("asi")
+        rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+        .
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-statement B-table-Win 
 PROCEDURE local-assign-statement :
@@ -918,21 +969,45 @@ PROCEDURE new-bin :
   Notes:       
 ------------------------------------------------------------------------------*/
   
-  /*
+
   DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST rm-bin 
-        WHERE rm-bin.company EQ cocode
-          AND rm-bin.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND rm-bin.loc     EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND rm-bin.loc-bin EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND rm-bin.tag     EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+    FIND FIRST rm-bin WHERE rm-bin.company EQ cocode 
+        AND rm-bin.loc     EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}                         
+        AND rm-bin.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+        AND rm-bin.loc-bin EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
+        AND rm-bin.tag     EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
+
     IF AVAIL rm-bin THEN DO:
-      IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN
-        rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(rm-bin.qty).
+        rm-rctd.qty:SCREEN-VALUE = string(rm-bin.qty).
     END.
+    
+    IF rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} EQ "0.0" AND 
+       rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE ""  THEN DO:
+        FOR EACH rm-rdtlh NO-LOCK
+        WHERE rm-rdtlh.company      EQ cocode
+          AND rm-rdtlh.loc          EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND rm-rdtlh.loc-bin      EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND rm-rdtlh.tag          EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND rm-rdtlh.rita-code    EQ "R"
+        USE-INDEX tag,
+        
+        EACH rm-rcpth NO-LOCK 
+        WHERE rm-rcpth.r-no         EQ rm-rdtlh.r-no
+          AND rm-rcpth.rita-code    EQ rm-rdtlh.rita-code
+          AND rm-rcpth.i-no         EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+        USE-INDEX r-no
+    
+        BY rm-rcpth.trans-date
+        BY rm-rcpth.r-no:
+
+            rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(rm-rdtlh.qty). 
+            LEAVE.
+        END.
+    END.
+
   END.
-  */
+  
 
 END PROCEDURE.
 

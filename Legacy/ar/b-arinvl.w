@@ -186,7 +186,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ar-invl.line FORMAT "99":U
+      ar-invl.line FORMAT ">>99":U
       ar-invl.actnum COLUMN-LABEL "Account Number" FORMAT "x(25)":U
       get-actdscr() @ v-actdscr COLUMN-LABEL "Account Description" FORMAT "x(45)":U
       ar-invl.i-no FORMAT "x(15)":U
@@ -343,7 +343,7 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _JoinCode[1]      = "ASI.ar-invl.x-no = ASI.ar-inv.x-no"
      _FldNameList[1]   > ASI.ar-invl.line
-"ar-invl.line" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-invl.line" ? ">>99" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.ar-invl.actnum
 "ar-invl.actnum" "Account Number" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"

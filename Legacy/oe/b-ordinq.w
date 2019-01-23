@@ -1222,6 +1222,24 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME fi_cad-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cad-no B-table-Win
+ON HELP OF fi_cad-no IN FRAME F-Main
+DO:
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
+    run windows/l-itemfc.w  (g_company,fi_cad-no:screen-value, output char-val). 
+    if char-val <> "" then 
+        {&SELF-NAME}:screen-value = entry(1,char-val).
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_sman B-table-Win
 ON VALUE-CHANGED OF fi_sman IN FRAME F-Main

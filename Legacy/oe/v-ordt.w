@@ -77,7 +77,7 @@ END.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR oe-ord.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS oe-ord.t-weight oe-ord.t-freight ~
+&Scoped-Define ENABLED-FIELDS oe-ord.t-freight ~
 oe-ord.f-bill oe-ord.t-comm 
 &Scoped-define ENABLED-TABLES oe-ord
 &Scoped-define FIRST-ENABLED-TABLE oe-ord
@@ -230,7 +230,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ord.t-revenue IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN oe-ord.t-weight IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL NO-ENABLE                                                  */
 /* SETTINGS FOR FILL-IN oe-ord.tax IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */

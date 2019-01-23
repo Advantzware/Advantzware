@@ -56,7 +56,7 @@ do i = 1 to 6 with frame adders down no-labels no-box:
 
 
 
-           IF AVAIL b-qty THEN
+           IF AVAIL xe-item THEN
            DO:
 
 
@@ -77,26 +77,12 @@ do i = 1 to 6 with frame adders down no-labels no-box:
                  tt-ei.run-cost[j] = xe-item.run-cost[j].
            END.
 
-           FIND FIRST b-qty WHERE
-                b-qty.reftable = "blank-vend-qty" AND
-                b-qty.company = xe-item.company AND
-		        b-qty.CODE    = xe-item.i-no
-                NO-LOCK NO-ERROR.
-
-           IF AVAIL b-qty THEN
-           DO:
-              FIND FIRST b-cost WHERE
-                   b-cost.reftable = "blank-vend-cost" AND
-                   b-cost.company = xe-item.company AND
-		           b-cost.CODE    = xe-item.i-no
-                   NO-LOCK NO-ERROR.
-
+           
               DO j = 1 TO 10:
                  ASSIGN
-                    tt-ei.run-qty[j + 10] = b-qty.val[j]
-                    tt-ei.run-cost[j + 10] = b-cost.val[j].
+                    tt-ei.run-qty[j + 10] = xe-item.runQty[j]
+                    tt-ei.run-cost[j + 10] = xe-item.runCost[j].
               END.
-           END.
         END.
 
         do j = 1 to 20:

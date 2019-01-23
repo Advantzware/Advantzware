@@ -1377,6 +1377,15 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.qty Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.qty IN BROWSE Browser-Table /* Qty */
 DO:
+         IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
+            DO:
+             RUN find-exact-po.
+             FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
+
+             IF AVAILABLE po-ordl THEN 
+                 lv-rowid = ROWID(po-ordl).
+            END.
+
         IF lv-entry-qty NE DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
             RUN po-cost.
 
@@ -1858,6 +1867,7 @@ PROCEDURE create-rcptd :
 
         ASSIGN              
             rm-rctd.po-no    = STRING(po-ordl.po-no)
+            rm-rctd.po-line  = po-ordl.LINE
             rm-rctd.i-no     = po-ordl.i-no
             rm-rctd.i-name   = po-ordl.i-name
             rm-rctd.job-no   = po-ordl.job-no
@@ -2734,6 +2744,12 @@ PROCEDURE local-assign-record :
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+
+    FIND CURRENT po-ordl NO-LOCK NO-ERROR .
+    IF NOT AVAIL po-ordl THEN
+        FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
+    IF AVAIL po-ordl THEN
+        rm-rctd.po-line = po-ordl.LINE .
 
 /* Code placed here will execute AFTER standard behavior.    */
 

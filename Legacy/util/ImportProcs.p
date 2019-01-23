@@ -239,6 +239,7 @@ PROCEDURE pLoad:
     DEFINE INPUT PARAMETER iplFieldValidation AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcFileType AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplCheck AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cData  AS CHARACTER NO-UNDO EXTENT 200.
@@ -271,9 +272,13 @@ PROCEDURE pLoad:
         DO:
             IF SEARCH(ipcFile) NE ? THEN 
             DO:
-        
                 INPUT STREAM sImport FROM VALUE(ipcFile).
                 REPEAT:
+                    IF iCount GT 1000 THEN DO:
+                      oplCheck = TRUE .
+                      LEAVE.
+                    END.
+
                     ASSIGN 
                         iCount = iCount + 1
                         cData  = "".
