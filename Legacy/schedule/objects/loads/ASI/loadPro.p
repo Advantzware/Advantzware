@@ -7,7 +7,7 @@
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 104
+&SCOPED-DEFINE nextUserField 105
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -1010,6 +1010,7 @@ FOR EACH job-hdr NO-LOCK
       userField[101] = setUserField(101,STRING(iRunWaste,'>>>,>>9'))
       userField[102] = setUserField(102,specialTime(INTEGER(TRUNCATE(job-mch.mr-hr,0) * 3600 + (job-mch.mr-hr - TRUNCATE(job-mch.mr-hr,0)) * 3600)))
       userField[103] = setUserField(103,specialTime(INTEGER(TRUNCATE(job-mch.run-hr,0) * 3600 + (job-mch.run-hr - TRUNCATE(job-mch.run-hr,0)) * 3600)))
+      userField[104] = setUserField(104,job-mch.job-no + '-' + STRING(job-mch.job-no2,'99'))
       jobDescription = jobText
       .
     IF AVAILABLE itemfg AND NOT job-mch.run-qty * itemfg.t-sqft / 1000 LT 1000000 THEN
@@ -1123,8 +1124,6 @@ FOR EACH job-hdr NO-LOCK
               AND sbNote.job-no2 EQ job-mch.job-no2
               AND sbNote.frm EQ job-mch.frm
             :
-          IF traceON THEN
-          PUT UNFORMATTED eb.side AT 20 SKIP. 
           {{&exports}/jobNotes.i &streamName=sJobNotes
             &jobRowID=ENTRY(2,strRowID)
             &noteDate=sbNote.noteDate
@@ -1780,6 +1779,7 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[101] = 'Run Waste'      userWidth[101] = 9
     userLabel[102] = 'MR Time'        userWidth[102] = 15
     userLabel[103] = 'Run Time'       userWidth[103] = 15
+    userLabel[104] = 'Job-Run'        userWidth[104] = 12
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -1844,7 +1844,7 @@ PROCEDURE setUseFields:
     ufIPJobSet = useField[65] OR useField[66] OR useField[67] OR useField[68]
     ufItemFG = useField[21] OR useField[34] OR useField[52] OR useField[54] OR useField[64] OR useField[98] OR useField[99]
     ufJob = useField[89]
-    ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85] OR useField[88] OR useField[96] OR useField[97] OR useField[100] OR useField[101]
+    ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85] OR useField[88] OR useField[96] OR useField[97] OR useField[100] OR useField[101] OR useField[104]
     ufOEOrdl = useField[82] OR useField[84] OR useField[86] OR useField[87]
     ufOERel = useField[37] OR useField[38] OR useField[39] OR useField[40] OR useField[52] OR useField[63]OR useField[91]
     ufPOOrdl = useField[7] OR useField[16] OR useField[17] OR useField[35]
