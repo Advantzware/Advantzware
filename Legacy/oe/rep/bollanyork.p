@@ -401,21 +401,30 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
             BY tt-boll.po-no
             BY tt-boll.ord-no
             BY tt-boll.line
-            BY tt-boll.cases DESCENDING:    
-            IF ll-consol-bolls THEN 
-            DO:
-                IF FIRST-OF(tt-boll.i-no) THEN
-                    ln-cnt = ln-cnt + 3.
-            END.
-            ELSE
-                ln-cnt = ln-cnt + 3.
+            BY tt-boll.cases DESCENDING:  
+
+            
           
             FIND FIRST oe-ordl WHERE oe-ordl.company EQ cocode
                 AND oe-ordl.ord-no  EQ tt-boll.ord-no
                 AND oe-ordl.i-no    EQ tt-boll.i-no
                 AND oe-ordl.line    EQ tt-boll.LINE NO-LOCK NO-ERROR.
-            IF AVAILABLE oe-ordl AND oe-ordl.part-dscr1 <> "" THEN ln-cnt = ln-cnt + 1.
-            IF AVAILABLE oe-ordl AND oe-ordl.part-dscr2 <> "" THEN ln-cnt = ln-cnt + 1.
+
+            IF ll-consol-bolls THEN 
+            DO:
+                IF FIRST-OF(tt-boll.i-no) THEN do:
+                    ln-cnt = ln-cnt + 3.
+                    IF AVAILABLE oe-ordl AND oe-ordl.i-name <> "" THEN ln-cnt = ln-cnt + 1.
+                    IF AVAILABLE oe-ordl AND oe-ordl.part-dscr1 <> "" THEN ln-cnt = ln-cnt + 1.
+
+                END.
+            END.
+            ELSE do:
+                ln-cnt = ln-cnt + 3.
+
+                IF AVAILABLE oe-ordl AND oe-ordl.i-name <> "" THEN ln-cnt = ln-cnt + 1.
+                IF AVAILABLE oe-ordl AND oe-ordl.part-dscr1 <> "" THEN ln-cnt = ln-cnt + 1.
+            END.
 
             IF v-print-components AND itemfg.alloc NE YES THEN
                 FOR EACH fg-set WHERE fg-set.company EQ cocode
