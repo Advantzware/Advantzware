@@ -34,6 +34,7 @@ DEFINE VARIABLE gchWorksheet AS COM-HANDLE   NO-UNDO.
 DEFINE VARIABLE gcTempDir AS CHARACTER FORMAT "X(200)" NO-UNDO.
 DEFINE VARIABLE gcFile AS CHARACTER NO-UNDO.
 DEF VAR lv-print-img AS LOG NO-UNDO.
+DEFINE VARIABLE cCertFormat AS CHARACTER NO-UNDO .
 DEF VAR cBolcert-char AS CHAR FORMAT "X(200)" NO-UNDO.
 
 DEFINE NEW SHARED TEMP-TABLE tt-filelist
@@ -363,6 +364,7 @@ FOR EACH report
         IF cCoating EQ "" THEN cCoating = "N/A".
         ELSE
             cCoating = TRIM(cCoating,",").
+                            
 
         FIND FIRST fgcat
             WHERE fgcat.company EQ itemfg.company
@@ -476,6 +478,8 @@ IF AVAIL sys-ctrl THEN
     cBolcert-char = sys-ctrl.char-fld .
 IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "CCCWPP" THEN lv-print-img = YES.
     ELSE lv-print-img = NO.
+IF AVAIL sys-ctrl THEN
+    cCertFormat = sys-ctrl.char-fld .
 
 FOR EACH report  
     WHERE report.term-id EQ v-term-id,
@@ -492,13 +496,16 @@ FOR EACH report
             IF sys-ctrl-shipto.char-fld = "CCCWPP" THEN
                 lv-print-img = YES.
             ELSE lv-print-img = NO.
+           cCertFormat = sys-ctrl-shipto.char-fld  .
         END.
     END. /*end of Do block to test for CCCWPP per customer*/ 
     LEAVE .
  END.
 
-IF lv-print-img THEN
+IF cCertFormat EQ "CCCWPP"  THEN
     cTemplateFile = "template\WPPBOLCert.xlt".
+ELSE IF cCertFormat EQ "CCCW" THEN
+    cTemplateFile = "template\CCWBOLCert.xlt".
 ELSE
     cTemplateFile = "template\CCCBOLCert.xlt". 
 
