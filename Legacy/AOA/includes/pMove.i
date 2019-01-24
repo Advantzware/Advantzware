@@ -5,6 +5,9 @@ IF {1}.sortOrder EQ 1 AND ipiMove EQ -1 THEN RETURN.
 /* check if at bottom, can't move down */
 FOR EACH b{1} NO-LOCK
     WHERE b{1}.subjectID EQ ttSubject.subjectID
+    &IF "{1}" EQ "ttSubjectWhere" &THEN
+      AND b{1}.whereTable EQ tableList
+    &ENDIF
        BY b{1}.sortOrder DESCENDING
     :
     LEAVE.
@@ -21,7 +24,10 @@ ASSIGN
     iMoveTo  = {1}.sortOrder + ipiMove
     .
 FIND FIRST b{1}
-     WHERE b{1}.subjectID   EQ ttSubject.subjectID
+     WHERE b{1}.subjectID EQ ttSubject.subjectID
+     &IF "{1}" EQ "ttSubjectWhere" &THEN
+       AND b{1}.whereTable EQ tableList
+     &ENDIF
        AND b{1}.sortOrder EQ iMoveTo
      NO-ERROR.
 IF AVAILABLE b{1} THEN
