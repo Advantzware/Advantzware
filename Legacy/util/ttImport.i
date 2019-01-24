@@ -40,6 +40,7 @@ DEFINE {1} {2} VARIABLE gcTypeLabels AS CHARACTER.
 DEFINE {1} {2} VARIABLE gcTypePrograms AS CHARACTER.
 DEFINE {1} {2} VARIABLE gcUpdatesAllowedTypes AS CHARACTER.
 DEFINE {1} {2} VARIABLE gcTypeProgramsFolder AS CHARACTER INIT "util\".
+DEFINE {1} {2} VARIABLE giRecordLimit AS INTEGER INIT 1000.
  
 ASSIGN          /*     1           2             3             4              5           6          7              8        9           10           11               12                13                14                     15                16             17        18               19     */
     gcTypeList = "ttImportAP,ttImportCash,ttImportShipTo,ttImportEstimate,ttImportFG,ttImportVend,ttImportCust,ttImportAR,ttImportGL,ttImportBin,ttImportRelease,ttImportVendCost,ttImportPriceMatrix,ttImportEstimateARD,ttImportEstimateARDP,ttImportUsers,ttImportConfig,ttImportQuote,ttImportUtil"
