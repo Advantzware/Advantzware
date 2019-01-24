@@ -195,6 +195,8 @@ PROCEDURE epCheckPwdExpire :
                     "Your password will expire in " + string(iDaysToExpire) + " days. You" SKIP
                     "should change it (using NU3) before expiration."
                     VIEW-AS ALERT-BOX WARNING.
+                ASSIGN
+                    iopOK = TRUE.
                 RETURN.
             END.
         END.
