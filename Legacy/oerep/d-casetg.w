@@ -52,7 +52,7 @@ DEF VAR ll-tab-out AS LOG NO-UNDO.
 &Scoped-define INTERNAL-TABLES w-ord
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 w-ord.ord-no w-ord.job-no w-ord.job-no2 NO-LABEL w-ord.cust-no w-ord.i-no w-ord.prod-notes w-ord.ord-qty w-ord.pcs w-ord.bundle w-ord.partial /*w-ord.total-unit */ w-ord.total-tags w-ord.l-code w-ord.case-wt w-ord.lot# w-ord.rel-lot# w-ord.draw#   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 w-ord.ord-no w-ord.job-no w-ord.job-no2 NO-LABEL w-ord.cust-no w-ord.i-no w-ord.prod-notes w-ord.cust-po-no w-ord.ord-qty w-ord.rel-qty w-ord.rel-no w-ord.pcs w-ord.bundle w-ord.partial /*w-ord.total-unit */ w-ord.total-tags w-ord.l-code w-ord.case-wt w-ord.lot# w-ord.rel-lot# w-ord.draw#   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 w-ord.prod-notes ~
  ~
 w-ord.pcs ~
@@ -63,7 +63,7 @@ w-ord.pcs ~
    w-ord.case-wt ~
    w-ord.lot# ~
    w-ord.rel-lot# ~
-   w-ord.draw# /*"Bdl/Case" AT 46  "Total#" AT 55  "Total Qty" AT 65 SKIP  "Order#"  "Cust # "  "Item #"  "Ord Qty" TO 44  "Count" AT 46  "Bdl/Case" AT 55  "Per Unit" AT 65  "Tags " TO 80 SKIP */   
+   w-ord.draw# w-ord.cust-po-no /*"Bdl/Case" AT 46  "Total#" AT 55  "Total Qty" AT 65 SKIP  "Order#"  "Cust # "  "Item #"  "Ord Qty" TO 44  "Count" AT 46  "Bdl/Case" AT 55  "Per Unit" AT 65  "Tags " TO 80 SKIP */   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-1 w-ord
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-1 w-ord
 &Scoped-define SELF-NAME BROWSE-1
@@ -118,7 +118,10 @@ DEFINE BROWSE BROWSE-1
       w-ord.cust-no LABEL "Cust #"
       w-ord.i-no LABEL "Item #"
       w-ord.prod-notes LABEL "Color"
+      w-ord.cust-po-no LABEL "Cust Po"
       w-ord.ord-qty COLUMN-LABEL "Ord Qty"
+      w-ord.rel-qty COLUMN-LABEL "Rel Qty"
+      w-ord.rel-no COLUMN-LABEL "Release#"
       w-ord.pcs FORM ">>>,>>9" COLUMN-LABEL "Bdl/Case!Count"
       w-ord.bundle FORM ">>>,>>9" COLUMN-LABEL "Bdl/Case!Per Unit"
       w-ord.partial COLUMN-LABEL "Partial"
@@ -130,6 +133,7 @@ DEFINE BROWSE BROWSE-1
       w-ord.rel-lot# COLUMN-LABEL "Rel. Lot#"
       w-ord.draw# COLUMN-LABEL "Drawing#"
       ENABLE w-ord.prod-notes 
+             w-ord.cust-po-no
              w-ord.pcs
              w-ord.bundle
              w-ord.partial /* w-ord.total-unit */
