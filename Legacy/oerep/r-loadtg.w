@@ -1546,6 +1546,7 @@ DO:
    FIND FIRST oe-ordl NO-LOCK
        WHERE oe-ordl.company EQ cocode
          AND oe-ordl.ord-no EQ INT(begin_ord-no:SCREEN-VALUE)
+         AND (oe-ordl.i-no EQ begin_i-no:SCREEN-VALUE OR begin_i-no:SCREEN-VALUE EQ "" )
          AND oe-ordl.opened eq YES NO-ERROR .
         IF AVAIL oe-ordl 
           THEN do:
@@ -1568,6 +1569,7 @@ DO:
    FIND FIRST oe-ordl NO-LOCK
        WHERE oe-ordl.company EQ cocode
          AND oe-ordl.ord-no EQ INT(end_ord-no:SCREEN-VALUE)
+         AND (oe-ordl.i-no EQ end_i-no:SCREEN-VALUE OR end_i-no:SCREEN-VALUE EQ "" )
          AND oe-ordl.opened eq YES NO-ERROR .
         IF AVAIL oe-ordl 
           THEN do:
@@ -2552,6 +2554,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       END. /* i-no ne '' */
       ELSE
         loadtagFunction:SCREEN-VALUE = "order".
+
+        APPLY 'VALUE-CHANGED':U TO begin_ord-no.
+        APPLY 'VALUE-CHANGED':U TO end_ord-no.
+
      END.  /*   PROGRAM-NAME(3) MATCHES "b-ordlt." */
 
      IF  (PROGRAM-NAME(3) MATCHES "*/b-trans.*" OR PROGRAM-NAME(3) MATCHES "*/b-ldtag.*" ) THEN DO:
@@ -2654,9 +2660,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
     /* gdm - 06100901 end */
 
-    ASSIGN
-        begin_rel:SENSITIVE = NO
-        end_rel:SENSITIVE   = NO .
+    IF NOT PROGRAM-NAME(3) MATCHES "*/b-ordlt.*" THEN DO:
+        ASSIGN
+            begin_rel:SENSITIVE = NO
+            end_rel:SENSITIVE   = NO .
+    END.
   END.
   lForm = NO.
   iForm = 0.
