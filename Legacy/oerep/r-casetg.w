@@ -1670,23 +1670,29 @@ DEF OUTPUT PARAM vlWarning AS LOG NO-UNDO.
                                  OUTPUT w-ord.rel-lot#).
 
                 w-ord.po-no        = oe-ordl.po-no-po.
-                FIND FIRST oe-rel WHERE
-                     oe-rel.company eq cocode AND
-                     oe-rel.i-no    eq oe-ordl.i-no AND
-                     oe-rel.ord-no  eq oe-ordl.ord-no
-                     NO-LOCK NO-ERROR.
+                
 
                 FIND FIRST oe-relh NO-LOCK
                     WHERE oe-relh.company EQ cocode 
                     AND oe-relh.release# EQ begin_rel NO-ERROR .
+
                 IF AVAIL oe-relh THEN
                     FIND FIRST oe-rell  NO-LOCK     
                     WHERE oe-rell.company   EQ oe-relh.company  
                     AND oe-rell.r-no      EQ oe-relh.r-no NO-ERROR.   
 
-                IF AVAIL oe-rell THEN
-                    w-ord.ord-qty      = oe-rell.qty .
-
+                IF AVAIL oe-rell AND AVAIL oe-relh THEN do:
+                    w-ord.rel-qty      = oe-rell.qty .
+                    w-ord.rel-no      = oe-relh.release# .
+                    FIND FIRST oe-rel WHERE oe-rel.r-no EQ oe-rell.link-no NO-LOCK NO-ERROR.
+                END.
+                ELSE do:
+                    FIND FIRST oe-rel WHERE
+                        oe-rel.company eq cocode AND
+                        oe-rel.i-no    eq oe-ordl.i-no AND
+                        oe-rel.ord-no  eq oe-ordl.ord-no
+                        NO-LOCK NO-ERROR.
+                END.
            
                 RELEASE oe-ordl.
                 RELEASE oe-ord.
@@ -1810,7 +1816,7 @@ DEF OUTPUT PARAM vlWarning AS LOG NO-UNDO.
              w-ord.cas-no     = eb.cas-no.
 
           /* Add .49 to round up and add 1 for extra tag   */
-          w-ord.total-tags = ((w-ord.ord-qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
+          w-ord.total-tags = ((w-ord.rel-qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
 
     END.
 
@@ -1955,13 +1961,20 @@ PROCEDURE from-ord :
               WHERE oe-rell.company   EQ oe-relh.company  
               AND oe-rell.r-no      EQ oe-relh.r-no NO-ERROR.   
           
-          IF AVAIL oe-rell THEN
-              w-ord.ord-qty      = oe-rell.qty .
-         
-          FIND FIRST oe-rel WHERE oe-rel.company eq cocode
-                            AND oe-rel.i-no    eq oe-ordl.i-no
-                            AND oe-rel.ord-no  eq oe-ordl.ord-no
-                        /*AND oe-rel.link-no ne 0*/  NO-LOCK NO-ERROR.
+          IF AVAIL oe-rell THEN do:
+              w-ord.rel-qty     = oe-rell.qty .
+              w-ord.rel-no      = oe-relh.release# .
+              FIND FIRST oe-rel WHERE oe-rel.r-no EQ oe-rell.link-no NO-LOCK NO-ERROR.
+          END.
+          ELSE do:
+
+              FIND FIRST oe-rel NO-LOCK
+                  WHERE oe-rel.company eq cocode
+                    AND oe-rel.i-no    eq oe-ordl.i-no
+                    AND oe-rel.ord-no  eq oe-ordl.ord-no
+                    /*AND oe-rel.link-no ne 0*/   NO-ERROR.
+          END.
+
           IF AVAIL oe-rel THEN 
              FIND FIRST shipto WHERE shipto.company eq cocode
                       AND shipto.cust-no eq oe-ord.cust-no
@@ -1999,7 +2012,7 @@ PROCEDURE from-ord :
              w-ord.cas-no     = eb.cas-no.
 
           /* Add .49 to round up and add 1 for extra tag   */
-          w-ord.total-tags = ((w-ord.ord-qty / w-ord.total-unit) + .49) +  (IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1).
+          w-ord.total-tags = ((w-ord.rel-qty / w-ord.total-unit) + .49) +  (IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1).
         END.  /* first-of */
       END.  /* not by-release */
 
@@ -2198,6 +2211,7 @@ PROCEDURE get-rel-info :
           AND oe-relh.posted   EQ NO
           AND oe-relh.rel-date GE begin_date
           AND oe-relh.rel-date LE end_date
+          AND (oe-relh.release# EQ begin_rel OR begin_rel EQ 0)
         BY oe-relh.rel-date
         BY oe-relh.r-no:
 
@@ -2841,7 +2855,7 @@ ASSIGN
            b-w-ord.total-unit = b-w-ord.pcs * b-w-ord.bundle
            b-w-ord.cas-no     = eb.cas-no.
 
-        b-w-ord.total-tags = ((b-w-ord.ord-qty / b-w-ord.total-unit) + .49)
+        b-w-ord.total-tags = ((b-w-ord.rel-qty / b-w-ord.total-unit) + .49)
                              + ( IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1) .
 
       END.
