@@ -134,23 +134,7 @@ DEF VAR v-zipflg AS LOG NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR cust.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS cust.active cust.name cust.addr[1] ~
-cust.addr[2] cust.city cust.state cust.zip cust.terms cust.cr-use ~
-cust.cr-rating cust.cr-lim cust.ord-lim cust.disc cust.curr-code ~
-cust.cr-hold-invdays cust.cr-hold-invdue cust.cust-level cust.cr-hold ~
-cust.fin-chg cust.auto-reprice cust.an-edi-cust cust.factored cust.sort ~
-cust.spare-char-1 cust.tax-gr cust.tax-id cust.date-field[2] ~
-cust.spare-char-2 cust.date-field[1] cust.type cust.csrUser_id cust.contact ~
-cust.sman cust.area-code cust.phone cust.scomm cust.fax-prefix ~
-cust.fax-country cust.frt-pay cust.fob-code cust.ship-part cust.loc ~
-cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
-cust.markup cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet ~
-cust.case-bundle cust.int-field[1] cust.po-mandatory cust.show-set ~
-cust.log-field[1] cust.imported
-&Scoped-define ENABLED-TABLES cust
-&Scoped-define FIRST-ENABLED-TABLE cust
-&Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-2 RECT-3 RECT-4 
-&Scoped-Define DISPLAYED-FIELDS cust.cust-no cust.active cust.name ~
+&Scoped-Define ENABLED-FIELDS cust.nationalAcct cust.active cust.name ~
 cust.addr[1] cust.addr[2] cust.city cust.state cust.zip cust.terms ~
 cust.cr-use cust.cr-rating cust.cr-lim cust.ord-lim cust.disc ~
 cust.curr-code cust.cr-hold-invdays cust.cr-hold-invdue cust.cust-level ~
@@ -160,9 +144,25 @@ cust.spare-char-2 cust.date-field[1] cust.type cust.csrUser_id cust.contact ~
 cust.sman cust.area-code cust.phone cust.scomm cust.fax-prefix ~
 cust.fax-country cust.frt-pay cust.fob-code cust.ship-part cust.loc ~
 cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
-cust.markup cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet ~
-cust.case-bundle cust.int-field[1] cust.po-mandatory cust.show-set ~
-cust.log-field[1] cust.imported
+cust.markup cust.ship-days cust.manf-day cust.imported cust.spare-int-1 ~
+cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
+cust.show-set cust.log-field[1] 
+&Scoped-define ENABLED-TABLES cust
+&Scoped-define FIRST-ENABLED-TABLE cust
+&Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-2 RECT-3 RECT-4 
+&Scoped-Define DISPLAYED-FIELDS cust.nationalAcct cust.cust-no cust.active ~
+cust.name cust.addr[1] cust.addr[2] cust.city cust.state cust.zip ~
+cust.terms cust.cr-use cust.cr-rating cust.cr-lim cust.ord-lim cust.disc ~
+cust.curr-code cust.cr-hold-invdays cust.cr-hold-invdue cust.cust-level ~
+cust.cr-hold cust.fin-chg cust.auto-reprice cust.an-edi-cust cust.factored ~
+cust.sort cust.spare-char-1 cust.tax-gr cust.tax-id cust.date-field[2] ~
+cust.spare-char-2 cust.date-field[1] cust.type cust.csrUser_id cust.contact ~
+cust.sman cust.area-code cust.phone cust.scomm cust.fax-prefix ~
+cust.fax-country cust.frt-pay cust.fob-code cust.ship-part cust.loc ~
+cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
+cust.markup cust.ship-days cust.manf-day cust.imported cust.spare-int-1 ~
+cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
+cust.show-set cust.log-field[1] 
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS fl_custemail terms_dscr rd_inv-meth ~
@@ -173,10 +173,10 @@ loc_dscr carrier_dscr carr-mtx_del-dscr terr_dscr
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,faxFields,F1 */
 &Scoped-define ADM-CREATE-FIELDS cust.cust-no 
 &Scoped-define ADM-ASSIGN-FIELDS fl_custemail rd_inv-meth fi_flat-comm ~
-cust.po-mandatory cust.show-set 
+cust.imported cust.po-mandatory cust.show-set 
 &Scoped-define DISPLAY-FIELD cust.state fl_custemail cust.terms cust.tax-gr ~
 cust.type cust.csrUser_id cust.sman cust.loc cust.carrier cust.del-zone ~
-cust.terr cust.po-mandatory cust.show-set 
+cust.terr cust.imported cust.po-mandatory cust.show-set 
 &Scoped-define faxFields faxAreaCode faxNumber 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -290,16 +290,20 @@ DEFINE RECTANGLE RECT-2
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 71 BY 3.82.
+     SIZE 71 BY 3.81.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 74.4 BY 12.30.
+     SIZE 74.4 BY 12.29.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     cust.nationalAcct AT ROW 17.43 COL 122
+          LABEL "National Account"
+          VIEW-AS TOGGLE-BOX
+          SIZE 23 BY .81
      cust.cust-no AT ROW 1 COL 12 COLON-ALIGNED
           LABEL "Customer"
           VIEW-AS FILL-IN 
@@ -393,9 +397,6 @@ DEFINE FRAME F-Main
      cust.fin-chg AT ROW 11.48 COL 47
           VIEW-AS TOGGLE-BOX
           SIZE 23 BY .81
-     cust.auto-reprice AT ROW 12.29 COL 47
-          VIEW-AS TOGGLE-BOX
-          SIZE 23.2 BY .81
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -403,6 +404,9 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     cust.auto-reprice AT ROW 12.29 COL 47
+          VIEW-AS TOGGLE-BOX
+          SIZE 23.2 BY .81
      cust.an-edi-cust AT ROW 13 COL 47
           LABEL "EDI"
           VIEW-AS TOGGLE-BOX
@@ -465,7 +469,6 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      btn_bank-info AT ROW 2.95 COL 129.2
      cust.sman AT ROW 3.86 COL 73 COLON-ALIGNED
-          LABEL "SalesGrp"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
@@ -486,12 +489,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
      faxAreaCode AT ROW 5.76 COL 73 COLON-ALIGNED AUTO-RETURN 
-     faxNumber AT ROW 5.76 COL 81 COLON-ALIGNED NO-LABEL
-     cust.fax-prefix AT ROW 5.76 COL 106 COLON-ALIGNED
-          LABEL "Prefix"
-          VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1
-          BGCOLOR 15 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -499,6 +496,12 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     faxNumber AT ROW 5.76 COL 81 COLON-ALIGNED NO-LABEL
+     cust.fax-prefix AT ROW 5.76 COL 106 COLON-ALIGNED
+          LABEL "Prefix"
+          VIEW-AS FILL-IN 
+          SIZE 5.6 BY 1
+          BGCOLOR 15 
      cust.fax-country AT ROW 5.76 COL 123 COLON-ALIGNED
           LABEL "Country"
           VIEW-AS FILL-IN 
@@ -567,10 +570,10 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 8.8 BY 1
           FONT 4
-    cust.imported AT ROW 18.43 COL 80.6
-          LABEL "Contract Pricing?"
+     cust.imported AT ROW 16.71 COL 122
+          LABEL "Contract Pricing"
           VIEW-AS TOGGLE-BOX
-          SIZE 24 BY .81 
+          SIZE 22.4 BY .81
      cust.spare-int-1 AT ROW 12.67 COL 129 COLON-ALIGNED WIDGET-ID 12
           LABEL "Pallet ID" FORMAT ">>>>>>>>9"
           VIEW-AS FILL-IN 
@@ -580,6 +583,13 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 18.6 BY 1
           BGCOLOR 15 FONT 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      cust.case-bundle AT ROW 14.57 COL 122.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 18.6 BY 1
@@ -589,38 +599,33 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 13.6 BY 1
           BGCOLOR 15 FONT 4
-     cust.po-mandatory AT ROW 16.62 COL 114.6
+     cust.po-mandatory AT ROW 16.71 COL 104
+          LABEL "PO Req'd"
           VIEW-AS TOGGLE-BOX
-          SIZE 24 BY .81   
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
-     cust.show-set AT ROW 17.38 COL 114.6
+          SIZE 14.4 BY .81
+     cust.show-set AT ROW 17.43 COL 104
+          LABEL "Show Sets"
           VIEW-AS TOGGLE-BOX
-          SIZE 23 BY .81
-     cust.log-field[1] AT ROW 18.14 COL 114.6 HELP
+          SIZE 16 BY .81
+     cust.log-field[1] AT ROW 18.14 COL 104 HELP
           "" WIDGET-ID 16
-          LABEL "Paperless Invoice?"
+          LABEL "Paperless"
           VIEW-AS TOGGLE-BOX
-          SIZE 26.4 BY .81
+          SIZE 16 BY .81
      "Taxable:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 16.14 COL 11
-     "Tax Information" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 15.33 COL 4
+     " Tax Information" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 15.33 COL 4
           FGCOLOR 9 FONT 4
-     "Credit Information" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 6.95 COL 4
+     " Credit Information" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 6.95 COL 4
           FGCOLOR 9 FONT 4
      "FOB:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 8.67 COL 83.2
      "Freight Terms:" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 7.81 COL 72
-     "Shipping Information" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 6.95 COL 75
+     " Other Information" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 6.95 COL 94
           FGCOLOR 9 FONT 4
      "Invoice Per:" VIEW-AS TEXT
           SIZE 14 BY .81 AT ROW 14.38 COL 4
@@ -660,8 +665,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 26.14
-         WIDTH              = 201.6.
+         HEIGHT             = 18.52
+         WIDTH              = 149.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -747,6 +752,8 @@ ASSIGN
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN fl_custemail IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
+/* SETTINGS FOR TOGGLE-BOX cust.imported IN FRAME F-Main
+   2 4 EXP-LABEL                                                        */
 /* SETTINGS FOR FILL-IN cust.int-field[1] IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN cust.loc IN FRAME F-Main
@@ -761,12 +768,12 @@ ASSIGN
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN cust.name IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX cust.nationalAcct IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN cust.phone IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR TOGGLE-BOX cust.po-mandatory IN FRAME F-Main
-   2 4                                                                  */
-/* SETTINGS FOR TOGGLE-BOX cust.imported IN FRAME F-Main
-   2 4                                                                  */
+   2 4 EXP-LABEL                                                        */
 /* SETTINGS FOR RADIO-SET rd_inv-meth IN FRAME F-Main
    NO-ENABLE 2                                                          */
 ASSIGN 
@@ -780,7 +787,7 @@ ASSIGN
 /* SETTINGS FOR TOGGLE-BOX cust.ship-part IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR TOGGLE-BOX cust.show-set IN FRAME F-Main
-   2 4                                                                  */
+   2 4 EXP-LABEL                                                        */
 /* SETTINGS FOR FILL-IN cust.sman IN FRAME F-Main
    4                                                                    */
 /* SETTINGS FOR FILL-IN sman_sname IN FRAME F-Main
