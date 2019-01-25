@@ -1816,7 +1816,7 @@ DEF OUTPUT PARAM vlWarning AS LOG NO-UNDO.
              w-ord.cas-no     = eb.cas-no.
 
           /* Add .49 to round up and add 1 for extra tag   */
-          w-ord.total-tags = ((w-ord.rel-qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
+          w-ord.total-tags = ((w-ord.rel-qty / w-ord.pcs) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
 
     END.
 
@@ -2012,7 +2012,8 @@ PROCEDURE from-ord :
              w-ord.cas-no     = eb.cas-no.
 
           /* Add .49 to round up and add 1 for extra tag   */
-          w-ord.total-tags = ((w-ord.rel-qty / w-ord.total-unit) + .49) +  (IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1).
+          w-ord.total-tags = ((w-ord.rel-qty / w-ord.pcs) + .49) +  (IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1).
+         
         END.  /* first-of */
       END.  /* not by-release */
 
@@ -2194,7 +2195,7 @@ PROCEDURE get-rel-info :
   DEF OUTPUT PARAM op-pono LIKE w-ord.cust-po-no NO-UNDO.
   DEF OUTPUT PARAM op-date LIKE w-ord.rel-date NO-UNDO.
   DEF OUTPUT PARAM op-lot# LIKE w-ord.rel-lot# NO-UNDO.
-
+  DEFINE VARIABLE lCheckRel AS LOGICAL NO-UNDO .
 
   RELEASE oe-rell.
   RELEASE oe-rel.
@@ -2211,6 +2212,28 @@ PROCEDURE get-rel-info :
           AND oe-relh.posted   EQ NO
           AND oe-relh.rel-date GE begin_date
           AND oe-relh.rel-date LE end_date
+          AND (oe-relh.release# EQ begin_rel OR begin_rel EQ 0)
+        BY oe-relh.rel-date
+        BY oe-relh.r-no:
+
+      ASSIGN
+       op-pono = oe-rell.po-no
+       op-date = oe-relh.rel-date
+       op-lot# = oe-rell.lot-no.
+       lCheckRel = YES .
+      LEAVE.
+    END.
+
+    IF lCheckRel EQ NO THEN
+    FOR EACH oe-rell NO-LOCK
+        WHERE oe-rell.company  EQ oe-ordl.company
+          AND oe-rell.ord-no   EQ oe-ordl.ord-no
+          AND oe-rell.i-no     EQ oe-ordl.i-no
+          AND oe-rell.line     EQ oe-ordl.line,
+
+        FIRST oe-relh NO-LOCK
+        WHERE oe-relh.r-no     EQ oe-rell.r-no
+          AND oe-relh.posted   EQ NO
           AND (oe-relh.release# EQ begin_rel OR begin_rel EQ 0)
         BY oe-relh.rel-date
         BY oe-relh.r-no:
