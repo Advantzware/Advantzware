@@ -88,6 +88,7 @@ def buffer vjob for job.
 def buffer b-eb for eb.
 def buffer b-ef for ef.
 DEF BUFFER b-rt FOR reftable.
+DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 
 def new shared workfile wrk-op
   field m-dscr like est-op.m-dscr
@@ -923,7 +924,14 @@ END FUNCTION.
                 if avail oe-ordl then do:
                     v-est-qty = oe-ordl.qty.
                     find first oe-ord of oe-ordl no-lock.
-                    IF AVAIL oe-ord THEN do:
+                        FIND LAST bf-oe-ordl NO-LOCK
+                            WHERE bf-oe-ordl.company EQ cocode
+                            AND bf-oe-ordl.est-no  EQ oe-ordl.est-no
+                            AND bf-oe-ordl.ord-no  LT oe-ordl.ord-no
+                            NO-ERROR.
+                        IF AVAILABLE bf-oe-ordl THEN
+                            cLastOrd = STRING(bf-oe-ordl.ord-no).
+                    IF AVAIL oe-ord  AND cLastOrd EQ "" THEN do:                        
                         ASSIGN
                         cLastOrd = IF oe-ord.po-no2 NE "" THEN oe-ord.po-no2
                             ELSE STRING(oe-ord.pord-no) .
