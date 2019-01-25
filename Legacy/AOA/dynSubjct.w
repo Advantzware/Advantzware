@@ -38,9 +38,11 @@ CREATE WIDGET-POOL.
 &Scoped-define transPanel btnUpdate btnAdd btnCopy btnDelete btnReset btnCancel
 &Scoped-define transInit btnUpdate btnAdd btnCopy btnDelete
 &Scoped-define transUpdate btnUpdate btnReset btnCancel
+/*
 &Scoped-define parameterSection RECT-PARAM ~
 paramSetSearch paramSetMatches ~
 paramSetBrowse subjectParamSetBrowse
+*/
 
 /* Parameters Definitions ---                                           */
 
@@ -52,13 +54,11 @@ DEFINE VARIABLE cLabel             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hAppSrvBin         AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hJasper            AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQueryBrowse       AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hQueryTempTable    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE i                  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iOrder             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iUserSecurityLevel AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lContinue          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSave              AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE rQueryRowID        AS ROWID     NO-UNDO.
 DEFINE VARIABLE rRowID             AS ROWID     NO-UNDO.
 
 {methods/defines/hndldefs.i}
@@ -83,17 +83,6 @@ DEFINE TEMP-TABLE ttSubjectTable    NO-UNDO LIKE dynSubjectTable.
 DEFINE TEMP-TABLE ttSubjectWhere    NO-UNDO LIKE dynSubjectWhere.
 DEFINE TEMP-TABLE ttSubjectColumn   NO-UNDO LIKE dynSubjectColumn.
 DEFINE TEMP-TABLE ttSubjectParamSet NO-UNDO LIKE dynSubjectParamSet.
-DEFINE TEMP-TABLE ttAction NO-UNDO
-    FIELD paramWidget    AS HANDLE
-    FIELD paramID        AS INTEGER
-    FIELD actionParamID  AS INTEGER
-    FIELD action         AS CHARACTER
-    FIELD initializeProc AS CHARACTER
-    FIELD validateProc   AS CHARACTER
-        INDEX paramWidget IS PRIMARY paramWidget
-        INDEX paramID paramID
-        INDEX actionParamID actionParamID action
-        .
 DEFINE TEMP-TABLE ttGroupCalc NO-UNDO 
     FIELD subjectID AS INTEGER
     FIELD fieldName AS CHARACTER
@@ -105,6 +94,8 @@ DEFINE TEMP-TABLE ttGroupCalc NO-UNDO
             groupName
             calcType
             . 
+{AOA/tempTable/ttAction.i}
+
 RUN AOA\appServer\aoaBin.p PERSISTENT SET hAppSrvBin
 SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
 RUN AOA\aoaJasper.p PERSISTENT SET hJasper
@@ -118,6 +109,8 @@ iUserSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
 {AOA/includes/fDateOptions.i}
 /* function fDateOptionValue */
 {AOA/includes/fDateOptionValue.i}
+
+{AOA/includes/dynFuncs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -236,66 +229,64 @@ dynParamSet
     ~{&OPEN-QUERY-tableBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnGroupCalc subjectSection btnOuterJoin ~
-btnNow btnToday btnTime btnDateTime subjectSearch subjectMatches ~
-tableSearch tableMatches tableList btnOF tableListOf btnWhere btnMatches ~
-subjectBrowse tableBrowse subjectWhereBrowse btnBegins btnAND btnOR btnYes ~
-btnNo btnEQ btnNE paramSetSearch paramSetMatches fieldSearch fieldMatches ~
-btnLT btnGT paramSetBrowse fieldBrowse btnLE btnGE btnPlus btnMinus ~
-btnMultiply btnDivide btnDate cUseIndex columnSearch columnMatches btnDec ~
-subjectTableBrowse subjectColumnBrowse btnInt btnStr btnSubstr cParameter ~
-btnOpen btnClose findType cConstant btnPeriod btnDouble btnComma btnSingle ~
-queryStr subjectParamSetBrowse btnResults btnAddUseIndex btnRemoveUseIndex ~
-btnAddParameter btnSave btnRemoveSelection btnSyntax btnAddSelections ~
-btnMoveDown btnAddConstant btnMoveUp btnRemove btnHTML btnView btnPDF ~
-btnDOCX btnCSV btnXLS btnAdd btnCopy btnDelete btnUpdate cParameterLabel ~
-cConstantLabel 
+&Scoped-Define ENABLED-OBJECTS btnAddSelections btnResults btnGroupCalc ~
+subjectSection btnOuterJoin btnNow btnToday btnTime btnDateTime ~
+subjectSearch subjectMatches tableSearch tableMatches tableList btnOF ~
+tableListOf btnWhere btnMatches subjectBrowse tableBrowse ~
+subjectWhereBrowse btnBegins btnAND btnOR btnEQ btnNE btnLT btnGT ~
+fieldSearch fieldMatches btnLE btnGE paramSetBrowse fieldBrowse btnPlus ~
+btnMinus btnMultiply btnDivide btnYes btnNo btnDate cUseIndex columnSearch ~
+columnMatches btnDec subjectColumnBrowse findType btnInt subjectTableBrowse ~
+btnStr btnSubstr cParameter btnOpen btnClose cConstant btnPeriod btnDouble ~
+btnComma btnSingle paramSetSearch paramSetMatches queryStr ~
+subjectParamSetBrowse btnAddUseIndex btnRemoveUseIndex btnAddParameter ~
+btnSave btnRemoveSelection btnSyntax btnMoveDown btnAddConstant btnMoveUp ~
+btnRemove btnAdd btnCopy btnDelete btnUpdate cParameterLabel cConstantLabel 
 &Scoped-Define DISPLAYED-OBJECTS subjectSection subjectSearch ~
-subjectMatches tableSearch tableMatches tableList tableListOf ~
-paramSetSearch paramSetMatches fieldSearch fieldMatches cUseIndex ~
-columnSearch columnMatches cParameter findType cConstant queryStr ~
-cUseIndexLabel cParameterLabel cConstantLabel queryText 
+subjectMatches tableSearch tableMatches tableList tableListOf fieldSearch ~
+fieldMatches cUseIndex columnSearch columnMatches findType cParameter ~
+cConstant paramSetSearch paramSetMatches queryStr cUseIndexLabel ~
+cParameterLabel cConstantLabel queryText 
 
 /* Custom List Definitions                                              */
-/* allSection,tableSection,whereSection,sortSection,columnsSection,subjectSection */
-&Scoped-define allSection btnGroupCalc RECT-TABLE RECT-FIELD ~
-RECT-QUERYTABLE RECT-QUERYSTR RECT-COLUMN RECT-PANEL RECT-SAVE RECT-PARAM ~
-btnOuterJoin btnNow btnToday btnTime btnDateTime tableSearch tableMatches ~
-tableList btnOF tableListOf btnWhere btnMatches tableBrowse ~
-subjectWhereBrowse btnBegins btnAND btnOR btnYes btnNo btnEQ btnNE ~
-paramSetSearch paramSetMatches fieldSearch fieldMatches btnLT btnGT ~
-paramSetBrowse fieldBrowse btnLE btnGE btnPlus btnMinus btnMultiply ~
-btnDivide btnDate cUseIndex columnSearch columnMatches btnDec ~
-subjectTableBrowse subjectColumnBrowse btnInt btnStr btnSubstr cParameter ~
-btnOpen btnClose findType cConstant btnPeriod btnDouble btnComma btnSingle ~
-queryStr subjectParamSetBrowse btnAddUseIndex btnRemoveUseIndex ~
-btnAddParameter btnSave btnRemoveSelection btnSyntax btnAddSelections ~
-btnMoveDown btnAddConstant btnCancel btnMoveUp btnRemove btnAdd btnCopy ~
-btnDelete btnReset btnUpdate cUseIndexLabel cParameterLabel cConstantLabel ~
+/* allSection,tableSection,whereSection,parameterSection,columnsSection,subjectSection */
+&Scoped-define allSection btnAddSelections btnCancel btnGroupCalc ~
+RECT-TABLE RECT-FIELD RECT-QUERYTABLE RECT-QUERYSTR RECT-COLUMN RECT-PANEL ~
+RECT-SAVE RECT-PARAM RECT-PLAY btnOuterJoin btnNow btnToday btnTime ~
+btnDateTime tableSearch tableMatches tableList btnOF tableListOf btnWhere ~
+btnMatches tableBrowse subjectWhereBrowse btnBegins btnAND btnOR btnEQ ~
+btnNE btnLT btnGT fieldSearch fieldMatches btnLE btnGE paramSetBrowse ~
+fieldBrowse btnPlus btnMinus btnMultiply btnDivide btnYes btnNo btnDate ~
+cUseIndex columnSearch columnMatches btnDec subjectColumnBrowse findType ~
+btnInt subjectTableBrowse btnStr btnSubstr cParameter btnOpen btnClose ~
+cConstant btnPeriod btnDouble btnComma btnSingle paramSetSearch ~
+paramSetMatches queryStr subjectParamSetBrowse btnAddUseIndex ~
+btnRemoveUseIndex btnAddParameter btnSave btnRemoveSelection btnSyntax ~
+btnMoveDown btnAddConstant btnMoveUp btnRemove btnAdd btnCopy btnDelete ~
+btnReset btnUpdate cUseIndexLabel cParameterLabel cConstantLabel queryText 
+&Scoped-define tableSection btnAddSelections RECT-TABLE RECT-QUERYTABLE ~
+RECT-QUERYSTR RECT-PLAY tableSearch tableMatches tableBrowse cUseIndex ~
+findType subjectTableBrowse queryStr btnAddUseIndex btnRemoveUseIndex ~
+btnRemoveSelection btnSyntax btnMoveDown btnMoveUp btnRemove cUseIndexLabel ~
 queryText 
-&Scoped-define tableSection btnGroupCalc RECT-TABLE RECT-QUERYTABLE ~
-RECT-QUERYSTR tableSearch tableMatches tableBrowse cUseIndex ~
-subjectTableBrowse findType queryStr btnAddUseIndex btnRemoveUseIndex ~
-btnRemoveSelection btnSyntax btnAddSelections btnMoveDown btnMoveUp ~
-btnRemove cUseIndexLabel queryText 
-&Scoped-define whereSection btnGroupCalc RECT-FIELD RECT-QUERYSTR ~
-RECT-PARAM btnOuterJoin btnNow btnToday btnTime btnDateTime tableList btnOF ~
-tableListOf btnWhere btnMatches subjectWhereBrowse btnBegins btnAND btnOR ~
-btnYes btnNo btnEQ btnNE paramSetSearch paramSetMatches fieldSearch ~
-fieldMatches btnLT btnGT fieldBrowse btnLE btnGE btnPlus btnMinus ~
-btnMultiply btnDivide btnDate btnDec btnInt btnStr btnSubstr cParameter ~
-btnOpen btnClose cConstant btnPeriod btnDouble btnComma btnSingle queryStr ~
-btnAddParameter btnRemoveSelection btnSyntax btnAddSelections btnMoveDown ~
-btnAddConstant btnMoveUp btnRemove cParameterLabel cConstantLabel queryText 
-&Scoped-define sortSection btnGroupCalc RECT-FIELD RECT-QUERYSTR RECT-PARAM ~
-paramSetSearch paramSetMatches fieldSearch fieldMatches fieldBrowse ~
-queryStr btnRemoveSelection btnSyntax btnAddSelections btnMoveDown ~
-btnMoveUp btnRemove queryText 
-&Scoped-define columnsSection btnGroupCalc RECT-FIELD RECT-COLUMN ~
-RECT-PARAM paramSetSearch paramSetMatches fieldSearch fieldMatches ~
-fieldBrowse columnSearch columnMatches subjectColumnBrowse ~
-btnRemoveSelection btnAddSelections btnMoveDown btnMoveUp btnRemove 
-&Scoped-define subjectSection RECT-PANEL btnCancel btnAdd btnCopy btnDelete ~
+&Scoped-define whereSection btnAddSelections RECT-FIELD RECT-QUERYSTR ~
+RECT-PARAM RECT-PLAY btnOuterJoin btnNow btnToday btnTime btnDateTime ~
+tableList btnOF tableListOf btnWhere btnMatches subjectWhereBrowse ~
+btnBegins btnAND btnOR btnEQ btnNE btnLT btnGT fieldSearch fieldMatches ~
+btnLE btnGE fieldBrowse btnPlus btnMinus btnMultiply btnDivide btnYes btnNo ~
+btnDate btnDec btnInt btnStr btnSubstr cParameter btnOpen btnClose ~
+cConstant btnPeriod btnDouble btnComma btnSingle paramSetSearch ~
+paramSetMatches queryStr btnAddParameter btnRemoveSelection btnSyntax ~
+btnMoveDown btnAddConstant btnMoveUp btnRemove cParameterLabel ~
+cConstantLabel queryText 
+&Scoped-define parameterSection RECT-FIELD RECT-QUERYSTR RECT-PARAM ~
+RECT-PLAY fieldSearch fieldMatches paramSetBrowse paramSetSearch ~
+paramSetMatches queryStr subjectParamSetBrowse btnSyntax queryText 
+&Scoped-define columnsSection btnAddSelections btnGroupCalc RECT-FIELD ~
+RECT-COLUMN RECT-PARAM RECT-PLAY fieldSearch fieldMatches fieldBrowse ~
+columnSearch columnMatches subjectColumnBrowse paramSetSearch ~
+paramSetMatches btnRemoveSelection btnMoveDown btnMoveUp btnRemove 
+&Scoped-define subjectSection btnCancel RECT-PANEL btnAdd btnCopy btnDelete ~
 btnReset btnUpdate 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -303,20 +294,6 @@ btnReset btnUpdate
 
 
 /* ************************  Function Prototypes ********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCreateLabel C-Win 
-FUNCTION fCreateLabel RETURNS HANDLE
-  (ipcPool AS CHARACTER, iphFrame AS HANDLE, ipcLabel AS CHARACTER, ipdRow AS DECIMAL)  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fFormatValue C-Win 
-FUNCTION fFormatValue RETURNS CHARACTER
-  (iphTable AS HANDLE, ipcField AS CHARACTER) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetUseIndex C-Win 
 FUNCTION fGetUseIndex RETURNS CHARACTER
@@ -419,7 +396,7 @@ DEFINE BUTTON btnCancel
      IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
-     SIZE 8 BY 1.91 TOOLTIP "Cancel".
+     SIZE 8 BY 1.9 TOOLTIP "Cancel".
 
 DEFINE BUTTON btnClose 
      LABEL ")" 
@@ -434,11 +411,6 @@ DEFINE BUTTON btnCopy
      IMAGE-INSENSITIVE FILE "Graphics\32x32\form_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Copy" 
      SIZE 8 BY 1.91 TOOLTIP "Copy".
-
-DEFINE BUTTON btnCSV 
-     IMAGE-UP FILE "AOA/images/aoaexcelcsv.gif":U NO-FOCUS FLAT-BUTTON
-     LABEL "csv" 
-     SIZE 4.4 BY 1 TOOLTIP "Excel CSV".
 
 DEFINE BUTTON btnDate 
      LABEL "DATE (" 
@@ -462,11 +434,6 @@ DEFINE BUTTON btnDivide
      LABEL "/" 
      SIZE 5 BY 1.05 TOOLTIP "Divide".
 
-DEFINE BUTTON btnDOCX 
-     IMAGE-UP FILE "AOA/images/aoaword.jpg":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 4.4 BY 1 TOOLTIP "Word DOCX".
-
 DEFINE BUTTON btnDouble 
      LABEL "~"" 
      SIZE 2.4 BY 1.05 TOOLTIP "Double Quote".
@@ -487,11 +454,6 @@ DEFINE BUTTON btnGroupCalc
 DEFINE BUTTON btnGT 
      LABEL "GT" 
      SIZE 5 BY 1.05 TOOLTIP "Greater Than".
-
-DEFINE BUTTON btnHTML 
-     IMAGE-UP FILE "AOA/images/html_tag.gif":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 4.4 BY 1 TOOLTIP "HTML".
 
 DEFINE BUTTON btnInt 
      LABEL "INT (" 
@@ -555,11 +517,6 @@ DEFINE BUTTON btnOuterJoin
      LABEL "OUTER-JOIN" 
      SIZE 14 BY 1.05 TOOLTIP "OUTER-JOIN".
 
-DEFINE BUTTON btnPDF 
-     IMAGE-UP FILE "AOA/images/aoapdf.jpg":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 4.4 BY 1 TOOLTIP "PDF".
-
 DEFINE BUTTON btnPeriod 
      LABEL "." 
      SIZE 2.4 BY 1.05 TOOLTIP "Period".
@@ -590,9 +547,9 @@ DEFINE BUTTON btnReset
      SIZE 8 BY 1.91 TOOLTIP "Reset".
 
 DEFINE BUTTON btnResults 
-     IMAGE-UP FILE "AOA/images/media_play.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Results" 
-     SIZE 4.4 BY 1 TOOLTIP "Subject Results".
+     SIZE 8 BY 1.91 TOOLTIP "Subject Results".
 
 DEFINE BUTTON btnSave 
      IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
@@ -630,19 +587,9 @@ DEFINE BUTTON btnUpdate
      LABEL "Update" 
      SIZE 8 BY 1.91 TOOLTIP "Update/Save".
 
-DEFINE BUTTON btnView 
-     IMAGE-UP FILE "AOA/images/jrxml_icon.gif":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 4.4 BY 1 TOOLTIP "Jasper Viewer".
-
 DEFINE BUTTON btnWhere 
      LABEL "WHERE" 
      SIZE 10 BY 1.05 TOOLTIP "WHERE".
-
-DEFINE BUTTON btnXLS 
-     IMAGE-UP FILE "AOA/images/aoaexcel.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 4.4 BY 1 TOOLTIP "Excel XLS".
 
 DEFINE BUTTON btnYes 
      LABEL "YES" 
@@ -745,18 +692,18 @@ DEFINE RECTANGLE RECT-FIELD
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 36 BY 1.43.
 
-DEFINE RECTANGLE RECT-JASPER
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 30 BY 1.43.
-
 DEFINE RECTANGLE RECT-PANEL
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 50 BY 2.38
+     SIZE 58 BY 2.38
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-PARAM
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 36 BY 1.43.
+
+DEFINE RECTANGLE RECT-PLAY
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 9.8 BY 2.38.
 
 DEFINE RECTANGLE RECT-QUERY
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -812,10 +759,40 @@ DEFINE BUTTON btnCloseParam
      LABEL "Close Results" 
      SIZE 4.4 BY .95 TOOLTIP "Close Results".
 
+DEFINE BUTTON btnCSV 
+     IMAGE-UP FILE "AOA/images/aoaexcelcsv.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "csv" 
+     SIZE 4.4 BY 1 TOOLTIP "Excel CSV".
+
+DEFINE BUTTON btnDOCX 
+     IMAGE-UP FILE "AOA/images/aoaword.jpg":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "Word DOCX".
+
+DEFINE BUTTON btnHTML 
+     IMAGE-UP FILE "AOA/images/html_tag.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "HTML".
+
+DEFINE BUTTON btnPDF 
+     IMAGE-UP FILE "AOA/images/aoapdf.jpg":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "PDF".
+
 DEFINE BUTTON btnRunResults 
-     IMAGE-UP FILE "AOA/images/navigate_check.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "AOA/images/media_play.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Save Results" 
      SIZE 4.4 BY .95 TOOLTIP "Save Results".
+
+DEFINE BUTTON btnView 
+     IMAGE-UP FILE "AOA/images/jrxml_icon.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "Jasper Viewer".
+
+DEFINE BUTTON btnXLS 
+     IMAGE-UP FILE "AOA/images/aoaexcel.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "Excel XLS".
 
 DEFINE BUTTON btnCloseResults 
      IMAGE-UP FILE "AOA/images/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
@@ -965,11 +942,17 @@ ttTable.tableDscr LABEL-BGCOLOR 14
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     btnAddSelections AT ROW 7.43 COL 77 HELP
+          "Add Selections" WIDGET-ID 200
+     btnCancel AT ROW 1.24 COL 131 HELP
+          "Cancel" WIDGET-ID 120
+     btnResults AT ROW 1.24 COL 83 HELP
+          "Jasper Viewer" WIDGET-ID 250
      btnGroupCalc AT ROW 5.52 COL 77 HELP
           "Group Calculations" WIDGET-ID 272
      subjectSection AT ROW 2.19 COL 3 HELP
           "Select Section" NO-LABEL WIDGET-ID 30
-     btnOuterJoin AT ROW 2.9 COL 103 WIDGET-ID 274
+     btnOuterJoin AT ROW 2.91 COL 103 WIDGET-ID 274
      btnNow AT ROW 2.91 COL 117 WIDGET-ID 194
      btnToday AT ROW 2.91 COL 126 WIDGET-ID 190
      btnTime AT ROW 2.91 COL 136 WIDGET-ID 192
@@ -993,43 +976,39 @@ DEFINE FRAME DEFAULT-FRAME
      btnBegins AT ROW 5.29 COL 150 WIDGET-ID 84
      btnAND AT ROW 6.48 COL 150 WIDGET-ID 80
      btnOR AT ROW 6.48 COL 155 WIDGET-ID 82
-     btnYes AT ROW 7.67 COL 150 WIDGET-ID 172
-     btnNo AT ROW 7.67 COL 155 WIDGET-ID 174
-     btnEQ AT ROW 8.86 COL 150 WIDGET-ID 68
-     btnNE AT ROW 8.86 COL 155 WIDGET-ID 70
-     paramSetSearch AT ROW 9.81 COL 3 HELP
-          "Enter Field Search" NO-LABEL WIDGET-ID 258
-     paramSetMatches AT ROW 9.81 COL 26 HELP
-          "Select for Table Search Matches" WIDGET-ID 256
+     btnEQ AT ROW 7.67 COL 150 WIDGET-ID 68
+     btnNE AT ROW 7.67 COL 155 WIDGET-ID 70
+     btnLT AT ROW 8.86 COL 150 WIDGET-ID 72
+     btnGT AT ROW 8.86 COL 155 WIDGET-ID 74
      fieldSearch AT ROW 9.81 COL 39 COLON-ALIGNED HELP
           "Enter Field Search" NO-LABEL WIDGET-ID 50
      fieldMatches AT ROW 9.81 COL 64 HELP
           "Select for Table Search Matches" WIDGET-ID 52
-     btnLT AT ROW 10.05 COL 150 WIDGET-ID 72
-     btnGT AT ROW 10.05 COL 155 WIDGET-ID 74
+     btnLE AT ROW 10.05 COL 150 WIDGET-ID 76
+     btnGE AT ROW 10.05 COL 155 WIDGET-ID 78
      paramSetBrowse AT ROW 11 COL 2 WIDGET-ID 1000
      fieldBrowse AT ROW 11 COL 40 WIDGET-ID 700
-     btnLE AT ROW 11.24 COL 150 WIDGET-ID 76
-     btnGE AT ROW 11.24 COL 155 WIDGET-ID 78
-     btnPlus AT ROW 12.43 COL 150 WIDGET-ID 158
-     btnMinus AT ROW 12.43 COL 155 WIDGET-ID 156
-     btnMultiply AT ROW 13.62 COL 150 WIDGET-ID 160
-     btnDivide AT ROW 13.62 COL 155 WIDGET-ID 154
+     btnPlus AT ROW 11.24 COL 150 WIDGET-ID 158
+     btnMinus AT ROW 11.24 COL 155 WIDGET-ID 156
+     btnMultiply AT ROW 12.43 COL 150 WIDGET-ID 160
+     btnDivide AT ROW 12.43 COL 155 WIDGET-ID 154
+     btnYes AT ROW 13.62 COL 150 WIDGET-ID 172
+     btnNo AT ROW 13.62 COL 155 WIDGET-ID 174
      btnDate AT ROW 14.81 COL 150 WIDGET-ID 166
-     cUseIndex AT ROW 15.52 COL 34 COLON-ALIGNED NO-LABEL WIDGET-ID 262
+     cUseIndex AT ROW 15.52 COL 12 COLON-ALIGNED NO-LABEL WIDGET-ID 262
      columnSearch AT ROW 15.52 COL 70 COLON-ALIGNED HELP
           "Enter Column Search" NO-LABEL WIDGET-ID 112
      columnMatches AT ROW 15.52 COL 137 HELP
           "Select for Column Search Matches" WIDGET-ID 110
      btnDec AT ROW 16 COL 150 WIDGET-ID 164
-     subjectTableBrowse AT ROW 16.71 COL 2 WIDGET-ID 400
      subjectColumnBrowse AT ROW 16.71 COL 71 WIDGET-ID 900
+     findType AT ROW 16.95 COL 4 NO-LABEL WIDGET-ID 26
      btnInt AT ROW 17.19 COL 150 WIDGET-ID 162
+     subjectTableBrowse AT ROW 18.38 COL 2 WIDGET-ID 400
      btnStr AT ROW 18.38 COL 150 WIDGET-ID 168
      btnSubstr AT ROW 19.57 COL 150 WIDGET-ID 170
      cParameter AT ROW 20.76 COL 91 COLON-ALIGNED HELP
           "Select Parameter Type" NO-LABEL WIDGET-ID 204
-     btnOpen AT ROW 20.76 COL 150 WIDGET-ID 94
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -1038,59 +1017,45 @@ DEFINE FRAME DEFAULT-FRAME
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
+     btnOpen AT ROW 20.76 COL 150 WIDGET-ID 94
      btnClose AT ROW 20.76 COL 155 WIDGET-ID 96
-     findType AT ROW 21.24 COL 4 NO-LABEL WIDGET-ID 26
      cConstant AT ROW 21.95 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 176
      btnPeriod AT ROW 21.95 COL 150 WIDGET-ID 236
      btnDouble AT ROW 21.95 COL 152.4 WIDGET-ID 240
      btnComma AT ROW 21.95 COL 155 WIDGET-ID 242
      btnSingle AT ROW 21.95 COL 157.4 WIDGET-ID 244
+     paramSetSearch AT ROW 23.86 COL 3 HELP
+          "Enter Field Search" NO-LABEL WIDGET-ID 258
+     paramSetMatches AT ROW 23.86 COL 26 HELP
+          "Select for Table Search Matches" WIDGET-ID 256
      queryStr AT ROW 23.86 COL 83 NO-LABEL WIDGET-ID 4
      subjectParamSetBrowse AT ROW 25.29 COL 2 WIDGET-ID 1100
-     btnResults AT ROW 1.24 COL 131 HELP
-          "Jasper Viewer" WIDGET-ID 250
-     btnAddUseIndex AT ROW 15.52 COL 60 WIDGET-ID 268
-     btnRemoveUseIndex AT ROW 15.52 COL 65 WIDGET-ID 270
+     btnAddUseIndex AT ROW 15.52 COL 38 WIDGET-ID 268
+     btnRemoveUseIndex AT ROW 15.52 COL 43 WIDGET-ID 270
      btnAddParameter AT ROW 20.76 COL 145 WIDGET-ID 208
-     btnSave AT ROW 22.91 COL 3 HELP
+     btnSave AT ROW 1.24 COL 142 HELP
           "Update/Save" WIDGET-ID 248
      btnRemoveSelection AT ROW 13.62 COL 77 HELP
           "Remove Selections" WIDGET-ID 198
      btnSyntax AT ROW 23.86 COL 78 WIDGET-ID 202
-     btnAddSelections AT ROW 7.43 COL 77 HELP
-          "Add Selections" WIDGET-ID 200
      btnMoveDown AT ROW 11.71 COL 77 HELP
           "Move Down" WIDGET-ID 62
      btnAddConstant AT ROW 21.95 COL 145 WIDGET-ID 180
-     btnCancel AT ROW 1.24 COL 119 HELP
-          "Cancel" WIDGET-ID 120
      btnMoveUp AT ROW 9.33 COL 77 HELP
           "Move Up" WIDGET-ID 64
      btnRemove AT ROW 10.52 COL 77 HELP
           "Remove" WIDGET-ID 66
-     btnHTML AT ROW 1.24 COL 151 HELP
-          "HTML" WIDGET-ID 144
-     btnView AT ROW 1.24 COL 155 HELP
-          "Jasper Viewer" WIDGET-ID 148
-     btnPDF AT ROW 1.24 COL 147 HELP
-          "PDF" WIDGET-ID 146
-     btnDOCX AT ROW 1.24 COL 143 HELP
-          "Word DOCX" WIDGET-ID 142
-     btnCSV AT ROW 1.24 COL 135 HELP
-          "Excel CSV" WIDGET-ID 140
-     btnXLS AT ROW 1.24 COL 139 HELP
-          "Excel XLS" WIDGET-ID 150
-     btnAdd AT ROW 1.24 COL 87 HELP
+     btnAdd AT ROW 1.24 COL 99 HELP
           "Add" WIDGET-ID 118
-     btnCopy AT ROW 1.24 COL 95 HELP
+     btnCopy AT ROW 1.24 COL 107 HELP
           "Copy" WIDGET-ID 122
-     btnDelete AT ROW 1.24 COL 103 HELP
+     btnDelete AT ROW 1.24 COL 115 HELP
           "Delete" WIDGET-ID 124
-     btnReset AT ROW 1.24 COL 111 HELP
+     btnReset AT ROW 1.24 COL 123 HELP
           "Reset" WIDGET-ID 126
-     btnUpdate AT ROW 1.24 COL 79 HELP
+     btnUpdate AT ROW 1.24 COL 91 HELP
           "Update/Save" WIDGET-ID 128
-     cUseIndexLabel AT ROW 15.52 COL 22 COLON-ALIGNED NO-LABEL WIDGET-ID 266
+     cUseIndexLabel AT ROW 15.52 COL 2 NO-LABEL WIDGET-ID 266
      cParameterLabel AT ROW 20.76 COL 80 COLON-ALIGNED NO-LABEL WIDGET-ID 206
      cConstantLabel AT ROW 21.95 COL 81 COLON-ALIGNED NO-LABEL WIDGET-ID 178
      queryText AT ROW 22.91 COL 78 COLON-ALIGNED NO-LABEL WIDGET-ID 108
@@ -1101,26 +1066,41 @@ DEFINE FRAME DEFAULT-FRAME
      RECT-QUERY AT ROW 3.62 COL 2 WIDGET-ID 44
      RECT-TABLE AT ROW 3.62 COL 40 WIDGET-ID 46
      RECT-FIELD AT ROW 9.57 COL 40 WIDGET-ID 48
-     RECT-QUERYTABLE AT ROW 21 COL 2 WIDGET-ID 54
+     RECT-QUERYTABLE AT ROW 16.71 COL 2 WIDGET-ID 54
      RECT-QUERYSTR AT ROW 23.14 COL 77 WIDGET-ID 58
      RECT-COLUMN AT ROW 15.29 COL 71 WIDGET-ID 114
+     RECT-PANEL AT ROW 1 COL 82 WIDGET-ID 130
+     RECT-SAVE AT ROW 1 COL 141 WIDGET-ID 246
+     RECT-PARAM AT ROW 23.62 COL 2 WIDGET-ID 260
+     RECT-PLAY AT ROW 1 COL 82 WIDGET-ID 276
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 160 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME DEFAULT-FRAME
-     RECT-PANEL AT ROW 1 COL 78 WIDGET-ID 130
-     RECT-JASPER AT ROW 1 COL 130 WIDGET-ID 152
-     RECT-SAVE AT ROW 22.67 COL 2 WIDGET-ID 246
-     RECT-PARAM AT ROW 9.57 COL 2 WIDGET-ID 260
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+DEFINE FRAME paramFrame
+     btnCSV AT ROW 1 COL 5 HELP
+          "Excel CSV" WIDGET-ID 140
+     btnDOCX AT ROW 1 COL 13 HELP
+          "Word DOCX" WIDGET-ID 142
+     btnRunResults AT ROW 1 COL 1 HELP
+          "Jasper Viewer" WIDGET-ID 254
+     btnXLS AT ROW 1 COL 9 HELP
+          "Excel XLS" WIDGET-ID 150
+     btnCloseParam AT ROW 1 COL 29 HELP
+          "Jasper Viewer" WIDGET-ID 252
+     btnView AT ROW 1 COL 25 HELP
+          "Jasper Viewer" WIDGET-ID 148
+     btnHTML AT ROW 1 COL 21 HELP
+          "HTML" WIDGET-ID 144
+     btnPDF AT ROW 1 COL 17 HELP
+          "PDF" WIDGET-ID 146
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 160 BY 28.57
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
+         AT COL 104 ROW 9.81
+         SIZE 33 BY 2.38
+         FGCOLOR 1  WIDGET-ID 1300.
 
 DEFINE FRAME resultsFrame
      btnCloseResults AT ROW 1 COL 6 HELP
@@ -1129,20 +1109,9 @@ DEFINE FRAME resultsFrame
           "Jasper Viewer" WIDGET-ID 254
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 13 ROW 22.67
+         AT COL 93 ROW 9.81
          SIZE 10 BY 2.38
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
-
-DEFINE FRAME paramFrame
-     btnCloseParam AT ROW 1 COL 6 HELP
-          "Jasper Viewer" WIDGET-ID 252
-     btnRunResults AT ROW 1 COL 2 HELP
-          "Jasper Viewer" WIDGET-ID 254
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 22.67
-         SIZE 10 BY 2.38
-         FGCOLOR 1  WIDGET-ID 1300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1197,10 +1166,10 @@ ASSIGN FRAME paramFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
 /* BROWSE-TAB subjectBrowse btnMatches DEFAULT-FRAME */
 /* BROWSE-TAB tableBrowse subjectBrowse DEFAULT-FRAME */
 /* BROWSE-TAB subjectWhereBrowse tableBrowse DEFAULT-FRAME */
-/* BROWSE-TAB paramSetBrowse btnGT DEFAULT-FRAME */
+/* BROWSE-TAB paramSetBrowse btnGE DEFAULT-FRAME */
 /* BROWSE-TAB fieldBrowse paramSetBrowse DEFAULT-FRAME */
-/* BROWSE-TAB subjectTableBrowse btnDec DEFAULT-FRAME */
-/* BROWSE-TAB subjectColumnBrowse subjectTableBrowse DEFAULT-FRAME */
+/* BROWSE-TAB subjectColumnBrowse btnDec DEFAULT-FRAME */
+/* BROWSE-TAB subjectTableBrowse btnInt DEFAULT-FRAME */
 /* BROWSE-TAB subjectParamSetBrowse queryStr DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btnAdd IN FRAME DEFAULT-FRAME
    1 6                                                                  */
@@ -1215,7 +1184,7 @@ ASSIGN
        btnAddParameter:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR BUTTON btnAddSelections IN FRAME DEFAULT-FRAME
-   1 2 3 4 5                                                            */
+   1 2 3 5                                                              */
 ASSIGN 
        btnAddSelections:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
@@ -1286,7 +1255,7 @@ ASSIGN
        btnGE:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR BUTTON btnGroupCalc IN FRAME DEFAULT-FRAME
-   1 2 3 4 5                                                            */
+   1 5                                                                  */
 ASSIGN 
        btnGroupCalc:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
@@ -1321,12 +1290,12 @@ ASSIGN
        btnMinus:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR BUTTON btnMoveDown IN FRAME DEFAULT-FRAME
-   1 2 3 4 5                                                            */
+   1 2 3 5                                                              */
 ASSIGN 
        btnMoveDown:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR BUTTON btnMoveUp IN FRAME DEFAULT-FRAME
-   1 2 3 4 5                                                            */
+   1 2 3 5                                                              */
 ASSIGN 
        btnMoveUp:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
@@ -1381,12 +1350,12 @@ ASSIGN
        btnPlus:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR BUTTON btnRemove IN FRAME DEFAULT-FRAME
-   1 2 3 4 5                                                            */
+   1 2 3 5                                                              */
 ASSIGN 
        btnRemove:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR BUTTON btnRemoveSelection IN FRAME DEFAULT-FRAME
-   1 2 3 4 5                                                            */
+   1 2 3 5                                                              */
 ASSIGN 
        btnRemoveSelection:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
@@ -1474,9 +1443,9 @@ ASSIGN
 /* SETTINGS FOR COMBO-BOX cUseIndex IN FRAME DEFAULT-FRAME
    1 2                                                                  */
 /* SETTINGS FOR FILL-IN cUseIndexLabel IN FRAME DEFAULT-FRAME
-   NO-ENABLE 1 2                                                        */
+   NO-ENABLE ALIGN-L 1 2                                                */
 /* SETTINGS FOR BROWSE fieldBrowse IN FRAME DEFAULT-FRAME
-   1 3 4 5                                                              */
+   1 3 5                                                                */
 ASSIGN 
        fieldBrowse:HIDDEN  IN FRAME DEFAULT-FRAME                = TRUE
        fieldBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
@@ -1497,7 +1466,7 @@ ASSIGN
        findType:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR BROWSE paramSetBrowse IN FRAME DEFAULT-FRAME
-   1                                                                    */
+   1 4                                                                  */
 ASSIGN 
        paramSetBrowse:HIDDEN  IN FRAME DEFAULT-FRAME                = TRUE.
 
@@ -1532,8 +1501,6 @@ ASSIGN
 ASSIGN 
        RECT-FIELD:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
-/* SETTINGS FOR RECTANGLE RECT-JASPER IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-PANEL IN FRAME DEFAULT-FRAME
    NO-ENABLE 1 6                                                        */
 /* SETTINGS FOR RECTANGLE RECT-PARAM IN FRAME DEFAULT-FRAME
@@ -1541,6 +1508,8 @@ ASSIGN
 ASSIGN 
        RECT-PARAM:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
+/* SETTINGS FOR RECTANGLE RECT-PLAY IN FRAME DEFAULT-FRAME
+   NO-ENABLE 1 2 3 4 5                                                  */
 /* SETTINGS FOR RECTANGLE RECT-QUERY IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-QUERYSTR IN FRAME DEFAULT-FRAME
@@ -1569,7 +1538,7 @@ ASSIGN
        subjectColumnBrowse:NUM-LOCKED-COLUMNS IN FRAME DEFAULT-FRAME     = 1.
 
 /* SETTINGS FOR BROWSE subjectParamSetBrowse IN FRAME DEFAULT-FRAME
-   1                                                                    */
+   1 4                                                                  */
 ASSIGN 
        subjectParamSetBrowse:HIDDEN  IN FRAME DEFAULT-FRAME                = TRUE.
 
@@ -1900,7 +1869,10 @@ ON CHOOSE OF btnCloseResults IN FRAME resultsFrame /* Close Results */
 DO:
     IF VALID-HANDLE(hQueryBrowse) THEN
     DELETE OBJECT hQueryBrowse.
-    FRAME resultsFrame:HIDDEN = YES.
+    ASSIGN
+        FRAME resultsFrame:HIDDEN = YES
+        FRAME paramFrame:HIDDEN   = YES
+        .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1919,9 +1891,10 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME paramFrame
 &Scoped-define SELF-NAME btnCSV
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCSV C-Win
-ON CHOOSE OF btnCSV IN FRAME DEFAULT-FRAME /* csv */
+ON CHOOSE OF btnCSV IN FRAME paramFrame /* csv */
 DO:
     RUN pRunSubject (YES, "CSV").
 END.
@@ -1930,6 +1903,7 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME DEFAULT-FRAME
 &Scoped-define SELF-NAME btnDelete
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDelete C-Win
 ON CHOOSE OF btnDelete IN FRAME DEFAULT-FRAME /* Delete */
@@ -1941,9 +1915,10 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME paramFrame
 &Scoped-define SELF-NAME btnDOCX
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDOCX C-Win
-ON CHOOSE OF btnDOCX IN FRAME DEFAULT-FRAME
+ON CHOOSE OF btnDOCX IN FRAME paramFrame
 DO:
     RUN pRunSubject (YES, "DOCX").
 END.
@@ -1952,6 +1927,7 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME DEFAULT-FRAME
 &Scoped-define SELF-NAME btnGroupCalc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupCalc C-Win
 ON CHOOSE OF btnGroupCalc IN FRAME DEFAULT-FRAME
@@ -1964,9 +1940,10 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME paramFrame
 &Scoped-define SELF-NAME btnHTML
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnHTML C-Win
-ON CHOOSE OF btnHTML IN FRAME DEFAULT-FRAME
+ON CHOOSE OF btnHTML IN FRAME paramFrame
 DO:
     RUN pRunSubject (YES, "HTML").
 END.
@@ -1975,6 +1952,7 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME DEFAULT-FRAME
 &Scoped-define SELF-NAME btnMoveDown
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMoveDown C-Win
 ON CHOOSE OF btnMoveDown IN FRAME DEFAULT-FRAME
@@ -2013,9 +1991,10 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME paramFrame
 &Scoped-define SELF-NAME btnPDF
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPDF C-Win
-ON CHOOSE OF btnPDF IN FRAME DEFAULT-FRAME
+ON CHOOSE OF btnPDF IN FRAME paramFrame
 DO:
     RUN pRunSubject (YES, "PDF").
 END.
@@ -2024,6 +2003,7 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME DEFAULT-FRAME
 &Scoped-define SELF-NAME btnRemove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRemove C-Win
 ON CHOOSE OF btnRemove IN FRAME DEFAULT-FRAME
@@ -2090,7 +2070,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnResults C-Win
 ON CHOOSE OF btnResults IN FRAME DEFAULT-FRAME /* Results */
 DO:
-    RUN pParameterWindow (FRAME paramFrame:HANDLE, "Run").
+    RUN pDynParameters (FRAME paramFrame:HANDLE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2102,7 +2082,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRunResults C-Win
 ON CHOOSE OF btnRunResults IN FRAME paramFrame /* Save Results */
 DO:
-    RUN pSaveParamValues.
     RUN pRunSubject (YES, "Results").
 END.
 
@@ -2158,9 +2137,10 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME paramFrame
 &Scoped-define SELF-NAME btnView
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnView C-Win
-ON CHOOSE OF btnView IN FRAME DEFAULT-FRAME
+ON CHOOSE OF btnView IN FRAME paramFrame
 DO:
     RUN pRunSubject (YES, "View").
 END.
@@ -2169,6 +2149,7 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME DEFAULT-FRAME
 &Scoped-define SELF-NAME btnWhere
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnWhere C-Win
 ON CHOOSE OF btnWhere IN FRAME DEFAULT-FRAME /* WHERE */
@@ -2184,9 +2165,10 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME paramFrame
 &Scoped-define SELF-NAME btnXLS
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnXLS C-Win
-ON CHOOSE OF btnXLS IN FRAME DEFAULT-FRAME
+ON CHOOSE OF btnXLS IN FRAME paramFrame
 DO:
     RUN pRunSubject (YES, "XLS").
 END.
@@ -2195,6 +2177,7 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME DEFAULT-FRAME
 &Scoped-define SELF-NAME cConstant
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cConstant C-Win
 ON RETURN OF cConstant IN FRAME DEFAULT-FRAME
@@ -2666,6 +2649,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
+{AOA/includes/dynProcs.i "tt"}
+
 &Scoped-define sdBrowseName tableBrowse
 {methods/sortByProc.i "pByTableName" "ttTable.tableName"}
 {methods/sortByProc.i "pByTableDB" "ttTable.tableDB"}
@@ -2712,32 +2697,32 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY subjectSection subjectSearch subjectMatches tableSearch tableMatches 
-          tableList tableListOf paramSetSearch paramSetMatches fieldSearch 
-          fieldMatches cUseIndex columnSearch columnMatches cParameter findType 
-          cConstant queryStr cUseIndexLabel cParameterLabel cConstantLabel 
+          tableList tableListOf fieldSearch fieldMatches cUseIndex columnSearch 
+          columnMatches findType cParameter cConstant paramSetSearch 
+          paramSetMatches queryStr cUseIndexLabel cParameterLabel cConstantLabel 
           queryText 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnGroupCalc subjectSection btnOuterJoin btnNow btnToday btnTime 
-         btnDateTime subjectSearch subjectMatches tableSearch tableMatches 
-         tableList btnOF tableListOf btnWhere btnMatches subjectBrowse 
-         tableBrowse subjectWhereBrowse btnBegins btnAND btnOR btnYes btnNo 
-         btnEQ btnNE paramSetSearch paramSetMatches fieldSearch fieldMatches 
-         btnLT btnGT paramSetBrowse fieldBrowse btnLE btnGE btnPlus btnMinus 
-         btnMultiply btnDivide btnDate cUseIndex columnSearch columnMatches 
-         btnDec subjectTableBrowse subjectColumnBrowse btnInt btnStr btnSubstr 
-         cParameter btnOpen btnClose findType cConstant btnPeriod btnDouble 
-         btnComma btnSingle queryStr subjectParamSetBrowse btnResults 
-         btnAddUseIndex btnRemoveUseIndex btnAddParameter btnSave 
-         btnRemoveSelection btnSyntax btnAddSelections btnMoveDown 
-         btnAddConstant btnMoveUp btnRemove btnHTML btnView btnPDF btnDOCX 
-         btnCSV btnXLS btnAdd btnCopy btnDelete btnUpdate cParameterLabel 
+  ENABLE btnAddSelections btnResults btnGroupCalc subjectSection btnOuterJoin 
+         btnNow btnToday btnTime btnDateTime subjectSearch subjectMatches 
+         tableSearch tableMatches tableList btnOF tableListOf btnWhere 
+         btnMatches subjectBrowse tableBrowse subjectWhereBrowse btnBegins 
+         btnAND btnOR btnEQ btnNE btnLT btnGT fieldSearch fieldMatches btnLE 
+         btnGE paramSetBrowse fieldBrowse btnPlus btnMinus btnMultiply 
+         btnDivide btnYes btnNo btnDate cUseIndex columnSearch columnMatches 
+         btnDec subjectColumnBrowse findType btnInt subjectTableBrowse btnStr 
+         btnSubstr cParameter btnOpen btnClose cConstant btnPeriod btnDouble 
+         btnComma btnSingle paramSetSearch paramSetMatches queryStr 
+         subjectParamSetBrowse btnAddUseIndex btnRemoveUseIndex btnAddParameter 
+         btnSave btnRemoveSelection btnSyntax btnMoveDown btnAddConstant 
+         btnMoveUp btnRemove btnAdd btnCopy btnDelete btnUpdate cParameterLabel 
          cConstantLabel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   ENABLE btnCloseResults btnSaveResults 
       WITH FRAME resultsFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-resultsFrame}
-  ENABLE btnCloseParam btnRunResults 
+  ENABLE btnCSV btnDOCX btnRunResults btnXLS btnCloseParam btnView btnHTML 
+         btnPDF 
       WITH FRAME paramFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
   VIEW C-Win.
@@ -2987,27 +2972,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalendar C-Win 
-PROCEDURE pCalendar :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
-    
-    DEFINE VARIABLE calendarDate AS CHARACTER NO-UNDO.
-    
-    RUN nosweat/popupcal.w (OUTPUT calendarDate).
-    IF calendarDate NE '' THEN
-    iphWidget:SCREEN-VALUE = calendarDate.
-    RETURN NO-APPLY.    
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCRUD C-Win 
 PROCEDURE pCRUD :
 /*------------------------------------------------------------------------------
@@ -3019,33 +2983,6 @@ PROCEDURE pCRUD :
     
     fSetSaveButton (NO).
     fShowQuery().
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDatePickList C-Win 
-PROCEDURE pDatePickList :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphWidget   AS HANDLE NO-UNDO.
-    DEFINE INPUT PARAMETER iphCalendar AS HANDLE NO-UNDO.
-    DEFINE INPUT PARAMETER iphPickList AS HANDLE NO-UNDO.
-    
-    ASSIGN
-        iphWidget:SCREEN-VALUE = STRING(fDateOptionValue(
-            iphPickList:SCREEN-VALUE,
-            DATE(iphWidget:SCREEN-VALUE)
-            ))
-        iphWidget:READ-ONLY = iphPickList:SCREEN-VALUE NE "Fixed Date"
-        iphWidget:PRIVATE-DATA = iphPickList:SCREEN-VALUE
-        .
-    IF VALID-HANDLE(iphCalendar) THEN
-    iphCalendar:SENSITIVE = iphPickList:SCREEN-VALUE EQ "Fixed Date".
 
 END PROCEDURE.
 
@@ -3147,6 +3084,27 @@ PROCEDURE pGetDBTables :
     {&OPEN-QUERY-tableBrowse}
     FIND FIRST ttTable.
     APPLY "VALUE-CHANGED":U TO BROWSE tableBrowse.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDefault C-Win 
+PROCEDURE pGetDefault :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    FIND FIRST dynParamValue NO-LOCK
+         WHERE dynParamValue.subjectID    EQ ttSubject.subjectID
+           AND dynParamValue.user-id      EQ "_default"
+           AND dynParamValue.prgmName     EQ "{&program-id}"
+           AND dynParamValue.paramValueID EQ 0
+         NO-ERROR.
+    IF NOT AVAILABLE dynParamValue THEN
+    RUN pSetDefault.
 
 END PROCEDURE.
 
@@ -3417,410 +3375,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pParamAction C-Win 
-PROCEDURE pParamAction :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
-    
-    DEFINE VARIABLE cAction  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cValue   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE idx      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iParamID AS INTEGER   NO-UNDO.
-    
-    DEFINE BUFFER bttAction FOR ttAction.
-    
-    FIND FIRST ttAction
-         WHERE ttACtion.paramWidget EQ iphWidget
-         NO-ERROR.
-    IF NOT AVAILABLE ttAction THEN RETURN.
-    iParamID = ttAction.paramID.
-    FOR EACH ttAction
-        WHERE ttAction.actionParamID EQ iParamID
-          AND ttAction.action NE ""
-        :
-        DO idx = 1 TO NUM-ENTRIES(ttAction.action):
-            ASSIGN
-                cValue  = ENTRY(1,ENTRY(idx,ttAction.action),":")
-                cAction = ENTRY(2,ENTRY(idx,ttAction.action),":")
-                .
-            IF iphWidget:SCREEN-VALUE EQ cValue THEN
-            FOR EACH bttAction
-                WHERE bttAction.paramID EQ ttAction.paramID,
-                FIRST dynParam
-                WHERE dynParam.paramID EQ bttAction.paramID
-                :
-                CASE cAction:
-                    WHEN "DISABLE" THEN
-                    bttACtion.paramWidget:READ-ONLY = YES.
-                    WHEN "ENABLE" THEN
-                    bttACtion.paramWidget:READ-ONLY = NO.
-                    WHEN "HI" THEN
-                    CASE dynParam.dataType:
-                        WHEN "CHARACTER" THEN
-                        bttACtion.paramWidget:SCREEN-VALUE = CHR(254).
-                        WHEN "DECIMAL" THEN
-                        bttACtion.paramWidget:SCREEN-VALUE = "99999999.99".
-                        WHEN "DATE" THEN
-                        bttACtion.paramWidget:SCREEN-VALUE = "12/31/2049".
-                        WHEN "INTEGER" THEN
-                        bttACtion.paramWidget:SCREEN-VALUE = "99999999".
-                    END CASE.
-                    WHEN "LOW" THEN
-                    CASE dynParam.dataType:
-                        WHEN "CHARACTER" THEN
-                        bttACtion.paramWidget:SCREEN-VALUE = CHR(32).
-                        WHEN "DECIMAL" THEN
-                        bttACtion.paramWidget:SCREEN-VALUE = "0".
-                        WHEN "DATE" THEN
-                        bttACtion.paramWidget:SCREEN-VALUE = "1/1/1950".
-                        WHEN "INTEGER" THEN
-                        bttACtion.paramWidget:SCREEN-VALUE = "0".
-                    END CASE.
-                END CASE.
-            END. /* each bttaction */
-        END. /* do idx */
-    END. /* each ttaction */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pParameterWindow C-Win 
-PROCEDURE pParameterWindow :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphFrame AS HANDLE    NO-UNDO.
-    DEFINE INPUT PARAMETER ipcMode  AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE cParamName  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cParamLabel AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoolName   AS CHARACTER NO-UNDO INITIAL "ParameterPool".
-    DEFINE VARIABLE dCol        AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dRow        AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE hCalendar   AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hLabel      AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hPickList   AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hWidget     AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE jdx         AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE kdx         AS INTEGER   NO-UNDO.
-    
-    DEFINE BUFFER ttSubjectParamSet FOR ttSubjectParamSet.
-    
-    DELETE WIDGET-POOL "parameterPool" NO-ERROR.
-    CREATE WIDGET-POOL "parameterPool" PERSISTENT.
-    
-    IF NOT CAN-FIND(FIRST ttSubjectParamSet
-                    WHERE ttSubjectParamSet.subjectID EQ ttSubject.subjectID) THEN DO:
-        IF ipcMode EQ "Run" THEN
-        RUN pRunSubject (YES, "Results").
-        RETURN.
-    END.
-    
-    EMPTY TEMP-TABLE ttAction.
-    
-    FOR EACH ttSubjectParamSet
-        WHERE ttSubjectParamSet.subjectID EQ ttSubject.subjectID,
-        EACH dynParamSet NO-LOCK
-        WHERE dynParamSet.paramSetID EQ ttSubjectParamSet.paramSetID,
-        EACH dynParamSetDtl
-        WHERE dynParamSetDtl.paramSetID EQ dynParamSet.paramSetID,
-        FIRST dynParam NO-LOCK
-        WHERE dynParam.paramID EQ dynParamSetDtl.paramID
-        :
-        ASSIGN
-            cParamName  = IF dynParamSetDtl.paramName  NE "" THEN dynParamSetDtl.paramName
-                          ELSE dynParam.paramName
-            cParamLabel = IF dynParamSetDtl.paramLabel NE "" THEN dynParamSetDtl.paramLabel
-                          ELSE dynParam.paramLabel
-            dCol        = dynParamSetDtl.paramCol + ttSubjectParamSet.setCol - 1
-            dRow        = dynParamSetDtl.paramRow + ttSubjectParamSet.setRow - 1
-            .
-        IF dynParamSet.setRectangle THEN DO:
-            idx = idx + 1.
-            CREATE RECTANGLE hWidget IN WIDGET-POOL cPoolName
-                ASSIGN
-                    FRAME = iphFrame
-                    NAME = "RECT-" + STRING(idx)
-                    GRAPHIC-EDGE = YES
-                    ROUNDED = YES
-                    WIDTH-PIXELS = 1
-                    COL = ttSubjectParamSet.setCol + 1
-                    ROW = ttSubjectParamSet.setRow + .48
-                    SENSITIVE = NO
-                    WIDTH = dynParamSet.setWidth - 2.2
-                    HEIGHT = dynParamSet.setHeight - .76
-                    FILLED = NO
-                    .
-            IF dynParamSet.setTitle NE "" THEN
-            CREATE TEXT hLabel IN WIDGET-POOL cPoolName
-              ASSIGN
-                FRAME = iphFrame
-                AUTO-RESIZE = YES
-                HEIGHT = .62
-                WIDTH = FONT-TABLE:GET-TEXT-WIDTH-CHARS(" " + dynParamSet.setTitle,iphFrame:FONT) + 1
-                COL = hWidget:COL + 2
-                ROW = hWidget:ROW - .24
-                FORMAT = "x(" + STRING(LENGTH(" " + dynParamSet.setTitle)) + ")"
-                SCREEN-VALUE = " " + dynParamSet.setTitle
-                SENSITIVE = YES
-                .
-        END. /* if rectangle */
-        CASE dynParam.viewAs:
-            WHEN "COMBO-BOX" THEN DO:
-                hLabel = fCreateLabel(cPoolName, iphFrame, cParamLabel, dRow).
-                CREATE COMBO-BOX hWidget IN WIDGET-POOL cPoolName
-                  ASSIGN
-                    FRAME = iphFrame
-                    NAME = cParamName
-                    COL = dCol + 2
-                    ROW = dRow
-                    WIDTH = dynParam.paramWidth
-                    LIST-ITEMS = dynParamSetDtl.initialItems
-                    FORMAT = dynParam.paramFormat
-                    SCREEN-VALUE = dynParamSetDtl.initialValue
-                    INNER-LINES = dynParam.innerLines
-                    SIDE-LABEL-HANDLE = hLabel
-                    SENSITIVE = dynParamSetDtl.paramPrompt
-                TRIGGERS:
-                  ON VALUE-CHANGED
-                    PERSISTENT RUN pParamAction IN THIS-PROCEDURE (hWidget:HANDLE).
-                END TRIGGERS.
-                hLabel:COL = hWidget:COL - hLabel:WIDTH.
-            END. /* combo-box */
-            WHEN "EDITOR" THEN DO:
-                CREATE EDITOR hWidget IN WIDGET-POOL cPoolName
-                    ASSIGN
-                        FRAME = iphFrame
-                        NAME = dynParamSetDtl.paramName
-                        COL = dCol
-                        ROW = dRow
-                        WIDTH = dynParam.paramWidth
-                        HEIGHT = dynParam.paramHeight
-                        SCROLLBAR-HORIZONTAL = CAN-DO(dynParamSetDtl.action,"HORIZONTAL")
-                        SCROLLBAR-VERTICAL = CAN-DO(dynParamSetDtl.action,"VERTICAL")
-                        WORD-WRAP = NO
-                        BOX = YES
-                        SCREEN-VALUE = dynParamSetDtl.initialValue
-                        SENSITIVE = YES
-                        READ-ONLY = dynParamSetDtl.paramPrompt EQ NO
-                    TRIGGERS:
-                      ON LEAVE
-                        PERSISTENT RUN pValidate IN THIS-PROCEDURE (hWidget:HANDLE).
-                    END TRIGGERS.
-                ASSIGN
-                    hLabel = fCreateLabel(cPoolName, iphFrame, cParamLabel, dRow)
-                    hLabel:COL = dCol - hLabel:WIDTH
-                    .
-                IF CAN-DO(dynParamSetDtl.action,"EMAIL") THEN DO:
-                    ASSIGN
-                        dCol = dCol - 5
-                        dRow = dRow + .95
-                        .
-                    CREATE BUTTON hCalendar IN WIDGET-POOL cPoolName
-                        ASSIGN
-                            FRAME = iphFrame
-                            NAME = "btnRecipients"
-                            COL = dCol
-                            ROW = dRow
-                            WIDTH = 4.4
-                            HEIGHT = 1.05
-                            TOOLTIP = "Add Recipients"
-                            SENSITIVE = dynParamSetDtl.paramPrompt
-                        TRIGGERS:
-                          ON CHOOSE
-                            PERSISTENT RUN pRecipients IN THIS-PROCEDURE (hWidget:HANDLE).
-                        END TRIGGERS.
-                    IF VALID-HANDLE(hCalendar) THEN
-                    hCalendar:LOAD-IMAGE("AOA\images\navigate_plus.gif").
-                END. /* if use a calendar */
-            END. /* editor */
-            WHEN "FILL-IN" THEN DO:
-                hLabel = fCreateLabel(cPoolName, iphFrame, cParamLabel, dRow).
-                CREATE FILL-IN hWidget IN WIDGET-POOL cPoolName
-                    ASSIGN
-                        FRAME = iphFrame
-                        NAME = cParamName
-                        DATA-TYPE = dynParam.dataType
-                        FORMAT = dynParam.paramFormat
-                        COL = dCol + 2
-                        ROW = dRow
-                        WIDTH = dynParam.paramWidth
-                        HEIGHT = dynParam.paramHeight
-                        SCREEN-VALUE = dynParamSetDtl.initialValue
-                        SIDE-LABEL-HANDLE = hLabel
-                        SENSITIVE = YES
-                        READ-ONLY = dynParamSetDtl.paramPrompt EQ NO
-                    TRIGGERS:
-                      ON LEAVE
-                        PERSISTENT RUN pValidate IN THIS-PROCEDURE (hWidget:HANDLE).
-                    END TRIGGERS.
-                ASSIGN
-                    hLabel:COL = hWidget:COL - hLabel:WIDTH
-                    dCol = hWidget:COL + hWidget:WIDTH + .4
-                    hCalendar = ?
-                    .
-                IF dynParam.dataType EQ "DATE" THEN DO:
-                    IF CAN-DO(dynParamSetDtl.action,"CALENDAR") THEN DO:
-                        jdx  = jdx + 1.
-                        CREATE BUTTON hCalendar IN WIDGET-POOL cPoolName
-                            ASSIGN
-                                FRAME = iphFrame
-                                NAME = "btnCalendar-" + STRING(jdx)
-                                COL = dCol
-                                ROW = dRow
-                                WIDTH = 4.6
-                                HEIGHT = 1.05
-                                TOOLTIP = "Calendar Popup"
-                                SENSITIVE = dynParamSetDtl.paramPrompt
-                            TRIGGERS:
-                              ON CHOOSE
-                                PERSISTENT RUN pCalendar IN THIS-PROCEDURE (hWidget:HANDLE).
-                            END TRIGGERS.
-                        IF VALID-HANDLE(hCalendar) THEN DO:
-                            hCalendar:LOAD-IMAGE("Graphics\16x16\calendar.bmp").
-                            dCol = hCalendar:COL + hCalendar:WIDTH + .4.
-                        END. /* if valid-handle */
-                    END. /* if use a calendar */
-                    IF CAN-DO(dynParamSetDtl.action,"DATEPICKLIST") THEN DO:
-                        kdx = kdx + 1.
-                        CREATE COMBO-BOX hPickList IN WIDGET-POOL cPoolName
-                          ASSIGN
-                            FRAME = iphFrame
-                            NAME = "DatePickList-" + STRING(kdx)
-                            FORMAT = "x(256)"
-                            COL = dCol
-                            ROW = dRow
-                            WIDTH = 25
-                            TOOLTIP = "Date Pick List"
-                            PRIVATE-DATA = hWidget:NAME
-                            SENSITIVE = dynParamSetDtl.paramPrompt
-                        TRIGGERS:
-                          ON VALUE-CHANGED
-                            PERSISTENT RUN pDatePickList IN THIS-PROCEDURE (
-                                hWidget:HANDLE,
-                                hCalendar:HANDLE,
-                                hPickList:HANDLE
-                                ).
-                        END TRIGGERS.
-                        fDateOptions(hPickList).
-                        ASSIGN
-                            hPickList:SCREEN-VALUE = hPickList:ENTRY(1)
-                            hWidget:PRIVATE-DATA = hPickList:SCREEN-VALUE
-                            .
-                    END. /* if date pick list */
-                END. /* if date type */
-            END. /* fill-in */
-            WHEN "RADIO-SET" THEN DO:
-                CREATE RADIO-SET hWidget IN WIDGET-POOL cPoolName
-                    ASSIGN
-                        FRAME = iphFrame
-                        NAME = cParamName
-                        RADIO-BUTTONS = dynParamSetDtl.initialItems
-                        HORIZONTAL = CAN-DO(dynParamSetDtl.action,"HORIZONTAL")
-                        COL = dCol
-                        ROW = dRow
-                        WIDTH = dynParam.paramWidth
-                        HEIGHT = dynParam.paramHeight
-                        SCREEN-VALUE = dynParamSetDtl.initialValue
-                        SENSITIVE = dynParamSetDtl.paramPrompt
-                    TRIGGERS:
-                      ON VALUE-CHANGED
-                        PERSISTENT RUN pParamAction IN THIS-PROCEDURE (hWidget:HANDLE).
-                    END TRIGGERS.
-                ASSIGN
-                    hLabel = fCreateLabel(cPoolName, iphFrame, cParamLabel, dRow)
-                    hLabel:COL = dCol - hLabel:WIDTH
-                    .
-            END. /* radio-set */
-            WHEN "SELECTION-LIST" THEN DO:
-                CREATE SELECTION-LIST hWidget IN WIDGET-POOL cPoolName
-                  ASSIGN
-                    FRAME = iphFrame
-                    NAME = cParamName
-                    COL = dCol
-                    ROW = dRow
-                    WIDTH = dynParam.paramWidth
-                    SCROLLBAR-VERTICAL = YES
-                    MULTIPLE = CAN-DO(dynParamSetDtl.action,"MULTISELECT")
-                    LIST-ITEMS = dynParamSetDtl.initialItems
-                    SCREEN-VALUE = dynParamSetDtl.initialValue
-                    INNER-LINES = dynParam.innerLines
-                    SENSITIVE = dynParamSetDtl.paramPrompt
-                TRIGGERS:
-                  ON VALUE-CHANGED
-                    PERSISTENT RUN pParamAction IN THIS-PROCEDURE (hWidget:HANDLE).
-                END TRIGGERS.
-                ASSIGN
-                    hLabel = fCreateLabel(cPoolName, iphFrame, cParamLabel, dRow)
-                    hLabel:COL = dCol - hLabel:WIDTH
-                    .
-            END. /* selection-list */
-            WHEN "TOGGLE-BOX" THEN DO:
-                CREATE TOGGLE-BOX hWidget IN WIDGET-POOL cPoolName
-                    ASSIGN
-                        FRAME = iphFrame
-                        NAME = cParamName
-                        LABEL = cParamLabel
-                        COL = dCol
-                        ROW = dRow
-                        WIDTH = dynParam.paramWidth
-                        HEIGHT = dynParam.paramHeight
-                        SCREEN-VALUE = dynParamSetDtl.initialValue
-                        SENSITIVE = dynParamSetDtl.paramPrompt
-                    TRIGGERS:
-                      ON VALUE-CHANGED
-                        PERSISTENT RUN pParamAction IN THIS-PROCEDURE (hWidget:HANDLE).
-                    END TRIGGERS.
-            END. /* toggle-box */
-        END CASE.
-        IF VALID-HANDLE(hWidget) THEN DO:
-            CREATE ttAction.
-            ASSIGN
-                ttAction.paramWidget    = hWidget:HANDLE
-                ttAction.paramID        = dynParamSetDtl.paramID
-                ttAction.actionParamID  = dynParamSetDtl.actionParamID
-                ttAction.action         = dynParamSetDtl.action
-                ttAction.initializeProc = dynParam.initializeProc
-                ttAction.validateProc   = dynParam.validateProc
-                .
-        END. /* if valid-handle */
-    END. /* each ttSubjectParamSet */
-    iphFrame:HIDDEN = NO.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRecipients C-Win 
-PROCEDURE pRecipients :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
-    
-    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
-    
-    cRecipients = iphWidget:SCREEN-VALUE.
-    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
-    iphWidget:SCREEN-VALUE = cRecipients.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRemoveSelections C-Win 
 PROCEDURE pRemoveSelections :
 /*------------------------------------------------------------------------------
@@ -3888,367 +3442,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResultsBrowser C-Win 
-PROCEDURE pResultsBrowser :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphQuery AS HANDLE NO-UNDO.
-    
-    DEFINE VARIABLE hColumn AS HANDLE NO-UNDO.
-    
-    DEFINE BUFFER bttSubjectColumn FOR ttSubjectColumn.
-    
-    RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
-    IF VALID-HANDLE(hQueryBrowse) THEN
-    DELETE OBJECT hQueryBrowse.
-    
-    iphQuery:QUERY-OPEN.
-    CREATE BROWSE hQueryBrowse
-        ASSIGN
-            FRAME = FRAME resultsFrame:HANDLE
-            TITLE = "Subject Query Results"
-            SENSITIVE = TRUE
-            SEPARATORS = TRUE
-            ROW-MARKERS = FALSE
-            COLUMN-RESIZABLE = TRUE
-            COLUMN-MOVABLE = TRUE 
-            ALLOW-COLUMN-SEARCHING = TRUE
-            QUERY = iphQuery
-            COL = 1
-            ROW = 1
-            HEIGHT = FRAME resultsFrame:HEIGHT - .1
-            WIDTH = FRAME resultsFrame:WIDTH - .32
-            VISIBLE = TRUE
-            NO-VALIDATE = TRUE
-            .
-    FOR EACH bttSubjectColumn
-        WHERE bttSubjectColumn.subjectID EQ ttSubject.subjectID
-           BY bttSubjectColumn.sortOrder
-        :
-        hColumn = hQueryBrowse:ADD-LIKE-COLUMN(bttSubjectColumn.fieldName).
-        /*
-        IF bttSubjectColumn.sortOrder MOD 2 EQ 0 THEN
-        hColumn:COLUMN-BGCOLOR = 11.
-        */
-        IF bttSubjectColumn.columnSize NE 0 THEN
-        hColumn:WIDTH-CHARS = bttSubjectColumn.columnSize.
-    END. /* each ttSubjectColumn */
-    ASSIGN
-        btnCloseResults:HIDDEN = NO
-        btnSaveResults:HIDDEN  = NO
-        .
-    btnCloseResults:MOVE-TO-TOP().
-    btnSaveResults:MOVE-TO-TOP().
-    RUN LockWindowUpdate (0,OUTPUT i).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResultsJasper C-Win 
-PROCEDURE pResultsJasper :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphQuery AS HANDLE    NO-UNDO.
-    DEFINE INPUT PARAMETER ipcType  AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE cBufferValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJasperFile  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTableName   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFieldName   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hQueryBuf    AS HANDLE    NO-UNDO.
-    
-    DEFINE BUFFER bttSubjectTable  FOR ttSubjectTable.
-    DEFINE BUFFER bttSubjectColumn FOR ttSubjectColumn.
-    
-    RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
-    
-    iphQuery:QUERY-OPEN.
-    iphQuery:GET-FIRST().
-    IF NOT iphQuery:QUERY-OFF-END THEN DO:
-        RUN pEmptyttColumn IN hJasper.
-        FOR EACH bttSubjectColumn
-            WHERE bttSubjectColumn.subjectID EQ ttSubject.subjectID
-            :
-            ASSIGN
-                hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(bttSubjectColumn.tableName)
-                cFieldName   = ENTRY(2,bttSubjectColumn.fieldName,".")
-                .
-            RUN pCreatettColumn IN hJasper (
-                cFieldName,
-                bttSubjectColumn.sortOrder,
-                YES,
-                bttSubjectColumn.fieldLabel,
-                bttSubjectColumn.dataType,
-                bttSubjectColumn.fieldFormat,
-                hQueryBuf:BUFFER-FIELD(cFieldName):WIDTH,
-                MAX(hQueryBuf:BUFFER-FIELD(cFieldName):WIDTH,LENGTH(hQueryBuf:BUFFER-FIELD(cFieldName):LABEL))
-                ).
-        END. /* do iColumn */
-        OS-CREATE-DIR "users".
-        OS-CREATE-DIR VALUE("users\" + USERID("ASI")).
-        OS-CREATE-DIR VALUE("users\" + USERID("ASI") + "\Jasper").
-        cJasperFile = "users\" + USERID("ASI") + "\"
-                    + REPLACE(ttSubject.subjectName," ","")
-                    + ".json"
-                    .
-        OUTPUT TO VALUE(cJasperFile).
-        PUT UNFORMATTED
-            "~{" SKIP
-            FILL(" ",2)
-            "~"" REPLACE(ttSubject.subjectName," ","_") "~": ~{" SKIP
-            FILL(" ",4)
-            "~"tt" REPLACE(ttSubject.subjectName," ","") "~": [" SKIP
-            .
-        REPEAT:
-            PUT UNFORMATTED
-                FILL(" ",6) "~{" SKIP
-                .
-            FOR EACH bttSubjectColumn
-                WHERE bttSubjectColumn.subjectID EQ ttSubject.subjectID
-                   BY bttSubjectColumn.sortOrder
-                :
-                ASSIGN
-                    hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(bttSubjectColumn.tableName)
-                    cFieldName   = ENTRY(2,bttSubjectColumn.fieldName,".")
-                    cBufferValue = fFormatValue(hQueryBuf, hQueryBuf:BUFFER-FIELD(cFieldName):NAME)
-                    /* remove special characters with escape values */
-                    cBufferValue = REPLACE(cBufferValue,"~&","~&amp;")
-                    cBufferValue = REPLACE(cBufferValue,"~'","~&apos;")
-                    cBufferValue = REPLACE(cBufferValue,"~"","~&quot;")
-                    cBufferValue = REPLACE(cBufferValue,"<","~&lt;")
-                    cBufferValue = REPLACE(cBufferValue,">","~&gt;")
-                    cBufferValue = REPLACE(cBufferValue,"~\","~\~\")
-                    .
-                IF bttSubjectColumn.sortOrder GT 1 THEN
-                PUT UNFORMATTED "," SKIP.
-                PUT UNFORMATTED
-                    FILL(" ",8)
-                    "~"" cFieldName "~": ~""
-                    IF cBufferValue NE "" THEN cBufferValue ELSE " "
-                    "~""
-                    .
-            END. /* do iColumn */
-            PUT UNFORMATTED SKIP FILL(" ",6) "}".
-            iphQuery:GET-NEXT().
-            IF iphQuery:QUERY-OFF-END THEN LEAVE.
-            PUT UNFORMATTED "," SKIP.
-        END. /* repeat */
-        iphQuery:QUERY-CLOSE().
-        PUT UNFORMATTED
-            SKIP
-            FILL(" ",4) "]" SKIP
-            FILL(" ",2) "}" SKIP
-            "}" SKIP
-            .
-        OUTPUT CLOSE.
-        RUN pJasperCopy IN hJasper (cJasperFile).    
-        RUN spJasperQuery IN hJasper (
-            ipcType,
-            ttSubject.subjectName,
-            USERID("ASI"),
-            OUTPUT cJasperFile
-            ).
-    END. /* if get-first is valid */
-    iphQuery:QUERY-CLOSE().
-    
-    RUN LockWindowUpdate (0,OUTPUT i).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunSubject C-Win 
-PROCEDURE pRunSubject :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iplRun  AS LOGICAL   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE cDate     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cError    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQueryStr AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cParam    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dtDate    AS DATE      NO-UNDO.
-    DEFINE VARIABLE hBuffer   AS HANDLE    NO-UNDO EXTENT 1000.
-    DEFINE VARIABLE hQuery    AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lOK       AS LOGICAL   NO-UNDO.
-    
-    DEFINE BUFFER ttSubjectColumn   FOR ttSubjectColumn.
-    DEFINE BUFFER ttSubjectParamSet FOR ttSubjectParamSet.
-    DEFINE BUFFER ttSubjectTable    FOR ttSubjectTable.
-    
-    DO TRANSACTION:
-        FIND FIRST dynParamValue EXCLUSIVE-LOCK
-             WHERE dynParamValue.subjectID    EQ ttSubject.subjectID
-               AND dynParamValue.user-id      EQ "_default"
-               AND dynParamValue.prgmName     EQ "{&program-id}"
-               AND dynParamValue.paramValueID EQ 0
-             NO-ERROR.
-        IF NOT AVAILABLE dynParamValue THEN DO:
-            CREATE dynParamValue.
-            ASSIGN
-                dynParamValue.subjectID        = ttSubject.subjectID
-                dynParamValue.user-id          = "_default"
-                dynParamValue.prgmName         = "{&program-id}"
-                dynParamValue.paramDescription = "User Default"
-                .
-            FOR EACH ttSubjectParamSet NO-LOCK
-                WHERE ttSubjectParamSet.subjectID EQ ttSubject.subjectID,
-                EACH dynParamSetDtl NO-LOCK
-                WHERE dynParamSetDtl.paramSetID EQ ttSubjectParamSet.paramSetID,
-                FIRST dynParam NO-LOCK
-                WHERE dynParam.paramID EQ dynParamSetDtl.paramID
-                :
-                ASSIGN
-                    idx                           = idx + 1
-                    dynParamValue.paramName[idx]  = dynParamSetDtl.paramName
-                    dynParamValue.paramLabel[idx] = dynParamSetDtl.paramLabel
-                    dynParamValue.paramValue[idx] = dynParamSetDtl.initialValue
-                    .
-            END. /* each dynsubjectparamset */
-            FIND CURRENT dynParamValue NO-LOCK.
-        END. /* not avail */
-    END. /* do trans */
-    
-    cQueryStr = queryStr.
-    IF INDEX(queryStr,"[[") NE 0 THEN DO:
-        FOR EACH ttSubjectParamSet NO-LOCK
-            WHERE ttSubjectParamSet.subjectID EQ ttSubject.subjectID,
-            EACH dynParamSetDtl NO-LOCK
-            WHERE dynParamSetDtl.paramSetID EQ ttSubjectParamSet.paramSetID,
-            FIRST dynParam OF dynParamSetDtl NO-LOCK
-            :
-            ASSIGN
-                cParam = IF dynParamSetDtl.paramName NE "" THEN dynParamSetDtl.paramName
-                         ELSE dynParam.paramName
-                cParam = "[[" + cParam + "]]"
-                .
-            IF INDEX(cQueryStr,cParam) NE 0 THEN
-            CASE dynParam.dataType:
-                WHEN "Character" THEN
-                cQueryStr = REPLACE(cQueryStr,cParam,"~"" + dynParamSetDtl.initialValue + "~"").
-                WHEN "Date" THEN DO:
-                    dtDate = DATE(dynParamSetDtl.initialValue) NO-ERROR.
-                    cDate = IF dtDate EQ ? THEN "~?" ELSE STRING(dtDate,dynParam.paramFormat).
-                    cQueryStr = REPLACE(cQueryStr,cParam,cDate).
-                END. /* date */
-                WHEN "DateTime" THEN DO:
-                    dtDate = DATE(dynParamSetDtl.initialValue) NO-ERROR.
-                    cDate = IF dtDate EQ ? THEN "~?" ELSE STRING(dtDate,dynParam.paramFormat).
-                    cQueryStr = REPLACE(cQueryStr,cParam,cDate).
-                    cQueryStr = REPLACE(cQueryStr,cParam,dynParamSetDtl.initialValue).
-                END. /* date */
-                WHEN "Decimal" OR WHEN "Integer" OR WHEN "Logical" THEN
-                cQueryStr = REPLACE(cQueryStr,cParam,dynParamSetDtl.initialValue).
-            END CASE.
-        END. /* each ttSubjectParamSet */
-    END. /* if [[ (parameter used) */
-    FOR EACH ttSubjectColumn
-        WHERE ttSubjectColumn.subjectID EQ ttSubject.subjectID
-          AND ttSubjectColumn.sortCol   GT 0
-           BY ttSubjectColumn.sortCol
-        :
-        cQueryStr = cQueryStr + " BY " + ttSubjectColumn.fieldName.
-    END. /* each ttSubjectColumn */
-
-    CREATE QUERY hQuery.
-    FOR EACH ttSubjectTable
-        WHERE ttSubjectTable.subjectID EQ ttSubject.subjectID
-           BY ttSubjectTable.sortOrder
-        :
-        idx = idx + 1.
-        CREATE BUFFER hBuffer[idx] FOR TABLE ttSubjectTable.tableName.
-        hQuery:ADD-BUFFER(hBuffer[idx]).
-    END. /* each ttSubjectTable */
-    lOK = hQuery:QUERY-PREPARE(cQueryStr) NO-ERROR.
-    IF lOK THEN DO:
-        IF iplRun THEN DO:
-            IF ipcType EQ "Results" THEN
-            RUN pResultsBrowser (hQuery).
-            ELSE
-            RUN pResultsJasper (hQuery, ipcType).
-        END. /* if run */
-        ELSE
-        MESSAGE
-            "Query Syntax is Correct."        
-        VIEW-AS ALERT-BOX TITLE "Query Syntax Check".
-    END. /* if ok */
-    ELSE DO:
-        DO idx = 1 TO ERROR-STATUS:NUM-MESSAGES:
-            cError = cError + ERROR-STATUS:GET-MESSAGE(idx) + CHR(10).
-        END. /* do idx */
-        MESSAGE cError VIEW-AS ALERT-BOX ERROR TITLE "Query Syntax Check".
-    END. /* else */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveParamValues C-Win 
-PROCEDURE pSaveParamValues :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hWidget AS HANDLE NO-UNDO.
-    
-    OUTPUT TO c:\tmp\paramValue.txt.
-    PUT UNFORMATTED
-        "ID: " ttSubject.subjectID " - "
-        "Name: " ttSubject.subjectName
-        SKIP(1).
-    ASSIGN
-        hWidget = FRAME paramFrame:HANDLE
-        hWidget = hWidget:FIRST-CHILD
-        hWidget = hWidget:FIRST-CHILD
-        .
-    DO WHILE VALID-HANDLE(hWidget):
-        IF hWidget:TYPE NE "BUTTON" AND
-           hWidget:TYPE NE "RECTANGLE" AND
-           hWidget:TYPE NE "TEXT" THEN DO:
-            PUT UNFORMATTED
-                hWidget:NAME AT 1
-                hWidget:DATA-TYPE AT 20
-                hWidget:SCREEN-VALUE AT 40
-                hWidget:PRIVATE-DATA AT 60
-                .
-            FIND FIRST ttAction
-                 WHERE ttAction.paramWidget EQ hWidget:HANDLE
-                 NO-ERROR.
-            IF AVAILABLE ttAction THEN
-            PUT UNFORMATTED
-                ttAction.paramID AT 80
-                ttAction.actionParamID AT 100
-                ttAction.initializeProc AT 120
-                ttAction.validateProc AT 140
-                ttAction.action AT 160
-                .
-        END.
-        hWidget = hWidget:NEXT-SIBLING.
-    END.
-    OUTPUT CLOSE.
-    OS-COMMAND NO-WAIT notepad.exe c:\tmp\paramValue.txt.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveResults C-Win 
 PROCEDURE pSaveResults :
 /*------------------------------------------------------------------------------
@@ -4277,7 +3470,7 @@ PROCEDURE pSaveResults :
                    + "]"
                    .
         FIND FIRST ttSubjectColumn
-             WHERE ttSubjectColumn.subjectID   EQ ttSubject.subjectID
+             WHERE ttSubjectColumn.subjectID EQ ttSubject.subjectID
                AND ttSubjectColumn.tableDB   EQ cDBName
                AND ttSubjectColumn.tableName EQ cTableName
                AND ttSubjectColumn.fieldName EQ cFieldName
@@ -4405,6 +3598,55 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetDefault C-Win 
+PROCEDURE pSetDefault :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    
+    DO TRANSACTION:
+        FIND FIRST dynParamValue EXCLUSIVE-LOCK
+             WHERE dynParamValue.subjectID    EQ ttSubject.subjectID
+               AND dynParamValue.user-id      EQ "_default"
+               AND dynParamValue.prgmName     EQ "{&program-id}"
+               AND dynParamValue.paramValueID EQ 0
+             NO-ERROR.
+        IF NOT AVAILABLE dynParamValue THEN DO:
+            CREATE dynParamValue.
+            ASSIGN
+                dynParamValue.subjectID        = ttSubject.subjectID
+                dynParamValue.user-id          = "_default"
+                dynParamValue.prgmName         = "{&program-id}"
+                dynParamValue.paramDescription = "User Default"
+                .
+            FOR EACH ttSubjectParamSet NO-LOCK
+                WHERE ttSubjectParamSet.subjectID EQ ttSubject.subjectID,
+                EACH dynParamSetDtl NO-LOCK
+                WHERE dynParamSetDtl.paramSetID EQ ttSubjectParamSet.paramSetID,
+                FIRST dynParam NO-LOCK
+                WHERE dynParam.paramID EQ dynParamSetDtl.paramID
+                :
+                ASSIGN
+                    idx                              = idx + 1
+                    dynParamValue.paramName[idx]     = dynParamSetDtl.paramName
+                    dynParamValue.paramLabel[idx]    = dynParamSetDtl.paramLabel
+                    dynParamValue.paramValue[idx]    = dynParamSetDtl.initialValue
+                    dynParamValue.paramDataType[idx] = dynParam.dataType
+                    dynParamValue.paramFormat[idx]   = dynParam.paramFormat
+                    .
+            END. /* each dynsubjectparamset */
+        END. /* not avail */
+        FIND CURRENT dynParamValue NO-LOCK.
+    END. /* do trans */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetGroupListItems C-Win 
 PROCEDURE pSetGroupListItems :
 /*------------------------------------------------------------------------------
@@ -4498,7 +3740,7 @@ PROCEDURE pSetObjects :
             subjectParamSetBrowse:ROW = {&ROW} + 1.67            
             
             /* save button */
-            RECT-SAVE:COL = {&COL}
+            RECT-SAVE:COL = {&COL} + 11
             RECT-SAVE:ROW = 1
             btnSave:ROW   = RECT-SAVE:ROW + .24
             btnSave:COL   = RECT-SAVE:COL + 1
@@ -4515,7 +3757,8 @@ PROCEDURE pSetObjects :
             FRAME paramFrame:ROW = 1
             FRAME paramFrame:HIDDEN = YES
             btnCloseParam:ROW = 1
-            btnRunResults:ROW  = 1
+            btnRunResults:ROW = 1
+            btnCSV:ROW        = 1
             .
     END.
 
@@ -4553,22 +3796,6 @@ PROCEDURE pSetOrder :
     END CASE.
     fSetSaveButton (YES).
     fShowQuery().
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidate C-Win 
-PROCEDURE pValidate :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
-    
-    RUN pParamAction (iphWidget).
 
 END PROCEDURE.
 
@@ -4622,11 +3849,13 @@ PROCEDURE pWinReSize :
             BROWSE fieldBrowse:HEIGHT           = BROWSE subjectBrowse:HEIGHT
             BROWSE subjectTableBrowse:HEIGHT    = RECT-QUERYSTR:ROW
                                                 - BROWSE tableBrowse:ROW - .24
+            BROWSE subjectTableBrowse:WIDTH     = FRAME {&FRAME-NAME}:WIDTH
+                                                - BROWSE subjectTableBrowse:COL
             BROWSE subjectWhereBrowse:HEIGHT    = cParameter:ROW
                                                 - BROWSE subjectWhereBrowse:ROW - .20
             BROWSE subjectColumnBrowse:HEIGHT   = BROWSE subjectBrowse:HEIGHT
             BROWSE subjectColumnBrowse:WIDTH    = FRAME {&FRAME-NAME}:WIDTH
-                                                - BROWSE subjectColumnBrowse:COL + 1
+                                                - BROWSE subjectColumnBrowse:COL
             BROWSE paramSetBrowse:HEIGHT        = BROWSE subjectBrowse:HEIGHT
             BROWSE subjectParamSetBrowse:HEIGHT = BROWSE subjectBrowse:HEIGHT
             FRAME resultsFrame:HIDDEN           = YES
@@ -4651,10 +3880,8 @@ PROCEDURE pWinReSize :
     END. /* do with */
     DO WITH FRAME resultsFrame:
         ASSIGN
-            btnCloseResults:COL = FRAME resultsFrame:WIDTH
-                                - btnCloseResults:WIDTH
-            btnSaveResults:COL  = btnCloseResults:COL
-                                - btnSaveResults:WIDTH
+            btnCloseResults:COL = FRAME resultsFrame:WIDTH - btnCloseResults:WIDTH
+            btnSaveResults:COL  = btnCloseResults:COL - btnSaveResults:WIDTH
             .
         IF VALID-HANDLE(hQueryBrowse) THEN DO:
             ASSIGN
@@ -4666,10 +3893,14 @@ PROCEDURE pWinReSize :
     END. /* do with */
     DO WITH FRAME paramFrame:
         ASSIGN
-            btnCloseParam:COL = FRAME paramFrame:WIDTH
-                              - btnCloseParam:WIDTH
-            btnRunResults:COL = btnCloseParam:COL
-                              - btnRunResults:WIDTH
+            btnCloseParam:COL = FRAME paramFrame:WIDTH - btnCloseParam:WIDTH
+            btnView:COL       = btnCloseResults:COL - btnView:WIDTH - btnView:WIDTH
+            btnHTML:COL       = btnView:COL - btnHTML:WIDTH
+            btnPDF:COL        = btnHTML:COL - btnPDF:WIDTH
+            btnDOCX:COL       = btnPDF:COL  - btnDOCX:WIDTH
+            btnXLS:COL        = btnDOCX:COL - btnXLS:WIDTH
+            btnCSV:COL        = btnXLS:COL  - btnCSV:WIDTH
+            btnRunResults:COL = btnCSV:COL  - btnRunResults:WIDTH - btnRunResults:WIDTH
             .
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
@@ -4680,57 +3911,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fCreateLabel C-Win 
-FUNCTION fCreateLabel RETURNS HANDLE
-  (ipcPool AS CHARACTER, iphFrame AS HANDLE, ipcLabel AS CHARACTER, ipdRow AS DECIMAL) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hLabel AS HANDLE NO-UNDO.
-    
-    ipcLabel = TRIM(ipcLabel) + ":".
-    CREATE TEXT hLabel IN WIDGET-POOL ipcPool
-      ASSIGN
-        FRAME = iphFrame
-        AUTO-RESIZE = YES
-        HEIGHT = 1
-        WIDTH = FONT-TABLE:GET-TEXT-WIDTH-CHARS(ipcLabel,iphFrame:FONT) + .5
-        ROW = ipdRow
-        FORMAT = "x(" + STRING(LENGTH(ipcLabel)) + ")"
-        SCREEN-VALUE = ipcLabel
-        SENSITIVE = YES
-        .
-  RETURN hLabel.
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fFormatValue C-Win 
-FUNCTION fFormatValue RETURNS CHARACTER
-  (iphTable AS HANDLE, ipcField AS CHARACTER):
-/*------------------------------------------------------------------------------
- Purpose: format field value
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cStr AS CHARACTER NO-UNDO.
-
-    cStr = STRING(iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(),
-                  iphTable:BUFFER-FIELD(ipcField):FORMAT) NO-ERROR.
-    /* error raised if invalid format for field value */
-    IF ERROR-STATUS:NUM-MESSAGES NE 0 OR
-       iphTable:BUFFER-FIELD(ipcField):DATA-TYPE EQ "CHARACTER" THEN 
-    cStr = iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE().
-    
-    RETURN LEFT-TRIM(TRIM(cStr)).
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetUseIndex C-Win 
 FUNCTION fGetUseIndex RETURNS CHARACTER

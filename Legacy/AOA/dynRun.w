@@ -42,10 +42,29 @@ DEFINE {&defType} iprRowID AS ROWID NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE VARIABLE hAppSrvBin         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hJasper            AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hQueryBrowse       AS HANDLE    NO-UNDO.
+DEFINE VARIABLE i                  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE queryStr           AS CHARACTER NO-UNDO.
+
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
+{AOA/tempTable/ttAction.i}
+
+RUN AOA\appServer\aoaBin.p PERSISTENT SET hAppSrvBin
+SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
+RUN AOA\aoaJasper.p PERSISTENT SET hJasper
+SESSION:ADD-SUPER-PROCEDURE (hJasper).
 
 {methods/lockWindowUpdate.i}
+
+/* function fDateOptions */
+{AOA/includes/fDateOptions.i}
+/* function fDateOptionValue */
+{AOA/includes/fDateOptionValue.i}
+
+{AOA/includes/dynFuncs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -83,6 +102,56 @@ DEFINE BUTTON btnRestoreDefaults
      LABEL "Defaults" 
      SIZE 4 BY .95 TOOLTIP "Restore Defaults".
 
+DEFINE BUTTON btnCloseParam 
+     IMAGE-UP FILE "AOA/images/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Close Results" 
+     SIZE 4.4 BY .95 TOOLTIP "Close Results".
+
+DEFINE BUTTON btnCSV 
+     IMAGE-UP FILE "AOA/images/aoaexcelcsv.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "csv" 
+     SIZE 4.4 BY 1 TOOLTIP "Excel CSV".
+
+DEFINE BUTTON btnDOCX 
+     IMAGE-UP FILE "AOA/images/aoaword.jpg":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "Word DOCX".
+
+DEFINE BUTTON btnHTML 
+     IMAGE-UP FILE "AOA/images/html_tag.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "HTML".
+
+DEFINE BUTTON btnPDF 
+     IMAGE-UP FILE "AOA/images/aoapdf.jpg":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "PDF".
+
+DEFINE BUTTON btnRunResults 
+     IMAGE-UP FILE "AOA/images/media_play.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Save Results" 
+     SIZE 4.4 BY .95 TOOLTIP "Save Results".
+
+DEFINE BUTTON btnView 
+     IMAGE-UP FILE "AOA/images/jrxml_icon.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "Jasper Viewer".
+
+DEFINE BUTTON btnXLS 
+     IMAGE-UP FILE "AOA/images/aoaexcel.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "Excel XLS".
+
+DEFINE BUTTON btnCloseResults 
+     IMAGE-UP FILE "AOA/images/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Close Results" 
+     SIZE 4.4 BY 1 TOOLTIP "Close Results".
+
+DEFINE BUTTON btnSaveResults 
+     IMAGE-UP FILE "AOA/images/navigate_check.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Save Results" 
+     SIZE 4.4 BY 1 TOOLTIP "Save Results".
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -94,6 +163,40 @@ DEFINE FRAME DEFAULT-FRAME
          AT COL 1 ROW 1
          SIZE 160 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
+
+DEFINE FRAME paramFrame
+     btnCSV AT ROW 1 COL 5 HELP
+          "Excel CSV" WIDGET-ID 140
+     btnDOCX AT ROW 1 COL 13 HELP
+          "Word DOCX" WIDGET-ID 142
+     btnRunResults AT ROW 1 COL 1 HELP
+          "Jasper Viewer" WIDGET-ID 254
+     btnXLS AT ROW 1 COL 9 HELP
+          "Excel XLS" WIDGET-ID 150
+     btnCloseParam AT ROW 1 COL 29 HELP
+          "Jasper Viewer" WIDGET-ID 252
+     btnView AT ROW 1 COL 25 HELP
+          "Jasper Viewer" WIDGET-ID 148
+     btnHTML AT ROW 1 COL 21 HELP
+          "HTML" WIDGET-ID 144
+     btnPDF AT ROW 1 COL 17 HELP
+          "PDF" WIDGET-ID 146
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 104 ROW 9.81
+         SIZE 33 BY 2.38
+         FGCOLOR 1  WIDGET-ID 1300.
+
+DEFINE FRAME resultsFrame
+     btnCloseResults AT ROW 1 COL 6 HELP
+          "Jasper Viewer" WIDGET-ID 252
+     btnSaveResults AT ROW 1 COL 2 HELP
+          "Jasper Viewer" WIDGET-ID 254
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 93 ROW 9.81
+         SIZE 10 BY 2.38
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -139,12 +242,47 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
+/* REPARENT FRAME */
+ASSIGN FRAME paramFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
+       FRAME resultsFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE.
+
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+
+DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
+
+ASSIGN XXTABVALXX = FRAME resultsFrame:MOVE-BEFORE-TAB-ITEM (FRAME paramFrame:HANDLE)
+/* END-ASSIGN-TABS */.
+
+/* SETTINGS FOR FRAME paramFrame
+   NOT-VISIBLE                                                          */
+ASSIGN 
+       FRAME paramFrame:HIDDEN           = TRUE.
+
+/* SETTINGS FOR FRAME resultsFrame
+   NOT-VISIBLE                                                          */
+ASSIGN 
+       FRAME resultsFrame:HIDDEN           = TRUE.
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
+&ANALYZE-RESUME
+
+
+/* Setting information for Queries and Browse Widgets fields            */
+
+&ANALYZE-SUSPEND _QUERY-BLOCK FRAME paramFrame
+/* Query rebuild information for FRAME paramFrame
+     _Query            is NOT OPENED
+*/  /* FRAME paramFrame */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _QUERY-BLOCK FRAME resultsFrame
+/* Query rebuild information for FRAME resultsFrame
+     _Query            is NOT OPENED
+*/  /* FRAME resultsFrame */
 &ANALYZE-RESUME
 
  
@@ -190,6 +328,81 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME paramFrame
+&Scoped-define SELF-NAME btnCloseParam
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCloseParam C-Win
+ON CHOOSE OF btnCloseParam IN FRAME paramFrame /* Close Results */
+DO:
+    FRAME paramFrame:HIDDEN = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME resultsFrame
+&Scoped-define SELF-NAME btnCloseResults
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCloseResults C-Win
+ON CHOOSE OF btnCloseResults IN FRAME resultsFrame /* Close Results */
+DO:
+    IF VALID-HANDLE(hQueryBrowse) THEN
+    DELETE OBJECT hQueryBrowse.
+    ASSIGN
+        FRAME resultsFrame:HIDDEN = YES
+        FRAME paramFrame:HIDDEN   = YES
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME paramFrame
+&Scoped-define SELF-NAME btnCSV
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCSV C-Win
+ON CHOOSE OF btnCSV IN FRAME paramFrame /* csv */
+DO:
+    RUN pRunSubject (YES, "CSV").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnDOCX
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDOCX C-Win
+ON CHOOSE OF btnDOCX IN FRAME paramFrame
+DO:
+    RUN pRunSubject (YES, "DOCX").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnHTML
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnHTML C-Win
+ON CHOOSE OF btnHTML IN FRAME paramFrame
+DO:
+    RUN pRunSubject (YES, "HTML").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnPDF
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPDF C-Win
+ON CHOOSE OF btnPDF IN FRAME paramFrame
+DO:
+    RUN pRunSubject (YES, "PDF").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME DEFAULT-FRAME
 &Scoped-define SELF-NAME btnRestoreDefaults
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestoreDefaults C-Win
 ON CHOOSE OF btnRestoreDefaults IN FRAME DEFAULT-FRAME /* Defaults */
@@ -201,6 +414,54 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME paramFrame
+&Scoped-define SELF-NAME btnRunResults
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRunResults C-Win
+ON CHOOSE OF btnRunResults IN FRAME paramFrame /* Save Results */
+DO:
+    RUN pRunSubject (YES, "Results").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME resultsFrame
+&Scoped-define SELF-NAME btnSaveResults
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSaveResults C-Win
+ON CHOOSE OF btnSaveResults IN FRAME resultsFrame /* Save Results */
+DO:
+    RUN pSaveResults.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME paramFrame
+&Scoped-define SELF-NAME btnView
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnView C-Win
+ON CHOOSE OF btnView IN FRAME paramFrame
+DO:
+    RUN pRunSubject (YES, "View").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnXLS
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnXLS C-Win
+ON CHOOSE OF btnXLS IN FRAME paramFrame
+DO:
+    RUN pRunSubject (YES, "XLS").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME DEFAULT-FRAME
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -230,6 +491,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
+
+{AOA/includes/dynProcs.i "dyn"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -270,6 +533,13 @@ PROCEDURE enable_UI :
   ENABLE btnRestoreDefaults 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+  ENABLE btnCloseResults btnSaveResults 
+      WITH FRAME resultsFrame IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-resultsFrame}
+  ENABLE btnCSV btnDOCX btnRunResults btnXLS btnCloseParam btnView btnHTML 
+         btnPDF 
+      WITH FRAME paramFrame IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-paramFrame}
   VIEW C-Win.
 END PROCEDURE.
 
