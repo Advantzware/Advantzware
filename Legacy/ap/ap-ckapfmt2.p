@@ -300,7 +300,7 @@ DO:       /* production mode */
                 END.
 
               
-                DISPLAY SKIP(1)
+                DISPLAY SKIP(3)
                     "<b>" company.NAME
                     "<c55>Check Number   <c70></b>" 
                     TRIM(STRING(ap-chk.check-no,">>>>>>"))  FORMAT "x(6)"   SKIP(1)
