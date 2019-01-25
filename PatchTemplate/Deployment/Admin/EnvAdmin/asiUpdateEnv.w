@@ -4933,7 +4933,7 @@ PROCEDURE ipUpdateNK1s :
                 sys-ctrl.company = company.company
                 sys-ctrl.name = "BusinessFormLogo"
                 sys-ctrl.descrip = "Define the path to the logo to be used on the standard business forms"
-                sys-ctrl.char-fld = ".\images\NoLogo.png".
+                sys-ctrl.char-fld = ".\resources\images\nologo.png".
         END.
     END.
        
