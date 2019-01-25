@@ -1477,51 +1477,47 @@ PROCEDURE create-est :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR cocode AS cha NO-UNDO.
-  DEF BUFFER bf-est FOR est.
-  DEF BUFFER bb FOR eb.
-  DEF BUFFER recalc-mr FOR reftable.
+    DEF VAR cocode AS cha NO-UNDO.
+    DEF BUFFER bf-est FOR est.
+    DEF BUFFER bb FOR eb.
+    DEF BUFFER recalc-mr FOR reftable.
 
-  /*  don't use e-num any more as key index
-  find last bf-est use-index e-num no-lock no-error.
-  li-enum = if avail bf-est then bf-est.e-num else 0.
-  */
+    REPEAT:
+        FIND FIRST ce-ctrl WHERE 
+            ce-ctrl.company = gcompany AND
+            ce-ctrl.loc = gloc
+            EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
 
-
-  REPEAT:
+        IF AVAIL ce-ctrl THEN DO:
+            ASSIGN
+                li-new-estnum = ce-ctrl.e-num + 1
+                ce-ctrl.e-num = li-new-estnum.
+            FIND CURRENT ce-ctrl NO-LOCK.
+            LEAVE.
+        END.
+    END.
   
-  FIND FIRST ce-ctrl WHERE ce-ctrl.company = gcompany AND
-                           ce-ctrl.loc = gloc
-       EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-
-  IF AVAIL ce-ctrl THEN
-  DO:
-     ASSIGN
-     li-new-estnum = ce-ctrl.e-num + 1
-     ce-ctrl.e-num = li-new-estnum.
-     FIND CURRENT ce-ctrl NO-LOCK.
-     LEAVE.
-  END.
-  END.
-  
-  CREATE est.  
-  ASSIGN ll-new-record = YES
-         est.est-type = 1
-         est.company = gcompany
-         est.loc = gloc
+    CREATE est.  
+    ASSIGN 
+        ll-new-record = YES
+        est.est-type = 1
+        est.company = gcompany
+        est.loc = gloc
        /*  est.e-num = li-enum + 1 */
-         est.est-no = STRING(li-new-estnum,">>>>>>>9")
-         est.form-qty = 1
-         est.est-date = TODAY
-         est.mod-date = ?
-         cocode = gcompany.      
+        est.est-no = STRING(li-new-estnum,">>>>>>>9")
+        est.form-qty = 1
+        est.est-date = TODAY
+        est.mod-date = ?
+        cocode = gcompany.      
 
-   {sys/ref/est-add.i est}     
+    {sys/ref/est-add.i est}     
 
-   RUN crt-est-childrecord.  /* create ef,eb,est-prep */
-   
-   RUN local-open-query.  
-   RUN set-attribute-list IN adm-broker-hdl ('Is-First-Est = Yes').
+    RUN crt-est-childrecord.  /* create ef,eb,est-prep */
+
+    FIND CURRENT recalc-mr NO-LOCK NO-ERROR.
+       
+    RUN local-open-query.  
+    RUN set-attribute-list IN adm-broker-hdl ('Is-First-Est = Yes').
 
 END PROCEDURE.
 
