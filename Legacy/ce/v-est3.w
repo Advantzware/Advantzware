@@ -2660,46 +2660,12 @@ PROCEDURE fgcolors-reset :
     END.
 
     RUN fg/setcolor.p (ROWID(ink-eb), lv-type).
-
-    DO li = 0 TO 1:
-
-       v-str = "ce/v-est3.w Unit#" + TRIM(STRING(li,">")).
-
-       FIND FIRST b-ref WHERE
-            b-ref.reftable EQ v-str AND
-            b-ref.company  EQ ink-eb.company AND
-            b-ref.loc      EQ ink-eb.est-no AND
-            b-ref.code     EQ STRING(ink-eb.form-no,"9999999999") AND
-            b-ref.code2    EQ STRING(ink-eb.blank-no,"9999999999")
-            NO-ERROR.
-
-       IF AVAIL b-ref THEN
+      FIND CURRENT ink-eb EXCLUSIVE-LOCK NO-ERROR.
        DO:
-          b-ref.dscr = "".
-
-          IF li = 0 THEN
-          DO v-side-count = 1 TO 12:
-             IF ink-eb.i-code2[v-side-count] NE "" THEN
-                b-ref.dscr = b-ref.dscr + "F".
-             ELSE
-                b-ref.dscr = b-ref.dscr + " ".
-          END.
-          ELSE
-          DO v-side-count = 13 TO 17:
-             IF ink-eb.i-code2[v-side-count] NE "" THEN
-                b-ref.dscr = b-ref.dscr + "F".
-             ELSE
-                b-ref.dscr = b-ref.dscr + " ".
-          END.
-
-          FIND CURRENT b-ref NO-LOCK NO-ERROR.
-          RELEASE b-ref.
+          {ce/updunit#.i ink-eb}
        END.
-       ELSE
-       DO:
-          {ce/updunit#.i ink-eb li}
-       END.
-    END.
+      FIND CURRENT ink-eb NO-LOCK NO-ERROR.       
+/*    END.*/
   END.
 
 END PROCEDURE.
@@ -2725,22 +2691,22 @@ PROCEDURE find-create-unit# :
   FIND b-eb WHERE ROWID(b-eb) EQ ip-rowid NO-LOCK NO-ERROR.
 
   IF AVAIL b-eb THEN DO TRANSACTION:
-    FIND FIRST b-rt
-        WHERE b-rt.reftable EQ "ce/v-est3.w Unit#" + TRIM(STRING(ip-int,">"))
-          AND b-rt.company  EQ b-eb.company
-          AND b-rt.loc      EQ b-eb.est-no
-          AND b-rt.code     EQ STRING(b-eb.form-no,"9999999999")
-          AND b-rt.code2    EQ STRING(b-eb.blank-no,"9999999999")
-        NO-LOCK NO-ERROR.
-    IF NOT AVAIL b-rt THEN DO:
-      CREATE b-rt.
-      ASSIGN
-       b-rt.reftable = "ce/v-est3.w Unit#" + TRIM(STRING(ip-int,">"))
-       b-rt.company  = b-eb.company
-       b-rt.loc      = b-eb.est-no
-       b-rt.code     = STRING(b-eb.form-no,"9999999999")
-       b-rt.code2    = STRING(b-eb.blank-no,"9999999999").
-    END.
+/*    FIND FIRST b-rt                                                          */
+/*        WHERE b-rt.reftable EQ "ce/v-est3.w Unit#" + TRIM(STRING(ip-int,">"))*/
+/*          AND b-rt.company  EQ b-eb.company                                  */
+/*          AND b-rt.loc      EQ b-eb.est-no                                   */
+/*          AND b-rt.code     EQ STRING(b-eb.form-no,"9999999999")             */
+/*          AND b-rt.code2    EQ STRING(b-eb.blank-no,"9999999999")            */
+/*        NO-LOCK NO-ERROR.                                                    */
+/*    IF NOT AVAIL b-rt THEN DO:                                               */
+/*      CREATE b-rt.                                                           */
+/*      ASSIGN                                                                 */
+/*       b-rt.reftable = "ce/v-est3.w Unit#" + TRIM(STRING(ip-int,">"))        */
+/*       b-rt.company  = b-eb.company                                          */
+/*       b-rt.loc      = b-eb.est-no                                           */
+/*       b-rt.code     = STRING(b-eb.form-no,"9999999999")                     */
+/*       b-rt.code2    = STRING(b-eb.blank-no,"9999999999").                   */
+/*    END.                                                                     */
 
     op-rowid = ROWID(b-rt).
 
@@ -4043,50 +4009,16 @@ PROCEDURE reset-ink1 :
          if i modulo j = 0 then counter = counter + 1.
          if counter > ink-eb.i-pass then counter = ink-eb.i-pass.
       end.
-
-      DO li = 0 TO 1:
-
-         v-str = "ce/v-est3.w Unit#" + TRIM(STRING(li,">")).
-
-         FIND FIRST b-ref WHERE
-              b-ref.reftable EQ v-str AND
-              b-ref.company  EQ ink-eb.company AND
-              b-ref.loc      EQ ink-eb.est-no AND
-              b-ref.code     EQ STRING(ink-eb.form-no,"9999999999") AND
-              b-ref.code2    EQ STRING(ink-eb.blank-no,"9999999999")
-              NO-ERROR.
-
-         IF AVAIL b-ref THEN
+      FIND CURRENT ink-eb EXCLUSIVE-LOCK NO-ERROR.         
          DO:
-            b-ref.dscr = "".
-
-            IF li = 0 THEN
-            DO v-side-count = 1 TO 12:
-               IF ink-eb.i-code2[v-side-count] NE "" THEN
-                  b-ref.dscr = b-ref.dscr + "F".
-               ELSE
-                  b-ref.dscr = b-ref.dscr + " ".
-            END.
-            ELSE
-            DO v-side-count = 13 TO 17:
-               IF ink-eb.i-code2[v-side-count] NE "" THEN
-                  b-ref.dscr = b-ref.dscr + "F".
-               ELSE
-                  b-ref.dscr = b-ref.dscr + " ".
-            END.
-
-            FIND CURRENT b-ref NO-LOCK NO-ERROR.
-            RELEASE b-ref.
+            {ce/updunit#.i ink-eb}
          END.
-         ELSE
-         DO:
-            {ce/updunit#.i ink-eb li}
-         END.
+         
     END.
 
       FIND CURRENT ink-eb NO-LOCK NO-ERROR.
     END.
-  END.
+
 
   RUN dispatch ("display-fields").
 

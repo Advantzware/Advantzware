@@ -263,42 +263,6 @@ IF lv-copied NE ? THEN DO:
            END.
     END.
 
-    DO lj = 1 TO 2:
-      FOR EACH reftable
-          WHERE reftable.reftable EQ "ce/v-est3.w Unit#" + TRIM(STRING(lj - 1,">"))
-            AND reftable.company  EQ bf-eb.company
-            AND reftable.loc      EQ bf-eb.est-no
-            AND reftable.code     EQ STRING(bf-eb.form-no,"9999999999")
-            AND reftable.code2    EQ STRING(bf-eb.blank-no,"9999999999")
-          NO-LOCK:
-
-        FIND FIRST b-ref
-            WHERE b-ref.reftable EQ reftable.reftable
-              AND b-ref.company  EQ eb.company
-              AND b-ref.loc      EQ eb.est-no
-              AND b-ref.code     EQ STRING(eb.form-no,"9999999999")
-              AND b-ref.code2    EQ STRING(eb.blank-no,"9999999999")
-            NO-ERROR.
-        IF NOT AVAIL b-ref THEN DO:
-          CREATE b-ref.
-          ASSIGN
-           b-ref.reftable = reftable.reftable
-           b-ref.company  = eb.company
-           b-ref.loc      = eb.est-no
-           b-ref.code     = STRING(eb.form-no,"9999999999")
-           b-ref.code2    = STRING(eb.blank-no,"9999999999").
-        END.
-
-        DO li = 1 TO 12:
-          b-ref.val[li] = reftable.val[li].
-        END.
-
-        b-ref.dscr = reftable.dscr.
-
-        LEAVE.
-      END.
-    END.
-
     IF AVAIL bf-est                                     AND
        AVAIL bf-ef                                      AND
        (cecopy-cha EQ "Both"                         OR

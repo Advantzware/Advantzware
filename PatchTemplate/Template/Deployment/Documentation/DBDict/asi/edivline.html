@@ -1,0 +1,1059 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta name="generator" content="HtmlDict.w version 11">
+  <meta name="author"    content="Patrick Tingen [patrick at tingen dot nl]">
+  <link rel="stylesheet" title="Default" type="text/css" href="../default.css">
+  <link rel="alternate stylesheet" title="blue" type="text/css" href="../blue.css">
+  <link rel="alternate stylesheet" title="default" type="text/css" href="../default.css">
+  <link rel="alternate stylesheet" title="green" type="text/css" href="../green.css">
+  <link rel="alternate stylesheet" title="oldstyle" type="text/css" href="../oldstyle.css">
+  <link rel="alternate stylesheet" title="red" type="text/css" href="../red.css">
+  <link rel="shortcut icon" href="../htmldict.ico">
+  <link rel="stylesheet" media="print" type="text/css" href="../print.css">
+  <script src="../swapstyle.js"    type="text/javascript"></script>
+  <script src="../stylechooser.js" type="text/javascript"></script>
+  <script src="../dbchooser.js"    type="text/javascript"></script>
+  <script src="../htmldict.js"     type="text/javascript"></script>
+  <title> Schema asi.EDIVLine</title>
+</head>
+
+<body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
+<div><a name="top"></a></div>
+ 
+
+<table style="width:100%;">
+  <tr>
+    <td class="navbar" style="width:40%;"><a href="../00-index.html"target="_top">DB</a>
+ | <a href="00-area.html"target="main">Areas</a>
+ | <a href="00-cross.html"target="main">X-idx</a>
+ | <a href="00-main.html"target="main">Tables</a>
+ | <a href="00-sequences.html"target="main">Sequences</a>
+</td>
+    <td class="navbar" style="width:20%;">  &lt;- <a href="edivaddo.html">EDIVAddon</a></td>
+    <td class="navbar" style="width:20%;">  <a href="edivtran.html">EDIVTran</a> -&gt;</td>
+    <td class="navbar" style="width:20%; text-align:right;"><a href="../htmldict.html"target="_top">HtmlDict 11</a></td>
+  </tr>
+</table>
+<h1>asi.EDIVLine</h1>
+<p>EDI Invoice Line Items</p>
+<hr>
+<div class="clearboth">
+  <div class="tbdetcol">
+    <h2>Table details</h2>
+    <table style="border-style:none;" >
+      <tr class="shadedrow"><th>Area</th>
+                            <td><a href="00-area.html">Data</a></td></tr>
+      <tr class="shadedrow"><th>Dumpname </th>
+                            <td> edivline      </td></tr>
+      <tr class="shadedrow"><th>Label    </th>     
+                            <td> ?      </td></tr>
+      <tr class="shadedrow"><th>Val.exp  </th>     
+                            <td> ?      </td></tr>
+      <tr class="shadedrow"><th>Val.msg  </th>     
+                            <td>       </td></tr>
+    </table>
+  </div>
+  <div class="tbcol" >
+    <h2>Triggers</h2>
+    <table style="border-style:none;">
+      <tr>
+        <th>Event</th>
+        <th>Procedure</th>
+        <th>Overr</th>
+        <th>CRC</th>
+      </tr>
+      <tr class="shadedrow">
+        <td>CREATE</td>
+        <td>create.trg/EDIVLine.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>DELETE</td>
+        <td>delete.trg/EDIVLine.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>WRITE</td>
+        <td>write.trg/EDIVLine.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+    </table>
+  </div>
+<div class="clearboth"></div>
+<hr style="margin-top:20px;">
+<h2>Fields</h2>
+
+<div id=SortName >
+<table style="width:100%; border-style:none;">
+  <tr>
+    <th><script type="text/javascript">
+    <!--
+    writeToggleBegin();
+    // -->
+    </script>Order<script type="text/javascript">
+    <!--
+    writeToggleEnd();
+    // -->
+    </script></th>
+    <th>Field Name</th>
+    <th>x</th>
+    <th>Label</th>
+    <th>Datatype</th>
+    <th>Format</th>
+    <th>Initial</th>
+    <th>Mand</th>
+    <th>Description</th>
+  </tr>
+  <tr class="oddrow">
+    <td>190</td>
+    <td>Bo-flag</td>
+    <td><a href="00-cross-b.html#Bo-flag"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(2)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>380</td>
+    <td>By-code</td>
+    <td><a href="00-cross-b.html#By-code"><small>X</small></a></td>
+    <td>Store</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>220</td>
+    <td>Color-desc</td>
+    <td><a href="00-cross-c.html#Color-desc"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>390</td>
+    <td><a href="ap-ctrl.html">Company</a></td>
+    <td><a href="00-cross-c.html#Company"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>370</td>
+    <td>Config-code</td>
+    <td><a href="00-cross-c.html#Config-code"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(1)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>120</td>
+    <td>Cust-item-no</td>
+    <td><a href="00-cross-c.html#Cust-item-no"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(30)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>130</td>
+    <td>Cust-po-line</td>
+    <td><a href="00-cross-c.html#Cust-po-line"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>50</td>
+    <td><a href="optconfg.html">Description</a></td>
+    <td><a href="00-cross-d.html#Description"><small>X</small></a></td>
+    <td>?</td>
+    <td>character [2]</td>
+    <td>x(30)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Pertinent description.</td>
+  </tr>
+  <tr class="oddrow">
+    <td>250</td>
+    <td>Dimension</td>
+    <td><a href="00-cross-d.html#Dimension"><small>X</small></a></td>
+    <td>?</td>
+    <td>character [3]</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>260</td>
+    <td>Invoice-no</td>
+    <td><a href="00-cross-i.html#Invoice-no"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(22)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>330</td>
+    <td>Item-ctn-cube</td>
+    <td><a href="00-cross-i.html#Item-ctn-cube"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-3</td>
+    <td>&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>320</td>
+    <td>Item-ctn-wght</td>
+    <td><a href="00-cross-i.html#Item-ctn-wght"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-3</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>280</td>
+    <td>Item-disc-amount</td>
+    <td><a href="00-cross-i.html#Item-disc-amount"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>310</td>
+    <td>Item-each-cube</td>
+    <td><a href="00-cross-i.html#Item-each-cube"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>270</td>
+    <td>Item-gross</td>
+    <td><a href="00-cross-i.html#Item-gross"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>290</td>
+    <td>Item-net</td>
+    <td><a href="00-cross-i.html#Item-net"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>40</td>
+    <td>Item-no</td>
+    <td><a href="00-cross-i.html#Item-no"><small>X</small></a></td>
+    <td>Item-number</td>
+    <td>character</td>
+    <td>x(16)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Number of the Item.</td>
+  </tr>
+  <tr class="evenrow">
+    <td>300</td>
+    <td>Item-wght-each</td>
+    <td><a href="00-cross-i.html#Item-wght-each"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-3</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>30</td>
+    <td>Line</td>
+    <td><a href="00-cross-l.html#Line"><small>X</small></a></td>
+    <td>?</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>150</td>
+    <td>Pack-size</td>
+    <td><a href="00-cross-p.html#Pack-size"><small>X</small></a></td>
+    <td>?</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>10</td>
+    <td><a href="edmast.html">Partner</a></td>
+    <td><a href="00-cross-p.html#Partner"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(15)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: partner</td>
+  </tr>
+  <tr class="evenrow">
+    <td>140</td>
+    <td>Price-basis</td>
+    <td><a href="00-cross-p.html#Price-basis"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(2)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>160</td>
+    <td>Product-type</td>
+    <td><a href="00-cross-p.html#Product-type"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(3)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>350</td>
+    <td>Qty-ord-orig</td>
+    <td><a href="00-cross-q.html#Qty-ord-orig"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>200</td>
+    <td>Qty-shipped</td>
+    <td><a href="00-cross-q.html#Qty-shipped"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>360</td>
+    <td>Qty-var</td>
+    <td><a href="00-cross-q.html#Qty-var"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>400</td>
+    <td><a href="addrphone.html">rec_key</a></td>
+    <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
+    <td>Rec Key</td>
+    <td>character</td>
+    <td>X(21)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>210</td>
+    <td>Selling-price</td>
+    <td><a href="00-cross-s.html#Selling-price"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>20</td>
+    <td>Seq</td>
+    <td><a href="00-cross-s.html#Seq"><small>X</small></a></td>
+    <td>?</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>80</td>
+    <td>SF-Code</td>
+    <td><a href="00-cross-s.html#SF-Code"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Warehouse responsible for shipping the order.</td>
+  </tr>
+  <tr class="oddrow">
+    <td>340</td>
+    <td>ship-stat</td>
+    <td><a href="00-cross-s.html#ship-stat"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(2)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>230</td>
+    <td>Size-desc</td>
+    <td><a href="00-cross-s.html#Size-desc"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>240</td>
+    <td>Size-qual</td>
+    <td><a href="00-cross-s.html#Size-qual"><small>X</small></a></td>
+    <td>?</td>
+    <td>character [3]</td>
+    <td>x(2)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>170</td>
+    <td>Special-svc-code</td>
+    <td><a href="00-cross-s.html#Special-svc-code"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(4)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>180</td>
+    <td>Taxable</td>
+    <td><a href="00-cross-t.html#Taxable"><small>X</small></a></td>
+    <td>?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="evenrow">
+    <td>70</td>
+    <td>Unit-price</td>
+    <td><a href="00-cross-u.html#Unit-price"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Gross price of the Item(s) ordered.</td>
+  </tr>
+  <tr class="oddrow">
+    <td>60</td>
+    <td>Uom-code</td>
+    <td><a href="00-cross-u.html#Uom-code"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(2)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Code for the Item's unit of measure.</td>
+  </tr>
+  <tr class="evenrow">
+    <td>110</td>
+    <td>UPC</td>
+    <td><a href="00-cross-u.html#UPC"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(13)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+</table>
+</div>
+<div id=SortOrder  style="display:none;">
+<table style="width:100%; border-style:none;">
+  <tr>
+    <th>Order</th>
+    <th><script type="text/javascript">
+    <!--
+    writeToggleBegin();
+    // -->
+    </script>Field Name<script type="text/javascript">
+    <!--
+    writeToggleEnd();
+    // -->
+    </script></th>
+    <th>x</th>
+    <th>Label</th>
+    <th>Datatype</th>
+    <th>Format</th>
+    <th>Initial</th>
+    <th>Mand</th>
+    <th>Description</th>
+  </tr>
+  <tr class="oddrow">
+    <td>10</td>
+    <td><a href="edmast.html">Partner</a></td>
+    <td><a href="00-cross-p.html#Partner"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(15)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: partner</td>
+  </tr>
+  <tr class="evenrow">
+    <td>20</td>
+    <td>Seq</td>
+    <td><a href="00-cross-s.html#Seq"><small>X</small></a></td>
+    <td>?</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>30</td>
+    <td>Line</td>
+    <td><a href="00-cross-l.html#Line"><small>X</small></a></td>
+    <td>?</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>40</td>
+    <td>Item-no</td>
+    <td><a href="00-cross-i.html#Item-no"><small>X</small></a></td>
+    <td>Item-number</td>
+    <td>character</td>
+    <td>x(16)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Number of the Item.</td>
+  </tr>
+  <tr class="oddrow">
+    <td>50</td>
+    <td><a href="optconfg.html">Description</a></td>
+    <td><a href="00-cross-d.html#Description"><small>X</small></a></td>
+    <td>?</td>
+    <td>character [2]</td>
+    <td>x(30)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Pertinent description.</td>
+  </tr>
+  <tr class="evenrow">
+    <td>60</td>
+    <td>Uom-code</td>
+    <td><a href="00-cross-u.html#Uom-code"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(2)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Code for the Item's unit of measure.</td>
+  </tr>
+  <tr class="oddrow">
+    <td>70</td>
+    <td>Unit-price</td>
+    <td><a href="00-cross-u.html#Unit-price"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Gross price of the Item(s) ordered.</td>
+  </tr>
+  <tr class="evenrow">
+    <td>80</td>
+    <td>SF-Code</td>
+    <td><a href="00-cross-s.html#SF-Code"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Warehouse responsible for shipping the order.</td>
+  </tr>
+  <tr class="oddrow">
+    <td>110</td>
+    <td>UPC</td>
+    <td><a href="00-cross-u.html#UPC"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(13)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>120</td>
+    <td>Cust-item-no</td>
+    <td><a href="00-cross-c.html#Cust-item-no"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(30)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>130</td>
+    <td>Cust-po-line</td>
+    <td><a href="00-cross-c.html#Cust-po-line"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>140</td>
+    <td>Price-basis</td>
+    <td><a href="00-cross-p.html#Price-basis"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(2)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>150</td>
+    <td>Pack-size</td>
+    <td><a href="00-cross-p.html#Pack-size"><small>X</small></a></td>
+    <td>?</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>160</td>
+    <td>Product-type</td>
+    <td><a href="00-cross-p.html#Product-type"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(3)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>170</td>
+    <td>Special-svc-code</td>
+    <td><a href="00-cross-s.html#Special-svc-code"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(4)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>180</td>
+    <td>Taxable</td>
+    <td><a href="00-cross-t.html#Taxable"><small>X</small></a></td>
+    <td>?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="oddrow">
+    <td>190</td>
+    <td>Bo-flag</td>
+    <td><a href="00-cross-b.html#Bo-flag"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(2)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>200</td>
+    <td>Qty-shipped</td>
+    <td><a href="00-cross-q.html#Qty-shipped"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>210</td>
+    <td>Selling-price</td>
+    <td><a href="00-cross-s.html#Selling-price"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>220</td>
+    <td>Color-desc</td>
+    <td><a href="00-cross-c.html#Color-desc"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>230</td>
+    <td>Size-desc</td>
+    <td><a href="00-cross-s.html#Size-desc"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>240</td>
+    <td>Size-qual</td>
+    <td><a href="00-cross-s.html#Size-qual"><small>X</small></a></td>
+    <td>?</td>
+    <td>character [3]</td>
+    <td>x(2)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>250</td>
+    <td>Dimension</td>
+    <td><a href="00-cross-d.html#Dimension"><small>X</small></a></td>
+    <td>?</td>
+    <td>character [3]</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>260</td>
+    <td>Invoice-no</td>
+    <td><a href="00-cross-i.html#Invoice-no"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(22)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>270</td>
+    <td>Item-gross</td>
+    <td><a href="00-cross-i.html#Item-gross"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>280</td>
+    <td>Item-disc-amount</td>
+    <td><a href="00-cross-i.html#Item-disc-amount"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>290</td>
+    <td>Item-net</td>
+    <td><a href="00-cross-i.html#Item-net"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>300</td>
+    <td>Item-wght-each</td>
+    <td><a href="00-cross-i.html#Item-wght-each"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-3</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>310</td>
+    <td>Item-each-cube</td>
+    <td><a href="00-cross-i.html#Item-each-cube"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>320</td>
+    <td>Item-ctn-wght</td>
+    <td><a href="00-cross-i.html#Item-ctn-wght"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-3</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>330</td>
+    <td>Item-ctn-cube</td>
+    <td><a href="00-cross-i.html#Item-ctn-cube"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-3</td>
+    <td>&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>340</td>
+    <td>ship-stat</td>
+    <td><a href="00-cross-s.html#ship-stat"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(2)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>350</td>
+    <td>Qty-ord-orig</td>
+    <td><a href="00-cross-q.html#Qty-ord-orig"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>360</td>
+    <td>Qty-var</td>
+    <td><a href="00-cross-q.html#Qty-var"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;&gt;.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>370</td>
+    <td>Config-code</td>
+    <td><a href="00-cross-c.html#Config-code"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(1)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>380</td>
+    <td>By-code</td>
+    <td><a href="00-cross-b.html#By-code"><small>X</small></a></td>
+    <td>Store</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>390</td>
+    <td><a href="ap-ctrl.html">Company</a></td>
+    <td><a href="00-cross-c.html#Company"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>400</td>
+    <td><a href="addrphone.html">rec_key</a></td>
+    <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
+    <td>Rec Key</td>
+    <td>character</td>
+    <td>X(21)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Indexes</h2>
+<table style="width:100%;">
+  <tr>
+    <th>Index name</th>
+    <th>Flags</th>
+    <th>Fields</th>
+    <th>Datatype</th>
+  </tr>
+  <tr class="oddrow">
+    <td>bySeq</td>
+    <td>P U     </td>
+    <td>Partner (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>Seq (+)</td>
+    <td>integer</td>
+  </tr>
+  <tr class="oddrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>Line (+)</td>
+    <td>integer</td>
+  </tr>
+  <tr class="evenrow">
+    <td>byInvoice</td>
+    <td>        </td>
+    <td>Company (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="evenrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>Invoice-no (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="evenrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>Line (+)</td>
+    <td>integer</td>
+  </tr>
+  <tr class="oddrow">
+    <td>rec_key</td>
+    <td>        </td>
+    <td>rec_key (+)</td>
+    <td>character</td>
+  </tr>
+</table>
+<table style="width:100%; margin-top:10px;">
+  <tr>
+    <td>+ = Ascending</td>
+    <td>- = Descending</td>
+    <td>P = Primary</td>
+    <td>U = Unique</td>
+    <td>I = Inactive</td>
+    <td>W = Wordindex</td>
+  </tr>
+</table> 
+  <h2>Related tables</h2>
+  <table style="width:50%; float:left;">
+    <tr>
+      <th>Parent tables</th>
+    </tr>
+    <tr class="shadedrow">
+      <td><a href="eddoc.html">EDDoc</a>&nbsp;&nbsp; <a href="optconfg.html">optconfg</a>&nbsp;&nbsp; <a href="rec_key.html">rec_key</a>&nbsp;&nbsp; <a href="rm-ctrl.html">rm-ctrl</a>&nbsp;&nbsp; </td>
+    </tr>
+  </table>
+  <table style="width:50%; float:left;">
+    <tr>
+      <th>Child tables</th>
+    </tr>
+    <tr class="shadedrow">
+      <td><a href="edcatlin.html">EDCatline</a>&nbsp;&nbsp; <a href="edcatpri.html">EDCatPrice</a>&nbsp;&nbsp; <a href="edi-addo.html">EDPOAddon</a>&nbsp;&nbsp; <a href="edi-ordl.html">EDPOLine</a>&nbsp;&nbsp; </td>
+    </tr>
+  </table>
+<hr style="clear:both">
+<hr>
+<table style="width:100%; margin-top:10px;">
+  <tr><td style="text-align:right;"><i><small>generated 25-10-2018 10:20</small></i></td></tr>
+</table>
+</body>
+</html>

@@ -1515,16 +1515,8 @@ PROCEDURE ipFindUsrFile :
     
     ASSIGN
         cUsrLoc = ipUserFileName.
-        
     /* Start guessing where the file might be */
     DO:
-        IF SEARCH(cUsrLoc) <> ? THEN DO:
-            ASSIGN
-                cUsrLoc = SEARCH(cUsrLoc).
-            LEAVE.
-        END.
-        ELSE ASSIGN
-            cUsrLoc = "..\" + ipUserFileName.
         IF SEARCH(cUsrLoc) <> ? THEN DO:
             ASSIGN
                 cUsrLoc = SEARCH(cUsrLoc).
@@ -1603,8 +1595,6 @@ PROCEDURE ipFindUsrFile :
         ASSIGN
             cUsrLoc = "".
     END.
-    
-    
     
 END PROCEDURE.
 

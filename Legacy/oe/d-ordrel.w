@@ -362,7 +362,7 @@ DEFINE FRAME Dialog-Frame
     VIEW-AS COMBO-BOX INNER-LINES 8
     LIST-ITEM-PAIRS "S-Scheduled","S",
     "L-Late","L",
-    "I-Invoice Ready","I",
+    "I-Invoice Per Terms","I",
     "A-Actual","A",
     "P-Posted","P",
     "B-Backorder","B",
