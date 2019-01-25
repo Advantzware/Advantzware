@@ -3412,8 +3412,15 @@ PROCEDURE create-job :
         FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
                               AND oe-ord.ord-no  EQ oe-ordl.ord-no
                             NO-ERROR.
+                            
+  v-job-job = 1.
   FIND LAST job WHERE job.company EQ cocode USE-INDEX job NO-LOCK NO-ERROR.
-  v-job-job = IF AVAIL job THEN job.job + 1 ELSE 1.
+  FIND LAST job-hdr WHERE job-hdr.company EQ cocode
+        USE-INDEX job NO-LOCK NO-ERROR.
+  /* In case job is not found and 1 is not the true last job# */
+  IF AVAILABLE job-hdr AND  job-hdr.job GT v-job-job THEN v-job-job = job-hdr.job + 1.
+  IF AVAILABLE job AND job.job GE v-job-job THEN v-job-job = job.job + 1.
+
   DO v-i = 1 TO 10:
       FIND job WHERE job.company EQ cocode 
            AND job.job = v-job-job USE-INDEX job 
