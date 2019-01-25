@@ -20,8 +20,8 @@ DEFINE {1} TEMP-TABLE ttEstHeader /*Master Print*/
     FIELD cCalculator AS CHARACTER /*User ID of who calculated*/
     FIELD cPrinter AS CHARACTER /*User ID of who printed*/
     FIELD cEstType AS CHARACTER /*Set, Single, Combo, Tandem*/
-    FIELD cCustNo AS CHARACTER /*Can be multiple on a given estimate if combo/tandem*/
-    FIELD cShipNo AS CHARACTER /*Can be multiple on a given estimate if combo/tandem*/
+    FIELD dtCalcDateTime AS DATETIME 
+    FIELD dtPrintDateTime AS DATETIME 
     .
 
 DEFINE {1} TEMP-TABLE ttEstItem
@@ -36,6 +36,18 @@ DEFINE {1} TEMP-TABLE ttEstItem
     FIELD cItemDescription2 AS CHARACTER
     FIELD cStyle AS CHARACTER  
     FIELD lIsSet AS LOGICAL
+    FIELD cCustomerID AS CHARACTER
+    FIELD cCustomerName AS CHARACTER  
+    FIELD cCustomerAddress1 AS CHARACTER 
+    FIELD cCustomerAddress2 AS CHARACTER
+    FIELD cCustomerAddress3 AS CHARACTER
+    FIELD cShipToID AS CHARACTER 
+    FIELD cShipToName AS CHARACTER  
+    FIELD cShipToAddress1 AS CHARACTER 
+    FIELD cShipToAddress2 AS CHARACTER
+    FIELD cShipToAddress3 AS CHARACTER
+    FIELD cSalesgroupID AS CHARACTER 
+    FIELD cSalesgroupName AS CHARACTER 
     .
    
 DEFINE {1} TEMP-TABLE ttEstForm
@@ -51,7 +63,7 @@ DEFINE {1} TEMP-TABLE ttEstForm
     FIELD dNetDepth AS DECIMAL /*3D Foam*/
     FIELD dNetArea AS DECIMAL
     FIELD dDieWidth AS DECIMAL 
-    FIELD dDieLenth AS DECIMAL
+    FIELD dDieLength AS DECIMAL
     FIELD dDieDepth AS DECIMAL /*3D Foam*/
     FIELD dDieArea AS DECIMAL
     FIELD cUOMDimension AS CHARACTER /*Inches/cm*/
@@ -60,6 +72,10 @@ DEFINE {1} TEMP-TABLE ttEstForm
     FIELD dQuantityRequiredWasteMR AS DECIMAL /*Wasted forms in MR*/
     FIELD dQuantityRequiredWasteRun AS DECIMAL /*Wasted forms in Run*/
     FIELD dBasisWeightInLbsPerSqin AS DECIMAL 
+    FIELD iNumOutLength AS INTEGER 
+    FIELD iNumOutWidth AS INTEGER 
+    FIELD iNumOutDepth AS INTEGER 
+    FIELD iNumOut AS INTEGER 
     .
 
 DEFINE {1} TEMP-TABLE ttEstBlank
@@ -76,6 +92,7 @@ DEFINE {1} TEMP-TABLE ttEstBlank
     FIELD iNumOutWidth AS INTEGER 
     FIELD iNumOutLength AS INTEGER 
     FIELD iNumOutDepth AS INTEGER 
+    FIELD iNumOut AS INTEGER 
     .
     
 DEFINE {1} TEMP-TABLE ttEstMaterial
