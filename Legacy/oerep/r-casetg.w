@@ -1816,7 +1816,7 @@ DEF OUTPUT PARAM vlWarning AS LOG NO-UNDO.
              w-ord.cas-no     = eb.cas-no.
 
           /* Add .49 to round up and add 1 for extra tag   */
-          w-ord.total-tags = ((w-ord.rel-qty / w-ord.pcs) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
+          w-ord.total-tags = ((w-ord.rel-qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
 
     END.
 
@@ -2012,7 +2012,7 @@ PROCEDURE from-ord :
              w-ord.cas-no     = eb.cas-no.
 
           /* Add .49 to round up and add 1 for extra tag   */
-          w-ord.total-tags = ((w-ord.rel-qty / w-ord.pcs) + .49) +  (IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1).
+          w-ord.total-tags = ((w-ord.rel-qty / w-ord.total-unit) + .49) +  (IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1).
          
         END.  /* first-of */
       END.  /* not by-release */
