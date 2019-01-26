@@ -216,7 +216,7 @@ DO:       /* production mode */
                 cgrossl           = cgrossl + ap-sel.amt-paid /*+ ap-sel.disc-amt) */
                 cgross            = cgross + cgrossl
                 cInvAmt           = cInvAmt + IF ap-inv.gross GT 0 THEN ap-inv.gross ELSE ap-inv.net.
-                cBankCode = "C" + STRING(ap-chk.check-no,">>>>>>") + "C" + "   A" + STRING(bank.RTN,">>>>>>>>>") + "A   " + STRING(bank.bk-act + "C","x(15)") .
+                cBankCode = "C" + STRING(ap-chk.check-no,">>>>>>") + "C" + "   A" + STRING(bank.RTN,"999999999") + "A   " + STRING(bank.bk-act + "C","x(15)") .
             CREATE wrk-chk.
             ASSIGN
                 wrk-chk.inv-no   = ap-sel.inv-no
