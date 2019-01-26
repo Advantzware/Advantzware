@@ -3959,6 +3959,7 @@ PROCEDURE create-w-ord :
                         OUTPUT w-ord.rel-date,
                         OUTPUT w-ord.rel-lot#,
                         OUTPUT w-ord.ship-notes,
+                        OUTPUT w-ord.rel-qty,
                         INPUT ROWID(b-job-hdr)).
       IF tb_xfer-lot THEN w-ord.lot# = w-ord.rel-lot#.
 
@@ -4762,6 +4763,7 @@ PROCEDURE from-job :
                                   OUTPUT w-ord.rel-date,
                                   OUTPUT w-ord.rel-lot#,
                                   OUTPUT w-ord.ship-notes,
+                                  OUTPUT w-ord.rel-qty,
                                   INPUT ROWID(job-hdr)).
                 IF tb_xfer-lot THEN w-ord.lot# = w-ord.rel-lot#.
 
@@ -4781,6 +4783,7 @@ PROCEDURE from-job :
                                  OUTPUT w-ord.rel-date,
                                  OUTPUT w-ord.rel-lot#,
                                  OUTPUT w-ord.ship-notes,
+                                 OUTPUT w-ord.rel-qty,
                                  INPUT ROWID(job-hdr)).
           END.
 
@@ -4842,7 +4845,10 @@ PROCEDURE from-job :
              w-ord.bundle = 1.
 
           /* Add .49 to round up and add 1 for extra tag   */
-          w-ord.total-tags = ((w-ord.job-qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
+          IF w-ord.rel-qty NE 0 THEN
+              w-ord.total-tags = ((w-ord.rel-qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
+          ELSE
+              w-ord.total-tags = ((w-ord.job-qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
     END.
 
 END PROCEDURE.
@@ -5054,6 +5060,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
                             OUTPUT w-ord.rel-date,
                             OUTPUT w-ord.rel-lot#,
                             OUTPUT w-ord.ship-notes,
+                            OUTPUT w-ord.rel-qty,
                             INPUT ROWID(b-job-hdr)).
           IF tb_xfer-lot THEN w-ord.lot# = w-ord.rel-lot#.
 
@@ -5191,9 +5198,12 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
           IF AVAIL soldto THEN w-ord.sold-ctry = soldto.country.
 
           ASSIGN
-            w-ord.total-unit = w-ord.pcs * w-ord.bundle
+            w-ord.total-unit = w-ord.pcs * w-ord.bundle .
             /* Add .49 to round up and add 1 for extra tag   */
-            w-ord.total-tags = ((oe-ordl.qty / w-ord.total-unit) + .49) +  (IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1).
+            IF w-ord.rel-qty NE 0 THEN
+                w-ord.total-tags = ((w-ord.rel-qty / w-ord.total-unit) + .49) +  (IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1).
+            ELSE
+                w-ord.total-tags = ((oe-ordl.qty / w-ord.total-unit) + .49) +  (IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1).
 
         END.  /* first-of */
       END.  /* not by-release */
@@ -5405,6 +5415,7 @@ PROCEDURE from-po :
                             OUTPUT w-ord.rel-date,
                             OUTPUT w-ord.rel-lot#,
                             OUTPUT w-ord.ship-notes,
+                            OUTPUT w-ord.rel-qty,
                             INPUT "").
           IF tb_xfer-lot THEN w-ord.lot# = w-ord.rel-lot#.
       END.
@@ -5479,9 +5490,13 @@ PROCEDURE from-po :
           w-ord.ship-zip   = shipto.ship-zip.
 
       ASSIGN
-        w-ord.total-unit = w-ord.pcs * w-ord.bundle
+        w-ord.total-unit = w-ord.pcs * w-ord.bundle .
         /* Add .49 to round up and add 1 for extra tag   */
-        w-ord.total-tags = ((w-ord.ord-qty / w-ord.total-unit) + .49) +
+         IF w-ord.rel-qty NE 0 THEN
+             w-ord.total-tags = ((w-ord.rel-qty / w-ord.total-unit) + .49) +
+                           (IF CAN-DO("SSLABEL,CentBox",v-loadtag) THEN 0 ELSE 1).
+        ELSE
+            w-ord.total-tags = ((w-ord.ord-qty / w-ord.total-unit) + .49) +
                            (IF CAN-DO("SSLABEL,CentBox",v-loadtag) THEN 0 ELSE 1).
     END. /* first-of */
   END. /* each po-ordl */
@@ -6143,6 +6158,7 @@ PROCEDURE get-rel-info :
   DEF OUTPUT PARAM op-date LIKE w-ord.rel-date NO-UNDO.
   DEF OUTPUT PARAM op-lot# LIKE w-ord.rel-lot# NO-UNDO.
   DEF OUTPUT PARAM opcShipNotes LIKE w-ord.ship-notes NO-UNDO.
+  DEF OUTPUT PARAM opcRelQty AS INTEGER NO-UNDO.
   DEF INPUT PARAMETER ip-job AS ROWID NO-UNDO .
   DEF BUFFER b-job-hdr FOR job-hdr.
   RELEASE oe-rell.
@@ -6172,6 +6188,7 @@ PROCEDURE get-rel-info :
         opcShipNotes[2] = oe-relh.ship-i[2]
         opcShipNotes[3] = oe-relh.ship-i[3]
         opcShipNotes[4] = oe-relh.ship-i[4]
+        opcRelQty = oe-rell.qty 
         .
       LEAVE.
     END.

@@ -134,8 +134,8 @@ IF iplPrintView THEN DO:
 
         PUT "<||><R39><C43><#10><FROM><R42><C80><RECT>" SKIP.            
        
-        PUT "<FArial><=10><R-1.6><C43><B><p15> Line PO # </B>" SKIP.
-        PUT "<FArial><=10><R39.3><C43><B><P20>  " (IF AVAIL oe-ordl THEN string(oe-ordl.po-no,"x(15)") ELSE "") FORMAT "x(15)" "</B>" SKIP.
+        PUT "<FArial><=10><R-1.6><C43><B><p15> Release PO # </B>" SKIP.
+        PUT "<FArial><=10><R39.3><C43><B><P20>  " (IF AVAIL oe-ordl THEN string(tt-word-print.cust-po-no,"x(15)") ELSE "") FORMAT "x(15)" "</B>" SKIP.
 
         PUT "<||><R44><C3><#11><FROM><R47><C40><RECT>" SKIP.            
         
@@ -247,8 +247,8 @@ ELSE DO:
 
         PUT "<||><R39><C43><#10><FROM><R42><C80><RECT>" SKIP.            
        
-        PUT "<FArial><=10><R-1.6><C43><B><p15> Line PO # </B>" SKIP.
-        PUT "<FArial><=10><R39.3><C43><B><P20>  " (IF AVAIL oe-ordl THEN string(oe-ordl.po-no,"x(15)") ELSE "") FORMAT "x(15)" "</B>" SKIP.
+        PUT "<FArial><=10><R-1.6><C43><B><p15> Release PO # </B>" SKIP.
+        PUT "<FArial><=10><R39.3><C43><B><P20>  " (IF AVAIL oe-ordl THEN string(tt-word-print.cust-po-no,"x(15)") ELSE "") FORMAT "x(15)" "</B>" SKIP.
 
         PUT "<||><R44><C3><#11><FROM><R47><C40><RECT>" SKIP.            
         
