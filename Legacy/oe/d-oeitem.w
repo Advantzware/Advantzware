@@ -447,6 +447,18 @@ FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIsCustPriceHoldExempt d-oeitem
+FUNCTION fIsCustPriceHoldExempt RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER,
+   ipcCustomerID AS CHARACTER,
+   ipcShipToID AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnPrevOrder d-oeitem
 FUNCTION fnPrevOrder RETURNS CHARACTER 
     (ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER) FORWARD.
@@ -2763,11 +2775,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
  
  IF ip-type NE "view" THEN DO:
-    IF llOEPrcChg-sec THEN  
+    IF llOEPrcChg-sec OR fIsCustPriceHoldExempt(oe-ordl.company, oe-ordl.cust-no, oe-ordl.ship-id) THEN  
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES.
     ELSE DO:        
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
-    END.
+    END.    
+        
  END.
 
   IF fgsecurity-log THEN
@@ -9482,6 +9495,31 @@ DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
 RETURN lTaxable.
 
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIsCustPriceHoldExempt d-oeitem
+FUNCTION fIsCustPriceHoldExempt RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER, ipcCustomerID AS CHARACTER, ipcShipToID AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose: Returns true if the customer is not activated for price hold logic
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lCustExempt AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lPriceHoldActive AS LOGICAL NO-UNDO.
+	
+	RUN CheckPriceHoldForCustShip IN hdPriceProcs (ipcCompany, ipcCustomerID, ipcShipToID, OUTPUT lPriceHold, OUTPUT lPriceHoldActive).
+
+    lCustExempt = NOT lPriceHold AND lPriceHoldActive.
+    
+    RETURN lCustExempt.
 
 END FUNCTION.
 	
