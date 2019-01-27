@@ -308,12 +308,6 @@ ON LEAVE OF sys-ctrl.log-fld IN FRAME F-Main /* Logical Value */
 DO:
 
     CASE sys-ctrl.NAME:
-        WHEN  "RELCREDT" 
-            THEN v-msg = "Credit Checks for Past Due Invoices must be purchased, please call ASI."  .
-        /*WHEN "SalesMgmt" 
-            THEN v-msg = "Management Reports are available for purchase, please call ASI." .*/
-        WHEN  "SalesBudget"  
-            THEN v-msg = "Budget Report are available for purchase, please call ASI."  .   
         WHEN "ShipNotesExpanded" THEN DO:
             IF sys-ctrl.log-fld EQ NO  
             AND SELF:SCREEN-VALUE EQ "YES" THEN DO:
