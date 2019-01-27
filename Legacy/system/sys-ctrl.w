@@ -2083,26 +2083,10 @@ DO:
             END.
         END. /* character */
         WHEN "Logical" THEN DO:
-            CASE ttSysCtrl.name:
-                WHEN "RELCREDT" THEN
-                cMessage = "Credit Checks for Past Due Invoices must be purchased, please call ASI.".
-                WHEN "SalesBudget" THEN
-                cMessage = "Budget Report are available for purchase, please call ASI.".
-            END CASE.
             IF LASTKEY NE -1 THEN DO:
                 RUN valid-log-fld (SELF) NO-ERROR.
                 IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
             END. /* if lastkey */
-            IF ttSysCtrl.name EQ "RELCREDT" OR
-               ttSysCtrl.name EQ "SalesBudget" THEN DO:       
-                RUN check-flg.
-                IF NOT lValid AND cFieldValue:SCREEN-VALUE EQ "NO" THEN DO:
-                    MESSAGE 
-                        cMessage
-                    VIEW-AS ALERT-BOX INFO BUTTONS OK.
-                    RETURN.
-                END. /* if not valid */
-            END. /* if relcredt slaesbudget */
         END. /* logical */
     END CASE.
 END.
