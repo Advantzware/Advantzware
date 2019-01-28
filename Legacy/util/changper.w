@@ -52,9 +52,10 @@ DEF VAR v-process AS LOG NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS begin_run-no new_date fi_fr-year ~
-fi_fr-period fi_to-year fi_to-period btn-process btn-cancel RECT-17 
+fi_fr-period fi_to-year fi_to-period btn-process btn-cancel RECT-17 ~
+tb_gl-tot tb_cust-per tb_vend-per 
 &Scoped-Define DISPLAYED-OBJECTS begin_run-no old_date new_date fi_fr-year ~
-fi_fr-period fi_to-year fi_to-period 
+fi_fr-period fi_to-year fi_to-period tb_gl-tot tb_cust-per tb_vend-per 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -115,34 +116,52 @@ DEFINE VARIABLE old_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 8.1.
+     SIZE 89 BY 9.76.
+
+DEFINE VARIABLE tb_cust-per AS LOGICAL INITIAL yes 
+     LABEL "Recalculate Customer Period Totals?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 43 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_gl-tot AS LOGICAL INITIAL yes 
+     LABEL "Recalculate G/L Period Totals?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 35 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_vend-per AS LOGICAL INITIAL yes 
+     LABEL "Recalculate Vendor Period Totals?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 40 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_run-no AT ROW 7.19 COL 18 COLON-ALIGNED HELP
+     begin_run-no AT ROW 6.67 COL 18 COLON-ALIGNED HELP
           "Enter Beginning Run Number"
-     old_date AT ROW 8.38 COL 18 COLON-ALIGNED
-     new_date AT ROW 9.57 COL 18 COLON-ALIGNED HELP
+     old_date AT ROW 7.86 COL 18 COLON-ALIGNED
+     new_date AT ROW 9.05 COL 18 COLON-ALIGNED HELP
           "Enter Ending Due Date"
-     fi_fr-year AT ROW 6.95 COL 50 COLON-ALIGNED HELP
+     fi_fr-year AT ROW 6.43 COL 50 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     fi_fr-period AT ROW 6.95 COL 70 COLON-ALIGNED HELP
+     fi_fr-period AT ROW 6.43 COL 70 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     fi_to-year AT ROW 10.05 COL 50 COLON-ALIGNED HELP
+     fi_to-year AT ROW 9.52 COL 50 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     fi_to-period AT ROW 10.05 COL 70 COLON-ALIGNED HELP
+     fi_to-period AT ROW 9.52 COL 70 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     btn-process AT ROW 16.48 COL 21
-     btn-cancel AT ROW 16.48 COL 53
+     tb_gl-tot AT ROW 10.81 COL 30.2 WIDGET-ID 2
+     tb_cust-per AT ROW 11.95 COL 30.2 WIDGET-ID 4
+     tb_vend-per AT ROW 13.1 COL 30.2 WIDGET-ID 6
+     btn-process AT ROW 18.1 COL 21
+     btn-cancel AT ROW 18.1 COL 53
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 5.29 COL 5
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
      "Change" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 6 COL 60
+          SIZE 12 BY .71 AT ROW 5.48 COL 60
           FONT 6
      "To" VIEW-AS TEXT
           SIZE 5 BY .71 AT ROW 8.62 COL 62
@@ -151,14 +170,7 @@ DEFINE FRAME FRAME-A
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89.6 BY 17.52.
-
-DEFINE FRAME FRAME-H
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 12.91
-         SIZE 89 BY 2.86
-         BGCOLOR 12 FGCOLOR 14 .
+         SIZE 89.6 BY 19.19.
 
 DEFINE FRAME FRAME-B
      "This process may take hours.  Please let the process complete!" VIEW-AS TEXT
@@ -172,6 +184,13 @@ DEFINE FRAME FRAME-B
          AT COL 1 ROW 1
          SIZE 89.2 BY 3.81
          BGCOLOR 11 .
+
+DEFINE FRAME FRAME-H
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 14.62
+         SIZE 89 BY 2.86
+         BGCOLOR 12 FGCOLOR 14 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -191,7 +210,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Change Period and/or Post Date"
-         HEIGHT             = 18.24
+         HEIGHT             = 19.43
          WIDTH              = 90.2
          MAX-HEIGHT         = 19.76
          MAX-WIDTH          = 98.2
@@ -229,16 +248,6 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
@@ -252,6 +261,14 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
        new_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -259,6 +276,18 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        old_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_cust-per:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_gl-tot:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_vend-per:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR FRAME FRAME-B
@@ -271,7 +300,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -558,6 +587,39 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_cust-per
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cust-per C-Win
+ON VALUE-CHANGED OF tb_cust-per IN FRAME FRAME-A /* Recalculate Customer Period Totals? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_gl-tot
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_gl-tot C-Win
+ON VALUE-CHANGED OF tb_gl-tot IN FRAME FRAME-A /* Recalculate G/L Period Totals? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_vend-per
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_vend-per C-Win
+ON VALUE-CHANGED OF tb_vend-per IN FRAME FRAME-A /* Recalculate Vendor Period Totals? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -805,10 +867,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_run-no old_date new_date fi_fr-year fi_fr-period fi_to-year 
-          fi_to-period 
+          fi_to-period tb_gl-tot tb_cust-per tb_vend-per 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE begin_run-no new_date fi_fr-year fi_fr-period fi_to-year fi_to-period 
-         btn-process btn-cancel RECT-17 
+         btn-process btn-cancel RECT-17 tb_gl-tot tb_cust-per tb_vend-per 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -1010,7 +1072,8 @@ IF AVAIL gl-ctrl THEN DO TRANSACTION:
     END.
   END.*/
 
-  RUN util/fxacctg2.p.
+ IF tb_gl-tot THEN
+     RUN util/fxacctg2.p.
 
   /*FOR EACH account
       WHERE account.company EQ cocode
@@ -1028,6 +1091,7 @@ IF AVAIL gl-ctrl THEN DO TRANSACTION:
       NO-LOCK NO-ERROR.
 
   IF AVAIL period THEN DO:
+    IF tb_cust-per THEN
     FOR EACH cust WHERE cust.company EQ cocode:
       {util/reopeny1.i 1 lyytd lyr 6}
 
@@ -1035,6 +1099,7 @@ IF AVAIL gl-ctrl THEN DO TRANSACTION:
     END.
 
     /* Vend Processing  */
+    IF tb_vend-per THEN
     FOR EACH vend WHERE vend.company EQ cocode:
       {util/reopeny2.i 1 lyytd last-year}
 
