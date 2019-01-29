@@ -3566,7 +3566,7 @@ PROCEDURE post-bol :
 
         FOR EACH oe-boll NO-LOCK WHERE oe-boll.b-no EQ oe-bolh.b-no:
 
-          RUN oe/bol-pre-post.p (ROWID(oe-boll), v-term).
+          RUN oe/bol-pre-post.p (ROWID(oe-boll), v-term, YES /* show msg */).
           FIND cust WHERE cust.company = oe-bolh.company
                       AND cust.cust-no = oe-bolh.cust-no NO-LOCK NO-ERROR.
           IF fgreorder-log AND cust.ACTIVE = "E" 

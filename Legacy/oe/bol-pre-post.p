@@ -1,6 +1,7 @@
 
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 DEF INPUT PARAM v-term LIKE report.term-id NO-UNDO.
+DEFINE INPUT  PARAMETER iplShowMessage AS LOGICAL NO-UNDO.
 
 {oe/closchk.i}
 
@@ -167,9 +168,13 @@ FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
            oe-boll.posted = YES.
       END.  /* IF fg-bin.loc     NE shipto.loc */
 
-      ELSE
+      ELSE DO:
+         IF iplShowMessage THEN 
+           MESSAGE "Error: You are transferring to the same location this is already located, check BOL"
+           VIEW-AS ALERT-BOX.
          IF AVAIL fg-rctd THEN
             DELETE fg-rctd.
+      END. 
     END. /* IF AVAIL shipto AND CAN-FIND(FIRST fg-bin */
 
     /* to close order (do not close order for transfers) */
