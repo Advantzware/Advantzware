@@ -34,19 +34,22 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 
-&Scoped-define defType INPUT PARAMETER
-&IF DEFINED(UIB_is_Running) NE 0 &THEN
-&Scoped-define defType VARIABLE
+&IF DEFINED(UIB_is_Running) EQ 0 &THEN
+DEFINE INPUT PARAMETER ipcPrgmName AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER iprRowID    AS ROWID     NO-UNDO.
+&ELSE
+DEFINE VARIABLE ipcPrgmName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iprRowID    AS ROWID     NO-UNDO.
 &ENDIF
-DEFINE {&defType} iprRowID AS ROWID NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE hAppSrvBin         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hJasper            AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hQueryBrowse       AS HANDLE    NO-UNDO.
-DEFINE VARIABLE i                  AS INTEGER   NO-UNDO.
-DEFINE VARIABLE queryStr           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPoolName    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hAppSrvBin   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hJasper      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hQueryBrowse AS HANDLE    NO-UNDO.
+DEFINE VARIABLE i            AS INTEGER   NO-UNDO.
+DEFINE VARIABLE queryStr     AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -78,17 +81,30 @@ SESSION:ADD-SUPER-PROCEDURE (hJasper).
 &Scoped-define DB-AWARE no
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&Scoped-define FRAME-NAME DEFAULT-FRAME
+&Scoped-define FRAME-NAME paramFrame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnRestoreDefaults 
+&Scoped-Define ENABLED-OBJECTS btnCSV btnDOCX btnHTML btnPDF btnRunResults ~
+btnView btnXLS 
 
 /* Custom List Definitions                                              */
-/* List-1,List-2,List-3,List-4,List-5,List-6                            */
+/* List-1,showFields,List-3,List-4,List-5,List-6                        */
+&Scoped-define showFields svShowAll svShowReportHeader svShowPageHeader ~
+svShowGroupHeader svShowGroupFooter svShowPageFooter svShowReportFooter ~
+svShowParameters 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSetShowAll C-Win 
+FUNCTION fSetShowAll RETURNS LOGICAL
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -97,50 +113,84 @@ SESSION:ADD-SUPER-PROCEDURE (hJasper).
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnRestoreDefaults 
-     IMAGE-UP FILE "Graphics/16x16/rename.jpg":U NO-FOCUS FLAT-BUTTON
-     LABEL "Defaults" 
-     SIZE 4 BY .95 TOOLTIP "Restore Defaults".
+DEFINE VARIABLE svShowAll AS LOGICAL INITIAL yes 
+     LABEL "Show ALL" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 13 BY .81 NO-UNDO.
 
-DEFINE BUTTON btnCloseParam 
-     IMAGE-UP FILE "AOA/images/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
-     LABEL "Close Results" 
-     SIZE 4.4 BY .95 TOOLTIP "Close Results".
+DEFINE VARIABLE svShowGroupFooter AS LOGICAL INITIAL yes 
+     LABEL "Group Footer" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
+
+DEFINE VARIABLE svShowGroupHeader AS LOGICAL INITIAL yes 
+     LABEL "Group Header" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 17 BY .81 NO-UNDO.
+
+DEFINE VARIABLE svShowPageFooter AS LOGICAL INITIAL yes 
+     LABEL "Page Footer" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
+
+DEFINE VARIABLE svShowPageHeader AS LOGICAL INITIAL yes 
+     LABEL "Page Header" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
+
+DEFINE VARIABLE svShowParameters AS LOGICAL INITIAL yes 
+     LABEL "Parameters" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15 BY .81 NO-UNDO.
+
+DEFINE VARIABLE svShowReportFooter AS LOGICAL INITIAL yes 
+     LABEL "Report Footer" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18 BY .81 NO-UNDO.
+
+DEFINE VARIABLE svShowReportHeader AS LOGICAL INITIAL yes 
+     LABEL "Report Header" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18 BY .81 NO-UNDO.
 
 DEFINE BUTTON btnCSV 
-     IMAGE-UP FILE "AOA/images/aoaexcelcsv.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/csv.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "csv" 
-     SIZE 4.4 BY 1 TOOLTIP "Excel CSV".
+     SIZE 8 BY 1.91 TOOLTIP "Excel CSV".
 
 DEFINE BUTTON btnDOCX 
-     IMAGE-UP FILE "AOA/images/aoaword.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/docx.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 4.4 BY 1 TOOLTIP "Word DOCX".
+     SIZE 8 BY 1.91 TOOLTIP "Word DOCX".
 
 DEFINE BUTTON btnHTML 
-     IMAGE-UP FILE "AOA/images/html_tag.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/html_tag.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 4.4 BY 1 TOOLTIP "HTML".
+     SIZE 8 BY 1.91 TOOLTIP "HTML".
 
 DEFINE BUTTON btnPDF 
-     IMAGE-UP FILE "AOA/images/aoapdf.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/pdf.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 4.4 BY 1 TOOLTIP "PDF".
+     SIZE 8 BY 1.91 TOOLTIP "PDF".
 
 DEFINE BUTTON btnRunResults 
-     IMAGE-UP FILE "AOA/images/media_play.gif":U NO-FOCUS FLAT-BUTTON
-     LABEL "Save Results" 
-     SIZE 4.4 BY .95 TOOLTIP "Save Results".
+     IMAGE-UP FILE "Graphics/32x32/table.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Run Results" 
+     SIZE 8 BY 1.91 TOOLTIP "Run Results".
 
 DEFINE BUTTON btnView 
-     IMAGE-UP FILE "AOA/images/jrxml_icon.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/jss_icon_32.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 4.4 BY 1 TOOLTIP "Jasper Viewer".
+     SIZE 8 BY 1.91 TOOLTIP "Jasper Viewer".
 
 DEFINE BUTTON btnXLS 
-     IMAGE-UP FILE "AOA/images/aoaexcel.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/xls.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 4.4 BY 1 TOOLTIP "Excel XLS".
+     SIZE 8 BY 1.91 TOOLTIP "Excel XLS".
+
+DEFINE RECTANGLE RECT-PANEL
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 58 BY 2.38.
 
 DEFINE BUTTON btnCloseResults 
      IMAGE-UP FILE "AOA/images/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
@@ -155,37 +205,27 @@ DEFINE BUTTON btnSaveResults
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME DEFAULT-FRAME
-     btnRestoreDefaults AT ROW 1 COL 1 HELP
-          "Restore Defaults" WIDGET-ID 42
+DEFINE FRAME paramFrame
+     btnCSV AT ROW 1.48 COL 111 HELP
+          "Excel CSV" WIDGET-ID 140
+     btnDOCX AT ROW 1.48 COL 127 HELP
+          "Word DOCX" WIDGET-ID 142
+     btnHTML AT ROW 1.48 COL 143 HELP
+          "HTML" WIDGET-ID 144
+     btnPDF AT ROW 1.48 COL 135 HELP
+          "PDF" WIDGET-ID 146
+     btnRunResults AT ROW 1.48 COL 103 HELP
+          "Jasper Viewer" WIDGET-ID 254
+     btnView AT ROW 1.48 COL 151 HELP
+          "Jasper Viewer" WIDGET-ID 148
+     btnXLS AT ROW 1.48 COL 119 HELP
+          "Excel XLS" WIDGET-ID 150
+     RECT-PANEL AT ROW 1.24 COL 102 WIDGET-ID 256
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 160 BY 28.57
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
-
-DEFINE FRAME paramFrame
-     btnCSV AT ROW 1 COL 5 HELP
-          "Excel CSV" WIDGET-ID 140
-     btnDOCX AT ROW 1 COL 13 HELP
-          "Word DOCX" WIDGET-ID 142
-     btnRunResults AT ROW 1 COL 1 HELP
-          "Jasper Viewer" WIDGET-ID 254
-     btnXLS AT ROW 1 COL 9 HELP
-          "Excel XLS" WIDGET-ID 150
-     btnCloseParam AT ROW 1 COL 29 HELP
-          "Jasper Viewer" WIDGET-ID 252
-     btnView AT ROW 1 COL 25 HELP
-          "Jasper Viewer" WIDGET-ID 148
-     btnHTML AT ROW 1 COL 21 HELP
-          "HTML" WIDGET-ID 144
-     btnPDF AT ROW 1 COL 17 HELP
-          "PDF" WIDGET-ID 146
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 104 ROW 9.81
-         SIZE 33 BY 2.38
-         FGCOLOR 1  WIDGET-ID 1300.
+         FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME resultsFrame
      btnCloseResults AT ROW 1 COL 6 HELP
@@ -194,9 +234,25 @@ DEFINE FRAME resultsFrame
           "Jasper Viewer" WIDGET-ID 254
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 93 ROW 9.81
+         AT COL 1 ROW 1
          SIZE 10 BY 2.38
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
+
+DEFINE FRAME frameShow
+     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
+     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
+     svShowPageHeader AT ROW 3.14 COL 5 WIDGET-ID 6
+     svShowGroupHeader AT ROW 4.1 COL 5 WIDGET-ID 10
+     svShowGroupFooter AT ROW 5.05 COL 5 WIDGET-ID 12
+     svShowPageFooter AT ROW 6 COL 5 WIDGET-ID 8
+     svShowReportFooter AT ROW 6.95 COL 5 WIDGET-ID 4
+     svShowParameters AT ROW 7.91 COL 5 WIDGET-ID 16
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 137 ROW 3.86
+         SIZE 23 BY 8.81
+         BGCOLOR 15 
+         TITLE BGCOLOR 15 "Show Sections" WIDGET-ID 1300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -243,22 +299,34 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* REPARENT FRAME */
-ASSIGN FRAME paramFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
-       FRAME resultsFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE.
+ASSIGN FRAME frameShow:FRAME = FRAME paramFrame:HANDLE
+       FRAME resultsFrame:FRAME = FRAME paramFrame:HANDLE.
 
-/* SETTINGS FOR FRAME DEFAULT-FRAME
-   FRAME-NAME                                                           */
-
-DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
-
-ASSIGN XXTABVALXX = FRAME resultsFrame:MOVE-BEFORE-TAB-ITEM (FRAME paramFrame:HANDLE)
-/* END-ASSIGN-TABS */.
-
+/* SETTINGS FOR FRAME frameShow
+                                                                        */
+/* SETTINGS FOR TOGGLE-BOX svShowAll IN FRAME frameShow
+   2                                                                    */
+/* SETTINGS FOR TOGGLE-BOX svShowGroupFooter IN FRAME frameShow
+   2                                                                    */
+/* SETTINGS FOR TOGGLE-BOX svShowGroupHeader IN FRAME frameShow
+   2                                                                    */
+/* SETTINGS FOR TOGGLE-BOX svShowPageFooter IN FRAME frameShow
+   2                                                                    */
+/* SETTINGS FOR TOGGLE-BOX svShowPageHeader IN FRAME frameShow
+   2                                                                    */
+/* SETTINGS FOR TOGGLE-BOX svShowParameters IN FRAME frameShow
+   2                                                                    */
+/* SETTINGS FOR TOGGLE-BOX svShowReportFooter IN FRAME frameShow
+   2                                                                    */
+/* SETTINGS FOR TOGGLE-BOX svShowReportHeader IN FRAME frameShow
+   2                                                                    */
 /* SETTINGS FOR FRAME paramFrame
-   NOT-VISIBLE                                                          */
+   FRAME-NAME                                                           */
 ASSIGN 
-       FRAME paramFrame:HIDDEN           = TRUE.
+       btnView:AUTO-RESIZE IN FRAME paramFrame      = TRUE.
 
+/* SETTINGS FOR RECTANGLE RECT-PANEL IN FRAME paramFrame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME resultsFrame
    NOT-VISIBLE                                                          */
 ASSIGN 
@@ -328,18 +396,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define FRAME-NAME paramFrame
-&Scoped-define SELF-NAME btnCloseParam
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCloseParam C-Win
-ON CHOOSE OF btnCloseParam IN FRAME paramFrame /* Close Results */
-DO:
-    FRAME paramFrame:HIDDEN = YES.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define FRAME-NAME resultsFrame
 &Scoped-define SELF-NAME btnCloseResults
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCloseResults C-Win
@@ -347,10 +403,7 @@ ON CHOOSE OF btnCloseResults IN FRAME resultsFrame /* Close Results */
 DO:
     IF VALID-HANDLE(hQueryBrowse) THEN
     DELETE OBJECT hQueryBrowse.
-    ASSIGN
-        FRAME resultsFrame:HIDDEN = YES
-        FRAME paramFrame:HIDDEN   = YES
-        .
+    FRAME resultsFrame:HIDDEN = YES.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -402,22 +455,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define FRAME-NAME DEFAULT-FRAME
-&Scoped-define SELF-NAME btnRestoreDefaults
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestoreDefaults C-Win
-ON CHOOSE OF btnRestoreDefaults IN FRAME DEFAULT-FRAME /* Defaults */
-DO:
-    RUN pGetSettings.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define FRAME-NAME paramFrame
 &Scoped-define SELF-NAME btnRunResults
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRunResults C-Win
-ON CHOOSE OF btnRunResults IN FRAME paramFrame /* Save Results */
+ON CHOOSE OF btnRunResults IN FRAME paramFrame /* Run Results */
 DO:
     RUN pRunSubject (YES, "Results").
 END.
@@ -461,7 +501,112 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define FRAME-NAME DEFAULT-FRAME
+&Scoped-define FRAME-NAME frameShow
+&Scoped-define SELF-NAME svShowAll
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowAll C-Win
+ON VALUE-CHANGED OF svShowAll IN FRAME frameShow /* Show ALL */
+DO:
+  ASSIGN {&SELF-NAME}
+      svShowReportHeader = {&SELF-NAME}
+      svShowParameters   = {&SELF-NAME}
+      svShowPageHeader   = {&SELF-NAME}
+      svShowGroupHeader  = {&SELF-NAME}
+      svShowGroupFooter  = {&SELF-NAME}
+      svShowPageFooter   = {&SELF-NAME}
+      svShowReportFooter = {&SELF-NAME}
+      .
+  DISPLAY {&showFields} WITH FRAME frameShow.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svShowGroupFooter
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowGroupFooter C-Win
+ON VALUE-CHANGED OF svShowGroupFooter IN FRAME frameShow /* Group Footer */
+DO:
+    ASSIGN {&SELF-NAME}.
+    fSetShowAll().
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svShowGroupHeader
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowGroupHeader C-Win
+ON VALUE-CHANGED OF svShowGroupHeader IN FRAME frameShow /* Group Header */
+DO:
+    ASSIGN {&SELF-NAME}.
+    fSetShowAll().
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svShowPageFooter
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowPageFooter C-Win
+ON VALUE-CHANGED OF svShowPageFooter IN FRAME frameShow /* Page Footer */
+DO:
+    ASSIGN {&SELF-NAME}.
+    fSetShowAll().
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svShowPageHeader
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowPageHeader C-Win
+ON VALUE-CHANGED OF svShowPageHeader IN FRAME frameShow /* Page Header */
+DO:
+    ASSIGN {&SELF-NAME}.
+    fSetShowAll().
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svShowParameters
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowParameters C-Win
+ON VALUE-CHANGED OF svShowParameters IN FRAME frameShow /* Parameters */
+DO:
+    ASSIGN {&SELF-NAME}.
+    fSetShowAll().
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svShowReportFooter
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowReportFooter C-Win
+ON VALUE-CHANGED OF svShowReportFooter IN FRAME frameShow /* Report Footer */
+DO:
+    ASSIGN {&SELF-NAME}.
+    fSetShowAll().
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svShowReportHeader
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowReportHeader C-Win
+ON VALUE-CHANGED OF svShowReportHeader IN FRAME frameShow /* Report Header */
+DO:
+    ASSIGN {&SELF-NAME}.
+    fSetShowAll().
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME paramFrame
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -488,6 +633,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN pGetSettings.
   RUN enable_UI.
+  RUN pCreateDynParameters (FRAME paramFrame:HANDLE).
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -530,17 +676,43 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btnRestoreDefaults 
-      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+  ENABLE btnCSV btnDOCX btnHTML btnPDF btnRunResults btnView btnXLS 
+      WITH FRAME paramFrame IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-paramFrame}
   ENABLE btnCloseResults btnSaveResults 
       WITH FRAME resultsFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-resultsFrame}
-  ENABLE btnCSV btnDOCX btnRunResults btnXLS btnCloseParam btnView btnHTML 
-         btnPDF 
-      WITH FRAME paramFrame IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-paramFrame}
+  DISPLAY svShowAll svShowReportHeader svShowPageHeader svShowGroupHeader 
+          svShowGroupFooter svShowPageFooter svShowReportFooter svShowParameters 
+      WITH FRAME frameShow IN WINDOW C-Win.
+  ENABLE svShowAll svShowReportHeader svShowPageHeader svShowGroupHeader 
+         svShowGroupFooter svShowPageFooter svShowReportFooter svShowParameters 
+      WITH FRAME frameShow IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-frameShow}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDynParamValue C-Win 
+PROCEDURE pGetDynParamValue :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    FIND FIRST dynParamValue NO-LOCK
+         WHERE ROWID(dynParamValue) EQ iprRowID
+         NO-ERROR.
+    IF AVAILABLE dynParamValue THEN DO:
+        FIND FIRST dynSubject NO-LOCK
+             WHERE dynSubject.subjectID EQ dynParamValue.subjectID
+             NO-ERROR.
+        IF AVAILABLE dynSubject THEN
+        queryStr = dynSubject.queryStr.
+    END. /* if avail */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -630,6 +802,63 @@ PROCEDURE pSaveSettings :
         user-print.field-label[idx] = "WindowHeight"
         user-print.field-value[idx] = STRING({&WINDOW-NAME}:HEIGHT)
         .
+    DO TRANSACTION:
+        FIND CURRENT dynSubject EXCLUSIVE-LOCK.
+        ASSIGN
+            dynSubject.subjectHeight = FRAME paramFrame:HEIGHT
+            dynSubject.subjectWidth  = FRAME paramFrame:WIDTH
+            .
+        FIND CURRENT dynSubject NO-LOCK.
+    END. /* do trans */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetDynParamValue C-Win 
+PROCEDURE pSetDynParamValue :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    
+    DO TRANSACTION:
+        FIND FIRST dynParamValue EXCLUSIVE-LOCK
+             WHERE dynParamValue.subjectID    EQ dynSubject.subjectID
+               AND dynParamValue.user-id      EQ USERID("ASI")
+               AND dynParamValue.prgmName     EQ ipcPrgmName
+               AND dynParamValue.paramValueID EQ 0
+             NO-ERROR.
+        IF NOT AVAILABLE dynParamValue THEN DO:
+            CREATE dynParamValue.
+            ASSIGN
+                dynParamValue.subjectID        = dynSubject.subjectID
+                dynParamValue.user-id          = USERID("ASI")
+                dynParamValue.prgmName         = ipcPrgmName
+                dynParamValue.paramDescription = "User Default"
+                .
+            FOR EACH dynSubjectParamSet NO-LOCK
+                WHERE dynSubjectParamSet.subjectID EQ dynSubject.subjectID,
+                EACH dynParamSetDtl NO-LOCK
+                WHERE dynParamSetDtl.paramSetID EQ dynSubjectParamSet.paramSetID,
+                FIRST dynParam NO-LOCK
+                WHERE dynParam.paramID EQ dynParamSetDtl.paramID
+                :
+                ASSIGN
+                    idx                              = idx + 1
+                    dynParamValue.paramName[idx]     = dynParamSetDtl.paramName
+                    dynParamValue.paramLabel[idx]    = dynParamSetDtl.paramLabel
+                    dynParamValue.paramValue[idx]    = dynParamSetDtl.initialValue
+                    dynParamValue.paramDataType[idx] = dynParam.dataType
+                    dynParamValue.paramFormat[idx]   = dynParam.paramFormat
+                    .
+            END. /* each dynsubjectparamset */
+        END. /* not avail */
+        FIND CURRENT dynParamValue NO-LOCK.
+    END. /* do trans */
 
 END PROCEDURE.
 
@@ -645,9 +874,6 @@ PROCEDURE pWinReSize :
 ------------------------------------------------------------------------------*/
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
-        /*
-        HIDE BROWSE {&BROWSE-NAME}.
-        */
         HIDE FRAME {&FRAME-NAME}.
         IF {&WINDOW-NAME}:HEIGHT LT 28.57 THEN
         {&WINDOW-NAME}:HEIGHT = 28.57.
@@ -658,20 +884,66 @@ PROCEDURE pWinReSize :
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
             FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
-            /*
-            BROWSE {&BROWSE-NAME}:HEIGHT       = FRAME {&FRAME-NAME}:HEIGHT
-                                               - BROWSE {&BROWSE-NAME}:ROW + 1
-            BROWSE {&BROWSE-NAME}:WIDTH        = FRAME {&FRAME-NAME}:WIDTH
-            */
+            RECT-PANEL:COL                     = FRAME paramFrame:WIDTH - RECT-PANEL:WIDTH
+            btnRunResults:COL                  = RECT-PANEL:COL + 1
+            btnCSV:COL                         = btnRunResults:COL + btnRunResults:WIDTH
+            btnXLS:COL                         = btnCSV:COL + btnCSV:WIDTH
+            btnDOCX:COL                        = btnXLS:COL + btnXLS:WIDTH
+            btnPDF:COL                         = btnDOCX:COL + btnDOCX:WIDTH
+            btnHTML:COL                        = btnPDF:COL + btnPDF:WIDTH
+            btnView:COL                        = btnHTML:COL + btnHTML:WIDTH
+            FRAME frameShow:COL                = FRAME paramFrame:WIDTH - FRAME frameShow:WIDTH
+            FRAME resultsFrame:HIDDEN          = YES
+            FRAME resultsFrame:VIRTUAL-HEIGHT  = FRAME {&FRAME-NAME}:HEIGHT
+            FRAME resultsFrame:VIRTUAL-WIDTH   = FRAME {&FRAME-NAME}:WIDTH
+            FRAME resultsFrame:HEIGHT          = FRAME {&FRAME-NAME}:HEIGHT
+            FRAME resultsFrame:WIDTH           = FRAME {&FRAME-NAME}:WIDTH
             .
         VIEW FRAME {&FRAME-NAME}.
-        /*
-        VIEW BROWSE {&BROWSE-NAME}.
-        */
+    END. /* do with */
+    DO WITH FRAME resultsFrame:
+        ASSIGN
+            btnCloseResults:COL = FRAME resultsFrame:WIDTH - btnCloseResults:WIDTH
+            btnSaveResults:COL  = btnCloseResults:COL - btnSaveResults:WIDTH
+            .
+        IF VALID-HANDLE(hQueryBrowse) THEN DO:
+            ASSIGN
+                hQueryBrowse:HEIGHT       = FRAME resultsFrame:HEIGHT - .1
+                hQueryBrowse:WIDTH        = FRAME resultsFrame:WIDTH - .32
+                FRAME resultsFrame:HIDDEN = NO
+                .
+        END. /* if valid-handle */
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSetShowAll C-Win 
+FUNCTION fSetShowAll RETURNS LOGICAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DO WITH FRAME frameShow:
+        svShowAll = svShowReportHeader AND
+                    svShowParameters   AND
+                    svShowPageHeader   AND
+                    svShowGroupHeader  AND
+                    svShowGroupFooter  AND
+                    svShowPageFooter   AND
+                    svShowReportFooter
+                    .
+        DISPLAY {&showFields}.
+    END. /* do with */
+    RETURN TRUE.
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

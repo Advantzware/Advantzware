@@ -841,7 +841,7 @@ PROCEDURE pJasperLastPageFooter :
             idx = idx + 2
             .
         ELSE IF user-print.field-label[idx + 1] EQ ? AND
-           INDEX(user-print.field-name[idx + 1],"DateOption") NE 0 THEN DO:
+            INDEX(user-print.field-name[idx + 1],"DateOption") NE 0 THEN DO:
             dtDate = DATE(user-print.field-value[idx]) NO-ERROR.
             IF ERROR-STATUS:ERROR THEN
             dtDate = ?.

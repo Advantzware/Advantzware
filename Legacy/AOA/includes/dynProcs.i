@@ -18,6 +18,11 @@
 
 /* ***************************  Definitions  ************************** */
 
+DEFINE VARIABLE hDynamic AS HANDLE NO-UNDO.
+
+RUN AOA/spDynamic.p PERSISTENT SET hDynamic.
+SESSION:ADD-SUPER-PROCEDURE (hDynamic).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -64,6 +69,8 @@
 
 /* ***************************  Main Block  *************************** */
 
+RUN spSetCompany (g_company).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -91,35 +98,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDatePickList Include 
-PROCEDURE pDatePickList :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphWidget   AS HANDLE NO-UNDO.
-    DEFINE INPUT PARAMETER iphCalendar AS HANDLE NO-UNDO.
-    DEFINE INPUT PARAMETER iphPickList AS HANDLE NO-UNDO.
-    
-    ASSIGN
-        iphWidget:SCREEN-VALUE = STRING(fDateOptionValue(
-            iphPickList:SCREEN-VALUE,
-            DATE(iphWidget:SCREEN-VALUE)
-            ))
-        iphWidget:READ-ONLY = iphPickList:SCREEN-VALUE NE "Fixed Date"
-        iphWidget:PRIVATE-DATA = iphPickList:SCREEN-VALUE
-        .
-    IF VALID-HANDLE(iphCalendar) THEN
-    iphCalendar:SENSITIVE = iphPickList:SCREEN-VALUE EQ "Fixed Date".
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDynParameters Include 
-PROCEDURE pDynParameters :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateDynParameters Include 
+PROCEDURE pCreateDynParameters :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
@@ -130,7 +110,6 @@ PROCEDURE pDynParameters :
     DEFINE VARIABLE cParamName  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParamLabel AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParamValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoolName   AS CHARACTER NO-UNDO INITIAL "ParameterPool".
     DEFINE VARIABLE dCol        AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dRow        AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE hCalendar   AS HANDLE    NO-UNDO.
@@ -144,10 +123,21 @@ PROCEDURE pDynParameters :
     
     DEFINE BUFFER {1}SubjectParamSet FOR {1}SubjectParamSet.
     
-    DELETE WIDGET-POOL "parameterPool" NO-ERROR.
-    CREATE WIDGET-POOL "parameterPool" PERSISTENT.
+    cPoolName = "ParameterPool" + STRING(TIME).
+    DELETE WIDGET-POOL cPoolName NO-ERROR.
+    CREATE WIDGET-POOL cPoolName PERSISTENT.
     
-    RUN pGetDefault.    
+    RUN pGetDynParamValue.
+    IF NOT AVAILABLE dynParamValue OR
+       NOT AVAILABLE {1}Subject THEN RETURN.    
+    
+    &IF "{1}" EQ "dyn" &THEN
+    ASSIGN
+        FRAME paramFrame:HEIGHT = {1}Subject.subjectHeight
+        FRAME paramFrame:WIDTH  = {1}Subject.subjectWidth
+        .
+    RUN pWinReSize.
+    &ENDIF
     EMPTY TEMP-TABLE ttAction.    
     FOR EACH {1}SubjectParamSet
         WHERE {1}SubjectParamSet.subjectID EQ {1}Subject.subjectID,
@@ -423,12 +413,113 @@ PROCEDURE pDynParameters :
                 .
         END. /* if valid-handle */
     END. /* each {1}SubjectParamSet */
+    ASSIGN
+        hWidget = FRAME frameShow:HANDLE
+        hWidget = hWidget:FIRST-CHILD
+        hWidget = hWidget:FIRST-CHILD
+        .
+    DO WHILE VALID-HANDLE(hWidget):
+        DO pdx = 1 TO EXTENT(dynParamValue.paramName):
+            IF dynParamValue.paramName[pdx] EQ "" THEN LEAVE.
+            IF dynParamValue.paramName[pdx] NE hWidget:NAME THEN NEXT.
+            hWidget:SCREEN-VALUE = dynParamValue.paramValue[pdx].
+            LEAVE.
+        END. /* do pdx */
+        hWidget = hWidget:NEXT-SIBLING.
+    END. /* do while */
+    RUN pInitialize.
+    RUN pInitDynParameters (iphFrame).
     iphFrame:HIDDEN = NO.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDatePickList Include 
+PROCEDURE pDatePickList :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphWidget   AS HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER iphCalendar AS HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER iphPickList AS HANDLE NO-UNDO.
+    
+    ASSIGN
+        iphWidget:SCREEN-VALUE = STRING(fDateOptionValue(
+            iphPickList:SCREEN-VALUE,
+            DATE(iphWidget:SCREEN-VALUE)
+            ))
+        iphWidget:READ-ONLY = iphPickList:SCREEN-VALUE NE "Fixed Date"
+        iphWidget:PRIVATE-DATA = iphPickList:SCREEN-VALUE
+        .
+    IF VALID-HANDLE(iphCalendar) THEN
+    iphCalendar:SENSITIVE = iphPickList:SCREEN-VALUE EQ "Fixed Date".
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInitDynParameters Include 
+PROCEDURE pInitDynParameters :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphFrame AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE hWidget AS HANDLE NO-UNDO.
+    
+    ASSIGN 
+        hWidget = iphFrame:HANDLE 
+        hWidget = hWidget:FIRST-CHILD 
+        hWidget = hWidget:FIRST-CHILD
+        .
+    DO WHILE VALID-HANDLE(hWidget):
+        CASE hWidget:TYPE:
+            WHEN "COMBO-BOX" OR
+            WHEN "RADIO-SET" OR
+            WHEN "SELECTION-LIST" OR
+            WHEN "TOGGLE-BOX" THEN
+                APPLY "VALUE-CHANGED":U TO hWidget.
+            WHEN "EDITOR" OR
+            WHEN "FILL-IN" THEN
+                APPLY "LEAVE":U TO hWidget.
+        END CASE.
+        hWidget = hWidget:NEXT-SIBLING.
+    END. /* do while */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInitialize Include
+PROCEDURE pInitialize:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+/*    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.*/
+/*    DEFINE VARIABLE idx     AS INTEGER   NO-UNDO.*/
+/*                                                 */
+/*    IF dynParam.initializeProc EQ "" THEN RETURN.*/
+/*    RUN VALUE(dynParam.initializeProc).          */
+/*    cReturn = RETURN:VALUE.                      */
+/*    IF cReturn EQ "" THEN RETURN.                */
+/*    DO idx = 1 TO NUM-ENTRIES(cReturn):          */
+/*    END. /* do idx */                            */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pParamAction Include 
 PROCEDURE pParamAction :
@@ -444,8 +535,6 @@ PROCEDURE pParamAction :
     DEFINE VARIABLE idx      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iParamID AS INTEGER   NO-UNDO.
     
-    DEFINE BUFFER bttAction FOR ttAction.
-    
     FIND FIRST ttAction
          WHERE ttACtion.paramWidget EQ iphWidget
          NO-ERROR.
@@ -453,7 +542,9 @@ PROCEDURE pParamAction :
     iParamID = ttAction.paramID.
     FOR EACH ttAction
         WHERE ttAction.actionParamID EQ iParamID
-          AND ttAction.action NE ""
+          AND ttAction.action NE "",
+        FIRST dynParam
+        WHERE dynParam.paramID EQ ttAction.paramID
         :
         DO idx = 1 TO NUM-ENTRIES(ttAction.action):
             ASSIGN
@@ -461,40 +552,34 @@ PROCEDURE pParamAction :
                 cAction = ENTRY(2,ENTRY(idx,ttAction.action),":")
                 .
             IF iphWidget:SCREEN-VALUE EQ cValue THEN
-            FOR EACH bttAction
-                WHERE bttAction.paramID EQ ttAction.paramID,
-                FIRST dynParam
-                WHERE dynParam.paramID EQ bttAction.paramID
-                :
-                CASE cAction:
-                    WHEN "DISABLE" THEN
-                    bttACtion.paramWidget:READ-ONLY = YES.
-                    WHEN "ENABLE" THEN
-                    bttACtion.paramWidget:READ-ONLY = NO.
-                    WHEN "HI" THEN
-                    CASE dynParam.dataType:
-                        WHEN "CHARACTER" THEN
-                        bttACtion.paramWidget:SCREEN-VALUE = CHR(254).
-                        WHEN "DECIMAL" THEN
-                        bttACtion.paramWidget:SCREEN-VALUE = "99999999.99".
-                        WHEN "DATE" THEN
-                        bttACtion.paramWidget:SCREEN-VALUE = "12/31/2049".
-                        WHEN "INTEGER" THEN
-                        bttACtion.paramWidget:SCREEN-VALUE = "99999999".
-                    END CASE.
-                    WHEN "LOW" THEN
-                    CASE dynParam.dataType:
-                        WHEN "CHARACTER" THEN
-                        bttACtion.paramWidget:SCREEN-VALUE = CHR(32).
-                        WHEN "DECIMAL" THEN
-                        bttACtion.paramWidget:SCREEN-VALUE = "-99999999.99".
-                        WHEN "DATE" THEN
-                        bttACtion.paramWidget:SCREEN-VALUE = "1/1/1950".
-                        WHEN "INTEGER" THEN
-                        bttACtion.paramWidget:SCREEN-VALUE = "-99999999".
-                    END CASE.
+            CASE cAction:
+                WHEN "DISABLE" THEN
+                ttAction.paramWidget:READ-ONLY = YES.
+                WHEN "ENABLE" THEN
+                ttAction.paramWidget:READ-ONLY = NO.
+                WHEN "HI" THEN
+                CASE dynParam.dataType:
+                    WHEN "CHARACTER" THEN
+                    ttAction.paramWidget:SCREEN-VALUE = CHR(254).
+                    WHEN "DECIMAL" THEN
+                    ttAction.paramWidget:SCREEN-VALUE = "99999999.99".
+                    WHEN "DATE" THEN
+                    ttAction.paramWidget:SCREEN-VALUE = "12/31/2049".
+                    WHEN "INTEGER" THEN
+                    ttAction.paramWidget:SCREEN-VALUE = "99999999".
                 END CASE.
-            END. /* each bttaction */
+                WHEN "LOW" THEN
+                CASE dynParam.dataType:
+                    WHEN "CHARACTER" THEN
+                    ttAction.paramWidget:SCREEN-VALUE = CHR(32).
+                    WHEN "DECIMAL" THEN
+                    ttAction.paramWidget:SCREEN-VALUE = "-99999999.99".
+                    WHEN "DATE" THEN
+                    ttAction.paramWidget:SCREEN-VALUE = "1/1/1950".
+                    WHEN "INTEGER" THEN
+                    ttAction.paramWidget:SCREEN-VALUE = "-99999999".
+                END CASE.
+            END CASE.
         END. /* do idx */
     END. /* each ttaction */
 
@@ -608,7 +693,7 @@ PROCEDURE pResultsJasper :
     iphQuery:QUERY-OPEN.
     iphQuery:GET-FIRST().
     IF NOT iphQuery:QUERY-OFF-END THEN DO:
-        RUN pEmpty{1}Column IN hJasper.
+        RUN pEmptyttColumn IN hJasper.
         FOR EACH b{1}SubjectColumn
             WHERE b{1}SubjectColumn.subjectID EQ {1}Subject.subjectID
             :
@@ -616,7 +701,7 @@ PROCEDURE pResultsJasper :
                 hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(b{1}SubjectColumn.tableName)
                 cFieldName   = ENTRY(2,b{1}SubjectColumn.fieldName,".")
                 .
-            RUN pCreate{1}Column IN hJasper (
+            RUN pCreatettColumn IN hJasper (
                 cFieldName,
                 b{1}SubjectColumn.sortOrder,
                 YES,
@@ -725,9 +810,10 @@ PROCEDURE pRunSubject :
     DEFINE BUFFER {1}SubjectParamSet FOR {1}SubjectParamSet.
     DEFINE BUFFER {1}SubjectTable    FOR {1}SubjectTable.    
 
-    RUN pSetDefault.
-    RUN pSaveParamValues.
-        
+    RUN pSetDynParamValue.
+    IF iplRun THEN
+    RUN pSaveDynParamValues.
+
     cQueryStr = queryStr.
     IF INDEX(queryStr,"[[") NE 0 THEN
     DO idx = 1 TO EXTENT(dynParamValue.paramName):
@@ -735,8 +821,9 @@ PROCEDURE pRunSubject :
         cParam = "[[" + dynParamValue.paramName[idx] + "]]".
         IF INDEX(cQueryStr,cParam) NE 0 THEN
         CASE dynParamValue.paramDataType[idx]:
-            WHEN "Character" THEN
+            WHEN "Character" THEN DO:
             cQueryStr = REPLACE(cQueryStr,cParam,"~"" + dynParamValue.paramValue[idx] + "~"").
+            END.
             WHEN "Date" THEN DO:
                 dtDate = DATE(dynParamValue.paramValue[idx]) NO-ERROR.
                 ASSIGN
@@ -800,8 +887,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveParamValues Include 
-PROCEDURE pSaveParamValues :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveDynParamValues Include 
+PROCEDURE pSaveDynParamValues :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
@@ -823,7 +910,8 @@ PROCEDURE pSaveParamValues :
             hWidget = hWidget:FIRST-CHILD
             .
         DO WHILE VALID-HANDLE(hWidget):
-            IF hWidget:TYPE NE "BUTTON" AND
+            IF hWidget:TYPE NE "BUTTON"    AND
+               hWidget:TYPE NE "FRAME"     AND
                hWidget:TYPE NE "RECTANGLE" AND
                hWidget:TYPE NE "TEXT" THEN DO:
                 ASSIGN
@@ -837,6 +925,21 @@ PROCEDURE pSaveParamValues :
                 dynParamValue.paramFormat[idx] = hWidget:FORMAT.
             END. /* if type */
             hWidget = hWidget:NEXT-SIBLING.
+        END. /* do while */
+        ASSIGN
+            hWidget = FRAME frameShow:HANDLE
+            hWidget = hWidget:FIRST-CHILD
+            hWidget = hWidget:FIRST-CHILD
+            .
+        DO WHILE VALID-HANDLE(hWidget):
+            ASSIGN
+                idx = idx + 1
+                dynParamValue.paramName[idx]     = hWidget:NAME
+                dynParamValue.paramLabel[idx]    = hWidget:LABEL
+                dynParamValue.paramValue[idx]    = hWidget:SCREEN-VALUE
+                dynParamValue.paramDataType[idx] = hWidget:DATA-TYPE
+                hWidget                          = hWidget:NEXT-SIBLING
+                .
         END. /* do while */
         FIND CURRENT dynParamValue NO-LOCK.
     END. /* do trans */
@@ -861,4 +964,25 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetCompanyList Include
+PROCEDURE spGetCompanyList:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCompanyList AS CHARACTER NO-UNDO.
+    
+    FOR EACH company NO-LOCK:
+        cCompanyList = cCompanyList + company.company + ",".
+    END. /* each company */
+    cCompanyList = TRIM(cCompanyList).
+    
+    RETURN cCompanyList.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
