@@ -35,7 +35,7 @@ DEFINE VARIABLE lConfigBased AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cConfigFolder AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCommandFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iPos AS INTEGER NO-UNDO.
-
+DEFINE BUFFER bfFtpConfig FOR ftpConfig.
 {custom/ftpProcs.i}
 
         
@@ -89,6 +89,9 @@ FUNCTION GetPrepCmd2 RETURNS CHARACTER
 
 FUNCTION GetRmtChgDirCmd RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER, ipcChdir AS CHARACTER) FORWARD.
+
+FUNCTION setCmdLine RETURNS CHARACTER 
+    (INPUT ipiLine AS INTEGER, INPUT ipcCmd AS CHARACTER  ) FORWARD.
 
 /* ************************  Function Implementations ***************** */
 
@@ -357,12 +360,29 @@ FUNCTION GetRmtChgDirCmd RETURNS CHARACTER
 		
 END FUNCTION.
 
+FUNCTION setCmdLine RETURNS CHARACTER 
+    (INPUT ipiLine AS INTEGER, INPUT ipcCmd AS CHARACTER  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+
+	DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+    CREATE ttScriptLines.
+    ASSIGN ttScriptLines.scriptLineNum  = ipiLine
+           ttScriptLines.scriptLineText = ipcCmd
+           .
+    RETURN cResult.
+
+		
+END FUNCTION.
+
 /* ***************************  Main Block  *************************** */
 
 
 cConfigFolder = getConfigFolder(cConfigFile).
 RUN LoadConfig.
-DEFINE BUFFER bfFtpConfig FOR ftpConfig.
+
 RUN set-config-based (BUFFER bfftpConfig).
 
 IF NOT lConfigBased OR NOT AVAILABLE ftpConfig THEN 
@@ -402,6 +422,7 @@ PROCEDURE createScriptRecords:
     DEFINE VARIABLE cExecFtpCmd     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCloseCmd       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cExitCmd        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iLineNumber     AS INTEGER NO-UNDO.
     
     /* Winscp is the only option handled currently */
     IF ipFtpSoftware EQ "winSCP" THEN 
@@ -416,9 +437,6 @@ PROCEDURE createScriptRecords:
             FILE-INFO:FILE-NAME = cFtpIniFile.
             cFtpIniFile = " /ini=" + FILE-INFO:FULL-PATHNAME.
         END.
-            
-        OUTPUT TO VALUE(cConfigFolder + "\" + ftpConfig.ftpScript). 
-
         
         ASSIGN
         cPrepCmd1       = GetPrepCmd1(ipFtpSoftware)    
@@ -430,39 +448,26 @@ PROCEDURE createScriptRecords:
         cCloseCmd       = GetCloseCmd(ipFtpSoftware)      
         cExitCmd        = GetExitCmd(ipFtpSoftware)
         .       
-        PUT UNFORMATTED 
-            "option batch abort"                  SKIP.
-
-        PUT UNFORMATTED 
-            "option confirm off"                  SKIP.
-       
-        PUT UNFORMATTED "open " 
-            + ftpConfig.ftpMode + ":" + ftpConfig.ftpUser + ":" + ftpConfig.ftpPassword + "@" + ftpConfig.ftpSite SKIP.
-
-        /* Change to folder where files will be downloaded to */
-        PUT UNFORMATTED
-            "lcd " + ipcFolder                   SKIP. 
-
-        IF ftpConfig.ftpBinary GT "" THEN
-            PUT UNFORMATTED
-                ftpConfig.ftpBinary                   SKIP.
-
-        /* Folder on partner system where files exist to be downloaded */
-        IF ftpConfig.ftpDir GT "" THEN 
-            PUT UNFORMATTED
-                "cd " + ftpConfig.ftpDir          SKIP.            
-
-        PUT UNFORMATTED
-                ftpConfig.ftpCommand + " " +  ipcFileSpec  SKIP.            
-            
-        PUT UNFORMATTED    
-            "close"                               SKIP .     
-
-        PUT UNFORMATTED 
-            "Exit"                                SKIP.   
-
-        OUTPUT CLOSE.
-
+        iLineNumber = 10.
+        setCmdLine(iLineNumber, cPrepCmd1).
+        
+        iLineNumber = iLineNumber + 10.
+        setCmdLine(iLineNumber, cPrepCmd2).
+        
+        iLineNumber = iLineNumber + 10.
+        setCmdLine(iLineNumber, cOpenCmd). 
+        
+        iLineNumber = iLineNumber + 10.
+        setCmdLine(iLineNumber, cLocalChgDirCmd).
+        
+        iLineNumber = iLineNumber + 10.
+        setCmdLine(iLineNumber, cRmtChgDirCmd).
+        
+        iLineNumber = iLineNumber + 10.
+        setCmdLine(iLineNumber, cExecFtpCmd).
+        
+        iLineNumber = iLineNumber + 10.
+        setCmdLine(iLineNumber, cCloseCmd).
 
     END. /* WinScp */
 
@@ -514,3 +519,21 @@ PROCEDURE getConfigValues:
         lConfigBased = FALSE.
 
 END PROCEDURE. /* set-config-based */
+
+PROCEDURE pWriteToFile:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    OUTPUT TO VALUE(cConfigFolder + "\" + ftpConfig.ftpScript). 
+
+    FOR EACH ttScriptLines BY ttScriptLines.scriptLineNum:       
+
+      PUT UNFORMATTED ttScriptLines.scriptLineText SKIP.
+    END.
+    OUTPUT CLOSE.
+
+
+
+
+END PROCEDURE.
