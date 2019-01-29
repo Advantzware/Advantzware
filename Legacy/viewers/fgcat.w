@@ -567,6 +567,15 @@ PROCEDURE local-assign-record :
     end.
   end.
 
+FIND CURRENT fgcat EXCLUSIVE-LOCK NO-ERROR.
+ASSIGN
+  fgcat.miscCharge = v-charge
+  fgcat.brdExpAcct = v-gl-rm
+  fgcat.cogsExpAcct = v-gl-fg.
+FIND CURRENT fgcat NO-LOCK NO-ERROR.  
+
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -630,6 +639,16 @@ PROCEDURE local-display-fields :
   DO WITH FRAME {&FRAME-NAME}:
     cat-format:SCREEN-VALUE = STRING(fgcat.commrate EQ 1,"yes/no").
   END.
+
+  IF NOT adm-new-record THEN
+  DO:
+    ASSIGN
+          v-charge = fgcat.miscCharge
+          v-gl-rm  = fgcat.brdExpAcct
+          v-gl-fg  = fgcat.cogsExpAcct.
+  END.
+
+  DISPLAY v-charge v-gl-rm v-gl-fg WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
