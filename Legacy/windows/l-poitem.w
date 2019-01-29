@@ -297,7 +297,8 @@ DO:
                  po-ordl.i-name:screen-value in browse {&browse-name} + "," +
                  po-ordl.job-no:screen-value in browse {&browse-name} + "," +
                  po-ordl.job-no2:screen-value in browse {&browse-name} + "," +
-                 STRING(ROWID(po-ordl)) + ",".
+                 STRING(ROWID(po-ordl)) + "," +
+                 STRING(po-ordl.line).
 
    apply "window-close" to frame {&frame-name}. 
       

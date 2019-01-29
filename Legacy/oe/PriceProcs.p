@@ -62,18 +62,16 @@ FUNCTION fUseLastPrice RETURNS LOGICAL PRIVATE
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE CheckPriceHold:
+PROCEDURE CheckPriceHoldForCustShip:
     /*------------------------------------------------------------------------------
      Purpose: Checks Price Hold for passed criteria.  Adds record to ttPriceHold table.
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCustID   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcShipID   AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplPriceHold AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcPriceHoldReason AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplPriceHoldActive AS LOGICAL NO-UNDO.
 
     DEFINE VARIABLE cPriceHoldSetting     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lPriceHoldSet         AS LOGICAL   NO-UNDO.
@@ -81,29 +79,12 @@ PROCEDURE CheckPriceHold:
     DEFINE VARIABLE lQtyMatch             AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lEffectiveDateAge     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iEffectiveDateAgeDays AS INTEGER   NO-UNDO.
+    DEFINE BUFFER bf-oe-ord  FOR oe-ord.
 
-    RUN pGetPriceHoldCriteria(ipcCompany, 
-        OUTPUT lPriceHoldSet, OUTPUT lQtyInRange, OUTPUT lQtyMatch, OUTPUT lEffectiveDateAge, OUTPUT iEffectiveDateAgeDays).
-    IF NOT lPriceHoldSet THEN 
-    DO:
-        ASSIGN 
-            oplPriceHold       = NO
-            opcPriceHoldReason = "OEPriceHold Not Activated"
-            .
-    END.
-    ELSE 
-    DO:
-        EMPTY TEMP-TABLE ttPriceHold.
-        RUN pAddPriceHold(0, ipcCompany, ipcFGItemID, ipcCustID, ipcShipID, ipdQuantity,
-            lQtyMatch, lQtyInRange, lEffectiveDateAge, iEffectiveDateAgeDays). 
-        FIND FIRST ttPriceHold NO-LOCK NO-ERROR.
-        IF AVAILABLE ttPriceHold THEN 
-            ASSIGN
-                oplPriceHold       = ttPriceHold.lPriceHold
-                opcPriceHoldReason = ttPriceHold.cPriceHoldReason
-                .
-    END.
-
+    
+    RUN pGetPriceHoldCriteria(ipcCompany,ipcCustID,ipcShipID, OUTPUT oplPriceHoldActive, 
+        OUTPUT oplPriceHold, OUTPUT lQtyInRange, OUTPUT lQtyMatch, OUTPUT lEffectiveDateAge, OUTPUT iEffectiveDateAgeDays).
+            
 END PROCEDURE.
 
 PROCEDURE CheckPriceHoldForOrder:
@@ -122,6 +103,7 @@ PROCEDURE CheckPriceHoldForOrder:
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 
     DEFINE VARIABLE cPriceHoldSetting     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lPriceHoldActive      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lPriceHoldSet         AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lQtyInRange           AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lQtyMatch             AS LOGICAL   NO-UNDO.
@@ -132,13 +114,21 @@ PROCEDURE CheckPriceHoldForOrder:
         WHERE ROWID(bf-oe-ord) EQ ipriOeOrd
         NO-ERROR.
 
-    RUN pGetPriceHoldCriteria(bf-oe-ord.company, 
+    RUN pGetPriceHoldCriteria(bf-oe-ord.company,bf-oe-ord.cust-no,bf-oe-ord.ship-id, OUTPUT lPriceHoldActive,
         OUTPUT lPriceHoldSet, OUTPUT lQtyInRange, OUTPUT lQtyMatch, OUTPUT lEffectiveDateAge, OUTPUT iEffectiveDateAgeDays).
-    IF NOT lPriceHoldSet THEN 
+    IF NOT lPriceHoldActive THEN 
     DO:
         ASSIGN 
             oplPriceHold       = NO
             opcPriceHoldReason = "OEPriceHold Not Activated"
+            .
+        RETURN.
+    END.
+    IF NOT lPriceHoldSet THEN 
+    DO:
+        ASSIGN 
+            oplPriceHold       = NO
+            opcPriceHoldReason = "OEPriceHold Not Configured for Customer & Ship"
             .
         RETURN.
     END.
@@ -1009,7 +999,7 @@ PROCEDURE pGetPriceMatrix PRIVATE:
     IF ipbf-itemfg.i-code NE "S" THEN 
     DO:
         ASSIGN 
-            opcMatchDetail = "FG Item is not 'Stock'"
+            opcMatchDetail = "This FG item is configured as a non-inventoried (Not stocked) item"
             oplMatchFound  = NO 
             .
         RETURN.
@@ -1152,33 +1142,50 @@ PROCEDURE pSetBuffers PRIVATE:
     
 END PROCEDURE.
 
+PROCEDURE pGetPriceHoldCriteria PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns Price hold Criteria Settings
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcCustNo     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcShipId     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplPriceHoldActive AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplPriceCheck AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplQtyInRange AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplQtyMatch AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplEffectiveDateAge AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiEffectiveDateAgeDays AS INTEGER NO-UNDO.
+
+    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cCriteria  AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cAge       AS CHARACTER NO-UNDO.
+   
+    RUN sys/ref/nk1look.p (ipcCompany, "OEPriceHold", "L", NO, NO, "", "", OUTPUT cCriteria, OUTPUT lFound).
+    oplPriceHoldActive = lFound AND cCriteria EQ "YES".
+    RUN sys/ref/nk1look.p (ipcCompany, "OEPriceHold", "C", YES, YES, ipcCustNo, ipcShipId, OUTPUT cCriteria, OUTPUT lFound).
+    
+    IF lFound AND cCriteria NE "" THEN 
+    DO: 
+        ASSIGN 
+            oplPriceCheck       = YES
+            oplQtyInRange       = LOOKUP("QtyInRange",cCriteria) GT 0
+            oplQtyMatch         = LOOKUP("QtyMatch",cCriteria) GT 0
+            oplEffectiveDateAge = LOOKUP("EffDateAge",cCriteria) GT 0
+            .
+    END.
+    IF oplEffectiveDateAge THEN 
+    DO:
+        RUN sys/ref/nk1look.p (ipcCompany, "OEPriceHold", "I", YES, YES, ipcCustNo, ipcShipId, OUTPUT cAge, OUTPUT lFound).
+        IF lFound AND cAge NE "" THEN 
+            opiEffectiveDateAgeDays = INTEGER(cAge).
+        IF opiEffectiveDateAgeDays EQ 0 THEN 
+            opiEffectiveDateAgeDays = 365.
+    END.
+END PROCEDURE.
+
 
 /* ************************  Function Implementations ***************** */
-
-FUNCTION fCheckPriceHold RETURNS LOGICAL PRIVATE
-    ( ipcCompany AS CHARACTER ):
-    /*------------------------------------------------------------------------------
-     Purpose: Checks the logical value of OEPriceHold NK1
-     Notes: 
-    ------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE lCheckPriceHold AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lFound          AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cReturn         AS CHARACTER NO-UNDO. 
-    
-    RUN sys/ref/nk1look.p (ipcCompany,
-        "OEPriceHold",
-        "L",
-        NO,
-        NO,
-        "",
-        "",
-        OUTPUT cReturn,
-        OUTPUT lFound).
-
-    lCheckPriceHold = lFound AND cReturn EQ "YES".
-    RETURN lCheckPriceHold.
-		
-END FUNCTION.
 
 FUNCTION fUseLastPrice RETURNS LOGICAL PRIVATE
     ( ipcCompany AS CHARACTER ):
@@ -1204,57 +1211,4 @@ FUNCTION fUseLastPrice RETURNS LOGICAL PRIVATE
     RETURN lUseLastPrice.
 	
 END FUNCTION.
-
-PROCEDURE pGetPriceHoldCriteria PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Returns Price hold Criteria Settings
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplPriceCheck AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplQtyInRange AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplQtyMatch AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplEffectiveDateAge AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiEffectiveDateAgeDays AS INTEGER NO-UNDO.
-
-    DEFINE VARIABLE lFound    AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cCriteria AS CHARACTER NO-UNDO. 
-    DEFINE VARIABLE cAge      AS CHARACTER NO-UNDO.
-    
-    RUN sys/ref/nk1look.p (ipcCompany,
-        "OEPriceHold",
-        "C",
-        NO,
-        NO,
-        "",
-        "",
-        OUTPUT cCriteria,
-        OUTPUT lFound).
-
-    IF lFound AND cCriteria NE "" THEN 
-    DO: 
-        ASSIGN 
-            oplPriceCheck       = YES
-            oplQtyInRange       = LOOKUP("QtyInRange",cCriteria) GT 0
-            oplQtyMatch         = LOOKUP("QtyMatch",cCriteria) GT 0
-            oplEffectiveDateAge = LOOKUP("EffDateAge",cCriteria) GT 0
-            .
-    END.
-    IF oplEffectiveDateAge THEN 
-    DO:
-        RUN sys/ref/nk1look.p (ipcCompany,
-            "OEPriceHold",
-            "I",
-            NO,
-            NO,
-            "",
-            "",
-            OUTPUT cAge,
-            OUTPUT lFound).
-        IF lFound AND cAge NE "" THEN 
-            opiEffectiveDateAgeDays = INTEGER(cAge).
-        IF opiEffectiveDateAgeDays EQ 0 THEN 
-            opiEffectiveDateAgeDays = 365.
-    END.
-END PROCEDURE.
 

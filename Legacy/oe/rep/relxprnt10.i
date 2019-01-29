@@ -657,12 +657,18 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                break BY w-bin.w-date-time
                      by w-bin.w-qty[2] desc
                      by w-bin.w-qty[1] desc:
-          
-             assign
-                v-bin = SUBSTRING(w-bin.w-tag,16,20) + "/" +
+
+            IF SUBSTRING(w-bin.w-tag,1,15) EQ w-oe-rell.i-no THEN
+                assign
+                    v-bin = SUBSTRING(w-bin.w-tag,16,20) + "/" +
                         trim(w-bin.w-loc) + "/" +
                         trim(w-bin.w-bin)  .
-             
+            ELSE
+                ASSIGN 
+                v-bin = trim(w-bin.w-tag) + "/" +
+                        trim(w-bin.w-loc) + "/" +
+                        trim(w-bin.w-bin)  .
+           
              v-reljob = (w-bin.job + "-" + string(w-bin.job2,"99"))   .
 
              IF v-reljob EQ "-00" THEN v-reljob = "" .

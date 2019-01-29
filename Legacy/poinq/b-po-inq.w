@@ -2738,8 +2738,11 @@ PROCEDURE value-changed-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
    DO WITH FRAME {&FRAME-NAME}:
-      APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
-   END.
+       IF AVAIL po-ord THEN do:
+           RUN paper-clip-image-proc(INPUT po-ord.rec_key).
+           RUN dept-pan-image-proc.
+       END.
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

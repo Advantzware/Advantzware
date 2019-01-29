@@ -48,17 +48,17 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svCompany svLocation svAllDept svStartDept ~
-svEndDept svAllMachine svStartMachine svEndMachine svStartOpDate ~
-btnCalendar-1 svStartOpDateOption svEndOpDate btnCalendar-2 ~
-svEndOpDateOption svAllShift svStartShift svEndShift svUseTime svStartTime ~
-svStartAMPM svEndTime svEndAMPM svCustList btnCustList svAllCustNo ~
+svEndDept svAllShift svStartShift svEndShift svUseTime svStartTime ~
+svStartAMPM svEndTime svEndAMPM svStartOpDate btnCalendar-1 ~
+svStartOpDateOption svEndOpDate btnCalendar-2 svEndOpDateOption ~
+svAllMachine svStartMachine svEndMachine svCustList btnCustList svAllCustNo ~
 svStartCustNo svEndCustNo svPrintByScheduledMachine svRoundDecimals svSort 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svAllDept svStartDept ~
-startDeptName svEndDept endDeptName svAllMachine svStartMachine ~
-startMachineDescription svEndMachine endMachineDescription svStartOpDate ~
-svStartOpDateOption svEndOpDate svEndOpDateOption svAllShift svStartShift ~
-startShiftName svEndShift endShiftName svUseTime svStartTime svStartAMPM ~
-svEndTime svEndAMPM svCustList svAllCustNo svStartCustNo startCustName ~
+startDeptName svEndDept endDeptName svAllShift svStartShift startShiftName ~
+svEndShift endShiftName svUseTime svStartTime svStartAMPM svEndTime ~
+svEndAMPM svStartOpDate svStartOpDateOption svEndOpDate svEndOpDateOption ~
+svAllMachine svStartMachine startMachineDescription svEndMachine ~
+endMachineDescription svCustList svAllCustNo svStartCustNo startCustName ~
 svEndCustNo endCustName svPrintByScheduledMachine svRoundDecimals svSort 
 
 /* Custom List Definitions                                              */
@@ -217,11 +217,35 @@ DEFINE VARIABLE svStartTime AS CHARACTER FORMAT "99:99":U INITIAL "1200"
      SIZE 8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svSort AS CHARACTER 
-     VIEW-AS RADIO-SET HORIZONTAL
+     VIEW-AS RADIO-SET VERTICAL
      RADIO-BUTTONS 
           "Alphabetically", "Alphabetically",
 "By Start Time", "By Start Time"
-     SIZE 37.4 BY 1 NO-UNDO.
+     SIZE 17 BY 2.19 NO-UNDO.
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 81 BY 4.05.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79 BY 4.05.
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 81 BY 2.86.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 81 BY 6.43.
+
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79 BY 6.43.
+
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79 BY 2.86.
 
 DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
      LABEL "All Customers" 
@@ -256,7 +280,7 @@ DEFINE VARIABLE svPrintByScheduledMachine AS LOGICAL INITIAL no
 DEFINE VARIABLE svRoundDecimals AS LOGICAL INITIAL no 
      LABEL "Round Decimals" 
      VIEW-AS TOGGLE-BOX
-     SIZE 33 BY 1 NO-UNDO.
+     SIZE 21 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svUseTime AS LOGICAL INITIAL no 
      LABEL "Use Start/End Times (not Shift Tables)" 
@@ -267,87 +291,93 @@ DEFINE VARIABLE svUseTime AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 23 COLON-ALIGNED WIDGET-ID 60
-     svLocation AT ROW 1.24 COL 39 COLON-ALIGNED WIDGET-ID 130
-     svAllDept AT ROW 2.91 COL 25 HELP
+     svCompany AT ROW 1.24 COL 135 COLON-ALIGNED WIDGET-ID 60
+     svLocation AT ROW 1.24 COL 151 COLON-ALIGNED WIDGET-ID 130
+     svAllDept AT ROW 2.91 COL 21 HELP
           "All Departments?" WIDGET-ID 108
-     svStartDept AT ROW 4.1 COL 23 COLON-ALIGNED HELP
+     svStartDept AT ROW 4.1 COL 19 COLON-ALIGNED HELP
           "Enter Start Department" WIDGET-ID 112
-     startDeptName AT ROW 4.1 COL 32 COLON-ALIGNED HELP
+     startDeptName AT ROW 4.1 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 106
-     svEndDept AT ROW 5.29 COL 23 COLON-ALIGNED HELP
+     svEndDept AT ROW 5.29 COL 19 COLON-ALIGNED HELP
           "Enter End Department" WIDGET-ID 110
-     endDeptName AT ROW 5.29 COL 32 COLON-ALIGNED HELP
+     endDeptName AT ROW 5.29 COL 28 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 104
-     svAllMachine AT ROW 6.95 COL 25 HELP
-          "All Macines?" WIDGET-ID 58
-     svStartMachine AT ROW 8.14 COL 23 COLON-ALIGNED HELP
-          "Enter Start Machine" WIDGET-ID 22
-     startMachineDescription AT ROW 8.14 COL 37 COLON-ALIGNED HELP
-          "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
-     svEndMachine AT ROW 9.33 COL 23 COLON-ALIGNED HELP
-          "Enter End Machine" WIDGET-ID 20
-     endMachineDescription AT ROW 9.33 COL 37 COLON-ALIGNED HELP
-          "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svStartOpDate AT ROW 11 COL 23 COLON-ALIGNED HELP
-          "Enter Start Date" WIDGET-ID 72
-     btnCalendar-1 AT ROW 11 COL 41 WIDGET-ID 76
-     svStartOpDateOption AT ROW 11 COL 44 COLON-ALIGNED HELP
-          "Select Start Date Option" NO-LABEL WIDGET-ID 74
-     svEndOpDate AT ROW 12.19 COL 23 COLON-ALIGNED HELP
-          "Enter End Date" WIDGET-ID 68
-     btnCalendar-2 AT ROW 12.19 COL 41 WIDGET-ID 78
-     svEndOpDateOption AT ROW 12.19 COL 44 COLON-ALIGNED HELP
-          "Select End Date Option" NO-LABEL WIDGET-ID 70
-     svAllShift AT ROW 13.86 COL 25 HELP
+     svAllShift AT ROW 7.19 COL 21 HELP
           "All Shifts?" WIDGET-ID 118
-     svStartShift AT ROW 15.05 COL 23 COLON-ALIGNED HELP
+     svStartShift AT ROW 8.38 COL 19 COLON-ALIGNED HELP
           "Enter Start Shift" WIDGET-ID 122
-     startShiftName AT ROW 15.05 COL 28 COLON-ALIGNED HELP
+     startShiftName AT ROW 8.38 COL 24 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 116
-     svEndShift AT ROW 16.24 COL 23 COLON-ALIGNED HELP
+     svEndShift AT ROW 9.57 COL 19 COLON-ALIGNED HELP
           "Enter End Shift" WIDGET-ID 120
-     endShiftName AT ROW 16.24 COL 28 COLON-ALIGNED HELP
+     endShiftName AT ROW 9.57 COL 24 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 114
-     svUseTime AT ROW 17.43 COL 25 HELP
+     svUseTime AT ROW 10.76 COL 21 HELP
           "Select to Use Time vs Shift Table" WIDGET-ID 248
-     svStartTime AT ROW 18.62 COL 23 COLON-ALIGNED HELP
+     svStartTime AT ROW 11.95 COL 19 COLON-ALIGNED HELP
           "Enter Start Time" WIDGET-ID 222
-     svStartAMPM AT ROW 18.62 COL 31 COLON-ALIGNED HELP
+     svStartAMPM AT ROW 11.95 COL 27 COLON-ALIGNED HELP
           "Select AM/PM" NO-LABEL WIDGET-ID 244
-     svEndTime AT ROW 18.62 COL 52 COLON-ALIGNED HELP
+     svEndTime AT ROW 11.95 COL 48 COLON-ALIGNED HELP
           "Enter End Time" WIDGET-ID 228
-     svEndAMPM AT ROW 18.62 COL 60 COLON-ALIGNED HELP
+     svEndAMPM AT ROW 11.95 COL 56 COLON-ALIGNED HELP
           "Select AM/PM" NO-LABEL WIDGET-ID 246
-     svCustList AT ROW 20.29 COL 25.4 WIDGET-ID 48
-     btnCustList AT ROW 20.29 COL 55.4 WIDGET-ID 46
-     svAllCustNo AT ROW 21.48 COL 25.4 HELP
+     svStartOpDate AT ROW 13.86 COL 19 COLON-ALIGNED HELP
+          "Enter Start Date" WIDGET-ID 72
+     btnCalendar-1 AT ROW 13.86 COL 37 WIDGET-ID 76
+     svStartOpDateOption AT ROW 13.86 COL 40 COLON-ALIGNED HELP
+          "Select Start Date Option" NO-LABEL WIDGET-ID 74
+     svEndOpDate AT ROW 15.05 COL 19 COLON-ALIGNED HELP
+          "Enter End Date" WIDGET-ID 68
+     btnCalendar-2 AT ROW 15.05 COL 37 WIDGET-ID 78
+     svEndOpDateOption AT ROW 15.05 COL 40 COLON-ALIGNED HELP
+          "Select End Date Option" NO-LABEL WIDGET-ID 70
+     svAllMachine AT ROW 2.91 COL 101 HELP
+          "All Macines?" WIDGET-ID 58
+     svStartMachine AT ROW 4.1 COL 99 COLON-ALIGNED HELP
+          "Enter Start Machine" WIDGET-ID 22
+     startMachineDescription AT ROW 4.1 COL 113 COLON-ALIGNED HELP
+          "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
+     svEndMachine AT ROW 5.29 COL 99 COLON-ALIGNED HELP
+          "Enter End Machine" WIDGET-ID 20
+     endMachineDescription AT ROW 5.29 COL 113 COLON-ALIGNED HELP
+          "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
+     svCustList AT ROW 7.19 COL 101 WIDGET-ID 48
+     btnCustList AT ROW 7.19 COL 131 WIDGET-ID 46
+     svAllCustNo AT ROW 8.38 COL 101 HELP
           "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 22.67 COL 23.4 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 9.57 COL 99 COLON-ALIGNED HELP
           "Enter Beginning Customer" WIDGET-ID 2
-     startCustName AT ROW 22.67 COL 39.4 COLON-ALIGNED HELP
+     startCustName AT ROW 9.57 COL 115 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 23.86 COL 23.4 COLON-ALIGNED HELP
+     svEndCustNo AT ROW 10.76 COL 99 COLON-ALIGNED HELP
           "Enter Ending Customer" WIDGET-ID 6
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 85.8 BY 29.48.
+         SIZE 163.2 BY 17.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     endCustName AT ROW 23.86 COL 39.4 COLON-ALIGNED HELP
+     endCustName AT ROW 10.76 COL 115 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 8
-     svPrintByScheduledMachine AT ROW 25.52 COL 25.4 WIDGET-ID 124
-     svRoundDecimals AT ROW 26.71 COL 25.4 WIDGET-ID 126
-     svSort AT ROW 28.14 COL 25 HELP
+     svPrintByScheduledMachine AT ROW 13.86 COL 101 WIDGET-ID 124
+     svRoundDecimals AT ROW 15.05 COL 101 WIDGET-ID 126
+     svSort AT ROW 13.86 COL 145 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 84
      "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 25.76 COL 15 WIDGET-ID 90
+          SIZE 8 BY 1 AT ROW 13.86 COL 136 WIDGET-ID 90
+     RECT-1 AT ROW 2.67 COL 2 WIDGET-ID 250
+     RECT-2 AT ROW 2.67 COL 84 WIDGET-ID 252
+     RECT-3 AT ROW 13.62 COL 2 WIDGET-ID 254
+     RECT-4 AT ROW 6.95 COL 2 WIDGET-ID 256
+     RECT-5 AT ROW 6.95 COL 84 WIDGET-ID 258
+     RECT-6 AT ROW 13.62 COL 84 WIDGET-ID 260
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 85.8 BY 29.48
+         SIZE 163.2 BY 17
          TITLE "Report Parameters".
 
 
@@ -377,8 +407,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 29.48
-         WIDTH              = 85.8.
+         HEIGHT             = 17
+         WIDTH              = 163.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -400,7 +430,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME                                               */
+   NOT-VISIBLE FRAME-NAME Custom                                        */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
@@ -415,6 +445,18 @@ ASSIGN
 /* SETTINGS FOR FILL-IN endMachineDescription IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endShiftName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
    NO-ENABLE                                                            */

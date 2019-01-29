@@ -238,7 +238,7 @@ DEFINE RECTANGLE RECT-2
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 27 BY 3.33.
+     SIZE 34 BY 5.5.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -503,7 +503,7 @@ DEFINE FRAME F-Main
 "Offset", "O":U,
 "Silkscreen", "S":U
           SIZE 76 BY .62
-     item.linin-lb AT ROW 16.24 COL 15 COLON-ALIGNED
+     item.linin-lb AT ROW 17.24 COL 17 COLON-ALIGNED
           LABEL "Lin In/UOM"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -985,6 +985,10 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-mat-type NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+    FIND mat WHERE mat.mat EQ fi_mat-type:SCREEN-VALUE NO-LOCK NO-ERROR.
+    IF AVAIL mat THEN
+    mat_dscr:SCREEN-VALUE = mat.dscr.
 
    &Scoped-define mat-types-enable YES
     DO WITH FRAME {&FRAME-NAME}:

@@ -60,6 +60,7 @@ DEFINE VARIABLE lv-puruom       LIKE itemfg.pur-uom NO-UNDO.
 DEFINE VARIABLE v-shpmet        LIKE itemfg.ship-meth NO-UNDO.
 DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE lFound          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lCheckMessage   AS LOGICAL   NO-UNDO .
 
 DEFINE TEMP-TABLE w-est-no
     FIELD w-est-no LIKE itemfg.est-no
@@ -103,7 +104,7 @@ itemfg.case-pall itemfg.weight-100 itemfg.frt-class itemfg.frt-class-dscr ~
 itemfg.class itemfg.cc-code itemfg.prod-code itemfg.prod-notes ~
 itemfg.std-mat-cost itemfg.std-lab-cost itemfg.std-var-cost ~
 itemfg.std-fix-cost itemfg.spare-dec-1 itemfg.total-std-cost ~
-itemfg.avg-cost itemfg.last-cost itemfg.prod-uom 
+itemfg.avg-cost itemfg.last-cost itemfg.prod-uom itemfg.spare-dec-2
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS tg-Freeze-weight RECT-10 RECT-8 RECT-9 ~
@@ -120,7 +121,7 @@ itemfg.case-pall itemfg.weight-100 itemfg.frt-class itemfg.frt-class-dscr ~
 itemfg.class itemfg.cc-code itemfg.prod-code itemfg.prod-notes ~
 itemfg.std-mat-cost itemfg.std-lab-cost itemfg.std-var-cost ~
 itemfg.std-fix-cost itemfg.spare-dec-1 itemfg.total-std-cost ~
-itemfg.avg-cost itemfg.last-cost itemfg.prod-uom 
+itemfg.avg-cost itemfg.last-cost itemfg.prod-uom itemfg.spare-dec-2
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
 &Scoped-Define DISPLAYED-OBJECTS tb_taxable tgVaried tg-Freeze-weight ~
@@ -412,6 +413,10 @@ DEFINE FRAME F-Main
           LABEL "Full Cost" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+     itemfg.spare-dec-2 AT ROW 16.96 COL 124.6 COLON-ALIGNED WIDGET-ID 4
+          LABEL "C/in/Pallet" FORMAT "->>>>>>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
      itemfg.total-std-cost AT ROW 13.1 COL 124.6 COLON-ALIGNED
           LABEL "Total Std Cost" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
@@ -561,6 +566,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN itemfg.spare-char-1 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.spare-dec-1 IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN itemfg.spare-dec-2 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.spare-int-2 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
@@ -1105,6 +1112,22 @@ DO:
         END.
         {&methods/lValidateError.i NO}
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.stat V-table-Win
+ON VALUE-CHANGED OF itemfg.stat IN FRAME F-Main /* Set Header? */
+DO:
+    IF itemfg.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "I" THEN do:
+        lCheckMessage = YES .
+        RUN pCheckOnHandQty. 
+        lCheckMessage = NO .
+    END.
+    ELSE DO:
+        lCheckMessage = NO .
+    END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1774,10 +1797,8 @@ PROCEDURE local-create-record :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    FIND FIRST oe-ctrl WHERE oe-ctrl.company = gcompany NO-LOCK NO-ERROR.
 
     ASSIGN      
-        itemfg.i-code    = IF AVAILABLE oe-ctrl AND oe-ctrl.i-code THEN "S" ELSE "C"
         itemfg.pur-uom   = lv-puruom
         /* gdm - 11190901 */
         itemfg.ship-meth = v-shpmet
@@ -1957,6 +1978,9 @@ PROCEDURE local-update-record :
   
     RUN valid-loc NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+    RUN pCheckOnHandQty NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. 
 
     {&methods/lValidateError.i YES}
     DO WITH FRAME {&frame-name}:
@@ -2803,4 +2827,73 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckOnHandQty V-table-Win 
+PROCEDURE pCheckOnHandQty :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+DEFINE VARIABLE iQtyOnHand AS INTEGER NO-UNDO .
+DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO .
+
+  {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+        IF itemfg.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "I" THEN do:
+            FOR EACH fg-bin FIELDS(qty )
+               WHERE fg-bin.company EQ cocode
+                 AND fg-bin.i-no    EQ itemfg.i-no:SCREEN-VALUE
+                 NO-LOCK:
+             ASSIGN
+                iQtyOnHand = iQtyOnHand + fg-bin.qty.
+            END.
+            
+            IF iQtyOnHand GT 0 THEN DO:
+               MESSAGE "Remove all on hand quantity in order to make an item inactive." VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO itemfg.stat.
+               RETURN ERROR.
+            END.
+        END.
+
+      IF lCheckMessage EQ YES THEN do:
+       FOR EACH po-ordl FIELDS(po-no )  NO-LOCK
+           WHERE po-ordl.company EQ cocode
+           AND po-ordl.i-no EQ  itemfg.i-no:SCREEN-VALUE
+           AND po-ordl.opened  :
+           cMessage = " Po# " + string(po-ordl.po-no ) .
+           LEAVE.
+       END.
+
+       IF cMessage EQ "" THEN
+       FOR EACH oe-ordl FIELD(ord-no) NO-LOCK
+           WHERE oe-ordl.company EQ cocode
+           AND oe-ordl.i-no EQ itemfg.i-no:SCREEN-VALUE
+           AND oe-ordl.opened  :
+           cMessage = " Order# " + string(oe-ordl.ord-no ) .
+           LEAVE.
+       END.
+       IF cMessage EQ "" THEN
+       FOR EACH job-hdr FIELD(job-no)  NO-LOCK
+        WHERE  job-hdr.company EQ cocode
+          AND job-hdr.i-no EQ itemfg.i-no:SCREEN-VALUE
+          AND job-hdr.opened EQ YES :
+            cMessage = " Job# " + string(job-hdr.job-no ) .
+       END.
+
+       IF  cMessage NE "" THEN 
+           MESSAGE "You are setting this item to inactive yet it is still included in "  SKIP
+               "open/unprocessed transactions.  This includes:" cMessage VIEW-AS ALERT-BOX WARNING .
+
+      END.  /* lCheckMessage */
+          
+    END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

@@ -37,7 +37,6 @@ DEF TEMP-TABLE tt-rpt LIKE gl-rpt
                       FIELD pct       LIKE stot
                       FIELD pdscr     LIKE gl-rpt.dscr EXTENT 12
                       FIELD spct      LIKE tot
-                      FIELD main      AS LOGICAL
                       INDEX seq seq.
 
 DEF BUFFER b-tt-rpt FOR tt-rpt.
@@ -99,8 +98,7 @@ ASSIGN
     CREATE tt-rpt.
     BUFFER-COPY gl-rpt EXCEPT rec_key TO tt-rpt
     ASSIGN
-     tt-rpt.seq = i
-     tt-rpt.main = YES .
+     tt-rpt.seq = i.
 
     do i = 1 to 14:
       assign
@@ -267,7 +265,7 @@ ASSIGN
       if gl-rpt.type eq {gl/gl-type.i 61} then do jj = 1 to 14:
         stot[gl-rpt.level * 14 - 14 + jj] = - stot[gl-rpt.level * 14 - 14 + jj].
       end.
-    end. /* end subtotal */ 
+    end. /* end subtotal */
   end. /* each gl-rpt */
 
   /*release gl-rpt.*/
@@ -276,7 +274,7 @@ ASSIGN
   FOR EACH tt-rpt
       WHERE tt-rpt.type EQ {gl/gl-type.i 60} OR
             tt-rpt.type EQ {gl/gl-type.i 61}:
- 
+
     DO jj = 1 TO 12:
       IF SUBSTR(tt-rpt.flag,jj,1) EQ "Y"  THEN
       FOR EACH b-tt-rpt
@@ -295,15 +293,9 @@ ASSIGN
     END.
   END.
 
-  
   /* Print REPORT */
-
   for each tt-rpt break by tt-rpt.line by tt-rpt.seq with frame glinc:
-    
-      if tt-rpt.type ge 100 and not first(tt-rpt.line) AND tt-rpt.main EQ YES THEN page.
-        
-
- if tt-rpt.type ge 100 THEN tt-rpt.TYPE = tt-rpt.TYPE / 10 .
+    if tt-rpt.type ge 100 and not first(tt-rpt.line) then page.
 
     if skip-line = yes then do:
       skip-line = no.
@@ -314,7 +306,7 @@ ASSIGN
     end.
 
     /* DESCRIPTION ONLY */
-    if tt-rpt.type eq {gl/gl-type.i 90} AND tt-rpt.main NE YES then do with frame glinc:
+    if tt-rpt.type eq {gl/gl-type.i 90} then do with frame glinc:
       
       display tt-rpt.dscr @ prt-detail with no-labels no-box.
       down with frame glinc.
@@ -327,7 +319,7 @@ ASSIGN
     ELSE
       /* ACCOUNT DETAIL LINES */
     if tt-rpt.type ge {gl/gl-type.i 21} and
-       tt-rpt.type le {gl/gl-type.i 24} AND  tt-rpt.main NE YES then RUN display-line.
+       tt-rpt.type le {gl/gl-type.i 24} then RUN display-line.
 
     ELSE
     /* WE HIT A SUB-TOTAL LINE */
@@ -490,7 +482,7 @@ PROCEDURE display-line.
 
   DEF VAR pct_printed AS LOG INIT NO NO-UNDO.
   DEF VAR excel-str AS CHAR FORMAT "X(500)" NO-UNDO.
- 
+
   ASSIGN
    prt-detail = tt-rpt.dscr + FILL(" ",200)
    prt-detail = SUBSTR(prt-detail,1,v-d-wid)

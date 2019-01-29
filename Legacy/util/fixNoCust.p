@@ -71,7 +71,7 @@ ELSE
          cust.frt-pay = "P"
          cust.stat-grp = "W".
 
-cust.rec_key = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999").
+cust.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
 
 CREATE rec_key.
 ASSIGN

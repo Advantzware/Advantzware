@@ -327,6 +327,8 @@ IF NOT v-smr THEN
          v-amt[1]   = ar-invl.amt
          v-msf[1]   = ar-invl.amt-msf.
          item-name = ar-invl.i-name .
+         cCustPart = ar-invl.part-no .
+         iBolNo    = ar-invl.bol-no .
          IF item-name = "" AND AVAIL itemfg THEN
              item-name = itemfg.i-name .
 
@@ -379,7 +381,11 @@ IF NOT v-smr THEN
          v-amt[1]  = ar-cashl.amt-paid - ar-cashl.amt-disc
          v-uom     = ""
          v-qty[1]  = 0
-         v-cst[1]  = 0.
+         v-cst[1]  = 0
+         v-custpo = ""
+         item-name = "" 
+         cCustPart = ""
+         iBolNo    = 0 .
 
         release ar-inv.
 
@@ -416,6 +422,12 @@ IF NOT v-smr THEN
               no-lock:
             v-po-no-po = ar-invl.po-no-po.
             v-ord-no   = ar-invl.ord-no .
+            v-custpo = ar-invl.po-no.
+            item-name = ar-invl.i-name .
+            cCustPart = ar-invl.part-no .
+            iBolNo    = ar-invl.bol-no .
+             IF item-name = "" AND AVAIL itemfg THEN
+                 item-name = itemfg.i-name .
             leave.
           end.
 
@@ -506,7 +518,10 @@ IF NOT v-smr THEN
       FIND FIRST shipto where shipto.company eq cocode
           and shipto.cust-no eq cust.cust-no NO-LOCK NO-ERROR  .
 
-    
+     cBoardCode = "".
+     IF AVAIL ar-invl THEN 
+           RUN pgetBoard( ROWID(ar-invl) , OUTPUT cBoardCode) .
+
 
        ASSIGN cDisplay = ""
           cTmpField = ""
@@ -541,6 +556,10 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = IF AVAIL cust THEN STRING(cust.spare-char-2,"x(8)") ELSE "".
                  WHEN "mbr-no" THEN cVarValue = IF AVAIL shipto THEN STRING(shipto.spare-char-5,"x(10)") ELSE "".                   
                  WHEN "inv-uom" THEN cVarValue = STRING(v-uom,"x(3)").
+                 WHEN "board-code" THEN cVarValue = STRING(cBoardCode,"x(10)").
+                 WHEN "customer-part" THEN cVarValue = STRING(cCustPart,"x(15)").
+                 WHEN "bol" THEN cVarValue = STRING(iBolNo,">>>>>>").
+                 WHEN "sqft" THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.t-sqft,"->>>>9.999") ELSE "" .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -615,6 +634,10 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = "".
                  WHEN "mbr-no" THEN cVarValue = "". 
                  WHEN "inv-uom" THEN cVarValue =  "".
+                 WHEN "board-code" THEN cVarValue = "".
+                 WHEN "customer-part" THEN cVarValue = "".
+                 WHEN "bol" THEN cVarValue = "".
+                 WHEN "sqft" THEN cVarValue = "".
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -691,6 +714,10 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = "".
                  WHEN "mbr-no" THEN cVarValue = "".
                  WHEN "inv-uom" THEN cVarValue = "".
+                 WHEN "board-code" THEN cVarValue = "".
+                 WHEN "customer-part" THEN cVarValue = "".
+                 WHEN "bol" THEN cVarValue = "".
+                 WHEN "sqft" THEN cVarValue = "".
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -771,6 +798,10 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = "".
                  WHEN "mbr-no" THEN cVarValue = "". 
                  WHEN "inv-uom" THEN cVarValue = "".
+                 WHEN "board-code" THEN cVarValue = "".
+                 WHEN "customer-part" THEN cVarValue = "".
+                 WHEN "bol" THEN cVarValue = "".
+                 WHEN "sqft" THEN cVarValue = "".
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -822,7 +853,8 @@ IF NOT v-smr THEN
        v-cst[1]   = 0
        v-po-no-po = 0
        v-ord-no   = 0
-       v-pct      = 1.
+       v-pct      = 1
+       iBolNo     = 0.
 
       find first itemfg
           where itemfg.company eq cocode
@@ -847,6 +879,8 @@ IF NOT v-smr THEN
          v-amt[1]   = ar-invl.amt
          v-msf[1]   = ar-invl.amt-msf.
          item-name = ar-invl.i-name .
+         cCustPart = ar-invl.part-no .
+         iBolNo    = ar-invl.bol-no .
          IF item-name = "" AND AVAIL itemfg THEN
              item-name = itemfg.i-name .
 
@@ -899,8 +933,11 @@ IF NOT v-smr THEN
          v-amt[1]  = ar-cashl.amt-paid - ar-cashl.amt-disc
          v-uom     = ""
          v-qty[1]  = 0
-         v-cst[1]  = 0.
-
+         v-cst[1]  = 0
+         v-custpo  = ""
+         item-name = ""
+         cCustPart = ""
+         iBolNo    = 0.
         release ar-inv.
 
         RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
@@ -936,6 +973,12 @@ IF NOT v-smr THEN
               no-lock:
             v-po-no-po = ar-invl.po-no-po.
             v-ord-no   = ar-invl.ord-no .
+            v-custpo   = ar-invl.po-no.
+            item-name  = ar-invl.i-name .
+            cCustPart  = ar-invl.part-no .
+            iBolNo     = ar-invl.bol-no . 
+             IF item-name = "" AND AVAIL itemfg THEN
+                 item-name = itemfg.i-name .
             leave.
           end.
 
@@ -1037,6 +1080,10 @@ IF NOT v-smr THEN
 
     IF LAST-OF(tt-report2.key-07) THEN do:
 
+        cBoardCode = "".
+        IF AVAIL ar-invl THEN 
+           RUN pgetBoard( ROWID(ar-invl) , OUTPUT cBoardCode) .
+
        ASSIGN cDisplay = ""
           cTmpField = ""
           cVarValue = ""
@@ -1070,6 +1117,10 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = IF AVAIL cust THEN STRING(cust.spare-char-2,"x(8)") ELSE "".
                  WHEN "mbr-no" THEN cVarValue = IF AVAIL shipto THEN STRING(shipto.spare-char-5,"x(10)") ELSE "".                   
                  WHEN "inv-uom" THEN cVarValue = STRING(v-uom,"x(3)").
+                 WHEN "board-code" THEN cVarValue = STRING(cBoardCode,"x(10)").
+                 WHEN "customer-part" THEN cVarValue = STRING(cCustPart,"x(15)").
+                 WHEN "bol" THEN cVarValue = STRING(iBolNo,">>>>>>").
+                 WHEN "sqft" THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.t-sqft,"->>>>9.999") ELSE "".
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -1147,6 +1198,10 @@ IF NOT v-smr THEN
                  WHEN "grp-no" THEN cVarValue = "".
                  WHEN "mbr-no" THEN cVarValue = "". 
                  WHEN "inv-uom" THEN cVarValue = "".
+                 WHEN "board-code" THEN cVarValue = "".
+                 WHEN "customer-part" THEN cVarValue = "".
+                 WHEN "bol" THEN cVarValue = "".
+                 WHEN "sqft" THEN cVarValue = "".
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +

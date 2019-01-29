@@ -453,7 +453,7 @@ FOR EACH itemfg NO-LOCK
                  TRIM(fg-bin.job-no) + "-" +
                  STRING(fg-bin.job-no2,"99").
 
-  RUN fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0).
+  RUN fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0,"").
 
   IF tb_del-zer THEN DELETE fg-bin.
                 ELSE fg-bin.qty = 0.

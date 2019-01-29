@@ -18,7 +18,8 @@ DEFINE VARIABLE dPriceAmount LIKE oe-ord.t-revenue NO-UNDO.
 DEFINE VARIABLE dtMDate      AS   DATE             NO-UNDO.
 DEFINE VARIABLE iPerDays     AS   INTEGER          NO-UNDO EXTENT 2.
 DEFINE VARIABLE lPrtSqft     AS   LOGICAL          NO-UNDO.
-
+DEFINE VARIABLE c-result     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cResult      AS CHARACTER NO-UNDO.
 
 /* ************************  Function Prototypes ********************** */
 
@@ -504,6 +505,11 @@ PROCEDURE pOrdersBooked2:
                AND sman.sman    EQ w-data.sman
              NO-ERROR.
 
+        c-result = oe-ord.stat .
+        RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
+        IF cResult NE "" THEN
+            c-result  = cResult .
+
         CREATE ttOrdersBooked.
         ASSIGN 
             ttOrdersBooked.dueDate      = oe-ord.due-date                    
@@ -539,7 +545,13 @@ PROCEDURE pOrdersBooked2:
                                         + STRING(ttOrdersBooked.orderNo)  
 	        ttOrdersBooked.MachineCode  = fGetRoutingForJob()
             ttOrdersBooked.InksCode     = fGetInksForJob()
-            ttOrdersBooked.PrintSheet   = IF AVAILABLE itemfg THEN itemfg.plate-no ELSE ""           
+            ttOrdersBooked.PrintSheet   = IF AVAILABLE itemfg THEN itemfg.plate-no ELSE ""
+            ttOrdersBooked.dCstPerM     = IF AVAILABLE oe-ordl THEN oe-ordl.cost ELSE 0
+            ttOrdersBooked.dTotStdCost  = IF AVAILABLE oe-ordl THEN oe-ordl.t-cost ELSE 0
+            ttOrdersBooked.dFullCost    = IF AVAILABLE oe-ordl THEN oe-ordl.spare-dec-1 ELSE 0
+            ttOrdersBooked.cEnterBy     = oe-ord.entered-id
+            ttOrdersBooked.cStatus      = c-result
+
             . 
         DELETE w-data.
     END.  /* for each tt-report */

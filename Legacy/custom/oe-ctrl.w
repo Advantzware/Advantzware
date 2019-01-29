@@ -513,8 +513,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN.
   END.
 
-
-  DISABLE tgCreateSSBol.
   DO TRANSACTION:
     IF NOT CAN-FIND(FIRST ar-ctrl WHERE ar-ctrl.company EQ gcompany) THEN DO:
       CREATE ar-ctrl.
@@ -531,11 +529,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ gcompany NO-LOCK NO-ERROR.
   FIND FIRST ar-ctrl WHERE ar-ctrl.company EQ gcompany NO-LOCK NO-ERROR.
-  ENABLE tgCreateSSBol.
-  tgCreateSSBol:SCREEN-VALUE = (IF oe-ctrl.spare-int-1 EQ 1 THEN "YES" ELSE "NO").
-  DISABLE tgCreateSSBol.
+ 
   RUN enable_UI.
-
+  DO WITH FRAME {&FRAME-NAME}:
   ASSIGN fNextRFIDNum:SCREEN-VALUE = IF oe-ctrl.spare-char-1 = "" THEN "111110000000000000000000"
                                      ELSE oe-ctrl.spare-char-1
          tgCreateSSBol:SCREEN-VALUE = (IF oe-ctrl.spare-int-1 EQ 1 THEN "YES" ELSE "NO").
@@ -546,6 +542,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>").
   n-ord:SENSITIVE = NO.
+  END.
   {methods/nowait.i}
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN

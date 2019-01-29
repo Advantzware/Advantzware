@@ -27,17 +27,10 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 def buffer bf-item for item.
-DEF BUFFER b-qty FOR reftable.
-DEF BUFFER b-cost FOR reftable.
 DEF BUFFER b-setup FOR reftable.
-DEF BUFFER b-blank-vend-qty FOR reftable.
-DEF BUFFER b-blank-vend-cost FOR reftable.
 
-DEF BUFFER b2-qty FOR reftable.
-DEF BUFFER b2-cost FOR reftable.
 DEF BUFFER b2-setup FOR reftable.
-DEF BUFFER b2-blank-vend-qty FOR reftable.
-DEF BUFFER b2-blank-vend-cost FOR reftable.
+
 
 DEF VAR v-copy-record AS LOG NO-UNDO.
 DEF VAR v-old-vend-no AS CHAR NO-UNDO.
@@ -48,15 +41,13 @@ def temp-table tmpfile NO-UNDO
     field setups as dec.
 
 def var lv-roll-w like e-item-vend.roll-w no-undo.
+
 {custom/gcompany.i}
 {custom/persist.i}
+{system/fSuperRunning.i}
+
 def var uom-list as cha init ["M,EA,L,CS,C"] no-undo.
 DEF VAR char-hdl AS CHAR NO-UNDO.
-
-&SCOPED-DEFINE where-adders                         ~
-    WHERE reftable.rec_key  EQ e-item-vend.rec_key  ~
-      AND reftable.reftable EQ "e-item-vend.adders" ~
-    USE-INDEX rec_key
 
 DEF VAR gTerm AS cha NO-UNDO.
 DEF VAR gNewVendor AS LOG NO-UNDO.
@@ -978,8 +969,7 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  RUN reftable-values (NO).
-
+  
   EMPTY TEMP-TABLE tmpfile.
 
   do i = 1 to 26:
@@ -1016,43 +1006,17 @@ PROCEDURE local-assign-record :
         
         IF e-item-vend.vend-no EQ "" THEN
         DO:
-           FIND FIRST b-blank-vend-qty WHERE
-                b-blank-vend-qty.reftable = "blank-vend-qty" AND
-                b-blank-vend-qty.company = e-item.company and
-                    b-blank-vend-qty.CODE    = e-item.i-no
-                NO-ERROR.
-
-           IF NOT AVAIL b-blank-vend-qty THEN
-           DO:
-              CREATE b-blank-vend-qty.
-              ASSIGN
-                 b-blank-vend-qty.reftable = "blank-vend-qty"
-                 b-blank-vend-qty.company = e-item.company
-                     b-blank-vend-qty.CODE    = e-item.i-no.
+           FIND CURRENT e-item EXCLUSIVE-LOCK NO-ERROR.
+           
+           DO v-count = 1 TO 10:
+              e-item.runQty[v-count] = e-item-vend.runQtyXtra[v-count].
            END.
+
 
            DO v-count = 1 TO 10:
-                b-blank-vend-qty.val[v-count] = e-item-vend.runQtyXtra[v-count].
+              e-item.runCost[v-count] = e-item-vend.runCostXtra[v-count].
            END.
-
-           FIND FIRST b-blank-vend-cost WHERE
-                b-blank-vend-cost.reftable = "blank-vend-cost" AND
-                b-blank-vend-cost.company = e-item.company and
-                    b-blank-vend-cost.CODE    = e-item.i-no
-                NO-ERROR.
-
-           IF NOT AVAIL b-blank-vend-cost THEN
-           DO:
-              CREATE b-blank-vend-cost.
-              ASSIGN
-                 b-blank-vend-cost.reftable = "blank-vend-cost"
-                 b-blank-vend-cost.company = e-item.company
-                     b-blank-vend-cost.CODE    = e-item.i-no.
-           END.
-
-           DO v-count = 1 TO 10:
-                b-blank-vend-cost.val[v-count] = e-item-vend.runCostXtra[v-count].
-           END.
+           FIND CURRENT e-item NO-LOCK NO-ERROR.
         END.
      END.
   END.
@@ -1084,19 +1048,6 @@ PROCEDURE local-assign-record :
   i = 1.
 
   IF e-item-vend.vend-no EQ "" THEN
-  DO:
-     FIND FIRST b-blank-vend-qty WHERE
-          b-blank-vend-qty.reftable = "blank-vend-qty" AND
-          b-blank-vend-qty.company = e-item.company AND
-          b-blank-vend-qty.CODE    = e-item.i-no
-          NO-ERROR.
-
-     FIND FIRST b-blank-vend-cost WHERE
-          b-blank-vend-cost.reftable = "blank-vend-cost" AND
-          b-blank-vend-cost.company = e-item.company AND
-          b-blank-vend-cost.CODE    = e-item.i-no
-          NO-ERROR.
-  END.
 
   for each tmpfile by tmpfile.qty:
       if tmpfile.qty = 0 then next.
@@ -1111,17 +1062,17 @@ PROCEDURE local-assign-record :
             e-item-vend.runCostXtra[i - 10] = tmpfile.siz
             e-item-vend.setupsXtra[i - 10] = tmpfile.setups.
 
-      IF i GT 10 AND AVAIL b-blank-vend-qty AND AVAIL b-blank-vend-cost THEN
+      FIND CURRENT e-item EXCLUSIVE-LOCK NO-ERROR.
+      IF i GT 10 AND AVAIL e-item THEN
          ASSIGN
-            b-blank-vend-qty.val[i - 10] = tmpfile.qty
-            b-blank-vend-cost.val[i - 10] = tmpfile.siz.
+            e-item.runQty[i - 10] = tmpfile.qty
+            e-item.runCost[i - 10] = tmpfile.siz.  
 
-      i = i + 1.       
+      i = i + 1.      
+      FIND CURRENT e-item NO-LOCK NO-ERROR. 
   end.
 
-  RELEASE b-blank-vend-qty.
-  RELEASE b-blank-vend-cost.
-
+ 
   IF e-item-vend.vend-no EQ "" THEN
      do i = 1 to 10:
         assign e-item.run-qty[i] = e-item-vend.run-qty[i]
@@ -1132,6 +1083,8 @@ PROCEDURE local-assign-record :
   DO i = 1 TO 30:
      e-item.roll-w[i] = e-item-vend.roll-w[i].
   END.
+
+  RUN reftable-values (NO).
 
   FIND CURRENT e-item NO-LOCK.
 
@@ -1560,28 +1513,18 @@ PROCEDURE reftable-values :
 
 
   IF AVAIL e-item-vend THEN DO:
-    FIND FIRST reftable {&where-adders} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.rec_key  = e-item-vend.rec_key
-       reftable.reftable = "e-item-vend.adders"
-       reftable.company  = e-item-vend.company.
-    END.
     IF ip-display THEN
       ASSIGN
-       fi_width-min  = reftable.val[1] / 10000
-       fi_length-min = reftable.val[2] / 10000
-       fi_width-cst  = reftable.val[3] / 10000
-       fi_length-cst = reftable.val[4] / 10000.
+       fi_width-min  = e-item-vend.underWidth / 10000
+       fi_length-min = e-item-vend.underLength / 10000
+       fi_width-cst  = e-item-vend.underWidthCost / 10000
+       fi_length-cst = e-item-vend.underLengthCost / 10000.
     ELSE
       ASSIGN
-       reftable.val[1] = fi_width-min  * 10000
-       reftable.val[2] = fi_length-min * 10000
-       reftable.val[3] = fi_width-cst  * 10000
-       reftable.val[4] = fi_length-cst * 10000.
-
-    FIND CURRENT reftable NO-LOCK.
+       e-item-vend.underWidth = fi_width-min  * 10000
+       e-item-vend.underLength = fi_length-min * 10000
+       e-item-vend.underWidthCost = fi_width-cst  * 10000
+       e-item-vend.underLengthCost = fi_length-cst * 10000.
   END.
 
 END PROCEDURE.

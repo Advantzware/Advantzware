@@ -169,6 +169,18 @@ DEFINE VARIABLE svStartTime AS CHARACTER FORMAT "99:99":U INITIAL "1200"
      VIEW-AS FILL-IN 
      SIZE 8 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 73.8 BY 3.05.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 73.8 BY 4.
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 63 BY 7.38.
+
 DEFINE VARIABLE svAllMachine AS LOGICAL INITIAL yes 
      LABEL "All Machines" 
      VIEW-AS TOGGLE-BOX
@@ -188,49 +200,52 @@ DEFINE VARIABLE svUseTime AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 23 COLON-ALIGNED WIDGET-ID 60
-     svStartMachTranDate AT ROW 3.62 COL 23 COLON-ALIGNED HELP
+     svCompany AT ROW 1.24 COL 142 COLON-ALIGNED WIDGET-ID 60
+     svStartMachTranDate AT ROW 5.52 COL 28 COLON-ALIGNED HELP
           "Enter Start Transaction Date" WIDGET-ID 72
-     btnCalendar-1 AT ROW 3.62 COL 41 WIDGET-ID 76
-     svStartMachTranDateOption AT ROW 3.62 COL 44 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 5.52 COL 46 WIDGET-ID 76
+     svStartMachTranDateOption AT ROW 5.52 COL 49 COLON-ALIGNED HELP
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 74
-     svEndMachTranDate AT ROW 4.81 COL 23 COLON-ALIGNED HELP
+     svEndMachTranDate AT ROW 6.71 COL 28 COLON-ALIGNED HELP
           "Enter End Transaction Date" WIDGET-ID 68
-     btnCalendar-2 AT ROW 4.81 COL 41 WIDGET-ID 78
-     svEndMachTranDateOption AT ROW 4.81 COL 44 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 6.71 COL 46 WIDGET-ID 78
+     svEndMachTranDateOption AT ROW 6.71 COL 49 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
-     svAllMachine AT ROW 7.43 COL 25 HELP
+     svAllMachine AT ROW 8.62 COL 30 HELP
           "All Macines?" WIDGET-ID 58
-     svStartMachine AT ROW 8.62 COL 23 COLON-ALIGNED HELP
+     svStartMachine AT ROW 9.81 COL 28 COLON-ALIGNED HELP
           "Enter Start Machine" WIDGET-ID 22
-     startMachineDescription AT ROW 8.62 COL 37 COLON-ALIGNED HELP
+     startMachineDescription AT ROW 9.81 COL 42 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
-     svEndMachine AT ROW 9.81 COL 23 COLON-ALIGNED HELP
+     svEndMachine AT ROW 11 COL 28 COLON-ALIGNED HELP
           "Enter End Machine" WIDGET-ID 20
-     endMachineDescription AT ROW 9.81 COL 37 COLON-ALIGNED HELP
+     endMachineDescription AT ROW 11 COL 42 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svAllShift AT ROW 12.19 COL 25 HELP
+     svAllShift AT ROW 5.52 COL 97 HELP
           "All Shifts?" WIDGET-ID 216
-     svStartShift AT ROW 13.38 COL 23 COLON-ALIGNED HELP
+     svStartShift AT ROW 6.71 COL 95 COLON-ALIGNED HELP
           "Enter Start Shift" WIDGET-ID 220
-     startShiftDescription AT ROW 13.38 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 214
-     svEndShift AT ROW 14.57 COL 23 COLON-ALIGNED HELP
+     startShiftDescription AT ROW 6.71 COL 100 COLON-ALIGNED NO-LABEL WIDGET-ID 214
+     svEndShift AT ROW 7.91 COL 95 COLON-ALIGNED HELP
           "Enter End Shift" WIDGET-ID 218
-     endShiftDescription AT ROW 14.57 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 212
-     svUseTime AT ROW 15.76 COL 25 HELP
+     endShiftDescription AT ROW 7.91 COL 100 COLON-ALIGNED NO-LABEL WIDGET-ID 212
+     svUseTime AT ROW 9.81 COL 97 HELP
           "Select to Use Time vs Shift Table" WIDGET-ID 248
-     svStartTime AT ROW 16.95 COL 23 COLON-ALIGNED HELP
+     svStartTime AT ROW 11 COL 95 COLON-ALIGNED HELP
           "Enter Start Time" WIDGET-ID 222
-     svStartAMPM AT ROW 16.95 COL 31 COLON-ALIGNED HELP
+     svStartAMPM AT ROW 11 COL 103 COLON-ALIGNED HELP
           "Select AM/PM" NO-LABEL WIDGET-ID 244
-     svEndTime AT ROW 16.95 COL 52 COLON-ALIGNED HELP
+     svEndTime AT ROW 11 COL 124 COLON-ALIGNED HELP
           "Enter End Time" WIDGET-ID 228
-     svEndAMPM AT ROW 16.95 COL 60 COLON-ALIGNED HELP
+     svEndAMPM AT ROW 11 COL 132 COLON-ALIGNED HELP
           "Select AM/PM" NO-LABEL WIDGET-ID 246
+     RECT-1 AT ROW 5.05 COL 5 WIDGET-ID 250
+     RECT-2 AT ROW 8.38 COL 5 WIDGET-ID 252
+     RECT-3 AT ROW 5.05 COL 83 WIDGET-ID 254
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 70.6 BY 18.19
+         SIZE 149.2 BY 17
          TITLE "Report Parameters".
 
 
@@ -260,8 +275,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 18.19
-         WIDTH              = 70.6.
+         HEIGHT             = 17
+         WIDTH              = 149.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -283,7 +298,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME                                               */
+   NOT-VISIBLE FRAME-NAME Custom                                        */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
@@ -294,6 +309,12 @@ ASSIGN
 /* SETTINGS FOR FILL-IN endMachineDescription IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endShiftDescription IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startMachineDescription IN FRAME F-Main
    NO-ENABLE                                                            */

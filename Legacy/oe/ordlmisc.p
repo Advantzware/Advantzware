@@ -21,6 +21,7 @@ def var taxit           as   log init no.
 def var v-tax-rate      as   dec format ">,>>9.99<<<".
 def var v-frt-tax-rate  like v-tax-rate.
 DEF VAR v-tmp-int AS INT NO-UNDO.
+DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 
 {sys/inc/ceprep.i}
 {sys/inc/ceprepprice.i}
@@ -29,6 +30,16 @@ DO TRANSACTION:
   {sys/inc/OEPrepTaxCode.i}
 END.
 
+
+
+/* ************************  Function Prototypes ********************** */
+FUNCTION fGetTaxable RETURNS LOGICAL 
+	( ipcCompany AS CHARACTER,
+    ipcCust AS CHARACTER,
+    ipcShipto AS CHARACTER) FORWARD.
+
+/* ***************************  Main Block  *************************** */
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 find first ar-ctrl {ar/ar-ctrlW.i} no-lock no-error.
 
 find oe-ordl where ROWID(oe-ordl) eq ip-rowid no-lock no-error.
@@ -42,7 +53,7 @@ find first cust of oe-ord no-lock.
 
 run ar/cctaxrt.p (input cocode, oe-ord.tax-gr,
                   output v-tax-rate, output v-frt-tax-rate).
-taxit = cust.sort eq "Y" and oe-ord.tax-gr ne "".
+taxit = fGetTaxable(cocode, oe-ord.cust-no, oe-ord.ship-id).
 
 v-misc-tot = 0.
 
@@ -64,12 +75,17 @@ for each est-prep
                     
     no-lock:
 
-  find last oe-ordm of oe-ord no-lock no-error.
-  IF AVAIL oe-ordm AND 
-     (oe-ordm.estPrepEqty = est-prep.eqty and
-      oe-ordm.estPrepLine = est-prep.line and
-      oe-ordm.est-no  = est-prep.est-no) then next.   
+  FIND LAST oe-ordm NO-LOCK
+      WHERE oe-ordm.company EQ oe-ord.company
+        AND oe-ordm.ord-no  EQ oe-ord.ord-no
+        AND oe-ordm.charge  EQ est-prep.code
+        AND oe-ordm.est-no  EQ est-prep.est-no
+        AND oe-ordm.estPrepEqty EQ est-prep.eqty
+        AND oe-ordm.estPrepLine = est-prep.line
+      NO-ERROR.
+  IF AVAIL oe-ordm THEN NEXT.   
   
+  find last oe-ordm of oe-ord no-lock no-error.
   z = (if avail oe-ordm then oe-ordm.line else 0) + 1.
 
   create oe-ordm.
@@ -91,8 +107,7 @@ for each est-prep
 
   if taxit then oe-ordm.tax = true.
   IF PrepTax-log THEN 
-     ASSIGN oe-ordm.tax = TRUE
-            oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
+     ASSIGN oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
             .
   assign
    oe-ordm.dscr = est-prep.dscr
@@ -121,13 +136,18 @@ for each ef OF xeb no-lock:
        (ef.mis-bnum[i] eq xeb.blank-no or ef.mis-bnum[i] eq 0) 
                      
                          then do:
-
-      find last oe-ordm of oe-ord no-lock no-error.
-      IF AVAIL oe-ordm AND 
-                 (oe-ordm.estPrepEqty = ef.eqty AND
-                  oe-ordm.estPrepLine = ef.form-no AND
-                  oe-ordm.miscInd = STRING(i) AND
-                  oe-ordm.est-no  = ef.est-no)  THEN NEXT.
+                 
+      FIND LAST oe-ordm NO-LOCK
+          WHERE oe-ordm.company   EQ oe-ord.company
+          AND oe-ordm.ord-no      EQ oe-ord.ord-no            
+          AND oe-ordm.charge      EQ ef.mis-cost[i]
+          AND oe-ordm.est-no      EQ oe-ordl.est-no
+          AND oe-ordm.estPrepEqty EQ ef.eqty
+          AND oe-ordm.estPrepLine = ef.form-no
+          NO-ERROR.
+      IF AVAIL oe-ordm THEN NEXT. 
+        
+                          
       z = (if avail oe-ordm then oe-ordm.line else 0) + 1.
 
       create oe-ordm.
@@ -179,8 +199,10 @@ for each ef OF xeb no-lock:
   end.
 end. /* each ef */
 END. /* each xeb */
-
+DELETE OBJECT hdTaxProcs.
 RETURN.
+
+/* **********************  Internal Procedures  *********************** */
 
 PROCEDURE update-prep.
   ASSIGN
@@ -323,5 +345,25 @@ PROCEDURE update-prep.
   FIND CURRENT cust NO-LOCK.
 
 END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fGetTaxable RETURNS LOGICAL 
+	( ipcCompany AS CHARACTER,
+    ipcCust AS CHARACTER,
+    ipcShipto AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
+    RETURN lTaxable.
+
+
+		
+END FUNCTION.
 
 /* end ---------------------------------- copr. 1992  advanced software, inc. */

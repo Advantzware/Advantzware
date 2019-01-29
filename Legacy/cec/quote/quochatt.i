@@ -78,11 +78,11 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                 ELSE xqitm.part-dscr1.
      
       
-            PUT TRIM(lv-est-no) FORM "x(5)" AT 2
-                xqitm.part-no AT 9 FORMAT "x(15)" SPACE(1)
-
+            PUT SKIP "<C2><B>" TRIM(lv-est-no) FORM "x(5)" "</B>"
+                "<C8>"xqitm.part-no FORMAT "x(15)" SPACE(1)
+              
                 /* gdm - 11040801 deducted 2 char from format, used to be 30 - now 28*/
-                TRIM(lv-part-dscr1)  FORMAT "x(30)". 
+                "<C21>" TRIM(lv-part-dscr1)  FORMAT "x(30)". 
    
         END.
 
@@ -90,7 +90,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
             DO:  
                 IF ll-prt-dscr2 AND xqitm.part-dscr2 NE "" THEN 
                 do:
-                    PUT xquo.q-no "<C21>" xqitm.part-dscr2  .
+                    PUT "<B><C2>" xquo.q-no "</B><C21>" xqitm.part-dscr2  .
                     lPrintSecDscr = YES .
                 END.
                 ELSE 
@@ -127,7 +127,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                         END.
                     END.
                     ELSE 
-                        PUT  xquo.q-no   "<C21>FG#: " + lv-fg#  FORM "x(30)".
+                        PUT "<B><C2>" xquo.q-no "</B><C21>FG#: " + lv-fg#  FORM "x(30)".
       
                 END.
 
@@ -318,7 +318,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
             IF INDEX("TML",xqchg.bill) GT 0 THEN
                 PUT xqchg.charge       AT 22
                     /*   "Time & Materials" AT 45  */
-                    lv-chg-amt /*xqchg.amt*/  TO 80 SKIP.
+                    lv-chg-amt FORMAT  "$->>>,>>9.99" /*xqchg.amt*/  TO 80 SKIP.
 
             ELSE
                 IF xqchg.bill EQ "W" THEN
@@ -395,7 +395,7 @@ FOR EACH xqchg OF xquo NO-LOCK
         IF INDEX("TML",xqchg.bill) GT 0 THEN
             PUT xqchg.charge       AT 22
          
-                lv-chg-amt          TO 83  
+                lv-chg-amt FORMAT  "$->>>,>>9.99"  TO 83  
                 "EA"          AT 90 SKIP.
      
         ELSE

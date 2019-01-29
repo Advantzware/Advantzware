@@ -1462,8 +1462,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     tb_booked:SCREEN-VALUE = "NO".
     tb_booked:SENSITIVE = NO.
     /*when printing from estimate*/
-    IF INDEX(PROGRAM-NAME(4),"system/mainmenu") GT 0 THEN
-       ASSIGN v-quo-list:SCREEN-VALUE = "".
+      ASSIGN v-quo-list:SCREEN-VALUE = "".
 
     ASSIGN begin_cust:SCREEN-VALUE = quotehd.cust-no
            end_cust:SCREEN-VALUE   = begin_cust
@@ -1918,8 +1917,18 @@ PROCEDURE GenerateMail :
                v-print-fmt EQ "MSPACK-EXCEL") THEN
            RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
 
-        IF tb_HideDialog:CHECKED THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', lv-pdf-file + ".pdf", ip-quote-no).
-        ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer',  lv-pdf-file + ".pdf",ip-quote-no).
+        IF v-print-fmt EQ "PREMIER-EXCEL" THEN do:
+            FIND FIRST tt-filelist NO-LOCK NO-ERROR .
+            IF AVAIL tt-filelist THEN DO:
+                ASSIGN lv-pdf-file = tt-filelist.tt-FileName .
+            END.
+            IF tb_HideDialog:CHECKED THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', lv-pdf-file , ip-quote-no).
+            ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer',  lv-pdf-file ,ip-quote-no).
+        END.
+        ELSE do:
+            IF tb_HideDialog:CHECKED THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', lv-pdf-file + ".pdf", ip-quote-no).
+            ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer',  lv-pdf-file + ".pdf",ip-quote-no).
+        END.
      END.
 
      ELSE DO:

@@ -249,7 +249,8 @@ and inv-no le 611040:
         inv-head.t-inv-rev     = ar-inv.due            
         inv-head.t-inv-rev     = ar-inv.gross
         .
-
+    
+    RUN CopyShipNote (ar-inv.rec_key, inv-head.rec_key).
         
     FOR EACH ar-invl WHERE ar-invl.x-no EQ ar-inv.x-no
         AND ar-invl.misc = false /* ar-invl.dscr[1] NE "M" */:
@@ -885,5 +886,23 @@ PROCEDURE calc-tons :
         NO-ERROR.
     IF AVAILABLE b-itemfg AND b-itemfg.weight-100 NE 0 THEN
         op-weight = b-itemfg.weight-100 * ip-qty / 100.
+
+END PROCEDURE.
+
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
 
 END PROCEDURE.

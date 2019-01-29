@@ -31,7 +31,6 @@ CREATE WIDGET-POOL.
 ASSIGN cocode = g_company
        locode = g_loc.
 
-DEF SHARED VAR g-sharpshooter AS LOG NO-UNDO.
 
 def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
 def var ls-prev-po as cha no-undo.

@@ -6,7 +6,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: aoa/aoaLauncher.w
+  File: AOA/aoaLauncher.w
 
   Description: AOA Launcher
 
@@ -42,10 +42,10 @@ DEFINE VARIABLE ipcLaunchType AS CHARACTER NO-UNDO INITIAL "Report".
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE cColumnLabel       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cSaveLabel         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAscending         AS LOGICAL   NO-UNDO INITIAL YES.
-DEFINE VARIABLE lAccess            AS LOGICAL   NO-UNDO.
+{methods/defines/hndldefs.i}
+{methods/defines/sortByDefs.i}
+
+DEFINE VARIABLE lAccess      AS LOGICAL   NO-UNDO.
 
 DEFINE TEMP-TABLE ttModule NO-UNDO
     FIELD module   AS CHARACTER LABEL "Module"      FORMAT "x(5)"
@@ -59,11 +59,13 @@ DEFINE TEMP-TABLE ttAOA NO-UNDO
     FIELD menuID  AS CHARACTER LABEL "Menu ID"  FORMAT "x(4)"
         INDEX aoa IS PRIMARY UNIQUE aoaFile.
 
-RUN util/CheckModule.p ("ASI",
-                    IF ipcLaunchType EQ "Report" THEN "aoaReport"
-                    ELSE "aoaDashboard", 
-                    YES, 
-                    OUTPUT lAccess).
+RUN util/CheckModule.p (
+    "ASI",
+    IF ipcLaunchType EQ "Report" THEN "aoaReport"
+    ELSE "aoaDashboard", 
+    YES, 
+    OUTPUT lAccess
+    ).
 IF NOT lAccess THEN RETURN.
 
 /* _UIB-CODE-BLOCK-END */
@@ -110,7 +112,8 @@ IF NOT lAccess THEN RETURN.
     ~{&OPEN-QUERY-browseModule}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS browseModule browseAOA btnClose btnLaunch 
+&Scoped-Define ENABLED-OBJECTS btnTasks browseModule browseAOA btnClose ~
+btnLaunch 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -129,12 +132,21 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 DEFINE BUTTON btnClose 
      IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Close" 
-     SIZE 8 BY 1.67.
+     SIZE 8 BY 1.67 TOOLTIP "Close".
 
 DEFINE BUTTON btnLaunch 
      IMAGE-UP FILE "Graphics/32x32/rocket.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Launch" 
-     SIZE 8 BY 1.67.
+     SIZE 8 BY 1.67 TOOLTIP "Launch Selected Report".
+
+DEFINE BUTTON btnTasks 
+     IMAGE-UP FILE "Graphics/32x32/calendar_clock.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Tasks" 
+     SIZE 8 BY 1.67 TOOLTIP "Tasks".
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 38 BY 2.14.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -150,36 +162,44 @@ DEFINE BROWSE browseAOA
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browseAOA C-Win _FREEFORM
   QUERY browseAOA DISPLAY
       ttAOA.aoaFile LABEL-BGCOLOR 14
-    ttAOA.progID LABEL-BGCOLOR 14
-    ttAOA.menuID LABEL-BGCOLOR 14
-    ttAOA.module LABEL-BGCOLOR 14
+ttAOA.progID LABEL-BGCOLOR 14
+ttAOA.menuID LABEL-BGCOLOR 14
+ttAOA.module LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 73 BY 25.24
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 73 BY 28.33
          TITLE "AOA Files".
 
 DEFINE BROWSE browseModule
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browseModule C-Win _FREEFORM
   QUERY browseModule DISPLAY
       ttModule.module
-    ttModule.modDescr
+ttModule.modDescr
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 38 BY 25.24
-         TITLE "Modules".
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 38 BY 25.95
+         TITLE "AOA Modules".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     browseModule AT ROW 1.24 COL 2 WIDGET-ID 200
-     browseAOA AT ROW 1.24 COL 41 WIDGET-ID 300
-     btnClose AT ROW 26.71 COL 106 WIDGET-ID 2
-     btnLaunch AT ROW 26.71 COL 41 WIDGET-ID 4
+     btnTasks AT ROW 27.67 COL 17 HELP
+          "Tasks" WIDGET-ID 6
+     browseModule AT ROW 1.24 COL 2 HELP
+          "AOA Modules" WIDGET-ID 200
+     browseAOA AT ROW 1.24 COL 41 HELP
+          "AOA Reports" WIDGET-ID 300
+     btnClose AT ROW 27.67 COL 31 HELP
+          "Close" WIDGET-ID 2
+     btnLaunch AT ROW 27.67 COL 3 HELP
+          "Launch Selected Report" WIDGET-ID 4
+     RECT-1 AT ROW 27.43 COL 2 WIDGET-ID 8
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 114 BY 27.57 WIDGET-ID 100.
+         SIZE 114 BY 28.57
+         FGCOLOR 1  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -199,13 +219,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "AOA Launcher"
-         HEIGHT             = 27.57
+         HEIGHT             = 28.57
          WIDTH              = 114
-         MAX-HEIGHT         = 27.57
+         MAX-HEIGHT         = 28.57
          MAX-WIDTH          = 114
-         VIRTUAL-HEIGHT     = 27.57
+         VIRTUAL-HEIGHT     = 28.57
          VIRTUAL-WIDTH      = 114
-         RESIZE             = yes
+         MAX-BUTTON         = no
+         RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -227,19 +248,13 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB browseModule 1 DEFAULT-FRAME */
+/* BROWSE-TAB browseModule RECT-1 DEFAULT-FRAME */
 /* BROWSE-TAB browseAOA browseModule DEFAULT-FRAME */
 ASSIGN 
        browseAOA:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
-ASSIGN 
-       btnClose:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "WinKitRibbon".
-
-ASSIGN 
-       btnLaunch:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "WinKitRibbon".
-
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -331,7 +346,7 @@ END.
 &Scoped-define BROWSE-NAME browseModule
 &Scoped-define SELF-NAME browseModule
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseModule C-Win
-ON VALUE-CHANGED OF browseModule IN FRAME DEFAULT-FRAME /* Modules */
+ON VALUE-CHANGED OF browseModule IN FRAME DEFAULT-FRAME /* AOA Modules */
 DO:
   {&OPEN-QUERY-browseAOA}
 END.
@@ -356,8 +371,21 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLaunch C-Win
 ON CHOOSE OF btnLaunch IN FRAME DEFAULT-FRAME /* Launch */
 DO:
-  RUN VALUE("aoa/" + ttAOA.progID + "p").
+  RUN VALUE("AOA/" + ttAOA.progID + "p").
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnTasks
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTasks C-Win
+ON CHOOSE OF btnTasks IN FRAME DEFAULT-FRAME /* Tasks */
+DO:
+    RUN spSetTaskFilter (IF ttModule.module NE "*" THEN SUBSTR(ttModule.module,1,1) + "R" ELSE "","","").
+    RUN Get_Procedure IN Persistent-Handle ("aoaTasks.",OUTPUT run-proc,YES).
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -397,6 +425,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
+{methods/sortByProc.i "pByFile" "ttAOA.aoaFile"}
+{methods/sortByProc.i "pByMenuID" "ttAOA.menuID"}
+{methods/sortByProc.i "pByModule" "ttAOA.module"}
+{methods/sortByProc.i "pByProgID" "ttAOA.progID"}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -433,86 +466,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE browseModule browseAOA btnClose btnLaunch 
+  ENABLE btnTasks browseModule browseAOA btnClose btnLaunch 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByFile C-Win 
-PROCEDURE pByFile :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttAOA.aoaFile
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttAOA.aoaFile DESCENDING
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByMenuID C-Win 
-PROCEDURE pByMenuID :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttAOA.menuID
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttAOA.menuID DESCENDING
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByModule C-Win 
-PROCEDURE pByModule :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttAOA.module
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttAOA.module DESCENDING
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByProgID C-Win 
-PROCEDURE pByProgID :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttAOA.progID
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-    ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY ttAOA.progID DESCENDING
-    {&OPEN-QUERY-{&BROWSE-NAME}}
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -533,7 +490,7 @@ PROCEDURE pGetAOAFiles :
     DEFINE VARIABLE cProgID   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMenuID   AS CHARACTER NO-UNDO.
 
-    FILE-INFO:FILE-NAME = "aoa/datFiles/" + ipcLaunchDat + ".dat".
+    FILE-INFO:FILE-NAME = "AOA/datFiles/" + ipcLaunchDat + ".dat".
     INPUT FROM VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
     REPEAT:
         IMPORT cModule cAOAFile cProgID cMenuID.
@@ -547,7 +504,7 @@ PROCEDURE pGetAOAFiles :
     END. /* repeat */
     INPUT CLOSE.
 
-    FILE-INFO:FILE-NAME = "aoa/datFiles/Module.dat".
+    FILE-INFO:FILE-NAME = "AOA/datFiles/Module.dat".
     INPUT FROM VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
     REPEAT:
         IMPORT cModule cModDescr.

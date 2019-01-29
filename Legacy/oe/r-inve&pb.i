@@ -128,10 +128,11 @@ for each inv-line
     else
         if v-post then undo ordblock, next ordblock.
 
-    run oe/invlcost.p (ROWID(inv-line),
+    run oe/GetCostInvl.p (ROWID(inv-line),
         output v-cost[1], output v-cost[2],
         output v-cost[3], output v-cost[4],
-        output inv-line.cost, output inv-line.t-cost).
+        output inv-line.cost, OUTPUT inv-line.spare-char-2, 
+        output inv-line.t-cost, OUTPUT inv-line.spare-char-1).
     w-inv-line.t-cost = inv-line.t-cost.
     if inv-line.inv-qty ne 0 and
         inv-line.t-cost eq 0  and 

@@ -68,10 +68,7 @@
                  FOR EACH cust-part WHERE cust-part.company = itemfg.company   
                      AND cust-part.i-no = itemfg.i-no
                      AND cust-part.cust-no EQ cust.cust-no
-                     NO-LOCK, 
-                     FIRST reftable WHERE reftable.reftable = "cp-lab-p" 
-                     AND reftable.company = cust-part.company  
-                     AND reftable.loc = cust-part.i-no AND reftable.code = cust-part.cust-no NO-LOCK:
+                     NO-LOCK:
          
                      IF cust-part.spare-char-1 NE "" THEN do:
                          FIND FIRST sman WHERE sman.company = itemfg.company
@@ -554,7 +551,9 @@
                 WHEN "set-header" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.set-no,"X(15)") ELSE "" .
                 WHEN "qty-per-set" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.qtyPerSet) ELSE "" .
                 WHEN "cust-name" THEN cVarValue = STRING(v-cust-name,"X(30)") .
-                
+                WHEN "units" THEN cVarValue = STRING((tt-fg-bin.qty - tt-fg-bin.partial-count) / tt-fg-bin.case-count,"->>>>>>9").
+		        WHEN "unit-count" THEN cVarValue = STRING(tt-fg-bin.case-count,"->>>>>>>>9").	
+		        WHEN "partial" THEN cVarValue = STRING(tt-fg-bin.partial-count,"->>>>>9").	              
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -626,6 +625,9 @@
                 WHEN "set-header" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.set-no,"X(15)") ELSE "" .
                 WHEN "qty-per-set" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.qtyPerSet) ELSE "" .
                 WHEN "cust-name" THEN cVarValue = STRING(v-cust-name,"X(30)") .
+                WHEN "units" THEN cVarValue = STRING((tt-fg-bin.qty - tt-fg-bin.partial-count) / tt-fg-bin.case-count,"->>>>>>9").
+		        WHEN "unit-count" THEN cVarValue = STRING(tt-fg-bin.case-count,"->>>>>>>>9").	
+		        WHEN "partial" THEN cVarValue = STRING(tt-fg-bin.partial-count,"->>>>>9").	
                    
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -801,6 +803,9 @@
                 WHEN "set-header" THEN cVarValue = "" .
                 WHEN "qty-per-set" THEN cVarValue = "" .
                 WHEN "cust-name" THEN cVarValue = "" .
+                WHEN "units" THEN cVarValue = "".
+		        WHEN "unit-count" THEN cVarValue = "" .
+		        WHEN "partial" THEN cVarValue = "". 
                 
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -912,6 +917,9 @@
                 WHEN "set-header" THEN cVarValue = "" .
                 WHEN "qty-per-set" THEN cVarValue = "" .
                 WHEN "cust-name" THEN cVarValue = "" .
+                WHEN "units" THEN cVarValue = "".
+		        WHEN "unit-count" THEN cVarValue = "" .
+		        WHEN "partial" THEN cVarValue = "". 
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +

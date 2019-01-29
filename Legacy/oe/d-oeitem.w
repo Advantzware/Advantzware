@@ -161,8 +161,10 @@ DEFINE VARIABLE oeDateChange-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateChange-chr AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcLastDateChange AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 {oe/ttPriceHold.i "NEW SHARED"}
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 
 cocode = g_company.
 
@@ -416,9 +418,9 @@ oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
 oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
 &Scoped-define DISPLAYED-TABLES oe-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordl
-&Scoped-Define DISPLAYED-OBJECTS fiPromDtLabel fi_type-dscr fi_qty-uom ~
-spare-dec-1 fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 fi_sname-2 ~
-fi_sname-3 fi_sname-lbl fi_jobStartDate 
+&Scoped-Define DISPLAYED-OBJECTS fiPrevOrder fiPromDtLabel fi_type-dscr ~
+fi_qty-uom spare-dec-1 fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 ~
+fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -430,6 +432,41 @@ oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3
 
 
 /* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable d-oeitem
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER,
+   ipcCust AS CHARACTER,
+   ipcShipto AS CHARACTER,
+   ipcFGItemID AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIsCustPriceHoldExempt d-oeitem
+FUNCTION fIsCustPriceHoldExempt RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER,
+   ipcCustomerID AS CHARACTER,
+   ipcShipToID AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnPrevOrder d-oeitem
+FUNCTION fnPrevOrder RETURNS CHARACTER 
+    (ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOEScreenUOMConvert d-oeitem 
 FUNCTION fOEScreenUOMConvert RETURNS DECIMAL
@@ -482,6 +519,11 @@ DEFINE BUTTON Btn_OK
      LABEL "&Save" 
      SIZE 15 BY 1.14
      BGCOLOR 8 .
+
+DEFINE VARIABLE fiPrevOrder AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Prev Order" 
+     VIEW-AS FILL-IN 
+     SIZE 17.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiPromDtLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Promise Date:" 
      VIEW-AS FILL-IN 
@@ -564,8 +606,9 @@ DEFINE QUERY d-oeitem FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME d-oeitem
+     fiPrevOrder AT ROW 9.33 COL 93.4 COLON-ALIGNED WIDGET-ID 28
      fiPromDtLabel AT ROW 14.57 COL 103.8 COLON-ALIGNED NO-LABEL WIDGET-ID 26
-     fi_type-dscr AT ROW 7.67 COL 117.8 COLON-ALIGNED NO-LABEL
+     fi_type-dscr AT ROW 7.67 COL 119.4 COLON-ALIGNED NO-LABEL
      oe-ordl.est-no AT ROW 1.24 COL 15.6 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -663,13 +706,13 @@ DEFINE FRAME d-oeitem
      spare-dec-1 AT ROW 6.48 COL 93 COLON-ALIGNED HELP
           "" WIDGET-ID 4
           LABEL "Full Cost" FORMAT "->>,>>9.99"
-     oe-ordl.type-code AT ROW 7.67 COL 112 COLON-ALIGNED NO-LABEL
+     oe-ordl.type-code AT ROW 7.67 COL 113.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1 TOOLTIP "(O)riginal, (R)epeat, Repeat with (C)hange, inhouse (T)ransfer"
-     oe-ordl.managed AT ROW 9 COL 114
+     oe-ordl.managed AT ROW 9 COL 115.6
           VIEW-AS TOGGLE-BOX
           SIZE 27 BY .81
-     oe-ordl.whsed AT ROW 9.86 COL 114 HELP
+     oe-ordl.whsed AT ROW 9.86 COL 115.6 HELP
           "Is line item warehoused?" WIDGET-ID 2
           LABEL "Run && Ship"
           VIEW-AS TOGGLE-BOX
@@ -800,6 +843,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN oe-ordl.est-no IN FRAME d-oeitem
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN fiPrevOrder IN FRAME d-oeitem
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiPromDtLabel IN FRAME d-oeitem
    NO-ENABLE                                                            */
 ASSIGN 
@@ -861,10 +906,10 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-char-2 IN FRAME d-oeitem
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
-   NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
+   NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
 /* SETTINGS FOR FILL-IN oe-ordl.t-price IN FRAME d-oeitem
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ordl.tax IN FRAME d-oeitem
@@ -1470,13 +1515,14 @@ DO:
                        VIEW-AS ALERT-BOX ERROR .                       
                RETURN NO-APPLY.
           END.
-
+          fiPrevOrder:SCREEN-VALUE = fnPrevOrder(eb.est-no, oe-ord.ord-no).
        END.
       
       IF oe-ordl.est-no:SCREEN-VALUE GT "" AND runship-char EQ "RUN&SHIP Prompt" THEN 
           asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
       ELSE IF oe-ordl.est-no:SCREEN-VALUE GT "" AND runship-char EQ "DefaultOnly" AND runship-log = YES THEN 
           asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
+          
     END.
 END.
 
@@ -1598,6 +1644,8 @@ DO:
   DEF VAR ls-est-no AS cha NO-UNDO.
   DEF VAR ls-uom AS cha NO-UNDO.
   DEF VAR ll-secure AS LOG NO-UNDO.
+  DEFINE VARIABLE cLoc AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
 
   IF LASTKEY EQ -1 AND NOT historyButton THEN DO:
     IF ll-bypass THEN ll-bypass = NO.
@@ -1607,7 +1655,23 @@ DO:
 
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+ 
+  IF NOT AVAIL oe-ord THEN
+       FIND FIRST oe-ord NO-LOCK 
+        WHERE oe-ord.company EQ cocode
+        AND oe-ord.ord-no  EQ oe-ordl.ord-no
+        NO-ERROR.
+  IF AVAILABLE oe-ord THEN 
+    FIND FIRST shipto NO-LOCK 
+        WHERE shipto.company EQ oe-ord.company
+        AND shipto.cust-no EQ oe-ord.cust-no
+        AND shipto.ship-id EQ oe-ord.ship-id
+        NO-ERROR.
+  IF AVAILABLE shipto THEN 
+        ASSIGN 
+            cLoc = shipto.loc
+            cLocBin = shipto.loc-bin
+            . 
   IF ll-bypass THEN DO:
     ll-bypass = NO.
     RETURN.
@@ -1647,7 +1711,7 @@ DO:
        /* Task 04171308 */
        IF (oefgadd-log AND llOEFGAdd-sec) OR ls-est-no GT "" THEN
          RUN oe/d-citmfg.w (ls-est-no, INPUT-OUTPUT ls-i-no,
-                            INPUT-OUTPUT ls-part-no,INPUT-OUTPUT ls-uom) NO-ERROR.
+                            INPUT-OUTPUT ls-part-no,INPUT-OUTPUT ls-uom, INPUT-OUTPUT cLoc, INPUT-OUTPUT cLocBin) NO-ERROR.
        ELSE IF ls-i-no NE "" AND ls-est-no EQ "" THEN DO:
            MESSAGE "Please enter a valid item number."
                VIEW-AS ALERT-BOX INFO BUTTONS OK.
@@ -1688,11 +1752,11 @@ DO:
                             AND xef.form-no = xeb.form-no
                             NO-LOCK NO-ERROR.      
 
-                 RUN crt-itemfg (SELF:screen-value,oe-ordl.pr-uom:SCREEN-VALUE). /*(self:screen-value,"M")*/
+                 RUN crt-itemfg (SELF:screen-value,oe-ordl.pr-uom:SCREEN-VALUE, cLoc, cLocBin). /*(self:screen-value,"M")*/
              END.    
           END.   
           ELSE  /* no xest or oe-ordl.est-no = "" */
-             RUN crt-itemfg (SELF:screen-value,oe-ordl.pr-uom:screen-value).  /*(self:screen-value,"M")*/          
+             RUN crt-itemfg (SELF:screen-value,oe-ordl.pr-uom:screen-value, cLoc, cLocBin).  /*(self:screen-value,"M")*/          
        END. 
        
        RUN display-fgitem NO-ERROR.
@@ -2711,11 +2775,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
  
  IF ip-type NE "view" THEN DO:
-    IF llOEPrcChg-sec THEN  
+    IF llOEPrcChg-sec OR fIsCustPriceHoldExempt(oe-ordl.company, oe-ordl.cust-no, oe-ordl.ship-id) THEN  
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES.
     ELSE DO:        
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
-    END.
+    END.    
+        
  END.
 
   IF fgsecurity-log THEN
@@ -3065,7 +3130,12 @@ PROCEDURE check-quote :
              (tt-item-qty-price.part-no EQ ip-part-no AND ip-part-no EQ ""))) 
             THEN DO:
 
-              FOR EACH quoteitm WHERE quoteitm.company = oe-ord.company AND
+             FOR EACH quotehd NO-LOCK 
+                 WHERE quotehd.company EQ oe-ord.company AND
+                       quotehd.est-no EQ oe-ordl.est-no:SCREEN-VALUE AND 
+                       quotehd.quo-date LE TODAY AND
+                       (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) ,
+              EACH quoteitm OF quotehd WHERE quoteitm.company = oe-ord.company AND
                                 quoteitm.est-no = oe-ordl.est-no:SCREEN-VALUE  AND
                                 (quoteitm.part-no = ip-part-no OR ip-part-no <> ""),
                  EACH quoteqty WHERE quoteqty.company = quoteitm.company AND
@@ -3214,6 +3284,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-item d-oeitem 
 PROCEDURE create-item :
 /*------------------------------------------------------------------------------
@@ -3247,7 +3342,6 @@ IF AVAIL oe-ord THEN DO:
     bf-oe-ordl.prom-code = oe-ord.due-code
     bf-oe-ordl.prom-date = oe-ord.due-date
     bf-oe-ordl.disc      = cust.disc
-    bf-oe-ordl.tax       = cust.sort EQ "Y" AND oe-ord.tax-gr NE ""
     bf-oe-ordl.over-pct  = oe-ord.over-pct   
     bf-oe-ordl.under-pct = oe-ord.under-pct
     .
@@ -3261,10 +3355,9 @@ IF AVAIL oe-ord THEN DO:
 
        ASSIGN bf-oe-ordl.prom-date = bf-oe-ordl.req-date.
    END.
-
-
-   {custom/shptotax.i oe-ord.cust-no oe-ord.sold-id bf-oe-ordl.tax}
-
+    
+   bf-oe-ordl.tax = fGetTaxable(oe-ord.company, oe-ord.cust-no, oe-ord.ship-id, "").
+  
    FOR LAST b-oe-ordl OF oe-ord
        WHERE ROWID(b-oe-ordl) NE ROWID(bf-oe-ordl)
        NO-LOCK
@@ -3332,8 +3425,15 @@ PROCEDURE create-job :
         FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
                               AND oe-ord.ord-no  EQ oe-ordl.ord-no
                             NO-ERROR.
+                            
+  v-job-job = 1.
   FIND LAST job WHERE job.company EQ cocode USE-INDEX job NO-LOCK NO-ERROR.
-  v-job-job = IF AVAIL job THEN job.job + 1 ELSE 1.
+  FIND LAST job-hdr WHERE job-hdr.company EQ cocode
+        USE-INDEX job NO-LOCK NO-ERROR.
+  /* In case job is not found and 1 is not the true last job# */
+  IF AVAILABLE job-hdr AND  job-hdr.job GT v-job-job THEN v-job-job = job-hdr.job + 1.
+  IF AVAILABLE job AND job.job GE v-job-job THEN v-job-job = job.job + 1.
+
   DO v-i = 1 TO 10:
       FIND job WHERE job.company EQ cocode 
            AND job.job = v-job-job USE-INDEX job 
@@ -3581,37 +3681,22 @@ IF TRUE OR ( NOT AVAIL xoe-rel OR oe-ordl.est-no NE "" ) THEN DO:
       END.
       
       /* gdm - 06220908 */
-      IF v-relflg2 THEN
-      ASSIGN oe-rel.ship-no      = shipto.ship-no
-      oe-rel.ship-id      = shipto.ship-id
-      oe-rel.ship-addr[1] = shipto.ship-addr[1]
-      oe-rel.ship-addr[2] = shipto.ship-addr[2]
-      oe-rel.ship-city    = shipto.ship-city
-      oe-rel.ship-state   = shipto.ship-state
-      oe-rel.ship-zip     = shipto.ship-zip
-      oe-rel.ship-i[1] = shipto.notes[1]
-      oe-rel.ship-i[2] = shipto.notes[2]
-      oe-rel.ship-i[3] = shipto.notes[3]
-      oe-rel.ship-i[4] = shipto.notes[4]
-      oe-rel.spare-char-1 = shipto.loc.
-      /* gdm - 06220908 end */
-      
-      /* maybe later */
-      /*             IF shipto.notes[1] <> "" OR shipto.notes[2] <> "" OR                          */
-      /*                shipto.notes[3] <> "" OR shipto.notes[4] <> "" THEN DO:                    */
-      /*                   FIND FIRST notes WHERE notes.rec_key = oe-rel.rec_key NO-LOCK NO-ERROR. */
-      /*                   IF NOT AVAIL notes THEN DO:                                             */
-      /*                      CREATE notes.                                                        */
-      /*                      ASSIGN notes.rec_key = oe-rel.rec_key                                */
-      /*                             notes.note_date = TODAY                                       */
-      /*                             notes.note_title = shipto.notes[1]                            */
-      /*                             notes.note_text = shipto.notes[1] + CHR(13) +                 */
-      /*                                               shipto.notes[2] + CHR(13) +                 */
-      /*                                               shipto.notes[3] + CHR(13) +                 */
-      /*                                               ship.notes[4] + CHR(13).                    */
-      /*                    END.                                                                   */
-      /*             END.                                                                          */
-      
+      IF v-relflg2 THEN DO:
+          ASSIGN oe-rel.ship-no      = shipto.ship-no
+          oe-rel.ship-id      = shipto.ship-id
+          oe-rel.ship-addr[1] = shipto.ship-addr[1]
+          oe-rel.ship-addr[2] = shipto.ship-addr[2]
+          oe-rel.ship-city    = shipto.ship-city
+          oe-rel.ship-state   = shipto.ship-state
+          oe-rel.ship-zip     = shipto.ship-zip
+          oe-rel.ship-i[1] = shipto.notes[1]
+          oe-rel.ship-i[2] = shipto.notes[2]
+          oe-rel.ship-i[3] = shipto.notes[3]
+          oe-rel.ship-i[4] = shipto.notes[4]
+          oe-rel.spare-char-1 = shipto.loc.
+          /* gdm - 06220908 end */
+          RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+      END. /*v-relflg2*/
       /* if add mode then use default carrier */
       /*   if sel = 3 /* and NOT oe-rel.carrier ENTERED */ then do: */
       FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -3675,39 +3760,25 @@ IF TRUE OR ( NOT AVAIL xoe-rel OR oe-ordl.est-no NE "" ) THEN DO:
     IF AVAIL shipto THEN DO:
       
       /* gdm - 06220908 */
-      IF v-relflg2 THEN
-      ASSIGN  oe-rel.ship-no      = shipto.ship-no
-              oe-rel.ship-id      = shipto.ship-id
-              oe-rel.ship-addr[1] = shipto.ship-addr[1]
-              oe-rel.ship-addr[2] = shipto.ship-addr[2]
-              oe-rel.ship-city    = shipto.ship-city
-              oe-rel.ship-state   = shipto.ship-state
-              oe-rel.ship-zip     = shipto.ship-zip
-              oe-rel.ship-i[1] = shipto.notes[1]
-              oe-rel.ship-i[2] = shipto.notes[2]
-              oe-rel.ship-i[3] = shipto.notes[3]
-              oe-rel.ship-i[4] = shipto.notes[4]
-              oe-rel.spare-char-1 = shipto.loc.
-      
+      IF v-relflg2 THEN DO:
+          ASSIGN  oe-rel.ship-no      = shipto.ship-no
+                  oe-rel.ship-id      = shipto.ship-id
+                  oe-rel.ship-addr[1] = shipto.ship-addr[1]
+                  oe-rel.ship-addr[2] = shipto.ship-addr[2]
+                  oe-rel.ship-city    = shipto.ship-city
+                  oe-rel.ship-state   = shipto.ship-state
+                  oe-rel.ship-zip     = shipto.ship-zip
+                  oe-rel.ship-i[1] = shipto.notes[1]
+                  oe-rel.ship-i[2] = shipto.notes[2]
+                  oe-rel.ship-i[3] = shipto.notes[3]
+                  oe-rel.ship-i[4] = shipto.notes[4]
+                  oe-rel.spare-char-1 = shipto.loc.
+          RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+      END.
       /* check that itemfg-loc exists */
       IF oe-rel.spare-char-1 GT "" THEN
         RUN fg/chkfgloc.p (INPUT oe-rel.i-no, INPUT oe-rel.spare-char-1).
-      /* ===== maybe later ========*/
-      /*                IF shipto.notes[1] <> "" OR shipto.notes[2] <> "" OR                        */
-      /*                    shipto.notes[3] <> "" OR shipto.notes[4] <> "" THEN DO:                 */
-      /*                    FIND FIRST notes WHERE notes.rec_key = oe-rel.rec_key NO-LOCK NO-ERROR. */
-      /*                    IF NOT AVAIL notes THEN DO:                                             */
-      /*                      CREATE notes.                                                         */
-      /*                      ASSIGN notes.rec_key = oe-rel.rec_key                                 */
-      /*                             notes.note_date = TODAY                                        */
-      /*                             notes.note_title = shipto.notes[1]                             */
-      /*                             notes.note_text = shipto.notes[1] + CHR(13) +                  */
-      /*                                               shipto.notes[2] + CHR(13) +                  */
-      /*                                               shipto.notes[3] + CHR(13) +                  */
-      /*                  "                            ship.notes[4] + CHR(13).                     */
-      /*                    END.                                                                    */
-      /*                END.                                                                        */
-      
+  
       
       /* if add mode then use default carrier */
       IF ll-new-record /* and NOT oe-rel.carrier ENTERED */ THEN DO:
@@ -3769,33 +3840,21 @@ ELSE DO:
   USE-INDEX ship-id NO-LOCK NO-ERROR.
   IF AVAIL shipto THEN DO:
     /* gdm - 06220908 */
-    IF v-relflg2 THEN
-    ASSIGN oe-rel.ship-no      = shipto.ship-no
-    oe-rel.ship-id      = shipto.ship-id
-    oe-rel.ship-addr[1] = shipto.ship-addr[1]
-    oe-rel.ship-addr[2] = shipto.ship-addr[2]
-    oe-rel.ship-city    = shipto.ship-city
-    oe-rel.ship-state   = shipto.ship-state
-    oe-rel.ship-zip     = shipto.ship-zip
-    oe-rel.ship-i[1] = shipto.notes[1]
-    oe-rel.ship-i[2] = shipto.notes[2]
-    oe-rel.ship-i[3] = shipto.notes[3]
-    oe-rel.ship-i[4] = shipto.notes[4]
-    oe-rel.spare-char-1 = shipto.loc.
-    /*             IF shipto.notes[1] <> "" OR shipto.notes[2] <> "" OR                          */
-    /*                shipto.notes[3] <> "" OR shipto.notes[4] <> "" THEN DO:                    */
-    /*                   FIND FIRST notes WHERE notes.rec_key = oe-rel.rec_key NO-LOCK NO-ERROR. */
-    /*                   IF NOT AVAIL notes THEN DO:                                             */
-    /*                      CREATE notes.                                                        */
-    /*                      ASSIGN notes.rec_key = oe-rel.rec_key                                */
-    /*                             notes.note_date = TODAY                                       */
-    /*                             notes.note_title = shipto.notes[1]                            */
-    /*                             notes.note_text = shipto.notes[1] + CHR(13) +                 */
-    /*                                               shipto.notes[2] + CHR(13) +                 */
-    /*                                               shipto.notes[3] + CHR(13) +                 */
-    /*                                               ship.notes[4] + CHR(13).                    */
-    /*                    END.                                                                   */
-    /*             END.                                                                          */
+    IF v-relflg2 THEN DO:
+        ASSIGN oe-rel.ship-no      = shipto.ship-no
+        oe-rel.ship-id      = shipto.ship-id
+        oe-rel.ship-addr[1] = shipto.ship-addr[1]
+        oe-rel.ship-addr[2] = shipto.ship-addr[2]
+        oe-rel.ship-city    = shipto.ship-city
+        oe-rel.ship-state   = shipto.ship-state
+        oe-rel.ship-zip     = shipto.ship-zip
+        oe-rel.ship-i[1] = shipto.notes[1]
+        oe-rel.ship-i[2] = shipto.notes[2]
+        oe-rel.ship-i[3] = shipto.notes[3]
+        oe-rel.ship-i[4] = shipto.notes[4]
+        oe-rel.spare-char-1 = shipto.loc.
+        RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+    END. /*v-relflg2*/
     
     /* if add mode then use default carrier */
     IF ll-new-record THEN DO:
@@ -3874,6 +3933,8 @@ PROCEDURE crt-itemfg :
 
 DEF INPUT PARAMETER v-item LIKE itemfg.i-no.
 DEF INPUT PARAMETER v-uom LIKE itemfg.prod-uom.
+DEFINE INPUT PARAMETER ipcLoc AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcLocBin AS CHARACTER NO-UNDO.
 
 DEF VAR tmpstore AS cha NO-UNDO.
 DEF VAR i AS INT NO-UNDO.
@@ -3897,53 +3958,32 @@ FIND FIRST cust  WHERE cust.company EQ cocode
     NO-LOCK NO-ERROR.
 {oe\fgfreight.i}
 
-FIND FIRST sys-ctrl NO-LOCK
-    WHERE sys-ctrl.company EQ cocode
-      AND sys-ctrl.NAME EQ "FGMASTER" NO-ERROR.
-IF AVAIL sys-ctrl THEN
-  FIND FIRST bf-itemfg NO-LOCK
-      WHERE bf-itemfg.company EQ sys-ctrl.company
-        AND bf-itemfg.i-no EQ trim(sys-ctrl.char-fld) NO-ERROR.
 
-CREATE itemfg.
-ASSIGN
- itemfg.company    = cocode
- itemfg.loc        = locode
+CREATE itemfg.  /*create.trg applies all defaults for FGMaster*/
+ASSIGN /*order specific overrides to FGMaster and core defaults*/
  itemfg.i-no       = v-item
- itemfg.i-name     = oe-ordl.i-name:screen-value IN FRAME {&frame-name}
- itemfg.part-dscr1 = oe-ordl.part-dscr1:screen-value
- itemfg.part-dscr2 = oe-ordl.part-dscr2:Screen-value
- itemfg.part-dscr3 = oe-ordl.part-dscr3:Screen-value
- itemfg.sell-price = dec(oe-ordl.price:screen-value)
+ itemfg.i-name     = oe-ordl.i-name:SCREEN-VALUE  IN FRAME {&frame-name}
+ itemfg.part-dscr1 = oe-ordl.part-dscr1:SCREEN-VALUE 
+ itemfg.part-dscr2 = oe-ordl.part-dscr2:SCREEN-VALUE 
+ itemfg.part-dscr3 = oe-ordl.part-dscr3:SCREEN-VALUE 
+ itemfg.sell-price = DECIMAL(oe-ordl.price:SCREEN-VALUE)
 
  itemfg.cust-no    = oe-ord.cust-no
  itemfg.cust-name  = oe-ord.cust-name
- itemfg.pur-uom    = /*IF AVAIL bf-itemfg THEN bf-itemfg.pur-uom ELSE "M" */ oe-ordl.pr-uom:SCREEN-VALUE 
-/* gdm - 11190901 */
- itemfg.ship-meth  = IF AVAIL bf-itemfg THEN bf-itemfg.ship-meth ELSE YES 
-  itemfg.part-no    = oe-ordl.part-no:screen-value
-  itemfg.setupDate  = TODAY.
+ itemfg.pur-uom    = oe-ordl.pr-uom:SCREEN-VALUE 
+ itemfg.part-no    = oe-ordl.part-no:screen-value
+  .
 
 ASSIGN
-    itemfg.taxable = IF AVAIL cust 
-                      THEN cust.sort EQ "Y" AND cust.tax-gr NE ""
-                      ELSE 
-                          IF AVAIL bf-itemfg THEN bf-itemfg.taxable
-                                             ELSE NO.
-
+    itemfg.taxable = fGetTaxable(itemfg.company, (IF AVAIL cust THEN cust.cust-no ELSE ""),"", ""). 
+                         
 
  IF fgmaster-cha EQ "FGITEM" THEN
     ASSIGN
        itemfg.sell-uom   = oe-ordl.pr-uom:SCREEN-VALUE
        itemfg.prod-uom   = v-uom
-       itemfg.i-code     = "C"
-       itemfg.stocked    = YES
        itemfg.alloc      = IF AVAIL xeb AND xeb.est-type LE 4 THEN v-allocf ELSE v-alloc.
-    
- IF fgmaster-cha EQ "FGMASTER" AND AVAIL bf-itemfg THEN
-    ASSIGN
-       itemfg.sell-uom   = bf-itemfg.sell-uom 
-       itemfg.stocked    = bf-itemfg.stocked .
+   
 
  IF v-graphic-char NE "" THEN 
  DO:
@@ -4025,6 +4065,8 @@ IF fgmaster-cha EQ "FGITEM" THEN DO:
                            ELSE "C"
                    ELSE "S".
 END.
+IF itemfg.def-loc EQ "" THEN itemfg.def-loc = ipcLoc.
+IF itemfg.def-loc-bin EQ "" THEN itemfg.def-loc-bin = ipcLocBin.
 
 {est/fgupdtax.i oe-ord}
 ll-new-fg-created = YES.
@@ -4105,7 +4147,6 @@ PROCEDURE display-est-detail :
   DEF VAR v-job-no LIKE oe-ordl.job-no NO-UNDO.
   DEF VAR v-job-no2 LIKE oe-ordl.job-no2 NO-UNDO.
   DEF VAR li-cnt AS INT NO-UNDO.
-  DEF VAR ll-tax AS LOG NO-UNDO.
   DEF VAR ll-do-job AS LOG NO-UNDO.
   DEF VAR li-cases AS INT NO-UNDO.
   DEFINE VARIABLE v-disp-prod-cat AS CHARACTER  NO-UNDO.
@@ -4113,6 +4154,7 @@ PROCEDURE display-est-detail :
   DEF VAR v-com AS DEC NO-UNDO.
   DEF VAR v-tmp-price-2 AS DEC NO-UNDO.
   DEF VAR v-price-per-1000 AS DEC NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
   DEF BUFFER b-eb FOR eb.
   DEF BUFFER b-oe-ordl FOR oe-ordl.
@@ -4133,30 +4175,16 @@ PROCEDURE display-est-detail :
                 AND est.est-no = eb.est-no NO-LOCK NO-ERROR.
      IF AVAIL itemfg THEN DO:
        ASSIGN
-        
         oe-ordl.part-dscr2:SCREEN-VALUE = itemfg.part-dscr2
-        oe-ordl.part-dscr3:SCREEN-VALUE = itemfg.part-dscr3.
+        oe-ordl.part-dscr3:SCREEN-VALUE = itemfg.part-dscr3
+        /*35645 - Taxable set by FG item flag only*/
+        oe-ordl.tax:SCREEN-VALUE = STRING(fGetTaxable(itemfg.company, eb.cust-no, eb.ship-id, itemfg.i-no),"Y/N")
+        .
         IF DECIMAL(oe-ordl.price:SCREEN-VALUE) = 0 THEN
             ASSIGN
             oe-ordl.price:SCREEN-VALUE      = STRING(itemfg.sell-price) 
             oe-ordl.pr-uom:SCREEN-VALUE     = itemfg.sell-uom
-            .
-
-          /*ysk*/
-          FIND FIRST cust
-              {sys/ref/custW.i}
-                AND cust.cust-no EQ oe-ord.cust-no
-              USE-INDEX cust
-              NO-LOCK NO-ERROR.
-        
-          ll-tax = AVAIL cust AND cust.sort EQ "Y" AND oe-ord.tax-gr NE "" AND itemfg.taxable.
-        
-          IF NOT ll-tax THEN DO:
-           {custom/shptotax.i oe-ord.cust-no oe-ord.sold-id ll-tax}
-          END.
-        
-          oe-ordl.tax:SCREEN-VALUE = STRING(ll-tax,"Y/N").
-          /*ysk*/
+            .  
           
      END.
 
@@ -4268,8 +4296,19 @@ PROCEDURE display-est-detail :
           (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
            (tt-item-qty-price.part-no EQ oe-ordl.i-no:SCREEN-VALUE AND oe-ordl.i-no:SCREEN-VALUE NE ""))) THEN
         DO:
+          FIND FIRST quotehd NO-LOCK 
+              WHERE quotehd.company EQ est.company AND
+              quotehd.est-no EQ est.est-no AND 
+              quotehd.quo-date LE TODAY AND
+              (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) NO-ERROR .
+           
+          IF AVAIL quotehd THEN do:
            RUN oe/d-ordqty.w (RECID(est-qty), OUTPUT lv-qty, OUTPUT lv-price, OUTPUT lv-pr-uom,
                               OUTPUT lv-rel, OUTPUT op-error, OUTPUT TABLE tt-item-qty-price).
+          END.
+          ELSE DO:
+           op-error = YES .
+          END.
 
            IF op-error EQ NO THEN
               ASSIGN
@@ -4307,8 +4346,8 @@ PROCEDURE display-est-detail :
 
      IF v-rel = 0 THEN
         v-rel = 1.
-
-     IF lv-new-tandem EQ ? AND ll-do-job THEN DO:
+     
+         IF lv-new-tandem EQ ? AND ll-do-job THEN DO:
         
        ASSIGN
           v-disp-prod-cat = eb.procat
@@ -4361,7 +4400,13 @@ PROCEDURE display-est-detail :
 
      oe-ordl.qty:SCREEN-VALUE  = STRING(lv-qty).
   END.
-  
+  IF lv-qty GT 0 AND AVAILABLE est-qty THEN DO:
+        DO iCount = 1 TO EXTENT(est-qty.qty):
+            IF est-qty.qty[iCount] EQ lv-qty OR est-qty.qty[iCount] EQ 0 THEN LEAVE.
+        END.
+        IF iCount GT 0 THEN oe-ordl.whsed:SCREEN-VALUE = STRING(est-qty.whsed[iCount], "YES/NO"). 
+  END.
+     
   IF NOT ll-got-qtprice AND CAN-FIND(FIRST tt-item-qty-price WHERE
      tt-item-qty-price.tt-selected = YES AND
      (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
@@ -4530,7 +4575,6 @@ PROCEDURE display-fgitem :
   DEF VAR lv-pr-uom AS CHAR NO-UNDO.
   DEF VAR v-tmp-part AS CHAR NO-UNDO.
   DEF VAR lv-cost-uom AS CHAR NO-UNDO.
-  DEF VAR ll-tax LIKE oe-ordl.tax NO-UNDO.
   DEF VAR lv-new-i-no LIKE oe-ordl.i-no NO-UNDO.
   DEF VAR lv-calc-qty AS DEC NO-UNDO.
   DEF VAR lv-case-qty AS INT NO-UNDO.
@@ -4638,19 +4682,8 @@ DO WITH FRAME {&FRAME-NAME}:
   RUN validate-fgitem NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
-  FIND FIRST cust
-      {sys/ref/custW.i}
-        AND cust.cust-no EQ oe-ord.cust-no
-      USE-INDEX cust
-      NO-LOCK NO-ERROR.
-
-  ll-tax = AVAIL cust AND cust.sort EQ "Y" AND oe-ord.tax-gr NE "" AND itemfg.taxable.
-
-  IF NOT ll-tax THEN DO:
-   {custom/shptotax.i oe-ord.cust-no oe-ord.sold-id ll-tax}
-  END.
-
-  oe-ordl.tax:SCREEN-VALUE = STRING(ll-tax,"Y/N").
+  /*35645 - Taxable set by FG item flag only*/
+  oe-ordl.tax:SCREEN-VALUE = STRING(fGetTaxable(itemfg.company, oe-ord.cust-no, oe-ord.ship-id, itemfg.i-no),"Y/N").
 
   RUN default-type (BUFFER itemfg).
 
@@ -5074,7 +5107,7 @@ PROCEDURE display-item :
         oe-ordl.spare-char-1:TOOLTIP = getOrdStatDescr(oe-ordl.spare-char-1).
     IF oe-ordl.spare-int-2 > 0 THEN
         fi_JobStartDate:SCREEN-VALUE = STRING(DATE(oe-ordl.spare-int-2)).
-
+    fiPrevOrder:SCREEN-VALUE = fnPrevOrder(oe-ordl.est-no:SCREEN-VALUE, oe-ord.ord-no).
     RUN new-type.
     RUN new-s-man (0).
 
@@ -5099,9 +5132,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiPromDtLabel fi_type-dscr fi_qty-uom spare-dec-1 fi_s-pct-lbl 
-          fi_s-comm-lbl fi_sman-lbl fi_sname-1 fi_sname-2 fi_sname-3 
-          fi_sname-lbl fi_jobStartDate 
+  DISPLAY fiPrevOrder fiPromDtLabel fi_type-dscr fi_qty-uom spare-dec-1 
+          fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 fi_sname-2 
+          fi_sname-3 fi_sname-lbl fi_jobStartDate 
       WITH FRAME d-oeitem.
   IF AVAILABLE oe-ordl THEN 
     DISPLAY oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 oe-ordl.qty oe-ordl.i-no 
@@ -5432,7 +5465,7 @@ PROCEDURE get-eb-info :
                                (eb.est-type = 6 AND eb.form-no = 0) )
                               NO-LOCK NO-ERROR.
      IF AVAIL eb THEN ls-stock = eb.stock-no.
-     
+     fiPrevOrder:SCREEN-VALUE = fnPrevOrder(oe-ordl.est-no:SCREEN-VALUE, oe-ord.ord-no).
   END.
   ELSE ls-stock = "".
   
@@ -6485,9 +6518,9 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OnSaveButton d-oeitem
-PROCEDURE OnSaveButton:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OnSaveButton d-oeitem 
+PROCEDURE OnSaveButton :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -7142,11 +7175,9 @@ PROCEDURE OnSaveButton:
     END. /* If Price was modified */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE prev-quote-proc d-oeitem 
 PROCEDURE prev-quote-proc :
@@ -7350,17 +7381,6 @@ PROCEDURE upd-new-tandem :
             WHERE itemfg-ink.company EQ eb.company
               AND itemfg-ink.i-no    EQ eb.stock-no:
           DELETE itemfg-ink.
-        END.
-
-        DO li = 1 TO 2:
-          FOR EACH b-Unit#
-              WHERE b-Unit#.reftable EQ "ce/v-est3.w Unit#" + TRIM(STRING(li - 1,">"))
-                AND b-Unit#.company  EQ eb.company
-                AND b-Unit#.loc      EQ eb.est-no
-                AND b-Unit#.code     EQ STRING(eb.form-no,"9999999999")
-                AND b-Unit#.code2    EQ STRING(eb.blank-no,"9999999999"):
-            DELETE b-Unit#.
-          END.
         END.
 
         FIND FIRST xest
@@ -7885,22 +7905,10 @@ PROCEDURE update-release :
                  oe-rel.ship-i[2] = shipto.notes[2]
                  oe-rel.ship-i[3] = shipto.notes[3]
                  oe-rel.ship-i[4] = shipto.notes[4].
+          RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+          
           /* if add mode then use default carrier */
-          IF shipto.notes[1] <> "" OR shipto.notes[2] <> "" OR
-             shipto.notes[3] <> "" OR shipto.notes[4] <> "" THEN DO:
-            FIND FIRST notes WHERE notes.rec_key = oe-rel.rec_key NO-LOCK NO-ERROR.
-            IF NOT AVAIL notes THEN DO:
-              CREATE notes.
-              ASSIGN
-               notes.rec_key = oe-rel.rec_key
-               notes.note_date = TODAY
-               notes.note_title = shipto.notes[1]
-               notes.note_text = shipto.notes[1] + CHR(13) +
-                                 shipto.notes[2] + CHR(13) +
-                                 shipto.notes[3] + CHR(13) +
-                                 ship.notes[4] + CHR(13).
-            END. /* not avail notes */
-          END. /* if notes are not blank */
+        
         END. /* if avail ship to */
       END. /* If status is S,I or L */
 
@@ -9003,6 +9011,9 @@ PROCEDURE validate-all :
  DEF VAR ls-est-no AS cha NO-UNDO.
  DEF VAR ls-uom AS cha NO-UNDO.
  DEF VAR ll-secure AS LOG NO-UNDO.
+ DEFINE VARIABLE cLoc AS CHARACTER NO-UNDO.
+ DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
+ 
  /*DEF VAR v-run-schedule AS LOG NO-UNDO.
 
  find first sys-ctrl where sys-ctrl.company eq cocode
@@ -9013,7 +9024,17 @@ PROCEDURE validate-all :
        FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
                              AND oe-ord.ord-no  EQ oe-ordl.ord-no
                            NO-ERROR.
-
+  IF AVAILABLE oe-ord THEN 
+    FIND FIRST shipto NO-LOCK 
+        WHERE shipto.company EQ oe-ord.company
+        AND shipto.cust-no EQ oe-ord.cust-no
+        AND shipto.ship-id EQ oe-ord.ship-id
+        NO-ERROR.
+  IF AVAILABLE shipto THEN 
+        ASSIGN 
+            cLoc = shipto.loc
+            cLocBin = shipto.loc-bin
+            . 
  DO WITH FRAME {&frame-name}:
     IF v-est-fg1 = "Hold" AND oe-ordl.est-no:SCREEN-VALUE <> "" THEN DO:
        FIND FIRST eb WHERE eb.company = cocode AND
@@ -9079,7 +9100,7 @@ PROCEDURE validate-all :
        /* This takes them back to i-no where they can enter a new item # */
           IF oefgadd-log AND ls-est-no GT "" THEN
             RUN oe/d-citmfg.w (ls-est-no, INPUT-OUTPUT ls-i-no,
-                               INPUT-OUTPUT ls-part-no,INPUT-OUTPUT ls-uom) NO-ERROR.
+                               INPUT-OUTPUT ls-part-no,INPUT-OUTPUT ls-uom, INPUT-OUTPUT cLoc, INPUT-OUTPUT cLocBin) NO-ERROR.
           ELSE
           IF ls-est-no EQ "" THEN DO:
             MESSAGE "Please enter a valid item number." VIEW-AS ALERT-BOX INFO BUTTONS OK.
@@ -9116,11 +9137,11 @@ PROCEDURE validate-all :
                             AND xef.form-no = xeb.form-no
                             NO-LOCK NO-ERROR.
 
-                   RUN crt-itemfg (ls-i-no, oe-ordl.pr-uom:SCREEN-VALUE). /*(ls-i-no, "M")*/                   
+                   RUN crt-itemfg (ls-i-no, oe-ordl.pr-uom:SCREEN-VALUE, cLoc, cLocBin). /*(ls-i-no, "M")*/                   
                 END.    
              END.   
              ELSE /* no xest or oe-ordl.est-no = "" */
-                RUN crt-itemfg (ls-i-no, oe-ordl.pr-uom:SCREEN-VALUE).
+                RUN crt-itemfg (ls-i-no, oe-ordl.pr-uom:SCREEN-VALUE, cLoc, cLocBin).
              
           END.  /* ls-i-no */ 
 
@@ -9459,6 +9480,80 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable d-oeitem
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER, ipcCust AS CHARACTER , ipcShipto AS CHARACTER, ipcFGItemID AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: Gets the Taxable flag based on inputs
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+RETURN lTaxable.
+
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIsCustPriceHoldExempt d-oeitem
+FUNCTION fIsCustPriceHoldExempt RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER, ipcCustomerID AS CHARACTER, ipcShipToID AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose: Returns true if the customer is not activated for price hold logic
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lCustExempt AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lPriceHoldActive AS LOGICAL NO-UNDO.
+	
+	RUN CheckPriceHoldForCustShip IN hdPriceProcs (ipcCompany, ipcCustomerID, ipcShipToID, OUTPUT lPriceHold, OUTPUT lPriceHoldActive).
+
+    lCustExempt = NOT lPriceHold AND lPriceHoldActive.
+    
+    RETURN lCustExempt.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnPrevOrder d-oeitem
+FUNCTION fnPrevOrder RETURNS CHARACTER 
+  (ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+		DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+        IF ipcEstNo GT "" THEN 
+        DO:
+            FIND LAST bf-oe-ordl NO-LOCK
+                WHERE bf-oe-ordl.company EQ cocode
+                  AND bf-oe-ordl.est-no  EQ ipcEstNo
+                  AND bf-oe-ordl.ord-no  LT ipiOrdNo
+                NO-ERROR.
+            IF AVAILABLE bf-oe-ordl THEN
+                cResult = STRING(bf-oe-ordl.ord-no).
+        END.
+		RETURN cResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fOEScreenUOMConvert d-oeitem 
 FUNCTION fOEScreenUOMConvert RETURNS DECIMAL

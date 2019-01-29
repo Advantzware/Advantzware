@@ -26,8 +26,7 @@ IF {&TABLENAME}.reftable EQ "EST-COST" THEN DO:
   END.
 END.
 ELSE
-IF {&TABLENAME}.reftable EQ "PLATE/FOUNTAIN"    OR
-   {&TABLENAME}.reftable EQ "ce/v-est3.w Unit#"  OR 
+IF {&TABLENAME}.reftable EQ "PLATE/FOUNTAIN"    OR 
    {&TABLENAME}.reftable EQ "cedepth" THEN
 FOR EACH est
     WHERE est.company EQ {&TABLENAME}.company

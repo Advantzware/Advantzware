@@ -57,7 +57,7 @@ assign
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME br_table
 
@@ -69,38 +69,27 @@ assign
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR est.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES eb reftable
+&Scoped-define INTERNAL-TABLES eb
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table eb.form-no eb.blank-no eb.cust-no ~
-eb.part-no eb.bl-qty eb.yld-qty reftable.val[1] 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table reftable.val[1] 
-&Scoped-define ENABLED-TABLES-IN-QUERY-br_table reftable
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table reftable
+eb.part-no eb.bl-qty eb.yld-qty eb.releaseCount 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table eb.releaseCount 
+&Scoped-define ENABLED-TABLES-IN-QUERY-br_table eb
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table eb
 &Scoped-define QUERY-STRING-br_table FOR EACH eb WHERE eb.company EQ est.company AND ~
 asi.eb.est-no  EQ est.est-no  AND ~
-asi.eb.form-no NE 0 NO-LOCK, ~
-      FIRST reftable WHERE reftable.reftable EQ "ce/com/selwhif1.w"             AND ~
-reftable.company  EQ eb.company                      AND ~
-reftable.loc      EQ eb.est-no                       AND ~
-reftable.code     EQ STRING(eb.form-no,"9999999999") AND ~
-reftable.code2    EQ STRING(eb.blank-no,"9999999999") NO-LOCK ~
+asi.eb.form-no NE 0 NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH eb WHERE eb.company EQ est.company AND ~
 asi.eb.est-no  EQ est.est-no  AND ~
-asi.eb.form-no NE 0 NO-LOCK, ~
-      FIRST reftable WHERE reftable.reftable EQ "ce/com/selwhif1.w"             AND ~
-reftable.company  EQ eb.company                      AND ~
-reftable.loc      EQ eb.est-no                       AND ~
-reftable.code     EQ STRING(eb.form-no,"9999999999") AND ~
-reftable.code2    EQ STRING(eb.blank-no,"9999999999") NO-LOCK ~
+asi.eb.form-no NE 0 NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-br_table eb reftable
+&Scoped-define TABLES-IN-QUERY-br_table eb
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table eb
-&Scoped-define SECOND-TABLE-IN-QUERY-br_table reftable
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -169,8 +158,7 @@ RUN set-attribute-list (
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
-      eb, 
-      reftable SCROLLING.
+      eb SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -183,10 +171,10 @@ DEFINE BROWSE br_table
       eb.part-no FORMAT "x(15)":U WIDTH 22.2
       eb.bl-qty COLUMN-LABEL "Req Qty" FORMAT ">>,>>>,>>9":U
       eb.yld-qty FORMAT ">>,>>>,>>9":U
-      reftable.val[1] COLUMN-LABEL "Releases" FORMAT "->>,>>9":U
+      eb.releaseCount COLUMN-LABEL "Releases" FORMAT "->>,>>9":U
             WIDTH 11.4
   ENABLE
-      reftable.val[1]
+      eb.releaseCount
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 98 BY 9.29
@@ -253,7 +241,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB br_table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -267,31 +255,26 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
-     _TblList          = "asi.eb WHERE asi.est  ...,asi.reftable WHERE asi.eb ..."
+     _TblList          = "asi.eb WHERE asi.est  ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = ", FIRST"
      _JoinCode[1]      = "asi.eb.company EQ asi.est.company AND
 asi.eb.est-no  EQ asi.est.est-no  AND
 asi.eb.form-no NE 0"
-     _JoinCode[2]      = "reftable.reftable EQ ""ce/com/selwhif1.w""             AND
-reftable.company  EQ eb.company                      AND
-reftable.loc      EQ eb.est-no                       AND
-reftable.code     EQ STRING(eb.form-no,""9999999999"") AND
-reftable.code2    EQ STRING(eb.blank-no,""9999999999"")"
      _FldNameList[1]   > asi.eb.form-no
-"eb.form-no" "S#" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" ""
+"eb.form-no" "S#" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.eb.blank-no
-"eb.blank-no" "B#" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" ""
+"eb.blank-no" "B#" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.eb.cust-no
-"eb.cust-no" "Cust#" ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" ""
+"eb.cust-no" "Cust#" ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.eb.part-no
-"eb.part-no" ? ? "character" ? ? ? ? ? ? no ? no no "22.2" yes no no "U" "" ""
+"eb.part-no" ? ? "character" ? ? ? ? ? ? no ? no no "22.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.eb.bl-qty
-"eb.bl-qty" "Req Qty" ">>,>>>,>>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"eb.bl-qty" "Req Qty" ">>,>>>,>>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.eb.yld-qty
-"eb.yld-qty" ? ">>,>>>,>>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[7]   > asi.reftable.val[1]
-"reftable.val[1]" "Releases" "->>,>>9" "decimal" ? ? ? ? ? ? yes ? no no "11.4" yes no no "U" "" ""
+"eb.yld-qty" ? ">>,>>>,>>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > asi.eb.releaseCount
+"eb.releaseCount" "Releases" "->>,>>9" "integer" ? ? ? ? ? ? yes ? no no "11.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -313,7 +296,7 @@ reftable.code2    EQ STRING(eb.blank-no,""9999999999"")"
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main B-table-Win
 ON LEAVE OF FRAME F-Main
 DO:
-  IF AVAIL reftable THEN RUN dispatch ("update-record").
+   IF AVAIL eb THEN RUN dispatch ("update-record").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -470,22 +453,14 @@ PROCEDURE local-open-query :
   /* Code placed here will execute PRIOR to standard behavior. */
   FOR EACH eb NO-LOCK
       WHERE eb.company EQ est.company
-        AND eb.est-no  EQ est.est-no
-        AND NOT CAN-FIND(FIRST reftable
-                         WHERE reftable.reftable EQ "ce/com/selwhif1.w"
-                           AND reftable.company  EQ eb.company
-                           AND reftable.loc      EQ eb.est-no
-                           AND reftable.code     EQ STRING(eb.form-no,"9999999999")
-                           AND reftable.code2    EQ STRING(eb.blank-no,"9999999999")):
-    CREATE reftable. 
-    ASSIGN
-     reftable.reftable = "ce/com/selwhif1.w"
-     reftable.company  = eb.company
-     reftable.loc      = eb.est-no
-     reftable.code     = STRING(eb.form-no,"9999999999")
-     reftable.code2    = STRING(eb.blank-no,"9999999999")
-     reftable.val[1]   = 1.
-  END.
+        AND eb.est-no  EQ est.est-no:
+            IF eb.releaseCount = 0 THEN DO:
+                FIND CURRENT eb EXCLUSIVE-LOCK NO-ERROR.
+                 ASSIGN eb.releaseCount = 1.
+                FIND CURRENT eb NO-LOCK NO-ERROR. 
+            END.    
+  END.             
+              
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
@@ -534,7 +509,6 @@ PROCEDURE send-records :
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "est"}
   {src/adm/template/snd-list.i "eb"}
-  {src/adm/template/snd-list.i "reftable"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

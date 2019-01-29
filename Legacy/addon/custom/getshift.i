@@ -26,19 +26,13 @@ ELSE DO:
         op-shift  = ""
         tmp-shift = ""
         .
-           
+     
     /* Take the first shift where ip-optype is specified and the start/end times are equal, */
     /* or take the last shift that matches the criteria, sorted by primary index which      */
     /* would be by shift code for the shifts table or machine/shift for the machshft table */
    
-    FOR EACH {&file} NO-LOCK {&where},
-        FIRST reftable NO-LOCK
-        WHERE reftable.reftable EQ "ShiftDays"
-          AND reftable.code     EQ {&file}.rec_key
-          AND reftable.loc      EQ "1" /* Specific Days */
-          AND ENTRY(WEEKDAY(TODAY),reftable.code2) EQ "YES"
+    FOR EACH {&file} NO-LOCK {&where}
         :
-          
         IF (op-shift EQ '' AND
             ip-time GE {&file}.start_time AND ip-time LE {&file}.end_time) OR
            (op-shift EQ '' AND {&file}.start_time GT {&file}.end_time AND
@@ -56,10 +50,8 @@ ELSE DO:
 
     IF tmp-shift EQ "" THEN DO:
         FOR EACH {&file} NO-LOCK {&where}:
-            IF CAN-FIND(FIRST reftable
-                WHERE reftable.reftable EQ "ShiftDays"
-                  AND reftable.code     EQ {&file}.rec_key
-                  AND reftable.loc      EQ "1") /* Specific Days */ THEN NEXT.
+            IF AVAILABLE shifts AND shifts.useSpecificDays      EQ TRUE /* Specific Days */ THEN NEXT.
+                  
             IF (op-shift EQ '' AND
                 ip-time GE {&file}.start_time AND ip-time LE {&file}.end_time) OR
                (op-shift EQ '' AND {&file}.start_time GT {&file}.end_time AND

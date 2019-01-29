@@ -1416,21 +1416,24 @@ PROCEDURE run-report :
                 ASSIGN 
                     dtl-ctr = dtl-ctr + 1.
             END. /* Each b-{&head}1 */
-            IF dtl-ctr EQ 0 THEN DO: 
+            /* wfk IF dtl-ctr EQ 0 THEN */ DO: 
                 /* Make sure invoices with no inv-lines are not missed */
                 FOR EACH b-{&head}1 NO-LOCK
                     WHERE b-{&head}1.company       EQ {&head}.company
                     AND b-{&head}1.cust-no       EQ {&head}.cust-no
                     AND b-{&head}1.inv-no        EQ {&head}.inv-no
                     AND b-{&head}1.{&multiinvoice} EQ NO            
-                    AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0:
-                    FIND FIRST inv-misc NO-LOCK 
-                       WHERE inv-misc.{&miscrno} EQ b-{&head}1.{&rno}
-                       NO-ERROR.
-
-                    IF AVAILABLE inv-misc THEN DO:
+                    AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0,
+                    EACH inv-misc NO-LOCK 
+                    WHERE inv-misc.{&miscrno} EQ b-{&head}1.{&rno}:
+                       
+                    FIND first save-line 
+                         WHERE save-line.reftable EQ "save-line" + v-term-id
+                           AND save-line.val[3]   = INT(RECID(inv-misc))
+                         NO-ERROR.
+                    IF NOT AVAILABLE save-line THEN DO:
                         dtl-ctr = dtl-ctr + 1.
-                      RUN create-save-line. 
+                        RUN create-save-line. 
                     END.
                 END.             
             END.

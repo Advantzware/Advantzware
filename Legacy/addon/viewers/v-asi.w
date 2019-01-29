@@ -696,10 +696,10 @@ PROCEDURE local-assign-record :
             contact.territory = asi.territory
             .
 
-
-     ls-key = string(today,"99999999") +
-              string(next-value(rec_key_seq,nosweat),"99999999").
-     asi.rec_key = ls-key.               
+     assign
+         ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey")
+         asi.rec_key = ls-key
+         .               
      create rec_key.
      assign rec_key.rec_key = asi.rec_key
             rec_key.table_name = "asi".

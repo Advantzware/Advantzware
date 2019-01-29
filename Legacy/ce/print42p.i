@@ -221,6 +221,10 @@ do vmcl = 1 to 28:
    t-blksht   = 0
    t-blkqty   = 0.
 
+   IF vprint THEN DO:
+	{custom/statusMsg.i " 'Calculating... Est#  '  + xest.est-no  + ' Qty - ' + string(qty) "}
+   END.
+
   for each kli:
     delete kli.
   end.
@@ -755,26 +759,12 @@ put skip(1)
            tt-ei.run-cost[j] = e-item.run-cost[j].
      END.
      
-     FIND FIRST b-qty WHERE
-          b-qty.reftable = "blank-vend-qty" AND
-          b-qty.company = e-item.company AND
-          b-qty.CODE    = e-item.i-no
-          NO-LOCK NO-ERROR.
-     
-     IF AVAIL b-qty THEN
-     DO:
-        FIND FIRST b-cost WHERE
-             b-cost.reftable = "blank-vend-cost" AND
-             b-cost.company = e-item.company AND
-             b-cost.CODE    = e-item.i-no
-             NO-LOCK NO-ERROR.
-     
+          
         DO j = 1 TO 10:
            ASSIGN
-              tt-ei.run-qty[j + 10] = b-qty.val[j]
-              tt-ei.run-cost[j + 10] = b-cost.val[j].
+              tt-ei.run-qty[j + 10] = e-item.runQty[j]
+              tt-ei.run-cost[j + 10] = e-item.runCost[j].
         END.
-     END.
 
      do j = 1 to 20:
         if tt-ei.run-qty[j] < tr-tot then next.
@@ -1006,4 +996,7 @@ END.
 
 SESSION:SET-WAIT-STATE("").
 
+IF vprint THEN DO:
+{custom/statusMsg.i " 'Calculating Complete....  '  "}
+END.
 /* end ---------------------------------- copr. 1992  advanced software, inc. */

@@ -149,6 +149,7 @@
 "ASI" "Run Waste" "userField101" ">>>,>>9" no "job-mch"
 "ASI" "MR Time" "userField102" "XXXXXXXXXXXXXXX" no "job-mch"
 "ASI" "Run Time" "userField103" "XXXXXXXXXXXXXXX" no "job-mch"
+"ASI" "Job-Run" "userField104" "XXXXXXXXX" no "job-mch"
 "Demo/Jobs" "User Field" "userField01" "XXXXXXXX" yes ""
 "Demo/Service" "User Field" "userField01" "XXXXXXXX" yes ""
 "MXP/SO" "Item" "userField01" "XXXXXXXXXXXXXXXXXXXXXXXX" no ""

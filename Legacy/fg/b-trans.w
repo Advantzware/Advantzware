@@ -531,10 +531,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.i-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF fg-rctd.i-no IN BROWSE Browser-Table /* Item */
 DO:
-  FIND itemfg
+  FIND FIRST itemfg NO-LOCK
       WHERE itemfg.company EQ cocode
         AND itemfg.i-no    BEGINS {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}
-      NO-LOCK NO-ERROR.
+       NO-ERROR.
   IF AVAIL itemfg THEN
     fg-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name.
 END.
@@ -918,6 +918,11 @@ PROCEDURE local-assign-record :
   DEF VAR ld AS DEC NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Buttons were made sensitive = no during add, so reverse that here */
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
+    RUN make-buttons-sensitive IN WIDGET-HANDLE(char-hdl).
+
   DO WITH FRAME {&FRAME-NAME}:
     lv-tag2 = fg-rctd.tag2:SCREEN-VALUE IN BROWSE {&browse-name}.
   END.
@@ -929,7 +934,10 @@ PROCEDURE local-assign-record :
   ASSIGN
    fg-rctd.t-qty = (fg-rctd.cases * fg-rctd.qty-case) + fg-rctd.partial
    fg-rctd.tag2  = lv-tag2
-   fg-rctd.trans-time   = TIME.
+   fg-rctd.trans-time   = TIME
+   fg-rctd.enteredBy = USERID("asi")
+   fg-rctd.enteredDT = DATETIME(TODAY, MTIME)    
+   .
 
   FIND FIRST itemfg
       WHERE itemfg.company EQ cocode
@@ -990,6 +998,10 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
+    /* Buttons were made sensitive = no during add, so reverse that here */
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
+    RUN make-buttons-sensitive IN WIDGET-HANDLE(char-hdl).
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
@@ -1011,6 +1023,9 @@ PROCEDURE local-create-record :
   DEF BUFFER b-fg-rctd FOR fg-rctd.
   
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
+  RUN make-buttons-insensitive IN WIDGET-HANDLE(char-hdl).
+
   lv-rno = 0.
   FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
   IF AVAIL b-fg-rctd AND b-fg-rctd.r-no GT lv-rno THEN lv-rno = b-fg-rctd.r-no.

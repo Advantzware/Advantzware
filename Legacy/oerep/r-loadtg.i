@@ -85,4 +85,7 @@ DEF {1} SHARED TEMP-TABLE w-ord
   /* rstark - zoho13731 */
   FIELD SSCC AS CHARACTER FORMAT "x(20)"
   FIELD job-qty as INTEGER 
+  FIELD runShip AS LOGICAL
+  FIELD rel-qty LIKE oe-ordl.qty
+  FIELD rel-no as INTEGER 
   .

@@ -48,11 +48,11 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svCompany svLocation svAllJobNo svStartJobNo ~
-svStartJobNo2 svEndJobNo svEndJobNo2 svStartDate btnCalendar-5 ~
-svStartDateOption svEndDate btnCalendar-6 svEndDateOption svOpened svSort 
+svStartJobNo2 svStartDate btnCalendar-5 svStartDateOption svEndJobNo ~
+svEndJobNo2 svEndDate btnCalendar-6 svEndDateOption svOpened svSort 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svAllJobNo ~
-svStartJobNo svStartJobNo2 svEndJobNo svEndJobNo2 svStartDate ~
-svStartDateOption svEndDate svEndDateOption svOpened svSort 
+svStartJobNo svStartJobNo2 svStartDate svStartDateOption svEndJobNo ~
+svEndJobNo2 svEndDate svEndDateOption svOpened svSort 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -138,57 +138,72 @@ DEFINE VARIABLE svOpened AS CHARACTER
      SIZE 37 BY 1 TOOLTIP "Job Status" NO-UNDO.
 
 DEFINE VARIABLE svSort AS CHARACTER 
-     VIEW-AS RADIO-SET VERTICAL
+     VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Job", "Job",
 "Die No", "Die No",
 "Sales Rep", "Sales Rep",
 "Customer", "Customer",
 "Item No", "Item No"
-     SIZE 16 BY 5 NO-UNDO.
+     SIZE 76 BY 1 NO-UNDO.
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 28.8 BY 4.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 62 BY 4.05.
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 97 BY 4.
 
 DEFINE VARIABLE svAllJobNo AS LOGICAL INITIAL yes 
      LABEL "All Jobs" 
      VIEW-AS TOGGLE-BOX
-     SIZE 12 BY .95 NO-UNDO.
+     SIZE 12 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 23 COLON-ALIGNED WIDGET-ID 60
-     svLocation AT ROW 1.24 COL 39 COLON-ALIGNED WIDGET-ID 232
-     svAllJobNo AT ROW 3.14 COL 25 HELP
+     svCompany AT ROW 1.24 COL 121 COLON-ALIGNED WIDGET-ID 60
+     svLocation AT ROW 1.24 COL 137 COLON-ALIGNED WIDGET-ID 232
+     svAllJobNo AT ROW 4.33 COL 39 HELP
           "All Jobs?" WIDGET-ID 174
-     svStartJobNo AT ROW 4.33 COL 23 COLON-ALIGNED HELP
+     svStartJobNo AT ROW 5.52 COL 37 COLON-ALIGNED HELP
           "Enter Start Job" WIDGET-ID 178
-     svStartJobNo2 AT ROW 4.33 COL 34 COLON-ALIGNED HELP
+     svStartJobNo2 AT ROW 5.52 COL 48 COLON-ALIGNED HELP
           "Enter Start Job Run" WIDGET-ID 180
-     svEndJobNo AT ROW 5.52 COL 23 COLON-ALIGNED HELP
-          "Enter End Job" WIDGET-ID 176
-     svEndJobNo2 AT ROW 5.52 COL 34 COLON-ALIGNED HELP
-          "Enter End Job Run" WIDGET-ID 182
-     svStartDate AT ROW 7.43 COL 23 COLON-ALIGNED HELP
+     svStartDate AT ROW 5.52 COL 74 COLON-ALIGNED HELP
           "Enter Start Date" WIDGET-ID 26
-     btnCalendar-5 AT ROW 7.43 COL 41 WIDGET-ID 80
-     svStartDateOption AT ROW 7.43 COL 44 COLON-ALIGNED HELP
+     btnCalendar-5 AT ROW 5.52 COL 92 WIDGET-ID 80
+     svStartDateOption AT ROW 5.52 COL 95 COLON-ALIGNED HELP
           "Select Start Date Option" NO-LABEL WIDGET-ID 64
-     svEndDate AT ROW 8.62 COL 23 COLON-ALIGNED HELP
+     svEndJobNo AT ROW 6.71 COL 37 COLON-ALIGNED HELP
+          "Enter End Job" WIDGET-ID 176
+     svEndJobNo2 AT ROW 6.71 COL 48 COLON-ALIGNED HELP
+          "Enter End Job Run" WIDGET-ID 182
+     svEndDate AT ROW 6.71 COL 74 COLON-ALIGNED HELP
           "Enter End Date" WIDGET-ID 24
-     btnCalendar-6 AT ROW 8.62 COL 41 WIDGET-ID 82
-     svEndDateOption AT ROW 8.62 COL 44 COLON-ALIGNED HELP
+     btnCalendar-6 AT ROW 6.71 COL 92 WIDGET-ID 82
+     svEndDateOption AT ROW 6.71 COL 95 COLON-ALIGNED HELP
           "Select End Date Option" NO-LABEL WIDGET-ID 66
-     svOpened AT ROW 10.52 COL 25 HELP
+     svOpened AT ROW 10.29 COL 45 HELP
           "Select Job Status" NO-LABEL WIDGET-ID 234
-     svSort AT ROW 12.19 COL 25 NO-LABEL WIDGET-ID 240
-     "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 12.19 COL 16 WIDGET-ID 246
+     svSort AT ROW 11.48 COL 45 NO-LABEL WIDGET-ID 240
      "Job Status:" VIEW-AS TEXT
-          SIZE 11 BY 1 AT ROW 10.52 COL 13 WIDGET-ID 238
+          SIZE 11 BY 1 AT ROW 10.29 COL 33 WIDGET-ID 238
+     "Sort By:" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 11.48 COL 36 WIDGET-ID 246
+     RECT-1 AT ROW 4.1 COL 27 WIDGET-ID 248
+     RECT-2 AT ROW 4.1 COL 62 WIDGET-ID 250
+     RECT-3 AT ROW 9.33 COL 27 WIDGET-ID 252
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 85.4 BY 17.38
+         SIZE 149.2 BY 17
          TITLE "Report Parameters".
 
 
@@ -218,8 +233,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 17.38
-         WIDTH              = 85.4.
+         HEIGHT             = 17
+         WIDTH              = 149.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -249,6 +264,12 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-6 IN FRAME F-Main
    3                                                                    */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
+   NO-ENABLE                                                            */
 ASSIGN 
        svCompany:READ-ONLY IN FRAME F-Main        = TRUE.
 

@@ -85,7 +85,7 @@ ASSIGN
                        INPUT 0 /* cost to set */, 
                        INPUT b-po-ordl.pr-uom, OUTPUT lv-full-qty).
  
- IF lv-out-qty LE lv-ord-qty THEN 
+ IF lv-out-qty LE lv-ord-qty AND lv-out-qty GT 0 THEN 
      lv-adjusted-qty = lv-ord-qty.
  ELSE
      lv-adjusted-qty = lv-out-qty.
@@ -97,7 +97,7 @@ ASSIGN
  /* if the quantity is less than po quantity, assume setup cost is 
     included in the po cost */
  
- IF lv-adjusted-qty < lv-ord-qty THEN
+ IF lv-adjusted-qty < lv-ord-qty AND lv-adjusted-qty GT 0 THEN
     ASSIGN lv-out-cost = b-po-ordl.cons-cost
            lv-from-uom = b-po-ordl.cons-uom
            lv-setup-included = YES.
@@ -117,7 +117,7 @@ ASSIGN
  IF lv-from-uom EQ "L" THEN
     ASSIGN
        lv-from-uom = "EA"
-       lv-out-cost = lv-out-cost / lv-out-qty.
+       lv-out-cost = ABSOLUTE(lv-out-cost / lv-out-qty).
 
  /* convert cost pr-uom*/
  IF lv-from-uom EQ lv-cost-uom OR
@@ -144,8 +144,8 @@ ASSIGN
  ASSIGN
     opd-cost-uom = lv-cost-uom
     opd-std-cost = lv-out-cost + lv-setup-per-cost-uom
-    opd-ext-cost = (lv-out-qty * lv-out-cost) + lv-frt-cost
-                       + lv-setup-per-cost-uom.
+    opd-ext-cost = (lv-out-qty * opd-std-cost) 
+    .
  
  IF fgpofrt-log THEN 
  DO:

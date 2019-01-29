@@ -3,6 +3,7 @@ DEF INPUT PARAM ip-calc-misc AS LOG NO-UNDO.
 
 {sys/inc/var.i SHARED}
 {sys/form/s-top.f}
+{system/fSuperRunning.i}
 
 DEF BUFFER b-iline FOR inv-line.
 

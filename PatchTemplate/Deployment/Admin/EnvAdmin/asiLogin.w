@@ -4,9 +4,8 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: 
-
-  Description: 
+  File:             asiLogin.w
+  Description:      General login program for ASI application
 
   Input Parameters:
       <none>
@@ -48,6 +47,8 @@ CREATE WIDGET-POOL.
 
 DEF STREAM usrStream.
 
+def new global shared var fwd-embedded-mode as log no-undo init false.
+
 DEFINE NEW GLOBAL SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g_track_usage AS LOGICAL NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g_header_line AS CHARACTER NO-UNDO.
@@ -58,7 +59,6 @@ DEFINE NEW GLOBAL SHARED VARIABLE g_version AS CHARACTER NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g_rec_key AS CHARACTER NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g_pageno AS INTEGER NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g_mainmenu AS WIDGET-HANDLE NO-UNDO.
-DEFINE NEW GLOBAL SHARED VARIABLE g-sharpshooter  AS LOG NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE cIniLoc AS CHAR NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE cUsrLoc AS CHAR NO-UNDO.
 DEFINE NEW SHARED VARIABLE g_company AS CHARACTER NO-UNDO.
@@ -292,6 +292,17 @@ PROCEDURE GetLastError EXTERNAL "kernel32.dll":
     DEFINE RETURN PARAMETER iReturnValue AS LONG.
 END.
 
+PROCEDURE fwdRunProgram.
+   def input param pname as char.
+   def input param runPersistent as log.
+   def output param phandle as handle.
+   
+   // these need to be executed in the context of asiLogin.w, in embedded mode
+   if runPersistent
+      then run value(pname) persistent set phandle.
+      else run value(pname).
+END.
+
 
 /* Pre-visualization tasks */
 
@@ -305,11 +316,17 @@ ASSIGN
     origPropath = PROPATH.
 
 IF origDirectoryName = "" THEN DO:
+
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+    ASSIGN origDirectoryName = get-working-directory().
+&ELSE
     SET-SIZE(ptrToString) = 256.
     RUN GetCurrentDirectoryA (INPUT        intBufferSize,
                               INPUT-OUTPUT ptrToString,
                               OUTPUT       intResult).
     ASSIGN origDirectoryName = GET-STRING(ptrToString,1).    
+&ENDIF
+
 END.
 ELSE DO:
     RUN ipSetCurrentDir (origDirectoryName). 
@@ -349,6 +366,7 @@ IF SEARCH(cMapDir + "\" + cAdminDir + "\advantzware.ini") EQ ? THEN DO:
 END.
 
 /* Find the .usr file containing user-level settings */
+RUN ipFindUsrFile ("advantzware.usr").
 IF cUsrLoc EQ "" THEN DO:
     MESSAGE
         "Unable to locate an 'advantzware.usr' file." SKIP
@@ -620,11 +638,16 @@ DO:
     RUN ipFindUser IN THIS-PROCEDURE.
     
     IF NOT AVAIL ttUsers THEN DO:
-        MESSAGE
-            "Unable to locate this user in the advantzware.usr file." SKIP
-            "Please contact your system administrator for assistance."
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN NO-APPLY.
+        IF fwd-embedded-mode THEN 
+            RETURN NO-APPLY "Unable to locate this user in the advantzware.usr file." +
+                            "Please contact your system administrator for assistance.".
+        ELSE DO:
+            MESSAGE
+                "Unable to locate this user in the advantzware.usr file." SKIP
+                "Please contact your system administrator for assistance."
+                VIEW-AS ALERT-BOX ERROR.
+            RETURN NO-APPLY.
+        END.
     END.
     ELSE DO:
         ASSIGN
@@ -785,7 +808,7 @@ PROCEDURE ipAutoLogin :
       .   
   
   RUN ipFindUser.
-      
+
   if avail ttUsers then do:
   assign
               cEnvironmentList = IF cValidEnvs <> "" THEN cValidEnvs ELSE IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE cEnvList
@@ -872,6 +895,26 @@ PROCEDURE ipChangeEnvironment :
         iDbLevel = intVer(ENTRY(iPos,cDbVerList))
         .
     /* Here the format for both is 16070400 */
+
+    if cSessionParam gt "" then do:
+      cbDatabase = ENTRY(1,cDatabaseList).
+      ASSIGN
+        iLookup = LOOKUP(cbEnvironment,cEnvList)
+        cTop = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "\"
+        preProPath = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "," +
+                     cTop + cEnvCustomerDir + "," +
+                     cTop + cEnvOverrideDir + "," +
+                     cTop + cEnvProgramsDir + "," +
+                     cTop + cEnvCustomerDir + "\Addon," +
+                     cTop + cEnvOverrideDir + "\Addon," +
+                     cTop + cEnvProgramsDir + "\Addon" + "," +
+                     cTop + cEnvCustFiles + "," +
+                     cTop + cEnvResourceDir + "," +
+                     cTop + cEnvResourceDir + "\Addon" + "," +
+                     cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ",".
+        PROPATH = preProPath + origPropath.      
+      return.
+    end.
     
     CASE cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME}:
         WHEN "Prod" THEN DO:
@@ -984,8 +1027,6 @@ PROCEDURE ipChangeMode :
         iIndex = LOOKUP(cModeItem,cModeList)
         cPgmItem = ENTRY(iIndex,cPgmList)
         cRunPgm = cPgmItem.
-    IF cModeItem EQ "Sharpshooter" OR cModeItem EQ "Addon" THEN
-      g-sharpshooter = YES.
         
 END PROCEDURE.
 
@@ -1032,7 +1073,9 @@ PROCEDURE ipClickOk :
         /* Set current dir */
         RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
         IF INDEX(cRunPgm,"mainmenu") <> 0
-        AND SEARCH("system/mainmenu2.r") NE ? THEN ASSIGN
+        AND iEnvLevel LT 16080000
+        AND (SEARCH("system/mainmenu2.r") NE ? 
+            OR SEARCH("system/mainmenu2.w") NE ?) THEN ASSIGN
             cRunPgm = "system/mainmenu2.w".
         RUN VALUE(cRunPgm).
     END.
@@ -1375,8 +1418,6 @@ PROCEDURE ipFindUser :
         ttUsers.ttfUserAlias = fiUserID AND
         ttUsers.ttfPdbName = "*"
         NO-ERROR.
-        
-       
          
     /* If this has not yet been built, build off of any DB */
     IF NOT AVAIL ttUsers THEN DO:
@@ -1415,7 +1456,7 @@ PROCEDURE ipFindUser :
         ttUsers.ttfUserID = cUserID AND
         ttUsers.ttfPdbName = cbDatabase:{&SV}
         NO-ERROR.
-
+       
     /* Can't find by DB, is there a generic one? (db = '*') */
     IF NOT AVAIL ttUsers THEN DO:
         FIND FIRST ttUsers NO-LOCK WHERE
@@ -1450,7 +1491,14 @@ PROCEDURE ipFindUser :
         cValidDbs = IF cValidDbs EQ "" THEN ttUsers.ttfDbList ELSE cValidDbs
         cValidEnvs = IF cValidEnvs EQ "" THEN ttUsers.ttfEnvList ELSE cValidEnvs
         cValidModes = IF cValidModes EQ "" THEN ttUsers.ttfModeList ELSE cValidModes.
-        
+
+    ELSE ASSIGN
+        cUserID = fiUserID
+        cValidDbs = cbDatabase
+        cValidEnvs = cbEnvironment
+        cValidModes = cbMode
+        .
+         
  END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1467,16 +1515,8 @@ PROCEDURE ipFindUsrFile :
     
     ASSIGN
         cUsrLoc = ipUserFileName.
-        
     /* Start guessing where the file might be */
     DO:
-        IF SEARCH(cUsrLoc) <> ? THEN DO:
-            ASSIGN
-                cUsrLoc = SEARCH(cUsrLoc).
-            LEAVE.
-        END.
-        ELSE ASSIGN
-            cUsrLoc = "..\" + ipUserFileName.
         IF SEARCH(cUsrLoc) <> ? THEN DO:
             ASSIGN
                 cUsrLoc = SEARCH(cUsrLoc).
@@ -1556,8 +1596,6 @@ PROCEDURE ipFindUsrFile :
             cUsrLoc = "".
     END.
     
-    
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1573,6 +1611,7 @@ PROCEDURE ipPreRun :
     DEFINE VARIABLE lOK      AS LOGICAL INITIAL TRUE NO-UNDO.
     DEFINE VARIABLE lExit    AS LOGICAL INITIAL TRUE NO-UNDO.
     DEFINE VARIABLE hSession AS HANDLE               NO-UNDO.
+    DEFINE VARIABLE hTags    AS HANDLE               NO-UNDO.
 
     ASSIGN
         iPos = LOOKUP(cbEnvironment,cEnvironmentList)
@@ -1591,11 +1630,18 @@ PROCEDURE ipPreRun :
         IF NOT lOK THEN QUIT.
     END.
 
-    IF SEARCH("system\session.r") NE ? THEN DO:
+    IF NOT VALID-HANDLE(hSession)
+    AND iEnvLevel GE 16071600 THEN DO:
         RUN system\session.p PERSISTENT SET hSession.
         SESSION:ADD-SUPER-PROCEDURE (hSession).
     END.
-
+    
+    IF NOT VALID-HANDLE(hTags) 
+    AND iEnvLevel GE 16080000 THEN DO:
+        RUN system\TagProcs.p PERSISTENT SET hTags.
+        SESSION:ADD-SUPER-PROCEDURE (hTags).
+    END.
+    
     IF NOT VALID-HANDLE(persistent-handle) THEN
         RUN nosweat/persist.p PERSISTENT SET persistent-handle.
     IF NOT VALID-HANDLE(listlogic-handle) THEN
@@ -1623,8 +1669,9 @@ PROCEDURE ipPreRun :
     IF iDbLevel GT 16061200 THEN 
         RUN epSetUpEDI IN hPreRun.
 
-    IF fiUserID = "ASI" THEN 
-        RUN asiload.p.
+/*    #41926 Remove deprecated references to asiLoad  */
+/*    IF fiUserID = "ASI" THEN*/
+/*        RUN asiload.p.      */
 
     RUN epCheckExpiration IN hPreRun (OUTPUT lOK).
     IF NOT lOK THEN QUIT.
@@ -1825,6 +1872,10 @@ PROCEDURE ipSetCurrentDir :
     DEF VAR iResult AS INT NO-UNDO.
     DEF VAR iReturnValue AS INT NO-UNDO.
     
+    &IF DEFINED(FWD-VERSION) > 0 &THEN
+    set-working-directory(ipTgtDir).
+    &ELSE
+    
     RUN SetCurrentDirectoryA (ipTgtDir, OUTPUT iResult).
 
     IF iResult NE 1 THEN DO:
@@ -1834,6 +1885,7 @@ PROCEDURE ipSetCurrentDir :
             "Error code:" iReturnValue 
             VIEW-AS ALERT-BOX.
     END.
+    &ENDIF
 
 END PROCEDURE.
 

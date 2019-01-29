@@ -288,7 +288,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       rm-rctd.r-no COLUMN-LABEL "Seq#" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       rm-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U LABEL-BGCOLOR 14
-      rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U LABEL-BGCOLOR 14
+      rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(13)":U LABEL-BGCOLOR 14
       rm-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       rm-rctd.rct-date COLUMN-LABEL "Issue Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
@@ -432,7 +432,7 @@ AND rm-rctd.tag NE ''"
      _FldNameList[2]   > asi.rm-rctd.tag
 "tag" "Tag#" "x(20)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.rm-rctd.loc
-"loc" "Whse" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loc" "Whse" "x(13)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.rm-rctd.loc-bin
 "loc-bin" "Bin" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.rm-rctd.rct-date
@@ -838,7 +838,15 @@ END.
 ON LEAVE OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
 DO:
   IF LASTKEY NE -1 THEN DO:
+    DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
+    IF SELF:MODIFIED THEN DO:
+       IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
 
+          cLocBin = SELF:SCREEN-VALUE.
+          ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(cLocBin,1,5)
+                 rm-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(cLocBin,6,8).
+       END.
+    END.
     RUN valid-loc-bin-tag (1) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
@@ -1962,7 +1970,10 @@ DEF VAR v-rctd-rowid AS ROWID.
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN
    rm-rctd.cost     = ld-std-cost
-   rm-rctd.cost-uom = ld-cost-uom.
+   rm-rctd.cost-uom = ld-cost-uom
+   rm-rctd.enteredBy = USERID("asi")
+   rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+   .
 
   IF INT(rm-rctd.po-no) NE 0 THEN
     rm-rctd.bol = STRING(lv-i-no,"x(30)") + STRING(lv-line,"999").

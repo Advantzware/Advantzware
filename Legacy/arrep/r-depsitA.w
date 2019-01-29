@@ -1139,10 +1139,7 @@ FOR EACH ar-cash NO-LOCK
       WHERE ar-cashl.c-no EQ ar-cash.c-no
       :
       {custom/statusMsg.i " 'Processing Bank#  '  + ar-cash.bank-code "}
-      v-void = CAN-FIND(FIRST reftable
-                        WHERE reftable.reftable = "ARCASHLVDDATE"
-                          AND reftable.rec_key = ar-cashl.rec_key
-                        USE-INDEX rec_key).
+      v-void = ar-cashl.voided EQ YES.
 
       IF NOT v-void THEN
         FIND FIRST ar-ledger NO-LOCK

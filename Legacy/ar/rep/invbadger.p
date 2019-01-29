@@ -97,14 +97,14 @@ FIND FIRST ar-inv NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
-IF cocode = "003" THEN
-   ls-image1  = "images\Badger_CA.jpg" .
-ELSE
-   ls-image1 = "images\badger.jpg".
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
-   ASSIGN
-       FILE-INFO:FILE-NAME = ls-image1
-       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.

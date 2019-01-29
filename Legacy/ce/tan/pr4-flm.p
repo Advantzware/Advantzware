@@ -25,9 +25,6 @@ DEF VAR lv-deptf LIKE est-op.dept NO-UNDO.
 DEF VAR ld-rm AS DEC NO-UNDO.
 DEF VAR ld-hp AS DEC NO-UNDO.
 
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
-
 DEF TEMP-TABLE tt-ei NO-UNDO
     FIELD run-qty AS DECIMAL DECIMALS 3 EXTENT 20
     FIELD run-cost AS DECIMAL DECIMALS 4 EXTENT 20.
@@ -150,25 +147,10 @@ for each flm by flm.snum by flm.bnum with no-labels no-box:
             tt-ei.run-cost[j] = e-item.run-cost[j].
       END.
       
-      FIND FIRST b-qty WHERE
-           b-qty.reftable = "blank-vend-qty" AND
-           b-qty.company = e-item.company AND
-           b-qty.CODE    = e-item.i-no
-           NO-LOCK NO-ERROR.
-      
-      IF AVAIL b-qty THEN
-      DO:
-         FIND FIRST b-cost WHERE
-              b-cost.reftable = "blank-vend-cost" AND
-              b-cost.company = e-item.company AND
-              b-cost.CODE    = e-item.i-no
-              NO-LOCK NO-ERROR.
-      
-         DO j = 1 TO 10:
+      DO j = 1 TO 10:
             ASSIGN
-               tt-ei.run-qty[j + 10] = b-qty.val[j]
-               tt-ei.run-cost[j + 10] = b-cost.val[j].
-         END.
+               tt-ei.run-qty[j + 10] = e-item.runQty[j]
+               tt-ei.run-cost[j + 10] = e-item.runCost[j].
       END.
 
       do j = 1 to 20:

@@ -229,11 +229,7 @@ PROCEDURE pInventoryValue:
             FOR EACH cust-part NO-LOCK
                 WHERE cust-part.company EQ itemfg.company
                   AND cust-part.i-no    EQ itemfg.i-no
-                  AND cust-part.cust-no EQ cust.cust-no,
-                FIRST reftable WHERE reftable.reftable EQ "cp-lab-p" 
-                  AND reftable.company  EQ cust-part.company  
-                  AND reftable.loc      EQ cust-part.i-no
-                  AND reftable.code     EQ cust-part.cust-no
+                  AND cust-part.cust-no EQ cust.cust-no
                 :
                 IF cust-part.spare-char-1 NE "" THEN DO:
                     FIND FIRST sman NO-LOCK
@@ -319,6 +315,7 @@ PROCEDURE pInventoryValue:
             dCost1    = tt-fg-bin.std-tot-cost
             dCost     = dCost1 * tt-fg-bin.qty
             .
+        IF dCost1 EQ ? THEN dCost1 = 0.
 
         /* Calculate Cost */
         IF tt-fg-bin.pur-uom EQ "CS" AND tt-fg-bin.case-count NE 0 THEN
@@ -548,10 +545,11 @@ PROCEDURE pInventoryValue:
             dtLastInv = ?.
             IF iplProcessLastSale THEN
             FOR EACH ar-invl NO-LOCK
-                WHERE ar-invl.i-no EQ itemfg.i-no,
+                WHERE ar-invl.company EQ itemfg.company
+                  AND ar-invl.i-no    EQ itemfg.i-no,
                 EACH ar-inv NO-LOCK
-                WHERE ar-inv.x-no EQ ar-invl.x-no
-                BY ar-inv.inv-date DESCENDING
+                WHERE ar-inv.x-no     EQ ar-invl.x-no
+                   BY ar-inv.inv-date DESCENDING
                 :
                 dtLastInv = ar-inv.inv-date.
                 LEAVE.

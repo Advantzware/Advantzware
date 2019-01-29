@@ -325,7 +325,10 @@ PROCEDURE ipRunReport :
         AND cust.cust-no EQ eb.cust-no
         :   
                 
-        FIND FIRST est OF eb NO-LOCK NO-ERROR.
+        FIND FIRST est NO-LOCK WHERE 
+            est.company EQ eb.company AND 
+            est.est-no EQ eb.est-no 
+            NO-ERROR. 
         IF AVAILABLE est THEN iEstType = est.est-type.        
         FIND FIRST itemfg NO-LOCK 
             WHERE itemfg.company EQ costHeader.company

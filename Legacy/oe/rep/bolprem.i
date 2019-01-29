@@ -82,9 +82,9 @@ DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR cSignatureFile AS CHAR FORM "X(200)" NO-UNDO.
 
-ASSIGN ls-image1 = "images\premier{&fmt}.jpg"
+/*ASSIGN ls-image1 = "images\premier{&fmt}.jpg"
        FILE-INFO:FILE-NAME = ls-image1
-       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".*/
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
@@ -135,6 +135,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "BOLImageFooter", "C" /* Logical */, NO /* 
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     cImageFooter = cRtnChar NO-ERROR. 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 form 
      w2.i-no                         format "x(15)"
@@ -515,11 +521,11 @@ for each xxreport where xxreport.term-id eq v-term-id,
       "<=8><R+1> Total Units       :" v-grand-total-cases format ">>,>>>,>>9"
       "<=8><R+3> Total Weight      :" v-tot-wt format ">>,>>>,>>9".
   
-  PUT "<FArial><R51><C1><P12><B>     Shipping Instructions: <P10> " SKIP(1)
-      oe-bolh.ship-i[1] AT 7 SKIP
-      oe-bolh.ship-i[2] AT 7 SKIP
-      oe-bolh.ship-i[3] AT 7 SKIP
-      oe-bolh.ship-i[4] AT 7 "</B><P9>".
+  PUT "<FArial><R51><C1><P12><B>     Shipping Instructions: <P10> "
+      "<R52.5><C3.5>" oe-bolh.ship-i[1] 
+      "<R53.5><C3.5>" oe-bolh.ship-i[2] 
+      "<R54.5><C3.5>" oe-bolh.ship-i[3] 
+      "<R55.5><C3.5>" oe-bolh.ship-i[4] "</B><P9>".
   
   /* rstark 05181205 */
   RUN XMLOutput (lXMLOutput,'Last',STRING(PAGE-NUM),'Page').

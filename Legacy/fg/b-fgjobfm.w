@@ -1201,7 +1201,10 @@ PROCEDURE local-assign-statement :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
-  ASSIGN fg-rctd.trans-time   = TIME .
+  ASSIGN fg-rctd.trans-time   = TIME 
+         fg-rctd.enteredBy = USERID("asi")
+         fg-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+         .
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN BROWSE {&browse-name} fg-rctd.t-qty fg-rctd.ext-cost.
   fg-rctd.cost-uom = lv-uom.

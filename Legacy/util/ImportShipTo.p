@@ -43,9 +43,10 @@ DEFINE TEMP-TABLE ttImportShipTo
     FIELD Pallet              AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Pallet Code" HELP "Optional - Field Validated - Size:10"
     FIELD ShipperID           AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Shipper ID" HELP "Optional - Size:20"
     FIELD MemberID            AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Member ID" HELP "Optional - Size:20"
+    FIELD cExportId          AS CHARACTER FORMAT "x(16)" COLUMN-LABEL "Export ID#" HELP "Optional - Size:16"
     FIELD DockID              AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Dock ID" HELP "Optional - Size:20"
     FIELD DockHours           AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Dock Hours" HELP "Optional - Size:20"
-    FIELD Charge              AS DECIMAL   FORMAT ">,>>9.99<<" COLUMN-LABEL "Charge" HELP "Optional - Decimal"
+    FIELD Charge              AS DECIMAL   FORMAT ">>9.99" COLUMN-LABEL "Charge" HELP "Optional - Decimal"
     FIELD DaysTransit         AS DECIMAL   FORMAT ">>9" COLUMN-LABEL "Days Transit" HELP "Optional - Decimal"
     FIELD DaysSamples         AS INTEGER   FORMAT ">>9" COLUMN-LABEL "Days Samples" HELP "Optional - Integer"
     FIELD DaysDockAppt        AS INTEGER   FORMAT ">>9" COLUMN-LABEL "Days Dock Appointment" HELP "Optional - Integer"
@@ -54,10 +55,14 @@ DEFINE TEMP-TABLE ttImportShipTo
     FIELD ShipByCaseAllowed   AS CHARACTER FORMAT "X" COLUMN-LABEL "Ship By Case Allowed" HELP "Optional - Y or N"
     FIELD Broker              AS CHARACTER FORMAT "X" COLUMN-LABEL "Broker" HELP "Optional - Y or N"
     FIELD Billable            AS CHARACTER FORMAT "X" COLUMN-LABEL "Billable" HELP "Optional - Y or N"
+    FIELD cManTax            AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Mandatory Tax" HELP "Optional - Yes or N0"
+    FIELD cInactive          AS CHARACTER FORMAT "X(1)" COLUMN-LABEL "Inactive" HELP "Optional - Yes or N0"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
-
+DEFINE VARIABLE hTags    AS HANDLE NO-UNDO.
+RUN system/TagProcs.p PERSISTENT SET hTags.
+SESSION:ADD-SUPER-PROCEDURE (hTags).
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -198,6 +203,9 @@ PROCEDURE pValidate PRIVATE:
 
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
+    IF ipbf-ttImportShipTo.cInactive EQ "Yes" THEN
+         ipbf-ttImportShipTo.cInactive = "I".
+    ELSE ipbf-ttImportShipTo.cInactive = "".
     
 END PROCEDURE.
 
@@ -245,6 +253,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportShipTo.Pallet, iplIgnoreBlanks, INPUT-OUTPUT shipto.pallet).
     RUN pAssignValueC (ipbf-ttImportShipTo.ShipperID, iplIgnoreBlanks, INPUT-OUTPUT shipto.spare-char-4).
     RUN pAssignValueC (ipbf-ttImportShipTo.MemberID, iplIgnoreBlanks, INPUT-OUTPUT shipto.spare-char-5).
+    RUN pAssignValueC (ipbf-ttImportShipTo.cExportId, iplIgnoreBlanks, INPUT-OUTPUT shipto.exportCustID).
     RUN pAssignValueC (ipbf-ttImportShipTo.DockID, iplIgnoreBlanks, INPUT-OUTPUT shipto.dock-loc).
     RUN pAssignValueC (ipbf-ttImportShipTo.DockHours, iplIgnoreBlanks, INPUT-OUTPUT shipto.dock-hour).
     RUN pAssignValueC (ipbf-ttImportShipTo.Charge, iplIgnoreBlanks, INPUT-OUTPUT shipto.del-chg).
@@ -260,6 +269,15 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportShipTo.Note2, iplIgnoreBlanks, INPUT-OUTPUT shipto.notes[2]).
     RUN pAssignValueC (ipbf-ttImportShipTo.Note3, iplIgnoreBlanks, INPUT-OUTPUT shipto.notes[3]).
     RUN pAssignValueC (ipbf-ttImportShipTo.Note4, iplIgnoreBlanks, INPUT-OUTPUT shipto.notes[4]).
+    RUN pAssignValueC (ipbf-ttImportShipTo.cManTax, YES, INPUT-OUTPUT shipto.tax-mandatory).
+    IF ipbf-ttImportShipTo.cInactive EQ "I" AND DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN DO:
+     RUN AddTagInactive(shipto.rec_key,"shipto").
+     shipto.statusCode = "I".
+    END.
+    ELSE IF ipbf-ttImportShipTo.cInactive EQ "" AND NOT DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN DO: 
+     RUN ClearTagsInactive(shipto.rec_key).
+     shipto.statusCode = "".
+    END.
     
     RELEASE shipto.
 END PROCEDURE.

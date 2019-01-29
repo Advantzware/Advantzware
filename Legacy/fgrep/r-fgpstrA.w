@@ -1410,7 +1410,15 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                each fg-rdtlh
                where fg-rdtlh.r-no      eq fg-rcpth.r-no
                  and fg-rdtlh.rita-code eq fg-rcpth.rita-code
-               no-lock:
+               NO-LOCK,
+               FIRST itemfg WHERE
+               itemfg.company EQ cocode AND
+               itemfg.i-no    EQ fg-rcpth.i-no AND
+               itemfg.cust-no GE v-cust[1] AND
+               itemfg.cust-no LE v-cust[2] AND 
+               (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+                                           AND ttCustList.log-fld no-lock) else true)
+               NO-LOCK:
 
                create tt-report.
                assign
@@ -1469,7 +1477,15 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                   each fg-rdtlh FIELDS(loc loc-bin tag)
                   where fg-rdtlh.r-no      eq fg-rcpth.r-no
                     and fg-rdtlh.rita-code eq fg-rcpth.rita-code
-                  NO-LOCK:
+                  NO-LOCK,
+                  FIRST itemfg WHERE
+                   itemfg.company EQ cocode AND
+                   itemfg.i-no    EQ fg-rcpth.i-no AND
+                   itemfg.cust-no GE v-cust[1] AND
+                   itemfg.cust-no LE v-cust[2] AND 
+                   (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+                                               AND ttCustList.log-fld no-lock) else true)
+                   NO-LOCK:
 
 
                   create tt-report.
@@ -1530,6 +1546,14 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                   each fg-rdtlh FIELDS(loc loc-bin tag)
                   where fg-rdtlh.r-no      eq fg-rcpth.r-no
                     and fg-rdtlh.rita-code eq fg-rcpth.rita-code
+                  NO-LOCK,
+                  FIRST itemfg WHERE
+                  itemfg.company EQ cocode AND
+                  itemfg.i-no    EQ fg-rcpth.i-no AND
+                  itemfg.cust-no GE v-cust[1] AND
+                  itemfg.cust-no LE v-cust[2] AND 
+                  (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+                                              AND ttCustList.log-fld no-lock) else true)
                   NO-LOCK:
 
                   create tt-report.
@@ -1557,7 +1581,15 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                    each fg-rdtlh FIELDS(loc loc-bin tag) WHERE
                         fg-rdtlh.r-no      eq fg-rcpth.r-no AND
                         fg-rdtlh.rita-code eq fg-rcpth.rita-code
-                        NO-LOCK:
+                        NO-LOCK,
+                  FIRST itemfg WHERE
+                  itemfg.company EQ cocode AND
+                  itemfg.i-no    EQ fg-rcpth.i-no AND
+                  itemfg.cust-no GE v-cust[1] AND
+                  itemfg.cust-no LE v-cust[2] AND 
+                  (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+                                              AND ttCustList.log-fld no-lock) else true)
+                  NO-LOCK:
 
                         create tt-report.
                         assign

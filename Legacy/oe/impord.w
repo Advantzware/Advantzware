@@ -28,7 +28,7 @@ CREATE WIDGET-POOL.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
-
+{cXml/ttOrd.i}
 def new shared buffer xest for est.
 def new shared buffer xef for ef.
 def new shared buffer xeb for eb.
@@ -1208,6 +1208,7 @@ PROCEDURE pAutoCreateShipTo:
     DEFINE BUFFER bf-default-shipto FOR shipto.
     DEFINE BUFFER bf-state-shipto FOR shipto.
     DEFINE BUFFER bf-shipto FOR shipto.
+    DEFINE BUFFER bf-cust FOR cust.
     
     opcShipToID = ipcShipToID.
     RUN pParsePhone (INPUT ipcPhone, OUTPUT cArea, OUTPUT ipcPhone).
@@ -1261,9 +1262,18 @@ PROCEDURE pAutoCreateShipTo:
             AND bf-state-shipto.ship-id NE shipto.cust-no
             AND bf-state-shipto.ship-state EQ shipto.ship-state
             NO-LOCK NO-ERROR.
-        shipto.tax-code = IF AVAIL(bf-state-shipto) THEN bf-state-shipto.tax-code 
-        ELSE IF AVAIL(bf-default-shipto) THEN bf-shipto.tax-code 
-        ELSE "".
+        FIND FIRST bf-cust NO-LOCK 
+            WHERE bf-cust.company EQ shipto.company
+            AND bf-cust.cust-no EQ shipto.cust-no
+            NO-ERROR.
+        shipto.tax-code = IF AVAILABLE bf-state-shipto  THEN bf-state-shipto.tax-code 
+            ELSE IF AVAILABLE bf-default-shipto  THEN bf-shipto.tax-code 
+            ELSE IF AVAILABLE bf-cust THEN bf-cust.tax-gr
+            ELSE "".
+        shipto.tax-mandatory = IF AVAIL(bf-state-shipto) THEN bf-state-shipto.tax-mandatory 
+            ELSE IF AVAIL(bf-default-shipto) THEN bf-shipto.tax-mandatory 
+            ELSE IF AVAILABLE bf-cust THEN bf-cust.sort EQ "Y"
+            ELSE NO.
          
  
     END. /* not avail shipto */

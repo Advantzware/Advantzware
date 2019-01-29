@@ -1,0 +1,1231 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta name="generator" content="HtmlDict.w version 11">
+  <meta name="author"    content="Patrick Tingen [patrick at tingen dot nl]">
+  <link rel="stylesheet" title="Default" type="text/css" href="../default.css">
+  <link rel="alternate stylesheet" title="blue" type="text/css" href="../blue.css">
+  <link rel="alternate stylesheet" title="default" type="text/css" href="../default.css">
+  <link rel="alternate stylesheet" title="green" type="text/css" href="../green.css">
+  <link rel="alternate stylesheet" title="oldstyle" type="text/css" href="../oldstyle.css">
+  <link rel="alternate stylesheet" title="red" type="text/css" href="../red.css">
+  <link rel="shortcut icon" href="../htmldict.ico">
+  <link rel="stylesheet" media="print" type="text/css" href="../print.css">
+  <script src="../swapstyle.js"    type="text/javascript"></script>
+  <script src="../stylechooser.js" type="text/javascript"></script>
+  <script src="../dbchooser.js"    type="text/javascript"></script>
+  <script src="../htmldict.js"     type="text/javascript"></script>
+  <title> Schema asi.users</title>
+</head>
+
+<body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
+<div><a name="top"></a></div>
+ 
+
+<table style="width:100%;">
+  <tr>
+    <td class="navbar" style="width:40%;"><a href="../00-index.html"target="_top">DB</a>
+ | <a href="00-area.html"target="main">Areas</a>
+ | <a href="00-cross.html"target="main">X-idx</a>
+ | <a href="00-main.html"target="main">Tables</a>
+ | <a href="00-sequences.html"target="main">Sequences</a>
+</td>
+    <td class="navbar" style="width:20%;">  &lt;- <a href="userpwdhist.html">userPwdHist</a></td>
+    <td class="navbar" style="width:20%;">  <a href="usersman.html">usersman</a> -&gt;</td>
+    <td class="navbar" style="width:20%; text-align:right;"><a href="../htmldict.html"target="_top">HtmlDict 11</a></td>
+  </tr>
+</table>
+<h1>asi.users</h1>
+<p>User Master File</p>
+<hr>
+<div class="clearboth">
+  <div class="tbdetcol">
+    <h2>Table details</h2>
+    <table style="border-style:none;" >
+      <tr class="shadedrow"><th>Area</th>
+                            <td><a href="00-area.html">Data</a></td></tr>
+      <tr class="shadedrow"><th>Dumpname </th>
+                            <td> users      </td></tr>
+      <tr class="shadedrow"><th>Label    </th>     
+                            <td> User Master File      </td></tr>
+      <tr class="shadedrow"><th>Val.exp  </th>     
+                            <td> {methods/validate.del/users.i}      </td></tr>
+      <tr class="shadedrow"><th>Val.msg  </th>     
+                            <td> User ID exists within other related Tables and can not be deleted      </td></tr>
+    </table>
+  </div>
+  <div class="tbcol" >
+    <h2>Triggers</h2>
+    <table style="border-style:none;">
+      <tr>
+        <th>Event</th>
+        <th>Procedure</th>
+        <th>Overr</th>
+        <th>CRC</th>
+      </tr>
+      <tr class="shadedrow">
+        <td>CREATE</td>
+        <td>create.trg/users.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>DELETE</td>
+        <td>delete.trg/users.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>WRITE</td>
+        <td>write.trg/users.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+    </table>
+  </div>
+<div class="clearboth"></div>
+<hr style="margin-top:20px;">
+<h2>Fields</h2>
+
+<div id=SortName >
+<table style="width:100%; border-style:none;">
+  <tr>
+    <th><script type="text/javascript">
+    <!--
+    writeToggleBegin();
+    // -->
+    </script>Order<script type="text/javascript">
+    <!--
+    writeToggleEnd();
+    // -->
+    </script></th>
+    <th>Field Name</th>
+    <th>x</th>
+    <th>Label</th>
+    <th>Datatype</th>
+    <th>Format</th>
+    <th>Initial</th>
+    <th>Mand</th>
+    <th>Description</th>
+  </tr>
+  <tr class="oddrow">
+    <td>461</td>
+    <td>blockCueCards</td>
+    <td><a href="00-cross-b.html#blockCueCards"><small>X</small></a></td>
+    <td>Block Cue Cards</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>271</td>
+    <td>createDate</td>
+    <td><a href="00-cross-c.html#createDate"><small>X</small></a></td>
+    <td>Create Date</td>
+    <td>date</td>
+    <td>99/99/99</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>281</td>
+    <td>createTime</td>
+    <td><a href="00-cross-c.html#createTime"><small>X</small></a></td>
+    <td>Create Time</td>
+    <td>integer</td>
+    <td>99999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>291</td>
+    <td>createUser</td>
+    <td><a href="00-cross-c.html#createUser"><small>X</small></a></td>
+    <td>Create User</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>251</td>
+    <td>dbList</td>
+    <td><a href="00-cross-d.html#dbList"><small>X</small></a></td>
+    <td>DB List</td>
+    <td>character</td>
+    <td>x(120)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>30</td>
+    <td>developer</td>
+    <td><a href="00-cross-d.html#developer"><small>X</small></a></td>
+    <td>Developer</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="oddrow">
+    <td>160</td>
+    <td>email</td>
+    <td><a href="00-cross-e.html#email"><small>X</small></a></td>
+    <td>E-mail Address</td>
+    <td>character</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>241</td>
+    <td>envList</td>
+    <td><a href="00-cross-e.html#envList"><small>X</small></a></td>
+    <td>Env List</td>
+    <td>character</td>
+    <td>x(120)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>181</td>
+    <td>fax</td>
+    <td><a href="00-cross-f.html#fax"><small>X</small></a></td>
+    <td>FAX</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>201</td>
+    <td>fax-cnty</td>
+    <td><a href="00-cross-f.html#fax-cnty"><small>X</small></a></td>
+    <td>FAX Country</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>50</td>
+    <td>image_filename</td>
+    <td><a href="00-cross-i.html#image_filename"><small>X</small></a></td>
+    <td>Image File Name</td>
+    <td>character</td>
+    <td>X(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>150</td>
+    <td>internal-user</td>
+    <td><a href="00-cross-i.html#internal-user"><small>X</small></a></td>
+    <td>?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>yes</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>351</td>
+    <td>isActive</td>
+    <td><a href="00-cross-i.html#isActive"><small>X</small></a></td>
+    <td>Active</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>341</td>
+    <td>isLocked</td>
+    <td><a href="00-cross-i.html#isLocked"><small>X</small></a></td>
+    <td>Locked?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>421</td>
+    <td>menuSize</td>
+    <td><a href="00-cross-m.html#menuSize"><small>X</small></a></td>
+    <td>Menu Size</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td>Small</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Menu Size</td>
+  </tr>
+  <tr class="evenrow">
+    <td>261</td>
+    <td>modeList</td>
+    <td><a href="00-cross-m.html#modeList"><small>X</small></a></td>
+    <td>Mode List</td>
+    <td>character</td>
+    <td>x(120)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>161</td>
+    <td>num-rows-web</td>
+    <td><a href="00-cross-n.html#num-rows-web"><small>X</small></a></td>
+    <td>Default Web Rows</td>
+    <td>integer</td>
+    <td>99</td>
+    <td>15</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>171</td>
+    <td>phone</td>
+    <td><a href="00-cross-p.html#phone"><small>X</small></a></td>
+    <td>Phone</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>211</td>
+    <td>phone-cnty</td>
+    <td><a href="00-cross-p.html#phone-cnty"><small>X</small></a></td>
+    <td>Phone Country</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>451</td>
+    <td>positionMnemonic</td>
+    <td><a href="00-cross-p.html#positionMnemonic"><small>X</small></a></td>
+    <td>Position Mnemonic</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td>Begin</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>120</td>
+    <td><a href="addrphone.html">rec_key</a></td>
+    <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
+    <td>Record Key</td>
+    <td>character</td>
+    <td>X(21)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>221</td>
+    <td>securityLevel</td>
+    <td><a href="00-cross-s.html#securityLevel"><small>X</small></a></td>
+    <td>Sec Level</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>441</td>
+    <td>showMnemonic</td>
+    <td><a href="00-cross-s.html#showMnemonic"><small>X</small></a></td>
+    <td>Show Mnemonic</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td>ALL</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>391</td>
+    <td>showOnAck</td>
+    <td><a href="00-cross-s.html#showOnAck"><small>X</small></a></td>
+    <td>Ack</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>371</td>
+    <td>showOnBol</td>
+    <td><a href="00-cross-s.html#showOnBol"><small>X</small></a></td>
+    <td>BoL</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>381</td>
+    <td>showOnInv</td>
+    <td><a href="00-cross-s.html#showOnInv"><small>X</small></a></td>
+    <td>Invoice</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>361</td>
+    <td>showOnPO</td>
+    <td><a href="00-cross-s.html#showOnPO"><small>X</small></a></td>
+    <td>PO?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>401</td>
+    <td>showOnQuote</td>
+    <td><a href="00-cross-s.html#showOnQuote"><small>X</small></a></td>
+    <td>Quote</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>40</td>
+    <td>track_usage</td>
+    <td><a href="00-cross-t.html#track_usage"><small>X</small></a></td>
+    <td>Track Usage</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="evenrow">
+    <td>301</td>
+    <td>updateDate</td>
+    <td><a href="00-cross-u.html#updateDate"><small>X</small></a></td>
+    <td>Update Date</td>
+    <td>date</td>
+    <td>99/99/99</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>311</td>
+    <td>updateTime</td>
+    <td><a href="00-cross-u.html#updateTime"><small>X</small></a></td>
+    <td>Update Time</td>
+    <td>integer</td>
+    <td>99999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>321</td>
+    <td>updateUser</td>
+    <td><a href="00-cross-u.html#updateUser"><small>X</small></a></td>
+    <td>Update User</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>191</td>
+    <td>user-docs</td>
+    <td><a href="00-cross-u.html#user-docs"><small>X</small></a></td>
+    <td>User Docs</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>331</td>
+    <td>userAlias</td>
+    <td><a href="00-cross-u.html#userAlias"><small>X</small></a></td>
+    <td>Login Alias</td>
+    <td>character</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>411</td>
+    <td>userImage</td>
+    <td><a href="00-cross-u.html#userImage"><small>X</small></a></td>
+    <td>User Image</td>
+    <td>character [3]</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: User Image</td>
+  </tr>
+  <tr class="evenrow">
+    <td>431</td>
+    <td><a href="userlanguage.html">userLanguage</a></td>
+    <td><a href="00-cross-u.html#userLanguage"><small>X</small></a></td>
+    <td>Language</td>
+    <td>character</td>
+    <td>x(2)</td>
+    <td>EN</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: User Default Language</td>
+  </tr>
+  <tr class="oddrow">
+    <td>231</td>
+    <td>userType</td>
+    <td><a href="00-cross-u.html#userType"><small>X</small></a></td>
+    <td>User Type</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>10</td>
+    <td>user_id</td>
+    <td><a href="00-cross-u.html#user_id"><small>X</small></a></td>
+    <td>User ID's</td>
+    <td>character</td>
+    <td>X(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>130</td>
+    <td>user_language</td>
+    <td><a href="00-cross-u.html#user_language"><small>X</small></a></td>
+    <td>Language</td>
+    <td>character</td>
+    <td>X(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>20</td>
+    <td>user_name</td>
+    <td><a href="00-cross-u.html#user_name"><small>X</small></a></td>
+    <td>User Name</td>
+    <td>character</td>
+    <td>X(30)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>140</td>
+    <td>user_program</td>
+    <td><a href="00-cross-u.html#user_program"><small>X</small></a></td>
+    <td>User Application Program</td>
+    <td>character [5]</td>
+    <td>x(50)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: User Application Program</td>
+  </tr>
+  <tr class="evenrow">
+    <td>70</td>
+    <td>use_colors</td>
+    <td><a href="00-cross-u.html#use_colors"><small>X</small></a></td>
+    <td>Use Defined Colors</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="oddrow">
+    <td>60</td>
+    <td>use_ctrl_keys</td>
+    <td><a href="00-cross-u.html#use_ctrl_keys"><small>X</small></a></td>
+    <td>Use Control Key Accelerators</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="evenrow">
+    <td>80</td>
+    <td>use_fonts</td>
+    <td><a href="00-cross-u.html#use_fonts"><small>X</small></a></td>
+    <td>Use Defined Fonts</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="oddrow">
+    <td>90</td>
+    <td>widget_bgc</td>
+    <td><a href="00-cross-w.html#widget_bgc"><small>X</small></a></td>
+    <td>Widget Background Color</td>
+    <td>integer [13]</td>
+    <td>&gt;&gt;9</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>100</td>
+    <td>widget_fgc</td>
+    <td><a href="00-cross-w.html#widget_fgc"><small>X</small></a></td>
+    <td>Widget Foreround Color</td>
+    <td>integer [13]</td>
+    <td>&gt;&gt;9</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>110</td>
+    <td>widget_font</td>
+    <td><a href="00-cross-w.html#widget_font"><small>X</small></a></td>
+    <td>Widget Font</td>
+    <td>integer [13]</td>
+    <td>&gt;&gt;9</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+</table>
+</div>
+<div id=SortOrder  style="display:none;">
+<table style="width:100%; border-style:none;">
+  <tr>
+    <th>Order</th>
+    <th><script type="text/javascript">
+    <!--
+    writeToggleBegin();
+    // -->
+    </script>Field Name<script type="text/javascript">
+    <!--
+    writeToggleEnd();
+    // -->
+    </script></th>
+    <th>x</th>
+    <th>Label</th>
+    <th>Datatype</th>
+    <th>Format</th>
+    <th>Initial</th>
+    <th>Mand</th>
+    <th>Description</th>
+  </tr>
+  <tr class="oddrow">
+    <td>10</td>
+    <td>user_id</td>
+    <td><a href="00-cross-u.html#user_id"><small>X</small></a></td>
+    <td>User ID's</td>
+    <td>character</td>
+    <td>X(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>20</td>
+    <td>user_name</td>
+    <td><a href="00-cross-u.html#user_name"><small>X</small></a></td>
+    <td>User Name</td>
+    <td>character</td>
+    <td>X(30)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>30</td>
+    <td>developer</td>
+    <td><a href="00-cross-d.html#developer"><small>X</small></a></td>
+    <td>Developer</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="evenrow">
+    <td>40</td>
+    <td>track_usage</td>
+    <td><a href="00-cross-t.html#track_usage"><small>X</small></a></td>
+    <td>Track Usage</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="oddrow">
+    <td>50</td>
+    <td>image_filename</td>
+    <td><a href="00-cross-i.html#image_filename"><small>X</small></a></td>
+    <td>Image File Name</td>
+    <td>character</td>
+    <td>X(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>60</td>
+    <td>use_ctrl_keys</td>
+    <td><a href="00-cross-u.html#use_ctrl_keys"><small>X</small></a></td>
+    <td>Use Control Key Accelerators</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="oddrow">
+    <td>70</td>
+    <td>use_colors</td>
+    <td><a href="00-cross-u.html#use_colors"><small>X</small></a></td>
+    <td>Use Defined Colors</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="evenrow">
+    <td>80</td>
+    <td>use_fonts</td>
+    <td><a href="00-cross-u.html#use_fonts"><small>X</small></a></td>
+    <td>Use Defined Fonts</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="oddrow">
+    <td>90</td>
+    <td>widget_bgc</td>
+    <td><a href="00-cross-w.html#widget_bgc"><small>X</small></a></td>
+    <td>Widget Background Color</td>
+    <td>integer [13]</td>
+    <td>&gt;&gt;9</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>100</td>
+    <td>widget_fgc</td>
+    <td><a href="00-cross-w.html#widget_fgc"><small>X</small></a></td>
+    <td>Widget Foreround Color</td>
+    <td>integer [13]</td>
+    <td>&gt;&gt;9</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>110</td>
+    <td>widget_font</td>
+    <td><a href="00-cross-w.html#widget_font"><small>X</small></a></td>
+    <td>Widget Font</td>
+    <td>integer [13]</td>
+    <td>&gt;&gt;9</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>120</td>
+    <td><a href="addrphone.html">rec_key</a></td>
+    <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
+    <td>Record Key</td>
+    <td>character</td>
+    <td>X(21)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>130</td>
+    <td>user_language</td>
+    <td><a href="00-cross-u.html#user_language"><small>X</small></a></td>
+    <td>Language</td>
+    <td>character</td>
+    <td>X(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>140</td>
+    <td>user_program</td>
+    <td><a href="00-cross-u.html#user_program"><small>X</small></a></td>
+    <td>User Application Program</td>
+    <td>character [5]</td>
+    <td>x(50)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: User Application Program</td>
+  </tr>
+  <tr class="oddrow">
+    <td>150</td>
+    <td>internal-user</td>
+    <td><a href="00-cross-i.html#internal-user"><small>X</small></a></td>
+    <td>?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>yes</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>160</td>
+    <td>email</td>
+    <td><a href="00-cross-e.html#email"><small>X</small></a></td>
+    <td>E-mail Address</td>
+    <td>character</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>161</td>
+    <td>num-rows-web</td>
+    <td><a href="00-cross-n.html#num-rows-web"><small>X</small></a></td>
+    <td>Default Web Rows</td>
+    <td>integer</td>
+    <td>99</td>
+    <td>15</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>171</td>
+    <td>phone</td>
+    <td><a href="00-cross-p.html#phone"><small>X</small></a></td>
+    <td>Phone</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>181</td>
+    <td>fax</td>
+    <td><a href="00-cross-f.html#fax"><small>X</small></a></td>
+    <td>FAX</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>191</td>
+    <td>user-docs</td>
+    <td><a href="00-cross-u.html#user-docs"><small>X</small></a></td>
+    <td>User Docs</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>201</td>
+    <td>fax-cnty</td>
+    <td><a href="00-cross-f.html#fax-cnty"><small>X</small></a></td>
+    <td>FAX Country</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>211</td>
+    <td>phone-cnty</td>
+    <td><a href="00-cross-p.html#phone-cnty"><small>X</small></a></td>
+    <td>Phone Country</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>221</td>
+    <td>securityLevel</td>
+    <td><a href="00-cross-s.html#securityLevel"><small>X</small></a></td>
+    <td>Sec Level</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>231</td>
+    <td>userType</td>
+    <td><a href="00-cross-u.html#userType"><small>X</small></a></td>
+    <td>User Type</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>241</td>
+    <td>envList</td>
+    <td><a href="00-cross-e.html#envList"><small>X</small></a></td>
+    <td>Env List</td>
+    <td>character</td>
+    <td>x(120)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>251</td>
+    <td>dbList</td>
+    <td><a href="00-cross-d.html#dbList"><small>X</small></a></td>
+    <td>DB List</td>
+    <td>character</td>
+    <td>x(120)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>261</td>
+    <td>modeList</td>
+    <td><a href="00-cross-m.html#modeList"><small>X</small></a></td>
+    <td>Mode List</td>
+    <td>character</td>
+    <td>x(120)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>271</td>
+    <td>createDate</td>
+    <td><a href="00-cross-c.html#createDate"><small>X</small></a></td>
+    <td>Create Date</td>
+    <td>date</td>
+    <td>99/99/99</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>281</td>
+    <td>createTime</td>
+    <td><a href="00-cross-c.html#createTime"><small>X</small></a></td>
+    <td>Create Time</td>
+    <td>integer</td>
+    <td>99999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>291</td>
+    <td>createUser</td>
+    <td><a href="00-cross-c.html#createUser"><small>X</small></a></td>
+    <td>Create User</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>301</td>
+    <td>updateDate</td>
+    <td><a href="00-cross-u.html#updateDate"><small>X</small></a></td>
+    <td>Update Date</td>
+    <td>date</td>
+    <td>99/99/99</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>311</td>
+    <td>updateTime</td>
+    <td><a href="00-cross-u.html#updateTime"><small>X</small></a></td>
+    <td>Update Time</td>
+    <td>integer</td>
+    <td>99999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>321</td>
+    <td>updateUser</td>
+    <td><a href="00-cross-u.html#updateUser"><small>X</small></a></td>
+    <td>Update User</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>331</td>
+    <td>userAlias</td>
+    <td><a href="00-cross-u.html#userAlias"><small>X</small></a></td>
+    <td>Login Alias</td>
+    <td>character</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>341</td>
+    <td>isLocked</td>
+    <td><a href="00-cross-i.html#isLocked"><small>X</small></a></td>
+    <td>Locked?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>351</td>
+    <td>isActive</td>
+    <td><a href="00-cross-i.html#isActive"><small>X</small></a></td>
+    <td>Active</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>361</td>
+    <td>showOnPO</td>
+    <td><a href="00-cross-s.html#showOnPO"><small>X</small></a></td>
+    <td>PO?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>371</td>
+    <td>showOnBol</td>
+    <td><a href="00-cross-s.html#showOnBol"><small>X</small></a></td>
+    <td>BoL</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>381</td>
+    <td>showOnInv</td>
+    <td><a href="00-cross-s.html#showOnInv"><small>X</small></a></td>
+    <td>Invoice</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>391</td>
+    <td>showOnAck</td>
+    <td><a href="00-cross-s.html#showOnAck"><small>X</small></a></td>
+    <td>Ack</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>401</td>
+    <td>showOnQuote</td>
+    <td><a href="00-cross-s.html#showOnQuote"><small>X</small></a></td>
+    <td>Quote</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>411</td>
+    <td>userImage</td>
+    <td><a href="00-cross-u.html#userImage"><small>X</small></a></td>
+    <td>User Image</td>
+    <td>character [3]</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: User Image</td>
+  </tr>
+  <tr class="oddrow">
+    <td>421</td>
+    <td>menuSize</td>
+    <td><a href="00-cross-m.html#menuSize"><small>X</small></a></td>
+    <td>Menu Size</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td>Small</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Menu Size</td>
+  </tr>
+  <tr class="evenrow">
+    <td>431</td>
+    <td><a href="userlanguage.html">userLanguage</a></td>
+    <td><a href="00-cross-u.html#userLanguage"><small>X</small></a></td>
+    <td>Language</td>
+    <td>character</td>
+    <td>x(2)</td>
+    <td>EN</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: User Default Language</td>
+  </tr>
+  <tr class="oddrow">
+    <td>441</td>
+    <td>showMnemonic</td>
+    <td><a href="00-cross-s.html#showMnemonic"><small>X</small></a></td>
+    <td>Show Mnemonic</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td>ALL</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>451</td>
+    <td>positionMnemonic</td>
+    <td><a href="00-cross-p.html#positionMnemonic"><small>X</small></a></td>
+    <td>Position Mnemonic</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td>Begin</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>461</td>
+    <td>blockCueCards</td>
+    <td><a href="00-cross-b.html#blockCueCards"><small>X</small></a></td>
+    <td>Block Cue Cards</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Indexes</h2>
+<table style="width:100%;">
+  <tr>
+    <th>Index name</th>
+    <th>Flags</th>
+    <th>Fields</th>
+    <th>Datatype</th>
+  </tr>
+  <tr class="oddrow">
+    <td>pi-users</td>
+    <td>P U     </td>
+    <td>user_id (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="evenrow">
+    <td>si-rec_key</td>
+    <td>        </td>
+    <td>rec_key (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>si-user_name</td>
+    <td>        </td>
+    <td>user_name (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="evenrow">
+    <td>wi-user_name</td>
+    <td>      W </td>
+    <td>user_name (+)</td>
+    <td>character</td>
+  </tr>
+</table>
+<table style="width:100%; margin-top:10px;">
+  <tr>
+    <td>+ = Ascending</td>
+    <td>- = Descending</td>
+    <td>P = Primary</td>
+    <td>U = Unique</td>
+    <td>I = Inactive</td>
+    <td>W = Wordindex</td>
+  </tr>
+</table> 
+  <h2>Related tables</h2>
+  <table style="width:50%; float:left;">
+    <tr>
+      <th>Parent tables</th>
+    </tr>
+    <tr class="shadedrow">
+      <td><a href="rec_key.html">rec_key</a>&nbsp;&nbsp; <a href="userlanguage.html">userLanguage</a>&nbsp;&nbsp; <a href="userlog.html">userLog</a>&nbsp;&nbsp; <a href="xusermenu.html">xUserMenu</a>&nbsp;&nbsp; </td>
+    </tr>
+  </table>
+<hr style="clear:both">
+<hr>
+<table style="width:100%; margin-top:10px;">
+  <tr><td style="text-align:right;"><i><small>generated 25-10-2018 10:20</small></i></td></tr>
+</table>
+</body>
+</html>

@@ -37,6 +37,7 @@ DEF VAR v-col-move AS LOG INIT TRUE NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
+{methods/defines/hndldefs.i}
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/VAR.i NEW SHARED}
@@ -49,7 +50,6 @@ ASSIGN
 
 DEF VAR li-new-estnum LIKE  ce-ctrl.e-num NO-UNDO.
 DEF VAR ll-new-record AS LOG NO-UNDO.
-DEF VAR char-hdl AS cha NO-UNDO.
 DEF VAR lv-frst-rowid AS ROWID NO-UNDO.
 DEF VAR lv-last-rowid AS ROWID NO-UNDO.
 DEF VAR lv-frst-rowid2 AS ROWID NO-UNDO.
@@ -1008,9 +1008,15 @@ DO:
          IF AVAIL cust AND ou-log AND LOOKUP(cust.cust-no,custcount) = 0 THEN
              MESSAGE "Customer is not on Users Customer List.  "  SKIP
               "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-         ELSE
-         MESSAGE "No Estimate Found, please update your Search Criteria."
-                VIEW-AS ALERT-BOX ERROR.
+         ELSE 
+         DO:
+             MESSAGE 
+                 "No Estimate Found, reverting to initial setup."
+                 VIEW-AS ALERT-BOX ERROR.
+             ASSIGN 
+                 lv-first-run = TRUE.
+             RUN local-open-query.
+         END.
      END.
   END.
   SESSION:SET-WAIT-STATE("").
@@ -1451,9 +1457,11 @@ PROCEDURE clearFilterValues:
  Notes:
 ------------------------------------------------------------------------------*/
     {methods/clearFilterValues.i}
+/*
 
     RUN local-open-query.
     RUN dispatch ('row-changed').
+*/
 
 END PROCEDURE.
 	
@@ -1469,51 +1477,47 @@ PROCEDURE create-est :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR cocode AS cha NO-UNDO.
-  DEF BUFFER bf-est FOR est.
-  DEF BUFFER bb FOR eb.
-  DEF BUFFER recalc-mr FOR reftable.
+    DEF VAR cocode AS cha NO-UNDO.
+    DEF BUFFER bf-est FOR est.
+    DEF BUFFER bb FOR eb.
+    DEF BUFFER recalc-mr FOR reftable.
 
-  /*  don't use e-num any more as key index
-  find last bf-est use-index e-num no-lock no-error.
-  li-enum = if avail bf-est then bf-est.e-num else 0.
-  */
+    REPEAT:
+        FIND FIRST ce-ctrl WHERE 
+            ce-ctrl.company = gcompany AND
+            ce-ctrl.loc = gloc
+            EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
 
-
-  REPEAT:
+        IF AVAIL ce-ctrl THEN DO:
+            ASSIGN
+                li-new-estnum = ce-ctrl.e-num + 1
+                ce-ctrl.e-num = li-new-estnum.
+            FIND CURRENT ce-ctrl NO-LOCK.
+            LEAVE.
+        END.
+    END.
   
-  FIND FIRST ce-ctrl WHERE ce-ctrl.company = gcompany AND
-                           ce-ctrl.loc = gloc
-       EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-
-  IF AVAIL ce-ctrl THEN
-  DO:
-     ASSIGN
-     li-new-estnum = ce-ctrl.e-num + 1
-     ce-ctrl.e-num = li-new-estnum.
-     FIND CURRENT ce-ctrl NO-LOCK.
-     LEAVE.
-  END.
-  END.
-  
-  CREATE est.  
-  ASSIGN ll-new-record = YES
-         est.est-type = 1
-         est.company = gcompany
-         est.loc = gloc
+    CREATE est.  
+    ASSIGN 
+        ll-new-record = YES
+        est.est-type = 1
+        est.company = gcompany
+        est.loc = gloc
        /*  est.e-num = li-enum + 1 */
-         est.est-no = STRING(li-new-estnum,">>>>>>>9")
-         est.form-qty = 1
-         est.est-date = TODAY
-         est.mod-date = ?
-         cocode = gcompany.      
+        est.est-no = STRING(li-new-estnum,">>>>>>>9")
+        est.form-qty = 1
+        est.est-date = TODAY
+        est.mod-date = ?
+        cocode = gcompany.      
 
-   {sys/ref/est-add.i est}     
+    {sys/ref/est-add.i est}     
 
-   RUN crt-est-childrecord.  /* create ef,eb,est-prep */
-   
-   RUN local-open-query.  
-   RUN set-attribute-list IN adm-broker-hdl ('Is-First-Est = Yes').
+    RUN crt-est-childrecord.  /* create ef,eb,est-prep */
+
+    FIND CURRENT recalc-mr NO-LOCK NO-ERROR.
+       
+    RUN local-open-query.  
+    RUN set-attribute-list IN adm-broker-hdl ('Is-First-Est = Yes').
 
 END PROCEDURE.
 
@@ -1720,16 +1724,15 @@ PROCEDURE export-xl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR FromEstNo AS CHAR NO-UNDO.
-DEF VAR ToEstNo AS CHAR NO-UNDO.
-
-IF est.est-no NE "" THEN
+    DEFINE VARIABLE FromEstNo AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE ToEstNo   AS CHARACTER NO-UNDO.
+    
+    IF est.est-no NE "" THEN
     ASSIGN
-    FromEstNo = est.est-no
-    ToEstNo   = est.est-no . 
-
-RUN fg/EstF-exp.w (FromEstNo,ToEstNo).
-
+        FromEstNo = est.est-no
+        ToEstNo   = est.est-no
+        .    
+    RUN fg/EstC-exp.w (FromEstNo, ToEstNo).
 
 END PROCEDURE.
 

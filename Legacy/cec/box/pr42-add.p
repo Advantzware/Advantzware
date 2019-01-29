@@ -18,8 +18,6 @@ def shared buffer xeb  for eb.
 def buffer xitem        for   item.
 def buffer xe-item      for e-item.
 def buffer xe-item-vend for e-item-vend.
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-setup FOR reftable.
 
 DEF TEMP-TABLE tt-eiv NO-UNDO

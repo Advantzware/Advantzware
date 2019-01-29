@@ -72,12 +72,12 @@ DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Rep,Rep Name,Name,Customer,Customer Name,Invoice#,Inv Date,FG Item,Catgy,Qty shipped,Total MSF,Order#," +
-                             "$/MSF,Sales Amt,Full Cost,Profit,Group#,Member#,UOM,Cust PO#"
+                             "$/MSF,Sales Amt,Full Cost,Profit,Group#,Member#,UOM,Cust PO#,Est Board Code,Customer Part#,BOL#,Sq Ft"
        cFieldListToSelect = "rep,rep-name,name,cust,custname,inv-no,inv-date,fg,cat,qty,ttl-msf,pur-ord," +
-                            "msf,sal-amt,ful-cst,proft,grp-no,mbr-no,inv-uom,cust-po"
+                            "msf,sal-amt,ful-cst,proft,grp-no,mbr-no,inv-uom,cust-po,board-code,customer-part,bol,sqft"
        cFieldLength = "3,20,20,8,25,8,8,15,5,12,9,8," +
-                      "8,15,11,11,8,10,3,15"
-       cFieldType   = "c,c,c,c,c,i,c,c,c,i,i,i," + "i,i,i,i,c,c,c,c"
+                      "8,15,11,11,8,10,3,15,12,15,6,10"
+       cFieldType   = "c,c,c,c,c,i,c,c,c,i,i,i," + "i,i,i,i,c,c,c,c,c,c,i,i"
        .
 ASSIGN cTextListToDefault  = "Rep,Rep Name,Customer,Customer Name,Invoice#,FG Item,Name,Catgy,Qty shipped,Total MSF," +
                              "$/MSF,Sales Amt,Full Cost,Profit,Cust PO#".
@@ -1663,6 +1663,9 @@ DEFINE VARIABLE v-smr AS LOG INIT NO NO-UNDO.
 DEFINE VARIABLE lSelected AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE fsstate AS CHARACTER INIT "".
 DEFINE VARIABLE tsstate LIKE fsstate INIT "zz".
+DEFINE VARIABLE cBoardCode AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCustPart AS CHARACTER NO-UNDO .
+DEFINE VARIABLE iBolNo AS INTEGER NO-UNDO .
 
 FORM cust.name            COLUMN-LABEL "Customer"
      w-data.inv-no
@@ -1884,6 +1887,44 @@ PROCEDURE show-param :
   END.
 
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pgetBoard C-Win 
+PROCEDURE pgetBoard :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iprowid AS ROWID NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcBoard AS CHARACTER NO-UNDO.
+
+  FIND FIRST ar-invl NO-LOCK
+      WHERE ar-invl.company EQ cocode 
+        AND ROWID(ar-invl) EQ iprowid NO-ERROR .
+   IF AVAIL ar-invl THEN do:
+       FIND FIRST eb NO-LOCK 
+           WHERE eb.company EQ cocode 
+           AND  eb.est-no EQ ar-invl.est-no 
+           AND eb.stock-no EQ ar-invl.i-no NO-ERROR .
+       IF NOT AVAIL eb  THEN
+           FIND FIRST eb NO-LOCK 
+           WHERE eb.company EQ cocode 
+           AND  eb.est-no EQ ar-invl.est-no  NO-ERROR .
+       IF AVAIL eb THEN
+           FIND FIRST ef NO-LOCK
+           WHERE ef.company EQ cocode 
+           AND ef.est-no EQ eb.est-no 
+           AND ef.form-no EQ eb.form-no NO-ERROR .
+       IF AVAIL eb AND AVAIL ef THEN
+           opcBoard = ef.board .
+       ELSE opcBoard = "" .
+   END.
 
 END PROCEDURE.
 

@@ -88,6 +88,7 @@ def buffer vjob for job.
 def buffer b-eb for eb.
 def buffer b-ef for ef.
 DEF BUFFER b-rt FOR reftable.
+DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 
 def new shared workfile wrk-op
   field m-dscr like est-op.m-dscr
@@ -403,8 +404,7 @@ END FUNCTION.
            lv-prt-date = TODAY
            lv-prt-time = STRING(TIME,"hh:mm am").
 
-    IF vjobreckey = "" THEN
-    FOR FIRST job FIELDS (job.rec_key) NO-LOCK
+    FOR FIRST job FIELDS (job.rec_key) NO-LOCK 
                    WHERE job.company = job-hdr.company
                      AND job.job     = job-hdr.job:
         ASSIGN vjobreckey = job.rec_key.
@@ -800,32 +800,10 @@ END FUNCTION.
                     first item
                     {sys/look/itemivW.i}
                        and item.i-no eq job-mat.i-no:
-
-                    FIND FIRST reftable 
-                         WHERE reftable EQ "ce/v-est3.w Unit#"
-                           AND reftable.company EQ b-eb.company
-                           AND reftable.loc     EQ eb.est-no
-                           AND reftable.code    EQ STRING(eb.form-no,"9999999999")
-                           AND reftable.code2   EQ STRING(eb.blank-no,"9999999999")
-                         NO-LOCK NO-ERROR.
-
-                    FIND FIRST b-rt
-                         WHERE b-rt.reftable EQ "ce/v-est3.w Unit#1"
-                           AND b-rt.company  EQ b-eb.company
-                           AND b-rt.loc      EQ eb.est-no
-                           AND b-rt.code     EQ STRING(eb.form-no,"9999999999")
-                           AND b-rt.code2    EQ STRING(eb.blank-no,"9999999999")
-                         NO-LOCK NO-ERROR.
                        
                     do i = 1 to 20:
-                        v-unit = IF i LE 12 AND AVAIL reftable 
-                                 THEN reftable.val[i]
-                                 ELSE
-                                 IF AVAIL b-rt THEN b-rt.val[i - 12]
-                                               ELSE 0.
-                         cSide = IF i LE 12 AND AVAIL reftable  THEN SUBSTRING(reftable.dscr,i,1)
-                              ELSE IF AVAIL b-rt THEN SUBSTRING(b-rt.dscr,i - 12,1)
-                                               ELSE "" .
+                        v-unit = eb.unitNo[i].
+                         cSide = SUBSTRING(eb.side[i],1).
                                    
                         if eb.i-code2[i] eq job-mat.i-no then do:
                              
@@ -946,7 +924,14 @@ END FUNCTION.
                 if avail oe-ordl then do:
                     v-est-qty = oe-ordl.qty.
                     find first oe-ord of oe-ordl no-lock.
-                    IF AVAIL oe-ord THEN do:
+                        FIND LAST bf-oe-ordl NO-LOCK
+                            WHERE bf-oe-ordl.company EQ cocode
+                            AND bf-oe-ordl.est-no  EQ oe-ordl.est-no
+                            AND bf-oe-ordl.ord-no  LT oe-ordl.ord-no
+                            NO-ERROR.
+                        IF AVAILABLE bf-oe-ordl THEN
+                            cLastOrd = STRING(bf-oe-ordl.ord-no).
+                    IF AVAIL oe-ord  AND cLastOrd EQ "" THEN do:                        
                         ASSIGN
                         cLastOrd = IF oe-ord.po-no2 NE "" THEN oe-ord.po-no2
                             ELSE STRING(oe-ord.pord-no) .
@@ -1419,7 +1404,7 @@ END FUNCTION.
 
 
         IF lMachSheeter THEN DO:
-            IF ef.roll THEN
+            IF AVAIL ef AND ef.roll THEN
                 droll-len = ef.gsh-len .
             ELSE droll-len = 0 .
             PUT v-thick "<C1><b>Sheeter </b>" SKIP
@@ -1842,7 +1827,7 @@ END FUNCTION.
                 dlayerDepth  = reftable.val[1]
                 ddivider = reftable.val[2].
 
-            IF eb.est-type EQ 1 THEN
+            IF eb.est-type EQ 1 AND AVAIL ef THEN
                 do iv-li = 1 TO 4:
                 find first item WHERE
                     item.company EQ ef.company and
@@ -1864,7 +1849,7 @@ END FUNCTION.
             find first item
                 {sys/look/itemW.i}
                 and item.i-no eq ef.board
-                no-lock.
+                NO-LOCK NO-ERROR.
             IF AVAIL ITEM THEN
                 b-wt   = item.basis-w .
                 ELSE 
