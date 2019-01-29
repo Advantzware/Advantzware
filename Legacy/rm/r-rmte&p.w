@@ -369,12 +369,12 @@ DEFINE VARIABLE t-receipt AS LOGICAL INITIAL no
      SIZE 36 BY .86 NO-UNDO.
 
 DEFINE VARIABLE t-show-vend AS LOGICAL INITIAL no 
-     LABEL "Show Vendor Tag #'s?" 
+     LABEL "Show Vendor Tag #'s" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE t-showtotal AS LOGICAL INITIAL no 
-     LABEL "Show Totals?" 
+     LABEL "Show Totals" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY .81 NO-UNDO.
 
