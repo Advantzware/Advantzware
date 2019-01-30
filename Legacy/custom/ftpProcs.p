@@ -13,10 +13,10 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE INPUT PARAMETER ipcFormat AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcFtpSite AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcFolder AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcFileSpec AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ipcFormat AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ipcFtpSite AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ipcFolder AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ipcFileSpec AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE ftpURL AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ftpUser AS CHARACTER NO-UNDO.
@@ -379,7 +379,7 @@ END FUNCTION.
 
 /* ***************************  Main Block  *************************** */
 
-
+/*
 cConfigFolder = getConfigFolder(cConfigFile).
 RUN LoadConfig.
 
@@ -400,7 +400,7 @@ cExec = getFtpExe("WinScp").
 
 IF cExec NE ? AND cExec NE "" THEN 
     OS-COMMAND SILENT VALUE(cExec + cFtpIniFile + " /XMLLOG=c:\temp\log.txt  /script=" + cCommandFile).
-   
+*/ 
    
    
 /* **********************  Internal Procedures  *********************** */   
@@ -476,6 +476,10 @@ END PROCEDURE.
 
 
 PROCEDURE getConfigValues:
+    DEFINE INPUT PARAMETER ipcFormat   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFtpSite  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFolder   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFileSpec AS CHARACTER NO-UNDO.
     DEFINE PARAMETER BUFFER ipbf-ftpConfig FOR ftpConfig.
     DEFINE OUTPUT PARAMETER ftpURL      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER ftpUser     AS CHARACTER NO-UNDO.
