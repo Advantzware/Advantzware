@@ -3046,10 +3046,11 @@ PROCEDURE local-assign-record :
        END.
     END.
 
-   DO a = 1 TO 20:
+    DO a = 1 TO 20:
       b-eb.unitNo[a] = lv-unit-2[a].
-      b-eb.side[a] = substring(lv-side-2,a,1)
-   END.
+      b-eb.side[a] = substring(lv-side-2,a,1).
+    END.
+  END.
 
 END PROCEDURE.
 

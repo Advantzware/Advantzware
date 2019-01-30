@@ -3707,6 +3707,7 @@ CLASS RefTableMigration:
                 END.
                 FIND CURRENT eb NO-LOCK NO-ERROR.    
                 RELEASE eb.      
+            END.
         END.  /*FOR EACH reftable*/          
         RETURN iCnt.
     END METHOD. /*CeVest*/
@@ -3714,13 +3715,24 @@ CLASS RefTableMigration:
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         DEFINE BUFFER reftable1 FOR reftable1.
         DEFINE BUFFER Breftable FOR reftable.
-        
+
         DISABLE TRIGGERS FOR LOAD OF reftable.
         ASSIGN iProcessCount = 0.
         FOR EACH reftable WHERE reftable.reftable = "v10-TaxCode-Upgrade"
             NO-LOCK:
             DO TRANSACTION:
-    END METHOD. /*v10TaxCode*/
-END CLASS.
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
+        RETURN iCnt.
+    END METHOD. /*v10TaxCode*/END CLASS.
 
 
