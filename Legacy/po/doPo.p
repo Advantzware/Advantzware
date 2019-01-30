@@ -3874,7 +3874,7 @@ PROCEDURE setPoOrdlFg :
         IF AVAILABLE fgcat 
         AND fgcat.miscCharge  EQ v-charge 
         AND fgcat.brdExpAcct <> "" THEN 
-            ASSIGN out-actnum = fgcat.brdExpAcct.
+            ASSIGN bf-po-ordl.actnum = fgcat.brdExpAcct.
 
 
     END. /* avail bf-itemfg */
