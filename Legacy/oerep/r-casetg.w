@@ -1816,7 +1816,10 @@ DEF OUTPUT PARAM vlWarning AS LOG NO-UNDO.
              w-ord.cas-no     = eb.cas-no.
 
           /* Add .49 to round up and add 1 for extra tag   */
-          w-ord.total-tags = ((w-ord.rel-qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
+          IF w-ord.rel-qty NE 0 THEN
+              w-ord.total-tags = ((w-ord.rel-qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
+          ELSE
+              w-ord.total-tags = ((w-ord.ord-qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
 
     END.
 
@@ -2012,7 +2015,9 @@ PROCEDURE from-ord :
              w-ord.cas-no     = eb.cas-no.
 
           /* Add .49 to round up and add 1 for extra tag   */
-          w-ord.total-tags = ((w-ord.rel-qty / w-ord.total-unit) + .49) +  (IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1).
+          IF w-ord.rel-qty NE 0 THEN
+              w-ord.total-tags = ((w-ord.rel-qty / w-ord.total-unit) + .49) +  (IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1).
+          ELSE w-ord.total-tags = ((w-ord.ord-qty / w-ord.total-unit) + .49) +  (IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1).
          
         END.  /* first-of */
       END.  /* not by-release */
@@ -2877,9 +2882,11 @@ ASSIGN
            b-w-ord.bundle     = eb.cas-pal
            b-w-ord.total-unit = b-w-ord.pcs * b-w-ord.bundle
            b-w-ord.cas-no     = eb.cas-no.
-
-        b-w-ord.total-tags = ((b-w-ord.rel-qty / b-w-ord.total-unit) + .49)
-                             + ( IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1) .
+        IF b-w-ord.rel-qty NE 0 THEN
+            b-w-ord.total-tags = ((b-w-ord.rel-qty / b-w-ord.total-unit) + .49)
+                               + ( IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1) .
+        ELSE b-w-ord.total-tags = ((b-w-ord.ord-qty / b-w-ord.total-unit) + .49)
+                               + ( IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1) .
 
       END.
 
