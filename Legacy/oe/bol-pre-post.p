@@ -170,7 +170,9 @@ FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
 
       ELSE DO:
          IF iplShowMessage THEN 
-           MESSAGE "Error: You are transferring to the same location this is already located, check BOL"
+           MESSAGE "BOL # " + STRING(oe-bolh.bol-no) +  " cannot be posted as it contains a Transfer transaction" 
+                   SKIP "that has the same 'From' and 'To' Warehouse/Bin." 
+                   SKIP(2) "Please review your BOL and edit or delete as needed."
            VIEW-AS ALERT-BOX.
          IF AVAIL fg-rctd THEN
             DELETE fg-rctd.
