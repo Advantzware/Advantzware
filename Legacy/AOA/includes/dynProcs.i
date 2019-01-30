@@ -414,7 +414,8 @@ PROCEDURE pCreateDynParameters :
         END. /* if valid-handle */
     END. /* each {1}SubjectParamSet */
     ASSIGN
-        hWidget = FRAME frameShow:HANDLE
+        FRAME outputFrame:TITLE = {1}Subject.subjectName
+        hWidget = FRAME outputFrame:HANDLE
         hWidget = hWidget:FIRST-CHILD
         hWidget = hWidget:FIRST-CHILD
         .
@@ -629,7 +630,7 @@ PROCEDURE pResultsBrowser :
     CREATE BROWSE hQueryBrowse
         ASSIGN
             FRAME = FRAME resultsFrame:HANDLE
-            TITLE = "Subject Query Results"
+            TITLE = {1}Subject.subjectName + " Results"
             SENSITIVE = TRUE
             SEPARATORS = TRUE
             ROW-MARKERS = FALSE
@@ -927,19 +928,20 @@ PROCEDURE pSaveDynParamValues :
             hWidget = hWidget:NEXT-SIBLING.
         END. /* do while */
         ASSIGN
-            hWidget = FRAME frameShow:HANDLE
+            hWidget = FRAME outputFrame:HANDLE
             hWidget = hWidget:FIRST-CHILD
             hWidget = hWidget:FIRST-CHILD
             .
         DO WHILE VALID-HANDLE(hWidget):
+            IF CAN-DO("EDITOR,TOGGLE-BOX",hWidget:TYPE) THEN
             ASSIGN
                 idx = idx + 1
                 dynParamValue.paramName[idx]     = hWidget:NAME
                 dynParamValue.paramLabel[idx]    = hWidget:LABEL
                 dynParamValue.paramValue[idx]    = hWidget:SCREEN-VALUE
                 dynParamValue.paramDataType[idx] = hWidget:DATA-TYPE
-                hWidget                          = hWidget:NEXT-SIBLING
                 .
+            hWidget = hWidget:NEXT-SIBLING.
         END. /* do while */
         FIND CURRENT dynParamValue NO-LOCK.
     END. /* do trans */

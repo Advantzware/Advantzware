@@ -83,14 +83,10 @@ SESSION:ADD-SUPER-PROCEDURE (hJasper).
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME paramFrame
 
-/* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnCSV btnDOCX btnHTML btnPDF btnRunResults ~
-btnView btnXLS 
-
 /* Custom List Definitions                                              */
 /* List-1,showFields,List-3,List-4,List-5,List-6                        */
-&Scoped-define showFields svShowAll svShowReportHeader svShowPageHeader ~
-svShowGroupHeader svShowGroupFooter svShowPageFooter svShowReportFooter ~
+&Scoped-define showFields svShowAll svShowReportHeader svShowReportFooter ~
+svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter ~
 svShowParameters 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -113,6 +109,59 @@ FUNCTION fSetShowAll RETURNS LOGICAL
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
+DEFINE BUTTON btnCSV 
+     IMAGE-UP FILE "Graphics/32x32/csv.jpg":U NO-FOCUS FLAT-BUTTON
+     LABEL "csv" 
+     SIZE 8 BY 1.91 TOOLTIP "Excel CSV".
+
+DEFINE BUTTON btnDOCX 
+     IMAGE-UP FILE "Graphics/32x32/docx.jpg":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "Word DOCX".
+
+DEFINE BUTTON btnHTML 
+     IMAGE-UP FILE "Graphics/32x32/html_tag.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "HTML".
+
+DEFINE BUTTON btnPDF 
+     IMAGE-UP FILE "Graphics/32x32/pdf.jpg":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "PDF".
+
+DEFINE BUTTON btnRunResults 
+     IMAGE-UP FILE "Graphics/32x32/table.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Run Results" 
+     SIZE 8 BY 1.91 TOOLTIP "Run Results".
+
+DEFINE BUTTON btnView 
+     IMAGE-UP FILE "Graphics/32x32/jss_icon_32.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "Jasper Viewer".
+
+DEFINE BUTTON btnXLS 
+     IMAGE-UP FILE "Graphics/32x32/xls.jpg":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "Excel XLS".
+
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 93 BY 2.38
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-PANEL
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 58 BY 2.38.
+
+DEFINE RECTANGLE RECT-SHOW
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 158 BY 1.19.
+
 DEFINE VARIABLE svShowAll AS LOGICAL INITIAL yes 
      LABEL "Show ALL" 
      VIEW-AS TOGGLE-BOX
@@ -153,45 +202,6 @@ DEFINE VARIABLE svShowReportHeader AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 NO-UNDO.
 
-DEFINE BUTTON btnCSV 
-     IMAGE-UP FILE "Graphics/32x32/csv.jpg":U NO-FOCUS FLAT-BUTTON
-     LABEL "csv" 
-     SIZE 8 BY 1.91 TOOLTIP "Excel CSV".
-
-DEFINE BUTTON btnDOCX 
-     IMAGE-UP FILE "Graphics/32x32/docx.jpg":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8 BY 1.91 TOOLTIP "Word DOCX".
-
-DEFINE BUTTON btnHTML 
-     IMAGE-UP FILE "Graphics/32x32/html_tag.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8 BY 1.91 TOOLTIP "HTML".
-
-DEFINE BUTTON btnPDF 
-     IMAGE-UP FILE "Graphics/32x32/pdf.jpg":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8 BY 1.91 TOOLTIP "PDF".
-
-DEFINE BUTTON btnRunResults 
-     IMAGE-UP FILE "Graphics/32x32/table.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Run Results" 
-     SIZE 8 BY 1.91 TOOLTIP "Run Results".
-
-DEFINE BUTTON btnView 
-     IMAGE-UP FILE "Graphics/32x32/jss_icon_32.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8 BY 1.91 TOOLTIP "Jasper Viewer".
-
-DEFINE BUTTON btnXLS 
-     IMAGE-UP FILE "Graphics/32x32/xls.jpg":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8 BY 1.91 TOOLTIP "Excel XLS".
-
-DEFINE RECTANGLE RECT-PANEL
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 58 BY 2.38.
-
 DEFINE BUTTON btnCloseResults 
      IMAGE-UP FILE "AOA/images/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Close Results" 
@@ -206,6 +216,35 @@ DEFINE BUTTON btnSaveResults
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME paramFrame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 160 BY 28.57
+         FGCOLOR 1  WIDGET-ID 100.
+
+DEFINE FRAME resultsFrame
+     btnCloseResults AT ROW 1 COL 6 HELP
+          "Jasper Viewer" WIDGET-ID 252
+     btnSaveResults AT ROW 1 COL 2 HELP
+          "Jasper Viewer" WIDGET-ID 254
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 6.48
+         SIZE 10 BY 2.38
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
+
+DEFINE FRAME outputFrame
+     btnAddEmail AT ROW 2.19 COL 3 HELP
+          "Add Recipents" WIDGET-ID 636
+     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
+     svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
+     svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
+     svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
+     svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
+     svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
+     svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
+     svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
+     svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
      btnCSV AT ROW 1.48 COL 111 HELP
           "Excel CSV" WIDGET-ID 140
      btnDOCX AT ROW 1.48 COL 127 HELP
@@ -220,39 +259,16 @@ DEFINE FRAME paramFrame
           "Jasper Viewer" WIDGET-ID 148
      btnXLS AT ROW 1.48 COL 119 HELP
           "Excel XLS" WIDGET-ID 150
+     "Email:" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.48 COL 2 WIDGET-ID 640
      RECT-PANEL AT ROW 1.24 COL 102 WIDGET-ID 256
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 160 BY 28.57
-         FGCOLOR 1  WIDGET-ID 100.
-
-DEFINE FRAME resultsFrame
-     btnCloseResults AT ROW 1 COL 6 HELP
-          "Jasper Viewer" WIDGET-ID 252
-     btnSaveResults AT ROW 1 COL 2 HELP
-          "Jasper Viewer" WIDGET-ID 254
+     RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 10 BY 2.38
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
-
-DEFINE FRAME frameShow
-     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
-     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
-     svShowPageHeader AT ROW 3.14 COL 5 WIDGET-ID 6
-     svShowGroupHeader AT ROW 4.1 COL 5 WIDGET-ID 10
-     svShowGroupFooter AT ROW 5.05 COL 5 WIDGET-ID 12
-     svShowPageFooter AT ROW 6 COL 5 WIDGET-ID 8
-     svShowReportFooter AT ROW 6.95 COL 5 WIDGET-ID 4
-     svShowParameters AT ROW 7.91 COL 5 WIDGET-ID 16
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 137 ROW 3.86
-         SIZE 23 BY 8.81
+         SIZE 160 BY 5.24
          BGCOLOR 15 
-         TITLE BGCOLOR 15 "Show Sections" WIDGET-ID 1300.
+         TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -299,34 +315,42 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* REPARENT FRAME */
-ASSIGN FRAME frameShow:FRAME = FRAME paramFrame:HANDLE
+ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE
        FRAME resultsFrame:FRAME = FRAME paramFrame:HANDLE.
 
-/* SETTINGS FOR FRAME frameShow
+/* SETTINGS FOR FRAME outputFrame
                                                                         */
-/* SETTINGS FOR TOGGLE-BOX svShowAll IN FRAME frameShow
+ASSIGN 
+       btnView:AUTO-RESIZE IN FRAME outputFrame      = TRUE.
+
+/* SETTINGS FOR RECTANGLE RECT-PANEL IN FRAME outputFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-SHOW IN FRAME outputFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX svShowAll IN FRAME outputFrame
    2                                                                    */
-/* SETTINGS FOR TOGGLE-BOX svShowGroupFooter IN FRAME frameShow
+/* SETTINGS FOR TOGGLE-BOX svShowGroupFooter IN FRAME outputFrame
    2                                                                    */
-/* SETTINGS FOR TOGGLE-BOX svShowGroupHeader IN FRAME frameShow
+/* SETTINGS FOR TOGGLE-BOX svShowGroupHeader IN FRAME outputFrame
    2                                                                    */
-/* SETTINGS FOR TOGGLE-BOX svShowPageFooter IN FRAME frameShow
+/* SETTINGS FOR TOGGLE-BOX svShowPageFooter IN FRAME outputFrame
    2                                                                    */
-/* SETTINGS FOR TOGGLE-BOX svShowPageHeader IN FRAME frameShow
+/* SETTINGS FOR TOGGLE-BOX svShowPageHeader IN FRAME outputFrame
    2                                                                    */
-/* SETTINGS FOR TOGGLE-BOX svShowParameters IN FRAME frameShow
+/* SETTINGS FOR TOGGLE-BOX svShowParameters IN FRAME outputFrame
    2                                                                    */
-/* SETTINGS FOR TOGGLE-BOX svShowReportFooter IN FRAME frameShow
+/* SETTINGS FOR TOGGLE-BOX svShowReportFooter IN FRAME outputFrame
    2                                                                    */
-/* SETTINGS FOR TOGGLE-BOX svShowReportHeader IN FRAME frameShow
+/* SETTINGS FOR TOGGLE-BOX svShowReportHeader IN FRAME outputFrame
    2                                                                    */
 /* SETTINGS FOR FRAME paramFrame
    FRAME-NAME                                                           */
-ASSIGN 
-       btnView:AUTO-RESIZE IN FRAME paramFrame      = TRUE.
 
-/* SETTINGS FOR RECTANGLE RECT-PANEL IN FRAME paramFrame
-   NO-ENABLE                                                            */
+DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
+
+ASSIGN XXTABVALXX = FRAME outputFrame:MOVE-BEFORE-TAB-ITEM (FRAME resultsFrame:HANDLE)
+/* END-ASSIGN-TABS */.
+
 /* SETTINGS FOR FRAME resultsFrame
    NOT-VISIBLE                                                          */
 ASSIGN 
@@ -396,6 +420,22 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME outputFrame
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail C-Win
+ON CHOOSE OF btnAddEmail IN FRAME outputFrame /* Email */
+DO:
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    cRecipients = svRecipients:SCREEN-VALUE.
+    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    svRecipients:SCREEN-VALUE = cRecipients.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define FRAME-NAME resultsFrame
 &Scoped-define SELF-NAME btnCloseResults
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCloseResults C-Win
@@ -410,10 +450,10 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define FRAME-NAME paramFrame
+&Scoped-define FRAME-NAME outputFrame
 &Scoped-define SELF-NAME btnCSV
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCSV C-Win
-ON CHOOSE OF btnCSV IN FRAME paramFrame /* csv */
+ON CHOOSE OF btnCSV IN FRAME outputFrame /* csv */
 DO:
     RUN pRunSubject (YES, "CSV").
 END.
@@ -424,7 +464,7 @@ END.
 
 &Scoped-define SELF-NAME btnDOCX
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDOCX C-Win
-ON CHOOSE OF btnDOCX IN FRAME paramFrame
+ON CHOOSE OF btnDOCX IN FRAME outputFrame
 DO:
     RUN pRunSubject (YES, "DOCX").
 END.
@@ -435,7 +475,7 @@ END.
 
 &Scoped-define SELF-NAME btnHTML
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnHTML C-Win
-ON CHOOSE OF btnHTML IN FRAME paramFrame
+ON CHOOSE OF btnHTML IN FRAME outputFrame
 DO:
     RUN pRunSubject (YES, "HTML").
 END.
@@ -446,7 +486,7 @@ END.
 
 &Scoped-define SELF-NAME btnPDF
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPDF C-Win
-ON CHOOSE OF btnPDF IN FRAME paramFrame
+ON CHOOSE OF btnPDF IN FRAME outputFrame
 DO:
     RUN pRunSubject (YES, "PDF").
 END.
@@ -457,7 +497,7 @@ END.
 
 &Scoped-define SELF-NAME btnRunResults
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRunResults C-Win
-ON CHOOSE OF btnRunResults IN FRAME paramFrame /* Run Results */
+ON CHOOSE OF btnRunResults IN FRAME outputFrame /* Run Results */
 DO:
     RUN pRunSubject (YES, "Results").
 END.
@@ -478,10 +518,10 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define FRAME-NAME paramFrame
+&Scoped-define FRAME-NAME outputFrame
 &Scoped-define SELF-NAME btnView
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnView C-Win
-ON CHOOSE OF btnView IN FRAME paramFrame
+ON CHOOSE OF btnView IN FRAME outputFrame
 DO:
     RUN pRunSubject (YES, "View").
 END.
@@ -492,7 +532,7 @@ END.
 
 &Scoped-define SELF-NAME btnXLS
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnXLS C-Win
-ON CHOOSE OF btnXLS IN FRAME paramFrame
+ON CHOOSE OF btnXLS IN FRAME outputFrame
 DO:
     RUN pRunSubject (YES, "XLS").
 END.
@@ -501,10 +541,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define FRAME-NAME frameShow
 &Scoped-define SELF-NAME svShowAll
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowAll C-Win
-ON VALUE-CHANGED OF svShowAll IN FRAME frameShow /* Show ALL */
+ON VALUE-CHANGED OF svShowAll IN FRAME outputFrame /* Show ALL */
 DO:
   ASSIGN {&SELF-NAME}
       svShowReportHeader = {&SELF-NAME}
@@ -515,7 +554,7 @@ DO:
       svShowPageFooter   = {&SELF-NAME}
       svShowReportFooter = {&SELF-NAME}
       .
-  DISPLAY {&showFields} WITH FRAME frameShow.
+  DISPLAY {&showFields} WITH FRAME outputFrame.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -524,7 +563,7 @@ END.
 
 &Scoped-define SELF-NAME svShowGroupFooter
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowGroupFooter C-Win
-ON VALUE-CHANGED OF svShowGroupFooter IN FRAME frameShow /* Group Footer */
+ON VALUE-CHANGED OF svShowGroupFooter IN FRAME outputFrame /* Group Footer */
 DO:
     ASSIGN {&SELF-NAME}.
     fSetShowAll().
@@ -536,7 +575,7 @@ END.
 
 &Scoped-define SELF-NAME svShowGroupHeader
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowGroupHeader C-Win
-ON VALUE-CHANGED OF svShowGroupHeader IN FRAME frameShow /* Group Header */
+ON VALUE-CHANGED OF svShowGroupHeader IN FRAME outputFrame /* Group Header */
 DO:
     ASSIGN {&SELF-NAME}.
     fSetShowAll().
@@ -548,7 +587,7 @@ END.
 
 &Scoped-define SELF-NAME svShowPageFooter
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowPageFooter C-Win
-ON VALUE-CHANGED OF svShowPageFooter IN FRAME frameShow /* Page Footer */
+ON VALUE-CHANGED OF svShowPageFooter IN FRAME outputFrame /* Page Footer */
 DO:
     ASSIGN {&SELF-NAME}.
     fSetShowAll().
@@ -560,7 +599,7 @@ END.
 
 &Scoped-define SELF-NAME svShowPageHeader
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowPageHeader C-Win
-ON VALUE-CHANGED OF svShowPageHeader IN FRAME frameShow /* Page Header */
+ON VALUE-CHANGED OF svShowPageHeader IN FRAME outputFrame /* Page Header */
 DO:
     ASSIGN {&SELF-NAME}.
     fSetShowAll().
@@ -572,7 +611,7 @@ END.
 
 &Scoped-define SELF-NAME svShowParameters
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowParameters C-Win
-ON VALUE-CHANGED OF svShowParameters IN FRAME frameShow /* Parameters */
+ON VALUE-CHANGED OF svShowParameters IN FRAME outputFrame /* Parameters */
 DO:
     ASSIGN {&SELF-NAME}.
     fSetShowAll().
@@ -584,7 +623,7 @@ END.
 
 &Scoped-define SELF-NAME svShowReportFooter
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowReportFooter C-Win
-ON VALUE-CHANGED OF svShowReportFooter IN FRAME frameShow /* Report Footer */
+ON VALUE-CHANGED OF svShowReportFooter IN FRAME outputFrame /* Report Footer */
 DO:
     ASSIGN {&SELF-NAME}.
     fSetShowAll().
@@ -596,7 +635,7 @@ END.
 
 &Scoped-define SELF-NAME svShowReportHeader
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowReportHeader C-Win
-ON VALUE-CHANGED OF svShowReportHeader IN FRAME frameShow /* Report Header */
+ON VALUE-CHANGED OF svShowReportHeader IN FRAME outputFrame /* Report Header */
 DO:
     ASSIGN {&SELF-NAME}.
     fSetShowAll().
@@ -676,19 +715,21 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btnCSV btnDOCX btnHTML btnPDF btnRunResults btnView btnXLS 
-      WITH FRAME paramFrame IN WINDOW C-Win.
+  DISPLAY svRecipients svShowAll svShowReportHeader svShowReportFooter 
+          svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter 
+          svShowParameters 
+      WITH FRAME outputFrame IN WINDOW C-Win.
+  ENABLE btnAddEmail svRecipients svShowAll svShowReportHeader 
+         svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
+         svShowGroupFooter svShowParameters btnCSV btnDOCX btnHTML btnPDF 
+         btnRunResults btnView btnXLS 
+      WITH FRAME outputFrame IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-outputFrame}
+  VIEW FRAME paramFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
   ENABLE btnCloseResults btnSaveResults 
       WITH FRAME resultsFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-resultsFrame}
-  DISPLAY svShowAll svShowReportHeader svShowPageHeader svShowGroupHeader 
-          svShowGroupFooter svShowPageFooter svShowReportFooter svShowParameters 
-      WITH FRAME frameShow IN WINDOW C-Win.
-  ENABLE svShowAll svShowReportHeader svShowPageHeader svShowGroupHeader 
-         svShowGroupFooter svShowPageFooter svShowReportFooter svShowParameters 
-      WITH FRAME frameShow IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-frameShow}
   VIEW C-Win.
 END PROCEDURE.
 
@@ -884,16 +925,13 @@ PROCEDURE pWinReSize :
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
             FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
-            RECT-PANEL:COL                     = FRAME paramFrame:WIDTH - RECT-PANEL:WIDTH
-            btnRunResults:COL                  = RECT-PANEL:COL + 1
-            btnCSV:COL                         = btnRunResults:COL + btnRunResults:WIDTH
-            btnXLS:COL                         = btnCSV:COL + btnCSV:WIDTH
-            btnDOCX:COL                        = btnXLS:COL + btnXLS:WIDTH
-            btnPDF:COL                         = btnDOCX:COL + btnDOCX:WIDTH
-            btnHTML:COL                        = btnPDF:COL + btnPDF:WIDTH
-            btnView:COL                        = btnHTML:COL + btnHTML:WIDTH
-            FRAME frameShow:COL                = FRAME paramFrame:WIDTH - FRAME frameShow:WIDTH
+            /*
+            FRAME outputFrame:COL              = FRAME paramFrame:WIDTH
+                                               - FRAME outputFrame:WIDTH + 1
+            */
             FRAME resultsFrame:HIDDEN          = YES
+            FRAME resultsFrame:COL             = 1
+            FRAME resultsFrame:ROW             = 1
             FRAME resultsFrame:VIRTUAL-HEIGHT  = FRAME {&FRAME-NAME}:HEIGHT
             FRAME resultsFrame:VIRTUAL-WIDTH   = FRAME {&FRAME-NAME}:WIDTH
             FRAME resultsFrame:HEIGHT          = FRAME {&FRAME-NAME}:HEIGHT
@@ -930,7 +968,7 @@ FUNCTION fSetShowAll RETURNS LOGICAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-    DO WITH FRAME frameShow:
+    DO WITH FRAME outputFrame:
         svShowAll = svShowReportHeader AND
                     svShowParameters   AND
                     svShowPageHeader   AND

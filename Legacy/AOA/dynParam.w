@@ -7,9 +7,9 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: AOA/_window.w
+  File: AOA/dynParam.w
 
-  Description: Window Template
+  Description: Dynamic Parameters
 
   Input Parameters: <none>
 
@@ -17,7 +17,7 @@
 
   Author: Ron Stark
 
-  Created: 12.31.2018
+  Created: 1.29.2019
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
@@ -39,7 +39,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE lSortMove AS LOGICAL   NO-UNDO INITIAL YES.
+DEFINE VARIABLE lSortMove AS LOGICAL NO-UNDO INITIAL YES.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
