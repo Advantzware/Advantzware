@@ -68,7 +68,7 @@ ASSIGN
                             "std-net-prft,std-net-mar,std-sel-price,ord-itm-s-price,book-std-price," +
                             "std-net-margin-act-pr,std-gross-margin-act-pr,act-sell-pri-msf,sales-grp,job-create,job-start,job-qty-msf-fg,std-sell-price-msf,cust-type,job-stat,order-stat," +
                             "std-mr-hrs,std-run-hrs,sales-grp-ord,sales-grp-name"
-    cFieldLength       = "9,15,25,11,15,6,13,8,4,5,7,8,30," + "23,8,17,17,14,14,19,16," + "16,18,17,14,11,13,16,16," + "14,14,14,13,16," + "25,27,19,11,16,14,16,18,20,10,12," + "12,12,19,30"
+    cFieldLength       = "9,15,25,11,15,6,13,8,4,5,7,8,30," + "23,8,17,17,14,14,19,16," + "16,18,17,14,11,13,16,16," + "14,14,14,13,16," + "25,27,19,11,16,14,16,18,20,10,12," + "12,13,19,30"
     cFieldType         = "c,c,c,c,c,c,c,i,i,i,i,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c," + "i,i,i,c,c,c,i,i,c,c,c," + "i,i,c,c" 
     .
 
@@ -1429,6 +1429,8 @@ PROCEDURE run-report :
     DEFINE VARIABLE dRunHours   AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cSalesGroup AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSalesName  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dFactor     AS DECIMAL   NO-UNDO.
+    
     FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
         IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
@@ -1629,9 +1631,11 @@ PROCEDURE run-report :
             AND job-mch.frm EQ costHeader.formNo
             AND (job-mch.blank-no EQ costHeader.blankNo OR job-mch.blank-no EQ 0)
             use-index line-idx :
+
+            dFactor = IF job-mch.blank-no eq 0 and costHeader.factorForm NE 0 then costHeader.factorForm else 1 .
             ASSIGN 
-                dMrHours  = dMrHours + job-mch.mr-hr
-                dRunHours = dRunHours + job-mch.run-hr .
+                dMrHours  = dMrHours + (job-mch.mr-hr * dFactor )
+                dRunHours = dRunHours + (job-mch.run-hr * dFactor) . 
         END.
         FIND FIRST sman NO-LOCK WHERE sman.company EQ cocode
                                   AND sman.sman    EQ cSalesGroup NO-ERROR.
@@ -1743,7 +1747,7 @@ PROCEDURE run-report :
                 WHEN "order-stat"   THEN 
                     cVarValue = STRING(cOrderStatus,"x(12)") .
                 WHEN "std-mr-hrs"     THEN cVarValue = STRING(dMrHours,"->>>>>>>9.99") .
-                WHEN "std-run-hrs"    THEN cVarValue = STRING(dRunHours,"->>>>>>>9.99") .
+                WHEN "std-run-hrs"    THEN cVarValue = STRING(dRunHours,"->>>>>>>>9.99") .
                 WHEN "sales-grp-ord"  THEN cVarValue = STRING(cSalesGroup,"x(12)") .
                 WHEN "sales-grp-name" THEN cVarValue = STRING(cSalesName,"x(30)") .
                   
