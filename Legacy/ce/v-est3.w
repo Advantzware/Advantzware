@@ -2673,50 +2673,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE find-create-unit# V-table-Win 
-PROCEDURE find-create-unit# :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-  DEF INPUT PARAM ip-int AS INT NO-UNDO.
-  DEF OUTPUT PARAM op-rowid AS ROWID NO-UNDO.
-
-  DEF BUFFER b-eb FOR eb.
-  DEF BUFFER b-rt FOR reftable.
-
-
-  FIND b-eb WHERE ROWID(b-eb) EQ ip-rowid NO-LOCK NO-ERROR.
-
-  IF AVAIL b-eb THEN DO TRANSACTION:
-/*    FIND FIRST b-rt                                                          */
-/*        WHERE b-rt.reftable EQ "ce/v-est3.w Unit#" + TRIM(STRING(ip-int,">"))*/
-/*          AND b-rt.company  EQ b-eb.company                                  */
-/*          AND b-rt.loc      EQ b-eb.est-no                                   */
-/*          AND b-rt.code     EQ STRING(b-eb.form-no,"9999999999")             */
-/*          AND b-rt.code2    EQ STRING(b-eb.blank-no,"9999999999")            */
-/*        NO-LOCK NO-ERROR.                                                    */
-/*    IF NOT AVAIL b-rt THEN DO:                                               */
-/*      CREATE b-rt.                                                           */
-/*      ASSIGN                                                                 */
-/*       b-rt.reftable = "ce/v-est3.w Unit#" + TRIM(STRING(ip-int,">"))        */
-/*       b-rt.company  = b-eb.company                                          */
-/*       b-rt.loc      = b-eb.est-no                                           */
-/*       b-rt.code     = STRING(b-eb.form-no,"9999999999")                     */
-/*       b-rt.code2    = STRING(b-eb.blank-no,"9999999999").                   */
-/*    END.                                                                     */
-
-    op-rowid = ROWID(b-rt).
-
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE find-depth-reftable V-table-Win 
 PROCEDURE find-depth-reftable :
 /*------------------------------------------------------------------------------
@@ -2837,11 +2793,8 @@ PROCEDURE getUnit# :
     DO i = 1 TO EXTENT(eb.i-code2):
       IF b-eb.i-ps2[i] NE INTEGER(iPS2:SCREEN-VALUE) OR
          b-eb.i-code2[i] NE iCode2:SCREEN-VALUE THEN NEXT.
-      j = IF i LE 12 THEN 0 ELSE 1.
-      RUN find-create-unit# (ROWID(b-eb),j,OUTPUT rtRowID).
-      FIND reftable NO-LOCK WHERE ROWID(reftable) EQ rtRowID NO-ERROR.
-      IF NOT AVAILABLE reftable THEN LEAVE.
-      fiUnit:SCREEN-VALUE = STRING(reftable.val[i],'>>>').
+      j = IF i LE 17 THEN 0 ELSE 1.
+      fiUnit:SCREEN-VALUE = STRING(b-eb.unitNo[i],'>>>').
       RETURN.
     END. /* do i */
   END. /* each b-ef */
@@ -3007,59 +2960,50 @@ PROCEDURE local-assign-record :
                    + (IF fi_side-11 = "" THEN " " ELSE fi_side-11)
                    + (IF fi_side-12 = "" THEN " " ELSE fi_side-12).
 
-  RUN find-create-unit# (ROWID(eb), 0, OUTPUT lv-rowid).
-  FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-ERROR.
-
-  IF AVAIL reftable THEN DO:
+  DO:
      ASSIGN
-      reftable.val[1]  = fi_unit-1  
-      reftable.val[2]  = fi_unit-2
-      reftable.val[3]  = fi_unit-3
-      reftable.val[4]  = fi_unit-4  
-      reftable.val[5]  = fi_unit-5
-      reftable.val[6]  = fi_unit-6
-      reftable.val[7]  = fi_unit-7  
-      reftable.val[8]  = fi_unit-8
-      reftable.val[9]  = fi_unit-9
-      reftable.val[10] = fi_unit-10
-      reftable.val[11] = fi_unit-11
-      reftable.val[12] = fi_unit-12
-      reftable.dscr    = v-side-string.
+      eb.unitNo[1]  = fi_unit-1  
+      eb.unitNo[2]  = fi_unit-2
+      eb.unitNo[3]  = fi_unit-3
+      eb.unitNo[4]  = fi_unit-4  
+      eb.unitNo[5]  = fi_unit-5
+      eb.unitNo[6]  = fi_unit-6
+      eb.unitNo[7]  = fi_unit-7  
+      eb.unitNo[8]  = fi_unit-8
+      eb.unitNo[9]  = fi_unit-9
+      eb.unitNo[10] = fi_unit-10
+      eb.unitNo[11] = fi_unit-11
+      eb.unitNo[12] = fi_unit-12
+      eb.unitNo[13] = fi_unit-13
+      eb.unitNo[14] = fi_unit-14
+      eb.unitNo[15] = fi_unit-15
+      eb.unitNo[16] = fi_unit-16
+      eb.unitNo[17] = fi_unit-17
+      eb.side[1] = fi_side-1
+      eb.side[2] = fi_side-2
+      eb.side[3] = fi_side-3
+      eb.side[4] = fi_side-4
+      eb.side[5] = fi_side-5
+      eb.side[6] = fi_side-6
+      eb.side[7] = fi_side-7
+      eb.side[8] = fi_side-8
+      eb.side[9] = fi_side-9
+      eb.side[10] = fi_side-10
+      eb.side[11] = fi_side-11
+      eb.side[12] = fi_side-12
+      eb.side[13] = fi_side-13
+      eb.side[14] = fi_side-14
+      eb.side[15] = fi_side-15
+      eb.side[16] = fi_side-16
+      eb.side[17] = fi_side-17.
 
-     FIND CURRENT reftable NO-LOCK.
 
-     DO a = 1 TO 12:
-        lv-unit-1[a] = reftable.val[a].
+     DO a = 1 TO 17:
+        lv-unit-1[a] = eb.unitNo[a].
      END.
 
-     lv-side-1 = v-side-string.
   END.
 
-  RUN find-create-unit# (ROWID(eb), 1, OUTPUT lv-rowid).
-  FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-ERROR .
-
-  IF AVAIL reftable THEN DO:
-    ASSIGN
-   v-side-string-2 = (IF fi_side-13 = "" THEN " " ELSE fi_side-13)
-                    + (IF fi_side-14 = "" THEN " " ELSE fi_side-14)
-                    + (IF fi_side-15 = "" THEN " " ELSE fi_side-15)
-                    + (IF fi_side-16 = "" THEN " " ELSE fi_side-16)
-                    + (IF fi_side-17 = "" THEN " " ELSE fi_side-17)  
-     reftable.val[1]  = fi_unit-13  
-     reftable.val[2]  = fi_unit-14
-     reftable.val[3]  = fi_unit-15
-     reftable.val[4]  = fi_unit-16 
-     reftable.val[5]  = fi_unit-17
-     reftable.dscr    = v-side-string-2.
-
-    FIND CURRENT reftable NO-LOCK.
-
-    DO a = 1 TO 8:
-       lv-unit-1[a + 12] = reftable.val[a].
-    END.
-
-    lv-side-1 = lv-side-1 + v-side-string-2.
-  END.
 
   RUN find-depth-reftable(ROWID(eb), OUTPUT lv-rowid).
   FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-ERROR.
@@ -3081,28 +3025,12 @@ PROCEDURE local-assign-record :
        lv-unit-2 = 0
        lv-side-2 = "".
 
-    RUN find-create-unit# (ROWID(b-eb), 0, OUTPUT lv-rowid).
-    FIND b-rt WHERE ROWID(b-rt) EQ lv-rowid NO-LOCK NO-ERROR.
-
-    IF AVAIL b-rt THEN
     DO:
-       DO a = 1 TO 12:
-          lv-unit-2[a] = b-rt.val[a].
+       DO a = 1 TO 17:
+          lv-unit-2[a] = b-eb.unitNo[a].
        END.
 
-       lv-side-2 = b-rt.dscr.
-    END.
-
-    RUN find-create-unit# (ROWID(b-eb), 1, OUTPUT lv-rowid).
-    FIND b-rt WHERE ROWID(b-rt) EQ lv-rowid NO-LOCK NO-ERROR.
-
-    IF AVAIL b-rt THEN
-    DO:
-       DO a = 1 TO 8:
-          lv-unit-2[a + 12] = b-rt.val[a].
-       END.
-
-       lv-side-2 = lv-side-2 + b-rt.dscr.
+       lv-side-2 = lv-side-2 + b-eb.side[1].
     END.
 
     DO a = 1 TO EXTENT(eb.i-code2):
@@ -3118,34 +3046,10 @@ PROCEDURE local-assign-record :
        END.
     END.
 
-    RUN find-create-unit# (ROWID(b-eb), 0, OUTPUT lv-rowid).
-    FIND b-rt WHERE ROWID(b-rt) EQ lv-rowid NO-ERROR.
-
-    IF AVAIL b-rt THEN
-    DO:
-       DO a = 1 TO 12:
-          b-rt.val[a] = lv-unit-2[a].
-       END.
-
-       b-rt.dscr = SUBSTRING(lv-side-2,1,12).
-
-       FIND CURRENT b-rt NO-LOCK.
-    END.
-
-    RUN find-create-unit# (ROWID(b-eb), 1, OUTPUT lv-rowid).
-    FIND b-rt WHERE ROWID(b-rt) EQ lv-rowid NO-ERROR.
-
-    IF AVAIL b-rt THEN
-    DO:
-       DO a = 1 TO 8:
-          b-rt.val[a] = lv-unit-2[a + 12].
-       END.
-
-       b-rt.dscr = SUBSTRING(lv-side-2,13).
-
-       FIND CURRENT b-rt NO-LOCK.
-    END.
-  END.
+   DO a = 1 TO 20:
+      b-eb.unitNo[a] = lv-unit-2[a].
+      b-eb.side[a] = substring(lv-side-2,a,1)
+   END.
 
 END PROCEDURE.
 
@@ -3245,52 +3149,42 @@ PROCEDURE local-display-fields :
    f-div-dep = 0.
 
   IF NOT adm-new-record THEN DO:
-     RUN find-create-unit# (ROWID(eb), 0, OUTPUT lv-rowid).
-     FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-LOCK NO-ERROR.
-
-     IF AVAIL reftable THEN
-       ASSIGN
+     ASSIGN
         fi_unit-1  = reftable.val[1]
-        fi_unit-2  = reftable.val[2]
-        fi_unit-3  = reftable.val[3]
-        fi_unit-4  = reftable.val[4]
-        fi_unit-5  = reftable.val[5]
-        fi_unit-6  = reftable.val[6]
-        fi_unit-7  = reftable.val[7]
-        fi_unit-8  = reftable.val[8]
-        fi_unit-9  = reftable.val[9]
-        fi_unit-10 = reftable.val[10]
-        fi_unit-11 = reftable.val[11]
-        fi_unit-12 = reftable.val[12]
-        fi_side-1  = SUBSTRING(reftable.dscr,1,1)
-        fi_side-2  = SUBSTRING(reftable.dscr,2,1)
-        fi_side-3  = SUBSTRING(reftable.dscr,3,1)
-        fi_side-4  = SUBSTRING(reftable.dscr,4,1)
-        fi_side-5  = SUBSTRING(reftable.dscr,5,1)
-        fi_side-6  = SUBSTRING(reftable.dscr,6,1)
-        fi_side-7  = SUBSTRING(reftable.dscr,7,1)
-        fi_side-8  = SUBSTRING(reftable.dscr,8,1)
-        fi_side-9  = SUBSTRING(reftable.dscr,9,1)
-        fi_side-10  = SUBSTRING(reftable.dscr,10,1)
-        fi_side-11  = SUBSTRING(reftable.dscr,11,1)
-        fi_side-12  = SUBSTRING(reftable.dscr,12,1)
+        fi_unit-2  = eb.unitNo[2]
+        fi_unit-3  = eb.unitNo[3]
+        fi_unit-4  = eb.unitNo[4]
+        fi_unit-5  = eb.unitNo[5]
+        fi_unit-6  = eb.unitNo[6]
+        fi_unit-7  = eb.unitNo[7]
+        fi_unit-8  = eb.unitNo[8]
+        fi_unit-9  = eb.unitNo[9]
+        fi_unit-10 = eb.unitNo[10]
+        fi_unit-11 = eb.unitNo[11]
+        fi_unit-12 = eb.unitNo[12]
+        fi_unit-13 = eb.unitNo[3]
+        fi_unit-14 = eb.unitNo[4]
+        fi_unit-15 = eb.unitNo[5]
+        fi_unit-16 = eb.unitNo[6]
+        fi_unit-17 = eb.unitNo[7]
+        fi_side-1  = eb.side[1]
+        fi_side-2  = eb.side[2]
+        fi_side-3  = eb.side[3]
+        fi_side-4  = eb.side[4]
+        fi_side-5  = eb.side[5]
+        fi_side-6  = eb.side[6]
+        fi_side-7  = eb.side[7]
+        fi_side-8  = eb.side[8]
+        fi_side-9  = eb.side[9]
+        fi_side-10  = eb.side[10]
+        fi_side-11  = eb.side[11]
+        fi_side-12  = eb.side[12]
+        fi_side-13  = eb.side[13]
+        fi_side-14  = eb.side[14]
+        fi_side-15  = eb.side[15]
+        fi_side-16  = eb.side[16]
+        fi_side-17  = eb.side[17]
          .
-
-     RUN find-create-unit# (ROWID(eb), 1, OUTPUT lv-rowid).
-     FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-LOCK NO-ERROR.
-
-     IF AVAIL reftable THEN
-       ASSIGN
-        fi_unit-13 = reftable.val[1]
-        fi_unit-14 = reftable.val[2]
-        fi_unit-15 = reftable.val[3]
-        fi_unit-16 = reftable.val[4]
-        fi_unit-17 = reftable.val[5]
-        fi_side-13  = SUBSTRING(reftable.dscr,1,1)
-        fi_side-14  = SUBSTRING(reftable.dscr,2,1)
-        fi_side-15  = SUBSTRING(reftable.dscr,3,1)
-        fi_side-16  = SUBSTRING(reftable.dscr,4,1)
-        fi_side-17  = SUBSTRING(reftable.dscr,5,1).
 
 
      RUN find-depth-reftable(ROWID(eb), OUTPUT lv-rowid).
@@ -3422,7 +3316,7 @@ PROCEDURE local-update-record :
       /*if eb.i-code2[18]:screen-value in frame {&frame-name} <> "" then li-num-of-code = li-num-of-code + 1.
       if eb.i-code2[19]:screen-value in frame {&frame-name} <> "" then li-num-of-code = li-num-of-code + 1.
       if eb.i-code2[20]:screen-value in frame {&frame-name} <> "" then li-num-of-code = li-num-of-code + 1*/.
-
+ 
       if li-num-of-code <> (integer(eb.i-col:screen-value) + 
                            integer(eb.i-coat:screen-value) )
       then do:
