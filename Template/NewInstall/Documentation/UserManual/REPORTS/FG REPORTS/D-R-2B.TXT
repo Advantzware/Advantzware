@@ -1,0 +1,27 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:24pm                                   FINISHED GOODS - INVENTORY ON HAND BY BIN / TAG
+
+                                                       As of Date: 10/17/2000
+                                                                                                     QUANTITY                    TOTAL      SELLING            LINE
+CUSTOMER ITEM #          CUST PART #     DESCRIPTION               WHSE  BIN      TAG #    JOB #      ON HAND UOM UOM COST        COST        VALUE              PO
+-------- --------------- --------------- ------------------------- ----- -------- -------- --------- -------- --- -------- -----------  ----------- ---------------
+HER10    HER-1016        HER-1016        RT 2x.75x6                MAIN  FLOOR             309-00      26,000 M     296.87  7,718.6122     9,750.00
+                                                                                                  -----------               ----------  -----------
+                                                                            ITEM TOTALS                26,000                 7,718.61     9,750.00
+
+         HER-1017        HER-1017        RT 5x2x8                  MAIN  FLOOR             311-00      25,000 M    297.734  7,443.3375     9,702.50
+                                                                                                  -----------               ----------  -----------
+                                                                            ITEM TOTALS                25,000                 7,443.34     9,702.50
+
+         HER-1021        HER-1021        RT 5x4x8                  MAIN  FLOOR             317-00      25,400 M    302.729  7,689.3039    10,160.00
+                                                                                                  -----------               ----------  -----------
+                                                                            ITEM TOTALS                25,400                 7,689.30    10,160.00
+
+                                                                                                  -----------               ----------  -----------
+                                                                            CUST TOTALS                76,400                22,851.25    29,612.50
+
+
+                                                                           GRAND TOTALS                76,400                22,851.25    29,612.50
+
+

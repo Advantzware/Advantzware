@@ -1,0 +1,2390 @@
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:   1
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+0-S-1-   01081503 E N-K OECLOSE = Order didn't close at Premier
+                    OECLOSE set to "COMPLETE" with logical value = no (no prompt).
+                    
+                    CloseOrder logic was rewritten to be simpler.  See GUI Manual for close order logic.
+                    util/CloseOrderTester.r created to allow for a diagnosis of what historical orders should be clos
+                    ed if they are not.
+                    
+                    Test with 
+                    Order 466488
+                    Order 208175
+0-U-5-   01131504 B N-K JobcardF = FibreFC
+                    N-K-1 JobCardF = FibreFC.   See Attached.
+                    Print ASI Job W11995
+                    
+                    This has 3 finished goods items that print on 1 Sheet.
+                    ie.  3 blanks that print on 1 form.
+                    All items have common process colors.
+                    Meaning P-Black, P-Cyan, P-Magenta, P-Yellow.
+                    
+                    The Job Ticket is Printing the Wrong Quantity of Inks.
+                    This must print the SubTotal of each Ink for each Form.
+                    
+                    Click J-U-1 Find Job W11995
+                    Click Materials Tab.
+                    Click on The RM Item Code to Sort by RM Item.
+                    The Job Ticket must total each Ink by Form.
+0-U-5-   01131505 B N-K JobcardF = Dee
+                    N-K-1 JobCardF = DEE.   See Attached for correct ink pounds for the Job.
+                    Print ASI Job W11995
+                    
+                    This has 3 finished goods items that print on 1 Sheet.
+                    ie.  3 blanks that print on 1 form.
+                    All items have common process colors.
+                    Meaning P-Black, P-Cyan, P-Magenta, P-Yellow.
+                    
+                    The Job Ticket is Printing the Wrong Quantity of Inks.
+                    This must print the SubTotal of each Ink for each Form.
+                    
+                    Click J-U-1 Find Job W11995
+                    Click Materials Tab.
+                    Click on The RM Item Code to Sort by RM Item.
+                    The Job Ticket must total each Ink by Form.
+A-F-1-   01121510 B City, State & Zip yellow sort column not working
+                    If you click in the yellow sort bar at top of City, state or zip column, they are not working
+A-F-1-   01301506 E Change Book Icon to Fountain Pen
+                    See attached.
+                    This is an Icon Change Only.
+                    The Book Icon holds department notes, group notes and customer notes.
+                    The Fountain Pen in Estimating and Order Processing holds the Department Notes.
+                    
+                    Therefore, it would be more friendly for the this icon to be a Fountain Pen.
+                    It will be the exact same functionality that it now has.
+                    We are only changing the appearance of the Icon.
+                    
+                    
+                    The book icon in estimating and order entry are for Finished goods Spec Notes.
+                    Threfore, the A-F-1 showing a Book is confusing to new customers and new plant employees.
+                    The Icons should be similar throughtout.
+                    
+                    When Notes Exist, the Fountain Pen Background must turn YELLOW.
+                    John Loeb of ASI can make new Icon if that is needed.
+A-F-1-   02051504 B No Customers Available Error
+                    See Attachment
+                    Type in ca into the Customer# search and click go and you get the error message
+                    "No customers record is available (91)"
+A-F-1-   02091501 B AF1 Double Click Logic for Vendor File is not Working
+                    New Browser with New Search Fields must have save functionality as original Browser.
+                    See Attached.
+                    Click in Customer Code.
+                    Type HE 
+                    
+                    1) Press F1.  This should start with customers codes that start with HE.
+                    
+                    2)  Press Enter and this will show many cusomers that start with HE.
+                         Double Click on Hew1000 and nothing happens.
+                         This should go directly to View Tab fo that Customer.
+                         Any search that shows multple customers must allow double click to access the customer.
+                    
+                    Currently, user must highlight the customer then click the View Tab.
+                    Double Click should have the same functionality.
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:   2
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+A-F-1-   12121402 B New customer has ship tos of the first customer
+                    Add a new customer
+                    Click the Ship To Folder
+                    The ship tos of the first customer in AF1 are displayed
+                    This should not be happening
+A-F-1-   12181404 E N-K CUSTIMPSHIPTO = Premier  - Import ShipTo from XL - Add WHSE
+                    NK1 (CustShipToImport) Character Value = Premier.  
+                    
+                    This will modify the fields that the import looks for.
+                    Existing fields will stay the same.
+                    This mod will add WHSE as an importable column.
+A-Q-5-   02021505 E New Shipto Inquiry per Attached
+                    See Attached.
+                    Please note, the Shipto Code is the Only field indexed in the Shipto File.
+                    Search for Shipto Code will be immediate.
+                    Search by other fields will take longer.
+                    
+                    Ideally, the Shipto Code created will begin the same as the Customer Bill To.
+                    For example if the Customer was ABC Box Broker.
+                    Ideally each shipto would start with ABC.
+                    
+                    New Shipto Query similar to A-F-1 Browser.  All fields will be search the Shipto File.
+                    All field should have F1 look where applicable.  
+                    Customer# should use the same F1 as on the AF1 browser search field.
+                    
+                    The Browser will list the following fields.
+                    Customer, Customer Sales Rep, Shipto Code, Shipto Sales Rep. Shipto Company Name, Address, City, 
+                    State, Zip.
+                    
+A-R-1-2  12221413 E N-K Reports  View Form = AR12 Logical Value = YES
+                    N-K-1 Reports,   View Form Tab
+                    Character Value = AR12   Logical Value = Yes
+                    
+                    
+                    Add FROM GROUP  ___________   TO GROUP  _____________   (From Customer File)
+                    
+                    Add new Column to Available Fields called Group.
+D-R-4-   01301503 E N-K Reports Business Forms Char Value (D-R-4) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (D-R-4)  Production by Machine
+                    To Test, Print from 1/30/15  to 1/30/15    From Department PR   To Department PR.
+                    There are 2 jobs for the same FG item and Same Machine.
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    9)  Remove Toggle Boxes  Print  __  FG  ___ Job#  ___ Both.
+                          Add both Job# and FG Item Code as available Fields.
+                              Replace the ___FG  toggle box and Rename to Summarize.
+                              Currently when this is checked, this prints the item totals.
+                    
+                    The J-U-1 Routing Tab will show the MR and RUN completed status of the machine per job.
+                    10 )  Add new Available Field  MR Complete   (Field on report will be MC with Y or N)
+                    11)   Add new Available Field  RunComplete   (Field on report will be RC with Y or N)
+                    
+E-A- -   02131501 B Error when saving notes in Contact Maintenance
+                    ASI Anyware
+                    NOTE - not replicated on ASI test but St. Clair reported.  See attached screen shot.
+                    
+                    1) Goto Contact Marketing>Prospects and Customer Names
+                    2) View a contact
+                    3) Go to View Notes
+                    4) Add note and save.
+                    
+                    See attached error message.
+                    
+E-A-I-R  01161513 B Aged Inventory Report is not working
+                    If you click submit on the Aged Inventory report then click the file name you go to a new screen 
+                    in the internet but everything is blank.  The report should be displayed.
+E-A-O-   01221504 B Next Order number not consistent with Advantzware
+                    St. Clair currently adding orders with order numbers in the 100000s.  However, they have old orde
+                    rs that are in the 500000
+                    When you add an new order for St. Clair, it uses the highest order number as the next order numbe
+                    r (eg 533348).  It needs to use the same order number logic as Advantzware to get a next order nu
+                    mber that is in line with the OF3 (OE Control) Next Order Number.
+E-A-O-   01231501 B No Update Button on Ship Notes
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:   3
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    When you go to Order Processing and go to the Ship Notes Folder you can add any.
+                    There should be an Update Button so you can add Ship Notes.
+E-B-5-   01091504 B Stacking Patterns Warning
+                    IF user adds new stacking pattern with 1 character.
+                    Prompt the following warning.
+                    
+                    Two character stacking code cannot be added to the flute's stacking matrix.
+                    The stack matrix only supports 1 character stacking pattern.
+                    The estimate imports the stacking pattern from the stacking matrix.
+                    Please note, you can manaully add a 2 character pattern on the estimate Inks/Pak Tab..
+E-C- -   01051504 E F1 FOR @ Misc Material on Misc/Sub Tab
+                    New @ Misc Material Type cannot be added to an estimate.
+                    F1 should also work.
+E-C- -   01271502 B OVERRIDE Button to have no Validation
+                    See Attached Estimate 12012
+                    
+                    OVERRIDE BUTTON SHOULD NOT HAVE BRAINS.   
+                    They want to buy a 70 x 32 Sheet.
+                    However, I get Error message that stop me.
+                    
+                    I want to put 70x32 on Gross and Net Sheet.
+                    They will turn the sheet on the die cutter.
+                    
+                    
+                    Warning Message is OK but All user to Continue.
+                    Remove Validations
+E-C- -   01291503 B Inks being excluded if Warehouse location different from user location
+                    See corrugated estimate 11891.
+                    There are 2 inks:
+                    GCMI 40 is in Warehouse MAIN
+                    GCMI39 Warehouse is BENPA. It does not appear on estimate calculations or jobs built from this es
+                    timate.
+E-C- -   12151402 B N-K CeRunC = ASI  Set Untization Page has wrong Sheets and MSF
+                    See Attached.
+                    Sheets are wrong, which makes the MSF wrong.
+                    See Estimate 11964 which is a Set for a Pad and a Packing Case.
+                    The cost calculation is perfect on both forms.
+                    The MSF calculation is perfect on both forms.
+                    
+                    Form 1 has 1 per Set with Layout tab as 8 up and 6 Out.
+                    Form 1 needs 6,500,000 x 1 per Set / 48 Up = 135417
+                    A positive set quantity is multiplied by the Set Quantity.
+                    MSF for Form 1 = 135,417 times the Gross Sheets Square Footage.
+                    The Total MSF is perfect on Page 1 of the Estimate, which uses 135,417 sheets.
+                    
+                    Form 2 has -7200 per set which means divided by 7200.
+                    The minus sign is a division sign.
+                    Form 2 is a packing case used for the Pads on form 1.
+                    There are 7200 pads put into each packing case.
+                    Form 2 needs 6,500,000 /7200 per Set / 1 Up = 903 Sheets.
+                    The Total MSF is perfect on Page 2 of the Estimate, which uses 903 sheets.
+                    
+                    Bottom line Form 2 calculation on Set page is not dividing by 7200.
+E-D- -   02181507 B Update to newest version of RFID Monitor
+                    Update to newest version of RFID Monitor
+E-F- -   01141505 B UV Coating only showing the min lbs required in the print calculations
+                    ASI Estimate 11996
+                    Coating = Primer6000 and Gloss UV
+                    There is at printer that has a coating on it and then just a coater on the estimate.
+                    The print our is just displaying the min lbs required on that raw material because the second pas
+                    s is just a coater.  This needs to work just as if the printer with the coater was the second pas
+                    s.
+E-F- -   01161512 B Combo Estimate 11979 Copy Item new Blank to Form Flickers
+                    Find Estimate 11979.
+                    Find Last Item.
+                    Click COPY and add New Form.
+                    Or add Blankd to Form and change FG Ittem Codeletter to next letter.
+                    
+                    You will notice the cursor scroll down each item to get to the last item.
+                    Odd behavior that takes 5=10 seconds.
+E-F- -   02031505 E Add Qty field for Case Material
+                    Inks/Pack folder of folding carton Estimate allows defining a case material in the Pack Code fiel
+                    d.  The system calculates the number of cases required and that number is the amount of case mate
+                    rial, in EA, required.
+                    
+                    Prystup needs a multiplier to calculate a Top/Bottom case material that needs to consume 2 EA per
+                     case.
+                    
+                    MOD Required
+                    1)  New 1 digit integer field below the Qty header, on the Pack Code line.
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:   4
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    2) # of Cases required will calculate as it does today, however if this new Qty field is not 0, i
+                    t will be used to multiply this # of cases number.
+                    For Example, for an estimate Qty of 10000, with a case count of 500, existing logic would determi
+                    ne this to be 20 cases.  If the multiplier entered in the new field is 2, this would become 40 ca
+                    ses required.
+                    3) Must be applied to all estimate calculations and output formats, all job build calculations, a
+                    nd any auto-issue calculations for case material.
+E-F- -   02061504 B New N-K CEPREPPRICE - Margin recalculated even though price isn't chan
+                    Set N-K CEPREPPRICE = "Profit"
+                    Go to an estiamate with a Prep.
+                    Set Cost = 1.1
+                    Set Margin = 20
+                    This will calculate Price as 1.38 once  you leave tab out of the Margin field.
+                    Bug: As soon as you save the Prep, even if you haven't changed the price, the margin recalculates
+                     to 20.29.  
+                    
+                    
+                    
+                    
+                    
+                    
+E-F- -   02131502 B Cursor not moving in proper sequence
+                    Current Behavior:
+                    Click E-F
+                    Press Tab key and Type TACOBELL in the customer field.
+                    Then press Tab key again and again.
+                    Cursor should move to Customer Shipto
+                    to Customer Part#
+                    to FG Item#
+                    to FG Item Name
+                    etc
+                    
+                    
+                    Currently this goes to Shipto then skips the normal fields.
+                    
+                    
+                    
+                    This should work exactly like the corrugated estimate tab key moves.
+E-F- -   12221406 B Combo Estimate 11979 Copy Item new Blank to Form Flickers
+                    Find Estimate 11979.
+                    Find Last Item.
+                    Click COPY and add New Form.
+                    Or add Blankd to Form and change FG Ittem Codeletter to next letter.
+                    
+                    You will notice the cursor scroll down each item to get to the last item.
+                    Odd behavior that takes 5=10 seconds.
+E-Q- -   01161504 E N-K QUOSHEET = XPRINT  Remove Master Distributor line in Body of Form
+                    Print ASI Quote# 2470
+                    Click Print Price Sheet.
+                    There is a line under the customer bill to called 
+                    
+                    " A certified "COMPLETE SOURCE" Master Distributor.
+                    
+                    Please remove this from the XPRINT Format.
+E-Q- -   01161510 B Multiple Error Messages
+                    Find Estimate 11939
+                    Click Quote Tab.
+                    Click Update Button on Bottom Right and attached Error Message appears.
+                    
+                    
+E-Q- -   01221503 B N-K Quoprint = Boss - Stock/Board missing from Quote
+                    Original spec listed "Stock" or board as a required field to show on the QUOPRINT=BOSS format.
+                    "Third box to contain: Item Description, Style, Size, Stock, Colors."
+                    
+                    For "Stock" this should print the "Board" column from the View Quote Screen, Item List (see pictu
+                    re attached), directly below the Size and above the Colors.
+E-Q- -   12301404 B N-K Quoprint = Boss
+                    Top Right.
+                    1) Add Quote# to Top Right.
+                         Date print in the Body
+                    2) Remove the FG Item# from the Middle Section under the Description.
+                        This already prints under the Part#
+G-F-1-   01051505 B GET RID OF MESSAGE WHEN ADDING NEW YEAR
+                    When adding a new year a message pops up that asks you if you want to update customer totals.  If
+                     you answer yes or no to this question it closes the year by changing the toggle box on the compa
+                    ny file for prev yr and checking that box .  
+                    
+                    This message should only appear when reopening period 12 only and works fine their.
+                    
+                    GED RID OF MESSAGE HERE ONLY.   **No changes needed otherwise***
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:   5
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+G-R-2-   11061416 E N-K Reports Business Forms Char Value (GR2) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (GR2) 
+                    Current Month Detail
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    A)  Add all fields on report including fields from DETAIL toggle Box.
+G-R-3-   11061417 E N-K Reports Business Forms Char Value (GR3) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (GR3) 
+                    GL Transaction Report
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    
+G-R-8-   11061421 E N-K Reports Business Forms Char Value (GR8) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (GR8) 
+                    Reference Date vs Posting Date
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    
+                    
+H-B- -   01191508 E N-K Reports View Forms Char Value (HB) Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (HB)
+                     
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    Add All Fields including Detailed Option to the new Report Only
+                    Add same Print Selection Ranges
+                    Remove toggle boxes to print specific fields and add as Available Fields.
+H-C- -   01191507 E N-K Reports View Forms Char Value (HC) Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (HC)
+                     
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    Add All Fields including Detailed Option to the new Report Only
+                    Add same Print Selection Ranges
+                    Remove toggle boxes to print specific fields and add as Available Fields.
+H-F- -   01191509 E N-K Reports View Forms Char Value (HF) Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (HF)
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:   6
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                     
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    Add All Fields including Detailed Option to the new Report Only
+                    Add same Print Selection Ranges
+                    Remove toggle boxes to print specific fields and add as Available Fields.
+H-R-1-0  01191522 E N-K Reports Business Forms Char Value (H-R-10) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (H-R-10) 
+                    Sales by Multiple Sorts
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    
+                    
+                    
+                    
+H-R-1-1  02091505 E N-K Reports Business Forms Char Value (HR11) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (HR11) 
+                    Sales Analysis by Cust/Item/PO
+                    This was converted in 2014.
+                    
+                    
+                    1) Add toggle Box on New Report called 
+                         ____  Skip Line?
+                    
+                    When Checked this will skip a line after each FG item is printed.
+H-R-1-2  01191523 E N-K Reports Business Forms Char Value (H-R-12) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (H-R-12) 
+                    Profit with Freight
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    
+                    
+                    
+                    
+H-R-1-3  01191524 E N-K Reports Business Forms Char Value (H-R-13) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (H-R-13) 
+                    Sales Analysis - By Inv/Cat/Shipto
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    
+                    
+                    
+                    
+H-R-1-4  01191525 E N-K Reports Business Forms Char Value (H-R-14) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (H-R-14) 
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:   7
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    High Sales  (This Year vs Last Year)
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    Add the Same Fields a on the existing Report.
+                    
+                    Period1,  Period2,  Period3,  Period4,  Period5,   etc.
+                    LY Period1,  LY Period2, LY Period3, LY Period4.  etc., 
+                    
+                    
+                    
+                    
+                    
+                    
+H-R-1-5  01191526 E N-K Reports Business Forms Char Value (H-R-15) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (H-R-15) 
+                    Sales by Period
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    
+                    
+                    
+                    
+H-R-1-6  01191527 E N-K Reports Business Forms Char Value (H-R-16) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (H-R-16) 
+                    Sales Comparison by Sales Rep
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    
+                    
+                    
+                    
+H-R-2-   01191517 E N-K Reports Business Forms Char Value (HR2) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (HR2) 
+                    High Sales by Date Range
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    Add the Same Fields a on the existing Report.
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:   8
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+H-R-4-   01191518 E N-K Reports Business Forms Char Value (H-R-4) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (H-R-4) 
+                    Profit by Category by Sales Rep
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    
+                    
+                    
+                    
+H-R-6-   01191519 E N-K Reports Business Forms Char Value (H-R-6) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (H-R-6) 
+                    Shipments by Item by Customer
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    
+                    
+                    
+                    
+H-R-7-   01191520 E N-K Reports Business Forms Char Value (H-R-7) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (H-R-7) 
+                    Shipments by Shipping Carrier
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    
+                    
+                    
+                    
+H-R-8-   01191521 E N-K Reports Business Forms Char Value (H-R-8) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (H-R-8) 
+                    Sales by Product with Cost
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    
+                    
+                    
+                    
+H-T- -   01191510 E N-K Reports View Forms Char Value (HT) Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (H-T)
+                     
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:   9
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    Add All Fields including Detailed Option to the new Report Only
+                    Add same Print Selection Ranges
+                    Remove toggle boxes to print specific fields and add as Available Fields.
+H-V- -   01191513 E N-K Reports View Forms Char Value (HV) Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (H-V)
+                     
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    Add All Fields including Detailed Option to the new Report Only
+                    Add same Print Selection Ranges
+                    Remove toggle boxes to print specific fields and add as Available Fields.
+H-W- -   01191511 E N-K Reports View Forms Char Value (HW Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (H-W)
+                     
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    Add All Fields including Detailed Option to the new Report Only
+                    Add same Print Selection Ranges
+                    Remove toggle boxes to print specific fields and add as Available Fields.
+H-Y- -   01191514 E N-K Reports View Forms Char Value (HY) Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (H-Y)
+                     
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    Add All Fields including Detailed Option to the new Report Only
+                    Add same Print Selection Ranges
+                    Remove toggle boxes to print specific fields and add as Available Fields.
+H-Z- -   01191512 E N-K Reports View Forms Char Value (HZ) Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (H-Z)
+                     
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+                    
+                    
+                    Add All Fields including Detailed Option to the new Report Only
+                    Add same Print Selection Ranges
+                    Remove toggle boxes to print specific fields and add as Available Fields.
+I-C-1-   12161405 B Slowness: IC1 with Selectable Columns from Customer SWA to SWA
+                    Report from Premier was that IC1 took over 10 minutes to complete.
+                    Print from FG Item to FG Item is Fast.
+                    
+                    Print from Customer = SWA   to Customer = SWA is very slow.
+                    
+                    
+I-F-1-   02021502 B IF1 - Excel Output - Active/Inactive grayed out and very slow to run
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  10
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    IF1 Export to Excel
+                    2 new Toggle Boxes for Active/Inactive are grayed out and not selectable
+                    
+                    At Premier, the report also takes 11 minutes to complete, where before it was only a few seconds.
+                    
+I-F-1-   02021504 E IF1 History - Add BOL Cust as new Column for BOL#
+                    See Attached.
+                    Add new Field called BOL Cust.
+                    When a BOL# is listed on a Ship Transaction, the Bill To on the Bill of Lading will Display.
+                    
+                    
+I-F-1-   02031502 E HISTORY Tab.  COPY Button Logic.
+                    Buttons allow for updating History Transactions.
+                    User must be ASI
+                    or User must have Security Access via the program master =  FGHstUpd
+                    Then the Button for COPY, DELETE, COMPRESS will show.
+                    
+                    COPY button currently allows option to copy the entire transaction.
+                    
+                    Add new option to Copy the Warehouse and Bin to all Transactions.
+I-F-1-   02041504 B Excel Export  - Set Allocation incorrect
+                    Assembled Sets showing as Unassembled and vice versa.
+I-F-1-   02051501 E Add Customer Part #
+                    In I-F-1 they would like a column for the Customer Part # on Browse Items Folder.
+                    Column should be wide enough to fit "Cust Part #" heading and all 15 characters of the part numbe
+                    r.
+                    
+I-F-3-   02061505 E Add account number description column and Type Column to browser
+                    Add the account number description and type columns to the right of the GL Account for the FG Cat
+                    egories Popup Screen.  These come from the GF2 Account File
+I-L-1-   01121501 E N-K Reports Business Forms Char Value (IL1) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (IL1) 
+                    Qty Totals by Cust/Item
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+I-L-1-1  01151509 E N-K Reports Business Forms Char Value (IL11) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (IL11) 
+                    FG Packing Detail
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+I-L-1-2  01151510 E N-K Reports Business Forms Char Value (IL12) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (IL12) 
+                    Customer Inventory
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+I-L-1-4  02121503 B New Report - I-L-14  Whs Item Audit List
+                    Click I-L-14.
+                    This should automatically create the Business Form Under N-K-1 Reports.
+I-L-2-   01121502 E N-K Reports Business Forms Char Value (IL2) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (IL2) 
+                    Unshipped FG Summary
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  11
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+I-L-3-   01121503 E N-K Reports Business Forms Char Value (IL3) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (IL3) 
+                    Unshipped FG Detail
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+I-L-4-   01121504 E N-K Reports Business Forms Char Value (IL4) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (IL4) 
+                    Scheduled Ship vs. QOH
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+I-L-5-   01121505 E N-K Reports Business Forms Char Value (IL5) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (IL5) 
+                    Inventory Balances
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+I-L-7-   01151507 E N-K Reports Business Forms Char Value (IL7) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (IL7) 
+                    FG Daily Activity 
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+I-L-8-   12171410 E N-K Reports View Form = IL8   Lgical Value = Yes (Print IF1 Sales Rep)
+                    Task 12091410 has logic to add a SALES REP field to the Total/CP# field.
+                    Once added, this task can be completed.
+                    It is possible to have a different sales rep for each customer on the Totals/CP# Field.
+                    But, there will be only one Rep on the Totals/ CP#  tab that matches the Customer with Status X. 
+                    For example, FG item 8x8x8 has a customer = STOCK, who has a status = X.
+                    That is the Sales Rep that will be used on the FG Report.
+                    
+                    A) If the existing report pulls the sales rep from the order, then no programming is needed.
+                    B) If the existing report pulls the sales rep from the Customer File, this must be changed.
+                         1)  If the Sales Rep Feild is blank, then the existing logic will be used.
+                         2)  If the Totals/CP# has a Sales Rep defined, this REP will print on the Report.
+                    
+                    
+                    Please Note.
+                    It is OK to add logic to both Legacy Report and New Report Writer Format
+                    
+                    
+I-L-9-   01151508 E N-K Reports Business Forms Char Value (IL9) Forms Log Value = YES
+                    N-K-1 Reports,  View Forms   Logical Value = Yes.  (IL9) 
+                    Reorder Advice By Ship-To
+                    
+                    1) Convert Legacy Report to Report Writer Format.
+                    2) Remove All Toggle Boxes that Select Fields
+                    3) Fields from Toggle Box will be added to AVAILABLE COLUMN
+                    4) All Fields on Legacy Report will be Available to Select as AVAILABLE COLUMN
+                    5) Add DEFAULT button to Copy Fields on Legacy Report to SELECTED COLUMNS.
+                    6) Transfer All  Print selection Ranges from Legacy Report will match New Report
+                    7) Transfer All  Sort Options from Legacy Report will match New Report
+                    8) Transfer All  Toggle Box Options from Legacy Report to New Report
+I-R-1-   02091512 E N-K REPORTS View Form IR1 Logical = Yes - Add 5 Mo Avg column
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  12
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    New Selectable Fields.
+                    1) Add new Field called "5 Mo Avg"
+                    This will be a straight average of the last 5 months of history, not including the most recent mo
+                    nth.  So if the 6 month history prints:
+                    2/15  1/15   12/14   11/14    10/14  9/14
+                    200    100    1200    1100      1000   900
+                    The 5 MO Avg would be (100 + 1200 + 1100 + 1000 + 900)/5.  Note the exclusion of the 200 for the 
+                    latest month.
+                    
+                    2) Add a new field called "Sugt - Avg"
+                    This will be the Sugt Reorder Column minus the value of the new column added in #1.
+                    
+                    
+                    
+                    
+I-R-1-1  12171408 E N-K Reports View Form IR11 Logical Value = Yes (IF1 Sales Rep)
+                    Task 12091410 has logic to add a SALES REP field to the Total/CP# field.
+                    Once added, this task can be completed.
+                    It is possible to have a different sales rep for each customer on the Totals/CP# Field.
+                    But, there will be only one Rep on the Totals/ CP#  tab that matches the Customer with Status X. 
+                    For example, FG item 8x8x8 has a customer = STOCK, who has a status = X.
+                    That is the Sales Rep that will be used on the FG Report.
+                    
+                    A) If the existing report pulls the sales rep from the order, then no programming is needed.
+                    B) If the existing report pulls the sales rep from the Customer File, this must be changed.
+                         1)  If the Sales Rep Feild is blank, then the existing logic will be used.
+                         2)  If the Totals/CP# has a Sales Rep defined, this REP will print on the Report.
+                    
+                    
+                    Please Note.
+                    It is OK to add logic to both Legacy Report and New Report Writer Format
+                    
+                    
+                    
+                    
+I-R-1-2  12171409 E N-K REPORTS View Form IR12 Logical = Yes  (Print I-F-1 Totals Sales Re
+                    Task 12091410 has logic to add a SALES REP field to the Total/CP# field.
+                    Once added, this task can be completed.
+                    It is possible to have a different sales rep for each customer on the Totals/CP# Field.
+                    But, there will be only one Rep on the Totals/ CP#  tab that matches the Customer with Status X. 
+                    For example, FG item 8x8x8 has a customer = STOCK, who has a status = X.
+                    That is the Sales Rep that will be used on the FG Report.
+                    
+                    A) If the existing report pulls the sales rep from the order, then no programming is needed.
+                    B) If the existing report pulls the sales rep from the Customer File, this must be changed.
+                         1)  If the Sales Rep Feild is blank, then the existing logic will be used.
+                         2)  If the Totals/CP# has a Sales Rep defined, this REP will print on the Report.
+                    
+                    
+                    Please Note.
+                    It is OK to add logic to both Legacy Report and New Report Writer Format
+                    
+                    
+                    
+                    
+                    
+I-R-2-   12081402 B Backdated report shows large negative bin.
+                    See attached scans.
+                    The first is a scan of the IR2 parameter screen when run with today's date.  The second page is t
+                    he report output.  Everything looks correct.
+                    
+                    The second scan is of the IR2 parameter screen when run with date back in time.  The second page 
+                    of this scan shows a highlighted bin that didn't exist in the first run of the report.  
+                    
+                    This task is to:
+                    1) find the root cause and source of this erroneous bin
+                    2) Fix the data such that this bin does not exist in back-dated reports
+                    3) Identify a process for the customer to be able to fix this data when it is uncovered.
+I-R-2-   12171403 E N-K REPORTS View Form IR2 Logical Value = YES  (Print FG Sales Rep)
+                    Task 12091410 has logic to add a SALES REP field to the Total/CP# field.
+                    Once added, this task can be completed.
+                    It is possible to have a different sales rep for each customer on the Totals/CP# Field.
+                    But, there will be only one Rep on the Totals/ CP#  tab that matches the Customer with Status X. 
+                    For example, FG item 8x8x8 has a customer = STOCK, who has a status = X.
+                    That is the Sales Rep that will be used on the FG Report.
+                    
+                    A) If the existing report pulls the sales rep from the order, then no programming is needed.
+                    B) If the existing report pulls the sales rep from the Customer File, this must be changed.
+                         1)  If the Sales Rep Feild is blank, then the existing logic will be used.
+                         2)  If the Totals/CP# has a Sales Rep defined, this REP will print on the Report.
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  13
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    
+                    
+                    Please Note.
+                    It is OK to add logic to both Legacy Report and New Report Writer Format
+I-R-4-   02121505 B Report is not showing items that are on hand
+                    Customer FPCFPC
+                    There are items that are on hand that are not showing on this report.
+                    Their report is different format than ours and I cannot duplicate it.
+                    Some of the items are ones that end in 1A, 2A, 3A, 4A, 4C, 5A, 9A, 10A, and 13A.
+                    
+                    See solution tab for explanation
+I-R-4-   12171404 E N-K REPORTS View Form IR4  Logical Value = YES
+                    Task 12091410 has logic to add a SALES REP field to the Total/CP# field.
+                    Once added, this task can be completed.
+                    It is possible to have a different sales rep for each customer on the Totals/CP# Field.
+                    But, there will be only one Rep on the Totals/ CP#  tab that matches the Customer with Status X. 
+                    For example, FG item 8x8x8 has a customer = STOCK, who has a status = X.
+                    That is the Sales Rep that will be used on the FG Report.
+                    
+                    A) If the existing report pulls the sales rep from the order, then no programming is needed.
+                    B) If the existing report pulls the sales rep from the Customer File, this must be changed.
+                         1)  If the Sales Rep Feild is blank, then the existing logic will be used.
+                         2)  If the Totals/CP# has a Sales Rep defined, this REP will print on the Report.
+                    
+                    
+                    Please Note.
+                    It is OK to add logic to both Legacy Report and New Report Writer Format
+                    
+I-R-5-   12171405 E N-K Reports View Form IR5 Logical Value = YES (Sales Rep by FG Item)
+                    Task 12091410 has logic to add a SALES REP field to the Total/CP# field.
+                    Once added, this task can be completed.
+                    It is possible to have a different sales rep for each customer on the Totals/CP# Field.
+                    But, there will be only one Rep on the Totals/ CP#  tab that matches the Customer with Status X. 
+                    For example, FG item 8x8x8 has a customer = STOCK, who has a status = X.
+                    That is the Sales Rep that will be used on the FG Report.
+                    
+                    A) If the existing report pulls the sales rep from the order, then no programming is needed.
+                    B) If the existing report pulls the sales rep from the Customer File, this must be changed.
+                         1)  If the Sales Rep Feild is blank, then the existing logic will be used.
+                         2)  If the Totals/CP# has a Sales Rep defined, this REP will print on the Report.
+                    
+                    
+                    Please Note.
+                    It is OK to add logic to both Legacy Report and New Report Writer Format
+I-R-6-   12171406 E N-K Reports View Form IR6  Logical Value = Yes  (Print I-F-1 Sales Rep
+                    Task 12091410 has logic to add a SALES REP field to the Total/CP# field.
+                    Once added, this task can be completed.
+                    It is possible to have a different sales rep for each customer on the Totals/CP# Field.
+                    But, there will be only one Rep on the Totals/ CP#  tab that matches the Customer with Status X. 
+                    For example, FG item 8x8x8 has a customer = STOCK, who has a status = X.
+                    That is the Sales Rep that will be used on the FG Report.
+                    
+                    A) If the existing report pulls the sales rep from the order, then no programming is needed.
+                    B) If the existing report pulls the sales rep from the Customer File, this must be changed.
+                         1)  If the Sales Rep Feild is blank, then the existing logic will be used.
+                         2)  If the Totals/CP# has a Sales Rep defined, this REP will print on the Report.
+                    
+                    
+                    Please Note.
+                    It is OK to add logic to both Legacy Report and New Report Writer Format
+                    
+I-R-7-   12171407 E N-K Reports View Form IR7  Logical Value = Yes  (Print IF1 Sales Rep)
+                    Task 12091410 has logic to add a SALES REP field to the Total/CP# field.
+                    Once added, this task can be completed.
+                    It is possible to have a different sales rep for each customer on the Totals/CP# Field.
+                    But, there will be only one Rep on the Totals/ CP#  tab that matches the Customer with Status X. 
+                    For example, FG item 8x8x8 has a customer = STOCK, who has a status = X.
+                    That is the Sales Rep that will be used on the FG Report.
+                    
+                    A) If the existing report pulls the sales rep from the order, then no programming is needed.
+                    B) If the existing report pulls the sales rep from the Customer File, this must be changed.
+                         1)  If the Sales Rep Feild is blank, then the existing logic will be used.
+                         2)  If the Totals/CP# has a Sales Rep defined, this REP will print on the Report.
+                    
+                    
+                    Please Note.
+                    It is OK to add logic to both Legacy Report and New Report Writer Format
+                    
+                    
+                    
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  14
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+I-U-1-   02171504 B Add Receipt, Type PO# 102798 and Errors Appear
+                    Add Receipt.
+                    Type 102 and a ?????? Error appears.
+                    I did not type the entire number 102798 
+                    
+                    See Solution for developer note.
+I-U-2-   02111504 E N-K FGTransfer     Finished Goods Transfer Default Warehouse
+                    See Attached.
+                    
+                    Click Add Transfer.
+                    Type FG item ATT-2297
+                    Press F1 on The Tag# and Select a Tag#.
+                    
+                    Adding Transfer should import the current Warehouse/Bin, Units and Counts to the FROM.
+                    The TO Location will Copy the FROM Warehouseto the TO Warehouse.
+                    However the Cursor will pause on the Warehouse Field.
+                    
+                    If the From = MAIN, then the TO will default to MAIN.
+I-U-5-   01211504 B Getting error message when posting.
+                    Error: ** No tt-bin record is available (91).
+                    See attached files. Posting does complete with error messages.
+I-U-5-   04041403 B Post Date entered on FG Transactions Must Post to that Date
+                    N-K-1 FGPOSTGL  Logical Value = Yes.
+                    This posts GL transactions based on the FG Category.
+                    
+                    All FG transactions require customer enter a posting date.
+                    For example, If I enter transaction date on I-U-1 of 12/30/14 and I enter post date of 12/30/14 t
+                    his should post to 12/30-14.   The Post report still posts to the Current Date.
+                    This must post to the POST DATE Entered.
+                    
+                    As another example,
+                    Find Order 207576
+                    Click Items Tab and Click LoadTag Icon.
+                    Create 1 Tag for 2500 per Unit.
+                    This will create Receipt in I-U-1.
+                    Next Click I-U-5 and change Posting Date to Saturdays date of 4-19-14.
+                    Post Receipt.
+                    The History will always be the Date Entered on the I-U-1 Screen.
+                    However, the Post Date should be the I-U-5 Posting Date of 4-19-14.
+                    Likewise, If I Recieve 10,000 which will close Job, the Close Job should Also be on the Posting D
+                    ate.
+                    
+                    Please note,  I dont know if we save the POSTING date ?
+                    History must be the Date Entered which it does correctly post to History.
+                    I assume I-L-6 is by Posting Date but this may be by Transaction Date ???
+                    
+I-U-5-   12301405 B N-K FGINVREC    Ship Only Invoice should have Zero Sell Price
+                    O-U-1 Release is SHIP ONLY.
+                    N-K-1 FGINVREC date is YES
+                    Character Value = ALLITEMS will create a single invoice for all items.
+                    Customer Orders for FG items that are FARM OUTS / Purchased.
+                    PO to the Vendor is a DROP SHIPMENT type.
+                    When posting FG receipts will create O-B-1 Invoice for the PO Receipt.
+                    
+                    When Adding FG Receipt for Drop Shipment PO.
+                    The invoice created should have ZERO Sell Price when Release is SHIP ONLY.
+                    
+                    To Test.
+                    See ASI Order 208245.  
+                    The release type on the Release tab is a SHIP ONLY.
+                    The Vendor PO# on the items Tab is102798
+                    The P-U-1 PO# 102798 is a Drop Shipment
+                    When I receive the PO, i answer YES to create the invoice.
+                    This invoice should show a ZERO quantity for the Invoice Qty.
+                    
+                    If release was a B for Bill and Ship, the logic is perfect.
+J-L-6-   01211501 B N-K REPORTS JL6 -  Total Price (SP Actual) doesn't convert from CS uom
+                    The SP Actual column on the JL6 report does not handle a FG with a Sell UOM of CS.
+                    This only applies to stock jobs for items with a sell UOM of CS.  Instead of dividing the FG sell
+                     price by the case count and then multiplying it by the job qty, the program just multiplies the 
+                    job qty (EA) by the case sell price.
+                    
+                    Run JL6 for Job W11625-00.  The SP Actual comes out to 150,000.  This is because the Unit Price i
+                    n IF1 is $2 per case.  Job Qty of 3000 * 50 = $150,000.
+                    This should reduce the price by the case count of 100 and the SP should be $1500.
+J-Q-1-   01141506 E Material Folder - New Delete Button (See Attached)
+                    See Attached.  Material Folder
+                    
+                    New Button to allow deleting transactions.
+                    Please note only user ID=ASI and users with Security will see the Delete Button.
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  15
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                     
+                    For Example.
+                    Search for All Jobs for FG Item ATT-2297
+                    Click Materials Tab.
+                    Double Click material with ACTUAL quantity.
+J-Q-1-   01201508 E EXCEL Icon  for All Tabs
+                    Add Excel Icon on J-Q-1 to Each Tab.
+                    This be similar to J-U-1.
+                    The Job File only shows the Estimated Costs per field 
+                    
+                    J-Q-1 will also show the ACTUAL fields 
+J-R-3-   10031305 E Estimated Sheets not matching J-U-1 or J-Q-1
+                    New Toggle Box.      _X_   Show Jobs Estimated Sheets.
+                    This will simply import estimated sheets from Jobs Material Tab by RM Item.
+                    
+                    ____ Unchecked, this will be the current logic.  Which calculates estimated sheets based on Finis
+                    hed Goods Produced plus Waste.   However, if multiple sheets or rolls posted to one FORM, program
+                      will not be able to allocated Estimated Sheets to specific Rolls because RM Issues are not by F
+                    G Item.
+                    
+                    Print Job 206916-01 which had 550,000 LF Posted or 182000 Sheets Actual Sheets.
+                    See ATTACHED . 
+                    J-R3 shows wrong estimated sheets when Forms have no Board Material Issued.
+                    This occurs when all material is issued to FORM 1 on a Tandem or Combo Job.  
+                    When form show zero sheets issued, the system is calculating estimated sheets based quantity rece
+                    ived + waste divided by Number Up.  
+                    The program is being changed to calculate by Form on Task 07081309.  
+                    HOWEVER
+                    This logic  will never be perfect when multiple rolls are used and posted to FORM 1 rather than p
+                    osted per Actual Form.  A practice used often at your company.
+                    Program will not know how assigned the calculated estimated sheets per Roll when 2 or more forms 
+                    are issued to to same FORM.   M-U-2 Material issues does not post directly to an FG Item.   JR3 c
+                    alculates estimated sheets based on FG Receipts.  
+J-U-1-   01071505 B N-K JobCardC = Bell (Job Quantity going to 0)
+                    Job# 208180
+                    For Farmout items the job quantity on the Job ticket is showing 0 even thought there is a Job Qua
+                    ntity of 1,100.  It should still show 1,100.
+                    
+                    2) Remove Popup when Printing the Job Ticket.
+                    This problem is caused by the quantity pop-up process that was copied from the Soule job card.  B
+                    ell does not want this qty pop-up any longer.  Remove the prompt for BELL.
+                    The Job Qty printed should simply be the job Quantity on the job.  
+                    
+                    3)  Print Job 208191
+                         Sets within Set is printing the wrong Component Order Qty.
+                          Unassembled Set on ASI O-U-1 Order 208191 for for Estimate 11130
+                         The Order Qty on OU1 should print on the Job Card.
+                          See FG Item BMILLER0001A01, this is printing the wrong Order Qty of 20,000.
+                          This shoulld not multiple by the quantity per set.
+J-U-1-   01141508 B Spec Notes Book Button should turn yellow
+                    ASI Job# W11956
+                    I added a SPEC note and the book button didn't change yellow.
+                    When there is a spec note it button should be yellow.
+J-U-1-   01211503 B Inks and coating not on Job Ticket
+                    Order# 7894 (est 19413) Form 6 has a problem
+                    Blank 2 has DBD-9691 in unit 1
+                                            MGC-1709 in unit 6
+                                            AQCA1412DS in unit 7 not printing
+                    
+                    Order# 7864 Form 3 and 4 has no inks or coating printing
+                    both forms have  1K725LTR71 in unit 2
+                                                      2C725LTR71 in unit 3
+                                                     3M725LTR71 in unit 4
+                                                     4Y725LTR71 in unit 5
+                                                      DBD-9712 in unit 6
+                                                      AQCA1412DS in unit 7
+J-U-1-   01281505 B N-K JobCardF = Carded2  (Department Notes problem)
+                    Print Job# 208235 and you will see Printing department notes print
+                    Prnit Job# 208240 and the Printing Department notes print.
+                    Now if you print a range from 208235-208240 the printing department notes print or both job ticke
+                    ts.  It should only print on the one.
+                    This happens for all department sections with notes on the Job ticket.
+J-U-1-   11241406 B Print Icon not Defaulting to Job# on Screen
+                    J-U-1 Add Button to create new new job.
+                    Click Materials Tab and make Change.
+                    Print Icon Option.imports the Job# that is at the top of the list in the browser window 
+                    (when J-U-1 is first opened). 
+                    
+                    Two reasons to modify the materials on the Materials Tab
+                    1)  Changing Board Material.
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  16
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    2)  Allocating an inventoried board to the item. 
+                    Either change always seems to reset the job info at the top of the screen. 
+                    If we go back and type in the job number, everything is good
+                    
+                    We have to go back and type in the job number of the one we are actually working on
+                    (even though it shows on the screen that it is the active file), to get the print to pull up the 
+                    correct job ticket, or we have to be mindful to change the job ticket number in the print screen.
+                    
+                    
+                    To Duplicate:
+                    Changed N-K-1 JobCreat to S
+                    Go to J-U-1 create job for estimate 11956
+                    Go to materials folder and update the board to something else and click save.
+                    The Job at the top of the screen changes to the job of the first job of the browse folder.
+M-C-2-   02041506 B Validate Warehouse and Bin
+                    You fixed this in Sharp Shooter but M-C-2 has the same Problem.
+                    Add Cycle Count for Item SBS18-24
+                    Paste Tag# 01022990010000011
+                    
+                    Then Paste the same Tag Number 01022990010000011 in the Warehouse field.
+                    This creates a new Line with an Invalid Warehouse and/or Bin.
+                    
+                    I get error messages but click OK allows user to continue.
+                    That should not happen.
+                    
+                    Then CANCEL Saves the Record.
+                    That is really bad.
+M-F-1-   01301507 B Excel Export missing "Warehouse" field
+                    Add "Warehouse" and "Bin" to the available fields for exporting from MF1.  They should've been in
+                     the list originally.
+M-R-3-   12291401 B Receipt Date appears to be Date of Transfer
+                    Find RM Item = GLUE 
+                    When Inventory has a Tag#, there is only 1 receipt date.
+                    I transferred tag# 01027730010000010 and now the Receipt Date shows 10/10/14.
+                    This should continue to show 12/12/14
+                    Tags with Transfer Date is Showing on the Report.   This should be the Receipt Date.
+                    
+                    See Attached.
+                    This shows the TRANSFER DATE.  THis must show the Receipt Date.
+                    
+                    Receitp for Tag 01027730010000010 was in 2014.
+                    I transferred on Jan 29, 2015 
+                    Now Receipt date on report shows 1/29/15
+                    Which is wrong.
+                    
+                    There is only 1 receipt date for a Tag#.
+M-R-5-   01061504 B N-K Reports = MR5  - Extend Description field
+                    N-K-1 Reports.
+                    New View Form = MR5
+                    
+                    Description field only prints first 15 characters.  It should print all 30 characters allowed in 
+                    the name field of MF1.
+                    
+                    Run MR5 for Item: 26#L-30" (select material type P) to test.
+M-U-2-   01161505 E ADD Job# and Fix Spelling of Radio Buttons
+                    See Attached.
+                    Fix the spelling per attached.
+                    Also Add Job# as a Search Option.
+M-U-3-   02041501 B RM Transfers UPDATE button should not allow Qty Changes
+                    Add Transfer for Item SBS18-24
+                    Click the History Tab and Type PO# 102423 to see all the Tags for this PO#.
+                    Next, Click Sharp Shooter
+                    Click RM Transfer
+                    Add Transfer for Tag# 01024230010000011
+                    This should import 20,000 when entering the Tag#.
+                    
+                    The UPDATE button allows me to change the Quantity which is a partial Transfer.
+                    This keeps the same tag# in both locations which is IMPOSSIBLE.
+                    The Quantity field cannot be updated in Add mode or Update Mode.
+                    Prevent any update to the Quantity Field when using Tag#.
+                    If the Tag# is Blank, then the Quantity Field can be Changed.
+                    
+                    
+                    
+                    Please note,
+                    Another task can be written to allow creating a new Tag# for the TO Warehouse and Bin.
+                    That would be a billable task.
+                    The Work-a-Round for Partial Transfers.
+                    Create Two CYCLE Counts for the original Tag# and new Tag#.
+N-C- -   02111506 B AutoFind is not in Focus
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  17
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    See Attached.
+                    Click N-C
+                    The AutoFind is not in Focus.
+                    
+                    I should be able to click
+                    NC
+                    then Type
+                    NotePad
+                    
+                    This should immedately display the group = Notepad.
+                    
+                    I should not have to click in the AutoFind field with my Mouse.
+N-F-1-2  02031501 E Add Transaction Type Range to Purge FG History
+                    See Attached.
+                    Add Transaction Type Range to Utility
+                    Only Valid Types are the Following:
+                    
+                    R = Receipts
+                    T = Transfers
+                    A = Adjustments
+                    C = Cycle Counts
+                    E = Returns
+                    S = Shipments
+N-K-1-   01091505 E N-K JobcardC = Axis   (Copy NK1 JobCardC = TriLakes2)
+                    Copy Trilakes Jobcard and make the following changes.
+                    Attached Sample is from TriLakes2.
+                    
+                    1)  Toggle Box to Print Spec Notes.    ____________
+                          User will type the group code such as IN.
+                    
+                    2)  Machine Routing only need max of 6 lines for 6 machines per page. 
+                    
+                    3)  Remove last Line in the Customer Box, Order Information and Item Description Box.
+                          Change the Last Line in the Order Information to read
+                          Over 10 %  5,500   Under 10%  4,500     
+                          Move the overrun Qty to Right of the Percentage and Underrun Qty to Right of Under %.
+                          Remove the decimals and digits to right of the demimals.
+                    
+                    3)   Print Spec Notes on Left Side of Notes Section
+                    
+                    4)  Print Ship To Notes from Release Tab on the Right Side of the Notes Tab.
+N-K-1-   01191504 E N-K JobcardC = Axis   (Task# 01091505 whas to copy NK1 JobCardC = TriL
+                    N-K-1 JobCardC =  AXIS
+                    This is now printing up to 8 Colors per job card.
+                    
+                    The Trilakes job ticket only prints up to 4 and appears to be larger print.
+                    The TriLakes2 job ticket prints up to 8 colors and appears to be smaller print.
+                    
+                    The original task states to COPY TriLakes.
+                    Make the Ink/Colors section of the Axis job card print the same as Trilakes.
+N-K-1-   01201506 E N-K-1 Parameters to allow multiple values
+                    Enhance NK1 viewer to allow multiple selections for certain NK1 parameters such as OEDATECHANGE A
+                    ND SSBOLEMAIL. F1 will bring up the list of options with a checkbox next to each one so that the 
+                    user can select multiple values. Validation will be done on each value individually when user sav
+                    es the record.
+N-K-1-   02111501 E N-K Browse Forms Tab     New Radio Search Buttons
+                    See Attached.
+                    Click N-K-1
+                    Click Browse Forms.
+                    Add new Radio Buttons 
+                    ____  Cust/Vend
+                    ____  Character.
+                    
+                    
+                    Search by Cust/Vend will allow searching for a specific Customer.
+                    Search by Character will allow searching fo a specific Form.
+                    For example.
+                    Under N-K-1 Reports.
+                    Browse Forms.
+                    Search for AR4.
+N-K-1-   11181404 E N-K POExport = GP  & N-K-1 GP Character = PremierPKG  ($150/Hour)
+                    ftp.kleinschmidt.com: 63.78.198.2
+                    
+                    AS OF 2015  New FTP Routing Info:
+                    Georgia-Pacific has selected a new VAN provider - Liason Exchange Network
+                    GP will be migrating all of our data off of Kleinschmidt.
+                    New FTP will electronically deliver purchase orders for sheets directly to Kleinschmidt to FTP da
+                    ta (http://ftp.kleinschmidt.com).  We are looking to switch the FTP location (and potentially use
+                    rnames and passwords) in 1st Quarter of 2015. 
+                    PREMIER PACKAGING	PKG - Direct Connect - Advanced FTP
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  18
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Ryan Filpi,  Georgia-Pacific Packaging IT  Phone: (404) 652-7458  Fax: (404) 749-9923
+                    rkfilpi@gapac.com
+                    
+                    
+                    
+                    Existing FTP Routing Info that will be replaced.
+                    N-K-1 GP      Character Value = PremierPkg
+                    URL to connect to us is ftp.kleinschmidt.com which currently resolves to 69.128.144.40 - Main IP
+                    Login = prempkg
+                    Password = PremFtp8
+                    Additional IP numbers:
+                    69.128.144.44
+                    65.164.167.40
+                    
+                    
+N-K-1-   11181406 E N-K GP = N-Stock    File Transfer Changes.(Invoice to GP at $150/Hour)
+                    ftp.kleinschmidt.com: 63.78.198.2
+                    
+                    AS OF 2015  New ROUTING INFO
+                    Georgia-Pacific has selected a new VAN provider - Liason Exchange Network
+                    GP will be migrating all of our data off of Kleinschmidt.
+                    New FTP will electronically deliver purchase orders for sheets directly to Kleinschmidt to FTP da
+                    ta (http://ftp.kleinschmidt.com).  We are looking to switch the FTP location (and potentially use
+                    rnames and passwords) in 1st Quarter of 2015. 
+                    N-STOCK BOX                         - Direct Connect - Advanced FTP
+                    Ryan Filpi,  Georgia-Pacific Packaging IT  Phone: (404) 652-7458  Fax: (404) 749-9923
+                    rkfilpi@gapac.com
+                    
+                    Existing FTP Routing Info that will be Replaced::
+                    The following must be set to export data.
+                    Purchase Orders from N-Stock will be exported electronically via FTP to Trey Corrugated using the
+                     Georgia Pacific's XML file interface.
+                    N-K-1 GP Character Value = NStock
+                    GP plant name is Trey Corrugated in West Chester OH.   
+                    The customer # for N-Stock is 16579
+                    Login              	Password
+                    nstockbox       	nstockftp4
+                    GEORGIA PACIFIC Purchasing Export Method to Export Purchase Orders to Corrugator 
+                    Via Explorer Client must Setup Folder:  N:\Rcode\GP\Export\DataXfer\In   
+                    
+                    
+N-K-1-   11181407 E N-K = GP  (Character Value = StClair)   Configure new FTP for GP  ($15
+                    ftp.kleinschmidt.com: 63.78.198.2
+                    
+                    AS OF 2015  New FTP Routing Info:
+                    Georgia-Pacific has selected a new VAN provider - Liason Exchange Network
+                    GP will be migrating all of our data off of Kleinschmidt.
+                    New FTP will electronically deliver purchase orders for sheets directly to Kleinschmidt to FTP da
+                    ta (http://ftp.kleinschmidt.com).  We are looking to switch the FTP location (and potentially use
+                    rnames and passwords) in 1st Quarter of 2015. 
+                    ST CLAIR PACKAGING	PKG - Direct Connect - Advanced FTP
+                    Ryan Filpi,  Georgia-Pacific Packaging IT  Phone: (404) 652-7458  Fax: (404) 749-9923
+                    rkfilpi@gapac.com
+                    
+                    
+                    EXISTING FTP INFO FOLLOWS:
+                    N-K-1 POExport =  GP Exists.     New Character Value = St.Clair,   
+                    N-K-1 POEXPORT int value should be 0.  
+                    Character value dictates the plant and IP address and company code.
+                    Output PO file for board material to Georgia Pacific XML file.
+                    As usual, the ftp location is ftp.kleinschmidt.com and the files can be dropped off in either the
+                     prod or test folder. It does not matter which one you drop them in. If you log in directly to th
+                    e FTP location you will not see either folder but they exist. 
+                    Login and Password to use are below?
+                    Login =  stclairpkg        Password = stclpftp8
+                    
+N-R- -   12221411 E util/XrefTypetoGroup.r
+                    This program will COPY  the A-F-1 Customer Type to the A-F-1 Customer Group Field.
+                    
+                    Utility will have range of 
+                    
+                    FROM Customer ___________    TO Customer   _____________
+                    
+                    All customers within this range will transfer the Customer TYPE field to the Customer Group Field
+                    .
+N-R-4-   01261501 B EDI Release Process running extremely slow
+                    EDI Release Process running extremely slow
+N-Y-4-   01151502 B Estimate Number should be expanded to DB Size
+                    Utility does not work.
+                    1) Size must be expanded.
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  19
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    2) I updated the ZLM machine rates and ran utility.
+                         No Estimates were updated.
+O-B-1-   01261502 B N-K InvPrint = LoyLang  (Bill To wrong on Misc Item invoices)
+                    Order# 208230
+                    Invoice# 7597
+                    
+                    The Sold To on the View order is Matt23 which is 121 Seville Drive
+                    This order is only for a Misc Charge.
+                    The Invoice displays 123 Seville Drive which is the address of Matt21 which is wrong.
+                    This needs to bring in the Sold To on the View Order Folder.
+O-B-1-   02051508 B Adding an invoice manually does not update the price UOM from the scre
+                    Add an item with a price defined in OF3 price matrix to OB1.
+                    
+                    Price comes in correctly but the UOM does not.
+O-B-3-   01281507 B N-K InvPrint=Xprint  Not showing all tax codes
+                    Invoice print is only showing 2 tax codes in totals.  If there are 3 or more in the tax group the
+                     others do not print.  The grand total however is correct and adds all taxes into it.
+                    
+                    Make sure changes are made for Reprint Posted invoice as well or AU3
+                    See attachment
+O-B-3-   01291506 B N-K InvPrint=Xprint   - Bill Notes don't print when customer is Group
+                    Invoice 7602 in OB1 doesn not print the notes on the Bill Notes tab.  
+                    This invoice is for customer 5Below
+                    A-F-1  Invoice Method =  "Group By Date".
+                    When customer is set to Group by Date, the Bill Notes are not printing.
+                    
+                    
+                    Contrast this with 7601 which does print the note on the BIll Notes tab.  
+                    Hershey A-F-1 IInvoice Type is set to Invoice per BOL.
+                    
+O-B-3-   02061503 B Batch Emailing not including some invoice
+                    OB1 - Note 3 invoices for customer ZOV100:
+                    7609 - Ship To ZOV101
+                    7610 - Ship To 1123
+                    7611 - Ship To 1123
+                    
+                    Set up OB3:
+                    Customer:  ZOV100 to ZOV100
+                    Invoice 7610 to 7611
+                    Date: 02/06/15 to 02/06/15
+                    Bols: 0 to 99999999
+                    Output to Email with  Batch Email option checked.
+                    This results in one email with a PDF that includes both invoices 7610 and 7611.  This is correct.
+                    
+                    
+                    Next setup:
+                    Customer:  ZOV100 to ZOV100
+                    Invoice 7609 to 7610
+                    Date: 02/06/15 to 02/06/15
+                    Bols: 0 to 99999999
+                    Output to Email with  Batch Email option checked.
+                    This results in one email with a PDF that only shows invoice 7609.  This is a bug
+                    
+O-B-3-   02131504 B N-K INVPRINT = ALLPKGX   Reprint Posted Invioce
+                    See The Attached Invoice is the Original Invoice.
+                    Reprint Posted Invoice is not printing correct Sell Price Unit of Measures.
+                    
+                    1)  O-B-3 Print Posted Invoice 7616
+                    Check the TOggl boxes 
+                    Reprint
+                    Posted
+                    
+                    2)  Click O-Q-1
+                    Find ASI Order 208268
+                    Click the INVOICE Tab.
+                    View the UOM on the Invoice Tab.  
+                    Tape-3 is sell price per CS.   All other items are Sell Price per EA.
+                    
+                    Click the Print Invoice Icon at the Bottom.
+                    The invoice prints the Sell UOM = EA for all the items.
+                    
+                    
+                    
+O-F-8-   02121501 B N-K OEImport  - Add "ShipFrom" to OEImport
+                    Add a field to OEImport program that allows for a single ShipFrom to be specified per order item.
+                    
+                    This Ship From is what should be assigned in the scheduled release that is automatically created 
+                    when the order is imported.
+                    
+O-R-1-1  02111514 B N-K Reports Select Fields  Print Order 208261
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  20
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    N-K-1 Reports,   Character Value = OR11   Logical Value = Yes
+                    New Columns Selectable by User  - See Attached new Fields
+                    
+                    Print Order 208261
+                    The Estimate and Job are on the ITEMS tab,  however they do not print on the report.
+                    All other data appears to print correctly.
+                    
+                    
+                    
+                    
+O-R-6-   12221412 E N-K Reports,  View Form = OR6   Logical Value = Yes
+                    N-K-1 Reports
+                    View Form = OR6
+                    Logical Value = Yes.
+                    
+                    Add FROM GROUP  ___________   TO GROUP  _____________   (From Customer File)
+                    
+                    Add new Column to Available Fields called Group.
+O-S-1-   01121508 B N-K BOLFMT = PremierX (All formats) - Subtotal Incorrect per item
+                    N-K-1 BolFmt = PremierX
+                    N-K-1 BolFmt = PremierCX
+                    N-K-1 BolFmt = PremierPX
+                    N-K-1 BolFmt = PremierBroker
+                    
+                    Subtotals per item doesn't work correctly anymore.  There should be a total per item on the last 
+                    line of that item.  Now it is totaling each line of each item
+                    
+                    Print BOL for 8305
+O-S-1-   01131506 E N-K BolFreight-Prompt to Enter Freight Cost when Changing Freight Paym
+                    Logical Value = YES.
+                    Update Button, When changing a BOL status to "B" for Bill Freight.
+                    The Cost of the Freight must be Defined and Zero would not allow Save until this is entered.
+                    If user press SAVE button and Cost = ZERO, the program will prompt.
+                    "Sorry Feight Cost cannot be Zero, Please press OK to Update"
+                    This would immediately return the cursor to the Freight Cost Field.
+                    
+                    Logical Value = NO.
+                    This would allow freight cost = Zero on bill of lading when Freight Payment = B.
+O-S-1-   01201507 B N-K BOLFMT = NStock interger value = 1
+                    Print ASI BOL# 8351
+                    There are 5 different pallet counts on the BOL but 2 pallet counts is not being displayed.
+                    All the pallet counts should be displayed.
+O-S-1-   01231504 E N-K BOLFMT = Carded & CardedBC (Add Contact Name and Phone Number)
+                    Add the Contact Name and Phone Number listed in the SHIP TO tab under the CUSTOMER FILE MAINTENAN
+                    CE and add it to both Carded and CardedBC BOLs.
+                    Add the label "Contact:" on the same line as "Bill To:" and "Ship To:", in the same font as those
+                     labels.
+                    Reduce the indentation of the Ship To and Bill To address to 1 character to add more space on the
+                     right.
+                    Add the Contact Name to the first line below the "Contact:" header, indented one character.  This
+                     should be in the same font as the other information
+                    Add the Contact Phone in the format (999) 999-9999, on the 3rd line below the contact name.
+                    This should be in the same font as the other information.
+                    
+                    For example (not to scale):
+                    
+                    Bill To:                                                           Ship To:                      
+                                                 Contact:
+                     Sabra Dipping Company LLC                Sabra Dipping Company LLC          Contact Name
+                     15900 Sabra Way                                       15900 Sabra Way
+                     Colonial Height, VA  23834                      Colonial Height, VA 23834                 (999) 
+                    555-1212
+O-S-1-   02061501 E N-K-1 BOLFMT  = MWBox - Integer Value = 1 to summarize
+                    N-K BOLFMT = MWBox  Integer Value = 1.
+                    
+                    Midwest BOL currently prints all tags on a BOL.  When integer value = 1, the BOL should summarize
+                     these tags into one line per FG Item.  See BOLFMT MidwestX with integer value = 1 for sample of 
+                    how summarization should occur.
+                    
+                    ASI BOL
+                    8334 should print one summarized line on one page vs. a few pages.
+O-S-1-   02111505 B N-K-1 BOLFMT  = MWBox - Integer Value = 1 to summarize problem
+                    N-K BOLFMT = MWBox  Integer Value = 1.
+                    ASI example BOL# 8350
+                    
+                    There is one item on there twice and only the order number prints.  It prints under the FG item# 
+                    too.  Also, The pallet count should be say 1 @ 250 and 1 @ 250 not 2 @ 250 and 2 @ 250.
+                    
+                    
+                    Old Task 02061501 Below
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  21
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Midwest BOL currently prints all tags on a BOL.  When integer value = 1, the BOL should summarize
+                     these tags into one line per FG Item.  See BOLFMT MidwestX with integer value = 1 for sample of 
+                    how summarization should occur.
+                    
+                    ASI BOL
+                    8334 should print one summarized line on one page vs. a few pages.
+O-S-3-   01071502 B N-K BolFmt = PeachtreeeLotPO  - Applying to ShipTos that aren't specif
+                    Peachtree has a specialized BOLFMT = PeachtreeLotPO.
+                    This prints the Customer Lot # in the PO location on the BOL.  When they have one ShipTo set up w
+                    ith this character value in ViewForms, it uses that format for all shiptos for that customer.
+                    It should fall back to the View Control level if there is no customer ship to match or customer w
+                    ith blank shipto at the View Form level.
+O-S-3-   01271503 B N-K BOLFMT=PremierX, PremierCX, PremierPX - wrong image
+                    The three BOL formats for Premier are using the same Image.  There are unique images for:
+                    PremierX = premier.jpg
+                    PremierCX = premiercx.jpg
+                    PremierPX = premierpx.jpg
+O-S-5-   02121502 B Bill of Lading Posting must Update I=F=1 History with Posted Date
+                    See Bill of Lading 8334  which has a BOL date of 01/30/15
+                    If I post this on Feb 12, 2015.
+                    The I-L-6 Inventory Reports shows both BOL Date and Posted Date = 1/30/15
+                    The Bill of Lading Post must post the Date the Bill of Lading is posted to the I-F-1 History Tab.
+                    
+                    The Posted Date should be added to the I-F-1 History Tab.
+                    Add this next to the Posted User ID.
+                    
+                    Once this logic is corrected.
+                    The I-L-6 report should show the Posted Date vs the BOL Date.
+                    
+                    
+                    In Summary.
+                    Clients may say that their inventory is off because the goods shipped on Friday but the BOL and I
+                    nvoice was posted on a Monday or Tuesday.
+                    The I-L-6 Report and I-F-1 History should show the different dates.
+O-T-1-   06061401 E Automated import of Actual OT1 Releases
+                    1) The objective from an ASI perspective is to automate the creation of an "Actual" release (OT1)
+                     in the Foldware system with release lines populated with pallet tag/bin information.  
+                    a. The "Scheduled" release in OU1 must also be created and linked to the corresponding Actual rel
+                    ease.  
+                    b. The Scheduled release will be either a "B" (bill and ship) or "S" based on specifications in t
+                    he data file/user choice outside of ASI.  
+                    c. An order must already exist in Foldware.  No orders will be dynamically created.
+                    d. Hybrid Software will be providing a data file that will include: 
+                    Order Number, Ship-to Code, Release Qty, Ship Date, Customer PO#, FG item numbers, Pallet Tags an
+                    d Quantity Per Tag. (Ship-only or Bill & Ship) Please note, shipping a partial pallet tag is poss
+                    ible so we need to know tag qty shipped. 
+                    e. Each data file will always create a new actual release.  N-K Relmerge logic will NOT apply to 
+                    this process.  The data file could consist of multiple orders, items, inventory locations.  All o
+                    f these will be tied to a single actual release.  Additional lines will not be added to an existi
+                    ng actual release.  Obviously, the data file must have the same Customer, Ship To location, and R
+                    elease Date.
+                    2) ASI must load the data supplied by Hybrid into the system with no user interaction.  This proc
+                    ess will be modeled after the RFID process that already exists at Accord today.
+                    3) Existing system limitations will apply, outside of stated changes above
+O-T-3-   01091507 E N-K RELPRINT = Axis   (Copy NStock which had been created via PremierX
+                    N-K- RelPrint = Axis  (Copy from N-Stock)
+                    
+                    1)  Add toggle box on O-T-3 Print section to Print Spec Notes.
+                         With Box on which Spec Notes to Print 
+                    
+                    2)  Print the Spec Notes on the Release Ticket Accross the Entire Page under the FG Item.
+                          There can be many FG items on a Release so the Spec note will print by FG Item.
+                    
+                    3)  Spec Notes are type in the BOOK ICON in the Finished Goods Item File
+                          Its the same Icon in the Estimate, Order, FG Item and Job File.
+                          Only the Spec Note Code on the O-T-3 Print Screen will print.
+                    
+                    
+                    For Example, the attached item has notes for the spec code = IT
+                    This stands for Item Notes.
+                    The O-T-3 will have the Note IN written next to the toggle Box.
+                    
+                    Please note, more that 1 Spec Note may be defined.
+                    For example the O-T-1 screen may show   IN,OE,CS
+                    Which would then print notes for all 3 spec codes.
+O-T-3-   01141509 E N-K RELPRINT = PremierX
+                    N-K-1 RelPrint = PremierX.
+                    Format Quantites to support -100.000
+                    
+                    Print Release 8652 for ATT-1000.
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  22
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    This has quantity of -50,000.
+                    Many ????? Print on Report.
+O-U-1-   01091501 B Backorder Releases don't copy the Customer Lot #
+                    See ASI order 208159
+                    Go to the release tab.
+                    Notice that the Customer PO# and Customer Lot# for the existing release.  
+                    Print and Post BOL 8318.  This ships only 50 of the 100 qty that was release, thus a backorder is
+                     created.
+                    Notice the back order that is created on the Release tab of OU1 does not have the Customer Lot # 
+                    of the original release.
+O-U-1-   01151506 E Release Button Logic for Orders on Credit Hold
+                    See Attached Screen Shoots
+                    1)  O-F-2 Order Control File.
+                         Add New Toggle Box under Credit Control called 
+                         Create Sharp Shooter BOL?
+                    
+                    2)  Sharp Shooter BOL Creation  - ADD Button.
+                          After scanning or selecting the Release#, program will check for Order HOLD.
+                          When Order is on Hold, 
+                          When O-F-2 Toggle Box is checked, the program will allow adding the Bill of Lading
+                          When O-F-2 Toggle Box is Unchecked, the program will check order status.
+                           When order or release status is HOLD, program will prompt.  
+                           Sorry Order/Release is on Hold, Bill of Lading cannot be created!
+                           Click OK, 
+                          Program will EXIT out of ADD Mode,. 
+O-U-1-   01221410 B N-K OEPriceCheck   Logical Value =  Yes   Disconnect PRICE Matrix
+                    N-K-1 OEPriceCheck?   
+                    Logical Value = YES. 
+                    CANCEL button SHOULD NOT Erase the Prices that were imported.
+                    
+                    When adding orders without an estimate number, 
+                    the current logic imports sales price from either the O-F-3 price matrix .
+                    If a Price Matrix exists for the Customer, the Quoted Prices should be Bypassed.
+                    The Logic to display the Quoted Prices erases the Imported Price from the Matrix.
+                    If a quote exists for the Item,
+                    Prompt,  Display Quoted Prices for this Item.?
+                    Yes will display the Quoted Prices?   However, Exit or Cancel will Escape and Keep Price.
+                    No will Bypass this Logic.
+                    
+                    For example, add order for Customer ATT1000 for item 8x8x8 and leave estimate# blank.
+                    This imports the price from the O-F-3 Matrix.
+                    However, it then displays the Quoted Prices.
+                    
+                    CANCEL button SHOULD NOT Erase the Prices that were imported.
+                    If I cancel or Exit, 
+                    The Imported Price from the Matix is Erased.
+                    
+                    
+                    
+O-U-1-   01231506 B Loadtag pops up saying multiple items
+                    Order# 29448
+                    Go to items folder and click any item then click the Loadtag button.
+                    A popp up comes up saying Multiple items but the one selected should be the only one in the loadt
+                    ag creation popup after you click the Loadtag button.
+                    
+                    See Attached.
+                    Order 208236 has 2 single items and 1 item which is unassembled but does not show the components 
+                    because N-K-1 OEShip Logical Value = NO.
+                    Only the Selected item should transfer to the Loadtag Selection Screen.
+O-U-1-   02031506 B Fountain Pen BackGround must be Yellow when Notes Exist.
+                    Estimating, Order Entry and Job File has the Fountain Pen.
+                    Find Order 208235
+                    There are department Notes.
+                    The Icon should be Yellow when Notes Exist.
+O-U-1-   02091508 E New Due Date Status Codes on Order and Line Item Status
+                    O-U-1  ITEMS Tab.
+                    Add the following due date status codes and descriptions to F1 browser:
+                    See Attached.
+                    
+                    We want to add the 3 codes below:
+                    
+                    NCUST = New customer
+                    NITEM  =  New item
+                    NCNI     =  New customer and New item
+O-U-1-   02091511 E N-K OEAutoFG     Add Fields to Venor Popup List
+                    See Attached.
+                    Find Order 12020.
+                    Click Items Tab.
+                    Click Update and Save.
+                    Answer YES to create PO.
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  23
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    
+                    A list of vendors and costs will display.
+                    We need to show the corrugator (Vendor) limits.
+                    Add the following fields.
+                    
+                    Vend Item#,  Vend Wid Min,  Max,  Length Min, Max
+O-U-1-   02121506 B N-K OEAutoPO      Expand Screen
+                    Click O-U-1
+                    Find Order 208235
+                    Click Items Tab.
+                    
+                    1)  Expand the Popup Window to show the Total Cost 
+                    3)  Reduce Vendor Name to save space.
+                    
+                    Ideally, this will show all the fields so user does not have to scroll to right.
+                    
+                    Click O-U-1
+                    Find Order 208265
+                    Click Items Tab.
+                    Click Update and Save for Prompt to Create PO for FG Item.
+                    Change Fields to Following.
+                    
+                    1) Reduce the Size of Vendor Name.
+                    Remove the Vend from the Following Fields.
+                    2) Min Wid
+                    3)  Max Wid
+                    4)  Min Len
+                    5)  Max Len
+O-U-1-   08121406 E N-K OEDateChange - Add date change reason tracking to additional dates
+                    Add date change reason tracking for Promise Date (A2) on the Order Item Detail screen.  This will
+                     be similar to that of the tracking for release date changes, which captures information regardin
+                    g date change reasons, user id, etc.
+                    1. This will be activated by setting N-K OEDATECHANGE integer value = 1 (developer note: see solu
+                    tion for options) and will only apply if the date is being changed from an existing valid date (i
+                    .e. not initially blank).
+                    2. When a change is detected, a pop-up screen will be displayed, requiring the user to select a r
+                    eason code and supply a note.  
+                    3. The reason codes can be added and editted through OF9. 
+                    4. A New Spec Codes will be Needed:  "PDC" "Promise Date Change" to be added to the existing "RDC
+                    " "Release Date Change" notes.
+                    5. A New button that launches the existing Date Change Notes will be added to the "View Order" ta
+                    b and "Items" tab in OU1 (this is the green-check-mark-on-the-clipboard icon that already exists 
+                    on the Release Tab)
+O-U-1-   11171405 E N-K OEDateAuto               ****INV****
+                    Modify relationships between existing date fields and new ShipTo day count fields:
+                    
+                    N-K OEAuto Logical Value = Yes, activates the following date synching.
+                       a. The Order Item Due Date (A1) will be set initially by the CSR
+                       b. When the Order Item Due Date (A1) is edited, the Promise Date (A2)  should be calculated by
+                     subtracting the "In Transit" days from A1 (A2 = A1 - M).  Subsequently, the Order Header Due Dat
+                    e (B) should be changed such that B = A2.
+                       b.  When the Promise Date (A2) is changed, the Order Item Due Date (A1) should be calculated b
+                    y adding the "In Transit" days to A2 (A1 = A2 + M).  Subsequently, the Order Header Due Date (B) 
+                    should be changed such that B = A1.
+                    
+                    Important:  A ShipTo is not defined until a Scheduled Release is created.  This happens automatic
+                    ally when you add an order item, but not until that order item is saved.  Also, it is possible to
+                     have multiple Scheduled Releases going to different ship to locations.  This mod will use the *F
+                    irst* Scheduled Release to determine the ship to location to use for the value of M . If a Schedu
+                    led release is not found (initial order entry for instance) the M will be queried from the ShipTo
+                     that matches the Customer Code.
+                    Note:  See attached document for how this mod fits in with other mods.  Mod # 08121405 is require
+                    d for this mod.
+                    
+                    
+O-U-1-   12221409 E New Buttons when Order Qty Less Than FG Count
+                    Busines Logic.    (Set N-K-1 OEScreen Character Value = Item/Qty)
+                    Customer service is typing how many cases the cleint is ordering.  
+                    They type 10 cases but meant to type 250 boxes shipped at 50 per case (Qty/Set)
+                    If 8x8x8 is sold 50 per bundle the I-F-1 quantity per unit = 50.
+                    If customer service types 10, the program will automatically change the Qty/Unit = 10.
+                    
+                    The Attached Message should Appear before changes the Qty/Unit Field.
+                    Currently, this message only occus when changing the Qty/Unit field.
+                    
+                    To Test.  (Set N-K-1 OeScreen Character Value = Item/Qty)
+                    Add order for 8x8x8 and Order Qty = 25.  Tab or Save must display Attached Prompt.
+                    ADD Button and SAVE button must provide new BUTTONS, when adding or updating an order when Order 
+                    Qty Less than Qty/Unit field.    REPLACE OK Button with the following New Buttons
+                    
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  24
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Button A)  Move Order Qty to Qty/Unit   (This is the Current Logic)
+                    
+                    Button B)  Update Order Qty  
+                                        Click this button will not change the Qty/Unit = 50
+                          The Cursor will Move to the Order Qty Field so Order Entry Person can Increase the Qty.
+                    
+O-U-4-   01081507 E N-K ACKHEAD = Axis  - Add separate toggle for Bill Notes
+                    Toggle box: "Print Spec Notes" controls the printing of both Spec notes and Bill Notes in the "Co
+                    mments" section.
+                    
+                    Add a new toggle box "Print Bill Notes" that will explicitly control the printing of Bill Notes i
+                    n the Comments section.
+                    
+                    
+                    
+                     
+                    
+O-U-4-   02111503 E N-K Ackhead =  3CPack - Remove the display of ship dates
+                    N-K ACKHEAD Char Val = 3CPack
+                    
+                    1. Remove the Ship Date from the top right corner.  Delete the border around the ship date (but r
+                    etain the borders around the other fields.
+                    2. Remove the Ship Date from the Scheduled release line.  This only appears when the Print Schedu
+                    led Releases option or Print Actual Release Option is checked.
+                    3. Add "Printed on:" [current-date] to the bottom left corner.  Print this to the left of the Pag
+                    e 1 of 1 on the same line and in the same font.
+                    
+                    (see attachment)
+                    
+                    Please note:
+                    Order Acknowledgement Print parameter screen has an option to "Print Ship Address".
+                    If the "Print Ship Address" option is unchecked, nothing currently appears on the Scheduled or Ac
+                    tual Release lines.  This will not be changed as part of this mod.
+                    
+                    
+                    
+O-U-5-   01161501 E N-K JobCardF = IndianaXL  - Template Re-organization
+                    N-K JOBCARDF = Indiana-XL.  - Change to the Gluer/Window Card only.
+                    Update Job card based on attached specs.
+                    
+                    Additionally, insure that the Excel opened comes up as the front window and maxmimized 
+                    (if possible within Windows).
+O-U-5-   01281506 B Job Card 2nd Page / Print by Release Lines.
+                    The Job Ticket is check to print by release lines (screen shot #1)
+                    Why does it not transfer the correct date?
+                    
+                    See attached file for samples,
+O-U-5-   02031507 E N-K JOBCARDC = Lakeside (Copy Xprint and Add Barcode to top Right)
+                    Create New N-K JOBCARDC = Lakeside (Copy Xprint).
+                    
+                    Add a Barcode for the job number, exactly like the one on the JOBCARDC = Premier format.
+                    To fit the Barcode, the header sections, Our Order #/FG# and Ord Date/Due Date, need to be moved 
+                    a few space to the left.
+                    Additionally, the Barcode must be completely within the margins of the printed page to ensure acc
+                    urate scanning, thus, it should be also be moved a couple spaces to the left of where it prints o
+                    n the Premier job ticket.
+O-U-5-   02101502 B N-K JOBCARDC = Premier - Fix header
+                    3 format fixes:
+                    1) Remove the line that goes through the user ID field at the top of the form.
+                    2) Move the Header section, Ord Date/Due Date, to the left so that there is at least a single cha
+                    racter space between the year and the barcode
+                    3) Move the Barcode to the left slightly to ensure it shows completely within the header (ideally
+                    , align the right side of the barcode with the right side of the rectangle below it.
+O-U-5-   02181505 B N-K JOBCARDC = Lakeside  - Supplier info missing
+                    Job card displays "Qty Received______" rather than supplier information.
+O-U-7-   01091502 B N-K FGRECPT = Loadtag - Multi item PO Loadtag has wrong cost on receip
+                    N-K FGRecpt = Loadtag.
+                    Go to OU7
+                    Select Purchased Item Receipt
+                    Enter PO# 102797 and tab
+                    Hit OK to the message warning that there are multiple items on the PO
+                    Leave the From Item# To Item# range the same so that both items are shown.
+                    Hit OK.
+                    Create one tag for each Item .
+                    Go to IU1 (if SSPOSTFG = NO).
+                    Notice that the cost for both items is 90/M.  ZOVPURCH should be 100/M and ZOVPURCH2 should be 90
+                    /M
+                    
+                    
+O-U-7-   01301502 B ERROR:  Operation number 163 not supported in this release (1987)
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  25
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Error:
+                    Operation number 163 not supported in this release (1987)
+                    
+                    array to array assignment not supported in versions below 10.2A
+O-U-7-   06231401 E Transfer Ship Notes from Release Tab
+                    O-U-1 Loadtag Icon and O-U-7 Loadtag Menu Option.
+                    See Attached Release Tab Ship Notes.
+                    The Release Tab Notes will be downloaded to Text File when creating a Loadtag.
+                    Line 1 will be called RN1
+                    Line 2 will be called RN2
+                    Line 3 will be called RN3
+                    Line 4 will be called RN4
+                    
+                    The Customer Ship Notes transfer to the Orders Release Tab when releases are added.
+                    Customer service must update and change the ship notes on the Release Tab for each delivery by hi
+                    ghlighting the release and updating the SHIP NOTES tab.
+                    
+                    
+                    The  Release tabs Ship Notes will download to the Text File.
+                    The box plant will add the fields RN1, RN2, RN3 and RN4 to the Label to print the ship notes.
+                    The O-U-7 has the option to select a PO# by release date, when printing the Loadtag.
+                    The release date that is selected and prints will be the SHIP NOTES that are download.
+                    If the PO# selected is for the Header or Line Item, then the Ship Notes for the release with the 
+                    next delivery date will download.. 
+                    
+                    
+O-Z-1-   01161502 E N-K Reports = OZ1 - New Fields
+                    N-K-1 Reports.
+                    New View Form = OZ1
+                    Add following new fields.
+                    
+                    1) Skids  (Same field and logic from O-R-9)
+                    
+                    2) Cust Name  (This is customer Name for Bill To listed on the Order) 
+P- - -   02101514 E N-K POPRINT = BELL   (Copy AllWest)   (adding the form number to the j
+                    (see attached po) 
+                    1.  Copy Allwest Purchase order to Create Bell PO Form.
+                    2.  Add Bell's Logo on top Left
+                    3.  Add the form number to the job number on our purchase orders.
+                    4.  Remove Allwest's address and website from the bottom of the form.
+                          (last page of attached pdf), do not need to replace it with ours, just remove theirs.
+                    
+                    
+                    Please note, the Prefix is the 1st letter of the 1st machine for the job.
+                    The Vendor places the letter on the loadtag fo the Sheets.
+                    Upon Delivery, the Folklift Driver knows which MACHINE to Delivery the Sheets
+                    Bell will change their machine codes so each has a unique Letter.
+                    Machines Must be Copied to create new Machine Codes.
+P-U-1-   01141510 E Excel Icon On PU1  New Fields
+                    Add new Fields to Avalable Colunmns.
+                    
+                    RM Item Code
+                    FG Item Code
+                    Item Cost,
+                    UOM
+                    Adder
+                    Cust Part#
+                    
+                    Please note, the cost that now prints is the GRAND TOTAL of the Entire PO.
+                    That should be call Total Cost. 
+                    
+P-U-1-   01201501 B @Misc Materials Error on Form#
+                    New # Misc materials codes are added to the job file.
+                    However, when adding the material to the purchase order, the program does not validate the sheet/
+                    blank number.
+P-U-1-   10141404 E PO Lines to Calculate Pricing and On Order by CS for Case
+                    CS is only Valid for Finished Goods.      If item is RM, then CS is not Allowed.
+                    New Field called Count will be added to the Items Tab.
+                    QUANTITY PER CS
+                          This will be display only and will display the Case Count from the I-F-1 View Tab.
+                           When Order Qty UOM = CS, 
+                    The Quantity on the line will be multiplied by the Count Field to calculate the PO On Order Qty.
+                    For example.
+                             ASI item 4x4x4 has a case count of 25.
+                             If I place PO for 10 CS, this should display as 250 on Order.
+                    The ON ORDER Qty will also update PO and I-F-1 Inventory Tab.
+                    COST PER CS
+                    If Cost UOM = CS, the Total Quantity Ordered will be divided by the COUNT, then mulitpled by the 
+                    Cost per Case.
+                    For example.
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  26
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Order 10 M at cost of $10 per CS with Case Count of 25.
+                    The TOTAL PO quantity is 10,000. So, the total cases is 10,000 / 25 = 400
+                    Thus 400 Cases x $10 per Case = $4,000 Total Cost.
+                    Likewise.  PO Qty of 400 CS at cost of $10 per CS 
+                    This is 400 x $10 = $4000
+                    
+                    
+                    
+                    
+S-B- -   11251403 B SB Report Printing Wrong Case Info
+                    Combo Estimates with Multiple Items one 1 Form are not printing the correct case information.
+                    
+                    Print ASI Job 208107  for Estimate 11947
+                    The Case counts and number of cases needed should be different.
+                    The FINISHING section on Page 2 shows the same case.
+                    However, each item on the Estimate Inks/Pack Tab has different Case Counts.
+                    Job Ticket prints accurate.
+                    
+                    
+                    What SB Report is Wrong???
+                    
+                    
+                    
+                    
+                    
+                    
+S-F-1-   02161503 B N-K SSFGScan  Logical Value = YES
+                    This parameter is meant for FG Receipts ADD Mode.
+                    The UPDATE button should not bypass fields.
+                    
+                    Set NK1 SSFGSCAN  Logical Value = yes
+                    The Forklift Driver Scans the Tag# and the System immediately Saves the Record.
+                    That is perfect in ADD Mode.
+                    UPDATE button must tab through the Fields.
+                    
+                    When Logical Value = YES.
+                    The Update Button Works Perfectly.
+                    
+                    
+                    Bottom Line.  Update Button should work the same no matter if logical value = YES or NO.
+S-S- -   01151501 B Validate Warehouse when Scanning Tags during Cycle Counts
+                    Validate warehouse and bin location
+                    Looks like a fork truck operator scanned a load tag in the cycle count screen and then scanned th
+                    e next tag before a location. I realize this is wrong on their part but can a safe guard be put i
+                    n place to not accept locations that do not exist in the system? 
+                    
+                    Note: See attached files.
+                    
+                    There is validation within sharp shooter Count for location.  
+                    I did the 'accidental' double scan of a tag (ZOV10x10x10    00005), first into the Tag# field, th
+                    en tabbed, then did the same scan in the WHSE field, then tabbed, and got an error message:
+                    "Invalid Bin. Try Help."
+                    Then I saved the line and got 2 more error messages:
+                    "Invalid Whse...try help"
+                    "Invalid Bin#. Try help"
+                    But the line saved anyway and created the 0 count line for the existing location:
+S-S- -   01151503 B N-K SSRMIssue = ????   Update Item on Job File? Prompt.
+                    Sharp Shooter  - ISSUES.  See Attached.
+                    Our sheeter operators just started having a problem in ADDONS. 
+                    When they issue rolls on the Sharpshooter / Materials / Issue Materials screen they are able to s
+                    can the loadtag and issue the first roll with the normal prompt.
+                    
+                    But every subsequent Tag# they scan comes up with the prompt asking 
+                    "Update Item on Job File?" Yes No. 
+                    It doesn?t matter if you click Yes, it still comes up with the same prompt for each roll you scan
+                    .
+                    
+                    Joes Test.  -
+                    This job was estimated with SBS-18.
+                    Issue Tag# 01007700010000003     Type Job W2297-36
+                                 This is the Only Tag that should get the Job# prompt.
+                    Save Button does not transfer the complete job#.   It transfers job W2297-00
+                    It must transfer the Suffix of 26 from the first line.
+                    
+                    Issue the next tag# 01007700010000004     
+                    And I get Job# errror.
+S-S- -   01281504 B LoadTag File not accepting Job# and Printing Wrong Date
+                    Sharp Shooter Label menu.
+                    File Maint.
+                    Finished Goods.
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  27
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Search for Job 2286 and nothing shows.
+                    Search for space space 2286 and the tags for the Job appear.
+                    
+                    Per Joe, forget about this part:
+                    
+                    Also REPRINT is not printing the correct receipt date as the manufactured date.
+                    Print Tag #ATT-2297       20733
+                    This was received on 9/19/2014
+S-S- -   02021501 E SS Finished Goods Line # Count Sort Option
+                    See Attached
+                    Sharp Shooter, Finished Goods, Transfer Goods (both icon and Add ons):
+                    Add Yellow column heading to the Columns at the top to the following fields.
+                    #, From Tag#,  To Tag#,  From Whse,  from Bin,  To Whse, To Bin,  Units, Count
+                    
+                    
+S-S- -   02041503 B SS Transfer had data mixed with entry from another user
+                    Transfer records were created with invalid data
+S-S- -   12151405 E SS Finished Goods Transfer - Add Line counter as left-most column
+                    For Sharp Shooter, Finished Goods, Transfer Goods (both icon and Add ons):
+                    Add a colulm to the left of the "From Tag" (left most column) that is a line counter for the tran
+                    sactions displayed in that session.
+                    The column must not be editable and must not impact the existing sharp shooter flow (for example,
+                     the scanner cursor should still always start in the From Tag column for a new record).
+                    The header for the column will be "#" and it should only be 2 digits in width (supporting 1 to 99
+                    ).
+                    
+                    As each line gets added, it will increment this count by one (it may not always be sorted) so tha
+                    t the user knows the count of the tags scanned thus far. 
+                    
+                    
+T-R-1-4  01191505 E N-K Reports   TR14  New Machine Notes Report in Report Writer Format
+                    New Touch Screen Report to Print the Fountain Pen Notes.
+                    The Fountain Pen Icon in Touch Screen allow for adding notes by Department.
+                    See Attached Job 207431 which has Fountain Pen Notes.
+                    The Notes were added to the Touch Screen Data Collection and show Department.
+                    Standard Notes are defined by the Charge Code File Under J-F-1.
+                    For example BB for Bad Board was Added.
+                    
+                    New Report Parameters.
+                    From Date                           _________              To Date                         12/31/
+                    2020
+                    From Job#                           _________              To Job#                         ______
+                    ___
+                    From Department             _________               To Department           _________
+                    From Charge Code         _________                To Charge Code        _________
+                    
+                    Fields On Reports will be 
+                    Date,  Machine, Job#, Time, Department, Charge Code, Notes   
+                    (This will print up to 4 lines per Note from the TS Job Data Collection menu.
+                    
+                    User will be able to pick what fields print and in what order they print.
+                    Output will be Screen, Printer, Excel, Email as with all other reports.
+                    
+                    Copy J-R-10 Print Parameter.
+T-R-1-4  02171507 B N-K Reports   TR14  Machine Notes Report
+                    Touch Screen Report to Print the Fountain Pen Notes.
+                    The Fountain Pen Icon in Touch Screen allow for adding notes by Department.
+                    See Attached Job 207431 which has Fountain Pen Notes.
+                    The Notes were added to the Touch Screen Data Collection and show Department.
+                    Standard Notes are defined by the Charge Code File Under J-F-1.
+                    
+                    
+                    1)  Add Machine and Job# to the Report.
+                          This was not on the original task.
+                    2)   Print from 01/01/2015 to 12/31/2015   This is wrapping around.
+T-S- -   01301508 B Touch Screen - Data Collection - Job Data Collection
+                    Touch Screen - Data Collection
+                    Click Job Data Collection button
+                    The machines are not in any specific order.
+                    
+                    Sort the machine in alphabetical order.
+V-B-1-   01301509 B Do not allow negative check to be selected
+                    When clicking on the FINISH button, check to see if any vendor has a negative total amount of inv
+                    oices selected.  If yes, display a message. When pressing ok for message go back to selection scr
+                    een so user can fix.  DO NOT allow the screen to exit and create checks until fixed
+                    
+                    ***Vendor ?????? has a negative total, Must make correction to Finish****
+V-C-1-   01121509 B Increment check number when clicking the OK button.
+                    The check number only increments on the print check screen when you exit the screen and then go b
+                    ack into it.
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  28
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    
+                    Can you have the check number increment and update the bank file when the OK button is clicked.
+V-C-1-   02051502 B N-K CHKFMTACH=Badger    Format not page breaking if more than one page
+                    Run VB2 for vendor INLAND.  Select all invoices for payment.  The ACH check format should only li
+                    st 30 - 40 invoices and then page break to print the rest on a second page.  It is only listing a
+                    bout 50 invoices and then stopping and not printing a second page.  See attachment.
+V-F-1-   01121507 B Email/phone contact not getting added to ecodes list first time entry
+                    1.Add a new phone book email contact  for vendor or customer.
+                    2.  Before saving, check off email-notification box and mark an itme as yes.  
+                    3.  Look in ecodes for that code and the contact did not get added.
+                    
+                    It only works if you add the phone contact and save first without clicking email-notification and
+                     then go back in and choose the file.
+V-F-1-   02051505 B No Vendors Available Error
+                    See Attachment
+                    Type in ca into the Vendor# search and click go and you get the error message
+                    "No vendors record is available (91)"
+V-F-1-   02091502 B VF1 Browser Double Click Logic for Vendor File
+                    New Browser with New Search Fields must have save functionality as original Browser.
+                    See Attached.
+                    Click in Vendor Code Field at Top..
+                    Type HE 
+                    There will be many cusomers that start with HE.
+                    
+                    Double Click on Hew1000 and nothing happens.
+                    This should go directly to View Tab fo that Customer.
+                    
+                    Any search that shows multple customers must allow double click to access the customer.
+                    
+                    
+                    Currently, user must highlight the customer then click the View Tab.
+                    Double Click should have the same functionality.
+V-F-1-   12121403 B Adding new Vendor has totals folder of another vendor
+                    Add a new Vendor
+                    Click the Totals Folder
+                    The totals of the first vendor in VF1 is dispayed
+                    This should not be happening.
+Z- - -   01291505 E N-K Notepad - View Forms Logical Value = YES  to Output NotePad by Use
+                    N-K-1 NotePad current is for all users.
+                    Logical Value = YES will load reports directly to Notepad using the logic below..
+                    Logical Value = NO will not Load to Notepad.
+                    
+                    
+                    We need to be able to allow specific users to output to Notepad.
+                    And other users to use traditial Advantzware Outuput.
+                    
+                    Character Value = __________   will output to all users.
+                    
+                    Character Value = NotePad.
+                    N-C Change User Groups will have a Group = NotePad
+                    The Body will list all the User ID's that will output to NOTEPAD.
+                    Users not defined in the group ID = Notepad will output to the traditional ASI output.
+Z- - -   02101509 B N-K Notepad = blank
+                    Character Value = __________   will output to all users.
+                    Right now if the Character value is blank it only outputs to the notepad group.
+                    That is wrong and needs to output to all users.
+Z- - -   11181405 E N-K POExport = GP  $150 per hour  (New FTP Configuration For Woodland)
+                    ftp.kleinschmidt.com: 63.78.198.2
+                    
+                    AS OF 2015  New FTP Routing Info:
+                    Georgia-Pacific has selected a new VAN provider - Liason Exchange Network
+                    GP will be migrating all of our data off of Kleinschmidt.
+                    New FTP will electronically deliver purchase orders for sheets directly to Kleinschmidt to FTP da
+                    ta (http://ftp.kleinschmidt.com).  We are looking to switch the FTP location (and potentially use
+                    rnames and passwords) in 1st Quarter of 2015. 
+                    WOODLAND	PKG - Direct Connect - Advanced FTP
+                    Ryan Filpi,  Georgia-Pacific Packaging IT  Phone: (404) 652-7458  Fax: (404) 749-9923
+                    rkfilpi@gapac.com
+                    
+                    Exiting  FTP Routing that will be Replaced:
+                    N-K-1 GP    Character value = Woodland will be new logic.
+                    LOGICAL VALUE: = YES
+                    FTP Address : gpxdc.gapac.com
+                    FTP Account ID : woodlndm
+                    Password: Wdftp3
+                    Woodland Manufacturing in Trenton, NJ transfers PO's to their Georgia Pacific.  
+                    GEORGIA PACIFIC Purchasing Export Method to Export Purchase Orders to Corrugator 
+                    Via Explorer Client must Setup Folder:  N:\Rcode\GP\Export\DataXfer\In   
+                    Scheduling facility in Reaglsville, NJ from Woodland.  
+                    This customer is displayed as Woodland Manufacturing in CPG's system and their 
+02/18/2015             Advanced Software Services, Inc.               1:36 PM
+              Completed By Date & Programmer    Customer Report      Page:  29
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    customer# is 11939.
+                    
+                    
+                    
+

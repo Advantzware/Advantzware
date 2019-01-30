@@ -1,0 +1,136 @@
+
+08/14/07                                      Advanced Box Company V4.10 - Main Office                                    Page   1
+ 5:36pm                                                 Open Jobs By Due Date
+
+
+                            Our
+Due Date Ord Date Job #      Ord # Customer Name                  FG Item #       FG Item Name                      Job Qty     MSF
+-------- -------- --------- ------ ------------------------------ --------------- ------------------------------ ---------- -------
+06/05/07 05/30/07 100-00       100 Hershey Foods Corporation      FHER1000116A99  RT 4x4x7                           27,500    36.5
+06/07/07 05/18/07 100746-00 100746 AT&T Communications Corp.      FATT1000015A99  Speed Test 2                            0     0.0
+06/07/07 05/18/07 100747-00 100747 AT&T Communications Corp.      FATT1000016A99  Speed Test 2                            0     0.0
+06/07/07 05/18/07 100748-00 100748 AT&T Communications Corp.      FATT1000017A99  Speed Test 2                            0     0.0
+06/07/07 05/18/07 100749-00 100749 AT&T Communications Corp.      FATT1000018A99  Speed Test 2                            0     0.0
+06/07/07 05/18/07 100750-00 100750 AT&T Communications Corp.      FATT1000019A99  Speed Test 2                            0     0.0
+06/07/07 05/18/07 100751-00 100751 AT&T Communications Corp.      FATT1000020A99  Speed Test 2                            0     0.0
+06/07/07 05/18/07 100752-00 100752 AT&T Communications Corp.      FATT1000021A99  Speed Test 2                       34,980   314.8
+06/07/07 05/18/07 100753-00 100753 AT&T Communications Corp.      FATT1000021A99  Speed Test 2                       34,980   314.8
+06/09/07 06/06/07 100785-00 100785 Iggle Corportation             4iggle00012A99  Form 2 item name                   11,000   125.5
+06/10/07 06/07/07 100798-00 100798 ABC Company                    BABC1000024A99  HSC                                 1,000     3.0
+06/10/07 06/07/07 100797-00 100797 AT&T Communications Corp.      BATT1000031A99  RSC 4x4x4                              11     0.0
+06/10/07 06/07/07 100799-00 100799 AT&T Communications Corp.      BATT1000032A99  Craig 6192 stk sheet                1,100    13.8
+06/10/07 06/07/07 100800-00 100800 AT&T Communications Corp.      BATT1000032A99  Craig 6192 stk sheet                1,100    13.8
+06/10/07 06/07/07 100801-00 100801 AT&T Communications Corp.      BATT1000032A99  Craig 6192 stk sheet                1,100    13.8
+06/10/07 06/07/07 100802-00 100802 AT&T Communications Corp.      BATT1000032A99  Craig 6192 stk sheet                1,100    13.8
+06/10/07 06/07/07 100787-01 100787 AT&T Communications Corp.      BATT1000028A00  Set with 3 Parts                    1,100    19.4
+06/10/07 06/07/07 100788-00 100788 AT&T Communications Corp.      BATT1000029A99  RSC 8x8x8x                         27,500   108.3
+06/10/07 06/07/07 100789-00 100789 AT&T Communications Corp.      BATT1000029A99  RSC 8x8x8x                         55,842   220.0
+06/10/07 06/07/07 100790-00 100790 AT&T Communications Corp.      BATT1000029A99  RSC 8x8x8x                         27,922   110.0
+06/10/07 06/07/07 100791-00 100791 AT&T Communications Corp.      BATT1000029A99  RSC 8x8x8x                         27,500   108.3
+06/10/07 06/07/07 100792-00 100792 AT&T Communications Corp.      BATT1000029A99  RSC 8x8x8x                         27,500   108.3
+06/10/07 06/07/07 100795-00 100795 AT&T Communications Corp.      BATT1000029A99  RSC 8x8x8x                         27,500   108.3
+06/13/07 06/07/07 100786-00 100786 Hershey Foods Corporation      FHER1000114A99  RT 3x3x9                           27,500    28.4
+06/14/07 06/11/07 100803-00 100803 Hershey Foods Corporation      10X10X10                                            8,250     9.5
+06/19/07 06/19/07 100810-00 100810 AT&T Communications Corp.      BATT1000033A00                                      1,100     9.5
+06/20/07 06/07/07 100796-00 100796 AT&T Communications Corp.      BATT1000030A99  Test CE                             1,100     6.5
+06/20/07 06/20/07 100817-00 100817 Iggle Corportation             4iggle00013A99                                      5,500     3.7
+06/21/07 06/07/07 100794-00 100794 AT&T Communications Corp.      BATT1000030A99  Test CE                             1,100     6.5
+06/22/07 06/19/07 100812-00 100812 AT&T Communications Corp.      BATT1000034A00                                      5,500    47.6
+06/22/07 06/19/07 100815-00 100815 AT&T Communications Corp.      BATT1000036A00                                      5,500    47.6
+06/22/07 06/19/07 100814-00 100814 AT&T Communications Corp.      BATT1000035A00                                      1,100     9.5
+06/24/07 06/21/07 100821-00 100821 AT&T Communications Corp.      BATT1000037A00                                      1,100     9.5
+06/24/07 06/21/07 100822-00 100822 AT&T Communications Corp.      BATT1000032A99  Craig 6192 stk sheet                1,100    13.8
+06/24/07 06/18/07 100806-00 100806 Hershey Foods Corporation      FHER1000117A99  RT 4x4x7                           22,000    29.2
+06/24/07 06/18/07 100806-00 100806 Hershey Foods Corporation      FHER1000118A99  RT 4x4x7                           22,000    29.2
+06/24/07 06/18/07 100806-00 100806 Hershey Foods Corporation      FHER1000119A99  RT 4x4x7                           22,000    29.2
+06/26/07 06/20/07 100820-00 100820 Hershey Foods Corporation      FHER1000117A99  RT 4x4x7                           22,000    29.2
+06/26/07 06/20/07 100820-00 100820 Hershey Foods Corporation      FHER1000118A99  RT 4x4x7                           22,000    29.2
+06/26/07 06/20/07 100820-00 100820 Hershey Foods Corporation      FHER1000119A99  RT 4x4x7                           22,000    29.2
+
+08/14/07                                      Advanced Box Company V4.10 - Main Office                                    Page   2
+ 5:36pm                                                 Open Jobs By Due Date
+
+
+                            Our
+Due Date Ord Date Job #      Ord # Customer Name                  FG Item #       FG Item Name                      Job Qty     MSF
+-------- -------- --------- ------ ------------------------------ --------------- ------------------------------ ---------- -------
+06/27/07 06/27/07 100827-00 100827 ABC Box Company                4ABCBOX0001A99                                     55,000   168.2
+06/27/07 06/21/07 100823-00 100823 Hershey Foods Corporation      FHER1000117A99  RT 4x4x7                           22,000    29.2
+06/27/07 06/21/07 100823-00 100823 Hershey Foods Corporation      FHER1000118A99  RT 4x4x7                           22,000    29.2
+06/27/07 06/21/07 100823-00 100823 Hershey Foods Corporation      FHER1000119A99  RT 4x4x7                           22,000    29.2
+06/27/07 06/25/07 100825-00 100825 Iggle Corportation             4iggle00011A99  Form 1 item name                    5,500    45.8
+06/27/07 06/25/07 100825-00 100825 Iggle Corportation             4iggle00012A99  Form 2 item name                   11,000    55.1
+06/28/07 06/25/07 100824-00 100824 Hershey Foods Corporation      BHER1000013A99  5908 board test                       110     0.7
+06/28/07 06/25/07 100824-00 100824 Hershey Foods Corporation      BHER1000014A99  5908 board test                       110     0.7
+06/28/07 06/25/07 100824-00 100824 Hershey Foods Corporation      BHER1000012A99  5908 board test                       110     0.7
+07/02/07 06/29/07 100828-00 100828 AT&T Communications Corp.      BATT1000038A99  add-1                               1,100     8.2
+07/02/07 06/29/07 100829-00 100829 AT&T Communications Corp.      BATT1000037A01                                      1,100     6.7
+07/05/07          W2645-03         Advanced Box Company           STOCK3x3x3      RT SB 3x3x3                        20,000    11.3
+07/05/07 07/02/07 100831-00 100831 AT&T Communications Corp.      BATT1000039A99  Test auto issue stk sht             1,100     1.8
+07/05/07 07/02/07 100830-00 100830 AT&T Communications Corp.      BATT1000036A00                                      1,100     9.5
+07/05/07 07/02/07 100833-00 100833 AT&T Communications Corp.      BATT1000038A99  add-1                               1,100     8.2
+07/05/07 06/15/07 100805-00 100805 AT&T Communications Corp.      Test AB         Test AB                             1,100     0.4
+07/08/07 07/05/07 100837-00 100837 AT&T Communications Corp.      BATT1000041A99  uuuu                               11,000   137.5
+07/08/07 06/18/07 100808-00 100808 AT&T Communications Corp.      Test AB         Test AB                             1,100     0.4
+07/08/07 07/02/07 100834-00 100834 Hershey Foods Corporation      FHER1000121A99  RT 3x3x12                          44,000    59.8
+07/12/07 07/06/07 100838-00 100838 Hershey Foods Corporation      FHER1000121A99  RT 3x3x12                          44,000    59.8
+07/17/07 07/11/07 100842-00 100842 Iggle Corportation             5iggle00001A00                                     11,000    27.0
+07/18/07 07/12/07 100844-00 100844 Hershey Foods Corporation      FHER1000122A99  RT 4x4x7                           22,000    29.2
+07/18/07 07/12/07 100844-00 100844 Hershey Foods Corporation      FHER1000119A99  RT 4x4x7                           22,000    29.2
+07/18/07 07/12/07 100844-00 100844 Hershey Foods Corporation      FHER1000120A99  RT 4x4x7                           44,000    58.4
+07/18/07 07/12/07 100844-00 100844 Hershey Foods Corporation      FHER1000117A99  RT 4x4x7                           66,000    87.6
+07/19/07 07/16/07 100848-00 100848 Abbot Laboratories             DABB1000001A00  RSC and Partitions                  5,000   105.6
+07/20/07 07/17/07 100849-00 100849 Abbot Laboratories             DABB1000001A00  RSC and Partitions                  5,000   105.6
+07/21/07 07/18/07 100850-00 100850 AT&T Communications Corp.      BATT1000041A99  uuuu                                1,100    13.8
+07/22/07 07/16/07 100845-00 100845 Iggle Corportation             Figgle00002A99  cASE COUNT TEST                     5,500    15.6
+07/22/07 07/16/07 100847-00 100847 Iggle Corportation             FIGGLE00004A99  RT 4x4x7                           22,000    29.2
+07/22/07 07/16/07 100847-00 100847 Iggle Corportation             FIGGLE00005A99  RT 4x4x7                           22,000    29.2
+07/22/07 07/16/07 100847-00 100847 Iggle Corportation             FIGGLE00006A99  RT 4x4x7                           44,000    58.4
+07/22/07 07/16/07 100847-00 100847 Iggle Corportation             FIGGLE00007A99  RT 4x4x7                           22,000    29.2
+07/25/07 07/16/07 100847-00 100847 Iggle Corportation             FIGGLE00003A99  RT 4x4x7                           22,000    29.2
+07/27/07 07/10/07 100841-00 100841 Hershey Foods Corporation      ATT-2297        RT 5x3x2                           26,250    25.6
+07/30/07 07/27/07 100858-00 100858 Abbot Laboratories             DABB1000001A00  RSC and Partitions                  5,000   105.6
+08/02/07 07/27/07 100859-00 100859 Hershey Foods Corporation      FHER1000123A99  RT 2x2x9                           55,000    37.9
+08/04/07 08/01/07 W6246-00  100864 Advanced Box Company           PIZZA 16                                          100,000   177.8
+08/05/07 07/30/07 100861-00 100861 Iggle Corportation             FIGGLE00003A99  RT 4x4x7                           22,000    29.2
+08/05/07 07/30/07 100861-00 100861 Iggle Corportation             FIGGLE00004A99  RT 4x4x7                           22,000    29.2
+08/05/07 07/30/07 100861-00 100861 Iggle Corportation             FIGGLE00005A99  RT 4x4x7                           22,000    29.2
+08/05/07 07/30/07 100861-00 100861 Iggle Corportation             FIGGLE00006A99  RT 4x4x7                           44,000    58.4
+08/05/07 07/30/07 100861-00 100861 Iggle Corportation             FIGGLE00007A99  RT 4x4x7                           22,000    29.2
+08/06/07 08/06/07 100865-00 100865 AT&T Communications Corp.      PIZZA 16                                          120,000   213.3
+08/11/07 08/08/07 100866-00 100866 AT&T Communications Corp.      PIZZA 16                                          110,000   195.6
+
+08/14/07                                      Advanced Box Company V4.10 - Main Office                                    Page   3
+ 5:36pm                                                 Open Jobs By Due Date
+
+
+                            Our
+Due Date Ord Date Job #      Ord # Customer Name                  FG Item #       FG Item Name                      Job Qty     MSF
+-------- -------- --------- ------ ------------------------------ --------------- ------------------------------ ---------- -------
+08/11/07 08/08/07 100866-01 100866 AT&T Communications Corp.      BATT1000042A99  6236                               11,000    79.5
+08/11/07 08/08/07 100866-04 100866 AT&T Communications Corp.      BATT1000043A99  Probe test                          1,100     8.2
+08/11/07 08/08/07 100866-05 100866 AT&T Communications Corp.      BATT1000041A99  uuuu                               11,000   137.5
+08/11/07 08/08/07 100866-06 100866 AT&T Communications Corp.      DC in box                                           1,100     1.5
+08/11/07 08/08/07 100866-07 100866 AT&T Communications Corp.      BATT1000040A99  VNLD TEST                           1,100     9.2
+08/11/07 08/08/07 100866-08 100866 AT&T Communications Corp.      BATT1000038A99  add-1                               1,100     8.2
+08/15/07 08/09/07 100867-00 100867 Hershey Foods Corporation      FHER1000123A99  RT 2x2x9                           33,000    22.7
+08/16/07 08/10/07 100868-00 100868 Hershey Foods Corporation      FHER1000117A99  RT 4x4x7                           66,000    87.6
+08/16/07 08/10/07 100868-00 100868 Hershey Foods Corporation      FHER1000122A99  RT 4x4x7                           22,000    29.2
+08/16/07 08/10/07 100868-00 100868 Hershey Foods Corporation      FHER1000119A99  RT 4x4x7                           22,000    29.2
+08/16/07 08/10/07 100868-00 100868 Hershey Foods Corporation      FHER1000120A99  RT 4x4x7                           44,000    58.4
+08/16/07 08/10/07 100869-00 100869 Hershey Foods Corporation      FHER1000117A99  RT 4x4x7                           66,000    87.6
+08/16/07 08/10/07 100869-00 100869 Hershey Foods Corporation      FHER1000122A99  RT 4x4x7                           22,000    29.2
+08/16/07 08/10/07 100869-00 100869 Hershey Foods Corporation      FHER1000119A99  RT 4x4x7                           22,000    29.2
+08/16/07 08/10/07 100869-00 100869 Hershey Foods Corporation      FHER1000120A99  RT 4x4x7                           44,000    58.4
+08/28/07 08/08/07 100866-02 100866 AT&T Communications Corp.      FATT1000022A00  Test12066                           1,100    19.8
+08/28/07 08/08/07 100866-03 100866 AT&T Communications Corp.      FATT1000023A99  Test AB 12505                       1,100    19.8
+08/28/07 08/14/07 100873-00 100873 IBM CORP                       BIBM1000040A99  Test stk sht                        1,100     9.5
+08/28/07 08/14/07 100873-01 100873 IBM CORP                       BIBM1000041A99  No stk sht                          1,100     7.9
+08/28/07 08/14/07 100874-01 100874 IBM CORP                       BIBM1000041A99  No stk sht                          1,100     7.9
+08/28/07 08/14/07 100874-00 100874 IBM CORP                       BIBM1000040A99  Test stk sht                        1,100     9.5
+08/28/07 08/14/07 100872-00 100872 IBM CORP                       BIBM1000040A99  Test stk sht                        1,100     9.5
+12/31/07 02/16/07 100600-00 100600 AT&T Communications Corp.      ATT-2297        RT 5x3x2                          500,000   487.0
+12/31/07 02/16/07 W5893-01  100600 Hershey Foods Corporation      ATT-2297        RT 5x3x2                            1,000     1.0
+
+                                                                                                                 ---------- -------
+                                                                                                                  2,524,065 2107360

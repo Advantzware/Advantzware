@@ -1,0 +1,110 @@
+
+*** BOL File Field Definition ***           As of  12/27/05          Page:   1
+================================================================================
+Header table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+oe-bolh    b-no            ?                         >>>>>9
+oe-bolh    b-ord-no        ?                         >>9
+oe-bolh    bol-date        BOL Date                  99/99/9999
+oe-bolh    bol-no          ?                         >>>>>>>9
+oe-bolh    bol-status      Status                    X(8)
+oe-bolh    carrier         Carrier                   x(5)
+oe-bolh    company         Company                   x(3)
+oe-bolh    cust-no         Customer                  x(8)
+oe-bolh    cwt             Rate/Hundred Wt           >>9.99
+oe-bolh    deleted         ?                         yes/no
+oe-bolh    f-bill          Bill Freight?             Y/N
+oe-bolh    freight         Freight                   >>,>>9.99
+oe-bolh    frt-pay         Freight Payment Method    x(1)
+oe-bolh    fuel            Total Fuel                ->>,>>9.99
+oe-bolh    fuel-bill       Bill Fuel?                Y/N
+oe-bolh    INV-NO          Invoice Number            >>>>>9
+oe-bolh    loc             Warehouse                 x(5)
+oe-bolh    master-bol-no   Master BOL No             >>>>>>>9
+oe-bolh    master-bol-prin Master BOL Printed?       yes/no
+oe-bolh    ord-no          Order#                    >>>>>9
+oe-bolh    po-no           P.O. Num                  x(15)
+oe-bolh    posted          Posted                    y/n
+oe-bolh    printed         Printed?                  Y/N
+oe-bolh    r-no            ?                         >>>>>9
+oe-bolh    rec_key         Rec Key                   X(20)
+oe-bolh    rel-date        Date Last Counted         99/99/9999
+oe-bolh    rel-no          ?                         >>>>>9
+oe-bolh    release#        Release#                  ->,>>>,>>9
+oe-bolh    route-code      ?                         x(20)
+oe-bolh    route-seq#      ?                         ->,>>>,>>9
+oe-bolh    scanned-image   Scanned Image File        x(50)
+oe-bolh    ship-date       ?                         99/99/9999
+oe-bolh    ship-i          Shipping Instructions     x(60)
+oe-bolh    ship-id         Ship To ID                x(8)
+oe-bolh    ship-no         Ship To #                 >>9
+oe-bolh    ship-time       Ship Time                 ->,>>>,>>9
+oe-bolh    sold-id         ?                         x(8)
+oe-bolh    sold-no         ?                         ->,>>>,>>9
+oe-bolh    stat            BOL Status                x
+oe-bolh    tot-pallets     Total Pallets             >,>>9
+oe-bolh    tot-qty         ?                         ->>,>>>,>>9
+oe-bolh    tot-wt          total weight              >>>>9
+oe-bolh    trailer         ?                         x(20)
+oe-bolh    upd-date        Updated Date              99/99/9999
+oe-bolh    upd-time        Updated Time              ->,>>>,>>9
+oe-bolh    user-id         User ID                   x(10)
+oe-bolh    w-ord           ?                         yes/no
+
+Line item table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+oe-boll    b-no            ?                         >>>>>9
+oe-boll    b-ord-no        ?                         >>9
+oe-boll    bol-date        BOL Date                  99/99/9999
+
+*** BOL File Field Definition ***           As of  12/27/05          Page:   2
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+oe-boll    bol-line        BOL Line                  >9
+oe-boll    bol-no          ?                         >>>>>>>9
+oe-boll    cases           Number of Cases Shipped   ->>>,>>Z
+oe-boll    cases-unit      Cases/Bundles per Unit    >>9
+oe-boll    company         Company                   x(3)
+oe-boll    cust-no         Customer                  x(8)
+oe-boll    deleted         ?                         Y/N
+oe-boll    freight         Freight                   >>,>>9.99
+oe-boll    i-no            Item No                   x(15)
+oe-boll    INV-NO          Invoice Nunmber           >>>>>9
+oe-boll    job-no          Job Number                x(6)
+oe-boll    job-no2         ?                         99
+oe-boll    line            Line                      99
+oe-boll    loc             Warehouse                 x(5)
+oe-boll    loc-bin         Primary Bin Loc.          x(8)
+oe-boll    opened          ?                         Open/Closed
+oe-boll    ord-no          Order#                    >>>>>9
+oe-boll    p-c             Partial/Complete          C/P
+oe-boll    pal-chg         Pallet Charge             X
+oe-boll    pal-i-no        Pallet RM Item#           x(10)
+oe-boll    partial         ?                         >>>,>>9
+oe-boll    po-no           Customer PO               x(15)
+oe-boll    posted          Posted                    y/n
+oe-boll    printed         Printed?                  Y/N
+oe-boll    qty             Quantity Shipped          ->>,>>>,>>9
+oe-boll    qty-case        Quantity Per Case         ->>>,>>Z
+oe-boll    r-no            ?                         >>>>>9
+oe-boll    rec_key         Rec Key                   X(20)
+oe-boll    rel-date        Date Last Counted         99/99/9999
+oe-boll    rel-no          ?                         >>>>>9
+oe-boll    s-code          Ship Code                 x
+oe-boll    stack-code      Stacking Code             x
+oe-boll    t-freight       Total Freight             ->>,>>9.99
+oe-boll    t-freight-p     ?                         ->>,>>>,>>9.99
+oe-boll    t-fuel          Total Fuel                ->>,>>9.99
+oe-boll    tag             ?                         x(8)
+oe-boll    tot-pallets     Total Pallets             >,>>9
+oe-boll    tot-qty         ?                         ->>,>>>,>>9
+oe-boll    unit-count      Unit Count                >>>,>>9
+oe-boll    units-pallet    Units per Pallet          >9
+oe-boll    upd-date        Updated Date              99/99/9999
+oe-boll    upd-time        Updated Time              ->,>>>,>>9
+oe-boll    user-id         ?                         x(8)
+oe-boll    weight          weight                    >>>>9
+

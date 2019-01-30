@@ -1,0 +1,169 @@
+04/25/2007                                                             10:34 am
+
+
+Two Piece Box Estimate# 2917           Salesman: 001 Salesman 001
+Customer: MILTON BRADLEY                 Shipto:  SAME
+          1000 Games Blvd
+          Bradley, WI 899978
+
+
+Finished Good: Monopoly Box    Monopoly Gameboard
+
+
+FORM 1        Width   Length   Sq.Inches  Sq.Feet/Sheet    Weight per Units
+Blank  Size: 16.25000 26.25000     426.563     2.962 Sf/Blk        0.0/M Blks
+Feed  Sheet: 16.25000 26.25000     426.563     2.962 Sf/Sht        0.0/M Shts
+Gross Sheet: 17.25000 27.25000     470.063     3.264 Sf/Sht        0.0/M Shts
+Roll  Size : 17.25000                         37.148 MSF           0.0 Tons
+
+- # UP - --- Qty --- --- Description ---- -- Size/Color --- --- Style/Part # --
+      1       10,000 Monopoly Gameboard L20.0x10.0x3.0    Two Piece Wrap     
+                                                          Monopoly Box-01    
+
+FORM 2        Width   Length   Sq.Inches  Sq.Feet/Sheet    Weight per Units
+Blank  Size: 16.00000 26.00000       416.0     2.889 Sf/Blk    320.667/M Blks
+Feed  Sheet: 34.00000 26.00000       884.0     6.139 Sf/Sht    681.417/M Shts
+Gross Sheet: 34.00000 27.00000       918.0     6.375 Sf/Sht    707.625/M Shts
+Roll  Size :                                  68.391 MSF        3.7957 Tons
+
+- # UP - --- Qty --- --- Description ---- -- Size/Color --- --- Style/Part # --
+      1       10,000 Monopoly Gameboard L20.0x10.0x3.0    Two Piece Box      
+                                                          Monopoly Box-02    
+      1       10,000 Monopoly Gameboard B20.0x10.0x3.0    Two Piece Wrap     
+                                                          Monopoly Box-03    
+
+FORM 3        Width   Length   Sq.Inches  Sq.Feet/Sheet    Weight per Units
+Blank  Size: 16.00000 26.00000       416.0     2.889 Sf/Blk    320.667/M Blks
+Feed  Sheet: 16.00000 26.00000       416.0     2.889 Sf/Sht    320.667/M Shts
+Gross Sheet: 17.00000 27.00000       459.0     3.188 Sf/Sht    353.813/M Shts
+Roll  Size :                                  33.854 MSF       1.87892 Tons
+
+- # UP - --- Qty --- --- Description ---- -- Size/Color --- --- Style/Part # --
+      1       10,000 Monopoly Gameboard B20.0x10.0x3.0    Two Piece Box      
+                                                          Monopoly Box-04    
+
+Materials                 Weight Caliper    QTY/Unit    MR $  Matl$/M      TOTAL
+1-00 Gold Wrap Paper        0.00  0.000   $  13.27 REM          56.24     562.39
+     Board MR  Waste                           250 Sht  14.06    1.41      14.06
+     Board RUN Waste                          1130 Sht           6.36      63.55
+2-00 BENDING CHIP 30 Pt B 111.00  0.030   $  36.00 MSF         229.50   2,295.00
+     Board MR  Waste                           100 Sht  45.90    2.29      22.95
+     Board RUN Waste                           628 Sht          14.41     144.13
+3-00 BENDING CHIP 30 Pt B 111.00  0.030   $  36.00 MSF         114.75   1,147.50
+     Board MR  Waste                           100 Sht  11.48    1.15      11.48
+     Board RUN Waste                           521 Sht           5.98      59.78
+*     Aqueous Coating                        16.36 Lbs           8.18      81.78
+*     ESTIMATED INK FOR O                     5.00 Lbs           7.50      75.00
+*     Kraft Tape                             45.61 Lbs           0.00       0.00
+01-1 Case 20x20x24           50 Pieces/Case    200 Cas          40.00     400.00
+02-1 Case 20x20x24           50 Pieces/Case    200 Cas          40.00     400.00
+02-2 Case 20x20x24           50 Pieces/Case    200 Cas          40.00     400.00
+03-1 Case 20x20x24           50 Pieces/Case    200 Cas          40.00     400.00
+01-1 PALLET                  20 C20x20x24s/U    10 Pal           5.00      50.00
+02-1 PALLET                  20 C20x20x24s/U    10 Pal           5.00      50.00
+02-2 PALLET                  20 C20x20x24s/U    10 Pal           5.00      50.00
+03-1 PALLET                  20 C20x20x24s/U    10 Pal           5.00      50.00
+1-00 HEWT BAG 85 2424                    20,000.00 EA        2,000.00  20,000.00
+1-00 Panasonic Label                         28.89 MSF           0.00       0.00
+1-00 Dice for Game                       10,000.00 EA           50.00     500.00
+TOTAL  DIRECT  MATERIALS                                48.48 2677.76  26,777.61
+
+
+Machine Description    MR (Hrs) Run  Speed    Rate     MR $    Run $  Total Cost
+1-00 NEW SHEETER         0.60  0.57  20000   47.36    28.42     26.95      55.36
+1-00 Press               0.15  1.44   7650  350.00    52.50    503.31     555.81
+1-00 Miter Saw           1.90  3.32   3250   70.00   133.00    232.31     365.31
+1-00 49 CUTTER           1.90  3.24   3250   70.00   133.00    226.56     359.56
+1-01 WRAP PAPER MACHIN   0.50 20.62    500   30.00    15.00    618.48     633.48
+1-01 HAIRE GLUER         0.17 20.41    500   50.00     8.50   1020.40   1,028.90
+2-00 GUILLOTINE          0.25  0.00      0   10.00     2.50      0.00       2.50
+2-00 Miter Saw           2.30  3.29   3250   70.00   161.00    229.97     390.97
+2-00 49 CUTTER           2.30  3.20   3250   70.00   161.00    224.28     385.28
+2-01 QUAD STAYERS        0.50 20.41    500   30.00    15.00    612.24     627.24
+2-01 WRAP PAPER MACHIN   0.50 20.20    500   30.00    15.00    606.12     621.12
+2-02 BOBST DOMINO GLUE   2.50  2.50   4000  125.00   312.50    312.50     625.00
+3-00 SCORE MACHINE       0.10 42.48    250   31.00     4.00   1317.00   1,321.00
+3-00 GUILLOTINE          0.25  0.00      0   10.00     2.50      0.00       2.50
+3-00 49 CUTTER           1.90  3.17   3250   70.00   133.00    222.02     355.02
+3-00 49 CUTTER           0.00  3.25   3250   70.00     0.00    227.66     227.66
+3-01 QUAD STAYERS        0.50 20.20    500   30.00    15.00    606.06     621.06
+TOTAL  OPERATIONS                                   1191.92   6985.87   8,177.78
+
+
+   T  O  T  A  L  S                         Cost/M     MR $    Run $  Total Cost
+Direct Material                     2,677.76
+                                                48.48            26,777.61
+Direct Labor                                817.78  1191.92   6985.87   8,177.78
+DIRECT FACTORY COST                       3,495.54                     34,955.40
+GS&A Board            216.0418               21.60                        216.04
+GS&A Material           5.00%               112.28                      1,122.84
+04/25/2007                                                             10:34 am                     
+        
+                              
+
+GS&A Labor             20.00%               163.56                      1,635.56
+Direct Material Markup  7.50%               200.83                      2,008.32
+TOTAL FACTORY COST                        3,993.82                     39,938.16
+Freight                                      17.48                        174.80
+FULL COST                                 4,011.30                     40,112.96
+Commission              3.00%               126.66                      1,266.60
+Profit - 5.00% on Full Cost                 211.10                      2,111.00
+SELLING PRICE                             4,222.00                     42,220.00
+
+
+                        B I L L A B L E    C H A R G E S
+Prep Description         Mat'l     Labor    Addt'l      Amtz   Cost/M Total Cost
+PLATE CODE on QUOTE     100.00      0.00    10.00%   100.00%    11.11     111.11
+
+
+
+     E S T I M A T E  #2917   A N A L Y S I S   P e r  T h o u s a n d
+             Dir.Fact      Full                      Sell  Contr    Total   Ship
+     Qty  R      Cost      Cost   CONT%    NET%     Price   Fact   Sheets Weight
+    3000  1   3948.40   4759.80   24.83   10.00   5471.03  24.81    10144   2308
+    5000  1   3728.49   4334.46   21.00    8.00   4711.00  17.83    16598   3847
+   10000  1   3495.54   4011.30   17.00    5.00   4222.00  14.18    32729   7695
+   25000  1   3364.28   3857.42   12.89    3.56   4000.00  12.87    80974  19237
+
+                               Request   Yield   Fact     Full    Sell
+ Cust. #  Part Number              Qty     Qty   Cost/M   Cost/M  Price/M On
+ MILT1000 Monopoly Box-01        10000   10000  2465.69  2785.72  2748.12 Y
+ MILT1000 Monopoly Box-02        10000   10000   332.80   395.41   390.08 Y
+ MILT1000 Monopoly Box-03        10000   10000   274.76   321.25   316.91 Y
+ MILT1000 Monopoly Box-04        10000   10000   422.28   508.92   502.05 Y
+
+
+
+======================================= NOTES ==================================
+Instruction:
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+Spec Notes: 
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              
+                                                                              

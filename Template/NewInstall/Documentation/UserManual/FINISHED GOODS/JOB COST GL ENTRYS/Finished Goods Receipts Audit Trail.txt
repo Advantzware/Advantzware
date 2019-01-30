@@ -1,0 +1,28 @@
+
+08/22/11                                     Advanced Box Company 001 V10 - Main Office           Page  1
+ 9:14am                                                Finished Goods Posting
+                                Period Date: 08/22/2011             Posted by: asi  As of 08/22/2011
+WHSE: MAIN
+                                                                                                                                        TOTAL
+DATE     TIME  ITEM       DESCRIPTION          T TAG #   UNITS  COUNT  TOTAL    BIN   UOM   COST  
+----     ----  ---------  ------------------   - ------- -----  -----  ------- -----  ----  --------
+08/19/11 9:14  ATT-2297   RT 5x3x2 Item Name   R            50    250   12,500  A-200  M    1,368.30
+                                                                       --------             --------
+     MSF->  FG: 12.267  Wst: 71.354  Tot: 83.621                        12,500              1,368.30
+
+                                                                                                                            
+     MSF->  FG: 12.267  Wst: 71.354  Tot: 83.621      GRAND TOTALS:     12,500              1,368.30
+
+
+
+G/L ACCOUNT NUMBER        DESCRIPTION                                   DATE                AMOUNT
+------------------------- --------------------------------------------- ---------- ---------------
+11302-01                  Inventory - WIP Mat'l                         08/22/2011        849.08cr
+11302-02                  Inventory - WIP Labor                         08/22/2011        343.77cr
+11302-03                  Inventory - WIP Var O/H                       08/22/2011         66.07cr
+11302-04                  Inventory - WIP Fix O/H                       08/22/2011        109.39cr
+
+11303-01                  Inventory - FG Mat'l                          08/22/2011        849.08
+11303-02                  Inventory - FG Labor                          08/22/2011        343.77
+11303-03                  Inventory - FG Var O/H                        08/22/2011         66.07
+11303-04                  Inventory - FG Fix O/H                        08/22/2011        109.39

@@ -1,0 +1,209 @@
+
+*** Invoice History File Field Definition ***           As of  10/02/06
+                                                                     Page:   1
+================================================================================
+Header table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+ar-inv     addr            Customer Address          x(30)
+ar-inv     bank-code       Bank Code                 x(8)
+ar-inv     bill-i          Billing Instructions      x(60)
+ar-inv     bill-to         Customer                  x(8)
+ar-inv     carrier         Carrier                   x(5)
+ar-inv     cc-actnum       CC Account No             x(25)
+ar-inv     cc-addr         CC Address                x(30)
+ar-inv     cc-auth         CC Authorization          x(30)
+ar-inv     cc-bank         CC Bank Name              x(30)
+ar-inv     cc-city         CC City                   x(15)
+ar-inv     cc-company      CC Company Name           x(30)
+ar-inv     cc-country      CC Country                x(10)
+ar-inv     cc-cvv-code     CC Security Code          X(3)
+ar-inv     cc-expiration   CC Expiration             99/99/9999
+ar-inv     cc-name         CC Name                   x(30)
+ar-inv     cc-num          CC Number                 x(20)
+ar-inv     cc-phone        CC Phone#                 (999) 999-9999
+ar-inv     cc-state        CC State                  x(2)
+ar-inv     cc-trans-date   CC Trans Date             99/99/9999
+ar-inv     cc-trans-time   CC Trans Time             >>,>>9
+ar-inv     cc-type         CC Type                   x(8)
+ar-inv     cc-zip          CC Zip Code               x(10)
+ar-inv     check-no        Check No                  99999999
+ar-inv     city            City                      x(15)
+ar-inv     company         Company                   x(3)
+ar-inv     contact         Contact Name              x(25)
+ar-inv     curr-code       Currency Code             X(3)
+ar-inv     cust-name       Customer Name             x(30)
+ar-inv     cust-no         Cust. #                   x(8)
+ar-inv     disc-%          Discount%                 >>9.99%
+ar-inv     disc-days       Days                      z9
+ar-inv     disc-taken      Discount Amount Taken     ->>>,>>9.99
+ar-inv     due             Balance due               ->>,>>>,>>9.99
+ar-inv     due-code        Date Due Code             XX
+ar-inv     due-date        Due Date                  99/99/9999
+ar-inv     e-num           Est.#                     >>>>>9
+ar-inv     est-no          Estimate #                x(5)
+ar-inv     est-type        Type                      9
+ar-inv     ex-rate         ?                         ->>,>>9.99<<<<<
+ar-inv     exported        ?                         yes/no
+ar-inv     f-bill          Bill Freight?             Y/N
+ar-inv     fob-code        FOB Code                  x(5)
+ar-inv     fr-out-c        Freight Out/CWT           >>9.99
+ar-inv     fr-out-m        Freight Out/M             >>9.99
+ar-inv     freight         Total Freight             ->>,>>9.99
+ar-inv     freq-code       GL Frequency Code         x(8)
+ar-inv     frt-pay         FR PAY CD                 x(1)
+ar-inv     fuel            Total Fuel                ->>,>>9.99
+ar-inv     fuel-bill       Bill Fuel?                Y/N
+ar-inv     gross           Gross                     ->,>>>,>>9.99
+ar-inv     inv-date        Invoice Date              99/99/9999
+ar-inv     inv-no          ?                         >>>>>9
+ar-inv     job-no          Job Number                x(6)
+
+*** Invoice History File Field Definition ***           As of  10/02/06
+                                                                     Page:   2
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+ar-inv     job-no2         Run #                     >9
+ar-inv     last-date       Last Shipping Date        99/99/9999
+ar-inv     lead-days       Lead Time (Days)          >>9
+ar-inv     loc             Warehouse                 x(5)
+ar-inv     net             ?                         ->>,>>>,>>9.99
+ar-inv     ord-date        ?                         99/99/9999
+ar-inv     ord-no          Order#                    >>>>>9
+ar-inv     over-pct        Overrun %                 >>9.99%
+ar-inv     paid            Amount Paid               ->,>>>,>>9.99
+ar-inv     pay-date        Paid on                   99/99/9999
+ar-inv     period          Posting Period            99
+ar-inv     po-no           P.O. Num                  x(15)
+ar-inv     pord-no         Previous Order #          >>>>>9
+ar-inv     posted          Posted                    y/n
+ar-inv     printed         Printed?                  Y/N
+ar-inv     prod-date       Prod. Date                99/99/9999
+ar-inv     recur           Recurring Entry           yes/no
+ar-inv     rec_key         Rec Key                   X(20)
+ar-inv     s-commbasis     Basis                     X
+ar-inv     ship-i          Shipping Instructions     x(60)
+ar-inv     ship-id         Ship To                   x(8)
+ar-inv     sman-no         Number                    >>9
+ar-inv     sold-addr                                 x(30)
+ar-inv     sold-city       City                      x(15)
+ar-inv     sold-id         Sold To ID                x(8)
+ar-inv     sold-name       Name                      x(30)
+ar-inv     sold-no         Sold To #                 >>9
+ar-inv     sold-state      State                     x(2)
+ar-inv     sold-zip        Zip                       x(10)
+ar-inv     stat            Order Status              x
+ar-inv     state           State                     x(2)
+ar-inv     t-comm          ?                         ->>>,>>9.99
+ar-inv     t-cost          ?                         ->>,>>>,>>9.99
+ar-inv     t-disc          ?                         ->>,>>>,>>9.99
+ar-inv     t-sales         ?                         ->>,>>>,>>9.99
+ar-inv     t-weight        Total Weight              ->>,>>>,>>9
+ar-inv     tax-amt         Tax                       ->>,>>9.99
+ar-inv     tax-code        Sales Tax Group           x(3)
+ar-inv     terms           Terms Code                x(5)
+ar-inv     terms-d         Description               x(30)
+ar-inv     tot-ord         ?                         ->>,>>>,>>9.99
+ar-inv     type            Type                      X
+ar-inv     under-pct       Underrun %                >>9.99%
+ar-inv     upd-date        Updated Date              99/99/9999
+ar-inv     upd-time        Updated Time              ->,>>>,>>9
+ar-inv     user-id         ?                         x(8)
+ar-inv     x-no            inv#                      >>>>>>9
+ar-inv     zip             Zip Code                  x(10)
+
+Line item table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+ar-invl    actnum          Account No                x(25)
+ar-invl    amt             ?                         ->>,>>>,>>9.99
+
+*** Invoice History File Field Definition ***           As of  10/02/06
+                                                                     Page:   3
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+ar-invl    amt-msf         Amt MSF                   ->>>>,>>9.99
+ar-invl    b-no            Unique Id#                >>>>>9
+ar-invl    billable        ?                         Y/N
+ar-invl    blank-no        BLANK                     >9
+ar-invl    bol-no          Bill Of Lading Number     >>>>>>>9
+ar-invl    cas-cnt         Case Count                >>>>9
+ar-invl    company         Company                   x(3)
+ar-invl    cons-uom        Cons UOM                  x(4)
+ar-invl    cost            Costs                     ->>>,>>>,>>9.99<<<<
+ar-invl    cust-no         Cust. #                   x(8)
+ar-invl    disc            Discount                  (>>>,>>9.99)
+ar-invl    dscr            Description               x(50)
+ar-invl    e-num           Estimate Number           >>>>>9
+ar-invl    est-no          Estimate #                x(5)
+ar-invl    est-type        Type                      9
+ar-invl    fixoh           Fixed OH                  ->>>,>>9.99
+ar-invl    form-no         FORM                      >9
+ar-invl    i-dscr          Item Description          x(30)
+ar-invl    i-name          Name                      x(30)
+ar-invl    i-no            Item No                   x(15)
+ar-invl    inv-date        ?                         99/99/9999
+ar-invl    inv-i-no        Header Item               x(15)
+ar-invl    inv-line        Header Line               >9
+ar-invl    inv-no          Invoice No.               >>>>>9
+ar-invl    inv-qty         Invoice Quantity          ->>,>>>,>>9.99
+ar-invl    job-no          Job Number                x(6)
+ar-invl    job-no2         Run #                     >9
+ar-invl    lab             Labor                     ->>>,>>9.99
+ar-invl    line            Line                      99
+ar-invl    loc             Warehouse                 x(5)
+ar-invl    matl            Material                  ->>>,>>9.99<<<<
+ar-invl    misc            ?                         yes/no
+ar-invl    ord-line        Line                      99
+ar-invl    ord-no          Order#                    >>>>>9
+ar-invl    p-c             Partial/Complete          C/P
+ar-invl    pal-chg         Pallet Charge             X
+ar-invl    pal-i-no        Pallet RM Item#           x(10)
+ar-invl    part-dscr1      Item Description          x(30)
+ar-invl    part-dscr2      Item Description          x(30)
+ar-invl    part-no         Cust Part #               x(15)
+ar-invl    period          ?                         99
+ar-invl    po-no           Purchase Order Number     x(15)
+ar-invl    po-no-po        Board PO #                >>>>>9
+ar-invl    posted          Posted                    y/n
+ar-invl    pr-qty-uom      Purch UOM                 x(4)
+ar-invl    pr-uom          UOM                       x(4)
+ar-invl    prep            ?                         yes/no
+ar-invl    prep-amt        ?                         ->,>>>,>>9.99
+ar-invl    prep-charge     Prep Charge               x(20)
+ar-invl    prep-code       Code                      x(5)
+ar-invl    prep-cost       Cost                      ->>,>>9.99
+ar-invl    prep-dscr       Description               x(20)
+ar-invl    prom-code       Prom. Date Code           XX
+ar-invl    prom-date       Prom. Date                99/99/9999
+
+*** Invoice History File Field Definition ***           As of  10/02/06
+                                                                     Page:   4
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+ar-invl    qty             ?                         ->>,>>>,>>9
+ar-invl    rec_key         Rec Key                   X(20)
+ar-invl    req-code        Req. Date Code            XX
+ar-invl    req-date        Req. Date                 99/99/9999
+ar-invl    s-comm          Commission                >>9.99
+ar-invl    s-commbasis     Basis                     X
+ar-invl    s-pct           Percentage                >>9.99
+ar-invl    sf-sht          SqFt/Sheet                >>9.99<<
+ar-invl    ship-qty        Shipped Quantity          ->>,>>>,>>9.99
+ar-invl    sman            Salesman Code             x(3)
+ar-invl    sname           Salesman Name             x(20)
+ar-invl    t-cost          ?                         ->>,>>>,>>9.99
+ar-invl    t-freight       Total Freight             ->>,>>9.99
+ar-invl    t-freight-p     ?                         ->>,>>>,>>9.99
+ar-invl    t-fuel          Total Fuel                ->>,>>9.99
+ar-invl    t-weight        Total Weight              >>>,>>9.99
+ar-invl    tax             ?                         yes/no
+ar-invl    unit-pr         Price                     >>,>>>,>>9.99<<<<
+ar-invl    upd-date        Updated Date              99/99/9999
+ar-invl    upd-time        Updated Time              ->,>>>,>>9
+ar-invl    varoh           Variable OH               ->>>,>>9.99
+ar-invl    x-no            inv#                      >>>>>>9
+

@@ -1,0 +1,59 @@
+RFC Format
+                   P  U  R  C  H  A  S  E      O  R  D  E  R
+                      C H A N G E D   O R D E R   O N L Y
+
+      FROM  ADVANCED CARTON COMPANY                   P/O NUMBER:     95
+            123 Anywhere Road                               PAGE:   1
+            Phone 215.369.1160 Fx 369.1164               PO DATE: 10/17/00
+            Yardley           PA  19067                  PO TYPE: Regular
+                                                     CHANGE DATE: 10/18/00
+
+
+   ORDERED  INTERNATIONAL PAPER            SHIP  ADVANCED CARTON COMPANY
+      FROM  123 New Road                     TO  123 Anywhere Road
+                                                 Phone 215.369.1160 Fx 369.1164
+            Montvale          NJ  08076-0256     Yardley          PA  19067
+
+
+________________________________________________________________________________
+ BUYER    CONTACT      TERMS           ACK  FOB CODE  SHIP VIA           FREIGHT
+
+ asi      Jerry Jones  2% 10, Net 30   no   DEST      COMMON CARRIER     Bill
+________________________________________________________________________________
+
+ LINE QUANTITY UOM  OUR ITEM/        JOB#            COST UOM/     EXT COST
+OVER/UNDER RUN      DESCRIPTION                      REQ DATE      CHANGE MADE
+________________________________________________________________________________
+ 01  5,000.0   EA   200 C               319-0              40.000 MSF    1203.12
+ 10.00%  10.00%     200 C Sheets                     10/18/00            Updated
+                    W:  20.10  L:  42.00  Flute: C    200
+              Score:   5.02   10.06    5.02  
+
+ 02  5,000.0   EA   SBS1822x35                             35.000 MSF     935.76
+ 10.00%  10.00%     SBS 18 Pt 22 x 35                10/18/00            Open
+                    SBS 18 Pt 22 x 35                                 
+                    W:  22.00  L:  35.00  Flute:         
+
+ 03 50,000.0   LF   SBS16-25                               30.000 MSF    3125.01
+ 10.00%  10.00%     SBS 16 25" Roll                  10/18/00            Open
+                    SBS 16 25" Roll                                   
+                    W:  25.00  L:   0.00  Flute:         
+
+
+
+
+
+
+
+
+
+
+________________________________________________________________________________
+                   FREIGHT:       0.00     TOTAL EXTENDED PRICE:      5,263.89
+
+         COMMENTS:
+
+
+
+
+

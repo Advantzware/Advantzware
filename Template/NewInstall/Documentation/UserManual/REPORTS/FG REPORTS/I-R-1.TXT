@@ -1,0 +1,13 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:20pm                                             FINISHED GOODS - REORDER REPORT
+
+                                                 FROM ITEM:  TO ITEM: zzzzzzzzzzzzzzz
+                                     PROD      REORDER     QTY     QTY     QTY    MINIMUM              VENDOR             SUGGESTED
+ITEM #          DESCRIPTION          CAT   UOM   LEVEL ON HAND   ALLOC  ON ORD      ORDER VENDOR       NUMBER               REORDER
+--------------- -------------------- ----- --- ------- ------- ------- ------- ---------- ------------ ---------------- -----------
+Almond Bar      Hershey Almond Bar 3 FOOD  M    200000    4000  200000  336000    250,000                                   250,000
+Facial Box      Facial Powder        COSMT M     30000   25000     500       0     25,000                                    25,000
+HER-1022        RSC 10x10x10         FC    M      1000       0    5000    5000      2,500                                     2,500
+SUNTAN LOTION   SUN TANNING LOTION   COSMT M    300000       0  800000  300000    100,000                                   250,000
+

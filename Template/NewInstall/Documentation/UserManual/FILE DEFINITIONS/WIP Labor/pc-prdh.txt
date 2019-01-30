@@ -1,0 +1,61 @@
+
+*** WIP Labor File Field Definition ***           As of  10/02/06    Page:   1
+================================================================================
+Header table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+pc-prdh    bc-m-code       ?                         x(8)
+pc-prdh    company         Company                   x(3)
+pc-prdh    dept            Department                x(2)
+pc-prdh    m-code          Code                      x(6)
+pc-prdh    rec_key         Rec Key                   X(20)
+pc-prdh    shift           Shift                     >9
+pc-prdh    trans-date      ?                         99/99/9999
+pc-prdh    user-id         User ID                   x(10)
+
+Line item table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+pc-prdd    bc-code         ?                         x(8)
+pc-prdd    bc-crew-id      ?                         x(8)
+pc-prdd    bc-emp-id       ?                         x(8)
+pc-prdd    bc-i-no         ?                         x(8)
+pc-prdd    bc-job          ?                         x(8)
+pc-prdd    blank-no        BLANK                     >9
+pc-prdd    code            Code                      x(5)
+pc-prdd    company         Company                   x(3)
+pc-prdd    complete        Complete                  Y/N
+pc-prdd    crew            Crew Size                 99.9
+pc-prdd    crew-id         Crew ID                   x(5)
+pc-prdd    d-type          Downtime Type             x(5)
+pc-prdd    dept            Department                x(2)
+pc-prdd    emp-id          Employee ID               x(5)
+pc-prdd    factor          Shift Differential        >>>>9.99<<<
+pc-prdd    frm             Form                      >>9
+pc-prdd    hours           Run Hours                 >>9.99-
+pc-prdd    i-name          Name                      x(30)
+pc-prdd    i-no            Item No                   x(15)
+pc-prdd    j-no            Internal Job#             >>>>>>9
+pc-prdd    job             Unique Internial Job Numb >>>>>>9
+pc-prdd    job-no          Job Number                x(6)
+pc-prdd    job-no2         Run #                     >9
+pc-prdd    m-code          Code                      x(6)
+pc-prdd    notes           Notes                     x(25)
+pc-prdd    op-date         Operation Date            99/99/9999
+pc-prdd    op-time         ?                         ->,>>>,>>9
+pc-prdd    opn             Open Flg                  yes/no
+pc-prdd    pass            Pass                      >>9
+pc-prdd    qty             Quantity                  >>>>>>>9-
+pc-prdd    rate            Hourly Rate               >>>>9.99<<<
+pc-prdd    rec_key         Rec Key                   X(20)
+pc-prdd    shift           Shift                     >9
+pc-prdd    speed           Speed                     >>>>9
+pc-prdd    start           Start Time                >>,>>9
+pc-prdd    startx          Start Time                X(8)
+pc-prdd    stopp           Stop Time                 >>,>>9
+pc-prdd    stopx           Stop Time                 X(8)
+pc-prdd    tot-rate        Total Rate                >>>>9.99<<<
+pc-prdd    user-id         ?                         x(8)
+pc-prdd    w-type          Waste Type                x(5)
+pc-prdd    waste           Waste                     >>>>9-
+

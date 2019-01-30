@@ -1,0 +1,77 @@
+
+08/14/07                                      Advanced Box Company - Main Office                                    Page   1
+ 6:37pm                                              Job Summary Analysis Report
+
+
+
+Job Number: 100305-00
+Customer:   AT&T Communications Corp.     
+
+                                                SELLING <-------QUANTITY IN BLANKS------------->  ACTUAL  ACT  ESTIMATE  EST  OVER-
+ITEM CODE    DESCRIPTION                        PRICE/M  ORDERED     POSTED  FINISHED   ALLOWED  SPOILAGE SPL% SPOILAGE  SPL% RUN %
+------------------------------------------------------------------------------------------------------------------------------------
+ATT-2297     Custom Box                          465.30    75,000    70,400    70,000    82,500     400    0.6    9,460  11.9   0.0
+                                               -------------------------------------------------------------------------------------
+    ORDER TOTALS                                 465.30    75,000    70,400    70,000    82,500     400    0.6    9,460  11.9   0.0
+SALES VALUE     $34897.50
+
+MACH                    M QUANTITY  <------ESTIMATED----->  <-------ACTUAL-------->    COST      COST        <---SPOILAGE ANALYSIS---->
+CODE   DESCRIPTION      R PRODUCED   HOURS  SPEED   COST     HOURS  SPEED   COST     VARIANCE    VAR%        EST QTY   ACTUAL     VAR %
+---------------------------------------------------------------------------------------------------------------------------------------
+DIES   DIE MAKING       M            1.00              45                                  45   100.0
+                        R       0
+Press  PRINTING PRESS   M            4.25           1,913     1.0              450      1,463    76.5         1,000      100      90.0
+                        R   25000    8.52   2935    3,833     3.0   8333     1,350      2,483    64.8           944              100.0
+D/C    DIE CUTTER       M            3.10             217     2.0              140         77    35.5            50              100.0
+                        R   25000    7.69   3250      538     4.0   6250       280        258    48.0           358              100.0
+STRIP  HAND STRIPPING   M            0.25               6                                   6   100.0
+                        R       0    9.17   2251      229                                 229   100.0
+GLUER  AUTOMATIC GLUER  M            3.50             438     2.0              250        188    42.9            50              100.0
+                        R   78000    5.67  13750      709     5.0  15600       625         84    11.9             2              100.0
+UNIT   PALLETIZING      M            1.50             188                                 188   100.0
+                        R       0    3.30  25016      413                                 413   100.0
+                                    ------        --------  ------         --------  --------  ------        --------------------------
+  TOTAL CONVERSION (DIRECT) :        47.95           8,528    17.0            3,095     5,433    63.7 
+
+                                    <-----ESTIMATED------>  <-------ACTUAL-------->    COST      COST  
+ITEM CODE   DESCRIPTION             QUANTITY UM       COST  QUANTITY UM        COST  VARIANCE    VAR%   
+-----------------------------------------------------------------------------------------------------
+BUNDLE / CASES                           330 Ea         36       330 Ea          36         0     0.0
+GLUE                                      41 LB         41         0              0        41   100.0
+PALLETS                                   14 Ea         70         0              0        70   100.0
+INK - BLACK                               11 LB         53         0              0        53   100.0
+INK - CYAN                                11 LB         79         0              0        79   100.0
+INK - MAGENTA                             11 LB         89         0              0        89   100.0
+INK - YELLOW                              11 LB        105         0              0       105   100.0
+INK - VARN                                11 LB         97         0              0        97   100.0
+PAPERBoARD SHEETS                     19,865 EA      1,331    20,625 EA       3,821     2,490-  187.1-
+VARN                                      65 LB        652         0              0       652   100.0
+                                                  --------                 --------  --------  ------
+  TOTAL MATERIAL   (DIRECT) :                        2,553                    3,857     1,304-   51.1-
+
+                                            EST        ACT
+MISC CODE   DESCRIPTION                    COST       COST   VARIANCE      VAR%
+--------------------------------------------------------------------------------
+            Outside Work                    928          0        928     100.0
+                                       --------   --------   --------    ------
+  TOTAL PREP/MISC  (DIRECT) :               928          0        928     100.0 
+
+
+GRAND TOTALS                       PER/M
+    MATERIAL:      3,856.84        55.10
+        PREP:          0.00         0.00
+       LABOR:      3,095.00        44.21
+  LAB MARKUP:        309.50         4.42
+  COMMISSION:      6,514.20        93.06
+     FREIGHT:          0.00         0.00
+
+  TOTAL COST:     13,775.54       196.79
+
+
+GRAND TOTALS                       PER/M
+       SALES:     32,571.00       465.30
+
+  TOTAL COST:     13,775.54       196.79
+
+      PROFIT:     18,795.46       57.71%
+

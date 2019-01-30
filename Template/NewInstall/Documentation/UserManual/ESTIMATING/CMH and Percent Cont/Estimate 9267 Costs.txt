@@ -1,0 +1,160 @@
+12/19/11          Advanced Box Company 001 V10 - Main Office           2:35 pm
+
+Set Est# 9267     SlsRep: John Hancock         UserID: asi      Prober: asi
+Cust: ABB1000  Abbot Laboratories            Ship: Abbot Laboratories
+               123 Abbot Lane                      123 Abbot Lane
+               Attn: Accounts Payables Dept.       Attn: Accounts Payables Dept.
+               Langhorne, PA 14616                 Langhorne, PA 14616
+
+Finished Good: SET Partition
+
+
+Last Ordered:
+
+001
+FORM 1          Width  Length             #On Qty/Set      Sq.Feet     Wgt/Units
+  Blank Size:    4.00   12.00               1       2    0.333 Sf/BL    40.0/MBL
+ NetSht Size:    4.00   12.00               1            0.333 Sf/NS    40.0/MNS
+ GrsSht Size:    4.00   12.00               1            0.333 Sf/GS    40.0/MGS
+                                              16.667 MSF           1.0 Tons
+
+- # UP - -- Qty --- --- Description ---- -- Size/Color --- --- Style/Part # --
+      1      50,000 Partition 3 Slots Lo 12x4x2.125        Partition 3 Slots   
+                                                           SET Partition-1     
+
+Materials                 Weight Caliper    QTY/Unit    MR $  Matl$/M    TOTAL
+01-0 200 B Sheets         120.00  0.117
+                                         $   30.00 MSF          10.00     500.00
+     Board MR  Waste                             0 Sht   0.00    0.00       0.00
+     Board Run Waste                             0 Sht           0.00       0.00
+01-1 Bundle 25 per           25 Pieces/BDL    2000 BDL           4.40     220.00
+01-1 PALLET                  77 B-25s/Unit      26 Pal           2.60     130.00
+01-1 BAND PALLETS                               10 MLI
+                                                                 0.00       0.00
+TOTAL  DIRECT  MATERIALS                                        17.00     850.00
+
+
+Machine Desc       Out     SU   Run Speed     Rate     MR $  Run $/M  Total Cost
+01-0 Partition Slo   1   1.00 26.53  1885    10.00    10.00     5.31      275.25
+01-0 PARTITION ASS   1   2.30 19.52  1281    36.70    61.41    14.32      777.65
+TOTAL  OPERATIONS                                     71.41    19.63    1,052.90
+
+*** T O T A L S      in Cost/M    50,000
+                 # of Releases         1
+----------------------------------------
+Direct Material                    17.00
+Direct Labor                       13.77
+Variable Overhead                   3.62
+DIRECT FACTORY COST                34.39
+Fixed Overhead                      3.67
+TOTAL FACTORY COST                 38.06
+Freight                            87.46
+GS&A Material - 25.00%              4.25
+GS&A Labor - 35.00%                 7.37
+FULL COST                         137.13
+Net Margin - 27.93%                53.16
+Available Margin - 26.42%          50.27
+SELLING PRICE                     190.29
+
+
+
+OVERALL                           285.44
+
+
+12/19/11          Advanced Box Company 001 V10 - Main Office           2:35 pm
+
+Set Est# 9267     SlsRep: John Hancock         UserID: asi      Prober: asi
+Cust: ABB1000  Abbot Laboratories            Ship: Abbot Laboratories
+               123 Abbot Lane                      123 Abbot Lane
+               Attn: Accounts Payables Dept.       Attn: Accounts Payables Dept.
+               Langhorne, PA 14616                 Langhorne, PA 14616
+
+Finished Good: SET Partition
+
+
+Last Ordered:
+
+001
+FORM 2          Width  Length             #On Qty/Set      Sq.Feet     Wgt/Units
+  Blank Size:    4.00    9.00               1       3     0.25 Sf/BL 29.9997/MBL
+ NetSht Size:    4.00    9.00               1             0.25 Sf/NS 29.9997/MNS
+ GrsSht Size:    4.00    9.00               1             0.25 Sf/GS 29.9997/MGS
+                                               18.75 MSF       1.12499 Tons
+
+- # UP - -- Qty --- --- Description ---- -- Size/Color --- --- Style/Part # --
+      1      75,000 Partition 2 Slots Sh 9x4x2.125         Partition 2 Slots   
+                                                           SET Partition-2     
+
+Materials                 Weight Caliper    QTY/Unit    MR $  Matl$/M    TOTAL
+02-0 200 B Sheets         120.00  0.117
+                                         $   30.00 MSF           7.50     562.49
+     Board MR  Waste                             0 Sht   0.00    0.00       0.00
+     Board Run Waste                             0 Sht           0.00       0.00
+02-1 Bundle 25 per           25 Pieces/BDL    3000 BDL           4.40     330.00
+02-1 PALLET                  77 B-25s/Unit      39 Pal           2.60     195.00
+02-1 BAND PALLETS                               15 MLI
+                                                                 0.00       0.00
+TOTAL  DIRECT  MATERIALS                                        14.50   1,087.49
+
+
+Machine Desc       Out     SU   Run Speed     Rate     MR $  Run $/M  Total Cost
+02-0 Partition Slo   1   0.75 38.46  1950    10.00     7.50     5.13      392.12
+02-0 PARTITION ASS   1   2.30 19.52  1281    36.70    61.41     9.55      777.65
+TOTAL  OPERATIONS                                     68.91    14.68    1,169.76
+
+*** T O T A L S      in Cost/M    75,000
+                 # of Releases         1
+----------------------------------------
+Direct Material                    14.50
+Direct Labor                       10.74
+Variable Overhead                   2.41
+DIRECT FACTORY COST                27.65
+Fixed Overhead                      2.44
+TOTAL FACTORY COST                 30.10
+Freight                            74.21
+GS&A Material - 20.00%              2.90
+GS&A Labor - 35.00%                 5.46
+FULL COST                         112.66
+Net Margin - 25.14%                37.83
+Available Margin - 26.42%          39.75
+SELLING PRICE                     150.49
+
+
+
+OVERALL                           200.66
+
+
+12/19/11  Advanced Box Company 001 V10 - Main Office                   2:36pm
+
+Estimate: # 9267                    Set Identity: SET Partition
+                                            Desc:
+Customer: Abbot Laboratories
+
+SalesRep: 001 John Hancock
+
+
+
+Individual Part #                 25,000
+                                       1
+----------------------------------------
+SET Partition-1                   380.58
+SET Partition-2                   451.47
+                               ----------
+Set Total Price                   832.05
+
+     E S T I M A T E  #9267   A N A L Y S I S   P e r  T h o u s a n d        
+            Tot.Fact      Full                      Sell    Price  Total   Total
+    Qty  R      Cost      Cost  Gross%    NET%     Price     /BSF Sheets     MSF
+  25000  1    166.41    612.25   80.00   26.42    832.05   587.33 125000  35.417
+
+                                                   Fact     Full      Sell
+ Cust. #  Part Number                 Quantity    Cost/M    Cost/M   Price/M
+ ABB1000  SET Partition-1                50000     38.06    137.13     190.29
+ ABB1000  SET Partition-2                75000     30.10    112.66     150.49
+
+
+Department Notes: 
+ Print note detail                                                               
+ Spcl Notes detail                                                               
+ test D! detail                                                                  
+

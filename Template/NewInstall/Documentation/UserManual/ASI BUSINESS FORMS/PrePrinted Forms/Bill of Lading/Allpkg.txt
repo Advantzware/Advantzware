@@ -1,0 +1,61 @@
+         BILL OF LADING                                       BOL No:     1815
+
+         Advanced Box Company                    Order No: 2455
+         301 Oxford Valley Road
+         Suite 1713 Xprint Format                BOL Date: 12/16/2005
+         Yardley         PA 19067
+         Phone: 215-369-7800
+
+         SalesPerson: Salesman #1                     Tax: PA
+
+    Ship To:            ATT1000            Customer: AT&T Communications Corp.
+            AT&T Communications Corp.       Contact: John Loeb
+            ATT Blvd                          Phone: 215-555-1212
+
+            Warehouse B
+            Yardley         PA 19067            P O No. VerbalPO
+
+    FOB                           Terms                    Ship Via
+    ---------------               ---------------          ---------------
+    DEST                          2N30                     TRUCK
+
+    Delivery Instructions
+    ---------------------
+    Must pack boxes on 45" Pallet.  Shrink Wrap Pallets:
+    Dock Times 7AM to 4PM
+
+
+
+    Special Instructions
+    --------------------
+
+
+
+
+
+    Return Policy
+    -------------
+
+
+
+
+
+
+LOC    Item Number     Item Name                  Qty To Ship Qty Shipped
+                       Description
+--------------------------------------------------------------------------
+A-100  8x8x8           RSC 8x8x8 Stock Box              1,000 __________
+                       200 C Kraft
+A-100  CATT10000041A   RSC 8x8x13                         500 __________
+                       ECT32 PaperBoard
+A-100  FATT10000003A   Sealed End 10x5x8              125,000 __________
+                       5 Color + Coating
+
+
+
+
+
+
+
+Received By:______________________________  Date Rec'd:____________________
+

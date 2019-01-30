@@ -1,0 +1,59 @@
+
+
+                                                             10/18/00     150
+
+
+
+
+       Hershey Chocolate Corp                    Hershey Chocolate Corp
+       123 Chocolate Blvd                        123 Chocolate Lane
+
+       Hershey, PA  19888                        Hershey, PA  19888
+
+
+
+                                                 B.O.L. #:      163
+  ORDER NUMBER & DATE:    319 10/17/00           SALESMAN: 001
+  INVOICE NOTE:                                  ORIGINAL ORDER:
+  DATE SHIPPED: 10/18/00                         TERMS: Net 30
+  SHIPPING INSTRUCTIONS:
+
+
+  QTY                                                         PRICE
+  SHIP  P.O.#            DESCRIPTION                          M        EXTENSION
+
+ 50000  101700           RT 5x4x8 Candy Box                  400.0000   20000.00
+                         SBS 5 Color Process
+
+  5000  101700           RSC 10x10x10                        617.5800    3087.90
+
+                      ** Miscellaneous Items **
+
+    PLATE                 Plate Charge                                    300.00
+
+    PLATE                 Plate Charge                                    900.00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                       Sub-Total:      24,287.90
+                                                       Sales Tax:           0.00
+                                                         Freight:           0.00
+                                                                      ----------
+                                                   Total Invoice:      24,287.90
+                                                                      ==========
+

@@ -1,0 +1,26 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:10pm                                           P O   F G / R M   H I S T O R Y
+
+                           All Orders  PO #:0 - 999999  PO Date:01/01/00 - 10/17/00  Vendor #: - zzzzzzzz
+                                     Item #: - zzzzzzzzzzzzzzz  Vendor Item #: - zzzzzzzzzzzzzzz
+Raw Materials
+
+  PO # Vendor   Item #          Item Description        Control #       Packed           Qty Ord Trans Date   Trans Qty Balance Due
+------ -------- --------------- ----------------------- --------------- ---------- ------------- ---------- ----------- -----------
+    95 2        200 C           200 C Sheets                                             5,000.0                            5,000.0
+
+    94 2        CCN-16          CCN 16 Pt                                                  7.397 10/16/00           8.0         0.0
+
+    92 1        SBS-18          SBS 18 Pt Board                                            1.817                              1.817
+    88 2        SBS-18          SBS 18 Pt Board                                            0.965                              0.965
+    89 2        SBS-18          SBS 18 Pt Board                                            1.372                              1.372
+    91 2        SBS-18          SBS 18 Pt Board                                            1.751                              1.751
+    93 2        SBS-18          SBS 18 Pt Board                                            4.452 10/11/00           2.5       1.952
+
+                                Item Totals                                               10.357                    2.5       7.857
+
+
+    90 2        sbs18-26        SBS 18Pt 26" Roll                                       20,000.0                           20,000.0
+
+

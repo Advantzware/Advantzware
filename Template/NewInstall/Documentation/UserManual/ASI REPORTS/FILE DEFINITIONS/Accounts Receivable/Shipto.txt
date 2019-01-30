@@ -1,0 +1,52 @@
+
+*** Shipto File Field Definition ***           As of  10/15/06       Page:   1
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+shipto     area-code       Area Code                 (999)
+shipto     bill            Billable                  yes/no
+shipto     broker          Broker                    yes/no
+shipto     carrier         Carrier                   x(5)
+shipto     cas-no          Case                      X(10)
+shipto     company         Company                   x(3)
+shipto     contact         Contact Name              x(25)
+shipto     country         Country                   x(10)
+shipto     cust-no         Customer                  x(8)
+shipto     del-chg         Delivery Charge           >>9.99
+shipto     del-time        Delivery Hours            >9.9
+shipto     dest-code       Dest. Code                x(5)
+shipto     dest-dscr       ?                         x(20)
+shipto     dock-hour       Doch Hours                X(10)
+shipto     dock-loc        Dock Location             x(10)
+shipto     due-time        Due Time                  >>>>9
+shipto     fax             Fax #                     (999) 999-9999
+shipto     fax-country     Fax Country Prefix        X(8)
+shipto     fax-prefix      Fax Prefix                x(3)
+shipto     fuel-chg        Fuel Surcharge            yes/no
+shipto     loc             Warehouse                 x(5)
+shipto     loc-bin         Bin Location              x(8)
+shipto     notes           Notes                     x(60)
+shipto     pallet          Pallet                    x(10)
+shipto     phone           Phone Number              999-9999
+shipto     phone-country   Phone Country Prefix      X(8)
+shipto     phone-prefix    Phone Prefix              x(3)
+shipto     Postal          Postal Code               x(11)
+shipto     rec_key         Rec Key                   X(20)
+shipto     route-code      ?                         x(20)
+shipto     scac            SCAC                      x(8)
+shipto     ship-addr       Address                   x(30)
+shipto     ship-city       City                      x(15)
+shipto     ship-id         Ship To ID                x(8)
+shipto     ship-meth       Shipping Method           Case/Pallet
+shipto     ship-name       Name                      x(30)
+shipto     ship-no         Ship To #                 >>9
+shipto     ship-state      State                     x(2)
+shipto     ship-zip        Zip                       x(10)
+shipto     tax-code        Tax Group                 x(3)
+shipto     tax-dscr        ?                         x(25)
+shipto     trailer         ?                         x(20)
+shipto     upch-amt        Upcharge$                 ->>,>>9.99
+shipto     upch-code       Upcharge                  X(8)
+shipto     upch-dscr       Upcharge Description      X(30)
+shipto     upch-pct        Upcharge%                 ->>,>>9.99
+

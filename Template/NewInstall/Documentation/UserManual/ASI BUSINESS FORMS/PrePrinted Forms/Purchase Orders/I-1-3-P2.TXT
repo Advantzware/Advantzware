@@ -1,0 +1,66 @@
+Middlesx Format
+
+
+
+
+
+
+                      C H A N G E D   O R D E R   O N L Y
+                                                  P U R C H A S E  O R D E R
+                                                  **************************
+      ADVANCED CARTON COMPANY
+      123 Anywhere Road
+      Phone 215.369.1160 Fx 369.1164                       95         1
+      Yardley, PA  19067
+
+                                                  10/18/00
+
+
+
+
+          INTERNATIONAL PAPER                    ADVANCED CARTON COMPANY
+          123 New Road                           123 Anywhere Road
+                                                 Phone 215.369.1160 Fx 369.1164
+          Montvale, NJ  080760256                Yardley, PA  19067
+
+
+--------------------------------------------------------------------------------
+      TERMS: 2% 10, Net 30
+--------------------------------------------------------------------------------
+  QUANTITY    IDENT           ADDER         JOB #     COST/DUE DATE        TOTAL
+--------------------------------------------------------------------------------
+01   5,000    200 C                         319-00         40.000 MSF   1,203.12
+                                                      10/18/00           Updated
+              W:  20.10  L:  42.00  Flute: C    200
+              Score:   5.02   10.06    5.02  
+
+                                 SQFT/ITEM              6.0156
+                                 TOT SQFT ORDER    30,078.1250
+
+                                 *                     38.9624
+
+02   5,000    SBS1822x35                                   35.000 MSF     935.76
+                                                      10/18/00           Open
+              W:  22.00  L:  35.00  Flute:         
+
+                                 SQFT/ITEM              5.3472
+                                 TOT SQFT ORDER    26,736.1111
+
+03  50,000    SBS16-25                                     30.000 MSF   3,125.01
+                                                      10/18/00           Open
+              W:  25.00  L:   0.00  Flute:         
+
+
+
+
+
+
+
+
+
+
+
+                                                                        5,263.89
+
+
+

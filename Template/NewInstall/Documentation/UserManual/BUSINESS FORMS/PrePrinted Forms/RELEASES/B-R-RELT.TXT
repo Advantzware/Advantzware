@@ -1,0 +1,23 @@
+
+
+
+
+
+BILL TO:              HER10             SHIP TO:              HER10
+     Hershey Chocolate Corp                  Hershey Chocolate Corp
+     123 Chocolate Blvd                      123 Chocolate Lane
+
+     Hershey, PA  19888                      Hershey, PA  19888
+
+OUR ORDER#    319
+REL# 000001 TO SHIP VIA COMMON CARRIER                DUE ON  10/18/00
+CUSTOMER PO#101700                                   PREPAID  PAGE 01 OF 00
+-------------------------------------------------------------------------------
+LOC     ITEM NUMBER      PRODUCT DESCRIPTION              QUANTITY IN ONE THOU
+------  ---------------  ------------------------------  ----------------------
+                                                          TO SHIP     SHIPPED
+                                                         ---------   --------
+
+FLOOR   HER-1021         RT 5x4x8 Candy Box                 50,000    ________
+FLOOR   HER-1022         RSC 10x10x10                        5,000    ________
+

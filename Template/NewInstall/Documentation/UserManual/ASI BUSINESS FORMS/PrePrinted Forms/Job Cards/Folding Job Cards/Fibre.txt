@@ -1,0 +1,100 @@
+                                                   F A C T O R Y   T I C K E T                                      DATE: 12/13/05
+                                                   ===========================
+
+    [  ] JACKET          [  ] PRODUCTION          [  ] PLATE ROOM          [  ] DIE ROOM          [  ] PURCHASING
+JOB NUMBER:   2455-01          COMPLETION DATE:          BOARD P.O. #:          VENDOR #:                       DUE DATE: 12/16/2005
+====================================================================================================================================
+ Item # / Qty         Description                Size / Style             Est # Case Cnt Code            Layout # On Per Form
+--------------   ------------------------- -------------------------   -------- -------- --------------- ---------------------------
+FATT10000003A   Sealed End 10x5x8          8x5x7                           2977      500 B-25            F1-01/1up
+Job:     125,000   5 Color + Coating          Seal End Full Overlap          Bundle 25 per
+Ord:     125,000   Req Date: 12/16/2005   Prm Date: 12/16/2005   P.O.: VerbalPO
+Customer Name:  AT&T Communications Corp.      Sold To:  ATT1000  Order#:    2455   Cust Part#:  ATT-2977
+Plate#:                  Die#:                  CAD#:                  UPC#:                  SPC#:
+Overrun/Underrun %:  10.00/10.00
+====================================================================================================================================
+1-01     Ink#: P-01  INK         ESTIMATED INK FOR OF   246.71                     P-01  VARN        EPIC WATERBASE         307.95
+
+====================================================================================================================================
+Form: 01/00  Prep Material: PLATE PLATE                            
+====================================================================================================================================
+Sheets Required: 138,813     Size: 18x27.625                       Caliper: 0.01800     Board: SBS18                      Form:  1
+====================================================================================================================================
+Machine Description   Form   1   Form   2   Form   3   Form   4   Form   5   Form   6   Form   7   Form   8   Form   9   Form  10
+                    M I N I M U M   R E Q U I R E D   S T A R T I N G  C O U N T   P E R   O P E R A T I O N
+
+NEW SHEETER             138,813                                                                                                   
+408 HEIDY 7C + COAT     136,036                                                                                                   
+49 CUTTER               130,309                                                                                                   
+BMA CUTTER              127,653                                                                                                   
+STRIPPING               125,050                                                                                                   
+BOBST DOMINO GLUER      125,050                                                                                                   
+
+Machine Description   Form   1   Form   2   Form   3   Form   4   Form   5   Form   6   Form   7   Form   8   Form   9   Form  10
+                    E S T I M A T E D   M A K E   R E A D Y   H O U R  S   A N D   R U N   S P E E D
+
+NEW SHEETER          0.60 18750                                                                                                   
+408 HEIDY 7C + COAT  7.50  6507                                                                                                   
+49 CUTTER            1.90  3750                                                                                                   
+BMA CUTTER           1.90  6000                                                                                                   
+STRIPPING            0.25  3500                                                                                                   
+BOBST DOMINO GLUER   2.50  4000                                                                                                   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                                          07/22/02 Job Ticket QF-130
+

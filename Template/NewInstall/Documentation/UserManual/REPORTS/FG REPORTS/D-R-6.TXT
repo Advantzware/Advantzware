@@ -1,0 +1,31 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:27pm                                  FINISHED GOODS -- SALES VALUE BY CUSTOMER BY ITEM
+
+                        As of:10/17/00  Cust #:HER10 - HER10  Cust PO #: - zzzzzzzzzzzzzzz  Salesman #: - zzz
+
+CUSTOMER            JOB      P.O.            ITEM                                      QUANTITY         SELL           TOTAL
+   ID    TYPE     NUMBER    NUMBER          NUMBER          DESCRIPTION                 ON-HAND        PRICE           VALUE
+-------- -------- ------ -- --------------- --------------- -------------------- -------------- ------------ ---------------
+HER10    HOUSE       303- 0 102499          1012            RT Reeses Pieces Box          2,000       260.00          520.00
+                     151- 0                 Almond Bar      Hershey Almond Bar 3          4,000         0.00            0.00
+                     146- 0 10-05-98        Avalon Box      RT Hersey Kiss Box           25,000       325.00        8,125.00
+                     166- 0 040599          Candy Box       r.t. 1-1/2 x 1-1/2 x         21,000       550.00       11,550.00
+                     161- 0 021799          HER 123         KL Butter Carton             52,000       315.00       16,380.00
+                     161- 1 021799          HER 456         KL Butter Carton           -192,000       300.00      -57,600.00
+                     163- 0 032599          HER 555         RT 5 x 5 x 5                   -400       600.00         -240.00
+                     309- 0 012600          HER-1016        RT 2x.75x6                   26,000       375.00        9,750.00
+                     311- 0 02102000        HER-1017        RT 5x2x8                     25,000       388.10        9,702.50
+                     317- 0 101600          HER-1021        RT 5x4x8                     25,400       395.00       10,033.00
+                     119- 0 02-23-98        HER-KISS        Hershey Kiss                 54,600       210.00       11,466.00
+                     122- 0 030698          IBM-Chocolate   RT 4 x 4 x 3                 27,000       230.00        6,210.00
+                     141- 0 July 10, 1998   Potato Chip     Potato Chip Sealed E        -25,000       625.00      -15,625.00
+                  3F1924- 0 091798          SAN DIEGO       RT 3 1/8 x 3 1/8 x 3         -5,000       500.00       -2,500.00
+                     124- 0 SPB 031698      XMAS KISS       RT XMAS KISS BOX            -12,500       290.00       -3,625.00
+                                                                                                              --------------
+                                                                                     Customer Total                 4,146.50
+
+                                                                                                              --------------
+                                                                                        Grand Total                 4,146.50
+
+

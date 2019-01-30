@@ -1,0 +1,100 @@
+                                                   F A C T O R Y   T I C K E T                                      DATE: 10/05/15
+                                                   ===========================
+
+    [  ] JACKET          [  ] PRODUCTION          [  ] PLATE ROOM          [  ] DIE ROOM          [  ] PURCHASING
+JOB NUMBER: 208491-00          COMPLETION DATE:          BOARD P.O. #:          VENDOR #:                       DUE DATE: 06/23/2015
+====================================================================================================================================
+ Item # / Qty         Description                Size / Style             Est # Case Cnt Code            Layout # On Per Form
+--------------   ------------------------- -------------------------   -------- -------- --------------- ---------------------------
+CHOCOLATE       Chocolate Ice Creme        7x5x4                          11995      500 C20x20x24       F1-01/3up
+Job:      75,000   SBS18 Paper Inttlntl       Seal End Full Overlap          Case 20x20x24
+Ord:      75,000   Req Date: 06/23/2015   Prm Date: 06/23/2015   P.O.:
+Customer Name:  Hershey Foods Corporation      Sold To:  HER1000  Order#:  208491   Cust Part#:  CHOCOLATE
+Plate#:  CHOCOLATE PLATE Die#:  Die#Choc        CAD#:  CHOCOLATE CAD#  UPC#:  CHOCOLATE UPC#  SPC#:  208233-00-01-01
+Overrun/Underrun %:  10.00/10.00
+------------------------------------------------------------------------------------------------------------------------------------
+VANILLA         Vanilla Ice Creme          7x5x4                          11995      500 C24x24x24       F1-02/2up
+Job:      50,000                              Seal End Full Overlap          Case 24x24x24
+Ord:      50,000   Req Date: 06/23/2015   Prm Date: 06/23/2015   P.O.: PO# XYZ
+Customer Name:  Hershey Foods Corporation      Sold To:  HER1000  Order#:  208491   Cust Part#:  VANILLA
+Plate#:                  Die#:  Die# Vanilla    CAD#:  Vanilla Cad#    UPC#:                  SPC#:  208233-00-01-02
+Overrun/Underrun %:  10.00/10.00
+------------------------------------------------------------------------------------------------------------------------------------
+STRAWBERRY      Strawberry Ice Creme       7x5x4                          11995      500 C24X20X12       F1-03/1up
+Job:      25,000   Sealed End                 Seal End Full Overlap          CASES 24 X 20 X 12
+Ord:      25,000   Req Date: 06/23/2015   Prm Date: 06/23/2015   P.O.: PO# 456
+Customer Name:  Hershey Foods Corporation      Sold To:  HER1000  Order#:  208491   Cust Part#:  Strawberry
+Plate#:                  Die#:                  CAD#:  Strawberry Cad# UPC#:                  SPC#:  208233-00-01-03
+Overrun/Underrun %:  10.00/10.00
+====================================================================================================================================
+1-01     Ink#: P-01  AQ Coating  Aqueous Coating        515.95                     P-01  P-BLACK     PROCESS BLACK           61.91
+               P-01  P-CYAN      PROCESS CYAN            61.91                     P-01  P-MAGENTA   PROCESS MAGENTA         61.91
+               P-01  P-YELLOW    PMS PROCESS YELLOW      61.91                     P-01  PMS012C     PMS YELLOW 012 C SE    171.98
+               P-01  PMS334C     PMS Green 334C           51.6
+
+1-02     Ink#: P-01  AQ Coating  Aqueous Coating                                   P-01  P-BLACK     PROCESS BLACK                
+               P-01  P-CYAN      PROCESS CYAN                                      P-01  P-MAGENTA   PROCESS MAGENTA              
+               P-01  P-YELLOW    PMS PROCESS YELLOW                                P-01  PMS012C     PMS YELLOW 012 C SE          
+               P-01  PMS021C     PMS ORANGE 021C         45.86
+
+1-03     Ink#: P-01  AQ Coating  Aqueous Coating                                   P-01  P-BLACK     PROCESS BLACK                
+               P-01  P-CYAN      PROCESS CYAN                                      P-01  P-MAGENTA   PROCESS MAGENTA              
+               P-01  P-YELLOW    PMS PROCESS YELLOW                                P-01  PMS032C     PMS RED 032C            11.47
+
+====================================================================================================================================
+Form: 01/03    Leaf/Window Film: ACE100                            Length:  3.0000 stream-io width:  3.0000
+Form: 01/03    Leaf/Window Film: ACE100                            Length:  3.0000 stream-io width:  3.0000
+Form: 01/03    Leaf/Window Film: ACE100                            Length:  3.0000 stream-io width:  3.0000
+====================================================================================================================================
+Sheets Required:      25,613   Size: 24.5x25                       Caliper: 0.01800     Board: SBS18                      Form:  1
+====================================================================================================================================
+Instructions: BM PROTAGON TEST                                                                
+              BM PROTAGON TEST                                                                
+              DIE CUTTING                                                                     
+              Die Cutting Note #2                                                             
+              ISO Notes                                                                       
+              PrePress Approval Needed.                                                       
+              ISO Form required on all Jobs                                                   
+              DIE CUTTING                                                                     
+              Die Cutting Notes for Form 1                                                    
+              PRINTING                                                                        
+              Printing Notes for Form 1                                                       
+              FLAT PACK                                                                       
+              General Notes for all forms / Form 0                                            
+              ISO Notes                                                                       
+              PrePress Approval Needed.                                                       
+              ISO Form required on all Jobs                                                   
+====================================================================================================================================
+Machine Description   Form   1   Form   2   Form   3   Form   4   Form   5   Form   6   Form   7   Form   8   Form   9   Form  10
+                    M I N I M U M   R E Q U I R E D   S T A R T I N G  C O U N T   P E R   O P E R A T I O N
+
+NEW SHEETER              25,613                                                                                                   
+408 HEIDY 7C + COAT      25,613                                                                                                   
+BMA CUTTER               25,612                                                                                                   
+WINDOW MACHINE           75,003                                                                                                   
+WINDOW MACHINE           50,002                                                                                                   
+WINDOW MACHINE           25,001                                                                                                   
+BOBST DOMINO GLUER       75,003                                                                                                   
+BOBST DOMINO GLUER       50,002                                                                                                   
+BOBST DOMINO GLUER       25,001                                                                                                   
+
+Machine Description   Form   1   Form   2   Form   3   Form   4   Form   5   Form   6   Form   7   Form   8   Form   9   Form  10
+                    E S T I M A T E D   M A K E   R E A D Y   H O U R  S   A N D   R U N   S P E E D
+
+NEW SHEETER          0.60 20000                                                                                                   
+408 HEIDY 7C + COAT  8.00  3500                                                                                                   
+BMA CUTTER           3.90  9000                                                                                                   
+WINDOW MACHINE       4.00  4500                                                                                                   
+WINDOW MACHINE       0.25  4500                                                                                                   
+WINDOW MACHINE       0.25  4000                                                                                                   
+BOBST DOMINO GLUER   4.50  5750                                                                                                   
+BOBST DOMINO GLUER   0.25  5750                                                                                                   
+BOBST DOMINO GLUER   0.25  5750                                                                                                   
+
+
+
+
+
+
+                                                                                                          07/22/02 Job Ticket QF-130
+

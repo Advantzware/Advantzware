@@ -1,0 +1,6 @@
+REGEDIT4
+
+[HKEY_CURRENT_USER\Software\Symbol\ScanWedge]
+"Prefix"="{{"
+"Suffix"="}}"
+"AutoEnter"=dword:00000001

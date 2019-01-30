@@ -1,0 +1,15 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:25pm                                       FINISHED GOODS - BY DESCRIPTION REPORT
+
+                                                   From Item:HER-10 To: HER-9999
+
+                              PROD             AVERAGE  SELLING          ON    CUSTOMER    QUANTITY          TOTAL
+ITEM            DESCRIPTION   CAT   UOM           COST    PRICE        HAND      ORDERS   AVAILABLE          VALUE
+--------------- ------------- ----- --- -------------- -------- ----------- ----------- ----------- --------------
+HER-1022        RSC 10x10x10  FC    M             0.00   617.58           0       5,000           0           0.00
+HER-1016        RT 2x.75x6    FC    M           296.87   375.00      26,000           0      26,000       9,750.00
+HER-1017        RT 5x2x8      FC    M           297.73   388.10      25,000      25,000           0       9,702.50
+HER-1021        RT 5x4x8      FC    M           302.73   400.00      25,400     100,000           0      10,160.00
+
+                                                Grand Total          76,400     130,000      26,000      29,612.50

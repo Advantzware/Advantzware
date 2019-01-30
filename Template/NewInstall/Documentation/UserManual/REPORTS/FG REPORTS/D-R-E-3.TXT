@@ -1,0 +1,36 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:40pm                                    U N S H I P P E D   O R D E R S   D E T A I L
+
+                       Open Orders  Order #:0 - 999999  Order Date:10/01/00 - 12/31/9999  Cust #:HER10 - HER10
+                                   Ship To #: - zzzzzzzz  Item #: - zzzzzzzzzzzzzzz  Whse: - zzzzz
+
+Customer                 Ship To                                    Qty                        Qty        Issued BOL
+Item Description         Item #                Cust PO #          Ordered Inv Date  Inv #    Shipped   Number        Qty  Available
+------------------------ --------------------- --------------- ---------- -------- ------ ---------- ------------------- ----------
+
+Hershey Chocolate Corp   Hershey Chocolate Cor
+Facial Powder            Facial Box            101600                 500                                                       500
+
+RT 5x4x8                 HER-1021              101600               25000                                                     25000
+
+                               Ship To Totals:                      25500                          0                   0      25500
+
+
+                         Hershey Chocolate Cor
+RT 5x4x8                 HER-1021              101600               25000                                                     25000
+                                               101600               25000 10/16/00    149      25000                              0
+                                                                    50000                                                     50000
+
+                                  Item Totals:                     100000                      25000                   0      75000
+
+
+RSC 10x10x10             HER-1022              101700                5000                                                      5000
+
+                               Ship To Totals:                     105000                      25000                   0      80000
+
+                              Customer Totals:                     130500                      25000                   0     105500
+
+
+                                Report Totals:                     130500                      25000                   0     105500
+

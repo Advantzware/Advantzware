@@ -1,0 +1,129 @@
+
+
+
+
+               ADVANCED BOX 400, INC.                                                             BOL Number:         1815
+               301 Oxford Valley                                                                Order Number:         2455
+               Yardley, PA  19067                                                                 Order Date:     12/13/05
+               Phone: (714) 994-4140  Fax: (714) 994-1377                                          Ship Date:     12/16/05
+                                                                                                         FOB:  Destination
+                                                                                                       Terms:         2N30
+                                                                                                    Ship Via:        TRUCK
+
+               Bill To:                                ATT1000       Ship To:                                ATT1000
+               AT&T Communications Corp.                             AT&T Communications Corp.
+               ATT 1000 Blvd                                         ATT Blvd
+                                                                     Warehouse B
+               Yardley, PA                                           Yardley, PA  19067
+               P.O. Number: Verbal PO                                P.O. Number: Verbal PO
+              ------------------------------------------------------------------------------------------------------------
+               Ln Set Part No         Part Description            COC*      Location/Tag#      Rel Qty   Pick      Ship
+              ------------------------------------------------------------------------------------------------------------
+                1  N  8x8x8           RSC 8x8x8 Stock Box       ________       ATT1000/          1,000 ________  ________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              ------------------------------------------------------------------------------------------------------------
+               Special Instructions/Delivery Notes:
+
+                            Must pack boxes on 45" Pallet.  Shrink Wrap Pallets:
+                            Dock Times 7AM to 4PM
+
+
+
+                            Must pack boxes on 45" Pallet.  Shrink Wrap Pallets:
+                            Dock Times 7AM to 4PM
+                            Must pack boxes on 45" Pallet.  Shrink Wrap Pallets:
+                            Dock Times 7AM to 4PM
+
+               *COC - Certificate of Compliance
+              ------------------------------------------------------------------------------------------------------------
+               Picked By:                  Shipped By:                Shipped Date:
+              ------------------------------------------------------------------------------------------------------------
+               Received By:                Received Date:
+              ------------------------------------------------------------------------------------------------------------
+
+
+
+
+               ADVANCED BOX 400, INC.                                                             BOL Number:         1815
+               301 Oxford Valley                                                                Order Number:         2455
+               Yardley, PA  19067                                                                 Order Date:     12/13/05
+               Phone: (714) 994-4140  Fax: (714) 994-1377                                          Ship Date:     12/16/05
+                                                                                                         FOB:  Destination
+                                                                                                       Terms:         2N30
+                                                                                                    Ship Via:        TRUCK
+
+               Bill To:                                ATT1000       Ship To:                                ATT1000
+               AT&T Communications Corp.                             AT&T Communications Corp.
+               ATT 1000 Blvd                                         ATT Blvd
+                                                                     Warehouse B
+               Yardley, PA                                           Yardley, PA  19067
+               P.O. Number: VerbalPO                                 P.O. Number: VerbalPO
+              ------------------------------------------------------------------------------------------------------------
+               Ln Set Part No         Part Description            COC*      Location/Tag#      Rel Qty   Pick      Ship
+              ------------------------------------------------------------------------------------------------------------
+                2  N  CATT10000041A   RSC 8x8x13                ________                           500 ________  ________
+
+                3  N  FATT10000003A   Sealed End 10x5x8         ________                       125,000 ________  ________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              ------------------------------------------------------------------------------------------------------------
+               Special Instructions/Delivery Notes:
+
+                            Must pack boxes on 45" Pallet.  Shrink Wrap Pallets:
+                            Dock Times 7AM to 4PM
+
+
+
+                            Must pack boxes on 45" Pallet.  Shrink Wrap Pallets:
+                            Dock Times 7AM to 4PM
+                            Must pack boxes on 45" Pallet.  Shrink Wrap Pallets:
+                            Dock Times 7AM to 4PM
+
+               *COC - Certificate of Compliance
+              ------------------------------------------------------------------------------------------------------------
+               Picked By:                  Shipped By:                Shipped Date:
+              ------------------------------------------------------------------------------------------------------------
+               Received By:                Received Date:
+              ------------------------------------------------------------------------------------------------------------
+

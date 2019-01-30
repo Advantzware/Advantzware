@@ -1,0 +1,260 @@
+
+*** Order Entry File Field Definition ***           As of  12/27/05  Page:   1
+================================================================================
+Header table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+oe-ord     ack-prnt        Acknowledgement Printed   yes/no
+oe-ord     addr            Customer Address          x(30)
+oe-ord     approved-date   Approved Date             99/99/99
+oe-ord     approved-id     Approved by               X(8)
+oe-ord     bank-code       Bank Code                 x(8)
+oe-ord     bill-i          Billing Instructions      x(60)
+oe-ord     bill-to         Bill to                   x(8)
+oe-ord     carrier         Carrier                   x(5)
+oe-ord     cc-actnum       CC Account No             x(25)
+oe-ord     cc-addr         CC Address                x(30)
+oe-ord     cc-auth         Credit Card Authorization x(30)
+oe-ord     cc-bank         CC Bank Name              x(30)
+oe-ord     cc-city         CC City                   x(15)
+oe-ord     cc-company      CC Company Name           x(30)
+oe-ord     cc-country      CC Country                x(10)
+oe-ord     cc-cvv-code     CC CVV Code               X(3)
+oe-ord     cc-expiration   Credit Card Expiration    99/99/9999
+oe-ord     cc-name         Credit Card Holders Name  x(30)
+oe-ord     cc-num          Credit Card Number        x(20)
+oe-ord     cc-phone        CC Phone#                 (999) 999-9999
+oe-ord     cc-state        CC State                  x(2)
+oe-ord     cc-type         Credit Card Type          x(8)
+oe-ord     cc-zip          CC Zip Code               x(10)
+oe-ord     ch-type         Credit Hold Type          x(5)
+oe-ord     city            City                      x(15)
+oe-ord     company         Company                   x(3)
+oe-ord     contact         Contact Name              x(25)
+oe-ord     curr-code       Currency Code             X(3)
+oe-ord     cust-name       Customer Name             x(30)
+oe-ord     cust-no         Cust. #                   x(8)
+oe-ord     deleted         Deleted?                  Y/N
+oe-ord     due-code        Date Due Code             XX
+oe-ord     due-date        Due Date                  99/99/9999
+oe-ord     due-time        Due Time                  >>>>9
+oe-ord     e-num           Est#                      >>>>>9
+oe-ord     email-addr      Email Address             x(50)
+oe-ord     email-name      Email Name                x(50)
+oe-ord     entered-date    Entered Date              99/99/99
+oe-ord     entered-id      Entered by                X(8)
+oe-ord     est-no          Estimate #                x(5)
+oe-ord     est-type        Estimate Type             9
+oe-ord     ex-rate         ?                         ->>,>>9.99<<<<<
+oe-ord     f-bill          Bill Freight?             Y/N
+oe-ord     fob-code        FOB Code                  x(5)
+oe-ord     frt-pay         Freight Pay Code          x(1)
+oe-ord     ftck-prnt       Factory Ticket Printed    yes/no
+oe-ord     fuel-bill       Bill Fuel?                Y/N
+oe-ord     inv-date        Invoice Date              99/99/9999
+oe-ord     inv-no          Invoice Number            >>>>>9
+oe-ord     j-no            Internial Job Number      >>>>>>9
+oe-ord     job-no          Job Number                x(6)
+oe-ord     job-no2         Run #                     >9
+oe-ord     last-date       Last Shipping Date        99/99/9999
+oe-ord     lead-days       Lead Time (Days)          >>9
+
+*** Order Entry File Field Definition ***           As of  12/27/05  Page:   2
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+oe-ord     loc             Warehouse                 x(5)
+oe-ord     opened          ?                         Open/Closed
+oe-ord     ord-date        Date                      99/99/9999
+oe-ord     ord-no          Order#                    >>>>>9
+oe-ord     over-pct        Overrun %                 >>9.99%
+oe-ord     po-no           P.O. Num                  x(15)
+oe-ord     pord-no         Previous Order #          >>>>>9
+oe-ord     posted          Posted                    y/n
+oe-ord     prod-date       Prod. Date                99/99/9999
+oe-ord     q-no            Quote #                   >>>>9
+oe-ord     rec_key         Rec Key                   X(20)
+oe-ord     s-comm          Commission                >>9.99
+oe-ord     s-pct           Percentage                >>9.99
+oe-ord     ship-i          Shipping Instructions     x(60)
+oe-ord     sman            Salesman Code             x(3)
+oe-ord     sman-no         Salesman                  >>9
+oe-ord     sname           Salesman Name             x(20)
+oe-ord     sold-addr                                 x(30)
+oe-ord     sold-city       City                      x(15)
+oe-ord     sold-id         Sold To ID                x(8)
+oe-ord     sold-name       Name                      x(30)
+oe-ord     sold-no         Sold to                   >>9
+oe-ord     sold-state      State                     x(2)
+oe-ord     sold-zip        Zip                       x(10)
+oe-ord     stat            Order Status              x
+oe-ord     state           State                     x(2)
+oe-ord     t-comm          Total Commissions         ->>>,>>9.99
+oe-ord     t-cost          Total Cost                ->>,>>>,>>9.99
+oe-ord     t-freight       Total Freight             ->>,>>9.99
+oe-ord     t-fuel          Total Fuel                ->>,>>9.99
+oe-ord     t-inv-cost      Total Cost Invoiced       ->>,>>>,>>9.99
+oe-ord     t-inv-freight   Total Freight Invoiced    ->>,>>9.99
+oe-ord     t-inv-rev       Total Invoiced Revenue    ->>,>>>,>>9.99
+oe-ord     t-inv-tax       Total Tax Invoiced        ->,>>9.99
+oe-ord     t-inv-weight    Total Invoice Weight      >>>,>>9.99
+oe-ord     t-revenue       Total Revenue             ->>,>>>,>>9.99
+oe-ord     t-weight        Total Weight              >>>,>>9.99
+oe-ord     tax             Tax                       ->,>>9.99
+oe-ord     tax-gr          Sales Tax Group           x(3)
+oe-ord     terms           Terms Code                x(5)
+oe-ord     terms-d         Description               x(24)
+oe-ord     tot-ord         Total Order               ->>,>>>,>>9.99
+oe-ord     type            Type                      X
+oe-ord     under-pct       Underrun %                >>9.99%
+oe-ord     upd-date        Updated Date              99/99/9999
+oe-ord     upd-time        Updated Time              ->,>>>,>>9
+oe-ord     updated-date    Updated Date              99/99/99
+oe-ord     updated-id      Updated by                X(8)
+oe-ord     user-id         ?                         x(8)
+oe-ord     zip             Zip Code                  x(10)
+
+Line item table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+oe-ordl    adder           Adder Code                x(10)
+
+*** Order Entry File Field Definition ***           As of  12/27/05  Page:   3
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+oe-ordl    blank-no        BLANK                     >9
+oe-ordl    cas-cnt         Case Count                >>>>9
+oe-ordl    cases           Number of Cases Shipped   ->>>,>>Z
+oe-ordl    cases-unit      Cases/Bundles per Unit    >>9
+oe-ordl    company         Company                   x(3)
+oe-ordl    cost            Costs                     ->>>,>>>,>>9.99
+oe-ordl    cust-no         Customer                  x(8)
+oe-ordl    d-score         Depth Score               >>>>>9.99<<<<
+oe-ordl    deleted         Deleted?                  Y/N
+oe-ordl    disc            Discount                  (>>>,>>9.99)
+oe-ordl    e-num           Estimate Number           >>>>>9
+oe-ordl    est-no          Estimate #                x(5)
+oe-ordl    est-type        Type                      9
+oe-ordl    fixoh           Fixed OH                  ->>>,>>9.99
+oe-ordl    flute           Flute                     x(3)
+oe-ordl    form-no         FORM                      >9
+oe-ordl    ftick-prnt      Factory Ticket Printed    yes/no
+oe-ordl    i-dscr          Item Description          x(30)
+oe-ordl    i-name          Name                      x(30)
+oe-ordl    i-no            Item#                     x(15)
+oe-ordl    inv-qty         Invoice Quantity          ->>,>>>,>>9.99
+oe-ordl    is-a-component  ?                         yes/no
+oe-ordl    j-no            Internial Job Number      >>>>>>9
+oe-ordl    job-no          Job Number                x(6)
+oe-ordl    job-no2         Run #                     >9
+oe-ordl    job-start-date  Run Start Date            99/99/9999
+oe-ordl    job-start-time  Run Start Time            ->,>>>,>>9
+oe-ordl    l-score         Length Score              >>>>>9.99<<<<
+oe-ordl    lab             Labor                     ->>>,>>9.99
+oe-ordl    line            Line                      99
+oe-ordl    matl            Material                  ->>>,>>9.99
+oe-ordl    opened          ?                         Open/Closed
+oe-ordl    ord-no          Order#                    >>>>>9
+oe-ordl    pal-chg         Pallet Charge             X
+oe-ordl    pal-i-no        Pallet RM Item#           x(10)
+oe-ordl    part-dscr1      Item Description          x(30)
+oe-ordl    part-dscr2      Item Description          x(30)
+oe-ordl    part-dscr3      Item Description          x(30)
+oe-ordl    part-no         Cust Part #               x(15)
+oe-ordl    partial         ?                         >>>,>>9
+oe-ordl    po-no           Cust PO#                  x(15)
+oe-ordl    po-no-po        Board PO #                >>>>>9
+oe-ordl    pr-uom          Purchased UOM             x(4)
+oe-ordl    price           Price                     >>,>>>,>>9.99<<<<
+oe-ordl    prom-code       Prom. Date Code           XX
+oe-ordl    prom-date       Prom. Date                99/99/9999
+oe-ordl    qty             Quantity                  ->>,>>>,>>9.9<<
+oe-ordl    qty-on-bo       Quantity BO               ->>,>>>,>>9.9<<
+oe-ordl    ra-inv-no       RA Invoice#               >>>>>9
+oe-ordl    ra-no           RA #                      >>>>>9
+oe-ordl    rec_key         Rec Key                   X(20)
+oe-ordl    rel-qty         Release Quantity          ->>,>>>,>>9.99
+oe-ordl    rel-stat        Release Status            yes/no
+oe-ordl    req-code        Req. Date Code            XX
+oe-ordl    req-date        Req. Date                 99/99/9999
+
+*** Order Entry File Field Definition ***           As of  12/27/05  Page:   4
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+oe-ordl    req-time        Req. Time                 >>>>9
+oe-ordl    s-comm          Commission Pct            >>9.99
+oe-ordl    s-man           Salemsman                 x(3)
+oe-ordl    s-pct           Pct of Sale               >>9.99
+oe-ordl    score           Score                     >9.99999
+oe-ordl    set-hdr-line    Line                      99
+oe-ordl    setup           Setup Charge              >>,>>9.99
+oe-ordl    sheet-len       Sheet Length              >9.99999
+oe-ordl    sheet-wid       Sheet Width               >9.99999
+oe-ordl    ship-i          Special Instructions      x(60)
+oe-ordl    ship-qty        Shipped Quantity          ->>,>>>,>>9.99
+oe-ordl    stack-code      Stacking Code             x
+oe-ordl    stat            Order Line Status         x
+oe-ordl    style           Style Code                x(6)
+oe-ordl    t-cost          ?                         ->>,>>>,>>9.99
+oe-ordl    t-dep           Depth                     >>>>9.99<<<
+oe-ordl    t-freight       Total Freight             ->>,>>9.99
+oe-ordl    t-freight-p     ?                         ->>,>>>,>>9.99
+oe-ordl    t-fuel          Total Fuel                ->>,>>9.99
+oe-ordl    t-inv-pallets   Total Pallets             >>>9
+oe-ordl    t-inv-qty       Total Invoiced            ->>,>>>,>>9.99
+oe-ordl    t-inv-weight    Total Invoice Weight      >>>,>>9.99
+oe-ordl    t-len           Length                    >>>>9.99<<<
+oe-ordl    t-price         ?                         ->>,>>>,>>9.99
+oe-ordl    t-rel-qty       Total Quantity Released   ->>,>>>,>>9.99
+oe-ordl    t-ship-qty      Total Quantity Shipped    ->>,>>>,>>9.99
+oe-ordl    t-weight        Total Weight              >>>,>>9.99
+oe-ordl    t-wid           Width                     >>>>9.99<<<
+oe-ordl    tax             ?                         Y/N
+oe-ordl    test            Test                      x(6)
+oe-ordl    type-code       Type Code                 X(5)
+oe-ordl    unit-count      Unit Count                >>>,>>9
+oe-ordl    units-pallet    Units per Pallet          >9
+oe-ordl    upd-date        Updated Date              99/99/9999
+oe-ordl    upd-time        Updated Time              ->,>>>,>>9
+oe-ordl    user-id         ?                         x(8)
+oe-ordl    varoh           Variable OH               ->>>,>>9.99
+oe-ordl    vend-no         Vendor                    x(8)
+oe-ordl    w-score         Width Score               >>>>>9.99<<<<
+
+Misc. Line item table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+oe-ordm    actnum          Account No                x(25)
+oe-ordm    amt             Amount                    ->>>,>>9.99
+oe-ordm    bill            Bill                      X
+oe-ordm    charge          Charge                    x(20)
+oe-ordm    commbasis       Basis                     X
+oe-ordm    company         Company                   x(3)
+oe-ordm    cost            Cost                      ->>,>>>,>>9.99
+oe-ordm    deleted         Deleted?                  Y/N
+oe-ordm    dscr            Description               x(20)
+oe-ordm    eqty            Qty                       ->>,>>9.99
+oe-ordm    est-extent      ?                         ->,>>>,>>9
+oe-ordm    est-line        Line #                    >9
+
+*** Order Entry File Field Definition ***           As of  12/27/05  Page:   5
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+oe-ordm    est-no          Estimate #                x(5)
+oe-ordm    line            Line                      >9
+oe-ordm    ord-i-no        Order Line Item           x(15)
+oe-ordm    ord-line        Order Line                >9
+oe-ordm    ord-no          Order#                    >>>>>9
+oe-ordm    posted          Posted                    y/n
+oe-ordm    prep-type       Prep Type                 ->,>>>,>>9
+oe-ordm    rec_key         Rec Key                   X(20)
+oe-ordm    s-comm          Commission Pct            >>9.99
+oe-ordm    s-man           Salemsman                 x(3)
+oe-ordm    s-pct           Pct of Sale               >>9.99
+oe-ordm    tax             Tax                       Y/N
+oe-ordm    upd-date        Updated Date              99/99/9999
+oe-ordm    upd-time        Updated Time              ->,>>>,>>9
+
