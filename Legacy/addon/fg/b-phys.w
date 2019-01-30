@@ -1846,14 +1846,14 @@ PROCEDURE valid-job-no :
 
     IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
       FIND FIRST job-hdr
-          WHERE job-hdr.company EQ fg-rctd.company
+          WHERE job-hdr.company EQ g_company
             AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
             AND job-hdr.i-no    EQ fg-rctd.i-no:SCREEN-VALUE
           NO-LOCK NO-ERROR.
       IF NOT AVAIL job-hdr THEN DO:
 
          IF fg-rctd.i-no:SCREEN-VALUE = "" THEN DO:
-            FIND FIRST job-hdr WHERE job-hdr.company EQ fg-rctd.company
+            FIND FIRST job-hdr WHERE job-hdr.company EQ g_company
                          AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE NO-LOCK NO-ERROR.
             IF NOT AVAIL job-hdr THEN do:
                MESSAGE "Invalid Job#. Try Help..." fg-rctd.i-no:SCREEN-VALUE VIEW-AS ALERT-BOX ERROR.
@@ -1871,7 +1871,7 @@ PROCEDURE valid-job-no :
                               AND reftable.code     EQ STRING(job-hdr.job,"999999999")
                               AND reftable.code2    EQ fg-rctd.i-no:SCREEN-VALUE NO-ERROR.
              IF NOT AVAIL reftable THEN DO:
-                MESSAGE "Invalid Job#. Try Help..." fg-rctd.i-no:SCREEN-VALUE VIEW-AS ALERT-BOX ERROR.
+                MESSAGE "Invalid Job# for set component. Try Help..." fg-rctd.i-no:SCREEN-VALUE VIEW-AS ALERT-BOX ERROR.
                 RETURN ERROR.
              END.
          END. /* components */
@@ -1902,7 +1902,7 @@ PROCEDURE valid-job-no2 :
 
     IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
       FIND FIRST job-hdr
-          WHERE job-hdr.company EQ fg-rctd.company
+          WHERE job-hdr.company EQ g_company
             AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
             AND job-hdr.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE)
             AND job-hdr.i-no    EQ fg-rctd.i-no:SCREEN-VALUE
