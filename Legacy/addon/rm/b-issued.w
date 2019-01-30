@@ -293,7 +293,7 @@ DEFINE BROWSE Browser-Table
       rm-rctd.rct-date COLUMN-LABEL "Issue Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
       rm-rctd.po-no FORMAT "x(6)":U LABEL-BGCOLOR 14
-      rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U LABEL-BGCOLOR 14
+      rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U LABEL-BGCOLOR 14
       rm-rctd.job-no2 FORMAT "99":U
       rm-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(10)":U LABEL-BGCOLOR 14
       rm-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
@@ -928,9 +928,18 @@ DO:
    DEF VAR v-single-job AS LOG INIT TRUE NO-UNDO.
    DEF VAR v-job-no-2 AS INT INIT -1 NO-UNDO.
    DEF VAR v-job-no AS CHAR NO-UNDO.
+   DEFINE VARIABLE cJobNo AS CHARACTER NO-UNDO .
 
    IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN
    DO:
+       IF SELF:MODIFIED THEN DO:
+           IF LENGTH(SELF:SCREEN-VALUE) > 6 THEN DO:
+               
+               cJobNo = SELF:SCREEN-VALUE.
+               ASSIGN rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(cJobNo,1,6)
+                   rm-rctd.job-no2:SCREEN-VALUE = SUBSTRING(cJobNo,8,10).
+           END.
+       END.
       ASSIGN gv-job-no = trim(rm-rctd.job-no:SCREEN-VALUE) /* stacey */
              gv-job-no2 = INTEGER(rm-rctd.job-no2:SCREEN-VALUE)
              gv-item-no = rm-rctd.i-no:SCREEN-VALUE /* stacey */
