@@ -36,6 +36,7 @@ DEFINE VARIABLE gcFile AS CHARACTER NO-UNDO.
 DEF VAR lv-print-img AS LOG NO-UNDO.
 DEFINE VARIABLE cCertFormat AS CHARACTER NO-UNDO .
 DEF VAR cBolcert-char AS CHAR FORMAT "X(200)" NO-UNDO.
+DEFINE VARIABLE lChackNotes AS LOGICAL NO-UNDO .
 
 DEFINE NEW SHARED TEMP-TABLE tt-filelist
     FIELD tt-FileCtr         AS INT
@@ -338,7 +339,8 @@ FOR EACH report
                 WHERE style.company EQ eb.company
                   AND style.style EQ eb.style
                 NO-LOCK NO-ERROR.
-            /*build inks and coating*/
+            /*build inks and coating*/ 
+           IF eb.est-type GE 1 AND eb.est-type LE 4 THEN do:
             IF eb.i-col > 0 OR eb.i-coat > 0 THEN 
                 DO iInkCount = 1 TO EXTENT(eb.i-code2):
                     IF eb.i-code2[iInkCount] NE "" THEN DO:
@@ -354,6 +356,25 @@ FOR EACH report
 
                     END. /*eb.i-code2[inkCount] ne ""*/
                 END. /*do iInkCount*/
+           END.
+           ELSE DO:
+               IF eb.i-col > 0 OR eb.i-coat > 0 THEN 
+                DO iInkCount = 1 TO EXTENT(eb.i-code2):
+                    IF eb.i-code[iInkCount] NE "" THEN DO:
+                        FIND FIRST ITEM 
+                            WHERE ITEM.company EQ cocode
+                              AND ITEM.i-no EQ eb.i-code[iInkCount]
+                            NO-LOCK NO-ERROR.
+                        IF AVAIL ITEM THEN
+                            IF ITEM.mat-type EQ "I" THEN 
+                                cInks = cInks + eb.i-dscr[iInkCount] + ",".
+                            ELSE 
+                                cCoating = cCoating + eb.i-dscr[iInkCount] + ",".
+
+                    END. /*eb.i-code2[inkCount] ne ""*/
+                END. /*do iInkCount*/
+
+           END.
                 
         END. /*avail eb*/
 
@@ -394,16 +415,28 @@ FOR EACH report
             gchWorkSheet:Range("B9"):VALUE = IF AVAIL shipto THEN shipto.ship-city ELSE cust.city
             gchWorkSheet:Range("B10"):VALUE = IF AVAIL shipto THEN shipto.ship-state ELSE cust.state
             gchWorkSheet:Range("B11"):VALUE = IF AVAIL shipto THEN shipto.ship-zip ELSE cust.zip
-            gchWorkSheet:Range("B12"):VALUE = IF AVAIL fgcat THEN fgcat.dscr ELSE ""
-            gchWorkSheet:Range("B13"):VALUE = itemfg.part-no
+            gchWorkSheet:Range("B12"):VALUE = IF AVAIL fgcat THEN fgcat.dscr ELSE "" .
+
+            IF cCertFormat EQ "CCC3" THEN
+                gchWorkSheet:Range("B13"):VALUE = string(itemfg.i-no + " - " + itemfg.part-no) .
+            ELSE IF cCertFormat NE "CCC3" THEN
+                gchWorkSheet:Range("B13"):VALUE = itemfg.part-no .
+
+        ASSIGN
             gchWorkSheet:Range("B14"):VALUE = IF AVAIL eb THEN eb.spc-no ELSE ""
             gchWorkSheet:Range("B15"):VALUE = IF AVAIL style THEN style.dscr ELSE ""
             gchWorkSheet:Range("B16"):VALUE = cCoating
             gchWorkSheet:Range("B17"):VALUE = IF AVAIL eb THEN eb.part-dscr1 ELSE ""
             gchWorkSheet:Range("B18"):VALUE = string(cBoard,"x(30)")
             gchWorkSheet:Range("B19"):VALUE = STRING(dWeight)
-            gchWorkSheet:Range("B20"):VALUE = cInks
-            gchWorkSheet:Range("B21"):VALUE = IF AVAIL eb THEN eb.adhesive ELSE ""
+            gchWorkSheet:Range("B20"):VALUE = cInks .
+
+            IF cCertFormat EQ "CCC2" AND AVAIL eb AND eb.adhesive EQ "Glue" THEN 
+                gchWorkSheet:Range("B21"):VALUE = IF AVAIL eb THEN eb.adhesive ELSE "" .
+            ELSE IF cCertFormat NE "CCC2" THEN
+                gchWorkSheet:Range("B21"):VALUE = IF AVAIL eb THEN eb.adhesive ELSE "" .
+
+         ASSIGN
             gchWorkSheet:Range("B22"):VALUE = STRING(oe-bolh.bol-date)
             gchWorkSheet:Range("B23"):VALUE = itemfg.prod-no
             gchWorkSheet:Range("B24"):VALUE = STRING(xCaseCountFull)
@@ -415,10 +448,28 @@ FOR EACH report
             gchWorkSheet:Range("B30"):VALUE = STRING(xCaseCountTail)
             gchWorkSheet:Range("B31"):VALUE = STRING(xQtyPerCaseTail)
 /*             gchWorkSheet:Range("B32"):VALUE = "Calculated" */
-            gchWorkSheet:Range("B33"):VALUE = STRING(oe-bolh.tot-pal).
+            gchWorkSheet:Range("B33"):VALUE = STRING(oe-bolh.tot-pal) .
+           IF cCertFormat EQ "CCC5"  THEN 
+            gchWorkSheet:Range("B34"):VALUE = IF AVAIL eb THEN STRING(eb.num-wid) ELSE "".
+         
+           IF AVAIL eb THEN
+               FIND FIRST prodl NO-LOCK
+               WHERE prodl.company EQ cocode AND
+               prodl.procat EQ eb.procat NO-ERROR .
+           ELSE RELEASE prodl .
+
+           IF AVAIL prodl AND prodl.prolin EQ "Cartons" AND cCertFormat EQ "CCC4" THEN 
+               gchWorkSheet:Range("B35"):VALUE = "Yes".
+           ELSE IF cCertFormat EQ "CCC4"  THEN
+                gchWorkSheet:Range("B35"):VALUE = "N/A".
 
         /*Get Notes*/
         iNoteLine = 1.
+
+        IF AVAIL prodl AND (prodl.prolin EQ "Labels" OR prodl.prolin EQ "Printed Literature")
+             AND cCertFormat EQ "CCC4"  THEN lChackNotes = TRUE .
+        
+        IF NOT lChackNotes THEN
         FOR EACH notes 
             WHERE notes.rec_key EQ cust.rec_key
               AND notes.note_code EQ "CA"
@@ -502,12 +553,17 @@ FOR EACH report
     LEAVE .
  END.
 
-IF cCertFormat EQ "CCCWPP"  THEN
-    cTemplateFile = "template\WPPBOLCert.xlt".
-ELSE IF cCertFormat EQ "CCCW" THEN
-    cTemplateFile = "template\CCWBOLCert.xlt".
-ELSE
-    cTemplateFile = "template\CCCBOLCert.xlt". 
+
+ IF cCertFormat EQ "CCC" OR cCertFormat EQ "CCC3" THEN
+     cTemplateFile = "template\CCCBOLCert.xlt". 
+ IF cCertFormat EQ "CCC2"  THEN
+     cTemplateFile = "template\CCC2BOLCert.xlt". 
+ IF cCertFormat EQ "CCC4"  THEN
+     cTemplateFile = "template\CCC4BOLCert.xlt". 
+ IF cCertFormat EQ "CCC5"  THEN
+     cTemplateFile = "template\CCC5BOLCert.xlt". 
+ IF cCertFormat EQ "CCCWPP"  THEN 
+     cTemplateFile = "template\WPPBOLCert.xlt".
 
 /* Connect to the running Excel session. */
 CREATE "Excel.Application" gchExcelApplication CONNECT NO-ERROR.
