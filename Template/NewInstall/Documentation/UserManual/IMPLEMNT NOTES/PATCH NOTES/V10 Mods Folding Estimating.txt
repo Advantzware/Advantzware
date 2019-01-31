@@ -1,0 +1,1178 @@
+01/11/2010             Advanced Software Services, Inc.              12:00 PM
+              Completed By Date & Programmer    Customer Report      Page:   1
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+         12050703 E Explained to BJ how to copy estimate files in DOS
+C-E- -   12100803 E N-K CERunC / CERunF = Fibre (New Factory Markup %)   (See Attached)
+                    E-F-Print Folder 
+                    Calculate Button 
+                    Select Override GS&A Override and GS&A
+                    GS&A Override Screen.
+                    Must be added to all four estimate types for both Corrugated and Folding.
+                    
+                    New Factory Markup  _____ %  field on the Override Screen. (See Attachment)
+                    They will enter percentage that will be saved for this estimate if recalculated.
+                    The percentage will be multiplied by TOTAL FACTORY COST, exactly as warehousing percentage is cal
+                    culated.  The Markup Percentage will print below warehousing.
+                    Hence, if warehouse percentage is 10% and Markup% is 10%, they will be same dollar value.
+                    Estimate will show Factory Markup.
+                    
+                    This will add to FULL Cost and is used in Margin, Commision and Sell Price Calculation.
+                    All estimate types.
+                    CHANGES:
+                    
+                    2) USE TWO DIFFERENT NAMES FOR THIS NEW FIELD AS FOLLOWS:
+                    	A) FOLDING ESTIMATES USE - FOLD %
+                    	B) CORRUGATED ESTIMATES USE - BROKER %
+                    
+                    3) DEFAULT AS FOLLOWS WITH OPTION TO REMOVE OR CHANGE IF NECESSARY:
+                    	A) FOLDING ESTIMATES DEFAULT TO 5%
+                    	B) CORRUGATED ESTIMATES DEFAULT TO 0
+                       ESP - Added two new default fields to Cost Estimate Control.
+                    
+                    
+                    
+E- - -   01190701 E COPY Button on MISC folder
+                    Add new COPY button for both Folding & Corrugated estimating.  The copy feature on this miscellan
+                    eous page would allow copy of a Misc / Subcontract cost to many forms for tandem, sets and combo 
+                    estimates.  This would work similar to the COPY FILM button on the layout screen.
+E- - -   03110903 E Commission Calculation (Additional Hrs @ $100/Hr per Task 08250811)
+                    See Attached.  (Similar to Task  03030910 )
+                    Estimate was calculated twice.  
+                    The first calculation shows a commission of 4% sell price $44,266.  
+                    The second calculation price was changed to on the item screen .
+                    The total selling price for the estimate goes to a sell price of $44,268 and the commission goes 
+                    down to 3.8%.  
+                    How is that possible?  
+                    Since the sell price is now a couple $$ higher, the commission should stay the same or increase s
+                    lightly.
+E- - -   05020801 E Change Salsmn to Sales Rep on Spec Folder 10
+                    Change Salesman, salesmn throughout system.
+                    Menus will be changed by Joe and Craig.
+                    Estimate Spec Folder from Slsmn to Sales Rep
+                    AR File Maintenance, Sales Commission Brows Salesmand to Brsws Sales Rep.
+                    AR File Maintenance, Customer File change Salesman to Sales Rep
+                    Order Entry from Salesman to Sales Rep on Header and Line Item
+                    Order Report - O-R-4  Print Selection, Report Heading and Report Column
+                    Sales History - HC Print Selection from Salesman to Sales Rep
+                    Sales History - HT Totals, Print Selection, Report Heading and Report Column
+                    Sales History - HW $/MSF, Print Selection, Report Heading and Report Column
+E- - -   06040922 E Do not create FG with category of "D"isplay
+                    They had a mod done a while back (Jeff did the Mod) where when they have the catgeory of "DSPLC" 
+                    they had wanted the FG to get created with the first character being a "D".  They no-longer want 
+                    that to use a "D".
+                    This should go back to using a "C" for Corrugated and a "F" for folding even though the category 
+                    is DSPLC. 
+                    This just needs to be commented out of the code.
+E- - -   06210702 E Customer code should not be updated if Order Number Exists
+                    Esitmate with order numbers should not allow changing the customer code in both estimating.
+E- - -   07310905 E Search in estimating to lookup by exact search only.
+                    Entering a die number will automatically add an  asterisk (*) to the end of the item being entere
+                    d.  This will search all items begining with the characters entered.  To do an exact search remov
+                    e the (*) this will search only those items matching the characters entered.  Entering an asteris
+                    k before the characters will search any items that have those characters entered anywhere in the 
+                    field.
+E- - -   08090702 E Copy Freight Button for Estimating INK/PACK folder
+                    See Attachments for New COPY Button.
+                    New COPY Icon will provide Toggle Box to
+                    Copy Ink
+                    Copy Pack/Case
+                    Copy Freight
+                    
+                    This will allow copy all at once or just one specific type. 
+E- - -   08120912 E Prep and Die file to round up to nearest $5.00 CEPREP FiveDollar
+                    Add Char Value FiveDollar to N-K-1 CEPREP to round to the nearest $5.00 increment.
+01/11/2010             Advanced Software Services, Inc.              12:00 PM
+              Completed By Date & Programmer    Customer Report      Page:   2
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    When calculating an estimate and in order entry (will show in o/e if separate charge ) if the pre
+                    p file calculates to 
+                    $80.01 show $85.00
+                    $82.00 show $85.00
+                    $86.00 show $90.00.
+                    
+                    FiveDollar option has to work both in folding and corrugated estimates and should work for any SI
+                    MON value.  Similar logic to how CEPREP works now in corrugated.
+E- - -   08170902 E Routing Folder -  MR and Run Crew Size (See Attached)
+                    Column without Label is the Crew Run Size.
+                    Add Label called Crew.
+                    
+                    This imports from the Machine File Matrix for the RUN crew.
+                    The MR and RUN crew size is multiplied by the Direct Labor Cost in the Machine File to calculate 
+                    the estimate cost.
+E- - -   08180903 E MOVE button to become ICON
+                    Estimate Folding  (See Attached)
+                    Estimate Corrugated
+                    A-F-1
+                    O-U-1
+                    
+E- - -   08250811 E N-K CERUN = Fibre Whatif to Show Commission by Margin (Attached)  $100
+                    N-K-1 CeRunF = Fibre and N-K-1 CeRunC = Fibre.
+                    Add Comm% to the Whatif Browser to all estimating options.
+                    The Gross% will be replaced to show the Commission % that was calculated.
+                    Whatif button will disable the commission so it can't be changed.  
+                    This will only work for margin commissions that Fibre runs.
+                    
+                    
+                    Please Note
+                    Additional mods may be needed for order processing, invoicing and commission reports.
+                    Originally quoted at $5,000 but they opted to pay at $100 per hour.
+E- - -   08260907 E Prep and Die file to round up to nearest $5.00 CEPREP FiveDollar Marku
+                    It needs to round the final price up to the nearest $5.00.  If they enter a markup% or amortizati
+                    on, it needs to take that into consideration also. 
+                    
+                    Original task 08120912:
+                    
+                    Add Char Value FiveDollar to N-K-1 CEPREP to round to the nearest $5.00 increment.
+                    When calculating an estimate and in order entry (will show in o/e if separate charge ) if the pre
+                    p file calculates to 
+                    $80.01 show $85.00
+                    $82.00 show $85.00
+                    $86.00 show $90.00.
+                    
+                    FiveDollar option has to work both in folding and corrugated estimates and should work for any SI
+                    MON value.  Similar logic to how CEPREP works now in corrugated.
+E- - -   08310908 E Rounding to nearest $5. Should not round the cost.  **INV**
+                    The cost that is being entered should not round.  This should take the cost they enter, times the
+                     markup if there is one and get a total.  The total should round to the nearest $5.00.
+                    
+                    Material and Labor should show Amount * Qty not rounded.
+E- - -   09060701 E Adding Corrugated and Folding estimate, F1 on Customer Code
+                    When adding an item or new estimate, press F1 on the customer code.
+                    Add new column "salesman name" to the customer lookup browser.
+                    This will work when adding new estimate or add button for adding new form or blank.  They would l
+                    ike the salesman name added after the customer name.
+E- - -   09250903 E PRINT Folder - Item Button to use arrow down to change price
+                    Both Folding and Corrugated estimates
+                    Be able to change the price on the item screen of an estimate by arrowing down from one price to 
+                    the next.  
+                    (This should work similarly to how we can change the FG file history screen)
+                    Problem is now if they have 20 items on an estimate, and they need  to change the prices individu
+                    ally, they have to do an update save, then arrow down or click on the next item. 
+                    
+                    Had to make a separate button which launches a separate screen. Progress does not allow you do it
+                     on the current browser we have.
+E- - -   10020705 E N-K CeFGItem will make FG items that are inactive RED on estimate
+                    Logical Value = YES.  Will turn the color of the finished goods item code to RED when the item in
+                     the FG file is marked as inactive.  Change the FG number in both folding and Corrugated estimate
+                    s to RED.  This would need to be changed on the Browser, Estimate and Specs folders.
+                    
+                    See Attached
+E- - -   10200903 E Conference Call training on-line
+E- - -   10250701 E N-K CeRunF and N-K CeRunC = Fibre to Print Avail Margin $ After Sell P
+                    See the attached PDF  (Add new Row on Report if needed call Margin Cost)
+                    Margin Cost will not include Commission.
+                    They want Whatif Calculation to be: 
+                    Sell Price = Full Cost without Commission / (1-Margin/100)
+                    Also, add/move Available Margin & Percent before sell price.
+01/11/2010             Advanced Software Services, Inc.              12:00 PM
+              Completed By Date & Programmer    Customer Report      Page:   3
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Available Margin dollars = Sell Price - Full Cost - Commission
+                    For Example.
+                    Full Cost less commission = $460. Assume 40% margin finds 4% commission.
+                    If they want 40% margin then Sell Price is $ 766.6666
+                    Full Cost w/o Coomm is $460, Commission = $ 262, Net Profit = $2,360.
+                    
+                    The What If analysis, change the Margin and recalculate a new sales price.  Likewise, if they ent
+                    er a sales price, the system will subtract Margin Cost to equal Margin Dollars.  
+                    Margin Dollars / Sell Price = Margin Percent which finds Commmission Percent.
+                    
+                    Therefore on  What If screen, changing margin should change sell price and Net %. Changing Sell P
+                    rice should change Net% and Margin %.
+                    
+                     
+                    
+E- - -   10260702 E N-K CeRunF = ASI & Fibre & CeRunC = Fibre & ASI, to Print customer cod
+                    Add the customer code to right of Estimate # to folding and corrguated estimates.  
+                    N-K CeRunF = Fibre
+                    N-K CeRunF = ASI 
+                    CeRunC = Fibre 
+                    CeRunC = ASI
+                    
+                    
+E- - -   10270808 E N-K CEBOARD?    Prompt when LAYOUT Folder Cost has been Entered
+                    N-K-1 CEBoard?   Prompt to Override Board Cost and Use Vendor Cost?
+                    Logical Value = NO will not prompt and will use the Cost on Layout Folder.
+                    Logical Value = Yes will prompt when only when a vendor is selected and there is a cost on the la
+                    yout screen (not zero).
+                    
+                    On Layout Folder, the estimator can add a special board cost.
+                    Print Folder, Calculate Button, 
+                    If there is a board cost on the layout screen and you pick a Vendor, you will get this message, 
+                             "Special Board Cost was Entered on Layout Folder" 
+                               VENDOR Cost will override Special Cost
+                    
+                    Use vendor cost that gets used when cost is 0.
+                     
+                    
+                    On Layout Folder, the estimator can add a special board cost, but select Blank Vendor.
+                    Print Folder, Calculate Button, 
+                    If board cost on the layout screen and you pick the BLANK VENDOR, 
+                    the Special Cost on Layout Folder will be used and there will be no Prompt.
+                    
+E- - -   10310605 E Copy Forms POPUP  to Copy Freight, Cad, Box Design, Die
+                    Copy Button on Estimate Folder.  The SAVE Button will prompt to copy the following:
+                    Shipto?
+                    Cad# ?
+                    Die# ?
+                    Image ?
+                    Layout?
+                    Case?  
+                    Pallet?
+                    Freight?  
+                    Inks?
+                    Box Design?
+                    
+                    
+E- - -   11010712 E N-K CERunF = ASI  To Print User IDs
+                    Rearrange estimate print out to include user ID added, updated and printed the estimate.
+                    The spec folder houses the ID for Created By and Updated By.
+                    The Print Folder houses the ID called Probed By.
+                    Print all three IDs on the ASI printout for Single Item, Sets, Tanden and Combo estimates.
+                    
+                    Change 1st Line
+                    Estimate# 5969                          Salesman: Salesman 002
+                    
+                    to print
+                    
+                    Estimate# 999999  Cust#     SRep: Salesmand 002    Added:   JRH    Upd : JRH   Probe: JRH
+                    
+E- - -   11020604 E Print / Calculate button to have NEW Board Markup %
+                    Currently, the GS&A is the only markup for material including board.
+                    When clicking the Override button, a new field called Board Markup%
+                    Add separate field called Board Markup %.  For each quantity, this may be a separate markup for e
+                    ach quantity.  The board markup will transfer from the GS&A, but may be changed and saved for eac
+                    h estimate quantity.
+                    
+                    Please note, The GS&A will no longer markup board if the Board Markup is greater than ZERO.
+E- - -   11090704 E Flat Commission Percentage for Commission by Margin Salesman
+                    If salesman commission basis is MARGIN then the commission percentage will have the following pri
+01/11/2010             Advanced Software Services, Inc.              12:00 PM
+              Completed By Date & Programmer    Customer Report      Page:   4
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    ority for transferring to the estimate spec folder.
+                    
+                    First, if FLAT COMM% in customer file is greater than 0, then that is the Specs commission %.
+                    
+                    Second, if FLAT COMM% = zero, then the Customer Markup = Margin on the Matrix. 
+                    The program will find the available margin percentage in the salesman matrix and transfer the com
+                    mission% for that margin from the salesman's matrix to the spec file. 
+                    If Custer Markup is 13% , the comission will be next lower margin = 4%
+                    If customer markup is 20% the commission is 6%
+                    Margin 05%   Commission 3%
+                    Margin 10%   Commission 4%
+                    Margin 15%   Commission 5%
+                    Margin 20%   Commission 6%
+                    
+                    Corrugated and Folding estimates
+                    
+                    
+                    
+E- - -   12040604 E N-K CeRunC = Fibre Whatif Columns = Comm%,  Commission by Margin  (See
+                    New N-K-1 CERUNF and CERUNC = Fibre.
+                    This will run both estimates as Logic based on sample of Excel calculating.  System will calculat
+                    e commission based on Margin or they will enter Margin and system will import commission. Then ca
+                    lculate Commission. 
+                    
+                    A-F-3 new drop down will show MARGIN in addition to Sell Price and Gross Profit. When Salesman Co
+                    mmission  by Margin CHECKED, then the Product Category must be BLANK for all margins. Maintenance
+                     will SKIP the product category when adding commissions.  
+                    
+                    DB Donee:  Comm% 999.99, Sell Price without Comm 99,999,999.99, Market Sell Price 99,999,999.99. 
+                    DB change was for Two Sell Prices so use one sell price and call this MARGIN.  This will allow en
+                    tering the margin percentage to find the commission %, then calculate the Sell Price.  
+                    
+                    Current Sell Price includes commission and moves to the quote.  
+                    
+                    
+E-B- -   01160806 E N-K CEWhatif = PerMSF Corrugated Style SqFoot Inch Markup for Use on W
+                    When N-K-1 CEWhatif character value is PerMSF, the Sell Price is calculated based on the MSF of t
+                    he estimate.   They want to add a markup for trim / waste to the MSF calculation to be multiplied
+                     by the Sell Price per MSF defined in the Customer Pricing Matrix folder by Style and MSF.
+                    
+                    Corrugated Style Formula new integer fields  
+                    Width  9.99 and Length 9.99 will allow adding trim to the square inche calculation for Sell Price
+                     Calculation Only.   Hence they could add 1.02 for 1-2/16 inches to the width and .08 for 8/16 in
+                    ches to the length.  Hence if the style file would calculate a different MSF total if either fiel
+                    d were greater then zero.
+                    
+                    No other MSF calculations would use the new trim/waste fields.
+                    
+                    Lastly, the WHATIF button shows the Price per MSF so that he can override this number.
+                    Add new field that will display ONLY called 
+                    MSF w/Trim  (This is the Sheet Width + Trim X Sheet Length + Trim)  
+                    
+                    This was version 10.   Version 5 will require Temp Fields.
+                    Version 10 will automatically transfer the data in the style file when they access the style file
+                    
+E-B- -   06050704 E Prep File to support decimal blank and die size
+                    The only dimensions that I can enter are .01 to .15 for 16ths.
+                    Demimals are needed for folding estimates.   The estimate type on the prep file should dictate th
+                    e decimal display.   Folding should always be in decimals.
+                    Corrugated should be either 16th's or 32nd's depending on CECScreen.
+E-B- -   12010511 E Field for scheduled machine and gang jobs
+                    Change software to use the new database field in place of Ref Table field in the machine file cal
+                    led gang jobs. 
+E-B-1-   01020704 E Machine File Parameters reverse on Blank Fed Machines
+                    The machine file reverses the labels for blank fed equipment.
+                    Stop reversing the lables for now. In both folding and corrugated industry, the gluer runs throug
+                    h the machine the same way as the sheet fed machines.  They have an estimate blank size of 10.08 
+                    x 35.06.
+                    
+                    The machine routing looks at the 1st top machine dimension which is set to 11 however the label s
+                    hows side by side.  If this showed front to back this would be perfect.
+E-B-1-   02170605 E New Preventative Maint / Part File for Reordering Parts
+                    New File to work off of the Machine Code to track all machine parts and supplies for this machine
+                    .  The purpose of the modifcation is to project the reording of parts that have projected life ti
+                    mes.  For example motors and belts wear out, but the key is to have the parts available to repair
+                     the machine to minimize downtime.  The new file will tie directly with the raw materials file to
+                     utilize reorder levels.  There are no need to duplicate fields already in the raw materials file
+                    :  The new file will have the following fields.
+                    Machine Code, Raw Material (RM) Part Code, RM Part Description 1, RM Part Description 2, Model#, 
+                    Serial#, Date Purchased,  Date Installed, Company Installed, Person Installed, Total Impressions 
+01/11/2010             Advanced Software Services, Inc.              12:00 PM
+              Completed By Date & Programmer    Customer Report      Page:   5
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Run, Total Hours of Use,  Expected Life(Impressions)until Failure? 9,999,999,999 Expected Life (H
+                    ours) 999999, Expected Life (Days) 99999.
+                    
+                    This file will be linked to the raw materials code so that vendor item#, purchased UOM and Cost m
+                    ay be added.  Buttons will be added to the file to automatically create a purchase order and to c
+                    reate a Work Order to Replace the Part on the Machine.   Reports will project expected failure of
+                     parts.
+                    
+                    ESP 7/30 - (ver. 5.0 only) Let me know when this is tested so I can tell John to make changes to 
+                    the ship and other 5.0 databases.
+E-B-1-   02190802 E Add an "obsolete machine" flag in the machine file
+                    Add Field to indicate that a machine in the machine file is now obsolete.  
+                    If the machine is labeled as "obsolete" we would display a warning pop-up when someone tries to u
+                    se the machine in an estimate, rebuilds a previous job with this machine, or substitutes this mac
+                    hine in data collection or touch screen. 
+                    This would need to work for both folding and corrugated.
+                    
+                    E-F & E-C , Build, Add, Import Buttons should prompt obsolete machine, please replace.
+                    E-F & E-C, Print Folder, Calculate button, prompt obsolete machine, please replace, cannot calcul
+                    ate..
+                    E-F & E-C, Adding new estimates - do not allow machines flagged as obsolete, to get added.
+                    O-U-1 -  Add or Update order for estimate, should prompt obsolete machine, please replace.  This 
+                    will not calculate job standards with obsolete machine.
+                    J-U - if rebuilding, system should warn obsolete machince exists in job.
+                    J-U - if adding job, do not pull in obsolete machine.
+                    
+                    Obsolete machine will not allow to be used anywhere in Data Collection.
+                    D-F should prompt obsolete machine, please replace
+                    D-U should prompt obsolete machine, please replace
+                    Touch Screen -Job Data Collection, should prompt obsolete machine, please replace
+                    
+                    
+                    
+                     
+                    
+E-B-1-   02260707 E Style File, SCORES button new From Flute to Flute Option
+                    Current logic copyies all flutes from one style to another style. This now copies scores from one
+                     style to another style. Currently, if the user selects *, this will copy to all styles.
+                    
+                    New Option in the style file to copy from Flute to Flute. 
+                    New option called From Style = SAME and To Style = SAME.
+                    This will only copy all styles but only From Flute to Flute within each Style.
+                    Score allowances for DW will be copied to AB from RSC to RSC and 
+                    Score allowances for DW will be copied to AB from HSC to HSC and 
+                    Score allowances for DW will be copied to AB from FOL to FOL.
+                    Meaning, this will not copy to other styles.
+                    
+                    They have score allowances defined for DW for all styles.  This new option would allow to copy sc
+                    ore allowance from flutes such as EC,BC,AB, AC ect.
+                    They don't want to have to go into each style and add the scoring for each style and each flute. 
+                     
+                    
+E-B-1-   03050953 E Add the + ICON at top of screen
+                    Add the + ICON at top of screen which runs the same program as the ADD button on the VIEW folder.
+E-B-1-   05160702 E Feed Type P or A to change Machine Labels
+                    Feed type of "A" or "P"  will search the Set Header Width, Length and Depth for machine limitatio
+                    n.   Change Lables as follows:
+                    Change Front to Back machine limits to The Set Length
+                    Change Side to Side dimension to Set Width
+                    Change caliper min and max dimensions to Set Depth
+E-B-1-   08020708 E Machine "Parts" to be updated from production posting
+                    Posting data collection will update RUN hours as well as the number of impressions (MR Waste, RUN
+                     waste and Run Quantity).  This logic updates the machine parts file regardless of die number or 
+                    plate number.
+                    
+                    We do something similar to this for dies and plates, where we update the number of impressions on
+                     a die.  (See Old Task# 01250703).  This old task looks for a die number or plate number.
+                    
+                    ESP - Update all parts of machine, Craig ok with rounding hours since db field for # of hours is 
+                    int.
+E-B-1-   10290307 E DB: V5 Machine File METRIC ?
+                    DB Field called Metric = Y/N in database.  Add to the machine is metric, then the factory ticket 
+                    will print the box design in metric.   The estimate must change to Metric YES when the machine is
+                     Metric.
+                    
+                    Basis Weight: Convert grams per square meter to pounds per MSF.
+                    X gsm/1000 x 2.205 x 92.9 = Y lb (per msf)
+                    X= value in grams per square meter (gsm)
+                    Y = value in lbs. (nominal basis weight)
+                    2.205 lbs. = 1 kg.
+01/11/2010             Advanced Software Services, Inc.              12:00 PM
+              Completed By Date & Programmer    Customer Report      Page:   6
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    92.9 square meters = 1 msf
+                    
+                    
+                    DB:  Add DB fields to UOM file for conversions if needed.
+E-B-1-0  03050961 E Add the + ICON at top of screen
+                    Add the + ICON at top of screen which runs the same program as the ADD button on the VIEW folder.
+E-B-1-1  03050962 E Add the + ICON at top of screen
+                    Add the + ICON at top of screen which runs the same program as the ADD button on the VIEW folder.
+E-B-1-1  04210902 E Add Yellow Column Heading for Sort Options
+                    Add Yellow Column Heading for Sort Options
+E-B-1-2  03050963 E Add the + ICON at top of screen
+                    Add the + ICON at top of screen which runs the same program as the ADD button on the VIEW folder.
+E-B-1-3  03050964 E Add the + ICON at top of screen
+                    Add the + ICON at top of screen which runs the same program as the ADD button on the VIEW folder.
+E-B-1-3  07130701 E New Machine ATTACHMENT file  corrections
+                    IMPORT & BUILD Button should allow adding attachemts then add the total setup hours similar to ta
+                    ndem Plate Changes.  Likewise, the run speed should be calculated by adding the total attachment 
+                    reduction to the machine speed Run Qty +%, Caliper -% and Depth -%.  The total percentages will t
+                    hen be multiplied by the standard Run Speed.
+                    
+                    OVERRIDE, should have no effect on standards, but allow entering attachments.
+                    
+                    CALCULATE Estimate to Recalc Standards will work like Import and Build.
+                    CALCULATE Estimate with NO to Rebuild Standards will only look at Routing.
+                    
+                    1. Routing Lookup by Attachement is by Machine, sorted by Style code so that a blank style EB13, 
+                    will show all adders. 
+                    
+                    2. The adder hours should be added via BUILD, IMPORT or Caclualte with Run Speeds on the estimate
+                    . 
+                    
+                    3. E-B-13  See Attachment Above
+                       A)  Eliminate Run Hours  B)  Run Speed only requies Minus Reduction
+                       C)  Setup hours are per quantity of 1.
+E-B-1-3  12210611 E Machine ATTACHMENT file  for N-K-1 CeMenu = Corrware or Both
+                    New Table with Maintenance to Add, Delete, Update called 
+                    MACHINE ATTACHMENTS / ADDERS.   
+                    This will allow adding machine attachments to a any machine on the estimate routing screen per ma
+                    chine. They are called machine adders.  Examples are handholes, vent scores, extra cut, etc and v
+                    arious other types that will add setup time to any box style and reduce run speeds. 
+                    Fields: 
+                    company code
+                    Machine Code        Alpha 
+                    Style Code          Alpha
+                    Adder Type          Alpha (5)
+                    Adder Description   Alpha (20)
+                    Qty per Blank       99        (Example 2 handholes per box)
+                    Setup Hours per     99.9999
+                    Run Speed +/- %    (-999.99) This is percentage to adjust run speed
+                    Run Hours +/-      (-999.99) This is a hour/minute adjust to calculated time.      
+E-B-2-   03050954 E Add the + ICON at top of screen
+                    Add the + ICON at top of screen which runs the same program as the ADD button on the VIEW folder.
+E-B-2-   12120709 E Add F1 on Material Lookups
+                    F1 on each material should display material to select.
+                    This would be similar to F1 on estimate.
+                    Folding styles should only display folding materials.
+                    For example, 
+                    F1 on Board Material in Estimate folder in estimating would be same lookup  in style file.
+                    F1 on Glue Material on Spec folder in estimating would be same lookup  in style file.
+                    F1 on Ink folder in estimating would be same lookup in style file.
+                    F1 on Window/File of Layout folder in estimating would be same lookup in style file.
+E-B-2--3 12270601 E DB: Add new label fields for Tuck, DustFlap, LockTab and 5th Panel
+                    Add at least 4 new label description fields so that the label name in the style file may be chang
+                    ed.   T, B, O, F should be modifialbe field labels.
+                    When estimating, the new label field will display rather than tuck or lock tab.
+                    Hence clients can name a Tuck a Top Flap and a Billboard to Bottom Flap.
+                    
+E-B-3-   03050955 E Add the + ICON at top of screen
+                    Add the + ICON at top of screen which runs the same program as the ADD button on the VIEW folder.
+E-B-3-   04160918 E COPY Button Mod to Corrugated Style Routing (See Attached)
+                    Add new Toggle Box called 
+                    Overwrite Existing Routing Matrix?   
+                    Only When copy to a Style Different from Copy From.
+                    
+                    Unchecked is Current Logic.
+                    Current Logic will not Copy the routing if an existing Routing Exists.
+                    
+                    Checked Box / Yes will delete the COPY TO style Routing then Copy the Routing.
+                    
+                    
+01/11/2010             Advanced Software Services, Inc.              12:00 PM
+              Completed By Date & Programmer    Customer Report      Page:   7
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+E-B-4-   03050956 E Add the + ICON at top of screen
+                    Add the + ICON at top of screen which runs the same program as the ADD button on the VIEW folder.
+                    
+                    
+                    Error message (container Link) on folder 3 (Box 3D Image )  and does not go to next or previous i
+                    mage.
+E-B-5-   03050957 E Add the + ICON at top of screen
+                    Add the + ICON at top of screen which runs the same program as the ADD button on the VIEW folder.
+E-B-6-   03050958 E Add the + ICON at top of screen
+                    Add the + ICON at top of screen which runs the same program as the ADD button on the VIEW folder.
+E-B-6-   05020720 E COPY button to COPY Pallet - Wrong company for fix - Check Triad -
+                    Add toggle Box to COPY From Pallet to Pallet.
+                    Also add toggle Box to COPY line to Line, which is current logic.
+                    Hence new screen will show.
+                    
+                    From Row 99  to  Row 99
+                    Form Pallet Code XXXXXXXXXX  to Pallet Code XXXXXXXXXXX
+                    
+                    Also, add button called IMPORT XL   This will import the excel spreadsheet defined by ASI and sav
+                    ed in the GUIMANUAL\ESTIMATE\ folder.
+                    Examples are Pallet Matrix 48x40.xls and Pallet Matrix 45x45.xls which are same format.
+E-B-6-   05250722 E Add take up factor & starch cost to flute table & Update Estimate
+                    Add the following logic for Corrugator plants.  This would eliminate the "shrink factor" on the B
+                    OM screen.  The flute table now has Flute, Description, Thickness, & SW/DW/TW. 
+                    Please add:
+                    Flute take-up, Reg Starch, WP (water proof) Starch and Other Starch as follows:
+                    Sample:
+                    Flute   Descr    Thickness   SW/DW/TW   Take-up   Reg     WP      Other   Starch  Starch   Starch
+                    
+                    C      C Flute      .1600      SW       1.33     .32     .35      .40
+                    B      B Flute      .1200      SW       1.26     .29     .32      .38
+                    BC   BC Flute   .2200      DW       --       .60     .71      .80
+                    **********These are the new fields: *************
+                    Flute_Takeup    Numeric  99.999      (this would be a value such as 1.331)
+                    Reg_starch         Numeric  999.99     (this would be a value such as .35 as in 35 cents)
+                    WP_starch          Numeric  999.99     (this would be a value such as .35 as in 35 cents)
+                    Other_starch       Numeric  999.99     (this would be a value such as .35 as in 35 cents)
+                    ************************************************************
+                    The take up factor would be for individual flutes.  
+                    Replace the BOM shrink value with the take-up factor.  Change the calculation to multiply the med
+                    ium cost by the take up (rather than the current divide bythe recipical of the shrink factor).
+                    Add an 8th line to the BOM screen called starch.  Pull in the starch cost per MSF and multiply it
+                     by the blank size.    Add a column to the estimate tab screen called starch.  Default it to R fo
+                    r regular, but allow an over-ride to W or O (water proof or other).  
+                    Hide this column if a grade without a BOM is selected. 
+E-B-6-   06070708 E New Button called Import Excel
+                    Add button called IMPORT XL   This will import the excel spreadsheet defined by in the GUIMANUAL\
+                    ESTIMATE\folder.  Examples are Pallet Matrix 48x40.xls and Pallet Matrix 45x45.xls which are same
+                     format.
+                    This will overwrite the existing data for the pallet displayed.
+                    Message should prompt, "Override Pattern Codes?"  Yes would transfer each column and width label 
+                    and field.
+                    
+                    Also send Excel Files from GUI Manual / Estimating / Excel files.
+E-B-6-   06070709 E Stack Patterns, COPY button has error when copying a line
+                    COPY, then cancel and copy row 99 to row 60.  Error appears.
+E-B-7-   03050959 E Add the + ICON at top of screen
+                    Add the + ICON at top of screen which runs the same program as the ADD button on the VIEW folder.
+E-B-8-   03050960 E Add the + ICON at top of screen
+                    Add the + ICON at top of screen which runs the same program as the ADD button on the VIEW folder.
+E-B-8-   12010903 E Add two fields to prep and die file  **INVOICED**
+                    Add two (ref-table fields) to the Prep/Die file. Would like to have CAD # and FILE # with 12 or m
+                    ore alpha numeric characters for each field allowed.  See attached.
+                    
+                    Also, Add the Two Fields to the DETAILED version of the E-R-4 Report.
+E-B-9-   04160920 E Estimate Control File (See Attached)
+                    Add Labels in front of blank fields
+                    S1
+                    S2 
+                    S3 
+                    
+
+01/11/2010             Advanced Software Services, Inc.              12:00 PM
+              Completed By Date & Programmer    Customer Report      Page:   8
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    
+E-F- -   02030610 E Add Form 0-0 for Assembled Set for Packing information.
+                    The ARROW button in the INKS/PACK screen should allow packing information for the set item as for
+                    m 0-0 as the corrugated sets allow.  This will allow more accurate label information on job ticke
+                    ts and shipping information for unit counts.
+E-F- -   02120702 E Truncate Prep Route Fields
+                    Estimatng PREP/ROUTE folder should truncate many fields so more columns appear without scrolling.
+                      Sheet # should be Sht, Blank# should be B#, Qty should be maximum size of 9,999.9. 
+E-F- -   03060805 E Synchronize Calculate Quantites with Estimate Folder Quantities
+                    Add new Button next to CLEAR QTY button called UPDATE  ESTIMATE QTYS 
+                    Find estimate 6144.   The Estimate folder Quantity Field shows 25,000, 50,000, 75,000.   
+                    The print folder has a calculate button that I added 100,000, then 150,000.  
+                    This button will give the ability to update the Estimate Folder.
+                    
+                    Change logic for CALCULATE button to ONLY import Quantities from the ESTIMATE folder's quantities
+                     via the F1 key on the quantity field.
+                    
+                    
+                    Lastly, we must reduce the total screen size to support 600x800 screen resolution.
+                    After adding the new CLEAR QTY button, they cannot see the entire screen and must scroll down to 
+                    click the buttons.
+E-F- -   03200803 E Estimate Folder Quantity (Old Task# 03060805)
+                    Print Folder Quantities are erasing the Estimate folder quantities.
+                    See ASI estimate 6116.    I entered 25,000, 50,000 and 75,000 then calculated.
+                    Next, clients also wanted 125,000.  
+                    I go to print folder and click buton update quantities and add 125,000.
+                    However I do not want to calculate all 4 quantities again, just 125,000.
+                    I then press CLEAR quantities or erase all but 125,000 then calcualte.
+                    The estimate folder is updated.
+                    There should be 25,000, 50,000, 75,000, 125,000 but it has changed.
+E-F- -   03200804 E Estimate Folder Add Release ## to Quantity Popup
+                    On Estimate folder, F1 on Quantity shows Quantity and Sell Price.   Add Total Releases next to ea
+                    ch quantity similar to the RFQ module and the estimates print folder, calculate button.
+                    
+                    This should be updateable from the Estimate folder and transfer to the CALCULATE button.
+E-F- -   04120701 E Layout Cost improperly defaulting to MSF
+01/11/2010             Advanced Software Services, Inc.              12:00 PM
+              Completed By Date & Programmer    Customer Report      Page:  15
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Corrugated defaults to MSF, but folding should default to TON.
+                    Even better, would be to default the override cost of board based on the VENDOR COST MATRIX unit 
+                    of measure.
+                    
+                    Hence, the cost could be MSF, TON, MSH or whatever the normal cost method for that material.
+E-F- -   04230902 E N-K CERoute#Out  ($75 per hour - Quoted at $5000)
+                    New Parameter will allow updating the PREP/ROUTE folder Number Out for Diecutting (DC) and Gluing
+                     (GL) via the OVERRIDE Button.
+                    
+                    N-K CERoute#Out 
+                    Logical Value = YES,  allows updating the number out on machine routing screen for die cutting an
+                    d gluing via the override button.
+                    A new standard code = 30 will be added via the N-Z-7 matrix called Routing # Out.
+                    This will allow adding machine standards by Routing # Out.
+                    
+                    When clicking the import button, the system currently imports the machine speeds from the machine
+                     files standards matrixes.   If the machine file is defined by the new number 30 standard, then t
+                    he run speed imported will be based on the number out entered on the machine routing.    This log
+                    ic will only work for the DC and GL departments.
+                    
+                    Likewise, the PRINT folder, Calculate Button will be modified.
+                    When the Recalc toggle Machine Run Speed is unchecked, no new logic is needed.
+                    When the Recalc toggle Machine Run Speed is checked, the program must import the run speed based 
+                    on the new #30 standard matrix code.
+                    
+                    In the machine file, number 30 validation will be added so that the #30 standard can only be adde
+                    d to a machine listed in the DC or GL departments.
+E-F- -   04270705 E Add and Copy by Blank Number not allowed
+                    1)  A combo estimate with one form will only prompt to enter a blank#.
+                        When I enter the blank number, I get an error.
+                        If our estimate cannot calculate PREP cost by blank, then B should not be 
+                        allowed to be updated.
+                    
+                    2)  Copy from S/B 1-1 to 1-2 does nothing.   Again, if we can calcuate PREP 
+                        down to the blank number then this should work and add blank number to S/B
+E-F- -   05170705 E Spec Folder, OVERRIDE should allow changing Square Inches
+                    Overide allows changing the Blank Width and Blank Length.
+                    Two changes are needed.
+                    1) If I tab, the WxL /144 calculates the square inches.  However if I change W and L and click SA
+                    VE without tab, the square inch is wrong.
+                    2) If I change the TOTAL square Inches, this should remain.
+                       Clients could change this due to a better manual or cad calculation.
+E-F- -   06050914 E User Defined Column Sequence for Folding Estimating
+                    New include file to allow column changes to be saved on an individual user basis.  
+                    Each Menu will save the COLUMN SEQUENCE as they like.
+                    
+                    
+E-F- -   07110806 E Folding Estimate - Ink / Pack Folder Changes
+                    Layer Pad and Divider require a DEPTH field.   See Attached for Changes.
+                    
+                    1) Change Packaging Code to Pack Code to Save Space.
+                    2)  Reduce Length, Width and Depth to 4 Decimals on Ink / Pack Folder
+                    3)  Add Depth to Layer Pad
+                    4)  Add Depth to Divider
+                    5)  Move Qty on Layer Pad to a Column Heading next to Depth.
+                    6)  Move Qty field under new Qty Column Heading
+                    7)  When adding Layer Pad (material type 5) or Divider (material type 6) , the Length, width and 
+                         depth will transfer from the raw materials folder.
+                    
+                    8) When adding Divider (material type 6) , the Length, width and depth will transfer from the raw
+                          materials folder.
+                    
+E-F- -   07300718 E New Toggle Box in machine file called "Plain Jobs Only"
+                    New toggle box next to or Under the MR Waste called "Plain Jobs Only" for machines in DC Departme
+                    nt only.
+                    
+                    When checked, this logic will force the DC machine waste as ZERO for printed jobs, however for fo
+                    rms without inks, the MR waste will be used.  When unchecked, the MR waste will always be used.
+                    
+                    This logic will work for the BUILD button and IMPORT button only as well as when the calculating 
+                    the estimate with the toggle box "RECALC Machine Run Speeds, Spoil % Waste" is checked.  This log
+                    ic must be used in single item, two piece, tandem and combo jobs for folding carton estimates and
+                     job standards recalculations.  Hence, J-U recalc will use this new logic and JobStds buttons thr
+                    oughout estimating will use this logic.
+                    
+E-F- -   07310901 E Estimate Folder, GOTO button (Add Yellow Column Headings)
+                    Find Estimate 2445.
+                    Click Estimate Folder.
+                    Click GOTO Button.
+                    Add Yellow Columns.
+01/11/2010             Advanced Software Services, Inc.              12:00 PM
+              Completed By Date & Programmer    Customer Report      Page:  16
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+E-F- -   07310902 E Estimate Folder, (Add Yellow Column Headings)
+                    Find Estimate 2445.
+                    Click Estimate Folder.
+                    Add Yellow Columns.
+E-F- -   08030608 E DB for V5.0 Estimate File to House 3 Salesman ID's.
+                    Add two more salesman ID's on the customer file.  
+                    Another task will be defined to import commissions to all sales reps and to calculate commissioin
+                    s on estimate.
+E-F- -   09150815 E Ink Folder to Import Multiple Inks  (See Attached)
+                    Folding Estimate 6594 has 5 inks and Aqueous Coating.
+                    Press Reset Ink and this will change back to original settings of INK 5 times.
+                    Currently, I have to pick each ink one item at a time.
+                    
+                    Make modification to ink selection similar to O-T-1 Select Bin / Tags per attached.
+                    The user will be able to click the CTRL key to select one at a time or 
+                    click one item then SHIFT click the last item and all items in that range will be selected.
+                    This is just like selecting EMAILS in outlook.
+                    
+                    Once I select the inks, it will import each ink to the INK FOLDER.
+E-F- -   09300912 E COPY button on Spec Folder of Folding Estimates
+                    Add new Button called COPY on Spec Folder. (For Folding only)
+                    Move logic from Layout  folder to the Spec Folder to Copy the Item Specs.
+                    This will copy everything under the description 
+                    Die#
+                    Cad#
+                    SPC/Qc#
+                    Image
+                    UPC#
+                    Also copy all fields under the double lines
+                    
+                    The prompt will show copy from blank to blank (similar to layout screen) also have a check box to
+                     show
+                    copy cad# copy Die #, and recalc layout screen (not called when multiple blanks on a form so I di
+                    dn't add it), recalc box design.
+E-F- -   10100703 E Override Button should not prompt to Update Box Design
+                    Folding Carton estimates do not update the panel sizes on the box design screen.
+                    Therefore, the OVERRIDE or AUTOCALC buttons should not prompt to update the box design. This shou
+                    ld only apply to corrugated styles.  Likewise, when changing the style code via Override or Autoc
+                    alc, this does not update box design, but should prompt.
+                    
+                    For folding estimates, changing the style code is the only reason to prompt to update the box des
+                    ign.   We need the prompt because they may have added a different design.    
+                    
+E-F- -   10100707 E Expand ITEMS browser (See Attached)
+                    Expand browser on ITEM button on PRINT folder by a few characters so Sell Price also displays.   
+                    Also add YELLOW sort button on Customer Part#.
+E-F- -   10210907 E Sorting in the Browse Est Folder
+                    Ascending and descending not working properly for the Qty column.
+                    The Qty/Set column works but an error pops up(See Attached)
+E-F- -   10220703 E Add Estimate and type Cust Part# MSKT takes 1 minute
+                    Login to HOP, Add Estimate and type Cust Part# MSKT takes 1 minute.
+                    
+                    At CentBox (See Attachment).
+                    It only occurs when you have something sorting in browser. 
+                    If you clear sort, issue does not occur.  When in Estimating...if you enter an existing Cust PN a
+                    nd hit TAB- instead of moving to the Cust PN screen for selection- the tab links to the "Select E
+                    stimate" screen and then quits out.
+                    See Attached.
+E-F- -   10290703 E F1 on Fields should limit selection by characters
+                    Find any estimate and press F1 on customer part#, FG item code or description.
+                    Type the word Chocolate.  If you scroll down, other items that do not match the characters will a
+                    ppear.
+E-F- -   11020703 E Copy Popup Toggle Boxes are Grayed Out (See Attached)
+                    After updating Cad#, the save button would display option to copy to other forms on estimate or o
+                    ther estimates with same FG item code.
+                    The boxes are greyed out if the board is different on each form.
+                    The board can be different as long as the style, size and die size are the same.
+                    
+E-F- -   11040801 E N-K QUOPRINT = XPRINT
+                    SEE ATTACHED.
+                    ESTIMATE 6393
+                    QUOTE 943 
+                    The quantity of 20 Million can not be displayed.
+                    
+                    Expand Quote Form to 99,999,999  No Decimals
+                    Remove commas to fit into field
+E-F- -   11110801 E N-K QUOPRINT=CSC-EXCEL  (Expand Form to 4 Decimas / Match DB)
+                    Excel format, they only have two decimal places.
+                    Expand to Match the Database which supports 4 decimals.. 
+                    SEE ATTACHED..
+01/11/2010             Advanced Software Services, Inc.              12:00 PM
+              Completed By Date & Programmer    Customer Report      Page:  17
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+E-F- -   11120706 E F1 on Cust Part# is Slow  (Last Task# 10290703)
+                    In folding and corrugated estimates, when we use the F1 lookup for the customer part number, it i
+                    s taking several minutes to come up on the screen.  This is very time consuming especially for th
+                    e person entering Superior estimates because the estimates can have 20 to 40 items on it.  We nee
+                    d someone to take a look at this and expedite the process for us.  It was never working like this
+                     before.  In the past, it was very quick once you hit F1.
+                    
+                    
+                    Old task Notes.
+                    Press F1 on customer part#, FG item code or description.
+                    Type the word Chocolate.  If you scroll down, other items that do not match the characters will a
+                    ppear.
+E-F- -   11280711 E New Button called Clear Qty's for Print Folder (Attached Screen)
+                    Add Button called "Clear Qty's" to attached Screen.
+E-F- -   12120703 E Tape to Calculate Inches TIMES 4
+                    The raw material type = T for tape currently calculates lineal inches of glue which is based on t
+                    he box depth / lineal inches.    To support  rigid box cost for stay tape which is applied to 4 c
+                    orners, we need to calculate multiply the lineal inches by 4.
+                    When folding carton material = T
+                          Total inches (EA) will be Lineal Inches times 4  times blank quantity / Lineal Inches per L
+                    B.
+                          LB will calculate exactly as EA.
+                          Cost will be cost for EACH inche.
+E-F- -   12120704 E Glue Material to Calculate Square Inches if Lineal Inches = 0
+                    The raw material type = G for glue currently only calculates lineal inches of glue which is based
+                     on the box depth / lineal inches.    To support  rigid box cost for laminating paper wrap materi
+                    al to the box, we need to calculate glue based on the square inches.
+                    
+                    1)  Allow zero for lineal inches in the raw materials file for glue material.
+                    2)  When Lineal In/LB = zero and Sq Inches/LB is greater than zero.   
+                          Total Pounds of Glue will be 
+                          Blank Square Inches times total blanks / Sq Inches per LB times cost per LB.
+E-F- -   12180905 E Salesman to Sales Rep
+                    Change everything in the Attachments
+E-F-1-   03030608 E Need changeover time for the all  departments to work like DC, and GLu
+                    When they enter a machine in any department.  They would like the ability to pull in a changover 
+                    time just like the DC departments.
+E-G- -   09200701 E F1 on Customer not saving Radio Button
+                    F1 on Customer Code.  Save Radio Button.
+                    Next time accessing the customer search, the radio button selected the last time the F1 was selec
+                    ted, should be saved.
+E-G- -   12180910 E Salesman to Sales Rep
+                    See Attached
+E-Q- -   01110801 E N-K QuoPrint = CSC-Excel Changes
+                    1) Remove Q# from Estimate#/Q# column.
+                    2) Remove the quote number, which now prints under the estimate #.
+                    2) Left Justify the Item Field.
+                    3) Print quote View Folder field called Item Description 2 under the Board Description 
+                    See Sample
+                    Logo on the 1st page is wrong size logo and also duplicates the company name.
+                    Logo on the 2nd page is correct size and font.
+                    
+                    Adder Charges are no longer printing under board description.
+                    We added Description 2 under board so add ADDER after that on 5th line.
+                    ITEM code should be left justified.
+E-Q- -   02050418 E Option to Batch Email Quotes
+                    Add option on Quote Print selection screen called Batch Email?  
+                    The quotes could be EMAILED in a batch so that a range of customers could be defined and a range 
+                    of quotes simultaneously then emailed simultaneoulsy.   Please note, each customer would receive 
+                    1 email, but each quote would represent a separate attachment with the quote number defined.
+                    
+                    Please note, once the options were select on the quote print screen, the system would save the se
+                    ttings by the user ID so that the default print options would remain the same.
+                    
+E-Q- -   02130703 E Expand Quantity Folder Sell Price to .9999
+                    Sell price now shows .99 decimals to the right.   Expand this to .9999 which is needed for price 
+                    per each.
+E-Q- -   02230903 E N-K QuoPrint = Unipak
+                    Copy first three columns on body of quote form identical to N-K-1 QuoPrint = Xprint.
+                    Current Unipak form was copied from N-K-1 QuoPrint = Century
+                    Xprint prints first three columns called Est#/Qt#  ,  Part#/Description ,   Item/Style/Color/Boar
+                    d
+                    this will replace the current 3 columns called.
+                    Est# ,  Description/Style/Color/Board ,     Item
+                    PLEASE NOTE.  This form requires Microsoft Mincha Font that must be downloaded via NET.
+
+
+01/11/2010             Advanced Software Services, Inc.              12:00 PM
+              Completed By Date & Programmer    Customer Report      Page:  18
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+E-Q- -   03130803   E Provide ability to print forms by customer or vendor
+                    Mod assumes using  PremierX forms, but with new Logo.
+                    Premier will be opening a sales & distribution office in Chicago.  
+                    Database for both companies will run from company 001 Premier Packaging via Louisville, KY server
+                    .  They want unique forms for the Chicago location which would have a new address and logo  assoc
+                    iated with each form.
+                    Therefore, the modification is for all forms to print by customer or vendor code.   Each forms pr
+                    int routine must be changed to search for a specific form by vendor or customer.
+                    The N-K-1 control parameter folder called "view form" tab (see attached) would house the specific
+                     form by customer or vendor.   If this is BLANK, then the existing form defined on the VIEW FORM 
+                    folder would print.  
+                    Therefore each print routine must be changed to first search the VIEW FORM folder to select the f
+                    orm based on the customer or vendor.  The following print routines must be changed:
+                    By Customer :  QUOPRINT, JOBCARDC, ACKHEAD, BOLFMT, INVPRINT,STMTPRIN, 
+                    By Vendor:       POPRINT, CHKFMT
+                    All forms character value = PremierX
+                    They would use the  PremierX forms but with New Company Logo and address changes.
+                    Once I have the logo & address format I will create a separate task for each form.
+                    - Making the "view tab" logic work by customer or vendor.
+E-Q- -   03190805 E Print quotes in sequence specified in the group box as opposed to nume
+                    New Sort Option called "As Listed"
+                    When printing quotes the user can input a series of quote numbers into a group box at the top of 
+                    the print parameters screen.  The client would like us to print the quotes in the sequence that t
+                    hey are listed, as opposed to printing them in numeric sequence.
+E-Q- -   03230711 E When ship via shows CPU  show FOB as ORIG
+                    Quoprint = FIBREX
+E-Q- -   03240604 E Quote to add date time and user ID to view folder
+                    If Database Fields Exist.
+                    Add and Update Buttons will Add Date, Time and user ID of the last user accessed quote.
+E-Q- -   04200908 E N-K QUOPRINT = AllWest (Copy Xprint)  $75/Hour
+                    1) Copy Xprint
+                    2) Add AllWest Logo
+                    3)  Remove Quote# from Top Right
+                    4)  Expand Price to 999,999.999
+                    5)   Remove Die# 
+                    6)  Remove Cad#
+                    Note: See attachment as sample.
+E-Q- -   04300907 E N-K QUOPRINT= Simkins  (Copy Xprint) (approved 5-15-09)
+                    Print Quote Attached.  Copy Xprint and create new form called Simkins.
+                    1.  Copy Xprint format.  
+                    2.  Option to print or not to print the Ship to
+                    3.  If address line2 is blank in Bill to, move City, State, zip print line up 1 line
+                    4.  Commas on numeric quantity field
+                    5.  Print  pen notes at bottom of form.
+                    6.  Attached Terms and Conditions line to print as last page of form. 
+                         Add new File which allows enter of text document to print Terms.
+                    7.  Remove Over-Under % box from form
+                    8.  Remove Release Box and field from form
+                    Attached terms & conditions are kept in a text document  that can be changed any time.
+
+
+
+01/11/2010             Advanced Software Services, Inc.              12:00 PM
+              Completed By Date & Programmer    Customer Report      Page:  19
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+E-Q- -   04300910 E N-K QuoPrint = FibreX  (Toggle Box for Standard Notes)
+                    See Attached for new Radio Button set for N-K-1 QuoPrint - FibreX.
+                    The new radio button set will only appear for FibreX.
+                    If Corrugated Quote is selected, the corrugated note will print at the bottom of the quote instea
+                    d of what is currently printed.  If Folding Quote is selected,  the folding note will print at th
+                    e bottom of the quote instead of what is currently printed.  
+                    If Corr/Fold is selected, the Corr/Fold note will print.
+                    The radio button set will default based on the first quote number entered on the top of the quote
+                     printing screen (Enter Quotes separated by comma), or the number in beginning quote# if the  ent
+                    er quotes box separated by comma is blank, looking at the estimate on the quote to determine whet
+                    her to choose corrugated or folding.
+                    CORRUGATED Quote Note:
+                    All tooling (print dies, cutting dies, or prepress) is additional unless specified.  Standard ord
+                    ers are plus or minus a 10% over/under run.
+                    Pricing is subject to review of final artwork files.  Prices are based on "run and ship" unless o
+                    therwise specified.
+                    FOLDING Quote Note:
+                    All tooling included unless otherwise specified.  Prepress is additional.  Standard orders are pl
+                    us or minus a 10% over/under run.
+                    Pricing is subject to review of final artwork files.  Prices are based on "run and ship" unless o
+                    therwise specified.
+                    Corr/Fold Quote Note:
+                    For Corrugated items, all tooling ( Print Dies, Cutting Dies, or Prepress) is additional unless s
+                    pecified.  For Folding items, all tooling is included, except Prepress is additional unless speci
+                    fied.  Standard orders are plus or minus a 10% over/under run.
+                    Pricing is subject to review of final artwork files.
+                    Prices are based on "run and ship" unless otherwise specified.
+E-Q- -   05010704 E DB:  Quote File, RM, FG and Price Matrix.  New DATES
+                    DB:Quote File 
+                      a) Effective Date and Expiration Date for the Cost for each quantity
+                      b) Date of Last Sell Price Change 
+                      c) User ID making changes
+                    DB:Raw Materials File
+                      a) Effective Date and Expiration Date for the Cost for each quantity
+                      b) Date of Last Cost Change when running M-Global Price Change.
+                      c) User ID making changes
+                    DB: Finished Goods File.
+                      a) Effective Date and Expiration Date for the Cost for each quantity
+                      b) Date of Last Cost Change when running I-F-6 Global Price Change
+                         or when manually changing the cost.
+                      c) User ID making changes
+                    DB: Order Maintenance Sell Price Matrix. 
+                      a) Effective Date and Expiration Date for the Sell Price for each quantity
+                      b) Date of Last Sell Price Change
+                      c) User ID making changes 
+                    
+                    Other tasks has the price and modifications needed.
+E-Q- -   05050902 E Quote Browser Sorting Option (See Attached)
+                    Quote Browser to Sort by Estimate Number by Date by Quantity
+                    Steps you are using to display this browser?
+                      1) Generate an Estimate
+                      2) Calculate the Estimate
+                      3) Quote the Estimate
+                    Quote Browser SORT.
+                     By Estimate with Newest Quoted Date at the top of browser /  This would be Largest Number.
+                    Then Quantity.
+                    
+E-Q- -   05070804 E Sort By Entered By cannot be Selected.  (Original Task# 03190805)
+                    New Sort Option called "As Entered"
+                    This was done and tested, but now I cannot click the Option.
+                    Programmer: See Attached.
+E-Q- -   05270909 E N-K QUOPRINT = AllWest $75/Hour
+                    Change Logo to Blue Logo attached which does not have an address.
+                    Also, Address should be printed at bottom of form like attached .PDF  legal paper.
+E-Q- -   05300812 E N-K QuoPrint = Century
+                    At bottom of form, at end of Comments.  The last sentence ends with 20%.   Add the following:
+                    Quotation is subject to standard Century Box terms and conditions as attached hereto.
+E-Q- -   06060803 E N-K QuoPrint = Unipak  New Legal Terms
+                    Add the following to the bottom of their quote form.
+                    
+                    TERMS AND CONDITIONS:  The pricing on this quote is good for 60 days.  All prices have been based
+                     on current material costs.  In the event of an increase in materials or changes to the above spe
+                    cifications, prices may be adjusted.
+                    
+E-Q- -   06240903 E N-K QUOPRINT = AllWest (Copy Xprint)  $75/Hour
+                    On the quote form, when there are sets, the information prints into the instructions part. 
+                    Also, we wanted to add CAD# under customer part number.
+                    
+                    
+E-Q- -   07280804 E N-K CeQuote = TriLakesXL   V10  to print Die Charges as Description
+                    See Attached.   Their Quote form when it prints out shows the die charge right on top of the seco
+                    nd item on the quote.  We need to change the spacing on their quote.
+
+
+01/11/2010             Advanced Software Services, Inc.              12:00 PM
+              Completed By Date & Programmer    Customer Report      Page:  20
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+E-Q- -   08120809 E Add Item Description to Browser
+                    Add Item Description from Quote file as a search field after Customer Part#.
+                    Reduce Quote field, Reduce date field to 99/99/99, Reduce Contact field to 10 characters.
+                    Also add Description on the browser after the customer part number.
+                    Reduce Quote field, Reduce date field to 99/99/99, Reduce Contact field to 10 characters.
+
+E-Q- -   09040909 E Add toggle box to quote form for "No Notes"
+                    Currently when printing a quote toggle box to brint notes, they can choose..
+                    Folding
+                    Corrugated
+                    Folding/corrugated
+                    They would like to add a fourth option of "No Notes"
+
+E-Q- -   09120804 E N-K QuoPrint = PackRite   (Copy PPI and Change Logo)
+                    Create new N-K-1 QuoPrint Character Value = PackRite.
+                    Copy PPI and change the logo to print PackRite Logo.
+                    Change Company Name to please call PackRite at 336-884-0793 or email to Lynn@PackRite.Net
+
+E-Q- -   09260703 E Option to Batch Quotes
+                    Add option on Quote Print selection screen called Batch Quotes?  
+                    When checked, then the quotes would print in a separate page per quote 
+                    Current logic is when printing a range of quotes for same customer, the program will combined mul
+                    tiple quotes onto 1 single quote form.    
+                    This new modification is suppose to print a separate page for each quote on the range.
+                    This option will use the existing screen that allows selecting multiple quotes separated by commo
+                    ns or a range of quotes using the existing print selection fields, however the range of quotes wo
+                    uld print each as a single item quote.  
+                    Please note, once the options were select on the quote print screen, the system would save the se
+                    ttings by the user ID so that the default print options would remain the same.
+                    
+E-Q- -   10070809 E N-K QuoPrint change text
+                    Change copy at bottom of our quote below "comments". 
+                    This text is hard coded. 
+                    The "10,000" needs to be revised to "20,000" in sentence reading "Order quantities below 10,000 a
+                    re...."
+                     
+                    Snap shot of text is Attached
+                    
+E-Q- -   11060808 E N-K QuoPrint = Knight Excel   (Copy Fibre-Excel but with new Logo)
+                    Copy Fibre-Excel quote form as new quote form. 
+                    Add Knight Logo to new Form.
+                    Add F1 to N-K-1 Quoprint.
+
+E-Q- -   11250802 E N-K QUOPRINT= Xprint30
+                    Print Quote Attached.  Copy Xprint and create new form called Xprint30.  To represent 30 characte
+                    r contact name.  Expand quote contact from 20 to 30 characters.
+                    Please note, expansion of contact name may cause Company Name to Overwrite Box.
+                    1.  Copy Xprint format.  
+                    2.  Option to print or not to print the Ship to
+                    3.  If address line2 is blank in Bill to, move City, State, zip print line up 1 line
+                    4.  Commas on numeric quantity field
+                    5.  Print  pen notes at bottom of form.
+                    6.  Attached Terms and Conditions line to print as last page of form. 
+                    7.  Remove Over-Under % box from form
+                    8.  Remove Release Box and field from form
+                    Attached terms & conditions are kept in a word document  that can be changed any time.
+
+E-Q- -   12180708 E DB: V10 Index/ Fields Enhance the quote lookup in quote maintenance (S
+                    DB: Copy new lookup fields from estimate EB table to quote item table with new indexes for new fi
+                    elds. When adding quote from estimate, update all new fields.
+                    Additional fields are added to expand query capabilities are for single part estimates, or for th
+                    e first part / form of an assembly or combination.
+                    The additional query fields do not exist in the quote file, therefore the query must link the quo
+                    te and estimate files to do the selection.
+                    Change browser to quote maintenance screen so that users can see how similar items are priced. 
+                    
+                    See the attached screen sample.
+E-Q- -   12180908 E Salesman to Sales Rep
+                    See Attached
+E-R-1-0  12180914 E Salesman to Sales Rep
+                    See Attached
+E-R-2-   10130802 E Machine File Add Output to Excel and Save Print Parameters by User ID
+                    Add Green Bar at Top to Save Print Selections by User ID
+                    Add Output to Excel 
+                    Each Field will be come an Excel column
+                    When toggle box is Show Standards, do not output extra information that is shown for show standar
+                    ds..
+E-R-3-   10130801 E Style File - Add Output to Excel and Save Print Parameters by User ID
+                    Add Green Bar at Top to Save Print Selections by User ID
+                    Add Output to Excel 
+
+
+01/11/2010             Advanced Software Services, Inc.              12:00 PM
+              Completed By Date & Programmer    Customer Report      Page:  22
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+E-R-4-   10130803 E Prep List Add Output to Excel
+                    Add Output to Excel 
+                    Each Field will become an Excel colum
+
+E-R-5-   10130804 E Estimates List Add Output to Excel
+                    Add Output to Excel 
+                    Each Field will become an Excel colum
+E-R-6-   10130805 E Quotes List Add Output to Excel  (See E-R-7)
+                    Add Output to Excel 
+                    Each Field will become an Excel colum
+                    
+                    This will require multiple columns for quantity and cost for each quote.
+                    ie.  Qty1, Cost1,  Qty2, Cost2
+E-R-7-   06170905 E Change Report to Find Last Job# from J-U-1
+                    A PREP code on an estimate may be used by many Finished Goods Items.
+                    For example, PLATE may be used on many jobs.
+                    The data collection module writes the LAST job number to the E-B-8 Prep file.
+                    The E-R-7 report simply prints this job number.
+                    This is not dynamic enough.
+                    New Logic should find the last job number for the FG Item on the estimate.
+                    
+                    Examples of Bad Data at Fibre Follow:
+                    Prep Code 4434 ? Shows last JOB 110219 (this is wrong).  It also shows last ORDER 110493 (this is
+                     correct).
+                    Prep Code 6919 ? Shows last JOB 98507 (this is wrong).  It also shows last ORDER 96419 (this is c
+                    orrect).
+                    Prep Code 7555 ? Shows last JOB 99053 (this is wrong).  It also shows last ORDER 116340 (this is 
+                    correct).
+                    Seems pretty consistent where the JOB # is wrong but the ORDER # is correct on these.
+                    
+                    
+                    ASI Response:
+                    Please note, the Plate or Die must exist on the SPEC folder under Plate# and/or Die#
+E-R-7-   12180912 E Salesman to Sales Rep
+                    See Attached
+E-R-8-   10130806 E Estimates by Size - Add Output to Excel  (See E-R-7)
+                    Add Output to Excel 
+                    Each Field will become an Excel colum
+E-R-9-   10130807 E Quoted Price List - Add Output to Excel  (See E-R-7)
+                    Add Green Bar to save Print Selections by User ID
+                    Add Output to Excel 
+                    Each Field will become an Excel colum.
+                    
+                    The Top Customer Code, name and address will be the first 3 columns followed by the quantity, pri
+                    ce, and other fields.    The customer name will repeat for each quantity.
+                    
+                    See ER7 
+                    
+E-R-9-   10130808 E Estimates List by Margin  MOVE Output to Excel
+                    Move toggle Boxes called Output to Excel 
+                    to bottom of screen so it looks like all the other screens such as I-R-2.
+                    
+E-R-9-   12180913 E Salesman to Sales Rep
+                    See Attached
+                    
+                    Also, when you print it to the screen change the column name to from Salesman to Sale Rep.
+                    Do the same thing for output to excel.
+E-T- -   12180911 E Salesman to Sales Rep
+                    See Attached
+I-F-1-   05300816 E Checked in Ron's FG item image updater program

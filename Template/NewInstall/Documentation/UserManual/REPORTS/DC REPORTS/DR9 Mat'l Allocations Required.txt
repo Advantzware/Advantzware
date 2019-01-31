@@ -1,0 +1,15 @@
+
+08/14/07                                      Advanced Box Company V4.10 - Main Office                                    Page   1
+ 5:31pm                                        Allocated Materials Requirement Report
+
+
+                                                          (A)       (B)       (C)       (D)       (E)       (F)      (G)      (H)
+                                                                             (A-B)                                  (C<0)   (C+D-E)
+                                            PROD       QUANTITY  QUANTITY  QUANTITY  QUANTITY  QUANTITY  QUANTITY  CURRENT   FUTURE
+ITEM #     DESCRIPTION                      CAT   UOM   ON HAND COMMITTED AVAILABLE  ON ORDER   PENDING    ISSUED SHORTAGE SHORTAGE
+---------- ------------------------------ - ----- --- --------- --------- --------- --------- --------- --------- -------- --------
+SBS18-18                                  R SBS   LF     252700    400223   -147524    511030         0         0   147524        0
+SBS18-24.5                                R SBS   LF      23104    243423   -220318   2169413         0         0   220318        0
+SBS18-25.5 Board Description              R SBS   LF     241670    309589    -67919    146100         0         0    67919        0
+SBS35.5x42                                R SBS   EA      10000     20511    -10511         0         0         0    10511    10511
+

@@ -1,0 +1,62 @@
+
+                                                                           150
+
+                                                                      10/18/00
+
+                                                                      01 OF 01
+
+
+
+
+         Hershey Chocolate Corp                 Hershey Chocolate Corp
+         123 Chocolate Blvd                     123 Chocolate Lane
+
+         Hershey, PA  19888                     Hershey, PA  19888
+
+
+
+
+ HER10    COMMON CARRIER     DEST                        Net 30
+
+
+
+ 101700                   Saleperson #10                10/17/00    319
+
+
+    50,000    50,000  HER-1021                           400.00 M       20000.00
+                   0  RT 5x4x8 Candy Box                   0.00    N
+                      SBS 5 Color Process
+     5,000     5,000  HER-1022                           617.58 M        3087.90
+                   0  RSC 10x10x10                         0.00    N
+
+                      ** Miscellaneous Items **
+
+PLATE           Plate Charge                                              300.00
+
+PLATE           Plate Charge                                              900.00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                             Subtotal       Freight   Sales Tax
+                            23,087.90          0.00        0.00       $24,287.90
+
+                             If paid by 10/18/2000 you may deduct:          0.00
+
+

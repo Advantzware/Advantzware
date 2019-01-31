@@ -1,0 +1,24 @@
+*** Bank File Field Definition ***           As of 4/26/2007
+
+Table	Field		Label		Format
+-----	----------	--------------  -----------------	
+bank	company		Company		x(3)
+bank	bank-code	Bank		x(8)
+bank	actnum		Account No	x(25)
+bank	bank-name	Bank Name	x(20)
+bank	addr		Address		x(20)
+bank	city		City		x(15)
+bank	state		State		x(2)
+bank	zip		Postal Code	x(10)
+bank	contact		Contact Name	x(25)
+bank	phone		Phone Number	x(12)
+bank	bk-act		Bank Account #	x(12)
+bank	bk-area		Bank area code	999-99999
+bank	bal		Balance		->>>,>>>,>>9.99
+bank	o-chk		?		->>>,>>>,>>9.99
+bank	dep-tr		?		->>>,>>>,>>9.99
+bank	serv		?		->>>,>>>,>>9.99
+bank	last-chk	Last Check #	>>>>>>>9
+bank	rec_key		Rec Key	X(20)
+bank	curr-code	Currency Code	X(3)
+bank	ex-rate		?		->>,>>9.99<<<<<

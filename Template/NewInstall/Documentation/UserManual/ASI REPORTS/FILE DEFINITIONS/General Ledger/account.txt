@@ -1,0 +1,32 @@
+*** Account File Field Definition ***           As of 4/26/2007
+
+Table	Field	                Label	                Format
+-------	-----------------	----------------------	----------------------
+account	company			Company			x(3)
+account	actnum			Account No		x(25)
+account	dscr			Desc			x(45)
+account	type			Type			X
+account	cyr-open		Cur Year Open Bal	->>>,>>>,>>>,>>
+account	cyr			?			->>>,>>>,>>>,>>
+account	bud			?			->>>,>>>,>>>,>>
+account	lyr-open		Last Year Open		->>>,>>>,>>>,>>
+account	lyr			?			->>>,>>>,>>>,>>
+account	n1			N1			>9
+account	n2			N2			>>>>>9
+account	n3			N3			>>9
+account	n4			N4			>>>>>9
+account	n5			N5			>>>>>9
+account	multi-dist		Multiple GL Distributi	Y/N
+account	dist-percent		Distribution Percent	>>9.99
+account	dist-actnum		Distribution Account	x(25)
+account	rec_key			Rec Key			X(20)
+account	ly-bud			?			->>>,>>>,>>>,>>
+account	ny-bud			?			->>>,>>>,>>>,>>
+account	last-auto-date		Last Auto Dist Date	99/99/9999
+account	last-auto-pnum		Last Auto Dist Period	->,>>>,>>9
+account	last-rvrs-date		Last Reversing Entry D	99/99/9999
+account	last-rvrs-pnum		Last Reversing Entry P	->,>>>,>>9
+account	last-jrnl-date		Last Journal Entry Dat	99/99/9999
+account	last-jrnl-pnum		Last Journal Entry Per	->,>>>,>>9
+account	last-rcur-date		Last Recurring Entry D	99/99/9999
+account	last-rcur-pnum		Last Recurring Entry P	->,>>>,>>9

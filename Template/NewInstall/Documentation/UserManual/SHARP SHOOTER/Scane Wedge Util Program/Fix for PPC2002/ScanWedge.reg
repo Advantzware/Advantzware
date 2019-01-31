@@ -1,0 +1,8 @@
+REGEDIT4
+
+[HKEY_CURRENT_USER\Software\Symbol\ScanWedge]
+"AutoTab"=dword:00000000
+"AutoEnter"=dword:00000001
+"Prefix"=
+"Suffix"=
+"AutoPIE"=dword:00000001

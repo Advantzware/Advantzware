@@ -1,0 +1,37 @@
+
+06/26/08                                       Advanced Box Company V5.0 - Main Office                                    Page   1
+11:35am                                                 AP Accounts by Vendor
+
+
+GL Acct#                  Description                      Vendor   Inv#         Journal     Run# Date                    Amount
+------------------------- -------------------------------- -------- ------------ -------- ------- ---------- -------------------
+20100-00                  Accounts Payable - Trade         stone    05292008     ACPAY       4268 05/28/2008           -1,351.06
+                                                                    6546         ACPAY       4194 03/03/2008             -964.75
+
+                                                                                                             -------------------
+                                                             Vendor Totals                                             -2,315.81
+
+
+                                                                                                             -------------------
+                                                              Acct# Totals                                             -2,315.81
+
+
+
+24500-00                  Accrued Raw Material - Board
+                          200 C Item Name Description      stone    05292008     ACPAY       4268 05/28/2008            1,169.14
+                          200 C Item Name Description               6546         ACPAY       4194 03/03/2008              197.36
+                          200 C Item Name Description               6546         ACPAY       4194 03/03/2008              637.49
+
+                                                                                                             -------------------
+                                                             Vendor Totals                                              2,003.99
+
+
+                                                                                                             -------------------
+                                                              Acct# Totals                                              2,003.99
+
+
+
+
+                                                                                                             -------------------
+                                                              Grand Totals                                               -311.82
+

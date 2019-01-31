@@ -1,0 +1,313 @@
+
+*** Inventory File Field Definition ***           As of  12/27/05    Page:   1
+================================================================================
+FG Item table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+itemfg     adder           Adder Code                x(10)
+itemfg     alloc           Allocate Mat'l?           Yes/No
+itemfg     avg-cost        Purch Cost Avg            >>>,>>9.9999
+itemfg     beg-bal         Beg Balance               >>>,>>>,>>9.999
+itemfg     beg-date        Beg Bal Date              99/99/9999
+itemfg     box-3d-image    3D Image File             x(50)
+itemfg     box-image       Image File                x(80)
+itemfg     box-text        Box Lines                 x(1500)
+itemfg     cad-no          ?                         x(15)
+itemfg     case-count      Case/Pallet               >>>9
+itemfg     case-pall       Case/Pallet               >>>9
+itemfg     case-w          Width                     >9.9999
+itemfg     cc-code         Cycle Count Code          XX
+itemfg     class           Inventory Class           x
+itemfg     company         Company                   x(3)
+itemfg     cons-uom        Comsumption UOM           x(3)
+itemfg     cost-ptd        ?                         ->>>,>>9.99<<
+itemfg     cost-type       Cost Type                 XXX
+itemfg     cost-ytd        ?                         ->>>,>>9.99<<
+itemfg     count-date      Date Last Counted         99/99/9999
+itemfg     curr-code       Currency Code             X(3)
+itemfg     cust-job-no     ?                         x(9)
+itemfg     cust-name       Customer Name             x(30)
+itemfg     cust-no         Cust. #                   x(8)
+itemfg     cust-po-no      ?                         x(9)
+itemfg     d-score         Depth Score               >>>>>>9.99<<<<
+itemfg     def-loc         Warehouse                 x(8)
+itemfg     def-loc-bin     Bin                       x(8)
+itemfg     die-no          Die #                     x(15)
+itemfg     est-no          Estimate #                x(5)
+itemfg     ex-rate         ?                         ->>,>>9.99<<<<<
+itemfg     exempt-disc     Exempt From Discount?     yes/no
+itemfg     factored        Factored?                 yes/no
+itemfg     fg-stat         FG Status                 yes/no
+itemfg     flute           Flute                     x(3)
+itemfg     frt-class       Freight Class             x(8)
+itemfg     frt-class-dscr  Freight Class Description x(30)
+itemfg     i-code          Item Code                 X
+itemfg     i-dscr          Desc                      x(30)
+itemfg     i-name          Name                      x(30)
+itemfg     i-no            Item No                   x(15)
+itemfg     inv-by-cust     Inventory By Customer?    yes/no
+itemfg     isaset          SET                       Y/N
+itemfg     job-date        Date Last Counted         99/99/9999
+itemfg     l-score         Length Score              >>>>>9.99<<<<
+itemfg     last-cost       Purch Cost Last           >>>,>>9.9999
+itemfg     last-count      Last Count                >>>,>>>,>>9.9<<
+itemfg     last-date       Date Last Counted         99/99/9999
+itemfg     lead-days       Lead Time (Days)          >>9
+itemfg     loc             Primary Warehouse         x(5)
+itemfg     lyptd-msf       LY PTD MSF                ->>>,>>>,>>9.99
+itemfg     lyytd-msf       LY YTD MSF                ->>>,>>>,>>9.99
+itemfg     mat-type        Mat'l Type                X
+itemfg     ord-level       Reorder Level             >>>,>>>,>>9.999
+
+Active / Inactive Field is stored as a reftable field.
+CREATE reftable.
+      ASSIGN
+       reftable.reftable = "FGSTATUS"
+       reftable.company  = itemfg.company
+       reftable.loc      = ""
+       reftable.code     = itemfg.i-no
+       reftable.code2    = "A" or "I".
+reftable.code2 either stores an "A"for active or "I" for inactive.
+
+
+
+*** Inventory File Field Definition ***           As of  12/27/05    Page:   2
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+itemfg     ord-max         Order Maximum             >>>,>>>,>>9.99
+itemfg     ord-min         Order Minimum             >>>,>>>,>>9.999
+itemfg     ord-policy      Reorder Policy Code       R/L
+itemfg     part-dscr1      Item Description          x(30)
+itemfg     part-dscr2      Item Description          x(30)
+itemfg     part-dscr3      Item Description          x(30)
+itemfg     part-no         Cust Part #               x(12)
+itemfg     pic-code        P&IC Code                 x(3)
+itemfg     plate-no        Plate #                   x(15)
+itemfg     press-type      Press Type                X
+itemfg     procat          Category                  x(5)
+itemfg     procat-desc     Description               x(20)
+itemfg     prod-code       Production Code           X(5)
+itemfg     prod-notes      Notes                     x(20)
+itemfg     prod-uom        Production UOM            x(3)
+itemfg     profitp-ptd     ?                         ->>>,>>9.99<<
+itemfg     profitp-ytd     ?                         ->>>,>>9.99<<
+itemfg     ptd-msf         PTD MSF                   ->>>,>>>,>>9.99
+itemfg     pur-cnt         Purchase Count            >,>>9
+itemfg     pur-man         Purchased or Manf         P/M
+itemfg     pur-rcode       Purch.Report Code         x(8)
+itemfg     pur-uom         Purchased UOM             x(4)
+itemfg     q-adj           Quantity Adjusted         ->>>,>>>,>>9.99
+itemfg     q-adj-ptd       Quantity Adjusted         ->>>,>>>,>>9.99
+itemfg     q-adj-ytd       Quantity Adjusted         ->>>,>>>,>>9.99
+itemfg     q-alloc         Qty Available             ->>,>>>,>>9.999
+itemfg     q-alloc-ptd     Quantity Adjusted         ->>>,>>>,>>9.99
+itemfg     q-alloc-ytd     Quantity Adjusted         ->>>,>>>,>>9.99
+itemfg     q-avail         Qty Available             ->>,>>>,>>9.999
+itemfg     q-back          Qty Backordered           ->>,>>>,>>9.999
+itemfg     q-cogs          Quantity Transfered       ->>>,>>>,>>9.99
+itemfg     q-cogs-ptd      Quantity Transfered       ->>>,>>>,>>9.99
+itemfg     q-cogs-ytd      Quantity Transfered       ->>>,>>>,>>9.99
+itemfg     q-comm          Qty Committed             ->>,>>>,>>9.999
+itemfg     q-inv           Quantity Shipped          ->>>,>>>,>>9.99
+itemfg     q-inv-ptd       Quantity Shipped          ->>>,>>>,>>9.99
+itemfg     q-inv-ytd       Quantity Shipped          ->>>,>>>,>>9.99
+itemfg     q-lyr           Qty Usage Last YR         ->>,>>>,>>9
+itemfg     q-onh           Qty On-Hand               ->>,>>>,>>9.999
+itemfg     q-ono           Qty On-Order              ->>,>>>,>>9.999
+itemfg     q-ord           Quantity Adjusted         ->>>,>>>,>>9.99
+itemfg     q-ord-ptd       Quantity Adjusted         ->>>,>>>,>>9.99
+itemfg     q-ord-ytd       Quantity Adjusted         ->>>,>>>,>>9.99
+itemfg     q-prod          Quantity Produced         ->>>,>>>,>>9.99
+itemfg     q-prod-ptd      Quantity Produced         ->>>,>>>,>>9.99
+itemfg     q-prod-ytd      Quantity Produced         ->>>,>>>,>>9.99
+itemfg     q-ptd           QTY Usage PTD             ->>,>>>,>>9
+itemfg     q-rec           Quantity Transfered       ->>>,>>>,>>9.99
+itemfg     q-rec-ptd       Quantity Transfered       ->>>,>>>,>>9.99
+itemfg     q-rec-ytd       Quantity Transfered       ->>>,>>>,>>9.99
+itemfg     q-rel           Quantity Shipped          ->>>,>>>,>>9.99
+itemfg     q-rel-ptd       Quantity Shipped          ->>>,>>>,>>9.99
+itemfg     q-rel-ytd       Quantity Shipped          ->>>,>>>,>>9.99
+itemfg     q-ship          Quantity Shipped          ->>>,>>>,>>9.99
+itemfg     q-ship-ptd      Quantity Shipped          ->>>,>>>,>>9.99
+
+*** Inventory File Field Definition ***           As of  12/27/05    Page:   3
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+itemfg     q-ship-ytd      Quantity Shipped          ->>>,>>>,>>9.99
+itemfg     q-tran          Quantity Transfered       ->>>,>>>,>>9.99
+itemfg     q-tran-ptd      Quantity Transfered       ->>>,>>>,>>9.99
+itemfg     q-tran-ytd      Quantity Transfered       ->>>,>>>,>>9.99
+itemfg     q-ytd           Qty Usage YTD             ->>,>>>,>>9
+itemfg     rec_key         Rec Key                   X(20)
+itemfg     request-date    Request Date              99/99/9999
+itemfg     sales-ptd       ?                         ->>>,>>9.99<<
+itemfg     sales-ytd       ?                         ->>>,>>9.99<<
+itemfg     sell-price      Sales                     >,>>>,>>9.99<<<<
+itemfg     sell-uom        Selling UOM               x(3)
+itemfg     sheet           Sheet?                    yes/no
+itemfg     ship-meth       Shipping Method           Case/Pallet
+itemfg     spc-no          ?                         x(15)
+itemfg     sqin-lb         Sq In/Lb                  >>>,>>9
+itemfg     std-fix-cost    ?                         ->>>,>>9.99<<
+itemfg     std-lab-cost    ?                         ->>>,>>9.99<<
+itemfg     std-mat-cost    ?                         ->>>,>>9.99<<
+itemfg     std-tot-cost    ?                         ->>>,>>9.99<<
+itemfg     std-uom         Std UOM                   x(3)
+itemfg     std-var-cost    ?                         ->>>,>>9.99<<
+itemfg     stocked         Stock Mat'l?              Yes/No
+itemfg     style           Style Code                x(6)
+itemfg     style-desc      Description               x(20)
+itemfg     t-dep           Depth                     >>>>>9.99<<<<
+itemfg     t-len           Total Length              >>>>>9.99<<<<
+itemfg     t-sqft          Total Sq Ft               >>>9.999<<
+itemfg     t-sqin          Total Sq In               >>>9.999<<
+itemfg     t-wid           Total Width               >>>>>9.99<<<<
+itemfg     taxable         Taxable?                  yes/no
+itemfg     test            Test                      x(6)
+itemfg     total-std-cost  ?                         ->>>,>>9.99<<
+itemfg     type-code       Type Code                 X(5)
+itemfg     u-adj           Amount Adjusted           ->>>,>>>,>>9.99
+itemfg     u-adj-ptd       Quantity Adjusted         ->>>,>>>,>>9.99
+itemfg     u-adj-ytd       Quantity Adjusted         ->>>,>>>,>>9.99
+itemfg     u-alloc         Amount Adjusted           ->>>,>>>,>>9.99
+itemfg     u-alloc-ptd     Quantity Adjusted         ->>>,>>>,>>9.99
+itemfg     u-alloc-ytd     Quantity Adjusted         ->>>,>>>,>>9.99
+itemfg     u-cogs          Quantity Transfered       ->>>,>>>,>>9.99
+itemfg     u-cogs-ptd      Quantity Transfered       ->>>,>>>,>>9.99
+itemfg     u-cogs-ytd      Quantity Transfered       ->>>,>>>,>>9.99
+itemfg     u-inv           Quantity Shipped          ->>>,>>>,>>9.99
+itemfg     u-inv-ptd       Quantity Shipped          ->>>,>>>,>>9.99
+itemfg     u-inv-ytd       Quantity Shipped          ->>>,>>>,>>9.99
+itemfg     u-lyr           Total Cost Last YR        >>>,>>>,>>9
+itemfg     u-ord           Quantity Adjusted         ->>>,>>>,>>9.99
+itemfg     u-ord-ptd       Quantity Adjusted         ->>>,>>>,>>9.99
+itemfg     u-ord-ytd       Quantity Adjusted         ->>>,>>>,>>9.99
+itemfg     u-prod          Amount Produced           ->>>,>>>,>>9.99
+itemfg     u-prod-ptd      Quantity Produced         ->>>,>>>,>>9.99
+itemfg     u-prod-ytd      Quantity Produced         ->>>,>>>,>>9.99
+itemfg     u-ptd           Usage Cost PTD            >>>,>>>,>>9
+itemfg     u-rec           Quantity Transfered       ->>>,>>>,>>9.99
+itemfg     u-rec-ptd       Quantity Transfered       ->>>,>>>,>>9.99
+
+*** Inventory File Field Definition ***           As of  12/27/05    Page:   4
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+itemfg     u-rec-ytd       Quantity Transfered       ->>>,>>>,>>9.99
+itemfg     u-rel           Quantity Shipped          ->>>,>>>,>>9.99
+itemfg     u-rel-ptd       Quantity Shipped          ->>>,>>>,>>9.99
+itemfg     u-rel-ytd       Quantity Shipped          ->>>,>>>,>>9.99
+itemfg     u-ship          Amount Shipped            ->>>,>>>,>>9.99
+itemfg     u-ship-ptd      Quantity Shipped          ->>>,>>>,>>9.99
+itemfg     u-ship-ytd      Quantity Shipped          ->>>,>>>,>>9.99
+itemfg     u-tran          Amount Transfered         ->>>,>>>,>>9.99
+itemfg     u-tran-ptd      Quantity Transfered       ->>>,>>>,>>9.99
+itemfg     u-tran-ytd      Quantity Transfered       ->>>,>>>,>>9.99
+itemfg     u-ytd           Usage Cost YTD            >>>,>>>,>>9
+itemfg     upc-no          ?                         x(15)
+itemfg     vend-item       Vendor Item No            x(16)
+itemfg     vend-no         Vendor                    x(10)
+itemfg     vend2-item      Alt.Vendor Item No        x(16)
+itemfg     vend2-no        Substitute Vendor         x(10)
+itemfg     w-score         Width Score               >>>>>9.99<<<<
+itemfg     weight-100      Weight/100                >,>>9.99
+itemfg     ytd-msf         YTD MSF                   ->>>,>>>,>>9.99
+
+Inventory table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+fg-bin     aging-date      Job Date                  99/99/9999
+fg-bin     avg-cost        Purch Cost Avg            >>>,>>9.9999
+fg-bin     bol-no          ?                         >>>>>>>9
+fg-bin     case-count      Case/Pallet               >>>9
+fg-bin     cases           Cases                     ->,>>>,>>9
+fg-bin     cases-unit      Cases/Bundles per Unit    >>9
+fg-bin     company         Company                   x(3)
+fg-bin     cust-no         Customer                  x(8)
+fg-bin     i-no            Item No                   x(15)
+fg-bin     inv-no          Invoice Number            >>>>>9
+fg-bin     job-no          ?                         x(6)
+fg-bin     job-no2         Run #                     >9
+fg-bin     last-cost       Purch Cost Last           >>>,>>9.9999
+fg-bin     last-count      Last Count                >>>,>>>,>>9.9<<
+fg-bin     last-date       Date Last Counted         99/99/9999
+fg-bin     loc             Warehouse                 x(5)
+fg-bin     loc-bin         Primary Bin Loc.          x(8)
+fg-bin     ord-no          Order#                    >>>>>9
+fg-bin     partial-count   Partial count             >>>,>>9
+fg-bin     partial-total   Total Parial Units        >>>,>>9
+fg-bin     po-no           PO Number                 x(9)
+fg-bin     pur-uom         Purchased UOM             x(4)
+fg-bin     qty             Qty                       ->>>,>>9.9<<<<<
+fg-bin     rec_key         Rec Key                   X(20)
+fg-bin     ship-default    Ship Default              yes/no
+fg-bin     stack-code      Stacking Code             x
+fg-bin     std-fix-cost    ?                         ->>>,>>9.99<<
+fg-bin     std-lab-cost    ?                         ->>>,>>9.99<<
+fg-bin     std-mat-cost    ?                         ->>>,>>9.99<<
+fg-bin     std-tot-cost    ?                         ->>>,>>9.99<<
+fg-bin     std-var-cost    ?                         ->>>,>>9.99<<
+fg-bin     tag             ?                         x(8)
+
+*** Inventory File Field Definition ***           As of  12/27/05    Page:   5
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+fg-bin     unit-count      Unit Count                >>>,>>9
+fg-bin     units-pallet    Units per Pallet          >9
+
+FG Receipts History header table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+fg-rcpth   b-no            Unique Internal Number    >>>>>9
+fg-rcpth   company         Company                   x(3)
+fg-rcpth   i-name          Name                      x(30)
+fg-rcpth   i-no            Item No                   x(10)
+fg-rcpth   job-no          Job#                      x(6)
+fg-rcpth   job-no-to       To Job                    x(6)
+fg-rcpth   job-no2         Run #                     >9
+fg-rcpth   job-no2-to      ?                         99
+fg-rcpth   loc             Warehouse                 x(5)
+fg-rcpth   po-no           ?                         x(9)
+fg-rcpth   post-date       Date Posted               99/99/9999
+fg-rcpth   pur-uom         Purchased UOM             x(3)
+fg-rcpth   r-no            ?                         >>>>>>>9
+fg-rcpth   rec_key         Rec Key                   X(20)
+fg-rcpth   rita-code       CODE                      x(1)
+fg-rcpth   trans-date      ?                         99/99/9999
+fg-rcpth   upd-date        Updated Date              99/99/9999
+fg-rcpth   upd-time        Updated Time              ->,>>>,>>9
+fg-rcpth   user-id         User ID                   x(10)
+fg-rcpth   vend-no         Vendor                    x(8)
+
+FG Receipts History detail table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+fg-rdtlh   BOL             BOL#                      X(20)
+fg-rdtlh   cases           Cases                     ->,>>>,>>9
+fg-rdtlh   cases-stack     Cases/Bundles per Stack   >,>>9
+fg-rdtlh   company         Company                   x(3)
+fg-rdtlh   cost            Costs                     ->>>,>>9.99<<
+fg-rdtlh   frt-cost        Costs                     >>>,>>9.99<<
+fg-rdtlh   loc             Warehouse                 x(5)
+fg-rdtlh   loc-bin         Primary Bin Loc.          x(8)
+fg-rdtlh   loc-bin2        To Bin                    x(8)
+fg-rdtlh   loc2            To Whse                   x(5)
+fg-rdtlh   partial         ?                         >>>,>>9
+fg-rdtlh   qty             ?                         ->>>>,>>9.9<<
+fg-rdtlh   qty-case        Qty per Case              >>>,>>9
+fg-rdtlh   r-no            ?                         >>>>>>>9
+fg-rdtlh   receiver-no     ?                         x(20)
+fg-rdtlh   rec_key         Rec Key                   X(20)
+fg-rdtlh   rita-code       RITA Code                 x(1)
+fg-rdtlh   stack-code      Stacking Code             x
+fg-rdtlh   stacks-unit     Stacks per Unit           >,>>9
+fg-rdtlh   tag             ?                         x(8)
+fg-rdtlh   tag2            To Tag                    x(5)
+fg-rdtlh   units-pallet    Units per Pallet          >,>>9
+fg-rdtlh   upd-date        Updated Date              99/99/9999
+fg-rdtlh   upd-time        Updated Time              ->,>>>,>>9
+fg-rdtlh   user-id         ?                         x(8)
+

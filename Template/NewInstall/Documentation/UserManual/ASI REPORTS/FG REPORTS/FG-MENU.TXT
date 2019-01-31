@@ -1,0 +1,40 @@
+ 10/18/00               ADVANCED CARTON COMPANY - MAIN                 10:08am
+       M A I N    M E N U
+¦                                FINISHED GOODS
+¦  A. Cost Estimating   ¦                           FINISHED GOODS REPORTS    +
+¦  B. Order Processing  ¦  1. Warehouse Transac¦                              ¦
+¦  C. Raw Materials     ¦  2. Physical Count Pr¦  1. Reorder Requirements     ¦
+¦  D. Finished Goods    ¦  3.                  ¦  2. Value/Cost by Whs/Bin/Tag¦
+¦  E. Sales Analysis    ¦  4.                  ¦  3. Alphabetic Item List     ¦
+¦  F. Production Control¦  5.                  ¦  4. Qty/Value by Cust & Job  ¦
+¦  G. Plant Data Collect¦  6. End of Period Pro¦  5. Qty On Hand/Shipd by SMan¦
+¦  H. Job Costing       ¦  I. Inquiries        ¦  6. Sales Values by Cust/Item¦
+¦  I. Purchasing        ¦  R. Reports          ¦  7. Sales/Value by Cust & Tag¦
+¦  J. Accounts Receivabl¦  F. File Maintenance ¦  8. YTD Cost/Sales by Cust   ¦
+¦  K. Accounts Payable  ¦                      ¦  9. Item List by Customer    ¦
+¦  L. General Ledger    +----------------------¦  A. Status                   ¦
+¦  M. EDI                      ¦               ¦  B. Transactions By Order    ¦
+¦  S. System Administration    ¦               ¦  C. Aged Inventory           ¦
+¦  X. EXIT                     ¦               ¦  D. Next Ship Date & Value   ¦
+¦                              ¦               ¦  E. More Reports             ¦
++------------------------------+               ¦                              ¦
+                                               +------------------------------+
+¦                       FINISHED GOODS MORE REPORTS
+¦  A. Cost Estimating   ¦                           FINISHED GOODS REPORTS    +
+¦  B. Order Processing  ¦  1. Warehouse Transac¦                              ¦
+¦  C. Raw Materials     ¦  2. Physical Count Pr¦  1. QTY Totals by Cust/Item  ¦
+¦  D. Finished Goods    ¦  3.                  ¦  2. Unshipped FG Summary     ¦
+¦  E. Sales Analysis    ¦  4.                  ¦  3. Unshipped FG Detail      ¦
+¦  F. Production Control¦  5.                  ¦  4. Scheduled Ship vs. QOH   ¦
+¦  G. Plant Data Collect¦  6. End of Period Pro¦  5. Inventory Balances       ¦
+¦  H. Job Costing       ¦  I. Inquiries        ¦  6. FG Posting Report by Date¦
+¦  I. Purchasing        ¦  R. Reports          ¦  7. FG Daily Activity        ¦
+¦  J. Accounts Receivabl¦  F. File Maintenance ¦  8. Inventory Status by Job  ¦
+¦  K. Accounts Payable  ¦                      ¦                              ¦
+¦  L. General Ledger    +----------------------¦                              ¦
+¦  M. EDI                      ¦               ¦                              ¦
+¦  S. System Administration    ¦               ¦                              ¦
+¦  X. EXIT                     ¦               ¦                              ¦
+¦                              ¦               ¦                              ¦
++------------------------------+               ¦                              ¦
+                                               +------------------------------+

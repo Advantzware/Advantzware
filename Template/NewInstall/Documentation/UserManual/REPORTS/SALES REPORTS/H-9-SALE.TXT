@@ -1,0 +1,16 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 8:01pm                    S A L E S   A N A L Y S I S  -  T H I S   Y E A R   V S .   L A S T   Y E A R
+
+                                                    FROM  01/01/00  TO  10/17/00
+
+                                        Sls
+Customer Name/City/St                   man   This Year Sales   Last Year Sales        Difference %-of Last Year Sales
+-------- ------------------------------ --- ----------------- ----------------- ----------------- --------------------
+ATT10    AT&T Corp                      001         35,651.23         13,937.50         21,713.73                255.8
+
+HER10    Hershey Chocolate Corp         001         30,425.00         94,172.50        -63,747.50                 32.3
+                                            ----------------- ----------------- -----------------       --------------
+                                            ----------------- ----------------- -----------------       --------------
+         Grand Totals                               66,076.23        108,110.00        -42,033.77                 61.1
+

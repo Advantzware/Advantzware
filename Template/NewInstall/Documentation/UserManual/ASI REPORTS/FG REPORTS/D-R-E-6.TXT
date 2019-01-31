@@ -1,0 +1,13 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:42pm                                           FINISHED GOODS - POSTING REPORT
+
+
+WHSE: MAIN
+                                                                                                                 TOTAL
+DATE     ITEM       DESCRIPTION    P.O. #    VENDOR   T TAG #      UNITS    COUNT       TOTAL BIN      UOM        COST
+-------- ---------- -------------- --------- -------- - -------- ------- -------- ----------- -------- --- -----------
+10/11/00 ATT-1020   RT 4x5x8                          R              102      500      51,000 BIN A-1       13,659.463
+10/16/00 Facial Box Facial Powder                     R               50      500      25,000 FLOOR    M    10,783.065
+10/16/00 HER-1021   RT 5x4x8                          R              100      500      50,400 FLOOR    M    15,257.516
+

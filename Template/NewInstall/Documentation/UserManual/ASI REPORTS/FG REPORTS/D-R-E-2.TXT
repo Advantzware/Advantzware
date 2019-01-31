@@ -1,0 +1,17 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:39pm                                   U N S H I P P E D   O R D E R S   S U M M A R Y
+
+                                  Open Orders  Order Date:10/01/00 - 12/31/9999  Cust #: - zzzzzzzz
+                                              Item #: - zzzzzzzzzzzzzzz  Whse: - zzzzz
+
+                                                                   Balance     Issued                                         Net
+Item            Description                  Ordered    Shipped    To Ship        BOL    On Hand  Available    Open PO   Variance
+--------------- ------------------------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+ATT-1020        RT 4x5x8                       50000      26000      24000          0      25000      25000          0       1000
+Facial Box      Facial Powder                    500          0        500          0      25000      25000          0      24500
+HER-1021        RT 5x4x8                      125000      25000     100000          0      25400      25400          0     -74600
+HER-1022        RSC 10x10x10                    5000          0       5000          0          0          0          0      -5000
+
+                           Report Totals:     180500      51000     129500          0      75400      75400          0     -54100
+

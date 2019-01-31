@@ -1,0 +1,40 @@
+
+10/17/00                                  ADVANCED CARTON COMPANY - Main Office                                           Page   1
+ 6:46pm                                         ORDERS BOOKED BY ORDER NO
+
+                       Order#:0-999999  Cust#:-zzzzzzzz  Order Date:10/01/00-10/17/00  Item#:-zzzzzzzzzzzzzzz
+
+ Order#  Est#     Job#     Date     Cust#    Name
+------------------------------------------------------------------------------------------------------
+   316             -00   10/11/00   ATT10    AT&T Corp
+
+         Item            Description               Quantity      Cost/M       Price UOM      Ext Price
+         --------------- ------------------------- -------- ----------- ----------- ---- -------------
+         ATT-1020        RT 4x5x8                    24,000      267.83      800.00 M        19,200.00
+
+         Miscellaneous
+         Charge               Description                                                        Price
+         -------------------- --------------------                                         -----------
+         PLATE                Plate Charge                                                      900.00
+                                                                                          ------------
+                                                                          Total Order        19,200.00
+
+   317             -00   10/16/00   HER10    Hershey Chocolate Corp
+
+         Item            Description               Quantity      Cost/M       Price UOM      Ext Price
+         --------------- ------------------------- -------- ----------- ----------- ---- -------------
+         HER-1021        RT 5x4x8                    50,000      302.73      395.00 M        19,750.00
+         Facial Box      Facial Powder                  500        0.00        2.00 M             1.00
+
+         Miscellaneous
+         Charge               Description                                                        Price
+         -------------------- --------------------                                         -----------
+         PLATE                Plate Charge                                                      900.00
+                                                                                          ------------
+                                                                          Total Order        19,751.00
+
+
+
+                                                                          Grand Total        38,951.00
+
+

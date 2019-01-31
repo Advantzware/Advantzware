@@ -1,0 +1,18 @@
+       M A I N    M E N U
+¦                               COST  ESTIMATING
+¦  A. Cost Estimating   ¦                          COST ESTIMATING  REPORTS
+¦  B. Order Processing  ¦  1. Folding Single It¦                              ¦
+¦  C. Raw Materials     ¦  2. Folding Two Piece¦  1. Control File             ¦
+¦  D. Finished Goods    ¦  3. Folding Tandem Ru¦  2. Machine File             ¦
+¦  E. Sales Analysis    ¦  4. Folding Combinati¦  3. Style   File             ¦
+¦  F. Production Control¦  5. Corrugated Boxes ¦  4. Prep    File             ¦
+¦  G. Plant Data Collect¦  6. Quotes           ¦  5. Estimates List           ¦
+¦  H. Job Costing       ¦  7. COPY Estimates   ¦  6. Quotes List              ¦
+¦  I. Purchasing        ¦  8. Change Company   ¦  7. Prep List by Mat'l Type  ¦
+¦  J. Accounts Receivabl¦  9. Find Estimates   ¦  8.                          ¦
+¦  K. Accounts Payable  ¦  A. Global Quote Pric¦  9.                          ¦
+¦  L. General Ledger    ¦  R. Reports          ¦                              ¦
+¦  M. EDI               ¦  F. File Maintenance ¦                              ¦
+¦  S. System Administrat¦                      ¦                              ¦
+¦  X. EXIT              +----------------------¦                              ¦
+¦                              ¦               +------------------------------+

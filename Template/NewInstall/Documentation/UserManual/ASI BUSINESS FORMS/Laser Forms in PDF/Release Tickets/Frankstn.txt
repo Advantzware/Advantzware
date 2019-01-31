@@ -1,0 +1,42 @@
+
+                                                            RELEASE
+                                                             Date      Number
+                                                           03/27/12    4554
+
+Advanced Box Company 001 V10                                 PAGE  1 OF  1
+PO Box 1234
+1287 First Ave
+Langhorne       Pa 19047
+
+
+          SOLD To:                               SHIP To:
+          AT&T Communications Corp.              AT&T Communications Corp.
+          ATT 1000 Blvd                          ATT 1000 Blvd
+
+          Yardley         PA 19067               PHILADELPHIA    PA 19104
+
+Notes                                                                  Ship Date
+                                                                        03/01/12
+
+
+
+--------------------------------------------------------------------------------
+Ship Via                  DelZone      F.O.B.      Weight       Freight Terms
+Our Truck                 25           ORIG          1580       Bill
+--------------------------------------------------------------------------------
+
+Order# Item / Descrip     Job#      Tag/Whs/Bin          X #Pal #Cas Count   QTY
+------ --------------     --------- ----------           - ---- ---- ----- -----
+204088 ATT-2297 CP        204088-00 10211/MAIN/A-200          1   25   500 12500
+       RT 5x3x2 Item Name 204088-00 10212/MAIN/A-200          1   25   500 12500
+       Description 145678 204088-00 10207/MAIN/A-200          1   25   500 12500
+       ATT-2297           204088-00 10210/MAIN/A-200          1   25   500 12500
+       PO#: PO4 Ord 20408 204088-00 10208/MAIN/A-200          1   25   500 12500
+                          204088-00 10209/MAIN/A-200          1   25   500 12500
+                          204088-00 10213/MAIN/A-200          1   25   500 12500
+                          204088-00 10214/MAIN/A-200          1   25   500 12500
+                                                           Rel Qty        25,000
+
+Pallets____________ Pulled by__________ Shipped by_________ Total Qty___________
+--------------------------------------------------------------------------------
+

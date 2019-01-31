@@ -1,0 +1,13 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:07pm                                                  SHEETS  ON  ORDER
+
+
+    DATE  ORDER        QUANTITY           QUANTITY  -------- CUSTOMER --------        P/O  FG ITEM    RM ITEM            MSF    COST
+     DUE     NO         ORDERED UOM       RECEIVED  ---------- NAME ----------     NUMBER  NUMBER     NUMBER          REMAIN  REMAIN
+------------------------------------------------------------------------------------------------------------------------------------
+10/18/00    319         5,000.0 EA             0.0  Hershey Chocolate Corp             95  HER-1022   200 C            30.08
+                  -------------     --------------                                                                  -------- -------
+                        5,000.0                0.0                                                                     30.08
+
+

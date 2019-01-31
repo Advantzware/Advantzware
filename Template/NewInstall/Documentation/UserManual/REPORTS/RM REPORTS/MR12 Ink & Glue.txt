@@ -1,0 +1,11 @@
+
+08/14/07                                      Advanced Box Company V4.10 - Main Office                                    Page   1
+ 3:01pm                                                  Transaction History
+
+
+IssuDate      Job #  Board       Sheets Issued Ink/Glue       Qty Issued/Lbs Machine
+---------- --------- ---------- -------------- ------------ ---------------- -------
+02/02/2007 100531-00 SBS18-25.5         -5,698 GLUE                  4.22685 DOMINO
+                                                            ----------------
+                                               GRAND TOTALS          4.22685
+

@@ -1,0 +1,18 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 6:44pm                                 ORDER PROCESSING - ORDERS BOOKED BY DUE DATE REPORT
+
+                                            Order Date: 10/01/00-10/17/00  Salesman: -zzz
+
+Due Date Customer Item Name                 Style Test   Adder      Adder      Adder       Ord Qty   Price/M      Ext Price      MSF
+-------- -------- ------------------------- ----- ------ ---------- ---------- ---------- -------- --------- -------------- --------
+10/16/00 HER10    Facial Powder             SE                                                 500      2.00           1.00    1.216
+10/16/00 HER10    RT 5x4x8                  RT                                               75000    395.00      29,625.00  122.469
+10/17/00 HER10    RSC 10x10x10              RSC   200                                         5000    617.58       3,087.90   30.078
+10/25/00 ATT10    RT 4x5x8                  RT                                               50000    800.00      40,000.00   88.113
+11/08/00 HER10    Godiva Chocolatier                                                         50000   1000.00      50,000.00  173.752
+11/15/00 HER10    RT 5x4x8                  RT                                               50000    400.00      20,000.00   81.646
+
+
+                  Grand Totals                                                              230500    619.15     142,713.90  497.274
+

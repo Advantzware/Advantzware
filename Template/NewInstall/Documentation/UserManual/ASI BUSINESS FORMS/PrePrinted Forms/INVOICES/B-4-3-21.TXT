@@ -1,0 +1,41 @@
+
+
+
+
+
+
+
+                                                               150   10/18/00
+
+
+
+
+ Hershey Chocolate Corp                       Hershey Chocolate Corp
+ 123 Chocolate Blvd                           123 Chocolate Lane
+
+ Hershey, PA  19888                           Hershey, PA  19888
+
+
+101700          10/18/00  COMMON CARRIER       Destination Net 30           001
+
+
+
+  50000     X    319-01     HER-1021                           400.00  20000.00
+              BOL#      163 RT 5x4x8 Candy Box
+                            SBS 5 Color Process
+
+   5000     X    319-00     HER-1022                           617.58   3087.90
+              BOL#      163 RSC 10x10x10
+
+                      ** Miscellaneous Items **
+
+PLATE                       Plate Charge                                 300.00
+
+PLATE                       Plate Charge                                 900.00
+
+
+
+
+
+                  0.00      0.00     24,287.90      0.00   10/18/00    24,287.90
+

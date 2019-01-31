@@ -1,0 +1,61 @@
+                                       INVOICE            10/18/00        150
+
+
+
+
+
+
+
+ SOLD TO                                      SHIP TO
+
+  Hershey Chocolate Corp                       Hershey Chocolate Corp
+  123 Chocolate Blvd                           123 Chocolate Lane
+
+  Hershey, PA  19888                           Hershey, PA  19888
+
+
+CUST ORDER# 101700          RUDD ORDER#    319 TERM: Net 30
+
+QUANTITY      DESCRIPTION                         PRICE                  TOTAL
+--------      -----------                         -----                  -----
+
+  50000       HER-1021                              400.00             20000.00
+              HER-1021
+              RT 5x4x8 Candy Box
+              SBS 5 Color Process
+
+   5000       HER-1022                              617.58              3087.90
+              HER-1022
+              RSC 10x10x10
+
+                      ** Miscellaneous Items **
+
+PLATE                       Plate Charge                                 300.00
+
+PLATE                       Plate Charge                                 900.00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                  Delivery Charge          0.00
+                                                                  -------------
+                                                       Net Amount     24,287.90
+                                                                  =============
+Salesman: 001
+Page #          1
+

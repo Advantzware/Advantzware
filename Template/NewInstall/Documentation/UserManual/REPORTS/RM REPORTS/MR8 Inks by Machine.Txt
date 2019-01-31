@@ -1,0 +1,157 @@
+
+08/14/07                                      Advanced Box Company V4.10 - Main Office                                    Page   1
+ 2:33pm                                                    Ink By Machine
+
+          FO                                                                                         PCT       QTY INK          QTY
+JOB #     RM CUSTOMER NAME                 FG ITEM #       BOARD      ADDER 1    ADDER 2    DUE DATE COV    SHEETS CODE         LBS
+--------- -- -------- -------------------- --------------- ---------- ---------- ---------- -------- --- --------- ---------- -----
+100-00    01 HER1000  Hershey Foods Corpor FHER1000116A99  SBS18                            06/05/07  20    15,622 INK           29
+100-00    01 HER1000  Hershey Foods Corpor FHER1000116A99  SBS18                            06/05/07 100    15,622 VARN          35
+100806-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/24/07   7    11,931 INK           23
+100806-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/24/07   7    11,931 P-BLACK       18
+100806-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/24/07   7    11,931 P-CYAN        14
+100806-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/24/07   7    11,931 P-MAGENTA      4
+100806-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/24/07  33    11,931 VARN          28
+100806-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/24/07   7    12,787 INK           23
+100806-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/24/07   7    12,787 P-BLACK        4
+100806-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/24/07   7    12,787 P-CYAN         8
+100806-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/24/07   7    12,787 P-MAGENTA     14
+100806-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/24/07  33    12,787 VARN          28
+100806-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/24/07   7    14,611 INK           23
+100806-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/24/07   7    14,611 P-BLACK        4
+100806-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/24/07   7    14,611 P-CYAN         8
+100806-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/24/07   7    14,611 P-MAGENTA     14
+100806-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/24/07  33    14,611 VARN          33
+100820-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/26/07   7    11,931 INK           23
+100820-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/26/07   7    11,931 P-BLACK       18
+100820-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/26/07   7    11,931 P-CYAN        14
+100820-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/26/07   7    11,931 P-MAGENTA      4
+100820-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/26/07  33    11,931 VARN          28
+100820-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/26/07   7    12,787 INK           23
+100820-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/26/07   7    12,787 P-BLACK       18
+100820-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/26/07   7    12,787 P-CYAN         8
+100820-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/26/07   7    12,787 P-MAGENTA     14
+100820-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/26/07  33    12,787 VARN          33
+100820-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/26/07   7    14,611 INK           23
+100820-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/26/07   7    14,611 P-BLACK       18
+100820-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/26/07   7    14,611 P-CYAN        14
+100820-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/26/07   7    14,611 P-MAGENTA      4
+100820-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/26/07  33    14,611 VARN          33
+100823-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/27/07   7    11,931 INK           23
+100823-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/27/07   7    11,931 P-BLACK        4
+100823-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/27/07   7    11,931 P-CYAN         8
+100823-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/27/07   7    11,931 P-MAGENTA      4
+100823-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/27/07  33    11,931 VARN          28
+100823-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/27/07   7    12,787 INK           23
+100823-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/27/07   7    12,787 P-BLACK        4
+100823-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/27/07   7    12,787 P-CYAN         8
+100823-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/27/07   7    12,787 P-MAGENTA      4
+100823-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS16                            06/27/07  33    12,787 VARN          28
+100827-00 01 ABCBOX   ABC Box Company      4ABCBOX0001A99  SBS16                            07/03/07 100    56,892 AQ Coating   172
+100834-00 01 HER1000  Hershey Foods Corpor FHER1000121A99  SBS18-39                         07/08/07  20    16,349 INK           43
+100834-00 01 HER1000  Hershey Foods Corpor FHER1000121A99  SBS18-39                         07/08/07 100    16,349 VARN          53
+100838-00 01 HER1000  Hershey Foods Corpor FHER1000121A99  SBS18                            07/12/07  20    16,593 INK           44
+100838-00 01 HER1000  Hershey Foods Corpor FHER1000121A99  SBS18                            07/12/07 100    16,593 VARN          54
+100842-00 01 iggle01  Iggle Corportation   5iggle00001A00  SBS18                            07/17/07  20     6,908 INK            2
+100844-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS16                            07/18/07  20    12,083 INK            9
+100844-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS16                            07/18/07  20    12,083 P-BLACK        9
+100844-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS16                            07/18/07  20    12,083 P-CYAN         9
+100844-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS16                            07/18/07  20    12,083 P-MAGENTA      9
+100844-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS16                            07/18/07  20    12,083 P-YELLOW       9
+100844-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS16                            07/18/07 100    12,083 VARN          28
+100844-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS16                            07/18/07  20    12,083 INK            9
+100844-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS16                            07/18/07  20    12,083 P-BLACK        9
+100844-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS16                            07/18/07  20    12,083 P-CYAN         9
+100844-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS16                            07/18/07  20    12,083 P-MAGENTA      9
+100844-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS16                            07/18/07  20    12,083 P-YELLOW       9
+100844-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS16                            07/18/07 100    12,083 VARN          28
+100844-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS16                            07/18/07  20    12,220 INK           12
+100844-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS16                            07/18/07  20    12,220 P-BLACK       12
+100844-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS16                            07/18/07  20    12,220 P-CYAN        12
+100844-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS16                            07/18/07  20    12,220 P-MAGENTA     12
+100844-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS16                            07/18/07  20    12,220 P-YELLOW      12
+100844-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS16                            07/18/07 100    12,220 VARN          52
+100845-00 01 iggle01  Iggle Corportation   Figgle00002A99  SBS18                            07/22/07  20     6,622 INK           14
+100847-00 01 IGGLE01  Iggle Corportation   FIGGLE00003A99  SBS16                            07/22/07  33    12,415 AQ Coating    21
+100847-00 01 IGGLE01  Iggle Corportation   FIGGLE00003A99  SBS16                            07/22/07   7    12,415 P-BLACK        9
+100847-00 01 IGGLE01  Iggle Corportation   FIGGLE00003A99  SBS16                            07/22/07   7    12,415 P-CYAN         9
+100847-00 01 IGGLE01  Iggle Corportation   FIGGLE00003A99  SBS16                            07/22/07   7    12,415 P-MAGENTA      9
+100847-00 01 IGGLE01  Iggle Corportation   FIGGLE00003A99  SBS16                            07/22/07   7    12,415 P-YELLOW       9
+100847-00 01 IGGLE01  Iggle Corportation   FIGGLE00003A99  SBS16                            07/22/07  33    12,415 VARN          29
+100844-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         07/29/07  20    35,643 INK           16
+100844-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         07/29/07  20    35,643 P-BLACK       16
+100844-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         07/29/07  20    35,643 P-CYAN        16
+100844-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         07/29/07  20    35,643 P-MAGENTA     16
+100844-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         07/29/07  20    35,643 P-YELLOW      16
+100844-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         07/29/07 100    35,643 VARN          73
+100859-00 01 HER1000  Hershey Foods Corpor FHER1000123A99  SBS18-18                         08/02/07 100    15,609 VARN          36
+100841-00 01 HER1000  Hershey Foods Corpor ATT-2297        SBS18-24.5                       08/03/07  20     7,930 P-BLACK        9
+100841-00 01 HER1000  Hershey Foods Corpor ATT-2297        SBS18-24.5                       08/03/07  20     7,930 P-CYAN         9
+100841-00 01 HER1000  Hershey Foods Corpor ATT-2297        SBS18-24.5                       08/03/07  20     7,930 P-MAGENTA      9
+100841-00 01 HER1000  Hershey Foods Corpor ATT-2297        SBS18-24.5                       08/03/07  20     7,930 P-YELLOW       9
+100841-00 01 HER1000  Hershey Foods Corpor ATT-2297        SBS18-24.5                       08/03/07  20     7,930 PMS021C       11
+100841-00 01 HER1000  Hershey Foods Corpor ATT-2297        SBS18-24.5                       08/03/07 100     7,930 VARN          27
+100861-00 01 IGGLE01  Iggle Corportation   FIGGLE00003A99  SBS16                            08/05/07  33    12,415 AQ Coating    16
+100861-00 01 IGGLE01  Iggle Corportation   FIGGLE00003A99  SBS16                            08/05/07   7    12,415 P-BLACK        8
+100861-00 01 IGGLE01  Iggle Corportation   FIGGLE00003A99  SBS16                            08/05/07   7    12,415 P-CYAN         8
+100861-00 01 IGGLE01  Iggle Corportation   FIGGLE00003A99  SBS16                            08/05/07   7    12,415 P-MAGENTA      8
+100861-00 01 IGGLE01  Iggle Corportation   FIGGLE00003A99  SBS16                            08/05/07   7    12,415 P-YELLOW       8
+100861-00 01 IGGLE01  Iggle Corportation   FIGGLE00003A99  SBS16                            08/05/07  33    12,415 VARN          47
+
+08/14/07                                      Advanced Box Company V4.10 - Main Office                                    Page   2
+ 2:33pm                                                    Ink By Machine
+
+          FO                                                                                         PCT       QTY INK          QTY
+JOB #     RM CUSTOMER NAME                 FG ITEM #       BOARD      ADDER 1    ADDER 2    DUE DATE COV    SHEETS CODE         LBS
+--------- -- -------- -------------------- --------------- ---------- ---------- ---------- -------- --- --------- ---------- -----
+100867-00 01 HER1000  Hershey Foods Corpor FHER1000123A99  SBS18-18                         08/15/07  20     9,732 PMS1767U      31
+100867-00 01 HER1000  Hershey Foods Corpor FHER1000123A99  SBS18-18                         08/15/07 100     9,732 VARN          24
+100868-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         08/16/07  20    35,643 INK           16
+100868-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         08/16/07  20    35,643 P-BLACK       16
+100868-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         08/16/07  20    35,643 P-CYAN        16
+100868-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         08/16/07  20    35,643 P-MAGENTA     16
+100868-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         08/16/07  20    35,643 P-YELLOW      16
+100868-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         08/16/07 100    35,643 VARN          73
+100868-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS18-18                         08/16/07  20    11,848 INK            9
+100868-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS18-18                         08/16/07  20    11,848 P-BLACK        9
+100868-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS18-18                         08/16/07  20    11,848 P-CYAN         9
+100868-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS18-18                         08/16/07  20    11,848 P-MAGENTA      9
+100868-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS18-18                         08/16/07  20    11,848 P-YELLOW       9
+100868-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS18-18                         08/16/07 100    11,848 VARN          28
+100868-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS18-18                         08/16/07  20    11,848 INK            9
+100868-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS18-18                         08/16/07  20    11,848 P-BLACK        9
+100868-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS18-18                         08/16/07  20    11,848 P-CYAN         9
+100868-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS18-18                         08/16/07  20    11,848 P-MAGENTA      9
+100868-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS18-18                         08/16/07  20    11,848 P-YELLOW       9
+100868-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS18-18                         08/16/07 100    11,848 VARN          28
+100868-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS18-18                         08/16/07  20    12,167 INK           12
+100868-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS18-18                         08/16/07  20    12,167 P-BLACK       12
+100868-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS18-18                         08/16/07  20    12,167 P-CYAN        12
+100868-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS18-18                         08/16/07  20    12,167 P-MAGENTA     12
+100868-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS18-18                         08/16/07  20    12,167 P-YELLOW      12
+100868-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS18-18                         08/16/07 100    12,167 VARN          52
+100869-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         08/16/07  20    35,643 INK           16
+100869-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         08/16/07  20    35,643 P-BLACK       16
+100869-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         08/16/07  20    35,643 P-CYAN        16
+100869-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         08/16/07  20    35,643 P-MAGENTA     16
+100869-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         08/16/07  20    35,643 P-YELLOW      16
+100869-00 01 HER1000  Hershey Foods Corpor FHER1000117A99  SBS18-18                         08/16/07 100    35,643 VARN          73
+100869-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS18-18                         08/16/07  20    11,848 INK            9
+100869-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS18-18                         08/16/07  20    11,848 P-BLACK        9
+100869-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS18-18                         08/16/07  20    11,848 P-CYAN         9
+100869-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS18-18                         08/16/07  20    11,848 P-MAGENTA      9
+100869-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS18-18                         08/16/07  20    11,848 P-YELLOW       9
+100869-00 02 HER1000  Hershey Foods Corpor FHER1000122A99  SBS18-18                         08/16/07 100    11,848 VARN          28
+100869-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS18-18                         08/16/07  20    11,848 INK            9
+100869-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS18-18                         08/16/07  20    11,848 P-BLACK        9
+100869-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS18-18                         08/16/07  20    11,848 P-CYAN         9
+100869-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS18-18                         08/16/07  20    11,848 P-MAGENTA      9
+100869-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS18-18                         08/16/07  20    11,848 P-YELLOW       9
+100869-00 03 HER1000  Hershey Foods Corpor FHER1000119A99  SBS18-18                         08/16/07 100    11,848 VARN          28
+100869-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS18-18                         08/16/07  20    12,167 INK           12
+100869-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS18-18                         08/16/07  20    12,167 P-BLACK       12
+100869-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS18-18                         08/16/07  20    12,167 P-CYAN        12
+100869-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS18-18                         08/16/07  20    12,167 P-MAGENTA     12
+100869-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS18-18                         08/16/07  20    12,167 P-YELLOW      12
+100869-00 04 HER1000  Hershey Foods Corpor FHER1000120A99  SBS18-18                         08/16/07 100    12,167 VARN          52
+
