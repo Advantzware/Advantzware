@@ -929,15 +929,19 @@ DO:
    DEF VAR v-job-no-2 AS INT INIT -1 NO-UNDO.
    DEF VAR v-job-no AS CHAR NO-UNDO.
    DEFINE VARIABLE cJobNo AS CHARACTER NO-UNDO .
+   DEFINE VARIABLE iCheckIndex AS INTEGER NO-UNDO .
 
    IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN
    DO:
        IF SELF:MODIFIED THEN DO:
-           IF LENGTH(SELF:SCREEN-VALUE) > 6 THEN DO:
                
+               
+           IF SELF:SCREEN-VALUE NE "" THEN DO:
+               iCheckIndex = INDEX(SELF:SCREEN-VALUE,"-") .
                cJobNo = SELF:SCREEN-VALUE.
-               ASSIGN rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(cJobNo,1,6)
-                   rm-rctd.job-no2:SCREEN-VALUE = SUBSTRING(cJobNo,8,10).
+               IF iCheckIndex GT 0 THEN
+                   ASSIGN rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(cJobNo,1,iCheckIndex - 1)
+                   rm-rctd.job-no2:SCREEN-VALUE = SUBSTRING(cJobNo,iCheckIndex + 1,2) .
            END.
        END.
       ASSIGN gv-job-no = trim(rm-rctd.job-no:SCREEN-VALUE) /* stacey */
