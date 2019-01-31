@@ -59,7 +59,7 @@
             .
           &IF DEFINED(c) EQ 0 &THEN
           ASSIGN
-            XMLFile = '/{&XMLOutput}.' + STRING(TIME,'99999') + '.xml'
+            XMLFile = '/{&XMLOutput}.' + STRING(TIME,'99999') + STRING(RANDOM(1, 999))+ '.xml'
             XMLTemp = 'XMLOutput' + XMLFile
             .
           OUTPUT STREAM XMLOutput TO VALUE(XMLTemp).
