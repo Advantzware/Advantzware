@@ -78,7 +78,7 @@ ASSIGN
   v-prgmname = SUBSTR(PROGRAM-NAME(1),INDEX(PROGRAM-NAME(1),"/",period_pos - 9) + 1)
   v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
 
-&SCOPED-DEFINE yellowColumnsName l-est
+&SCOPED-DEFINE yellowColumnsName l-est-look
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
