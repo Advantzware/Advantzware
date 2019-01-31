@@ -25,6 +25,8 @@ def TEMP-TABLE w-oe-rell NO-UNDO
    FIELD loc-bin AS CHAR
    field seq    as   int
    FIELD relseq AS INT 
+   FIELD cases  AS INT
+   FIELD qty-case AS INT
    field set-no like fg-set.set-no
    INDEX r-no IS PRIMARY r-no i-no
    INDEX idx set-no seq i-no po-no.
@@ -521,6 +523,10 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                by w-bin.w-qty[2] desc
                by w-bin.w-qty[1] desc:  
                w-bin.w-ord-col = string(w-oe-rell.ord-no). 
+               IF s-print-what-item EQ "I" THEN
+                   ASSIGN
+                   w-bin.w-units       = w-oe-rell.cases   
+                   w-bin.w-unit-count  = w-oe-rell.qty-case .
                leave.
            end.  
            for each w-bin where w-bin.w-ord-col eq "" 
