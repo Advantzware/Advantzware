@@ -257,6 +257,7 @@ DEFINE VARIABLE resSeq AS INTEGER NO-UNDO.
 DEFINE VARIABLE iNumUp AS INTEGER NO-UNDO.
 DEFINE VARIABLE dRunMSF AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dMSF AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iMrWaste AS INTEGER NO-UNDO.
 DEFINE VARIABLE iRunWaste AS INTEGER NO-UNDO.
 DEFINE VARIABLE salesRep AS CHARACTER NO-UNDO.
@@ -939,73 +940,93 @@ FOR EACH job-hdr NO-LOCK
                       + mch-act.qty,"->>>,>>>,>>9")).
     END. /* each mch-act */
 
+    RUN ipJobMatField (
+        job-mch.company,
+        job-mch.j-no,
+        job-mch.i-no,
+        job-mch.frm,
+        job-mch.blank-no,
+        '>>,>>>,>>9.99<',
+        '>>9.99<<',
+        '>>>9',
+        OUTPUT userField[29],
+        OUTPUT userField[30],
+        OUTPUT userField[31]
+        ).
+
+    IF AVAILABLE eb AND INTEGER(userField[31]) EQ 0 THEN
+    userField[31] = STRING(eb.num-up,'>>>9').
+
     ASSIGN
       statusTimeStamp = ''
-      customVal    = SUBSTR(customValueList,2)
-      lagTime      = job-mch.lag-time
-      liveUpdate   = job-mch.sbLiveUpdate
-      userField[1] = setUserField(1,custNo)
-      userField[2] = setUserField(2,custName)
-      userField[5] = setUserField(5,IF AVAILABLE eb THEN eb.die-no ELSE '')
-      userField[6] = setUserField(6,IF AVAILABLE eb THEN eb.plate-no ELSE '')
-      userField[7] = setUserField(7,IF AVAILABLE po-ordl THEN STRING(po-ordl.po-no,'>>>>>9') ELSE '')
-      userField[8] = setUserField(8,IF AVAIL eb AND eb.est-type EQ 6 THEN eb.stock-no /* set */
-                               ELSE IF job-mch.i-no NE '' THEN job-mch.i-no
-                               ELSE IF AVAILABLE itemfg AND itemfg.i-no EQ '' THEN itemfg.i-no
-                               ELSE itemDescription)
-      userField[9] = setUserField(9,IF userField[8] EQ '<Multi Item>' THEN '<Multiple Items>'
-                               ELSE IF job-mch.i-name NE '' THEN job-mch.i-name
-                               ELSE IF AVAILABLE itemfg AND itemfg.i-name NE '' THEN itemfg.i-name
-                               ELSE getItemName(job-mch.company,job-mch.job-no,job-mch.job,
-                                                job-mch.job-no2,job-mch.frm,job-mch.blank-no))
-      userField[10] = setUserField(10,IF AVAILABLE eb THEN STRING(convBase16(eb.len),dimFormat) ELSE '')
-      userField[11] = setUserField(11,IF AVAILABLE eb THEN STRING(convBase16(eb.wid),dimFormat) ELSE '')
-      userField[12] = setUserField(12,IF AVAILABLE eb THEN STRING(convBase16(eb.dep),dimFormat) ELSE '')
-      userField[13] = setUserField(13,IF AVAILABLE eb THEN eb.style ELSE '')
-      userField[15] = setUserField(15,IF job-mch.run-qty EQ ? THEN '' ELSE LEFT-TRIM(STRING(job-mch.run-qty,'zzz,zzz,zz9')))
-      userField[16] = setUserField(16,IF AVAILABLE po-ordl THEN STRING(po-ordl.due-date,'99/99/9999') ELSE '')
-      userField[17] = setUserField(17,IF AVAILABLE po-ord THEN po-ord.vend-no ELSE '')
-      userField[18] = setUserField(18,STRING(job-mch.frm,'zz9'))
-      userField[19] = setUserField(19,STRING(job-mch.blank-no,'>>>'))
-      userField[20] = setUserField(20,STRING(job-mch.pass,'zz9'))
-      userField[21] = setUserField(21,IF AVAILABLE itemfg THEN itemfg.procat ELSE '')
-      userField[22] = setUserField(22,IF AVAILABLE ef THEN STRING(ef.cal,'9.99999') ELSE '')
-      userField[23] = setUserField(23,IF AVAILABLE ef THEN STRING(ef.gsh-qty,'-zz,zzz,zz9') ELSE '')
-      userField[24] = setUserField(24,IF AVAILABLE eb THEN eb.adhesive ELSE '')
-      userField[25] = setUserField(25,IF AVAILABLE eb THEN STRING(eb.i-coat,'z9') ELSE '')
-      userField[28] = setUserField(28,IF AVAILABLE eb THEN eb.i-coldscr ELSE '')
-      userField[34] = setUserField(34,IF AVAILABLE itemfg THEN itemfg.cad-no ELSE '')
-      userField[35] = setUserField(35,IF AVAILABLE eb AND eb.est-type EQ 6 AND eb.form-no NE 0 THEN
-                                      getSetPOQtyRec(job-mch.company,job-mch.job-no,job-mch.job-no2,eb.form-no,eb.stock-no)
-                                 ELSE IF AVAILABLE po-ordl THEN STRING(po-ordl.t-rec-qty,'->,>>>,>>>,>>9.99<<<')
-                                 ELSE '')
-      userField[51] = setUserField(51,IF AVAILABLE eb THEN eb.tr-no ELSE '')
-      iNumUp        = IF INTEGER(userField[31]) LT 1 THEN 1 ELSE INTEGER(userField[31])
-      userField[52] = setUserField(52,IF AVAILABLE itemfg THEN STRING(DECIMAL(userField[52]) / iNumUp * itemfg.t-sqft / 1000,'->,>>9.999') ELSE '')
-      userField[53] = setUserField(53,IF AVAILABLE eb THEN STRING(eb.tab-in,'In/Out') ELSE '')
-      dRunMSF       = 0
-      dRunMSF       = job-mch.run-qty / iNumUp * itemfg.t-sqft / 1000 WHEN AVAIL itemfg AND job-mch.run-qty NE ?
-      userField[54] = setUserField(54,IF dRunMSF LT 1000000 THEN STRING(dRunMSF,'->>>,>>9.99999') ELSE '')
-      userField[57] = ''
-      userField[57] = setUserField(57,prodQty(job-mch.company,job-mch.m-code,job-mch.job-no,
-                                              job-mch.job-no2,job-mch.frm,job-mch.blank-no,
-                                              job-mch.pass,prodQtyProgram)) WHEN prodQtyProgram NE ?
-      userField[58] = setUserField(58,IF AVAILABLE ef THEN STRING(ef.gsh-len,'>>,>>9.9999') ELSE '')
-      userField[59] = setUserField(59,IF AVAILABLE ef THEN STRING(ef.gsh-wid,'>>,>>9.9999') ELSE '')
-      userField[60] = setUserField(60,IF AVAILABLE eb THEN eb.cas-no ELSE '')
-      userField[64] = setUserField(64,IF AVAILABLE itemfg THEN itemfg.part-no ELSE '')
-      userField[83] = setUserField(83,job.stat)
-      userField[85] = setUserField(85,fDueQty(INT(userField[15]),INT(userField[57]),DEC(userField[86]),DEC(userField[87])))
-      userField[88] = setUserField(88,IF job-mch.speed EQ ? THEN '' ELSE LEFT-TRIM(STRING(job-mch.speed,'z,zzz,zz9')))
-      userField[89] = setUserField(89,STRING(job.create-date,'99/99/9999'))
-      userField[96] = setUserField(96,STRING(job-mch.mr-hr,'>,>>9.99'))
-      userField[97] = setUserField(97,STRING(job-mch.run-hr,'>,>>9.99'))
-      dMSF          = 0
-      iMRWaste      = job-mch.mr-waste
-      iRunWaste     = job-mch.run-qty * job-mch.wst-prct / 100
-      dMSF          = (iMRWaste + iRunWaste + job-mch.run-qty) / iNumUp * itemfg.t-sqft / 1000 WHEN AVAIL itemfg AND job-mch.run-qty NE ?
-      userField[98] = setUserField(98,IF dMSF LT 1000000 THEN STRING(dMSF,'->>>,>>9.99999') ELSE '')
-      userField[99] = setUserField(99,IF AVAILABLE itemfg THEN STRING(itemfg.t-sqft,'>>>9.999<<') ELSE '')
+      customVal      = SUBSTR(customValueList,2)
+      lagTime        = job-mch.lag-time
+      liveUpdate     = job-mch.sbLiveUpdate
+      userField[1]   = setUserField(1,custNo)
+      userField[2]   = setUserField(2,custName)
+      userField[5]   = setUserField(5,IF AVAILABLE eb THEN eb.die-no ELSE '')
+      userField[6]   = setUserField(6,IF AVAILABLE eb THEN eb.plate-no ELSE '')
+      userField[7]   = setUserField(7,IF AVAILABLE po-ordl THEN STRING(po-ordl.po-no,'>>>>>9') ELSE '')
+      userField[8]   = setUserField(8,IF AVAIL eb AND eb.est-type EQ 6 THEN eb.stock-no /* set */
+                                 ELSE IF job-mch.i-no NE '' THEN job-mch.i-no
+                                 ELSE IF AVAILABLE itemfg AND itemfg.i-no EQ '' THEN itemfg.i-no
+                                 ELSE itemDescription)
+      userField[9]   = setUserField(9,IF userField[8] EQ '<Multi Item>' THEN '<Multiple Items>'
+                                 ELSE IF job-mch.i-name NE '' THEN job-mch.i-name
+                                 ELSE IF AVAILABLE itemfg AND itemfg.i-name NE '' THEN itemfg.i-name
+                                 ELSE getItemName(job-mch.company,job-mch.job-no,job-mch.job,
+                                                  job-mch.job-no2,job-mch.frm,job-mch.blank-no))
+      userField[10]  = setUserField(10,IF AVAILABLE eb THEN STRING(convBase16(eb.len),dimFormat) ELSE '')
+      userField[11]  = setUserField(11,IF AVAILABLE eb THEN STRING(convBase16(eb.wid),dimFormat) ELSE '')
+      userField[12]  = setUserField(12,IF AVAILABLE eb THEN STRING(convBase16(eb.dep),dimFormat) ELSE '')
+      userField[13]  = setUserField(13,IF AVAILABLE eb THEN eb.style ELSE '')
+      userField[15]  = setUserField(15,IF job-mch.run-qty EQ ? THEN '' ELSE LEFT-TRIM(STRING(job-mch.run-qty,'zzz,zzz,zz9')))
+      userField[16]  = setUserField(16,IF AVAILABLE po-ordl THEN STRING(po-ordl.due-date,'99/99/9999') ELSE '')
+      userField[17]  = setUserField(17,IF AVAILABLE po-ord THEN po-ord.vend-no ELSE '')
+      userField[18]  = setUserField(18,STRING(job-mch.frm,'zz9'))
+      userField[19]  = setUserField(19,STRING(job-mch.blank-no,'>>>'))
+      userField[20]  = setUserField(20,STRING(job-mch.pass,'zz9'))
+      userField[21]  = setUserField(21,IF AVAILABLE itemfg THEN itemfg.procat ELSE '')
+      userField[22]  = setUserField(22,IF AVAILABLE ef THEN STRING(ef.cal,'9.99999') ELSE '')
+      userField[23]  = setUserField(23,IF AVAILABLE ef THEN STRING(ef.gsh-qty,'-zz,zzz,zz9') ELSE '')
+      userField[24]  = setUserField(24,IF AVAILABLE eb THEN eb.adhesive ELSE '')
+      userField[25]  = setUserField(25,IF AVAILABLE eb THEN STRING(eb.i-coat,'z9') ELSE '')
+      userField[28]  = setUserField(28,IF AVAILABLE eb THEN eb.i-coldscr ELSE '')
+      userField[32]  = setUserField(32,STRING(DECIMAL(userField[29]) * (DECIMAL(userField[30]) / 12),'>>,>>>,>>9'))
+      userField[33]  = setUserField(33,STRING(DECIMAL(userField[29]) * DECIMAL(userField[31]),'>>,>>>,>>9.99<'))
+      userField[34]  = setUserField(34,IF AVAILABLE itemfg THEN itemfg.cad-no ELSE '')
+      userField[35]  = setUserField(35,IF AVAILABLE eb AND eb.est-type EQ 6 AND eb.form-no NE 0 THEN
+                                       getSetPOQtyRec(job-mch.company,job-mch.job-no,job-mch.job-no2,eb.form-no,eb.stock-no)
+                                  ELSE IF AVAILABLE po-ordl THEN STRING(po-ordl.t-rec-qty,'->,>>>,>>>,>>9.99<<<')
+                                  ELSE '')
+      userField[51]  = setUserField(51,IF AVAILABLE eb THEN eb.tr-no ELSE '')
+      iNumUp         = IF INTEGER(userField[31]) LT 1 THEN 1 ELSE INTEGER(userField[31])
+      userField[52]  = setUserField(52,IF AVAILABLE itemfg THEN STRING(DECIMAL(userField[52]) / iNumUp * itemfg.t-sqft / 1000,'->,>>9.999') ELSE '')
+      userField[53]  = setUserField(53,IF AVAILABLE eb THEN STRING(eb.tab-in,'In/Out') ELSE '')
+      dSqft          = IF AVAILABLE eb THEN eb.t-sqft ELSE IF AVAILABLE itemfg THEN itemfg.t-sqft ELSE 0
+      dRunMSF        = 0
+      dRunMSF        = job-mch.run-qty / iNumUp * dSqft / 1000 WHEN job-mch.run-qty NE ?
+      userField[54]  = setUserField(54,IF dRunMSF LT 1000000 THEN STRING(dRunMSF,'->>>,>>9.99999') ELSE '')
+      userField[57]  = ''
+      userField[57]  = setUserField(57,prodQty(job-mch.company,job-mch.m-code,job-mch.job-no,
+                                               job-mch.job-no2,job-mch.frm,job-mch.blank-no,
+                                               job-mch.pass,prodQtyProgram)) WHEN prodQtyProgram NE ?
+      userField[58]  = setUserField(58,IF AVAILABLE ef THEN STRING(ef.gsh-len,'>>,>>9.9999') ELSE '')
+      userField[59]  = setUserField(59,IF AVAILABLE ef THEN STRING(ef.gsh-wid,'>>,>>9.9999') ELSE '')
+      userField[60]  = setUserField(60,IF AVAILABLE eb THEN eb.cas-no ELSE '')
+      userField[64]  = setUserField(64,IF AVAILABLE itemfg THEN itemfg.part-no ELSE '')
+      userField[83]  = setUserField(83,job.stat)
+      userField[85]  = setUserField(85,fDueQty(INT(userField[15]),INT(userField[57]),DEC(userField[86]),DEC(userField[87])))
+      userField[88]  = setUserField(88,IF job-mch.speed EQ ? THEN '' ELSE LEFT-TRIM(STRING(job-mch.speed,'z,zzz,zz9')))
+      userField[89]  = setUserField(89,STRING(job.create-date,'99/99/9999'))
+      userField[96]  = setUserField(96,STRING(job-mch.mr-hr,'>,>>9.99'))
+      userField[97]  = setUserField(97,STRING(job-mch.run-hr,'>,>>9.99'))
+      dMSF           = 0
+      iMRWaste       = job-mch.mr-waste
+      iRunWaste      = job-mch.run-qty * job-mch.wst-prct / 100
+      dMSF           = (iMRWaste + iRunWaste + job-mch.run-qty) / iNumUp * dSqft / 1000 WHEN job-mch.run-qty NE ?
+      userField[98]  = setUserField(98,IF dMSF LT 1000000 THEN STRING(dMSF,'->>>,>>9.99999') ELSE '')
+      userField[99]  = setUserField(99,IF AVAILABLE itemfg THEN STRING(itemfg.t-sqft,'>>>9.999<<') ELSE '')
       userField[100] = setUserField(100,STRING(iMRWaste,'>>>9'))
       userField[101] = setUserField(101,STRING(iRunWaste,'>>>,>>9'))
       userField[102] = setUserField(102,specialTime(INTEGER(TRUNCATE(job-mch.mr-hr,0) * 3600 + (job-mch.mr-hr - TRUNCATE(job-mch.mr-hr,0)) * 3600)))
@@ -1022,51 +1043,32 @@ FOR EACH job-hdr NO-LOCK
             'Run MSF:' job-mch.run-qty * itemfg.t-sqft / 1000
         VIEW-AS ALERT-BOX TITLE 'Run MSF Error'.
 
-    RUN ipJobMaterial (job-mch.company,
-                       job-mch.job,
-                       job-mch.job-no,
-                       job-mch.job-no2,
-                       job-mch.frm,
-                       job-mch.blank-no,
-                       job-mch.i-no,
-                       OUTPUT boardLength,
-                       OUTPUT boardWidth,
-                       OUTPUT jobBoard,
-                       OUTPUT userField[3],  /* B */
-                       OUTPUT userField[14], /* I */
-                       OUTPUT userField[55], /* D */
-                       OUTPUT userField[56], /* D */
-                       OUTPUT userField[61], /* 5 */
-                       OUTPUT userField[93], /* 5 */
-                       OUTPUT userField[62], /* 6 */
-                       OUTPUT userField[94], /* 6 */
-                       OUTPUT userField[70], /* V */
-                       OUTPUT userField[71], /* A */
-                       OUTPUT userField[78], /* C */
-                       OUTPUT userField[79], /* C */
-                       OUTPUT userField[81], /* W */
-                       OUTPUT userField[95]  /* Required Qty */
-                       ).
-
-    RUN ipJobMatField (job-mch.company,
-                       job-mch.j-no,
-                       job-mch.i-no,
-                       job-mch.frm,
-                       job-mch.blank-no,
-                       '>>,>>>,>>9.99<',
-                       '>>9.99<<',
-                       '>>>9',
-                       OUTPUT userField[29],
-                       OUTPUT userField[30],
-                       OUTPUT userField[31]).
-
-    IF AVAILABLE eb AND INTEGER(userField[31]) EQ 0 THEN
-    userField[31] = STRING(eb.num-up,'>>>9').
-
-    ASSIGN
-      userField[32] = setUserField(32,STRING(DECIMAL(userField[29]) * (DECIMAL(userField[30]) / 12),'>>,>>>,>>9'))
-      userField[33] = setUserField(33,STRING(DECIMAL(userField[29]) * DECIMAL(userField[31]),'>>,>>>,>>9.99<'))
-      .
+    RUN ipJobMaterial (
+        job-mch.company,
+        job-mch.job,
+        job-mch.job-no,
+        job-mch.job-no2,
+        job-mch.frm,
+        job-mch.blank-no,
+        job-mch.i-no,
+        OUTPUT boardLength,
+        OUTPUT boardWidth,
+        OUTPUT jobBoard,
+        OUTPUT userField[3],  /* B */
+        OUTPUT userField[14], /* I */
+        OUTPUT userField[55], /* D */
+        OUTPUT userField[56], /* D */
+        OUTPUT userField[61], /* 5 */
+        OUTPUT userField[93], /* 5 */
+        OUTPUT userField[62], /* 6 */
+        OUTPUT userField[94], /* 6 */
+        OUTPUT userField[70], /* V */
+        OUTPUT userField[71], /* A */
+        OUTPUT userField[78], /* C */
+        OUTPUT userField[79], /* C */
+        OUTPUT userField[81], /* W */
+        OUTPUT userField[95]  /* Required Qty */
+        ).
 
     IF useField[71] THEN
     DO i = 1 TO NUM-ENTRIES(userField[71]):
