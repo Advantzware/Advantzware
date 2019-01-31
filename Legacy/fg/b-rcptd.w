@@ -3425,6 +3425,7 @@ PROCEDURE pGetCostsFromPO PRIVATE :
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiPONumber AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipiPOLine AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdQty AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdCostPerUOM AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCostUOM AS CHARACTER NO-UNDO.
@@ -3434,8 +3435,9 @@ PROCEDURE pGetCostsFromPO PRIVATE :
     DEFINE VARIABLE dCostPerEA        AS DECIMAL.
     DEFINE VARIABLE dCostFreight      AS DECIMAL.
     DEFINE VARIABLE dCostFreightPerEA AS DECIMAL.
-
-    RUN GetCostForPOLine IN hdCostProcs (ipcCompany, ipiPONumber, ipiPOLine, OUTPUT opdCostPerUOM, OUTPUT opcCostUOM, OUTPUT dCostFreight).
+    DEFINE VARIABLE lFound            AS LOGICAL.
+    
+    RUN GetCostForPOLine IN hdCostProcs (ipcCompany, ipiPONumber, ipiPOLine, ipcFGItemID, OUTPUT opdCostPerUOM, OUTPUT opcCostUOM, OUTPUT dCostFreight, OUTPUT lFound).
     dCostPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0, opdCostPerUOM).
     dCostFreightPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0, dCostFreight).
     ASSIGN 
@@ -3529,7 +3531,8 @@ PROCEDURE pDisplayPO PRIVATE:
     DO WITH FRAME {&FRAME-NAME}:
         IF fg-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" OR fg-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name} EQ "0" THEN 
             fg-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name} = "1".
-        RUN pGetCostsFromPO(cocode, INTEGER(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}), INTEGER(fg-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name}), DECIMAL(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}),
+        RUN pGetCostsFromPO(cocode, INTEGER(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}), INTEGER(fg-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name}), 
+            fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}, DECIMAL(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}),
             OUTPUT dCostPerUOM, OUTPUT cCostUOM, OUTPUT dCostExtended, OUTPUT dCostExtendedFreight). 
         ASSIGN                                                                             
             fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = cCostUOM
