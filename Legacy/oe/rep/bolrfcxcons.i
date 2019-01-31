@@ -116,7 +116,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
         END.
     END.
     ELSE do: 
-         IF v-printline >= 48 THEN DO: 
+         IF v-printline >= 40 THEN DO: 
           v-printline = 0.
           PAGE {1}.
           {oe/rep/bolrfcxcons2.i}
@@ -227,7 +227,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
         END.
     END.
     ELSE do: 
-         IF v-printline >= 48 THEN DO: 
+         IF v-printline >= 40 THEN DO: 
           v-printline = 0.
           PAGE {1}.
           {oe/rep/bolrfcxcons2.i}
@@ -262,7 +262,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
         END.
     END.
     ELSE do:  
-         IF v-printline >= 48 THEN DO: 
+         IF v-printline >= 40 THEN DO: 
           v-printline = 0.
           PAGE {1}.
           {oe/rep/bolrfcxcons2.i}
