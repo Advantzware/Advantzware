@@ -239,12 +239,6 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN fgcat.procat IN FRAME F-Main
    NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN v-charge IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN v-gl-fg IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN v-gl-rm IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -522,8 +516,7 @@ PROCEDURE local-assign-record :
   DEF VAR li AS INT NO-UNDO.
 
   DEF BUFFER sman-mtx-tmp FOR sman-mtx.
- ASSIGN FRAME {&FRAME-NAME} fgcat.miscCharge fgcat.brdExpAcct fgcat.cogsExpAcct.
-
+ 
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -566,14 +559,6 @@ PROCEDURE local-assign-record :
        /* sman-mtx-tmp.comm[1] = fgcat.comm. */
     end.
   end.
-
-FIND CURRENT fgcat EXCLUSIVE-LOCK NO-ERROR.
-ASSIGN
-  fgcat.miscCharge = v-charge
-  fgcat.brdExpAcct = v-gl-rm
-  fgcat.cogsExpAcct = v-gl-fg.
-FIND CURRENT fgcat NO-LOCK NO-ERROR.  
-
 
 
 END PROCEDURE.
@@ -639,16 +624,6 @@ PROCEDURE local-display-fields :
   DO WITH FRAME {&FRAME-NAME}:
     cat-format:SCREEN-VALUE = STRING(fgcat.commrate EQ 1,"yes/no").
   END.
-
-  IF NOT adm-new-record THEN
-  DO:
-    ASSIGN
-          v-charge = fgcat.miscCharge
-          v-gl-rm  = fgcat.brdExpAcct
-          v-gl-fg  = fgcat.cogsExpAcct.
-  END.
-
-  DISPLAY v-charge v-gl-rm v-gl-fg WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
