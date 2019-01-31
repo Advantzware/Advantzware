@@ -55,6 +55,7 @@ DEF VAR lv-sort-by-lab AS CHAR INIT "TR Date" NO-UNDO.
 DEF VAR ll-sort-asc AS LOG NO-UNDO.
 DEF VAR ld-ext-cost AS DEC NO-UNDO.
 DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
+DEFINE VARIABLE cVenTag AS CHARACTER NO-UNDO.
 
 DEF BUFFER rm-rcpth-1 FOR rm-rcpth.
 DEF BUFFER rm-rdtlh-1 FOR rm-rdtlh.
@@ -87,6 +88,7 @@ DEF BUFFER rm-rdtlh-1 FOR rm-rdtlh.
     IF lv-sort-by EQ "loc"        THEN rm-rdtlh.loc                                                   ELSE ~
     IF lv-sort-by EQ "loc-bin"    THEN rm-rdtlh.loc-bin                                               ELSE ~
     IF lv-sort-by EQ "tag"        THEN rm-rdtlh.tag                                                   ELSE ~
+    IF lv-sort-by EQ "cVenTag"   THEN fnVenTag ()                                                    ELSE ~
     IF lv-sort-by EQ "tag2"       THEN rm-rdtlh.tag2                                                  ELSE ~
     IF lv-sort-by EQ "pur-uom"    THEN rm-rcpth.pur-uom                                               ELSE ~
     IF lv-sort-by EQ "qty"        THEN STRING(rm-rdtlh.qty,"-9999999999.99")                          ELSE ~
@@ -131,7 +133,7 @@ DEF BUFFER rm-rdtlh-1 FOR rm-rdtlh.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table rm-rcpth.i-no rm-rcpth.po-no ~
 rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date ~
-rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty ~
+rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag fnVenTag () @ cVenTag rm-rdtlh.qty ~
 rm-rcpth.pur-uom rm-rdtlh.cost disp-uom () @ rm-rcpth.loc rm-rcpth.loc ~
 disp-uom () @ rm-rcpth.loc rm-rdtlh.qty * rm-rdtlh.cost @ ld-ext-cost ~
 rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no  ~
@@ -182,6 +184,14 @@ FUNCTION disp-uom RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnVenTag B-table-Win 
+FUNCTION fnVenTag RETURNS CHARACTER
+  (/* parameter-definitions */)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+   
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -322,6 +332,7 @@ DEFINE BROWSE Browser-Table
       rm-rdtlh.loc COLUMN-LABEL "Whs" FORMAT "x(5)":U LABEL-BGCOLOR 14
       rm-rdtlh.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       rm-rdtlh.tag COLUMN-LABEL "Tag" FORMAT "x(20)":U LABEL-BGCOLOR 14
+      fnVenTag () @ cVenTag COLUMN-LABEL "Vendor Tag#" FORMAT "x(25)":U LABEL-BGCOLOR 14
       rm-rdtlh.qty COLUMN-LABEL "Qty" FORMAT "->>>>,>>9.9<<<<<":U
             LABEL-BGCOLOR 14
       rm-rcpth.pur-uom COLUMN-LABEL "Qty/UOM" FORMAT "x(8)":U WIDTH 10.2
@@ -352,7 +363,7 @@ DEFINE BROWSE Browser-Table
       rm-rcpth.rita-code
       rm-rdtlh.loc
       rm-rdtlh.loc-bin
-      rm-rdtlh.tag
+      rm-rdtlh.tag      
       rm-rdtlh.qty
       rm-rcpth.pur-uom
       rm-rdtlh.cost
@@ -534,6 +545,8 @@ ASSIGN
 "rm-rdtlh.enteredBy" "Scanned By" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > ASI.rm-rdtlh.enteredDT
 "rm-rdtlh.enteredDT" "Scanned Date/Time" ? "datetime" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[24]   > "_<CALC>"
+"fnVenTag () @ cVenTag" "Vendor Tag#" "x(25)" "character" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -2063,3 +2076,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnVenTag B-table-Win 
+FUNCTION fnVenTag RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+     DEFINE VARIABLE iResult AS CHARACTER NO-UNDO.
+     DEFINE BUFFER bf-loadtag FOR loadtag.
+        IF AVAIL rm-rdtlh THEN 
+        DO:
+            FIND FIRST bf-loadtag NO-LOCK
+                 WHERE bf-loadtag.company EQ cocode
+                  AND bf-loadtag.item-type EQ YES
+                  AND bf-loadtag.tag-no EQ rm-rdtlh.tag            
+                NO-ERROR.
+            IF AVAILABLE bf-loadtag THEN
+                iResult = (bf-loadtag.misc-char[1]).
+        END.
+	    RETURN iResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+

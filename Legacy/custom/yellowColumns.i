@@ -523,6 +523,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Vendor PO#' THEN STRING(INT(rm-bin.po-no),"9999999999") ELSE ~
   IF sortColumn EQ 'Bin Loc' THEN rm-bin.loc-bin ELSE ~
   IF sortColumn EQ 'Tag #' THEN rm-bin.tag ELSE ~
+  IF sortColumn EQ 'Vendor Tag#' THEN fnVenTag() ELSE ~
   IF sortColumn EQ 'Quantity' THEN STRING(rm-bin.qty,'-999999.999') ELSE ~
   rm-bin.loc ~{&SORTED}
 
