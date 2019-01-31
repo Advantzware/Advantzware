@@ -84,6 +84,21 @@ ADD INDEX "AuditID" ON "AuditDtl"
   INDEX-FIELD "AuditField" ASCENDING 
   INDEX-FIELD "AuditExtent" ASCENDING 
 
+ADD INDEX "AuditAfterValue" ON "AuditDtl" 
+  AREA "Audit"
+  DESCRIPTION "Secondary Index by Audit After Value"
+  INDEX-FIELD "AuditAfterValue" ASCENDING 
+
+ADD INDEX "AuditBeforeValue" ON "AuditDtl" 
+  AREA "Audit"
+  DESCRIPTION "Secondary Index by Audit Before Value"
+  INDEX-FIELD "AuditBeforeValue" ASCENDING 
+
+ADD INDEX "AuditField" ON "AuditDtl" 
+  AREA "Audit"
+  DESCRIPTION "Secondary Index by Audit Field"
+  INDEX-FIELD "AuditField" ASCENDING 
+
 ADD TABLE "AuditHdr"
   AREA "Audit"
   LABEL "Audit Header"
@@ -182,19 +197,19 @@ ADD FIELD "AuditStackID" OF "AuditHdr" AS integer
   ORDER 90
 
 ADD INDEX "AuditID" ON "AuditHdr" 
-  AREA "Audit"  
+  AREA "Audit"
   UNIQUE
   PRIMARY
   DESCRIPTION "By Audit ID"
   INDEX-FIELD "AuditID" ASCENDING 
 
 ADD INDEX "AuditDateTime" ON "AuditHdr" 
-  AREA "Audit"  
+  AREA "Audit"
   DESCRIPTION "By Audit Date and Time"
   INDEX-FIELD "AuditDateTime" ASCENDING 
 
 ADD INDEX "AuditDBTable" ON "AuditHdr" 
-  AREA "Audit"  
+  AREA "Audit"
   DESCRIPTION "By Audit DB and Table"
   INDEX-FIELD "AuditDB" ASCENDING 
   INDEX-FIELD "AuditTable" ASCENDING 
@@ -210,12 +225,12 @@ ADD INDEX "AuditRecKey" ON "AuditHdr"
   INDEX-FIELD "AuditRecKey" ASCENDING 
 
 ADD INDEX "AuditType" ON "AuditHdr" 
-  AREA "Audit"  
+  AREA "Audit"
   DESCRIPTION "By Audit Type"
   INDEX-FIELD "AuditType" ASCENDING 
 
 ADD INDEX "AuditUser" ON "AuditHdr" 
-  AREA "Audit"  
+  AREA "Audit"
   DESCRIPTION "By Audit User"
   INDEX-FIELD "AuditUser" ASCENDING 
 
@@ -323,4 +338,4 @@ ADD INDEX "AuditTbl" ON "AuditTbl"
 PSC
 cpstream=ISO8859-1
 .
-0000006993
+0000007470
