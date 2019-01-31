@@ -3151,7 +3151,7 @@ PROCEDURE local-display-fields :
 
   IF NOT adm-new-record THEN DO:
      ASSIGN
-        fi_unit-1  = reftable.val[1]
+        fi_unit-1  = eb.unitNo[1]
         fi_unit-2  = eb.unitNo[2]
         fi_unit-3  = eb.unitNo[3]
         fi_unit-4  = eb.unitNo[4]
