@@ -45,21 +45,19 @@
 def var lv-first-time as log init yes no-undo.
 def var lv-type-dscr as cha no-undo.
 
-&scoped-define fld-name-1 eb.est-no
-&scoped-define fld-name-2 eb.cust-no
-&scoped-define fld-name-3 cust.NAME
-&scoped-define fld-name-4 eb.part-no
-/*
-&scoped-define SORTBY-1 BY eb.est-no DESCENDING
-&scoped-define SORTBY-2 BY eb.cust-no BY eb.est-no DESCENDING
-&scoped-define SORTBY-3 BY eb.ship-name BY eb.est-no DESCENDING
-&scoped-define SORTBY-4 BY eb.part-no BY eb.est-no DESCENDING
-*/
+DEFINE TEMP-TABLE tt-eb LIKE eb
+     FIELD cust-name AS CHARACTER 
+     FIELD rROWID AS ROWID  .
 
-&scoped-define SORTBY-1 BY eb.est-no BY eb.form-no BY eb.blank-no
-&scoped-define SORTBY-2 BY eb.cust-no {&SORTBY-1}
-&scoped-define SORTBY-3 BY cust.NAME {&SORTBY-1}
-&scoped-define SORTBY-4 BY eb.part-no {&SORTBY-1}
+&scoped-define fld-name-1 tt-eb.est-no
+&scoped-define fld-name-2 tt-eb.cust-no
+&scoped-define fld-name-3 tt-eb.cust-name
+&scoped-define fld-name-4 tt-eb.part-no
+
+&scoped-define SORTBY-1 BY tt-eb.est-no DESC BY tt-eb.form-no BY tt-eb.blank-no
+&scoped-define SORTBY-2 BY tt-eb.cust-no {&SORTBY-1}
+&scoped-define SORTBY-3 BY tt-eb.cust-name {&SORTBY-1}
+&scoped-define SORTBY-4 BY tt-eb.part-no {&SORTBY-1}
 
 &global-define IAMWHAT LOOKUP
 
@@ -98,24 +96,23 @@ ASSIGN
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES eb cust
+&Scoped-define INTERNAL-TABLES tt-eb 
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 eb.est-no eb.cust-no cust.NAME ~
-eb.part-dscr1 eb.part-no eb.style eb.len eb.wid eb.dep 
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-eb.est-no tt-eb.cust-no tt-eb.cust-name ~
+tt-eb.part-dscr1 tt-eb.part-no tt-eb.style tt-eb.len tt-eb.wid tt-eb.dep 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH eb WHERE ~{&KEY-PHRASE} NO-LOCK, ~
-           FIRST cust OF eb OUTER-JOIN NO-LOCK ~
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-eb WHERE ~{&KEY-PHRASE}  ~
+           AND tt-eb.company EQ ip-company  NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH eb WHERE ~{&KEY-PHRASE} NO-LOCK, ~
-           FIRST cust OF eb OUTER-JOIN NO-LOCK ~
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH tt-eb WHERE ~{&KEY-PHRASE}  ~
+           AND tt-eb.company EQ ip-company  NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 eb cust
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 eb
-&Scoped-define second-TABLE-IN-QUERY-BROWSE-1 cust
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 tt-eb 
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 tt-eb
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
@@ -178,25 +175,24 @@ DEFINE RECTANGLE RECT-1
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-      eb,
-      cust SCROLLING.
+      tt-eb SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      eb.est-no FORMAT "x(8)":U WIDTH 14 COLUMN-FONT 2 LABEL-BGCOLOR 14
-      eb.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U COLUMN-FONT 2
+      tt-eb.est-no FORMAT "x(8)":U WIDTH 14 COLUMN-FONT 2 LABEL-BGCOLOR 14
+      tt-eb.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U COLUMN-FONT 2
             LABEL-BGCOLOR 14
-      cust.NAME COLUMN-LABEL "Cust Name" FORMAT "x(30)":U COLUMN-FONT 2
+      tt-eb.cust-NAME COLUMN-LABEL "Cust Name" FORMAT "x(30)":U COLUMN-FONT 2
             LABEL-BGCOLOR 14
-      eb.part-dscr1 FORMAT "x(30)":U COLUMN-FONT 2 LABEL-BGCOLOR 14
-      eb.part-no FORMAT "x(15)":U COLUMN-FONT 2 LABEL-BGCOLOR 14
-      eb.style FORMAT "x(6)":U LABEL-BGCOLOR 14
-      eb.len FORMAT ">>>9.99999":U LABEL-BGCOLOR 14
-      eb.wid FORMAT ">>>9.99999":U LABEL-BGCOLOR 14
-      eb.dep FORMAT ">>>9.99999":U LABEL-BGCOLOR 14
+      tt-eb.part-dscr1 FORMAT "x(30)":U COLUMN-FONT 2 LABEL-BGCOLOR 14
+      tt-eb.part-no FORMAT "x(15)":U COLUMN-FONT 2 LABEL-BGCOLOR 14
+      tt-eb.style FORMAT "x(6)":U LABEL-BGCOLOR 14
+      tt-eb.len FORMAT ">>>9.99999":U LABEL-BGCOLOR 14
+      tt-eb.wid FORMAT ">>>9.99999":U LABEL-BGCOLOR 14
+      tt-eb.dep FORMAT ">>>9.99999":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 121 BY 11.43
@@ -259,25 +255,25 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "ASI.eb,ASI.cust OF ASI.eb"
+     _TblList          = "tt-eb"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _FldNameList[1]   > ASI.eb.est-no
+     _FldNameList[1]   > tt-eb.est-no
 "est-no" ? "x(8)" "character" ? ? 2 14 ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.eb.cust-no
+     _FldNameList[2]   > tt-eb.cust-no
 "cust-no" "Customer#" ? "character" ? ? 2 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.cust.name
-"name" "Cust Name" "x(30)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.eb.part-dscr1
+     _FldNameList[3]   > tt-eb.cust-name
+"cust-name" "Cust Name" "x(30)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > tt-eb.part-dscr1
 "part-dscr1" ? ? "character" ? ? 2 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.eb.part-no
+     _FldNameList[5]   > tt-eb.part-no
 "part-no" ? ? "character" ? ? 2 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.eb.style
+     _FldNameList[6]   > tt-eb.style
 "style" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > ASI.eb.len
+     _FldNameList[7]   > tt-eb.len
 "len" ? ">>>9.99999" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.eb.wid
+     _FldNameList[8]   > tt-eb.wid
 "wid" ? ">>>9.99999" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > ASI.eb.dep
+     _FldNameList[9]   > tt-eb.dep
 "dep" ? ">>>9.99999" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
@@ -320,7 +316,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-   op-char-val = string(recid(eb)).
+    FIND FIRST eb NO-LOCK
+        WHERE eb.company EQ ip-company
+          AND ROWID(eb) EQ tt-eb.rROWID NO-ERROR .
+    IF AVAIL eb THEN 
+        op-char-val = string(recid(eb)).
+    ELSE  op-char-val = "" .
    
    apply "window-close" to frame {&frame-name}.   
 END.
@@ -345,6 +346,7 @@ ON CHOOSE OF bt-clear IN FRAME Dialog-Frame /* Clear Find */
 DO:
     assign lv-search:screen-value = "".
            lv-search = "".
+           RUN pBuildSearch .
     case rd-sort:
         {srtord2.i 1}
         {srtord2.i 2}
@@ -362,7 +364,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-ok Dialog-Frame
 ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
-   op-char-val = string(recid(eb)).
+    FIND FIRST eb NO-LOCK
+        WHERE eb.company EQ ip-company
+          AND ROWID(eb) EQ tt-eb.rROWID NO-ERROR .
+    IF AVAIL eb THEN 
+        op-char-val = string(recid(eb)).
+    ELSE  op-char-val = "" .
    
    apply "window-close" to frame {&frame-name}.    
 END.
@@ -378,16 +385,11 @@ or return of lv-search
 DO:
     assign rd-sort 
            lv-search.
+    
     &scoped-define IAMWHAT Search
     &scoped-define where-statement begins lv-search 
-    /*
-    case rd-sort:
-        {srtord2.i 1}
-        {srtord2.i 2}
-    end.      
-    */
-    /* srtord2.i    resort include  same as srtord.i but use begins instead of >= and error */        
-
+    RUN pBuildSearch .       
+  
     RUN case-rd-sort.
 END.
 
@@ -402,6 +404,7 @@ DO:
     lv-search = "".
     lv-search:SCREEN-VALUE = "".
     ASSIGN rd-sort.
+    RUN pBuildSearch .
     RUN new-rd-sort.
 END.
 
@@ -428,7 +431,7 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   &scoped-define key-phrase eb.company = ip-company AND eb.loc = ip-loc
+   &scoped-define key-phrase tt-eb.loc = ip-loc
    
    /*&scoped-define key-phrase {&fld-name-2} >= ip-cur-val
    lv-search:screen-value in frame {&frame-name} = ip-cur-val.
@@ -447,10 +450,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     lv-search:SCREEN-VALUE = ip-cur-val.
+    
     ASSIGN rd-sort 
            lv-search NO-ERROR.
-
-  
+    RUN pBuildSearch .
     
     RUN enable_UI.
 
@@ -479,23 +482,7 @@ PROCEDURE case-rd-sort :
 
 DO WITH FRAME {&FRAME-NAME}:
   CASE rd-sort:
-    WHEN 1 THEN DO:
-      lv-search = FILL(" ",8 - LENGTH(TRIM(lv-search))) + TRIM(lv-search).
-      OPEN QUERY {&browse-name} FOR EACH ASI.eb WHERE 
-                                ASI.eb.company = ip-company 
-                                and eb.loc = ip-loc 
-                               AND eb.est-no GE lv-search NO-LOCK,
-                              FIRST cust OF eb OUTER-JOIN NO-LOCK
-                               {&SORTBY-1}.
-
-      IF ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}) = ? THEN
-      DO:
-        MESSAGE "Record not found beginning with '" + lv-search + "' !!!"
-        VIEW-AS ALERT-BOX.
-        /*    lv-search:screen-value = "".  */
-        APPLY "ENTRY" TO {&BROWSE-NAME}.
-      END.    
-    END.
+    {srtord2.i 1}
     {srtord2.i 2}
     {srtord2.i 3}
     {srtord2.i 4}
@@ -570,4 +557,110 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildSearch Dialog-Frame 
+PROCEDURE pBuildSearch :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO .
+    DEFINE VARIABLE cEstNo AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE cCust AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE cCustNo AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE cCustPart AS CHARACTER NO-UNDO .
+
+ DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN rd-sort.   
+    IF rd-sort EQ 1 THEN
+        ASSIGN cEstNo = lv-search .
+    ELSE IF rd-sort EQ 2 THEN
+        ASSIGN cCust = lv-search .
+    ELSE IF rd-sort EQ 3 THEN
+        ASSIGN cCustNo = lv-search .
+    ELSE IF rd-sort EQ 4 THEN
+        ASSIGN cCustPart = lv-search .
+  
+    EMPTY TEMP-TABLE tt-eb .
+  
+    
+    IF rd-sort EQ 1 THEN DO:
+        IF lv-search NE "" THEN
+            lv-search = FILL(" ",8 - LENGTH(TRIM(lv-search))) + TRIM(lv-search) .
+        FOR EACH eb WHERE eb.company EQ ip-company
+               AND eb.loc EQ ip-loc 
+               AND (eb.est-no BEGINS lv-search OR lv-search EQ "")
+             USE-INDEX est-no NO-LOCK BY eb.est-no DESC :
+            
+            FIND FIRST cust OF eb NO-LOCK
+                 WHERE cust.company EQ ip-company  NO-ERROR.
+            CREATE tt-eb .
+            BUFFER-COPY eb TO tt-eb .
+            tt-eb.rROWID = ROWID(eb) .
+            ASSIGN tt-eb.cust-name = IF AVAIL cust THEN cust.NAME ELSE "" .
+            ASSIGN 
+                iCount = iCount + 1 .
+            IF iCount GE 1000 THEN LEAVE .
+        END.
+    END.
+    ELSE IF rd-sort EQ 2 THEN DO: 
+        FOR EACH eb WHERE eb.company EQ ip-company
+               AND eb.loc EQ ip-loc 
+               AND eb.cust-no BEGINS lv-search USE-INDEX cust
+             NO-LOCK BY eb.cust-no :
+            
+            FIND FIRST cust OF eb NO-LOCK
+                 WHERE cust.company EQ ip-company  NO-ERROR.
+            CREATE tt-eb .
+            BUFFER-COPY eb TO tt-eb .
+            tt-eb.rROWID = ROWID(eb) .
+            ASSIGN tt-eb.cust-name = IF AVAIL cust THEN cust.NAME ELSE "" .
+            ASSIGN 
+                iCount = iCount + 1 .
+            IF iCount GE 1000 THEN LEAVE .
+        END.
+    END.
+    ELSE IF rd-sort EQ 3 THEN DO:
+        MAIN :
+        FOR EACH eb WHERE eb.company EQ ip-company
+               AND eb.loc EQ ip-loc
+               AND eb.cust-no NE "" USE-INDEX cust  NO-LOCK, 
+            
+             FIRST cust OF eb NO-LOCK
+                 WHERE cust.NAME BEGINS lv-search  :
+           
+            CREATE tt-eb .
+            BUFFER-COPY eb TO tt-eb .
+            tt-eb.rROWID = ROWID(eb) .
+            ASSIGN tt-eb.cust-name =  cust.NAME  .
+            ASSIGN 
+                iCount = iCount + 1 .
+            IF iCount GE 200 THEN LEAVE .
+        END.
+    END.
+    ELSE IF rd-sort EQ 4 THEN DO: 
+        FOR EACH eb WHERE eb.company EQ ip-company
+               AND eb.loc EQ ip-loc 
+               AND eb.part-no BEGINS lv-search USE-INDEX part
+             NO-LOCK BY eb.part-no :
+            
+            FIND FIRST cust OF eb NO-LOCK
+                 WHERE cust.company EQ ip-company  NO-ERROR.
+            CREATE tt-eb .
+            BUFFER-COPY eb TO tt-eb .
+            tt-eb.rROWID = ROWID(eb) .
+            ASSIGN tt-eb.cust-name = IF AVAIL cust THEN cust.NAME ELSE "" .
+            ASSIGN 
+                iCount = iCount + 1 .
+            IF iCount GE 1000 THEN LEAVE .
+        END.
+    END.
+ END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
