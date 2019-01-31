@@ -1517,7 +1517,7 @@ PROCEDURE run-report :
         AND job.job-no EQ costHeader.jobNo
         AND job.job-no2 EQ costHeader.JobNo2
         AND job.create-date GE v-fdate
-        AND job.create-date GE v-tdate ,
+        AND job.create-date LE v-tdate ,
         FIRST eb NO-LOCK 
         WHERE eb.company EQ costHeader.company
         AND eb.est-no EQ costHeader.estimateNo
