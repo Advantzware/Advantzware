@@ -352,7 +352,8 @@ ELSE lv-comp-color = "BLACK".
            v-t-tax = 0.
 
         for each ar-invl no-lock where ar-invl.x-no = ar-inv.x-no
-            BY ar-invl.i-no:
+            /*BY ar-invl.i-no*/ 
+            BY ar-invl.cas-cnt:
           assign v-case-line = ""
                  v-part-line = ""
                  v-case-cnt = ""

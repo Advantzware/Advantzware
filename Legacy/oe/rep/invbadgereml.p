@@ -335,7 +335,8 @@ for each report where report.term-id eq v-term-id no-lock,
            v-t-tax = 0.
 
         for each inv-line no-lock where inv-line.r-no = inv-head.r-no
-            BY inv-line.LINE /*i-no*/:
+            /*BY inv-line.LINE */
+            BY inv-line.cas-cnt:
           assign v-case-line = ""
                  v-part-line = ""
                  v-case-cnt = "".
