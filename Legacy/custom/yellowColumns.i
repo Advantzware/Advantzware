@@ -1220,7 +1220,7 @@ PROCEDURE openQuery:
 /* gdm - 10260911 */
 &ELSEIF '{&yellowColumnsName}' EQ 'l-est' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
-     IF sortColumn EQ 'Estimate #'      THEN eb.est-no                  ELSE ~
+     IF sortColumn EQ 'Estimate #'      THEN eb.est-no                   ELSE ~
      IF sortColumn EQ 'Customer#'       THEN STRING(eb.cust-no)          ELSE ~
      IF sortColumn EQ 'Cust Name'      THEN STRING(cust.name)            ELSE ~
      IF sortColumn EQ 'Item Description'THEN STRING(eb.part-dscr1)       ELSE ~
@@ -1230,6 +1230,19 @@ PROCEDURE openQuery:
      IF sortColumn EQ 'Length'          THEN STRING(eb.len, '>>9.99')    ELSE ~
      IF sortColumn EQ 'Width'           THEN STRING(eb.wid, '>>9.99')    ELSE ~
         STRING(eb.dep, '>>9.99') ~{&SORTED}
+
+&ELSEIF '{&yellowColumnsName}' EQ 'l-est-look' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+     IF sortColumn EQ 'Estimate #'      THEN tt-eb.est-no                   ELSE ~
+     IF sortColumn EQ 'Customer#'       THEN STRING(tt-eb.cust-no)          ELSE ~
+     IF sortColumn EQ 'Cust Name'      THEN STRING(tt-eb.cust-name)         ELSE ~
+     IF sortColumn EQ 'Item Description'THEN STRING(tt-eb.part-dscr1)       ELSE ~
+     IF sortColumn EQ 'Item Name'       THEN STRING(tt-eb.part-dscr1)       ELSE ~
+     IF sortColumn EQ 'Cust Part #'     THEN STRING(tt-eb.part-no)          ELSE ~
+     IF sortColumn EQ 'Style'           THEN STRING(tt-eb.style)            ELSE ~
+     IF sortColumn EQ 'Length'          THEN STRING(tt-eb.len, '>>9.99')    ELSE ~
+     IF sortColumn EQ 'Width'           THEN STRING(tt-eb.wid, '>>9.99')    ELSE ~
+        STRING(tt-eb.dep, '>>9.99') ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'l-estcst' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
