@@ -1003,7 +1003,7 @@ FOR EACH job-hdr NO-LOCK
       iNumUp         = IF INTEGER(userField[31]) LT 1 THEN 1 ELSE INTEGER(userField[31])
       userField[52]  = setUserField(52,IF AVAILABLE itemfg THEN STRING(DECIMAL(userField[52]) / iNumUp * itemfg.t-sqft / 1000,'->,>>9.999') ELSE '')
       userField[53]  = setUserField(53,IF AVAILABLE eb THEN STRING(eb.tab-in,'In/Out') ELSE '')
-      dSqft          = IF AVAILABLE eb THEN eb.t-sqft ELSE IF AVAILABLE itemfg THEN itemfg.t-sqft ELSE 0
+      dSqft          = IF AVAILABLE eb AND eb.t-sqin NE 0 THEN eb.t-sqin ELSE IF AVAILABLE itemfg THEN itemfg.t-sqft ELSE 0
       dRunMSF        = 0
       dRunMSF        = job-mch.run-qty / iNumUp * dSqft / 1000 WHEN job-mch.run-qty NE ?
       userField[54]  = setUserField(54,IF dRunMSF LT 1000000 THEN STRING(dRunMSF,'->>>,>>9.99999') ELSE '')
