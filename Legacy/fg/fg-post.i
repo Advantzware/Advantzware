@@ -1,4 +1,6 @@
 /* fg/fg-post.i   in GUI  copied and changed */ 
+DEFINE VARIABLE cStatusFgPost AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cReasonFGPost AS CHARACTER NO-UNDO .
 
   release prod.
   find first prodl
@@ -578,9 +580,37 @@
                WHERE cust.company EQ {2}.company
                  AND cust.cust-no EQ oe-bolh.cust-no NO-ERROR .
 
-           IF AVAIL oe-boll AND AVAIL cust AND cust.ACTIVE EQ "X" THEN
-               RUN oe/clsorditm.p (INPUT {2}.company, INPUT {2}.bol-no, INPUT {2}.i-no).
-       END.
+           IF AVAIL oe-boll AND AVAIL cust AND cust.ACTIVE EQ "X" THEN do:
+               FIND FIRST oe-ordl 
+                   WHERE oe-ordl.company EQ oe-boll.company
+                   AND oe-ordl.ord-no  EQ oe-boll.ord-no
+                   AND oe-ordl.i-no    EQ oe-boll.i-no
+                   AND oe-ordl.LINE    EQ oe-boll.LINE
+                   NO-LOCK NO-ERROR.
+
+               IF AVAIL oe-ordl THEN do:
+                   RUN oe/CloseOrder.p (INPUT ROWID(oe-ordl),
+                                INPUT YES,
+                                OUTPUT cStatusFgPost,
+                                OUTPUT cReasonFgPost).
+
+                   IF cStatusFgPost EQ 'C' THEN do:
+                       FIND oe-ord 
+                           WHERE oe-ord.company EQ oe-ordl.company
+                           AND oe-ord.ord-no  EQ oe-ordl.ord-no
+                           NO-LOCK NO-ERROR.
+
+                       IF AVAIL oe-ord THEN DO:
+                           IF NOT CAN-FIND(FIRST oe-ordl WHERE 
+                                           oe-ordl.company = oe-ord.company AND
+                                           oe-ordl.ord-no = oe-ord.ord-no AND 
+                                           oe-ordl.stat NE "C") THEN
+                               RUN oe\close.p(RECID(oe-ord), YES).
+                       END.
+                   END.
+               END.
+           END.  /* cust.cust-no x*/
+       END.  /* bol-no gt 0 */
 
   END.
   else if {1}.rita-code eq "A" then DO:       /** ADJUSTMENTS **/
