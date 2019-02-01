@@ -1128,8 +1128,6 @@ PROCEDURE local-assign-record :
 
     RUN reftable-values (NO).
 
-    FIND CURRENT e-item NO-LOCK.
-
     ASSIGN
         v-copy-record = NO
         v-old-vend-no = "".
