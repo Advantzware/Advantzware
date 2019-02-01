@@ -24,6 +24,9 @@
 /* Invoice Post Update GL.rpa */
 {aoa/tempTable/ttInvoicePostUpdateGL.i}
 
+/* Machine Orders by Due Date.rpa */
+{aoa/tempTable/ttMachineOrdersbyDueDate.i}
+
 /* Orders Booked.rpa */
 {aoa/tempTable/ttOrdersBooked.i}
 
@@ -76,6 +79,16 @@
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fBOLPackingList Procedure 
 FUNCTION fBOLPackingList RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fMachineOrdersbyDueDate) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMachineOrdersbyDueDate Procedure 
+FUNCTION fMachineOrdersbyDueDate RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -185,27 +198,23 @@ FUNCTION fScheduledReleases RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORW
 
 &IF DEFINED(EXCLUDE-fScheduledReleasesNotes) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fScheduledReleasesNotes Procedure
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fScheduledReleasesNotes Procedure 
 FUNCTION fScheduledReleasesNotes RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-fScheduledReleasesStats) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fScheduledReleasesStats Procedure
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fScheduledReleasesStats Procedure 
 FUNCTION fScheduledReleasesStats RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-fShipmentReport) = 0 &THEN
 
@@ -277,6 +286,28 @@ END FUNCTION.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-fMachineOrdersbyDueDate) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fMachineOrdersbyDueDate Procedure 
+FUNCTION fMachineOrdersbyDueDate RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
+/*------------------------------------------------------------------------------
+Purpose:  Machine Orders by Due Date.rpa
+Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttMachineOrdersbyDueDate.
+    
+    /* subject business logic */
+    RUN aoa/BL/r-mchord.p (OUTPUT TABLE ttMachineOrdersbyDueDate, ipcCompany, ipiBatch, ipcUserID).
+    
+    RETURN TEMP-TABLE ttMachineOrdersbyDueDate:HANDLE.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTableHandle Procedure 
@@ -299,6 +330,9 @@ FUNCTION fGetTableHandle RETURNS HANDLE
         /* Order Booked By Order No.rpa */
         WHEN "r-booko#." THEN
         RETURN TEMP-TABLE ttOrdersBookedByOrderNo:HANDLE.
+        /* Machine Orders by Due Date.rpa */
+        WHEN "r-mchord." THEN
+        RETURN TEMP-TABLE ttMachineOrdersbyDueDate:HANDLE.
         /* Open Order Repoer.rpa */
         WHEN "r-ordopn." THEN
         RETURN TEMP-TABLE ttOpenOrderReport:HANDLE.
@@ -537,7 +571,7 @@ END FUNCTION.
 
 &IF DEFINED(EXCLUDE-fScheduledReleasesNotes) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fScheduledReleasesNotes Procedure
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fScheduledReleasesNotes Procedure 
 FUNCTION fScheduledReleasesNotes RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
 /*------------------------------------------------------------------------------
   Purpose:  Scheduled Releases.rpa
@@ -551,17 +585,15 @@ FUNCTION fScheduledReleasesNotes RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) 
     RETURN TEMP-TABLE ttScheduledReleasesNotes:HANDLE .
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-fScheduledReleasesStats) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fScheduledReleasesStats Procedure
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fScheduledReleasesStats Procedure 
 FUNCTION fScheduledReleasesStats RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
 /*------------------------------------------------------------------------------
   Purpose:  Scheduled Releases.rpa
@@ -575,13 +607,11 @@ FUNCTION fScheduledReleasesStats RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) 
     RETURN TEMP-TABLE ttScheduledReleasesStats:HANDLE .
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-fShipmentReport) = 0 &THEN
 
