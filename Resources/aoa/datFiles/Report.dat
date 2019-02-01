@@ -21,7 +21,7 @@
 "OE" "Orders Booked" "r-booked." "OR5"
 "OE" "Orders Booked By Order No" "r-booko#." "OR11"
 "OE" "Post BOL / Create Invoices" "r-bolpst." "OS5"
-"OE" "Recap Product Category" "recappc." "OR17"
+"OE" "Recap Product Category" "recappc." "OR19"
 "OE" "Scheduled Releases" "r-sched." "OR2"
 "OE" "Shipping Report" "shiprpt." "OR18"
 "RM" "ReOrdering Advice" "r-reordr." "MR2"

@@ -65,7 +65,7 @@ DO WHILE AVAILABLE job-hdr:
         ttMachineOrdersbyDueDate.fgItem        = itemfg.i-name
         ttMachineOrdersbyDueDate.inventory     = job-mch.job-no BEGINS "S"
         ttMachineOrdersbyDueDate.custName      = cust.name
-        ttMachineOrdersbyDueDate.qtyOrdered    = job-mch.run-qty
+        ttMachineOrdersbyDueDate.qtyOrdered    = IF job-mch.run-qty NE ? THEN job-mch.run-qty ELSE 0
         ttMachineOrdersbyDueDate.numberOut     = IF ef.n-out NE ? THEN ef.n-out ELSE 0
         ttMachineOrdersbyDueDate.sheetsOrdered = oe-ordl.po-no-po NE 0
         ttMachineOrdersbyDueDate.qtyOnHand     = dQtyOnHand
