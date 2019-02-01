@@ -80,7 +80,7 @@ AND loadtag.loc BEGINS tb_loc ~
 AND loadtag.loc-bin BEGINS tb_loc-bin ~
 AND (loadtag.job-no EQ tb_job-no OR tb_job-no EQ '') ~
 AND (loadtag.job-no2 EQ tb_job-no2 OR tb_job-no EQ '') ~
-AND (loadtag.po-no EQ tb_po-no OR tb_po-no EQ 0) ~
+AND (loadtag.po-no EQ fi_po-no OR fi_po-no EQ 0) ~
 AND (loadtag.ord-no EQ tb_ord-no OR tb_ord-no EQ 0) ~
 AND loadtag.i-no BEGINS tb_i-no ~
 AND loadtag.i-name BEGINS tb_i-name ~
@@ -95,7 +95,7 @@ AND loadtag.loc BEGINS tb_loc ~
 AND loadtag.loc-bin BEGINS tb_loc-bin ~
 AND (loadtag.job-no EQ tb_job-no OR tb_job-no EQ '') ~
 AND (loadtag.job-no2 EQ tb_job-no2 OR tb_job-no EQ '') ~
-AND (loadtag.po-no EQ tb_po-no OR tb_po-no EQ 0) ~
+AND (loadtag.po-no EQ fi_po-no OR fi_po-no EQ 0) ~
 AND (loadtag.ord-no EQ tb_ord-no OR tb_ord-no EQ 0) ~
 AND loadtag.i-no BEGINS tb_i-no ~
 AND loadtag.i-name BEGINS tb_i-name ~
@@ -109,16 +109,16 @@ AND loadtag.misc-char[1] BEGINS tb_vend-tag NO-LOCK ~
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-4 tb_tag-no tb_loc tb_loc-bin tb_job-no ~
-tb_job-no2 tb_po-no tb_ord-no tb_i-no tb_i-name tb_vend-tag Browser-Table ~
+tb_job-no2 fi_po-no tb_ord-no tb_i-no tb_i-name tb_vend-tag Browser-Table ~
 browse-order auto_find Btn_Clear_Find 
 &Scoped-Define DISPLAYED-OBJECTS tb_tag-no tb_loc tb_loc-bin tb_job-no ~
-tb_job-no2 tb_po-no tb_ord-no tb_i-no tb_i-name tb_vend-tag browse-order ~
+tb_job-no2 fi_po-no tb_ord-no tb_i-no tb_i-name tb_vend-tag browse-order ~
 fi_sortby auto_find 
 
 /* Custom List Definitions                                              */
 /* filterFields,List-2,List-3,List-4,List-5,List-6                      */
 &Scoped-define filterFields tb_tag-no tb_loc tb_loc-bin tb_job-no ~
-tb_job-no2 tb_po-no tb_ord-no tb_i-no tb_i-name tb_vend-tag 
+tb_job-no2 fi_po-no tb_ord-no tb_i-no tb_i-name tb_vend-tag 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -180,7 +180,7 @@ DEFINE VARIABLE tb_ord-no AS INTEGER FORMAT ">>>>>9" INITIAL 0
      SIZE 8.8 BY 1
      BGCOLOR 15 .
 
-DEFINE VARIABLE tb_po-no AS INTEGER FORMAT ">>>>>9" INITIAL 0 
+DEFINE VARIABLE fi_po-no AS INTEGER FORMAT ">>>>>9" INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 8.8 BY 1
      BGCOLOR 15 .
@@ -268,7 +268,7 @@ DEFINE FRAME F-Main
           "Job Number." NO-LABEL
      tb_job-no2 AT ROW 1.71 COL 67 COLON-ALIGNED HELP
           "Enter Job sub-number." NO-LABEL
-     tb_po-no AT ROW 1.71 COL 71 COLON-ALIGNED NO-LABEL
+     fi_po-no AT ROW 1.71 COL 71 COLON-ALIGNED NO-LABEL
      tb_ord-no AT ROW 1.71 COL 80 COLON-ALIGNED NO-LABEL
      tb_i-no AT ROW 1.71 COL 89 COLON-ALIGNED HELP
           "Enter Item Number." NO-LABEL
@@ -402,7 +402,7 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR FILL-IN tb_ord-no IN FRAME F-Main
    1                                                                    */
-/* SETTINGS FOR FILL-IN tb_po-no IN FRAME F-Main
+/* SETTINGS FOR FILL-IN fi_po-no IN FRAME F-Main
    1                                                                    */
 /* SETTINGS FOR FILL-IN tb_tag-no IN FRAME F-Main
    ALIGN-L 1                                                            */
@@ -427,7 +427,7 @@ AND loadtag.loc BEGINS tb_loc
 AND loadtag.loc-bin BEGINS tb_loc-bin
 AND (loadtag.job-no EQ tb_job-no OR tb_job-no EQ '')
 AND (loadtag.job-no2 EQ tb_job-no2 OR tb_job-no EQ '')
-AND (loadtag.po-no EQ tb_po-no OR tb_po-no EQ 0)
+AND (loadtag.po-no EQ fi_po-no OR fi_po-no EQ 0)
 AND (loadtag.ord-no EQ tb_ord-no OR tb_ord-no EQ 0)
 AND loadtag.i-no BEGINS tb_i-no
 AND loadtag.i-name BEGINS tb_i-name
@@ -477,6 +477,46 @@ AND loadtag.misc-char[1] BEGINS tb_vend-tag"
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main B-table-Win
+ON HELP OF FRAME F-Main
+DO:
+   DEF VAR char-val AS CHAR NO-UNDO.
+   DEF VAR char-rec AS RECID NO-UNDO.
+   DEFINE BUFFER b-itemfg FOR itemfg.
+
+   CASE FOCUS:NAME:
+      WHEN "tb_ord-no" THEN DO:
+         RUN windows/l-ordno2.w (INPUT g_company,"", INPUT tb_ord-no:screen-value, OUTPUT char-val).
+         IF char-val <> "" THEN DO:
+            ASSIGN 
+               tb_ord-no:SCREEN-VALUE = ENTRY(1,char-val).
+              APPLY "entry" TO tb_ord-no.
+         END.                           
+      END.       
+      WHEN "tb_job-no" THEN DO:
+         RUN windows/l-jobno3.w (INPUT g_company,"", INPUT tb_job-no:screen-value,  OUTPUT char-val , OUTPUT char-rec ).
+         IF char-val <> "" THEN DO:
+            ASSIGN 
+               tb_job-no:SCREEN-VALUE = ENTRY(1,char-val).
+              APPLY "entry" TO tb_job-no.
+         END.                           
+      END.  
+      WHEN "tb_i-no" THEN DO:
+         RUN windows/l-itemfg.w (INPUT g_company,"", INPUT tb_i-no:SCREEN-VALUE, OUTPUT char-val).
+         IF char-val <> "" THEN DO:
+            ASSIGN 
+               tb_i-no:SCREEN-VALUE = ENTRY(2,char-val).
+              APPLY "entry" TO tb_i-no.
+         END.                           
+      END.  
+    END CASE.    
+    RETURN NO-APPLY.   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define BROWSE-NAME Browser-Table
 &Scoped-define SELF-NAME Browser-Table
@@ -529,7 +569,7 @@ END.
 &Scoped-define SELF-NAME tb_tag-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_tag-no B-table-Win
 ON RETURN OF tb_tag-no IN FRAME F-Main
-,tb_loc,tb_loc-bin,tb_job-no,tb_job-no2,tb_po-no,tb_ord-no,tb_i-no,tb_i-name,tb_vend-tag
+,tb_loc,tb_loc-bin,tb_job-no,tb_job-no2,fi_po-no,tb_ord-no,tb_i-no,tb_i-name,tb_vend-tag
 DO:
   ASSIGN {&filterFields}.
   IF tb_job-no NE '' THEN
@@ -546,7 +586,7 @@ END.
 &Scoped-define SELF-NAME tb_vend-tag
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_vend-tag B-table-Win
 ON RETURN OF tb_vend-tag IN FRAME F-Main
-,tb_loc,tb_loc-bin,tb_job-no,tb_job-no2,tb_po-no,tb_ord-no,tb_i-no,tb_i-name
+,tb_loc,tb_loc-bin,tb_job-no,tb_job-no2,fi_po-no,tb_ord-no,tb_i-no,tb_i-name
 DO:
   ASSIGN {&filterFields}.
   IF tb_job-no NE '' THEN
