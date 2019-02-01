@@ -82,16 +82,16 @@ ASSIGN cTextListToSelect  = "Order#,Customer#,Order Date,FG Item#,Cust Part#,Ite
                             "Shipped Qty,Job On Hand,Sell Price,UOM,Unit Count,Pallet Count,Skids,Status,Due Date," +
                             "Customer Name,Est#,Job#,CAD#,Invoice Qty,Act. Rel. Quantity,Production Balance,O/U%,Rep," +
                             "Rep Name,Release Date,Carrier,Ship To Code,FG On Hand,Orders Due,Items Due,Last User ID,Hold Reason Code,Hold/Approved Date," +
-                            "Scheduled Rel. Qty,Ship From,Ship To Name"
+                            "Scheduled Rel. Qty,Ship From,Ship To Name,Posted Date,Weight/100,Total Weight,Pallet Count"
 
        cFieldListToSelect = "oe-ordl.ord-no,oe-ordl.cust-no,oe-ord.ord-date,oe-ordl.i-no,oe-ordl.part-no,oe-ordl.i-name,oe-ordl.po-no,oe-ordl.qty,v-prod-qty," +
                             "oe-ordl.ship-qty,v-bal,oe-ordl.price,oe-ordl.pr-uom,case-count,pallet-count,skid-count,oe-ord.stat,oe-ordl.req-date," +
                             "oe-ord.cust-name,oe-ordl.est-no,job,cad-no,oe-ordl.inv-qty,act-rel-qty,wip-qty,pct,sman," +
                             "sname,reldate,carrier,shipid,fg-oh,oe-ord.due-date,oe-ordl.req-date,oe-ord.user-id,oe-ord.spare-char-2,approved-date," +
-                            "sch-rel-qty,ship-from,ship-name"
+                            "sch-rel-qty,ship-from,ship-name,post-date,weight-100,tot-wt,Pallet"
                             
-        cFieldLength = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,8,16,18," + "18,9,30"
-           cFieldType = "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c," + "c,c,c"
+        cFieldLength = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,8,16,18," + "18,9,30,15,15,15,15"
+           cFieldType = "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c"
        .
 
 {sys/inc/ttRptSel.i}
@@ -1175,6 +1175,8 @@ DEF VAR vsname  AS CHAR NO-UNDO .
 DEFINE VARIABLE cShipFr LIKE oe-rel.spare-char-1 NO-UNDO.
 DEFINE VARIABLE dSchRelQty AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cShipName AS CHARACTER NO-UNDO .
+DEFINE VARIABLE dtPostedDate AS DATE NO-UNDO .
+
 ASSIGN
    v-fcust[1]   = begin_cust-no
    v-fcust[2]   = end_cust-no
@@ -1244,40 +1246,43 @@ IF tb_excel THEN
          v-pallet-count = 0
          v-skid-count = 0
          v-cnt = v-cnt + 1
-         dSchRelQty = 0 .
+         dSchRelQty = 0 
+         dtPostedDate = ? .
 
         DEF VAR li AS INT NO-UNDO.
 
       IF AVAIL oe-ordl THEN DO:
          IF oe-ordl.job-no NE "" THEN
-            FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK WHERE fg-rcpth.company   EQ cocode
+            FOR EACH fg-rcpth FIELDS(r-no rita-code post-date) NO-LOCK WHERE fg-rcpth.company   EQ cocode
                                                                AND fg-rcpth.job-no    EQ oe-ordl.job-no
                                                                AND fg-rcpth.job-no2   EQ oe-ordl.job-no2
                                                                AND fg-rcpth.i-no      EQ oe-ordl.i-no
                                                                AND fg-rcpth.rita-code EQ "R"
                                                         USE-INDEX job,
                EACH fg-rdtlh FIELDS(qty) NO-LOCK WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-                                                   AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
+                                                   AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code by fg-rcpth.post-date:
                v-prod-qty = v-prod-qty + fg-rdtlh.qty.
+               dtPostedDate = (fg-rcpth.post-date) .
             END.
          ELSE DO:
             FOR EACH job-hdr FIELDS(job-no job-no2) WHERE job-hdr.company EQ cocode 
                                                       AND job-hdr.ord-no EQ oe-ordl.ord-no 
                                                       AND job-hdr.i-no EQ oe-ordl.i-no
                                                 USE-INDEX ord-no NO-LOCK,
-               EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK WHERE fg-rcpth.company   EQ cocode
+               EACH fg-rcpth FIELDS(r-no rita-code post-date) NO-LOCK WHERE fg-rcpth.company   EQ cocode
                                                               AND fg-rcpth.job-no    EQ job-hdr.job-no
                                                               AND fg-rcpth.job-no2   EQ job-hdr.job-no2
                                                               AND fg-rcpth.i-no      EQ oe-ordl.i-no
                                                               AND fg-rcpth.rita-code EQ "R"
                                                         USE-INDEX job,
                EACH fg-rdtlh FIELDS(qty) NO-LOCK WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-                                                   AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
+                                                   AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code by fg-rcpth.post-date:
                 v-prod-qty = v-prod-qty + fg-rdtlh.qty.
+                dtPostedDate = (fg-rcpth.post-date) .
             END.
          END.
                 IF oe-ordl.po-no-po NE 0 THEN   /* Task 05221402 */
-        FOR EACH fg-rcpth FIELDS(r-no rita-code) WHERE
+        FOR EACH fg-rcpth FIELDS(r-no rita-code post-date) WHERE
             fg-rcpth.company   EQ cocode AND
             fg-rcpth.po-no     EQ STRING(oe-ordl.po-no-po) AND
             fg-rcpth.i-no      EQ oe-ordl.i-no AND
@@ -1286,8 +1291,9 @@ IF tb_excel THEN
             EACH fg-rdtlh FIELDS(qty) WHERE
                  fg-rdtlh.r-no EQ fg-rcpth.r-no AND
                  fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-                 NO-LOCK:
+                 NO-LOCK by fg-rcpth.post-date:
                  v-prod-qty = v-prod-qty + fg-rdtlh.qty.
+                 dtPostedDate = (fg-rcpth.post-date) .
         END.
       END.
 
@@ -1506,6 +1512,11 @@ IF tb_excel THEN
                   WHEN "sch-rel-qty" THEN cVarValue = string(dSchRelQty).
                   WHEN "ship-from" THEN cVarValue = string(cShipFr,"x(9)").
                   WHEN "ship-name" THEN cVarValue = string(cShipName,"x(30)").
+
+                  WHEN "post-date" THEN cVarValue = IF dtPostedDate NE ? THEN STRING(dtPostedDate) ELSE ""    .
+                  WHEN "weight-100" THEN cVarValue = IF AVAIL itemfg THEN string(itemfg.weight-100) ELSE "".
+                  WHEN "tot-wt" THEN cVarValue =  string(itemfg.weight-100 * v-prod-qty / 100 ).
+                  WHEN "Pallet" THEN cVarValue = string(v-prod-qty / v-pallet-count).
              END CASE.
 
              cExcelVarValue = cVarValue.
