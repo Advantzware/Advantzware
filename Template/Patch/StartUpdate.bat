@@ -8,6 +8,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 
 :: Copy files/dirs from Patch to "regular" directories
 XCOPY /S /Y .\Admin\*.* ..\Admin > NUL
+XCOPY /S /Y .\DBDict\*.* ..\Documentation\DBDict > NUL
 XCOPY /S /Y .\ReleaseNotes\*.* ..\Documentation\ReleaseNotes > NUL
 XCOPY /S /Y .\Structure\*.* ..\Databases\Structure > NUL
 
@@ -29,7 +30,12 @@ XCOPY /Y .\progress.run !DLCDir!\progress.cfg > NUL
 COPY /Y .\UpdateLog.txt ..\Admin\EnvAdmin\UpdateLog2.txt > NUL
 COPY /Y ..\Admin\EnvAdmin\UpdateLog2.txt+..\Admin\EnvAdmin\UpdateLog.txt ..\Admin\EnvAdmin\UpdateLog3.txt > NUL
 
+:: Delete any unused/deprecated programs from dir structure
+cd ..\Desktop
+DEL /S /Q "ASI Update"* > NUL
+
 :: Remove all programs from /Updates dir
+cd ..\Updates
 RD /S /Q . > NUL
 DEL /S /Q *.* > NUL
 

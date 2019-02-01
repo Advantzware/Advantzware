@@ -29,8 +29,8 @@
 "bank" yes yes no no
 "bolh" yes yes no no
 "boll" yes yes no no
-"box-design-hdr" yes no no no
-"box-design-line" yes no no no
+"box-design-hdr" no no no no
+"box-design-line" no no no no
 "buyer" yes yes no no
 "carr-mtx" yes yes no no
 "carrier" yes yes no no
@@ -44,8 +44,6 @@
 "country" yes yes no no
 "credit-hold-type" yes yes no no
 "crew" yes yes no no
-"cueCard" no no no no
-"cueCardText" no no no no
 "currency" yes yes no no
 "cust" yes yes no no
 "cust-itm" yes yes no no
@@ -141,15 +139,15 @@
 "gl-rpt" yes yes no no
 "gl-rptd" yes yes no no
 "glhist" yes yes no no
-"gltrans" yes no no no
+"gltrans" no no no no
 "inv-head" yes yes no no
-"inv-line" yes yes no no
+"inv-line" yes yes yes yes
 "inv-misc" yes yes no no
 "item" yes yes no no
 "item-bom" yes yes no no
 "item-comm" yes yes no no
 "item-spec" yes yes no no
-"itemfg" yes yes no no
+"itemfg" yes yes yes no
 "itemfg-bom" yes yes no no
 "itemfg-ink" yes yes no no
 "itemfg-loc" yes yes no no
@@ -212,7 +210,7 @@
 "notes" yes yes no no
 "nrf-color" yes yes no no
 "nrf-size" yes yes no no
-"oe-bolh" yes yes no no
+"oe-bolh" yes yes yes no
 "oe-boll" yes yes no no
 "oe-boll-qty" yes yes no no
 "oe-ctrl" yes yes no no
@@ -281,7 +279,7 @@
 "rm-receipts" yes yes no no
 "routing" yes yes no no
 "routing-mtx" yes yes no no
-"sbNote" yes yes no no
+"sbNote" no yes no no
 "sbStatus" no no no no
 "scores" yes yes no no
 "scoreType" yes yes no no
@@ -317,7 +315,6 @@
 "terr" yes yes no no
 "test-red" yes yes no no
 "titlcode" yes yes no no
-"translation" yes yes no no
 "truck" yes yes no no
 "truck-run-print" yes yes no no
 "uom" yes yes no no
@@ -326,7 +323,6 @@
 "usercust" yes yes no no
 "userEula" yes yes no no
 "usergrps" yes yes no no
-"userLanguage" yes yes no no
 "userLog" yes yes no no
 "users" yes yes no no
 "usersman" yes yes no no
@@ -347,6 +343,4 @@
 "wip-bin" yes yes no no
 "wiptag" yes yes no no
 "wiptag-mch" yes yes no no
-"xCueCard" no no no no
-"xUserMenu" no no no no
 "zipcode" yes yes no no
