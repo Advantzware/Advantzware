@@ -7,8 +7,9 @@
   Created: 08/31/18
   Change History:
 ------------------------------------------------------------------------*/
+&SCOPED-DEFINE cDir N:\Repositories\Advantzware
 
-DEF VAR cOutDir AS CHAR INIT "N:\Repositories\Advantzware\PatchTemplate\DataFiles" NO-UNDO.
+DEF VAR cOutDir AS CHAR INIT "{&cDir}\Template\Patch\DataFiles" NO-UNDO.
 
 &SCOPED-DEFINE cFile audittbl
 
