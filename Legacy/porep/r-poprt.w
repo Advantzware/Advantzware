@@ -744,9 +744,11 @@ DO:
                     cPoMailList     = "" .
             END. /* FIRST-OF (b1-po-ord.vend-no) */
             IF rd-dest NE 5 THEN DO: /* rd-dest ne 5*/
-                RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
-                RUN run-report(0,b1-po-ord.vend-no, TRUE) . 
-                RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
+                IF FIRST-OF (b1-po-ord.vend-no) THEN DO:
+                   RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
+                   RUN run-report(0,b1-po-ord.vend-no, TRUE) . 
+                   RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
+                END.
             END.    /* rd-dest ne 5*/
             IF rd-dest EQ 5 THEN do:
                 IF FIRST-OF (b1-po-ord.po-no) THEN DO:

@@ -1,0 +1,55 @@
+
+
+ADVANCED BOX 400, INC.                               Bill of Lading #:  1815
+301 Oxford Valley                                              Page #:  1 of 1
+Yardley, PA  19067                                               Date:12/16/2005
+
+
+
+         Ship To:
+         AT&T Communications Corp.                  Carrier:    Our Truck
+         ATT Blvd                                 Trailer #:
+         Warehouse B                          Freight Terms:    Bill
+         Yardley, PA  19067                            Zone:    100
+         (215)555-1212                                  FOB:    Destination
+
+ Shipping Instructions:                       Payment Terms:    2% 10, Net 30
+Must pack boxes on 45" Pallet.  Shrink Wrap Pallets:
+Dock Times 7AM to 4PM
+Must pack boxes on 45" Pallet.  Shrink Wrap Pallets:
+Dock Times 7AM to 4PM
+Part #          PO#
+File #          JOB #           Description                    Unit-Qty  P/C Wgt
+--------------------------------------------------------------------------------
+8x8x8           Verbal PO       RSC 8x8x8 Stock Box               9@   100
+8x8x8                           200 C Kraft                       1@  100
+                                                           ---------------
+                                                              10=   1000  C  485
+
+5239            VerbalPO        RSC 8x8x13                        1@   500
+CATT10000041A     2455-00       ECT32 PaperBoard
+                                                           ---------------
+                                                               1=    500  C  322
+
+ATT-2977        VerbalPO        Sealed End 10x5x8               250@   500
+FATT10000003A     2455-01       5 Color + Coating
+                                                           ---------------
+                                                             250= 125000  C26050
+
+
+
+
+
+
+
+
+
+                                              Total Pallets:                 261
+                                               Total Weight:              26,857
+
+--------------------------------------------------------------------------------
+
+Customer_____________________                      Carrier_____________________
+
+    Date____________                                  Date____________
+

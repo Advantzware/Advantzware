@@ -1,0 +1,854 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta name="generator" content="HtmlDict.w version 11">
+  <meta name="author"    content="Patrick Tingen [patrick at tingen dot nl]">
+  <link rel="stylesheet" title="Default" type="text/css" href="../default.css">
+  <link rel="alternate stylesheet" title="blue" type="text/css" href="../blue.css">
+  <link rel="alternate stylesheet" title="default" type="text/css" href="../default.css">
+  <link rel="alternate stylesheet" title="green" type="text/css" href="../green.css">
+  <link rel="alternate stylesheet" title="oldstyle" type="text/css" href="../oldstyle.css">
+  <link rel="alternate stylesheet" title="red" type="text/css" href="../red.css">
+  <link rel="shortcut icon" href="../htmldict.ico">
+  <link rel="stylesheet" media="print" type="text/css" href="../print.css">
+  <script src="../swapstyle.js"    type="text/javascript"></script>
+  <script src="../stylechooser.js" type="text/javascript"></script>
+  <script src="../dbchooser.js"    type="text/javascript"></script>
+  <script src="../htmldict.js"     type="text/javascript"></script>
+  <title> Schema asi.taskExecution</title>
+</head>
+
+<body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
+<div><a name="top"></a></div>
+ 
+
+<table style="width:100%;">
+  <tr>
+    <td class="navbar" style="width:40%;"><a href="../00-index.html"target="_top">DB</a>
+ | <a href="00-area.html"target="main">Areas</a>
+ | <a href="00-cross.html"target="main">X-idx</a>
+ | <a href="00-main.html"target="main">Tables</a>
+ | <a href="00-sequences.html"target="main">Sequences</a>
+</td>
+    <td class="navbar" style="width:20%;">  &lt;- <a href="tag.html">tag</a></td>
+    <td class="navbar" style="width:20%;">  <a href="taskexecutionresults.html">taskExecutionResults</a> -&gt;</td>
+    <td class="navbar" style="width:20%; text-align:right;"><a href="../htmldict.html"target="_top">HtmlDict 11</a></td>
+  </tr>
+</table>
+<h1>asi.taskExecution</h1>
+<p></p>
+<hr>
+<div class="clearboth">
+  <div class="tbdetcol">
+    <h2>Table details</h2>
+    <table style="border-style:none;" >
+      <tr class="shadedrow"><th>Area</th>
+                            <td><a href="00-area.html">Data</a></td></tr>
+      <tr class="shadedrow"><th>Dumpname </th>
+                            <td> taskexecution      </td></tr>
+      <tr class="shadedrow"><th>Label    </th>     
+                            <td> ?      </td></tr>
+      <tr class="shadedrow"><th>Val.exp  </th>     
+                            <td> ?      </td></tr>
+      <tr class="shadedrow"><th>Val.msg  </th>     
+                            <td>       </td></tr>
+    </table>
+  </div>
+<div class="clearboth"></div>
+<hr style="margin-top:20px;">
+<h2>Fields</h2>
+
+<div id=SortName >
+<table style="width:100%; border-style:none;">
+  <tr>
+    <th><script type="text/javascript">
+    <!--
+    writeToggleBegin();
+    // -->
+    </script>Order<script type="text/javascript">
+    <!--
+    writeToggleEnd();
+    // -->
+    </script></th>
+    <th>Field Name</th>
+    <th>x</th>
+    <th>Label</th>
+    <th>Datatype</th>
+    <th>Format</th>
+    <th>Initial</th>
+    <th>Mand</th>
+    <th>Description</th>
+  </tr>
+  <tr class="oddrow">
+    <td>250</td>
+    <td>asiNotificationEmail</td>
+    <td><a href="00-cross-a.html#asiNotificationEmail"><small>X</small></a></td>
+    <td>ASI Notify Email</td>
+    <td>character</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Email address for any notification sent to ASI</td>
+  </tr>
+  <tr class="evenrow">
+    <td>260</td>
+    <td>asiResults</td>
+    <td><a href="00-cross-a.html#asiResults"><small>X</small></a></td>
+    <td>ASI Results Options</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Options for output of results ? Options include (None ? No result notifications, Audit Log ? Adds record to audit log, Log File ? Adds to log file, Email ? Sends email, etc)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>160</td>
+    <td>dataFileName</td>
+    <td><a href="00-cross-d.html#dataFileName"><small>X</small></a></td>
+    <td>Data File Name</td>
+    <td>character</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: The name or type of data file that will be utilized to execute the task (Not sure if needed) that includes wildcards (*.txt, Job*.dat, etc)
+Example: ASI Data, ODBC data, FTP Site, XML, Excel, Text, Database, File system
+</td>
+  </tr>
+  <tr class="evenrow">
+    <td>170</td>
+    <td>dataFileType</td>
+    <td><a href="00-cross-d.html#dataFileType"><small>X</small></a></td>
+    <td>Data File Type</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: The name or type of data file that will be utilized to execute the task (Not sure if needed) that includes wildcards (*.txt, Job*.dat, etc)
+Example: ASI Data, ODBC data, FTP Site, XML, Excel, Text, Database, File system
+</td>
+  </tr>
+  <tr class="oddrow">
+    <td>180</td>
+    <td>dataLocation</td>
+    <td><a href="00-cross-d.html#dataLocation"><small>X</small></a></td>
+    <td>Data Location</td>
+    <td>character</td>
+    <td>x(60)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: The location of the data to use for this task ? Where to look for the data files (\\servername\inputfiles\, n:\custfiles\, etc.)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>290</td>
+    <td>defaultSecurityLevel</td>
+    <td><a href="00-cross-d.html#defaultSecurityLevel"><small>X</small></a></td>
+    <td>Def. Sec. Level</td>
+    <td>integer</td>
+    <td>&gt;999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Default security level (Default = 900)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>30</td>
+    <td><a href="optconfg.html">description</a></td>
+    <td><a href="00-cross-d.html#description"><small>X</small></a></td>
+    <td>Description</td>
+    <td>character</td>
+    <td>x(60)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Description of monitor, what it does, how it does it, any other comments </td>
+  </tr>
+  <tr class="evenrow">
+    <td>60</td>
+    <td>endDT</td>
+    <td><a href="00-cross-e.html#endDT"><small>X</small></a></td>
+    <td>End D/T</td>
+    <td>datetime</td>
+    <td>99/99/9999 HH:MM:SS.SSS</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: The end time to execute the task ? Used to turn off the task</td>
+  </tr>
+  <tr class="oddrow">
+    <td>310</td>
+    <td>forceLogout</td>
+    <td><a href="00-cross-f.html#forceLogout"><small>X</small></a></td>
+    <td>Force Logout</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: The system shall have the option of forcing users out of the system when this task begins if it requires restarting of the server, the database or other critical process (Objective)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>270</td>
+    <td>isActive</td>
+    <td><a href="00-cross-i.html#isActive"><small>X</small></a></td>
+    <td>Active</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Active flag to indicate the task is active</td>
+  </tr>
+  <tr class="oddrow">
+    <td>110</td>
+    <td>lastExecutionDT</td>
+    <td><a href="00-cross-l.html#lastExecutionDT"><small>X</small></a></td>
+    <td>Last Executed D/T</td>
+    <td>datetime</td>
+    <td>99/99/9999 HH:MM:SS.SSS</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: This is the date of the last execution of this task that gets set once the task begins</td>
+  </tr>
+  <tr class="evenrow">
+    <td>120</td>
+    <td>lastResult</td>
+    <td><a href="00-cross-l.html#lastResult"><small>X</small></a></td>
+    <td>Last Result</td>
+    <td>character</td>
+    <td>x(24)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: reason code and description - Char(24) that is set once the task is either completed or there is a problem with the task to provide information to the user
+Example: Success, Failed, Could not Login, No response, File locked, stack trace etc. and is just text so it is flexible for ASI to write any result desired and not editable by user.
+</td>
+  </tr>
+  <tr class="oddrow">
+    <td>20</td>
+    <td>module</td>
+    <td><a href="00-cross-m.html#module"><small>X</small></a></td>
+    <td>Module</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: informational, but linked to module licensing</td>
+  </tr>
+  <tr class="evenrow">
+    <td>100</td>
+    <td>newSession</td>
+    <td><a href="00-cross-n.html#newSession"><small>X</small></a></td>
+    <td>New Session</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: This is used to indicate if the process should execute even if another session is required and utilizes a new user license</td>
+  </tr>
+  <tr class="oddrow">
+    <td>240</td>
+    <td>notificationEmail</td>
+    <td><a href="00-cross-n.html#notificationEmail"><small>X</small></a></td>
+    <td>Notification Email</td>
+    <td>character</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Email for any notifications related to task (This would normally be a group or admin user)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>300</td>
+    <td>notifyUsers</td>
+    <td><a href="00-cross-n.html#notifyUsers"><small>X</small></a></td>
+    <td>Notify Users</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Indicate if this task should notify all uses logged into the system that this task will be excuted (Logical)
+Example: 1020-260 ? The user is logged in and a message box displays a message ?System Backup has begun ? expect reduced performance until this task is completed?</td>
+  </tr>
+  <tr class="oddrow">
+    <td>200</td>
+    <td>processedData</td>
+    <td><a href="00-cross-p.html#processedData"><small>X</small></a></td>
+    <td>Processed Data</td>
+    <td>character</td>
+    <td>x(60)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Location of raw data that has been processed (Any file that is processed, keep the original file)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>210</td>
+    <td>rejectedData</td>
+    <td><a href="00-cross-r.html#rejectedData"><small>X</small></a></td>
+    <td>Rejected Data</td>
+    <td>character</td>
+    <td>x(60)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Location of processed data set that did not process successfully (User intervention would be required if this has any data)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>190</td>
+    <td>results</td>
+    <td><a href="00-cross-r.html#results"><small>X</small></a></td>
+    <td>Results</td>
+    <td>character</td>
+    <td>x(24)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Options for output of results ? Options include (None ? No result notifications, Audit Log ? Adds record to audit log, Log File ? Adds to some log file, Email ? Sends email, etc)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>220</td>
+    <td>retainNoResults</td>
+    <td><a href="00-cross-r.html#retainNoResults"><small>X</small></a></td>
+    <td>Retain NumResults</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Units of results to retain before purged (Either some time unit basis or number of results (From 0 (None) - 999 (All))</td>
+  </tr>
+  <tr class="oddrow">
+    <td>230</td>
+    <td>retainUnits</td>
+    <td><a href="00-cross-r.html#retainUnits"><small>X</small></a></td>
+    <td>Retain Units</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: The number of result sets or the number of days of results that are retained (Days OR Result sets)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>280</td>
+    <td>securityLevel</td>
+    <td><a href="00-cross-s.html#securityLevel"><small>X</small></a></td>
+    <td>Security Level</td>
+    <td>integer</td>
+    <td>&gt;999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Security level for editing of task (Default = 900)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>50</td>
+    <td>startDT</td>
+    <td><a href="00-cross-s.html#startDT"><small>X</small></a></td>
+    <td>Start Date/Time</td>
+    <td>datetime</td>
+    <td>99/99/9999 HH:MM:SS.SSS</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: The next date/time to start a task </td>
+  </tr>
+  <tr class="evenrow">
+    <td>150</td>
+    <td>startIn</td>
+    <td><a href="00-cross-s.html#startIn"><small>X</small></a></td>
+    <td>Start In</td>
+    <td>character</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Where the program should be located so it does not have to be in propath and can be any program reachable on the network</td>
+  </tr>
+  <tr class="oddrow">
+    <td>10</td>
+    <td>taskID</td>
+    <td><a href="00-cross-t.html#taskID"><small>X</small></a></td>
+    <td>Task  ID</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: id, unique identifier, no user editing, sequence number or other automatic numbered item</td>
+  </tr>
+  <tr class="evenrow">
+    <td>130</td>
+    <td>taskProgramName</td>
+    <td><a href="00-cross-t.html#taskProgramName"><small>X</small></a></td>
+    <td>Program Name</td>
+    <td>character</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Name of program to execute which can be a name or a reference to program master (To handle security, licensing, etc)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>140</td>
+    <td>taskSettings</td>
+    <td><a href="00-cross-t.html#taskSettings"><small>X</small></a></td>
+    <td>Task Settings</td>
+    <td>character</td>
+    <td>x(80)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: value to indicate the settings necessary to pass to the task (Like an execution string -n=40, -profiler, etc)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>90</td>
+    <td>taskType</td>
+    <td><a href="00-cross-t.html#taskType"><small>X</small></a></td>
+    <td>Task Type</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: (Chose one option) ? Program, Report, Utility, ASI 
+Example: Initially this will just be run the program, but ultimately this could be an email, send text message, trigger something in the system, execute a backup, restore the test database, set up team viewer, etc.
+</td>
+  </tr>
+  <tr class="oddrow">
+    <td>40</td>
+    <td>triggerEvennt</td>
+    <td><a href="00-cross-t.html#triggerEvennt"><small>X</small></a></td>
+    <td>Trigger Event</td>
+    <td>character</td>
+    <td>x(24)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Trigger, what executes the program to execute ? manually run, scheduled, non-stop, etc. (Default options include: One Time, Recurring, On Startup)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>70</td>
+    <td>triggerTime</td>
+    <td><a href="00-cross-t.html#triggerTime"><small>X</small></a></td>
+    <td>Trigger Time</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: The amount of time to set for it to run next time (Set to zero if it should run continuously)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>80</td>
+    <td>triggerUnit</td>
+    <td><a href="00-cross-t.html#triggerUnit"><small>X</small></a></td>
+    <td>Trigger Unit</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: This is the repeat which is used to determine the NEXT time the event should be run ? Minutes, Days
+Example: Repeat every (Time) (Unit) ? Repeat every [15] [minutes], Repeat every [7] [Days]
+</td>
+  </tr>
+</table>
+</div>
+<div id=SortOrder  style="display:none;">
+<table style="width:100%; border-style:none;">
+  <tr>
+    <th>Order</th>
+    <th><script type="text/javascript">
+    <!--
+    writeToggleBegin();
+    // -->
+    </script>Field Name<script type="text/javascript">
+    <!--
+    writeToggleEnd();
+    // -->
+    </script></th>
+    <th>x</th>
+    <th>Label</th>
+    <th>Datatype</th>
+    <th>Format</th>
+    <th>Initial</th>
+    <th>Mand</th>
+    <th>Description</th>
+  </tr>
+  <tr class="oddrow">
+    <td>10</td>
+    <td>taskID</td>
+    <td><a href="00-cross-t.html#taskID"><small>X</small></a></td>
+    <td>Task  ID</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: id, unique identifier, no user editing, sequence number or other automatic numbered item</td>
+  </tr>
+  <tr class="evenrow">
+    <td>20</td>
+    <td>module</td>
+    <td><a href="00-cross-m.html#module"><small>X</small></a></td>
+    <td>Module</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: informational, but linked to module licensing</td>
+  </tr>
+  <tr class="oddrow">
+    <td>30</td>
+    <td><a href="optconfg.html">description</a></td>
+    <td><a href="00-cross-d.html#description"><small>X</small></a></td>
+    <td>Description</td>
+    <td>character</td>
+    <td>x(60)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Description of monitor, what it does, how it does it, any other comments </td>
+  </tr>
+  <tr class="evenrow">
+    <td>40</td>
+    <td>triggerEvennt</td>
+    <td><a href="00-cross-t.html#triggerEvennt"><small>X</small></a></td>
+    <td>Trigger Event</td>
+    <td>character</td>
+    <td>x(24)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Trigger, what executes the program to execute ? manually run, scheduled, non-stop, etc. (Default options include: One Time, Recurring, On Startup)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>50</td>
+    <td>startDT</td>
+    <td><a href="00-cross-s.html#startDT"><small>X</small></a></td>
+    <td>Start Date/Time</td>
+    <td>datetime</td>
+    <td>99/99/9999 HH:MM:SS.SSS</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: The next date/time to start a task </td>
+  </tr>
+  <tr class="evenrow">
+    <td>60</td>
+    <td>endDT</td>
+    <td><a href="00-cross-e.html#endDT"><small>X</small></a></td>
+    <td>End D/T</td>
+    <td>datetime</td>
+    <td>99/99/9999 HH:MM:SS.SSS</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: The end time to execute the task ? Used to turn off the task</td>
+  </tr>
+  <tr class="oddrow">
+    <td>70</td>
+    <td>triggerTime</td>
+    <td><a href="00-cross-t.html#triggerTime"><small>X</small></a></td>
+    <td>Trigger Time</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: The amount of time to set for it to run next time (Set to zero if it should run continuously)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>80</td>
+    <td>triggerUnit</td>
+    <td><a href="00-cross-t.html#triggerUnit"><small>X</small></a></td>
+    <td>Trigger Unit</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: This is the repeat which is used to determine the NEXT time the event should be run ? Minutes, Days
+Example: Repeat every (Time) (Unit) ? Repeat every [15] [minutes], Repeat every [7] [Days]
+</td>
+  </tr>
+  <tr class="oddrow">
+    <td>90</td>
+    <td>taskType</td>
+    <td><a href="00-cross-t.html#taskType"><small>X</small></a></td>
+    <td>Task Type</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: (Chose one option) ? Program, Report, Utility, ASI 
+Example: Initially this will just be run the program, but ultimately this could be an email, send text message, trigger something in the system, execute a backup, restore the test database, set up team viewer, etc.
+</td>
+  </tr>
+  <tr class="evenrow">
+    <td>100</td>
+    <td>newSession</td>
+    <td><a href="00-cross-n.html#newSession"><small>X</small></a></td>
+    <td>New Session</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: This is used to indicate if the process should execute even if another session is required and utilizes a new user license</td>
+  </tr>
+  <tr class="oddrow">
+    <td>110</td>
+    <td>lastExecutionDT</td>
+    <td><a href="00-cross-l.html#lastExecutionDT"><small>X</small></a></td>
+    <td>Last Executed D/T</td>
+    <td>datetime</td>
+    <td>99/99/9999 HH:MM:SS.SSS</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: This is the date of the last execution of this task that gets set once the task begins</td>
+  </tr>
+  <tr class="evenrow">
+    <td>120</td>
+    <td>lastResult</td>
+    <td><a href="00-cross-l.html#lastResult"><small>X</small></a></td>
+    <td>Last Result</td>
+    <td>character</td>
+    <td>x(24)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: reason code and description - Char(24) that is set once the task is either completed or there is a problem with the task to provide information to the user
+Example: Success, Failed, Could not Login, No response, File locked, stack trace etc. and is just text so it is flexible for ASI to write any result desired and not editable by user.
+</td>
+  </tr>
+  <tr class="oddrow">
+    <td>130</td>
+    <td>taskProgramName</td>
+    <td><a href="00-cross-t.html#taskProgramName"><small>X</small></a></td>
+    <td>Program Name</td>
+    <td>character</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Name of program to execute which can be a name or a reference to program master (To handle security, licensing, etc)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>140</td>
+    <td>taskSettings</td>
+    <td><a href="00-cross-t.html#taskSettings"><small>X</small></a></td>
+    <td>Task Settings</td>
+    <td>character</td>
+    <td>x(80)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: value to indicate the settings necessary to pass to the task (Like an execution string -n=40, -profiler, etc)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>150</td>
+    <td>startIn</td>
+    <td><a href="00-cross-s.html#startIn"><small>X</small></a></td>
+    <td>Start In</td>
+    <td>character</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Where the program should be located so it does not have to be in propath and can be any program reachable on the network</td>
+  </tr>
+  <tr class="evenrow">
+    <td>160</td>
+    <td>dataFileName</td>
+    <td><a href="00-cross-d.html#dataFileName"><small>X</small></a></td>
+    <td>Data File Name</td>
+    <td>character</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: The name or type of data file that will be utilized to execute the task (Not sure if needed) that includes wildcards (*.txt, Job*.dat, etc)
+Example: ASI Data, ODBC data, FTP Site, XML, Excel, Text, Database, File system
+</td>
+  </tr>
+  <tr class="oddrow">
+    <td>170</td>
+    <td>dataFileType</td>
+    <td><a href="00-cross-d.html#dataFileType"><small>X</small></a></td>
+    <td>Data File Type</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: The name or type of data file that will be utilized to execute the task (Not sure if needed) that includes wildcards (*.txt, Job*.dat, etc)
+Example: ASI Data, ODBC data, FTP Site, XML, Excel, Text, Database, File system
+</td>
+  </tr>
+  <tr class="evenrow">
+    <td>180</td>
+    <td>dataLocation</td>
+    <td><a href="00-cross-d.html#dataLocation"><small>X</small></a></td>
+    <td>Data Location</td>
+    <td>character</td>
+    <td>x(60)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: The location of the data to use for this task ? Where to look for the data files (\\servername\inputfiles\, n:\custfiles\, etc.)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>190</td>
+    <td>results</td>
+    <td><a href="00-cross-r.html#results"><small>X</small></a></td>
+    <td>Results</td>
+    <td>character</td>
+    <td>x(24)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Options for output of results ? Options include (None ? No result notifications, Audit Log ? Adds record to audit log, Log File ? Adds to some log file, Email ? Sends email, etc)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>200</td>
+    <td>processedData</td>
+    <td><a href="00-cross-p.html#processedData"><small>X</small></a></td>
+    <td>Processed Data</td>
+    <td>character</td>
+    <td>x(60)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Location of raw data that has been processed (Any file that is processed, keep the original file)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>210</td>
+    <td>rejectedData</td>
+    <td><a href="00-cross-r.html#rejectedData"><small>X</small></a></td>
+    <td>Rejected Data</td>
+    <td>character</td>
+    <td>x(60)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Location of processed data set that did not process successfully (User intervention would be required if this has any data)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>220</td>
+    <td>retainNoResults</td>
+    <td><a href="00-cross-r.html#retainNoResults"><small>X</small></a></td>
+    <td>Retain NumResults</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Units of results to retain before purged (Either some time unit basis or number of results (From 0 (None) - 999 (All))</td>
+  </tr>
+  <tr class="oddrow">
+    <td>230</td>
+    <td>retainUnits</td>
+    <td><a href="00-cross-r.html#retainUnits"><small>X</small></a></td>
+    <td>Retain Units</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: The number of result sets or the number of days of results that are retained (Days OR Result sets)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>240</td>
+    <td>notificationEmail</td>
+    <td><a href="00-cross-n.html#notificationEmail"><small>X</small></a></td>
+    <td>Notification Email</td>
+    <td>character</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Email for any notifications related to task (This would normally be a group or admin user)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>250</td>
+    <td>asiNotificationEmail</td>
+    <td><a href="00-cross-a.html#asiNotificationEmail"><small>X</small></a></td>
+    <td>ASI Notify Email</td>
+    <td>character</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Email address for any notification sent to ASI</td>
+  </tr>
+  <tr class="evenrow">
+    <td>260</td>
+    <td>asiResults</td>
+    <td><a href="00-cross-a.html#asiResults"><small>X</small></a></td>
+    <td>ASI Results Options</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Options for output of results ? Options include (None ? No result notifications, Audit Log ? Adds record to audit log, Log File ? Adds to log file, Email ? Sends email, etc)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>270</td>
+    <td>isActive</td>
+    <td><a href="00-cross-i.html#isActive"><small>X</small></a></td>
+    <td>Active</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Active flag to indicate the task is active</td>
+  </tr>
+  <tr class="evenrow">
+    <td>280</td>
+    <td>securityLevel</td>
+    <td><a href="00-cross-s.html#securityLevel"><small>X</small></a></td>
+    <td>Security Level</td>
+    <td>integer</td>
+    <td>&gt;999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Security level for editing of task (Default = 900)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>290</td>
+    <td>defaultSecurityLevel</td>
+    <td><a href="00-cross-d.html#defaultSecurityLevel"><small>X</small></a></td>
+    <td>Def. Sec. Level</td>
+    <td>integer</td>
+    <td>&gt;999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Default security level (Default = 900)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>300</td>
+    <td>notifyUsers</td>
+    <td><a href="00-cross-n.html#notifyUsers"><small>X</small></a></td>
+    <td>Notify Users</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Indicate if this task should notify all uses logged into the system that this task will be excuted (Logical)
+Example: 1020-260 ? The user is logged in and a message box displays a message ?System Backup has begun ? expect reduced performance until this task is completed?</td>
+  </tr>
+  <tr class="oddrow">
+    <td>310</td>
+    <td>forceLogout</td>
+    <td><a href="00-cross-f.html#forceLogout"><small>X</small></a></td>
+    <td>Force Logout</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: The system shall have the option of forcing users out of the system when this task begins if it requires restarting of the server, the database or other critical process (Objective)</td>
+  </tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Indexes</h2>
+<table style="width:100%;">
+  <tr>
+    <th>Index name</th>
+    <th>Flags</th>
+    <th>Fields</th>
+    <th>Datatype</th>
+  </tr>
+  <tr class="oddrow">
+    <td>default</td>
+    <td>P       </td>
+    <td> &nbsp; </td>
+    <td> &nbsp; </td>
+  </tr>
+</table>
+<table style="width:100%; margin-top:10px;">
+  <tr>
+    <td>+ = Ascending</td>
+    <td>- = Descending</td>
+    <td>P = Primary</td>
+    <td>U = Unique</td>
+    <td>I = Inactive</td>
+    <td>W = Wordindex</td>
+  </tr>
+</table> 
+  <h2>Related tables</h2>
+  <table style="width:50%; float:left;">
+    <tr>
+      <th>Parent tables</th>
+    </tr>
+    <tr class="shadedrow">
+      <td><a href="optconfg.html">optconfg</a>&nbsp;&nbsp; </td>
+    </tr>
+  </table>
+<hr style="clear:both">
+<hr>
+<table style="width:100%; margin-top:10px;">
+  <tr><td style="text-align:right;"><i><small>generated 25-10-2018 10:20</small></i></td></tr>
+</table>
+</body>
+</html>

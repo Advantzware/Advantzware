@@ -531,10 +531,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.i-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF fg-rctd.i-no IN BROWSE Browser-Table /* Item */
 DO:
-  FIND itemfg
+  FIND FIRST itemfg NO-LOCK
       WHERE itemfg.company EQ cocode
         AND itemfg.i-no    BEGINS {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}
-      NO-LOCK NO-ERROR.
+       NO-ERROR.
   IF AVAIL itemfg THEN
     fg-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name.
 END.

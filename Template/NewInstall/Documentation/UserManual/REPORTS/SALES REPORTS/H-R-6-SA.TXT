@@ -1,0 +1,20 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 8:08pm                                         SHIPMENT HISTORY BY PRODUCT/CUSTOMER
+
+                                                      FROM 01/01/00 TO 10/17/00
+
+PRODUCT         DESCRIPTION          SHIP TO  NAME                 CITY            ST INV DATE    QTY SHIP UNIT PRICE   TOTAL SALE
+--------------- -------------------- -------- -------------------- --------------- -- ---------- --------- ---------- ------------
+                Plate Charge         HER10    Hershey Chocolate Co Hershey         PA 01/26/2000         0        .00       900.00
+                Plate Charge         HER10    Hershey Chocolate Co Hershey         PA 10/16/2000         0        .00       900.00
+                Plate Charge                  ** PRODUCT TOTAL **                                        0                 1800.00
+
+HER-1016                             HER10    Hershey Chocolate Co Hershey         PA 01/26/2000     50000       .375     18750.00
+HER-1016                                      ** PRODUCT TOTAL **                                    50000                18750.00
+
+HER-1021                             HER10    Hershey Chocolate Co Hershey         PA 10/16/2000     25000       .395      9875.00
+HER-1021                                      ** PRODUCT TOTAL **                                    25000                 9875.00
+
+                                              ** GRAND TOTAL **                                      75000                30425.00
+

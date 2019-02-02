@@ -1,0 +1,24 @@
+
+*** WIP Material File Field Definition ***           As of  10/02/06 Page:   1
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+pc-misc    blank-no        BLANK                     >9
+pc-misc    company         Company                   x(3)
+pc-misc    cost            Cost                      ->>,>>9.99
+pc-misc    cost-m          Cost/M                    ->,>>9.9999
+pc-misc    cost-type       Cost Type                 XXX
+pc-misc    dept            Department                x(2)
+pc-misc    dscr            Description               x(30)
+pc-misc    frm             Form                      >>9
+pc-misc    i-no            Item No                   x(10)
+pc-misc    job             Unique Internial Job Numb >>>>>>9
+pc-misc    job-no          Job Number                x(6)
+pc-misc    job-no2         Run #                     >9
+pc-misc    m-code          Code                      x(6)
+pc-misc    misc-date       Transaction Date          99/99/9999
+pc-misc    misc-time       Time                      ->,>>>,>>9
+pc-misc    ml              M/L                       M/L
+pc-misc    opn             Open Flg                  yes/no
+pc-misc    rec_key         Rec Key                   X(20)
+

@@ -146,8 +146,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 1.1
-         WIDTH              = 95.
+         HEIGHT             = 1.81
+         WIDTH              = 99.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

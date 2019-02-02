@@ -66,12 +66,12 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect =  "MACHINE,START DATE,DUE DATE,CUSTOMER,CUSTOMER PART #,JOB #,"
-                          + "JOB QTY,BOARD,SHEET SIZE,VENDOR,BOARD RECEIVED,GL/ST,FG SHIPPED"
+                          + "JOB QTY,BOARD,SHEET SIZE,VENDOR,BOARD RECEIVED,GL/ST,FG SHIPPED,BOARD ISSUED"
 
        cFieldListToSelect = "mach,st-date,due-date,cust,cust-part,job," +
-                            "job-qty,board,sheet-size,vend,board-rec,gl-st,fg-ship"
-       cFieldLength = "8,10,10,8,15,9," + "10,10,30,8,14,5,12"
-       cFieldType = "c,c,c,c,c,c," + "i,c,c,c,i,c,i" 
+                            "job-qty,board,sheet-size,vend,board-rec,gl-st,fg-ship,board-issued"
+       cFieldLength = "8,10,10,8,15,9," + "10,10,30,8,14,5,12,12"
+       cFieldType = "c,c,c,c,c,c," + "i,c,c,c,i,c,i,i,i" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -215,7 +215,7 @@ DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11"
      SIZE 7 BY 1 NO-UNDO.
 
 DEFINE VARIABLE thru_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Thru Date" 
+     LABEL "Thru Due Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
@@ -1360,6 +1360,7 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE iBoardIssued AS INTEGER NO-UNDO .
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1487,6 +1488,21 @@ SESSION:SET-WAIT-STATE ("general").
             and item.mat-type eq "B"
           no-lock:
 
+        for each mat-act
+	            where mat-act.company eq cocode
+	              and mat-act.job     eq job-mat.job
+	              and mat-act.s-num   eq job-mat.frm
+	              and mat-act.b-num   eq job-mat.blank-no
+	              and mat-act.i-no    eq job-mat.i-no
+	            use-index job no-lock:
+	
+	          run sys/ref/convquom.p(job-mat.qty-uom, "EA", job-mat.basis-w,
+	                                 job-mat.len, job-mat.wid, item.s-dep,
+	                                 mat-act.qty, output v-qty).
+	
+	          iBoardIssued = iBoardIssued + v-qty.
+	        end.
+
         FOR EACH rm-rcpth 
               WHERE rm-rcpth.company EQ cocode
               AND rm-rcpth.i-no      EQ job-mat.i-no
@@ -1505,6 +1521,7 @@ SESSION:SET-WAIT-STATE ("general").
 
                v-mat-qty = v-mat-qty + v-qty .
         END.
+
 
         assign
          v-pct = 1
@@ -1557,7 +1574,8 @@ SESSION:SET-WAIT-STATE ("general").
             v-pct = job-hdr.sq-in / 100.
         end.
 
-        v-mat-qty = round(v-mat-qty * v-pct * v-on,0).
+       /* v-mat-qty = round(v-mat-qty * v-pct * v-on,0).
+        iBoardIssued = ROUND(iBoardIssued * v-pct * v-on,0) .*/ /* Ticket 42372 */
 
         leave.
       end.
@@ -1704,8 +1722,8 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "vend"    THEN cVarValue = IF AVAIL oe-ordl THEN  string(oe-ordl.vend-no,"x(8)") ELSE "" .
                          WHEN "board-rec"   THEN cVarValue = string(v-mat-qty,"->,>>>,>>>,>>9").
                          WHEN "gl-st"   THEN cVarValue = STRING(v-gl,"x(5)").
-                         WHEN "fg-ship"  THEN cVarValue = STRING(v-fg-qty,"->>>,>>>,>>9") .
-
+                         WHEN "fg-ship"  THEN cVarValue = STRING(v-fg-qty,"->>>,>>>,>>9") . 
+                         WHEN "board-issued"  THEN cVarValue = STRING(iBoardIssued,"->>>,>>>,>>9") .
 
                     END CASE.
 
@@ -1925,7 +1943,8 @@ SESSION:SET-WAIT-STATE ("general").
 
       assign
        v-mat-qty = 0
-       v-fg-qty  = 0.
+       v-fg-qty  = 0
+       iBoardIssued = 0.
     end.
 
 IF tb_excel THEN DO:

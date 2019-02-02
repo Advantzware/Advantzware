@@ -1,0 +1,46 @@
+
+08/15/07                                      Advanced Box Company V4.10 - Main Office                                    Page   1
+10:02am                                                  Board Reconcilation
+
+                                                          RM QTY                       FG QTY                    FG QTY
+    JOB # CUSTOMER                  RM ITEM#            RECEIVED FG ITEM#            INVOICED   DIFFERENCE     RECEIVED   DIFFERENCE
+--------- ------------------------- --------------- ------------ --------------- ------------ ------------ ------------ ------------
+100305-00 AT&T Communications Corp. SBS18-24.5            82,500 ATT-2297              35,000       47,500       85,000       -2,500
+
+100531-00 Hershey Foods Corporation SBS18-25.5           -56,783 HER-5791A             30,000      -86,783      125,000     -181,783
+                                    SBS18-28               5,603 HER-5791A             30,000      -24,397      125,000     -119,397
+                                    SBS18-28               5,603 HER-5791A             30,000      -24,397      125,000     -119,397
+
+          Job Totals                                     -45,577                       90,000     -135,577      375,000     -420,577
+
+
+100599-00 AT&T Communications Corp. SBS18                      0 ATT-2297                   0            0      814,400     -814,400
+
+100600-00 AT&T Communications Corp. SBS18                      0 ATT-2297              75,000      -75,000      485,000     -485,000
+
+100709-00 Hershey Foods Corporation SBS18                      0 FHER1000110A99        60,000      -60,000       60,000      -60,000
+
+100710-00 Hershey Foods Corporation SBS18-25.5            32,148 FHER1000110A99        18,000       14,148       18,000       14,148
+
+100712-00 Hershey Foods Corporation SBS18                      0 FHER1000112A99        60,000      -60,000       60,000      -60,000
+
+100713-00 Hershey Foods Corporation SBS18                      0 FHER1000113A99        60,000      -60,000       60,000      -60,000
+
+100715-00 Hershey Foods Corporation SBS18                      0 FHER1000114A99        60,000      -60,000       60,000      -60,000
+                                    SBS35.5X42                 0 FHER1000114A99        60,000      -60,000       60,000      -60,000
+
+          Job Totals                                           0                      120,000     -120,000      120,000     -120,000
+
+
+
+          Folding Totals                                  69,071                      518,000     -448,929    2,077,400   -2,008,329
+
+08/15/07                                      Advanced Box Company V4.10 - Main Office                                    Page   2
+10:02am                                                  Board Reconcilation
+
+
+                                                          RM QTY                       FG QTY                    FG QTY
+    JOB # CUSTOMER                  RM ITEM#            RECEIVED FG ITEM#            INVOICED   DIFFERENCE     RECEIVED   DIFFERENCE
+--------- ------------------------- --------------- ------------ --------------- ------------ ------------ ------------ ------------
+          Grand Totals                                    69,071                      518,000     -448,929    2,077,400   -2,008,329
+

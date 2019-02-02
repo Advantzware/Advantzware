@@ -67,7 +67,7 @@ IF NOT BOLWt-log THEN RUN calc-weight-all.
 &Scoped-define INTERNAL-TABLES w-ord
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 w-ord.ord-no w-ord.job-no w-ord.job-no2 NO-LABEL w-ord.cust-no w-ord.i-no w-ord.ord-qty w-ord.over-pct w-ord.pcs "Unit Count" w-ord.bundle Unit" */ "Units/!Pallet" w-ord.partial w-ord.total-unit w-ord.total-tags /* gdm 09210907 */ w-ord.unit-wt w-ord.pallt-wt w-ord.lot w-ord.i-name w-ord.cust-po-no w-ord.total-unit * w-ord.total-tags @ iTotalQty ~
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 w-ord.ord-no w-ord.job-no w-ord.job-no2 NO-LABEL w-ord.cust-no w-ord.i-no w-ord.ord-qty w-ord.rel-qty w-ord.over-pct w-ord.pcs "Unit Count" w-ord.bundle Unit" */ "Units/!Pallet" w-ord.partial w-ord.total-unit w-ord.total-tags /* gdm 09210907 */ w-ord.unit-wt w-ord.pallt-wt w-ord.lot w-ord.i-name w-ord.cust-po-no w-ord.total-unit * w-ord.total-tags @ iTotalQty ~
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 w-ord.over-pct ~
  w-ord.pcs ~
  w-ord.bundle ~
@@ -164,6 +164,7 @@ DEFINE BROWSE BROWSE-1
       w-ord.cust-no LABEL "Cust #"
       w-ord.i-no LABEL "Item #"
       w-ord.ord-qty COLUMN-LABEL "Ord Qty"
+      w-ord.rel-qty COLUMN-LABEL "Rel Qty"
       w-ord.over-pct FORM ">>9.99" COLUMN-LABEL "Overrun%"
       w-ord.pcs FORM ">>>,>>9" COLUMN-LABEL /*"Bdl/Case!Count"*/ "Unit Count"
       w-ord.bundle FORM ">>>,>>9" COLUMN-LABEL /*"Bdl/Case!Per Unit" */ "Units/!Pallet"
@@ -593,7 +594,10 @@ PROCEDURE calc-total :
       END.
       ELSE */
 
-      IF v-tags NE ? AND NOT glTotalTagsChanged THEN
+      IF v-tags NE ? AND NOT glTotalTagsChanged AND INTEGER(w-ord.rel-qty:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0  THEN
+        w-ord.total-tags = IF w-ord.total-unit <> 0 AND v-tags <> 0 THEN ((INT(w-ord.rel-qty:SCREEN-VALUE IN BROWSE {&browse-name}) / w-ord.total-unit) + .49) 
+                           ELSE 1.
+      ELSE IF v-tags NE ? AND NOT glTotalTagsChanged  THEN
         w-ord.total-tags = IF w-ord.total-unit <> 0 AND v-tags <> 0 THEN ((INT(w-ord.ord-qty:SCREEN-VALUE IN BROWSE {&browse-name}) / w-ord.total-unit) + .49) 
                            ELSE 1.
 

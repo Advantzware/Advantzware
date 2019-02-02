@@ -398,7 +398,6 @@ RUN pLogEntry ("SaveEnd", STRING(TODAY,"99.99.9999") + " @ " + STRING(TIME,"hh:m
 
 /* **********************  Internal Procedures  *********************** */
 
-
 PROCEDURE check4Notes:
   DEFINE INPUT PARAMETER ipRowID AS ROWID NO-UNDO.
   DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.
@@ -666,7 +665,7 @@ PROCEDURE pHTMLPages:
             IF iJobs NE 0 THEN
             PUT UNFORMATTED
                 '<a href="JavaScript:newPopup(~''
-                REPLACE(htmlPageLocation + '\' + ttblJob.resource,"\","/")
+                REPLACE(htmlPageLocation + '\' + REPLACE(ttblJob.resource,"/",""),"\","/")
                 'Pending.htm~');">Jobs: <b>' iJobs '</a><br>' specialTime(iTime) '</b>'
                 .
             ELSE PUT UNFORMATTED "~&nbsp".
@@ -823,7 +822,7 @@ PROCEDURE pHTMLPages:
                             + "</font></b>"
                 lScript     = NO
                 .
-            OUTPUT TO VALUE(htmlPageLocation + '\' + pendingJob.resource + 'Pending.htm').
+            OUTPUT TO VALUE(htmlPageLocation + '\' + REPLACE(pendingJob.resource,"/","") + 'Pending.htm').
             RUN pHTMLHeader (cHTMLTitle,cHTMLLegend,lScript).
             RUN pHTMLBranding.
             PUT UNFORMATTED

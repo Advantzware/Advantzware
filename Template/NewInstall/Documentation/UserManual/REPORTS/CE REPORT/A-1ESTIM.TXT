@@ -1,0 +1,91 @@
+10/17/00               ADVANCED CARTON COMPANY - MAIN                  4:23pm
+
+
+Estimate#      1,021                    Salesman: Saleperson #10
+Customer: Hershey Chocolate Corp         Ship To: Hershey Chocolate Corp
+          123 Chocolate Blvd                     123 Chocolate Lane            
+          Hershey, PA 19888                      Hershey, PA 19888             
+
+   Qty     --- Description ------ -- Size / Color ----- --- Style / Part No ---
+    25,000 RT 5x4x8               5 x 4 x 8             Reverse Tuck Carton
+           Standard Box           5 Color, Varn         HER-1021
+
+               Width    Length   Sq.Inches  Sq.Feet/Sheet    Weight per Units
+ Blank Size: 17.25000 18.62500     235.141  # up:   2          112.672/M
+   Die Size: 17.25000 37.25000     642.563     4.462 Sf/Sht    307.895/M Shts
+ Sheet Size: 18.25000 38.25000     698.063     4.848 Sf/Sht    334.488/M Shts
+ Roll Size : 18.25000                          76.54 MSF       2.64062 Tons
+
+Materials            Weight Caliper          QTY/Unit  MR $  Matl$/M    TOTAL
+CCN 16 Pt             69.00  0.016     $  500.00 TON           41.81    1,045.28
+Board MR  Waste                             1125 Sht  94.08     3.76       94.08
+Board RUN Waste                             2164 Sht            7.24      180.96
+PROCESS INK - BLACK                         6.10 Lbs            1.22       30.48
+PROCESS INK - CYAN                         11.94 Lbs            4.78      119.40
+PROCESS INK - MAGEN                         6.10 Lbs            2.44       60.95
+PMS INK, 185 RED                            9.20 Lbs            3.68       91.95
+VARNISH                                    23.55 Lbs            0.71       17.66
+Glue for Estimates                        126.83 LB             5.07      126.83
+Case Count             500 Pieces/Case        50 Cas            2.00       50.00
+PALLET                                         3 Ea.            0.42       10.50
+TOTAL  DIRECT  MATERIALS                              94.08    73.12    1,828.09
+
+Prep Description         Mat'l     Labor    Addt'l      Amtz   Cost/M Total Cost
+Burn Die Charge         409.38      0.00     0.00%   100.00%    16.38     409.38
+Die Lumber               34.90      0.00     0.00%   100.00%     1.40      34.90
+Pre MR Plates             0.00    231.00     0.00%    25.00%     2.31      57.75
+
+Miscellaneous Cost       Mat/F     Lab/F     Mat/M     Lab/M   Mrkup% Total Cost
+Outside Work              0.00     25.00      0.00     20.00   10.00%     583.33
+
+Machine Description    MR (Hrs) Run  Speed    Rate   MR $    Run $    Total Cost
+DIE MAKIING          10.00    15.79  1000   0.00   350.00       0.00      350.00
+SHEETER               1.00    10.83  4400  45.00    45.00     487.33      532.33
+55" HARRIS            7.50     4.91  2860 310.00  2325.00    1522.90    3,847.90
+BOBST                 4.00     7.18  1862 100.00   400.00     718.47    1,118.47
+STRIPPING             0.25     5.26  2500  40.00    10.00     210.30      220.30
+GLUER                 2.00     6.54  3900 190.50   381.00    1246.16    1,627.16
+Raw Mat'l Handling                                                         54.65
+Finished Goods Handling                                                    28.97
+TOTAL  OPERATIONS                                 3511.00    4185.17    7,779.79
+
+*** T O T A L S                           Cost/M     MR $      Run $  Total Cost
+Direct Material                            73.12    94.08               1,828.09
+Direct Labor                              311.19  3511.00    4185.17    7,779.79
+Prep.  Material                            17.77                          444.28
+Prep.  Labor                                2.31                           57.75
+Misc.  Labor                               23.33                          583.33
+DIRECT FACTORY COST                       427.73                       10,693.24
+TOTAL FACTORY COST                        427.73                       10,693.24
+Freight                                    11.59                          289.68
+Special Markup #1                           0.80                           20.00
+Special Markup #2                           0.40                           10.00
+Special Markup #3                           0.40                           10.00
+GS&A Material          10.00%               9.09                          227.24
+GS&A Labor             15.00%              50.53                        1,263.13
+FULL COST                                 500.53                       12,513.29
+Commission              0.00%               0.00                            0.00
+Profit -      10.00% on Full Cost          55.62                        1,390.38
+SELLING PRICE                             556.15                       13,903.75
+
+
+                        B I L L A B L E    C H A R G E S
+Prep Description         Mat'l     Labor    Addt'l      Amtz   Cost/M Total Cost
+Plate Charge            900.00      0.00     0.00%   100.00%    36.00     900.00
+
+
+
+           E S T I M A T E   A N A L Y S I S     P e r  T h o u s a n d       
+         Dir.Fact     Full                      Sell  Contr    Total    Total
+     Qty     Cost     Cost  GROSS%    NET%     Price   Fact   Sheets   Pounds
+   25000   427.73   500.53   23.09   10.00    556.15  21.01    15789     2817
+
+Dept     Department Manufacturing Instructions
+----     -------------------------------------
+DC       Die Must be reknifed.                                                 
+                                                                               
+                                                                               
+PR       Plates must be ordered                                                
+                                                                               
+                                                                               
+

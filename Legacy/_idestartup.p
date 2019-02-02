@@ -35,11 +35,8 @@ DEFINE NEW SHARED VARIABLE quit_login AS LOGICAL NO-UNDO.
 DEFINE VARIABLE m_id AS CHAR NO-UNDO.
 DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
-DEF NEW GLOBAL SHARED VAR g-sharpshooter AS LOG NO-UNDO.  /* no, it's yes only from sharpsh.p */
 
 /* ***************************  Main Block  *************************** */
-
-g-sharpshooter = NO.
 
 ASSIGN
   ldummy = SESSION:SET-WAIT-STATE("GENERAL")

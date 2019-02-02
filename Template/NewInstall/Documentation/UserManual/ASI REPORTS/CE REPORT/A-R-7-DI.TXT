@@ -1,0 +1,12 @@
+
+10/18/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+12:32pm                                        PREP CODES LISTING - BY MATERIAL TYPES
+
+
+
+
+             Prep Code  Description           Est #  Customer Part #  Date Modified  Customer Name
+             ---------  --------------------  -----  ---------------  -------------  ------------------------------
+               D101     Die 101                1021  HER-1021            10/18/00    Hershey Chocolate Corp
+               P100     Plate 100              1021  HER-1021            10/18/00    Hershey Chocolate Corp
+

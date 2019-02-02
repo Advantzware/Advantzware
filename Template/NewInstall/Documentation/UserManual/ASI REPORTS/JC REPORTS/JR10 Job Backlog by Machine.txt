@@ -1,0 +1,370 @@
+
+08/15/07                                      Advanced Box Company V4.10 - Main Office                                    Page   1
+ 9:41am                                                Job Backlog by Machine
+
+
+Machine: 408
+
+START/                                                                                                      BOARD
+DUE DATE  CUSTOMER CUSTOMER PART #     JOB #    JOB QTY BOARD           SHEET SIZE          VENDOR       RECEIVED GL/ST  FG SHIPPED
+-----------------------------------------------------------------------------------------------------------------------------------
+
+03/01/07  HER1000  VANILLA Ice     100616-00     27,500 SBS18-25.5      W: 25.50 L: 25.625                      0   X             0
+
+    Incomplete Machines: 408,49,STRIP,WIN,DOMINO             Remaining Hours for 408       Run:   8.96  MR:   3.25  Tot:      12.21
+
+03/01/07  HER1000  CHOCOLATE       100616-00     27,500 SBS18-25.5      W: 25.50 L: 25.625                      0   X             0
+
+    Incomplete Machines: 408,ASITRD,49,STRIP,WIN,BOBST       Remaining Hours for 408       Run:   8.95  MR:   0.50  Tot:       9.45
+
+03/01/07  HER1000  Cust part Straw 100616-00     27,500 SBS18-25.5      W: 25.50 L: 25.625                      0   X             0
+
+    Incomplete Machines: 408,49,STRIP,WIN,DOMINO             Remaining Hours for 408       Run:   8.74  MR:   1.50  Tot:      10.24
+
+03/01/07  HER1000  TANGERINE       100616-00     27,500 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: 408,49,STRIP,WIN,DOMINO             Remaining Hours for 408       Run:   8.96  MR:   0.00  Tot:       8.96
+
+03/01/07  HER1000  MANGO           100616-00     27,500 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: 408,49,STRIP,WIN,DOMINO             Remaining Hours for 408       Run:   8.96  MR:   0.00  Tot:       8.96
+
+03/01/07  HER1000  VERY BERRY ICE  100616-00     27,500 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: 408,49,STRIP,WIN,DOMINO             Remaining Hours for 408       Run:   8.96  MR:   0.00  Tot:       8.96
+
+03/01/07  HER1000  Butterscotch    100616-00     27,500 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: 408,49,STRIP,WIN,DOMINO             Remaining Hours for 408       Run:   8.92  MR:   0.00  Tot:       8.92
+
+03/01/07  HER1000  Merry Melon     100616-00     27,500 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: 408,49,STRIP,WIN,DOMINO             Remaining Hours for 408       Run:   8.96  MR:   0.00  Tot:       8.96
+
+03/01/07  HER1000  Raspberry       100616-00     27,500 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: 408,49,STRIP,WIN,DOMINO             Remaining Hours for 408       Run:   8.96  MR:   0.00  Tot:       8.96
+
+03/01/07  HER1000  Scrumptious     100616-00     27,500 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: 408,49,STRIP,WIN,DOMINO             Remaining Hours for 408       Run:   8.96  MR:   0.00  Tot:       8.96
+
+03/01/07  HER1000  Bubble Gum      100616-00     27,500 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: 408,49,STRIP,WIN,DOMINO             Remaining Hours for 408       Run:   8.96  MR:   0.00  Tot:       8.96
+
+
+                                                             Remaining Hours for 03/01/07  Run:  98.29  MR:   5.25  Tot:     103.54
+
+
+03/04/07  HER1000  VANILLA Ice     100619-00     25,000 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: 408,49,WIN,DOMINO                   Remaining Hours for 408       Run:   8.11  MR:   5.25  Tot:      13.36
+
+03/04/07  HER1000  CHOCOLATE       100619-00     25,000 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: 408,49,WIN,DOMINO                   Remaining Hours for 408       Run:   8.15  MR:   6.25  Tot:      14.40
+
+
+03/04/07  HER1000  Strawberry      100619-00     25,000 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: 408,49,WIN,DOMINO                   Remaining Hours for 408       Run:   8.11  MR:   5.25  Tot:      13.36
+
+
+                                                             Remaining Hours for 03/04/07  Run:  24.37  MR:  16.75  Tot:      41.12
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+
+
+08/15/07                                      Advanced Box Company V4.10 - Main Office                                    Page   2
+ 9:41am                                                Job Backlog by Machine
+
+
+Machine: 408
+
+START/                                                                                                      BOARD
+DUE DATE  CUSTOMER CUSTOMER PART #     JOB #    JOB QTY BOARD           SHEET SIZE          VENDOR       RECEIVED GL/ST  FG SHIPPED
+-----------------------------------------------------------------------------------------------------------------------------------
+
+04/05/07  HER1000  VANILLA Ice     100663-00     25,000 SBS18           W: 17.00 L: 25.625  GLEASO              0   X             0
+
+    Incomplete Machines: 408,26B,WIN,DOMINO                  Remaining Hours for 408       Run:   8.11  MR:   5.25  Tot:      13.36
+
+04/05/07  HER1000  CHOCOLATE       100663-00     25,000 SBS18           W: 17.00 L: 25.625  INTERN              0   X             0
+
+    Incomplete Machines: 408,26B,WIN,DOMINO                  Remaining Hours for 408       Run:   8.15  MR:   6.25  Tot:      14.40
+
+04/05/07  HER1000  TANGERINE       100664-00     55,000 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: SHEET,408,49,WIN,DOMINO             Remaining Hours for 408       Run:   5.96  MR:   2.08  Tot:       8.04
+
+04/05/07  HER1000  Butterscotch    100664-00     82,500 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: SHEET,408,49,WIN,DOMINO             Remaining Hours for 408       Run:   8.90  MR:   1.75  Tot:      10.65
+
+04/05/07  HER1000  Scrumptious     100664-00    110,000 SBS18-24.5      W: 24.50 L: 25.625                  7,024   X             0
+
+    Incomplete Machines: SHEET,408,49,WIN,DOMINO             Remaining Hours for 408       Run:  17.88  MR:   3.13  Tot:      21.01
+
+
+                                                             Remaining Hours for 04/05/07  Run:  49.00  MR:  18.46  Tot:      67.46
+
+
+04/16/07  HER1000  VANILLA Ice     100664-00     27,500 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: SHEET,408,49,WIN,DOMINO             Remaining Hours for 408       Run:   2.99  MR:   2.42  Tot:       5.41
+
+
+                                                             Remaining Hours for 04/16/07  Run:   2.99  MR:   2.42  Tot:       5.41
+
+
+04/19/07  HER1000  TANGERINE       100685-00     55,000 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: SHEET,408,49,WIN,DOMINO             Remaining Hours for 408       Run:   5.96  MR:   2.08  Tot:       8.04
+
+04/19/07  HER1000  Butterscotch    100685-00     82,500 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: SHEET,408,49,WIN,DOMINO             Remaining Hours for 408       Run:   8.90  MR:   0.00  Tot:       8.90
+
+04/19/07  HER1000  Scrumptious     100685-00    110,000 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: SHEET,408,49,WIN,DOMINO             Remaining Hours for 408       Run:  17.88  MR:   0.00  Tot:      17.88
+
+04/19/07  HER1000  Rasberry        100685-00     88,000 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: SHEET,408,49,WIN,DOMINO             Remaining Hours for 408       Run:  28.61  MR:   0.00  Tot:      28.61
+
+04/19/07  HER1000  Tango Berry     100685-00     88,000 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: SHEET,408,49,WIN,DOMINO             Remaining Hours for 408       Run:  28.61  MR:   0.00  Tot:      28.61
+
+04/19/07  HER1000  Maple Syrup     100685-00     88,000 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: SHEET,408,49,WIN,DOMINO             Remaining Hours for 408       Run:  28.61  MR:   0.00  Tot:      28.61
+
+
+                                                             Remaining Hours for 04/19/07  Run: 118.57  MR:   2.08  Tot:     120.65
+
+
+04/23/07  HER1000  FHER10000086A   100686-00     27,500 SBS18-25        W: 25.00 L: 21.625  INTERN          1,998   X             0
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:   7.62  MR:   5.25  Tot:      12.87
+
+04/23/07  HER1000  FHER10000086A   100687-00     27,500 SBS18           W: 38.50 L: 21.625  GLEASO              0   X             0
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:   4.19  MR:   5.25  Tot:       9.44
+
+
+                                                             Remaining Hours for 04/23/07  Run:  11.81  MR:  10.50  Tot:      22.31
+
+
+05/06/07  HER1000  VANILLA Ice     100719-00     13,750 SBS18           W: 17.00 L: 25.625                      0   X             0
+
+    Incomplete Machines: SHEET,408,49,WIN,DOMINO             Remaining Hours for 408       Run:   4.92  MR:   0.00  Tot:       4.92
+
+
+                                                             Remaining Hours for 05/06/07  Run:   4.92  MR:   0.00  Tot:       4.92
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+
+
+08/15/07                                      Advanced Box Company V4.10 - Main Office                                    Page   3
+ 9:41am                                                Job Backlog by Machine
+
+
+Machine: 408
+
+START/                                                                                                      BOARD
+DUE DATE  CUSTOMER CUSTOMER PART #     JOB #    JOB QTY BOARD           SHEET SIZE          VENDOR       RECEIVED GL/ST  FG SHIPPED
+-----------------------------------------------------------------------------------------------------------------------------------
+
+
+05/08/07  HER1000  HER6110         100710-00     27,500 SBS18-25.5      W: 25.50 L: 38.875                 32,148   X        18,000
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:   3.24  MR:   5.25  Tot:       8.49
+
+
+                                                             Remaining Hours for 05/08/07  Run:   3.24  MR:   5.25  Tot:       8.49
+
+
+05/09/07  HER1000  jeff-6139       100721-00     11,000 200 C           W: 22.60 L: 29.05   INLAND              0   X             0
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:   0.91  MR:   3.25  Tot:       4.16
+
+
+                                                             Remaining Hours for 05/09/07  Run:   0.91  MR:   3.25  Tot:       4.16
+
+
+05/20/07  HER1000  HER-6146        100731-00     13,750 SBS18           W: 17.00 L: 38.875                      0   X             0
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:   1.70  MR:   5.25  Tot:       6.95
+
+
+                                                             Remaining Hours for 05/20/07  Run:   1.70  MR:   5.25  Tot:       6.95
+
+
+05/21/07  HER1000  HER-513         100739-00     27,500 SBS18           W: 17.00 L: 34.25   INTERN          2,000   X             0
+
+    Incomplete Machines: SHEET,408,49,DOMINO                 Remaining Hours for 408       Run:   4.86  MR:   5.25  Tot:      10.11
+
+
+                                                             Remaining Hours for 05/21/07  Run:   4.86  MR:   5.25  Tot:      10.11
+
+
+05/22/07  HER1000  HER-513         100737-00     88,000 SBS18           W: 17.75 L: 34.50                       0   X             0
+
+    Incomplete Machines: SHEET,408,49,DOMINO                 Remaining Hours for 408       Run:  14.07  MR:   5.25  Tot:      19.32
+
+
+                                                             Remaining Hours for 05/22/07  Run:  14.07  MR:   5.25  Tot:      19.32
+
+
+05/23/07  HER1000  HER-513         100738-00     27,500 SBS18           W: 17.00 L: 34.25                       0   X             0
+
+    Incomplete Machines: SHEET,408,49,DOMINO                 Remaining Hours for 408       Run:   4.86  MR:   5.25  Tot:      10.11
+
+
+                                                             Remaining Hours for 05/23/07  Run:   4.86  MR:   5.25  Tot:      10.11
+
+
+05/24/07  HER1000  HER-6146        100740-00     27,500 SBS18           W: 17.00 L: 38.875  GLEASO              0   X             0
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:   3.24  MR:   5.25  Tot:       8.49
+
+
+                                                             Remaining Hours for 05/24/07  Run:   3.24  MR:   5.25  Tot:       8.49
+
+
+06/24/07  HER1000  HER-6206        100806-00     22,000 SBS16           W: 17.00 L: 34.25                       0   X             0
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:   4.08  MR:   4.25  Tot:       8.33
+
+
+                                                             Remaining Hours for 06/24/07  Run:   4.08  MR:   4.25  Tot:       8.33
+
+
+06/26/07  HER1000  HER-6206        100820-00     22,000 SBS16           W: 17.00 L: 34.25                       0   X             0
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:   4.08  MR:   4.25  Tot:       8.33
+
+
+                                                             Remaining Hours for 06/26/07  Run:   4.08  MR:   4.25  Tot:       8.33
+
+
+06/27/07  HER1000  HER-6206        100823-00     22,000 SBS16           W: 17.00 L: 34.25                       0   X             0
+
+    Incomplete Machines: 10,408,49,DOMINO                    Remaining Hours for 408       Run:   2.60  MR:   1.83  Tot:       4.43
+
+
+                                                             Remaining Hours for 06/27/07  Run:   2.60  MR:   1.83  Tot:       4.43
+
+
+07/03/07  ABCBOX   ABC-6214.       100827-00     55,000 SBS16           W: 46.00 L: 33.625                      0   X             0
+
+    Incomplete Machines: SHEET,REAM,408,49,DOMINO            Remaining Hours for 408       Run:  14.88  MR:   1.50  Tot:      16.38
+
+
+                                                             Remaining Hours for 07/03/07  Run:  14.88  MR:   1.50  Tot:      16.38
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+
+08/15/07                                      Advanced Box Company V4.10 - Main Office                                    Page   4
+ 9:41am                                                Job Backlog by Machine
+
+
+Machine: 408
+
+START/                                                                                                      BOARD
+DUE DATE  CUSTOMER CUSTOMER PART #     JOB #    JOB QTY BOARD           SHEET SIZE          VENDOR       RECEIVED GL/ST  FG SHIPPED
+-----------------------------------------------------------------------------------------------------------------------------------
+
+
+07/08/07  HER1000  RT 3x3x12       100834-00     44,000 SBS18-39        W: 39.00 L: 38.875  CORRUKRA            0   X             0
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:   4.70  MR:   5.25  Tot:       9.95
+
+
+                                                             Remaining Hours for 07/08/07  Run:   4.70  MR:   5.25  Tot:       9.95
+
+
+07/12/07  HER1000  RT 3x3x12       100838-00     44,000 SBS18           W: 20.00 L: 38.875  GLEASO              0   X             0
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:   5.18  MR:   5.25  Tot:      10.43
+
+
+                                                             Remaining Hours for 07/12/07  Run:   5.18  MR:   5.25  Tot:      10.43
+
+
+07/17/07  iggle01  5iggle00001A00  100842-00     11,000 SBS18           W: 18.00 L: 38.25                       0   X             0
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:   2.03  MR:   6.25  Tot:       8.28
+
+
+                                                             Remaining Hours for 07/17/07  Run:   2.03  MR:   6.25  Tot:       8.28
+
+
+07/18/07  HER1000  HER-6206C       100844-00     22,000 SBS16           W: 17.00 L: 34.25   GLEASO              0   X             0
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:   3.89  MR:   0.25  Tot:       4.14
+
+07/18/07  HER1000  HER-6206D       100844-00     44,000 SBS16           W: 17.00 L: 34.25   GLEASO              0   X             0
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:   3.89  MR:   1.00  Tot:       4.89
+
+07/18/07  HER1000  HER-6206B       100844-00     22,000 SBS16           W: 17.00 L: 34.25   GLEASO              0   X             0
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:   3.89  MR:   0.75  Tot:       4.64
+
+
+                                                             Remaining Hours for 07/18/07  Run:  11.67  MR:   2.00  Tot:      13.67
+
+
+07/22/07  iggle01  cp6237          100845-00      5,500 SBS18           W: 22.00 L: 33.625                      0   X             0
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:   1.75  MR:   4.25  Tot:       6.00
+
+07/22/07  IGGLE01  IGG-6238        100847-00     22,000 SBS16           W: 17.00 L: 34.25                       0   X             0
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:   0.64  MR:   0.71  Tot:       1.35
+
+
+                                                             Remaining Hours for 07/22/07  Run:   2.39  MR:   4.96  Tot:       7.35
+
+
+07/29/07  HER1000  HER-6206        100844-00     66,000 SBS18-18        W: 18.00 L: 34.25   GLEASO              0   X             0
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:  10.56  MR:   5.25  Tot:      15.81
+
+
+                                                             Remaining Hours for 07/29/07  Run:  10.56  MR:   5.25  Tot:      15.81
+
+
+08/03/07  HER1000  ATT-2297        100841-00     26,250 SBS18-24.5      W: 24.50 L: 33.50                  33,052   X             0
+
+    Incomplete Machines: SHT1,408,49,DOMINO                  Remaining Hours for 408       Run:   2.10  MR:   5.25  Tot:       7.35
+
+
+                                                             Remaining Hours for 08/03/07  Run:   2.10  MR:   5.25  Tot:       7.35
+
+
+08/05/07  IGGLE01  IGG-6238        100861-00     22,000 SBS16           W: 17.00 L: 34.25                       0   X             0
+
+    Incomplete Machines: 408,49,DOMINO                       Remaining Hours for 408       Run:   0.64  MR:   0.71  Tot:       1.35
+
+
+                                                             Remaining Hours for 08/05/07  Run:   0.64  MR:   0.71  Tot:       1.35
+
+
+08/15/07  HER1000  HER-6245        100867-00     33,000 SBS18-18        W: 18.00 L: 35.50                       0   X             0
+
+    Incomplete Machines: SHEET,408,49,DOMINO                 Remaining Hours for 408       Run:   3.69  MR:   5.25  Tot:       8.94
+
+
+                                                             Remaining Hours for 08/15/07  Run:   3.69  MR:   5.25  Tot:       8.94
+
+
+

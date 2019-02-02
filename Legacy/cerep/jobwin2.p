@@ -88,6 +88,7 @@ def buffer vjob for job.
 def buffer b-eb for eb.
 def buffer b-ef for ef.
 DEF BUFFER b-rt FOR reftable.
+DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 
 def new shared workfile wrk-op
   field m-dscr like est-op.m-dscr
@@ -799,32 +800,10 @@ END FUNCTION.
                     first item
                     {sys/look/itemivW.i}
                        and item.i-no eq job-mat.i-no:
-
-                    FIND FIRST reftable 
-                         WHERE reftable EQ "ce/v-est3.w Unit#"
-                           AND reftable.company EQ b-eb.company
-                           AND reftable.loc     EQ eb.est-no
-                           AND reftable.code    EQ STRING(eb.form-no,"9999999999")
-                           AND reftable.code2   EQ STRING(eb.blank-no,"9999999999")
-                         NO-LOCK NO-ERROR.
-
-                    FIND FIRST b-rt
-                         WHERE b-rt.reftable EQ "ce/v-est3.w Unit#1"
-                           AND b-rt.company  EQ b-eb.company
-                           AND b-rt.loc      EQ eb.est-no
-                           AND b-rt.code     EQ STRING(eb.form-no,"9999999999")
-                           AND b-rt.code2    EQ STRING(eb.blank-no,"9999999999")
-                         NO-LOCK NO-ERROR.
                        
                     do i = 1 to 20:
-                        v-unit = IF i LE 12 AND AVAIL reftable 
-                                 THEN reftable.val[i]
-                                 ELSE
-                                 IF AVAIL b-rt THEN b-rt.val[i - 12]
-                                               ELSE 0.
-                         cSide = IF i LE 12 AND AVAIL reftable  THEN SUBSTRING(reftable.dscr,i,1)
-                              ELSE IF AVAIL b-rt THEN SUBSTRING(b-rt.dscr,i - 12,1)
-                                               ELSE "" .
+                        v-unit = eb.unitNo[i].
+                         cSide = SUBSTRING(eb.side[i],1).
                                    
                         if eb.i-code2[i] eq job-mat.i-no then do:
                              
@@ -945,7 +924,14 @@ END FUNCTION.
                 if avail oe-ordl then do:
                     v-est-qty = oe-ordl.qty.
                     find first oe-ord of oe-ordl no-lock.
-                    IF AVAIL oe-ord THEN do:
+                        FIND LAST bf-oe-ordl NO-LOCK
+                            WHERE bf-oe-ordl.company EQ cocode
+                            AND bf-oe-ordl.est-no  EQ oe-ordl.est-no
+                            AND bf-oe-ordl.ord-no  LT oe-ordl.ord-no
+                            NO-ERROR.
+                        IF AVAILABLE bf-oe-ordl THEN
+                            cLastOrd = STRING(bf-oe-ordl.ord-no).
+                    IF AVAIL oe-ord  AND cLastOrd EQ "" THEN do:                        
                         ASSIGN
                         cLastOrd = IF oe-ord.po-no2 NE "" THEN oe-ord.po-no2
                             ELSE STRING(oe-ord.pord-no) .

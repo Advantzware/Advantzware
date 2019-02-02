@@ -93,13 +93,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 ASSIGN cTextListToSelect = "CUSTOMER,CUST NAME,ITEM #,TAG#,FULL TAG#,FG LOT#,CUST PART#,DESCRIPTION,JOB#,REC DATE," +
                            "WHSE,BIN,MSF OH,C-UOM,REL QTY,QTY ON HAND,LAST SALE,FG CAT," +
                            "VIEW PO,LINE PO#,REL PO#,FG PRICE,ORDER PRICE,UOM COST,TOTAL COST,MAT COST,LABOR COST,REP," +
-                           "SELL VAL(FG),SELL VAL(ORD),DAYS OLD,CUST OWN,SET HEADER,QTY PER SET"
+                           "SELL VAL(FG),SELL VAL(ORD),DAYS OLD,CUST OWN,SET HEADER,QTY PER SET,UNITS,UNIT COUNT,PARTIAL"
            cFieldListToSelect = "itemfg.cust-no,cust-name,itemfg.i-no,tag#,tag,fg-lot-val,itemfg.part-no,itemfg.i-name,v-job-no,recdate," +
                                 "loc,bin,msf-on-hand,cost-uom,rel-qty,qty-on-hand,last-sale,itemfg.procat," +
                                 "view-po,line-po,rel-po,sell-price,ord-pr,uom-cost,v-tot-cost,mat-cost,lab-cost,sale-rep," + 
-                                "sell-value-fg,sell-value-ord,days-old,custno,set-header,qty-per-set"
-           cFieldLength = "8,30,15,6,24,20,15,30,10,8," + "5,8,8,5,11,11,9,7," + "11,11,11,11,11,11,11,11,11,3," + "14,14,8,8,15,14"
-           cFieldType = "c,c,c,c,c,c,c,c,c,c,c," + "c,c,i,c,i,i,c,c," + "c,c,c,i,i,i,i,i,i,c," + "i,i,i,c,c,i"
+                                "sell-value-fg,sell-value-ord,days-old,custno,set-header,qty-per-set,units,unit-count,partial"
+           cFieldLength = "8,30,15,6,24,20,15,30,10,8," + "5,8,8,5,11,11,9,7," + "11,11,11,11,11,11,11,11,11,3," + "14,14,8,8,15,14,8,10,7"
+           cFieldType = "c,c,c,c,c,c,c,c,c,c,c," + "c,c,i,c,i,i,c,c," + "c,c,c,i,i,i,i,i,i,c," + "i,i,i,c,c,i,i,i,i"
            .
 
 {sys/inc/ttRptSel.i}
@@ -2494,8 +2494,11 @@ display "" with frame r-top.
                 WHEN "sell-value-fg" THEN cVarValue = STRING(v-tot-fgsell[3],"->>,>>>,>>9.99") .
                 WHEN "custno" THEN cVarValue = "" .
                 WHEN "set-header" THEN cVarValue = "" .
-                WHEN "qty-per-set" THEN cVarValue = "" . 
+                WHEN "qty-per-set" THEN cVarValue = "" .                 
                 WHEN "cust-name" THEN cVarValue = "" . 
+                WHEN "units" THEN cVarValue = "" . 
+                WHEN "unit-count" THEN cVarValue = "" . 
+                WHEN "partial" THEN cVarValue = "" . 
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +

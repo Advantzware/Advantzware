@@ -1452,7 +1452,7 @@ DO TRANSACTION.
     FOR EACH oe-boll NO-LOCK
         WHERE oe-boll.company EQ oe-bolh.company
           AND oe-boll.b-no    EQ oe-bolh.b-no:
-      RUN oe/bol-pre-post.p (ROWID(oe-boll), v-term).
+      RUN oe/bol-pre-post.p (ROWID(oe-boll), v-term, YES /* show msg */).
 
       IF fgreorder-log AND cust.ACTIVE EQ "E" THEN
       RUN create-reorder (ROWID(oe-boll)).

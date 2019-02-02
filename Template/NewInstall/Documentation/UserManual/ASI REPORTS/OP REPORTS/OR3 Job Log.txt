@@ -1,0 +1,176 @@
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   1
+ 2:11pm                                                    Job Log by Job#
+
+
+
+Job        Order                                                                                    Quantity Order
+Number    Number Customer          Item Number     Item Name                      Cust PO#           Ordered Date
+--------- ------ ----------------- --------------- ------------------------------ --------------- ---------- --------
+455-00         0 ATT1000           BATT1000008A00  RSC 8x8x20                                          1,000 03/26/09
+W1603-02       0 STOCK             11ST00001       RSC 10x10x10                                          500 03/17/09
+W2512-00       0 HER1000           VANILLA         Vanilla Ice Creme Box                              25,000 01/05/09
+W2512-00       0 HER1000           TANGERINE       Tangerine Ice Creme                                25,000 01/05/09
+W2512-00       0 HER1000           MANGO           Mango Ice Creme                                    25,000 01/05/09
+W2512-00       0 HER1000           STRAWBERRY      Strawberry Ice Creme                               25,000 01/05/09
+W2512-00       0 HER1000           CHOCOLATE       Chocolate Ice Creme                                25,000 01/05/09
+W2512-00       0 HER1000           VERY BERRY      Very Berry                                         25,000 01/05/09
+W2512-00       0 HER1000           BUTTERSCOTCH    Butterscotch                                       25,000 01/05/09
+W2512-00       0 HER1000           MERRY MELON     Merry Melon Ice Cream                              25,000 01/05/09
+W2512-00       0 HER1000           RASPBERRY       Raspberry Ice Cream                                25,000 01/05/09
+W2512-00       0 HER1000           SCRUMPTIOUS     Scrumptious Ice Cream                              25,000 01/05/09
+W2512-00       0 HER1000           VANILLA         Vanilla Ice Creme Box                              25,000 01/05/09
+W2512-00       0 HER1000           BUBBLE GUM      Bubble Gum                                         25,000 01/05/09
+W6588-00       0 ATT1000           ATT-1293A       SE 5x5x5                                              400 02/09/09
+W6588-00       0 ATT1000           ATT-1219        RT 3x3x 2.5                                         1,000 02/09/09
+W6588-00       0 ATT1000           ATT-2297        RT 5x3x2                                              800 02/09/09
+W6588-00       0 ATT1000           ATT-2644        RT 5x5x9                                              200 02/09/09
+W6588-00       0 ATT1000           FATT10000010A   RT 4x4x4                                              600 02/09/09
+W6782-00       0 ABB1000           ABB-6782-00     ABB SET                                             1,000 02/12/09
+W6844-00       0 ATT1000           ATT-6841        RSC 2X2X15                                        125,000 02/03/09
+W7013-00       0 HER1000           CHER10000016A   RSC STOCK Box 7x7x7                                 1,000 02/16/09
+W7015-00       0 ABB1000           ABB-7015-00     ABB SET                                            10,000 02/12/09
+W7029-00       0 HER1000           7029            7029                                               10,000 03/04/09
+W7030-00       0 HER1000           CHOCOLATE       Chocolate Ice Creme                                25,000 03/04/09
+W7030-00       0 HER1000           FHER10000080A   Vanilla Ice Creme                                  50,000 03/04/09
+W7032-00       0 ATT1000           CATT10000090A   RSC 12x10x10                                       25,000 03/04/09
+W7033-00       0 ABB1000           7033a           ABB SET                                             1,000 03/25/09
+W7038-00       0 HER1000           STRAWBERRY      Strawberry Ice Creme                               25,000 04/03/09
+W7038-00       0 HER1000           TESTALLOCATE    Strawberry Vanilla Ice Creme                       50,000 04/03/09
+W7058-00       0 ABC1000           7058            RSC Xtra Trim for SellPrice                         5,000 04/02/09
+W7062-00       0 ATT1000           7062            RSC 5x5x5                                          37,500 04/02/09
+090303-01 200780 IBM1000           CIBM10002477A   HSC 1/2 Out                    TEST CREDIT CHK        100 03/05/09
+090305-00      0 HER1000           FHER10000080A   Vanilla Ice Creme                                  50,000 03/05/09
+090305-00      0 HER1000           CHOCOLATE       Chocolate Ice Creme                                25,000 03/05/09
+200033-01      0 ATT1000           CATT10000071A   test score                                         10,000 03/10/09
+200671-01 200671 ROBSTR            CROBSTR0004A    Farm Out 2 Piece Box                                   47 01/06/09
+200671-02 200671 ROBSTR            CROBSTR0002A    RSC 10x10x12                                          500 01/06/09
+200672-00 200672 HER1000           FHER10000109A   RT 3x3x3.5                     Sheet PO           100,000 01/08/09
+200673-00 200673 ROBSTR            CKERRY10001A    K 6748                                              1,000 01/09/09
+200675-00 200675 ABB1000           CABB10000068A   Farm Out 15x15x10              FO 011209AA         50,000 01/12/09
+200676-00 200676 ABB1000           CABB10000068A   Farm Out 15x15x10              FO 011209BB         25,000 01/12/09
+200677-00 200677 ABB1000           CABB10000068A   Farm Out 15x15x10              FO 011209CC         50,000 01/12/09
+200678-00 200678 ABB1000           CABB10000069A0  Farm Out 2 Piece Box                                1,000 01/13/09
+200679-00 200679 HER1000           8X8X8           RSC 8x8x8 Item Name                                 1,000 01/15/09
+200680-00 200680 HER1000           8X8X8           RSC 8x8x8 Item Name                                 1,000 01/15/09
+200681-00 200681 ABB1000           CABB10000070A   25                                                  1,000 01/16/09
+200682-00 200682 ABB1000           CABB10000071A   26                                                  1,222 01/16/09
+200684-00 200684 ATT1000           ATT-2644        RT 5x5x9                       01192008               200 01/19/09
+200684-00 200684 ATT1000           ATT-1293A       SE 5x5x5                       01192008               400 01/19/09
+200684-00 200684 ATT1000           FATT10000010A   RT 4x4x4                       01192008               600 01/19/09
+200684-00 200684 ATT1000           ATT-2297        RT 5x3x2                       01192008               800 01/19/09
+200684-00 200684 ATT1000           ATT-1219        RT 3x3x 2.5                    01192008             1,000 01/19/09
+200684-01 200684 ATT1000           ATT-1219        RT 3x3x 2.5                    01192008             1,000 01/19/09
+200684-01 200684 ATT1000           ATT-2297        RT 5x3x2                       01192008               800 01/19/09
+200684-01 200684 ATT1000           ATT-1293A       SE 5x5x5                       01192008               400 01/19/09
+200684-01 200684 ATT1000           FATT10000010A   RT 4x4x4                       01192008               600 01/19/09
+200684-01 200684 ATT1000           ATT-2644        RT 5x5x9                       01192008               200 01/19/09
+200687-00 200687 ROBSTR            CKERRY10001A    K 6748                                              1,000 01/20/09
+200687-00 200687 ROBSTR            CKERRY10001B    K 6748                                              1,000 01/20/09
+200691-00 200691 ABB1000           CABB10000019A0  Set with 2 Manf and 4 Farmouts                        250 01/27/09
+200693-00 200693 ABB1000           FABB10000006A   RSC 15x15x15                                      150,000 01/28/09
+200695-00 200695 ABB1000           CABB10000019A0  Set with 2 Manf and 4 Farmouts                        250 01/28/09
+200696-00 200696 ATT1000           ATT-6841        RSC 2X2X15                     Farm PO             30,000 01/29/09
+200697-00 200697 HER1000           CHOCOLATE       Chocolate Ice Creme            Van,Choc,Straw      50,000 01/29/09
+200697-00 200697 HER1000           FHER10000080A   Vanilla Ice Creme              Van,Choc,Straw      75,000 01/29/09
+200697-00 200697 HER1000           STRAWBERRY      Strawberry Ice Creme           Van,Choc,Straw      75,000 01/29/09
+200697-00 200697 HER1000           CHOCOLATE       Chocolate Ice Creme            Van,Choc,Straw      75,000 01/29/09
+200698-00 200698 ABB1000           FABB10000006A   RSC 15x15x15                                      150,000 01/29/09
+200699-00 200699 ATT1000           ATT-7001        RSC 8x8x16                     PO Welch            20,000 01/29/09
+200700-00 200700 HER1000           STRAWBERRY      Strawberry Ice Creme           Board Combo Tes     75,000 01/30/09
+200700-00 200700 HER1000           CHOCOLATE       Chocolate Ice Creme            Board Combo Tes     75,000 01/30/09
+200700-00 200700 HER1000           FHER10000080A   Vanilla Ice Creme              Board Combo Tes     75,000 01/30/09
+200700-00 200700 HER1000           CHOCOLATE       Chocolate Ice Creme            Board Combo Tes     50,000 01/30/09
+200705-00 200705 ABC1000           CABC10000019A0  Two Piece RSC 20x20x20                              5,000 02/05/09
+200706-00 200706 HER1000           CHER10000016A   RSC STOCK Box 7x7x7            FArm Out            20,000 02/09/09
+200707-00 200707 HER1000           CHER10000016A   RSC STOCK Box 7x7x7            FarmOut EA           1,000 02/09/09
+200709-00 200709 HER1000           CHER10000016A   RSC STOCK Box 7x7x7                                 1,000 02/10/09
+200713-00 200713 HER1000           CHER10000016A   RSC STOCK Box 7x7x7            Prep Charge         20,000 02/11/09
+200714-00 200714 HER1000           CHER10000016A   RSC STOCK Box 7x7x7            Added Plate         20,000 02/11/09
+200719-00 200719 HER1000           CHER10000016A   RSC STOCK Box 7x7x7                                15,000 02/11/09
+200720-00 200720 HER1000           CHER10000016A   RSC STOCK Box 7x7x7                                20,000 02/11/09
+200728-00 200728 ATT1000           ATT-7001        RSC 8x8x16                     Many Jobs            1,000 02/12/09
+200728-01 200728 ATT1000           CROBSTR0001A    CROBSTR0001A                   Many Jobs            5,000 02/12/09
+200729-00 200729 ATT1000           CROBSTR0001A    CROBSTR0001A                   Delete Prep          5,000 02/12/09
+200730-00 200730 ATT1000           ATT-7001        RSC 8x8x16                     Prep Test           20,000 02/12/09
+200731-00 200731 ATT1000           ATT-6841        RSC 2X2X15                     po6875               1,000 02/12/09
+200732-00 200732 IBM1000           CIBM10002475A   HSC 8x8x15                     po200732            25,000 02/12/09
+200733-00 200733 IBM1000           CIBM10002475A   HSC 8x8x15                     po7011              25,000 02/12/09
+200733-00 200733 IBM1000           CIBM10002476A                                  po7011              20,000 02/12/09
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   2
+ 2:11pm                                                    Job Log by Job#
+
+
+
+Job        Order                                                                                    Quantity Order
+Number    Number Customer          Item Number     Item Name                      Cust PO#           Ordered Date
+--------- ------ ----------------- --------------- ------------------------------ --------------- ---------- --------
+200734-00 200734 HER1000           CHOCOLATE       Chocolate Ice Creme                                75,000 02/12/09
+200734-00 200734 HER1000           CHOCOLATE       Chocolate Ice Creme                                50,000 02/12/09
+200734-00 200734 HER1000           STRAWBERRY      Strawberry Ice Creme                               75,000 02/12/09
+200734-00 200734 HER1000           FHER10000080A   Vanilla Ice Creme                                  75,000 02/12/09
+200735-00 200735 ABB1000           ABB-7015-00     ABB SET                        Bill Prep            1,000 02/12/09
+200736-00 200736 ABB1000           ABB-7015-00     ABB SET                                             1,000 02/12/09
+200737-00 200737 ABB1000           CABB10000072A0  ABB SET                        Preps Gone           1,000 02/12/09
+200738-00 200738 HER1000           CHER10000016A   RSC STOCK Box 7x7x7            Farmout             20,000 02/12/09
+200740-00 200740 ATT1000           ATT-6841        RSC 2X2X15                     po6875               1,000 02/13/09
+200741-00 200741 ATT1000           ATT-6841        RSC 2X2X15                     po6875-noprep        1,000 02/13/09
+200741-00 200741 ATT1000           att-6842        rsc                                                 2,000 02/13/09
+200743-00 200743 HER1000           STRAWBERRY      Strawberry Ice Creme                               75,000 02/13/09
+200743-00 200743 HER1000           CHOCOLATE       Chocolate Ice Creme                                75,000 02/13/09
+200743-00 200743 HER1000           FHER10000080A   Vanilla Ice Creme                                  75,000 02/13/09
+200743-00 200743 HER1000           CHOCOLATE       Chocolate Ice Creme                                50,000 02/13/09
+200744-00 200744 HER1000           CHOCOLATE       Chocolate Ice Creme                                50,000 02/13/09
+200744-00 200744 HER1000           FHER10000080A   Vanilla Ice Creme                                  75,000 02/13/09
+200744-00 200744 HER1000           CHOCOLATE       Chocolate Ice Creme                                75,000 02/13/09
+200744-00 200744 HER1000           STRAWBERRY      Strawberry Ice Creme                               75,000 02/13/09
+200745-00 200745 ABB1000           CABB10000073A0  Par 18 Slots                   PAR                 25,000 02/13/09
+200750-00 200750 HER1000           FHER10000112A   RT 5x2x6                                           25,000 02/16/09
+200750-00 200750 HER1000           FHER10000113A   RT 5x2x6                                           50,000 02/16/09
+200754-00 200754 ABB1000           ABB-7015-00     ABB SET                                             1,000 02/19/09
+200755-00 200755 ABB1000           ABB-7015-00     ABB SET                                             1,000 02/19/09
+200756-00 200756 ABB1000           ABB-7015-00     ABB SET                                             1,000 02/19/09
+200757-00 200757 ABB1000           ABB-7015-00     ABB SET                                             1,000 02/19/09
+200758-00 200758 ABB1000           ABB-7015-00     ABB SET                                             1,000 02/19/09
+200759-00 200759 ABB1000           ABB-7015-00     ABB SET                                             1,000 02/19/09
+200760-00 200760 ABB1000           ABB-7015-00     ABB SET                                             1,000 02/19/09
+200761-00 200761 ABB1000           ABB-7015-00     ABB SET                                             1,000 02/19/09
+200762-00 200762 ABB1000           ABB-7015-00     ABB SET                                             1,000 02/19/09
+200763-00 200763 ABB1000           ABB-7015-00     ABB SET                                             1,000 02/19/09
+200764-00 200764 ABB1000           ABB-7015-00     ABB SET                                             2,000 02/19/09
+200771-00 200771 ATT1000           CATT10000090A   RSC 12x10x10                   022709              25,000 02/27/09
+200774-00 200774 ATT1000           ATT-6841        RSC 2X2X15                     PO lotprice         25,000 03/03/09
+200775-00 200775 ATT1000           ATT-6841        RSC 2X2X15                     PO lot2             25,000 03/03/09
+200787-00 200787 ABB1000           CABB10000075A   Combo Part B                   Full Cost            5,000 03/10/09
+200787-00 200787 ABB1000           CABB10000076A   Combo Part C                   Full Cost            5,000 03/10/09
+200789-00 200789 ABB1000           CABB10000075A   Combo Part B                                        5,000 03/11/09
+200789-00 200789 ABB1000           CABB10000076A   Combo Part C                                        5,000 03/11/09
+200800-00 200800 ATT1000           CATT10000091A   RSC VD 4 Scores                PO Header           50,000 03/16/09
+200809-00 200809 ABB1000           CABB10000077A0  ABB SET                        EST 7043             1,000 03/16/09
+200810-00 200810 ABB1000           CABB10000077A0  ABB SET                                             1,000 03/16/09
+200811-00 200811 HER1000           FHER10000118A1  RT 4x4x7.5                     Lot Price           50,000 03/16/09
+200816-00 200816 ABB1000           CABB10000078A   d/c                                                20,000 03/20/09
+200824-00 200824 ABB1000           ABB-584         RT 4x4x4                                           15,000 03/25/09
+200825-00 200825 ABB1000           ABB-651         RSC 8.5 x 6.75 x 11.25         111                  5,000 03/25/09
+200829-00 200829 ABB1000           CABB10000079A0  2Pc RSC and Partitions         032709A              5,000 03/27/09
+200839-00 200839 ATT1000           BATT1000008A00  RSC 6x6x14                     123456             150,000 03/30/09
+200840-00 200840 ATT1000           BATT1000008A00  RSC 6x6x14                     200840               1,500 03/30/09
+200852-00 200852 IBM1000           BATT1000008A00  RSC 8x8x20                     04020901             2,300 04/02/09
+200853-00 200853 IBM1000           BATT1000008A00  RSC 8x8x20                     040209B              5,000 04/02/09
+200862-00 200862 IBM1000           BATT1000008A00  RSC 8x8x20                     200862               1,000 04/02/09
+200863-00 200863 IBM1000           BATT1000008A00  RSC 8x8x20                     200863               1,000 04/02/09
+200864-00 200864 IBM1000           BATT1000008A00  RSC 8x8x20                     200864               1,000 04/02/09
+200865-00 200865 IBM1000           BATT1000008A00  RSC 8x8x20                     200865               1,000 04/02/09
+200866-00 200866 IBM1000           BATT1000008A00  RSC 8x8x20                     200866             100,000 04/02/09
+200869-00 200869 ATT1000           CATT10000092A   RSC 6x6x16                     12121                5,000 04/03/09
+200869-01 200869 ATT1000           CATT10000093A   RSC 6x6x18                     12121                2,500 04/03/09
+200872-00 200872 ATT1000           7062            RSC 5x5x5                      872                 37,500 04/06/09
+200873-00 200873 ATT1000           CATT10000092A   RSC 6x6x16                     040609AA             5,000 04/06/09
+200874-00 200874 IBM1000           BATT1000008A00  RSC 8x8x20                     200874               1,000 04/06/09
+200875-00 200875 IBM1000           BATT1000008A00  RSC 8x8x20                     200875               1,000 04/06/09
+200876-00 200876 IBM1000           BATT1000008A00  RSC 8x8x20                     200876               1,000 04/06/09
+200877-00 200877 ATT1000           7062            RSC 5x5x5                      JU2 Test            37,500 04/06/09
+200878-00 200878 ATT1000           7062            RSC 5x5x5                      040609AA            50,000 04/06/09
+200908-00 200908 ATT1000           ATT-2220        RSC 12x12x18.5                 Sell Price test     20,000 04/13/09
+

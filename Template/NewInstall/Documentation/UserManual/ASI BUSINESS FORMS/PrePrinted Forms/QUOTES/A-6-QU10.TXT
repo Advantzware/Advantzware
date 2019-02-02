@@ -1,0 +1,35 @@
+
+
+ADVANCED CARTON COMPANY
+123 Anywhere Road
+Phone 215.369.1160 Fx 369.1164
+Yardley, PA  19067
+
+                                                   Quote      Date      Your RFQ
+                                                      64    10/17/00
+
+Sold To 1                                   Ship To SAME
+Hershey Chocolate Corp
+123 Chocolate Lane
+
+Hershey, PA 19888
+
+ATTN:
+
+Salesmn  Ship Via  FOB     Terms                          Del.Date  Over-Under %
+  001    CC        DEST    Net 30                                   10.0%-10.0%
+
+Est # Description           Siz/Styl/Brd/Colors    QTY      Price UOM      Price
+--------------------------------------------------------------------------------
+ 1022 HER-1022              10 x 10 x 10          1000     785.92 M       785.92
+      RSC 10x10x10          RSC Glued             5000     617.58 M     3,087.90
+                            200 C                 7500     609.94 M     4,574.55
+                                                 10000     602.40 M     6,024.00
+      PLATE                 Plate Charge                                  150.00
+
+     Quoted prices are good for 30 days, however paperboard prices are     
+     subject to change without notice hence the quote may need to be       
+     adjusted.                                                             
+
+
+

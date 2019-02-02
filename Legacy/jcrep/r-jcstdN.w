@@ -60,14 +60,16 @@ ASSIGN
                            "Calc Tim,Calc By,Std Prep Material,Std Misc Material,Std Prep Labor,Std Misc Labor,Std Direct Material,Std Direct Labor," +
                            "Std Var Overhead,Std Fixed Overhead,Std Total Factory,Std Commission,Std Freight,Std Full Cost,Std Gross Profit,Std Gross Margin," +
                            "Std Net Profit,Std Net Margin,Std Sell Price,Sell Price,Booked/Std Price," +
-                           "Std Net Margin(Act Price),Std Gross Margin(Act Price),Act Sell Price/MSF,Sales Group,Job Created Date,Job Start Date,Job Qty MSF (FG),Std Sell Price/MSF,Cust Type Desc,Job Status,Order Status"
+                           "Std Net Margin(Act Price),Std Gross Margin(Act Price),Act Sell Price/MSF,Sales Group,Job Created Date,Job Start Date,Job Qty MSF (FG),Std Sell Price/MSF,Cust Type Desc,Job Status,Order Status," +
+                           "Std MR Hours,Std Run Hours,Sales Group (Order),Sales Group Name (Order)" 
     cFieldListToSelect = "job,item,item-name,category,cust-part,style,job-qty,est,form,blank,order,cust,cust-name," +
                             "calc-tm,calc-by,std-prp-mat,std-mis-mat,std-prp-lab,std-misc-lab,std-dir-mat,std-dir-lab," +
                             "std-var-over,std-fix-over,std-tot-fac,std-comm,std-frt,std-ful-cst,std-gross-prft,std-gross-mar," +
                             "std-net-prft,std-net-mar,std-sel-price,ord-itm-s-price,book-std-price," +
-                            "std-net-margin-act-pr,std-gross-margin-act-pr,act-sell-pri-msf,sales-grp,job-create,job-start,job-qty-msf-fg,std-sell-price-msf,cust-type,job-stat,order-stat"
-    cFieldLength       = "9,15,25,11,15,6,13,8,4,5,7,8,30," + "23,8,17,17,14,14,18,16," + "16,18,17,14,11,13,16,16," + "14,14,14,13,16," + "25,27,19,11,16,14,16,18,20,10,12"
-    cFieldType         = "c,c,c,c,c,c,c,i,i,i,i,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c," + "i,i,i,c,c,c,i,i,c,c,c" 
+                            "std-net-margin-act-pr,std-gross-margin-act-pr,act-sell-pri-msf,sales-grp,job-create,job-start,job-qty-msf-fg,std-sell-price-msf,cust-type,job-stat,order-stat," +
+                            "std-mr-hrs,std-run-hrs,sales-grp-ord,sales-grp-name"
+    cFieldLength       = "9,15,25,11,15,6,13,8,4,5,7,8,30," + "23,8,17,17,14,14,19,16," + "16,18,17,14,11,13,16,16," + "14,14,14,13,16," + "25,27,19,11,16,14,16,18,20,10,12," + "12,13,19,30"
+    cFieldType         = "c,c,c,c,c,c,c,i,i,i,i,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c," + "i,i,i,c,c,c,i,i,c,c,c," + "i,i,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -160,7 +162,7 @@ DEFINE VARIABLE begin_est      AS CHARACTER FORMAT "X(8)"
     SIZE 17 BY 1.
 
 DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
-    LABEL "Beginning Date" 
+    LABEL "Beginning Job Created" 
     VIEW-AS FILL-IN 
     SIZE 17 BY .95 NO-UNDO.
 
@@ -185,7 +187,7 @@ DEFINE VARIABLE end_est        AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz"
     SIZE 17 BY 1.
 
 DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
-    LABEL "Ending Date" 
+    LABEL "Ending Job Created" 
     VIEW-AS FILL-IN 
     SIZE 17 BY .95 NO-UNDO.
 
@@ -1423,6 +1425,12 @@ PROCEDURE run-report :
 
 
     DEFINE VARIABLE cslist      AS cha       NO-UNDO.
+    DEFINE VARIABLE dMrHours    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dRunHours   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cSalesGroup AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSalesName  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dFactor     AS DECIMAL   NO-UNDO.
+    
     FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
         IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
@@ -1490,8 +1498,6 @@ PROCEDURE run-report :
     iLineCount = 0 .
     FOR EACH costHeader NO-LOCK 
         WHERE costHeader.company EQ gcompany
-        AND costHeader.calculationTime GE DATETIME(v-fdate)
-        AND costHeader.calculationTime LE DATETIME(v-tdate + 1)
         AND costHeader.jobNo  GE substr(v-fjob,1,6)
         AND costHeader.jobNo  LE substr(v-tjob,1,6)
         AND fill(" ",6 - length(TRIM(costHeader.jobNo))) +
@@ -1509,7 +1515,9 @@ PROCEDURE run-report :
         FIRST job NO-LOCK 
         WHERE job.company EQ costHeader.company
         AND job.job-no EQ costHeader.jobNo
-        AND job.job-no2 EQ costHeader.JobNo2,
+        AND job.job-no2 EQ costHeader.JobNo2
+        AND job.create-date GE v-fdate
+        AND job.create-date LE v-tdate ,
         FIRST eb NO-LOCK 
         WHERE eb.company EQ costHeader.company
         AND eb.est-no EQ costHeader.estimateNo
@@ -1585,6 +1593,7 @@ PROCEDURE run-report :
          
         IF AVAILABLE oe-ordl THEN 
         DO:
+            cSalesGroup = oe-ordl.s-man[1].
             cOrderStatus = oe-ordl.stat .
             IF cOrderStatus EQ "" THEN 
             DO:
@@ -1602,12 +1611,38 @@ PROCEDURE run-report :
         ELSE 
         DO:
             cOrderStatus = "" .
+            cSalesGroup  = "" .
         END.
 
         FIND FIRST custype NO-LOCK
             WHERE custype.company = cocode
             AND custype.custype = cust.TYPE 
             NO-ERROR .
+
+        ASSIGN 
+            dMrHours  = 0
+            dRunHours = 0 .
+
+        FOR EACH job-mch NO-LOCK
+            WHERE job-mch.company EQ job.company 
+            AND job-mch.job EQ job.job 
+            AND job-mch.job-no EQ job.job-no 
+            AND job-mch.job-no2 EQ job.job-no2 
+            AND job-mch.frm EQ costHeader.formNo
+            AND (job-mch.blank-no EQ costHeader.blankNo OR job-mch.blank-no EQ 0)
+            use-index line-idx :
+
+            dFactor = IF job-mch.blank-no eq 0 and costHeader.factorForm NE 0 then costHeader.factorForm else 1 .
+            ASSIGN 
+                dMrHours  = dMrHours + (job-mch.mr-hr * dFactor )
+                dRunHours = dRunHours + (job-mch.run-hr * dFactor) . 
+        END.
+        FIND FIRST sman NO-LOCK WHERE sman.company EQ cocode
+                                  AND sman.sman    EQ cSalesGroup NO-ERROR.
+        IF AVAIL sman THEN
+            ASSIGN
+            cSalesName = sman.sname.
+        ELSE cSalesName = "" .
                    
 
         ASSIGN 
@@ -1711,6 +1746,11 @@ PROCEDURE run-report :
                     cVarValue = STRING(job.stat,"x(10)").
                 WHEN "order-stat"   THEN 
                     cVarValue = STRING(cOrderStatus,"x(12)") .
+                WHEN "std-mr-hrs"     THEN cVarValue = STRING(dMrHours,"->>>>>>>9.99") .
+                WHEN "std-run-hrs"    THEN cVarValue = STRING(dRunHours,"->>>>>>>>9.99") .
+                WHEN "sales-grp-ord"  THEN cVarValue = STRING(cSalesGroup,"x(12)") .
+                WHEN "sales-grp-name" THEN cVarValue = STRING(cSalesName,"x(30)") .
+                  
                 
             END CASE.
 
@@ -1840,6 +1880,10 @@ PROCEDURE run-report :
                     cVarValue =  "".
                 WHEN "order-stat"              THEN 
                     cVarValue =  "".
+                WHEN "std-mr-hrs"     THEN cVarValue = "" .
+                WHEN "std-run-hrs"    THEN cVarValue = "" .
+                WHEN "sales-grp-ord"  THEN cVarValue = "" .
+                WHEN "sales-grp-name" THEN cVarValue = "" .
             END CASE.
 
             cExcelVarValue = cVarValue.

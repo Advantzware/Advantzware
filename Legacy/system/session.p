@@ -19,12 +19,15 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE VARIABLE hMainMenuHandle     AS HANDLE  NO-UNDO.
-DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cModule             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
 /* cue card variables */
-DEFINE VARIABLE iCueOrder           AS INTEGER NO-UNDO.
-DEFINE VARIABLE lNext               AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lCueCardActive      AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lNext               AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 
 {system/ttSysCtrlUsage.i}
 
@@ -380,6 +383,114 @@ END PROCEDURE.
 &ENDIF
 
 
+&IF DEFINED(EXCLUDE-spGetTaskFilter) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetTaskFilter Procedure
+PROCEDURE spGetTaskFilter:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcModule    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcProgramID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcUserID    AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        opcModule    = cModule
+        opcProgramID = cProgramID
+        opcUserID    = cUserID
+        .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spSendEmail) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSendEmail Procedure
+PROCEDURE spSendEmail:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcSubject    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBody       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAttachment AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRecipients AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cHost            AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cLogin           AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cMail            AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cPassword        AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cPort            AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE idx              AS INTEGER    NO-UNDO.
+    DEFINE VARIABLE objOutlook       AS COM-HANDLE NO-UNDO.
+    DEFINE VARIABLE objOutlookAttach AS COM-HANDLE NO-UNDO.
+    DEFINE VARIABLE objOutlookMsg    AS COM-HANDLE NO-UNDO.
+    DEFINE VARIABLE objOutlookRecip  AS COM-HANDLE NO-UNDO.
+    
+    ASSIGN
+        FILE-INFO:FILE-NAME = SEARCH("CMail.exe")
+        cMail               = FILE-INFO:FULL-PATHNAME
+        FILE-INFO:FILE-NAME = ipcAttachment
+        ipcAttachment       = FILE-INFO:FULL-PATHNAME
+        ipcRecipients       = TRIM(REPLACE(ipcRecipients,";",","))
+        .
+    IF ipcAttachment EQ ?  THEN RETURN.
+    IF ipcRecipients EQ "" THEN RETURN.
+    
+    IF TRUE THEN DO:
+        ASSIGN
+            cHost     = "smtp.office365.com"
+            cLogin    = "wade.kaldawi@advantzware.com"
+            cPassword = "Chester1!"
+            cPort     = "587"
+            cMail     = cMail + " -host:"
+                      + cLogin + ":" + cPassword
+                      + "@" + cHost + ":" + cPort
+                      + " -starttls"
+                      + " -a:" + ipcAttachment
+                      + " ~"-subject:" + ipcSubject + "~""
+                      + " ~"-body:" + ipcBody + "~""
+                      + " -from:" + cLogin
+                      .
+        DO idx = 1 TO NUM-ENTRIES(ipcRecipients):
+            cMail = cMail + " -to:" + ENTRY(idx,ipcRecipients).
+        END. /* do idx */
+        OS-COMMAND NO-WAIT VALUE(cMail).
+    END. /* if */
+    ELSE DO:
+        CREATE "Outlook.Application" objOutlook.
+        objOutlookMsg = objOutlook:CreateItem(0).
+        DO idx = 1 TO NUM-ENTRIES(ipcRecipients):
+            objOutlookRecip = objOutlookMsg:Recipients:Add(ENTRY(idx,ipcRecipients)).
+        END. /* do idx */
+        objOutlookRecip:Type  = 1.
+        objOutlookMsg:Subject = ipcSubject.
+        objOutlookMsg:Body    = ipcBody.    
+        objOutlookMsg:Attachments:Add(ipcAttachment).
+        objOutlookRecip:Resolve.
+        objOutlookMsg:Send.
+    /*    objOutlook:Quit().*/
+        RELEASE OBJECT objOutlook.
+        RELEASE OBJECT objOutlookMsg.
+        RELEASE OBJECT objOutlookRecip.
+    END. /* else */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-spSetDontShowAgain) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetDontShowAgain Procedure
@@ -390,12 +501,19 @@ PROCEDURE spSetDontShowAgain:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
-    CREATE xCueCard.
-    ASSIGN
-        xCueCard.user_id   = USERID("ASI")
-        xCueCard.cueType   = cueCard.cueType
-        xCueCard.cueTextID = cueCardText.cueTextID
-        .
+    IF cueCard.cueType EQ "Message" THEN DO TRANSACTION:
+        FIND CURRENT cueCardText EXCLUSIVE-LOCK.
+        DELETE cueCardText.
+    END. /* if message */
+    ELSE DO TRANSACTION:
+        CREATE xCueCard.
+        ASSIGN
+            xCueCard.user_id   = USERID("ASI")
+            xCueCard.cueType   = cueCard.cueType
+            xCueCard.cueTextID = cueCardText.cueTextID
+            .
+        RELEASE xCueCard.
+    END. /* else */
     RUN spNextCue (iphWidget).
 
 END PROCEDURE.
@@ -508,6 +626,7 @@ PROCEDURE spRunCueCard :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCueType   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcPrgmName  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iphContainer AS HANDLE    NO-UNDO.
     DEFINE INPUT PARAMETER iphFrame     AS HANDLE    NO-UNDO.
@@ -528,287 +647,288 @@ PROCEDURE spRunCueCard :
     DEFINE VARIABLE dTitle              AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE iPosition           AS INTEGER   NO-UNDO.
     DEFINE VARIABLE idx                 AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cCueType            AS CHARACTER NO-UNDO INITIAL
-        "System,Note,Message".
     DEFINE VARIABLE cOrientation        AS CHARACTER NO-UNDO INITIAL ~
 "default_LeftUp,default_Up,default_RightUp,default_Right,default_RightDown,default_Down,~
 default_LeftDown,default_Left,information,default_SidebarCollapse,default_SidebarExpand".
     
     IF iphFrame:SENSITIVE EQ NO THEN RETURN.
     
+    IF lCueCardActive THEN RETURN.
+    
     cCueCardPool = "CueCardPool" + STRING(TIME,"99999").
     DELETE WIDGET-POOL cCueCardPool NO-ERROR.
     CREATE WIDGET-POOL cCueCardPool NO-ERROR.
 
-    /* process various types of cue cards */
-    DO idx = 1 TO NUM-ENTRIES(cCueType):
-        /* check for active cue card */
-        IF CAN-FIND(FIRST cueCard
-                    WHERE cueCard.cuePrgmName EQ ipcPrgmName
-                      AND cueCard.cueType     EQ ENTRY(idx,cCueType)
-                      AND cueCard.isActive    EQ YES) THEN 
-        FOR EACH cueCard NO-LOCK
-            WHERE cueCard.cuePrgmName EQ ipcPrgmName
-              AND cueCard.cueType     EQ ENTRY(idx,cCueType)
-              AND cueCard.isActive    EQ YES
-            :
-            ASSIGN
-                iCueOrder = 1
-                dTitle    = IF iphFrame:TITLE EQ ? THEN 0 ELSE 1
-                lNext     = YES
-                .
-            /* check to be sure there are active cue card texts */
-            IF CAN-FIND(FIRST cueCardText
-                        WHERE cueCardText.cueID    EQ cueCard.cueID
-                          AND cueCardText.cueType  EQ cueCard.cueType
-                          AND cueCardText.isActive EQ YES) THEN
-            DO WHILE TRUE:
-                /* done, no more cue card texts */
-                IF iCueOrder EQ ? THEN LEAVE.
-                FIND FIRST cueCardText NO-LOCK
-                     WHERE cueCardText.cueID    EQ cueCard.cueID
-                       AND cueCardText.cueType  EQ cueCard.cueType
-                       AND cueCardText.cueOrder EQ iCueOrder
-                     NO-ERROR.
-                /* if can't find, done, no more cue card texts */
-                IF NOT AVAILABLE cueCardText THEN LEAVE.
-                /* cue card not active, get next card in sequence */
-                /* or check if user has blocked this cue card text */
-                IF NOT cueCardText.isActive OR
-                  (iplActive EQ YES AND 
-                   CAN-FIND(FIRST xCueCard
-                            WHERE xCueCard.user_id   EQ USERID("ASI")
-                              AND xCueCard.cueType   EQ cueCardText.cueType
-                              AND xCueCard.cueTextID EQ cueCardText.cueTextID)) THEN DO:
-                    IF lNext THEN
-                    RUN spNextCue (hMainMenuHandle).
-                    ELSE
-                    RUN spPrevCue (hMainMenuHandle).
-                    NEXT.
-                END.
-                /* check security level of user vs cue card security */
-                IF sfUserSecurityLevel() LT cueCard.securityLevel THEN
-                DO TRANSACTION:
-                    CREATE xCueCard.
-                    ASSIGN
-                        xCueCard.user_id   = USERID("ASI")
-                        xCueCard.cueType   = cueCard.cueType
-                        xCueCard.cueTextID = cueCardText.cueTextID
-                        .
-                    NEXT.
-                END. /* if securitylevel */
-                /* calculate the cue card screen position */
-                CASE cueCardText.cuePosition:
-                    /* arrows: 1=absolute */
-                    WHEN 1 THEN
-                    ASSIGN 
-                        dCol = cueCardText.frameCol
-                        dRow = cueCardText.frameRow - dTitle
-                        .
-                    /* arrows: 2=width */
-                    WHEN 2 THEN 
-                    ASSIGN 
-                        dCol = iphFrame:WIDTH - cueCardText.frameCol
-                        dRow = cueCardText.frameRow - dTitle
-                        .
-                    /* arrows: 3=height & width */
-                    WHEN 3 THEN 
-                    ASSIGN 
-                        dCol = iphFrame:WIDTH  - cueCardText.frameCol
-                        dRow = iphFrame:HEIGHT - cueCardText.frameRow - dTitle
-                        .
-                    /* arrows: 4=height */
-                    WHEN 4 THEN  
-                    ASSIGN 
-                        dCol = cueCardText.frameCol
-                        dRow = iphFrame:HEIGHT - cueCardText.frameRow - dTitle
-                        .
-                END CASE.
-                IF dRow LT 1 THEN dRow = 1.
-                /* create cue card objects */
-                /* FRAME */
-                CREATE FRAME hCueCardFrame IN WIDGET-POOL cCueCardPool
-                    ASSIGN 
-                        PARENT = iphContainer
-                        FRAME = iphFrame
-                        NAME = "CueCardFrame"
-                        COL = dCol
-                        ROW = dRow
-                        HEIGHT = cueCardText.frameHeight
-                        WIDTH = cueCardText.frameWidth
-                        BOX = NO 
-                        BGCOLOR = cueCardText.frameBGColor
-                        FGCOLOR = cueCardText.frameFGColor
-                        HIDDEN = NO 
-                        SENSITIVE = YES
-                  TRIGGERS:
-                    ON ENTRY
-                      PERSISTENT RUN spCueCardFrame IN THIS-PROCEDURE (hCueCardFrame).
-                  END TRIGGERS.
-                hCueCardFrame:MOVE-TO-TOP().
-                /* RECTANGLE */
-                CREATE RECTANGLE hCueCardRectangle IN WIDGET-POOL cCueCardPool
-                    ASSIGN
-                        FRAME = hCueCardFrame
-                        NAME = "CueCardRect"
-                        COL = 1
-                        ROW = 1
-                        HEIGHT = hCueCardFrame:HEIGHT - .1
-                        WIDTH = hCueCardFrame:WIDTH - .3
-                        ROUNDED = YES
-                        GRAPHIC-EDGE = YES
-                        EDGE-PIXELS = 1
-                        SENSITIVE = NO
-                        HIDDEN = NO 
-                        .
-                hCueCardRectangle:MOVE-TO-TOP().
-                /* CLOSE BUTTON */
-                CREATE BUTTON hClose IN WIDGET-POOL cCueCardPool
-                    ASSIGN 
-                        FRAME = hCueCardFrame
-                        NAME = "btnClose"
-                        COL = hCueCardFrame:WIDTH - 4.4 
-                        ROW = 1.24
-                        TOOLTIP = "Close Cue Card"
-                        FLAT-BUTTON = YES
-                        HEIGHT = 1
-                        WIDTH = 4.2
-                        HIDDEN = NO 
-                        SENSITIVE = YES
-                  TRIGGERS:
-                    ON CHOOSE
-                      PERSISTENT RUN spCueCardClose IN THIS-PROCEDURE (hMainMenuHandle).
-                  END TRIGGERS.
-                hClose:LOAD-IMAGE("Graphics\16x16\delete.gif").
-                hClose:MOVE-TO-TOP().
-                /* ARROW IMAGE */
-                CREATE IMAGE hCueCardArrow IN WIDGET-POOL cCueCardPool
-                    ASSIGN
-                        FRAME = hCueCardFrame
-                        NAME = "ArrowImage"
-                        COL = cueCardText.arrowCol
-                        ROW = cueCardText.arrowRow
-                        SENSITIVE = NO
-                        HIDDEN = NO 
-                        WIDTH = 7
-                        HEIGHT = 1.67
-                        TRANSPARENT = YES
-                        .
-                hCueCardArrow:LOAD-IMAGE("Graphics\24x24\" + ENTRY(cueCardText.cueOrientation,cOrientation) + ".gif").
-                hCueCardArrow:MOVE-TO-TOP().
-                /* PREVIOUS BUTTON */
-                CREATE BUTTON hCueCardPrev IN WIDGET-POOL cCueCardPool
-                    ASSIGN
-                        FRAME = hCueCardFrame
-                        NAME = "btnPrev"
-                        COL = cueCardText.prevCol
-                        ROW = cueCardText.prevRow
-                        TOOLTIP = "Show Previous Cue Card"
-                        FLAT-BUTTON = YES
-                        SENSITIVE = YES 
-                        HIDDEN = NO 
-                        WIDTH = 5
-                        HEIGHT = 1.19
-                  TRIGGERS:
-                    ON CHOOSE
-                      PERSISTENT RUN spPrevCue IN THIS-PROCEDURE (hMainMenuHandle).
-                  END TRIGGERS.
-                hCueCardPrev:LOAD-IMAGE("Graphics\24x24\" + ENTRY(10,cOrientation) + ".gif").
-                hCueCardPrev:MOVE-TO-TOP().
-                /* NEXT BUTTON */
-                CREATE BUTTON hCueCardNext IN WIDGET-POOL cCueCardPool
-                    ASSIGN
-                        FRAME = hCueCardFrame
-                        NAME = "btnNext"
-                        COL = cueCardText.nextCol
-                        ROW = cueCardText.nextRow
-                        TOOLTIP = "Show Next Cue Card"
-                        FLAT-BUTTON = YES
-                        SENSITIVE = YES 
-                        HIDDEN = NO 
-                        WIDTH = 5
-                        HEIGHT = 1.19
-                  TRIGGERS:
-                    ON CHOOSE
-                      PERSISTENT RUN spNextCue IN THIS-PROCEDURE (hMainMenuHandle).
-                  END TRIGGERS.
-                hCueCardNext:LOAD-IMAGE("Graphics\24x24\" + ENTRY(11,cOrientation) + ".gif").
-                hCueCardNext:MOVE-TO-TOP().
-                /* EDITOR */
-                CREATE EDITOR hCueCardText IN WIDGET-POOL cCueCardPool
-                    ASSIGN
-                        FRAME = hCueCardFrame
-                        NAME = "CueCardText"
-                        FONT = cueCardText.textFont
-                        COL = cueCardText.textCol
-                        ROW = cueCardText.textRow
-                        WIDTH = cueCardText.textWidth
-                        HEIGHT = cueCardText.textHeight
-                        BGCOLOR = cueCardText.frameBGColor
-                        FGCOLOR = cueCardText.frameFGColor
-                        SCROLLBAR-HORIZONTAL = NO
-                        SCROLLBAR-VERTICAL = NO
-                        WORD-WRAP = YES
-                        READ-ONLY = YES
-                        BOX = NO
-                        SCREEN-VALUE = cueCardText.cueText
-                        SENSITIVE = YES
-                        HIDDEN = NO
-                        .
-                hCueCardText:MOVE-TO-TOP().
-                /* TOGGLE BOX DON'T SHOW AGAIN */
-                CREATE TOGGLE-BOX hDontShowAgain IN WIDGET-POOL cCueCardPool
-                    ASSIGN
-                        FRAME = hCueCardFrame
-                        NAME = "DontShowAgain"
-                        LABEL = "Don't Show Again"
-                        FONT = cueCardText.dontShowAgainFont
-                        COL = cueCardText.dontShowAgainCol
-                        ROW = cueCardText.dontShowAgainRow
-                        SENSITIVE = YES
-                        HIDDEN = NO 
-                        WIDTH = 24
-                        HEIGHT = .81
-                        SCREEN-VALUE = "NO"
-                  TRIGGERS:
-                    ON VALUE-CHANGED
-                      PERSISTENT RUN spSetDontShowAgain IN THIS-PROCEDURE (hMainMenuHandle).
-                  END TRIGGERS.
-                hDontShowAgain:MOVE-TO-TOP().
+    /* check for active cue card */
+    IF CAN-FIND(FIRST cueCard
+                WHERE cueCard.cuePrgmName EQ ipcPrgmName
+                  AND cueCard.cueType     EQ ipcCueType
+                  AND cueCard.isActive    EQ YES) THEN 
+    FOR EACH cueCard NO-LOCK
+        WHERE cueCard.cuePrgmName EQ ipcPrgmName
+          AND cueCard.cueType     EQ ipcCueType
+          AND cueCard.isActive    EQ YES
+        :
+        ASSIGN
+            iCueOrder = 1
+            dTitle    = IF iphFrame:TITLE EQ ? THEN 0 ELSE 1
+            lNext     = YES
+            .
+        /* check to be sure there are active cue card texts */
+        IF CAN-FIND(FIRST cueCardText
+                    WHERE cueCardText.cueID       EQ cueCard.cueID
+                      AND cueCardText.cueType     EQ cueCard.cueType
+                      AND cueCardText.isActive    EQ YES
+                      AND (cueCardText.createdFor EQ USERID("ASI")
+                       OR  cueCardText.createdFor EQ "")) THEN
+        DO WHILE TRUE:
+            /* done, no more cue card texts */
+            IF iCueOrder EQ ? THEN LEAVE.
+            FIND FIRST cueCardText NO-LOCK
+                 WHERE cueCardText.cueID       EQ cueCard.cueID
+                   AND cueCardText.cueType     EQ cueCard.cueType
+                   AND cueCardText.cueOrder    EQ iCueOrder
+                   AND (cueCardText.createdFor EQ USERID("ASI")
+                    OR  cueCardText.createdFor EQ "")
+                 NO-ERROR.
+            /* if can't find, done, no more cue card texts */
+            IF NOT AVAILABLE cueCardText THEN LEAVE.
+            /* cue card not active, get next card in sequence */
+            /* or check if user has blocked this cue card text */
+            IF NOT cueCardText.isActive OR
+              (iplActive EQ YES AND 
+               CAN-FIND(FIRST xCueCard
+                        WHERE xCueCard.user_id   EQ USERID("ASI")
+                          AND xCueCard.cueType   EQ cueCardText.cueType
+                          AND xCueCard.cueTextID EQ cueCardText.cueTextID)) THEN DO:
+                IF lNext THEN
+                RUN spNextCue (hMainMenuHandle).
+                ELSE
+                RUN spPrevCue (hMainMenuHandle).
+                NEXT.
+            END.
+            /* check security level of user vs cue card security */
+            IF sfUserSecurityLevel() LT cueCard.securityLevel THEN
+            DO TRANSACTION:
+                CREATE xCueCard.
                 ASSIGN
-                    hDontShowAgain:SENSITIVE = iplActive
-                    hDontShowAgain:HIDDEN    = NOT cueCard.enableDontShowAgain
+                    xCueCard.user_id   = USERID("ASI")
+                    xCueCard.cueType   = cueCard.cueType
+                    xCueCard.cueTextID = cueCardText.cueTextID
                     .
-                /* TOGGLE BOX DISMISS */
-                CREATE TOGGLE-BOX hDismiss IN WIDGET-POOL cCueCardPool
-                    ASSIGN
-                        FRAME = hCueCardFrame
-                        NAME = "Dismiss"
-                        LABEL = "Dismiss This Cue Card Set"
-                        FONT = cueCardText.dismissFont
-                        COL = cueCardText.dismissCol
-                        ROW = cueCardText.dismissRow
-                        SENSITIVE = YES
-                        HIDDEN = NO 
-                        WIDTH = 34
-                        HEIGHT = .81
-                        SCREEN-VALUE = "NO"
-                  TRIGGERS:
-                    ON VALUE-CHANGED
-                      PERSISTENT RUN spSetDismiss IN THIS-PROCEDURE (hMainMenuHandle).
-                  END TRIGGERS.
-                hDismiss:MOVE-TO-TOP().
+                NEXT.
+            END. /* if securitylevel */
+            /* calculate the cue card screen position */
+            CASE cueCardText.cuePosition:
+                /* arrows: 1=absolute */
+                WHEN 1 THEN
                 ASSIGN 
-                    hDismiss:SENSITIVE = iplActive
-                    hDismiss:HIDDEN    = NOT cueCard.enableDismiss
-                    lCueCardActive     = YES
-                    .            
-                WAIT-FOR "U1":U OF hMainMenuHandle.
-                lCueCardActive = NO.            
-                DELETE OBJECT hCueCardFrame.
-            END. /* do while */
-        END. /* each cuecard */
-    END. /* do idx */
+                    dCol = cueCardText.frameCol
+                    dRow = cueCardText.frameRow - dTitle
+                    .
+                /* arrows: 2=width */
+                WHEN 2 THEN 
+                ASSIGN 
+                    dCol = iphFrame:WIDTH - cueCardText.frameCol
+                    dRow = cueCardText.frameRow - dTitle
+                    .
+                /* arrows: 3=height & width */
+                WHEN 3 THEN 
+                ASSIGN 
+                    dCol = iphFrame:WIDTH  - cueCardText.frameCol
+                    dRow = iphFrame:HEIGHT - cueCardText.frameRow - dTitle
+                    .
+                /* arrows: 4=height */
+                WHEN 4 THEN  
+                ASSIGN 
+                    dCol = cueCardText.frameCol
+                    dRow = iphFrame:HEIGHT - cueCardText.frameRow - dTitle
+                    .
+            END CASE.
+            IF dRow LT 1 THEN dRow = 1.
+            /* create cue card objects */
+            /* FRAME */
+            CREATE FRAME hCueCardFrame IN WIDGET-POOL cCueCardPool
+                ASSIGN 
+                    PARENT = iphContainer
+                    FRAME = iphFrame
+                    NAME = "CueCardFrame"
+                    COL = dCol
+                    ROW = dRow
+                    HEIGHT = cueCardText.frameHeight
+                    WIDTH = cueCardText.frameWidth
+                    BOX = NO 
+                    BGCOLOR = cueCardText.frameBGColor
+                    FGCOLOR = cueCardText.frameFGColor
+                    HIDDEN = NO 
+                    SENSITIVE = YES
+              TRIGGERS:
+                ON ENTRY
+                  PERSISTENT RUN spCueCardFrame IN THIS-PROCEDURE (hCueCardFrame).
+              END TRIGGERS.
+            hCueCardFrame:MOVE-TO-TOP().
+            /* RECTANGLE */
+            CREATE RECTANGLE hCueCardRectangle IN WIDGET-POOL cCueCardPool
+                ASSIGN
+                    FRAME = hCueCardFrame
+                    NAME = "CueCardRect"
+                    COL = 1
+                    ROW = 1
+                    HEIGHT = hCueCardFrame:HEIGHT - .1
+                    WIDTH = hCueCardFrame:WIDTH - .3
+                    ROUNDED = YES
+                    GRAPHIC-EDGE = YES
+                    EDGE-PIXELS = 1
+                    SENSITIVE = NO
+                    HIDDEN = NO 
+                    .
+            hCueCardRectangle:MOVE-TO-TOP().
+            /* CLOSE BUTTON */
+            CREATE BUTTON hClose IN WIDGET-POOL cCueCardPool
+                ASSIGN 
+                    FRAME = hCueCardFrame
+                    NAME = "btnClose"
+                    COL = hCueCardFrame:WIDTH - 4.4 
+                    ROW = 1.24
+                    TOOLTIP = "Close Cue Card"
+                    FLAT-BUTTON = YES
+                    HEIGHT = 1
+                    WIDTH = 4.2
+                    HIDDEN = NO 
+                    SENSITIVE = YES
+              TRIGGERS:
+                ON CHOOSE
+                  PERSISTENT RUN spCueCardClose IN THIS-PROCEDURE (hMainMenuHandle).
+              END TRIGGERS.
+            hClose:LOAD-IMAGE("Graphics\16x16\delete.gif").
+            hClose:MOVE-TO-TOP().
+            /* ARROW IMAGE */
+            CREATE IMAGE hCueCardArrow IN WIDGET-POOL cCueCardPool
+                ASSIGN
+                    FRAME = hCueCardFrame
+                    NAME = "ArrowImage"
+                    COL = cueCardText.arrowCol
+                    ROW = cueCardText.arrowRow
+                    SENSITIVE = NO
+                    HIDDEN = NO 
+                    WIDTH = 7
+                    HEIGHT = 1.67
+                    TRANSPARENT = YES
+                    .
+            hCueCardArrow:LOAD-IMAGE("Graphics\24x24\" + ENTRY(cueCardText.cueOrientation,cOrientation) + ".gif").
+            hCueCardArrow:MOVE-TO-TOP().
+            /* PREVIOUS BUTTON */
+            CREATE BUTTON hCueCardPrev IN WIDGET-POOL cCueCardPool
+                ASSIGN
+                    FRAME = hCueCardFrame
+                    NAME = "btnPrev"
+                    COL = cueCardText.prevCol
+                    ROW = cueCardText.prevRow
+                    TOOLTIP = "Show Previous Cue Card"
+                    FLAT-BUTTON = YES
+                    SENSITIVE = YES 
+                    HIDDEN = NO 
+                    WIDTH = 5
+                    HEIGHT = 1.19
+              TRIGGERS:
+                ON CHOOSE
+                  PERSISTENT RUN spPrevCue IN THIS-PROCEDURE (hMainMenuHandle).
+              END TRIGGERS.
+            hCueCardPrev:LOAD-IMAGE("Graphics\24x24\" + ENTRY(10,cOrientation) + ".gif").
+            hCueCardPrev:MOVE-TO-TOP().
+            /* NEXT BUTTON */
+            CREATE BUTTON hCueCardNext IN WIDGET-POOL cCueCardPool
+                ASSIGN
+                    FRAME = hCueCardFrame
+                    NAME = "btnNext"
+                    COL = cueCardText.nextCol
+                    ROW = cueCardText.nextRow
+                    TOOLTIP = "Show Next Cue Card"
+                    FLAT-BUTTON = YES
+                    SENSITIVE = YES 
+                    HIDDEN = NO 
+                    WIDTH = 5
+                    HEIGHT = 1.19
+              TRIGGERS:
+                ON CHOOSE
+                  PERSISTENT RUN spNextCue IN THIS-PROCEDURE (hMainMenuHandle).
+              END TRIGGERS.
+            hCueCardNext:LOAD-IMAGE("Graphics\24x24\" + ENTRY(11,cOrientation) + ".gif").
+            hCueCardNext:MOVE-TO-TOP().
+            /* EDITOR */
+            CREATE EDITOR hCueCardText IN WIDGET-POOL cCueCardPool
+                ASSIGN
+                    FRAME = hCueCardFrame
+                    NAME = "CueCardText"
+                    FONT = cueCardText.textFont
+                    COL = cueCardText.textCol
+                    ROW = cueCardText.textRow
+                    WIDTH = cueCardText.textWidth
+                    HEIGHT = cueCardText.textHeight
+                    BGCOLOR = cueCardText.frameBGColor
+                    FGCOLOR = cueCardText.frameFGColor
+                    SCROLLBAR-HORIZONTAL = NO
+                    SCROLLBAR-VERTICAL = NO
+                    WORD-WRAP = YES
+                    READ-ONLY = YES
+                    BOX = NO
+                    SCREEN-VALUE = cueCardText.cueText
+                    SENSITIVE = YES
+                    HIDDEN = NO
+                    .
+            hCueCardText:MOVE-TO-TOP().
+            /* TOGGLE BOX DON'T SHOW AGAIN */
+            CREATE TOGGLE-BOX hDontShowAgain IN WIDGET-POOL cCueCardPool
+                ASSIGN
+                    FRAME = hCueCardFrame
+                    NAME = "DontShowAgain"
+                    LABEL = "Don't Show Again"
+                    FONT = cueCardText.dontShowAgainFont
+                    COL = cueCardText.dontShowAgainCol
+                    ROW = cueCardText.dontShowAgainRow
+                    SENSITIVE = YES
+                    HIDDEN = NO 
+                    WIDTH = 24
+                    HEIGHT = .81
+                    SCREEN-VALUE = "NO"
+              TRIGGERS:
+                ON VALUE-CHANGED
+                  PERSISTENT RUN spSetDontShowAgain IN THIS-PROCEDURE (hMainMenuHandle).
+              END TRIGGERS.
+            hDontShowAgain:MOVE-TO-TOP().
+            ASSIGN
+                hDontShowAgain:SENSITIVE = iplActive
+                hDontShowAgain:HIDDEN    = NOT cueCard.enableDontShowAgain
+                .
+            /* TOGGLE BOX DISMISS */
+            CREATE TOGGLE-BOX hDismiss IN WIDGET-POOL cCueCardPool
+                ASSIGN
+                    FRAME = hCueCardFrame
+                    NAME = "Dismiss"
+                    LABEL = "Dismiss This Cue Card Set"
+                    FONT = cueCardText.dismissFont
+                    COL = cueCardText.dismissCol
+                    ROW = cueCardText.dismissRow
+                    SENSITIVE = YES
+                    HIDDEN = NO 
+                    WIDTH = 34
+                    HEIGHT = .81
+                    SCREEN-VALUE = "NO"
+              TRIGGERS:
+                ON VALUE-CHANGED
+                  PERSISTENT RUN spSetDismiss IN THIS-PROCEDURE (hMainMenuHandle).
+              END TRIGGERS.
+            hDismiss:MOVE-TO-TOP().
+            ASSIGN 
+                hDismiss:SENSITIVE = iplActive
+                hDismiss:HIDDEN    = NOT cueCard.enableDismiss
+                lCueCardActive     = YES
+                .            
+            WAIT-FOR "U1":U OF hMainMenuHandle.
+            lCueCardActive = NO.            
+            DELETE OBJECT hCueCardFrame.
+        END. /* do while */
+    END. /* each cuecard */
     DELETE WIDGET-POOL cCueCardPool NO-ERROR.
 
 END PROCEDURE.
@@ -817,6 +937,33 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-spSetTaskFilter) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetTaskFilter Procedure
+PROCEDURE spSetTaskFilter:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcModule    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcProgramID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID    AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        cModule    = ipcModule
+        cProgramID = ipcProgramID
+        cUserID    = ipcUserID
+        .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 /* ************************  Function Implementations ***************** */
 

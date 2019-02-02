@@ -1,0 +1,65 @@
+10/17/00               ADVANCED CARTON COMPANY - MAIN                  5:57pm
+
+Estimate#      1,022                    Salesman: Saleperson #10
+Customer: Hershey Chocolate Corp         Ship To: SAME
+          123 Chocolate Blvd                                                   
+          Hershey, PA 19888                                                    
+
+ --Qty---- --- Description ------ -- Size / Color ----- --- Style / Part No ---
+     1,000 RSC 10x10x10           10x10x10              RSC Glued
+                                                        HER-1022
+                                                        Last Ordered:
+
+                 Width   Length   Number On     Sq.Feet      Weight per Units
+ Blank Size:     20.10    42.00       1        6.016 Sf/Blk    763.984/M
+NetSht Size:     20.10    42.00       1        6.016 Sf/Sht    763.984/M Shts
+GrsSht Size:     20.10    42.00       1        6.016 Sf/Sht    763.984/M Shts
+
+Materials            Weight                  QTY/Unit  SU $   Mat$/M    TOTAL
+200 C Sheets         127.00            $   40.00 MSF          240.63      240.63
+Board SU  Waste                               10 Sht   2.41     2.41        2.41
+Board RUN Waste                               56 Sht           13.48       13.48
+FLexo Ink                                   1.48 Lb             7.39        7.39
+Glue for Estimates                          6.15 LB             6.15        6.15
+Bundle 25 per           25 Pieces/Pack        40 Bdl            0.00        0.00
+Pallet 45" High                                2 Ea.           10.00       10.00
+TOTAL  DIRECT  MATERIALS                               2.41   280.05      280.05
+
+Prep Description      Mat'l   Labor  Addt'l   Amtz   Charge    Cost/M Total Cost
+Die Lumber            43.31    0.00   0.00% 100.00%      I      43.31      43.31
+Pre MR Plates          0.00   77.00   0.00%  25.00%      I      19.25      19.25
+
+Machine Description    SU (Hrs) Run Speed    Rate    SU $     Run$/M  Total Cost
+LANGSTON 78X122       0.55     0.42  2530  100.00   55.00      41.74       96.74
+GLUER                 0.25     1.25   800   60.00   15.00      75.00       90.00
+TOTAL  OPERATIONS                                   70.00     116.74      186.74
+
+*** T O T A L S      in Cost/M     1,000     5,000     7,500    10,000
+----------------------------------------------------------------------
+Prep.  Material                    43.31      8.66      5.78      4.33
+Prep.  Labor                       19.25      3.85      2.57      1.93
+Direct Material                   280.05    275.89    275.72    275.64
+Direct Labor                       59.02     40.68     39.25     37.66
+Variable Overhead                  34.35     22.79     21.89     20.85
+DIRECT FACTORY COST               435.98    351.87    345.20    340.41
+Fixed Overhead                     93.37     63.47     61.14     58.51
+TOTAL FACTORY COST                529.35    415.35    406.34    398.92
+Freight                            82.40     92.40     95.73     97.40
+GS&A Material                      64.67     28.46     28.15     28.00
+GS&A Labor                         30.90     19.62     18.73     17.84
+FULL COST                         707.32    555.82    548.95    542.16
+Margin on Full Cost - 10.00%       78.59     61.76     60.99     60.24
+SELLING PRICE                     785.92    617.58    609.94    602.40
+
+                        B I L L A B L E    C H A R G E S
+Prep Description      Mat'l   Labor  Addt'l   Amtz   Charge    Cost/M Total Cost
+Plate Charge         300.00    0.00   0.00% 100.00%      S     300.00     300.00
+
+
+
+Quantity Overall
+    1000  130.65
+    5000  102.66
+    7500  101.39
+   10000  100.14
+

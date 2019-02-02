@@ -21,12 +21,4 @@ END.
 IF CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "smanmtrx") THEN
   RUN custom/delsmtrx.p ({&TABLENAME}.company, 3, {&TABLENAME}.procat).
 
-FIND FIRST reftable WHERE
-     reftable.reftable EQ "chargecode" AND
-     reftable.company  EQ {&TABLENAME}.company AND
-     reftable.loc      EQ {&TABLENAME}.procat
-     NO-ERROR.
-
-IF AVAIL reftable THEN
-   DELETE reftable.
 

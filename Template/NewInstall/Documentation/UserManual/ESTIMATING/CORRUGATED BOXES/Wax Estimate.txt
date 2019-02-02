@@ -1,0 +1,72 @@
+05/07/2008            Advanced Box Company V5.0 - Main Office          12:46 pm
+
+Est# 6165     SlsMan: Craig Bromer         UserID: asi      Prober: asi
+Cust: ABB1000  Abbot Laboratories            Ship: Abbot Laboratories
+               123 Abbot Lane                      123 Abbot Lane               
+               Attn: Accounts Payables Dept.       Building # 5                 
+               Yardley, PA 19067                   Horsham, PA 19044            
+ --Qty---- --- Description ------ -- Size / Color ----- --- Style / Part No ---
+    10,000 RSC Wax Coated 10x10x1 10x10x10              RSC Glued Left
+                                                        ABB-Wax6155
+                                                        Last Ordered:
+
+                Width  Length             #On Qty/Set      Sq.Feet     Wgt/Units
+  Blank Size:   20.10   42.02               1       1    6.034 Sf/BL 724.023/MBL
+ NetSht Size:   20.10   42.02               1            6.034 Sf/NS 724.023/MNS
+ GrsSht Size:   20.10   42.02               1            6.034 Sf/GS 724.023/MGS
+                   0.00                       60.335 MSF       3.62012 Tons
+
+Materials            Weight  Vendor          QTY/Unit  SU $   Mat$/M       TOTAL
+200 C Item Name Desc 120.00            $   39.60 MSF          238.93    2,389.28
+Board SU  Waste                                0 Sht   0.00     0.00        0.00
+Board RUN Waste                                0 Sht            0.00        0.00
+33 LB MEDIUM UP CHARGE                 $    7.00 MSF           42.23      422.35
+Glue for Estimates                           10.  LB            1.00       10.00
+Wax 40% Pickup                          3,137.43 Lb            31.37      313.74
+Bundle 25 per           25 Pieces/Pack       400 Bdl            4.40       44.00
+PALLET                                        20 Ea.           10.00      100.00
+BAND PALLETS                                   8 MLI            0.01        0.08
+TOTAL  DIRECT  MATERIALS                                      327.94    3,279.45
+
+Prep Description      Mat'l   Labor  Addt'l   Amtz   Charge    Cost/M Total Cost
+DIE by  RULE          75.16    0.00   0.00% 100.00%      I       7.52      75.16
+
+Machine Desc     Out     SU     Run Speed    Rate    SU $     Run$/M  Total Cost
+ZLM Flexo,Fold     1   0.75    1.96  5100  100.00   75.00      19.61      271.08
+WAX DRIP           1   2.00    2.86  3500   80.00  160.00      22.86      388.57
+HAIRE GLUER        1   0.37   20.20   495   65.00   24.05     131.31    1,337.18
+TOTAL  OPERATIONS                                  259.05     173.78    1,996.83
+
+*** T O T A L S      in Cost/M    10,000
+                 # of Releases         1
+----------------------------------------
+Prep.  Material                     7.52
+Direct Material                   327.94
+Direct Labor                       94.13
+Variable Overhead                  30.85
+DIRECT FACTORY COST               460.45
+Fixed Overhead                     74.70
+Slow Pay                 1.00%      5.35
+Quote Charge                        2.50
+Ship & Handle                       0.50
+TOTAL FACTORY COST                543.49
+GS&A Board - 20.00%                47.79
+GS&A Material - 20.00%             19.31
+GS&A Labor - 25.00%                49.92
+Commission on GM - 2.00%            3.10
+FULL COST                         663.61
+Net Margin - 5.00%                 34.93
+SELLING PRICE                     698.54
+
+
+
+     E S T I M A T E  #6165   A N A L Y S I S   P e r  T h o u s a n d
+            Tot.Fact      Full                      Sell    Price  Total   Total
+    Qty  R      Cost      Cost  GROSS%    NET%     Price     /BSF Sheets     MSF
+  10000  1    543.49    663.61   22.20    5.00    698.54   115.78  10000  60.335
+
+Department Notes: 
+ test D! detail                                                                  
+ Print note detail                                                               
+ Spcl Notes detail                                                               
+

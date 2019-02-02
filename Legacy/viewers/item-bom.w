@@ -338,8 +338,7 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN v-adh-code IN FRAME F-Main
    NO-ENABLE                                                            */
-ASSIGN 
-       v-adh-code:HIDDEN IN FRAME F-Main           = TRUE.
+
 
 /* SETTINGS FOR FILL-IN v-bom-1 IN FRAME F-Main
    NO-ENABLE ALIGN-L                                                    */
@@ -379,8 +378,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN v-lam-code IN FRAME F-Main
    NO-ENABLE                                                            */
-ASSIGN 
-       v-lam-code:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* SETTINGS FOR FILL-IN v-shrink-1 IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -1092,21 +1089,15 @@ PROCEDURE local-display-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR v-count AS INT INIT 8 NO-UNDO.
-
+  def var char-hdl as cha no-undo.
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
      v-bom-item = ""
      v-bom-dscr = ""
      v-shrink   = 0.
-
-  DO WITH FRAME {&FRAME-NAME}:
-     IF ITEM.mat-type = "B" THEN
-        ASSIGN
-           v-lam-code:HIDDEN = NO
-           v-adh-code:HIDDEN = NO
-           v-count = 10.
-  END.
-
+     
+     v-count = 10.
+     
   do lv-bom-count = 1 to v-count:
      find item-bom where item-bom.company = item.company and
                          item-bom.parent-i = item.i-no and

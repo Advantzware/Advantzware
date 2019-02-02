@@ -1,0 +1,30 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:26pm                                   FINISHED GOODS -- INVENTORY STATUS BY CUSTOMER
+
+                                   Cust #:HER10 - HER10 Cust PO #:  - zzzzzzzzz Salesman #:  - zzz
+
+                                                                                      QUANTITY RECEIPT     SELLING           TOTAL
+CUSTOMER PO #      SMAN ITEM #          CUST PART #     DESCRIPTION       JOB          ON HAND DATE          PRICE           VALUE
+-------- --------- ---- --------------- --------------- --------------- --------- ------------ -------- ---------- ---------------
+HER10    102499    001  1012            1012            RT Reeses Piece    303-0         2,000 10/24/99     260.00          520.00
+                        Almond Bar      Almond Bar      Hershey Almond                  25,000              425.00       10,625.00
+                        Almond Bar      Almond Bar      Hershey Almond     151-0         4,000 03/31/99       0.00            0.00
+         10-05-98       Avalon Box      Avalon Box      RT Hersey Kiss     146-0        25,000 10/05/98     325.00        8,125.00
+         040599         Candy Box       candy box       r.t. 1-1/2 x 1-    166-0        21,000 04/05/99     550.00       11,550.00
+         021799         HER 123         HER 123         KL Butter Carto    161-0        52,000 02/17/99     315.00       16,380.00
+         021799         HER 456         HER 456         KL Butter Carto    161-1      -192,000              300.00      -57,600.00
+         032599         HER 555         HER 555         RT 5 x 5 x 5       163-0          -400 03/25/99     600.00         -240.00
+                        HER REESES      HER REESES      RT Hershey Rees    131-0             0              250.00            0.00
+         012600         HER-1016        HER-1016        RT 2x.75x6         309-0        26,000 01/26/00     375.00        9,750.00
+         02102000       HER-1017        HER-1017        RT 5x2x8           311-0        25,000 02/10/00     388.10        9,702.50
+         101600         HER-1021        HER-1021        RT 5x4x8           317-0        25,400 10/16/00     395.00       10,033.00
+         02-23-98       HER-KISS        HER-KISS        Hershey Kiss       119-0        54,600 02/23/98     210.00       11,466.00
+         030698         IBM-Chocolate   Chocolate Bar   RT 4 x 4 x 3       122-0        27,000 03/06/98     230.00        6,210.00
+         July 10,       Potato Chip     Potato Chip     Potato Chip Sea    141-0       -25,000 07/10/98     625.00      -15,625.00
+         091798         SAN DIEGO       SAN DIEGO       RT 3 1/8 x 3 1/ 3F1924-0        -5,000 09/17/98     500.00       -2,500.00
+         SPB 03169      XMAS KISS       HER XMAS KISS   RT XMAS KISS BO    124-0       -12,500              290.00       -3,625.00
+                                                                   -----------                      --------------
+                                                GRAND TOTALS:           52,100                           14,771.50
+
+

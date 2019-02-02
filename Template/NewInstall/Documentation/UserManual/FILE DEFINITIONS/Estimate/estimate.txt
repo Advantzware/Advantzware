@@ -1,0 +1,378 @@
+
+*** Estimate File Field Definition ***           As of  10/15/10     Page:   1
+================================================================================
+Header file
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+est        approved-date   Approved Date             99/99/99
+est        approved-id     Approved by               X(8)
+est        company         Company                   x(3)
+est        e-num           Est.#                     >>>>>9
+est        entered-date    Entered Date              99/99/99
+est        entered-id      Entered by                X(8)
+est        est-date        Est Date                  99/99/9999
+est        est-no          Estimate #                x(5)
+est        est-qty         Est Qty                   >>>>>>>9
+est        est-type        Type                      9
+est        form-qty        FORM                      >9
+est        group-cost-seq  ?                         ->,>>>,>>9
+est        gsa-lab         ?                         ->,>>>,>>9.99<<<<
+est        gsa-mat         ?                         ->>,>>9.99
+est        gsa-war         ?                         ->,>>>,>>9.99<<<<
+est        gsa-war-amt     ?                         ->,>>>,>>9.99<<<<
+est        gsa-war-cnt     ?                         ->,>>>,>>9
+est        gsa-war-hdl     ?                         ->,>>>,>>9.99<<<<
+est        gsa-war-pal     ?                         ->,>>>,>>9
+est        gsa-war-per     ?                         ->,>>>,>>9
+est        gsa-war-tot     ?                         ->,>>>,>>9.99<<<<
+est        gsa-war-u-c     ?                         ->,>>>,>>9
+est        gsa-war-u-p     ?                         ->,>>>,>>9
+est        gsa-war-uni     ?                         ->,>>>,>>9
+est        loc             Warehouse                 x(5)
+est        metric          Metric ?                  Yes/No
+est        mod-date        Modified                  99/99/9999
+est        month-usage     Monthly Usage             >,>>>,>>>,>>9
+est        ord-date        Ordered                   99/99/9999
+est        ord-no          Order#                    >>>>>9
+est        override        ?                         yes/no
+est        prod-runs       Production Runs           >9
+est        qty-range       Valid Range %             >>9.99
+est        recalc          ?                         yes/no
+est        rec_key         Rec Key                   X(20)
+est        set-match-chg   Match Charge%             ->>,>>9.99
+est        stat            Status                    X
+est        tan-mr          Plate/Fountain            P/F
+est        updated-date    Updated Date              99/99/99
+est        updated-id      Updated by                X(8)
+
+Quantity file
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+est-qty    company         Company                   x(3)
+est-qty    e-num           Est.#                     >>>>>9
+est-qty    eqty            Qty                       ->>,>>9.99
+est-qty    est-no          Estimate #                x(5)
+est-qty    qty             Qty                       ->>,>>9.99
+est-qty    qty-date        Quote Date                99/99/9999
+est-qty    qty-del         # of Deliveries           >>9
+est-qty    qty-price       Price                     ->>,>>9.99
+est-qty    qty-uom         UOM                       x(8)
+est-qty    rec_key         Rec Key                   X(20)
+
+*** Estimate File Field Definition ***           As of  10/15/10     Page:   2
+================================================================================
+
+Form file
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+ef         adder           Adder                     x(10)
+ef         adh-code        Adhesive Code             x(10)
+ef         adh-sqin        Sq.Inches                 >>>9.9999
+ef         blank-qty       BLANK                     >9
+ef         board           Board                     x(10)
+ef         brd-dscr        Description               x(20)
+ef         cad-image       CAD Image File            x(80)
+ef         cal             Caliper                   9.99999
+ef         company         Company                   x(3)
+ef         cost-method     Cost Method               X(8)
+ef         cost-msh        Cost M/Sheets             >>>>9.999
+ef         cost-uom        ?                         x(4)
+ef         cust-seq        ?                         >9
+ef         die-in          Die Inches                >>>>9
+ef         e-num           Est.#                     >>>>>9
+ef         eqty            Qty                       ->>,>>9.99
+ef         est-no          Estimate #                x(5)
+ef         est-type        Type                      9
+ef         f-coat          Form coatings             >9
+ef         f-coat-p        Number of Coating Passes  >9
+ef         f-col           # Colors/Form             >9
+ef         f-pass          Form Passes               >9
+ef         flute           Flute                     x(10)
+ef         form-no         FORM                      >9
+ef         fr-msh          Freight/M Sheets          >>9.999
+ef         fr-uom          ?                         x(4)
+ef         gsh-dep         Depth                     >>9.9999
+ef         gsh-len         Length                    >>9.9999
+ef         gsh-qty         Sheet Qty                 >>>,>>9
+ef         gsh-wid         Gross Sheet Width         >>9.9999
+ef         i-code          ?                         x
+ef         i-no            Item No                   x(15)
+ef         lam-code        Laminate Code             x(10)
+ef         lam-dscr        ?                         x(20)
+ef         leaf            Leaf/Film                 x(10)
+ef         leaf-bnum       ?                         99
+ef         leaf-cost       Cost MSI                  >>>>9.9<<<<
+ef         leaf-dscr       Description               x(20)
+ef         leaf-l          Length                    >9.9999
+ef         leaf-o1         Window Overlap            >9.9999
+ef         leaf-o2         Window Overlap            >9.9999
+ef         leaf-o3         Window Overlap            >9.9999
+ef         leaf-o4         Window Overlap            >9.9999
+ef         leaf-snum       S/B                       9
+ef         leaf-w          Width                     >9.9999
+ef         loc             Warehouse                 x(5)
+ef         lsh-dep         Layout Sheet Depth        >>9.9999
+ef         lsh-len         Layout Sheet Size         >>9.9999
+ef         lsh-lock        Lock Layout Sh. #'s ?     Yes/No
+ef         lsh-wid         Layout Sheet Width        >>9.9999
+ef         m-code          Code                      x(6)
+ef         m-dscr          Description               x(20)
+ef         medium          Liner                     x(10)
+
+*** Estimate File Field Definition ***           As of  10/15/10     Page:   3
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+ef         mis-bnum        ?                         >9
+ef         mis-cost        Misc. Cost                x(20)
+ef         mis-labf        Lab/F                     >>>>9.99
+ef         mis-labm        Lab/M                     >>>>9.99
+ef         mis-matf        Mat'l/F                   >>>>9.99
+ef         mis-matm        Mat'l/M                   >>>>9.99
+ef         mis-mkup        Mkup                      >>9.99
+ef         mis-rm-i-no     Misc RM Item#             x(10)
+ef         mis-simon       SIMON                     X
+ef         mis-snum        ?                         9
+ef         n-cuts          Number Cuts               >9
+ef         n-other-cut     ?                         >9
+ef         n-out           Number Out                >9
+ef         n-out-d         Number Out/Depth          >9
+ef         n-out-l         # out on Length           >9
+ef         n-revs          Reverse Head Cuts         >9
+ef         n-sets          Set/Slot/Score Head Cuts  >9
+ef         n-slits         Slit Head Cuts            >9
+ef         nc              NC                        C/N
+ef         nsh-dep         Depth                     >>9.9999
+ef         nsh-len         Length                    >>9.9999
+ef         nsh-wid         Net Sheet Width           >>9.9999
+ef         op-lock         ?                         Yes/No
+ef         or-costmsh      Override Board Cost?      Yes/No
+ef         plies           Build Up Total Ply        >>9
+ef         rec_key         Rec Key                   X(20)
+ef         roll            Roll                      Y/N
+ef         roll-wid        Width                     >>9.9999
+ef         spec-dscr       Description               x(20)
+ef         spec-no         RM Item#                  x(10)
+ef         spec-qty        QTY                       >>>9.9<<<
+ef         spec-uom        UOM                       x(3)
+ef         test            Test                      x(6)
+ef         trim-d          Trim Depth                >>9.9999
+ef         trim-l          Trim Length               >>9.99<<
+ef         trim-pen        Trim Pen%                 >>9.99
+ef         trim-w          Trim Width                >>9.99<<
+ef         vend-no         Vend.#                    x(8)
+ef         weight          Weight                    >>9.99
+ef         xgrain          Crossgrain                X
+
+Blank file
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+eb         adhesive        Adhesive Code             x(10)
+eb         bl-qty          Blank Qty                 >>>>>>9
+eb         blank-no        BLANK                     >9
+eb         bom-level       BOM Level                 >>>9
+eb         cad-no          ?                         x(15)
+eb         carr-dscr       Description               x(15)
+eb         carrier         Carrier                   x(5)
+eb         cas-cnt         Count                     >>>>9
+eb         cas-cost        Cost/ea.                  >9.99
+eb         cas-dep         Depth                     >9.9999
+eb         cas-len         Length                    >9.9999
+
+*** Estimate File Field Definition ***           As of  10/15/10     Page:   4
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+eb         cas-no          ?                         x(10)
+eb         cas-pal         Cases/Pall                >>9
+eb         cas-wid         Width                     >9.9999
+eb         cas-wt          Lbs/Case                  >>9.99
+eb         chg-method      ?                         X
+eb         comm            Comm. %                   >>9.99
+eb         company         Company                   x(3)
+eb         contact         Contact                   x(30)
+eb         cust-%          Customer %                >>9.99
+eb         cust-no         Cust. #                   x(8)
+eb         cust-seq        ?                         >9
+eb         dep             Depth                     >9.99999
+eb         dest-code       Dest. Code                x(5)
+eb         die-in          Die Inches                >>9.99
+eb         die-no          Die #                     x(15)
+eb         disc-rate       Disc.Rate/M               >>,>>9.99<<
+eb         div-len         Length                    >9.9999
+eb         div-up          Divider # Up              >>9
+eb         div-wid         Width                     >9.9999
+eb         divider         Divider                   X(10)
+eb         dust            Dust Flap                 >9.99999
+eb         e-num           Est.#                     >>>>>9
+eb         eqty            Qty                       ->>,>>9.99
+eb         est-int         ?                         >>>>>>>9
+eb         est-no          Estimate #                x(5)
+eb         est-type        Type                      9
+eb         flute           Flute                     XXX
+eb         form-no         FORM                      >9
+eb         fpanel          Fifth Panel               >9.99999
+eb         fr-out-c        Freight Out/CWT           >>9.99
+eb         fr-out-m        Freight Out/M             >>9.99
+eb         gluelap         Glue Lap                  >9.99999
+eb         i-%             %                         >>9
+eb         i-%2            %                         >>9
+eb         i-coat          Coating                   >9
+eb         i-coat-p        Number of Coating Passes  >9
+eb         i-code          Code                      x(10)
+eb         i-code2         Code                      x(10)
+eb         i-col           Colors                    >9
+eb         i-coldscr       Color Desc.               x(20)
+eb         i-dscr          Desc                      x(19)
+eb         i-dscr2         Desc                      x(19)
+eb         i-pass          Passes                    >9
+eb         i-ps            PS                        >9
+eb         i-ps2           PS                        >9
+eb         is-a-set        Set                       Y/N
+eb         k-len           DK Length                 >9.99999
+eb         k-len-array                               >>9.999999
+eb         k-len-array2                              >>9.999999
+eb         k-len-scr-type  Length Score Type         X
+eb         k-len-scr-type2 Length Score Type         X
+eb         k-wid           DK Width                  >9.99999
+eb         k-wid-array                               >>9.999999
+eb         k-wid-array2                              >>9.999999
+eb         k-wid-scr-type  Width Score Type          X
+
+*** Estimate File Field Definition ***           As of  10/15/10     Page:   5
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+eb         k-wid-scr-type2 Width Score Type          X
+eb         layer-pad       Layer Pad                 x(10)
+eb         len             Length                    >9.99999
+eb         lin-in          Lin Inches                >9.9999
+eb         loc             Warehouse                 x(5)
+eb         lock            Lock Tab                  >9.99999
+eb         lp-len          Length                    >9.9999
+eb         lp-up           Layer pad # UP            >>9
+eb         lp-wid          Width                     >9.9999
+eb         machine-fill    Machine fill?             yes/no
+eb         master-est-no   Master Estimate #         x(5)
+eb         n-ply           Build-up Total Ply        >>9
+eb         num-dep         # on Depth                >9
+eb         num-len         # on Length               >9
+eb         num-up          # UP                      >>9
+eb         num-wid         # on Width                >9
+eb         ord-no          Order#                    >>>>>9
+eb         part-dscr1      Item Description          x(30)
+eb         part-dscr2      Item Description          x(30)
+eb         part-no         Cust Part #               x(15)
+eb         plate-no        Plate #                   x(15)
+eb         procat          Category                  x(5)
+eb         pur-man         Purchased or Manf         P/M
+eb         rec_key         Rec Key                   X(20)
+eb         set-i-no        Parent FG Item#           x(15)
+eb         set-is-assemble ?                         Assembled/Unassembled
+eb         set-part-no     Parent Cust Part #        x(15)
+eb         ship-addr       Address                   x(30)
+eb         ship-city       City                      x(15)
+eb         ship-id         Ship To ID                x(8)
+eb         ship-name       Cust. Name                x(30)
+eb         ship-no         Ship To #                 >>9
+eb         ship-state      State                     x(2)
+eb         ship-zip        Postal Code               x(10)
+eb         sman            Salesman                  x(3)
+eb         spc-no          ?                         x(15)
+eb         stack-code      Stack Code                x
+eb         stacks          # of Stacks               >9
+eb         stock-no        Stock Box #               x(15)
+eb         sty-lock        ?                         Yes/No
+eb         style           Style Code                x(6)
+eb         t-dep           Blank Depth               >>>9.999<<
+eb         t-len           Blank Length              >>>9.999<<
+eb         t-sqin          Blank Sq.In.              >>>9.999<<
+eb         t-wid           Blank Width               >>>9.999<<
+eb         t-win           Window area               >>9.99<<
+eb         tab-in          Tab                       In/Out
+eb         test            Test                      x(6)
+eb         tr-cas          # of Layers               >>9
+eb         tr-cnt          Count                     >>>>9
+eb         tr-cost         Cost/ea.                  >9.99
+eb         tr-dep          Height                    >9.9999
+eb         tr-len          Length                    >9.9999
+eb         tr-no           Pallet #                  x(10)
+eb         tr-wid          Width                     >9.9999
+
+*** Estimate File Field Definition ***           As of  10/15/10     Page:   6
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+eb         tuck            Tuck                      >9.99999
+eb         upc-no          ?                         x(15)
+eb         weight-m        Weight per M              >>9.99
+eb         wid             Width                     >9.99999
+eb         yld-qty         Yield Qty                 >>>>>>9
+eb         yrprice         Yield/Request             Y/R
+
+Prep file
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+est-prep   amtz            Amtz                      >>9.99
+est-prep   b-num           Blank #                   >9
+est-prep   code            Code                      x(5)
+est-prep   company         Company                   x(3)
+est-prep   cost            Cost                      ->>,>>9.99
+est-prep   dscr            Description               x(20)
+est-prep   e-num           Est.#                     >>>>>9
+est-prep   eqty            Qty                       ->>,>>9.99
+est-prep   est-no          Estimate #                x(5)
+est-prep   i-no            Item No                   x(10)
+est-prep   line            Line #                    >9
+est-prep   mat-type        Mat'l Type                X
+est-prep   mkup            Markup                    >>9.99
+est-prep   ml              M/L                       M/L
+est-prep   qty             Qty                       ->>>,>>>,>>9.9<<<<<
+est-prep   rec_key         Rec Key                   X(20)
+est-prep   s-num           Sheet #                   >9
+est-prep   simon           SIMON                     X
+
+Routing file
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+est-op     auto            ?                         Y/N
+est-op     b-num           Blank #                   >9
+est-op     company         Company                   x(3)
+est-op     d-seq           Dept. Sequence            >9
+est-op     dept            Department                x(2)
+est-op     e-num           Est.#                     >>>>>>>9
+est-op     eqty            Qty                       ->>,>>9.99
+est-op     est-no          Estimate #                x(5)
+est-op     fountains       Fountain Changes          ->,>>>,>>9
+est-op     line            Line #                    >9
+est-op     m-code          Code                      x(6)
+est-op     m-dscr          Description               x(20)
+est-op     n-out           Number Out                >>9
+est-op     num-coat        Number of Coatings        >9
+est-op     num-col         Number of Colors          >9
+est-op     num-sh          # of Sheets               >,>>>,>>9
+est-op     op-crew         ?                         9.99
+est-op     op-mr           MRhrs.                    >>9.99
+est-op     op-pass         Pass #                    >9
+est-op     op-rate         Rate                      >>9.99
+est-op     op-sb                                     Y/N
+est-op     op-speed        Speed                     >>>>9
+est-op     op-spoil        Spoil%                    >>9.99
+
+*** Estimate File Field Definition ***           As of  10/15/10     Page:   7
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+est-op     op-waste        Waste                     >>>>>9
+est-op     plates          Plate Changes             ->,>>>,>>9
+est-op     qty             ?                         ->,>>>,>>9
+est-op     rec_key         Rec Key                   X(20)
+est-op     s-num           Sheet #                   >9
+
+*** Estimate File Field Definition ***           As of  10/15/10    Page:   8
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+itemfg     prod-notes      Pack Note                 x(20)
+Film file
+

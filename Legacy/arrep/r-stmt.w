@@ -1673,26 +1673,15 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 
 find first company where company.company eq cocode no-lock no-error.
 
-IF v-stmt-char = "Badger" THEN do:
-    IF company.company EQ "003" THEN
-        ASSIGN ls-image1 =  "images\Badger_CA.jpg" 
-            FILE-INFO:FILE-NAME = ls-image1
-            ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
-    ELSE
-        ASSIGN ls-image1 =  "images\badger statement.JPG" 
-            FILE-INFO:FILE-NAME = ls-image1
-            ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
-END.
-ELSE do:
 ASSIGN ls-image1 = IF v-stmt-char = "Premier" THEN "images\premierinv.jpg"
                    ELSE IF v-stmt-char = "LoyLang" THEN "images\loystmt.jpg"
                    ELSE IF v-stmt-char = "Printers" THEN "images\loyprinters.jpg"
                  /*  ELSE IF v-stmt-char = "Badger" THEN "images\badger statement.JPG" */
-                   ELSE IF v-stmt-char = "RFC" THEN cRtnChar  
+                   ELSE IF v-stmt-char = "RFC" THEN cRtnChar 
+                   ELSE IF v-stmt-char = "Badger" THEN cRtnChar 
                    ELSE "images\asilogo.jpg"
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
-END.
 
 if v-use-cust then
    find first cust WHERE
@@ -2512,23 +2501,15 @@ form
       DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 
       find first company where company.company eq cocode no-lock no-error.
-
-
-      IF v-stmt-char = "Badger" THEN do:
-          IF company.company EQ "003" THEN
-              ASSIGN ls-image1 =  "images\Badger_CA.jpg"  .
-          ELSE
-              ASSIGN ls-image1 =  "images\badger statement.JPG"  .
-      END.
-      ELSE do:
+      
       ASSIGN ls-image1 = IF v-stmt-char = "Premier" THEN "images\premierinv.jpg"
                          ELSE IF v-stmt-char = "LoyLang" THEN "images\loystmt.jpg"
                          ELSE IF v-stmt-char = "Printers" THEN "images\loyprinters.jpg"
                      /*    ELSE IF v-stmt-char = "Badger" THEN "images\badger statement.JPG" */
                          ELSE IF v-stmt-char = "RFC" THEN cRtnChar
+                         ELSE IF v-stmt-char = "Badger"  THEN cRtnChar
                          ELSE "images\asilogo.jpg" .
-      END.
-
+     
       FILE-INFO:FILE-NAME = ls-image1.
       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
       FILE-INFO:FILE-NAME = ls-image2.

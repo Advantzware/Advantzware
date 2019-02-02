@@ -307,13 +307,39 @@ END.
 ON LEAVE OF sys-ctrl.log-fld IN FRAME F-Main /* Logical Value */
 DO:
 
-  CASE sys-ctrl.NAME:
-      WHEN  "RELCREDT" 
-          THEN v-msg = "Credit Checks for Past Due Invoices must be purchased, please call ASI."  .
-      /*WHEN "SalesMgmt" 
-          THEN v-msg = "Management Reports are available for purchase, please call ASI." .*/
-      WHEN  "SalesBudget"  
-          THEN v-msg = "Budget Report are available for purchase, please call ASI."  .     
+    CASE sys-ctrl.NAME:
+        WHEN "ShipNotesExpanded" THEN DO:
+            IF sys-ctrl.log-fld EQ NO  
+            AND SELF:SCREEN-VALUE EQ "YES" THEN DO:
+                MESSAGE 
+                    "Changing the ShipNotesExpanded Logical Value from NO" SKIP 
+                    "to YES will change the behavior of how Ship Notes are" SKIP 
+                    "formatted and stored in the database, and may result" SKIP 
+                    "in Ship Notes no longer printing on your business" SKIP 
+                    "forms.  Prior to making this change please contact"  SKIP 
+                    "ASI Support to inquire if your business forms will" SKIP 
+                    "support this change. If they do not they will need to" SKIP 
+                    "be modified to do so." SKIP(1)
+                    "Do you wish to continue?" 
+                    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lConvert AS LOG.
+                IF NOT lConvert THEN ASSIGN 
+                    SELF:SCREEN-VALUE = "NO".
+                RETURN.
+            END.
+            ELSE IF sys-ctrl.log-fld EQ YES  
+            AND SELF:SCREEN-VALUE EQ "NO" THEN DO:
+                MESSAGE 
+                    "Changing the ShipNotesExpanded Logical Value from YES" SKIP 
+                    "to NO will change the behavior of how Ship Notes are" SKIP 
+                    "formatted and stored in the database, and may result" SKIP 
+                    "in loss of some Ship Note information." SKIP(1) 
+                    "Do you wish to continue?" 
+                    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lConvert2 AS LOG.
+                IF NOT lConvert2 THEN ASSIGN 
+                    SELF:SCREEN-VALUE = "YES".
+                RETURN.
+            END.
+        END.  
   END CASE.
 
   IF LASTKEY NE -1 THEN DO:

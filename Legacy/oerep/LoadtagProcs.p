@@ -64,6 +64,11 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
         FOR EACH tt-word-print NO-LOCK BREAK
                                 BY tt-word-print.ord-no 
                                 BY tt-word-print.i-no:
+            FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company   EQ cocode
+             AND loadtag.item-type EQ NO
+                AND loadtag.tag-no EQ TRIM(tt-word-print.tag-no)
+                USE-INDEX tag NO-ERROR.
                                 
            IF ipcCasLabel EQ "loadtag.xpr" THEN DO:
                {oe/rep/lodxprntstd.i}

@@ -1,0 +1,70 @@
+
+03/14/12                                     Advanced Box Company 001 V10 - Main Office                                   Page   1
+ 3:49pm                                              Job Summary Analysis Report
+
+
+
+Job Number: 204151-00     Closing Date:         
+Customer:   AT&T Communications Corp.     
+
+                                                SELLING <--------QUANTITY IN BLANKS--------------->  ACTUAL   ACT   ESTIMATE  EST   OVER-
+ITEM CODE    DESCRIPTION                        PRICE/M    ORDERED     POSTED   FINISHED    ALLOWED  SPOILAGE SPL%  SPOILAGE  SPL%  RUN %
+-----------------------------------------------------------------------------------------------------------------------------------------
+ATT-2297        RT 5x3x2 Item Name Prints to X              25,000          0          0     27,500       0    0.0     3,904 100.0    0.0
+                                               ------------------------------------------------------------------------------------------
+                                                            25,000          0          0     27,500       0    0.0     3,904 100.0    0.0
+
+
+MACH                    M QUANTITY  <------ESTIMATED----->  <-------ACTUAL-------->    COST      COST        <---SPOILAGE ANALYSIS---->
+CODE   DESCRIPTION      R PRODUCED   HOURS  SPEED   COST     HOURS  SPEED   COST     VARIANCE    VAR%        EST QTY   ACTUAL     VAR %
+---------------------------------------------------------------------------------------------------------------------------------------
+SHEET  NEW SHEETER      M            0.60              28                                  28   100.0
+                        R       0    0.42  18788       20                                  20   100.0             20              100.0
+408    408 HEIDY 7C + C M            5.00           3,250                               3,250   100.0            850              100.0
+                        R       0    0.69  11207      449                                 449   100.0              4              100.0
+ASITRD ASITRADE LAMINAT M            0.50              23                                  23   100.0
+                        R       0    0.95  20000       43                                  43   100.0
+JOGGR  JOGGER AERATOR   M            9.00             810                                 810   100.0             50              100.0
+                        R       0    0.66  10115       59                                  59   100.0              2              100.0
+BMA    BMA CUTTER       M            3.10             279                                 279   100.0             50              100.0
+                        R       0    0.64  10145       58                                  58   100.0
+WIN    WINDOW MACHINE   M            3.00             240                                 240   100.0
+                        R       0    5.05   5001      404                                 404   100.0
+DOMINO BOBST DOMINO GLU M            2.50             313                                 313   100.0
+                        R       0   25.00   1000    3,125                               3,125   100.0
+                                    ------        --------  ------         --------  --------  ------        --------------------------
+  TOTAL CONVERSION (DIRECT) :        57.11           9,100     0.0                0     9,100   100.0 
+
+                                    <-----ESTIMATED------>  <-------ACTUAL--------->     COST      COST  
+ITEM CODE   DESCRIPTION             QUANTITY UM        COST  QUANTITY UM        COST   VARIANCE    VAR%   
+--------------------------------------------------------------------------------------------------------
+ACE100     ACETATE WINDOW 1.00            10 LB         103         0              0        103   100.0
+C20x20x24                                 50 Ea          13         0              0         13   100.0
+GLUE                                      13 LB          13         0              0         13   100.0
+P-60                                       1 Ea          10         0              0         10   100.0
+P-BLACK                                   10 LB          75         0              0         75   100.0
+P-CYAN                                    10 LB          75         0              0         75   100.0
+P-MAGENTA                                 10 LB          85         0              0         85   100.0
+P-YELLOW                                  10 LB         100         0              0        100   100.0
+PMS021C                                    6 LB          50         0              0         50   100.0
+SBS18                                  7,891 EA       1,493         0              0      1,493   100.0
+SBS18-24.5                             7,891 EA           0     7,042 EA       2,010      2,010-    0.0
+VARN                                      21 LB         212         0              0        212   100.0
+                                                 ----------                ---------  ---------  --------
+  TOTAL MATERIAL   (DIRECT) :                         2,228                    2,010        218     9.8 
+
+                                            EST        ACT
+MISC CODE   DESCRIPTION                    COST       COST   VARIANCE      VAR%
+--------------------------------------------------------------------------------
+            Outside Work                    286          0        286     100.0
+                                       --------   --------   --------    ------
+  TOTAL PREP/MISC  (DIRECT) :               286          0        286     100.0 
+
+03/14/12                                     Advanced Box Company 001 V10 - Main Office                                   Page   2
+ 3:49pm                                              Job Summary Analysis Report
+
+
+
+
+Job Number: 204151-00     Closing Date:         
+Customer:   AT&T Communications Corp.     

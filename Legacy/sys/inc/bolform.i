@@ -417,6 +417,12 @@
              is-xprint-form = YES
              lines-per-page = 66.
 
+      WHEN "GPI2" THEN   /* gdm - 40007 */
+          ASSIGN
+             v-program      = "oe/rep/bolcardgp.p"
+             is-xprint-form = YES
+             lines-per-page = 66.
+
        WHEN "CardedBC" THEN   /* 08211406 */
           ASSIGN
              v-program      = "oe/rep/bolcrdbc.p"

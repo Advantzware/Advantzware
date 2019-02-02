@@ -755,14 +755,14 @@ DEFINE FRAME viewFrame
      cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
      cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
      cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
-     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
      hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Integer Value" NO-LABEL WIDGET-ID 62
-     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
-     hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Decimal Value" NO-LABEL WIDGET-ID 60
      hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Date Value" NO-LABEL WIDGET-ID 58
+     hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Decimal Value" NO-LABEL WIDGET-ID 60
+     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
+     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
      cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
      ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
      cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
@@ -804,13 +804,40 @@ DEFINE FRAME viewFrame
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 400.
 
-DEFINE FRAME filterFrame
+DEFINE FRAME searchFrame
+     btnSearch AT ROW 1 COL 1 HELP
+          "Advanced Search" WIDGET-ID 40
+     cNameFilter AT ROW 1.24 COL 21 COLON-ALIGNED HELP
+          "Name Search" WIDGET-ID 2
+     cFieldDescripFilter AT ROW 2.19 COL 21 COLON-ALIGNED HELP
+          "Description Search" WIDGET-ID 44
+     cValueFilter AT ROW 3.14 COL 21 COLON-ALIGNED HELP
+          "Value Search" WIDGET-ID 8
+     cDescripFilter AT ROW 4.1 COL 21 COLON-ALIGNED HELP
+          "Description Search" WIDGET-ID 6
+     cModuleFilter AT ROW 5.05 COL 21 COLON-ALIGNED HELP
+          "Module Search" WIDGET-ID 12
+     cTypeCodeFilter AT ROW 6 COL 21 COLON-ALIGNED HELP
+          "Type Search" WIDGET-ID 10
+     cCategoryFilter AT ROW 6.95 COL 21 COLON-ALIGNED HELP
+          "Category Search" WIDGET-ID 14
+     cSubCategoryFilter AT ROW 7.91 COL 21 COLON-ALIGNED HELP
+          "Sub Category Search" WIDGET-ID 16
+     cTableSourceFilter AT ROW 8.86 COL 21 COLON-ALIGNED HELP
+          "Table Source Search" WIDGET-ID 46
+     cFieldSourceFilter AT ROW 9.81 COL 21 COLON-ALIGNED HELP
+          "Field Source Search" WIDGET-ID 48
+     cDataTypeFilter AT ROW 10.76 COL 21 COLON-ALIGNED HELP
+          "Data Type Search" WIDGET-ID 50
+     lExactMatch AT ROW 11.95 COL 10 HELP
+          "Select How to Apply Filter Value(s)" NO-LABEL WIDGET-ID 54
+     btnClear AT ROW 11.95 COL 56 HELP
+          "Clear Search Filters" WIDGET-ID 42
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
+         SIDE-LABELS TOP-ONLY NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 38 BY 26
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE BGCOLOR 8 "Category / SubCategory" WIDGET-ID 200.
+         SIZE 64 BY 12.14
+         FGCOLOR 1 FONT 6 WIDGET-ID 600.
 
 DEFINE FRAME formsFrame
      cSysCtrlName AT ROW 1.24 COL 11 COLON-ALIGNED WIDGET-ID 4
@@ -911,40 +938,13 @@ DEFINE FRAME viewFormFrame
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 900.
 
-DEFINE FRAME searchFrame
-     btnSearch AT ROW 1 COL 1 HELP
-          "Advanced Search" WIDGET-ID 40
-     cNameFilter AT ROW 1.24 COL 21 COLON-ALIGNED HELP
-          "Name Search" WIDGET-ID 2
-     cFieldDescripFilter AT ROW 2.19 COL 21 COLON-ALIGNED HELP
-          "Description Search" WIDGET-ID 44
-     cValueFilter AT ROW 3.14 COL 21 COLON-ALIGNED HELP
-          "Value Search" WIDGET-ID 8
-     cDescripFilter AT ROW 4.1 COL 21 COLON-ALIGNED HELP
-          "Description Search" WIDGET-ID 6
-     cModuleFilter AT ROW 5.05 COL 21 COLON-ALIGNED HELP
-          "Module Search" WIDGET-ID 12
-     cTypeCodeFilter AT ROW 6 COL 21 COLON-ALIGNED HELP
-          "Type Search" WIDGET-ID 10
-     cCategoryFilter AT ROW 6.95 COL 21 COLON-ALIGNED HELP
-          "Category Search" WIDGET-ID 14
-     cSubCategoryFilter AT ROW 7.91 COL 21 COLON-ALIGNED HELP
-          "Sub Category Search" WIDGET-ID 16
-     cTableSourceFilter AT ROW 8.86 COL 21 COLON-ALIGNED HELP
-          "Table Source Search" WIDGET-ID 46
-     cFieldSourceFilter AT ROW 9.81 COL 21 COLON-ALIGNED HELP
-          "Field Source Search" WIDGET-ID 48
-     cDataTypeFilter AT ROW 10.76 COL 21 COLON-ALIGNED HELP
-          "Data Type Search" WIDGET-ID 50
-     lExactMatch AT ROW 11.95 COL 10 HELP
-          "Select How to Apply Filter Value(s)" NO-LABEL WIDGET-ID 54
-     btnClear AT ROW 11.95 COL 56 HELP
-          "Clear Search Filters" WIDGET-ID 42
+DEFINE FRAME filterFrame
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS TOP-ONLY NO-UNDERLINE THREE-D 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 64 BY 12.14
-         FGCOLOR 1 FONT 6 WIDGET-ID 600.
+         SIZE 38 BY 26
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE BGCOLOR 8 "Category / SubCategory" WIDGET-ID 200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1002,8 +1002,8 @@ ASSIGN FRAME filterFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
-ASSIGN XXTABVALXX = FRAME searchFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
-       XXTABVALXX = FRAME searchFrame:MOVE-BEFORE-TAB-ITEM (FRAME filterFrame:HANDLE)
+ASSIGN XXTABVALXX = FRAME filterFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (FRAME searchFrame:HANDLE)
 /* END-ASSIGN-TABS */.
 
 /* BROWSE-TAB sysCtrlBrowse btnRestoreDefaults DEFAULT-FRAME */
@@ -2025,7 +2025,7 @@ DO:
                 IF TRIM(cRtnValue) NE "" THEN
                 cFieldValue:SCREEN-VALUE = cRtnValue.      
             END. /* graphic */
-            WHEN "BARDIR" THEN DO:
+            WHEN "BARDIR" OR WHEN "RMBARDIR" THEN DO:
                 MESSAGE
                     "Do you want to display Xprint Values.... "
                 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE ""
@@ -2037,7 +2037,7 @@ DO:
                     cFieldValue:SCREEN-VALUE = cRtnValue. 
                 END. /* if not lchoice */
                 ELSE DO:
-                    RUN windows/l-typxpr.w (OUTPUT cCharValue).
+                    RUN windows/l-typxpr.w (INPUT cNameValue ,OUTPUT cCharValue).
                     IF cCharValue NE "" THEN
                     cFieldValue:SCREEN-VALUE = cCharValue.
                     RETURN NO-APPLY.    
@@ -2083,26 +2083,10 @@ DO:
             END.
         END. /* character */
         WHEN "Logical" THEN DO:
-            CASE ttSysCtrl.name:
-                WHEN "RELCREDT" THEN
-                cMessage = "Credit Checks for Past Due Invoices must be purchased, please call ASI."  .
-                WHEN "SalesBudget" THEN
-                cMessage = "Budget Report are available for purchase, please call ASI."  .     
-            END CASE.
             IF LASTKEY NE -1 THEN DO:
                 RUN valid-log-fld (SELF) NO-ERROR.
                 IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
             END. /* if lastkey */
-            IF ttSysCtrl.name EQ "RELCREDT" OR
-               ttSysCtrl.name EQ "SalesBudget" THEN DO:       
-                RUN check-flg.
-                IF NOT lValid AND cFieldValue:SCREEN-VALUE EQ "NO" THEN DO:
-                    MESSAGE 
-                        cMessage
-                    VIEW-AS ALERT-BOX INFO BUTTONS OK.
-                    RETURN.
-                END. /* if not valid */
-            END. /* if relcredt slaesbudget */
         END. /* logical */
     END CASE.
 END.
@@ -2176,7 +2160,7 @@ DO:
                 IF TRIM(cCharFieldValue) NE "" THEN
                 sys-ctrl-shipto.char-fld:SCREEN-VALUE = cCharFieldValue.
             END. /* gdm - 11050804 end */
-            WHEN "BARDIR" THEN DO:
+            WHEN "BARDIR" OR WHEN "RMBARDIR" THEN DO:
                 MESSAGE
                     "Do you want to display Xprint Values.... "
                 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE ""
@@ -2199,7 +2183,7 @@ DO:
                     sys-ctrl-shipto.char-fld:SCREEN-VALUE = cCharFieldValue.
                 END.
                 ELSE DO:
-                    RUN windows/l-typxpr.w (OUTPUT cValue).
+                    RUN windows/l-typxpr.w (INPUT ttSysCtrl.name,OUTPUT cValue).
                     IF cValue NE "" THEN
                     sys-ctrl-shipto.char-fld:SCREEN-VALUE = cValue.
                     RETURN NO-APPLY.
@@ -2498,6 +2482,37 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL hLogical C-Win
 ON VALUE-CHANGED OF hLogical IN FRAME viewFrame
 DO:
+    IF ttSysCtrl.name EQ "ShipNotesExpanded" AND SELF:MODIFIED THEN
+    CASE SELF:SCREEN-VALUE:
+        WHEN "YES" THEN DO:
+            MESSAGE 
+                "Changing the ShipNotesExpanded Logical Value from NO" SKIP 
+                "to YES will change the behavior of how Ship Notes are" SKIP 
+                "formatted and stored in the database, and may result" SKIP 
+                "in Ship Notes no longer printing on your business" SKIP 
+                "forms.  Prior to making this change please contact"  SKIP 
+                "ASI Support to inquire if your business forms will" SKIP 
+                "support this change. If they do not they will need to" SKIP 
+                "be modified to do so." SKIP(1)
+                "Do you wish to continue?" 
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+            UPDATE lConvert AS LOGICAL.
+            IF NOT lConvert THEN 
+            SELF:SCREEN-VALUE = "NO".
+        END. /* yes */
+        WHEN "NO" THEN DO: 
+            MESSAGE 
+                "Changing the ShipNotesExpanded Logical Value from YES" SKIP 
+                "to NO will change the behavior of how Ship Notes are" SKIP 
+                "formatted and stored in the database, and may result" SKIP 
+                "in loss of some Ship Note information." SKIP(1) 
+                "Do you wish to continue?" 
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+                UPDATE lConvert2 AS LOGICAL.
+            IF NOT lConvert2 THEN 
+            SELF:SCREEN-VALUE = "YES".
+        END. /* no */
+    END CASE.
     ASSIGN
         {&SELF-NAME}
         cFieldValue:SCREEN-VALUE = STRING({&SELF-NAME})

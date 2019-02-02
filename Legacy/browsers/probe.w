@@ -2934,7 +2934,8 @@ PROCEDURE print-box-est :
 
 ASSIGN v-line-count = LINE-COUNTER .
   IF v-prt-note THEN DO:
-    OUTPUT TO VALUE(ls-outfile) APPEND PAGE-SIZE 64  .
+     
+    OUTPUT TO VALUE(ls-outfile) APPEND PAGE-SIZE 68  .
     RUN print-notes(v-line-count) .
     OUTPUT CLOSE.
   END.
@@ -3295,7 +3296,7 @@ PROCEDURE printProbe :
     IF AVAILABLE sys-ctrl THEN ASSIGN v-print-fmt = sys-ctrl.char-fld.
     ELSE v-print-fmt = "".
      i = 0 . 
-     IF is-xprint-form THEN lv-lines = 64.
+     IF is-xprint-form THEN lv-lines = 68.
      OUTPUT TO VALUE(ls-outfile) PAGE-SIZE VALUE(lv-lines). /* create .x file with page size */
 
      INPUT FROM VALUE(lv-dir + TRIM(est.est-no) + ".s" + STRING(probe.line,v-probe-fmt)) NO-ECHO.

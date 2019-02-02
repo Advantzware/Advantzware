@@ -114,25 +114,16 @@ PROCEDURE pCreateTempTableColumn :
             IF hTable:BUFFER-FIELD(idx):NAME EQ "rowType"     THEN NEXT.
             IF hTable:BUFFER-FIELD(idx):NAME EQ "parameters"  THEN NEXT.
             IF hTable:BUFFER-FIELD(idx):NAME EQ "recDataType" THEN NEXT.
-            CREATE ttColumn.
-            ASSIGN
-                ttColumn.ttField  = hTable:BUFFER-FIELD(idx):NAME
-                ttColumn.ttOrder  = IF cSelectedColumns EQ "" THEN idx
-                                     ELSE LOOKUP(ttColumn.ttField,cSelectedColumns)
-                ttColumn.isActive = CAN-DO(cSelectedColumns,ttColumn.ttField) OR
-                                    (cSelectedColumns EQ "" AND NOT ttColumn.ttField BEGINS "xx")
-                ttColumn.ttLabel  = hTable:BUFFER-FIELD(idx):LABEL
-                ttColumn.ttType   = hTable:BUFFER-FIELD(idx):DATA-TYPE
-                ttColumn.ttFormat = hTable:BUFFER-FIELD(idx):FORMAT
-                ttColumn.ttWidth  = hTable:BUFFER-FIELD(idx):WIDTH
-                ttColumn.ttSize   = MAX(hTable:BUFFER-FIELD(idx):WIDTH,
-                                  LENGTH(hTable:BUFFER-FIELD(idx):LABEL))
-                .
-            IF ttColumn.ttOrder EQ 0 THEN
-            ASSIGN
-                ttColumn.ttOrder  = 999
-                ttColumn.isActive = NO
-                .
+            RUN pCreatettColumn (
+                hTable:BUFFER-FIELD(idx):NAME,
+                IF cSelectedColumns EQ "" THEN idx ELSE LOOKUP(hTable:BUFFER-FIELD(idx):NAME,cSelectedColumns),
+                CAN-DO(cSelectedColumns,hTable:BUFFER-FIELD(idx):NAME) OR (cSelectedColumns EQ "" AND NOT hTable:BUFFER-FIELD(idx):NAME BEGINS "xx"),
+                hTable:BUFFER-FIELD(idx):LABEL,
+                hTable:BUFFER-FIELD(idx):DATA-TYPE,
+                hTable:BUFFER-FIELD(idx):FORMAT,
+                hTable:BUFFER-FIELD(idx):WIDTH,
+                MAX(hTable:BUFFER-FIELD(idx):WIDTH,LENGTH(hTable:BUFFER-FIELD(idx):LABEL))
+                ).
         END. /* do idx */
         RUN pGetJasperUserPrint.
         RUN pSetGroupListItems.
@@ -144,6 +135,62 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreatettColumn Include
+PROCEDURE pCreatettColumn:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcField  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOrder  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER iplActive AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLabel  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFormat AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdeWidth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdeSize  AS DECIMAL NO-UNDO.
+    
+    CREATE ttColumn.
+    ASSIGN
+        ttColumn.ttField  = ipcField
+        ttColumn.ttOrder  = ipiOrder
+        ttColumn.isActive = iplActive
+        ttColumn.ttLabel  = ipcLabel
+        ttColumn.ttType   = ipcType
+        ttColumn.ttFormat = ipcFormat
+        ttColumn.ttWidth  = ipdeWidth
+        ttColumn.ttSize   = ipdeSize
+        .
+    IF ttColumn.ttOrder EQ 0 THEN
+    ASSIGN
+        ttColumn.ttOrder  = 999
+        ttColumn.isActive = NO
+        .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEmptyttColumn Include
+PROCEDURE pEmptyttColumn:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttColumn.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetJasperUserPrint Include 
 PROCEDURE pGetJasperUserPrint :
@@ -203,6 +250,19 @@ PROCEDURE pGetJasperUserPrint :
             ttColumn.ttGroupCalc = fJasperGroupCalc(ttColumn.ttField).
         END. /* if field-value */
     END. /* do idx */
+    ELSE
+    IF AVAILABLE user-print THEN
+    DO TRANSACTION:
+        CREATE jasperUserPrint.
+        ASSIGN
+            jasperUserPrint.company    = user-print.company
+            jasperUserPrint.program-id = user-print.program-id
+            jasperUserPrint.user-id    = "_default"
+            jasperUserPrint.prgmName   = "Jasper"
+            jasperUserPrint.last-date  = TODAY
+            jasperUserPrint.last-time  = TIME
+            .
+    END. /* else no jasper user-print */
 
 END PROCEDURE.
 

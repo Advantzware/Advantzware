@@ -1,6 +1,7 @@
 
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 DEF INPUT PARAM v-term LIKE report.term-id NO-UNDO.
+DEFINE INPUT  PARAMETER iplShowMessage AS LOGICAL NO-UNDO.
 
 {oe/closchk.i}
 
@@ -139,45 +140,16 @@ FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
          fg-bin.loc-bin NE shipto.loc-bin OR
          fg-bin.tag     NE v-tag2 OR
          v-tag2 EQ "" THEN DO:
-          RELEASE fg-bin .
-         FIND FIRST b-fg-bin NO-LOCK     /* Make sure we have a bin to receive */
-             WHERE b-fg-bin.company EQ oe-boll.company
-               AND b-fg-bin.i-no    EQ oe-boll.i-no
-               AND trim(b-fg-bin.job-no)  EQ trim(oe-boll.job-no)
-               AND b-fg-bin.job-no2 EQ oe-boll.job-no2
-               AND b-fg-bin.loc     EQ trim(shipto.loc)
-               AND b-fg-bin.loc-bin EQ trim(shipto.loc-bin)
-               AND b-fg-bin.tag     EQ v-tag2
-               AND b-fg-bin.cust-no EQ oe-boll.cust-no
-             NO-ERROR.
         
-         IF NOT AVAIL b-fg-bin THEN DO:
-            
-           CREATE b-fg-bin.
-           ASSIGN
-            b-fg-bin.company      = oe-boll.company
-            b-fg-bin.i-no         = oe-boll.i-no
-            b-fg-bin.job-no       = oe-boll.job-no
-            b-fg-bin.job-no2      = oe-boll.job-no2
-            b-fg-bin.loc          = shipto.loc
-            b-fg-bin.loc-bin      = shipto.loc-bin
-            b-fg-bin.tag          = v-tag2
-            b-fg-bin.cust-no      = oe-boll.cust-no
-            b-fg-bin.case-count   = oe-boll.qty-case
-            b-fg-bin.pur-uom      = /*fg-bin.pur-uom */      itemfg.prod-uom    
-            b-fg-bin.std-tot-cost = /*fg-bin.std-tot-cost*/  itemfg.std-tot-cost
-            b-fg-bin.std-mat-cost = /*fg-bin.std-mat-cost*/  itemfg.std-mat-cost
-            b-fg-bin.std-lab-cost = /*fg-bin.std-lab-cost*/  itemfg.std-lab-cost
-            b-fg-bin.std-var-cost = /*fg-bin.std-var-cost*/  itemfg.std-var-cost
-            b-fg-bin.std-fix-cost = /*fg-bin.std-fix-cost*/  itemfg.std-fix-cost   .
-         END.
-           
+         /*As part of 36989 - Block of code that pre-created a bin was removed*/
+         /*This was considered unnecessary since the Posting program will create the bin when it processes the transfers*/
+         /*The newly created bin was corrupting costs since it used the IF1 standard cost rather than bin costs*/
          IF AVAIL fg-rctd THEN
          DO:
             ASSIGN 
-             fg-rctd.pur-uom  = b-fg-bin.pur-uom
-             fg-rctd.cost-uom = b-fg-bin.pur-uom /*#29642 - Lack of this being filled in causing problems with ext-cost calc downstream (fg-bin.pur-uom is actually itemfg.prod-uom at time of create)*/
-             fg-rctd.std-cost = b-fg-bin.std-tot-cost.
+             fg-rctd.pur-uom  = fg-bin.pur-uom
+             fg-rctd.cost-uom = fg-bin.pur-uom /*#29642 - Lack of this being filled in causing problems with ext-cost calc downstream (fg-bin.pur-uom is actually itemfg.prod-uom at time of create)*/
+             fg-rctd.std-cost = fg-bin.std-tot-cost.
            
             IF fg-rctd.pur-uom EQ "EA" THEN
                fg-rctd.ext-cost = fg-rctd.std-cost.
@@ -188,16 +160,23 @@ FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
             fg-rctd.ext-cost = fg-rctd.ext-cost * fg-rctd.t-qty.
 
             RELEASE fg-rctd.
+            
          END.
-        
+         RELEASE fg-bin.
          ASSIGN
            oe-bolh.posted = YES
            oe-boll.posted = YES.
       END.  /* IF fg-bin.loc     NE shipto.loc */
 
-      ELSE
+      ELSE DO:
+         IF iplShowMessage THEN 
+           MESSAGE "BOL # " + STRING(oe-bolh.bol-no) +  " cannot be posted as it contains a Transfer transaction" 
+                   SKIP "that has the same 'From' and 'To' Warehouse/Bin." 
+                   SKIP(2) "Please review your BOL and edit or delete as needed."
+           VIEW-AS ALERT-BOX.
          IF AVAIL fg-rctd THEN
             DELETE fg-rctd.
+      END. 
     END. /* IF AVAIL shipto AND CAN-FIND(FIRST fg-bin */
 
     /* to close order (do not close order for transfers) */

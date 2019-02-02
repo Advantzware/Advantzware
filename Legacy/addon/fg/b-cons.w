@@ -85,7 +85,6 @@ DEF VAR fg-uom-list  AS CHAR NO-UNDO.
 DEF VAR v-fgpostgl AS CHAR NO-UNDO.
 DEF VAR v-post-date AS DATE INITIAL TODAY.
 
-DEF SHARED VAR g-sharpshooter AS LOG NO-UNDO.
 DEF VAR v-case-tag AS LOG NO-UNDO.
 DEF VAR v-ssfgscan AS LOG NO-UNDO.
 DEF VAR lv-do-what AS cha NO-UNDO.  /* will be receipt or delete(negative receipt)*/

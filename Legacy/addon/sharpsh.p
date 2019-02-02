@@ -8,7 +8,6 @@ PROPATH = "..\,.\" + PROPATH.
 &SCOPED-DEFINE execProgram sshoot.    
 &SCOPED-DEFINE checkExpiredLicense YES
 &GLOBAL-DEFINE checkUserCount YES
-&SCOPED-DEFINE sharpshooterFlag YES
 &SCOPED-DEFINE getCompanyProc sshoot/comp-loc.p
 
 {nosweat.i}

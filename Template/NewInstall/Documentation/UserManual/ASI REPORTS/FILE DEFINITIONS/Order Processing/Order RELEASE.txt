@@ -1,0 +1,135 @@
+
+*** Order Release File Field Definition ***           As of  12/27/05Page:   1
+================================================================================
+Actual release header table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+oe-relh    b-ord-no        ?                         >>9
+oe-relh    carrier         Carrier                   x(5)
+oe-relh    company         Company                   x(3)
+oe-relh    cust-no         Cust. #                   x(8)
+oe-relh    deleted         ?                         yes/no
+oe-relh    f-bill          Bill Freight?             Y/N
+oe-relh    fuel-bill       Bill Fuel?                Y/N
+oe-relh    o-no            Order #                   99999999
+oe-relh    old-r-no        ?                         >>>>>9
+oe-relh    ord-no          Order#                    >>>>>9
+oe-relh    po-no           P.O. Num                  x(15)
+oe-relh    posted          Posted                    y/n
+oe-relh    printed         Printed?                  Y/N
+oe-relh    r-no            ?                         >>>>>9
+oe-relh    rec_key         Rec Key                   X(20)
+oe-relh    rel-date        Date Last Counted         99/99/9999
+oe-relh    rel-no          ?                         >>9
+oe-relh    rel-time        Rel. Time                 >>>>9
+oe-relh    release#        Release#                  ->,>>>,>>9
+oe-relh    route-code      ?                         x(20)
+oe-relh    route-seq#      ?                         ->,>>>,>>9
+oe-relh    ship-i          Shipping Instructions     x(60)
+oe-relh    ship-id         Ship To ID                x(8)
+oe-relh    ship-no         Ship To #                 >>9
+oe-relh    t-freight       Total Freight             ->>,>>9.99
+oe-relh    t-fuel          Total Fuel                ->>,>>9.99
+oe-relh    trailer         ?                         x(8)
+oe-relh    upd-date        Updated Date              99/99/9999
+oe-relh    upd-time        Updated Time              ->,>>>,>>9
+oe-relh    user-id         ?                         x(8)
+oe-relh    w-ord           ?                         yes/no
+
+Actual release line item table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+oe-rell    b-ord-no        ?                         >>9
+oe-rell    cases           Number Of Cases           ->>>,>>Z
+oe-rell    cases-unit      Cases/Bundles per Unit    >>9
+oe-rell    company         Company                   x(3)
+oe-rell    cust-no         Customer                  x(8)
+oe-rell    deleted         ?                         yes/no
+oe-rell    i-no            Item No                   x(15)
+oe-rell    job-no          Job Number                x(6)
+oe-rell    job-no2         ?                         99
+oe-rell    line            Line                      99
+oe-rell    link-no         Link Number               >>>>>9
+oe-rell    loc             Warehouse                 x(5)
+oe-rell    loc-bin         Primary Bin Loc.          x(8)
+oe-rell    opened          ?                         Open/Closed
+oe-rell    ord-no          Order#                    >>>>>9
+oe-rell    p-c             Partial/Complete          C/P
+oe-rell    pal-chg         Pallet Charge             X
+oe-rell    pal-i-no        Pallet RM Item#           x(10)
+oe-rell    partial         ?                         >>>,>>9
+
+*** Order Release File Field Definition ***           As of  12/27/05Page:   2
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+oe-rell    po-no           Customer PO               x(15)
+oe-rell    posted          Posted                    y/n
+oe-rell    printed         Printed?                  Y/N
+oe-rell    qty             Quantity Released         ->>,>>>,>>9
+oe-rell    qty-case        Quantity Per Case         ->>>,>>Z
+oe-rell    r-no            ?                         >>>>>9
+oe-rell    rec_key         Rec Key                   X(20)
+oe-rell    rel-no          ?                         >>9
+oe-rell    s-code          Ship Code                 x
+oe-rell    stack-code      Stacking Code             x
+oe-rell    t-freight       Total Freight             ->>,>>9.99
+oe-rell    t-freight-p     ?                         ->>,>>>,>>9.99
+oe-rell    t-fuel          Total Fuel                ->>,>>9.99
+oe-rell    tag             ?                         x(8)
+oe-rell    tot-pallets     Total Pallets             >,>>9
+oe-rell    trailer         ?                         x(8)
+oe-rell    unit-count      Unit Count                >>>,>>9
+oe-rell    units-pallet    Units per Pallet          >9
+oe-rell    upd-date        Updated Date              99/99/9999
+oe-rell    upd-time        Updated Time              ->,>>>,>>9
+
+Scheduled release line item table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+oe-rel     b-ord-no        ?                         >>9
+oe-rel     carrier         Carrier                   x(5)
+oe-rel     cases           ?                         >>>,>>9
+oe-rel     company         Company                   x(3)
+oe-rel     cust-no         Cust. #                   x(8)
+oe-rel     deleted         Deleted?                  Y/N
+oe-rel     i-no            Item No                   x(15)
+oe-rel     line            Line                      99
+oe-rel     link-no         Link Number               >>>>>9
+oe-rel     loc             Warehouse                 x(5)
+oe-rel     loc-bin         Primary Bin Loc.          x(8)
+oe-rel     o-no            Order #                   99999999
+oe-rel     ord-no          Order#                    >>>>>9
+oe-rel     partial         ?                         >>>,>>9
+oe-rel     po-no           P.O. Num                  x(15)
+oe-rel     qty             ?                         ->>,>>>,>>9
+oe-rel     qty-case        ?                         >>>,>>9
+oe-rel     r-no            ?                         >>>>>9
+oe-rel     rec_key         Rec Key                   X(20)
+oe-rel     rel-date        Date Last Counted         99/99/9999
+oe-rel     rel-no          ?                         >>>>>9
+oe-rel     rel-time        Rel. Time                 >>>>9
+oe-rel     s-comm          Commission                >>9.99
+oe-rel     s-name          Salesman Name             x(20)
+oe-rel     s-pct           Percentage                >>9.99
+oe-rel     ship-addr       Address                   x(30)
+oe-rel     ship-city       City                      x(15)
+oe-rel     ship-date       ?                         99/99/9999
+oe-rel     ship-i          Shipping Instructions     x(60)
+oe-rel     ship-id         Ship To ID                x(8)
+oe-rel     ship-no         Ship To #                 >>9
+
+*** Order Release File Field Definition ***           As of  12/27/05Page:   3
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+oe-rel     ship-state      State                     x(2)
+oe-rel     ship-zip        Postal Code               x(10)
+oe-rel     sman            Salesman Code             x(3)
+oe-rel     sold-no         Sold To #                 >>9
+oe-rel     tag             ?                         x(8)
+oe-rel     tot-qty         ?                         ->>,>>>,>>9
+oe-rel     upd-date        Updated Date              99/99/9999
+oe-rel     upd-time        Updated Time              ->,>>>,>>9
+oe-rel     w-ord           ?                         yes/no
+
