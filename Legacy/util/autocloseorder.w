@@ -91,52 +91,52 @@ DEFINE BUTTON btn-process
 DEFINE VARIABLE begin_cust   AS CHARACTER FORMAT "X(8)":U 
     LABEL "Beginning Customer" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+    SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_date   AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
     LABEL "Beginning Created Date" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+    SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_fgitem AS CHARACTER FORMAT "X(15)":U 
     LABEL "Beginning FG Item#" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+    SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_order  AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 0 
     LABEL "Beginning Order" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+    SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_userid AS CHARACTER FORMAT "X(10)":U 
     LABEL "Beginning Entered By" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+    SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_cust     AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
     LABEL "Ending Customer" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+    SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_date     AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
     LABEL "Ending Created Date" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+    SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_fgitem   AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz" 
     LABEL "Ending FG Item#" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+    SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_order    AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 99999999 
     LABEL "Ending Order" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+    SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_userid   AS CHARACTER FORMAT "X(10)":U INITIAL "zzzzzzzzzz" 
-    LABEL "Ending Entered By#" 
+    LABEL "Ending Entered By" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+    SIZE 20 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -148,23 +148,23 @@ DEFINE RECTANGLE RECT-17
 DEFINE FRAME FRAME-A
     begin_date AT ROW 6.43 COL 24 COLON-ALIGNED HELP
     "Enter Beginning Date"
-    end_date AT ROW 6.43 COL 63 COLON-ALIGNED HELP
+    end_date AT ROW 6.43 COL 66 COLON-ALIGNED HELP
     "Enter Ending Date"
     begin_userid AT ROW 7.91 COL 24 COLON-ALIGNED HELP
     "Enter Beginning Entered By"
-    end_userid AT ROW 7.91 COL 63 COLON-ALIGNED HELP
+    end_userid AT ROW 7.91 COL 66 COLON-ALIGNED HELP
     "Enter Ending Entered BY"
     begin_order AT ROW 9.33 COL 24 COLON-ALIGNED HELP
     "Enter Beginning Order" WIDGET-ID 2
-    end_order AT ROW 9.33 COL 63 COLON-ALIGNED HELP
+    end_order AT ROW 9.33 COL 66 COLON-ALIGNED HELP
     "Enter Ending Order" WIDGET-ID 4
     begin_fgitem AT ROW 10.71 COL 24 COLON-ALIGNED HELP
     "Enter Beginning FG Item" WIDGET-ID 6
-    end_fgitem AT ROW 10.71 COL 63 COLON-ALIGNED HELP
+    end_fgitem AT ROW 10.71 COL 66 COLON-ALIGNED HELP
     "Enter Ending FG Item" WIDGET-ID 8
     begin_cust AT ROW 12 COL 24 COLON-ALIGNED HELP
     "Enter Beginning Customer" WIDGET-ID 10
-    end_cust AT ROW 12 COL 63 COLON-ALIGNED HELP
+    end_cust AT ROW 12 COL 66 COLON-ALIGNED HELP
     "Enter Ending Customer" WIDGET-ID 12
     btn-process AT ROW 15.76 COL 21
     btn-cancel AT ROW 15.76 COL 53
