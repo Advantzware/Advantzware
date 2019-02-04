@@ -1228,10 +1228,11 @@ PROCEDURE ipProcess :
         ELSE ASSIGN 
             cFileToRun = "N:\Repository\PatchTemplate\Deployment\Admin\EnvAdmin\asiUpdateDB.w".
  
+        CREATE ALIAS "DICTDB" FOR DATABASE asi.
+ 
         RUN  VALUE (cFileToRun) (ENTRY(iEnv,cDBList),
             ENTRY(iEnv,cDBPortList),
             ENTRY(iEnv,cDbDirList),
-            iEnv,
             iCurrDbVer,
             iPatchDbVer,
             iCurrAudVer,
@@ -1367,7 +1368,7 @@ PROCEDURE ipProcess :
     ASSIGN
         c-Win:VISIBLE = TRUE. 
     RUN ipStatus("Return from asiUpdateENV.w").
-    
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1734,8 +1735,6 @@ PROCEDURE ipSendVerification :
 
     /* File cleanup */
     RUN ipStatus("Upgrade Complete.  Press EXIT to quit.").
-
-    IF lSuccess THEN APPLY 'choose' TO bCancel.
    
 END PROCEDURE.
 
