@@ -309,7 +309,7 @@
 "styleScoreXref" yes yes no no
 "surcharge" yes yes no no
 "susptype" yes yes no no
-"sys-ctrl" yes yes no no
+"sys-ctrl" yes yes yes no
 "sys-ctrl-shipto" yes yes no no
 "terms" yes yes no no
 "terr" yes yes no no

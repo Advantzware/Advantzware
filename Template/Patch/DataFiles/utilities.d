@@ -152,7 +152,7 @@
 "warinvrestore.r" "AR" "AQ" "Restores Purged Invoices via N-F-13" "" 900
 "XrefTypetoGroup.r" "AF" "AF1" "COPY the A-F-1 Customer Type to the A-F-1 Cust Group Field." "" 900
 "ZeroParts.r" "FG" "IF1" "Set Qty on Hand to Zero for Overrun Parts of Set" "" 900
-"CopyCust.w" "AR" "AF1" "Copy Customer From 1 Company to Another Company" "" 960
+"CopyCust.w" "AR" "AF1" "Copy Customer From 1 Company to Another Company" "" 900
 "adddcrec.w" "SA" "NR" "Record FG Receipts for Posted Data Collection" "" 900
 "module.r" "" "" "License Modules" "License File - Restricted to ASI user only" 1000
 "ImpMaster.r" "SA" "" "Import Master" "Imports are efficient" 1000
@@ -160,4 +160,4 @@
 "colorchg.r" "" "" "Progress Color Changer" "" 900
 "unPostBOL.r" "OP" "OS1" "Unpost BOLs where the post fails" "" 900
 "run-xprint.r" "" "" "run xprint" "" 900
-"invLnChck.r" "OP" "" "Invoice Line Check" "" 1000
+"invLnChck.r" "OP" "" "Invoice Line Check" "" 900

@@ -34,7 +34,7 @@ Uninstallable=no
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "C:\asiGUI\Repository\PatchTemplate\Template\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\ASIgui\Upgrades\PATCH16.8.6\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Code]
