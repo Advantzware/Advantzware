@@ -41,7 +41,7 @@ def NEW shared var v-default-gl-log as log no-undo.
 def NEW shared var v-default-gl-cha as cha no-undo.
 def NEW shared var v-po-qty as log initial true no-undo.
 def NEW shared var v-po-msf like sys-ctrl.int-fld no-undo.
-
+DEF SHARED VAR lNewOrd AS LOG NO-UNDO.
 DEF VAR lv-copy-from-po-num AS INT NO-UNDO.
 
 RUN po/po-sysct.p .  /* for vars factor#.... need for d-poordl.w  */

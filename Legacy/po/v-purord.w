@@ -1846,8 +1846,9 @@ PROCEDURE local-update-record :
   IF ll-is-new-rec THEN DO:
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
     RUN record-added IN WIDGET-HANDLE(char-hdl).
+      lNewOrd = TRUE.
   END.
-
+  ELSE 
     lNewOrd = FALSE.
 
   /* Dispatch standard ADM method.                             */
@@ -1910,7 +1911,7 @@ PROCEDURE local-update-record :
        copy-record         = NO
        lv-copy-from-po-num = 0.  /*clear variables for next operations*/
   END.
-
+    lNewOrd = FALSE.
   /* ===  don't go item page yet. -> move page to 2 */
   IF ll-is-new-rec THEN DO:
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
