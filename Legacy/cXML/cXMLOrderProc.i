@@ -448,10 +448,10 @@ PROCEDURE genTempOrderLines:
     FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
 
     FOR EACH ttNodes:
-        ASSIGN
-            dRequestedDeliveryDate = oe-ord.due-date
-            cRequestedDeliveryDate = ""
-            .
+        IF AVAILABLE oe-ord THEN 
+          ASSIGN dRequestedDeliveryDate = oe-ord.due-date
+                 cRequestedDeliveryDate = ""
+                 .
         IF ttNodes.parentName EQ 'itemOut' AND ttNodes.nodeName EQ 'lineNumber' THEN
             itemLineNumber = TRIM(ttNodes.nodeValue).
         ELSE IF ttNodes.parentName EQ 'itemOut' AND ttNodes.nodeName EQ 'requestedDeliveryDate' THEN
@@ -711,6 +711,8 @@ PROCEDURE gencXMLOrder:
           opcReturnValue = 'Part Number is missing from XML file' .
           RETURN.
       END. 
+      RUN genTempOrderHeader (INPUT rOrdRec, OUTPUT cShipToID, OUTPUT cReturn).                                                                                              
+      RUN genTempOrderLines (INPUT rOrdRec, INPUT cShipToID, OUTPUT cReturn).  
   END.  
   ELSE DO:
       ASSIGN 
@@ -751,6 +753,7 @@ PROCEDURE gencXMLOrder:
 
       RUN cxml\xmltoOrderGE.p (INPUT TABLE ttNodes, INPUT-OUTPUT TABLE ttOrdHead , INPUT-OUTPUT TABLE ttOrdLines, INPUT-OUTPUT TABLE ttOrdSchedShipments).
   END.
+  
   EACH-ORDER:
   FOR EACH  ttOrdHead NO-LOCK  
          WHERE (ttOrdHead.ttDocType EQ "PO" OR ttOrdHead.ttDocType EQ "850") :
@@ -761,8 +764,7 @@ PROCEDURE gencXMLOrder:
       iNextOrderNumber = GetNextOrder#().
       RUN genOrderHeader (INPUT iNextOrderNumber, INPUT orderDate, OUTPUT rOrdRec).
       IF NOT lIsEdiXML THEN DO:
-          RUN genTempOrderHeader (INPUT rOrdRec, OUTPUT cShipToID, OUTPUT cReturn).                                                                                              
-          RUN genTempOrderLines (INPUT rOrdRec, INPUT cShipToID, OUTPUT cReturn).  
+
       END.
       RUN assignOrderHeader (INPUT rOrdRec, OUTPUT cShipToID, OUTPUT cReturn).
       RUN genOrderLines (INPUT rOrdRec, INPUT cShipToID, OUTPUT cReturn).
@@ -770,6 +772,7 @@ PROCEDURE gencXMLOrder:
  
       ASSIGN ttOrdHead.ttSelectedOrder = FALSE ttOrdHead.ttProcessed = TRUE.
   END. 
+  
   RELEASE oe-ord.  
   RELEASE reftable.
   RELEASE oe-ord-whs-order.
