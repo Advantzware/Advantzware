@@ -45,6 +45,8 @@ DEF VAR lv-pr-types AS CHAR INIT "FGLO" NO-UNDO.
 DEF VAR lv-pr-list AS CHAR INIT "Flexo,Gravure,Letterpress,Offset" NO-UNDO.
 DEF VAR lv-label AS CHAR EXTENT 10 NO-UNDO.
 DEF VAR ll-assem-part AS LOG NO-UNDO.
+DEFINE VARIABLE lEFPackUpdate AS LOGICAL NO-UNDO. 
+DEFINE VARIABLE cEFPackUpdate AS CHARACTER NO-UNDO.
 
 {custom/framechk.i NEW}
 
@@ -53,6 +55,19 @@ DEF VAR ll-assem-part AS LOG NO-UNDO.
 DO TRANSACTION:
   {sys/inc/fgcolors.i}
 END.
+
+DEF VAR cRtnChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "EFPackUpdate", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+lEFPackUpdate = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "EFPackUpdate", "C" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+cEFPackUpdate = cRtnChar .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3369,7 +3384,8 @@ PROCEDURE local-update-record :
 
   RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
 
-  IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), ?).
+  IF framechk-i-changed AND lEFPackUpdate AND cEFPackUpdate NE "None" THEN 
+      RUN est/updestpk.p (ROWID(eb), ROWID(eb), ?, cEFPackUpdate).
 
   RUN update-ink.
   RUN disable-inks.
