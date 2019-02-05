@@ -30,13 +30,10 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 DEF INPUT PARAMETER ipcName AS CHAR NO-UNDO.
-DEF INPUT PARAMETER ipcPort AS CHAR NO-UNDO. 
+DEF INPUT PARAMETER ipcPort AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcDir AS CHAR NO-UNDO.
-DEF INPUT PARAMETER ipiEntry AS INT NO-UNDO.
-DEF INPUT PARAMETER ipiCurrDbVer AS INT NO-UNDO.
-DEF INPUT PARAMETER ipiPatchDbVer AS INT NO-UNDO.
-DEF INPUT PARAMETER ipiCurrAudVer AS INT NO-UNDO.
-DEF INPUT PARAMETER ipiPatchAudVer AS INT NO-UNDO.
+DEF INPUT PARAMETER ipcFromVer AS CHAR NO-UNDO.
+DEF INPUT PARAMETER ipcToVer AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipiLevel AS INT NO-UNDO.
 
 DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
@@ -45,7 +42,7 @@ assign
     oplSuccess = true.
     
 return.
-    
+
 /* Local Variable Definitions ---                                       */
 &SCOPED-DEFINE SV SCREEN-VALUE IN FRAME DEFAULT-FRAME
 
@@ -62,9 +59,7 @@ DEF STREAM outStream.
 DEF STREAM logStream.
 DEF STREAM iniStream.
 
-DEF VAR cDbDirAlone AS CHAR NO-UNDO.
 DEF VAR cCurrDir AS CHAR NO-UNDO.
-DEF VAR cPortNo AS CHAR NO-UNDO.
 DEF VAR ptrToString      AS MEMPTR    NO-UNDO.
 DEF VAR intBufferSize    AS INTEGER   NO-UNDO INITIAL 256.
 DEF VAR intResult        AS INTEGER   NO-UNDO.
@@ -276,7 +271,6 @@ PROCEDURE GetLastError EXTERNAL "kernel32.dll":
     DEFINE RETURN PARAMETER iReturnValue AS LONG.
 END.
 
-
 PROCEDURE ShellExecuteA EXTERNAL "shell32" :
     define input parameter hwnd as long.
     define input parameter lpOperation as char.
@@ -304,7 +298,7 @@ END.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS bProcess eStatus 
 &Scoped-Define DISPLAYED-OBJECTS fiSiteName fiHostname fiDbName fiDbDir ~
-fiPortNo fiFromVer fiToVer fiDeltaFilename eStatus 
+fiPortNo fiFromVer fiToVer fiDeltaFilename eStatus fiLogFile 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -336,7 +330,7 @@ DEFINE BUTTON bProcess AUTO-END-KEY
 
 DEFINE VARIABLE eStatus AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 75 BY 3.81 NO-UNDO.
+     SIZE 75 BY 9.52 NO-UNDO.
 
 DEFINE VARIABLE fiDbDir AS CHARACTER FORMAT "X(256)":U 
      LABEL "in directory" 
@@ -351,29 +345,33 @@ DEFINE VARIABLE fiDbName AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fiDeltaFilename AS CHARACTER FORMAT "X(256)":U 
      LABEL "using delta file" 
      VIEW-AS FILL-IN 
-     SIZE 40 BY 1 NO-UNDO.
+     SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiFromVer AS CHARACTER FORMAT "X(256)":U 
      LABEL "from ASI version" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiHostname AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiHostname AS CHARACTER FORMAT "X(256)":U INITIAL "DEMO" 
      LABEL "Server Name" 
      VIEW-AS FILL-IN 
-     SIZE 26 BY 1 NO-UNDO.
+     SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiLogFile AS CHARACTER FORMAT "X(256)":U INITIAL "Log of actions will be stored in N:~\Admin~\EnvAdmin~\UpdateLog.txt" 
+      VIEW-AS TEXT 
+     SIZE 65 BY .62 NO-UNDO.
 
 DEFINE VARIABLE fiPortNo AS CHARACTER FORMAT "X(256)":U 
      LABEL "running on port" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiSiteName AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiSiteName AS CHARACTER FORMAT "X(256)":U INITIAL "DEMO" 
      LABEL "Site Name" 
      VIEW-AS FILL-IN 
-     SIZE 26 BY 1 NO-UNDO.
+     SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiToVer AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiToVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.20" 
      LABEL "to version" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
@@ -391,13 +389,14 @@ DEFINE FRAME DEFAULT-FRAME
      fiToVer AT ROW 7.67 COL 29 COLON-ALIGNED WIDGET-ID 46
      fiDeltaFilename AT ROW 8.62 COL 29 COLON-ALIGNED WIDGET-ID 50
      bProcess AT ROW 10.29 COL 15 WIDGET-ID 404
-     eStatus AT ROW 12.43 COL 3 NO-LABEL WIDGET-ID 52
+     eStatus AT ROW 12.67 COL 2 NO-LABEL WIDGET-ID 52
+     fiLogFile AT ROW 22.43 COL 5 COLON-ALIGNED NO-LABEL
      "Status:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 11.71 COL 3 WIDGET-ID 54
+          SIZE 8 BY .62 AT ROW 11.95 COL 3 WIDGET-ID 54
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 79.8 BY 15.91
+         SIZE 77 BY 22.67
          DEFAULT-BUTTON bProcess WIDGET-ID 100.
 
 
@@ -417,16 +416,16 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Advantzware Update - Upgrade Database"
-         HEIGHT             = 15.48
-         WIDTH              = 79.8
+         TITLE              = "ASIupdate 160800-01 Database"
+         HEIGHT             = 22.67
+         WIDTH              = 77
          MAX-HEIGHT         = 39.29
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 39.29
          VIRTUAL-WIDTH      = 320
          RESIZE             = yes
          SCROLL-BARS        = no
-         STATUS-AREA        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
          KEEP-FRAME-Z-ORDER = yes
@@ -456,6 +455,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiHostname IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiLogFile IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiPortNo IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiSiteName IN FRAME DEFAULT-FRAME
@@ -476,7 +477,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Advantzware Update - Upgrade Database */
+ON END-ERROR OF C-Win /* ASIupdate 160800-01 Database */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -490,7 +491,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Advantzware Update - Upgrade Database */
+ON WINDOW-CLOSE OF C-Win /* ASIupdate 160800-01 Database */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -567,13 +568,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
     RUN ipSetDispVars.
 
     ASSIGN 
-        fiHostName:{&SV} = cHostName
         fiDbName:{&SV} = ipcName
         fiPortNo:{&SV} = ipcPort
         fiDbDir:{&SV} = ipcDir
-        fiFromVer:{&SV} = STRING(ipiCurrDbVer,"99999999")
-        fiToVer:{&SV} = STRING(ipiPatchDbVer,"99999999")
-        cDeltaFile = "asi" + STRING(ipiCurrDbVer,"99999999") + "_" + STRING(ipiPatchDbVer,"99999999") + ".df"
+        fiFromVer:{&SV} = ipcFromVer
+        fiToVer:{&SV} = ipcToVer
+        iFromDelta = (INTEGER(ENTRY(1,ipcFromVer,".")) * 10) + (INTEGER(ENTRY(2,ipcFromVer,".")))
+        iToDelta = (INTEGER(ENTRY(1,ipcToVer,".")) * 10) + (INTEGER(ENTRY(2,ipcToVer,".")))
+        cDeltaFile = "asi" + STRING(iFromDelta,"999") + "_" + STRING(iToDelta,"999") + ".df"
         fiDeltaFileName:{&SV} = cDeltaFile.
 
     IF ipiLevel LT 10 THEN APPLY 'choose' TO bProcess.
@@ -626,7 +628,7 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fiSiteName fiHostname fiDbName fiDbDir fiPortNo fiFromVer fiToVer 
-          fiDeltaFilename eStatus 
+          fiDeltaFilename eStatus fiLogFile 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE bProcess eStatus 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
@@ -658,10 +660,10 @@ PROCEDURE ipBackupDBs :
         cPrefix = SUBSTRING(fiDbName:{&SV},1,3).
         
     IF cPrefix = "asi" THEN ASSIGN 
-        iListEntry = ipiEntry
+        iListEntry = LOOKUP(fiDbName:{&SV},cDbList)
         cThisDir = ENTRY(iListEntry,cDbDirList).
     ELSE ASSIGN 
-        iListEntry = ipiEntry
+        iListEntry = LOOKUP(fiDbName:{&SV},cAudDbList)
         cThisDir = ENTRY(iListEntry,cAudDirList).
     
     ASSIGN
@@ -674,11 +676,14 @@ PROCEDURE ipBackupDBs :
                    STRING(DAY(TODAY),"99") + "_" +
                    STRING(TIME) + ".bak" 
         cCmdLine = cDLCDir + "\bin\probkup online " + 
+                   cDBDrive + "\" + 
+                   cTopDir + "\" + 
                    cDbDir + "\" +
                    cLocDir + "\" +
                    cLocName + " " + 
                    cBackupName
-        cLockFile = cDbDir + "\" + 
+        cLockFile = cDbDrive + "\" +
+                   cTopDir + "\" + cDbDir + "\" + 
                    cThisDir + "\" +
                    fiDBName:{&SV} + ".lk".
     .
@@ -748,11 +753,11 @@ PROCEDURE ipCreateAudit :
         cLocName = ENTRY(2,cLocItem,"-")
         cLocPort = ENTRY(3,cLocItem,"-")
         cStructureST = cDrive + "\" + cTopDir + "\" +
-                   cUpdatesDir + "\" +
-                   "Structure\STFiles\audit.st"
+                   cUpdatesDir + "\PATCH" + fiToVer:{&SV} + "\" +
+                   "StructureUpdate\STFiles\audit.st"
         cAuditDf = cDrive + "\" + cTopDir + "\" +
-                   cUpdatesDir + "\" +
-                   "Structure\DFFiles\asiAudit.df"
+                   cUpdatesDir + "\PATCH" + fiToVer:{&SV} + "\" +
+                   "StructureUpdate\DFFiles\asiAudit.df"
         cAudName = "aud" + SUBSTRING(cLocName,4,8)
         cAudPort = STRING(INT(cLocPort) + 10,"9999").
 
@@ -832,7 +837,7 @@ PROCEDURE ipCreateAudit :
                        "c:\tmp\conmgrdelta.txt -silent"
         cStartString = cDlcDir + "\bin\dbman" + 
                        " -host " + cHostName + 
-                       " -port " + cPortNo + 
+                       " -port " + cAdminPort + 
                        " -database " + cAudName + 
                        " -start".
 
@@ -931,11 +936,9 @@ PROCEDURE ipExpandVarNames :
 
     /* Modify variables for ease of use */
     ASSIGN
-        cMapDir = cDrive + "\" + cTopDir
         cAdminDir = cMapDir + "\" + cAdminDir
         cBackupDir = cMapDir + "\" + cBackupDir
-        cDbDirAlone = cDbDir
-        cDBDir = cDbDrive + "\" + cTopDir + "\" + cDbDir 
+/*        cDBDir = cMapDir + "\" + cDbDir  */
         cDocDir = cMapDir + "\" + cDocDir
         cDeskDir = cMapDir + "\" + cDeskDir
         cEnvDir = cMapDir + "\" + cEnvDir
@@ -955,22 +958,23 @@ PROCEDURE ipExpandVarNames :
         cDbTestDir = cDbDir + "\" + cDbTestDir
         cEnvProdDir = cEnvDir + "\" + cEnvProdDir
         cEnvTestDir = cEnvDir + "\" + cEnvTestDir
-        cUpdAdminDir = cUpdatesDir + "\" + cUpdAdminDir
-        cUpdCompressDir = cUpdatesDir + "\" + cUpdCompressDir
-        cUpdDataDir = cUpdatesDir + "\" + cUpdDataDir
-        cUpdDeskDir = cUpdatesDir + "\" + cUpdDeskDir
-        cUpdMenuDir = cUpdatesDir + "\" + cUpdMenuDir
-        cUpdProgramDir = cUpdatesDir + "\" + cUpdProgramDir
-        cUpdRelNotesDir = cUpdatesDir + "\" + cUpdRelNotesDir
-        cUpdStructureDir = cUpdatesDir + "\" + cUpdStructureDir
+        cUpdAdminDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdAdminDir
+        cUpdCompressDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdCompressDir
+        cUpdDataDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdDataDir
+        cUpdDeskDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdDeskDir
+        cUpdMenuDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdMenuDir
+        cUpdProgramDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdProgramDir
+        cUpdRelNotesDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdRelNotesDir
+        cUpdStructureDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdStructureDir
         lmakeBackup = IF INDEX(cMakeBackup,"Y") NE 0 OR INDEX(cMakeBackup,"T") NE 0 THEN TRUE ELSE FALSE
         lConnectAudit = IF INDEX(cConnectAudit,"Y") NE 0 OR INDEX(cConnectAudit,"T") NE 0 THEN TRUE ELSE FALSE
         cLockoutTries = SUBSTRING(cLockoutTries,1,1)
         iLockoutTries = IF cLockoutTries NE "" 
                         AND ASC(cLockoutTries) GE 48
                         AND ASC(cLockoutTries) LE 57 THEN INT(cLockoutTries) ELSE 0
+        cPatchNo = fiToVer:{&SV}
         .
-                
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1089,9 +1093,7 @@ PROCEDURE ipProcessRequest :
     DEF VAR iLookup AS INT NO-UNDO.
     
     RUN ipStatus ("Beginning Database Schema Update").
-	RUN ipReadAdminSvcProps.    
-
-	/* Process "regular" database (asixxxx.db) */
+    /* Process "regular" database (asixxxx.db) */
     RUN ipBackupDBs.
     IF NOT lSuccess THEN 
     DO:
@@ -1112,7 +1114,7 @@ PROCEDURE ipProcessRequest :
     
     /* Process "audit" database (audxxxx.db) */
     ASSIGN 
-        iLookup = ipiEntry
+        iLookup = LOOKUP(fiDbName:{&SV},cDbList)
         fiDbName:{&SV} = REPLACE(fiDbName:{&SV},"asi","aud")
         fiDbDir:{&SV} = "audit"
         fiPortNo:{&SV} = ENTRY(iLookup,cAudPortList). 
@@ -1141,35 +1143,6 @@ PROCEDURE ipProcessRequest :
     ASSIGN
         fiFromVer:{&SV} = fiToVer:{&SV}
         oplSuccess = lSuccess.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipReadAdminSvcProps C-Win 
-PROCEDURE ipReadAdminSvcProps :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEF VAR cLine AS CHAR NO-UNDO.
-    
-    RUN ipStatus ("  Reading admin service props file " + fiDbName:{&SV}).
-
-    INPUT FROM VALUE (cDLCDir + "\properties\AdminServerPlugins.properties").
-    REPEAT:
-        IMPORT cLine.
-        ASSIGN 
-            cLine = TRIM(cLine).
-        IF ENTRY(1,cLine,"=") EQ "port" THEN DO:
-            ASSIGN 
-                cPortNo = ENTRY(2,cLine,"=").
-            LEAVE.
-        END.
-    END.
-    INPUT CLOSE.
-        
 
 END PROCEDURE.
 
@@ -1440,11 +1413,10 @@ PROCEDURE ipUpgradeDBs :
         iDbCtr = iDbCtr + 1
         iWaitCount = 0
         cDelta = REPLACE(cDeltaFile,"asi",cPrefix)
-        cFullDelta = REPLACE(cUpdStructureDir,"PATCH","PATCH" + fiToVer:{&SV}) + "\DFFiles\" + cDelta
-        cFullDelta = REPLACE(cFullDelta,"StructureUpdate","Structure").
-
+        cFullDelta = REPLACE(cUpdStructureDir,"PATCH","PATCH" + fiToVer:{&SV}) + "\DFFiles\" + cDelta.
+        
     IF cPrefix = "asi" THEN ASSIGN 
-        iListEntry = ipiEntry
+        iListEntry = LOOKUP(fiDbName:{&SV},cDbList)
         cThisDir = ENTRY(iListEntry,cDbDirList)
         cThisPort = ENTRY(iListEntry,cDbPortList).
     ELSE ASSIGN 
@@ -1452,7 +1424,7 @@ PROCEDURE ipUpgradeDBs :
         cThisDir = ENTRY(iListEntry,cAudDirList)
         cThisPort = ENTRY(iListEntry,cAudPortList).
 
-    IF ipiPatchDbVer LE ipiCurrDbVer THEN DO:
+    IF iToDelta LE iFromDelta THEN DO:
         RUN ipStatus ("    Database is already upgraded.  Cancelling.").
         ASSIGN 
             lSuccess = FALSE.
@@ -1482,22 +1454,22 @@ PROCEDURE ipUpgradeDBs :
                    "StructureUpdate\DFFiles\" + cDeltaDf
         cStopString = cDlcDir + "\bin\dbman" + 
                      " -host " + cHostName + 
-                     " -port " + cPortNo + 
+                     " -port " + cAdminPort + 
                      " -database " + fiDbName:{&SV} + 
                      " -stop"
         cStartString = cDlcDir + "\bin\dbman" + 
                      " -host " + cHostName + 
-                     " -port " + cPortNo + 
+                     " -port " + cAdminPort + 
                      " -database " + fiDBName:{&SV} + 
                      " -start"
         /* Single user connect statment */
         cStatement = "-db " + cDbDrive + "\" +
-                     cTopDir + "\" + cDbDirAlone + "\" + 
+                     cTopDir + "\" + cDbDir + "\" + 
                      cThisDir + "\" +
                      fiDBName:{&SV} + 
                      " -1 -ld updDB" + STRING(iDbCtr)
         cLockFile = cDbDrive + "\" +
-                     cTopDir + "\" + cDbDirAlone + "\" + 
+                     cTopDir + "\" + cDbDir + "\" + 
                      cThisDir + "\" +
                      fiDBName:{&SV} + ".lk".
     
@@ -1512,10 +1484,45 @@ PROCEDURE ipUpgradeDBs :
             iWaitCount = iWaitCount + 1.
         PAUSE 5 NO-MESSAGE.
         IF iWaitCount EQ 3 THEN DO:
+            RUN ipStatus ("    Normal shutdown failed.  Trying alternate method").
+            ASSIGN 
+                lAlternate = TRUE.
             LEAVE waitblock.
         END.
     END.
     
+    /* Database didn't shut down normally, try with proshut */
+    IF lAlternate THEN DO:
+        ASSIGN 
+            cStopString = cDlcDir + "\bin\_mprshut -by -db " + 
+                          cDbDrive + "\" +
+                          cTopDir + "\" + cDbDir + "\" + 
+                          cThisDir + "\" +
+                          fiDBName:{&SV}
+            cStartString = cDlcDir + "\bin\_mprosrv -db " + 
+                           cDbDrive + "\" +
+                           cTopDir + "\" + cDbDir + "\" + 
+                           cThisDir + "\" +
+                           fiDBName:{&SV} +
+                           " -H " + cHostName +
+                           " -S " + cThisPort +
+                           " -N tcp"
+                          .
+                          
+        OS-COMMAND SILENT VALUE(cStopString).
+        Waitblock2:
+        DO WHILE SEARCH(cLockFile) NE ?:
+            RUN ipStatus ("    Waiting for removal of lock file").
+            ASSIGN 
+                iWaitCount = iWaitCount + 1.
+            PAUSE 5 NO-MESSAGE.
+            IF iWaitCount EQ 3 THEN 
+            DO:
+                RUN ipStatus ("    Alternate shutdown failed.  Cancelling.").
+                LEAVE waitblock2.
+            END.
+        END.
+    END.
     IF SEARCH(cLockFile) NE ? THEN DO:
         RUN ipStatus (    "Unable to shut down server for " + fiDbName:{&SV} + ".  Cancelling.").
         ASSIGN 
@@ -1530,7 +1537,7 @@ PROCEDURE ipUpgradeDBs :
     CREATE ALIAS DICTDB FOR DATABASE VALUE("updDB" + STRING(iDbCtr)).
     
     /* Load the delta */
-    RUN ipStatus ("    Loading delta " + STRING(cFullDelta)).
+    RUN ipStatus ("    Loading delta " + STRING(cDeltaDf)).
     RUN prodict/load_df.p (cFullDelta). 
     
     /* Disconnect it */
@@ -1541,33 +1548,10 @@ PROCEDURE ipUpgradeDBs :
     RUN ipStatus ("    Serving " + fiDbName:{&SV}).
     
     OS-COMMAND SILENT VALUE(cStartString).
-    Waitblock3:
-    DO WHILE SEARCH(cLockFile) EQ ?:
-        RUN ipStatus ("    Waiting for restore of lock file").
-        ASSIGN 
-            iWaitCount = iWaitCount + 1.
-        PAUSE 5 NO-MESSAGE.
-        IF iWaitCount EQ 3 THEN 
-        DO:
-            LEAVE waitblock3.
-        END.
-    END.
-    IF SEARCH(cLockFile) EQ ? THEN DO:
-        MESSAGE 
-            "Unable to restart the " + fiDBName:{&SV} + " database after upgrade." SKIP 
-            "This may be a symptom of several problems.  You should contact" SKIP 
-            "Advantzware support before continuing the update process."
-            VIEW-AS ALERT-BOX ERROR.
-        ASSIGN 
-            lSuccess = FALSE.
-        RETURN.
-    END.
         
     IF cPrefix EQ "asi" THEN DO: 
         ASSIGN 
-            ENTRY(ipiEntry,wDbVerList) =  SUBSTRING(STRING(ipiPatchDbVer),1,2) + "." +
-                                            SUBSTRING(STRING(ipiPatchDbVer),3,2) + "." +
-                                            SUBSTRING(STRING(ipiPatchDbVer),5,2).
+            ENTRY(iListEntry,wDbVerList) = STRING(iToDelta / 10,"99.9").
     END.
 
     ASSIGN
@@ -1630,7 +1614,7 @@ FUNCTION fIntVer RETURNS INTEGER
         cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GT 3 THEN ENTRY(4,cVerString,".") ELSE "0"
         iIntVal[1] = INT(cStrVal[1])
         iIntVal[2] = INT(cStrVal[2])
-        iIntVal[3] = IF INT(cStrVal[3]) LT 10 THEN INT(cStrVal[3]) * 10 ELSE INT(cStrVal[3])
+        iIntVal[3] = INT(cStrVal[3])
         iIntVal[4] = INT(cStrVal[4])
         iIntVer    = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
         NO-ERROR.

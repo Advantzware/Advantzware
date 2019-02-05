@@ -584,6 +584,8 @@ OR CHOOSE OF bUpdate
                     RUN ipStatus("Sending report to ASI").
                     RUN ipBuildVerification (3).
                     RUN ipSendVerification.
+
+                    IF lSuccess THEN APPLY 'close' TO THIS-PROCEDURE.
                 END.
         END CASE.
     END.
@@ -1730,13 +1732,11 @@ PROCEDURE ipSendVerification :
     END.
 
     RUN ipStatus("  Starting 2d FTP session").
-    OS-COMMAND SILENT VALUE("FTP -n -s:" + cFTPxmit + " >> " + cFtpOutputFile + " 2>> " + cFtpErrFile).
+    OS-COMMAND NO-WAIT VALUE("FTP -n -s:" + cFTPxmit + " >> " + cFtpOutputFile + " 2>> " + cFtpErrFile).
 
     /* File cleanup */
     RUN ipStatus("Upgrade Complete.  Press EXIT to quit.").
 
-    IF lSuccess THEN APPLY 'choose' TO bCancel.
-   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
