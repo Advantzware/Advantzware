@@ -101,8 +101,22 @@ DO TRANSACTION:
 END.
 
 DEFINE VARIABLE lv-do-what AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iSsPostVendTag AS INTEGER NO-UNDO .
+DEFINE VARIABLE iSsPostVendTagLength AS INTEGER NO-UNDO .
+DEFINE VARIABLE lRecFound       AS LOG       NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bpo-ordl FOR po-ordl.
+
+RUN sys/ref/nk1look.p (cocode, "SSPostVenTag", "I", NO, NO, "", "", 
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    iSsPostVendTag = INT(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (cocode, "SSPostVenTag", "D", NO, NO, "", "", 
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    iSsPostVendTagLength = INT(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -767,8 +781,8 @@ DO:
                  RETURN NO-APPLY.
           END.
         END.
-        RUN valid-tag NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        RUN valid-tag NO-ERROR. 
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. 
         IF lv-do-what = "delete" THEN DO:
            RUN valid-delete-tag NO-ERROR.
            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -2885,6 +2899,16 @@ PROCEDURE valid-tag :
        APPLY "entry" TO rm-rctd.tag IN BROWSE {&browse-name}.
        RETURN ERROR.
     END.
+  END.
+
+  IF lv-do-what <> "Delete" THEN DO:
+      IF iSsPostVendTag NE 0 AND iSsPostVendTagLength NE 0 AND rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+              IF LENGTH(rm-rctd.tag:SCREEN-VALU IN BROWSE {&browse-name}) > iSsPostVendTagLength THEN do:
+                  MESSAGE "SSPostVenTag value limits the length of the tag number to (Decimal Value) characters" VIEW-AS ALERT-BOX ERROR.                                     
+                  APPLY "entry" TO rm-rctd.tag IN BROWSE {&browse-name}. 
+                  RETURN ERROR.                
+              END.
+      END.
   END.
     
 END PROCEDURE.

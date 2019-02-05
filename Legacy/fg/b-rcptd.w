@@ -112,6 +112,21 @@ RUN pSetGlobalSettings(g_company).  /*Sets all of the above based on NK1 Setting
 DEFINE VARIABLE hdCostProcs AS HANDLE.
 RUN system\CostProcs.p PERSISTENT SET hdCostProcs.
 
+DEFINE VARIABLE iSsPostVendTag AS INTEGER NO-UNDO .
+DEFINE VARIABLE iSsPostVendTagLength AS INTEGER NO-UNDO .
+DEFINE VARIABLE lRecFound       AS LOG       NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (cocode, "SSPostVenTag", "I", NO, NO, "", "", 
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    iSsPostVendTag = INT(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (cocode, "SSPostVenTag", "D", NO, NO, "", "", 
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    iSsPostVendTagLength = INT(cRtnChar) NO-ERROR.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -4489,6 +4504,13 @@ PROCEDURE valid-tag :
                 AND loadtag.item-type EQ NO
                 AND loadtag.tag-no    EQ ip-focus:SCREEN-VALUE) THEN
                 lv-msg = "Invalid Tag#, try help or scan valid tag#".
+
+            IF iSsPostVendTag NE 0 AND iSsPostVendTagLength NE 0 AND lv-msg EQ ""
+                AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+                IF LENGTH(fg-rctd.tag:SCREEN-VALU IN BROWSE {&browse-name}) > iSsPostVendTagLength THEN do:
+                    lv-msg = "SSPostVenTag value limits the length of the tag number to (Decimal Value) characters" .                                     
+                END.
+            END.
       
             IF lv-msg NE "" THEN 
             DO:
