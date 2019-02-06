@@ -16,7 +16,7 @@
 DEFINE {1} TEMP-TABLE ttEstHeader /*Master Print*/
     FIELD rec_KeyHeader  AS CHARACTER /*Unique ID*/
     FIELD cEstNo AS CHARACTER
-    FIELD dQuantityMaster AS DECIMAL /*Master Quantity Calculated*/
+    FIELD dQtyMaster AS DECIMAL /*Master Qty Calculated*/
     FIELD cCalculator AS CHARACTER /*User ID of who calculated*/
     FIELD cPrinter AS CHARACTER /*User ID of who printed*/
     FIELD cEstType AS CHARACTER /*Set, Single, Combo, Tandem*/
@@ -28,9 +28,9 @@ DEFINE {1} TEMP-TABLE ttEstItem
     FIELD rec_keyItem AS CHARACTER 
     FIELD rec_keyItemParent AS CHARACTER /*Link to Set*/
     FIELD rec_keyHeader AS CHARACTER /*Link to Header*/
-    FIELD dQuantityPerSet AS DECIMAL
-    FIELD dQuantityRequired AS DECIMAL
-    FIELD dQuantityYielded AS DECIMAL
+    FIELD dQtyPerSet AS DECIMAL
+    FIELD dQtyRequired AS DECIMAL
+    FIELD dQtyYielded AS DECIMAL
     FIELD cItemName AS CHARACTER 
     FIELD cItemDescription1 AS CHARACTER
     FIELD cItemDescription2 AS CHARACTER
@@ -48,6 +48,9 @@ DEFINE {1} TEMP-TABLE ttEstItem
     FIELD cShipToAddress3 AS CHARACTER
     FIELD cSalesgroupID AS CHARACTER 
     FIELD cSalesgroupName AS CHARACTER 
+    FIELD cCustomerPart AS CHARACTER
+    FIELD cSize AS CHARACTER
+    FIELD cColor AS CHARACTER
     .
    
 DEFINE {1} TEMP-TABLE ttEstForm
@@ -68,14 +71,24 @@ DEFINE {1} TEMP-TABLE ttEstForm
     FIELD dDieArea AS DECIMAL
     FIELD cUOMDimension AS CHARACTER /*Inches/cm*/
     FIELD cUOMArea AS CHARACTER /*MSF*/
-    FIELD dQuantityRequiredNet AS DECIMAL /* Products / Number Out*/
-    FIELD dQuantityRequiredWasteMR AS DECIMAL /*Wasted forms in MR*/
-    FIELD dQuantityRequiredWasteRun AS DECIMAL /*Wasted forms in Run*/
+    FIELD dGrossQtyRequiredNoWaste AS DECIMAL /* Products / Number Out*/
+    FIELD dGrossQtyRequiredWasteMR AS DECIMAL /*Wasted forms in MR*/
+    FIELD dGrossQtyRequiredWasteRun AS DECIMAL /*Wasted forms in Run*/
+    FIELD dGrossQtyRequiredTotal AS DECIMAL 
+    FIELD dGrossQtyRequiredTotalArea AS DECIMAL 
+    FIELD cUOMGrossQtyRequiredTotalArea AS CHARACTER 
     FIELD dBasisWeightInLbsPerSqin AS DECIMAL 
     FIELD iNumOutLength AS INTEGER 
     FIELD iNumOutWidth AS INTEGER 
     FIELD iNumOutDepth AS INTEGER 
     FIELD iNumOut AS INTEGER 
+    FIELD dWeightGross AS DECIMAL
+    FIELD cUOMWeightGross AS CHARACTER 
+    FIELD dWeightNet AS DECIMAL
+    FIELD cUOMWeightNet AS CHARACTER  
+    FIELD dWeightDie AS DECIMAL 
+    FIELD cUOMWeightDie AS CHARACTER 
+    FIELD dRollWidth AS DECIMAL 
     .
 
 DEFINE {1} TEMP-TABLE ttEstBlank
@@ -86,13 +99,18 @@ DEFINE {1} TEMP-TABLE ttEstBlank
     FIELD dBlankWidth AS DECIMAL 
     FIELD dBlankLength AS DECIMAL 
     FIELD dBlankDepth AS DECIMAL /*3D Foam*/
-    FIELD cDimensionUOM AS CHARACTER /*Inches/cm*/
+    FIELD cUOMDimension AS CHARACTER /*Inches/cm*/
     FIELD dBlankArea AS DECIMAL 
     FIELD cUOMArea AS CHARACTER /*Sqin*/
     FIELD iNumOutWidth AS INTEGER 
     FIELD iNumOutLength AS INTEGER 
     FIELD iNumOutDepth AS INTEGER 
     FIELD iNumOut AS INTEGER 
+    FIELD dLength AS DECIMAL 
+    FIELD dWidth AS DECIMAL 
+    FIELD dDepth AS DECIMAL 
+    FIELD dWeight AS DECIMAL 
+    FIELD cUOMWeight AS CHARACTER
     .
     
 DEFINE {1} TEMP-TABLE ttEstMaterial
@@ -101,8 +119,8 @@ DEFINE {1} TEMP-TABLE ttEstMaterial
     FIELD rec_keyBlank AS CHARACTER /*link to parent blank*/
     FIELD cItemID AS CHARACTER /*RM Item Code*/
     FIELD cItemName AS CHARACTER 
-    FIELD dQuantityRequired AS DECIMAL 
-    FIELD cQuantityUOM AS CHARACTER 
+    FIELD dQtyRequired AS DECIMAL 
+    FIELD cQtyUOM AS CHARACTER 
     FIELD dCostPerUOM AS DECIMAL 
     FIELD dCostUOM AS DECIMAL 
     FIELD dCostTotal AS DECIMAL
@@ -120,10 +138,10 @@ DEFINE {1} TEMP-TABLE ttEstOperations
     FIELD dCostPerHourFO AS DECIMAL 
     FIELD dCostPerHourVO AS DECIMAL
     FIELD dCostTotal AS DECIMAL
-    FIELD dQuantityIn AS DECIMAL 
-    FIELD dQuantityOut AS DECIMAL 
-    FIELD dQuantityWasteSetup AS DECIMAL 
-    FIELD dQuantityWasteRun AS DECIMAL
+    FIELD dQtyIn AS DECIMAL 
+    FIELD dQtyOut AS DECIMAL 
+    FIELD dQtyWasteSetup AS DECIMAL 
+    FIELD dQtyWasteRun AS DECIMAL
     .
     
 /* ********************  Preprocessor Definitions  ******************** */
