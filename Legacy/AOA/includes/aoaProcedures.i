@@ -34,16 +34,12 @@
 /* ************************  Function Prototypes ********************** */
 
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fJasperGroupCalc Include
 FUNCTION fJasperGroupCalc RETURNS CHARACTER 
   (ipcField AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
 
 /* *********************** Procedure Settings ************************ */
@@ -69,8 +65,6 @@ FUNCTION fJasperGroupCalc RETURNS CHARACTER
                                                                         */
 &ANALYZE-RESUME
 
- 
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Include 
 
@@ -86,7 +80,6 @@ FUNCTION fJasperGroups RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 /* **********************  Internal Procedures  *********************** */
@@ -115,6 +108,7 @@ PROCEDURE pCreateTempTableColumn :
             IF hTable:BUFFER-FIELD(idx):NAME EQ "parameters"  THEN NEXT.
             IF hTable:BUFFER-FIELD(idx):NAME EQ "recDataType" THEN NEXT.
             RUN pCreatettColumn (
+                hTable:BUFFER-FIELD(idx):TABLE,
                 hTable:BUFFER-FIELD(idx):NAME,
                 IF cSelectedColumns EQ "" THEN idx ELSE LOOKUP(hTable:BUFFER-FIELD(idx):NAME,cSelectedColumns),
                 CAN-DO(cSelectedColumns,hTable:BUFFER-FIELD(idx):NAME) OR (cSelectedColumns EQ "" AND NOT hTable:BUFFER-FIELD(idx):NAME BEGINS "xx"),
@@ -142,6 +136,7 @@ PROCEDURE pCreatettColumn:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcTable  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcField  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiOrder  AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER iplActive AS LOGICAL   NO-UNDO.
@@ -153,6 +148,7 @@ PROCEDURE pCreatettColumn:
     
     CREATE ttColumn.
     ASSIGN
+        ttColumn.ttTable  = ipcTable
         ttColumn.ttField  = ipcField
         ttColumn.ttOrder  = ipiOrder
         ttColumn.isActive = iplActive
@@ -293,7 +289,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* ************************  Function Implementations ***************** */
 

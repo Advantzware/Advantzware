@@ -48,6 +48,8 @@ DEFINE VARIABLE rRowID      AS ROWID     NO-UNDO.
 
 DEFINE BUFFER bTaskResult FOR taskResult.
 
+lAdmin = CAN-DO("ASI,NoSweat",USERID("ASI")).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -72,14 +74,12 @@ taskResult.fileType taskResult.user-id taskResult.viewed ~
 taskResult.archived taskResult.folderFile 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-taskResultBrowse 
 &Scoped-define QUERY-STRING-taskResultBrowse FOR EACH taskResult ~
-      WHERE (lAdmin EQ YES AND ~
-TaskResult.folderFile BEGINS "TaskResults") ~
+      WHERE lAdmin EQ YES ~
 OR (lAdmin EQ NO ~
 AND TaskResult.user-id EQ USERID("ASI")) NO-LOCK ~
     ~{&SORTBY-PHRASE} INDEXED-REPOSITION
 &Scoped-define OPEN-QUERY-taskResultBrowse OPEN QUERY taskResultBrowse FOR EACH taskResult ~
-      WHERE (lAdmin EQ YES AND ~
-TaskResult.folderFile BEGINS "TaskResults") ~
+      WHERE lAdmin EQ YES ~
 OR (lAdmin EQ NO ~
 AND TaskResult.user-id EQ USERID("ASI")) NO-LOCK ~
     ~{&SORTBY-PHRASE} INDEXED-REPOSITION.
@@ -149,7 +149,7 @@ DEFINE BROWSE taskResultBrowse
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 28.57
-         TITLE "Task Results" ROW-HEIGHT-CHARS .76.
+         TITLE "Task Results".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -233,8 +233,7 @@ THEN C-Win:HIDDEN = no.
 /* Query rebuild information for BROWSE taskResultBrowse
      _TblList          = "ASI.taskResult"
      _Options          = "NO-LOCK INDEXED-REPOSITION SORTBY-PHRASE"
-     _Where[1]         = "(lAdmin EQ YES AND
-TaskResult.folderFile BEGINS ""TaskResults"")
+     _Where[1]         = "lAdmin EQ YES
 OR (lAdmin EQ NO
 AND TaskResult.user-id EQ USERID(""ASI""))"
      _FldNameList[1]   > ASI.taskResult.fileDateTime
@@ -322,7 +321,7 @@ DO:
         FIND CURRENT taskResult NO-LOCK.
         OS-COPY VALUE(taskResult.folderFile) VALUE(bTaskResult.folderFile).
         RELEASE bTaskResult.
-        {&OPEN-QUERY-{&BROWSE-NAME}}
+        {&OPEN-QUERY-taskResultBrowse}
         REPOSITION taskResultBrowse TO ROWID rRowID.
     END. /* if search */
 END.

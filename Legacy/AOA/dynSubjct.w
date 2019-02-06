@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &Scoped-define program-id dynSubjct.
+&Scoped-define defaultUser _default
 
 &Scoped-define transPanel btnUpdate btnAdd btnCopy btnDelete btnReset btnCancel
 &Scoped-define transInit btnUpdate btnAdd btnCopy btnDelete
@@ -50,6 +51,7 @@ DEFINE VARIABLE cDataType          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFormat            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLabel             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPoolName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrgmName          AS CHARACTER NO-UNDO INITIAL "{&program-id}".
 DEFINE VARIABLE hAppSrvBin         AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hJasper            AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQueryBrowse       AS HANDLE    NO-UNDO.
@@ -1149,17 +1151,6 @@ DEFINE FRAME DEFAULT-FRAME
          SIZE 160 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
-DEFINE FRAME resultsFrame
-     btnCloseResults AT ROW 1 COL 6 HELP
-          "Jasper Viewer" WIDGET-ID 252
-     btnSaveResults AT ROW 1 COL 2 HELP
-          "Jasper Viewer" WIDGET-ID 254
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 139 ROW 10.05
-         SIZE 10 BY 2.38
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
-
 DEFINE FRAME paramFrame
      btnCloseParam AT ROW 1 COL 156 HELP
           "Jasper Viewer" WIDGET-ID 252
@@ -1205,6 +1196,17 @@ DEFINE FRAME outputFrame
          SIZE 159 BY 5.24
          BGCOLOR 15 
          TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1400.
+
+DEFINE FRAME resultsFrame
+     btnCloseResults AT ROW 1 COL 6 HELP
+          "Jasper Viewer" WIDGET-ID 252
+     btnSaveResults AT ROW 1 COL 2 HELP
+          "Jasper Viewer" WIDGET-ID 254
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 139 ROW 10.05
+         SIZE 10 BY 2.38
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1990,11 +1992,7 @@ ON CHOOSE OF btnCloseResults IN FRAME resultsFrame /* Close Results */
 DO:
     IF VALID-HANDLE(hQueryBrowse) THEN
     DELETE OBJECT hQueryBrowse.
-    DELETE WIDGET-POOL cPoolName NO-ERROR.
-    ASSIGN
-        FRAME resultsFrame:HIDDEN = YES
-        FRAME paramFrame:HIDDEN   = YES
-        .
+    FRAME resultsFrame:HIDDEN = YES.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2018,7 +2016,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCSV C-Win
 ON CHOOSE OF btnCSV IN FRAME outputFrame /* csv */
 DO:
-    RUN pRunSubject (YES, "CSV").
+    RUN pRunSubject (YES, "CSV", "{&defaultUser}", "").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2042,7 +2040,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDOCX C-Win
 ON CHOOSE OF btnDOCX IN FRAME outputFrame
 DO:
-    RUN pRunSubject (YES, "DOCX").
+    RUN pRunSubject (YES, "DOCX", "{&defaultUser}", "").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2067,7 +2065,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnHTML C-Win
 ON CHOOSE OF btnHTML IN FRAME outputFrame
 DO:
-    RUN pRunSubject (YES, "HTML").
+    RUN pRunSubject (YES, "HTML", "{&defaultUser}", "").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2118,7 +2116,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPDF C-Win
 ON CHOOSE OF btnPDF IN FRAME outputFrame
 DO:
-    RUN pRunSubject (YES, "PDF").
+    RUN pRunSubject (YES, "PDF", "{&defaultUser}", "").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2193,7 +2191,7 @@ END.
 ON CHOOSE OF btnResults IN FRAME DEFAULT-FRAME /* Results */
 DO:
     RUN pGetDynParamValue.
-    RUN AOA/dynRun.w PERSISTENT ("{&program-id}", ROWID(dynParamValue)).
+    RUN AOA/dynRun.w PERSISTENT (cPrgmName, ROWID(dynParamValue)).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2205,7 +2203,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRunResults C-Win
 ON CHOOSE OF btnRunResults IN FRAME outputFrame /* Run Results */
 DO:
-    RUN pRunSubject (YES, "Results").
+    RUN pRunSubject (YES, "Results", "{&defaultUser}", "").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2276,7 +2274,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnView C-Win
 ON CHOOSE OF btnView IN FRAME outputFrame
 DO:
-    RUN pRunSubject (YES, "View").
+    RUN pRunSubject (YES, "View", "{&defaultUser}", "").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2304,7 +2302,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnXLS C-Win
 ON CHOOSE OF btnXLS IN FRAME outputFrame
 DO:
-    RUN pRunSubject (YES, "XLS").
+    RUN pRunSubject (YES, "XLS", "{&defaultUser}", "").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2989,9 +2987,10 @@ PROCEDURE pAddColumn :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcFieldName  AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cTable AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cField AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cExt   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDataType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cExt      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cField    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTable    AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bttSubjectColumn FOR ttSubjectColumn.
 
@@ -3019,6 +3018,11 @@ PROCEDURE pAddColumn :
         cField,
         OUTPUT cLabel
         ).
+    RUN nosweat/get_type.p (
+        cTable,
+        cField,
+        OUTPUT cDataType
+        ).
     IF cExt NE "" THEN
     cLabel = cLabel + cExt.
     FOR EACH bttSubjectColumn NO-LOCK
@@ -3036,8 +3040,9 @@ PROCEDURE pAddColumn :
         ttSubjectColumn.fieldLabel  = cLabel
         ttSubjectColumn.fieldFormat = cFormat
         ttSubjectColumn.tableName   = cTable
+        ttSubjectColumn.dataType    = cDataType
         ttSubjectColumn.tableDB     = ttField.tableDB
-        rRowID                    = ROWID(ttSubjectColumn)
+        rRowID                      = ROWID(ttSubjectColumn)
         .
     {&OPEN-QUERY-subjectColumnBrowse}
     REPOSITION subjectColumnBrowse TO ROWID rRowID.
@@ -3348,12 +3353,12 @@ PROCEDURE pGetDynParamValue :
 ------------------------------------------------------------------------------*/
     FIND FIRST dynParamValue NO-LOCK
          WHERE dynParamValue.subjectID    EQ ttSubject.subjectID
-           AND dynParamValue.user-id      EQ "_default"
-           AND dynParamValue.prgmName     EQ "{&program-id}"
+           AND dynParamValue.user-id      EQ "{&defaultUser}"
+           AND dynParamValue.prgmName     EQ cPrgmName
            AND dynParamValue.paramValueID EQ 0
          NO-ERROR.
     IF NOT AVAILABLE dynParamValue THEN
-    RUN pSetDynParamValue.
+    RUN pSetDynParamValue ("{&defaultUser}", cPrgmName).
 
 END PROCEDURE.
 
@@ -3465,7 +3470,7 @@ PROCEDURE pGetSettings :
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
     FIND FIRST user-print NO-LOCK
-         WHERE user-print.program-id EQ "{&program-id}"
+         WHERE user-print.program-id EQ cPrgmName
            AND user-print.user-id    EQ USERID("ASI")
          NO-ERROR.
     IF AVAILABLE user-print THEN DO:
@@ -3766,13 +3771,13 @@ PROCEDURE pSaveSettings :
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
     FIND FIRST user-print EXCLUSIVE-LOCK
-         WHERE user-print.program-id EQ "{&program-id}"
+         WHERE user-print.program-id EQ cPrgmName
            AND user-print.user-id    EQ USERID("ASI")
          NO-ERROR.
     IF NOT AVAILABLE user-print THEN DO:
         CREATE user-print.
         ASSIGN
-            user-print.program-id = "{&program-id}"
+            user-print.program-id = cPrgmName
             user-print.user-id    = USERID("ASI")
             .
     END. /* not avail */
@@ -3854,55 +3859,6 @@ PROCEDURE pSaveSubject :
         EXPORT bttSubjectParamSet.
     END.
     OUTPUT CLOSE.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetDynParamValue C-Win 
-PROCEDURE pSetDynParamValue :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
-    
-    DO TRANSACTION:
-        FIND FIRST dynParamValue EXCLUSIVE-LOCK
-             WHERE dynParamValue.subjectID    EQ ttSubject.subjectID
-               AND dynParamValue.user-id      EQ "_default"
-               AND dynParamValue.prgmName     EQ "{&program-id}"
-               AND dynParamValue.paramValueID EQ 0
-             NO-ERROR.
-        IF NOT AVAILABLE dynParamValue THEN DO:
-            CREATE dynParamValue.
-            ASSIGN
-                dynParamValue.subjectID        = ttSubject.subjectID
-                dynParamValue.user-id          = "_default"
-                dynParamValue.prgmName         = "{&program-id}"
-                dynParamValue.paramDescription = "System Default"
-                .
-            FOR EACH ttSubjectParamSet NO-LOCK
-                WHERE ttSubjectParamSet.subjectID EQ ttSubject.subjectID,
-                EACH dynParamSetDtl NO-LOCK
-                WHERE dynParamSetDtl.paramSetID EQ ttSubjectParamSet.paramSetID,
-                FIRST dynParam NO-LOCK
-                WHERE dynParam.paramID EQ dynParamSetDtl.paramID
-                :
-                ASSIGN
-                    idx                              = idx + 1
-                    dynParamValue.paramName[idx]     = dynParamSetDtl.paramName
-                    dynParamValue.paramLabel[idx]    = dynParamSetDtl.paramLabel
-                    dynParamValue.paramValue[idx]    = dynParamSetDtl.initialValue
-                    dynParamValue.paramDataType[idx] = dynParam.dataType
-                    dynParamValue.paramFormat[idx]   = dynParam.paramFormat
-                    .
-            END. /* each dynsubjectparamset */
-        END. /* not avail */
-        FIND CURRENT dynParamValue NO-LOCK.
-    END. /* do trans */
 
 END PROCEDURE.
 

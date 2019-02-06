@@ -106,7 +106,7 @@ taskEmail.recipients
 /* Definitions for BROWSE TaskBrowse                                    */
 &Scoped-define FIELDS-IN-QUERY-TaskBrowse Task.runNow Task.taskName ~
 Task.nextDate Task.cNextTime Task.lastDate Task.cLastTime Task.isRunning ~
-Task.taskID Task.programID Task.user-id 
+Task.taskID Task.prgmName Task.user-id 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-TaskBrowse 
 &Scoped-define QUERY-STRING-TaskBrowse FOR EACH Task ~
       WHERE Task.scheduled EQ YES OR Task.runNow EQ YES NO-LOCK ~
@@ -160,12 +160,12 @@ DEFINE VARIABLE CtrlFrame AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE showLogging AS LOGICAL INITIAL no 
+DEFINE VARIABLE showLogging AS LOGICAL 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
-          "Show Logging", Yes,
-"Hide Logging", No
-     SIZE 34 BY .9 TOOLTIP "Show/Hide Logging Panel" NO-UNDO.
+          "Show Logging", yes,
+"Hide Logging", no
+     SIZE 34 BY .91 TOOLTIP "Show/Hide Logging Panel" NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -189,7 +189,7 @@ DEFINE BROWSE AuditBrowse
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 14.29
-         TITLE "Task Logging" ROW-HEIGHT-CHARS .76.
+         TITLE "Task Logging".
 
 DEFINE BROWSE EmailBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS EmailBrowse C-Win _STRUCTURED
@@ -198,8 +198,8 @@ DEFINE BROWSE EmailBrowse
       taskEmail.recipients FORMAT "x(256)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 39 BY 14.29
-         TITLE "Pending Emails" ROW-HEIGHT-CHARS .76.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 45 BY 14.29
+         TITLE "Pending Emails".
 
 DEFINE BROWSE TaskBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS TaskBrowse C-Win _STRUCTURED
@@ -212,12 +212,12 @@ DEFINE BROWSE TaskBrowse
       Task.cLastTime FORMAT "99:99":U
       Task.isRunning FORMAT "yes/no":U VIEW-AS TOGGLE-BOX
       Task.taskID FORMAT "->,>>>,>>9":U
-      Task.programID FORMAT "x(20)":U
+      Task.prgmName FORMAT "x(10)":U
       Task.user-id FORMAT "x(10)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 121 BY 14.29
-         TITLE "Scheduled Tasks" ROW-HEIGHT-CHARS .76.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 115 BY 14.29
+         TITLE "Tasks".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -226,7 +226,7 @@ DEFINE FRAME DEFAULT-FRAME
      TaskBrowse AT ROW 1 COL 1 WIDGET-ID 200
      showLogging AT ROW 1 COL 2 HELP
           "Show/Hide Logging" NO-LABEL WIDGET-ID 4
-     EmailBrowse AT ROW 1 COL 122 WIDGET-ID 300
+     EmailBrowse AT ROW 1 COL 116 WIDGET-ID 300
      AuditBrowse AT ROW 15.29 COL 1 WIDGET-ID 400
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -336,7 +336,7 @@ AuditHdr.AuditDateTime GE dttOpenDateTime"
      _FldNameList[7]   > ASI.Task.isRunning
 "Task.isRunning" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _FldNameList[8]   = ASI.Task.taskID
-     _FldNameList[9]   = ASI.Task.programID
+     _FldNameList[9]   = ASI.Task.prgmName
      _FldNameList[10]   = ASI.Task.user-id
      _Query            is OPENED
 */  /* BROWSE TaskBrowse */
@@ -466,7 +466,6 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   FIND FIRST config NO-LOCK.
-  RUN pSetTaskerNK1.
   RUN pRunCommand (OUTPUT cRun).
   dttOpenDateTime = NOW.
   RUN enable_UI.
@@ -694,37 +693,6 @@ PROCEDURE pSaveSettings :
         user-print.field-label[idx] = "WindowHeight"
         user-print.field-value[idx] = STRING({&WINDOW-NAME}:HEIGHT)
         .
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetTaskerNK1 C-Win 
-PROCEDURE pSetTaskerNK1 :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    FOR EACH Task NO-LOCK
-        BREAK BY Task.company
-        :
-        IF FIRST-OF(Task.company) THEN DO:
-            RUN sys/ref/nk1look.p (
-                Task.company,"Tasker","L",NO,NO,"","",
-                OUTPUT cTasker,OUTPUT lFound
-                ).
-            IF lJasperStarter AND cTasker EQ "no" THEN DO TRANSACTION:
-                FIND FIRST sys-ctrl EXCLUSIVE-LOCK
-                     WHERE sys-ctrl.company EQ Task.company
-                       AND sys-ctrl.name    EQ "Tasker"
-                     NO-ERROR.
-                IF AVAILABLE sys-ctrl THEN
-                sys-ctrl.log-fld = YES.
-            END. /* if jasper and tasker no */
-        END. /* if first-of */
-    END. /* each task */
 
 END PROCEDURE.
 

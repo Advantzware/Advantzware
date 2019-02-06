@@ -464,6 +464,41 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetRecipients Include
+PROCEDURE pGetRecipients:
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcRecipients AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    
+    DO idx = 1 TO EXTENT(dynParamValue.paramName):
+        IF dynParamValue.paramName[idx]  EQ "svRecipients" AND
+           dynParamValue.paramValue[idx] NE "" THEN DO:
+            opcRecipients = dynParamValue.paramValue[idx].
+            LEAVE.
+        END. /* if */
+    END. /* do idx */
+    IF opcRecipients NE "" THEN DO:
+        MESSAGE
+            "Recipients:" opcRecipients SKIP(1)
+            "Email Results?"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+        UPDATE lUseEmail AS LOGICAL.
+        IF lUseEmail EQ NO THEN
+        opcRecipients = "".
+    END. /* if */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInitDynParameters Include 
 PROCEDURE pInitDynParameters :
 /*------------------------------------------------------------------------------
@@ -618,7 +653,8 @@ PROCEDURE pResultsBrowser :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphQuery AS HANDLE NO-UNDO.
     
-    DEFINE VARIABLE hColumn AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hColumn AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
     
     DEFINE BUFFER b{1}SubjectColumn FOR {1}SubjectColumn.
     
@@ -645,18 +681,16 @@ PROCEDURE pResultsBrowser :
             VISIBLE = TRUE
             NO-VALIDATE = TRUE
             .
-    FOR EACH b{1}SubjectColumn
-        WHERE b{1}SubjectColumn.subjectID EQ {1}Subject.subjectID
-           BY b{1}SubjectColumn.sortOrder
-        :
-        hColumn = hQueryBrowse:ADD-LIKE-COLUMN(b{1}SubjectColumn.fieldName).
+    DO idx = 1 TO EXTENT(dynParamValue.colName):
+        IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
+        hColumn = hQueryBrowse:ADD-LIKE-COLUMN(dynParamValue.colName[idx]).
         /*
-        IF b{1}SubjectColumn.sortOrder MOD 2 EQ 0 THEN
+        IF idx MOD 2 EQ 0 THEN
         hColumn:COLUMN-BGCOLOR = 11.
         */
-        IF b{1}SubjectColumn.columnSize NE 0 THEN
-        hColumn:WIDTH-CHARS = b{1}SubjectColumn.columnSize.
-    END. /* each {1}SubjectColumn */
+        IF dynParamValue.columnSize[idx] NE 0 THEN
+        hColumn:WIDTH-CHARS = dynParamValue.columnSize[idx].
+    END. /* do idx */
     ASSIGN
         btnCloseResults:HIDDEN = NO
         btnSaveResults:HIDDEN  = NO
@@ -677,108 +711,21 @@ PROCEDURE pResultsJasper :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphQuery AS HANDLE    NO-UNDO.
-    DEFINE INPUT PARAMETER ipcType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cBufferValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJasperFile  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTableName   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFieldName   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hQueryBuf    AS HANDLE    NO-UNDO.
-    
-    DEFINE BUFFER b{1}SubjectTable  FOR {1}SubjectTable.
-    DEFINE BUFFER b{1}SubjectColumn FOR {1}SubjectColumn.
+    DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
     
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
     
-    iphQuery:QUERY-OPEN.
-    iphQuery:GET-FIRST().
-    IF NOT iphQuery:QUERY-OFF-END THEN DO:
-        RUN pEmptyttColumn IN hJasper.
-        FOR EACH b{1}SubjectColumn
-            WHERE b{1}SubjectColumn.subjectID EQ {1}Subject.subjectID
-            :
-            ASSIGN
-                hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(b{1}SubjectColumn.tableName)
-                cFieldName   = ENTRY(2,b{1}SubjectColumn.fieldName,".")
-                .
-            RUN pCreatettColumn IN hJasper (
-                cFieldName,
-                b{1}SubjectColumn.sortOrder,
-                YES,
-                b{1}SubjectColumn.fieldLabel,
-                b{1}SubjectColumn.dataType,
-                b{1}SubjectColumn.fieldFormat,
-                hQueryBuf:BUFFER-FIELD(cFieldName):WIDTH,
-                MAX(hQueryBuf:BUFFER-FIELD(cFieldName):WIDTH,LENGTH(hQueryBuf:BUFFER-FIELD(cFieldName):LABEL))
-                ).
-        END. /* do iColumn */
-        OS-CREATE-DIR "users".
-        OS-CREATE-DIR VALUE("users\" + USERID("ASI")).
-        OS-CREATE-DIR VALUE("users\" + USERID("ASI") + "\Jasper").
-        cJasperFile = "users\" + USERID("ASI") + "\"
-                    + REPLACE({1}Subject.subjectName," ","")
-                    + ".json"
-                    .
-        OUTPUT TO VALUE(cJasperFile).
-        PUT UNFORMATTED
-            "~{" SKIP
-            FILL(" ",2)
-            "~"" REPLACE({1}Subject.subjectName," ","_") "~": ~{" SKIP
-            FILL(" ",4)
-            "~"{1}" REPLACE({1}Subject.subjectName," ","") "~": [" SKIP
-            .
-        REPEAT:
-            PUT UNFORMATTED
-                FILL(" ",6) "~{" SKIP
-                .
-            FOR EACH b{1}SubjectColumn
-                WHERE b{1}SubjectColumn.subjectID EQ {1}Subject.subjectID
-                   BY b{1}SubjectColumn.sortOrder
-                :
-                ASSIGN
-                    hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(b{1}SubjectColumn.tableName)
-                    cFieldName   = ENTRY(2,b{1}SubjectColumn.fieldName,".")
-                    cBufferValue = fFormatValue(hQueryBuf, hQueryBuf:BUFFER-FIELD(cFieldName):NAME)
-                    /* remove special characters with escape values */
-                    cBufferValue = REPLACE(cBufferValue,"~&","~&amp;")
-                    cBufferValue = REPLACE(cBufferValue,"~'","~&apos;")
-                    cBufferValue = REPLACE(cBufferValue,"~"","~&quot;")
-                    cBufferValue = REPLACE(cBufferValue,"<","~&lt;")
-                    cBufferValue = REPLACE(cBufferValue,">","~&gt;")
-                    cBufferValue = REPLACE(cBufferValue,"~\","~\~\")
-                    .
-                IF b{1}SubjectColumn.sortOrder GT 1 THEN
-                PUT UNFORMATTED "," SKIP.
-                PUT UNFORMATTED
-                    FILL(" ",8)
-                    "~"" cFieldName "~": ~""
-                    IF cBufferValue NE "" THEN cBufferValue ELSE " "
-                    "~""
-                    .
-            END. /* do iColumn */
-            PUT UNFORMATTED SKIP FILL(" ",6) "}".
-            iphQuery:GET-NEXT().
-            IF iphQuery:QUERY-OFF-END THEN LEAVE.
-            PUT UNFORMATTED "," SKIP.
-        END. /* repeat */
-        iphQuery:QUERY-CLOSE().
-        PUT UNFORMATTED
-            SKIP
-            FILL(" ",4) "]" SKIP
-            FILL(" ",2) "}" SKIP
-            "}" SKIP
-            .
-        OUTPUT CLOSE.
-        RUN pJasperCopy IN hJasper (cJasperFile).    
-        RUN spJasperQuery IN hJasper (
-            ipcType,
-            {1}Subject.subjectName,
-            USERID("ASI"),
-            OUTPUT cJasperFile
-            ).
-    END. /* if get-first is valid */
-    iphQuery:QUERY-CLOSE().
+    RUN spJasperQuery IN hJasper (
+        ipcType,
+        ROWID(dynParamValue),
+        {1}Subject.subjectName,
+        ipcUserID,
+        hAppSrvBin,
+        OUTPUT cJasperFile
+        ).
     
     RUN LockWindowUpdate (0,OUTPUT i).
 
@@ -787,6 +734,104 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunNow Include
+PROCEDURE pRunNow:
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcTaskFormat AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    RUN pGetRecipients (OUTPUT cRecipients).
+    DO TRANSACTION:
+        CREATE Task.
+        ASSIGN
+            Task.subjectID    = dynParamValue.subjectID
+            Task.user-id      = dynParamValue.user-id
+            Task.prgmName     = dynParamValue.prgmName
+            Task.paramValueID = dynParamValue.paramValueID
+            Task.taskName     = "Run Now Task"
+            Task.taskFormat   = ipcTaskFormat
+            Task.runNow       = YES
+            Task.recipients   = cRecipients
+            .
+        RELEASE Task.
+    END. /* do trans */
+    MESSAGE
+        "Task ~"" + {1}Subject.subjectName + "~" has been submitted."
+    VIEW-AS ALERT-BOX TITLE "Run Now".
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunQuery Include
+PROCEDURE pRunQuery:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplRun    AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cError     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTableName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hQuery     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lOK        AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER {1}SubjectTable FOR {1}SubjectTable.    
+
+    FOR EACH {1}SubjectTable
+        WHERE {1}SubjectTable.subjectID EQ {1}Subject.subjectID
+           BY {1}SubjectTable.sortOrder
+        :
+        cTableName = cTableName + {1}SubjectTable.tableName + ",".
+    END. /* each {1}SubjectTable */
+    cTableName = TRIM(cTableName,",").
+    RUN AOA/hQuery.p (
+        ROWID(dynParamValue),
+        queryStr,
+        cTableName,
+        OUTPUT hQuery,
+        OUTPUT lOK,
+        OUTPUT cError
+        ).
+    IF lOK THEN DO:
+        IF iplRun THEN DO:
+            CASE ipcType:
+                WHEN "Results" THEN
+                RUN pResultsBrowser (hQuery).
+                WHEN "Print -d" OR WHEN "View" THEN
+                RUN pResultsJasper (ipcType, ipcUserID).
+                OTHERWISE
+                IF dynParamValue.prgmName NE "" THEN
+                RUN pRunNow (ipcType).
+                ELSE
+                RUN pResultsJasper (ipcType, ipcUserID).
+            END CASE.
+        END. /* if run */
+        ELSE
+        MESSAGE
+            "Query Syntax is Correct."        
+        VIEW-AS ALERT-BOX TITLE "Query Syntax Check".
+    END. /* if ok */
+    ELSE MESSAGE cError VIEW-AS ALERT-BOX ERROR TITLE "Query Syntax Check".
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunSubject Include 
 PROCEDURE pRunSubject :
 /*------------------------------------------------------------------------------
@@ -794,94 +839,15 @@ PROCEDURE pRunSubject :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iplRun  AS LOGICAL   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplRun      AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcType     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPrgmName AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cDate     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cError    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQueryStr AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cParam    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dtDate    AS DATE      NO-UNDO.
-    DEFINE VARIABLE hBuffer   AS HANDLE    NO-UNDO EXTENT 1000.
-    DEFINE VARIABLE hQuery    AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lOK       AS LOGICAL   NO-UNDO.
-    
-    DEFINE BUFFER {1}SubjectColumn   FOR {1}SubjectColumn.
-    DEFINE BUFFER {1}SubjectParamSet FOR {1}SubjectParamSet.
-    DEFINE BUFFER {1}SubjectTable    FOR {1}SubjectTable.    
-
-    RUN pSetDynParamValue.
+    RUN pSetDynParamValue (ipcUserID, ipcPrgmName).
     IF iplRun THEN
     RUN pSaveDynParamValues.
-
-    cQueryStr = queryStr.
-    IF INDEX(queryStr,"[[") NE 0 THEN
-    DO idx = 1 TO EXTENT(dynParamValue.paramName):
-        IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
-        cParam = "[[" + dynParamValue.paramName[idx] + "]]".
-        IF INDEX(cQueryStr,cParam) NE 0 THEN
-        CASE dynParamValue.paramDataType[idx]:
-            WHEN "Character" THEN DO:
-            cQueryStr = REPLACE(cQueryStr,cParam,"~"" + dynParamValue.paramValue[idx] + "~"").
-            END.
-            WHEN "Date" THEN DO:
-                dtDate = DATE(dynParamValue.paramValue[idx]) NO-ERROR.
-                ASSIGN
-                    cDate     = IF dtDate EQ ? THEN "~?" ELSE STRING(dtDate,dynParamValue.paramFormat[idx])
-                    cQueryStr = REPLACE(cQueryStr,cParam,cDate)
-                    .
-            END. /* date */
-            WHEN "DateTime" THEN DO:
-                dtDate = DATE(dynParamValue.paramValue[idx]) NO-ERROR.
-                ASSIGN
-                    cDate     = IF dtDate EQ ? THEN "~?" ELSE STRING(dtDate,dynParamValue.paramFormat[idx])
-                    cQueryStr = REPLACE(cQueryStr,cParam,cDate)
-                    cQueryStr = REPLACE(cQueryStr,cParam,dynParamValue.paramValue[idx])
-                    .
-            END. /* date */
-            WHEN "Decimal" OR WHEN "Integer" OR WHEN "Logical" THEN
-            cQueryStr = REPLACE(cQueryStr,cParam,dynParamValue.paramValue[idx]).
-        END CASE.
-    END. /* if [[ (parameter used) */
-
-    FOR EACH {1}SubjectColumn
-        WHERE {1}SubjectColumn.subjectID EQ {1}Subject.subjectID
-          AND {1}SubjectColumn.sortCol   GT 0
-           BY {1}SubjectColumn.sortCol
-        :
-        cQueryStr = cQueryStr + " BY " + {1}SubjectColumn.fieldName.
-    END. /* each {1}SubjectColumn */
-
-    idx = 0.
-    CREATE QUERY hQuery.
-    FOR EACH {1}SubjectTable
-        WHERE {1}SubjectTable.subjectID EQ {1}Subject.subjectID
-           BY {1}SubjectTable.sortOrder
-        :
-        idx = idx + 1.
-        CREATE BUFFER hBuffer[idx] FOR TABLE {1}SubjectTable.tableName.
-        hQuery:ADD-BUFFER(hBuffer[idx]).
-    END. /* each {1}SubjectTable */
-    lOK = hQuery:QUERY-PREPARE(cQueryStr) NO-ERROR.
-    IF lOK THEN DO:
-        IF iplRun THEN DO:
-            IF ipcType EQ "Results" THEN
-            RUN pResultsBrowser (hQuery).
-            ELSE
-            RUN pResultsJasper (hQuery, ipcType).
-        END. /* if run */
-        ELSE
-        MESSAGE
-            "Query Syntax is Correct."        
-        VIEW-AS ALERT-BOX TITLE "Query Syntax Check".
-    END. /* if ok */
-    ELSE DO:
-        DO idx = 1 TO ERROR-STATUS:NUM-MESSAGES:
-            cError = cError + ERROR-STATUS:GET-MESSAGE(idx) + CHR(10).
-        END. /* do idx */
-        MESSAGE cError VIEW-AS ALERT-BOX ERROR TITLE "Query Syntax Check".
-    END. /* else */
+    RUN pRunQuery (iplRun, ipcType, ipcUserID).
 
 END PROCEDURE.
 
@@ -951,6 +917,80 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetDynParamValue Include
+PROCEDURE pSetDynParamValue:
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcUserID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPrgmName AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER {1}SubjectParamSet FOR {1}SubjectParamSet.
+    DEFINE BUFFER {1}SubjectColumn   FOR {1}SubjectColumn.
+    
+    FIND FIRST dynParamValue NO-LOCK
+         WHERE dynParamValue.subjectID    EQ {1}Subject.subjectID
+           AND dynParamValue.user-id      EQ ipcUserID
+           AND dynParamValue.prgmName     EQ ipcPrgmName
+           AND dynParamValue.paramValueID EQ 0
+         NO-ERROR.
+    IF NOT AVAILABLE dynParamValue THEN DO TRANSACTION:
+        CREATE dynParamValue.
+        ASSIGN
+            dynParamValue.subjectID        = {1}Subject.subjectID
+            dynParamValue.user-id          = ipcUserID
+            dynParamValue.prgmName         = ipcPrgmName
+            dynParamValue.paramDescription = IF ipcUserID EQ "{&defaultUser}" THEN "System Default"
+                                             ELSE "User Default"
+            .
+        FOR EACH {1}SubjectParamSet
+            WHERE {1}SubjectParamSet.subjectID EQ {1}Subject.subjectID,
+            EACH dynParamSetDtl NO-LOCK
+            WHERE dynParamSetDtl.paramSetID EQ {1}SubjectParamSet.paramSetID,
+            FIRST dynParam NO-LOCK
+            WHERE dynParam.paramID EQ dynParamSetDtl.paramID
+            :
+            ASSIGN
+                idx                              = idx + 1
+                dynParamValue.paramName[idx]     = dynParamSetDtl.paramName
+                dynParamValue.paramLabel[idx]    = dynParamSetDtl.paramLabel
+                dynParamValue.paramValue[idx]    = dynParamSetDtl.initialValue
+                dynParamValue.paramDataType[idx] = dynParam.dataType
+                dynParamValue.paramFormat[idx]   = dynParam.paramFormat
+                .
+        END. /* each dynsubjectparamset */
+        idx = 0.
+        FOR EACH {1}SubjectColumn NO-LOCK
+            WHERE {1}SubjectColumn.subjectID EQ {1}Subject.subjectID
+               BY {1}SubjectColumn.sortOrder
+            :
+            ASSIGN
+                idx = idx + 1
+                dynParamValue.colName[idx]    = {1}SubjectColumn.fieldName
+                dynParamValue.colLabel[idx]   = {1}SubjectColumn.fieldLabel
+                dynParamValue.colFormat[idx]  = {1}SubjectColumn.fieldFormat
+                dynParamValue.columnSize[idx] = {1}SubjectColumn.columnSize
+                dynParamValue.dataType[idx]   = {1}SubjectColumn.dataType
+                dynParamValue.sortCol[idx]    = {1}SubjectColumn.sortCol
+                dynParamValue.isGroup[idx]    = {1}SubjectColumn.isGroup
+                dynParamValue.groupLabel[idx] = {1}SubjectColumn.groupLabel
+                dynParamValue.groupCalc[idx]  = {1}SubjectColumn.groupCalc
+                .
+        END. /* each {1}SubjectColumn */
+        FIND CURRENT dynParamValue NO-LOCK.
+    END. /* not avail */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidate Include 
 PROCEDURE pValidate :
 /*------------------------------------------------------------------------------
@@ -966,6 +1006,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetCompanyList Include
 PROCEDURE spGetCompanyList:
@@ -986,5 +1027,3 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-

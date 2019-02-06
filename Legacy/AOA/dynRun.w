@@ -31,25 +31,24 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &Scoped-define program-id dynRun.
+&Scoped-define defaultUser _default
 
 /* Parameters Definitions ---                                           */
 
-&IF DEFINED(UIB_is_Running) EQ 0 &THEN
 DEFINE INPUT PARAMETER ipcPrgmName AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER iprRowID    AS ROWID     NO-UNDO.
-&ELSE
-DEFINE VARIABLE ipcPrgmName AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iprRowID    AS ROWID     NO-UNDO.
-&ENDIF
 
 /* Local Variable Definitions ---                                       */
 
 DEFINE VARIABLE cPoolName    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrgmName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hAppSrvBin   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hJasper      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQueryBrowse AS HANDLE    NO-UNDO.
 DEFINE VARIABLE i            AS INTEGER   NO-UNDO.
 DEFINE VARIABLE queryStr     AS CHARACTER NO-UNDO.
+
+cPrgmName = ipcPrgmName.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -222,17 +221,6 @@ DEFINE FRAME paramFrame
          SIZE 160 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
-DEFINE FRAME resultsFrame
-     btnCloseResults AT ROW 1 COL 6 HELP
-          "Jasper Viewer" WIDGET-ID 252
-     btnSaveResults AT ROW 1 COL 2 HELP
-          "Jasper Viewer" WIDGET-ID 254
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 6.48
-         SIZE 10 BY 2.38
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
-
 DEFINE FRAME outputFrame
      btnAddEmail AT ROW 2.19 COL 3 HELP
           "Add Recipents" WIDGET-ID 636
@@ -269,6 +257,17 @@ DEFINE FRAME outputFrame
          SIZE 160 BY 5.24
          BGCOLOR 15 
          TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
+
+DEFINE FRAME resultsFrame
+     btnCloseResults AT ROW 1 COL 6 HELP
+          "Jasper Viewer" WIDGET-ID 252
+     btnSaveResults AT ROW 1 COL 2 HELP
+          "Jasper Viewer" WIDGET-ID 254
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 6.48
+         SIZE 10 BY 2.38
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -455,7 +454,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCSV C-Win
 ON CHOOSE OF btnCSV IN FRAME outputFrame /* csv */
 DO:
-    RUN pRunSubject (YES, "CSV").
+    RUN pRunSubject (YES, "CSV", USERID("ASI"), cPrgmName).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -466,7 +465,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDOCX C-Win
 ON CHOOSE OF btnDOCX IN FRAME outputFrame
 DO:
-    RUN pRunSubject (YES, "DOCX").
+    RUN pRunSubject (YES, "DOCX", USERID("ASI"), cPrgmName).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -477,7 +476,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnHTML C-Win
 ON CHOOSE OF btnHTML IN FRAME outputFrame
 DO:
-    RUN pRunSubject (YES, "HTML").
+    RUN pRunSubject (YES, "HTML", USERID("ASI"), cPrgmName).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -488,7 +487,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPDF C-Win
 ON CHOOSE OF btnPDF IN FRAME outputFrame
 DO:
-    RUN pRunSubject (YES, "PDF").
+    RUN pRunSubject (YES, "PDF", USERID("ASI"), cPrgmName).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -499,7 +498,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRunResults C-Win
 ON CHOOSE OF btnRunResults IN FRAME outputFrame /* Run Results */
 DO:
-    RUN pRunSubject (YES, "Results").
+    RUN pRunSubject (YES, "Results", USERID("ASI"), cPrgmName).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -523,7 +522,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnView C-Win
 ON CHOOSE OF btnView IN FRAME outputFrame
 DO:
-    RUN pRunSubject (YES, "View").
+    RUN pRunSubject (YES, "View", USERID("ASI"), cPrgmName).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -534,7 +533,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnXLS C-Win
 ON CHOOSE OF btnXLS IN FRAME outputFrame
 DO:
-    RUN pRunSubject (YES, "XLS").
+    RUN pRunSubject (YES, "XLS", USERID("ASI"), cPrgmName).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -751,7 +750,7 @@ PROCEDURE pGetDynParamValue :
              WHERE dynSubject.subjectID EQ dynParamValue.subjectID
              NO-ERROR.
         IF AVAILABLE dynSubject THEN
-        queryStr = dynSubject.queryStr.
+        queryStr = dynSubject.queryStr.        
     END. /* if avail */
 
 END PROCEDURE.
@@ -850,55 +849,6 @@ PROCEDURE pSaveSettings :
             dynSubject.subjectWidth  = FRAME paramFrame:WIDTH
             .
         FIND CURRENT dynSubject NO-LOCK.
-    END. /* do trans */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetDynParamValue C-Win 
-PROCEDURE pSetDynParamValue :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
-    
-    DO TRANSACTION:
-        FIND FIRST dynParamValue EXCLUSIVE-LOCK
-             WHERE dynParamValue.subjectID    EQ dynSubject.subjectID
-               AND dynParamValue.user-id      EQ USERID("ASI")
-               AND dynParamValue.prgmName     EQ ipcPrgmName
-               AND dynParamValue.paramValueID EQ 0
-             NO-ERROR.
-        IF NOT AVAILABLE dynParamValue THEN DO:
-            CREATE dynParamValue.
-            ASSIGN
-                dynParamValue.subjectID        = dynSubject.subjectID
-                dynParamValue.user-id          = USERID("ASI")
-                dynParamValue.prgmName         = ipcPrgmName
-                dynParamValue.paramDescription = "User Default"
-                .
-            FOR EACH dynSubjectParamSet NO-LOCK
-                WHERE dynSubjectParamSet.subjectID EQ dynSubject.subjectID,
-                EACH dynParamSetDtl NO-LOCK
-                WHERE dynParamSetDtl.paramSetID EQ dynSubjectParamSet.paramSetID,
-                FIRST dynParam NO-LOCK
-                WHERE dynParam.paramID EQ dynParamSetDtl.paramID
-                :
-                ASSIGN
-                    idx                              = idx + 1
-                    dynParamValue.paramName[idx]     = dynParamSetDtl.paramName
-                    dynParamValue.paramLabel[idx]    = dynParamSetDtl.paramLabel
-                    dynParamValue.paramValue[idx]    = dynParamSetDtl.initialValue
-                    dynParamValue.paramDataType[idx] = dynParam.dataType
-                    dynParamValue.paramFormat[idx]   = dynParam.paramFormat
-                    .
-            END. /* each dynsubjectparamset */
-        END. /* not avail */
-        FIND CURRENT dynParamValue NO-LOCK.
     END. /* do trans */
 
 END PROCEDURE.
