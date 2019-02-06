@@ -355,7 +355,7 @@ PROCEDURE genTempOrderHeader:
 
     DEFINE BUFFER bf-shipto       FOR shipto.
     DEFINE BUFFER bf-shipto-state FOR shipto.
-
+    EMPTY TEMP-TABLE ttOrdHead.
     ASSIGN
         payLoadID         = getNodeValue('cXML','payloadID')
         fromIdentity      = getNodeValue('From','Identity')
@@ -446,7 +446,7 @@ PROCEDURE genTempOrderLines:
     DEFINE VARIABLE dRequestedDeliveryDate      AS DATE      NO-UNDO.
         
     FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
-
+    EMPTY TEMP-TABLE ttOrdLines.
     FOR EACH ttNodes:
         IF AVAILABLE oe-ord THEN 
           ASSIGN dRequestedDeliveryDate = oe-ord.due-date
@@ -680,19 +680,19 @@ PROCEDURE gencXMLOrder:
         payLoadID = getNodeValue('cXML','payloadID')
         fromIdentity = getNodeValue('From','Identity')
         orderDate = getNodeValue('OrderRequestHeader','orderDate')
-    orderID = getNodeValue('OrderRequestHeader','orderID')
+        orderID = getNodeValue('OrderRequestHeader','orderID')
         custNo = getCustNo(fromIdentity)
         .
-  FIND FIRST oe-ord NO-LOCK
-       WHERE oe-ord.company EQ cocode
-         AND oe-ord.cust-no EQ custNo
-         AND oe-ord.po-no   EQ orderID
-         AND oe-ord.spare-char-3 EQ payLoadID
-       NO-ERROR.
-  IF AVAILABLE oe-ord AND orderID GT "" THEN DO:
-    opcReturnValue = 'Order already exists with PO#: ' + orderID + ', Payload ID: ' + payloadID.
-    RETURN.
-  END.
+      FIND FIRST oe-ord NO-LOCK
+           WHERE oe-ord.company EQ cocode
+             AND oe-ord.cust-no EQ custNo
+             AND oe-ord.po-no   EQ orderID
+             AND oe-ord.spare-char-3 EQ payLoadID
+           NO-ERROR.
+      IF AVAILABLE oe-ord AND orderID GT "" THEN DO:
+        opcReturnValue = 'Order already exists with PO#: ' + orderID + ', Payload ID: ' + payloadID.
+        RETURN.
+      END.
   
       FIND FIRST cust NO-LOCK
            WHERE cust.company EQ cocode
