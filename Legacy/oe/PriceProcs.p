@@ -661,6 +661,7 @@ PROCEDURE pAddPriceHold PRIVATE:
     DEFINE BUFFER bf-cust     FOR cust.
     DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
     DEFINE VARIABLE lFoundQuoteForQty AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lFoundAnyQuote AS LOGICAL NO-UNDO.
 
     CREATE ttPriceHold.
     ASSIGN 
@@ -670,75 +671,84 @@ PROCEDURE pAddPriceHold PRIVATE:
         ttPriceHold.cShipID   = ipcShipID
         ttPriceHold.dQuantity = ipdQuantity
         .
-
-                        
+                       
     RUN pSetBuffers(ipcCompany, ipcFGItemID, ipcCustID, BUFFER bf-itemfg, BUFFER bf-cust).            
-    /*use internal procedure to find the matching matrix*/
-    IF AVAIL bf-itemfg AND bf-itemfg.i-code EQ "S" THEN  
+    IF NOT AVAILABLE bf-itemfg THEN  
+    DO:
+        ASSIGN 
+            ttPriceHold.lPriceHold       = YES
+            ttPriceHold.cPriceHoldDetail = ttPriceHold.cFGItemID + " is invalid"
+            ttPriceHold.cPriceHoldReason = "Invalid FG Item"
+            .
+        RETURN.
+    END.           
+    IF ipcEstNo EQ "" THEN 
+    DO:  /*use internal procedure to find the matching matrix*/  
         RUN pGetPriceMatrix(BUFFER bf-itemfg, BUFFER bf-cust, BUFFER bf-oe-prmtx, ipcShipID, 
             OUTPUT ttPriceHold.lMatrixMatch, OUTPUT ttPriceHold.cMatrixMatch).
-    ELSE IF AVAILABLE bf-itemfg AND bf-itemfg.i-code EQ "C" THEN  
-        DO:
-            IF iplQuantityQuoted THEN DO:
-                RUN pFindQuoteForQuantity(ipcCompany, ipcEstNo, ipcFGItemID, ipdQuantity, OUTPUT lFoundQuoteForQty).
-                IF NOT lFoundQuoteForQty THEN 
-                    ASSIGN 
-                        ttPriceHold.lPriceHold       = YES
-                        ttPriceHold.cPriceHoldDetail = "No quote found for " + ttPriceHold.cFGItemID + " for a quantity of " + STRING(ipdQuantity)
-                        ttPriceHold.cPriceHoldReason = "Custom Item, No Quote for Quantity"
-                        .
-                    RETURN.
-            END.
-        END.
-        ELSE 
+        IF NOT ttPriceHold.lMatrixMatch OR  NOT AVAILABLE bf-oe-prmtx THEN 
         DO:
             ASSIGN 
-                ttPriceHold.lPriceHold       = NO
-                ttPriceHold.cPriceHoldDetail = ttPriceHold.cFGItemID + " is invalid"
-                ttPriceHold.cPriceHoldReason = "Invalid FG Item"
-                .
-            RETURN.
+                ttPriceHold.lPriceHold       = YES
+                ttPriceHold.cPriceHoldDetail = ttPriceHold.cMatrixMatch
+                ttPriceHold.cPriceHoldReason = "No matrix found".
+            RETURN.           
         END.
-    IF NOT ttPriceHold.lMatrixMatch OR  NOT AVAILABLE bf-oe-prmtx THEN 
-    DO:
-        ASSIGN 
-            ttPriceHold.lPriceHold       = YES
-            ttPriceHold.cPriceHoldDetail = ttPriceHold.cMatrixMatch
-            ttPriceHold.cPriceHoldReason = "No matrix found".
-        RETURN.           
-    END.
-    IF AVAILABLE bf-oe-prmtx THEN
-        ASSIGN 
-            ttPriceHold.dtEffectiveDate = bf-oe-prmtx.eff-date.
         
-    /*Test Effective Date Age if activated*/
-    IF NOT ttPriceHold.lPriceHold AND iplEffectiveDateAge AND (TODAY - bf-oe-prmtx.eff-date) GT ipiEffectiveDateAgeDays THEN 
-    DO:
-        ASSIGN 
-            ttPriceHold.lPriceHold           = YES
-            ttPriceHold.lEffectiveDateTooOld = YES 
-            ttPriceHold.cPriceHoldDetail     = "Effective date of " + STRING(bf-oe-prmtx.eff-date,"99/99/9999") + " older than " + STRING(ipiEffectiveDateAgeDays) + " days"
-            ttPriceHold.cPriceHoldReason     = "Eff. date too old".           .
-    END. 
-    /*Test Price Level if activated*/
-    IF NOT ttPriceHold.lPriceHold THEN 
-        RUN pGetQtyMatchInfo(BUFFER bf-oe-prmtx, ipdQuantity, 0, OUTPUT ttPriceHold.iQuantityLevel, OUTPUT ttPriceHold.lQuantityMatch).
-    IF NOT ttPriceHold.lPriceHold AND iplQuantityMatch AND NOT ttPriceHold.lQuantityMatch THEN 
-    DO:
-        ASSIGN 
-            ttPriceHold.lPriceHold       = YES
-            ttPriceHold.cPriceHoldDetail = "No distinct level found for quantity of " + STRING(ipdQuantity)  
-            ttPriceHold.cPriceHoldReason = "Quantity not matched".
-    END.
-    IF NOT ttPriceHold.lPriceHold AND iplQuantityInRange AND ttPriceHold.iQuantityLevel EQ 0 THEN 
-    DO:
-        ASSIGN 
-            ttPriceHold.lPriceHold          = YES
-            ttPriceHold.lQuantityOutOfRange = YES 
-            ttPriceHold.cPriceHoldDetail    = "Quantity of " + STRING(ipdQuantity) + " out of range of price matrix levels"
-            ttPriceHold.cPriceHoldReason    = "Quantity not in range".
-    END.     
+        /*Test Effective Date Age if activated*/
+        ttPriceHold.dtEffectiveDate = bf-oe-prmtx.eff-date.
+        IF NOT ttPriceHold.lPriceHold AND iplEffectiveDateAge AND (TODAY - bf-oe-prmtx.eff-date) GT ipiEffectiveDateAgeDays THEN 
+        DO:
+            ASSIGN 
+                ttPriceHold.lPriceHold           = YES
+                ttPriceHold.lEffectiveDateTooOld = YES 
+                ttPriceHold.cPriceHoldDetail     = "Price found in Matrix but Effective date of " + STRING(bf-oe-prmtx.eff-date,"99/99/9999") + " older than " + STRING(ipiEffectiveDateAgeDays) + " days"
+                ttPriceHold.cPriceHoldReason     = "Eff. date too old".           .
+        END. 
         
+        /*Test Price Level if activated*/
+        IF NOT ttPriceHold.lPriceHold THEN 
+            RUN pGetQtyMatchInfo(BUFFER bf-oe-prmtx, ipdQuantity, 0, OUTPUT ttPriceHold.iQuantityLevel, OUTPUT ttPriceHold.lQuantityMatch).
+            
+        IF NOT ttPriceHold.lPriceHold AND iplQuantityMatch AND NOT ttPriceHold.lQuantityMatch THEN 
+        DO:
+            ASSIGN 
+                ttPriceHold.lPriceHold       = YES
+                ttPriceHold.cPriceHoldDetail = "Price found in Matrix but no distinct price level found for quantity of " + STRING(ipdQuantity)  
+                ttPriceHold.cPriceHoldReason = "Quantity not matched".
+        END.
+        
+        IF NOT ttPriceHold.lPriceHold AND iplQuantityInRange AND ttPriceHold.iQuantityLevel EQ 0 THEN 
+        DO:
+            ASSIGN 
+                ttPriceHold.lPriceHold          = YES
+                ttPriceHold.lQuantityOutOfRange = YES 
+                ttPriceHold.cPriceHoldDetail    = "Quantity of " + STRING(ipdQuantity) + " out of range of price matrix levels"
+                ttPriceHold.cPriceHoldReason    = "Quantity not in range".
+        END.     
+            
+    END.
+    ELSE /*QtyQuoted for custom items/estimated & quoted*/
+    DO:
+        IF iplQuantityQuoted THEN 
+        DO:
+            RUN pFindQuoteForQuantity(ipcCompany, ipcEstNo, ipcFGItemID, ipdQuantity, OUTPUT lFoundAnyQuote, OUTPUT lFoundQuoteForQty).
+            IF NOT lFoundAnyQuote THEN DO: 
+                ASSIGN
+                    ttPriceHold.lPriceHold       = YES
+                    ttPriceHold.cPriceHoldDetail = "Estimate # " + ipcEstNo + " does not have a valid quote available."
+                    ttPriceHold.cPriceHoldReason = "No Quote for Estimate"
+                    .
+            END.                    
+            ELSE IF NOT lFoundQuoteForQty THEN 
+                ASSIGN 
+                    ttPriceHold.lPriceHold       = YES
+                    ttPriceHold.cPriceHoldDetail = "Not quote found for Estimate # " + ipcEstNo + ", Item # " + ttPriceHold.cFGItemID + " with Quantity " + STRING(ipdQuantity)
+                    ttPriceHold.cPriceHoldReason = "No Quote for Quantity"
+                    .
+        END.
+    END.
+    
 
 END PROCEDURE.
 
@@ -798,36 +808,39 @@ PROCEDURE pBuildLineTable PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pFindQuoteForQuantity PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose: Given an item and quantity, validate that a quote exists
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcEstNo AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
-DEFINE OUTPUT PARAMETER oplQuoteFound AS LOGICAL NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose: Given an item and quantity, validate that a quote exists
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplAnyQuoteFound AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplQuoteFoundForQuantity AS LOGICAL NO-UNDO.
 
-FOR EACH quotehd NO-LOCK 
-    WHERE quotehd.company EQ ipcCompany
-    AND quotehd.est-no EQ ipcEstNo
-    AND quotehd.quo-date LE TODAY 
-    AND quotehd.expireDate GT TODAY 
-    ,
-    EACH quoteitm NO-LOCK 
-    WHERE quoteitm.company EQ quotehd.company
-    AND quoteitm.i-no EQ ipcFGItemID,
-    EACH quoteqty NO-LOCK 
+    FOR EACH quotehd NO-LOCK 
+        WHERE quotehd.company EQ ipcCompany
+        AND quotehd.est-no EQ ipcEstNo
+        AND quotehd.quo-date LE TODAY 
+        AND quotehd.expireDate GT TODAY 
+        ,
+        EACH quoteitm NO-LOCK 
+        WHERE quoteitm.company EQ quotehd.company
+        AND quoteitm.i-no EQ ipcFGItemID,
+        EACH quoteqty NO-LOCK 
         WHERE quoteqty.company EQ quoteitm.company
         AND quoteqty.line EQ quoteitm.line
         AND quoteqty.loc EQ quoteitm.loc
         AND quoteqty.q-no EQ quoteitm.q-no
-    :
-    IF ipdQuantity EQ quoteqty.qty THEN DO:
-        oplQuoteFound = YES.
-        RETURN.
-    END.
-END.   
+        :
+        oplAnyQuoteFound = YES.
+        IF ipdQuantity EQ quoteqty.qty THEN 
+        DO:
+            oplQuoteFoundForQuantity = YES.
+            RETURN.
+        END.
+    END.   
 
 END PROCEDURE.
 
