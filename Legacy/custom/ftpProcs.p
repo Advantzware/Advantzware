@@ -13,10 +13,10 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE VARIABLE ipcFormat AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ipcFtpSite AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ipcFolder AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ipcFileSpec AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gvFormat AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gvFtpSite AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gvFolder AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gvFileSpec AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE ftpURL AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ftpUser AS CHARACTER NO-UNDO.
@@ -24,6 +24,10 @@ DEFINE VARIABLE ftpPassword AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ftpType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ftpDir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ftpGet AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ftpMode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ftpSoftware AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ftpScript AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ftpBinary AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cXMLFile AS CHARACTER FORMAT 'X(50)' NO-UNDO.
 DEFINE VARIABLE attrList AS CHARACTER FORMAT 'X(4)' NO-UNDO.
 DEFINE VARIABLE cExec    AS CHARACTER NO-UNDO.
@@ -39,8 +43,8 @@ DEFINE BUFFER bfFtpConfig FOR ftpConfig.
 {custom/ftpProcs.i}
 
         
-{sys/inc/var.i SHARED}
-
+{sys/inc/var.i NEW SHARED}
+cocode = "001".
 RUN sys/ref/nk1look.p (INPUT cocode,  "InboundConfig", "C" /* Character*/, 
     INPUT NO /* check by cust */, 
     INPUT YES /* use cust not vendor */,
@@ -442,7 +446,7 @@ PROCEDURE createScriptRecords:
         cPrepCmd1       = GetPrepCmd1(ipFtpSoftware)    
         cPrepCmd2       = GetPrepCmd2(ipFtpSoftware)      
         cOpenCmd        = GetOpenCmd(ipFtpSoftware, ipFtpMode, ipFtpUser, ipFtpPassword, ipFtpURL)       
-        cLocalChgDirCmd = GetLocalChgDirCmd(ipFtpSoftware, ipcFolder)
+        cLocalChgDirCmd = GetLocalChgDirCmd(ipFtpSoftware, gvFolder)
         cRmtChgDirCmd   = GetRmtChgDirCmd(ipFtpSoftware,ipFtpDir)  
         cExecFtpCmd     = GetExecFtpCmd(ipFtpSoftware, ipFtpGet)    
         cCloseCmd       = GetCloseCmd(ipFtpSoftware)      
@@ -540,4 +544,46 @@ PROCEDURE pWriteToFile:
 
 
 
+END PROCEDURE.
+
+PROCEDURE setFtpSite:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcFormat   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFtpSite  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFolder   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFileSpec AS CHARACTER NO-UNDO.
+    ASSIGN gvFormat   = ipcFormat
+           gvFtpSite  = ipcFtpSite
+           gvFolder   = ipcFolder
+           gvFileSpec = ipcFileSpec
+           .
+    RUN getConfigValues (ipcFormat, 
+                         ipcFtpSite, 
+                         ipcFolder, 
+                         ipcFileSpec, 
+                         BUFFER bfFtpConfig,
+                         OUTPUT ftpURL, 
+                         OUTPUT ftpUser, 
+                         OUTPUT ftpPassword, 
+                         OUTPUT ftpMode, 
+                         OUTPUT ftpDir, 
+                         OUTPUT ftpGet, 
+                         OUTPUT ftpSoftware, 
+                         OUTPUT ftpScript, 
+                         OUTPUT ftpBinary).
+    
+    RUN createScriptRecords (FtpURL,
+                             FtpUser,
+                             FtpPassword,
+                             FtpMode,
+                             FtpDir,
+                             FtpGet,
+                             FtpSoftware,
+                             FtpScript,
+                             FtpBinary).
+    MESSAGE ftpUrl ftpuser ftppassword ftpsoftware
+    VIEW-AS ALERT-BOX.
 END PROCEDURE.
