@@ -2229,11 +2229,19 @@ PROCEDURE valid-m-code :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-mach FOR mach.
-
-
+  
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     mach.m-code:SCREEN-VALUE = CAPS(mach.m-code:SCREEN-VALUE).
+    
+    IF INDEX(mach.m-code:SCREEN-VALUE,"&") GT 0 OR INDEX(mach.m-code:SCREEN-VALUE,"'") GT 0 OR
+       INDEX(mach.m-code:SCREEN-VALUE,">") GT 0 OR INDEX(mach.m-code:SCREEN-VALUE,"<") GT 0 OR
+       INDEX(mach.m-code:SCREEN-VALUE,"/") GT 0 OR INDEX(mach.m-code:SCREEN-VALUE,"\") GT 0 OR 
+       INDEX(mach.m-code:SCREEN-VALUE,"""") GT 0  THEN do:
+        MESSAGE "Please don't use special character in Machine Code..  " VIEW-AS ALERT-BOX INFO .
+         APPLY "entry" TO mach.m-code.
+         RETURN ERROR.
+    END.
 
     IF CAN-FIND(FIRST b-mach
                 WHERE b-mach.company EQ mach.company
