@@ -3685,6 +3685,7 @@ CLASS RefTableMigration:
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
         DEFINE BUFFER reftable1 FOR reftable1.
         DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER b-rt FOR reftable.
         DEFINE BUFFER eb  FOR eb.
         
         DISABLE TRIGGERS FOR LOAD OF reftable.        
@@ -3699,14 +3700,36 @@ CLASS RefTableMigration:
                                 AND eb.blank-no    = int(reftable.code2)
                     EXCLUSIVE-LOCK NO-ERROR.
                 IF AVAILABLE eb THEN DO:   
-                    DO i = 1 to 20: 
+                    FIND FIRST b-rt NO-LOCK WHERE 
+                        b-rt.reftable EQ "ce/v-est3.w Unit#1" AND 
+                        b-rt.company  EQ eb.company AND 
+                        b-rt.loc      EQ eb.est-no  AND 
+                        b-rt.code     EQ STRING(eb.form-no,"9999999999") AND 
+                        b-rt.code2    EQ STRING(eb.blank-no,"9999999999")
+                        NO-ERROR.            
+                    
+                    DO i = 1 to 12: 
                         IF eb.side[i] EQ "" THEN ASSIGN eb.side[i] = reftable.dscr.
                         IF eb.unitNo[i] EQ 0 THEN ASSIGN eb.unitNo[i] = reftable.val[i].                                      
+                    END.
+                    DO i = 13 to 20: 
+                        IF AVAIL b-rt THEN DO:
+                            IF eb.side[i] EQ "" THEN ASSIGN eb.side[i] = b-rt.dscr.
+                            IF eb.unitNo[i] EQ 0 THEN ASSIGN eb.unitNo[i] = b-rt.val[i - 12].
+                        END.                                      
                     END.
                     ASSIGN iProcessCount = iProcessCount + 1.  
                 END.
                 FIND CURRENT eb NO-LOCK NO-ERROR.    
-                RELEASE eb.      
+                RELEASE eb. 
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                IF AVAIL b-rt THEN DO:
+                    CREATE reftable1.
+                    BUFFER-COPY b-rt TO reftable1.
+                    RELEASE reftable1.
+                END.
             END.
         END.  /*FOR EACH reftable*/          
         RETURN iCnt.
