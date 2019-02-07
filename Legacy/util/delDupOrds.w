@@ -61,9 +61,10 @@ DEFINE VARIABLE v-process AS LOG NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS begin_cust btSearch edDuplicates btnOk ~
-BtnCancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_cust edDuplicates scr-text 
+&Scoped-Define ENABLED-OBJECTS begin_cust btSearch fiOrdDate tgAllowBlankPO ~
+edDuplicates btnOk BtnCancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_cust fiOrdDate tgAllowBlankPO ~
+edDuplicates scr-text 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -101,20 +102,32 @@ DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fiOrdDate AS DATE FORMAT "99/99/99":U INITIAL ? 
+     LABEL "Order Date" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
 DEFINE VARIABLE scr-text AS CHARACTER FORMAT "X(256)":U INITIAL "Delete Duplicate Order Web Orders" 
       VIEW-AS TEXT 
      SIZE 45 BY .62 NO-UNDO.
+
+DEFINE VARIABLE tgAllowBlankPO AS LOGICAL INITIAL no 
+     LABEL "Allow Blank PO Numbers?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 31 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     begin_cust AT ROW 2.91 COL 16 COLON-ALIGNED WIDGET-ID 6
-     btSearch AT ROW 2.91 COL 36 WIDGET-ID 4
-     edDuplicates AT ROW 4.81 COL 3 NO-LABEL WIDGET-ID 2
-     btnOk AT ROW 18.38 COL 14
-     BtnCancel AT ROW 18.38 COL 40
-     scr-text AT ROW 1.48 COL 2 COLON-ALIGNED NO-LABEL
+     begin_cust AT ROW 2.43 COL 17 COLON-ALIGNED WIDGET-ID 6
+     btSearch AT ROW 2.43 COL 37 WIDGET-ID 4
+     fiOrdDate AT ROW 3.43 COL 17 COLON-ALIGNED WIDGET-ID 10
+     tgAllowBlankPO AT ROW 4.62 COL 19 WIDGET-ID 8
+     edDuplicates AT ROW 5.76 COL 3 NO-LABEL WIDGET-ID 2
+     btnOk AT ROW 18.62 COL 14
+     BtnCancel AT ROW 18.62 COL 40
+     scr-text AT ROW 1.48 COL 3 NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -175,7 +188,7 @@ ASSIGN
                 "ribbon-button".
 
 /* SETTINGS FOR FILL-IN scr-text IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
+   NO-ENABLE ALIGN-L                                                    */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -277,15 +290,16 @@ END.
 ON CHOOSE OF btSearch IN FRAME DEFAULT-FRAME /* Search for Duplicates */
 DO:
   DEFINE VAR iTotDups AS INT NO-UNDO.
-  ASSIGN begin_cust.
+  ASSIGN begin_cust tgAllowBlankPO fiOrdDate.
   edDuplicates:INSERT-STRING("Customer" + " " + "PO Number" 
                  + " " + "Count"
                  + CHR(10)). 
   FOR EACH oe-ord NO-LOCK 
     WHERE oe-ord.company EQ cocode
       AND oe-ord.stat EQ 'W' 
+      AND oe-ord.ord-date EQ fiOrdDate
       AND oe-ord.opened EQ TRUE
-      AND oe-ord.po-no GT "" 
+      AND (oe-ord.po-no GT "" OR tgAllowBlankPO)
       AND oe-ord.cust-no EQ begin_cust
     BREAK BY oe-ord.cust-no
     BY oe-ord.po-no:
@@ -296,6 +310,7 @@ DO:
         FOR EACH bf-oe-ord NO-LOCK
             WHERE bf-oe-ord.company EQ oe-ord.company 
               AND bf-oe-ord.stat EQ 'W'
+              AND bf-oe-ord.ord-date EQ fiOrdDate
               AND bf-oe-ord.po-no EQ oe-ord.po-no
               AND bf-oe-ord.cust-no EQ oe-ord.cust-no
               AND bf-oe-ord.opened EQ TRUE
@@ -393,9 +408,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_cust edDuplicates scr-text 
+  DISPLAY begin_cust fiOrdDate tgAllowBlankPO edDuplicates scr-text 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE begin_cust btSearch edDuplicates btnOk BtnCancel 
+  ENABLE begin_cust btSearch fiOrdDate tgAllowBlankPO edDuplicates btnOk 
+         BtnCancel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
