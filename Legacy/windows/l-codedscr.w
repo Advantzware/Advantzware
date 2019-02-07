@@ -36,7 +36,7 @@ def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def var v-duelist as cha init "" no-undo.
 ASSIGN v-duelist = ip-list .
 def temp-table tt-table field code as cha form "x(8)"
-                        field name as cha form "x(30)".
+                        field name as cha form "x(35)".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -97,7 +97,7 @@ DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _FREEFORM
   QUERY BROWSE-1 DISPLAY
       tt-table.code LABEL "Code"
-      tt-table.name LABEL "Description"
+      tt-table.name LABEL "Description" WIDTH 38
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 57 BY 11.19

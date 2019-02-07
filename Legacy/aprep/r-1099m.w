@@ -620,7 +620,8 @@ PROCEDURE calc-total-proc :
                  tt-1099-m.vend-city-line = vend.city + ","
                                           + " " + vend.state
                                           + " " + vend.zip
-                 tt-1099-m.vend-total = iop-vend-tot.
+                 tt-1099-m.vend-total = iop-vend-tot
+                 tt-1099-m.vend-box   = vend.code-1099 .
           RELEASE tt-1099-m.
        END.
        ELSE DO:
@@ -634,7 +635,8 @@ PROCEDURE calc-total-proc :
                     tt-1099-m.vend-city-line = vend.city + ","
                                           + " " + vend.state
                                           + " " + vend.zip
-                    tt-1099-m.vend-total = iop-vend-tot.
+                    tt-1099-m.vend-total = iop-vend-tot
+                    tt-1099-m.vend-box   = vend.code-1099.
             RELEASE tt-1099-m.
           END.
        END.
@@ -776,7 +778,7 @@ DEF VAR v-vend-tot AS DEC NO-UNDO.
          vend.company   eq cocode AND
          vend.vend-no   ge begin_vend AND
          vend.vend-no   le end_vend AND
-         vend.code-1099 eq "y"
+         (vend.code-1099 NE "N" OR vend.code-1099 NE "")
          NO-LOCK,
          EACH ap-inv FIELDS(company vend-no inv-date posted) WHERE
               ap-inv.company EQ cocode AND
@@ -801,7 +803,7 @@ DEF VAR v-vend-tot AS DEC NO-UNDO.
          vend.company   eq cocode AND
          vend.vend-no   ge begin_vend AND
          vend.vend-no   le end_vend AND
-         vend.code-1099 eq "y"
+         (vend.code-1099 NE "N" OR vend.code-1099 NE "")
          no-lock,
          each ap-pay FIELDS(company vend-no check-date posted) WHERE
               ap-pay.company    eq cocode AND

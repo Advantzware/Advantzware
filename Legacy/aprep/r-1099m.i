@@ -6,6 +6,7 @@ DEFINE {1} SHARED TEMP-TABLE tt-1099-m NO-UNDO
     FIELD vend-add2 AS CHAR FORMAT "X(30)"
     FIELD vend-city-line AS CHAR FORMAT "X(30)"
     FIELD vend-total AS DEC
+    FIELD vend-box AS CHARACTER 
     INDEX idx vend-name ASC.
 
 DEF {1} SHARED VAR s-copies AS INT NO-UNDO.
