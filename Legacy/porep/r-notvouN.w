@@ -68,7 +68,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 DEF STREAM excel.
 DEF TEMP-TABLE temp-po-rec NO-UNDO
     FIELD po-no AS INT
-    FIELD vend-no AS CHAR FORMAT "X(6)"
+    FIELD vend-no AS CHAR FORMAT "X(8)"
     FIELD gl-acct LIKE po-ordl.actnum
     FIELD date-rec AS DATE
     FIELD item-no LIKE po-ordl.i-no
@@ -92,7 +92,7 @@ DEF TEMP-TABLE tt-neg-po-line NO-UNDO
     INDEX po-no po-no i-no.
 
 form temp-po-rec.vend-no    COLUMN-LABEL "Vendor"
-                            FORMAT "X(6)"
+                            FORMAT "X(8)"
      temp-po-rec.gl-acct    column-label "G/L Account"
                             FORMAT "X(25)"
      temp-po-rec.po-no      column-label "P.O.!Number"
@@ -127,7 +127,7 @@ ASSIGN cTextListToSelect = "Vendor,G/L Account,PO#,Date Rec,Item Number,Descript
 
        cFieldListToSelect = "vend,act,po,date,item,desc,cat," +
                             "inv-qty,whse,cost,inv-amt"
-       cFieldLength = "6,25,6,8,15,25,6," + "13,5,10,14"
+       cFieldLength = "8,25,6,8,15,25,6," + "13,5,10,14"
        cFieldType = "c,c,i,c,c,c,c," + "i,c,i,i" 
     .
 
@@ -1096,7 +1096,7 @@ PROCEDURE display-data-proc :
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "vend"    THEN cVarValue = string(temp-po-rec.vend-no,"x(6)") .
+                         WHEN "vend"    THEN cVarValue = string(temp-po-rec.vend-no,"x(8)") .
                          WHEN "act"   THEN cVarValue = string(temp-po-rec.gl-acct,"x(25)").
                          WHEN "po"   THEN cVarValue = STRING(temp-po-rec.po-no,">>>>>9").
                          WHEN "date"  THEN cVarValue = IF temp-po-rec.date-rec NE ? THEN STRING(temp-po-rec.date-rec,"99/99/99") ELSE "" .
