@@ -1267,7 +1267,7 @@ SESSION:SET-WAIT-STATE ("general").
       v-type = caps(v-type)
       v-fjob1 = substr(v-fjob,1,6)
       v-tjob1 = substr(v-tjob,1,6)
-      v-job1sub = INT(SUBSTR(begin_job-no2,2)).
+      v-job1sub = INT(begin_job-no2).
 
    IF begin_job-no EQ end_job-no AND
       begin_job-no2 EQ end_job-no2 THEN
