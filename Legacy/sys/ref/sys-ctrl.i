@@ -243,7 +243,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[158] = "Order Quantity,Release Quantity"
        str-init[159] = "Transit Days,Dock Appt Days,Transit&Dock"
        str-init[160] = "UnderRuns and OverRun,OverRuns Only,UnderRuns Only"
-       str-init[161] = ",QtyInRange,QtyMatch,EffDateAge"
+       str-init[161] = ",QtyInRange,QtyMatch,EffDateAge,QtyQuoted"
        .
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:

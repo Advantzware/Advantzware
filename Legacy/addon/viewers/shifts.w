@@ -950,20 +950,22 @@ DEF VAR i AS INT NO-UNDO.
     fi_shift = INT(shifts.shift) NO-ERROR.
   END.
 
-  {custom/get_time2.i
-      &field="shifts.lunch_start"
-      &hour="lunch_start_hour"
-      &minute="lunch_start_minute"
-      &second="lunch_start_second"
-      &ampm="lunch_start_ampm"
-  }
-  {custom/get_time2.i
-      &field="shifts.lunch_end"
-      &hour="lunch_end_hour"
-      &minute="lunch_end_minute"
-      &second="lunch_end_second"
-      &ampm="lunch_end_ampm"
-  }
+  IF AVAIL shifts THEN do:
+      {custom/get_time2.i
+          &field="shifts.lunch_start"
+          &hour="lunch_start_hour"
+          &minute="lunch_start_minute"
+          &second="lunch_start_second"
+          &ampm="lunch_start_ampm"
+      }
+      {custom/get_time2.i
+          &field="shifts.lunch_end"
+          &hour="lunch_end_hour"
+          &minute="lunch_end_minute"
+          &second="lunch_end_second"
+          &ampm="lunch_end_ampm"
+      }
+  END.
   DO WITH FRAME {&FRAME-NAME}:
          ASSIGN
             tgSun:SCREEN-VALUE = "NO"
@@ -1022,7 +1024,7 @@ DEF VAR i AS INT NO-UNDO.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+  /* Code placed here will execute AFTER standard behavior.    */ 
 
 END PROCEDURE.
 
@@ -1081,9 +1083,10 @@ DEF VAR char-hdl AS CHAR NO-UNDO.
 
 
   IF adm-new-record THEN DO WITH FRAME {&FRAME-NAME}:
+      FIND CURRENT shifts EXCLUSIVE-LOCK NO-ERROR .
       ASSIGN shifts.dayList =  cDaysList
              shifts.useSpecificDays = (IF cUseDayListScreenValue EQ "Specific" THEN TRUE ELSE FALSE).
-      
+      FIND CURRENT shifts NO-LOCK NO-ERROR .
      ASSIGN
        rsAllOrSpecificDays:SCREEN-VALUE = cUseDayListScreenValue
        tgSun:SCREEN-VALUE = ENTRY(1, cDaysList)
@@ -1107,7 +1110,7 @@ DEF VAR char-hdl AS CHAR NO-UNDO.
       RUN refresh-and-reposition IN WIDGET-HANDLE(char-hdl) (ROWID(shifts)). 
   END.
   ELSE DO:
-
+    FIND CURRENT shifts EXCLUSIVE-LOCK NO-ERROR .
     shifts.dayList =  STRING(tgSun) + "," +
                       STRING(tgMon) + "," +
                       STRING(tgTues) + "," +
@@ -1116,6 +1119,7 @@ DEF VAR char-hdl AS CHAR NO-UNDO.
                       STRING(tgFri) + "," +
                       STRING(tgSat).
     shifts.useSpecificDays = (IF rsAllOrSpecificDays EQ "Specific" THEN TRUE ELSE FALSE).
+    FIND CURRENT shifts NO-LOCK NO-ERROR .
   END.                   
 
 
