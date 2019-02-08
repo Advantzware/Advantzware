@@ -823,7 +823,7 @@ PROCEDURE pFindQuoteForQuantity PRIVATE:
         WHERE quotehd.company EQ ipcCompany
         AND quotehd.est-no EQ ipcEstNo
         AND quotehd.quo-date LE TODAY 
-        AND quotehd.expireDate GT TODAY 
+        AND (quotehd.expireDate GT TODAY OR quotehd.expireDate EQ ?) 
         ,
         EACH quoteitm NO-LOCK 
         WHERE quoteitm.company EQ quotehd.company
