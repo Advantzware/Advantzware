@@ -82,7 +82,7 @@ ASSIGN cTextListToSelect  = "Order#,Customer#,Order Date,FG Item#,Cust Part#,Ite
                             "Shipped Qty,Job On Hand,Sell Price,UOM,Unit Count,Pallet Count,Skids,Status,Due Date," +
                             "Customer Name,Est#,Job#,CAD#,Invoice Qty,Act. Rel. Quantity,Production Balance,O/U%,Rep," +
                             "Rep Name,Release Date,Carrier,Ship To Code,FG On Hand,Orders Due,Items Due,Last User ID,Hold Reason Code,Hold/Approved Date," +
-                            "Scheduled Rel. Qty,Ship From,Ship To Name,Posted Date,Weight/100,Total Weight,Pallet"
+                            "Scheduled Rel. Qty,Ship From,Ship To Name,Posted Date,Weight/100,Total Weight,# of Pallets"
 
        cFieldListToSelect = "oe-ordl.ord-no,oe-ordl.cust-no,oe-ord.ord-date,oe-ordl.i-no,oe-ordl.part-no,oe-ordl.i-name,oe-ordl.po-no,oe-ordl.qty,v-prod-qty," +
                             "oe-ordl.ship-qty,v-bal,oe-ordl.price,oe-ordl.pr-uom,case-count,pallet-count,skid-count,oe-ord.stat,oe-ordl.req-date," +
@@ -1440,10 +1440,12 @@ IF tb_excel THEN
            ASSIGN vcarrier = carrier.dscr .
        find first shipto no-lock
             where shipto.company = g_company and
-           shipto.ship-id = vshipid 
+           shipto.ship-id = vshipid AND
+           shipto.cust-no EQ oe-ordl.cust-no 
            no-error.  
-       cShipName = IF AVAIL shipto THEN shipto.ship-name ELSE "" .
 
+       cShipName = IF AVAIL shipto THEN shipto.ship-name ELSE "" .
+       
        RUN oe/rel-stat.p (tt-report.row-id, OUTPUT v-stat).
        FIND FIRST oe-rel NO-LOCK 
            WHERE oe-rel.company EQ g_company 
