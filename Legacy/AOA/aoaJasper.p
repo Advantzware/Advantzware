@@ -234,7 +234,13 @@ PROCEDURE pGetUserParamValue:
     EMPTY TEMP-TABLE ttGroupCalc.
     DO idx = 1 TO EXTENT(dynParamValue.colName):
         IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
-        IF NUM-ENTRIES(dynParamValue.colName[idx],".") EQ 2 THEN DO:
+        dWidth = 10.
+        IF dynParamValue.isCalcField[idx] THEN DO:
+            cField = dynParamValue.colName[idx]
+                   + REPLACE(dynParamValue.colLabel[idx]," ","")
+                   .
+        END. /* if calc field */
+        ELSE IF NUM-ENTRIES(dynParamValue.colName[idx],".") EQ 2 THEN DO:
             ASSIGN
                 cTable = ENTRY(1,dynParamValue.colName[idx],".")
                 cField = ENTRY(2,dynParamValue.colName[idx],".")
@@ -243,10 +249,7 @@ PROCEDURE pGetUserParamValue:
             dWidth = hTable:BUFFER-FIELD(cField):WIDTH.
         END. /* if table.field */
         ELSE
-        ASSIGN
-            cField = dynParamValue.colName[idx]
-            dWidth = 10
-            .
+        cField = dynParamValue.colName[idx].
         RUN pCreatettColumn (
             cTable,
             cField,

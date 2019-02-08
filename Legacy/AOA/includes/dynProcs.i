@@ -680,15 +680,25 @@ PROCEDURE pResultsBrowser :
             WIDTH = FRAME resultsFrame:WIDTH - .32
             VISIBLE = TRUE
             NO-VALIDATE = TRUE
-            .
+        TRIGGERS:
+            ON ROW-DISPLAY
+                PERSISTENT RUN pRowDisplay IN THIS-PROCEDURE (iphQuery:HANDLE).
+        END TRIGGERS.
     DO idx = 1 TO EXTENT(dynParamValue.colName):
         IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
+        IF dynParamValue.isCalcField[idx] THEN DO:
+            hColumn = hQueryBrowse:ADD-CALC-COLUMN(
+                dynParamValue.dataType[idx],
+                dynParamValue.colFormat[idx],
+                "",
+                dynParamValue.colLabel[idx]
+                ).
+        END. /* if calc field */
+        ELSE
         hColumn = hQueryBrowse:ADD-LIKE-COLUMN(dynParamValue.colName[idx]).
-        /*
-        IF idx MOD 2 EQ 0 THEN
-        hColumn:COLUMN-BGCOLOR = 11.
-        */
-        IF dynParamValue.columnSize[idx] NE 0 THEN
+/*        IF idx MOD 2 EQ 0 THEN      */
+/*        hColumn:COLUMN-BGCOLOR = 11.*/
+        IF VALID-HANDLE(hColumn) AND dynParamValue.columnSize[idx] NE 0 THEN
         hColumn:WIDTH-CHARS = dynParamValue.columnSize[idx].
     END. /* do idx */
     ASSIGN
@@ -734,6 +744,18 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRowDisplay Include
+PROCEDURE pRowDisplay:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphQuery AS HANDLE NO-UNDO.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunNow Include
 PROCEDURE pRunNow:
@@ -769,7 +791,6 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunQuery Include
 PROCEDURE pRunQuery:
@@ -829,8 +850,6 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunSubject Include 
 PROCEDURE pRunSubject :
@@ -917,7 +936,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetDynParamValue Include
 PROCEDURE pSetDynParamValue:
 /*------------------------------------------------------------------------------
@@ -971,15 +989,18 @@ PROCEDURE pSetDynParamValue:
             :
             ASSIGN
                 idx = idx + 1
-                dynParamValue.colName[idx]    = {1}SubjectColumn.fieldName
-                dynParamValue.colLabel[idx]   = {1}SubjectColumn.fieldLabel
-                dynParamValue.colFormat[idx]  = {1}SubjectColumn.fieldFormat
-                dynParamValue.columnSize[idx] = {1}SubjectColumn.columnSize
-                dynParamValue.dataType[idx]   = {1}SubjectColumn.dataType
-                dynParamValue.sortCol[idx]    = {1}SubjectColumn.sortCol
-                dynParamValue.isGroup[idx]    = {1}SubjectColumn.isGroup
-                dynParamValue.groupLabel[idx] = {1}SubjectColumn.groupLabel
-                dynParamValue.groupCalc[idx]  = {1}SubjectColumn.groupCalc
+                dynParamValue.colName[idx]     = {1}SubjectColumn.fieldName
+                dynParamValue.colLabel[idx]    = {1}SubjectColumn.fieldLabel
+                dynParamValue.colFormat[idx]   = {1}SubjectColumn.fieldFormat
+                dynParamValue.columnSize[idx]  = {1}SubjectColumn.columnSize
+                dynParamValue.dataType[idx]    = {1}SubjectColumn.dataType
+                dynParamValue.sortCol[idx]     = {1}SubjectColumn.sortCol
+                dynParamValue.isGroup[idx]     = {1}SubjectColumn.isGroup
+                dynParamValue.groupLabel[idx]  = {1}SubjectColumn.groupLabel
+                dynParamValue.groupCalc[idx]   = {1}SubjectColumn.groupCalc
+                dynParamValue.isCalcField[idx] = {1}SubjectColumn.isCalcField
+                dynParamValue.calcProc[idx]    = {1}SubjectColumn.calcProc
+                dynParamValue.calcParam[idx]   = {1}SubjectColumn.calcParam
                 .
         END. /* each {1}SubjectColumn */
         FIND CURRENT dynParamValue NO-LOCK.
@@ -989,7 +1010,6 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidate Include 
 PROCEDURE pValidate :
@@ -1006,7 +1026,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetCompanyList Include
 PROCEDURE spGetCompanyList:

@@ -36,7 +36,7 @@ DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-
+/* ************************  Function Prototypes ********************** */
 
 /* *********************** Procedure Settings ************************ */
 
@@ -62,8 +62,6 @@ DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 &ANALYZE-RESUME
 
  
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
 
 
@@ -73,8 +71,44 @@ DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 &ANALYZE-RESUME
 
 
-
 /* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-spCalcField) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCalcField Procedure
+PROCEDURE spCalcField:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iphQuery     AS HANDLE    NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCalcProc  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCalcParam AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcDataType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFormat    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcValue     AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE idx    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hTable AS HANDLE NO-UNDO.
+    
+/*    MESSAGE                              */
+/*        "ipcCalcProc:" ipcCalcProc SKIP  */
+/*        "ipcCalcParam:" ipcCalcParam SKIP*/
+/*        "ipcDataType:" ipcDataType SKIP  */
+/*        "ipcFormat:" ipcFormat           */
+/*    VIEW-AS ALERT-BOX.                   */
+    
+    opcValue = STRING(TIME,"hh:mm:ss am").
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spGetCompany) = 0 &THEN
 
@@ -93,7 +127,6 @@ END PROCEDURE.
 
 
 &ENDIF
-
 
 
 &IF DEFINED(EXCLUDE-spSetCompany) = 0 &THEN
@@ -117,3 +150,5 @@ END PROCEDURE.
 
 &ENDIF
 
+
+/* ************************  Function Implementations ***************** */

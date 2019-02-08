@@ -91,16 +91,14 @@ PROCEDURE pCreateTempTableColumn :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hTable AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE idx    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE hTable AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx    AS INTEGER   NO-UNDO.
     
     IF VALID-HANDLE(hAppSrv) THEN
     DO WITH FRAME frameColumns:
         hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hAppSrv, aoaProgramID).
-        IF NOT VALID-HANDLE(hTable) THEN RETURN.
-        
-        EMPTY TEMP-TABLE ttColumn.
-    
+        IF NOT VALID-HANDLE(hTable) THEN RETURN.        
+        EMPTY TEMP-TABLE ttColumn.    
         hTable = hTable:DEFAULT-BUFFER-HANDLE.
         DO idx = 1 TO hTable:NUM-FIELDS:
             IF CAN-DO("RECID,ROWID",hTable:BUFFER-FIELD(idx):DATA-TYPE) THEN NEXT.
