@@ -111,7 +111,7 @@ ll-sort-asc = NOT oeinq.
     IF lv-sort-by EQ "stacks-unit" THEN STRING(fg-rdtlh.stacks-unit,"-9999999999.99999")               ELSE ~
     IF lv-sort-by EQ "job-no"      THEN STRING(fg-rcpth.job-no,"x(6)") + STRING(fg-rcpth.job-no2,"99") ELSE ~
     IF lv-sort-by EQ "po-no"       THEN STRING(INT(fg-rcpth.po-no),"9999999999")                       ELSE ~
-    IF lv-sort-by EQ "po-line"     THEN STRING(INT(fg-rcpth.po-line),"99")                             ELSE ~
+    IF lv-sort-by EQ "po-line"     THEN STRING(INT(fg-rcpth.po-line),"999")                            ELSE ~
     IF lv-sort-by EQ "stack-code"  THEN fg-rdtlh.stack-code                                            ELSE ~
     IF lv-sort-by EQ "tot-wt"      THEN string(fg-rdtlh.tot-wt)                                        ELSE ~
                                         STRING(INT(fg-rcpth.trans-date),"9999999999") + STRING(fg-rdtlh.trans-time) + fg-rdtlh.rec_key + STRING(fg-rcpth.r-no,"9999999999")
@@ -391,7 +391,7 @@ DEFINE BROWSE Browser-Table
       fg-rcpth.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       fg-rcpth.po-no COLUMN-LABEL "Vendor PO#" FORMAT "x(9)":U
             LABEL-BGCOLOR 14
-      fg-rcpth.po-line COLUMN-LABEL "PO Ln" FORMAT "99":U
+      fg-rcpth.po-line COLUMN-LABEL "PO Ln" FORMAT ">99":U
             LABEL-BGCOLOR 14
       fg-rcpth.job-no FORMAT "x(6)":U WIDTH 8 LABEL-BGCOLOR 14
       fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14
@@ -680,7 +680,7 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
      _FldNameList[34]   > ASI.fg-rdtlh.enteredDT
 "fg-rdtlh.enteredDT" "Scan Date/Time" ? "datetime" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
     _FldNameList[35]   > ASI.fg-rcpth.po-line
-"fg-rcpth.po-line" "Po Ln" "99" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rcpth.po-line" "Po Ln" ">99" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
