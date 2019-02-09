@@ -65,6 +65,7 @@ DEF VAR lResult AS LOG NO-UNDO.
 DO TRANSACTION:
   {sys/inc/aptax.i}
   {sys/inc/poexport.i}
+  {sys/inc/boxcode1099.i}
 
   FOR EACH reftable WHERE reftable.reftable EQ "vend.poexport":
     FIND FIRST b-vend
@@ -753,7 +754,7 @@ DO:
 
   CASE FOCUS:NAME:
     WHEN "code-1099" THEN DO:                   
-       RUN windows/l-codedscr.w ("1,2,3,7","Box 1 Rent,Box 2 Royalties,Box 3 Other Income,Box 7 Non Employee Compensation", OUTPUT char-val).
+       RUN windows/l-codedscr.w (c1099Code,c1099CodeDesc, OUTPUT char-val).
        IF char-val NE "" THEN vend.code-1099:SCREEN-VALUE = ENTRY(1,char-val).
       
         RETURN NO-APPLY.
@@ -1703,8 +1704,8 @@ PROCEDURE valid-code-1099 :
   DO WITH FRAME {&FRAME-NAME}:
     vend.code-1099:SCREEN-VALUE = CAPS(vend.code-1099:SCREEN-VALUE).
 
-    IF LOOKUP(TRIM(vend.code-1099:SCREEN-VALUE),",1,2,3,7,Y,N") LE 0 THEN DO:
-      MESSAGE TRIM(vend.code-1099:LABEL) + " " + "may be space,'1','2','3','7','Y', or 'N'..."
+    IF LOOKUP(TRIM(vend.code-1099:SCREEN-VALUE), "," + c1099Code + ",Y,N") LE 0 THEN DO:
+      MESSAGE TRIM(vend.code-1099:LABEL) + " " + "may be space," + c1099Code + ",'Y', or 'N'..."
           VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO vend.code-1099.
       RETURN ERROR.

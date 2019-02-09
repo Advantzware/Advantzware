@@ -79,6 +79,8 @@ ASSIGN cTextListToSelect = "Vendor #,Tax ID#,Name,Address 1,Address 2,City,State
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Vendor #,Tax ID#,Name,Address 1,Address 2,City,State,Zip,Amount"   .
 
+{sys/inc/boxcode1099.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1252,7 +1254,8 @@ IF rs-date EQ "Invoice" THEN DO:
          vend.company   eq cocode AND
          vend.vend-no   ge svend  AND
          vend.vend-no   le evend  AND
-         (vend.code-1099 NE "N" OR vend.code-1099 NE "")
+         vend.code-1099 NE "N"    AND  
+         vend.code-1099 NE ""
          NO-LOCK,
          EACH ap-inv FIELDS(company vend-no inv-date posted) WHERE
               ap-inv.company EQ cocode AND
@@ -1278,11 +1281,14 @@ IF rs-date EQ "Invoice" THEN DO:
           DO:
               cBoxDscr = "" .
               CASE vend.code-1099:
-                  WHEN "1" THEN cBoxDscr = "Box 1 Rent".
-                  WHEN "2" THEN cBoxDscr = "Box 2 Royalties".
-                  WHEN "3" THEN cBoxDscr = "Box 3 Other Income".
-                  WHEN "7" THEN cBoxDscr = "Box 7 Non Employee Compensation".
                   WHEN "Y" THEN cBoxDscr = "Box 3 Other Income".
+                  OTHERWISE 
+                      DO i = 1 TO NUM-ENTRIES(c1099Code) :
+                          IF ENTRY(i,c1099Code) EQ vend.code-1099  THEN do:
+                            cBoxDscr = ENTRY(i,c1099CodeDesc).
+                            LEAVE.
+                          END.
+                      END.
               END CASE.
 
                ASSIGN cDisplay = ""
@@ -1374,7 +1380,8 @@ IF rs-date EQ "Invoice" THEN DO:
          vend.company   eq cocode AND
          vend.vend-no   ge svend AND
          vend.vend-no   le evend AND
-         (vend.code-1099 NE "N" OR vend.code-1099 NE "")
+         vend.code-1099 NE "N"   AND 
+         vend.code-1099 NE ""
          no-lock,
          each ap-pay FIELDS(company vend-no check-date posted) WHERE
               ap-pay.company    eq cocode AND
@@ -1399,11 +1406,15 @@ IF rs-date EQ "Invoice" THEN DO:
          DO:
              cBoxDscr = "" .
               CASE vend.code-1099:
-                  WHEN "1" THEN cBoxDscr = "Box 1 Rent".
-                  WHEN "2" THEN cBoxDscr = "Box 2 Royalties".
-                  WHEN "3" THEN cBoxDscr = "Box 3 Other Income".
-                  WHEN "7" THEN cBoxDscr = "Box 7 Non Employee Compensation".
                   WHEN "Y" THEN cBoxDscr = "Box 3 Other Income".
+                  OTHERWISE 
+                      DO i = 1 TO NUM-ENTRIES(c1099Code) :
+                          IF vend.code-1099 NE "" THEN
+                          IF ENTRY(i,c1099Code) EQ vend.code-1099  THEN do:
+                            cBoxDscr = ENTRY(i,c1099CodeDesc).
+                            LEAVE.
+                          END.
+                      END.
               END CASE.
 
            ASSIGN cDisplay = ""

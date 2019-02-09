@@ -778,7 +778,8 @@ DEF VAR v-vend-tot AS DEC NO-UNDO.
          vend.company   eq cocode AND
          vend.vend-no   ge begin_vend AND
          vend.vend-no   le end_vend AND
-         (vend.code-1099 NE "N" OR vend.code-1099 NE "")
+         vend.code-1099 NE "N" AND
+         vend.code-1099 NE ""
          NO-LOCK,
          EACH ap-inv FIELDS(company vend-no inv-date posted) WHERE
               ap-inv.company EQ cocode AND
@@ -803,7 +804,8 @@ DEF VAR v-vend-tot AS DEC NO-UNDO.
          vend.company   eq cocode AND
          vend.vend-no   ge begin_vend AND
          vend.vend-no   le end_vend AND
-         (vend.code-1099 NE "N" OR vend.code-1099 NE "")
+         vend.code-1099 NE "N" AND
+         vend.code-1099 NE ""
          no-lock,
          each ap-pay FIELDS(company vend-no check-date posted) WHERE
               ap-pay.company    eq cocode AND
