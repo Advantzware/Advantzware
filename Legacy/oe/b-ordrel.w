@@ -700,11 +700,16 @@ ASSIGN
 ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
-    
-  RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
-  RUN reopen-query .
-  RUN repo-query (ROWID(oe-rel)).
-  
+ IF oe-rel.stat NE "C" AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C' THEN do:
+     RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
+     RUN reopen-query .
+     RUN repo-query (ROWID(oe-rel)).
+ END.
+ ELSE DO:
+     RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "view", OUTPUT lv-rowid) .
+     RUN reopen-query .
+     RUN repo-query (ROWID(oe-rel)).
+ END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2120,7 +2125,7 @@ PROCEDURE pUpdateRecord :
     DEFINE VARIABLE lMatchingSRecordFound AS LOGICAL NO-UNDO.
     DEFINE BUFFER bf-add-oe-rel FOR oe-rel.
     
-    IF AVAILABLE oe-ordl AND AVAILABLE oe-rel THEN
+    IF AVAILABLE oe-ordl AND AVAILABLE oe-rel AND oe-rel.stat NE "C" THEN
     DO:
        RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) . 
        
