@@ -2012,6 +2012,7 @@ PROCEDURE local-update-record :
     DEF VAR cCurrentDir AS CHAR NO-UNDO.
     DEF VAR iStat AS INT NO-UNDO.
     DEFINE VARIABLE hMainMenu AS HANDLE NO-UNDO.
+    DEFINE VARIABLE iSecLevel AS INTEGER NO-UNDO .
   
     ASSIGN 
         cOldUserID = users.user_id
@@ -2231,7 +2232,7 @@ PROCEDURE local-update-record :
             ttUsers.ttfDbList = ""
             ttUsers.ttfUserAlias = ""
             .
-
+         ASSIGN iSecLevel = INTEGER(users.securityLevel:SCREEN-VALUE) . 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -2244,7 +2245,7 @@ PROCEDURE local-update-record :
     IF AVAIL users THEN DO:
         ASSIGN 
             users.userAlias = users.userAlias:screen-value in frame {&frame-name}
-            users.securityLevel = INTEGER(users.securityLevel:SCREEN-VALUE)
+            users.securityLevel = iSecLevel 
             users.userType = cbUserType:SCREEN-VALUE IN FRAME {&FRAME-NAME}
 /* 39245 - User MODE does not save - 12/10/18 - MYT - remove references to db-based fields; use .usr file only */
 /*            users.envList = slEnvironments:SCREEN-VALUE*/
