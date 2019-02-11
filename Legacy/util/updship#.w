@@ -1,5 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
+/* Connected Databases 
+*/
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
@@ -76,31 +78,30 @@ DEFINE BUFFER bf-shipto FOR shipto .
 &Scoped-define FRAME-NAME FRAME-A
 &Scoped-define BROWSE-NAME browse-machine
 
-
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES tt-oe-shipto 
+&Scoped-define INTERNAL-TABLES tt-oe-shipto
 
 /* Definitions for BROWSE browse-machine                                */
-&Scoped-define FIELDS-IN-QUERY-browse-machine tt-oe-shipto.IS-SELECTED tt-oe-shipto.ship-id tt-oe-shipto.ship-name tt-oe-shipto.ship-add tt-oe-shipto.ship-city   
+&Scoped-define FIELDS-IN-QUERY-browse-machine tt-oe-shipto.IS-SELECTED tt-oe-shipto.ship-id tt-oe-shipto.ship-name tt-oe-shipto.ship-add   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browse-machine tt-oe-shipto.IS-SELECTED   
 &Scoped-define ENABLED-TABLES-IN-QUERY-browse-machine tt-oe-shipto
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-browse-machine tt-oe-shipto
 &Scoped-define SELF-NAME browse-machine
-&Scoped-define QUERY-STRING-browse-machine FOR EACH tt-oe-shipto ~
-             NO-LOCK BY tt-oe-shipto.ship-id
-&Scoped-define OPEN-QUERY-browse-machine OPEN QUERY {&SELF-NAME} FOR EACH tt-oe-shipto ~
-            NO-LOCK BY tt-oe-shipto.ship-id.
-&Scoped-define TABLES-IN-QUERY-browse-machine tt-oe-shipto 
+&Scoped-define QUERY-STRING-browse-machine FOR EACH tt-oe-shipto      NO-LOCK BY tt-oe-shipto.ship-id
+&Scoped-define OPEN-QUERY-browse-machine OPEN QUERY {&SELF-NAME} FOR EACH tt-oe-shipto      NO-LOCK BY tt-oe-shipto.ship-id.
+&Scoped-define TABLES-IN-QUERY-browse-machine tt-oe-shipto
 &Scoped-define FIRST-TABLE-IN-QUERY-browse-machine tt-oe-shipto
+
 
 /* Definitions for FRAME FRAME-A                                        */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-FRAME-A ~
     ~{&OPEN-QUERY-browse-machine}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 RECT-18 begin_cust ~
-fi_ship-id btn-show rd_active browse-machine btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_cust fi_ship-id rd_active 
+&Scoped-Define ENABLED-OBJECTS RECT-17 RECT-18 begin_cust browse-machine ~
+fi_ship-id rd_active tb_post-change btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_cust fi_ship-id rd_active ~
+tb_post-change 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -113,118 +114,118 @@ fi_ship-id btn-show rd_active browse-machine btn-process btn-cancel
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel 
-    LABEL "Ca&ncel" 
-    SIZE 18 BY 1.14.
+     LABEL "Ca&ncel" 
+     SIZE 18 BY 1.14.
 
 DEFINE BUTTON btn-process 
-    LABEL "&Start Process" 
-    SIZE 18 BY 1.14.
-
-DEFINE BUTTON btn-show 
-    LABEL "Show All ShipTo" 
-    SIZE 17.4 BY 1.14.
+     LABEL "&Start Process" 
+     SIZE 18 BY 1.14.
 
 DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Customer" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+     LABEL "Change Selected ShipTo Ids for Customer" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_ship-id AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Ship To Id" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+     LABEL "To Ship To" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE rd_active  AS CHARACTER INITIAL "I" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Inactive", "I",
-    "Delete", "D"
-    SIZE 30 BY .95 NO-UNDO.
+DEFINE VARIABLE rd_active AS CHARACTER INITIAL "I" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Set Old Ship To to Inactive", "I",
+"Delete Old Ship To", "D"
+     SIZE 61.4 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 89 BY 14.76.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 95 BY 18.29.
 
 DEFINE RECTANGLE RECT-18
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 89 BY 10.24.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 95 BY 9.43.
+
+DEFINE VARIABLE tb_post-change AS LOGICAL INITIAL no 
+     LABEL "Include Posted/Closed Records (Order,Release,Bol,Invoice)" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 64 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY browse-machine FOR 
-    tt-oe-shipto
-    SCROLLING.
+      tt-oe-shipto SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE browse-machine
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browse-machine C-Win _FREEFORM
-    QUERY browse-machine NO-LOCK DISPLAY
-    tt-oe-shipto.IS-SELECTED COLUMN-LABEL ''  VIEW-AS TOGGLE-BOX 
-    tt-oe-shipto.ship-id FORMAT "x(8)" COLUMN-LABEL "Ship ID" WIDTH 12
-    tt-oe-shipto.ship-name FORMAT "X(20)" COLUMN-LABEL "Name" WIDTH 20
-    tt-oe-shipto.ship-add COLUMN-LABEL "Address"  WIDTH 20
-    tt-oe-shipto.ship-city COLUMN-LABEL "City" WIDTH 15
+  QUERY browse-machine NO-LOCK DISPLAY
+      tt-oe-shipto.IS-SELECTED COLUMN-LABEL ''  VIEW-AS TOGGLE-BOX 
+    tt-oe-shipto.ship-id FORMAT "x(8)" COLUMN-LABEL "Ship To ID" WIDTH 12
+    tt-oe-shipto.ship-name FORMAT "X(25)" COLUMN-LABEL "Ship To Name" WIDTH 30
+    tt-oe-shipto.ship-add COLUMN-LABEL "Ship To Address"  WIDTH 30
+    /*tt-oe-shipto.ship-city COLUMN-LABEL "City" WIDTH 15*/
       ENABLE tt-oe-shipto.IS-SELECTED
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 79.6 BY 9.05 ROW-HEIGHT-CHARS .52 FIT-LAST-COLUMN.
+    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 89 BY 9.05 ROW-HEIGHT-CHARS .52 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    begin_cust AT ROW 6.24 COL 27 COLON-ALIGNED HELP
-    "Enter Beginning Customer" WIDGET-ID 10
-    fi_ship-id AT ROW 6.24 COL 60 COLON-ALIGNED
-    btn-show AT ROW 7.81 COL 67.6 WIDGET-ID 2
-    rd_active AT ROW 7.91 COL 34.2 NO-LABELS WIDGET-ID 16
-    browse-machine AT ROW 9.81 COL 6.4
-    btn-process AT ROW 20 COL 21
-    btn-cancel AT ROW 20 COL 53
-    "Selection Parameters" VIEW-AS TEXT
-    SIZE 21 BY .62 AT ROW 5.29 COL 3.6
-    "" VIEW-AS TEXT
-    SIZE 2.2 BY .95 AT ROW 1.95 COL 88
-    BGCOLOR 11 
-    RECT-17 AT ROW 4.86 COL 1
-    RECT-18 AT ROW 9.33 COL 1 WIDGET-ID 20
+     begin_cust AT ROW 6.24 COL 50 COLON-ALIGNED HELP
+          "Enter Beginning Customer" WIDGET-ID 10
+     browse-machine AT ROW 7.76 COL 4
+     fi_ship-id AT ROW 17.38 COL 40 COLON-ALIGNED
+     rd_active AT ROW 18.62 COL 20.6 NO-LABEL WIDGET-ID 16
+     tb_post-change AT ROW 19.67 COL 21.4 WIDGET-ID 22
+     btn-process AT ROW 21.62 COL 21
+     btn-cancel AT ROW 21.62 COL 53
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 5.29 COL 3.6
+     "" VIEW-AS TEXT
+          SIZE 2.2 BY .95 AT ROW 1.95 COL 88
+          BGCOLOR 11 
+     RECT-17 AT ROW 4.86 COL 1
+     RECT-18 AT ROW 7.52 COL 1 WIDGET-ID 20
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 89.6 BY 21.76.
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 95.8 BY 22.24.
 
 DEFINE FRAME FRAME-B
-    "" VIEW-AS TEXT
-    SIZE 88.8 BY .95 AT ROW 1 COL 1
-    BGCOLOR 11 
-    "" VIEW-AS TEXT
-    SIZE 88.8 BY .95 AT ROW 3.76 COL 1
-    BGCOLOR 11 
-    "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
-    SIZE 84 BY .95 AT ROW 1.95 COL 4
-    BGCOLOR 11 FGCOLOR 12 FONT 5
-    "This process may take hours.  Please let the process complete!" VIEW-AS TEXT
-    SIZE 76 BY .95 AT ROW 2.91 COL 8
-    BGCOLOR 11 FGCOLOR 12 FONT 5
-    "" VIEW-AS TEXT
-    SIZE 7 BY .95 AT ROW 2.91 COL 1
-    BGCOLOR 11 
-    "" VIEW-AS TEXT
-    SIZE 3 BY .95 AT ROW 1.95 COL 1
-    BGCOLOR 11 
-    "" VIEW-AS TEXT
-    SIZE 6.2 BY .95 AT ROW 2.91 COL 82.8
-    BGCOLOR 11 
+     "" VIEW-AS TEXT
+          SIZE 88.8 BY .95 AT ROW 1 COL 3.6
+          BGCOLOR 11 
+     "" VIEW-AS TEXT
+          SIZE 88.8 BY .95 AT ROW 3.76 COL 1
+          BGCOLOR 11 
+     "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
+          SIZE 84 BY .95 AT ROW 1.95 COL 6.6
+          BGCOLOR 11 FGCOLOR 12 FONT 5
+     "This process may take hours.  Please let the process complete!" VIEW-AS TEXT
+          SIZE 76 BY .95 AT ROW 2.91 COL 10.6
+          BGCOLOR 11 FGCOLOR 12 FONT 5
+     "" VIEW-AS TEXT
+          SIZE 7 BY .95 AT ROW 2.91 COL 1
+          BGCOLOR 11 
+     "" VIEW-AS TEXT
+          SIZE 3 BY .95 AT ROW 1.95 COL 1
+          BGCOLOR 11 
+     "" VIEW-AS TEXT
+          SIZE 6.2 BY .95 AT ROW 2.91 COL 82.8
+          BGCOLOR 11 
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 89.2 BY 3.81
-    BGCOLOR 11 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 95.8 BY 3.81
+         BGCOLOR 11 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -241,30 +242,30 @@ DEFINE FRAME FRAME-B
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "Update Ship To Number"
-        HEIGHT             = 21.76
-        WIDTH              = 90.2
-        MAX-HEIGHT         = 21.76
-        MAX-WIDTH          = 98.2
-        VIRTUAL-HEIGHT     = 21.76
-        VIRTUAL-WIDTH      = 98.2
-        RESIZE             = YES
-        SCROLL-BARS        = NO
-        STATUS-AREA        = YES
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = YES
-        THREE-D            = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Update Ship To Number"
+         HEIGHT             = 22.24
+         WIDTH              = 95.8
+         MAX-HEIGHT         = 22.24
+         MAX-WIDTH          = 98.2
+         VIRTUAL-HEIGHT     = 22.24
+         VIRTUAL-WIDTH      = 98.2
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -278,20 +279,27 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-/* BROWSE-TAB browse-machine rd_active FRAME-A */
+/* BROWSE-TAB browse-machine begin_cust FRAME-A */
 ASSIGN 
-    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    btn-process:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       tb_post-change:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-    THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
+
 
 /* Setting information for Queries and Browse Widgets fields            */
 
@@ -315,7 +323,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-oe-shipto
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Update Ship To Number */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -329,7 +337,7 @@ ON END-ERROR OF C-Win /* Update Ship To Number */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Update Ship To Number */
-    DO:
+DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -339,10 +347,27 @@ ON WINDOW-CLOSE OF C-Win /* Update Ship To Number */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_cust
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
+ON LEAVE OF begin_cust IN FRAME FRAME-A /* Change Selected ShipTo Ids for Customer */
+DO:
+        DO WITH FRAME {&FRAME-NAME}:
+      
+            ASSIGN begin_cust.
+            CLOSE QUERY browse-machine.
+            RUN build-table. 
+            OPEN QUERY browse-machine FOR EACH tt-oe-shipto  NO-LOCK BY tt-oe-shipto.ship-id.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-    DO:
+DO:
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -353,7 +378,7 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
-    DO:
+DO:
         DEFINE VARIABLE v-process AS LOG NO-UNDO.
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
@@ -407,32 +432,10 @@ ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-show
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-show C-Win
-ON CHOOSE OF btn-show IN FRAME FRAME-A /* Show All ShipTo */
-    DO:
-
-        DO WITH FRAME {&FRAME-NAME}:
-
-    
-            ASSIGN fi_ship-id.
-        
-            CLOSE QUERY browse-machine.
-            RUN build-table. 
-            OPEN QUERY browse-machine FOR EACH tt-oe-shipto  NO-LOCK BY tt-oe-shipto.ship-id.
-
-        END.
-
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fi_ship-id
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_ship-id C-Win
-ON HELP OF fi_ship-id IN FRAME FRAME-A /* Create BOL to Ship To */
-    DO:
+ON HELP OF fi_ship-id IN FRAME FRAME-A /* To Ship To */
+DO:
         DEFINE VARIABLE char-val AS cha   NO-UNDO.
         DEFINE VARIABLE rec-val  AS RECID NO-UNDO.
         ASSIGN fi_ship-id .
@@ -446,10 +449,23 @@ ON HELP OF fi_ship-id IN FRAME FRAME-A /* Create BOL to Ship To */
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_ship-id C-Win
+ON LEAVE OF fi_ship-id IN FRAME FRAME-A /* To Ship To */
+DO:
+        DO WITH FRAME {&FRAME-NAME}:
+      
+            ASSIGN fi_ship-id.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME rd_active
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_active C-Win
 ON LEAVE OF rd_active IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN rd_active.
     END.
 
@@ -459,30 +475,23 @@ ON LEAVE OF rd_active IN FRAME FRAME-A
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_active C-Win
 ON VALUE-CHANGED OF rd_active IN FRAME FRAME-A
-    DO:
+DO:
     /*{custom/chgfont.i}*/
     END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME fi_ship-id
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_ship-id C-Win
-ON LEAVE OF fi_ship-id IN FRAME FRAME-A
-    DO:
-        DO WITH FRAME {&FRAME-NAME}:
-      
-            ASSIGN fi_ship-id.
-      
-            CLOSE QUERY browse-machine.
-            RUN build-table. 
-            OPEN QUERY browse-machine FOR EACH tt-oe-shipto  NO-LOCK BY tt-oe-shipto.ship-id.
-        END.
-    END.
+
+&Scoped-define SELF-NAME tb_post-change
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_post-change C-Win
+ON VALUE-CHANGED OF tb_post-change IN FRAME FRAME-A /* Include Posted/Closed Records (Order,Release,Bol,Invoice) */
+DO:
+  assign {&self-name}.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &Scoped-define BROWSE-NAME browse-machine
@@ -547,7 +556,7 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-table C-Win 
 PROCEDURE build-table :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -556,7 +565,6 @@ PROCEDURE build-table :
         EMPTY TEMP-TABLE tt-oe-shipto .     
         FOR EACH shipto NO-LOCK
             WHERE shipto.company = cocode  
-            AND shipto.ship-id NE fi_ship-id:SCREEN-VALUE 
             AND shipto.cust-no = begin_cust:screen-value 
             :
             FIND FIRST tt-oe-shipto WHERE tt-oe-shipto.tt-recid = RECID(shipto)
@@ -581,18 +589,18 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-        THEN DELETE WIDGET C-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -600,24 +608,24 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY begin_cust fi_ship-id rd_active 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE RECT-17 RECT-18 begin_cust fi_ship-id btn-show rd_active 
-        btn-process btn-cancel browse-machine
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-    VIEW FRAME FRAME-B IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-B}
-    VIEW C-Win.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY begin_cust fi_ship-id rd_active tb_post-change 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  ENABLE RECT-17 RECT-18 begin_cust browse-machine fi_ship-id rd_active 
+         tb_post-change btn-process btn-cancel 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+  VIEW FRAME FRAME-B IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-B}
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -625,11 +633,10 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-
-    DEFINE VARIABLE lRelease AS LOGICAL NO-UNDO.
+/*DEFINE VARIABLE lRelease AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lBol     AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lOrder   AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lInv     AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lInv     AS LOGICAL NO-UNDO.*/
 
     SESSION:SET-WAIT-STATE("General").
 
@@ -647,9 +654,7 @@ PROCEDURE run-process :
         AND bf-shipto.cust-no EQ cust.cust-no
         AND bf-shipto.ship-id EQ fi_ship-id:SCREEN-VALUE
         NO-ERROR.
-   
-    RUN util/shipupd.w (OUTPUT lRelease ,OUTPUT lBol,OUTPUT lOrder,OUTPUT lInv ).
-
+    
     IF fi_ship-id NE "" THEN 
     DO:
 
@@ -713,6 +718,19 @@ PROCEDURE run-process :
                         quotehd.shipto[4] = bf-shipto.ship-city + ", " + bf-shipto.ship-state +
                                      "  " + bf-shipto.ship-zip.
                 END.
+
+                FOR EACH quoteitm
+                    WHERE quoteitm.company EQ cocode
+                    AND quoteitm.cust-no EQ cust.cust-no
+                    AND quoteitm.ship-id EQ shipto.ship-id
+            
+                    TRANSACTION:
+                    {custom/statusMsg.i "'Processing Shipto # ' + string(shipto.ship-id) + ' Quote # ' + string(quoteitm.q-no) "}
+            
+                    quoteitm.ship-id = bf-shipto.ship-id.
+                    quoteitm.shipto = bf-shipto.ship-addr[1] .
+                        
+                END.
             
                 FOR EACH oe-rel
                     WHERE oe-rel.company EQ cocode
@@ -728,7 +746,7 @@ PROCEDURE run-process :
             
                 FOR EACH oe-relh
                     WHERE oe-relh.company EQ cocode
-                    AND (oe-relh.posted  EQ NO OR lRelease)
+                    AND (oe-relh.posted  EQ NO OR tb_post-change)
                     AND oe-relh.cust-no EQ cust.cust-no
                     AND oe-relh.ship-id EQ shipto.ship-id
                     USE-INDEX post
@@ -743,7 +761,7 @@ PROCEDURE run-process :
             
                 FOR EACH oe-bolh
                     WHERE oe-bolh.company EQ cocode
-                    AND (oe-bolh.posted  EQ NO OR lBol)
+                    AND (oe-bolh.posted  EQ NO OR tb_post-change)
                     AND oe-bolh.cust-no EQ cust.cust-no 
                     AND oe-bolh.ship-id EQ shipto.ship-id
                     USE-INDEX post
@@ -758,7 +776,7 @@ PROCEDURE run-process :
             
                 FOR EACH ar-inv
                     WHERE ar-inv.company EQ cocode
-                    AND (ar-inv.posted  EQ NO OR lInv)
+                    AND (ar-inv.posted  EQ NO OR tb_post-change)
                     AND ar-inv.cust-no EQ cust.cust-no
                     AND ar-inv.ship-id EQ shipto.ship-id
                     USE-INDEX posted
@@ -774,7 +792,7 @@ PROCEDURE run-process :
                     WHERE oe-ord.company EQ cocode
                     AND oe-ord.cust-no EQ cust.cust-no
                     AND oe-ord.ship-id EQ shipto.ship-id
-                    AND (oe-ord.opened EQ YES OR lOrder )
+                    AND (oe-ord.opened EQ YES OR tb_post-change )
                     TRANSACTION:
 
                     {custom/statusMsg.i "'Processing Shipto # ' + string(shipto.ship-id) + ' Order # ' + string(oe-ord.ord-no) "}
@@ -782,6 +800,53 @@ PROCEDURE run-process :
                     oe-ord.ship-id = bf-shipto.ship-id .
                                                   
                 END.
+                FOR EACH oe-ordl
+                    WHERE oe-ordl.company EQ cocode
+                    AND oe-ordl.cust-no EQ cust.cust-no
+                    AND oe-ordl.ship-id EQ shipto.ship-id
+                    AND (oe-ordl.opened EQ YES OR tb_post-change )
+                    TRANSACTION:
+
+                    {custom/statusMsg.i "'Processing Shipto # ' + string(shipto.ship-id) + ' Order # ' + string(oe-ordl.ord-no) "}
+               
+                    oe-ordl.ship-id = bf-shipto.ship-id .
+                                                  
+                END.
+                
+                FOR EACH po-ord
+                    WHERE po-ord.company EQ cocode
+                    AND po-ord.cust-no EQ cust.cust-no
+                    AND po-ord.cust-no NE "" 
+                    AND po-ord.ship-id EQ shipto.ship-id
+                    AND (po-ord.stat NE "C" OR tb_post-change )
+                    TRANSACTION:
+                 
+                    {custom/statusMsg.i "'Processing Shipto # ' + string(shipto.ship-id) + ' Purchase Order # ' + string(po-ord.po-no) "}
+               
+                      ASSIGN
+                        po-ord.ship-id = bf-shipto.ship-id     
+                        po-ord.ship-name = bf-shipto.ship-name   
+                        po-ord.ship-addr[1] = bf-shipto.ship-addr[1]
+                        po-ord.ship-addr[2] = bf-shipto.ship-addr[2]
+                        po-ord.ship-city = bf-shipto.ship-city   
+                        po-ord.ship-state = bf-shipto.ship-state  
+                        po-ord.ship-zip = bf-shipto.ship-zip    
+                        po-ord.ship-no = bf-shipto.ship-no  
+                        po-ord.loc = bf-shipto.loc   . 
+                                                  
+                END.
+
+                FOR EACH sys-ctrl-shipto 
+                    WHERE sys-ctrl-shipto.company EQ cocode
+                      AND sys-ctrl-shipto.cust-vend EQ YES 
+                      AND sys-ctrl-shipto.cust-vend-no EQ cust.cust-no
+                      AND sys-ctrl-shipto.ship-id EQ shipto.ship-id 
+                    TRANSACTION:
+                    
+                      ASSIGN
+                       sys-ctrl-shipto.ship-id = bf-shipto.ship-id     .
+                END.
+
             
                 DO TRANSACTION:
                     IF rd_active EQ "I" AND NOT DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN 
@@ -806,6 +871,10 @@ PROCEDURE run-process :
     RELEASE oe-relh .
     RELEASE quotehd .
     RELEASE oe-rel .
+    RELEASE quoteitm .
+    RELEASE oe-ordl .
+    RELEASE po-ord .
+    RELEASE sys-ctrl-shipto .
 
     STATUS DEFAULT "".
 
@@ -822,3 +891,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
