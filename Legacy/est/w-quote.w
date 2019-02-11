@@ -395,7 +395,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-qthd , 'export-xl':U , h_export ).
 
        /* Links to SmartNavBrowser h_b-qthd. */
-       RUN add-link IN adm-broker-hdl ( h_b-qtitm , 'itemqt':U , h_b-qthd ).
        RUN add-link IN adm-broker-hdl ( h_b-qthd , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
