@@ -65,6 +65,7 @@ DEF VAR lResult AS LOG NO-UNDO.
 DO TRANSACTION:
   {sys/inc/aptax.i}
   {sys/inc/poexport.i}
+  {sys/inc/boxcode1099.i}
 
   FOR EACH reftable WHERE reftable.reftable EQ "vend.poexport":
     FIND FIRST b-vend
@@ -419,6 +420,7 @@ DEFINE FRAME F-Main
           SIZE 11 BY 1
           BGCOLOR 15 
      vend.code-1099 AT ROW 10.05 COL 97.4 COLON-ALIGNED FORMAT "X"
+          LABEL "1099 Box"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
           BGCOLOR 15 FONT 4
@@ -579,7 +581,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN carrier_dscr IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN vend.code-1099 IN FRAME F-Main
-   EXP-FORMAT                                                           */
+   EXP-FORMAT EXP-LABEL                                                 */
 /* SETTINGS FOR FILL-IN curr_dscr IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN vend.disc-days IN FRAME F-Main
@@ -735,6 +737,28 @@ DO:
         RETURN NO-APPLY.
 
     END.  /* vend.city*/
+  END CASE.
+
+  RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME vend.code-1099
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vend.code-1099 V-table-Win
+ON HELP OF vend.code-1099 IN FRAME F-Main /* 1099 box */
+DO:
+  DEF VAR char-val AS cha NO-UNDO.
+  DEF VAR rec-val AS RECID NO-UNDO.
+
+  CASE FOCUS:NAME:
+    WHEN "code-1099" THEN DO:                   
+       RUN windows/l-codedscr.w (c1099Code,c1099CodeDesc, OUTPUT char-val).
+       IF char-val NE "" THEN vend.code-1099:SCREEN-VALUE = ENTRY(1,char-val).
+      
+        RETURN NO-APPLY.
+    END.  /* 1099 box */
   END CASE.
 
   RETURN NO-APPLY.
@@ -1680,8 +1704,8 @@ PROCEDURE valid-code-1099 :
   DO WITH FRAME {&FRAME-NAME}:
     vend.code-1099:SCREEN-VALUE = CAPS(vend.code-1099:SCREEN-VALUE).
 
-    IF LOOKUP(TRIM(vend.code-1099:SCREEN-VALUE),",Y,N") LE 0 THEN DO:
-      MESSAGE TRIM(vend.code-1099:LABEL) + " " + "may be space, 'Y', or 'N'..."
+    IF LOOKUP(TRIM(vend.code-1099:SCREEN-VALUE), "," + c1099Code + ",Y,N") LE 0 THEN DO:
+      MESSAGE TRIM(vend.code-1099:LABEL) + " " + "may be space," + c1099Code + ",'Y', or 'N'..."
           VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO vend.code-1099.
       RETURN ERROR.
