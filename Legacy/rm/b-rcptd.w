@@ -116,20 +116,15 @@ DO TRANSACTION:
     {sys/inc/poholdreceipts.i}  /* ticket 17372 */
 END.
 
-DEFINE VARIABLE iSsPostVendTag AS INTEGER NO-UNDO .
-DEFINE VARIABLE iSsPostVendTagLength AS INTEGER NO-UNDO .
+DEFINE VARIABLE iSSScanVendorLength AS INTEGER NO-UNDO .
+DEFINE VARIABLE lSSScanVendorLength AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lRecFound       AS LOG       NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 
-RUN sys/ref/nk1look.p (cocode, "SSPostVenTag", "I", NO, NO, "", "", 
+RUN sys/ref/nk1look.p (cocode, "SSScanVendor", "I", NO, NO, "", "", 
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    iSsPostVendTag = INT(cRtnChar) NO-ERROR.
-
-RUN sys/ref/nk1look.p (cocode, "SSPostVenTag", "D", NO, NO, "", "", 
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound THEN
-    iSsPostVendTagLength = INT(cRtnChar) NO-ERROR.
+    iSSScanVendorLength = INT(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2789,7 +2784,8 @@ PROCEDURE local-cancel-record :
     ASSIGN
         v-copy-mode       = NO
         v-copy-mode-dec-1 = NO
-        v-new-mode        = NO.
+        v-new-mode        = NO
+        lSSScanVendorLength = NO.
 
 END PROCEDURE.
 
@@ -3053,7 +3049,7 @@ PROCEDURE local-update-record :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-
+    lSSScanVendorLength = NO .
     /* create a negative receipt for NON INVENTORY items item.inv-by-cust = yes */
     FIND CURRENT ITEM NO-LOCK NO-ERROR.
     IF AVAILABLE ITEM AND ITEM.inv-by-cust AND v-new-mode THEN 
@@ -4159,11 +4155,10 @@ PROCEDURE valid-tag :
             END.
         END.
 
-        IF iSsPostVendTag NE 0 AND iSsPostVendTagLength NE 0 AND rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
-              IF LENGTH(rm-rctd.tag:SCREEN-VALU IN BROWSE {&browse-name}) > iSsPostVendTagLength THEN do:
-                  MESSAGE "SSPostVenTag value limits the length of the tag number to (Decimal Value) characters" VIEW-AS ALERT-BOX ERROR.                                     
-                  APPLY "entry" TO rm-rctd.tag IN BROWSE {&browse-name}. 
-                  RETURN ERROR.                
+        IF iSSScanVendorLength NE 0 AND rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+              IF LENGTH(rm-rctd.tag:SCREEN-VALU IN BROWSE {&browse-name}) > iSSScanVendorLength AND NOT lSSScanVendorLength THEN do: 
+                  MESSAGE "Vendor tag is longer than the maximum of " + STRING(iSSScanVendorLength) + ", as defined by the integer value of SSScanVendor" VIEW-AS ALERT-BOX WARNING.                                     
+                  lSSScanVendorLength = YES .
               END.
          END.
     

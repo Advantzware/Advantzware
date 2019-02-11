@@ -146,20 +146,16 @@ IF lFound THEN
     iFgEmails = INTEGER(cFgEmails) NO-ERROR.
 lFgEmails = (IF iFgEmails EQ 1 THEN YES ELSE NO).
 
-DEFINE VARIABLE iSsPostVendTag AS INTEGER NO-UNDO .
-DEFINE VARIABLE iSsPostVendTagLength AS INTEGER NO-UNDO .
+DEFINE VARIABLE iSSScanVendorLength AS INTEGER NO-UNDO .
+DEFINE VARIABLE lSSScanVendorLength AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lRecFound       AS LOG       NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 
-RUN sys/ref/nk1look.p (cocode, "SSPostVenTag", "I", NO, NO, "", "", 
+RUN sys/ref/nk1look.p (cocode, "SSScanVendor", "I", NO, NO, "", "", 
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    iSsPostVendTag = INT(cRtnChar) NO-ERROR.
+    iSSScanVendorLength = INT(cRtnChar) NO-ERROR.
 
-RUN sys/ref/nk1look.p (cocode, "SSPostVenTag", "D", NO, NO, "", "", 
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound THEN
-    iSsPostVendTagLength = INT(cRtnChar) NO-ERROR.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2135,6 +2131,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   lv-overrun-checked = NO.
+  lSSScanVendorLength = NO .
 
 END PROCEDURE.
 
@@ -2408,6 +2405,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   lv-overrun-checked = NO.
+  lSSScanVendorLength = NO .
 
   RUN repo-query (ROWID(fg-rctd)).
 
@@ -3608,10 +3606,12 @@ PROCEDURE valid-tag :
         lv-msg = "Invalid Tag#, try help or scan valid tag#".
 
        IF lv-do-what NE "Delete" AND lv-msg EQ "" THEN
-       IF iSsPostVendTag NE 0 AND iSsPostVendTagLength NE 0 
+       IF iSSScanVendorLength NE 0 AND NOT lSSScanVendorLength 
            AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
-              IF LENGTH(fg-rctd.tag:SCREEN-VALU IN BROWSE {&browse-name}) > iSsPostVendTagLength THEN do:
-                  lv-msg = "SSPostVenTag value limits the length of the tag number to (Decimal Value) characters" .                                     
+              IF LENGTH(fg-rctd.tag:SCREEN-VALU IN BROWSE {&browse-name}) > iSSScanVendorLength THEN do:
+                  MESSAGE "Vendor tag is longer than the maximum of " + STRING(iSSScanVendorLength) 
+                        + ", as defined by the integer value of SSScanVendor" VIEW-AS ALERT-BOX WARNING.  
+                    ASSIGN lSSScanVendorLength = YES .
               END.
        END.
 

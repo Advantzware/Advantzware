@@ -112,20 +112,16 @@ RUN pSetGlobalSettings(g_company).  /*Sets all of the above based on NK1 Setting
 DEFINE VARIABLE hdCostProcs AS HANDLE.
 RUN system\CostProcs.p PERSISTENT SET hdCostProcs.
 
-DEFINE VARIABLE iSsPostVendTag AS INTEGER NO-UNDO .
-DEFINE VARIABLE iSsPostVendTagLength AS INTEGER NO-UNDO .
+DEFINE VARIABLE iSSScanVendorLength AS INTEGER NO-UNDO .
+DEFINE VARIABLE LSSScanVendorLength AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lRecFound       AS LOG       NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 
-RUN sys/ref/nk1look.p (cocode, "SSPostVenTag", "I", NO, NO, "", "", 
+RUN sys/ref/nk1look.p (cocode, "SSScanVendor", "I", NO, NO, "", "", 
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    iSsPostVendTag = INT(cRtnChar) NO-ERROR.
+    iSSScanVendorLength = INT(cRtnChar) NO-ERROR.
 
-RUN sys/ref/nk1look.p (cocode, "SSPostVenTag", "D", NO, NO, "", "", 
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound THEN
-    iSsPostVendTagLength = INT(cRtnChar) NO-ERROR.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -2733,6 +2729,7 @@ PROCEDURE local-cancel-record :
     /* Code placed here will execute AFTER standard behavior.    */
 
     v-copy-mode = NO.
+    lSSScanVendorLength = NO .
 
 /* RUN auto-add-tt.*/  /*Mode 001*/
 
@@ -3166,7 +3163,8 @@ PROCEDURE local-update-record :
     ASSIGN
         adm-adding-record   = NO
         adm-new-record      = NO
-        lv-rct-date-checked = NO   .
+        lv-rct-date-checked = NO   
+        LSSScanVendorLength = NO .
   
     RUN auto-add-tt. 
 
@@ -4505,10 +4503,12 @@ PROCEDURE valid-tag :
                 AND loadtag.tag-no    EQ ip-focus:SCREEN-VALUE) THEN
                 lv-msg = "Invalid Tag#, try help or scan valid tag#".
 
-            IF iSsPostVendTag NE 0 AND iSsPostVendTagLength NE 0 AND lv-msg EQ ""
+            IF iSSScanVendorLength NE 0 AND lv-msg EQ "" AND NOT lSSScanVendorLength
                 AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
-                IF LENGTH(fg-rctd.tag:SCREEN-VALU IN BROWSE {&browse-name}) > iSsPostVendTagLength THEN do:
-                    lv-msg = "SSPostVenTag value limits the length of the tag number to (Decimal Value) characters" .                                     
+                IF LENGTH(fg-rctd.tag:SCREEN-VALU IN BROWSE {&browse-name}) > iSSScanVendorLength THEN do:
+                    MESSAGE "Vendor tag is longer than the maximum of " + STRING(iSSScanVendorLength) 
+                        + ", as defined by the integer value of SSScanVendor" VIEW-AS ALERT-BOX WARNING.  
+                    ASSIGN LSSScanVendorLength = YES .
                 END.
             END.
       
