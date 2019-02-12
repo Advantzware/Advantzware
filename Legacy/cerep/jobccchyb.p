@@ -269,7 +269,7 @@ cDraftImageFull = IF lDraft
     ELSE "".
 
 FORMAT HEADER 
-    cDraftImageFull FORMAT "x(100)" SKIP
+    cDraftImageFull FORMAT "x(250)" SKIP
     "<R1><C68><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cJobNo FORMAT "x(9)" /*v-job-no space(0) "-" space(0) v-job-no2 format "99"*/ ">"
     "<P12><C2><R2>JOB NUMBER:<B>" v-job-no SPACE(0) "-" SPACE(0) v-job-no2 FORMAT "99" "</B>"      SPACE(1) /* v-reprun   */
     "CSR:" v-pricnt-id
@@ -277,7 +277,7 @@ FORMAT HEADER
     "START DATE:" AT 128 v-start-date SKIP
     v-fill SKIP
     v-fill
-    WITH NO-BOX FRAME head NO-LABELS STREAM-IO WIDTH 155.
+    WITH NO-BOX FRAME head NO-LABELS STREAM-IO WIDTH 250.
     
 {sys/inc/notes.i}
 
@@ -416,6 +416,14 @@ FOR EACH job-hdr NO-LOCK
                 END.
             END.
         END.   
+
+        IF AVAILABLE job AND job.stat EQ "H" THEN 
+        DO:
+            ASSIGN 
+                cDraftImage         = "images\on-hold.jpg"
+                FILE-INFO:FILE-NAME = cDraftImage.
+            cDraftImageFull = "<C25><#1><R+80><C+50><IMAGE#1=" + FILE-INFO:FULL-PATHNAME + ">"  .
+        END.
 
         ASSIGN
             v-start-date = job-hdr.start-date.
