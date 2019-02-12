@@ -93,7 +93,10 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       IF ll-prt-dscr2 AND xqitm.part-dscr2 NE "" THEN do:
            PUT "<C26>" xqitm.part-dscr2  .
       END.
-       ELSE NEXT .
+      ELSE do:
+           numfit = numfit + 1 . 
+           NEXT .
+      END.
     END.
      ELSE
     IF i EQ 4 THEN DO:
@@ -120,20 +123,28 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       END.
      IF trim-size NE "" THEN
          PUT  "<C26>" trim-size  FORM "x(30)" .
-     ELSE NEXT .
-                 
+      ELSE do:
+             numfit = numfit + 1 . 
+             NEXT .
+      END.
     END.
     ELSE
     IF i EQ 5 THEN do:
          IF xqitm.i-coldscr NE "" THEN
          PUT "<C26>" xqitm.i-coldscr   FORM "x(30)".
-         ELSE NEXT .
+         ELSE do:
+             numfit = numfit + 1 . 
+             NEXT .
+         END.
     END.
     ELSE
     IF i EQ 6 THEN DO:
         IF xqitm.i-dscr NE "" THEN
         PUT "<C26>" IF xqitm.i-dscr NE "" THEN xqitm.i-dscr ELSE IF AVAIL ef THEN ef.brd-dscr ELSE ""   FORMAT "x(30)".
-        ELSE NEXT .
+        ELSE do:
+             numfit = numfit + 1 . 
+             NEXT .
+         END.
     END.
 
     ELSE
