@@ -17,6 +17,7 @@ DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
 {AOA/includes/dynFuncs.i}
 
 RUN AOA/spDynamic.p PERSISTENT SET hDynamic.
+SESSION:ADD-SUPER-PROCEDURE (hDynamic).
 
 FIND FIRST dynParamValue NO-LOCK WHERE ROWID(dynParamValue) EQ iprRowID NO-ERROR.
 IF NOT AVAILABLE dynParamValue THEN RETURN.
@@ -46,9 +47,7 @@ IF NOT iphQuery:QUERY-OFF-END THEN DO:
         DO idx = 1 TO EXTENT(dynParamValue.colName):
             IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
             IF dynParamValue.isCalcField[idx] THEN DO:
-                cFieldName = dynParamValue.colName[idx]
-                           + REPLACE(dynParamValue.colLabel[idx]," ","")
-                           .
+                cFieldName = dynParamValue.colName[idx].
                 RUN spCalcField IN hDynamic (
                     iphQuery:HANDLE,
                     dynParamValue.calcProc[idx],

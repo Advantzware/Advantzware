@@ -133,10 +133,15 @@ DEFINE BUTTON btnPDF
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "PDF".
 
+DEFINE BUTTON btnPrint 
+     IMAGE-UP FILE "Graphics/32x32/printer.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "Printer".
+
 DEFINE BUTTON btnRunResults 
      IMAGE-UP FILE "Graphics/32x32/table.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Run Results" 
-     SIZE 8 BY 1.91 TOOLTIP "Run Results".
+     LABEL "Browse Grid" 
+     SIZE 8 BY 1.91 TOOLTIP "Browse Grid".
 
 DEFINE BUTTON btnView 
      IMAGE-UP FILE "Graphics/32x32/jss_icon_32.ico":U NO-FOCUS FLAT-BUTTON
@@ -150,12 +155,12 @@ DEFINE BUTTON btnXLS
 
 DEFINE VARIABLE svRecipients AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 93 BY 2.38
+     SIZE 85 BY 2.38
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-PANEL
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 58 BY 2.38.
+     SIZE 66 BY 2.38.
 
 DEFINE RECTANGLE RECT-SHOW
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -233,8 +238,8 @@ DEFINE FRAME resultsFrame
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
 
 DEFINE FRAME outputFrame
-     btnAddEmail AT ROW 2.19 COL 3 HELP
-          "Add Recipents" WIDGET-ID 636
+     btnCSV AT ROW 1.48 COL 103 HELP
+          "Excel CSV" WIDGET-ID 140
      svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
      svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
@@ -244,23 +249,25 @@ DEFINE FRAME outputFrame
      svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
      svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
      svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
-     btnCSV AT ROW 1.48 COL 111 HELP
-          "Excel CSV" WIDGET-ID 140
-     btnDOCX AT ROW 1.48 COL 127 HELP
-          "Word DOCX" WIDGET-ID 142
-     btnHTML AT ROW 1.48 COL 143 HELP
+     btnHTML AT ROW 1.48 COL 135 HELP
           "HTML" WIDGET-ID 144
-     btnPDF AT ROW 1.48 COL 135 HELP
-          "PDF" WIDGET-ID 146
-     btnRunResults AT ROW 1.48 COL 103 HELP
-          "Jasper Viewer" WIDGET-ID 254
+     btnRunResults AT ROW 1.48 COL 95 HELP
+          "Browse Grid" WIDGET-ID 254
      btnView AT ROW 1.48 COL 151 HELP
           "Jasper Viewer" WIDGET-ID 148
-     btnXLS AT ROW 1.48 COL 119 HELP
+     btnAddEmail AT ROW 2.19 COL 3 HELP
+          "Add Recipents" WIDGET-ID 636
+     btnPrint AT ROW 1.48 COL 143 HELP
+          "Printer" WIDGET-ID 644
+     btnDOCX AT ROW 1.48 COL 119 HELP
+          "Word DOCX" WIDGET-ID 142
+     btnPDF AT ROW 1.48 COL 127 HELP
+          "PDF" WIDGET-ID 146
+     btnXLS AT ROW 1.48 COL 111 HELP
           "Excel XLS" WIDGET-ID 150
      "Email:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.48 COL 2 WIDGET-ID 640
-     RECT-PANEL AT ROW 1.24 COL 102 WIDGET-ID 256
+     RECT-PANEL AT ROW 1.24 COL 94 WIDGET-ID 256
      RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -319,6 +326,9 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE
 
 /* SETTINGS FOR FRAME outputFrame
                                                                         */
+ASSIGN 
+       btnPrint:AUTO-RESIZE IN FRAME outputFrame      = TRUE.
+
 ASSIGN 
        btnView:AUTO-RESIZE IN FRAME outputFrame      = TRUE.
 
@@ -494,9 +504,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnPrint
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrint C-Win
+ON CHOOSE OF btnPrint IN FRAME outputFrame
+DO:
+    RUN pRunSubject (YES, "Print -d", USERID("ASI"), cPrgmName).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnRunResults
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRunResults C-Win
-ON CHOOSE OF btnRunResults IN FRAME outputFrame /* Run Results */
+ON CHOOSE OF btnRunResults IN FRAME outputFrame /* Browse Grid */
 DO:
     RUN pRunSubject (YES, "Results", USERID("ASI"), cPrgmName).
 END.
@@ -718,10 +739,10 @@ PROCEDURE enable_UI :
           svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter 
           svShowParameters 
       WITH FRAME outputFrame IN WINDOW C-Win.
-  ENABLE btnAddEmail svRecipients svShowAll svShowReportHeader 
-         svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
-         svShowGroupFooter svShowParameters btnCSV btnDOCX btnHTML btnPDF 
-         btnRunResults btnView btnXLS 
+  ENABLE btnCSV svRecipients svShowAll svShowReportHeader svShowReportFooter 
+         svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter 
+         svShowParameters btnHTML btnRunResults btnView btnAddEmail btnPrint 
+         btnDOCX btnPDF btnXLS 
       WITH FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}
   VIEW FRAME paramFrame IN WINDOW C-Win.
@@ -875,10 +896,6 @@ PROCEDURE pWinReSize :
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
             FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
-            /*
-            FRAME outputFrame:COL              = FRAME paramFrame:WIDTH
-                                               - FRAME outputFrame:WIDTH + 1
-            */
             FRAME resultsFrame:HIDDEN          = YES
             FRAME resultsFrame:COL             = 1
             FRAME resultsFrame:ROW             = 1
@@ -896,9 +913,8 @@ PROCEDURE pWinReSize :
             .
         IF VALID-HANDLE(hQueryBrowse) THEN DO:
             ASSIGN
-                hQueryBrowse:HEIGHT       = FRAME resultsFrame:HEIGHT - .1
-                hQueryBrowse:WIDTH        = FRAME resultsFrame:WIDTH - .32
-                FRAME resultsFrame:HIDDEN = NO
+                hQueryBrowse:HEIGHT = FRAME resultsFrame:HEIGHT - .1
+                hQueryBrowse:WIDTH  = FRAME resultsFrame:WIDTH - .32
                 .
         END. /* if valid-handle */
     END. /* do with */

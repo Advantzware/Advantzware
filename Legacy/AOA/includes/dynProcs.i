@@ -18,7 +18,11 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE VARIABLE hDynamic AS HANDLE NO-UNDO.
+DEFINE VARIABLE cBufferValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hCalcColumn  AS HANDLE    NO-UNDO EXTENT 200.
+DEFINE VARIABLE hDynamic     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hQuery       AS HANDLE    NO-UNDO.
+DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
 
 RUN AOA/spDynamic.p PERSISTENT SET hDynamic.
 SESSION:ADD-SUPER-PROCEDURE (hDynamic).
@@ -68,6 +72,39 @@ SESSION:ADD-SUPER-PROCEDURE (hDynamic).
 
 
 /* ***************************  Main Block  *************************** */
+
+CREATE BROWSE hQueryBrowse
+    ASSIGN
+        FRAME = FRAME resultsFrame:HANDLE
+        SENSITIVE = TRUE
+        SEPARATORS = TRUE
+        ROW-MARKERS = FALSE
+        COLUMN-RESIZABLE = TRUE
+        COLUMN-MOVABLE = TRUE 
+        ALLOW-COLUMN-SEARCHING = TRUE
+        COL = 1
+        ROW = 1
+        HEIGHT = FRAME resultsFrame:HEIGHT - .1
+        WIDTH = FRAME resultsFrame:WIDTH - .32
+        VISIBLE = FALSE
+        NO-VALIDATE = TRUE
+        .
+ON ROW-DISPLAY OF hQueryBrowse DO:
+    DO idx = 1 TO EXTENT(hCalcColumn):
+        IF VALID-HANDLE(hCalcColumn[idx]) AND
+           dynParamValue.isCalcField[idx] THEN DO:
+            RUN spCalcField IN hDynamic (
+                hQuery:HANDLE,
+                dynParamValue.calcProc[idx],
+                dynParamValue.calcParam[idx],
+                dynParamValue.dataType[idx],
+                dynParamValue.colFormat[idx],
+                OUTPUT cBufferValue
+                ).
+            hCalcColumn[idx]:SCREEN-VALUE = cBufferValue.
+        END. /* if valid handle */
+    END. /* do idx */
+END. /* row-display */
 
 RUN spSetCompany (g_company).
 
@@ -428,9 +465,9 @@ PROCEDURE pCreateDynParameters :
         END. /* do pdx */
         hWidget = hWidget:NEXT-SIBLING.
     END. /* do while */
+    iphFrame:HIDDEN = NO.
     RUN pInitialize.
     RUN pInitDynParameters (iphFrame).
-    iphFrame:HIDDEN = NO.
 
 END PROCEDURE.
 
@@ -507,7 +544,8 @@ PROCEDURE pInitDynParameters :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphFrame AS HANDLE NO-UNDO.
     
-    DEFINE VARIABLE hWidget AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
     
     ASSIGN 
         hWidget = iphFrame:HANDLE 
@@ -659,54 +697,50 @@ PROCEDURE pResultsBrowser :
     DEFINE BUFFER b{1}SubjectColumn FOR {1}SubjectColumn.
     
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
-    IF VALID-HANDLE(hQueryBrowse) THEN
-    DELETE OBJECT hQueryBrowse.
-    
-    iphQuery:QUERY-OPEN.
-    CREATE BROWSE hQueryBrowse
+    hQuery = iphQuery.
+    hQuery:QUERY-CLOSE.
+    DO idx = 1 TO hQueryBrowse:NUM-COLUMNS:
         ASSIGN
-            FRAME = FRAME resultsFrame:HANDLE
-            TITLE = {1}Subject.subjectName + " Results"
-            SENSITIVE = TRUE
-            SEPARATORS = TRUE
-            ROW-MARKERS = FALSE
-            COLUMN-RESIZABLE = TRUE
-            COLUMN-MOVABLE = TRUE 
-            ALLOW-COLUMN-SEARCHING = TRUE
-            QUERY = iphQuery
-            COL = 1
-            ROW = 1
-            HEIGHT = FRAME resultsFrame:HEIGHT - .1
-            WIDTH = FRAME resultsFrame:WIDTH - .32
-            VISIBLE = TRUE
-            NO-VALIDATE = TRUE
-        TRIGGERS:
-            ON ROW-DISPLAY
-                PERSISTENT RUN pRowDisplay IN THIS-PROCEDURE (iphQuery:HANDLE).
-        END TRIGGERS.
+            hCalcColumn[idx] = ?
+            hColumn = hQueryBrowse:GET-BROWSE-COLUMN(idx)
+            .
+        DELETE OBJECT hColumn.
+    END. /* do idx */
+    ASSIGN
+        hQueryBrowse:TITLE   = {1}Subject.subjectName + " Results"
+        hQueryBrowse:QUERY   = hQuery
+        hQueryBrowse:VISIBLE = TRUE
+        .
     DO idx = 1 TO EXTENT(dynParamValue.colName):
         IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
         IF dynParamValue.isCalcField[idx] THEN DO:
-            hColumn = hQueryBrowse:ADD-CALC-COLUMN(
-                dynParamValue.dataType[idx],
-                dynParamValue.colFormat[idx],
-                "",
-                dynParamValue.colLabel[idx]
-                ).
+            ASSIGN
+                hCalcColumn[idx] = hQueryBrowse:ADD-CALC-COLUMN(
+                    dynParamValue.dataType[idx],
+                    dynParamValue.colFormat[idx],
+                    "",
+                    dynParamValue.colLabel[idx]
+                    )
+                hColumn = hCalcColumn[idx]
+                .
         END. /* if calc field */
         ELSE
         hColumn = hQueryBrowse:ADD-LIKE-COLUMN(dynParamValue.colName[idx]).
-/*        IF idx MOD 2 EQ 0 THEN      */
-/*        hColumn:COLUMN-BGCOLOR = 11.*/
-        IF VALID-HANDLE(hColumn) AND dynParamValue.columnSize[idx] NE 0 THEN
+/*        IF idx MOD 2 EQ 0 THEN hColumn:COLUMN-BGCOLOR = 11.*/
+        IF dynParamValue.columnSize[idx] NE 0 THEN
         hColumn:WIDTH-CHARS = dynParamValue.columnSize[idx].
-    END. /* do idx */
-    ASSIGN
-        btnCloseResults:HIDDEN = NO
-        btnSaveResults:HIDDEN  = NO
-        .
-    btnCloseResults:MOVE-TO-TOP().
-    btnSaveResults:MOVE-TO-TOP().
+    END. /* do idx */    
+    hQuery:QUERY-OPEN.
+    hQueryBrowse:REFRESH().
+    DO WITH FRAME resultsFrame:
+        ASSIGN
+            btnCloseResults:HIDDEN    = NO
+            btnSaveResults:HIDDEN     = NO
+            FRAME resultsFrame:HIDDEN = NO
+            .
+        btnCloseResults:MOVE-TO-TOP().
+        btnSaveResults:MOVE-TO-TOP().
+    END. /* results frame */
     RUN LockWindowUpdate (0,OUTPUT i).
 
 END PROCEDURE.
@@ -741,19 +775,6 @@ PROCEDURE pResultsJasper :
 
 END PROCEDURE.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRowDisplay Include
-PROCEDURE pRowDisplay:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphQuery AS HANDLE NO-UNDO.
-
-END PROCEDURE.
-	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -833,7 +854,7 @@ PROCEDURE pRunQuery:
                 WHEN "Print -d" OR WHEN "View" THEN
                 RUN pResultsJasper (ipcType, ipcUserID).
                 OTHERWISE
-                IF dynParamValue.prgmName NE "" THEN
+                IF dynParamValue.prgmName NE "dynSubjct." THEN
                 RUN pRunNow (ipcType).
                 ELSE
                 RUN pResultsJasper (ipcType, ipcUserID).

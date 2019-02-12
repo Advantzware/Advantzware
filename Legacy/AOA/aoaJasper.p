@@ -235,12 +235,7 @@ PROCEDURE pGetUserParamValue:
     DO idx = 1 TO EXTENT(dynParamValue.colName):
         IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
         dWidth = 10.
-        IF dynParamValue.isCalcField[idx] THEN DO:
-            cField = dynParamValue.colName[idx]
-                   + REPLACE(dynParamValue.colLabel[idx]," ","")
-                   .
-        END. /* if calc field */
-        ELSE IF NUM-ENTRIES(dynParamValue.colName[idx],".") EQ 2 THEN DO:
+        IF NUM-ENTRIES(dynParamValue.colName[idx],".") EQ 2 THEN DO:
             ASSIGN
                 cTable = ENTRY(1,dynParamValue.colName[idx],".")
                 cField = ENTRY(2,dynParamValue.colName[idx],".")

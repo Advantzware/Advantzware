@@ -234,16 +234,16 @@ dynParamSet
 btnOuterJoin btnNow btnToday btnTime btnDateTime subjectSearch ~
 subjectMatches tableSearch tableMatches tableList btnOF tableListOf ~
 btnWhere btnMatches subjectBrowse tableBrowse subjectWhereBrowse btnBegins ~
-btnAND btnOR btnEQ btnNE btnResults btnLT btnGT fieldSearch fieldMatches ~
+btnAND btnOR btnEQ btnNE btnLT btnGT fieldSearch fieldMatches ~
 paramSetSearch paramSetMatches btnLE btnGE paramSetBrowse fieldBrowse ~
 btnPlus btnMinus subjectParamSetBrowse btnMultiply btnDivide btnYes btnNo ~
 btnDate cUseIndex findType btnDec subjectTableBrowse btnInt columnSearch ~
 columnMatches btnStr subjectColumnBrowse btnSubstr cParameter btnOpen ~
 btnClose cConstant btnPeriod btnDouble btnComma btnSingle queryStr ~
-btnSyntax btnAddSelections btnGroupCalc btnAddUseIndex btnRemoveUseIndex ~
-btnAddParameter btnSave btnRemoveSelection btnMoveDown btnAddConstant ~
-btnMoveUp btnRemove btnAdd btnCopy btnDelete btnUpdate cParameterLabel ~
-cConstantLabel 
+btnResults btnSyntax btnAddSelections btnGroupCalc btnAddUseIndex ~
+btnRemoveUseIndex btnAddParameter btnSave btnRemoveSelection btnMoveDown ~
+btnAddConstant btnMoveUp btnRemove btnAdd btnCopy btnDelete btnUpdate ~
+cParameterLabel cConstantLabel 
 &Scoped-Define DISPLAYED-OBJECTS subjectSection subjectSearch ~
 subjectMatches tableSearch tableMatches tableList tableListOf fieldSearch ~
 fieldMatches paramSetSearch paramSetMatches cUseIndex findType columnSearch ~
@@ -797,10 +797,15 @@ DEFINE BUTTON btnPDF
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "PDF".
 
+DEFINE BUTTON btnPrint 
+     IMAGE-UP FILE "Graphics/32x32/printer.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "Printer".
+
 DEFINE BUTTON btnRunResults 
      IMAGE-UP FILE "Graphics/32x32/table.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Run Results" 
-     SIZE 8 BY 1.91 TOOLTIP "Run Results".
+     LABEL "Browse Grid" 
+     SIZE 8 BY 1.91 TOOLTIP "Browse Grid".
 
 DEFINE BUTTON btnView 
      IMAGE-UP FILE "Graphics/32x32/jss_icon_32.ico":U NO-FOCUS FLAT-BUTTON
@@ -814,12 +819,12 @@ DEFINE BUTTON btnXLS
 
 DEFINE VARIABLE svRecipients AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 92 BY 2.38
+     SIZE 84 BY 2.38
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-PANEL-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 58 BY 2.38.
+     SIZE 66 BY 2.38.
 
 DEFINE RECTANGLE RECT-SHOW
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -1052,8 +1057,6 @@ DEFINE FRAME DEFAULT-FRAME
      btnOR AT ROW 6.48 COL 155 WIDGET-ID 82
      btnEQ AT ROW 7.67 COL 150 WIDGET-ID 68
      btnNE AT ROW 7.67 COL 155 WIDGET-ID 70
-     btnResults AT ROW 1.24 COL 83 HELP
-          "Jasper Viewer" WIDGET-ID 250
      btnLT AT ROW 8.86 COL 150 WIDGET-ID 72
      btnGT AT ROW 8.86 COL 155 WIDGET-ID 74
      fieldSearch AT ROW 9.81 COL 39 COLON-ALIGNED HELP
@@ -1087,6 +1090,7 @@ DEFINE FRAME DEFAULT-FRAME
           "Select for Column Search Matches" WIDGET-ID 110
      btnStr AT ROW 18.38 COL 150 WIDGET-ID 168
      subjectColumnBrowse AT ROW 18.62 COL 1 WIDGET-ID 900
+     btnSubstr AT ROW 19.57 COL 150 WIDGET-ID 170
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -1095,7 +1099,6 @@ DEFINE FRAME DEFAULT-FRAME
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
-     btnSubstr AT ROW 19.57 COL 150 WIDGET-ID 170
      cParameter AT ROW 20.76 COL 91 COLON-ALIGNED HELP
           "Select Parameter Type" NO-LABEL WIDGET-ID 204
      btnOpen AT ROW 20.76 COL 150 WIDGET-ID 94
@@ -1106,6 +1109,8 @@ DEFINE FRAME DEFAULT-FRAME
      btnComma AT ROW 21.95 COL 155 WIDGET-ID 242
      btnSingle AT ROW 21.95 COL 157.4 WIDGET-ID 244
      queryStr AT ROW 23.86 COL 83 NO-LABEL WIDGET-ID 4
+     btnResults AT ROW 1.24 COL 83 HELP
+          "Jasper Viewer" WIDGET-ID 250
      btnSyntax AT ROW 23.86 COL 78 WIDGET-ID 202
      btnAddSelections AT ROW 7.91 COL 77 HELP
           "Add Selections" WIDGET-ID 200
@@ -1161,6 +1166,17 @@ DEFINE FRAME DEFAULT-FRAME
          SIZE 160 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
+DEFINE FRAME resultsFrame
+     btnCloseResults AT ROW 1 COL 6 HELP
+          "Jasper Viewer" WIDGET-ID 252
+     btnSaveResults AT ROW 1 COL 2 HELP
+          "Jasper Viewer" WIDGET-ID 254
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 139 ROW 9.81
+         SIZE 10 BY 2.38
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
+
 DEFINE FRAME paramFrame
      btnCloseParam AT ROW 1 COL 156 HELP
           "Jasper Viewer" WIDGET-ID 252
@@ -1171,10 +1187,10 @@ DEFINE FRAME paramFrame
          FGCOLOR 1  WIDGET-ID 1300.
 
 DEFINE FRAME outputFrame
-     btnAddEmail AT ROW 2.19 COL 3 HELP
-          "Add Recipents" WIDGET-ID 636
      svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
+     btnPrint AT ROW 1.48 COL 142 HELP
+          "Printer" WIDGET-ID 644
      svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
      svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
      svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
@@ -1182,23 +1198,25 @@ DEFINE FRAME outputFrame
      svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
      svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
      svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
-     btnCSV AT ROW 1.48 COL 110 HELP
+     btnRunResults AT ROW 1.48 COL 94 HELP
+          "Browse Grid" WIDGET-ID 254
+     btnAddEmail AT ROW 2.19 COL 3 HELP
+          "Add Recipents" WIDGET-ID 636
+     btnCSV AT ROW 1.48 COL 102 HELP
           "Excel CSV" WIDGET-ID 140
-     btnDOCX AT ROW 1.48 COL 126 HELP
+     btnDOCX AT ROW 1.48 COL 118 HELP
           "Word DOCX" WIDGET-ID 142
-     btnHTML AT ROW 1.48 COL 142 HELP
+     btnHTML AT ROW 1.48 COL 134 HELP
           "HTML" WIDGET-ID 144
-     btnPDF AT ROW 1.48 COL 134 HELP
+     btnPDF AT ROW 1.48 COL 126 HELP
           "PDF" WIDGET-ID 146
-     btnRunResults AT ROW 1.48 COL 102 HELP
-          "Jasper Viewer" WIDGET-ID 254
      btnView AT ROW 1.48 COL 150 HELP
           "Jasper Viewer" WIDGET-ID 148
-     btnXLS AT ROW 1.48 COL 118 HELP
+     btnXLS AT ROW 1.48 COL 110 HELP
           "Excel XLS" WIDGET-ID 150
      "Email:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.48 COL 2 WIDGET-ID 640
-     RECT-PANEL-2 AT ROW 1.24 COL 101 WIDGET-ID 256
+     RECT-PANEL-2 AT ROW 1.24 COL 93 WIDGET-ID 256
      RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -1206,17 +1224,6 @@ DEFINE FRAME outputFrame
          SIZE 159 BY 5.24
          BGCOLOR 15 
          TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1400.
-
-DEFINE FRAME resultsFrame
-     btnCloseResults AT ROW 1 COL 6 HELP
-          "Jasper Viewer" WIDGET-ID 252
-     btnSaveResults AT ROW 1 COL 2 HELP
-          "Jasper Viewer" WIDGET-ID 254
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 139 ROW 10.05
-         SIZE 10 BY 2.38
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1694,6 +1701,9 @@ ASSIGN
 /* SETTINGS FOR FRAME outputFrame
                                                                         */
 ASSIGN 
+       btnPrint:AUTO-RESIZE IN FRAME outputFrame      = TRUE.
+
+ASSIGN 
        btnView:AUTO-RESIZE IN FRAME outputFrame      = TRUE.
 
 /* SETTINGS FOR RECTANGLE RECT-PANEL-2 IN FRAME outputFrame
@@ -2016,8 +2026,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCloseResults C-Win
 ON CHOOSE OF btnCloseResults IN FRAME resultsFrame /* Close Results */
 DO:
-    IF VALID-HANDLE(hQueryBrowse) THEN
-    DELETE OBJECT hQueryBrowse.
     FRAME resultsFrame:HIDDEN = YES.
 END.
 
@@ -2042,7 +2050,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCSV C-Win
 ON CHOOSE OF btnCSV IN FRAME outputFrame /* csv */
 DO:
-    RUN pRunSubject (YES, "CSV", "{&defaultUser}", "").
+    RUN pRunSubject (YES, "CSV", "{&defaultUser}", cPrgmName).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2066,7 +2074,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDOCX C-Win
 ON CHOOSE OF btnDOCX IN FRAME outputFrame
 DO:
-    RUN pRunSubject (YES, "DOCX", "{&defaultUser}", "").
+    RUN pRunSubject (YES, "DOCX", "{&defaultUser}", cPrgmName).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2091,7 +2099,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnHTML C-Win
 ON CHOOSE OF btnHTML IN FRAME outputFrame
 DO:
-    RUN pRunSubject (YES, "HTML", "{&defaultUser}", "").
+    RUN pRunSubject (YES, "HTML", "{&defaultUser}", cPrgmName).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2142,7 +2150,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPDF C-Win
 ON CHOOSE OF btnPDF IN FRAME outputFrame
 DO:
-    RUN pRunSubject (YES, "PDF", "{&defaultUser}", "").
+    RUN pRunSubject (YES, "PDF", "{&defaultUser}", cPrgmName).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnPrint
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrint C-Win
+ON CHOOSE OF btnPrint IN FRAME outputFrame
+DO:
+    RUN pRunSubject (YES, "Print -d", "{&defaultUser}", cPrgmName).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2227,9 +2246,9 @@ END.
 &Scoped-define FRAME-NAME outputFrame
 &Scoped-define SELF-NAME btnRunResults
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRunResults C-Win
-ON CHOOSE OF btnRunResults IN FRAME outputFrame /* Run Results */
+ON CHOOSE OF btnRunResults IN FRAME outputFrame /* Browse Grid */
 DO:
-    RUN pRunSubject (YES, "Results", "{&defaultUser}", "").
+    RUN pRunSubject (YES, "Results", "{&defaultUser}", cPrgmName).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2300,7 +2319,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnView C-Win
 ON CHOOSE OF btnView IN FRAME outputFrame
 DO:
-    RUN pRunSubject (YES, "View", "{&defaultUser}", "").
+    RUN pRunSubject (YES, "View", "{&defaultUser}", cPrgmName).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2328,7 +2347,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnXLS C-Win
 ON CHOOSE OF btnXLS IN FRAME outputFrame
 DO:
-    RUN pRunSubject (YES, "XLS", "{&defaultUser}", "").
+    RUN pRunSubject (YES, "XLS", "{&defaultUser}", cPrgmName).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2970,13 +2989,13 @@ PROCEDURE enable_UI :
          btnTime btnDateTime subjectSearch subjectMatches tableSearch 
          tableMatches tableList btnOF tableListOf btnWhere btnMatches 
          subjectBrowse tableBrowse subjectWhereBrowse btnBegins btnAND btnOR 
-         btnEQ btnNE btnResults btnLT btnGT fieldSearch fieldMatches 
-         paramSetSearch paramSetMatches btnLE btnGE paramSetBrowse fieldBrowse 
-         btnPlus btnMinus subjectParamSetBrowse btnMultiply btnDivide btnYes 
-         btnNo btnDate cUseIndex findType btnDec subjectTableBrowse btnInt 
+         btnEQ btnNE btnLT btnGT fieldSearch fieldMatches paramSetSearch 
+         paramSetMatches btnLE btnGE paramSetBrowse fieldBrowse btnPlus 
+         btnMinus subjectParamSetBrowse btnMultiply btnDivide btnYes btnNo 
+         btnDate cUseIndex findType btnDec subjectTableBrowse btnInt 
          columnSearch columnMatches btnStr subjectColumnBrowse btnSubstr 
          cParameter btnOpen btnClose cConstant btnPeriod btnDouble btnComma 
-         btnSingle queryStr btnSyntax btnAddSelections btnGroupCalc 
+         btnSingle queryStr btnResults btnSyntax btnAddSelections btnGroupCalc 
          btnAddUseIndex btnRemoveUseIndex btnAddParameter btnSave 
          btnRemoveSelection btnMoveDown btnAddConstant btnMoveUp btnRemove 
          btnAdd btnCopy btnDelete btnUpdate cParameterLabel cConstantLabel 
@@ -2986,10 +3005,10 @@ PROCEDURE enable_UI :
           svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter 
           svShowParameters 
       WITH FRAME outputFrame IN WINDOW C-Win.
-  ENABLE btnAddEmail svRecipients svShowAll svShowReportHeader 
-         svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
-         svShowGroupFooter svShowParameters btnCSV btnDOCX btnHTML btnPDF 
-         btnRunResults btnView btnXLS 
+  ENABLE svRecipients svShowAll btnPrint svShowReportHeader svShowReportFooter 
+         svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter 
+         svShowParameters btnRunResults btnAddEmail btnCSV btnDOCX btnHTML 
+         btnPDF btnView btnXLS 
       WITH FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}
   ENABLE btnCloseResults btnSaveResults 
@@ -4139,9 +4158,8 @@ PROCEDURE pWinReSize :
             .
         IF VALID-HANDLE(hQueryBrowse) THEN DO:
             ASSIGN
-                hQueryBrowse:HEIGHT       = FRAME resultsFrame:HEIGHT - .1
-                hQueryBrowse:WIDTH        = FRAME resultsFrame:WIDTH - .32
-                FRAME resultsFrame:HIDDEN = NO
+                hQueryBrowse:HEIGHT = FRAME resultsFrame:HEIGHT - .1
+                hQueryBrowse:WIDTH  = FRAME resultsFrame:WIDTH - .32
                 .
         END. /* if valid-handle */
     END. /* do with */
@@ -4150,7 +4168,7 @@ PROCEDURE pWinReSize :
             FRAME outputFrame:COL = 1
             btnCloseParam:COL     = FRAME paramFrame:WIDTH
                                   - btnCloseParam:WIDTH
-            .
+                                  .
         btnCloseParam:MOVE-TO-TOP().
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
