@@ -72,12 +72,14 @@ DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Rep,Rep Name,Name,Customer,Customer Name,Invoice#,Inv Date,FG Item,Catgy,Qty shipped,Total MSF,Order#," +
-                             "$/MSF,Sales Amt,Full Cost,Profit,Group#,Member#,UOM,Cust PO#,Est Board Code,Customer Part#,BOL#,Sq Ft"
+                             "$/MSF,Sales Amt,Full Cost,Profit,Group#,Member#,UOM,Cust PO#,Est Board Code,Customer Part#,BOL#,Sq Ft," +
+                             "Customer Lot#"
        cFieldListToSelect = "rep,rep-name,name,cust,custname,inv-no,inv-date,fg,cat,qty,ttl-msf,pur-ord," +
-                            "msf,sal-amt,ful-cst,proft,grp-no,mbr-no,inv-uom,cust-po,board-code,customer-part,bol,sqft"
+                            "msf,sal-amt,ful-cst,proft,grp-no,mbr-no,inv-uom,cust-po,board-code,customer-part,bol,sqft," +
+                            "cust-lot"
        cFieldLength = "3,20,20,8,25,8,8,15,5,12,9,8," +
-                      "8,15,11,11,8,10,3,15,12,15,6,10"
-       cFieldType   = "c,c,c,c,c,i,c,c,c,i,i,i," + "i,i,i,i,c,c,c,c,c,c,i,i"
+                      "8,15,11,11,8,10,3,15,14,15,6,10," + "15"
+       cFieldType   = "c,c,c,c,c,i,c,c,c,i,i,i," + "i,i,i,i,c,c,c,c,c,c,i,i," + "c"
        .
 ASSIGN cTextListToDefault  = "Rep,Rep Name,Customer,Customer Name,Invoice#,FG Item,Name,Catgy,Qty shipped,Total MSF," +
                              "$/MSF,Sales Amt,Full Cost,Profit,Cust PO#".
@@ -1666,6 +1668,7 @@ DEFINE VARIABLE tsstate LIKE fsstate INIT "zz".
 DEFINE VARIABLE cBoardCode AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cCustPart AS CHARACTER NO-UNDO .
 DEFINE VARIABLE iBolNo AS INTEGER NO-UNDO .
+DEFINE VARIABLE cCustLot AS CHARACTER NO-UNDO .
 
 FORM cust.name            COLUMN-LABEL "Customer"
      w-data.inv-no
@@ -1924,6 +1927,54 @@ PROCEDURE pgetBoard :
        IF AVAIL eb AND AVAIL ef THEN
            opcBoard = ef.board .
        ELSE opcBoard = "" .
+   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetCustLot C-Win 
+PROCEDURE pGetCustLot :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iprowid AS ROWID NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcCustLot AS CHARACTER NO-UNDO.
+
+  FIND FIRST ar-invl NO-LOCK
+      WHERE ar-invl.company EQ cocode 
+        AND ROWID(ar-invl) EQ iprowid NO-ERROR .
+   IF AVAIL ar-invl THEN do:
+       FIND FIRST ar-inv NO-LOCK
+            where ar-inv.company eq cocode
+              and ar-inv.cust-no eq ar-invl.cust-no
+              and ar-inv.inv-no  eq ar-invl.inv-no
+           NO-ERROR .
+       IF AVAIL ar-inv AND ar-inv.ord-no NE 0 THEN do:
+
+           FIND FIRST oe-ordl NO-LOCK
+               WHERE oe-ordl.company EQ cocode 
+                 AND oe-ordl.ord-no EQ ar-inv.ord-no 
+                 AND oe-ordl.i-no EQ ar-invl.i-no NO-ERROR .
+           IF AVAIL oe-ordl THEN
+               FOR EACH oe-rel NO-LOCK
+               WHERE oe-rel.company  EQ oe-ordl.company
+                 AND oe-rel.ord-no   EQ oe-ordl.ord-no
+                 AND oe-rel.i-no     EQ oe-ordl.i-no
+                 AND oe-rel.line     EQ oe-ordl.line
+                 AND oe-rel.link-no  NE 0
+                 AND oe-rel.lot-no   NE ""
+                BY oe-rel.rel-date
+                BY oe-rel.r-no:
+
+                 opcCustLot = oe-rel.lot-no  .
+                 LEAVE .
+               END.
+       END.
    END.
 
 END PROCEDURE.

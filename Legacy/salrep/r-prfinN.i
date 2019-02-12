@@ -129,7 +129,7 @@
 
         release ar-inv.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         ASSIGN
          lv-r-no = 0
@@ -389,7 +389,7 @@ IF NOT v-smr THEN
 
         release ar-inv.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         ASSIGN
          lv-r-no = 0
@@ -519,8 +519,11 @@ IF NOT v-smr THEN
           and shipto.cust-no eq cust.cust-no NO-LOCK NO-ERROR  .
 
      cBoardCode = "".
-     IF AVAIL ar-invl THEN 
+     cCustLot   = "" .
+     IF AVAIL ar-invl THEN do: 
            RUN pgetBoard( ROWID(ar-invl) , OUTPUT cBoardCode) .
+           RUN pgetCustLot( ROWID(ar-invl) , OUTPUT cCustLot) .
+     END.
 
 
        ASSIGN cDisplay = ""
@@ -560,6 +563,7 @@ IF NOT v-smr THEN
                  WHEN "customer-part" THEN cVarValue = STRING(cCustPart,"x(15)").
                  WHEN "bol" THEN cVarValue = STRING(iBolNo,">>>>>>").
                  WHEN "sqft" THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.t-sqft,"->>>>9.999") ELSE "" .
+                 WHEN "cust-lot" THEN cVarValue = STRING(cCustLot,"x(15)").
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -638,6 +642,7 @@ IF NOT v-smr THEN
                  WHEN "customer-part" THEN cVarValue = "".
                  WHEN "bol" THEN cVarValue = "".
                  WHEN "sqft" THEN cVarValue = "".
+                 WHEN "cust-lot" THEN cVarValue = "".
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -718,6 +723,7 @@ IF NOT v-smr THEN
                  WHEN "customer-part" THEN cVarValue = "".
                  WHEN "bol" THEN cVarValue = "".
                  WHEN "sqft" THEN cVarValue = "".
+                 WHEN "cust-lot" THEN cVarValue = "".
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -802,6 +808,7 @@ IF NOT v-smr THEN
                  WHEN "customer-part" THEN cVarValue = "".
                  WHEN "bol" THEN cVarValue = "".
                  WHEN "sqft" THEN cVarValue = "".
+                 WHEN "cust-lot" THEN cVarValue = "".
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -940,7 +947,7 @@ IF NOT v-smr THEN
          iBolNo    = 0.
         release ar-inv.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl),  BUFFER oe-retl).
 
         ASSIGN
          lv-r-no = 0
@@ -1081,8 +1088,11 @@ IF NOT v-smr THEN
     IF LAST-OF(tt-report2.key-07) THEN do:
 
         cBoardCode = "".
-        IF AVAIL ar-invl THEN 
+        cCustLot = "" .
+        IF AVAIL ar-invl THEN do: 
            RUN pgetBoard( ROWID(ar-invl) , OUTPUT cBoardCode) .
+          RUN pgetCustLot( ROWID(ar-invl) , OUTPUT cCustLot) .
+        END.
 
        ASSIGN cDisplay = ""
           cTmpField = ""
@@ -1121,6 +1131,7 @@ IF NOT v-smr THEN
                  WHEN "customer-part" THEN cVarValue = STRING(cCustPart,"x(15)").
                  WHEN "bol" THEN cVarValue = STRING(iBolNo,">>>>>>").
                  WHEN "sqft" THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.t-sqft,"->>>>9.999") ELSE "".
+                 WHEN "cust-lot" THEN cVarValue = STRING(cCustLot,"x(15)").
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -1202,6 +1213,7 @@ IF NOT v-smr THEN
                  WHEN "customer-part" THEN cVarValue = "".
                  WHEN "bol" THEN cVarValue = "".
                  WHEN "sqft" THEN cVarValue = "".
+                 WHEN "cust-lot" THEN cVarValue = "".
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
