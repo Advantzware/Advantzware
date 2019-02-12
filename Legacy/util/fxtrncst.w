@@ -36,6 +36,7 @@ assign
 
 def var v-process as log no-undo.
 DEFINE VARIABLE hdCostProcs AS HANDLE.
+DEFINE STREAM excel.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -53,9 +54,10 @@ DEFINE VARIABLE hdCostProcs AS HANDLE.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-17 begin_i-no end_i-no tb_FallBack ~
-tb_Receipts tb_0 tb_inactive btn-process btn-cancel 
+tb_Receipts tb_0 tb_inactive tb_excel tb_runExcel fi_file btn-process ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_i-no end_i-no tb_FallBack ~
-tb_Receipts tb_0 tb_inactive 
+tb_Receipts tb_0 tb_inactive tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -89,14 +91,26 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 48 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\fxtrncst.csv" 
+     LABEL "If Yes, File Name" 
+     VIEW-AS FILL-IN 
+     SIZE 43 BY 1
+     FGCOLOR 9 .
+
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 7.62.
+     SIZE 89 BY 9.76.
 
 DEFINE VARIABLE tb_0 AS LOGICAL INITIAL yes 
      LABEL "Fix Cost for ~"0~" in Cost and ~"?~" in Cost only" 
      VIEW-AS TOGGLE-BOX
      SIZE 47 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+     LABEL "Export To Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81
+     BGCOLOR 3  NO-UNDO.
 
 DEFINE VARIABLE tb_FallBack AS LOGICAL INITIAL yes 
      LABEL "Use FG Item Costs if PO, Job, or Receipt Not Found" 
@@ -113,6 +127,12 @@ DEFINE VARIABLE tb_Receipts AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 46 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+     LABEL "Auto Run Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81
+     BGCOLOR 3  NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -125,8 +145,12 @@ DEFINE FRAME FRAME-A
      tb_Receipts AT ROW 9.33 COL 28 WIDGET-ID 6
      tb_0 AT ROW 10.29 COL 28
      tb_inactive AT ROW 11.24 COL 28 WIDGET-ID 2
-     btn-process AT ROW 12.67 COL 21
-     btn-cancel AT ROW 12.67 COL 53
+     tb_excel AT ROW 12.48 COL 40.6 WIDGET-ID 10
+     tb_runExcel AT ROW 12.48 COL 82.6 RIGHT-ALIGNED WIDGET-ID 12
+     fi_file AT ROW 13.38 COL 38.6 COLON-ALIGNED HELP
+          "Enter File Name" WIDGET-ID 8
+     btn-process AT ROW 15.05 COL 21
+     btn-cancel AT ROW 15.05 COL 53
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
@@ -136,7 +160,7 @@ DEFINE FRAME FRAME-A
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89.6 BY 13.71.
+         SIZE 89.6 BY 15.67.
 
 DEFINE FRAME FRAME-B
      "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
@@ -169,7 +193,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Fix FG Hist Cost"
-         HEIGHT             = 13.81
+         HEIGHT             = 15.67
          WIDTH              = 91.2
          MAX-HEIGHT         = 19.76
          MAX-WIDTH          = 98.2
@@ -213,6 +237,20 @@ ASSIGN
 ASSIGN 
        btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
+
+ASSIGN 
+       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
@@ -281,6 +319,39 @@ DO:
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
 
   IF v-process THEN RUN run-process.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_excel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
+ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_runExcel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
+ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
+DO:
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -361,10 +432,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_i-no end_i-no tb_FallBack tb_Receipts tb_0 tb_inactive 
+  DISPLAY begin_i-no end_i-no tb_FallBack tb_Receipts tb_0 tb_inactive tb_excel 
+          tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-17 begin_i-no end_i-no tb_FallBack tb_Receipts tb_0 tb_inactive 
-         btn-process btn-cancel 
+         tb_excel tb_runExcel fi_file btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -393,10 +465,19 @@ DEFINE VARIABLE iCountTotal AS INTEGER NO-UNDO.
 DEFINE VARIABLE iCountCompared AS INTEGER NO-UNDO. 
 DEFINE VARIABLE iCountChanged AS INTEGER NO-UNDO.
 DEFINE VARIABLE iTime AS INTEGER NO-UNDO.
+DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 
 DEF BUFFER b-fg-bin FOR fg-bin.
 DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth.
 DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
+
+IF tb_excel THEN do:
+    OUTPUT STREAM excel TO VALUE(fi_file).
+
+    excelheader = "FG Item,Rita Code,Job#,Job2,Po#,Cost,Cost Uom,Total Std Cost,Std Fix OH Cost,Std Var OH Cost,Std Mat'l Cost,Std Labor Cost,Group,Old Cost,Old Cost Uom".
+    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+END.
+
 
 SESSION:SET-WAIT-STATE("General").
 
@@ -442,6 +523,7 @@ FOR EACH itemfg NO-LOCK
         lv-cost[5] = 0
         lv-cost[6] = 0
         .
+      
      /*Only "fix" if the transaction has a job or po or if it is not a receipt*/
      /*In other words, if a receipt has no po or a job, leave it alone*/   
      IF fg-rcpth.rita-code NE "R" OR fg-rcpth.job-no NE "" OR fg-rcpth.po-no NE "" OR tb_Receipts THEN DO:   
@@ -474,6 +556,27 @@ FOR EACH itemfg NO-LOCK
              fg-rctd.cost-uom = itemfg.prod-uom
              fg-rctd.ext-cost = fg-rctd.std-cost *
                                 (fg-rctd.t-qty / IF fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1).
+
+            IF tb_excel THEN DO:
+                EXPORT STREAM excel DELIMITER "," 
+                    fg-rcpth.i-no
+                    fg-rcpth.rita-code
+                    fg-rcpth.job-no 
+                    fg-rcpth.job-no2
+                    fg-rcpth.po-no
+                    fg-rdtlh.cost
+                    fg-rcpth.pur-uom
+                    fg-rdtlh.std-tot-cost
+                    fg-rdtlh.std-fix-cost
+                    fg-rdtlh.std-var-cost
+                    fg-rdtlh.std-mat-cost
+                    fg-rdtlh.std-lab-cost 
+                    fg-rdtlh.spare-char-1 
+                    fg-rdtlh.spare-dec-1
+                    fg-rdtlh.spare-char-2
+                    .
+                     
+              END. /* tb_excel */
         END.
     END.
   END.
@@ -482,6 +585,14 @@ END.
 STATUS DEFAULT "".
 
 SESSION:SET-WAIT-STATE("").
+
+IF tb_excel THEN 
+DO:
+  OUTPUT STREAM excel CLOSE.
+
+  IF tb_runExcel THEN
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+END.
 
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." SKIP(2) 
     "Items Processed: " iCountItem SKIP 
