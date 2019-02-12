@@ -34,6 +34,9 @@ DEFINE TEMP-TABLE ttHTMLFields NO-UNDO
         INDEX ttHTMLFields IS PRIMARY fieldType
         .
 
+
+
+/* ************************  Function Implementations ***************** */
 FUNCTION fHTMLFieldValue RETURNS CHARACTER
     (ipcTable       AS CHARACTER,
      ipcFieldLabel  AS CHARACTER,
@@ -69,6 +72,21 @@ FUNCTION fHTMLFieldValue RETURNS CHARACTER
     END CASE.
 
     RETURN cFieldValue.
+END FUNCTION.
+
+FUNCTION fWebCharacters RETURNS CHARACTER 
+	(ipcWebString AS CHARACTER):
+	ASSIGN
+        ipcWebString = REPLACE(ipcWebString,"~&","")
+        ipcWebString = REPLACE(ipcWebString,"~'","")
+        ipcWebString = REPLACE(ipcWebString,"~"","")
+        ipcWebString = REPLACE(ipcWebString,"<","")
+        ipcWebString = REPLACE(ipcWebString,">","")
+        ipcWebString = REPLACE(ipcWebString,"~\","")
+        ipcWebString = REPLACE(ipcWebString,"~/","")
+        .
+	RETURN ipcWebString.
+
 END FUNCTION.
 
 FUNCTION numericDateTime RETURNS DECIMAL (ipDate AS DATE,ipTime AS INTEGER):
@@ -396,6 +414,12 @@ RUN pHTMLPages.
 
 RUN pLogEntry ("SaveEnd", STRING(TODAY,"99.99.9999") + " @ " + STRING(TIME,"hh:mm:ss")).
 
+
+
+/* ************************  Function Prototypes ********************** */
+FUNCTION fWebCharacters RETURNS CHARACTER 
+	(ipcWebString AS CHARACTER) FORWARD.
+
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE check4Notes:
@@ -665,7 +689,7 @@ PROCEDURE pHTMLPages:
             IF iJobs NE 0 THEN
             PUT UNFORMATTED
                 '<a href="JavaScript:newPopup(~''
-                REPLACE(htmlPageLocation + '\' + REPLACE(ttblJob.resource,"/",""),"\","/")
+                htmlPageLocation + '\' + fWebCharacters(ttblJob.resource)
                 'Pending.htm~');">Jobs: <b>' iJobs '</a><br>' specialTime(iTime) '</b>'
                 .
             ELSE PUT UNFORMATTED "~&nbsp".
@@ -785,7 +809,7 @@ PROCEDURE pHTMLPages:
                             + "</font></b>"
                 lScript     = NO
                 .
-            OUTPUT TO VALUE(htmlPageLocation + '\' + REPLACE(ttblJob.resource,"/","") + '.htm').
+            OUTPUT TO VALUE(htmlPageLocation + '\' + fWebCharacters(ttblJob.resource) + '.htm').
             RUN pHTMLHeader (cHTMLTitle,cHTMLLegend,lScript).
             RUN pHTMLBranding.
             PUT UNFORMATTED
@@ -822,7 +846,7 @@ PROCEDURE pHTMLPages:
                             + "</font></b>"
                 lScript     = NO
                 .
-            OUTPUT TO VALUE(htmlPageLocation + '\' + REPLACE(pendingJob.resource,"/","") + 'Pending.htm').
+            OUTPUT TO VALUE(htmlPageLocation + '\' + fWebCharacters(pendingJob.resource) + 'Pending.htm').
             RUN pHTMLHeader (cHTMLTitle,cHTMLLegend,lScript).
             RUN pHTMLBranding.
             PUT UNFORMATTED
