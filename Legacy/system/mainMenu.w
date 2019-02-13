@@ -2259,6 +2259,7 @@ PROCEDURE pGetCopyUsers :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iUserSecurityLevel AS INTEGER NO-UNDO.
     DO WITH FRAME userSettingsFrame:
         ASSIGN
             copyFromUser:LIST-ITEM-PAIRS = ?
@@ -2275,8 +2276,10 @@ PROCEDURE pGetCopyUsers :
                     .
             END. /* first-of */
         END. /* each xusermenu */
-        FOR EACH users NO-LOCK:
-            IF users.user_id EQ "asi" THEN NEXT.
+        iUserSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
+        FOR EACH users NO-LOCK
+            WHERE users.securityLevel LE iUserSecurityLevel 
+            :            
             copyToUser:ADD-LAST(users.user_id + " - "
                 + REPLACE(users.user_name,","," "),users.user_id)
                 .
