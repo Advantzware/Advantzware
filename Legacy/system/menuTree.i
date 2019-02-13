@@ -485,7 +485,7 @@ PROCEDURE pKeyPress:
     END. /* if 32 */
     ELSE IF LENGTH(cMnemonic) GE 2 AND ipiLastKey EQ 48 THEN DO:
         RUN spSetTaskFilter (cMnemonic, "", "").
-        RUN Get_Procedure IN Persistent-Handle("aoaTasks.", OUTPUT run-proc, YES).
+        RUN Get_Procedure IN Persistent-Handle("tasksWin.", OUTPUT run-proc, YES).
         RETURN.
     END. /* zero */
     ELSE

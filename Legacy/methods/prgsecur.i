@@ -13,7 +13,8 @@ DEFINE VARIABLE access-close AS LOGICAL NO-UNDO.
 
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
-   INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
+   INDEX(PROGRAM-NAME(1),".ped") NE 0 OR
+   INDEX(PROGRAM-NAME(1),".cmp") NE 0 THEN
     v-prgmname = USERID("ASI") + "..".
 ELSE
     ASSIGN

@@ -27,14 +27,14 @@ FIND FIRST Task NO-LOCK WHERE ROWID(Task) EQ rRowID.
 
 FIND FIRST user-print NO-LOCK
      WHERE user-print.company    EQ Task.company
-       AND user-print.program-id EQ Task.programID
+       AND user-print.program-id EQ Task.prgmName
        AND user-print.user-id    EQ Task.user-id
        AND user-print.batch-seq  EQ Task.taskID
        AND user-print.prgmName   EQ ""
      NO-ERROR.
 IF AVAILABLE user-print THEN DO:
     FIND FIRST prgrms NO-LOCK
-         WHERE prgrms.prgmname EQ Task.programID
+         WHERE prgrms.prgmname EQ Task.prgmName
          NO-ERROR.
     IF AVAILABLE prgrms THEN DO:
         IF prgrms.module NE "" THEN DO:
@@ -45,7 +45,7 @@ IF AVAILABLE user-print THEN DO:
                 SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
                 RUN VALUE(cAppSrv + ".p") PERSISTENT SET hAppSrv.
                 SESSION:ADD-SUPER-PROCEDURE (hAppSrv).                
-                RUN AOA\aoaJasper.p PERSISTENT SET hJasper.
+                RUN AOA\spJasper.p PERSISTENT SET hJasper.
                 SESSION:ADD-SUPER-PROCEDURE (hJasper).
                 RUN spJasper (
                     Task.taskFormat,
@@ -55,7 +55,7 @@ IF AVAILABLE user-print THEN DO:
                     OUTPUT cJasperFile
                     ).
                 RUN pCreateAuditHdr.
-                RUN spCreateAuditDtl (iAuditID, "programID", 0, cJasperFile, Task.programID,  NO).
+                RUN spCreateAuditDtl (iAuditID, "programID", 0, cJasperFile, Task.prgmName,  NO).
                 IF Task.recipients NE "" THEN DO:
                     IF AVAILABLE config THEN DO:
                         IF config.taskName THEN
@@ -104,7 +104,7 @@ IF AVAILABLE user-print THEN DO:
                     "module",
                     0,
                     "invalid prgrms module (" + prgrms.module + ")",
-                    Task.programID,
+                    Task.prgmName,
                     NO
                     ).
             END. /* else search */
@@ -116,7 +116,7 @@ IF AVAILABLE user-print THEN DO:
                 "programID",
                 0,
                 "prgrms module blank",
-                Task.programID,
+                Task.prgmName,
                 NO
                 ).
         END. /* else module */
@@ -128,7 +128,7 @@ IF AVAILABLE user-print THEN DO:
             "programID",
             0,
             "prgrms record not found",
-            Task.programID,
+            Task.prgmName,
             NO
             ).
     END. /* else prgrms */
@@ -141,7 +141,7 @@ ELSE DO:
         0,
         "user-print record not found",
         Task.company + "|" +
-        Task.programID + "|" +
+        Task.prgmName + "|" +
         Task.user-id + "|" +
         STRING(Task.taskID),
         NO

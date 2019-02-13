@@ -56,7 +56,7 @@ cPrgmName = ipcPrgmName.
 
 RUN AOA\appServer\aoaBin.p PERSISTENT SET hAppSrvBin
 SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
-RUN AOA\aoaJasper.p PERSISTENT SET hJasper
+RUN AOA\spJasper.p PERSISTENT SET hJasper
 SESSION:ADD-SUPER-PROCEDURE (hJasper).
 
 {methods/lockWindowUpdate.i}
@@ -247,10 +247,10 @@ DEFINE FRAME outputFrame
      svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
      svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
      svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
-     svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
-     svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
      btnHTML AT ROW 1.48 COL 135 HELP
           "HTML" WIDGET-ID 144
+     svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
+     svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
      btnRunResults AT ROW 1.48 COL 95 HELP
           "Browse Grid" WIDGET-ID 254
      btnView AT ROW 1.48 COL 151 HELP
@@ -437,7 +437,7 @@ DO:
     DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
     
     cRecipients = svRecipients:SCREEN-VALUE.
-    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    RUN Jasper/Recipients.w (INPUT-OUTPUT cRecipients).
     svRecipients:SCREEN-VALUE = cRecipients.
 END.
 
@@ -450,8 +450,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCloseResults C-Win
 ON CHOOSE OF btnCloseResults IN FRAME resultsFrame /* Close Results */
 DO:
-    IF VALID-HANDLE(hQueryBrowse) THEN
-    DELETE OBJECT hQueryBrowse.
     FRAME resultsFrame:HIDDEN = YES.
 END.
 
@@ -685,6 +683,8 @@ ON CLOSE OF THIS-PROCEDURE
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
 
+{AOA/includes/dynProcs.i "dyn"}
+
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
@@ -696,8 +696,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
-
-{AOA/includes/dynProcs.i "dyn"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -740,9 +738,9 @@ PROCEDURE enable_UI :
           svShowParameters 
       WITH FRAME outputFrame IN WINDOW C-Win.
   ENABLE btnCSV svRecipients svShowAll svShowReportHeader svShowReportFooter 
-         svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter 
-         svShowParameters btnHTML btnRunResults btnView btnAddEmail btnPrint 
-         btnDOCX btnPDF btnXLS 
+         svShowPageHeader svShowPageFooter svShowGroupHeader btnHTML 
+         svShowGroupFooter svShowParameters btnRunResults btnView btnAddEmail 
+         btnPrint btnDOCX btnPDF btnXLS 
       WITH FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}
   VIEW FRAME paramFrame IN WINDOW C-Win.

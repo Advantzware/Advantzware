@@ -2,12 +2,12 @@
 &ANALYZE-RESUME
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Procedure 
 /*------------------------------------------------------------------------
-    File        : spDynamic.p
-    Purpose     : super-procedures for dynamic subject/query/parameters
+    File        : spCalcField.p
+    Purpose     : super-procedures for dynamic calculated fields
 
-    Syntax      : AOA/spDynamic.p
+    Syntax      : AOA/spCalcField.p
 
-    Description : Super Procedures used by Dynamic Subjects/Querys/Parameters
+    Description : Super Procedures used by Calculated Fields
 
     Author(s)   : Ron Stark
     Created     : 1.28.2019
@@ -17,8 +17,6 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -72,7 +70,6 @@ DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 
 
 /* **********************  Internal Procedures  *********************** */
-
 &IF DEFINED(EXCLUDE-calcStringDateTime) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calcStringDateTime Procedure
@@ -81,11 +78,13 @@ PROCEDURE calcStringDateTime:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCalcParam AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtDate AS DATE    NO-UNDO.
+    DEFINE INPUT PARAMETER ipiTime  AS INTEGER NO-UNDO.
+    
     DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
     
-    opcCalcValue = STRING(DATE(ENTRY(1,ipcCalcParam,"|")),"99/99/9999") + " "
-                 + STRING(INTEGER(ENTRY(2,ipcCalcParam,"|")),"hh:mm:ss am")
+    opcCalcValue = STRING(ipdtDate,"99/99/9999") + " "
+                 + STRING(ipiTime,"hh:mm:ss am")
                  .
 
 END PROCEDURE.
@@ -105,10 +104,11 @@ PROCEDURE calcStringTime:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCalcParam AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiTime AS INTEGER NO-UNDO.
+    
     DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
     
-    opcCalcValue = STRING(INTEGER(ipcCalcParam),"hh:mm:ss am").
+    opcCalcValue = STRING(ipiTime,"hh:mm:ss am").
 
 END PROCEDURE.
 	
@@ -155,7 +155,17 @@ PROCEDURE spCalcField:
                 .
         END. /* if database field */
     END. /* do idx */
-    RUN VALUE(ipcCalcProc) (ipcCalcParam, OUTPUT opcCalcValue).
+    CASE ipcCalcProc:
+        WHEN "calcStringDateTime" THEN
+        RUN VALUE(ipcCalcProc) (
+            DATE(ENTRY(1,ipcCalcParam,"|")),
+            INTEGER(ENTRY(2,ipcCalcParam,"|")),
+            OUTPUT opcCalcValue).
+        WHEN "calcStringTime" THEN
+        RUN VALUE(ipcCalcProc) (
+            INTEGER(ipcCalcParam),
+            OUTPUT opcCalcValue).
+    END CASE.
 
 END PROCEDURE.
 	
@@ -164,46 +174,4 @@ END PROCEDURE.
 
 
 &ENDIF
-
-
-&IF DEFINED(EXCLUDE-spGetCompany) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetCompany Procedure
-PROCEDURE spGetCompany:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    RETURN cCompany.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-spSetCompany) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetCompany Procedure
-PROCEDURE spSetCompany:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    
-    cCompany = ipcCompany.
-
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
 /* ************************  Function Implementations ***************** */

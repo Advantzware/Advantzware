@@ -354,14 +354,14 @@ AuditHdr.AuditDateTime GE dttOpenDateTime"
 CREATE CONTROL-FRAME CtrlFrame ASSIGN
        FRAME           = FRAME DEFAULT-FRAME:HANDLE
        ROW             = 1
-       COLUMN          = 37
+       COLUMN          = 1
        HEIGHT          = 4.76
        WIDTH           = 20
        WIDGET-ID       = 2
        HIDDEN          = yes
        SENSITIVE       = yes.
 /* CtrlFrame OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
-      CtrlFrame:MOVE-AFTER(showLogging:HANDLE IN FRAME DEFAULT-FRAME).
+      CtrlFrame:MOVE-AFTER(TaskBrowse:HANDLE IN FRAME DEFAULT-FRAME).
 
 &ENDIF
 
@@ -802,7 +802,8 @@ PROCEDURE pTasks :
                 RELEASE bTask.
             END. /* do trans */
             ASSIGN
-                FILE-INFO:FILE-NAME = "AOA\runTask.r"
+                FILE-INFO:FILE-NAME = IF Task.taskType EQ "Jasper" THEN "AOA\runTask.r"
+                                      ELSE "AOA/runTaskU.r" /* DataPA */
                 cRunProgram = FILE-INFO:FULL-PATHNAME
                 .
             OS-COMMAND NO-WAIT VALUE(

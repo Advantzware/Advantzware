@@ -10,14 +10,14 @@ DEFINE OUTPUT PARAMETER oplOK          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cBufferValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTableName   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldName   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hDynamic     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hCalcField   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQueryBuf    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
 
 {AOA/includes/dynFuncs.i}
 
-RUN AOA/spDynamic.p PERSISTENT SET hDynamic.
-SESSION:ADD-SUPER-PROCEDURE (hDynamic).
+RUN AOA/spCalcField.p PERSISTENT SET hCalcField.
+SESSION:ADD-SUPER-PROCEDURE (hCalcField).
 
 FIND FIRST dynParamValue NO-LOCK WHERE ROWID(dynParamValue) EQ iprRowID NO-ERROR.
 IF NOT AVAILABLE dynParamValue THEN RETURN.
@@ -48,7 +48,7 @@ IF NOT iphQuery:QUERY-OFF-END THEN DO:
             IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
             IF dynParamValue.isCalcField[idx] THEN DO:
                 cFieldName = dynParamValue.colName[idx].
-                RUN spCalcField IN hDynamic (
+                RUN spCalcField IN hCalcField (
                     iphQuery:HANDLE,
                     dynParamValue.calcProc[idx],
                     dynParamValue.calcParam[idx],

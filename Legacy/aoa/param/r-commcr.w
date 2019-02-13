@@ -440,7 +440,7 @@ DO:
     DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
     
     cRecipients = svRecipients:SCREEN-VALUE.
-    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    RUN AOA/Recipients.w (INPUT-OUTPUT cRecipients).
     svRecipients:SCREEN-VALUE = cRecipients.
 END.
 

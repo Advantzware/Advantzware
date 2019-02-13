@@ -5,7 +5,7 @@
     File        : dynProcs.i
     Purpose     : shared procedures used in dynamic modules
 
-    Syntax      : AOA/includes/dynProces.i
+    Syntax      : AOA/includes/dynProcs.i
 
     Description : Dynamic Procedures
 
@@ -20,12 +20,19 @@
 
 DEFINE VARIABLE cBufferValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hCalcColumn  AS HANDLE    NO-UNDO EXTENT 200.
-DEFINE VARIABLE hDynamic     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hCalcField   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hBrowseQuery AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQuery       AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
 
-RUN AOA/spDynamic.p PERSISTENT SET hDynamic.
-SESSION:ADD-SUPER-PROCEDURE (hDynamic).
+RUN AOA/spCalcField.p PERSISTENT SET hCalcField.
+SESSION:ADD-SUPER-PROCEDURE (hCalcField).
+
+/*MESSAGE                                            */
+/*hCalcField:INTERNAL-ENTRIES SKIP                   */
+/*hCalcField:GET-SIGNATURE("calcStringDateTime") SKIP*/
+/*hCalcField:GET-SIGNATURE("calcStringTime")         */
+/*VIEW-AS ALERT-BOX.                                 */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -93,8 +100,8 @@ ON ROW-DISPLAY OF hQueryBrowse DO:
     DO idx = 1 TO EXTENT(hCalcColumn):
         IF VALID-HANDLE(hCalcColumn[idx]) AND
            dynParamValue.isCalcField[idx] THEN DO:
-            RUN spCalcField IN hDynamic (
-                hQuery:HANDLE,
+            RUN spCalcField IN hCalcField (
+                hBrowseQuery:HANDLE,
                 dynParamValue.calcProc[idx],
                 dynParamValue.calcParam[idx],
                 dynParamValue.dataType[idx],
@@ -106,7 +113,7 @@ ON ROW-DISPLAY OF hQueryBrowse DO:
     END. /* do idx */
 END. /* row-display */
 
-RUN spSetCompany (g_company).
+{AOA/includes/pSetDynParamValue.i "{1}"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -164,7 +171,11 @@ PROCEDURE pCreateDynParameters :
     DELETE WIDGET-POOL cPoolName NO-ERROR.
     CREATE WIDGET-POOL cPoolName PERSISTENT.
     
+    &IF "{1}" EQ "dyn" &THEN
     RUN pGetDynParamValue.
+    &ELSE
+    RUN pGetDynParamValue ({1}Subject.subjectID, "{&defaultUser}", "{&program-id}", 0).
+    &ENDIF
     IF NOT AVAILABLE dynParamValue OR
        NOT AVAILABLE {1}Subject THEN RETURN.    
     
@@ -674,7 +685,7 @@ PROCEDURE pRecipients :
     DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
     
     cRecipients = iphWidget:SCREEN-VALUE.
-    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    RUN AOA/Recipients.w (INPUT-OUTPUT cRecipients).
     iphWidget:SCREEN-VALUE = cRecipients.
 
 END PROCEDURE.
@@ -697,8 +708,7 @@ PROCEDURE pResultsBrowser :
     DEFINE BUFFER b{1}SubjectColumn FOR {1}SubjectColumn.
     
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
-    hQuery = iphQuery.
-    hQuery:QUERY-CLOSE.
+    iphQuery:QUERY-CLOSE.
     DO idx = 1 TO hQueryBrowse:NUM-COLUMNS:
         ASSIGN
             hCalcColumn[idx] = ?
@@ -708,7 +718,7 @@ PROCEDURE pResultsBrowser :
     END. /* do idx */
     ASSIGN
         hQueryBrowse:TITLE   = {1}Subject.subjectName + " Results"
-        hQueryBrowse:QUERY   = hQuery
+        hQueryBrowse:QUERY   = iphQuery
         hQueryBrowse:VISIBLE = TRUE
         .
     DO idx = 1 TO EXTENT(dynParamValue.colName):
@@ -729,8 +739,9 @@ PROCEDURE pResultsBrowser :
 /*        IF idx MOD 2 EQ 0 THEN hColumn:COLUMN-BGCOLOR = 11.*/
         IF dynParamValue.columnSize[idx] NE 0 THEN
         hColumn:WIDTH-CHARS = dynParamValue.columnSize[idx].
-    END. /* do idx */    
-    hQuery:QUERY-OPEN.
+    END. /* do idx */
+    hBrowseQuery = iphQuery:HANDLE.
+    iphQuery:QUERY-OPEN.
     hQueryBrowse:REFRESH().
     DO WITH FRAME resultsFrame:
         ASSIGN
@@ -801,6 +812,7 @@ PROCEDURE pRunNow:
             Task.taskFormat   = ipcTaskFormat
             Task.runNow       = YES
             Task.recipients   = cRecipients
+            Task.taskType     = "Jasper"
             .
         RELEASE Task.
     END. /* do trans */
@@ -884,7 +896,7 @@ PROCEDURE pRunSubject :
     DEFINE INPUT PARAMETER ipcUserID   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcPrgmName AS CHARACTER NO-UNDO.
 
-    RUN pSetDynParamValue (ipcUserID, ipcPrgmName).
+    RUN pSetDynParamValue ({1}Subject.subjectID, ipcUserID, ipcPrgmName, 0).
     IF iplRun THEN
     RUN pSaveDynParamValues.
     RUN pRunQuery (iplRun, ipcType, ipcUserID).
@@ -954,81 +966,6 @@ PROCEDURE pSaveDynParamValues :
 
 END PROCEDURE.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetDynParamValue Include
-PROCEDURE pSetDynParamValue:
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcUserID   AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcPrgmName AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
-    
-    DEFINE BUFFER {1}SubjectParamSet FOR {1}SubjectParamSet.
-    DEFINE BUFFER {1}SubjectColumn   FOR {1}SubjectColumn.
-    
-    FIND FIRST dynParamValue NO-LOCK
-         WHERE dynParamValue.subjectID    EQ {1}Subject.subjectID
-           AND dynParamValue.user-id      EQ ipcUserID
-           AND dynParamValue.prgmName     EQ ipcPrgmName
-           AND dynParamValue.paramValueID EQ 0
-         NO-ERROR.
-    IF NOT AVAILABLE dynParamValue THEN DO TRANSACTION:
-        CREATE dynParamValue.
-        ASSIGN
-            dynParamValue.subjectID        = {1}Subject.subjectID
-            dynParamValue.user-id          = ipcUserID
-            dynParamValue.prgmName         = ipcPrgmName
-            dynParamValue.paramDescription = IF ipcUserID EQ "{&defaultUser}" THEN "System Default"
-                                             ELSE "User Default"
-            .
-        FOR EACH {1}SubjectParamSet
-            WHERE {1}SubjectParamSet.subjectID EQ {1}Subject.subjectID,
-            EACH dynParamSetDtl NO-LOCK
-            WHERE dynParamSetDtl.paramSetID EQ {1}SubjectParamSet.paramSetID,
-            FIRST dynParam NO-LOCK
-            WHERE dynParam.paramID EQ dynParamSetDtl.paramID
-            :
-            ASSIGN
-                idx                              = idx + 1
-                dynParamValue.paramName[idx]     = dynParamSetDtl.paramName
-                dynParamValue.paramLabel[idx]    = dynParamSetDtl.paramLabel
-                dynParamValue.paramValue[idx]    = dynParamSetDtl.initialValue
-                dynParamValue.paramDataType[idx] = dynParam.dataType
-                dynParamValue.paramFormat[idx]   = dynParam.paramFormat
-                .
-        END. /* each dynsubjectparamset */
-        idx = 0.
-        FOR EACH {1}SubjectColumn NO-LOCK
-            WHERE {1}SubjectColumn.subjectID EQ {1}Subject.subjectID
-               BY {1}SubjectColumn.sortOrder
-            :
-            ASSIGN
-                idx = idx + 1
-                dynParamValue.colName[idx]     = {1}SubjectColumn.fieldName
-                dynParamValue.colLabel[idx]    = {1}SubjectColumn.fieldLabel
-                dynParamValue.colFormat[idx]   = {1}SubjectColumn.fieldFormat
-                dynParamValue.columnSize[idx]  = {1}SubjectColumn.columnSize
-                dynParamValue.dataType[idx]    = {1}SubjectColumn.dataType
-                dynParamValue.sortCol[idx]     = {1}SubjectColumn.sortCol
-                dynParamValue.isGroup[idx]     = {1}SubjectColumn.isGroup
-                dynParamValue.groupLabel[idx]  = {1}SubjectColumn.groupLabel
-                dynParamValue.groupCalc[idx]   = {1}SubjectColumn.groupCalc
-                dynParamValue.isCalcField[idx] = {1}SubjectColumn.isCalcField
-                dynParamValue.calcProc[idx]    = {1}SubjectColumn.calcProc
-                dynParamValue.calcParam[idx]   = {1}SubjectColumn.calcParam
-                .
-        END. /* each {1}SubjectColumn */
-        FIND CURRENT dynParamValue NO-LOCK.
-    END. /* not avail */
-
-END PROCEDURE.
-	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

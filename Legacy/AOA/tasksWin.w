@@ -46,6 +46,10 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
+DEFINE VARIABLE cModule   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrgmName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUserID   AS CHARACTER NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -70,6 +74,22 @@ CREATE WIDGET-POOL.
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fWindowTitle W-Win
+FUNCTION fWindowTitle RETURNS CHARACTER 
+  (ipcTitle    AS CHARACTER,
+   ipcModule   AS CHARACTER,
+   ipcPrgmName AS CHARACTER,
+   ipcUserID   AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 
@@ -364,6 +384,8 @@ PROCEDURE local-enable :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN spGetTaskFilter (OUTPUT cModule, OUTPUT cPrgmName, OUTPUT cUserID).
+  {&WINDOW-NAME}:TITLE = fWindowTitle({&WINDOW-NAME}:TITLE, cModule, cPrgmName, cUserID).
   RUN pGetSettings (USERID("ASI")).
 
   /* Dispatch standard ADM method.                             */
@@ -580,4 +602,40 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fWindowTitle W-Win
+FUNCTION fWindowTitle RETURNS CHARACTER 
+  (ipcTitle    AS CHARACTER,
+   ipcModule   AS CHARACTER,
+   ipcPrgmName AS CHARACTER,
+   ipcUserID   AS CHARACTER) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cTitle AS CHARACTER NO-UNDO.
+    
+    IF ipcModule    NE "" OR
+       ipcPrgmName  NE "" OR
+       ipcUserID    NE "" THEN DO:
+        cTitle = " - Filter [ ".
+        IF ipcModule   NE "" THEN
+        cTitle = cTitle + "Module: "     + ipcModule   + " ".
+        IF ipcPrgmName NE "" THEN
+        cTitle = cTitle + "Program ID: " + ipcPrgmName + " ".
+        IF ipcUserID   NE "" THEN
+        cTitle = cTitle + "User ID: "    + ipcUserID   + " ".
+        cTitle = cTitle + "]".
+    END.
+    cTitle = ipcTitle + cTitle.
+    RETURN cTitle.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

@@ -99,7 +99,7 @@ DEFINE TEMP-TABLE ttGroupCalc NO-UNDO
 
 RUN AOA\appServer\aoaBin.p PERSISTENT SET hAppSrvBin
 SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
-RUN AOA\aoaJasper.p PERSISTENT SET hJasper
+RUN AOA\spJasper.p PERSISTENT SET hJasper
 SESSION:ADD-SUPER-PROCEDURE (hJasper).
 
 {methods/lockWindowUpdate.i}
@@ -238,12 +238,12 @@ btnAND btnOR btnEQ btnNE btnLT btnGT fieldSearch fieldMatches ~
 paramSetSearch paramSetMatches btnLE btnGE paramSetBrowse fieldBrowse ~
 btnPlus btnMinus subjectParamSetBrowse btnMultiply btnDivide btnYes btnNo ~
 btnDate cUseIndex findType btnDec subjectTableBrowse btnInt columnSearch ~
-columnMatches btnStr subjectColumnBrowse btnSubstr cParameter btnOpen ~
-btnClose cConstant btnPeriod btnDouble btnComma btnSingle queryStr ~
-btnResults btnSyntax btnAddSelections btnGroupCalc btnAddUseIndex ~
-btnRemoveUseIndex btnAddParameter btnSave btnRemoveSelection btnMoveDown ~
-btnAddConstant btnMoveUp btnRemove btnAdd btnCopy btnDelete btnUpdate ~
-cParameterLabel cConstantLabel 
+columnMatches btnStr btnResults subjectColumnBrowse btnSubstr cParameter ~
+btnOpen btnClose cConstant btnPeriod btnSyntax btnDouble btnComma btnSingle ~
+queryStr btnAddSelections btnGroupCalc btnAddUseIndex btnRemoveUseIndex ~
+btnAddParameter btnSave btnRemoveSelection btnMoveDown btnAddConstant ~
+btnMoveUp btnRemove btnAdd btnCopy btnDelete btnUpdate cParameterLabel ~
+cConstantLabel 
 &Scoped-Define DISPLAYED-OBJECTS subjectSection subjectSearch ~
 subjectMatches tableSearch tableMatches tableList tableListOf fieldSearch ~
 fieldMatches paramSetSearch paramSetMatches cUseIndex findType columnSearch ~
@@ -262,14 +262,14 @@ paramSetBrowse fieldBrowse btnPlus btnMinus subjectParamSetBrowse ~
 btnMultiply btnDivide btnYes btnNo btnDate cUseIndex findType btnDec ~
 subjectTableBrowse btnInt columnSearch columnMatches btnStr ~
 subjectColumnBrowse btnSubstr cParameter btnOpen btnClose cConstant ~
-btnPeriod btnDouble btnComma btnSingle queryStr btnSyntax btnAddSelections ~
+btnPeriod btnSyntax btnDouble btnComma btnSingle queryStr btnAddSelections ~
 btnCancel btnGroupCalc btnAddUseIndex btnRemoveUseIndex btnAddParameter ~
 btnSave btnRemoveSelection btnMoveDown btnAddConstant btnMoveUp btnRemove ~
 btnAdd btnCopy btnDelete btnReset btnUpdate cUseIndexLabel cParameterLabel ~
 cConstantLabel queryText 
 &Scoped-define tableSection RECT-TABLE RECT-QUERYTABLE RECT-QUERYSTR ~
 RECT-PLAY tableSearch tableMatches tableBrowse cUseIndex findType ~
-subjectTableBrowse queryStr btnSyntax btnAddSelections btnAddUseIndex ~
+subjectTableBrowse btnSyntax queryStr btnAddSelections btnAddUseIndex ~
 btnRemoveUseIndex btnRemoveSelection btnMoveDown btnMoveUp btnRemove ~
 cUseIndexLabel queryText 
 &Scoped-define whereSection RECT-FIELD RECT-QUERYSTR RECT-PARAM RECT-PLAY ~
@@ -278,7 +278,7 @@ tableListOf btnWhere btnMatches subjectWhereBrowse btnBegins btnAND btnOR ~
 btnEQ btnNE btnLT btnGT fieldSearch fieldMatches paramSetMatches btnLE ~
 btnGE fieldBrowse btnPlus btnMinus btnMultiply btnDivide btnYes btnNo ~
 btnDate btnDec btnInt btnStr btnSubstr cParameter btnOpen btnClose ~
-cConstant btnPeriod btnDouble btnComma btnSingle queryStr btnSyntax ~
+cConstant btnPeriod btnSyntax btnDouble btnComma btnSingle queryStr ~
 btnAddSelections btnAddParameter btnRemoveSelection btnMoveDown ~
 btnAddConstant btnMoveUp btnRemove cParameterLabel cConstantLabel queryText 
 &Scoped-define parameterSection RECT-QUERYSTR RECT-PARAM RECT-PLAY ~
@@ -1089,8 +1089,9 @@ DEFINE FRAME DEFAULT-FRAME
      columnMatches AT ROW 17.43 COL 67 HELP
           "Select for Column Search Matches" WIDGET-ID 110
      btnStr AT ROW 18.38 COL 150 WIDGET-ID 168
+     btnResults AT ROW 1.24 COL 83 HELP
+          "Jasper Viewer" WIDGET-ID 250
      subjectColumnBrowse AT ROW 18.62 COL 1 WIDGET-ID 900
-     btnSubstr AT ROW 19.57 COL 150 WIDGET-ID 170
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -1099,19 +1100,18 @@ DEFINE FRAME DEFAULT-FRAME
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
+     btnSubstr AT ROW 19.57 COL 150 WIDGET-ID 170
      cParameter AT ROW 20.76 COL 91 COLON-ALIGNED HELP
           "Select Parameter Type" NO-LABEL WIDGET-ID 204
      btnOpen AT ROW 20.76 COL 150 WIDGET-ID 94
      btnClose AT ROW 20.76 COL 155 WIDGET-ID 96
      cConstant AT ROW 21.95 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 176
      btnPeriod AT ROW 21.95 COL 150 WIDGET-ID 236
+     btnSyntax AT ROW 23.86 COL 78 WIDGET-ID 202
      btnDouble AT ROW 21.95 COL 152.4 WIDGET-ID 240
      btnComma AT ROW 21.95 COL 155 WIDGET-ID 242
      btnSingle AT ROW 21.95 COL 157.4 WIDGET-ID 244
      queryStr AT ROW 23.86 COL 83 NO-LABEL WIDGET-ID 4
-     btnResults AT ROW 1.24 COL 83 HELP
-          "Jasper Viewer" WIDGET-ID 250
-     btnSyntax AT ROW 23.86 COL 78 WIDGET-ID 202
      btnAddSelections AT ROW 7.91 COL 77 HELP
           "Add Selections" WIDGET-ID 200
      btnCancel AT ROW 1.24 COL 131 HELP
@@ -1283,7 +1283,7 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE
 /* BROWSE-TAB fieldBrowse paramSetBrowse DEFAULT-FRAME */
 /* BROWSE-TAB subjectParamSetBrowse btnMinus DEFAULT-FRAME */
 /* BROWSE-TAB subjectTableBrowse btnDec DEFAULT-FRAME */
-/* BROWSE-TAB subjectColumnBrowse btnStr DEFAULT-FRAME */
+/* BROWSE-TAB subjectColumnBrowse btnResults DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btnAdd IN FRAME DEFAULT-FRAME
    1 6                                                                  */
 /* SETTINGS FOR BUTTON btnAddConstant IN FRAME DEFAULT-FRAME
@@ -1930,7 +1930,7 @@ DO:
     DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
     
     cRecipients = svRecipients:SCREEN-VALUE.
-    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    RUN Jasper/Recipients.w (INPUT-OUTPUT cRecipients).
     svRecipients:SCREEN-VALUE = cRecipients.
 END.
 
@@ -2235,7 +2235,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnResults C-Win
 ON CHOOSE OF btnResults IN FRAME DEFAULT-FRAME /* Results */
 DO:
-    RUN pGetDynParamValue.
+    RUN pGetDynParamValue (ttSubject.subjectID, "{&defaultUser}", cPrgmName, 0).
     RUN AOA/dynRun.w PERSISTENT (cPrgmName, ROWID(dynParamValue)).
 END.
 
@@ -2907,6 +2907,9 @@ RUN util/CheckModule.p ("ASI","SubjectBuilder", YES, OUTPUT lContinue).
 lContinue = YES.
 &ENDIF
 
+{AOA/includes/dynProcs.i "tt"}
+{AOA/includes/pGetDynParamValue.i}
+
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
@@ -2931,8 +2934,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF NOT lContinue THEN
   APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
-
-{AOA/includes/dynProcs.i "tt"}
 
 &Scoped-define sdBrowseName tableBrowse
 {methods/sortByProc.i "pByTableName" "ttTable.tableName"}
@@ -2993,9 +2994,9 @@ PROCEDURE enable_UI :
          paramSetMatches btnLE btnGE paramSetBrowse fieldBrowse btnPlus 
          btnMinus subjectParamSetBrowse btnMultiply btnDivide btnYes btnNo 
          btnDate cUseIndex findType btnDec subjectTableBrowse btnInt 
-         columnSearch columnMatches btnStr subjectColumnBrowse btnSubstr 
-         cParameter btnOpen btnClose cConstant btnPeriod btnDouble btnComma 
-         btnSingle queryStr btnResults btnSyntax btnAddSelections btnGroupCalc 
+         columnSearch columnMatches btnStr btnResults subjectColumnBrowse 
+         btnSubstr cParameter btnOpen btnClose cConstant btnPeriod btnSyntax 
+         btnDouble btnComma btnSingle queryStr btnAddSelections btnGroupCalc 
          btnAddUseIndex btnRemoveUseIndex btnAddParameter btnSave 
          btnRemoveSelection btnMoveDown btnAddConstant btnMoveUp btnRemove 
          btnAdd btnCopy btnDelete btnUpdate cParameterLabel cConstantLabel 
@@ -3396,27 +3397,6 @@ PROCEDURE pGetDBTables :
     {&OPEN-QUERY-tableBrowse}
     FIND FIRST ttTable.
     APPLY "VALUE-CHANGED":U TO BROWSE tableBrowse.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDynParamValue C-Win 
-PROCEDURE pGetDynParamValue :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    FIND FIRST dynParamValue NO-LOCK
-         WHERE dynParamValue.subjectID    EQ ttSubject.subjectID
-           AND dynParamValue.user-id      EQ "{&defaultUser}"
-           AND dynParamValue.prgmName     EQ cPrgmName
-           AND dynParamValue.paramValueID EQ 0
-         NO-ERROR.
-    IF NOT AVAILABLE dynParamValue THEN
-    RUN pSetDynParamValue ("{&defaultUser}", cPrgmName).
 
 END PROCEDURE.
 

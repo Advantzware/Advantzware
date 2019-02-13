@@ -54,7 +54,7 @@ DEFINE VARIABLE lSecure          AS LOGICAL   NO-UNDO.
 
 RUN AOA\appServer\aoaBin.p PERSISTENT SET hAppSrvBin.
 SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
-RUN AOA\aoaJasper.p PERSISTENT SET hJasper.
+RUN AOA\spJasper.p PERSISTENT SET hJasper.
 SESSION:ADD-SUPER-PROCEDURE (hJasper).
 
 DEFINE BUFFER jasperUserPrint FOR user-print.
@@ -144,7 +144,7 @@ DEFINE FRAME paramFrame
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 3
+   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -438,7 +438,6 @@ PROCEDURE local-enable :
   RUN pInitColumnsPage.
   RUN pParamValuesOverride IN h_aoaParam NO-ERROR.
   RUN pInitialize IN h_aoaParam (THIS-PROCEDURE) NO-ERROR.
-  RUN select-page IN THIS-PROCEDURE (3).
   
 END PROCEDURE.
 
@@ -884,11 +883,13 @@ PROCEDURE pRunNow :
         ASSIGN
             Task.company    = aoaCompany
             Task.user-id    = USERID("ASI")
-            Task.programID  = aoaProgramID
+            Task.prgmName   = aoaProgramID
             Task.taskName   = "Run Now Task"
             Task.taskFormat = ipcTaskFormat
             Task.runNow     = YES
             Task.recipients = cRecipients
+            Task.taskID     = user-print.batch-seq
+            Task.taskType   = "DataPA"
             .
         RELEASE Task.
     END. /* do trans */
@@ -974,7 +975,7 @@ PROCEDURE pSaveUserPrint :
                     .
             END. /* not avail */
         END. /* not batch, must be view now request */
-        
+
         IF user-print.batch-seq EQ 0 AND user-print.prog-title EQ "" THEN
         user-print.prog-title = "User Default".
 
@@ -1024,7 +1025,7 @@ PROCEDURE pSaveUserPrint :
         RUN pSaveUserPrint IN h_aoaColumns (ROWID(user-print),INPUT-OUTPUT idx).
     END. /* do trans */
     IF AVAILABLE user-print THEN DO:
-        FIND CURRENT user-print NO-LOCK.
+    FIND CURRENT user-print NO-LOCK.  
         RUN pGetUserPrintTask IN h_aoaTaskParam.
     END. /* if avail */
     

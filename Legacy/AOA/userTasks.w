@@ -41,6 +41,9 @@ CREATE WIDGET-POOL.
 
 DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cModule   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrgmName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUserID   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lSortMove AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
@@ -84,8 +87,8 @@ DEFINE TEMP-TABLE ttUserPrint NO-UNDO
 &Scoped-define FIELDS-IN-QUERY-browseUserPrint ttUserPrint.mnemonic ttUserPrint.prgtitle ttUserPrint.prog-title ttUserPrint.module ttUserPrint.user-id ttUserPrint.taskID ttUserPrint.program-id   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseUserPrint   
 &Scoped-define SELF-NAME browseUserPrint
-&Scoped-define QUERY-STRING-browseUserPrint FOR EACH ttUserPrint WHERE ttUserPrint.allData MATCHES "*" + searchBar + "*" ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-browseUserPrint OPEN QUERY {&SELF-NAME} FOR EACH ttUserPrint WHERE ttUserPrint.allData MATCHES "*" + searchBar + "*" ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-browseUserPrint FOR EACH ttUserPrint WHERE ttUserPrint.program-id BEGINS cPrgmName   AND ttUserPrint.mnemonic BEGINS cModule   AND ttUserPrint.user-id BEGINS cUserID   AND ttUserPrint.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-browseUserPrint OPEN QUERY {&SELF-NAME} FOR EACH ttUserPrint WHERE ttUserPrint.program-id BEGINS cPrgmName   AND ttUserPrint.mnemonic BEGINS cModule   AND ttUserPrint.user-id BEGINS cUserID   AND ttUserPrint.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-browseUserPrint ttUserPrint
 &Scoped-define FIRST-TABLE-IN-QUERY-browseUserPrint ttUserPrint
 
@@ -307,7 +310,11 @@ ASSIGN
 /* Query rebuild information for BROWSE browseUserPrint
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH ttUserPrint
-WHERE ttUserPrint.allData MATCHES "*" + searchBar + "*" ~{&SORTBY-PHRASE}.
+WHERE ttUserPrint.program-id BEGINS cPrgmName
+  AND ttUserPrint.mnemonic BEGINS cModule
+  AND ttUserPrint.user-id BEGINS cUserID
+  AND ttUserPrint.allData MATCHES "*" + searchBar + "*"
+ ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE browseUserPrint */
@@ -327,13 +334,6 @@ WHERE ttUserPrint.allData MATCHES "*" + searchBar + "*" ~{&SORTBY-PHRASE}.
 &ANALYZE-RESUME
 
  
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartObjectCues" s-object _INLINE
-/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
-/* SmartObject,ab,60017
-Destroy on next read */
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 
@@ -466,6 +466,7 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  RUN spGetTaskFilter (OUTPUT cModule, OUTPUT cPrgmName, OUTPUT cUserID).
   DO WITH FRAME filterFrame:
     ASSIGN
       filterReport:SENSITIVE = YES

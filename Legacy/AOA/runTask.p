@@ -48,7 +48,7 @@ IF AVAILABLE dynParamValue THEN DO:
                     SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
                     RUN VALUE(cAppSrv + ".p") PERSISTENT SET hAppSrv.
                     SESSION:ADD-SUPER-PROCEDURE (hAppSrv).                
-                    RUN AOA\aoaJasper.p PERSISTENT SET hJasper.
+                    RUN AOA\spJasper.p PERSISTENT SET hJasper.
                     SESSION:ADD-SUPER-PROCEDURE (hJasper).
                     RUN spJasperQuery (
                         Task.taskFormat,

@@ -2,12 +2,12 @@
 &ANALYZE-RESUME
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Procedure 
 /*------------------------------------------------------------------------
-    File        : AOA/aoaJasper.p
+    File        : Jasper/spJasper.p
     Purpose     : SUPER-PROCEDURE Jasper Functions and Procedures
 
-    Syntax      : RUN AOA/aoaJasper.p
+    Syntax      : RUN Jasper/spJasper.p
 
-    Description : AOA Jasper Functions & Procedures
+    Description : Jasper Functions & Procedures
 
     Author(s)   : Ron Stark
     Created     : 12.5.2018
@@ -825,7 +825,7 @@ PROCEDURE pJasperJSON:
             FILL(" ",2)
             "~"" REPLACE(aoaTitle," ","_") "~": ~{" SKIP
             FILL(" ",4)
-            "~"tt" REPLACE(aoaTitle," ","") "~": [" SKIP
+            "~"" REPLACE(aoaTitle," ","") "~": [" SKIP
             .
         /* run dynamic function (business subject) */
         ASSIGN

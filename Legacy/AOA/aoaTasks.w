@@ -66,9 +66,6 @@ DEFINE VARIABLE hJasper            AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cSuperProcedures   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE idx                AS INTEGER   NO-UNDO.
 DEFINE VARIABLE hHandle            AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cModule            AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cPrgmName          AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cUserID            AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bUserPrint FOR user-print.
 
@@ -87,7 +84,7 @@ IF NOT VALID-HANDLE(hAppSrvBin) THEN DO:
 END. /* if valid-handle */
 
 IF NOT VALID-HANDLE(hJasper) THEN DO:
-    RUN AOA\aoaJasper.p PERSISTENT SET hJasper.
+    RUN AOA\spJasper.p PERSISTENT SET hJasper.
     SESSION:ADD-SUPER-PROCEDURE (hJasper).
 END. /* if valid-handle */
 
@@ -140,8 +137,8 @@ AND AuditHdr.AuditType EQ "Task" NO-LOCK, ~
 &Scoped-define FIELDS-IN-QUERY-taskBrowse Task.scheduled Task.taskName fPrgmTitle(Task.prgmName) Task.frequency Task.cTaskTime Task.cFromTime Task.cToTime Task.dayOfWeek1 Task.dayOfWeek2 Task.dayOfWeek3 Task.dayOfWeek4 Task.dayOfWeek5 Task.dayOfWeek6 Task.dayOfWeek7 Task.lastOfMonth Task.taskFormat Task.nextDate Task.cNextTime Task.lastDate Task.cLastTime Task.startDate Task.endDate Task.taskID Task.module Task.prgmName Task.user-id Task.securityLevel Task.recipients   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-taskBrowse   
 &Scoped-define SELF-NAME taskBrowse
-&Scoped-define QUERY-STRING-taskBrowse FOR EACH Task WHERE Task.module BEGINS cModule   AND Task.prgmName BEGINS cPrgmName   AND Task.user-id BEGINS cUserID   AND Task.securityLevel LE iUserSecurityLevel   AND Task.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-taskBrowse OPEN QUERY {&SELF-NAME} FOR EACH Task WHERE Task.module BEGINS cModule   AND Task.prgmName BEGINS cPrgmName   AND Task.user-id BEGINS cUserID   AND Task.securityLevel LE iUserSecurityLevel   AND Task.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-taskBrowse FOR EACH Task WHERE Task.securityLevel LE iUserSecurityLevel   AND Task.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-taskBrowse OPEN QUERY {&SELF-NAME} FOR EACH Task WHERE Task.securityLevel LE iUserSecurityLevel   AND Task.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-taskBrowse Task
 &Scoped-define FIRST-TABLE-IN-QUERY-taskBrowse Task
 
@@ -251,16 +248,6 @@ FUNCTION fPrgmTitle RETURNS CHARACTER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fValidTime C-Win 
 FUNCTION fValidTime RETURNS LOGICAL
   (iphTime AS HANDLE)  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fWindowTitle C-Win 
-FUNCTION fWindowTitle RETURNS CHARACTER
-  (ipcTitle     AS CHARACTER,
-   ipcModule    AS CHARACTER,
-   ipcPrgmName AS CHARACTER,
-   ipcUserID    AS CHARACTER)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -500,7 +487,7 @@ Task.recipients
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 5.24
-         TITLE "Tasks" ROW-HEIGHT-CHARS .76.
+         TITLE "Tasks".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -604,8 +591,6 @@ DEFINE FRAME viewFrame
           LABEL "1"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnRunNow AT ROW 19.81 COL 80 HELP
-          "Run Now" WIDGET-ID 634
      Task.dayOfMonth[2] AT ROW 7.43 COL 36 WIDGET-ID 526
           LABEL "2"
           VIEW-AS TOGGLE-BOX
@@ -618,6 +603,8 @@ DEFINE FRAME viewFrame
           LABEL "4"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnRunNow AT ROW 19.81 COL 80 HELP
+          "Run Now" WIDGET-ID 634
      Task.dayOfMonth[5] AT ROW 7.43 COL 60 WIDGET-ID 532
           LABEL "5"
           VIEW-AS TOGGLE-BOX
@@ -666,8 +653,6 @@ DEFINE FRAME viewFrame
           LABEL "14"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnClose AT ROW 1 COL 136 HELP
-          "Close" WIDGET-ID 72
      Task.dayOfMonth[15] AT ROW 9.33 COL 28 WIDGET-ID 556
           LABEL "15"
           VIEW-AS TOGGLE-BOX
@@ -708,8 +693,6 @@ DEFINE FRAME viewFrame
           LABEL "24"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnFirst AT ROW 19.81 COL 106 HELP
-          "First" WIDGET-ID 274
      Task.dayOfMonth[25] AT ROW 10.29 COL 52 WIDGET-ID 566
           LABEL "25"
           VIEW-AS TOGGLE-BOX
@@ -722,6 +705,10 @@ DEFINE FRAME viewFrame
           LABEL "27"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     Task.dayOfMonth[28] AT ROW 10.29 COL 76 WIDGET-ID 574
+          LABEL "28"
+          VIEW-AS TOGGLE-BOX
+          SIZE 6 BY .81
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 21 ROW 7.43
@@ -730,10 +717,6 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     Task.dayOfMonth[28] AT ROW 10.29 COL 76 WIDGET-ID 574
-          LABEL "28"
-          VIEW-AS TOGGLE-BOX
-          SIZE 6 BY .81
      Task.runNow AT ROW 11.24 COL 14 WIDGET-ID 652
           VIEW-AS TOGGLE-BOX
           SIZE 12 BY .81
@@ -741,6 +724,8 @@ DEFINE FRAME viewFrame
           LABEL "29"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnClose AT ROW 1 COL 136 HELP
+          "Close" WIDGET-ID 72
      Task.dayOfMonth[30] AT ROW 11.24 COL 36 WIDGET-ID 580
           LABEL "30"
           VIEW-AS TOGGLE-BOX
@@ -763,8 +748,6 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     btnLast AT ROW 19.86 COL 130 HELP
-          "Last" WIDGET-ID 68
      btnCalendar-2 AT ROW 13.62 COL 30 WIDGET-ID 78
      endDateOption AT ROW 13.62 COL 33 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
@@ -799,6 +782,10 @@ DEFINE FRAME viewFrame
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 125 BY 2.14
           BGCOLOR 15 
+     btnFirst AT ROW 19.81 COL 106 HELP
+          "First" WIDGET-ID 274
+     btnLast AT ROW 19.86 COL 130 HELP
+          "Last" WIDGET-ID 68
      btnNext AT ROW 19.81 COL 122 HELP
           "Next" WIDGET-ID 276
      btnPrev AT ROW 19.81 COL 114 HELP
@@ -1135,10 +1122,7 @@ AND AuditHdr.AuditType EQ ""Task"""
 /* Query rebuild information for BROWSE taskBrowse
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH Task
-WHERE Task.module BEGINS cModule
-  AND Task.prgmName BEGINS cPrgmName
-  AND Task.user-id BEGINS cUserID
-  AND Task.securityLevel LE iUserSecurityLevel
+WHERE Task.securityLevel LE iUserSecurityLevel
   AND Task.allData MATCHES "*" + searchBar + "*"
  ~{&SORTBY-PHRASE}.
      _END_FREEFORM
@@ -1216,7 +1200,7 @@ DO:
     DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
     
     cRecipients = Task.recipients:SCREEN-VALUE.
-    RUN AOA/aoaRecipients.w (INPUT-OUTPUT cRecipients).
+    RUN AOA/Recipients.w (INPUT-OUTPUT cRecipients).
     Task.recipients:SCREEN-VALUE = cRecipients.
 END.
 
@@ -1708,8 +1692,8 @@ DO:
         ASSIGN
             Task.user-id:SCREEN-VALUE  = ""
             Task.prgmName:SCREEN-VALUE = ""
-            cPrgmTitle:SCREEN-VALUE    = ""
             Task.module:SCREEN-VALUE   = ""
+            cPrgmTitle:SCREEN-VALUE    = ""
             .
         FIND FIRST bUserPrint NO-LOCK
              WHERE bUserPrint.company   EQ g_company
@@ -1791,8 +1775,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   IF lContinue THEN DO:
       hContainer = THIS-PROCEDURE.
-      RUN spGetTaskFilter (OUTPUT cModule, OUTPUT cPrgmName, OUTPUT cUserID).
-      {&WINDOW-NAME}:TITLE = fWindowTitle({&WINDOW-NAME}:TITLE, cModule, cPrgmName, cUserID).
       FIND FIRST users NO-LOCK
            WHERE users.user_id EQ USERID("ASI")
            NO-ERROR.
@@ -2559,38 +2541,6 @@ FUNCTION fValidTime RETURNS LOGICAL
     END.
     ELSE
     RETURN TRUE.
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fWindowTitle C-Win 
-FUNCTION fWindowTitle RETURNS CHARACTER
-  (ipcTitle     AS CHARACTER,
-   ipcModule    AS CHARACTER,
-   ipcPrgmName AS CHARACTER,
-   ipcUserID    AS CHARACTER) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cTitle AS CHARACTER NO-UNDO.
-    
-    IF ipcModule    NE "" OR
-       ipcPrgmName  NE "" OR
-       ipcUserID    NE "" THEN DO:
-        cTitle = " - Filter [ ".
-        IF ipcModule    NE "" THEN
-        cTitle = cTitle + "Module: "     + cModule      + " ".
-        IF ipcPrgmName NE "" THEN
-        cTitle = cTitle + "Program ID: " + ipcPrgmName + " ".
-        IF ipcUserID    NE "" THEN
-        cTitle = cTitle + "User ID: "    + ipcUserID    + " ".
-        cTitle = cTitle + "]".
-    END.
-    cTitle = ipcTitle + cTitle.
-    RETURN cTitle.
 
 END FUNCTION.
 
