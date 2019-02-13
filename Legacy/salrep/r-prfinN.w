@@ -1934,54 +1934,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetCustLot C-Win 
-PROCEDURE pGetCustLot :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iprowid AS ROWID NO-UNDO.
-  DEFINE OUTPUT PARAMETER opcCustLot AS CHARACTER NO-UNDO.
-
-  FIND FIRST ar-invl NO-LOCK
-      WHERE ar-invl.company EQ cocode 
-        AND ROWID(ar-invl) EQ iprowid NO-ERROR .
-   IF AVAIL ar-invl THEN do:
-       FIND FIRST ar-inv NO-LOCK
-            where ar-inv.company eq cocode
-              and ar-inv.cust-no eq ar-invl.cust-no
-              and ar-inv.inv-no  eq ar-invl.inv-no
-           NO-ERROR .
-       IF AVAIL ar-inv AND ar-inv.ord-no NE 0 THEN do:
-
-           FIND FIRST oe-ordl NO-LOCK
-               WHERE oe-ordl.company EQ cocode 
-                 AND oe-ordl.ord-no EQ ar-inv.ord-no 
-                 AND oe-ordl.i-no EQ ar-invl.i-no NO-ERROR .
-           IF AVAIL oe-ordl THEN
-               FOR EACH oe-rel NO-LOCK
-               WHERE oe-rel.company  EQ oe-ordl.company
-                 AND oe-rel.ord-no   EQ oe-ordl.ord-no
-                 AND oe-rel.i-no     EQ oe-ordl.i-no
-                 AND oe-rel.line     EQ oe-ordl.line
-                 AND oe-rel.link-no  NE 0
-                 AND oe-rel.lot-no   NE ""
-                BY oe-rel.rel-date
-                BY oe-rel.r-no:
-
-                 opcCustLot = oe-rel.lot-no  .
-                 LEAVE .
-               END.
-       END.
-   END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION GetFieldValue C-Win 
