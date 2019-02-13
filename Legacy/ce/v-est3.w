@@ -3194,6 +3194,7 @@ PROCEDURE local-display-fields :
         ASSIGN
            f-lp-dep  = reftable.val[1]
            f-div-dep = reftable.val[2].
+     FIND CURRENT reftable NO-LOCK.
   END.
 
   FIND FIRST itemfg
