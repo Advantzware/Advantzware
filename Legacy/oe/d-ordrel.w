@@ -168,6 +168,10 @@ IF lRecFound THEN
 
 DEFINE VARIABLE lv-item-recid AS RECID   NO-UNDO.
 DEFINE VARIABLE ll-new-record AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cFreightCode AS CHARACTER INIT "P,C,B,T" NO-UNDO .
+DEFINE VARIABLE cFreightDscr AS CHARACTER INIT "Prepaid,Collect,Bill,3rd Party" NO-UNDO .
+DEFINE VARIABLE cFobCode AS CHARACTER INIT "D,O" NO-UNDO .
+DEFINE VARIABLE cFobDscr AS CHARACTER INIT "Destination,Origin" NO-UNDO .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -691,6 +695,18 @@ ON HELP OF FRAME Dialog-Frame /* Release - Order Maintenance */
             WHEN "spare-char-2" THEN 
                 DO:
                     RUN windows/l-rejpo.w  (g_company,FOCUS:SCREEN-VALUE, OUTPUT char-val). 
+                    IF char-val <> "" THEN 
+                        FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = ENTRY(1,char-val).
+                END.
+            WHEN "frt-pay" THEN 
+                DO:
+                    RUN windows/l-codedscr.w (cFreightCode,cFreightDscr, OUTPUT char-val). 
+                    IF char-val <> "" THEN 
+                        FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = ENTRY(1,char-val).
+                END.
+            WHEN "flute" THEN 
+                DO:
+                    RUN windows/l-codedscr.w (cFobCode,cFobDscr, OUTPUT char-val). 
                     IF char-val <> "" THEN 
                         FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = ENTRY(1,char-val).
                 END.
@@ -1545,7 +1561,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
 
     DO WITH FRAME {&FRAME-NAME}:
-        DISABLE oe-rel.ship-addr[1] oe-rel.ship-city oe-rel.ship-state oe-rel.spare-char-2 oe-rel.spare-char-3 oe-rel.r-no oe-rel.link-no tt-report.job-start-date tt-report.qty tt-report.prom-code tt-report.pr-uom .
+        DISABLE oe-rel.ship-addr[1] oe-rel.ship-city oe-rel.ship-state oe-rel.spare-char-2 oe-rel.spare-char-3 oe-rel.r-no oe-rel.link-no tt-report.job-start-date tt-report.qty tt-report.prom-code tt-report.pr-uom tt-report.q-rel .
         
         IF NOT (oeDateAuto-log AND OeDateAuto-Char EQ "Colonial") THEN 
         DO:
