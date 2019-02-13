@@ -174,10 +174,6 @@ DEFINE MENU MENU-BAR-MAINMENU MENUBAR
        SUB-MENU  m_Help         LABEL "Help"          .
 
 
-/* Definitions of handles for OCX Containers                            */
-DEFINE VARIABLE CtrlFrame AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
-
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE company_name AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
@@ -1192,28 +1188,6 @@ THEN MAINMENU:HIDDEN = no.
  
 
 
-/* **********************  Create OCX Containers  ********************** */
-
-&ANALYZE-SUSPEND _CREATE-DYNAMIC
-
-&IF "{&OPSYS}" = "WIN32":U AND "{&WINDOW-SYSTEM}" NE "TTY":U &THEN
-
-CREATE CONTROL-FRAME CtrlFrame ASSIGN
-       FRAME           = FRAME FRAME-USER:HANDLE
-       ROW             = 1
-       COLUMN          = 1
-       HEIGHT          = 4.76
-       WIDTH           = 20
-       WIDGET-ID       = 84
-       HIDDEN          = yes
-       SENSITIVE       = yes.
-/* CtrlFrame OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
-      CtrlFrame:MOVE-BEFORE(FRAME searchFrame:HANDLE).
-
-&ENDIF
-
-&ANALYZE-RESUME /* End of _CREATE-DYNAMIC */
-
 
 /* ************************  Control Triggers  ************************ */
 
@@ -1559,23 +1533,6 @@ ON VALUE-CHANGED OF cShowMnemonic IN FRAME userSettingsFrame
 DO:
     cPositionMnemonic:SENSITIVE = cShowMnemonic:SCREEN-VALUE NE "None".
 END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define FRAME-NAME FRAME-USER
-&Scoped-define SELF-NAME CtrlFrame
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL CtrlFrame MAINMENU OCX.Tick
-PROCEDURE CtrlFrame.PSTimer.Tick .
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  None required for OCX.
-  Notes:       
-------------------------------------------------------------------------------*/
-    RUN spRunCueCard ("Message", cCuePrgmName, hCueWindow, hCueFrame, lCueActive).
-
-END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2018,44 +1975,6 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE control_load MAINMENU  _CONTROL-LOAD
-PROCEDURE control_load :
-/*------------------------------------------------------------------------------
-  Purpose:     Load the OCXs    
-  Parameters:  <none>
-  Notes:       Here we load, initialize and make visible the 
-               OCXs in the interface.                        
-------------------------------------------------------------------------------*/
-
-&IF "{&OPSYS}" = "WIN32":U AND "{&WINDOW-SYSTEM}" NE "TTY":U &THEN
-DEFINE VARIABLE UIB_S    AS LOGICAL    NO-UNDO.
-DEFINE VARIABLE OCXFile  AS CHARACTER  NO-UNDO.
-
-OCXFile = SEARCH( "mainMenu.wrx":U ).
-IF OCXFile = ? THEN
-  OCXFile = SEARCH(SUBSTRING(THIS-PROCEDURE:FILE-NAME, 1,
-                     R-INDEX(THIS-PROCEDURE:FILE-NAME, ".":U), "CHARACTER":U) + "wrx":U).
-
-IF OCXFile <> ? THEN
-DO:
-  ASSIGN
-    chCtrlFrame = CtrlFrame:COM-HANDLE
-    UIB_S = chCtrlFrame:LoadControls( OCXFile, "CtrlFrame":U)
-    CtrlFrame:NAME = "CtrlFrame":U
-  .
-  RUN initialize-controls IN THIS-PROCEDURE NO-ERROR.
-END.
-ELSE MESSAGE "mainMenu.wrx":U SKIP(1)
-             "The binary control file could not be found. The controls cannot be loaded."
-             VIEW-AS ALERT-BOX TITLE "Controls Not Loaded".
-
-&ENDIF
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI MAINMENU  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -2086,7 +2005,6 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  RUN control_load.
   DISPLAY company_name loc_loc users_user_id Mnemonic 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   ENABLE imageSettings imageCompany menuLinkZoHo imageFolder 
