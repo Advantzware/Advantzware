@@ -131,7 +131,7 @@ DEFINE FRAME F-Main
           SIZE 31 BY 1
      utilities.module AT ROW 1.24 COL 60 COLON-ALIGNED HELP
           "Enter Module Code"
-          LABEL "Module" FORMAT "x(3)"
+          LABEL "Module" FORMAT "x(4)"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
      utilities.hotkey AT ROW 1.24 COL 82 COLON-ALIGNED
