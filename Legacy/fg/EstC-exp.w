@@ -50,6 +50,8 @@ assign
 
 DEFINE STREAM excel.
 
+DEFINE BUFFER bf-eb FOR eb.
+
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
@@ -305,7 +307,8 @@ DO:
 DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
 DEF VAR ls-cur-val AS CHAR NO-UNDO.
 DEF VAR char-val AS CHAR NO-UNDO.
-
+DEFINE VARIABLE rEbRec AS RECID NO-UNDO.
+ 
    lw-focus = FOCUS.
 
    case lw-focus:name :
@@ -314,7 +317,12 @@ DEF VAR char-val AS CHAR NO-UNDO.
            ls-cur-val = lw-focus:screen-value.
            run windows/l-est.w (cocode, locode, ls-cur-val, output char-val).
            if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
+               rEbRec = INTEGER(ENTRY(1,char-val)).
+               FIND FIRST bf-eb NO-LOCK 
+                   WHERE RECID(bf-eb) EQ rEbRec
+                   NO-ERROR.
+               IF AVAILABLE bf-eb THEN  
+                   lw-focus:screen-value =  bf-eb.est-no.
            end.
            return no-apply.
        end.  /* itemfg */
@@ -322,7 +330,12 @@ DEF VAR char-val AS CHAR NO-UNDO.
            ls-cur-val = lw-focus:screen-value.
            run windows/l-est.w (cocode, locode, ls-cur-val, output char-val).
            if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
+               rEbRec = INTEGER(ENTRY(1,char-val)).
+               FIND FIRST bf-eb NO-LOCK 
+                    WHERE RECID(bf-eb) EQ rEbRec
+                    NO-ERROR.
+               IF AVAILABLE bf-eb THEN  
+              lw-focus:screen-value =  bf-eb.est-no.
            end.
            return no-apply.
        end.  /* itemfg*/
