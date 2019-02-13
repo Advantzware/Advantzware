@@ -54,10 +54,10 @@ DEFINE STREAM excel.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-17 begin_i-no end_i-no tb_FallBack ~
-tb_Receipts tb_0 tb_inactive tb_excel tb_runExcel fi_file btn-process ~
-btn-cancel 
+tb_Receipts tb_0 tb_inactive tb_pro-only tb_excel tb_runExcel fi_file ~
+btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_i-no end_i-no tb_FallBack ~
-tb_Receipts tb_0 tb_inactive tb_excel tb_runExcel fi_file 
+tb_Receipts tb_0 tb_inactive tb_pro-only tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -99,7 +99,7 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\fxtrncst.c
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 9.76.
+     SIZE 89 BY 11.19.
 
 DEFINE VARIABLE tb_0 AS LOGICAL INITIAL yes 
      LABEL "Fix Cost for ~"0~" in Cost and ~"?~" in Cost only" 
@@ -122,12 +122,17 @@ DEFINE VARIABLE tb_inactive AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 47 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tb_pro-only AS LOGICAL INITIAL no 
+     LABEL "Report on proposed changes only" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 47 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tb_Receipts AS LOGICAL INITIAL no 
      LABEL "Include Receipts without Job or PO" 
      VIEW-AS TOGGLE-BOX
      SIZE 46 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL YES 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
@@ -145,12 +150,13 @@ DEFINE FRAME FRAME-A
      tb_Receipts AT ROW 9.33 COL 28 WIDGET-ID 6
      tb_0 AT ROW 10.29 COL 28
      tb_inactive AT ROW 11.24 COL 28 WIDGET-ID 2
-     tb_excel AT ROW 12.48 COL 40.6 WIDGET-ID 10
-     tb_runExcel AT ROW 12.48 COL 82.6 RIGHT-ALIGNED WIDGET-ID 12
-     fi_file AT ROW 13.38 COL 38.6 COLON-ALIGNED HELP
+     tb_pro-only AT ROW 12.24 COL 28 WIDGET-ID 14
+     tb_excel AT ROW 13.71 COL 40.6 WIDGET-ID 10
+     tb_runExcel AT ROW 13.71 COL 82.6 RIGHT-ALIGNED WIDGET-ID 12
+     fi_file AT ROW 14.62 COL 38.6 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 8
-     btn-process AT ROW 15.05 COL 21
-     btn-cancel AT ROW 15.05 COL 53
+     btn-process AT ROW 16.48 COL 21
+     btn-cancel AT ROW 16.48 COL 53
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
@@ -160,7 +166,7 @@ DEFINE FRAME FRAME-A
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89.6 BY 15.67.
+         SIZE 89.6 BY 17.14.
 
 DEFINE FRAME FRAME-B
      "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
@@ -193,7 +199,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Fix FG Hist Cost"
-         HEIGHT             = 15.67
+         HEIGHT             = 17.14
          WIDTH              = 91.2
          MAX-HEIGHT         = 19.76
          MAX-WIDTH          = 98.2
@@ -314,9 +320,12 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
 
-  MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) +
-          " for the selected parameters?"
-          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
+  IF NOT tb_pro-only THEN do:
+      MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) +
+              " for the selected parameters?"
+              VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
+  END.
+  ELSE v-process = YES .
 
   IF v-process THEN RUN run-process.
 END.
@@ -432,11 +441,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_i-no end_i-no tb_FallBack tb_Receipts tb_0 tb_inactive tb_excel 
-          tb_runExcel fi_file 
+  DISPLAY begin_i-no end_i-no tb_FallBack tb_Receipts tb_0 tb_inactive 
+          tb_pro-only tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-17 begin_i-no end_i-no tb_FallBack tb_Receipts tb_0 tb_inactive 
-         tb_excel tb_runExcel fi_file btn-process btn-cancel 
+         tb_pro-only tb_excel tb_runExcel fi_file btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -522,7 +531,7 @@ FOR EACH itemfg NO-LOCK
         lv-cost[4] = 0
         lv-cost[5] = 0
         lv-cost[6] = 0
-        .
+        .  
       
      /*Only "fix" if the transaction has a job or po or if it is not a receipt*/
      /*In other words, if a receipt has no po or a job, leave it alone*/   
@@ -535,6 +544,8 @@ FOR EACH itemfg NO-LOCK
     
         IF lv-cost[5] NE 0 AND (lSourceFound OR tb_FallBack) THEN DO:  /*if cost was found from PO or Job, lSourceFound = YES, otherwise, fall back cost of IF1 cost*/
           iCountChanged = iCountChanged + 1.
+
+         IF NOT tb_pro-only THEN do:
           ASSIGN 
            fg-rdtlh.spare-dec-1 = fg-rdtlh.cost /*store old cost before NY12*/
            fg-rdtlh.spare-char-2 = fg-rcpth.pur-uom /*store old cost uom before NY12*/
@@ -556,7 +567,8 @@ FOR EACH itemfg NO-LOCK
              fg-rctd.cost-uom = itemfg.prod-uom
              fg-rctd.ext-cost = fg-rctd.std-cost *
                                 (fg-rctd.t-qty / IF fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1).
-
+         END.
+         
             IF tb_excel THEN DO:
                 EXPORT STREAM excel DELIMITER "," 
                     fg-rcpth.i-no
@@ -564,19 +576,18 @@ FOR EACH itemfg NO-LOCK
                     fg-rcpth.job-no 
                     fg-rcpth.job-no2
                     fg-rcpth.po-no
-                    fg-rdtlh.cost
-                    fg-rcpth.pur-uom
-                    fg-rdtlh.std-tot-cost
-                    fg-rdtlh.std-fix-cost
-                    fg-rdtlh.std-var-cost
-                    fg-rdtlh.std-mat-cost
-                    fg-rdtlh.std-lab-cost 
-                    fg-rdtlh.spare-char-1 
-                    fg-rdtlh.spare-dec-1
-                    fg-rdtlh.spare-char-2
-                    .
-                     
+                    lv-cost[5]
+                    lv-uom
+                    lv-cost[5]
+                    lv-cost[4]
+                    lv-cost[3]
+                    lv-cost[2]
+                    lv-cost[1] 
+                    cSource 
+                    ( IF tb_pro-only THEN fg-rdtlh.cost ELSE fg-rdtlh.spare-dec-1)
+                    ( IF tb_pro-only THEN fg-rcpth.pur-uom ELSE fg-rdtlh.spare-char-2) .
               END. /* tb_excel */
+         
         END.
     END.
   END.
@@ -594,15 +605,17 @@ DO:
     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
 END.
 
-MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." SKIP(2) 
-    "Items Processed: " iCountItem SKIP 
-    "History Records Processed: " iCountTotal SKIP 
-    "History Records Qualified to Fix: " iCountCompared SKIP 
-    "History Records Changed: " iCountChanged SKIP 
-    "Total Time (seconds): " TIME - iTime
-    VIEW-AS ALERT-BOX.
-
-APPLY "close" TO THIS-PROCEDURE.
+IF NOT tb_pro-only THEN do:
+    MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." SKIP(2) 
+        "Items Processed: " iCountItem SKIP 
+        "History Records Processed: " iCountTotal SKIP 
+        "History Records Qualified to Fix: " iCountCompared SKIP 
+        "History Records Changed: " iCountChanged SKIP 
+        "Total Time (seconds): " TIME - iTime
+        VIEW-AS ALERT-BOX.
+    
+    APPLY "close" TO THIS-PROCEDURE.
+END.
 
 END PROCEDURE.
 
