@@ -34,7 +34,7 @@
           ASSIGN
              v-program      = "oe/rep/bolpremx.p"
              is-xprint-form = YES
-             lines-per-page = 70.
+             lines-per-page = 72.
        WHEN "RFCX" THEN
           ASSIGN
              v-program      = "oe/rep/bolrfcx.p"
@@ -49,12 +49,12 @@
           ASSIGN
              v-program      = "oe/rep/bolpremcx.p"
              is-xprint-form = YES
-             lines-per-page = 66.
+             lines-per-page = 72.
        WHEN "PremierPX" THEN
           ASSIGN
              v-program      = "oe/rep/bolprempx.p"
              is-xprint-form = YES
-             lines-per-page = 66.
+             lines-per-page = 72.
        WHEN "KDWILLSX" THEN
           ASSIGN
              v-program      = "oe/rep/bolkdwlx.p"
