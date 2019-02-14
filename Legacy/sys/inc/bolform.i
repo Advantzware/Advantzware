@@ -44,7 +44,7 @@
           ASSIGN                                        /*Task# 01141406*/
              v-program      = "oe/rep/bolprmbr.p"
              is-xprint-form = YES
-             lines-per-page = 66.
+             lines-per-page = 72.
        WHEN "PremierCX" THEN
           ASSIGN
              v-program      = "oe/rep/bolpremcx.p"
