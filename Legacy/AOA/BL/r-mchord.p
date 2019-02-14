@@ -25,11 +25,11 @@ FOR EACH job-hdr NO-LOCK
       AND job-hdr.ord-no  GE iStartOrderNo
       AND job-hdr.ord-no  LE iEndOrderNo,
     FIRST oe-ord NO-LOCK
-    WHERE oe-ord.company EQ job-hdr.company
-      AND oe-ord.ord-no  EQ job-hdr.ord-no
-      AND oe-ord.opened  EQ YES
+    WHERE oe-ord.company  EQ job-hdr.company
+      AND oe-ord.ord-no   EQ job-hdr.ord-no
+      AND oe-ord.opened   EQ YES
       AND oe-ord.due-date GE dtStartDueDate
-      AND oe-ord.due-date GE dtEndDueDate,
+      AND oe-ord.due-date LE dtEndDueDate,
     FIRST cust OF job-hdr NO-LOCK,
     EACH job OF job-hdr NO-LOCK,
     EACH job-mch NO-LOCK
@@ -38,7 +38,7 @@ FOR EACH job-hdr NO-LOCK
       AND job-mch.job-no  EQ job.job-no
       AND job-mch.job-no2 EQ job.job-no2
       AND job-mch.i-no    GE cStartItemNo
-      AND job-mch.i-no    GE cEndItemNo
+      AND job-mch.i-no    LE cEndItemNo
       AND job-mch.run-complete EQ NO,
     FIRST oe-ordl OF oe-ord NO-LOCK
     WHERE oe-ordl.i-no EQ job-mch.i-no,
