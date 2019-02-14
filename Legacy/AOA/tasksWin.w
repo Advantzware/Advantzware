@@ -96,20 +96,19 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_taskPanel AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_usertasks AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnRestoreDefaults 
      IMAGE-UP FILE "Graphics/16x16/rename.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "Defaults" 
-     SIZE 4 BY 1.19 TOOLTIP "Restore Defaults".
+     SIZE 4 BY 1.1 TOOLTIP "Restore Defaults".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnRestoreDefaults AT ROW 1 COL 90 HELP
+     btnRestoreDefaults AT ROW 1.1 COL 67 HELP
           "Restore Defaults" WIDGET-ID 42
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -125,6 +124,7 @@ DEFINE FRAME F-Main
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
+   Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -266,26 +266,15 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.r':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Tasks|Parameters|Columns|Schedule' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Tasks|Parameters|Columns' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 1.00 , 1.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 28.57 , 160.00 ) NO-ERROR.
 
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'aoa/taskPanel.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_taskPanel ).
-       RUN set-position IN h_taskPanel ( 1.00 , 94.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.10 , 62.00 ) */
-
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_taskPanel ,
-             h_folder , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -298,7 +287,7 @@ PROCEDURE adm-create-objects :
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_usertasks ,
-             h_taskPanel , 'AFTER':U ).
+             h_folder , 'AFTER':U ).
     END. /* Page 1 */
 
   END CASE.
@@ -553,7 +542,6 @@ PROCEDURE pWinReSize :
             dWidth                             = FRAME {&FRAME-NAME}:WIDTH
             .
         RUN set-size IN h_folder (dHeight, dWidth).
-        RUN pWinReSize IN h_taskPanel (dWidth).
         ASSIGN
             dHeight = dHeight - 1.62
             dWidth  = dWidth  - 2

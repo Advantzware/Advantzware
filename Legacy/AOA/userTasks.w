@@ -39,13 +39,15 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cModule   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cPrgmName AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cUserID   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lSortMove AS LOGICAL   NO-UNDO INITIAL YES.
-DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE char-hdl   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMnemonic  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cModule    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrgmName  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrgmTitle AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUserID    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSortMove  AS LOGICAL   NO-UNDO INITIAL YES.
+DEFINE VARIABLE pHandle    AS HANDLE    NO-UNDO.
 
 {methods/defines/sortByDefs.i}
 
@@ -60,10 +62,6 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD allData      AS CHARACTER
         INDEX mnemonic IS PRIMARY mnemonic
         .
-
-&IF DEFINED(module) EQ 0 &THEN
-&Scoped-define module TR
-&ENDIF
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -87,8 +85,8 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
 &Scoped-define FIELDS-IN-QUERY-browseUserPrint ttDynParamValue.mnemonic ttDynParamValue.prgTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.prgmName   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseUserPrint   
 &Scoped-define SELF-NAME browseUserPrint
-&Scoped-define QUERY-STRING-browseUserPrint FOR EACH ttDynParamValue WHERE ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.mnemonic BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-browseUserPrint OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue WHERE ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.mnemonic BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-browseUserPrint FOR EACH ttDynParamValue WHERE ttDynParamValue.prgTitle BEGINS cPrgmTitle   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-browseUserPrint OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue WHERE ttDynParamValue.prgTitle BEGINS cPrgmTitle   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-browseUserPrint ttDynParamValue
 &Scoped-define FIRST-TABLE-IN-QUERY-browseUserPrint ttDynParamValue
 
@@ -298,8 +296,8 @@ ASSIGN
 /* Query rebuild information for BROWSE browseUserPrint
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue
-WHERE ttDynParamValue.prgmName BEGINS cPrgmName
-  AND ttDynParamValue.mnemonic BEGINS cModule
+WHERE ttDynParamValue.prgTitle BEGINS cPrgmTitle
+  AND ttDynParamValue.module BEGINS cModule
   AND ttDynParamValue.user-id BEGINS cUserID
   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"
  ~{&SORTBY-PHRASE}.
@@ -385,6 +383,59 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME filterFrame
+&Scoped-define SELF-NAME filterModule
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL filterModule s-object
+ON VALUE-CHANGED OF filterModule IN FRAME filterFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        cModule = {&SELF-NAME}
+        .
+    IF cModule EQ "<All>" THEN
+    cModule = "".
+    RUN pReopenBrowse.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME filterReport
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL filterReport s-object
+ON VALUE-CHANGED OF filterReport IN FRAME filterFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        cPrgmTitle = {&SELF-NAME}
+        .
+    IF cPrgmTitle EQ "<All>" THEN
+    cPrgmTitle = "".
+    RUN pReopenBrowse.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME filterUser
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL filterUser s-object
+ON VALUE-CHANGED OF filterUser IN FRAME filterFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        cUserID = {&SELF-NAME}
+        .
+    IF cUserID EQ "<All>" THEN
+    cUserID = "".
+    RUN pReopenBrowse.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME F-Main
 &Scoped-define SELF-NAME searchBar
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL searchBar s-object
 ON VALUE-CHANGED OF searchBar IN FRAME F-Main /* Search */
@@ -454,7 +505,7 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  RUN spGetTaskFilter (OUTPUT cModule, OUTPUT cPrgmName, OUTPUT cUserID).
+  RUN spGetTaskFilter (OUTPUT cMnemonic, OUTPUT cPrgmName, OUTPUT cUserID).
   DO WITH FRAME filterFrame:
     ASSIGN
       filterReport:SENSITIVE = YES
@@ -481,18 +532,17 @@ PROCEDURE pGetParamValue :
     DEFINE BUFFER bDynParamValue FOR dynParamValue.
     
     FOR EACH prgrms NO-LOCK
-        WHERE prgrms.mnemonic BEGINS "{&module}"
-           OR "{&module}" EQ "ALL",
+        WHERE prgrms.mnemonic BEGINS cMnemonic
+           OR cMnemonic EQ "ALL",
         EACH dynParamValue NO-LOCK
         WHERE dynParamValue.prgmName EQ prgrms.prgmname
-          AND dynParamValue.prgmName EQ ""
         WITH FRAME filterFrame:
         CREATE ttDynParamValue.
         ASSIGN
             ttDynParamValue.mnemonic     = prgrms.mnemonic
             ttDynParamValue.paramDescription = dynParamValue.paramDescription
             ttDynParamValue.prgmName     = dynParamValue.prgmName
-            ttDynParamValue.prgtitle     = prgrms.prgtitle
+            ttDynParamValue.prgTitle     = prgrms.prgtitle
             ttDynParamValue.module       = prgrms.module
             ttDynParamValue.user-id      = dynParamValue.user-id
             ttDynParamValue.paramValueID = dynParamValue.paramValueID
@@ -500,20 +550,21 @@ PROCEDURE pGetParamValue :
                                          + ttDynParamValue.paramDescription + "|"
                                          + ttDynParamValue.prgmName + "|"
                                          + ttDynParamValue.prgtitle + "|"
+                                         + ttDynParamValue.module + "|"
                                          + ttDynParamValue.user-id + "|"
                                          + STRING(ttDynParamValue.paramValueID)
                                          .
-        IF NOT CAN-DO(filterReport:LIST-ITEMS,ttDynParamValue.prgtitle) THEN
-        filterReport:ADD-LAST(ttDynParamValue.prgtitle).
+        IF NOT CAN-DO(filterReport:LIST-ITEMS,ttDynParamValue.prgTitle) THEN
+        filterReport:ADD-LAST(ttDynParamValue.prgTitle).
         IF NOT CAN-DO(filterModule:LIST-ITEMS,ttDynParamValue.module) THEN
         filterModule:ADD-LAST(ttDynParamValue.module).
         IF NOT CAN-DO(filterUser:LIST-ITEMS,ttDynParamValue.user-id) THEN
         filterUser:ADD-LAST(ttDynParamValue.user-id).
     END. /* each dynParamValue */
     ASSIGN
-        filterReport:SCREEN-VALUE = filterReport:ENTRY(1)
-        filterModule:SCREEN-VALUE = filterModule:ENTRY(1)
-        filterUser:SCREEN-VALUE   = filterUser:ENTRY(1)
+        filterReport:SCREEN-VALUE = "<All>"
+        filterModule:SCREEN-VALUE = "<All>"
+        filterUser:SCREEN-VALUE   = "<All>"
         .
 
 END PROCEDURE.
@@ -544,6 +595,9 @@ PROCEDURE pReopenBrowse :
         OTHERWISE
         {&OPEN-QUERY-{&BROWSE-NAME}}
     END CASE.
+    MESSAGE
+    "{&BROWSE-NAME}"
+    VIEW-AS ALERT-BOX.
 
 END PROCEDURE.
 
