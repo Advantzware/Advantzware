@@ -228,19 +228,39 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        PUT "<C21>CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "")  FORM "x(30)" .
     END.
     ELSE
-    IF i EQ 10  THEN DO:  
-        
-       v-board = "".
+    IF i EQ 10  THEN DO:                
        
            DO j = 1 TO 6:
                IF ef.adder[j] NE "" THEN
-                   v-board = v-board + ef.adder[j] + ",".
+                   cAddrDesc[j] = cAddrDesc[j] + ef.adder[j].
+               IF cAddrDesc[j] NE "" THEN DO:
+                   IF ef.adder[j + 6] NE "" THEN
+                       cAddrDesc[j] = cAddrDesc[j] + " - " + ef.adder[j + 6].
+               END.
+           END.          
+           DO j = 1 TO 6:
+               IF cAddrDesc[j] NE "" THEN do:                    
+                   PUT "<C21>" cAddrDesc[j] FORMAT "x(30)" .
+                     
+                   IF AVAIL xqqty THEN DO:
+                        xxx    = IF xqqty.uom EQ "L" THEN xqqty.price    ELSE
+                        IF xqqty.uom EQ "C" THEN
+                        ((xqqty.qty / 100) * xqqty.price)     ELSE
+                        IF xqqty.uom EQ "M" THEN
+                        ((xqqty.qty / 1000) * xqqty.price)    ELSE
+                        (xqqty.qty * xqqty.price).
+                                             
+                        PUT "<C48>" xqqty.qty FORMAT ">>>>>>>9"  SPACE(1)
+                        xqqty.rels space(5)
+                        xqqty.price FORMAT "->>>>,>>9.99<<" space(2)
+                        xqqty.uom.
+                        
+                        v-line-total = v-line-total + xqqty.price.
+                    END.
+                    PUT  SKIP.
+                    FIND NEXT xqqty OF xqitm NO-LOCK NO-ERROR.                    
+               END.
            END.
-           v-board = SUBSTRING(v-board,1,LENGTH(v-board) - 1).
-       
-       IF v-board NE "" THEN 
-           PUT "<C21>" v-board FORMAT "x(72)".
-      
     END.
 
     IF i GT 10 THEN PUT SPACE(58) .
