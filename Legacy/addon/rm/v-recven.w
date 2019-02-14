@@ -130,6 +130,16 @@ DO TRANSACTION:
    {sys/inc/sspostvt.i}
 END.
 
+DEFINE VARIABLE iSSScanVendorLength AS INTEGER NO-UNDO .
+DEFINE VARIABLE lSSScanVendorLength AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lRecFound       AS LOG       NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+	
+	RUN sys/ref/nk1look.p (cocode, "SSScanVendor", "I", NO, NO, "", "", 
+	    OUTPUT cRtnChar, OUTPUT lRecFound).
+	IF lRecFound THEN
+	    iSSScanVendorLength = INT(cRtnChar) NO-ERROR.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -556,7 +566,8 @@ DO:
              scr-qty:SCREEN-VALUE = "0"
              scr-item-no:SCREEN-VALUE = ""
              scr-item-name:SCREEN-VALUE = ""
-             scr-uom:SCREEN-VALUE = "".
+             scr-uom:SCREEN-VALUE = ""
+             LSSScanVendorLength = NO  .
        END.
    END.
 END.
@@ -693,6 +704,17 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME scr-vend-tag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL scr-vend-tag V-table-Win
+ON VALUE-CHANGED OF scr-vend-tag IN FRAME F-Main /* Vendor Tag# */
+DO:
+ LSSScanVendorLength = NO .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME scr-vend-tag
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL scr-vend-tag V-table-Win
@@ -726,6 +748,14 @@ DO:
                   VIEW-AS ALERT-BOX ERROR.
                RETURN NO-APPLY.
             END.
+
+            IF iSSScanVendorLength NE 0 AND scr-vend-tag NE "" AND NOT LSSScanVendorLength THEN DO:
+                IF LENGTH(scr-vend-tag) > iSSScanVendorLength THEN do:
+	                 MESSAGE "Vendor tag is longer than the maximum of " + STRING(iSSScanVendorLength) 
+	                        + ", as defined by the integer value of SSScanVendor" VIEW-AS ALERT-BOX WARNING.  
+	                    ASSIGN LSSScanVendorLength = YES . 
+	              END.
+	        END.
             
          RUN edDocSearch (OUTPUT lEdDocFound).
          IF lEdDocFound THEN DO:
