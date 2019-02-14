@@ -953,6 +953,15 @@ FOR EACH job-hdr NO-LOCK
         OUTPUT userField[30],
         OUTPUT userField[31]
         ).
+    /* assign these here in case the above procedure returns unknown values */
+    ASSIGN
+        userField[15] = setUserField(15,IF job-mch.run-qty EQ ? THEN '' ELSE LEFT-TRIM(STRING(job-mch.run-qty,'zzz,zzz,zz9')))
+        userField[58] = setUserField(58,IF AVAILABLE ef THEN STRING(ef.gsh-len,'>>,>>9.9999') ELSE '')
+        .
+    IF userField[29] EQ ? THEN
+    userField[29] = userField[15].
+    IF userField[30] EQ ? THEN
+    userField[30] = userField[58].
 
     IF AVAILABLE eb AND INTEGER(userField[31]) EQ 0 THEN
     userField[31] = STRING(eb.num-up,'>>>9').
@@ -980,7 +989,6 @@ FOR EACH job-hdr NO-LOCK
       userField[11]  = setUserField(11,IF AVAILABLE eb THEN STRING(convBase16(eb.wid),dimFormat) ELSE '')
       userField[12]  = setUserField(12,IF AVAILABLE eb THEN STRING(convBase16(eb.dep),dimFormat) ELSE '')
       userField[13]  = setUserField(13,IF AVAILABLE eb THEN eb.style ELSE '')
-      userField[15]  = setUserField(15,IF job-mch.run-qty EQ ? THEN '' ELSE LEFT-TRIM(STRING(job-mch.run-qty,'zzz,zzz,zz9')))
       userField[16]  = setUserField(16,IF AVAILABLE po-ordl THEN STRING(po-ordl.due-date,'99/99/9999') ELSE '')
       userField[17]  = setUserField(17,IF AVAILABLE po-ord THEN po-ord.vend-no ELSE '')
       userField[18]  = setUserField(18,STRING(job-mch.frm,'zz9'))
@@ -1011,7 +1019,6 @@ FOR EACH job-hdr NO-LOCK
       userField[57]  = setUserField(57,prodQty(job-mch.company,job-mch.m-code,job-mch.job-no,
                                                job-mch.job-no2,job-mch.frm,job-mch.blank-no,
                                                job-mch.pass,prodQtyProgram)) WHEN prodQtyProgram NE ?
-      userField[58]  = setUserField(58,IF AVAILABLE ef THEN STRING(ef.gsh-len,'>>,>>9.9999') ELSE '')
       userField[59]  = setUserField(59,IF AVAILABLE ef THEN STRING(ef.gsh-wid,'>>,>>9.9999') ELSE '')
       userField[60]  = setUserField(60,IF AVAILABLE eb THEN eb.cas-no ELSE '')
       userField[64]  = setUserField(64,IF AVAILABLE itemfg THEN itemfg.part-no ELSE '')
@@ -1441,6 +1448,10 @@ PROCEDURE ipJobMatField:
 
   IF NOT ufIPJobMatField THEN RETURN ''.
 
+  ASSIGN            
+    opUserField29 = ? 
+    opUserField30 = ?
+    .
   FIND FIRST job-mat NO-LOCK
        WHERE job-mat.company  EQ ipCompany
          AND job-mat.j-no     EQ ipJNo
