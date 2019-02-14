@@ -75,22 +75,18 @@ DEFINE VARIABLE cUserID   AS CHARACTER NO-UNDO.
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ************************  Function Prototypes ********************** */
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fWindowTitle W-Win
-FUNCTION fWindowTitle RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fWindowTitle W-Win 
+FUNCTION fWindowTitle RETURNS CHARACTER
   (ipcTitle    AS CHARACTER,
    ipcModule   AS CHARACTER,
    ipcPrgmName AS CHARACTER,
-   ipcUserID   AS CHARACTER) FORWARD.
+   ipcUserID   AS CHARACTER)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -107,7 +103,7 @@ DEFINE VARIABLE h_usertasks AS HANDLE NO-UNDO.
 DEFINE BUTTON btnRestoreDefaults 
      IMAGE-UP FILE "Graphics/16x16/rename.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "Defaults" 
-     SIZE 4 BY 1.2 TOOLTIP "Restore Defaults".
+     SIZE 4 BY 1.19 TOOLTIP "Restore Defaults".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -603,11 +599,10 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fWindowTitle W-Win
-FUNCTION fWindowTitle RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fWindowTitle W-Win 
+FUNCTION fWindowTitle RETURNS CHARACTER
   (ipcTitle    AS CHARACTER,
    ipcModule   AS CHARACTER,
    ipcPrgmName AS CHARACTER,
@@ -634,8 +629,7 @@ FUNCTION fWindowTitle RETURNS CHARACTER
     RETURN cTitle.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

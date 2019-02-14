@@ -896,10 +896,12 @@ PROCEDURE pRunSubject :
     DEFINE INPUT PARAMETER ipcUserID   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcPrgmName AS CHARACTER NO-UNDO.
 
+    SESSION:SET-WAIT-STATE("General").
     RUN pSetDynParamValue ({1}Subject.subjectID, ipcUserID, ipcPrgmName, 0).
     IF iplRun THEN
     RUN pSaveDynParamValues.
     RUN pRunQuery (iplRun, ipcType, ipcUserID).
+    SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
 

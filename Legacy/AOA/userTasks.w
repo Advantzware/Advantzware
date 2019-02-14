@@ -33,7 +33,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&Scoped-define program-id userTasks.
+&Scoped-define prgmName userTasks.
 
 /* Parameters Definitions ---                                           */
 
@@ -49,15 +49,15 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 {methods/defines/sortByDefs.i}
 
-DEFINE TEMP-TABLE ttUserPrint NO-UNDO
-    FIELD mnemonic   AS CHARACTER FORMAT "x(3)"  LABEL "HotKey"
-    FIELD prog-title AS CHARACTER FORMAT "x(30)" LABEL "Description"
-    FIELD prgtitle   AS CHARACTER FORMAT "x(30)" LABEL "Report"
-    FIELD module     AS CHARACTER FORMAT "x(8)"  LABEL "Module"
-    FIELD user-id    AS CHARACTER FORMAT "x(20)" LABEL "User ID"
-    FIELD taskID     AS INTEGER   FORMAT ">>>>9" LABEL "Task ID"
-    FIELD program-id AS CHARACTER FORMAT "x(10)" LABEL "Program"
-    FIELD allData    AS CHARACTER
+DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
+    FIELD mnemonic     AS CHARACTER FORMAT "x(3)"  LABEL "HotKey"
+    FIELD paramDescription AS CHARACTER FORMAT "x(30)" LABEL "Description"
+    FIELD prgtitle     AS CHARACTER FORMAT "x(30)" LABEL "Report"
+    FIELD module       AS CHARACTER FORMAT "x(8)"  LABEL "Module"
+    FIELD user-id      AS CHARACTER FORMAT "x(20)" LABEL "User ID"
+    FIELD paramValueID AS INTEGER   FORMAT ">>>>9" LABEL "Task ID"
+    FIELD prgmName     AS CHARACTER FORMAT "x(10)" LABEL "Program"
+    FIELD allData      AS CHARACTER
         INDEX mnemonic IS PRIMARY mnemonic
         .
 
@@ -81,16 +81,16 @@ DEFINE TEMP-TABLE ttUserPrint NO-UNDO
 &Scoped-define BROWSE-NAME browseUserPrint
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttUserPrint
+&Scoped-define INTERNAL-TABLES ttDynParamValue
 
 /* Definitions for BROWSE browseUserPrint                               */
-&Scoped-define FIELDS-IN-QUERY-browseUserPrint ttUserPrint.mnemonic ttUserPrint.prgtitle ttUserPrint.prog-title ttUserPrint.module ttUserPrint.user-id ttUserPrint.taskID ttUserPrint.program-id   
+&Scoped-define FIELDS-IN-QUERY-browseUserPrint ttDynParamValue.mnemonic ttDynParamValue.prgTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.prgmName   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseUserPrint   
 &Scoped-define SELF-NAME browseUserPrint
-&Scoped-define QUERY-STRING-browseUserPrint FOR EACH ttUserPrint WHERE ttUserPrint.program-id BEGINS cPrgmName   AND ttUserPrint.mnemonic BEGINS cModule   AND ttUserPrint.user-id BEGINS cUserID   AND ttUserPrint.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-browseUserPrint OPEN QUERY {&SELF-NAME} FOR EACH ttUserPrint WHERE ttUserPrint.program-id BEGINS cPrgmName   AND ttUserPrint.mnemonic BEGINS cModule   AND ttUserPrint.user-id BEGINS cUserID   AND ttUserPrint.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-browseUserPrint ttUserPrint
-&Scoped-define FIRST-TABLE-IN-QUERY-browseUserPrint ttUserPrint
+&Scoped-define QUERY-STRING-browseUserPrint FOR EACH ttDynParamValue WHERE ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.mnemonic BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-browseUserPrint OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue WHERE ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.mnemonic BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-browseUserPrint ttDynParamValue
+&Scoped-define FIRST-TABLE-IN-QUERY-browseUserPrint ttDynParamValue
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -143,12 +143,6 @@ DEFINE VARIABLE filterReport AS CHARACTER FORMAT "X(256)":U INITIAL "<All>"
      DROP-DOWN-LIST
      SIZE 32 BY 1 TOOLTIP "Select Report" NO-UNDO.
 
-DEFINE VARIABLE filterScope AS CHARACTER FORMAT "X(256)":U INITIAL "<All>" 
-     VIEW-AS COMBO-BOX SORT INNER-LINES 5
-     LIST-ITEMS "<All>" 
-     DROP-DOWN-LIST
-     SIZE 32 BY 1 TOOLTIP "Select Scope" NO-UNDO.
-
 DEFINE VARIABLE filterUser AS CHARACTER FORMAT "X(256)":U INITIAL "<All>" 
      VIEW-AS COMBO-BOX SORT INNER-LINES 5
      LIST-ITEMS "<All>" 
@@ -158,20 +152,20 @@ DEFINE VARIABLE filterUser AS CHARACTER FORMAT "X(256)":U INITIAL "<All>"
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY browseUserPrint FOR 
-      ttUserPrint SCROLLING.
+      ttDynParamValue SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE browseUserPrint
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browseUserPrint s-object _FREEFORM
   QUERY browseUserPrint DISPLAY
-      ttUserPrint.mnemonic LABEL-BGCOLOR 14
-ttUserPrint.prgtitle LABEL-BGCOLOR 14
-ttUserPrint.prog-title LABEL-BGCOLOR 14
-ttUserPrint.module LABEL-BGCOLOR 14
-ttUserPrint.user-id LABEL-BGCOLOR 14
-ttUserPrint.taskID LABEL-BGCOLOR 14
-ttUserPrint.program-id LABEL-BGCOLOR 14
+      ttDynParamValue.mnemonic LABEL-BGCOLOR 14
+ttDynParamValue.prgTitle LABEL-BGCOLOR 14
+ttDynParamValue.paramDescription LABEL-BGCOLOR 14
+ttDynParamValue.module LABEL-BGCOLOR 14
+ttDynParamValue.user-id LABEL-BGCOLOR 14
+ttDynParamValue.paramValueID LABEL-BGCOLOR 14
+ttDynParamValue.prgmName LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 122 BY 25.95
@@ -188,7 +182,7 @@ DEFINE FRAME F-Main
      browseUserPrint AT ROW 1.95 COL 37 WIDGET-ID 500
      btnSortMove AT ROW 1 COL 41 HELP
           "Toggle Sort/Move Columns" WIDGET-ID 48
-     SPACE(0.00) SKIP(9.76)
+     SPACE(0.00) SKIP(7.38)
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -201,20 +195,16 @@ DEFINE FRAME filterFrame
           "Select Module" NO-LABEL WIDGET-ID 54
      filterUser AT ROW 6.24 COL 2 HELP
           "Select User" NO-LABEL WIDGET-ID 58
-     filterScope AT ROW 8.38 COL 2 HELP
-          "Select Scope" NO-LABEL WIDGET-ID 62
      "Module:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 3.38 COL 2 WIDGET-ID 56
      "User:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 5.52 COL 2 WIDGET-ID 60
-     "Scope:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 7.67 COL 2 WIDGET-ID 64
      "Report:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 52
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1.95
-         SIZE 34 BY 9.76
+         SIZE 34 BY 7.38
          TITLE "Filters" WIDGET-ID 600.
 
 
@@ -296,8 +286,6 @@ ASSIGN
    ALIGN-L                                                              */
 /* SETTINGS FOR COMBO-BOX filterReport IN FRAME filterFrame
    ALIGN-L                                                              */
-/* SETTINGS FOR COMBO-BOX filterScope IN FRAME filterFrame
-   ALIGN-L                                                              */
 /* SETTINGS FOR COMBO-BOX filterUser IN FRAME filterFrame
    ALIGN-L                                                              */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -309,11 +297,11 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE browseUserPrint
 /* Query rebuild information for BROWSE browseUserPrint
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttUserPrint
-WHERE ttUserPrint.program-id BEGINS cPrgmName
-  AND ttUserPrint.mnemonic BEGINS cModule
-  AND ttUserPrint.user-id BEGINS cUserID
-  AND ttUserPrint.allData MATCHES "*" + searchBar + "*"
+OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue
+WHERE ttDynParamValue.prgmName BEGINS cPrgmName
+  AND ttDynParamValue.mnemonic BEGINS cModule
+  AND ttDynParamValue.user-id BEGINS cUserID
+  AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"
  ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
@@ -421,12 +409,12 @@ END.
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
-{methods/sortByProc.i "pBymnemonic" "ttUserPrint.mnemonic"}
-{methods/sortByProc.i "pByPrgTitle" "ttUserPrint.prgtitle"}
-{methods/sortByProc.i "pByProgramID" "ttUserPrint.program-id"}
-{methods/sortByProc.i "pByProgTitle" "ttUserPrint.prog-title"}
-{methods/sortByProc.i "pByTaskID" "ttUserPrint.taskID"}
-{methods/sortByProc.i "pByUserID" "ttUserPrint.user-id"}
+{methods/sortByProc.i "pBymnemonic" "ttDynParamValue.mnemonic"}
+{methods/sortByProc.i "pByPrgTitle" "ttDynParamValue.prgtitle"}
+{methods/sortByProc.i "pByPrgmName" "ttDynParamValue.prgmName"}
+{methods/sortByProc.i "pByProgTitle" "ttDynParamValue.paramDescription"}
+{methods/sortByProc.i "pByParamDescription" "ttDynParamValue.ParamDescription"}
+{methods/sortByProc.i "pByUserID" "ttDynParamValue.user-id"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -472,11 +460,10 @@ PROCEDURE local-initialize :
       filterReport:SENSITIVE = YES
       filterModule:SENSITIVE = YES
       filterUser:SENSITIVE   = YES
-      filterScope:SENSITIVE  = YES
       .
   END. /* with frame */
   {methods/run_link.i "CONTAINER" "pGetCompany" "(OUTPUT cCompany)"}
-  RUN pGetUserPrint.
+  RUN pGetParamValue.
   RUN pReopenBrowse.
 
 END PROCEDURE.
@@ -484,61 +471,49 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUserPrint s-object 
-PROCEDURE pGetUserPrint :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetParamValue s-object 
+PROCEDURE pGetParamValue :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE BUFFER bUserPrint FOR user-print.
+    DEFINE BUFFER bDynParamValue FOR dynParamValue.
     
     FOR EACH prgrms NO-LOCK
         WHERE prgrms.mnemonic BEGINS "{&module}"
            OR "{&module}" EQ "ALL",
-        EACH user-print NO-LOCK
-        WHERE user-print.company    EQ cCompany
-          AND user-print.program-id EQ prgrms.prgmname
-          AND user-print.prgmname   EQ ""
+        EACH dynParamValue NO-LOCK
+        WHERE dynParamValue.prgmName EQ prgrms.prgmname
+          AND dynParamValue.prgmName EQ ""
         WITH FRAME filterFrame:
-        IF CAN-FIND(FIRST bUserPrint NO-LOCK
-                    WHERE bUserPrint.company    EQ user-print.company
-                      AND bUserPrint.program-id EQ user-print.program-id
-                      AND bUserPrint.user-id    EQ user-print.user-id
-                      AND bUserPrint.prgmname   EQ "Jasper") THEN DO:
-            CREATE ttUserPrint.
-            ASSIGN
-                ttUserPrint.mnemonic   = prgrms.mnemonic
-                ttUserPrint.prog-title = user-print.prog-title
-                ttUserPrint.program-id = user-print.program-id
-                ttUserPrint.prgtitle   = prgrms.prgtitle
-                ttUserPrint.module     = prgrms.module
-                ttUserPrint.user-id    = user-print.user-id
-                ttUserPrint.taskID     = user-print.batch-seq
-                ttUserPrint.allData    = ttUserPrint.mnemonic + "|"
-                                       + ttUserPrint.prog-title + "|"
-                                       + ttUserPrint.program-id + "|"
-                                       + ttUserPrint.prgtitle + "|"
-                                       + ttUserPrint.user-id + "|"
-                                       + STRING(ttUserPrint.taskID)
-                                       .
-            IF NOT CAN-DO(filterReport:LIST-ITEMS,ttUserPrint.prgtitle) THEN
-            filterReport:ADD-LAST(ttUserPrint.prgtitle).
-            IF NOT CAN-DO(filterModule:LIST-ITEMS,ttUserPrint.module) THEN
-            filterModule:ADD-LAST(ttUserPrint.module).
-            IF NOT CAN-DO(filterUser:LIST-ITEMS,ttUserPrint.user-id) THEN
-            filterUser:ADD-LAST(ttUserPrint.user-id).
-            /*
-            IF NOT CAN-DO(filterScope:LIST-ITEMS,?) THEN
-            filterScope:ADD-LAST(?).
-            */
-        END.
-    END. /* each user-print */
+        CREATE ttDynParamValue.
+        ASSIGN
+            ttDynParamValue.mnemonic     = prgrms.mnemonic
+            ttDynParamValue.paramDescription = dynParamValue.paramDescription
+            ttDynParamValue.prgmName     = dynParamValue.prgmName
+            ttDynParamValue.prgtitle     = prgrms.prgtitle
+            ttDynParamValue.module       = prgrms.module
+            ttDynParamValue.user-id      = dynParamValue.user-id
+            ttDynParamValue.paramValueID = dynParamValue.paramValueID
+            ttDynParamValue.allData      = ttDynParamValue.mnemonic + "|"
+                                         + ttDynParamValue.paramDescription + "|"
+                                         + ttDynParamValue.prgmName + "|"
+                                         + ttDynParamValue.prgtitle + "|"
+                                         + ttDynParamValue.user-id + "|"
+                                         + STRING(ttDynParamValue.paramValueID)
+                                         .
+        IF NOT CAN-DO(filterReport:LIST-ITEMS,ttDynParamValue.prgtitle) THEN
+        filterReport:ADD-LAST(ttDynParamValue.prgtitle).
+        IF NOT CAN-DO(filterModule:LIST-ITEMS,ttDynParamValue.module) THEN
+        filterModule:ADD-LAST(ttDynParamValue.module).
+        IF NOT CAN-DO(filterUser:LIST-ITEMS,ttDynParamValue.user-id) THEN
+        filterUser:ADD-LAST(ttDynParamValue.user-id).
+    END. /* each dynParamValue */
     ASSIGN
         filterReport:SCREEN-VALUE = filterReport:ENTRY(1)
         filterModule:SCREEN-VALUE = filterModule:ENTRY(1)
         filterUser:SCREEN-VALUE   = filterUser:ENTRY(1)
-        filterScope:SCREEN-VALUE  = filterScope:ENTRY(1)
         .
 
 END PROCEDURE.
@@ -556,10 +531,10 @@ PROCEDURE pReopenBrowse :
     CASE cColumnLabel:
         WHEN "mnemonic" THEN
         RUN pBymnemonic.
-        WHEN "prog-title" THEN
-        RUN pByProgTitle.
-        WHEN "program-id" THEN
-        RUN pByProgramID.
+        WHEN "paramDescription" THEN
+        RUN pByParamDescription.
+        WHEN "prgmName" THEN
+        RUN pByPrgmName.
         WHEN "prgtitle" THEN
         RUN pByPrgTitle.
         WHEN "taskID" THEN

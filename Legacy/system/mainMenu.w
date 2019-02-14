@@ -3,7 +3,7 @@
 &Scoped-define WINDOW-NAME MAINMENU
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS MAINMENU 
 /*------------------------------------------------------------------------
- 
+
   File:              mainMenu.w
  
   Description:       Main Menu v3 (Menu Tree)
@@ -34,13 +34,13 @@ ON CTRL-P HELP.
 
 ON 'CTRL-ALT-D':U ANYWHERE
 DO:
-    RUN aoa/aoaLauncher.w PERSISTENT ("Dashboard").
+    RUN AOA/aoaLauncher.w PERSISTENT ("Dashboard").
     RETURN.
 END.
 
 ON 'CTRL-ALT-R':U ANYWHERE
 DO:
-    RUN aoa/aoaLauncher.w PERSISTENT ("Report").
+    RUN AOA/aoaLauncher.w PERSISTENT ("Report").
     RETURN.
 END.
 
@@ -163,8 +163,8 @@ DEFINE MENU MENU-BAR-MAINMENU MENUBAR
 
 
 /* Definitions of handles for OCX Containers                            */
-DEFINE VARIABLE CtrlFrame-2 AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE chCtrlFrame-2 AS COMPONENT-HANDLE NO-UNDO.
+DEFINE VARIABLE CtrlFrame AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE company_name AS CHARACTER FORMAT "X(256)":U 
@@ -610,10 +610,10 @@ DEFINE FRAME FRAME-USER
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      "User ID:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 99
-     "Location:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 66
      "Company:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 4
+     "Location:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.71 COL 66
      boxes AT ROW 8.62 COL 57
      menu-image AT ROW 3.62 COL 58
      RECT-2 AT ROW 1 COL 1
@@ -675,42 +675,42 @@ DEFINE FRAME userSettingsFrame
           "Copy From User to Selected User(s)" WIDGET-ID 94
      btnActivateCueCards AT ROW 21 COL 27 HELP
           "Activate Inactive Cue Cards" WIDGET-ID 116
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 34 BY .81 AT ROW 10.76 COL 25 WIDGET-ID 42
-          FONT 33
-     "Menu Level 1" VIEW-AS TEXT
-          SIZE 13 BY .67 AT ROW 22.91 COL 7 WIDGET-ID 458
-     "Position:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 18.86 COL 12 WIDGET-ID 114
+     " Language" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 3.62 COL 5 WIDGET-ID 86
+     "FG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 23.62 COL 7 WIDGET-ID 454
+     " Copy From User" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 98
+     "2" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 22.91 COL 26 WIDGET-ID 462
+     "3" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 22.91 COL 33 WIDGET-ID 464
      "[S] Scheduling" VIEW-AS TEXT
           SIZE 31 BY .95 AT ROW 12.19 COL 28 WIDGET-ID 48
           FONT 35
-     "3" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 22.91 COL 33 WIDGET-ID 464
-     " Copy From User" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 98
-     " HotKey (Mnemonic)" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 16.95 COL 5 WIDGET-ID 106
-     "Show:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 17.67 COL 14 WIDGET-ID 112
-     " Copy to Selected Users" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
-     "BG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 24.81 COL 7 WIDGET-ID 460
-     "2" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 22.91 COL 26 WIDGET-ID 462
-     "?" VIEW-AS TEXT
-          SIZE 2 BY .76 AT ROW 24.33 COL 43 WIDGET-ID 354
-          FGCOLOR 0 FONT 6
-     "FG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 23.62 COL 7 WIDGET-ID 454
-     " Menu Size" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 9.81 COL 5 WIDGET-ID 62
+     "Position:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 18.86 COL 12 WIDGET-ID 114
+     "Menu Level 1" VIEW-AS TEXT
+          SIZE 13 BY .67 AT ROW 22.91 COL 7 WIDGET-ID 458
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 34 BY .81 AT ROW 10.76 COL 25 WIDGET-ID 42
+          FONT 33
      "[S] Scheduling" VIEW-AS TEXT
           SIZE 28 BY 1.43 AT ROW 13.86 COL 31 WIDGET-ID 54
           FONT 37
-     " Language" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 3.62 COL 5 WIDGET-ID 86
+     "?" VIEW-AS TEXT
+          SIZE 2 BY .76 AT ROW 24.33 COL 43 WIDGET-ID 354
+          FGCOLOR 0 FONT 6
+     "BG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 24.81 COL 7 WIDGET-ID 460
+     " Copy to Selected Users" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
+     "Show:" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 17.67 COL 14 WIDGET-ID 112
+     " HotKey (Mnemonic)" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 16.95 COL 5 WIDGET-ID 106
+     " Menu Size" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 9.81 COL 5 WIDGET-ID 62
      IMAGE-1 AT ROW 10.76 COL 17 WIDGET-ID 40
      IMAGE-2 AT ROW 12.19 COL 17 WIDGET-ID 44
      IMAGE-3 AT ROW 13.86 COL 17 WIDGET-ID 50
@@ -1196,7 +1196,7 @@ THEN MAINMENU:HIDDEN = no.
 
 &IF "{&OPSYS}" = "WIN32":U AND "{&WINDOW-SYSTEM}" NE "TTY":U &THEN
 
-CREATE CONTROL-FRAME CtrlFrame-2 ASSIGN
+CREATE CONTROL-FRAME CtrlFrame ASSIGN
        FRAME           = FRAME FRAME-USER:HANDLE
        ROW             = 1
        COLUMN          = 1
@@ -1205,8 +1205,8 @@ CREATE CONTROL-FRAME CtrlFrame-2 ASSIGN
        WIDGET-ID       = 84
        HIDDEN          = yes
        SENSITIVE       = yes.
-/* CtrlFrame-2 OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
-      CtrlFrame-2:MOVE-BEFORE(FRAME searchFrame:HANDLE).
+/* CtrlFrame OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
+      CtrlFrame:MOVE-BEFORE(FRAME searchFrame:HANDLE).
 
 &ENDIF
 
@@ -1563,9 +1563,9 @@ END.
 
 
 &Scoped-define FRAME-NAME FRAME-USER
-&Scoped-define SELF-NAME CtrlFrame-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL CtrlFrame-2 MAINMENU OCX.Tick
-PROCEDURE CtrlFrame-2.PSTimer.Tick .
+&Scoped-define SELF-NAME CtrlFrame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL CtrlFrame MAINMENU OCX.Tick
+PROCEDURE CtrlFrame.PSTimer.Tick .
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  None required for OCX.
@@ -1658,7 +1658,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageScheduler MAINMENU
 ON MOUSE-SELECT-CLICK OF imageScheduler IN FRAME FRAME-USER
 DO:
-    RUN Get_Procedure IN Persistent-Handle ("aoaTasks.", OUTPUT run-proc, YES).
+    RUN Get_Procedure IN Persistent-Handle ("dynTasks.", OUTPUT run-proc, YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2060,9 +2060,9 @@ IF OCXFile = ? THEN
 IF OCXFile <> ? THEN
 DO:
   ASSIGN
-    chCtrlFrame-2 = CtrlFrame-2:COM-HANDLE
-    UIB_S = chCtrlFrame-2:LoadControls( OCXFile, "CtrlFrame-2":U)
-    CtrlFrame-2:NAME = "CtrlFrame-2":U
+    chCtrlFrame = CtrlFrame:COM-HANDLE
+    UIB_S = chCtrlFrame:LoadControls( OCXFile, "CtrlFrame":U)
+    CtrlFrame:NAME = "CtrlFrame":U
   .
   RUN initialize-controls IN THIS-PROCEDURE NO-ERROR.
 END.
@@ -2292,8 +2292,8 @@ PROCEDURE pGetCopyUsers :
             IF FIRST-OF(xUserMenu.user_id) THEN DO:
                 FIND FIRST users OF xUserMenu NO-LOCK NO-ERROR.
                 copyFromUser:ADD-LAST(xUserMenu.user_id
-                    + (IF AVAILABLE users THEN
-                       " - " + REPLACE(users.user_name,","," ") ELSE ""),xUserMenu.user_id)
+                    + (IF AVAILABLE users THEN " - "
+                    + REPLACE(users.user_name,","," ") ELSE ""),xUserMenu.user_id)
                     .
             END. /* first-of */
         END. /* each xusermenu */
