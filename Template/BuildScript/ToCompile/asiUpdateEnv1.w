@@ -4934,6 +4934,33 @@ PROCEDURE ipUpdateNK1s :
                 sys-ctrl.char-fld = ".\resources\images\nologo.png".
         END.
     END.
+    
+    /* 44453 - Deprecate MenuImage */
+    RUN ipStatus ("  MenuImage").
+    FOR EACH  sys-ctrl WHERE
+        sys-ctrl.name EQ "MenuImage":
+        DELETE sys-ctrl.
+    END.
+    
+    /* 44448 - EnforceUserCount */
+    RUN ipStatus ("  EnforceUserCount").
+    FOR EACH company:
+        FIND FIRST sys-ctrl WHERE
+            sys-ctrl.company EQ company.company AND 
+            sys-ctrl.name EQ "EnforceUserCount"
+            NO-ERROR.
+        IF NOT AVAIL sys-ctrl THEN DO: 
+            CREATE sys-ctrl.
+            ASSIGN 
+                sys-ctrl.company = company.company
+                sys-ctrl.name = "EnforceUserCount"
+                sys-ctrl.descrip = "Enforce the limit on number of user logins?".
+        END.
+        ASSIGN
+            sys-ctrl.log-fld = TRUE
+            sys-ctrl.securityLevelUser = 1000.
+    END.
+    
        
 END PROCEDURE.
 
