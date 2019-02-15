@@ -415,8 +415,8 @@ DO li-loop = 1 TO NUM-ENTRIES(v-postlst):
         AND fg-rctd.loc       LE end_whs
         AND ((begin_userid    LE "" AND
         end_userid      GE "") OR
-        (fg-rctd.updated-by GE begin_userid 
-        AND fg-rctd.updated-by LE end_userid))
+        (fg-rctd.created-by GE begin_userid 
+        AND fg-rctd.created-by LE end_userid))
         USE-INDEX rita-code:
 
         RUN build-tables.

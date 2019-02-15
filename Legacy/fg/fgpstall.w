@@ -349,7 +349,7 @@ DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U
      SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_userid AS CHARACTER FORMAT "X(8)":U 
-     LABEL "From Last Updated ID" 
+     LABEL "From Created ID" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
@@ -374,7 +374,7 @@ DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz"
      SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_userid AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
-     LABEL "To Last Updated ID" 
+     LABEL "To Created ID" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
