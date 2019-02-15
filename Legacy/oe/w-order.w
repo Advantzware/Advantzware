@@ -1353,6 +1353,11 @@ PROCEDURE local-change-page :
   END.
   IF li-cur-page = 2 AND VALID-HANDLE(h_v-ord)  THEN
     RUN change-page-logic IN h_v-ord.
+
+  IF li-cur-page EQ 5 then do:
+     RUN set-buttons IN h_p-orel-2 ('initial').
+     RUN set-buttons IN h_p-obol ('initial').
+  END.
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
 
