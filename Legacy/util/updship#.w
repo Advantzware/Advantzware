@@ -58,6 +58,8 @@ DEFINE TEMP-TABLE tt-oe-shipto
     FIELD ship-name   LIKE shipto.ship-name
     FIELD ship-add    AS CHARACTER 
     FIELD ship-city   LIKE shipto.ship-city
+    FIELD ship-state  LIKE shipto.ship-state
+    FIELD ship-zip   LIKE shipto.ship-zip
     FIELD i-count     AS INTEGER
     FIELD IS-SELECTED AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX
     .
@@ -82,7 +84,7 @@ DEFINE BUFFER bf-shipto FOR shipto .
 &Scoped-define INTERNAL-TABLES tt-oe-shipto
 
 /* Definitions for BROWSE browse-machine                                */
-&Scoped-define FIELDS-IN-QUERY-browse-machine tt-oe-shipto.IS-SELECTED tt-oe-shipto.ship-id tt-oe-shipto.ship-name tt-oe-shipto.ship-add   
+&Scoped-define FIELDS-IN-QUERY-browse-machine tt-oe-shipto.IS-SELECTED tt-oe-shipto.ship-id tt-oe-shipto.ship-name tt-oe-shipto.ship-add tt-oe-shipto.ship-city tt-oe-shipto.ship-state tt-oe-shipto.ship-zip 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browse-machine tt-oe-shipto.IS-SELECTED   
 &Scoped-define ENABLED-TABLES-IN-QUERY-browse-machine tt-oe-shipto
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-browse-machine tt-oe-shipto
@@ -167,9 +169,11 @@ DEFINE BROWSE browse-machine
   QUERY browse-machine NO-LOCK DISPLAY
       tt-oe-shipto.IS-SELECTED COLUMN-LABEL ''  VIEW-AS TOGGLE-BOX 
     tt-oe-shipto.ship-id FORMAT "x(8)" COLUMN-LABEL "Ship To ID" WIDTH 12
-    tt-oe-shipto.ship-name FORMAT "X(25)" COLUMN-LABEL "Ship To Name" WIDTH 30
-    tt-oe-shipto.ship-add COLUMN-LABEL "Ship To Address"  WIDTH 30
-    /*tt-oe-shipto.ship-city COLUMN-LABEL "City" WIDTH 15*/
+    tt-oe-shipto.ship-name FORMAT "X(30)" COLUMN-LABEL "Ship To Name" 
+    tt-oe-shipto.ship-add FORMAT "X(40)" COLUMN-LABEL "Ship To Address"  
+    tt-oe-shipto.ship-city COLUMN-LABEL "City" 
+    tt-oe-shipto.ship-state COLUMN-LABEL "State" 
+    tt-oe-shipto.ship-zip COLUMN-LABEL "Zip" 
       ENABLE tt-oe-shipto.IS-SELECTED
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -577,7 +581,9 @@ PROCEDURE build-table :
                     tt-oe-shipto.ship-id   = shipto.ship-id  
                     tt-oe-shipto.ship-name = shipto.ship-name
                     tt-oe-shipto.ship-add  = shipto.ship-add[1]
-                    tt-oe-shipto.ship-city = shipto.ship-city.
+                    tt-oe-shipto.ship-city = shipto.ship-city  
+                    tt-oe-shipto.ship-state = shipto.ship-state
+                    tt-oe-shipto.ship-zip   = shipto.ship-zip .
             END.
         END.
     END.
@@ -849,10 +855,10 @@ PROCEDURE run-process :
 
             
                 DO TRANSACTION:
-                    IF rd_active EQ "I" AND NOT DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN 
+                    IF rd_active EQ "I" AND DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN 
                     DO:
-                        RUN ClearTagsInactive(shipto.rec_key).
-                        shipto.statusCode = "".
+                        RUN AddTagInactive(shipto.rec_key,"shipto").
+                        shipto.statusCode = "I".
                     END.
                     ELSE IF rd_active EQ "D" THEN 
                         DO:
