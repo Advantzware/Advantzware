@@ -55,7 +55,7 @@ DEFINE TEMP-TABLE ttFrame NO-UNDO RCODE-INFORMATION
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS rcSettings btnSettings ficSettingsFile ~
+&Scoped-Define ENABLED-OBJECTS btnSettings rcSettings ficSettingsFile ~
 btnRawEdit fiSearch btPage1 btPage2 btPage3 BtnCancel-2 BtnOK 
 &Scoped-Define DISPLAYED-OBJECTS ficSettingsFile fiSearch 
 
@@ -130,7 +130,7 @@ DEFINE FRAME DEFAULT-FRAME
      btPage3 AT Y 174 X 20 WIDGET-ID 10
      BtnCancel-2 AT Y 470 X 575 WIDGET-ID 98
      BtnOK AT Y 470 X 660 WIDGET-ID 94
-     "CTRL-SHIFT-S also opens this window" VIEW-AS TEXT
+     "CTRL-ALT-S also opens this window" VIEW-AS TEXT
           SIZE-PIXELS 240 BY 20 AT Y 475 X 15 WIDGET-ID 100
           FGCOLOR 7 
      rcSettings AT Y 60 X 150 WIDGET-ID 92
@@ -295,7 +295,6 @@ DO:
   
   SESSION:SET-WAIT-STATE("general").
   RUN saveSettings.
-  RUN flushRegistry.
   SESSION:SET-WAIT-STATE("").
 
   RUN checkBackupFolder(OUTPUT lOk).
@@ -482,15 +481,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   giWinY = ACTIVE-WINDOW:Y.
 
   RUN initializeObject. /* Collect frames and set values from ini */
-
-  giCurrentPage = INTEGER(getRegistry('DataDigger','SettingsTab')) NO-ERROR.
-  IF giCurrentPage = ? OR giCurrentPage = 0 THEN giCurrentPage = 1.
-  CASE giCurrentPage:
-    WHEN 1 THEN APPLY 'entry' TO btPage1.
-    WHEN 2 THEN APPLY 'entry' TO btPage2.
-    WHEN 3 THEN APPLY 'entry' TO btPage3.
-  END CASE.
-
+  APPLY 'entry' TO btPage1.
   VIEW wSettings.
 
   RUN showScrollBars(FRAME {&frame-name}:handle, NO, NO).
@@ -579,7 +570,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY ficSettingsFile fiSearch 
       WITH FRAME DEFAULT-FRAME IN WINDOW wSettings.
-  ENABLE rcSettings btnSettings ficSettingsFile btnRawEdit fiSearch btPage1 
+  ENABLE btnSettings rcSettings ficSettingsFile btnRawEdit fiSearch btPage1 
          btPage2 btPage3 BtnCancel-2 BtnOK 
       WITH FRAME DEFAULT-FRAME IN WINDOW wSettings.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
@@ -602,12 +593,11 @@ PROCEDURE factoryReset :
 
   /* Get a list of all folders in the DD dir */
   INPUT FROM OS-DIR(getProgramDir()).
-  #ReadLoop:
   REPEAT:
     IMPORT cFile.
-    IF NOT cFile[3] BEGINS 'D' THEN NEXT #ReadLoop.
-    IF cFile[1] BEGINS '.' THEN NEXT #ReadLoop.
-    IF cFile[1] = 'image' THEN NEXT #ReadLoop.
+    IF NOT cFile[3] BEGINS 'D' THEN NEXT.
+    IF cFile[1] BEGINS '.' THEN NEXT.
+    IF cFile[1] = 'image' THEN NEXT.
     cFolders = cFolders + '~n - delete folder ' + cFile[2].
     cFolderList = TRIM(SUBSTITUTE('&1~n&2',cFolderList,cFile[2]),'~n').
   END.
@@ -679,12 +669,11 @@ PROCEDURE initializeObject :
       gcPageButtons = TRIM(gcPageButtons + ',' + string(hWidget),',').
       hWidget:PRIVATE-DATA = hWidget:LABEL. /* save original label */
     END.
-    
     hWidget = hWidget:NEXT-SIBLING.
   END.
 
   DO iScreen = 1 TO 3:
-    RUN VALUE(SUBSTITUTE('&1\wSettingsTab&2.w', getProgramDir(), iScreen)) PERSISTENT SET hProg[iScreen]
+    RUN value(SUBSTITUTE('&1\wSettingsTab&2.w', getProgramDir(), iScreen)) PERSISTENT SET hProg[iScreen]
       ( INPUT FRAME frSettings:handle
       , INPUT rcSettings:handle
       ).
@@ -698,23 +687,19 @@ PROCEDURE initializeObject :
 
     ASSIGN
       iMaxHeight = 0
-      hWidget    = ttFrame.hFrame:FIRST-CHILD:FIRST-CHILD.
+      hWidget    = ttFrame.hFrame:first-child:first-child.
 
     /* Collect all labels on the frame */
     DO WHILE VALID-HANDLE(hWidget):
       iMaxHeight = MAXIMUM(iMaxHeight, hWidget:Y + hWidget:HEIGHT-PIXELS).
       IF CAN-SET(hWidget,'font') THEN hWidget:FONT = getFont('DEFAULT').
-      
-      IF hWidget:TYPE = 'literal' THEN
-        hWidget:WIDTH-PIXELS = FONT-TABLE:GET-TEXT-WIDTH-PIXELS(hWidget:SCREEN-VALUE,hWidget:FONT).
-            
       hWidget = hWidget:NEXT-SIBLING.
     END.
 
     /* Adjust height of frame */
-    ttFrame.hFrame:HEIGHT-PIXELS         = iMaxHeight + 4.
-    ttFrame.hFrame:VIRTUAL-HEIGHT-PIXELS = ttFrame.hFrame:height-pixels.
-    ttFrame.hFrame:VIRTUAL-WIDTH-PIXELS  = ttFrame.hFrame:width-pixels.
+    ttFrame.hFrame:height-pixels         = iMaxHeight + 4.
+    ttFrame.hFrame:virtual-height-pixels = ttFrame.hFrame:height-pixels.
+    ttFrame.hFrame:virtual-width-pixels  = ttFrame.hFrame:width-pixels.
   END.
 
   RUN enable_UI.
@@ -778,7 +763,7 @@ PROCEDURE loadSettings :
 
         IF hWidget:TYPE = 'BUTTON' THEN
         DO:
-          IF cSection = 'DataDigger:Fonts' THEN
+          IF cSection = 'DataDigger:fonts' THEN
             hWidget:FONT = INTEGER(cValue) NO-ERROR.
         END.
 
@@ -792,7 +777,7 @@ PROCEDURE loadSettings :
 
         ELSE
         IF hWidget:TYPE = 'FILL-IN'
-          AND cSection = 'DataDigger:Colors' THEN
+          AND cSection = 'DataDigger:colors' THEN
         DO:
           /* Try to get :FG */
           iColor = getColor(cSetting + ':FG' ).
@@ -851,7 +836,7 @@ PROCEDURE saveSettings :
 
         IF hWidget:TYPE = 'BUTTON' THEN
         DO:
-          IF cSection = 'DataDigger:Fonts' THEN
+          IF cSection = 'DataDigger:fonts' THEN
             setRegistry(cSection, cSetting, STRING(hWidget:FONT)).
         END.
 
@@ -863,7 +848,7 @@ PROCEDURE saveSettings :
 
         ELSE
         IF hWidget:TYPE = 'FILL-IN'
-          AND cSection = 'DataDigger:Colors' THEN
+          AND cSection = 'DataDigger:colors' THEN
         DO:
           setRegistry(cSection, cSetting + ':FG', STRING(hWidget:FGCOLOR)).
           setRegistry(cSection, cSetting + ':BG', STRING(hWidget:BGCOLOR)).
@@ -876,7 +861,9 @@ PROCEDURE saveSettings :
       hWidget = hWidget:NEXT-SIBLING.
     END. /* f/e ttFrame */
   END. /* while valid-handle */
-
+    
+  RUN flushRegistry. /* MYT - added to save custom settings, esp. Fonts - 2/15/2019 */
+  
 END PROCEDURE. /* saveSettings */
 
 /* _UIB-CODE-BLOCK-END */
@@ -896,10 +883,8 @@ PROCEDURE setPage :
     ASSIGN giLastActivePage = piPageNr
            giCurrentPage = piPageNr.
 
-  setRegistry('DataDigger','SettingsTab',STRING(giCurrentPage)).
-
   DO iPage = 1 TO NUM-ENTRIES(gcPageButtons):
-    hButton = HANDLE( ENTRY(iPage,gcPageButtons) ).
+    hButton = WIDGET-HANDLE( ENTRY(iPage,gcPageButtons) ).
 
     /* Normal sizes */
     ASSIGN
@@ -907,7 +892,7 @@ PROCEDURE setPage :
       hButton:Y = 60 + (iPage * 35)
       hButton:WIDTH-PIXELS = 125
       hButton:HEIGHT-PIXELS = 35
-      hButton:LABEL = hButton:PRIVATE-DATA
+      hButton:LABEL = hButton:PRIVATE-DATA.
       .
 
     /* Selected button */
