@@ -1644,7 +1644,7 @@ PROCEDURE spJasperQuery:
          NO-ERROR.
     IF AVAILABLE dynSubject THEN DO:
         /* create dynamic query */
-        RUN AOA/hQuery.p (
+        RUN AOA/dynQuery.p (
             ROWID(dynParamValue),
             dynSubject.queryStr,
             cTableName,

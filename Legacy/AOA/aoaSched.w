@@ -8,7 +8,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: aoaTasks.w
+  File: aoaSched.w
 
   Description: AOA Task Scheduler
 
@@ -575,6 +575,8 @@ DEFINE FRAME viewFrame
      Task.dayOfWeek3 AT ROW 6 COL 60 WIDGET-ID 492
           VIEW-AS TOGGLE-BOX
           SIZE 12 BY .81
+     btnRunNow AT ROW 19.81 COL 80 HELP
+          "Run Now" WIDGET-ID 634
      Task.dayOfWeek4 AT ROW 6 COL 76 WIDGET-ID 494
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY .81
@@ -603,8 +605,6 @@ DEFINE FRAME viewFrame
           LABEL "4"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnRunNow AT ROW 19.81 COL 80 HELP
-          "Run Now" WIDGET-ID 634
      Task.dayOfMonth[5] AT ROW 7.43 COL 60 WIDGET-ID 532
           LABEL "5"
           VIEW-AS TOGGLE-BOX
@@ -689,6 +689,8 @@ DEFINE FRAME viewFrame
           LABEL "23"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnClose AT ROW 1 COL 136 HELP
+          "Close" WIDGET-ID 72
      Task.dayOfMonth[24] AT ROW 10.29 COL 44 WIDGET-ID 578
           LABEL "24"
           VIEW-AS TOGGLE-BOX
@@ -705,10 +707,6 @@ DEFINE FRAME viewFrame
           LABEL "27"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     Task.dayOfMonth[28] AT ROW 10.29 COL 76 WIDGET-ID 574
-          LABEL "28"
-          VIEW-AS TOGGLE-BOX
-          SIZE 6 BY .81
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 21 ROW 7.43
@@ -717,6 +715,10 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     Task.dayOfMonth[28] AT ROW 10.29 COL 76 WIDGET-ID 574
+          LABEL "28"
+          VIEW-AS TOGGLE-BOX
+          SIZE 6 BY .81
      Task.runNow AT ROW 11.24 COL 14 WIDGET-ID 652
           VIEW-AS TOGGLE-BOX
           SIZE 12 BY .81
@@ -724,8 +726,6 @@ DEFINE FRAME viewFrame
           LABEL "29"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnClose AT ROW 1 COL 136 HELP
-          "Close" WIDGET-ID 72
      Task.dayOfMonth[30] AT ROW 11.24 COL 36 WIDGET-ID 580
           LABEL "30"
           VIEW-AS TOGGLE-BOX
@@ -749,6 +749,8 @@ DEFINE FRAME viewFrame
           SIZE 16 BY 1
           BGCOLOR 15 
      btnCalendar-2 AT ROW 13.62 COL 30 WIDGET-ID 78
+     btnFirst AT ROW 19.81 COL 106 HELP
+          "First" WIDGET-ID 274
      endDateOption AT ROW 13.62 COL 33 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
      Task.taskFormat AT ROW 13.62 COL 81 NO-LABEL WIDGET-ID 608
@@ -760,10 +762,16 @@ DEFINE FRAME viewFrame
 "PDF", "PDF":U,
 "HTML", "HTML":U
           SIZE 51 BY 1
+     btnLast AT ROW 19.86 COL 130 HELP
+          "Last" WIDGET-ID 68
+     btnNext AT ROW 19.81 COL 122 HELP
+          "Next" WIDGET-ID 276
      Task.nextDate AT ROW 14.81 COL 12 COLON-ALIGNED WIDGET-ID 510
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
+     btnPrev AT ROW 19.81 COL 114 HELP
+          "Previous" WIDGET-ID 278
      Task.cNextTime AT ROW 14.81 COL 36 COLON-ALIGNED WIDGET-ID 596
           LABEL "Time"
           VIEW-AS FILL-IN 
@@ -773,33 +781,23 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
+     btnAdd AT ROW 19.86 COL 23 HELP
+          "Add" WIDGET-ID 20
      Task.cLastTime AT ROW 16 COL 36 COLON-ALIGNED WIDGET-ID 594
           LABEL "Time"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 
+     btnCancel AT ROW 19.86 COL 55 HELP
+          "Cancel" WIDGET-ID 28
      Task.recipients AT ROW 17.19 COL 14 NO-LABEL WIDGET-ID 600
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 125 BY 2.14
           BGCOLOR 15 
-     btnFirst AT ROW 19.81 COL 106 HELP
-          "First" WIDGET-ID 274
-     btnLast AT ROW 19.86 COL 130 HELP
-          "Last" WIDGET-ID 68
-     btnNext AT ROW 19.81 COL 122 HELP
-          "Next" WIDGET-ID 276
-     btnPrev AT ROW 19.81 COL 114 HELP
-          "Previous" WIDGET-ID 278
-     btnAdd AT ROW 19.86 COL 23 HELP
-          "Add" WIDGET-ID 20
-     btnCancel AT ROW 19.86 COL 55 HELP
-          "Cancel" WIDGET-ID 28
      btnCopy AT ROW 19.86 COL 31 HELP
           "Copy" WIDGET-ID 24
      btnDelete AT ROW 19.86 COL 39 HELP
           "Delete" WIDGET-ID 26
-     btnReset AT ROW 19.86 COL 47 HELP
-          "Reset" WIDGET-ID 22
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 21 ROW 7.43
@@ -808,14 +806,16 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     btnReset AT ROW 19.86 COL 47 HELP
+          "Reset" WIDGET-ID 22
      btnUpdate AT ROW 19.86 COL 15 HELP
           "Update/Save" WIDGET-ID 18
      "Recipients:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 17.19 COL 3 WIDGET-ID 602
-     "Format:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 13.62 COL 72 WIDGET-ID 614
      "Frequency:" VIEW-AS TEXT
           SIZE 11 BY 1 AT ROW 3.62 COL 2 WIDGET-ID 618
+     "Format:" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 13.62 COL 72 WIDGET-ID 614
      transPanel AT ROW 19.57 COL 14 WIDGET-ID 16
      navPanel AT ROW 19.57 COL 105 WIDGET-ID 280
      RECT-2 AT ROW 5.76 COL 27 WIDGET-ID 620
@@ -847,7 +847,7 @@ DEFINE FRAME viewFrame
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "AOA Tasks"
+         TITLE              = "AOA Task Scheduler"
          HEIGHT             = 28.57
          WIDTH              = 160
          MAX-HEIGHT         = 320
@@ -1146,7 +1146,7 @@ WHERE Task.securityLevel LE iUserSecurityLevel
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* AOA Tasks */
+ON END-ERROR OF C-Win /* AOA Task Scheduler */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -1159,7 +1159,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* AOA Tasks */
+ON WINDOW-CLOSE OF C-Win /* AOA Task Scheduler */
 DO:
   /* This event will close the window and terminate the procedure.  */
   RUN pSaveSettings (USERID("ASI")).
@@ -1172,7 +1172,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-RESIZED OF C-Win /* AOA Tasks */
+ON WINDOW-RESIZED OF C-Win /* AOA Task Scheduler */
 DO:
     RUN pWinReSize.
 END.

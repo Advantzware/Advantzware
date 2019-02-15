@@ -93,6 +93,9 @@ DEFINE VARIABLE lSuperAdmin       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hColorWidget      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iFGColor          AS INTEGER   NO-UNDO EXTENT 3.
 DEFINE VARIABLE iBGColor          AS INTEGER   NO-UNDO EXTENT 3.
+DEFINE VARIABLE iThisVersion  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iLastVersion  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lUpgradeAvail AS LOGICAL NO-UNDO.
 
 ASSIGN
     g_mainmenu = THIS-PROCEDURE
@@ -144,6 +147,15 @@ FGColor-2 FGColor-3 BGColor-1 BGColor-2 BGColor-3
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIntVer MAINMENU 
+FUNCTION fIntVer RETURNS INTEGER
+  ( INPUT cVerString AS CHAR )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -610,10 +622,10 @@ DEFINE FRAME FRAME-USER
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      "User ID:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 99
-     "Company:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1.71 COL 4
      "Location:" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.71 COL 66
+     "Company:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1.71 COL 4
      boxes AT ROW 8.62 COL 57
      menu-image AT ROW 3.62 COL 58
      RECT-2 AT ROW 1 COL 1
@@ -675,42 +687,42 @@ DEFINE FRAME userSettingsFrame
           "Copy From User to Selected User(s)" WIDGET-ID 94
      btnActivateCueCards AT ROW 21 COL 27 HELP
           "Activate Inactive Cue Cards" WIDGET-ID 116
-     " Language" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 3.62 COL 5 WIDGET-ID 86
-     "FG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 23.62 COL 7 WIDGET-ID 454
+     "Show:" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 17.67 COL 14 WIDGET-ID 112
      " Copy From User" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 98
      "2" VIEW-AS TEXT
           SIZE 2 BY .62 AT ROW 22.91 COL 26 WIDGET-ID 462
-     "3" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 22.91 COL 33 WIDGET-ID 464
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 31 BY .95 AT ROW 12.19 COL 28 WIDGET-ID 48
-          FONT 35
      "Position:" VIEW-AS TEXT
           SIZE 9 BY 1 AT ROW 18.86 COL 12 WIDGET-ID 114
-     "Menu Level 1" VIEW-AS TEXT
-          SIZE 13 BY .67 AT ROW 22.91 COL 7 WIDGET-ID 458
      "[S] Scheduling" VIEW-AS TEXT
           SIZE 34 BY .81 AT ROW 10.76 COL 25 WIDGET-ID 42
           FONT 33
      "[S] Scheduling" VIEW-AS TEXT
           SIZE 28 BY 1.43 AT ROW 13.86 COL 31 WIDGET-ID 54
           FONT 37
+     " Language" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 3.62 COL 5 WIDGET-ID 86
+     "BG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 24.81 COL 7 WIDGET-ID 460
      "?" VIEW-AS TEXT
           SIZE 2 BY .76 AT ROW 24.33 COL 43 WIDGET-ID 354
           FGCOLOR 0 FONT 6
-     "BG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 24.81 COL 7 WIDGET-ID 460
      " Copy to Selected Users" VIEW-AS TEXT
           SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
-     "Show:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 17.67 COL 14 WIDGET-ID 112
+     "FG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 23.62 COL 7 WIDGET-ID 454
+     "3" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 22.91 COL 33 WIDGET-ID 464
      " HotKey (Mnemonic)" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 16.95 COL 5 WIDGET-ID 106
      " Menu Size" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 9.81 COL 5 WIDGET-ID 62
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 31 BY .95 AT ROW 12.19 COL 28 WIDGET-ID 48
+          FONT 35
+     "Menu Level 1" VIEW-AS TEXT
+          SIZE 13 BY .67 AT ROW 22.91 COL 7 WIDGET-ID 458
      IMAGE-1 AT ROW 10.76 COL 17 WIDGET-ID 40
      IMAGE-2 AT ROW 12.19 COL 17 WIDGET-ID 44
      IMAGE-3 AT ROW 13.86 COL 17 WIDGET-ID 50
@@ -1647,7 +1659,7 @@ END.
 ON MOUSE-SELECT-CLICK OF imagePrinter IN FRAME FRAME-USER
 DO:
     RUN spSetTaskFilter ("", "", "").
-    RUN Get_Procedure IN Persistent-Handle ("tasksWin.", OUTPUT run-proc, YES).
+    RUN Get_Procedure IN Persistent-Handle ("dynTasks.", OUTPUT run-proc, YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1658,7 +1670,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageScheduler MAINMENU
 ON MOUSE-SELECT-CLICK OF imageScheduler IN FRAME FRAME-USER
 DO:
-    RUN Get_Procedure IN Persistent-Handle ("dynTasks.", OUTPUT run-proc, YES).
+    RUN Get_Procedure IN Persistent-Handle ("dynSched.", OUTPUT run-proc, YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1823,7 +1835,18 @@ DO:
 &IF DEFINED(FWD-VERSION) > 0 &THEN
     open-mime-resource "text/html" string(menuLinkZoHo:PRIVATE-DATA) false.
 &ELSE
+    IF lUpgradeAvail THEN DO:
+        MESSAGE 
+            "About to download and install a system update.  This" SKIP 
+            "window will now close until the update is complete."
+            VIEW-AS ALERT-BOX INFO.
     OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
+        QUIT.
+        
+    END.
+    ELSE DO:
+        OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
+    END.
 &ENDIF
 END.
 
@@ -2281,6 +2304,7 @@ PROCEDURE pGetCopyUsers :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iUserSecurityLevel AS INTEGER NO-UNDO.
     DO WITH FRAME userSettingsFrame:
         ASSIGN
             copyFromUser:LIST-ITEM-PAIRS = ?
@@ -2297,7 +2321,10 @@ PROCEDURE pGetCopyUsers :
                     .
             END. /* first-of */
         END. /* each xusermenu */
-        FOR EACH users NO-LOCK:
+        iUserSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
+        FOR EACH users NO-LOCK
+            WHERE users.securityLevel LE iUserSecurityLevel 
+            :            
             copyToUser:ADD-LAST(users.user_id + " - "
                 + REPLACE(users.user_name,","," "),users.user_id)
                 .
@@ -2535,8 +2562,6 @@ PROCEDURE pInit :
     DEFINE VARIABLE hPgmMstrSecur AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lAdmin        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cThisVer      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iThisVersion  AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iLastVersion  AS INTEGER   NO-UNDO.
     
     RUN sys/ref/nk1look.p (
         g_company,"CEMenu","C",NO,NO,"","",
@@ -2670,23 +2695,12 @@ PROCEDURE pInit :
             IF hWebService:CONNECTED() THEN DO:
                 RUN Service1Soap SET hSalesSoap ON hWebService .
                 RUN HelpVersion IN hSalesSoap (OUTPUT cVersion).
-                ASSIGN
-                    cThisVer     = "{&awversion}" 
-                    /* Convert single digit entries to dbl-digit, so that "5" is greater than "41", etc. */
-                    ENTRY(1,cVersion,".") = IF INTEGER(ENTRY(1,cVersion,".")) LT 10 THEN STRING(INTEGER(ENTRY(1,cVersion,".")) * 10) ELSE ENTRY(1,cVersion,".")  
-                    ENTRY(2,cVersion,".") = IF INTEGER(ENTRY(2,cVersion,".")) LT 10 THEN STRING(INTEGER(ENTRY(2,cVersion,".")) * 10) ELSE ENTRY(2,cVersion,".")  
-                    ENTRY(3,cVersion,".") = IF INTEGER(ENTRY(3,cVersion,".")) LT 10 THEN STRING(INTEGER(ENTRY(3,cVersion,".")) * 10) ELSE ENTRY(3,cVersion,".")  
-                    ENTRY(1,cThisVer,".") = IF INTEGER(ENTRY(1,cThisVer,".")) LT 10 THEN STRING(INTEGER(ENTRY(1,cThisVer,".")) * 10) ELSE ENTRY(1,cThisVer,".")  
-                    ENTRY(2,cThisVer,".") = IF INTEGER(ENTRY(2,cThisVer,".")) LT 10 THEN STRING(INTEGER(ENTRY(2,cThisVer,".")) * 10) ELSE ENTRY(2,cThisVer,".")  
-                    ENTRY(3,cThisVer,".") = IF INTEGER(ENTRY(3,cThisVer,".")) LT 10 THEN STRING(INTEGER(ENTRY(3,cThisVer,".")) * 10) ELSE ENTRY(3,cThisVer,".")  
-                    iLastVersion = (INTEGER(ENTRY(1,cVersion,".")) * 10000) +
-                                   (INTEGER(ENTRY(2,cVersion,".")) * 100) +
-                                   (INTEGER(ENTRY(3,cVersion,".")))
-                    iThisVersion = (INTEGER(ENTRY(1,cThisVer,".")) * 10000) +
-                                   (INTEGER(ENTRY(2,cThisVer,".")) * 100) +
-                                   (INTEGER(ENTRY(3,cThisVer,".")))
+                cThisVer     = "{&awversion}". 
+                iLastVersion = fIntVer(cVersion).
+                iThisVersion = fIntVer(cThisVer).
                                    .
                 IF iLastVersion GT iThisVersion THEN DO:
+                    lUpgradeAvail = TRUE.
                     RUN sys/ref/nk1look.p (
                         g_company,"MENULINKUPGRADE","C",NO,NO,"","",
                         OUTPUT cNK1Value[1],OUTPUT lFound
@@ -2711,7 +2725,7 @@ PROCEDURE pInit :
                             menuLinkZoHo:SENSITIVE      = YES
                             menuLinkZoHo:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
                             menuLinkZoHo:TRANSPARENT    = cNK1Value[3] EQ "1"
-                            menuLinkZoHo:TOOLTIP        = "Version " + cVersion + " Upgrade Available"
+                            menuLinkZoHo:TOOLTIP        = "Version " + cVersion + " Upgrade Available. Click to download."
                             .
                         menuLinkZoHo:LOAD-IMAGE(SEARCH(cNK1Value[1])).
                     END. /* if avail */
@@ -3127,62 +3141,64 @@ PROCEDURE pSetUserSettings :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
-    FIND FIRST users EXCLUSIVE-LOCK
-         WHERE users.user_id EQ USERID("ASI")
-         NO-ERROR.
-    IF AVAILABLE users THEN DO:
-        ASSIGN
-            users.menuSize         = ENTRY(iMenuSize,"Small,Medium,Large")
-            users.showMnemonic     = cShowMnemonic
-            users.positionMnemonic = cPositionMnemonic            
-            users.showMenuImages   = lMenuImage
-            users.menuFGColor[1]   = iFGColor[1]
-            users.menuFGColor[2]   = iFGColor[2]
-            users.menuFGColor[3]   = iFGColor[3]
-            users.menuBGColor[1]   = iBGColor[1]
-            users.menuBGColor[2]   = iBGColor[2]
-            users.menuBGColor[3]   = iBGColor[3]
-            .
-        FIND FIRST userLanguage NO-LOCK
-             WHERE userLanguage.languageIdx EQ iLanguage
+    DO TRANSACTION:
+        FIND FIRST users EXCLUSIVE-LOCK
+             WHERE users.user_id EQ USERID("ASI")
              NO-ERROR.
-        IF AVAILABLE userLanguage THEN
-        ASSIGN
-            users.userLanguage = userLanguage.userLanguage
-            .
-        FIND CURRENT users NO-LOCK.
-    END. /* avail users */
-
-    FIND FIRST user-print EXCLUSIVE-LOCK
-         WHERE user-print.company    EQ g_company
-           AND user-print.program-id EQ "MainMenu"
-           AND user-print.user-id    EQ USERID("ASI")
-         NO-ERROR.
-    IF NOT AVAILABLE user-print THEN DO:
-        CREATE user-print.
-        ASSIGN
-            user-print.company    = g_company
-            user-print.program-id = "MainMenu"
-            user-print.user-id    = USERID("ASI")
-            .
-    END. /* if not avail */
-    ASSIGN
-        user-print.field-value    = ""
-        user-print.field-value[1] = STRING({&WINDOW-NAME}:HEIGHT)
-        user-print.field-value[2] = STRING({&WINDOW-NAME}:WIDTH)
-        idx = 2
-        .
-    FOR EACH ttMenuTree
-        WHERE ttMenuTree.favorite EQ YES
-           BY ttMenuTree.favoriteOrder
-        :
-        ASSIGN
-            idx = idx + 1
-            user-print.field-value[idx] = ttMenuTree.treeChild
-            .
-    END. /* each ttmenutree */
-    RELEASE user-print.
+        IF AVAILABLE users THEN DO:
+            ASSIGN
+                users.menuSize         = ENTRY(iMenuSize,"Small,Medium,Large")
+                users.showMnemonic     = cShowMnemonic
+                users.positionMnemonic = cPositionMnemonic            
+                users.showMenuImages   = lMenuImage
+                users.menuFGColor[1]   = iFGColor[1]
+                users.menuFGColor[2]   = iFGColor[2]
+                users.menuFGColor[3]   = iFGColor[3]
+                users.menuBGColor[1]   = iBGColor[1]
+                users.menuBGColor[2]   = iBGColor[2]
+                users.menuBGColor[3]   = iBGColor[3]
+                .
+            FIND FIRST userLanguage NO-LOCK
+                 WHERE userLanguage.languageIdx EQ iLanguage
+                 NO-ERROR.
+            IF AVAILABLE userLanguage THEN
+            ASSIGN
+                users.userLanguage = userLanguage.userLanguage
+                .
+            FIND CURRENT users NO-LOCK.
+        END. /* avail users */
     
+        FIND FIRST user-print EXCLUSIVE-LOCK
+             WHERE user-print.company    EQ g_company
+               AND user-print.program-id EQ "MainMenu"
+               AND user-print.user-id    EQ USERID("ASI")
+             NO-ERROR.
+        IF NOT AVAILABLE user-print THEN DO:
+            CREATE user-print.
+            ASSIGN
+                user-print.company    = g_company
+                user-print.program-id = "MainMenu"
+                user-print.user-id    = USERID("ASI")
+                .
+        END. /* if not avail */
+        ASSIGN
+            user-print.field-value    = ""
+            user-print.field-value[1] = STRING({&WINDOW-NAME}:HEIGHT)
+            user-print.field-value[2] = STRING({&WINDOW-NAME}:WIDTH)
+            idx = 2
+            .
+        FOR EACH ttMenuTree
+            WHERE ttMenuTree.favorite EQ YES
+               BY ttMenuTree.favoriteOrder
+            :
+            ASSIGN
+                idx = idx + 1
+                user-print.field-value[idx] = ttMenuTree.treeChild
+                .
+        END. /* each ttmenutree */
+        RELEASE user-print.
+    END. /* do trans */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3356,6 +3372,38 @@ PROCEDURE Set-Comp_Loc :
     IF lFound AND cBitMap NE "" THEN boxes:LOAD-IMAGE(cBitMap).
 
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIntVer MAINMENU 
+FUNCTION fIntVer RETURNS INTEGER
+  ( INPUT cVerString AS CHAR ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Converts a version string like "16.4.8" or "16.7.12.2" to an integer
+    Notes:  In the cases above, these would be 16040800 and 16071202
+            Useful for version comparisons
+------------------------------------------------------------------------------*/
+
+    DEF VAR cStrVal AS CHAR EXTENT 4 NO-UNDO.
+    DEF VAR iIntVal AS INT EXTENT 4 NO-UNDO.
+    DEF VAR iIntVer AS INT NO-UNDO.
+    ASSIGN
+        cStrVal[1] = ENTRY(1,cVerString,".")
+        cStrVal[2] = ENTRY(2,cVerString,".")
+        cStrVal[3] = IF NUM-ENTRIES(cVerString,".") GT 2 THEN ENTRY(3,cVerString,".") ELSE "0"
+        cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GT 3 THEN ENTRY(4,cVerString,".") ELSE "0"
+        iIntVal[1] = INT(cStrVal[1])
+        iIntVal[2] = INT(cStrVal[2])
+        iIntVal[3] = IF INT(cStrVal[3]) LT 10 THEN INT(cStrVal[3]) * 10 ELSE INT(cStrVal[3])
+        iIntVal[4] = INT(cStrVal[4])
+        iIntVer = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
+        NO-ERROR.
+    
+    RETURN iIntVer.   /* Function return value. */
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

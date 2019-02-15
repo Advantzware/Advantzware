@@ -85,8 +85,8 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
 &Scoped-define FIELDS-IN-QUERY-browseUserPrint ttDynParamValue.mnemonic ttDynParamValue.prgTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.prgmName   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseUserPrint   
 &Scoped-define SELF-NAME browseUserPrint
-&Scoped-define QUERY-STRING-browseUserPrint FOR EACH ttDynParamValue WHERE ttDynParamValue.prgTitle BEGINS cPrgmTitle   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-browseUserPrint OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue WHERE ttDynParamValue.prgTitle BEGINS cPrgmTitle   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-browseUserPrint FOR EACH ttDynParamValue WHERE ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.prgTitle BEGINS cPrgmTitle   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-browseUserPrint OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue WHERE ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.prgTitle BEGINS cPrgmTitle   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-browseUserPrint ttDynParamValue
 &Scoped-define FIRST-TABLE-IN-QUERY-browseUserPrint ttDynParamValue
 
@@ -130,6 +130,12 @@ DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U
      SIZE 105 BY 1 TOOLTIP "Search Bar" NO-UNDO.
 
 DEFINE VARIABLE filterModule AS CHARACTER FORMAT "X(256)":U INITIAL "<All>" 
+     VIEW-AS COMBO-BOX SORT INNER-LINES 5
+     LIST-ITEMS "<All>" 
+     DROP-DOWN-LIST
+     SIZE 32 BY 1 TOOLTIP "Select Module" NO-UNDO.
+
+DEFINE VARIABLE filterPrgmName AS CHARACTER FORMAT "X(256)":U INITIAL "<All>" 
      VIEW-AS COMBO-BOX SORT INNER-LINES 5
      LIST-ITEMS "<All>" 
      DROP-DOWN-LIST
@@ -180,7 +186,7 @@ DEFINE FRAME F-Main
      browseUserPrint AT ROW 1.95 COL 37 WIDGET-ID 500
      btnSortMove AT ROW 1 COL 41 HELP
           "Toggle Sort/Move Columns" WIDGET-ID 48
-     SPACE(0.00) SKIP(7.38)
+     SPACE(0.00) SKIP(9.76)
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -193,16 +199,20 @@ DEFINE FRAME filterFrame
           "Select Module" NO-LABEL WIDGET-ID 54
      filterUser AT ROW 6.24 COL 2 HELP
           "Select User" NO-LABEL WIDGET-ID 58
+     filterPrgmName AT ROW 8.38 COL 2 HELP
+          "Select Module" NO-LABEL WIDGET-ID 64
+     "Program:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 7.67 COL 2 WIDGET-ID 62
      "Module:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 3.38 COL 2 WIDGET-ID 56
      "User:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 5.52 COL 2 WIDGET-ID 60
+          SIZE 6 BY .62 AT ROW 5.52 COL 2 WIDGET-ID 60
      "Report:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 52
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1.95
-         SIZE 34 BY 7.38
+         SIZE 34 BY 9.76
          TITLE "Filters" WIDGET-ID 600.
 
 
@@ -282,6 +292,8 @@ ASSIGN
                                                                         */
 /* SETTINGS FOR COMBO-BOX filterModule IN FRAME filterFrame
    ALIGN-L                                                              */
+/* SETTINGS FOR COMBO-BOX filterPrgmName IN FRAME filterFrame
+   ALIGN-L                                                              */
 /* SETTINGS FOR COMBO-BOX filterReport IN FRAME filterFrame
    ALIGN-L                                                              */
 /* SETTINGS FOR COMBO-BOX filterUser IN FRAME filterFrame
@@ -296,7 +308,8 @@ ASSIGN
 /* Query rebuild information for BROWSE browseUserPrint
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue
-WHERE ttDynParamValue.prgTitle BEGINS cPrgmTitle
+WHERE ttDynParamValue.prgmName BEGINS cPrgmName
+  AND ttDynParamValue.prgTitle BEGINS cPrgmTitle
   AND ttDynParamValue.module BEGINS cModule
   AND ttDynParamValue.user-id BEGINS cUserID
   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"
@@ -394,6 +407,23 @@ DO:
         .
     IF cModule EQ "<All>" THEN
     cModule = "".
+    RUN pReopenBrowse.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME filterPrgmName
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL filterPrgmName s-object
+ON VALUE-CHANGED OF filterPrgmName IN FRAME filterFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        cPrgmName = {&SELF-NAME}
+        .
+    IF cPrgmName EQ "<All>" THEN
+    cPrgmName = "".
     RUN pReopenBrowse.
 END.
 
@@ -508,9 +538,10 @@ PROCEDURE local-initialize :
   RUN spGetTaskFilter (OUTPUT cMnemonic, OUTPUT cPrgmName, OUTPUT cUserID).
   DO WITH FRAME filterFrame:
     ASSIGN
-      filterReport:SENSITIVE = YES
-      filterModule:SENSITIVE = YES
-      filterUser:SENSITIVE   = YES
+      filterReport:SENSITIVE   = YES
+      filterModule:SENSITIVE   = YES
+      filterUser:SENSITIVE     = YES
+      filterPrgmName:SENSITIVE = YES
       .
   END. /* with frame */
   {methods/run_link.i "CONTAINER" "pGetCompany" "(OUTPUT cCompany)"}
@@ -560,11 +591,14 @@ PROCEDURE pGetParamValue :
         filterModule:ADD-LAST(ttDynParamValue.module).
         IF NOT CAN-DO(filterUser:LIST-ITEMS,ttDynParamValue.user-id) THEN
         filterUser:ADD-LAST(ttDynParamValue.user-id).
+        IF NOT CAN-DO(filterPrgmName:LIST-ITEMS,ttDynParamValue.prgmName) THEN
+        filterPrgmName:ADD-LAST(ttDynParamValue.PrgmName).
     END. /* each dynParamValue */
     ASSIGN
-        filterReport:SCREEN-VALUE = "<All>"
-        filterModule:SCREEN-VALUE = "<All>"
-        filterUser:SCREEN-VALUE   = "<All>"
+        filterReport:SCREEN-VALUE   = "<All>"
+        filterModule:SCREEN-VALUE   = "<All>"
+        filterUser:SCREEN-VALUE     = "<All>"
+        filterPrgmName:SCREEN-VALUE = "<All>"
         .
 
 END PROCEDURE.
@@ -595,9 +629,6 @@ PROCEDURE pReopenBrowse :
         OTHERWISE
         {&OPEN-QUERY-{&BROWSE-NAME}}
     END CASE.
-    MESSAGE
-    "{&BROWSE-NAME}"
-    VIEW-AS ALERT-BOX.
 
 END PROCEDURE.
 

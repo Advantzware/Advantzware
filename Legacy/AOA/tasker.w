@@ -251,7 +251,7 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "AOA Tasker"
+         TITLE              = "Task Monitor"
          HEIGHT             = 28.57
          WIDTH              = 160
          MAX-HEIGHT         = 320
@@ -353,7 +353,7 @@ AuditHdr.AuditDateTime GE dttOpenDateTime"
 
 CREATE CONTROL-FRAME CtrlFrame ASSIGN
        FRAME           = FRAME DEFAULT-FRAME:HANDLE
-       ROW             = 1
+       ROW             = 1.95
        COLUMN          = 1
        HEIGHT          = 4.76
        WIDTH           = 20
@@ -361,7 +361,7 @@ CREATE CONTROL-FRAME CtrlFrame ASSIGN
        HIDDEN          = yes
        SENSITIVE       = yes.
 /* CtrlFrame OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
-      CtrlFrame:MOVE-AFTER(TaskBrowse:HANDLE IN FRAME DEFAULT-FRAME).
+      CtrlFrame:MOVE-AFTER(EmailBrowse:HANDLE IN FRAME DEFAULT-FRAME).
 
 &ENDIF
 
@@ -372,7 +372,7 @@ CREATE CONTROL-FRAME CtrlFrame ASSIGN
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* AOA Tasker */
+ON END-ERROR OF C-Win /* Task Monitor */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -385,7 +385,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* AOA Tasker */
+ON WINDOW-CLOSE OF C-Win /* Task Monitor */
 DO:
   /* This event will close the window and terminate the procedure.  */
   RUN pSaveSettings.
@@ -398,7 +398,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-RESIZED OF C-Win /* AOA Tasker */
+ON WINDOW-RESIZED OF C-Win /* Task Monitor */
 DO:
     RUN pWinReSize.
 END.
@@ -795,25 +795,33 @@ PROCEDURE pTasks :
           (Task.endDate   EQ ?   OR Task.endDate   GE TODAY) AND
            dttDateTime    LE NOW)) THEN DO:
             REPOSITION TaskBrowse TO ROWID rRowID.
-            DO TRANSACTION:
-                FIND FIRST bTask EXCLUSIVE-LOCK
-                     WHERE ROWID(bTask) EQ ROWID(Task).
-                bTask.isRunning = YES.
-                RELEASE bTask.
-            END. /* do trans */
             ASSIGN
                 FILE-INFO:FILE-NAME = IF Task.taskType EQ "Jasper" THEN "AOA\runTask.r"
                                       ELSE "AOA/runTaskU.r" /* DataPA */
                 cRunProgram = FILE-INFO:FULL-PATHNAME
                 .
-            OS-COMMAND NO-WAIT VALUE(
-                    SUBSTITUTE(
-                        cRun,
-                        cRunProgram,
-                        "~"" + PROPATH + "+" + STRING(ROWID(Task)) + "~""
-                        )
-                    ).
-            PAUSE 2 NO-MESSAGE.
+            IF cRunProgram EQ ? THEN
+            ASSIGN
+                FILE-INFO:FILE-NAME = IF Task.taskType EQ "Jasper" THEN "AOA\runTask.p"
+                                      ELSE "AOA/runTaskU.p" /* DataPA */
+                cRunProgram = FILE-INFO:FULL-PATHNAME
+                .
+            IF cRunProgram NE ? THEN DO:
+                DO TRANSACTION:
+                    FIND FIRST bTask EXCLUSIVE-LOCK
+                         WHERE ROWID(bTask) EQ ROWID(Task).
+                    bTask.isRunning = YES.
+                    RELEASE bTask.
+                END. /* do trans */
+                OS-COMMAND NO-WAIT VALUE(
+                        SUBSTITUTE(
+                            cRun,
+                            cRunProgram,
+                            "~"" + PROPATH + "+" + STRING(ROWID(Task)) + "~""
+                            )
+                        ).
+                PAUSE 2 NO-MESSAGE.
+            END. /* if ne ? */
         END.
         GET NEXT TaskBrowse.
     END. /* do while */

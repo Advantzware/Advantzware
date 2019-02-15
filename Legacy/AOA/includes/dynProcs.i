@@ -850,7 +850,7 @@ PROCEDURE pRunQuery:
         cTableName = cTableName + {1}SubjectTable.tableName + ",".
     END. /* each {1}SubjectTable */
     cTableName = TRIM(cTableName,",").
-    RUN AOA/hQuery.p (
+    RUN AOA/dynQuery.p (
         ROWID(dynParamValue),
         queryStr,
         cTableName,

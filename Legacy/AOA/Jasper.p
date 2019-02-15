@@ -6,6 +6,7 @@ DEFINE INPUT PARAMETER ipcPrgmName     AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipiParamValueID AS INTEGER   NO-UNDO.
 
 RUN pGetDynParamValue (ipiSubjectID, ipcUserID, ipcPrgmName, ipiParamValueID).
+IF AVAILABLE dynParamValue THEN
 RUN AOA/dynRun.w (ipcPrgmName, ROWID(dynParamValue)).
 
 {AOA/includes/pGetDynParamValue.i}
