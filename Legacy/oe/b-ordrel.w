@@ -146,7 +146,7 @@ DEFINE VARIABLE v-called-setCellColumns AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lv-sort-by AS CHAR INIT "tag" NO-UNDO.
 DEFINE VARIABLE lv-sort-by-lab AS CHAR INIT "Tag" NO-UNDO.
 DEFINE VARIABLE ll-sort-asc AS LOG NO-UNDO.
-DEFINE VARIABLE cStatus AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cAbbrStatus AS CHARACTER NO-UNDO .
 
 RUN methods/prgsecur.p
     (INPUT "OEDateChg",
@@ -221,7 +221,7 @@ IF lRecFound THEN
 &SCOPED-DEFINE sortby-log                                                                                   ~
     IF lv-sort-by EQ "carrier"        THEN STRING(oe-rel.carrier)                                                                                                                     ELSE ~
     IF lv-sort-by EQ "stat"           THEN STRING(oe-rel.stat)                                                                                                                     ELSE ~
-    IF lv-sort-by EQ "cStatus"           THEN STRING(get-stat())                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "cAbbrStatus"           THEN STRING(get-stat())                                                                                                                     ELSE ~
     IF lv-sort-by EQ "s-code"        THEN STRING(oe-rel.s-code)                                                                                                                     ELSE ~
     IF lv-sort-by EQ "ship-id"           THEN STRING(oe-rel.ship-id)                                                                                                                     ELSE ~
     IF lv-sort-by EQ "opened"           THEN STRING(tt-report.opened)                                                                                                                     ELSE ~
@@ -299,7 +299,7 @@ oe-rel.ship-addr[1] oe-rel.ship-city oe-rel.ship-state tt-report.price ~
 tt-report.whsed oe-ordl.disc oe-ordl.t-price tt-report.frt-pay ~
 tt-report.flute oe-rel.spare-char-1 oe-rel.spare-char-2 oe-rel.spare-char-3 ~
 tt-report.q-rel oe-rel.r-no oe-rel.link-no tt-report.job-start-date ~
-tt-report.qty tt-report.prom-code tt-report.pr-uom get-stat() @ cStatus
+tt-report.qty tt-report.prom-code tt-report.pr-uom get-stat() @ cAbbrStatus
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table oe-rel.s-code ~
 oe-rel.ship-id oe-rel.stat oe-rel.carrier oe-rel.tot-qty oe-rel.qty ~
 tt-report.po-no tt-report.lot-no tt-report.prom-date tt-report.cStatus ~
@@ -453,7 +453,7 @@ DEFINE BROWSE br_table
                      "T-Transfer","T"
           DROP-DOWN-LIST
       oe-rel.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U COLUMN-FONT 0
-      get-stat() @ cStatus COLUMN-LABEL "S" FORMAT "x(1)":U WIDTH 5.4
+      get-stat() @ cAbbrStatus COLUMN-LABEL "S" FORMAT "x(1)":U WIDTH 5.4
       oe-rel.carrier COLUMN-LABEL "Via" FORMAT "x(5)":U COLUMN-FONT 0
       oe-rel.tot-qty COLUMN-LABEL "Sched Qty" FORMAT "->>,>>>,>>9":U
       oe-rel.qty COLUMN-LABEL "Actual Qty" FORMAT "->>,>>>,>>9":U
@@ -637,7 +637,7 @@ ASSIGN
      _FldNameList[3]   > ASI.oe-rel.ship-id
 "ASI.oe-rel.ship-id" "Ship To" ? "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > "_<CALC>"
-"get-stat() @ cStatus" "S" ? "character" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-stat() @ cAbbrStatus" "S" ? "character" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.oe-rel.carrier
 "ASI.oe-rel.carrier" "Via" ? "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.oe-rel.tot-qty
@@ -732,11 +732,11 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON RETURN OF br_table IN FRAME F-Main
-ANYWHERE
-DO:
-   APPLY "tab" TO SELF.
-   RETURN NO-APPLY.
-END.
+    ANYWHERE
+    DO:
+        APPLY "tab" TO SELF.
+        RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
