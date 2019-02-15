@@ -8,11 +8,8 @@ DEFINE VARIABLE iDays AS INTEGER NO-UNDO.
 FIND cust WHERE RECID(cust) EQ cust_rec NO-LOCK NO-ERROR.
 
 IF AVAIL cust THEN do:
-    FIND FIRST  terms NO-LOCK
-        WHERE terms.company = cust.company
-        AND terms.t-code = cust.terms NO-ERROR.
-
-    ASSIGN iDays = cust.cr-hold-invdays + terms.net-days.
+    
+    ASSIGN iDays = cust.cr-hold-invdays.
 
     FOR EACH ar-inv NO-LOCK
         WHERE ar-inv.company  EQ cust.company
