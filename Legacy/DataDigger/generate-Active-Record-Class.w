@@ -4,19 +4,8 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: 
-
-  Description: 
-
-  Input Parameters:
-      <none>
-
-  Output Parameters:
-      <none>
-
-  Author: 
-
-  Created: 
+  Name: generate-Active-Record-Class.w
+  Desc: Generate class file for current file
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
@@ -194,10 +183,10 @@ DEFINE FRAME frMain
      btnSave AT Y 330 X 15 WIDGET-ID 36
      "Dashes" VIEW-AS TEXT
           SIZE-PIXELS 65 BY 13 AT Y 220 X 25 WIDGET-ID 70
-     "Field Prefix" VIEW-AS TEXT
-          SIZE-PIXELS 75 BY 13 AT Y 100 X 25 WIDGET-ID 48
      "Indent:" VIEW-AS TEXT
           SIZE-PIXELS 40 BY 20 AT Y 56 X 25 WIDGET-ID 68
+     "Field Prefix" VIEW-AS TEXT
+          SIZE-PIXELS 75 BY 13 AT Y 100 X 25 WIDGET-ID 48
      RECT-4 AT Y 105 X 15 WIDGET-ID 46
      RECT-5 AT Y 227 X 15 WIDGET-ID 58
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -265,7 +254,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Generate TempTable Include */
+ON END-ERROR OF C-Win /* Generate Active Record Class */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -278,7 +267,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Generate TempTable Include */
+ON WINDOW-CLOSE OF C-Win /* Generate Active Record Class */
 DO:
   /* This event will close the window and terminate the procedure.  */
   RUN saveSettings.
@@ -291,7 +280,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-RESIZED OF C-Win /* Generate TempTable Include */
+ON WINDOW-RESIZED OF C-Win /* Generate Active Record Class */
 DO:
 
   RUN windowResized.
@@ -481,16 +470,13 @@ END PROCEDURE. /* fillTT */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE generateClass C-Win 
 PROCEDURE generateClass :
-DEFINE VARIABLE cText         AS LONGCHAR  NO-UNDO.
-  DEFINE VARIABLE cPrefix       AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cName         AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cMask         AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cText         AS LONGCHAR  NO-UNDO.
+  DEFINE VARIABLE cMask         AS LONGCHAR  NO-UNDO.
   DEFINE VARIABLE cHeader       AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cIndent       AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iMaxName      AS INTEGER   NO-UNDO.
   DEFINE VARIABLE iMaxType      AS INTEGER   NO-UNDO.
-  DEFINE VARIABLE i             AS INTEGER   NO-UNDO.
-  
+
   DEFINE BUFFER bField FOR ttField.
   
   DO WITH FRAME frMain:
@@ -504,23 +490,24 @@ DEFINE VARIABLE cText         AS LONGCHAR  NO-UNDO.
       WHEN '4'   THEN cIndent = '    '.
     END CASE.
 
-    cHeader = SUBSTITUTE('/*----------------------------------------------------------------------*/ ~n' )
+    cHeader = SUBSTITUTE('/*----------------------------------------------------------------------   ~n' )
             + SUBSTITUTE('    File        : &1 ~n', getClassName(pcTable) )
             + SUBSTITUTE('    Description : Active Record Class definition for &1.&2 ~n', pcDatabase, pcTable )
             + SUBSTITUTE(' ~n' )
             + SUBSTITUTE('    History: ~n' )
             + SUBSTITUTE('    &1 &2 Created ~n', STRING(TODAY,'99/99/9999'), getUserName() )
             + SUBSTITUTE(' ~n' )
+            + SUBSTITUTE('  ----------------------------------------------------------------------   ~n' )
+            + SUBSTITUTE('            This file was generated with the DataDigger                    ~n' )
             + SUBSTITUTE('  ----------------------------------------------------------------------*/ ~n' )
-            + SUBSTITUTE('/*          This .i file was generated with the DataDigger              */ ~n' )
-            + SUBSTITUTE('/*----------------------------------------------------------------------*/ ~n' )
             .
             
     cMask = '&1~nBLOCK-LEVEL ON ERROR UNDO, THROW.~n'.
     IF tgLowerCase:CHECKED THEN cMask = LC(cMask).
     cText = SUBSTITUTE(cMask, cHeader).
 
-    cText = SUBSTITUTE('&1~n&2 data.&3.&4'
+    cMask = '&1~n&2 data.&3.&4'.
+    cText = SUBSTITUTE(cMask
                       , cText
                       , (IF tgLowerCase:CHECKED THEN 'class' ELSE 'CLASS')
                       , pcDatabase
@@ -756,7 +743,6 @@ FUNCTION getNameString RETURNS CHARACTER
 
   DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cMask        AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cPrefix      AS CHARACTER NO-UNDO.
   DEFINE VARIABLE i            AS INTEGER   NO-UNDO.
   
   DO WITH FRAME {&FRAME-NAME}:

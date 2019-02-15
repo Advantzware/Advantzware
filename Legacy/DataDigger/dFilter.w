@@ -81,12 +81,12 @@ DEFINE VARIABLE cbTableFieldShow AS CHARACTER
 DEFINE VARIABLE cbTableNameHide AS CHARACTER 
      VIEW-AS COMBO-BOX INNER-LINES 10
      DROP-DOWN
-     SIZE-PIXELS 475 BY 21 TOOLTIP "provide a comma separated list of (partial) field names" NO-UNDO.
+     SIZE-PIXELS 475 BY 21 TOOLTIP "provide a comma separated list of (partial) table names" NO-UNDO.
 
 DEFINE VARIABLE cbTableNameShow AS CHARACTER 
      VIEW-AS COMBO-BOX INNER-LINES 10
      DROP-DOWN
-     SIZE-PIXELS 475 BY 21 TOOLTIP "provide a comma separated list of (partial) field names" NO-UNDO.
+     SIZE-PIXELS 475 BY 21 TOOLTIP "provide a comma separated list of (partial) table names" NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -150,11 +150,17 @@ DEFINE FRAME Dialog-Frame
      tgShowOther AT Y 358 X 243 WIDGET-ID 44
      tgShowHidden AT Y 381 X 243 WIDGET-ID 30
      tgShowFrozen AT Y 406 X 243 WIDGET-ID 42
-     btnReset AT Y 453 X 10 WIDGET-ID 46
+     btnReset AT Y 450 X 10 WIDGET-ID 46
      Btn_OK AT Y 450 X 345
      Btn_Cancel AT Y 450 X 425
      "But hide these" VIEW-AS TEXT
           SIZE-PIXELS 138 BY 18 AT Y 245 X 23 WIDGET-ID 20
+     "Comma sep list, wildcards allowed" VIEW-AS TEXT
+          SIZE-PIXELS 215 BY 18 AT Y 171 X 285 WIDGET-ID 54
+          FGCOLOR 7 
+     "Use ALT-DOWN to open this window" VIEW-AS TEXT
+          SIZE-PIXELS 250 BY 18 AT Y 453 X 90 WIDGET-ID 56
+          FGCOLOR 7 
      "But hide tables that contain any of these" VIEW-AS TEXT
           SIZE-PIXELS 350 BY 18 AT Y 95 X 23 WIDGET-ID 12
      "Show only tables that contain all of these fields" VIEW-AS TEXT
@@ -169,9 +175,6 @@ DEFINE FRAME Dialog-Frame
           SIZE-PIXELS 99 BY 18 AT Y 310 X 23 WIDGET-ID 48
      "Comma sep list, wildcards allowed" VIEW-AS TEXT
           SIZE-PIXELS 215 BY 18 AT Y 21 X 285 WIDGET-ID 52
-          FGCOLOR 7 
-     "Comma sep list, wildcards allowed" VIEW-AS TEXT
-          SIZE-PIXELS 215 BY 18 AT Y 171 X 285 WIDGET-ID 54
           FGCOLOR 7 
      RECT-1 AT Y 170 X 10 WIDGET-ID 4
      RECT-2 AT Y 19 X 10 WIDGET-ID 22
@@ -461,7 +464,6 @@ PROCEDURE saveComboValue :
   DEFINE VARIABLE cDelim      AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE cNewList    AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE iEntry      AS INTEGER     NO-UNDO.
-  DEFINE VARIABLE iMaxEntries AS INTEGER     NO-UNDO.
 
   /* Set in normal vars for easier handling */
   cList = phCombo:LIST-ITEMS.
@@ -484,9 +486,6 @@ PROCEDURE saveComboValue :
     /* add to list */
     cNewList = SUBSTITUTE('&1&2&3', cNewList, cDelim, ENTRY(iEntry,cList,cDelim)).
     cNewList = TRIM(cNewList,cDelim).
-
-    /* if list is at max length, step out */
-    IF NUM-ENTRIES(cNewList,cDelim) = iMaxEntries THEN LEAVE #AddEntry.
   END. /* #AddEntry */
 
   /* and finally, save it */
@@ -496,4 +495,3 @@ END PROCEDURE. /* saveComboValue */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
