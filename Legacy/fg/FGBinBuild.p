@@ -19,6 +19,7 @@ DEFINE STREAM sExport1.
 DEFINE STREAM sExport2.
 DEFINE VARIABLE gcOutputFile1 AS CHARACTER.
 DEFINE VARIABLE gcOutputFile2 AS CHARACTER.
+DEFINE VARIABLE gcDefaultExportPath AS CHARACTER INITIAL "C:\Temp".
  
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -61,31 +62,45 @@ PROCEDURE CreateCycleCountTransactions:
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER ipdtAsOf AS DATE NO-UNDO.
 
+DEFINE VARIABLE iNextRNo AS INTEGER NO-UNDO.
+
 FOR EACH ttFGBins 
-WHERE ttFGBins.qty GT 0 NO-LOCK:
-    CREATE fg-rcpth.
-    ASSIGN
-        fg-rcpth.company = ttFGBins.company
-        fg-rcpth.adjustmentCode = "PRG"
-        fg-rcpth.create-by = USERID("asi")
-        fg-rcpth.i-name = ttFGBins.itemfgIName
-        fg-rcpth.i-no = ttFGBins.i-no
-        fg-rcpth.job-no = ttFGBins.job-no
-        fg-rcpth.job-no2 = ttFGBins.job-no2
-        fg-rcpth.loc = ttFGBins.loc
-        fg-rcpth.po-no = ttFGBins.po-no
-        fg-rcpth.post-date = ipdtAsOf
-        fg-rcpth.pur-uom = ttFGBins.pur-uom
-        fg-rcpth.rita-code = "C"
-        fg-rcpth.trans-date = ipdtAsOf
-        .
+    WHERE ttFGBins.qty NE 0 NO-LOCK:
+    DO TRANSACTION:  /*To complete Create Trigger processing*/
+        
+        FIND LAST fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
+        IF AVAIL fg-rctd AND fg-rctd.r-no GT iNextRNo THEN iNextRNo = fg-rctd.r-no.
+        FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
+        IF AVAIL fg-rcpth AND fg-rcpth.r-no GT iNextRNo THEN iNextRNo = fg-rcpth.r-no.
+        iNextRNo = iNextRNo + 1.
+        
+        CREATE fg-rcpth.
+        ASSIGN
+            fg-rcpth.company = ttFGBins.company
+            fg-rcpth.r-no = iNextRNo
+            fg-rcpth.adjustmentCode = "PRG"
+            fg-rcpth.spare-char-5 = "Added Through Purge"
+            fg-rcpth.create-by = USERID("asi")
+            fg-rcpth.i-name = ttFGBins.itemfgIName
+            fg-rcpth.i-no = ttFGBins.i-no
+            fg-rcpth.job-no = ttFGBins.job-no
+            fg-rcpth.job-no2 = ttFGBins.job-no2
+            fg-rcpth.loc = ttFGBins.loc
+            fg-rcpth.po-no = ttFGBins.po-no
+            fg-rcpth.post-date = ipdtAsOf
+            fg-rcpth.pur-uom = ttFGBins.pur-uom
+            fg-rcpth.rita-code = "C"
+            fg-rcpth.trans-date = ipdtAsOf
+            .
+    
+    END.
     CREATE fg-rdtlh.
     ASSIGN
         fg-rdtlh.company = fg-rcpth.company
         fg-rdtlh.rita-code = fg-rcpth.rita-code
         fg-rdtlh.r-no = fg-rcpth.r-no
         fg-rdtlh.i-no = fg-rcpth.i-no
-        
+      
         fg-rdtlh.cust-no = ttFGBins.cust-no
         fg-rdtlh.loc = ttFGBins.loc
         fg-rdtlh.loc-bin = ttFGBins.loc-bin
@@ -99,8 +114,6 @@ WHERE ttFGBins.qty GT 0 NO-LOCK:
 /*        fg-rdtlh.partial =*/
 /*        fg-rdtlh.cases = ttFGBins.cases-unit*/
 /*        fg-rdtlh.qty-case = ttFGBins.case-count*/
-/*        fg-rdtlh.stack-code = ttFGBins*/
-/*        fg-rdtlh.stacks-unit = ttFGBins*/
         fg-rdtlh.std-fix-cost = ttFGBins.std-fix-cost
         fg-rdtlh.std-lab-cost = ttFGBins.std-lab-cost
         fg-rdtlh.std-mat-cost = ttFGBins.std-mat-cost
@@ -108,6 +121,7 @@ WHERE ttFGBins.qty GT 0 NO-LOCK:
         fg-rdtlh.std-var-cost = ttFGBins.std-var-cost
         fg-rdtlh.tag = ttFGBins.tag
         fg-rdtlh.trans-date = ipdtAsOf
+        fg-rdtlh.trans-time = 86399
         .
         
 END.
@@ -127,7 +141,7 @@ PROCEDURE pBuildBinsForItem PRIVATE:
 
     
     IF iplPurge THEN DO:
-        RUN pInitializeOutput(ipcExportPath).
+        RUN pInitializeOutput(ipcExportPath, ipdtAsOf).
     END.
     FIND FIRST itemfg NO-LOCK
         WHERE ROWID(itemfg) EQ ipriFGItem
@@ -258,7 +272,11 @@ PROCEDURE pBuildBinsForItem PRIVATE:
             END.
         END.  /*each history record */
     END.
-
+    IF iplPurge THEN DO:
+         OUTPUT STREAM sExport1 CLOSE.
+         OUTPUT STREAM sExport2 CLOSE.
+    END.
+        
 END PROCEDURE.
 
 PROCEDURE pInitializeOutput PRIVATE:
@@ -267,13 +285,19 @@ PROCEDURE pInitializeOutput PRIVATE:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcExportPath AS CHARACTER.
+    DEFINE INPUT PARAMETER ipdtAsOf AS DATE.
     
-    IF ipcExportPath EQ "" THEN ipcExportPath = "C:\Temp\".
+    IF ipcExportPath EQ "" THEN DO:
+        OS-CREATE-DIR  VALUE(gcDefaultExportPath).
+        ipcExportPath = gcDefaultExportPath.
+    END.
     ASSIGN 
-        gcOutputFile1 = ipcExportPath + "fg-rcpth.d"
-        gcOutputFile2 = ipcExportPath + "fg-rdtlh.d"
+        gcOutputFile1 = ipcExportPath + "/fg-rcpth" + STRING(ipdtAsOf,"99-99-9999") + ".d"
+        gcOutputFile2 = ipcExportPath + "/fg-rdtlh" + STRING(ipdtAsOf,"99-99-9999") + ".d"
         .
-    
+     OUTPUT STREAM sExport1 to VALUE(gcOutputFile1) APPEND.
+     OUTPUT STREAM sExport2 to VALUE(gcOutputFile2) APPEND.
+     
 END PROCEDURE.
 
 PROCEDURE pPurgeAndExport PRIVATE:
@@ -284,17 +308,13 @@ PROCEDURE pPurgeAndExport PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-fg-rcpth FOR fg-rcpth.
     DEFINE PARAMETER BUFFER ipbf-fg-rdtlh FOR fg-rdtlh.
 
-    OUTPUT STREAM sExport1 to VALUE(gcOutputFile1) APPEND.
-    EXPORT STREAM sExport1 DELIMITER "," ipbf-fg-rcpth.
-    OUTPUT STREAM sExport1 CLOSE.
-    
-    OUTPUT STREAM sExport2 to VALUE(gcOutputFile2) APPEND.
-    EXPORT STREAM sExport2 DELIMITER "," ipbf-fg-rdtlh.
-    OUTPUT STREAM sExport2 CLOSE.
-    
+    EXPORT STREAM sExport1 ipbf-fg-rcpth.
+    EXPORT STREAM sExport2 ipbf-fg-rdtlh.
+       
     FIND CURRENT ipbf-fg-rcpth EXCLUSIVE-LOCK.
     DELETE ipbf-fg-rcpth.
 
+/*Delete of fg-rdtlh handled in delete trigger of fg-rctph*/
 /*    FIND CURRENT ipbf-fg-rdtlh EXCLUSIVE-LOCK.*/
 /*    DELETE ipbf-fg-rdtlh.                     */
     

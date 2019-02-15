@@ -17,14 +17,16 @@
 DEFINE STREAM sOutput. 
 
 DEFINE VARIABLE glAtOnce        AS LOGICAL INITIAL YES.
+DEFINE VARIABLE glPurge         AS LOGICAL INITIAL YES.
+DEFINE VARIABLE glMakeCounts    AS LOGICAL.
 DEFINE VARIABLE gcOutputFile    AS CHARACTER.
 DEFINE VARIABLE hdFGBinBuild    AS HANDLE.
 DEFINE VARIABLE giCounter       AS INTEGER.
 DEFINE VARIABLE giTimer         AS INTEGER.
-DEFINE VARIABLE gcAsOf          AS DATE      INITIAL 12/31/2012.
+DEFINE VARIABLE gcAsOf          AS DATE      INITIAL 12/31/2010.
 DEFINE VARIABLE gcCompany       AS CHARACTER INITIAL "001".
-DEFINE VARIABLE gcFGItemIDStart AS CHARACTER INITIAL '1.25 BUBBLE'.
-DEFINE VARIABLE gcFGItemIDEnd   AS CHARACTER INITIAL '1.25 BUBBLE'.
+DEFINE VARIABLE gcFGItemIDStart AS CHARACTER INITIAL '6X6X6'.
+DEFINE VARIABLE gcFGItemIDEnd   AS CHARACTER INITIAL '6X6X6'.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -32,6 +34,8 @@ DEFINE VARIABLE gcFGItemIDEnd   AS CHARACTER INITIAL '1.25 BUBBLE'.
 /* ***************************  Main Block  *************************** */
 RUN fg/FgBinBuild.p PERSISTENT SET hdFGBinBuild.
 giTimer = TIME.
+glMakeCounts = glPurge.
+
 IF glAtOnce THEN DO:
     gcOutputFile = "c:\temp\BinBuilder-AtOnce" + STRING(gcAsOf,"99-99-9999") + ".csv".
     RUN pProcessAtOnce.
@@ -40,7 +44,8 @@ ELSE DO:
     gcOutputFile = "c:\temp\BinBuilder-Reset" + STRING(gcAsOf,"99-99-9999") + ".csv".
     RUN pProcessWithReset.
 END.
-RUN CreateCycleCountTransactions IN hdFGBinBuild (gcAsOf).
+
+IF glMakeCounts THEN RUN CreateCycleCountTransactions IN hdFGBinBuild (gcAsOf).
 MESSAGE "Records processed: " giCounter SKIP 
     "Time: " TIME - giTimer
     VIEW-AS ALERT-BOX.
@@ -96,14 +101,17 @@ PROCEDURE pProcessAtOnce PRIVATE:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-
+    
     EMPTY TEMP-TABLE ttFGBins.
     FOR EACH itemfg NO-LOCK 
         WHERE itemfg.company EQ gcCompany
         AND itemfg.i-no GE gcFGItemIDStart
         AND itemfg.i-no LE gcFGItemIDEnd
         :
-        RUN BuildBinsForItemAndPurge IN hdFGBinBuild (ROWID(itemfg), gcAsOf, INPUT-OUTPUT giCounter, "C:\Temp\").
+        IF glPurge THEN 
+            RUN BuildBinsForItemAndPurge IN hdFGBinBuild (ROWID(itemfg), gcAsOf, INPUT-OUTPUT giCounter, "C:\Temp\").
+        ELSE 
+            RUN BuildBinsForItem IN hdFGBinBuild (ROWID(itemfg), gcAsOf, INPUT-OUTPUT giCounter).
     END.
     RUN pExportTempTable(TEMP-TABLE ttFGBins:HANDLE, gcOutputFile, YES).
 
@@ -121,7 +129,10 @@ PROCEDURE pProcessWithReset PRIVATE:
         AND itemfg.i-no LE gcFGItemIDEnd
         :
         EMPTY TEMP-TABLE ttFGBins.
-        RUN BuildBinsForItemAndPurge IN hdFGBinBuild (ROWID(itemfg), gcAsOf, INPUT-OUTPUT giCounter, "C:\Temp\").
+        IF glPurge THEN 
+            RUN BuildBinsForItemAndPurge IN hdFGBinBuild (ROWID(itemfg), gcAsOf, INPUT-OUTPUT giCounter, "C:\Temp\").
+        ELSE 
+            RUN BuildBinsForItem IN hdFGBinBuild (ROWID(itemfg), gcAsOf, INPUT-OUTPUT giCounter).
         RUN pExportTempTable(TEMP-TABLE ttFGBins:HANDLE, gcOutputFile, NO).
     END.
 
