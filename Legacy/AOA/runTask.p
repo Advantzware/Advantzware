@@ -53,7 +53,7 @@ IF AVAILABLE dynParamValue THEN DO:
                     RUN spJasperQuery (
                         Task.taskFormat,
                         ROWID(dynParamValue),
-                        dynSubject.subjectName,
+                        dynSubject.subjectTitle,
                         Task.user-id,
                         hAppSrvBin,
                         OUTPUT cJasperFile

@@ -1657,7 +1657,7 @@ PROCEDURE spJasperQuery:
                 ROWID(dynParamValue),
                 hQuery,
                 ipcUserID,
-                dynSubject.subjectName,
+                dynSubject.subjectTitle,
                 OUTPUT cJasperFile,
                 OUTPUT lOK
                 ).

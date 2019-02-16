@@ -113,6 +113,7 @@ ON ROW-DISPLAY OF hQueryBrowse DO:
     END. /* do idx */
 END. /* row-display */
 
+{AOA/includes/pRunNow.i}
 {AOA/includes/pSetDynParamValue.i "{1}"}
 
 /* _UIB-CODE-BLOCK-END */
@@ -462,7 +463,7 @@ PROCEDURE pCreateDynParameters :
         END. /* if valid-handle */
     END. /* each {1}SubjectParamSet */
     ASSIGN
-        FRAME outputFrame:TITLE = {1}Subject.subjectName
+        FRAME outputFrame:TITLE = {1}Subject.subjectTitle
         hWidget = FRAME outputFrame:HANDLE
         hWidget = hWidget:FIRST-CHILD
         hWidget = hWidget:FIRST-CHILD
@@ -717,7 +718,7 @@ PROCEDURE pResultsBrowser :
         DELETE OBJECT hColumn.
     END. /* do idx */
     ASSIGN
-        hQueryBrowse:TITLE   = {1}Subject.subjectName + " Results"
+        hQueryBrowse:TITLE   = {1}Subject.subjectTitle + " Results"
         hQueryBrowse:QUERY   = iphQuery
         hQueryBrowse:VISIBLE = TRUE
         .
@@ -776,7 +777,7 @@ PROCEDURE pResultsJasper :
     RUN spJasperQuery IN hJasper (
         ipcType,
         ROWID(dynParamValue),
-        {1}Subject.subjectName,
+        {1}Subject.subjectTitle,
         ipcUserID,
         hAppSrvBin,
         OUTPUT cJasperFile
@@ -786,42 +787,6 @@ PROCEDURE pResultsJasper :
 
 END PROCEDURE.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunNow Include
-PROCEDURE pRunNow:
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcTaskFormat AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
-    
-    RUN pGetRecipients (OUTPUT cRecipients).
-    DO TRANSACTION:
-        CREATE Task.
-        ASSIGN
-            Task.subjectID    = dynParamValue.subjectID
-            Task.user-id      = dynParamValue.user-id
-            Task.prgmName     = dynParamValue.prgmName
-            Task.paramValueID = dynParamValue.paramValueID
-            Task.taskName     = "Run Now Task"
-            Task.taskFormat   = ipcTaskFormat
-            Task.runNow       = YES
-            Task.recipients   = cRecipients
-            Task.taskType     = "Jasper"
-            .
-        RELEASE Task.
-    END. /* do trans */
-    MESSAGE
-        "Task ~"" + {1}Subject.subjectName + "~" has been submitted."
-    VIEW-AS ALERT-BOX TITLE "Run Now".
-
-END PROCEDURE.
-	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -867,7 +832,7 @@ PROCEDURE pRunQuery:
                 RUN pResultsJasper (ipcType, ipcUserID).
                 OTHERWISE
                 IF dynParamValue.prgmName NE "dynSubjct." THEN
-                RUN pRunNow (ipcType).
+                RUN pRunNow (ipcType, {1}Subject.subjectTitle, YES).
                 ELSE
                 RUN pResultsJasper (ipcType, ipcUserID).
             END CASE.
