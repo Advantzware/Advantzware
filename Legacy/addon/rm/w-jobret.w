@@ -77,7 +77,7 @@ DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE h_v-post AS HANDLE NO-UNDO. 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -323,8 +323,17 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_p-updsav ( 22.19 , 4.00 ) NO-ERROR.
        RUN set-size IN h_p-updsav ( 2.14 , 79.00 ) NO-ERROR.
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'addon/rm/v-post.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_v-post ).
+       RUN set-position IN h_v-post ( 22.43 , 84.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 17.00 ) */
+
        /* Links to SmartNavBrowser h_b-issued. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_b-issued ).
+        RUN add-link IN adm-broker-hdl ( h_v-post , 'State':U , h_b-issued ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'cancel-item':U , h_b-issued ).
 
        /* Adjust the tab order of the smart objects. */
