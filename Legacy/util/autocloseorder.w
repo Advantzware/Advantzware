@@ -516,10 +516,6 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-
-    DEFINE VARIABLE cStatus    AS CHARACTER NO-UNDO .
-    DEFINE VARIABLE cReason    AS CHARACTER NO-UNDO .
-    DEFINE VARIABLE hPgmRunPro AS HANDLE    NO-UNDO.
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl .
 
     SESSION:SET-WAIT-STATE("General").
@@ -567,16 +563,11 @@ PROCEDURE run-process :
 
         RUN oe/closelin.p (INPUT ROWID(oe-ordl),INPUT YES) .
                         
-    
-        IF cStatus EQ 'C' THEN 
-        DO:
-            IF NOT CAN-FIND(FIRST bf-oe-ordl WHERE 
+        IF NOT CAN-FIND(FIRST bf-oe-ordl WHERE 
                 bf-oe-ordl.company = oe-ord.company AND
                 bf-oe-ordl.ord-no = oe-ord.ord-no AND 
                 bf-oe-ordl.stat NE "C") THEN
                 RUN oe\close.p(RECID(oe-ord), YES).
-        END.
-    
     END.
 
     STATUS DEFAULT "".
