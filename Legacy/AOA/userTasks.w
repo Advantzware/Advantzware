@@ -39,25 +39,25 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE char-hdl   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cMnemonic  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cModule    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE char-hdl      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMnemonic     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cModule       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cOutputFormat AS CHARACTER NO-UNDO INITIAL
     "Grid,CSV,XLS,DOCX,PDF,HTML,Viewer".
 DEFINE VARIABLE cOutputImage  AS CHARACTER NO-UNDO INITIAL
     "table.ico,CSV.jpg,XLS.jpg,DOCX.jpg,PDF.jpg,html_tag.ico,jss_icon_32.ico".
-DEFINE VARIABLE cPrgmName  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cParamTitle AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cUserID    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lSortMove  AS LOGICAL   NO-UNDO INITIAL YES.
-DEFINE VARIABLE pHandle    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cPrgmName     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cParamTitle   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUserID       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSortMove     AS LOGICAL   NO-UNDO INITIAL YES.
+DEFINE VARIABLE pHandle       AS HANDLE    NO-UNDO.
 
 {methods/defines/sortByDefs.i}
 
 DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD subjectID        LIKE dynParamValue.subjectID
-    FIELD mnemonic         LIKE prgrms.mnemonic
+    FIELD mnemonic         LIKE prgrms.mnemonic LABEL "Hotkey"
     FIELD paramDescription LIKE dynParamValue.paramDescription LABEL "Description"
     FIELD paramTitle       LIKE dynParamValue.paramTitle
     FIELD module           LIKE prgrms.module
@@ -67,7 +67,7 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD outputFormat     LIKE dynParamValue.outputFormat
     FIELD paramValueRowID    AS ROWID
     FIELD allData            AS CHARACTER
-        INDEX mnemonic IS PRIMARY mnemonic paramTitle
+        INDEX mnemonic IS PRIMARY mnemonic paramTitle paramValueID
         INDEX paramValueRowID paramValueRowID
         .
 
@@ -104,8 +104,8 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     ~{&OPEN-QUERY-browseParamValue}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnCopyTask btnDeleteTask btnOutputFormat ~
-btnRunTask btnScheduleTask searchBar browseParamValue btnRestoreDefaults ~
+&Scoped-Define ENABLED-OBJECTS btnCopyTask searchBar browseParamValue ~
+btnDeleteTask btnOutputFormat btnRunTask btnScheduleTask btnRestoreDefaults ~
 btnSortMove 
 &Scoped-Define DISPLAYED-OBJECTS searchBar 
 
@@ -126,12 +126,12 @@ btnSortMove
 DEFINE BUTTON btnCopyTask 
      IMAGE-UP FILE "Graphics/32x32/element_copy.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Copy Task" 
-     SIZE 8 BY 1.9 TOOLTIP "Copy Task".
+     SIZE 8 BY 1.91 TOOLTIP "Copy Task".
 
 DEFINE BUTTON btnDeleteTask 
      IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete Task" 
-     SIZE 8 BY 1.9 TOOLTIP "Delete Task".
+     SIZE 8 BY 1.91 TOOLTIP "Delete Task".
 
 DEFINE BUTTON btnOutputFormat 
      IMAGE-UP FILE "Graphics/32x32/table.ico":U NO-FOCUS FLAT-BUTTON
@@ -146,7 +146,7 @@ DEFINE BUTTON btnRestoreDefaults
 DEFINE BUTTON btnRunTask 
      IMAGE-UP FILE "Graphics/32x32/media_play.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Run Task" 
-     SIZE 8 BY 1.9 TOOLTIP "Run Task".
+     SIZE 8 BY 1.91 TOOLTIP "Run Task".
 
 DEFINE BUTTON btnScheduleTask 
      IMAGE-UP FILE "Graphics/32x32/calendar_clock.ico":U NO-FOCUS FLAT-BUTTON
@@ -220,6 +220,9 @@ ttDynParamValue.outputFormat
 DEFINE FRAME F-Main
      btnCopyTask AT ROW 16.95 COL 27 HELP
           "Copy Task" WIDGET-ID 258
+     searchBar AT ROW 1 COL 52 COLON-ALIGNED HELP
+          "Search" WIDGET-ID 6
+     browseParamValue AT ROW 1.95 COL 37 WIDGET-ID 500
      btnDeleteTask AT ROW 18.86 COL 27 HELP
           "Delete Task" WIDGET-ID 260
      btnOutputFormat AT ROW 20.76 COL 27 HELP
@@ -228,9 +231,6 @@ DEFINE FRAME F-Main
           "Run Task" WIDGET-ID 250
      btnScheduleTask AT ROW 22.67 COL 27 HELP
           "Schedule Task" WIDGET-ID 252
-     searchBar AT ROW 1 COL 52 COLON-ALIGNED HELP
-          "Search" WIDGET-ID 6
-     browseParamValue AT ROW 1.95 COL 37 WIDGET-ID 500
      btnRestoreDefaults AT ROW 1 COL 37 HELP
           "Restore Defaults" WIDGET-ID 42
      btnSortMove AT ROW 1 COL 41 HELP
@@ -385,8 +385,19 @@ WHERE ttDynParamValue.prgmName BEGINS cPrgmName
 &Scoped-define BROWSE-NAME browseParamValue
 &Scoped-define SELF-NAME browseParamValue
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseParamValue s-object
+ON DEFAULT-ACTION OF browseParamValue IN FRAME F-Main /* Tasks */
+DO:
+    APPLY "CHOOSE":U TO btnRunTask.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseParamValue s-object
 ON DELETE-CHARACTER OF browseParamValue IN FRAME F-Main /* Tasks */
 DO:
+    IF NOT btnDeleteTask:HIDDEN THEN
     APPLY "CHOOSE":U TO btnDeleteTask.
 END.
 
@@ -444,6 +455,7 @@ END.
 ON CHOOSE OF btnDeleteTask IN FRAME F-Main /* Delete Task */
 DO:
     RUN pDeleteTask.
+    APPLY "VALUE-CHANGED":U TO browseParamValue.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -455,6 +467,7 @@ END.
 ON CHOOSE OF btnOutputFormat IN FRAME F-Main
 DO:
     RUN pRunTask (NO).
+    APPLY "VALUE-CHANGED":U TO browseParamValue.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -477,6 +490,7 @@ END.
 ON CHOOSE OF btnRunTask IN FRAME F-Main /* Run Task */
 DO:
     RUN pRunTask (YES).
+    APPLY "VALUE-CHANGED":U TO browseParamValue.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -709,7 +723,7 @@ PROCEDURE pCopyTask :
     FIND FIRST ttDynParamValue
          WHERE ttDynParamValue.paramValueRowID EQ rRowID.
     rRowID = ROWID(ttDynParamValue).
-    REPOSITION browseParamValue TO ROWID rRowID.    
+    REPOSITION browseParamValue TO ROWID rRowID.
     
 END PROCEDURE.
 
@@ -816,6 +830,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSettings s-object 
+PROCEDURE pGetSettings :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenBrowse s-object 
 PROCEDURE pReopenBrowse :
 /*------------------------------------------------------------------------------
@@ -856,6 +884,8 @@ PROCEDURE pRunTask :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iplParameters AS LOGICAL NO-UNDO.
     
+    DEFINE VARIABLE rRowID AS ROWID NO-UNDO.
+    
     IF iplParameters EQ YES OR
       (iplParameters EQ NO AND ttDynParamValue.outputFormat EQ "Grid") THEN DO:
         RUN AOA/Jasper.p (
@@ -865,8 +895,9 @@ PROCEDURE pRunTask :
             ttDynParamValue.paramValueID,
             iplParameters
             ).
-        IF ttDynParamValue.user-id EQ "_default" THEN
+        rRowID = ROWID(ttDynParamValue).
         RUN pGetParamValue.
+        REPOSITION browseParamValue TO ROWID rRowID.
     END. /* if */
     ELSE
     RUN pRunNow (

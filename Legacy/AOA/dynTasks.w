@@ -46,7 +46,7 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
-DEFINE VARIABLE cModule   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMnemonic AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrgmName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID   AS CHARACTER NO-UNDO.
 
@@ -81,7 +81,7 @@ DEFINE VARIABLE cUserID   AS CHARACTER NO-UNDO.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fWindowTitle W-Win 
 FUNCTION fWindowTitle RETURNS CHARACTER
   (ipcTitle    AS CHARACTER,
-   ipcModule   AS CHARACTER,
+   ipcMnemonic AS CHARACTER,
    ipcPrgmName AS CHARACTER,
    ipcUserID   AS CHARACTER)  FORWARD.
 
@@ -134,7 +134,7 @@ DEFINE FRAME F-Main
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "User Tasks"
+         TITLE              = "Dynamic User Tasks"
          HEIGHT             = 28.57
          WIDTH              = 160
          MAX-HEIGHT         = 320
@@ -185,7 +185,7 @@ THEN W-Win:HIDDEN = yes.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* User Tasks */
+ON END-ERROR OF W-Win /* Dynamic User Tasks */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -198,7 +198,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* User Tasks */
+ON WINDOW-CLOSE OF W-Win /* Dynamic User Tasks */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
@@ -212,7 +212,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-RESIZED OF W-Win /* User Tasks */
+ON WINDOW-RESIZED OF W-Win /* Dynamic User Tasks */
 DO:
     RUN pWinReSize.
 END.
@@ -369,8 +369,8 @@ PROCEDURE local-enable :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN spGetTaskFilter (OUTPUT cModule, OUTPUT cPrgmName, OUTPUT cUserID).
-  {&WINDOW-NAME}:TITLE = fWindowTitle({&WINDOW-NAME}:TITLE, cModule, cPrgmName, cUserID).
+  RUN spGetTaskFilter (OUTPUT cMnemonic, OUTPUT cPrgmName, OUTPUT cUserID).
+  {&WINDOW-NAME}:TITLE = fWindowTitle({&WINDOW-NAME}:TITLE, cMnemonic, cPrgmName, cUserID).
   RUN pGetSettings (USERID("ASI")).
 
   /* Dispatch standard ADM method.                             */
@@ -592,7 +592,7 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fWindowTitle W-Win 
 FUNCTION fWindowTitle RETURNS CHARACTER
   (ipcTitle    AS CHARACTER,
-   ipcModule   AS CHARACTER,
+   ipcMnemonic AS CHARACTER,
    ipcPrgmName AS CHARACTER,
    ipcUserID   AS CHARACTER) :
 /*------------------------------------------------------------------------------
@@ -601,12 +601,12 @@ FUNCTION fWindowTitle RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cTitle AS CHARACTER NO-UNDO.
     
-    IF ipcModule    NE "" OR
+    IF ipcMnemonic  NE "" OR
        ipcPrgmName  NE "" OR
        ipcUserID    NE "" THEN DO:
         cTitle = " - Filter [ ".
-        IF ipcModule   NE "" THEN
-        cTitle = cTitle + "Module: "     + ipcModule   + " ".
+        IF ipcMnemonic NE "" THEN
+        cTitle = cTitle + "Hotkey:"      + ipcMnemonic + " ".
         IF ipcPrgmName NE "" THEN
         cTitle = cTitle + "Program ID: " + ipcPrgmName + " ".
         IF ipcUserID   NE "" THEN

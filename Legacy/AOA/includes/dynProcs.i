@@ -825,6 +825,7 @@ PROCEDURE pRunQuery:
         ).
     IF lOK THEN DO:
         IF iplRun THEN DO:
+            RUN pSetParamValueDefault.
             CASE ipcType:
                 WHEN "Results" THEN
                 RUN pResultsBrowser (hQuery).
@@ -933,6 +934,34 @@ PROCEDURE pSaveDynParamValues :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetParamValueDefault Include
+PROCEDURE pSetParamValueDefault:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bDynParamValue FOR dynParamValue.
+
+    DO TRANSACTION:
+        FIND FIRST bDynParamValue EXCLUSIVE-LOCK
+             WHERE bDynParamValue.subjectID    EQ dynParamValue.subjectID
+               AND bDynParamValue.user-id      EQ dynParamValue.user-id
+               AND bDynParamValue.prgmName     EQ dynParamValue.prgmName
+               AND bDynParamValue.paramValueID EQ 0
+             NO-ERROR.
+        IF NOT AVAILABLE bDynParamValue THEN DO:
+            CREATE bDynParamValue.
+            bDynParamValue.paramDescription = "User Default".
+        END. /* if not avail */
+        BUFFER-COPY dynParamValue EXCEPT paramValueID paramDescription TO bDynParamValue.
+    END. /* do trans */
+    RELEASE bDynParamValue.
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -21,7 +21,7 @@
 
 DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cModule             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMnemonic           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
 /* cue card variables */
@@ -391,12 +391,12 @@ PROCEDURE spGetTaskFilter:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opcModule    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMnemonic  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcProgramID AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcUserID    AS CHARACTER NO-UNDO.
     
     ASSIGN
-        opcModule    = cModule
+        opcMnemonic  = cMnemonic
         opcProgramID = cProgramID
         opcUserID    = cUserID
         .
@@ -938,12 +938,12 @@ PROCEDURE spSetTaskFilter:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcModule    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMnemonic  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcProgramID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcUserID    AS CHARACTER NO-UNDO.
     
     ASSIGN
-        cModule    = ipcModule
+        cMnemonic  = ipcMnemonic
         cProgramID = ipcProgramID
         cUserID    = ipcUserID
         .
