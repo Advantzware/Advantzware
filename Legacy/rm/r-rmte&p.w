@@ -36,10 +36,6 @@ DEF VAR ip-post AS LOG INIT NO NO-UNDO.
 DEF INPUT PARAMETER ip-post AS LOG NO-UNDO.
 &ENDIF*/
 
-DEFINE VARIABLE cIpRunWhat AS CHARACTER NO-UNDO.
-IF INDEX(PROGRAM-NAME(3),"rm/w-jobret.") NE 0 THEN
-    cIpRunWhat = "I" .
-   
 DEF VAR ip-post AS LOG NO-UNDO.
 
 IF INDEX(PROGRAM-NAME(1),"rm/r-rmtpst") NE 0 OR
@@ -91,7 +87,6 @@ DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE RmKeepZeroBin-log AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lRmTagValidate AS LOGICAL NO-UNDO .
-DEFINE VARIABLE cFileTitle AS CHARACTER NO-UNDO .
 DEF VAR lInvalid AS LOG NO-UNDO.
 {jc/jcgl-sh.i NEW}
 
@@ -649,7 +644,7 @@ DO:
     end_job-no2:SCREEN-VALUE = "99".
     ASSIGN {&DISPLAYED-OBJECTS}.    
   END.
-  cFileTitle =  c-win:TITLE .
+
   run check-Period.
   if lInvalid then return no-apply. 
  
@@ -689,8 +684,133 @@ DO:
   FOR EACH work-gl:
     DELETE work-gl.
   END.
- 
-  RUN pPrintAndPost .
+
+  RUN run-report (OUTPUT lValidQty). 
+  IF NOT lValidQty THEN
+    RETURN NO-APPLY.
+
+  CASE rd-dest:
+       WHEN 1 THEN RUN output-to-printer.
+       WHEN 2 THEN RUN output-to-screen.
+       WHEN 3 THEN RUN output-to-file.
+       WHEN 4 THEN DO:
+           /*run output-to-fax.*/
+           {custom/asifax.i &type= ''
+                            &begin_cust=v-from-job
+                            &END_cust= v-to-job
+                            &fax-subject=c-win:TITLE
+                            &fax-body=c-win:TITLE
+                            &fax-file=list-name }
+       END. 
+       WHEN 5 THEN DO:
+           IF is-xprint-form THEN DO:
+              {custom/asimail.i &TYPE = ''
+                             &begin_cust= v-from-job
+                             &END_cust=v-to-job
+                             &mail-subject=c-win:TITLE
+                             &mail-body=c-win:TITLE
+                             &mail-file=list-name }
+           END.
+           ELSE DO:
+               {custom/asimailr.i &TYPE = ''
+                                  &begin_cust= v-from-job
+                                  &END_cust=v-to-job
+                                  &mail-subject=c-win:TITLE
+                                  &mail-body=c-win:TITLE
+                                  &mail-file=list-name }
+
+           END.
+       END. 
+      WHEN 6 THEN RUN output-to-port.
+  END CASE.
+
+  IF ip-post THEN DO: 
+    lv-post = CAN-FIND(FIRST tt-rctd WHERE tt-rctd.has-rec).
+
+    IF lv-post THEN
+    FOR EACH tt-rctd
+        WHERE tt-rctd.has-rec
+          AND NOT CAN-FIND(FIRST rm-rctd WHERE ROWID(rm-rctd) EQ tt-rctd.rm-row-id):
+      lv-post = NO.
+      LEAVE.
+    END.
+
+    IF lv-post THEN DO:
+      lv-post = NO.
+      MESSAGE "Post RM Transactions?"
+          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+          UPDATE lv-post.
+    END.
+
+    ELSE MESSAGE "Sorry, nothing is available for posting..."
+             VIEW-AS ALERT-BOX.
+
+    /* Check Tag Valid or not*/
+    IF lRmTagValidate THEN DO:
+        FOR EACH tt-rctd,
+            FIRST rm-rctd WHERE ROWID(rm-rctd) EQ tt-rctd.rm-row-id
+            AND rm-rctd.rita-code = "I"
+            AND rm-rctd.tag NE ""
+            NO-LOCK
+            BREAK BY rm-rctd.i-no
+            BY rm-rctd.loc
+            BY rm-rctd.loc-bin
+            BY rm-rctd.tag:
+
+            FIND FIRST loadtag NO-LOCK
+                 WHERE loadtag.company = cocode
+                   AND loadtag.item-type = YES
+                   AND loadtag.tag-no = rm-rctd.tag  NO-ERROR.
+            IF NOT AVAIL loadtag THEN DO:
+                MESSAGE "Sorry, RM Issue Transactions cannot be processed because  " SKIP
+                "Item#("  STRING(rm-rctd.i-no)  ") has invalid tag# : "  STRING(rm-rctd.tag)   VIEW-AS ALERT-BOX INFO.
+                lv-post = NO.
+                LEAVE .
+           END.
+        END.
+    END.  /* lRmTagValidate */
+
+    IF lv-post THEN DO:
+      FOR EACH tt-rctd
+          WHERE tt-rctd.has-rec
+            AND CAN-FIND(FIRST rm-rcpth WHERE rm-rcpth.r-no EQ tt-rctd.r-no),
+          FIRST rm-rctd WHERE rm-rctd.r-no EQ tt-rctd.r-no:
+        lv-r-no = rm-rctd.r-no.
+        DO TRANSACTION:
+          rm-rctd.r-no = 0.
+        END.
+        DO TRANSACTION:
+          rm-rctd.r-no = lv-r-no.
+        END.
+        tt-rctd.r-no = rm-rctd.r-no.
+      END.
+
+      FOR EACH tt-rctd
+          WHERE tt-rctd.has-rec
+            AND NOT CAN-FIND(FIRST rm-rctd WHERE rm-rctd.r-no EQ tt-rctd.r-no),
+          FIRST rm-rcpth NO-LOCK WHERE rm-rcpth.r-no EQ tt-rctd.r-no:
+        MESSAGE "Sorry, these RM Transactions cannot be processed because 1 or " +
+                "more have already been posted by UserID: " +
+                TRIM(rm-rcpth.user-id) + "..."
+            VIEW-AS ALERT-BOX ERROR.
+
+        lv-post = NO.
+        LEAVE.
+      END.
+    END.
+
+    IF lv-post THEN DO:       
+      RUN post-rm.
+
+      lv-post = v-dunne.
+
+      IF lv-post THEN MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
+
+      ELSE MESSAGE "Posting Incomplete..." VIEW-AS ALERT-BOX ERROR.
+    END.
+  END.
+
+  RUN util/fxissues.p.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -906,15 +1026,15 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
 
-IF cIpRunWhat EQ "" THEN DO:
-  PROCEDURE mail EXTERNAL "xpMail.dll" :
+
+PROCEDURE mail EXTERNAL "xpMail.dll" :
       DEF INPUT PARAM mailTo AS CHAR.
       DEF INPUT PARAM mailsubject AS CHAR.
       DEF INPUT PARAM mailText AS CHAR.
       DEF INPUT PARAM mailFiles AS CHAR.
       DEF INPUT PARAM mailDialog AS LONG.
       DEF OUTPUT PARAM retCode AS LONG.
-  END.
+END.
 
 /* ***************************  Main Block  *************************** */    
 DEF VAR choice AS LOG NO-UNDO.
@@ -932,11 +1052,6 @@ ON CLOSE OF THIS-PROCEDURE
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
 {sys/inc/f3helpw.i}
-
-END.
-
-ELSE DELETE WIDGET {&WINDOW-NAME}.
-
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
@@ -959,8 +1074,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   iLastJob2 = 99.
   iFirstJob2 = 0.
   lFromSS = DYNAMIC-FUNCTION('is-run-from-ss':U).
-
- IF cIpRunWhat EQ "" THEN DO WITH FRAME {&FRAME-NAME}:
   FOR EACH rm-rctd
       WHERE rm-rctd.company   EQ cocode
         AND rm-rctd.rita-code NE "C"
@@ -1059,33 +1172,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
- END.
-
-
-ELSE DO:
-     ASSIGN 
-         v-post-date = TODAY 
-         v-from-job = ""
-         v-to-job   = "zzzzzzzz" 
-         v-types    = cIpRunWhat
-         v-pr-tots  = t-showtotal
-         begin_job-no2 = 0
-         end_job-no2    = 99
-         ldt-from       = 01/01/0001
-         ldt-to        = 12/31/9999
-         begin_userid    = ""
-         end_userid      = "zzzzzzzzz"
-         tb_excel     = NO
-         tb_runExcel  = NO  
-         ip-post      = YES 
-         fiAutoIssue  = YES  
-         cFileTitle   = "" .
-
-     RUN pPrintAndPost.
-
- END.
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2160,7 +2247,7 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
 
     WITH DOWN STREAM-IO WIDTH 130 FRAME gldetail.
 
-   ASSIGN v-create-issue = LOGICAL(fiAutoIssue ).
+   ASSIGN v-create-issue = LOGICAL(fiAutoIssue:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
    oplValidQty = TRUE.
     FOR EACH tt-rctd:
       DELETE tt-rctd.
@@ -2333,7 +2420,7 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
       END.
     END.
     ASSIGN
-     str-tit2 = cFileTitle 
+     str-tit2 = c-win:TITLE
      {sys/inc/ctrtext.i str-tit2 112}.
 
     {sys/inc/print1.i}
@@ -2701,131 +2788,12 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
           OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
     END.
 
-  IF cIpRunWhat EQ "" THEN
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrintAndPost C-Win 
-PROCEDURE pPrintAndPost :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF VAR lValidQty AS LOG NO-UNDO. 
-DEF VAR lv-post AS LOG NO-UNDO.
-DEF VAR lv-r-no LIKE rm-rctd.r-no NO-UNDO.
-
- FOR EACH work-gl:
-    DELETE work-gl.
-  END.
-
-  RUN run-report (OUTPUT lValidQty). 
-  
-  IF cIpRunWhat EQ "" THEN do:
-      IF NOT lValidQty THEN
-          RETURN NO-APPLY.
-      RUN show-report .
-  END.
-
- IF ip-post THEN DO: 
-    lv-post = CAN-FIND(FIRST tt-rctd WHERE tt-rctd.has-rec).
-
-    IF lv-post THEN
-    FOR EACH tt-rctd
-        WHERE tt-rctd.has-rec
-          AND NOT CAN-FIND(FIRST rm-rctd WHERE ROWID(rm-rctd) EQ tt-rctd.rm-row-id):
-      lv-post = NO.
-      LEAVE.
-    END.
-
-    IF lv-post THEN DO:
-      lv-post = NO.
-      MESSAGE "Post RM Transactions?"
-          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-          UPDATE lv-post.
-    END.
-
-    ELSE MESSAGE "Sorry, nothing is available for posting..."
-             VIEW-AS ALERT-BOX.
-
-    /* Check Tag Valid or not*/
-    IF lRmTagValidate THEN DO:
-        FOR EACH tt-rctd,
-            FIRST rm-rctd WHERE ROWID(rm-rctd) EQ tt-rctd.rm-row-id
-            AND rm-rctd.rita-code = "I"
-            AND rm-rctd.tag NE ""
-            NO-LOCK
-            BREAK BY rm-rctd.i-no
-            BY rm-rctd.loc
-            BY rm-rctd.loc-bin
-            BY rm-rctd.tag:
-
-            FIND FIRST loadtag NO-LOCK
-                 WHERE loadtag.company = cocode
-                   AND loadtag.item-type = YES
-                   AND loadtag.tag-no = rm-rctd.tag  NO-ERROR.
-            IF NOT AVAIL loadtag THEN DO:
-                MESSAGE "Sorry, RM Issue Transactions cannot be processed because  " SKIP
-                "Item#("  STRING(rm-rctd.i-no)  ") has invalid tag# : "  STRING(rm-rctd.tag)   VIEW-AS ALERT-BOX INFO.
-                lv-post = NO.
-                LEAVE .
-           END.
-        END.
-    END.  /* lRmTagValidate */
-
-    IF lv-post THEN DO:
-      FOR EACH tt-rctd
-          WHERE tt-rctd.has-rec
-            AND CAN-FIND(FIRST rm-rcpth WHERE rm-rcpth.r-no EQ tt-rctd.r-no),
-          FIRST rm-rctd WHERE rm-rctd.r-no EQ tt-rctd.r-no:
-        lv-r-no = rm-rctd.r-no.
-        DO TRANSACTION:
-          rm-rctd.r-no = 0.
-        END.
-        DO TRANSACTION:
-          rm-rctd.r-no = lv-r-no.
-        END.
-        tt-rctd.r-no = rm-rctd.r-no.
-      END.
-
-      FOR EACH tt-rctd
-          WHERE tt-rctd.has-rec
-            AND NOT CAN-FIND(FIRST rm-rctd WHERE rm-rctd.r-no EQ tt-rctd.r-no),
-          FIRST rm-rcpth NO-LOCK WHERE rm-rcpth.r-no EQ tt-rctd.r-no:
-        MESSAGE "Sorry, these RM Transactions cannot be processed because 1 or " +
-                "more have already been posted by UserID: " +
-                TRIM(rm-rcpth.user-id) + "..."
-            VIEW-AS ALERT-BOX ERROR.
-
-        lv-post = NO.
-        LEAVE.
-      END.
-    END.
-
-    IF lv-post THEN DO:       
-      RUN post-rm.
-
-      lv-post = v-dunne.
-
-      IF lv-post THEN MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
-
-      ELSE MESSAGE "Posting Incomplete..." VIEW-AS ALERT-BOX ERROR.
-    END.
-  END.
-
-  RUN util/fxissues.p.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-rmemail C-Win 
 PROCEDURE send-rmemail :
@@ -3032,55 +3000,6 @@ PROCEDURE show-param :
   END.
 
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-report C-Win 
-PROCEDURE show-report :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- DO WITH FRAME {&FRAME-NAME}:
-    CASE rd-dest:
-       WHEN 1 THEN RUN output-to-printer.
-       WHEN 2 THEN RUN output-to-screen.
-       WHEN 3 THEN RUN output-to-file.
-       WHEN 4 THEN DO:
-           /*run output-to-fax.*/
-           {custom/asifax.i &type= ''
-                            &begin_cust=v-from-job
-                            &END_cust= v-to-job
-                            &fax-subject=c-win:TITLE
-                            &fax-body=c-win:TITLE
-                            &fax-file=list-name }
-       END. 
-       WHEN 5 THEN DO:
-           IF is-xprint-form THEN DO:
-              {custom/asimail.i &TYPE = ''
-                             &begin_cust= v-from-job
-                             &END_cust=v-to-job
-                             &mail-subject=c-win:TITLE
-                             &mail-body=c-win:TITLE
-                             &mail-file=list-name }
-           END.
-           ELSE DO:
-               {custom/asimailr.i &TYPE = ''
-                                  &begin_cust= v-from-job
-                                  &END_cust=v-to-job
-                                  &mail-subject=c-win:TITLE
-                                  &mail-body=c-win:TITLE
-                                  &mail-file=list-name }
-
-           END.
-       END. 
-      WHEN 6 THEN RUN output-to-port.
-  END CASE.
- END.
 
 END PROCEDURE.
 
