@@ -240,7 +240,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
            END.          
            DO j = 1 TO 6:
                IF cAddrDesc[j] NE "" THEN do:                    
-                   PUT "<C21>" cAddrDesc[j] FORMAT "x(30)" .
+                   PUT "<C21>" cAddrDesc[j] FORMAT "x(35)" .
                      
                    IF AVAIL xqqty THEN DO:
                         xxx    = IF xqqty.uom EQ "L" THEN xqqty.price    ELSE
@@ -250,8 +250,8 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                         ((xqqty.qty / 1000) * xqqty.price)    ELSE
                         (xqqty.qty * xqqty.price).
                                              
-                        PUT "<C48>" xqqty.qty FORMAT ">>>>>>>9"  SPACE(1)
-                        xqqty.rels space(5)
+                        PUT "<C49>" xqqty.qty FORMAT ">>>>>>>9"  SPACE(2)
+                        xqqty.rels space(4)
                         xqqty.price FORMAT "->>>>,>>9.99<<" space(2)
                         xqqty.uom.
                         
@@ -274,8 +274,8 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                   (xqqty.qty * xqqty.price).
 
        
-       PUT "<C48>" xqqty.qty FORMAT ">>>>>>>9"  SPACE(1)
-           xqqty.rels space(5)
+       PUT "<C49>" xqqty.qty FORMAT ">>>>>>>9"  SPACE(2)
+           xqqty.rels space(4)
            xqqty.price FORMAT "->>>>,>>9.99<<" space(2)
            xqqty.uom.
            
