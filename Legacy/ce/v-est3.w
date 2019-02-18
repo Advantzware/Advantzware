@@ -54,6 +54,7 @@ DO TRANSACTION:
   {sys/inc/fgcolors.i}
 END.
 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
