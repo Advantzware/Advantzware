@@ -68,7 +68,7 @@
           if tdate eq ar-cash.check-date then
             w-amt = w-amt + v-amt.
 
-          RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+          RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
           IF AVAIL oe-retl THEN DO:
 

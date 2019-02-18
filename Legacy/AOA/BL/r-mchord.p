@@ -20,12 +20,16 @@ DEFINE QUERY hQuery FOR job-hdr, oe-ord, cust, job, job-mch, oe-ordl, itemfg, ef
 
 OPEN QUERY hQuery
 FOR EACH job-hdr NO-LOCK
-    WHERE job-hdr.company EQ "001"
+    WHERE job-hdr.company EQ ipcCompany
       AND job-hdr.opened  EQ YES
-      AND job-hdr.ord-no  GT 0,
+      AND job-hdr.ord-no  GE iStartOrderNo
+      AND job-hdr.ord-no  LE iEndOrderNo,
     FIRST oe-ord NO-LOCK
-    WHERE oe-ord.company EQ job-hdr.company
-      AND oe-ord.ord-no  EQ job-hdr.ord-no,
+    WHERE oe-ord.company  EQ job-hdr.company
+      AND oe-ord.ord-no   EQ job-hdr.ord-no
+      AND oe-ord.opened   EQ YES
+      AND oe-ord.due-date GE dtStartDueDate
+      AND oe-ord.due-date LE dtEndDueDate,
     FIRST cust OF job-hdr NO-LOCK,
     EACH job OF job-hdr NO-LOCK,
     EACH job-mch NO-LOCK
@@ -33,6 +37,8 @@ FOR EACH job-hdr NO-LOCK
       AND job-mch.job     EQ job.job
       AND job-mch.job-no  EQ job.job-no
       AND job-mch.job-no2 EQ job.job-no2
+      AND job-mch.i-no    GE cStartItemNo
+      AND job-mch.i-no    LE cEndItemNo
       AND job-mch.run-complete EQ NO,
     FIRST oe-ordl OF oe-ord NO-LOCK
     WHERE oe-ordl.i-no EQ job-mch.i-no,

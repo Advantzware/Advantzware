@@ -74,7 +74,7 @@
       {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
     RELEASE ar-invl.
 
-    RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+    RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
     IF AVAIL oe-retl THEN
     find first ar-invl
@@ -204,7 +204,7 @@
         RELEASE itemfg.
         RELEASE ar-invl.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         IF AVAIL oe-retl THEN DO:
           find first itemfg

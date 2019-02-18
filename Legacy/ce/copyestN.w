@@ -62,12 +62,13 @@ assign
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-17 RECT-18 RECT-19 RECT-20 from_company ~
 from_est tb_copy tb_copy-i-name tb_die tb_copy-dscr-1 tb_plate ~
-tb_copy-dscr-2 tb_i-no tb_copy-notes tb_farm tb_dept-notes tb_clip-att ~
-to_company fi_cust fi_part fi_shipto fi_rep btn-process btn-cancel 
+tb_copy-dscr-2 tb_i-no tb_copy-notes tb_farm tb_dept-notes tb_copy-prep ~
+tb_clip-att to_company fi_cust fi_part fi_shipto fi_rep btn-process ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS from_company from_name from_est from_ship ~
 from_part tb_copy tb_copy-i-name tb_die tb_copy-dscr-1 tb_plate ~
-tb_copy-dscr-2 tb_i-no tb_copy-notes tb_farm tb_dept-notes tb_clip-att ~
-to_company to_name to_est fi_cust fi_part fi_shipto fi_rep 
+tb_copy-dscr-2 tb_i-no tb_copy-notes tb_farm tb_dept-notes tb_copy-prep ~
+tb_clip-att to_company to_name to_est fi_cust fi_part fi_shipto fi_rep 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -193,6 +194,11 @@ DEFINE VARIABLE tb_copy-notes AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY 1 NO-UNDO.
 
+DEFINE VARIABLE tb_copy-prep AS LOGICAL INITIAL yes 
+     LABEL "Copy Prep?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18 BY 1 NO-UNDO.
+
 DEFINE VARIABLE tb_dept-notes AS LOGICAL INITIAL yes 
      LABEL " Copy Fountain Pen Icon Dept Notes?" 
      VIEW-AS TOGGLE-BOX
@@ -233,13 +239,14 @@ DEFINE FRAME FRAME-A
      tb_copy-i-name AT ROW 6.62 COL 41.8 WIDGET-ID 4
      tb_die AT ROW 7.52 COL 15.6
      tb_copy-dscr-1 AT ROW 7.52 COL 41.8 WIDGET-ID 6
-     tb_plate AT ROW 8.42 COL 15.6
-     tb_copy-dscr-2 AT ROW 8.42 COL 41.8 WIDGET-ID 8
-     tb_i-no AT ROW 9.32 COL 15.6
-     tb_copy-notes AT ROW 9.32 COL 41.8 WIDGET-ID 2
-     tb_farm AT ROW 10.22 COL 15.6
-     tb_dept-notes AT ROW 10.22 COL 41.8 WIDGET-ID 14
-     tb_clip-att AT ROW 11.12 COL 41.8 WIDGET-ID 16
+     tb_plate AT ROW 8.43 COL 15.6
+     tb_copy-dscr-2 AT ROW 8.43 COL 41.8 WIDGET-ID 8
+     tb_i-no AT ROW 9.33 COL 15.6
+     tb_copy-notes AT ROW 9.33 COL 41.8 WIDGET-ID 2
+     tb_farm AT ROW 10.24 COL 15.6
+     tb_dept-notes AT ROW 10.24 COL 41.8 WIDGET-ID 14
+     tb_copy-prep AT ROW 11.1 COL 15.6 WIDGET-ID 20
+     tb_clip-att AT ROW 11.14 COL 41.8 WIDGET-ID 16
      to_company AT ROW 14.05 COL 22 COLON-ALIGNED HELP
           "Copy To Company"
      to_name AT ROW 14.05 COL 39 COLON-ALIGNED NO-LABEL
@@ -258,11 +265,11 @@ DEFINE FRAME FRAME-A
      "C O P Y  T O" VIEW-AS TEXT
           SIZE 14 BY 1 AT ROW 12.86 COL 40
           BGCOLOR 8 FGCOLOR 9 
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .95 AT ROW 1.24 COL 4
      "C O P Y  F R O M" VIEW-AS TEXT
           SIZE 19 BY 1 AT ROW 1.95 COL 38
           BGCOLOR 8 FGCOLOR 9 
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .95 AT ROW 1.24 COL 4
      RECT-17 AT ROW 1 COL 1
      RECT-18 AT ROW 2.43 COL 1
      RECT-19 AT ROW 13.33 COL 2
@@ -324,15 +331,13 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
-
 
 ASSIGN 
        from_company:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -366,7 +371,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -800,6 +805,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_copy-prep
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_copy-prep C-Win
+ON VALUE-CHANGED OF tb_copy-prep IN FRAME FRAME-A /* Copy Prep? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_dept-notes
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_dept-notes C-Win
 ON VALUE-CHANGED OF tb_dept-notes IN FRAME FRAME-A /*  Copy Fountain Pen Icon Dept Notes? */
@@ -1004,13 +1020,13 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY from_company from_name from_est from_ship from_part tb_copy 
           tb_copy-i-name tb_die tb_copy-dscr-1 tb_plate tb_copy-dscr-2 tb_i-no 
-          tb_copy-notes tb_farm tb_dept-notes tb_clip-att to_company to_name 
-          to_est fi_cust fi_part fi_shipto fi_rep 
+          tb_copy-notes tb_farm tb_dept-notes tb_copy-prep tb_clip-att 
+          to_company to_name to_est fi_cust fi_part fi_shipto fi_rep 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-17 RECT-18 RECT-19 RECT-20 from_company from_est tb_copy 
          tb_copy-i-name tb_die tb_copy-dscr-1 tb_plate tb_copy-dscr-2 tb_i-no 
-         tb_copy-notes tb_farm tb_dept-notes tb_clip-att to_company fi_cust 
-         fi_part fi_shipto fi_rep btn-process btn-cancel 
+         tb_copy-notes tb_farm tb_dept-notes tb_copy-prep tb_clip-att 
+         to_company fi_cust fi_part fi_shipto fi_rep btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1078,6 +1094,7 @@ PROCEDURE run-process :
   DEF VAR li         AS   INT NO-UNDO.
   DEF VAR lj         AS   INT NO-UNDO.
   DEF VAR lv-part-no LIKE eb.part-no NO-UNDO.
+  DEFINE VARIABLE lCopyPrep AS LOGICAL NO-UNDO .
 
 
   SESSION:SET-WAIT-STATE("general").
@@ -1087,7 +1104,8 @@ PROCEDURE run-process :
    fest     = from_est
    fest-mr  = tb_copy
    tcom     = to_company
-   test     = to_est.
+   test     = to_est
+   lCopyPrep = tb_copy-prep .
 
   find first est
       where est.company eq fcom
@@ -1391,6 +1409,7 @@ PROCEDURE run-process :
     end.
   end.
 
+  IF lCopyPrep  THEN
   for each est-prep
       where est-prep.company eq est.company
         and est-prep.est-no  EQ est.est-no

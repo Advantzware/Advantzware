@@ -1,6 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12
 &ANALYZE-RESUME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Include
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Include 
 /*------------------------------------------------------------------------
 
   Name : DataDigger.i
@@ -13,12 +13,15 @@
 /* ***************************  Definitions  ************************** */
 
 &GLOBAL-DEFINE version {version.i}
-&GLOBAL-DEFINE edition Easter Egg
+&GLOBAL-DEFINE edition Pure Gold
 &GLOBAL-DEFINE build {build.i}
 
 &GLOBAL-DEFINE QUERYSEP CHR(1, SESSION:CPINTERNAL, "UTF-8")
-&GLOBAL-DEFINE timerStart PUBLISH "timerCommand" ("start", ENTRY(1,PROGRAM-NAME(1)," ")).
-&GLOBAL-DEFINE timerStop  PUBLISH "timerCommand" ("stop" , ENTRY(1,PROGRAM-NAME(1)," ")).
+&GLOBAL-DEFINE timerStart PUBLISH "DD:Timer" ("start", ENTRY(1,PROGRAM-NAME(1)," ")).
+&GLOBAL-DEFINE timerStop  FINALLY: ~
+                            PUBLISH "DD:Timer" ("stop", ENTRY(1,PROGRAM-NAME(1)," ")). ~
+                          END FINALLY.
+&GLOBAL-DEFINE timerStop2 PUBLISH "DD:Timer" ("stop", ENTRY(1,PROGRAM-NAME(1)," ")).
 
 /* Constant values for update channels */
 &GLOBAL-DEFINE CHECK-MANUAL 0
@@ -26,10 +29,12 @@
 &GLOBAL-DEFINE CHECK-BETA   2
 
 /* Constant for collecting statistics
- * changed from https://goo.gl/24deK3 to bit.ly because google has ended the service
- * get analytics for the bit.ly link by adding a + (plus) to it
+ * changed from https://goo.gl/24deK3 to is.gd because google has ended the service
+ * get analytics for the is.gd link by adding a - (minus) to it
 */
-&GLOBAL-DEFINE PINGBACKURL https://bit.ly/datadigger
+&GLOBAL-DEFINE PINGBACKURL https://is.gd/DataDigger
+&GLOBAL-DEFINE PINGBACKSTATS https://is.gd/stats.php?url=DataDigger
+/* https://is.gd/DataDigger- */
 
 /* Table scan is not available for pre-v11 */
 &IF PROVERSION >= '11' &THEN
@@ -53,15 +58,17 @@ DEFINE TEMP-TABLE ttTable NO-UNDO RCODE-INFORMATION
   FIELD cCacheId      AS CHARACTER LABEL "CacheId"
   FIELD lShowInList   AS LOGICAL   LABEL "" /* for getTablesWithField */
   FIELD cTableDesc    AS CHARACTER LABEL "Desc"
+  FIELD cTableLabel   AS CHARACTER LABEL "Label"
   FIELD cFields       AS CHARACTER LABEL "Fields"
   FIELD lHidden       AS LOGICAL   LABEL ""
   FIELD lFrozen       AS LOGICAL   LABEL ""
   FIELD iNumQueries   AS INTEGER   LABEL "#"         FORMAT "zzzzz"
   FIELD tLastUsed     AS DATETIME  LABEL "Last Used" FORMAT "99/99/9999 HH:MM:SS"
-  FIELD lFavourite    AS LOGICAL   LABEL ""
   FIELD lCached       AS LOGICAL   LABEL "" /* for preCaching */
   FIELD iFileNumber   AS INTEGER   LABEL "_File-Number"
   FIELD cCategory     AS CHARACTER LABEL "Category"
+  FIELD lFavourite    AS LOGICAL   LABEL "" /* favourite table */
+  FIELD cFavourites   AS CHARACTER LABEL "" /* favourite groups */
   INDEX idxPrim IS PRIMARY cDatabase cTableName
   INDEX idxSec cTableName
   .
@@ -92,14 +99,13 @@ DEFINE TEMP-TABLE ttField NO-UNDO RCODE-INFORMATION
   FIELD cInitial      AS CHARACTER                   LABEL "Initial"                     /* initial value from dict   */
   FIELD cFormat       AS CHARACTER                   LABEL "Format"    FORMAT "X(80)"    /* user defined format       */
   FIELD cFormatOrg    AS CHARACTER                   LABEL "Format"                      /* original format           */
-  FIELD cLabel        AS CHARACTER                   LABEL "Label"     FORMAT "X(24)"
+  FIELD iWidth        AS INTEGER                     LABEL "Width"                       /* SQL width                 */
+  FIELD cLabel        AS CHARACTER                   LABEL "Label"     FORMAT "X(50)"
   FIELD iOrderOrg     AS DECIMAL                                                         /* original order            */
   FIELD iExtent       AS INTEGER                     LABEL "Extent"    FORMAT ">>>>9"
   FIELD lPrimary      AS LOGICAL                     LABEL "Prim"                        /* part of prim index?       */
   FIELD lMandatory    AS LOGICAL                     LABEL "Man"                         /* mandatory?                */
   FIELD lUniqueIdx    AS LOGICAL                     LABEL "Uni"                         /* part of unique index?     */
-
-  /* New fields as per v19 */
   FIELD cColLabel     AS CHARACTER                   LABEL "Column Label" FORMAT "x(24)"
   FIELD iDecimals     AS INTEGER                     LABEL "Decimals"     FORMAT ">>9"
   FIELD iFieldRpos    AS INTEGER                     LABEL "R-pos"        FORMAT ">>>>9"
@@ -110,7 +116,6 @@ DEFINE TEMP-TABLE ttField NO-UNDO RCODE-INFORMATION
   FIELD cViewAs       AS CHARACTER                   LABEL "View-As"      FORMAT "x(40)"
 
   /* These fields must be moved to ttColumn */
-/*  FIELD lDataField    AS LOGICAL                                                         /* show in data browse */ */
   FIELD cFilterValue  AS CHARACTER
   FIELD cNewValue     AS CHARACTER                   LABEL "New value" FORMAT "x(256)"
   FIELD cOldValue     AS CHARACTER                   LABEL "Old value" FORMAT "x(256)"
@@ -136,13 +141,12 @@ DEFINE TEMP-TABLE ttColumn NO-UNDO RCODE-INFORMATION
   FIELD iExtent       AS INTEGER            LABEL "Extent"    FORMAT ">>>>9"
 
   FIELD cFullName     AS CHARACTER          LABEL "Name"      FORMAT "X(40)"    /* fieldname incl extent     */
-/*  FIELD lDataField    AS LOGICAL            /* show in data browse */ */
   FIELD cFilterValue  AS CHARACTER          /* for setting shadow color */
   FIELD cNewValue     AS CHARACTER          LABEL "New value" FORMAT "X(256)" /* for wEdit */
   FIELD cOldValue     AS CHARACTER          LABEL "Old value" FORMAT "X(256)" /* for wEdit */
   FIELD lShow         AS LOGICAL                                              /* for wEdit */
   FIELD iOrder        AS DECIMAL            LABEL "Order"     FORMAT ">>>>>9" /* user defined order        */
-  FIELD cLabel        AS CHARACTER          LABEL "Label"     FORMAT "X(24)"
+  FIELD cLabel        AS CHARACTER          LABEL "Label"     FORMAT "X(50)"
   FIELD iColumnNr     AS INTEGER            /* order in the databrowse */
   FIELD hColumn       AS HANDLE             /* handle to the column in the databrowse */
   FIELD hFilter       AS HANDLE             /* handle to the filter on top of the databrowse */
@@ -243,9 +247,12 @@ DEFINE TEMP-TABLE ttConfig NO-UNDO RCODE-INFORMATION
   FIELD cSection AS CHARACTER
   FIELD cSetting AS CHARACTER
   FIELD cValue   AS CHARACTER
+  FIELD lUser    AS LOGICAL
   FIELD lDirty   AS LOGICAL
   INDEX idxPrim IS PRIMARY cSection cSetting
-  INDEX idxDirty lDirty.
+  INDEX idxDirty lDirty
+  INDEX idxUser  lUser
+  .
 
 
 /* TT for sorting options in user query */
@@ -258,11 +265,17 @@ DEFINE TEMP-TABLE ttQuerySort NO-UNDO RCODE-INFORMATION
   INDEX iPrim IS PRIMARY iGroup iSortNr
   .
 
+/* TT for favourite groups */
+DEFINE TEMP-TABLE ttFavGroup NO-UNDO RCODE-INFORMATION
+  FIELD cGroup AS CHARACTER
+  INDEX iPrim IS PRIMARY cGroup
+  .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -278,7 +291,7 @@ DEFINE TEMP-TABLE ttQuerySort NO-UNDO RCODE-INFORMATION
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: Include
-   Allow:
+   Allow: 
    Frames: 0
    Add Fields to: Neither
    Other Settings: INCLUDE-ONLY
@@ -288,7 +301,7 @@ DEFINE TEMP-TABLE ttQuerySort NO-UNDO RCODE-INFORMATION
 /* *************************  Create Window  ************************** */
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
-/* DESIGN Window definition (used by the UIB)
+/* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW Include ASSIGN
          HEIGHT             = 6
          WIDTH              = 35.8.
@@ -296,10 +309,10 @@ DEFINE TEMP-TABLE ttQuerySort NO-UNDO RCODE-INFORMATION
                                                                         */
 &ANALYZE-RESUME
 
+ 
 
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Include
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Include 
 
 
 /* ***************************  Main Block  *************************** */
@@ -384,6 +397,16 @@ FUNCTION getRegistry RETURNS CHARACTER
 FUNCTION getStackSize RETURNS INTEGER
   () IN SUPER.
 
+FUNCTION getTableDesc RETURNS CHARACTER
+  ( INPUT  pcDatabase AS CHARACTER
+  , INPUT  pcTable    AS CHARACTER
+  ) IN SUPER.
+
+FUNCTION getTableLabel RETURNS CHARACTER
+  ( INPUT  pcDatabase AS CHARACTER
+  , INPUT  pcTable    AS CHARACTER
+  ) IN SUPER.
+  
 FUNCTION getTableList RETURNS CHARACTER
   ( INPUT  pcDatabaseFilter   AS CHARACTER
   , INPUT  pcTableFilter      AS CHARACTER
@@ -393,6 +416,8 @@ FUNCTION getUsername RETURNS CHARACTER IN SUPER.
 
 FUNCTION getWidgetUnderMouse RETURNS HANDLE
   ( INPUT phWidget AS HANDLE ) IN SUPER.
+
+FUNCTION getWorkFolder RETURNS CHARACTER IN SUPER.
 
 FUNCTION isDefaultFontsChanged RETURNS LOGICAL IN SUPER.
 
@@ -420,6 +445,10 @@ FUNCTION removeConnection RETURNS LOGICAL
 FUNCTION resolveOsVars RETURNS CHARACTER
   ( pcString AS CHARACTER ) IN SUPER.
 
+FUNCTION setColor RETURNS INTEGER
+  ( INPUT pcName  AS CHARACTER
+  , INPUT piColor AS INTEGER ) IN SUPER.
+  
 FUNCTION setLinkInfo RETURNS LOGICAL
   ( INPUT pcFieldName AS CHARACTER
   , INPUT pcValue     AS CHARACTER
@@ -447,7 +476,7 @@ SUBSCRIBE TO gcThisProcedure ANYWHERE RUN-PROCEDURE "getProcHandle".
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getProcHandle Include
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getProcHandle Include 
 PROCEDURE getProcHandle :
 /*
  * Name : getProcHandle

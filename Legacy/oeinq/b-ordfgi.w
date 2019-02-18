@@ -111,6 +111,7 @@ ll-sort-asc = NOT oeinq.
     IF lv-sort-by EQ "stacks-unit" THEN STRING(fg-rdtlh.stacks-unit,"-9999999999.99999")               ELSE ~
     IF lv-sort-by EQ "job-no"      THEN STRING(fg-rcpth.job-no,"x(6)") + STRING(fg-rcpth.job-no2,"99") ELSE ~
     IF lv-sort-by EQ "po-no"       THEN STRING(INT(fg-rcpth.po-no),"9999999999")                       ELSE ~
+    IF lv-sort-by EQ "po-line"     THEN STRING(INT(fg-rcpth.po-line),"999")                            ELSE ~
     IF lv-sort-by EQ "stack-code"  THEN fg-rdtlh.stack-code                                            ELSE ~
     IF lv-sort-by EQ "tot-wt"      THEN string(fg-rdtlh.tot-wt)                                        ELSE ~
                                         STRING(INT(fg-rcpth.trans-date),"9999999999") + STRING(fg-rdtlh.trans-time) + fg-rdtlh.rec_key + STRING(fg-rcpth.r-no,"9999999999")
@@ -171,13 +172,13 @@ fg-rdtlh.tot-wt fg-rdtlh.user-id fg-rcpth.b-no fg-rcpth.pur-uom ~
 display-ship() @ bol-ship fg-rcpth.post-date get-vend-no () @ vend-no ~
 get-vend-info () @ vend-name get-fg-qty (1) @ iBinQtyBef ~
 get-fg-qty (2) @ iBinQty fg-rdtlh.reject-code[1] fg-rdtlh.enteredBy ~
-fg-rdtlh.enteredDT 
+fg-rdtlh.enteredDT fg-rcpth.po-line
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table fg-rcpth.i-no ~
 fg-rcpth.po-no fg-rcpth.job-no fg-rcpth.job-no2 fg-rcpth.trans-date ~
 fg-rcpth.rita-code fg-rdtlh.cust-no fg-rdtlh.loc fg-rdtlh.loc-bin ~
 fg-rdtlh.qty fg-rdtlh.tag fg-rdtlh.cost fg-rdtlh.cases fg-rdtlh.qty-case ~
 fg-rdtlh.stacks-unit fg-rdtlh.partial fg-rdtlh.stack-code fg-rdtlh.tot-wt ~
-fg-rcpth.pur-uom fg-rcpth.post-date fg-rdtlh.reject-code[1] 
+fg-rcpth.pur-uom fg-rcpth.post-date fg-rdtlh.reject-code[1] fg-rcpth.po-line 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table fg-rcpth fg-rdtlh
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table fg-rcpth
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table fg-rdtlh
@@ -371,6 +372,7 @@ DEFINE QUERY Browser-Table FOR
       fg-rcpth
     FIELDS(fg-rcpth.i-no
       fg-rcpth.po-no
+      fg-rcpth.po-line
       fg-rcpth.job-no
       fg-rcpth.job-no2
       fg-rcpth.trans-date
@@ -388,6 +390,8 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       fg-rcpth.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       fg-rcpth.po-no COLUMN-LABEL "Vendor PO#" FORMAT "x(9)":U
+            LABEL-BGCOLOR 14
+      fg-rcpth.po-line COLUMN-LABEL "PO Ln" FORMAT ">99":U
             LABEL-BGCOLOR 14
       fg-rcpth.job-no FORMAT "x(6)":U WIDTH 8 LABEL-BGCOLOR 14
       fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14
@@ -450,6 +454,7 @@ DEFINE BROWSE Browser-Table
   ENABLE
       fg-rcpth.i-no
       fg-rcpth.po-no
+      fg-rcpth.po-line
       fg-rcpth.job-no
       fg-rcpth.job-no2
       fg-rcpth.trans-date
@@ -674,6 +679,8 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
 "fg-rdtlh.enteredBy" "Scanned By" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[34]   > ASI.fg-rdtlh.enteredDT
 "fg-rdtlh.enteredDT" "Scan Date/Time" ? "datetime" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[35]   > ASI.fg-rcpth.po-line
+"fg-rcpth.po-line" "Po Ln" ">99" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -2053,6 +2060,7 @@ PROCEDURE set-read-only :
     ASSIGN
      fg-rcpth.i-no:READ-ONLY IN BROWSE {&browse-name}        = ip-log
      fg-rcpth.po-no:READ-ONLY IN BROWSE {&browse-name}       = ip-log
+     fg-rcpth.po-line:READ-ONLY IN BROWSE {&browse-name}     = ip-log
      fg-rcpth.job-no:READ-ONLY IN BROWSE {&browse-name}      = ip-log
      fg-rcpth.job-no2:READ-ONLY IN BROWSE {&browse-name}     = ip-log
      fg-rcpth.rita-code:READ-ONLY IN BROWSE {&browse-name}   = ip-log
@@ -2123,6 +2131,7 @@ PROCEDURE update-record :
     ASSIGN
      b-rcpth.i-no        = fg-rcpth.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
      b-rcpth.po-no       = fg-rcpth.po-no:SCREEN-VALUE IN BROWSE {&browse-name}
+     b-rcpth.po-line     = INTEGER(fg-rcpth.po-line:SCREEN-VALUE IN BROWSE {&browse-name})
      b-rcpth.job-no      = fg-rcpth.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
      b-rcpth.job-no2     = INT(fg-rcpth.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
      b-rcpth.trans-date  = DATE(fg-rcpth.trans-date:SCREEN-VALUE IN BROWSE {&browse-name})

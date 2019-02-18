@@ -642,7 +642,8 @@ DEFINE BUFFER b-ap-pay FOR ap-pay.
 ON MOUSE-SELECT-CLICK OF tt-cleared IN BROWSE Browser-Table /* Reconciled */
     DO:
         DEFINE VARIABLE lv-bank LIKE ar-cash.bank-code NO-UNDO.
-
+        /* Make sure correct reconcile is read */
+        APPLY 'value-changed' TO BROWSE {&browse-name}.
 
         IF tt-cleared:SCREEN-VALUE IN BROWSE {&browse-name} = "Yes" THEN
             tt-cleared:SCREEN-VALUE IN BROWSE {&browse-name} = "No".
@@ -734,7 +735,8 @@ ON MOUSE-SELECT-CLICK OF tt-cleared IN BROWSE Browser-Table /* Reconciled */
                                 ar-mcash-ref.val[2] = INT(tt-cleared).
                             END.
         END.
-
+        /* Ensure browser saves change */
+        APPLY 'row-leave' TO BROWSE {&browse-name}.
         RETURN NO-APPLY.
     END.
 

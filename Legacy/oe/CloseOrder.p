@@ -408,30 +408,7 @@ PROCEDURE OrderLineCloseCheck :
     END.
                       
     /*Transfer types*/
-    ASSIGN 
-        iCountBoll  = 0
-        iCountTrans = 0.
-    FOR EACH oe-boll
-        WHERE oe-boll.company  EQ ipbf-oe-ordl.company
-        AND oe-boll.ord-no   EQ ipbf-oe-ordl.ord-no
-        AND oe-boll.line     EQ ipbf-oe-ordl.line
-        AND oe-boll.i-no     EQ ipbf-oe-ordl.i-no
-        USE-INDEX ord-no
-        NO-LOCK:
-        iCountBoll = iCountBoll + 1.
-        IF oe-boll.s-code EQ 'T' THEN 
-        DO:
-            iCountTrans = iCountTrans + 1.
-        END.
-    
-    END.
-    IF iCountBoll GT 0 AND iCountBoll = iCountTrans THEN 
-        lAllTransfers = YES.
-    ELSE 
-        lAllTransfers = NO.
-    
-    IF oe-ord.type EQ "T" 
-        OR lAllTransfers THEN 
+    IF oe-ord.type EQ "T" THEN 
     DO:
 
         FOR EACH oe-boll

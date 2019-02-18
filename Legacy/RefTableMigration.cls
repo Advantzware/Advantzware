@@ -3681,36 +3681,82 @@ CLASS RefTableMigration:
         RETURN iCnt.
     END METHOD. /*e-item*/
     METHOD PUBLIC INTEGER CevEst3(INPUT ipCount AS INTEGER):
+        /* NOTE: there are ONE or TWO reftables involved in this conversion.  The first handles inks 1-12;
+        the second handles any inks #13 or greater.  See ce/v-est3.w for usage. */
+
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
         DEFINE BUFFER reftable1 FOR reftable1.
         DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER b-rt FOR reftable.
         DEFINE BUFFER eb  FOR eb.
         
         DISABLE TRIGGERS FOR LOAD OF reftable.        
         DISABLE TRIGGERS FOR LOAD OF eb.
+        DISABLE TRIGGERS FOR LOAD OF b-rt.
+        
         ASSIGN iProcessCount = 0.
-        FOR EACH reftable WHERE reftable.reftable = "ce/v-est3.w Unit#"
-            NO-LOCK:
-            DO TRANSACTION:    
-                FIND FIRST eb WHERE eb.company     = reftable.company
-                                AND eb.est-no      = reftable.loc
-                                AND eb.form-no     = int(reftable.code2)
-                                AND eb.blank-no    = int(reftable.code2)
-                    EXCLUSIVE-LOCK NO-ERROR.
+        FOR EACH reftable NO-LOCK WHERE 
+            reftable.reftable EQ "ce/v-est3.w Unit#": /* Unit#, NOT Unit#1 */
+            DO TRANSACTION:  
+                ASSIGN 
+                    icnt = icnt + 1.  
+                FIND FIRST eb EXCLUSIVE WHERE 
+                    eb.company     EQ reftable.company AND 
+                    eb.est-no      EQ reftable.loc AND 
+                    eb.form-no     EQ int(reftable.code) AND 
+                    eb.blank-no    EQ int(reftable.code2)
+                    NO-ERROR.
                 IF AVAILABLE eb THEN DO:   
-                    DO i = 1 to 20: 
-                        IF eb.side[i] EQ "" THEN ASSIGN eb.side[i] = reftable.dscr.
-                        IF eb.unitNo[i] EQ 0 THEN ASSIGN eb.unitNo[i] = reftable.val[i].                                      
+                    DO i = 1 to 12: 
+                        /* Load 'side' value if empty or user hasn't updated manually */
+                        IF eb.side[i] NE "" AND LENGTH(eb.side[i]) EQ 1 AND LENGTH(reftable.dscr) NE 1 THEN.
+                        ELSE ASSIGN eb.side[i] = SUBSTRING(reftable.dscr,i,1).
+                        /* Load 'unit' value if 0 and user hasn't updated manually */
+                        IF eb.unitNo[i] NE 0 AND eb.unitNo[i] NE reftable.val[i] THEN. 
+                        ELSE ASSIGN eb.unitNo[i] = reftable.val[i].                                      
                     END.
-                    ASSIGN iProcessCount = iProcessCount + 1.  
+
+                    /* Find the second reftable, if it exists */
+                    FIND FIRST b-rt EXCLUSIVE WHERE 
+                        b-rt.reftable EQ "ce/v-est3.w Unit#1" AND   /* Unit#1, NOT Unit# */ 
+                        b-rt.company  EQ eb.company AND 
+                        b-rt.loc      EQ eb.est-no  AND 
+                        b-rt.code     EQ STRING(eb.form-no,"9999999999") AND 
+                        b-rt.code2    EQ STRING(eb.blank-no,"9999999999")
+                        NO-ERROR.            
+                    IF AVAIL b-rt THEN DO i = 13 to 20: 
+                        /* Load 'side' value if empty or user hasn't updated manually */
+                        IF eb.side[i] NE "" AND LENGTH(eb.side[i]) EQ 1 AND LENGTH(b-rt.dscr) NE 1 THEN.
+                        ELSE ASSIGN eb.side[i] = SUBSTRING(b-rt.dscr,i,1).
+                        /* Load 'unit' value if 0 and user hasn't updated manually */
+                        IF eb.unitNo[i] NE 0 AND eb.unitNo[i] NE b-rt.val[i] THEN. 
+                        ELSE ASSIGN eb.unitNo[i] = b-rt.val[i - 12].
+                        CREATE reftable1.
+                        BUFFER-COPY b-rt TO reftable1.
+                        RELEASE reftable1.
+                        DELETE b-rt.
+                    END.
+                    
+                    ASSIGN 
+                        iProcessCount = iProcessCount + 1.  
                 END.
                 FIND CURRENT eb NO-LOCK NO-ERROR.    
-                RELEASE eb.      
-            END.
+                RELEASE eb. 
+                
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                
+            END. /* Transaction */
         END.  /*FOR EACH reftable*/          
         RETURN iCnt.
     END METHOD. /*CeVest*/
+    
     METHOD PUBLIC INTEGER v10TaxCode(INPUT ipCount AS INTEGER):
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         DEFINE BUFFER reftable1 FOR reftable1.

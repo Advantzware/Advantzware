@@ -35,7 +35,7 @@ ELSE DO:
   IF v-printline >= 40 THEN DO:
         v-printline = 0.
         PAGE {1}.
-        {oe/rep/bolxpr22.i}
+        {oe/rep/bolchit2.i}
   END.
 
   if tt-boll.qty-case ne 0 and tt-boll.cases ne 0 then do:
@@ -126,7 +126,7 @@ ELSE DO:
     IF v-printline >= 40 THEN DO:
        v-printline = 0.
        PAGE {1}.
-       {oe/rep/bolxpr22.i}
+       {oe/rep/bolchit2.i}
     END.
     v-tot-cases = v-tot-cases + w2.cases.
 
@@ -167,7 +167,7 @@ ELSE DO:
       IF v-printline >= 40 THEN DO:
         v-printline = 0.
         PAGE {1}.
-        {oe/rep/bolxpr22.i}
+        {oe/rep/bolchit2.i}
       END.
       display {1}
               oe-ordl.i-no                            when i eq 2
@@ -201,7 +201,7 @@ ELSE DO:
     IF v-printline >= 40 THEN DO:
         v-printline = 0.
         PAGE {1}.
-        {oe/rep/bolxpr22.i}
+        {oe/rep/bolchit2.i}
     END.
 
     display {1}

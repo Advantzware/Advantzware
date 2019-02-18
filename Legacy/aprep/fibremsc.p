@@ -49,10 +49,19 @@ DO copy-count = 1 TO s-copies:
               "<R13><C5.5>" v-taxid FORMAT "X(15)"
               "<C22.5>" tt-1099-m.vend-tax-id FORMAT "X(15)"
               "<R16><C5.5>" tt-1099-m.vend-name FORMAT "X(30)"
-              "<R18.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99"
               "<R20><C5.5>" tt-1099-m.vend-add1 FORMAT "X(30)"
               "<R21><C5.5>" tt-1099-m.vend-add2 FORMAT "X(30)"
               "<R23><C5.5>" tt-1099-m.vend-city-line FORMAT "X(30)".
+
+          IF tt-1099-m.vend-box EQ "3" OR tt-1099-m.vend-box EQ "Y" THEN
+              PUT "<R18.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" .
+          ELSE IF tt-1099-m.vend-box EQ "1" THEN
+              PUT "<R10.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" .
+          ELSE IF tt-1099-m.vend-box EQ "2" THEN
+              PUT "<R14.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
+          ELSE IF tt-1099-m.vend-box EQ "7" THEN
+              PUT "<R26.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
+
              IF NOT LAST(tt-1099-m.vend-no) THEN DO:
                  IF last-of(tt-1099-m.vend-no) THEN DO:
                      top-flag = NO.
@@ -69,10 +78,18 @@ DO copy-count = 1 TO s-copies:
               "<R46><C5.5>" v-taxid FORMAT "X(15)"
               "<C22.5>" tt-1099-m.vend-tax-id FORMAT "X(15)"
               "<R49><C5.5>" tt-1099-m.vend-name FORMAT "X(30)"
-              "<R51.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99"
               "<R53><C5.5>" tt-1099-m.vend-add1 FORMAT "X(30)"
               "<R54><C5.5>" tt-1099-m.vend-add2 FORMAT "X(30)" 
               "<R56><C5.5>" tt-1099-m.vend-city-line FORMAT "X(30)".
+
+          IF tt-1099-m.vend-box EQ "3" OR tt-1099-m.vend-box EQ "Y" THEN
+              PUT "<R51.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" .
+          ELSE IF tt-1099-m.vend-box EQ "1" THEN
+              PUT "<R43.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
+          ELSE IF tt-1099-m.vend-box EQ "2" THEN
+              PUT "<R47.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
+          ELSE IF tt-1099-m.vend-box EQ "7" THEN
+              PUT "<R58.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
           PAGE.
        END.
    END.

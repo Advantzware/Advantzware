@@ -1015,7 +1015,7 @@ PROCEDURE local-change-page :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var ls-est-no as cha no-undo.
-  
+  DEFINE VARIABLE rRowid AS ROWID NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
   
   run get-attribute ("current-page").
@@ -1044,11 +1044,31 @@ PROCEDURE local-change-page :
         END.
      END.
   end.
-         
+
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  if li-cur-page = 6 then do:  /* estimate */
+     run get-link-handle in adm-broker-hdl (this-procedure,"estimate-target",output char-hdl).
+     if valid-handle(widget-handle(char-hdl)) then do:
+         RUN get-line-status in widget-handle(char-hdl) (output rRowid).
+            FIND FIRST oe-ordl NO-LOCK
+                WHERE oe-ordl.company = g_company AND
+                ROWID(oe-ordl) = rRowid  NO-ERROR.
+            IF AVAIL oe-ordl AND( oe-ordl.opened EQ NO OR oe-ordl.stat = "C") THEN do:
+                RUN set-buttons IN h_p-orel ('disable-all').
+                RUN set-buttons IN h_p-obol ('disable-all').
+            END.
+            ELSE DO:
+               RUN set-buttons IN h_p-orel ('initial').
+               RUN set-buttons IN h_p-obol ('initial').
+            END.
+     END.
+  END.
+
+
   {methods/winReSizePgChg.i}
   SESSION:SET-WAIT-STATE('').
 END PROCEDURE.

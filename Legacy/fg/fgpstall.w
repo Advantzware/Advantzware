@@ -229,18 +229,19 @@ RUN methods/prgsecur.p
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-30 RECT-31 RECT-32 ~
-v-post-date begin_fg-r-no end_fg-r-no begin_userid end_userid ldt-from ~
-ldt-to begin_job-no end_job-no begin_i-no end_i-no end_whs begin_whs ~
-tg-recalc-cost rd_print rd-Itm#Cst# t-receipt rd-ItmPo t-ship rd-UOMJob ~
-t-trans t-adj tb_glnum t-ret tb_grndtotal tb_totCstVal tgIssue td-show-parm ~
-rd-dest lv-ornt lv-font-no lines-per-page tb_excel tb_runExcel fi_file ~
-Btn_OK Btn_Cancel 
+v-post-date begin_fg-r-no end_fg-r-no begin_userid end_userid begin_created ~
+end_created ldt-from ldt-to begin_job-no end_job-no begin_i-no end_i-no ~
+end_whs begin_whs tg-recalc-cost rd_print rd-Itm#Cst# t-receipt rd-ItmPo ~
+t-ship rd-UOMJob t-trans t-adj tb_glnum t-ret tb_grndtotal tb_totCstVal ~
+tgIssue td-show-parm rd-dest lv-ornt lv-font-no lines-per-page tb_excel ~
+tb_runExcel fi_file Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS v-post-date begin_fg-r-no end_fg-r-no ~
-begin_userid end_userid ldt-from ldt-to begin_job-no end_job-no begin_i-no ~
-end_i-no end_whs begin_whs tg-recalc-cost v-trans-lbl tgl-itemCD rd_print ~
-rd-Itm#Cst# t-receipt rd-ItmPo t-ship rd-UOMJob t-trans t-adj tb_glnum ~
-t-ret tb_grndtotal tb_totCstVal tgIssue td-show-parm rd-dest lv-ornt ~
-lv-font-no lines-per-page lv-font-name tb_excel tb_runExcel fi_file 
+begin_userid end_userid begin_created end_created ldt-from ldt-to ~
+begin_job-no end_job-no begin_i-no end_i-no end_whs begin_whs ~
+tg-recalc-cost v-trans-lbl tgl-itemCD rd_print rd-Itm#Cst# t-receipt ~
+rd-ItmPo t-ship rd-UOMJob t-trans t-adj tb_glnum t-ret tb_grndtotal ~
+tb_totCstVal tgIssue td-show-parm rd-dest lv-ornt lv-font-no lines-per-page ~
+lv-font-name tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -251,35 +252,26 @@ lv-font-no lines-per-page lv-font-name tb_excel tb_runExcel fi_file
 
 /* ************************  Function Prototypes ********************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnCheckSys C-Win
-FUNCTION fnCheckSys RETURNS LOGICAL 
-    (INPUT cNK1 AS CHARACTER  ) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnCheckSys C-Win 
+FUNCTION fnCheckSys RETURNS LOGICAL
+    (INPUT cNK1 AS CHARACTER   ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnValidateFgAssembly C-Win 
+FUNCTION fnValidateFgAssembly RETURNS LOGICAL
+    (  ) FORWARD.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnValidateFgAssembly C-Win
-FUNCTION fnValidateFgAssembly RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnValidateTransfers C-Win 
+FUNCTION fnValidateTransfers RETURNS LOGICAL
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnValidateTransfers C-Win
-FUNCTION fnValidateTransfers RETURNS LOGICAL 
-  (  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-act-rel-qty C-Win 
 FUNCTION get-act-rel-qty RETURNS INTEGER
@@ -333,6 +325,11 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
+DEFINE VARIABLE begin_created AS CHARACTER FORMAT "X(8)":U 
+     LABEL "From Created ID" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
+
 DEFINE VARIABLE begin_fg-r-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "From Seq#" 
      VIEW-AS FILL-IN 
@@ -355,6 +352,11 @@ DEFINE VARIABLE begin_userid AS CHARACTER FORMAT "X(8)":U
 
 DEFINE VARIABLE begin_whs AS CHARACTER FORMAT "X(5)":U 
      LABEL "From Warehouse" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_created AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
+     LABEL "To Created ID" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
@@ -487,76 +489,76 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 96 BY 17.38.
+     SIZE 96 BY 18.57.
 
-DEFINE VARIABLE t-adj AS LOGICAL INITIAL NO 
+DEFINE VARIABLE t-adj AS LOGICAL INITIAL no 
      LABEL "Adjustments" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .91 NO-UNDO.
 
-DEFINE VARIABLE t-receipt AS LOGICAL INITIAL NO 
+DEFINE VARIABLE t-receipt AS LOGICAL INITIAL no 
      LABEL "Receipts" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .91 NO-UNDO.
 
-DEFINE VARIABLE t-ret AS LOGICAL INITIAL NO 
+DEFINE VARIABLE t-ret AS LOGICAL INITIAL no 
      LABEL "Credit Returns" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .91 NO-UNDO.
 
-DEFINE VARIABLE t-ship AS LOGICAL INITIAL NO 
+DEFINE VARIABLE t-ship AS LOGICAL INITIAL no 
      LABEL "Shipments" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .91 NO-UNDO.
 
-DEFINE VARIABLE t-trans AS LOGICAL INITIAL NO 
+DEFINE VARIABLE t-trans AS LOGICAL INITIAL no 
      LABEL "Transfers" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .91 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_glnum AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_glnum AS LOGICAL INITIAL no 
      LABEL "Print GL Account Numbers?" 
      VIEW-AS TOGGLE-BOX
      SIZE 32 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_grndtotal AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_grndtotal AS LOGICAL INITIAL no 
      LABEL "Grand Total" 
      VIEW-AS TOGGLE-BOX
      SIZE 17 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_totCstVal AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_totCstVal AS LOGICAL INITIAL no 
      LABEL "Total Cost/Value" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .71 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL YES 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tg-recalc-cost AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tg-recalc-cost AS LOGICAL INITIAL no 
      LABEL "Recalc Cost From History?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tgIssue AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tgIssue AS LOGICAL INITIAL no 
      LABEL "Issue Farm Outs" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .91 NO-UNDO.
 
-DEFINE VARIABLE tgl-itemCD AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tgl-itemCD AS LOGICAL INITIAL no 
      LABEL "Item Code" 
      VIEW-AS TOGGLE-BOX
      SIZE 13.4 BY .81 NO-UNDO.
@@ -574,73 +576,84 @@ DEFINE FRAME FRAME-A
           "Enter the From Created ID"
      end_userid AT ROW 4.81 COL 69 COLON-ALIGNED HELP
           "Enter the To Created ID"
-     ldt-from AT ROW 5.76 COL 26 COLON-ALIGNED HELP
+     begin_created AT ROW 5.76 COL 26 COLON-ALIGNED HELP
+          "Enter the From Created ID" WIDGET-ID 36
+     end_created AT ROW 5.76 COL 69 COLON-ALIGNED HELP
+          "Enter the To Created ID" WIDGET-ID 38
+     ldt-from AT ROW 6.71 COL 26 COLON-ALIGNED HELP
           "Enter the From Date"
-     ldt-to AT ROW 5.76 COL 69 COLON-ALIGNED HELP
+     ldt-to AT ROW 6.71 COL 69 COLON-ALIGNED HELP
           "Enter the To Date"
-     begin_job-no AT ROW 6.71 COL 26 COLON-ALIGNED HELP
+     begin_job-no AT ROW 7.67 COL 26 COLON-ALIGNED HELP
           "Enter the From Job Number"
-     end_job-no AT ROW 6.71 COL 69 COLON-ALIGNED HELP
+     end_job-no AT ROW 7.67 COL 69 COLON-ALIGNED HELP
           "Enter the To Job Number"
-     begin_i-no AT ROW 7.67 COL 26 COLON-ALIGNED HELP
+     begin_i-no AT ROW 8.62 COL 26 COLON-ALIGNED HELP
           "Enter the From FG Item Number"
-     end_i-no AT ROW 7.67 COL 69 COLON-ALIGNED HELP
+     end_i-no AT ROW 8.62 COL 69 COLON-ALIGNED HELP
           "Enter the To FG Item Number"
-     end_whs AT ROW 8.62 COL 69 COLON-ALIGNED HELP
+     end_whs AT ROW 9.57 COL 69 COLON-ALIGNED HELP
           "Enter the To Warehouse" WIDGET-ID 4
-     begin_whs AT ROW 8.67 COL 26 COLON-ALIGNED HELP
+     begin_whs AT ROW 9.62 COL 26 COLON-ALIGNED HELP
           "Enter the from Warehouse" WIDGET-ID 2
-     tg-recalc-cost AT ROW 9.57 COL 28 WIDGET-ID 32
-     v-trans-lbl AT ROW 11.71 COL 2 NO-LABEL
-     tgl-itemCD AT ROW 11.71 COL 38 WIDGET-ID 16
-     rd_print AT ROW 11.71 COL 57.2 NO-LABEL
-     rd-Itm#Cst# AT ROW 12.57 COL 57.2 NO-LABEL WIDGET-ID 18
-     t-receipt AT ROW 12.67 COL 2
-     rd-ItmPo AT ROW 13.38 COL 57.2 NO-LABEL WIDGET-ID 26
-     t-ship AT ROW 13.52 COL 2
-     rd-UOMJob AT ROW 14.33 COL 57.2 NO-LABEL WIDGET-ID 22
-     t-trans AT ROW 14.38 COL 2
-     t-adj AT ROW 15.29 COL 2
-     tb_glnum AT ROW 15.38 COL 57.2
-     t-ret AT ROW 16.19 COL 2
-     tb_grndtotal AT ROW 16.24 COL 79
-     tb_totCstVal AT ROW 16.33 COL 57.2 WIDGET-ID 30
-     tgIssue AT ROW 17.05 COL 2 WIDGET-ID 34
-     td-show-parm AT ROW 19 COL 29
-     rd-dest AT ROW 19.48 COL 2 NO-LABEL
-     lv-ornt AT ROW 19.95 COL 29 NO-LABEL
-     lv-font-no AT ROW 21.14 COL 32 COLON-ALIGNED
-     lines-per-page AT ROW 21.14 COL 60 COLON-ALIGNED
-     lv-font-name AT ROW 22.33 COL 32 COLON-ALIGNED NO-LABEL
-     tb_excel AT ROW 23.43 COL 51
-     tb_runExcel AT ROW 23.43 COL 95 RIGHT-ALIGNED
-     fi_file AT ROW 24.38 COL 49 COLON-ALIGNED HELP
+     tg-recalc-cost AT ROW 10.71 COL 28 WIDGET-ID 32
+     v-trans-lbl AT ROW 12.86 COL 2 NO-LABEL
+     tgl-itemCD AT ROW 12.86 COL 38 WIDGET-ID 16
+     rd_print AT ROW 12.86 COL 57.2 NO-LABEL
+     rd-Itm#Cst# AT ROW 13.71 COL 57.2 NO-LABEL WIDGET-ID 18
+     t-receipt AT ROW 13.81 COL 2
+     rd-ItmPo AT ROW 14.52 COL 57.2 NO-LABEL WIDGET-ID 26
+     t-ship AT ROW 14.67 COL 2
+     rd-UOMJob AT ROW 15.48 COL 57.2 NO-LABEL WIDGET-ID 22
+     t-trans AT ROW 15.52 COL 2
+     t-adj AT ROW 16.43 COL 2
+     tb_glnum AT ROW 16.52 COL 57.2
+     t-ret AT ROW 17.33 COL 2
+     tb_grndtotal AT ROW 17.38 COL 79
+     tb_totCstVal AT ROW 17.48 COL 57.2 WIDGET-ID 30
+     tgIssue AT ROW 18.19 COL 2 WIDGET-ID 34
+     td-show-parm AT ROW 20.14 COL 29
+     rd-dest AT ROW 20.62 COL 2 NO-LABEL
+     lv-ornt AT ROW 21.1 COL 29 NO-LABEL
+     lv-font-no AT ROW 22.29 COL 32 COLON-ALIGNED
+     lines-per-page AT ROW 22.29 COL 60 COLON-ALIGNED
+     lv-font-name AT ROW 23.48 COL 32 COLON-ALIGNED NO-LABEL
+     tb_excel AT ROW 24.57 COL 51
+     tb_runExcel AT ROW 24.57 COL 95 RIGHT-ALIGNED
+     fi_file AT ROW 25.52 COL 49 COLON-ALIGNED HELP
           "Enter File Name"
-     Btn_OK AT ROW 25.76 COL 22
-     Btn_Cancel AT ROW 25.81 COL 57
-     "Trans Typ :" VIEW-AS TEXT
-          SIZE 12 BY .95 AT ROW 10.76 COL 2 WIDGET-ID 6
+     Btn_OK AT ROW 26.91 COL 22
+     Btn_Cancel AT ROW 26.95 COL 57
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.1 COL 1.8
           BGCOLOR 2 
      "Sort Options :" VIEW-AS TEXT
-          SIZE 15 BY .95 AT ROW 10.76 COL 37 WIDGET-ID 14
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 18.43 COL 1
-     "Print Options :" VIEW-AS TEXT
-          SIZE 15 BY .95 AT ROW 10.76 COL 55
+          SIZE 15 BY .95 AT ROW 11.91 COL 37 WIDGET-ID 14
      "This Procedure Will Post All Finished Goods Transactions" VIEW-AS TEXT
           SIZE 65 BY .95 AT ROW 1.71 COL 23.8
           FONT 6
-     RECT-6 AT ROW 18.33 COL 1
-     RECT-7 AT ROW 1 COL 1
-     RECT-30 AT ROW 10.67 COL 1.6 WIDGET-ID 8
-     RECT-31 AT ROW 10.62 COL 35 WIDGET-ID 10
-     RECT-32 AT ROW 10.67 COL 54 WIDGET-ID 12
+     "Print Options :" VIEW-AS TEXT
+          SIZE 15 BY .95 AT ROW 11.91 COL 55
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 19.57 COL 1
+     "Trans Typ :" VIEW-AS TEXT
+          SIZE 12 BY .95 AT ROW 11.91 COL 2 WIDGET-ID 6
+     RECT-6 AT ROW 19.48 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 96.4 BY 26.14.
+         SIZE 96.4 BY 27.57.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME FRAME-A
+     RECT-7 AT ROW 1 COL 1
+     RECT-30 AT ROW 11.81 COL 1.6 WIDGET-ID 8
+     RECT-31 AT ROW 11.76 COL 35 WIDGET-ID 10
+     RECT-32 AT ROW 11.81 COL 54 WIDGET-ID 12
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1.6 ROW 1.24
+         SIZE 96.4 BY 27.57.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -660,21 +673,21 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Finished Goods Posting"
-         HEIGHT             = 26.48
+         HEIGHT             = 27.95
          WIDTH              = 97.8
          MAX-HEIGHT         = 45.05
          MAX-WIDTH          = 256
          VIRTUAL-HEIGHT     = 45.05
          VIRTUAL-WIDTH      = 256
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -692,7 +705,11 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
+ASSIGN 
+       begin_created:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        begin_fg-r-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -719,6 +736,10 @@ ASSIGN
 ASSIGN 
        Btn_OK:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
+
+ASSIGN 
+       end_created:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
        end_fg-r-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -816,7 +837,7 @@ ASSIGN
        v-trans-lbl:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -830,7 +851,7 @@ THEN C-Win:HIDDEN = NO.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -932,6 +953,34 @@ DO:
     RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
     IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
                                   LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME begin_created
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_created C-Win
+ON HELP OF begin_created IN FRAME FRAME-A /* Font */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    run windows/l-users.w ("", output char-val).
+    IF char-val <> "" THEN ASSIGN begin_created:SCREEN-VALUE = ENTRY(1,char-val).
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_created
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_created C-Win
+ON HELP OF end_created IN FRAME FRAME-A /* Font */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    run windows/l-users.w ("", output char-val).
+    IF char-val <> "" THEN ASSIGN end_created:SCREEN-VALUE = ENTRY(1,char-val).
 
 END.
 
@@ -1276,28 +1325,6 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-Period C-Win 
-PROCEDURE check-Period :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR lv-period LIKE period.pnum NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:   
-    RUN sys/inc/valtrndt.p (cocode,
-                            DATE(v-post-date:SCREEN-VALUE),
-                            OUTPUT lv-period) NO-ERROR.
-    lInvalid = ERROR-STATUS:ERROR.
-    IF lInvalid THEN APPLY "entry" TO v-post-date.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-comp-tables C-Win 
 PROCEDURE build-comp-tables :
 /*------------------------------------------------------------------------------
@@ -1539,6 +1566,28 @@ PROCEDURE Check-Fgemail-Parm :
      ASSIGN gv-fgemail = (IF buf-sys-ctrl.int-fld = 1 THEN YES ELSE NO).
 
  RETURN.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-Period C-Win 
+PROCEDURE check-Period :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR lv-period LIKE period.pnum NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:   
+    RUN sys/inc/valtrndt.p (cocode,
+                            DATE(v-post-date:SCREEN-VALUE),
+                            OUTPUT lv-period) NO-ERROR.
+    lInvalid = ERROR-STATUS:ERROR.
+    IF lInvalid THEN APPLY "entry" TO v-post-date.
+  END.
 
 END PROCEDURE.
 
@@ -2625,20 +2674,21 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY v-post-date begin_fg-r-no end_fg-r-no begin_userid end_userid ldt-from 
-          ldt-to begin_job-no end_job-no begin_i-no end_i-no end_whs begin_whs 
-          tg-recalc-cost v-trans-lbl tgl-itemCD rd_print rd-Itm#Cst# t-receipt 
-          rd-ItmPo t-ship rd-UOMJob t-trans t-adj tb_glnum t-ret tb_grndtotal 
-          tb_totCstVal tgIssue td-show-parm rd-dest lv-ornt lv-font-no 
-          lines-per-page lv-font-name tb_excel tb_runExcel fi_file 
+  DISPLAY v-post-date begin_fg-r-no end_fg-r-no begin_userid end_userid 
+          begin_created end_created ldt-from ldt-to begin_job-no end_job-no 
+          begin_i-no end_i-no end_whs begin_whs tg-recalc-cost v-trans-lbl 
+          tgl-itemCD rd_print rd-Itm#Cst# t-receipt rd-ItmPo t-ship rd-UOMJob 
+          t-trans t-adj tb_glnum t-ret tb_grndtotal tb_totCstVal tgIssue 
+          td-show-parm rd-dest lv-ornt lv-font-no lines-per-page lv-font-name 
+          tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 RECT-30 RECT-31 RECT-32 v-post-date begin_fg-r-no 
-         end_fg-r-no begin_userid end_userid ldt-from ldt-to begin_job-no 
-         end_job-no begin_i-no end_i-no end_whs begin_whs tg-recalc-cost 
-         rd_print rd-Itm#Cst# t-receipt rd-ItmPo t-ship rd-UOMJob t-trans t-adj 
-         tb_glnum t-ret tb_grndtotal tb_totCstVal tgIssue td-show-parm rd-dest 
-         lv-ornt lv-font-no lines-per-page tb_excel tb_runExcel fi_file Btn_OK 
-         Btn_Cancel 
+         end_fg-r-no begin_userid end_userid begin_created end_created ldt-from 
+         ldt-to begin_job-no end_job-no begin_i-no end_i-no end_whs begin_whs 
+         tg-recalc-cost rd_print rd-Itm#Cst# t-receipt rd-ItmPo t-ship 
+         rd-UOMJob t-trans t-adj tb_glnum t-ret tb_grndtotal tb_totCstVal 
+         tgIssue td-show-parm rd-dest lv-ornt lv-font-no lines-per-page 
+         tb_excel tb_runExcel fi_file Btn_OK Btn_Cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -3841,11 +3891,13 @@ IF ip-run-what EQ "" THEN
         begin_i-no ,
         begin_job-no ,
         begin_userid ,
+        begin_created ,
         begin_whs ,
         end_fg-r-no ,
         end_i-no ,
         end_job-no ,
         end_userid ,
+        end_created ,
         end_whs ,
         fi_file ,
         ldt-from ,
@@ -4171,9 +4223,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ValidateFGItemRange C-Win 
 PROCEDURE ValidateFGItemRange :
 /*------------------------------------------------------------------------------
@@ -4217,12 +4266,10 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnCheckSys C-Win
-FUNCTION fnCheckSys RETURNS LOGICAL  
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnCheckSys C-Win 
+FUNCTION fnCheckSys RETURNS LOGICAL
     (INPUT cNK1 AS CHARACTER   ):
     /*------------------------------------------------------------------------------
      Purpose:
@@ -4240,15 +4287,12 @@ FUNCTION fnCheckSys RETURNS LOGICAL
     RETURN result.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnValidateFgAssembly C-Win
-FUNCTION fnValidateFgAssembly RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnValidateFgAssembly C-Win 
+FUNCTION fnValidateFgAssembly RETURNS LOGICAL
     (  ):
     /*------------------------------------------------------------------------------
      Purpose:
@@ -4294,15 +4338,12 @@ FUNCTION fnValidateFgAssembly RETURNS LOGICAL
     RETURN lSucceeded.
     
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnValidateTransfers C-Win
-FUNCTION fnValidateTransfers RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnValidateTransfers C-Win 
+FUNCTION fnValidateTransfers RETURNS LOGICAL
   (  ):
 /*------------------------------------------------------------------------------
  Purpose:
@@ -4367,14 +4408,12 @@ FUNCTION fnValidateTransfers RETURNS LOGICAL
                 END.
     END.
 
-	RETURN lTransferResult.
+        RETURN lTransferResult.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-act-rel-qty C-Win 
 FUNCTION get-act-rel-qty RETURNS INTEGER

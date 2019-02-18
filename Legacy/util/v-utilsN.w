@@ -126,12 +126,12 @@ DEFINE FRAME F-Main
      btnRun AT ROW 4.91 COL 17
      utilities.programName AT ROW 1.24 COL 18 COLON-ALIGNED HELP
           "Enter Utility Name"
-          LABEL "Program Name" FORMAT "x(16)"
+          LABEL "Program Name" FORMAT "x(32)"
           VIEW-AS FILL-IN 
           SIZE 31 BY 1
      utilities.module AT ROW 1.24 COL 60 COLON-ALIGNED HELP
           "Enter Module Code"
-          LABEL "Module" FORMAT "x(3)"
+          LABEL "Module" FORMAT "x(4)"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
      utilities.hotkey AT ROW 1.24 COL 82 COLON-ALIGNED

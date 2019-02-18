@@ -100,6 +100,8 @@ DEFINE VARIABLE cRtnChar        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE ls-full-img1    AS CHARACTER FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lPrintSecDscr   AS LOGICAL   NO-UNDO .
+DEFINE VARIABLE cEmail          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iIndex          AS INTEGER   NO-UNDO.
 {sys/inc/f16to32.i}
 {cecrep/jobtick2.i "new shared"}
 
@@ -131,12 +133,13 @@ DO:
         cust.active = "X" NO-LOCK NO-ERROR.
  
     IF AVAILABLE cust THEN
-        ASSIGN v-comp-add1  = cust.addr[1]
+        ASSIGN 
+            v-comp-add1  = cust.addr[1]
             v-comp-add2  = cust.addr[2]
             v-comp-add3  = cust.city + ", " + cust.state + "  " + cust.zip
             v-comp-add4  = "Phone:  " + string(cust.area-code,"(999)") + string(cust.phone,"999-9999") 
             v-comp-add5  = "Fax     :  " + string(cust.fax,"(999)999-9999") 
-            lv-email     = "Email:  " + cust.email 
+            lv-email     = "Email:  " + cEmail
             lv-comp-name = cust.NAME.
 END.
 
@@ -164,10 +167,16 @@ find first cust
     and cust.cust-no eq xquo.cust-no
     no-lock no-error.
 
-if available cust then
+if available cust THEN DO:
+    iIndex = INDEX(cust.email,";") .
+    IF iIndex GT 0 THEN
+        cEmail = SUBSTRING(cust.email,1,iIndex - 1 ) .
+    ELSE
+        cEmail = cust.email .
+
     v-over-under = trim(string(cust.over-pct,">>9%")) + "-" +
         trim(string(cust.under-pct,">>9%")).
-
+END.
 assign
     sold[5] = trim(string(xquo.sold-no))
     ship[5] = trim(string(xquo.ship-id))
