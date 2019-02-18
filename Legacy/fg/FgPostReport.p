@@ -29,11 +29,13 @@ DEFINE INPUT PARAMETER begin_fg-r-no  AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 0
 DEFINE INPUT PARAMETER begin_i-no     AS CHARACTER FORMAT "X(15)":U. 
 DEFINE INPUT PARAMETER begin_job-no   AS CHARACTER FORMAT "X(6)":U. 
 DEFINE INPUT PARAMETER begin_userid   AS CHARACTER FORMAT "X(8)":U. 
+DEFINE INPUT PARAMETER begin_created  AS CHARACTER FORMAT "X(8)":U.
 DEFINE INPUT PARAMETER begin_whs      AS CHARACTER FORMAT "X(5)":U. 
 DEFINE INPUT PARAMETER end_fg-r-no    AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 99999999. 
 DEFINE INPUT PARAMETER end_i-no       AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz". 
 DEFINE INPUT PARAMETER end_job-no     AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" .
 DEFINE INPUT PARAMETER end_userid     AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz". 
+DEFINE INPUT PARAMETER end_created    AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz". 
 DEFINE INPUT PARAMETER end_whs        AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz". 
 DEFINE INPUT PARAMETER fi_file        AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-fgpstall.csv". 
 DEFINE INPUT PARAMETER ldt-from       AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 .
@@ -415,8 +417,12 @@ DO li-loop = 1 TO NUM-ENTRIES(v-postlst):
         AND fg-rctd.loc       LE end_whs
         AND ((begin_userid    LE "" AND
         end_userid      GE "") OR
-        (fg-rctd.created-by GE begin_userid 
-        AND fg-rctd.created-by LE end_userid))
+        (fg-rctd.updated-by GE begin_userid 
+        AND fg-rctd.updated-by LE end_userid))
+        AND ((begin_created    LE "" AND
+        end_created      GE "") OR
+        (fg-rctd.created-by GE begin_created
+        AND fg-rctd.created-by LE end_created))
         USE-INDEX rita-code:
 
         RUN build-tables.
