@@ -830,6 +830,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetParamValueRowID s-object 
+PROCEDURE pGetParamValueRowID :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oprRowID AS ROWID NO-UNDO.
+    
+    oprRowID = ttDynParamValue.paramValueRowID.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSettings s-object 
 PROCEDURE pGetSettings :
 /*------------------------------------------------------------------------------
@@ -918,6 +934,8 @@ PROCEDURE pScheduleTask :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    RUN spSetParamValueID (ttDynParamValue.paramValueID).
+    RUN AOA/dynSched.w.
 
 END PROCEDURE.
 

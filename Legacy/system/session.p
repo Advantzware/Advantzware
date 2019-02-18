@@ -19,15 +19,16 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cMnemonic           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iParamValueID       AS INTEGER   NO-UNDO.
 /* cue card variables */
+DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lNext               AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 
 {system/ttSysCtrlUsage.i}
 
@@ -373,6 +374,27 @@ PROCEDURE spCueCardFrame:
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
     iphWidget:MOVE-TO-TOP ().
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spGetParamValueID) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetParamValueID Procedure
+PROCEDURE spGetParamValueID:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opiParamValueID AS INTEGER NO-UNDO.
+    
+    opiParamValueID = iParamValueID.
 
 END PROCEDURE.
 	
@@ -929,6 +951,27 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-spSetParamValueID) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetParamValueID Procedure
+PROCEDURE spSetParamValueID:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiParamValueID AS INTEGER NO-UNDO.
+    
+    iParamValueID = ipiParamValueID.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spSetTaskFilter) = 0 &THEN
 

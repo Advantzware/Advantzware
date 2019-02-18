@@ -561,6 +561,8 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 
+     btnRunNow AT ROW 19.81 COL 80 HELP
+          "Run Now" WIDGET-ID 634
      Task.cToTime AT ROW 4.33 COL 63 COLON-ALIGNED WIDGET-ID 628
           LABEL "To"
           VIEW-AS FILL-IN 
@@ -575,8 +577,6 @@ DEFINE FRAME viewFrame
      Task.dayOfWeek3 AT ROW 6 COL 60 WIDGET-ID 492
           VIEW-AS TOGGLE-BOX
           SIZE 12 BY .81
-     btnRunNow AT ROW 19.81 COL 80 HELP
-          "Run Now" WIDGET-ID 634
      Task.dayOfWeek4 AT ROW 6 COL 76 WIDGET-ID 494
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY .81
@@ -749,8 +749,6 @@ DEFINE FRAME viewFrame
           SIZE 16 BY 1
           BGCOLOR 15 
      btnCalendar-2 AT ROW 13.62 COL 30 WIDGET-ID 78
-     btnFirst AT ROW 19.81 COL 106 HELP
-          "First" WIDGET-ID 274
      endDateOption AT ROW 13.62 COL 33 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
      Task.taskFormat AT ROW 13.62 COL 81 NO-LABEL WIDGET-ID 608
@@ -762,38 +760,40 @@ DEFINE FRAME viewFrame
 "PDF", "PDF":U,
 "HTML", "HTML":U
           SIZE 51 BY 1
-     btnLast AT ROW 19.86 COL 130 HELP
-          "Last" WIDGET-ID 68
-     btnNext AT ROW 19.81 COL 122 HELP
-          "Next" WIDGET-ID 276
      Task.nextDate AT ROW 14.81 COL 12 COLON-ALIGNED WIDGET-ID 510
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     btnPrev AT ROW 19.81 COL 114 HELP
-          "Previous" WIDGET-ID 278
      Task.cNextTime AT ROW 14.81 COL 36 COLON-ALIGNED WIDGET-ID 596
           LABEL "Time"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 
+     btnFirst AT ROW 19.81 COL 106 HELP
+          "First" WIDGET-ID 274
      Task.lastDate AT ROW 16 COL 12 COLON-ALIGNED WIDGET-ID 508
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     btnAdd AT ROW 19.86 COL 23 HELP
-          "Add" WIDGET-ID 20
      Task.cLastTime AT ROW 16 COL 36 COLON-ALIGNED WIDGET-ID 594
           LABEL "Time"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 
-     btnCancel AT ROW 19.86 COL 55 HELP
-          "Cancel" WIDGET-ID 28
      Task.recipients AT ROW 17.19 COL 14 NO-LABEL WIDGET-ID 600
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 125 BY 2.14
           BGCOLOR 15 
+     btnLast AT ROW 19.86 COL 130 HELP
+          "Last" WIDGET-ID 68
+     btnNext AT ROW 19.81 COL 122 HELP
+          "Next" WIDGET-ID 276
+     btnPrev AT ROW 19.81 COL 114 HELP
+          "Previous" WIDGET-ID 278
+     btnAdd AT ROW 19.86 COL 23 HELP
+          "Add" WIDGET-ID 20
+     btnCancel AT ROW 19.86 COL 55 HELP
+          "Cancel" WIDGET-ID 28
      btnCopy AT ROW 19.86 COL 31 HELP
           "Copy" WIDGET-ID 24
      btnDelete AT ROW 19.86 COL 39 HELP
@@ -812,10 +812,10 @@ DEFINE FRAME viewFrame
           "Update/Save" WIDGET-ID 18
      "Recipients:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 17.19 COL 3 WIDGET-ID 602
-     "Frequency:" VIEW-AS TEXT
-          SIZE 11 BY 1 AT ROW 3.62 COL 2 WIDGET-ID 618
      "Format:" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 13.62 COL 72 WIDGET-ID 614
+     "Frequency:" VIEW-AS TEXT
+          SIZE 11 BY 1 AT ROW 3.62 COL 2 WIDGET-ID 618
      transPanel AT ROW 19.57 COL 14 WIDGET-ID 16
      navPanel AT ROW 19.57 COL 105 WIDGET-ID 280
      RECT-2 AT ROW 5.76 COL 27 WIDGET-ID 620

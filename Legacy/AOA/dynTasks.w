@@ -96,6 +96,8 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_usercols AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_userparam AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_usertasks AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
@@ -289,6 +291,32 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_usertasks ,
              h_folder , 'AFTER':U ).
     END. /* Page 1 */
+    WHEN 2 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'aoa/userparam.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_userparam ).
+       RUN set-position IN h_userparam ( 2.43 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 26.95 , 158.00 ) */
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_userparam ,
+             h_folder , 'AFTER':U ).
+    END. /* Page 2 */
+    WHEN 3 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'aoa/usercols.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_usercols ).
+       RUN set-position IN h_usercols ( 2.43 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 26.95 , 158.00 ) */
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_usercols ,
+             h_folder , 'AFTER':U ).
+    END. /* Page 3 */
 
   END CASE.
   /* Select a Startup page. */
@@ -415,11 +443,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetParamValueRowID W-Win 
+PROCEDURE pGetParamValueRowID :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oprRowID AS ROWID NO-UNDO.
+    
+    RUN pGetParamValueRowID IN h_userTasks (OUTPUT oprRowID).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSettings W-Win 
 PROCEDURE pGetSettings :
 DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
     IF NOT CAN-FIND(FIRST user-print
                     WHERE user-print.company    EQ g_company
@@ -546,6 +590,12 @@ PROCEDURE pWinReSize :
             dHeight = dHeight - 1.62
             dWidth  = dWidth  - 2
             .
+        IF NOT VALID-HANDLE(h_userParam) THEN
+        RUN init-pages ("2").
+        RUN pWinReSize IN h_userParam (dHeight, dWidth).
+        IF NOT VALID-HANDLE(h_userCols) THEN
+        RUN init-pages ("3").
+        RUN pWinReSize IN h_userCols (dHeight, dWidth).
         RUN pWinReSize IN h_userTasks (dHeight, dWidth).
         VIEW FRAME {&FRAME-NAME}.
     END. /* do with */

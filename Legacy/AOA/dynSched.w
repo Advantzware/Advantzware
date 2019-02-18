@@ -55,17 +55,18 @@ Task.dayOfWeek7
 {methods/prgsecur.i}
 {methods/defines/sortByDefs.i}
 
+DEFINE VARIABLE cMode              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSuperProcedures   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hAppSrvBin         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hContainer         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hHandle            AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hJasper            AS HANDLE    NO-UNDO.
+DEFINE VARIABLE idx                AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iParamValueID      AS INTEGER   NO-UNDO INITIAL ?.
 DEFINE VARIABLE iUserPrintOffSet   AS INTEGER   NO-UNDO INITIAL 5.
 DEFINE VARIABLE iUserSecurityLevel AS INTEGER   NO-UNDO INITIAL 9999.
-DEFINE VARIABLE cMode              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lContinue          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSortMove          AS LOGICAL   NO-UNDO INITIAL YES.
-DEFINE VARIABLE hContainer         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hAppSrvBin         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hJasper            AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cSuperProcedures   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE idx                AS INTEGER   NO-UNDO.
-DEFINE VARIABLE hHandle            AS HANDLE    NO-UNDO.
 
 DEFINE BUFFER bDynParamValue FOR dynParamValue.
 
@@ -137,8 +138,8 @@ AND AuditHdr.AuditType EQ "Task" NO-LOCK, ~
 &Scoped-define FIELDS-IN-QUERY-taskBrowse Task.scheduled Task.taskName fPrgmTitle(Task.prgmName) Task.frequency Task.cTaskTime Task.cFromTime Task.cToTime Task.dayOfWeek1 Task.dayOfWeek2 Task.dayOfWeek3 Task.dayOfWeek4 Task.dayOfWeek5 Task.dayOfWeek6 Task.dayOfWeek7 Task.lastOfMonth Task.taskFormat Task.nextDate Task.cNextTime Task.lastDate Task.cLastTime Task.startDate Task.endDate Task.taskID Task.module Task.prgmName Task.user-id Task.securityLevel Task.recipients   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-taskBrowse   
 &Scoped-define SELF-NAME taskBrowse
-&Scoped-define QUERY-STRING-taskBrowse FOR EACH Task WHERE Task.securityLevel LE iUserSecurityLevel   AND Task.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-taskBrowse OPEN QUERY {&SELF-NAME} FOR EACH Task WHERE Task.securityLevel LE iUserSecurityLevel   AND Task.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-taskBrowse FOR EACH Task WHERE (Task.paramValueID EQ iParamValueID OR iParamValueID EQ 0)   AND Task.securityLevel LE iUserSecurityLevel   AND Task.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-taskBrowse OPEN QUERY {&SELF-NAME} FOR EACH Task WHERE (Task.paramValueID EQ iParamValueID OR iParamValueID EQ 0)   AND Task.securityLevel LE iUserSecurityLevel   AND Task.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-taskBrowse Task
 &Scoped-define FIRST-TABLE-IN-QUERY-taskBrowse Task
 
@@ -641,8 +642,6 @@ DEFINE FRAME viewFrame
           LABEL "10"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnRunNow AT ROW 19.81 COL 80 HELP
-          "Run Now" WIDGET-ID 634
      Task.dayOfMonth[11] AT ROW 8.38 COL 52 WIDGET-ID 544
           LABEL "11"
           VIEW-AS TOGGLE-BOX
@@ -691,6 +690,8 @@ DEFINE FRAME viewFrame
           LABEL "22"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnRunNow AT ROW 19.81 COL 80 HELP
+          "Run Now" WIDGET-ID 634
      Task.dayOfMonth[23] AT ROW 10.29 COL 36 WIDGET-ID 576
           LABEL "23"
           VIEW-AS TOGGLE-BOX
@@ -764,14 +765,10 @@ DEFINE FRAME viewFrame
 "PDF", "PDF":U,
 "HTML", "HTML":U
           SIZE 51 BY 1
-     btnClose AT ROW 1 COL 136 HELP
-          "Close" WIDGET-ID 72
      Task.nextDate AT ROW 14.81 COL 12 COLON-ALIGNED WIDGET-ID 510
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     btnFirst AT ROW 19.81 COL 106 HELP
-          "First" WIDGET-ID 274
      Task.cNextTime AT ROW 14.81 COL 36 COLON-ALIGNED WIDGET-ID 596
           LABEL "Time"
           VIEW-AS FILL-IN 
@@ -790,6 +787,10 @@ DEFINE FRAME viewFrame
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 125 BY 2.14
           BGCOLOR 15 
+     btnClose AT ROW 1 COL 136 HELP
+          "Close" WIDGET-ID 72
+     btnFirst AT ROW 19.81 COL 106 HELP
+          "First" WIDGET-ID 274
      btnLast AT ROW 19.86 COL 130 HELP
           "Last" WIDGET-ID 68
      btnNext AT ROW 19.81 COL 122 HELP
@@ -818,10 +819,10 @@ DEFINE FRAME viewFrame
           "Update/Save" WIDGET-ID 18
      "Frequency:" VIEW-AS TEXT
           SIZE 11 BY 1 AT ROW 3.62 COL 2 WIDGET-ID 618
-     "Format:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 13.62 COL 72 WIDGET-ID 614
      "Recipients:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 17.19 COL 3 WIDGET-ID 602
+     "Format:" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 13.62 COL 72 WIDGET-ID 614
      transPanel AT ROW 19.57 COL 14 WIDGET-ID 16
      navPanel AT ROW 19.57 COL 105 WIDGET-ID 280
      RECT-2 AT ROW 5.76 COL 27 WIDGET-ID 620
@@ -1130,7 +1131,8 @@ AND AuditHdr.AuditType EQ ""Task"""
 /* Query rebuild information for BROWSE taskBrowse
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH Task
-WHERE Task.securityLevel LE iUserSecurityLevel
+WHERE (Task.paramValueID EQ iParamValueID OR iParamValueID EQ 0)
+  AND Task.securityLevel LE iUserSecurityLevel
   AND Task.allData MATCHES "*" + searchBar + "*"
  ~{&SORTBY-PHRASE}.
      _END_FREEFORM
@@ -1792,13 +1794,21 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
            NO-ERROR.
       IF AVAILABLE users THEN
       iUserSecurityLevel = users.securityLevel.
+      RUN spGetParamValueID (OUTPUT iParamValueID).
       RUN enable_UI.
       DYNAMIC-FUNCTION('fDateOptions',startDateOption:HANDLE).
       DYNAMIC-FUNCTION('fDateOptions',endDateOption:HANDLE).
       RUN pGetSettings (USERID("ASI")).
       APPLY "VALUE-CHANGED":U TO showTasks.
-      IF NOT AVAILABLE Task THEN
-      APPLY "CHOOSE":U TO btnView.
+      IF NOT AVAILABLE Task THEN DO:
+          APPLY "CHOOSE":U TO btnView.
+          IF iParamValueID NE 0 THEN DO:
+              APPLY "CHOOSE":U TO btnAdd.
+              Task.taskID:SCREEN-VALUE = STRING(iParamValueID).
+              APPLY "LEAVE":U TO Task.taskID.
+              APPLY "ENTRY":U TO Task.taskName.
+          END. /* if ne 0 */
+      END. /* if not avail */
   END. /* if continue */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
