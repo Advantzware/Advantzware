@@ -221,6 +221,7 @@
        WHEN "Delta" THEN ASSIGN v-program = "oe/rep/boldelta.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "Xprint2" OR WHEN "bolfmt 2" THEN ASSIGN v-program = "oe/rep/bolxprt2.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "bolfmt 20" THEN ASSIGN v-program = "oe/rep/bolxprt20.p" is-xprint-form = YES lines-per-page = 66.
+       WHEN "bolfmt 30" THEN ASSIGN v-program = "oe/rep/bolstnd30.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "LancoYork" THEN ASSIGN v-program = "oe/rep/bollanyork.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "Chillicothe" THEN ASSIGN v-program = "oe/rep/bolchict.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "NSTOCK" THEN ASSIGN v-program = "oe/rep/bolnstok.p" is-xprint-form = YES lines-per-page = 80.
