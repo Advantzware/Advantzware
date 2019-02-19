@@ -44,9 +44,9 @@ DEFINE VARIABLE char-hdl      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMnemonic     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cModule       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cOutputFormat AS CHARACTER NO-UNDO INITIAL
-    "Grid,CSV,XLS,DOCX,PDF,HTML,Viewer".
+    "Grid,CSV,XLS,DOCX,PDF,HTML,View".
 DEFINE VARIABLE cOutputImage  AS CHARACTER NO-UNDO INITIAL
-    "table.ico,CSV.jpg,XLS.jpg,DOCX.jpg,PDF.jpg,html_tag.ico,jss_icon_32.ico".
+    "table.ico,CSV.jpg,XLS.jpg,DOCX.jpg,PDF.jpg,html_tag.ico,table.ico".
 DEFINE VARIABLE cPrgmName     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cParamTitle   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID       AS CHARACTER NO-UNDO.
@@ -67,7 +67,7 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD outputFormat     LIKE dynParamValue.outputFormat
     FIELD paramValueRowID    AS ROWID
     FIELD allData            AS CHARACTER
-        INDEX mnemonic IS PRIMARY mnemonic paramTitle paramValueID
+        INDEX mnemonic IS PRIMARY mnemonic paramTitle paramValueID user-id
         INDEX paramValueRowID paramValueRowID
         .
 
@@ -90,7 +90,7 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
 &Scoped-define INTERNAL-TABLES ttDynParamValue
 
 /* Definitions for BROWSE browseParamValue                              */
-&Scoped-define FIELDS-IN-QUERY-browseParamValue ttDynParamValue.mnemonic ttDynParamValue.paramTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.prgmName ttDynParamValue.outputFormat   
+&Scoped-define FIELDS-IN-QUERY-browseParamValue ttDynParamValue.mnemonic ttDynParamValue.paramTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.outputFormat ttDynParamValue.prgmName   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseParamValue   
 &Scoped-define SELF-NAME browseParamValue
 &Scoped-define QUERY-STRING-browseParamValue FOR EACH ttDynParamValue WHERE ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramTitle BEGINS cParamTitle   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
@@ -104,13 +104,15 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     ~{&OPEN-QUERY-browseParamValue}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnCopyTask searchBar browseParamValue ~
-btnDeleteTask btnOutputFormat btnRunTask btnScheduleTask btnRestoreDefaults ~
-btnSortMove 
+&Scoped-Define ENABLED-OBJECTS btnRunTask btnOutputFormat searchBar ~
+browseParamValue btnCopyTask btnDeleteTask btnScheduleTask ~
+btnRestoreDefaults btnSortMove 
 &Scoped-Define DISPLAYED-OBJECTS searchBar 
 
 /* Custom List Definitions                                              */
-/* List-1,List-2,List-3,List-4,List-5,List-6                            */
+/* taskObjects,List-2,List-3,List-4,List-5,List-6                       */
+&Scoped-define taskObjects btnRunTask btnOutputFormat btnCopyTask ~
+btnDeleteTask btnScheduleTask 
 &Scoped-define List-3 browseParamValue 
 &Scoped-define List-4 browseParamValue 
 
@@ -136,7 +138,8 @@ DEFINE BUTTON btnDeleteTask
 DEFINE BUTTON btnOutputFormat 
      IMAGE-UP FILE "Graphics/32x32/table.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 8 BY 1.91 TOOLTIP "Default Output Format".
+     CONTEXT-HELP-ID 0
+     SIZE 8 BY 1.91 TOOLTIP "Run Now".
 
 DEFINE BUTTON btnRestoreDefaults 
      IMAGE-UP FILE "Graphics/16x16/rename.jpg":U NO-FOCUS FLAT-BUTTON
@@ -207,8 +210,8 @@ ttDynParamValue.paramDescription LABEL-BGCOLOR 14
 ttDynParamValue.module LABEL-BGCOLOR 14
 ttDynParamValue.user-id LABEL-BGCOLOR 14
 ttDynParamValue.paramValueID LABEL-BGCOLOR 14
-ttDynParamValue.prgmName LABEL-BGCOLOR 14
 ttDynParamValue.outputFormat
+ttDynParamValue.prgmName LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 122 BY 25.95
@@ -218,17 +221,17 @@ ttDynParamValue.outputFormat
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnCopyTask AT ROW 16.95 COL 27 HELP
-          "Copy Task" WIDGET-ID 258
+     btnRunTask AT ROW 15.05 COL 27 HELP
+          "Run Task" WIDGET-ID 250
+     btnOutputFormat AT ROW 20.76 COL 27 HELP
+          "Run Now" WIDGET-ID 256
      searchBar AT ROW 1 COL 52 COLON-ALIGNED HELP
           "Search" WIDGET-ID 6
      browseParamValue AT ROW 1.95 COL 37 WIDGET-ID 500
+     btnCopyTask AT ROW 16.95 COL 27 HELP
+          "Copy Task" WIDGET-ID 258
      btnDeleteTask AT ROW 18.86 COL 27 HELP
           "Delete Task" WIDGET-ID 260
-     btnOutputFormat AT ROW 20.76 COL 27 HELP
-          "Default Output Format" WIDGET-ID 256
-     btnRunTask AT ROW 15.05 COL 27 HELP
-          "Run Task" WIDGET-ID 250
      btnScheduleTask AT ROW 22.67 COL 27 HELP
           "Schedule Task" WIDGET-ID 252
      btnRestoreDefaults AT ROW 1 COL 37 HELP
@@ -262,7 +265,8 @@ DEFINE FRAME filterFrame
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1.95
          SIZE 34 BY 9.76
-         TITLE "Filters" WIDGET-ID 600.
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE BGCOLOR 15 FGCOLOR 1 "Filters" WIDGET-ID 600.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -330,6 +334,16 @@ ASSIGN
        browseParamValue:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE
        browseParamValue:COLUMN-RESIZABLE IN FRAME F-Main       = TRUE.
 
+/* SETTINGS FOR BUTTON btnCopyTask IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnDeleteTask IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnOutputFormat IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnRunTask IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnScheduleTask IN FRAME F-Main
+   1                                                                    */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME filterFrame
@@ -425,13 +439,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseParamValue s-object
 ON VALUE-CHANGED OF browseParamValue IN FRAME F-Main /* Tasks */
 DO:
-    btnOutputFormat:LOAD-IMAGE("Graphics/32x32/" +
-        ENTRY(LOOKUP(ttDynParamValue.outputFormat,cOutputFormat),cOutputImage)).
-    ASSIGN
-        btnOutputFormat:HIDDEN = ttDynParamValue.user-id EQ "_default"
-        btnDeleteTask:HIDDEN   = ttDynParamValue.user-id EQ "_default"
-        btnScheduleTask:HIDDEN = ttDynParamValue.paramValueID EQ 0
-        .
+    IF AVAILABLE ttDynParamValue THEN DO:
+        btnOutputFormat:LOAD-IMAGE("Graphics/32x32/" +
+            ENTRY(LOOKUP(ttDynParamValue.outputFormat,cOutputFormat),cOutputImage)).
+        ASSIGN
+            btnOutputFormat:HIDDEN = ttDynParamValue.user-id EQ "_default"
+            btnDeleteTask:HIDDEN   = ttDynParamValue.user-id EQ "_default"
+            btnScheduleTask:HIDDEN = ttDynParamValue.paramValueID EQ 0
+            .
+    END. /* if avail */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -442,6 +458,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCopyTask s-object
 ON CHOOSE OF btnCopyTask IN FRAME F-Main /* Copy Task */
 DO:
+    IF AVAILABLE ttDynParamValue THEN
     RUN pCopyTask.
     APPLY "VALUE-CHANGED":U TO browseParamValue.
 END.
@@ -454,6 +471,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDeleteTask s-object
 ON CHOOSE OF btnDeleteTask IN FRAME F-Main /* Delete Task */
 DO:
+    IF AVAILABLE ttDynParamValue THEN
     RUN pDeleteTask.
     APPLY "VALUE-CHANGED":U TO browseParamValue.
 END.
@@ -466,6 +484,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOutputFormat s-object
 ON CHOOSE OF btnOutputFormat IN FRAME F-Main
 DO:
+    IF AVAILABLE ttDynParamValue THEN
     RUN pRunTask (NO).
     APPLY "VALUE-CHANGED":U TO browseParamValue.
 END.
@@ -489,6 +508,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRunTask s-object
 ON CHOOSE OF btnRunTask IN FRAME F-Main /* Run Task */
 DO:
+    IF AVAILABLE ttDynParamValue THEN
     RUN pRunTask (YES).
     APPLY "VALUE-CHANGED":U TO browseParamValue.
 END.
@@ -501,6 +521,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnScheduleTask s-object
 ON CHOOSE OF btnScheduleTask IN FRAME F-Main /* Schedule Task */
 DO:
+    IF AVAILABLE ttDynParamValue THEN
     RUN pScheduleTask.
 END.
 
@@ -677,6 +698,12 @@ PROCEDURE local-initialize :
   END. /* with frame */
   {methods/run_link.i "CONTAINER" "pGetCompany" "(OUTPUT cCompany)"}
   RUN pGetParamValue.
+  /*
+  IF NOT AVAILABLE dynParamValue THEN
+  DO WITH FRAME {&FRAME-NAME}:
+      HIDE {&taskObjects}.
+  END. /* if not avail */
+  */
 
 END PROCEDURE.
 
@@ -855,6 +882,36 @@ PROCEDURE pGetSettings :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
 
+    DEFINE VARIABLE hColumn AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE kdx     AS INTEGER NO-UNDO.
+    
+    IF NOT CAN-FIND(FIRST user-print
+                    WHERE user-print.company    EQ cCompany
+                      AND user-print.program-id EQ "{&programID}"
+                      AND user-print.user-id    EQ "_default") THEN
+    RUN pSaveSettings ("_default").
+    FIND FIRST user-print NO-LOCK
+         WHERE user-print.company    EQ cCompany
+           AND user-print.program-id EQ "{&program-id}"
+           AND user-print.user-id    EQ ipcUserID
+         NO-ERROR.
+    IF AVAILABLE user-print THEN DO:
+        DO idx = 1 TO EXTENT(user-print.field-name):
+            IF user-print.field-name[idx] EQ "" THEN LEAVE.
+            /* set browse column width, hidden & order */
+            DO kdx = 1 TO BROWSE browseParamValue:NUM-COLUMNS:
+                IF user-print.field-name[idx] EQ BROWSE browseParamValue:GET-BROWSE-COLUMN(kdx):NAME THEN DO:
+                    ASSIGN
+                        hColumn = BROWSE browseParamValue:GET-BROWSE-COLUMN(kdx)
+                        hColumn:WIDTH = DECIMAL(user-print.field-value[idx])
+                        .
+                    BROWSE browseParamValue:MOVE-COLUMN(kdx,idx).
+                END. /* if name */
+            END. /* do kdx */
+        END. /* do idx */
+    END. /* if avail */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -903,7 +960,7 @@ PROCEDURE pRunTask :
     DEFINE VARIABLE rRowID AS ROWID NO-UNDO.
     
     IF iplParameters EQ YES OR
-      (iplParameters EQ NO AND ttDynParamValue.outputFormat EQ "Grid") THEN DO:
+      (iplParameters EQ NO AND CAN-DO("Grid,View",ttDynParamValue.outputFormat)) THEN DO:
         RUN AOA/Jasper.p (
             ttDynParamValue.subjectID,
             ttDynParamValue.user-id,
@@ -921,6 +978,57 @@ PROCEDURE pRunTask :
         ttDynParamValue.paramTitle,
         NO
         ).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveSettings s-object 
+PROCEDURE pSaveSettings :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hColumn AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE jdx     AS INTEGER NO-UNDO.
+    
+    FIND FIRST user-print EXCLUSIVE-LOCK
+         WHERE user-print.company    EQ cCompany
+           AND user-print.program-id EQ "{&program-id}"
+           AND user-print.user-id    EQ ipcUserID
+         NO-ERROR.
+    IF NOT AVAILABLE user-print THEN DO:
+        CREATE user-print.
+        ASSIGN
+            user-print.company    = cCompany
+            user-print.program-id = "{&program-id}"
+            user-print.user-id    = ipcUserID
+            user-print.last-date  = TODAY
+            user-print.last-time  = TIME
+            .
+    END. /* not avail */
+    ASSIGN
+        user-print.next-date   = TODAY
+        user-print.next-time   = TIME
+        user-print.field-name  = ""
+        user-print.field-value = ""
+        user-print.field-label = ""
+        .
+    /* save browse column order and width */
+    DO jdx = 1 TO BROWSE browseParamValue:NUM-COLUMNS:
+        ASSIGN
+            idx = idx + 1
+            hColumn = BROWSE browseParamValue:GET-BROWSE-COLUMN(jdx)
+            user-print.field-label[idx] = "BrowseColumn"
+            user-print.field-name[idx]  = hColumn:NAME
+            user-print.field-value[idx] = STRING(MAX(hColumn:WIDTH, .2 /*BROWSE sysCtrlBrowse:MIN-COLUMN-WIDTH-CHARS*/ ))                                              
+            .
+    END. /* do jdx */
 
 END PROCEDURE.
 

@@ -421,6 +421,11 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
     RUN pTaskEmails.
     {&WINDOW-NAME}:TITLE = "AOA Tasker - Idle".
     {&OPEN-QUERY-AuditBrowse}
+    DO TRANSACTION:
+        FIND FIRST config EXCLUSIVE-LOCK.
+        config.taskerLastExecuted = NOW.
+        RELEASE config.
+    END. /* do trans */
 
 END PROCEDURE.
 

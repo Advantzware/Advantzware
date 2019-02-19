@@ -234,6 +234,7 @@ PROCEDURE pGetUserParamValue:
     EMPTY TEMP-TABLE ttGroupCalc.
     DO idx = 1 TO EXTENT(dynParamValue.colName):
         IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
+        IF dynParamValue.isActive[idx] EQ NO THEN NEXT.
         dWidth = 10.
         IF NUM-ENTRIES(dynParamValue.colName[idx],".") EQ 2 THEN DO:
             ASSIGN

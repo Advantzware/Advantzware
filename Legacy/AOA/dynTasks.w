@@ -46,9 +46,13 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
-DEFINE VARIABLE cMnemonic AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cPrgmName AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cUserID   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMnemonic  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrgmName  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUserID    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hAppSrvBin AS HANDLE    NO-UNDO.
+
+RUN AOA\appServer\aoaBin.p PERSISTENT SET hAppSrvBin.
+SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -228,6 +232,7 @@ END.
 ON CHOOSE OF btnRestoreDefaults IN FRAME F-Main /* Defaults */
 DO:
     RUN pGetSettings ("_default").
+    RUN select-page (1).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -443,6 +448,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGethAppSrvBin W-Win 
+PROCEDURE pGethAppSrvBin :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER ophAppSrvBin AS HANDLE NO-UNDO.
+    
+    OPhAppSrvBin = hAppSrvBin.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetParamValueRowID W-Win 
 PROCEDURE pGetParamValueRowID :
 /*------------------------------------------------------------------------------
@@ -512,7 +533,7 @@ PROCEDURE pSaveSettings :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
     FIND FIRST user-print EXCLUSIVE-LOCK
          WHERE user-print.company    EQ g_company
@@ -599,6 +620,7 @@ PROCEDURE pWinReSize :
         RUN pWinReSize IN h_userTasks (dHeight, dWidth).
         VIEW FRAME {&FRAME-NAME}.
     END. /* do with */
+    RUN select-page (1).
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.

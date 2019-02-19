@@ -435,11 +435,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail C-Win
 ON CHOOSE OF btnAddEmail IN FRAME outputFrame /* Email */
 DO:
-    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
-    
-    cRecipients = svRecipients:SCREEN-VALUE.
-    RUN Jasper/Recipients.w (INPUT-OUTPUT cRecipients).
-    svRecipients:SCREEN-VALUE = cRecipients.
+    RUN pRecipients (svRecipients:HANDLE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -518,7 +514,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRunResults C-Win
 ON CHOOSE OF btnRunResults IN FRAME outputFrame /* Results Grid */
 DO:
-    RUN pRunSubject (YES, "Results", USERID("ASI"), cPrgmName).
+    RUN pRunSubject (YES, "Grid", USERID("ASI"), cPrgmName).
 END.
 
 /* _UIB-CODE-BLOCK-END */

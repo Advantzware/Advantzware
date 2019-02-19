@@ -46,6 +46,7 @@ IF NOT iphQuery:QUERY-OFF-END THEN DO:
             .
         DO idx = 1 TO EXTENT(dynParamValue.colName):
             IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
+            IF dynParamValue.isActive[idx] EQ NO THEN NEXT.
             IF dynParamValue.isCalcField[idx] THEN DO:
                 cFieldName = dynParamValue.colName[idx].
                 RUN spCalcField IN hCalcField (

@@ -1,5 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
+/* Connected Databases 
+*/
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS s-object 
 /*********************************************************************
@@ -41,6 +43,10 @@ DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE rRowID   AS ROWID     NO-UNDO.
 
+DEFINE TEMP-TABLE ttSubjectColumn NO-UNDO LIKE dynSubjectColumn.
+
+{AOA/tempTable/ttGroupCalc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -54,9 +60,32 @@ DEFINE VARIABLE rRowID   AS ROWID     NO-UNDO.
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
+&Scoped-define BROWSE-NAME subjectColumnBrowse
+
+/* Internal Tables (found by Frame, Query & Browse Queries)             */
+&Scoped-define INTERNAL-TABLES ttSubjectColumn
+
+/* Definitions for BROWSE subjectColumnBrowse                           */
+&Scoped-define FIELDS-IN-QUERY-subjectColumnBrowse ttSubjectColumn.sortOrder ttSubjectColumn.isActive ttSubjectColumn.fieldLabel ttSubjectColumn.sortCol ttSubjectColumn.sortDescending ttSubjectColumn.isGroup ttSubjectColumn.groupLabel ttSubjectColumn.fieldName ttSubjectColumn.isCalcField ttSubjectColumn.fieldFormat ttSubjectColumn.calcProc ttSubjectColumn.calcParam ttSubjectColumn.groupCalc   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-subjectColumnBrowse ttSubjectColumn.isActive ttSubjectColumn.fieldLabel ttSubjectColumn.sortCol ttSubjectColumn.sortDescending ttSubjectColumn.isGroup ttSubjectColumn.groupLabel   
+&Scoped-define ENABLED-TABLES-IN-QUERY-subjectColumnBrowse ttSubjectColumn
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-subjectColumnBrowse ttSubjectColumn
+&Scoped-define SELF-NAME subjectColumnBrowse
+&Scoped-define QUERY-STRING-subjectColumnBrowse FOR EACH ttSubjectColumn WHERE ttSubjectColumn.subjectID EQ dynSubject.subjectID BY ttSubjectColumn.sortOrder
+&Scoped-define OPEN-QUERY-subjectColumnBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttSubjectColumn WHERE ttSubjectColumn.subjectID EQ dynSubject.subjectID BY ttSubjectColumn.sortOrder.
+&Scoped-define TABLES-IN-QUERY-subjectColumnBrowse ttSubjectColumn
+&Scoped-define FIRST-TABLE-IN-QUERY-subjectColumnBrowse ttSubjectColumn
+
+
+/* Definitions for FRAME F-Main                                         */
+
+/* Standard List Definitions                                            */
+&Scoped-Define ENABLED-OBJECTS btnSave subjectColumnBrowse btnGroupCalc ~
+btnMoveDown btnMoveUp 
 
 /* Custom List Definitions                                              */
-/* List-1,List-2,List-3,List-4,List-5,List-6                            */
+/* columnObjects,List-2,List-3,List-4,List-5,List-6                     */
+&Scoped-define columnObjects btnGroupCalc btnMoveDown btnMoveUp 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -66,13 +95,78 @@ DEFINE VARIABLE rRowID   AS ROWID     NO-UNDO.
 /* ***********************  Control Definitions  ********************** */
 
 
+/* Definitions of the field level widgets                               */
+DEFINE BUTTON btnGroupCalc 
+     IMAGE-UP FILE "Graphics/16x16/spreadsheet_sum.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "Group Calculations".
+
+DEFINE BUTTON btnMoveDown 
+     IMAGE-UP FILE "Graphics/16x16/navigate_down.jpg":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "Move Down".
+
+DEFINE BUTTON btnMoveUp 
+     IMAGE-UP FILE "Graphics/16x16/navigate_up.jpg":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "Move Up".
+
+DEFINE BUTTON btnSave 
+     IMAGE-UP FILE "Graphics/16x16/floppy_disk.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "Save".
+
+/* Query definitions                                                    */
+&ANALYZE-SUSPEND
+DEFINE QUERY subjectColumnBrowse FOR 
+      ttSubjectColumn SCROLLING.
+&ANALYZE-RESUME
+
+/* Browse definitions                                                   */
+DEFINE BROWSE subjectColumnBrowse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS subjectColumnBrowse s-object _FREEFORM
+  QUERY subjectColumnBrowse DISPLAY
+      ttSubjectColumn.sortOrder
+ttSubjectColumn.isActive VIEW-AS TOGGLE-BOX
+ttSubjectColumn.fieldLabel
+ttSubjectColumn.sortCol
+ttSubjectColumn.sortDescending VIEW-AS TOGGLE-BOX
+ttSubjectColumn.isGroup VIEW-AS TOGGLE-BOX
+ttSubjectColumn.groupLabel
+ttSubjectColumn.fieldName
+ttSubjectColumn.isCalcField VIEW-AS TOGGLE-BOX
+ttSubjectColumn.fieldFormat
+ttSubjectColumn.calcProc
+ttSubjectColumn.calcParam
+ttSubjectColumn.groupCalc
+ENABLE
+ttSubjectColumn.isActive
+ttSubjectColumn.fieldLabel
+ttSubjectColumn.sortCol
+ttSubjectColumn.sortDescending
+ttSubjectColumn.isGroup
+ttSubjectColumn.groupLabel
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 151 BY 26.95
+         TITLE "Columns".
+
+
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnSave AT ROW 7.43 COL 2 HELP
+          "Save" WIDGET-ID 274
+     subjectColumnBrowse AT ROW 1 COL 7 WIDGET-ID 200
+     btnGroupCalc AT ROW 6.24 COL 2 HELP
+          "Group Calculations" WIDGET-ID 272
+     btnMoveDown AT ROW 5.05 COL 2 HELP
+          "Move Down" WIDGET-ID 62
+     btnMoveUp AT ROW 3.86 COL 2 HELP
+          "Move Up" WIDGET-ID 64
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SCROLLABLE SIZE 158 BY 26.95
+         AT COL 1 ROW 1 SCROLLABLE 
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 
@@ -81,7 +175,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartObject
-   Allow: Basic
+   Allow: Basic,Browse
    Add Fields to: Neither
    Other Settings: PERSISTENT-ONLY COMPILE
  */
@@ -101,8 +195,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 26.91
-         WIDTH              = 158.6.
+         HEIGHT             = 27.48
+         WIDTH              = 160.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -125,10 +219,20 @@ END.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+/* BROWSE-TAB subjectColumnBrowse 1 F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
        FRAME F-Main:HEIGHT           = 26.95
        FRAME F-Main:WIDTH            = 158.
+
+/* SETTINGS FOR BUTTON btnGroupCalc IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnMoveDown IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnMoveUp IN FRAME F-Main
+   1                                                                    */
+ASSIGN 
+       btnSave:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -143,8 +247,94 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE subjectColumnBrowse
+/* Query rebuild information for BROWSE subjectColumnBrowse
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH ttSubjectColumn
+WHERE ttSubjectColumn.subjectID EQ dynSubject.subjectID
+BY ttSubjectColumn.sortOrder.
+     _END_FREEFORM
+     _Query            is NOT OPENED
+*/  /* BROWSE subjectColumnBrowse */
+&ANALYZE-RESUME
+
  
 
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnGroupCalc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupCalc s-object
+ON CHOOSE OF btnGroupCalc IN FRAME F-Main
+DO:
+    IF AVAILABLE ttSubjectColumn THEN
+    RUN pJasperGroupCalc.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnMoveDown
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMoveDown s-object
+ON CHOOSE OF btnMoveDown IN FRAME F-Main
+DO:
+    RUN pMove (1).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnMoveUp
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMoveUp s-object
+ON CHOOSE OF btnMoveUp IN FRAME F-Main
+DO:
+    RUN pMove (-1).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnSave
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave s-object
+ON CHOOSE OF btnSave IN FRAME F-Main
+DO:
+    RUN pSave.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define BROWSE-NAME subjectColumnBrowse
+&Scoped-define SELF-NAME subjectColumnBrowse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL subjectColumnBrowse s-object
+ON DEFAULT-ACTION OF subjectColumnBrowse IN FRAME F-Main /* Columns */
+DO:
+    APPLY "CHOOSE":U TO btnGroupCalc.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL subjectColumnBrowse s-object
+ON ROW-LEAVE OF subjectColumnBrowse IN FRAME F-Main /* Columns */
+DO:
+    ASSIGN
+        btnSave:HIDDEN = NOT BROWSE subjectColumnBrowse:MODIFIED
+        btnSave:SENSITIVE = BROWSE subjectColumnBrowse:MODIFIED
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
 
@@ -155,6 +345,8 @@ ASSIGN
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{AOA/includes/pJasperGroupCalc.i "dyn"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -212,10 +404,9 @@ PROCEDURE local-view :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  {methods/run_link.i "CONTAINER" "pGetParamValueRowID" "(OUTPUT rRowID)"}
-  IF rRowID EQ ? THEN RETURN.
-  FIND FIRST dynParamValue NO-LOCK WHERE ROWID(dynParamValue) EQ rRowID.
   RUN pUserColumns.
+  btnSave:HIDDEN IN FRAME {&FRAME-NAME} = YES.
+  FRAME {&FRAME-NAME}:MOVE-TO-TOP().
 
 END PROCEDURE.
 
@@ -236,6 +427,90 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMove s-object 
+PROCEDURE pMove :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiMove AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE iCurrent   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iMoveTo    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iSubjectID AS INTEGER NO-UNDO.
+    DEFINE VARIABLE rRowID     AS ROWID   NO-UNDO.
+    
+    DEFINE BUFFER bttSubjectColumn FOR ttSubjectColumn.
+    
+    iSubjectID = dynSubject.subjectID.
+    {AOA/includes/pMove.i "ttSubjectColumn" "subjectColumnBrowse"}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSave s-object 
+PROCEDURE pSave :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER ttSubjectColumn FOR ttSubjectColumn.
+    
+    DO TRANSACTION:
+        FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
+        ASSIGN                          
+            dynParamValue.isActive       = NO
+            dynParamValue.colName        = ""  
+            dynParamValue.colLabel       = "" 
+            dynParamValue.colFormat      = ""
+            dynParamValue.columnSize     = 0
+            dynParamValue.dataType       = "" 
+            dynParamValue.sortCol        = 0
+            dynParamValue.sortDescending = NO
+            dynParamValue.isGroup        = NO
+            dynParamValue.groupLabel     = ""
+            dynParamValue.groupCalc      = ""
+            dynParamValue.isCalcField    = NO
+            dynParamValue.calcProc       = "" 
+            dynParamValue.calcParam      = ""
+            .                           
+        FOR EACH ttSubjectColumn BY ttSubjectColumn.sortOrder:
+            ASSIGN
+                idx                               = ttSubjectColumn.sortOrder
+                dynParamValue.isActive[idx]       = ttSubjectColumn.isActive
+                dynParamValue.colName[idx]        = ttSubjectColumn.fieldName
+                dynParamValue.colLabel[idx]       = ttSubjectColumn.fieldLabel
+                dynParamValue.colFormat[idx]      = ttSubjectColumn.fieldFormat
+                dynParamValue.columnSize[idx]     = ttSubjectColumn.columnSize
+                dynParamValue.dataType[idx]       = ttSubjectColumn.dataType
+                dynParamValue.sortCol[idx]        = ttSubjectColumn.sortCol
+                dynParamValue.sortDescending[idx] = ttSubjectColumn.sortDescending
+                dynParamValue.isGroup[idx]        = ttSubjectColumn.isGroup
+                dynParamValue.groupLabel[idx]     = ttSubjectColumn.groupLabel
+                dynParamValue.groupCalc[idx]      = ttSubjectColumn.groupCalc
+                dynParamValue.isCalcField[idx]    = ttSubjectColumn.isCalcField
+                dynParamValue.calcProc[idx]       = ttSubjectColumn.calcProc
+                dynParamValue.calcParam[idx]      = ttSubjectColumn.calcParam
+                .
+        END. /* each ttSubjectColumn */
+        FIND CURRENT dynParamValue NO-LOCK.
+    END. /* do trans */
+    ASSIGN
+        BROWSE subjectColumnBrowse:MODIFIED = NO
+        btnSave:HIDDEN IN FRAME {&FRAME-NAME} = YES
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUserColumns s-object 
 PROCEDURE pUserColumns :
 /*------------------------------------------------------------------------------
@@ -243,9 +518,39 @@ PROCEDURE pUserColumns :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    MESSAGE
-    "pUserColumns"
-    VIEW-AS ALERT-BOX.
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+
+    EMPTY TEMP-TABLE ttSubjectColumn.
+    {&OPEN-QUERY-subjectColumnBrowse}
+    {methods/run_link.i "CONTAINER" "pGetParamValueRowID" "(OUTPUT rRowID)"}
+    IF rRowID EQ ? THEN RETURN.
+    FIND FIRST dynParamValue NO-LOCK WHERE ROWID(dynParamValue) EQ rRowID.
+    FIND FIRST dynSubject NO-LOCK
+         WHERE dynSubject.subjectID EQ dynParamValue.subject
+         NO-ERROR.
+    IF NOT AVAILABLE dynSubject THEN RETURN.
+    DO idx = 1 TO EXTENT(dynParamValue.colName):
+        IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
+        CREATE ttSubjectColumn.
+        ASSIGN
+            ttSubjectColumn.subjectID      = dynParamValue.subjectID
+            ttSubjectColumn.sortOrder      = idx
+            ttSubjectColumn.isActive       = dynParamValue.isActive[idx]
+            ttSubjectColumn.fieldName      = dynParamValue.colName[idx]
+            ttSubjectColumn.fieldLabel     = dynParamValue.colLabel[idx]
+            ttSubjectColumn.fieldFormat    = dynParamValue.colFormat[idx]
+            ttSubjectColumn.dataType       = dynParamValue.dataType[idx]
+            ttSubjectColumn.sortCol        = dynParamValue.sortCol[idx]
+            ttSubjectColumn.sortDescending = dynParamValue.sortDescending[idx]
+            ttSubjectColumn.isGroup        = dynParamValue.isGroup[idx]
+            ttSubjectColumn.groupLabel     = dynParamValue.groupLabel[idx]
+            ttSubjectColumn.groupCalc      = dynParamValue.groupCalc[idx]
+            ttSubjectColumn.isCalcField    = dynParamValue.isCalcField[idx]
+            ttSubjectColumn.calcProc       = dynParamValue.calcProc[idx]
+            ttSubjectColumn.calcParam      = dynParamValue.calcParam[idx]
+            .
+    END. /* do idx */
+    {&OPEN-QUERY-subjectColumnBrowse}
 
 END PROCEDURE.
 
@@ -268,6 +573,8 @@ PROCEDURE pWinReSize :
         FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = ipdWidth
         FRAME {&FRAME-NAME}:HEIGHT         = ipdHeight
         FRAME {&FRAME-NAME}:WIDTH          = ipdWidth
+        BROWSE subjectColumnBrowse:HEIGHT  = ipdHeight
+        BROWSE subjectColumnBrowse:WIDTH   = ipdWidth - BROWSE subjectColumnBrowse:COL + 1
         .
     VIEW FRAME {&FRAME-NAME}.
 

@@ -17,8 +17,9 @@ DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lOK       AS LOGICAL   NO-UNDO.
 
 DEFINE TEMP-TABLE ttSortBy NO-UNDO
-    FIELD ttOrder  AS INTEGER 
-    FIELD ttSortBy AS CHARACTER 
+    FIELD ttOrder      AS INTEGER 
+    FIELD ttSortBy     AS CHARACTER 
+    FIELD ttDescending AS LOGICAL
         INDEX ttSortBy IS PRIMARY
             ttOrder
             .
@@ -61,13 +62,16 @@ DO idx = 1 TO EXTENT(dynParamValue.colName):
     IF dynParamValue.sortCol[idx] EQ 0  THEN NEXT.
     CREATE ttSortBy.        
     ASSIGN 
-        ttSortBy.ttOrder  = dynParamValue.sortCol[idx]
-        ttSortBy.ttSortBy = dynParamValue.colName[idx]
+        ttSortBy.ttOrder      = dynParamValue.sortCol[idx]
+        ttSortBy.ttSortBy     = dynParamValue.colName[idx]
+        ttSortBy.ttDescending = dynParamValue.sortDescending[idx]
         .
 END. /* do idx */
 
 FOR EACH ttSortBy BY ttSortBy.ttOrder:
-    cQueryStr = cQueryStr + " BY " + ttSortBy.ttSortBy.
+    cQueryStr = cQueryStr + " BY " + ttSortBy.ttSortBy
+              + IF ttSortBy.ttDescending THEN " DESCENDING" ELSE ""
+              .
 END. /* each ttSortBy */
 
 CREATE QUERY hQuery.

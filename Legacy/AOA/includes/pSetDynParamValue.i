@@ -59,18 +59,20 @@ PROCEDURE pSetDynParamValue:
             :
             ASSIGN
                 idx = idx + 1
-                dynParamValue.colName[idx]     = {1}SubjectColumn.fieldName
-                dynParamValue.colLabel[idx]    = {1}SubjectColumn.fieldLabel
-                dynParamValue.colFormat[idx]   = {1}SubjectColumn.fieldFormat
-                dynParamValue.columnSize[idx]  = {1}SubjectColumn.columnSize
-                dynParamValue.dataType[idx]    = {1}SubjectColumn.dataType
-                dynParamValue.sortCol[idx]     = {1}SubjectColumn.sortCol
-                dynParamValue.isGroup[idx]     = {1}SubjectColumn.isGroup
-                dynParamValue.groupLabel[idx]  = {1}SubjectColumn.groupLabel
-                dynParamValue.groupCalc[idx]   = {1}SubjectColumn.groupCalc
-                dynParamValue.isCalcField[idx] = {1}SubjectColumn.isCalcField
-                dynParamValue.calcProc[idx]    = {1}SubjectColumn.calcProc
-                dynParamValue.calcParam[idx]   = {1}SubjectColumn.calcParam
+                dynParamValue.isActive[idx]       = {1}SubjectColumn.isActive
+                dynParamValue.colName[idx]        = {1}SubjectColumn.fieldName
+                dynParamValue.colLabel[idx]       = {1}SubjectColumn.fieldLabel
+                dynParamValue.colFormat[idx]      = {1}SubjectColumn.fieldFormat
+                dynParamValue.columnSize[idx]     = {1}SubjectColumn.columnSize
+                dynParamValue.dataType[idx]       = {1}SubjectColumn.dataType
+                dynParamValue.sortCol[idx]        = {1}SubjectColumn.sortCol
+                dynParamValue.sortDescending[idx] = {1}SubjectColumn.sortDescending
+                dynParamValue.isGroup[idx]        = {1}SubjectColumn.isGroup
+                dynParamValue.groupLabel[idx]     = {1}SubjectColumn.groupLabel
+                dynParamValue.groupCalc[idx]      = {1}SubjectColumn.groupCalc
+                dynParamValue.isCalcField[idx]    = {1}SubjectColumn.isCalcField
+                dynParamValue.calcProc[idx]       = {1}SubjectColumn.calcProc
+                dynParamValue.calcParam[idx]      = {1}SubjectColumn.calcParam
                 .
         END. /* each {1}SubjectColumn */
         FIND CURRENT dynParamValue NO-LOCK.

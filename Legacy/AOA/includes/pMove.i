@@ -4,7 +4,7 @@
 IF {1}.sortOrder EQ 1 AND ipiMove EQ -1 THEN RETURN.
 /* check if at bottom, can't move down */
 FOR EACH b{1} NO-LOCK
-    WHERE b{1}.subjectID EQ ttSubject.subjectID
+    WHERE b{1}.subjectID EQ iSubjectID
     &IF "{1}" EQ "ttSubjectWhere" &THEN
       AND b{1}.whereTable EQ tableList
     &ENDIF
@@ -24,7 +24,7 @@ ASSIGN
     iMoveTo  = {1}.sortOrder + ipiMove
     .
 FIND FIRST b{1}
-     WHERE b{1}.subjectID EQ ttSubject.subjectID
+     WHERE b{1}.subjectID EQ iSubjectID
      &IF "{1}" EQ "ttSubjectWhere" &THEN
        AND b{1}.whereTable EQ tableList
      &ENDIF
@@ -39,5 +39,3 @@ ASSIGN
 rRowID = ROWID({1}).
 {&OPEN-QUERY-{2}}
 REPOSITION {2} TO ROWID rRowID.
-fSetSaveButton (YES).
-fShowQuery().

@@ -37,9 +37,20 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
-DEFINE VARIABLE rRowID   AS ROWID     NO-UNDO.
+DEFINE VARIABLE char-hdl   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPoolName  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hAppSrvBin AS HANDLE    NO-UNDO.
+DEFINE VARIABLE pHandle    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE rRowID     AS ROWID     NO-UNDO.
+
+{AOA/tempTable/ttAction.i}
+
+/* function fDateOptions */
+{AOA/includes/fDateOptions.i}
+/* function fDateOptionValue */
+{AOA/includes/fDateOptionValue.i}
+
+{AOA/includes/dynFuncs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -53,27 +64,147 @@ DEFINE VARIABLE rRowID   AS ROWID     NO-UNDO.
 &Scoped-define DB-AWARE no
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&Scoped-define FRAME-NAME F-Main
+&Scoped-define FRAME-NAME paramFrame
 
 /* Custom List Definitions                                              */
-/* List-1,List-2,List-3,List-4,List-5,List-6                            */
+/* outputObjects,showFields,List-3,List-4,List-5,List-6                 */
+&Scoped-define outputObjects btnSave svRecipients defaultOutputFormat ~
+svShowAll svShowReportHeader svShowReportFooter svShowPageHeader ~
+svShowPageFooter svShowGroupHeader btnAddEmail svShowGroupFooter ~
+svShowParameters 
+&Scoped-define showFields svShowAll svShowReportHeader svShowReportFooter ~
+svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter ~
+svShowParameters 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
 
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSetShowAll s-object 
+FUNCTION fSetShowAll RETURNS LOGICAL
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
 
+/* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
+DEFINE BUTTON btnSave 
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Save" 
+     SIZE 8 BY 1.91 TOOLTIP "Save".
+
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 83 BY 2.38
+     BGCOLOR 15 .
+
+DEFINE VARIABLE defaultOutputFormat AS CHARACTER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Grid", "Grid",
+"CSV", "CSV",
+"XLS", "XLS",
+"DocX", "DOCX",
+"PDF", "PDF",
+"HTML", "HTML"
+     SIZE 55 BY 1 NO-UNDO.
+
+DEFINE RECTANGLE RECT-PANEL
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 66 BY 2.38.
+
+DEFINE RECTANGLE RECT-SHOW
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 156 BY 1.19.
+
+DEFINE VARIABLE svShowAll AS LOGICAL INITIAL yes 
+     LABEL "Show ALL" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 13 BY .81 NO-UNDO.
+
+DEFINE VARIABLE svShowGroupFooter AS LOGICAL INITIAL yes 
+     LABEL "Group Footer" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
+
+DEFINE VARIABLE svShowGroupHeader AS LOGICAL INITIAL yes 
+     LABEL "Group Header" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 17 BY .81 NO-UNDO.
+
+DEFINE VARIABLE svShowPageFooter AS LOGICAL INITIAL yes 
+     LABEL "Page Footer" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
+
+DEFINE VARIABLE svShowPageHeader AS LOGICAL INITIAL yes 
+     LABEL "Page Header" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
+
+DEFINE VARIABLE svShowParameters AS LOGICAL INITIAL yes 
+     LABEL "Parameters" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15 BY .81 NO-UNDO.
+
+DEFINE VARIABLE svShowReportFooter AS LOGICAL INITIAL yes 
+     LABEL "Report Footer" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18 BY .81 NO-UNDO.
+
+DEFINE VARIABLE svShowReportHeader AS LOGICAL INITIAL yes 
+     LABEL "Report Header" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18 BY .81 NO-UNDO.
+
+
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME F-Main
+DEFINE FRAME paramFrame
+     SPACE(158.01) SKIP(5.25)
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FGCOLOR 1  WIDGET-ID 100.
+
+DEFINE FRAME outputFrame
+     btnSave AT ROW 1.48 COL 149 HELP
+          "Update/Save" WIDGET-ID 248
+     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
+     defaultOutputFormat AT ROW 2.43 COL 93 NO-LABEL WIDGET-ID 644
+     svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
+     svShowReportHeader AT ROW 4.1 COL 23 WIDGET-ID 2
+     svShowReportFooter AT ROW 4.1 COL 44 WIDGET-ID 4
+     svShowPageHeader AT ROW 4.1 COL 65 WIDGET-ID 6
+     svShowPageFooter AT ROW 4.1 COL 84 WIDGET-ID 8
+     svShowGroupHeader AT ROW 4.1 COL 103 WIDGET-ID 10
+     btnAddEmail AT ROW 2.19 COL 3 HELP
+          "Add Recipents" WIDGET-ID 636
+     svShowGroupFooter AT ROW 4.1 COL 123 WIDGET-ID 12
+     svShowParameters AT ROW 4.1 COL 142 WIDGET-ID 16
+     "Default Output Format:" VIEW-AS TEXT
+          SIZE 23 BY 1 AT ROW 1.48 COL 93 WIDGET-ID 652
+     "Email:" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.48 COL 2 WIDGET-ID 640
+     RECT-PANEL AT ROW 1.24 COL 92 WIDGET-ID 256
+     RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SCROLLABLE SIZE 158 BY 26.95
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
+         SIZE 158 BY 5.24
+         BGCOLOR 15 
+         TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -102,7 +233,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
          HEIGHT             = 27
-         WIDTH              = 158.6.
+         WIDTH              = 158.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -123,12 +254,44 @@ END.
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW s-object
   VISIBLE,,RUN-PERSISTENT                                               */
-/* SETTINGS FOR FRAME F-Main
+/* REPARENT FRAME */
+ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE.
+
+/* SETTINGS FOR FRAME outputFrame
+                                                                        */
+/* SETTINGS FOR BUTTON btnAddEmail IN FRAME outputFrame
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnSave IN FRAME outputFrame
+   1                                                                    */
+/* SETTINGS FOR RADIO-SET defaultOutputFormat IN FRAME outputFrame
+   1                                                                    */
+/* SETTINGS FOR RECTANGLE RECT-PANEL IN FRAME outputFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-SHOW IN FRAME outputFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR EDITOR svRecipients IN FRAME outputFrame
+   1                                                                    */
+/* SETTINGS FOR TOGGLE-BOX svShowAll IN FRAME outputFrame
+   1 2                                                                  */
+/* SETTINGS FOR TOGGLE-BOX svShowGroupFooter IN FRAME outputFrame
+   1 2                                                                  */
+/* SETTINGS FOR TOGGLE-BOX svShowGroupHeader IN FRAME outputFrame
+   1 2                                                                  */
+/* SETTINGS FOR TOGGLE-BOX svShowPageFooter IN FRAME outputFrame
+   1 2                                                                  */
+/* SETTINGS FOR TOGGLE-BOX svShowPageHeader IN FRAME outputFrame
+   1 2                                                                  */
+/* SETTINGS FOR TOGGLE-BOX svShowParameters IN FRAME outputFrame
+   1 2                                                                  */
+/* SETTINGS FOR TOGGLE-BOX svShowReportFooter IN FRAME outputFrame
+   1 2                                                                  */
+/* SETTINGS FOR TOGGLE-BOX svShowReportHeader IN FRAME outputFrame
+   1 2                                                                  */
+/* SETTINGS FOR FRAME paramFrame
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
-       FRAME F-Main:HIDDEN           = TRUE
-       FRAME F-Main:HEIGHT           = 26.95
-       FRAME F-Main:WIDTH            = 158.
+       FRAME paramFrame:HEIGHT           = 26.95
+       FRAME paramFrame:WIDTH            = 158.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -136,15 +299,162 @@ ASSIGN
 
 /* Setting information for Queries and Browse Widgets fields            */
 
-&ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
-/* Query rebuild information for FRAME F-Main
+&ANALYZE-SUSPEND _QUERY-BLOCK FRAME paramFrame
+/* Query rebuild information for FRAME paramFrame
      _Options          = "NO-LOCK"
      _Query            is NOT OPENED
-*/  /* FRAME F-Main */
+*/  /* FRAME paramFrame */
 &ANALYZE-RESUME
 
  
 
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define FRAME-NAME outputFrame
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail s-object
+ON CHOOSE OF btnAddEmail IN FRAME outputFrame /* Email */
+DO:
+    RUN pRecipients (svRecipients:HANDLE).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnSave
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave s-object
+ON CHOOSE OF btnSave IN FRAME outputFrame /* Save */
+DO:
+    RUN pSaveDynParamValues (defaultOutputFormat).
+    MESSAGE
+        "Parameter Values Saved!"
+    VIEW-AS ALERT-BOX TITLE "Save".
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME defaultOutputFormat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL defaultOutputFormat s-object
+ON VALUE-CHANGED OF defaultOutputFormat IN FRAME outputFrame
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svShowAll
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowAll s-object
+ON VALUE-CHANGED OF svShowAll IN FRAME outputFrame /* Show ALL */
+DO:
+  ASSIGN {&SELF-NAME}
+      svShowReportHeader = {&SELF-NAME}
+      svShowParameters   = {&SELF-NAME}
+      svShowPageHeader   = {&SELF-NAME}
+      svShowGroupHeader  = {&SELF-NAME}
+      svShowGroupFooter  = {&SELF-NAME}
+      svShowPageFooter   = {&SELF-NAME}
+      svShowReportFooter = {&SELF-NAME}
+      .
+  DISPLAY {&showFields} WITH FRAME outputFrame.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svShowGroupFooter
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowGroupFooter s-object
+ON VALUE-CHANGED OF svShowGroupFooter IN FRAME outputFrame /* Group Footer */
+DO:
+    ASSIGN {&SELF-NAME}.
+    fSetShowAll().
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svShowGroupHeader
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowGroupHeader s-object
+ON VALUE-CHANGED OF svShowGroupHeader IN FRAME outputFrame /* Group Header */
+DO:
+    ASSIGN {&SELF-NAME}.
+    fSetShowAll().
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svShowPageFooter
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowPageFooter s-object
+ON VALUE-CHANGED OF svShowPageFooter IN FRAME outputFrame /* Page Footer */
+DO:
+    ASSIGN {&SELF-NAME}.
+    fSetShowAll().
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svShowPageHeader
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowPageHeader s-object
+ON VALUE-CHANGED OF svShowPageHeader IN FRAME outputFrame /* Page Header */
+DO:
+    ASSIGN {&SELF-NAME}.
+    fSetShowAll().
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svShowParameters
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowParameters s-object
+ON VALUE-CHANGED OF svShowParameters IN FRAME outputFrame /* Parameters */
+DO:
+    ASSIGN {&SELF-NAME}.
+    fSetShowAll().
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svShowReportFooter
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowReportFooter s-object
+ON VALUE-CHANGED OF svShowReportFooter IN FRAME outputFrame /* Report Footer */
+DO:
+    ASSIGN {&SELF-NAME}.
+    fSetShowAll().
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svShowReportHeader
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowReportHeader s-object
+ON VALUE-CHANGED OF svShowReportHeader IN FRAME outputFrame /* Report Header */
+DO:
+    ASSIGN {&SELF-NAME}.
+    fSetShowAll().
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME paramFrame
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
 
@@ -155,6 +465,8 @@ ASSIGN
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{AOA/includes/pDynParamProcs.i "dyn"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -173,7 +485,8 @@ PROCEDURE disable_UI :
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
   /* Hide all frames. */
-  HIDE FRAME F-Main.
+  HIDE FRAME outputFrame.
+  HIDE FRAME paramFrame.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
@@ -193,6 +506,7 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  {methods/run_link.i "CONTAINER" "pGethAppSrvBin" "(OUTPUT hAppSrvBin)"}
 
 END PROCEDURE.
 
@@ -212,26 +526,33 @@ PROCEDURE local-view :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  {methods/run_link.i "CONTAINER" "pGetParamValueRowID" "(OUTPUT rRowID)"}
-  IF rRowID EQ ? THEN RETURN.
-  FIND FIRST dynParamValue NO-LOCK WHERE ROWID(dynParamValue) EQ rRowID.
-  RUN pCreateDynParameters.
+  RUN pCreateDynParameters (FRAME {&FRAME-NAME}:HANDLE).
+  ENABLE {&outputObjects} WITH FRAME outputFrame.
+  btnSave:HIDDEN = NOT AVAILABLE dynParamValue OR dynParamValue.user-id EQ "_default".
+  FRAME {&FRAME-NAME}:MOVE-TO-TOP().
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateDynParameters s-object 
-PROCEDURE pCreateDynParameters :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDynParamValue s-object 
+PROCEDURE pGetDynParamValue :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    MESSAGE
-    "pCreateDynParameters"
-    VIEW-AS ALERT-BOX.
+    {methods/run_link.i "CONTAINER" "pGetParamValueRowID" "(OUTPUT rRowID)"}
+    IF rRowID EQ ? THEN RETURN.
+    FIND FIRST dynParamValue NO-LOCK WHERE ROWID(dynParamValue) EQ rRowID.
+    ASSIGN
+        defaultOutputFormat:SCREEN-VALUE IN FRAME outputFrame = dynParamValue.outputFormat
+        defaultOutputFormat
+        .
+    FIND FIRST dynSubject NO-LOCK
+         WHERE dynSubject.subjectID EQ dynParamValue.subject
+         NO-ERROR.
 
 END PROCEDURE.
 
@@ -293,6 +614,33 @@ PROCEDURE state-changed :
   END CASE.
   
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSetShowAll s-object 
+FUNCTION fSetShowAll RETURNS LOGICAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DO WITH FRAME outputFrame:
+        svShowAll = svShowReportHeader AND
+                    svShowParameters   AND
+                    svShowPageHeader   AND
+                    svShowGroupHeader  AND
+                    svShowGroupFooter  AND
+                    svShowPageFooter   AND
+                    svShowReportFooter
+                    .
+        DISPLAY {&showFields}.
+    END. /* do with */
+    RETURN TRUE.
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
