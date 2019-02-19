@@ -61,13 +61,14 @@ DEFINE VARIABLE v-process AS LOG NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS begin_cust btSearch fiOrdDate tgAllowBlankPO ~
-edDuplicates btnOk BtnCancel 
+&Scoped-Define ENABLED-OBJECTS begin_cust fiOrdDate btnCalendar-1 ~
+tgAllowBlankPO btSearch btnOk BtnCancel edDuplicates 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust fiOrdDate tgAllowBlankPO ~
 edDuplicates scr-text 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
+&Scoped-define List-3 btnCalendar-1 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -80,6 +81,11 @@ edDuplicates scr-text
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
 DEFINE BUTTON BtnCancel AUTO-END-KEY DEFAULT 
      LABEL "Cancel" 
      SIZE 15 BY 1.14
@@ -91,21 +97,21 @@ DEFINE BUTTON btnOk AUTO-GO
 
 DEFINE BUTTON btSearch 
      LABEL "Search for Duplicates" 
-     SIZE 29 BY 1.14.
+     SIZE 25 BY 1.14.
 
 DEFINE VARIABLE edDuplicates AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
-     SIZE 75 BY 12.62 NO-UNDO.
+     SIZE 75 BY 13.33 NO-UNDO.
 
 DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(256)":U 
      LABEL "Customer #" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiOrdDate AS DATE FORMAT "99/99/99":U INITIAL ? 
+DEFINE VARIABLE fiOrdDate AS DATE FORMAT "99/99/9999":U 
      LABEL "Order Date" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE scr-text AS CHARACTER FORMAT "X(256)":U INITIAL "Delete Duplicate Order Web Orders" 
       VIEW-AS TEXT 
@@ -121,12 +127,13 @@ DEFINE VARIABLE tgAllowBlankPO AS LOGICAL INITIAL no
 
 DEFINE FRAME DEFAULT-FRAME
      begin_cust AT ROW 2.43 COL 17 COLON-ALIGNED WIDGET-ID 6
-     btSearch AT ROW 2.43 COL 37 WIDGET-ID 4
-     fiOrdDate AT ROW 3.43 COL 17 COLON-ALIGNED WIDGET-ID 10
-     tgAllowBlankPO AT ROW 4.62 COL 19 WIDGET-ID 8
-     edDuplicates AT ROW 5.76 COL 3 NO-LABEL WIDGET-ID 2
-     btnOk AT ROW 18.62 COL 14
-     BtnCancel AT ROW 18.62 COL 40
+     fiOrdDate AT ROW 2.43 COL 50 COLON-ALIGNED WIDGET-ID 10
+     btnCalendar-1 AT ROW 2.43 COL 70
+     tgAllowBlankPO AT ROW 3.62 COL 19 WIDGET-ID 8
+     btSearch AT ROW 4.57 COL 3 WIDGET-ID 4
+     btnOk AT ROW 4.57 COL 33
+     BtnCancel AT ROW 4.57 COL 61
+     edDuplicates AT ROW 6.24 COL 3 NO-LABEL WIDGET-ID 2
      scr-text AT ROW 1.48 COL 3 NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -179,6 +186,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME DEFAULT-FRAME
+   3                                                                    */
 ASSIGN 
        BtnCancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
@@ -221,6 +230,17 @@ DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 C-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME DEFAULT-FRAME
+DO:
+  {methods/btnCalendar.i fiOrdDate}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -342,6 +362,18 @@ END. /* Do */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fiOrdDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiOrdDate C-Win
+ON HELP OF fiOrdDate IN FRAME DEFAULT-FRAME /* Order Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -410,8 +442,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust fiOrdDate tgAllowBlankPO edDuplicates scr-text 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE begin_cust btSearch fiOrdDate tgAllowBlankPO edDuplicates btnOk 
-         BtnCancel 
+  ENABLE begin_cust fiOrdDate btnCalendar-1 tgAllowBlankPO btSearch btnOk 
+         BtnCancel edDuplicates 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
