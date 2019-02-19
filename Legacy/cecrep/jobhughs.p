@@ -455,15 +455,15 @@ do v-local-loop = 1 to v-local-copies:
 /*               "PRINTING PLATE #:" AT 40 xeb.plate-no when avail xeb */
               "PLATE #:" AT 40 xeb.plate-no FORMAT "X(11)" when avail xeb " Loc:" v-plate-loc FORMAT "X(11)"
               "Die #" AT 80 xeb.die-no when avail xeb " Loc:" v-die-loc SKIP
-              "W:" + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i v-form-wid},">>>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))  WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank format "x(22)"  @ v-w-l AT 2
+              "L:" + trim(string({sys/inc/k16v.i v-form-len},">>>>9.99"))  WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank format "x(22)"  @ v-w-l AT 2
               "SEE 1st BLANK" WHEN v-see-1st-blank @ v-w-l   
               "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) format "x(11)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank              "Ink 1:" AT 39 v-ink-1
               "Gross Size:" AT 80  
-              "W:" + trim(string({sys/inc/k16v.i xef.gsh-wid},">>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xef.gsh-wid},">>>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i xef.gsh-len},">>>9.99"))
+              "L:" + trim(string({sys/inc/k16v.i xef.gsh-len},">>>>9.99"))
                                                                 format "x(19)"
               "Slit: W:" + string(v-outw) + " L:" + string(v-outl) FORM "x(15)"   
               "<B><P12>"
@@ -481,24 +481,24 @@ do v-local-loop = 1 to v-local-copies:
               " " WHEN v-see-1st-blank @ v-form-code1 
 /*               "</B><P10>Ink 2:" AT 32 v-ink-2 "Net   Size:"  AT 83 /*91*/ */
               "</B><P10> Ink 2:"  v-ink-2 "Net   Size:"  AT 83
-              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>9.99")) format "x(22)"
+              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>>9.99")) format "x(22)"
               "<B><P12>" SKIP
               v-board-dscr  AT 2 FORM "x(29)"
 /*               " "  AT 2 FORM "x(29)" */
               "</B><P10> Ink 3:"  v-ink-3 "Die   Size:" AT 83
-              "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>>9.99")) format "x(21)"
+              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>>>9.99")) format "x(21)"
               "Up:" "W:" + string(v-upl) + " L:" + string(v-upw) FORM "x(9)"
               SKIP
            /*   "Score:" AT 2 v-len-score               format "x(30)" */
                v-qty-or-sup AT 2 FORM "x(36)" 
               "Ink 4:" AT 39 v-ink-4 "Blank Size:" AT 80 
-              "W:" + trim(string({sys/inc/k16v.i xeb.t-wid},">>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xeb.t-wid},">>>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i xeb.t-len},">>>9.99")) format "x(22)"
+              "L:" + trim(string({sys/inc/k16v.i xeb.t-len},">>>>9.99")) format "x(22)"
               SKIP
               /*v-qty-or-sup AT 3 FORM "x(36)" */
               "Score:" AT 2 substring(v-len-score,1,30) WHEN xstyle.TYPE <> "F" format "x(30)" 

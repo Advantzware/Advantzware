@@ -334,9 +334,9 @@ do v-local-loop = 1 to v-local-copies:
 
         IF v-format EQ "TriLakes" THEN DO:
         display "<=#5><R+1>"
-                "W: " + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
+                "W: " + trim(string({sys/inc/k16v.i v-form-wid},">>,>>9.99")) +
                 "   " +
-                "L: " + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
+                "L: " + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))
                                                                 format "x(25)"
                 "MSF:"  +
                 trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
@@ -361,8 +361,8 @@ do v-local-loop = 1 to v-local-copies:
                 w-i.i-code2
                 w-i.i-qty2 when w-i.i-qty2 ne 0
                 "<=#7><R+2> Blank Size:"
-                "W:" TRIM(string({sys/inc/k16v.i xeb.t-wid},">,>>9.99")) WHEN AVAIL xeb 
-                "L:" TRIM(string({sys/inc/k16v.i xeb.t-len},">,>>9.99")) when avail xeb 
+                "W:" TRIM(string({sys/inc/k16v.i xeb.t-wid},">>,>>9.99")) WHEN AVAIL xeb 
+                "L:" TRIM(string({sys/inc/k16v.i xeb.t-len},">>,>>9.99")) when avail xeb 
             with no-box no-labels frame i2 width 155 no-attr-space STREAM-IO.
 
         find next w-i.
@@ -404,9 +404,9 @@ do v-local-loop = 1 to v-local-copies:
 
         ELSE DO:
                 PUT "<=#5><R+1><b>"
-                    " W: " + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
+                    " W: " + trim(string({sys/inc/k16v.i v-form-wid},">>,>>9.99")) +
                     "   " +
-                    "L: " + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
+                    "L: " + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))
                                                                 format "x(25)"
                     "</b>MSF:<b>"  +
                     trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
@@ -429,8 +429,8 @@ do v-local-loop = 1 to v-local-copies:
                      IF string(w-i.i-qty) ne "0" THEN string(w-i.i-qty) ELSE ""
                      IF w-i.i-dscr ne "" THEN "LBS" ELSE "".
              PUT     "</b><=#7><R+2> Blank Size:<b>"
-                     "</b><c61>W: <b>" IF AVAIL xeb THEN TRIM(string({sys/inc/k16v.i xeb.t-wid},">,>>9.99")) ELSE ""
-                     "</b><c68>L: <b>" IF AVAIL xeb THEN TRIM(string({sys/inc/k16v.i xeb.t-len},">,>>9.99")) ELSE "" 
+                     "</b><c61>W: <b>" IF AVAIL xeb THEN TRIM(string({sys/inc/k16v.i xeb.t-wid},">>,>>9.99")) ELSE ""
+                     "</b><c68>L: <b>" IF AVAIL xeb THEN TRIM(string({sys/inc/k16v.i xeb.t-len},">>,>>9.99")) ELSE "" 
                      "</b>".
             
     

@@ -309,9 +309,9 @@ do v-local-loop = 1 to v-local-copies:
 
     /*    IF v-format EQ "TriLakes" THEN DO: */
         display "<=#5><R+1>"
-                "W: " + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
+                "W: " + trim(string({sys/inc/k16v.i v-form-wid},">>,>>9.99")) +
                 "   " +
-                "L: " + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
+                "L: " + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))
                                                                 format "x(25)"
                 "MSF:"  +
                 trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
@@ -340,8 +340,8 @@ do v-local-loop = 1 to v-local-copies:
                 w-i.i-code2
                 w-i.i-qty2 when w-i.i-qty2 ne 0*/
                 "<=#7><R+2> Blank Size:"
-                "W:" TRIM(string({sys/inc/k16v.i xeb.t-wid},">,>>9.99")) WHEN AVAIL xeb 
-                "L:" TRIM(string({sys/inc/k16v.i xeb.t-len},">,>>9.99")) when avail xeb 
+                "W:" TRIM(string({sys/inc/k16v.i xeb.t-wid},">>,>>9.99")) WHEN AVAIL xeb 
+                "L:" TRIM(string({sys/inc/k16v.i xeb.t-len},">>,>>9.99")) when avail xeb 
             with no-box no-labels frame i2 width 155 no-attr-space STREAM-IO.
 
         find next w-i.

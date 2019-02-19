@@ -531,8 +531,8 @@ DO v-local-loop = 1 TO v-local-copies:
               "</B>"
               "<=SheetsRequired>" TRIM(STRING(v-sht-qty))   FORMAT "x(9)"
 /*              "<=SheetsReceived>"*/
-              "<=SheetsSize>" "W:" + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) + "  " +
-                              "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))  format "x(30)"
+              "<=SheetsSize>" "W:" + trim(string({sys/inc/k16v.i v-form-wid},">>,>>9.99")) + "  " +
+                              "L:" + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))  format "x(30)"
 
               "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) FORMAT "x(11)"
               "<=Scores>" SUBSTRING(v-len-score,1,30) FORMAT "x(30)" 
@@ -557,10 +557,10 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=DieLength>" TRIM(STRING({sys/inc/k16v.i xef.trim-l},">>>9.99")) FORMAT "x(8)"
               "<=UpL>" STRING(v-upw) FORMAT "x(8)"
               "<=UpW>" STRING(v-upl) FORMAT "x(8)"
-              "<=BlankWidth>" TRIM(STRING({sys/inc/k16v.i xeb.t-wid},">>>9.99")) FORMAT "x(8)"
-              "<=BlankLength>" TRIM(STRING({sys/inc/k16v.i xeb.t-len},">>>9.99")) FORMAT "x(8)"
+              "<=BlankWidth>" TRIM(STRING({sys/inc/k16v.i xeb.t-wid},">>>>9.99")) FORMAT "x(9)"
+              "<=BlankLength>" TRIM(STRING({sys/inc/k16v.i xeb.t-len},">>>>9.99")) FORMAT "x(9)"
               "<=SqFeet>"  if v-corr then string(xeb.t-sqin * .007,">>9.9999")
-                                  else string(xeb.t-sqin / 144,">>9.9999") FORMAT "x(8)"
+                                  else string(xeb.t-sqin / 144,">>>>9.9999") FORMAT "x(10)"
                                   
               "<B>"
               "<=Plate>" IF AVAILABLE xeb THEN xeb.plate-no ELSE "" FORMAT "x(15)" 

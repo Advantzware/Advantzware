@@ -536,9 +536,9 @@ assign
               trim(string(v-sht-qty)) format "x(9)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
               "<C97>" v-adder-1 WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
               SKIP
-              "W:" + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i v-form-wid},">>>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))  format "x(22)" AT 90 WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
+              "L:" + trim(string({sys/inc/k16v.i v-form-len},">>>>9.99"))  format "x(22)" AT 90 WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
               "<C97>" v-adder-2 WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
               SKIP
                "<P8><U>Production ID:</U><B><P10>" AT 10
@@ -581,21 +581,21 @@ assign
                       trim(string({sys/inc/k16v.i xeb.dep},">,>>9.99"))) FORM "x(30)" WHEN AVAIL xeb   
               
               "Net   Size:"  AT 80
-              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>9.99")) format "x(22)"
+              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>>9.99")) format "x(22)"
               SKIP
               "Joint:" AT 2 v-joint-dscr             
                             "Die   Size:" AT 80
-              "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>>9.99")) format "x(21)"
+              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>>>9.99")) format "x(21)"
               "Up:" "W:" + string(v-upl) + " L:" + string(v-upw) FORM "x(9)"
               SKIP            
               "Blank Size:" AT 80 
-              "W:" + trim(string({sys/inc/k16v.i xeb.t-wid},">>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xeb.t-wid},">>>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i xeb.t-len},">>>9.99")) format "x(22)"
+              "L:" + trim(string({sys/inc/k16v.i xeb.t-len},">>>>9.99")) format "x(22)"
               SKIP
                 "Impressions:" AT 80 trim(string(v-dc-qty))    format "x(7)"
               SKIP

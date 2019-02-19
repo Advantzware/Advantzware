@@ -313,9 +313,9 @@ do v-local-loop = 1 to v-local-copies:
         ASSIGN lv-form-code2 = v-form-code
                lv-form-dscr2 = v-form-dscr
                lv-len-score2 = v-len-score
-               lv-sht-size = "W: " + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
+               lv-sht-size = "W: " + trim(string({sys/inc/k16v.i v-form-wid},">>,>>9.99")) +
                              "   " +
-                             "L: " + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
+                             "L: " + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))
                
                /*lv-sht-size = "W:" + s-form-wid + "   " + "L:" + s-form-len  */             
                lv-sht-size2 = lv-sht-size 
@@ -389,7 +389,7 @@ do v-local-loop = 1 to v-local-copies:
                 "NO.ON:" AT 49 "W:" v-upl FORM ">9" "  L:"  v-upw FORM ">9"
                 SKIP
                 "SQ FEET: " AT 2  trim(string(v-form-sqft)) format "x(7)"
-                "WEIGHT:" AT 35 trim(string(v-wgt,">>,>>9.9<"))
+                "WEIGHT:" AT 35 trim(string(v-wgt,">>>,>>9.9<")) FORMAT "X(10)"
                 "BUNDLE:" AT 55 trim(string(xeb.cas-cnt)) when avail xeb
                 "BALE:" AT 75 trim(string(xeb.tr-cnt)) when avail xeb  
                 SKIP
@@ -461,9 +461,9 @@ do v-local-loop = 1 to v-local-copies:
         v-die-loc = IF AVAIL xxprep THEN xxprep.loc + " " + xxprep.loc-bin ELSE "".
 
         display "<=#5><R+1>"
-                "W: " + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
+                "W: " + trim(string({sys/inc/k16v.i v-form-wid},">>,>>9.99")) +
                 "   " +
-                "L: " + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
+                "L: " + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))
                                                                 format "x(25)"
                 "MSF:"  +
                 trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
@@ -485,8 +485,8 @@ do v-local-loop = 1 to v-local-copies:
                 w-i.i-qty when w-i.i-qty ne 0
                 "LBS" when w-i.i-dscr ne ""
                 "<=#7><R+2> Blank Size:"
-                "W:" TRIM(string({sys/inc/k16v.i xeb.t-wid},">,>>9.99")) WHEN AVAIL xeb 
-                "L:" TRIM(string({sys/inc/k16v.i xeb.t-len},">,>>9.99")) when avail xeb 
+                "W:" TRIM(string({sys/inc/k16v.i xeb.t-wid},">>,>>9.99")) WHEN AVAIL xeb 
+                "L:" TRIM(string({sys/inc/k16v.i xeb.t-len},">>,>>9.99")) when avail xeb 
             with no-box no-labels frame i2 width 155 no-attr-space STREAM-IO.
 
         find next w-i.
