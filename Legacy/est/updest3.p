@@ -49,7 +49,7 @@ DO:
 
     IF ip-which NE ? THEN lv-list = ENTRY(ip-which,lv-list).
 
-    IF lEFPackUpdate THEN 
+    IF lEFPackUpdate AND ip-which EQ 3 THEN 
     DO:
 
         IF cEFPackUpdate EQ "FGItem#" THEN 
@@ -123,21 +123,41 @@ DO:
                 OR (b-eb.part-no EQ eb.part-no AND b-eb.cad-no EQ eb.cad-no AND cEFPackUpdate EQ "CAD#andFGItem#") )
                 AND ROWID(b-eb)   NE ip-rowid1
                 AND ROWID(b-eb)   NE ip-rowid2:
-  
-                IF ip-which LE 2 OR ip-which EQ ? THEN 
-                DO:
-                    {est/copyinks.i}
-                END.
-
+                
                 IF ip-which EQ 3 OR ip-which EQ ? THEN 
                 DO:
                     {est/copypack.i}
                 END.
-
-                IF ip-which EQ 4 OR ip-which EQ ? THEN 
-                DO:
-                    {est/copyfrat.i}
-                END.
             END.
     END.  /* lEFPackUpdate */
-END.
+    ELSE do:
+
+        IF eb.stock-no NE ""                          AND
+            CAN-FIND(FIRST b-eb
+                     WHERE b-eb.company  EQ eb.company
+                     AND b-eb.stock-no EQ eb.stock-no
+                     AND ROWID(b-eb)   NE ip-rowid1
+                     AND ROWID(b-eb)   NE ip-rowid2) THEN
+            MESSAGE "Update all other estimates with FG# " +
+            TRIM(eb.stock-no) +
+            " with these " + TRIM(lv-list) + " values?"
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE ll.
+
+      IF ll THEN
+          FOR EACH b-eb
+          WHERE b-eb.company  EQ eb.company
+          AND b-eb.stock-no EQ eb.stock-no
+          AND ROWID(b-eb)   NE ip-rowid1
+          AND ROWID(b-eb)   NE ip-rowid2:
+
+          IF ip-which LE 2 OR ip-which EQ ? THEN DO:
+              {est/copyinks.i}
+          END.
+
+          IF ip-which EQ 4 OR ip-which EQ ? THEN DO:
+            {est/copyfrat.i}
+          END.
+      END.
+    END. 
+END.  /* if avail eb */
