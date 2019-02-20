@@ -104,7 +104,7 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     ~{&OPEN-QUERY-browseParamValue}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnRunTask btnOutputFormat searchBar ~
+&Scoped-Define ENABLED-OBJECTS searchBar btnRunTask btnOutputFormat ~
 browseParamValue btnCopyTask btnDeleteTask btnScheduleTask ~
 btnRestoreDefaults btnSortMove 
 &Scoped-Define DISPLAYED-OBJECTS searchBar 
@@ -221,12 +221,12 @@ ttDynParamValue.prgmName LABEL-BGCOLOR 14
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     searchBar AT ROW 1 COL 52 COLON-ALIGNED HELP
+          "Search" WIDGET-ID 6
      btnRunTask AT ROW 15.05 COL 27 HELP
           "Run Task" WIDGET-ID 250
      btnOutputFormat AT ROW 20.76 COL 27 HELP
           "Run Now" WIDGET-ID 256
-     searchBar AT ROW 1 COL 52 COLON-ALIGNED HELP
-          "Search" WIDGET-ID 6
      browseParamValue AT ROW 1.95 COL 37 WIDGET-ID 500
      btnCopyTask AT ROW 16.95 COL 27 HELP
           "Copy Task" WIDGET-ID 258
@@ -866,6 +866,7 @@ PROCEDURE pGetParamValueRowID :
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oprRowID AS ROWID NO-UNDO.
     
+    IF AVAILABLE ttDynParamValue THEN
     oprRowID = ttDynParamValue.paramValueRowID.
 
 END PROCEDURE.

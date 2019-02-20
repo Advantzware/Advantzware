@@ -124,9 +124,7 @@ PROCEDURE pJasperGroupCalc:
         OUTPUT lSave
         ).
     IF lSave THEN DO:
-        &IF "{1}" EQ "tt" &THEN
         fSetSaveButton (YES).
-        &ENDIF
         FOR EACH ttGroupCalc
             WHERE ttGroupCalc.subjectID EQ ttSubjectColumn.subjectID
               AND ttGroupCalc.fieldName EQ ttSubjectColumn.fieldName

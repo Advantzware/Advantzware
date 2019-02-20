@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSave    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE rRowID   AS ROWID     NO-UNDO.
 
@@ -80,7 +81,7 @@ DEFINE TEMP-TABLE ttSubjectColumn NO-UNDO LIKE dynSubjectColumn.
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnSave subjectColumnBrowse btnGroupCalc ~
+&Scoped-Define ENABLED-OBJECTS subjectColumnBrowse btnSave btnGroupCalc ~
 btnMoveDown btnMoveUp 
 
 /* Custom List Definitions                                              */
@@ -89,6 +90,19 @@ btnMoveDown btnMoveUp
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSetSaveButton s-object
+FUNCTION fSetSaveButton RETURNS LOGICAL 
+  (iplSave AS LOGICAL) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 
@@ -155,9 +169,9 @@ ttSubjectColumn.groupLabel
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     subjectColumnBrowse AT ROW 1 COL 7 WIDGET-ID 200
      btnSave AT ROW 7.43 COL 2 HELP
           "Save" WIDGET-ID 274
-     subjectColumnBrowse AT ROW 1 COL 7 WIDGET-ID 200
      btnGroupCalc AT ROW 6.24 COL 2 HELP
           "Group Calculations" WIDGET-ID 272
      btnMoveDown AT ROW 5.05 COL 2 HELP
@@ -258,11 +272,7 @@ BY ttSubjectColumn.sortOrder.
 */  /* BROWSE subjectColumnBrowse */
 &ANALYZE-RESUME
 
- 
-
-
-
-/* ************************  Control Triggers  ************************ */
+ /* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME btnGroupCalc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupCalc s-object
@@ -324,10 +334,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL subjectColumnBrowse s-object
 ON ROW-LEAVE OF subjectColumnBrowse IN FRAME F-Main /* Columns */
 DO:
-    ASSIGN
-        btnSave:HIDDEN = NOT BROWSE subjectColumnBrowse:MODIFIED
-        btnSave:SENSITIVE = BROWSE subjectColumnBrowse:MODIFIED
-        .
+    fSetSaveButton (BROWSE subjectColumnBrowse:MODIFIED).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -405,7 +412,7 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN pUserColumns.
-  btnSave:HIDDEN IN FRAME {&FRAME-NAME} = YES.
+  fSetSaveButton (NO).
   FRAME {&FRAME-NAME}:MOVE-TO-TOP().
 
 END PROCEDURE.
@@ -443,6 +450,7 @@ PROCEDURE pMove :
     
     DEFINE BUFFER bttSubjectColumn FOR ttSubjectColumn.
     
+    IF NOT AVAILABLE dynSubject THEN RETURN.
     iSubjectID = dynSubject.subjectID.
     {AOA/includes/pMove.i "ttSubjectColumn" "subjectColumnBrowse"}
 
@@ -501,10 +509,8 @@ PROCEDURE pSave :
         END. /* each ttSubjectColumn */
         FIND CURRENT dynParamValue NO-LOCK.
     END. /* do trans */
-    ASSIGN
-        BROWSE subjectColumnBrowse:MODIFIED = NO
-        btnSave:HIDDEN IN FRAME {&FRAME-NAME} = YES
-        .
+    BROWSE subjectColumnBrowse:MODIFIED = NO.
+    fSetSaveButton (NO).
 
 END PROCEDURE.
 
@@ -519,6 +525,7 @@ PROCEDURE pUserColumns :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    DEFINE VARIABLE jdx AS INTEGER NO-UNDO.
 
     EMPTY TEMP-TABLE ttSubjectColumn.
     {&OPEN-QUERY-subjectColumnBrowse}
@@ -549,6 +556,16 @@ PROCEDURE pUserColumns :
             ttSubjectColumn.calcProc       = dynParamValue.calcProc[idx]
             ttSubjectColumn.calcParam      = dynParamValue.calcParam[idx]
             .
+        IF ttSubjectColumn.groupCalc NE "" THEN
+        DO jdx = 1 TO NUM-ENTRIES(ttSubjectColumn.groupCalc) BY 2:
+            CREATE ttGroupCalc.
+            ASSIGN
+                ttGroupCalc.subjectID = ttSubjectColumn.subjectID
+                ttGroupCalc.fieldName = ttSubjectColumn.fieldName
+                ttGroupCalc.groupName = ENTRY(jdx,ttSubjectColumn.groupCalc)
+                ttGroupCalc.calcType  = ENTRY(jdx + 1,ttSubjectColumn.groupCalc)
+                .
+        END. /* do idx */
     END. /* do idx */
     {&OPEN-QUERY-subjectColumnBrowse}
 
@@ -603,4 +620,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSetSaveButton s-object
+FUNCTION fSetSaveButton RETURNS LOGICAL 
+  (iplSave AS LOGICAL):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            lSave             = iplSave
+            btnSave:HIDDEN    = NOT lSave
+            btnSave:SENSITIVE = lSave
+            .
+    END. /* with frame */
+    RETURN lSave.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

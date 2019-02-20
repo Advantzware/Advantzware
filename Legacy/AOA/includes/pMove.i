@@ -1,5 +1,6 @@
 /* pMove.i - rstark - 12.20.2018 - used in queryBldr.w */
 
+IF NOT AVAILABLE {1} THEN RETURN.
 /* first column, can't move up */
 IF {1}.sortOrder EQ 1 AND ipiMove EQ -1 THEN RETURN.
 /* check if at bottom, can't move down */
