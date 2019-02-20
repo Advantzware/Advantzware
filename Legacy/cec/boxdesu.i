@@ -25,5 +25,5 @@ if program-name(2) matches "*po/*" then v-box-uom = "Inches".
 
 v-sc-fmt  = if v-box-uom eq "MM"                    or
 	       (v-box-uom eq "Both" and est.metric) then "->>>>9"
-           ELSE IF v-cecscrn-char NE "Decimal" THEN "->9.99"
-           else "->9.999999".
+           ELSE IF v-cecscrn-char NE "Decimal" THEN "->>>9.99"
+           else "->>>9.999999".
