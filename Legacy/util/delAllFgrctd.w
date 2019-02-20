@@ -34,6 +34,9 @@ assign
  locode = gloc.
 
 def var v-process as log no-undo.
+DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTransList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTransDesc AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -50,12 +53,13 @@ def var v-process as log no-undo.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 fiTransType fiFromDate fiToDate ~
-btn-process btn-cancel 
+&Scoped-Define ENABLED-OBJECTS RECT-17 fiTransType fiFromDate btnCalendar-1 ~
+fiToDate btnCalendar-2 btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS fiTransType fiFromDate fiToDate 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
+&Scoped-define List-3 btnCalendar-1 btnCalendar-2 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -76,15 +80,25 @@ DEFINE BUTTON btn-process
      LABEL "&Start Process" 
      SIZE 18 BY 1.14.
 
-DEFINE VARIABLE fiFromDate AS DATE FORMAT "99/99/99":U INITIAL ? 
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-2 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE VARIABLE fiFromDate AS DATE FORMAT "99/99/9999":U 
      LABEL "From Date" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiToDate AS DATE FORMAT "99/99/99":U INITIAL ? 
+DEFINE VARIABLE fiToDate AS DATE FORMAT "99/99/9999":U 
      LABEL "To Date" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiTransType AS CHARACTER FORMAT "!":U 
      LABEL "Transaction Type" 
@@ -101,7 +115,9 @@ DEFINE RECTANGLE RECT-17
 DEFINE FRAME FRAME-A
      fiTransType AT ROW 7.19 COL 23 COLON-ALIGNED WIDGET-ID 2
      fiFromDate AT ROW 8.86 COL 23 COLON-ALIGNED WIDGET-ID 4
-     fiToDate AT ROW 8.86 COL 48 COLON-ALIGNED WIDGET-ID 6
+     btnCalendar-1 AT ROW 8.86 COL 43.4 WIDGET-ID 8
+     fiToDate AT ROW 8.86 COL 56 COLON-ALIGNED WIDGET-ID 6
+     btnCalendar-2 AT ROW 8.86 COL 75 WIDGET-ID 10
      btn-process AT ROW 14.1 COL 21
      btn-cancel AT ROW 14.1 COL 52
      "Selection Parameters" VIEW-AS TEXT
@@ -117,7 +133,7 @@ DEFINE FRAME FRAME-A
 
 DEFINE FRAME FRAME-B
      "This process may take up to an hour.  Please let the process complete!" VIEW-AS TEXT
-          SIZE 79 BY .95 AT ROW 2.91 COL 4
+          SIZE 81 BY .95 AT ROW 2.91 COL 4
           BGCOLOR 11 FGCOLOR 12 FONT 5
      "You Should perform a database backup before running this procedure!" VIEW-AS TEXT
           SIZE 84 BY .95 AT ROW 1.95 COL 3
@@ -191,6 +207,10 @@ ASSIGN
        btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME FRAME-A
+   3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME FRAME-A
+   3                                                                    */
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -260,6 +280,63 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 C-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME FRAME-A
+DO:
+  {methods/btnCalendar.i fiFromDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 C-Win
+ON CHOOSE OF btnCalendar-2 IN FRAME FRAME-A
+DO:
+  {methods/btnCalendar.i fiToDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiFromDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFromDate C-Win
+ON HELP OF fiFromDate IN FRAME FRAME-A /* From Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiToDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiToDate C-Win
+ON HELP OF fiToDate IN FRAME FRAME-A /* To Date */
+DO:
+
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiTransType
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTransType C-Win
+ON HELP OF fiTransType IN FRAME FRAME-A /* Transaction Type */
+DO:
+  RUN windows/l-tranCd.w (fiTransType:SCREEN-VALUE, OUTPUT char-val).
+  fiTransType:SCREEN-VALUE = char-val.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -289,7 +366,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "close" TO THIS-PROCEDURE.
     RETURN .
   END.
-
+  RUN sys/ref/transcodes.p (OUTPUT cTransList, OUTPUT cTransDesc).
   RUN enable_UI.
 
   {methods/nowait.i}
@@ -335,7 +412,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiTransType fiFromDate fiToDate 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 fiTransType fiFromDate fiToDate btn-process btn-cancel 
+  ENABLE RECT-17 fiTransType fiFromDate btnCalendar-1 fiToDate btnCalendar-2 
+         btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -349,8 +427,12 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
 SESSION:SET-WAIT-STATE("General").
-IF fiTransType EQ "" THEN DO:
-  MESSAGE "Trans type must not be blank.  Please re-enter." VIEW-AS ALERT-BOX.
+DO WITH FRAME {&FRAME-NAME}:
+  ASSIGN
+  fiFromDate fiToDate fiTransType.
+END.
+IF LOOKUP(fiTransType, cTransList) EQ 0 THEN DO:
+  MESSAGE "Invalid Transaction Type.  Please re-enter." VIEW-AS ALERT-BOX.
   RETURN.
 END.
 IF fiFromDate EQ ? THEN DO:
