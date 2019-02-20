@@ -40,6 +40,7 @@ DEFINE {1} TEMP-TABLE ttFGBins NO-UNDO
     FIELD itemFGPartNO LIKE itemfg.part-no
     FIELD itemfgIName  LIKE itemfg.i-name
     FIELD uomMult      LIKE uom.mult
+    FIELD qty-case     LIKE fg-rdtlh.qty-cas
         INDEX tt-fg-bin IS PRIMARY
             company
             i-no

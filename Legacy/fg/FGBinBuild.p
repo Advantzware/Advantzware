@@ -110,10 +110,10 @@ FOR EACH ttFGBins
         fg-rdtlh.avg-cost = ttFGBins.std-tot-cost
         fg-rdtlh.cost = ttFGBins.std-tot-cost
         fg-rdtlh.qty = ttFGBins.qty
-/*        fg-rdtlh.units-pallet = ttFGBins.units-pallet*/
+        fg-rdtlh.units-pallet = ttFGBins.units-pallet
 /*        fg-rdtlh.partial =*/
-/*        fg-rdtlh.cases = ttFGBins.cases-unit*/
-/*        fg-rdtlh.qty-case = ttFGBins.case-count*/
+        fg-rdtlh.cases = ttFGBins.cases
+        fg-rdtlh.qty-case = ttFGBins.qty-case
         fg-rdtlh.std-fix-cost = ttFGBins.std-fix-cost
         fg-rdtlh.std-lab-cost = ttFGBins.std-lab-cost
         fg-rdtlh.std-mat-cost = ttFGBins.std-mat-cost
@@ -199,7 +199,7 @@ PROCEDURE pBuildBinsForItem PRIVATE:
                     ttFGBins.i-no         = fg-rcpth.i-no
                     ttFGBins.po-no        = fg-rcpth.po-no
                     ttFGBins.aging-date   = fg-rcpth.trans-date
-                    ttFGBins.pur-uom      = itemfg.prod-uom
+                    ttFGBins.pur-uom      = (IF fg-rcpth.pur-uom GT "" THEN fg-rcpth.pur-uom ELSE itemfg.prod-uom)
                     ttFGBins.std-tot-cost = fg-rdtlh.std-tot-cost
                     ttFGBins.std-mat-cost = fg-rdtlh.std-mat-cost
                     ttFGBins.std-lab-cost = fg-rdtlh.std-lab-cost
@@ -252,8 +252,11 @@ PROCEDURE pBuildBinsForItem PRIVATE:
                 WHEN "r" THEN 
                     DO:
                         ASSIGN 
-                            ttFGBins.qty        = ttFGBins.qty + fg-rdtlh.qty
-                            ttFGBins.aging-date = fg-rcpth.trans-date
+                            ttFGBins.qty          = ttFGBins.qty + fg-rdtlh.qty
+                            ttFGBins.aging-date   = fg-rcpth.trans-date
+                            ttFGBins.units-pallet = fg-rdtlh.units-pallet
+                            ttFGBins.cases        = fg-rdtlh.cases
+                            ttFGBins.qty-case     = fg-rdtlh.qty-case
                             .
                         IF ttFGBins.aging-date EQ ? OR
                             ttFGBins.aging-date GT fg-rcpth.trans-date THEN
