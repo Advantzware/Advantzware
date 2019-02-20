@@ -54,13 +54,13 @@ DO copy-count = 1 TO s-copies:
               "<R23><C5.5>" tt-1099-m.vend-city-line FORMAT "X(30)".
 
           IF tt-1099-m.vend-box EQ "3" OR tt-1099-m.vend-box EQ "Y" THEN
-              PUT "<R18.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" .
+              PUT "<R11><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" .
           ELSE IF tt-1099-m.vend-box EQ "1" THEN
-              PUT "<R10.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" .
+              PUT "<R5.6><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" .
           ELSE IF tt-1099-m.vend-box EQ "2" THEN
-              PUT "<R14.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
+              PUT "<R8.5><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
           ELSE IF tt-1099-m.vend-box EQ "7" THEN
-              PUT "<R26.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
+              PUT "<R19><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
 
              IF NOT LAST(tt-1099-m.vend-no) THEN DO:
                  IF last-of(tt-1099-m.vend-no) THEN DO:
@@ -83,13 +83,13 @@ DO copy-count = 1 TO s-copies:
               "<R56><C5.5>" tt-1099-m.vend-city-line FORMAT "X(30)".
 
           IF tt-1099-m.vend-box EQ "3" OR tt-1099-m.vend-box EQ "Y" THEN
-              PUT "<R51.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" .
+              PUT "<R44><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" .
           ELSE IF tt-1099-m.vend-box EQ "1" THEN
-              PUT "<R43.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
+              PUT "<R38.6><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
           ELSE IF tt-1099-m.vend-box EQ "2" THEN
-              PUT "<R47.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
+              PUT "<R41.5><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
           ELSE IF tt-1099-m.vend-box EQ "7" THEN
-              PUT "<R58.1><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
+              PUT "<R51><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
           PAGE.
        END.
    END.

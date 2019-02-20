@@ -56,6 +56,7 @@ DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+DEFINE VARIABLE d-print-fmt-dec  AS DECIMAL NO-UNDO.
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -574,6 +575,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   v-print-fmt = sys-ctrl.char-fld.
+  d-print-fmt-dec = sys-ctrl.dec-fld.
 
   CASE v-print-fmt:
       WHEN "Fibre" THEN
@@ -757,12 +759,12 @@ DEF VAR v-vend-tot AS DEC NO-UNDO.
   IF IS-xprint-form THEN
   DO:
     CASE rd-dest:
-          WHEN 1 THEN PUT  "<PRINTER?>".
+          WHEN 1 THEN PUT  "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
           WHEN 2 THEN do:
               IF NOT lBussFormModle THEN
-                PUT "<PREVIEW><MODAL=NO>". 
+                PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)" . 
               ELSE
-                PUT "<PREVIEW>".        
+                PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".        
           END.
     END CASE.
     PUT "</PROGRESS>".
