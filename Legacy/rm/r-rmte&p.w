@@ -37,10 +37,13 @@ DEF INPUT PARAMETER ip-post AS LOG NO-UNDO.
 &ENDIF*/
 
 DEF VAR ip-post AS LOG NO-UNDO.
-
+DEFINE VARIABLE cJobReturn AS CHARACTER NO-UNDO . 
 IF INDEX(PROGRAM-NAME(1),"rm/r-rmtpst") NE 0 OR
    INDEX(PROGRAM-NAME(1),"rm/r-rmte&p") NE 0 THEN
    ip-post = YES.
+
+IF INDEX(PROGRAM-NAME(3),"rm/w-jobret.") NE 0 THEN
+    ASSIGN cJobReturn = "jobret" .
 
 /* Local Variable Definitions ---                                       */
 DEF VAR list-name AS cha NO-UNDO.
@@ -1077,6 +1080,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FOR EACH rm-rctd
       WHERE rm-rctd.company   EQ cocode
         AND rm-rctd.rita-code NE "C"
+        AND ( (rm-rctd.rita-code EQ "I" AND rm-rctd.tag NE '' AND rm-rctd.qty LT 0
+        AND cJobReturn EQ "jobret") OR cJobReturn = "") 
         AND rm-rctd.user-id EQ  USERID("nosweat")
       NO-LOCK,
       FIRST item
