@@ -336,9 +336,9 @@ DO v-local-loop = 1 TO v-local-copies:
 
         IF v-format EQ "TriLakes" THEN DO:
         DISPLAY "<=#5><R+1>"
-                "W: " + trim(STRING({sys/inc/k16v.i v-form-wid},">>,>>9.99")) +
+                "W: " + trim(STRING({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
                 "   " +
-                "L: " + trim(STRING({sys/inc/k16v.i v-form-len},">>,>>9.99"))
+                "L: " + trim(STRING({sys/inc/k16v.i v-form-len},">,>>9.99"))
                                                                 FORMAT "x(25)"
                 "MSF:"  +
                 trim(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
@@ -364,8 +364,8 @@ DO v-local-loop = 1 TO v-local-copies:
                 w-i.i-code2
                 w-i.i-qty2 WHEN w-i.i-qty2 NE 0
                 "<=#7><R+2> Blank Size:"
-                "W:" TRIM(STRING({sys/inc/k16v.i xeb.t-wid},">>,>>9.99")) WHEN AVAILABLE xeb 
-                "L:" TRIM(STRING({sys/inc/k16v.i xeb.t-len},">>,>>9.99")) WHEN AVAILABLE xeb 
+                "W:" TRIM(STRING({sys/inc/k16v.i xeb.t-wid},">,>>9.99")) WHEN AVAILABLE xeb 
+                "L:" TRIM(STRING({sys/inc/k16v.i xeb.t-len},">,>>9.99")) WHEN AVAILABLE xeb 
             WITH NO-BOX NO-LABELS FRAME i2 WIDTH 155 NO-ATTR-SPACE STREAM-IO.
 
         FIND NEXT w-i.
@@ -407,9 +407,9 @@ DO v-local-loop = 1 TO v-local-copies:
 
         ELSE DO:
         DISPLAY "<=#5><R+1>"
-                "W: " + trim(STRING({sys/inc/k16v.i v-form-wid},">>,>>9.99")) +
+                "W: " + trim(STRING({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
                 "   " +
-                "L: " + trim(STRING({sys/inc/k16v.i v-form-len},">>,>>9.99"))
+                "L: " + trim(STRING({sys/inc/k16v.i v-form-len},">,>>9.99"))
                                                                 FORMAT "x(25)"
                 "MSF:"  +
                 trim(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
@@ -431,8 +431,8 @@ DO v-local-loop = 1 TO v-local-copies:
                 w-i.i-qty WHEN w-i.i-qty NE 0
                 "LBS" WHEN w-i.i-dscr NE ""
                 "<=#7><R+2> Blank Size:"
-                "W:" TRIM(STRING({sys/inc/k16v.i xeb.t-wid},">>,>>9.99")) WHEN AVAILABLE xeb 
-                "L:" TRIM(STRING({sys/inc/k16v.i xeb.t-len},">>,>>9.99")) WHEN AVAILABLE xeb 
+                "W:" TRIM(STRING({sys/inc/k16v.i xeb.t-wid},">,>>9.99")) WHEN AVAILABLE xeb 
+                "L:" TRIM(STRING({sys/inc/k16v.i xeb.t-len},">,>>9.99")) WHEN AVAILABLE xeb 
             WITH NO-BOX NO-LABELS FRAME i6 WIDTH 155 NO-ATTR-SPACE STREAM-IO.
 
         FIND NEXT w-i.

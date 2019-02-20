@@ -313,9 +313,9 @@ do v-local-loop = 1 to v-local-copies:
         ASSIGN lv-form-code2 = v-form-code
                lv-form-dscr2 = v-form-dscr
                lv-len-score2 = v-len-score
-               lv-sht-size = "W: " + trim(string({sys/inc/k16v.i v-form-wid},">>,>>9.99")) +
+               lv-sht-size = "W: " + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
                              "   " +
-                             "L: " + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))
+                             "L: " + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
                
                /*lv-sht-size = "W:" + s-form-wid + "   " + "L:" + s-form-len  */             
                lv-sht-size2 = lv-sht-size 

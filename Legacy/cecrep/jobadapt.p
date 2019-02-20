@@ -258,9 +258,9 @@ do v-local-loop = 1 to v-local-copies:
         lv-form-code2 = v-form-code
         lv-form-dscr2 = v-form-dscr
         lv-len-score2 = v-len-score
-        lv-sht-size = "W: " + trim(string({sys/inc/k16v.i v-form-wid},">>,>>9.99")) +
+        lv-sht-size = "W: " + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
                       "   " +
-                      "L: " + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))
+                      "L: " + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
         lv-sht-size2 = lv-sht-size 
         v-wgt = IF AVAIL ITEM THEN (v-form-sqft * ITEM.basis-w / 1000) ELSE 0
         v-blk-sqft = IF AVAIL itemfg THEN itemfg.t-sqft ELSE 0
@@ -396,7 +396,7 @@ do v-local-loop = 1 to v-local-copies:
                 "NO.ON:" AT 46 "W:" v-upl FORM ">9" "  L:"  v-upw FORM ">9"
                 SKIP
                 "SQ FEET: " AT 2  trim(string(v-form-sqft)) format "x(7)"
-                "WEIGHT:" AT 35 trim(string(v-wgt,">>>,>>9.9<")) FORMAT "x(10)" 
+                "WEIGHT:" AT 35 trim(string(v-wgt,">>,>>9.9<"))
                 "BUNDLE:" AT 55 trim(string(xeb.cas-cnt)) when avail xeb
                 "BALE:" AT 75 trim(string(xeb.tr-cnt)) when avail xeb  
                 SKIP

@@ -606,9 +606,9 @@ do v-local-loop = 1 to v-local-copies:
               /*"PLATE #:" AT 40 xeb.plate-no FORMAT "X(11)" when avail xeb " Loc:" v-plate-loc FORMAT "X(11)"*/
               "Color Desc:" AT 39 v-coldscr              
               "Die Cutter: " AT 80 lv-mch-dscr format "x(20)" SKIP
-              "W:" + trim(string({sys/inc/k16v.i v-form-wid},">>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i v-form-len},">>>9.99"))  WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank format "x(22)"  @ v-w-l AT 2
+              "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))  WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank format "x(22)"  @ v-w-l AT 2
               "SEE 1st BLANK" WHEN v-see-1st-blank @ v-w-l   
               "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) format "x(11)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank           v-dpr-note[1] AT 39 /*"Ink 1:" AT 39 v-ink-1*/              
               "Die #" AT 80 xeb.die-no when avail xeb " Loc:" v-die-loc 
@@ -645,16 +645,16 @@ do v-local-loop = 1 to v-local-copies:
               "</B><P10>"  v-dpr-note[3]                
 
              "Net   Size:"  AT 83
-              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>>9.99")) format "x(22)"
+              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>9.99")) format "x(22)"
 
               SKIP
               v-dpr-note[4] AT 39
               "Die   Size:" AT 80
-              "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>>>9.99")) format "x(21)"
+              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>>9.99")) format "x(21)"
               "Up:" "W:" + string(v-upl) + " L:" + string(v-upw) FORM "x(9)"
 
               SKIP
@@ -663,9 +663,9 @@ do v-local-loop = 1 to v-local-copies:
               /*"Ink 5:" AT 39 v-ink-5*/ v-dpr-note[5] AT 39
                             
               "Blank Size:" AT 80 
-              "W:" + trim(string({sys/inc/k16v.i xeb.t-wid},">>>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xeb.t-wid},">>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i xeb.t-len},">>>>9.99")) format "x(22)"
+              "L:" + trim(string({sys/inc/k16v.i xeb.t-len},">>>9.99")) format "x(22)"
 
               SKIP                            
               SUBSTRING(v-len-score,31,36) AT 3 FORM "x(36)"              

@@ -190,9 +190,9 @@ do v-local-loop = 1 to v-local-copies:
     IF w-ef.frm = 1 THEN
        ASSIGN v-due-date1 = date(v-due-date)
               v-board-type-1 = v-form-code
-              v-board-size-1 = "W:" + trim(string({sys/inc/k16v.i v-form-wid},">>,>>9.99")) +
+              v-board-size-1 = "W:" + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
                                "  " +
-                               "L:" + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))
+                               "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
               v-board-qty-1 =  0
               v-dc-msetup[1] = ""
               v-dc-msetup[2] = ""
@@ -205,9 +205,9 @@ do v-local-loop = 1 to v-local-copies:
     ELSE IF w-ef.frm = 2 THEN
          ASSIGN v-due-date2 = date(v-due-date)
               v-board-type-2 = v-form-code
-              v-board-size-2 = "W:" + trim(string({sys/inc/k16v.i v-form-wid},">>,>>9.99")) +
+              v-board-size-2 = "W:" + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
                                "  " +
-                               "L:" + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))
+                               "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
               v-board-qty-2 =  0
               v-dc-msetup[3] = ""
               v-dc-msetup[4] = ""
@@ -339,9 +339,9 @@ do v-local-loop = 1 to v-local-copies:
                 " Sq Ft:" trim(string(v-form-sqft)) format "x(7)"
               "PRINTING PLATE #:" AT 40 xeb.plate-no when avail xeb
               "Die #" AT 80 xeb.die-no when avail xeb " Loc:" v-die-loc SKIP
-              "W:" + trim(string({sys/inc/k16v.i v-form-wid},">>>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
               "  " +
-              "L:" + trim(string({sys/inc/k16v.i v-form-len},">>>>9.99"))  format "x(22)" AT 2
+              "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))  format "x(22)" AT 2
               "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
                                                                 format "x(11)"
               "Ink 1:" AT 40 v-ink-1
@@ -353,22 +353,22 @@ do v-local-loop = 1 to v-local-copies:
               "Slit: W:" + string(v-outw) + " L:" + string(v-outl) FORM "x(15)"   
               SKIP
               "Board:" AT 2 v-form-code FORM "x(30)" "Ink 2:" AT 40 v-ink-2 "Net   Size:" AT 80
-              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>9.99")) +
               "  " +
-              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>>9.99")) format "x(22)"
+              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>9.99")) format "x(22)"
               SKIP
               v-form-dscr AT 4 FORM "x(30)" "Ink 3:" AT 40 v-ink-3 "Die   Size:" AT 80
-              "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>>9.99")) +
               "  " +
-              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>>>9.99")) format "x(22)"
+              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>>9.99")) format "x(22)"
               "Up:" "W:" + string(v-upl) + " L:" + string(v-upw) FORM "x(9)"
               SKIP
            /*   "Score:" AT 2 v-len-score               format "x(30)" */
                v-qty-or-sup AT 2 FORM "x(36)" 
               "Ink 4:" AT 40 v-ink-4 "Blank Size:" AT 80 
-              "W:" + trim(string({sys/inc/k16v.i xeb.t-wid},">>>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xeb.t-wid},">>>9.99")) +
               "  " +
-              "L:" + trim(string({sys/inc/k16v.i xeb.t-len},">>>>9.99")) format "x(22)"
+              "L:" + trim(string({sys/inc/k16v.i xeb.t-len},">>>9.99")) format "x(22)"
               SKIP
               /*v-qty-or-sup AT 3 FORM "x(36)" */
               "Score:" AT 2 substring(v-len-score,1,30) WHEN xstyle.TYPE <> "F" format "x(30)" 

@@ -478,22 +478,22 @@ do v-local-loop = 1 to v-local-copies:
               "Board:" + v-board-code FORM "x(29)"  @ v-form-code1 AT 2
               " " WHEN v-see-1st-blank @ v-form-code1
               "</B><P10> Ink 2:"  v-ink-2 "Net   Size:"  AT 83
-              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>>9.99")) format "x(22)"
+              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>9.99")) format "x(22)"
               "<B><P12>" SKIP
               v-board-dscr  AT 2 FORM "x(29)"
               "</B><P10> Ink 3:"  v-ink-3 "Die   Size:" AT 83
-              "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>>>9.99")) format "x(21)"
+              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>>9.99")) format "x(21)"
               "Up:" "W:" + string(v-upl) + " L:" + string(v-upw) FORM "x(9)"
               SKIP
                v-qty-or-sup AT 2 FORM "x(36)" 
               "Ink 4:" AT 39 v-ink-4 "Blank Size:" AT 80 
-              "W:" + trim(string({sys/inc/k16v.i xeb.t-wid},">>>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xeb.t-wid},">>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i xeb.t-len},">>>>9.99")) format "x(22)"
+              "L:" + trim(string({sys/inc/k16v.i xeb.t-len},">>>9.99")) format "x(22)"
               SKIP
               "Score:" AT 2 substring(v-len-score,1,30) WHEN xstyle.TYPE <> "F" format "x(30)" 
               "Ink 5:" AT 39 v-ink-5
