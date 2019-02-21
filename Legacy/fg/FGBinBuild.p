@@ -110,10 +110,10 @@ FOR EACH ttFGBins
         fg-rdtlh.avg-cost = ttFGBins.std-tot-cost
         fg-rdtlh.cost = ttFGBins.std-tot-cost
         fg-rdtlh.qty = ttFGBins.qty
-        fg-rdtlh.units-pallet = ttFGBins.units-pallet
-/*        fg-rdtlh.partial =*/
-        fg-rdtlh.cases = ttFGBins.cases
-        fg-rdtlh.qty-case = ttFGBins.qty-case
+        fg-rdtlh.stacks-unit  = ttFGBins.units-pallet /* Stacks-Units = Units/Pallet */
+        fg-rdtlh.cases        = TRUNCATE(ttFGBins.qty / ttFGBins.case-count, 0)
+        fg-rdtlh.qty-case     = ttFGBins.case-count
+        fg-rdtlh.partial      = ttFGBins.qty MODULO ttFgBins.case-count       
         fg-rdtlh.std-fix-cost = ttFGBins.std-fix-cost
         fg-rdtlh.std-lab-cost = ttFGBins.std-lab-cost
         fg-rdtlh.std-mat-cost = ttFGBins.std-mat-cost
@@ -123,7 +123,9 @@ FOR EACH ttFGBins
         fg-rdtlh.trans-date = ipdtAsOf
         fg-rdtlh.trans-time = 86399
         .
-        
+
+            
+
 END.
 
 END PROCEDURE.
@@ -235,16 +237,11 @@ PROCEDURE pBuildBinsForItem PRIVATE:
                         ttFGBins.std-fix-cost = fg-bin.std-fix-cost
                         .
             END.  /*create new ttFGBins*/
-            IF ttFGBins.case-count LE 0 AND fg-rdtlh.qty-case GT 0 THEN
-                ttFGBins.case-count = fg-rdtlh.qty-case.
-            IF ttFGBins.units-pallet LE 0 AND fg-rdtlh.units-pallet GT 0 THEN
-                ttFGBins.units-pallet = fg-rdtlh.units-pallet.
-            IF ttFGBins.cases-unit LE 0 AND fg-rdtlh.stacks-unit GT 0 THEN
-                ttFGBins.cases-unit = fg-rdtlh.stacks-unit.
             CASE fg-rcpth.rita-code:
                 WHEN "S" OR 
                 WHEN "s" THEN
                     ttFGBins.qty = ttFGBins.qty - fg-rdtlh.qty.
+                           
                 WHEN "C" OR 
                 WHEN "c" THEN 
                     ttFGBins.qty = fg-rdtlh.qty.
@@ -254,9 +251,8 @@ PROCEDURE pBuildBinsForItem PRIVATE:
                         ASSIGN 
                             ttFGBins.qty          = ttFGBins.qty + fg-rdtlh.qty
                             ttFGBins.aging-date   = fg-rcpth.trans-date
-                            ttFGBins.units-pallet = fg-rdtlh.units-pallet
-                            ttFGBins.cases        = fg-rdtlh.cases
-                            ttFGBins.qty-case     = fg-rdtlh.qty-case
+                            ttFGBins.units-pallet = fg-rdtlh.stacks-unit                            
+                            ttFGBins.case-count   = fg-rdtlh.qty-case
                             .
                         IF ttFGBins.aging-date EQ ? OR
                             ttFGBins.aging-date GT fg-rcpth.trans-date THEN
@@ -265,6 +261,14 @@ PROCEDURE pBuildBinsForItem PRIVATE:
                 OTHERWISE 
                 ttFGBins.qty = ttFGBins.qty + fg-rdtlh.qty.
             END CASE.
+            
+            IF ttFGBins.case-count LE 0 AND fg-rdtlh.qty-case GT 0 THEN
+                ttFGBins.case-count = fg-rdtlh.qty-case.
+            IF ttFGBins.units-pallet LE 0 AND fg-rdtlh.stacks-unit GT 0 THEN
+                ttFGBins.units-pallet = fg-rdtlh.stacks-unit.
+            IF ttFGBins.cases LE 0 AND fg-rdtlh.cases GT 0 THEN
+                ttFGBins.cases = fg-rdtlh.cases.    
+
             IF ttFGBins.qty EQ 0 THEN 
             DO:
                 DELETE ttFGBins.
