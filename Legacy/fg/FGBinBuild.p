@@ -126,8 +126,7 @@ FOR EACH ttFGBins
         IF fg-rdtlh.partial LT 0 THEN 
             fg-rdtlh.partial      = ttFGBins.qty - (ttFgBins.cases - 1) * ttFgBins.case-count.
             
-        MESSAGE "stacks/un" fg-rdtlh.stacks-unit ttfgbins.units-pallet
-        VIEW-AS ALERT-BOX.
+
 END.
 
 END PROCEDURE.
@@ -271,8 +270,7 @@ PROCEDURE pBuildBinsForItem PRIVATE:
                 ttFGBins.units-pallet = fg-rdtlh.stacks-unit.
             IF ttFGBins.cases LE 0 AND fg-rdtlh.cases GT 0 THEN
                 ttFGBins.cases = fg-rdtlh.cases.    
-                MESSAGE "ttfgbins.units-pallet" ttfgbins.units-pallet
-                VIEW-AS ALERT-BOX.
+
             IF ttFGBins.qty EQ 0 THEN 
             DO:
                 DELETE ttFGBins.
