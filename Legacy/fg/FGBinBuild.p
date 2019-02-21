@@ -123,8 +123,7 @@ FOR EACH ttFGBins
         fg-rdtlh.trans-date = ipdtAsOf
         fg-rdtlh.trans-time = 86399
         .
-        IF fg-rdtlh.partial LT 0 THEN 
-            fg-rdtlh.partial      = ttFGBins.qty - (ttFgBins.cases - 1) * ttFgBins.case-count.
+
             
 
 END.
