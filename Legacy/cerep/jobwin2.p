@@ -321,12 +321,13 @@ FUNCTION barCode RETURNS CHARACTER (ipBarCode AS CHARACTER):
          ELSE ipBarCode.
 END FUNCTION.
 
-FUNCTION FNdeptnotes RETURNS char (INPUT v-reckey AS CHAR, v-codes AS CHAR, v-form-no AS INT):
+FUNCTION FNdeptnotes RETURNS char (INPUT v-reckey AS CHAR, v-codes AS CHAR, v-form-no AS INT, v-job AS char):
    ASSIGN v-text = "".
    FOR EACH notes NO-LOCK
                   WHERE notes.rec_key = v-reckey 
                     AND CAN-DO(v-codes,notes.note_code)
-                    AND notes.note_form_no = v-form-no, 
+                    AND notes.note_form_no = v-form-no
+                    AND (IF v-job GT "" THEN notes.note_group EQ v-job ELSE TRUE), 
       FIRST dept NO-LOCK 
                  WHERE dept.code = notes.note_code
       BY notes.note_form_no 
@@ -1340,24 +1341,24 @@ END FUNCTION.
             SKIP.
 
          PUT "Customer Service Department Notes:" SKIP.
-             ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"CS",job-hdr.frm),80).
+             ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"CS",job-hdr.frm,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
             END.  
-            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"CS",0),80).
+            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"CS",0,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
             END.  
 
           PUT v-thick  "<C1>Prepress Department Notes: "      SKIP .
-          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PP",job-hdr.frm),80).
+          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PP",job-hdr.frm,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
             END.  
-            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PP",0),80).
+            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PP",0,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
@@ -1365,12 +1366,12 @@ END FUNCTION.
 
 
           PUT   "Quality Control Department Notes: " SKIP .
-          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"QC",job-hdr.frm),80).
+          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"QC",job-hdr.frm,string(job-hdr.job)),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
             END. 
-            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"QC",0),80).
+            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"QC",0,STRING(job-hdr.job)),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
@@ -1378,24 +1379,24 @@ END FUNCTION.
           
 
           PUT   "Farm Out Department Notes:  "     SKIP .
-          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FO",job-hdr.frm),80).
+          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FO",job-hdr.frm,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
             END.  
-            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FO",0),80).
+            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FO",0,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
             END.  
 
           PUT   "Foil Stamp Department Notes: "    SKIP .
-          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FS",job-hdr.frm),80).
+          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FS",job-hdr.frm,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
             END.  
-            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FS",0),80).
+            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FS",0,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
@@ -1411,7 +1412,7 @@ END FUNCTION.
              "Approval & In-Process Inspection Checklist Complete :  <FROM><R+1><C+2><RECT><||3>" SKIP
              "Sheeter Department Notes:  " SKIP .
 
-           ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"RS",job-hdr.frm),80).
+           ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"RS",job-hdr.frm,""),80).
         END.                                                                     
              
         DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
@@ -1477,7 +1478,7 @@ END FUNCTION.
         ASSIGN r = 1.
         PUT "<C1>Printing Department Notes:" SKIP.        
         
-        ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PR",job-hdr.frm),80).
+        ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PR",job-hdr.frm,""),80).
              
         DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
             PUT "<C1>" 
@@ -1518,7 +1519,7 @@ END FUNCTION.
 
        /* rdb 02/16/07  02140714 */
         ASSIGN
-          v-text = FNformat(FNdeptnotes(vjobreckey,"dc",job-hdr.frm),80)
+          v-text = FNformat(FNdeptnotes(vjobreckey,"dc",job-hdr.frm,""),80)
           intLnCount = 1.
         DO i = 1 TO NUM-ENTRIES(v-text,"`"):      
           intLnCount = intLnCount + 1.
@@ -1540,12 +1541,12 @@ END FUNCTION.
         RUN PRprintfg2 ("CC").
 
         PUT "Hand Stripping Department Notes:" SKIP.
-             ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"HS",job-hdr.frm),80).
+             ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"HS",job-hdr.frm,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
              END.   
-             ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"HS",0),80).
+             ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"HS",0,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
@@ -1622,7 +1623,7 @@ END FUNCTION.
 
        /* rdb 02/16/07  02140714 */
         ASSIGN 
-          v-text = FNformat(FNdeptnotes(vjobreckey,"WN",job-hdr.frm),80)
+          v-text = FNformat(FNdeptnotes(vjobreckey,"WN",job-hdr.frm,""),80)
           intLnCount = 1.
 
         DO i = 1 TO NUM-ENTRIES(v-text,"`"):        
@@ -1926,7 +1927,7 @@ END FUNCTION.
         PUT "<C1>Approval & In-Process Inspection Checklist Complete : <FROM><R+1><C+2><RECT><||3> " SKIP.
 
         ASSIGN 
-          v-text = FNformat(FNdeptnotes(vjobreckey,"GL",job-hdr.frm),80)
+          v-text = FNformat(FNdeptnotes(vjobreckey,"GL",job-hdr.frm,""),80)
           intLnCount = 1.
 
         DO i = 1 TO NUM-ENTRIES(v-text,"`"):        
@@ -2288,12 +2289,12 @@ END FUNCTION.
                 "<AT=,8.2>" chrBarcode[3].
 
                PUT SKIP "Shipping Department Notes:" SKIP.
-               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",job-hdr.frm),80).
+               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",job-hdr.frm,""),80).
                DO k = 1 TO NUM-ENTRIES(v-text,"`"):       
                    PUT  "<C1>" 
                        ENTRY(k,v-text,"`") FORMAT "X(80)" SKIP. 
                END.
-               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",0),80).
+               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",0,""),80).
                DO k = 1 TO NUM-ENTRIES(v-text,"`"):       
                    PUT  "<C1>" 
                        ENTRY(k,v-text,"`") FORMAT "X(80)" SKIP. 
@@ -2519,12 +2520,12 @@ END FUNCTION.
                   "<AT=,8.2>" chrBarcode[3].    
 
             PUT SKIP "Shipping Department Notes:" SKIP.
-               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",job-hdr.frm),80).
+               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",job-hdr.frm,""),80).
                DO k = 1 TO NUM-ENTRIES(v-text,"`"):       
                    PUT  "<C1>" 
                        ENTRY(k,v-text,"`") FORMAT "X(80)" SKIP. 
                END.
-               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",0),80).
+               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",0,""),80).
                DO k = 1 TO NUM-ENTRIES(v-text,"`"):       
                    PUT  "<C1>" 
                        ENTRY(k,v-text,"`") FORMAT "X(80)" SKIP. 
