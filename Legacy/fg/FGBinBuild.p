@@ -111,9 +111,9 @@ FOR EACH ttFGBins
         fg-rdtlh.cost = ttFGBins.std-tot-cost
         fg-rdtlh.qty = ttFGBins.qty
         fg-rdtlh.stacks-unit  = ttFGBins.units-pallet /* Stacks-Units = Units/Pallet */
-        fg-rdtlh.cases        = ttFGBins.cases
+        fg-rdtlh.cases        = TRUNCATE(ttFGBins.qty / ttFGBins.case-count, 0)
         fg-rdtlh.qty-case     = ttFGBins.case-count
-        fg-rdtlh.partial      = ttFGBins.qty - ttFgBins.cases * ttFgBins.case-count       
+        fg-rdtlh.partial      = ttFGBins.qty MODULO ttFgBins.case-count       
         fg-rdtlh.std-fix-cost = ttFGBins.std-fix-cost
         fg-rdtlh.std-lab-cost = ttFGBins.std-lab-cost
         fg-rdtlh.std-mat-cost = ttFGBins.std-mat-cost
@@ -241,8 +241,8 @@ PROCEDURE pBuildBinsForItem PRIVATE:
             CASE fg-rcpth.rita-code:
                 WHEN "S" OR 
                 WHEN "s" THEN
-                    ASSIGN ttFGBins.qty = ttFGBins.qty - fg-rdtlh.qty
-                           ttFGBins.cases        = ttFGBins.cases + fg-rdtlh.cases.
+                    ttFGBins.qty = ttFGBins.qty - fg-rdtlh.qty.
+                           
                 WHEN "C" OR 
                 WHEN "c" THEN 
                     ttFGBins.qty = fg-rdtlh.qty.
@@ -252,8 +252,7 @@ PROCEDURE pBuildBinsForItem PRIVATE:
                         ASSIGN 
                             ttFGBins.qty          = ttFGBins.qty + fg-rdtlh.qty
                             ttFGBins.aging-date   = fg-rcpth.trans-date
-                            ttFGBins.units-pallet = fg-rdtlh.stacks-unit
-                            ttFGBins.cases        = ttFGBins.cases + fg-rdtlh.cases
+                            ttFGBins.units-pallet = fg-rdtlh.stacks-unit                            
                             ttFGBins.case-count   = fg-rdtlh.qty-case
                             .
                         IF ttFGBins.aging-date EQ ? OR
