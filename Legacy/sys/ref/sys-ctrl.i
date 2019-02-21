@@ -17,7 +17,7 @@ name-fld-list =
 /* 130         131      132     133           134        135      136      137      138      139    140      141           142       143           144      145         146      147        148        149       150          151        152    153               154               155            156        157                   158         159            160         161*/
 "BOLFreight,CESAMPLE,SSRMISSUE,CorrTrim,CustShipToImp,OEScreen,fgoecost,runship,InvStatus,AGEDAYS,FGPostCmp,AckMaster,ChkFmtACH,OeDateChange,SSBOLEMAIL,FGRecptUnit,FGBrowseIA,AlliFlutes,SSBOLPRINT,POScreen,SSScanVendor,BOLFMTTran,POStatus,BOLMaster,CEMarkupMatrixLookup,overwriteJobPlan,capacityPage,OEPriceMatrixCheck,BOLPartial,OEAutoDateUpdate,FGUnderOver,OEPriceHold," + 
 /*  162      */
-"CEPackUpdate"    .
+"CEUpdate"    .
 
 DEFINE VARIABLE str-init AS CHARACTER EXTENT 162 NO-UNDO.
     
@@ -246,7 +246,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[159] = "Transit Days,Dock Appt Days,Transit&Dock"
        str-init[160] = "UnderRuns and OverRun,OverRuns Only,UnderRuns Only"
        str-init[161] = ",QtyInRange,QtyMatch,EffDateAge,QtyQuoted"
-       str-init[162] = "None,CAD#,CustomerPart#,FGItem#,CAD#andFGItem#"
+       str-init[162] = "FG Item #,CAD #,Customer Part #"
        .
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
