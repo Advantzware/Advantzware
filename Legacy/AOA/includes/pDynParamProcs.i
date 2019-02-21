@@ -48,14 +48,14 @@ PROCEDURE pCreateDynParameters :
     &IF "{1}" EQ "dyn" &THEN
     RUN pGetDynParamValue.
     &ELSE
-    RUN pGetDynParamValue ({1}Subject.subjectID, "{&defaultUser}", "{&program-id}", 0).
+    RUN pGetDynParamValue (dynSubject.subjectID, "{&defaultUser}", "{&program-id}", 0).
     &ENDIF
     IF NOT AVAILABLE dynParamValue OR
-       NOT AVAILABLE {1}Subject THEN RETURN.    
+       NOT AVAILABLE dynSubject THEN RETURN.    
     
     EMPTY TEMP-TABLE ttAction.
     FOR EACH {1}SubjectParamSet
-        WHERE {1}SubjectParamSet.subjectID EQ {1}Subject.subjectID,
+        WHERE {1}SubjectParamSet.subjectID EQ dynSubject.subjectID,
         EACH dynParamSet NO-LOCK
         WHERE dynParamSet.paramSetID EQ {1}SubjectParamSet.paramSetID,
         EACH dynParamSetDtl
@@ -329,7 +329,7 @@ PROCEDURE pCreateDynParameters :
         END. /* if valid-handle */
     END. /* each {1}SubjectParamSet */
     ASSIGN
-        FRAME outputFrame:TITLE = {1}Subject.subjectTitle
+        FRAME outputFrame:TITLE = dynSubject.subjectTitle
         hWidget = FRAME outputFrame:HANDLE
         hWidget = hWidget:FIRST-CHILD
         hWidget = hWidget:FIRST-CHILD

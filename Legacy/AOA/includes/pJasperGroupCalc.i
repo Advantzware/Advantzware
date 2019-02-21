@@ -11,7 +11,7 @@ FUNCTION fJasperFields RETURNS CHARACTER
     DEFINE BUFFER bttSubjectColumn FOR ttSubjectColumn.
         
     FOR EACH bttSubjectColumn
-        WHERE bttSubjectColumn.subjectID EQ {1}Subject.subjectID
+        WHERE bttSubjectColumn.subjectID EQ dynSubject.subjectID
         :
         cFields = cFields + "$F~{" + bttSubjectColumn.fieldName + "},".
     END. /* each ttSubjectColumn*/
@@ -28,7 +28,7 @@ FUNCTION fJasperGroupCalc RETURNS CHARACTER
     DEFINE VARIABLE cGroupCalc AS CHARACTER NO-UNDO.
     
     FOR EACH ttGroupCalc
-        WHERE ttGroupCalc.subjectID EQ {1}Subject.subjectID
+        WHERE ttGroupCalc.subjectID EQ dynSubject.subjectID
           AND ttGroupCalc.fieldName EQ ipcField
         :
         IF ttGroupCalc.groupName NE "" THEN 
@@ -53,7 +53,7 @@ FUNCTION fJasperGroups RETURNS CHARACTER
     
     /* create list of groups */
     FOR EACH ttSubjectColumn
-        WHERE ttSubjectColumn.subjectID EQ {1}Subject.subjectID
+        WHERE ttSubjectColumn.subjectID EQ dynSubject.subjectID
           AND ttSubjectColumn.isGroup   EQ YES
         :
         cGroups = cGroups + "[Group] " + ttSubjectColumn.fieldLabel + ",".
@@ -75,7 +75,7 @@ FUNCTION fJasperVariables RETURNS CHARACTER
     DEFINE BUFFER bttSubjectColumn FOR {1}SubjectColumn.
         
     FOR EACH bttSubjectColumn
-        WHERE bttSubjectColumn.subjectID EQ {1}Subject.subjectID
+        WHERE bttSubjectColumn.subjectID EQ dynSubject.subjectID
           AND bttSubjectColumn.groupCalc NE "",
         EACH ttGroupCalc
         WHERE ttGroupCalc.subjectID EQ bttSubjectColumn.subjectID

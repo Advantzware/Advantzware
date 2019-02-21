@@ -10,7 +10,7 @@ PROCEDURE pSetDynParamValue:
     
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
-    DEFINE BUFFER {1}Subject         FOR {1}Subject.
+    DEFINE BUFFER dynSubject         FOR dynSubject.
     DEFINE BUFFER {1}SubjectParamSet FOR {1}SubjectParamSet.
     DEFINE BUFFER {1}SubjectColumn   FOR {1}SubjectColumn.
     
@@ -21,20 +21,20 @@ PROCEDURE pSetDynParamValue:
            AND dynParamValue.paramValueID EQ ipiParamValueID
          NO-ERROR.
     IF NOT AVAILABLE dynParamValue THEN DO TRANSACTION:
-        FIND FIRST {1}Subject NO-LOCK
-             WHERE {1}Subject.subjectID EQ ipiSubjectID
+        FIND FIRST dynSubject NO-LOCK
+             WHERE dynSubject.subjectID EQ ipiSubjectID
              NO-ERROR.
-        IF NOT AVAILABLE {1}Subject THEN RETURN.
+        IF NOT AVAILABLE dynSubject THEN RETURN.
         CREATE dynParamValue.
         ASSIGN
             dynParamValue.subjectID        = ipiSubjectID
             dynParamValue.user-id          = ipcUserID
             dynParamValue.prgmName         = ipcPrgmName
             dynParamValue.paramValueID     = ipiParamValueID
-            dynParamValue.paramTitle       = {1}Subject.subjectTitle
+            dynParamValue.paramTitle       = dynSubject.subjectTitle
             dynParamValue.paramDescription = IF ipcUserID EQ "{&defaultUser}" THEN "System Default"
                                              ELSE "User Default"
-            dynParamValue.outputFormat     = {1}Subject.outputFormat
+            dynParamValue.outputFormat     = dynSubject.outputFormat
             .
         FOR EACH {1}SubjectParamSet
             WHERE {1}SubjectParamSet.subjectID EQ ipiSubjectID,

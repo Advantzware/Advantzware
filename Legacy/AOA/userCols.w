@@ -40,7 +40,6 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lSave    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE rRowID   AS ROWID     NO-UNDO.
 
@@ -91,19 +90,15 @@ btnMoveDown btnMoveUp
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ************************  Function Prototypes ********************** */
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSetSaveButton s-object
-FUNCTION fSetSaveButton RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSetSaveButton s-object 
+FUNCTION fSetSaveButton RETURNS LOGICAL
   (iplSave AS LOGICAL) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -272,7 +267,11 @@ BY ttSubjectColumn.sortOrder.
 */  /* BROWSE subjectColumnBrowse */
 &ANALYZE-RESUME
 
- /* ************************  Control Triggers  ************************ */
+ 
+
+
+
+/* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME btnGroupCalc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupCalc s-object
@@ -621,11 +620,10 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSetSaveButton s-object
-FUNCTION fSetSaveButton RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSetSaveButton s-object 
+FUNCTION fSetSaveButton RETURNS LOGICAL
   (iplSave AS LOGICAL):
 /*------------------------------------------------------------------------------
  Purpose:
@@ -633,16 +631,14 @@ FUNCTION fSetSaveButton RETURNS LOGICAL
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            lSave             = iplSave
-            btnSave:HIDDEN    = NOT lSave
-            btnSave:SENSITIVE = lSave
+            btnSave:HIDDEN    = NOT iplSave
+            btnSave:SENSITIVE = iplSave
             .
     END. /* with frame */
-    RETURN lSave.
+    RETURN iplSave.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

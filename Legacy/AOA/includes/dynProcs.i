@@ -172,7 +172,7 @@ PROCEDURE pResultsBrowser :
         DELETE OBJECT hColumn.
     END. /* do idx */
     ASSIGN
-        hQueryBrowse:TITLE   = {1}Subject.subjectTitle + " Results"
+        hQueryBrowse:TITLE   = dynSubject.subjectTitle + " Results"
         hQueryBrowse:QUERY   = iphQuery
         hQueryBrowse:VISIBLE = TRUE
         .
@@ -232,7 +232,7 @@ PROCEDURE pResultsJasper :
     RUN spJasperQuery IN hJasper (
         ipcType,
         ROWID(dynParamValue),
-        {1}Subject.subjectTitle,
+        dynSubject.subjectTitle,
         ipcUserID,
         hAppSrvBin,
         OUTPUT cJasperFile
@@ -264,7 +264,7 @@ PROCEDURE pRunQuery:
     DEFINE BUFFER {1}SubjectTable FOR {1}SubjectTable.    
 
     FOR EACH {1}SubjectTable
-        WHERE {1}SubjectTable.subjectID EQ {1}Subject.subjectID
+        WHERE {1}SubjectTable.subjectID EQ dynSubject.subjectID
            BY {1}SubjectTable.sortOrder
         :
         cTableName = cTableName + {1}SubjectTable.tableName + ",".
@@ -288,7 +288,7 @@ PROCEDURE pRunQuery:
                 RUN pResultsJasper (ipcType, ipcUserID).
                 OTHERWISE
                 IF dynParamValue.user-id NE "_default" THEN
-                RUN pRunNow (ipcType, {1}Subject.subjectTitle, YES).
+                RUN pRunNow (ipcType, dynSubject.subjectTitle, YES).
                 ELSE
                 RUN pResultsJasper (ipcType, ipcUserID).
             END CASE.
@@ -324,7 +324,7 @@ PROCEDURE pRunSubject :
         dynParamValue.outputFormat = ipcType.
         FIND CURRENT dynParamValue NO-LOCK.
     END. /* do trans */
-    RUN pSetDynParamValue ({1}Subject.subjectID, ipcUserID, ipcPrgmName, 0).
+    RUN pSetDynParamValue (dynSubject.subjectID, ipcUserID, ipcPrgmName, 0).
     IF iplRun THEN
     RUN pSaveDynParamValues (ipcType).
     RUN pRunQuery (iplRun, ipcType, ipcUserID).

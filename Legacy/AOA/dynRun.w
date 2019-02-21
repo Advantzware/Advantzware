@@ -860,14 +860,6 @@ PROCEDURE pSaveSettings :
         user-print.field-label[idx] = "WindowHeight"
         user-print.field-value[idx] = STRING({&WINDOW-NAME}:HEIGHT)
         .
-    DO TRANSACTION:
-        FIND CURRENT dynSubject EXCLUSIVE-LOCK.
-        ASSIGN
-            dynSubject.subjectHeight = FRAME paramFrame:HEIGHT
-            dynSubject.subjectWidth  = FRAME paramFrame:WIDTH
-            .
-        FIND CURRENT dynSubject NO-LOCK.
-    END. /* do trans */
 
 END PROCEDURE.
 
