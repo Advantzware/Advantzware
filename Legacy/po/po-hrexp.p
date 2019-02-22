@@ -617,6 +617,34 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     /* 1 blank space */
     PUT FILL(" ",1)                                 FORMAT "x(1)"       SKIP.
     
+      /* D4 Second instance */
+    
+      /* SCORE */
+      DO i = 10 TO 13:
+          IF AVAIL b-ref1 AND b-ref1.val[i] NE 0 THEN 
+              PUT trunc(b-ref1.val[i],0)                  FORMAT ">>>"
+                  ":"                                     FORMAT "x"
+                  (b-ref1.val[i] - trunc(b-ref1.val[i],0)) * 100
+                  FORMAT "99"
+                  substr(b-ref1.dscr,i,1)                 FORMAT "x".
+            
+          ELSE PUT "       "                            FORMAT "x(7)".
+      END.
+      
+      IF AVAILABLE b-ref2 THEN DO:
+          DO i = 1 TO 9:
+              IF AVAIL b-ref2 AND b-ref2.val[i] NE 0 THEN 
+                  PUT trunc(b-ref2.val[i],0)                  FORMAT ">>>"
+                      ":"                                     FORMAT "x"
+                      (b-ref2.val[i] - trunc(b-ref2.val[i],0)) * 100
+                      FORMAT "99"
+                      substr(b-ref2.dscr,i,1)                 FORMAT "x".
+                
+              ELSE PUT "       "                            FORMAT "x(7)".
+          END.
+      END.
+      PUT FILL(" ",1)                                 FORMAT "x(1)"       SKIP.
+      
     /* D5 */
 
     /* SPECIAL INSTRUCTIONS */
