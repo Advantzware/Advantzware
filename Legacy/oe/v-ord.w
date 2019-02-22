@@ -1157,22 +1157,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME oe-ord.entered-id
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.entered-id V-table-Win
-ON LEAVE OF oe-ord.entered-id IN FRAME F-Main /* CSR */
-DO:
-  
-  IF LASTKEY <> -1 THEN DO:
-     RUN valid-entered-id NO-ERROR.
-     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME oe-ord.cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.cust-no V-table-Win
 ON ENTRY OF oe-ord.cust-no IN FRAME F-Main /* Bill To */
@@ -5244,6 +5228,7 @@ PROCEDURE local-enable-fields :
 
    IF NOT lCreditAccSec THEN
        DISABLE oe-ord.cc-type oe-ord.cc-expiration oe-ord.spare-char-1 oe-ord.cc-num oe-ord.cc-auth .
+    DISABLE oe-ord.entered-id .
   END.
 
   ASSIGN
@@ -5377,10 +5362,7 @@ PROCEDURE local-update-record :
 
      RUN valid-custcsr NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-     RUN valid-entered-id NO-ERROR.
-     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+    
      RUN valid-due-date.
      IF ERROR-STATUS:ERROR THEN
         RETURN NO-APPLY.
@@ -6552,25 +6534,6 @@ PROCEDURE valid-custcsr :
        NOT CAN-FIND(FIRST users WHERE users.USER_ID EQ oe-ord.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME})
   THEN DO:
      MESSAGE "Invalid customer CSR. Try help." VIEW-AS ALERT-BOX ERROR.
-     RETURN ERROR.
-  END.
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-entered-id V-table-Win 
-PROCEDURE valid-entered-id :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
-  IF oe-ord.entered-id:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:
-      MESSAGE "Can not be blank. Try help." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO oe-ord.entered-id.
      RETURN ERROR.
   END.
   {methods/lValidateError.i NO}

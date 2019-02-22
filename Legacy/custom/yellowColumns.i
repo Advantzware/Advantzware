@@ -1244,6 +1244,23 @@ PROCEDURE openQuery:
      IF sortColumn EQ 'Width'           THEN STRING(tt-eb.wid, '>>9.99')    ELSE ~
         STRING(tt-eb.dep, '>>9.99') ~{&SORTED}
 
+&ELSEIF '{&yellowColumnsName}' EQ 'b-invitm' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+     IF sortColumn EQ 'Line'      THEN string(inv-line.line,'>>99')                ELSE ~
+     IF sortColumn EQ 'Item#'     THEN STRING(inv-line.i-no)                       ELSE ~
+     IF sortColumn EQ 'Name'      THEN STRING(inv-line.i-name)                     ELSE ~
+     IF sortColumn EQ 'Quantity'  THEN STRING(inv-line.inv-qty,'->>,>>>,>>9')      ELSE ~
+     IF sortColumn EQ 'Order#'    THEN STRING(inv-line.ord-no,'>>>>>9')            ELSE ~
+     IF sortColumn EQ 'Bol#'      THEN STRING(display-bolno())                     ELSE ~
+     IF sortColumn EQ 'Price'     THEN STRING(inv-line.price,'->>,>>>,>>9.99<<<<') ELSE ~
+     IF sortColumn EQ 'UOM'       THEN STRING(inv-line.pr-uom)                     ELSE ~
+     IF sortColumn EQ 'Total$'    THEN STRING(inv-line.t-price, '->>,>>>,>>9.99')  ELSE ~
+     IF sortColumn EQ 'Est#'      THEN STRING(inv-line.est-no)                     ELSE ~
+     IF sortColumn EQ 'Customer Lot #' THEN STRING(get-lot-no())                   ELSE ~
+     IF sortColumn EQ 'Sales Rep'      THEN STRING(inv-line.sman[1])               ELSE ~
+     IF sortColumn EQ 'Sales Rep Name' THEN STRING(inv-line.sname[1])              ELSE ~
+        STRING(inv-line.LINE, '>>99') ~{&SORTED}
+
 &ELSEIF '{&yellowColumnsName}' EQ 'l-estcst' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
      IF sortColumn EQ 'Estimate #'      THEN eb.est-no                   ELSE ~

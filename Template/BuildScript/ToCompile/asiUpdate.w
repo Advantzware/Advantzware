@@ -584,6 +584,8 @@ OR CHOOSE OF bUpdate
                     RUN ipStatus("Sending report to ASI").
                     RUN ipBuildVerification (3).
                     RUN ipSendVerification.
+
+                    IF lSuccess THEN APPLY 'close' TO THIS-PROCEDURE.
                 END.
         END CASE.
     END.
@@ -1228,11 +1230,10 @@ PROCEDURE ipProcess :
         ELSE ASSIGN 
             cFileToRun = "N:\Repository\PatchTemplate\Deployment\Admin\EnvAdmin\asiUpdateDB.w".
  
-        CREATE ALIAS "DICTDB" FOR DATABASE asi.
- 
         RUN  VALUE (cFileToRun) (ENTRY(iEnv,cDBList),
             ENTRY(iEnv,cDBPortList),
             ENTRY(iEnv,cDbDirList),
+            iEnv,
             iCurrDbVer,
             iPatchDbVer,
             iCurrAudVer,
@@ -1368,7 +1369,7 @@ PROCEDURE ipProcess :
     ASSIGN
         c-Win:VISIBLE = TRUE. 
     RUN ipStatus("Return from asiUpdateENV.w").
- 
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1731,11 +1732,11 @@ PROCEDURE ipSendVerification :
     END.
 
     RUN ipStatus("  Starting 2d FTP session").
-    OS-COMMAND SILENT VALUE("FTP -n -s:" + cFTPxmit + " >> " + cFtpOutputFile + " 2>> " + cFtpErrFile).
+    OS-COMMAND NO-WAIT VALUE("FTP -n -s:" + cFTPxmit + " >> " + cFtpOutputFile + " 2>> " + cFtpErrFile).
 
     /* File cleanup */
     RUN ipStatus("Upgrade Complete.  Press EXIT to quit.").
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

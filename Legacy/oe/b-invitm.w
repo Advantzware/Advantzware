@@ -22,7 +22,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+&SCOPED-DEFINE yellowColumnsName b-invitm
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
 
@@ -99,7 +99,7 @@ get-lot-no() @ lv-lot-no inv-line.sman[1] inv-line.sname[1]
 &Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
 Btn_Clear_Find fi_By fi_AutoFindLabel 
 &Scoped-Define DISPLAYED-OBJECTS browse-order auto_find fi_By ~
-fi_AutoFindLabel 
+fi_AutoFindLabel fi_sortby
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -138,6 +138,11 @@ DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 60 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 26 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.
+
 DEFINE VARIABLE fi_AutoFindLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Auto Find:" 
       VIEW-AS TEXT 
      SIZE 10 BY .62 NO-UNDO.
@@ -150,7 +155,7 @@ DEFINE VARIABLE browse-order AS INTEGER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 55 BY 1 NO-UNDO.
+     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -166,21 +171,21 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      inv-line.line FORMAT ">>99":U WIDTH 6.2
-      inv-line.i-no FORMAT "x(15)":U
-      inv-line.i-name FORMAT "x(30)":U
+      inv-line.line FORMAT ">>99":U WIDTH 6.2 LABEL-BGCOLOR 14
+      inv-line.i-no FORMAT "x(15)":U LABEL-BGCOLOR 14
+      inv-line.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       inv-line.inv-qty COLUMN-LABEL "Quantity" FORMAT "->>,>>>,>>9":U
-            WIDTH 15.6
-      inv-line.ord-no FORMAT ">>>>>9":U WIDTH 9.2
-      display-bolno() @ lv-bolno COLUMN-LABEL "Bol#" FORMAT "x(8)":U
-      inv-line.price FORMAT "->>,>>>,>>9.99<<<<":U WIDTH 14.2
-      inv-line.pr-uom COLUMN-LABEL "UOM" FORMAT "x(4)":U
-      inv-line.t-price COLUMN-LABEL "Total$" FORMAT "->>,>>>,>>9.99":U
-      inv-line.est-no COLUMN-LABEL "    Est#" FORMAT "x(8)":U WIDTH 12
+            WIDTH 15.6 LABEL-BGCOLOR 14
+      inv-line.ord-no FORMAT ">>>>>9":U WIDTH 9.2 LABEL-BGCOLOR 14
+      display-bolno() @ lv-bolno COLUMN-LABEL "Bol#" FORMAT "x(8)":U LABEL-BGCOLOR 14
+      inv-line.price FORMAT "->>,>>>,>>9.99<<<<":U WIDTH 14.2 LABEL-BGCOLOR 14
+      inv-line.pr-uom COLUMN-LABEL "UOM" FORMAT "x(4)":U LABEL-BGCOLOR 14
+      inv-line.t-price COLUMN-LABEL "Total$" FORMAT "->>,>>>,>>9.99":U LABEL-BGCOLOR 14
+      inv-line.est-no COLUMN-LABEL "    Est#" FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
       get-lot-no() @ lv-lot-no COLUMN-LABEL "Customer Lot #" FORMAT "X(15)":U
-            WIDTH 21.8
-      inv-line.sman[1] COLUMN-LABEL "Sales Rep" FORMAT "x(3)":U
-      inv-line.sname[1] COLUMN-LABEL "Sales Rep Name" FORMAT "x(20)":U
+            WIDTH 21.8 LABEL-BGCOLOR 14
+      inv-line.sman[1] COLUMN-LABEL "Sales Rep" FORMAT "x(3)":U LABEL-BGCOLOR 14
+      inv-line.sname[1] COLUMN-LABEL "Sales Rep Name" FORMAT "x(20)":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 16.43
@@ -194,12 +199,15 @@ DEFINE FRAME F-Main
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 17.67 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
+     fi_sortby AT ROW 17.67 COL 33 COLON-ALIGNED NO-LABEL
      auto_find AT ROW 17.67 COL 70 COLON-ALIGNED HELP
           "Enter Auto Find Value" NO-LABEL
      Btn_Clear_Find AT ROW 17.67 COL 132 HELP
           "CLEAR AUTO FIND Value"
      fi_By AT ROW 17.81 COL 2 NO-LABEL
      fi_AutoFindLabel AT ROW 17.95 COL 61.4 NO-LABEL
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 17.67 COL 31
      RECT-4 AT ROW 17.43 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -246,6 +254,7 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
+{custom/yellowColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -265,10 +274,16 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+
 /* SETTINGS FOR FILL-IN fi_AutoFindLabel IN FRAME F-Main
    ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN fi_By IN FRAME F-Main
    ALIGN-L                                                              */
+/* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       fi_sortby:READ-ONLY IN FRAME F-Main        = TRUE.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -362,6 +377,16 @@ DO:
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
    {src/adm/template/brsleave.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON START-SEARCH OF Browser-Table IN FRAME F-Main
+DO:
+  RUN startsearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */

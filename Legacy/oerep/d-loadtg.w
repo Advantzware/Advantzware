@@ -67,7 +67,7 @@ IF NOT BOLWt-log THEN RUN calc-weight-all.
 &Scoped-define INTERNAL-TABLES w-ord
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 w-ord.ord-no w-ord.job-no w-ord.job-no2 NO-LABEL w-ord.cust-no w-ord.i-no w-ord.ord-qty w-ord.rel-qty w-ord.over-pct w-ord.pcs "Unit Count" w-ord.bundle Unit" */ "Units/!Pallet" w-ord.partial w-ord.total-unit w-ord.total-tags /* gdm 09210907 */ w-ord.unit-wt w-ord.pallt-wt w-ord.lot w-ord.i-name w-ord.cust-po-no w-ord.total-unit * w-ord.total-tags @ iTotalQty ~
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 w-ord.ord-no w-ord.job-no w-ord.job-no2 NO-LABEL w-ord.cust-no w-ord.i-no w-ord.ord-qty w-ord.rel-qty w-ord.over-pct w-ord.pcs "Unit Count" w-ord.bundle Unit" */ "Units/!Pallet" w-ord.partial w-ord.total-unit w-ord.total-tags /* gdm 09210907 */ w-ord.unit-wt w-ord.pallt-wt w-ord.lot w-ord.i-name w-ord.cust-po-no w-ord.po-line w-ord.total-unit * w-ord.total-tags @ iTotalQty ~
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 w-ord.over-pct ~
  w-ord.pcs ~
  w-ord.bundle ~
@@ -177,6 +177,7 @@ DEFINE BROWSE BROWSE-1
       w-ord.lot FORMAT "X(20)" COLUMN-LABEL "FG Lot#"
       w-ord.i-name LABEL "Item Name"
       w-ord.cust-po-no LABEL "Customer PO#"
+      w-ord.po-line LABEL "Ln"
       ENABLE
         w-ord.over-pct
         w-ord.pcs

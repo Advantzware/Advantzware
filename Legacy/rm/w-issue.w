@@ -482,10 +482,14 @@ PROCEDURE select_add :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var char-hdl as cha no-undo.
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lv-rowid AS ROWID     NO-UNDO.
+ 
+  RUN rm/d-issue.w (?, "add",OUTPUT lv-rowid).
   
   RUN get-link-handle in adm-broker-hdl(this-procedure,"add-line-target", output char-hdl).
-  run add-item in widget-handle(char-hdl).
+  RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

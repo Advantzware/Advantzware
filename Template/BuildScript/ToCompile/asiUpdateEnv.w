@@ -127,6 +127,7 @@ DEF STREAM outStream.
 DEF STREAM logStream.
 DEF STREAM iniStream.
 
+DEF VAR cDbDirOnly AS CHAR NO-UNDO.
 DEF VAR cBadDirList AS CHAR NO-UNDO.
 DEF VAR cfrom AS CHAR.
 DEF VAR cIniLine AS CHAR NO-UNDO.
@@ -863,8 +864,6 @@ PROCEDURE ipAddDbmsFonts:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcDir AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcTgtDir AS CHAR NO-UNDO.
     DEF VAR cFileStream AS CHAR NO-UNDO.
     DEF VAR cThisEntry AS CHAR NO-UNDO.
     DEF VAR cTgtEnv AS CHAR NO-UNDO.
@@ -872,29 +871,30 @@ PROCEDURE ipAddDbmsFonts:
     DEF VAR cLineText AS CHAR NO-UNDO.
     DEF VAR iNextLine AS INT NO-UNDO.
     
-    RUN ipStatus ("  Fixing dbms.ini files").
+    RUN ipStatus ("    Fixing dbms.ini files").
     
     ASSIGN 
         cTgtEnv = cEnvAdmin.
 
-    INPUT FROM OS-DIR (ipcDir).
+    INPUT FROM OS-DIR (cEnvAdmin).
 
     REPEAT:
         IMPORT cFileStream.
-        FILE-INFO:FILE-NAME = ipcDir + "\" + cFileStream.
+        FILE-INFO:FILE-NAME = cFileStream.
+
         IF SUBSTRING(FILE-INFO:FILE-NAME,LENGTH(FILE-INFO:FILE-NAME),1) EQ "." THEN DO:
             NEXT.
         END.
         ELSE IF FILE-INFO:FILE-TYPE BEGINS "F" 
-        AND FILE-INFO:FILE-NAME BEGINS "dbms" 
+        AND INDEX(FILE-INFO:FILE-NAME,"dbms") NE 0 
         AND INDEX(FILE-INFO:FILE-NAME,".ini") NE 0 THEN DO:
             EMPTY TEMP-TABLE ttDbms.
             ASSIGN 
                 iThisLine = 100.
             
-            INPUT STREAM s1 FROM FILE-INFO:FULL-PATHNAME.
+            INPUT STREAM s1 FROM VALUE(FILE-INFO:FULL-PATHNAME).
             REPEAT:
-                IMPORT STREAM s1 cLineText.
+                IMPORT STREAM s1 UNFORMATTED cLineText.
                 CREATE ttDbms.
                 ASSIGN 
                     ttDbms.iLineNo = iThisLine
@@ -914,37 +914,37 @@ PROCEDURE ipAddDbmsFonts:
                     iNextLine = ttDbms.iLineNo.
                 CREATE ttDbms.
                 ASSIGN 
-                    ttDbms.iLineNO = iNextLine + 1
+                    ttDbms.iLineNo = iNextLine + 1
                     ttDbms.cLine = "font32=Tahoma, size=8".
                 CREATE ttDbms.
                 ASSIGN 
-                    ttDbms.iLineNO = iNextLine + 2
-                    ttDbms.cLine = "font32=Tahoma, size=8, bold".
+                    ttDbms.iLineNo = iNextLine + 2
+                    ttDbms.cLine = "font33=Tahoma, size=8, bold".
                 CREATE ttDbms.
                 ASSIGN 
-                    ttDbms.iLineNO = iNextLine + 3
-                    ttDbms.cLine = "font32=Tahoma, size=10".
+                    ttDbms.iLineNo = iNextLine + 3
+                    ttDbms.cLine = "font34=Tahoma, size=10".
                 CREATE ttDbms.
                 ASSIGN 
-                    ttDbms.iLineNO = iNextLine + 4
-                    ttDbms.cLine = "font32=Tahoma, size=10, bold".
+                    ttDbms.iLineNo = iNextLine + 4
+                    ttDbms.cLine = "font35=Tahoma, size=10, bold".
                 CREATE ttDbms.
                 ASSIGN 
-                    ttDbms.iLineNO = iNextLine + 5
-                    ttDbms.cLine = "font32=Tahoma, size=12".
+                    ttDbms.iLineNo = iNextLine + 5
+                    ttDbms.cLine = "font36=Tahoma, size=12".
                 CREATE ttDbms.
                 ASSIGN 
-                    ttDbms.iLineNO = iNextLine + 6
-                    ttDbms.cLine = "font32=Tahoma, size=12, bold".
-                
-                OUTPUT STREAM s2 TO FILE-INFO:FULL-PATHNAME.
-                FOR EACH ttDbms:
+                    ttDbms.iLineNo = iNextLine + 6
+                    ttDbms.cLine = "font37=Tahoma, size=12, bold".
+
+                OUTPUT STREAM s2 TO VALUE(FILE-INFO:FULL-PATHNAME).
+                FOR EACH ttDbms BY ttDbms.iLineNo:
                     PUT STREAM s2 UNFORMATTED ttDbms.cLine + CHR(10).
                 END.
+
             END.
         END.
     END.
-
 
 END PROCEDURE.
 	
@@ -1101,7 +1101,7 @@ PROCEDURE ipArchiveFiles :
         /* Default is to pull from Env\Prod, but if not found, will also search root drive and Rcode */
         IF SEARCH(cEnvProdDir + "\Programs\nosweat.r") NE ? THEN DO:
             ASSIGN
-                cCmdZip = cUpdCompressDir + "\7z.exe a " + 
+                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
                           cPgmBackup + "\Programs" + 
                           STRING(YEAR(TODAY)) +
                           STRING(MONTH(TODAY),"99") +
@@ -1111,7 +1111,7 @@ PROCEDURE ipArchiveFiles :
         END.    
         ELSE IF SEARCH(cMapDir + "\Programs\nosweat.r") NE ? THEN DO:
             ASSIGN
-                cCmdZip = cUpdCompressDir + "\7z.exe a " + 
+                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
                           cPgmBackup + "\Programs" + 
                           STRING(YEAR(TODAY)) +
                           STRING(MONTH(TODAY),"99") +
@@ -1121,7 +1121,7 @@ PROCEDURE ipArchiveFiles :
         END.
         ELSE IF SEARCH(cMapDir + "\Rcode\Programs\nosweat.r") NE ? THEN DO:
             ASSIGN
-                cCmdZip = cUpdCompressDir + "\7z.exe a " + 
+                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
                           cPgmBackup + "\Programs" + 
                           STRING(YEAR(TODAY),"99") +
                           STRING(MONTH(TODAY),"99") +
@@ -1136,7 +1136,7 @@ PROCEDURE ipArchiveFiles :
 
         IF SEARCH(cEnvProdDir + "\Resources\quoter.exe") NE ? THEN DO:
             ASSIGN
-                cCmdZip = cUpdCompressDir + "\7z.exe a " + 
+                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
                           cResBackup + "\Resources" + 
                           STRING(YEAR(TODAY)) +
                           STRING(MONTH(TODAY),"99") +
@@ -1146,7 +1146,7 @@ PROCEDURE ipArchiveFiles :
         END.
         ELSE IF SEARCH(cMapDir + "\Resources\quoter.exe") NE ? THEN DO:
             ASSIGN
-                cCmdZip = cUpdCompressDir + "\7z.exe a " + 
+                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
                           cResBackup + "\Resources" + 
                           STRING(YEAR(TODAY)) +
                           STRING(MONTH(TODAY),"99") +
@@ -1156,7 +1156,7 @@ PROCEDURE ipArchiveFiles :
         END.
         ELSE IF SEARCH(cMapDir + "\Rcode\Resources\quoter.exe") NE ? THEN DO:
             ASSIGN
-                cCmdZip = cUpdCompressDir + "\7z.exe a " + 
+                cCmdZip = cUpdProgramDir + "\7z.exe a " + 
                           cResBackup + "\Resources" + 
                           STRING(YEAR(TODAY)) +
                           STRING(MONTH(TODAY),"99") +
@@ -1172,7 +1172,7 @@ PROCEDURE ipArchiveFiles :
     IF lProdOverExists THEN DO:
         RUN ipStatus ("Archiving old hotfix files").
         ASSIGN
-            cCmdZip = cUpdCompressDir + "\7z.exe a " + 
+            cCmdZip = cUpdProgramDir + "\7z.exe a " + 
                       cPgmBackup + "\Override" + 
                       STRING(YEAR(TODAY)) +
                       STRING(MONTH(TODAY),"99") +
@@ -1372,12 +1372,12 @@ PROCEDURE ipBackupDBs :
             cCmdLine    = cDLCDir + "\bin\probkup online " + 
                        cDBDrive + "\" + 
                        cTopDir + "\" + 
-                       cDbDir + "\" +
+                       cDbDirOnly + "\" +
                        cLocDir + "\" +
                        cLocName + " " + 
                        cBackupName
             cLockFile   = cDbDrive + "\" +
-                       cTopDir + "\" + cDbDir + "\" + 
+                       cTopDir + "\" + cDbDirOnly + "\" + 
                        cThisDir + "\" +
                        cThisDB + ".lk".
         .
@@ -1447,7 +1447,7 @@ PROCEDURE ipBuildCustFilesTree :
     FILE-INFO:FILE-NAME = cEnvTestDir.
     ASSIGN
         lTestExists = FILE-INFO:FULL-PATHNAME NE ?
-        cCmdLine1 = cUpdCompressDir + "\7z.exe x ".
+        cCmdLine1 = cUpdProgramDir + "\7z.exe x ".
     FILE-INFO:FILE-NAME = cEnvProdDir + "\CustFiles\Logs".
     ASSIGN
         lProdFilesExist = FILE-INFO:FULL-PATHNAME NE ?.
@@ -2787,9 +2787,10 @@ PROCEDURE ipExpandFiles :
     RUN ipStatus ("  Expanding files...").
 
     ASSIGN
-        cCmdLine1 = cUpdCompressDir + "\7z.exe x " + cUpdProgramDir + "\Override.7z -y -o" + cUpdProgramDir + "\Override"
-        cCmdLine2 = cUpdCompressDir + "\7z.exe x " + cUpdProgramDir + "\Programs.7z -y -o" + cUpdProgramDir + "\Programs"
-        cCmdLine3 = cUpdCompressDir + "\7z.exe x " + cUpdProgramDir + "\Resources.7z -y -o" + cUpdProgramDir + "\Resources".
+        cCmdLine1 = cUpdProgramDir + "\7z.exe x " + cUpdProgramDir + "\Override.7z -y -o" + cUpdProgramDir + "\Override"
+        cCmdLine2 = cUpdProgramDir + "\7z.exe x " + cUpdProgramDir + "\Programs.7z -y -o" + cUpdProgramDir + "\Programs"
+        cCmdLine3 = cUpdProgramDir + "\7z.exe x " + cUpdProgramDir + "\Resources.7z -y -o" + cUpdProgramDir + "\Resources".
+    
     IF SEARCH(cUpdProgramDir + "\Override.7z") NE ? THEN DO:
         OS-COMMAND SILENT VALUE(cCmdLine1).
     END.
@@ -2839,6 +2840,7 @@ PROCEDURE ipExpandVarNames :
         cMapDir = cDrive + "\" + cTopDir
         cAdminDir = cMapDir + "\" + cAdminDir
         cBackupDir = cMapDir + "\" + cBackupDir
+        cDbDirOnly = cDbDir
         cDBDir = cDbDrive + "\" + cTopDir + "\" + cDbDir 
         cDocDir = cMapDir + "\" + cDocDir
         cDeskDir = cMapDir + "\" + cDeskDir
@@ -4903,7 +4905,7 @@ PROCEDURE ipUpdateNK1s :
     RUN ipStatus ("  MenuLinkZoho").
     FOR EACH sys-ctrl WHERE
         sys-ctrl.name EQ "MenuLinkZoho":
-        IF sys-ctrl.descrip EQ "" THEN ASSIGN
+        ASSIGN
             sys-ctrl.descrip = "https://desk.zoho.com/portal/advantzware/kb"
             sys-ctrl.char-fld = "Graphics\32x32\question.ico"
             sys-ctrl.log-fld = TRUE.
@@ -4913,7 +4915,7 @@ PROCEDURE ipUpdateNK1s :
     RUN ipStatus ("  MenuLinkUpdate").
     FOR EACH  sys-ctrl WHERE
         sys-ctrl.name EQ "MenuLinkUpgrade":
-        IF sys-ctrl.descrip EQ "" THEN ASSIGN
+        ASSIGN
             sys-ctrl.descrip = "https://34.203.15.64/patches/asiUpdate.html"
             sys-ctrl.char-fld = "Graphics\32x32\question_and_answer.ico"
             sys-ctrl.log-fld = TRUE

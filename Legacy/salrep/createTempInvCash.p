@@ -253,7 +253,7 @@ FOR EACH tt-report
             tt-report.key-02 = ""
             tt-report.key-03 = STRING(ar-cashl.inv-no,"999999").
 
-        RUN getoeret (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN getoeret (ROWID(ar-cashl), BUFFER oe-retl).
 
         ASSIGN
             lv-r-no = 0
@@ -442,7 +442,7 @@ FOR EACH tt-report
             v-cst2[1] = 0
             v-amt[1]  = ar-cashl.amt-paid - ar-cashl.amt-disc.
 
-        RUN getoeret (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN getoeret (ROWID(ar-cashl), BUFFER oe-retl).
 
         ASSIGN
             lv-r-no = 0

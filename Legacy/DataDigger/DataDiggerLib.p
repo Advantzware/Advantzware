@@ -144,10 +144,23 @@ DEFINE TEMP-TABLE ttWidget NO-UNDO RCODE-INFORMATION
   FIELD iWidth    AS INTEGER
   INDEX iPrim AS PRIMARY hWidget.
 
+DEFINE TEMP-TABLE ttColor NO-UNDO RCODE-INFORMATION
+  FIELD cName  AS CHARACTER
+  FIELD iColor AS INTEGER
+  INDEX iPrim AS PRIMARY cName.
+
+DEFINE TEMP-TABLE ttFont NO-UNDO RCODE-INFORMATION
+  FIELD cName  AS CHARACTER
+  FIELD iFont  AS INTEGER
+  INDEX iPrim AS PRIMARY cName.
+
 /* If you have trouble with the cache, disable it in the settings screen */
-DEFINE VARIABLE glCacheSettings  AS LOGICAL NO-UNDO.
 DEFINE VARIABLE glCacheTableDefs AS LOGICAL NO-UNDO.
 DEFINE VARIABLE glCacheFieldDefs AS LOGICAL NO-UNDO.
+
+/* Vars for caching dirnames */
+DEFINE VARIABLE gcProgramDir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcWorkFolder AS CHARACTER NO-UNDO.
 
 /* Locking / unlocking windows */
 &GLOBAL-DEFINE WM_SETREDRAW     11
@@ -283,7 +296,7 @@ FUNCTION getFileCategory RETURNS CHARACTER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getFont Procedure 
 FUNCTION getFont RETURNS INTEGER
-  ( pcFontName AS CHARACTER )  FORWARD.
+  ( pcName AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -419,6 +432,32 @@ FUNCTION getStackSize RETURNS INTEGER() FORWARD.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-getTableDesc) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getTableDesc Procedure 
+FUNCTION getTableDesc RETURNS CHARACTER
+  ( INPUT  pcDatabase AS CHARACTER
+  , INPUT  pcTable    AS CHARACTER
+  )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-getTableLabel) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getTableLabel Procedure 
+FUNCTION getTableLabel RETURNS CHARACTER
+  ( INPUT  pcDatabase AS CHARACTER
+  , INPUT  pcTable    AS CHARACTER
+  )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-getTableList) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getTableList Procedure 
@@ -448,6 +487,17 @@ FUNCTION getUserName RETURNS CHARACTER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getWidgetUnderMouse Procedure 
 FUNCTION getWidgetUnderMouse RETURNS HANDLE
   ( phFrame AS HANDLE )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-getWorkFolder) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getWorkFolder Procedure 
+FUNCTION getWorkFolder RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -586,6 +636,18 @@ FUNCTION resolveSequence RETURNS CHARACTER
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-setColor) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD setColor Procedure 
+FUNCTION setColor RETURNS INTEGER
+  ( pcName  AS CHARACTER 
+  , piColor AS INTEGER)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-setColumnWidthList) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD setColumnWidthList Procedure 
@@ -643,8 +705,8 @@ FUNCTION setRegistry RETURNS CHARACTER
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW Procedure ASSIGN
-         HEIGHT             = 36
-         WIDTH              = 45.4.
+         HEIGHT             = 34.38
+         WIDTH              = 53.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -678,7 +740,6 @@ SUBSCRIBE TO "setUsage" ANYWHERE.
  */
 glCacheTableDefs = TRUE.
 glCacheFieldDefs = TRUE.
-glCacheSettings  = TRUE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -733,13 +794,13 @@ END PROCEDURE. /* applyEvent */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE checkBackupFolder Procedure 
 PROCEDURE checkBackupFolder :
-/* If backup is on, create a folder for it 
+/* If backup is on, create a folder for it
   */
   DEFINE OUTPUT PARAMETER plFolderOk AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cFolder      AS CHARACTER   NO-UNDO.
-  
-  IF LOGICAL(getRegistry("DataDigger:Backup","BackupOnCreate")) 
-  OR LOGICAL(getRegistry("DataDigger:Backup","BackupOnDelete")) 
+
+  IF LOGICAL(getRegistry("DataDigger:Backup","BackupOnCreate"))
+  OR LOGICAL(getRegistry("DataDigger:Backup","BackupOnDelete"))
   OR LOGICAL(getRegistry("DataDigger:Backup","BackupOnDelete")) THEN
   DO:
     RUN getDumpFileName
@@ -749,22 +810,23 @@ PROCEDURE checkBackupFolder :
       , INPUT ''     /* extension */
       , INPUT getRegistry("DataDigger:Backup", "BackupDir") /* template */
       , OUTPUT cFolder
-      ).  
+      ).
     RUN createFolder(cFolder).
-    
+
     /* Now check if folder is actually created */
     FILE-INFO:FILE-NAME = cFolder.
     plFolderOk = (FILE-INFO:FULL-PATHNAME <> ?).
-    
-    IF NOT plFolderOk THEN 
+
+    IF NOT plFolderOk THEN
     DO:
       RUN showHelp('CannotCreateBackupFolder', cFolder).
       setRegistry("DataDigger:Backup","BackupOnCreate", "NO").
       setRegistry("DataDigger:Backup","BackupOnUpdate", "NO").
-      setRegistry("DataDigger:Backup","BackupOnDelete", "NO").    
+      setRegistry("DataDigger:Backup","BackupOnDelete", "NO").
     END.
-    
-  END.    
+  END.
+  ELSE
+    plFolderOk = TRUE.
 
 END PROCEDURE. /* checkBackupFolder */
 
@@ -908,6 +970,22 @@ END PROCEDURE. /* checkDir */
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-clearColorCache) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clearColorCache Procedure 
+PROCEDURE clearColorCache :
+/* Clear the registry cache
+  */
+  PUBLISH "debugInfo" (3, SUBSTITUTE("Clearing color cache")).
+  EMPTY TEMP-TABLE ttColor.
+
+END PROCEDURE. /* clearColorCache */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-clearDiskCache) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clearDiskCache Procedure 
@@ -918,9 +996,9 @@ PROCEDURE clearDiskCache :
 
   PUBLISH "debugInfo" (3, SUBSTITUTE("Clearing disk cache")).
 
-  FILE-INFORMATION:FILE-NAME = getProgramdir() + "cache".
+  FILE-INFORMATION:FILE-NAME = getWorkFolder() + "cache".
   IF FILE-INFORMATION:FULL-PATHNAME = ? THEN RETURN.
-  
+
   INPUT FROM OS-DIR(FILE-INFORMATION:FULL-PATHNAME).
   REPEAT:
     IMPORT cFile.
@@ -929,6 +1007,22 @@ PROCEDURE clearDiskCache :
   INPUT CLOSE.
 
 END PROCEDURE. /* clearDiskCache */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-clearFontCache) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clearFontCache Procedure 
+PROCEDURE clearFontCache :
+/* Clear the font cache
+  */
+  PUBLISH "debugInfo" (3, SUBSTITUTE("Clearing font cache")).
+  EMPTY TEMP-TABLE ttFont.
+
+END PROCEDURE. /* clearFontCache */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1366,31 +1460,11 @@ PROCEDURE flushRegistry :
 /* Flush all dirty registry settings to disk
 */
   {&timerStart}
-  DEFINE BUFFER bfConfig FOR ttConfig.
 
-  /* Don't do anything if nothing is dirty */
-  IF NOT CAN-FIND(FIRST bfConfig WHERE bfConfig.lDirty = TRUE) THEN RETURN. 
-      
-  USE SUBSTITUTE('DataDigger-&1', getUserName() ) NO-ERROR.
+  IF CAN-FIND(FIRST ttConfig WHERE ttConfig.lUser = TRUE AND ttConfig.lDirty = TRUE) THEN
+    RUN saveConfigFileSorted.
 
-  IF NOT ERROR-STATUS:ERROR THEN
-  DO:
-    FOR EACH bfConfig WHERE bfConfig.lDirty = TRUE:
-        PUT-KEY-VALUE
-          SECTION bfConfig.cSection
-          KEY     bfConfig.cSetting
-          VALUE   bfConfig.cValue
-          NO-ERROR
-          .
-        bfConfig.lDirty = FALSE.
-    END. /* for each bfConfig */
-    USE "".
-  END. /* no error */
-              
-  FINALLY:
-    {&timerStop}
-  END FINALLY.
-              
+  {&timerStop}
 END PROCEDURE. /* flushRegistry */
 
 /* _UIB-CODE-BLOCK-END */
@@ -1461,6 +1535,7 @@ PROCEDURE getDumpFileName :
   DEFINE VARIABLE cDumpDir      AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE cBackupDir    AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE hBuffer       AS HANDLE      NO-UNDO.
+  DEFINE VARIABLE cUserId       AS CHARACTER   NO-UNDO.
 
   /* Checks */
   IF LOOKUP(pcAction, "Dump,Create,Update,Delete") = 0 THEN
@@ -1488,14 +1563,14 @@ PROCEDURE getDumpFileName :
 
   /* Dump dir / backup dir / last-used dir from settings */
   cDumpDir = RIGHT-TRIM(getRegistry("DumpAndLoad", "DumpDir"),'/\') + '\'.
-  IF cDumpDir = ? OR cDumpDir = '' THEN cDumpDir = "<PROGDIR>dump\".
+  IF cDumpDir = ? OR cDumpDir = '' THEN cDumpDir = "<WORKDIR>dump\".
 
   cBackupDir  = RIGHT-TRIM(getRegistry("DataDigger:Backup", "BackupDir"),'/\') + '\'.
-  IF cBackupDir = ? OR cBackupDir = '' THEN cBackupDir = "<PROGDIR>backup\".
+  IF cBackupDir = ? OR cBackupDir = '' THEN cBackupDir = "<WORKDIR>backup\".
 
   cLastDir = RIGHT-TRIM(getRegistry("DumpAndLoad", "DumpLastFileName"),'/\').
   cLastDir = SUBSTRING(cLastDir,1,R-INDEX(cLastDir,"\")).
-  IF cLastDir = ? THEN cLastDir = "<PROGDIR>dump".
+  IF cLastDir = ? THEN cLastDir = "<WORKDIR>dump".
   cLastDir = RIGHT-TRIM(cLastDir,'\').
 
   /* Find _file for the dump-name */
@@ -1512,6 +1587,11 @@ PROCEDURE getDumpFileName :
     cDumpName = pcTable.
   IF cDumpName = ? THEN cDumpName = pcTable.
 
+  /* If you have no db connected, userid gives back unknown value
+   * which misbehaves in a replace statement */
+  cUserId = USERID(LDBNAME(1)).
+  IF cUserId = ? THEN cUserId = ''.
+
   PUBLISH "debugInfo" (3, SUBSTITUTE("DumpDir  : &1", cDumpDir)).
   PUBLISH "debugInfo" (3, SUBSTITUTE("BackupDir: &1", cBackupDir)).
   PUBLISH "debugInfo" (3, SUBSTITUTE("LastDir  : &1", cLastDir)).
@@ -1521,10 +1601,11 @@ PROCEDURE getDumpFileName :
   pcFileName = REPLACE(pcFileName,"<DUMPDIR>"  , cDumpDir                    ).
   pcFileName = REPLACE(pcFileName,"<BACKUPDIR>", cBackupDir                  ).
   pcFileName = REPLACE(pcFileName,"<LASTDIR>"  , cLastDir                    ).
-  pcFileName = REPLACE(pcFileName,"<PROGDIR>"  , getProgramDir()             ).
+  pcFileName = REPLACE(pcFileName,"<PROGDIR>"  , getWorkFolder()             ).
+  pcFileName = REPLACE(pcFileName,"<WORKDIR>"  , getWorkFolder()             ).
 
   pcFileName = REPLACE(pcFileName,"<ACTION>"   , pcAction                    ).
-  pcFileName = REPLACE(pcFileName,"<USERID>"   , USERID(LDBNAME(1))          ).
+  pcFileName = REPLACE(pcFileName,"<USERID>"   , cUserId                     ).
   pcFileName = REPLACE(pcFileName,"<DB>"       , pcDatabase                  ).
   pcFileName = REPLACE(pcFileName,"<TABLE>"    , pcTable                     ).
   pcFileName = REPLACE(pcFileName,"<DUMPNAME>" , cDumpName                   ).
@@ -1618,6 +1699,7 @@ PROCEDURE getFields :
     IF NOT AVAILABLE bTable THEN RETURN.
 
     /* Verify whether the CRC is still the same. If not, kill the cache */
+    PUBLISH "DD:Timer" ("start", 'getFields - step 1: verify CRC').
     CREATE BUFFER hBufferFile FOR TABLE cSDBName + "._File".
 
     hBufferFile:FIND-UNIQUE(SUBSTITUTE('where _file-name = &1 and _File._File-Number < 32768', QUOTER(pcTableName)),NO-LOCK).
@@ -1641,15 +1723,19 @@ PROCEDURE getFields :
       FIND bTable WHERE bTable.cDatabase = pcDatabase AND bTable.cTableName = pcTableName NO-ERROR.
       IF NOT AVAILABLE bTable THEN RETURN.
     END.
+    PUBLISH "DD:Timer" ("stop", 'getFields - step 1: verify CRC').
 
     /* First look in the memory-cache */
     IF CAN-FIND(FIRST bFieldCache WHERE bFieldCache.cTableCacheId = bTable.cCacheId) THEN
     DO:
+      PUBLISH "DD:Timer" ("start", 'getFields - step 2: check memory cache').
       PUBLISH "debugInfo" (3, SUBSTITUTE("Get from memory-cache")).
+
       FOR EACH bFieldCache WHERE bFieldCache.cTableCacheId = bTable.cCacheId:
         CREATE bField.
         BUFFER-COPY bFieldCache TO bField.
       END.
+
       FOR EACH bColumnCache WHERE bColumnCache.cTableCacheId = bTable.cCacheId:
         CREATE bColumn.
         BUFFER-COPY bColumnCache TO bColumn.
@@ -1658,16 +1744,17 @@ PROCEDURE getFields :
       /* Update with settings from registry */
       RUN updateFields(INPUT pcDatabase, INPUT pcTableName, INPUT-OUTPUT TABLE bField).
 
-      {&timerStop}
+      PUBLISH "DD:Timer" ("stop", 'getFields - step 2: check memory cache').
       RETURN.
     END.
 
     /* See if disk cache exists */
-    cCacheFile = SUBSTITUTE('&1cache\&2.xml', getProgramDir(), bTable.cCacheId).
+    cCacheFile = SUBSTITUTE('&1cache\&2.xml', getWorkFolder(), bTable.cCacheId).
     PUBLISH "debugInfo" (2, SUBSTITUTE("Cachefile: &1", cCacheFile)).
 
     IF SEARCH(cCacheFile) <> ? THEN
     DO:
+      PUBLISH "DD:Timer" ("start", 'getFields - step 3: get from disk cache').
       PUBLISH "debugInfo" (3, SUBSTITUTE("Get from disk cache")).
       DATASET dsFields:READ-XML("file", cCacheFile, "empty", ?, ?, ?, ?).
 
@@ -1679,6 +1766,7 @@ PROCEDURE getFields :
           CREATE bFieldCache.
           BUFFER-COPY bField TO bFieldCache.
         END.
+
         FOR EACH bColumn {&TABLE-SCAN}:
           CREATE bColumnCache.
           BUFFER-COPY bColumn TO bColumnCache.
@@ -1688,9 +1776,10 @@ PROCEDURE getFields :
       /* Update with settings from registry */
       RUN updateFields(INPUT pcDatabase, INPUT pcTableName, INPUT-OUTPUT TABLE bField).
 
-      {&timerStop}
+      PUBLISH "DD:Timer" ("stop", 'getFields - step 3: get from disk cache').
       RETURN.
     END.
+
     PUBLISH "debugInfo" (3, SUBSTITUTE("Not found in any cache, build tables...")).
   END.
 
@@ -1698,6 +1787,7 @@ PROCEDURE getFields :
    * If we get here, the table either cannot be found in the cache
    * or caching is disabled. Either way, fill the tt with fields
    */
+  PUBLISH "DD:Timer" ("start", 'getFields - step 4: build cache').
   FIND bTable WHERE bTable.cDatabase = pcDatabase AND bTable.cTableName = pcTableName NO-ERROR.
   IF NOT AVAILABLE bTable THEN RETURN.
 
@@ -1748,6 +1838,7 @@ PROCEDURE getFields :
       bField.cInitial      = hBufferField:BUFFER-FIELD('_initial'):BUFFER-VALUE
       bField.cFormat       = hBufferField:BUFFER-FIELD('_format'):BUFFER-VALUE
       bField.cFormatOrg    = hBufferField:BUFFER-FIELD('_format'):BUFFER-VALUE
+      bField.iWidth        = hBufferField:BUFFER-FIELD('_width'):BUFFER-VALUE
       bField.cLabel        = hBufferField:BUFFER-FIELD('_label'):BUFFER-VALUE
       bField.lPrimary      = CAN-DO(cPrimIndexFields, bField.cFieldName)
       bField.iExtent       = hBufferField:BUFFER-FIELD('_Extent'):BUFFER-VALUE
@@ -1844,11 +1935,13 @@ PROCEDURE getFields :
       bColumn.cLabel        = bField.cLabel
       .
   END.
+  PUBLISH "DD:Timer" ("stop", 'getFields - step 4: build cache').
 
   /* Update the cache */
   IF glCacheFieldDefs THEN
   DO:
     /* Add to disk cache */
+    PUBLISH "DD:Timer" ("start", 'getFields - step 5: save to disk').
     PUBLISH "debugInfo" (3, SUBSTITUTE("Add to second-level cache.")).
     DATASET dsFields:WRITE-XML( "file", cCacheFile, YES, ?, ?, NO, NO).
 
@@ -1863,6 +1956,7 @@ PROCEDURE getFields :
       CREATE bColumnCache.
       BUFFER-COPY bColumn TO bColumnCache.
     END.
+    PUBLISH "DD:Timer" ("stop", 'getFields - step 5: save to disk').
   END.
 
   /* Update fields with settings from registry */
@@ -1924,6 +2018,21 @@ END PROCEDURE. /* getQueryTable */
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-getRegistryTable) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getRegistryTable Procedure 
+PROCEDURE getRegistryTable :
+/* Return complete registry tt
+  */
+  DEFINE OUTPUT PARAMETER TABLE FOR ttConfig.
+
+END PROCEDURE. /* getRegistryTable */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-getTables) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getTables Procedure 
@@ -1936,8 +2045,7 @@ PROCEDURE getTables :
   DEFINE VARIABLE cCacheFile      AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE hDbBuffer       AS HANDLE      NO-UNDO.
   DEFINE VARIABLE hDbStatusBuffer AS HANDLE      NO-UNDO.
-  DEFINE VARIABLE hFileBuffer     AS HANDLE      NO-UNDO.
-  DEFINE VARIABLE hFileQuery      AS HANDLE      NO-UNDO.
+  DEFINE VARIABLE hQuery          AS HANDLE      NO-UNDO.
   DEFINE VARIABLE hDbQuery        AS HANDLE      NO-UNDO.
   DEFINE VARIABLE iDatabase       AS INTEGER     NO-UNDO.
 
@@ -1945,7 +2053,7 @@ PROCEDURE getTables :
 
   EMPTY TEMP-TABLE ttTable.
   CREATE WIDGET-POOL "metaInfo".
-  CREATE QUERY hFileQuery IN WIDGET-POOL "metaInfo".
+  CREATE QUERY hQuery IN WIDGET-POOL "metaInfo".
 
   #Database:
   DO iDatabase = 1 TO NUM-DBS:
@@ -1957,7 +2065,7 @@ PROCEDURE getTables :
       CREATE BUFFER hDbStatusBuffer FOR TABLE LDBNAME(iDatabase) + "._DbStatus" IN WIDGET-POOL "metaInfo".
       hDbStatusBuffer:FIND-FIRST("",NO-LOCK).
       cCacheFile = SUBSTITUTE("&1cache\db.&2.&3.xml"
-                            , getProgramDir()
+                            , getWorkFolder()
                             , LDBNAME(iDatabase)
                             , REPLACE(REPLACE(hDbStatusBuffer::_dbstatus-cachestamp," ","_"),":","")
                             ).
@@ -1975,49 +2083,8 @@ PROCEDURE getTables :
     /* Otherwise build it */
     ELSE
     DO:
-      /* To get all tables */
-      CREATE BUFFER hDbBuffer    FOR TABLE LDBNAME(iDatabase) + "._Db"    IN WIDGET-POOL "metaInfo".
-      CREATE BUFFER hFileBuffer  FOR TABLE LDBNAME(iDatabase) + "._file"  IN WIDGET-POOL "metaInfo".
-      CREATE QUERY hFileQuery  IN WIDGET-POOL "metaInfo".
-
-      hFileQuery:SET-BUFFERS(hDbBuffer, hFileBuffer).
-      hFileQuery:QUERY-PREPARE( "FOR EACH _Db NO-LOCK "
-                              + "   WHERE _Db._Db-local = TRUE"
-                              + ",   EACH _File NO-LOCK"
-                              + "   WHERE _File._Db-recid    = RECID(_Db)"
-                              + "     AND _File._File-Number < 32768"
-                              + "     AND (IF _Db._Db-slave THEN _File._For-Type = 'TABLE' ELSE TRUE)"
-                              ).
-      hFileQuery:QUERY-OPEN().
-
-      #File:
-      REPEAT:
-        hFileQuery:GET-NEXT().
-        IF hFileQuery:QUERY-OFF-END THEN LEAVE #File.
-
-        CREATE ttTable.
-        ASSIGN
-          ttTable.cDatabase   = (IF hDbBuffer::_Db-slave THEN hDbBuffer::_Db-name ELSE LDBNAME(iDatabase))
-          ttTable.cTableName  = hFileBuffer::_file-name
-          ttTable.cTableDesc  = (IF hFileBuffer::_file-label <> ? AND hFileBuffer::_file-label <> '' THEN hFileBuffer::_file-label ELSE hFileBuffer::_desc)
-          ttTable.lHidden     = hFileBuffer::_hidden
-          ttTable.lFrozen     = hFileBuffer::_frozen
-          ttTable.cCrc        = hFileBuffer::_crc
-          ttTable.cCacheId    = SUBSTITUTE('&1.&2.&3', ttTable.cDatabase, hFileBuffer::_file-name, hFileBuffer::_crc)
-          ttTable.iFileNumber = hFileBuffer::_file-number
-          .
-        ASSIGN
-          ttTable.cCategory   = getFileCategory(hFileBuffer::_file-number, hFileBuffer::_file-name)
-          .
-        ASSIGN
-          ttTable.cFields     = getFieldList(LDBNAME(iDatabase), hFileBuffer::_file-name)
-          .
-      END.
-
-      hFileQuery:QUERY-CLOSE().
-      DELETE OBJECT hFileQuery.
-      DELETE OBJECT hFileBuffer.
-      DELETE OBJECT hDbBuffer.
+      CREATE ALIAS 'dictdb' FOR DATABASE VALUE(LDBNAME(iDatabase)).
+      RUN getSchema.p(INPUT TABLE ttTable BY-REFERENCE).
 
       /* Save cache file for next time */
       IF glCacheTableDefs THEN
@@ -2230,7 +2297,6 @@ PROCEDURE getTableStats :
   DEFINE VARIABLE cLine       AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE cSection    AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE cDatabase   AS CHARACTER   NO-UNDO.
-  DEFINE VARIABLE cSettingsDir AS CHARACTER NO-UNDO.
 
   /* Read the ini file as plain text and parse the lines.
    *
@@ -2241,10 +2307,9 @@ PROCEDURE getTableStats :
    */
   {&timerStart}
 
-  cSettingsDir = REPLACE(SEARCH('DataDigger.ini'),'DataDigger.ini','').
-  cIniFile = SUBSTITUTE('&1DataDigger-&2.ini', cSettingsDir, getUserName() ).
+  cIniFile = SUBSTITUTE('&1DataDigger-&2.ini', getWorkFolder(), getUserName() ).
   IF SEARCH(cIniFile) = ? THEN RETURN.
-  
+
   INPUT FROM VALUE(cIniFile).
 
   #ReadLine:
@@ -2273,7 +2338,7 @@ PROCEDURE getTableStats :
     DO:
       FIND FIRST ttTable
         WHERE ttTable.cDatabase = cDatabase
-          AND ttTable.cTableName = entry(1,cLine,':') NO-ERROR.
+          AND ttTable.cTableName = ENTRY(1,cLine,':') NO-ERROR.
 
       IF AVAILABLE ttTable THEN
       DO:
@@ -2287,25 +2352,23 @@ PROCEDURE getTableStats :
     DO:
       FIND FIRST ttTable
         WHERE ttTable.cDatabase = cDatabase
-          AND ttTable.cTableName = entry(1,cLine,':') NO-ERROR.
+          AND ttTable.cTableName = ENTRY(1,cLine,':') NO-ERROR.
 
       IF AVAILABLE ttTable THEN
-      DO:
         ttTable.tLastUsed = DATETIME(ENTRY(2,cLine,'=')) NO-ERROR.
-      END.
+
     END. /* lastUsed */
 
     ELSE
-    IF cLine MATCHES "*:Favourite=*" THEN
+    IF cLine MATCHES "*:Favourites=*" THEN
     DO:
       FIND FIRST ttTable
         WHERE ttTable.cDatabase = cDatabase
-          AND ttTable.cTableName = entry(1,cLine,':') NO-ERROR.
+          AND ttTable.cTableName = ENTRY(1,cLine,':') NO-ERROR.
 
       IF AVAILABLE ttTable THEN
-      DO:
-        ttTable.lFavourite = TRUE NO-ERROR.
-      END.
+        ttTable.cFavourites = ENTRY(2,cLine,'=') NO-ERROR.
+
     END. /* favourite */
 
   END. /* repeat */
@@ -2336,6 +2399,36 @@ PROCEDURE initTableFilter :
   IF ttTableFilter.lShowSchema = ? THEN ttTableFilter.lShowSchema = NO.
 
 END PROCEDURE. /* initTableFilter */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-loadSettings) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE loadSettings Procedure 
+PROCEDURE loadSettings :
+/* Load settings from ini files
+*/
+  DEFINE VARIABLE lValue AS LOGICAL   NO-UNDO.
+
+  /* Help file is least important, so read that first */
+  RUN readConfigFile( SUBSTITUTE("&1DataDiggerHelp.ini", getProgramDir() ), FALSE).
+
+  /* General DD settings (always in program folder) */
+  RUN readConfigFile( SUBSTITUTE("&1DataDigger.ini", getProgramDir() ), FALSE).
+
+  /* Per-user settings */
+  RUN readConfigFile( SUBSTITUTE("&1DataDigger-&2.ini", getWorkFolder(), getUserName() ), TRUE).
+
+  /* When all ini-files have been read, we can determine whether
+   * caching needs to be enabled
+   */
+  lValue = LOGICAL(getRegistry("DataDigger:Cache","TableDefs")) NO-ERROR.
+  IF lValue <> ? THEN ASSIGN glCacheTableDefs = lValue.
+
+END PROCEDURE. /* loadSettings */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2419,10 +2512,10 @@ PROCEDURE lockWindow :
                     , OUTPUT iRet
                     ).
 
-    /* Clean up tt */
-    DELETE ttWindowLock.
+    /* Don't delete, creating records is more expensive than re-use, so just reset */
+    ttWindowLock.iLockCounter = 0.
   END.
-  
+
   {&timerStop}
 
 END PROCEDURE. /* lockWindow */
@@ -2438,7 +2531,8 @@ END PROCEDURE. /* lockWindow */
 PROCEDURE readConfigFile :
 /* Read the ini-file and create tt records for it
   */
-  DEFINE INPUT PARAMETER pcConfigFile AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER pcConfigFile   AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER plUserSettings AS LOGICAL   NO-UNDO.
 
   DEFINE VARIABLE cFile      AS LONGCHAR    NO-UNDO.
   DEFINE VARIABLE cLine      AS CHARACTER   NO-UNDO.
@@ -2493,7 +2587,9 @@ PROCEDURE readConfigFile :
     /* Config line /might/ already exist. This can happen if you have
      * the same setting in multiple .ini files.
      */
-    ASSIGN bfConfig.cValue = TRIM(SUBSTRING(cLine, INDEX(cLine,"=") + 1)).
+    ASSIGN
+      bfConfig.cValue = TRIM(SUBSTRING(cLine, INDEX(cLine,"=") + 1))
+      bfConfig.lUser  = plUserSettings.
   END.
 
   {&timerStop}
@@ -2508,27 +2604,20 @@ END PROCEDURE. /* readConfigFile */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resetAnswers Procedure 
 PROCEDURE resetAnswers :
-/* Reset answers to all 'do not ask again' questions 
-*/  
+/* Reset answers to all 'do not ask again' questions
+*/
   {&timerStart}
   DEFINE BUFFER bfConfig FOR ttConfig.
 
-  USE SUBSTITUTE('DataDigger-&1', getUserName() ) NO-ERROR.
-  IF NOT ERROR-STATUS:ERROR THEN
-  DO:
-    FOR EACH bfConfig 
-      WHERE bfConfig.cSection = 'DataDigger:help'
-        AND (bfConfig.cSetting MATCHES '*:hidden' OR bfConfig.cSetting MATCHES '*:answer'):
-      setRegistry(bfConfig.cSection, bfConfig.cSetting, ?).
-    END. /* for each bfConfig */
-    USE "".
-  END. /* no error */
-              
+  FOR EACH bfConfig
+    WHERE bfConfig.cSection = 'DataDigger:help'
+      AND (bfConfig.cSetting MATCHES '*:hidden' OR bfConfig.cSetting MATCHES '*:answer'):
+    setRegistry(bfConfig.cSection, bfConfig.cSetting, ?).
+  END. /* for each bfConfig */
+
   RUN flushRegistry.
 
-  FINALLY:
-    {&timerStop}
-  END FINALLY.
+  {&timerStop}
 
 END PROCEDURE. /* resetAnswers */
 
@@ -2559,14 +2648,14 @@ PROCEDURE resizeFilterFields :
   DEFINE VARIABLE iFilter       AS INTEGER NO-UNDO.
 
   {&timerStart}
-  
+
   /* Find out if there has been a change in the browse or in one of
    * its columns. If no changes, save a little time by not redrawing
    */
   IF NOT isBrowseChanged(phBrowse) THEN RETURN.
 
   /* To prevent drawing error, make all fields small */
-  PUBLISH "timerCommand" ("start", "resizeFilterFields:makeSmall").
+  PUBLISH "DD:Timer" ("start", "resizeFilterFields:makeSmall").
   DO iField = 1 TO NUM-ENTRIES(pcFilterFields):
     hFilterField = HANDLE(ENTRY(iField,pcFilterFields)).
     hFilterField:VISIBLE      = NO.
@@ -2574,10 +2663,10 @@ PROCEDURE resizeFilterFields :
     hFilterField:Y            = phBrowse:Y - 23.
     hFilterField:WIDTH-PIXELS = 1.
   END.
-  PUBLISH "timerCommand" ("stop", "resizeFilterFields:makeSmall").
+  PUBLISH "DD:Timer" ("stop", "resizeFilterFields:makeSmall").
 
   /* Start by setting the buttons at the proper place. Do this right to left */
-  PUBLISH "timerCommand" ("start", "resizeFilterFields:reposition").
+  PUBLISH "DD:Timer" ("start", "resizeFilterFields:reposition").
   ASSIGN iRightEdge = phBrowse:X + phBrowse:WIDTH-PIXELS.
   DO iButton = NUM-ENTRIES(pcButtons) TO 1 BY -1:
     hButton = HANDLE(ENTRY(iButton,pcButtons)).
@@ -2585,7 +2674,7 @@ PROCEDURE resizeFilterFields :
     hButton:Y = phBrowse:Y - 23. /* filter buttons close to the browse */
     iRightEdge = hButton:X + 0. /* A little margin between buttons */
   END.
-  PUBLISH "timerCommand" ("stop", "resizeFilterFields:reposition").
+  PUBLISH "DD:Timer" ("stop", "resizeFilterFields:reposition").
 
   /* The left side of the left button is the maximum point
    * Fortunately, this value is already in iRightEdge.
@@ -2594,7 +2683,7 @@ PROCEDURE resizeFilterFields :
    */
 
   /* Take the left side of the first visible column as a starting point. */
-  PUBLISH "timerCommand" ("start", "resizeFilterFields:firstVisibleColumn").
+  PUBLISH "DD:Timer" ("start", "resizeFilterFields:firstVisibleColumn").
   firstVisibleColumn:
   DO iField = 1 TO phBrowse:NUM-COLUMNS:
     hColumn = phBrowse:GET-BROWSE-COLUMN(iField):HANDLE.
@@ -2605,9 +2694,9 @@ PROCEDURE resizeFilterFields :
       LEAVE firstVisibleColumn.
     END.
   END.
-  PUBLISH "timerCommand" ("stop", "resizeFilterFields:firstVisibleColumn").
+  PUBLISH "DD:Timer" ("stop", "resizeFilterFields:firstVisibleColumn").
 
-  PUBLISH "timerCommand" ("start", "resizeFilterFields:#Field").
+  PUBLISH "DD:Timer" ("start", "resizeFilterFields:#Field").
   #Field:
   DO iField = 1 TO phBrowse:NUM-COLUMNS:
 
@@ -2648,7 +2737,7 @@ PROCEDURE resizeFilterFields :
     iCurrentPos               = iCurrentPos + iWidth.
     hFilterField:VISIBLE      = phBrowse:VISIBLE. /* take over the visibility of the browse */
   END.
-  PUBLISH "timerCommand" ("stop", "resizeFilterFields:#Field").
+  PUBLISH "DD:Timer" ("stop", "resizeFilterFields:#Field").
 
   /* Finally, set the lead button to the utmost left */
   IF VALID-HANDLE(phLeadButton) THEN
@@ -2709,50 +2798,31 @@ PROCEDURE saveConfigFileSorted :
 /* Save settings file sorted
   */
   DEFINE VARIABLE cUserConfigFile AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cSettingsDir AS CHARACTER NO-UNDO.
-
   DEFINE BUFFER bfConfig FOR ttConfig.
 
   {&timerStart}
 
-  cSettingsDir = REPLACE(SEARCH('DataDigger.ini'),'DataDigger.ini','').
-  cUserConfigFile = SUBSTITUTE("&1DataDigger-&2.ini", cSettingsDir, getUserName() ).
+  /* Clean up rubbish settings data */
+  FOR EACH bfConfig
+    WHERE bfConfig.cSetting = '' OR bfConfig.cSetting = ?
+       OR bfConfig.cValue   = '' OR bfConfig.cValue   = ?:
+    DELETE bfConfig.
+  END.
 
-  /* Config table holds data from 3 .ini sources, so start fresh */
-  EMPTY TEMP-TABLE bfConfig.
-  RUN readConfigFile(cUserConfigFile).
-
-  /* Now write back, sorted */
+  cUserConfigFile = SUBSTITUTE("&1DataDigger-&2.ini", getWorkFolder(), getUserName() ).
   OUTPUT TO VALUE(cUserConfigFile).
 
   FOR EACH bfConfig
-    WHERE bfConfig.cSection BEGINS "DataDigger"
-      AND bfConfig.cSetting <> ''
-      AND bfConfig.cSetting <> ?
-    BREAK BY bfConfig.cSection:
+    WHERE bfConfig.lUser = TRUE
+    BREAK BY (bfConfig.cSection BEGINS "DataDigger") DESCENDING
+          BY bfConfig.cSection
+          BY bfConfig.cSetting:
 
-    IF FIRST-OF(bfConfig.cSection) THEN
-      PUT UNFORMATTED SUBSTITUTE("[&1]",bfConfig.cSection) SKIP.
+    bfConfig.lDirty = FALSE.
 
+    IF FIRST-OF(bfConfig.cSection) THEN PUT UNFORMATTED SUBSTITUTE("[&1]",bfConfig.cSection) SKIP.
     PUT UNFORMATTED SUBSTITUTE("&1=&2",bfConfig.cSetting, bfConfig.cValue) SKIP.
-
-    IF LAST-OF(bfConfig.cSection) THEN
-      PUT UNFORMATTED SKIP(1).
-  END.
-
-  FOR EACH bfConfig
-    WHERE NOT bfConfig.cSection BEGINS "DataDigger"
-      AND bfConfig.cSetting <> ''
-      AND bfConfig.cSetting <> ?
-    BREAK BY bfConfig.cSection:
-
-    IF FIRST-OF(bfConfig.cSection) THEN
-      PUT UNFORMATTED SUBSTITUTE("[&1]",bfConfig.cSection) SKIP.
-
-    PUT UNFORMATTED SUBSTITUTE("&1=&2",bfConfig.cSetting, bfConfig.cValue) SKIP.
-
-    IF LAST-OF(bfConfig.cSection) THEN
-      PUT UNFORMATTED SKIP(1).
+    IF LAST-OF(bfConfig.cSection) THEN PUT UNFORMATTED SKIP(1).
   END.
 
   OUTPUT CLOSE.
@@ -2786,7 +2856,7 @@ PROCEDURE saveQuery :
   cQuery = pcQuery.
   cQuery = REPLACE(cQuery,'~n',CHR(1)).
   cQuery = REPLACE(cQuery,{&QUERYSEP},CHR(1)).
-  IF cQuery = '' THEN cQuery = '<empty>'.
+  IF cQuery = '' THEN RETURN.
 
   /* Get the table with queries again, because they might be
    * changed if the user has more than one window open.
@@ -2927,7 +2997,6 @@ PROCEDURE setCaching :
   */
   glCacheTableDefs = LOGICAL( getRegistry("DataDigger:Cache","TableDefs") ).
   glCacheFieldDefs = LOGICAL( getRegistry("DataDigger:Cache","FieldDefs") ).
-  glCacheSettings  = LOGICAL( getRegistry("DataDigger:Cache","Settings")  ).
 
 END PROCEDURE. /* setCaching */
 
@@ -3042,54 +3111,18 @@ END PROCEDURE. /* setTransparency */
 PROCEDURE setUsage :
 /* Save DataDigger usage in the INI file
   */
-  DEFINE INPUT PARAMETER pcUsageId AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER pcName AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
-  DEFINE VARIABLE iNumUsed   AS INTEGER NO-UNDO.
-  DEFINE VARIABLE iNumDays   AS INTEGER NO-UNDO.
-  DEFINE VARIABLE cEventType AS CHARACTER   NO-UNDO.
+  {&timerStart}
 
-  /* Save DataDigger usage in the INI file
-   *
-   * [DataDigger:Usage]
-   * btnAdd:lastDate  = 2013-05-06      /* last date it is used */
-   * btnAdd:numUsed   = 32              /* nr of times it is used */
-   * btnAdd:numDays   = 2               /* nr of days on which it is used */
-   * btnAdd:eventType = keypress        /* how was it invoked */
-   *
-   * Valid event types are:
-   *   "KEYPRESS" - Keyboard event identified by key label, such as ESC, CTRL+A, or A.
-   *   "MOUSE"    - Portable or three-button mouse event, such as MOUSE-SELECT-UP or LEFT-MOUSE-UP.
-   *   "PROGRESS" - High-level ABL event. These include all events identified as direct manipulation,
-   *                key function, developer, and other miscellaneous events, such as SELECTION,
-   *                DELETE-LINE, U1, or CHOOSE.
-   */
-  cEventType = getRegistry("DataDigger:Usage", SUBSTITUTE("&1:eventType", pcUsageId)).
-  IF cEventType = ? THEN cEventType = "".
-  IF LOOKUP(LAST-EVENT:EVENT-TYPE, cEventType) = 0 THEN
-  DO:
-    cEventType = TRIM(cEventType + "," + LAST-EVENT:EVENT-TYPE,",").
-    setRegistry("DataDigger:Usage", SUBSTITUTE("&1:eventType", pcUsageId), cEventType).
-  END.
+  i = INTEGER(getRegistry("DataDigger:Usage", SUBSTITUTE("&1:numUsed", pcName))).
+  IF i = ? THEN i = 0.
 
-  iNumDays = INTEGER(getRegistry("DataDigger:Usage", SUBSTITUTE("&1:numDays", pcUsageId))).
-  IF iNumDays = ? THEN iNumDays = 0.
+  i = i + 1.
+  setRegistry("DataDigger:Usage", SUBSTITUTE("&1:numUsed", pcName), STRING(i)).
 
-  /* Update lastDate and numDays only first time per day */
-  IF getRegistry("DataDigger:Usage", SUBSTITUTE("&1:lastDate" , pcUsageId)) <> ISO-DATE(TODAY) THEN
-  DO:
-    /* Num days on which the function is used */
-    iNumDays = iNumDays + 1.
-    setRegistry("DataDigger:Usage", SUBSTITUTE("&1:numDays" , pcUsageId), STRING(iNumDays)).
-
-    /* Date last used */
-    setRegistry("DataDigger:Usage", SUBSTITUTE("&1:lastDate" , pcUsageId), ISO-DATE(TODAY)).
-  END.
-
-  /* Number of times used */
-  iNumUsed = INTEGER(getRegistry("DataDigger:Usage", SUBSTITUTE("&1:numUsed", pcUsageId))).
-  IF iNumUsed = ? THEN iNumUsed = 0.
-  iNumUsed = iNumUsed + 1.
-  setRegistry("DataDigger:Usage", SUBSTITUTE("&1:numUsed", pcUsageId), STRING(iNumUsed)).
+  {&timerStop}
 
 END PROCEDURE. /* setUsage */
 
@@ -3362,14 +3395,17 @@ PROCEDURE updateFields :
     bField.lShow = CAN-DO(cSelectedFields, bField.cFullName).
 
     /* Customization option for the user to show/hide certain fields */
+    PUBLISH "DD:Timer" ("start", 'customShowField').
     PUBLISH 'customShowField' (pcDatabase, pcTableName, bField.cFieldName, INPUT-OUTPUT bField.lShow).
+    PUBLISH "DD:Timer" ("stop", 'customShowField').
 
     /* Customization option for the user to adjust the format */
+    PUBLISH "DD:Timer" ("start", 'customFormat').
     PUBLISH 'customFormat' (pcDatabase, pcTableName, bField.cFieldName, bField.cDatatype, INPUT-OUTPUT bField.cFormat).
+    PUBLISH "DD:Timer" ("stop", 'customFormat').
 
     /* Restore changed field format. */
-    cCustomFormat = getRegistry( SUBSTITUTE("DB:&1",pcDatabase)
-                              , SUBSTITUTE("&1.&2:format",pcTableName,bField.cFieldName) ).
+    cCustomFormat = getRegistry(SUBSTITUTE("DB:&1",pcDatabase), SUBSTITUTE("&1.&2:format",pcTableName,bField.cFieldName) ).
     IF cCustomFormat <> ? THEN bField.cFormat = cCustomFormat.
 
     /* Restore changed field order. */
@@ -3539,8 +3575,8 @@ FUNCTION formatQueryString RETURNS CHARACTER
       cReturnValue = REPLACE(cReturnValue, '~n', {&QUERYSEP}).
   END.
 
-  {&timerStop}
   RETURN cReturnValue.
+  {&timerStop}
 
 END FUNCTION. /* formatQueryString */
 
@@ -3556,44 +3592,13 @@ FUNCTION getColor RETURNS INTEGER
   ( pcName AS CHARACTER ) :
   /* Return the color number for a color name
    */
-  DEFINE VARIABLE iColor AS INTEGER NO-UNDO.
-  {&timerStart}
+  DEFINE BUFFER bColor FOR ttColor.
 
-  /* Get the setting for this color name */
-  iColor = INTEGER(getRegistry('DataDigger:colors', pcName)) NO-ERROR.
-
-  /* Default colors if it is unknown */
-  IF iColor = ? THEN
-  DO:
-    CASE pcName:
-      WHEN 'CustomFormat:fg'           THEN iColor = 12. /* red       */
-      WHEN 'CustomOrder:fg'            THEN iColor = 12. /* red       */
-      WHEN 'DataRow:even:bg'           THEN iColor =  8. /* lightgray */
-      WHEN 'DataRow:even:fg'           THEN iColor =  0. /* black     */
-      WHEN 'DataRow:odd:bg'            THEN iColor = 15. /* white     */
-      WHEN 'DataRow:odd:fg'            THEN iColor =  0. /* black     */
-      WHEN 'FilterBox:bg'              THEN iColor = 12. /* red       */
-      WHEN 'IndexInactive:fg'          THEN iColor = 12. /* red       */
-      WHEN 'PrimIndex:bg'              THEN iColor =  8. /* lightgray */
-      WHEN 'QueryCounter:fg'           THEN iColor =  7. /* darkgray  */
-      WHEN 'QueryError:bg'             THEN iColor = 12. /* red       */
-      WHEN 'QueryError:fg'             THEN iColor = 14. /* yellow    */
-      WHEN 'QueryInfo:fg'              THEN iColor =  7. /* darkgray  */
-      WHEN 'RecordCount:Complete:fg'   THEN iColor =  2. /* green     */
-      WHEN 'RecordCount:Incomplete:fg' THEN iColor = 12. /* red       */
-      WHEN 'RecordCount:Selected:fg'   THEN iColor =  7. /* darkgray */
-      WHEN 'WarningBox:bg'             THEN iColor = 14. /* yellow    */
-      WHEN 'WarningBox:fg'             THEN iColor = 12. /* red       */
-      WHEN 'FieldFilter:bg'            THEN iColor = 14. /* yellow    */
-      WHEN 'FieldFilter:fg'            THEN iColor =  9. /* blue      */
-    END CASE.
-
-    /* Save it, so the next time it comes from the settings */
-    IF iColor <> ? THEN setRegistry('DataDigger:colors', pcName, STRING(iColor)).
-  END.
-
-  {&timerStop}
-  RETURN iColor.   /* Function return value. */
+  FIND bColor WHERE bColor.cName = pcName NO-ERROR.
+  IF NOT AVAILABLE bColor THEN 
+    RETURN setColor(pcName,?).
+  ELSE 
+    RETURN bColor.iColor.   /* Function return value. */
 
 END FUNCTION. /* getColor */
 
@@ -3622,8 +3627,8 @@ FUNCTION getColumnLabel RETURNS CHARACTER
                           , phFieldBuffer::iOrder
                           , phFieldBuffer::cLabel
                           ).
-  {&timerStop}
   RETURN cColumnLabel.
+  {&timerStop}
 
 END FUNCTION. /* getColumnLabel */
 
@@ -3656,8 +3661,9 @@ FUNCTION getColumnWidthList RETURNS CHARACTER
                           ).
   END.
 
-  {&timerStop}
   RETURN TRIM(cWidthList,',').
+  {&timerStop}
+
 END FUNCTION. /* getColumnWidthList */
 
 /* _UIB-CODE-BLOCK-END */
@@ -3690,9 +3696,8 @@ FUNCTION getDatabaseList RETURNS CHARACTER:
     cDatabaseList = cDatabaseList + ',' + LDBNAME(iCount).
   END.
 
-  {&timerStop}
   RETURN TRIM(cDatabaseList,',').
-
+  {&timerStop}
 END FUNCTION. /* getDatabaseList */
 
 /* _UIB-CODE-BLOCK-END */
@@ -3735,8 +3740,8 @@ FUNCTION getEscapedData RETURNS CHARACTER
     END.
   END CASE.
 
-  {&timerStop}
   RETURN pcString.
+  {&timerStop}
 
 END FUNCTION. /* getEscapedData */
 
@@ -3824,21 +3829,29 @@ END FUNCTION. /* getFileCategory */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getFont Procedure 
 FUNCTION getFont RETURNS INTEGER
-  ( pcFontName AS CHARACTER ) :
+  ( pcName AS CHARACTER ) :
   /* Return the fontnumber for the type given
   */
-  DEFINE VARIABLE iFontNr AS INTEGER NO-UNDO.
-  {&timerStart}
-  iFontNr = INTEGER(getRegistry('DataDigger:Fonts',pcFontName)) NO-ERROR.
+  DEFINE BUFFER bFont FOR ttFont.
 
-  IF iFontNr = ? OR iFontNr > 23 THEN
-  CASE pcFontName:
-    WHEN 'Default' THEN iFontNr = 4.
-    WHEN 'Fixed'   THEN iFontNr = 0.
+  {&timerStart}
+
+  FIND bFont WHERE bFont.cName = pcName NO-ERROR.
+  IF AVAILABLE bFont THEN RETURN bFont.iFont.
+
+  CREATE bFont.
+  ASSIGN bFont.cName = pcName.
+
+  bFont.iFont = INTEGER(getRegistry('DataDigger:Fonts',pcName)) NO-ERROR.
+
+  IF bFont.iFont = ? OR bFont.iFont > 23 THEN
+  CASE pcName:
+    WHEN 'Default' THEN bFont.iFont = 4.
+    WHEN 'Fixed'   THEN bFont.iFont = 0.
   END CASE.
 
+  RETURN bFont.iFont.   /* Function return value. */
   {&timerStop}
-  RETURN iFontNr.   /* Function return value. */
 
 END FUNCTION. /* getFont */
 
@@ -3854,19 +3867,10 @@ FUNCTION getImagePath RETURNS CHARACTER
   ( pcImage AS CHARACTER ) :
   /* Return the image path + icon set name
   */
-  DEFINE VARIABLE cImagePath AS CHARACTER   NO-UNDO.
-  DEFINE VARIABLE cIconSet   AS CHARACTER   NO-UNDO.
-
   {&timerStart}
-  cIconSet   = 'default'.
-  cImagePath = SUBSTITUTE('&1Image/&2_&3', getProgramDir(), cIconSet, pcImage).
-
-  /* Fall back to the default icon set when image not found */
-  IF SEARCH(cImagePath) = ? THEN
-    cImagePath = SUBSTITUTE('&1Image/default_&2', getProgramDir(), pcImage).
-
+  RETURN SUBSTITUTE('&1Image/default_&2', getProgramDir(), pcImage).
   {&timerStop}
-  RETURN cImagePath.
+  
 END FUNCTION. /* getImagePath */
 
 /* _UIB-CODE-BLOCK-END */
@@ -3933,9 +3937,8 @@ FUNCTION getIndexFields RETURNS CHARACTER
   DELETE OBJECT hFieldBuffer.
   DELETE OBJECT hQuery.
 
-  {&timerStop}
   RETURN cFieldList.   /* Function return value. */
-
+  {&timerStop}
 END FUNCTION. /* getIndexFields */
 
 /* _UIB-CODE-BLOCK-END */
@@ -3988,9 +3991,9 @@ FUNCTION getLinkInfo RETURNS CHARACTER
   DEFINE BUFFER bLinkInfo FOR ttLinkInfo.
   {&timerStart}
   FIND bLinkInfo WHERE bLinkInfo.cField = pcFieldName NO-ERROR.
-  {&timerStop}
-  RETURN (IF AVAILABLE bLinkInfo THEN bLinkInfo.cValue ELSE "").
 
+  RETURN (IF AVAILABLE bLinkInfo THEN bLinkInfo.cValue ELSE "").
+  {&timerStop}
 END FUNCTION. /* getLinkInfo */
 
 /* _UIB-CODE-BLOCK-END */
@@ -4014,9 +4017,8 @@ FUNCTION getMaxLength RETURNS INTEGER
     iMaxLength = MAXIMUM(iMaxLength,LENGTH(ENTRY(iField,cFieldList))).
   END.
 
-  {&timerStop}
   RETURN iMaxLength.   /* Function return value. */
-
+  {&timerStop}
 END FUNCTION. /* getMaxLength */
 
 /* _UIB-CODE-BLOCK-END */
@@ -4068,25 +4070,25 @@ FUNCTION getProgramDir RETURNS CHARACTER
   ( /* parameter-definitions */ ) :
   /* Return the DataDigger install dir, including a backslash
   */
-  DEFINE VARIABLE cProgDir AS CHARACTER NO-UNDO.
 
-  /* this-procedure:file-name will return the .p name without path when the
-   * procedure us run without full path. We need to seek it in the propath.
-   */
-  FILE-INFO:FILE-NAME = THIS-PROCEDURE:FILE-NAME.
-  IF FILE-INFO:FULL-PATHNAME = ? THEN
+  /* Cached the value in a global var (about 100x as fast) */
+  IF gcProgramDir = '' THEN
   DO:
-    IF SUBSTRING(THIS-PROCEDURE:FILE-NAME,LENGTH(THIS-PROCEDURE:FILE-NAME) - 1, 2) = ".p" THEN
-      FILE-INFO:FILE-NAME = SUBSTRING(THIS-PROCEDURE:FILE-NAME,1,LENGTH(THIS-PROCEDURE:FILE-NAME) - 2) + ".r".
+    /* this-procedure:file-name will return the .p name without path when the
+     * procedure us run without full path. We need to seek it in the propath.
+     */
+    FILE-INFO:FILE-NAME = THIS-PROCEDURE:FILE-NAME.
+    IF FILE-INFO:FULL-PATHNAME = ? THEN
+    DO:
+      IF SUBSTRING(THIS-PROCEDURE:FILE-NAME,LENGTH(THIS-PROCEDURE:FILE-NAME) - 1, 2) = ".p" THEN
+        FILE-INFO:FILE-NAME = SUBSTRING(THIS-PROCEDURE:FILE-NAME,1,LENGTH(THIS-PROCEDURE:FILE-NAME) - 2) + ".r".
+    END.
+
+    gcProgramDir = SUBSTRING(FILE-INFO:FULL-PATHNAME,1,R-INDEX(FILE-INFO:FULL-PATHNAME,'\')).
+    PUBLISH "message"(50,gcProgramDir).
   END.
 
-  cProgDir = SUBSTRING(FILE-INFO:FULL-PATHNAME,1,R-INDEX(FILE-INFO:FULL-PATHNAME,'\')).
-  PUBLISH "message"
-    ( 50
-    , cProgDir
-    ).
-
-  RETURN cProgDir. /* Function return value. */
+  RETURN gcProgramDir.
 
 END FUNCTION. /* getProgramDir */
 
@@ -4170,97 +4172,26 @@ FUNCTION getRegistry RETURNS CHARACTER
     ) :
   /* Get a value from the registry.
   */
-  DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lValue AS LOGICAL   NO-UNDO.
-  DEFINE VARIABLE cSettingsDir AS CHARACTER NO-UNDO.
-
   {&timerStart}
-  DEFINE BUFFER bfConfig FOR ttConfig.
+  DEFINE BUFFER bDatabase FOR ttDatabase.
+  DEFINE BUFFER bConfig   FOR ttConfig.
 
   /* If this is a DB-specific section then replace db name if needed */
   IF pcSection BEGINS "DB:" THEN
   DO:
-    FIND ttDatabase WHERE ttDatabase.cLogicalName = entry(2,pcSection,":") NO-ERROR.
-    IF AVAILABLE ttDatabase THEN pcSection = "DB:" + ttDatabase.cSection.
+    FIND bDatabase WHERE bDatabase.cLogicalName = ENTRY(2,pcSection,":") NO-ERROR.
+    IF AVAILABLE bDatabase THEN pcSection = "DB:" + bDatabase.cSection.
   END.
 
-  IF glCacheSettings THEN
-  DO:
-    /* Load settings if there is nothing in the config table */
-    IF NOT TEMP-TABLE ttConfig:HAS-RECORDS THEN
-    DO:
-      /* Help file is least important */
-      RUN readConfigFile( SUBSTITUTE("&1DataDiggerHelp.ini"
-                                    , getProgramDir()
-                                    )).
-      /* General DD settings */
-      cSettingsDir = REPLACE(SEARCH('DataDigger.ini'),'DataDigger.ini','').
-      RUN readConfigFile( SUBSTITUTE("&1DataDigger.ini"
-                                    , cSettingsDir
-                                    )).
-      /* Per-user settings */
-      RUN readConfigFile( SUBSTITUTE("&1DataDigger-&2.ini"
-                                    , cSettingsDir
-                                    , getUserName()
-                                    )).
+  /* Load settings if there is nothing in the config table */
+  IF NOT TEMP-TABLE ttConfig:HAS-RECORDS THEN
+    RUN loadSettings.
 
-      /* When all ini-files have been read, we can determine whether
-       * caching needs to be enabled
-       */
-      lValue = LOGICAL(getRegistry("DataDigger:Cache","Settings")) NO-ERROR.
-      IF lValue <> ? THEN ASSIGN glCacheSettings = lValue.
+  /* Search in settings tt */
+  FIND bConfig WHERE bConfig.cSection = pcSection AND bConfig.cSetting = pcKey NO-ERROR.
 
-      lValue = LOGICAL(getRegistry("DataDigger:Cache","TableDefs")) NO-ERROR.
-      IF lValue <> ? THEN ASSIGN glCacheTableDefs = lValue.
-
-      /* If we do not want to cache the registry, empty it now */
-      IF NOT glCacheSettings THEN RUN clearRegistryCache.
-    END.
-
-    /* Search in settings tt */
-    FIND bfConfig
-      WHERE bfConfig.cSection = pcSection
-        AND bfConfig.cSetting = pcKey
-            NO-ERROR.
-
-    {&timerStop}
-    RETURN ( IF AVAILABLE bfConfig THEN bfConfig.cValue ELSE ? ).
-  END.
-
-  ELSE
-  DO:
-    USE SUBSTITUTE('DataDigger-&1', getUserName() ).
-    GET-KEY-VALUE
-      SECTION pcSection
-      KEY     pcKey
-      VALUE   cValue.
-
-    /* If not in personal INI then check DataDigger.ini */
-    IF cValue = ? THEN
-    DO:
-      USE 'DataDigger'.
-      GET-KEY-VALUE
-        SECTION pcSection
-        KEY     pcKey
-        VALUE   cValue.
-    END.
-
-    /* If still not found check DataDiggerHelp.ini */
-    IF cValue = ? THEN
-    DO:
-      USE 'DataDiggerHelp'.
-      GET-KEY-VALUE
-        SECTION pcSection
-        KEY     pcKey
-        VALUE   cValue.
-    END.
-
-    /* Clean up and return */
-    USE "".
-    {&timerStop}
-    RETURN cValue.
-  END.
-
+  RETURN ( IF AVAILABLE bConfig THEN bConfig.cValue ELSE ? ).
+  {&timerStop}
 END FUNCTION. /* getRegistry */
 
 /* _UIB-CODE-BLOCK-END */
@@ -4306,6 +4237,50 @@ END FUNCTION. /* getStackSize */
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-getTableDesc) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getTableDesc Procedure 
+FUNCTION getTableDesc RETURNS CHARACTER
+  ( INPUT  pcDatabase AS CHARACTER
+  , INPUT  pcTable    AS CHARACTER
+  ) :
+  DEFINE BUFFER bTable FOR ttTable.
+
+  FIND bTable 
+    WHERE bTable.cDatabase  = pcDatabase
+      AND bTable.cTableName = pcTable NO-ERROR.
+
+  RETURN (IF AVAILABLE bTable THEN bTable.cTableDesc ELSE '').
+
+END FUNCTION. /* getTableDesc */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-getTableLabel) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getTableLabel Procedure 
+FUNCTION getTableLabel RETURNS CHARACTER
+  ( INPUT  pcDatabase AS CHARACTER
+  , INPUT  pcTable    AS CHARACTER
+  ) :
+  DEFINE BUFFER bTable FOR ttTable.
+
+  FIND bTable 
+    WHERE bTable.cDatabase  = pcDatabase
+      AND bTable.cTableName = pcTable NO-ERROR.
+
+  RETURN (IF AVAILABLE bTable THEN bTable.cTableLabel ELSE '').
+
+END FUNCTION. /* getTableLabel */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-getTableList) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getTableList Procedure 
@@ -4341,9 +4316,8 @@ FUNCTION getTableList RETURNS CHARACTER
 
   cTableList = LEFT-TRIM(cTableList, ",").
 
-  {&timerStop}
   RETURN cTableList.   /* Function return value. */
-
+  {&timerStop}
 END FUNCTION. /* getTableList */
 
 /* _UIB-CODE-BLOCK-END */
@@ -4379,9 +4353,7 @@ FUNCTION getUserName RETURNS CHARACTER
 
   RETURN STRING(cUserName). /* Function return value. */
 
-  FINALLY: 
-    {&stopTimer} 
-  END FINALLY.
+  {&stopTimer}
 END FUNCTION. /* getUserName */
 
 /* _UIB-CODE-BLOCK-END */
@@ -4415,10 +4387,43 @@ FUNCTION getWidgetUnderMouse RETURNS HANDLE
     hWidget = hWidget:NEXT-SIBLING.
   END.
 
-  {&timerStop}
   RETURN ?.
-
+  {&timerStop}
 END FUNCTION. /* getWidgetUnderMouse */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-getWorkFolder) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getWorkFolder Procedure 
+FUNCTION getWorkFolder RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+
+  /* Cached the value in a global var  */
+  IF gcWorkFolder = '' THEN
+  DO:
+    gcWorkFolder = getRegistry("DataDigger", "WorkFolder").
+
+    /* Possibility to specify where DD files are created */
+    IF gcWorkFolder = ? OR gcWorkFolder = '' THEN
+      gcWorkFolder = getProgramDir().
+    ELSE
+    DO:
+      gcWorkFolder = RIGHT-TRIM(gcWorkFolder,'/\') + '\'.
+      gcWorkFolder = resolveOsVars(gcWorkFolder).
+      RUN createFolder(gcWorkFolder).
+
+      FILE-INFO:FILE-NAME = gcWorkFolder.
+      IF FILE-INFO:FULL-PATHNAME = ? THEN gcWorkFolder = getProgramDir().
+    END.
+  END.
+
+  RETURN gcWorkFolder.
+
+END FUNCTION. /* getWorkFolder */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -4470,9 +4475,8 @@ FUNCTION isBrowseChanged RETURNS LOGICAL
   /* apparently nothing changed, so... */
   PUBLISH "debugInfo" (2, SUBSTITUTE("Nothing changed in browse: &1", phBrowse:NAME)).
 
-  {&TimerStop}
   RETURN FALSE.
-
+  {&timerStop}
 END FUNCTION. /* isBrowseChanged */
 
 /* _UIB-CODE-BLOCK-END */
@@ -4524,7 +4528,6 @@ FUNCTION isFileLocked RETURNS LOGICAL
   ( pcFileName AS CHARACTER ) :
   /* Check whether a file is locked on the file system
   */
-  DEFINE VARIABLE lpSecurityAtt AS INTEGER NO-UNDO.
   DEFINE VARIABLE iFileHandle   AS INTEGER NO-UNDO.
   DEFINE VARIABLE nReturn       AS INTEGER NO-UNDO.
 
@@ -4532,7 +4535,7 @@ FUNCTION isFileLocked RETURNS LOGICAL
   RUN CreateFileA ( INPUT pcFileName
                   , INPUT {&GENERIC_WRITE}
                   , {&FILE_SHARE_READ}
-                  , lpSecurityAtt
+                  , 0
                   , {&OPEN_EXISTING}
                   , {&FILE_ATTRIBUTE_NORMAL}
                   , 0
@@ -4680,10 +4683,7 @@ FUNCTION isWidgetChanged RETURNS LOGICAL
   PUBLISH "debugInfo" (2, SUBSTITUTE("  Widget changed: &1", lChangeDetected)).
 
   RETURN lChangeDetected.
-
-  FINALLY:
-    {&TimerStop}
-  END FINALLY.
+  {&TimerStop}
 END FUNCTION. /* isWidgetChanged */
 
 /* _UIB-CODE-BLOCK-END */
@@ -4710,7 +4710,7 @@ FUNCTION readFile RETURNS LONGCHAR
     END.
     INPUT CLOSE.
   END.
-  
+
   RETURN cContent.
 END FUNCTION. /* readFile */
 
@@ -4743,50 +4743,19 @@ END FUNCTION. /* removeConnection */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION resolveOsVars Procedure 
 FUNCTION resolveOsVars RETURNS CHARACTER
   ( pcString AS CHARACTER ) :
+
   /* Return a string with OS vars resolved
   */
-  DEFINE VARIABLE iPercStart   AS INTEGER NO-UNDO.
-  DEFINE VARIABLE iPercEnd     AS INTEGER NO-UNDO.
-  DEFINE VARIABLE cEnvVarName  AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cEnvVarValue AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
-  /* Support for OS-directives between % eg: %username% will expand
-   * to your username, as long as you have an OS-var for that.
-   */
-  cReturnValue = pcString.
-  iPercStart = INDEX(cReturnValue,'%').
-
-  resolveOsVars:
-  DO WHILE iPercStart > 0:
-    iPercEnd = INDEX(cReturnValue,'%',iPercStart + 1).
-
-    IF iPercEnd = 0 THEN LEAVE resolveOsVars. /* single % */
-    cEnvVarName = TRIM( SUBSTRING(cReturnValue,iPercStart, iPercEnd - iPercStart) ,'%'). /* Grab text between % */
-
-    /* Search in the registry */
-    LOAD "System" BASE-KEY "HKEY_LOCAL_MACHINE".
-    USE "System".
-    GET-KEY-VALUE SECTION "CurrentControlSet~\Control~\Session Manager~\Environment" KEY cEnvVarName VALUE cEnvVarValue.
-    UNLOAD "System".
-
-    /* If not defined, try our luck in the default env */
-    IF cEnvVarValue = ? THEN
-      cEnvVarValue = OS-GETENV(cEnvVarName) . /* try to resolve */
-
-    /* If still not found, step to next % */
-    IF cEnvVarValue = ? THEN
-    DO:
-      iPercStart = iPercEnd.
-      NEXT resolveOsVars.
-    END.
-
-    cReturnValue = REPLACE(cReturnValue,'%' + cEnvVarName + '%', cEnvVarValue). /* Replace with value */
-    iPercStart = INDEX(cReturnValue,'%'). /* Find next directive */
+  DO i = 1 TO NUM-ENTRIES(pcString,'%'):
+    IF i MODULO 2 = 0
+      AND OS-GETENV(ENTRY(i,pcString,'%')) <> ? THEN
+      ENTRY(i,pcString,'%') = OS-GETENV(ENTRY(i,pcString,'%')).
   END.
-
-  RETURN cReturnValue.
-
+  
+  pcString = REPLACE(pcString,'%','').
+  RETURN pcString.
 END FUNCTION. /* resolveOsVars */
 
 /* _UIB-CODE-BLOCK-END */
@@ -4835,6 +4804,40 @@ FUNCTION resolveSequence RETURNS CHARACTER
   RETURN cFileName.
 
 END FUNCTION. /* resolveSequence */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-setColor) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION setColor Procedure 
+FUNCTION setColor RETURNS INTEGER
+  ( pcName  AS CHARACTER 
+  , piColor AS INTEGER) :
+  /* Set color nr in the color tt
+   */
+  DEFINE BUFFER bColor FOR ttColor.
+
+  FIND bColor WHERE bColor.cName = pcName NO-ERROR.
+  IF NOT AVAILABLE bColor THEN 
+  DO:
+    CREATE bColor.
+    ASSIGN bColor.cName = pcName.
+  END.
+
+  /* Set to default value from settings */
+  IF piColor = ? THEN
+  DO:
+    piColor = INTEGER(getRegistry('DataDigger:Colors', pcName)) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN piColor = ?.
+  END.
+  
+  bColor.iColor = piColor.
+  RETURN bColor.iColor.
+
+END FUNCTION. /* setColor */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -4899,8 +4902,8 @@ FUNCTION setLinkInfo RETURNS LOGICAL
 
   bLinkInfo.cValue = TRIM(pcValue).
 
-  {&timerStop}
   RETURN TRUE.   /* Function return value. */
+  {&timerStop}
 
 END FUNCTION. /* setLinkInfo */
 
@@ -4922,8 +4925,6 @@ FUNCTION setRegistry RETURNS CHARACTER
   {&timerStart}
   DEFINE BUFFER bfConfig FOR ttConfig.
 
-  /* Update the local cache of the registry as well */
-  PUBLISH "timerCommand" ("start", "setRegistry:save-to-tt").
   FIND bfConfig
     WHERE bfConfig.cSection = pcSection
       AND bfConfig.cSetting = pcKey NO-ERROR.
@@ -4935,15 +4936,17 @@ FUNCTION setRegistry RETURNS CHARACTER
       bfConfig.cSection = pcSection
       bfConfig.cSetting = pcKey.
   END.
-  
-  ASSIGN 
-    bfConfig.lDirty = (bfConfig.cValue <> pcValue)
-    bfConfig.cValue = pcValue.
 
-  PUBLISH "timerCommand" ("stop", "setRegistry:save-to-tt").
+  IF pcValue = ? OR TRIM(pcValue) = '' THEN
+    DELETE bfConfig.
+  ELSE
+    ASSIGN
+      bfConfig.lDirty = bfConfig.lDirty OR (bfConfig.cValue <> pcValue)
+      bfConfig.lUser  = TRUE
+      bfConfig.cValue = pcValue.
 
-  {&timerStop}
   RETURN "". /* Function return value. */
+  {&timerStop}
 
 END FUNCTION. /* setRegistry */
 

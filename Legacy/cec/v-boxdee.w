@@ -816,8 +816,8 @@ PROCEDURE build-screen :
          li-line-no    = 0.
 
   FOR EACH box-design-line OF box-design-hdr NO-LOCK BY box-design-line.line-no:
-      ASSIGN lv-wscore          = lv-wscore + box-design-line.wscore + chr(13)
-             lv-wcum-score      = lv-wcum-score + box-design-line.wcum-score + chr(13)
+      ASSIGN lv-wscore          = lv-wscore + trim(box-design-line.wscore) + chr(13)
+             lv-wcum-score      = lv-wcum-score + trim(box-design-line.wcum-score) + chr(13)
              li-cnt             = li-cnt + 1
              li-line-no[li-cnt] = box-design-line.line-no
              .

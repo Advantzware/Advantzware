@@ -34,7 +34,7 @@
           ASSIGN
              v-program      = "oe/rep/bolpremx.p"
              is-xprint-form = YES
-             lines-per-page = 70.
+             lines-per-page = 72.
        WHEN "RFCX" THEN
           ASSIGN
              v-program      = "oe/rep/bolrfcx.p"
@@ -44,17 +44,17 @@
           ASSIGN                                        /*Task# 01141406*/
              v-program      = "oe/rep/bolprmbr.p"
              is-xprint-form = YES
-             lines-per-page = 66.
+             lines-per-page = 72.
        WHEN "PremierCX" THEN
           ASSIGN
              v-program      = "oe/rep/bolpremcx.p"
              is-xprint-form = YES
-             lines-per-page = 66.
+             lines-per-page = 72.
        WHEN "PremierPX" THEN
           ASSIGN
              v-program      = "oe/rep/bolprempx.p"
              is-xprint-form = YES
-             lines-per-page = 66.
+             lines-per-page = 72.
        WHEN "KDWILLSX" THEN
           ASSIGN
              v-program      = "oe/rep/bolkdwlx.p"
@@ -221,6 +221,7 @@
        WHEN "Delta" THEN ASSIGN v-program = "oe/rep/boldelta.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "Xprint2" OR WHEN "bolfmt 2" THEN ASSIGN v-program = "oe/rep/bolxprt2.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "bolfmt 20" THEN ASSIGN v-program = "oe/rep/bolxprt20.p" is-xprint-form = YES lines-per-page = 66.
+       WHEN "bolfmt 30" THEN ASSIGN v-program = "oe/rep/bolstnd30.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "LancoYork" THEN ASSIGN v-program = "oe/rep/bollanyork.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "Chillicothe" THEN ASSIGN v-program = "oe/rep/bolchict.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "NSTOCK" THEN ASSIGN v-program = "oe/rep/bolnstok.p" is-xprint-form = YES lines-per-page = 80.

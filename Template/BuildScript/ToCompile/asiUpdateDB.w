@@ -32,6 +32,7 @@ CREATE WIDGET-POOL.
 DEF INPUT PARAMETER ipcName AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcPort AS CHAR NO-UNDO. 
 DEF INPUT PARAMETER ipcDir AS CHAR NO-UNDO.
+DEF INPUT PARAMETER ipiEntry AS INT NO-UNDO.
 DEF INPUT PARAMETER ipiCurrDbVer AS INT NO-UNDO.
 DEF INPUT PARAMETER ipiPatchDbVer AS INT NO-UNDO.
 DEF INPUT PARAMETER ipiCurrAudVer AS INT NO-UNDO.
@@ -56,6 +57,7 @@ DEF STREAM outStream.
 DEF STREAM logStream.
 DEF STREAM iniStream.
 
+DEF VAR cDbDirAlone AS CHAR NO-UNDO.
 DEF VAR cCurrDir AS CHAR NO-UNDO.
 DEF VAR cPortNo AS CHAR NO-UNDO.
 DEF VAR ptrToString      AS MEMPTR    NO-UNDO.
@@ -651,10 +653,10 @@ PROCEDURE ipBackupDBs :
         cPrefix = SUBSTRING(fiDbName:{&SV},1,3).
         
     IF cPrefix = "asi" THEN ASSIGN 
-        iListEntry = LOOKUP(fiDbName:{&SV},cDbList)
+        iListEntry = ipiEntry
         cThisDir = ENTRY(iListEntry,cDbDirList).
     ELSE ASSIGN 
-        iListEntry = LOOKUP(fiDbName:{&SV},cAudDbList)
+        iListEntry = ipiEntry
         cThisDir = ENTRY(iListEntry,cAudDirList).
     
     ASSIGN
@@ -667,14 +669,11 @@ PROCEDURE ipBackupDBs :
                    STRING(DAY(TODAY),"99") + "_" +
                    STRING(TIME) + ".bak" 
         cCmdLine = cDLCDir + "\bin\probkup online " + 
-                   cDBDrive + "\" + 
-                   cTopDir + "\" + 
                    cDbDir + "\" +
                    cLocDir + "\" +
                    cLocName + " " + 
                    cBackupName
-        cLockFile = cDbDrive + "\" +
-                   cTopDir + "\" + cDbDir + "\" + 
+        cLockFile = cDbDir + "\" + 
                    cThisDir + "\" +
                    fiDBName:{&SV} + ".lk".
     .
@@ -744,11 +743,11 @@ PROCEDURE ipCreateAudit :
         cLocName = ENTRY(2,cLocItem,"-")
         cLocPort = ENTRY(3,cLocItem,"-")
         cStructureST = cDrive + "\" + cTopDir + "\" +
-                   cUpdatesDir + "\PATCH" + fiToVer:{&SV} + "\" +
-                   "StructureUpdate\STFiles\audit.st"
+                   cUpdatesDir + "\" +
+                   "Structure\STFiles\audit.st"
         cAuditDf = cDrive + "\" + cTopDir + "\" +
-                   cUpdatesDir + "\PATCH" + fiToVer:{&SV} + "\" +
-                   "StructureUpdate\DFFiles\asiAudit.df"
+                   cUpdatesDir + "\" +
+                   "Structure\DFFiles\asiAudit.df"
         cAudName = "aud" + SUBSTRING(cLocName,4,8)
         cAudPort = STRING(INT(cLocPort) + 10,"9999").
 
@@ -930,6 +929,7 @@ PROCEDURE ipExpandVarNames :
         cMapDir = cDrive + "\" + cTopDir
         cAdminDir = cMapDir + "\" + cAdminDir
         cBackupDir = cMapDir + "\" + cBackupDir
+        cDbDirAlone = cDbDir
         cDBDir = cDbDrive + "\" + cTopDir + "\" + cDbDir 
         cDocDir = cMapDir + "\" + cDocDir
         cDeskDir = cMapDir + "\" + cDeskDir
@@ -1084,7 +1084,7 @@ PROCEDURE ipProcessRequest :
     DEF VAR iLookup AS INT NO-UNDO.
     
     RUN ipStatus ("Beginning Database Schema Update").
-	RUN ipReadAdminServiceProps.    
+	RUN ipReadAdminSvcProps.    
 
 	/* Process "regular" database (asixxxx.db) */
     RUN ipBackupDBs.
@@ -1107,7 +1107,7 @@ PROCEDURE ipProcessRequest :
     
     /* Process "audit" database (audxxxx.db) */
     ASSIGN 
-        iLookup = LOOKUP(fiDbName:{&SV},cDbList)
+        iLookup = ipiEntry
         fiDbName:{&SV} = REPLACE(fiDbName:{&SV},"asi","aud")
         fiDbDir:{&SV} = "audit"
         fiPortNo:{&SV} = ENTRY(iLookup,cAudPortList). 
@@ -1435,10 +1435,11 @@ PROCEDURE ipUpgradeDBs :
         iDbCtr = iDbCtr + 1
         iWaitCount = 0
         cDelta = REPLACE(cDeltaFile,"asi",cPrefix)
-        cFullDelta = REPLACE(cUpdStructureDir,"PATCH","PATCH" + fiToVer:{&SV}) + "\DFFiles\" + cDelta.
-        
+        cFullDelta = REPLACE(cUpdStructureDir,"PATCH","PATCH" + fiToVer:{&SV}) + "\DFFiles\" + cDelta
+        cFullDelta = REPLACE(cFullDelta,"StructureUpdate","Structure").
+
     IF cPrefix = "asi" THEN ASSIGN 
-        iListEntry = LOOKUP(fiDbName:{&SV},cDbList)
+        iListEntry = ipiEntry
         cThisDir = ENTRY(iListEntry,cDbDirList)
         cThisPort = ENTRY(iListEntry,cDbPortList).
     ELSE ASSIGN 
@@ -1446,7 +1447,7 @@ PROCEDURE ipUpgradeDBs :
         cThisDir = ENTRY(iListEntry,cAudDirList)
         cThisPort = ENTRY(iListEntry,cAudPortList).
 
-    IF iToDelta LE iFromDelta THEN DO:
+    IF ipiPatchDbVer LE ipiCurrDbVer THEN DO:
         RUN ipStatus ("    Database is already upgraded.  Cancelling.").
         ASSIGN 
             lSuccess = FALSE.
@@ -1486,12 +1487,12 @@ PROCEDURE ipUpgradeDBs :
                      " -start"
         /* Single user connect statment */
         cStatement = "-db " + cDbDrive + "\" +
-                     cTopDir + "\" + cDbDir + "\" + 
+                     cTopDir + "\" + cDbDirAlone + "\" + 
                      cThisDir + "\" +
                      fiDBName:{&SV} + 
                      " -1 -ld updDB" + STRING(iDbCtr)
         cLockFile = cDbDrive + "\" +
-                     cTopDir + "\" + cDbDir + "\" + 
+                     cTopDir + "\" + cDbDirAlone + "\" + 
                      cThisDir + "\" +
                      fiDBName:{&SV} + ".lk".
     
@@ -1506,45 +1507,10 @@ PROCEDURE ipUpgradeDBs :
             iWaitCount = iWaitCount + 1.
         PAUSE 5 NO-MESSAGE.
         IF iWaitCount EQ 3 THEN DO:
-            RUN ipStatus ("    Normal shutdown failed.  Trying alternate method").
-            ASSIGN 
-                lAlternate = TRUE.
             LEAVE waitblock.
         END.
     END.
     
-    /* Database didn't shut down normally, try with proshut */
-    IF lAlternate THEN DO:
-        ASSIGN 
-            cStopString = cDlcDir + "\bin\_mprshut -by -db " + 
-                          cDbDrive + "\" +
-                          cTopDir + "\" + cDbDir + "\" + 
-                          cThisDir + "\" +
-                          fiDBName:{&SV}
-            cStartString = cDlcDir + "\bin\_mprosrv -db " + 
-                           cDbDrive + "\" +
-                           cTopDir + "\" + cDbDir + "\" + 
-                           cThisDir + "\" +
-                           fiDBName:{&SV} +
-                           " -H " + cHostName +
-                           " -S " + cThisPort +
-                           " -N tcp"
-                          .
-                          
-        OS-COMMAND SILENT VALUE(cStopString).
-        Waitblock2:
-        DO WHILE SEARCH(cLockFile) NE ?:
-            RUN ipStatus ("    Waiting for removal of lock file").
-            ASSIGN 
-                iWaitCount = iWaitCount + 1.
-            PAUSE 5 NO-MESSAGE.
-            IF iWaitCount EQ 3 THEN 
-            DO:
-                RUN ipStatus ("    Alternate shutdown failed.  Cancelling.").
-                LEAVE waitblock2.
-            END.
-        END.
-    END.
     IF SEARCH(cLockFile) NE ? THEN DO:
         RUN ipStatus (    "Unable to shut down server for " + fiDbName:{&SV} + ".  Cancelling.").
         ASSIGN 
@@ -1559,7 +1525,7 @@ PROCEDURE ipUpgradeDBs :
     CREATE ALIAS DICTDB FOR DATABASE VALUE("updDB" + STRING(iDbCtr)).
     
     /* Load the delta */
-    RUN ipStatus ("    Loading delta " + STRING(cDeltaDf)).
+    RUN ipStatus ("    Loading delta " + STRING(cFullDelta)).
     RUN prodict/load_df.p (cFullDelta). 
     
     /* Disconnect it */
@@ -1578,7 +1544,6 @@ PROCEDURE ipUpgradeDBs :
         PAUSE 5 NO-MESSAGE.
         IF iWaitCount EQ 3 THEN 
         DO:
-            RUN ipStatus ("    DB restart failed.  Cancelling.").
             LEAVE waitblock3.
         END.
     END.
@@ -1595,7 +1560,9 @@ PROCEDURE ipUpgradeDBs :
         
     IF cPrefix EQ "asi" THEN DO: 
         ASSIGN 
-            ENTRY(iListEntry,wDbVerList) = STRING(iToDelta / 10,"99.9").
+            ENTRY(ipiEntry,wDbVerList) =  SUBSTRING(STRING(ipiPatchDbVer),1,2) + "." +
+                                            SUBSTRING(STRING(ipiPatchDbVer),3,2) + "." +
+                                            SUBSTRING(STRING(ipiPatchDbVer),5,2).
     END.
 
     ASSIGN

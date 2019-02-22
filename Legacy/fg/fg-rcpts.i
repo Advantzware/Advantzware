@@ -15,7 +15,8 @@ ASSIGN
   {1}.job-no2    = {2}.job-no2
   {1}.pur-uom    = {2}.pur-uom
   {1}.rita-code  = {2}.rita-code
-  {1}.post-date  = v-post-date.
+  {1}.post-date  = v-post-date
+  {1}.po-line    = {2}.po-line .
 
 RELEASE oe-bolh.
 

@@ -1583,6 +1583,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-line-status B-table-Win 
+PROCEDURE get-line-status :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER opRowid AS ROWID NO-UNDO.
+  IF AVAILABLE oe-ordl THEN
+      opRowid =  ROWID(oe-ordl) .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-tt-custnum-range B-table-Win 
 PROCEDURE get-tt-custnum-range :
 /*------------------------------------------------------------------------------

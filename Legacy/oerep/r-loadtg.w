@@ -3286,7 +3286,9 @@ PROCEDURE create-loadtag :
 
    /* gdm - 08260916 */
    IF loadtagFunction EQ 'PO' 
-    THEN loadtag.po-no = INT(w-ord.po-no).   
+    THEN ASSIGN
+        loadtag.po-no   = INT(w-ord.po-no)
+        loadtag.line    = w-ord.po-line .   
 
   IF v-fgrecpt AND tb_ret THEN loadtag.tot-cases  = (loadtag.pallet-COUNT - loadtag.partial) / loadtag.case-bundle.
 
@@ -3375,6 +3377,7 @@ PROCEDURE create-loadtag :
 
       IF loadtagFunction EQ 'PO' THEN DO:
         fg-rctd.po-no = TRIM(STRING(loadtag.po-no,">>>>>>>>>>")).
+        fg-rctd.po-line = loadtag.line .
         /* Task 09051410 */
         IF loadtag.po-no GT 0 THEN
           ASSIGN fg-rctd.job-no = ""
@@ -3443,6 +3446,7 @@ PROCEDURE create-loadtag :
                                loadtagFunction EQ 'PO') THEN
       DO:
          fg-rctd.po-no = TRIM(STRING(w-ord.po-no,">>>>>>>>>>")).
+         fg-rctd.po-line = w-ord.po-line .
 
          FIND FIRST b-po-ordl WHERE
               b-po-ordl.company EQ cocode AND
@@ -3511,7 +3515,8 @@ PROCEDURE create-loadtag :
                 IF TRIM(fg-rctd.job-no) NE "" AND TRIM(fg-rctd.po-no) NE "" AND loadtagFunction EQ 'PO' THEN
                 ASSIGN fg-rctd.job-no = "" 
                     fg-rctd.job-no2 = 0
-                    fg-rctd.po-no = TRIM(STRING(w-ord.po-no,">>>>>>>>>>")).
+                    fg-rctd.po-no = TRIM(STRING(w-ord.po-no,">>>>>>>>>>"))
+                    fg-rctd.po-line = w-ord.po-line .
                 ELSE IF TRIM(fg-rctd.job-no) NE "" AND TRIM(fg-rctd.po-no) NE "" AND loadtagFunction EQ 'Order' THEN
                     ASSIGN
                     fg-rctd.po-no   = ""
@@ -3528,7 +3533,8 @@ PROCEDURE create-loadtag :
           ELSE IF TRIM(fg-rctd.po-no) NE "" AND TRIM(loadtag.job-no) NE "" AND loadtagFunction EQ 'Po' THEN
               ASSIGN fg-rctd.job-no = "" 
                     fg-rctd.job-no2 = 0
-                    fg-rctd.po-no = TRIM(STRING(w-ord.po-no,">>>>>>>>>>")).
+                    fg-rctd.po-no = TRIM(STRING(w-ord.po-no,">>>>>>>>>>"))
+                    fg-rctd.po-line = w-ord.po-line.
         END.
       END.
     END.
@@ -5386,6 +5392,7 @@ PROCEDURE from-po :
         w-ord.mult = IF AVAILABLE cust AND cust.int-field[1] NE 0 THEN
                      cust.int-field[1] ELSE v-mult
         w-ord.po-no = po-ord.po-no
+        w-ord.po-line = po-ordl.line
         w-ord.tare-wt = 10
         w-ord.uom = 'EA'
         w-ord.vendor = IF AVAILABLE vend THEN vend.name ELSE ''

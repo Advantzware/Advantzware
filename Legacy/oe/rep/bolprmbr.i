@@ -371,12 +371,12 @@ for each xxreport where xxreport.term-id eq v-term-id,
 PUT "<R52><C53><#8><FROM><R+4><C+27><RECT> " 
     "<=8><R+1> Total Units       :" v-grand-total-cases format ">>,>>>,>>9"
     "<=8><R+3> Total Weight      :" v-tot-wt .
-
+ 
 PUT "<FArial><R51><C1><P12><B>     Shipping Instructions: <P10> " SKIP(1)
-    oe-bolh.ship-i[1] AT 7 SKIP
-    oe-bolh.ship-i[2] AT 7 SKIP
-    oe-bolh.ship-i[3] AT 7 SKIP
-    oe-bolh.ship-i[4] AT 7 "</B><P9>".
+    "<R52><C3.5>" oe-bolh.ship-i[1] AT 7 SKIP
+    "<R53><C3.5>" oe-bolh.ship-i[2] AT 7 SKIP
+    "<R54><C3.5>" oe-bolh.ship-i[3] AT 7 SKIP
+    "<R55><C3.5>" oe-bolh.ship-i[4] AT 7 "</B><P9>". 
 
 /* rstark 05181205 */
 RUN XMLOutput (lXMLOutput,'Last',STRING(PAGE-NUM),'Page').

@@ -54,6 +54,7 @@ DO TRANSACTION:
   {sys/inc/fgcolors.i}
 END.
 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3194,6 +3195,7 @@ PROCEDURE local-display-fields :
         ASSIGN
            f-lp-dep  = reftable.val[1]
            f-div-dep = reftable.val[2].
+     FIND CURRENT reftable NO-LOCK.
   END.
 
   FIND FIRST itemfg
@@ -3359,17 +3361,19 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-   ll-unit-calc   = NO
-   ll-update-pack = NO.
-
+  
   DISABLE f-lp-dep f-div-dep WITH FRAME {&FRAME-NAME}.
 
   RUN release-shared-buffers.
 
   RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
 
-  IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), ?).
+  IF framechk-i-changed AND (ll-update-pack OR ll-unit-calc) THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 3).
+  ELSE IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 2).
+
+  ASSIGN
+   ll-unit-calc   = NO
+   ll-update-pack = NO.
 
   RUN update-ink.
   RUN disable-inks.

@@ -202,6 +202,19 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           IF xoe-rell.lot-no <> "" THEN
              ASSIGN v-frt-pay = xoe-rell.frt-pay
                     v-fob-code = xoe-rell.fob-code. 
+
+         FIND FIRST oe-rel
+        WHERE oe-rel.company EQ xoe-rell.company
+          AND oe-rel.ord-no  EQ xoe-rell.ord-no      
+          AND oe-rel.i-no    EQ xoe-rell.i-no
+          AND oe-rel.line    EQ xoe-rell.line
+          AND oe-rel.r-no EQ xoe-rell.link-no
+        NO-LOCK NO-ERROR.
+
+         IF AVAIL oe-rel AND v-frt-pay = "" THEN
+               ASSIGN v-frt-pay = oe-rel.frt-pay. 
+         IF AVAIL oe-rel AND v-fob-code = "" THEN
+               ASSIGN v-fob-code = oe-rel.fob-code .
           
         IF v-frt-pay = "" THEN
            ASSIGN v-frt-pay = oe-ord.frt-pay.
@@ -219,14 +232,6 @@ if v-zone-p then v-zone-hdr = "Route No.:".
             ASSIGN v-fob-code = "Destination".
         ELSE IF v-fob-code BEGINS "O" THEN
             ASSIGN v-fob-code = "Origin".
-
-        FIND FIRST oe-rel
-        WHERE oe-rel.company EQ xoe-rell.company
-          AND oe-rel.ord-no  EQ xoe-rell.ord-no      
-          AND oe-rel.i-no    EQ xoe-rell.i-no
-          AND oe-rel.line    EQ xoe-rell.line
-          AND oe-rel.r-no EQ xoe-rell.link-no
-        NO-LOCK NO-ERROR.
  
     IF AVAIL oe-rel THEN do:
        IF oe-rel.s-code <> "" THEN do:

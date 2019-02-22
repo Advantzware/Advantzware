@@ -86,7 +86,7 @@ def var v-bot-lab    as   char format "x(63)" extent 3 NO-UNDO.
 DEF VAR v-lines AS INT NO-UNDO.
 DEF VAR v-inv-freight LIKE ar-inv.freight NO-UNDO.
 DEF VAR v-frt-tax AS DEC NO-UNDO.
-DEF VAR v-notes AS cha EXTENT 4 FORM "x(80)" NO-UNDO.
+DEF VAR v-notes AS cha EXTENT 60 FORM "x(80)" NO-UNDO.
 DEF VAR v-notes-line AS INT NO-UNDO.
 DEF VAR v-inv-total AS DEC NO-UNDO.
 
@@ -496,7 +496,19 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                v-notes-line = 0
                lv-line-chars = 80.
 
-        {custom/notesprtA.i ar-inv v-notes 4}
+        {custom/notesprtA.i ar-inv v-notes 60}
+         DO i = 1 TO 60:
+             IF v-printline > 47 THEN do:           
+                 PAGE.
+                 {ar/rep/invcolnx.i}  /* xprint form */
+                 v-printline = 21.
+             END.
+             IF v-notes[i] NE "" THEN do:
+                 PUT "<C3>" v-notes[i] FORMAT "x(80)" SKIP .
+                 v-printline = v-printline + 1 .
+             END.
+         END.
+
         
         ASSIGN
            v-frt-tax = ar-inv.freight
@@ -558,10 +570,6 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
         .
 
     PUT "<FArial><R61><C63><#9><P12><B> THANK YOU. </B> <P9> " SKIP
-        "<=9><R-6>" v-notes[1]
-        "<=9><R-5>" v-notes[2]
-        "<=9><R-4>" v-notes[3]
-        "<=9><R-3>" v-notes[4]
         .
     
     v-printline = v-printline + 6.

@@ -129,7 +129,7 @@
 
         release ar-inv.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         ASSIGN
          lv-r-no = 0
@@ -329,6 +329,7 @@ IF NOT v-smr THEN
          item-name = ar-invl.i-name .
          cCustPart = ar-invl.part-no .
          iBolNo    = ar-invl.bol-no .
+         cCustLot  = ar-invl.lot-no.
          IF item-name = "" AND AVAIL itemfg THEN
              item-name = itemfg.i-name .
 
@@ -385,11 +386,12 @@ IF NOT v-smr THEN
          v-custpo = ""
          item-name = "" 
          cCustPart = ""
-         iBolNo    = 0 .
+         iBolNo    = 0 
+         cCustLot  = "".
 
         release ar-inv.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         ASSIGN
          lv-r-no = 0
@@ -426,6 +428,7 @@ IF NOT v-smr THEN
             item-name = ar-invl.i-name .
             cCustPart = ar-invl.part-no .
             iBolNo    = ar-invl.bol-no .
+            cCustLot  = ar-invl.lot-no.
              IF item-name = "" AND AVAIL itemfg THEN
                  item-name = itemfg.i-name .
             leave.
@@ -560,6 +563,7 @@ IF NOT v-smr THEN
                  WHEN "customer-part" THEN cVarValue = STRING(cCustPart,"x(15)").
                  WHEN "bol" THEN cVarValue = STRING(iBolNo,">>>>>>").
                  WHEN "sqft" THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.t-sqft,"->>>>9.999") ELSE "" .
+                 WHEN "cust-lot" THEN cVarValue =  STRING(cCustLot,"x(15)")  .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -638,6 +642,7 @@ IF NOT v-smr THEN
                  WHEN "customer-part" THEN cVarValue = "".
                  WHEN "bol" THEN cVarValue = "".
                  WHEN "sqft" THEN cVarValue = "".
+                 WHEN "cust-lot" THEN cVarValue =  ""  .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -718,6 +723,7 @@ IF NOT v-smr THEN
                  WHEN "customer-part" THEN cVarValue = "".
                  WHEN "bol" THEN cVarValue = "".
                  WHEN "sqft" THEN cVarValue = "".
+                 WHEN "cust-lot" THEN cVarValue = ""  .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -802,6 +808,7 @@ IF NOT v-smr THEN
                  WHEN "customer-part" THEN cVarValue = "".
                  WHEN "bol" THEN cVarValue = "".
                  WHEN "sqft" THEN cVarValue = "".
+                 WHEN "cust-lot" THEN cVarValue = ""  .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -881,6 +888,7 @@ IF NOT v-smr THEN
          item-name = ar-invl.i-name .
          cCustPart = ar-invl.part-no .
          iBolNo    = ar-invl.bol-no .
+         cCustLot  = ar-invl.lot-no.
          IF item-name = "" AND AVAIL itemfg THEN
              item-name = itemfg.i-name .
 
@@ -937,10 +945,11 @@ IF NOT v-smr THEN
          v-custpo  = ""
          item-name = ""
          cCustPart = ""
-         iBolNo    = 0.
+         iBolNo    = 0 
+         cCustLot  = "".
         release ar-inv.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         ASSIGN
          lv-r-no = 0
@@ -976,7 +985,8 @@ IF NOT v-smr THEN
             v-custpo   = ar-invl.po-no.
             item-name  = ar-invl.i-name .
             cCustPart  = ar-invl.part-no .
-            iBolNo     = ar-invl.bol-no . 
+            iBolNo     = ar-invl.bol-no .
+            cCustLot   = ar-invl.lot-no.
              IF item-name = "" AND AVAIL itemfg THEN
                  item-name = itemfg.i-name .
             leave.
@@ -1121,6 +1131,7 @@ IF NOT v-smr THEN
                  WHEN "customer-part" THEN cVarValue = STRING(cCustPart,"x(15)").
                  WHEN "bol" THEN cVarValue = STRING(iBolNo,">>>>>>").
                  WHEN "sqft" THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.t-sqft,"->>>>9.999") ELSE "".
+                 WHEN "cust-lot" THEN cVarValue =  STRING(cCustLot,"x(15)")  .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -1202,6 +1213,7 @@ IF NOT v-smr THEN
                  WHEN "customer-part" THEN cVarValue = "".
                  WHEN "bol" THEN cVarValue = "".
                  WHEN "sqft" THEN cVarValue = "".
+                 WHEN "cust-lot" THEN cVarValue = ""  .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +

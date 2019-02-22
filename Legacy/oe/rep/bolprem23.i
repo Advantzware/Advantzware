@@ -107,8 +107,12 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
 /*        ASSIGN comp-ctr = (IF i > 1 THEN i - 1 ELSE 1). */
     IF w2.qty = 0 and w2.i-no = "" AND w2.dscr = "" AND w2.cas-cnt = 0 THEN DELETE w2.
   END.
+    
+  ASSIGN i = 0 v-case-tot = 0.
+  IF comp-ctr = 0 THEN ASSIGN comp-ctr = 4.
+  FOR EACH w2 BREAK BY w2.cases DESC:
 
-    IF NOT LAST(tt-boll.cases) THEN do:
+      IF NOT LAST(w2.cases) THEN do:
         IF v-printline >= 60 THEN DO: 
            v-printline = 0.
            PAGE {1}.
@@ -122,10 +126,6 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
           {oe/rep/bolprem2.i}
       END.
     END.
-
-  ASSIGN i = 0 v-case-tot = 0.
-  IF comp-ctr = 0 THEN ASSIGN comp-ctr = 4.
-  FOR EACH w2 BREAK BY w2.cases DESC:
    
     FIND FIRST bf-ttboll WHERE recid(bf-ttboll) = w2.rec-id NO-LOCK NO-ERROR.    
     i = i + 1.
@@ -215,14 +215,14 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
       
   put {1} skip(1).
   
-  IF NOT LAST(tt-boll.cases) THEN do:
+  IF NOT LAST(tt-boll.cases) THEN do:  
         IF v-printline >= 60 THEN DO: 
            v-printline = 0.
            PAGE {1}.
            {oe/rep/bolprem2.i}
         END.
     END.
-    ELSE do: 
+    ELSE do:  
          IF v-printline >= 48 THEN DO: 
           v-printline = 0.
           PAGE {1}.
@@ -250,7 +250,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
         
       {sys/inc/part-qty.i v-part-qty fg-set}
     
-      IF NOT LAST(tt-boll.cases) THEN do:
+      IF NOT LAST(fg-set.set-no) THEN do:
         IF v-printline >= 60 THEN DO: 
            v-printline = 0.
            PAGE {1}.

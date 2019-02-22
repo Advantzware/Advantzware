@@ -226,7 +226,7 @@ DEFINE BROWSE br_table
       job-mat.qty FORMAT "->>>,>>>,>>9.9<<<<<":U
       job-mat.qty-uom COLUMN-LABEL "Qty!UOM" FORMAT "x(4)":U WIDTH 7
       job-mat.wid FORMAT ">>9.99<<":U LABEL-BGCOLOR 14
-      job-mat.len FORMAT ">>9.99<<":U LABEL-BGCOLOR 14
+      job-mat.len FORMAT ">>>9.99<<":U LABEL-BGCOLOR 14
       job-mat.n-up COLUMN-LABEL "#Up" FORMAT ">>9":U
       job-mat.basis-w COLUMN-LABEL "MSF!Weight" FORMAT ">>9.99":U
       job-mat.post COLUMN-LABEL "Auto!Post?" FORMAT "Y/N":U
@@ -359,7 +359,7 @@ use-index seq-idx"
      _FldNameList[10]   > ASI.job-mat.wid
 "job-mat.wid" ? ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.job-mat.len
-"job-mat.len" ? ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mat.len" ? ">>>9.99<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.job-mat.n-up
 "job-mat.n-up" "#Up" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.job-mat.basis-w

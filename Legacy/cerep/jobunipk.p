@@ -185,6 +185,7 @@ DEF VAR v-pono LIKE oe-ordl.po-no EXTENT 15 NO-UNDO.
 DEF VAR v-part-no LIKE eb.part-no EXTENT 15 NO-UNDO.
 DEF VAR v-cas-pal LIKE eb.cas-cnt EXTENT 15 NO-UNDO.
 DEF VAR v-cas-cnt LIKE eb.cas-cnt EXTENT 15 NO-UNDO.
+DEF VAR cPallet LIKE eb.tr-no EXTENT 15 NO-UNDO.
 DEFINE VARIABLE dPromDate AS DATE NO-UNDO.
 DEFINE VARIABLE cCsr AS CHARACTER NO-UNDO.
 
@@ -200,7 +201,8 @@ DEF TEMP-TABLE tt-fgitm NO-UNDO FIELD i-no AS cha FORM "x(15)"
                         FIELD cust-name AS cha
                         FIELD shipto1 AS CHAR
                         FIELD shipto2 AS CHAR
-                        FIELD shipto4 AS CHAR.
+                        FIELD shipto4 AS CHAR 
+                        FIELD pallet AS CHARACTER .
 
 DEF VAR v-board-po LIKE oe-ordl.po-no-po NO-UNDO.
 DEF VAR v-plate-printed AS LOG NO-UNDO.
@@ -241,12 +243,12 @@ DEF VAR dCasCnt AS DECIMAL NO-UNDO .
 
 format HEADER 
        "<OLANDSCAPE><FArial><R+1><P12>" skip
-       "<C45><u>SHIPPING INFORMATION</u><c80>Date/Time Generated:    <b>Status" SKIP
-       "<C45>Ship To:" v-shipto[1] "<C80>" lv-prt-date space(1) lv-prt-time SPACE(5) lv-prt-sts  SKIP
-       "CSR:<B>" cCsr    "<c45>" "Address:" v-shipto[2] "</B>" 
+       "<C40><u>SHIPPING INFORMATION</u><c80>Date/Time Generated:    <b>Status" SKIP
+       "<C40>Ship To:" v-shipto[1] "<C80>" lv-prt-date space(1) lv-prt-time SPACE(5) lv-prt-sts  SKIP
+       "CSR:<B>" cCsr    "<c40>" "Address:" v-shipto[2] "</B>" 
        /*"<C80>JOB START DATE:"  v-start-date*/ skip
        "JOB NUMBER:<B>" v-job-no space(0) "-" space(0) v-job-no2 format "99" "</B>"
-       "<C45>" v-shipto[4]
+       "<C40>" v-shipto[4]
        "<B><P14></B><P12>" /*"<C80>  PROMISE DATE:" dPromDate*/ skip
        v-fill
     with no-box frame head no-labels stream-io width 155.
@@ -521,8 +523,8 @@ for each job-hdr NO-LOCK
 
        
         PUT "<R-1><#1><C91.5> " SKIP
-            "<B>CUSTOMER NAME:</B>" v-cust-name "<B> DUE DATE:     ESTIMATE:"  SKIP
-            "O/U%:" v-ovund FORMAT "x(20)" "<C39>" v-due-date "<C53>" trim(job-hdr.est-no) FORM "x(8)" 
+            "<B>CUSTOMER NAME:</B>" v-cust-name FORMAT "x(35)"  "<B><C80> DUE DATE: " v-due-date  SKIP
+            "O/U%:" v-ovund FORMAT "x(20)" "<C80> ESTIMATE: " trim(job-hdr.est-no) FORM "x(8)" 
             SKIP(1)
             v-fill SKIP.     
         /* barcode print */
@@ -817,7 +819,7 @@ for each job-hdr NO-LOCK
             v-upc-lbl = "    QC#".
             IF FIRST-OF(eb.form-no) THEN
               PUT  /*"<R-1>" "Case" AT 97 SKIP */
-                "<P10><B>F/B <C5>FG ITEM# <C17>DESCRIPTION<C33>JOB QTY<C41>PO#<C52>STYLE<C59>CARTON SIZE<C72>#UP" "<C76>CAD# <C83>CASE <C92>COUNT   <C100>PREPRESS" /*v-upc-lbl*/ "</B>" SKIP.
+                "<P10><B>F/B <C5>FG ITEM# <C16>DESCRIPTION<C35>JOB QTY<C42>PO#<C53>STYLE<C59>CARTON SIZE<C72>#UP" "<C76>CAD# <C83>CASE <C92>COUNT   <C100>PREPRESS" /*v-upc-lbl*/ "</B>" SKIP.
             /*else
               put fill("-",132) format "x(132)". */
             v-job-qty = 0.
@@ -857,11 +859,11 @@ for each job-hdr NO-LOCK
             
             PUT "<P9>"  trim(string(eb.form-no,">>9")) + "-" +
                     trim(string(eb.blank-no,">>9")) FORM "x(5)" 
-                    "<C5>" eb.stock-no FORM "x(15)" /* was 19, b4 that 21*/
-                    "<C17>" v-dsc[1]  FORMAT "x(30)"  
-                    "<C33>"  v-job-qty FORMAT "->>>>>>>>9" 
-                    "<C41>"  v-po-no  FORMat "x(15)" 
-                    "<C52>"  eb.style FORMAT "x(6)" /*v-stypart */
+                    "<C5>" eb.stock-no  FORM "x(15)" /* was 19, b4 that 21*/
+                    "<C16>" v-dsc[1]  FORMAT "x(30)"  
+                    "<C35.5>"  v-job-qty FORMAT "->>>>>>>>9" 
+                    "<C42>"  v-po-no  FORMat "x(15)" 
+                    "<C53>"  eb.style FORMAT "x(6)" /*v-stypart */
                     "<C59>"  v-size[1] FORM "x(19)"
                    /* "<C69>"  dCasCnt FORM ">>>>>9" 
                     "<C77>" eb.cas-no /*v-case-size*/  FORM "x(19)" /* was 15 */ */
@@ -902,7 +904,7 @@ for each job-hdr NO-LOCK
              v-po-duedate = IF AVAIL po-ordl THEN po-ordl.due-date ELSE ?.
 
              PUT "<P11>" v-fill SKIP                       /*REQ'D*/                 
-                 "<B>BOARD CODE<C25>SHEETS<C34>SHEET SIZE<C55>CALIPER<C65.5>DIE SIZE<C80>DIE#</B>"
+                 "<B>BOARD CODE<C22>DUE DATE<C33>SHEETS<C42>SHEET SIZE<C63>CALIPER<C73.5>DIE SIZE<C88>DIE#</B>"
                  SKIP.
             /** PRINT SHEET **/
              x = 2.
@@ -916,12 +918,12 @@ for each job-hdr NO-LOCK
 
                v-po-duedate = IF AVAIL po-ordl THEN po-ordl.due-date ELSE ?.
                PUT  wrk-sheet.brd-dscr FORMAT "x(20)"
-                    "<C17>" v-po-duedate "<C26>" wrk-sheet.gsh-qty 
-                    "<C34>" string(wrk-sheet.sh-wid) + "x" + string(wrk-sheet.sh-len)
+                    "<C22>" v-po-duedate "<C34>" wrk-sheet.gsh-qty 
+                    "<C42>" string(wrk-sheet.sh-wid) + "x" + string(wrk-sheet.sh-len)
                     format "x(16)"
-                    "<C55>" wrk-sheet.cal
-                    "<C65.5>" string(ef.trim-w) + "x" + string(ef.trim-l) FORM "x(16)"
-                    "<C80>" eb.die-no  FORM "x(8)"
+                    "<C63>" wrk-sheet.cal
+                    "<C73.5>" string(ef.trim-w) + "x" + string(ef.trim-l) FORM "x(16)"
+                    "<C88>" eb.die-no  FORM "x(8)"
                      SKIP
                    .
                x = 1.
@@ -1368,6 +1370,7 @@ for each job-hdr NO-LOCK
                                      ELSE IF AVAIL b-eb THEN b-eb.cas-cnt
                                      ELSE 0
                   tt-fgitm.cas-pal = IF AVAIL b-eb THEN b-eb.cas-pal ELSE 0
+                  tt-fgitm.pallet  = IF AVAIL b-eb THEN b-eb.tr-no ELSE ""
                   tt-fgitm.seq = i
                   i = i + 1.
 
@@ -1449,6 +1452,7 @@ for each job-hdr NO-LOCK
                  v-part-no[i] = tt-fgitm.part-no
                  v-cas-cnt[i] = tt-fgitm.cas-cnt
                  v-cas-pal[i] = tt-fgitm.cas-pal
+                 cPallet[i]   = tt-fgitm.pallet
                  v-cust-name-extent[i] = tt-fgitm.cust-name
                  v-ship1-extent[i] = tt-fgitm.shipto1
                  v-ship2-extent[i] = tt-fgitm.shipto2
@@ -1508,7 +1512,13 @@ for each job-hdr NO-LOCK
                SKIP
                "Qty/Pal  :" /*v-fgqty[1]*/ v-cas-pal[1]
                "Qty/Pal  :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-pal[2]  WHEN v-fgitm[2] <> "" 
-               "Qty/Pal  :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> ""                               
+               "Qty/Pal  :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> ""     
+               SKIP
+               "Pallet   :" /*v-fgqty[1]*/ cPallet[1]
+               "Pallet   :"  WHEN v-fgitm[2] <> "" AT 44 cPallet[2]  WHEN v-fgitm[2] <> "" 
+               "Pallet   :"  WHEN v-fgitm[3] <> "" AT 87  cPallet[3] WHEN v-fgitm[3] <> ""  
+
+
                /*SKIP
                v-shipto[2] AT 8  WHEN s-prt-shipto
                v-shipto1[2] WHEN s-prt-shipto AND v-fgitm[2] <> "" AT 53
@@ -1611,11 +1621,15 @@ for each job-hdr NO-LOCK
                SKIP
                "Qty/Case :" /*v-fgqty[1]*/ v-cas-cnt[1]
                "Qty/Case :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-cnt[2]  WHEN v-fgitm[2] <> "" 
-               "Qty/Case :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-cnt[3] WHEN v-fgitm[3] <> ""                               
+               "Qty/Case :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-cnt[3] WHEN v-fgitm[3] <> ""                                
                SKIP
                "Qty/Pal  :" /*v-fgqty[1]*/ v-cas-pal[1]
                "Qty/Pal  :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-pal[2]  WHEN v-fgitm[2] <> "" 
-               "Qty/Pal  :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> ""                               
+               "Qty/Pal  :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> ""  
+                SKIP
+               "Pallet   :" /*v-fgqty[1]*/ cPallet[1]
+               "Pallet   :"  WHEN v-fgitm[2] <> "" AT 44 cPallet[2]  WHEN v-fgitm[2] <> "" 
+               "Pallet   :"  WHEN v-fgitm[3] <> "" AT 87  cPallet[3] WHEN v-fgitm[3] <> ""  
                /*SKIP
                v-shipto[2] AT 8  WHEN s-prt-shipto
                v-shipto1[2] WHEN s-prt-shipto AND v-fgitm[2] <> "" AT 53

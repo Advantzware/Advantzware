@@ -152,12 +152,16 @@
 "warinvrestore.r" "AR" "AQ" "Restores Purged Invoices via N-F-13" "" 900
 "XrefTypetoGroup.r" "AF" "AF1" "COPY the A-F-1 Customer Type to the A-F-1 Cust Group Field." "" 900
 "ZeroParts.r" "FG" "IF1" "Set Qty on Hand to Zero for Overrun Parts of Set" "" 900
-"CopyCust.w" "AR" "AF1" "Copy Customer From 1 Company to Another Company" "" 960
-"adddcrec.w" "SA" "NR" "Record FG Receipts for Posted Data Collection" "" 900
+"updship#.r" "MN" "MN" "Update/Fix Ship To Number" "" 900
+"delAllFgRctd.r" "FG" "IU1" "Delete Unposted FG transactions" "Utility is used to delete FG transactions before they are posted." 900
 "module.r" "" "" "License Modules" "License File - Restricted to ASI user only" 1000
 "ImpMaster.r" "SA" "" "Import Master" "Imports are efficient" 1000
-"w-head.r" "SYS" "" "Help Maintenance" "" 1000
+"delDupOrds.r" "OE" "" "Delete Duplicate Web Orders" "Searches orders for duplicate orders with matching PO numbers" 900
 "colorchg.r" "" "" "Progress Color Changer" "" 900
 "unPostBOL.r" "OP" "OS1" "Unpost BOLs where the post fails" "" 900
 "run-xprint.r" "" "" "run xprint" "" 900
-"invLnChck.r" "OP" "" "Invoice Line Check" "" 1000
+"invLnChck.r" "OP" "" "Invoice Line Check" "" 900
+"autoCloseOrder.r" "" "" "Auto Close Order" "" 900
+"FGHistoryPurge.r" "FG" "" "FG History Purge/Consolidation" "This allows user to run a purge of FG History up to a date.  It will summarize all transactions up to that date and create an Inventory Count for each bin as of the date that represents all the previous transaction summary detail. 
+" 900
+"CloseOrderTester.r" "OE" "" "Close Order Tester" "Tests orders to see why they are in current state" 900

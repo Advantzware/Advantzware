@@ -1583,7 +1583,7 @@ FOR EACH ttCustList
             
         RELEASE oe-retl.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         create tt-report.
 
@@ -1701,7 +1701,7 @@ FOR EACH ttCustList
 
         RELEASE itemfg.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         if avail oe-retl then do:
           w-procat = "MISC".

@@ -173,11 +173,11 @@ DEFINE RECTANGLE RECT-2
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     prgrms.prgmname AT ROW 1.24 COL 13 COLON-ALIGNED
+     prgrms.prgmname AT ROW 1.24 COL 13 COLON-ALIGNED FORMAT "X(16)"
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1
+          SIZE 26 BY 1
           BGCOLOR 15 FONT 4
-     prgrms.prgtitle AT ROW 1.24 COL 35 COLON-ALIGNED FORMAT "X(60)"
+     prgrms.prgtitle AT ROW 1.24 COL 48 COLON-ALIGNED FORMAT "X(60)"
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
           BGCOLOR 15 FONT 4
@@ -187,15 +187,15 @@ DEFINE FRAME F-Main
           BGCOLOR 15 
      prgrms.dir_group AT ROW 2.43 COL 13 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1
+          SIZE 26 BY 1
           BGCOLOR 15 FONT 4
-     prgrms.run_persistent AT ROW 2.43 COL 37
+     prgrms.run_persistent AT ROW 2.43 COL 50
           VIEW-AS TOGGLE-BOX
           SIZE 18 BY 1
-     prgrms.track_usage AT ROW 2.43 COL 63
+     prgrms.track_usage AT ROW 2.43 COL 76
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY 1
-     prgrms.popup AT ROW 2.43 COL 87
+     prgrms.popup AT ROW 2.43 COL 100
           VIEW-AS TOGGLE-BOX
           SIZE 11 BY 1
      prgrms.module AT ROW 2.43 COL 129 COLON-ALIGNED WIDGET-ID 30
@@ -258,7 +258,7 @@ DEFINE FRAME F-Main
           DROP-DOWN-LIST
           SIZE 16 BY 1
           BGCOLOR 15 
-     F1 AT ROW 2.43 COL 31 NO-LABEL
+     F1 AT ROW 2.43 COL 42 NO-LABEL
      F-3 AT ROW 14.57 COL 98 NO-LABEL WIDGET-ID 16
      F-2 AT ROW 15.76 COL 31 NO-LABEL WIDGET-ID 12
      "Delete:" VIEW-AS TEXT
@@ -269,16 +269,16 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     " Menu Fields" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 12.91 COL 3 WIDGET-ID 28
-     "View:" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 3.62 COL 9
-     "Parent(s):" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 11.24 COL 5
-     "Update:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 7.43 COL 7
      "Add:" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 5.52 COL 10
+     "Update:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 7.43 COL 7
+     "Parent(s):" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 11.24 COL 5
+     "View:" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 3.62 COL 9
+     " Menu Fields" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 12.91 COL 3 WIDGET-ID 28
      RECT-1 AT ROW 1 COL 1
      cMenuImage AT ROW 14.57 COL 101 WIDGET-ID 18
      RECT-2 AT ROW 13.19 COL 1 WIDGET-ID 26
@@ -375,7 +375,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN parentPrgTitle IN FRAME F-Main
    NO-ENABLE 4                                                          */
 /* SETTINGS FOR FILL-IN prgrms.prgmname IN FRAME F-Main
-   NO-ENABLE 1                                                          */
+   NO-ENABLE 1 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN prgrms.prgtitle IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main

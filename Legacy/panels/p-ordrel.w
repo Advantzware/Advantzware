@@ -256,7 +256,8 @@ DO:
 
   RUN notify ('add-record':U).*/
   run get-link-handle in adm-broker-hdl(this-procedure, "tableio-target", output lv-char-hdl).
-    run pAddRecord in widget-handle(lv-char-hdl).
+  run pAddRecord in widget-handle(lv-char-hdl).
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -519,142 +520,30 @@ IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
   IF ll-no-bol OR ll-no-job THEN panel-state = prev-panel.
 END.
 
-/*DO WITH FRAME Panel-Frame:
+  DO WITH FRAME {&FRAME-NAME}:  
+      IF panel-state = 'disable-all':U THEN DO:
+          ASSIGN btn-add:SENSITIVE = NO
+              btn-save:SENSITIVE = NO
+              btn-job:SENSITIVE = NO
+              btn-unrel:SENSITIVE = NO
+              btn-delete:SENSITIVE = NO.
+      END.
+      ELSE IF panel-state = 'initial':U THEN DO:
+          ASSIGN btn-add:SENSITIVE = YES
+              btn-save:SENSITIVE = YES
+              btn-job:SENSITIVE = YES
+              btn-unrel:SENSITIVE = YES
+              btn-delete:SENSITIVE = YES.
+      END.
+      ELSE IF panel-state = 'add-only':U THEN DO:
+          ASSIGN btn-add:SENSITIVE = YES
+              btn-save:SENSITIVE = NO
+              btn-job:SENSITIVE = NO
+              btn-unrel:SENSITIVE = NO
+              btn-delete:SENSITIVE = NO.
+      END.
 
-  IF panel-state = 'disable-all':U THEN DO:
 
-    /* All buttons are set to insensitive. This only should happen when */
-    /* the link to the smartpanel is deactivated, but not destroyed.    */
-
-&IF LOOKUP("btn-save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-save:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-delete:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-add:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-view":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-view:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-release":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-release:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-bol":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-bol:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-job":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-job:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-unrel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-unrel:SENSITIVE = NO.
-&ENDIF
-
-  END. /* panel-state = 'disable-all' */
-  
-  ELSE IF panel-state = 'initial':U THEN DO:
-  
-    /* The panel is not actively changing any of its TABLEIO-TARGET(s). */
-
-&IF LOOKUP("btn-save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-save:SENSITIVE = YES.
-             IF panel-type = 'UPDATE':U THEN
-                 btn-save:LABEL = "&Update".
-&ENDIF
-&IF LOOKUP("btn-delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-delete:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("btn-add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-add:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("btn-view":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-view:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-release":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-release:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("btn-bol":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-bol:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("btn-job":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-job:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("btn-unrel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-unrel:SENSITIVE = YES.
-&ENDIF
-  END. /* panel-state = 'initial' */
-
-  ELSE IF panel-state = 'add-only':U THEN DO:
-
-    /* All buttons are set to insensitive, except add. This only should */
-    /* happen only when there are no records in the query and the only  */
-    /* thing that can be done to it is add-record.                      */
-
-&IF LOOKUP("btn-save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-save:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-delete:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-add:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("btn-view":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-view:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-release":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-release:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-bol":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-bol:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-job":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-job:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-unrel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-unrel:SENSITIVE = NO.
-&ENDIF
-
-  END. /* panel-state = 'add-only' */
- 
-  ELSE DO: /* panel-state = action-chosen */ 
-  
-    /* The panel had one of the buttons capable of changing/adding a record */
-    /* pressed. Always force the SAVE/UPDATE button to be sensitive in the  */
-    /* the event that the smartpanel is disabled and later enabled prior to */
-    /* the action being completed.                                          */
-
-&IF LOOKUP("btn-save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-save:SENSITIVE = YES.
-             IF panel-type = 'UPDATE':U THEN
-               btn-save:LABEL = "&Save".
-&ENDIF    
-&IF LOOKUP("btn-delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-delete:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-add:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-view":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-view:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("btn-release":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-release:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-bol":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-bol:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-job":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-job:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("btn-unrel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             btn-unrel:SENSITIVE = NO.
-&ENDIF
-
-  END. /* panel-state = action-chosen */ */
-
-  DO WITH FRAME {&FRAME-NAME}:     
     IF NOT v-can-create THEN ASSIGN btn-add:SENSITIVE = NO.
 
     IF NOT v-can-update THEN ASSIGN btn-save:SENSITIVE = NO
@@ -667,14 +556,11 @@ END.
        btn-save:LABEL EQ "&Update"       AND
        panel-state    NE "disable-all" AND
        panel-state    NE "add-only"    THEN btn-save:SENSITIVE = YES.
-
+   
     /*IF NOT ll-no-bol THEN ll-no-bol = NOT v-do-bol.*/
 
     IF ll-no-job THEN btn-job:SENSITIVE = NO.
   END.
-
-
-/*END. /* DO WITH FRAME */*/
 
 END PROCEDURE.
 

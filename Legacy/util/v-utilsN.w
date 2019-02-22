@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi       PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -61,7 +61,7 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR utilities.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS utilities.module ~
+&Scoped-Define ENABLED-FIELDS utilities.programName utilities.module ~
 utilities.hotkey utilities.description utilities.securityLevel ~
 utilities.notes 
 &Scoped-define ENABLED-TABLES utilities
@@ -76,8 +76,6 @@ utilities.notes
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
-
-&Scoped-define ADM-CREATE-FIELDS utilities.programName 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -117,21 +115,21 @@ DEFINE BUTTON btnRun
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 100 BY 5.91.
+     SIZE 100 BY 9.05.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnRun AT ROW 4.91 COL 17
+     btnRun AT ROW 7.43 COL 17
      utilities.programName AT ROW 1.24 COL 18 COLON-ALIGNED HELP
           "Enter Utility Name"
-          LABEL "Program Name" FORMAT "x(16)"
+          LABEL "Program Name" FORMAT "x(32)"
           VIEW-AS FILL-IN 
           SIZE 31 BY 1
      utilities.module AT ROW 1.24 COL 60 COLON-ALIGNED HELP
           "Enter Module Code"
-          LABEL "Module" FORMAT "x(3)"
+          LABEL "Module" FORMAT "x(4)"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
      utilities.hotkey AT ROW 1.24 COL 82 COLON-ALIGNED
@@ -148,12 +146,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
           BGCOLOR 15 
-     utilities.notes AT ROW 3.76 COL 18 COLON-ALIGNED HELP
-          ""
-          LABEL "Notes" FORMAT "x(1000)"
-          VIEW-AS FILL-IN 
-          SIZE 76 BY 1
-          BGCOLOR 15 
+     utilities.notes AT ROW 3.62 COL 20 NO-LABEL WIDGET-ID 2
+          VIEW-AS EDITOR MAX-CHARS 245
+          SIZE 76 BY 3.33
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -188,7 +183,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 5.91
+         HEIGHT             = 9.14
          WIDTH              = 100.2.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -222,8 +217,6 @@ ASSIGN
 /* SETTINGS FOR FILL-IN utilities.hotkey IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN utilities.module IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT EXP-HELP                                        */
-/* SETTINGS FOR FILL-IN utilities.notes IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN utilities.programName IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
