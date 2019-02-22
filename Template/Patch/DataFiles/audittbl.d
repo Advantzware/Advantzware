@@ -214,7 +214,7 @@
 "oe-boll" yes yes no no
 "oe-boll-qty" yes yes no no
 "oe-ctrl" yes yes no no
-"oe-ord" yes yes no no
+"oe-ord" yes yes yes no
 "oe-ordl" yes yes no no
 "oe-ordm" yes yes no no
 "oe-prmtx" yes yes no no

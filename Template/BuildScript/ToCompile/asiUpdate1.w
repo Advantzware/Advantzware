@@ -810,7 +810,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     
     RUN ipStatus("Initialize").
     
-    IF fIntVer(fiToVersion:{&SV}) LE 16086100 THEN DO:
+    IF fIntVer(fiToVersion:{&SV}) LE 16087000 THEN DO:
         ASSIGN
             fiUserID:{&SV} = "admin"
             fiPassword:{&SV} = "installme".
