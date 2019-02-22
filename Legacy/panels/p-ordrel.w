@@ -520,6 +520,10 @@ IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
   IF ll-no-bol OR ll-no-job THEN panel-state = prev-panel.
 END.
 
+RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'inquiry-rel-target':U, OUTPUT char-hdl).
+IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
+    panel-state = 'disable-all'.
+
   DO WITH FRAME {&FRAME-NAME}:  
       IF panel-state = 'disable-all':U THEN DO:
           ASSIGN btn-add:SENSITIVE = NO

@@ -333,6 +333,10 @@ PROCEDURE reset-button :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-reset AS LOG NO-UNDO.
 
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'inquiry-orel-target':U, OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
+    ip-reset = NO .
+
   IF v-can-update THEN
      btn-bol:SENSITIVE IN FRAME {&FRAME-NAME} = ip-reset.
 
@@ -385,6 +389,10 @@ IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
   IF ll-no-bol OR ll-no-job THEN panel-state = prev-panel.
 END.
 */
+
+RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'inquiry-orel-target':U, OUTPUT char-hdl).
+IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
+    panel-state = 'disable-all'.
 
 DO WITH FRAME Panel-Frame:
 

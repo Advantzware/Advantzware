@@ -696,7 +696,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-obol , 'ordbol':U , h_b-ordrel ).
        RUN add-link IN adm-broker-hdl ( h_p-ordrel , 'TableIO':U , h_b-ordrel ).
        RUN add-link IN adm-broker-hdl ( h_p-orel , 'ordrel':U , h_b-ordrel ).
-
+       RUN add-link IN adm-broker-hdl ( h_p-ordrel , 'inquiry-rel':U , h_b-ordrel ).
+       
+       RUN add-link IN adm-broker-hdl ( h_p-orel , 'inquiry-prel':U , h_b-ordrel  ).
+       RUN add-link IN adm-broker-hdl ( h_p-obol , 'inquiry-orel':U , h_b-ordrel ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_relticket ,
              h_expxls , 'AFTER':U ).
@@ -1050,22 +1053,10 @@ PROCEDURE local-change-page :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  if li-cur-page = 6 then do:  /* estimate */
-     run get-link-handle in adm-broker-hdl (this-procedure,"estimate-target",output char-hdl).
-     if valid-handle(widget-handle(char-hdl)) then do:
-         RUN get-line-status in widget-handle(char-hdl) (output rRowid).
-            FIND FIRST oe-ordl NO-LOCK
-                WHERE oe-ordl.company = g_company AND
-                ROWID(oe-ordl) = rRowid  NO-ERROR.
-            IF AVAIL oe-ordl AND( oe-ordl.opened EQ NO OR oe-ordl.stat = "C") THEN do:
-                RUN set-buttons IN h_p-orel ('disable-all').
-                RUN set-buttons IN h_p-obol ('disable-all').
-            END.
-            ELSE DO:
-               RUN set-buttons IN h_p-orel ('initial').
-               RUN set-buttons IN h_p-obol ('initial').
-            END.
-     END.
+  if li-cur-page = 6 then do:  /* release */
+      RUN set-buttons IN h_p-orel ('disable-all').
+      RUN set-buttons IN h_p-obol ('disable-all').
+      RUN set-buttons IN h_p-ordrel ('disable-all').
   END.
 
 
