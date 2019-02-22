@@ -1,7 +1,10 @@
 /*oe/rep/invnstok.i  */
 
      PUT "<FArial>".
-        PUT "<C+25><#1>". /*<R+5><C+25><IMAGE#1=" ls-full-img1 SKIP. /* pacific package */ */
+        IF opcFormat EQ "nStockLogo" THEN
+           PUT "<C1><#1> <R+10><C45><IMAGE#1=" ls-full-img1 SKIP. 
+         ELSE
+            PUT "<C+25><#1>".
         PUT "<=1>" SKIP.
         PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
             "<P10><=2><R+12>" SKIP
