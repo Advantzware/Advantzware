@@ -2173,11 +2173,13 @@ PROCEDURE pActivateCueCards :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    FOR EACH xCueCard EXCLUSIVE-LOCK
-        WHERE xCueCard.user_id EQ USERID("ASI")
-        :
-        DELETE xCueCard.
-    END. /* each xcuecard */
+    DO TRANSACTION:
+        FOR EACH xCueCard EXCLUSIVE-LOCK
+            WHERE xCueCard.user_id EQ USERID("ASI")
+            :
+            DELETE xCueCard.
+        END. /* each xcuecard */
+    END. /* do trans */
     MESSAGE
         "Cue Cards Activated"
     VIEW-AS ALERT-BOX.
@@ -2263,7 +2265,7 @@ PROCEDURE pCopyToUser :
     
     DO WITH FRAME userSettingsFrame:
         ASSIGN copyFromUser.
-        DO idx = 1 TO copyToUser:NUM-ITEMS:
+        DO idx = 1 TO copyToUser:NUM-ITEMS TRANSACTION:
             IF copyToUser:IS-SELECTED(idx) THEN DO:
                 /* prevent copy to same from to user */
                 IF copyToUser:ENTRY(idx) EQ copyFromUser THEN NEXT.
@@ -3068,31 +3070,33 @@ PROCEDURE pSaveCustomMenu :
  Notes:
 ------------------------------------------------------------------------------*/
     /* remove xusermenu entry if menu option is active or no longer present */
-    FOR EACH xUserMenu
-        WHERE xUserMenu.user_id EQ USERID("ASI")
-        :
-        IF CAN-FIND(FIRST ttMenuTree
-                    WHERE ttMenuTree.treeChild EQ xUserMenu.prgmname
-                      AND ttMenuTree.isActive  EQ YES) OR
-           NOT CAN-FIND(FIRST ttMenuTree
-                        WHERE ttMenuTree.treeChild EQ xUserMenu.prgmname) THEN
-        DELETE xUserMenu.
-    END. /* each xusermenu */
-
-    FOR EACH ttMenuTree
-        WHERE ttMenuTree.isActive EQ NO
-        :
-        IF CAN-FIND(FIRST xUserMenu
-                    WHERE xUserMenu.user_id  EQ USERID("ASI")
-                      AND xUserMenu.prgmname EQ ttMenuTree.treeChild) THEN
-        NEXT.
-        /* create entry to hide menu option from user */
-        CREATE xUserMenu.
-        ASSIGN
-            xUserMenu.user_id  = USERID("ASI")
-            xUserMenu.prgmname = ttMenuTree.treeChild
-            .
-    END. /* each ttmenutree */
+    DO TRANSACTION:
+        FOR EACH xUserMenu
+            WHERE xUserMenu.user_id EQ USERID("ASI")
+            :
+            IF CAN-FIND(FIRST ttMenuTree
+                        WHERE ttMenuTree.treeChild EQ xUserMenu.prgmname
+                          AND ttMenuTree.isActive  EQ YES) OR
+               NOT CAN-FIND(FIRST ttMenuTree
+                            WHERE ttMenuTree.treeChild EQ xUserMenu.prgmname) THEN
+            DELETE xUserMenu.
+        END. /* each xusermenu */
+    
+        FOR EACH ttMenuTree
+            WHERE ttMenuTree.isActive EQ NO
+            :
+            IF CAN-FIND(FIRST xUserMenu
+                        WHERE xUserMenu.user_id  EQ USERID("ASI")
+                          AND xUserMenu.prgmname EQ ttMenuTree.treeChild) THEN
+            NEXT.
+            /* create entry to hide menu option from user */
+            CREATE xUserMenu.
+            ASSIGN
+                xUserMenu.user_id  = USERID("ASI")
+                xUserMenu.prgmname = ttMenuTree.treeChild
+                .
+        END. /* each ttmenutree */
+    END. /* do trans */
 
 END PROCEDURE.
 

@@ -1276,7 +1276,7 @@ PROCEDURE pJasperStarter :
         END. /* if ? */
     END. /* do idx */
     
-    IF NOT CAN-DO("print -d,view",ipcType) THEN DO:
+    IF NOT CAN-DO("print -d,view",ipcType) THEN DO TRANSACTION:
         CREATE TaskResult.
         ASSIGN
             TaskResult.fileDateTime = DATETIME(dtDate,iTime)

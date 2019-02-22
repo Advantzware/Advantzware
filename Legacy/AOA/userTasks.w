@@ -65,6 +65,7 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD paramValueID     LIKE dynParamValue.paramValueID
     FIELD prgmName         LIKE dynParamValue.prgmName
     FIELD outputFormat     LIKE dynParamValue.outputFormat
+    FIELD securityLevel    LIKE dynParamValue.securityLevel
     FIELD paramValueRowID    AS ROWID
     FIELD allData            AS CHARACTER
         INDEX mnemonic IS PRIMARY mnemonic paramTitle paramValueID user-id
@@ -90,7 +91,7 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
 &Scoped-define INTERNAL-TABLES ttDynParamValue
 
 /* Definitions for BROWSE browseParamValue                              */
-&Scoped-define FIELDS-IN-QUERY-browseParamValue ttDynParamValue.mnemonic ttDynParamValue.paramTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.outputFormat ttDynParamValue.prgmName   
+&Scoped-define FIELDS-IN-QUERY-browseParamValue ttDynParamValue.mnemonic ttDynParamValue.paramTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.outputFormat ttDynParamValue.prgmName ttDynParamValue.securityLevel   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseParamValue   
 &Scoped-define SELF-NAME browseParamValue
 &Scoped-define QUERY-STRING-browseParamValue FOR EACH ttDynParamValue WHERE ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramTitle BEGINS cParamTitle   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
@@ -104,8 +105,8 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     ~{&OPEN-QUERY-browseParamValue}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS searchBar btnRunTask btnOutputFormat ~
-browseParamValue btnCopyTask btnDeleteTask btnScheduleTask ~
+&Scoped-Define ENABLED-OBJECTS searchBar btnRunTask browseParamValue ~
+btnOutputFormat btnCopyTask btnDeleteTask btnScheduleTask ~
 btnRestoreDefaults btnSortMove 
 &Scoped-Define DISPLAYED-OBJECTS searchBar 
 
@@ -212,6 +213,7 @@ ttDynParamValue.user-id LABEL-BGCOLOR 14
 ttDynParamValue.paramValueID LABEL-BGCOLOR 14
 ttDynParamValue.outputFormat
 ttDynParamValue.prgmName LABEL-BGCOLOR 14
+ttDynParamValue.securityLevel
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 122 BY 25.95
@@ -225,9 +227,9 @@ DEFINE FRAME F-Main
           "Search" WIDGET-ID 6
      btnRunTask AT ROW 15.05 COL 27 HELP
           "Run Task" WIDGET-ID 250
+     browseParamValue AT ROW 1.95 COL 37 WIDGET-ID 500
      btnOutputFormat AT ROW 20.76 COL 27 HELP
           "Run Now" WIDGET-ID 256
-     browseParamValue AT ROW 1.95 COL 37 WIDGET-ID 500
      btnCopyTask AT ROW 16.95 COL 27 HELP
           "Copy Task" WIDGET-ID 258
      btnDeleteTask AT ROW 18.86 COL 27 HELP
@@ -825,6 +827,7 @@ PROCEDURE pGetParamValue :
             ttDynParamValue.user-id          = dynParamValue.user-id
             ttDynParamValue.paramValueID     = dynParamValue.paramValueID
             ttDynParamValue.outputFormat     = dynParamValue.outputFormat
+            ttDynParamValue.securityLevel    = dynParamValue.securityLevel
             ttDynParamValue.paramValueRowID  = ROWID(dynParamValue)
             ttDynParamValue.allData          = ttDynParamValue.mnemonic + "|"
                                              + ttDynParamValue.paramDescription + "|"

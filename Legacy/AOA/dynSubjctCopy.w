@@ -46,7 +46,7 @@ DEFINE OUTPUT PARAMETER oplCopyParamSet AS LOGICAL NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_OK lCopyAll lCopyTable lCopyWhere ~
+&Scoped-Define ENABLED-OBJECTS btnOK lCopyAll lCopyTable lCopyWhere ~
 lCopyColumn lCopyParamSet 
 &Scoped-Define DISPLAYED-OBJECTS lCopyAll lCopyTable lCopyWhere lCopyColumn ~
 lCopyParamSet 
@@ -73,11 +73,15 @@ FUNCTION fCopyAll RETURNS LOGICAL
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_OK AUTO-GO 
+DEFINE BUTTON btnOK AUTO-GO 
      IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8 BY 1.91
+     LABEL "OK" 
+     SIZE 8 BY 1.91 TOOLTIP "OK"
      BGCOLOR 8 .
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 9.8 BY 2.38.
 
 DEFINE VARIABLE lCopyAll AS LOGICAL INITIAL yes 
      LABEL "Copy All Records" 
@@ -108,15 +112,17 @@ DEFINE VARIABLE lCopyWhere AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     Btn_OK AT ROW 5.05 COL 51
+     btnOK AT ROW 4.81 COL 50
      lCopyAll AT ROW 1.24 COL 3 WIDGET-ID 10
      lCopyTable AT ROW 2.43 COL 7 WIDGET-ID 2
      lCopyWhere AT ROW 3.62 COL 7 WIDGET-ID 4
      lCopyColumn AT ROW 4.81 COL 7 WIDGET-ID 6
      lCopyParamSet AT ROW 6 COL 7 WIDGET-ID 8
-     SPACE(11.99) SKIP(0.13)
+     RECT-1 AT ROW 4.57 COL 49 WIDGET-ID 12
+     SPACE(0.20) SKIP(0.01)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         BGCOLOR 15 FGCOLOR 1 
          TITLE "Dynamic Subject Copy" WIDGET-ID 100.
 
 
@@ -141,6 +147,8 @@ ASSIGN
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
 
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -161,9 +169,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_OK
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
-ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame
+&Scoped-define SELF-NAME btnOK
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK Dialog-Frame
+ON CHOOSE OF btnOK IN FRAME Dialog-Frame /* OK */
 DO:
     ASSIGN
         oplCopyTable    = lCopyTable
@@ -302,7 +310,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY lCopyAll lCopyTable lCopyWhere lCopyColumn lCopyParamSet 
       WITH FRAME Dialog-Frame.
-  ENABLE Btn_OK lCopyAll lCopyTable lCopyWhere lCopyColumn lCopyParamSet 
+  ENABLE btnOK lCopyAll lCopyTable lCopyWhere lCopyColumn lCopyParamSet 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

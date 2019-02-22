@@ -333,6 +333,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL subjectColumnBrowse s-object
 ON ROW-LEAVE OF subjectColumnBrowse IN FRAME F-Main /* Columns */
 DO:
+    IF dynParamValue.user-id NE "_default" THEN
     fSetSaveButton (BROWSE subjectColumnBrowse:MODIFIED).
 END.
 
