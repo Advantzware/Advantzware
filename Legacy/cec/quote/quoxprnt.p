@@ -97,6 +97,8 @@ DEFINE VARIABLE logSetPrinting AS LOGICAL    NO-UNDO.
 DEFINE VARIABLE chrX           AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE logPrint       AS LOGICAL    NO-UNDO.
 DEFINE VARIABLE intPageNum     AS INTEGER    NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE BUFFER bf-cust FOR cust .
 {sys/inc/f16to32.i}
 {cecrep/jobtick2.i "new shared"}
@@ -142,16 +144,11 @@ find first est where est.company = xquo.company
   if avail cust THEN do:
      v-over-under = trim(string(cust.over-pct,">>9%")) + "-" +
                     trim(string(cust.under-pct,">>9%")).
-     FIND FIRST sys-ctrl-shipto NO-LOCK
-         WHERE sys-ctrl-shipto.company      = cocode 
-         AND sys-ctrl-shipto.NAME         = "QUOPRINT" 
-         AND sys-ctrl-shipto.cust-vend    = YES 
-         AND sys-ctrl-shipto.cust-vend-no = cust.cust-no 
-         AND (sys-ctrl-shipto.ship-id = xquo.ship-id OR sys-ctrl-shipto.ship-id EQ "")
-         AND sys-ctrl-shipto.char-fld > '' 
-         NO-ERROR.
-        IF AVAIL sys-ctrl-shipto THEN
-            lv-display-comp = sys-ctrl-shipto.log-fld .
+     RUN sys/ref/nk1look.p (INPUT cocode, "QUOPRINT", "L" /* Logical */, YES /* check by cust */, 
+                            INPUT YES /* use cust not vendor */, cust.cust-no /* cust */, xquo.ship-id /* ship-to*/,
+                            OUTPUT cRtnChar, OUTPUT lRecFound).
+     IF lRecFound THEN
+         lv-display-comp = LOGICAL(cRtnChar) NO-ERROR.
   END.
 
   IF lv-display-comp THEN DO:
