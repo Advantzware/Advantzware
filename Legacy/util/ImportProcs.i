@@ -60,6 +60,20 @@ IF ipdtValueToAssign NE ? OR NOT iplIgnoreBlanks THEN
 
 END PROCEDURE.
 
+PROCEDURE pAssignValueDate2:
+/*------------------------------------------------------------------------------
+ Purpose: Centralizes all calls to test for ignore blanks - integer fields
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipdtValueToAssign AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopdtValueAssigned AS DATE NO-UNDO.
+
+IF ipdtValueToAssign NE "" OR NOT iplIgnoreBlanks THEN 
+    iopdtValueAssigned = date(ipdtValueToAssign) . 
+
+END PROCEDURE.
+
 PROCEDURE pAssignValueI:
 /*------------------------------------------------------------------------------
  Purpose: Centralizes all calls to test for ignore blanks - integer fields
