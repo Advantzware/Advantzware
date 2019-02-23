@@ -28,12 +28,6 @@ DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
 RUN AOA/spCalcField.p PERSISTENT SET hCalcField.
 SESSION:ADD-SUPER-PROCEDURE (hCalcField).
 
-/*MESSAGE                                            */
-/*hCalcField:INTERNAL-ENTRIES SKIP                   */
-/*hCalcField:GET-SIGNATURE("calcStringDateTime") SKIP*/
-/*hCalcField:GET-SIGNATURE("calcStringTime")         */
-/*VIEW-AS ALERT-BOX.                                 */
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -689,7 +689,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN pGetSettings.
   RUN enable_UI.
-  RUN pCreateDynParameters (FRAME paramFrame:HANDLE).
+  RUN pCreateDynParameters (FRAME paramFrame:HANDLE, YES).
   IF iplParameters EQ NO THEN
   APPLY "CHOOSE":U TO btnRunResults.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN

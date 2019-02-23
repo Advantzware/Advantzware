@@ -56,6 +56,7 @@ DEFINE VARIABLE cPoolName          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrgmName          AS CHARACTER NO-UNDO INITIAL "{&program-id}".
 DEFINE VARIABLE hAppSrvBin         AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hJasper            AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hParamBldr         AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQueryBrowse       AS HANDLE    NO-UNDO.
 DEFINE VARIABLE i                  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iOrder             AS INTEGER   NO-UNDO.
@@ -241,17 +242,17 @@ dynSubject.externalForm dynSubject.businessLogic
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnSave btnCreateDefaults btnNow ~
+&Scoped-Define ENABLED-OBJECTS btnSave btnCreateDefaults btnPreview btnNow ~
 btnOuterJoin subjectSection btnToday btnTime btnDateTime subjectSearch ~
 subjectMatches tableSearch tableMatches tableList btnOF tableListOf ~
-btnWhere btnMatches subjectBrowse tableBrowse subjectWhereBrowse btnUndo ~
-btnBegins btnAND btnOR btnEQ btnNE btnLT btnGT fieldSearch fieldMatches ~
+btnWhere btnMatches subjectBrowse tableBrowse subjectWhereBrowse btnBegins ~
+btnAND btnOR btnEQ btnNE btnLT btnGT fieldSearch fieldMatches ~
 paramSetSearch paramSetMatches btnLE btnGE paramSetBrowse fieldBrowse ~
 btnPlus btnMinus subjectParamSetBrowse btnMultiply btnDivide btnYes btnNo ~
 btnDate cUseIndex findType btnDec subjectTableBrowse btnInt columnSearch ~
 columnMatches btnStr subjectColumnBrowse btnSubstr cParameter btnOpen ~
-btnResults btnClose cConstant btnPeriod btnDouble btnComma btnSingle ~
-btnCalcField queryStr btnSyntax btnAddSelections btnGroupCalc ~
+btnClose cConstant btnPeriod btnDouble btnComma btnSingle queryStr btnUndo ~
+btnResults btnCalcField btnSyntax btnAddSelections btnGroupCalc ~
 btnAddUseIndex btnRemoveUseIndex btnAddParameter btnRemoveSelection ~
 btnMoveDown btnAddConstant btnMoveUp btnRemove cParameterLabel ~
 cConstantLabel 
@@ -264,16 +265,17 @@ cConstantLabel queryText
 /* Custom List Definitions                                              */
 /* allSection,tableSection,whereSection,parameterSection,columnsSection,subjectSection */
 &Scoped-define allSection btnSave RECT-TABLE RECT-FIELD RECT-QUERYTABLE ~
-RECT-QUERYSTR RECT-COLUMN RECT-SAVE RECT-PARAM btnNow btnOuterJoin btnToday ~
-btnTime btnDateTime tableSearch tableMatches tableList btnOF tableListOf ~
-btnWhere btnMatches tableBrowse subjectWhereBrowse btnUndo btnBegins btnAND ~
-btnOR btnEQ btnNE btnLT btnGT fieldSearch fieldMatches paramSetSearch ~
-paramSetMatches btnLE btnGE paramSetBrowse fieldBrowse btnPlus btnMinus ~
-subjectParamSetBrowse btnMultiply btnDivide btnYes btnNo btnDate cUseIndex ~
-findType btnDec subjectTableBrowse btnInt columnSearch columnMatches btnStr ~
+RECT-QUERYSTR RECT-COLUMN RECT-SAVE RECT-PARAM RECT-PREVIEW btnPreview ~
+btnNow btnOuterJoin btnToday btnTime btnDateTime tableSearch tableMatches ~
+tableList btnOF tableListOf btnWhere btnMatches tableBrowse ~
+subjectWhereBrowse btnBegins btnAND btnOR btnEQ btnNE btnLT btnGT ~
+fieldSearch fieldMatches paramSetSearch paramSetMatches btnLE btnGE ~
+paramSetBrowse fieldBrowse btnPlus btnMinus subjectParamSetBrowse ~
+btnMultiply btnDivide btnYes btnNo btnDate cUseIndex findType btnDec ~
+subjectTableBrowse btnInt columnSearch columnMatches btnStr ~
 subjectColumnBrowse btnSubstr cParameter btnOpen btnClose cConstant ~
-btnPeriod btnDouble btnComma btnSingle btnCalcField queryStr btnSyntax ~
-btnAddSelections btnGroupCalc btnAddUseIndex btnRemoveUseIndex ~
+btnPeriod btnDouble btnComma btnSingle queryStr btnUndo btnCalcField ~
+btnSyntax btnAddSelections btnGroupCalc btnAddUseIndex btnRemoveUseIndex ~
 btnAddParameter btnRemoveSelection btnMoveDown btnAddConstant btnMoveUp ~
 btnRemove cUseIndexLabel cParameterLabel cConstantLabel queryText 
 &Scoped-define tableSection RECT-TABLE RECT-QUERYTABLE RECT-QUERYSTR ~
@@ -289,8 +291,9 @@ btnDec btnInt btnStr btnSubstr cParameter btnOpen btnClose cConstant ~
 btnPeriod btnDouble btnComma btnSingle queryStr btnSyntax btnAddSelections ~
 btnAddParameter btnRemoveSelection btnMoveDown btnAddConstant btnMoveUp ~
 btnRemove cParameterLabel cConstantLabel queryText 
-&Scoped-define parameterSection RECT-QUERYSTR RECT-PARAM paramSetSearch ~
-paramSetMatches paramSetBrowse subjectParamSetBrowse queryStr queryText 
+&Scoped-define parameterSection RECT-QUERYSTR RECT-PARAM RECT-PREVIEW ~
+btnPreview paramSetSearch paramSetMatches paramSetBrowse ~
+subjectParamSetBrowse queryStr queryText 
 &Scoped-define columnsSection RECT-FIELD RECT-COLUMN RECT-PARAM fieldSearch ~
 fieldMatches paramSetMatches fieldBrowse columnSearch columnMatches ~
 subjectColumnBrowse btnCalcField btnAddSelections btnGroupCalc ~
@@ -498,6 +501,11 @@ DEFINE BUTTON btnPlus
      LABEL "+" 
      SIZE 5 BY 1.05 TOOLTIP "Plus".
 
+DEFINE BUTTON btnPreview 
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
+     LABEL "Parameter Set Preview" 
+     SIZE 8 BY 1.91 TOOLTIP "Parameter Set Preview".
+
 DEFINE BUTTON btnRemove 
      IMAGE-UP FILE "Graphics/16x16/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
@@ -663,6 +671,10 @@ DEFINE RECTANGLE RECT-PARAM
      SIZE 36 BY 1.43.
 
 DEFINE RECTANGLE RECT-PLAY
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 9.8 BY 2.38.
+
+DEFINE RECTANGLE RECT-PREVIEW
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 9.8 BY 2.38.
 
@@ -1028,6 +1040,8 @@ DEFINE FRAME DEFAULT-FRAME
           "Update/Save" WIDGET-ID 248
      btnCreateDefaults AT ROW 1.24 COL 3 HELP
           "Create Defaults" WIDGET-ID 278
+     btnPreview AT ROW 1.24 COL 151 HELP
+          "Parameter Set Preview" WIDGET-ID 286
      btnNow AT ROW 1.71 COL 138 WIDGET-ID 194
      btnOuterJoin AT ROW 1.71 COL 146 WIDGET-ID 274
      subjectSection AT ROW 2.19 COL 3 HELP
@@ -1051,8 +1065,6 @@ DEFINE FRAME DEFAULT-FRAME
      subjectBrowse AT ROW 5.29 COL 2 WIDGET-ID 600
      tableBrowse AT ROW 5.29 COL 40 WIDGET-ID 200
      subjectWhereBrowse AT ROW 5.29 COL 82 WIDGET-ID 800
-     btnUndo AT ROW 1.24 COL 102 HELP
-          "Undo Changes" WIDGET-ID 282
      btnBegins AT ROW 5.29 COL 150 WIDGET-ID 84
      btnAND AT ROW 6.48 COL 150 WIDGET-ID 80
      btnOR AT ROW 6.48 COL 155 WIDGET-ID 82
@@ -1103,17 +1115,19 @@ DEFINE FRAME DEFAULT-FRAME
      cParameter AT ROW 20.76 COL 91 COLON-ALIGNED HELP
           "Select Parameter Type" NO-LABEL WIDGET-ID 204
      btnOpen AT ROW 20.76 COL 150 WIDGET-ID 94
-     btnResults AT ROW 1.24 COL 83 HELP
-          "Run Subject" WIDGET-ID 250
      btnClose AT ROW 20.76 COL 155 WIDGET-ID 96
      cConstant AT ROW 21.95 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 176
      btnPeriod AT ROW 21.95 COL 150 WIDGET-ID 236
      btnDouble AT ROW 21.95 COL 152.4 WIDGET-ID 240
      btnComma AT ROW 21.95 COL 155 WIDGET-ID 242
      btnSingle AT ROW 21.95 COL 157.4 WIDGET-ID 244
+     queryStr AT ROW 23.86 COL 83 NO-LABEL WIDGET-ID 4
+     btnUndo AT ROW 1.24 COL 102 HELP
+          "Undo Changes" WIDGET-ID 282
+     btnResults AT ROW 1.24 COL 83 HELP
+          "Run Subject" WIDGET-ID 250
      btnCalcField AT ROW 18.38 COL 77 HELP
           "Calculated Field" WIDGET-ID 280
-     queryStr AT ROW 23.86 COL 83 NO-LABEL WIDGET-ID 4
      btnSyntax AT ROW 23.86 COL 78 WIDGET-ID 202
      btnAddSelections AT ROW 7.91 COL 77 HELP
           "Add Selections" WIDGET-ID 200
@@ -1148,6 +1162,7 @@ DEFINE FRAME DEFAULT-FRAME
      RECT-SAVE AT ROW 1 COL 93 WIDGET-ID 246
      RECT-PARAM AT ROW 9.81 COL 82 WIDGET-ID 260
      RECT-PLAY AT ROW 1 COL 82 WIDGET-ID 276
+     RECT-PREVIEW AT ROW 1 COL 150 WIDGET-ID 284
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -1521,6 +1536,8 @@ ASSIGN
 ASSIGN 
        btnPlus:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
+/* SETTINGS FOR BUTTON btnPreview IN FRAME DEFAULT-FRAME
+   1 4                                                                  */
 /* SETTINGS FOR BUTTON btnRemove IN FRAME DEFAULT-FRAME
    1 2 3 5                                                              */
 ASSIGN 
@@ -1680,6 +1697,8 @@ ASSIGN
 
 /* SETTINGS FOR RECTANGLE RECT-PLAY IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-PREVIEW IN FRAME DEFAULT-FRAME
+   NO-ENABLE 1 4                                                        */
 /* SETTINGS FOR RECTANGLE RECT-QUERY IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-QUERYSTR IN FRAME DEFAULT-FRAME
@@ -2166,7 +2185,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCreateDefaults C-Win
 ON CHOOSE OF btnCreateDefaults IN FRAME DEFAULT-FRAME /* Create Defaults */
 DO:
-    RUN pCreateDynParameters (FRAME paramFrame:HANDLE).
+    RUN pCreateDynParameters (FRAME paramFrame:HANDLE, YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2285,6 +2304,24 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME DEFAULT-FRAME
+&Scoped-define SELF-NAME btnPreview
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPreview C-Win
+ON CHOOSE OF btnPreview IN FRAME DEFAULT-FRAME /* Parameter Set Preview */
+DO:
+    IF NOT VALID-HANDLE(hParamBldr) THEN
+    RUN AOA/subjectSetBldr.w PERSISTENT SET hParamBldr (
+        THIS-PROCEDURE,
+        "Subject",
+        dynSubject.subjectID
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME outputFrame
 &Scoped-define SELF-NAME btnPrint
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrint C-Win
 ON CHOOSE OF btnPrint IN FRAME outputFrame
@@ -3155,20 +3192,20 @@ PROCEDURE enable_UI :
           cParameter cConstant queryStr cUseIndexLabel cParameterLabel 
           cConstantLabel queryText 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnSave btnCreateDefaults btnNow btnOuterJoin subjectSection btnToday 
-         btnTime btnDateTime subjectSearch subjectMatches tableSearch 
-         tableMatches tableList btnOF tableListOf btnWhere btnMatches 
-         subjectBrowse tableBrowse subjectWhereBrowse btnUndo btnBegins btnAND 
-         btnOR btnEQ btnNE btnLT btnGT fieldSearch fieldMatches paramSetSearch 
-         paramSetMatches btnLE btnGE paramSetBrowse fieldBrowse btnPlus 
-         btnMinus subjectParamSetBrowse btnMultiply btnDivide btnYes btnNo 
-         btnDate cUseIndex findType btnDec subjectTableBrowse btnInt 
-         columnSearch columnMatches btnStr subjectColumnBrowse btnSubstr 
-         cParameter btnOpen btnResults btnClose cConstant btnPeriod btnDouble 
-         btnComma btnSingle btnCalcField queryStr btnSyntax btnAddSelections 
-         btnGroupCalc btnAddUseIndex btnRemoveUseIndex btnAddParameter 
-         btnRemoveSelection btnMoveDown btnAddConstant btnMoveUp btnRemove 
-         cParameterLabel cConstantLabel 
+  ENABLE btnSave btnCreateDefaults btnPreview btnNow btnOuterJoin 
+         subjectSection btnToday btnTime btnDateTime subjectSearch 
+         subjectMatches tableSearch tableMatches tableList btnOF tableListOf 
+         btnWhere btnMatches subjectBrowse tableBrowse subjectWhereBrowse 
+         btnBegins btnAND btnOR btnEQ btnNE btnLT btnGT fieldSearch 
+         fieldMatches paramSetSearch paramSetMatches btnLE btnGE paramSetBrowse 
+         fieldBrowse btnPlus btnMinus subjectParamSetBrowse btnMultiply 
+         btnDivide btnYes btnNo btnDate cUseIndex findType btnDec 
+         subjectTableBrowse btnInt columnSearch columnMatches btnStr 
+         subjectColumnBrowse btnSubstr cParameter btnOpen btnClose cConstant 
+         btnPeriod btnDouble btnComma btnSingle queryStr btnUndo btnResults 
+         btnCalcField btnSyntax btnAddSelections btnGroupCalc btnAddUseIndex 
+         btnRemoveUseIndex btnAddParameter btnRemoveSelection btnMoveDown 
+         btnAddConstant btnMoveUp btnRemove cParameterLabel cConstantLabel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   DISPLAY svRecipients svShowAll svShowReportHeader svShowReportFooter 
@@ -4263,6 +4300,9 @@ PROCEDURE pSaveSubject :
         dynSubject.queryStr = queryStr.
         FIND CURRENT dynSubject NO-LOCK.
     END. /* do trans */
+    IF subjectSection EQ "Parameters" AND
+       VALID-HANDLE(hParamBldr) THEN
+    RUN pReset IN hParamBldr.
 
 END PROCEDURE.
 
@@ -4409,6 +4449,37 @@ PROCEDURE pSetOrder :
     END CASE.
     fSetSaveButton (YES).
     fShowQuery().
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetSubjectParamSet C-Win 
+PROCEDURE pSetSubjectParamSet :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiSubjectID  AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiParamSetID AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCol        AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdRow        AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bttSubjectParamSet FOR ttSubjectParamSet.
+    
+    FIND FIRST bttSubjectParamSet
+         WHERE bttSubjectParamSet.subjectID  EQ ipiSubjectID
+           AND bttSubjectParamSet.paramSetID EQ ipiParamSetID
+         NO-ERROR.
+    IF AVAILABLE bttSubjectParamSet THEN DO TRANSACTION:
+        ASSIGN
+            bttSubjectParamSet.setCol = ipdCol
+            bttSubjectParamSet.setRow = ipdRow
+            .
+        {AOA/includes/dynSubjctSave.i "ParamSet"}
+    END. /* if avail */
 
 END PROCEDURE.
 

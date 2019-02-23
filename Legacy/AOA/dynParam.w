@@ -66,7 +66,7 @@ DEFINE VARIABLE lSortMove AS LOGICAL NO-UNDO INITIAL YES.
 &Scoped-define INTERNAL-TABLES dynParamSet
 
 /* Definitions for BROWSE dynParamSetBrowse                             */
-&Scoped-define FIELDS-IN-QUERY-dynParamSetBrowse dynParamSet.paramSetID dynParamSet.setName dynParamSet.setTitle dynParamSet.setRectangle dynParamSet.setWidth dynParamSet.setHeight   
+&Scoped-define FIELDS-IN-QUERY-dynParamSetBrowse dynParamSet.paramSetID dynParamSet.setName dynParamSet.setTitle dynParamSet.paramSetType   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-dynParamSetBrowse   
 &Scoped-define SELF-NAME dynParamSetBrowse
 &Scoped-define QUERY-STRING-dynParamSetBrowse FOR EACH dynParamSet ~{&SORTBY-PHRASE}
@@ -80,7 +80,8 @@ DEFINE VARIABLE lSortMove AS LOGICAL NO-UNDO INITIAL YES.
     ~{&OPEN-QUERY-dynParamSetBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS searchBar dynParamSetBrowse 
+&Scoped-Define ENABLED-OBJECTS btnRestoreDefaults searchBar ~
+dynParamSetBrowse 
 &Scoped-Define DISPLAYED-OBJECTS searchBar 
 
 /* Custom List Definitions                                              */
@@ -97,10 +98,15 @@ DEFINE VARIABLE lSortMove AS LOGICAL NO-UNDO INITIAL YES.
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnRestoreDefaults 
+     IMAGE-UP FILE "Graphics/16x16/rename.jpg":U NO-FOCUS FLAT-BUTTON
+     LABEL "Defaults" 
+     SIZE 4 BY 1 TOOLTIP "Restore Defaults".
+
 DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
      VIEW-AS FILL-IN 
-     SIZE 78 BY 1 TOOLTIP "Search Bar" NO-UNDO.
+     SIZE 62 BY 1 TOOLTIP "Search Bar" NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -115,19 +121,19 @@ DEFINE BROWSE dynParamSetBrowse
       dynParamSet.paramSetID LABEL-BGCOLOR 14
 dynParamSet.setName LABEL-BGCOLOR 14
 dynParamSet.setTitle LABEL-BGCOLOR 14
-dynParamSet.setRectangle VIEW-AS TOGGLE-BOX
-dynParamSet.setWidth
-dynParamSet.setHeight
+dynParamSet.paramSetType
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 87 BY 27.62
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 75 BY 27.62
          TITLE "Dynamic Parameter Sets".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     searchBar AT ROW 1 COL 8 COLON-ALIGNED HELP
+     btnRestoreDefaults AT ROW 1 COL 1 HELP
+          "Restore Defaults" WIDGET-ID 42
+     searchBar AT ROW 1 COL 12 COLON-ALIGNED HELP
           "Search" WIDGET-ID 6
      dynParamSetBrowse AT ROW 1.95 COL 1 WIDGET-ID 200
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -228,7 +234,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Dynamic Parameters */
 DO:
   /* This event will close the window and terminate the procedure.  */
-  RUN pSaveSettings.
+  RUN pSaveSettings (USERID("ASI")).
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -241,6 +247,17 @@ END.
 ON WINDOW-RESIZED OF C-Win /* Dynamic Parameters */
 DO:
     RUN pWinReSize.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnRestoreDefaults
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestoreDefaults C-Win
+ON CHOOSE OF btnRestoreDefaults IN FRAME DEFAULT-FRAME /* Defaults */
+DO:
+    RUN pGetSettings ("_default").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -302,7 +319,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  RUN pGetSettings.
+  RUN pGetSettings (USERID("ASI")).
   RUN enable_UI.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -350,7 +367,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY searchBar 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE searchBar dynParamSetBrowse 
+  ENABLE btnRestoreDefaults searchBar dynParamSetBrowse 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -366,14 +383,22 @@ PROCEDURE pGetSettings :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
+
     DEFINE VARIABLE hColumn AS HANDLE  NO-UNDO.
     DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
     DEFINE VARIABLE jdx     AS INTEGER NO-UNDO.
     DEFINE VARIABLE kdx     AS INTEGER NO-UNDO.
     
+    IF NOT CAN-FIND(FIRST user-print
+                    WHERE user-print.company    EQ g_company
+                      AND user-print.program-id EQ "{&programID}"
+                      AND user-print.user-id    EQ "_default") THEN
+    RUN pSaveSettings ("_default").
     FIND FIRST user-print NO-LOCK
-         WHERE user-print.program-id EQ "{&program-id}"
-           AND user-print.user-id    EQ USERID("ASI")
+         WHERE user-print.company    EQ g_company
+           AND user-print.program-id EQ "{&program-id}"
+           AND user-print.user-id    EQ ipcUserID
          NO-ERROR.
     IF AVAILABLE user-print THEN DO:
         DO idx = 1 TO EXTENT(user-print.field-name):
@@ -447,22 +472,30 @@ PROCEDURE pSaveSettings :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
+
     DEFINE VARIABLE hColumn AS HANDLE  NO-UNDO.
     DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
     DEFINE VARIABLE jdx     AS INTEGER NO-UNDO.
     
     FIND FIRST user-print EXCLUSIVE-LOCK
-         WHERE user-print.program-id EQ "{&program-id}"
-           AND user-print.user-id    EQ USERID("ASI")
+         WHERE user-print.company    EQ g_company
+           AND user-print.program-id EQ "{&program-id}"
+           AND user-print.user-id    EQ ipcUserID
          NO-ERROR.
     IF NOT AVAILABLE user-print THEN DO:
         CREATE user-print.
         ASSIGN
+            user-print.company    = g_company
             user-print.program-id = "{&program-id}"
-            user-print.user-id    = USERID("ASI")
+            user-print.user-id    = ipcUserID
+            user-print.last-date  = TODAY
+            user-print.last-time  = TIME
             .
     END. /* not avail */
     ASSIGN
+        user-print.next-date   = TODAY
+        user-print.next-time   = TIME
         user-print.field-name  = ""
         user-print.field-value = ""
         user-print.field-label = ""

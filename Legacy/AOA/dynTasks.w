@@ -485,7 +485,12 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSettings W-Win 
 PROCEDURE pGetSettings :
-DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     

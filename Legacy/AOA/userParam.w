@@ -526,7 +526,7 @@ PROCEDURE local-view :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  RUN pCreateDynParameters (FRAME {&FRAME-NAME}:HANDLE).
+  RUN pCreateDynParameters (FRAME {&FRAME-NAME}:HANDLE, YES).
   ENABLE {&outputObjects} WITH FRAME outputFrame.
   btnSave:HIDDEN = NOT AVAILABLE dynParamValue OR dynParamValue.user-id EQ "_default".
   FRAME {&FRAME-NAME}:MOVE-TO-TOP().
