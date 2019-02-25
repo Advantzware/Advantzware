@@ -91,7 +91,9 @@ hTable = BUFFER {&FIRST-EXTERNAL-TABLE}:HANDLE.
 {custom/resizmx.i}
 {custom/resizrs.i}
 
-{&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}".
+FIND FIRST company NO-LOCK WHERE company.company EQ g_company NO-ERROR .
+
+{&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " + string(company.name) + " - " + g_loc  .
  
 ON WINDOW-MAXIMIZED OF {&WINDOW-NAME} DO:
   RUN winReSize.
