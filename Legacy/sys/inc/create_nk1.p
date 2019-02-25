@@ -735,4 +735,5 @@ CASE ip-nk1-value:
     WHEN "xmlorder" THEN DO: {sys\inc\xmlorder.i} END.
     WHEN "OverwriteJobPlan" THEN DO: {sys\inc\overwriteJobPlan.i} END.
     WHEN "CapacityPage" THEN DO: {sys\inc\capacityPage.i} END.
+    WHEN "LoadTagLimit" THEN DO: {sys\inc\loadtaglimit.i} END.
 END CASE.
