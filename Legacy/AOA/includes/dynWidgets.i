@@ -114,6 +114,7 @@ PROCEDURE pCreateDynParameters :
     DEFINE VARIABLE hLabel      AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hPickList   AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hWidget     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lSensitive  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE jdx         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE kdx         AS INTEGER   NO-UNDO.
@@ -166,6 +167,7 @@ PROCEDURE pCreateDynParameters :
             END. /* if not live */
         END. /* if first-of */
         ASSIGN
+            lSensitive  = IF iplLive THEN dynParamSetDtl.paramPrompt ELSE NO
             cParamName  = IF dynParamSetDtl.paramName  NE "" THEN dynParamSetDtl.paramName
                           ELSE dynParam.paramName
             cParamLabel = IF dynParamSetDtl.paramLabel NE "" THEN dynParamSetDtl.paramLabel
@@ -217,7 +219,7 @@ PROCEDURE pCreateDynParameters :
                 dynParam.paramFormat,
                 cParamValue,
                 dynParam.innerLines,
-                dynParamSetDtl.paramPrompt,
+                lSensitive,
                 OUTPUT hWidget
                 ).
             WHEN "EDITOR" THEN DO:
@@ -233,7 +235,7 @@ PROCEDURE pCreateDynParameters :
                     CAN-DO(dynParamSetDtl.action,"HORIZONTAL"),
                     CAN-DO(dynParamSetDtl.action,"VERTICAL"),
                     cParamValue,
-                    dynParamSetDtl.paramPrompt EQ NO,
+                    lSensitive,
                     OUTPUT hWidget
                     ).
                 IF CAN-DO(dynParamSetDtl.action,"EMAIL") THEN DO:
@@ -246,7 +248,7 @@ PROCEDURE pCreateDynParameters :
                         hFrame,
                         dCol,
                         dRow,
-                        dynParamSetDtl.paramPrompt,
+                        lSensitive,
                         hWidget,
                         OUTPUT hCalendar
                         ).
@@ -265,7 +267,7 @@ PROCEDURE pCreateDynParameters :
                     dynParam.paramWidth,
                     dynParam.paramHeight,
                     cParamValue,
-                    dynParamSetDtl.paramPrompt EQ NO,
+                    lSensitive,
                     OUTPUT dCol,
                     OUTPUT hWidget
                     ).
@@ -279,7 +281,7 @@ PROCEDURE pCreateDynParameters :
                             STRING(jdx),
                             dCol,
                             dRow,
-                            dynParamSetDtl.paramPrompt,
+                            lSensitive,
                             hWidget,
                             OUTPUT dCol,
                             OUTPUT hCalendar
@@ -293,7 +295,7 @@ PROCEDURE pCreateDynParameters :
                             STRING(kdx),
                             dCol,
                             dRow,
-                            dynParamSetDtl.paramPrompt,
+                            lSensitive,
                             hWidget,
                             hCalendar
                             ).
@@ -313,7 +315,7 @@ PROCEDURE pCreateDynParameters :
                 dynParam.paramWidth,
                 dynParam.paramHeight,
                 cParamValue,
-                dynParamSetDtl.paramPrompt,
+                lSensitive,
                 OUTPUT hWidget
                 ).
             WHEN "SELECTION-LIST" THEN DO:
@@ -329,7 +331,7 @@ PROCEDURE pCreateDynParameters :
                 dynParamSetDtl.initialItems,
                 cParamValue,
                 dynParam.innerLines,
-                dynParamSetDtl.paramPrompt,
+                lSensitive,
                 OUTPUT hWidget
                 ).
             END. /* selection-list */
@@ -344,7 +346,7 @@ PROCEDURE pCreateDynParameters :
                 dynParam.paramWidth,
                 dynParam.paramHeight,
                 cParamValue,
-                dynParamSetDtl.paramPrompt,
+                lSensitive,
                 OUTPUT hWidget
                 ).
         END CASE.
@@ -401,7 +403,7 @@ PROCEDURE pEditor:
     DEFINE INPUT  PARAMETER iplHorizontal AS LOGICAL   NO-UNDO.
     DEFINE INPUT  PARAMETER iplVertical   AS LOGICAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcValue      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iplReadOnly   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplSensitive  AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER ophWidget     AS HANDLE    NO-UNDO.
     
     DEFINE VARIABLE hLabel AS HANDLE NO-UNDO.
@@ -419,8 +421,8 @@ PROCEDURE pEditor:
             WORD-WRAP = NO
             BOX = YES
             SCREEN-VALUE = ipcValue
-            SENSITIVE = YES
-            READ-ONLY = iplReadOnly
+            SENSITIVE = iplSensitive
+            READ-ONLY = iplSensitive EQ NO
         TRIGGERS:
           ON LEAVE
             PERSISTENT RUN pValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
@@ -429,6 +431,52 @@ PROCEDURE pEditor:
     ASSIGN
         hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow)
         hLabel:COL = ipdCol - hLabel:WIDTH
+        .
+END PROCEDURE.
+
+PROCEDURE pFillIn:
+    DEFINE INPUT  PARAMETER ipcPoolName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iphFrame     AS HANDLE    NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLabel     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcName      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcDataType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFormat    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdCol       AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdRow       AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdWidth     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdHeight    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcValue     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplSensitive AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCol       AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER ophWidget    AS HANDLE    NO-UNDO.
+    
+    DEFINE VARIABLE hLabel AS HANDLE NO-UNDO.
+
+    IF ipcLabel NE "" THEN
+    hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow).
+    CREATE FILL-IN ophWidget IN WIDGET-POOL ipcPoolName
+        ASSIGN
+            FRAME = iphFrame
+            NAME = ipcName
+            DATA-TYPE = ipcDataType
+            FORMAT = ipcFormat
+            COL = ipdCol
+            ROW = ipdRow
+            WIDTH = ipdWidth
+            HEIGHT = ipdHeight
+            SCREEN-VALUE = ipcValue
+            SIDE-LABEL-HANDLE = hLabel
+            SENSITIVE = iplSensitive
+            READ-ONLY = iplSensitive EQ NO
+            BGCOLOR = IF iplSensitive THEN ? ELSE 8
+        TRIGGERS:
+          ON LEAVE
+            PERSISTENT RUN pValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
+        END TRIGGERS.
+    IF ipcLabel NE "" THEN
+    ASSIGN
+        hLabel:COL = ophWidget:COL - hLabel:WIDTH
+        opdCol = ophWidget:COL + ophWidget:WIDTH + .4
         .
 END PROCEDURE.
 
@@ -458,51 +506,6 @@ PROCEDURE pFrame:
           ON START-MOVE
             PERSISTENT RUN pMoveFrame IN THIS-PROCEDURE (YES).
         END TRIGGERS.
-END PROCEDURE.
-
-PROCEDURE pFillIn:
-    DEFINE INPUT  PARAMETER ipcPoolName AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iphFrame    AS HANDLE    NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcLabel    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcName     AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcDataType AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFormat   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdCol      AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdRow      AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdWidth    AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdHeight   AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcValue    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iplReadOnly AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdCol      AS DECIMAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER ophWidget   AS HANDLE    NO-UNDO.
-    
-    DEFINE VARIABLE hLabel AS HANDLE NO-UNDO.
-
-    IF ipcLabel NE "" THEN
-    hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow).
-    CREATE FILL-IN ophWidget IN WIDGET-POOL ipcPoolName
-        ASSIGN
-            FRAME = iphFrame
-            NAME = ipcName
-            DATA-TYPE = ipcDataType
-            FORMAT = ipcFormat
-            COL = ipdCol
-            ROW = ipdRow
-            WIDTH = ipdWidth
-            HEIGHT = ipdHeight
-            SCREEN-VALUE = ipcValue
-            SIDE-LABEL-HANDLE = hLabel
-            SENSITIVE = YES
-            READ-ONLY = iplReadOnly
-        TRIGGERS:
-          ON LEAVE
-            PERSISTENT RUN pValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
-        END TRIGGERS.
-    IF ipcLabel NE "" THEN
-    ASSIGN
-        hLabel:COL = ophWidget:COL - hLabel:WIDTH
-        opdCol = ophWidget:COL + ophWidget:WIDTH + .4
-        .
 END PROCEDURE.
 
 PROCEDURE pPickList:

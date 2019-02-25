@@ -4,17 +4,17 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: subjectSetBldr.w
+  File: paramSetBldr.w
 
-  Description: Subject Parameter Set Builder
+  Description: Parameter Set Builder
 
-  Input Parameters: Parent Handle, Subject ID
+  Input Parameters: Parent Handle, Type, Subject ID
 
   Output Parameters: <none>
 
   Author: Ron Stark
 
-  Created: 2.22.2019
+  Created: 2.25.2019
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
@@ -33,11 +33,13 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 &IF DEFINED(UIB_is_Running) EQ 0 &THEN
-DEFINE INPUT PARAMETER iphParent     AS HANDLE    NO-UNDO.
-DEFINE INPUT PARAMETER ipiSubjectID  AS INTEGER   NO-UNDO.
+DEFINE INPUT PARAMETER iphParent    AS HANDLE    NO-UNDO.
+DEFINE INPUT PARAMETER ipcType      AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipiSubjectID AS INTEGER   NO-UNDO.
 &ELSE
-DEFINE VARIABLE iphParent     AS HANDLE    NO-UNDO.
-DEFINE VARIABLE ipiSubjectID  AS INTEGER   NO-UNDO INITIAL 1.
+DEFINE VARIABLE iphParent    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE ipcType      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ipiSubjectID AS INTEGER   NO-UNDO INITIAL 1.
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
@@ -149,7 +151,7 @@ DEFINE FRAME outputFrame
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Dynamic Subject Parameter Set Builder"
+         TITLE              = "Dynamic Parameter Set Builder"
          HEIGHT             = 26.95
          WIDTH              = 158
          MAX-HEIGHT         = 26.95
@@ -218,7 +220,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Dynamic Subject Parameter Set Builder */
+ON END-ERROR OF C-Win /* Dynamic Parameter Set Builder */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -231,7 +233,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Dynamic Subject Parameter Set Builder */
+ON WINDOW-CLOSE OF C-Win /* Dynamic Parameter Set Builder */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.

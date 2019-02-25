@@ -1,26 +1,30 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
 */
-&Scoped-define WINDOW-NAME C-Win
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
+&Scoped-define WINDOW-NAME W-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
+/*********************************************************************
+* Copyright (C) 2000 by Progress Software Corporation. All rights    *
+* reserved. Prior versions of this work may contain portions         *
+* contributed by participants of Possenet.                           *
+*                                                                    *
+*********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: AOA/dynParam.w
+  File: dynParam.w
 
-  Description: Dynamic Parameters
+  Description: from cntnrwin.w - ADM SmartWindow Template
 
-  Input Parameters: <none>
+  Input Paraeters: <none>
 
   Output Parameters: <none>
 
-  Author: Ron Stark
-
-  Created: 1.29.2019
-
+  History: Ron Stark
+  Created: 2.24.2019
+          
 ------------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.      */
+/*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
 
 /* Create an unnamed pool to store all the widgets created 
@@ -39,13 +43,13 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE lSortMove AS LOGICAL NO-UNDO INITIAL YES.
-
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
-{methods/defines/sortByDefs.i}
 
-{methods/lockWindowUpdate.i}
+DEFINE VARIABLE iParamSetID        AS INTEGER NO-UNDO.
+DEFINE VARIABLE iUserSecurityLevel AS INTEGER NO-UNDO.
+
+iUserSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -55,34 +59,16 @@ DEFINE VARIABLE lSortMove AS LOGICAL NO-UNDO INITIAL YES.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE Window
+&Scoped-define PROCEDURE-TYPE SmartWindow
 &Scoped-define DB-AWARE no
 
+&Scoped-define ADM-CONTAINER WINDOW
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&Scoped-define FRAME-NAME DEFAULT-FRAME
-&Scoped-define BROWSE-NAME dynParamSetBrowse
-
-/* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES dynParamSet
-
-/* Definitions for BROWSE dynParamSetBrowse                             */
-&Scoped-define FIELDS-IN-QUERY-dynParamSetBrowse dynParamSet.paramSetID dynParamSet.setName dynParamSet.setTitle dynParamSet.paramSetType   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-dynParamSetBrowse   
-&Scoped-define SELF-NAME dynParamSetBrowse
-&Scoped-define QUERY-STRING-dynParamSetBrowse FOR EACH dynParamSet ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-dynParamSetBrowse OPEN QUERY {&SELF-NAME} FOR EACH dynParamSet ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-dynParamSetBrowse dynParamSet
-&Scoped-define FIRST-TABLE-IN-QUERY-dynParamSetBrowse dynParamSet
-
-
-/* Definitions for FRAME DEFAULT-FRAME                                  */
-&Scoped-define OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME ~
-    ~{&OPEN-QUERY-dynParamSetBrowse}
+&Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnRestoreDefaults searchBar ~
-dynParamSetBrowse 
-&Scoped-Define DISPLAYED-OBJECTS searchBar 
+&Scoped-Define ENABLED-OBJECTS btnRestoreDefaults 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -95,47 +81,26 @@ dynParamSetBrowse
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
+
+/* Definitions of handles for SmartObjects                              */
+DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_param AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_paramSet AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_paramSetDtl AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnRestoreDefaults 
      IMAGE-UP FILE "Graphics/16x16/rename.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "Defaults" 
-     SIZE 4 BY 1 TOOLTIP "Restore Defaults".
-
-DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Search" 
-     VIEW-AS FILL-IN 
-     SIZE 62 BY 1 TOOLTIP "Search Bar" NO-UNDO.
-
-/* Query definitions                                                    */
-&ANALYZE-SUSPEND
-DEFINE QUERY dynParamSetBrowse FOR 
-      dynParamSet SCROLLING.
-&ANALYZE-RESUME
-
-/* Browse definitions                                                   */
-DEFINE BROWSE dynParamSetBrowse
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS dynParamSetBrowse C-Win _FREEFORM
-  QUERY dynParamSetBrowse DISPLAY
-      dynParamSet.paramSetID LABEL-BGCOLOR 14
-dynParamSet.setName LABEL-BGCOLOR 14
-dynParamSet.setTitle LABEL-BGCOLOR 14
-dynParamSet.paramSetType
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 75 BY 27.62
-         TITLE "Dynamic Parameter Sets".
+     SIZE 4 BY 1.1 TOOLTIP "Restore Defaults".
 
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME DEFAULT-FRAME
-     btnRestoreDefaults AT ROW 1 COL 1 HELP
+DEFINE FRAME F-Main
+     btnRestoreDefaults AT ROW 1.1 COL 67 HELP
           "Restore Defaults" WIDGET-ID 42
-     searchBar AT ROW 1 COL 12 COLON-ALIGNED HELP
-          "Search" WIDGET-ID 6
-     dynParamSetBrowse AT ROW 1.95 COL 1 WIDGET-ID 200
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -147,8 +112,9 @@ DEFINE FRAME DEFAULT-FRAME
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: Window
-   Allow: Basic,Browse,DB-Fields,Window,Query
+   Type: SmartWindow
+   Allow: Basic,Browse,DB-Fields,Query,Smart,Window
+   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -157,9 +123,9 @@ DEFINE FRAME DEFAULT-FRAME
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-  CREATE WINDOW C-Win ASSIGN
+  CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Dynamic Parameters"
+         TITLE              = "Dynamic User Tasks"
          HEIGHT             = 28.57
          WIDTH              = 160
          MAX-HEIGHT         = 320
@@ -171,7 +137,6 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
          THREE-D            = yes
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
@@ -179,35 +144,28 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
+/* ************************* Included-Libraries *********************** */
+
+{src/adm/method/containr.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR WINDOW C-Win
+/* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
-/* SETTINGS FOR FRAME DEFAULT-FRAME
+/* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
-/* BROWSE-TAB dynParamSetBrowse searchBar DEFAULT-FRAME */
-ASSIGN 
-       dynParamSetBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
-
-IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
+THEN W-Win:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
-&ANALYZE-RESUME
-
-
-/* Setting information for Queries and Browse Widgets fields            */
-
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE dynParamSetBrowse
-/* Query rebuild information for BROWSE dynParamSetBrowse
-     _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH dynParamSet ~{&SORTBY-PHRASE}.
-     _END_FREEFORM
-     _Query            is OPENED
-*/  /* BROWSE dynParamSetBrowse */
 &ANALYZE-RESUME
 
  
@@ -216,9 +174,9 @@ OPEN QUERY {&SELF-NAME} FOR EACH dynParamSet ~{&SORTBY-PHRASE}.
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME C-Win
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Dynamic Parameters */
+&Scoped-define SELF-NAME W-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
+ON END-ERROR OF W-Win /* Dynamic User Tasks */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -230,10 +188,11 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Dynamic Parameters */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
+ON WINDOW-CLOSE OF W-Win /* Dynamic User Tasks */
 DO:
-  /* This event will close the window and terminate the procedure.  */
+  /* This ADM code must be left here in order for the SmartWindow
+     and its descendents to terminate properly on exit. */
   RUN pSaveSettings (USERID("ASI")).
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -243,8 +202,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-RESIZED OF C-Win /* Dynamic Parameters */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
+ON WINDOW-RESIZED OF W-Win /* Dynamic User Tasks */
 DO:
     RUN pWinReSize.
 END.
@@ -254,41 +213,11 @@ END.
 
 
 &Scoped-define SELF-NAME btnRestoreDefaults
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestoreDefaults C-Win
-ON CHOOSE OF btnRestoreDefaults IN FRAME DEFAULT-FRAME /* Defaults */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestoreDefaults W-Win
+ON CHOOSE OF btnRestoreDefaults IN FRAME F-Main /* Defaults */
 DO:
     RUN pGetSettings ("_default").
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define BROWSE-NAME dynParamSetBrowse
-&Scoped-define SELF-NAME dynParamSetBrowse
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dynParamSetBrowse C-Win
-ON START-SEARCH OF dynParamSetBrowse IN FRAME DEFAULT-FRAME /* Dynamic Parameter Sets */
-DO:
-    IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-    END.
-    RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME searchBar
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL searchBar C-Win
-ON VALUE-CHANGED OF searchBar IN FRAME DEFAULT-FRAME /* Search */
-DO:
-    ASSIGN {&SELF-NAME}.
-    {&OPEN-QUERY-{&BROWSE-NAME}}
+    RUN select-page (1).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -297,37 +226,13 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK W-Win 
 
 
 /* ***************************  Main Block  *************************** */
 
-/* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
-ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
-       THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
-
-/* The CLOSE event can be used from inside or outside the procedure to  */
-/* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
-   RUN disable_UI.
-
-/* Best default for GUI applications is...                              */
-PAUSE 0 BEFORE-HIDE.
-
-/* Now enable the interface and wait for the exit condition.            */
-/* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
-MAIN-BLOCK:
-DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  RUN pGetSettings (USERID("ASI")).
-  RUN enable_UI.
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
-END.
-
-{methods/sortByProc.i "pByParamSetID" "dynParamSet.paramSetID"}
-{methods/sortByProc.i "pBySetName" "dynParamSet.setName"}
-{methods/sortByProc.i "pBySetTitle" "dynParamSet.setTitle"}
+/* Include custom  Main Block code for SmartWindows. */
+{src/adm/template/windowmn.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -335,7 +240,107 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-create-objects W-Win  _ADM-CREATE-OBJECTS
+PROCEDURE adm-create-objects :
+/*------------------------------------------------------------------------------
+  Purpose:     Create handles for all SmartObjects used in this procedure.
+               After SmartObjects are initialized, then SmartLinks are added.
+  Parameters:  <none>
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE adm-current-page  AS INTEGER NO-UNDO.
+
+  RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
+  ASSIGN adm-current-page = INTEGER(RETURN-VALUE).
+
+  CASE adm-current-page: 
+
+    WHEN 0 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/folder.r':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'FOLDER-LABELS = ':U + 'Sets|Set Details|Parameters' + ',
+                     FOLDER-TAB-TYPE = 1':U ,
+             OUTPUT h_folder ).
+       RUN set-position IN h_folder ( 1.00 , 1.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 28.57 , 160.00 ) NO-ERROR.
+
+       /* Links to SmartFolder h_folder. */
+       RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
+
+    END. /* Page 0 */
+    WHEN 1 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'aoa/paramSet.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_paramSet ).
+       RUN set-position IN h_paramSet ( 2.43 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 26.95 , 158.00 ) */
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_paramSet ,
+             h_folder , 'AFTER':U ).
+    END. /* Page 1 */
+    WHEN 2 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'aoa/paramSetDtl.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_paramSetDtl ).
+       RUN set-position IN h_paramSetDtl ( 2.43 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 26.95 , 158.00 ) */
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_paramSetDtl ,
+             h_folder , 'AFTER':U ).
+    END. /* Page 2 */
+    WHEN 3 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'aoa/param.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_param ).
+       RUN set-position IN h_param ( 2.43 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 26.95 , 158.00 ) */
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_param ,
+             h_folder , 'AFTER':U ).
+    END. /* Page 3 */
+
+  END CASE.
+  /* Select a Startup page. */
+  IF adm-current-page eq 0 
+  THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available W-Win  _ADM-ROW-AVAILABLE
+PROCEDURE adm-row-available :
+/*------------------------------------------------------------------------------
+  Purpose:     Dispatched to this procedure when the Record-
+               Source has a new row available.  This procedure
+               tries to get the new row (or foriegn keys) from
+               the Record-Source and process it.
+  Parameters:  <none>
+------------------------------------------------------------------------------*/
+
+  /* Define variables needed by this internal procedure.             */
+  {src/adm/template/row-head.i}
+
+  /* Process the newly available records (i.e. display fields,
+     open queries, and/or pass records on to any RECORD-TARGETS).    */
+  {src/adm/template/row-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI W-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -346,15 +351,15 @@ PROCEDURE disable_UI :
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
   /* Delete the WINDOW we created */
-  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-  THEN DELETE WIDGET C-Win.
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
+  THEN DELETE WIDGET W-Win.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI W-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -365,18 +370,100 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY searchBar 
-      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnRestoreDefaults searchBar dynParamSetBrowse 
-      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
-  VIEW C-Win.
+  ENABLE btnRestoreDefaults 
+      WITH FRAME F-Main IN WINDOW W-Win.
+  {&OPEN-BROWSERS-IN-QUERY-F-Main}
+  VIEW W-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSettings C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win 
+PROCEDURE local-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  RUN pGetSettings (USERID("ASI")).
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  RUN pGetParamSetDtl.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
+PROCEDURE local-exit :
+/* -----------------------------------------------------------
+  Purpose:  Starts an "exit" by APPLYing CLOSE event, which starts "destroy".
+  Parameters:  <none>
+  Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
+-------------------------------------------------------------*/
+   APPLY "CLOSE":U TO THIS-PROCEDURE.
+   
+   RETURN.
+       
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetCompany W-Win 
+PROCEDURE pGetCompany :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcCompany AS CHARACTER NO-UNDO.
+    
+    opcCompany = g_company.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetParamSetDtl W-Win 
+PROCEDURE pGetParamSetDtl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN pGetParamSetID IN h_paramSetDtl.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetParamSetID W-Win 
+PROCEDURE pGetParamSetID :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opiParamSetID AS INTEGER NO-UNDO.
+
+    opiParamSetID = iParamSetID.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSettings W-Win 
 PROCEDURE pGetSettings :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -384,11 +471,8 @@ PROCEDURE pGetSettings :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE hColumn AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
-    DEFINE VARIABLE jdx     AS INTEGER NO-UNDO.
-    DEFINE VARIABLE kdx     AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
     IF NOT CAN-FIND(FIRST user-print
                     WHERE user-print.company    EQ g_company
@@ -420,20 +504,6 @@ PROCEDURE pGetSettings :
                     .
             END CASE.
         END. /* do idx */
-        DO idx = 5 TO EXTENT(user-print.field-name):
-            IF user-print.field-name[idx] EQ "" THEN LEAVE.
-            /* set browse column width, hidden & order */
-            DO kdx = 1 TO BROWSE dynParamSetBrowse:NUM-COLUMNS:
-                IF user-print.field-name[idx] EQ BROWSE dynParamSetBrowse:GET-BROWSE-COLUMN(kdx):NAME THEN DO:
-                    ASSIGN
-                        jdx           = idx - 4
-                        hColumn       = BROWSE dynParamSetBrowse:GET-BROWSE-COLUMN(jdx)
-                        hColumn:WIDTH = DECIMAL(user-print.field-value[idx])
-                        .
-                    BROWSE dynParamSetBrowse:MOVE-COLUMN(kdx,jdx).
-                END. /* if name */
-            END. /* do kdx */
-        END. /* do idx */
     END. /* if avail */
     RUN pWinReSize.
 
@@ -442,30 +512,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenBrowse C-Win 
-PROCEDURE pReopenBrowse :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    CASE cColumnLabel:
-        WHEN "paramSetID" THEN
-        RUN pByParamSetID.
-        WHEN "setName" THEN
-        RUN pBySetName.
-        WHEN "setTitle" THEN
-        RUN pBySetTitle.
-        OTHERWISE
-        {&OPEN-QUERY-{&BROWSE-NAME}}
-    END CASE.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveSettings C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveSettings W-Win 
 PROCEDURE pSaveSettings :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -473,10 +520,8 @@ PROCEDURE pSaveSettings :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE hColumn AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
-    DEFINE VARIABLE jdx     AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
     FIND FIRST user-print EXCLUSIVE-LOCK
          WHERE user-print.company    EQ g_company
@@ -518,29 +563,38 @@ PROCEDURE pSaveSettings :
         user-print.field-label[idx] = "WindowHeight"
         user-print.field-value[idx] = STRING({&WINDOW-NAME}:HEIGHT)
         .
-    /* save browse column order and width */
-    DO jdx = 1 TO BROWSE dynParamSetBrowse:NUM-COLUMNS:
-        ASSIGN
-            idx                         = idx + 1
-            hColumn                     = BROWSE dynParamSetBrowse:GET-BROWSE-COLUMN(jdx)
-            user-print.field-label[idx] = "BrowseColumn"
-            user-print.field-name[idx]  = hColumn:NAME
-            user-print.field-value[idx] = STRING(MAX(hColumn:WIDTH, .2 /*BROWSE taskBrowse:MIN-COLUMN-WIDTH-CHARS*/ ))
-            .
-    END. /* do jdx */
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pWinReSize C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetParamSetID W-Win 
+PROCEDURE pSetParamSetID :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiParamSetID AS INTEGER NO-UNDO.
+    
+    iParamSetID = ipiParamSetID.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pWinReSize W-Win 
 PROCEDURE pWinReSize :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dHeight AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dWidth  AS DECIMAL NO-UNDO.
+
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
         HIDE FRAME {&FRAME-NAME}.
@@ -553,13 +607,57 @@ PROCEDURE pWinReSize :
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
             FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
-            BROWSE dynParamSetBrowse:HEIGHT    = FRAME {&FRAME-NAME}:HEIGHT
-                                               - BROWSE dynParamSetBrowse:ROW + 1
+            dHeight                            = FRAME {&FRAME-NAME}:HEIGHT
+            dWidth                             = FRAME {&FRAME-NAME}:WIDTH
             .
+        RUN set-size IN h_folder (dHeight, dWidth).
+        ASSIGN
+            dHeight = dHeight - 1.62
+            dWidth  = dWidth  - 2
+            .
+        IF NOT VALID-HANDLE(h_paramSetDtl) THEN
+        RUN init-pages ("2").
+        RUN pWinReSize IN h_paramSetDtl (dHeight, dWidth).
+        IF NOT VALID-HANDLE(h_param) THEN
+        RUN init-pages ("3").
+        RUN pWinReSize IN h_param (dHeight, dWidth).
+        RUN pWinReSize IN h_paramSet (dHeight, dWidth).
         VIEW FRAME {&FRAME-NAME}.
     END. /* do with */
+    RUN select-page (1).
     SESSION:SET-WAIT-STATE("").
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
+PROCEDURE send-records :
+/*------------------------------------------------------------------------------
+  Purpose:     Send record ROWID's for all tables used by
+               this file.
+  Parameters:  see template/snd-head.i
+------------------------------------------------------------------------------*/
+
+  /* SEND-RECORDS does nothing because there are no External
+     Tables specified for this SmartWindow, and there are no
+     tables specified in any contained Browse, Query, or Frame. */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
+PROCEDURE state-changed :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
+  DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
