@@ -429,6 +429,17 @@ DO:
    DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
    IF AVAIL oe-ordm THEN do:
        RUN oe/d-ordm.w (ROWID(oe-ordm),ROWID(oe-ord), "update", OUTPUT lv-rowid) .
+
+       IF AVAILABLE oe-ordm THEN DO:
+           FIND FIRST oe-ord WHERE oe-ord.company EQ oe-ordm.company 
+             AND oe-ord.ord-no EQ oe-ordm.ord-no.
+
+           END.
+       RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
+
+       IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
+            RUN Redisplay IN WIDGET-HANDLE(CHAR-hdl). 
+     
        RUN reopen-query (lv-rowid).
    END.
    
@@ -1325,6 +1336,9 @@ PROCEDURE pUpdateRecord :
     DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
    IF AVAIL oe-ordm THEN do:
        RUN oe/d-ordm.w (ROWID(oe-ordm),ROWID(oe-ord), "update", OUTPUT lv-rowid) .
+       RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
+       IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+           RUN Redisplay IN WIDGET-HANDLE(CHAR-hdl).
        RUN reopen-query (lv-rowid).
    END.
   
@@ -1370,7 +1384,9 @@ PROCEDURE pCopyRecord :
       bf-oe-ordm.line = li-line + 1 .
      
       RUN oe/d-ordm.w (ROWID(bf-oe-ordm), ROWID(oe-ord), "Copy",OUTPUT lv-rowid).
-     
+      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+         RUN Redisplay IN WIDGET-HANDLE(CHAR-hdl).     
       FOR EACH bf-oe-ordm OF oe-ord NO-LOCK
           WHERE bf-oe-ordm.company EQ oe-ord.company
             AND bf-oe-ordm.line NE 0
@@ -1427,7 +1443,9 @@ PROCEDURE pAddRecord :
   DO:
      
      RUN oe/d-ordm.w (?, ROWID(oe-ord), "add",OUTPUT lv-rowid).
-     
+     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+         RUN Redisplay IN WIDGET-HANDLE(CHAR-hdl).
      FIND FIRST bf-oe-ordm  NO-LOCK
           WHERE bf-oe-ordm.company EQ oe-ord.company
             AND ROWID(bf-oe-ordm) EQ  lv-rowid NO-ERROR .

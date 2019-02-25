@@ -678,7 +678,15 @@ PROCEDURE Redisplay :
 ------------------------------------------------------------------------------*/
 
   FIND CURRENT oe-ord NO-LOCK NO-ERROR.
-  IF AVAIL oe-ord THEN RUN dispatch ("display-fields").
+  IF AVAIL oe-ord THEN DO:
+
+    RUN dispatch ("display-fields").
+      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
+      DO:
+          RUN dispatch IN WIDGET-HANDLE(CHAR-hdl) ('row-changed:U').
+      END.      
+  END.
 
 END PROCEDURE.
 

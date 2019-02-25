@@ -981,6 +981,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_v-ordt. */
        RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'Record':U , h_v-ordt ).
        RUN add-link IN adm-broker-hdl ( h_p-ordt , 'TableIO':U , h_v-ordt ).
+       RUN add-link IN adm-broker-hdl ( h_b-ordm , 'oemisc':U , h_v-ordt ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_vi-ord-2 ,
