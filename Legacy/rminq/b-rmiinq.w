@@ -56,9 +56,19 @@ DEF VAR ll-sort-asc AS LOG NO-UNDO.
 DEF VAR ld-ext-cost AS DEC NO-UNDO.
 DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 DEFINE VARIABLE cVenTag AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE dtDateChar AS DATE NO-UNDO .
 
 DEF BUFFER rm-rcpth-1 FOR rm-rcpth.
 DEF BUFFER rm-rdtlh-1 FOR rm-rdtlh.
+
+
+RUN sys/ref/nk1look.p (INPUT cocode, "RMHistoryBrowse", "DT" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    dtDateChar = date(cRtnChar) NO-ERROR. 
 
 &SCOPED-DEFINE key-phrase rm-rcpth.company EQ cocode
 
@@ -1152,8 +1162,14 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 DO WITH FRAME {&FRAME-NAME}:
-    fi_date:SCREEN-VALUE = STRING(TODAY - 180) .
-    fi_date = TODAY - 180 .
+   IF dtDateChar NE ? THEN
+       ASSIGN
+       fi_date:SCREEN-VALUE = STRING(dtDateChar) 
+       fi_date = dtDateChar . 
+   ELSE
+       ASSIGN
+           fi_date:SCREEN-VALUE = STRING(TODAY - 180) 
+           fi_date = TODAY - 180 .
   END.
 
 {methods/winReSize.i}
