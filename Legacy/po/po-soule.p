@@ -389,9 +389,9 @@ print-po-blok:
       PUT po-ordl.LINE       FORMAT ">>9"         SPACE(3)          
           po-ordl.i-no       FORMAT "x(23)"       SPACE(13)
           po-ordl.ord-qty                         SPACE(2)          
-          po-ordl.pr-qty-uom                SPACE(9)
-          po-ordl.cost       FORMAT "->>>9.99<<"  SPACE(5)         
-          po-ordl.t-cost     FORMAT "->>,>>9.99" 
+          po-ordl.pr-qty-uom                SPACE(7)
+          po-ordl.cost       FORMAT "->>,>>9.99<<"  SPACE(5)         
+          po-ordl.t-cost     FORMAT "->>>,>>9.99" 
          SKIP.
 
       PUT po-ordl.i-name    AT 7 SPACE(1) 
