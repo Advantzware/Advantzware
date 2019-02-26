@@ -33,23 +33,21 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 &IF DEFINED(UIB_is_Running) EQ 0 &THEN
-DEFINE INPUT PARAMETER iphParent    AS HANDLE    NO-UNDO.
-DEFINE INPUT PARAMETER ipcType      AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipiSubjectID AS INTEGER   NO-UNDO.
+DEFINE INPUT PARAMETER iphParent AS HANDLE    NO-UNDO.
+DEFINE INPUT PARAMETER ipcType   AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipiID     AS INTEGER   NO-UNDO.
 &ELSE
-DEFINE VARIABLE iphParent    AS HANDLE    NO-UNDO.
-DEFINE VARIABLE ipcType      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ipiSubjectID AS INTEGER   NO-UNDO INITIAL 1.
+DEFINE VARIABLE iphParent AS HANDLE    NO-UNDO.
+DEFINE VARIABLE ipcType   AS CHARACTER NO-UNDO INITIAL "Param".
+DEFINE VARIABLE ipiID     AS INTEGER   NO-UNDO INITIAL 10.
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE cPoolName AS CHARACTER NO-UNDO.
-
-FIND FIRST dynSubject NO-LOCK
-     WHERE dynSubject.subjectID EQ ipiSubjectID
-     NO-ERROR.
-IF NOT AVAILABLE dynSubject THEN RETURN.
+DEFINE VARIABLE cPoolName  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hCalendar  AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hRectangle AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hWidget    AS HANDLE    NO-UNDO.
 
 {AOA/tempTable/ttAction.i}
 {AOA/includes/dynFuncs.i}
@@ -115,24 +113,21 @@ DEFINE FRAME paramFrame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 158 BY 26.95
+         SIZE 158 BY 21.71
          FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME outputFrame
-     btnSave AT ROW 2.19 COL 138 HELP
+     btnSave AT ROW 1.48 COL 3 HELP
           "Save" WIDGET-ID 6
-     btnReset AT ROW 2.19 COL 146 HELP
+     btnReset AT ROW 1.48 COL 11 HELP
           "Reset" WIDGET-ID 8
-     "RESERVED AREA" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 2.67 COL 70 WIDGET-ID 4
-          FGCOLOR 15 FONT 6
-     RECT-1 AT ROW 1.95 COL 137 WIDGET-ID 10
+     RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 10
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 158 BY 5.24
+         AT COL 139 ROW 1
+         SIZE 20 BY 3.81
          BGCOLOR 1 FGCOLOR 15 
-         TITLE BGCOLOR 15 FGCOLOR 1 "Output Reserved Area" WIDGET-ID 200.
+         TITLE BGCOLOR 15 FGCOLOR 1 " Save / Reset" WIDGET-ID 200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -152,11 +147,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Dynamic Parameter Set Builder"
-         HEIGHT             = 26.95
+         HEIGHT             = 21.71
          WIDTH              = 158
-         MAX-HEIGHT         = 26.95
+         MAX-HEIGHT         = 21.71
          MAX-WIDTH          = 158
-         VIRTUAL-HEIGHT     = 26.95
+         VIRTUAL-HEIGHT     = 21.71
          VIRTUAL-WIDTH      = 158
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -249,7 +244,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset C-Win
 ON CHOOSE OF btnReset IN FRAME outputFrame /* Reset */
 DO:
-    RUN pReset.
+    RUN pReset (ipiID).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -292,14 +287,8 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  ASSIGN
-    FRAME paramFrame:GRID-FACTOR-VERTICAL = 4
-    FRAME paramFrame:GRID-FACTOR-HORIZONTAL = 10
-    FRAME paramFrame:GRID-UNIT-WIDTH-PIXELS = 5
-    FRAME paramFrame:GRID-UNIT-HEIGHT-PIXELS = 5
-    FRAME paramFrame:GRID-SNAP = YES
-    FRAME paramFrame:GRID-VISIBLE = YES
-    .
+  IF ipcType EQ "Param" THEN
+  RUN pSetFrameGrid (FRAME paramFrame:HANDLE).
   RUN enable_UI.
   APPLY "CHOOSE":U TO BtnReset.
   FRAME {&FRAME-NAME}:HIDDEN = NO.
@@ -345,31 +334,152 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  VIEW FRAME outputFrame IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-outputFrame}
   VIEW FRAME paramFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
+  VIEW FRAME outputFrame IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-outputFrame}
   VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMoveFrame C-Win 
-PROCEDURE pMoveFrame :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDynParameter C-Win 
+PROCEDURE pDynParameter :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iplMove AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiParamID AS INTEGER NO-UNDO.
     
-    DO WITH FRAME outputFrame:
+    DEFINE VARIABLE dCol AS DECIMAL NO-UNDO INITIAL 30.
+    DEFINE VARIABLE dRow AS DECIMAL NO-UNDO INITIAL 4.
+    
+    FIND FIRST dynParam NO-LOCK
+         WHERE dynParam.paramID EQ ipiParamID
+         NO-ERROR.
+    IF NOT AVAILABLE dynParam THEN RETURN.
+    ASSIGN
+        cAction       = dynParam.action
+        cInitialItems = dynParam.initialItems
+        cInitialValue = dynParam.initialValue
+        cParamLabel   = dynParam.paramLabel
+        cParamName    = dynParam.paramName
+        lMovable      = NO
+        lResizable    = YES
+        lSelectable   = YES
+        lSensitive    = YES
+        .
+    RUN pViewAs (FRAME paramFrame:HANDLE, dCol, dRow).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDynParameterSet C-Win 
+PROCEDURE pDynParameterSet :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiParamSetID AS INTEGER NO-UNDO.
+
+    DEFINE VARIABLE dCol   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dRow   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE hFrame AS HANDLE  NO-UNDO.
+    
+    FIND FIRST dynParamSet NO-LOCK
+         WHERE dynParamSet.paramSetID EQ ipiParamSetID
+         NO-ERROR.
+    IF NOT AVAILABLE dynParamSet THEN RETURN.
+    ASSIGN
+        lMovable      = YES
+        lResizable    = YES
+        lSelectable   = YES
+        lSensitive    = YES
+        .
+    RUN pFrame (
+        cPoolName,
+        FRAME paramFrame:HANDLE,
+        STRING(dynParamSet.paramSetID),
+        1,
+        1,
+        dynParamSet.setWidth,
+        dynParamSet.setHeight,
+        NO,
+        YES,
+        dynParamSet.setName,
+        OUTPUT hFrame
+        ).
+    RUN pSetFrameGrid (hFrame:HANDLE).
+    hFrame:HIDDEN = NO.
+    hFrame:MOVE-TO-TOP().
+    IF dynParamSet.setRectangle THEN DO:
+        RUN pRectangle (
+            cPoolName,
+            hFrame,
+            "1",
+            hFrame:COL + 1,
+            hFrame:ROW + .48,
+            dynParamSet.setWidth - 2.2,
+            dynParamSet.setHeight - 1.6,
+            OUTPUT hRectangle
+            ).
+        hRectangle:HIDDEN = NO.
+        hRectangle:MOVE-TO-TOP().
+        IF dynParamSet.setTitle NE "" THEN
+        RUN pText (
+            cPoolName,
+            hFrame,
+            hRectangle:COL + 2,
+            hRectangle:ROW - .24,
+            dynParamSet.setTitle
+            ).
+    END. /* if rectangle */
+    FOR EACH dynParamSetDtl NO-LOCK
+        WHERE dynParamSetDtl.paramSetID EQ dynParamSet.paramSetID,
+        FIRST dynParam NO-LOCK
+        WHERE dynParam.paramID EQ dynParamSetDtl.paramID
+        :
         ASSIGN
-            btnSave:SENSITIVE  = iplMove
-            btnReset:SENSITIVE = iplMove
+            cAction       = dynParamSetDtl.action
+            cInitialItems = dynParamSetDtl.initialItems
+            cInitialValue = dynParamSetDtl.initialValue
+            cParamLabel   = dynParamSetDtl.paramLabel
+            cParamName    = dynParamSetDtl.paramName
+            dCol          = dynParamSetDtl.paramCol
+            dRow          = dynParamSetDtl.paramRow
             .
-    END. /* with frame */
+        RUN pViewAs (hFrame:HANDLE, dCol, dRow).
+    END. /* each dynparamsetdtl */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFrameResize C-Win 
+PROCEDURE pFrameResize :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphFrame AS HANDLE NO-UNDO.
+    
+    RUN pSetSaveReset (YES).
+    ASSIGN
+        iphFrame:VIRTUAL-WIDTH  = iphFrame:WIDTH
+        iphFrame:VIRTUAL-HEIGHT = iphFrame:HEIGHT
+        .
+    IF dynParamSet.setRectangle THEN
+    ASSIGN
+        hRectangle:WIDTH  = iphFrame:WIDTH  - 2.2
+        hRectangle:HEIGHT = iphFrame:HEIGHT - 1.6
+        .
 
 END PROCEDURE.
 
@@ -383,8 +493,20 @@ PROCEDURE pReset :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN pCreateDynParameters (FRAME paramFrame:HANDLE, NO).
-    RUN pMoveFrame (NO).
+    DEFINE INPUT PARAMETER ipiValue AS INTEGER NO-UNDO.
+    
+    DELETE WIDGET-POOL cPoolName NO-ERROR.
+    cPoolName = "ParameterPool" + STRING(TIME).
+    CREATE WIDGET-POOL cPoolName PERSISTENT.
+
+    ipiID = ipiValue.
+    CASE ipcType:
+        WHEN "Param" THEN
+        RUN pDynParameter (ipiID).
+        WHEN "Set" THEN
+        RUN pDynParameterSet (ipiID).
+    END CASE.
+    RUN pSetSaveReset (NO).
 
 END PROCEDURE.
 
@@ -398,26 +520,301 @@ PROCEDURE pSave :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hWidget AS HANDLE NO-UNDO.
-    
+    DEFINE VARIABLE hObject AS HANDLE NO-UNDO EXTENT 2.
+    DEFINE VARIABLE rRowID  AS ROWID  NO-UNDO.
+
+    CASE ipcType:
+        WHEN "Param" THEN DO TRANSACTION:
+            FIND CURRENT dynParam EXCLUSIVE-LOCK.
+            ASSIGN
+                dynParam.paramWidth  = hWidget:WIDTH
+                dynParam.paramHeight = hWidget:HEIGHT
+                .
+            FIND CURRENT dynParam NO-LOCK.
+        END. /* param */
+        WHEN "Set" THEN DO TRANSACTION:
+            ASSIGN
+                hObject[1] = FRAME paramFrame:HANDLE
+                hObject[1] = hObject[1]:FIRST-CHILD
+                hObject[1] = hObject[1]:FIRST-CHILD
+                .
+            DO WHILE VALID-HANDLE(hObject[1]):
+                IF hObject[1]:TYPE EQ "FRAME" AND
+                   hObject[1]:NAME BEGINS "SetFrame" THEN DO:
+                    FIND CURRENT dynParamSet EXCLUSIVE-LOCK.
+                    ASSIGN
+                        dynParamSet.setWidth  = hObject[1]:WIDTH
+                        dynParamSet.setHeight = hObject[1]:HEIGHT
+                        hObject[2] = hObject[1]:HANDLE
+                        hObject[2] = hObject[2]:FIRST-CHILD
+                        hObject[2] = hObject[2]:FIRST-CHILD
+                        .
+                    FIND CURRENT dynParamSet NO-LOCK.
+                    DO WHILE VALID-HANDLE(hObject[2]):
+                        rRowID = TO-ROWID(hObject[2]:PRIVATE-DATA).
+                        IF rRowID NE ? THEN DO:
+                            FIND FIRST dynParamSetDtl EXCLUSIVE-LOCK
+                                 WHERE ROWID(dynParamSetDtl) EQ rRowID
+                                 NO-ERROR.
+                            IF AVAILABLE dynParamSetDtl THEN DO:
+                                ASSIGN
+                                    dynParamSetDtl.paramCol = hObject[2]:COL
+                                    dynParamSetDtl.paramRow = hObject[2]:ROW
+                                    .
+                                FIND FIRST dynParam EXCLUSIVE-LOCK
+                                     WHERE dynParam.paramID EQ dynParamSetDtl.paramID
+                                     NO-ERROR.
+                                IF AVAILABLE dynParam THEN
+                                ASSIGN
+                                    dynParam.paramWidth  = hObject[2]:WIDTH
+                                    dynParam.paramHeight = hObject[2]:HEIGHT
+                                    .
+                                RELEASE dynParamSetDtl.
+                            END. /* if avail */
+                        END. /* if rrowid */
+                        hObject[2] = hObject[2]:NEXT-SIBLING.
+                    END. /* do while */
+                END. /* if type frame */
+                hObject[1] = hObject[1]:NEXT-SIBLING.
+            END. /* do while */
+        END. /* set */
+    END CASE.
+    IF VALID-HANDLE(iphParent) THEN
+    RUN pRefresh IN iphParent.
+    RUN pSetSaveReset (NO).
+    RUN pReset (ipiID).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetFrameGrid C-Win 
+PROCEDURE pSetFrameGrid :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphFrame AS HANDLE NO-UNDO.
+
     ASSIGN
-        hWidget = FRAME paramFrame:HANDLE
-        hWidget = hWidget:FIRST-CHILD
-        hWidget = hWidget:FIRST-CHILD
+        iphFrame:GRID-FACTOR-VERTICAL    = 4
+        iphFrame:GRID-FACTOR-HORIZONTAL  = 10
+        iphFrame:GRID-UNIT-WIDTH-PIXELS  = 5
+        iphFrame:GRID-UNIT-HEIGHT-PIXELS = 5
+        iphFrame:GRID-SNAP               = YES
+        iphFrame:GRID-VISIBLE            = YES
         .
-    DO WHILE VALID-HANDLE(hWidget):
-        IF hWidget:TYPE EQ "FRAME" AND
-           hWidget:NAME BEGINS "SetFrame" AND
-           VALID-HANDLE(iphParent) THEN
-            RUN pSetSubjectParamSet IN iphParent (
-                ipiSubjectID,
-                INTEGER(hWidget:PRIVATE-DATA),
-                hWidget:COL,
-                hWidget:ROW
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetSaveReset C-Win 
+PROCEDURE pSetSaveReset :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplSensitive AS LOGICAL NO-UNDO.
+    
+    DO WITH FRAME outputFrame:
+        ASSIGN
+            btnSave:SENSITIVE  = iplSensitive
+            btnReset:SENSITIVE = iplSensitive
+            .
+    END. /* with frame */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidate C-Win 
+PROCEDURE pValidate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pViewAs C-Win 
+PROCEDURE pViewAs :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphFrame AS HANDLE  NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCol   AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdRow   AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE jdx AS INTEGER NO-UNDO.
+    DEFINE VARIABLE kdx AS INTEGER NO-UNDO.
+
+    CASE dynParam.viewAs:
+        WHEN "COMBO-BOX" THEN
+        RUN pComboBox (
+            cPoolName,
+            iphFrame,
+            cParamLabel,
+            cParamName,
+            ipdCol,
+            ipdRow,
+            dynParam.paramWidth,
+            cInitialItems,
+            dynParam.paramFormat,
+            cInitialValue,
+            dynParam.innerLines,
+            lSensitive,
+            OUTPUT hWidget
+            ).
+        WHEN "EDITOR" THEN DO:
+            RUN pEditor (
+                cPoolName,
+                iphFrame,
+                cParamLabel,
+                cParamName,
+                ipdCol,
+                ipdRow,
+                dynParam.paramWidth,
+                dynParam.paramHeight,
+                CAN-DO(cAction,"HORIZONTAL"),
+                CAN-DO(cAction,"VERTICAL"),
+                cInitialValue,
+                lSensitive,
+                OUTPUT hWidget
                 ).
-        hWidget = hWidget:NEXT-SIBLING.
-    END. /* do while */
-    RUN pMoveFrame (NO).
+            IF CAN-DO(cAction,"EMAIL") THEN DO:
+                ASSIGN
+                    ipdCol = ipdCol - 5
+                    ipdRow = ipdRow + .95
+                    .
+                RUN pButtonEmail (
+                    cPoolName,
+                    iphFrame,
+                    ipdCol,
+                    ipdRow,
+                    NO,
+                    hWidget,
+                    OUTPUT hCalendar
+                    ).
+            END. /* if use a calendar */
+        END. /* editor */
+        WHEN "FILL-IN" THEN DO:
+            RUN pFillIn (
+                cPoolName,
+                iphFrame,
+                cParamLabel,
+                cParamName,
+                dynParam.dataType,
+                dynParam.paramFormat,
+                ipdCol,
+                ipdRow,
+                dynParam.paramWidth,
+                dynParam.paramHeight,
+                cInitialValue,
+                lSensitive,
+                OUTPUT ipdCol,
+                OUTPUT hWidget
+                ).
+            hCalendar = ?.
+            IF dynParam.dataType EQ "DATE" THEN DO:
+                IF CAN-DO(cAction,"CALENDAR") THEN DO:
+                    jdx = jdx + 1.
+                    RUN pButtonCalendar (
+                        cPoolName,
+                        iphFrame,
+                        STRING(jdx),
+                        ipdCol,
+                        ipdRow,
+                        NO,
+                        hWidget,
+                        OUTPUT ipdCol,
+                        OUTPUT hCalendar
+                        ).
+                END. /* if use a calendar */
+                IF CAN-DO(cAction,"DATEPICKLIST") THEN DO:
+                    kdx = kdx + 1.
+                    RUN pPickList (
+                        cPoolName,
+                        iphFrame,
+                        STRING(kdx),
+                        ipdCol,
+                        ipdRow,
+                        NO,
+                        hWidget,
+                        hCalendar
+                        ).
+                END. /* if date pick list */
+            END. /* if date type */
+        END. /* fill-in */
+        WHEN "RADIO-SET" THEN
+        RUN pRadioSet (
+            cPoolName,
+            iphFrame,
+            cParamLabel,
+            cParamName,
+            cInitialItems,
+            CAN-DO(cAction,"HORIZONTAL"),
+            ipdCol,
+            ipdRow,
+            dynParam.paramWidth,
+            dynParam.paramHeight,
+            cInitialValue,
+            lSensitive,
+            OUTPUT hWidget
+            ).
+        WHEN "SELECTION-LIST" THEN DO:
+        RUN pSelectionList (
+            cPoolName,
+            iphFrame,
+            cParamLabel,
+            cParamName,
+            ipdCol,
+            ipdRow,
+            dynParam.paramWidth,
+            dynParam.paramHeight,
+            CAN-DO(cAction,"MULTISELECT"),
+            cInitialItems,
+            cInitialValue,
+            lSensitive,
+            OUTPUT hWidget
+            ).
+        END. /* selection-list */
+        WHEN "TOGGLE-BOX" THEN
+        RUN pToggleBox (
+            cPoolName,
+            iphFrame,
+            cParamLabel,
+            cParamName,
+            ipdCol,
+            ipdRow,
+            dynParam.paramWidth,
+            dynParam.paramHeight,
+            cInitialValue,
+            lSensitive,
+            OUTPUT hWidget
+            ).
+    END CASE.
+    IF VALID-HANDLE(hWidget) THEN DO:
+        ASSIGN
+            hWidget:HIDDEN   = NO
+            hWidget:SELECTED = ipcType EQ "Param"
+            hWidget:PRIVATE-DATA = IF ipcType EQ "Param" THEN STRING(ROWID(dynParam))
+                                   ELSE STRING(ROWID(dynParamSetDtl))
+            .
+        hWidget:MOVE-TO-TOP().
+    END. /* if valid handle */
 
 END PROCEDURE.
 

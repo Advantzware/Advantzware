@@ -1,5 +1,15 @@
 /* dynWidgets.i - rstark - 2.22.20109 */
 
+DEFINE VARIABLE cAction       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInitialItems AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInitialValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cParamLabel   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cParamName    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lMovable      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lResizable    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lSelectable   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lSensitive    AS LOGICAL   NO-UNDO.
+
 PROCEDURE pButtonCalendar:
     DEFINE INPUT  PARAMETER ipcPoolName  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iphFrame     AS HANDLE    NO-UNDO.
@@ -21,6 +31,7 @@ PROCEDURE pButtonCalendar:
             HEIGHT = 1.05
             TOOLTIP = "Calendar Popup"
             SENSITIVE = iplSensitive
+            HIDDEN = NO
         TRIGGERS:
           ON CHOOSE
             PERSISTENT RUN pCalendar IN THIS-PROCEDURE (iphWidget:HANDLE).
@@ -50,6 +61,7 @@ PROCEDURE pButtonEmail:
             HEIGHT = 1.05
             TOOLTIP = "Add Recipients"
             SENSITIVE = iplSensitive
+            HIDDEN = NO
         TRIGGERS:
           ON CHOOSE
             PERSISTENT RUN pRecipients IN THIS-PROCEDURE (iphWidget:HANDLE).
@@ -90,12 +102,19 @@ PROCEDURE pComboBox:
         INNER-LINES = ipiLines
         SIDE-LABEL-HANDLE = hLabel
         SENSITIVE = iplSensitive
+        MOVABLE = lMovable
+        RESIZABLE = lResizable
+        SELECTABLE = lSelectable
     TRIGGERS:
+      ON START-MOVE
+        PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
+      ON START-RESIZE
+        PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
       ON VALUE-CHANGED
         PERSISTENT RUN pParamAction IN THIS-PROCEDURE (ophWidget:HANDLE).
     END TRIGGERS.
     IF ipcLabel NE "" THEN
-    hLabel:COL = ophWidget:COL - ophWidget:WIDTH.
+    hLabel:COL = ophWidget:COL - hLabel:WIDTH.
 END PROCEDURE.
 
 PROCEDURE pCreateDynParameters :
@@ -134,6 +153,7 @@ PROCEDURE pCreateDynParameters :
         &ENDIF
         IF NOT AVAILABLE dynParamValue OR
            NOT AVAILABLE dynSubject THEN RETURN.    
+        hFrame  = iphFrame.
     END. /* if live */
     
     EMPTY TEMP-TABLE ttAction.
@@ -162,6 +182,9 @@ PROCEDURE pCreateDynParameters :
                     {1}SubjectParamSet.setRow,
                     dynParamSet.setWidth,
                     dynParamSet.setHeight,
+                    YES,
+                    NO,
+                    dynParamSet.setName,
                     OUTPUT hFrame
                     ).
             END. /* if not live */
@@ -212,7 +235,7 @@ PROCEDURE pCreateDynParameters :
                 hFrame,
                 cParamLabel,
                 cParamName,
-                dCol + 2,
+                dCol /* + 2*/,
                 dRow,
                 dynParam.paramWidth,
                 dynParamSetDtl.initialItems,
@@ -262,7 +285,7 @@ PROCEDURE pCreateDynParameters :
                     cParamName,
                     dynParam.dataType,
                     dynParam.paramFormat,
-                    dCol + 2,
+                    dCol /* + 2*/,
                     dRow,
                     dynParam.paramWidth,
                     dynParam.paramHeight,
@@ -274,7 +297,7 @@ PROCEDURE pCreateDynParameters :
                 hCalendar = ?.
                 IF dynParam.dataType EQ "DATE" THEN DO:
                     IF CAN-DO(dynParamSetDtl.action,"CALENDAR") THEN DO:
-                        jdx  = jdx + 1.
+                        jdx = jdx + 1.
                         RUN pButtonCalendar (
                             cPoolName,
                             hFrame,
@@ -327,10 +350,10 @@ PROCEDURE pCreateDynParameters :
                 dCol,
                 dRow,
                 dynParam.paramWidth,
+                dynParam.paramHeight,
                 CAN-DO(dynParamSetDtl.action,"MULTISELECT"),
                 dynParamSetDtl.initialItems,
                 cParamValue,
-                dynParam.innerLines,
                 lSensitive,
                 OUTPUT hWidget
                 ).
@@ -423,7 +446,14 @@ PROCEDURE pEditor:
             SCREEN-VALUE = ipcValue
             SENSITIVE = iplSensitive
             READ-ONLY = iplSensitive EQ NO
+            MOVABLE = lMovable
+            RESIZABLE = lResizable
+            SELECTABLE = lSelectable
         TRIGGERS:
+          ON START-MOVE
+            PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
+          ON START-RESIZE
+            PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON LEAVE
             PERSISTENT RUN pValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
         END TRIGGERS.
@@ -469,7 +499,14 @@ PROCEDURE pFillIn:
             SENSITIVE = iplSensitive
             READ-ONLY = iplSensitive EQ NO
             BGCOLOR = IF iplSensitive THEN ? ELSE 8
+            MOVABLE = lMovable
+            RESIZABLE = lResizable
+            SELECTABLE = lSelectable
         TRIGGERS:
+          ON START-MOVE
+            PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
+          ON START-RESIZE
+            PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON LEAVE
             PERSISTENT RUN pValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
         END TRIGGERS.
@@ -481,14 +518,17 @@ PROCEDURE pFillIn:
 END PROCEDURE.
 
 PROCEDURE pFrame:
-    DEFINE INPUT  PARAMETER ipcPoolName AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iphFrame    AS HANDLE    NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcName     AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdCol      AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdRow      AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdWidth    AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdHeight   AS DECIMAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER ophWidget   AS HANDLE    NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPoolName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iphFrame     AS HANDLE    NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcName      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdCol       AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdRow       AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdWidth     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdHeight    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplMovable   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplResizable AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTitle     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ophWidget    AS HANDLE    NO-UNDO.
 
     CREATE FRAME ophWidget IN WIDGET-POOL ipcPoolName
         ASSIGN
@@ -500,12 +540,21 @@ PROCEDURE pFrame:
             HEIGHT = ipdHeight
             PRIVATE-DATA = ipcName
             OVERLAY = YES
-            MOVABLE = YES
+            BOX-SELECTABLE = iplResizable
+            MOVABLE = iplMovable
+            RESIZABLE = iplResizable
+            SELECTABLE = iplMovable OR iplResizable
             HIDDEN = YES
         TRIGGERS:
+          ON END-RESIZE
+            PERSISTENT RUN pFrameResize IN THIS-PROCEDURE (ophWidget).
           ON START-MOVE
-            PERSISTENT RUN pMoveFrame IN THIS-PROCEDURE (YES).
+            PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
+          ON START-RESIZE
+            PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
         END TRIGGERS.
+        IF iplResizable THEN
+        ophWidget:TITLE = ipcTitle.
 END PROCEDURE.
 
 PROCEDURE pPickList:
@@ -531,6 +580,7 @@ PROCEDURE pPickList:
         TOOLTIP = "Date Pick List"
         PRIVATE-DATA = iphWidget:NAME
         SENSITIVE = iplSensitive
+        HIDDEN = NO
     TRIGGERS:
       ON VALUE-CHANGED
         PERSISTENT RUN pDatePickList IN THIS-PROCEDURE (
@@ -575,7 +625,14 @@ PROCEDURE pRadioSet:
             HEIGHT = ipdHeight
             SCREEN-VALUE = ipcValue
             SENSITIVE = iplSensitive
+            MOVABLE = lMovable
+            RESIZABLE = lResizable
+            SELECTABLE = lSelectable
         TRIGGERS:
+          ON START-MOVE
+            PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
+          ON START-RESIZE
+            PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON VALUE-CHANGED
             PERSISTENT RUN pParamAction IN THIS-PROCEDURE (ophWidget:HANDLE).
         END TRIGGERS.
@@ -620,10 +677,10 @@ PROCEDURE pSelectionList:
     DEFINE INPUT  PARAMETER ipdCol       AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipdRow       AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipdWidth     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdHeight    AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER iplMultiple  AS LOGICAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcListItems AS CHARACTER NO-UNDO.    
     DEFINE INPUT  PARAMETER ipcValue     AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiLines     AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER iplSensitive AS LOGICAL   NO-UNDO.    
     DEFINE OUTPUT PARAMETER ophWidget    AS HANDLE    NO-UNDO.
     
@@ -636,13 +693,20 @@ PROCEDURE pSelectionList:
         COL = ipdCol
         ROW = ipdRow
         WIDTH = ipdWidth
+        HEIGHT = ipdHeight
         SCROLLBAR-VERTICAL = YES
         MULTIPLE = iplMultiple
         LIST-ITEMS = ipcListItems
         SCREEN-VALUE = ipcValue
-        INNER-LINES = ipiLines
         SENSITIVE = iplSensitive
+        MOVABLE = lMovable
+        RESIZABLE = lResizable
+        SELECTABLE = lSelectable
     TRIGGERS:
+          ON START-MOVE
+            PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
+          ON START-RESIZE
+            PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
       ON VALUE-CHANGED
         PERSISTENT RUN pParamAction IN THIS-PROCEDURE (ophWidget:HANDLE).
     END TRIGGERS.
@@ -673,6 +737,7 @@ PROCEDURE pText:
         FORMAT = "x(" + STRING(LENGTH(" " + ipcText)) + ")"
         SCREEN-VALUE = " " + ipcText
         SENSITIVE = YES
+        HIDDEN = NO
         .
 END PROCEDURE.
 
@@ -700,7 +765,14 @@ PROCEDURE pToggleBox:
             HEIGHT = ipdHeight
             SCREEN-VALUE = ipcValue
             SENSITIVE = iplSensitive
+            MOVABLE = lMovable
+            RESIZABLE = lResizable
+            SELECTABLE = lSelectable
         TRIGGERS:
+          ON START-MOVE
+            PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
+          ON START-RESIZE
+            PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON VALUE-CHANGED
             PERSISTENT RUN pParamAction IN THIS-PROCEDURE (ophWidget:HANDLE).
         END TRIGGERS.

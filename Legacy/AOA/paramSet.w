@@ -682,6 +682,8 @@ PROCEDURE pCRUD :
                         dynParamSet.paramPrompt:SCREEN-VALUE  = "yes"
                         dynParamSet.setRectangle:SCREEN-VALUE = "yes"
                         dynParamSet.paramSetType:SCREEN-VALUE = "System"
+                        dynParamSet.setWidth:SCREEN-VALUE     = "135"
+                        dynParamSet.setHeight:SCREEN-VALUE    = "21"
                         .
                     DISABLE btnReset.
                 END. /* add */

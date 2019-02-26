@@ -19,6 +19,7 @@ FUNCTION fCreateLabel RETURNS HANDLE
         FORMAT = "x(" + STRING(LENGTH(ipcLabel)) + ")"
         SCREEN-VALUE = ipcLabel
         SENSITIVE = YES
+        HIDDEN = NO
         .
   RETURN hLabel.
 

@@ -290,14 +290,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  ASSIGN
-    FRAME paramFrame:GRID-FACTOR-VERTICAL = 4
-    FRAME paramFrame:GRID-FACTOR-HORIZONTAL = 10
-    FRAME paramFrame:GRID-UNIT-WIDTH-PIXELS = 5
-    FRAME paramFrame:GRID-UNIT-HEIGHT-PIXELS = 5
-    FRAME paramFrame:GRID-SNAP = YES
-    FRAME paramFrame:GRID-VISIBLE = YES
-    .
+  RUN pSetFrameGrid (FRAME paramFrame:HANDLE).
   RUN enable_UI.
   APPLY "CHOOSE":U TO BtnReset.
   FRAME {&FRAME-NAME}:HIDDEN = NO.
@@ -353,27 +346,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMoveFrame C-Win 
-PROCEDURE pMoveFrame :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iplMove AS LOGICAL NO-UNDO.
-    
-    DO WITH FRAME outputFrame:
-        ASSIGN
-            btnSave:SENSITIVE  = iplMove
-            btnReset:SENSITIVE = iplMove
-            .
-    END. /* with frame */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReset C-Win 
 PROCEDURE pReset :
 /*------------------------------------------------------------------------------
@@ -382,7 +354,7 @@ PROCEDURE pReset :
   Notes:       
 ------------------------------------------------------------------------------*/
     RUN pCreateDynParameters (FRAME paramFrame:HANDLE, NO).
-    RUN pMoveFrame (NO).
+    RUN pSetSaveReset (NO).
 
 END PROCEDURE.
 
@@ -415,7 +387,51 @@ PROCEDURE pSave :
                 ).
         hWidget = hWidget:NEXT-SIBLING.
     END. /* do while */
-    RUN pMoveFrame (NO).
+    RUN pSetSaveReset (NO).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetFrameGrid C-Win 
+PROCEDURE pSetFrameGrid :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphFrame AS HANDLE NO-UNDO.
+
+    ASSIGN
+        iphFrame:GRID-FACTOR-VERTICAL    = 4
+        iphFrame:GRID-FACTOR-HORIZONTAL  = 10
+        iphFrame:GRID-UNIT-WIDTH-PIXELS  = 5
+        iphFrame:GRID-UNIT-HEIGHT-PIXELS = 5
+        iphFrame:GRID-SNAP               = YES
+        iphFrame:GRID-VISIBLE            = YES
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetSaveReset C-Win 
+PROCEDURE pSetSaveReset :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplSensitive AS LOGICAL NO-UNDO.
+    
+    DO WITH FRAME outputFrame:
+        ASSIGN
+            btnSave:SENSITIVE  = iplSensitive
+            btnReset:SENSITIVE = iplSensitive
+            .
+    END. /* with frame */
 
 END PROCEDURE.
 

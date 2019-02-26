@@ -89,9 +89,9 @@ btnRestoreDefaults btnSortMove
 
 /* Custom List Definitions                                              */
 /* transPanel,transInit,transUpdate,displayFields,enabledFields,List-6  */
-&Scoped-define transPanel RECT-PREVIEW btntSetBuilder btnUpdate btnCancel ~
+&Scoped-define transPanel RECT-PREVIEW btnUpdate btntSetBuilder btnCancel ~
 btnAdd btnCopy btnDelete btnReset 
-&Scoped-define transInit btntSetBuilder btnUpdate btnAdd btnCopy btnDelete 
+&Scoped-define transInit btnUpdate btntSetBuilder btnAdd btnCopy btnDelete 
 &Scoped-define transUpdate btnUpdate btnCancel btnReset 
 &Scoped-define displayFields RECT-PREVIEW dynParamSetDtl.paramSetID ~
 dynParamSetDtl.paramID dynParamSetDtl.paramName dynParamSetDtl.paramLabel ~
@@ -161,7 +161,7 @@ DEFINE BUTTON btntSetBuilder
      IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U
      LABEL "Parameter Set Builder" 
-     SIZE 8 BY 1.9 TOOLTIP "Parameter Set Builder".
+     SIZE 8 BY 1.91 TOOLTIP "Parameter Set Builder".
 
 DEFINE BUTTON btnUpdate 
      IMAGE-UP FILE "Graphics/32x32/pencil.ico":U
@@ -214,6 +214,8 @@ DEFINE FRAME DEFAULT-FRAME
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME viewFrame
+     btnUpdate AT ROW 17.43 COL 20 HELP
+          "Update/Save" WIDGET-ID 128
      dynParamSetDtl.paramSetID AT ROW 1.48 COL 19 COLON-ALIGNED WIDGET-ID 166
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
@@ -224,8 +226,6 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     btnUpdate AT ROW 17.43 COL 20 HELP
-          "Update/Save" WIDGET-ID 128
      dynParamSetDtl.paramName AT ROW 3.86 COL 19 COLON-ALIGNED WIDGET-ID 162
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
@@ -255,12 +255,12 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
+     btnCancel AT ROW 17.43 COL 60 HELP
+          "Cancel" WIDGET-ID 120
      dynParamSetDtl.paramRow AT ROW 11 COL 19 COLON-ALIGNED WIDGET-ID 164
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     btnCancel AT ROW 17.43 COL 60 HELP
-          "Cancel" WIDGET-ID 120
      btnAdd AT ROW 17.43 COL 28 HELP
           "Add" WIDGET-ID 118
      btnCopy AT ROW 17.43 COL 36 HELP
@@ -524,8 +524,10 @@ DO:
     RUN AOA/paramSetBldr.w PERSISTENT SET hParamBldr (
         THIS-PROCEDURE,
         "Set",
-        1
+        dynParamSetDtl.paramSetID
         ).
+    ELSE
+    RUN pReset IN hParamBldr (dynParam.paramID).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -546,6 +548,16 @@ END.
 &Scoped-define BROWSE-NAME dynParamSetDtlBrowse
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 &Scoped-define SELF-NAME dynParamSetDtlBrowse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dynParamSetDtlBrowse s-object
+ON DEFAULT-ACTION OF dynParamSetDtlBrowse IN FRAME DEFAULT-FRAME /* Dynamic Parameter Set Detail */
+DO:
+    APPLY "CHOOSE":U TO btntSetBuilder IN FRAME viewFrame.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dynParamSetDtlBrowse s-object
 ON START-SEARCH OF dynParamSetDtlBrowse IN FRAME DEFAULT-FRAME /* Dynamic Parameter Set Detail */
 DO:
@@ -573,6 +585,38 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME viewFrame
+&Scoped-define SELF-NAME dynParamSetDtl.paramID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dynParamSetDtl.paramID s-object
+ON LEAVE OF dynParamSetDtl.paramID IN FRAME viewFrame /* Parameter ID */
+DO:
+    FIND FIRST dynParam NO-LOCK
+         WHERE dynParam.paramID EQ INTEGER(SELF:SCREEN-VALUE)
+         NO-ERROR.
+    IF AVAILABLE dynParam THEN DO:
+        ASSIGN
+            dynParamSetDtl.paramName:SCREEN-VALUE    = dynParam.paramName
+            dynParamSetDtl.paramLabel:SCREEN-VALUE   = dynParam.paramLabel
+            dynParamSetDtl.initialItems:SCREEN-VALUE = dynParam.initialItems
+            dynParamSetDtl.initialValue:SCREEN-VALUE = dynParam.initialValue
+            dynParamSetDtl.action:SCREEN-VALUE       = dynParam.action
+            dynParamSetDtl.paramCol:SCREEN-VALUE     = "20"
+            dynParamSetDtl.paramRow:SCREEN-VALUE     = "1"
+            .
+    END. /* if avail */
+    ELSE DO:
+        MESSAGE
+            "Invalid Parameter ID..."
+        VIEW-AS ALERT-BOX ERROR.
+        RETURN NO-APPLY.
+    END. /* else */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME DEFAULT-FRAME
 &Scoped-define SELF-NAME searchBar
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL searchBar s-object
 ON VALUE-CHANGED OF searchBar IN FRAME DEFAULT-FRAME /* Search */
@@ -760,6 +804,7 @@ PROCEDURE pCRUD :
                     IF cMode EQ "Add" OR cMode EQ "Copy" THEN DO:
                         RUN pReopenBrowse.
                         REPOSITION {&BROWSE-NAME} TO ROWID rRowID.
+                        APPLY "CHOOSE":U TO btntSetBuilder.
                     END. /* if add/copy */
                     ELSE
                     BROWSE {&BROWSE-NAME}:REFRESH().
@@ -893,6 +938,21 @@ PROCEDURE pGetSettings :
             END. /* do kdx */
         END. /* do idx */
     END. /* if avail */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRefresh s-object 
+PROCEDURE pRefresh :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    BROWSE dynParamSetDtlBrowse:REFRESH().
+    RUN pDisplay.
 
 END PROCEDURE.
 
