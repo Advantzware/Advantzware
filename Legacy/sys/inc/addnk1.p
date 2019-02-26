@@ -6,6 +6,7 @@ DEF INPUT PARAMETER ip-descrip LIKE sys-ctrl.descrip  NO-UNDO.
 DEF INPUT PARAMETER v-nk1-cha like sys-ctrl.char-fld  NO-UNDO.
 DEF INPUT PARAMETER v-nk1-int LIKE sys-ctrl.int-fld   NO-UNDO.
 DEF INPUT PARAMETER v-nk1-log like sys-ctrl.log-fld   NO-UNDO.
+DEFINE INPUT PARAMETER ip-nk1-dec like sys-ctrl.dec-fld   NO-UNDO.
 
 
 find first sys-ctrl where sys-ctrl.company eq cocode
@@ -20,7 +21,8 @@ if not avail sys-ctrl then do:
    sys-ctrl.log-fld  = v-nk1-log
    sys-ctrl.int-fld  = v-nk1-int
    sys-ctrl.char-fld = v-nk1-cha
-   sys-ctrl.descrip  = ip-descrip.
+   sys-ctrl.descrip  = ip-descrip
+   sys-ctrl.dec-fld  = ip-nk1-dec .
   if ip-prompt then
   MESSAGE sys-ctrl.descrip
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
