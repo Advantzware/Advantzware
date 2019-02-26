@@ -430,11 +430,6 @@ DO:
    IF AVAIL oe-ordm THEN do:
        RUN oe/d-ordm.w (ROWID(oe-ordm),ROWID(oe-ord), "update", OUTPUT lv-rowid) .
 
-       IF AVAILABLE oe-ordm THEN DO:
-           FIND FIRST oe-ord WHERE oe-ord.company EQ oe-ordm.company 
-             AND oe-ord.ord-no EQ oe-ordm.ord-no.
-
-           END.
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
 
        IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
