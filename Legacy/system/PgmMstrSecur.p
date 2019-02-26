@@ -97,6 +97,7 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "viewers/users.w" AND ipFunction EQ "Admin") OR /*users admin*/
                 (ipProgName EQ "windows/dept.w" AND ipFunction EQ "") OR /*NZ4 (NZ3) Departments - Edits*/
                 (ipProgName EQ "windows/prgrms.w" AND ipFunction EQ "") OR /*NS8 Program Master*/
+                (ipProgName EQ "oe/d-ordrel.w" AND ipFunction EQ "") OR /*OU1 Order release tab Program Master*/
                 (ipProgName EQ "" AND ipFunction = "")
                 ) THEN ASSIGN opCanAccess = FALSE.
         END. /* list-based exclusions */       
