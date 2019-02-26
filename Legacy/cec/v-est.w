@@ -3533,9 +3533,9 @@ DO WITH FRAME {&FRAME-NAME}:
   END.
   ELSE do:
       ASSIGN
-        eb.t-wid:FORMAT = ">>>>9.999<<"
+        eb.t-wid:FORMAT = ">>>>9.99<<<"
         eb.t-wid:WIDTH = 15.2
-        eb.t-len:FORMAT = ">>>>9.999<<"
+        eb.t-len:FORMAT = ">>>>9.99<<<"
         eb.t-len:WIDTH = 15.2 .
 
       IF eb.t-sqin GT 999999  THEN

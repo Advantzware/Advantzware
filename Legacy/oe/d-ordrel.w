@@ -319,8 +319,38 @@ DEFINE RECTANGLE RECT-21
 
 DEFINE RECTANGLE RECT-38
     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED
-    SIZE 142.7 BY 12.86
+    SIZE 39.8 BY 6.19
     BGCOLOR 15.
+
+DEFINE RECTANGLE RECT-39
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 44.8 BY 5.24
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-40
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 35 BY 5.05
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-41
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 61 BY 6.24
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-42
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 36 BY 3.14
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-43
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 59 BY 5
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-44
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 118.8 BY 1.91
+     BGCOLOR 15 .
 
 DEFINE VARIABLE fi_discount AS DECIMAL FORMAT ">>>,>>9.99":U 
     LABEL "Discount" 
@@ -342,177 +372,182 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-    oe-rel.s-code AT ROW 2.43 COL 63 COLON-ALIGNED
-    LABEL "S" 
-    VIEW-AS COMBO-BOX INNER-LINES 4
-    LIST-ITEM-PAIRS "B-Both","B",
-    "S-Ship","S",
-    "I-Invoice","I",
-    "T-Transfer","T"
-    DROP-DOWN-LIST
-    SIZE 20 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.opened AT ROW 2.43 COL 20 COLON-ALIGNED
-    LABEL "Prt" FORMAT "Y/N"
-    VIEW-AS FILL-IN 
-    SIZE 20 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.ship-id AT ROW 2.43 COL 106.2 COLON-ALIGNED
-    LABEL "Ship To" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 24 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.stat AT ROW 3.57 COL 20 COLON-ALIGNED
-    VIEW-AS COMBO-BOX INNER-LINES 8
-    LIST-ITEM-PAIRS "S-Scheduled","S",
-    "L-Late","L",
-    "I-Invoice Per Terms","I",
-    "A-Actual","A",
-    "P-Posted","P",
-    "B-Backorder","B",
-    "Z-Posted BOL","Z",
-    "C-Completed","C"
-    DROP-DOWN-LIST
-    SIZE 20 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.carrier AT ROW 3.57 COL 63 COLON-ALIGNED
-    LABEL "Via" FORMAT "x(5)"
-    VIEW-AS FILL-IN 
-    SIZE 24 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.tot-qty AT ROW 3.57 COL 106.2 COLON-ALIGNED
-    LABEL "Sched Qty" FORMAT "->>,>>>,>>9"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.qty AT ROW 4.71 COL 20 COLON-ALIGNED
-    LABEL "Actual Qty" FORMAT "->>,>>>,>>9"
-    VIEW-AS FILL-IN 
-    SIZE 20 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.po-no AT ROW 4.71 COL 63 COLON-ALIGNED
-    LABEL "Customer PO#" FORMAT "x(15)"
-    VIEW-AS FILL-IN 
-    SIZE 24 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.lot-no AT ROW 4.71 COL 106.2 COLON-ALIGNED
-    LABEL "Customer Lot #" FORMAT "x(15)"
-    VIEW-AS FILL-IN 
-    SIZE 24 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.stat AT ROW 5.86 COL 20 COLON-ALIGNED FORMAT "99/99/9999"
-    LABEL "Rel Date" 
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    btnCalendar-1 AT ROW 5.81 COL 37
-    oe-rel.ship-addr[1] AT ROW 5.86 COL 63 COLON-ALIGNED
-    LABEL "Ship To Address" FORMAT "x(26)"
-    VIEW-AS FILL-IN 
-    SIZE 24 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.ship-city AT ROW 5.86 COL 106.2 COLON-ALIGNED
-    LABEL "City" FORMAT "x(15)"
-    VIEW-AS FILL-IN 
-    SIZE 24 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.ship-state AT ROW 7 COL 20 COLON-ALIGNED
-    LABEL "State" FORMAT "x(15)"
-    VIEW-AS FILL-IN 
-    SIZE 20 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.price AT ROW 7 COL 63 COLON-ALIGNED
-    LABEL "Sell Price" FORMAT ">>,>>>,>>9.99<<<<"
-    VIEW-AS FILL-IN 
-    SIZE 24 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.whsed AT ROW 7 COL 106.2 COLON-ALIGNED
-    LABEL "$0" FORMAT "Y/N"
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1
-    BGCOLOR 15 FONT 1
-    fi_discount AT ROW 8.14 COL 20 COLON-ALIGNED
-    BGCOLOR 15 FONT 1
-    fi_totprice AT ROW 8.14 COL 63 COLON-ALIGNED
-    BGCOLOR 15 FONT 1
-    tt-report.frt-pay AT ROW 8.14 COL 106.2 COLON-ALIGNED
-    LABEL "Frt Pay" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FGCOLOR 1 FONT 6.
+    oe-rel.tot-qty AT ROW 1.67 COL 15 COLON-ALIGNED
+          LABEL "Sched Qty" FORMAT "->>,>>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+    oe-rel.qty AT ROW 2.86 COL 15 COLON-ALIGNED
+          LABEL "Actual Qty" FORMAT "->>,>>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 20 BY 1
+          BGCOLOR 15 FONT 1
+    oe-rel.s-code AT ROW 4.05 COL 15 COLON-ALIGNED
+          VIEW-AS COMBO-BOX INNER-LINES 4
+          LIST-ITEM-PAIRS "B-Both","B",
+                     "S-Ship","S",
+                     "I-Invoice","I",
+                     "T-Transfer","T"
+          DROP-DOWN-LIST
+          SIZE 20 BY 1
+          BGCOLOR 15 FONT 1
+    oe-rel.stat AT ROW 5.48 COL 15 COLON-ALIGNED
+          VIEW-AS COMBO-BOX INNER-LINES 8
+          LIST-ITEM-PAIRS "S-Scheduled","S",
+                     "L-Late","L",
+                     "I-Invoice Per Terms","I",
+                     "A-Actual","A",
+                     "P-Posted","P",
+                     "B-Backorder","B",
+                     "Z-Posted BOL","Z",
+                     "C-Completed","C"
+          DROP-DOWN-LIST
+          SIZE 20 BY 1
+          BGCOLOR 15 FONT 1
+    oe-rel.spare-char-1 AT ROW 1.67 COL 56.6 COLON-ALIGNED
+          LABEL "Ship From" FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+    tt-report.frt-pay AT ROW 1.67 COL 83 COLON-ALIGNED
+          LABEL "Frt Pay" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+    oe-rel.carrier AT ROW 2.86 COL 57 COLON-ALIGNED
+          LABEL "Via" FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 24 BY 1
+          BGCOLOR 15 FONT 1
+    tt-report.flute AT ROW 2.86 COL 90 COLON-ALIGNED
+          LABEL "FOB" FORMAT "x(1)"
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
+          BGCOLOR 15 FONT 1
+    oe-rel.ship-id AT ROW 4.05 COL 57 COLON-ALIGNED
+          LABEL "Ship To" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 24 BY 1
+          BGCOLOR 15 FONT 1
+    tt-report.stat AT ROW 1.67 COL 121 COLON-ALIGNED
+          LABEL "Rel Date" FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+     btnCalendar-1 AT ROW 1.67 COL 139
+     
+    tt-report.job-start-date AT ROW 2.86 COL 121 COLON-ALIGNED
+          LABEL "Shp Date" FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+    oe-rel.ship-addr[1] AT ROW 5.24 COL 64 COLON-ALIGNED
+          LABEL "Ship To Address" FORMAT "x(26)"
+          VIEW-AS FILL-IN 
+          SIZE 24 BY 1
+          BGCOLOR 15 FONT 1
+     oe-rel.ship-city AT ROW 6.43 COL 50 COLON-ALIGNED
+          LABEL "City" FORMAT "x(15)"
+          VIEW-AS FILL-IN 
+          SIZE 24 BY 1
+          BGCOLOR 15 FONT 1
+     oe-rel.ship-state AT ROW 6.43 COL 82 COLON-ALIGNED
+          LABEL "State" FORMAT "x(15)"
+          VIEW-AS FILL-IN 
+          SIZE 20 BY 1
+          BGCOLOR 15 FONT 1
+        WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
-    tt-report.flute AT ROW 8.14 COL 128.6 COLON-ALIGNED
-    LABEL "FOB" FORMAT "x(1)"
-    VIEW-AS FILL-IN 
-    SIZE 8 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.spare-char-1 AT ROW 9.29 COL 20 COLON-ALIGNED
-    LABEL "Ship From" FORMAT "x(5)"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.spare-char-2 AT ROW 9.29 COL 63 COLON-ALIGNED
-    LABEL "Dt Chg Reason" FORMAT "x(30)"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.spare-char-3 AT ROW 9.29 COL 106.2 COLON-ALIGNED
-    LABEL "Dt Chg User" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.q-rel AT ROW 10.43 COL 20 COLON-ALIGNED
-    LABEL "Release #" FORMAT ">>>>>>9"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.r-no AT ROW 10.43 COL 63 COLON-ALIGNED
-    LABEL "Seq. #" FORMAT ">>>>>>>>9"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.link-no AT ROW 10.43 COL 106.2 COLON-ALIGNED
-    LABEL "Int. Release" FORMAT ">>>>>>>9"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.job-start-date AT ROW 11.57 COL 20 COLON-ALIGNED
-    LABEL "Shp Date" FORMAT "99/99/9999"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.qty AT ROW 11.57 COL 63 COLON-ALIGNED
-    LABEL "Quantity" FORMAT "->>,>>>,>>9.9<<"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.prom-date AT ROW 11.57 COL 106.2 COLON-ALIGNED FORMAT "99/99/9999"
-    LABEL "Due Date" 
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    btnCalendar-2 AT ROW 11.57 COL 123.2
-    tt-report.prom-code AT ROW 12.71 COL 63 COLON-ALIGNED
-    LABEL "Due Dt Chg Usr" FORMAT "x(5)"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.pr-uom AT ROW 12.71 COL 20.2 COLON-ALIGNED
-    LABEL "Due Dt Chg Rsn" FORMAT "x(4)"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    Btn_OK AT ROW 15.13 COL 126
-    Btn_Done AT ROW 15.11 COL 130
-    Btn_Cancel AT ROW 15.13 COL 135
-    RECT-21 AT ROW 14.80 COL 125
-    RECT-38 AT ROW 1.48 COL 2.1
-    SPACE(0.99) SKIP(3.27)
+    tt-report.po-no AT ROW 8.14 COL 19.6 COLON-ALIGNED
+         LABEL "Customer PO#" FORMAT "x(15)"
+         VIEW-AS FILL-IN 
+         SIZE 24 BY 1
+         BGCOLOR 15 FONT 1
+    tt-report.lot-no AT ROW 9.33 COL 19.8 COLON-ALIGNED
+         LABEL "Customer Lot #" FORMAT "x(15)"
+         VIEW-AS FILL-IN 
+         SIZE 24 BY 1
+         BGCOLOR 15 FONT 1
+
+     oe-rel.link-no AT ROW 8.38 COL 64.6 COLON-ALIGNED
+          LABEL "Int. Release" FORMAT ">>>>>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+    tt-report.price AT ROW 8.14 COL 117.8 COLON-ALIGNED
+         LABEL "Sell Price" FORMAT ">>,>>>,>>9.99<<<<"
+         VIEW-AS FILL-IN 
+         SIZE 24 BY 1
+         BGCOLOR 15 FONT 1
+    
+    tt-report.q-rel AT ROW 9.62 COL 64.6 COLON-ALIGNED
+          LABEL "Release #" FORMAT ">>>>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+    tt-report.whsed AT ROW 9.33 COL 118.2 COLON-ALIGNED
+         LABEL "$0" FORMAT "Y/N"
+         VIEW-AS FILL-IN 
+         SIZE 14 BY 1
+         BGCOLOR 15 FONT 1
+    oe-rel.spare-char-2 AT ROW 10.52 COL 19.8 COLON-ALIGNED
+          LABEL "Dt Chg Reason" FORMAT "x(30)"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+    oe-rel.r-no AT ROW 10.81 COL 64.6 COLON-ALIGNED
+          LABEL "Seq. #" FORMAT ">>>>>>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+    fi_totprice AT ROW 10.52 COL 118.2 COLON-ALIGNED
+    oe-rel.spare-char-3 AT ROW 11.71 COL 19.6 COLON-ALIGNED
+          LABEL "Dt Chg User" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+     tt-report.qty AT ROW 11.95 COL 64.6 COLON-ALIGNED
+          LABEL "Quantity" FORMAT "->>,>>>,>>9.9<<"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+    fi_discount AT ROW 11.71 COL 96.2 COLON-ALIGNED
+    tt-report.opened AT ROW 11.71 COL 122.2 COLON-ALIGNED
+         LABEL "Prt" FORMAT "Y/N"
+         VIEW-AS FILL-IN 
+         SIZE 20 BY 1
+         BGCOLOR 15 FONT 1
+     tt-report.prom-date AT ROW 13.76 COL 94 COLON-ALIGNED FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+     btnCalendar-2 AT ROW 13.76 COL 112
+     tt-report.prom-code AT ROW 13.76 COL 62 COLON-ALIGNED
+          LABEL "Due Dt Chg Usr" FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+     tt-report.pr-uom AT ROW 13.67 COL 21.6 COLON-ALIGNED
+          LABEL "Due Dt Chg Rsn" FORMAT "x(4)"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+     Btn_OK AT ROW 15.14 COL 126
+     Btn_Done AT ROW 15.1 COL 130
+     Btn_Cancel AT ROW 15.14 COL 135
+     RECT-21 AT ROW 14.81 COL 125
+     RECT-38 AT ROW 1.48 COL 2.2
+     RECT-39 AT ROW 7.91 COL 2.2 WIDGET-ID 2
+     RECT-40 AT ROW 8.1 COL 49 WIDGET-ID 4
+     RECT-41 AT ROW 1.43 COL 45 WIDGET-ID 6
+     RECT-42 AT ROW 1.43 COL 109 WIDGET-ID 8
+     RECT-43 AT ROW 8 COL 86 WIDGET-ID 10
+     RECT-44 AT ROW 13.38 COL 2.2 WIDGET-ID 12
+     SPACE(24.79) SKIP(2.32)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
     SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
     FGCOLOR 1 FONT 6
@@ -548,9 +583,9 @@ DEFINE FRAME Dialog-Frame
 ASSIGN 
     FRAME Dialog-Frame:SCROLLABLE = FALSE
     FRAME Dialog-Frame:HIDDEN     = TRUE.
-/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME  Dialog-Frame
    3                                                                    */
-/* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
+/* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME Dialog-Frame
    3                                                                    */
 /* SETTINGS FOR FILL-IN oe-rel.carrier IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
@@ -1570,9 +1605,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             tt-report.prom-code:HIDDEN IN FRAME {&FRAME-NAME} = YES.
             tt-report.pr-uom:HIDDEN IN FRAME {&FRAME-NAME} = YES.
             btnCalendar-2:HIDDEN IN FRAME {&FRAME-NAME} = YES.
+            RECT-44:HIDDEN IN FRAME {&FRAME-NAME} = YES.
         END.
         
-        APPLY "entry" TO oe-rel.s-code .
+        APPLY "entry" TO oe-rel.tot-qty .
     END.
 
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -1890,6 +1926,8 @@ PROCEDURE display-item :
           PARAMs:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
+    DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
     IF AVAILABLE oe-rel  THEN 
     DO: 
         RUN pBuildReport (ROWID(oe-rel), NO).
@@ -1914,6 +1952,16 @@ PROCEDURE display-item :
     IF ip-type NE "view" THEN 
     DO:
         ENABLE  Btn_Cancel Btn_OK WITH FRAME Dialog-Frame.
+    END.
+
+    IF ip-type EQ "update" THEN DO:
+        RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("windows/matprep.w", "", OUTPUT lResult).
+        DELETE OBJECT hPgmSecurity.
+        IF NOT lResult THEN 
+            DO WITH FRAME {&FRAME-NAME}:
+            DISABLE oe-rel.stat .
+        END.
     END.
 
     VIEW FRAME {&FRAME-NAME}. 
@@ -2173,7 +2221,9 @@ PROCEDURE pCreateNewRel :
             oe-rel.carrier      = /*if sys-ctrl.char-fld = "Shipto" and avail shipto then shipto.carrier
                               else*/ v-carrier
             oe-rel.r-no         = v-nxt-r-no
-            oe-rel.spare-char-1 = v-shipfrom.
+            oe-rel.spare-char-1 = v-shipfrom
+            oe-rel.fob-code     = oe-ord.fob-code
+            oe-rel.frt-pay      = oe-ord.frt-pay .                                                                                                              .
 
         IF oereleas-cha EQ "LastShip" THEN
             oe-rel.rel-date = oe-ord.last-date.

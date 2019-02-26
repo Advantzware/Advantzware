@@ -3458,8 +3458,8 @@ PROCEDURE local-display-fields :
      END.
      ELSE do:
          ASSIGN
-             eb.t-len:FORMAT = ">>>>9.999<<"
-             eb.t-dep:FORMAT = ">>>>9.999<<" .
+             eb.t-len:FORMAT = ">>>>9.99<<<"
+             eb.t-dep:FORMAT = ">>>>9.99<<<" .
 
          IF eb.t-sqin GT 999999  THEN
              ASSIGN

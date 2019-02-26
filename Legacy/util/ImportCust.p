@@ -399,8 +399,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCust.FedID, iplIgnoreBlanks, INPUT-OUTPUT cust.tax-id).
     RUN pAssignValueC (ipbf-ttImportCust.Contact, iplIgnoreBlanks, INPUT-OUTPUT cust.contact). 
     RUN pAssignValueC (ipbf-ttImportCust.CSRUser, YES, INPUT-OUTPUT cust.csrUser_id).
-    ASSIGN 
-        cust.date-field = DATE(ipbf-ttImportCust.DateAdded) . 
+    RUN pAssignValueCToDt (ipbf-ttImportCust.DateAdded, YES, INPUT-OUTPUT cust.date-field[1]).
     RUN pAssignValueC (ipbf-ttImportCust.cCrUse, iplIgnoreBlanks, INPUT-OUTPUT cust.cr-use).
     RUN pAssignValueC (ipbf-ttImportCust.cCRating, iplIgnoreBlanks, INPUT-OUTPUT cust.cr-rating).
     RUN pAssignValueD (ipbf-ttImportCust.dOrderLimit, iplIgnoreBlanks, INPUT-OUTPUT cust.ord-lim).
@@ -436,10 +435,9 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCust.cTaxPrepCode, iplIgnoreBlanks, INPUT-OUTPUT cust.spare-char-1).
     RUN pAssignValueC (ipbf-ttImportCust.cTaxGr, iplIgnoreBlanks, INPUT-OUTPUT cust.tax-gr).
     RUN pAssignValueC (ipbf-ttImportCust.cTaxResale, iplIgnoreBlanks, INPUT-OUTPUT cust.tax-id).
-    IF date(ipbf-ttImportCust.cExpDate) EQ TODAY THEN
-        date(ipbf-ttImportCust.cExpDate) = ?.
-    ASSIGN 
-        cust.date-field[2] = DATE(ipbf-ttImportCust.cExpDate) .
+    RUN pAssignValueCToDt (ipbf-ttImportCust.cExpDate, YES, INPUT-OUTPUT cust.date-field[2]).
+   IF date(ipbf-ttImportCust.cExpDate) EQ TODAY THEN
+        cust.date-field[2] = ?.
     RUN pAssignValueC (ipbf-ttImportCust.cEmail, iplIgnoreBlanks, INPUT-OUTPUT cust.email).
     RUN pAssignValueC (ipbf-ttImportCust.cGroup, iplIgnoreBlanks, INPUT-OUTPUT cust.spare-char-2).
     RUN pAssignValueD (ipbf-ttImportCust.dBrkComm, iplIgnoreBlanks, INPUT-OUTPUT cust.scomm).
@@ -511,6 +509,9 @@ PROCEDURE pProcessRecord PRIVATE:
         "B/L Message",
         "",
         "C"). 
+    RELEASE cust.
+    RELEASE shipto.
+    RELEASE soldto .
     
 END PROCEDURE.
 

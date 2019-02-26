@@ -308,7 +308,7 @@ for each xef where xef.company = xest.company and
 
      assign
         flm.i-no    = item.i-no
-        flm.dscr    = item.est-dscr
+        flm.dscr    = item.i-name
         flm.qty     = flm.qty + f-qty[i]
         flm.uom     = f-uom
         flm.cost    = flm.cost + f-cost[i]
@@ -330,7 +330,7 @@ for each flm,
     with no-labels NO-BOX stream-io:
 
   DISPLAY flm.snum format "99" space(0) "-" space(0) flm.bnum format "9"
-          item.i-name flm.qty to 50
+          flm.dscr flm.qty to 50
           flm.uom at 52 when flm.uom = "MSI"
           "Lbs" when flm.uom = "LB" @ flm.uom
           w-flm.setup when w-flm.setup ne 0 format ">>>9.99" to 63
