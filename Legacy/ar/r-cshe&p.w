@@ -1515,12 +1515,12 @@ END PROCEDURE.
 
          IF oecredit-cha EQ "" THEN
              RUN ar/updcust1.p (YES, BUFFER cust, OUTPUT ld-ord-bal).
-         
-         IF ld-ord-bal + cust.acc-bal LT cust.cr-lim THEN 
-              ASSIGN lRelHold = YES .
-         ELSE IF ld-ord-bal LT cust.ord-lim THEN
+
+          lRelHold = NO.
+         IF ld-ord-bal + cust.acc-bal LT cust.cr-lim 
+             AND ld-ord-bal LT cust.ord-lim THEN
              ASSIGN lRelHold = YES . 
-         ELSE lRelHold = NO .
+         
 
               IF lRelHold THEN  DO:  
                   ASSIGN cust.cr-hold = NO .
