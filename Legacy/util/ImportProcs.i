@@ -60,7 +60,7 @@ IF ipdtValueToAssign NE ? OR NOT iplIgnoreBlanks THEN
 
 END PROCEDURE.
 
-PROCEDURE pAssignValueDate2:
+PROCEDURE pAssignValueCToDt:
 /*------------------------------------------------------------------------------
  Purpose: Centralizes all calls to test for ignore blanks - integer fields
  Notes:
