@@ -478,6 +478,7 @@ PROCEDURE local-change-page :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
+    /*
     IF il-cur-page = 2 THEN DO:
         RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
         RUN epCanAccess IN hPgmSecurity ("util/utilsN.w", "", OUTPUT lResult).
@@ -485,7 +486,7 @@ PROCEDURE local-change-page :
         IF NOT lResult THEN 
             RUN set-buttons IN h_p-updsav ('disable-all').
     END.
-
+    */
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.

@@ -36,6 +36,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 DEF VAR lAddRecord AS LOG NO-UNDO.
 DEF VAR iSecurityLevel AS INT NO-UNDO.
+DEF VAR iBaseLevel AS INT NO-UNDO.
 
 {custom/gcompany.i}
 
@@ -155,8 +156,6 @@ DEFINE FRAME F-Main
      utilities.notes AT ROW 3.62 COL 20 NO-LABEL WIDGET-ID 2
           VIEW-AS EDITOR MAX-CHARS 245
           SIZE 76 BY 5.95
-     "Notes:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 3.86 COL 12
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -312,6 +311,47 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME utilities.securityLevel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL utilities.securityLevel V-table-Win
+ON ENTRY OF utilities.securityLevel IN FRAME F-Main /* Sec. Lvl */
+DO:
+    ASSIGN 
+        iBaseLevel = INTEGER(SELF:SCREEN-VALUE).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL utilities.securityLevel V-table-Win
+ON LEAVE OF utilities.securityLevel IN FRAME F-Main /* Sec. Lvl */
+DO:
+    IF INTEGER(SELF:SCREEN-VALUE) GT iSecurityLevel THEN DO:
+        MESSAGE 
+            "You may not increase the Security Level for a Utility" SKIP 
+            "to be greater than your own Security Level.  Please" SKIP 
+            "contact Advantzware Support for assistance."
+            VIEW-AS ALERT-BOX INFO.
+        ASSIGN 
+            SELF:SCREEN-VALUE = STRING(iBaseLevel).
+        RETURN NO-APPLY.
+    END.
+    IF INTEGER(SELF:SCREEN-VALUE) GT 1000 THEN DO:
+        MESSAGE 
+            "You may not increase the Security Level for a Utility to be greater than 1000."
+            VIEW-AS ALERT-BOX INFO.
+        ASSIGN 
+            SELF:SCREEN-VALUE = STRING(utilities.securityLevel).
+        RETURN NO-APPLY.
+    END.
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -441,9 +481,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record V-table-Win
-PROCEDURE local-copy-record:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record V-table-Win 
+PROCEDURE local-copy-record :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -466,11 +505,9 @@ PROCEDURE local-copy-record:
     END.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
@@ -539,8 +576,15 @@ PROCEDURE local-enable-fields :
 
     IF NOT lAddRecord THEN ASSIGN 
         utilities.programName:SENSITIVE IN FRAME f-main = FALSE.
-    IF iSecurityLevel LT 1000 THEN ASSIGN 
+    IF iSecurityLevel LT utilities.securityLevel THEN ASSIGN 
         utilities.securityLevel:SENSITIVE = FALSE.
+    IF iSecurityLevel LT 1000 THEN ASSIGN 
+        utilities.module:SENSITIVE = FALSE 
+        utilities.hotkey:SENSITIVE = FALSE 
+        utilities.description:SENSITIVE = FALSE
+        utilities.notes:SENSITIVE = FALSE.  
+    ASSIGN 
+        iBaseLevel = INTEGER(utilities.securityLevel:SCREEN-VALUE).              
 
 
 END PROCEDURE.
@@ -555,6 +599,25 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
         
+    IF INTEGER(utilities.securityLevel:SCREEN-VALUE IN FRAME f-main) GT iSecurityLevel THEN DO:
+        MESSAGE 
+            "You may not increase the Security Level for a Utility" SKIP 
+            "to be greater than your own Security Level.  Please" SKIP 
+            "contact Advantzware Support for assistance."
+            VIEW-AS ALERT-BOX INFO.
+        ASSIGN 
+            utilities.securityLevel:SCREEN-VALUE = STRING(iBaseLevel).
+        RETURN NO-APPLY.
+    END.
+    IF INTEGER(utilities.securityLevel:SCREEN-VALUE) GT 1000 THEN DO:
+        MESSAGE 
+            "You may not increase the Security Level for a Utility to be greater than 1000."
+            VIEW-AS ALERT-BOX INFO.
+        ASSIGN 
+            utilities.securityLevel:SCREEN-VALUE = STRING(iBaseLevel).
+        RETURN NO-APPLY.
+    END.
+    
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
     
     ASSIGN
