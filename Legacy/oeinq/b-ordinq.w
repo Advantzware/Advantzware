@@ -2189,6 +2189,10 @@ PROCEDURE query-first :
                sys-ctrl.int-fld = 30.
   END.
 
+  IF sys-ctrl.date-fld NE ? THEN
+      ASSIGN
+      fi_ord-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(sys-ctrl.date-fld) 
+      fi_ord-date = sys-ctrl.date-fld .
 
      {&for-eachblank}
         AND oe-ordl.opened EQ YES

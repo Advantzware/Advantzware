@@ -57,6 +57,9 @@ ASSIGN
 DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
 DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 DEF VAR lActive AS LOG NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE dtDateChar AS DATE NO-UNDO .
 
 DO TRANSACTION:
      {sys/ref/CustList.i NEW}
@@ -70,6 +73,12 @@ DEF TEMP-TABLE tt-report LIKE report
 DEF VAR lv-save-char AS CHAR INIT "" NO-UNDO.
 
 {sa/sa-sls01.i}
+
+RUN sys/ref/nk1look.p (INPUT cocode, "FGBrowse", "DT" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    dtDateChar = date(cRtnChar) NO-ERROR. 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -562,8 +571,11 @@ END.
 
 /* ***************************  Main Block  *************************** */
 ASSIGN
- SESSION:DATA-ENTRY-RETURN = YES
- fi_date                   = TODAY.
+ SESSION:DATA-ENTRY-RETURN = YES .
+IF dtDateChar NE ? THEN
+    fi_date                   = dtDateChar.
+ELSE
+    fi_date                   = TODAY.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
