@@ -34,8 +34,16 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEF VAR lAddRecord AS LOG NO-UNDO.
+DEF VAR iSecurityLevel AS INT NO-UNDO.
 
 {custom/gcompany.i}
+
+FIND FIRST users NO-LOCK WHERE 
+    users.user_id EQ USERID(LDBNAME(1)) 
+    NO-ERROR.
+IF AVAILABLE users THEN ASSIGN 
+    iSecurityLevel = users.securityLevel.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -111,7 +119,7 @@ DEFINE BUTTON btnRun
      IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Run" 
-     SIZE 7 BY 1.67.
+     SIZE 7 BY 1.91 TOOLTIP "Run this Utility".
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -121,34 +129,34 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnRun AT ROW 7.43 COL 17
+     btnRun AT ROW 7.67 COL 7
      utilities.programName AT ROW 1.24 COL 18 COLON-ALIGNED HELP
           "Enter Utility Name"
           LABEL "Program Name" FORMAT "x(32)"
           VIEW-AS FILL-IN 
-          SIZE 31 BY 1
-     utilities.module AT ROW 1.24 COL 60 COLON-ALIGNED HELP
+          SIZE 36 BY 1
+     utilities.module AT ROW 1.24 COL 65 COLON-ALIGNED HELP
           "Enter Module Code"
           LABEL "Module" FORMAT "x(4)"
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-     utilities.hotkey AT ROW 1.24 COL 82 COLON-ALIGNED
-          LABEL "Hot Keys" FORMAT "x(3)"
+          SIZE 9 BY 1
+     utilities.hotkey AT ROW 1.24 COL 86 COLON-ALIGNED
+          LABEL "Hot Key" FORMAT "x(3)"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 8 BY 1
      utilities.description AT ROW 2.43 COL 18 COLON-ALIGNED FORMAT "x(48)"
           VIEW-AS FILL-IN 
-          SIZE 45 BY 1
-          BGCOLOR 15 
-     utilities.securityLevel AT ROW 2.43 COL 82 COLON-ALIGNED HELP
+          SIZE 56 BY 1
+     utilities.securityLevel AT ROW 2.43 COL 86 COLON-ALIGNED HELP
           ""
-          LABEL "Security Level" FORMAT ">>>9"
+          LABEL "Sec. Lvl" FORMAT ">>>9"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
+          SIZE 8 BY 1
      utilities.notes AT ROW 3.62 COL 20 NO-LABEL WIDGET-ID 2
           VIEW-AS EDITOR MAX-CHARS 245
-          SIZE 76 BY 3.33
+          SIZE 76 BY 5.95
+     "Notes:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 3.86 COL 12
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -245,11 +253,14 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRun V-table-Win
 ON CHOOSE OF btnRun IN FRAME F-Main /* Run */
 DO:
-  IF NOT AVAILABLE utilities THEN RETURN NO-APPLY.
-  IF SEARCH('util/' + utilities.programName) NE ? THEN
-  RUN VALUE('util/' + utilities.programName).
-  ELSE
-  MESSAGE 'Program: util/' + utilities.programName 'does not exist!' VIEW-AS ALERT-BOX.
+    IF NOT AVAILABLE utilities THEN 
+        RETURN NO-APPLY.
+    IF SEARCH('util/' + utilities.programName) NE ? THEN
+        RUN VALUE('util/' + utilities.programName).
+    ELSE IF SEARCH('util/' + utilities.programName + '.r') NE ? THEN
+        RUN VALUE('util/' + utilities.programName + '.r').
+    ELSE MESSAGE 
+        'Program: util/' + utilities.programName + ' does not exist!' VIEW-AS ALERT-BOX.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -258,10 +269,11 @@ END.
 
 &Scoped-define SELF-NAME utilities.hotkey
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL utilities.hotkey V-table-Win
-ON LEAVE OF utilities.hotkey IN FRAME F-Main /* Hot Keys */
+ON LEAVE OF utilities.hotkey IN FRAME F-Main /* Hot Key */
 DO:
-  IF LASTKEY NE -1 THEN
-  SELF:SCREEN-VALUE = CAPS(SELF:SCREEN-VALUE).
+    IF LASTKEY NE -1 
+    OR SELF:SCREEN-VALUE NE "" THEN ASSIGN 
+        SELF:SCREEN-VALUE = CAPS(SELF:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -272,8 +284,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL utilities.module V-table-Win
 ON LEAVE OF utilities.module IN FRAME F-Main /* Module */
 DO:
-  IF LASTKEY NE -1 THEN
-  SELF:SCREEN-VALUE = CAPS(SELF:SCREEN-VALUE).
+    IF LASTKEY NE -1 
+    OR SELF:SCREEN-VALUE NE "" THEN ASSIGN 
+        SELF:SCREEN-VALUE = CAPS(SELF:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -284,8 +297,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL utilities.programName V-table-Win
 ON LEAVE OF utilities.programName IN FRAME F-Main /* Program Name */
 DO:
-  IF LASTKEY NE -1 AND INDEX(SELF:SCREEN-VALUE,'util/') NE 0 THEN
-  SELF:SCREEN-VALUE = REPLACE(SELF:SCREEN-VALUE,'util/','').
+    IF INDEX(SELF:SCREEN-VALUE,'util/') NE 0 THEN ASSIGN 
+        SELF:SCREEN-VALUE = REPLACE(SELF:SCREEN-VALUE,'util/','').
+    IF SEARCH('util/' + SELF:SCREEN-VALUE) EQ ? 
+    AND SEARCH('util/' + SELF:SCREEN-VALUE + ".r") EQ ? THEN DO:
+        MESSAGE 
+            "This program does not exist in the /util directory." SKIP 
+            "Please correct this condition immediately."
+            VIEW-AS ALERT-BOX WARNING.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -367,17 +387,24 @@ PROCEDURE local-add-record :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    IF iSecurityLevel LT 1000 THEN DO:
+        MESSAGE 
+            "You do not have sufficient permissions to add a utility." SKIP 
+            "Please contact Advantzware Support for assistance."
+            VIEW-AS ALERT-BOX INFO.
+        RETURN.
+    END. 
+        
+    ASSIGN
+        lAddRecord = TRUE.
+           
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-DO WITH FRAME {&FRAME-NAME}:
-  ASSIGN 
-         utilities.securityLevel:SCREEN-VALUE in frame {&frame-name} = "900"  .
-  
-END.
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            utilities.securityLevel:SCREEN-VALUE in frame {&frame-name} = "900".
+        APPLY 'entry' TO utilities.programName.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -389,16 +416,8 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
 
-  /* Code placed here will execute PRIOR to standard behavior. */
- 
-
-  /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  
 
 END PROCEDURE.
 
@@ -412,18 +431,46 @@ PROCEDURE local-cancel-record :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ).
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
- 
+    ASSIGN
+        lAddRecord = FALSE.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record V-table-Win
+PROCEDURE local-copy-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF iSecurityLevel LT 1000 THEN DO:
+        MESSAGE 
+            "You do not have sufficient permissions to add a utility." SKIP 
+            "Please contact Advantzware Support for assistance."
+            VIEW-AS ALERT-BOX INFO.
+        RETURN.
+    END. 
+
+    ASSIGN
+        lAddRecord = TRUE.
+
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
+
+    DO WITH FRAME {&FRAME-NAME}:
+        APPLY 'entry' TO utilities.programName.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
@@ -432,12 +479,7 @@ PROCEDURE local-create-record :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
 END PROCEDURE.
 
@@ -450,17 +492,22 @@ PROCEDURE local-delete-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VAR thisOne AS CHAR NO-UNDO.
-  DEFINE BUFFER buff-cust FOR cust .
+    DEFINE VAR thisOne AS CHAR NO-UNDO.
+    DEFINE BUFFER buff-cust FOR cust .
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  IF NOT adm-new-record THEN DO:
-    {custom/askdel.i}
-  END.
+    IF iSecurityLevel LT 1000 THEN DO:
+        MESSAGE 
+            "You do not have sufficient permissions to add a utility." SKIP 
+            "Please contact Advantzware Support for assistance."
+            VIEW-AS ALERT-BOX INFO.
+        RETURN.
+    END. 
+
+    IF NOT adm-new-record THEN DO:
+        {custom/askdel.i}
+    END.
     
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
-
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
 END PROCEDURE.
 
@@ -473,16 +520,28 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
   
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ).
+    
+END PROCEDURE.
 
-    /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  
-  
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields V-table-Win 
+PROCEDURE local-enable-fields :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
+
+    IF NOT lAddRecord THEN ASSIGN 
+        utilities.programName:SENSITIVE IN FRAME f-main = FALSE.
+    IF iSecurityLevel LT 1000 THEN ASSIGN 
+        utilities.securityLevel:SENSITIVE = FALSE.
+
 
 END PROCEDURE.
 
@@ -495,16 +554,11 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
- 
-
-  /* Code placed here will execute PRIOR to standard behavior. */
- 
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-
+        
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+    
+    ASSIGN
+        lAddRecord = FALSE.
 
 END PROCEDURE.
 
@@ -540,14 +594,15 @@ PROCEDURE state-changed :
   Parameters:  <none>
   Notes:       
 -------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
-  DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
 
-  CASE p-state:
-      /* Object instance CASEs can go here to replace standard behavior
+    CASE p-state:
+        /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
-      {src/adm/template/vstates.i}
-  END CASE.
+        {src/adm/template/vstates.i}
+    END CASE.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
