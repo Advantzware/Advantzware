@@ -539,7 +539,7 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "# of Records to be displayed in RM History browser",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value */).
 END CASE.
 ELSE
 CASE ip-nk1-value:
