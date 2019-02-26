@@ -81,9 +81,12 @@ DEFINE VARIABLE ll-sort-asc    AS LOG       NO-UNDO.
 DEFINE VARIABLE li-pallets     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE li-qty-pal     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE h_w-inqord     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cPrintAvailQty AS CHARACTER INITIAL "2" NO-UNDO .
 
 &SCOPED-DEFINE for-each1    ~
-    FOR EACH w-jobs
+    FOR EACH w-jobs WHERE ((w-jobs.qtyAvailable NE 0 AND cPrintAvailQty EQ "2" ) ~
+     OR (w-jobs.qtyAvailable LT 0 AND cPrintAvailQty EQ "3") OR (w-jobs.qtyAvailable EQ 0 AND cPrintAvailQty EQ "4" ) ~
+     OR (cPrintAvailQty EQ "1") )
 
 &SCOPED-DEFINE sortby-log                                               ~
     IF lv-sort-by EQ "loc"           THEN w-job.loc                ELSE ~
@@ -209,9 +212,9 @@ DEFINE BROWSE br_table
   ENABLE w-jobs.loc
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN NO-ROW-MARKERS NO-COLUMN-SCROLLING SEPARATORS NO-VALIDATE SIZE 156 BY 22.14
+    WITH NO-ASSIGN /*NO-ROW-MARKERS NO-COLUMN-SCROLLING*/ SEPARATORS /*NO-VALIDATE*/ SIZE 156 BY 20.24
          FONT 0
-         TITLE "Location Details".
+         TITLE "Location Details" ROW-HEIGHT-CHARS .52.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -263,7 +266,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 23.1
+         HEIGHT             = 21.19
          WIDTH              = 156.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -748,6 +751,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE filterLocMain B-table-Win 
+PROCEDURE filterLocMain :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcShowRec AS CHARACTER   NO-UNDO.
+  ASSIGN cPrintAvailQty = ipcShowRec .
+
+  RUN dispatch ("open-query"). 
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
@@ -829,7 +849,7 @@ PROCEDURE resort-query :
   &SCOPED-DEFINE open-query          ~
       OPEN QUERY {&browse-name}      ~
           {&for-each1}               
-             
+        MESSAGE "hello " VIEW-AS ALERT-BOX ERROR .     
     RUN dispatch ("row-changed").
    
 END PROCEDURE.
