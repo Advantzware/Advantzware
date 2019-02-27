@@ -849,7 +849,7 @@ PROCEDURE resort-query :
   &SCOPED-DEFINE open-query          ~
       OPEN QUERY {&browse-name}      ~
           {&for-each1}               
-        MESSAGE "hello " VIEW-AS ALERT-BOX ERROR .     
+        
     RUN dispatch ("row-changed").
    
 END PROCEDURE.

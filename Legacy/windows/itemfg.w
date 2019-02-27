@@ -640,7 +640,7 @@ PROCEDURE adm-create-objects :
        RUN init-pages IN THIS-PROCEDURE ('1,3':U) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/p-locw.w':U ,
+             INPUT  'panels/p-locw.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Initial-Lock = NO-LOCK,
                      Hide-on-Init = no,
