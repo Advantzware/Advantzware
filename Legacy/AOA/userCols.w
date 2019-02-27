@@ -80,12 +80,13 @@ DEFINE TEMP-TABLE ttSubjectColumn NO-UNDO LIKE dynSubjectColumn.
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS subjectColumnBrowse btnSave btnGroupCalc ~
-btnMoveDown btnMoveUp 
+&Scoped-Define ENABLED-OBJECTS btnGroupCalc btnMoveDown btnMoveUp ~
+subjectColumnBrowse btnSave 
 
 /* Custom List Definitions                                              */
-/* columnObjects,List-2,List-3,List-4,List-5,List-6                     */
+/* columnObjects,columnPanel,List-3,List-4,List-5,List-6                */
 &Scoped-define columnObjects btnGroupCalc btnMoveDown btnMoveUp 
+&Scoped-define columnPanel btnGroupCalc btnMoveDown btnMoveUp 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -164,15 +165,15 @@ ttSubjectColumn.groupLabel
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     subjectColumnBrowse AT ROW 1 COL 7 WIDGET-ID 200
-     btnSave AT ROW 7.43 COL 2 HELP
-          "Save" WIDGET-ID 274
      btnGroupCalc AT ROW 6.24 COL 2 HELP
           "Group Calculations" WIDGET-ID 272
      btnMoveDown AT ROW 5.05 COL 2 HELP
           "Move Down" WIDGET-ID 62
      btnMoveUp AT ROW 3.86 COL 2 HELP
           "Move Up" WIDGET-ID 64
+     subjectColumnBrowse AT ROW 1 COL 7 WIDGET-ID 200
+     btnSave AT ROW 7.43 COL 2 HELP
+          "Save" WIDGET-ID 274
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -235,11 +236,11 @@ ASSIGN
        FRAME F-Main:WIDTH            = 158.
 
 /* SETTINGS FOR BUTTON btnGroupCalc IN FRAME F-Main
-   1                                                                    */
+   1 2                                                                  */
 /* SETTINGS FOR BUTTON btnMoveDown IN FRAME F-Main
-   1                                                                    */
+   1 2                                                                  */
 /* SETTINGS FOR BUTTON btnMoveUp IN FRAME F-Main
-   1                                                                    */
+   1 2                                                                  */
 ASSIGN 
        btnSave:HIDDEN IN FRAME F-Main           = TRUE.
 
@@ -414,6 +415,10 @@ PROCEDURE local-view :
   RUN pUserColumns.
   fSetSaveButton (NO).
   FRAME {&FRAME-NAME}:MOVE-TO-TOP().
+  IF AVAILABLE dynParamValue AND dynParamValue.user-id EQ "_default" THEN
+  HIDE {&columnPanel} btnSave IN FRAME {&FRAME-NAME}.
+  ELSE
+  VIEW {&columnPanel} IN FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -630,6 +635,9 @@ FUNCTION fSetSaveButton RETURNS LOGICAL
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    IF AVAILABLE dynParamValue AND dynParamValue.user-id EQ "_default" THEN
+    RETURN FALSE.
+    
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             btnSave:HIDDEN    = NOT iplSave

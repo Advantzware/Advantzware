@@ -40,6 +40,19 @@ SESSION:ADD-SUPER-PROCEDURE (hCalcField).
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fErrorMsg Include
+FUNCTION fErrorMsg RETURNS CHARACTER 
+  (iphWidget AS HANDLE) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
@@ -109,6 +122,61 @@ END. /* row-display */
 
 /* **********************  Internal Procedures  *********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dynGetCompany Include
+PROCEDURE dynGetCompany:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN g_company.
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dynGetCompanyList Include
+PROCEDURE dynGetCompanyList:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCompanyList AS CHARACTER NO-UNDO.
+    
+    FOR EACH company NO-LOCK:
+        cCompanyList = cCompanyList + company.company + ",".
+    END. /* each company */
+    cCompanyList = TRIM(cCompanyList).
+    
+    RETURN cCompanyList.
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dynValMachine Include
+PROCEDURE dynValMachine:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    IF iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+       iphWidget:SCREEN-VALUE EQ CHR(254) OR
+       CAN-FIND(FIRST mach
+                WHERE mach.company EQ g_company
+                  AND mach.m-code EQ iphWidget:SCREEN-VALUE) THEN
+    RETURN "".
+    ELSE
+    RETURN fErrorMsg (iphWidget).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetRecipients Include
 PROCEDURE pGetRecipients:
 /*------------------------------------------------------------------------------
@@ -166,7 +234,8 @@ PROCEDURE pResultsBrowser :
         DELETE OBJECT hColumn.
     END. /* do idx */
     ASSIGN
-        hQueryBrowse:TITLE   = dynSubject.subjectTitle + " Results"
+        hQueryBrowse:TITLE   = dynSubject.subjectTitle
+                             + " Results - Count: "
         hQueryBrowse:QUERY   = iphQuery
         hQueryBrowse:VISIBLE = TRUE
         .
@@ -192,6 +261,8 @@ PROCEDURE pResultsBrowser :
     END. /* do idx */
     hBrowseQuery = iphQuery:HANDLE.
     iphQuery:QUERY-OPEN.
+    hQueryBrowse:TITLE = hQueryBrowse:TITLE + STRING(iphQuery:NUM-RESULTS).
+    IF iphQuery:NUM-RESULTS GT 0 THEN
     hQueryBrowse:REFRESH().
     DO WITH FRAME resultsFrame:
         ASSIGN
@@ -357,22 +428,18 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetCompanyList Include
-PROCEDURE spGetCompanyList:
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fErrorMsg Include
+FUNCTION fErrorMsg RETURNS CHARACTER 
+  (iphWidget AS HANDLE):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cCompanyList AS CHARACTER NO-UNDO.
-    
-    FOR EACH company NO-LOCK:
-        cCompanyList = cCompanyList + company.company + ",".
-    END. /* each company */
-    cCompanyList = TRIM(cCompanyList).
-    
-    RETURN cCompanyList.
+    RETURN "Invalid Entry for " + iphWidget:LABEL + " " + iphWidget:SCREEN-VALUE.
 
-END PROCEDURE.
+END FUNCTION.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

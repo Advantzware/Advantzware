@@ -174,6 +174,7 @@ PROCEDURE pCreateDynParameters :
                 hFrame  = iphFrame
                 .
             IF NOT iplLive THEN DO:
+                /* create frame in subject parameter set builder */
                 RUN pFrame (
                     cPoolName,
                     iphFrame,
@@ -181,7 +182,7 @@ PROCEDURE pCreateDynParameters :
                     {1}SubjectParamSet.setCol,
                     {1}SubjectParamSet.setRow,
                     dynParamSet.setWidth,
-                    dynParamSet.setHeight,
+                    dynParamSet.setHeight - .74,
                     YES,
                     NO,
                     dynParamSet.setName,
@@ -189,6 +190,7 @@ PROCEDURE pCreateDynParameters :
                     ).
             END. /* if not live */
         END. /* if first-of */
+        /* get all the defaults values needed */
         ASSIGN
             lSensitive  = IF iplLive THEN dynParamSetDtl.paramPrompt ELSE NO
             cParamName  = IF dynParamSetDtl.paramName  NE "" THEN dynParamSetDtl.paramName
@@ -199,13 +201,20 @@ PROCEDURE pCreateDynParameters :
             dCol        = dynParamSetDtl.paramCol + dSetCol - 1
             dRow        = dynParamSetDtl.paramRow + dSetRow - 1
             .
-        IF iplLive THEN
+        /* set screen-value for parameters from dynparamvalue */
+        IF iplLive AND lSensitive THEN
         DO pdx = 1 TO EXTENT(dynParamValue.paramName):
             IF dynParamValue.paramName[pdx] EQ "" THEN LEAVE.
             IF dynParamValue.paramName[pdx] NE cParamName THEN NEXT.
             cParamValue = dynParamValue.paramValue[pdx].
             LEAVE.
         END. /* do pdx */
+        /* get any initialized values from custom procedures */
+        IF dynParamSetDtl.initializeProc NE "" AND
+           CAN-DO(THIS-PROCEDURE:INTERNAL-ENTRIES,dynParamSetDtl.initializeProc) THEN DO:
+            RUN VALUE(dynParamSetDtl.initializeProc).
+            cParamValue = RETURN-VALUE.
+        END. /* if initializeProc */
         IF FIRST-OF({1}SubjectParamSet.paramSetID) AND
            dynParamSet.setRectangle THEN DO:
             idx = idx + 1.
@@ -216,7 +225,7 @@ PROCEDURE pCreateDynParameters :
                 dSetCol + 1,
                 dSetRow + .48,
                 dynParamSet.setWidth - 2.2,
-                dynParamSet.setHeight - .76,
+                dynParamSet.setHeight - 1.5,
                 OUTPUT hWidget
                 ).
             IF dynParamSet.setTitle NE "" THEN
@@ -373,6 +382,7 @@ PROCEDURE pCreateDynParameters :
                 OUTPUT hWidget
                 ).
         END CASE.
+        /* build action table which dictact behavior of the parameter */
         IF VALID-HANDLE(hWidget) THEN DO:
             CREATE ttAction.
             ASSIGN
@@ -380,8 +390,8 @@ PROCEDURE pCreateDynParameters :
                 ttAction.paramID        = dynParamSetDtl.paramID
                 ttAction.actionParamID  = dynParamSetDtl.actionParamID
                 ttAction.action         = dynParamSetDtl.action
-                ttAction.initializeProc = dynParam.initializeProc
-                ttAction.validateProc   = dynParam.validateProc
+                ttAction.initializeProc = dynParamSetDtl.initializeProc
+                ttAction.validateProc   = dynParamSetDtl.validateProc
                 .
         END. /* if valid-handle */
         hWidget:HIDDEN = NO.
@@ -391,6 +401,7 @@ PROCEDURE pCreateDynParameters :
             hFrame:MOVE-TO-TOP().
         END. /* if last-of */
     END. /* each {1}SubjectParamSet */
+    /* get and set the output frame values */
     IF iplLive THEN DO:
         ASSIGN
             FRAME outputFrame:TITLE = dynSubject.subjectTitle
@@ -408,7 +419,6 @@ PROCEDURE pCreateDynParameters :
             hWidget = hWidget:NEXT-SIBLING.
         END. /* do while */
         hFrame:HIDDEN = NO.
-        RUN pInitialize.
         RUN pInitDynParameters (hFrame).
     END. /* if live */
 

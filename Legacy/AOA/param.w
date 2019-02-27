@@ -89,7 +89,7 @@ btnSortMove
 
 /* Custom List Definitions                                              */
 /* transPanel,transInit,transUpdate,displayFields,enabledFields,List-6  */
-&Scoped-define transPanel btnCombo-Box RECT-PREVIEW btnEditor btnFill-In ~
+&Scoped-define transPanel btnCombo-Box btnEditor RECT-PREVIEW btnFill-In ~
 btntParamBuilder btnRadio-Set btnSelection-List btnToggle-Box btnUpdate ~
 btnCancel btnAdd btnCopy btnDelete btnReset 
 &Scoped-define transInit btnCombo-Box btnEditor btnFill-In btntParamBuilder ~
@@ -100,13 +100,13 @@ btnDelete
 dynParam.paramName dynParam.paramLabel dynParam.paramType dynParam.dataType ~
 dynParam.paramFormat dynParam.viewAs dynParam.actionParamID dynParam.action ~
 dynParam.innerLines dynParam.paramWidth dynParam.paramHeight ~
-dynParam.initializeProc dynParam.validateProc dynParam.initialValue ~
-dynParam.initialItems 
+dynParam.initialValue dynParam.initialItems dynParam.initializeProc ~
+dynParam.validateProc 
 &Scoped-define enabledFields dynParam.paramName dynParam.paramLabel ~
 dynParam.paramType dynParam.dataType dynParam.paramFormat dynParam.viewAs ~
 dynParam.actionParamID dynParam.action dynParam.innerLines ~
-dynParam.paramWidth dynParam.paramHeight dynParam.initializeProc ~
-dynParam.validateProc dynParam.initialValue dynParam.initialItems 
+dynParam.paramWidth dynParam.paramHeight dynParam.initialValue ~
+dynParam.initialItems dynParam.initializeProc dynParam.validateProc 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -257,83 +257,83 @@ DEFINE FRAME F-Main
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME viewFrame
-     btnCombo-Box AT ROW 23.14 COL 21 HELP
+     btnCombo-Box AT ROW 24.33 COL 21 HELP
           "Create New COMBO-BOX" WIDGET-ID 190
-     btnEditor AT ROW 23.14 COL 29 HELP
+     btnEditor AT ROW 24.33 COL 29 HELP
           "Create New EDITOR" WIDGET-ID 192
-     dynParam.paramID AT ROW 1.48 COL 19 COLON-ALIGNED WIDGET-ID 166
+     btnFill-In AT ROW 24.33 COL 37 HELP
+          "Create New FILL-IN" WIDGET-ID 194
+     dynParam.paramID AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 166
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     btnFill-In AT ROW 23.14 COL 37 HELP
-          "Create New FILL-IN" WIDGET-ID 194
      btntParamBuilder AT ROW 1.71 COL 73 HELP
           "Parameter Builder" WIDGET-ID 286
-     dynParam.paramName AT ROW 2.67 COL 19 COLON-ALIGNED WIDGET-ID 170
+     btnRadio-Set AT ROW 24.33 COL 45 HELP
+          "Create New RADIO-SET" WIDGET-ID 196
+     dynParam.paramName AT ROW 2.43 COL 19 COLON-ALIGNED WIDGET-ID 170
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
-     dynParam.paramLabel AT ROW 3.86 COL 19 COLON-ALIGNED WIDGET-ID 168
+     dynParam.paramLabel AT ROW 3.62 COL 19 COLON-ALIGNED WIDGET-ID 168
           VIEW-AS FILL-IN 
           SIZE 44 BY 1
           BGCOLOR 15 
-     btnRadio-Set AT ROW 23.14 COL 45 HELP
-          "Create New RADIO-SET" WIDGET-ID 196
-     btnSelection-List AT ROW 23.14 COL 53 HELP
-          "Create New SELECTION-LIST" WIDGET-ID 198
-     dynParam.paramType AT ROW 5.05 COL 19 COLON-ALIGNED WIDGET-ID 180
+     dynParam.paramType AT ROW 4.81 COL 19 COLON-ALIGNED WIDGET-ID 180
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEMS "System","User" 
           DROP-DOWN-LIST
           SIZE 16 BY 1
-     dynParam.dataType AT ROW 6.24 COL 19 COLON-ALIGNED WIDGET-ID 182
+     btnSelection-List AT ROW 24.33 COL 53 HELP
+          "Create New SELECTION-LIST" WIDGET-ID 198
+     dynParam.dataType AT ROW 6 COL 19 COLON-ALIGNED WIDGET-ID 182
           VIEW-AS COMBO-BOX INNER-LINES 6
           LIST-ITEMS "Character","Date","DateTime","Decimal","Integer","Logical" 
           DROP-DOWN-LIST
           SIZE 16 BY 1
-     dynParam.paramFormat AT ROW 7.43 COL 19 COLON-ALIGNED WIDGET-ID 162
+     dynParam.paramFormat AT ROW 7.19 COL 19 COLON-ALIGNED WIDGET-ID 162
           VIEW-AS FILL-IN 
           SIZE 44 BY 1
           BGCOLOR 15 
-     btnToggle-Box AT ROW 23.14 COL 61 HELP
-          "Create New TOGGLE-BOX" WIDGET-ID 200
-     dynParam.viewAs AT ROW 8.62 COL 19 COLON-ALIGNED WIDGET-ID 184
+     dynParam.viewAs AT ROW 8.38 COL 19 COLON-ALIGNED WIDGET-ID 184
           VIEW-AS COMBO-BOX INNER-LINES 6
           LIST-ITEMS "Combo-Box","Editor","Fill-In","Radio-Set","Selection-List","Toggle-Box" 
           DROP-DOWN-LIST
           SIZE 22 BY 1
-     dynParam.actionParamID AT ROW 9.81 COL 19 COLON-ALIGNED WIDGET-ID 150
+     dynParam.actionParamID AT ROW 9.57 COL 19 COLON-ALIGNED WIDGET-ID 150
           LABEL "Action Param ID"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     dynParam.action AT ROW 9.81 COL 44 NO-LABEL WIDGET-ID 186
+     dynParam.action AT ROW 9.57 COL 44 NO-LABEL WIDGET-ID 186
           VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
           LIST-ITEMS "NO:DISABLE","YES:DISABLE","NO:ENABLE","YES:ENABLE","NO:LOW","YES:LOW","NO:HI","YES:HI","HORIZONTAL","VERTICAL","CALENDAR","DATEPICKLIST","EMAIL" 
-          SIZE 20 BY 8.19
-     dynParam.innerLines AT ROW 11 COL 19 COLON-ALIGNED WIDGET-ID 160
+          SIZE 21 BY 8.19
+     btnToggle-Box AT ROW 24.33 COL 61 HELP
+          "Create New TOGGLE-BOX" WIDGET-ID 200
+     dynParam.innerLines AT ROW 10.76 COL 19 COLON-ALIGNED WIDGET-ID 160
           VIEW-AS FILL-IN 
           SIZE 6.2 BY 1
           BGCOLOR 15 
-     dynParam.paramWidth AT ROW 12.19 COL 19 COLON-ALIGNED WIDGET-ID 174
+     dynParam.paramWidth AT ROW 11.95 COL 19 COLON-ALIGNED WIDGET-ID 174
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     dynParam.paramHeight AT ROW 13.38 COL 19 COLON-ALIGNED WIDGET-ID 164
+     dynParam.paramHeight AT ROW 13.14 COL 19 COLON-ALIGNED WIDGET-ID 164
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     dynParam.initializeProc AT ROW 14.57 COL 19 COLON-ALIGNED WIDGET-ID 156
+     dynParam.initialValue AT ROW 16.71 COL 19 COLON-ALIGNED WIDGET-ID 158
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
-     dynParam.validateProc AT ROW 15.76 COL 19 COLON-ALIGNED WIDGET-ID 176
+     dynParam.initialItems AT ROW 17.91 COL 19 COLON-ALIGNED WIDGET-ID 154
           VIEW-AS FILL-IN 
-          SIZE 22 BY 1
+          SIZE 62 BY 1
           BGCOLOR 15 
-     dynParam.initialValue AT ROW 16.95 COL 19 COLON-ALIGNED WIDGET-ID 158
+     dynParam.initializeProc AT ROW 19.1 COL 19 COLON-ALIGNED WIDGET-ID 156
           VIEW-AS FILL-IN 
-          SIZE 22 BY 1
+          SIZE 42 BY 1
           BGCOLOR 15 
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -343,27 +343,27 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     dynParam.initialItems AT ROW 18.14 COL 19 COLON-ALIGNED WIDGET-ID 154
+     dynParam.validateProc AT ROW 20.29 COL 19 COLON-ALIGNED WIDGET-ID 176
           VIEW-AS FILL-IN 
-          SIZE 62 BY 1
+          SIZE 42 BY 1
           BGCOLOR 15 
-     btnUpdate AT ROW 19.81 COL 20 HELP
+     btnUpdate AT ROW 21.71 COL 20 HELP
           "Update/Save" WIDGET-ID 128
-     btnCancel AT ROW 19.81 COL 60 HELP
+     btnCancel AT ROW 21.71 COL 60 HELP
           "Cancel" WIDGET-ID 120
-     btnAdd AT ROW 19.81 COL 28 HELP
+     btnAdd AT ROW 21.71 COL 28 HELP
           "Add" WIDGET-ID 118
-     btnCopy AT ROW 19.81 COL 36 HELP
+     btnCopy AT ROW 21.71 COL 36 HELP
           "Copy" WIDGET-ID 122
-     btnDelete AT ROW 19.81 COL 44 HELP
+     btnDelete AT ROW 21.71 COL 44 HELP
           "Delete" WIDGET-ID 124
-     btnReset AT ROW 19.81 COL 52 HELP
+     btnReset AT ROW 21.71 COL 52 HELP
           "Reset" WIDGET-ID 126
      "Action:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 9.81 COL 37 WIDGET-ID 188
-     RECT-PANEL AT ROW 19.57 COL 19 WIDGET-ID 130
+          SIZE 7 BY 1 AT ROW 9.57 COL 37 WIDGET-ID 188
+     RECT-PANEL AT ROW 21.48 COL 19 WIDGET-ID 130
      RECT-PREVIEW AT ROW 1.48 COL 72 WIDGET-ID 284
-     RECT-9 AT ROW 22.91 COL 19 WIDGET-ID 288
+     RECT-9 AT ROW 24.1 COL 19 WIDGET-ID 288
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 76 ROW 1.95

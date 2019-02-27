@@ -73,23 +73,6 @@ PROCEDURE pInitDynParameters :
 
 END PROCEDURE.
 
-PROCEDURE pInitialize:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-/*    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.*/
-/*    DEFINE VARIABLE idx     AS INTEGER   NO-UNDO.*/
-/*                                                 */
-/*    IF dynParam.initializeProc EQ "" THEN RETURN.*/
-/*    RUN VALUE(dynParam.initializeProc).          */
-/*    cReturn = RETURN:VALUE.                      */
-/*    IF cReturn EQ "" THEN RETURN.                */
-/*    DO idx = 1 TO NUM-ENTRIES(cReturn):          */
-/*    END. /* do idx */                            */
-
-END PROCEDURE.
-
 PROCEDURE pParamAction :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -239,6 +222,28 @@ PROCEDURE pValidate :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
+    DEFINE VARIABLE cErrorMsg AS CHARACTER NO-UNDO.    
+
     RUN pParamAction (iphWidget).
+
+    FIND FIRST ttAction
+         WHERE ttACtion.paramWidget EQ iphWidget
+         NO-ERROR.
+    IF NOT AVAILABLE ttAction THEN RETURN.
+    
+    IF ttAction.validateProc NE "" AND
+       CAN-DO(THIS-PROCEDURE:INTERNAL-ENTRIES,ttAction.validateProc) THEN DO:
+        RUN VALUE(ttAction.validateProc) (iphWidget).
+        cErrorMsg = RETURN-VALUE.
+        IF cErrorMsg NE "" THEN DO:
+            MESSAGE cErrorMsg SKIP(1) "Correct this Entry?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE "Error"
+            UPDATE lCorrect AS LOGICAL.
+            IF lCorrect THEN DO:
+                APPLY "ENTRY":U TO iphWidget.
+                RETURN NO-APPLY.
+            END. /* if lcorrect */
+        END. /* if cerror */
+    END. /* if validateProc */
 
 END PROCEDURE.

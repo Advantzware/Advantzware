@@ -95,13 +95,16 @@ btnAdd btnCopy btnDelete btnReset
 &Scoped-define transUpdate btnUpdate btnCancel btnReset 
 &Scoped-define displayFields RECT-PREVIEW dynParamSetDtl.paramSetID ~
 dynParamSetDtl.paramID dynParamSetDtl.paramName dynParamSetDtl.paramLabel ~
-dynParamSetDtl.initialItems dynParamSetDtl.initialValue ~
 dynParamSetDtl.actionParamID dynParamSetDtl.action dynParamSetDtl.paramCol ~
-dynParamSetDtl.paramRow 
+dynParamSetDtl.paramRow dynParamSetDtl.paramPrompt ~
+dynParamSetDtl.initialValue dynParamSetDtl.initialItems ~
+dynParamSetDtl.initializeProc dynParamSetDtl.validateProc 
 &Scoped-define enabledFields dynParamSetDtl.paramName ~
-dynParamSetDtl.paramLabel dynParamSetDtl.initialItems ~
-dynParamSetDtl.initialValue dynParamSetDtl.actionParamID ~
-dynParamSetDtl.action dynParamSetDtl.paramCol dynParamSetDtl.paramRow 
+dynParamSetDtl.paramLabel dynParamSetDtl.actionParamID ~
+dynParamSetDtl.action dynParamSetDtl.paramCol dynParamSetDtl.paramRow ~
+dynParamSetDtl.paramPrompt dynParamSetDtl.initialValue ~
+dynParamSetDtl.initialItems dynParamSetDtl.initializeProc ~
+dynParamSetDtl.validateProc 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -214,12 +217,12 @@ DEFINE FRAME DEFAULT-FRAME
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME viewFrame
-     btnUpdate AT ROW 17.43 COL 20 HELP
-          "Update/Save" WIDGET-ID 128
      dynParamSetDtl.paramSetID AT ROW 1.48 COL 19 COLON-ALIGNED WIDGET-ID 166
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
+     btnUpdate AT ROW 18.62 COL 20 HELP
+          "Update/Save" WIDGET-ID 128
      btntSetBuilder AT ROW 1.71 COL 73 HELP
           "Parameter Set Builder" WIDGET-ID 286
      dynParamSetDtl.paramID AT ROW 2.67 COL 19 COLON-ALIGNED WIDGET-ID 158
@@ -234,44 +237,55 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 44 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.initialItems AT ROW 6.24 COL 19 COLON-ALIGNED WIDGET-ID 152
-          VIEW-AS FILL-IN 
-          SIZE 62 BY 1
-          BGCOLOR 15 
-     dynParamSetDtl.initialValue AT ROW 7.43 COL 19 COLON-ALIGNED WIDGET-ID 154
-          VIEW-AS FILL-IN 
-          SIZE 22 BY 1
-          BGCOLOR 15 
-     dynParamSetDtl.actionParamID AT ROW 8.62 COL 19 COLON-ALIGNED WIDGET-ID 150
+     dynParamSetDtl.actionParamID AT ROW 6.24 COL 19 COLON-ALIGNED WIDGET-ID 150
           LABEL "Action Param ID"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.action AT ROW 8.62 COL 44 NO-LABEL WIDGET-ID 186
+     dynParamSetDtl.action AT ROW 6.24 COL 44 NO-LABEL WIDGET-ID 186
           VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
           LIST-ITEMS "NO:DISABLE","YES:DISABLE","NO:ENABLE","YES:ENABLE","NO:LOW","YES:LOW","NO:HI","YES:HI","HORIZONTAL","VERTICAL","CALENDAR","DATEPICKLIST","EMAIL" 
-          SIZE 20 BY 8.19
-     dynParamSetDtl.paramCol AT ROW 9.81 COL 19 COLON-ALIGNED WIDGET-ID 156
+          SIZE 21 BY 8.19
+     dynParamSetDtl.paramCol AT ROW 7.43 COL 19 COLON-ALIGNED WIDGET-ID 156
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     btnCancel AT ROW 17.43 COL 60 HELP
+     dynParamSetDtl.paramRow AT ROW 8.62 COL 19 COLON-ALIGNED WIDGET-ID 164
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+          BGCOLOR 15 
+     dynParamSetDtl.paramPrompt AT ROW 9.81 COL 21 WIDGET-ID 288
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.2 BY 1
+     dynParamSetDtl.initialValue AT ROW 13.38 COL 19 COLON-ALIGNED WIDGET-ID 154
+          VIEW-AS FILL-IN 
+          SIZE 22 BY 1
+          BGCOLOR 15 
+     btnCancel AT ROW 18.62 COL 60 HELP
           "Cancel" WIDGET-ID 120
-     dynParamSetDtl.paramRow AT ROW 11 COL 19 COLON-ALIGNED WIDGET-ID 164
+     dynParamSetDtl.initialItems AT ROW 14.57 COL 19 COLON-ALIGNED WIDGET-ID 152
           VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
+          SIZE 62 BY 1
           BGCOLOR 15 
-     btnAdd AT ROW 17.43 COL 28 HELP
+     dynParamSetDtl.initializeProc AT ROW 15.76 COL 19 COLON-ALIGNED WIDGET-ID 290
+          VIEW-AS FILL-IN 
+          SIZE 42 BY 1
+          BGCOLOR 15 
+     dynParamSetDtl.validateProc AT ROW 16.95 COL 19 COLON-ALIGNED WIDGET-ID 292
+          VIEW-AS FILL-IN 
+          SIZE 42 BY 1
+          BGCOLOR 15 
+     btnAdd AT ROW 18.62 COL 28 HELP
           "Add" WIDGET-ID 118
-     btnCopy AT ROW 17.43 COL 36 HELP
+     btnCopy AT ROW 18.62 COL 36 HELP
           "Copy" WIDGET-ID 122
-     btnDelete AT ROW 17.43 COL 44 HELP
+     btnDelete AT ROW 18.62 COL 44 HELP
           "Delete" WIDGET-ID 124
-     btnReset AT ROW 17.43 COL 52 HELP
+     btnReset AT ROW 18.62 COL 52 HELP
           "Reset" WIDGET-ID 126
      "Action:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 8.62 COL 37 WIDGET-ID 188
-     RECT-PANEL AT ROW 17.19 COL 19 WIDGET-ID 130
+          SIZE 7 BY 1 AT ROW 6.24 COL 37 WIDGET-ID 188
+     RECT-PANEL AT ROW 18.38 COL 19 WIDGET-ID 130
      RECT-PREVIEW AT ROW 1.48 COL 72 WIDGET-ID 284
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -372,6 +386,8 @@ ASSIGN
    1 2 3                                                                */
 /* SETTINGS FOR FILL-IN dynParamSetDtl.initialItems IN FRAME viewFrame
    4 5                                                                  */
+/* SETTINGS FOR FILL-IN dynParamSetDtl.initializeProc IN FRAME viewFrame
+   4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParamSetDtl.initialValue IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParamSetDtl.paramCol IN FRAME viewFrame
@@ -382,6 +398,8 @@ ASSIGN
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParamSetDtl.paramName IN FRAME viewFrame
    4 5                                                                  */
+/* SETTINGS FOR TOGGLE-BOX dynParamSetDtl.paramPrompt IN FRAME viewFrame
+   4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParamSetDtl.paramRow IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParamSetDtl.paramSetID IN FRAME viewFrame
@@ -390,6 +408,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-PREVIEW IN FRAME viewFrame
    NO-ENABLE 1 4                                                        */
+/* SETTINGS FOR FILL-IN dynParamSetDtl.validateProc IN FRAME viewFrame
+   4 5                                                                  */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -595,13 +615,15 @@ DO:
          NO-ERROR.
     IF AVAILABLE dynParam THEN DO:
         ASSIGN
-            dynParamSetDtl.paramName:SCREEN-VALUE    = dynParam.paramName
-            dynParamSetDtl.paramLabel:SCREEN-VALUE   = dynParam.paramLabel
-            dynParamSetDtl.initialItems:SCREEN-VALUE = dynParam.initialItems
-            dynParamSetDtl.initialValue:SCREEN-VALUE = dynParam.initialValue
-            dynParamSetDtl.action:SCREEN-VALUE       = dynParam.action
-            dynParamSetDtl.paramCol:SCREEN-VALUE     = "20"
-            dynParamSetDtl.paramRow:SCREEN-VALUE     = "1"
+            dynParamSetDtl.paramName:SCREEN-VALUE      = dynParam.paramName
+            dynParamSetDtl.paramLabel:SCREEN-VALUE     = dynParam.paramLabel
+            dynParamSetDtl.initialItems:SCREEN-VALUE   = dynParam.initialItems
+            dynParamSetDtl.initialValue:SCREEN-VALUE   = dynParam.initialValue
+            dynParamSetDtl.initializeProc:SCREEN-VALUE = dynParam.initializeProc
+            dynParamSetDtl.validateProc:SCREEN-VALUE   = dynParam.validateProc
+            dynParamSetDtl.action:SCREEN-VALUE         = dynParam.action
+            dynParamSetDtl.paramCol:SCREEN-VALUE       = "20"
+            dynParamSetDtl.paramRow:SCREEN-VALUE       = "1"
             .
     END. /* if avail */
     ELSE DO:
@@ -782,6 +804,7 @@ PROCEDURE pCRUD :
                     ASSIGN
                         dynParamSetDtl.paramSetID:SCREEN-VALUE  = ""
                         dynParamSetDtl.paramID:SCREEN-VALUE     = ""
+                        dynParamSetDtl.paramPrompt:SCREEN-VALUE = "yes"
                         .
                     DISABLE btnReset.
                 END. /* add */

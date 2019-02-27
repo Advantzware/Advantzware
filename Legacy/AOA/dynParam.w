@@ -48,6 +48,15 @@ CREATE WIDGET-POOL.
 
 DEFINE VARIABLE iParamSetID        AS INTEGER NO-UNDO.
 DEFINE VARIABLE iUserSecurityLevel AS INTEGER NO-UNDO.
+DEFINE VARIABLE lContinue          AS LOGICAL NO-UNDO.
+
+&IF DEFINED(UIB_is_Running) EQ 0 &THEN
+RUN util/CheckModule.p ("ASI","ParameterBuilder", YES, OUTPUT lContinue).
+&ELSE
+lContinue = YES.
+&ENDIF
+SESSION:SET-WAIT-STATE("").
+IF lContinue EQ NO THEN RETURN.
 
 iUserSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
 
