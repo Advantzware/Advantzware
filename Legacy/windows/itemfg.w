@@ -31,6 +31,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object04 h_pricechg
 &SCOPED-DEFINE h_Object05 h_p-fg-bj-2
 &SCOPED-DEFINE h_Object06 h_p-calcq
+&SCOPED-DEFINE h_Object07 h_p-locw
 &SCOPED-DEFINE moveRight {&h_Object02},{&h_Object03},{&h_Object04}
 
 /* Parameters Definitions ---                                           */
@@ -129,6 +130,7 @@ DEFINE VARIABLE h_v-itemsp AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-navest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-navest-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-spcard AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-locw AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -632,10 +634,23 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = ?':U ,
              OUTPUT h_locw ).
        RUN set-position IN h_locw ( 6.24 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_locw ( 23.10 , 156.00 ) NO-ERROR.
+       RUN set-size IN h_locw ( 20.00 , 156.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1,3':U) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-locw.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = ?':U ,
+             OUTPUT h_p-locw ).
+       RUN set-position IN h_p-locw ( 27.56 , 4.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.10 , 95.00 ) */
+
 
        /* Links to SmartViewer h_itemfg. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_itemfg ).
@@ -650,6 +665,8 @@ PROCEDURE adm-create-objects :
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_locw ,
              h_itemfg , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-locw ,
+             h_locw , 'AFTER':U ).
     END. /* Page 5 */
     WHEN 6 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -1208,6 +1225,22 @@ PROCEDURE filterTagBins :
     DEFINE INPUT PARAMETER iplTagBins      AS CHARACTER NO-UNDO.
     
     RUN filterTagBins IN h_fgijob (INPUT iplShowZeroBins, INPUT iplTagBins ).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE filterLoc W-Win 
+PROCEDURE filterLoc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcShowRec AS CHARACTER   NO-UNDO.
+    
+    RUN filterLocMain IN h_locw (INPUT ipcShowRec ).
 
 END PROCEDURE.
 
