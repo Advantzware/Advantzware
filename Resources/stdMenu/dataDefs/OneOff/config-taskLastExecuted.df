@@ -1,0 +1,14 @@
+ADD FIELD "taskerLastExecuted" OF "config" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Tasker Last Executed"
+  POSITION 19
+  MAX-WIDTH 8
+  HELP "Enter Tasker Last Executed Date and Time"
+  ORDER 180
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000003591

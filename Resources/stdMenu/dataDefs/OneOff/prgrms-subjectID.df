@@ -1,0 +1,24 @@
+ADD FIELD "subjectID" OF "prgrms" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Subject ID"
+  POSITION 33
+  MAX-WIDTH 4
+  HELP "Enter Subject ID"
+  ORDER 320
+
+ADD INDEX "si-itemparent" ON "prgrms" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Item Parent"
+  INDEX-FIELD "itemParent" ASCENDING 
+
+ADD INDEX "si-menuOrder" ON "prgrms" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Menu Order"
+  INDEX-FIELD "menuOrder" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000008218
