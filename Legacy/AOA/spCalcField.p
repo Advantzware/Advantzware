@@ -21,7 +21,6 @@
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -29,13 +28,10 @@
 &Scoped-define PROCEDURE-TYPE Procedure
 &Scoped-define DB-AWARE no
 
-
-
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
 /* ************************  Function Prototypes ********************** */
-
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
@@ -59,17 +55,61 @@
                                                                         */
 &ANALYZE-RESUME
 
- 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
-
+ &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
 
 /* ***************************  Main Block  *************************** */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-calcShiftEndTime) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calcShiftEndTime Procedure
+PROCEDURE calcShiftEndTime:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iplUseTime    AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStartShift AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEndShift   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTime       AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcValue  AS CHARACTER NO-UNDO.
+    
+    opcCalcValue = "86400000".
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-calcShiftStartTime) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calcShiftStartTime Procedure
+PROCEDURE calcShiftStartTime:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iplUseTime    AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStartShift AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEndShift   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTime       AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcValue  AS CHARACTER NO-UNDO.
+    
+    opcCalcValue = "0".
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-calcStringDateTime) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calcStringDateTime Procedure
@@ -78,9 +118,8 @@ PROCEDURE calcStringDateTime:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipdtDate AS DATE    NO-UNDO.
-    DEFINE INPUT PARAMETER ipiTime  AS INTEGER NO-UNDO.
-    
+    DEFINE INPUT  PARAMETER ipdtDate     AS DATE      NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiTime      AS INTEGER   NO-UNDO.    
     DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
     
     opcCalcValue = STRING(ipdtDate,"99/99/9999") + " "
@@ -92,9 +131,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-calcStringTime) = 0 &THEN
 
@@ -104,8 +141,7 @@ PROCEDURE calcStringTime:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiTime AS INTEGER NO-UNDO.
-    
+    DEFINE INPUT  PARAMETER ipiTime      AS INTEGER   NO-UNDO.    
     DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
     
     opcCalcValue = STRING(ipiTime,"hh:mm:ss am").
@@ -115,9 +151,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spCalcField) = 0 &THEN
 
@@ -155,7 +189,16 @@ PROCEDURE spCalcField:
                 .
         END. /* if database field */
     END. /* do idx */
+    /* list case when values alphabetically */
     CASE ipcCalcProc:
+        WHEN "calcShiftEndTime"   OR
+        WHEN "calcShiftStartTime" THEN
+        RUN VALUE(ipcCalcProc) (
+            ENTRY(1,ipcCalcParam,"|") EQ "yes",
+            ENTRY(2,ipcCalcParam,"|"),
+            ENTRY(3,ipcCalcParam,"|"),
+            ENTRY(4,ipcCalcParam,"|"),
+            OUTPUT opcCalcValue).
         WHEN "calcStringDateTime" THEN
         RUN VALUE(ipcCalcProc) (
             DATE(ENTRY(1,ipcCalcParam,"|")),
@@ -172,6 +215,4 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-/* ************************  Function Implementations ***************** */

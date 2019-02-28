@@ -89,7 +89,7 @@ btnRestoreDefaults btnSortMove
 
 /* Custom List Definitions                                              */
 /* transPanel,transInit,transUpdate,displayFields,enabledFields,List-6  */
-&Scoped-define transPanel RECT-PREVIEW btnUpdate btntSetBuilder btnCancel ~
+&Scoped-define transPanel btnUpdate RECT-PREVIEW btntSetBuilder btnCancel ~
 btnAdd btnCopy btnDelete btnReset 
 &Scoped-define transInit btnUpdate btntSetBuilder btnAdd btnCopy btnDelete 
 &Scoped-define transUpdate btnUpdate btnCancel btnReset 
@@ -217,12 +217,12 @@ DEFINE FRAME DEFAULT-FRAME
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME viewFrame
+     btnUpdate AT ROW 18.62 COL 20 HELP
+          "Update/Save" WIDGET-ID 128
      dynParamSetDtl.paramSetID AT ROW 1.48 COL 19 COLON-ALIGNED WIDGET-ID 166
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     btnUpdate AT ROW 18.62 COL 20 HELP
-          "Update/Save" WIDGET-ID 128
      btntSetBuilder AT ROW 1.71 COL 73 HELP
           "Parameter Set Builder" WIDGET-ID 286
      dynParamSetDtl.paramID AT ROW 2.67 COL 19 COLON-ALIGNED WIDGET-ID 158
@@ -244,7 +244,7 @@ DEFINE FRAME viewFrame
           BGCOLOR 15 
      dynParamSetDtl.action AT ROW 6.24 COL 44 NO-LABEL WIDGET-ID 186
           VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-          LIST-ITEMS "NO:DISABLE","YES:DISABLE","NO:ENABLE","YES:ENABLE","NO:LOW","YES:LOW","NO:HI","YES:HI","HORIZONTAL","VERTICAL","CALENDAR","DATEPICKLIST","EMAIL" 
+          LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL" 
           SIZE 21 BY 8.19
      dynParamSetDtl.paramCol AT ROW 7.43 COL 19 COLON-ALIGNED WIDGET-ID 156
           VIEW-AS FILL-IN 
@@ -257,12 +257,12 @@ DEFINE FRAME viewFrame
      dynParamSetDtl.paramPrompt AT ROW 9.81 COL 21 WIDGET-ID 288
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY 1
+     btnCancel AT ROW 18.62 COL 60 HELP
+          "Cancel" WIDGET-ID 120
      dynParamSetDtl.initialValue AT ROW 13.38 COL 19 COLON-ALIGNED WIDGET-ID 154
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
-     btnCancel AT ROW 18.62 COL 60 HELP
-          "Cancel" WIDGET-ID 120
      dynParamSetDtl.initialItems AT ROW 14.57 COL 19 COLON-ALIGNED WIDGET-ID 152
           VIEW-AS FILL-IN 
           SIZE 62 BY 1

@@ -109,6 +109,9 @@ PROCEDURE pParamAction :
                 WHEN "ENABLE" THEN
                 ttAction.paramWidget:READ-ONLY = NO.
                 WHEN "HI" THEN
+                IF ttAction.paramWidget:FORMAT EQ "99:99" THEN
+                ttAction.paramWidget:SCREEN-VALUE = "2400".
+                ELSE
                 CASE dynParam.dataType:
                     WHEN "CHARACTER" THEN
                     ttAction.paramWidget:SCREEN-VALUE = CHR(254).
@@ -120,6 +123,9 @@ PROCEDURE pParamAction :
                     ttAction.paramWidget:SCREEN-VALUE = "99999999".
                 END CASE.
                 WHEN "LOW" THEN
+                IF ttAction.paramWidget:FORMAT EQ "99:99" THEN
+                ttAction.paramWidget:SCREEN-VALUE = "0000".
+                ELSE
                 CASE dynParam.dataType:
                     WHEN "CHARACTER" THEN
                     ttAction.paramWidget:SCREEN-VALUE = CHR(32).

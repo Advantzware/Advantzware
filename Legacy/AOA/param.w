@@ -89,7 +89,7 @@ btnSortMove
 
 /* Custom List Definitions                                              */
 /* transPanel,transInit,transUpdate,displayFields,enabledFields,List-6  */
-&Scoped-define transPanel btnCombo-Box btnEditor RECT-PREVIEW btnFill-In ~
+&Scoped-define transPanel btnCombo-Box RECT-PREVIEW btnEditor btnFill-In ~
 btntParamBuilder btnRadio-Set btnSelection-List btnToggle-Box btnUpdate ~
 btnCancel btnAdd btnCopy btnDelete btnReset 
 &Scoped-define transInit btnCombo-Box btnEditor btnFill-In btntParamBuilder ~
@@ -261,16 +261,14 @@ DEFINE FRAME viewFrame
           "Create New COMBO-BOX" WIDGET-ID 190
      btnEditor AT ROW 24.33 COL 29 HELP
           "Create New EDITOR" WIDGET-ID 192
-     btnFill-In AT ROW 24.33 COL 37 HELP
-          "Create New FILL-IN" WIDGET-ID 194
      dynParam.paramID AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 166
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
+     btnFill-In AT ROW 24.33 COL 37 HELP
+          "Create New FILL-IN" WIDGET-ID 194
      btntParamBuilder AT ROW 1.71 COL 73 HELP
           "Parameter Builder" WIDGET-ID 286
-     btnRadio-Set AT ROW 24.33 COL 45 HELP
-          "Create New RADIO-SET" WIDGET-ID 196
      dynParam.paramName AT ROW 2.43 COL 19 COLON-ALIGNED WIDGET-ID 170
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
@@ -284,13 +282,13 @@ DEFINE FRAME viewFrame
           LIST-ITEMS "System","User" 
           DROP-DOWN-LIST
           SIZE 16 BY 1
-     btnSelection-List AT ROW 24.33 COL 53 HELP
-          "Create New SELECTION-LIST" WIDGET-ID 198
      dynParam.dataType AT ROW 6 COL 19 COLON-ALIGNED WIDGET-ID 182
           VIEW-AS COMBO-BOX INNER-LINES 6
           LIST-ITEMS "Character","Date","DateTime","Decimal","Integer","Logical" 
           DROP-DOWN-LIST
           SIZE 16 BY 1
+     btnRadio-Set AT ROW 24.33 COL 45 HELP
+          "Create New RADIO-SET" WIDGET-ID 196
      dynParam.paramFormat AT ROW 7.19 COL 19 COLON-ALIGNED WIDGET-ID 162
           VIEW-AS FILL-IN 
           SIZE 44 BY 1
@@ -307,10 +305,8 @@ DEFINE FRAME viewFrame
           BGCOLOR 15 
      dynParam.action AT ROW 9.57 COL 44 NO-LABEL WIDGET-ID 186
           VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-          LIST-ITEMS "NO:DISABLE","YES:DISABLE","NO:ENABLE","YES:ENABLE","NO:LOW","YES:LOW","NO:HI","YES:HI","HORIZONTAL","VERTICAL","CALENDAR","DATEPICKLIST","EMAIL" 
+          LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL" 
           SIZE 21 BY 8.19
-     btnToggle-Box AT ROW 24.33 COL 61 HELP
-          "Create New TOGGLE-BOX" WIDGET-ID 200
      dynParam.innerLines AT ROW 10.76 COL 19 COLON-ALIGNED WIDGET-ID 160
           VIEW-AS FILL-IN 
           SIZE 6.2 BY 1
@@ -327,11 +323,17 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
+     btnSelection-List AT ROW 24.33 COL 53 HELP
+          "Create New SELECTION-LIST" WIDGET-ID 198
      dynParam.initialItems AT ROW 17.91 COL 19 COLON-ALIGNED WIDGET-ID 154
           VIEW-AS FILL-IN 
           SIZE 62 BY 1
           BGCOLOR 15 
      dynParam.initializeProc AT ROW 19.1 COL 19 COLON-ALIGNED WIDGET-ID 156
+          VIEW-AS FILL-IN 
+          SIZE 42 BY 1
+          BGCOLOR 15 
+     dynParam.validateProc AT ROW 20.29 COL 19 COLON-ALIGNED WIDGET-ID 176
           VIEW-AS FILL-IN 
           SIZE 42 BY 1
           BGCOLOR 15 
@@ -343,10 +345,8 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     dynParam.validateProc AT ROW 20.29 COL 19 COLON-ALIGNED WIDGET-ID 176
-          VIEW-AS FILL-IN 
-          SIZE 42 BY 1
-          BGCOLOR 15 
+     btnToggle-Box AT ROW 24.33 COL 61 HELP
+          "Create New TOGGLE-BOX" WIDGET-ID 200
      btnUpdate AT ROW 21.71 COL 20 HELP
           "Update/Save" WIDGET-ID 128
      btnCancel AT ROW 21.71 COL 60 HELP
@@ -753,7 +753,7 @@ DO:
         WHEN "Integer" THEN
         dynParam.paramFormat:SCREEN-VALUE = "->,>>>,>>9".
         WHEN "Logical" THEN
-        dynParam.paramFormat:SCREEN-VALUE = "yes/no".
+        dynParam.paramFormat:SCREEN-VALUE  = "yes/no".
     END CASE.
 END.
 
@@ -921,6 +921,14 @@ PROCEDURE pAssign :
   Notes:       
 ------------------------------------------------------------------------------*/
     DO TRANSACTION WITH FRAME viewFrame:
+        IF dynParam.dataType:SCREEN-VALUE EQ "Logical" AND
+           dynParam.initialValue:SCREEN-VALUE NE "yes" AND
+           dynParam.initialValue:SCREEN-VALUE NE "no" THEN
+        dynParam.initialValue:SCREEN-VALUE = "yes".
+        IF INTEGER(dynParam.paramWidth:SCREEN-VALUE) EQ 0 THEN
+        dynParam.paramWidth:SCREEN-VALUE = "14".
+        IF INTEGER(dynParam.paramHeight:SCREEN-VALUE) EQ 0 THEN
+        dynParam.paramHeight:SCREEN-VALUE = "1".
         FIND CURRENT dynParam EXCLUSIVE-LOCK.
         ASSIGN
             dynParam.paramID

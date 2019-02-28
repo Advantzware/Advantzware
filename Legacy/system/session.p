@@ -35,7 +35,6 @@ DEFINE VARIABLE lNext               AS LOGICAL   NO-UNDO.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -48,7 +47,6 @@ DEFINE VARIABLE lNext               AS LOGICAL   NO-UNDO.
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Prototypes ********************** */
 
 &IF DEFINED(EXCLUDE-fCueCardActive) = 0 &THEN
@@ -60,9 +58,7 @@ FUNCTION fCueCardActive RETURNS LOGICAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-sfClearTtSysCtrlUsage) = 0 &THEN
 
@@ -152,7 +148,6 @@ FUNCTION sfUserSecurityLevel RETURNS INTEGER
 
 &ENDIF
 
-
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
@@ -176,11 +171,7 @@ FUNCTION sfUserSecurityLevel RETURNS INTEGER
                                                                         */
 &ANALYZE-RESUME
 
- 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
-
 
 /* ***************************  Main Block  *************************** */
 
@@ -190,7 +181,6 @@ FIND FIRST users NO-LOCK
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -224,9 +214,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spCreateAuditHdr) = 0 &THEN
 
@@ -260,9 +248,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spCreateSysCtrlUsage) = 0 &THEN
 
@@ -359,9 +345,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spCueCardFrame) = 0 &THEN
 
@@ -380,9 +364,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spGetParamValueID) = 0 &THEN
 
@@ -401,9 +383,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spGetTaskFilter) = 0 &THEN
 
@@ -428,9 +408,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spSendEmail) = 0 &THEN
 
@@ -501,9 +479,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spSetDontShowAgain) = 0 &THEN
 
@@ -535,9 +511,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spSetDismiss) = 0 &THEN
 
@@ -578,9 +552,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spNextCue) = 0 &THEN
 
@@ -969,9 +941,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spSetTaskFilter) = 0 &THEN
 
@@ -996,9 +966,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 /* ************************  Function Implementations ***************** */
 
@@ -1018,9 +986,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-sfClearTtSysCtrlUsage) = 0 &THEN
 
@@ -1031,9 +997,9 @@ FUNCTION sfClearTtSysCtrlUsage RETURNS LOGICAL
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-        EMPTY TEMP-TABLE ttSysCtrlUsage.
+    EMPTY TEMP-TABLE ttSysCtrlUsage.
 
-        RETURN TRUE.
+    RETURN TRUE.
 
 END FUNCTION.
 

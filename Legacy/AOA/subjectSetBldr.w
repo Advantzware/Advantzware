@@ -189,6 +189,9 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE.
    NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME paramFrame
    FRAME-NAME                                                           */
+ASSIGN 
+       FRAME paramFrame:BOX-SELECTABLE   = TRUE.
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 

@@ -44,38 +44,6 @@ SESSION:ADD-SUPER-PROCEDURE (hCalcField).
 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fErrorMsg Include
-FUNCTION fErrorMsg RETURNS CHARACTER 
-  (iphWidget AS HANDLE) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-/* *********************** Procedure Settings ************************ */
-
-&ANALYZE-SUSPEND _PROCEDURE-SETTINGS
-/* Settings for THIS-PROCEDURE
-   Type: Include
-   Allow: 
-   Frames: 0
-   Add Fields to: Neither
-   Other Settings: INCLUDE-ONLY
- */
-&ANALYZE-RESUME _END-PROCEDURE-SETTINGS
-
-/* *************************  Create Window  ************************** */
-
-&ANALYZE-SUSPEND _CREATE-WINDOW
-/* DESIGN Window definition (used by the UIB) 
-  CREATE WINDOW Include ASSIGN
-         HEIGHT             = 15
-         WIDTH              = 60.
-/* END WINDOW DEFINITION */
-                                                                        */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Include 
 
 /* ***************************  Main Block  *************************** */
@@ -116,66 +84,13 @@ END. /* row-display */
 {AOA/includes/pDynParamProcs.i "{1}"}
 {AOA/includes/pRunNow.i}
 {AOA/includes/pSetDynParamValue.i "{1}"}
+{AOA/includes/dynInitializeProc.i}
+{AOA/includes/dynValidateProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 /* **********************  Internal Procedures  *********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dynGetCompany Include
-PROCEDURE dynGetCompany:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    RETURN g_company.
-
-END PROCEDURE.
-    
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dynGetCompanyList Include
-PROCEDURE dynGetCompanyList:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cCompanyList AS CHARACTER NO-UNDO.
-    
-    FOR EACH company NO-LOCK:
-        cCompanyList = cCompanyList + company.company + ",".
-    END. /* each company */
-    cCompanyList = TRIM(cCompanyList).
-    
-    RETURN cCompanyList.
-
-END PROCEDURE.
-    
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dynValMachine Include
-PROCEDURE dynValMachine:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
-    
-    IF iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-       iphWidget:SCREEN-VALUE EQ CHR(254) OR
-       CAN-FIND(FIRST mach
-                WHERE mach.company EQ g_company
-                  AND mach.m-code EQ iphWidget:SCREEN-VALUE) THEN
-    RETURN "".
-    ELSE
-    RETURN fErrorMsg (iphWidget).
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetRecipients Include
 PROCEDURE pGetRecipients:
@@ -429,17 +344,3 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fErrorMsg Include
-FUNCTION fErrorMsg RETURNS CHARACTER 
-  (iphWidget AS HANDLE):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    RETURN "Invalid Entry for " + iphWidget:LABEL + " " + iphWidget:SCREEN-VALUE.
-
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
