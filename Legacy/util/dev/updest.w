@@ -591,7 +591,7 @@ assign
  fcus = begin_cust
  tcus = end_cust.
 
-{util/updest.i}
+{util/dev/updest.i}
 
 SESSION:SET-WAIT-STATE("").
 

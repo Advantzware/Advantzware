@@ -123,7 +123,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartDataBrowser
-   Data Source: "util\sdotrans.w"
+   Data Source: "util\dev\sdotrans.w"
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: Neither

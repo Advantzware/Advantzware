@@ -86,7 +86,7 @@ CREATE WIDGET-POOL.
 &Scoped-Define MANDATORY-FIELDS 
 &Scoped-Define APPLICATION-SERVICE 
 &Scoped-Define ASSIGN-LIST 
-&Scoped-Define DATA-FIELD-DEFS "util/sdotrans.i"
+&Scoped-Define DATA-FIELD-DEFS "util/dev/sdotrans.i"
 &Scoped-Define DATA-TABLE-NO-UNDO NO-UNDO
 &Scoped-define QUERY-STRING-Query-Main FOR EACH inv-line NO-LOCK INDEXED-REPOSITION
 {&DB-REQUIRED-START}

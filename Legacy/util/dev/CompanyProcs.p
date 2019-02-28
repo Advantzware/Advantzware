@@ -14,7 +14,7 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-{util\CompanyProcs.i}
+{util\dev\CompanyProcs.i}
 DEFINE STREAM sTableList.
 DEFINE VARIABLE gAccountTables AS CHARACTER NO-UNDO
     INIT "ar-ctrl,ap-ctrl,gl-ctrl,costtype,fgcat,prod".

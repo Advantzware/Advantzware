@@ -25,41 +25,41 @@ FOR EACH company WHERE company.company EQ g_company OR ll:
 
   cocode = company.company.
 
-  {util/bldest#8.i ar-inv est-no}
-  {util/bldest#8.i ar-invl est-no}
-  {util/bldest#8.i ar-invm est-no}
-  {util/bldest#8.i box-design-hdr est-no}
-  {util/bldest#8.i box-design-line est-no}
-  {util/bldest#8.i e-item-vend est-no}
-  {util/bldest#8.i eb est-no}
-  {util/bldest#8.i eb master-est-no}
-  {util/bldest#8.i ef est-no}
-  {util/bldest#8.i ef-nsh est-no}
-  {util/bldest#8.i est est-no}
-  {util/bldest#8.i est-flm est-no}
-  {util/bldest#8.i est-inst est-no}
-  {util/bldest#8.i est-op est-no}
-  {util/bldest#8.i est-pf est-no}
-  {util/bldest#8.i est-prep est-no}
-  {util/bldest#8.i est-qty est-no}
-  {util/bldest#8.i est-summ est-no}
-  {util/bldest#8.i inv-line est-no}
-  {util/bldest#8.i inv-misc est-no}
-  {util/bldest#8.i itemfg est-no}
-  {util/bldest#8.i itemfgdtl est-no}
-  {util/bldest#8.i job est-no}
-  {util/bldest#8.i job-hdr est-no}
-  {util/bldest#8.i oe-ord est-no}
-  {util/bldest#8.i oe-ordl est-no}
-  {util/bldest#8.i oe-ordm est-no}
-  {util/bldest#8.i oe-retl est-no}
-  {util/bldest#8.i probe est-no}
-  {util/bldest#8.i probeit est-no}
-  {util/bldest#8.i probeit-price est-no}
-  {util/bldest#8.i quote est-no}
-  {util/bldest#8.i quotehd est-no}
-  {util/bldest#8.i quoteit est-no}
-  {util/bldest#8.i quoteitm est-no}
+  {util/dev/bldest#8.i ar-inv est-no}
+  {util/dev/bldest#8.i ar-invl est-no}
+  {util/dev/bldest#8.i ar-invm est-no}
+  {util/dev/bldest#8.i box-design-hdr est-no}
+  {util/dev/bldest#8.i box-design-line est-no}
+  {util/dev/bldest#8.i e-item-vend est-no}
+  {util/dev/bldest#8.i eb est-no}
+  {util/dev/bldest#8.i eb master-est-no}
+  {util/dev/bldest#8.i ef est-no}
+  {util/dev/bldest#8.i ef-nsh est-no}
+  {util/dev/bldest#8.i est est-no}
+  {util/dev/bldest#8.i est-flm est-no}
+  {util/dev/bldest#8.i est-inst est-no}
+  {util/dev/bldest#8.i est-op est-no}
+  {util/dev/bldest#8.i est-pf est-no}
+  {util/dev/bldest#8.i est-prep est-no}
+  {util/dev/bldest#8.i est-qty est-no}
+  {util/dev/bldest#8.i est-summ est-no}
+  {util/dev/bldest#8.i inv-line est-no}
+  {util/dev/bldest#8.i inv-misc est-no}
+  {util/dev/bldest#8.i itemfg est-no}
+  {util/dev/bldest#8.i itemfgdtl est-no}
+  {util/dev/bldest#8.i job est-no}
+  {util/dev/bldest#8.i job-hdr est-no}
+  {util/dev/bldest#8.i oe-ord est-no}
+  {util/dev/bldest#8.i oe-ordl est-no}
+  {util/dev/bldest#8.i oe-ordm est-no}
+  {util/dev/bldest#8.i oe-retl est-no}
+  {util/dev/bldest#8.i probe est-no}
+  {util/dev/bldest#8.i probeit est-no}
+  {util/dev/bldest#8.i probeit-price est-no}
+  {util/dev/bldest#8.i quote est-no}
+  {util/dev/bldest#8.i quotehd est-no}
+  {util/dev/bldest#8.i quoteit est-no}
+  {util/dev/bldest#8.i quoteitm est-no}
 
   DISABLE TRIGGERS FOR LOAD OF reftable.
 
