@@ -534,7 +534,7 @@ assign
  fitm = begin_i-no
  titm = end_i-no.
 
-{util/fgonhnd0.i}
+{util/dev/fgonhnd0.i}
 
 session:set-wait-state("").
 

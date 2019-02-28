@@ -145,7 +145,7 @@ DO:
          QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
 
      IF ll-ans THEN DO:
-         {util/reckey.i ITEM}
+         {util/dev/reckey.i ITEM}
      END.
 
 END.
