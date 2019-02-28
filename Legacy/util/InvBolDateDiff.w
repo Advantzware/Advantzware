@@ -64,11 +64,11 @@ DEFINE VARIABLE lRecordFound AS LOG           NO-UNDO.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 begin_cust-no end_cust-no begin_bol# ~
-fi_file out-process comp-value change_date bol-changed btn-process ~
+&Scoped-Define ENABLED-OBJECTS RECT-17 begin_bol# end_bol# fi_file ~
+out-process begin_company change_date btnCalendar-1 bol-changed btn-process ~
 btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_bol# ~
-fi_file comp-value change_date bol-changed inv_date inv-number 
+&Scoped-Define DISPLAYED-OBJECTS begin_bol# end_bol# fi_file begin_company ~
+change_date bol-changed inv_date inv-number 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -81,112 +81,104 @@ fi_file comp-value change_date bol-changed inv_date inv-number
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win        AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel 
-    LABEL "Ca&ncel" 
-    SIZE 18 BY 1.14.
+     LABEL "Ca&ncel" 
+     SIZE 18 BY 1.14.
 
 DEFINE BUTTON btn-process 
-    LABEL "&Start Process" 
-    SIZE 18 BY 1.14.
+     LABEL "&Start Process" 
+     SIZE 18 BY 1.14.
+
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON out-process 
-    LABEL "&Output File" 
-    SIZE 18 BY 1.14.
+     LABEL "&Output File" 
+     SIZE 18 BY 1.14.
 
-DEFINE VARIABLE begin_bol#    AS INTEGER   FORMAT ">>>>>>>>" INITIAL 0 
-    LABEL "Beginning BOL#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE begin_bol# AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
+     LABEL "Beginning BOL#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
-    LABEL "Beginning Customer#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE bol-changed AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
+     LABEL "BOL#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE bol-changed   AS INTEGER   FORMAT ">>>>>>>>" INITIAL 0 
-    LABEL "BOL#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE change_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/00 
+     LABEL "Change Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE change_date   AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
-    LABEL "Change Date" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY .95 NO-UNDO.
+DEFINE VARIABLE begin_company AS CHARACTER FORMAT "X(3)" 
+     LABEL "Company" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE comp-value    AS CHARACTER FORMAT "X(3)" 
-    LABEL "Company" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE end_bol# AS INTEGER FORMAT ">>>>>>>9" INITIAL 99999999 
+     LABEL "Ending BOL#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_bol#      AS INTEGER   FORMAT ">>>>>>>9" INITIAL 99999999 
-    LABEL "Ending BOL#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\InvBOLDiffs.csv" 
+     LABEL "Ouput File" 
+     VIEW-AS FILL-IN 
+     SIZE 43 BY 1
+     FGCOLOR 9 .
 
-DEFINE VARIABLE end_cust-no   AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
-    LABEL "Ending Customer#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE inv-number AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
+     LABEL "Invoice#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE fi_file       AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\InvBOLDiffs.csv" 
-    LABEL "Ouput File" 
-    VIEW-AS FILL-IN 
-    SIZE 43 BY 1
-    FGCOLOR 9 .
-
-DEFINE VARIABLE inv-number    AS INTEGER   FORMAT ">>>>>>>>" INITIAL 0 
-    LABEL "Invoice#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
-
-DEFINE VARIABLE inv_date      AS CHARACTER FORMAT "X(10)" 
-    LABEL "Inv Date#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE inv_date AS CHARACTER FORMAT "X(10)" 
+     LABEL "Inv Date#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
 DEFINE RECTANGLE RECT-17
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 89 BY 9.33.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 89 BY 9.33.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    begin_cust-no AT ROW 3.29 COL 24.6 COLON-ALIGNED HELP
-    "Enter Beginning Customer Number" WIDGET-ID 4
-    end_cust-no AT ROW 3.29 COL 65.6 COLON-ALIGNED HELP
-    "Enter Ending Customer Number" WIDGET-ID 6
-    begin_bol# AT ROW 4.67 COL 24.6 COLON-ALIGNED HELP
-    "Enter Beginning BOL Number" WIDGET-ID 10
-    end_bol# AT ROW 4.67 COL 65 COLON-ALIGNED HELP
-    "Enter Ending BOL Number" WIDGET-ID 12
-    fi_file AT ROW 7 COL 28.4 COLON-ALIGNED HELP
-    "Enter File Name" WIDGET-ID 8
-    out-process AT ROW 8.91 COL 56.4
-    comp-value AT ROW 11.38 COL 26 COLON-ALIGNED HELP
-    "Enter Company" WIDGET-ID 26
-    change_date AT ROW 12.81 COL 26 COLON-ALIGNED HELP
-    "Enter Beginning Date" WIDGET-ID 16
-    bol-changed AT ROW 14.33 COL 26 COLON-ALIGNED HELP
-    "Enter Beginning BOL Number" WIDGET-ID 18
-    inv_date AT ROW 15.81 COL 58.4 COLON-ALIGNED HELP
-    "Enter Beginning Customer Number" WIDGET-ID 24
-    inv-number AT ROW 15.86 COL 26 COLON-ALIGNED HELP
-    "Enter Beginning BOL Number" WIDGET-ID 22
-    btn-process AT ROW 17.81 COL 21 WIDGET-ID 20
-    btn-cancel AT ROW 17.81 COL 52
-    "Fix Bol Date" VIEW-AS TEXT
-    SIZE 21 BY .62 AT ROW 10.91 COL 5 WIDGET-ID 14
-    "Selection Parameters" VIEW-AS TEXT
-    SIZE 21 BY .62 AT ROW 1.67 COL 5
-    RECT-17 AT ROW 1.19 COL 1
+     begin_bol# AT ROW 3.67 COL 24.6 COLON-ALIGNED HELP
+          "Enter Beginning BOL Number" WIDGET-ID 10
+     end_bol# AT ROW 3.67 COL 65 COLON-ALIGNED HELP
+          "Enter Ending BOL Number" WIDGET-ID 12
+     fi_file AT ROW 7 COL 28.4 COLON-ALIGNED HELP
+          "Enter File Name" WIDGET-ID 8
+     out-process AT ROW 8.91 COL 56.4
+     begin_company AT ROW 11.38 COL 26 COLON-ALIGNED HELP
+          "Enter Company" WIDGET-ID 26
+     change_date AT ROW 12.81 COL 26 COLON-ALIGNED HELP
+          "Enter Beginning Date" WIDGET-ID 16
+     btnCalendar-1 AT ROW 12.81 COL 45
+     bol-changed AT ROW 14.33 COL 26 COLON-ALIGNED HELP
+          "Enter Beginning BOL Number" WIDGET-ID 18
+     inv_date AT ROW 15.81 COL 58.4 COLON-ALIGNED HELP
+          "Enter Beginning Customer Number" WIDGET-ID 24
+     inv-number AT ROW 15.86 COL 26 COLON-ALIGNED HELP
+          "Enter Beginning BOL Number" WIDGET-ID 22
+     btn-process AT ROW 17.81 COL 21 WIDGET-ID 20
+     btn-cancel AT ROW 17.81 COL 52
+     "Fix Bol Date" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 10.91 COL 5 WIDGET-ID 14
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 1.67 COL 5
+     RECT-17 AT ROW 1.19 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 89.6 BY 18.81.
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 89.6 BY 18.81.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -203,30 +195,30 @@ DEFINE FRAME FRAME-A
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "Check and fix Invoice Bol Date Diff"
-        HEIGHT             = 18.81
-        WIDTH              = 90.2
-        MAX-HEIGHT         = 19.76
-        MAX-WIDTH          = 98.2
-        VIRTUAL-HEIGHT     = 19.76
-        VIRTUAL-WIDTH      = 98.2
-        RESIZE             = YES
-        SCROLL-BARS        = NO
-        STATUS-AREA        = YES
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = YES
-        THREE-D            = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Check and fix Invoice Bol Date Diff"
+         HEIGHT             = 18.81
+         WIDTH              = 90.2
+         MAX-HEIGHT         = 19.76
+         MAX-WIDTH          = 98.2
+         VIRTUAL-HEIGHT     = 19.76
+         VIRTUAL-WIDTH      = 98.2
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -241,53 +233,55 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 ASSIGN 
-    begin_bol#:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_bol#:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       bol-changed:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    bol-changed:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    btn-process:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       change_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    change_date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_company:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    comp-value:PRIVATE-DATA IN FRAME FRAME-A = "parm".
-
-/* SETTINGS FOR FILL-IN end_bol# IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-    end_bol#:HIDDEN IN FRAME FRAME-A       = TRUE
-    end_bol#:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_bol#:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_cust-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
-
-ASSIGN 
-    fi_file:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN inv-number IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-    inv-number:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       inv-number:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN inv_date IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-    inv_date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       inv_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    out-process:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       out-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-    THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -300,8 +294,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Check and fix Invoice Bol Diff */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+ON END-ERROR OF C-Win /* Check and fix Invoice Bol Date Diff */
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -314,8 +308,8 @@ ON END-ERROR OF C-Win /* Check and fix Invoice Bol Diff */
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Check and fix Invoice Bol Diff */
-    DO:
+ON WINDOW-CLOSE OF C-Win /* Check and fix Invoice Bol Date Diff */
+DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -325,37 +319,10 @@ ON WINDOW-CLOSE OF C-Win /* Check and fix Invoice Bol Diff */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_bol#
-&Scoped-define SELF-NAME begin_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
-ON HELP OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
-    DO:
-        DEFINE VARIABLE char-val AS cha NO-UNDO.
-
-        RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
-        IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
-                .
-
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
-ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
-    DO:
-        ASSIGN {&self-name}.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME bol-changed
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bol-changed C-Win
 ON LEAVE OF bol-changed IN FRAME FRAME-A /* BOL# */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-bol NO-ERROR.
@@ -367,14 +334,14 @@ ON LEAVE OF bol-changed IN FRAME FRAME-A /* BOL# */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME bol-changed
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bol-changed C-Win
 ON VALUE-CHANGED OF bol-changed IN FRAME FRAME-A /* BOL# */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             FIND FIRST oe-bolh NO-LOCK
-                WHERE oe-bolh.company EQ comp-value:SCREEN-VALUE 
+                WHERE oe-bolh.company EQ begin_company:SCREEN-VALUE 
                 AND oe-bolh.bol-no EQ int(bol-changed:SCREEN-VALUE) 
                 AND oe-bolh.bol-no NE 0 NO-ERROR .
             IF AVAILABLE oe-bolh THEN 
@@ -421,7 +388,7 @@ ON VALUE-CHANGED OF bol-changed IN FRAME FRAME-A /* BOL# */
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-    DO:
+DO:
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -432,7 +399,7 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
-    DO:
+DO:
         v-process  = NO.
 
         DO WITH FRAME {&FRAME-NAME}:
@@ -447,12 +414,12 @@ ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 
 
         FIND FIRST oe-bolh NO-LOCK
-            WHERE oe-bolh.company EQ comp-value:SCREEN-VALUE 
+            WHERE oe-bolh.company EQ begin_company:SCREEN-VALUE 
             AND oe-bolh.bol-no EQ int(bol-changed:SCREEN-VALUE) 
             AND oe-bolh.bol-no NE 0 NO-ERROR .
  
-        IF MONTH(oe-bolh.bol-date) NE MONTH(change_date) OR 
-            YEAR(oe-bolh.bol-date) NE YEAR(change_date)  THEN 
+        IF MONTH(date(inv_date)) NE MONTH(change_date) OR 
+            YEAR(date(inv_date)) NE YEAR(change_date)  THEN 
         DO:
      
             MESSAGE "This could cause a problem with month end reporting " SKIP
@@ -474,10 +441,31 @@ ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 C-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME FRAME-A
+DO:
+  {methods/btnCalendar.i change_date}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME change_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL change_date C-Win
+ON HELP OF change_date IN FRAME FRAME-A /* Change Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL change_date C-Win
 ON LEAVE OF change_date IN FRAME FRAME-A /* Change Date */
-    DO:
+DO:
   
         ASSIGN {&self-name}.
         IF LASTKEY NE -1 THEN 
@@ -491,46 +479,11 @@ ON LEAVE OF change_date IN FRAME FRAME-A /* Change Date */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME comp-value
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL comp-value C-Win
-ON VALUE-CHANGED OF comp-value IN FRAME FRAME-A /* Company */
-    DO:
-  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
-ON HELP OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
-    DO:
-        DEFINE VARIABLE char-val AS cha NO-UNDO.
-
-        RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
-        IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
-
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
-ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
-    DO:
-        ASSIGN {&self-name}.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
+&Scoped-define SELF-NAME begin_company
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* Ouput File */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -541,7 +494,7 @@ ON LEAVE OF fi_file IN FRAME FRAME-A /* Ouput File */
 &Scoped-define SELF-NAME out-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL out-process C-Win
 ON CHOOSE OF out-process IN FRAME FRAME-A /* Output File */
-    DO:
+DO:
         v-process  = NO.
 
         RUN run-report.
@@ -598,18 +551,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-        THEN DELETE WIDGET C-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -617,23 +570,23 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY begin_cust-no end_cust-no begin_bol# fi_file comp-value change_date 
-        bol-changed inv_date inv-number 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE RECT-17 begin_cust-no end_cust-no begin_bol# fi_file out-process 
-        comp-value change_date bol-changed btn-process btn-cancel 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-    VIEW C-Win.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY begin_bol# end_bol# fi_file begin_company change_date bol-changed 
+          inv_date inv-number 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  ENABLE RECT-17 begin_bol# end_bol# fi_file out-process begin_company change_date 
+         btnCalendar-1 bol-changed btn-process btn-cancel 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -641,7 +594,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExportTempTable C-Win 
 PROCEDURE pExportTempTable PRIVATE :
-    /*------------------------------------------------------------------------------ 
+/*------------------------------------------------------------------------------ 
     
          Purpose: Exports the contents of any temp-table into CSV    
     
@@ -696,9 +649,9 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-    DO WITH FRAME {&FRAME-NAME}:
+DO WITH FRAME {&FRAME-NAME}:
         FIND FIRST oe-bolh EXCLUSIVE-LOCK
-            WHERE oe-bolh.company EQ comp-value:SCREEN-VALUE 
+            WHERE oe-bolh.company EQ begin_company:SCREEN-VALUE 
             AND oe-bolh.bol-no EQ int(bol-changed:SCREEN-VALUE) 
             AND oe-bolh.bol-no NE 0 NO-ERROR .
         IF AVAILABLE oe-bolh THEN 
@@ -734,16 +687,13 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-    FOR EACH ar-invl NO-LOCK,
+FOR EACH ar-invl NO-LOCK,
         FIRST ar-inv NO-LOCK
         WHERE ar-inv.x-no EQ ar-invl.x-no,
         FIRST oe-bolh NO-LOCK
-        WHERE oe-bolh.b-no EQ ar-invl.b-no 
-        AND oe-bolh.cust-no GT begin_cust-no
-        AND oe-bolh.cust-no LT end_cust-no
+        WHERE oe-bolh.b-no EQ ar-invl.b-no         
         AND oe-bolh.bol-no GT begin_bol#
         AND oe-bolh.bol-no LT end_bol# :
         IF MONTH(oe-bolh.bol-date) NE MONTH(ar-inv.inv-date) THEN 
@@ -767,9 +717,7 @@ PROCEDURE run-report :
         FIRST inv-head NO-LOCK
         WHERE inv-head.r-no EQ inv-line.r-no,
         FIRST oe-bolh NO-LOCK
-        WHERE oe-bolh.b-no EQ inv-line.b-no
-        AND oe-bolh.cust-no GT begin_cust-no
-        AND oe-bolh.cust-no LT end_cust-no
+        WHERE oe-bolh.b-no EQ inv-line.b-no        
         AND oe-bolh.bol-no GT begin_bol#
         AND oe-bolh.bol-no LT end_bol#:
         IF oe-bolh.bol-date NE inv-head.inv-date THEN 
@@ -800,10 +748,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-company C-Win 
-PROCEDURE valid-company :
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-bol C-Win 
+PROCEDURE valid-bol :
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -811,12 +758,13 @@ PROCEDURE valid-company :
 
     {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
-        IF NOT CAN-FIND(FIRST company  WHERE company.company EQ comp-value:SCREEN-VALUE)
+        IF NOT CAN-FIND(FIRST oe-bolh  WHERE oe-bolh.company EQ begin_company:SCREEN-VALUE AND
+            oe-bolh.bol-no EQ int(bol-changed:SCREEN-VALUE) AND oe-bolh.bol-no NE 0 )
             THEN 
         DO:
-            MESSAGE "Invalid Company, try help..."
+            MESSAGE "Invalid Bol# ..."
                 VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO comp-value .
+            APPLY "entry" TO bol-changed .
             RETURN ERROR.
         END.
     END.
@@ -827,10 +775,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-Bol C-Win 
-PROCEDURE valid-bol :
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-company C-Win 
+PROCEDURE valid-company :
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -838,13 +785,12 @@ PROCEDURE valid-bol :
 
     {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
-        IF NOT CAN-FIND(FIRST oe-bolh  WHERE oe-bolh.company EQ comp-value:SCREEN-VALUE AND
-            oe-bolh.bol-no EQ int(bol-changed:SCREEN-VALUE) AND oe-bolh.bol-no NE 0 )
+        IF NOT CAN-FIND(FIRST company  WHERE company.company EQ begin_company:SCREEN-VALUE)
             THEN 
         DO:
-            MESSAGE "Invalid Bol#, try help..."
+            MESSAGE "Invalid Company, try help..."
                 VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO bol-changed .
+            APPLY "entry" TO begin_company .
             RETURN ERROR.
         END.
     END.
