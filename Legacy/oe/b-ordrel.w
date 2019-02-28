@@ -5,13 +5,6 @@
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
-
-/* Temp-Table and Buffer definitions                                    */
-DEFINE TEMP-TABLE tt-report NO-UNDO LIKE oe-ordl
-       field rec-id as recid.
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -38,6 +31,13 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+
+/* Temp-Table and Buffer definitions                                    */
+DEFINE TEMP-TABLE tt-report NO-UNDO LIKE oe-ordl
+       FIELD cStatus AS CHAR
+       field rec-id as recid.
+
+
 {custom/globdefs.i}
 {sys/inc/var.i new shared }
 ASSIGN cocode = g_company
@@ -146,6 +146,7 @@ DEFINE VARIABLE v-called-setCellColumns AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lv-sort-by AS CHAR INIT "tag" NO-UNDO.
 DEFINE VARIABLE lv-sort-by-lab AS CHAR INIT "Tag" NO-UNDO.
 DEFINE VARIABLE ll-sort-asc AS LOG NO-UNDO.
+DEFINE VARIABLE cAbbrStatus AS CHARACTER NO-UNDO .
 
 RUN methods/prgsecur.p
     (INPUT "OEDateChg",
@@ -220,6 +221,7 @@ IF lRecFound THEN
 &SCOPED-DEFINE sortby-log                                                                                   ~
     IF lv-sort-by EQ "carrier"        THEN STRING(oe-rel.carrier)                                                                                                                     ELSE ~
     IF lv-sort-by EQ "stat"           THEN STRING(oe-rel.stat)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "cAbbrStatus"           THEN STRING(get-stat())                                                                                                                     ELSE ~
     IF lv-sort-by EQ "s-code"        THEN STRING(oe-rel.s-code)                                                                                                                     ELSE ~
     IF lv-sort-by EQ "ship-id"           THEN STRING(oe-rel.ship-id)                                                                                                                     ELSE ~
     IF lv-sort-by EQ "opened"           THEN STRING(tt-report.opened)                                                                                                                     ELSE ~
@@ -292,15 +294,15 @@ DEFINE QUERY external_tables FOR oe-ordl.
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table tt-report.opened oe-rel.s-code ~
 oe-rel.ship-id oe-rel.stat oe-rel.carrier oe-rel.tot-qty oe-rel.qty ~
-tt-report.po-no tt-report.lot-no tt-report.prom-date tt-report.stat ~
+tt-report.po-no tt-report.lot-no tt-report.prom-date tt-report.cStatus ~
 oe-rel.ship-addr[1] oe-rel.ship-city oe-rel.ship-state tt-report.price ~
 tt-report.whsed oe-ordl.disc oe-ordl.t-price tt-report.frt-pay ~
 tt-report.flute oe-rel.spare-char-1 oe-rel.spare-char-2 oe-rel.spare-char-3 ~
 tt-report.q-rel oe-rel.r-no oe-rel.link-no tt-report.job-start-date ~
-tt-report.qty tt-report.prom-code tt-report.pr-uom 
+tt-report.qty tt-report.prom-code tt-report.pr-uom get-stat() @ cAbbrStatus
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table oe-rel.s-code ~
 oe-rel.ship-id oe-rel.stat oe-rel.carrier oe-rel.tot-qty oe-rel.qty ~
-tt-report.po-no tt-report.lot-no tt-report.prom-date tt-report.stat ~
+tt-report.po-no tt-report.lot-no tt-report.prom-date tt-report.cStatus ~
 oe-rel.ship-addr[1] tt-report.price tt-report.whsed tt-report.frt-pay ~
 tt-report.flute oe-rel.spare-char-1 oe-rel.spare-char-2 tt-report.q-rel 
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table oe-rel tt-report
@@ -408,6 +410,13 @@ FUNCTION get-tot-qty RETURNS DECIMAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-stat B-table-Win 
+FUNCTION get-stat RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -444,17 +453,7 @@ DEFINE BROWSE br_table
                      "T-Transfer","T"
           DROP-DOWN-LIST
       oe-rel.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U COLUMN-FONT 0
-      oe-rel.stat COLUMN-LABEL "S" FORMAT "X(15)":U  WIDTH 28
-      VIEW-AS COMBO-BOX INNER-LINES 8 
-          LIST-ITEM-PAIRS "S-Scheduled","S",
-                     "L-Late","L",
-                     "I-Invoice Per Terms","I",
-                     "A-Actual","A",
-                     "P-Posted","P",
-                     "B-Backorder","B",
-                     "Z-Posted BOL","Z",
-                     "C-Completed","C"
-          DROP-DOWN-LIST
+      get-stat() @ cAbbrStatus COLUMN-LABEL "S" FORMAT "x(1)":U WIDTH 5.4
       oe-rel.carrier COLUMN-LABEL "Via" FORMAT "x(5)":U COLUMN-FONT 0
       oe-rel.tot-qty COLUMN-LABEL "Sched Qty" FORMAT "->>,>>>,>>9":U
       oe-rel.qty COLUMN-LABEL "Actual Qty" FORMAT "->>,>>>,>>9":U
@@ -464,7 +463,7 @@ DEFINE BROWSE br_table
       tt-report.lot-no COLUMN-LABEL "Customer Lot #" FORMAT "x(15)":U
             WIDTH 21.8 COLUMN-FONT 0
       tt-report.prom-date COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U
-      tt-report.stat COLUMN-LABEL "Rel Date" FORMAT "99/99/9999":U
+      tt-report.cStatus COLUMN-LABEL "Rel Date" FORMAT "99/99/9999":U
             WIDTH 18.4 COLUMN-FONT 0
       oe-rel.ship-addr[1] COLUMN-LABEL "Ship To Address" FORMAT "x(26)":U
             COLUMN-FONT 0
@@ -492,6 +491,18 @@ DEFINE BROWSE br_table
       tt-report.qty FORMAT "->>,>>>,>>9.9<<":U
       tt-report.prom-code COLUMN-LABEL "Due Dt Chg Usr" FORMAT "x(5)":U
       tt-report.pr-uom COLUMN-LABEL "Due Dt Chg Rsn" FORMAT "x(4)":U
+      oe-rel.stat COLUMN-LABEL "Rel. Status" FORMAT "X(15)":U  WIDTH 28
+      VIEW-AS COMBO-BOX INNER-LINES 8 
+          LIST-ITEM-PAIRS "S-Scheduled","S",
+                     "L-Late","L",
+                     "I-Invoice Per Terms","I",
+                     "A-Actual","A",
+                     "P-Posted","P",
+                     "B-Backorder","B",
+                     "Z-Posted BOL","Z",
+                     "C-Completed","C"
+          DROP-DOWN-LIST
+      
   ENABLE
       oe-rel.s-code HELP "B=Bill and Ship, I=Invoice Only, S=Ship Only, T=Transfer"
       oe-rel.ship-id
@@ -502,7 +513,7 @@ DEFINE BROWSE br_table
       tt-report.po-no
       tt-report.lot-no
       tt-report.prom-date HELP "Enter the Due Date."
-      tt-report.stat
+      tt-report.cStatus
       oe-rel.ship-addr[1]
       tt-report.price HELP "Enter Sell Price"
       tt-report.whsed
@@ -625,8 +636,8 @@ ASSIGN
 "asi.oe-rel.s-code" "S/I" "!" "character" ? ? ? ? ? ? yes "B=Bill and Ship, I=Invoice Only, S=Ship Only, T=Transfer" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.oe-rel.ship-id
 "ASI.oe-rel.ship-id" "Ship To" ? "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.oe-rel.stat
-"ASI.oe-rel.stat" "S" ? "character" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > "_<CALC>"
+"get-stat() @ cAbbrStatus" "S" ? "character" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.oe-rel.carrier
 "ASI.oe-rel.carrier" "Via" ? "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.oe-rel.tot-qty
@@ -639,8 +650,8 @@ ASSIGN
 "Temp-Tables.tt-report.lot-no" "Customer Lot #" ? "character" ? ? 0 ? ? ? yes ? no no "21.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > Temp-Tables.tt-report.prom-date
 "Temp-Tables.tt-report.prom-date" "Due Date" ? "date" ? ? ? ? ? ? yes "Enter the Due Date." no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > Temp-Tables.tt-report.stat
-"Temp-Tables.tt-report.stat" "Rel Date" "99/99/9999" "character" ? ? 0 ? ? ? yes ? no no "18.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > Temp-Tables.tt-report.cStatus
+"Temp-Tables.tt-report.cStatus" "Rel Date" "99/99/9999" "character" ? ? 0 ? ? ? yes ? no no "18.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.oe-rel.ship-addr[1]
 "ASI.oe-rel.ship-addr[1]" "Ship To Address" "x(26)" "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.oe-rel.ship-city
@@ -677,6 +688,8 @@ ASSIGN
 "Temp-Tables.tt-report.prom-code" "Due Dt Chg Usr" "x(5)" "character" ? ? ? ? ? ? no "Enter code the Due Date Reason Code" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[30]   > Temp-Tables.tt-report.pr-uom
 "Temp-Tables.tt-report.pr-uom" "Due Dt Chg Rsn" ? "character" ? ? ? ? ? ? no "Enter the Due Date Change Reason" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[31]   > ASI.oe-rel.stat
+"ASI.oe-rel.stat" "Rel. Status" ? "character" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -700,11 +713,22 @@ ASSIGN
 ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
-    
-  RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
-  RUN reopen-query .
-  RUN repo-query (ROWID(oe-rel)).
-  
+ DEFINE VARIABLE lCheckInquiry AS LOGICAL NO-UNDO .
+
+ RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"inquiry-rel-source", OUTPUT char-hdl) NO-ERROR.
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      lCheckInquiry = YES .
+     
+ IF oe-rel.stat NE "C" AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C' AND NOT lCheckInquiry  THEN do:
+     RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
+     RUN reopen-query .
+     RUN repo-query (ROWID(oe-rel)).
+ END.
+ ELSE DO:
+     RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "view", OUTPUT lv-rowid) .
+     RUN reopen-query .
+     RUN repo-query (ROWID(oe-rel)).
+ END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -714,11 +738,11 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON RETURN OF br_table IN FRAME F-Main
-ANYWHERE
-DO:
-   APPLY "tab" TO SELF.
-   RETURN NO-APPLY.
-END.
+    ANYWHERE
+    DO:
+        APPLY "tab" TO SELF.
+        RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1582,14 +1606,14 @@ PROCEDURE calendarPlacement :
    DO WITH FRAME {&FRAME-NAME}:
    
       IF btnCalendar:VISIBLE AND
-         tt-report.stat:X IN BROWSE {&browse-name} + 75 + BROWSE {&browse-name}:X GT 0 AND
-         tt-report.stat:Y IN BROWSE {&browse-name} + BROWSE {&browse-name}:Y GT 0 AND
-         tt-report.stat:X IN BROWSE {&browse-name} + 75 + BROWSE {&browse-name}:X LE BROWSE {&browse-name}:WIDTH-PIXELS AND
-         tt-report.stat:Y IN BROWSE {&browse-name} + BROWSE {&browse-name}:Y LE BROWSE {&browse-name}:HEIGHT-PIXELS THEN
+         tt-report.cStatus:X IN BROWSE {&browse-name} + 75 + BROWSE {&browse-name}:X GT 0 AND
+         tt-report.cStatus:Y IN BROWSE {&browse-name} + BROWSE {&browse-name}:Y GT 0 AND
+         tt-report.cStatus:X IN BROWSE {&browse-name} + 75 + BROWSE {&browse-name}:X LE BROWSE {&browse-name}:WIDTH-PIXELS AND
+         tt-report.cStatus:Y IN BROWSE {&browse-name} + BROWSE {&browse-name}:Y LE BROWSE {&browse-name}:HEIGHT-PIXELS THEN
          DO: /*do end needs to be here*/
             ASSIGN
-               btnCalendar:X  = tt-report.stat:X IN BROWSE {&browse-name} + 75 + BROWSE {&browse-name}:X.
-               btnCalendar:Y  = tt-report.stat:Y IN BROWSE {&browse-name} + BROWSE {&browse-name}:Y.
+               btnCalendar:X  = tt-report.cStatus:X IN BROWSE {&browse-name} + 75 + BROWSE {&browse-name}:X.
+               btnCalendar:Y  = tt-report.cStatus:Y IN BROWSE {&browse-name} + BROWSE {&browse-name}:Y.
          END.
    END.
 
@@ -2120,7 +2144,7 @@ PROCEDURE pUpdateRecord :
     DEFINE VARIABLE lMatchingSRecordFound AS LOGICAL NO-UNDO.
     DEFINE BUFFER bf-add-oe-rel FOR oe-rel.
     
-    IF AVAILABLE oe-ordl AND AVAILABLE oe-rel THEN
+    IF AVAILABLE oe-ordl AND AVAILABLE oe-rel AND oe-rel.stat NE "C" THEN
     DO:
        RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) . 
        
@@ -2827,7 +2851,7 @@ PROCEDURE create-report-record-1 :
      tt-report.del-zone  = STRING(YEAR(ld-date),"9999") +
                          STRING(MONTH(ld-date),"99")  +
                          STRING(DAY(ld-date),"99")
-     tt-report.stat  = STRING(ld-date,"99999999")
+     tt-report.cStatus  = STRING(ld-date,"99999999")
      tt-report.tax = ip-phantom
      tt-report.po-no   = /*IF AVAIL inv-line THEN inv-line.po-no
                          ELSE
@@ -3400,10 +3424,10 @@ PROCEDURE local-enable-fields :
   v-browse-in-update = YES.
   
   IF (adm-cur-state BEGINS "ADD" OR adm-cur-state BEGINS "link-changed") THEN DO:      
-      tt-report.stat:READ-ONLY IN BROWSE {&browse-name} = FALSE.
+      tt-report.cStatus:READ-ONLY IN BROWSE {&browse-name} = FALSE.
   END.
   ELSE
-    tt-report.stat:READ-ONLY IN BROWSE {&browse-name} = 
+    tt-report.cStatus:READ-ONLY IN BROWSE {&browse-name} = 
     NOT l-update-reason-perms OR (oeDateAuto-log AND OeDateAuto-Char = "Colonial").
 
 END PROCEDURE.
@@ -3452,7 +3476,7 @@ PROCEDURE local-initialize :
   /*{methods/winReSizeLocInit.i}*/
   IF NOT l-update-reason-perms OR (oeDateAuto-log AND OeDateAuto-Char = "Colonial") THEN DO:
 
-      DISABLE tt-report.stat.
+      DISABLE tt-report.cStatus.
       END.
 END PROCEDURE.
 
@@ -3605,7 +3629,7 @@ DEFINE VARIABLE dTempDate AS DATE NO-UNDO.
         /* if oeDateAuto is 'colonial' then release date is due date - dock appt days */
         IF AVAIL bf-shipto THEN                           
             ASSIGN
-                tt-report.stat:SCREEN-VALUE IN BROWSE {&browse-name} 
+                tt-report.cStatus:SCREEN-VALUE IN BROWSE {&browse-name} 
                 
                 = STRING(
                 get-date(DATE(tt-report.prom-date:SCREEN-VALUE IN BROWSE {&browse-name}), bf-shipto.spare-int-2, "-")                
@@ -4395,9 +4419,9 @@ PROCEDURE update-dates :
   DEF BUFFER b-oe-ordl FOR oe-ordl.
 
 
-  lv-date = DATE(INT(SUBSTR(tt-report.stat,1,2)),
-                 INT(SUBSTR(tt-report.stat,3,2)),
-                 INT(SUBSTR(tt-report.stat,5,4))).
+  lv-date = DATE(INT(SUBSTR(tt-report.cStatus,1,2)),
+                 INT(SUBSTR(tt-report.cStatus,3,2)),
+                 INT(SUBSTR(tt-report.cStatus,5,4))).
 
   {oe/rel-stat.i lv-stat}
 
@@ -4514,6 +4538,22 @@ FUNCTION get-rel-stat RETURNS CHARACTER
   RUN oe/rel-stat.p (IF AVAIL oe-rel THEN ROWID(oe-rel) ELSE ?, OUTPUT lv-stat).
 
   RETURN lv-stat.
+  
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-stat B-table-Win 
+FUNCTION get-stat RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  
+  RETURN oe-rel.stat .
   
 END FUNCTION.
 

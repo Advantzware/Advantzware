@@ -1,0 +1,32 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 4:03pm                                         Estimates List - by Estimate Number
+
+ Est.#   Customer Name                  Part # / Description           Style/Blank size           Item Size/Print/Board       Status
+------------------------------------------------------------------------------------------------------------------------------------
+
+   18    STOCK XFER & JUST IN TIME MFG  Facial Box                     Seal End Full Overlap      5" x 5" x 7"
+         Last used: 10/16/00            Facial Powder                    17.000   x 20.01953      Print:
+                                        5 x 5 x7                                                  Board: SBS 16 Pt Board
+
+  142    Hershey Chocolate Corp         Godiva                                                    0" x 0" x 0"                Booked
+         Last used: 10/09/00            Godiva Chocolatier                0.000   x    0.000      Print:
+                                        PN 50111                                                  Board: Bending Chip 11 Pt
+                                        PN 50111                      
+                                        PN 50111                      
+                                        PN 50111                      
+                                        PN 50111                      
+
+ 1020    AT&T Corp                      ATT-1020                       Reverse Tuck Carton        4" x 5" x 8"                Booked
+         Last used: 10/11/00            RT 4x5x8                         19.250   x   18.625      Print:
+                                                                                                  Board: SBS 18 Pt Board
+
+ 1021    Hershey Chocolate Corp         HER-1021                       Reverse Tuck Carton        5" x 4" x 8"                Booked
+         Last used: 10/16/00            RT 5x4x8                         17.250   x   18.625      Print: 5 Color, Varn
+                                        Standard Box                                              Board: CCN 16 Pt
+
+
+          Total Estimates: 8            
+             Total Booked: 7            
+
+

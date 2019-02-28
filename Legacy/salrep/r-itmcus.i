@@ -137,7 +137,7 @@
       
       release ar-inv.
       
-      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
       ASSIGN
        lv-r-no = 0
@@ -402,7 +402,7 @@
          v-amt[1] = ar-cashl.amt-paid - ar-cashl.amt-disc
          v-cst[1] = 0.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         if avail oe-retl then do:
           assign

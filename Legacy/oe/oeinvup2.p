@@ -73,12 +73,11 @@ IF AVAIL inv-head THEN DO:
                           AND itemfg.i-no = inv-line.i-no NO-LOCK NO-ERROR.
 
       IF AVAIL itemfg THEN
-      FIND FIRST reftable NO-LOCK
-          WHERE reftable.reftable EQ "chargecode"
-            AND reftable.company  EQ inv-head.company
-            AND reftable.loc      EQ itemfg.procat
+      FIND FIRST fgcat NO-LOCK
+          WHERE fgcat.company  EQ inv-head.company
+            AND fgcat.procat   EQ itemfg.procat
           NO-ERROR.
-      v-charge-code = IF AVAIL reftable THEN reftable.CODE ELSE "".
+      v-charge-code = IF AVAIL fgcat THEN fgcat.miscCharge ELSE "".  
    
          v-found-cust-charge = NO.
 

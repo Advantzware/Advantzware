@@ -657,6 +657,45 @@ DEFINE FRAME FRAME-USER
          SIZE 160 BY 28.57
          BGCOLOR 15 .
 
+DEFINE FRAME searchFrame
+     BtnFavorites AT ROW 1 COL 1 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 54
+     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
+          "Enter Search Filter" NO-LABEL WIDGET-ID 2
+     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
+     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
+     btnMoveDown AT ROW 5.76 COL 1 HELP
+          "Move Favorite Down" WIDGET-ID 58
+     btnMoveUp AT ROW 3.38 COL 1 HELP
+          "Move Favorite Up" WIDGET-ID 56
+     btnRemove AT ROW 4.57 COL 1 HELP
+          "Remove Favorite" WIDGET-ID 26
+     btnSearch AT ROW 1 COL 51 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 40
+     btnFavorite AT ROW 13.62 COL 52 WIDGET-ID 46
+     btnClear AT ROW 13.86 COL 100 HELP
+          "Clear Search Filters" WIDGET-ID 42
+     svFavoriteText AT ROW 13.86 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     "FAVORITES" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
+          BGCOLOR 15 
+     RECT-23 AT ROW 1 COL 6 WIDGET-ID 60
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 3.38
+         SIZE 108 BY 14.05
+         FGCOLOR 1  WIDGET-ID 600.
+
+DEFINE FRAME menuTreeFrame
+     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
+     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
+     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 4.57
+         SIZE 55 BY 24.91
+         BGCOLOR 15  WIDGET-ID 100.
+
 DEFINE FRAME userSettingsFrame
      btnCancel AT ROW 20.52 COL 12 HELP
           "Cancel" WIDGET-ID 2
@@ -773,45 +812,6 @@ DEFINE FRAME userSettingsFrame
          SIZE 103 BY 25.95
          BGCOLOR 15 FGCOLOR 1 
          TITLE "User Settings" WIDGET-ID 200.
-
-DEFINE FRAME menuTreeFrame
-     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
-     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
-     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 4.57
-         SIZE 55 BY 24.91
-         BGCOLOR 15  WIDGET-ID 100.
-
-DEFINE FRAME searchFrame
-     BtnFavorites AT ROW 1 COL 1 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 54
-     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
-          "Enter Search Filter" NO-LABEL WIDGET-ID 2
-     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
-     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
-     btnMoveDown AT ROW 5.76 COL 1 HELP
-          "Move Favorite Down" WIDGET-ID 58
-     btnMoveUp AT ROW 3.38 COL 1 HELP
-          "Move Favorite Up" WIDGET-ID 56
-     btnRemove AT ROW 4.57 COL 1 HELP
-          "Remove Favorite" WIDGET-ID 26
-     btnSearch AT ROW 1 COL 51 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 40
-     btnFavorite AT ROW 13.62 COL 52 WIDGET-ID 46
-     btnClear AT ROW 13.86 COL 100 HELP
-          "Clear Search Filters" WIDGET-ID 42
-     svFavoriteText AT ROW 13.86 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-     "FAVORITES" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
-          BGCOLOR 15 
-     RECT-23 AT ROW 1 COL 6 WIDGET-ID 60
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 3.38
-         SIZE 108 BY 14.05
-         FGCOLOR 1  WIDGET-ID 600.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1199,9 +1199,6 @@ THEN MAINMENU:HIDDEN = no.
 */  /* FRAME userSettingsFrame */
 &ANALYZE-RESUME
 
- 
-
-
 /* **********************  Create OCX Containers  ********************** */
 
 &ANALYZE-SUSPEND _CREATE-DYNAMIC
@@ -1223,7 +1220,6 @@ CREATE CONTROL-FRAME CtrlFrame ASSIGN
 &ENDIF
 
 &ANALYZE-RESUME /* End of _CREATE-DYNAMIC */
-
 
 /* ************************  Control Triggers  ************************ */
 
@@ -1845,9 +1841,8 @@ DO:
             "About to download and install a system update.  This" SKIP 
             "window will now close until the update is complete."
             VIEW-AS ALERT-BOX INFO.
-    OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
+        OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
         QUIT.
-        
     END.
     ELSE DO:
         OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
@@ -2135,7 +2130,6 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  RUN control_load.
   DISPLAY company_name loc_loc users_user_id Mnemonic 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   ENABLE imageSettings imageCompany menuLinkZoHo imageFolder imagePrinter 
@@ -3416,4 +3410,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

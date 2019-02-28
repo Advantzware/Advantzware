@@ -1,0 +1,44 @@
+
+                                                            RELEASE
+                                                             Date      Number
+                                                           10/18/00    1-00
+
+ADVANCED CARTON COMPANY
+123 Anywhere Road
+Phone 215.369.1160 Fx 369.1164
+Yardley         PA 19067
+
+
+          SOLD To:                               SHIP To:
+          Hershey Chocolate Corp                 Hershey Chocolate Corp
+          123 Chocolate Blvd                     123 Chocolate Lane
+
+          Hershey         PA 19888               Hershey         PA 19888
+
+Notes                                                                  Ship Date
+ Directions: PA Turnpike West to Exit 21.  Rt 73 West to                10/18/00
+Hershey.  Right for Hershey Lane.   Pack on 45" Pallet.
+
+
+--------------------------------------------------------------------------------
+Ship Via                  DelZone      F.O.B.      Weight       Freight Terms
+COMMON CARRIER            100          DEST          9300       PREPAID
+--------------------------------------------------------------------------------
+
+Order# PO No           Whs  / Bin     Item / Descrip  Units Unit Count   Rel Qty
+------ -----           ----------     --------------  ----- ----------   -------
+   319 101700          MAIN /FLOOR    HER-1021          100        500     50000
+                                      RT 5x4x8 Candy Box
+                                      SBS 5 Color Process
+                                      HER-1021
+
+Pallets____________  Pulled by__________  Shipped by_________  Total Qty___________
+
+   319 101700                         HER-1022           10        500      5000
+                                      RSC 10x10x10
+
+                                      HER-1022
+
+Pallets____________  Pulled by__________  Shipped by_________  Total Qty___________
+
+

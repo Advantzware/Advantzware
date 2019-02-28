@@ -1,9 +1,8 @@
 /*viewers/fgcatcreate.i */
 
 DO WITH FRAME {&FRAME-NAME}:
-
 ASSIGN
-   v-charge:SCREEN-VALUE = ""
-   v-gl-rm:SCREEN-VALUE = ""
-   v-gl-fg:SCREEN-VALUE = "".
+   fgcat.miscCharge:SCREEN-VALUE = ""
+   fgcat.brdExpAcct:SCREEN-VALUE = ""
+   fgcat.cogsExpAcct:SCREEN-VALUE = "".
 END.

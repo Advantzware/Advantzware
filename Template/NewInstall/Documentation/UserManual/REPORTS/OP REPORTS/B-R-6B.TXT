@@ -1,0 +1,30 @@
+
+10/17/00                                               ADVANCED CARTON COMPANY                                            Page   1
+ 6:35pm                                   C O M M I S S I O N   R E P O R T  -  D E T A I L
+
+                                          PTD (10/01/00-10/17/00) - By Salesman By Customer
+
+Salesman  Customer  Name                             Inv #  Cat      Sell Price    Total Cost      GP %    Comm Amt   Comm Pct
+------------------------------------------------------------------------------------------------------------------------------
+001       ATT10     AT&T Corp                          148  FC         20800.00       6963.32     66.52        0.00       0.00
+                                                       148  MISC         900.00          0.00    100.00        0.00       0.00
+
+          Customer Totals:                                             21700.00       6963.32                  0.00       0.00
+
+          HER10     Hershey Chocolate Corp             149  FC          9875.00       7568.25     23.36        0.00       0.00
+                                                       149  MISC         900.00          0.00    100.00        0.00       0.00
+
+          Customer Totals:                                             10775.00       7568.25                  0.00       0.00
+
+
+10/17/00                                               ADVANCED CARTON COMPANY                                            Page   2
+ 6:35pm                                    C O M M I S S I O N   R E P O R T  -  R E C A P
+
+                                                PTD (10/01/00-10/17/00) - By Salesman
+
+Salesman                                           Total Sales $        Comm $    Comm %        Cost $      GP %
+----------------------------------------------------------------------------------------------------------------
+001                                                     32475.00          0.00      0.00      14531.57     55.25
+
+Grand Totals:                                           32475.00          0.00      0.00      14531.57     55.25
+

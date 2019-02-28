@@ -42,8 +42,6 @@ def new shared temp-table tt-qtty field qtty like qtty
 
 DEF SHARED VAR qty AS INT NO-UNDO.
 
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
 
 DEF TEMP-TABLE tt-ei NO-UNDO
     FIELD run-qty AS DECIMAL DECIMALS 3 EXTENT 20

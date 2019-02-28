@@ -29,6 +29,7 @@
 DEFINE INPUT PARAMETER Broword   AS CHAR NO-UNDO.*/
 DEFINE INPUT PARAMETER ipcEstFrom AS CHAR NO-UNDO.
 DEFINE INPUT PARAMETER ipcEstTo   AS CHAR NO-UNDO.
+DEFINE INPUT  PARAMETER ipcIndustry AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
@@ -48,6 +49,8 @@ assign
  gloc = g_loc.
 
 DEFINE STREAM excel.
+
+DEFINE BUFFER bf-eb FOR eb.
 
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
@@ -304,7 +307,8 @@ DO:
 DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
 DEF VAR ls-cur-val AS CHAR NO-UNDO.
 DEF VAR char-val AS CHAR NO-UNDO.
-
+DEFINE VARIABLE rEbRec AS RECID NO-UNDO.
+ 
    lw-focus = FOCUS.
 
    case lw-focus:name :
@@ -313,7 +317,12 @@ DEF VAR char-val AS CHAR NO-UNDO.
            ls-cur-val = lw-focus:screen-value.
            run windows/l-est.w (cocode, locode, ls-cur-val, output char-val).
            if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
+               rEbRec = INTEGER(ENTRY(1,char-val)).
+               FIND FIRST bf-eb NO-LOCK 
+                   WHERE RECID(bf-eb) EQ rEbRec
+                   NO-ERROR.
+               IF AVAILABLE bf-eb THEN  
+                   lw-focus:screen-value =  bf-eb.est-no.
            end.
            return no-apply.
        end.  /* itemfg */
@@ -321,7 +330,12 @@ DEF VAR char-val AS CHAR NO-UNDO.
            ls-cur-val = lw-focus:screen-value.
            run windows/l-est.w (cocode, locode, ls-cur-val, output char-val).
            if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
+               rEbRec = INTEGER(ENTRY(1,char-val)).
+               FIND FIRST bf-eb NO-LOCK 
+                    WHERE RECID(bf-eb) EQ rEbRec
+                    NO-ERROR.
+               IF AVAILABLE bf-eb THEN  
+              lw-focus:screen-value =  bf-eb.est-no.
            end.
            return no-apply.
        end.  /* itemfg*/
@@ -798,13 +812,16 @@ SESSION:SET-WAIT-STATE ("general").
 IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
 IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 
+RUN util/rjust.p (INPUT-OUTPUT begin_est,8).
+RUN util/rjust.p (INPUT-OUTPUT end_est,8).
+
 FOR EACH b-est WHERE b-est.company = gcompany
-    AND trim(b-est.est-no) >= trim(begin_est)
-    AND trim(b-est.est-no) <= trim(end_est)
-    AND b-est.est-type >= 5 NO-LOCK,
+    AND b-est.est-no >= begin_est
+    AND b-est.est-no <= end_est
+    AND (IF ipcIndustry EQ "F" THEN b-est.est-type < 5 ELSE b-est.est-type >= 5) NO-LOCK,
     EACH bf-eb WHERE bf-eb.company = gcompany
     AND bf-eb.est-no = b-est.est-no NO-LOCK BY bf-eb.form-no :
-    
+
     IF INT(b-est.est-no) GT INT(end_est)
     OR INT(b-est.est-no) LT INT(begin_est) THEN 
         NEXT.

@@ -137,7 +137,7 @@ DEFINE VARIABLE dTotSqft AS DECIMAL NO-UNDO .
         assign
          v-act-spo = v-act-spo + work-item.act-spo
          v-est-spo = v-est-spo + work-item.est-spo
-         v-qty-ord = v-qty-ord + work-item.qty-prod
+         v-qty-ord = v-qty-ord + work-item.qty-ord
          v-sale    = v-sale    + ((work-item.qty-ord / 1000) * work-item.price).
 
         IF LAST-OF(work-item.i-no) THEN DO:

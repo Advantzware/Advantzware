@@ -1,0 +1,19 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 8:00pm                            SALES ANALYSIS - PROFIT USING ORDER COST BY ITEM (BY CUSTOMER)
+
+
+
+         Invoice                 Prod                   Item   Total
+Customer  Number FG Item         Categ  Qty Shipped     SqFt     MSF $/MSF      Unit Price UOM       Cost/M    Margin/M     Cost%
+-------- ------- --------------- ----- ------------ -------- ------- ----- --------------- ---- ----------- ----------- ---------
+HER10       149                                                 0.00     0          900.00             0.00        0.00      0.00
+                                       ------------          -------                            ----------- ----------- ---------
+HER10       149  HER-1021        FC          25,000  1.63292   40.82   242          395.00 M         302.73       92.27     76.64
+                                       ------------          -------                            ----------- ----------- ---------
+CUSTOMER         TOTALS                      25,000            40.82   264                           302.73      128.27     70.24
+
+
+                                       ------------          -------                            ----------- ----------- ---------
+   GRAND         TOTALS                      25,000            40.82   264                           302.73      128.27     70.24
+

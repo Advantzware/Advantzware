@@ -269,7 +269,7 @@ DEFINE VARIABLE fi_from-est-no AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 11 BY 1.
 
-DEFINE VARIABLE fi_msf AS DECIMAL FORMAT "->>,>>9.999":U INITIAL 0 
+DEFINE VARIABLE fi_msf AS DECIMAL FORMAT "->,>>>,>>9.999":U INITIAL 0 
      LABEL "MSF" 
      VIEW-AS FILL-IN 
      SIZE 15.4 BY 1 NO-UNDO.
@@ -334,14 +334,14 @@ DEFINE FRAME Corr
      eb.form-no AT ROW 1.24 COL 46.8 COLON-ALIGNED
           LABEL "Frm"
           VIEW-AS FILL-IN 
-          SIZE 5 BY 1
+          SIZE 4 BY 1
      est.form-qty AT ROW 1.24 COL 54 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
      eb.blank-no AT ROW 1.24 COL 64.2 COLON-ALIGNED
           LABEL "Blk"
           VIEW-AS FILL-IN 
-          SIZE 5 BY 1
+          SIZE 4 BY 1
      fi_blank-qty AT ROW 1.24 COL 71.6 COLON-ALIGNED NO-LABEL
      est.mod-date AT ROW 1.24 COL 84.4 COLON-ALIGNED
           LABEL "Mod"
@@ -550,15 +550,15 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      eb.t-wid AT ROW 16 COL 26 COLON-ALIGNED
-          LABEL "Blank Width" FORMAT ">>>9.99"
+          LABEL "Blank Width" 
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      eb.t-len AT ROW 16 COL 61 COLON-ALIGNED
-          LABEL "Blank Length" FORMAT ">>>9.99"
+          LABEL "Blank Length" 
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      eb.t-sqin AT ROW 16 COL 127 COLON-ALIGNED
-          LABEL "Blank Square Feet" FORMAT ">>>9.9999"
+          LABEL "Blank Square Feet" 
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      bt-new-plate AT ROW 7.91 COL 115.6 WIDGET-ID 10
@@ -3485,13 +3485,13 @@ PROCEDURE local-display-fields :
 
   IF NOT AVAIL est OR NOT AVAIL eb THEN RETURN.
 
-  DO WITH FRAME {&FRAME-NAME}:
+DO WITH FRAME {&FRAME-NAME}:
 
   ASSIGN tb-set:SENSITIVE = FALSE
          bt-new-die:SENSITIVE = FALSE
          bt-new-plate:SENSITIVE = FALSE.
 
-  IF v-cecscrn-char EQ "Decimal" THEN
+  IF v-cecscrn-char EQ "Decimal" THEN do:
      ASSIGN
         eb.len:FORMAT = ">>9.999999"
         eb.len:WIDTH = 15.2
@@ -3515,14 +3515,41 @@ PROCEDURE local-display-fields :
         eb.tuck:WIDTH = 15.2
         eb.lin-in:FORMAT = "->>9.999999"
         eb.lin-in:WIDTH = 15.2
-        eb.t-wid:FORMAT = ">>>9.999999"
+        eb.t-wid:FORMAT = ">>>>9.999999"
         eb.t-wid:WIDTH = 15.2
-        eb.t-len:FORMAT = ">>>9.999999"
+        eb.t-len:FORMAT = ">>>>9.999999"
         eb.t-len:WIDTH = 15.2
-        eb.t-sqin:FORMAT = ">>>9.999999"
+        eb.t-sqin:FORMAT = ">>>>>9.999999"
         eb.t-sqin:WIDTH = 15.2.
+     IF eb.t-sqin GT 999999  THEN
+         ASSIGN
+         eb.t-sqin:FORMAT = ">>>>>>>>>9.99999"
+         eb.t-sqin:WIDTH = 17.2 .
+     ELSE
+         ASSIGN
+             eb.t-sqin:FORMAT = ">>>>>9.999999"
+             eb.t-sqin:WIDTH = 15.2.
+
+  END.
+  ELSE do:
+      ASSIGN
+        eb.t-wid:FORMAT = ">>>>9.99<<<"
+        eb.t-wid:WIDTH = 15.2
+        eb.t-len:FORMAT = ">>>>9.99<<<"
+        eb.t-len:WIDTH = 15.2 .
+
+      IF eb.t-sqin GT 999999  THEN
+          ASSIGN
+          eb.t-sqin:FORMAT = ">>>>>>>>>9.999<<"
+          eb.t-sqin:WIDTH = 17.2 .
+      ELSE
+          ASSIGN
+              eb.t-sqin:FORMAT = ">>>>>9.999<<"
+              eb.t-sqin:WIDTH = 15.2 .
   END.
 
+END.
+  
   IF AVAIL est THEN DO TRANSACTION:
     DISABLE TRIGGERS FOR LOAD OF est.
     FOR EACH b-ef NO-LOCK

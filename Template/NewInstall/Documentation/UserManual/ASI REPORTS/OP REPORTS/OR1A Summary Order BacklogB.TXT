@@ -1,0 +1,69 @@
+
+10/17/00                                               ADVANCED CARTON COMPANY                                            Page   1
+ 6:27pm                                       D E T A I L    O R D E R    B A C K L O G
+
+                                                             By Customer
+
+_______________________________________________________________________________________________________________________________
+
+
+Order No.: 312       Date: 02/28/00 Customer: ATT10    - AT&T Corp                 Salesman: 001         PO #: 021200
+
+
+Description               Estimate No.     Order Qty       Std. Cost      Sales      GP Dollars        GP%
+RT 3-1/4 x 6-1/8 x 1-3/4   1018             25,000.0        9,646.50   8,625.00       -1,021.50     -11.84
+
+Order No.: 313       Date: 03/15/00 Customer: ATT10    - AT&T Corp                 Salesman: 001         PO #: 030100
+
+
+Description               Estimate No.     Order Qty       Std. Cost      Sales      GP Dollars        GP%
+Cordless 110                126             25,000.0        6,042.50   8,750.00        2,707.50      30.94
+Cordless 210                126             50,000.0       16,418.50  17,500.00        1,081.50       6.18
+
+Order No.: 311       Date: 02/15/00 Customer: HER10    - Hershey Chocolate Corp    Salesman: 001         PO #: 02102000
+
+
+Description               Estimate No.     Order Qty       Std. Cost      Sales      GP Dollars        GP%
+RT 5x2x8                   1017             25,000.0        7,443.25   9,702.50        2,259.25      23.29
+
+Order No.: 314       Date: 03/31/00 Customer: HER10    - Hershey Chocolate Corp    Salesman: 001         PO #:
+
+
+Description               Estimate No.     Order Qty       Std. Cost      Sales      GP Dollars        GP%
+Reese Cup 20 Pack           208             50,000.0       13,126.50  17,500.00        4,373.50      24.99
+Heershey Chocolate Bar 40   208             25,000.0        8,802.00   8,750.00          -52.00      -0.59
+Chocolate Kiss              208             50,000.0       22,510.50  17,500.00       -5,010.50     -28.63
+Raisinetts Box              208            100,000.0       25,447.00  35,000.00        9,553.00      27.29
+
+Order No.: 317       Date: 10/16/00 Customer: HER10    - Hershey Chocolate Corp    Salesman: 001         PO #: 101600
+
+
+Description               Estimate No.     Order Qty       Std. Cost      Sales      GP Dollars        GP%
+RT 5x4x8                   1021             75,000.0       22,704.75  19,750.00       -2,954.75     -14.96
+Facial Powder                                  500.0            0.00       1.00            1.00     100.00
+
+Order No.: 319       Date: 10/17/00 Customer: HER10    - Hershey Chocolate Corp    Salesman: 001         PO #: 101700
+
+
+Description               Estimate No.     Order Qty       Std. Cost      Sales      GP Dollars        GP%
+RSC 10x10x10               1022              5,000.0        2,076.75   3,087.90        1,011.15      32.75
+
+Order No.: 310       Date: 03/02/00 Customer: SMI10    - SMITH KLINE BEECHAM       Salesman: 001         PO #:
+
+
+Description               Estimate No.     Order Qty       Std. Cost      Sales      GP Dollars        GP%
+SUN TANNING LOTION            8            100,000.0       18,404.00  36,433.00       18,029.00      49.49
+
+
+10/17/00                                               ADVANCED CARTON COMPANY                                            Page   2
+ 6:27pm                                       D E T A I L    O R D E R    B A C K L O G
+
+                                                             By Customer
+
+_______________________________________________________________________________________________________________________________
+
+
+                                 Order Qty            Cost           Sales       GP%
+        GRAND TOTALS:              530,500      152,622.25      182,599.40     16.42
+
+

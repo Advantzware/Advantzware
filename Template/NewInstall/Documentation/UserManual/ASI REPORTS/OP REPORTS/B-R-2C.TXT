@@ -1,0 +1,19 @@
+
+10/17/00                                               ADVANCED CARTON COMPANY                                            Page   1
+ 6:29pm                                       S H I P M E N T S    D U E    R E P O R T
+
+                                                         By Date By Customer
+
+   Quantity                          PO               Order Rel                         Order       Quantity     Release Release
+    On Hand Customer Name            Number          Number Num Item                 Quantity        Shipped    Quantity Date
+----------- ------------------------ --------------- ------ --- --------------- ------------- -------------- ----------- ---------
+          0 Hershey Chocolate Corp   101700             319   1 HER-1022              5,000.0           0.00       5,000 10/17/00S
+     25,000 AT&T Corp                PO# 1020           316   1 ATT-1020             50,000.0      26,000.00      24,000 10/11/00S
+     25,000 AT&T Corp                PO# 1020           316   1 ATT-1020             50,000.0      26,000.00      24,000 10/11/00C
+          0 Hershey Chocolate Corp                      318   1 HER-1021             50,000.0           0.00      50,000 11/15/00S
+     25,400 Hershey Chocolate Corp   101600             317   2 HER-1021             75,000.0      25,000.00      25,000 11/16/00I
+     25,400 Hershey Chocolate Corp   101600             317   3 HER-1021             75,000.0      25,000.00      25,000 12/16/00I
+
+                                                                                         TOTAL NUMBER OF RELEASES:               6
+
+

@@ -1781,7 +1781,7 @@ SESSION:SET-WAIT-STATE ("general").
       v-type = caps(v-type)
       v-fjob1 = substr(v-fjob,1,6)
       v-tjob1 = substr(v-tjob,1,6)
-      v-job1sub = INT(SUBSTR(begin_job-no2,2)).
+      v-job1sub = int(end_job-no2).
 
  IF tb_sort OR tb_subtot THEN do:
      for each rm-rcpth

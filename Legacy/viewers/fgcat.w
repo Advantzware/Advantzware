@@ -76,14 +76,13 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR fgcat.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS fgcat.dscr fgcat.glacc 
+&Scoped-Define ENABLED-FIELDS fgcat.dscr fgcat.glacc fgcat.miscCharge fgcat.brdExpAcct fgcat.cogsExpAcct
 &Scoped-define ENABLED-TABLES fgcat
 &Scoped-define FIRST-ENABLED-TABLE fgcat
 &Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS fgcat.procat fgcat.dscr fgcat.glacc 
+&Scoped-Define DISPLAYED-FIELDS fgcat.procat fgcat.dscr fgcat.glacc fgcat.miscCharge fgcat.brdExpAcct fgcat.cogsExpAcct
 &Scoped-define DISPLAYED-TABLES fgcat
 &Scoped-define FIRST-DISPLAYED-TABLE fgcat
-&Scoped-Define DISPLAYED-OBJECTS cat-format v-charge v-gl-rm v-gl-fg F1 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -130,21 +129,6 @@ DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1"
      SIZE 2.2 BY .52
      BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
 
-DEFINE VARIABLE v-charge AS CHARACTER FORMAT "X(20)":U 
-     LABEL "Misc Charge" 
-     VIEW-AS FILL-IN 
-     SIZE 34 BY 1 NO-UNDO.
-
-DEFINE VARIABLE v-gl-fg AS CHARACTER FORMAT "X(20)":U 
-     LABEL "FG COGS Expense GL#" 
-     VIEW-AS FILL-IN 
-     SIZE 34 BY 1 NO-UNDO.
-
-DEFINE VARIABLE v-gl-rm AS CHARACTER FORMAT "X(20)":U 
-     LABEL "RM Board Expense GL#" 
-     VIEW-AS FILL-IN 
-     SIZE 34 BY 1 NO-UNDO.
-
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 78 BY 6.52.
@@ -167,9 +151,21 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
           BGCOLOR 15 FONT 4
-     v-charge AT ROW 3.62 COL 17 COLON-ALIGNED
-     v-gl-rm AT ROW 4.62 COL 30 COLON-ALIGNED WIDGET-ID 2
-     v-gl-fg AT ROW 5.62 COL 30 COLON-ALIGNED WIDGET-ID 4
+     fgcat.miscCharge AT ROW 3.62 COL 17 COLON-ALIGNED
+          FORMAT "X(20)"
+          VIEW-AS FILL-IN
+          SIZE 34 BY 1   
+          BGCOLOR 15 FONT 4
+     fgcat.brdExpAcct AT ROW 4.62 COL 30 COLON-ALIGNED WIDGET-ID 2
+          FORMAT "X(20)"
+          VIEW-AS FILL-IN
+          SIZE 34 BY 1
+          BGCOLOR 15 FONT 4 
+     fgcat.cogsExpAcct AT ROW 5.62 COL 30 COLON-ALIGNED WIDGET-ID 4 
+          FORMAT "X(20)"
+          VIEW-AS FILL-IN
+          SIZE 34 BY 1 
+          BGCOLOR 15 FONT 4
      F1 AT ROW 2.43 COL 72 NO-LABEL
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -243,12 +239,6 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN fgcat.procat IN FRAME F-Main
    NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN v-charge IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN v-gl-fg IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN v-gl-rm IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -276,14 +266,14 @@ DO:
    DEF VAR lv-handle AS HANDLE NO-UNDO.
 
    CASE FOCUS:NAME :
-    when "v-charge" then do:
+     when "fgcat.miscCharge" then do:
            run windows/l-surchg.w 
                  (g_company,focus:screen-value in frame {&frame-name}, output char-val).
            if char-val <> "" then 
               assign focus:screen-value in frame {&frame-name} = entry(1,char-val).
            return no-apply.  
      end.
-     WHEN "v-gl-rm" OR WHEN "v-gl-fg" THEN DO:
+     WHEN "fgcat.brdExpAcct" OR WHEN "fgcat.cogsExpAcct" THEN DO:
         RUN windows/l-acct2.w (g_company, "E", focus:screen-value in frame {&frame-name}, OUTPUT char-val).
         IF char-val NE "" THEN
            FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
@@ -352,10 +342,9 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&Scoped-define SELF-NAME v-charge
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-charge V-table-Win
-ON LEAVE OF v-charge IN FRAME F-Main /* Misc Charge */
+&Scoped-define SELF-NAME fgcat.miscCharge
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fgcat.miscCharge V-table-Win
+ON LEAVE OF fgcat.miscCharge IN FRAME F-Main /* Misc Charge */
 DO:
    IF LASTKEY <> -1 THEN DO:
       RUN valid-charge NO-ERROR.
@@ -364,13 +353,14 @@ DO:
 
 END.
 
+
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&Scoped-define SELF-NAME v-gl-fg
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-gl-fg V-table-Win
-ON LEAVE OF v-gl-fg IN FRAME F-Main /* FG COGS Expense GL# */
+&Scoped-define SELF-NAME fgcat.cogsExpAcct
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fgcat.cogsExpAcct V-table-Win
+ON LEAVE OF fgcat.cogsExpAcct IN FRAME F-Main /* FG COGS Expense GL# */
 DO:
    IF LASTKEY NE -1 THEN DO:
       RUN valid-fg-glacc NO-ERROR.
@@ -378,12 +368,14 @@ DO:
    END.
 END.
 
+
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-gl-fg V-table-Win
-ON VALUE-CHANGED OF v-gl-fg IN FRAME F-Main /* FG COGS Expense GL# */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fgcat.cogsExpAcct V-table-Win
+ON VALUE-CHANGED OF fgcat.cogsExpAcct IN FRAME F-Main /* FG COGS Expense GL# */
 DO:
    FIND account
         WHERE account.company EQ cocode
@@ -399,10 +391,9 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&Scoped-define SELF-NAME v-gl-rm
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-gl-rm V-table-Win
-ON LEAVE OF v-gl-rm IN FRAME F-Main /* RM Board Expense GL# */
+&Scoped-define SELF-NAME fgcat.brdExpAcct
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fgcat.brdExpAcct V-table-Win
+ON LEAVE OF fgcat.brdExpAcct IN FRAME F-Main /* RM Board Expense GL# */
 DO:
    IF LASTKEY NE -1 THEN DO:
       RUN valid-rm-glacc NO-ERROR.
@@ -411,12 +402,13 @@ DO:
 
 END.
 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-gl-rm V-table-Win
-ON VALUE-CHANGED OF v-gl-rm IN FRAME F-Main /* RM Board Expense GL# */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fgcat.brdExpAcct V-table-Win
+ON VALUE-CHANGED OF fgcat.brdExpAcct IN FRAME F-Main /* RM Board Expense GL# */
 DO:
    FIND account
         WHERE account.company EQ cocode
@@ -524,8 +516,7 @@ PROCEDURE local-assign-record :
   DEF VAR li AS INT NO-UNDO.
 
   DEF BUFFER sman-mtx-tmp FOR sman-mtx.
-  ASSIGN FRAME {&FRAME-NAME} v-charge v-gl-rm v-gl-fg.
-
+ 
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -568,22 +559,6 @@ PROCEDURE local-assign-record :
        /* sman-mtx-tmp.comm[1] = fgcat.comm. */
     end.
   end.
-
-  FIND FIRST reftable WHERE reftable.reftable EQ "chargecode"
-           AND reftable.company  EQ fgcat.company
-           AND reftable.loc      EQ fgcat.procat
-           /*AND reftable.code     EQ */
-           NO-ERROR.
-  IF NOT AVAIL reftable THEN DO:
-     CREATE reftable.
-     ASSIGN reftable.reftable = "ChargeCode"
-            reftable.company = fgcat.company
-            reftable.loc = fgcat.procat.
-  END.
-  ASSIGN
-  reftable.CODE = v-charge
-  reftable.code2 = v-gl-rm
-  reftable.dscr = v-gl-fg.
 
 
 END PROCEDURE.
@@ -650,28 +625,6 @@ PROCEDURE local-display-fields :
     cat-format:SCREEN-VALUE = STRING(fgcat.commrate EQ 1,"yes/no").
   END.
 
-  IF NOT adm-new-record THEN
-  DO:
-    FIND FIRST reftable WHERE
-         reftable.reftable EQ "chargecode" AND
-         reftable.company  EQ fgcat.company AND
-         reftable.loc      EQ fgcat.procat
-         NO-LOCK NO-ERROR.
-
-    IF AVAIL reftable THEN
-       ASSIGN
-          v-charge = reftable.CODE
-          v-gl-rm  = reftable.code2
-          v-gl-fg  = reftable.dscr.
-    ELSE
-       ASSIGN
-          v-charge = ""
-          v-gl-rm = ""
-          v-gl-fg = "".
-  END.
-
-  DISPLAY v-charge v-gl-rm v-gl-fg WITH FRAME {&FRAME-NAME}.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -708,7 +661,7 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DISABLE v-charge v-gl-rm v-gl-fg WITH FRAME {&FRAME-NAME}.
+DISABLE fgcat.miscCharge fgcat.brdExpAcct fgcat.cogsExpAcct WITH FRAME {&FRAME-NAME}.
 END PROCEDURE.
 
 
@@ -722,7 +675,7 @@ PROCEDURE proc-enable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  ENABLE v-charge v-gl-fg v-gl-rm WITH FRAME {&FRAME-NAME}.
+ ENABLE fgcat.miscCharge fgcat.brdExpAcct fgcat.cogsExpAcct WITH FRAME {&FRAME-NAME}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -778,14 +731,14 @@ PROCEDURE valid-charge :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
-  IF NOT CAN-FIND(FIRST surcharge WHERE surcharge.company = g_company
-                         AND surcharge.charge = v-charge:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-    AND v-charge:SCREEN-VALUE <> ""
+IF NOT CAN-FIND(FIRST surcharge WHERE surcharge.company = g_company
+                         AND surcharge.charge = fgcat.miscCharge:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+    AND fgcat.miscCharge:SCREEN-VALUE <> ""
   THEN DO:
      MESSAGE "Invalid Misc Charge. Try Help." VIEW-AS ALERT-BOX ERROR.
-     APPLY "entry" TO v-charge.
+     APPLY "entry" TO fgcat.miscCharge.
      RETURN ERROR.
-  END.
+  END.    
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -801,17 +754,18 @@ PROCEDURE valid-fg-glacc :
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
-      IF NOT v-gl-fg:SCREEN-VALUE EQ "" AND
+      IF NOT fgcat.cogsExpAcct:SCREEN-VALUE EQ "" AND
          NOT CAN-FIND(FIRST account
                       WHERE account.company EQ cocode
-                        AND account.actnum  EQ v-gl-fg:SCREEN-VALUE
+                        AND account.actnum  EQ fgcat.cogsExpAcct:SCREEN-VALUE
                         AND account.TYPE    EQ "E") THEN DO:
          MESSAGE "Invalid FG Board Expense GL#, try help..."
                  VIEW-AS ALERT-BOX ERROR.
-         APPLY "entry" TO v-gl-fg.
+         APPLY "entry" TO fgcat.cogsExpAcct.
          RETURN ERROR.
       END.
    END.
+    
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -854,17 +808,18 @@ PROCEDURE valid-rm-glacc :
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
-      IF NOT v-gl-rm:SCREEN-VALUE EQ "" AND
+      IF NOT fgcat.brdExpAcct:SCREEN-VALUE EQ "" AND
          NOT CAN-FIND(FIRST account
                       WHERE account.company EQ cocode
-                        AND account.actnum  EQ v-gl-rm:SCREEN-VALUE
+                        AND account.actnum  EQ fgcat.brdExpAcct:SCREEN-VALUE
                         AND account.TYPE    EQ "E") THEN DO:
          MESSAGE "Invalid RM Board Expense GL#, try help..."
                  VIEW-AS ALERT-BOX ERROR.
-         APPLY "entry" TO v-gl-rm.
+         APPLY "entry" TO fgcat.brdExpAcct.
          RETURN ERROR.
       END.
    END.
+   
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

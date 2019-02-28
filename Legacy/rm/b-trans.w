@@ -912,6 +912,9 @@ PROCEDURE local-update-record :
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+  RUN valid-tag NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   RUN valid-loc-bin-tag NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1286,6 +1289,23 @@ PROCEDURE valid-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+ DEFINE BUFFER bf-rm-rctd FOR rm-rctd . 
+
+    DO WITH FRAME {&FRAME-NAME}:
+      FIND FIRST bf-rm-rctd NO-LOCK
+          WHERE bf-rm-rctd.company = gcompany 
+          AND bf-rm-rctd.rita-code = "T" 
+          AND bf-rm-rctd.tag = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND RECID(bf-rm-rctd) <> RECID(rm-rctd)  NO-ERROR.
+      IF AVAIL bf-rm-rctd THEN DO:
+          MESSAGE "This Tag Number Has Already Been Used." skip
+              "Please Enter A Unique Tag Number." 
+              VIEW-AS ALERT-BOX ERROR.
+          APPLY 'entry' TO rm-rctd.tag.
+          RETURN ERROR.
+      END.
+    END.
+ 
   IF rmrecpt-int EQ 1 THEN DO:
     FIND FIRST loadtag WHERE loadtag.company = g_company
                          AND loadtag.item-type = YES

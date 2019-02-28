@@ -28,8 +28,8 @@ PUT    "<R4><C50><#3>" SKIP
     
       v-printline = v-printline + 10.    
       
-      PUT "<|10><R20><C1><#4><FROM><R24><C80><RECT>" SKIP
-      "<R22><C1><FROM><R22><C80><LINE>" SKIP    
+      PUT "<|10><R20><C1><#4><FROM><R24><C80.5><RECT>" SKIP
+      "<R22><C1><FROM><R22><C80.5><LINE>" SKIP    
       "<R20><C10><FROM><R24><C10><LINE>" SKIP
       "<R20><C29><FROM><R24><C29><LINE>" SKIP
       /*"<R19><C38><FROM><R23><C38><LINE>" SKIP*/
@@ -41,7 +41,7 @@ PUT    "<R4><C50><#3>" SKIP
           "<FCourier New><=4><R+3> " po-ord.buyer    po-ord.contact FORM "x(25)" terms.dscr FORM "x(23)" po-ord.fob-code space(2) carrier.dscr FORM "x(20)" v-freight-dscr
           .
       
-      PUT "<|10><R25><C1><#5><FROM><R27><C80><RECT>" SKIP    
+      PUT "<|10><R25><C1><#5><FROM><R27><C80.5><RECT>" SKIP    
              "<R25><C5><FROM><R27><C5><LINE>" SKIP
              "<R25><C15><FROM><R27><C15><LINE>" SKIP
              "<R25><C20><FROM><R27><C20><LINE>" SKIP 

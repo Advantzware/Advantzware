@@ -1,0 +1,62 @@
+                                                   Date: 10/18/00
+
+
+                                                  Inv #:    150
+
+                                               Salesman: 001
+
+
+
+FOB: Destination                 TERMS: Net 30
+
+
+          SOLD TO:                                SHIP TO:
+          HER10
+          Hershey Chocolate Corp                  Hershey Chocolate Corp
+          123 Chocolate Blvd                      123 Chocolate Lane
+
+          Hershey, PA  19888                      Hershey, PA  19888
+
+
+--------------------------------------------------------------------------------
+Ship Date Shipped Via                 Weight   Del#         BOL #      Pallets
+10/18/00  COMMON CARRIER                0.00                  163            0
+--------------------------------------------------------------------------------
+
+PO #/Order #      Item/Description        QInv/QShip       Price          Amount
+------------      ----------------        ----------       -----          ------
+101700            HER-1021                    50,000      400.00M      20,000.00
+                  RT 5x4x8 Candy Box
+
+
+    100 @ 500                                                                       
+
+101700            HER-1022                     5,000      617.58M       3,087.90
+                  RSC 10x10x10
+
+
+    10 @ 500                                                                        
+
+                      ** Miscellaneous Items **
+
+    PLATE                 Plate Charge                                    300.00
+
+    PLATE                 Plate Charge                                    900.00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+             Freight    Tax      Net Amount    Cash Disc  If Paid By Invoice Amt
+               0.00      0.00     24,287.90         0.00   10/18/00    24,287.90
+

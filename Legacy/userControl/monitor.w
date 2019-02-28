@@ -45,6 +45,7 @@ PROCEDURE ipDisconnectUserLog:
             RUN monitorActivity (STRING(TODAY) + " " + STRING(mtime, "hh:mm") + " User  " + userLog.user_id + "(" + STRING(iLoginUserNum) + ")" +  ipcLogoutMessage,YES,'').
 
             iAsiConnectPid= asi._connect._connect-pid.
+            cDb = fnGetPhysicalDb("ASI").
             RUN disconnectUser (INPUT cDb, INPUT iLoginUserNum).
             
             /* Try to find the same user connected to the audit database */

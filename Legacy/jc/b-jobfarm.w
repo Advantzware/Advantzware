@@ -64,8 +64,7 @@ DEF VAR hHistory AS HANDLE NO-UNDO.
 
 {sys/inc/rmissue.i}
 
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
+
 DEF BUFFER b-setup FOR reftable.
 
 DEF TEMP-TABLE tt-eiv NO-UNDO
@@ -1380,7 +1379,7 @@ PROCEDURE new-i-no PRIVATE :
             
 
             
-             IF AVAIL b-qty THEN
+             IF AVAIL e-item THEN
              DO:
 
             
@@ -1407,26 +1406,32 @@ PROCEDURE new-i-no PRIVATE :
                    tt-ei.run-cost[j] = e-itemfg.run-cost[j].
              END.
             
-             FIND FIRST b-qty WHERE
-                  b-qty.reftable = "blank-vend-qty" AND
-                  b-qty.company = e-itemfg.company AND
-                      b-qty.CODE    = e-itemfg.i-no
-                  NO-LOCK NO-ERROR.
-            
-             IF AVAIL b-qty THEN
-             DO:
-                FIND FIRST b-cost WHERE
-                     b-cost.reftable = "blank-vend-cost" AND
-                     b-cost.company = e-itemfg.company AND
-                         b-cost.CODE    = e-itemfg.i-no
-                     NO-LOCK NO-ERROR.
-            
+/*             FIND FIRST b-qty WHERE                          */
+/*                  b-qty.reftable = "blank-vend-qty" AND      */
+/*                  b-qty.company = e-itemfg.company AND       */
+/*                      b-qty.CODE    = e-itemfg.i-no          */
+/*                  NO-LOCK NO-ERROR.                          */
+/*                                                             */
+/*             IF AVAIL b-qty THEN                             */
+/*             DO:                                             */
+/*                FIND FIRST b-cost WHERE                      */
+/*                     b-cost.reftable = "blank-vend-cost" AND */
+/*                     b-cost.company = e-itemfg.company AND   */
+/*                         b-cost.CODE    = e-itemfg.i-no      */
+/*                     NO-LOCK NO-ERROR.                       */
+/*                                                             */
+/*                DO j = 1 TO 10:                              */
+/*                   ASSIGN                                    */
+/*                      tt-ei.run-qty[j + 10] = b-qty.val[j]   */
+/*                      tt-ei.run-cost[j + 10] = b-cost.val[j].*/
+/*                END.                                         */
+/*             END.                                            */
                 DO j = 1 TO 10:
                    ASSIGN
-                      tt-ei.run-qty[j + 10] = b-qty.val[j]
-                      tt-ei.run-cost[j + 10] = b-cost.val[j].
+                      tt-ei.run-qty[j + 10] = e-item.runQty[j]
+                      tt-ei.run-cost[j + 10] = e-item.runCost[j].
                 END.
-             END.
+
 
              DO j = 1 TO 20:
                 IF tt-ei.run-qty[j] GE v-qty THEN DO:

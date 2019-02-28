@@ -31,6 +31,14 @@ DEFINE BUFFER buffUseTable FOR {&useTable}.
 
 {{&includes}/jobStatusFunc.i}
 
+FUNCTION resourceStartDate RETURNS CHARACTER (ipValue AS INTEGER):
+  FIND FIRST buffUseTable NO-LOCK
+       WHERE buffUseTable.job EQ {&useTable}.job
+         AND buffUseTable.resourceSequence EQ {&useTable}.resourceSequence + ipValue
+       NO-ERROR.
+  RETURN IF AVAILABLE buffUseTable THEN STRING(buffUseTable.startDate,'99/99/9999') ELSE ''.
+END FUNCTION.
+
 FUNCTION resourceSequence RETURNS CHARACTER (ipValue AS INTEGER):
   FIND FIRST buffUseTable NO-LOCK
        WHERE buffUseTable.job EQ {&useTable}.job
@@ -119,8 +127,12 @@ PROCEDURE buildLines:
       RUN loadField ({&useTable}.jobType).
       WHEN 'nextRes' THEN
       RUN loadField (resourceSequence(1)).
+      WHEN 'nextStartDate' THEN
+      RUN loadField (resourceStartDate(1)).
       WHEN 'prevRes' THEN
       RUN loadField (resourceSequence(-1)).
+      WHEN 'prevStartDate' THEN
+      RUN loadField (resourceStartDate(-1)).
       WHEN 'prodDate' THEN
       RUN loadField (STRING({&useTable}.prodDate,lvFieldFormat)).
       WHEN 'resource' THEN

@@ -20,8 +20,6 @@ DEFINE SHARED BUFFER xop  FOR est-op.
 {cec/print42.i shared}
 
 DEFINE BUFFER xcar   FOR car.
-DEFINE BUFFER b-cost FOR reftable.
-DEFINE BUFFER b-qty  FOR reftable.
 
 DEFINE VARIABLE v-num-up    AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-num-in    LIKE est-op.num-sh NO-UNDO.
@@ -442,26 +440,12 @@ FOR EACH xef
                 tt-ei.run-cost[j] = e-item.run-cost[j].
         END.
 
-        FIND FIRST b-qty WHERE
-            b-qty.reftable = "blank-vend-qty" AND
-            b-qty.company = e-item.company AND
-            b-qty.CODE    = e-item.i-no
-            NO-LOCK NO-ERROR.
-
-        IF AVAILABLE b-qty THEN
-        DO:
-            FIND FIRST b-cost WHERE
-                b-cost.reftable = "blank-vend-cost" AND
-                b-cost.company = e-item.company AND
-                b-cost.CODE    = e-item.i-no
-                NO-LOCK NO-ERROR.
-
+        
             DO j = 1 TO 10:
                 ASSIGN
-                    tt-ei.run-qty[j + 10]  = b-qty.val[j]
-                    tt-ei.run-cost[j + 10] = b-cost.val[j].
+                    tt-ei.run-qty[j + 10]  = e-item.runQty[j]
+                    tt-ei.run-cost[j + 10] = e-item.runCost[j].
             END.
-        END.
 
 
         DO j = 1 TO 20:

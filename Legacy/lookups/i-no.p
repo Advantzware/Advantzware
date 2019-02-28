@@ -27,7 +27,7 @@
 &Scoped-define width-size 80
 &Scoped-define show-fields itemfg.i-no itemfg.i-name itemfg.cust-name
 &Scoped-define show-fields-yellow itemfg.i-no LABEL-BGCOLOR 14 itemfg.i-name LABEL-BGCOLOR 14 itemfg.cust-name LABEL-BGCOLOR 14
-&Scoped-define frame-title 
+&Scoped-define frame-title Finished Goods Item Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{custom/getloc.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{custom/gloc.i} ~{sys/inc/var.i new shared} ~{fg/fgvars.i}
 &Scoped-define end-include 

@@ -1,0 +1,32 @@
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   1
+ 2:19pm                                               Commission Report (O-R-6)
+
+                                          YTD (01/01/09-04/30/09) - By Salesman By Customer
+
+Sman Customer Name                   Cust Part#      Order#   Inv# Cat    Quantity   Sell Price   Total Cost      GP %   Comm Amt Comm Pct
+------------------------------------------------------------------------------------------------------------------------------------------
+
+001  HER1000  Hershey Foods Corporat STRAWBERRY        2330   1029 FC            0      1000.00         0.00      0.00       0.00     0.00
+                                     HER-5217        100008   1094 FC            0     -7500.00         0.00      0.00       0.00     0.00
+                                     HER 7x7x7       200709   1504 BOXES      1000        87.98        27.97     68.21       2.64     3.00
+                                     HER 7x7x7       200713   1505 BOXES      5000       416.80       122.80     70.54      12.50     3.00
+                                     HER 7x7x7       200714   1506 BOXES      2000       166.72        49.12     70.54       5.00     3.00
+                                     HER 7x7x7       200719   1511 BOXES      8000       666.88       195.76     70.65      20.01     3.00
+                                     HER 7x7x7       200720   1512 BOXES     20000      1667.20       491.20     70.54      50.02     3.00
+
+                    Customer Totals:                                                   -3494.42       886.85    125.38      90.17    -2.58
+
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   2
+ 2:19pm                                               Commission Report (O-R-6)
+
+                                                YTD (01/01/09-04/30/09) - By Salesman
+
+Salesman                                           Total Sales $        Comm $    Comm %        Cost $      GP %
+----------------------------------------------------------------------------------------------------------------
+
+001                                                     -3494.42         90.17     -2.58        886.85    125.38
+
+Grand Totals:                                           -3494.42         90.17     -2.58        886.85    125.38
+

@@ -96,7 +96,7 @@ DEF BUFFER b2-fg-rctd FOR fg-rctd.
 DO TRANSACTION:
   {sys/inc/fgpost.i}   
 END.
-
+{fg/fgPostProc.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1101,100 +1101,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-partial C-Win 
-PROCEDURE calc-partial :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-    /*find first item finished goods based on the item number*/
-    find first itemfg
-        where itemfg.company eq cocode
-          and itemfg.i-no    eq w-fg-rctd.i-no
-        use-index i-no no-lock no-error.
-
-    if avail itemfg then do:
-      find first uom
-          where uom.uom  eq itemfg.sell-uom
-            and uom.mult ne 0
-          no-lock no-error.
-
-      if itemfg.sell-uom begins "L" then
-        v-fg-value = 0.
-
-      else
-      if itemfg.sell-uom eq "CS" then
-        v-fg-value = 0.
-
-      else
-      if avail uom then
-        v-fg-value = itemfg.sell-price * w-fg-rctd.partial / uom.mult.
-
-      else
-        v-fg-value = itemfg.sell-price * w-fg-rctd.partial / 1000.
-
-      if w-fg-rctd.rita-code eq "R" then do:
-        if v-msf[1] gt w-fg-rctd.partial * itemfg.t-sqft then
-          v-msf[2] = v-msf[2] + (v-msf[1] - (w-fg-rctd.partial * itemfg.t-sqft)).
-
-        v-msf[1] = w-fg-rctd.partial * itemfg.t-sqft.
-      end.
-    end. /* avail */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-total C-Win 
-PROCEDURE calc-total :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-    /*find first item finished goods based on the item number*/
-    find first itemfg
-        where itemfg.company eq cocode
-          and itemfg.i-no    eq w-fg-rctd.i-no
-        use-index i-no no-lock no-error.
-
-    if avail itemfg then do:
-      find first uom
-          where uom.uom  eq itemfg.sell-uom
-            and uom.mult ne 0
-          no-lock no-error.
-
-      if itemfg.sell-uom begins "L" then
-        v-fg-value = itemfg.sell-price * IF w-fg-rctd.t-qty LT 0 THEN -1 ELSE 1.
-
-      else
-      if itemfg.sell-uom eq "CS" then
-        v-fg-value = itemfg.sell-price * w-fg-rctd.cases.
-
-      else
-      if avail uom then
-        v-fg-value = itemfg.sell-price * ((w-fg-rctd.cases * w-fg-rctd.qty-case) / uom.mult).
-
-      else
-        v-fg-value = itemfg.sell-price * ((w-fg-rctd.cases * w-fg-rctd.qty-case) / 1000).
-
-      if w-fg-rctd.rita-code eq "R" then do:
-        if v-msf[1] gt w-fg-rctd.t-qty * itemfg.t-sqft then
-          v-msf[2] = v-msf[2] + (v-msf[1] - ((w-fg-rctd.cases * w-fg-rctd.qty-case) * itemfg.t-sqft)).
-
-        v-msf[1] = (w-fg-rctd.cases * w-fg-rctd.qty-case) * itemfg.t-sqft.
-      end.
-    end. /* avail itemfg */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-phy-count-proc C-Win 
 PROCEDURE create-phy-count-proc :
 /*------------------------------------------------------------------------------
@@ -1511,7 +1417,7 @@ PROCEDURE fg-post :
        IF AVAIL itemfg THEN
        DO:
           {fg/fg-post.i w-fg-rctd w-fg-rctd}
-
+          
           FIND CURRENT po-ordl NO-LOCK NO-ERROR.
           FIND CURRENT fg-bin NO-LOCK NO-ERROR.
 
@@ -1936,57 +1842,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE orig C-Win 
-PROCEDURE orig :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-    /*find first item finished goods based on the item number*/
-    find first itemfg
-        where itemfg.company eq cocode
-          and itemfg.i-no    eq w-fg-rctd.i-no
-        use-index i-no no-lock no-error.
-
-    if avail itemfg then do:
-      find first uom
-          where uom.uom  eq itemfg.sell-uom
-            and uom.mult ne 0
-          no-lock no-error.
-
-      if itemfg.sell-uom begins "L" then
-        v-fg-value = itemfg.sell-price * IF w-fg-rctd.t-qty LT 0 THEN -1 ELSE 1.
-
-      else
-      if itemfg.sell-uom eq "CS" then
-        v-fg-value = itemfg.sell-price * w-fg-rctd.cases.
-
-      else
-      if avail uom then
-        v-fg-value = itemfg.sell-price * w-fg-rctd.t-qty / uom.mult.
-
-      else
-        v-fg-value = itemfg.sell-price * w-fg-rctd.t-qty / 1000.
-
-      if w-fg-rctd.rita-code eq "R" then do:
-        if v-msf[1] gt w-fg-rctd.t-qty * itemfg.t-sqft then
-          v-msf[2] = v-msf[2] + (v-msf[1] - (w-fg-rctd.t-qty * itemfg.t-sqft)).
-
-        v-msf[1] = w-fg-rctd.t-qty * itemfg.t-sqft.
-      end.
-    end. /* avail itemfg */
-
-    assign
-     v-msf[1] = v-msf[1] / 1000
-     v-msf[2] = v-msf[2] / 1000.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-file C-Win 
 PROCEDURE output-to-file :
 /*------------------------------------------------------------------------------
@@ -2148,48 +2003,6 @@ PROCEDURE run-report PRIVATE :
 {sys/form/r-top3w1.f "Before"}
 
 {sys/form/r-top3w1.f "After"}
-
-DEF VAR ext-cost AS DEC NO-UNDO.
-def var type as ch format "X" initial "R".
-def var type-prt as ch format "X(11)" init "".
-def var v-fg-qty like fg-rctd.t-qty.
-def var v-fg-cost as dec format "->,>>>,>>9.99<<".
-def var v-tot-qty as int format "->>>,>>>,>>9".
-def var v-tot-cost as dec format "->>>,>>9.99<<".
-def var v-grd-tot-qty as int format "->>>,>>>,>>9".
-def var v-grd-tot-cost as dec format "->>,>>>,>>9.99<<".                     
-def var v-grd-tot-value as dec format "->>,>>>,>>9.99<<".                     
-def var v-tot-value as dec format "->>,>>>,>>9.99".
-def var v-cum-tot as de.                                   
-def var v-tran-type as char format "x(1)".      
-def var v-entrytype as char initial "REC ,TRAN,ADJ ,SHIP,RET ,INIT".
-def var v-on like eb.num-up.
-def var v-qty-pallet as decimal format "->>,>>>,>>9" no-undo.
-def var v-whse like fg-rctd.loc.            
-def var v-one as integer format "->>,>>9" init 1.
-def var v-ftime as logical init no.
-def var v-dscr          like account.dscr.
-def var v-disp-actnum   like account.actnum.
-def var v-disp-amt      as   dec format ">>,>>>,>>9.99cr".
-def var v-hdr as char format "x(12)".
-def var v-postlst  as cha no-undo.
-DEF VAR ll-wip AS LOG NO-UNDO.
-DEF VAR li AS INT NO-UNDO.
-DEF VAR li-loop AS INT NO-UNDO.
-DEF VAR v-time AS CHAR FORMAT "X(5)" NO-UNDO.
-
-DEF VAR v-itm-lbl  AS CHAR FORMAT "x(15)" NO-UNDO.
-DEF VAR v-itm-dsh  AS CHAR FORMAT "x(15)" NO-UNDO.
-DEF VAR v-desc-lbl AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-Po-lbl   AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-vend-lbl AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-desc-dsh AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-Po-dsh   AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-vend-dsh AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-uom-lbl  AS CHAR FORMAT "x(10)" NO-UNDO.
-DEF VAR v-uom-dsh  AS CHAR FORMAT "x(10)" NO-UNDO.
-DEF VAR v-cstprt   AS CHAR FORMAT "x(15)" NO-UNDO.
-DEF VAR v-pr-tots2 LIKE v-pr-tots         NO-UNDO.
 
 IF rd-Itm#Cst# EQ 1 
   THEN ASSIGN v-itm-lbl = "ITEM"
@@ -2483,7 +2296,7 @@ if v-cost-sell then do:
   END.
 
    IF rd-ItmPo EQ 1 THEN DO:
-     {fg/rep/fg-post.i "itemxA" "v-fg-cost" "itempxA" "v-tot-cost"}
+     {fg/rep/fg-post.i "itemxA" "v-fg-cost" "itempxA" "v-tot-cost"}     
    END.
    ELSE DO:
      {fg/rep/fg-post.i "itemx" "v-fg-cost" "itempx" "v-tot-cost"}

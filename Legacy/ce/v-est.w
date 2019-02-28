@@ -211,7 +211,7 @@ DEFINE BUTTON btn_fgitem
 
 DEFINE BUTTON btn_from 
      LABEL "From:" 
-     SIZE 7.6 BY 1.
+     SIZE 8 BY 1.
 
 DEFINE BUTTON btn_style 
      LABEL "" 
@@ -267,14 +267,14 @@ DEFINE FRAME fold
      eb.form-no AT ROW 1.24 COL 48.2 COLON-ALIGNED
           LABEL "Frm" FORMAT ">9"
           VIEW-AS FILL-IN 
-          SIZE 5 BY 1
+          SIZE 4 BY 1
      est.form-qty AT ROW 1.24 COL 56 COLON-ALIGNED NO-LABEL FORMAT ">9"
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
      eb.blank-no AT ROW 1.24 COL 66.2 COLON-ALIGNED
           LABEL "Blk"
           VIEW-AS FILL-IN 
-          SIZE 5 BY 1
+          SIZE 4 BY 1
      fi_blank-qty AT ROW 1.24 COL 73.8 COLON-ALIGNED NO-LABEL
      est.mod-date AT ROW 1.24 COL 86.2 COLON-ALIGNED
           LABEL "Mod"

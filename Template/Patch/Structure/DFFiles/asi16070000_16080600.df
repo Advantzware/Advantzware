@@ -1,0 +1,5856 @@
+ADD TABLE "addrPhone"
+  AREA "Data"
+  LABEL "Addrss/Phone Link"
+  DUMP-NAME "addrphone"
+
+ADD FIELD "rec_key" OF "addrPhone" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 40
+
+ADD FIELD "linkTable" OF "addrPhone" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Table"
+  POSITION 3
+  MAX-WIDTH 24
+  ORDER 50
+
+ADD FIELD "linkRecKey" OF "addrPhone" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Link RecKey"
+  POSITION 4
+  MAX-WIDTH 40
+  ORDER 60
+
+ADD FIELD "phoneType" OF "addrPhone" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Phone Type"
+  POSITION 5
+  MAX-WIDTH 16
+  ORDER 70
+
+ADD FIELD "dialPrefix" OF "addrPhone" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Prefix"
+  POSITION 6
+  MAX-WIDTH 16
+  ORDER 80
+
+ADD FIELD "dialCountry" OF "addrPhone" AS character 
+  FORMAT "x(4)"
+  INITIAL ""
+  LABEL "Dial Country"
+  POSITION 7
+  MAX-WIDTH 8
+  ORDER 90
+
+ADD FIELD "dialArea" OF "addrPhone" AS character 
+  FORMAT "x(4)"
+  INITIAL ""
+  LABEL "Area"
+  POSITION 8
+  MAX-WIDTH 8
+  ORDER 100
+
+ADD FIELD "dialNumber" OF "addrPhone" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Number"
+  POSITION 9
+  MAX-WIDTH 20
+  ORDER 110
+
+ADD FIELD "dialExt" OF "addrPhone" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Extension"
+  POSITION 10
+  MAX-WIDTH 12
+  ORDER 120
+
+ADD FIELD "dialSuffix" OF "addrPhone" AS character 
+  FORMAT "x(4)"
+  INITIAL ""
+  LABEL "Suffix"
+  POSITION 11
+  MAX-WIDTH 8
+  ORDER 130
+
+ADD FIELD "dialString" OF "addrPhone" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Dial String"
+  POSITION 12
+  MAX-WIDTH 120
+  ORDER 140
+
+ADD INDEX "iLink" ON "addrPhone" 
+  AREA "Data"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "linkTable" ASCENDING 
+  INDEX-FIELD "linkRecKey" ASCENDING 
+
+ADD INDEX "iNumber" ON "addrPhone" 
+  AREA "Data"
+  UNIQUE
+  INDEX-FIELD "dialCountry" ASCENDING 
+  INDEX-FIELD "dialArea" ASCENDING 
+  INDEX-FIELD "dialNumber" ASCENDING 
+  INDEX-FIELD "dialExt" ASCENDING 
+  INDEX-FIELD "linkTable" ASCENDING 
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "iRecKey" ON "addrPhone" 
+  AREA "Data"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "countrySublevel"
+  AREA "Data"
+  DUMP-NAME "countrysublevel"
+
+ADD FIELD "countryCode" OF "countrySublevel" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Country"
+  POSITION 2
+  MAX-WIDTH 6
+  ORDER 10
+
+ADD FIELD "subLevel" OF "countrySublevel" AS integer 
+  FORMAT "9"
+  INITIAL "0"
+  LABEL "Level"
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 20
+
+ADD FIELD "subCode1" OF "countrySublevel" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Subcode1"
+  POSITION 4
+  MAX-WIDTH 6
+  ORDER 30
+
+ADD FIELD "subCode2" OF "countrySublevel" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Subcode2"
+  POSITION 5
+  MAX-WIDTH 6
+  ORDER 40
+
+ADD FIELD "subCode3" OF "countrySublevel" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Subcode3"
+  POSITION 6
+  MAX-WIDTH 6
+  ORDER 50
+
+ADD FIELD "subCode4" OF "countrySublevel" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Subcode4"
+  POSITION 7
+  MAX-WIDTH 6
+  ORDER 60
+
+ADD FIELD "ISOAlpha2" OF "countrySublevel" AS character 
+  FORMAT "x(2)"
+  INITIAL ""
+  LABEL "ISA Alpha"
+  POSITION 8
+  MAX-WIDTH 4
+  ORDER 70
+
+ADD FIELD "shortName" OF "countrySublevel" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "ShortName"
+  POSITION 9
+  MAX-WIDTH 24
+  ORDER 80
+
+ADD FIELD "longName" OF "countrySublevel" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Long Name"
+  POSITION 10
+  MAX-WIDTH 120
+  ORDER 90
+
+ADD FIELD "rec_key" OF "countrySublevel" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 11
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 100
+
+ADD INDEX "iPrimary" ON "countrySublevel" 
+  AREA "Data"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "countryCode" ASCENDING 
+  INDEX-FIELD "subCode1" ASCENDING 
+  INDEX-FIELD "subCode2" ASCENDING 
+  INDEX-FIELD "subCode3" ASCENDING 
+  INDEX-FIELD "subCode4" ASCENDING 
+
+ADD INDEX "iCountryCode" ON "countrySublevel" 
+  AREA "Data"
+  INDEX-FIELD "countryCode" ASCENDING 
+
+ADD INDEX "iShortName" ON "countrySublevel" 
+  AREA "Data"
+  WORD
+  INDEX-FIELD "shortName" ASCENDING 
+
+ADD INDEX "iSub1" ON "countrySublevel" 
+  AREA "Data"
+  INDEX-FIELD "subCode1" ASCENDING 
+
+ADD INDEX "iSub2" ON "countrySublevel" 
+  AREA "Data"
+  INDEX-FIELD "subCode2" ASCENDING 
+
+ADD INDEX "iSub3" ON "countrySublevel" 
+  AREA "Data"
+  INDEX-FIELD "subCode3" ASCENDING 
+
+ADD INDEX "iSub4" ON "countrySublevel" 
+  AREA "Data"
+  INDEX-FIELD "subCode4" ASCENDING 
+
+ADD TABLE "cueCard"
+  AREA "Data"
+  LABEL "Cue Card"
+  DESCRIPTION "Cue Card ID"
+  DUMP-NAME "cuecard"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\cueCard.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\cueCard.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\cueCard.p" CRC "?" 
+
+ADD FIELD "cuePrgmName" OF "cueCard" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Program Name"
+  POSITION 2
+  MAX-WIDTH 40
+  HELP "Enter Program Name"
+  ORDER 10
+
+ADD FIELD "cueID" OF "cueCard" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Cue Card ID"
+  POSITION 3
+  MAX-WIDTH 4
+  COLUMN-LABEL "Cue ID"
+  HELP "Enter Cue Card ID"
+  ORDER 20
+
+ADD FIELD "isActive" OF "cueCard" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Active"
+  POSITION 4
+  MAX-WIDTH 1
+  HELP "Set Active Flag"
+  ORDER 40
+
+ADD FIELD "rec_key" OF "cueCard" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 5
+  MAX-WIDTH 42
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 80
+
+ADD FIELD "enableDismiss" OF "cueCard" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Enable Dismiss"
+  POSITION 6
+  MAX-WIDTH 1
+  HELP "Set to Enable Dismiss Cue Card Set"
+  ORDER 50
+
+ADD FIELD "enableDontShowAgain" OF "cueCard" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Enable Don't Show"
+  POSITION 7
+  MAX-WIDTH 1
+  HELP "Set to Enable Don't Show Again"
+  ORDER 60
+
+ADD FIELD "cueType" OF "cueCard" AS character 
+  FORMAT "x(8)"
+  INITIAL "System"
+  LABEL "Cue Type"
+  POSITION 8
+  MAX-WIDTH 16
+  HELP "Enter Cue Card Type"
+  ORDER 30
+
+ADD FIELD "securityLevel" OF "cueCard" AS integer 
+  FORMAT ">>>9"
+  INITIAL "0"
+  LABEL "Security Level"
+  POSITION 9
+  MAX-WIDTH 4
+  COLUMN-LABEL "SecLvl"
+  HELP "Enter Security Level"
+  ORDER 70
+
+ADD INDEX "pi-cueCard" ON "cueCard" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Primary Index"
+  INDEX-FIELD "cuePrgmName" ASCENDING 
+  INDEX-FIELD "cueType" ASCENDING 
+  INDEX-FIELD "cueID" ASCENDING 
+  INDEX-FIELD "isActive" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "cueCard" 
+  AREA "Index"
+  DESCRIPTION "Secondary Indexc by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "cueCardText"
+  AREA "Data"
+  LABEL "Cue Card Text"
+  DESCRIPTION "Cue Card Properties"
+  DUMP-NAME "cuecardtext"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\cueCardText.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\cueCardText.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\cueCardText.p" CRC "?" 
+
+ADD FIELD "cueID" OF "cueCardText" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Cue Card ID"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "Cue ID"
+  HELP "Enter Cue Card ID"
+  ORDER 10
+
+ADD FIELD "isActive" OF "cueCardText" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Active"
+  POSITION 3
+  MAX-WIDTH 1
+  HELP "Set Active Flag"
+  ORDER 30
+
+ADD FIELD "cueOrder" OF "cueCardText" AS integer 
+  FORMAT ">>>9"
+  INITIAL "0"
+  LABEL "Cue Card Order"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Order"
+  HELP "Enter Cue Card Order"
+  ORDER 40
+
+ADD FIELD "cueText" OF "cueCardText" AS character 
+  FORMAT "x(60)"
+  INITIAL "Enter Cue Card Text Here"
+  LABEL "Cue Card Text"
+  POSITION 5
+  MAX-WIDTH 120
+  HELP "Enter Cue Card Text"
+  ORDER 60
+
+ADD FIELD "cueOrientation" OF "cueCardText" AS integer 
+  FORMAT ">9"
+  INITIAL "1"
+  LABEL "Orientation"
+  POSITION 6
+  MAX-WIDTH 4
+  HELP "Enter Orientation"
+  ORDER 70
+
+ADD FIELD "cuePosition" OF "cueCardText" AS integer 
+  FORMAT ">9"
+  INITIAL "1"
+  LABEL "Relative Position"
+  POSITION 7
+  MAX-WIDTH 4
+  COLUMN-LABEL "Position"
+  HELP "Enter Relative Position"
+  ORDER 80
+
+ADD FIELD "frameHeight" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "15.72"
+  LABEL "Frame Height"
+  POSITION 8
+  MAX-WIDTH 17
+  COLUMN-LABEL "F.Height"
+  HELP "Enter Frame Height"
+  DECIMALS 2
+  ORDER 90
+
+ADD FIELD "frameWidth" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "67.01"
+  LABEL "Frame Width"
+  POSITION 9
+  MAX-WIDTH 17
+  COLUMN-LABEL "F.Width"
+  HELP "Enter Frame Width"
+  DECIMALS 2
+  ORDER 100
+
+ADD FIELD "frameCol" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "5"
+  LABEL "Frame Col"
+  POSITION 10
+  MAX-WIDTH 17
+  COLUMN-LABEL ""
+  HELP "Enter Frame Column"
+  DECIMALS 2
+  ORDER 110
+
+ADD FIELD "frameRow" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "5"
+  LABEL "Frame Row"
+  POSITION 11
+  MAX-WIDTH 17
+  COLUMN-LABEL ""
+  HELP "Enter Frame Row"
+  DECIMALS 2
+  ORDER 120
+
+ADD FIELD "frameBGColor" OF "cueCardText" AS integer 
+  FORMAT ">9"
+  INITIAL "15"
+  LABEL "Frame BG Color"
+  POSITION 12
+  MAX-WIDTH 4
+  COLUMN-LABEL "F.BG"
+  HELP "Enter Frame BG Color"
+  ORDER 130
+
+ADD FIELD "frameFGColor" OF "cueCardText" AS integer 
+  FORMAT ">9"
+  INITIAL "1"
+  LABEL "Frame FG Color"
+  POSITION 13
+  MAX-WIDTH 4
+  COLUMN-LABEL "F.FG"
+  HELP "Enter Frame FG Color"
+  ORDER 140
+
+ADD FIELD "arrowCol" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "2"
+  LABEL "Arrow Col"
+  POSITION 14
+  MAX-WIDTH 17
+  COLUMN-LABEL ""
+  HELP "Enter Frame Column"
+  DECIMALS 2
+  ORDER 150
+
+ADD FIELD "arrowRow" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "1.24"
+  LABEL "Arrow Row"
+  POSITION 15
+  MAX-WIDTH 17
+  COLUMN-LABEL ""
+  HELP "Enter Frame Row"
+  DECIMALS 2
+  ORDER 160
+
+ADD FIELD "positionCol" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "4"
+  LABEL "Position Col"
+  POSITION 16
+  MAX-WIDTH 17
+  COLUMN-LABEL "Pos. Col"
+  HELP "Enter Position Column"
+  DECIMALS 2
+  ORDER 170
+
+ADD FIELD "positionRow" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "3.86"
+  LABEL "Position Row"
+  POSITION 17
+  MAX-WIDTH 17
+  COLUMN-LABEL "Pos. Row"
+  HELP "Enter Position Row"
+  DECIMALS 2
+  ORDER 180
+
+ADD FIELD "textHeight" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "10.48"
+  LABEL "Text Height"
+  POSITION 18
+  MAX-WIDTH 17
+  COLUMN-LABEL "T.Height"
+  HELP "Enter Text Height"
+  DECIMALS 2
+  ORDER 190
+
+ADD FIELD "textWidth" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "44"
+  LABEL "Text Width"
+  POSITION 19
+  MAX-WIDTH 17
+  COLUMN-LABEL "T.Width"
+  HELP "Enter Text Width"
+  DECIMALS 2
+  ORDER 200
+
+ADD FIELD "textCol" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "13"
+  LABEL "Text Col"
+  POSITION 20
+  MAX-WIDTH 17
+  COLUMN-LABEL ""
+  HELP "Enter Text Column"
+  DECIMALS 2
+  ORDER 210
+
+ADD FIELD "textRow" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "3.62"
+  LABEL "Text Row"
+  POSITION 21
+  MAX-WIDTH 17
+  COLUMN-LABEL ""
+  HELP "Enter Text Row"
+  DECIMALS 2
+  ORDER 220
+
+ADD FIELD "textBGColor" OF "cueCardText" AS integer 
+  FORMAT ">9"
+  INITIAL ?
+  LABEL "Text BG Color"
+  POSITION 22
+  MAX-WIDTH 4
+  COLUMN-LABEL "T.BG"
+  HELP "Enter Text BG Color"
+  ORDER 230
+
+ADD FIELD "textFGColor" OF "cueCardText" AS integer 
+  FORMAT ">9"
+  INITIAL ?
+  LABEL "Text FG Color"
+  POSITION 23
+  MAX-WIDTH 4
+  COLUMN-LABEL "T.FG"
+  HELP "Enter Text FG Color"
+  ORDER 240
+
+ADD FIELD "prevCol" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "12"
+  LABEL "Prev Col"
+  POSITION 24
+  MAX-WIDTH 17
+  COLUMN-LABEL ""
+  HELP "Enter Previous Column"
+  DECIMALS 2
+  ORDER 260
+
+ADD FIELD "prevRow" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "14.1"
+  LABEL "Prev Row"
+  POSITION 25
+  MAX-WIDTH 17
+  COLUMN-LABEL ""
+  HELP "Enter Previous Row"
+  DECIMALS 2
+  ORDER 270
+
+ADD FIELD "nextCol" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "46"
+  LABEL "Next Col"
+  POSITION 26
+  MAX-WIDTH 17
+  COLUMN-LABEL ""
+  HELP "Enter Next Column"
+  DECIMALS 2
+  ORDER 280
+
+ADD FIELD "nextRow" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "14.1"
+  LABEL "Next Row"
+  POSITION 27
+  MAX-WIDTH 17
+  COLUMN-LABEL ""
+  HELP "Enter Next Row"
+  DECIMALS 2
+  ORDER 290
+
+ADD FIELD "dontShowAgainCol" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "22"
+  LABEL "Don't Show Again Col"
+  POSITION 28
+  MAX-WIDTH 17
+  COLUMN-LABEL "Don't Row"
+  HELP "Enter Don't Show Again Col"
+  DECIMALS 2
+  ORDER 300
+
+ADD FIELD "dontShowAgainRow" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "14.33"
+  LABEL "Don't Show Again Row"
+  POSITION 29
+  MAX-WIDTH 17
+  COLUMN-LABEL "Don't Row"
+  HELP "Enter Don't Show Again Row"
+  DECIMALS 2
+  ORDER 310
+
+ADD FIELD "dismissCol" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "29"
+  LABEL "Dismiss Col"
+  POSITION 30
+  MAX-WIDTH 17
+  COLUMN-LABEL ""
+  HELP "Enter Dismiss Column"
+  DECIMALS 2
+  ORDER 330
+
+ADD FIELD "dismissRow" OF "cueCardText" AS decimal 
+  FORMAT ">>>9.99"
+  INITIAL "15.29"
+  LABEL "Dismiss Row"
+  POSITION 31
+  MAX-WIDTH 17
+  COLUMN-LABEL ""
+  HELP "Enter Dismiss Row"
+  DECIMALS 2
+  ORDER 340
+
+ADD FIELD "rec_key" OF "cueCardText" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 32
+  MAX-WIDTH 42
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 400
+
+ADD FIELD "textFont" OF "cueCardText" AS integer 
+  FORMAT ">9"
+  INITIAL "6"
+  LABEL "Text Font"
+  POSITION 33
+  MAX-WIDTH 4
+  COLUMN-LABEL "T.Font"
+  HELP "Enter Cue Card Text Font"
+  ORDER 250
+
+ADD FIELD "dontShowAgainFont" OF "cueCardText" AS integer 
+  FORMAT ">9"
+  INITIAL "6"
+  LABEL "Don't Show Again Font"
+  POSITION 34
+  MAX-WIDTH 4
+  COLUMN-LABEL "Don't Font"
+  HELP "Enter Don't Show Again Font"
+  ORDER 320
+
+ADD FIELD "dismissFont" OF "cueCardText" AS integer 
+  FORMAT ">9"
+  INITIAL "6"
+  LABEL "Dismiss Font"
+  POSITION 35
+  MAX-WIDTH 4
+  COLUMN-LABEL ""
+  HELP "Enter Dismisst Font"
+  ORDER 350
+
+ADD FIELD "cueTextID" OF "cueCardText" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Cue Text ID"
+  POSITION 36
+  MAX-WIDTH 4
+  COLUMN-LABEL "Text ID"
+  HELP "Enter Cue Text ID"
+  ORDER 50
+
+ADD FIELD "createdBy" OF "cueCardText" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Created By"
+  POSITION 38
+  MAX-WIDTH 24
+  HELP "Enter Created By User ID"
+  ORDER 360
+
+ADD FIELD "createdDate" OF "cueCardText" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Created Date"
+  POSITION 39
+  MAX-WIDTH 4
+  HELP "Enter Created Date"
+  ORDER 370
+
+ADD FIELD "createdTime" OF "cueCardText" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Created Time"
+  POSITION 40
+  MAX-WIDTH 4
+  HELP "Enter Created Time"
+  ORDER 380
+
+ADD FIELD "createdFor" OF "cueCardText" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Created For"
+  POSITION 41
+  MAX-WIDTH 24
+  HELP "Enter Created For User ID"
+  ORDER 390
+
+ADD FIELD "cueType" OF "cueCardText" AS character 
+  FORMAT "x(8)"
+  INITIAL "System"
+  LABEL "Cue Type"
+  POSITION 46
+  MAX-WIDTH 16
+  HELP "Enter Cue Card Type"
+  ORDER 20
+
+ADD INDEX "pi-cueCardText" ON "cueCardText" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Primary Index"
+  INDEX-FIELD "cueType" ASCENDING 
+  INDEX-FIELD "cueID" ASCENDING 
+  INDEX-FIELD "isActive" ASCENDING 
+  INDEX-FIELD "cueOrder" ASCENDING 
+
+ADD INDEX "si-cueTextID" ON "cueCardText" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Cue Type and Cue ID"
+  INDEX-FIELD "cueType" ASCENDING 
+  INDEX-FIELD "cueTextID" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "cueCardText" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "formParms"
+  AREA "Data"
+  DESCRIPTION "Parameters for form generation"
+  DUMP-NAME "formparms"
+
+ADD FIELD "formType" OF "formParms" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Form Type"
+  POSITION 2
+  MAX-WIDTH 16
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "formID" OF "formParms" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Form ID"
+  POSITION 3
+  MAX-WIDTH 24
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "company" OF "formParms" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 4
+  MAX-WIDTH 6
+  HELP "Enter the company code."
+  ORDER 30
+
+ADD FIELD "cust-no" OF "formParms" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customer"
+  POSITION 5
+  MAX-WIDTH 16
+  HELP "Enter customer number."
+  ORDER 40
+
+ADD FIELD "ship-no" OF "formParms" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Ship To #"
+  POSITION 6
+  MAX-WIDTH 4
+  ORDER 50
+  MANDATORY
+
+ADD FIELD "vend-no" OF "formParms" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Vendor No."
+  POSITION 7
+  MAX-WIDTH 16
+  HELP "Enter Vendor number"
+  ORDER 60
+
+ADD FIELD "programName" OF "formParms" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "Program Name"
+  POSITION 8
+  MAX-WIDTH 48
+  ORDER 70
+
+ADD FIELD "parmNames" OF "formParms" AS character 
+  FORMAT "x(360)"
+  INITIAL ""
+  LABEL "Parameter Names"
+  POSITION 9
+  MAX-WIDTH 120
+  ORDER 80
+
+ADD FIELD "parmDefaultValues" OF "formParms" AS character 
+  FORMAT "x(360)"
+  INITIAL ""
+  LABEL "Default Values"
+  POSITION 10
+  MAX-WIDTH 720
+  ORDER 90
+
+ADD FIELD "parmLastValues" OF "formParms" AS character 
+  FORMAT "x(360)"
+  INITIAL ""
+  LABEL "Last Values"
+  POSITION 11
+  MAX-WIDTH 720
+  ORDER 100
+
+ADD FIELD "user-id" OF "formParms" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "User-Id"
+  POSITION 12
+  MAX-WIDTH 16
+  HELP "Enter the User ID"
+  ORDER 110
+
+ADD INDEX "iFormType" ON "formParms" 
+  AREA "Data"
+  PRIMARY
+  INDEX-FIELD "formType" ASCENDING 
+
+ADD INDEX "iCompany" ON "formParms" 
+  AREA "Data"
+  INDEX-FIELD "formType" ASCENDING 
+
+ADD INDEX "iCustNo" ON "formParms" 
+  AREA "Data"
+  INDEX-FIELD "cust-no" ASCENDING 
+  INDEX-FIELD "ship-no" ASCENDING 
+
+ADD INDEX "iformID" ON "formParms" 
+  AREA "Data"
+  INDEX-FIELD "formID" ASCENDING 
+
+ADD INDEX "iProgramName" ON "formParms" 
+  AREA "Data"
+  INDEX-FIELD "programName" ASCENDING 
+
+ADD INDEX "iUserID" ON "formParms" 
+  AREA "Data"
+  INDEX-FIELD "user-id" ASCENDING 
+
+ADD INDEX "iVendNo" ON "formParms" 
+  AREA "Data"
+  INDEX-FIELD "vend-no" ASCENDING 
+
+ADD TABLE "ftpConfig"
+  AREA "Data"
+  DUMP-NAME "ftpconfig"
+
+ADD FIELD "ediType" OF "ftpConfig" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Type"
+  POSITION 2
+  MAX-WIDTH 16
+  COLUMN-LABEL "Type"
+  HELP "Type of EDI, e.g. POExport"
+  ORDER 10
+
+ADD FIELD "ftpDirection" OF "ftpConfig" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Direction"
+  POSITION 3
+  MAX-WIDTH 16
+  COLUMN-LABEL "Direction"
+  HELP "In, Out, or Both"
+  ORDER 20
+
+ADD FIELD "partner" OF "ftpConfig" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Partner"
+  POSITION 4
+  MAX-WIDTH 30
+  COLUMN-LABEL "Partner"
+  HELP "Partner code e.g. GE"
+  ORDER 30
+
+ADD FIELD "ftpCode" OF "ftpConfig" AS character 
+  DESCRIPTION "Code that with partner defines a configuration line"
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Code"
+  POSITION 5
+  MAX-WIDTH 40
+  COLUMN-LABEL "Code"
+  HELP "Code for this ftp configuration"
+  ORDER 40
+
+ADD FIELD "ftpSite" OF "ftpConfig" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Ftp Site"
+  POSITION 6
+  MAX-WIDTH 100
+  COLUMN-LABEL "Ftp Site"
+  ORDER 50
+
+ADD FIELD "ftpUser" OF "ftpConfig" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Ftp User"
+  POSITION 7
+  MAX-WIDTH 40
+  COLUMN-LABEL "Ftp User"
+  HELP "Ftp user code."
+  ORDER 60
+
+ADD FIELD "ftpPassword" OF "ftpConfig" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Password"
+  POSITION 8
+  MAX-WIDTH 60
+  COLUMN-LABEL "Password"
+  HELP "Password"
+  ORDER 70
+
+ADD FIELD "ftpMode" OF "ftpConfig" AS character 
+  DESCRIPTION "FTP or SFTP"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Mode"
+  POSITION 9
+  MAX-WIDTH 16
+  COLUMN-LABEL "Mode"
+  HELP "Ftp Mode:  FTP or SFTP"
+  ORDER 80
+
+ADD FIELD "ftpSoftware" OF "ftpConfig" AS character 
+  DESCRIPTION "Communications software such as winscp or ftp (for windows ftp)"
+  FORMAT "x(25)"
+  INITIAL ""
+  LABEL "Communications Software"
+  POSITION 10
+  MAX-WIDTH 50
+  COLUMN-LABEL "Software"
+  HELP "Communications software"
+  ORDER 90
+
+ADD FIELD "ftpDir" OF "ftpConfig" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Folder"
+  POSITION 11
+  MAX-WIDTH 60
+  COLUMN-LABEL "Folder"
+  HELP "Folder name where files will be placed."
+  ORDER 100
+
+ADD FIELD "ftpBinary" OF "ftpConfig" AS character 
+  DESCRIPTION "ASC or Bin for Binary - code to use within ftp"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Binary Data"
+  POSITION 12
+  MAX-WIDTH 16
+  COLUMN-LABEL "Binary Data"
+  HELP "ASC data or Binary"
+  ORDER 110
+
+ADD FIELD "ftpScript" OF "ftpConfig" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Script File"
+  POSITION 13
+  MAX-WIDTH 24
+  COLUMN-LABEL "Script File"
+  HELP "Script file name."
+  ORDER 120
+
+ADD FIELD "ftpCommand" OF "ftpConfig" AS character 
+  DESCRIPTION "Command to execute, e.g. get or mget"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "FTP Command"
+  POSITION 14
+  MAX-WIDTH 16
+  COLUMN-LABEL "FTP Command"
+  HELP "Ftp command to execute"
+  ORDER 130
+
+ADD FIELD "ftpDeleteFile" OF "ftpConfig" AS logical 
+  FORMAT "yes/no"
+  INITIAL "NO"
+  LABEL "Remove File?"
+  POSITION 15
+  MAX-WIDTH 1
+  COLUMN-LABEL "Remove File?"
+  HELP "Remove file during FTP after copy?"
+  ORDER 140
+
+ADD FIELD "rec_key" OF "ftpConfig" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 16
+  MAX-WIDTH 42
+  HELP "Enter Record Key Value"
+  ORDER 150
+
+ADD INDEX "TypeDirPartnerCode" ON "ftpConfig" 
+  AREA "Index"
+  PRIMARY
+  INDEX-FIELD "ediType" ASCENDING 
+  INDEX-FIELD "ftpDirection" ASCENDING 
+  INDEX-FIELD "partner" ASCENDING 
+  INDEX-FIELD "ftpCode" ASCENDING 
+
+ADD TABLE "salesgrpMember"
+  AREA "Data"
+  DUMP-NAME "salesgrpmember"
+
+ADD FIELD "company" OF "salesgrpMember" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  HELP "Enter the company code."
+  ORDER 5
+  MANDATORY
+
+ADD FIELD "sman" OF "salesgrpMember" AS character 
+  DESCRIPTION "This now supports the ""Sales Group"" concept where required"
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Salesperson/Group"
+  POSITION 3
+  MAX-WIDTH 6
+  HELP "Enter Salesperson or Group Code"
+  ORDER 15
+  MANDATORY
+
+ADD FIELD "salesmanID" OF "salesgrpMember" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Salesperson ID"
+  POSITION 4
+  MAX-WIDTH 24
+  ORDER 25
+
+ADD FIELD "salesmanName" OF "salesgrpMember" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Name"
+  POSITION 5
+  MAX-WIDTH 60
+  ORDER 35
+
+ADD FIELD "rec_key" OF "salesgrpMember" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 6
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 45
+
+ADD FIELD "splitPct" OF "salesgrpMember" AS decimal 
+  FORMAT "->,>>9.99<<"
+  INITIAL "0"
+  LABEL "Split Pct"
+  POSITION 7
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 55
+
+ADD FIELD "splitAmt" OF "salesgrpMember" AS decimal 
+  FORMAT "->>>,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Split Amt"
+  POSITION 8
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 65
+
+ADD FIELD "isManager" OF "salesgrpMember" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Manager"
+  POSITION 9
+  MAX-WIDTH 1
+  ORDER 75
+
+ADD FIELD "addrRecKey" OF "salesgrpMember" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Address RecKey"
+  POSITION 10
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 85
+
+ADD INDEX "iPrimary" ON "salesgrpMember" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "sman" ASCENDING 
+  INDEX-FIELD "salesmanID" ASCENDING 
+
+ADD INDEX "iGroup" ON "salesgrpMember" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "sman" ASCENDING 
+
+ADD INDEX "iIdentifier" ON "salesgrpMember" 
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "salesmanID" ASCENDING 
+
+ADD INDEX "iReckey" ON "salesgrpMember" 
+  AREA "Data"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "statusCode"
+  AREA "Data"
+  DUMP-NAME "statuscode"
+
+ADD FIELD "CoCode" OF "statusCode" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL ""
+  POSITION 2
+  MAX-WIDTH 6
+  HELP "Company code"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "StatusCode" OF "statusCode" AS character 
+  FORMAT "x(2)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 4
+  HELP "Status Code"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "Module" OF "statusCode" AS character 
+  FORMAT "x(2)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 4
+  HELP "Module used (Blank = global)"
+  ORDER 30
+  MANDATORY
+
+ADD FIELD "Description" OF "statusCode" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 32
+  HELP "Status description (Used for drop down - Code-Description"
+  ORDER 40
+  MANDATORY
+
+ADD FIELD "Note" OF "statusCode" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 160
+  ORDER 50
+
+ADD FIELD "Sequence" OF "statusCode" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 7
+  MAX-WIDTH 4
+  HELP "Sort order for drop down"
+  ORDER 60
+
+ADD FIELD "HoldCustomer" OF "statusCode" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 8
+  MAX-WIDTH 1
+  HELP "Is Customer on Hold"
+  ORDER 70
+
+ADD FIELD "HoldCredit" OF "statusCode" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 9
+  MAX-WIDTH 1
+  HELP "Hold for Credit"
+  ORDER 80
+
+ADD FIELD "HoldEstimate" OF "statusCode" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 10
+  MAX-WIDTH 1
+  HELP "Can an estimate be done for this customer"
+  ORDER 90
+
+ADD FIELD "HoldOrder" OF "statusCode" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 11
+  MAX-WIDTH 1
+  HELP "Can an order be done for this customer"
+  ORDER 100
+
+ADD FIELD "HoldRelease" OF "statusCode" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 12
+  MAX-WIDTH 1
+  HELP "Can a release be done for this order"
+  ORDER 110
+
+ADD FIELD "HoldPurchase" OF "statusCode" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 13
+  MAX-WIDTH 1
+  HELP "Can a purchase be made"
+  ORDER 120
+
+ADD FIELD "HoldProduction" OF "statusCode" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 14
+  MAX-WIDTH 1
+  HELP "Can production be done for this job"
+  ORDER 130
+
+ADD FIELD "HoldSchedule" OF "statusCode" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 15
+  MAX-WIDTH 1
+  HELP "Can this job be scheduled"
+  ORDER 140
+
+ADD FIELD "StatusInactive" OF "statusCode" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 16
+  MAX-WIDTH 1
+  HELP "Is this item active"
+  ORDER 150
+
+ADD FIELD "AskReasonCode" OF "statusCode" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 17
+  MAX-WIDTH 1
+  HELP "Setting this status should ask for a reason code"
+  ORDER 160
+
+ADD FIELD "LockedStatus" OF "statusCode" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 18
+  MAX-WIDTH 1
+  HELP "Should this record be locked and not allow editing until unlock"
+  ORDER 170
+
+ADD FIELD "StatusUnlockLevel" OF "statusCode" AS character 
+  FORMAT "x(3)"
+  INITIAL "100"
+  POSITION 19
+  MAX-WIDTH 6
+  HELP "What security level is required to unlock the record for editin"
+  ORDER 180
+
+ADD INDEX "iPrimary" ON "statusCode" 
+  AREA "Data"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "CoCode" ASCENDING 
+  INDEX-FIELD "StatusCode" ASCENDING 
+  INDEX-FIELD "Module" ASCENDING 
+
+ADD INDEX "iCoCode" ON "statusCode" 
+  AREA "Data"
+  INDEX-FIELD "CoCode" ASCENDING 
+
+ADD INDEX "iModule" ON "statusCode" 
+  AREA "Data"
+  INDEX-FIELD "Module" ASCENDING 
+
+ADD INDEX "iStatusCode" ON "statusCode" 
+  AREA "Data"
+  INDEX-FIELD "StatusCode" ASCENDING 
+
+ADD TABLE "tag"
+  AREA "Data"
+  LABEL "Generic Tag Table"
+  DUMP-NAME "tag"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\tag.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\tag.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\tag.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "tag" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 40
+
+ADD FIELD "linkTable" OF "tag" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "Link Table"
+  POSITION 3
+  MAX-WIDTH 48
+  ORDER 50
+
+ADD FIELD "linkRecKey" OF "tag" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Link RecKey"
+  POSITION 4
+  MAX-WIDTH 42
+  ORDER 60
+
+ADD FIELD "tagType" OF "tag" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Type"
+  POSITION 5
+  MAX-WIDTH 16
+  ORDER 70
+
+ADD FIELD "description" OF "tag" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 6
+  MAX-WIDTH 120
+  ORDER 80
+
+ADD FIELD "Note" OF "tag" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 610
+  EXTENT 5
+  ORDER 90
+
+ADD FIELD "createUser" OF "tag" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 8
+  MAX-WIDTH 24
+  ORDER 100
+
+ADD FIELD "createDT" OF "tag" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Create DtTm"
+  POSITION 9
+  MAX-WIDTH 8
+  ORDER 110
+
+ADD FIELD "updateUser" OF "tag" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Update User"
+  POSITION 10
+  MAX-WIDTH 24
+  ORDER 120
+
+ADD FIELD "updateDT" OF "tag" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Update DtTm"
+  POSITION 11
+  MAX-WIDTH 8
+  ORDER 130
+
+ADD FIELD "ownerUser" OF "tag" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Owner"
+  POSITION 12
+  MAX-WIDTH 24
+  ORDER 140
+
+ADD FIELD "statusCode" OF "tag" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Status"
+  POSITION 13
+  MAX-WIDTH 16
+  ORDER 150
+
+ADD FIELD "groupCode" OF "tag" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Group"
+  POSITION 14
+  MAX-WIDTH 16
+  ORDER 160
+
+ADD INDEX "iLinkTable" ON "tag" 
+  AREA "Data"
+  PRIMARY
+  INDEX-FIELD "linkTable" ASCENDING 
+
+ADD INDEX "iCreateDT" ON "tag" 
+  AREA "Data"
+  INDEX-FIELD "createDT" DESCENDING 
+
+ADD INDEX "iGroup" ON "tag" 
+  AREA "Data"
+  INDEX-FIELD "groupCode" ASCENDING 
+
+ADD INDEX "iLinkRecKey" ON "tag" 
+  AREA "Data"
+  INDEX-FIELD "linkRecKey" ASCENDING 
+
+ADD INDEX "iOwner" ON "tag" 
+  AREA "Data"
+  INDEX-FIELD "ownerUser" ASCENDING 
+
+ADD INDEX "iRecKey" ON "tag" 
+  AREA "Data"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "iStatus" ON "tag" 
+  AREA "Data"
+  INDEX-FIELD "statusCode" ASCENDING 
+
+ADD INDEX "iUpdateDT" ON "tag" 
+  AREA "Data"
+  INDEX-FIELD "updateDT" DESCENDING 
+
+ADD TABLE "Task"
+  AREA "Data"
+  LABEL "Task"
+  DESCRIPTION "Tasks for Batch Scheduler"
+  DUMP-NAME "task"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\task.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\task.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\task.p" CRC "?" 
+
+ADD FIELD "scheduled" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Scheduled"
+  POSITION 2
+  MAX-WIDTH 1
+  HELP "Scheduled (yes/no)"
+  ORDER 30
+
+ADD FIELD "company" OF "Task" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 3
+  MAX-WIDTH 6
+  HELP "Enter Company"
+  ORDER 10
+
+ADD FIELD "taskName" OF "Task" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "Task Name"
+  POSITION 4
+  MAX-WIDTH 48
+  HELP "Enter Task Name"
+  ORDER 40
+
+ADD FIELD "taskID" OF "Task" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Task ID"
+  POSITION 5
+  MAX-WIDTH 4
+  HELP "Enter Task ID"
+  ORDER 50
+
+ADD FIELD "programID" OF "Task" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Program ID"
+  POSITION 6
+  MAX-WIDTH 40
+  HELP "Enter Program ID"
+  ORDER 70
+
+ADD FIELD "user-id" OF "Task" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 7
+  MAX-WIDTH 20
+  HELP "Enter User ID"
+  ORDER 80
+
+ADD FIELD "frequency" OF "Task" AS character 
+  FORMAT "x(8)"
+  INITIAL "Daily"
+  LABEL "Freguency"
+  POSITION 8
+  MAX-WIDTH 16
+  HELP "Enter Frequency"
+  ORDER 90
+
+ADD FIELD "taskTime" OF "Task" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Task Time"
+  POSITION 9
+  MAX-WIDTH 4
+  COLUMN-LABEL "Time"
+  HELP "Enter Task Time"
+  ORDER 100
+
+ADD FIELD "dayOfWeek" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Day Of Week"
+  POSITION 10
+  MAX-WIDTH 56
+  HELP "Select Day of the Week"
+  EXTENT 7
+  ORDER 130
+
+ADD FIELD "lastOfMonth" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Last Day of Month"
+  POSITION 12
+  MAX-WIDTH 1
+  COLUMN-LABEL "LastDay"
+  HELP "Select for Last Day of Month"
+  ORDER 150
+
+ADD FIELD "taskFormat" OF "Task" AS character 
+  FORMAT "x(6)"
+  INITIAL "PDF"
+  LABEL "Format"
+  POSITION 13
+  MAX-WIDTH 12
+  HELP "Enter Output Format"
+  ORDER 160
+
+ADD FIELD "recipients" OF "Task" AS character 
+  FORMAT "x(256)"
+  INITIAL ""
+  LABEL "Recipients"
+  POSITION 14
+  MAX-WIDTH 512
+  HELP "Enter Recipients"
+  ORDER 170
+
+ADD FIELD "startDate" OF "Task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Start Date"
+  POSITION 15
+  MAX-WIDTH 4
+  HELP "Enter Start Date"
+  ORDER 180
+
+ADD FIELD "startTime" OF "Task" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Start Time"
+  POSITION 16
+  MAX-WIDTH 4
+  COLUMN-LABEL "STime"
+  HELP "Enter Start Time"
+  ORDER 190
+
+ADD FIELD "endDate" OF "Task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "End Date"
+  POSITION 17
+  MAX-WIDTH 4
+  HELP "Enter End Date"
+  ORDER 200
+
+ADD FIELD "endTime" OF "Task" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "End Time"
+  POSITION 18
+  MAX-WIDTH 4
+  COLUMN-LABEL "ETime"
+  HELP "Enter End Time"
+  ORDER 210
+
+ADD FIELD "nextDate" OF "Task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Next Date"
+  POSITION 19
+  MAX-WIDTH 4
+  HELP "Enter Next Date"
+  ORDER 220
+
+ADD FIELD "nextTime" OF "Task" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Next Time"
+  POSITION 20
+  MAX-WIDTH 4
+  HELP "Enter Next Time"
+  ORDER 230
+
+ADD FIELD "lastDate" OF "Task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Last Date"
+  POSITION 21
+  MAX-WIDTH 4
+  HELP "Enter Last Date"
+  ORDER 240
+
+ADD FIELD "lastTime" OF "Task" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Last Time"
+  POSITION 22
+  MAX-WIDTH 4
+  HELP "Enter Last Time"
+  ORDER 250
+
+ADD FIELD "rec_key" OF "Task" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 23
+  MAX-WIDTH 42
+  HELP "Enter Rec Key Value"
+  ORDER 450
+
+ADD FIELD "allData" OF "Task" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "All Date"
+  POSITION 24
+  MAX-WIDTH 16
+  HELP "Enter ALL Data"
+  ORDER 270
+
+ADD FIELD "dayOfWeek1" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Sunday"
+  POSITION 25
+  MAX-WIDTH 1
+  COLUMN-LABEL "Su"
+  HELP "Select Sunday"
+  ORDER 280
+
+ADD FIELD "dayOfWeek2" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Monday"
+  POSITION 26
+  MAX-WIDTH 1
+  COLUMN-LABEL "Mo"
+  HELP "Select Monday"
+  ORDER 290
+
+ADD FIELD "dayOfWeek3" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Tuesday"
+  POSITION 27
+  MAX-WIDTH 1
+  COLUMN-LABEL "Tu"
+  HELP "Select Tuesday"
+  ORDER 300
+
+ADD FIELD "dayOfWeek4" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Wednesday"
+  POSITION 28
+  MAX-WIDTH 1
+  COLUMN-LABEL "We"
+  HELP "Select Wednesday"
+  ORDER 310
+
+ADD FIELD "dayOfWeek5" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Thursday"
+  POSITION 29
+  MAX-WIDTH 1
+  COLUMN-LABEL "Th"
+  HELP "Select Thursday"
+  ORDER 320
+
+ADD FIELD "dayOfWeek6" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Friday"
+  POSITION 30
+  MAX-WIDTH 1
+  COLUMN-LABEL "Fr"
+  HELP "Select Friday"
+  ORDER 330
+
+ADD FIELD "dayOfWeek7" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Saturday"
+  POSITION 31
+  MAX-WIDTH 1
+  COLUMN-LABEL "Sa"
+  HELP "Select Saturday"
+  ORDER 340
+
+ADD FIELD "dayOfMonth" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Day of Month"
+  POSITION 33
+  MAX-WIDTH 248
+  HELP "Select Day of Month"
+  EXTENT 31
+  ORDER 140
+
+ADD FIELD "cTaskTime" OF "Task" AS character 
+  FORMAT "99:99"
+  INITIAL "0000"
+  LABEL "Task Time"
+  POSITION 34
+  MAX-WIDTH 10
+  COLUMN-LABEL "Time"
+  HELP "Enter Task Time"
+  ORDER 350
+
+ADD FIELD "cNextTime" OF "Task" AS character 
+  FORMAT "99:99"
+  INITIAL "0000"
+  LABEL "Next Time"
+  POSITION 35
+  MAX-WIDTH 10
+  COLUMN-LABEL "Time"
+  HELP "Enter Next Time"
+  ORDER 370
+
+ADD FIELD "cLastTime" OF "Task" AS character 
+  FORMAT "99:99"
+  INITIAL "0000"
+  LABEL "Last Time"
+  POSITION 36
+  MAX-WIDTH 10
+  COLUMN-LABEL "Time"
+  HELP "Enter Last Time"
+  ORDER 390
+
+ADD FIELD "fromTime" OF "Task" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "From Time"
+  POSITION 37
+  MAX-WIDTH 4
+  COLUMN-LABEL "From"
+  HELP "Enter Task From Time"
+  ORDER 110
+
+ADD FIELD "toTime" OF "Task" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "To Time"
+  POSITION 38
+  MAX-WIDTH 4
+  COLUMN-LABEL "To"
+  HELP "Enter Task To Time"
+  ORDER 120
+
+ADD FIELD "cFromTime" OF "Task" AS character 
+  FORMAT "99:99"
+  INITIAL "0000"
+  LABEL "From Time"
+  POSITION 39
+  MAX-WIDTH 10
+  COLUMN-LABEL "From"
+  HELP "Enter Task From Time"
+  ORDER 360
+
+ADD FIELD "cToTime" OF "Task" AS character 
+  FORMAT "99:99"
+  INITIAL "0000"
+  LABEL "To Time"
+  POSITION 40
+  MAX-WIDTH 10
+  COLUMN-LABEL "To"
+  HELP "Enter Task To Time"
+  ORDER 380
+
+ADD FIELD "securityLevel" OF "Task" AS integer 
+  FORMAT ">>>9"
+  INITIAL "0"
+  LABEL "Security Level"
+  POSITION 41
+  MAX-WIDTH 4
+  COLUMN-LABEL "Security"
+  HELP "Enter Security Level"
+  ORDER 400
+
+ADD FIELD "runNow" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Run Now"
+  POSITION 42
+  MAX-WIDTH 1
+  COLUMN-LABEL "Run"
+  HELP "Run Now (yes/no)"
+  ORDER 430
+
+ADD FIELD "access" OF "Task" AS character 
+  FORMAT "x(8)"
+  INITIAL "System"
+  LABEL "Access"
+  POSITION 43
+  MAX-WIDTH 16
+  HELP "Enter Access Type"
+  ORDER 410
+
+ADD FIELD "permissions" OF "Task" AS character 
+  FORMAT "x(20)"
+  INITIAL "*"
+  LABEL "Permissions"
+  POSITION 44
+  MAX-WIDTH 40
+  HELP "Enter Permissions"
+  ORDER 420
+
+ADD FIELD "lastUser" OF "Task" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Last User"
+  POSITION 45
+  MAX-WIDTH 20
+  HELP "Enter Last User"
+  ORDER 260
+
+ADD FIELD "module" OF "Task" AS character 
+  FORMAT "x(4)"
+  INITIAL ""
+  LABEL "Module"
+  POSITION 46
+  MAX-WIDTH 8
+  HELP "Enter Module"
+  ORDER 60
+
+ADD FIELD "isActive" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Active"
+  POSITION 47
+  MAX-WIDTH 1
+  HELP "Enter Is Active"
+  ORDER 20
+
+ADD FIELD "isRunning" OF "Task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Is Running"
+  POSITION 48
+  MAX-WIDTH 1
+  COLUMN-LABEL "Running"
+  HELP "Toggle Is Running"
+  ORDER 440
+
+ADD INDEX "pi-task" ON "Task" 
+  AREA "Index"
+  PRIMARY
+  DESCRIPTION "Primary Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "scheduled" ASCENDING 
+  INDEX-FIELD "taskName" ASCENDING 
+
+ADD INDEX "si-access" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Access"
+  INDEX-FIELD "access" ASCENDING 
+
+ADD INDEX "si-frequency" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Frequency"
+  INDEX-FIELD "frequency" ASCENDING 
+
+ADD INDEX "si-isActive" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Is Active"
+  INDEX-FIELD "isActive" ASCENDING 
+
+ADD INDEX "si-isRunning" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Is Running"
+  INDEX-FIELD "isRunning" ASCENDING 
+
+ADD INDEX "si-lastUser" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Last User"
+  INDEX-FIELD "lastUser" ASCENDING 
+
+ADD INDEX "si-program-id" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Program ID"
+  INDEX-FIELD "programID" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Rec Key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "si-runNow" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Run Now"
+  INDEX-FIELD "runNow" ASCENDING 
+
+ADD INDEX "si-scheduled" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Scheduled"
+  INDEX-FIELD "scheduled" ASCENDING 
+
+ADD INDEX "si-securityLevel" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Security Level"
+  INDEX-FIELD "securityLevel" ASCENDING 
+
+ADD INDEX "si-taskID" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Task ID"
+  INDEX-FIELD "taskID" ASCENDING 
+
+ADD INDEX "si-taskName" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Task Name"
+  INDEX-FIELD "taskName" ASCENDING 
+
+ADD INDEX "si-user-id" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by User ID"
+  INDEX-FIELD "user-id" ASCENDING 
+
+ADD TABLE "taskEmail"
+  AREA "Data"
+  LABEL "Task Email"
+  DESCRIPTION "Pending Task Email"
+  DUMP-NAME "taskemail"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\taskEmail.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\taskEmail.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\taskEmail.p" CRC "?" 
+
+ADD FIELD "attachment" OF "taskEmail" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Attachment"
+  POSITION 2
+  MAX-WIDTH 120
+  HELP "Enter Attachment File"
+  ORDER 30
+
+ADD FIELD "recipients" OF "taskEmail" AS character 
+  FORMAT "x(256)"
+  INITIAL ""
+  LABEL "Recipients"
+  POSITION 3
+  MAX-WIDTH 512
+  HELP "Enter Recipients"
+  ORDER 40
+
+ADD FIELD "rec_key" OF "taskEmail" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 4
+  MAX-WIDTH 42
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 70
+
+ADD FIELD "subject" OF "taskEmail" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Subject"
+  POSITION 5
+  MAX-WIDTH 80
+  HELP "Enter Subject"
+  ORDER 10
+
+ADD FIELD "body" OF "taskEmail" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Body"
+  POSITION 6
+  MAX-WIDTH 80
+  HELP "Enter Body Text"
+  ORDER 20
+
+ADD FIELD "mustExist" OF "taskEmail" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Must Exist"
+  POSITION 7
+  MAX-WIDTH 1
+  COLUMN-LABEL "Must"
+  HELP "Toggle Must Exist"
+  ORDER 50
+
+ADD FIELD "user-id" OF "taskEmail" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 8
+  MAX-WIDTH 16
+  HELP "Enter User ID"
+  ORDER 60
+
+ADD INDEX "pi-subject" ON "taskEmail" 
+  AREA "Index"
+  PRIMARY
+  DESCRIPTION "Primary Index by Subject"
+  INDEX-FIELD "subject" ASCENDING 
+
+ADD INDEX "si-attachment" ON "taskEmail" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Attachment"
+  INDEX-FIELD "attachment" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "taskEmail" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "taskExecution"
+  AREA "Data"
+  DUMP-NAME "taskexecution"
+
+ADD FIELD "taskID" OF "taskExecution" AS integer 
+  DESCRIPTION "id, unique identifier, no user editing, sequence number or other automatic numbered item"
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Task  ID"
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "module" OF "taskExecution" AS character 
+  DESCRIPTION "informational, but linked to module licensing"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Module"
+  POSITION 3
+  MAX-WIDTH 16
+  ORDER 20
+
+ADD FIELD "description" OF "taskExecution" AS character 
+  DESCRIPTION "Description of monitor, what it does, how it does it, any other comments "
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 120
+  ORDER 30
+
+ADD FIELD "triggerEvennt" OF "taskExecution" AS character 
+  DESCRIPTION "Trigger, what executes the program to execute ? manually run, scheduled, non-stop, etc. (Default options include: One Time, Recurring, On Startup)"
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "Trigger Event"
+  POSITION 5
+  MAX-WIDTH 48
+  ORDER 40
+
+ADD FIELD "startDT" OF "taskExecution" AS datetime 
+  DESCRIPTION "The next date/time to start a task "
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Start Date/Time"
+  POSITION 6
+  MAX-WIDTH 8
+  ORDER 50
+
+ADD FIELD "endDT" OF "taskExecution" AS datetime 
+  DESCRIPTION "The end time to execute the task ? Used to turn off the task"
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "End D/T"
+  POSITION 7
+  MAX-WIDTH 8
+  ORDER 60
+
+ADD FIELD "triggerTime" OF "taskExecution" AS integer 
+  DESCRIPTION "The amount of time to set for it to run next time (Set to zero if it should run continuously)"
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Trigger Time"
+  POSITION 8
+  MAX-WIDTH 4
+  ORDER 70
+
+ADD FIELD "triggerUnit" OF "taskExecution" AS character 
+  DESCRIPTION "This is the repeat which is used to determine the NEXT time the event should be run ? Minutes, Days
+Example: Repeat every (Time) (Unit) ? Repeat every [15] [minutes], Repeat every [7] [Days]
+"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Trigger Unit"
+  POSITION 9
+  MAX-WIDTH 16
+  ORDER 80
+
+ADD FIELD "taskType" OF "taskExecution" AS character 
+  DESCRIPTION "(Chose one option) ? Program, Report, Utility, ASI 
+Example: Initially this will just be run the program, but ultimately this could be an email, send text message, trigger something in the system, execute a backup, restore the test database, set up team viewer, etc.
+"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Task Type"
+  POSITION 10
+  MAX-WIDTH 16
+  ORDER 90
+
+ADD FIELD "newSession" OF "taskExecution" AS logical 
+  DESCRIPTION "This is used to indicate if the process should execute even if another session is required and utilizes a new user license"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "New Session"
+  POSITION 11
+  MAX-WIDTH 1
+  ORDER 100
+
+ADD FIELD "lastExecutionDT" OF "taskExecution" AS datetime 
+  DESCRIPTION "This is the date of the last execution of this task that gets set once the task begins"
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Last Executed D/T"
+  POSITION 12
+  MAX-WIDTH 8
+  ORDER 110
+
+ADD FIELD "lastResult" OF "taskExecution" AS character 
+  DESCRIPTION "reason code and description - Char(24) that is set once the task is either completed or there is a problem with the task to provide information to the user
+Example: Success, Failed, Could not Login, No response, File locked, stack trace etc. and is just text so it is flexible for ASI to write any result desired and not editable by user.
+"
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "Last Result"
+  POSITION 13
+  MAX-WIDTH 48
+  ORDER 120
+
+ADD FIELD "taskProgramName" OF "taskExecution" AS character 
+  DESCRIPTION "Name of program to execute which can be a name or a reference to program master (To handle security, licensing, etc)"
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Program Name"
+  POSITION 14
+  MAX-WIDTH 80
+  ORDER 130
+
+ADD FIELD "taskSettings" OF "taskExecution" AS character 
+  DESCRIPTION "value to indicate the settings necessary to pass to the task (Like an execution string -n=40, -profiler, etc)"
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Task Settings"
+  POSITION 15
+  MAX-WIDTH 160
+  ORDER 140
+
+ADD FIELD "startIn" OF "taskExecution" AS character 
+  DESCRIPTION "Where the program should be located so it does not have to be in propath and can be any program reachable on the network"
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Start In"
+  POSITION 16
+  MAX-WIDTH 80
+  ORDER 150
+
+ADD FIELD "dataFileName" OF "taskExecution" AS character 
+  DESCRIPTION "The name or type of data file that will be utilized to execute the task (Not sure if needed) that includes wildcards (*.txt, Job*.dat, etc)
+Example: ASI Data, ODBC data, FTP Site, XML, Excel, Text, Database, File system
+"
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Data File Name"
+  POSITION 17
+  MAX-WIDTH 80
+  ORDER 160
+
+ADD FIELD "dataFileType" OF "taskExecution" AS character 
+  DESCRIPTION "The name or type of data file that will be utilized to execute the task (Not sure if needed) that includes wildcards (*.txt, Job*.dat, etc)
+Example: ASI Data, ODBC data, FTP Site, XML, Excel, Text, Database, File system
+"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Data File Type"
+  POSITION 18
+  MAX-WIDTH 16
+  ORDER 170
+
+ADD FIELD "dataLocation" OF "taskExecution" AS character 
+  DESCRIPTION "The location of the data to use for this task ? Where to look for the data files (\\servername\inputfiles\, n:\custfiles\, etc.)"
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Data Location"
+  POSITION 19
+  MAX-WIDTH 120
+  ORDER 180
+
+ADD FIELD "results" OF "taskExecution" AS character 
+  DESCRIPTION "Options for output of results ? Options include (None ? No result notifications, Audit Log ? Adds record to audit log, Log File ? Adds to some log file, Email ? Sends email, etc)"
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "Results"
+  POSITION 20
+  MAX-WIDTH 48
+  ORDER 190
+
+ADD FIELD "processedData" OF "taskExecution" AS character 
+  DESCRIPTION "Location of raw data that has been processed (Any file that is processed, keep the original file)"
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Processed Data"
+  POSITION 21
+  MAX-WIDTH 120
+  ORDER 200
+
+ADD FIELD "rejectedData" OF "taskExecution" AS character 
+  DESCRIPTION "Location of processed data set that did not process successfully (User intervention would be required if this has any data)"
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Rejected Data"
+  POSITION 22
+  MAX-WIDTH 120
+  ORDER 210
+
+ADD FIELD "retainNoResults" OF "taskExecution" AS integer 
+  DESCRIPTION "Units of results to retain before purged (Either some time unit basis or number of results (From 0 (None) - 999 (All))"
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Retain NumResults"
+  POSITION 23
+  MAX-WIDTH 4
+  ORDER 220
+
+ADD FIELD "retainUnits" OF "taskExecution" AS character 
+  DESCRIPTION "The number of result sets or the number of days of results that are retained (Days OR Result sets)"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Retain Units"
+  POSITION 24
+  MAX-WIDTH 16
+  ORDER 230
+
+ADD FIELD "notificationEmail" OF "taskExecution" AS character 
+  DESCRIPTION "Email for any notifications related to task (This would normally be a group or admin user)"
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Notification Email"
+  POSITION 25
+  MAX-WIDTH 80
+  ORDER 240
+
+ADD FIELD "asiNotificationEmail" OF "taskExecution" AS character 
+  DESCRIPTION "Email address for any notification sent to ASI"
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "ASI Notify Email"
+  POSITION 26
+  MAX-WIDTH 80
+  ORDER 250
+
+ADD FIELD "asiResults" OF "taskExecution" AS character 
+  DESCRIPTION "Options for output of results ? Options include (None ? No result notifications, Audit Log ? Adds record to audit log, Log File ? Adds to log file, Email ? Sends email, etc)"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "ASI Results Options"
+  POSITION 27
+  MAX-WIDTH 16
+  ORDER 260
+
+ADD FIELD "isActive" OF "taskExecution" AS logical 
+  DESCRIPTION "Active flag to indicate the task is active"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Active"
+  POSITION 28
+  MAX-WIDTH 1
+  ORDER 270
+
+ADD FIELD "securityLevel" OF "taskExecution" AS integer 
+  DESCRIPTION "Security level for editing of task (Default = 900)"
+  FORMAT ">999"
+  INITIAL "0"
+  LABEL "Security Level"
+  POSITION 29
+  MAX-WIDTH 4
+  ORDER 280
+
+ADD FIELD "defaultSecurityLevel" OF "taskExecution" AS integer 
+  DESCRIPTION "Default security level (Default = 900)"
+  FORMAT ">999"
+  INITIAL "0"
+  LABEL "Def. Sec. Level"
+  POSITION 30
+  MAX-WIDTH 4
+  ORDER 290
+
+ADD FIELD "notifyUsers" OF "taskExecution" AS logical 
+  DESCRIPTION "Indicate if this task should notify all uses logged into the system that this task will be excuted (Logical)
+Example: 1020-260 ? The user is logged in and a message box displays a message ?System Backup has begun ? expect reduced performance until this task is completed?"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Notify Users"
+  POSITION 31
+  MAX-WIDTH 1
+  ORDER 300
+
+ADD FIELD "forceLogout" OF "taskExecution" AS logical 
+  DESCRIPTION "The system shall have the option of forcing users out of the system when this task begins if it requires restarting of the server, the database or other critical process (Objective)"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Force Logout"
+  POSITION 32
+  MAX-WIDTH 1
+  ORDER 310
+
+ADD TABLE "taskExecutionResults"
+  AREA "Data"
+  DUMP-NAME "taskexecutionresults"
+
+ADD FIELD "resultID" OF "taskExecutionResults" AS character 
+  DESCRIPTION "The system shall have the option of forcing users out of the system when this task begins if it requires restarting of the server, the database or other critical process (Objective)"
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Result ID"
+  POSITION 2
+  MAX-WIDTH 40
+  ORDER 10
+
+ADD FIELD "taskID" OF "taskExecutionResults" AS integer 
+  DESCRIPTION "link to the specific task executed taskExecutionTable.id"
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Task  ID"
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "taskName" OF "taskExecutionResults" AS character 
+  DESCRIPTION "name of executed task (Used only for sorting and visual purposes, so not needed in the table if sorting and filtering can be done by pulling from taskExecutionTable"
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Task Name"
+  POSITION 4
+  MAX-WIDTH 120
+  ORDER 30
+
+ADD FIELD "startDate" OF "taskExecutionResults" AS date 
+  DESCRIPTION "date the task was executed"
+  FORMAT "99/99/99"
+  INITIAL ?
+  LABEL "Start Date"
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "startTime" OF "taskExecutionResults" AS character 
+  DESCRIPTION "time the task was executed"
+  FORMAT "HH:MM:SS"
+  INITIAL ""
+  LABEL "Start Time"
+  POSITION 6
+  MAX-WIDTH 16
+  ORDER 50
+
+ADD FIELD "endDate" OF "taskExecutionResults" AS date 
+  DESCRIPTION "date the task completed"
+  FORMAT "99/99/99"
+  INITIAL ?
+  LABEL "End Date"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD FIELD "endTime" OF "taskExecutionResults" AS character 
+  DESCRIPTION "time the task completed"
+  FORMAT "HH:MM:SS"
+  INITIAL ""
+  LABEL "End Time"
+  POSITION 8
+  MAX-WIDTH 16
+  ORDER 70
+
+ADD FIELD "results" OF "taskExecutionResults" AS character 
+  DESCRIPTION "Success,Failed"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Results"
+  POSITION 9
+  MAX-WIDTH 16
+  ORDER 80
+
+ADD FIELD "resultMessage" OF "taskExecutionResults" AS character 
+  DESCRIPTION "Note message of anything of note from copy of a bad record, link to help file, link to result, data from result, etc."
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Message"
+  POSITION 10
+  MAX-WIDTH 120
+  ORDER 90
+
+ADD TABLE "taskResult"
+  AREA "Data"
+  DESCRIPTION "Task Results Table"
+  DUMP-NAME "taskresult"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/taskResult.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/taskResult.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/taskResult.p" CRC "?" 
+
+ADD FIELD "fileDateTime" OF "taskResult" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "File Date Time"
+  POSITION 2
+  MAX-WIDTH 8
+  COLUMN-LABEL "Date Time"
+  HELP "Enter File Date Time"
+  ORDER 10
+
+ADD FIELD "fileType" OF "taskResult" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "File Type"
+  POSITION 3
+  MAX-WIDTH 16
+  COLUMN-LABEL "Type"
+  HELP "Enter File Type"
+  ORDER 20
+
+ADD FIELD "folderFile" OF "taskResult" AS character 
+  FORMAT "x(256)"
+  INITIAL ""
+  LABEL "File Name"
+  POSITION 4
+  MAX-WIDTH 512
+  HELP "Enter File Name"
+  ORDER 30
+
+ADD FIELD "user-id" OF "taskResult" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 5
+  MAX-WIDTH 20
+  HELP "Enter User ID"
+  ORDER 40
+
+ADD FIELD "archived" OF "taskResult" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Achrived"
+  POSITION 6
+  MAX-WIDTH 8
+  HELP "Enter Archived Date Time"
+  ORDER 50
+
+ADD FIELD "rec_key" OF "taskResult" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 7
+  MAX-WIDTH 42
+  HELP "Enter Rec Key Value"
+  ORDER 70
+
+ADD FIELD "viewed" OF "taskResult" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Viewed"
+  POSITION 8
+  MAX-WIDTH 1
+  HELP "Toggle to Indicate Viewed"
+  ORDER 60
+
+ADD INDEX "pi-fileDateTime" ON "taskResult" 
+  AREA "Index"
+  PRIMARY
+  DESCRIPTION "Primary Index by File Date Time"
+  INDEX-FIELD "fileDateTime" ASCENDING 
+
+ADD INDEX "si-archived" ON "taskResult" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Archived Date Time"
+  INDEX-FIELD "archived" ASCENDING 
+
+ADD INDEX "si-fileType" ON "taskResult" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by File Type"
+  INDEX-FIELD "fileType" ASCENDING 
+
+ADD INDEX "si-foldFile" ON "taskResult" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Folder File"
+  INDEX-FIELD "folderFile" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "taskResult" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Rec Key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "si-user-id" ON "taskResult" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by User ID"
+  INDEX-FIELD "user-id" ASCENDING 
+
+ADD INDEX "si-viewed" ON "taskResult" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Viewed"
+  INDEX-FIELD "viewed" ASCENDING 
+
+ADD TABLE "translation"
+  AREA "Data"
+  LABEL "Translation"
+  DESCRIPTION "Translations for multi language"
+  DUMP-NAME "translation"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\translation.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\translation.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\translation.p" CRC "?" 
+
+ADD FIELD "translationKey" OF "translation" AS character 
+  DESCRIPTION "Translation Key (what other languages translations are based on)"
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Translation Key"
+  POSITION 2
+  MAX-WIDTH 80
+  HELP "Translation Key"
+  ORDER 10
+
+ADD FIELD "translation" OF "translation" AS character 
+  DESCRIPTION "Language Translation"
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Translation"
+  POSITION 3
+  MAX-WIDTH 820
+  HELP "Enter Translation"
+  EXTENT 10
+  ORDER 20
+
+ADD FIELD "rec_key" OF "translation" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 4
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 30
+
+ADD INDEX "translation" ON "translation" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Translation Primary Index"
+  INDEX-FIELD "translationKey" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "translation" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "userLanguage"
+  AREA "Data"
+  LABEL "User Language"
+  DESCRIPTION "User Language"
+  DUMP-NAME "userlanguage"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/userLanguage.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/userLanguage.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/userLanguage.p" CRC "?" 
+
+ADD FIELD "userLanguage" OF "userLanguage" AS character 
+  DESCRIPTION "User Language"
+  FORMAT "x(2)"
+  INITIAL ""
+  LABEL "Language"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "Lang"
+  HELP "Enter User Language"
+  ORDER 10
+
+ADD FIELD "langDescription" OF "userLanguage" AS character 
+  DESCRIPTION "Language Description"
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 3
+  MAX-WIDTH 40
+  HELP "Enter Language Description"
+  ORDER 20
+
+ADD FIELD "languageIdx" OF "userLanguage" AS integer 
+  DESCRIPTION "Language Index (ordinal used by tables translation and prgrms)"
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Language Index"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Index"
+  HELP "Enter Language Ordinal"
+  ORDER 30
+
+ADD FIELD "rec_key" OF "userLanguage" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 5
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 40
+
+ADD FIELD "flagImage" OF "userLanguage" AS character 
+  DESCRIPTION "Flag Image"
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Flag Image"
+  POSITION 6
+  MAX-WIDTH 80
+  HELP "Enter Flag Image"
+  ORDER 50
+
+ADD INDEX "pi-userLanguage" ON "userLanguage" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Primary User Language Index"
+  INDEX-FIELD "userLanguage" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "userLanguage" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "utilities"
+  AREA "Data"
+  DUMP-NAME "utilities"
+
+ADD FIELD "programName" OF "utilities" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 32
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "module" OF "utilities" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Module"
+  POSITION 3
+  MAX-WIDTH 6
+  ORDER 20
+
+ADD FIELD "hotkey" OF "utilities" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Hotkey"
+  POSITION 4
+  MAX-WIDTH 6
+  ORDER 30
+
+ADD FIELD "description" OF "utilities" AS character 
+  FORMAT "x(48)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 5
+  MAX-WIDTH 96
+  ORDER 40
+
+ADD FIELD "notes" OF "utilities" AS character 
+  FORMAT "x(256)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 512
+  ORDER 50
+
+ADD FIELD "securityLevel" OF "utilities" AS integer 
+  FORMAT ">999"
+  INITIAL "0"
+  LABEL "Security Level"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD TABLE "xCueCard"
+  AREA "Data"
+  LABEL "x Cue Card"
+  DESCRIPTION "Cue Card not active per User"
+  DUMP-NAME "xcuecard"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\xCueCard.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\xCueCard.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\xCueCard.p" CRC "?" 
+
+ADD FIELD "user_id" OF "xCueCard" AS character 
+  FORMAT "X(16)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 2
+  MAX-WIDTH 32
+  HELP "Enter User ID"
+  ORDER 10
+
+ADD FIELD "rec_key" OF "xCueCard" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 5
+  MAX-WIDTH 42
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 40
+
+ADD FIELD "cueTextID" OF "xCueCard" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Cue Text ID"
+  POSITION 6
+  MAX-WIDTH 4
+  COLUMN-LABEL "Text ID"
+  HELP "Enter Cue Text ID"
+  ORDER 30
+
+ADD FIELD "cueType" OF "xCueCard" AS character 
+  FORMAT "x(8)"
+  INITIAL "System"
+  LABEL "Cue Type"
+  POSITION 7
+  MAX-WIDTH 16
+  HELP "Enter Cue Card Type"
+  ORDER 20
+
+ADD INDEX "pi-xCueCard" ON "xCueCard" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Primary Index"
+  INDEX-FIELD "user_id" ASCENDING 
+  INDEX-FIELD "cueType" ASCENDING 
+  INDEX-FIELD "cueTextID" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "xCueCard" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "xUserMenu"
+  AREA "Data"
+  LABEL "User Menu (unselected)"
+  DESCRIPTION "User's Menu Items not selected as a Menu Option"
+  DUMP-NAME "xusermenu"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\xUserMenu.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\xUserMenu.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\xUserMenu.p" CRC "?" 
+
+ADD FIELD "user_id" OF "xUserMenu" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 2
+  MAX-WIDTH 16
+  HELP "Enter User ID"
+  ORDER 10
+
+ADD FIELD "prgmname" OF "xUserMenu" AS character 
+  FORMAT "X(10)"
+  INITIAL ""
+  LABEL "Program"
+  POSITION 3
+  MAX-WIDTH 20
+  HELP "Enter Program Name"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "rec_key" OF "xUserMenu" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 4
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 30
+
+ADD INDEX "user_id" ON "xUserMenu" 
+  AREA "Index"
+  PRIMARY
+  DESCRIPTION "User ID Index"
+  INDEX-FIELD "user_id" ASCENDING 
+
+ADD INDEX "prgrmname" ON "xUserMenu" 
+  AREA "Index"
+  DESCRIPTION "Program Name Index"
+  INDEX-FIELD "prgmname" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "xUserMenu" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "zMessage"
+  AREA "Data"
+  DUMP-NAME "zmessage"
+
+ADD FIELD "msgID" OF "zMessage" AS character 
+  DESCRIPTION "unique identifier"
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Message ID"
+  POSITION 2
+  MAX-WIDTH 40
+  ORDER 10
+
+ADD FIELD "module" OF "zMessage" AS character 
+  DESCRIPTION "System module for organization"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Module"
+  POSITION 3
+  MAX-WIDTH 16
+  ORDER 20
+
+ADD FIELD "msgNum" OF "zMessage" AS integer 
+  DESCRIPTION "secondary key (after module) to locate record"
+  FORMAT "9999"
+  INITIAL "0"
+  LABEL "Message Number"
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "hotKey" OF "zMessage" AS character 
+  DESCRIPTION "Where first used (May be used multiple places)"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Hot Key"
+  POSITION 5
+  MAX-WIDTH 16
+  ORDER 40
+
+ADD FIELD "otherHotKeys" OF "zMessage" AS character 
+  DESCRIPTION "Is used in other programs (Long char field) like zoho hot key field"
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Other Hot Keys"
+  POSITION 6
+  MAX-WIDTH 120
+  ORDER 50
+
+ADD FIELD "msgName" OF "zMessage" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Name"
+  POSITION 7
+  MAX-WIDTH 80
+  ORDER 60
+
+ADD FIELD "defaultTitle" OF "zMessage" AS character 
+  DESCRIPTION "Prints as title bar for message by default"
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Default Title"
+  POSITION 8
+  MAX-WIDTH 80
+  ORDER 70
+
+ADD FIELD "currentTitle" OF "zMessage" AS character 
+  DESCRIPTION "Customer changed title bar ? If not blank, use this instead of default"
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Current Title"
+  POSITION 9
+  MAX-WIDTH 80
+  ORDER 80
+
+ADD FIELD "defaultMsg" OF "zMessage" AS character 
+  DESCRIPTION "Prints as the default message by default"
+  FORMAT "x(120)"
+  INITIAL ""
+  LABEL "Default Message"
+  POSITION 10
+  MAX-WIDTH 240
+  ORDER 90
+
+ADD FIELD "currMessage" OF "zMessage" AS character 
+  DESCRIPTION "Customer changed message ? if not blank, use this instead of default"
+  FORMAT "x(120)"
+  INITIAL ""
+  LABEL "Current Message"
+  POSITION 11
+  MAX-WIDTH 240
+  ORDER 100
+
+ADD FIELD "options" OF "zMessage" AS character 
+  DESCRIPTION "List of buttons that can be displayed (Help is automatic if in debug mode)"
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Options"
+  POSITION 12
+  MAX-WIDTH 120
+  ORDER 110
+
+ADD FIELD "displayOptions" OF "zMessage" AS logical 
+  DESCRIPTION "Logical ? Yes, No, Ask.  If Yes, always do the event (Can only be used when there is a single option to proceed), No ? Do not display and Never accept proceed option, ask ? prompt user as all messages do now, Default = Ask"
+  FORMAT "yes/no"
+  INITIAL ?
+  LABEL "Display?"
+  POSITION 13
+  MAX-WIDTH 1
+  ORDER 120
+
+ADD FIELD "defSecLevel" OF "zMessage" AS integer 
+  DESCRIPTION "Default security level for user to change message"
+  FORMAT ">999"
+  INITIAL "0"
+  LABEL "Def. Sec. Level"
+  POSITION 14
+  MAX-WIDTH 4
+  ORDER 130
+
+ADD FIELD "currSecLevel" OF "zMessage" AS integer 
+  DESCRIPTION "Actual security level the user sets and must be higher than our default"
+  FORMAT ">999"
+  INITIAL "0"
+  LABEL "Curr. Sec. Level"
+  POSITION 15
+  MAX-WIDTH 4
+  ORDER 140
+
+ADD FIELD "userSuppress" OF "zMessage" AS logical 
+  DESCRIPTION "logical (Default = false)"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "User Suppress"
+  POSITION 16
+  MAX-WIDTH 1
+  ORDER 150
+
+ADD FIELD "logMessage" OF "zMessage" AS logical 
+  DESCRIPTION "Logical, If audit log entry should be created (Default = false)"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Log Msg"
+  POSITION 17
+  MAX-WIDTH 1
+  ORDER 160
+
+ADD FIELD "msgType" OF "zMessage" AS character 
+  DESCRIPTION "Progress message statements have ""types"" such as ""error"" ""info"" question, etc. I'd like to include the message ""type"" in the database"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Msg Type"
+  POSITION 18
+  MAX-WIDTH 16
+  ORDER 170
+
+ADD FIELD "rtnValue" OF "zMessage" AS character 
+  DESCRIPTION "messages, particularly ""question"" types, are expected to return values to the calling program, even if simple responses like ""Do you want to continue?"". This should be included in the message file."
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "Return Value"
+  POSITION 19
+  MAX-WIDTH 48
+  ORDER 180
+
+ADD FIELD "contextParms" OF "zMessage" AS character 
+  DESCRIPTION "When running a message, the programmer would often want to include context information, such as ""Customer CU123 already exists. Try again."". The ability to have formatted messages with programmer submitted variables would be beneficial, and possible if the database allowed it"
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Context Parameters"
+  POSITION 20
+  MAX-WIDTH 120
+  ORDER 190
+
+UPDATE FIELD "rec_key" OF "acclrtrs"
+  FORMAT "X(21)"
+
+ADD FIELD "enteredBy" OF "acclrtrs" AS character
+  FORMAT "x(12)"
+  POSITION 6
+  INITIAL ""
+  LABEL "EnteredBy"
+  ORDER 50
+  MAX-WIDTH 24
+
+ADD FIELD "enteredDT" OF "acclrtrs" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 7
+  INITIAL ?
+  LABEL "Entered DtTm"
+  ORDER 60
+  MAX-WIDTH 8
+
+UPDATE FIELD "rec_key" OF "account"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "address"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-buy"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-chk"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-dis"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-disl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-inv"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-invl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-invlr"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-ledger"
+  FORMAT "X(21)"
+
+ADD INDEX "idtref" ON "ap-ledger"
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "tr-date" ASCENDING
+  INDEX-FIELD "refnum" ASCENDING
+
+UPDATE FIELD "rec_key" OF "ap-pay"
+  FORMAT "X(21)"
+
+ADD INDEX "ipost" ON "ap-pay"
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "c-no" ASCENDING
+  INDEX-FIELD "vend-no" ASCENDING
+  INDEX-FIELD "check-date" ASCENDING
+  INDEX-FIELD "posted" ASCENDING
+  INDEX-FIELD "memo" ASCENDING
+
+ADD INDEX "ipost2" ON "ap-pay"
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "check-act" ASCENDING
+  INDEX-FIELD "check-no" ASCENDING
+  INDEX-FIELD "vend-no" ASCENDING
+  INDEX-FIELD "bank-code" ASCENDING
+
+UPDATE FIELD "rec_key" OF "ap-payl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-sel"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "aphist"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ar-cash"
+  FORMAT "X(21)"
+
+ADD FIELD "printed" OF "ar-cash" AS logical
+  FORMAT "yes/no"
+  POSITION 50
+  INITIAL "no"
+  LABEL "Printed"
+  ORDER 470
+  MAX-WIDTH 1
+
+UPDATE FIELD "rec_key" OF "ar-cashl"
+  FORMAT "X(21)"
+
+ADD FIELD "voided" OF "ar-cashl" AS logical
+  FORMAT "yes/no"
+  POSITION 37
+  INITIAL "no"
+  LABEL "Voided"
+  ORDER 370
+  MAX-WIDTH 1
+
+ADD FIELD "voidDate" OF "ar-cashl" AS date
+  FORMAT "99/99/99"
+  POSITION 38
+  INITIAL ?
+  LABEL "Void Date"
+  ORDER 380
+  MAX-WIDTH 4
+
+ADD FIELD "returnNote" OF "ar-cashl" AS character
+  FORMAT "x(60)"
+  POSITION 39
+  INITIAL ""
+  LABEL "Return Note"
+  ORDER 390
+  MAX-WIDTH 120
+
+ADD FIELD "returnRno" OF "ar-cashl" AS integer
+  FORMAT "->,>>>,>>9"
+  POSITION 40
+  INITIAL "0"
+  LABEL "Return Rno"
+  ORDER 400
+  MAX-WIDTH 4
+
+ADD FIELD "invoiceXno" OF "ar-cashl" AS integer
+  FORMAT ">>>>>>>>9"
+  POSITION 41
+  INITIAL "0"
+  LABEL "Inv x-no"
+  ORDER 410
+  MAX-WIDTH 4
+
+ADD FIELD "invoiceLine" OF "ar-cashl" AS integer
+  FORMAT ">>>>>>>>9"
+  POSITION 42
+  INITIAL "0"
+  LABEL "Inv Line"
+  ORDER 420
+  MAX-WIDTH 4
+
+UPDATE FIELD "rec_key" OF "ar-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ar-inv"
+  FORMAT "X(21)"
+
+ADD FIELD "ediInvoice" OF "ar-inv" AS logical
+  FORMAT "yes/no"
+  POSITION 118
+  INITIAL "no"
+  HELP "Is this an EDI invoice?"
+  LABEL "EDI"
+  COLUMN-LABEL "EDI"
+  ORDER 1170
+  MAX-WIDTH 1
+
+UPDATE FIELD "rec_key" OF "ar-invl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ar-invm"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ar-ledger"
+  FORMAT "X(21)"
+
+ADD INDEX "iChgPer" ON "ar-ledger"
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "tr-date" ASCENDING
+  INDEX-FIELD "ref-num" ASCENDING
+
+UPDATE FIELD "rec_key" OF "ar-mcash"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "asi"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "asi2corr"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "asinotes"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "attach"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "bank"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "bolh"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "boll"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "box-design-hdr"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "box-design-line"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "buyer"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "carr-mtx"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "carrier"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ce-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "cmpltjob"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "company"
+  FORMAT "X(21)"
+
+ADD FIELD "smtpServer" OF "config" AS character
+  FORMAT "x(60)"
+  POSITION 9
+  INITIAL ""
+  HELP "Enter SMTP Server"
+  LABEL "SMTP Server"
+  ORDER 80
+  MAX-WIDTH 120
+
+ADD FIELD "smtpPort" OF "config" AS integer
+  FORMAT ">>>9"
+  POSITION 10
+  INITIAL "0"
+  HELP "Enter SMTP Port"
+  LABEL "SMTP Port"
+  ORDER 90
+  MAX-WIDTH 4
+
+ADD FIELD "smtpUser" OF "config" AS character
+  FORMAT "x(60)"
+  POSITION 11
+  INITIAL ""
+  HELP "Enter SMTP User"
+  LABEL "SMTP User"
+  ORDER 100
+  MAX-WIDTH 120
+
+ADD FIELD "smtpPassword" OF "config" AS character
+  FORMAT "x(60)"
+  POSITION 12
+  INITIAL ""
+  HELP "Enter SMTP Password"
+  LABEL "SMTP Password"
+  ORDER 110
+  MAX-WIDTH 120
+
+ADD FIELD "taskName" OF "config" AS logical
+  FORMAT "yes/no"
+  POSITION 13
+  INITIAL "no"
+  HELP "Toggle to Use Task Name"
+  LABEL "Task Name"
+  ORDER 120
+  MAX-WIDTH 1
+
+ADD FIELD "taskDate" OF "config" AS logical
+  FORMAT "yes/no"
+  POSITION 14
+  INITIAL "no"
+  HELP "Toggle to Use Task Date"
+  LABEL "Task Date"
+  ORDER 130
+  MAX-WIDTH 1
+
+ADD FIELD "taskTime" OF "config" AS logical
+  FORMAT "yes/no"
+  POSITION 15
+  INITIAL "no"
+  HELP "Toggle to Use Task Time"
+  LABEL "Task Time"
+  ORDER 140
+  MAX-WIDTH 1
+
+ADD FIELD "taskType" OF "config" AS logical
+  FORMAT "yes/no"
+  POSITION 16
+  INITIAL "no"
+  HELP "Toggle to Use Task Type"
+  LABEL "Task Type"
+  ORDER 150
+  MAX-WIDTH 1
+
+ADD FIELD "emailBody" OF "config" AS character
+  FORMAT "x(60)"
+  POSITION 17
+  INITIAL ""
+  HELP "Enter Email Body"
+  LABEL "Email Body"
+  ORDER 160
+  MAX-WIDTH 120
+
+ADD FIELD "cueCard" OF "config" AS logical
+  FORMAT "yes/no"
+  POSITION 18
+  INITIAL "no"
+  HELP "Toggle to Use Cue Card Notification"
+  LABEL "Cue Card Notification"
+  ORDER 170
+  MAX-WIDTH 1
+
+UPDATE FIELD "rec_key" OF "contact"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "corr2asi"
+  FORMAT "X(21)"
+
+UPDATE TABLE "costHeader"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/costHeader.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/costHeader.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/costHeader.p" CRC "?"
+
+UPDATE FIELD "rec_key" OF "costHeader"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "costtype"
+  FORMAT "X(21)"
+
+RENAME FIELD "Country-code" OF "country" TO "countryCode"
+
+UPDATE FIELD "rec_key" OF "country"
+  FORMAT "X(21)"
+
+ADD FIELD "subLevel1Name" OF "country" AS character
+  FORMAT "x(12)"
+  POSITION 15
+  INITIAL ""
+  LABEL "Sub-1 Name"
+  ORDER 140
+  MAX-WIDTH 24
+
+ADD FIELD "subLevel2Name" OF "country" AS character
+  FORMAT "x(12)"
+  POSITION 16
+  INITIAL ""
+  LABEL "Sub-2 Name"
+  ORDER 150
+  MAX-WIDTH 24
+
+ADD FIELD "subLevel3Name" OF "country" AS character
+  FORMAT "x(12)"
+  POSITION 17
+  INITIAL ""
+  LABEL "Sub-3 Name"
+  ORDER 160
+  MAX-WIDTH 24
+
+ADD FIELD "subLevel4Name" OF "country" AS character
+  FORMAT "x(12)"
+  POSITION 18
+  INITIAL ""
+  LABEL "Sub-4 Name"
+  ORDER 170
+  MAX-WIDTH 24
+
+ADD FIELD "subLevel1Abbr" OF "country" AS character
+  FORMAT "x(4)"
+  POSITION 19
+  INITIAL ""
+  LABEL "Sub-1 Abbr"
+  ORDER 180
+  MAX-WIDTH 8
+
+ADD FIELD "subLevel2Abbr" OF "country" AS character
+  FORMAT "x(4)"
+  POSITION 20
+  INITIAL ""
+  LABEL "Sub-2 Abbr"
+  ORDER 190
+  MAX-WIDTH 8
+
+ADD FIELD "subLevel3Abbr" OF "country" AS character
+  FORMAT "x(4)"
+  POSITION 21
+  INITIAL ""
+  LABEL "Sub-3 Abbr"
+  ORDER 200
+  MAX-WIDTH 8
+
+ADD FIELD "subLevel4Abbr" OF "country" AS character
+  FORMAT "x(4)"
+  POSITION 22
+  INITIAL ""
+  LABEL "Sub-4 Abbr"
+  ORDER 210
+  MAX-WIDTH 8
+
+ADD FIELD "ITUAbbr" OF "country" AS character
+  FORMAT "x(3)"
+  POSITION 23
+  INITIAL ""
+  LABEL "ITU Abbr"
+  ORDER 220
+  MAX-WIDTH 6
+
+ADD FIELD "MARCAbbr" OF "country" AS character
+  FORMAT "x(2)"
+  POSITION 24
+  INITIAL ""
+  LABEL "MARC"
+  ORDER 230
+  MAX-WIDTH 4
+
+ADD FIELD "WMOAbbr" OF "country" AS character
+  FORMAT "x(2)"
+  POSITION 25
+  INITIAL ""
+  LABEL "WMO"
+  ORDER 240
+  MAX-WIDTH 4
+
+ADD FIELD "DSAbbr" OF "country" AS character
+  FORMAT "x(3)"
+  POSITION 26
+  INITIAL ""
+  LABEL "DS"
+  ORDER 250
+  MAX-WIDTH 6
+
+ADD FIELD "FIFAAbbr" OF "country" AS character
+  FORMAT "x(3)"
+  POSITION 27
+  INITIAL ""
+  LABEL "FIFA"
+  ORDER 260
+  MAX-WIDTH 6
+
+ADD FIELD "FIPSAbbr" OF "country" AS character
+  FORMAT "x(2)"
+  POSITION 28
+  INITIAL ""
+  LABEL "FIPS"
+  ORDER 270
+  MAX-WIDTH 4
+
+ADD FIELD "GAULAbbr" OF "country" AS integer
+  FORMAT "9999"
+  POSITION 29
+  INITIAL "0"
+  LABEL "GAUL"
+  ORDER 280
+  MAX-WIDTH 4
+
+ADD FIELD "IOCAbbr" OF "country" AS character
+  FORMAT "x(3)"
+  POSITION 30
+  INITIAL ""
+  LABEL "IOC"
+  ORDER 290
+  MAX-WIDTH 6
+
+RENAME INDEX "country-code" TO "iCountryCode" ON "country"
+
+RENAME INDEX "rec_key" TO "iRecKey" ON "country"
+
+
+UPDATE FIELD "rec_key" OF "credit-hold-type"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "crew"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "currency"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "cust"
+  FORMAT "X(21)"
+
+ADD FIELD "nationalAcct" OF "cust" AS logical
+  FORMAT "yes/no"
+  POSITION 162
+  INITIAL "no"
+  LABEL "National"
+  COLUMN-LABEL "National"
+  ORDER 1600
+  MAX-WIDTH 1
+
+UPDATE FIELD "rec_key" OF "cust-itm"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "cust-markup"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "cust-part"
+  FORMAT "X(21)"
+
+ADD FIELD "sman" OF "cust-part" AS character
+  FORMAT "x(3)"
+  POSITION 37
+  INITIAL ""
+  HELP "Enter initials or code salesman that handles this customer"
+  LABEL "Salesman"
+  ORDER 360
+  MAX-WIDTH 6
+
+ADD FIELD "labelCase" OF "cust-part" AS character
+  FORMAT "x(8)"
+  POSITION 38
+  INITIAL ""
+  LABEL "Case Label"
+  ORDER 370
+  MAX-WIDTH 16
+
+ADD FIELD "labelPallet" OF "cust-part" AS character
+  FORMAT "x(8)"
+  POSITION 39
+  INITIAL ""
+  LABEL "Pallet Label"
+  ORDER 380
+  MAX-WIDTH 16
+
+UPDATE FIELD "rec_key" OF "cust-prod-sales"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "custype"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "db-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "dept"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "down-type"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "e-item"
+  FORMAT "X(21)"
+
+ADD FIELD "runCost" OF "e-item" AS decimal
+  FORMAT "->>>,>>9.99<<"
+  POSITION 43
+  INITIAL "0"
+  HELP "Enter Estimated Unit of Measure Quantity for this Cost Level"
+  LABEL "Run Cost"
+  EXTENT 20
+  DECIMALS 2
+  ORDER 400
+  MAX-WIDTH 480
+
+ADD FIELD "runQty" OF "e-item" AS decimal
+  FORMAT "->,>>>,>>9.99<<"
+  POSITION 44
+  INITIAL "0"
+  HELP "Enter Estimated Unit of Measure Quantity for this Cost Level"
+  LABEL "Run Qty"
+  EXTENT 20
+  DECIMALS 2
+  ORDER 410
+  MAX-WIDTH 560
+
+UPDATE FIELD "rec_key" OF "e-item-cust"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "e-item-vend"
+  FORMAT "X(21)"
+
+ADD FIELD "underWidth" OF "e-item-vend" AS decimal
+  FORMAT "->>>,>>9.99<<<<"
+  POSITION 47
+  INITIAL "0"
+  LABEL "Under Width"
+  DECIMALS 6
+  ORDER 460
+  MAX-WIDTH 21
+
+ADD FIELD "underLength" OF "e-item-vend" AS decimal
+  FORMAT "->>>,>>9.99<<"
+  POSITION 48
+  INITIAL "0"
+  LABEL "Under Length"
+  DECIMALS 6
+  ORDER 470
+  MAX-WIDTH 21
+
+ADD FIELD "underWidthCost" OF "e-item-vend" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 49
+  INITIAL "0"
+  LABEL "UnderWidth Cost"
+  DECIMALS 2
+  ORDER 480
+  MAX-WIDTH 17
+
+ADD FIELD "underLengthCost" OF "e-item-vend" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 50
+  INITIAL "0"
+  LABEL "UnderLength Cost"
+  DECIMALS 2
+  ORDER 490
+  MAX-WIDTH 17
+
+UPDATE FIELD "rec_key" OF "e-itemfg"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "e-itemfg-vend"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "eb"
+  FORMAT "X(21)"
+
+ADD FIELD "releaseCount" OF "eb" AS integer
+  FORMAT "->,>>>,>>9"
+  POSITION 156
+  INITIAL "0"
+  LABEL "Release Count"
+  ORDER 1520
+  MAX-WIDTH 4
+
+ADD FIELD "unitNo" OF "eb" AS integer
+  FORMAT ">>>>>>>>9"
+  POSITION 157
+  INITIAL "0"
+  LABEL "Unit No"
+  EXTENT 20
+  ORDER 1530
+  MAX-WIDTH 400
+
+ADD FIELD "side" OF "eb" AS character
+  FORMAT "x(8)"
+  POSITION 158
+  INITIAL ""
+  LABEL "Side"
+  EXTENT 20
+  ORDER 1540
+  MAX-WIDTH 360
+
+UPDATE FIELD "rec_key" OF "ed"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDAPCheck"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDCat"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDCatline"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDCatPrice"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDCo"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDCode"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDDoc"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDICXref"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EdiPartnerSegment"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDIVAddon"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDIVLine"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDIVTran"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EdiX12Segment"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDMast"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "edPartnerGrp"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDPD"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDPOAddon"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDPOLine"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDPOTran"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "edSetID"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDShipto"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDShipVia"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDSHLine"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDSHOrd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDSHPack"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDSHTare"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDSHTran"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ef"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ef-nsh"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "emailcod"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "emaildtl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "emailntf"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "emp"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "empalert"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "emplogin"
+  FORMAT "X(21)"
+
+RENAME FIELD "user_language" OF "employee" TO "userLanguage"
+
+UPDATE FIELD "rec_key" OF "employee"
+  FORMAT "X(21)"
+
+ADD FIELD "employeeImage" OF "employee" AS character
+  DESCRIPTION "Employee Image"
+  FORMAT "x(40)"
+  POSITION 19
+  INITIAL ""
+  HELP "Enter Employee  Image"
+  LABEL "Employee Image"
+  EXTENT 3
+  ORDER 180
+  MAX-WIDTH 246
+
+UPDATE FIELD "userLanguage" OF "employee"
+  DESCRIPTION "User Default Language"
+  FORMAT "x(2)"
+  POSITION 20
+  INITIAL "EN"
+  HELP "Select User Language"
+  LABEL "Language"
+  COLUMN-LABEL "Lang"
+  ORDER 190
+  MAX-WIDTH 4
+
+ADD FIELD "image" OF "employee" AS character
+  FORMAT "x(60)"
+  POSITION 21
+  INITIAL ""
+  LABEL "Image"
+  ORDER 200
+  MAX-WIDTH 120
+
+ADD FIELD "defaultLang" OF "employee" AS character
+  FORMAT "x(8)"
+  POSITION 22
+  INITIAL ""
+  LABEL "Def. Lang."
+  ORDER 210
+  MAX-WIDTH 16
+
+UPDATE FIELD "rec_key" OF "empmach"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "emp_type"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "er"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "est"
+  FORMAT "X(21)"
+
+ADD FIELD "costBoard" OF "est" AS decimal
+  FORMAT "->>>,>>>,>>9.99<<<<"
+  POSITION 74
+  INITIAL "0"
+  LABEL "Cost/Board"
+  DECIMALS 6
+  ORDER 620
+  MAX-WIDTH 21
+
+ADD FIELD "markupPct" OF "est" AS decimal
+  FORMAT "->,>>9.99<<"
+  POSITION 75
+  INITIAL "0"
+  LABEL "Markup Pct"
+  DECIMALS 4
+  ORDER 630
+  MAX-WIDTH 19
+
+ADD FIELD "sampleNum" OF "est" AS integer
+  FORMAT ">>>>>>>>9"
+  POSITION 76
+  INITIAL "0"
+  LABEL "Sample Num."
+  ORDER 640
+  MAX-WIDTH 4
+
+ADD FIELD "masterEstNo" OF "est" AS character
+  FORMAT "x(5)"
+  POSITION 77
+  INITIAL ""
+  LABEL "Master Estimate"
+  ORDER 650
+  MAX-WIDTH 10
+
+UPDATE FIELD "rec_key" OF "est-flm"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "est-inst"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "est-op"
+  FORMAT "X(21)"
+
+ADD FIELD "isLocked" OF "est-op" AS logical
+  FORMAT "yes/no"
+  POSITION 57
+  INITIAL "no"
+  LABEL "Locked"
+  ORDER 540
+  MAX-WIDTH 1
+
+UPDATE FIELD "mkup" OF "est-prep"
+  FORMAT ">>9.99<<"
+  DECIMALS 4
+
+UPDATE FIELD "rec_key" OF "est-prep"
+  FORMAT "X(21)"
+
+ADD FIELD "islocked" OF "est-prep" AS logical
+  FORMAT "yes/no"
+  POSITION 35
+  INITIAL "no"
+  HELP "When true, line will not recalculate if job is rebuilt"
+  LABEL "Lock"
+  COLUMN-LABEL "Lock"
+  ORDER 340
+  MAX-WIDTH 1
+
+UPDATE FIELD "rec_key" OF "est-qty"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "est-summ"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "expiration"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fa-control"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fa-control-d"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fa-entry"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fa-gl-post"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fa-jrnl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fa-mast"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fa-mast-rep"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fa-tags"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fg-act"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fg-bin"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fg-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rita-code" OF "fg-hist"
+  NOT-CASE-SENSITIVE
+
+UPDATE FIELD "rec_key" OF "fg-hist"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fg-rcpth"
+  FORMAT "X(21)"
+
+ADD FIELD "adjustmentCode" OF "fg-rcpth" AS character
+  FORMAT "x"
+  POSITION 40
+  INITIAL ""
+  LABEL "Adj. Code"
+  ORDER 420
+  MAX-WIDTH 2
+
+UPDATE FIELD "rec_key" OF "fg-rcpts"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fg-rctd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "reject-code" OF "fg-rctd"
+  VALEXP ""
+  VALMSG ""
+
+ADD FIELD "adjustmentCode" OF "fg-rctd" AS character
+  FORMAT "x"
+  POSITION 76
+  INITIAL ""
+  LABEL "Adj. Code"
+  ORDER 740
+  MAX-WIDTH 2
+
+ADD FIELD "enteredDT" OF "fg-rctd" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 77
+  INITIAL ?
+  LABEL "Entered DtTm"
+  ORDER 760
+  MAX-WIDTH 8
+
+ADD FIELD "enteredBy" OF "fg-rctd" AS character
+  FORMAT "x(12)"
+  POSITION 78
+  INITIAL ""
+  LABEL "EnteredBy"
+  ORDER 750
+  MAX-WIDTH 24
+
+UPDATE FIELD "rita-code" OF "fg-rdtl"
+  NOT-CASE-SENSITIVE
+
+UPDATE FIELD "rec_key" OF "fg-rdtl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fg-rdtlh"
+  FORMAT "X(21)"
+
+UPDATE FIELD "reject-code" OF "fg-rdtlh"
+  VALEXP ""
+  VALMSG ""
+
+ADD FIELD "enteredBy" OF "fg-rdtlh" AS character
+  FORMAT "x(12)"
+  POSITION 60
+  INITIAL ""
+  LABEL "Entered By"
+  ORDER 590
+  MAX-WIDTH 24
+
+ADD FIELD "enteredDT" OF "fg-rdtlh" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 61
+  INITIAL ?
+  LABEL "Entered DtTm"
+  ORDER 600
+  MAX-WIDTH 8
+
+UPDATE FIELD "rec_key" OF "fg-set"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fgcat"
+  FORMAT "X(21)"
+
+ADD FIELD "miscCharge" OF "fgcat" AS character
+  FORMAT "x(8)"
+  POSITION 27
+  INITIAL ""
+  LABEL "Misc Charge"
+  ORDER 260
+  MAX-WIDTH 16
+
+ADD FIELD "brdExpAcct" OF "fgcat" AS character
+  FORMAT "x(25)"
+  POSITION 28
+  INITIAL ""
+  HELP "Enter account number for Board Expense"
+  LABEL "Brd Exp Acct"
+  ORDER 270
+  MAX-WIDTH 50
+
+ADD FIELD "cogsExpAcct" OF "fgcat" AS character
+  FORMAT "x(25)"
+  POSITION 29
+  INITIAL ""
+  HELP "Enter account number for COGS Expense"
+  LABEL "COGS Exp Acct"
+  ORDER 280
+  MAX-WIDTH 50
+
+UPDATE FIELD "rec_key" OF "file"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "flute"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fraction"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "freight-class"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "frt-class-desc-trans"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "gl-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "gl-freq"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "gl-jrn"
+  FORMAT "X(21)"
+
+ADD INDEX "ijrnl" ON "gl-jrn"
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "journal" ASCENDING
+  INDEX-FIELD "posted" ASCENDING
+
+UPDATE FIELD "rec_key" OF "gl-jrnl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "gl-rpt"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "gl-rptd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "glhist"
+  FORMAT "X(21)"
+
+ADD INDEX "ijrnl" ON "glhist"
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "tr-num" ASCENDING
+  INDEX-FIELD "jrnl" ASCENDING
+
+UPDATE FIELD "rec_key" OF "gltrans"
+  FORMAT "X(21)"
+
+ADD INDEX "ijrnl" ON "gltrans"
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "trnum" ASCENDING
+  INDEX-FIELD "jrnl" ASCENDING
+
+UPDATE FIELD "rec_key" OF "inv-head"
+  FORMAT "X(21)"
+
+ADD FIELD "ediInvoice" OF "inv-head" AS logical
+  FORMAT "yes/no"
+  POSITION 77
+  INITIAL "no"
+  HELP "Is this an EDI invoice?"
+  LABEL "EDI"
+  COLUMN-LABEL "EDI"
+  ORDER 760
+  MAX-WIDTH 1
+
+UPDATE FIELD "rec_key" OF "inv-line"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "inv-misc"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "item"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "item-bom"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "item-comm"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "item-spec"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "itemfg"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "itemfg-bom"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "itemfg-ink"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "itemfg-loc"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "itemfgdtl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jc-ctrl"
+  FORMAT "X(21)"
+
+ADD FIELD "whsed" OF "jc-ctrl" AS logical
+  FORMAT "yes/no"
+  POSITION 24
+  INITIAL "no"
+  HELP "Are line items are order warehoused?"
+  LABEL "Warehoused?"
+  ORDER 230
+  MAX-WIDTH 1
+
+UPDATE FIELD "rec_key" OF "job"
+  FORMAT "X(21)"
+
+ADD FIELD "whsed" OF "job" AS logical
+  FORMAT "yes/no"
+  POSITION 66
+  INITIAL "no"
+  LABEL "Warehoused"
+  ORDER 650
+  MAX-WIDTH 1
+
+UPDATE FIELD "rec_key" OF "job-all"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-brd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-cat"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-code"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-farm"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-farm-rctd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "reject-code" OF "job-farm-rctd"
+  VALEXP ""
+  VALMSG ""
+
+UPDATE FIELD "rec_key" OF "job-hdr"
+  FORMAT "X(21)"
+
+ADD FIELD "whsed" OF "job-hdr" AS logical
+  FORMAT "yes/no"
+  POSITION 52
+  INITIAL "no"
+  LABEL "Warehoused"
+  ORDER 530
+  MAX-WIDTH 1
+
+UPDATE FIELD "rec_key" OF "job-mat"
+  FORMAT "X(21)"
+
+ADD FIELD "po-no" OF "job-mat" AS integer
+  FORMAT ">>>>>9"
+  POSITION 47
+  INITIAL "0"
+  HELP "Enter Purchase Order Number For This Order."
+  LABEL "PO Number"
+  ORDER 440
+  MAX-WIDTH 4
+
+UPDATE FIELD "rec_key" OF "job-mch"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-prep"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-sch"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-set"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobcad"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobitems"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobmach"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobmatl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobnotes"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobprep"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobs"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobseq"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobsheet"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobstack"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "Links"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "loadtag"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "loc"
+  FORMAT "X(21)"
+
+ADD FIELD "addrRecKey" OF "loc" AS character
+  FORMAT "X(20)"
+  POSITION 8
+  INITIAL ""
+  HELP "Enter Record Key Value"
+  LABEL "Address RecKey"
+  ORDER 70
+  MAX-WIDTH 40
+
+UPDATE TABLE "location"
+  DESCRIPTION "Master address table"
+  DUMP-NAME "address1"
+
+RENAME FIELD "location" OF "location" TO "locationCode"
+RENAME FIELD "work-center" OF "location" TO "workCenter"
+RENAME FIELD "Country-code" OF "location" TO "countryCode"
+RENAME FIELD "state" OF "location" TO "subCode1"
+RENAME FIELD "city" OF "location" TO "subCode2"
+RENAME FIELD "county" OF "location" TO "subCode3"
+
+UPDATE FIELD "locationCode" OF "location"
+  FORMAT "x(8)"
+  LABEL "Locn Code"
+  COLUMN-LABEL "Locn Code"
+  ORDER 60
+
+UPDATE FIELD "description" OF "location"
+  FORMAT "x(60)"
+  ORDER 80
+
+UPDATE FIELD "building" OF "location"
+  FORMAT "x(24)"
+  ORDER 90
+
+UPDATE FIELD "room" OF "location"
+  FORMAT "x(12)"
+  ORDER 100
+
+UPDATE FIELD "workCenter" OF "location"
+  FORMAT "x(12)"
+  HELP "Enter the work center code under which the asset is located. (w"
+  ORDER 110
+
+ADD FIELD "streetAddr" OF "location" AS character
+  FORMAT "x(60)"
+  POSITION 12
+  INITIAL ""
+  LABEL "Street"
+  EXTENT 6
+  ORDER 70
+  MAX-WIDTH 588
+
+UPDATE FIELD "countryCode" OF "location"
+  FORMAT "x(3)"
+  POSITION 13
+  HELP ""
+  LABEL "Country"
+  COLUMN-LABEL ?
+  VALEXP ?
+  VALMSG ""
+  ORDER 10
+  MAX-WIDTH 6
+
+UPDATE FIELD "subCode1" OF "location"
+  FORMAT "x(24)"
+  POSITION 14
+  HELP ""
+  LABEL "Subcode1"
+  ORDER 20
+  MAX-WIDTH 6
+
+UPDATE FIELD "subCode2" OF "location"
+  FORMAT "x(24)"
+  POSITION 15
+  HELP ""
+  LABEL "Subcode2"
+  COLUMN-LABEL ?
+  MAX-WIDTH 6
+
+UPDATE FIELD "subCode3" OF "location"
+  FORMAT "x(24)"
+  POSITION 16
+  HELP ""
+  LABEL "Subcode3"
+  COLUMN-LABEL ?
+  ORDER 40
+  MAX-WIDTH 6
+
+ADD FIELD "subCode4" OF "location" AS character
+  FORMAT "x(24)"
+  POSITION 17
+  INITIAL ""
+  LABEL "Subcode4"
+  ORDER 50
+  MAX-WIDTH 6
+
+ADD FIELD "rec_key" OF "location" AS character
+  FORMAT "X(21)"
+  POSITION 18
+  INITIAL ""
+  HELP "Enter Record Key Value"
+  LABEL "Record Key"
+  DECIMALS 0
+  ORDER 120
+  MAX-WIDTH 40
+
+ADD FIELD "defaultBin" OF "location" AS character
+  FORMAT "x(8)"
+  POSITION 19
+  INITIAL ""
+  LABEL "Def. Bin"
+  ORDER 130
+  MAX-WIDTH 16
+
+ADD FIELD "geoLat" OF "location" AS decimal
+  FORMAT "->>9.99999<<"
+  POSITION 20
+  INITIAL "0"
+  LABEL "GPS Latitude"
+  DECIMALS 2
+  ORDER 140
+  MAX-WIDTH 17
+
+ADD FIELD "geoLong" OF "location" AS decimal
+  FORMAT "->>9.99999<<"
+  POSITION 21
+  INITIAL "0"
+  LABEL "GPS Longitude"
+  DECIMALS 2
+  ORDER 150
+  MAX-WIDTH 17
+
+ADD FIELD "geoAlt" OF "location" AS decimal
+  FORMAT "->>>>9.99<<<"
+  POSITION 22
+  INITIAL "0"
+  LABEL "GPS Altitude"
+  DECIMALS 2
+  ORDER 160
+  MAX-WIDTH 17
+
+ADD FIELD "lActive" OF "location" AS logical
+  FORMAT "yes/no"
+  POSITION 23
+  INITIAL "no"
+  LABEL "Active"
+  ORDER 170
+  MAX-WIDTH 1
+
+ADD FIELD "notes" OF "location" AS character
+  FORMAT "x(60)"
+  POSITION 24
+  INITIAL ""
+  LABEL "Notes"
+  ORDER 180
+  MAX-WIDTH 120
+
+ADD FIELD "externalID" OF "location" AS character
+  FORMAT "x(24)"
+  POSITION 25
+  INITIAL ""
+  LABEL "External ID"
+  EXTENT 5
+  ORDER 190
+  MAX-WIDTH 250
+
+ADD FIELD "company" OF "location" AS character
+  DESCRIPTION "NOT a key field in this table"
+  FORMAT "x(8)"
+  POSITION 26
+  INITIAL ""
+  LABEL "Company"
+  ORDER 200
+  MAX-WIDTH 16
+
+ADD FIELD "phone" OF "location" AS character
+  FORMAT "x(40)"
+  POSITION 27
+  INITIAL ""
+  LABEL "Phone"
+  ORDER 210
+  MAX-WIDTH 80
+
+ADD FIELD "fax" OF "location" AS character
+  FORMAT "x(40)"
+  POSITION 28
+  INITIAL ""
+  LABEL "FAX"
+  ORDER 220
+  MAX-WIDTH 80
+
+ADD FIELD "email" OF "location" AS character
+  FORMAT "x(60)"
+  POSITION 29
+  INITIAL ""
+  ORDER 230
+  MAX-WIDTH 120
+
+ADD INDEX "iCompany" ON "location"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+
+ADD INDEX "iCountryCode" ON "location"
+  AREA "Schema Area"
+  INDEX-FIELD "countryCode" ASCENDING
+
+ADD INDEX "iLocationCode" ON "location"
+  AREA "Schema Area"
+  INDEX-FIELD "locationCode" ASCENDING
+
+ADD INDEX "iPrimary" ON "location"
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "countryCode" ASCENDING
+  INDEX-FIELD "subCode1" ASCENDING
+  INDEX-FIELD "subCode2" ASCENDING
+  INDEX-FIELD "subCode3" ASCENDING
+  INDEX-FIELD "subCode4" ASCENDING
+  INDEX-FIELD "locationCode" ASCENDING
+  INDEX-FIELD "rec_key" ASCENDING
+
+ADD INDEX "iRecKey" ON "location"
+  AREA "Schema Area"
+  INDEX-FIELD "rec_key" ASCENDING
+
+ADD INDEX "iStreetAddress" ON "location"
+  AREA "Schema Area"
+  WORD
+  INDEX-FIELD "streetAddr" ASCENDING
+
+UPDATE PRIMARY INDEX "iPrimary" ON "location"
+
+DROP INDEX "location" ON "location"
+
+DROP FIELD "entity" OF "location"
+
+UPDATE FIELD "rec_key" OF "lookups"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mach"
+  FORMAT "X(21)"
+
+ADD FIELD "machineImage" OF "mach" AS character
+  DESCRIPTION "Machine Image"
+  FORMAT "x(40)"
+  POSITION 113
+  INITIAL ""
+  HELP "Enter Machine Image"
+  LABEL "Machine Image"
+  EXTENT 3
+  ORDER 1070
+  MAX-WIDTH 246
+
+ADD FIELD "image" OF "mach" AS character
+  FORMAT "x(60)"
+  POSITION 114
+  INITIAL ""
+  LABEL "image"
+  ORDER 1080
+  MAX-WIDTH 120
+
+UPDATE FIELD "rec_key" OF "mach-adder"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mach-attach"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mach-attach-pat"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mach-calendar"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mach-panel"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mach-part"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "machchrg"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "machemp"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "machseq"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "machshft"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "machtran"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mailcont"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "maillist"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mat"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mat-act"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "matprep"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mch-act"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mch-srt"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mfvalues"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "misc-act"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mmtx"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mmtx2"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mmty"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mnu-item"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "monthly"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mstd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "noteLink"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "notes"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "nrf-color"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "nrf-size"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-bolh"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-boll"
+  FORMAT "X(21)"
+
+ADD FIELD "enteredBy" OF "oe-boll" AS character
+  FORMAT "x(12)"
+  POSITION 81
+  INITIAL ""
+  LABEL "EnteredBy"
+  ORDER 770
+  MAX-WIDTH 24
+
+ADD FIELD "enteredDT" OF "oe-boll" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 82
+  INITIAL ?
+  LABEL "Entered DtTm"
+  ORDER 780
+  MAX-WIDTH 8
+
+UPDATE FIELD "rec_key" OF "oe-boll-qty"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-ord"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-ordl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-ordm"
+  FORMAT "X(21)"
+
+UPDATE FIELD "price" OF "oe-prmtx"
+  FORMAT "->>,>>>,>>9.99<<<<"
+  DECIMALS 6
+
+UPDATE FIELD "rec_key" OF "oe-prmtx"
+  FORMAT "X(21)"
+
+ADD FIELD "online" OF "oe-prmtx" AS logical
+  FORMAT "yes/no"
+  POSITION 25
+  INITIAL "no"
+  LABEL "Online"
+  ORDER 450
+  MAX-WIDTH 1
+
+RENAME INDEX "custitem" TO "temp-30828" ON "oe-prmtx"
+
+ADD INDEX "custitem" ON "oe-prmtx"
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "custype" ASCENDING
+  INDEX-FIELD "cust-no" ASCENDING
+  INDEX-FIELD "custShipID" ASCENDING
+  INDEX-FIELD "procat" ASCENDING
+  INDEX-FIELD "i-no" ASCENDING
+  INDEX-FIELD "eff-date" ASCENDING
+  INDEX-FIELD "exp-date" ASCENDING
+
+ADD INDEX "custShipID" ON "oe-prmtx"
+  AREA "Data"
+  INDEX-FIELD "custShipID" ASCENDING
+
+UPDATE PRIMARY INDEX "custitem" ON "oe-prmtx"
+
+DROP INDEX "temp-30828" ON "oe-prmtx"
+
+UPDATE FIELD "rec_key" OF "oe-rel"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-relh"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-rell"
+  FORMAT "X(21)"
+
+ADD FIELD "enteredDT" OF "oe-rell" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 69
+  INITIAL ?
+  LABEL "Entered DtTm"
+  ORDER 680
+  MAX-WIDTH 8
+
+ADD FIELD "enteredBy" OF "oe-rell" AS character
+  FORMAT "x(12)"
+  POSITION 70
+  INITIAL ""
+  LABEL "EnteredBy"
+  ORDER 670
+  MAX-WIDTH 24
+
+UPDATE FIELD "rec_key" OF "oe-reth"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-retl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "reject-code" OF "oe-retl"
+  VALEXP ""
+  VALMSG ""
+
+UPDATE FIELD "rec_key" OF "oe-ship"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "optconfg"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "parmfile"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "payment-type"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "pc-misc"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "pc-prdd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "pc-prdd-wip"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "pc-prdh"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "pdd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "pdh"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "period"
+  FORMAT "X(21)"
+
+ADD INDEX "idate" ON "period"
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "pst" ASCENDING
+  INDEX-FIELD "pend" ASCENDING
+
+ADD INDEX "iPno" ON "period"
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "yr" ASCENDING
+  INDEX-FIELD "pnum" ASCENDING
+
+UPDATE FIELD "rec_key" OF "perm"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "permg"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "permx"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "phone"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "po-all"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "po-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "po-ord"
+  FORMAT "X(21)"
+
+ADD FIELD "rejectCode" OF "po-ord" AS character
+  FORMAT "x(8)"
+  POSITION 76
+  INITIAL ""
+  LABEL "Reject Code"
+  ORDER 750
+  MAX-WIDTH 16
+
+UPDATE FIELD "rec_key" OF "po-ordl"
+  FORMAT "X(21)"
+
+ADD FIELD "s-dep" OF "po-ordl" AS decimal
+  FORMAT ">>9.9999"
+  POSITION 77
+  INITIAL "0"
+  LABEL "Depth"
+  COLUMN-LABEL "Depth"
+  DECIMALS 4
+  ORDER 740
+  MAX-WIDTH 19
+
+ADD FIELD "scorePanels" OF "po-ordl" AS decimal
+  FORMAT "->>>>9.99<<<"
+  POSITION 78
+  INITIAL "0"
+  LABEL "ScorePanel"
+  EXTENT 20
+  DECIMALS 5
+  ORDER 770
+  MAX-WIDTH 400
+
+ADD FIELD "scoreType" OF "po-ordl" AS character
+  FORMAT "x(8)"
+  POSITION 79
+  INITIAL ""
+  LABEL "Socre Type"
+  EXTENT 20
+  ORDER 780
+  MAX-WIDTH 360
+
+ADD FIELD "rejectCode" OF "po-ordl" AS character
+  FORMAT "x(8)"
+  POSITION 80
+  INITIAL ""
+  LABEL "Reject Code"
+  ORDER 790
+  MAX-WIDTH 16
+
+UPDATE FIELD "rec_key" OF "po-ordl-add"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "po-rcpts"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "prep"
+  FORMAT "X(21)"
+
+ADD FIELD "cadNo" OF "prep" AS character
+  FORMAT "x(12)"
+  POSITION 71
+  INITIAL ""
+  LABEL "CAD NO"
+  ORDER 700
+  MAX-WIDTH 24
+
+ADD FIELD "fileNo" OF "prep" AS character
+  FORMAT "x(12)"
+  POSITION 72
+  INITIAL ""
+  LABEL "File No"
+  ORDER 710
+  MAX-WIDTH 24
+
+UPDATE FIELD "rec_key" OF "prgrms"
+  FORMAT "X(21)"
+
+ADD FIELD "menuImage" OF "prgrms" AS character
+  DESCRIPTION "Menu Image"
+  FORMAT "x(40)"
+  POSITION 25
+  INITIAL ""
+  HELP "Enter Menu Image"
+  LABEL "Menu Image"
+  EXTENT 3
+  ORDER 240
+  MAX-WIDTH 246
+
+ADD FIELD "translation" OF "prgrms" AS character
+  DESCRIPTION "Language Translation for Program Title"
+  FORMAT "x(40)"
+  POSITION 26
+  INITIAL ""
+  HELP "Enter Translation"
+  LABEL "Translation"
+  EXTENT 10
+  ORDER 250
+  MAX-WIDTH 820
+
+ADD FIELD "mnemonic" OF "prgrms" AS character
+  DESCRIPTION "Menu Mnemonic"
+  FORMAT "x(8)"
+  POSITION 27
+  INITIAL ""
+  HELP "Enter Mnemonic"
+  LABEL "Mnemonic"
+  ORDER 260
+  MAX-WIDTH 16
+
+ADD FIELD "module" OF "prgrms" AS character
+  DESCRIPTION "Module"
+  FORMAT "x(8)"
+  POSITION 28
+  INITIAL ""
+  HELP "Enter Module"
+  LABEL "Module"
+  ORDER 270
+  MAX-WIDTH 16
+
+ADD FIELD "image" OF "prgrms" AS character
+  FORMAT "x(60)"
+  POSITION 29
+  INITIAL ""
+  LABEL "Image"
+  ORDER 280
+  MAX-WIDTH 120
+
+ADD FIELD "menuOrder" OF "prgrms" AS integer
+  FORMAT ">>>9"
+  POSITION 30
+  INITIAL "0"
+  HELP "Enter Menu Order"
+  LABEL "Menu Order"
+  COLUMN-LABEL "Order"
+  ORDER 290
+  MAX-WIDTH 4
+
+ADD FIELD "systemType" OF "prgrms" AS character
+  FORMAT "x(8)"
+  POSITION 31
+  INITIAL "Both"
+  HELP "Enter System Type"
+  LABEL "System Type"
+  COLUMN-LABEL "Type"
+  ORDER 300
+  MAX-WIDTH 16
+
+ADD FIELD "menuLevel" OF "prgrms" AS integer
+  FORMAT "->,>>>,>>9"
+  POSITION 32
+  INITIAL "0"
+  LABEL "Menu Level"
+  ORDER 310
+  MAX-WIDTH 4
+
+ADD INDEX "si-menuOrder" ON "prgrms"
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Menu Order"
+  INDEX-FIELD "menuOrder" ASCENDING
+
+UPDATE FIELD "rec_key" OF "printer"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "probe"
+  FORMAT "X(21)"
+
+ADD FIELD "grossProfitPerManhourOther" OF "probe" AS decimal
+  FORMAT "->>,>>>,>>9.99<<<<"
+  POSITION 91
+  INITIAL "0"
+  LABEL "Gross Profit/Manhour Other"
+  DECIMALS 2
+  ORDER 930
+  MAX-WIDTH 17
+
+ADD FIELD "boardCostTotal" OF "probe" AS decimal
+  FORMAT "->>,>>>,>>9.99<<<<"
+  POSITION 92
+  INITIAL "0"
+  LABEL "Total Board Cost"
+  DECIMALS 2
+  ORDER 840
+  MAX-WIDTH 17
+
+ADD FIELD "boardCostPerM" OF "probe" AS decimal
+  FORMAT "->>,>>>,>>9.99<<<<"
+  POSITION 93
+  INITIAL "0"
+  LABEL "Board Cost/M"
+  DECIMALS 2
+  ORDER 850
+  MAX-WIDTH 17
+
+ADD FIELD "boardCostPct" OF "probe" AS decimal
+  FORMAT "->>>9.99<<"
+  POSITION 94
+  INITIAL "0"
+  LABEL "Board Cost Pct"
+  DECIMALS 2
+  ORDER 860
+  MAX-WIDTH 17
+
+ADD FIELD "boardContributionPerM" OF "probe" AS decimal
+  FORMAT "->>,>>>,>>9.99<<<<"
+  POSITION 95
+  INITIAL "0"
+  LABEL "Board Cont/M"
+  DECIMALS 2
+  ORDER 870
+  MAX-WIDTH 17
+
+ADD FIELD "boardContributionTotal" OF "probe" AS decimal
+  FORMAT "->>,>>>,>>9.99<<<<"
+  POSITION 96
+  INITIAL "0"
+  LABEL "Board Cont Total"
+  DECIMALS 2
+  ORDER 880
+  MAX-WIDTH 17
+
+ADD FIELD "manHoursTotal" OF "probe" AS decimal
+  FORMAT "->,>>9.99<<"
+  POSITION 97
+  INITIAL "0"
+  LABEL "Manhours Total"
+  DECIMALS 2
+  ORDER 890
+  MAX-WIDTH 17
+
+ADD FIELD "directMaterialCost" OF "probe" AS decimal
+  FORMAT "->>,>>>,>>9.99<<<<"
+  POSITION 98
+  INITIAL "0"
+  LABEL "Direct Matl Cost"
+  DECIMALS 2
+  ORDER 900
+  MAX-WIDTH 17
+
+ADD FIELD "grossProfitPerM" OF "probe" AS decimal
+  FORMAT "->>,>>>,>>9.99<<<<"
+  POSITION 99
+  INITIAL "0"
+  LABEL "Gross Profit/M"
+  DECIMALS 2
+  ORDER 910
+  MAX-WIDTH 17
+
+ADD FIELD "grossProfitPerManhourAssemb" OF "probe" AS decimal
+  FORMAT "->>,>>>,>>9.99<<<<"
+  POSITION 100
+  INITIAL "0"
+  LABEL "Gross Profit/Manhour Assemb"
+  DECIMALS 2
+  ORDER 920
+  MAX-WIDTH 17
+
+ADD FIELD "grossProfitPctTemp" OF "probe" AS decimal
+  FORMAT "->>9.99<<"
+  POSITION 101
+  INITIAL "0"
+  LABEL "Gross Prof Pcttmp"
+  DECIMALS 2
+  ORDER 940
+  MAX-WIDTH 17
+
+ADD FIELD "gsa-fm" OF "probe" AS character
+  FORMAT "x(8)"
+  POSITION 102
+  INITIAL ""
+  LABEL "GSA Fm"
+  ORDER 950
+  MAX-WIDTH 16
+
+UPDATE FIELD "rec_key" OF "probeit"
+  FORMAT "X(21)"
+
+ADD FIELD "releaseCount" OF "probeit" AS integer
+  FORMAT "->,>>>,>>9"
+  POSITION 52
+  INITIAL "0"
+  LABEL "Release Count"
+  ORDER 510
+  MAX-WIDTH 4
+
+ADD FIELD "pctCommission" OF "probeit" AS decimal
+  FORMAT "->>9.99<<"
+  POSITION 53
+  INITIAL "0"
+  LABEL "Pct Commission"
+  DECIMALS 2
+  ORDER 520
+  MAX-WIDTH 17
+
+ADD FIELD "pctRoyalty" OF "probeit" AS decimal
+  FORMAT "->>9.99<<"
+  POSITION 54
+  INITIAL "0"
+  LABEL "Pct Royalty"
+  DECIMALS 2
+  ORDER 530
+  MAX-WIDTH 17
+
+ADD FIELD "pctWarehouse" OF "probeit" AS decimal
+  FORMAT "->>9.99<<"
+  POSITION 55
+  INITIAL "0"
+  LABEL "Pct Warehouse"
+  DECIMALS 2
+  ORDER 540
+  MAX-WIDTH 17
+
+ADD FIELD "pctCustMargin" OF "probeit" AS decimal
+  FORMAT "->>9.99<<"
+  POSITION 56
+  INITIAL "0"
+  LABEL "Pct Cust Margin"
+  DECIMALS 2
+  ORDER 550
+  MAX-WIDTH 17
+
+ADD FIELD "totCostCommission" OF "probeit" AS decimal
+  FORMAT "->>>,>>>,>>9.99<<<<"
+  POSITION 57
+  INITIAL "0"
+  LABEL "Total Cost Comm."
+  DECIMALS 6
+  ORDER 560
+  MAX-WIDTH 21
+
+ADD FIELD "totCostRoyalty" OF "probeit" AS decimal
+  FORMAT "->>>,>>>,>>9.99<<<<"
+  POSITION 58
+  INITIAL "0"
+  LABEL "Tot Cost Royalty"
+  DECIMALS 6
+  ORDER 570
+  MAX-WIDTH 21
+
+ADD FIELD "totCostWarehousr" OF "probeit" AS decimal
+  FORMAT "->>>,>>>,>>9.99<<<<"
+  POSITION 59
+  INITIAL "0"
+  LABEL "Tot Cost Warehousr"
+  DECIMALS 6
+  ORDER 580
+  MAX-WIDTH 21
+
+ADD FIELD "totCostCustMargin" OF "probeit" AS decimal
+  FORMAT "->>>,>>>,>>9.99<<<<"
+  POSITION 60
+  INITIAL "0"
+  LABEL "Tot Cost Cust Margin"
+  DECIMALS 6
+  ORDER 590
+  MAX-WIDTH 21
+
+UPDATE FIELD "rec_key" OF "probeit-price"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "procat"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "prod"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "prodl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "quote"
+  FORMAT "X(21)"
+
+ADD FIELD "expireDate" OF "quote" AS date
+  FORMAT "99/99/99"
+  POSITION 55
+  INITIAL ?
+  LABEL "Expire Date"
+  ORDER 540
+  MAX-WIDTH 4
+
+ADD FIELD "statusCode" OF "quote" AS character
+  FORMAT "x(8)"
+  POSITION 56
+  INITIAL ""
+  LABEL "Status"
+  ORDER 550
+  MAX-WIDTH 16
+
+UPDATE FIELD "rec_key" OF "quotechg"
+  FORMAT "X(21)"
+
+UPDATE FIELD "mkup" OF "quotechg"
+  FORMAT ">>9.99<<"
+  DECIMALS 4
+
+UPDATE FIELD "rec_key" OF "quotehd"
+  FORMAT "X(21)"
+
+ADD FIELD "statusCode" OF "quotehd" AS character
+  FORMAT "x(8)"
+  POSITION 51
+  INITIAL ""
+  LABEL "Status"
+  ORDER 630
+  MAX-WIDTH 16
+
+ADD FIELD "expireDate" OF "quotehd" AS date
+  FORMAT "99/99/99"
+  POSITION 52
+  INITIAL ?
+  LABEL "Expire Date"
+  ORDER 620
+  MAX-WIDTH 4
+
+UPDATE FIELD "rec_key" OF "quoteit"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "quoteitm"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "quoteqty"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rate"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "RCErr"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rec_key"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "reftable"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "reftable1"
+  FORMAT "X(21)"
+
+UPDATE FIELD "code" OF "rejct-cd"
+  VALEXP ""
+  VALMSG ""
+
+UPDATE FIELD "rec_key" OF "rejct-cd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "report"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rfidtag"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rfq"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rfq-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rfqitem"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rm-bin"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rm-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rm-rcpt"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rm-rcpth"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rm-rctd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "reject-code" OF "rm-rctd"
+  VALEXP ""
+  VALMSG ""
+
+ADD FIELD "enteredDT" OF "rm-rctd" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 56
+  INITIAL ?
+  LABEL "Entered DtTm"
+  ORDER 550
+  MAX-WIDTH 8
+
+ADD FIELD "enteredBy" OF "rm-rctd" AS character
+  FORMAT "x(12)"
+  POSITION 57
+  INITIAL ""
+  LABEL "EnteredBy"
+  ORDER 540
+  MAX-WIDTH 24
+
+UPDATE FIELD "rec_key" OF "rm-rcth"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rm-rdtl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rm-rdtlh"
+  FORMAT "X(21)"
+
+UPDATE FIELD "reject-code" OF "rm-rdtlh"
+  VALEXP ""
+  VALMSG ""
+
+ADD FIELD "enteredDT" OF "rm-rdtlh" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 45
+  INITIAL ?
+  LABEL "Entered DtTm"
+  ORDER 440
+  MAX-WIDTH 8
+
+ADD FIELD "enteredBy" OF "rm-rdtlh" AS character
+  FORMAT "x(12)"
+  POSITION 46
+  INITIAL ""
+  LABEL "EnteredBy"
+  ORDER 430
+  MAX-WIDTH 24
+
+UPDATE FIELD "rec_key" OF "rm-receipts"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "routing"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "routing-mtx"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "sbNote"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "sbStatus"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "scores"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "scoreType"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "shift"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "shifts"
+  FORMAT "X(21)"
+
+ADD FIELD "dayList" OF "shifts" AS character
+  FORMAT "x(28)"
+  POSITION 11
+  INITIAL ""
+  LABEL "Day List"
+  ORDER 100
+  MAX-WIDTH 56
+
+ADD FIELD "useSpecificDays" OF "shifts" AS logical
+  FORMAT "yes/no"
+  POSITION 12
+  INITIAL "no"
+  LABEL "Use Spec. Days"
+  ORDER 110
+  MAX-WIDTH 1
+
+UPDATE FIELD "rec_key" OF "shift_break"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "shipto"
+  FORMAT "X(21)"
+
+ADD FIELD "statusCode" OF "shipto" AS character
+  FORMAT "x(2)"
+  POSITION 80
+  INITIAL "A"
+  LABEL "Status"
+  ORDER 750
+  MAX-WIDTH 4
+
+ADD FIELD "isDefault" OF "shipto" AS logical
+  FORMAT "yes/no"
+  POSITION 81
+  INITIAL "no"
+  LABEL "Default"
+  ORDER 760
+  MAX-WIDTH 1
+
+UPDATE FIELD "sman" OF "sman"
+  DESCRIPTION "This now supports the ""Sales Group"" concept where required"
+  HELP "Enter Salesperson or Group Code"
+  LABEL "Salesperson/Group"
+
+UPDATE FIELD "sname" OF "sman"
+  HELP "Enter Salesperson/Group Full Name"
+  LABEL "Salesperson/Group Name"
+
+UPDATE FIELD "sman-no" OF "sman"
+  HELP "Sequencing number within reports/groups"
+
+UPDATE FIELD "rec_key" OF "sman"
+  FORMAT "X(21)"
+
+ADD FIELD "hasMembers" OF "sman" AS logical
+  FORMAT "yes/no"
+  POSITION 27
+  INITIAL "no"
+  LABEL "Has Members?"
+  ORDER 250
+  MAX-WIDTH 1
+
+ADD INDEX "iCompany" ON "sman"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+
+UPDATE FIELD "rec_key" OF "sman-mtx"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "smanbcat"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "smanbcst"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "smanbugt"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "smanmtrx"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "soldto"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ssrelbol"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "stack-flute"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "stack-size"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "stackPattern"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "state"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "statecod"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "stax"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "stax-group"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "std-code"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "style"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "style-score"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "styleFluteXref"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "styleScoreXref"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "surcharge"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "susptype"
+  FORMAT "X(21)"
+
+UPDATE TABLE "sys-ctrl"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/sys-ctrl.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/sys-ctrl.p" CRC "?"
+  TABLE-TRIGGER "FIND" OVERRIDE PROCEDURE "find.trg/sys-ctrl.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/sys-ctrl.p" CRC "?"
+
+UPDATE FIELD "rec_key" OF "sys-ctrl"
+  FORMAT "X(21)"
+
+UPDATE TABLE "sys-ctrl-shipto"
+  TABLE-TRIGGER "FIND" OVERRIDE PROCEDURE "find.trg/sys-ctrl-shipto.p" CRC "?"
+
+UPDATE FIELD "rec_key" OF "sys-ctrl-shipto"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "systemConfigSetting"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "systemConfigUsage"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "terms"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "terr"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "test-red"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "titlcode"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "truck"
+  FORMAT "X(21)"
+
+ADD FIELD "msfLimit" OF "truck" AS decimal
+  FORMAT "->>>,>>>,>>9.99<<"
+  POSITION 38
+  INITIAL "0"
+  LABEL "MSF Limit"
+  DECIMALS 4
+  ORDER 490
+  MAX-WIDTH 19
+
+UPDATE FIELD "rec_key" OF "truck-run-print"
+  FORMAT "X(21)"
+
+ADD FIELD "carrier" OF "truck-run-print" AS character
+  DESCRIPTION "Common carrier"
+  FORMAT "x(5)"
+  POSITION 32
+  INITIAL ""
+  HELP "Enter common carrier code."
+  LABEL "Carrier"
+  ORDER 300
+  MAX-WIDTH 10
+
+UPDATE FIELD "rec_key" OF "uom"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "user-print"
+  FORMAT "X(21)"
+
+ADD FIELD "prgmName" OF "user-print" AS character
+  FORMAT "x(24)"
+  POSITION 32
+  INITIAL ""
+  LABEL "Prog Name"
+  ORDER 190
+  MAX-WIDTH 48
+
+UPDATE FIELD "rec_key" OF "usercomp"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "userControl"
+  FORMAT "X(21)"
+
+ADD FIELD "nofityLocked" OF "userControl" AS logical
+  DESCRIPTION "Email notification of locked out user due to too many tries"
+  FORMAT "yes/no"
+  POSITION 19
+  INITIAL "no"
+  HELP "Email when user is locked?"
+  LABEL "Notify Locked"
+  ORDER 180
+  MAX-WIDTH 1
+
+ADD FIELD "notifyAutoLogout" OF "userControl" AS logical
+  DESCRIPTION "Send an email notification of a user auto logged out?"
+  FORMAT "yes/no"
+  POSITION 20
+  INITIAL "no"
+  HELP "Email when user is auto logged out?"
+  LABEL "Notify Auto Logout?"
+  ORDER 190
+  MAX-WIDTH 1
+
+ADD FIELD "notifyDisable" OF "userControl" AS logical
+  FORMAT "yes/no"
+  POSITION 21
+  INITIAL "no"
+  LABEL "Notify Disable Email?"
+  COLUMN-LABEL ""
+  ORDER 200
+  MAX-WIDTH 1
+
+UPDATE FIELD "rec_key" OF "usercust"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "userEula"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "usergrps"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "userLog"
+  FORMAT "X(21)"
+
+ADD FIELD "dbDisconnect" OF "userLog" AS logical
+  DESCRIPTION "Disconnect this session from the databases"
+  FORMAT "yes/no"
+  POSITION 14
+  INITIAL "no"
+  ORDER 160
+  MAX-WIDTH 1
+
+ADD FIELD "notifyAutoLogout" OF "userLog" AS logical
+  FORMAT "yes/no"
+  POSITION 15
+  INITIAL "no"
+  LABEL "Notify AutoLogout"
+  ORDER 190
+  MAX-WIDTH 1
+
+ADD FIELD "notifyDisable" OF "userLog" AS logical
+  FORMAT "yes/no"
+  POSITION 16
+  INITIAL "no"
+  LABEL "Notify Disable"
+  ORDER 200
+  MAX-WIDTH 1
+
+ADD FIELD "userDisconnect" OF "userLog" AS logical
+  FORMAT "yes/no"
+  POSITION 17
+  INITIAL "no"
+  LABEL "User Disconnect"
+  ORDER 170
+  MAX-WIDTH 1
+
+ADD FIELD "notifyLocked" OF "userLog" AS logical
+  FORMAT "yes/no"
+  POSITION 18
+  INITIAL "no"
+  LABEL "Notify Locked"
+  ORDER 180
+  MAX-WIDTH 1
+
+ADD INDEX "dbDisconnect" ON "userLog"
+  AREA "Index"
+  INDEX-FIELD "dbDisconnect" ASCENDING
+
+ADD INDEX "iDisconnectDT" ON "userLog"
+  AREA "Data"
+  INDEX-FIELD "logoutDateTime" DESCENDING
+
+ADD INDEX "iUserDisconnect" ON "userLog"
+  AREA "Data"
+  INDEX-FIELD "userDisconnect" ASCENDING
+
+UPDATE FIELD "rec_key" OF "users"
+  FORMAT "X(21)"
+
+ADD FIELD "menuSize" OF "users" AS character
+  DESCRIPTION "Menu Size"
+  FORMAT "x(8)"
+  POSITION 44
+  INITIAL "Small"
+  HELP "Select Menu Size"
+  LABEL "Menu Size"
+  ORDER 421
+  MAX-WIDTH 16
+
+ADD FIELD "userLanguage" OF "users" AS character
+  DESCRIPTION "User Default Language"
+  FORMAT "x(2)"
+  POSITION 45
+  INITIAL "EN"
+  HELP "Select User Language"
+  LABEL "Language"
+  COLUMN-LABEL "Lang"
+  ORDER 431
+  MAX-WIDTH 4
+
+ADD FIELD "userImage" OF "users" AS character
+  DESCRIPTION "User Image"
+  FORMAT "x(40)"
+  POSITION 46
+  INITIAL ""
+  HELP "Enter User Image"
+  LABEL "User Image"
+  EXTENT 3
+  ORDER 411
+  MAX-WIDTH 246
+
+ADD FIELD "positionMnemonic" OF "users" AS character
+  FORMAT "x(8)"
+  POSITION 47
+  INITIAL "Begin"
+  HELP "Enter Position of Mnemonic"
+  LABEL "Position Mnemonic"
+  ORDER 451
+  MAX-WIDTH 16
+
+ADD FIELD "showMnemonic" OF "users" AS character
+  FORMAT "x(8)"
+  POSITION 48
+  INITIAL "ALL"
+  HELP "Enter to Show Mnemonic"
+  LABEL "Show Mnemonic"
+  ORDER 441
+  MAX-WIDTH 16
+
+ADD FIELD "blockCueCards" OF "users" AS logical
+  FORMAT "yes/no"
+  POSITION 49
+  INITIAL "no"
+  HELP "Toggle to Block Cue Cards"
+  LABEL "Block Cue Cards"
+  COLUMN-LABEL "Block"
+  ORDER 461
+  MAX-WIDTH 1
+
+ADD FIELD "showMenuImages" OF "users" AS logical
+  FORMAT "yes/no"
+  POSITION 52
+  INITIAL "yes"
+  HELP "Toggle to Show Menu Images"
+  LABEL "Show Menu Images"
+  COLUMN-LABEL "Images"
+  ORDER 471
+  MAX-WIDTH 1
+
+ADD FIELD "menuBGColor" OF "users" AS integer
+  FORMAT ">9"
+  POSITION 53
+  INITIAL "1"
+  HELP "Enter Menu BG Color"
+  LABEL "Menu BG Color"
+  COLUMN-LABEL "BG"
+  EXTENT 3
+  ORDER 491
+  MAX-WIDTH 18
+
+ADD FIELD "menuFGColor" OF "users" AS integer
+  FORMAT ">9"
+  POSITION 54
+  INITIAL "15"
+  HELP "Enter Menu FG Color"
+  LABEL "Menu FG Color"
+  COLUMN-LABEL "FG"
+  EXTENT 3
+  ORDER 481
+  MAX-WIDTH 18
+
+UPDATE FIELD "rec_key" OF "usersman"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "uservend"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "usr"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "usr-grp"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "usrx"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "vend"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "vend-code-cust-xref"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "vend-plant"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "vend-whse-item"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "vend-whse-trans"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "vend-whse-trans-hist"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ventype"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "view-dtl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "view-hdr"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "waste-type"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "wip-bin"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "wiptag"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "wiptag-mch"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "zipcode"
+  FORMAT "X(21)"
+
+ADD SEQUENCE "cueCard_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT yes
+  MIN-VAL ?
+  MAX-VAL ?
+
+ADD SEQUENCE "cueText_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT yes
+  MIN-VAL ?
+  MAX-VAL ?
+
+ADD SEQUENCE "taskExecutionID"
+  INITIAL 1
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL 999999999
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000126756

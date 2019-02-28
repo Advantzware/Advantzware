@@ -635,7 +635,7 @@ FOR EACH xef
             xeb.blank-no                       FORMAT "99"
             "Size:"
             brd-w[4]                           FORMAT ">>>9.99<<<"
-            brd-l[4]                           FORMAT ">>>9.99<<<" 
+            brd-l[4]                           FORMAT ">>>>9.99<<<" 
             xeb.t-dep WHEN xeb.t-dep NE 0      FORMAT ">>>9.99<<<"
             1                                  FORMAT ">>>" 
             SPACE(4)
@@ -646,12 +646,12 @@ FOR EACH xef
             SPACE(0)
             "/MBL"
             SKIP
-        WITH NO-BOX NO-LABELS COLOR VALUE("blu/brown") WIDTH 80 FRAME aa2-1 STREAM-IO.
+        WITH NO-BOX NO-LABELS COLOR VALUE("blu/brown") WIDTH 82 FRAME aa2-1 STREAM-IO.
 
     IF NOT vsuthrlnd THEN DO WITH FRAME aa2-1:
       ASSIGN
        brd-w[4]:FORMAT  = ">>>9.99"
-       brd-l[4]:FORMAT  = ">>>9.99"
+       brd-l[4]:FORMAT  = ">>>>9.99"
        xeb.t-dep:FORMAT = ">>>9.99".
 
       DISPLAY {sys/inc/k16v.i brd-w[4]} @ brd-w[4]
@@ -674,7 +674,7 @@ FOR EACH xef
 
       DISPLAY " NetSht Size:"
               brd-w[1]                            FORMAT ">>>9.99<<<"
-              brd-l[1]                            FORMAT ">>>9.99<<<"
+              brd-l[1]                            FORMAT ">>>>9.99<<<"
               xef.nsh-dep WHEN xef.nsh-dep NE 0   FORMAT ">>>9.99<<<"
               lv-tot-up                           FORMAT ">>>"  
               SPACE(4)
@@ -698,15 +698,15 @@ FOR EACH xef
               brd-wu[2]
               SPACE(0)
               "/MGS" SKIP
-          WITH NO-BOX NO-LABELS COLOR VALUE("blu/brown") WIDTH 80 FRAME aa2-2 STREAM-IO.
+          WITH NO-BOX NO-LABELS COLOR VALUE("blu/brown") WIDTH 82 FRAME aa2-2 STREAM-IO.
 
       IF NOT vsuthrlnd THEN DO WITH FRAME aa2-2:
         ASSIGN
          brd-w[1]:FORMAT    = ">>>9.99"
-         brd-l[1]:FORMAT    = ">>>9.99"
+         brd-l[1]:FORMAT    = ">>>>9.99"
          xef.nsh-dep:FORMAT = ">>>9.99"
          brd-w[2]:FORMAT    = ">>>9.99"
-         brd-l[2]:FORMAT    = ">>>9.99"
+         brd-l[2]:FORMAT    = ">>>>9.99"
          xef.gsh-dep:FORMAT = ">>>9.99".
 
         DISPLAY {sys/inc/k16v.i brd-w[1]} @ brd-w[1]

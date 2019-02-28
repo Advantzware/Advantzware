@@ -1,0 +1,48 @@
+
+                                                            PICK TICKET
+                                                             Date      Number
+                                                           12/13/05  1320
+
+
+
+
+
+
+
+          SOLD TO:                               SHIP TO:
+          AT&T Communications Corp.              AT&T Communications Corp.
+          ATT 1000 Blvd                          ATT Blvd
+                                                 Warehouse B
+          Yardley         PA                     Yardley         PA 19067
+
+--------------------------------------------------------------------------------
+ORDER#:   2455 PAY TERMS:  2% 10, Net 30      DUE ON: 12/16/2005
+CUST PO#: VerbalPO                            Page          1 OF          1
+Ship Via:                      F.O.B.: DEST   FREIGHT TERMS: Bill
+--------------------------------------------------------------------------------
+
+Item                                              On-Hand       Rel
+BinNo           Description                           Qty       Qty      Shipped
+-----           ------------------------------  --------- ---------     --------
+Verbal PO      
+8x8x8           8x8x8
+A-100           RSC 8x8x8 Stock Box
+                200 C Kraft                        22,525     1,000     ________
+
+ Must pack boxes on 45" Pallet.  Shrink Wrap Pallets:        
+ Dock Times 7AM to 4PM                                       
+VerbalPO       
+CATT10000041A   5239
+A-100           RSC 8x8x13
+                ECT32 PaperBoard                        0       500     ________
+
+ Must pack boxes on 45" Pallet.  Shrink Wrap Pallets:        
+ Dock Times 7AM to 4PM                                       
+VerbalPO       
+FATT10000003A   ATT-2977
+A-100           Sealed End 10x5x8
+                5 Color + Coating                       0   125,000     ________
+
+ Must pack boxes on 45" Pallet.  Shrink Wrap Pallets:        
+ Dock Times 7AM to 4PM                                       
+

@@ -48,6 +48,8 @@ DEF VAR v-acs-code AS cha NO-UNDO.
 DEF VAR v-ext-cost AS DEC NO-UNDO.
 DEF VAR v-msf-cost AS DEC NO-UNDO.
 
+DEFINE VARIABLE cVenTag AS CHARACTER NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -80,7 +82,7 @@ DEFINE QUERY external_tables FOR item.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table rm-bin.po-no rm-bin.loc ~
-rm-bin.loc-bin rm-bin.tag rm-bin.qty rm-bin.cost ext-cost (1) @ v-ext-cost ~
+rm-bin.loc-bin rm-bin.tag fnVenTag () @ cVenTag rm-bin.qty rm-bin.cost ext-cost (1) @ v-ext-cost ~
 msf-cost (1) @ v-msf-cost 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH rm-bin WHERE ~{&KEY-PHRASE} ~
@@ -129,6 +131,12 @@ FUNCTION msf-cost RETURNS DECIMAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnVenTag B-table-Win 
+FUNCTION fnVenTag RETURNS CHARACTER
+  (/* parameter-definitions */)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -189,6 +197,7 @@ DEFINE BROWSE Browser-Table
       rm-bin.loc FORMAT "x(5)":U LABEL-BGCOLOR 14
       rm-bin.loc-bin COLUMN-LABEL "Bin Loc" FORMAT "x(8)":U LABEL-BGCOLOR 14
       rm-bin.tag COLUMN-LABEL "Tag #" FORMAT "x(20)":U LABEL-BGCOLOR 14
+      fnVenTag () @ cVenTag COLUMN-LABEL "Vendor Tag#" FORMAT "x(25)":U LABEL-BGCOLOR 14
       rm-bin.qty COLUMN-LABEL "Quantity" FORMAT "->>>,>>9.9<<":U
             LABEL-BGCOLOR 14
       rm-bin.cost COLUMN-LABEL "Cost" FORMAT "->>>,>>9.99<<<<":U
@@ -320,6 +329,8 @@ ASSIGN
 "ext-cost (1) @ v-ext-cost" "Ext. Cost" "->>,>>>,>>9.99<<" ? ? ? ? ? ? ? no ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > "_<CALC>"
 "msf-cost (1) @ v-msf-cost" "Cost/MSF" "->>>,>>9.99<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > "_<CALC>"
+"fnVenTag () @ cVenTag" "Vendor Tag#" "x(25)" "character" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -737,4 +748,31 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnVenTag B-table-Win 
+FUNCTION fnVenTag RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+     DEFINE VARIABLE iResult AS CHARACTER NO-UNDO.
+     DEFINE BUFFER bf-loadtag FOR loadtag.
+        IF AVAIL rm-bin THEN 
+        DO:
+            FIND FIRST bf-loadtag NO-LOCK
+                 WHERE bf-loadtag.company EQ cocode
+                  AND bf-loadtag.item-type EQ YES
+                  AND bf-loadtag.tag-no EQ rm-bin.tag            
+                NO-ERROR.
+            IF AVAILABLE bf-loadtag THEN
+                iResult = (bf-loadtag.misc-char[1]).
+        END.
+	    RETURN iResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

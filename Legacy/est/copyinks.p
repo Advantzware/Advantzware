@@ -36,10 +36,6 @@ IF AVAIL eb THEN DO:
 
     {est/copyinks.i}
 
-    IF ll THEN DO:
-      {est/copyunit.i}
-    END.
-
     IF LAST-OF(b-eb.stock-no) THEN
       RUN est/updest3.p (ROWID(b-eb), ROWID(eb), 1 + INT(ll)).
   END.

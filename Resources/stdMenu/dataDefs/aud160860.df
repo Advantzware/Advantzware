@@ -1,0 +1,341 @@
+ADD SEQUENCE "audit_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT yes
+  MAX-VAL 2000000000
+
+ADD SEQUENCE "stack_trace"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT yes
+
+ADD TABLE "AuditDtl"
+  AREA "Audit"
+  LABEL "Audit Detail"
+  DESCRIPTION "Audit Detail"
+  DUMP-NAME "auditdtl"
+
+ADD FIELD "AuditID" OF "AuditDtl" AS integer 
+  FORMAT ">,>>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Audit ID"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "Audit ID"
+  HELP "Enter Audit ID"
+  ORDER 10
+
+ADD FIELD "AuditField" OF "AuditDtl" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  LABEL "Audit Field"
+  POSITION 3
+  MAX-WIDTH 32
+  COLUMN-LABEL "Audit Field"
+  HELP "Enter Audit Field"
+  ORDER 20
+
+ADD FIELD "AuditBeforeValue" OF "AuditDtl" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  LABEL "Before Value"
+  POSITION 4
+  MAX-WIDTH 32
+  COLUMN-LABEL "Before Value"
+  HELP "Enter Audit Before Value"
+  ORDER 40
+
+ADD FIELD "AuditAfterValue" OF "AuditDtl" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  LABEL "After Value"
+  POSITION 5
+  MAX-WIDTH 32
+  COLUMN-LABEL "After Value"
+  HELP "Enter Audit After Value"
+  ORDER 50
+
+ADD FIELD "AuditExtent" OF "AuditDtl" AS integer 
+  FORMAT ">>>9"
+  INITIAL "0"
+  LABEL "Extent"
+  POSITION 6
+  MAX-WIDTH 4
+  COLUMN-LABEL "Extent"
+  HELP "Enter Extent"
+  ORDER 30
+
+ADD FIELD "AuditIdxField" OF "AuditDtl" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Index Field"
+  POSITION 8
+  MAX-WIDTH 1
+  COLUMN-LABEL "Idx"
+  HELP "I = Index Field"
+  ORDER 60
+
+ADD INDEX "AuditID" ON "AuditDtl" 
+  AREA "Audit"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "By Audit ID Field and Extent"
+  INDEX-FIELD "AuditID" ASCENDING 
+  INDEX-FIELD "AuditField" ASCENDING 
+  INDEX-FIELD "AuditExtent" ASCENDING 
+
+ADD INDEX "AuditAfterValue" ON "AuditDtl" 
+  AREA "Audit"
+  DESCRIPTION "Secondary Index by Audit After Value"
+  INDEX-FIELD "AuditAfterValue" ASCENDING 
+
+ADD INDEX "AuditBeforeValue" ON "AuditDtl" 
+  AREA "Audit"
+  DESCRIPTION "Secondary Index by Audit Before Value"
+  INDEX-FIELD "AuditBeforeValue" ASCENDING 
+
+ADD INDEX "AuditField" ON "AuditDtl" 
+  AREA "Audit"
+  DESCRIPTION "Secondary Index by Audit Field"
+  INDEX-FIELD "AuditField" ASCENDING 
+
+ADD TABLE "AuditHdr"
+  AREA "Audit"
+  LABEL "Audit Header"
+  DESCRIPTION "Audit Header"
+  DUMP-NAME "audithdr"
+
+ADD FIELD "AuditType" OF "AuditHdr" AS character 
+  DESCRIPTION "Type: Create, Delete or Update"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Audit Type"
+  POSITION 2
+  MAX-WIDTH 16
+  COLUMN-LABEL "Type"
+  HELP "Enter Audit Type"
+  ORDER 20
+
+ADD FIELD "AuditDB" OF "AuditHdr" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "DB Name"
+  POSITION 3
+  MAX-WIDTH 24
+  COLUMN-LABEL "DB Name"
+  HELP "Enter Database Name"
+  ORDER 40
+
+ADD FIELD "AuditTable" OF "AuditHdr" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  LABEL "Table Name"
+  POSITION 4
+  MAX-WIDTH 32
+  COLUMN-LABEL "Table"
+  HELP "Enter Table Name"
+  ORDER 50
+
+ADD FIELD "AuditUser" OF "AuditHdr" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 5
+  MAX-WIDTH 32
+  COLUMN-LABEL "User ID"
+  HELP "Enter User ID"
+  ORDER 60
+
+ADD FIELD "AuditDateTime" OF "AuditHdr" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Audit Date Time"
+  POSITION 6
+  MAX-WIDTH 8
+  COLUMN-LABEL "Audit Date Time"
+  HELP "Enter Date and Time"
+  ORDER 30
+
+ADD FIELD "AuditRecKey" OF "AuditHdr" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Audit Rec Key"
+  POSITION 7
+  MAX-WIDTH 40
+  COLUMN-LABEL "Audit Rec Key"
+  HELP "Enter Audit Rec Key"
+  ORDER 80
+
+ADD FIELD "AuditID" OF "AuditHdr" AS integer 
+  FORMAT ">,>>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Audit ID"
+  POSITION 8
+  MAX-WIDTH 4
+  COLUMN-LABEL "Audit ID"
+  HELP "Enter Audit ID"
+  ORDER 10
+
+ADD FIELD "AuditKey" OF "AuditHdr" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  LABEL "Audit Key"
+  POSITION 9
+  MAX-WIDTH 32
+  COLUMN-LABEL "Audit Key"
+  HELP "Enter Audit Key"
+  ORDER 70
+
+ADD FIELD "AuditStackID" OF "AuditHdr" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Audit Stack ID"
+  POSITION 11
+  MAX-WIDTH 4
+  COLUMN-LABEL "Stack ID"
+  HELP "Enter Audit Stack Trace ID"
+  ORDER 90
+
+ADD INDEX "AuditID" ON "AuditHdr" 
+  AREA "Audit"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "By Audit ID"
+  INDEX-FIELD "AuditID" ASCENDING 
+
+ADD INDEX "AuditDateTime" ON "AuditHdr" 
+  AREA "Audit"
+  DESCRIPTION "By Audit Date and Time"
+  INDEX-FIELD "AuditDateTime" ASCENDING 
+
+ADD INDEX "AuditDBTable" ON "AuditHdr" 
+  AREA "Audit"
+  DESCRIPTION "By Audit DB and Table"
+  INDEX-FIELD "AuditDB" ASCENDING 
+  INDEX-FIELD "AuditTable" ASCENDING 
+
+ADD INDEX "AuditKey" ON "AuditHdr" 
+  AREA "Audit"
+  DESCRIPTION "By Audit Key"
+  INDEX-FIELD "AuditKey" ASCENDING 
+
+ADD INDEX "AuditRecKey" ON "AuditHdr" 
+  AREA "Audit"
+  DESCRIPTION "By Audit Rec Key"
+  INDEX-FIELD "AuditRecKey" ASCENDING 
+
+ADD INDEX "AuditType" ON "AuditHdr" 
+  AREA "Audit"
+  DESCRIPTION "By Audit Type"
+  INDEX-FIELD "AuditType" ASCENDING 
+
+ADD INDEX "AuditUser" ON "AuditHdr" 
+  AREA "Audit"
+  DESCRIPTION "By Audit User"
+  INDEX-FIELD "AuditUser" ASCENDING 
+
+ADD TABLE "AuditStack"
+  AREA "Audit"
+  LABEL "Audit Stack Trace"
+  DESCRIPTION "Audit Stack Trace"
+  DUMP-NAME "auditstack"
+
+ADD FIELD "AuditStackID" OF "AuditStack" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Audit Stack ID"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "Stack ID"
+  HELP "Enter Audit Stack Trace ID"
+  ORDER 60
+
+ADD FIELD "AuditStack" OF "AuditStack" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Program Stack"
+  POSITION 3
+  MAX-WIDTH 16
+  HELP "Program Stack comma delimited"
+  ORDER 70
+
+ADD INDEX "AuditStackID" ON "AuditStack" 
+  AREA "Audit"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Audit Stack Trace ID Index"
+  INDEX-FIELD "AuditStackID" ASCENDING 
+
+ADD INDEX "AuditStack" ON "AuditStack" 
+  AREA "Audit"
+  DESCRIPTION "Audit Stack Trace"
+  INDEX-FIELD "AuditStack" ASCENDING 
+
+ADD TABLE "AuditTbl"
+  AREA "Audit"
+  LABEL "Audit Table"
+  DESCRIPTION "Audit Table Name from ASI Database"
+  DUMP-NAME "audittbl"
+
+ADD FIELD "AuditTable" OF "AuditTbl" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Audit Table"
+  POSITION 2
+  MAX-WIDTH 40
+  COLUMN-LABEL "Table"
+  HELP "Enter Audit Table Name"
+  ORDER 10
+
+ADD FIELD "AuditCreate" OF "AuditTbl" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Audit Create"
+  POSITION 3
+  MAX-WIDTH 1
+  COLUMN-LABEL "Create"
+  HELP "Set Audit Create Flag"
+  ORDER 20
+
+ADD FIELD "AuditDelete" OF "AuditTbl" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Audit Delete"
+  POSITION 4
+  MAX-WIDTH 1
+  COLUMN-LABEL "Delete"
+  HELP "Set Audit Delete Flag"
+  ORDER 30
+
+ADD FIELD "AuditUpdate" OF "AuditTbl" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Audit Update"
+  POSITION 5
+  MAX-WIDTH 1
+  COLUMN-LABEL "Update"
+  HELP "Set Audit Update Flag"
+  ORDER 40
+
+ADD FIELD "AuditStack" OF "AuditTbl" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Audit Stack Trace"
+  POSITION 6
+  MAX-WIDTH 1
+  COLUMN-LABEL "Stack Trace"
+  HELP "Set Audit Stack Trace Flag"
+  ORDER 50
+
+ADD INDEX "AuditTbl" ON "AuditTbl" 
+  AREA "Audit"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Audit Table Name Primary Index"
+  INDEX-FIELD "AuditTable" ASCENDING 
+
+.
+PSC
+cpstream=ibm850
+.
+0000007470

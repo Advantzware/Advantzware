@@ -13,7 +13,7 @@
   ----------------------------------------------------------------------*/
 {fg/invrecpt.i NEW}
 {fg/fgPostBatch.i}
-        
+
 DEFINE INPUT  PARAMETER v-post-date AS DATE NO-UNDO.
 DEFINE INPUT  PARAMETER tg-recalc-cost AS LOGICAL NO-UNDO.
 DEFINE INPUT  PARAMETER ip-run-what AS CHARACTER NO-UNDO.
@@ -23,15 +23,14 @@ DEFINE INPUT PARAMETER TABLE FOR tt-fgemail.
 DEFINE INPUT PARAMETER TABLE FOR tt-email. 
 DEFINE INPUT PARAMETER TABLE FOR tt-inv.  
 /* Need to return w-job for prompting */
-
-DEFINE VARIABLE ll              AS LOG       NO-UNDO.
-DEFINE VARIABLE dBillAmt        AS DECIMAL   NO-UNDO. /* set, not used */
-DEFINE VARIABLE lEmailBol       AS LOG       NO-UNDO. /* set and used internally */
+DEFINE VARIABLE ll        AS LOG     NO-UNDO.
+DEFINE VARIABLE dBillAmt  AS DECIMAL NO-UNDO. /* set, not used */
+DEFINE VARIABLE lEmailBol AS LOG     NO-UNDO. /* set and used internally */
 DEFINE VARIABLE lInvFrt         AS LOG       NO-UNDO. /* set not used? */
 DEFINE VARIABLE lvReturnChar    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvFound         AS LOG       NO-UNDO.
 DEFINE VARIABLE autofgissue-log AS LOGICAL   NO-UNDO. /* set and used */
-DEFINE VARIABLE v-fgpostgl AS CHARACTER NO-UNDO. /* set by fgpostgl nk1 value */
+DEFINE VARIABLE v-fgpostgl      AS CHARACTER NO-UNDO. /* set by fgpostgl nk1 value */
 
 DEFINE VARIABLE fg-uom-list     AS CHARACTER NO-UNDO.
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
@@ -74,7 +73,20 @@ END.
 
 ASSIGN
     v-fgpostgl = fgpostgl.
-  
+
+/* Needed for fg/rep/fg-post.i */
+DEFINE VARIABLE v-fg-value      AS DECIMAL   FORMAT "->,>>>,>>9.99".
+DEFINE VARIABLE v-msf           AS DECIMAL   FORMAT ">,>>9.999" EXTENT 6.
+DEFINE VARIABLE is-xprint-form  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE ls-fax-file     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-corr          AS LOGICAL.
+DEFINE VARIABLE rd-Itm#Cst#     AS INTEGER.
+DEFINE VARIABLE rd-ItmPo        AS INTEGER.
+DEFINE VARIABLE ip-rowid        AS ROWID     NO-UNDO.
+DEFINE VARIABLE t-setup         AS LOGICAL   NO-UNDO.
+
+DEFINE VARIABLE tb_excel        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE li AS INTEGER NO-UNDO.
 DEFINE TEMP-TABLE tt-posted-items
     FIELD i-no LIKE w-fg-rctd.i-no
     INDEX i-no i-no.
@@ -102,19 +114,22 @@ END.
     
 DEFINE STREAM logFile.
 DEF STREAM st-email.
+{fg/fgPostProc.i}
 /* ********************  Preprocessor Definitions  ******************** */
-
+&SCOPED-DEFINE NOOUTPUT NOOUTPUT
 /* ************************  Function Prototypes ********************** */
 
 
 FUNCTION get-act-rel-qty RETURNS INTEGER 
-	(  ) FORWARD.
+    (  ) FORWARD.
 
 FUNCTION get-tot-rcv-qty RETURNS INTEGER 
-	(  ) FORWARD.
+    (  ) FORWARD.
 
 /* ***************************  Main Block  *************************** */
 
+
+{fg/rep/fg-post.i "itemxA" "v-fg-cost" "itempxA" "v-tot-cost"}
 RUN fg-post.
 
 

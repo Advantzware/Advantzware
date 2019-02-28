@@ -106,6 +106,7 @@ DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+DEFINE VARIABLE d-print-fmt-dec  AS DECIMAL NO-UNDO.
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -586,9 +587,13 @@ DO:
                  NO-LOCK NO-ERROR.
 
             IF AVAIL sys-ctrl-shipto THEN
-               v-stmt-char = sys-ctrl-shipto.char-fld.
+                ASSIGN
+                v-stmt-char = sys-ctrl-shipto.char-fld
+                d-print-fmt-dec = sys-ctrl-shipto.dec-fld .
             ELSE 
-               v-stmt-char = sys-ctrl.char-fld.
+                ASSIGN
+                    v-stmt-char = sys-ctrl.char-fld
+                    d-print-fmt-dec = sys-ctrl.dec-fld.
             /*ELSE
                v-stmt-char = vcDefaultForm.*/
                FIND FIRST ttCustList NO-LOCK
@@ -1078,12 +1083,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        v-print-hdr = sys-ctrl.log-fld
        v-use-cust  = sys-ctrl.char-fld eq "CUST S"
        v-stmt-char = sys-ctrl.char-fld
+       d-print-fmt-dec = sys-ctrl.dec-fld
        vcDefaultForm = v-stmt-char.
 
     IF (v-stmt-char EQ "" OR v-stmt-char EQ "ASI") AND
        lookup("PDFCamp Printer",SESSION:GET-PRINTERS()) GT 0 THEN
        v-pdf-camp = YES.
-    IF (v-stmt-char EQ "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "StdStatement2" OR v-stmt-char = "SouleMed") THEN DO:
+    IF (v-stmt-char EQ "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "StdStatement2" OR v-stmt-char = "ARStmt3C" OR v-stmt-char = "SouleMed") THEN DO:
         fi_contact:HIDDEN = NO.
         RUN setAttentionDefault.
     END.
@@ -1673,26 +1679,15 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 
 find first company where company.company eq cocode no-lock no-error.
 
-IF v-stmt-char = "Badger" THEN do:
-    IF company.company EQ "003" THEN
-        ASSIGN ls-image1 =  "images\Badger_CA.jpg" 
-            FILE-INFO:FILE-NAME = ls-image1
-            ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
-    ELSE
-        ASSIGN ls-image1 =  "images\badger statement.JPG" 
-            FILE-INFO:FILE-NAME = ls-image1
-            ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
-END.
-ELSE do:
 ASSIGN ls-image1 = IF v-stmt-char = "Premier" THEN "images\premierinv.jpg"
                    ELSE IF v-stmt-char = "LoyLang" THEN "images\loystmt.jpg"
                    ELSE IF v-stmt-char = "Printers" THEN "images\loyprinters.jpg"
                  /*  ELSE IF v-stmt-char = "Badger" THEN "images\badger statement.JPG" */
-                   ELSE IF v-stmt-char = "RFC" THEN cRtnChar  
+                   ELSE IF v-stmt-char = "RFC" THEN cRtnChar 
+                   ELSE IF v-stmt-char = "Badger" THEN cRtnChar 
                    ELSE "images\asilogo.jpg"
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
-END.
 
 if v-use-cust then
    find first cust WHERE
@@ -1764,22 +1759,39 @@ ELSE
 
 IF is-xprint-form THEN DO:
    CASE rd-dest :
-        WHEN 1 THEN PUT "<PRINTER?>" FORM "x(30)".
+        WHEN 1 THEN do:
+            IF lookup(v-stmt-char,"stmtprint 1,stmtprint 2") > 0 THEN 
+             PUT "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORM "x(120)".
+            ELSE PUT "<PRINTER?>" FORM "x(30)".
+        END.
         WHEN 2 THEN do:
-            IF NOT lBussFormModle THEN        
-              PUT "<PREVIEW><MODAL=NO>" FORM "x(30)". 
-            ELSE
-              PUT "<PREVIEW>" FORM "x(30)".
+            IF NOT lBussFormModle THEN do:      
+                IF lookup(v-stmt-char,"stmtprint 1,stmtprint 2") > 0 THEN
+                    PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><MODAL=NO>" FORM "x(120)". 
+                ELSE
+                    PUT "<PREVIEW><MODAL=NO>" FORM "x(120)". 
+            END.
+            ELSE do:
+                 IF lookup(v-stmt-char,"stmtprint 1,stmtprint 2") > 0 THEN
+                     PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORM "x(120)".
+                 ELSE PUT "<PREVIEW>" FORM "x(30)".
+            END.
         END.
         WHEN 4 THEN do:
               ls-fax-file = "c:\tmp\fx" + STRING(TIME) + ".tif".
               PUT UNFORMATTED "<PRINT=NO><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
         END.        
         WHEN 5 THEN DO:
-            IF NOT tb_BatchMail:CHECKED IN FRAME {&FRAME-NAME} THEN
-               PUT "<PREVIEW><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".              
-            ELSE
-               PUT "<PREVIEW=PDF><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
+            IF NOT tb_BatchMail:CHECKED IN FRAME {&FRAME-NAME} THEN do:
+                IF lookup(v-stmt-char,"stmtprint 1,stmtprint 2") > 0 THEN
+                    PUT "<PREVIEW><PDF-LEFT=" + trim(STRING(3 + d-print-fmt-dec)) + "mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".              
+                ELSE PUT "<PREVIEW><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".              
+            END.
+            ELSE do:
+                IF lookup(v-stmt-char,"stmtprint 1,stmtprint 2") > 0 THEN
+                    PUT "<PREVIEW=PDF><PDF-LEFT=" + trim(STRING(3 + d-print-fmt-dec)) + "mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
+                ELSE PUT "<PREVIEW=PDF><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
+            END.
         END.
    END CASE.
    PUT "</PROGRESS>".
@@ -2512,23 +2524,15 @@ form
       DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 
       find first company where company.company eq cocode no-lock no-error.
-
-
-      IF v-stmt-char = "Badger" THEN do:
-          IF company.company EQ "003" THEN
-              ASSIGN ls-image1 =  "images\Badger_CA.jpg"  .
-          ELSE
-              ASSIGN ls-image1 =  "images\badger statement.JPG"  .
-      END.
-      ELSE do:
+      
       ASSIGN ls-image1 = IF v-stmt-char = "Premier" THEN "images\premierinv.jpg"
                          ELSE IF v-stmt-char = "LoyLang" THEN "images\loystmt.jpg"
                          ELSE IF v-stmt-char = "Printers" THEN "images\loyprinters.jpg"
                      /*    ELSE IF v-stmt-char = "Badger" THEN "images\badger statement.JPG" */
                          ELSE IF v-stmt-char = "RFC" THEN cRtnChar
+                         ELSE IF v-stmt-char = "Badger"  THEN cRtnChar
                          ELSE "images\asilogo.jpg" .
-      END.
-
+     
       FILE-INFO:FILE-NAME = ls-image1.
       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
       FILE-INFO:FILE-NAME = ls-image2.
@@ -2599,19 +2603,32 @@ is-xprint-form = YES.
 
 IF is-xprint-form THEN DO:
    CASE rd-dest :
-        WHEN 1 THEN PUT "<PRINTER?>" FORM "x(30)".
+        WHEN 1 THEN do:
+            IF lookup(v-stmt-char,"stmtprint 1,stmtprint 2") > 0 THEN 
+             PUT "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORM "x(120)".
+            ELSE PUT "<PRINTER?>" FORM "x(30)".
+        END.
         WHEN 2 THEN do:
-            IF NOT lBussFormModle THEN        
-              PUT "<PREVIEW><MODAL=NO>" FORM "x(30)". 
-            ELSE
-              PUT "<PREVIEW>" FORM "x(30)".
+            IF NOT lBussFormModle THEN do:      
+                IF lookup(v-stmt-char,"stmtprint 1,stmtprint 2") > 0 THEN
+                    PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><MODAL=NO>" FORM "x(120)". 
+                ELSE
+                    PUT "<PREVIEW><MODAL=NO>" FORM "x(30)". 
+            END.
+            ELSE do:
+                 IF lookup(v-stmt-char,"stmtprint 1,stmtprint 2") > 0 THEN
+                     PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORM "x(120)".
+                 ELSE PUT "<PREVIEW>" FORM "x(30)".
+            END.
         END.
         WHEN 4 THEN do:
               ls-fax-file = "c:\tmp\fx" + STRING(TIME) + ".tif".
               PUT UNFORMATTED "<PRINT=NO><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
         END.        
         WHEN 5 THEN DO:
-            PUT "<PDF=DIRECT><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".              
+            IF lookup(v-stmt-char,"stmtprint 1,stmtprint 2") > 0 THEN
+                PUT "<PDF=DIRECT><PDF-LEFT=" + trim(STRING(3 + d-print-fmt-dec)) + "mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".              
+            ELSE PUT "<PDF=DIRECT><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".              
         END.
    END CASE.
    PUT "</PROGRESS>".
@@ -3229,6 +3246,18 @@ FORM SPACE(1)
   dAged[4] FORMAT "->>>>>>>9.99" COLUMN-LABEL "90+"
   with frame lanco-stmt-line no-box stream-io width 98 DOWN NO-LABEL.
 
+FORM SPACE(1)
+  tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date"
+  tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Invoice #" SPACE(1)
+  tt-inv.description FORMAT "x(14)" COLUMN-LABEL "Description"
+  tt-inv.po-no format "x(12)" COLUMN-LABEL "Cust PO#"
+  dAged[1] FORMAT "$->>>>>>>9.99" COLUMN-LABEL "0-30"
+  dAged[2] FORMAT "$->>>>>>>9.99" COLUMN-LABEL "31-60"
+  dAged[3] FORMAT "$->>>>>>>9.99" COLUMN-LABEL "61-90"
+  dAged[4] FORMAT "$->>>>>>>9.99" COLUMN-LABEL "90+"
+  v-age FORMAT "->>>>>" COLUMN-LABEL "Age"
+  with frame lanco-ar-stmt-line no-box stream-io width 112 DOWN NO-LABEL.
+
 form
   v-msg at 15
   v-balance  at 73
@@ -3255,6 +3284,18 @@ FORM SPACE(1)
   dAged[4] FORMAT "->>>>>>>9.99" COLUMN-LABEL "90+"
   with frame lanco-no-stmt-line no-box no-labels stream-io width 98 down.
 
+FORM SPACE(1)
+  tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date"
+  tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Invoice #" SPACE(1)
+  tt-inv.description FORMAT "x(14)" COLUMN-LABEL "Description"
+  tt-inv.po-no format "x(12)" COLUMN-LABEL "Cust PO#"
+  dAged[1] FORMAT "$->>>>>>>9.99" COLUMN-LABEL "0-30"
+  dAged[2] FORMAT "$->>>>>>>9.99" COLUMN-LABEL "31-60"
+  dAged[3] FORMAT "$->>>>>>>9.99" COLUMN-LABEL "61-90"
+  dAged[4] FORMAT "$->>>>>>>9.99" COLUMN-LABEL "90+"
+  v-age FORMAT "->>>>>" COLUMN-LABEL "Age"
+  with frame lanco-ar-no-stmt-line no-box no-labels stream-io width 112 down.
+
 form
   v-msg at 15
   v-balance  at 73
@@ -3275,13 +3316,12 @@ ASSIGN ls-image1 = (IF v-stmt-char = "Protagon" THEN "images\protinv.jpg"
                    ELSE IF v-stmt-char = "SouleMed" THEN "images\Soulemedical.jpg" 
                    ELSE IF v-stmt-char =  "StdStatement10" THEN cRtnChar 
                    ELSE IF v-stmt-char =  "StdStatement2" THEN cRtnChar
-                    ELSE "images\Soule.jpg") . 
-
+                   ELSE IF v-stmt-char =  "ARStmt3C" THEN cRtnChar
+                    ELSE "images\Soule.jpg") .                    
 
     ASSIGN
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
-
 
 ASSIGN ls-image2 = "images\protinvfoot.jpg"
        FILE-INFO:FILE-NAME = ls-image2
@@ -3359,22 +3399,38 @@ ELSE
 
 IF is-xprint-form THEN DO:
    CASE rd-dest :
-        WHEN 1 THEN PUT "<PRINTER?>" FORM "x(30)".
+        WHEN 1 THEN do: 
+         IF lookup(v-stmt-char,"StdStatement10,StdStatement2,ARStmt3C") > 0 THEN 
+             PUT "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORM "x(120)".
+         ELSE PUT "<PRINTER?>" FORM "x(30)".
+        END.
         WHEN 2 THEN do:
-            IF NOT lBussFormModle THEN        
-              PUT "<PREVIEW><MODAL=NO>" FORM "x(30)". 
-            ELSE
-              PUT "<PREVIEW>" FORM "x(30)".
+            IF NOT lBussFormModle THEN do:    
+              IF lookup(v-stmt-char,"StdStatement10,StdStatement2,ARStmt3C") > 0 THEN 
+                  PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><MODAL=NO>" FORM "x(120)". 
+              ELSE PUT "<PREVIEW><MODAL=NO>" FORM "x(30)".
+            END.
+            ELSE do:
+                IF lookup(v-stmt-char,"StdStatement10,StdStatement2,ARStmt3C") > 0 THEN
+                    PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORM "x(120)".
+                ELSE PUT "<PREVIEW>" FORM "x(30)".
+            END.
         END.
         WHEN 4 THEN do:
               ls-fax-file = "c:\tmp\fx" + STRING(TIME) + ".tif".
               PUT UNFORMATTED "<PRINT=NO><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
         END.        
         WHEN 5 THEN DO:
-            IF NOT tb_BatchMail:CHECKED IN FRAME {&FRAME-NAME} THEN
-               PUT "<PREVIEW><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".              
-            ELSE
-               PUT "<PREVIEW=PDF><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
+            IF NOT tb_BatchMail:CHECKED IN FRAME {&FRAME-NAME} THEN do:
+                IF lookup(v-stmt-char,"StdStatement10,StdStatement2,ARStmt3C") > 0 THEN
+                    PUT "<PREVIEW><PDF-LEFT=" + trim(STRING(3 + d-print-fmt-dec)) + "mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".  
+                ELSE PUT "<PREVIEW><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".  
+            END.
+            ELSE do:
+                IF lookup(v-stmt-char,"StdStatement10,StdStatement2,ARStmt3C") > 0 THEN
+                    PUT "<PREVIEW=PDF><PDF-LEFT=" + trim(STRING(3 + d-print-fmt-dec)) + "mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
+                ELSE PUT "<PREVIEW=PDF><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
+            END.
         END.
    END CASE.
    PUT "</PROGRESS>".
@@ -3771,6 +3827,31 @@ FIRST cust no-lock
             .
        END.
 
+       IF v-stmt-char = "ARStmt3C" THEN DO: 
+           PUT "<C2><R2><#1><R+8><C+47><IMAGE#1=" ls-full-img1 SKIP
+           "<P11><R4><C50><#3><FROM><R7><C80><RECT><||3>" SKIP
+           "<R5><C50><FROM><R5><C80><LINE><||3>" SKIP
+           "<R6><C50><FROM><R6><C80><LINE><||3>" SKIP
+           "<R4><C65><FROM><R5><C65><LINE><||3>" SKIP
+           "<R5><C65><FROM><R6><C65><LINE><||3>" SKIP
+           "<R6><C65><FROM><R7><C65><LINE><||3>" SKIP.
+           PUT "<P22><=#3><C50><R-2> <B><P22>Statement</B> <P11>" " <B> PAGE: </B>" string(PAGE-NUM,">>9") SKIP
+               "<=#3><R+0>  Customer ID      " cust.cust-no
+               "<=#3><R+1>  Terms            " lv-terms
+               "<=#3><R+2>  Statement Date   " v-stmt-date . 
+          
+          PUT "<=1><R+10><C1>" ws_addr[1] skip
+           "<=1><R+11><C1>" ws_addr[2] v-remitto[1]  skip 
+           "<=1><R+12><C1>" ws_addr[3] v-remitto[2]  skip
+           "<=1><R+13><C1>" ws_addr[4] v-remitto[3]  skip
+           "<=1><R+14><C1>" ws_addr[5] v-remitto[4]  skip
+           /*"<=1><R+15>Attn: " lc-attn FORMAT "x(30)" SKIP*/
+           /*"<=1><R+15>                                                Original<C60>Invoice" SKIP*/
+           "<=1><R+15><P10><C2>Date <c8>Invoice <C15>Description <C26>Cust PO# <c42>0-30 <C51.5>31-60 <C62>61-90  <C73.5> 90+  <C78>  Age" SKIP
+           "<=1><R+16><FROM><C+80><LINE><P9>"
+            .
+       END.
+
        v-first = NO.
     end.
 
@@ -3831,7 +3912,52 @@ FIRST cust no-lock
                down 1 with frame lanco-no-stmt-line.
            end.
 
-        END.
+        END.  /* StdStatement2 */
+
+        ELSE IF v-stmt-char = "ARStmt3C" THEN DO:
+
+            dAged = 0 .
+            v-age = v-stmt-date - tt-inv.inv-date.
+            if v-age = ? or v-age lt 0 then v-age = 0.
+            v-per = trunc(v-age / v-days-in-per, 0) + 1.
+            if v-per gt 4 then
+                v-per = 4.
+            dAged[v-per] = /*v-aged[v-per] +*/ tt-inv.amount.
+
+                       
+            IF tt-inv.check-no NE "" THEN
+               cCheckPo = tt-inv.check-no.
+           ELSE cCheckPo = tt-inv.po-no .
+            if v-print-hdr then do:  
+               display
+                 tt-inv.trans-date
+                 tt-inv.inv-no  when tt-inv.inv-no gt 0
+                 tt-inv.DESCRIPTION FORMAT "x(14)"
+                 tt-inv.po-no FORMAT "x(12)"
+                 dAged[1]
+                 dAged[2]
+                 dAged[3]
+                 dAged[4]
+                 v-age
+                 with frame lanco-ar-stmt-line .
+               down 1 with frame lanco-ar-stmt-line.
+           end.
+           else do:
+               display
+                 tt-inv.trans-date
+                 tt-inv.inv-no  when tt-inv.inv-no gt 0
+                 tt-inv.DESCRIPTION FORMAT "x(14)"
+                 tt-inv.po-no FORMAT "x(12)"
+                 dAged[1]
+                 dAged[2]
+                 dAged[3]
+                 dAged[4]
+                 v-age
+                 with frame lanco-ar-no-stmt-line.
+               down 1 with frame lanco-ar-no-stmt-line.
+           end.
+
+        END.  /* ARStmt3C */
 
        ELSE DO:
            if v-print-hdr then do:
@@ -3882,6 +4008,19 @@ FIRST cust no-lock
                  "<C73>" v-aged[4] FORMAT "->>>>>>9.99" .
 
          PUT SKIP(2) "<C61>Total Balance:" (v-aged[1] + v-aged[2] + v-aged[3] + v-aged[4] ) FORMAT "->>>>>>>9.99" . 
+            
+         PUT "<C14><R59.5><#3><R+4><C+7> <b> THANK YOU - YOUR BUSINESS IS APPRECIATED </b>"  SKIP.
+              
+         END.
+         ELSE  IF v-stmt-char = "ARStmt3C" THEN do:
+               PUT "<R-1><C2><FROM><C+80><LINE>" SKIP
+                   "<R-1><C26>"
+                 "<C36.3>" v-aged[1] FORMAT "$->>>>>>9.99"
+                 "<C46.8>" v-aged[2] FORMAT "$->>>>>>9.99"
+                 "<C57.2>" v-aged[3] FORMAT "$->>>>>>9.99"
+                 "<C67.8>" v-aged[4] FORMAT "$->>>>>>9.99" .
+
+         PUT SKIP(2) "<C61>Total Balance:" (v-aged[1] + v-aged[2] + v-aged[3] + v-aged[4] ) FORMAT "$->>>>>>>9.99" . 
             
          PUT "<C14><R59.5><#3><R+4><C+7> <b> THANK YOU - YOUR BUSINESS IS APPRECIATED </b>"  SKIP.
               
@@ -3965,7 +4104,7 @@ IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,RFC,Premier,ASIExcel,Loy
    RETURN.
 END.
 
-IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,StdStatement2,SouleMed") > 0 THEN DO:
+IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,StdStatement2,ARStmt3C,SouleMed") > 0 THEN DO:
     RUN run-protagonstmt (ip-cust-no, ip-sys-ctrl-shipto, NO).
     RETURN.
 END.
@@ -4513,7 +4652,7 @@ IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,Loylang,RFC,Premier,Badg
    RUN run-asistmt-mail (icCustNo).
    RETURN.
 END.
-IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,StdStatement2,SouleMed") > 0 THEN DO:
+IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,StdStatement2,ARStmt3C,SouleMed") > 0 THEN DO:
     RUN run-protagonstmt (icCustNo, NO, YES).
     RETURN.
 END.
@@ -5091,7 +5230,7 @@ PROCEDURE setAttentionDefault :
 ------------------------------------------------------------------------------*/
 DEFINE BUFFER lbf-cust FOR cust.
 
-IF (v-stmt-char = "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "StdStatement2" OR v-stmt-char = "SouleMed")
+IF (v-stmt-char = "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "StdStatement2" OR v-stmt-char = "ARStmt3C" OR v-stmt-char = "SouleMed")
     AND begin_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ end_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} 
     AND begin_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
     FIND FIRST lbf-cust WHERE lbf-cust.company = cocode

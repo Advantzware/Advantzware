@@ -21,6 +21,7 @@ def workfile w-bin
    field w-cas as   dec
    field w-pal as   dec
    field w-par like oe-ordl.part-dscr1
+   FIELD w-partial AS INTEGER
    field w-x   as   log
    FIELD w-i-no AS cha
    FIELD w-po-no AS cha 
@@ -60,10 +61,11 @@ format w-oe-rell.ord-no                 to 6
        w-x                              at 60   format "X/"
        w-pal                            to 65   format "->>>>"
        w-cas                            to 70   format "->>>>"
-       w-c-c                            to 80   format "->>>>>>>>"
-       w-qty[1]                         to 90   format "->>>>>>>>"
+       w-c-c                            to 78   format "->>>>>>>"
+       w-partial                        TO 85   FORMAT "->>>>>>"
+       w-qty[1]                         to 94   format "->>>>>>>>"
     
-    with down frame rel-mid no-box no-label STREAM-IO width 95.
+    with down frame rel-mid no-box no-label STREAM-IO width 96.
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
@@ -98,6 +100,7 @@ ASSIGN tmpstore = fill("-",130).
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+DEFINE BUFFER bf-oe-rell FOR oe-rell .
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -631,6 +634,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
              w-qty[1] = fg-bin.qty
              w-qty[2] = fg-bin.qty 
              w-c-c    = fg-bin.case-count
+             w-partial = fg-bin.partial-count 
              w-x      = CAN-FIND(FIRST oe-rell
                                  WHERE oe-rell.company  EQ w-oe-rell.company
                                    AND oe-rell.r-no     EQ w-oe-rell.r-no
@@ -646,6 +650,27 @@ if v-zone-p then v-zone-hdr = "Route No.:".
              w-i-no = fg-bin.i-no
              w-po-no = w-oe-rell.po-no
              i        = i + 1.
+
+            IF s-print-what-item = "R" AND w-x THEN DO:
+
+                FIND FIRST bf-oe-rell NO-LOCK
+                    WHERE bf-oe-rell.company  EQ w-oe-rell.company
+                    AND bf-oe-rell.r-no     EQ w-oe-rell.r-no
+                    AND bf-oe-rell.ord-no   EQ w-oe-rell.ord-no
+                    AND bf-oe-rell.i-no     EQ w-oe-rell.i-no
+                    AND bf-oe-rell.line     EQ w-oe-rell.line
+                    AND bf-oe-rell.rel-no   EQ w-oe-rell.rel-no
+                    AND bf-oe-rell.b-ord-no EQ w-oe-rell.b-ord-no
+                    AND bf-oe-rell.po-no    EQ w-oe-rell.po-no
+                    AND bf-oe-rell.loc      EQ fg-bin.loc
+                    AND bf-oe-rell.loc-bin  EQ fg-bin.loc-bin
+                    AND bf-oe-rell.tag      EQ fg-bin.tag NO-ERROR .
+
+                IF AVAIL bf-oe-rell AND bf-oe-rell.partial NE w-bin.w-partial OR bf-oe-rell.qty-case NE w-bin.w-c-c THEN
+                    ASSIGN w-bin.w-partial = bf-oe-rell.partial 
+                           w-bin.w-c-c = bf-oe-rell.qty-case
+                           w-bin.w-qty[1] = bf-oe-rell.qty .     
+            END.
              
             assign
              w-pal = (if fg-bin.case-count   eq 0 then 1 else fg-bin.case-count)   *
@@ -799,6 +824,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                     w-pal
                     w-cas
                     w-c-c
+                    w-partial
                     w-qty[1]
                    
                 with frame rel-mid. 
@@ -815,7 +841,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               END.
 
               display {2}
-                      "  Rel Qty"       @ w-c-c
+                      "Rel Qty"       @ w-partial
                       v-rel-qty         @ w-qty[1]
 
                   with frame rel-mid. 

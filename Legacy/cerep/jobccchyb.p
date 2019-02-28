@@ -269,7 +269,7 @@ cDraftImageFull = IF lDraft
     ELSE "".
 
 FORMAT HEADER 
-    cDraftImageFull FORMAT "x(100)" SKIP
+    cDraftImageFull FORMAT "x(250)" SKIP
     "<R1><C68><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cJobNo FORMAT "x(9)" /*v-job-no space(0) "-" space(0) v-job-no2 format "99"*/ ">"
     "<P12><C2><R2>JOB NUMBER:<B>" v-job-no SPACE(0) "-" SPACE(0) v-job-no2 FORMAT "99" "</B>"      SPACE(1) /* v-reprun   */
     "CSR:" v-pricnt-id
@@ -277,7 +277,7 @@ FORMAT HEADER
     "START DATE:" AT 128 v-start-date SKIP
     v-fill SKIP
     v-fill
-    WITH NO-BOX FRAME head NO-LABELS STREAM-IO WIDTH 155.
+    WITH NO-BOX FRAME head NO-LABELS STREAM-IO WIDTH 250.
     
 {sys/inc/notes.i}
 
@@ -416,6 +416,14 @@ FOR EACH job-hdr NO-LOCK
                 END.
             END.
         END.   
+
+        IF AVAILABLE job AND job.stat EQ "H" THEN 
+        DO:
+            ASSIGN 
+                cDraftImage         = "images\on-hold.jpg"
+                FILE-INFO:FILE-NAME = cDraftImage.
+            cDraftImageFull = "<C25><#1><R+80><C+50><IMAGE#1=" + FILE-INFO:FULL-PATHNAME + ">"  .
+        END.
 
         ASSIGN
             v-start-date = job-hdr.start-date.
@@ -718,21 +726,6 @@ FOR EACH job-hdr NO-LOCK
                 END.
 
                 /** BUILD INK WORK FILE **/
-                FIND FIRST reftable NO-LOCK WHERE 
-                    reftable.reftable EQ "ce/v-est3.w Unit#" AND
-                    reftable.company EQ eb.company AND
-                    reftable.loc     EQ eb.est-no AND
-                    reftable.code    EQ STRING(eb.form-no,"9999999999") AND
-                    reftable.code2   EQ STRING(eb.blank-no,"9999999999")
-                    NO-ERROR.
-
-                FIND FIRST b-rt NO-LOCK WHERE
-                    b-rt.reftable EQ "ce/v-est3.w Unit#1" AND
-                    b-rt.company  EQ b-eb.company AND
-                    b-rt.loc      EQ eb.est-no AND
-                    b-rt.code     EQ STRING(eb.form-no,"9999999999") AND
-                    b-rt.code2    EQ STRING(eb.blank-no,"9999999999")
-                    NO-ERROR.
 
                 FOR EACH job-mat NO-LOCK
                     WHERE job-mat.company EQ cocode
@@ -748,8 +741,8 @@ FOR EACH job-hdr NO-LOCK
                     DO:
 
                         cSide = "".
-                        IF AVAIL(reftable) THEN
-                            cSide = FILL(" ",5) + SUBSTRING(reftable.dscr,i,1).
+                        cSide = FILL(" ",5) + SUBSTRING(eb.side[i],1).
+                        
                         FIND FIRST wrk-ink WHERE wrk-ink.i-code EQ eb.i-code2[i]
                             AND wrk-ink.form-no  EQ eb.form-no
                             AND wrk-ink.blank-no EQ eb.blank-no
@@ -765,35 +758,11 @@ FOR EACH job-hdr NO-LOCK
                                 wrk-ink.blank-no = eb.blank-no
                                 wrk-ink.i-dscr   = eb.i-dscr2[i]
                                 wrk-ink.i-pass   = eb.i-ps2[i]
-                                wrk-ink.i-unit   = IF i LE 12 AND AVAILABLE reftable THEN reftable.val[i]
-                                        ELSE IF i > 12 AND AVAILABLE b-rt THEN b-rt.val[i - 12]
-                                        ELSE 1.
+                                wrk-ink.i-unit   = eb.unitNo[i].
                             
-                            IF i LE 12 THEN 
-                            DO:
-                                FIND FIRST ref-side NO-LOCK WHERE
-                                    ref-side.reftable EQ "ce/v-est3.w Unit#"  AND
-                                    ref-side.company  EQ eb.company AND
-                                    ref-side.loc      EQ eb.est-no AND
-                                    ref-side.code     EQ STRING(eb.form-no,"9999999999") AND
-                                    ref-side.code2    EQ STRING(eb.blank-no,"9999999999")
-                                    NO-ERROR.
-                                IF AVAILABLE ref-side THEN
-                                    wrk-ink.i-side = FILL(" ",5) + SUBSTRING(ref-side.dscr,i,1).
-                            END.
-                            ELSE 
-                            DO:
-                                FIND FIRST ref-side WHERE
-                                    ref-side.reftable EQ "ce/v-est3.w Unit#1"  AND
-                                    ref-side.company  EQ eb.company AND
-                                    ref-side.loc      EQ eb.est-no AND
-                                    ref-side.code     EQ STRING(eb.form-no,"9999999999") AND
-                                    ref-side.code2    EQ STRING(eb.blank-no,"9999999999")
-                                    NO-ERROR.
-                                IF AVAILABLE ref-side THEN
-                                    wrk-ink.i-side = FILL(" ",5) + SUBSTRING(ref-side.dscr,i - 12,1).
-                            END.          
-                        
+                            DO:                                
+                               wrk-ink.i-side = FILL(" ",5) + SUBSTRING(eb.side[i],1).   
+                            END.                        
                             IF wrk-ink.i-unit EQ 0 THEN
                                 wrk-ink.i-unit = 1.
                         END.

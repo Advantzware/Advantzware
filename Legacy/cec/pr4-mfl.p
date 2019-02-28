@@ -348,25 +348,10 @@ DO WITH NO-BOX NO-LABELS FRAME adh-frame STREAM-IO:
                     tt-ei.run-cost[j] = e-item.run-cost[j].
             END.
          
-            FIND FIRST b-qty WHERE
-                b-qty.reftable = "blank-vend-qty" AND
-                b-qty.company = e-item.company AND
-                b-qty.CODE    = e-item.i-no
-                NO-LOCK NO-ERROR.
-         
-            IF AVAILABLE b-qty THEN
-            DO:
-                FIND FIRST b-cost WHERE
-                    b-cost.reftable = "blank-vend-cost" AND
-                    b-cost.company = e-item.company AND
-                    b-cost.CODE    = e-item.i-no
-                    NO-LOCK NO-ERROR.
-         
-                DO j = 1 TO 10:
-                    ASSIGN
-                        tt-ei.run-qty[j + 10]  = b-qty.val[j]
-                        tt-ei.run-cost[j + 10] = b-cost.val[j].
-                END.
+            DO j = 1 TO 10:
+               ASSIGN
+                  tt-ei.run-qty[j + 10] = e-item.runQty[j]
+                  tt-ei.run-cost[j + 10] = e-item.runCost[j].
             END.
       
             DO j = 1 TO 20:
@@ -442,47 +427,33 @@ DO WITH NO-BOX NO-LABELS FRAME lam-frame STREAM-IO:
                     tt-ei.run-cost[j] = e-item.run-cost[j].
             END.
          
-            FIND FIRST b-qty WHERE
-                b-qty.reftable = "blank-vend-qty" AND
-                b-qty.company = e-item.company AND
-                b-qty.CODE    = e-item.i-no
-                NO-LOCK NO-ERROR.
-         
-            IF AVAILABLE b-qty THEN
-            DO:
-                FIND FIRST b-cost WHERE
-                    b-cost.reftable = "blank-vend-cost" AND
-                    b-cost.company = e-item.company AND
-                    b-cost.CODE    = e-item.i-no
-                    NO-LOCK NO-ERROR.
-         
-                DO j = 1 TO 10:
-                    ASSIGN
-                        tt-ei.run-qty[j + 10]  = b-qty.val[j]
-                        tt-ei.run-cost[j + 10] = b-cost.val[j].
-                END.
+                  
+            DO j = 1 TO 10:
+               ASSIGN
+                  tt-ei.run-qty[j + 10] = e-item.runQty[j]
+                  tt-ei.run-cost[j + 10] = e-item.runCost[j].
             END.
 
-            DO j = 1 TO 20:
-                IF tt-ei.run-qty[j] LT gqty THEN NEXT.
-                gcost = gqty * tt-ei.run-cost[j].
-                IF e-item.std-uom NE "" THEN vuom = e-item.std-uom.
-                LEAVE.
-            END.
-        END.
-        ELSE gcost = gqty * IF ce-ctrl.r-cost THEN item.avg-cost
-            ELSE item.last-cost.
+         DO j = 1 TO 20:
+            IF tt-ei.run-qty[j] LT gqty THEN NEXT.
+               gcost = gqty * tt-ei.run-cost[j].
+               IF e-item.std-uom NE "" THEN vuom = e-item.std-uom.
+               LEAVE.
+         END.
+      END.
+      ELSE gcost = gqty * IF ce-ctrl.r-cost THEN item.avg-cost
+                                            ELSE item.last-cost.
 
-        ASSIGN
-            dm-tot[4] = dm-tot[4] + (gcost / (save-qty / 1000) / v-sqft-fac)
-            dm-tot[5] = dm-tot[5] + gcost.
+      ASSIGN
+         dm-tot[4] = dm-tot[4] + (gcost / (save-qty / 1000) / v-sqft-fac)
+         dm-tot[5] = dm-tot[5] + gcost.
 
-        /* rm handling chg per cwt */
-        IF xeb.pur-man THEN
-            IF rm-rate-f NE 0 THEN ctrl2[3] = ctrl2[3] + ((gqty / 100) * rm-rate-f).
-            ELSE.
-        ELSE
-            IF ctrl[3] NE 0 THEN ctrl2[3] = ctrl2[3] + ((gqty / 100) * ctrl[3]).
+      /* rm handling chg per cwt */
+      IF xeb.pur-man THEN
+        IF rm-rate-f NE 0 THEN ctrl2[3] = ctrl2[3] + ((gqty / 100) * rm-rate-f).
+        ELSE.
+      ELSE
+        IF ctrl[3] NE 0 THEN ctrl2[3] = ctrl2[3] + ((gqty / 100) * ctrl[3]).
      
         /* rm handling pct. */
         IF xeb.pur-man THEN

@@ -158,7 +158,7 @@ FOR EACH ttReport :
              WHERE ttInvoiceHighlights.company EQ ar-cashl.company
                AND ttInvoiceHighlights.dateIdx EQ ar-cash.check-date.
  
-        RUN salrep/getoeret.p ( ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl ).
+        RUN salrep/getoeret.p ( ROWID(ar-cashl), BUFFER oe-retl ).
  
         IF AVAILABLE oe-retl THEN DO:
             FIND FIRST ar-invl NO-LOCK 

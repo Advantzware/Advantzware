@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invnstok.p */
 /* PRINT INVOICE   Xprint form for Hughes             */
 /* -------------------------------------------------------------------------- */
-
+DEFINE INPUT PARAMETER opcFormat AS CHARACTER NO-UNDO .
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -101,6 +101,17 @@ DEF VAR v-comp-add2 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add3 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-show-parts AS LOG NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+
+IF opcFormat EQ "nStockLogo" THEN do:
+    RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
+END.
 
     find first company where company.company = cocode no-lock no-error.
     find first oe-ctrl where oe-ctrl.company = cocode no-lock no-error.

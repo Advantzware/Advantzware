@@ -82,8 +82,9 @@ IF (AVAIL tt-bolx AND tt-bolx.print-logo) OR NOT AVAIL tt-bolx THEN
   "<R25><C26><FROM><R27><C26><LINE>" SKIP
   "<R25><C56><FROM><R27><C56><LINE>" SKIP  
   "<R25><C61><FROM><R27><C61><LINE>" SKIP
-  "<R25><C67><FROM><R27><C67><LINE>" SKIP            
-  "<R25><C74><FROM><R27><C74><LINE>" SKIP 
-  "<FArial><=5><R+1> Order Qty / FG#             PO# / Job#                             Description / Lot#                               Units    Count         Total          P/C" SKIP(1)
+  "<R25><C67><FROM><R27><C67><LINE>" SKIP  
+  "<R25><C72><FROM><R27><C72><LINE>" SKIP          
+  "<R25><C78><FROM><R27><C78><LINE>" SKIP 
+  "<FArial><=5><R+1> Order Qty / FG#             PO# / Job#                             Description / Lot#                               Units    Count      Partial    Total      P/C" SKIP(1)
   "<FCourier New>".
   v-printline = v-printline + 17.

@@ -391,6 +391,8 @@ PROCEDURE adm-create-objects :
        /* Links to SmartObject h_attach. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'attach':U , h_attach ).
 
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'panattachmain':U , h_options ).
+
        /* Links to SmartObject h_options. */
        RUN add-link IN adm-broker-hdl ( h_cust , 'attachcust':U , h_options ).
        RUN add-link IN adm-broker-hdl ( h_options , 'note-link':U , THIS-PROCEDURE ).
@@ -578,6 +580,8 @@ PROCEDURE adm-create-objects :
        /* Links to SmartObject h_export. */
        RUN add-link IN adm-broker-hdl ( h_shipto , 'export-xl':U , h_export ).
 
+       RUN add-link IN adm-broker-hdl ( h_shipto , 'attachcustship':U , h_options ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_shipto-2 ,
              h_folder , 'AFTER':U ).
@@ -649,6 +653,8 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_soldto-2. */
        RUN add-link IN adm-broker-hdl ( h_p-cstsld , 'TableIO':U , h_soldto-2 ).
        RUN add-link IN adm-broker-hdl ( h_soldto , 'Record':U , h_soldto-2 ).
+
+       RUN add-link IN adm-broker-hdl ( h_soldto , 'attachcustsold':U , h_options ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_cust-4 ,
@@ -921,6 +927,7 @@ PROCEDURE local-change-page :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEF VAR iCurrentPage AS INT.
+DEFINE VARIABLE v-spec AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -932,10 +939,29 @@ DEF VAR iCurrentPage AS INT.
   RUN GET-ATTRIBUTE('CURRENT-PAGE').
   iCurrentPage = INT(RETURN-VALUE).
   IF iCurrentPage = 3 
-    THEN assign s-rec_key     = string (dynamic-function ('GetCurrShipTo' in h_shipto)).
-    ELSE IF iCurrentPage = 4 THEN ASSIGN s-rec_key     = string (dynamic-function ('GetCurrSoldTo' in h_soldto)).
-        ELSE assign rec_key_value = lv-cust-rec-key
+    THEN do:
+       assign s-rec_key     = string (dynamic-function ('GetCurrShipTo' in h_shipto)).
+       v-spec = CAN-FIND(FIRST notes WHERE
+                         notes.rec_key = s-rec_key AND
+                         notes.note_type <> "o").
+       RUN pPenImageChange(v-spec) .
+  END.
+    ELSE IF iCurrentPage = 4 THEN do:
+         ASSIGN s-rec_key     = string (dynamic-function ('GetCurrSoldTo' in h_soldto)).
+         v-spec = CAN-FIND(FIRST notes WHERE
+                           notes.rec_key = s-rec_key AND
+                           notes.note_type <> "o").
+         RUN pPenImageChange(v-spec) .
+    END.
+    ELSE do:
+             assign rec_key_value = lv-cust-rec-key
                 s-rec_key     = lv-cust-rec-key.
+             v-spec = CAN-FIND(FIRST notes WHERE
+                               notes.rec_key = s-rec_key AND
+                               notes.note_type <> "o").
+             RUN pPenImageChange(v-spec) .
+             
+    END.
   IF iCurrentPage = 2 THEN DO:
       RUN dispatch IN h_p-navico ( INPUT 'adm-initialize':U ) .
   END.
@@ -1115,6 +1141,23 @@ PROCEDURE state-changed :
 -------------------------------------------------------------*/
   DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
   DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPenImageChange W-Win 
+PROCEDURE pPenImageChange :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER iplPanImage AS LOGICAL NO-UNDO.
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'panattachmain-target':U, OUTPUT char-hdl).
+             IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+                 RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT iplPanImage).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

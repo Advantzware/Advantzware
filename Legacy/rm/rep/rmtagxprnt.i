@@ -3,7 +3,9 @@ DEFINE VARIABLE cEmail AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPhone AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTagno AS CHARACTER NO-UNDO.
-ASSIGN cTagno = tt-po-print.tag-no .
+DEFINE VARIABLE cVenderTagno AS CHARACTER NO-UNDO.
+ASSIGN cTagno = tt-po-print.tag-no 
+       cVenderTagno = tt-po-print.vend-tag  .
 
 PUT "<FArial>".
 PUT "<C+25><#1>".
@@ -85,11 +87,13 @@ PUT "<R41><C3><#12><FROM><R41><C83><RECT><||3>" SKIP
 PUT "<FArial><R42><C10><P16><B>" tt-po-print.vend-no FORMAT "x(12)"  "</B>" .
 
 PUT "<R48><C3><#13><FROM><R48><C83><RECT><||3>" SKIP
-    "<R52><C3><FROM><R52><C83><LINE><||3>" SKIP  
-    "<R48><C3><FROM><R52><C3><LINE><||3>" SKIP
-    "<R48><C83><FROM><R52><C83><LINE><||3>" SKIP.
+    "<R53.5><C3><FROM><R53.5><C83><LINE><||3>" SKIP  
+    "<R48><C3><FROM><R53.5><C3><LINE><||3>" SKIP
+    "<R48><C83><FROM><R53.5><C83><LINE><||3>" SKIP.
 
-PUT "<FArial><R49><C10><P16><B>" tt-po-print.vend-name FORMAT "x(30)"  "</B>".
+/*PUT "<FArial><R49><C10><P16><B>" tt-po-print.vend-name FORMAT "x(30)"  "</B>".*/
+PUT "<FArial><R47><C10><FROM><AT=+.8,+6><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" cVenderTagno FORMAT 'x(20)' ">"
+    "<AT=,1.8>Vendor Tag#: " cVenderTagno FORMAT "x(20)"  .
 
 PUT "<R55><C3><#14><FROM><R55><C83><RECT><||3>" SKIP
     "<R66><C3><FROM><R66><C83><LINE><||3>" SKIP  

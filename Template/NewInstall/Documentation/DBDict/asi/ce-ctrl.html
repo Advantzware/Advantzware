@@ -1,0 +1,1893 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta name="generator" content="HtmlDict.w version 11">
+  <meta name="author"    content="Patrick Tingen [patrick at tingen dot nl]">
+  <link rel="stylesheet" title="Default" type="text/css" href="../default.css">
+  <link rel="alternate stylesheet" title="blue" type="text/css" href="../blue.css">
+  <link rel="alternate stylesheet" title="default" type="text/css" href="../default.css">
+  <link rel="alternate stylesheet" title="green" type="text/css" href="../green.css">
+  <link rel="alternate stylesheet" title="oldstyle" type="text/css" href="../oldstyle.css">
+  <link rel="alternate stylesheet" title="red" type="text/css" href="../red.css">
+  <link rel="shortcut icon" href="../htmldict.ico">
+  <link rel="stylesheet" media="print" type="text/css" href="../print.css">
+  <script src="../swapstyle.js"    type="text/javascript"></script>
+  <script src="../stylechooser.js" type="text/javascript"></script>
+  <script src="../dbchooser.js"    type="text/javascript"></script>
+  <script src="../htmldict.js"     type="text/javascript"></script>
+  <title> Schema asi.ce-ctrl</title>
+</head>
+
+<body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
+<div><a name="top"></a></div>
+ 
+
+<table style="width:100%;">
+  <tr>
+    <td class="navbar" style="width:40%;"><a href="../00-index.html"target="_top">DB</a>
+ | <a href="00-area.html"target="main">Areas</a>
+ | <a href="00-cross.html"target="main">X-idx</a>
+ | <a href="00-main.html"target="main">Tables</a>
+ | <a href="00-sequences.html"target="main">Sequences</a>
+</td>
+    <td class="navbar" style="width:20%;">  &lt;- <a href="carrier.html">carrier</a></td>
+    <td class="navbar" style="width:20%;">  <a href="clientid.html">clientid</a> -&gt;</td>
+    <td class="navbar" style="width:20%; text-align:right;"><a href="../htmldict.html"target="_top">HtmlDict 11</a></td>
+  </tr>
+</table>
+<h1>asi.ce-ctrl</h1>
+<p>Cost estimating control file</p>
+<hr>
+<div class="clearboth">
+  <div class="tbdetcol">
+    <h2>Table details</h2>
+    <table style="border-style:none;" >
+      <tr class="shadedrow"><th>Area</th>
+                            <td><a href="00-area.html">Data</a></td></tr>
+      <tr class="shadedrow"><th>Dumpname </th>
+                            <td> ce-ctrl      </td></tr>
+      <tr class="shadedrow"><th>Label    </th>     
+                            <td> ?      </td></tr>
+      <tr class="shadedrow"><th>Val.exp  </th>     
+                            <td> ?      </td></tr>
+      <tr class="shadedrow"><th>Val.msg  </th>     
+                            <td>       </td></tr>
+    </table>
+  </div>
+  <div class="tbcol" >
+    <h2>Triggers</h2>
+    <table style="border-style:none;">
+      <tr>
+        <th>Event</th>
+        <th>Procedure</th>
+        <th>Overr</th>
+        <th>CRC</th>
+      </tr>
+      <tr class="shadedrow">
+        <td>CREATE</td>
+        <td>create.trg/ce-ctrl.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>DELETE</td>
+        <td>delete.trg/ce-ctrl.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>WRITE</td>
+        <td>write.trg/ce-ctrl.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+    </table>
+  </div>
+<div class="clearboth"></div>
+<hr style="margin-top:20px;">
+<h2>Fields</h2>
+
+<div id=SortName >
+<table style="width:100%; border-style:none;">
+  <tr>
+    <th><script type="text/javascript">
+    <!--
+    writeToggleBegin();
+    // -->
+    </script>Order<script type="text/javascript">
+    <!--
+    writeToggleEnd();
+    // -->
+    </script></th>
+    <th>Field Name</th>
+    <th>x</th>
+    <th>Label</th>
+    <th>Datatype</th>
+    <th>Format</th>
+    <th>Initial</th>
+    <th>Mand</th>
+    <th>Description</th>
+  </tr>
+  <tr class="oddrow">
+    <td>180</td>
+    <td>avg-cscost</td>
+    <td><a href="00-cross-a.html#avg-cscost"><small>X</small></a></td>
+    <td>Avg. Case Cost</td>
+    <td>decimal-2</td>
+    <td>&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>170</td>
+    <td>avg-cswt</td>
+    <td><a href="00-cross-a.html#avg-cswt"><small>X</small></a></td>
+    <td>Avg. Case Weight</td>
+    <td>decimal-2</td>
+    <td>&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>200</td>
+    <td>avg-palcost</td>
+    <td><a href="00-cross-a.html#avg-palcost"><small>X</small></a></td>
+    <td>Avg. Pallet Cost</td>
+    <td>decimal-2</td>
+    <td>&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>190</td>
+    <td>avg-palwt</td>
+    <td><a href="00-cross-a.html#avg-palwt"><small>X</small></a></td>
+    <td>Avg. Pallet Weight</td>
+    <td>decimal-3</td>
+    <td>&gt;&gt;&gt;9.9&lt;</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>590</td>
+    <td>brd-cost</td>
+    <td><a href="00-cross-b.html#brd-cost"><small>X</small></a></td>
+    <td>Board Cost</td>
+    <td>integer [20]</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>600</td>
+    <td>brd-pct</td>
+    <td><a href="00-cross-b.html#brd-pct"><small>X</small></a></td>
+    <td>Board Markup %</td>
+    <td>decimal-2 [20]</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>770</td>
+    <td>broker-pct</td>
+    <td><a href="00-cross-b.html#broker-pct"><small>X</small></a></td>
+    <td>Broker Pct</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99&lt;&lt;</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>380</td>
+    <td>comm-add</td>
+    <td><a href="00-cross-c.html#comm-add"><small>X</small></a></td>
+    <td>Add Commissions on Estimate</td>
+    <td>logical</td>
+    <td>Y/N</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="oddrow">
+    <td>290</td>
+    <td>comm-calc</td>
+    <td><a href="00-cross-c.html#comm-calc"><small>X</small></a></td>
+    <td>Calculate Commissions on ?</td>
+    <td>character</td>
+    <td>X</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>280</td>
+    <td>comm-mrkup</td>
+    <td><a href="00-cross-c.html#comm-mrkup"><small>X</small></a></td>
+    <td>Commissions Mark Up</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>10</td>
+    <td><a href="ap-ctrl.html">company</a></td>
+    <td><a href="00-cross-c.html#company"><small>X</small></a></td>
+    <td>Company</td>
+    <td>character</td>
+    <td>x(3)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>420</td>
+    <td>def-cas-w</td>
+    <td><a href="00-cross-d.html#def-cas-w"><small>X</small></a></td>
+    <td>Default Case Weight</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>2</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>140</td>
+    <td>def-case</td>
+    <td><a href="00-cross-d.html#def-case"><small>X</small></a></td>
+    <td>Def. Case #</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>440</td>
+    <td>def-coat</td>
+    <td><a href="00-cross-d.html#def-coat"><small>X</small></a></td>
+    <td>Default Coating</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>130</td>
+    <td>def-ink</td>
+    <td><a href="00-cross-d.html#def-ink"><small>X</small></a></td>
+    <td>Def. Ink#</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>160</td>
+    <td>def-inkcov</td>
+    <td><a href="00-cross-d.html#def-inkcov"><small>X</small></a></td>
+    <td>Def.Ink Coverage %</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>150</td>
+    <td>def-pal</td>
+    <td><a href="00-cross-d.html#def-pal"><small>X</small></a></td>
+    <td>Def. Pallet</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>430</td>
+    <td>def-pal-w</td>
+    <td><a href="00-cross-d.html#def-pal-w"><small>X</small></a></td>
+    <td>Default Pallet Weight</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>50</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>30</td>
+    <td>e-num</td>
+    <td><a href="00-cross-e.html#e-num"><small>X</small></a></td>
+    <td>Est.#</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>1</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>40</td>
+    <td>e-range</td>
+    <td><a href="00-cross-e.html#e-range"><small>X</small></a></td>
+    <td>Est# Range</td>
+    <td>integer [2]</td>
+    <td>&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>210</td>
+    <td>fg-rate</td>
+    <td><a href="00-cross-f.html#fg-rate"><small>X</small></a></td>
+    <td>FG Handling Rate/CWT</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>560</td>
+    <td>fg-rate-farm</td>
+    <td><a href="00-cross-f.html#fg-rate-farm"><small>X</small></a></td>
+    <td>Farm Out FG Handling Rate/CWT</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>760</td>
+    <td>fold-pct</td>
+    <td><a href="00-cross-f.html#fold-pct"><small>X</small></a></td>
+    <td>Fold Pct</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99&lt;&lt;</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>250</td>
+    <td>hand-pct</td>
+    <td><a href="00-cross-h.html#hand-pct"><small>X</small></a></td>
+    <td>Handling Chg. as %</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>580</td>
+    <td>hand-pct-farm</td>
+    <td><a href="00-cross-h.html#hand-pct-farm"><small>X</small></a></td>
+    <td>Farm Out Handling Chg. as %</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>350</td>
+    <td>hd-gross</td>
+    <td><a href="00-cross-h.html#hd-gross"><small>X</small></a></td>
+    <td>What If Gross % Heading</td>
+    <td>character</td>
+    <td>x(6)</td>
+    <td>Gross%</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>340</td>
+    <td>hd-net</td>
+    <td><a href="00-cross-h.html#hd-net"><small>X</small></a></td>
+    <td>What If Net % Heading</td>
+    <td>character</td>
+    <td>x(6)</td>
+    <td>Net%</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>320</td>
+    <td>lab-cost</td>
+    <td><a href="00-cross-l.html#lab-cost"><small>X</small></a></td>
+    <td>Cost</td>
+    <td>integer [6]</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>330</td>
+    <td>lab-pct</td>
+    <td><a href="00-cross-l.html#lab-pct"><small>X</small></a></td>
+    <td>Labor Pct.</td>
+    <td>decimal-2 [6]</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>510</td>
+    <td>leaf-o</td>
+    <td><a href="00-cross-l.html#leaf-o"><small>X</small></a></td>
+    <td>Window Overlap</td>
+    <td>decimal-6</td>
+    <td>&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>20</td>
+    <td>loc</td>
+    <td><a href="00-cross-l.html#loc"><small>X</small></a></td>
+    <td>Warehouse</td>
+    <td>character</td>
+    <td>x(5)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>110</td>
+    <td>ls-length</td>
+    <td><a href="00-cross-l.html#ls-length"><small>X</small></a></td>
+    <td>Layout Sheet Length</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>120</td>
+    <td>ls-triml</td>
+    <td><a href="00-cross-l.html#ls-triml"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>100</td>
+    <td>ls-trimw</td>
+    <td><a href="00-cross-l.html#ls-trimw"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>90</td>
+    <td>ls-width</td>
+    <td><a href="00-cross-l.html#ls-width"><small>X</small></a></td>
+    <td>Layout Sheet Width</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>300</td>
+    <td>mat-cost</td>
+    <td><a href="00-cross-m.html#mat-cost"><small>X</small></a></td>
+    <td>Cost</td>
+    <td>integer [6]</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>310</td>
+    <td>mat-pct</td>
+    <td><a href="00-cross-m.html#mat-pct"><small>X</small></a></td>
+    <td>Mat'l Pct.</td>
+    <td>decimal-2 [6]</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>520</td>
+    <td>misc-item</td>
+    <td><a href="00-cross-m.html#misc-item"><small>X</small></a></td>
+    <td>Misc Items</td>
+    <td>character [20]</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>480</td>
+    <td>num-len</td>
+    <td><a href="00-cross-n.html#num-len"><small>X</small></a></td>
+    <td># on Length</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>490</td>
+    <td>num-wid</td>
+    <td><a href="00-cross-n.html#num-wid"><small>X</small></a></td>
+    <td># on Width</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>370</td>
+    <td>prof-mrkup</td>
+    <td><a href="00-cross-p.html#prof-mrkup"><small>X</small></a></td>
+    <td>Profit % Mark Up</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>50</td>
+    <td>q-num</td>
+    <td><a href="00-cross-q.html#q-num"><small>X</small></a></td>
+    <td>Quote#</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>1</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>60</td>
+    <td>q-range</td>
+    <td><a href="00-cross-q.html#q-range"><small>X</small></a></td>
+    <td>Quote# Range</td>
+    <td>integer [2]</td>
+    <td>&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>400</td>
+    <td>r-cost</td>
+    <td><a href="00-cross-r.html#r-cost"><small>X</small></a></td>
+    <td>?</td>
+    <td>logical</td>
+    <td>Avg. Cost/Last Cost</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>550</td>
+    <td><a href="addrphone.html">rec_key</a></td>
+    <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
+    <td>Rec Key</td>
+    <td>character</td>
+    <td>X(21)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>220</td>
+    <td>rm-rate</td>
+    <td><a href="00-cross-r.html#rm-rate"><small>X</small></a></td>
+    <td>RM Handling Rate/CWT</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>570</td>
+    <td>rm-rate-farm</td>
+    <td><a href="00-cross-r.html#rm-rate-farm"><small>X</small></a></td>
+    <td>Farm Out RM Handling Rate/CWT</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>360</td>
+    <td>sell-by</td>
+    <td><a href="00-cross-s.html#sell-by"><small>X</small></a></td>
+    <td>Sell by Net or Gross ?</td>
+    <td>character</td>
+    <td>X</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>70</td>
+    <td>sho-labor</td>
+    <td><a href="00-cross-s.html#sho-labor"><small>X</small></a></td>
+    <td>Labor Rates</td>
+    <td>logical</td>
+    <td>Yes/No</td>
+    <td>yes</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="evenrow">
+    <td>390</td>
+    <td>shp-add</td>
+    <td><a href="00-cross-s.html#shp-add"><small>X</small></a></td>
+    <td>Add Freight to factory Cost</td>
+    <td>logical</td>
+    <td>Y/N</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="oddrow">
+    <td>260</td>
+    <td>shp-mrkup</td>
+    <td><a href="00-cross-s.html#shp-mrkup"><small>X</small></a></td>
+    <td>Shipping Weight Mark Up</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>610</td>
+    <td>spare-char-1</td>
+    <td><a href="00-cross-s.html#spare-char-1"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>620</td>
+    <td>spare-char-2</td>
+    <td><a href="00-cross-s.html#spare-char-2"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>630</td>
+    <td>spare-char-3</td>
+    <td><a href="00-cross-s.html#spare-char-3"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>640</td>
+    <td>spare-char-4</td>
+    <td><a href="00-cross-s.html#spare-char-4"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>650</td>
+    <td>spare-char-5</td>
+    <td><a href="00-cross-s.html#spare-char-5"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>660</td>
+    <td>spare-dec-1</td>
+    <td><a href="00-cross-s.html#spare-dec-1"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>670</td>
+    <td>spare-dec-2</td>
+    <td><a href="00-cross-s.html#spare-dec-2"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>680</td>
+    <td>spare-dec-3</td>
+    <td><a href="00-cross-s.html#spare-dec-3"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>690</td>
+    <td>spare-dec-4</td>
+    <td><a href="00-cross-s.html#spare-dec-4"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>700</td>
+    <td>spare-dec-5</td>
+    <td><a href="00-cross-s.html#spare-dec-5"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>710</td>
+    <td>spare-int-1</td>
+    <td><a href="00-cross-s.html#spare-int-1"><small>X</small></a></td>
+    <td>?</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>720</td>
+    <td>spare-int-2</td>
+    <td><a href="00-cross-s.html#spare-int-2"><small>X</small></a></td>
+    <td>?</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>730</td>
+    <td>spare-int-3</td>
+    <td><a href="00-cross-s.html#spare-int-3"><small>X</small></a></td>
+    <td>?</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>740</td>
+    <td>spare-int-4</td>
+    <td><a href="00-cross-s.html#spare-int-4"><small>X</small></a></td>
+    <td>?</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>750</td>
+    <td>spare-int-5</td>
+    <td><a href="00-cross-s.html#spare-int-5"><small>X</small></a></td>
+    <td>?</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>460</td>
+    <td>spec-%</td>
+    <td><a href="00-cross-s.html#spec-%"><small>X</small></a></td>
+    <td>Special Markup %</td>
+    <td>decimal-4 [5]</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>470</td>
+    <td>spec-add</td>
+    <td><a href="00-cross-s.html#spec-add"><small>X</small></a></td>
+    <td>Add in Fact. Costs?</td>
+    <td>logical [10]</td>
+    <td>Y/N</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="oddrow">
+    <td>450</td>
+    <td>spec-l</td>
+    <td><a href="00-cross-s.html#spec-l"><small>X</small></a></td>
+    <td>Special Markup</td>
+    <td>character [5]</td>
+    <td>x(20)</td>
+    <td>Special Markup</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>230</td>
+    <td>spec-lab</td>
+    <td><a href="00-cross-s.html#spec-lab"><small>X</small></a></td>
+    <td>Special MarkUp</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td>Special Markup</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>240</td>
+    <td>spec-pct</td>
+    <td><a href="00-cross-s.html#spec-pct"><small>X</small></a></td>
+    <td>Special %</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>80</td>
+    <td>trunc-99</td>
+    <td><a href="00-cross-t.html#trunc-99"><small>X</small></a></td>
+    <td>Round $</td>
+    <td>logical</td>
+    <td>Yes/No</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="oddrow">
+    <td>540</td>
+    <td>whs-charge</td>
+    <td><a href="00-cross-w.html#whs-charge"><small>X</small></a></td>
+    <td>Warehouse Charge</td>
+    <td>decimal-5</td>
+    <td>&gt;&gt;,&gt;&gt;9.99&lt;&lt;&lt;</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>530</td>
+    <td>whs-unit</td>
+    <td><a href="00-cross-w.html#whs-unit"><small>X</small></a></td>
+    <td>Warehouse Charge Per</td>
+    <td>character</td>
+    <td>x(3)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>500</td>
+    <td>whse-add</td>
+    <td><a href="00-cross-w.html#whse-add"><small>X</small></a></td>
+    <td>?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="evenrow">
+    <td>270</td>
+    <td>whse-mrkup</td>
+    <td><a href="00-cross-w.html#whse-mrkup"><small>X</small></a></td>
+    <td>Warehousing Mark Up %</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>410</td>
+    <td>win-margin</td>
+    <td><a href="00-cross-w.html#win-margin"><small>X</small></a></td>
+    <td>Window Glue Margin</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.99&lt;&lt;</td>
+    <td>.625</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+</table>
+</div>
+<div id=SortOrder  style="display:none;">
+<table style="width:100%; border-style:none;">
+  <tr>
+    <th>Order</th>
+    <th><script type="text/javascript">
+    <!--
+    writeToggleBegin();
+    // -->
+    </script>Field Name<script type="text/javascript">
+    <!--
+    writeToggleEnd();
+    // -->
+    </script></th>
+    <th>x</th>
+    <th>Label</th>
+    <th>Datatype</th>
+    <th>Format</th>
+    <th>Initial</th>
+    <th>Mand</th>
+    <th>Description</th>
+  </tr>
+  <tr class="oddrow">
+    <td>10</td>
+    <td><a href="ap-ctrl.html">company</a></td>
+    <td><a href="00-cross-c.html#company"><small>X</small></a></td>
+    <td>Company</td>
+    <td>character</td>
+    <td>x(3)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>20</td>
+    <td>loc</td>
+    <td><a href="00-cross-l.html#loc"><small>X</small></a></td>
+    <td>Warehouse</td>
+    <td>character</td>
+    <td>x(5)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>30</td>
+    <td>e-num</td>
+    <td><a href="00-cross-e.html#e-num"><small>X</small></a></td>
+    <td>Est.#</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>1</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>40</td>
+    <td>e-range</td>
+    <td><a href="00-cross-e.html#e-range"><small>X</small></a></td>
+    <td>Est# Range</td>
+    <td>integer [2]</td>
+    <td>&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>50</td>
+    <td>q-num</td>
+    <td><a href="00-cross-q.html#q-num"><small>X</small></a></td>
+    <td>Quote#</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>1</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>60</td>
+    <td>q-range</td>
+    <td><a href="00-cross-q.html#q-range"><small>X</small></a></td>
+    <td>Quote# Range</td>
+    <td>integer [2]</td>
+    <td>&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>70</td>
+    <td>sho-labor</td>
+    <td><a href="00-cross-s.html#sho-labor"><small>X</small></a></td>
+    <td>Labor Rates</td>
+    <td>logical</td>
+    <td>Yes/No</td>
+    <td>yes</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="evenrow">
+    <td>80</td>
+    <td>trunc-99</td>
+    <td><a href="00-cross-t.html#trunc-99"><small>X</small></a></td>
+    <td>Round $</td>
+    <td>logical</td>
+    <td>Yes/No</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="oddrow">
+    <td>90</td>
+    <td>ls-width</td>
+    <td><a href="00-cross-l.html#ls-width"><small>X</small></a></td>
+    <td>Layout Sheet Width</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>100</td>
+    <td>ls-trimw</td>
+    <td><a href="00-cross-l.html#ls-trimw"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>110</td>
+    <td>ls-length</td>
+    <td><a href="00-cross-l.html#ls-length"><small>X</small></a></td>
+    <td>Layout Sheet Length</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>120</td>
+    <td>ls-triml</td>
+    <td><a href="00-cross-l.html#ls-triml"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>130</td>
+    <td>def-ink</td>
+    <td><a href="00-cross-d.html#def-ink"><small>X</small></a></td>
+    <td>Def. Ink#</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>140</td>
+    <td>def-case</td>
+    <td><a href="00-cross-d.html#def-case"><small>X</small></a></td>
+    <td>Def. Case #</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>150</td>
+    <td>def-pal</td>
+    <td><a href="00-cross-d.html#def-pal"><small>X</small></a></td>
+    <td>Def. Pallet</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>160</td>
+    <td>def-inkcov</td>
+    <td><a href="00-cross-d.html#def-inkcov"><small>X</small></a></td>
+    <td>Def.Ink Coverage %</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>170</td>
+    <td>avg-cswt</td>
+    <td><a href="00-cross-a.html#avg-cswt"><small>X</small></a></td>
+    <td>Avg. Case Weight</td>
+    <td>decimal-2</td>
+    <td>&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>180</td>
+    <td>avg-cscost</td>
+    <td><a href="00-cross-a.html#avg-cscost"><small>X</small></a></td>
+    <td>Avg. Case Cost</td>
+    <td>decimal-2</td>
+    <td>&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>190</td>
+    <td>avg-palwt</td>
+    <td><a href="00-cross-a.html#avg-palwt"><small>X</small></a></td>
+    <td>Avg. Pallet Weight</td>
+    <td>decimal-3</td>
+    <td>&gt;&gt;&gt;9.9&lt;</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>200</td>
+    <td>avg-palcost</td>
+    <td><a href="00-cross-a.html#avg-palcost"><small>X</small></a></td>
+    <td>Avg. Pallet Cost</td>
+    <td>decimal-2</td>
+    <td>&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>210</td>
+    <td>fg-rate</td>
+    <td><a href="00-cross-f.html#fg-rate"><small>X</small></a></td>
+    <td>FG Handling Rate/CWT</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>220</td>
+    <td>rm-rate</td>
+    <td><a href="00-cross-r.html#rm-rate"><small>X</small></a></td>
+    <td>RM Handling Rate/CWT</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>230</td>
+    <td>spec-lab</td>
+    <td><a href="00-cross-s.html#spec-lab"><small>X</small></a></td>
+    <td>Special MarkUp</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td>Special Markup</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>240</td>
+    <td>spec-pct</td>
+    <td><a href="00-cross-s.html#spec-pct"><small>X</small></a></td>
+    <td>Special %</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>250</td>
+    <td>hand-pct</td>
+    <td><a href="00-cross-h.html#hand-pct"><small>X</small></a></td>
+    <td>Handling Chg. as %</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>260</td>
+    <td>shp-mrkup</td>
+    <td><a href="00-cross-s.html#shp-mrkup"><small>X</small></a></td>
+    <td>Shipping Weight Mark Up</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>270</td>
+    <td>whse-mrkup</td>
+    <td><a href="00-cross-w.html#whse-mrkup"><small>X</small></a></td>
+    <td>Warehousing Mark Up %</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>280</td>
+    <td>comm-mrkup</td>
+    <td><a href="00-cross-c.html#comm-mrkup"><small>X</small></a></td>
+    <td>Commissions Mark Up</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>290</td>
+    <td>comm-calc</td>
+    <td><a href="00-cross-c.html#comm-calc"><small>X</small></a></td>
+    <td>Calculate Commissions on ?</td>
+    <td>character</td>
+    <td>X</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>300</td>
+    <td>mat-cost</td>
+    <td><a href="00-cross-m.html#mat-cost"><small>X</small></a></td>
+    <td>Cost</td>
+    <td>integer [6]</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>310</td>
+    <td>mat-pct</td>
+    <td><a href="00-cross-m.html#mat-pct"><small>X</small></a></td>
+    <td>Mat'l Pct.</td>
+    <td>decimal-2 [6]</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>320</td>
+    <td>lab-cost</td>
+    <td><a href="00-cross-l.html#lab-cost"><small>X</small></a></td>
+    <td>Cost</td>
+    <td>integer [6]</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>330</td>
+    <td>lab-pct</td>
+    <td><a href="00-cross-l.html#lab-pct"><small>X</small></a></td>
+    <td>Labor Pct.</td>
+    <td>decimal-2 [6]</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>340</td>
+    <td>hd-net</td>
+    <td><a href="00-cross-h.html#hd-net"><small>X</small></a></td>
+    <td>What If Net % Heading</td>
+    <td>character</td>
+    <td>x(6)</td>
+    <td>Net%</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>350</td>
+    <td>hd-gross</td>
+    <td><a href="00-cross-h.html#hd-gross"><small>X</small></a></td>
+    <td>What If Gross % Heading</td>
+    <td>character</td>
+    <td>x(6)</td>
+    <td>Gross%</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>360</td>
+    <td>sell-by</td>
+    <td><a href="00-cross-s.html#sell-by"><small>X</small></a></td>
+    <td>Sell by Net or Gross ?</td>
+    <td>character</td>
+    <td>X</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>370</td>
+    <td>prof-mrkup</td>
+    <td><a href="00-cross-p.html#prof-mrkup"><small>X</small></a></td>
+    <td>Profit % Mark Up</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>380</td>
+    <td>comm-add</td>
+    <td><a href="00-cross-c.html#comm-add"><small>X</small></a></td>
+    <td>Add Commissions on Estimate</td>
+    <td>logical</td>
+    <td>Y/N</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="oddrow">
+    <td>390</td>
+    <td>shp-add</td>
+    <td><a href="00-cross-s.html#shp-add"><small>X</small></a></td>
+    <td>Add Freight to factory Cost</td>
+    <td>logical</td>
+    <td>Y/N</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="evenrow">
+    <td>400</td>
+    <td>r-cost</td>
+    <td><a href="00-cross-r.html#r-cost"><small>X</small></a></td>
+    <td>?</td>
+    <td>logical</td>
+    <td>Avg. Cost/Last Cost</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>410</td>
+    <td>win-margin</td>
+    <td><a href="00-cross-w.html#win-margin"><small>X</small></a></td>
+    <td>Window Glue Margin</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.99&lt;&lt;</td>
+    <td>.625</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>420</td>
+    <td>def-cas-w</td>
+    <td><a href="00-cross-d.html#def-cas-w"><small>X</small></a></td>
+    <td>Default Case Weight</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>2</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>430</td>
+    <td>def-pal-w</td>
+    <td><a href="00-cross-d.html#def-pal-w"><small>X</small></a></td>
+    <td>Default Pallet Weight</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>50</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>440</td>
+    <td>def-coat</td>
+    <td><a href="00-cross-d.html#def-coat"><small>X</small></a></td>
+    <td>Default Coating</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>450</td>
+    <td>spec-l</td>
+    <td><a href="00-cross-s.html#spec-l"><small>X</small></a></td>
+    <td>Special Markup</td>
+    <td>character [5]</td>
+    <td>x(20)</td>
+    <td>Special Markup</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>460</td>
+    <td>spec-%</td>
+    <td><a href="00-cross-s.html#spec-%"><small>X</small></a></td>
+    <td>Special Markup %</td>
+    <td>decimal-4 [5]</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>470</td>
+    <td>spec-add</td>
+    <td><a href="00-cross-s.html#spec-add"><small>X</small></a></td>
+    <td>Add in Fact. Costs?</td>
+    <td>logical [10]</td>
+    <td>Y/N</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="evenrow">
+    <td>480</td>
+    <td>num-len</td>
+    <td><a href="00-cross-n.html#num-len"><small>X</small></a></td>
+    <td># on Length</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>490</td>
+    <td>num-wid</td>
+    <td><a href="00-cross-n.html#num-wid"><small>X</small></a></td>
+    <td># on Width</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>500</td>
+    <td>whse-add</td>
+    <td><a href="00-cross-w.html#whse-add"><small>X</small></a></td>
+    <td>?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i></td>
+  </tr>
+  <tr class="oddrow">
+    <td>510</td>
+    <td>leaf-o</td>
+    <td><a href="00-cross-l.html#leaf-o"><small>X</small></a></td>
+    <td>Window Overlap</td>
+    <td>decimal-6</td>
+    <td>&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>520</td>
+    <td>misc-item</td>
+    <td><a href="00-cross-m.html#misc-item"><small>X</small></a></td>
+    <td>Misc Items</td>
+    <td>character [20]</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>530</td>
+    <td>whs-unit</td>
+    <td><a href="00-cross-w.html#whs-unit"><small>X</small></a></td>
+    <td>Warehouse Charge Per</td>
+    <td>character</td>
+    <td>x(3)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>540</td>
+    <td>whs-charge</td>
+    <td><a href="00-cross-w.html#whs-charge"><small>X</small></a></td>
+    <td>Warehouse Charge</td>
+    <td>decimal-5</td>
+    <td>&gt;&gt;,&gt;&gt;9.99&lt;&lt;&lt;</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>550</td>
+    <td><a href="addrphone.html">rec_key</a></td>
+    <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
+    <td>Rec Key</td>
+    <td>character</td>
+    <td>X(21)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>560</td>
+    <td>fg-rate-farm</td>
+    <td><a href="00-cross-f.html#fg-rate-farm"><small>X</small></a></td>
+    <td>Farm Out FG Handling Rate/CWT</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>570</td>
+    <td>rm-rate-farm</td>
+    <td><a href="00-cross-r.html#rm-rate-farm"><small>X</small></a></td>
+    <td>Farm Out RM Handling Rate/CWT</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>580</td>
+    <td>hand-pct-farm</td>
+    <td><a href="00-cross-h.html#hand-pct-farm"><small>X</small></a></td>
+    <td>Farm Out Handling Chg. as %</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>590</td>
+    <td>brd-cost</td>
+    <td><a href="00-cross-b.html#brd-cost"><small>X</small></a></td>
+    <td>Board Cost</td>
+    <td>integer [20]</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>600</td>
+    <td>brd-pct</td>
+    <td><a href="00-cross-b.html#brd-pct"><small>X</small></a></td>
+    <td>Board Markup %</td>
+    <td>decimal-2 [20]</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>610</td>
+    <td>spare-char-1</td>
+    <td><a href="00-cross-s.html#spare-char-1"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>620</td>
+    <td>spare-char-2</td>
+    <td><a href="00-cross-s.html#spare-char-2"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>630</td>
+    <td>spare-char-3</td>
+    <td><a href="00-cross-s.html#spare-char-3"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>640</td>
+    <td>spare-char-4</td>
+    <td><a href="00-cross-s.html#spare-char-4"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>650</td>
+    <td>spare-char-5</td>
+    <td><a href="00-cross-s.html#spare-char-5"><small>X</small></a></td>
+    <td>?</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>660</td>
+    <td>spare-dec-1</td>
+    <td><a href="00-cross-s.html#spare-dec-1"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>670</td>
+    <td>spare-dec-2</td>
+    <td><a href="00-cross-s.html#spare-dec-2"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>680</td>
+    <td>spare-dec-3</td>
+    <td><a href="00-cross-s.html#spare-dec-3"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>690</td>
+    <td>spare-dec-4</td>
+    <td><a href="00-cross-s.html#spare-dec-4"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>700</td>
+    <td>spare-dec-5</td>
+    <td><a href="00-cross-s.html#spare-dec-5"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>710</td>
+    <td>spare-int-1</td>
+    <td><a href="00-cross-s.html#spare-int-1"><small>X</small></a></td>
+    <td>?</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>720</td>
+    <td>spare-int-2</td>
+    <td><a href="00-cross-s.html#spare-int-2"><small>X</small></a></td>
+    <td>?</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>730</td>
+    <td>spare-int-3</td>
+    <td><a href="00-cross-s.html#spare-int-3"><small>X</small></a></td>
+    <td>?</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>740</td>
+    <td>spare-int-4</td>
+    <td><a href="00-cross-s.html#spare-int-4"><small>X</small></a></td>
+    <td>?</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>750</td>
+    <td>spare-int-5</td>
+    <td><a href="00-cross-s.html#spare-int-5"><small>X</small></a></td>
+    <td>?</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>760</td>
+    <td>fold-pct</td>
+    <td><a href="00-cross-f.html#fold-pct"><small>X</small></a></td>
+    <td>Fold Pct</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99&lt;&lt;</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>770</td>
+    <td>broker-pct</td>
+    <td><a href="00-cross-b.html#broker-pct"><small>X</small></a></td>
+    <td>Broker Pct</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99&lt;&lt;</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Indexes</h2>
+<table style="width:100%;">
+  <tr>
+    <th>Index name</th>
+    <th>Flags</th>
+    <th>Fields</th>
+    <th>Datatype</th>
+  </tr>
+  <tr class="oddrow">
+    <td>ce-ctrl</td>
+    <td>P U     </td>
+    <td>company (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>loc (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="evenrow">
+    <td>rec_key</td>
+    <td>        </td>
+    <td>rec_key (+)</td>
+    <td>character</td>
+  </tr>
+</table>
+<table style="width:100%; margin-top:10px;">
+  <tr>
+    <td>+ = Ascending</td>
+    <td>- = Descending</td>
+    <td>P = Primary</td>
+    <td>U = Unique</td>
+    <td>I = Inactive</td>
+    <td>W = Wordindex</td>
+  </tr>
+</table> 
+  <h2>Related tables</h2>
+  <table style="width:50%; float:left;">
+    <tr>
+      <th>Parent tables</th>
+    </tr>
+    <tr class="shadedrow">
+      <td><a href="rec_key.html">rec_key</a>&nbsp;&nbsp; <a href="rm-ctrl.html">rm-ctrl</a>&nbsp;&nbsp; </td>
+    </tr>
+  </table>
+  <table style="width:50%; float:left;">
+    <tr>
+      <th>Child tables</th>
+    </tr>
+    <tr class="shadedrow">
+      <td><a href="carrier.html">carrier</a>&nbsp;&nbsp; <a href="costtype.html">costtype</a>&nbsp;&nbsp; <a href="est.html">est</a>&nbsp;&nbsp; <a href="loc.html">loc</a>&nbsp;&nbsp; <a href="mach.html">mach</a>&nbsp;&nbsp; <a href="machaddr.html">mach-adder</a>&nbsp;&nbsp; <a href="mstd.html">mstd</a>&nbsp;&nbsp; <a href="printer.html">printer</a>&nbsp;&nbsp; <a href="quote.html">quote</a>&nbsp;&nbsp; <a href="rfq.html">rfq</a>&nbsp;&nbsp; <a href="rfq-ctrl.html">rfq-ctrl</a>&nbsp;&nbsp; <a href="rm-recei.html">rm-receipts</a>&nbsp;&nbsp; <a href="routing.html">routing</a>&nbsp;&nbsp; <a href="stack-si.html">stack-size</a>&nbsp;&nbsp; <a href="style-sc.html">style-score</a>&nbsp;&nbsp; <a href="test-red.html">test-red</a>&nbsp;&nbsp; <a href="usercomp.html">usercomp</a>&nbsp;&nbsp; <a href="usr.html">usr</a>&nbsp;&nbsp; <a href="wip-bin.html">wip-bin</a>&nbsp;&nbsp; </td>
+    </tr>
+  </table>
+<hr style="clear:both">
+<hr>
+<table style="width:100%; margin-top:10px;">
+  <tr><td style="text-align:right;"><i><small>generated 25-10-2018 10:20</small></i></td></tr>
+</table>
+</body>
+</html>

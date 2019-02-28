@@ -82,13 +82,14 @@ itemfg.ord-policy itemfg.stocked itemfg.pur-man itemfg.isaset itemfg.alloc ~
 itemfg.ord-level itemfg.ord-min itemfg.ord-max itemfg.pur-uom itemfg.lead-days
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
+&Scoped-Define ENABLED-OBJECTS btnCalendar-1
 &Scoped-Define DISPLAYED-FIELDS itemfg.i-no itemfg.i-name itemfg.pur-uom ~
 itemfg.i-dscr itemfg.vend-no itemfg.vend-item itemfg.vend2-no itemfg.vend2-item ~
 itemfg.ord-policy itemfg.stocked itemfg.pur-man itemfg.isaset itemfg.alloc ~
-itemfg.ord-level itemfg.ord-min itemfg.ord-max itemfg.lead-days 
+itemfg.ord-level itemfg.ord-min itemfg.ord-max itemfg.lead-days itemfg.beg-date
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
-
+&Scoped-define calendarPopup btnCalendar-1
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -123,6 +124,11 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
 DEFINE RECTANGLE RECT-22
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 144 BY 5.71.
@@ -228,6 +234,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 
+    btnCalendar-1 AT ROW 9.68 COL 124.2
      "Set Allocation" VIEW-AS TEXT
           SIZE 17 BY .95 AT ROW 4.57 COL 88
           FGCOLOR 9 
@@ -266,6 +273,7 @@ DEFINE FRAME F-Main
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
+
 IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
   MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
@@ -341,6 +349,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.vend2-no IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
+   3                                                                    */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -471,12 +481,34 @@ END.
 
 &Scoped-define SELF-NAME itemfg.vend2-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.pur-uom V-table-Win
-ON LEAVE OF itemfg.pur-uom IN FRAME F-Main /* Purchased UOM */
+ON LEAVE OF itemfg.pur-uom IN FRAME F-Main /* */
 DO:
     IF LASTKEY NE -1 THEN DO:
         RUN pValidatePurUOM NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     END. /* if lastkey */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME itemfg.beg-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.beg-date V-table-Win
+ON HELP OF itemfg.beg-date IN FRAME F-Main /*  */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 V-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i itemfg.beg-date}
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -1,0 +1,32 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:59pm                                        SALES ANALYSIS - SALES BY CUSTOMER/ITEM
+                                                        Detail Report by Item
+
+                         Customer Range: HER10 - HER10   Ship-to Range:  - zzzzzzzz   Salesman Range:  - zzz
+                                Item Range:  - zzzzzzzzzzzzzzzzzzz   Date Range: 10/01/00 - 10/17/00
+
+                                        Invoice Invoice                   Order
+Customer Customer/Item Name    Ship-to   Number Date     FG Item         Number  Qty Shipped      Unit Price UOM        Invoice Amt
+-------- --------------------- -------- ------- -------- --------------- ------ ------------ --------------- ---- -----------------
+HER10    Hershey Chocolate Cor HER10        149 10/16/00 HER-1021           317       25,000          395.00 M             9,875.00
+         ---------------------                                                  ------------                      -----------------
+                SHIP-TO TOTALS                                                        25,000                               9,875.00
+
+         ---------------------                                                  ------------                      -----------------
+                   ITEM TOTALS                                                        25,000                               9,875.00
+
+                               HER10        149 10/16/00 PLATE              317                       900.00                 900.00
+         ---------------------                                                  ------------                      -----------------
+                SHIP-TO TOTALS                                                                                               900.00
+
+         ---------------------                                                  ------------                      -----------------
+                   ITEM TOTALS                                                                                               900.00
+
+         ---------------------                                                  ------------                      -----------------
+               CUSTOMER TOTALS                                                        25,000                              10,775.00
+
+
+         ---------------------                                                  ------------                      -----------------
+                  GRAND TOTALS                                                        25,000                              10,775.00
+

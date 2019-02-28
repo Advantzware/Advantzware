@@ -58,12 +58,12 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
 
 
-ASSIGN cTextListToSelect = "Journal,Vendor,Name,Date,Inv#,Check#,Order#,Quantity," +
+ASSIGN cTextListToSelect = "Account,Account Description,Journal,Vendor,Name,Date,Inv#,Check#,Order#,Quantity," +
                            "Amt MSF,Discount,Amount" 
-       cFieldListToSelect = "jou,vend,name,date,inv,chk,ord,qty," +
+       cFieldListToSelect = "account,acc-desc,jou,vend,name,date,inv,chk,ord,qty," +
                             "msf,dis,amt"
-       cFieldLength = "8,8,35,8,6,7,6,13," + "10,10,14"
-       cFieldType = "c,c,c,c,i,i,i,i," + "i,i,i" 
+       cFieldLength = "10,30,8,8,35,8,6,7,6,13," + "10,10,14"
+       cFieldType = "c,c,c,c,c,c,i,i,i,i," + "i,i,i" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1726,8 +1726,6 @@ DEF VAR cslist AS cha NO-UNDO.
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
-  /*excelheader = "Journal,Vendor,Name,Date,Invoice#,Check#,Order#,"
-              + "Quantity,Amt MSF,Discount,Amount".*/
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -1742,13 +1740,7 @@ SESSION:SET-WAIT-STATE ("general").
       and account.actnum <= hi_actnum:
 
       {custom/statusMsg.i " 'Processing Account#  '  + account.actnum "}
-
-    /*if line-counter >= (page-size - 2) then do:
-        page.
-        view frame f-det.
-        down 0 with frame f-det.
-    end. */
-
+    
     ASSIGN
       hdg_printed = FALSE
       t-amt = 0
@@ -1759,9 +1751,7 @@ SESSION:SET-WAIT-STATE ("general").
       ws_jrnl = ''
       ws_check-no = 0
       ws_order-no = 0.
-
-    /*VIEW FRAME F-DET.
-    DOWN 0 WITH FRAME F-DET.*/
+    
 
     FOR EACH gltrans NO-LOCK
         WHERE gltrans.company = cocode
@@ -1773,26 +1763,10 @@ SESSION:SET-WAIT-STATE ("general").
       IF NOT hdg_printed THEN
       DO:
 
-        v-line = account.actnum + ' - ' + account.dscr.
-        PUT SKIP v-line SKIP.
-
-         IF tb_excel THEN
-            PUT STREAM excel UNFORMATTED
-                '"' account.actnum          '",'
-                '"' ""                      '",'
-                '"' account.dscr            '",'
-                SKIP.
-
         hdg_printed = TRUE.
       END.
 
-     /* DISPLAY
-        gltrans.jrnl @ ws_jrnl
-        gltrans.tr-dscr @ vend.name
-        gltrans.tr-date @ ap-inv.inv-date
-        gltrans.tr-amt  @ ap-invl.amt
-      with frame f-det.
-      down 1 with frame f-det.*/
+    
 
             ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1815,6 +1789,8 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "msf"  THEN cVarValue = "" .
                          WHEN "dis"   THEN cVarValue = "" .
                          WHEN "amt"  THEN cVarValue = STRING(gltrans.tr-amt,"->>,>>>,>>9.99") .
+                         WHEN "account"  THEN cVarValue = STRING(account.actnum,"x(10)") .
+                         WHEN "acc-desc"  THEN cVarValue = STRING(account.dscr,"x(30)") .
 
                     END CASE.
 
@@ -1843,26 +1819,9 @@ SESSION:SET-WAIT-STATE ("general").
         BY glhist.tr-date:
       IF NOT hdg_printed THEN
       DO:
-        v-line = account.actnum + ' - ' + account.dscr.
-        PUT SKIP v-line SKIP.
-
-        IF tb_excel THEN
-           PUT STREAM excel UNFORMATTED
-               '"' account.actnum          '",'
-               '"' ""                      '",'
-               '"' account.dscr            '",'
-               SKIP.
-
         hdg_printed = TRUE.
       END.
-      /*DISPLAY
-        glhist.jrnl @ ws_jrnl
-        glhist.tr-dscr @ vend.name
-        glhist.tr-date @ ap-inv.inv-date
-        glhist.tr-amt  @ ap-invl.amt
-      with frame f-det.
-      down 1 with frame f-det.*/
-
+      
       ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -1884,6 +1843,8 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "msf"  THEN cVarValue = "" .
                          WHEN "dis"   THEN cVarValue = "" .
                          WHEN "amt"  THEN cVarValue = STRING(glhist.tr-amt,"->>,>>>,>>9.99") .
+                         WHEN "account"  THEN cVarValue = STRING(account.actnum,"x(10)") .
+                         WHEN "acc-desc"  THEN cVarValue = STRING(account.dscr,"x(30)") .
 
                     END CASE.
 
@@ -1961,17 +1922,6 @@ do:
         BY ap-inv.inv-date BY ap-inv.inv-no:
       IF NOT hdg_printed THEN
       DO:
-        v-line = account.actnum + ' - ' + account.dscr.
-        PUT SKIP v-line
-          SKIP.
-
-        IF tb_excel THEN
-           PUT STREAM excel UNFORMATTED
-               '"' account.actnum          '",'
-               '"' ""                      '",'
-               '"' account.dscr            '",'
-               SKIP.
-
         hdg_printed = TRUE.
       END.
 
@@ -1983,21 +1933,6 @@ do:
           AND po-ordl.LINE = ap-invl.LINE - (ap-invl.po-no * 1000)
           NO-LOCK NO-ERROR.
       IF AVAIL po-ordl THEN ws_order-no = po-ordl.ord-no.
-/*       IF NOT ws_order-no > 0  THEN ws_order-no = ap-inv.po-no. */
-     /*DISPLAY
-        ws_jrnl
-        ap-inv.vend-no
-        vend.name WHEN AVAILABLE vend
-        ap-inv.inv-date
-        ap-inv.inv-no
-        ws_check-no
-        ws_order-no
-        ap-invl.qty WHEN ap-invl.qty <> 0
-        ap-invl.amt-msf WHEN ap-invl.amt-msf <> 0
-        ws_disc WHEN ws_disc <> 0
-        ap-invl.amt
-        WITH FRAME f-det.
-      down 1 with frame f-det.*/
 
       ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -2020,6 +1955,8 @@ do:
                          WHEN "msf"  THEN cVarValue = IF ap-invl.amt-msf <> 0 THEN STRING(ap-invl.amt-msf,"->>,>>9.99") ELSE "" .
                          WHEN "dis"   THEN cVarValue = IF ws_disc <> 0 THEN STRING(ws_disc,"->>,>>9.99") ELSE "" .
                          WHEN "amt"  THEN cVarValue = STRING(ap-invl.amt,"->>,>>>,>>9.99") .
+                         WHEN "account"  THEN cVarValue = STRING(account.actnum,"x(10)") .
+                         WHEN "acc-desc"  THEN cVarValue = STRING(account.dscr,"x(30)") .
 
                     END CASE.
 
@@ -2044,21 +1981,7 @@ end.
 
     IF NOT hdg_printed THEN
     NEXT.   /* inactive account */
-
-    /*
-    UNDERLINE
-      ap-invl.qty
-      ap-invl.amt-msf
-      ap-invl.amt
-      ws_disc.
-    DOWN 1.
-    DISPLAY
-      /* "* ACCOUNT TOTAL *" @ vend.name */
-      t-disc @ ws_disc
-      t-amt  @ ap-invl.amt
-      t-qty  @ ap-invl.qty
-      t-msf  @ ap-invl.amt-msf.*/
-
+   
     ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -2079,6 +2002,8 @@ end.
                          WHEN "msf"  THEN cVarValue =  STRING(t-msf,"->>,>>9.99") .
                          WHEN "dis"   THEN cVarValue = STRING(t-disc,"->>,>>9.99")  .
                          WHEN "amt"  THEN cVarValue = STRING(t-amt,"->>,>>>,>>9.99") .
+                         WHEN "account"  THEN cVarValue = "" .
+                         WHEN "acc-desc"  THEN cVarValue = "" .
 
                     END CASE.
 
@@ -2088,11 +2013,8 @@ end.
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
            PUT str-line SKIP.
-            PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel THEN DO:
-                 PUT STREAM excel UNFORMATTED  
-                       cExcelDisplay SKIP.
-             END.
+            PUT UNFORMATTED cDisplay SKIP(1).
+            
 
     g-amt = g-amt + t-amt.
   END.  /* for each account */
@@ -2123,6 +2045,8 @@ end.
                          WHEN "msf"  THEN cVarValue =  "" .
                          WHEN "dis"   THEN cVarValue = "" .
                          WHEN "amt"  THEN cVarValue = STRING(g-amt,"->>,>>>,>>9.99") .
+                          WHEN "account"  THEN cVarValue = "" .
+                         WHEN "acc-desc"  THEN cVarValue = "" .
 
                     END CASE.
 
@@ -2133,10 +2057,7 @@ end.
             END.
            PUT SKIP(1) str-line SKIP.
             PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel THEN DO:
-                 PUT STREAM excel UNFORMATTED  
-                       cExcelDisplay SKIP.
-             END.
+            
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.

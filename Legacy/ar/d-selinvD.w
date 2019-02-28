@@ -278,48 +278,50 @@ DO:
      lv-sort-by     = lv-column-nam
      lv-sort-by-lab = lv-column-lab.
   
+  CLOSE QUERY {&self-name}.
+  
   IF ll-sort-asc THEN
   CASE lv-column-nam:
       WHEN "inv-no" THEN
-          OPEN QUERY {&SELF-NAME} PRESELEC EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-inv.inv-no .
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-inv.inv-no .
       WHEN "inv-date" THEN
-          OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-inv.inv-date.
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-inv.inv-date.
       WHEN "bol-no" THEN
-          OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.bol-no .
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.bol-no .
       WHEN "due" THEN
-          OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-inv.due.
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-inv.due.
       WHEN "i-no" THEN
-          OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.i-no.
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.i-no.
       WHEN "i-name" THEN
-          OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.i-name.
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.i-name.
       WHEN "part-no" THEN
-          OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.part-no.
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.part-no.
       WHEN "po-no" THEN
-          OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.po-no.
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.po-no.
       WHEN "est-no" THEN
-          OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.est-no.
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.est-no.
   END CASE.
   
   ELSE   /*descending*/
       CASE lv-column-nam:
       WHEN "inv-no" THEN
-          OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-inv.inv-no DESC.
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-inv.inv-no DESC.
       WHEN "inv-date" THEN
-          OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-inv.inv-date DESCENDING.
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-inv.inv-date DESCENDING.
       WHEN "bol-no" THEN
-          OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.bol-no DESCENDING.
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.bol-no DESCENDING.
       WHEN "due" THEN
-          OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-inv.due DESC.
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-inv.due DESC.
       WHEN "i-no" THEN
-          OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.i-no DESC.
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.i-no DESC.
       WHEN "i-name" THEN
-          OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.i-name DESC.
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.i-name DESC.
       WHEN "part-no" THEN
-          OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.part-no DESC.
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.part-no DESC.
       WHEN "po-no" THEN
-          OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.po-no DESC.
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.po-no DESC.
       WHEN "est-no" THEN
-          OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.est-no DESC.
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.est-no DESC.
   END CASE.
     
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.

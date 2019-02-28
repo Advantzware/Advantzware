@@ -1624,7 +1624,7 @@ FOR EACH cust WHERE cust.company EQ cocode
          RELEASE tt-comm-calc.
          RELEASE ar-invl.
 
-         RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+         RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
          IF AVAIL oe-retl THEN 
             FIND FIRST ar-invl WHERE ar-invl.company EQ ar-cashl.company
@@ -1805,7 +1805,7 @@ FOR EACH tt-comm-calc,
 
       FIND ar-invl WHERE ROWID(ar-invl) EQ tt-comm-calc.row-id NO-LOCK NO-ERROR.
 
-      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
       IF AVAIL oe-retl AND NOT AVAIL ar-invl THEN 
          FIND FIRST ar-invl WHERE ar-invl.company EQ cocode

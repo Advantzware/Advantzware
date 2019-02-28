@@ -84,6 +84,7 @@ PROCEDURE local-destroy:
   /* Code placed here will execute PRIOR to standard behavior. */
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE j AS INTEGER NO-UNDO.
+  DEFINE VARIABLE saveChanges AS LOG INITIAL NO NO-UNDO.
 
   /* check for any columns changes */
   DO i = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
@@ -92,7 +93,7 @@ PROCEDURE local-destroy:
        AND NOT lAutoSave THEN NEXT.
     IF NOT lAutoSave THEN 
         MESSAGE 'Save Column Changes?' VIEW-AS ALERT-BOX
-        QUESTION BUTTONS YES-NO UPDATE saveChanges AS LOGICAL.
+        QUESTION BUTTONS YES-NO UPDATE saveChanges.
     IF saveChanges OR lAutoSave THEN DO:
       OS-CREATE-DIR VALUE("./users/" + USERID("ASI")). 
       OUTPUT TO VALUE(cellColumnDat).

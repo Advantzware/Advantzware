@@ -1,0 +1,171 @@
+10/23/07            Advanced Box Company V5.0 - Main Office            5:50 pm
+
+Set Estimate# 5976                     Salesman: 002 Salesman 002
+Customer: Abbot Laboratories             Shipto:  Abbot Laboratories
+          123 Abbot Lane                          123 Abbot Lane
+          Attn: Accounts Payables Dept.           Building # 5
+          Yardley, PA 19067                       Horsham, PA 19044
+                                                               Calc By: asi
+Finished Good: BT10358         Michcor Assem Partition
+
+
+Last Ordered:
+
+FORM 1          Width  Length             #On Qty/Set      Sq.Feet     Wgt/Units
+  Blank Size:   10.02   55.04               1       9    3.885 Sf/BL 466.172/MBL
+ NetSht Size:   30.06   55.04               3           11.654 Sf/NS 1398.52/MNS
+ GrsSht Size:   31.06   56.04               1           12.256 Sf/GS  1470.7/MGS
+                                              36.768 MSF       2.20605 Tons
+
+- # UP - -- Qty --- --- Description ---- -- Size/Color --- --- Style/Part # --
+      3       9,000 Michcor Assem Partit 55.25x10.125x0    Partiton 3 Slots    
+                                                           BT10358-1           
+
+Materials                 Weight Caliper    QTY/Unit    MR $  Matl$/M    TOTAL
+01-0 200 B Sheets         120.00  0.117
+                                         $   46.00 MSF         187.92   1,691.31
+     Board MR  Waste                             0 Sht   0.00    0.00       0.00
+     Board Run Waste                             0 Sht           0.00       0.00
+01-1 Bundle 25 per           25 Pieces/BDL     360 BDL           4.40      39.60
+01-1 PALLET                  36 B-25s/Unit      10 Pal           5.56      50.00
+01-1 BAND PALLETS                                4 MLI
+                                                                 0.00       0.00
+TOTAL  DIRECT  MATERIALS                                       197.88   1,780.91
+
+Prep Description         Mat'l   Labor  Addt'l Amtz  Charge    Cost/M Total Cost
+01-00 Flat Die Charge     0.00    0.00     0%  100%      I       0.00       0.00
+
+Machine Desc       Out     SU   Run Speed     Rate     MR $  Run $/M  Total Cost
+01-0 Partition Slo   1   0.23  0.52  5723    10.00     2.30     0.58        7.54
+TOTAL  OPERATIONS                                      2.30     0.58        7.54
+
+*** T O T A L S      in Cost/M     9,000
+                 # of Releases         1
+----------------------------------------
+Direct Material                   197.88
+Direct Labor                        0.84
+DIRECT FACTORY COST               198.72
+Slow Pay                 1.00%      2.39
+Quote Charge                        2.78
+WH                       5.00%      9.94
+TOTAL FACTORY COST                213.82
+GS&A Material - 20.00%             39.58
+GS&A Labor - 30.00%                 0.25
+Commission on SP - 5.00%           14.83
+FULL COST                         267.73
+Net Margin - 9.75%                 28.93
+SELLING PRICE                     296.66
+
+
+
+OVERALL                             8.48
+
+
+10/23/07            Advanced Box Company V5.0 - Main Office            5:50 pm
+
+Set Estimate# 5976                     Salesman: 002 Salesman 002
+Customer: Abbot Laboratories             Shipto:  Abbot Laboratories
+          123 Abbot Lane                          123 Abbot Lane
+          Attn: Accounts Payables Dept.           Building # 5
+          Yardley, PA 19067                       Horsham, PA 19044
+                                                               Calc By: asi
+Finished Good: BT10358         Michcor Assem Partition
+
+
+Last Ordered:
+
+FORM 2          Width  Length             #On Qty/Set      Sq.Feet     Wgt/Units
+  Blank Size:   10.02   40.00               1       3    2.813 Sf/BL   337.5/MBL
+ NetSht Size:   40.08   40.00               4            11.25 Sf/NS  1350.0/MNS
+ GrsSht Size:   41.08   41.00               1           11.816 Sf/GS 1417.92/MGS
+                                               8.862 MSF       0.53172 Tons
+
+- # UP - -- Qty --- --- Description ---- -- Size/Color --- --- Style/Part # --
+      4       3,000 Michcor Assem Part W 40x10.125x0       Partiton 9 Slots    
+                                                           BT10358-2           
+
+Materials                 Weight Caliper    QTY/Unit    MR $  Matl$/M    TOTAL
+02-0 200 B Sheets         120.00  0.117
+                                         $   50.00 MSF         147.70     443.10
+     Board MR  Waste                             0 Sht   0.00    0.00       0.00
+     Board Run Waste                             0 Sht           0.00       0.00
+00-0 Bundle 30 per           29 Pieces/BDL      34 BDL           3.74       3.74
+02-1 Bundle 25 per           25 Pieces/BDL     120 BDL           4.40      13.20
+02-1 PALLET                  30 B-25s/Unit       4 Pal           6.67      20.00
+02-1 BAND PALLETS                                2 MLI
+                                                                 0.00       0.00
+TOTAL  DIRECT  MATERIALS                                       160.01     480.04
+
+Prep Description         Mat'l   Labor  Addt'l Amtz  Charge    Cost/M Total Cost
+02-00 Flat Die Charge     0.00    0.00     0%  100%      I       0.00       0.00
+
+Machine Desc       Out     SU   Run Speed     Rate     MR $  Run $/M  Total Cost
+02-0 Partition Slo   1   0.23  0.13  5723    10.00     2.30     0.44        3.61
+02-0 PARTITION ASS   1   0.39 13.20   909    36.70    10.41   161.50      494.90
+TOTAL  OPERATIONS                                     12.71   161.93      498.51
+
+*** T O T A L S      in Cost/M     3,000
+                 # of Releases         1
+----------------------------------------
+Direct Material                   160.01
+Direct Labor                       90.51
+Variable Overhead                  37.60
+DIRECT FACTORY COST               288.13
+Fixed Overhead                     38.06
+Slow Pay                 1.00%      4.40
+Quote Charge                        8.33
+WH                       5.00%     16.31
+TOTAL FACTORY COST                355.23
+GS&A Material - 40.00%             64.01
+GS&A Labor - 30.00%                49.85
+Commission on SP - 5.00%           27.43
+FULL COST                         495.14
+Net Margin - 9.75%                 53.49
+SELLING PRICE                     548.63
+
+
+
+OVERALL                            65.02
+
+                        B I L L A B L E    C H A R G E S
+Prep Description      Mat'l   Labor  Addt'l   Amtz   Charge    Cost/M Total Cost
+Freight               50.00                                     50.00      50.00
+
+
+10/23/07  Advanced Box Company V5.0 - Main Office                      5:57pm
+
+Estimate: # 5976                    Set Identity: BT10358
+                                            Desc: Michcor Assem Partition
+Customer: Abbot Laboratories
+
+Salesman: 002 Salesman 002
+
+
+
+Individual Part #                  1,000
+                                       1
+----------------------------------------
+BT10358-1                       2,669.94
+BT10358-2                       1,645.89
+
+Set Match Charge                  215.79
+Set Match Charge %                  5.00
+                              ----------
+Set Total Price                 4,315.83
+
+     E S T I M A T E  #5976   A N A L Y S I S   P e r  T h o u s a n d
+            Tot.Fact      Full                      Sell    Price  Total   Total
+    Qty  R      Cost      Cost  GROSS%    NET%     Price     /BSF Sheets     MSF
+   1000  1   2990.02   3895.04   30.72    9.75   4315.83    99.44   3750   45.63
+
+                                                   Fact     Full      Sell
+ Cust. #  Part Number                 Quantity    Cost/M    Cost/M   Price/M
+ ABB1000  BT10358-1                       9000    213.82    267.73     296.66
+ ABB1000  BT10358-2                       3000    355.23    495.14     548.63
+
+
+Department Notes: 
+ Spcl Notes detail                                                               
+ test D! detail                                                                  
+ Print note detail                                                               
+

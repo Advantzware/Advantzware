@@ -816,6 +816,8 @@ PROCEDURE pLoad :
     DEFINE VARIABLE lGo               AS LOGICAL   NO-UNDO. 
     DEFINE VARIABLE cFile             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lUpdateDuplicates AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lLimitReached     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iProcessed        AS INTEGER   NO-UNDO.
     
     cFile = iphdImportFileName:SCREEN-VALUE.
     lUpdateDuplicates = rdDuplicates EQ 1.
@@ -827,8 +829,15 @@ PROCEDURE pLoad :
         RUN pSetType IN ghdImportProcs (ipcType).
         RUN pConvertExceltoCSV IN ghdImportProcs (cFile, OUTPUT cFile).
         RUN pCheckContinue("load import data from " + cFile, OUTPUT lGo).
+
         IF lGo THEN 
-            RUN pLoad IN ghdImportProcs (ipcCompany, ipcLocation, cFile, lHeaderRow, lUpdateDuplicates, lFieldValidation, gcFileType, OUTPUT lGo).
+            RUN pLoad IN ghdImportProcs (ipcCompany, ipcLocation, cFile, lHeaderRow, lUpdateDuplicates, lFieldValidation, gcFileType, OUTPUT lGo, OUTPUT lLimitReached, OUTPUT iProcessed).
+
+        IF lLimitReached THEN DO:
+            MESSAGE "Record limit of " iProcessed " was reached." SKIP 
+                "Continue loading only first " iProcessed " records?"  VIEW-AS ALERT-BOX BUTTONS YES-NO UPDATE lGo . 
+        END.
+
         IF lGo THEN 
         DO:
             RUN pShowPreview.

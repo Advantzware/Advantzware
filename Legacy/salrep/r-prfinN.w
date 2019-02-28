@@ -72,12 +72,14 @@ DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Rep,Rep Name,Name,Customer,Customer Name,Invoice#,Inv Date,FG Item,Catgy,Qty shipped,Total MSF,Order#," +
-                             "$/MSF,Sales Amt,Full Cost,Profit,Group#,Member#,UOM,Cust PO#,Est Board Code"
+                             "$/MSF,Sales Amt,Full Cost,Profit,Group#,Member#,UOM,Cust PO#,Est Board Code,Customer Part#,BOL#,Sq Ft," +
+                             "Customer Lot#"
        cFieldListToSelect = "rep,rep-name,name,cust,custname,inv-no,inv-date,fg,cat,qty,ttl-msf,pur-ord," +
-                            "msf,sal-amt,ful-cst,proft,grp-no,mbr-no,inv-uom,cust-po,board-code"
+                            "msf,sal-amt,ful-cst,proft,grp-no,mbr-no,inv-uom,cust-po,board-code,customer-part,bol,sqft," +
+                            "cust-lot"
        cFieldLength = "3,20,20,8,25,8,8,15,5,12,9,8," +
-                      "8,15,11,11,8,10,3,15,12"
-       cFieldType   = "c,c,c,c,c,i,c,c,c,i,i,i," + "i,i,i,i,c,c,c,c,c"
+                      "8,15,11,11,8,10,3,15,14,15,6,10," + "15"
+       cFieldType   = "c,c,c,c,c,i,c,c,c,i,i,i," + "i,i,i,i,c,c,c,c,c,c,i,i," + "c"
        .
 ASSIGN cTextListToDefault  = "Rep,Rep Name,Customer,Customer Name,Invoice#,FG Item,Name,Catgy,Qty shipped,Total MSF," +
                              "$/MSF,Sales Amt,Full Cost,Profit,Cust PO#".
@@ -1664,6 +1666,9 @@ DEFINE VARIABLE lSelected AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE fsstate AS CHARACTER INIT "".
 DEFINE VARIABLE tsstate LIKE fsstate INIT "zz".
 DEFINE VARIABLE cBoardCode AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCustPart AS CHARACTER NO-UNDO .
+DEFINE VARIABLE iBolNo AS INTEGER NO-UNDO .
+DEFINE VARIABLE cCustLot AS CHARACTER NO-UNDO .
 
 FORM cust.name            COLUMN-LABEL "Customer"
      w-data.inv-no

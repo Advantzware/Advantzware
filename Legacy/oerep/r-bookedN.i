@@ -654,10 +654,12 @@ FORMAT wkrecap.procat
         ELSE IF tb_over% AND NOT tb_under% THEN DO:
             IF v-profit LE fOver% THEN NEXT.
         END.
-/*        IF tb_under% AND v-profit > fUnder% THEN                           */
-/*            IF (tb_over% AND v-profit < fOver%) OR NOT tb_over% THEN NEXT. */
-/*        ELSE                                                               */
-/*            IF tb_over% AND v-profit < fOver% THEN NEXT.                   */
+
+        c-result = oe-ord.stat .
+        RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
+        IF cResult NE "" THEN
+            c-result  = cResult .
+
        IF AVAILABLE oe-ord THEN
        BUFFER boe-ord:FIND-BY-ROWID(ROWID(oe-ord), NO-LOCK) .
        IF AVAILABLE oe-ordl THEN
@@ -717,6 +719,7 @@ FORMAT wkrecap.procat
                  WHEN "v-ink" THEN cVarValue = STRING(cInks,"X(40)").
                  WHEN "print-sheet" THEN cVarValue =  IF AVAIL itemfg THEN STRING(itemfg.plate-no,"X(20)") ELSE "".
                  WHEN "full-cost" THEN cVarValue = STRING(oe-ordl.spare-dec-1,"->>>>>>>9.99") .                                                                                               
+                 WHEN "status" THEN cVarValue = STRING(c-result,"x(20)") . 
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
             cExcelVarValue = cVarValue.
@@ -802,6 +805,7 @@ FORMAT wkrecap.procat
                    WHEN "oe-ordl.cost" THEN cVarValue = "" .
                    WHEN "oe-ordl.t-cost" THEN cVarValue = "".
                    WHEN "full-cost" THEN cVarValue = "" .
+                   WHEN "status" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -880,6 +884,7 @@ FORMAT wkrecap.procat
 		           WHEN "oe-ordl.cost" THEN cVarValue = "" .
                    WHEN "oe-ordl.t-cost" THEN cVarValue = "".
                    WHEN "full-cost" THEN cVarValue = "" .
+                   WHEN "status" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -897,6 +902,12 @@ FORMAT wkrecap.procat
          /*==== new with selectable columns ====*/
        IF tb_under% AND v-profit > fUnder% THEN NEXT.
        IF tb_over% AND v-profit < fOver% THEN NEXT.
+
+        c-result = oe-ord.stat .
+        RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
+        IF cResult NE "" THEN
+            c-result  = cResult .
+
        IF AVAILABLE oe-ord THEN
        BUFFER boe-ord:FIND-BY-ROWID(ROWID(oe-ord), NO-LOCK) .
        IF AVAILABLE oe-ordl THEN
@@ -955,6 +966,7 @@ FORMAT wkrecap.procat
                 WHEN "v-ink" THEN cVarValue = STRING(cInks,"X(40)").
                 WHEN "print-sheet" THEN cVarValue =  IF AVAIL itemfg THEN STRING(itemfg.plate-no,"X(20)") ELSE "".
                 WHEN "full-cost" THEN cVarValue = STRING(oe-ordl.spare-dec-1,"->>>>>>>9.99").   
+                WHEN "status" THEN cVarValue = STRING(c-result,"x(20)") .
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.  
             cExcelVarValue = cVarValue.
@@ -1037,6 +1049,7 @@ FORMAT wkrecap.procat
                    WHEN "oe-ordl.cost" THEN cVarValue = "" .
                    WHEN "oe-ordl.t-cost" THEN cVarValue = "".
                    WHEN "full-cost" THEN cVarValue = "" .
+                   WHEN "status" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1114,6 +1127,7 @@ FORMAT wkrecap.procat
                    WHEN "oe-ordl.cost" THEN cVarValue = "" .
                    WHEN "oe-ordl.t-cost" THEN cVarValue = "".
                    WHEN "full-cost" THEN cVarValue = "" .
+                   WHEN "status" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.

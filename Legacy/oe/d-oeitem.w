@@ -447,6 +447,18 @@ FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIsCustPriceHoldExempt d-oeitem
+FUNCTION fIsCustPriceHoldExempt RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER,
+   ipcCustomerID AS CHARACTER,
+   ipcShipToID AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnPrevOrder d-oeitem
 FUNCTION fnPrevOrder RETURNS CHARACTER 
     (ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER) FORWARD.
@@ -2763,11 +2775,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
  
  IF ip-type NE "view" THEN DO:
-    IF llOEPrcChg-sec THEN  
+    IF llOEPrcChg-sec OR fIsCustPriceHoldExempt(oe-ordl.company, oe-ordl.cust-no, oe-ordl.ship-id) THEN  
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES.
     ELSE DO:        
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
-    END.
+    END.    
+        
  END.
 
   IF fgsecurity-log THEN
@@ -3412,8 +3425,15 @@ PROCEDURE create-job :
         FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
                               AND oe-ord.ord-no  EQ oe-ordl.ord-no
                             NO-ERROR.
+                            
+  v-job-job = 1.
   FIND LAST job WHERE job.company EQ cocode USE-INDEX job NO-LOCK NO-ERROR.
-  v-job-job = IF AVAIL job THEN job.job + 1 ELSE 1.
+  FIND LAST job-hdr WHERE job-hdr.company EQ cocode
+        USE-INDEX job NO-LOCK NO-ERROR.
+  /* In case job is not found and 1 is not the true last job# */
+  IF AVAILABLE job-hdr AND  job-hdr.job GT v-job-job THEN v-job-job = job-hdr.job + 1.
+  IF AVAILABLE job AND job.job GE v-job-job THEN v-job-job = job.job + 1.
+
   DO v-i = 1 TO 10:
       FIND job WHERE job.company EQ cocode 
            AND job.job = v-job-job USE-INDEX job 
@@ -7363,17 +7383,6 @@ PROCEDURE upd-new-tandem :
           DELETE itemfg-ink.
         END.
 
-        DO li = 1 TO 2:
-          FOR EACH b-Unit#
-              WHERE b-Unit#.reftable EQ "ce/v-est3.w Unit#" + TRIM(STRING(li - 1,">"))
-                AND b-Unit#.company  EQ eb.company
-                AND b-Unit#.loc      EQ eb.est-no
-                AND b-Unit#.code     EQ STRING(eb.form-no,"9999999999")
-                AND b-Unit#.code2    EQ STRING(eb.blank-no,"9999999999"):
-            DELETE b-Unit#.
-          END.
-        END.
-
         FIND FIRST xest
             WHERE xest.company EQ eb.company
               AND xest.est-no  EQ eb.master-est-no
@@ -9486,6 +9495,31 @@ DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
 RETURN lTaxable.
 
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIsCustPriceHoldExempt d-oeitem
+FUNCTION fIsCustPriceHoldExempt RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER, ipcCustomerID AS CHARACTER, ipcShipToID AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose: Returns true if the customer is not activated for price hold logic
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lCustExempt AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lPriceHoldActive AS LOGICAL NO-UNDO.
+	
+	RUN CheckPriceHoldForCustShip IN hdPriceProcs (ipcCompany, ipcCustomerID, ipcShipToID, OUTPUT lPriceHold, OUTPUT lPriceHoldActive).
+
+    lCustExempt = NOT lPriceHold AND lPriceHoldActive.
+    
+    RETURN lCustExempt.
 
 END FUNCTION.
 	

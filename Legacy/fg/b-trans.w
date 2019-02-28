@@ -1614,6 +1614,23 @@ PROCEDURE valid-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+
+    DO WITH FRAME {&FRAME-NAME}:
+     FIND FIRST bf-fg-rctd NO-LOCK
+         WHERE bf-fg-rctd.company = gcompany 
+           AND bf-fg-rctd.rita-code = "T" 
+           AND bf-fg-rctd.tag = fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+           AND RECID(bf-fg-rctd) <> RECID(fg-rctd)  NO-ERROR.
+     IF AVAIL bf-fg-rctd THEN DO:
+        MESSAGE "This Tag Number Has Already Been Used." skip
+                "Please Enter A Unique Tag Number." 
+                       VIEW-AS ALERT-BOX ERROR.
+        APPLY 'entry' TO fg-rctd.tag .
+        RETURN ERROR.
+     END.
+    END.
+
 
   IF lv-fgrecpt-val = 1 THEN DO:
      FIND FIRST loadtag WHERE loadtag.company = gcompany

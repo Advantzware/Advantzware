@@ -775,7 +775,7 @@ PROCEDURE pPostBols :
                   AND oe-boll.b-no    EQ bf-oe-bolh.b-no
                 :
                 fDebugMsg("running bol-pre-post for " + STRING(oe-boll.bol-no)  ).
-                RUN oe/bol-pre-post.p (ROWID(oe-boll), v-term).
+                RUN oe/bol-pre-post.p (ROWID(oe-boll), v-term, NO /* no msg */).
                 IF fgreorder-log AND cust.ACTIVE EQ "E" THEN DO:
                     fDebugMsg("running pCreateReport for " + STRING(oe-boll.bol-no)  ).
                     RUN pCreateReorder (ROWID(oe-boll)).

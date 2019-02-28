@@ -173,11 +173,11 @@ DEFINE RECTANGLE RECT-2
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     prgrms.prgmname AT ROW 1.24 COL 13 COLON-ALIGNED
+     prgrms.prgmname AT ROW 1.24 COL 13 COLON-ALIGNED FORMAT "X(16)"
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1
+          SIZE 26 BY 1
           BGCOLOR 15 FONT 4
-     prgrms.prgtitle AT ROW 1.24 COL 35 COLON-ALIGNED FORMAT "X(60)"
+     prgrms.prgtitle AT ROW 1.24 COL 48 COLON-ALIGNED FORMAT "X(60)"
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
           BGCOLOR 15 FONT 4
@@ -187,9 +187,9 @@ DEFINE FRAME F-Main
           BGCOLOR 15 
      prgrms.dir_group AT ROW 2.43 COL 13 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1
+          SIZE 26 BY 1
           BGCOLOR 15 FONT 4
-     prgrms.run_persistent AT ROW 2.43 COL 37
+     prgrms.run_persistent AT ROW 2.43 COL 50
           VIEW-AS TOGGLE-BOX
           SIZE 18 BY 1
      prgrms.track_usage AT ROW 2.43 COL 58
@@ -381,7 +381,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN parentPrgTitle IN FRAME F-Main
    NO-ENABLE 4                                                          */
 /* SETTINGS FOR FILL-IN prgrms.prgmname IN FRAME F-Main
-   NO-ENABLE 1                                                          */
+   NO-ENABLE 1 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN prgrms.prgtitle IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main

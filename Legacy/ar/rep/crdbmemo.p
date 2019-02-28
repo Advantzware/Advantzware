@@ -207,18 +207,12 @@ FOR EACH ar-cash
                        v-po-no  = ""
                        v-bol-no = ""
                        v-s-man  = "".
-
-                     FIND FIRST reftable NO-LOCK
-                         WHERE reftable.reftable EQ "ar-cashl.inv-line"
-                         AND reftable.code    EQ STRING(ar-cashl.c-no,"9999999999")  +
-                                                 STRING(ar-cashl.line,"9999999999")
-                         USE-INDEX CODE NO-ERROR.
              
                     FIND FIRST ar-invl WHERE
                          ar-invl.company EQ oe-reth.company AND
                          ar-invl.x-no EQ ar-inv.x-no AND
                          ar-invl.i-no EQ oe-retl.i-no AND 
-                         (IF AVAIL reftable THEN ar-invl.LINE eq INT(SUBSTRING(reftable.code2,11,10)) ELSE TRUE)
+                         (ar-invl.LINE EQ ar-cashl.invoiceLine OR TRUE)
                          NO-LOCK NO-ERROR.
                    
                     IF AVAIL ar-invl THEN
@@ -243,15 +237,10 @@ FOR EACH ar-cash
            END.
 
            ELSE do:
-               FIND FIRST reftable NO-LOCK
-               WHERE reftable.reftable EQ "ar-cashl.inv-line"
-                  AND reftable.code    EQ STRING(ar-cashl.c-no,"9999999999")  +
-                                          STRING(ar-cashl.line,"9999999999")
-               USE-INDEX CODE NO-ERROR.
                
                FOR EACH ar-invl NO-LOCK
                    WHERE ar-invl.x-no EQ ar-inv.x-no
-                   AND (IF AVAIL reftable THEN ar-invl.LINE eq INT(SUBSTRING(reftable.code2,11,10)) ELSE ar-invl.LINE EQ ar-cashl.LINE)  :              /*Task# 11221303*/
+                   AND ( (ar-invl.LINE EQ ar-cashl.invoiceLine ) OR ar-invl.LINE EQ ar-cashl.LINE)  :              /*Task# 11221303*/
 
                    ASSIGN v-po-no  = STRING(ar-invl.po-no)
                        v-ord-no = STRING(ar-invl.ord-no)

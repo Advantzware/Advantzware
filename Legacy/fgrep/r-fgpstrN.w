@@ -80,7 +80,7 @@ ASSIGN cTextListToSelect = "DATE,ITEM,DESCRIPTN,PO#,JOB#,VENDOR#,TRANSACTION TYP
                            "BEFORE QTY,BIN CHANGE,BOL#,REASON,REASON CODE,REASON DESCRIPTION"
        cFieldListToSelect = "fg-rcpth.trans-date,fg-rcpth.i-no,fg-rcpth.i-name,fg-rcpth.po-no,fg-rcpth.job-no," +
                             "po-ord.vend-no,v-tran-type,v-tag,v-rfid#,v-cases,v-qty-case,fg-rdtlh.loc-bin,lv-cost-uom,v-fg-qty,v-fg-cost,v-fg-value," +
-                            "itemfg.part-no,itemfg.die-no,v-numUp,itemfg.cad-no,itemfg.plate-no,v-numColors,v-SheetSize,v-Caliper,fg-rcpth.user-id,fg-rdtld.loc,wt-h,rec-time,fg-rcpth.post-date," +
+                            "itemfg.part-no,itemfg.die-no,v-numUp,itemfg.cad-no,itemfg.plate-no,v-numColors,v-SheetSize,v-Caliper,fg-rcpth.user-id,loc,wt-h,rec-time,fg-rcpth.post-date," +
                             "itemfg.procat,unt-cst,unt-sel,suom,prom-date,due-date,job-start,shipto,shipname,order-no," +
                             "bef-qty,bin-qty,bol-no,Reason,Reason-cd,Reason-dscr"
        cFieldLength = "9,16,11,9,13,11,1,20,24,8," + "8,9,9,10,10,13," + "15,15,4,15,15,13,15,7,10,10,9,8,8," +
@@ -1666,7 +1666,15 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                EACH fg-rdtlh
                WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
                  AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-               NO-LOCK:
+               NO-LOCK,
+                FIRST itemfg WHERE
+              itemfg.company EQ cocode AND
+              itemfg.i-no    EQ fg-rcpth.i-no AND
+              itemfg.cust-no GE v-cust[1] AND
+              itemfg.cust-no LE v-cust[2] AND 
+              (IF lselected THEN CAN-FIND(FIRST ttCustList WHERE ttCustList.cust-no EQ itemfg.cust-no
+              AND ttCustList.log-fld NO-LOCK) ELSE TRUE)
+              NO-LOCK:
 
                CREATE tt-report.
                ASSIGN
@@ -1809,6 +1817,14 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                     AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
                   AND fg-rcpth.USER-ID GE begin_user
                  AND fg-rcpth.USER-ID LE END_user
+                  NO-LOCK,
+                  FIRST itemfg WHERE
+                  itemfg.company EQ cocode AND
+                  itemfg.i-no    EQ fg-rcpth.i-no AND
+                  itemfg.cust-no GE v-cust[1] AND
+                  itemfg.cust-no LE v-cust[2] AND 
+                  (IF lselected THEN CAN-FIND(FIRST ttCustList WHERE ttCustList.cust-no EQ itemfg.cust-no
+                                              AND ttCustList.log-fld NO-LOCK) ELSE TRUE)
                   NO-LOCK:
 
                   CREATE tt-report.
@@ -1838,7 +1854,15 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                    EACH fg-rdtlh FIELDS(loc loc-bin tag) WHERE
                         fg-rdtlh.r-no      EQ fg-rcpth.r-no AND
                         fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-                        NO-LOCK:
+                        NO-LOCK,
+                  FIRST itemfg WHERE
+                  itemfg.company EQ cocode AND
+                  itemfg.i-no    EQ fg-rcpth.i-no AND
+                  itemfg.cust-no GE v-cust[1] AND
+                  itemfg.cust-no LE v-cust[2] AND 
+                  (IF lselected THEN CAN-FIND(FIRST ttCustList WHERE ttCustList.cust-no EQ itemfg.cust-no
+                                              AND ttCustList.log-fld NO-LOCK) ELSE TRUE)
+                  NO-LOCK:
 
                         CREATE tt-report.
                         ASSIGN

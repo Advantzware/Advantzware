@@ -1828,6 +1828,11 @@ PROCEDURE query-first :
            sys-ctrl.int-fld = 10.
   END.
 
+  IF sys-ctrl.date-fld NE ? THEN
+      ASSIGN
+      fi_due-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(sys-ctrl.date-fld) 
+      fi_due-date = sys-ctrl.date-fld .
+
   IF fi_job-no NE "" THEN fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
 
   {&for-each11}

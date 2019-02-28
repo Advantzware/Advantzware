@@ -200,7 +200,7 @@ if not ch-multi then do:
    chExcelApplication:activeSheet:PageSetup:CenterFooter = "PO BOX 39505 / LOUISVILLE KENTUCKY 40233 / 800-518-6305 / FAX: 502-935-8330".
    chExcelApplication:Goto("R19C1") NO-ERROR.
 
-   cPdfFileName = "quote # " + STRING(xquo.q-no) + " for Estimate " + TRIM(xquo.est-no) .
+   cPdfFileName = "Quote # " + STRING(xquo.q-no) + " for Estimate " + TRIM(xquo.est-no) .
    
     os-delete value(v-dir + "quote.xls").     
    	os-delete value(v-dir + "asi.pdf").

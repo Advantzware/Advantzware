@@ -431,9 +431,9 @@ v-printline = 0.
             po-ordl.i-no FORM "x(20)" SPACE(1)
             v-adder[1] 
             v-job-no FORM "x(12)" SPACE(1)
-            po-ordl.cost FORM "->>>9.99<<"
-            po-ordl.pr-uom
-            po-ordl.t-cost FORM "->>>,>>9.99"              
+            po-ordl.cost FORM "->>>>9.99<<" SPACE(1)
+            po-ordl.pr-uom FORMAT "x(3)" 
+            po-ordl.t-cost FORM "->>>>>9.99"              
             SKIP.
 
         v-printline = v-printline + 1.

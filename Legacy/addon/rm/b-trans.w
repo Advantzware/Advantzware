@@ -1245,7 +1245,7 @@ PROCEDURE valid-loc-bin-tag :
            RETURN ERROR.
     END.
     ASSIGN rm-rctd.i-no:SCREEN-VALUE = loadtag.i-no 
-           rm-rctd.i-name:SCREEN-VALUE = loadtag.i-name              
+           rm-rctd.i-name:SCREEN-VALUE = loadtag.i-name        
            rm-rctd.loc:SCREEN-VALUE = loadtag.loc
            rm-rctd.loc-bin:SCREEN-VALUE = loadtag.loc-bin
            rm-rctd.qty:SCREEN-VALUE = STRING(loadtag.qty)
@@ -1258,44 +1258,22 @@ PROCEDURE valid-loc-bin-tag :
     FIND FIRST rm-bin
         WHERE rm-bin.company  EQ cocode
           AND rm-bin.i-no     EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND (rm-bin.loc     EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}          OR
-               (li-field#     LT 1 AND
-                rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""))
-          AND (rm-bin.loc-bin EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}      OR
-               (li-field#     LT 2 AND
-                rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""))
-          AND (rm-bin.tag     EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}          OR
-               (li-field#     LT 3 AND
-                rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""))
-        USE-INDEX loc-bin NO-LOCK NO-ERROR.
+          AND rm-bin.tag     EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND rm-bin.qty GT 0
+        NO-LOCK NO-ERROR.
 
-    IF AVAIL rm-bin AND
-       (rm-bin.qty GE DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}) OR
-        li-field# LT 3) THEN
+    IF AVAIL rm-bin THEN
       ASSIGN
        rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = CAPS(rm-bin.loc)
        rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = CAPS(rm-bin.loc-bin)
+       rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(loadtag.qty)
        rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = CAPS(rm-bin.tag)
        rm-rctd.tag2:SCREEN-VALUE IN BROWSE {&browse-name} = CAPS(rm-bin.tag).
 
     ELSE DO:
-      IF AVAIL rm-bin THEN DO:
-        MESSAGE "Insufficient qty in bin..." VIEW-AS ALERT-BOX.
-        IF li-field# LE 3 THEN
-          APPLY "entry" TO FOCUS IN BROWSE {&browse-name}.
-        ELSE
-          APPLY "entry" TO rm-rctd.qty IN BROWSE {&browse-name}.
-      END.
-
-      ELSE DO:
-        MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX.
-        IF li-field# LE 3 THEN
-          APPLY "entry" TO FOCUS IN BROWSE {&browse-name}.
-        ELSE
-          APPLY "entry" TO rm-rctd.loc-bin IN BROWSE {&browse-name}.
-      END.
-
-      RETURN ERROR.
+       MESSAGE "Loadtag has no on-hand quantity" VIEW-AS ALERT-BOX.
+            APPLY "entry" TO rm-rctd.tag IN BROWSE {&browse-name}.
+       RETURN ERROR.
     END.
   END.
 

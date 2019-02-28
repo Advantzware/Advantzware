@@ -95,14 +95,16 @@ DEFINE NEW SHARED VARIABLE iline AS INTEGER NO-UNDO .
 
 ASSIGN cTextListToSelect = "CUSTOMER,CUST NAME,CONTACT,SALES REP,TERMS,ADDRESS1,ADDRESS2,CITY,STATE,ZIP,CREDIT LIM,PHONE,FAX,CHECK/MEMO," +
                            "DAYS OLD,TYPE,INV#,INV DATE,AMOUNT,CURRENT,ADTP,TD,"
-                         + "PERIOD DAY1,PERIOD DAY2,PERIOD DAY3,CUSTOMER PO#,JOB#,BOL#,INVOICE NOTE,COLLECTION NOTE,PERIOD DAY4"
+                         + "PERIOD DAY1,PERIOD DAY2,PERIOD DAY3,CUSTOMER PO#,JOB#,BOL#,INVOICE NOTE,COLLECTION NOTE,PERIOD DAY4,"
+                         + "CURRENCY,TOTAL DUE"
 
        cFieldListToSelect = "cust,cust-name,cont,sman,term,add1,add2,city,stat,zip,cre-lim,phone,fax,chk-memo," +
                             "day-old,type,inv,inv-date,amount,current,adtp,td," +
-                            "per-1,per-2,per-3,cust-po,job,bol,inv-note,coll-note,per-4" 
+                            "per-1,per-2,per-3,cust-po,job,bol,inv-note,coll-note,per-4," +
+                            "currency,tot-due"    
 
-       cFieldLength = "8,30,25,25,15,25,25,10,5,10,12,13,12,10," + "8,4,8,8,13,13,4,4," + "13,13,13,15,9,8,30,30,13" 
-       cFieldType = "c,c,c,c,c,c,c,c,c,c,c,c,c,c," + "i,c,i,c,i,i,i,i," + "i,i,i,c,c,c,c,c,i" 
+       cFieldLength = "8,30,25,25,15,25,25,10,5,10,12,13,12,10," + "8,4,8,8,13,13,4,4," + "13,13,13,15,9,8,30,30,13," + "10,13" 
+       cFieldType = "c,c,c,c,c,c,c,c,c,c,c,c,c,c," + "i,c,i,c,i,i,i,i," + "i,i,i,c,c,c,c,c,i," + "c,i" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1932,7 +1934,7 @@ DEF VAR cslist AS cha NO-UNDO.
    END.
           cSlist = cSlist + ttRptSelected.FieldList + ",".
 
-        IF LOOKUP(ttRptSelected.TextList, "AMOUNT,CURRENT,PERIOD DAY1,PERIOD DAY2,PERIOD DAY3,PERIOD DAY4") <> 0    THEN
+        IF LOOKUP(ttRptSelected.TextList, "AMOUNT,CURRENT,PERIOD DAY1,PERIOD DAY2,PERIOD DAY3,PERIOD DAY4,TOTAL DUE") <> 0    THEN
          ASSIGN
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE

@@ -215,7 +215,7 @@ DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11"
      SIZE 7 BY 1 NO-UNDO.
 
 DEFINE VARIABLE thru_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Thru Date" 
+     LABEL "Thru Due Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
@@ -1574,8 +1574,8 @@ SESSION:SET-WAIT-STATE ("general").
             v-pct = job-hdr.sq-in / 100.
         end.
 
-        v-mat-qty = round(v-mat-qty * v-pct * v-on,0).
-        iBoardIssued = ROUND(iBoardIssued * v-pct * v-on,0) .
+       /* v-mat-qty = round(v-mat-qty * v-pct * v-on,0).
+        iBoardIssued = ROUND(iBoardIssued * v-pct * v-on,0) .*/ /* Ticket 42372 */
 
         leave.
       end.

@@ -1172,6 +1172,30 @@ PROCEDURE valid-loc-bin-tag :
     rm-rctd.qty:SCREEN-VALUE = '0'.
     IF ip-int LE 3 AND adm-new-record AND AVAILABLE rm-bin THEN
     rm-rctd.qty:SCREEN-VALUE = STRING(rm-bin.qty).
+    
+    IF ip-int EQ 1 OR ip-int EQ 99  THEN DO:  
+        FIND FIRST loc WHERE loc.company = cocode
+                        AND loc.loc = rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+                        NO-LOCK NO-ERROR.
+          IF NOT AVAIL loc THEN DO:
+             MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
+             APPLY "entry" TO rm-rctd.loc IN BROWSE {&browse-name}. 
+             RETURN ERROR.
+          END.
+    END.
+    IF ip-int EQ 2 OR ip-int EQ 99 THEN DO:  
+          FIND FIRST rm-bin WHERE rm-bin.company = g_company
+                           AND rm-bin.i-no = ""
+                           AND rm-bin.loc = rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+                           AND rm-bin.loc-bin = rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK NO-ERROR.
+          IF NOT AVAIL rm-bin THEN DO:
+             MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
+             APPLY "entry" TO rm-rctd.loc-bin IN BROWSE {&browse-name}. 
+             RETURN ERROR.
+          END.
+
+    END.
+
 /*    IF NOT AVAILABLE rm-bin THEN DO:                                               */
 /*      IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN              */
 /*        FIND FIRST loadtag NO-LOCK                                                 */

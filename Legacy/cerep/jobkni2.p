@@ -779,117 +779,7 @@ END FUNCTION.
                                               string(ef.trim-l).
                 end.
 
-               /** BUILD INK WORK FILE **/
-/*                 for each job-mat where job-mat.company eq cocode                    */
-/*                                    and job-mat.job     eq job-hdr.job               */
-/*                                    and job-mat.frm     eq eb.form-no                */
-/*                                  NO-LOCK,                                           */
-/*                     first item                                                      */
-/*                     {sys/look/itemivW.i}                                             */
-/*                        and item.i-no eq job-mat.i-no:                               */
-/*                                                                                     */
-/*                     FIND FIRST reftable                                             */
-/*                          WHERE reftable EQ "ce/v-est3.w Unit#"                      */
-/*                            AND reftable.company EQ b-eb.company                     */
-/*                            AND reftable.loc     EQ eb.est-no                        */
-/*                            AND reftable.code    EQ STRING(eb.form-no,"9999999999")  */
-/*                            AND reftable.code2   EQ STRING(eb.blank-no,"9999999999") */
-/*                          NO-LOCK NO-ERROR.                                          */
-/*                                                                                     */
-/*                     FIND FIRST b-rt                                                 */
-/*                          WHERE b-rt.reftable EQ "ce/v-est3.w Unit#1"                */
-/*                            AND b-rt.company  EQ b-eb.company                        */
-/*                            AND b-rt.loc      EQ eb.est-no                           */
-/*                            AND b-rt.code     EQ STRING(eb.form-no,"9999999999")     */
-/*                            AND b-rt.code2    EQ STRING(eb.blank-no,"9999999999")    */
-/*                          NO-LOCK NO-ERROR.                                          */
-/*                     /*                                                              */
-/*                     IF AVAIL reftable THEN                                          */
-/*                         MESSAGE "ref"                                               */
-/*                         reftable.val[1]                                             */
-/*                         reftable.val[2]                                             */
-/*                         reftable.val[3]                                             */
-/*                         reftable.val[4]                                             */
-/*                         reftable.val[5]                                             */
-/*                         reftable.val[6]                                             */
-/*                         reftable.val[7]                                             */
-/*                         reftable.val[8]                                             */
-/*                         reftable.val[9]                                             */
-/*                         VIEW-AS ALERT-BOX.                                          */
-/*                     IF AVAIL b-rt THEN                                              */
-/*                         MESSAGE "ref"                                               */
-/*                         b-rt.val[1]                                                 */
-/*                         b-rt.val[2]                                                 */
-/*                         b-rt.val[3]                                                 */
-/*                         b-rt.val[4]                                                 */
-/*                         b-rt.val[5]                                                 */
-/*                         b-rt.val[6]                                                 */
-/*                         b-rt.val[7]                                                 */
-/*                         b-rt.val[8]                                                 */
-/*                         b-rt.val[9]                                                 */
-/*                         VIEW-AS ALERT-BOX.                                          */
-/*                       */                                                            */
-/*                     v-next-unit = 0.                                                */
-/*                     do i = 1 to 12:                                                 */
-/*                         v-unit = IF i LE 12 AND AVAIL reftable                      */
-/*                                  THEN reftable.val[i]                               */
-/*                                  ELSE                                               */
-/*                                  IF AVAIL b-rt THEN b-rt.val[i - 12]                */
-/*                                                ELSE 0.                              */
-/*                                                                                     */
-/*                         if eb.i-code2[i] eq job-mat.i-no then do:                   */
-/*                             find first wrk-ink                                      */
-/*                                  where wrk-ink.i-code   eq eb.i-code2[i]            */
-/*                                    and wrk-ink.form-no  eq eb.form-no               */
-/*                                    and wrk-ink.blank-no eq eb.blank-no              */
-/*                                    AND wrk-ink.i-pass   EQ eb.i-ps2[i]              */
-/*                                    AND wrk-ink.i-unit   EQ v-unit                   */
-/*                                 no-error.                                           */
-/*                             if not avail wrk-ink then do:                           */
-/*                                 create wrk-ink.                                     */
-/*                                 assign                                              */
-/*                                   wrk-ink.i-code   = eb.i-code2[i]                  */
-/*                                   wrk-ink.form-no  = eb.form-no                     */
-/*                                   wrk-ink.blank-no = eb.blank-no                    */
-/*                                   wrk-ink.i-dscr   = eb.i-dscr2[i]                  */
-/*                                   wrk-ink.i-pass   = eb.i-ps2[i]                    */
-/*                                   wrk-ink.i-unit   = v-unit.                        */
-/*                                                                                     */
-/*                                 IF wrk-ink.i-unit = 0 THEN DO:                      */
-/*                                     v-next-unit = v-next-unit + 1.                  */
-/*                                     wrk-ink.i-unit = v-next-unit.                   */
-/*                                 END.                                                */
-/*                             end.                                                    */
-/*                         end.                                                        */
-/*                     end. /* loop i */                                               */
-/*                                                                                     */
-/*                     find first wrk-ink                                              */
-/*                          where wrk-ink.i-code    eq job-mat.i-no                    */
-/*                            and wrk-ink.form-no   eq job-mat.frm                     */
-/*                            and (wrk-ink.blank-no eq job-mat.blank-no or             */
-/*                                 est.est-type     eq 4)                              */
-/*                          no-error.                                                  */
-/*                                                                                     */
-/*                     if not avail wrk-ink and                                        */
-/*                        (job-mat.blank-no  eq eb.blank-no or                         */
-/*                         (job-mat.blank-no eq 0 and eb.blank-no eq 1)) then do:      */
-/*                         create wrk-ink.                                             */
-/*                         assign                                                      */
-/*                           wrk-ink.i-code   = job-mat.i-no                           */
-/*                           wrk-ink.form-no  = eb.form-no                             */
-/*                           wrk-ink.blank-no = eb.blank-no                            */
-/*                           wrk-ink.i-dscr   = item.est-dscr                          */
-/*                           wrk-ink.i-unit = 0                                        */
-/*                           wrk-ink.i-pass   = 1.                                     */
-/*                         IF wrk-ink.i-unit = 0 THEN DO:                              */
-/*                             v-next-unit = v-next-unit + 1.                          */
-/*                             wrk-ink.i-unit = v-next-unit.                           */
-/*                         END.                                                        */
-/*                     end.                                                            */
-/*                                                                                     */
-/*                     if avail wrk-ink then                                           */
-/*                       wrk-ink.i-qty = wrk-ink.i-qty + job-mat.qty.                  */
-/*                 end. /* JOB-MAT */                                                  */
+ 
 
                 if eb.est-type eq 4 then v-fac = eb.yld-qty / v-est-qty.
 
@@ -1415,31 +1305,9 @@ END FUNCTION.
                    BY wrk-ink.i-code 
                   BY wrk-ink.blank-no:
                     /*get reftables that hold unit #s*/
-            IF FIRST-OF(wrk-ink.blank-no) THEN DO:
-                FIND FIRST bf-reftable-unit1                                             
-                          WHERE bf-reftable-unit1.reftable EQ "ce/v-est3.w Unit#"                      
-                            AND bf-reftable-unit1.company EQ job-hdr.company                     
-                            AND bf-reftable-unit1.loc     EQ job-hdr.est-no                        
-                            AND bf-reftable-unit1.code    EQ STRING(wrk-ink.form-no,"9999999999")  
-                            AND bf-reftable-unit1.code2   EQ STRING(wrk-ink.blank-no,"9999999999") 
-                          NO-LOCK NO-ERROR.
-                FIND FIRST bf-reftable-unit2                                                 
-                          WHERE bf-reftable-unit2.reftable EQ "ce/v-est3.w Unit#1"                
-                            AND bf-reftable-unit2.company  EQ job-hdr.company                        
-                            AND bf-reftable-unit2.loc      EQ job-hdr.est-no                           
-                            AND bf-reftable-unit2.code     EQ STRING(wrk-ink.form-no,"9999999999")     
-                            AND bf-reftable-unit2.code2    EQ STRING(wrk-ink.blank-no,"9999999999")    
-                          NO-LOCK NO-ERROR.  
-            END.
-            IF AVAIL bf-reftable-unit1 THEN
-                IF wrk-ink.cnt > 12 AND AVAIL bf-reftable-unit2 THEN DO:
-                    iUnit = bf-reftable-unit2.val[wrk-ink.cnt - 12].
-                    cPass = SUBSTRING(bf-reftable-unit2.dscr,wrk-ink.cnt - 12,1).
-                END.
-                ELSE DO:
-                    iUnit = bf-reftable-unit1.val[wrk-ink.cnt].
-                    cPass = SUBSTRING(bf-reftable-unit1.dscr,wrk-ink.cnt,1).
-                END.
+                 iUnit = eb.unitNo[wrk-ink.cnt].
+                 cPass = SUBSTRING(eb.side[wrk-ink.cnt],1).
+                 
             FIND FIRST tt-ink-print WHERE tt-ink-print.i-code EQ wrk-ink.i-code
                 AND tt-ink-print.unit EQ iUnit
                 NO-LOCK NO-ERROR.

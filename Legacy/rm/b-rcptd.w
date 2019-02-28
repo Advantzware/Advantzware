@@ -1377,6 +1377,15 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.qty Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.qty IN BROWSE Browser-Table /* Qty */
 DO:
+         IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
+            DO:
+             RUN find-exact-po.
+             FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
+
+             IF AVAILABLE po-ordl THEN 
+                 lv-rowid = ROWID(po-ordl).
+            END.
+
         IF lv-entry-qty NE DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
             RUN po-cost.
 

@@ -144,8 +144,8 @@ ASSIGN
  ASSIGN
     opd-cost-uom = lv-cost-uom
     opd-std-cost = lv-out-cost + lv-setup-per-cost-uom
-    opd-ext-cost = (lv-out-qty * lv-out-cost) + lv-frt-cost
-                       + lv-setup-per-cost-uom.
+    opd-ext-cost = (lv-out-qty * opd-std-cost) 
+    .
  
  IF fgpofrt-log THEN 
  DO:

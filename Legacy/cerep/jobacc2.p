@@ -69,7 +69,6 @@ def new shared buffer xjob-hdr for job-hdr.
 
 def buffer b-eb for eb.
 def buffer b-ef for ef.
-DEF BUFFER b-rt FOR reftable.
 
 def new shared workfile wrk-op
   field m-dscr like est-op.m-dscr
@@ -765,55 +764,10 @@ END FUNCTION.
                     first item
                     {sys/look/itemivW.i}
                        and item.i-no eq job-mat.i-no:
-
-                    FIND FIRST reftable 
-                         WHERE reftable EQ "ce/v-est3.w Unit#"
-                           AND reftable.company EQ b-eb.company
-                           AND reftable.loc     EQ eb.est-no
-                           AND reftable.code    EQ STRING(eb.form-no,"9999999999")
-                           AND reftable.code2   EQ STRING(eb.blank-no,"9999999999")
-                         NO-LOCK NO-ERROR.
-
-                    FIND FIRST b-rt
-                         WHERE b-rt.reftable EQ "ce/v-est3.w Unit#1"
-                           AND b-rt.company  EQ b-eb.company
-                           AND b-rt.loc      EQ eb.est-no
-                           AND b-rt.code     EQ STRING(eb.form-no,"9999999999")
-                           AND b-rt.code2    EQ STRING(eb.blank-no,"9999999999")
-                         NO-LOCK NO-ERROR.
-                    /*
-                    IF AVAIL reftable THEN
-                        MESSAGE "ref" 
-                        reftable.val[1]
-                        reftable.val[2]
-                        reftable.val[3]
-                        reftable.val[4]
-                        reftable.val[5]
-                        reftable.val[6]
-                        reftable.val[7]
-                        reftable.val[8]
-                        reftable.val[9]
-                        VIEW-AS ALERT-BOX.
-                    IF AVAIL b-rt THEN
-                        MESSAGE "ref" 
-                        b-rt.val[1]
-                        b-rt.val[2]
-                        b-rt.val[3]
-                        b-rt.val[4]
-                        b-rt.val[5]
-                        b-rt.val[6]
-                        b-rt.val[7]
-                        b-rt.val[8]
-                        b-rt.val[9]
-                        VIEW-AS ALERT-BOX.
-                      */
                     v-next-unit = 0.
                     do i = 1 to 12:
-                        v-unit = IF i LE 12 AND AVAIL reftable 
-                                 THEN reftable.val[i]
-                                 ELSE
-                                 IF AVAIL b-rt THEN b-rt.val[i - 12]
-                                               ELSE 0.
+                        v-unit =  eb.unitNo[i].
+                                  
                         
                         if eb.i-code2[i] eq job-mat.i-no then do:
                             find first wrk-ink
