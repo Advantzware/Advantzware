@@ -450,7 +450,7 @@ SESSION:SET-WAIT-STATE("General").
         
     PAUSE 0 BEFORE-HIDE.
     IF tgCsvExport THEN 
-        EXPORT STREAM sCsv DELIMITER "," "Item" "Tag" "Loc1" "Bin1" "Qty1" "Loc2" "Bin2" "Qty2".
+        EXPORT STREAM sCsv DELIMITER "," "Company" "Item" "Tag" "Loc1" "Bin1" "Qty1" "Loc2" "Bin2" "Qty2".
     FOR EACH fg-bin NO-LOCK USE-INDEX tag.
 
         iRecs = iRecs + 1.
@@ -475,6 +475,7 @@ SESSION:SET-WAIT-STATE("General").
         DO:
             iDups = iDups + 1.
             DISPLAY STREAM sRpt 
+                fg-bin.company COLUMN-LABEL "Company"
                 fg-bin.i-no FORMAT "x(22)"
                 fg-bin.tag  FORMAT "x(27)" COLUMN-LABEL "Tag"
                 fg-bin.loc  COLUMN-LABEL "Loc1"
@@ -485,7 +486,8 @@ SESSION:SET-WAIT-STATE("General").
                 bf-fg-bin.qty COLUMN-LABEL "Qty2" FORMAT "->>>>>>,>>9.9<<<<<"
                 WITH WIDTH 200 STREAM-IO. 
             IF tgCsvExport THEN
-              EXPORT STREAM sCsv DELIMITER ","         
+              EXPORT STREAM sCsv DELIMITER ","  
+                    fg-bin.company       
                     fg-bin.i-no
                     fg-bin.tag
                     fg-bin.loc
