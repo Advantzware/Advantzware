@@ -326,7 +326,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTasks sObject
 ON CHOOSE OF btnTasks IN FRAME F-Main
 DO:
-    RUN pPanelSelection ("Tasks").
+    RUN pPanelSelection ("Schedule").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -455,9 +455,9 @@ PROCEDURE pPanelSelection :
             VIEW-AS ALERT-BOX.
             RETURN.
         END.
-        WHEN "Tasks" THEN DO:
+        WHEN "Schedule" THEN DO:
             {methods/run_link.i "CONTAINER" "pSetTaskFilter"}
-            RUN AOA/aoaTasks.w PERSISTENT SET hTasks.
+            RUN AOA/aoaSched.w PERSISTENT SET hTasks.
             {methods/run_link.i "CONTAINER" "pSethTasks" "(hTasks)"}
             RETURN.
         END.

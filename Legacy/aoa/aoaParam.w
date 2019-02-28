@@ -54,7 +54,7 @@ DEFINE VARIABLE lSecure          AS LOGICAL   NO-UNDO.
 
 RUN AOA\appServer\aoaBin.p PERSISTENT SET hAppSrvBin.
 SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
-RUN AOA\aoaJasper.p PERSISTENT SET hJasper.
+RUN AOA\spJasper.p PERSISTENT SET hJasper.
 SESSION:ADD-SUPER-PROCEDURE (hJasper).
 
 DEFINE BUFFER jasperUserPrint FOR user-print.
@@ -122,10 +122,10 @@ FUNCTION fSetDescription RETURNS CHARACTER
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
-DEFINE VARIABLE b_aoataskparam AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_aoacolumns AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_aoapanel AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_aoaParam AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_aoataskparam AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
@@ -343,12 +343,12 @@ PROCEDURE adm-create-objects :
              INPUT  'AOA/aoaTaskParam.w':U ,
              INPUT  FRAME paramFrame:HANDLE ,
              INPUT  '':U ,
-             OUTPUT b_aoataskparam ).
-       RUN set-position IN b_aoataskparam ( 2.43 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 7.24 , 148.40 ) */
+             OUTPUT h_aoataskparam ).
+       RUN set-position IN h_aoataskparam ( 2.43 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 16.52 , 149.20 ) */
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( b_aoataskparam ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_aoataskparam ,
              h_aoapanel , 'AFTER':U ).
     END. /* Page 3 */
 
@@ -649,6 +649,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetRecipients W-Win 
+PROCEDURE pGetRecipients :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcRecipients AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    
+    DO idx = 1 TO EXTENT(user-print.field-name):
+        IF user-print.field-name[idx]  EQ "svRecipients" AND
+           user-print.field-value[idx] NE "" THEN DO:
+            opcRecipients = user-print.field-value[idx].
+            LEAVE.
+        END. /* if */
+    END. /* do idx */
+    IF opcRecipients NE "" THEN DO:
+        MESSAGE
+            "Recipients:" opcRecipients SKIP(1)
+            "Email Results?"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+        UPDATE lUseEmail AS LOGICAL.
+        IF lUseEmail EQ NO THEN
+        opcRecipients = "".
+    END. /* if */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSelectedColumns W-Win 
 PROCEDURE pGetSelectedColumns :
 /*------------------------------------------------------------------------------
@@ -842,15 +875,21 @@ PROCEDURE pRunNow :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcTaskFormat AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    RUN pGetRecipients (OUTPUT cRecipients).
     DO TRANSACTION:
         CREATE Task.
         ASSIGN
             Task.company    = aoaCompany
             Task.user-id    = USERID("ASI")
-            Task.programID  = aoaProgramID
+            Task.prgmName   = aoaProgramID
             Task.taskName   = "Run Now Task"
             Task.taskFormat = ipcTaskFormat
             Task.runNow     = YES
+            Task.recipients = cRecipients
+            Task.taskID     = user-print.batch-seq
+            Task.taskType   = "DataPA"
             .
         RELEASE Task.
     END. /* do trans */
@@ -929,12 +968,16 @@ PROCEDURE pSaveUserPrint :
                 ASSIGN
                     user-print.company    = aoaCompany
                     user-print.program-id = aoaProgramID
+                    user-print.prog-title = "User Default"
                     user-print.user-id    = aoaUserID
                     user-print.last-date  = TODAY
                     user-print.last-time  = TIME
                     .
             END. /* not avail */
         END. /* not batch, must be view now request */
+
+        IF user-print.batch-seq EQ 0 AND user-print.prog-title EQ "" THEN
+        user-print.prog-title = "User Default".
 
         /* parameter values, currently up to 87 */
         ASSIGN
@@ -981,8 +1024,10 @@ PROCEDURE pSaveUserPrint :
 
         RUN pSaveUserPrint IN h_aoaColumns (ROWID(user-print),INPUT-OUTPUT idx).
     END. /* do trans */
-    IF AVAILABLE user-print THEN
+    IF AVAILABLE user-print THEN DO:
     FIND CURRENT user-print NO-LOCK.  
+        RUN pGetUserPrintTask IN h_aoaTaskParam.
+    END. /* if avail */
     
 END PROCEDURE.
 

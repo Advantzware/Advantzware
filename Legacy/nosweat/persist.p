@@ -157,15 +157,20 @@ PROCEDURE Get_Procedure :
     IF NOT SESSION:BATCH-MODE THEN
         RUN Set_Cursor ("WAIT").
   
-    FIND buf-prgrms WHERE buf-prgrms.prgmname = proc-name NO-LOCK NO-ERROR.
+    FIND buf-prgrms NO-LOCK WHERE buf-prgrms.prgmname = proc-name NO-ERROR.
 
     IF AVAILABLE buf-prgrms THEN DO:
         run-proc = buf-prgrms.dir_group + "/" + proc-name + "r".
-        IF SEARCH(run-proc) = ? THEN
+        IF SEARCH(run-proc) EQ ? THEN
             run-proc = buf-prgrms.dir_group + "/" + proc-name + "p".
-        IF SEARCH(run-proc) = ? THEN
+        IF SEARCH(run-proc) EQ ? THEN
             run-proc = buf-prgrms.dir_group + "/" + proc-name + "w".
-        IF SEARCH(run-proc) = ? THEN DO:
+        IF buf-prgrms.subjectID NE 0 THEN DO:
+            run-proc = "AOA/Jasper.r".
+            IF SEARCH(run-proc) EQ ? THEN
+            run-proc = "AOA/Jasper.p".
+        END. /* if ? */
+        IF SEARCH(run-proc) EQ ? THEN DO:
             IF NOT SESSION:BATCH-MODE THEN DO:
                 RUN Set_Cursor ("").
                 MESSAGE "Procedure" SUBSTR(run-proc,1,LENGTH(run-proc) - 2) "Does Not Exist"
@@ -197,6 +202,8 @@ PROCEDURE Get_Procedure :
                         run-proc = "system/listrqst.w".
                         {methods/smartrun.i (buf-prgrms.prgmname)}
                     END.
+                    ELSE IF INDEX(run-proc,"Jasper.") NE 0 THEN
+                        {methods/smartrun.i (buf-prgrms.subjectID,USERID('ASI'),buf-prgrms.prgmName,0,YES)}
                     ELSE
                     {methods/smartrun.i}
                 END.
@@ -206,7 +213,9 @@ PROCEDURE Get_Procedure :
                     ELSE
                         IF proc-name= "help." AND INDEX(PROGRAM-NAME(2),"mainmenu") NE 0 THEN
                             RUN VALUE(run-proc) ("mainmenu.",0).
-                        ELSE RUN VALUE(run-proc).
+                        ELSE IF INDEX(run-proc,"Jasper.") NE 0 THEN
+                             RUN VALUE(run-proc) (buf-prgrms.subjectID,USERID('ASI'),buf-prgrms.prgmName,0,YES).
+                             ELSE RUN VALUE(run-proc).
                 run-proc = "".
             END.
         END.

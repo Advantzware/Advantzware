@@ -2,12 +2,12 @@
 &ANALYZE-RESUME
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Procedure 
 /*------------------------------------------------------------------------
-    File        : AOA/aoaJasper.p
+    File        : Jasper/spJasper.p
     Purpose     : SUPER-PROCEDURE Jasper Functions and Procedures
 
-    Syntax      : RUN AOA/aoaJasper.p
+    Syntax      : RUN Jasper/spJasper.p
 
-    Description : AOA Jasper Functions & Procedures
+    Description : Jasper Functions & Procedures
 
     Author(s)   : Ron Stark
     Created     : 12.5.2018
@@ -187,6 +187,102 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-pGetUserParamValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUserParamValue Procedure
+PROCEDURE pGetUserParamValue:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprRowID AS ROWID NO-UNDO.
+
+    DEFINE VARIABLE cField AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTable AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hTable AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE dWidth AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE idx    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx    AS INTEGER   NO-UNDO.
+
+    FIND dynParamValue NO-LOCK WHERE ROWID(dynParamValue) EQ iprRowID.
+    ASSIGN
+        aoaProgramID = dynParamValue.prgmName
+        aoaUserID    = dynParamValue.user-id
+        aoaBatchSeq  = dynParamValue.paramValueID
+        .
+    DO idx = 1 TO EXTENT(dynParamValue.paramName):
+        IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
+        CASE dynParamValue.paramName[idx]:
+            WHEN "svShowParameters" THEN
+            svShowParameters   = dynParamValue.paramValue[idx] EQ "yes".
+            WHEN "svShowReportHeader" THEN
+            svShowReportHeader = dynParamValue.paramValue[idx] EQ "yes".
+            WHEN "svShowReportFooter" THEN
+            svShowReportFooter = dynParamValue.paramValue[idx] EQ "yes".
+            WHEN "svShowPageHeader" THEN
+            svShowPageHeader   = dynParamValue.paramValue[idx] EQ "yes".
+            WHEN "svShowPageFooter" THEN
+            svShowPageFooter   = dynParamValue.paramValue[idx] EQ "yes".
+            WHEN "svShowGroupHeader" THEN
+            svShowGroupHeader  = dynParamValue.paramValue[idx] EQ "yes".
+            WHEN "svShowGroupFooter" THEN
+            svShowGroupFooter  = dynParamValue.paramValue[idx] EQ "yes".
+        END CASE.
+    END. /* do idx */
+    EMPTY TEMP-TABLE ttColumn.
+    EMPTY TEMP-TABLE ttGroupCalc.
+    DO idx = 1 TO EXTENT(dynParamValue.colName):
+        IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
+        IF dynParamValue.isActive[idx] EQ NO THEN NEXT.
+        dWidth = 10.
+        IF NUM-ENTRIES(dynParamValue.colName[idx],".") EQ 2 THEN DO:
+            ASSIGN
+                cTable = ENTRY(1,dynParamValue.colName[idx],".")
+                cField = ENTRY(2,dynParamValue.colName[idx],".")
+                .
+            CREATE BUFFER hTable FOR TABLE cTable.
+            dWidth = hTable:BUFFER-FIELD(cField):WIDTH.
+        END. /* if table.field */
+        ELSE
+        cField = dynParamValue.colName[idx].
+        RUN pCreatettColumn (
+            cTable,
+            cField,
+            idx,
+            YES,
+            dynParamValue.colLabel[idx],
+            dynParamValue.dataType[idx],
+            dynParamValue.colFormat[idx],
+            dWidth,
+            MAX(dWidth,LENGTH(dynParamValue.colLabel[idx]))
+            ).
+        ttColumn.isGroup = dynParamValue.isGroup[idx].
+        IF dynParamValue.groupCalc[idx] NE "" THEN DO:
+            DO jdx = 1 TO NUM-ENTRIES(dynParamValue.groupCalc[idx]) BY 2:
+                IF ENTRY(jdx,dynParamValue.groupCalc[idx]) EQ "Label" THEN DO:
+                    ttColumn.ttGroupLabel = ENTRY(jdx + 1,dynParamValue.groupCalc[idx]).
+                    NEXT.
+                END. /* if label */
+                CREATE ttGroupCalc.
+                ASSIGN 
+                    ttGroupCalc.ttField    = cField
+                    ttGroupCalc.ttGroup    = ENTRY(jdx,dynParamValue.groupCalc[idx])
+                    ttGroupCalc.ttCalcType = ENTRY(jdx + 1,dynParamValue.groupCalc[idx])
+                    .
+            END. /* do jdx */
+            ttColumn.ttGroupCalc = fJasperGroupCalc(ttColumn.ttField).
+        END. /* if field-value */
+    END. /* do idx */
+   
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-pGetUserPrint) = 0 &THEN
 
@@ -701,11 +797,9 @@ END PROCEDURE.
 PROCEDURE pJasperJSON:
 /*------------------------------------------------------------------------------
   Purpose:     Export temp-table contents to XML Format
-  Parameters:  user-print buffer
+  Parameters:  
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER user-print FOR user-print.
-
     DEFINE VARIABLE hTable       AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cColumns     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE fieldName    AS CHARACTER NO-UNDO.
@@ -732,7 +826,7 @@ PROCEDURE pJasperJSON:
             FILL(" ",2)
             "~"" REPLACE(aoaTitle," ","_") "~": ~{" SKIP
             FILL(" ",4)
-            "~"tt" REPLACE(aoaTitle," ","") "~": [" SKIP
+            "~"" REPLACE(aoaTitle," ","") "~": [" SKIP
             .
         /* run dynamic function (business subject) */
         ASSIGN
@@ -815,52 +909,88 @@ PROCEDURE pJasperLastPageFooter :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    
     DEFINE VARIABLE cParameter     AS CHARACTER NO-UNDO EXTENT 100.
     DEFINE VARIABLE cValue         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iParameterRow  AS INTEGER   NO-UNDO INITIAL 1.
     
-    IF AVAILABLE user-print THEN
-    DO idx = 1 TO EXTENT(user-print.field-name):
-        IF user-print.field-name[idx] EQ "svSecure" THEN LEAVE.
-        ASSIGN
-            cParameter[iParameterRow] = IF INDEX(user-print.field-name[idx],"Sort") NE 0 THEN "Sort By"
-                ELSE IF user-print.field-label[idx] EQ ? THEN REPLACE(user-print.field-name[idx],"sv","")
-                ELSE user-print.field-label[idx]
-            cParameter[iParameterRow] = cParameter[iParameterRow] + ": @@@"
-            cValue = IF user-print.field-value[idx] NE ? THEN user-print.field-value[idx] ELSE ""
-            .
-        IF user-print.field-name[idx] BEGINS "svAll" THEN
-        ASSIGN
-            cParameter[iParameterRow] = cParameter[iParameterRow] + ", "
-                                      + user-print.field-label[idx + 1] + ": "
-                                      + user-print.field-value[idx + 1] + "; "
-                                      + user-print.field-label[idx + 2] + ": "
-                                      + user-print.field-value[idx + 2]
-            idx = idx + 2
-            .
-        ELSE IF user-print.field-label[idx + 1] EQ ? AND
-           INDEX(user-print.field-name[idx + 1],"DateOption") NE 0 THEN DO:
-            dtDate = DATE(user-print.field-value[idx]) NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN
-            dtDate = ?.
-            ASSIGN
-                cParameter[iParameterRow] = cParameter[iParameterRow] + " (" + user-print.field-value[idx + 1] + ")"
-                cValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, user-print.field-value[idx + 1], dtDate),"99/99/9999")
-                idx = idx + 1
-                .
-        END.
-        ELSE IF INDEX(user-print.field-name[idx + 1],"AMPM") NE 0 THEN
-        ASSIGN
-            cParameter[iParameterRow] = cParameter[iParameterRow] + " " + user-print.field-value[idx + 1]
-            idx = idx + 1
-            .
-        ASSIGN
-            cParameter[iParameterRow] = REPLACE(cParameter[iParameterRow],"@@@",cValue)
-            iParameterRow = iParameterRow + 1
-            .
-    END. /* do idx */
+    CASE ipcType:
+        WHEN "user-print" THEN DO:
+            IF AVAILABLE user-print THEN
+            DO idx = 1 TO EXTENT(user-print.field-name):
+                IF user-print.field-name[idx] EQ "svSecure" THEN LEAVE.
+                ASSIGN
+                    cParameter[iParameterRow] = IF INDEX(user-print.field-name[idx],"Sort") NE 0 THEN "Sort By"
+                        ELSE IF user-print.field-label[idx] EQ ? THEN REPLACE(user-print.field-name[idx],"sv","")
+                        ELSE user-print.field-label[idx]
+                    cParameter[iParameterRow] = cParameter[iParameterRow] + ": @@@"
+                    cValue = IF user-print.field-value[idx] NE ? THEN user-print.field-value[idx] ELSE ""
+                    .
+                IF user-print.field-name[idx] BEGINS "svAll" THEN
+                ASSIGN
+                    cParameter[iParameterRow] = cParameter[iParameterRow] + ", "
+                                              + user-print.field-label[idx + 1] + ": "
+                                              + user-print.field-value[idx + 1] + "; "
+                                              + user-print.field-label[idx + 2] + ": "
+                                              + user-print.field-value[idx + 2]
+                    idx = idx + 2
+                    .
+                ELSE IF user-print.field-label[idx + 1] EQ ? AND
+                    INDEX(user-print.field-name[idx + 1],"DateOption") NE 0 THEN DO:
+                    dtDate = DATE(user-print.field-value[idx]) NO-ERROR.
+                    IF ERROR-STATUS:ERROR THEN
+                    dtDate = ?.
+                    ASSIGN
+                        cParameter[iParameterRow] = cParameter[iParameterRow] + " (" + user-print.field-value[idx + 1] + ")"
+                        cValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, user-print.field-value[idx + 1], dtDate),"99/99/9999")
+                        idx = idx + 1
+                        .
+                END.
+                ELSE IF INDEX(user-print.field-name[idx + 1],"AMPM") NE 0 THEN
+                ASSIGN
+                    cParameter[iParameterRow] = cParameter[iParameterRow] + " " + user-print.field-value[idx + 1]
+                    idx = idx + 1
+                    .
+                ASSIGN
+                    cParameter[iParameterRow] = REPLACE(cParameter[iParameterRow],"@@@",cValue)
+                    iParameterRow = iParameterRow + 1
+                    .
+            END. /* do idx */
+        END. /* user-print */
+        WHEN "dynParamValue" THEN DO:
+            IF AVAILABLE dynParamValue THEN
+            DO idx = 1 TO EXTENT(dynParamValue.paramName):
+                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
+                ASSIGN
+                    cParameter[iParameterRow] = IF dynParamValue.paramLabel[idx] EQ ? THEN REPLACE(dynParamValue.paramName[idx],"sv","")
+                                                ELSE dynParamValue.paramLabel[idx]
+                    cParameter[iParameterRow] = cParameter[iParameterRow] + ": @@@"
+                    cValue = IF dynParamValue.paramValue[idx] NE ? AND
+                                dynParamValue.paramValue[idx] NE CHR(254) THEN dynParamValue.paramValue[idx] ELSE ""
+                    .
+                IF dynParamValue.paramLabel[idx + 1] EQ ? AND
+                   INDEX(dynParamValue.paramName[idx + 1],"DatePickList") NE 0 THEN DO:
+                    dtDate = DATE(dynParamValue.paramValue[idx]) NO-ERROR.
+                    IF ERROR-STATUS:ERROR THEN
+                    dtDate = ?.
+                    ASSIGN
+                        cParameter[iParameterRow] = cParameter[iParameterRow] + " (" + dynParamValue.paramValue[idx + 1] + ")"
+                        cValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, dynParamValue.paramValue[idx + 1], dtDate),"99/99/9999")
+                        idx = idx + 1
+                        .
+                END.
+                IF cValue EQ ? THEN
+                cValue = "".
+                ASSIGN
+                    cParameter[iParameterRow] = REPLACE(cParameter[iParameterRow],"@@@",cValue)
+                    iParameterRow = iParameterRow + 1
+                    .
+            END. /* do idx */
+        END. /* dynparamvalue */
+    END CASE.
     
     /* last page footer band */
     PUT UNFORMATTED
@@ -890,7 +1020,7 @@ PROCEDURE pJasperLastPageFooter :
         "            </staticText>" SKIP
         .
     DO idx = 1 TO iParameterRow:
-        IF cParameter[idx] NE "" THEN
+        IF cParameter[idx] NE "" AND cParameter[idx] NE CHR(254) THEN
         PUT UNFORMATTED
             "            <staticText>" SKIP
             "                <reportElement "
@@ -1026,7 +1156,7 @@ PROCEDURE pJasperQueryString :
     PUT UNFORMATTED
         "    <queryString language=~"json~">" SKIP
         "        <![CDATA[" REPLACE(aoaTitle," ","_")
-        ".tt" REPLACE(aoaTitle," ","") "]]>" SKIP
+        "." REPLACE(aoaTitle," ","") "]]>" SKIP
         "    </queryString>" SKIP
         .
 
@@ -1100,25 +1230,30 @@ PROCEDURE pJasperStarter :
     DEFINE VARIABLE cJasperFile    AS CHARACTER NO-UNDO EXTENT 4.
     DEFINE VARIABLE cJasperFolder  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUserFolder    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTime          AS INTEGER   NO-UNDO.
     
     /* ensure needed folders exist */
+    OS-CREATE-DIR "TaskResults".
     OS-CREATE-DIR "users".
     cUserFolder = "users/" + aoaUserID + "/".
     OS-CREATE-DIR VALUE(cUserFolder).
     cJasperFolder = "users/" + aoaUserID + "/Jasper/".
     OS-CREATE-DIR VALUE(cJasperFolder).
-    ASSIGN 
+    ASSIGN
+        dtDate         = TODAY
+        iTime          = TIME
         cJasperFile[1] = SEARCH(cUserFolder + REPLACE(aoaTitle," ","") + ".jrxml")
         cJasperFile[2] = SEARCH(cUserFolder + REPLACE(aoaTitle," ","") + ".json")
         cJasperFile[3] = REPLACE(cJasperFile[1],"jrxml",ipcType)
         cJasperFile[3] = REPLACE(cJasperFile[3]," -d","")
-        cJasperFile[4] = cJasperFolder
+        cJasperFile[4] = "TaskResults/"
                        + REPLACE(aoaTitle," ","") + "."
-                       + STRING(YEAR(TODAY),"9999")
-                       + STRING(MONTH(TODAY),"99")
-                       + STRING(DAY(TODAY),"99") + "."
-                       + STRING(TIME,"99999")
+                       + STRING(YEAR(dtDate),"9999")
+                       + STRING(MONTH(dtDate),"99")
+                       + STRING(DAY(dtDate),"99") + "."
+                       + STRING(iTime,"99999")
         opcJastFile    = cJasperFile[4] + "." + LC(ipcType)
         cJasperStarter = "jasperstarter process "
                        + "-f " + LC(ipcType) + " "
@@ -1128,7 +1263,7 @@ PROCEDURE pJasperStarter :
                        + cJasperFile[2] + " "
                        + "--json-query "
                        + REPLACE(aoaTitle," ","_")
-                       + ".tt" + REPLACE(aoaTitle," ","") + " "
+                       + "." + REPLACE(aoaTitle," ","") + " "
                        +  cJasperFile[1]
                        .
     DO idx = 1 TO EXTENT(cJasperFile) - 1:
@@ -1141,7 +1276,16 @@ PROCEDURE pJasperStarter :
         END. /* if ? */
     END. /* do idx */
     
-    OS-DELETE VALUE(cJasperFile[3]).    
+    IF NOT CAN-DO("print -d,view",ipcType) THEN DO TRANSACTION:
+        CREATE TaskResult.
+        ASSIGN
+            TaskResult.fileDateTime = DATETIME(dtDate,iTime)
+            TaskResult.fileType     = ipcType
+            TaskResult.user-id      = aoaUserID
+            TaskResult.folderFile   = opcJastFile
+            .
+    END. /* if not can-do */
+    OS-DELETE VALUE(cJasperFile[3]).
     OS-COMMAND NO-WAIT start VALUE(cJasperStarter).
 
 END PROCEDURE.
@@ -1320,7 +1464,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
-
 &IF DEFINED(EXCLUDE-pSetColumnOrder) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetColumnOrder Procedure 
@@ -1380,7 +1523,7 @@ PROCEDURE spJasper :
     IF iSize EQ ? THEN RETURN.    
     /* create jasper files in local user folder */
     /* create xml data file */
-    RUN pJasperJSON (BUFFER user-print).
+    RUN pJasperJSON.
     /* create jasper jrxml file */
     cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".jrxml".    
     OUTPUT TO VALUE(cJasperFile).    
@@ -1405,7 +1548,7 @@ PROCEDURE spJasper :
     IF svShowPageFooter THEN
     RUN pJasperPageFooterBand.    
     IF svShowParameters THEN
-    RUN pJasperLastPageFooter.    
+    RUN pJasperLastPageFooter ("user-print").    
     IF svShowReportFooter THEN 
     RUN pJasperSummaryBand.    
     RUN pJasperReport ("Close", ipcType, iSize).    
@@ -1431,24 +1574,27 @@ PROCEDURE spJasperQuery:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcType       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iprRowID      AS ROWID     NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTitle      AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcUserID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iphAppSrvBin  AS HANDLE    NO-UNDO.
     DEFINE OUTPUT PARAMETER opcJasperFile AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE cError     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTableName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hQuery     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iSize       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lOK        AS LOGICAL   NO-UNDO.
     
     ASSIGN
-        aoaTitle           = ipcTitle
-        aoaUserID          = ipcUserID
-        svShowGroupHeader  = NO
-        svShowGroupFooter  = NO
-        svShowReportHeader = YES
-        svShowReportFooter = YES
-        svShowPageHeader   = YES
-        svShowPageFooter   = YES
-        svShowParameters   = NO
+        aoaTitle   = ipcTitle
+        aoaUserID  = ipcUserID
+        hAppSrvBin = iphAppSrvBin
         .
+    /* find dynParamValue storing parameter values */
+    RUN pGetUserParamValue (iprRowID).
     /* set columns for selected report columns */
     RUN pGetSelectedColumns.
     /* calculate width of jasper report */
@@ -1479,15 +1625,51 @@ PROCEDURE spJasperQuery:
     IF svShowPageFooter THEN
     RUN pJasperPageFooterBand.    
     IF svShowParameters THEN
-    RUN pJasperLastPageFooter.    
+    RUN pJasperLastPageFooter ("dynParamValue").
     IF svShowReportFooter THEN 
     RUN pJasperSummaryBand.    
     RUN pJasperReport ("Close", ipcType, iSize).    
     OUTPUT CLOSE.    
     /* copy local jasper files to jasper studio workspace */
     RUN pJasperCopy (cJasperFile).
-    /* command line call to jasperstarter script */
-    RUN pJasperStarter (ipcType, OUTPUT opcJasperFile).
+    /* get dynamic subject tables */
+    FOR EACH dynSubjectTable
+        WHERE dynSubjectTable.subjectID EQ dynParamValue.subjectID
+           BY dynSubjectTable.sortOrder
+        :
+        cTableName = cTableName + dynSubjectTable.tableName + ",".
+    END. /* each {1}SubjectTable */
+    cTableName = TRIM(cTableName,",").
+    FIND FIRST dynSubject no-lock
+         WHERE dynSubject.subjectID EQ dynParamValue.subjectID
+         NO-ERROR.
+    IF AVAILABLE dynSubject THEN DO:
+        /* create dynamic query */
+        RUN AOA/dynQuery.p (
+            ROWID(dynParamValue),
+            dynSubject.queryStr,
+            cTableName,
+            OUTPUT hQuery,
+            OUTPUT lOK,
+            OUTPUT cError
+            ).
+        IF lOK THEN DO:
+            RUN AOA/jasperJSON.p (
+                ROWID(dynParamValue),
+                hQuery,
+                ipcUserID,
+                dynSubject.subjectTitle,
+                OUTPUT cJasperFile,
+                OUTPUT lOK
+                ).
+            IF lOK THEN DO:
+                /* copy local jasper files to jasper studio workspace */
+                RUN pJasperCopy (cJasperFile).
+                /* command line call to jasperstarter script */
+                RUN pJasperStarter (ipcType, OUTPUT opcJasperFile).
+            END. /* if lok */
+        END. /* if lok */
+    END. /* avail dynsubject */
 
 END PROCEDURE.
 	
@@ -1627,4 +1809,3 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
-

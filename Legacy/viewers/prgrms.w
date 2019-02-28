@@ -81,19 +81,19 @@ DEFINE QUERY external_tables FOR prgrms.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS prgrms.prgtitle prgrms.securityLevelUser ~
 prgrms.dir_group prgrms.run_persistent prgrms.track_usage prgrms.popup ~
-prgrms.module prgrms.can_run prgrms.can_create prgrms.can_update ~
-prgrms.can_delete prgrms.mfgroup prgrms.menu_item ~
+prgrms.subjectID prgrms.module prgrms.can_run prgrms.can_create ~
+prgrms.can_update prgrms.can_delete prgrms.mfgroup prgrms.menu_item ~
 prgrms.securityLevelDefault prgrms.menuOrder prgrms.menuLevel ~
 prgrms.menuImage[1] prgrms.mnemonic prgrms.itemParent prgrms.systemType 
 &Scoped-define ENABLED-TABLES prgrms
 &Scoped-define FIRST-ENABLED-TABLE prgrms
 &Scoped-Define DISPLAYED-FIELDS prgrms.prgmname prgrms.prgtitle ~
 prgrms.securityLevelUser prgrms.dir_group prgrms.run_persistent ~
-prgrms.track_usage prgrms.popup prgrms.module prgrms.can_run ~
-prgrms.can_create prgrms.can_update prgrms.can_delete prgrms.mfgroup ~
-prgrms.menu_item prgrms.securityLevelDefault prgrms.menuOrder ~
-prgrms.menuLevel prgrms.menuImage[1] prgrms.mnemonic prgrms.itemParent ~
-prgrms.systemType 
+prgrms.track_usage prgrms.popup prgrms.subjectID prgrms.module ~
+prgrms.can_run prgrms.can_create prgrms.can_update prgrms.can_delete ~
+prgrms.mfgroup prgrms.menu_item prgrms.securityLevelDefault ~
+prgrms.menuOrder prgrms.menuLevel prgrms.menuImage[1] prgrms.mnemonic ~
+prgrms.itemParent prgrms.systemType 
 &Scoped-define DISPLAYED-TABLES prgrms
 &Scoped-define FIRST-DISPLAYED-TABLE prgrms
 &Scoped-Define DISPLAYED-OBJECTS parentPrgTitle F1 F-3 F-2 
@@ -181,7 +181,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
           BGCOLOR 15 FONT 4
-     prgrms.securityLevelUser AT ROW 1.24 COL 129 COLON-ALIGNED WIDGET-ID 24
+     prgrms.securityLevelUser AT ROW 1.24 COL 131 COLON-ALIGNED WIDGET-ID 24
           VIEW-AS FILL-IN 
           SIZE 6.2 BY 1
           BGCOLOR 15 
@@ -192,13 +192,17 @@ DEFINE FRAME F-Main
      prgrms.run_persistent AT ROW 2.43 COL 50
           VIEW-AS TOGGLE-BOX
           SIZE 18 BY 1
-     prgrms.track_usage AT ROW 2.43 COL 76
+     prgrms.track_usage AT ROW 2.43 COL 58
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY 1
-     prgrms.popup AT ROW 2.43 COL 100
+     prgrms.popup AT ROW 2.43 COL 77
           VIEW-AS TOGGLE-BOX
           SIZE 11 BY 1
-     prgrms.module AT ROW 2.43 COL 129 COLON-ALIGNED WIDGET-ID 30
+     prgrms.subjectID AT ROW 2.43 COL 103 COLON-ALIGNED WIDGET-ID 32
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.module AT ROW 2.43 COL 131 COLON-ALIGNED WIDGET-ID 30
           VIEW-AS FILL-IN 
           SIZE 14.2 BY 1
           BGCOLOR 15 
@@ -258,17 +262,18 @@ DEFINE FRAME F-Main
           DROP-DOWN-LIST
           SIZE 16 BY 1
           BGCOLOR 15 
-     F1 AT ROW 2.43 COL 42 NO-LABEL
+     F1 AT ROW 2.43 COL 31 NO-LABEL
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FGCOLOR 1 .
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      F-3 AT ROW 14.57 COL 98 NO-LABEL WIDGET-ID 16
      F-2 AT ROW 15.76 COL 31 NO-LABEL WIDGET-ID 12
      "Delete:" VIEW-AS TEXT
           SIZE 7.6 BY .62 AT ROW 9.33 COL 7
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      "Add:" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 5.52 COL 10
      "Update:" VIEW-AS TEXT
@@ -284,7 +289,8 @@ DEFINE FRAME F-Main
      RECT-2 AT ROW 13.19 COL 1 WIDGET-ID 26
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         FGCOLOR 1 .
 
 
 /* *********************** Procedure Settings ************************ */

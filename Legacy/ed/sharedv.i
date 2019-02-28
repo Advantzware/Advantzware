@@ -1,4 +1,4 @@
-{rc/loginv.i}
+{rc/loginv.i {1}}
 /*  RPro EDI Shared Variables */
 DEFINE {1} SHARED VARIABLE ws_company   LIKE edco.company   NO-UNDO LABEL "Company".
 DEFINE {1} SHARED VARIABLE ws_partner   LIKE edmast.partner NO-UNDO.

@@ -34,16 +34,12 @@
 /* ************************  Function Prototypes ********************** */
 
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fJasperGroupCalc Include
 FUNCTION fJasperGroupCalc RETURNS CHARACTER 
   (ipcField AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
 
 /* *********************** Procedure Settings ************************ */
@@ -69,8 +65,6 @@ FUNCTION fJasperGroupCalc RETURNS CHARACTER
                                                                         */
 &ANALYZE-RESUME
 
- 
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Include 
 
@@ -88,7 +82,6 @@ FUNCTION fJasperGroups RETURNS CHARACTER
 &ANALYZE-RESUME
 
 
-
 /* **********************  Internal Procedures  *********************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateTempTableColumn Include 
@@ -98,16 +91,14 @@ PROCEDURE pCreateTempTableColumn :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hTable AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE idx    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE hTable AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx    AS INTEGER   NO-UNDO.
     
     IF VALID-HANDLE(hAppSrv) THEN
     DO WITH FRAME frameColumns:
         hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hAppSrv, aoaProgramID).
-        IF NOT VALID-HANDLE(hTable) THEN RETURN.
-        
-        EMPTY TEMP-TABLE ttColumn.
-    
+        IF NOT VALID-HANDLE(hTable) THEN RETURN.        
+        EMPTY TEMP-TABLE ttColumn.    
         hTable = hTable:DEFAULT-BUFFER-HANDLE.
         DO idx = 1 TO hTable:NUM-FIELDS:
             IF CAN-DO("RECID,ROWID",hTable:BUFFER-FIELD(idx):DATA-TYPE) THEN NEXT.
@@ -115,6 +106,7 @@ PROCEDURE pCreateTempTableColumn :
             IF hTable:BUFFER-FIELD(idx):NAME EQ "parameters"  THEN NEXT.
             IF hTable:BUFFER-FIELD(idx):NAME EQ "recDataType" THEN NEXT.
             RUN pCreatettColumn (
+                hTable:BUFFER-FIELD(idx):TABLE,
                 hTable:BUFFER-FIELD(idx):NAME,
                 IF cSelectedColumns EQ "" THEN idx ELSE LOOKUP(hTable:BUFFER-FIELD(idx):NAME,cSelectedColumns),
                 CAN-DO(cSelectedColumns,hTable:BUFFER-FIELD(idx):NAME) OR (cSelectedColumns EQ "" AND NOT hTable:BUFFER-FIELD(idx):NAME BEGINS "xx"),
@@ -136,13 +128,13 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreatettColumn Include
 PROCEDURE pCreatettColumn:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcTable  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcField  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiOrder  AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER iplActive AS LOGICAL   NO-UNDO.
@@ -154,6 +146,7 @@ PROCEDURE pCreatettColumn:
     
     CREATE ttColumn.
     ASSIGN
+        ttColumn.ttTable  = ipcTable
         ttColumn.ttField  = ipcField
         ttColumn.ttOrder  = ipiOrder
         ttColumn.isActive = iplActive
@@ -174,9 +167,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEmptyttColumn Include
 PROCEDURE pEmptyttColumn:
 /*------------------------------------------------------------------------------
@@ -189,8 +179,6 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetJasperUserPrint Include 
 PROCEDURE pGetJasperUserPrint :
@@ -300,7 +288,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fJasperGroupCalc Include
@@ -351,6 +338,3 @@ END FUNCTION.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
