@@ -521,6 +521,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pNavPanel W-Win 
+PROCEDURE pNavPanel :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphNavPanel AS HANDLE NO-UNDO.
+    
+    RUN pNavPanel IN h_paramSet (iphNavPanel).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveSettings W-Win 
 PROCEDURE pSaveSettings :
 /*------------------------------------------------------------------------------

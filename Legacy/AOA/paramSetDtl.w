@@ -89,11 +89,13 @@ btnRestoreDefaults btnSortMove
 
 /* Custom List Definitions                                              */
 /* transPanel,transInit,transUpdate,displayFields,enabledFields,List-6  */
-&Scoped-define transPanel btnUpdate RECT-PREVIEW btntSetBuilder btnCancel ~
-btnAdd btnCopy btnDelete btnReset 
-&Scoped-define transInit btnUpdate btntSetBuilder btnAdd btnCopy btnDelete 
+&Scoped-define transPanel RECT-SETBUILDER btnUpdate btnSetBuilder ~
+btnFirst-1 btnLast-1 btnNext-1 btnPrev-1 btnCancel btnAdd btnCopy btnDelete ~
+btnReset 
+&Scoped-define transInit btnUpdate btnSetBuilder btnFirst-1 btnLast-1 ~
+btnNext-1 btnPrev-1 btnAdd btnCopy btnDelete 
 &Scoped-define transUpdate btnUpdate btnCancel btnReset 
-&Scoped-define displayFields RECT-PREVIEW dynParamSetDtl.paramSetID ~
+&Scoped-define displayFields RECT-SETBUILDER dynParamSetDtl.paramSetID ~
 dynParamSetDtl.paramID dynParamSetDtl.paramName dynParamSetDtl.paramLabel ~
 dynParamSetDtl.actionParamID dynParamSetDtl.action dynParamSetDtl.paramCol ~
 dynParamSetDtl.paramRow dynParamSetDtl.paramPrompt ~
@@ -154,13 +156,37 @@ DEFINE BUTTON btnDelete
      LABEL "Delete" 
      SIZE 8 BY 1.91 TOOLTIP "Delete".
 
+DEFINE BUTTON btnFirst-1 
+     IMAGE-UP FILE "Graphics/32x32/navigate_beginning.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "First" 
+     SIZE 8 BY 1.91 TOOLTIP "First".
+
+DEFINE BUTTON btnLast-1 
+     IMAGE-UP FILE "Graphics/32x32/navigate_end.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Last" 
+     SIZE 8 BY 1.91 TOOLTIP "Last".
+
+DEFINE BUTTON btnNext-1 
+     IMAGE-UP FILE "Graphics/32x32/navigate_right.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Next" 
+     SIZE 8 BY 1.91 TOOLTIP "Next".
+
+DEFINE BUTTON btnPrev-1 
+     IMAGE-UP FILE "Graphics/32x32/navigate_left.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Previous" 
+     SIZE 8 BY 1.91 TOOLTIP "Previous".
+
 DEFINE BUTTON btnReset 
      IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset" 
      SIZE 8 BY 1.91 TOOLTIP "Reset".
 
-DEFINE BUTTON btntSetBuilder 
+DEFINE BUTTON btnSetBuilder 
      IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U
      LABEL "Parameter Set Builder" 
@@ -177,9 +203,14 @@ DEFINE RECTANGLE RECT-PANEL
      SIZE 49.6 BY 2.38
      BGCOLOR 15 .
 
-DEFINE RECTANGLE RECT-PREVIEW
+DEFINE RECTANGLE RECT-SETBUILDER
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 9.8 BY 2.38.
+
+DEFINE RECTANGLE transPanel-8
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 34 BY 2.38
+     BGCOLOR 15 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -217,13 +248,13 @@ DEFINE FRAME DEFAULT-FRAME
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME viewFrame
-     btnUpdate AT ROW 18.62 COL 20 HELP
-          "Update/Save" WIDGET-ID 128
      dynParamSetDtl.paramSetID AT ROW 1.48 COL 19 COLON-ALIGNED WIDGET-ID 166
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     btntSetBuilder AT ROW 1.71 COL 73 HELP
+     btnUpdate AT ROW 18.62 COL 20 HELP
+          "Update/Save" WIDGET-ID 128
+     btnSetBuilder AT ROW 1.71 COL 73 HELP
           "Parameter Set Builder" WIDGET-ID 286
      dynParamSetDtl.paramID AT ROW 2.67 COL 19 COLON-ALIGNED WIDGET-ID 158
           VIEW-AS FILL-IN 
@@ -257,8 +288,6 @@ DEFINE FRAME viewFrame
      dynParamSetDtl.paramPrompt AT ROW 9.81 COL 21 WIDGET-ID 288
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY 1
-     btnCancel AT ROW 18.62 COL 60 HELP
-          "Cancel" WIDGET-ID 120
      dynParamSetDtl.initialValue AT ROW 13.38 COL 19 COLON-ALIGNED WIDGET-ID 154
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
@@ -267,6 +296,8 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 62 BY 1
           BGCOLOR 15 
+     btnFirst-1 AT ROW 21.48 COL 28 HELP
+          "First" WIDGET-ID 274
      dynParamSetDtl.initializeProc AT ROW 15.76 COL 19 COLON-ALIGNED WIDGET-ID 290
           VIEW-AS FILL-IN 
           SIZE 42 BY 1
@@ -275,6 +306,14 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 42 BY 1
           BGCOLOR 15 
+     btnLast-1 AT ROW 21.48 COL 52 HELP
+          "Last" WIDGET-ID 68
+     btnNext-1 AT ROW 21.48 COL 44 HELP
+          "Next" WIDGET-ID 276
+     btnPrev-1 AT ROW 21.48 COL 36 HELP
+          "Previous" WIDGET-ID 278
+     btnCancel AT ROW 18.62 COL 60 HELP
+          "Cancel" WIDGET-ID 120
      btnAdd AT ROW 18.62 COL 28 HELP
           "Add" WIDGET-ID 118
      btnCopy AT ROW 18.62 COL 36 HELP
@@ -286,7 +325,8 @@ DEFINE FRAME viewFrame
      "Action:" VIEW-AS TEXT
           SIZE 7 BY 1 AT ROW 6.24 COL 37 WIDGET-ID 188
      RECT-PANEL AT ROW 18.38 COL 19 WIDGET-ID 130
-     RECT-PREVIEW AT ROW 1.48 COL 72 WIDGET-ID 284
+     RECT-SETBUILDER AT ROW 1.48 COL 72 WIDGET-ID 284
+     transPanel-8 AT ROW 21.24 COL 27 WIDGET-ID 280
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 76 ROW 1.95
@@ -378,9 +418,17 @@ ASSIGN
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnDelete IN FRAME viewFrame
    1 2                                                                  */
+/* SETTINGS FOR BUTTON btnFirst-1 IN FRAME viewFrame
+   1 2                                                                  */
+/* SETTINGS FOR BUTTON btnLast-1 IN FRAME viewFrame
+   1 2                                                                  */
+/* SETTINGS FOR BUTTON btnNext-1 IN FRAME viewFrame
+   1 2                                                                  */
+/* SETTINGS FOR BUTTON btnPrev-1 IN FRAME viewFrame
+   1 2                                                                  */
 /* SETTINGS FOR BUTTON btnReset IN FRAME viewFrame
    NO-ENABLE 1 3                                                        */
-/* SETTINGS FOR BUTTON btntSetBuilder IN FRAME viewFrame
+/* SETTINGS FOR BUTTON btnSetBuilder IN FRAME viewFrame
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnUpdate IN FRAME viewFrame
    1 2 3                                                                */
@@ -406,8 +454,10 @@ ASSIGN
    4                                                                    */
 /* SETTINGS FOR RECTANGLE RECT-PANEL IN FRAME viewFrame
    NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE RECT-PREVIEW IN FRAME viewFrame
+/* SETTINGS FOR RECTANGLE RECT-SETBUILDER IN FRAME viewFrame
    NO-ENABLE 1 4                                                        */
+/* SETTINGS FOR RECTANGLE transPanel-8 IN FRAME viewFrame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN dynParamSetDtl.validateProc IN FRAME viewFrame
    4 5                                                                  */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -494,6 +544,50 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnFirst-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFirst-1 s-object
+ON CHOOSE OF btnFirst-1 IN FRAME viewFrame /* First */
+DO:
+    RUN pNavPanel (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnLast-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLast-1 s-object
+ON CHOOSE OF btnLast-1 IN FRAME viewFrame /* Last */
+DO:
+    RUN pNavPanel (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnNext-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNext-1 s-object
+ON CHOOSE OF btnNext-1 IN FRAME viewFrame /* Next */
+DO:
+    RUN pNavPanel (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnPrev-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrev-1 s-object
+ON CHOOSE OF btnPrev-1 IN FRAME viewFrame /* Previous */
+DO:
+    RUN pNavPanel (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnReset
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset s-object
 ON CHOOSE OF btnReset IN FRAME viewFrame /* Reset */
@@ -517,6 +611,26 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME viewFrame
+&Scoped-define SELF-NAME btnSetBuilder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSetBuilder s-object
+ON CHOOSE OF btnSetBuilder IN FRAME viewFrame /* Parameter Set Builder */
+DO:
+    IF NOT VALID-HANDLE(hParamBldr) THEN
+    RUN AOA/paramSetBldr.w PERSISTENT SET hParamBldr (
+        THIS-PROCEDURE,
+        "Set",
+        dynParamSetDtl.paramSetID
+        ).
+    ELSE
+    RUN pReset IN hParamBldr (dynParam.paramID).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME DEFAULT-FRAME
 &Scoped-define SELF-NAME btnSortMove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSortMove s-object
 ON CHOOSE OF btnSortMove IN FRAME DEFAULT-FRAME /* Sort/Move */
@@ -536,24 +650,6 @@ END.
 
 
 &Scoped-define FRAME-NAME viewFrame
-&Scoped-define SELF-NAME btntSetBuilder
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btntSetBuilder s-object
-ON CHOOSE OF btntSetBuilder IN FRAME viewFrame /* Parameter Set Builder */
-DO:
-    IF NOT VALID-HANDLE(hParamBldr) THEN
-    RUN AOA/paramSetBldr.w PERSISTENT SET hParamBldr (
-        THIS-PROCEDURE,
-        "Set",
-        dynParamSetDtl.paramSetID
-        ).
-    ELSE
-    RUN pReset IN hParamBldr (dynParam.paramID).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btnUpdate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUpdate s-object
 ON CHOOSE OF btnUpdate IN FRAME viewFrame /* Update */
@@ -571,7 +667,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dynParamSetDtlBrowse s-object
 ON DEFAULT-ACTION OF dynParamSetDtlBrowse IN FRAME DEFAULT-FRAME /* Dynamic Parameter Set Detail */
 DO:
-    APPLY "CHOOSE":U TO btntSetBuilder IN FRAME viewFrame.
+    APPLY "CHOOSE":U TO btnSetBuilder IN FRAME viewFrame.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -827,7 +923,7 @@ PROCEDURE pCRUD :
                     IF cMode EQ "Add" OR cMode EQ "Copy" THEN DO:
                         RUN pReopenBrowse.
                         REPOSITION {&BROWSE-NAME} TO ROWID rRowID.
-                        APPLY "CHOOSE":U TO btntSetBuilder.
+                        APPLY "CHOOSE":U TO btnSetBuilder.
                     END. /* if add/copy */
                     ELSE
                     BROWSE {&BROWSE-NAME}:REFRESH().
@@ -967,6 +1063,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pNavPanel s-object 
+PROCEDURE pNavPanel :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphNavPanel AS HANDLE NO-UNDO.
+    
+    {methods/run_link.i "CONTAINER" "pNavPanel" "(iphNavPanel)"}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRefresh s-object 
 PROCEDURE pRefresh :
 /*------------------------------------------------------------------------------
@@ -1070,12 +1182,17 @@ PROCEDURE pWinReSize :
     ASSIGN
         FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = ipdHeight
         FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = ipdWidth
-        FRAME {&FRAME-NAME}:HEIGHT         = ipdHeight
-        FRAME {&FRAME-NAME}:WIDTH          = ipdWidth
-        BROWSE {&BROWSE-NAME}:HEIGHT       = ipdHeight
-                                           - BROWSE {&BROWSE-NAME}:ROW + 1
+        FRAME {&FRAME-NAME}:HEIGHT     = ipdHeight
+        FRAME {&FRAME-NAME}:WIDTH      = ipdWidth
+        BROWSE {&BROWSE-NAME}:HEIGHT   = ipdHeight - BROWSE {&BROWSE-NAME}:ROW + 1
+        FRAME viewFrame:HEIGHT         = ipdHeight - FRAME viewFrame:ROW + 1
+        FRAME viewFrame:WIDTH          = ipdWidth  - FRAME viewFrame:COL + 1
+        FRAME viewFrame:VIRTUAL-HEIGHT = FRAME viewFrame:HEIGHT
+        FRAME viewFrame:VIRTUAL-WIDTH  = FRAME viewFrame:WIDTH
         .
     VIEW FRAME {&FRAME-NAME}.
+    btnSetBuilder:MOVE-TO-TOP() IN FRAME viewFrame.
+    RECT-SETBUILDER:MOVE-TO-TOP().
 
 END PROCEDURE.
 
