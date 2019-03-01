@@ -34,7 +34,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&Scoped-define program-id tasker
+&Scoped-define program-id tasker.
 
 /* Parameters Definitions ---                                           */
 
