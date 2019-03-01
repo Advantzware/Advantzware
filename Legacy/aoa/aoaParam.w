@@ -345,7 +345,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_aoataskparam ).
        RUN set-position IN h_aoataskparam ( 2.43 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 16.52 , 149.20 ) */
+       /* Size in UIB:  ( 7.24 , 148.40 ) */
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_aoataskparam ,
@@ -930,11 +930,12 @@ PROCEDURE pSaveUserPrint :
     
     DEFINE INPUT PARAMETER iplBatch AS LOGICAL NO-UNDO.
 
-    DEFINE VARIABLE hFrame   AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hChild   AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE idx      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cnt      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cColumns AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hFrame       AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hChild       AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iCurrentPage AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cnt          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cColumns     AS CHARACTER NO-UNDO.
     
     RUN get-attribute IN h_aoaParam ('adm-object-handle':U).
     hFrame = WIDGET-HANDLE(RETURN-VALUE).
@@ -1025,7 +1026,13 @@ PROCEDURE pSaveUserPrint :
         RUN pSaveUserPrint IN h_aoaColumns (ROWID(user-print),INPUT-OUTPUT idx).
     END. /* do trans */
     IF AVAILABLE user-print THEN DO:
-    FIND CURRENT user-print NO-LOCK.  
+        FIND CURRENT user-print NO-LOCK.  
+        IF NOT VALID-HANDLE(h_aoaTaskParam) THEN DO:
+            RUN get-attribute ("Current-Page":U).
+            ASSIGN iCurrentPage = INTEGER(RETURN-VALUE).
+            RUN select-page (3).
+            RUN select-page (iCurrentPage).
+        END. /* if not valid-handle */
         RUN pGetUserPrintTask IN h_aoaTaskParam.
     END. /* if avail */
     
