@@ -923,6 +923,8 @@ DO:
 
     RUN paper-clip-image-proc(INPUT est.rec_key).
 
+    RUN dept-image-proc.
+
     IF eb.stock-no NE "" THEN
     DO:
        FIND FIRST itemfg WHERE
@@ -2464,6 +2466,33 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
+PROCEDURE dept-image-proc :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE v-spec   AS LOG       NO-UNDO.
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  
+    FIND FIRST notes WHERE notes.rec_key = est.rec_key
+        NO-LOCK NO-ERROR.
+   
+    IF AVAILABLE notes THEN
+        v-spec = TRUE.
+    ELSE v-spec = FALSE.
+
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
+  
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+        RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
