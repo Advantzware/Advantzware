@@ -537,7 +537,7 @@ DEF VAR lv-uom AS CHAR NO-UNDO.
       BY b-fg-rcpth.r-no       desc
       BY RECID(b-fg-rdtlh)     desc:
 
-      FIND FIRST fg-rctd WHERE fg-rctd.r-no = fg-rdtlh.r-no NO-LOCK NO-ERROR.
+      FIND FIRST fg-rctd WHERE fg-rctd.r-no = b-fg-rdtlh.r-no NO-LOCK NO-ERROR.
 
       lv-uom = "EA".
       IF AVAIL fg-rctd THEN
