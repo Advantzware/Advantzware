@@ -89,14 +89,14 @@ btnSortMove
 
 /* Custom List Definitions                                              */
 /* transPanel,transInit,transUpdate,displayFields,enabledFields,List-6  */
-&Scoped-define transPanel btnCombo-Box RECT-PREVIEW btnEditor btnFill-In ~
-btntParamBuilder btnRadio-Set btnSelection-List btnToggle-Box btnUpdate ~
+&Scoped-define transPanel btnCombo-Box RECT-PARAMBUILDER btnParamBuilder ~
+btnEditor btnFill-In btnRadio-Set btnSelection-List btnToggle-Box btnUpdate ~
 btnCancel btnAdd btnCopy btnDelete btnReset 
-&Scoped-define transInit btnCombo-Box btnEditor btnFill-In btntParamBuilder ~
+&Scoped-define transInit btnCombo-Box btnParamBuilder btnEditor btnFill-In ~
 btnRadio-Set btnSelection-List btnToggle-Box btnUpdate btnAdd btnCopy ~
 btnDelete 
 &Scoped-define transUpdate btnUpdate btnCancel btnReset 
-&Scoped-define displayFields RECT-PREVIEW dynParam.paramID ~
+&Scoped-define displayFields RECT-PARAMBUILDER dynParam.paramID ~
 dynParam.paramName dynParam.paramLabel dynParam.paramType dynParam.dataType ~
 dynParam.paramFormat dynParam.viewAs dynParam.actionParamID dynParam.action ~
 dynParam.innerLines dynParam.paramWidth dynParam.paramHeight ~
@@ -171,6 +171,12 @@ DEFINE BUTTON btnFill-In  NO-FOCUS FLAT-BUTTON
      SIZE 6.4 BY 1.52 TOOLTIP "Create Fill In"
      FONT 4.
 
+DEFINE BUTTON btnParamBuilder 
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U
+     LABEL "Parameter Builder" 
+     SIZE 8 BY 1.91 TOOLTIP "Parameter Builder".
+
 DEFINE BUTTON btnRadio-Set  NO-FOCUS FLAT-BUTTON
      LABEL "Radio-Set" 
      SIZE 6.4 BY 1.52 TOOLTIP "Create Radio Set"
@@ -192,12 +198,6 @@ DEFINE BUTTON btnToggle-Box  NO-FOCUS FLAT-BUTTON
      SIZE 6.4 BY 1.52 TOOLTIP "Create Toggle Box"
      FONT 4.
 
-DEFINE BUTTON btntParamBuilder 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U
-     LABEL "Parameter Builder" 
-     SIZE 8 BY 1.91 TOOLTIP "Parameter Builder".
-
 DEFINE BUTTON btnUpdate 
      IMAGE-UP FILE "Graphics/32x32/pencil.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.ico":U NO-FOCUS FLAT-BUTTON
@@ -213,7 +213,7 @@ DEFINE RECTANGLE RECT-PANEL
      SIZE 49.6 BY 2.38
      BGCOLOR 15 .
 
-DEFINE RECTANGLE RECT-PREVIEW
+DEFINE RECTANGLE RECT-PARAMBUILDER
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 9.8 BY 2.38.
 
@@ -259,15 +259,11 @@ DEFINE FRAME F-Main
 DEFINE FRAME viewFrame
      btnCombo-Box AT ROW 24.33 COL 21 HELP
           "Create New COMBO-BOX" WIDGET-ID 190
-     btnEditor AT ROW 24.33 COL 29 HELP
-          "Create New EDITOR" WIDGET-ID 192
      dynParam.paramID AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 166
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     btnFill-In AT ROW 24.33 COL 37 HELP
-          "Create New FILL-IN" WIDGET-ID 194
-     btntParamBuilder AT ROW 1.71 COL 73 HELP
+     btnParamBuilder AT ROW 1.71 COL 73 HELP
           "Parameter Builder" WIDGET-ID 286
      dynParam.paramName AT ROW 2.43 COL 19 COLON-ALIGNED WIDGET-ID 170
           VIEW-AS FILL-IN 
@@ -287,8 +283,8 @@ DEFINE FRAME viewFrame
           LIST-ITEMS "Character","Date","DateTime","Decimal","Integer","Logical" 
           DROP-DOWN-LIST
           SIZE 16 BY 1
-     btnRadio-Set AT ROW 24.33 COL 45 HELP
-          "Create New RADIO-SET" WIDGET-ID 196
+     btnEditor AT ROW 24.33 COL 29 HELP
+          "Create New EDITOR" WIDGET-ID 192
      dynParam.paramFormat AT ROW 7.19 COL 19 COLON-ALIGNED WIDGET-ID 162
           VIEW-AS FILL-IN 
           SIZE 44 BY 1
@@ -323,8 +319,6 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
-     btnSelection-List AT ROW 24.33 COL 53 HELP
-          "Create New SELECTION-LIST" WIDGET-ID 198
      dynParam.initialItems AT ROW 17.91 COL 19 COLON-ALIGNED WIDGET-ID 154
           VIEW-AS FILL-IN 
           SIZE 62 BY 1
@@ -333,10 +327,14 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 42 BY 1
           BGCOLOR 15 
+     btnFill-In AT ROW 24.33 COL 37 HELP
+          "Create New FILL-IN" WIDGET-ID 194
      dynParam.validateProc AT ROW 20.29 COL 19 COLON-ALIGNED WIDGET-ID 176
           VIEW-AS FILL-IN 
           SIZE 42 BY 1
           BGCOLOR 15 
+     btnRadio-Set AT ROW 24.33 COL 45 HELP
+          "Create New RADIO-SET" WIDGET-ID 196
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 76 ROW 1.95
@@ -345,6 +343,8 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     btnSelection-List AT ROW 24.33 COL 53 HELP
+          "Create New SELECTION-LIST" WIDGET-ID 198
      btnToggle-Box AT ROW 24.33 COL 61 HELP
           "Create New TOGGLE-BOX" WIDGET-ID 200
      btnUpdate AT ROW 21.71 COL 20 HELP
@@ -362,7 +362,7 @@ DEFINE FRAME viewFrame
      "Action:" VIEW-AS TEXT
           SIZE 7 BY 1 AT ROW 9.57 COL 37 WIDGET-ID 188
      RECT-PANEL AT ROW 21.48 COL 19 WIDGET-ID 130
-     RECT-PREVIEW AT ROW 1.48 COL 72 WIDGET-ID 284
+     RECT-PARAMBUILDER AT ROW 1.48 COL 72 WIDGET-ID 284
      RECT-9 AT ROW 24.1 COL 19 WIDGET-ID 288
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -462,6 +462,8 @@ ASSIGN
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnFill-In IN FRAME viewFrame
    1 2                                                                  */
+/* SETTINGS FOR BUTTON btnParamBuilder IN FRAME viewFrame
+   1 2                                                                  */
 /* SETTINGS FOR BUTTON btnRadio-Set IN FRAME viewFrame
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnReset IN FRAME viewFrame
@@ -469,8 +471,6 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnSelection-List IN FRAME viewFrame
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnToggle-Box IN FRAME viewFrame
-   1 2                                                                  */
-/* SETTINGS FOR BUTTON btntParamBuilder IN FRAME viewFrame
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnUpdate IN FRAME viewFrame
    1 2 3                                                                */
@@ -502,7 +502,7 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-PANEL IN FRAME viewFrame
    NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE RECT-PREVIEW IN FRAME viewFrame
+/* SETTINGS FOR RECTANGLE RECT-PARAMBUILDER IN FRAME viewFrame
    NO-ENABLE 1 4                                                        */
 /* SETTINGS FOR FILL-IN dynParam.validateProc IN FRAME viewFrame
    4 5                                                                  */
@@ -629,6 +629,24 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnParamBuilder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParamBuilder s-object
+ON CHOOSE OF btnParamBuilder IN FRAME viewFrame /* Parameter Builder */
+DO:
+    IF NOT VALID-HANDLE(hParamBldr) THEN
+    RUN AOA/paramSetBldr.w PERSISTENT SET hParamBldr (
+        THIS-PROCEDURE,
+        "Param",
+        dynParam.paramID
+        ).
+    ELSE
+    RUN pReset IN hParamBldr (dynParam.paramID).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnRadio-Set
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRadio-Set s-object
 ON CHOOSE OF btnRadio-Set IN FRAME viewFrame /* Radio-Set */
@@ -708,24 +726,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btntParamBuilder
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btntParamBuilder s-object
-ON CHOOSE OF btntParamBuilder IN FRAME viewFrame /* Parameter Builder */
-DO:
-    IF NOT VALID-HANDLE(hParamBldr) THEN
-    RUN AOA/paramSetBldr.w PERSISTENT SET hParamBldr (
-        THIS-PROCEDURE,
-        "Param",
-        dynParam.paramID
-        ).
-    ELSE
-    RUN pReset IN hParamBldr (dynParam.paramID).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btnUpdate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUpdate s-object
 ON CHOOSE OF btnUpdate IN FRAME viewFrame /* Update */
@@ -767,7 +767,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dynParamBrowse s-object
 ON DEFAULT-ACTION OF dynParamBrowse IN FRAME F-Main /* Dynamic Parameters */
 DO:
-    APPLY "CHOOSE":U TO btntParamBuilder IN FRAME viewFrame.
+    APPLY "CHOOSE":U TO btnParamBuilder IN FRAME viewFrame.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1092,7 +1092,7 @@ PROCEDURE pCRUD :
                     IF cMode EQ "Add" OR cMode EQ "Copy" THEN DO:
                         RUN pReopenBrowse.
                         REPOSITION {&BROWSE-NAME} TO ROWID rRowID.
-                        APPLY "CHOOSE":U TO btntParamBuilder.
+                        APPLY "CHOOSE":U TO btnParamBuilder.
                     END. /* if add/copy */
                     ELSE
                     BROWSE {&BROWSE-NAME}:REFRESH().
@@ -1331,12 +1331,17 @@ PROCEDURE pWinReSize :
     ASSIGN
         FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = ipdHeight
         FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = ipdWidth
-        FRAME {&FRAME-NAME}:HEIGHT         = ipdHeight
-        FRAME {&FRAME-NAME}:WIDTH          = ipdWidth
-        BROWSE {&BROWSE-NAME}:HEIGHT       = ipdHeight
-                                           - BROWSE {&BROWSE-NAME}:ROW + 1
+        FRAME {&FRAME-NAME}:HEIGHT     = ipdHeight
+        FRAME {&FRAME-NAME}:WIDTH      = ipdWidth
+        BROWSE {&BROWSE-NAME}:HEIGHT   = ipdHeight - BROWSE {&BROWSE-NAME}:ROW + 1
+        FRAME viewFrame:HEIGHT         = ipdHeight - FRAME viewFrame:ROW + 1
+        FRAME viewFrame:WIDTH          = ipdWidth  - FRAME viewFrame:COL + 1
+        FRAME viewFrame:VIRTUAL-HEIGHT = FRAME viewFrame:HEIGHT
+        FRAME viewFrame:VIRTUAL-WIDTH  = FRAME viewFrame:WIDTH
         .
     VIEW FRAME {&FRAME-NAME}.
+    btnParamBuilder:MOVE-TO-TOP() IN FRAME viewFrame.
+    RECT-PARAMBUILDER:MOVE-TO-TOP().
 
 END PROCEDURE.
 

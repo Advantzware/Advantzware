@@ -855,6 +855,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pNavPanel s-object 
+PROCEDURE pNavPanel :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphNavPanel AS HANDLE NO-UNDO.
+    
+    CASE iphNavPanel:LABEL:
+        WHEN "First" THEN
+        APPLY "HOME":U TO BROWSE dynParamSetBrowse.
+        WHEN "Previous" THEN
+        BROWSE dynParamSetBrowse:SELECT-PREV-ROW().
+        WHEN "Next" THEN
+        BROWSE dynParamSetBrowse:SELECT-NEXT-ROW().
+        WHEN "Last" THEN
+        APPLY "END":U TO BROWSE dynParamSetBrowse.
+    END CASE.
+    IF AVAILABLE dynParamSet THEN
+    APPLY "VALUE-CHANGED":U TO BROWSE dynParamSetBrowse.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenBrowse s-object 
 PROCEDURE pReopenBrowse :
 /*------------------------------------------------------------------------------
@@ -943,9 +970,13 @@ PROCEDURE pWinReSize :
     ASSIGN
         FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = ipdHeight
         FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = ipdWidth
-        FRAME {&FRAME-NAME}:HEIGHT   = ipdHeight
-        FRAME {&FRAME-NAME}:WIDTH    = ipdWidth
-        BROWSE {&BROWSE-NAME}:HEIGHT = ipdHeight - BROWSE {&BROWSE-NAME}:ROW + 1
+        FRAME {&FRAME-NAME}:HEIGHT     = ipdHeight
+        FRAME {&FRAME-NAME}:WIDTH      = ipdWidth
+        BROWSE {&BROWSE-NAME}:HEIGHT   = ipdHeight - BROWSE {&BROWSE-NAME}:ROW + 1
+        FRAME viewFrame:HEIGHT         = ipdHeight - FRAME viewFrame:ROW + 1
+        FRAME viewFrame:WIDTH          = ipdWidth  - FRAME viewFrame:COL + 1
+        FRAME viewFrame:VIRTUAL-HEIGHT = FRAME viewFrame:HEIGHT
+        FRAME viewFrame:VIRTUAL-WIDTH  = FRAME viewFrame:WIDTH
         .
     VIEW FRAME {&FRAME-NAME}.
 
