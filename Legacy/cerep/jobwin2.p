@@ -327,6 +327,7 @@ FUNCTION FNdeptnotes RETURNS char (INPUT v-reckey AS CHAR, v-codes AS CHAR, v-fo
                   WHERE notes.rec_key = v-reckey 
                     AND CAN-DO(v-codes,notes.note_code)
                     AND notes.note_form_no = v-form-no
+                    AND notes.note_type NE "O"
                     AND (IF v-job GT "" THEN notes.note_group EQ v-job ELSE TRUE), 
       FIRST dept NO-LOCK 
                  WHERE dept.code = notes.note_code
