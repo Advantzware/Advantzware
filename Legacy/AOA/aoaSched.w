@@ -538,6 +538,8 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
+     btnRunNow AT ROW 19.81 COL 80 HELP
+          "Run Now" WIDGET-ID 634
      cPrgmTitle AT ROW 2.43 COL 77 COLON-ALIGNED WIDGET-ID 616
      Task.module AT ROW 2.43 COL 128 COLON-ALIGNED WIDGET-ID 648
           VIEW-AS FILL-IN 
@@ -561,8 +563,6 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 
-     btnRunNow AT ROW 19.81 COL 80 HELP
-          "Run Now" WIDGET-ID 634
      Task.cToTime AT ROW 4.33 COL 63 COLON-ALIGNED WIDGET-ID 628
           LABEL "To"
           VIEW-AS FILL-IN 
@@ -673,6 +673,8 @@ DEFINE FRAME viewFrame
           LABEL "19"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnClose AT ROW 1 COL 136 HELP
+          "Close" WIDGET-ID 72
      Task.dayOfMonth[20] AT ROW 9.33 COL 68 WIDGET-ID 558
           LABEL "20"
           VIEW-AS TOGGLE-BOX
@@ -689,8 +691,6 @@ DEFINE FRAME viewFrame
           LABEL "23"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnClose AT ROW 1 COL 136 HELP
-          "Close" WIDGET-ID 72
      Task.dayOfMonth[24] AT ROW 10.29 COL 44 WIDGET-ID 578
           LABEL "24"
           VIEW-AS TOGGLE-BOX
@@ -810,12 +810,12 @@ DEFINE FRAME viewFrame
           "Reset" WIDGET-ID 22
      btnUpdate AT ROW 19.86 COL 15 HELP
           "Update/Save" WIDGET-ID 18
-     "Recipients:" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 17.19 COL 3 WIDGET-ID 602
-     "Format:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 13.62 COL 72 WIDGET-ID 614
      "Frequency:" VIEW-AS TEXT
           SIZE 11 BY 1 AT ROW 3.62 COL 2 WIDGET-ID 618
+     "Format:" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 13.62 COL 72 WIDGET-ID 614
+     "Recipients:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 17.19 COL 3 WIDGET-ID 602
      transPanel AT ROW 19.57 COL 14 WIDGET-ID 16
      navPanel AT ROW 19.57 COL 105 WIDGET-ID 280
      RECT-2 AT ROW 5.76 COL 27 WIDGET-ID 620
@@ -1713,7 +1713,7 @@ DO:
             IF AVAILABLE prgrms THEN
             ASSIGN
                 cPrgmTitle:SCREEN-VALUE  = prgrms.prgTitle
-                Task.module:SCREEN-VALUE = SUBSTR(prgrms.mnemonic,1,2)
+                Task.module:SCREEN-VALUE = prgrms.module
                 .
         END. /* if avail */
         ELSE DO:

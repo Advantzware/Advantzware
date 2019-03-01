@@ -32,6 +32,7 @@ PROCEDURE pSetDynParamValue:
             dynParamValue.prgmName         = ipcPrgmName
             dynParamValue.paramValueID     = ipiParamValueID
             dynParamValue.paramTitle       = dynSubject.subjectTitle
+            dynParamValue.module           = dynSubject.module
             dynParamValue.paramDescription = IF ipcUserID EQ "{&defaultUser}" THEN "System Default"
                                              ELSE "User Default"
             dynParamValue.outputFormat     = dynSubject.outputFormat
