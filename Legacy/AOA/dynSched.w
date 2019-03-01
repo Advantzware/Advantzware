@@ -214,7 +214,7 @@ Task.dayOfMonth[16] Task.dayOfMonth[17] Task.dayOfMonth[18] ~
 Task.dayOfMonth[19] Task.dayOfMonth[20] Task.dayOfMonth[21] ~
 Task.dayOfMonth[22] Task.dayOfMonth[23] Task.dayOfMonth[24] ~
 Task.dayOfMonth[25] Task.dayOfMonth[26] Task.dayOfMonth[27] ~
-Task.dayOfMonth[28] Task.dayOfMonth[29] Task.dayOfMonth[30] ~
+Task.dayOfMonth[28] Task.runNow Task.dayOfMonth[29] Task.dayOfMonth[30] ~
 Task.dayOfMonth[31] Task.lastOfMonth Task.startDate Task.endDate ~
 Task.taskFormat Task.recipients 
 &Scoped-define timeRange Task.cFromTime Task.cToTime 
@@ -582,6 +582,8 @@ DEFINE FRAME viewFrame
      Task.dayOfWeek3 AT ROW 6 COL 60 WIDGET-ID 492
           VIEW-AS TOGGLE-BOX
           SIZE 12 BY .81
+     btnRunNow AT ROW 19.81 COL 80 HELP
+          "Run Now" WIDGET-ID 634
      Task.dayOfWeek4 AT ROW 6 COL 76 WIDGET-ID 494
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY .81
@@ -606,10 +608,6 @@ DEFINE FRAME viewFrame
           LABEL "3"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     Task.dayOfMonth[4] AT ROW 7.43 COL 52 WIDGET-ID 530
-          LABEL "4"
-          VIEW-AS TOGGLE-BOX
-          SIZE 6 BY .81
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 21 ROW 7.43
@@ -618,6 +616,10 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     Task.dayOfMonth[4] AT ROW 7.43 COL 52 WIDGET-ID 530
+          LABEL "4"
+          VIEW-AS TOGGLE-BOX
+          SIZE 6 BY .81
      Task.dayOfMonth[5] AT ROW 7.43 COL 60 WIDGET-ID 532
           LABEL "5"
           VIEW-AS TOGGLE-BOX
@@ -654,8 +656,6 @@ DEFINE FRAME viewFrame
           LABEL "13"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnRunNow AT ROW 19.81 COL 80 HELP
-          "Run Now" WIDGET-ID 634
      Task.dayOfMonth[14] AT ROW 8.38 COL 76 WIDGET-ID 550
           LABEL "14"
           VIEW-AS TOGGLE-BOX
@@ -696,16 +696,14 @@ DEFINE FRAME viewFrame
           LABEL "23"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnClose AT ROW 1 COL 136 HELP
+          "Close" WIDGET-ID 72
      Task.dayOfMonth[24] AT ROW 10.29 COL 44 WIDGET-ID 578
           LABEL "24"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
      Task.dayOfMonth[25] AT ROW 10.29 COL 52 WIDGET-ID 566
           LABEL "25"
-          VIEW-AS TOGGLE-BOX
-          SIZE 6 BY .81
-     Task.dayOfMonth[26] AT ROW 10.29 COL 60 WIDGET-ID 568
-          LABEL "26"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -716,6 +714,12 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     Task.dayOfMonth[26] AT ROW 10.29 COL 60 WIDGET-ID 568
+          LABEL "26"
+          VIEW-AS TOGGLE-BOX
+          SIZE 6 BY .81
+     btnFirst AT ROW 19.81 COL 106 HELP
+          "First" WIDGET-ID 274
      Task.dayOfMonth[27] AT ROW 10.29 COL 68 WIDGET-ID 572
           LABEL "27"
           VIEW-AS TOGGLE-BOX
@@ -727,10 +731,14 @@ DEFINE FRAME viewFrame
      Task.runNow AT ROW 11.24 COL 14 WIDGET-ID 652
           VIEW-AS TOGGLE-BOX
           SIZE 12 BY .81
+     btnLast AT ROW 19.86 COL 130 HELP
+          "Last" WIDGET-ID 68
      Task.dayOfMonth[29] AT ROW 11.24 COL 28 WIDGET-ID 584
           LABEL "29"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnNext AT ROW 19.81 COL 122 HELP
+          "Next" WIDGET-ID 276
      Task.dayOfMonth[30] AT ROW 11.24 COL 36 WIDGET-ID 580
           LABEL "30"
           VIEW-AS TOGGLE-BOX
@@ -747,6 +755,8 @@ DEFINE FRAME viewFrame
           SIZE 16 BY 1
           BGCOLOR 15 
      btnCalendar-1 AT ROW 12.43 COL 30 WIDGET-ID 76
+     btnPrev AT ROW 19.81 COL 114 HELP
+          "Previous" WIDGET-ID 278
      startDateOption AT ROW 12.43 COL 33 COLON-ALIGNED HELP
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 74
      Task.endDate AT ROW 13.62 COL 12 COLON-ALIGNED WIDGET-ID 506
@@ -754,10 +764,8 @@ DEFINE FRAME viewFrame
           SIZE 16 BY 1
           BGCOLOR 15 
      btnCalendar-2 AT ROW 13.62 COL 30 WIDGET-ID 78
-     btnClose AT ROW 1 COL 136 HELP
-          "Close" WIDGET-ID 72
-     btnFirst AT ROW 19.81 COL 106 HELP
-          "First" WIDGET-ID 274
+     btnAdd AT ROW 19.86 COL 23 HELP
+          "Add" WIDGET-ID 20
      endDateOption AT ROW 13.62 COL 33 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
      Task.taskFormat AT ROW 13.62 COL 81 NO-LABEL WIDGET-ID 608
@@ -769,16 +777,12 @@ DEFINE FRAME viewFrame
 "PDF", "PDF":U,
 "HTML", "HTML":U
           SIZE 51 BY 1
-     btnLast AT ROW 19.86 COL 130 HELP
-          "Last" WIDGET-ID 68
-     btnNext AT ROW 19.81 COL 122 HELP
-          "Next" WIDGET-ID 276
+     btnCancel AT ROW 19.86 COL 55 HELP
+          "Cancel" WIDGET-ID 28
      Task.nextDate AT ROW 14.81 COL 12 COLON-ALIGNED WIDGET-ID 510
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     btnPrev AT ROW 19.81 COL 114 HELP
-          "Previous" WIDGET-ID 278
      Task.cNextTime AT ROW 14.81 COL 36 COLON-ALIGNED WIDGET-ID 596
           LABEL "Time"
           VIEW-AS FILL-IN 
@@ -788,19 +792,13 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     btnAdd AT ROW 19.86 COL 23 HELP
-          "Add" WIDGET-ID 20
      Task.cLastTime AT ROW 16 COL 36 COLON-ALIGNED WIDGET-ID 594
           LABEL "Time"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 
-     btnCancel AT ROW 19.86 COL 55 HELP
-          "Cancel" WIDGET-ID 28
-     Task.recipients AT ROW 17.19 COL 14 NO-LABEL WIDGET-ID 600
-          VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 125 BY 2.14
-          BGCOLOR 15 
+     btnCopy AT ROW 19.86 COL 31 HELP
+          "Copy" WIDGET-ID 24
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 21 ROW 7.43
@@ -809,8 +807,10 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     btnCopy AT ROW 19.86 COL 31 HELP
-          "Copy" WIDGET-ID 24
+     Task.recipients AT ROW 17.19 COL 14 NO-LABEL WIDGET-ID 600
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 125 BY 2.14
+          BGCOLOR 15 
      btnDelete AT ROW 19.86 COL 39 HELP
           "Delete" WIDGET-ID 26
      btnReset AT ROW 19.86 COL 47 HELP
@@ -1072,7 +1072,7 @@ ASSIGN
 /* SETTINGS FOR RECTANGLE RECT-4 IN FRAME viewFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX Task.runNow IN FRAME viewFrame
-   NO-ENABLE 4                                                          */
+   NO-ENABLE 4 5                                                        */
 /* SETTINGS FOR RECTANGLE runNow-2 IN FRAME viewFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX Task.scheduled IN FRAME viewFrame
@@ -1720,15 +1720,13 @@ DO:
                 Task.taskName:SCREEN-VALUE  = bDynParamValue.paramDescription
                 Task.user-id:SCREEN-VALUE   = bDynParamValue.user-id
                 Task.prgmName:SCREEN-VALUE  = bDynParamValue.prgmName
+                Task.module:SCREEN-VALUE    = bDynParamValue.module
                 .
             FIND FIRST prgrms NO-LOCK
                  WHERE prgrms.prgmName EQ bDynParamValue.prgmName
                  NO-ERROR.
             IF AVAILABLE prgrms THEN
-            ASSIGN
-                cPrgmTitle:SCREEN-VALUE  = prgrms.prgTitle
-                Task.module:SCREEN-VALUE = SUBSTR(prgrms.mnemonic,1,2)
-                .
+            cPrgmTitle:SCREEN-VALUE  = prgrms.prgTitle.
         END. /* if avail */
         ELSE DO:
             MESSAGE

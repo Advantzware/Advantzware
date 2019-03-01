@@ -21,6 +21,7 @@ PROCEDURE pRunNow:
             Task.user-id      = {1}dynParamValue.user-id
             Task.prgmName     = {1}dynParamValue.prgmName
             Task.paramValueID = {1}dynParamValue.paramValueID
+            Task.module       = {1}dynParamValue.module
             Task.taskName     = "Run Now Task"
             Task.taskFormat   = ipcTaskFormat
             Task.runNow       = YES

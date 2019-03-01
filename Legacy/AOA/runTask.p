@@ -36,106 +36,90 @@ IF AVAILABLE dynParamValue THEN DO:
          WHERE dynSubject.subjectID EQ Task.subjectID
          NO-ERROR.
     IF AVAILABLE dynSubject THEN DO:
-        FIND FIRST prgrms NO-LOCK
-             WHERE prgrms.prgmName EQ Task.prgmName
-             NO-ERROR.
-        IF AVAILABLE prgrms THEN DO:
-            IF prgrms.module NE "" THEN DO:
-                cAppSrv = "AOA\appServer\aoa" + prgrms.module.
-                IF SEARCH(cAppSrv + ".r") NE ? OR
-                   SEARCH(cAppSrv + ".p") NE ? THEN DO:
-                    RUN AOA\appServer\aoaBin.p PERSISTENT SET hAppSrvBin.
-                    SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
-                    RUN VALUE(cAppSrv + ".p") PERSISTENT SET hAppSrv.
-                    SESSION:ADD-SUPER-PROCEDURE (hAppSrv).                
-                    RUN AOA\spJasper.p PERSISTENT SET hJasper.
-                    SESSION:ADD-SUPER-PROCEDURE (hJasper).
-                    RUN spJasperQuery (
-                        Task.taskFormat,
-                        ROWID(dynParamValue),
-                        dynSubject.subjectTitle,
-                        Task.user-id,
-                        hAppSrvBin,
-                        OUTPUT cJasperFile
-                        ).
-                    RUN pCreateAuditHdr.
-                    RUN spCreateAuditDtl (iAuditID, "programID", 0, cJasperFile, Task.prgmName,  NO).
-                    IF Task.recipients NE "" THEN DO:
-                        IF AVAILABLE config THEN DO:
-                            IF config.taskName THEN
-                            cSubject = cSubject + Task.taskName + " ".
-                            IF config.taskType THEN
-                            cSubject = cSubject + Task.taskFormat + " ".
-                            IF config.taskDate THEN
-                            cSubject = cSubject + STRING(TODAY,"99/99/9999") + " ".
-                            IF config.taskTime THEN
-                            cSubject = cSubject + STRING(TIME,"HH:MM:SS am").
-                            cSubject = TRIM(cSubject).
-                        END. /* if avail */
-                        ELSE
-                        cSubject = "AOA Task Result".
+        IF dynParamValue.module NE "" THEN DO:
+            cAppSrv = "AOA\appServer\aoa" + dynParamValue.module.
+            IF SEARCH(cAppSrv + ".r") NE ? OR
+               SEARCH(cAppSrv + ".p") NE ? THEN DO:
+                RUN AOA\appServer\aoaBin.p PERSISTENT SET hAppSrvBin.
+                SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
+                RUN VALUE(cAppSrv + ".p") PERSISTENT SET hAppSrv.
+                SESSION:ADD-SUPER-PROCEDURE (hAppSrv).                
+                RUN AOA\spJasper.p PERSISTENT SET hJasper.
+                SESSION:ADD-SUPER-PROCEDURE (hJasper).
+                RUN spJasperQuery (
+                    Task.taskFormat,
+                    ROWID(dynParamValue),
+                    dynSubject.subjectTitle,
+                    Task.user-id,
+                    hAppSrvBin,
+                    OUTPUT cJasperFile
+                    ).
+                RUN pCreateAuditHdr.
+                RUN spCreateAuditDtl (iAuditID, "programID", 0, cJasperFile, Task.prgmName,  NO).
+                IF Task.recipients NE "" THEN DO:
+                    IF AVAILABLE config THEN DO:
+                        IF config.taskName THEN
+                        cSubject = cSubject + Task.taskName + " ".
+                        IF config.taskType THEN
+                        cSubject = cSubject + Task.taskFormat + " ".
+                        IF config.taskDate THEN
+                        cSubject = cSubject + STRING(TODAY,"99/99/9999") + " ".
+                        IF config.taskTime THEN
+                        cSubject = cSubject + STRING(TIME,"HH:MM:SS am").
+                        cSubject = TRIM(cSubject).
+                    END. /* if avail */
+                    ELSE
+                    cSubject = "AOA Task Result".
+                    CREATE taskEmail.
+                    ASSIGN
+                        taskEmail.subject    = cSubject
+                        taskEmail.body       = IF AVAILABLE config AND config.emailBody NE "" THEN
+                                               config.emailBody ELSE "AOA Task Result Attached"
+                        taskEmail.attachment = cJasperFile
+                        taskEmail.recipients = Task.recipients
+                        taskEmail.mustExist  = YES
+                        taskEmail.rec_key    = Task.rec_key
+                        .
+                END. /* if recipients */
+                ELSE IF Task.runNow THEN DO:
+                    IF AVAILABLE config AND config.cueCard THEN DO:
                         CREATE taskEmail.
                         ASSIGN
-                            taskEmail.subject    = cSubject
-                            taskEmail.body       = IF AVAILABLE config AND config.emailBody NE "" THEN
-                                                   config.emailBody ELSE "AOA Task Result Attached"
+                            taskEmail.subject    = "Submitted Run Now Request"
+                            taskEmail.body       = ""
                             taskEmail.attachment = cJasperFile
-                            taskEmail.recipients = Task.recipients
+                            taskEmail.recipients = "Cue Card Message"
+                            taskEmail.user-id    = Task.user-id
                             taskEmail.mustExist  = YES
                             taskEmail.rec_key    = Task.rec_key
                             .
-                    END. /* if recipients */
-                    ELSE IF Task.runNow THEN DO:
-                        IF AVAILABLE config AND config.cueCard THEN DO:
-                            CREATE taskEmail.
-                            ASSIGN
-                                taskEmail.subject    = "Submitted Run Now Request"
-                                taskEmail.body       = ""
-                                taskEmail.attachment = cJasperFile
-                                taskEmail.recipients = "Cue Card Message"
-                                taskEmail.user-id    = Task.user-id
-                                taskEmail.mustExist  = YES
-                                taskEmail.rec_key    = Task.rec_key
-                                .
-                        END. /* if avail */
-                    END. /* else if runnow */
-                    RUN pCalcNextRun (YES).
-                END. /* if search */
-                ELSE DO:
-                    RUN pCreateAuditHdr.
-                    RUN spCreateAuditDtl (
-                        iAuditID,
-                        "module",
-                        0,
-                        "invalid prgrms module (" + prgrms.module + ")",
-                        Task.prgmName,
-                        NO
-                        ).
-                END. /* else search */
-            END. /* if module */
+                    END. /* if avail */
+                END. /* else if runnow */
+                RUN pCalcNextRun (YES).
+            END. /* if search */
             ELSE DO:
                 RUN pCreateAuditHdr.
                 RUN spCreateAuditDtl (
                     iAuditID,
-                    "prgmName",
+                    "module",
                     0,
-                    "prgrms module blank",
+                    "invalid module (" + dynParamValue.module + ")",
                     Task.prgmName,
                     NO
                     ).
-            END. /* else module */
-        END. /* if avail prgrms */
+            END. /* else search */
+        END. /* if module */
         ELSE DO:
             RUN pCreateAuditHdr.
             RUN spCreateAuditDtl (
                 iAuditID,
                 "prgmName",
                 0,
-                "prgrms record not found",
+                "module is blank",
                 Task.prgmName,
                 NO
                 ).
-        END. /* else prgrms */
+        END. /* else module */
     END. /* if avail dynsubject */
     ELSE DO:
         RUN pCreateAuditHdr.

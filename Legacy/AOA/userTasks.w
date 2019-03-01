@@ -60,7 +60,7 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD mnemonic         LIKE prgrms.mnemonic LABEL "Hotkey"
     FIELD paramDescription LIKE dynParamValue.paramDescription LABEL "Description"
     FIELD paramTitle       LIKE dynParamValue.paramTitle
-    FIELD module           LIKE prgrms.module
+    FIELD module           LIKE dynParamValue.module
     FIELD user-id          LIKE dynParamValue.user-id
     FIELD paramValueID     LIKE dynParamValue.paramValueID
     FIELD prgmName         LIKE dynParamValue.prgmName
@@ -700,12 +700,6 @@ PROCEDURE local-initialize :
   END. /* with frame */
   {methods/run_link.i "CONTAINER" "pGetCompany" "(OUTPUT cCompany)"}
   RUN pGetParamValue.
-  /*
-  IF NOT AVAILABLE dynParamValue THEN
-  DO WITH FRAME {&FRAME-NAME}:
-      HIDE {&taskObjects}.
-  END. /* if not avail */
-  */
 
 END PROCEDURE.
 
@@ -823,7 +817,7 @@ PROCEDURE pGetParamValue :
             ttDynParamValue.paramDescription = dynParamValue.paramDescription
             ttDynParamValue.prgmName         = dynParamValue.prgmName
             ttDynParamValue.paramTitle       = dynParamValue.paramTitle
-            ttDynParamValue.module           = prgrms.module
+            ttDynParamValue.module           = dynParamValue.module
             ttDynParamValue.user-id          = dynParamValue.user-id
             ttDynParamValue.paramValueID     = dynParamValue.paramValueID
             ttDynParamValue.outputFormat     = dynParamValue.outputFormat
