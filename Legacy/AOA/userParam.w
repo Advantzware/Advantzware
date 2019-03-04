@@ -37,13 +37,16 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE char-hdl   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cPoolName  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hAppSrvBin AS HANDLE    NO-UNDO.
-DEFINE VARIABLE pHandle    AS HANDLE    NO-UNDO.
-DEFINE VARIABLE rRowID     AS ROWID     NO-UNDO.
+DEFINE VARIABLE char-hdl        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPoolName       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hAppSrvBin      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hDynDescripProc AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hDynInitProc    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hDynValProc     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE pHandle         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE rRowID          AS ROWID     NO-UNDO.
 
-{AOA/tempTable/ttAction.i}
+{AOA/tempTable/ttDynAction.i}
 
 /* function fDateOptions */
 {AOA/includes/fDateOptions.i}
@@ -51,6 +54,10 @@ DEFINE VARIABLE rRowID     AS ROWID     NO-UNDO.
 {AOA/includes/fDateOptionValue.i}
 
 {AOA/includes/dynFuncs.i}
+
+RUN AOA/spDynDescriptionProc.p PERSISTENT SET hDynDescripProc.
+RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
+RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

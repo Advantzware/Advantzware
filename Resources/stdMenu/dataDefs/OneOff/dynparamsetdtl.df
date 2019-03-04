@@ -42,7 +42,7 @@ ADD FIELD "rec_key" OF "dynParamSetDtl" AS character
   POSITION 5
   MAX-WIDTH 42
   HELP "Enter Rec Key Value"
-  ORDER 140
+  ORDER 150
 
 ADD FIELD "paramName" OF "dynParamSetDtl" AS character 
   FORMAT "x(20)"
@@ -60,7 +60,7 @@ ADD FIELD "paramPrompt" OF "dynParamSetDtl" AS logical
   POSITION 11
   MAX-WIDTH 1
   HELP "Toggle Parameter Prompt"
-  ORDER 110
+  ORDER 120
 
 ADD FIELD "initialValue" OF "dynParamSetDtl" AS character 
   FORMAT "x(20)"
@@ -69,7 +69,7 @@ ADD FIELD "initialValue" OF "dynParamSetDtl" AS character
   POSITION 12
   MAX-WIDTH 40
   HELP "Enter Initial Value"
-  ORDER 80
+  ORDER 90
 
 ADD FIELD "paramCol" OF "dynParamSetDtl" AS decimal 
   FORMAT ">>9.99"
@@ -80,7 +80,7 @@ ADD FIELD "paramCol" OF "dynParamSetDtl" AS decimal
   COLUMN-LABEL "Col"
   HELP "Enter Parameter Column"
   DECIMALS 2
-  ORDER 90
+  ORDER 100
 
 ADD FIELD "paramRow" OF "dynParamSetDtl" AS decimal 
   FORMAT ">>9.99"
@@ -91,7 +91,7 @@ ADD FIELD "paramRow" OF "dynParamSetDtl" AS decimal
   COLUMN-LABEL "Row"
   HELP "Enter Parameter Row"
   DECIMALS 2
-  ORDER 100
+  ORDER 110
 
 ADD FIELD "initialItems" OF "dynParamSetDtl" AS character 
   FORMAT "x(60)"
@@ -100,7 +100,7 @@ ADD FIELD "initialItems" OF "dynParamSetDtl" AS character
   POSITION 15
   MAX-WIDTH 80
   HELP "Enter Initial Items"
-  ORDER 70
+  ORDER 80
 
 ADD FIELD "action" OF "dynParamSetDtl" AS character 
   FORMAT "x(60)"
@@ -109,7 +109,7 @@ ADD FIELD "action" OF "dynParamSetDtl" AS character
   POSITION 19
   MAX-WIDTH 40
   HELP "Enter Action Instructions"
-  ORDER 120
+  ORDER 130
 
 ADD FIELD "actionParamID" OF "dynParamSetDtl" AS integer 
   FORMAT ">,>>>,>>9"
@@ -119,7 +119,7 @@ ADD FIELD "actionParamID" OF "dynParamSetDtl" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "Action ID"
   HELP "Enter Action Parameter ID"
-  ORDER 130
+  ORDER 140
 
 ADD FIELD "initializeProc" OF "dynParamSetDtl" AS character 
   FORMAT "x(40)"
@@ -138,6 +138,15 @@ ADD FIELD "validateProc" OF "dynParamSetDtl" AS character
   MAX-WIDTH 80
   HELP "Enter Validate Procedure"
   ORDER 60
+
+ADD FIELD "descriptionProc" OF "dynParamSetDtl" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Description Procedure"
+  POSITION 23
+  MAX-WIDTH 80
+  HELP "Enter Description Procedure"
+  ORDER 70
 
 ADD INDEX "pi-dynParamSetDtl" ON "dynParamSetDtl" 
   AREA "Index"
@@ -161,4 +170,4 @@ ADD INDEX "si-rec_key" ON "dynParamSetDtl"
 PSC
 cpstream=ISO8859-1
 .
-0000003827
+0000004039

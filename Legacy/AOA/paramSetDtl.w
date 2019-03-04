@@ -40,15 +40,22 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE cCompany    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE char-hdl    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cMode       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hParamBldr  AS HANDLE    NO-UNDO.
-DEFINE VARIABLE iParamSetID AS INTEGER   NO-UNDO.
-DEFINE VARIABLE lSortMove   AS LOGICAL   NO-UNDO INITIAL YES.
-DEFINE VARIABLE pHandle     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cCompany        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE char-hdl        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMode           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hDynDescripProc AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hDynInitProc    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hDynValProc     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hParamBldr      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iParamSetID     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lSortMove       AS LOGICAL   NO-UNDO INITIAL YES.
+DEFINE VARIABLE pHandle         AS HANDLE    NO-UNDO.
 
 {methods/defines/sortByDefs.i}
+
+RUN AOA/spDynDescriptionProc.p PERSISTENT SET hDynDescripProc.
+RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
+RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -85,14 +92,14 @@ DEFINE VARIABLE pHandle     AS HANDLE    NO-UNDO.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS searchBar dynParamSetDtlBrowse ~
 btnRestoreDefaults btnSortMove 
-&Scoped-Define DISPLAYED-OBJECTS searchBar 
+&Scoped-Define DISPLAYED-OBJECTS searchBar cSetName 
 
 /* Custom List Definitions                                              */
 /* transPanel,transInit,transUpdate,displayFields,enabledFields,List-6  */
-&Scoped-define transPanel RECT-SETBUILDER btnUpdate btnSetBuilder ~
+&Scoped-define transPanel RECT-SETBUILDER btnSetBuilder btnUpdate ~
 btnFirst-1 btnLast-1 btnNext-1 btnPrev-1 btnCancel btnAdd btnCopy btnDelete ~
 btnReset 
-&Scoped-define transInit btnUpdate btnSetBuilder btnFirst-1 btnLast-1 ~
+&Scoped-define transInit btnSetBuilder btnUpdate btnFirst-1 btnLast-1 ~
 btnNext-1 btnPrev-1 btnAdd btnCopy btnDelete 
 &Scoped-define transUpdate btnUpdate btnCancel btnReset 
 &Scoped-define displayFields RECT-SETBUILDER dynParamSetDtl.paramSetID ~
@@ -100,13 +107,14 @@ dynParamSetDtl.paramID dynParamSetDtl.paramName dynParamSetDtl.paramLabel ~
 dynParamSetDtl.actionParamID dynParamSetDtl.action dynParamSetDtl.paramCol ~
 dynParamSetDtl.paramRow dynParamSetDtl.paramPrompt ~
 dynParamSetDtl.initialValue dynParamSetDtl.initialItems ~
-dynParamSetDtl.initializeProc dynParamSetDtl.validateProc 
+dynParamSetDtl.initializeProc dynParamSetDtl.validateProc ~
+dynParamSetDtl.descriptionProc 
 &Scoped-define enabledFields dynParamSetDtl.paramName ~
 dynParamSetDtl.paramLabel dynParamSetDtl.actionParamID ~
 dynParamSetDtl.action dynParamSetDtl.paramCol dynParamSetDtl.paramRow ~
 dynParamSetDtl.paramPrompt dynParamSetDtl.initialValue ~
 dynParamSetDtl.initialItems dynParamSetDtl.initializeProc ~
-dynParamSetDtl.validateProc 
+dynParamSetDtl.validateProc dynParamSetDtl.descriptionProc 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -126,6 +134,10 @@ DEFINE BUTTON btnSortMove
      IMAGE-UP FILE "Graphics/16x16/sort_up_down2.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Sort/Move" 
      SIZE 4 BY .95 TOOLTIP "Toggle Sort/Move Columns".
+
+DEFINE VARIABLE cSetName AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 81 BY .95 NO-UNDO.
 
 DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
@@ -241,51 +253,52 @@ DEFINE FRAME DEFAULT-FRAME
           "Restore Defaults" WIDGET-ID 42
      btnSortMove AT ROW 1 COL 5 HELP
           "Toggle Sort/Move Columns" WIDGET-ID 48
-     SPACE(150.00) SKIP(26.00)
+     cSetName AT ROW 1 COL 75 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     SPACE(1.00) SKIP(26.00)
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME viewFrame
-     dynParamSetDtl.paramSetID AT ROW 1.48 COL 19 COLON-ALIGNED WIDGET-ID 166
+     dynParamSetDtl.paramSetID AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 166
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     btnUpdate AT ROW 18.62 COL 20 HELP
-          "Update/Save" WIDGET-ID 128
-     btnSetBuilder AT ROW 1.71 COL 73 HELP
+     dynParamSetDtl.paramID AT ROW 1.24 COL 49 COLON-ALIGNED WIDGET-ID 158
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     btnSetBuilder AT ROW 1.48 COL 74 HELP
           "Parameter Set Builder" WIDGET-ID 286
-     dynParamSetDtl.paramID AT ROW 2.67 COL 19 COLON-ALIGNED WIDGET-ID 158
-          VIEW-AS FILL-IN 
-          SIZE 14.6 BY 1
-          BGCOLOR 15 
-     dynParamSetDtl.paramName AT ROW 3.86 COL 19 COLON-ALIGNED WIDGET-ID 162
+     dynParamSetDtl.paramName AT ROW 2.43 COL 19 COLON-ALIGNED WIDGET-ID 162
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.paramLabel AT ROW 5.05 COL 19 COLON-ALIGNED WIDGET-ID 160
+     dynParamSetDtl.paramLabel AT ROW 3.62 COL 19 COLON-ALIGNED WIDGET-ID 160
           VIEW-AS FILL-IN 
-          SIZE 44 BY 1
+          SIZE 50 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.actionParamID AT ROW 6.24 COL 19 COLON-ALIGNED WIDGET-ID 150
+     dynParamSetDtl.actionParamID AT ROW 4.81 COL 19 COLON-ALIGNED WIDGET-ID 150
           LABEL "Action Param ID"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.action AT ROW 6.24 COL 44 NO-LABEL WIDGET-ID 186
+     dynParamSetDtl.action AT ROW 4.81 COL 44 NO-LABEL WIDGET-ID 186
           VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-          LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL" 
-          SIZE 21 BY 8.19
-     dynParamSetDtl.paramCol AT ROW 7.43 COL 19 COLON-ALIGNED WIDGET-ID 156
+          LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL","START DESCRIPTION","END DESCRIPTION" 
+          SIZE 27 BY 9.52
+     btnUpdate AT ROW 19.81 COL 22 HELP
+          "Update/Save" WIDGET-ID 128
+     dynParamSetDtl.paramCol AT ROW 7.91 COL 19 COLON-ALIGNED WIDGET-ID 156
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.paramRow AT ROW 8.62 COL 19 COLON-ALIGNED WIDGET-ID 164
+     dynParamSetDtl.paramRow AT ROW 9.1 COL 19 COLON-ALIGNED WIDGET-ID 164
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.paramPrompt AT ROW 9.81 COL 21 WIDGET-ID 288
+     dynParamSetDtl.paramPrompt AT ROW 10.29 COL 21 WIDGET-ID 288
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY 1
      dynParamSetDtl.initialValue AT ROW 13.38 COL 19 COLON-ALIGNED WIDGET-ID 154
@@ -296,37 +309,53 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 62 BY 1
           BGCOLOR 15 
-     btnFirst-1 AT ROW 21.48 COL 28 HELP
+     dynParamSetDtl.initializeProc AT ROW 15.76 COL 19 COLON-ALIGNED WIDGET-ID 296
+          VIEW-AS COMBO-BOX SORT INNER-LINES 5
+          LIST-ITEMS "Item 1" 
+          DROP-DOWN-LIST
+          SIZE 50 BY 1
+     dynParamSetDtl.validateProc AT ROW 16.95 COL 19 COLON-ALIGNED WIDGET-ID 298
+          VIEW-AS COMBO-BOX SORT INNER-LINES 5
+          LIST-ITEMS "Item 1" 
+          DROP-DOWN-LIST
+          SIZE 50 BY 1
+     dynParamSetDtl.descriptionProc AT ROW 18.14 COL 19 COLON-ALIGNED WIDGET-ID 300
+          LABEL "Descript Procedure"
+          VIEW-AS COMBO-BOX SORT INNER-LINES 5
+          LIST-ITEMS "Item 1" 
+          DROP-DOWN-LIST
+          SIZE 50 BY 1
+     btnFirst-1 AT ROW 22.67 COL 30 HELP
           "First" WIDGET-ID 274
-     dynParamSetDtl.initializeProc AT ROW 15.76 COL 19 COLON-ALIGNED WIDGET-ID 290
-          VIEW-AS FILL-IN 
-          SIZE 42 BY 1
-          BGCOLOR 15 
-     dynParamSetDtl.validateProc AT ROW 16.95 COL 19 COLON-ALIGNED WIDGET-ID 292
-          VIEW-AS FILL-IN 
-          SIZE 42 BY 1
-          BGCOLOR 15 
-     btnLast-1 AT ROW 21.48 COL 52 HELP
+     btnLast-1 AT ROW 22.67 COL 54 HELP
           "Last" WIDGET-ID 68
-     btnNext-1 AT ROW 21.48 COL 44 HELP
+     btnNext-1 AT ROW 22.67 COL 46 HELP
           "Next" WIDGET-ID 276
-     btnPrev-1 AT ROW 21.48 COL 36 HELP
+     btnPrev-1 AT ROW 22.67 COL 38 HELP
           "Previous" WIDGET-ID 278
-     btnCancel AT ROW 18.62 COL 60 HELP
+     btnCancel AT ROW 19.81 COL 62 HELP
           "Cancel" WIDGET-ID 120
-     btnAdd AT ROW 18.62 COL 28 HELP
+     btnAdd AT ROW 19.81 COL 30 HELP
           "Add" WIDGET-ID 118
-     btnCopy AT ROW 18.62 COL 36 HELP
+     btnCopy AT ROW 19.81 COL 38 HELP
           "Copy" WIDGET-ID 122
-     btnDelete AT ROW 18.62 COL 44 HELP
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 76 ROW 1.95
+         SIZE 83 BY 26
+         FGCOLOR 1  WIDGET-ID 1500.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME viewFrame
+     btnDelete AT ROW 19.81 COL 46 HELP
           "Delete" WIDGET-ID 124
-     btnReset AT ROW 18.62 COL 52 HELP
+     btnReset AT ROW 19.81 COL 54 HELP
           "Reset" WIDGET-ID 126
      "Action:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 6.24 COL 37 WIDGET-ID 188
-     RECT-PANEL AT ROW 18.38 COL 19 WIDGET-ID 130
-     RECT-SETBUILDER AT ROW 1.48 COL 72 WIDGET-ID 284
-     transPanel-8 AT ROW 21.24 COL 27 WIDGET-ID 280
+          SIZE 7 BY 1 AT ROW 4.81 COL 37 WIDGET-ID 188
+     RECT-PANEL AT ROW 19.57 COL 21 WIDGET-ID 130
+     RECT-SETBUILDER AT ROW 1.24 COL 73 WIDGET-ID 284
+     transPanel-8 AT ROW 22.43 COL 29 WIDGET-ID 280
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 76 ROW 1.95
@@ -398,6 +427,8 @@ ASSIGN
        FRAME DEFAULT-FRAME:HEIGHT           = 26.95
        FRAME DEFAULT-FRAME:WIDTH            = 158.
 
+/* SETTINGS FOR FILL-IN cSetName IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 ASSIGN 
        dynParamSetDtlBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
@@ -432,9 +463,11 @@ ASSIGN
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnUpdate IN FRAME viewFrame
    1 2 3                                                                */
+/* SETTINGS FOR COMBO-BOX dynParamSetDtl.descriptionProc IN FRAME viewFrame
+   4 5 EXP-LABEL                                                        */
 /* SETTINGS FOR FILL-IN dynParamSetDtl.initialItems IN FRAME viewFrame
    4 5                                                                  */
-/* SETTINGS FOR FILL-IN dynParamSetDtl.initializeProc IN FRAME viewFrame
+/* SETTINGS FOR COMBO-BOX dynParamSetDtl.initializeProc IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParamSetDtl.initialValue IN FRAME viewFrame
    4 5                                                                  */
@@ -458,7 +491,7 @@ ASSIGN
    NO-ENABLE 1 4                                                        */
 /* SETTINGS FOR RECTANGLE transPanel-8 IN FRAME viewFrame
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dynParamSetDtl.validateProc IN FRAME viewFrame
+/* SETTINGS FOR COMBO-BOX dynParamSetDtl.validateProc IN FRAME viewFrame
    4 5                                                                  */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -802,6 +835,7 @@ PROCEDURE local-initialize :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/run_link.i "CONTAINER" "pGetCompany" "(OUTPUT cCompany)"}
+  RUN pGetDynProcs.
 
 END PROCEDURE.
 
@@ -985,7 +1019,12 @@ PROCEDURE pDisplay :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME viewFrame:
         IF AVAILABLE dynParamSetDtl THEN DO:
-            dynParamSetDtl.action:SCREEN-VALUE = "".
+            ASSIGN
+                dynParamSetDtl.action:SCREEN-VALUE          = ""
+                dynParamSetDtl.initializeProc:SCREEN-VALUE  = " "
+                dynParamSetDtl.validateProc:SCREEN-VALUE    = " "
+                dynParamSetDtl.descriptionProc:SCREEN-VALUE = " "
+                .
             DISPLAY {&displayFields}.
             ENABLE {&transInit}.
         END. /* if avail */
@@ -1001,6 +1040,48 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDynProcs s-object 
+PROCEDURE pGetDynProcs :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cDynProcs AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
+    
+    DO WITH FRAME viewFrame:
+        ASSIGN
+            cDynProcs = hDynDescripProc:INTERNAL-ENTRIES
+            dynParamSetDtl.descriptionProc:LIST-ITEMS = CHR(32)
+            .
+        DO idx = 1 TO NUM-ENTRIES(cDynProcs):
+            IF ENTRY(idx,cDynProcs) BEGINS "f" THEN NEXT.
+            dynParamSetDtl.descriptionProc:ADD-LAST(ENTRY(idx,cDynProcs)).
+        END. /* do idx */
+        ASSIGN
+            cDynProcs = hDynInitProc:INTERNAL-ENTRIES
+            dynParamSetDtl.initializeProc:LIST-ITEMS = CHR(32)
+            .
+        DO idx = 1 TO NUM-ENTRIES(cDynProcs):
+            IF ENTRY(idx,cDynProcs) BEGINS "f" THEN NEXT.
+            dynParamSetDtl.initializeProc:ADD-LAST(ENTRY(idx,cDynProcs)).
+        END. /* do idx */
+        ASSIGN
+            cDynProcs = hDynValProc:INTERNAL-ENTRIES
+            dynParamSetDtl.validateProc:LIST-ITEMS = CHR(32)
+            .
+        DO idx = 1 TO NUM-ENTRIES(cDynProcs):
+            IF ENTRY(idx,cDynProcs) BEGINS "f" THEN NEXT.
+            dynParamSetDtl.validateProc:ADD-LAST(ENTRY(idx,cDynProcs)).
+        END. /* do idx */
+    END. /* with frame */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetParamSetID s-object 
 PROCEDURE pGetParamSetID :
 /*------------------------------------------------------------------------------
@@ -1009,6 +1090,13 @@ PROCEDURE pGetParamSetID :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/run_link.i "CONTAINER" "pGetParamSetID" "(OUTPUT iParamSetID)"}
+  FIND FIRST dynParamSet NO-LOCK
+       WHERE dynParamSet.paramSetID EQ iParamSetID
+       NO-ERROR.
+  cSetName:SCREEN-VALUE IN FRAME {&FRAME-NAME} =
+    "Set: " + STRING(iParamSetID)
+            + IF AVAILABLE dynParamSet THEN (" - " + dynParamSet.setName) ELSE ""
+            .
   {&OPEN-QUERY-{&BROWSE-NAME}}
   RUN pDisplay.
 

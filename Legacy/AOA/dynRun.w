@@ -53,7 +53,7 @@ cPrgmName = ipcPrgmName.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
-{AOA/tempTable/ttAction.i}
+{AOA/tempTable/ttDynAction.i}
 
 RUN AOA\appServer\aoaBin.p PERSISTENT SET hAppSrvBin.
 SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).

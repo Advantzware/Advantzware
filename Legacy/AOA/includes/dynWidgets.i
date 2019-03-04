@@ -156,7 +156,7 @@ PROCEDURE pCreateDynParameters :
         hFrame  = iphFrame.
     END. /* if live */
     
-    EMPTY TEMP-TABLE ttAction.
+    EMPTY TEMP-TABLE ttDynAction.
     FOR EACH {1}SubjectParamSet
         WHERE {1}SubjectParamSet.subjectID EQ dynSubject.subjectID,
         EACH dynParamSet NO-LOCK
@@ -195,8 +195,7 @@ PROCEDURE pCreateDynParameters :
             lSensitive  = IF iplLive THEN dynParamSetDtl.paramPrompt ELSE NO
             cParamName  = IF dynParamSetDtl.paramName  NE "" THEN dynParamSetDtl.paramName
                           ELSE dynParam.paramName
-            cParamLabel = IF dynParamSetDtl.paramLabel NE "" THEN dynParamSetDtl.paramLabel
-                          ELSE dynParam.paramLabel
+            cParamLabel = dynParamSetDtl.paramLabel
             cParamValue = dynParamSetDtl.initialValue
             dCol        = dynParamSetDtl.paramCol + dSetCol - 1
             dRow        = dynParamSetDtl.paramRow + dSetRow - 1
@@ -211,8 +210,8 @@ PROCEDURE pCreateDynParameters :
         END. /* do pdx */
         /* get any initialized values from custom procedures */
         IF dynParamSetDtl.initializeProc NE "" AND
-           CAN-DO(THIS-PROCEDURE:INTERNAL-ENTRIES,dynParamSetDtl.initializeProc) THEN DO:
-            RUN VALUE(dynParamSetDtl.initializeProc).
+           CAN-DO(hDynInitProc:INTERNAL-ENTRIES,dynParamSetDtl.initializeProc) THEN DO:
+            RUN VALUE(dynParamSetDtl.initializeProc) IN hDynInitProc.
             cParamValue = RETURN-VALUE.
         END. /* if initializeProc */
         IF FIRST-OF({1}SubjectParamSet.paramSetID) AND
@@ -384,14 +383,15 @@ PROCEDURE pCreateDynParameters :
         END CASE.
         /* build action table which dictact behavior of the parameter */
         IF VALID-HANDLE(hWidget) THEN DO:
-            CREATE ttAction.
+            CREATE ttDynAction.
             ASSIGN
-                ttAction.paramWidget    = hWidget:HANDLE
-                ttAction.paramID        = dynParamSetDtl.paramID
-                ttAction.actionParamID  = dynParamSetDtl.actionParamID
-                ttAction.action         = dynParamSetDtl.action
-                ttAction.initializeProc = dynParamSetDtl.initializeProc
-                ttAction.validateProc   = dynParamSetDtl.validateProc
+                ttDynAction.paramWidget     = hWidget:HANDLE
+                ttDynAction.paramID         = dynParamSetDtl.paramID
+                ttDynAction.actionParamID   = dynParamSetDtl.actionParamID
+                ttDynAction.action          = dynParamSetDtl.action
+                ttDynAction.initializeProc  = dynParamSetDtl.initializeProc
+                ttDynAction.validateProc    = dynParamSetDtl.validateProc
+                ttDynAction.descriptionProc = dynParamSetDtl.descriptionProc
                 .
         END. /* if valid-handle */
         hWidget:HIDDEN = NO.
@@ -465,7 +465,7 @@ PROCEDURE pEditor:
           ON START-RESIZE
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON LEAVE
-            PERSISTENT RUN pValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
+            PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
         END TRIGGERS.
     IF ipcLabel NE "" THEN
     ASSIGN
@@ -518,7 +518,7 @@ PROCEDURE pFillIn:
           ON START-RESIZE
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON LEAVE
-            PERSISTENT RUN pValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
+            PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
         END TRIGGERS.
     IF ipcLabel NE "" THEN
     ASSIGN

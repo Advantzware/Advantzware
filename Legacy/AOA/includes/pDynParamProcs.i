@@ -86,59 +86,109 @@ PROCEDURE pParamAction :
     DEFINE VARIABLE idx      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iParamID AS INTEGER   NO-UNDO.
     
-    FIND FIRST ttAction
-         WHERE ttACtion.paramWidget EQ iphWidget
+    FIND FIRST ttDynAction
+         WHERE ttDynAction.paramWidget EQ iphWidget
          NO-ERROR.
-    IF NOT AVAILABLE ttAction THEN RETURN.
-    iParamID = ttAction.paramID.
-    FOR EACH ttAction
-        WHERE ttAction.actionParamID EQ iParamID
-          AND ttAction.action NE "",
+    IF NOT AVAILABLE ttDynAction THEN RETURN.
+    
+    iParamID = ttDynAction.paramID.
+    FOR EACH ttDynAction
+        WHERE ttDynAction.actionParamID EQ iParamID
+          AND ttDynAction.action NE "",
         FIRST dynParam
-        WHERE dynParam.paramID EQ ttAction.paramID
+        WHERE dynParam.paramID EQ ttDynAction.paramID
         :
-        DO idx = 1 TO NUM-ENTRIES(ttAction.action):
+        DO idx = 1 TO NUM-ENTRIES(ttDynAction.action):
+            IF INDEX(ENTRY(idx,ttDynAction.action),":") EQ 0 THEN NEXT.
             ASSIGN
-                cValue  = ENTRY(1,ENTRY(idx,ttAction.action),":")
-                cAction = ENTRY(2,ENTRY(idx,ttAction.action),":")
+                cValue  = ENTRY(1,ENTRY(idx,ttDynAction.action),":")
+                cAction = ENTRY(2,ENTRY(idx,ttDynAction.action),":")
                 .
             IF iphWidget:SCREEN-VALUE EQ cValue THEN
             CASE cAction:
                 WHEN "DISABLE" THEN
-                ttAction.paramWidget:READ-ONLY = YES.
+                ttDynAction.paramWidget:READ-ONLY = YES.
                 WHEN "ENABLE" THEN
-                ttAction.paramWidget:READ-ONLY = NO.
+                ttDynAction.paramWidget:READ-ONLY = NO.
                 WHEN "HI" THEN
-                IF ttAction.paramWidget:FORMAT EQ "99:99" THEN
-                ttAction.paramWidget:SCREEN-VALUE = "2400".
+                IF ttDynAction.paramWidget:FORMAT EQ "99:99" THEN
+                ttDynAction.paramWidget:SCREEN-VALUE = "2400".
                 ELSE
                 CASE dynParam.dataType:
                     WHEN "CHARACTER" THEN
-                    ttAction.paramWidget:SCREEN-VALUE = CHR(254).
+                    ttDynAction.paramWidget:SCREEN-VALUE = CHR(254).
                     WHEN "DECIMAL" THEN
-                    ttAction.paramWidget:SCREEN-VALUE = "99999999.99".
+                    ttDynAction.paramWidget:SCREEN-VALUE = "99999999.99".
                     WHEN "DATE" THEN
-                    ttAction.paramWidget:SCREEN-VALUE = "12/31/2049".
+                    ttDynAction.paramWidget:SCREEN-VALUE = "12/31/2049".
                     WHEN "INTEGER" THEN
-                    ttAction.paramWidget:SCREEN-VALUE = "99999999".
+                    ttDynAction.paramWidget:SCREEN-VALUE = "99999999".
                 END CASE.
                 WHEN "LOW" THEN
-                IF ttAction.paramWidget:FORMAT EQ "99:99" THEN
-                ttAction.paramWidget:SCREEN-VALUE = "0000".
+                IF ttDynAction.paramWidget:FORMAT EQ "99:99" THEN
+                ttDynAction.paramWidget:SCREEN-VALUE = "0000".
                 ELSE
                 CASE dynParam.dataType:
                     WHEN "CHARACTER" THEN
-                    ttAction.paramWidget:SCREEN-VALUE = CHR(32).
+                    ttDynAction.paramWidget:SCREEN-VALUE = CHR(32).
                     WHEN "DECIMAL" THEN
-                    ttAction.paramWidget:SCREEN-VALUE = "-99999999.99".
+                    ttDynAction.paramWidget:SCREEN-VALUE = "-99999999.99".
                     WHEN "DATE" THEN
-                    ttAction.paramWidget:SCREEN-VALUE = "1/1/1950".
+                    ttDynAction.paramWidget:SCREEN-VALUE = "1/1/1950".
                     WHEN "INTEGER" THEN
-                    ttAction.paramWidget:SCREEN-VALUE = "-99999999".
+                    ttDynAction.paramWidget:SCREEN-VALUE = "-99999999".
                 END CASE.
             END CASE.
         END. /* do idx */
-    END. /* each ttaction */
+    END. /* each ttDynAction */
+
+END PROCEDURE.
+
+PROCEDURE pParamValidate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE cErrorMsg AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParamID  AS INTEGER   NO-UNDO.    
+
+    /* check and run action procedures */
+    RUN pParamAction (iphWidget).
+
+    FIND FIRST ttDynAction
+         WHERE ttDynAction.paramWidget EQ iphWidget
+         NO-ERROR.
+    IF NOT AVAILABLE ttDynAction THEN RETURN.
+
+    /* check and run validate procedures */
+    IF ttDynAction.validateProc NE "" AND
+       CAN-DO(hDynValProc:INTERNAL-ENTRIES,ttDynAction.validateProc) THEN DO:
+        RUN VALUE(ttDynAction.validateProc) IN hDynValProc (iphWidget).
+        cErrorMsg = RETURN-VALUE.
+        IF cErrorMsg NE "" THEN DO:
+            MESSAGE cErrorMsg SKIP(1) "Correct this Entry?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE "Error"
+            UPDATE lCorrect AS LOGICAL.
+            IF lCorrect THEN DO:
+                APPLY "ENTRY":U TO iphWidget.
+                RETURN NO-APPLY.
+            END. /* if lcorrect */
+        END. /* if cerror */
+    END. /* if validateProc */
+
+    /* check and run description procedures */
+    cParamID = ttDynAction.paramID.
+    FOR EACH ttDynAction
+        WHERE ttDynAction.actionParamID EQ cParamID
+        :
+        IF ttDynAction.descriptionProc NE "" AND
+           CAN-DO(hDynDescripProc:INTERNAL-ENTRIES,ttDynAction.descriptionProc) THEN DO:
+            RUN VALUE(ttDynAction.descriptionProc) IN hDynDescripProc (iphWidget, ttDynAction.paramWidget).
+        END. /* if descriptionProc */
+    END. /* each ttDynAction */
 
 END PROCEDURE.
 
@@ -217,39 +267,5 @@ PROCEDURE pSaveDynParamValues :
         END. /* do while */
         FIND CURRENT dynParamValue NO-LOCK.
     END. /* do trans */
-
-END PROCEDURE.
-
-PROCEDURE pValidate :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
-    
-    DEFINE VARIABLE cErrorMsg AS CHARACTER NO-UNDO.    
-
-    RUN pParamAction (iphWidget).
-
-    FIND FIRST ttAction
-         WHERE ttACtion.paramWidget EQ iphWidget
-         NO-ERROR.
-    IF NOT AVAILABLE ttAction THEN RETURN.
-    
-    IF ttAction.validateProc NE "" AND
-       CAN-DO(THIS-PROCEDURE:INTERNAL-ENTRIES,ttAction.validateProc) THEN DO:
-        RUN VALUE(ttAction.validateProc) (iphWidget).
-        cErrorMsg = RETURN-VALUE.
-        IF cErrorMsg NE "" THEN DO:
-            MESSAGE cErrorMsg SKIP(1) "Correct this Entry?"
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE "Error"
-            UPDATE lCorrect AS LOGICAL.
-            IF lCorrect THEN DO:
-                APPLY "ENTRY":U TO iphWidget.
-                RETURN NO-APPLY.
-            END. /* if lcorrect */
-        END. /* if cerror */
-    END. /* if validateProc */
 
 END PROCEDURE.

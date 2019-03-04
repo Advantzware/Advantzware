@@ -42,15 +42,18 @@ DEFINE VARIABLE ipiSubjectID  AS INTEGER   NO-UNDO INITIAL 1.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE cPoolName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPoolName    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hDynInitProc AS HANDLE    NO-UNDO.
 
 FIND FIRST dynSubject NO-LOCK
      WHERE dynSubject.subjectID EQ ipiSubjectID
      NO-ERROR.
 IF NOT AVAILABLE dynSubject THEN RETURN.
 
-{AOA/tempTable/ttAction.i}
+{AOA/tempTable/ttDynAction.i}
 {AOA/includes/dynFuncs.i}
+
+RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
