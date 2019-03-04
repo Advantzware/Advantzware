@@ -2937,6 +2937,7 @@ oplRelFlg2 = llRelFlg2.
             v-ship-from = shipto.loc.
         END.
         RUN oe/d-shipid.w (INPUT b-oe-ordl.cust-no,
+                   INPUT oe-ordl.qty, INPUT oe-ordl.i-no,
                    INPUT-OUTPUT v-ship-id,
                    INPUT-OUTPUT v-ship-from).
 
