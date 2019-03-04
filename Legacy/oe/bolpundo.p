@@ -209,24 +209,25 @@ IF AVAIL io-bolh THEN DO:
 
       /* Does 'R'eceipt have matching 'S'hipment created in oe/shiphist.i
          when qty is negative and N-K-1-BOLPOST log field is yes */
-      IF CAN-FIND(FIRST b-fg-rcpth
-                  WHERE b-fg-rcpth.rec_key    EQ fg-rcpth.rec_key
-                    AND b-fg-rcpth.b-no       EQ fg-rcpth.b-no
+      FIND FIRST b-fg-rcpth no-lock
+                  WHERE b-fg-rcpth.b-no       EQ fg-rcpth.b-no
                     AND b-fg-rcpth.i-no       EQ fg-rcpth.i-no
                     AND b-fg-rcpth.trans-date EQ fg-rcpth.trans-date
                     AND b-fg-rcpth.rita-code  EQ "S"
-                  USE-INDEX rec_key) THEN
-      FOR EACH fg-rdtlh NO-LOCK
-          WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-            AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-            AND fg-rdtlh.qty       LT 0
-            AND CAN-FIND(FIRST b-fg-rdtlh
-                         WHERE b-fg-rdtlh.rec_key   EQ fg-rdtlh.rec_key
-                           AND b-fg-rdtlh.rita-code EQ "S"
-                           AND b-fg-rdtlh.qty       EQ fg-rdtlh.qty
-                         USE-INDEX rec_key):
-        ll = YES.
-        LEAVE.
+                  USE-INDEX b-no NO-ERROR.
+                  
+      IF AVAILABLE b-fg-rcpth THEN DO:
+        FOR EACH fg-rdtlh NO-LOCK
+              WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
+                AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+                AND fg-rdtlh.qty       LT 0
+                AND CAN-FIND(FIRST b-fg-rdtlh
+                             WHERE b-fg-rdtlh.r-no      EQ b-fg-rcpth.r-no 
+                               AND b-fg-rdtlh.rita-code EQ "S"
+                               AND b-fg-rdtlh.qty       EQ fg-rdtlh.qty):
+            ll = YES.
+            LEAVE.
+          END.
       END.
 
       IF NOT ll THEN
