@@ -7,15 +7,15 @@ DEFINE OUTPUT PARAMETER ophQuery     AS HANDLE    NO-UNDO.
 DEFINE OUTPUT PARAMETER oplOK        AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcError     AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE cDate      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cParam     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cQueryStr  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE dtDate     AS DATE      NO-UNDO.
-DEFINE VARIABLE hBuffer    AS HANDLE    NO-UNDO EXTENT 200.
-DEFINE VARIABLE hCalcField AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hQuery     AS HANDLE    NO-UNDO.
-DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
-DEFINE VARIABLE lOK        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cDate         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cParam        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cQueryStr     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dtDate        AS DATE      NO-UNDO.
+DEFINE VARIABLE hBuffer       AS HANDLE    NO-UNDO EXTENT 200.
+DEFINE VARIABLE hDynCalcField AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hQuery        AS HANDLE    NO-UNDO.
+DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lOK           AS LOGICAL   NO-UNDO.
 
 DEFINE TEMP-TABLE ttSortBy NO-UNDO
     FIELD ttOrder      AS INTEGER 
@@ -24,7 +24,7 @@ DEFINE TEMP-TABLE ttSortBy NO-UNDO
         INDEX ttSortBy IS PRIMARY
             ttOrder
             .
-RUN AOA/spCalcField.p PERSISTENT SET hCalcField.
+RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 
 FIND FIRST dynParamValue NO-LOCK WHERE ROWID(dynParamValue) EQ iprRowID NO-ERROR.
 IF NOT AVAILABLE dynParamValue THEN RETURN.
@@ -136,7 +136,7 @@ PROCEDURE pGetWhereCalcFields:
                 END. /* if cparamfield */
             END. /* do idx */
         END. /* do jdx */
-        RUN spCalcField IN hCalcField (
+        RUN spDynCalcField IN hDynCalcField (
             ?,
             dynSubjectWhere.calcProc,
             cParamValue,

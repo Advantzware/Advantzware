@@ -24,7 +24,7 @@
 
 /* Parameters Definitions ---                                           */
 
-DEFINE INPUT        PARAMETER iphCalcField    AS HANDLE    NO-UNDO.
+DEFINE INPUT        PARAMETER iphDynCalcField AS HANDLE    NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcFieldName   AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcFieldLabel  AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcFieldFormat AS CHARACTER NO-UNDO.
@@ -36,8 +36,8 @@ DEFINE       OUTPUT PARAMETER oplSave         AS LOGICAL   NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
-IF NOT VALID-HANDLE(iphCalcField) THEN
-RUN AOA/spCalcField.p PERSISTENT SET iphCalcField.
+IF NOT VALID-HANDLE(iphDynCalcField) THEN
+RUN AOA/spDynCalcField.p PERSISTENT SET iphDynCalcField.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -439,7 +439,7 @@ PROCEDURE pGetCalcProc :
             cAvailCalcProc:DELIMITER   = "|"
             cAvailCalcProc:LIST-ITEMS  = ?
             cParamList:LIST-ITEM-PAIRS = ipcParamList
-            cCalcProcList              = iphCalcField:INTERNAL-ENTRIES
+            cCalcProcList              = iphDynCalcField:INTERNAL-ENTRIES
             .
         IF cParamList:NUM-ITEMS GT 0 THEN
         ASSIGN
@@ -450,7 +450,7 @@ PROCEDURE pGetCalcProc :
             IF ENTRY(idx,cCalcProcList) BEGINS "Calc" THEN DO:
                 ASSIGN
                     cCalcProcSign  = ENTRY(idx,cCalcProcList)
-                    cSignature     = LC(iphCalcField:GET-SIGNATURE(cCalcProcSign))
+                    cSignature     = LC(iphDynCalcField:GET-SIGNATURE(cCalcProcSign))
                     cCalcProcSign  = cCalcProcSign + " ("
                     .
                 DO jdx = 3 TO NUM-ENTRIES(cSignature):

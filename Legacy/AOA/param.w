@@ -40,15 +40,22 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE char-hdl   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cMode      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hParamBldr AS HANDLE    NO-UNDO.
-DEFINE VARIABLE iParamID   AS INTEGER   NO-UNDO.
-DEFINE VARIABLE lSortMove  AS LOGICAL   NO-UNDO INITIAL YES.
-DEFINE VARIABLE pHandle    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cCompany        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE char-hdl        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMode           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hDynDescripProc AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hDynInitProc    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hDynValProc     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hParamBldr      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iParamID        AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lSortMove       AS LOGICAL   NO-UNDO INITIAL YES.
+DEFINE VARIABLE pHandle         AS HANDLE    NO-UNDO.
 
 {methods/defines/sortByDefs.i}
+
+RUN AOA/spDynDescriptionProc.p PERSISTENT SET hDynDescripProc.
+RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
+RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -97,16 +104,18 @@ btnRadio-Set btnSelection-List btnToggle-Box btnUpdate btnAdd btnCopy ~
 btnDelete 
 &Scoped-define transUpdate btnUpdate btnCancel btnReset 
 &Scoped-define displayFields RECT-PARAMBUILDER dynParam.paramID ~
-dynParam.paramName dynParam.paramLabel dynParam.paramType dynParam.dataType ~
-dynParam.paramFormat dynParam.viewAs dynParam.actionParamID dynParam.action ~
-dynParam.innerLines dynParam.paramWidth dynParam.paramHeight ~
-dynParam.initialValue dynParam.initialItems dynParam.initializeProc ~
-dynParam.validateProc 
+dynParam.paramName dynParam.paramLabel dynParam.paramType ~
+dynParam.paramFormat dynParam.actionParamID dynParam.action ~
+dynParam.dataType dynParam.viewAs dynParam.innerLines dynParam.paramWidth ~
+dynParam.paramHeight dynParam.initialValue dynParam.initialItems ~
+dynParam.initializeProc dynParam.validateProc ~
+dynParam.descriptionProc 
 &Scoped-define enabledFields dynParam.paramName dynParam.paramLabel ~
-dynParam.paramType dynParam.dataType dynParam.paramFormat dynParam.viewAs ~
-dynParam.actionParamID dynParam.action dynParam.innerLines ~
+dynParam.paramType dynParam.paramFormat dynParam.actionParamID ~
+dynParam.action dynParam.dataType dynParam.viewAs dynParam.innerLines ~
 dynParam.paramWidth dynParam.paramHeight dynParam.initialValue ~
-dynParam.initialItems dynParam.initializeProc dynParam.validateProc 
+dynParam.initialItems dynParam.initializeProc ~
+dynParam.validateProc dynParam.descriptionProc 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -257,13 +266,13 @@ DEFINE FRAME F-Main
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME viewFrame
-     btnCombo-Box AT ROW 24.33 COL 21 HELP
+     btnCombo-Box AT ROW 24.33 COL 23 HELP
           "Create New COMBO-BOX" WIDGET-ID 190
      dynParam.paramID AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 166
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     btnParamBuilder AT ROW 1.71 COL 73 HELP
+     btnParamBuilder AT ROW 1.48 COL 74 HELP
           "Parameter Builder" WIDGET-ID 286
      dynParam.paramName AT ROW 2.43 COL 19 COLON-ALIGNED WIDGET-ID 170
           VIEW-AS FILL-IN 
@@ -271,70 +280,72 @@ DEFINE FRAME viewFrame
           BGCOLOR 15 
      dynParam.paramLabel AT ROW 3.62 COL 19 COLON-ALIGNED WIDGET-ID 168
           VIEW-AS FILL-IN 
-          SIZE 44 BY 1
+          SIZE 50 BY 1
           BGCOLOR 15 
      dynParam.paramType AT ROW 4.81 COL 19 COLON-ALIGNED WIDGET-ID 180
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEMS "System","User" 
           DROP-DOWN-LIST
           SIZE 16 BY 1
-     dynParam.dataType AT ROW 6 COL 19 COLON-ALIGNED WIDGET-ID 182
-          VIEW-AS COMBO-BOX INNER-LINES 6
-          LIST-ITEMS "Character","Date","DateTime","Decimal","Integer","Logical" 
-          DROP-DOWN-LIST
-          SIZE 16 BY 1
-     btnEditor AT ROW 24.33 COL 29 HELP
-          "Create New EDITOR" WIDGET-ID 192
-     dynParam.paramFormat AT ROW 7.19 COL 19 COLON-ALIGNED WIDGET-ID 162
+     dynParam.paramFormat AT ROW 6 COL 19 COLON-ALIGNED WIDGET-ID 162
           VIEW-AS FILL-IN 
-          SIZE 44 BY 1
+          SIZE 50 BY 1
           BGCOLOR 15 
-     dynParam.viewAs AT ROW 8.38 COL 19 COLON-ALIGNED WIDGET-ID 184
-          VIEW-AS COMBO-BOX INNER-LINES 6
-          LIST-ITEMS "Combo-Box","Editor","Fill-In","Radio-Set","Selection-List","Toggle-Box" 
-          DROP-DOWN-LIST
-          SIZE 22 BY 1
-     dynParam.actionParamID AT ROW 9.57 COL 19 COLON-ALIGNED WIDGET-ID 150
+     dynParam.actionParamID AT ROW 7.19 COL 19 COLON-ALIGNED WIDGET-ID 150
           LABEL "Action Param ID"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     dynParam.action AT ROW 9.57 COL 44 NO-LABEL WIDGET-ID 186
+     dynParam.action AT ROW 7.19 COL 44 NO-LABEL WIDGET-ID 186
           VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-          LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL" 
-          SIZE 21 BY 8.19
-     dynParam.innerLines AT ROW 10.76 COL 19 COLON-ALIGNED WIDGET-ID 160
+          LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL","START DESCRIPTION","END DESCRIPTION" 
+          SIZE 27 BY 9.52
+     dynParam.dataType AT ROW 9.33 COL 19 COLON-ALIGNED WIDGET-ID 182
+          VIEW-AS COMBO-BOX INNER-LINES 6
+          LIST-ITEMS "Character","Date","DateTime","Decimal","Integer","Logical" 
+          DROP-DOWN-LIST
+          SIZE 16 BY 1
+     dynParam.viewAs AT ROW 10.52 COL 19 COLON-ALIGNED WIDGET-ID 184
+          VIEW-AS COMBO-BOX INNER-LINES 6
+          LIST-ITEMS "Combo-Box","Editor","Fill-In","Radio-Set","Selection-List","Toggle-Box" 
+          DROP-DOWN-LIST
+          SIZE 22 BY 1
+     dynParam.innerLines AT ROW 11.71 COL 19 COLON-ALIGNED WIDGET-ID 160
           VIEW-AS FILL-IN 
           SIZE 6.2 BY 1
           BGCOLOR 15 
-     dynParam.paramWidth AT ROW 11.95 COL 19 COLON-ALIGNED WIDGET-ID 174
+     dynParam.paramWidth AT ROW 12.91 COL 19 COLON-ALIGNED WIDGET-ID 174
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     dynParam.paramHeight AT ROW 13.14 COL 19 COLON-ALIGNED WIDGET-ID 164
+     dynParam.paramHeight AT ROW 14.1 COL 19 COLON-ALIGNED WIDGET-ID 164
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     dynParam.initialValue AT ROW 16.71 COL 19 COLON-ALIGNED WIDGET-ID 158
+     dynParam.initialValue AT ROW 15.76 COL 19 COLON-ALIGNED WIDGET-ID 158
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
-     dynParam.initialItems AT ROW 17.91 COL 19 COLON-ALIGNED WIDGET-ID 154
+     dynParam.initialItems AT ROW 16.95 COL 19 COLON-ALIGNED WIDGET-ID 154
           VIEW-AS FILL-IN 
           SIZE 62 BY 1
           BGCOLOR 15 
-     dynParam.initializeProc AT ROW 19.1 COL 19 COLON-ALIGNED WIDGET-ID 156
-          VIEW-AS FILL-IN 
-          SIZE 42 BY 1
-          BGCOLOR 15 
-     btnFill-In AT ROW 24.33 COL 37 HELP
-          "Create New FILL-IN" WIDGET-ID 194
-     dynParam.validateProc AT ROW 20.29 COL 19 COLON-ALIGNED WIDGET-ID 176
-          VIEW-AS FILL-IN 
-          SIZE 42 BY 1
-          BGCOLOR 15 
-     btnRadio-Set AT ROW 24.33 COL 45 HELP
-          "Create New RADIO-SET" WIDGET-ID 196
+     dynParam.initializeProc AT ROW 18.14 COL 19 COLON-ALIGNED WIDGET-ID 296
+          VIEW-AS COMBO-BOX SORT INNER-LINES 5
+          LIST-ITEMS "Item 1" 
+          DROP-DOWN-LIST
+          SIZE 50 BY 1
+     dynParam.validateProc AT ROW 19.33 COL 19 COLON-ALIGNED WIDGET-ID 298
+          VIEW-AS COMBO-BOX SORT INNER-LINES 5
+          LIST-ITEMS "Item 1" 
+          DROP-DOWN-LIST
+          SIZE 50 BY 1
+     dynParam.descriptionProc AT ROW 20.52 COL 19 COLON-ALIGNED WIDGET-ID 300
+          LABEL "Descript Procedure"
+          VIEW-AS COMBO-BOX SORT INNER-LINES 5
+          LIST-ITEMS "Item 1" 
+          DROP-DOWN-LIST
+          SIZE 50 BY 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 76 ROW 1.95
@@ -343,27 +354,33 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     btnSelection-List AT ROW 24.33 COL 53 HELP
+     btnEditor AT ROW 24.33 COL 31 HELP
+          "Create New EDITOR" WIDGET-ID 192
+     btnFill-In AT ROW 24.33 COL 39 HELP
+          "Create New FILL-IN" WIDGET-ID 194
+     btnRadio-Set AT ROW 24.33 COL 47 HELP
+          "Create New RADIO-SET" WIDGET-ID 196
+     btnSelection-List AT ROW 24.33 COL 55 HELP
           "Create New SELECTION-LIST" WIDGET-ID 198
-     btnToggle-Box AT ROW 24.33 COL 61 HELP
+     btnToggle-Box AT ROW 24.33 COL 63 HELP
           "Create New TOGGLE-BOX" WIDGET-ID 200
-     btnUpdate AT ROW 21.71 COL 20 HELP
+     btnUpdate AT ROW 21.95 COL 22 HELP
           "Update/Save" WIDGET-ID 128
-     btnCancel AT ROW 21.71 COL 60 HELP
+     btnCancel AT ROW 21.95 COL 62 HELP
           "Cancel" WIDGET-ID 120
-     btnAdd AT ROW 21.71 COL 28 HELP
+     btnAdd AT ROW 21.95 COL 30 HELP
           "Add" WIDGET-ID 118
-     btnCopy AT ROW 21.71 COL 36 HELP
+     btnCopy AT ROW 21.95 COL 38 HELP
           "Copy" WIDGET-ID 122
-     btnDelete AT ROW 21.71 COL 44 HELP
+     btnDelete AT ROW 21.95 COL 46 HELP
           "Delete" WIDGET-ID 124
-     btnReset AT ROW 21.71 COL 52 HELP
+     btnReset AT ROW 21.95 COL 54 HELP
           "Reset" WIDGET-ID 126
      "Action:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 9.57 COL 37 WIDGET-ID 188
-     RECT-PANEL AT ROW 21.48 COL 19 WIDGET-ID 130
-     RECT-PARAMBUILDER AT ROW 1.48 COL 72 WIDGET-ID 284
-     RECT-9 AT ROW 24.1 COL 19 WIDGET-ID 288
+          SIZE 7 BY 1 AT ROW 7.19 COL 37 WIDGET-ID 188
+     RECT-PANEL AT ROW 21.71 COL 21 WIDGET-ID 130
+     RECT-PARAMBUILDER AT ROW 1.24 COL 73 WIDGET-ID 284
+     RECT-9 AT ROW 24.1 COL 21 WIDGET-ID 288
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 76 ROW 1.95
@@ -476,9 +493,11 @@ ASSIGN
    1 2 3                                                                */
 /* SETTINGS FOR COMBO-BOX dynParam.dataType IN FRAME viewFrame
    4 5                                                                  */
+/* SETTINGS FOR COMBO-BOX dynParam.descriptionProc IN FRAME viewFrame
+   4 5 EXP-LABEL                                                        */
 /* SETTINGS FOR FILL-IN dynParam.initialItems IN FRAME viewFrame
    4 5                                                                  */
-/* SETTINGS FOR FILL-IN dynParam.initializeProc IN FRAME viewFrame
+/* SETTINGS FOR COMBO-BOX dynParam.initializeProc IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParam.initialValue IN FRAME viewFrame
    4 5                                                                  */
@@ -504,7 +523,7 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-PARAMBUILDER IN FRAME viewFrame
    NO-ENABLE 1 4                                                        */
-/* SETTINGS FOR FILL-IN dynParam.validateProc IN FRAME viewFrame
+/* SETTINGS FOR COMBO-BOX dynParam.validateProc IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR COMBO-BOX dynParam.viewAs IN FRAME viewFrame
    4 5                                                                  */
@@ -885,6 +904,7 @@ PROCEDURE local-initialize :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/run_link.i "CONTAINER" "pGetCompany" "(OUTPUT cCompany)"}
+  RUN pGetDynProcs.
   {&OPEN-QUERY-{&BROWSE-NAME}}
   RUN pDisplay.
 
@@ -1160,7 +1180,12 @@ PROCEDURE pDisplay :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME viewFrame:
         IF AVAILABLE dynParam THEN DO:
-            dynParam.action:SCREEN-VALUE = "".
+            ASSIGN
+                dynParam.action:SCREEN-VALUE          = ""
+                dynParam.initializeProc:SCREEN-VALUE  = " "
+                dynParam.validateProc:SCREEN-VALUE    = " "
+                dynParam.descriptionProc:SCREEN-VALUE = " "
+                .
             DISPLAY {&displayFields}.
             ENABLE {&transInit}.
         END. /* if avail */
@@ -1169,6 +1194,48 @@ PROCEDURE pDisplay :
             DISABLE {&transPanel}.
             ENABLE btnAdd.
         END. /* else */
+    END. /* with frame */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDynProcs s-object 
+PROCEDURE pGetDynProcs :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cDynProcs AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
+    
+    DO WITH FRAME viewFrame:
+        ASSIGN
+            cDynProcs = hDynDescripProc:INTERNAL-ENTRIES
+            dynParam.descriptionProc:LIST-ITEMS = CHR(32)
+            .
+        DO idx = 1 TO NUM-ENTRIES(cDynProcs):
+            IF ENTRY(idx,cDynProcs) BEGINS "f" THEN NEXT.
+            dynParam.descriptionProc:ADD-LAST(ENTRY(idx,cDynProcs)).
+        END. /* do idx */
+        ASSIGN
+            cDynProcs = hDynInitProc:INTERNAL-ENTRIES
+            dynParam.initializeProc:LIST-ITEMS = CHR(32)
+            .
+        DO idx = 1 TO NUM-ENTRIES(cDynProcs):
+            IF ENTRY(idx,cDynProcs) BEGINS "f" THEN NEXT.
+            dynParam.initializeProc:ADD-LAST(ENTRY(idx,cDynProcs)).
+        END. /* do idx */
+        ASSIGN
+            cDynProcs = hDynValProc:INTERNAL-ENTRIES
+            dynParam.validateProc:LIST-ITEMS = CHR(32)
+            .
+        DO idx = 1 TO NUM-ENTRIES(cDynProcs):
+            IF ENTRY(idx,cDynProcs) BEGINS "f" THEN NEXT.
+            dynParam.validateProc:ADD-LAST(ENTRY(idx,cDynProcs)).
+        END. /* do idx */
     END. /* with frame */
 
 END PROCEDURE.

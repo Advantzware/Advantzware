@@ -44,13 +44,16 @@ DEFINE VARIABLE ipiID     AS INTEGER   NO-UNDO INITIAL 10.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE cPoolName  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hCalendar  AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hRectangle AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hWidget    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cPoolName    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hCalendar    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hDynInitProc AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hRectangle   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hWidget      AS HANDLE    NO-UNDO.
 
-{AOA/tempTable/ttAction.i}
+{AOA/tempTable/ttDynAction.i}
 {AOA/includes/dynFuncs.i}
+
+RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

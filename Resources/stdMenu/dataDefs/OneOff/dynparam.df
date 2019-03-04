@@ -115,7 +115,7 @@ ADD FIELD "rec_key" OF "dynParam" AS character
   POSITION 15
   MAX-WIDTH 42
   HELP "Enter Rec Key Value"
-  ORDER 170
+  ORDER 180
 
 ADD FIELD "paramName" OF "dynParam" AS character 
   FORMAT "x(20)"
@@ -142,7 +142,7 @@ ADD FIELD "action" OF "dynParam" AS character
   POSITION 29
   MAX-WIDTH 40
   HELP "Enter Action Instructions"
-  ORDER 150
+  ORDER 160
 
 ADD FIELD "actionParamID" OF "dynParam" AS integer 
   FORMAT ">,>>>,>>9"
@@ -152,7 +152,7 @@ ADD FIELD "actionParamID" OF "dynParam" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "Action ID"
   HELP "Enter Action Parameter ID"
-  ORDER 160
+  ORDER 170
 
 ADD FIELD "paramType" OF "dynParam" AS character 
   FORMAT "x(8)"
@@ -162,6 +162,15 @@ ADD FIELD "paramType" OF "dynParam" AS character
   MAX-WIDTH 16
   HELP "Enter Parameter Type"
   ORDER 30
+
+ADD FIELD "descriptionProc" OF "dynParam" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Description Procedure"
+  POSITION 32
+  MAX-WIDTH 80
+  HELP "Enter Description Procedure"
+  ORDER 150
 
 ADD INDEX "pi-dynParam" ON "dynParam" 
   AREA "Index"
@@ -184,4 +193,4 @@ ADD INDEX "si-rec_key" ON "dynParam"
 PSC
 cpstream=ISO8859-1
 .
-0000004003
+0000004209

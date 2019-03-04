@@ -18,15 +18,21 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE VARIABLE cBufferValue AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hCalcColumn  AS HANDLE    NO-UNDO EXTENT 200.
-DEFINE VARIABLE hCalcField   AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hBrowseQuery AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hQuery       AS HANDLE    NO-UNDO.
-DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cBufferValue    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hBrowseQuery    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hCalcColumn     AS HANDLE    NO-UNDO EXTENT 200.
+DEFINE VARIABLE hDynCalcField   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hDynDescripProc AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hDynInitProc    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hDynValProc     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hQuery          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE idx             AS INTEGER   NO-UNDO.
 
-RUN AOA/spCalcField.p PERSISTENT SET hCalcField.
-SESSION:ADD-SUPER-PROCEDURE (hCalcField).
+RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
+SESSION:ADD-SUPER-PROCEDURE (hDynCalcField).
+RUN AOA/spDynDescriptionProc.p PERSISTENT SET hDynDescripProc.
+RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
+RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -68,7 +74,7 @@ ON ROW-DISPLAY OF hQueryBrowse DO:
     DO idx = 1 TO EXTENT(hCalcColumn):
         IF VALID-HANDLE(hCalcColumn[idx]) AND
            dynParamValue.isCalcField[idx] THEN DO:
-            RUN spCalcField IN hCalcField (
+            RUN spDynCalcField IN hDynCalcField (
                 hBrowseQuery:HANDLE,
                 dynParamValue.calcProc[idx],
                 dynParamValue.calcParam[idx],
@@ -84,8 +90,10 @@ END. /* row-display */
 {AOA/includes/pDynParamProcs.i "{1}"}
 {AOA/includes/pRunNow.i}
 {AOA/includes/pSetDynParamValue.i "{1}"}
-{AOA/includes/dynInitializeProc.i}
-{AOA/includes/dynValidateProc.i}
+
+RUN spSetCompany IN hDynDescripProc (g_company).
+RUN spSetCompany IN hDynInitProc (g_company).
+RUN spSetCompany IN hDynValProc (g_company).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
