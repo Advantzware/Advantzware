@@ -732,6 +732,10 @@ DO:
   {methods/template/local/setvalue.i}
   
       RUN set-query.
+      
+      /* This resolves the cursor position problem with auto-add */
+      IF fg-rctd.tag:SCREEN-VALUE IN BROWSE Browser-Table EQ "" THEN
+        APPLY 'entry' TO fg-rctd.tag IN BROWSE Browser-Table.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -863,12 +867,7 @@ DO:
 
       /* User only needs to tab past loc to continue to scan next tag */
       IF SSPostFG-log THEN DO:
-        
-        APPLY 'entry' TO fg-rctd.tag IN BROWSE {&browse-name}.
-        DEF VAR h AS HANDLE.
-        h = fg-rctd.tag:HANDLE IN BROWSE {&browse-name}.
-        BROWSE {&browse-name}:CURRENT-COLUMN = h.
-        APPLY "RETURN" TO fg-rctd.tag.
+        RUN local-update-record.
         RETURN NO-APPLY.
       END.
     END.
