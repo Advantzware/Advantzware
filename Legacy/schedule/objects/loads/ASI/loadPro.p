@@ -837,8 +837,8 @@ FOR EACH job-hdr NO-LOCK
       END. /* avail stype */
       
       DO i = 1 TO 10:
-        IF eb.unitNo[i] GE 1 AND eb.unitNo[i] LE 10 THEN
-        userField[eb.unitNo[i] + 40] = setUserField(eb.unitNo[i] + 40,eb.i-dscr2[i]). 
+        IF eb.i-dscr[i] NE "" THEN 
+        userField[i + 40] = setUserField(i + 40,eb.i-dscr[i]).
         unitFound = YES.
       END. /* do i */
     END. /* avail eb */
