@@ -158,8 +158,10 @@ PROCEDURE postMonitor:
     DEFINE VARIABLE AsnHotFolderIn-char  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE AsnHotFolderOut-char AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFullFilePath             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hFtpProcs AS HANDLE NO-UNDO.
     
     
+    RUN custom/ftpProcs.p PERSISTENT SET hFtpProcs.
     
     AsnHotFolderIn-char = monitorImportdir.
     AsnHotFolderOut-char = AsnHotFolderIn-char + "\processed".
@@ -177,8 +179,8 @@ PROCEDURE postMonitor:
     ELSE    
       cFormat = cPathIn.
     /* Execute ftp to download files */
-    RUN custom/InboundFTP.p (INPUT cFormat, INPUT "TagMon", INPUT cPathIn, INPUT  "*.dat" /* filespec */).
-   
+    RUN pExecFtp IN hFtpProcs (INPUT cocode, INPUT "TagMon", INPUT cFormat, INPUT cPathIn, INPUT  "*.dat" /* filespec */).
+    DELETE OBJECT hFtpProcs.
     RUN monitorActivity ('Check New Tag Files ' + monitorImportDir,YES,'').
     
       
