@@ -1154,6 +1154,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeDupe V-table-Win 
+PROCEDURE pDeDupe :
+/*------------------------------------------------------------------------------
+      Purpose:     Run excel import program.
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hBrowse AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
+
+    IF AVAILABLE shipto THEN 
+    DO:
+        RUN util/dev/updship#.w .
+    END.
+
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT hBrowse).
+
+    IF VALID-HANDLE(hBrowse) THEN
+        RUN dispatch IN hBrowse  ('open-query':U).
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
 PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------

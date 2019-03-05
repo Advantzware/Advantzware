@@ -1272,6 +1272,18 @@ PROCEDURE openQuery:
      IF sortColumn EQ 'Length'          THEN STRING(eb.len, '>>9.99')    ELSE ~
      IF sortColumn EQ 'Width'           THEN STRING(eb.wid, '>>9.99')    ELSE ~
         STRING(eb.dep, '>>9.99') ~{&SORTED}
+
+&ELSEIF '{&yellowColumnsName}' EQ 'updship#' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+     IF sortColumn EQ 'Ship To ID'      THEN tt-oe-shipto.ship-id            ELSE ~
+     IF sortColumn EQ 'Ship To Name'    THEN STRING(tt-oe-shipto.ship-name)  ELSE ~
+     IF sortColumn EQ 'Ship To Address' THEN STRING(tt-oe-shipto.ship-add)   ELSE ~
+     IF sortColumn EQ 'City'            THEN STRING(tt-oe-shipto.ship-city)  ELSE ~
+     IF sortColumn EQ 'State'           THEN STRING(tt-oe-shipto.ship-state) ELSE ~
+     IF sortColumn EQ 'Zip'             THEN STRING(tt-oe-shipto.ship-zip)   ELSE ~
+     IF sortColumn EQ 'Inactive'        THEN STRING(tt-oe-shipto.ship-stat)  ELSE ~
+        STRING(tt-oe-shipto.ship-id) ~{&SORTED}
+
 /* Ticket 20737 */
 &ELSEIF '{&yellowColumnsName}' EQ 'w-bin' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
