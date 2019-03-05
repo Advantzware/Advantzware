@@ -91,7 +91,7 @@ DEFINE BUTTON btnCalendar-1
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON out-process 
-     LABEL "&Srart Process" 
+     LABEL "S&tart Process" 
      SIZE 18 BY 1.14.
 
 DEFINE VARIABLE begin_bol# AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
