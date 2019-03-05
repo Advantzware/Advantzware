@@ -331,6 +331,10 @@ PROCEDURE reset-button :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-reset AS LOG NO-UNDO.
   
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'inquiry-prel-target':U, OUTPUT char-hdl).
+IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
+    ip-reset = NO .
+
   IF v-can-update THEN
      btn-release:SENSITIVE IN FRAME {&FRAME-NAME} = ip-reset.
 END PROCEDURE.
@@ -382,6 +386,10 @@ IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
 END.
 */
 
+RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'inquiry-prel-target':U, OUTPUT char-hdl).
+IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
+    panel-state = 'disable-all'.
+
 DO WITH FRAME Panel-Frame:
 
   IF panel-state = 'disable-all':U THEN DO:
@@ -423,6 +431,7 @@ DO WITH FRAME Panel-Frame:
   END. /* panel-state = action-chosen */
 
   DO WITH FRAME {&FRAME-NAME}:     
+    btn-release:SENSITIVE = yes.
     IF NOT v-can-update THEN ASSIGN btn-release:SENSITIVE = NO.    
   END.
 
