@@ -42,7 +42,7 @@ ADD FIELD "rec_key" OF "dynParamValue" AS character
   POSITION 10
   MAX-WIDTH 42
   HELP "Enter Rec Key Value"
-  ORDER 290
+  ORDER 320
 
 ADD FIELD "paramDescription" OF "dynParamValue" AS character 
   FORMAT "x(40)"
@@ -302,6 +302,38 @@ ADD FIELD "module" OF "dynParamValue" AS character
   HELP "Enter Module"
   ORDER 50
 
+ADD FIELD "paramSetID" OF "dynParamValue" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Parameter Set ID"
+  POSITION 42
+  MAX-WIDTH 4000
+  COLUMN-LABEL "Set ID"
+  HELP "Enter Parameter Set ID"
+  EXTENT 200
+  ORDER 290
+
+ADD FIELD "isVisible" OF "dynParamValue" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Is Visible"
+  POSITION 43
+  MAX-WIDTH 1600
+  HELP "Toggle Is Visible"
+  EXTENT 200
+  ORDER 300
+
+ADD FIELD "setAlign" OF "dynParamValue" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Set Alignment"
+  POSITION 44
+  MAX-WIDTH 3600
+  COLUMN-LABEL "Set Align"
+  HELP "Enter Set Alignment"
+  EXTENT 200
+  ORDER 310
+
 ADD INDEX "pi-subjectID" ON "dynParamValue" 
   AREA "Index"
   UNIQUE
@@ -336,4 +368,4 @@ ADD INDEX "si-user-id" ON "dynParamValue"
 PSC
 cpstream=ISO8859-1
 .
-0000007551
+0000008223
