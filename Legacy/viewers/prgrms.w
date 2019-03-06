@@ -177,7 +177,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
           BGCOLOR 15 FONT 4
-     prgrms.prgtitle AT ROW 1.24 COL 48 COLON-ALIGNED FORMAT "X(60)"
+     prgrms.prgtitle AT ROW 1.24 COL 46 COLON-ALIGNED FORMAT "X(60)"
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
           BGCOLOR 15 FONT 4
@@ -189,16 +189,16 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
           BGCOLOR 15 FONT 4
-     prgrms.run_persistent AT ROW 2.43 COL 50
+     prgrms.run_persistent AT ROW 2.43 COL 48
           VIEW-AS TOGGLE-BOX
           SIZE 18 BY 1
-     prgrms.track_usage AT ROW 2.43 COL 58
+     prgrms.track_usage AT ROW 2.43 COL 66
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY 1
-     prgrms.popup AT ROW 2.43 COL 77
+     prgrms.popup AT ROW 2.43 COL 82
           VIEW-AS TOGGLE-BOX
           SIZE 11 BY 1
-     prgrms.subjectID AT ROW 2.43 COL 103 COLON-ALIGNED WIDGET-ID 32
+     prgrms.subjectID AT ROW 2.43 COL 107 COLON-ALIGNED WIDGET-ID 32
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
@@ -262,7 +262,6 @@ DEFINE FRAME F-Main
           DROP-DOWN-LIST
           SIZE 16 BY 1
           BGCOLOR 15 
-     F1 AT ROW 2.43 COL 31 NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -270,6 +269,7 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     F1 AT ROW 2.43 COL 41 NO-LABEL
      F-3 AT ROW 14.57 COL 98 NO-LABEL WIDGET-ID 16
      F-2 AT ROW 15.76 COL 31 NO-LABEL WIDGET-ID 12
      "Delete:" VIEW-AS TEXT
@@ -559,6 +559,26 @@ DO:
      DISABLE {&SELF-NAME} WITH FRAME {&FRAME-NAME}.
      RETURN NO-APPLY.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.mnemonic
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.mnemonic V-table-Win
+ON LEAVE OF prgrms.mnemonic IN FRAME F-Main /* HotKey (Mnemonic) */
+DO:
+    IF SELF:SCREEN-VALUE NE "" AND
+       CAN-FIND(FIRST prgrms
+                WHERE prgrms.mnemonic EQ SELF:SCREEN-VALUE
+                  AND prgrms.prgmName NE prgrms.prgmname:SCREEN-VALUE) THEN DO:
+        MESSAGE
+            "Hotkey:" SELF:SCREEN-VALUE "already exists, please retry."
+        VIEW-AS ALERT-BOX ERROR.
+        APPLY "ENTRY":U TO SELF.
+        RETURN NO-APPLY.
+    END. /* if can-find */
 END.
 
 /* _UIB-CODE-BLOCK-END */
