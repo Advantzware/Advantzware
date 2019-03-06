@@ -24,6 +24,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+DEFINE INPUT PARAMETER ipxButtton AS CHARACTER NO-UNDO .
 DEF INPUT PARAM ipxCompany LIKE oe-ordl.company NO-UNDO.
 DEF INPUT PARAM ipxLoc LIKE quotehd.loc NO-UNDO.
 DEF INPUT PARAM ipxEstNo LIKE oe-ordl.est-no NO-UNDO.
@@ -33,10 +34,14 @@ DEF INPUT PARAM ipxINo LIKE oe-ordl.i-no NO-UNDO.
 DEF OUTPUT PARAM opxPrice LIKE oe-ordl.price NO-UNDO.
 DEF OUTPUT PARAM opxUom LIKE oe-ordl.pr-uom NO-UNDO.
 DEF OUTPUT PARAM opxQty LIKE oe-ordl.qty NO-UNDO.
+DEF OUTPUT PARAM opxQuote LIKE quotehd.q-no NO-UNDO.
 DEF OUTPUT PARAM opcChoice AS CHAR NO-UNDO. /*PRICE,PRICEQTY,CANCEL*/
 
 /* Local Variable Definitions ---                                       */
-
+DEFINE VARIABLE iQuoteFirst AS INTEGER NO-UNDO .
+DEF VAR idx AS INT NO-UNDO.
+DEF VAR columnCounts AS INT NO-UNDO.
+DEF VAR cellColumn AS HANDLE EXTENT 10 NO-UNDO.
 DEFINE TEMP-TABLE ttQuoteList
     FIELD price LIKE oe-ordl.price
     FIELD qty LIKE oe-ordl.qty
@@ -85,7 +90,7 @@ DEFINE TEMP-TABLE ttQuoteList
     ~{&OPEN-QUERY-BROWSE-3}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BROWSE-3 btn_price btn_priceqty Btn_Cancel 
+&Scoped-Define ENABLED-OBJECTS BROWSE-3 btn_price btn_ok btn_priceqty Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS ed_Message 
 
 /* Custom List Definitions                                              */
@@ -136,6 +141,10 @@ DEFINE BUTTON btn_priceqty AUTO-GO
      LABEL "Import Price && Quantity" 
      SIZE 27 BY 1.29.
 
+DEFINE BUTTON btn_ok AUTO-GO
+     LABEL "Ok"
+     SIZE 27 BY 1.29.
+
 DEFINE VARIABLE ed_Message AS CHARACTER 
      VIEW-AS EDITOR NO-BOX
      SIZE 67 BY 2.86 NO-UNDO.
@@ -170,6 +179,7 @@ DEFINE FRAME gDialog
      BROWSE-3 AT ROW 4.33 COL 2
      btn_price AT ROW 13.62 COL 3
      btn_priceqty AT ROW 13.62 COL 30.6 WIDGET-ID 2
+     btn_ok AT ROW 13.62 COL 30 
      Btn_Cancel AT ROW 13.62 COL 58.6
      SPACE(5.39) SKIP(0.27)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -217,7 +227,11 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        ed_Message:READ-ONLY IN FRAME gDialog        = TRUE.
+       btn_price:HIDDEN IN FRAME gDialog            = TRUE.
+       btn_priceqty:HIDDEN IN FRAME gDialog         = TRUE.
+       btn_ok:HIDDEN IN FRAME gDialog               = TRUE.
 
+        
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -257,13 +271,28 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-3 Dialog-Frame
+ON ROW-DISPLAY OF BROWSE-3 IN FRAME gDialog
+DO:
+   DO idx = 1 TO columncounts:
+     IF ttQuoteList.q-no = iQuoteFirst THEN
+        cellColumn[idx]:BGCOLOR = 10.
+      ELSE cellColumn[idx]:BGCOLOR = 12.   
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define BROWSE-NAME BROWSE-3
 &Scoped-define SELF-NAME BROWSE-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-3 gDialog
 ON DEFAULT-ACTION OF BROWSE-3 IN FRAME gDialog
 DO:
-   APPLY "choose" TO btn_price.
+ IF ipxButtton EQ "" THEN
+     APPLY "choose" TO btn_ok.
+ ELSE
+     APPLY "choose" TO btn_price.
 
 END.
 
@@ -279,6 +308,23 @@ DO:
       opcChoice = "PRICE"
       opxPrice = ttQuoteList.price
       opxUom = ttQuoteList.uom.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn_ok
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_ok gDialog
+ON CHOOSE OF btn_ok IN FRAME gDialog /* Import Price */
+DO:
+     
+   ASSIGN
+      opcChoice = "ok"
+      opxPrice = ttQuoteList.price
+      opxUom = ttQuoteList.uom
+      opxQty   = ttQuoteList.qty 
+      opxQuote = ttQuoteList.q-no  .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -308,10 +354,22 @@ END.
 /* ***************************  Main Block  *************************** */
 
 RUN BuildListing.
+DO WITH FRAME {&FRAME-NAME}:
+    IF ipxButtton EQ "" THEN DO:
+        ENABLE btn_ok .
+    END.
+
+    ELSE DO:
+        ENABLE btn_price  btn_priceqty .
+    END.
+END.
+
 IF checkResults() THEN DO:
     RUN DisplayMessage.
     {src/adm2/dialogmn.i}
 END.
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -374,7 +432,10 @@ FOR EACH quotehd FIELDS(q-no est-no company quo-date) NO-LOCK  WHERE
         AND quoteqty.loc = quoteitm.loc 
         AND quoteqty.q-no = quoteitm.q-no 
         AND quoteqty.line = quoteitm.LINE
-    BY quotehd.q-no DESC:
+    BREAK BY quotehd.q-no DESC:
+
+    IF FIRST(quotehd.q-no) THEN
+        ASSIGN iQuoteFirst = quoteqty.q-no .
 
     CREATE ttQuoteList.
     ASSIGN 
@@ -388,6 +449,11 @@ FOR EACH quotehd FIELDS(q-no est-no company quo-date) NO-LOCK  WHERE
         ttQuoteList.rel-qty    = IF quoteqty.rels GT 0 THEN INT(ROUND(quoteqty.qty / quoteqty.rels ,0)) ELSE quoteqty.qty
         .
 END.
+
+columncounts = {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}.
+  DO idx = 1 TO columnCounts:
+     cellColumn[idx] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(idx).
+  END.
 
 END PROCEDURE.
 
@@ -440,7 +506,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY ed_Message 
       WITH FRAME gDialog.
-  ENABLE BROWSE-3 btn_price btn_priceqty Btn_Cancel 
+  ENABLE BROWSE-3 Btn_Cancel 
       WITH FRAME gDialog.
   VIEW FRAME gDialog.
   {&OPEN-BROWSERS-IN-QUERY-gDialog}
