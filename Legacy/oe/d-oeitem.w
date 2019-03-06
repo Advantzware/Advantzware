@@ -3213,9 +3213,10 @@ DEF VAR lxPrice LIKE oe-ordl.price NO-UNDO.
 DEF VAR lxUom LIKE oe-ordl.pr-uom NO-UNDO.
 DEF VAR lxQty LIKE oe-ordl.qty NO-UNDO.
 DEF VAR lcChoice AS CHAR NO-UNDO.
+DEFINE VARIABLE iQutNo AS INTEGER NO-UNDO .
 
 DO WITH FRAME {&FRAME-NAME}:
-    RUN oe/d-quotedprices.w(cocode,
+    RUN oe/d-quotedprices.w("Button",cocode,
                         locode,
                         oe-ordl.est-no:SCREEN-VALUE,
                         oe-ordl.cust-no,
@@ -3224,6 +3225,7 @@ DO WITH FRAME {&FRAME-NAME}:
                         OUTPUT lxPrice,
                         OUTPUT lxUom,
                         OUTPUT lxQty,
+                        OUTPUT iQutNo,
                         OUTPUT lcChoice).
 
 
@@ -4386,18 +4388,18 @@ PROCEDURE display-est-detail :
    lv-qty    = dec(oe-ordl.qty:SCREEN-VALUE).
 
   IF AVAIL xest AND v-quo-price-log AND NOT ll-got-qtprice AND
-     NOT CAN-FIND(FIRST tt-item-qty-price WHERE
+      NOT CAN-FIND(FIRST tt-item-qty-price WHERE
           tt-item-qty-price.tt-selected = YES AND
           (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
           (tt-item-qty-price.part-no EQ oe-ordl.i-no:SCREEN-VALUE AND oe-ordl.i-no:SCREEN-VALUE NE ""))) THEN DO:
      ll-got-qtprice = YES.
-
-     RUN oe/getqpric.p (RECID(xest), oe-ordl.part-no:SCREEN-VALUE,
-                        oe-ordl.i-no:SCREEN-VALUE,
-                        INPUT-OUTPUT lv-price,
-                        INPUT-OUTPUT lv-pr-uom,
-                        OUTPUT lv-q-no,
-                        INPUT-OUTPUT lv-qty).
+        
+     RUN pGetQuoteRec(xest.est-no,oe-ordl.part-no:SCREEN-VALUE,
+                      oe-ordl.i-no:SCREEN-VALUE,
+                      INPUT-OUTPUT lv-price ,
+                      INPUT-OUTPUT lv-pr-uom,
+                      OUTPUT lv-q-no,
+                      INPUT-OUTPUT lv-qty).
 
      oe-ordl.qty:SCREEN-VALUE  = STRING(lv-qty).
   END.
@@ -4633,13 +4635,13 @@ DO WITH FRAME {&FRAME-NAME}:
                  (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
                  (tt-item-qty-price.part-no EQ v-tmp-part AND v-tmp-part EQ ""))) THEN
                  DO:
-                    RUN oe/getqpric.p (RECID(xest),
-                                       oe-ordl.part-no:screen-value,
-                                       v-tmp-part,
-                                       INPUT-OUTPUT lv-price,
-                                       INPUT-OUTPUT lv-pr-uom,
-                                       OUTPUT lv-q-no,
-                                       INPUT-OUTPUT lv-qty).
+                    RUN pGetQuoteRec(xest.est-no,oe-ordl.part-no:SCREEN-VALUE,
+                                     v-tmp-part,
+                                     INPUT-OUTPUT lv-price ,
+                                     INPUT-OUTPUT lv-pr-uom,
+                                     OUTPUT lv-q-no,
+                                     INPUT-OUTPUT lv-qty).
+                    
                     oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).
                  END.
               ELSE
@@ -6230,12 +6232,13 @@ PROCEDURE leave-qty :
              (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
              (tt-item-qty-price.part-no EQ v-tmp-part AND v-tmp-part EQ ""))) THEN
           DO:
-             RUN oe/getqpric.p (RECID(xest), oe-ordl.part-no:screen-value,
-                                v-tmp-part,
-                                INPUT-OUTPUT lv-price,
-                                INPUT-OUTPUT lv-pr-uom,
-                                OUTPUT lv-q-no,
-                                INPUT-OUTPUT lv-qty).
+             
+           RUN pGetQuoteRec(xest.est-no,oe-ordl.part-no:screen-value,
+                            v-tmp-part,
+                            INPUT-OUTPUT lv-price ,
+                            INPUT-OUTPUT lv-pr-uom,
+                            OUTPUT lv-q-no,
+                            INPUT-OUTPUT lv-qty).
              oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).
           END.
           ELSE
@@ -9475,6 +9478,70 @@ PROCEDURE validate-start-date :
         IF NOT ll-valid THEN
             APPLY "entry" TO fi_jobStartDate.
     END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetQuoteRec d-oeitem 
+PROCEDURE pGetQuoteRec :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF INPUT        PARAM ipcEstNo      AS   CHARACTER.
+DEF INPUT        PARAM ipcPartNo    LIKE quoteit.part-no.
+DEF INPUT        PARAM ipcPartNo2   LIKE quoteit.part-no.
+DEF INPUT-OUTPUT PARAM iopPrice      LIKE oe-ordl.price.
+DEF INPUT-OUTPUT PARAM iopUom        LIKE oe-ordl.pr-uom.
+DEF OUTPUT       PARAM iopQ-no       LIKE quotehd.q-no.
+DEF INPUT-OUTPUT PARAM iop-qty       AS INT NO-UNDO.
+DEF VARIABLE lcChoice AS CHARACTER NO-UNDO .
+ DO WITH FRAME {&FRAME-NAME}:
+       j = 0.
+       FOR EACH quotehd
+            WHERE quotehd.company EQ cocode
+            AND quotehd.loc     EQ locode
+            AND quotehd.est-no  EQ ipcEstNo
+            AND quotehd.quo-date LE TODAY 
+            AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
+            USE-INDEX quote NO-LOCK,
+            
+            EACH quoteitm OF quotehd
+            WHERE quoteitm.part-no  EQ ipcPartNo OR
+            (quoteitm.part-no EQ ipcPartNo2 AND ipcPartNo2 NE "" )
+            USE-INDEX q-line NO-LOCK,
+            EACH quoteqty OF quoteitm
+            USE-INDEX qt-qty NO-LOCK
+            
+            BY quotehd.q-no DESC
+            BY quoteqty.qty DESC:
+
+           j = J + 1 .
+           IF J > 1 THEN LEAVE.
+           
+           ASSIGN
+               iopPrice = quoteqty.price
+               iopUom   = quoteqty.uom
+               iopQ-no  = quoteqty.q-no .
+       END.
+  
+       IF j GT 1 THEN
+           RUN oe/d-quotedprices.w("",cocode,
+                          locode,
+                          oe-ordl.est-no:SCREEN-VALUE,
+                          oe-ordl.cust-no,
+                          oe-ordl.part-no:SCREEN-VALUE,
+                          oe-ordl.i-no:SCREEN-VALUE,
+                          OUTPUT iopPrice,
+                          OUTPUT iopUom,
+                          OUTPUT iop-qty,
+                          OUTPUT iopQ-no,
+                          OUTPUT lcChoice).  
+ END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
