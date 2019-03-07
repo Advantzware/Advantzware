@@ -20,8 +20,13 @@ DEFINE INPUT PARAMETER ipcFormatStyle AS CHARACTER NO-UNDO.
 
 {est/ttEstPrint.i "SHARED"}
 
-DEFINE VARIABLE gcFont    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE glClassic AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE gcFont     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE glClassic  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE gcContinue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcNumError AS CHARACTER NO-UNDO.
+ASSIGN 
+    gcNumError = "#"
+    gcContinue = CHR(187).
 
 
 DEFINE TEMP-TABLE ttSection
@@ -33,6 +38,18 @@ DEFINE TEMP-TABLE ttSection
 DEFINE STREAM sEstOutput.
 
 /* ********************  Preprocessor Definitions  ******************** */
+
+/* ************************  Function Prototypes ********************** */
+
+
+FUNCTION fFormatNumber RETURNS CHARACTER PRIVATE
+    (ipdNumber AS DECIMAL,
+    ipiLeftDigits AS INTEGER,
+    ipiRightDigits AS INTEGER) FORWARD.
+
+FUNCTION fFormatString RETURNS CHARACTER PRIVATE
+    (ipcString AS CHARACTER,
+    ipiCharacters AS INTEGER) FORWARD.
 
 
 /* ***************************  Main Block  *************************** */
@@ -301,7 +318,7 @@ PROCEDURE pPrintLayoutInformation PRIVATE:
         WHERE ttEstBlank.rec_keyForm EQ ipbf-ttEstForm.rec_KeyForm:
         iopiRowCount = iopiRowCount + 1.
         RUN pWriteToCoordinates(iopiRowCount, iLayoutColumn1, "Blank #" + TRIM(STRING(ttEstBlank.iBlankNo,">>9")) + ":", NO, NO, YES).
-        RUN pWriteToCoordinates(iopiRowCount, iLayoutColumn2, TRIM(STRING(ttEstBlank.dBlankWidth,">>>9.99999")) , NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iLayoutColumn2, fFormatNumber(ttEstBlank.dBlankWidth,4,5), NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iLayoutColumn3, TRIM(STRING(ttEstBlank.dBlankLength,">>>9.99999")) , NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iLayoutColumn3 + 1, ttEstBlank.cUOMDimension , NO, NO, NO).
         RUN pWriteToCoordinates(iopiRowCount, iLayoutColumn4, TRIM(STRING(ttEstBlank.dBlankArea,">>>9.999")) , NO, NO, YES).
@@ -338,7 +355,8 @@ PROCEDURE pPrintLayoutInformation PRIVATE:
     RUN pWriteToCoordinates(iopiRowCount, iLayoutColumn4 + 1, ttEstForm.cUOMArea , NO, NO, NO).
     RUN pWriteToCoordinates(iopiRowCount, iLayoutColumn6, TRIM(STRING(ttEstForm.dWeightGross,">>>9.9999")) , NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iLayoutColumn6 + 1, ttEstForm.cUOMWeightGross, NO, NO, NO).
-    IF ttEstForm.dRollWidth NE 0 THEN DO:
+    IF ttEstForm.dRollWidth NE 0 THEN 
+    DO:
         iopiRowCount = iopiRowCount + 1.
         RUN pWriteToCoordinates(iopiRowCount, iLayoutColumn1, "Roll:", NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iLayoutColumn2, TRIM(STRING(ttEstForm.dRollWidth,">>>9.99999")) , NO, NO, YES).
@@ -349,6 +367,8 @@ PROCEDURE pPrintLayoutInformation PRIVATE:
     RUN pWriteToCoordinates(iopiRowCount, iLayoutColumn2 + 1, TRIM(STRING(ttEstForm.dGrossQtyRequiredTotal,">>>>>>>>9")), YES, NO, NO).
     RUN pWriteToCoordinates(iopiRowCount, iLayoutColumn4, TRIM(STRING(ttEstForm.dGrossQtyRequiredTotalArea,">>>9.999")) , YES, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iLayoutColumn4 + 1, ttEstForm.cUOMGrossQtyRequiredTotalArea , YES, NO, NO).
+    RUN pWriteToCoordinates(iopiRowCount, iLayoutColumn6, TRIM(STRING(ttEstForm.dGrossQtyRequiredTotalWeight,">>>9.9999")) , NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iLayoutColumn6 + 1, ttEstForm.cUOMGrossQtyRequiredTotalWeight, NO, NO, NO).
 END PROCEDURE.
 
 
@@ -405,9 +425,9 @@ PROCEDURE pWriteToCoordinates PRIVATE:
     DEFINE INPUT PARAMETER iplUnderline AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplRightJustified AS LOGICAL NO-UNDO.
 
-    DEFINE VARIABLE cCoordinates AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cText        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dUnderlineOffset AS DECIMAL NO-UNDO INITIAL 0.25.
+    DEFINE VARIABLE cCoordinates     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cText            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dUnderlineOffset AS DECIMAL   NO-UNDO INITIAL 0.25.
 
     IF iplUnderline THEN 
         ipdR = ipdR - dUnderlineOffset.
@@ -427,3 +447,55 @@ PROCEDURE pWriteToCoordinates PRIVATE:
 
 END PROCEDURE.
 
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fFormatNumber RETURNS CHARACTER PRIVATE
+    ( ipdNumber AS DECIMAL , ipiLeftDigits AS INTEGER , ipiRightDigits AS INTEGER):
+    /*------------------------------------------------------------------------------
+     Purpose: Formats a number with left and right digits.  Handles problem when 
+     size of number doesn't fit
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFormat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cErrorChar AS CHARACTER NO-UNDO.
+    
+    cFormat = FILL(">",ipiLeftDigits - 1) + "9".
+        IF ipiRightDigits GT 0 THEN 
+            cFormat = cFormat + "." + Fill("9",ipiRightDigits).
+    IF ipdNumber GE EXP(10, ipiLeftDigits) THEN  DO:
+        cErrorChar = SUBSTRING(gcNumError, 1,1).
+        cReturn = FILL(cErrorChar, LENGTH(cFormat)).
+    END.
+    ELSE
+        cReturn = STRING(ipdNumber,cFormat).
+            
+    RETURN cReturn.
+		
+END FUNCTION.
+
+FUNCTION fFormatString RETURNS CHARACTER PRIVATE
+    ( ipcString AS CHARACTER, ipiCharacters AS INTEGER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Formats string with number of characters.  If string is larger than what fits, 
+     it auto adds a "cont" string to end
+     Notes:
+    ------------------------------------------------------------------------------*/	
+
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iLength AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iLengthCont AS INTEGER NO-UNDO.
+    
+    ASSIGN 
+        iLengthCont = LENGTH(TRIM(gcContinue))
+        iLength = LENGTH(ipcString)
+        .
+    IF iLength GT ipiCharacters THEN 
+        cReturn = SUBSTRING(ipcString,1,ipiCharacters - iLengthCont) + TRIM(gcContinue).
+    ELSE 
+        cReturn = ipcString.
+    
+    RETURN cReturn.
+		
+END FUNCTION.

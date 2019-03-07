@@ -24,7 +24,7 @@ DEFINE VARIABLE gcOutputFile AS CHARACTER INIT "C:\temp\estPrintOut.txt".
 
 RUN pBuildTestData.
 FIND FIRST ttEstHeader NO-LOCK.
-RUN est\EstimatePrint.p (ROWID(ttEstHeader), gcOutputFile, "By Form with Item Summary","Classic").
+RUN est\EstimatePrint.p (ROWID(ttEstHeader), gcOutputFile, "By Form with Item Summary","Arial Narrow").
 RUN printFile(gcOutputFile).
 /* **********************  Internal Procedures  *********************** */
 
@@ -90,12 +90,12 @@ ASSIGN
     ttEstForm.cUOMArea = "SF"
     ttEstForm.dGrossQtyRequiredWasteMR = 20
     ttEstForm.dGrossQtyRequiredWasteRun = 6
-    ttEstForm.dBasisWeightInLbsPerSqin = 123 
-    ttEstForm.dWeightDie = ttEstForm.dBasisWeightInLbsPerSqin * ttEstForm.dDieArea * 144 / 1000
+    ttEstForm.dBasisWeightInLbsPerMSF = 123 
+    ttEstForm.dWeightDie = ttEstForm.dBasisWeightInLbsPerMSF * ttEstForm.dDieArea 
     ttEstForm.cUOMWeightDie = "LB/MSHT"
-    ttEstForm.dWeightNet = ttEstForm.dBasisWeightInLbsPerSqin * ttEstForm.dNetArea * 144 / 1000
+    ttEstForm.dWeightNet = ttEstForm.dBasisWeightInLbsPerMSF * ttEstForm.dNetArea 
     ttEstForm.cUOMWeightNet = "LB/MSHT"
-    ttEstForm.dWeightGross = ttEstForm.dBasisWeightInLbsPerSqin * ttEstForm.dGrossArea * 144 / 1000
+    ttEstForm.dWeightGross = ttEstForm.dBasisWeightInLbsPerMSF * ttEstForm.dGrossArea
     ttEstForm.cUOMWeightGross = "LB/MSHT"
     .
 CREATE ttEstBlank.
@@ -120,6 +120,8 @@ ASSIGN
     ttEstForm.dGrossQtyRequiredTotal = ttEstForm.dGrossQtyRequiredNoWaste + ttEstForm.dGrossQtyRequiredWasteMR + ttEstForm.dGrossQtyRequiredWasteRun
     ttEstForm.dGrossQtyRequiredTotalArea = ttEstForm.dGrossQtyRequiredTotal * ttEstForm.dGrossArea / 1000
     ttEstForm.cUOMGrossQtyRequiredTotalArea = "MSF"
+    ttEstForm.dGrossQtyRequiredTotalWeight = ttEstForm.dGrossQtyRequiredTotalArea * ttEstForm.dBasisWeightInLbsPerMSF
+    ttEstForm.cUOMGrossQtyRequiredTotalWeight = "LBS"
     
     ttEstItem.cSize = TRIM(STRING(ttEstBlank.dLength,">>>9.99")) + " x " + TRIM(STRING(ttEstBlank.dWidth,">>>9.99"))
     .
@@ -127,7 +129,7 @@ ASSIGN
         ttEstItem.cSize = ttEstItem.cSize + " x " + TRIM(STRING(ttEstBlank.dDepth,">>>9.99")).
     
     ASSIGN 
-        ttEstBlank.dWeight = ttEstForm.dBasisWeightInLbsPerSqin * ttEstBlank.dBlankArea * 144 / 1000 
+        ttEstBlank.dWeight = ttEstForm.dBasisWeightInLbsPerMSF * ttEstBlank.dBlankArea * 144 / 1000 
         ttEstBlank.cUOMWeight = "LB/M"
         .
     

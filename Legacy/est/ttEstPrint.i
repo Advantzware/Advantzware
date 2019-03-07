@@ -75,9 +75,11 @@ DEFINE {1} TEMP-TABLE ttEstForm
     FIELD dGrossQtyRequiredWasteMR AS DECIMAL /*Wasted forms in MR*/
     FIELD dGrossQtyRequiredWasteRun AS DECIMAL /*Wasted forms in Run*/
     FIELD dGrossQtyRequiredTotal AS DECIMAL 
+    FIELD dGrossQtyRequiredTotalWeight AS DECIMAL 
+    FIELD cUOMGrossQtyRequiredTotalWeight AS CHARACTER
     FIELD dGrossQtyRequiredTotalArea AS DECIMAL 
     FIELD cUOMGrossQtyRequiredTotalArea AS CHARACTER 
-    FIELD dBasisWeightInLbsPerSqin AS DECIMAL 
+    FIELD dBasisWeightInLbsPerMSF AS DECIMAL 
     FIELD iNumOutLength AS INTEGER 
     FIELD iNumOutWidth AS INTEGER 
     FIELD iNumOutDepth AS INTEGER 
