@@ -107,6 +107,7 @@ DEFINE VARIABLE v-order-id AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0
      SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cShipLoc AS CHARACTER FORMAT "x(20)":U 
+     LABEL "Default Whse"
      VIEW-AS FILL-IN 
      SIZE 23 BY 1 NO-UNDO.
 
@@ -138,9 +139,9 @@ DEFINE BROWSE browse-shipto
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     v-order-id AT ROW 1.38 COL 39.4 COLON-ALIGNED WIDGET-ID 4
-     cShipLoc AT ROW 1.38 COL 52.4 COLON-ALIGNED NO-LABEL
-     v-ship-id AT ROW 3.33 COL 31.2 COLON-ALIGNED
+     v-order-id AT ROW 1.38 COL 31.2 COLON-ALIGNED WIDGET-ID 4
+     v-ship-id AT ROW 2.60 COL 31.2 COLON-ALIGNED
+     cShipLoc AT ROW 3.82 COL 31.2 COLON-ALIGNED 
      browse-shipto AT ROW 5.05 COL 10.6
      Btn_OK AT ROW 16.29 COL 41.2
      SPACE(36.79) SKIP(1.18)
