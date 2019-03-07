@@ -1,1 +1,0 @@
- STRING(mailcont.list-no)

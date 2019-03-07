@@ -1,1 +1,0 @@
-'Email Code: ' + emaildtl.emailcod

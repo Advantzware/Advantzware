@@ -1,1 +1,0 @@
-'Usersman: ' + usersman.sman
