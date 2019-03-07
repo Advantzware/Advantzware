@@ -1,3 +1,0 @@
-/* lightBulb.i */
-
-/* static version */

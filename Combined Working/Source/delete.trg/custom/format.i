@@ -1,5 +1,0 @@
-/* format.i */
-
-DEFINE VARIABLE account-format AS CHARACTER NO-UNDO.
-DEFINE VARIABLE digits AS INTEGER NO-UNDO.
-DEFINE VARIABLE schema-account-format AS CHARACTER NO-UNDO.

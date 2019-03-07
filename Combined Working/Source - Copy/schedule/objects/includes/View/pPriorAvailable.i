@@ -1,3 +1,0 @@
-/* pPriorAvailable.i */
-
-/* static version */

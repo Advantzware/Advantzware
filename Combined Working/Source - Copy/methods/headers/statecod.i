@@ -1,1 +1,0 @@
-'State: ' + statecod.statecod + ' - ' + statecod.description
