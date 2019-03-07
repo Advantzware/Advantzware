@@ -451,7 +451,8 @@ SESSION:SET-WAIT-STATE("General").
     PAUSE 0 BEFORE-HIDE.
     IF tgCsvExport THEN 
         EXPORT STREAM sCsv DELIMITER "," "Company" "Item" "Tag" "Loc1" "Bin1" "Qty1" "Loc2" "Bin2" "Qty2".
-    FOR EACH fg-bin NO-LOCK USE-INDEX tag.
+    FOR EACH fg-bin NO-LOCK 
+         WHERE fg-bin.tag GT "" USE-INDEX tag.
 
         iRecs = iRecs + 1.
         IF iRecs GT 4999 THEN 
