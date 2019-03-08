@@ -1205,16 +1205,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         btn_ok:HIDDEN                             = YES.
         btn_cancel:HIDDEN                         = YES.
     END.
-
-    DO WITH FRAME {&FRAME-NAME}:
-    /*IF ip-type EQ "update" THEN DISABLE oe-rell.ord-no oe-rell.rel-no oe-rell.b-ord-no.
-
-    IF ip-type EQ "add"  OR ip-type EQ "copy" THEN DO:
-        APPLY "entry" TO oe-rell.ord-no  .
-    END.
-    oe-rell.cust-no:HIDDEN IN FRAME {&FRAME-NAME}  = TRUE .*/
-    END.
-
+   
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
@@ -1359,9 +1350,6 @@ PROCEDURE reCalcQty :
 
         liQty = (liQtyPerCase * liCases) + liPartial.
         fg-rdtlh.qty:SCREEN-VALUE = STRING(liQty).
-    /*   fg-rdtlh.cases:SCREEN-VALUE   =                        */
-    /*       string(INTEGER(fg-rdtlh.qty:SCREEN-VALUE  ) /      */
-    /*              INTEGER(fg-rdtlh.qty-case:SCREEN-VALUE  )). */
     END.
 
 END PROCEDURE.
