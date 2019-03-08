@@ -33,7 +33,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "SSBOLPassword,BOLImageFooter,InvAddDate,POFGDims,OEPriceHold,POConfigDir,EDILogs,AutoLogout,AutoLogoutLocal,RMTagValidation,"
            + "MenuLink1,MenuLink2,MenuLink3,MenuLink4,MenuLink5,MenuLink6,MenuLink7,MenuLink8,MenuLinkASI,MenuLinkZoHo,MenuLinkUpgrade,"
            + "BitMap,CEMenu,BOLPartial,OEAutoDateUpdate,SSPostFGTransfer,FGUnderOver,FGSetAdjustReason,AdjustReason,ShipNotesExpanded,CTIDir,"
-           + "TSBREAKSQTY,CERouteFromStyle,Tasker,CEUpdate,LoadTagLimit,RMHistoryBrowse"
+           + "TSBREAKSQTY,CERouteFromStyle,Tasker,CEUpdate,LoadTagLimit,RMHistoryBrowse,CeSizeVal"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -545,6 +545,11 @@ CASE ip-nk1-value:
         INPUT "Limit the maximum number of load tags to print",
         INPUT "" /* Char Value */, INPUT 120 /* Int value */,
         INPUT NO /* Logical value */, INPUT 50 /* dec value*/ ).
+    WHEN "CeSizeVal" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Display warning prompt on Calculation that Specs Blank and Box Design dimension do not match",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT YES /* Logical value */, INPUT 0 /* dec value*/ ).        
 END CASE.
 ELSE
 CASE ip-nk1-value:
