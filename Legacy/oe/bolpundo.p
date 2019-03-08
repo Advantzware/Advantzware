@@ -220,7 +220,7 @@ IF AVAIL io-bolh THEN DO:
         FOR EACH fg-rdtlh NO-LOCK
               WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
                 AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-                AND fg-rdtlh.qty       LT 0
+                /*AND fg-rdtlh.qty       LT 0 */
                 AND CAN-FIND(FIRST b-fg-rdtlh
                              WHERE b-fg-rdtlh.r-no      EQ b-fg-rcpth.r-no 
                                AND b-fg-rdtlh.rita-code EQ "S"
