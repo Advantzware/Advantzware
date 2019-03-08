@@ -695,7 +695,10 @@ PROCEDURE toggleStatus :
   DO WITH FRAME {&FRAME-NAME}:
     checkoffIdx = LOOKUP(checkoffList,checkoffList:LIST-ITEMS).
     FOR EACH buffJob:
-      buffJob.jobStatus[checkoffIdx] = iplToggle.
+      ASSIGN
+        buffJob.sbStatus = YES
+        buffJob.jobStatus[checkoffIdx] = iplToggle
+        .
     END. /* each buffjob */
     BROWSE {&BROWSE-NAME}:REFRESH().
   END. /* with frame */
