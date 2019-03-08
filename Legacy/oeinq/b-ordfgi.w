@@ -704,10 +704,9 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
 ON MOUSE-SELECT-DBLCLICK OF Browser-Table IN FRAME F-Main
 DO:
     DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
-  IF v-upd-perms THEN DO:
-     RUN viewers/d-fg-rcpth.w (RECID(fg-rcpth),RECID(fg-rdtlh), "update", OUTPUT lv-rowid) .
-    
-     RUN repo-query (lv-rowid).
+  IF v-upd-perms AND AVAIL fg-rcpth THEN DO: 
+      RUN viewers/d-fg-rcpth.w (RECID(fg-rcpth),RECID(fg-rdtlh), "update", OUTPUT lv-rowid) .
+      RUN repo-query (lv-rowid).
   END.
 END.
 
