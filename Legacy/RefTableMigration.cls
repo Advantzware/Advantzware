@@ -3709,12 +3709,10 @@ CLASS RefTableMigration:
                     NO-ERROR.
                 IF AVAILABLE eb THEN DO:   
                     DO i = 1 to 12: 
-                        /* Load 'side' value if empty or user hasn't updated manually */
-                        IF eb.side[i] NE "" AND LENGTH(eb.side[i]) EQ 1 AND LENGTH(reftable.dscr) NE 1 THEN.
-                        ELSE ASSIGN eb.side[i] = SUBSTRING(reftable.dscr,i,1).
-                        /* Load 'unit' value if 0 and user hasn't updated manually */
-                        IF eb.unitNo[i] NE 0 AND eb.unitNo[i] NE reftable.val[i] THEN. 
-                        ELSE ASSIGN eb.unitNo[i] = reftable.val[i].                                      
+                        /* Load 'side' value */
+                        ASSIGN eb.side[i] = SUBSTRING(reftable.dscr,i,1).
+                        /* Load 'unit' value */
+                        ASSIGN eb.unitNo[i] = reftable.val[i].                                      
                     END.
 
                     /* Find the second reftable, if it exists */
@@ -3726,12 +3724,10 @@ CLASS RefTableMigration:
                         b-rt.code2    EQ STRING(eb.blank-no,"9999999999")
                         NO-ERROR.            
                     IF AVAIL b-rt THEN DO i = 13 to 20: 
-                        /* Load 'side' value if empty or user hasn't updated manually */
-                        IF eb.side[i] NE "" AND LENGTH(eb.side[i]) EQ 1 AND LENGTH(b-rt.dscr) NE 1 THEN.
-                        ELSE ASSIGN eb.side[i] = SUBSTRING(b-rt.dscr,i,1).
-                        /* Load 'unit' value if 0 and user hasn't updated manually */
-                        IF eb.unitNo[i] NE 0 AND eb.unitNo[i] NE b-rt.val[i] THEN. 
-                        ELSE ASSIGN eb.unitNo[i] = b-rt.val[i - 12].
+                        /* Load 'side' value */
+                        eb.side[i] = SUBSTRING(b-rt.dscr,i,1).
+                        /* Load 'unit' value */
+                        ASSIGN eb.unitNo[i] = b-rt.val[i - 12].
                         CREATE reftable1.
                         BUFFER-COPY b-rt TO reftable1.
                         RELEASE reftable1.
