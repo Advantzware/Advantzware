@@ -183,20 +183,20 @@ DEFINE FRAME DEFAULT-FRAME
      "Can Run" VIEW-AS TEXT
           SIZE 10.6 BY 1.24 AT ROW 2.48 COL 88
           FONT 6
-     "Can Create" VIEW-AS TEXT
-          SIZE 12.8 BY 1.24 AT ROW 13.19 COL 86
-          FONT 6
-     "Can Delete" VIEW-AS TEXT
-          SIZE 12.8 BY 1.24 AT ROW 18.33 COL 86
-          FONT 6
-     "Can Update" VIEW-AS TEXT
-          SIZE 13.8 BY 1.24 AT ROW 7.71 COL 85
+     "Menu Structure" VIEW-AS TEXT
+          SIZE 18.6 BY .81 AT ROW 1.24 COL 2
           FONT 6
      "Default Selected:" VIEW-AS TEXT
           SIZE 20.4 BY 1 AT ROW 1.24 COL 100
           FONT 6
-     "Menu Structure" VIEW-AS TEXT
-          SIZE 18.6 BY .81 AT ROW 1.24 COL 2
+     "Can Update" VIEW-AS TEXT
+          SIZE 13.8 BY 1.24 AT ROW 7.71 COL 85
+          FONT 6
+     "Can Delete" VIEW-AS TEXT
+          SIZE 12.8 BY 1.24 AT ROW 18.33 COL 86
+          FONT 6
+     "Can Create" VIEW-AS TEXT
+          SIZE 12.8 BY 1.24 AT ROW 13.19 COL 86
           FONT 6
      RECT-3 AT ROW 23.38 COL 100
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -430,9 +430,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN pBuildPanels.
     RUN enable_UI.
     RUN Enhance IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
-    INPUT FROM value(SEARCH("stdMenu/menu_plus.lst")) NO-ECHO.
     RUN pGetMenus.
-    INPUT CLOSE.
     {methods/nowait.i}
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
