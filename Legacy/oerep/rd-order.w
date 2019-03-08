@@ -82,16 +82,16 @@ ASSIGN cTextListToSelect  = "Order#,Customer#,Order Date,FG Item#,Cust Part#,Ite
                             "Shipped Qty,Job On Hand,Sell Price,UOM,Unit Count,Pallet Count,Skids,Status,Due Date," +
                             "Customer Name,Est#,Job#,CAD#,Invoice Qty,Act. Rel. Quantity,Production Balance,O/U%,Rep," +
                             "Rep Name,Release Date,Carrier,Ship To Code,FG On Hand,Orders Due,Items Due,Last User ID,Hold Reason Code,Hold/Approved Date," +
-                            "Scheduled Rel. Qty,Ship From,Ship To Name,Posted Date,Weight/100,Total Weight,# of Pallets"
+                            "Scheduled Rel. Qty,Ship From,Ship To Name,Posted Date,Weight/100,Total Weight,# of Pallets,Qty On Hand"
 
        cFieldListToSelect = "oe-ordl.ord-no,oe-ordl.cust-no,oe-ord.ord-date,oe-ordl.i-no,oe-ordl.part-no,oe-ordl.i-name,oe-ordl.po-no,oe-ordl.qty,v-prod-qty," +
                             "oe-ordl.ship-qty,v-bal,oe-ordl.price,oe-ordl.pr-uom,case-count,pallet-count,skid-count,oe-ord.stat,oe-ordl.req-date," +
                             "oe-ord.cust-name,oe-ordl.est-no,job,cad-no,oe-ordl.inv-qty,act-rel-qty,wip-qty,pct,sman," +
                             "sname,reldate,carrier,shipid,fg-oh,oe-ord.due-date,oe-ordl.req-date,oe-ord.user-id,oe-ord.spare-char-2,approved-date," +
-                            "sch-rel-qty,ship-from,ship-name,post-date,weight-100,tot-wt,Pallet"
+                            "sch-rel-qty,ship-from,ship-name,post-date,weight-100,tot-wt,Pallet,qty-on-hand"
                             
-        cFieldLength = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,8,16,18," + "18,9,30,15,15,15,15"
-           cFieldType = "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c"
+        cFieldLength = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,8,16,18," + "18,9,30,15,15,15,15,15"
+           cFieldType = "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c"
        .
 
 {sys/inc/ttRptSel.i}
@@ -1176,6 +1176,7 @@ DEFINE VARIABLE cShipFr LIKE oe-rel.spare-char-1 NO-UNDO.
 DEFINE VARIABLE dSchRelQty AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cShipName AS CHARACTER NO-UNDO .
 DEFINE VARIABLE dtPostedDate AS DATE NO-UNDO .
+DEFINE VARIABLE iQtyOnHand AS INTEGER NO-UNDO.
 
 ASSIGN
    v-fcust[1]   = begin_cust-no
@@ -1445,6 +1446,15 @@ IF tb_excel THEN
            no-error.  
 
        cShipName = IF AVAIL shipto THEN shipto.ship-name ELSE "" .
+
+         iQtyOnHand = 0.        
+         FOR EACH itemfg-loc NO-LOCK
+             WHERE  itemfg-loc.company EQ itemfg.company
+             AND    itemfg-loc.i-no    EQ itemfg.i-no
+             AND    itemfg-loc.loc     EQ cShipFr : 
+             ASSIGN 
+                 iQtyOnHand = iQtyOnHand + itemfg-loc.q-onh.
+         END.             
        
        RUN oe/rel-stat.p (tt-report.row-id, OUTPUT v-stat).
        FIND FIRST oe-rel NO-LOCK 
@@ -1518,7 +1528,8 @@ IF tb_excel THEN
                   WHEN "post-date" THEN cVarValue = IF dtPostedDate NE ? THEN STRING(dtPostedDate) ELSE ""    .
                   WHEN "weight-100" THEN cVarValue = IF AVAIL itemfg THEN string(itemfg.weight-100) ELSE "".
                   WHEN "tot-wt" THEN cVarValue =  string(itemfg.weight-100 * v-prod-qty / 100 ).
-                  WHEN "Pallet" THEN cVarValue = string(v-prod-qty / v-pallet-count).
+                  WHEN "Pallet" THEN cVarValue = string(iQtyOnHand / v-pallet-count).
+                  WHEN "qty-on-hand" THEN cVarValue = string(iQtyOnHand) .
              END CASE.
 
              cExcelVarValue = cVarValue.
