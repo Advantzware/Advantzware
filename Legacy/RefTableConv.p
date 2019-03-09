@@ -171,6 +171,7 @@ ASSIGN
     {refTableConv.i "BlankVendCost" 'blank-vend-cost'}
     {refTableConv.i "v10TaxCode" 'v10-TaxCode-Upgrade'}
     {refTableConv.i "PrepCadFile" 'PREPCADFILE'}
+    {refTableConv.i "MSF-Limit" "msf-limit"}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */
