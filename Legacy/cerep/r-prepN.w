@@ -1172,7 +1172,6 @@ DEFINE VARIABLE str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE str-line AS cha FORM "x(300)" NO-UNDO.
 DEFINE VARIABLE v-lst-job    AS CHARACTER NO-UNDO.
 
-DEFINE BUFFER bf-reftable FOR reftable .
 DEFINE BUFFER bfprep FOR prep .
 
 {sys/form/r-topsw.f}
@@ -1235,11 +1234,6 @@ FOR EACH prep WHERE prep.company = g_company
 
    FIND FIRST notes WHERE notes.rec_key EQ prep.rec_key NO-LOCK NO-ERROR .
 
-   FIND FIRST reftable NO-LOCK
-        WHERE reftable.reftable EQ "PREPCADFILE"
-          AND reftable.rec_key  EQ prep.rec_key
-         USE-INDEX rec_key NO-ERROR.
-
     ASSIGN v_ML     = IF prep.ml = TRUE THEN "M" ELSE "L"
            v_dfault = IF prep.dfault = TRUE THEN "Y" ELSE "N" .
            v-lst-job = TRIM(STRING(prep.last-job-no)  + "-" + string(prep.last-job-no2,"99"))    .
@@ -1295,8 +1289,8 @@ FOR EACH prep WHERE prep.company = g_company
                          WHEN "simon"                 THEN cVarValue =  STRING(prep.simon) .
                          WHEN "c-typ"                  THEN cVarValue =  STRING(prep.cost-type) .
                          WHEN "act-no"                THEN cVarValue = STRING(prep.actnum) .
-                         WHEN "cad-no"               THEN cVarValue =   IF AVAILABLE reftable THEN reftable.CODE ELSE ""    .
-                         WHEN "file-no"                 THEN cVarValue =   IF AVAILABLE reftable THEN reftable.code2 ELSE ""  .
+                         WHEN "cad-no"               THEN cVarValue =   STRING(prep.cadNo).
+                         WHEN "file-no"                 THEN cVarValue =   STRING(prep.fileNo) .
                          WHEN "cust"      THEN cVarValue = prep.cust-no   .
                          WHEN "lst-est"   THEN cVarValue = prep.last-est-no  .
                          WHEN "lst-job"   THEN cVarValue = IF v-lst-job NE "-00" AND v-lst-job NE "" THEN  v-lst-job ELSE "" .
@@ -1322,68 +1316,6 @@ FOR EACH prep WHERE prep.company = g_company
                        cExcelDisplay SKIP.
              END.  
 
-   /* IF tb_cust-name THEN DO:
-
-       DISPLAY prep.code FORMAT "x(15)"
-               prep.dscr
-               prep.cust-name 
-               prep.loc       
-               prep.loc-bin   LABEL "Bin"
-               prep.disposal-date COLUMN-LABEL "Disposal!Date"
-               prep.last-date    COLUMN-LABEL "Last Used!Date"  
-               prep.mkup
-               prep.cost
-               prep.ml
-               prep.amtz
-               prep.mat-type COLUMN-LABEL 'M!Type'
-               prep.dfault COLUMN-LABEL 'Use!w/ Est'
-               prep.uom
-               prep.simon
-               prep.cost-type COLUMN-LABEL 'C!Type'
-               prep.actnum 
-               reftable.code  WHEN AVAIL reftable COLUMN-LABEL 'Cad #' FORMAT "x(15)"
-               reftable.code2 WHEN AVAIL reftable COLUMN-LABEL 'File #' FORMAT "x(15)"              
-           WITH STREAM-IO FRAME prep-det DOWN WIDTH 230 NO-BOX.
-
-       /* gdm - 10130803 */
-       IF tb_excel THEN
-           PUT STREAM excel UNFORMATTED
-              '"' prep.code              '",'
-              '"' prep.dscr          '",'    
-              '"' prep.cust-name     '",'
-              '"' prep.loc           '",'
-              '"' prep.loc-bin       '",'
-              '"' prep.disposal-date '",'
-              '"' prep.last-date     '",'
-              '"' prep.mkup          '",'    
-              '"' prep.cost          '",'    
-              '"' v_ML               '",'    
-              '"' prep.amtz          '",'    
-              '"' prep.mat-type      '",'
-              '"' v_dfault           '",'
-              '"' prep.uom           '",'    
-              '"' prep.simon         '",'    
-              '"' prep.cost-type     '",'
-              '"' prep.actnum        '",'
-              '"' IF AVAIL reftable THEN reftable.CODE ELSE ""      '",'
-              '"' IF AVAIL reftable THEN reftable.code2 ELSE ""     '"'
-             SKIP.
-
-
-
-     /*ELSE DISPLAY prep.code
-               prep.dscr
-               prep.mkup
-               prep.cost
-               prep.ml
-               prep.amtz
-               prep.mat-type COLUMN-LABEL 'MType'
-               prep.dfault COLUMN-LABEL 'Use w/ Est'
-               prep.uom
-               prep.simon
-               prep.cost-type COLUMN-LABEL 'CType'
-               prep.actnum WITH STREAM-IO FRAME prep DOWN WIDTH 132 NO-BOX.
-*/
       END.          
       ELSE DO:
 
