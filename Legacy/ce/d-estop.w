@@ -1763,7 +1763,8 @@ PROCEDURE valid-s-num :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-  
+
+    ERROR-STATUS:ERROR = NO.
     DO WITH FRAME {&FRAME-NAME}:
         IF NOT CAN-FIND(FIRST ef
             WHERE ef.company EQ est-qty.company
@@ -1776,7 +1777,7 @@ PROCEDURE valid-s-num :
             RETURN ERROR.
         END.
     END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
