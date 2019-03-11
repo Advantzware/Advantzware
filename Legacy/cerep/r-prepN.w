@@ -454,34 +454,7 @@ DO:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
 
-   /* gdm - 10130803 */
-  /*ASSIGN
-    v_exclhdr1 = "Code,Desc.,Customer Name,Warehouse,Bin Location,Disposal Date,Last Used Date,Markup,Cost,M/L,Amtz,M Type,Use w/ Est,UOM,SIMON,C Type,Account No,Cad #,File #"
-    v_exclhdr2 = "Code,Description,Markup,Cost,M/L,Amtz,Mat'l Type,Use in all E,UOM,SIMON,Account No".
-
-  IF tb_excel THEN DO:
-      OUTPUT STREAM excel TO VALUE(fi_file).
-
-      IF tb_cust-name 
-        THEN
-          PUT STREAM excel UNFORMATTED
-            v_exclhdr1
-           SKIP.
-        ELSE
-          PUT STREAM excel UNFORMATTED
-            v_exclhdr2
-           SKIP.
-
-  END. */
-
   IF g_batch THEN tb_batch = YES.
-  /*IF tb_batch THEN DO:
-     RUN run-batch.
-     RETURN NO-APPLY.
-  END. */
-
-  /*IF tb_cust-name THEN run run-report.
-  ELSE RUN run-report-sum. */
 
   RUN GetSelectionList.
   RUN run-report. 
@@ -1141,231 +1114,180 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-/***************************************************************************\
-*****************************************************************************
-**  Program: /u2/fold/all/dev/asi/oe/rep
-**       by: Christopher A. Heins, 07.14.95
-** Descript: Salesman Performance daily, period and year to date.
-**
-*****************************************************************************
-\***************************************************************************/
-DEFINE VARIABLE ii LIKE i NO-UNDO.
+    DEFINE VARIABLE ii LIKE i NO-UNDO.
+    DEFINE VARIABLE v_exclhdr1 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE v_exclhdr2 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE v_custnum  AS CHARACTER FORMAT "x(35)" NO-UNDO.
+    DEFINE VARIABLE cDisplay AS CHAR NO-UNDO.
+    DEFINE VARIABLE cExcelDisplay AS CHAR NO-UNDO.
+    DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+    DEFINE VARIABLE cTmpField AS CHAR NO-UNDO.
+    DEFINE VARIABLE cVarValue AS CHAR NO-UNDO.
+    DEFINE VARIABLE cExcelVarValue AS CHAR NO-UNDO.
+    DEFINE VARIABLE cSelectedList AS CHAR NO-UNDO.
+    DEFINE VARIABLE cFieldName AS CHAR NO-UNDO.
+    DEFINE VARIABLE str-tit4 AS CHAR FORM "x(200)" NO-UNDO.
+    DEFINE VARIABLE str-tit5 AS CHAR FORM "x(200)" NO-UNDO.
+    DEFINE VARIABLE str-line AS CHAR FORM "x(300)" NO-UNDO.
+    DEFINE VARIABLE v-lst-job AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cslist AS CHAR NO-UNDO.
+    
+    DEFINE BUFFER bfprep FOR prep .
+    
+    {sys/form/r-topsw.f}
+    
+    ASSIGN 
+        cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}
+        str-tit2 = c-win:TITLE
+        {sys/inc/ctrtext.i str-tit2 112}.
 
-/* gdm - 10130803 */
-DEFINE VARIABLE v_exclhdr1 AS CHARACTER                NO-UNDO.
-DEFINE VARIABLE v_exclhdr2 AS CHARACTER                NO-UNDO.
-DEFINE VARIABLE v_custnum  AS CHARACTER FORMAT "x(35)" NO-UNDO.
-
-/*{sys/form/r-topl.f}*/
-
-
-DEFINE VARIABLE cDisplay AS cha NO-UNDO.
-DEFINE VARIABLE cExcelDisplay AS cha NO-UNDO.
-DEFINE VARIABLE hField AS HANDLE NO-UNDO.
-DEFINE VARIABLE cTmpField AS CHA NO-UNDO.
-DEFINE VARIABLE cVarValue AS cha NO-UNDO.
-DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
-DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
-DEFINE VARIABLE cFieldName AS cha NO-UNDO.
-DEFINE VARIABLE str-tit4 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE str-tit5 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE str-line AS cha FORM "x(300)" NO-UNDO.
-DEFINE VARIABLE v-lst-job    AS CHARACTER NO-UNDO.
-
-DEFINE BUFFER bfprep FOR prep .
-
-{sys/form/r-topsw.f}
-cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
-
-ASSIGN str-tit2 = c-win:TITLE
-         {sys/inc/ctrtext.i str-tit2 112}.
-
-
-DEFINE VARIABLE cslist AS cha NO-UNDO.
- FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
-
-   IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
-   THEN ASSIGN str-tit4 = str-tit4 + ttRptSelected.TextList + " "
-               str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
-               excelheader = excelHeader + ttRptSelected.TextList + "," .        
-   ELSE 
-   ASSIGN str-tit4 = str-tit4 + 
-            (IF ttRptSelected.HeadingFromLeft THEN
-                ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
-            ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + ttRptSelected.TextList) + " "
-          str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
-          excelheader = excelHeader + ttRptSelected.TextList + ","
-          .        
-          cSlist = cSlist + ttRptSelected.FieldList + ",".
-
-        IF LOOKUP(ttRptSelected.TextList, "") <> 0    THEN
-         ASSIGN
-         str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
-        ELSE
-         str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
- END.
-
-{sys/inc/print1.i}
-
-{sys/inc/outprint.i value(lines-per-page)}
-
-IF td-show-parm THEN RUN show-param.
-
-DISPLAY "" WITH FRAME r-top.
-PUT  str-tit4 FORMAT "x(600)"
-     SKIP
-     str-tit5 FORMAT "x(600)"
-     SKIP
-    .
-
-IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
-  PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
-END.
-
-SESSION:SET-WAIT-STATE ("general").
-
-v-lst-job   = "" .
-
-FOR EACH prep WHERE prep.company = g_company
-                 AND prep.CODE >= begin_prep
-                 AND prep.CODE <= END_prep NO-LOCK BY prep.CODE:
-
-   FIND FIRST notes WHERE notes.rec_key EQ prep.rec_key NO-LOCK NO-ERROR .
-
-    ASSIGN v_ML     = IF prep.ml = TRUE THEN "M" ELSE "L"
-           v_dfault = IF prep.dfault = TRUE THEN "Y" ELSE "N" .
-           v-lst-job = TRIM(STRING(prep.last-job-no)  + "-" + string(prep.last-job-no2,"99"))    .
+    FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
+    
+        IF LENGTH(ttRptSelected.TextList) EQ ttRptSelected.FieldLength THEN ASSIGN 
+            str-tit4 = str-tit4 + ttRptSelected.TextList + " "
+            str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+            excelheader = excelHeader + ttRptSelected.TextList + "," .        
+        ELSE ASSIGN 
+            str-tit4 = str-tit4 + (IF ttRptSelected.HeadingFromLeft THEN
+                        ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
+                        ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + ttRptSelected.TextList) + " "
+            str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " " excelheader = excelHeader + ttRptSelected.TextList + ",".        
         
-
-    ASSIGN cDisplay = ""
-                   cTmpField = ""
-                   cVarValue = ""
-                   cExcelDisplay = ""
-                   cExcelVarValue = "".
-
-            BUFFER bfprep:FIND-BY-ROWID(ROWID(prep), NO-LOCK) .
-            DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-               cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-                   IF INDEX(cTmpField,".") > 0 THEN DO:
-                            cFieldName = cTmpField.
-                            cTmpField = SUBSTRING(cTmpField,INDEX(cTmpField,".") + 1).
-                            hField = BUFFER bfprep:BUFFER-FIELD(cTmpField).
-                            IF hField <> ? THEN DO:                 
-                                cTmpField = SUBSTRING(GetFieldValue(hField),1,int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
-                                cDisplay = cDisplay + 
-                                          IF ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldType) = "C" THEN
-                                            (cTmpField + FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField)))
-                                          ELSE IF LENGTH(cTmpField) <  int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) THEN
-                                            (FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) - LENGTH(cTmpField)) + cTmpField) + " "
-                                          ELSE cTmpField.
-                                cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".   
-
-                            END.
-                            ELSE DO:
-                               cTmpField = SUBSTRING(cFieldName,1,int( ENTRY( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
-                               cDisplay = cDisplay + FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 ).
-                               cExcelDisplay = cExcelDisplay + quoter(" ") + ",".
-                            END.
-                  END.
-                  ELSE DO: 
-
-                    CASE cTmpField:             
-                         WHEN "code"                THEN cVarValue =  STRING(prep.CODE,"x(15)") .
-                         WHEN "dscr"                  THEN cVarValue =  STRING(prep.dscr) .
-                         WHEN "cust-name"        THEN cVarValue =  STRING(prep.cust-name) .
-                         WHEN "ware"                 THEN cVarValue = STRING(prep.loc) .
-                         WHEN "bin"                    THEN cVarValue = STRING(prep.loc-bin) .
-                         WHEN "dis-dt"                 THEN cVarValue = IF prep.disposal-date NE ? THEN STRING(prep.disposal-date)  ELSE "" .
-                         WHEN "lst-dt"                  THEN cVarValue = IF prep.last-date NE ? THEN STRING(prep.last-date)  ELSE "".
-                         WHEN "mrkup"                THEN cVarValue = STRING(prep.mkup,"->>9.99") .
-                         WHEN "cst"                     THEN cVarValue = STRING(prep.cost,"->>,>>9.99") .
-                         WHEN "ml"                      THEN cVarValue = STRING(v_ML) .
-                         WHEN "amtz"                  THEN cVarValue =  STRING(prep.amtz,">>9.99") .
-                         WHEN "m-typ"                 THEN cVarValue =  STRING(prep.mat-type) .
-                         WHEN "use-est"              THEN cVarValue =  STRING(v_dfault) .
-                         WHEN "uom"                   THEN cVarValue =  STRING(prep.uom) .
-                         WHEN "simon"                 THEN cVarValue =  STRING(prep.simon) .
-                         WHEN "c-typ"                  THEN cVarValue =  STRING(prep.cost-type) .
-                         WHEN "act-no"                THEN cVarValue = STRING(prep.actnum) .
-                         WHEN "cad-no"               THEN cVarValue =   STRING(prep.cadNo).
-                         WHEN "file-no"                 THEN cVarValue =   STRING(prep.fileNo) .
-                         WHEN "cust"      THEN cVarValue = prep.cust-no   .
-                         WHEN "lst-est"   THEN cVarValue = prep.last-est-no  .
-                         WHEN "lst-job"   THEN cVarValue = IF v-lst-job NE "-00" AND v-lst-job NE "" THEN  v-lst-job ELSE "" .
-                         WHEN "has-not"   THEN cVarValue = IF AVAILABLE notes THEN "Yes" ELSE "No" .    
-                         WHEN "owner1"                THEN cVarValue =  STRING(prep.owner[1]) .
-                         WHEN "owner%1"               THEN cVarValue =  STRING(prep.owner-%[1]) .
-                         WHEN "owner2"                THEN cVarValue =  STRING(prep.owner[2]) .
-                         WHEN "owner%2"               THEN cVarValue =  STRING(prep.owner-%[2]) .
-                         WHEN "received-date"               THEN cVarValue = IF prep.received-date <> ?THEN  STRING(prep.received-date) ELSE "" .
-
-                    END CASE.
-
-                    cExcelVarValue = cVarValue.
-                    cDisplay = cDisplay + cVarValue +
-                               FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".   
-                  END.
+        ASSIGN 
+            cSlist = cSlist + ttRptSelected.FieldList + ",".
+    
+        IF LOOKUP(ttRptSelected.TextList, "") NE 0 THEN ASSIGN
+            str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
+        ELSE ASSIGN 
+            str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
+    END.
+    
+    {sys/inc/print1.i}
+    
+    {sys/inc/outprint.i value(lines-per-page)}
+    
+    IF td-show-parm THEN RUN show-param.
+    
+    DISPLAY "" WITH FRAME r-top.
+    PUT  str-tit4 FORMAT "x(600)"
+        SKIP
+        str-tit5 FORMAT "x(600)"
+        SKIP
+        .
+    
+    IF tb_excel THEN DO:
+        OUTPUT STREAM excel TO VALUE(fi_file).
+        PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+    END.
+    
+    SESSION:SET-WAIT-STATE ("general").
+    
+    ASSIGN 
+        v-lst-job   = "" .
+    
+    FOR EACH prep NO-LOCK WHERE 
+        prep.company EQ g_company AND 
+        prep.CODE GE begin_prep AND 
+        prep.CODE LE END_prep BY prep.CODE:
+    
+        FIND FIRST notes NO-LOCK WHERE 
+            notes.rec_key EQ prep.rec_key 
+            NO-ERROR .
+    
+        ASSIGN 
+            v_ML     = IF prep.ml EQ TRUE THEN "M" ELSE "L"
+            v_dfault = IF prep.dfault EQ TRUE THEN "Y" ELSE "N"
+            v-lst-job = TRIM(STRING(prep.last-job-no)  + "-" + STRING(prep.last-job-no2,"99"))
+            cDisplay = ""
+            cTmpField = ""
+            cVarValue = ""
+            cExcelDisplay = ""
+            cExcelVarValue = "".
+    
+        BUFFER bfprep:FIND-BY-ROWID(ROWID(prep), NO-LOCK) .
+        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+            ASSIGN 
+                cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+            IF INDEX(cTmpField,".") GT 0 THEN DO:
+                ASSIGN 
+                    cFieldName = cTmpField
+                    cTmpField = SUBSTRING(cTmpField,INDEX(cTmpField,".") + 1)
+                    hField = BUFFER bfprep:BUFFER-FIELD(cTmpField).
+                                
+                IF hField NE ? THEN DO:
+                    ASSIGN 
+                        cTmpField = SUBSTRING(GetFieldValue(hField),1,int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)))
+                        cDisplay = cDisplay + IF ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldType) = "C" THEN
+                                                (cTmpField + FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField)))
+                                            ELSE IF LENGTH(cTmpField) <  int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) THEN
+                                                (FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) - LENGTH(cTmpField)) + cTmpField) + " "
+                                            ELSE cTmpField
+                        cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".   
+                END.
+                ELSE DO:
+                    ASSIGN 
+                        cTmpField = SUBSTRING(cFieldName,1,int( ENTRY( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) )                  
+                        cDisplay = cDisplay + FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 )
+                        cExcelDisplay = cExcelDisplay + quoter(" ") + ",".
+                END.
             END.
+            ELSE DO: 
+                CASE cTmpField:             
+                    WHEN "code"             THEN cVarValue = STRING(prep.CODE,"x(15)") .
+                    WHEN "dscr"             THEN cVarValue = STRING(prep.dscr) .
+                    WHEN "cust-name"        THEN cVarValue = STRING(prep.cust-name) .
+                    WHEN "ware"             THEN cVarValue = STRING(prep.loc) .
+                    WHEN "bin"              THEN cVarValue = STRING(prep.loc-bin) .
+                    WHEN "dis-dt"           THEN cVarValue = IF prep.disposal-date NE ? THEN STRING(prep.disposal-date)  ELSE "" .
+                    WHEN "lst-dt"           THEN cVarValue = IF prep.last-date NE ? THEN STRING(prep.last-date)  ELSE "".
+                    WHEN "mrkup"            THEN cVarValue = STRING(prep.mkup,"->>9.99") .
+                    WHEN "cst"              THEN cVarValue = STRING(prep.cost,"->>,>>9.99") .
+                    WHEN "ml"               THEN cVarValue = STRING(v_ML) .
+                    WHEN "amtz"             THEN cVarValue = STRING(prep.amtz,">>9.99") .
+                    WHEN "m-typ"            THEN cVarValue = STRING(prep.mat-type) .
+                    WHEN "use-est"          THEN cVarValue = STRING(v_dfault) .
+                    WHEN "uom"              THEN cVarValue = STRING(prep.uom) .
+                    WHEN "simon"            THEN cVarValue = STRING(prep.simon) .
+                    WHEN  "c-typ"           THEN cVarValue = STRING(prep.cost-type) .
+                    WHEN "act-no"           THEN cVarValue = STRING(prep.actnum) .
+                    WHEN "cad-no"           THEN cVarValue =  STRING(prep.cadNo).
+                    WHEN "file-no"          THEN cVarValue =  STRING(prep.fileNo) .
+                    WHEN "cust"             THEN cVarValue = prep.cust-no   .
+                    WHEN "lst-est"          THEN cVarValue = prep.last-est-no  .
+                    WHEN "lst-job"          THEN cVarValue = IF v-lst-job NE "-00" AND v-lst-job NE "" THEN  v-lst-job ELSE "" .
+                    WHEN "has-not"          THEN cVarValue = IF AVAILABLE notes THEN "Yes" ELSE "No" .    
+                    WHEN "owner1"           THEN cVarValue = STRING(prep.owner[1]) .
+                    WHEN "owner%1"          THEN cVarValue = STRING(prep.owner-%[1]) .
+                    WHEN "owner2"           THEN cVarValue = STRING(prep.owner[2]) .
+                    WHEN "owner%2"          THEN cVarValue = STRING(prep.owner-%[2]) .
+                    WHEN "received-date"    THEN cVarValue = IF prep.received-date <> ?THEN  STRING(prep.received-date) ELSE "" .
+                END CASE.
+                
+                ASSIGN 
+                    cExcelVarValue = cVarValue
+                    cDisplay = cDisplay + cVarValue +
+                            FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)) 
+                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".   
+            END.
+        END.
+    END.
+    
+    PUT UNFORMATTED cDisplay SKIP.
+    IF tb_excel THEN DO:
+        PUT STREAM excel UNFORMATTED cExcelDisplay SKIP.
+    END.  
 
-            PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel THEN DO:
-                 PUT STREAM excel UNFORMATTED  
-                       cExcelDisplay SKIP.
-             END.  
-
-      END.          
-      ELSE DO:
-
-         /* gdm - 10130803*/
-         IF tb_excel THEN DO:
-             FIND FIRST account NO-LOCK
-                 WHERE account.company = cocode 
-                   AND account.actnum = prep.actnum NO-ERROR.
-
-             ASSIGN
-                 v_custnum = ""
-                 v_custnum = prep.actnum + " " + account.dscr.            
-
-             PUT STREAM excel UNFORMATTED
-               '"' prep.code     '",' 
-               '"' prep.dscr     '",' 
-               '"' prep.mkup     '",' 
-               '"' prep.cost     '",' 
-               '"' v_ML          '",' 
-               '"' prep.amtz     '",' 
-               '"' prep.mat-type '",' 
-               '"' prep.dfault   '",' 
-               '"' prep.uom      '",' 
-               '"' prep.simon    '",' 
-               '"' v_custnum     '"' 
-              SKIP.
-         END. /* IF tb_excel */
-
-         DO WITH FRAME prep 3 COLUMNS STREAM-IO:
-             display skip(2).
-             {ce/prep.v}.
-             DOWN.
-         END.
-
-      END.    */
-END.
-
-IF tb_excel THEN DO:
-    OUTPUT STREAM excel CLOSE.
-    IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
-END.
-
-
-SESSION:SET-WAIT-STATE ("").
-
-RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-
-/* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
-
+    IF tb_excel THEN DO:
+        OUTPUT STREAM excel CLOSE.
+        IF tb_runExcel THEN
+            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    END.
+    
+    SESSION:SET-WAIT-STATE ("").
+    
+    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
