@@ -86,6 +86,7 @@ DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updbar AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_v-post AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -354,8 +355,17 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_p-updbar ( 22.67 , 37.00 ) NO-ERROR.
        RUN set-size IN h_p-updbar ( 1.76 , 82.00 ) NO-ERROR.
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'fg/v-post.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_v-post ).
+       RUN set-position IN h_v-post ( 22.67 , 129.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 17.00 ) */
+
        /* Links to SmartNavBrowser h_b-trans. */
        RUN add-link IN adm-broker-hdl ( h_p-updbar , 'TableIO':U , h_b-trans ).
+       RUN add-link IN adm-broker-hdl ( h_v-post , 'state':U , h_b-trans ).
        RUN add-link IN adm-broker-hdl ( h_b-trans , 'can-exit':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
@@ -363,6 +373,8 @@ PROCEDURE adm-create-objects :
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updbar ,
              h_b-trans , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_v-post ,
+             h_p-updbar , 'AFTER':U ).
     END. /* Page 1 */
 
   END CASE.

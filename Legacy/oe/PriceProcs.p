@@ -732,7 +732,7 @@ PROCEDURE pAddPriceHold PRIVATE:
     DO:
         IF iplQuantityQuoted THEN 
         DO:
-            RUN pFindQuoteForQuantity(ipcCompany, ipcEstNo, ipcFGItemID, ipdQuantity, OUTPUT lFoundAnyQuote, OUTPUT lFoundQuoteForQty).
+            RUN pFindQuoteForQuantity(ipcCompany, ipcEstNo, ipcFGItemID, bf-itemfg.part-no, ipdQuantity, OUTPUT lFoundAnyQuote, OUTPUT lFoundQuoteForQty).
             IF NOT lFoundAnyQuote THEN DO: 
                 ASSIGN
                     ttPriceHold.lPriceHold       = YES
@@ -815,6 +815,7 @@ PROCEDURE pFindQuoteForQuantity PRIVATE:
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcEstNo AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPartNo AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplAnyQuoteFound AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplQuoteFoundForQuantity AS LOGICAL NO-UNDO.
@@ -825,9 +826,10 @@ PROCEDURE pFindQuoteForQuantity PRIVATE:
         AND quotehd.quo-date LE TODAY 
         AND (quotehd.expireDate GT TODAY OR quotehd.expireDate EQ ?) 
         ,
-        EACH quoteitm NO-LOCK 
+        EACH quoteitm OF quotehd NO-LOCK 
         WHERE quoteitm.company EQ quotehd.company
-        AND quoteitm.i-no EQ ipcFGItemID,
+        AND (quoteitm.i-no EQ ipcFGItemID
+        OR quoteitm.part-no EQ ipcPartNo),
         EACH quoteqty NO-LOCK 
         WHERE quoteqty.company EQ quoteitm.company
         AND quoteqty.line EQ quoteitm.line
