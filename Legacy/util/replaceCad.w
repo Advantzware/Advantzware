@@ -421,26 +421,20 @@ SESSION:SET-WAIT-STATE("General").
 status default "Processing ...".
 
 ASSIGN i = 0 j = 0.
-IF fi_from_cad <> "" THEN
-FOR EACH reftable WHERE reftable.reftable EQ "PREPCADFILE"
-                    AND reftable.CODE BEGINS fi_from_cad:
-    FIND FIRST prep NO-LOCK WHERE prep.company = cocode
-                              AND prep.rec_key = reftable.rec_key
-        USE-INDEX rec_key NO-ERROR.
-    IF AVAIL prep THEN 
-        ASSIGN i = i + 1 
-               reftable.CODE = fi_to_cad.
+IF fi_from_cad NE "" THEN FOR EACH prep EXCLUSIVE WHERE 
+    prep.company EQ cocode AND 
+    prep.cadNo EQ fi_from_cad:
+    ASSIGN 
+        i = i + 1 
+        prep.cadNo = fi_to_cad.
 END.
 
-IF fi_from_fil <> "" THEN
-FOR EACH reftable WHERE reftable.reftable EQ "PREPCADFILE"
-                    AND reftable.CODE2 BEGINS fi_from_fil:
-    FIND FIRST prep NO-LOCK WHERE prep.company = cocode
-                              AND prep.rec_key = reftable.rec_key
-        USE-INDEX rec_key NO-ERROR.
-    IF AVAIL prep THEN 
-        ASSIGN j = j + 1
-               reftable.CODE2 = fi_to_fil.
+IF fi_from_fil NE "" THEN FOR EACH prep EXCLUSIVE WHERE 
+    prep.company EQ cocode AND 
+    prep.fileNo EQ fi_from_fil:
+    ASSIGN 
+        j = j + 1
+        prep.fileNo  = fi_to_fil.
 END.
 
 

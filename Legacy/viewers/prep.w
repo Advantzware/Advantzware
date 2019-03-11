@@ -90,18 +90,18 @@ END.
 DEFINE QUERY external_tables FOR prep.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS prep.dscr prep.ml prep.cost prep.mkup ~
-prep.spare-dec-1 prep.amtz prep.mat-type prep.dfault prep.vend-no prep.cost-type ~
-prep.actnum prep.prep-date prep.loc prep.loc-bin prep.simon prep.fgcat ~
-prep.cust-no prep.cust-name prep.owner[1] prep.owner-%[1] prep.number-up ~
-prep.no-of-impressions prep.owner[2] prep.owner-%[2] prep.disposal-date ~
-prep.sts prep.carton-w prep.die-w prep.received-date prep.box-style ~
-prep.carton-l prep.die-l prep.last-date prep.wood-type prep.carton-d ~
-prep.last-est-no prep.last-order prep.i-no prep.procat 
+prep.spare-dec-1 prep.amtz prep.mat-type prep.dfault prep.vend-no ~
+prep.cost-type prep.actnum prep.prep-date prep.loc prep.loc-bin prep.simon ~
+prep.fgcat prep.cust-no prep.cust-name prep.owner[1] prep.owner-%[1] ~
+prep.number-up prep.no-of-impressions prep.owner[2] prep.owner-%[2] ~
+prep.disposal-date prep.sts prep.carton-w prep.die-w prep.received-date ~
+prep.box-style prep.carton-l prep.die-l prep.last-date prep.wood-type ~
+prep.carton-d prep.last-est-no prep.last-order prep.last-job-no ~
+prep.last-job-no2 prep.i-no prep.cadNo prep.fileNo prep.procat 
 &Scoped-define ENABLED-TABLES prep
 &Scoped-define FIRST-ENABLED-TABLE prep
 &Scoped-Define ENABLED-OBJECTS fi_cad-image fi_strip-loc fi_strip-loc-bin ~
-fi_blank-loc fi_blank-loc-bin fi_job-no fi_job-no2 fi_cad# fi_fil# RECT-2 ~
-RECT-3 RECT-4 
+fi_blank-loc fi_blank-loc-bin RECT-2 RECT-4 
 &Scoped-Define DISPLAYED-FIELDS prep.code prep.dscr prep.ml prep.cost ~
 prep.mkup prep.spare-dec-1 prep.amtz prep.mat-type prep.dfault prep.vend-no ~
 prep.cost-type prep.uom prep.actnum prep.prep-date prep.loc prep.loc-bin ~
@@ -109,20 +109,21 @@ prep.simon prep.fgcat prep.cust-no prep.cust-name prep.owner[1] ~
 prep.owner-%[1] prep.number-up prep.no-of-impressions prep.owner[2] ~
 prep.owner-%[2] prep.disposal-date prep.sts prep.carton-w prep.die-w ~
 prep.received-date prep.box-style prep.carton-l prep.die-l prep.last-date ~
-prep.wood-type prep.carton-d prep.last-est-no prep.last-order prep.i-no ~
+prep.wood-type prep.carton-d prep.last-est-no prep.last-order ~
+prep.last-job-no prep.last-job-no2 prep.i-no prep.cadNo prep.fileNo ~
 prep.procat 
 &Scoped-define DISPLAYED-TABLES prep
 &Scoped-define FIRST-DISPLAYED-TABLE prep
 &Scoped-Define DISPLAYED-OBJECTS fi_cad-image mat_dscr costtype_descr ~
 uom_dscr ls-time fi_strip-loc fi_strip-loc-bin fi_blank-loc ~
-fi_blank-loc-bin fi_job-no fi_job-no2 fi_cad# fi_fil# 
+fi_blank-loc-bin 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS prep.code 
-&Scoped-define ADM-ASSIGN-FIELDS fi_job-no fi_job-no2 
+&Scoped-define ADM-ASSIGN-FIELDS prep.last-job-no prep.last-job-no2 
 &Scoped-define DISPLAY-FIELD prep.mat-type prep.cost-type prep.uom ~
-fi_job-no fi_job-no2 
+prep.last-job-no prep.last-job-no2 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -154,7 +155,7 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE costtype_descr AS CHARACTER FORMAT "x(30)" INIT ""
+DEFINE VARIABLE costtype_descr AS CHARACTER FORMAT "x(30)" 
      VIEW-AS FILL-IN 
      SIZE 38 BY 1
      BGCOLOR 15 FONT 4.
@@ -169,30 +170,10 @@ DEFINE VARIABLE fi_blank-loc-bin AS CHARACTER FORMAT "X(8)":U
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_cad# AS CHARACTER FORMAT "X(15)":U 
-     LABEL "Cad  #" 
-     VIEW-AS FILL-IN 
-     SIZE 23 BY 1 NO-UNDO.
-
 DEFINE VARIABLE fi_cad-image AS CHARACTER FORMAT "x(80)" 
      LABEL "Image" 
      VIEW-AS FILL-IN 
-     SIZE 23 BY 1.
-
-DEFINE VARIABLE fi_fil# AS CHARACTER FORMAT "X(15)":U 
-     LABEL "File  #" 
-     VIEW-AS FILL-IN 
-     SIZE 22.8 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
-     LABEL "Last Job # Used" 
-     VIEW-AS FILL-IN 
-     SIZE 15 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
-     LABEL "-" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1 NO-UNDO.
+     SIZE 56 BY 1.
 
 DEFINE VARIABLE fi_strip-loc AS CHARACTER FORMAT "X(5)":U 
      LABEL "Stripper Whs" 
@@ -209,7 +190,7 @@ DEFINE VARIABLE ls-time AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE mat_dscr AS CHARACTER FORMAT "x(30)"  INITIAL ""
+DEFINE VARIABLE mat_dscr AS CHARACTER FORMAT "x(30)" 
      VIEW-AS FILL-IN 
      SIZE 38 BY 1
      BGCOLOR 15 FONT 4.
@@ -221,11 +202,7 @@ DEFINE VARIABLE uom_dscr AS CHARACTER FORMAT "x(30)"
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 45 BY 4.05.
-
-DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 47 BY 3.19.
+     SIZE 43 BY 4.05.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -250,21 +227,21 @@ DEFINE FRAME F-Main
                     "Material", yes,
 "Labor", no
           SIZE 25.8 BY 1
-     fi_cad-image AT ROW 17.71 COL 18 COLON-ALIGNED
-     prep.cost AT ROW 2.43 COL 48.8 COLON-ALIGNED FORMAT "->>,>>9.99<<"
+     fi_cad-image AT ROW 12.19 COL 71 COLON-ALIGNED
+     prep.cost AT ROW 2.19 COL 47 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 4
-     prep.mkup AT ROW 2.43 COL 73 COLON-ALIGNED FORMAT "->>9.99<<"
+     prep.mkup AT ROW 2.19 COL 73 COLON-ALIGNED FORMAT "->>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
-     prep.spare-dec-1 AT ROW 2.43 COL 91.8 COLON-ALIGNED WIDGET-ID 10
+     prep.spare-dec-1 AT ROW 2.19 COL 92 COLON-ALIGNED WIDGET-ID 10
           LABEL "Price" FORMAT "->>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 13.2 BY 1
           FONT 4
-     prep.amtz AT ROW 3.62 COL 96 COLON-ALIGNED
+     prep.amtz AT ROW 3.14 COL 92 COLON-ALIGNED
           LABEL "Amort"
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
@@ -275,12 +252,10 @@ DEFINE FRAME F-Main
           SIZE 7 BY 1
           BGCOLOR 15 FONT 4
      mat_dscr AT ROW 4.33 COL 26 COLON-ALIGNED NO-LABEL
-     prep.dfault AT ROW 3.52 COL 19
-          LABEL "Always Defaults"
+     prep.dfault AT ROW 3.38 COL 19
           VIEW-AS TOGGLE-BOX
           SIZE 27.4 BY .76
-     prep.vend-no AT ROW 3.52 COL 60 COLON-ALIGNED
-          LABEL "Vendor"
+     prep.vend-no AT ROW 3.14 COL 60 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
           BGCOLOR 15 FONT 4
@@ -299,22 +274,22 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 47 BY 1
           BGCOLOR 15 FONT 4
-     prep.prep-date AT ROW 2.43 COL 113 COLON-ALIGNED
+     prep.prep-date AT ROW 2.19 COL 113 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     ls-time AT ROW 3.62 COL 113 COLON-ALIGNED
-     prep.loc AT ROW 5.24 COL 88 COLON-ALIGNED
+     ls-time AT ROW 3.14 COL 113 COLON-ALIGNED
+     prep.loc AT ROW 4.33 COL 88 COLON-ALIGNED
           LABEL "Prep Whs"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     prep.loc-bin AT ROW 5.24 COL 113 COLON-ALIGNED
+     prep.loc-bin AT ROW 4.33 COL 113 COLON-ALIGNED
           LABEL "Bin"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     fi_strip-loc AT ROW 6.24 COL 88 COLON-ALIGNED
-     fi_strip-loc-bin AT ROW 6.24 COL 113 COLON-ALIGNED
-     fi_blank-loc AT ROW 7.19 COL 88 COLON-ALIGNED
-     fi_blank-loc-bin AT ROW 7.19 COL 113 COLON-ALIGNED
+     fi_strip-loc AT ROW 5.29 COL 88 COLON-ALIGNED
+     fi_strip-loc-bin AT ROW 5.29 COL 113 COLON-ALIGNED
+     fi_blank-loc AT ROW 6.24 COL 88 COLON-ALIGNED
+     fi_blank-loc-bin AT ROW 6.24 COL 113 COLON-ALIGNED
      prep.simon AT ROW 8.52 COL 6 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
@@ -324,19 +299,13 @@ DEFINE FRAME F-Main
 "Override", "O":U,
 "Separate Bill", "S":U
           SIZE 87 BY 1.19
-     prep.fgcat AT ROW 8.43 COL 113 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-     prep.cust-no AT ROW 10.14 COL 17 COLON-ALIGNED
+     prep.fgcat AT ROW 7.19 COL 88 COLON-ALIGNED
+          LABEL "Category (FG)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     prep.cust-name AT ROW 10.14 COL 34 COLON-ALIGNED NO-LABEL
+     prep.cust-no AT ROW 9.81 COL 17 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 41 BY 1
-     prep.owner[1] AT ROW 11.62 COL 85 COLON-ALIGNED
-          LABEL "1"
-          VIEW-AS FILL-IN 
-          SIZE 32 BY 1
+          SIZE 17 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE NO-VALIDATE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -344,88 +313,111 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     prep.owner-%[1] AT ROW 11.62 COL 117 COLON-ALIGNED NO-LABEL
+     prep.cust-name AT ROW 9.81 COL 34 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 41 BY 1
+     prep.owner[1] AT ROW 9.81 COL 88 COLON-ALIGNED
+          LABEL "1"
+          VIEW-AS FILL-IN 
+          SIZE 32 BY 1
+     prep.owner-%[1] AT ROW 9.81 COL 121 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
-     prep.number-up AT ROW 11.33 COL 17 COLON-ALIGNED
+     prep.number-up AT ROW 11 COL 17 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
-     prep.no-of-impressions AT ROW 11.33 COL 55 COLON-ALIGNED
-         FORMAT ">,>>>,>>>,>>9"
+     prep.no-of-impressions AT ROW 11 COL 55 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     prep.owner[2] AT ROW 12.57 COL 85 COLON-ALIGNED
+     prep.owner[2] AT ROW 11 COL 88 COLON-ALIGNED
           LABEL "2"
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
-     prep.owner-%[2] AT ROW 12.57 COL 117 COLON-ALIGNED NO-LABEL
+     prep.owner-%[2] AT ROW 11 COL 121 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
      prep.disposal-date AT ROW 13.91 COL 71 COLON-ALIGNED
           LABEL "Disposal Date"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     prep.sts AT ROW 13.91 COL 114 COLON-ALIGNED
+     prep.sts AT ROW 13.86 COL 109 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
-     prep.carton-w AT ROW 14.57 COL 18 COLON-ALIGNED
+     prep.carton-w AT ROW 14.33 COL 17 COLON-ALIGNED
           LABEL "Width"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     prep.die-w AT ROW 14.57 COL 33 COLON-ALIGNED NO-LABEL
+     prep.die-w AT ROW 14.33 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      prep.received-date AT ROW 14.86 COL 71 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     prep.box-style AT ROW 14.86 COL 114 COLON-ALIGNED FORMAT "X(6)"
+     prep.box-style AT ROW 14.81 COL 109 COLON-ALIGNED FORMAT "X(6)"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     prep.carton-l AT ROW 15.52 COL 18 COLON-ALIGNED
+     prep.carton-l AT ROW 15.29 COL 17 COLON-ALIGNED
           LABEL "Length"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     prep.die-l AT ROW 15.52 COL 33 COLON-ALIGNED NO-LABEL
+     prep.die-l AT ROW 15.29 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      prep.last-date AT ROW 15.81 COL 71 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     prep.wood-type AT ROW 15.81 COL 114 COLON-ALIGNED
+     prep.wood-type AT ROW 15.76 COL 109 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     prep.carton-d AT ROW 16.48 COL 18 COLON-ALIGNED
+     prep.carton-d AT ROW 16.24 COL 17 COLON-ALIGNED
           LABEL "Depth"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     prep.last-est-no AT ROW 16.76 COL 71 COLON-ALIGNED FORMAT "x(8)"
+     prep.last-est-no AT ROW 17.91 COL 17 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     prep.last-order AT ROW 16.76 COL 114 COLON-ALIGNED FORMAT ">>>>>>>>"
+     prep.last-order AT ROW 17.91 COL 53 COLON-ALIGNED
+          LABEL "Last Order" FORMAT ">>>>>>>>"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     fi_job-no AT ROW 17.71 COL 71 COLON-ALIGNED
-     fi_job-no2 AT ROW 17.71 COL 87 COLON-ALIGNED
-     prep.i-no AT ROW 2.43 COL 17 COLON-ALIGNED HELP
+     prep.last-job-no AT ROW 17.91 COL 83 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     prep.last-job-no2 AT ROW 17.91 COL 100 COLON-ALIGNED
+          LABEL "-"
+          VIEW-AS FILL-IN 
+          SIZE 4.4 BY 1
+     prep.i-no AT ROW 2.19 COL 17 COLON-ALIGNED HELP
           "Enter R/M Item Number"
           LABEL "RM Item #" FORMAT "x(10)"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     fi_cad# AT ROW 12.52 COL 17 COLON-ALIGNED WIDGET-ID 2
-     fi_fil# AT ROW 12.52 COL 52.2 COLON-ALIGNED WIDGET-ID 6
-     prep.procat AT ROW 9.57 COL 113 COLON-ALIGNED WIDGET-ID 8
+     prep.cadNo AT ROW 12.19 COL 17 COLON-ALIGNED WIDGET-ID 2
+          VIEW-AS FILL-IN 
+          SIZE 16.4 BY 1
+     prep.fileNo AT ROW 12.19 COL 44 COLON-ALIGNED WIDGET-ID 6
+          VIEW-AS FILL-IN 
+          SIZE 16.4 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE NO-VALIDATE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     prep.procat AT ROW 7.19 COL 113 COLON-ALIGNED WIDGET-ID 8
+          LABEL "(RM)"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      "%" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.91 COL 121
+          SIZE 3 BY .62 AT ROW 9.1 COL 124
      "Owner" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 10.91 COL 95
+          SIZE 8 BY .62 AT ROW 9.1 COL 104
      "Die" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 13.86 COL 36
+          SIZE 8 BY .62 AT ROW 13.62 COL 38
      "Carton" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 13.86 COL 21
-     RECT-2 AT ROW 13.62 COL 6
-     RECT-3 AT ROW 10.67 COL 80
+          SIZE 8 BY .62 AT ROW 13.62 COL 21
+     RECT-2 AT ROW 13.38 COL 8
      RECT-4 AT ROW 1.1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE NO-VALIDATE THREE-D 
@@ -509,16 +501,18 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN prep.disposal-date IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN fi_job-no IN FRAME F-Main
-   2 4                                                                  */
-/* SETTINGS FOR FILL-IN fi_job-no2 IN FRAME F-Main
-   2 4                                                                  */
+/* SETTINGS FOR FILL-IN prep.fgcat IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN prep.i-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN prep.last-est-no IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN prep.last-job-no IN FRAME F-Main
+   2 4                                                                  */
+/* SETTINGS FOR FILL-IN prep.last-job-no2 IN FRAME F-Main
+   2 4 EXP-LABEL                                                        */
 /* SETTINGS FOR FILL-IN prep.last-order IN FRAME F-Main
-   EXP-FORMAT                                                           */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN prep.loc IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN prep.loc-bin IN FRAME F-Main
@@ -534,6 +528,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN prep.owner[1] IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN prep.owner[2] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prep.procat IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN prep.spare-dec-1 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
@@ -554,7 +550,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -823,7 +819,6 @@ DO:
    {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -849,7 +844,6 @@ DO:
     END.
     {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -896,71 +890,12 @@ END.
 
 &Scoped-define SELF-NAME prep.fgcat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.fgcat V-table-Win
-ON LEAVE OF prep.fgcat IN FRAME F-Main /* FG Category */
+ON LEAVE OF prep.fgcat IN FRAME F-Main /* Category (FG) */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-fgcat(INPUT YES) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fi_cad#
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cad# V-table-Win
-ON LEAVE OF fi_cad# IN FRAME F-Main /* Cad  # */
-DO:
-  ASSIGN {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fi_fil#
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_fil# V-table-Win
-ON LEAVE OF fi_fil# IN FRAME F-Main /* File  # */
-DO:
-  ASSIGN {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fi_job-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_job-no V-table-Win
-ON LEAVE OF fi_job-no IN FRAME F-Main /* Last Job # Used */
-DO:
-  /*IF LASTKEY NE -1 THEN DO:
-    APPLY "choose" TO btn_go.
-  END.*/
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_job-no V-table-Win
-ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main /* Last Job # Used */
-DO:
-  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fi_job-no2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_job-no2 V-table-Win
-ON LEAVE OF fi_job-no2 IN FRAME F-Main /* - */
-DO:
-  /*IF LASTKEY NE -1 THEN DO:
-    APPLY "choose" TO btn_go.
-  END.*/
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1004,16 +939,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME prep.mat-type
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.mat-type V-table-Win
-ON VALUE-CHANGED OF prep.mat-type IN FRAME F-Main /* Last Estimate */
-DO:
-  prep.mat-type:SCREEN-VALUE = CAPS(prep.mat-type:screen-value) .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME prep.mat-type
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.mat-type V-table-Win
@@ -1041,6 +966,15 @@ DO:
    {&methods/lValidateError.i NO}                                                  
 END.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.mat-type V-table-Win
+ON VALUE-CHANGED OF prep.mat-type IN FRAME F-Main /* Material Type */
+DO:
+  prep.mat-type:SCREEN-VALUE = CAPS(prep.mat-type:screen-value) .
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1081,23 +1015,10 @@ END.
 
 &Scoped-define SELF-NAME prep.procat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.procat V-table-Win
-ON LEAVE OF prep.procat IN FRAME F-Main /* RM Category */
+ON LEAVE OF prep.procat IN FRAME F-Main /* (RM) */
 DO:
     IF LASTKEY NE -1 THEN DO:
     RUN valid-rmcat NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME prep.vend-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.vend-no V-table-Win
-ON LEAVE OF prep.vend-no IN FRAME F-Main /* RM Category */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-    RUN valid-vend NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -1154,6 +1075,19 @@ DO:
    {&methods/lValidateError.i NO}
 END.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prep.vend-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.vend-no V-table-Win
+ON LEAVE OF prep.vend-no IN FRAME F-Main /* Vendor # */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+    RUN valid-vend NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1218,6 +1152,24 @@ PROCEDURE adm-row-available :
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-update-mode V-table-Win 
+PROCEDURE check-update-mode :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER op-in-update AS LOGICAL INIT NO NO-UNDO.
+
+IF prep.dscr:SENSITIVE IN FRAME {&FRAME-NAME} EQ YES THEN do:
+    op-in-update = YES .
+END.  
+
 
 END PROCEDURE.
 
@@ -1338,12 +1290,10 @@ PROCEDURE enable-prep-job :
 ------------------------------------------------------------------------------*/
 
    DO WITH FRAME {&FRAME-NAME}:
-     ASSIGN fi_job-no:SENSITIVE = YES
-            fi_job-no2:SENSITIVE = YES
-
-            /* gdm - 12010903*/
-            fi_cad#:SENSITIVE = TRUE
-            fi_fil#:SENSITIVE = TRUE
+     ASSIGN prep.last-job-no:SENSITIVE = YES
+            prep.last-job-no2:SENSITIVE = YES
+            prep.fileNo:SENSITIVE = TRUE
+            prep.cadNo:SENSITIVE = TRUE
             .
    END.
 END PROCEDURE.
@@ -1351,12 +1301,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-apply-entry V-table-Win
-PROCEDURE local-apply-entry:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-apply-entry V-table-Win 
+PROCEDURE local-apply-entry :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1373,11 +1319,9 @@ RUN updatePrice.
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
 PROCEDURE local-assign-record :
@@ -1387,11 +1331,6 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* gdm - 12010903*/
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN fi_cad# fi_fil#. 
-  END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -1404,8 +1343,6 @@ PROCEDURE local-assign-record :
    {sys/inc/k16bb.i prep.die-w}
    {sys/inc/k16bb.i prep.die-l}
   END.
-
-  RUN reftable-values (NO).
 
   /* gdm - 01270904 - IF FLAG IS YES _ CREATE RM ITEM RECORD */  
   IF v_rmcrtflg THEN RUN RM-item-create.      
@@ -1431,11 +1368,10 @@ PROCEDURE local-cancel-record :
     /* Code placed here will execute AFTER standard behavior.    */
     if li-create-cnt <= 1 then hld-code = "".
 
-    ASSIGN fi_job-no:SENSITIVE = NO
-           fi_job-no2:SENSITIVE = NO
-           /* gdm - 12010903*/
-           fi_cad#:SENSITIVE = FALSE
-           fi_fil#:SENSITIVE = FALSE.
+    ASSIGN prep.last-job-no:SENSITIVE = NO
+           prep.last-job-no2:SENSITIVE = NO
+           prep.cadNo:SENSITIVE = FALSE
+           prep.fileNo:SENSITIVE = FALSE.
   END.
 END PROCEDURE.
 
@@ -1461,8 +1397,6 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/prep.i}
   ASSIGN
-    fi_job-no = ""
-    fi_job-no2 = 0
     uom_dscr = "Each"
     li-create-cnt = li-create-cnt + 1.  /* to reset hld-code in cancel-record */
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'prepfly-target':U,OUTPUT char-hdl).
@@ -1473,7 +1407,7 @@ PROCEDURE local-create-record :
     FIND CURRENT prep NO-ERROR.
   END.
 
-  display prep.uom uom_dscr fi_job-no fi_job-no2 with frame {&frame-name}.
+  display prep.uom uom_dscr with frame {&frame-name}.
 
   /* auto assign */
   if hld-code EQ "" AND prep.code EQ "" THEN DO:
@@ -1529,15 +1463,6 @@ PROCEDURE local-create-record :
      prep.code = v-code + if v-int ne 9999 then string(v-int + 1,"9999") else "0001".
   end.
 
-  /* gdm - 12010903*/
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN fi_cad# = ""
-           fi_fil# = ""
-           fi_cad#:SCREEN-VALUE = "" 
-           fi_fil#:SCREEN-VALUE = "". 
-
-  END.
-
   disp prep.amtz prep.ml prep.simon with frame {&frame-name}.
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1586,15 +1511,13 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN reftable-values(INPUT YES).
-
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   ls-time = IF AVAIL prep THEN STRING(prep.prep-time,"HH:MM:SS") ELSE "".
 
-  disp ls-time fi_job-no fi_job-no2 fi_cad# fi_fil# with frame {&frame-name}.
+  disp ls-time with frame {&frame-name}.
 
   ll-corr = NO.
   RUN UpdatePrice.
@@ -1604,28 +1527,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable V-table-Win 
-PROCEDURE check-update-mode :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE OUTPUT PARAMETER op-in-update AS LOGICAL INIT NO NO-UNDO.
-
-IF prep.dscr:SENSITIVE IN FRAME {&FRAME-NAME} EQ YES THEN do:
-    op-in-update = YES .
-END.  
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable V-table-Win 
 PROCEDURE local-enable :
@@ -1647,12 +1548,10 @@ PROCEDURE local-enable :
      fi_strip-loc-bin:SENSITIVE = NO
      fi_blank-loc:SENSITIVE = NO
      fi_blank-loc-bin:SENSITIVE = NO
-     fi_job-no:SENSITIVE = NO
-     fi_job-no2:SENSITIVE = NO
-
-     /* gdm - 12010903*/
-     fi_cad#:SENSITIVE = FALSE
-     fi_fil#:SENSITIVE = FALSE.
+     prep.last-job-no:SENSITIVE = NO
+     prep.last-job-no2:SENSITIVE = NO
+     prep.cadNo:SENSITIVE = FALSE
+     prep.fileNo:SENSITIVE = FALSE.
 
   END.
 
@@ -1788,15 +1687,13 @@ PROCEDURE local-update-record :
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
     RUN set-code IN WIDGET-HANDLE(char-hdl) (prep.code).
 
-  ASSIGN fi_job-no:SENSITIVE = NO
-         fi_job-no2:SENSITIVE = NO
-         /* gdm - 12010903*/
-         fi_cad#:SENSITIVE = FALSE
-         fi_fil#:SENSITIVE = FALSE.
+  ASSIGN prep.last-job-no:SENSITIVE = NO
+         prep.last-job-no2:SENSITIVE = NO
+         prep.cadNo:SENSITIVE = FALSE
+         prep.fileNo:SENSITIVE = FALSE.
 
 
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1831,74 +1728,6 @@ PROCEDURE prepfly :
 ------------------------------------------------------------------------------*/
 
   RUN dispatch ("add-record").
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reftable-values V-table-Win 
-PROCEDURE reftable-values :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-display AS LOG NO-UNDO.
-
-  /* gdm - */
-  DEF BUFFER bf-reftable FOR reftable.
- IF AVAIL prep THEN DO:
-
-    IF ip-display THEN DO:
-      ASSIGN
-        fi_job-no = prep.last-job-no
-        fi_job-no2 = prep.last-job-no2
-         .
-        FIND FIRST bf-reftable NO-LOCK
-               WHERE bf-reftable.reftable EQ "PREPCADFILE"
-                 AND bf-reftable.rec_key  EQ prep.rec_key NO-ERROR.  
-        IF AVAIL bf-reftable THEN DO:
-           ASSIGN fi_cad# =  bf-reftable.CODE
-                  fi_fil# = bf-reftable.code2.
-        END.
-        RELEASE bf-reftable.
-    END.
-    ELSE
-    DO:
-       IF fi_job-no NE prep.last-job-no OR
-          fi_job-no2 NE prep.last-job-no2 THEN
-          DO:
-             REPEAT:
-                DO:
-                   ASSIGN
-                      prep.last-job-no = fi_job-no
-                      prep.last-job-no2 = fi_job-no2.
-                   LEAVE.
-                END.
-             END.
-          END.
-
-       /* should be able to save blank cad# and fil# */
-       /*IF fi_cad# NE "" OR fi_fil# NE "" THEN DO:*/
-
-          FIND FIRST bf-reftable EXCLUSIVE-LOCK
-               WHERE bf-reftable.reftable EQ "PREPCADFILE"
-                 AND bf-reftable.rec_key  EQ prep.rec_key NO-ERROR.  
-          IF NOT AVAIL bf-reftable THEN DO:
-             CREATE bf-reftable.
-             ASSIGN bf-reftable.reftable = "PREPCADFILE"
-                    bf-reftable.rec_key  = prep.rec_key.
-          END.
-
-          ASSIGN bf-reftable.code  = fi_cad#
-                 bf-reftable.code2 = fi_fil#.
-
-          RELEASE bf-reftable.
-       /*END.*/
-    END. /* else */
-  END.
-
 
 END PROCEDURE.
 
@@ -2401,7 +2230,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-vend B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-vend V-table-Win 
 PROCEDURE valid-vend :
 /*------------------------------------------------------------------------------
   Purpose:     
