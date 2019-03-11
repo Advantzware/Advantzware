@@ -3907,7 +3907,6 @@ PROCEDURE ipLoadUtilitiesTable :
         IMPORT {&tablename}.
         IF {&tablename}.programName = "module.r" /* Module Maint */
         OR {&tablename}.programName = "w-head.r" /* Help Maint */
-        OR {&tablename}.programName = "ImpMaster.r" /* Import Master */ THEN ASSIGN 
             {&tablename}.securityLevel = 1000.
         ELSE ASSIGN 
             {&tablename}.securityLevel = 900.
