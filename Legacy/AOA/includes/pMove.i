@@ -1,4 +1,4 @@
-/* pMove.i - rstark - 12.20.2018 - used in queryBldr.w */
+/* pMove.i - rstark - 12.20.2018 - used in dynSubjct.w */
 
 IF NOT AVAILABLE {1} THEN RETURN.
 /* first column, can't move up */

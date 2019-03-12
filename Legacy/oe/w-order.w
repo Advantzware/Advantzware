@@ -1441,7 +1441,6 @@ PROCEDURE make-buttons-insensitive :
   Parameters:  <none>
   Notes:    To ensure user does not navigate to prior order
 -------------------------------------------------------------*/
-
     IF VALID-HANDLE(h_optonote) THEN
        RUN make-insensitive IN h_optonote.
     IF VALID-HANDLE(h_smartmsg) THEN
@@ -1471,8 +1470,6 @@ PROCEDURE make-buttons-sensitive :
   Parameters:  <none>
   Notes:   
 -------------------------------------------------------------*/
-
-
     IF VALID-HANDLE(h_optonote) THEN
        RUN make-sensitive IN h_optonote.
     IF VALID-HANDLE(h_smartmsg) THEN
@@ -1488,7 +1485,7 @@ PROCEDURE make-buttons-sensitive :
     IF VALID-HANDLE(h_movecol) THEN
        RUN make-sensitive IN h_movecol. 
     IF VALID-HANDLE(h_movecol-2) THEN
-       RUN make-insensitive IN h_movecol-2.
+       RUN make-sensitive IN h_movecol-2.
    RETURN.
        
 END PROCEDURE.

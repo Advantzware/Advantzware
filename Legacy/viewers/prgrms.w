@@ -181,7 +181,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
           BGCOLOR 15 FONT 4
-     prgrms.securityLevelUser AT ROW 1.24 COL 131 COLON-ALIGNED WIDGET-ID 24
+     prgrms.securityLevelUser AT ROW 1.24 COL 137 COLON-ALIGNED WIDGET-ID 24
           VIEW-AS FILL-IN 
           SIZE 6.2 BY 1
           BGCOLOR 15 
@@ -202,9 +202,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.module AT ROW 2.43 COL 131 COLON-ALIGNED WIDGET-ID 30
-          VIEW-AS FILL-IN 
-          SIZE 14.2 BY 1
+     prgrms.module AT ROW 2.43 COL 137 COLON-ALIGNED WIDGET-ID 160
+          VIEW-AS COMBO-BOX INNER-LINES 20
+          LIST-ITEMS "","AP","AR","DC","EQ","FG","GL","HS","JC","NS","OE","PO","RM","SB","TS" 
+          DROP-DOWN-LIST
+          SIZE 8 BY 1
           BGCOLOR 15 
      prgrms.can_run AT ROW 3.62 COL 15 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
@@ -674,6 +676,7 @@ PROCEDURE local-display-fields :
   DEFINE VARIABLE cImageFile AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  prgrms.module:SCREEN-VALUE IN FRAME {&FRAME-NAME} = " ".
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .

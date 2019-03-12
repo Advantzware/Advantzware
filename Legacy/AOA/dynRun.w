@@ -156,8 +156,16 @@ DEFINE BUTTON btnXLS
 
 DEFINE VARIABLE svRecipients AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 85 BY 2.38
+     SIZE 70 BY 2.38
      BGCOLOR 15 .
+
+DEFINE VARIABLE svSetAlignment AS CHARACTER INITIAL "Custom" 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "Columns", "Columns",
+"Rows", "Rows",
+"Custom", "Custom"
+     SIZE 13 BY 1.91 NO-UNDO.
 
 DEFINE RECTANGLE RECT-PANEL
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -231,20 +239,21 @@ DEFINE FRAME outputFrame
      btnRunResults AT ROW 1.48 COL 95 HELP
           "Results Grid" WIDGET-ID 254
      svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
+     svSetAlignment AT ROW 1.71 COL 79 NO-LABEL WIDGET-ID 646
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
      svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
      svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
      svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
      svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
      svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
-     svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
      btnCSV AT ROW 1.48 COL 103 HELP
           "Excel CSV" WIDGET-ID 140
+     svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
      btnHTML AT ROW 1.48 COL 135 HELP
           "HTML" WIDGET-ID 144
-     svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
      btnView AT ROW 1.48 COL 151 HELP
           "Jasper Viewer" WIDGET-ID 148
+     svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
      btnAddEmail AT ROW 2.19 COL 3 HELP
           "Add Recipents" WIDGET-ID 636
      btnPrint AT ROW 1.48 COL 143 HELP
@@ -255,6 +264,8 @@ DEFINE FRAME outputFrame
           "PDF" WIDGET-ID 146
      btnXLS AT ROW 1.48 COL 111 HELP
           "Excel XLS" WIDGET-ID 150
+     "Set Alignment" VIEW-AS TEXT
+          SIZE 13.6 BY .62 AT ROW 1 COL 79 WIDGET-ID 650
      "Email:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.48 COL 2 WIDGET-ID 640
      RECT-PANEL AT ROW 1.24 COL 94 WIDGET-ID 256
@@ -732,13 +743,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY svRecipients svShowAll svShowReportHeader svShowReportFooter 
-          svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter 
-          svShowParameters 
+  DISPLAY svRecipients svSetAlignment svShowAll svShowReportHeader 
+          svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
+          svShowGroupFooter svShowParameters 
       WITH FRAME outputFrame IN WINDOW C-Win.
-  ENABLE btnRunResults svRecipients svShowAll svShowReportHeader 
+  ENABLE btnRunResults svRecipients svSetAlignment svShowAll svShowReportHeader 
          svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
-         svShowGroupFooter btnCSV btnHTML svShowParameters btnView btnAddEmail 
+         btnCSV svShowGroupFooter btnHTML btnView svShowParameters btnAddEmail 
          btnPrint btnDOCX btnPDF btnXLS 
       WITH FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}

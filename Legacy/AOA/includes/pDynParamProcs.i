@@ -81,19 +81,19 @@ PROCEDURE pParamAction :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
-    DEFINE VARIABLE cAction  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cValue   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE idx      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iParamID AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cAction    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cValue     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cParamName AS CHARACTER NO-UNDO.
     
     FIND FIRST ttDynAction
          WHERE ttDynAction.paramWidget EQ iphWidget
          NO-ERROR.
     IF NOT AVAILABLE ttDynAction THEN RETURN.
     
-    iParamID = ttDynAction.paramID.
+    cParamName = ttDynAction.paramName.
     FOR EACH ttDynAction
-        WHERE ttDynAction.actionParamID EQ iParamID
+        WHERE ttDynAction.actionParamName EQ cParamName
           AND ttDynAction.action NE "",
         FIRST dynParam
         WHERE dynParam.paramID EQ ttDynAction.paramID
@@ -152,8 +152,8 @@ PROCEDURE pParamValidate :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
-    DEFINE VARIABLE cErrorMsg AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cParamID  AS INTEGER   NO-UNDO.    
+    DEFINE VARIABLE cErrorMsg  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParamName AS CHARACTER NO-UNDO.    
 
     /* check and run action procedures */
     RUN pParamAction (iphWidget).
@@ -180,9 +180,9 @@ PROCEDURE pParamValidate :
     END. /* if validateProc */
 
     /* check and run description procedures */
-    cParamID = ttDynAction.paramID.
+    cParamName = ttDynAction.paramName.
     FOR EACH ttDynAction
-        WHERE ttDynAction.actionParamID EQ cParamID
+        WHERE ttDynAction.actionParamName EQ cParamName
         :
         IF ttDynAction.descriptionProc NE "" AND
            CAN-DO(hDynDescripProc:INTERNAL-ENTRIES,ttDynAction.descriptionProc) THEN DO:
@@ -255,7 +255,7 @@ PROCEDURE pSaveDynParamValues :
             hWidget = hWidget:FIRST-CHILD
             .
         DO WHILE VALID-HANDLE(hWidget):
-            IF CAN-DO("EDITOR,TOGGLE-BOX",hWidget:TYPE) THEN
+            IF CAN-DO("EDITOR,RADIO-SET,TOGGLE-BOX",hWidget:TYPE) THEN
             ASSIGN
                 idx = idx + 1
                 dynParamValue.paramName[idx]     = hWidget:NAME

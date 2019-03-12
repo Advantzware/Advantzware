@@ -515,6 +515,8 @@ DEFINE FRAME DEFAULT-FRAME
 DEFINE FRAME viewFrame
      btnAddEmail AT ROW 17.91 COL 8 HELP
           "Add Recipents" WIDGET-ID 636
+     btnRunNow AT ROW 19.81 COL 80 HELP
+          "Run Now" WIDGET-ID 634
      Task.taskID AT ROW 1.24 COL 12 COLON-ALIGNED WIDGET-ID 504
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
@@ -538,12 +540,12 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
-     btnRunNow AT ROW 19.81 COL 80 HELP
-          "Run Now" WIDGET-ID 634
      cPrgmTitle AT ROW 2.43 COL 77 COLON-ALIGNED WIDGET-ID 616
-     Task.module AT ROW 2.43 COL 128 COLON-ALIGNED WIDGET-ID 648
-          VIEW-AS FILL-IN 
-          SIZE 10.2 BY 1
+     Task.module AT ROW 2.43 COL 130 COLON-ALIGNED WIDGET-ID 160
+          VIEW-AS COMBO-BOX INNER-LINES 20
+          LIST-ITEMS " ","AP","AR","DC","EQ","FG","GL","HS","JC","NS","OE","PO","RM","SB","TS" 
+          DROP-DOWN-LIST
+          SIZE 8.2 BY 1
           BGCOLOR 15 
      Task.frequency AT ROW 3.62 COL 14 NO-LABEL WIDGET-ID 604
           VIEW-AS RADIO-SET VERTICAL
@@ -605,10 +607,6 @@ DEFINE FRAME viewFrame
           LABEL "4"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     Task.dayOfMonth[5] AT ROW 7.43 COL 60 WIDGET-ID 532
-          LABEL "5"
-          VIEW-AS TOGGLE-BOX
-          SIZE 6 BY .81
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 21 ROW 7.43
@@ -617,6 +615,10 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     Task.dayOfMonth[5] AT ROW 7.43 COL 60 WIDGET-ID 532
+          LABEL "5"
+          VIEW-AS TOGGLE-BOX
+          SIZE 6 BY .81
      Task.dayOfMonth[6] AT ROW 7.43 COL 68 WIDGET-ID 534
           LABEL "6"
           VIEW-AS TOGGLE-BOX
@@ -653,6 +655,8 @@ DEFINE FRAME viewFrame
           LABEL "14"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnClose AT ROW 1 COL 136 HELP
+          "Close" WIDGET-ID 72
      Task.dayOfMonth[15] AT ROW 9.33 COL 28 WIDGET-ID 556
           LABEL "15"
           VIEW-AS TOGGLE-BOX
@@ -673,8 +677,6 @@ DEFINE FRAME viewFrame
           LABEL "19"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnClose AT ROW 1 COL 136 HELP
-          "Close" WIDGET-ID 72
      Task.dayOfMonth[20] AT ROW 9.33 COL 68 WIDGET-ID 558
           LABEL "20"
           VIEW-AS TOGGLE-BOX
@@ -703,10 +705,6 @@ DEFINE FRAME viewFrame
           LABEL "26"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     Task.dayOfMonth[27] AT ROW 10.29 COL 68 WIDGET-ID 572
-          LABEL "27"
-          VIEW-AS TOGGLE-BOX
-          SIZE 6 BY .81
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 21 ROW 7.43
@@ -715,6 +713,10 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     Task.dayOfMonth[27] AT ROW 10.29 COL 68 WIDGET-ID 572
+          LABEL "27"
+          VIEW-AS TOGGLE-BOX
+          SIZE 6 BY .81
      Task.dayOfMonth[28] AT ROW 10.29 COL 76 WIDGET-ID 574
           LABEL "28"
           VIEW-AS TOGGLE-BOX
@@ -794,10 +796,6 @@ DEFINE FRAME viewFrame
           "Add" WIDGET-ID 20
      btnCancel AT ROW 19.86 COL 55 HELP
           "Cancel" WIDGET-ID 28
-     btnCopy AT ROW 19.86 COL 31 HELP
-          "Copy" WIDGET-ID 24
-     btnDelete AT ROW 19.86 COL 39 HELP
-          "Delete" WIDGET-ID 26
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 21 ROW 7.43
@@ -806,16 +804,20 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     btnCopy AT ROW 19.86 COL 31 HELP
+          "Copy" WIDGET-ID 24
+     btnDelete AT ROW 19.86 COL 39 HELP
+          "Delete" WIDGET-ID 26
      btnReset AT ROW 19.86 COL 47 HELP
           "Reset" WIDGET-ID 22
      btnUpdate AT ROW 19.86 COL 15 HELP
           "Update/Save" WIDGET-ID 18
      "Frequency:" VIEW-AS TEXT
           SIZE 11 BY 1 AT ROW 3.62 COL 2 WIDGET-ID 618
-     "Format:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 13.62 COL 72 WIDGET-ID 614
      "Recipients:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 17.19 COL 3 WIDGET-ID 602
+     "Format:" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 13.62 COL 72 WIDGET-ID 614
      transPanel AT ROW 19.57 COL 14 WIDGET-ID 16
      navPanel AT ROW 19.57 COL 105 WIDGET-ID 280
      RECT-2 AT ROW 5.76 COL 27 WIDGET-ID 620
@@ -1040,7 +1042,7 @@ ASSIGN
 
 /* SETTINGS FOR TOGGLE-BOX Task.lastOfMonth IN FRAME viewFrame
    NO-ENABLE 4 5                                                        */
-/* SETTINGS FOR FILL-IN Task.module IN FRAME viewFrame
+/* SETTINGS FOR COMBO-BOX Task.module IN FRAME viewFrame
    NO-ENABLE 4                                                          */
 /* SETTINGS FOR RECTANGLE navPanel IN FRAME viewFrame
    NO-ENABLE                                                            */
@@ -2118,6 +2120,7 @@ PROCEDURE pDisplay :
 ------------------------------------------------------------------------------*/
     IF AVAILABLE Task THEN
     DO WITH FRAME viewFrame:
+        Task.module:SCREEN-VALUE = " ".
         DISPLAY {&displayFields}.
         ENABLE {&transInit}.
         APPLY "LEAVE":U TO Task.taskID.
