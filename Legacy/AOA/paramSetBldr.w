@@ -490,6 +490,7 @@ PROCEDURE pDynParameterSet :
         lResizable    = YES
         lSelectable   = YES
         lSensitive    = YES
+        lIsVisible    = YES
         .
     RUN pFrame (
         cPoolName,
@@ -502,6 +503,7 @@ PROCEDURE pDynParameterSet :
         NO,
         YES,
         dynParamSet.setName,
+        lIsVisible,
         OUTPUT hFrame
         ).
     RUN pSetFrameGrid (hFrame:HANDLE).
@@ -516,6 +518,7 @@ PROCEDURE pDynParameterSet :
             hFrame:ROW + .48,
             dynParamSet.setWidth - 2.2,
             dynParamSet.setHeight - 1.6,
+            lIsVisible,
             OUTPUT hRectangle
             ).
         hRectangle:HIDDEN = NO.
@@ -526,7 +529,8 @@ PROCEDURE pDynParameterSet :
             hFrame,
             hRectangle:COL + 2,
             hRectangle:ROW - .24,
-            dynParamSet.setTitle
+            dynParamSet.setTitle,
+            lIsVisible
             ).
     END. /* if rectangle */
     FOR EACH dynParamSetDtl NO-LOCK
@@ -770,6 +774,7 @@ PROCEDURE pViewAs :
     DEFINE VARIABLE jdx AS INTEGER NO-UNDO.
     DEFINE VARIABLE kdx AS INTEGER NO-UNDO.
 
+    lIsVisible = YES.
     CASE dynParam.viewAs:
         WHEN "COMBO-BOX" THEN
         RUN pComboBox (
@@ -785,6 +790,7 @@ PROCEDURE pViewAs :
             cInitialValue,
             dynParam.innerLines,
             lSensitive,
+            lIsVisible,
             OUTPUT hWidget
             ).
         WHEN "EDITOR" THEN DO:
@@ -801,6 +807,7 @@ PROCEDURE pViewAs :
                 CAN-DO(cAction,"VERTICAL"),
                 cInitialValue,
                 lSensitive,
+                lIsVisible,
                 OUTPUT hWidget
                 ).
             IF CAN-DO(cAction,"EMAIL") THEN DO:
@@ -833,6 +840,7 @@ PROCEDURE pViewAs :
                 dParamHeight,
                 cInitialValue,
                 lSensitive,
+                lIsVisible,
                 OUTPUT ipdCol,
                 OUTPUT hWidget
                 ).
@@ -847,6 +855,7 @@ PROCEDURE pViewAs :
                         ipdCol,
                         ipdRow,
                         NO,
+                        lIsVisible,
                         hWidget,
                         OUTPUT ipdCol,
                         OUTPUT hCalendar
@@ -861,6 +870,7 @@ PROCEDURE pViewAs :
                         ipdCol,
                         ipdRow,
                         NO,
+                        lIsVisible,
                         hWidget,
                         hCalendar
                         ).
@@ -881,6 +891,7 @@ PROCEDURE pViewAs :
             dParamHeight,
             cInitialValue,
             lSensitive,
+            lIsVisible,
             OUTPUT hWidget
             ).
         WHEN "SELECTION-LIST" THEN DO:
@@ -897,6 +908,7 @@ PROCEDURE pViewAs :
             cInitialItems,
             cInitialValue,
             lSensitive,
+            lIsVisible,
             OUTPUT hWidget
             ).
         END. /* selection-list */
@@ -912,6 +924,7 @@ PROCEDURE pViewAs :
             dParamHeight,
             cInitialValue,
             lSensitive,
+            lIsVisible,
             OUTPUT hWidget
             ).
     END CASE.
