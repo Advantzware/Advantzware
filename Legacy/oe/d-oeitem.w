@@ -6630,6 +6630,9 @@ PROCEDURE OnSaveButton :
     RUN validate-all NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+    IF (decimal(oe-ordl.cost:SCREEN-VALUE) * decimal(oe-ordl.qty:SCREEN-VALUE) / 1000 ) GT DECIMAL(oe-ordl.t-price:SCREEN-VALUE) THEN
+        MESSAGE "Warning: Sell Price is less than the cost." VIEW-AS ALERT-BOX WARNING .
+
     APPLY "go" TO FRAME {&FRAME-NAME}.
  
     IF runship-char EQ "RUN&SHIP Prompt" AND ip-type = "ADD" THEN 
