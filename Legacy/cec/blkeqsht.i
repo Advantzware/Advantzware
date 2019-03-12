@@ -32,10 +32,10 @@
          ll-ans = yes.
          MESSAGE "WARNING:  Blank width and/or Blank Length dimensions on" SKIP
               "the Specs tab does not match the Width and/or Length"       SKIP
-              "dimensions on the Box Design tab (Form "
+              "dimensions on the Layout tab (Form "
               + trim(STRING(bf-ef.form-no,">>")) + ")"                 
               SKIP(1)
-              "                  Specs         Box Design"
+              "                  Layout        Specs     "
               SKIP(1)
               "Width:     "  bf-ef.trim-w "            "  ROUND(bf-eb.t-len * bf-eb.num-len,v-num-dec)  SKIP
               "Length:    "  bf-ef.trim-l "            "  ROUND(bf-eb.t-wid * bf-eb.num-wid,v-num-dec)  SKIP
@@ -50,10 +50,10 @@
          ll-ans = yes.
          MESSAGE "WARNING:  Blank width and/or Blank Length dimensions on" SKIP
               "the Specs tab does not match the Width and/or Length"       SKIP
-              "dimensions on the Box Design tab (Form "
+              "dimensions on the Layout tab (Form "
               + trim(STRING(bf-ef.form-no,">>")) + ")"                 
               SKIP(1)
-              "                  Specs         Box Design"
+              "                  Layout        Specs     "
               SKIP(1)
               "Width:     "  bf-ef.trim-w "            "  ROUND(bf-eb.t-wid * bf-eb.num-len,v-num-dec)  SKIP
               "Length:    "  bf-ef.trim-l "            "  ROUND(bf-eb.t-len * bf-eb.num-wid,v-num-dec)  SKIP
@@ -99,15 +99,20 @@
          (
           v-cecscrn-char NE "Decimal" 
          ) 
+         AND lCeSizeVal
           then do:
          ll-ans = yes. 
-         message "WARNING:  Blank width and/or length not matching Box Design Page."
-                /*"F4 to abort print.". */
-                skip
-                "W: " v-cum-wid bf-eb.t-wid skip
-                "L:" v-cum-len bf-eb.t-len
-                      
-               view-as alert-box warning button ok-cancel update ll-ans.
+
+          MESSAGE "WARNING:  Blank width and/or Blank Length dimensions on" SKIP
+              "the Specs tab does not match the Width and/or Length"       SKIP
+              "dimensions on the Box Design tab (Form "
+              + trim(STRING(bf-ef.form-no,">>")) + ")"                 
+              SKIP(1)
+              "                 Specs      Box Design    "
+              SKIP(1)
+              "Width:     "  bf-eb.t-wid "            "  v-cum-wid  SKIP
+              "Length:    "  bf-eb.t-len "            "  v-cum-len  SKIP
+              VIEW-AS ALERT-BOX WARNING BUTTON OK-CANCEL UPDATE ll-ans.                
       /*  pause 10 no-message.  */
         if not ll-ans then return error.
       end.
