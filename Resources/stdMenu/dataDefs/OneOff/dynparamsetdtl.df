@@ -42,7 +42,7 @@ ADD FIELD "rec_key" OF "dynParamSetDtl" AS character
   POSITION 5
   MAX-WIDTH 42
   HELP "Enter Rec Key Value"
-  ORDER 150
+  ORDER 170
 
 ADD FIELD "paramName" OF "dynParamSetDtl" AS character 
   FORMAT "x(20)"
@@ -60,7 +60,7 @@ ADD FIELD "paramPrompt" OF "dynParamSetDtl" AS logical
   POSITION 11
   MAX-WIDTH 1
   HELP "Toggle Parameter Prompt"
-  ORDER 120
+  ORDER 140
 
 ADD FIELD "initialValue" OF "dynParamSetDtl" AS character 
   FORMAT "x(20)"
@@ -80,7 +80,7 @@ ADD FIELD "paramCol" OF "dynParamSetDtl" AS decimal
   COLUMN-LABEL "Col"
   HELP "Enter Parameter Column"
   DECIMALS 2
-  ORDER 100
+  ORDER 120
 
 ADD FIELD "paramRow" OF "dynParamSetDtl" AS decimal 
   FORMAT ">>9.99"
@@ -91,7 +91,7 @@ ADD FIELD "paramRow" OF "dynParamSetDtl" AS decimal
   COLUMN-LABEL "Row"
   HELP "Enter Parameter Row"
   DECIMALS 2
-  ORDER 110
+  ORDER 130
 
 ADD FIELD "initialItems" OF "dynParamSetDtl" AS character 
   FORMAT "x(60)"
@@ -109,17 +109,7 @@ ADD FIELD "action" OF "dynParamSetDtl" AS character
   POSITION 19
   MAX-WIDTH 40
   HELP "Enter Action Instructions"
-  ORDER 130
-
-ADD FIELD "actionParamID" OF "dynParamSetDtl" AS integer 
-  FORMAT ">,>>>,>>9"
-  INITIAL "0"
-  LABEL "Action Parameter ID"
-  POSITION 20
-  MAX-WIDTH 4
-  COLUMN-LABEL "Action ID"
-  HELP "Enter Action Parameter ID"
-  ORDER 140
+  ORDER 150
 
 ADD FIELD "initializeProc" OF "dynParamSetDtl" AS character 
   FORMAT "x(40)"
@@ -148,6 +138,35 @@ ADD FIELD "descriptionProc" OF "dynParamSetDtl" AS character
   HELP "Enter Description Procedure"
   ORDER 70
 
+ADD FIELD "actionParamName" OF "dynParamSetDtl" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Action Parameter Name"
+  POSITION 24
+  MAX-WIDTH 40
+  HELP "Enter Action Parameter Name"
+  ORDER 160
+
+ADD FIELD "paramHeight" OF "dynParamSetDtl" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Height"
+  POSITION 25
+  MAX-WIDTH 17
+  HELP "Enter Parameter Height"
+  DECIMALS 2
+  ORDER 100
+
+ADD FIELD "paramWidth" OF "dynParamSetDtl" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Width"
+  POSITION 26
+  MAX-WIDTH 17
+  HELP "Enter Parameter Width"
+  DECIMALS 2
+  ORDER 110
+
 ADD INDEX "pi-dynParamSetDtl" ON "dynParamSetDtl" 
   AREA "Index"
   PRIMARY
@@ -170,4 +189,4 @@ ADD INDEX "si-rec_key" ON "dynParamSetDtl"
 PSC
 cpstream=ISO8859-1
 .
-0000004039
+0000004416
