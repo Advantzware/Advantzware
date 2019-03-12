@@ -58,6 +58,7 @@ DEF VAR lActive AS LOGICAL NO-UNDO.
 DEFINE VARIABLE v-shipto-zone AS CHARACTER NO-UNDO.
 DEFINE VARIABLE begin_rno LIKE oe-rell.r-no NO-UNDO.
 DEFINE VARIABLE ending_rno LIKE oe-rell.r-no NO-UNDO.
+DEFINE VARIABLE cPartNo AS CHARACTER NO-UNDO .
 DO TRANSACTION:
      {sys/ref/CustList.i NEW}
     {sys/inc/custlistform.i ""OT1"" }
@@ -105,7 +106,7 @@ END.
     IF lv-sort-by EQ "ord-no"    THEN STRING(oe-rell.ord-no,"9999999999") ELSE ~
     IF lv-sort-by EQ "release#"  THEN STRING(oe-relh.release#,"9999999999") ELSE ~
     IF lv-sort-by EQ "cust-no"   THEN oe-relh.cust-no ELSE ~
-    IF lv-sort-by EQ "part-no"   THEN itemfg.part-no                                                                                                    ELSE ~
+    IF lv-sort-by EQ "cPartno"   THEN get-part-no()                                                                                                      ELSE ~
     IF lv-sort-by EQ "ship-id"   THEN oe-relh.ship-id                                                                                                   ELSE ~
     IF lv-sort-by EQ "ord-date"  THEN STRING(YEAR(oe-relh.rel-date),"9999") + STRING(MONTH(oe-relh.rel-date),"99") + STRING(DAY(oe-relh.rel-date),"99") ELSE ~
     IF lv-sort-by EQ "i-no"      THEN oe-rell.i-no                                                                                                      ELSE ~
@@ -152,7 +153,7 @@ END.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-relh.release# ~
-oe-rell.ord-no oe-rell.po-no oe-relh.cust-no itemfg.part-no oe-relh.ship-id ~
+oe-rell.ord-no oe-rell.po-no oe-relh.cust-no get-part-no() @ cPartNo oe-relh.ship-id ~
 oe-rell.i-no oe-relh.rel-date oe-rell.job-no oe-rell.job-no2 ~
 oe-relh.printed oe-rell.qty itemfg.q-onh get-shipto-zone() @ v-shipto-zone 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-relh.release# ~
@@ -203,6 +204,14 @@ fi_i-no fi_po-no fi_job-no fi_job-no2 fi_sort-by
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-shipto-zone B-table-Win 
 FUNCTION get-shipto-zone RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-part-no B-table-Win 
+FUNCTION get-part-no RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -298,7 +307,7 @@ DEFINE BROWSE Browser-Table
       oe-rell.ord-no FORMAT ">>>>>9":U WIDTH 9 LABEL-BGCOLOR 14
       oe-rell.po-no FORMAT "x(15)":U WIDTH 22 LABEL-BGCOLOR 14
       oe-relh.cust-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
-      itemfg.part-no FORMAT "x(15)":U WIDTH 22 LABEL-BGCOLOR 14
+      get-part-no() @ cPartno COLUMN-LABEL "Cust Part #" FORMAT "x(15)":U WIDTH 22 LABEL-BGCOLOR 14
       oe-relh.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
       oe-rell.i-no COLUMN-LABEL "FG Item Number" FORMAT "x(15)":U
@@ -469,8 +478,8 @@ use-index r-no"
 "oe-rell.po-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.oe-relh.cust-no
 "oe-relh.cust-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.itemfg.part-no
-"itemfg.part-no" ? "x(15)" "character" ? ? ? 14 ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > "_<CALC>"
+"get-part-no() @ cPartno" "Cust Part #" "x(15)" "character" ? ? ? 14 ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.oe-relh.ship-id
 "oe-relh.ship-id" "Ship To" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.oe-rell.i-no
@@ -1675,6 +1684,26 @@ FUNCTION get-shipto-zone RETURNS CHARACTER
   END.
 
   RETURN "".
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-part-no B-table-Win 
+FUNCTION get-part-no RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+ DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO .
+  FIND FIRST oe-ordl NO-LOCK
+             WHERE oe-ordl.company EQ oe-rell.company
+               AND oe-ordl.ord-no EQ oe-rell.ord-no 
+               AND oe-ordl.i-no EQ oe-rell.i-no 
+               AND oe-ordl.line EQ oe-rell.line NO-ERROR .
+        IF AVAILABLE oe-ordl THEN
+           cReturn =  oe-ordl.part-no .
+        ELSE cReturn = "" .
+  RETURN cReturn .
 
 END FUNCTION.
 
