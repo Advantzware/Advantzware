@@ -424,7 +424,7 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
     DO TRANSACTION:
         FIND FIRST config EXCLUSIVE-LOCK.
         config.taskerLastExecuted = NOW.
-        RELEASE config.
+        FIND FIRST config NO-LOCK.
     END. /* do trans */
 
 END PROCEDURE.
@@ -743,7 +743,7 @@ PROCEDURE pTaskEmails :
                                 bCueCardText.createdFor  = bTaskEmail.user-id
                                 .
                     END. /* if avail cuecardtext */
-                END. /* ifavail config and cuecard */
+                END. /* if avail config and cuecard */
             END. /* if cue card message */
             ELSE DO:
                 ASSIGN

@@ -1,4 +1,4 @@
-/* pSetOrder.i - rstark - 12.20.2018 - used in queryBldr.w */
+/* pSetOrder.i - rstark - 12.20.2018 - used in dynSubjct.w */
 
 FOR EACH b{1}
     WHERE b{1}.subjectID EQ dynSubject.subjectID

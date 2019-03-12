@@ -43,7 +43,8 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE cCompany    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMode       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE char-hdl    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iParamSetID AS INTEGER NO-UNDO.
+DEFINE VARIABLE hParamBldr  AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iParamSetID AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lSortMove   AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE pHandle     AS HANDLE    NO-UNDO.
 
@@ -88,13 +89,14 @@ btnRestoreDefaults btnSortMove
 
 /* Custom List Definitions                                              */
 /* transPanel,transInit,transUpdate,displayFields,enabledFields,List-6  */
-&Scoped-define transPanel btnUpdate btnCancel btnAdd btnCopy btnDelete ~
-btnReset 
-&Scoped-define transInit btnUpdate btnAdd btnCopy btnDelete 
+&Scoped-define transPanel RECT-SETBUILDER btnSetBuilder btnUpdate btnCancel ~
+btnAdd btnCopy btnDelete btnReset 
+&Scoped-define transInit btnSetBuilder btnUpdate btnAdd btnCopy btnDelete 
 &Scoped-define transUpdate btnUpdate btnCancel btnReset 
-&Scoped-define displayFields dynParamSet.paramSetID dynParamSet.setName ~
-dynParamSet.paramSetType dynParamSet.setWidth dynParamSet.setHeight ~
-dynParamSet.setRectangle dynParamSet.setTitle dynParamSet.paramPrompt 
+&Scoped-define displayFields RECT-SETBUILDER dynParamSet.paramSetID ~
+dynParamSet.setName dynParamSet.paramSetType dynParamSet.setWidth ~
+dynParamSet.setHeight dynParamSet.setRectangle dynParamSet.setTitle ~
+dynParamSet.paramPrompt 
 &Scoped-define enabledFields dynParamSet.setName dynParamSet.paramSetType ~
 dynParamSet.setWidth dynParamSet.setHeight dynParamSet.setRectangle ~
 dynParamSet.setTitle dynParamSet.paramPrompt 
@@ -153,6 +155,12 @@ DEFINE BUTTON btnReset
      LABEL "Reset" 
      SIZE 8 BY 1.91 TOOLTIP "Reset".
 
+DEFINE BUTTON btnSetBuilder 
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U
+     LABEL "Parameter Set Builder" 
+     SIZE 8 BY 1.91 TOOLTIP "Parameter Set Builder".
+
 DEFINE BUTTON btnUpdate 
      IMAGE-UP FILE "Graphics/32x32/pencil.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.ico":U NO-FOCUS FLAT-BUTTON
@@ -163,6 +171,10 @@ DEFINE RECTANGLE RECT-PANEL
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 49.6 BY 2.38
      BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-SETBUILDER
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 9.8 BY 2.38.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -201,6 +213,8 @@ DEFINE FRAME F-Main
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME viewFrame
+     btnSetBuilder AT ROW 1.48 COL 74 HELP
+          "Parameter Set Builder" WIDGET-ID 286
      btnUpdate AT ROW 11.71 COL 20 HELP
           "Update/Save" WIDGET-ID 128
      dynParamSet.paramSetID AT ROW 1.71 COL 33 COLON-ALIGNED WIDGET-ID 132
@@ -245,6 +259,7 @@ DEFINE FRAME viewFrame
      btnReset AT ROW 11.71 COL 52 HELP
           "Reset" WIDGET-ID 126
      RECT-PANEL AT ROW 11.48 COL 19 WIDGET-ID 130
+     RECT-SETBUILDER AT ROW 1.24 COL 73 WIDGET-ID 284
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 76 ROW 1.95
@@ -335,6 +350,8 @@ ASSIGN
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnReset IN FRAME viewFrame
    NO-ENABLE 1 3                                                        */
+/* SETTINGS FOR BUTTON btnSetBuilder IN FRAME viewFrame
+   1 2                                                                  */
 /* SETTINGS FOR BUTTON btnUpdate IN FRAME viewFrame
    1 2 3                                                                */
 /* SETTINGS FOR TOGGLE-BOX dynParamSet.paramPrompt IN FRAME viewFrame
@@ -345,6 +362,8 @@ ASSIGN
    4 5                                                                  */
 /* SETTINGS FOR RECTANGLE RECT-PANEL IN FRAME viewFrame
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-SETBUILDER IN FRAME viewFrame
+   NO-ENABLE 1 4                                                        */
 /* SETTINGS FOR FILL-IN dynParamSet.setHeight IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParamSet.setName IN FRAME viewFrame
@@ -461,6 +480,26 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME viewFrame
+&Scoped-define SELF-NAME btnSetBuilder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSetBuilder s-object
+ON CHOOSE OF btnSetBuilder IN FRAME viewFrame /* Parameter Set Builder */
+DO:
+    IF NOT VALID-HANDLE(hParamBldr) THEN
+    RUN AOA/paramSetBldr.w PERSISTENT SET hParamBldr (
+        THIS-PROCEDURE,
+        "Set",
+        dynParamSet.paramSetID
+        ).
+    ELSE
+    RUN pReset IN hParamBldr (dynParamSet.paramSetID).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME F-Main
 &Scoped-define SELF-NAME btnSortMove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSortMove s-object
 ON CHOOSE OF btnSortMove IN FRAME F-Main /* Sort/Move */
@@ -682,8 +721,8 @@ PROCEDURE pCRUD :
                         dynParamSet.paramPrompt:SCREEN-VALUE  = "yes"
                         dynParamSet.setRectangle:SCREEN-VALUE = "yes"
                         dynParamSet.paramSetType:SCREEN-VALUE = "System"
-                        dynParamSet.setWidth:SCREEN-VALUE     = "135"
-                        dynParamSet.setHeight:SCREEN-VALUE    = "21"
+                        dynParamSet.setWidth:SCREEN-VALUE     = "119"
+                        dynParamSet.setHeight:SCREEN-VALUE    = "21.43"
                         .
                     DISABLE btnReset.
                 END. /* add */
@@ -809,6 +848,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetParamSetID s-object 
+PROCEDURE pGetParamSetID :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "CONTAINER" "pGetParamSetDtl"}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSettings s-object 
 PROCEDURE pGetSettings :
 /*------------------------------------------------------------------------------
@@ -876,6 +929,19 @@ PROCEDURE pNavPanel :
     END CASE.
     IF AVAILABLE dynParamSet THEN
     APPLY "VALUE-CHANGED":U TO BROWSE dynParamSetBrowse.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRefresh s-object 
+PROCEDURE pRefresh :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
 
 END PROCEDURE.
 

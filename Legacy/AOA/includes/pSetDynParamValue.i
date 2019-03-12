@@ -33,9 +33,9 @@ PROCEDURE pSetDynParamValue:
             dynParamValue.paramValueID     = ipiParamValueID
             dynParamValue.paramTitle       = dynSubject.subjectTitle
             dynParamValue.module           = dynSubject.module
+            dynParamValue.outputFormat     = dynSubject.outputFormat
             dynParamValue.paramDescription = IF ipcUserID EQ "{&defaultUser}" THEN "System Default"
                                              ELSE "User Default"
-            dynParamValue.outputFormat     = dynSubject.outputFormat
             .
         FOR EACH {1}SubjectParamSet
             WHERE {1}SubjectParamSet.subjectID EQ ipiSubjectID,
@@ -76,6 +76,15 @@ PROCEDURE pSetDynParamValue:
                 dynParamValue.calcParam[idx]      = {1}SubjectColumn.calcParam
                 .
         END. /* each {1}SubjectColumn */
+        FOR EACH {1}SubjectParamSet NO-LOCK
+            WHERE {1}SubjectParamSet.subjectID EQ ipiSubjectID
+               BY {1}SubjectParamSet.sortOrder
+            :
+            ASSIGN
+                dynParamValue.paramSetID[{1}SubjectParamSet.sortOrder] = {1}SubjectParamSet.paramSetID
+                dynParamValue.isVisible[{1}SubjectParamSet.sortOrder]  = {1}SubjectParamSet.isVisible
+                .
+        END. /* each {1}SubjectParamSet */
         FIND CURRENT dynParamValue NO-LOCK.
     END. /* not avail */
 
