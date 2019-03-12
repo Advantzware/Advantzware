@@ -669,7 +669,18 @@ do v-local-loop = 1 to v-local-copies:
              v-over-run = IF AVAIL xoe-ordl THEN trim(string(xoe-ordl.over-pct,">>9.99%")) ELSE
                           IF AVAIL xoe-ord  THEN trim(string(xoe-ord.over-pct,">>9.99%"))  ELSE "".
              v-under-run = IF AVAIL xoe-ordl THEN trim(string(xoe-ordl.under-pct,">>9.99%")) ELSE
-                           IF AVAIL xoe-ord  THEN trim(string(xoe-ord.under-pct,">>9.99%"))  ELSE "".            
+                           IF AVAIL xoe-ord  THEN trim(string(xoe-ord.under-pct,">>9.99%"))  ELSE "".  
+             
+            FIND FIRST bf-eb NO-LOCK
+                 WHERE bf-eb.company = est.company
+                   AND bf-eb.est-no = est.est-no
+                   AND bf-eb.form-no EQ 0 NO-ERROR .
+             
+             v-i-line[3] = "Size: "  + if avail bf-eb   then
+                     trim(string({sys/inc/k16v.i bf-eb.len},">,>>9.99")) + " x " +
+                     trim(string({sys/inc/k16v.i bf-eb.wid},">,>>9.99")) + " x " +
+                     trim(string({sys/inc/k16v.i bf-eb.dep},">,>>9.99")) else "" .
+
              PUT "<R3><C1><#15><C30><P16><B> SET HEADER<P7></B>" SKIP(2)
                  "Job #: " AT 3 v-job-prt "<C25>Our Order #: " v-ord-no 
                  "<C67>Our Date: " v-ord-date SKIP
