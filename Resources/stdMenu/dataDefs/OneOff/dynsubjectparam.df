@@ -33,7 +33,7 @@ ADD FIELD "rec_key" OF "dynSubjectParamSet" AS character
   POSITION 4
   MAX-WIDTH 42
   HELP "Enter Rec Key Value"
-  ORDER 60
+  ORDER 70
 
 ADD FIELD "setRow" OF "dynSubjectParamSet" AS decimal 
   FORMAT ">>9.99"
@@ -67,6 +67,15 @@ ADD FIELD "sortOrder" OF "dynSubjectParamSet" AS integer
   HELP "Enter Sort Order"
   ORDER 20
 
+ADD FIELD "isVisible" OF "dynSubjectParamSet" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Is Visible"
+  POSITION 10
+  MAX-WIDTH 1
+  HELP "Toggle Is Visible"
+  ORDER 60
+
 ADD INDEX "pi-subjectID" ON "dynSubjectParamSet" 
   AREA "Index"
   UNIQUE
@@ -89,4 +98,4 @@ ADD INDEX "si-rec_key" ON "dynSubjectParamSet"
 PSC
 cpstream=ISO8859-1
 .
-0000002187
+0000002376
