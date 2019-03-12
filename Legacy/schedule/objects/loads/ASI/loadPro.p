@@ -848,9 +848,18 @@ FOR EACH job-hdr NO-LOCK
       END. /* avail stype */
       
       DO i = 1 TO 10:
-        IF eb.i-dscr[i] NE "" THEN 
-        userField[i + 40] = setUserField(i + 40,eb.i-dscr[i]).
-        unitFound = YES.
+        /* folding */
+        IF eb.i-dscr[i] NE "" AND est.est-type GE 5 THEN
+        ASSIGN 
+            userField[i + 40] = setUserField(i + 40,eb.i-dscr[i])
+            unitFound = YES
+            .
+        /* corrugated */
+        IF eb.i-dscr2[i] NE "" AND est.est-type LT 5 THEN
+        ASSIGN 
+            userField[i + 40] = setUserField(i + 40,eb.i-dscr2[i])
+            unitFound = YES
+            .
       END. /* do i */
     END. /* avail eb */
     
