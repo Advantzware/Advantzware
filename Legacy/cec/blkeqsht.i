@@ -10,11 +10,11 @@
   DEFINE VARIABLE lCeSizeVal AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cCeSizeVal AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lCeSizeFnd AS LOGICAL NO-UNDO.
-  RUN sys/ref/nk1look.p (INPUT cocode, "OESETXFER", "L" /* Logical */, NO /* check by cust */, 
+  RUN sys/ref/nk1look.p (INPUT cocode, "CeSizeVal", "L" /* Logical */, NO /* check by cust */, 
       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
       OUTPUT cCeSizeVal, OUTPUT lCeSizeFnd).
   lCeSizeVal = LOGICAL(cCeSizeVal) NO-ERROR.
-  
+
   IF v-cecscrn-char NE "Decimal" THEN
      v-num-dec = 3.
   ELSE
