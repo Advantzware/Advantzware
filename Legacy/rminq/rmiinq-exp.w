@@ -449,7 +449,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no rd-fgexp
 ON LEAVE OF begin_job-no IN FRAME rd-fgexp /* From Job No# */
 DO:
-   assign {&self-name}.
+    IF length(begin_job-no:SCREEN-VALUE) < 6 THEN
+        begin_job-no:SCREEN-VALUE = FILL(" ",6 - LENGTH(trim(begin_job-no:SCREEN-VALUE))) + TRIM(begin_job-no:SCREEN-VALUE).
+    assign {&self-name}.
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -601,7 +604,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job rd-fgexp
 ON LEAVE OF end_job IN FRAME rd-fgexp /* To Job No# */
 DO:
-     assign {&self-name}.
+     IF length(end_job:SCREEN-VALUE) < 6 THEN
+        end_job:SCREEN-VALUE = FILL(" ",6 - LENGTH(trim(end_job:SCREEN-VALUE))) + TRIM(end_job:SCREEN-VALUE).
+    assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -997,7 +1002,10 @@ SESSION:SET-WAIT-STATE ("general").
 
 IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
 IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
-                  
+IF length(begin_job-no) < 6 THEN
+    begin_job-no = FILL(" ",6 - LENGTH(trim(begin_job-no))) + TRIM(begin_job-no).                  
+IF length(end_job) < 6 THEN
+    end_job = FILL(" ",6 - LENGTH(trim(end_job))) + TRIM(end_job).
  
  FOR EACH rm-rcpth                     
         WHERE rm-rcpth.company = cocode
