@@ -1114,7 +1114,8 @@ FOR EACH job-hdr NO-LOCK
       END. /* do i */
       IF NOT unitFound THEN /* ink units not used, load in order found */
       DO i = 1 TO 10:
-        userField[i + 40] = eb.i-dscr[i].
+        userField[i + 40] = IF est.est-type LE 4 THEN eb.i-dscr[i]
+                            ELSE eb.i-dscr2[i].
       END. /* do i */
     END. /* avail eb */
 
