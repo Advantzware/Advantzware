@@ -6630,8 +6630,8 @@ PROCEDURE OnSaveButton :
     RUN validate-all NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    IF DECIMAL(oe-ordl.cost:SCREEN-VALUE) GT DECIMAL(oe-ordl.t-price:SCREEN-VALUE) THEN
-        MESSAGE "Sell Price is less than the cost." VIEW-AS ALERT-BOX WARNING .
+    IF (decimal(oe-ordl.cost:SCREEN-VALUE) * decimal(oe-ordl.qty:SCREEN-VALUE) / 1000 ) GT DECIMAL(oe-ordl.t-price:SCREEN-VALUE) THEN
+        MESSAGE "Warning: Sell Price is less than the cost." VIEW-AS ALERT-BOX WARNING .
 
     APPLY "go" TO FRAME {&FRAME-NAME}.
  
