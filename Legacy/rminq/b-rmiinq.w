@@ -587,12 +587,14 @@ DO:
             RUN epCanAccess IN hPgmSecurity ("rminq/b-rmiinq.w", "", OUTPUT lResult).
     DELETE OBJECT hPgmSecurity.
 
-  IF lResult THEN DO:
-
-    RUN rminq/d-rmiinq.w (ROWID(rm-rcpth),ROWID(rm-rdtlh), "update", OUTPUT lv-rowid) .
-
-    RUN repo-query (ROWID(rm-rcpth)).
-
+  IF lResult AND AVAIL rm-rcpth THEN DO:
+   IF INDEX(PROGRAM-NAME(2),"rminq/w-rmiinq.")  NE 0 THEN do:
+       RUN rminq/d-rmiinq.w (ROWID(rm-rcpth),ROWID(rm-rdtlh), "view", OUTPUT lv-rowid) .
+   END.
+   ELSE do:
+       RUN rminq/d-rmiinq.w (ROWID(rm-rcpth),ROWID(rm-rdtlh), "update", OUTPUT lv-rowid) .
+       RUN repo-query (ROWID(rm-rcpth)).
+   END.
   END.
 END.
 

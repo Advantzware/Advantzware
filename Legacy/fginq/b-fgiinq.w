@@ -518,6 +518,18 @@ fg-rdtlh.rita-code eq fg-rcpth.rita-code"
 &Scoped-define BROWSE-NAME Browser-Table
 &Scoped-define SELF-NAME Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON MOUSE-SELECT-DBLCLICK OF Browser-Table IN FRAME F-Main
+DO:
+    DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
+    IF AVAIL fg-rcpth THEN
+        RUN viewers/d-fg-rcpth.w (RECID(fg-rcpth),RECID(fg-rdtlh), "view", OUTPUT lv-rowid) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */

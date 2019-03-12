@@ -71,7 +71,7 @@ fg-rcpth.po-no fg-rcpth.po-line fg-rcpth.job-no fg-rcpth.job-no2 ~
 fg-rcpth.trans-date fg-rcpth.rita-code fg-rdtlh.cust-no fg-rdtlh.loc ~
 fg-rdtlh.loc-bin fg-rdtlh.qty fg-rdtlh.tag fg-rdtlh.cost fg-rdtlh.cases ~
 fg-rdtlh.qty-case fg-rdtlh.stacks-unit fg-rdtlh.partial fg-rdtlh.stack-code ~
-fg-rdtlh.tot-wt fg-rcpth.pur-uom fg-rcpth.post-date fg-rdtlh.reject-code[1] 
+fg-rdtlh.tot-wt fg-rcpth.pur-uom fg-rdtlh.reject-code[1] 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame fg-rcpth fg-rdtlh
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame fg-rcpth
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Dialog-Frame fg-rdtlh
@@ -90,11 +90,11 @@ fg-rcpth.job-no fg-rcpth.job-no2 fg-rcpth.trans-date fg-rcpth.rita-code ~
 fg-rdtlh.cust-no fg-rdtlh.loc fg-rdtlh.loc-bin fg-rdtlh.qty fg-rdtlh.tag ~
 fg-rdtlh.cost fg-rdtlh.cases fg-rdtlh.qty-case fg-rdtlh.stacks-unit ~
 fg-rdtlh.partial fg-rdtlh.stack-code fg-rdtlh.tot-wt fg-rcpth.pur-uom ~
-fg-rcpth.post-date fg-rdtlh.reject-code[1]  
+fg-rdtlh.reject-code[1]  
 &Scoped-define ENABLED-TABLES fg-rcpth fg-rdtlh
 &Scoped-define FIRST-ENABLED-TABLE fg-rcpth
 &Scoped-define SECOND-ENABLED-TABLE fg-rdtlh
-&Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 Btn_OK Btn_Done ~
+&Scoped-Define ENABLED-OBJECTS btnCalendar-1 Btn_OK Btn_Done ~
 Btn_Cancel RECT-21 RECT-38 
 &Scoped-Define DISPLAYED-FIELDS fg-rcpth.i-no fg-rcpth.po-no ~
 fg-rcpth.po-line fg-rcpth.job-no fg-rcpth.job-no2 fg-rcpth.trans-date ~
@@ -108,7 +108,7 @@ fg-rdtlh.reject-code[1] fg-rdtlh.enteredBy fg-rdtlh.enteredDT
 &Scoped-define SECOND-DISPLAYED-TABLE fg-rdtlh
 &Scoped-Define DISPLAYED-OBJECTS fi_pallet fi_qty-pallet fi_bol-ship ~
 fi_vend-no fi_vend-name fi_BenQtyBef fi_ben-qty fi_tr-time fi_bol-no 
-&Scoped-define calendarPopup btnCalendar-1 btnCalendar-2
+&Scoped-define calendarPopup btnCalendar-1 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -170,11 +170,6 @@ FUNCTION get-fg-qty RETURNS INTEGER
 /* Definitions of the field level widgets                               */
 
 DEFINE BUTTON btnCalendar-1 
-    IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-    LABEL "" 
-    SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
-
-DEFINE BUTTON btnCalendar-2 
     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
     LABEL "" 
     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
@@ -372,9 +367,8 @@ DEFINE FRAME Dialog-Frame
     fg-rcpth.post-date AT ROW 13.52 COL 22 COLON-ALIGNED
     LABEL "Posted" FORMAT "99/99/9999"
     VIEW-AS FILL-IN 
-    SIZE 18 BY 1
+    SIZE 23 BY 1
     BGCOLOR 15 FONT 1
-    btnCalendar-2 AT ROW 13.52 COL 42
     fi_vend-no AT ROW 12.33 COL 22 COLON-ALIGNED
     fi_vend-name AT ROW 12.33 COL 66 COLON-ALIGNED
     fi_BenQtyBef AT ROW 14.71 COL 22.2 COLON-ALIGNED
@@ -457,8 +451,6 @@ ASSIGN
     FRAME Dialog-Frame:HIDDEN     = TRUE.
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME Dialog-Frame
    3                                                                    */
-/* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME Dialog-Frame
-   3                                                                    */
 /* SETTINGS FOR FILL-IN fg-rdtlh.cases IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rdtlh.cost IN FRAME Dialog-Frame
@@ -500,7 +492,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN fg-rcpth.po-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rcpth.post-date IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                 */
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                        */
 /* SETTINGS FOR FILL-IN fg-rcpth.pur-uom IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rdtlh.qty IN FRAME Dialog-Frame
@@ -655,35 +647,12 @@ ON HELP OF fg-rcpth.trans-date IN FRAME Dialog-Frame /* Tr Date */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fg-rcpth.post-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.post-date Dialog-Frame
-ON HELP OF fg-rcpth.post-date IN FRAME Dialog-Frame /* post Date */
-    DO:
-        {methods/calpopup.i}
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btnCalendar-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 Dialog-Frame
 ON CHOOSE OF btnCalendar-1 IN FRAME Dialog-Frame
     DO:
         {methods/btnCalendar.i fg-rcpth.trans-date}
         APPLY "entry" TO fg-rcpth.trans-date .
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnCalendar-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 Dialog-Frame
-ON CHOOSE OF btnCalendar-2 IN FRAME Dialog-Frame
-    DO:
-        {methods/btnCalendar.i fg-rcpth.post-date}
-        APPLY "entry" TO fg-rcpth.post-date .
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1320,8 +1289,8 @@ PROCEDURE enable_UI :
         fg-rdtlh.cust-no fg-rdtlh.loc fg-rdtlh.loc-bin fg-rdtlh.qty 
         fg-rdtlh.tag fg-rdtlh.cost fg-rdtlh.cases fg-rdtlh.qty-case 
         fg-rdtlh.stacks-unit fg-rdtlh.partial fg-rdtlh.stack-code 
-        fg-rdtlh.tot-wt fg-rcpth.pur-uom fg-rcpth.post-date  
-        fg-rdtlh.reject-code[1] btnCalendar-1 btnCalendar-2 
+        fg-rdtlh.tot-wt fg-rcpth.pur-uom   
+        fg-rdtlh.reject-code[1] btnCalendar-1  
         Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
         WITH FRAME Dialog-Frame.
     VIEW FRAME Dialog-Frame.
