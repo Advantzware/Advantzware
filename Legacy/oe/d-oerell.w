@@ -878,7 +878,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     DO WITH FRAME {&FRAME-NAME}:
         IF ip-type EQ "update" THEN DISABLE oe-rell.ord-no oe-rell.rel-no oe-rell.b-ord-no.
-
+        DISABLE fi_part-no .
         IF ip-type EQ "add"  OR ip-type EQ "copy" THEN DO:
             APPLY "entry" TO oe-rell.ord-no  .
         END.
