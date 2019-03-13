@@ -174,8 +174,8 @@ DEFINE BROWSE br_table
       comb-job-no()  @ v-job-no COLUMN-LABEL "Job" FORMAT "x(9)":U
       fg-bin.loc FORMAT "x(5)":U
       fg-bin.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
-      fg-bin.tag COLUMN-LABEL "Tag" FORMAT "x(8)":U
-      fg-bin.std-mat-cost COLUMN-LABEL "Costs -->             Material" FORMAT "->>>,>>9.99<<":U
+      fg-bin.tag COLUMN-LABEL "Tag" FORMAT "x(20)":U WIDTH 27
+      fg-bin.std-mat-cost COLUMN-LABEL "Costs -->        Material" FORMAT "->>>,>>9.99<<":U
       fg-bin.std-lab-cost COLUMN-LABEL "Labor" FORMAT "->>>,>>9.99<<":U
       fg-bin.std-var-cost COLUMN-LABEL "Variable" FORMAT "->>>,>>9.99<<":U
       fg-bin.std-fix-cost COLUMN-LABEL "Fixed" FORMAT "->>>,>>9.99<<":U
@@ -186,7 +186,7 @@ DEFINE BROWSE br_table
       fg-bin.std-fix-cost
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 118 BY 6.71.
+    WITH NO-ASSIGN SEPARATORS SIZE 123 BY 6.71.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -227,7 +227,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 6.86
-         WIDTH              = 118.8.
+         WIDTH              = 123.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -271,9 +271,9 @@ ASSIGN
      _FldNameList[3]   > ASI.fg-bin.loc-bin
 "fg-bin.loc-bin" "Bin" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[4]   > ASI.fg-bin.tag
-"fg-bin.tag" "Tag" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"fg-bin.tag" "Tag" ? "character" ? ? ? ? ? ? no ? no no "27" yes no no "U" "" ""
      _FldNameList[5]   > ASI.fg-bin.std-mat-cost
-"fg-bin.std-mat-cost" "Costs -->             Material" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
+"fg-bin.std-mat-cost" "Costs -->        Material" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
      _FldNameList[6]   > ASI.fg-bin.std-lab-cost
 "fg-bin.std-lab-cost" "Labor" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
      _FldNameList[7]   > ASI.fg-bin.std-var-cost
