@@ -774,7 +774,10 @@ PROCEDURE pViewAs :
     DEFINE VARIABLE jdx AS INTEGER NO-UNDO.
     DEFINE VARIABLE kdx AS INTEGER NO-UNDO.
 
-    lIsVisible = YES.
+    ASSIGN
+        lIsVisible = YES
+        lShowLabel = YES
+        .
     CASE dynParam.viewAs:
         WHEN "COMBO-BOX" THEN
         RUN pComboBox (
