@@ -448,11 +448,8 @@ END.
 &Scoped-define SELF-NAME begin_job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no rd-fgexp
 ON LEAVE OF begin_job-no IN FRAME rd-fgexp /* From Job No# */
-DO:
-    IF length(begin_job-no:SCREEN-VALUE) < 6 THEN
-        begin_job-no:SCREEN-VALUE = FILL(" ",6 - LENGTH(trim(begin_job-no:SCREEN-VALUE))) + TRIM(begin_job-no:SCREEN-VALUE).
+DO: 
     assign {&self-name}.
-   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -603,9 +600,7 @@ END.
 &Scoped-define SELF-NAME end_job
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job rd-fgexp
 ON LEAVE OF end_job IN FRAME rd-fgexp /* To Job No# */
-DO:
-     IF length(end_job:SCREEN-VALUE) < 6 THEN
-        end_job:SCREEN-VALUE = FILL(" ",6 - LENGTH(trim(end_job:SCREEN-VALUE))) + TRIM(end_job:SCREEN-VALUE).
+DO: 
     assign {&self-name}.
 END.
 
@@ -995,6 +990,7 @@ PROCEDURE run-report :
 ------------------------------------------------------------------------------*/
 DEF VAR v-excelheader AS CHAR NO-UNDO.
 DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
+DEFINE VARIABLE cJobNo AS CHARACTER EXTENT 2 NO-UNDO .
 DEF BUFFER b-cust FOR cust.
 
 v-excelheader = buildHeader().
@@ -1002,10 +998,10 @@ SESSION:SET-WAIT-STATE ("general").
 
 IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
 IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
-IF length(begin_job-no) < 6 THEN
-    begin_job-no = FILL(" ",6 - LENGTH(trim(begin_job-no))) + TRIM(begin_job-no).                  
-IF length(end_job) < 6 THEN
-    end_job = FILL(" ",6 - LENGTH(trim(end_job))) + TRIM(end_job).
+cJobNo[1]   = FILL(" ",6 - length(TRIM(begin_job-no))) +
+                  trim(begin_job-no) + string(int(begin_job-no-2),"99") .
+cJobNo[2]   = FILL(" ",6 - length(TRIM(end_job)))   +
+                  trim(end_job)   + string(int(end_job-2),"99")  .
  
  FOR EACH rm-rcpth                     
         WHERE rm-rcpth.company = cocode
@@ -1013,10 +1009,12 @@ IF length(end_job) < 6 THEN
           AND rm-rcpth.trans-date LE end_date   
           AND rm-rcpth.i-no       GE begin_i-no  
           AND rm-rcpth.i-no       LE end_i-no  
-          AND rm-rcpth.job-no     GE begin_job-no
-          AND rm-rcpth.job-no    LE  end_job 
-          AND rm-rcpth.job-no2   GE begin_job-no-2
-          AND rm-rcpth.job-no2   LE end_job-2 NO-LOCK,
+          AND rm-rcpth.job-no     GE SUBSTR(cJobNo[1],1,6)
+          AND rm-rcpth.job-no     LE SUBSTR(cJobNo[2],1,6)
+          AND fill(" ",6 - length(trim(rm-rcpth.job-no))) +
+              trim(rm-rcpth.job-no) + string(int(rm-rcpth.job-no2),"99") GE cJobNo[1]
+          AND fill(" ",6 - length(trim(rm-rcpth.job-no))) +
+              trim(rm-rcpth.job-no) + string(int(rm-rcpth.job-no2),"99") LE cJobNo[2] NO-LOCK,
     
           EACH rm-rdtlh   
             WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no  
