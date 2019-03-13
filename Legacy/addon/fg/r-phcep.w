@@ -598,8 +598,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   ASSIGN
-     FI_beg-tag-no = ip-tag-no 
-     FI_end-tag-no = ip-tag-no
+     FI_beg-tag-no = "" 
+     FI_end-tag-no = "zzzzzzzzzzzzzzzzzzzzzz"
+     begin_userid    = USERID("ASI")
+     end_userid      = USERID("ASI")
      post-date = TODAY.
 
   RUN enable_UI.
@@ -635,10 +637,8 @@ postit:
           and fg-rctd.rita-code eq "C"
           AND fg-rctd.tag       GE FI_beg-tag-no
           AND fg-rctd.tag       LE FI_end-tag-no
-          AND ((begin_userid    LE "" AND
-                end_userid      GE "") OR
-                   (fg-rctd.created-by GE begin_userid 
-                   AND fg-rctd.created-by LE end_userid))
+          AND fg-rctd.created-by GE begin_userid 
+          AND fg-rctd.created-by LE end_userid
         no-lock,
         first itemfg
         where itemfg.company eq cocode
@@ -932,7 +932,7 @@ time_stamp = string(time,"hh:mmam").
         AND fg-rctd.loc-bin   NE ""
         AND fg-rctd.tag       GE FI_beg-tag-no 
         AND fg-rctd.tag       LE FI_end-tag-no
-        AND fg-rctd.created-by GE begin_userid 
+        AND fg-rctd.created-by GE begin_userid
         AND fg-rctd.created-by LE end_userid,
       FIRST itemfg NO-LOCK
       WHERE itemfg.company EQ cocode
