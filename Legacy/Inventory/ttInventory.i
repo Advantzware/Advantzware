@@ -55,6 +55,8 @@ DEFINE {1} TEMP-TABLE InventoryStock
     FIELD BOLID AS CHARACTER
     FIELD MachineID AS CHARACTER
     FIELD Consumer AS CHARACTER
+    FIELD SourceID AS CHARACTER
+    FIELD SourceType AS CHARACTER
     FIELD Lot AS CHARACTER
     FIELD CustomerID AS CHARACTER
     FIELD OrderID AS INTEGER
@@ -91,13 +93,17 @@ DEFINE {1} TEMP-TABLE ttInventoryStockPreLoadtag
 
 DEFINE {1} TEMP-TABLE ttInventoryStockLoadtag
      LIKE ttInventoryStockPreLoadtag
+     FIELD CountOfLabels AS INTEGER
      .    
      
 DEFINE {1} TEMP-TABLE ttInventoryStockLoadtagWIP
-    LIKE ttInventoryStockPreLoadtag
-    FIELD MachineName AS CHARACTER
+    LIKE ttInventoryStockLoadtag
     FIELD NextMachineID AS CHARACTER 
     FIELD NextMachineName AS CHARACTER
+    FIELD OrderCustomerID AS CHARACTER
+    FIELD OrderCustomerName AS CHARACTER
+    FIELD LastMachineName AS CHARACTER 
+    FIELD RMItemName AS CHARACTER 
     .
     
 DEFINE {1} TEMP-TABLE InventoryStockAlias
@@ -121,6 +127,8 @@ DEFINE {1} TEMP-TABLE InventoryTransaction
     FIELD LocationID AS CHARACTER 
     FIELD CreatedTime AS DATETIME
     FIELD CreatedBy AS CHARACTER
+    FIELD ScannedTime AS DATETIME
+    FIELD ScannedBy AS CHARACTER
     FIELD PostedTime AS DATETIME
     FIELD PostedBy AS CHARACTER 
     FIELD TransactionTime AS DATETIME

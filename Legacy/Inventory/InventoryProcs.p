@@ -14,27 +14,27 @@
 
 /* ***************************  Definitions  ************************** */
 {Inventory/ttInventory.i SHARED}
-DEFINE VARIABLE gcStatusStockPreLoadtag AS CHARACTER INITIAL "PreLoadtag".
-DEFINE VARIABLE gcStatusStockLoadtag AS CHARACTER INITIAL "Loadtag".
-DEFINE VARIABLE gcStatusStockInitial AS CHARACTER INITIAL "Initialized".
-DEFINE VARIABLE gcStatusStockReceived AS CHARACTER INITIAL "On-Hand".
+DEFINE VARIABLE gcStatusStockPreLoadtag    AS CHARACTER INITIAL "PreLoadtag".
+DEFINE VARIABLE gcStatusStockLoadtag       AS CHARACTER INITIAL "Loadtag".
+DEFINE VARIABLE gcStatusStockInitial       AS CHARACTER INITIAL "Initialized".
+DEFINE VARIABLE gcStatusStockReceived      AS CHARACTER INITIAL "On-Hand".
 
 DEFINE VARIABLE gcStatusTransactionInitial AS CHARACTER INITIAL "Pending".
-DEFINE VARIABLE gcStatusTransactionPosted AS CHARACTER INITIAL "Posted".
+DEFINE VARIABLE gcStatusTransactionPosted  AS CHARACTER INITIAL "Posted".
 
-DEFINE VARIABLE gcTransactionTypeReceive AS CHARACTER INITIAL "R".
-DEFINE VARIABLE gcTransactionTypeTransfer AS CHARACTER INITIAL "T".
-DEFINE VARIABLE gcTransactionTypeConsume AS CHARACTER INITIAL "I".
-DEFINE VARIABLE gcTransactionTypeShip AS CHARACTER INITIAL "S".
+DEFINE VARIABLE gcTransactionTypeReceive   AS CHARACTER INITIAL "R".
+DEFINE VARIABLE gcTransactionTypeTransfer  AS CHARACTER INITIAL "T".
+DEFINE VARIABLE gcTransactionTypeConsume   AS CHARACTER INITIAL "I".
+DEFINE VARIABLE gcTransactionTypeShip      AS CHARACTER INITIAL "S".
 
-DEFINE VARIABLE gcItemTypeWIP AS CHARACTER INITIAL "WP".
-DEFINE VARIABLE gcItemTypeFG AS CHARACTER INITIAL "FG".
-DEFINE VARIABLE gcItemTypeRM AS CHARACTER INITIAL "RM".
+DEFINE VARIABLE gcItemTypeWIP              AS CHARACTER INITIAL "WP".
+DEFINE VARIABLE gcItemTypeFG               AS CHARACTER INITIAL "FG".
+DEFINE VARIABLE gcItemTypeRM               AS CHARACTER INITIAL "RM".
 
-DEFINE VARIABLE giLengthUniquePrefix AS INTEGER INITIAL 20.
-DEFINE VARIABLE giLengthAlias AS INTEGER INITIAL 25.
+DEFINE VARIABLE giLengthUniquePrefix       AS INTEGER   INITIAL 20.
+DEFINE VARIABLE giLengthAlias              AS INTEGER   INITIAL 25.
 
-DEFINE VARIABLE giIDTemp           AS INTEGER. /*TESTING ONLY DELETE BEFORE COMMIT*/
+DEFINE VARIABLE giIDTemp                   AS INTEGER. /*TESTING ONLY DELETE BEFORE COMMIT*/
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -52,7 +52,7 @@ FUNCTION fGetNextStockID RETURNS CHARACTER PRIVATE
     (ipcType AS CHARACTER) FORWARD.
 
 FUNCTION fGetNextTransactionID RETURNS INTEGER PRIVATE
-	(  ) FORWARD.
+    (  ) FORWARD.
 
 FUNCTION fGetNumberSuffix RETURNS INTEGER PRIVATE
     (ipcFullText AS CHARACTER,
@@ -65,29 +65,29 @@ FUNCTION fGetNumberSuffix RETURNS INTEGER PRIVATE
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE CheckInventoryStockIDAlias:
-/*------------------------------------------------------------------------------
- Purpose: Checks to see if passed ID is an alias or a true stock ID
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcLookupID AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opcInventoryStockID AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opcStockIDAlias AS CHARACTER NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose: Checks to see if passed ID is an alias or a true stock ID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLookupID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcInventoryStockID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcStockIDAlias AS CHARACTER NO-UNDO.
 
-FIND FIRST InventoryStockAlias NO-LOCK 
-    WHERE InventoryStockAlias.Company EQ ipcCompany
-    AND InventoryStockAlias.StockIDAlias EQ ipcLookupID
-    NO-ERROR.
-IF AVAILABLE InventoryStockAlias THEN 
-    ASSIGN
-        opcInventoryStockID = InventoryStockAlias.InventoryStockID
-        opcStockIDAlias = InventoryStockAlias.StockIDAlias
-        . 
-ELSE 
-    ASSIGN
-        opcInventoryStockID = ipcLookupID
-        opcStockIDAlias = ""
-        . 
+    FIND FIRST InventoryStockAlias NO-LOCK 
+        WHERE InventoryStockAlias.Company EQ ipcCompany
+        AND InventoryStockAlias.StockIDAlias EQ ipcLookupID
+        NO-ERROR.
+    IF AVAILABLE InventoryStockAlias THEN 
+        ASSIGN
+            opcInventoryStockID = InventoryStockAlias.InventoryStockID
+            opcStockIDAlias     = InventoryStockAlias.StockIDAlias
+            . 
+    ELSE 
+        ASSIGN
+            opcInventoryStockID = ipcLookupID
+            opcStockIDAlias     = ""
+            . 
     
 
 END PROCEDURE.
@@ -110,7 +110,8 @@ PROCEDURE CreateInventoryStockFromLoadtag:
     FIND FIRST ttInventoryStockLoadtag NO-LOCK
         WHERE ttInventoryStockLoadtag.InventoryStockID EQ ipcInventoryStockID
         NO-ERROR. 
-    IF AVAILABLE ttInventoryStockLoadtag THEN DO:        
+    IF AVAILABLE ttInventoryStockLoadtag THEN 
+    DO:        
         RUN pCreateStockFromLoadtag(BUFFER ttInventoryStockLoadtag, iplCreateReceipt, iplPost, OUTPUT oplCreated, OUTPUT opcMessage).
         
     END.
@@ -230,109 +231,110 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
 END PROCEDURE.
 
 PROCEDURE CreateTransactionTransfer:
-/*------------------------------------------------------------------------------
- Purpose: Wrapper function to create a transfer
- Notes: 0 quantity transaction
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcInventoryStockID AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcWarehouseID AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER iplPost AS LOGICAL NO-UNDO.
-DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO.
-DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper function to create a transfer
+     Notes: 0 quantity transaction
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcInventoryStockID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcWarehouseID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPost AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE iTransactionID AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTransactionID AS INTEGER NO-UNDO.
 
-RUN pCreateTransactionAndReturnID(ipcCompany, ipcInventoryStockID, gcTransactionTypeTransfer, 0, "", ipcWarehouseID, ipcLocationID, 
-    OUTPUT iTransactionID, OUTPUT oplCreated, OUTPUT opcMessage).
-IF iplPost THEN 
-    RUN PostTransaction(iTransactionID).
+    RUN pCreateTransactionAndReturnID(ipcCompany, ipcInventoryStockID, gcTransactionTypeTransfer, 0, "", ipcWarehouseID, ipcLocationID, 
+        OUTPUT iTransactionID, OUTPUT oplCreated, OUTPUT opcMessage).
+    IF iplPost THEN 
+        RUN PostTransaction(iTransactionID).
 
 END PROCEDURE.
 
 PROCEDURE CreateTransactionConsume:
-/*------------------------------------------------------------------------------
- Purpose: Wrapper function to create an Issue/Consume transaction
- Notes: No location 
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcInventoryStockID AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipdQuantityConsumed AS DECIMAL NO-UNDO.
-DEFINE INPUT PARAMETER ipcQuantityUOM AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER iplPost AS LOGICAL NO-UNDO.
-DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO.
-DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper function to create an Issue/Consume transaction
+     Notes: No location 
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcInventoryStockID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantityConsumed AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcQuantityUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPost AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE iTransactionID AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTransactionID AS INTEGER NO-UNDO.
 
-RUN pCreateTransactionAndReturnID(ipcCompany, ipcInventoryStockID, gcTransactionTypeConsume, - ipdQuantityConsumed, ipcQuantityUOM, "", "", 
-    OUTPUT iTransactionID, OUTPUT oplCreated, OUTPUT opcMessage).
-IF iplPost THEN 
-    RUN PostTransaction(iTransactionID).
+    RUN pCreateTransactionAndReturnID(ipcCompany, ipcInventoryStockID, gcTransactionTypeConsume, - ipdQuantityConsumed, ipcQuantityUOM, "", "", 
+        OUTPUT iTransactionID, OUTPUT oplCreated, OUTPUT opcMessage).
+    IF iplPost THEN 
+        RUN PostTransaction(iTransactionID).
     
 END PROCEDURE.
 
 PROCEDURE pCreateTransactionAndReturnID PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcInventoryStockID AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcTransactionType AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipdQuantityChange AS DECIMAL NO-UNDO.
-DEFINE INPUT PARAMETER ipcQuantityUOM AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcWarehouseID AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opiInventoryTransactionID AS INTEGER NO-UNDO.
-DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO.
-DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcInventoryStockID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTransactionType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantityChange AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcQuantityUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcWarehouseID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiInventoryTransactionID AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
-CREATE InventoryTransaction.
-ASSIGN 
-    /*InventoryTransaction.rec_key          = DYNAMIC-FUNCTION("sfGetNextRecKey")*/
-    InventoryTransaction.InventoryTransactionID = fGetNextTransactionID()
-    opiInventoryTransactionID = InventoryTransaction.InventoryTransactionID
-    InventoryTransaction.TransactionType = ipcTransactionType
-    InventoryTransaction.Company = ipcCompany
-    InventoryTransaction.CreatedBy = USERID("asi")
-    InventoryTransaction.CreatedTime = NOW
-    InventoryTransaction.QuantityChange = ipdQuantityChange
-    InventoryTransaction.QuantityUOM = ipcQuantityUOM
-    InventoryTransaction.WarehouseID = ipcWarehouseID
-    InventoryTransaction.LocationID = ipcLocationID
-    InventoryTransaction.TransactionTime = InventoryTransaction.CreatedTime  /*Default to Created Time, Not Posted*/
-    InventoryTransaction.TransactionStatus = gcStatusTransactionInitial
-    oplCreated = YES
-    opcMessage = "Transaction Created.  ID: " + STRING(opiInventoryTransactionID)
-    .
+    CREATE InventoryTransaction.
+    ASSIGN 
+        /*InventoryTransaction.rec_key          = DYNAMIC-FUNCTION("sfGetNextRecKey")*/
+        InventoryTransaction.InventoryTransactionID = fGetNextTransactionID()
+        opiInventoryTransactionID                   = InventoryTransaction.InventoryTransactionID
+        InventoryTransaction.TransactionType        = ipcTransactionType
+        InventoryTransaction.Company                = ipcCompany
+        InventoryTransaction.CreatedBy              = USERID("asi")
+        InventoryTransaction.CreatedTime            = NOW
+        InventoryTransaction.QuantityChange         = ipdQuantityChange
+        InventoryTransaction.QuantityUOM            = ipcQuantityUOM
+        InventoryTransaction.WarehouseID            = ipcWarehouseID
+        InventoryTransaction.LocationID             = ipcLocationID
+        InventoryTransaction.TransactionTime        = InventoryTransaction.CreatedTime  /*Default to Created Time, Not Posted*/
+        InventoryTransaction.TransactionStatus      = gcStatusTransactionInitial
+        oplCreated                                  = YES
+        opcMessage                                  = "Transaction Created.  ID: " + STRING(opiInventoryTransactionID)
+        .
     RUN CheckInventoryStockIDAlias(ipcCompany, ipcInventoryStockID, OUTPUT InventoryTransaction.InventoryStockID, OUTPUT InventoryTransaction.StockIDAlias).
     
-RELEASE InventoryTransaction.
+    RELEASE InventoryTransaction.
 
 END PROCEDURE.
 
 PROCEDURE pAddQuantity PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose: Adds additional quantity to base quantity.  Converts UOM if necessary
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipdQuantityChange AS DECIMAL NO-UNDO.
-DEFINE INPUT PARAMETER ipcQuantityChangeUOM AS CHARACTER NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER ipdQuantityExisting AS DECIMAL NO-UNDO.
-DEFINE INPUT PARAMETER ipcQuantityExistingUOM AS CHARACTER NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose: Adds additional quantity to base quantity.  Converts UOM if necessary
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdQuantityChange AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcQuantityChangeUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ipdQuantityExisting AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcQuantityExistingUOM AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE dQuantityChangeInExistingUOM AS DECIMAL.
+    DEFINE VARIABLE dQuantityChangeInExistingUOM AS DECIMAL.
 
-IF ipcQuantityChangeUOM NE ipcQuantityExistingUOM THEN DO:
-    dQuantityChangeInExistingUOM = ipdQuantityChange.
+    IF ipcQuantityChangeUOM NE ipcQuantityExistingUOM THEN 
+    DO:
+        dQuantityChangeInExistingUOM = ipdQuantityChange.
     /*ConvertUOM and add*/
-END.
-ELSE 
-    dQuantityChangeInExistingUOM = ipdQuantityChange.
+    END.
+    ELSE 
+        dQuantityChangeInExistingUOM = ipdQuantityChange.
     
-ipdQuantityExisting = ipdQuantityExisting + dQuantityChangeInExistingUOM.
+    ipdQuantityExisting = ipdQuantityExisting + dQuantityChangeInExistingUOM.
 
 END PROCEDURE.
 
@@ -345,7 +347,7 @@ PROCEDURE pCreateLoadtagFromPreLoadtag PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttInventoryStockPreLoadtag FOR ttInventoryStockPreLoadtag.
     DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
  
-    DEFINE VARIABLE lAliasCreated AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lAliasCreated       AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cAliasCreateMessage AS CHARACTER NO-UNDO.
     
     CREATE ttInventoryStockLoadtag.
@@ -354,7 +356,7 @@ PROCEDURE pCreateLoadtagFromPreLoadtag PRIVATE:
         /*        ttInventoryStockLoadtag.rec_key          = DYNAMIC-FUNCTION("sfGetNextRecKey")*/
         ttInventoryStockLoadtag.InventoryStockID = fGetNextStockID(ttInventoryStockLoadtag.ItemType) /*Unique ID*/
         ttInventoryStockLoadtag.QuantityOriginal = ipdQuantity
-        ttInventoryStockLoadtag.InventoryStatus = gcStatusStockLoadtag
+        ttInventoryStockLoadtag.InventoryStatus  = gcStatusStockLoadtag
         .
     /*Ensure the partial and unit counts are calculated correctly for this specific quantity*/
     RUN pRecalcQuantityUnits(ttInventoryStockLoadtag.QuantityOriginal, 
@@ -364,7 +366,7 @@ PROCEDURE pCreateLoadtagFromPreLoadtag PRIVATE:
     /*Build Readable Tag Number and register it on Alias table*/
     ttInventoryStockLoadtag.StockIDAlias = fGetNextStockIDAlias(ttInventoryStockLoadtag.Company, ttInventoryStockLoadtag.PrimaryID). 
     RUN CreateStockIDAlias(ttInventoryStockLoadtag.Company, ttInventoryStockLoadtag.InventoryStockID, ttInventoryStockLoadtag.PrimaryID, ttInventoryStockLoadtag.StockIDAlias,
-                           OUTPUT lAliasCreated, OUTPUT cAliasCreateMessage). 
+        OUTPUT lAliasCreated, OUTPUT cAliasCreateMessage). 
     
 END PROCEDURE.
 
@@ -379,8 +381,8 @@ PROCEDURE pCreateStockFromLoadtag PRIVATE:
     DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
      
-    DEFINE VARIABLE cPrimaryID AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iInventoryTransactionID AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cPrimaryID              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iInventoryTransactionID AS INTEGER   NO-UNDO.
     
     
     CREATE InventoryStock.
@@ -388,8 +390,8 @@ PROCEDURE pCreateStockFromLoadtag PRIVATE:
     ASSIGN 
         /*        InventoryStock.rec_key          = DYNAMIC-FUNCTION("sfGetNextRecKey")*/
         InventoryStock.InventoryStatus = gcStatusStockInitial
-        oplCreated = YES
-        opcMessage = "Inventory Stock Created for " + InventoryStock.InventoryStockID
+        oplCreated                     = YES
+        opcMessage                     = "Inventory Stock Created for " + InventoryStock.InventoryStockID
         .
     IF iplCreateReceipt THEN 
         RUN pCreateTransactionAndReturnID(InventoryStock.Company, InventoryStock.InventoryStockID, gcTransactionTypeReceive, 
@@ -421,16 +423,17 @@ PROCEDURE CreateStockIDAlias:
         AND bf-InventoryStockAlias.StockIDAlias EQ ipcAlias
         NO-ERROR.
     
-    IF NOT AVAILABLE bf-InventoryStockAlias THEN DO:
+    IF NOT AVAILABLE bf-InventoryStockAlias THEN 
+    DO:
         CREATE InventoryStockAlias.
         ASSIGN 
             InventoryStockAlias.InventoryStockAliasID = fGetNextStockAliasID()
             InventoryStockAlias.Company               = ipcCompany
             InventoryStockAlias.InventoryStockID      = ipcInventoryStockID
             InventoryStockAlias.UniquePrefix          = ipcUniquePrefix
-            InventoryStockAlias.StockIDAlias = ipcAlias
-            oplCreated = YES
-            opcMessage = "Alias Created: " + ipcAlias + " = " + ipcInventoryStockID
+            InventoryStockAlias.StockIDAlias          = ipcAlias
+            oplCreated                                = YES
+            opcMessage                                = "Alias Created: " + ipcAlias + " = " + ipcInventoryStockID
             .
         RELEASE InventoryStockAlias.
     END.
@@ -481,62 +484,68 @@ PROCEDURE pGetWIPID PRIVATE:
 
     opcWIPID = STRING(ipbf-ttInventoryStockPreLoadtag.MachineID,"x(6)") + STRING(ipbf-ttInventoryStockPreLoadtag.JobID,"x(6)") 
         + STRING(ipbf-ttInventoryStockPreLoadtag.JobID2,"99") + STRING(ipbf-ttInventoryStockPreLoadtag.FormNo,"99")  
-        + STRING(ipbf-ttInventoryStockPreLoadtag.BlankNo,"99") .
+        + STRING(ipbf-ttInventoryStockPreLoadtag.BlankNo,"99").
 
     IF TRIM(opcWIPID) EQ "" THEN opcWIPID = "WIPITEM".
 
 END PROCEDURE.
 
 PROCEDURE PostTransaction:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipiInventoryTransactionID AS INTEGER NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiInventoryTransactionID AS INTEGER NO-UNDO.
 
-FIND FIRST InventoryTransaction EXCLUSIVE-LOCK
-    WHERE InventoryTransaction.InventoryTransactionID EQ ipiInventoryTransactionID
-    NO-ERROR.
-FIND FIRST InventoryStock EXCLUSIVE-LOCK
-    WHERE InventoryStock.InventoryStockID EQ InventoryTransaction.InventoryStockID
-    NO-ERROR. 
-IF AVAILABLE InventoryTransaction AND AVAILABLE InventoryStock THEN DO:
-    IF InventoryTransaction.QuantityChange NE 0 THEN 
-        RUN pAddQuantity(InventoryTransaction.QuantityChange, InventoryTransaction.QuantityUOM, INPUT-OUTPUT InventoryStock.Quantity, InventoryStock.QuantityUOM). 
-    IF InventoryTransaction.WarehouseID NE "" THEN 
-        InventoryStock.WarehouseID = InventoryTransaction.WarehouseID.
-    IF InventoryTransaction.LocationID NE "" THEN 
-        InventoryStock.LocationID = InventoryTransaction.LocationID.
-    CASE InventoryTransaction.TransactionType:
-        WHEN gcTransactionTypeReceive THEN DO:
-            ASSIGN 
-                InventoryStock.InventoryStatus = gcStatusStockReceived.
-        END.
-        WHEN gcTransactionTypeTransfer THEN DO:
+    FIND FIRST InventoryTransaction EXCLUSIVE-LOCK
+        WHERE InventoryTransaction.InventoryTransactionID EQ ipiInventoryTransactionID
+        NO-ERROR.
+    FIND FIRST InventoryStock EXCLUSIVE-LOCK
+        WHERE InventoryStock.InventoryStockID EQ InventoryTransaction.InventoryStockID
+        NO-ERROR. 
+    IF AVAILABLE InventoryTransaction AND AVAILABLE InventoryStock THEN 
+    DO:
+        IF InventoryTransaction.QuantityChange NE 0 THEN 
+            RUN pAddQuantity(InventoryTransaction.QuantityChange, InventoryTransaction.QuantityUOM, INPUT-OUTPUT InventoryStock.Quantity, InventoryStock.QuantityUOM). 
+        IF InventoryTransaction.WarehouseID NE "" THEN 
+            InventoryStock.WarehouseID = InventoryTransaction.WarehouseID.
+        IF InventoryTransaction.LocationID NE "" THEN 
+            InventoryStock.LocationID = InventoryTransaction.LocationID.
+        CASE InventoryTransaction.TransactionType:
+            WHEN gcTransactionTypeReceive THEN 
+                DO:
+                    ASSIGN 
+                        InventoryStock.InventoryStatus = gcStatusStockReceived.
+                END.
+            WHEN gcTransactionTypeTransfer THEN 
+                DO:
             
-        END.
-        WHEN gcTransactionTypeConsume OR WHEN gcTransactionTypeShip THEN DO:
-            IF InventoryStock.Quantity EQ 0 THEN DO: 
-                ASSIGN 
-                    InventoryStock.ConsumedBy = USERID("asi")
-                    InventoryStock.ConsumedTime = NOW
-                    .
-            END.
-            ELSE 
-                ASSIGN 
-                    InventoryStock.ConsumedBy = ""
-                    InventoryStock.ConsumedTime = ?
-                    .
-        END.
-    END CASE. 
-    ASSIGN 
-        InventoryTransaction.TransactionStatus = gcStatusTransactionPosted
-        InventoryTransaction.PostedBy = USERID("asi")
-        InventoryTransaction.PostedTime = NOW
-        .
-END.
-RELEASE InventoryTransaction.
-RELEASE InventoryStock.
+                END.
+            WHEN gcTransactionTypeConsume OR 
+            WHEN gcTransactionTypeShip THEN 
+                DO:
+                    IF InventoryStock.Quantity EQ 0 THEN 
+                    DO: 
+                        ASSIGN 
+                            InventoryStock.ConsumedBy   = USERID("asi")
+                            InventoryStock.ConsumedTime = NOW
+                            .
+                    END.
+                    ELSE 
+                        ASSIGN 
+                            InventoryStock.ConsumedBy   = ""
+                            InventoryStock.ConsumedTime = ?
+                            .
+                END.
+        END CASE. 
+        ASSIGN 
+            InventoryTransaction.TransactionStatus = gcStatusTransactionPosted
+            InventoryTransaction.PostedBy          = USERID("asi")
+            InventoryTransaction.PostedTime        = NOW
+            .
+    END.
+    RELEASE InventoryTransaction.
+    RELEASE InventoryStock.
 
 END PROCEDURE.
 
@@ -676,7 +685,7 @@ FUNCTION fGetNextStockID RETURNS CHARACTER PRIVATE
 END FUNCTION.
 
 FUNCTION fGetNextTransactionID RETURNS INTEGER PRIVATE
-	(  ):
+    (  ):
     /*------------------------------------------------------------------------------
      Purpose: Returns the next transaction ID
      Notes:

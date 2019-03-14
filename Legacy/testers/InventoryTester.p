@@ -167,6 +167,9 @@ FIRST InventoryStockAlias NO-LOCK
         
         .
 END.
+FOR EACH InventoryTransaction:
+    DISPLAY InventoryTransaction.
+END.
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pGetSheetsFromLF PRIVATE:
