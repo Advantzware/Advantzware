@@ -1,6 +1,6 @@
 /* oe/rep/bolxpr23.i*/
 DEFINE VARIABLE cBolFormat AS CHARACTER NO-UNDO .
-
+ 
 IF FIRST-OF(tt-boll.LINE) THEN 
 DO:
     
@@ -56,11 +56,11 @@ DO:
             w2.cases   = w2.cases + bf-ttboll.cases
             w2.rec-id  = RECID(bf-ttboll).
 
-        IF i = 1 THEN ASSIGN w2.job-po = bf-ttboll.po-no
+        IF i = 1 THEN ASSIGN w2.job-po = STRING(oe-ordl.ord-no)
                 w2.dscr   = oe-ordl.i-name
                 w2.qty    = oe-ordl.qty.
         ELSE IF i = 2 THEN 
-                ASSIGN w2.job-po = STRING(oe-ordl.ord-no )
+                ASSIGN w2.job-po = STRING(tt-boll.po-no )
                     w2.dscr   = oe-ordl.part-dscr1
                     w2.i-no   = oe-ordl.i-no.
             ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr2.
@@ -82,8 +82,10 @@ DO:
                 AND oe-ordl.i-no    EQ tt-boll.i-no
                 AND oe-ordl.line    EQ tt-boll.LINE NO-LOCK NO-ERROR.
             w2.i-no = "".
-            IF i = 2 THEN 
-                ASSIGN w2.job-po = STRING(oe-ordl.ord-no) 
+            IF i = 1 THEN 
+                ASSIGN w2.job-po = STRING(oe-ordl.ord-no)  .
+            ELSE IF i = 2 THEN 
+                ASSIGN w2.job-po = tt-boll.po-no 
                     w2.dscr   = oe-ordl.part-dscr1
                     w2.i-no   = oe-ordl.i-no.
             ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr2.
@@ -113,7 +115,7 @@ DO:
                 AND oe-ordl.line    EQ tt-boll.LINE NO-LOCK NO-ERROR.
             w2.i-no = "".
             IF i = 2 THEN 
-                ASSIGN w2.job-po = STRING(oe-ordl.ord-no) 
+                ASSIGN w2.job-po = STRING(tt-boll.po-no) 
                     w2.dscr   = oe-ordl.part-dscr1
                     w2.i-no   = oe-ordl.i-no.
             ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr2.
@@ -122,12 +124,19 @@ DO:
         IF w2.qty = 0 AND w2.i-no = "" AND w2.dscr = "" AND NOT last(w2.cases) AND w2.cas-cnt EQ 0 THEN .
         ELSE 
         DO:      
-            DISPLAY w2.i-no                       
-                TRIM(STRING(w2.qty,"->>,>>>,>>>")) 
-                WHEN i = 1 @ w2.i-no
-                w2.job-po
+            FIND FIRST eb  NO-LOCK 
+                WHERE eb.company EQ cocode
+                  AND eb.est-no EQ oe-ordl.est-no
+                  AND eb.stock-no EQ oe-ordl.i-no NO-ERROR .
+             iAmtPerBundle = IF AVAIL eb THEN eb.cas-cnt ELSE 0.
+             iBundlePerPallet = IF AVAIL eb THEN eb.cas-pal ELSE 0.
+             RELEASE eb .
+
+            DISPLAY string(oe-ordl.ord-no) WHEN i = 1 @ w2.job-po
+                w2.job-po WHEN i = 2
+                w2.qty WHEN i = 1 
                 w2.dscr
-                "" @ w2.cases
+                iAmtPerBundle WHEN FIRST (w2.cases) @ w2.cases
                 iBundlePerPallet 
                 WHEN FIRST (w2.cases) 
                 iQtyPerPallet 
@@ -180,14 +189,14 @@ DO:
 
             DISPLAY {1}
                 TRIM(STRING(oe-ordl.qty * v-part-qty,">>>,>>>,>>>")) 
-                @ w2.i-no
+                @ w2.qty
                 b-itemfg.part-no                        @ w2.dscr
                 tt-boll.qty * v-part-qty                @ tt-boll.qty        
                 WITH FRAME bol-mid.
             DOWN {1} WITH FRAME bol-mid.
             v-printline = v-printline + 1.
             DISPLAY {1}
-                fg-set.part-no                          @ w2.i-no
+                fg-set.part-no                          @ w2.job-po
                 v-job-po     @ w2.job-po
                 b-itemfg.i-name                         @ w2.dscr
                 WITH FRAME bol-mid.

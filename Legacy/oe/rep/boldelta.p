@@ -15,7 +15,7 @@ DEFINE BUFFER xxreport FOR report.
 DEFINE VARIABLE v-salesman   AS CHARACTER FORMAT "x(26)".
 DEFINE VARIABLE v-fob        AS CHARACTER FORMAT "x(12)".
 DEFINE VARIABLE v-tot-cases  AS INTEGER   FORMAT "->,>>>,>>9".
-DEFINE VARIABLE v-tot-palls  AS INTEGER   FORMAT "->,>>>,>>9".
+DEFINE VARIABLE v-tot-palls  AS INTEGER   FORMAT "->>,>>>,>>9".
 DEFINE VARIABLE v-tot-wt     AS DECIMAL   FORMAT "->>,>>>,>>9".
 
 DEFINE VARIABLE v-tot-pkgs   AS INTEGER   FORMAT ">>9".
@@ -108,31 +108,32 @@ DEFINE VARIABLE cRtnChar              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE ls-full-img1          AS CHARACTER FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lBroker               AS LOGICAL   NO-UNDO .
-DEFINE VARIABLE iGrandBundlePerPallet AS INTEGER   NO-UNDO.
-DEFINE VARIABLE iGrandTotPallet       AS INTEGER   NO-UNDO.
-DEFINE VARIABLE iGrandTotShiped       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iGrandBundlePerPallet AS INTEGER   FORMAT "->>,>>>,>>9"  NO-UNDO.
+DEFINE VARIABLE iGrandTotPallet       AS INTEGER   FORMAT "->>,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE iGrandTotShiped       AS INTEGER   FORMAT "->>,>>>,>>9"  NO-UNDO.
+DEFINE VARIABLE iAmtPerBundle         AS INTEGER   NO-UNDO.
 DEFINE BUFFER bff-oe-boll FOR oe-boll .
 
 
-FORM w2.i-no                          FORMAT "x(15)"
-    w2.job-po                        FORMAT "x(15)"
+FORM w2.job-po                      FORMAT "x(15)"
+    w2.qty                          FORMAT "->>,>>>,>>>" SPACE(2)
     w2.dscr                         FORMAT "x(30)"
-    w2.cases                        FORMAT "->>>>"
-    iBundlePerPallet                FORMAT "->>>>>>"
-    iQtyPerPallet                   FORMAT "->>>>>>"
-    iTotPallet                      FORMAT "->>>"
+    w2.cases                        FORMAT "->>>>9"
+    iBundlePerPallet                FORMAT "->>>>>9" SPACE(1)
+    iQtyPerPallet                   FORMAT "->>>>>>" SPACE(1)
+    iTotPallet                      FORMAT "->>>>"
     tt-boll.qty                     FORMAT "->>>>>>"
     WITH FRAME bol-mid DOWN NO-BOX NO-LABELS STREAM-IO WIDTH 150.
 
-FORM oe-ordl.i-no                         FORMAT "x(15)"
-    v-job-po                       AT 17 FORMAT "x(15)"
-    v-part-dscr                    AT 33 FORMAT "x(30)"
-    w2.cases                        FORMAT "->>>>"
-    iBundlePerPallet                FORMAT "->>>>>>"
-    iQtyPerPallet                   FORMAT "->>>>>>"
-    iTotPallet                      FORMAT "->>>"
+FORM v-job-po                       FORMAT "x(15)"
+     oe-ordl.qty                    FORMAT "->>,>>>,>>>" SPACE(2)
+    v-part-dscr                     FORMAT "x(30)"
+    w2.cases                        FORMAT "->>>>9"
+    iBundlePerPallet                FORMAT "->>>>>9" SPACE(1)
+    iQtyPerPallet                   FORMAT "->>>>>>" SPACE(1)
+    iTotPallet                      FORMAT "->>>>" 
     tt-boll.qty                     FORMAT "->>>>>>"
-    WITH FRAME bol-mid2 DOWN NO-BOX NO-LABELS STREAM-IO WIDTH 100.
+    WITH FRAME bol-mid2 DOWN NO-BOX NO-LABELS STREAM-IO WIDTH 150.
 
 ASSIGN 
     tmpstore = FILL("-",130).
@@ -280,7 +281,10 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
                              oe-ord.sold-state + "  " +
                              oe-ord.sold-zip.
         END.
-
+        IF v-comp-addr[2] EQ ""  THEN
+            ASSIGN
+            v-comp-addr[2] = v-comp-addr3 
+            v-comp-addr3   = "" .
         IF TRIM(v-comp-addr3) EQ "," THEN v-comp-addr3 = "".
               
         /* if v-comp-addr[2] eq "" then
