@@ -9,6 +9,29 @@
     Author(s)   : WK
     Created     : Wed Nov 14 14:35:41 EDT 2018
     Notes       :
+                : Example specifying everything:
+                :
+                : run pSimpleFtp in h (
+                     "URL",
+                     "userName",
+                     "password",
+                     "",     /* remote folder */
+                     "put",  /* ftp command */
+                     "ftp",  /* ftp or sftp */
+                     "WinScp", 
+                     "ftpscript.dat",  /* script name */
+                     "c:\temp", /* folder for script */
+                     "asi",  /* bin or asi */
+                     "c:\temp", /* local folder if needed */
+                     "xyz.txt", /* filespec to get or put */
+                     yes         /* Silent - yes or no */
+                     ).
+                : Example using ftpConfig for setup 
+                RUN pExecFtp IN hFtpProcs (INPUT '001',   /* company */
+                                           INPUT "iPaper", /* Ftp Config type */
+                                           INPUT "acpi",   /* partner code */
+                                           INPUT "c:\temp", 
+                                           INPUT  "*.dat" /* filespec */).
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
@@ -571,7 +594,10 @@ PROCEDURE pCreateScriptRecords:
         
         iLineNumber = iLineNumber + 10.
         fSetCmdLine(iLineNumber, cCloseCmd).
-
+        
+        iLineNumber = iLineNumber + 10.
+        fSetCmdLine(iLineNumber, cExitCmd).
+        
     END. /* WinScp */
 
    
@@ -659,6 +685,47 @@ PROCEDURE pExecuteCommand:
     opcExecString = cFullCmd.
 END PROCEDURE.
 
+PROCEDURE pSimpleFtp:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcFtpURL       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFtpUser      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFtpPassword  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFtpDir       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFtpGet       AS CHARACTER NO-UNDO. /* ftp cmd */
+    DEFINE INPUT PARAMETER ipcFtpMode      AS CHARACTER NO-UNDO. /* ftp or sftp */
+    DEFINE INPUT PARAMETER ipcFtpSoftware  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFtpScript    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFtpScriptDir AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFtpBinary    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocalFolder  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFileSpec     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplSilent       AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cCommandFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFullCmd     AS CHARACTER NO-UNDO.
+    
+    RUN pCreateScriptRecords (ipcFtpURL,
+        ipcFtpUser,
+        ipcFtpPassword,
+        ipcFtpMode,
+        ipcFtpDir,
+        ipcFtpGet,
+        ipcFtpSoftware,
+        ipcFtpScript,
+        ipcFtpBinary,
+        ipcLocalFolder,
+        ipcFileSpec).
+
+    cCommandFile = ipcFtpScriptDir + "\" + ipcFtpScript.
+    RUN pWriteToFile (INPUT cCommandFile).
+    RUN pExecuteCommand (iplSilent, ipcFtpSoftware, cCommandFile, YES /* run cmd */, OUTPUT cFullCmd).
+
+
+END PROCEDURE.
+
 PROCEDURE pWriteToFile:
     /*------------------------------------------------------------------------------
      Purpose:
@@ -730,5 +797,5 @@ PROCEDURE pExecFtp:
 
     cCommandFile = fNK1configFolder(ipcCompany) + "\" + ftpScript.
     RUN pWriteToFile (INPUT cCommandFile).
-    RUN pExecuteCommand (NO /* silent */, FtpSoftware, cCommandFile, YES /* run cmd */, OUTPUT cFullCmd).
+    RUN pExecuteCommand (YES /* silent */, FtpSoftware, cCommandFile, YES /* run cmd */, OUTPUT cFullCmd).
 END PROCEDURE.
