@@ -1069,7 +1069,7 @@ IF ou-log THEN
 
          v-cust-chk = fi_cust:SCREEN-VALUE .
   
-      IF LOOKUP(v-cust-chk,custcount) = 0 THEN DO:
+      IF LOOKUP(v-cust-chk,custcount) = 0 AND custcount NE "" THEN DO:
           MESSAGE "Customer is not on Users Customer List.  "  SKIP
               "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
                         
