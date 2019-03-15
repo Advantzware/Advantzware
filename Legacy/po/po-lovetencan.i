@@ -313,7 +313,7 @@ FOR EACH po-ordl
           v-line-2 FORMAT "X(28)" AT 8
           v-adder[1] FORMAT "X(9)" AT 37
           v-job AT 47
-          po-ordl.cost format ">>,>>9.99<<<" AT 60
+          po-ordl.cost format ">>>,>>9.99<<<" AT 60
           space(1) vsTmpLine
           po-ordl.dscr[1] FORMAT "X(28)" AT 8
           v-adder[2] FORMAT "X(9)" AT 37
@@ -484,9 +484,13 @@ end.
   PUT {1}
       "Freight:"             to 66 
      v-t-freight[2]         to 80   format ">,>>>,>>9.999"
-     skip (1)
+     skip (1) .
+  IF lPrintGrandTotMsf THEN
+  PUT 
      "MSF:"                 to 66
-     v-tot-sqft[2]          to 80   format ">,>>>,>>9.999" SKIP
+     v-tot-sqft[2]          to 80   format ">,>>>,>>9.999" SKIP .
+     
+  PUT 
       "TVS:"                 to 66
     /* v-tot-sqft[2]          to 80   format ">,>>>,>>9.999"*/
      SKIP.
