@@ -94,13 +94,13 @@ do with no-box no-labels frame med1  stream-io :
    if xef.n-out-l eq 0 then
      assign
       med-qty = brd-w[2] / (1 - (item-bom.shrink / 100))
-      med-qty = if v-corr then ((med-qty * brd-l[2]) * tot-qty) * .000007
-                          else ((med-qty * brd-l[2]) * qty) / 144000.
+      med-qty = if v-corr then ((med-qty * brd-l[2]) * mqty) * .000007
+                          else ((med-qty * brd-l[2]) * mqty) / 144000.
    else
      assign
       med-qty = brd-l[2] / (1 - (item-bom.shrink / 100))
-      med-qty = if v-corr then ((med-qty * brd-w[2]) * tot-qty) * .000007
-                          else ((med-qty * brd-w[2]) * tot-qty) / 144000.
+      med-qty = if v-corr then ((med-qty * brd-w[2]) * mqty) * .000007
+                          else ((med-qty * brd-w[2]) * mqty) / 144000.
 
    fg-wt = fg-wt + ((fg-qty / (1 - (item-bom.shrink / 100))) * item.basis-w).
 
@@ -111,7 +111,7 @@ do with no-box no-labels frame med1  stream-io :
 
    IF b-uom EQ "LF"  THEN
      v-qty = (IF v-corr THEN (med-qty / .000007)
-                ELSE (med-qty * 144000)) / brd-w[3] / 12.
+                ELSE (med-qty * 144000)) / brd-w[2] / 12.
    ELSE
    IF b-uom EQ "TON" THEN
      v-qty = med-qty * item.basis-w / 2000.
@@ -139,8 +139,8 @@ do with no-box no-labels frame med1  stream-io :
              w-brd.i-no     = item-bom.i-no
              w-brd.dscr     = xef.medium
              w-brd.basis-w  = item.basis-w
-             w-brd.len      = brd-l[3] / (1 - (item-bom.shrink / 100))
-             w-brd.wid      = brd-w[3].
+             w-brd.len      = brd-l[2] / (1 - (item-bom.shrink / 100))
+             w-brd.wid      = brd-w[2].
    /*end.*/
    ASSIGN
       w-brd.cost = mfl$
