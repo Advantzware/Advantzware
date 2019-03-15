@@ -123,6 +123,7 @@ DEFINE VARIABLE dCoreDia AS DECIMAL FORMAT ">,>>9.99<<" NO-UNDO.
 DEFINE VARIABLE cFlueTest AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cMachCode AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lPrintMsf AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cGrandTotMsf AS DECIMAL NO-UNDO .
 
 v-dash-line = fill ("_",80).
 
@@ -177,6 +178,7 @@ assign
  END.
 
  v-tot-sqft = 0.
+ cGrandTotMsf = 0.
     print-po-blok:
     FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         FIRST po-ord WHERE RECID(po-ord) EQ report.rec-id
@@ -458,7 +460,9 @@ v-printline = 0.
                              po-ordl.ord-qty, OUTPUT v-qty).
 
        v-tot-sqft = v-qty .
+       cGrandTotMsf = cGrandTotMsf + (v-qty * 1000) .
        lPrintMsf = NO .
+
         IF AVAIL ITEM AND (item.mat-type EQ "B" OR item.mat-type EQ "P") AND
              ITEM.industry EQ "2" THEN DO:
             ASSIGN lPrintMsf = YES .
@@ -892,8 +896,15 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
   END.
 */
   /*v-printline 46*/
+  IF lPrintGrandTotMsf THEN
+      IF AVAIL ITEM AND ITEM.industry EQ "2" OR AVAIL itemfg THEN DO:
+          PUT "Grand Total MSF: " +
+              TRIM(STRING(cGrandTotMsf / 1000,">>>,>>9.9<<")) AT 50 FORMAT "x(30)"
+              SKIP.
+      END.
 
       v-tot-sqft = 0.
+      cGrandTotMsf = 0 .
       v-bot-lab[1] = "Tax        :"
                      /*vend.tax-gr + "        :       " */ + STRING(po-ord.tax,"->>>,>>9.99").
 
