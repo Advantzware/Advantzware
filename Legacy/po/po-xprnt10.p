@@ -112,6 +112,7 @@ DEFINE VARIABLE dCoreDia AS DECIMAL FORMAT ">,>>9.99<<" NO-UNDO.
 DEFINE VARIABLE cFlueTest AS CHARACTER FORMAT "x(30)" NO-UNDO.
 DEFINE VARIABLE cMachCode AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lPrintMsf AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cGrandTotMsf AS DECIMAL NO-UNDO .
 DEF TEMP-TABLE tt-text NO-UNDO
     FIELD TYPE AS cha
     FIELD tt-line AS INT
@@ -130,7 +131,7 @@ v-dash-line = fill ("_",80).
 IF ip-multi-faxout THEN DO:
 
   DEF VAR lv-file-name AS cha FORM "x(60)" NO-UNDO.
-  OS-CREATE-DIR VALUE("c:\temp\fax") NO-ERROR.
+  OS-CREATE-DIR VALUE("c:\temp\fax").
   INPUT FROM OS-DIR ("C:\temp\fax") NO-ECHO.
   REPEAT:
       SET lv-file-name.  
@@ -196,6 +197,7 @@ END FUNCTION.
  END.
 
  v-tot-sqft = 0.
+ cGrandTotMsf = 0 .
     print-po-blok:
     FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         FIRST po-ord WHERE RECID(po-ord) EQ report.rec-id
@@ -516,6 +518,7 @@ v-printline = 0.
                              po-ordl.ord-qty, OUTPUT v-qty).
         ASSIGN
         v-tot-sqft = v-qty  .
+        cGrandTotMsf = cGrandTotMsf + (v-qty * 1000) .
         lPrintMsf = NO .
         IF AVAIL ITEM AND (item.mat-type EQ "B" OR item.mat-type EQ "P") AND
              ITEM.industry EQ "2" THEN DO:
@@ -874,8 +877,16 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
      {po/po-xprnt10.i}
   END.
 
+  IF lPrintGrandTotMsf THEN
+      IF AVAIL ITEM AND ITEM.industry EQ "2" OR AVAIL itemfg THEN DO:
+          PUT "Grand Total MSF: " +
+              TRIM(STRING(cGrandTotMsf / 1000,">>>,>>9.9<<")) AT 50 FORMAT "x(30)"
+              SKIP.
+      END.
+
   ASSIGN
   v-tot-sqft = 0
+  cGrandTotMsf = 0 
   v-bot-lab[1] = "Tax        :" 
                + STRING(po-ord.tax,"->>,>>9.99").
 
