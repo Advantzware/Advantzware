@@ -43,6 +43,7 @@ assign
  v-out        = 1
  v-stackcode  = ""
  v-len-score  = ""
+ v-wid-score  = ""
  v-board-dscr = ""
  v-board-code = "".
 
@@ -189,7 +190,7 @@ if avail xest then do:
         where xstyle.company eq xeb.company
           and xstyle.style   eq xeb.style
         no-lock no-error.
-    if avail xstyle and xstyle.type ne "d" then do:
+    if avail xstyle then do:
       find first box-design-hdr
           where box-design-hdr.design-no eq xstyle.design-no
           no-lock no-error.
@@ -199,7 +200,7 @@ if avail xest then do:
 
         v-lscore-c = trim(v-lscore-c).
 
-        if xg-flag then do x = 1 to length(v-lscore-c):
+        /*if xg-flag then*/ do x = 1 to length(v-lscore-c):
           if substring(v-lscore-c,x,1) ne "" then
             assign
              v-len-score = v-len-score + trim(substr(v-lscore-c,x,1))
@@ -211,20 +212,19 @@ if avail xest then do:
              v-len-score = v-len-score + " "
              v-space     = no.
         end.
-
-        else
+      
         for each box-design-line of box-design-hdr no-lock:
           find first w-box-design-line
               where w-box-design-line.line-no eq box-design-line.line-no
               no-error.
           if avail w-box-design-line then do:
-            v-len-score = trim(v-len-score) + " " + 
+            v-wid-score = trim(v-wid-score) + " " + 
                           trim(w-box-design-line.wscore-c).
             delete w-box-design-line.
           end.
         end.
 
-        v-len-score = trim(v-len-score).
+        v-wid-score = trim(v-wid-score).
       end.    
     end.
 
