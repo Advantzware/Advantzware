@@ -83,10 +83,6 @@ DEFINE TEMP-TABLE ttField NO-UNDO
     FIELD tableDB    AS CHARACTER
         INDEX ttFieldName IS PRIMARY fieldName
         .
-/*
-DEFINE TEMP-TABLE ttSubject         NO-UNDO LIKE dynSubject
-    FIELD tableRowID AS ROWID.
-*/
 DEFINE TEMP-TABLE ttSubjectTable    NO-UNDO LIKE dynSubjectTable
     FIELD tableRowID AS ROWID.
 DEFINE TEMP-TABLE ttSubjectWhere    NO-UNDO LIKE dynSubjectWhere
@@ -176,13 +172,16 @@ ttSubjectColumn ttSubjectParamSet ttSubjectTable ttSubjectWhere ttTable
 
 
 /* Definitions for BROWSE subjectParamSetBrowse                         */
-&Scoped-define FIELDS-IN-QUERY-subjectParamSetBrowse dynParamSet.setName dynParamSet.setTitle ttSubjectParamSet.paramSetID ttSubjectParamSet.setRow ttSubjectParamSet.setCol   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-subjectParamSetBrowse   
+&Scoped-define FIELDS-IN-QUERY-subjectParamSetBrowse ttSubjectParamSet.sortOrder dynParamSet.setName dynParamSet.setTitle ttSubjectParamSet.isVisible ttSubjectParamSet.paramSetID ttSubjectParamSet.setRow ttSubjectParamSet.setCol   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-subjectParamSetBrowse ttSubjectParamSet.isVisible   
+&Scoped-define ENABLED-TABLES-IN-QUERY-subjectParamSetBrowse ~
+ttSubjectParamSet
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-subjectParamSetBrowse ttSubjectParamSet
 &Scoped-define SELF-NAME subjectParamSetBrowse
 &Scoped-define QUERY-STRING-subjectParamSetBrowse FOR EACH ttSubjectParamSet WHERE ttSubjectParamSet.subjectID EQ dynSubject.subjectID, ~
-       FIRST dynParamSet NO-LOCK WHERE dynParamSet.paramSetID EQ ttSubjectParamSet.paramSetID
+       FIRST dynParamSet NO-LOCK WHERE dynParamSet.paramSetID EQ ttSubjectParamSet.paramSetID BY ttSubjectParamSet.sortOrder
 &Scoped-define OPEN-QUERY-subjectParamSetBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttSubjectParamSet WHERE ttSubjectParamSet.subjectID EQ dynSubject.subjectID, ~
-       FIRST dynParamSet NO-LOCK WHERE dynParamSet.paramSetID EQ ttSubjectParamSet.paramSetID.
+       FIRST dynParamSet NO-LOCK WHERE dynParamSet.paramSetID EQ ttSubjectParamSet.paramSetID BY ttSubjectParamSet.sortOrder.
 &Scoped-define TABLES-IN-QUERY-subjectParamSetBrowse ttSubjectParamSet ~
 dynParamSet
 &Scoped-define FIRST-TABLE-IN-QUERY-subjectParamSetBrowse ttSubjectParamSet
@@ -235,20 +234,20 @@ dynSubject.externalForm dynSubject.businessLogic
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnResults btnCalcField btnCreateDefaults ~
+&Scoped-Define ENABLED-OBJECTS btnMoveUp btnCreateDefaults ~
 btnSubjectParamSet btnNow btnOuterJoin subjectSection btnToday btnTime ~
 btnDateTime subjectSearch subjectMatches tableSearch tableMatches tableList ~
-btnOF tableListOf btnWhere btnMatches btnSave subjectBrowse tableBrowse ~
-subjectWhereBrowse btnBegins btnAND btnOR btnEQ btnNE btnLT btnGT ~
-fieldSearch fieldMatches paramSetSearch paramSetMatches btnLE btnGE ~
+btnOF tableListOf btnWhere btnMatches subjectBrowse tableBrowse ~
+subjectWhereBrowse btnResults btnBegins btnAND btnOR btnEQ btnNE btnLT ~
+btnGT fieldSearch fieldMatches paramSetSearch paramSetMatches btnLE btnGE ~
 paramSetBrowse fieldBrowse btnPlus btnMinus subjectParamSetBrowse ~
-btnMultiply btnDivide btnYes btnNo btnUndo btnDate cUseIndex btnSyntax ~
-findType btnDec subjectTableBrowse btnAddSelections btnInt columnSearch ~
-btnGroupCalc columnMatches btnAddUseIndex btnStr subjectColumnBrowse ~
-btnRemoveUseIndex btnSubstr cParameter btnOpen btnAddParameter btnClose ~
-btnRemoveSelection cConstant btnPeriod btnDouble btnComma btnMoveDown ~
-btnSingle btnAddConstant btnMoveUp queryStr btnRemove cParameterLabel ~
-cConstantLabel 
+btnMultiply btnDivide btnYes btnNo btnDate cUseIndex findType btnDec ~
+subjectTableBrowse btnInt columnSearch columnMatches btnStr ~
+subjectColumnBrowse btnSubstr cParameter btnCalcField btnOpen btnClose ~
+btnSave cConstant btnPeriod btnDouble btnUndo btnSyntax btnComma btnSingle ~
+btnAddSelections queryStr btnGroupCalc btnAddUseIndex btnRemoveUseIndex ~
+btnAddParameter btnRemoveSelection btnMoveDown btnAddConstant btnRemove ~
+cParameterLabel cConstantLabel 
 &Scoped-Define DISPLAYED-OBJECTS subjectSection subjectSearch ~
 subjectMatches tableSearch tableMatches tableList tableListOf fieldSearch ~
 fieldMatches paramSetSearch paramSetMatches cUseIndex findType columnSearch ~
@@ -257,43 +256,44 @@ cConstantLabel queryText
 
 /* Custom List Definitions                                              */
 /* allSection,tableSection,whereSection,parameterSection,columnsSection,subjectSection */
-&Scoped-define allSection btnCalcField RECT-TABLE RECT-FIELD ~
-RECT-QUERYTABLE RECT-QUERYSTR RECT-COLUMN RECT-SAVE RECT-PARAM RECT-PREVIEW ~
+&Scoped-define allSection btnMoveUp RECT-TABLE RECT-FIELD RECT-QUERYTABLE ~
+RECT-QUERYSTR RECT-COLUMN RECT-SAVE RECT-PARAM RECT-PREVIEW ~
 btnSubjectParamSet btnNow btnOuterJoin btnToday btnTime btnDateTime ~
 tableSearch tableMatches tableList btnOF tableListOf btnWhere btnMatches ~
-btnSave tableBrowse subjectWhereBrowse btnBegins btnAND btnOR btnEQ btnNE ~
-btnLT btnGT fieldSearch fieldMatches paramSetSearch paramSetMatches btnLE ~
-btnGE paramSetBrowse fieldBrowse btnPlus btnMinus subjectParamSetBrowse ~
-btnMultiply btnDivide btnYes btnNo btnUndo btnDate cUseIndex btnSyntax ~
-findType btnDec subjectTableBrowse btnAddSelections btnInt columnSearch ~
-btnGroupCalc columnMatches btnAddUseIndex btnStr subjectColumnBrowse ~
-btnRemoveUseIndex btnSubstr cParameter btnOpen btnAddParameter btnClose ~
-btnRemoveSelection cConstant btnPeriod btnDouble btnComma btnMoveDown ~
-btnSingle btnAddConstant btnMoveUp queryStr btnRemove cUseIndexLabel ~
-cParameterLabel cConstantLabel queryText 
-&Scoped-define tableSection RECT-TABLE RECT-QUERYTABLE RECT-QUERYSTR ~
-tableSearch tableMatches tableBrowse cUseIndex btnSyntax findType ~
-subjectTableBrowse btnAddSelections btnAddUseIndex btnRemoveUseIndex ~
-btnRemoveSelection btnMoveDown btnMoveUp queryStr btnRemove cUseIndexLabel ~
+tableBrowse subjectWhereBrowse btnBegins btnAND btnOR btnEQ btnNE btnLT ~
+btnGT fieldSearch fieldMatches paramSetSearch paramSetMatches btnLE btnGE ~
+paramSetBrowse fieldBrowse btnPlus btnMinus subjectParamSetBrowse ~
+btnMultiply btnDivide btnYes btnNo btnDate cUseIndex findType btnDec ~
+subjectTableBrowse btnInt columnSearch columnMatches btnStr ~
+subjectColumnBrowse btnSubstr cParameter btnCalcField btnOpen btnClose ~
+btnSave cConstant btnPeriod btnDouble btnUndo btnSyntax btnComma btnSingle ~
+btnAddSelections queryStr btnGroupCalc btnAddUseIndex btnRemoveUseIndex ~
+btnAddParameter btnRemoveSelection btnMoveDown btnAddConstant btnRemove ~
+cUseIndexLabel cParameterLabel cConstantLabel queryText 
+&Scoped-define tableSection btnMoveUp RECT-TABLE RECT-QUERYTABLE ~
+RECT-QUERYSTR tableSearch tableMatches tableBrowse cUseIndex findType ~
+subjectTableBrowse btnSyntax btnAddSelections queryStr btnAddUseIndex ~
+btnRemoveUseIndex btnRemoveSelection btnMoveDown btnRemove cUseIndexLabel ~
 queryText 
-&Scoped-define whereSection btnCalcField RECT-FIELD RECT-QUERYSTR ~
-RECT-PARAM btnNow btnOuterJoin btnToday btnTime btnDateTime tableList btnOF ~
+&Scoped-define whereSection btnMoveUp RECT-FIELD RECT-QUERYSTR RECT-PARAM ~
+btnNow btnOuterJoin btnToday btnTime btnDateTime tableList btnOF ~
 tableListOf btnWhere btnMatches subjectWhereBrowse btnBegins btnAND btnOR ~
 btnEQ btnNE btnLT btnGT fieldSearch fieldMatches paramSetMatches btnLE ~
 btnGE fieldBrowse btnPlus btnMinus btnMultiply btnDivide btnYes btnNo ~
-btnDate btnSyntax btnDec btnAddSelections btnInt btnStr btnSubstr ~
-cParameter btnOpen btnAddParameter btnClose btnRemoveSelection cConstant ~
-btnPeriod btnDouble btnComma btnMoveDown btnSingle btnAddConstant btnMoveUp ~
-queryStr btnRemove cParameterLabel cConstantLabel queryText 
-&Scoped-define parameterSection RECT-QUERYSTR RECT-PARAM RECT-PREVIEW ~
+btnDate btnDec btnInt btnStr btnSubstr cParameter btnCalcField btnOpen ~
+btnClose cConstant btnPeriod btnDouble btnSyntax btnComma btnSingle ~
+btnAddSelections queryStr btnAddParameter btnRemoveSelection btnMoveDown ~
+btnAddConstant btnRemove cParameterLabel cConstantLabel queryText 
+&Scoped-define parameterSection btnMoveUp RECT-PARAM RECT-PREVIEW ~
 btnSubjectParamSet paramSetSearch paramSetMatches paramSetBrowse ~
-subjectParamSetBrowse queryStr queryText 
-&Scoped-define columnsSection btnCalcField RECT-FIELD RECT-COLUMN ~
-RECT-PARAM fieldSearch fieldMatches paramSetMatches fieldBrowse ~
-btnAddSelections columnSearch btnGroupCalc columnMatches ~
-subjectColumnBrowse btnRemoveSelection btnMoveDown btnMoveUp btnRemove 
-&Scoped-define subjectSection btnResults btnCreateDefaults subjectSection ~
-subjectSearch subjectMatches 
+subjectParamSetBrowse btnAddSelections btnRemoveSelection btnMoveDown ~
+btnRemove 
+&Scoped-define columnsSection btnMoveUp RECT-FIELD RECT-COLUMN RECT-PARAM ~
+fieldSearch fieldMatches paramSetMatches fieldBrowse columnSearch ~
+columnMatches subjectColumnBrowse btnCalcField btnAddSelections ~
+btnGroupCalc btnRemoveSelection btnMoveDown btnRemove 
+&Scoped-define subjectSection btnCreateDefaults subjectSection ~
+subjectSearch subjectMatches btnResults 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -385,8 +385,8 @@ DEFINE BUTTON btnComma
      SIZE 2.4 BY 1.05 TOOLTIP "Comma".
 
 DEFINE BUTTON btnCreateDefaults 
-     LABEL "Create Defaults" 
-     SIZE 19 BY 1 TOOLTIP "Create Defaults".
+     LABEL "Create Default / Test" 
+     SIZE 23 BY 1 TOOLTIP "Create Defaults".
 
 DEFINE BUTTON btnDate 
      LABEL "DATE (" 
@@ -768,8 +768,16 @@ DEFINE BUTTON btnXLS
 
 DEFINE VARIABLE svRecipients AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 84 BY 2.38
+     SIZE 70 BY 2.38
      BGCOLOR 15 .
+
+DEFINE VARIABLE svSetAlignment AS CHARACTER INITIAL "Custom" 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "Columns", "Columns",
+"Rows", "Rows",
+"Custom", "Custom"
+     SIZE 13 BY 1.91 NO-UNDO.
 
 DEFINE RECTANGLE RECT-PANEL-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -874,6 +882,13 @@ DEFINE BUTTON btnUpdate
      IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Update" 
      SIZE 8 BY 1.91 TOOLTIP "Update/Save".
+
+DEFINE VARIABLE COMBO-BOX-1 AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Combo 1" 
+     VIEW-AS COMBO-BOX INNER-LINES 20
+     LIST-ITEMS "","AP","AR","DC","EQ","FG","GL","HS","JC","NS","OE","PO","RM","SB","TS" 
+     DROP-DOWN-LIST
+     SIZE 8.2 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-PANEL
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -982,14 +997,18 @@ ttSubjectColumn.fieldFormat
 DEFINE BROWSE subjectParamSetBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS subjectParamSetBrowse C-Win _FREEFORM
   QUERY subjectParamSetBrowse DISPLAY
-      dynParamSet.setName
+      ttSubjectParamSet.sortOrder
+dynParamSet.setName
 dynParamSet.setTitle
+ttSubjectParamSet.isVisible VIEW-AS TOGGLE-BOX
 ttSubjectParamSet.paramSetID
 ttSubjectParamSet.setRow
 ttSubjectParamSet.setCol
+ENABLE
+ttSubjectParamSet.isVisible
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 83 BY 4.19
+    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 78 BY 4.19
          TITLE "Subject Parameter Sets".
 
 DEFINE BROWSE subjectTableBrowse
@@ -1034,10 +1053,8 @@ ttTable.tableDscr LABEL-BGCOLOR 14
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnResults AT ROW 1.24 COL 83 HELP
-          "Run Subject" WIDGET-ID 250
-     btnCalcField AT ROW 18.38 COL 77 HELP
-          "Calculated Field" WIDGET-ID 280
+     btnMoveUp AT ROW 9.81 COL 77 HELP
+          "Move Up" WIDGET-ID 64
      btnCreateDefaults AT ROW 1.24 COL 3 HELP
           "Create Defaults" WIDGET-ID 278
      btnSubjectParamSet AT ROW 1.24 COL 151 HELP
@@ -1062,11 +1079,11 @@ DEFINE FRAME DEFAULT-FRAME
           "Select Table" NO-LABEL WIDGET-ID 106
      btnWhere AT ROW 4.1 COL 139 WIDGET-ID 100
      btnMatches AT ROW 4.1 COL 149 WIDGET-ID 88
-     btnSave AT ROW 1.24 COL 94 HELP
-          "Update/Save" WIDGET-ID 248
      subjectBrowse AT ROW 5.29 COL 2 WIDGET-ID 600
      tableBrowse AT ROW 5.29 COL 40 WIDGET-ID 200
      subjectWhereBrowse AT ROW 5.29 COL 82 WIDGET-ID 800
+     btnResults AT ROW 1.24 COL 83 HELP
+          "Run Subject" WIDGET-ID 250
      btnBegins AT ROW 5.29 COL 150 WIDGET-ID 84
      btnAND AT ROW 6.48 COL 150 WIDGET-ID 80
      btnOR AT ROW 6.48 COL 155 WIDGET-ID 82
@@ -1088,19 +1105,21 @@ DEFINE FRAME DEFAULT-FRAME
      fieldBrowse AT ROW 11 COL 40 WIDGET-ID 700
      btnPlus AT ROW 11.24 COL 150 WIDGET-ID 158
      btnMinus AT ROW 11.24 COL 155 WIDGET-ID 156
-     subjectParamSetBrowse AT ROW 12.43 COL 78 WIDGET-ID 1100
+     subjectParamSetBrowse AT ROW 12.43 COL 82 WIDGET-ID 1100
      btnMultiply AT ROW 12.43 COL 150 WIDGET-ID 160
      btnDivide AT ROW 12.43 COL 155 WIDGET-ID 154
      btnYes AT ROW 13.62 COL 150 WIDGET-ID 172
      btnNo AT ROW 13.62 COL 155 WIDGET-ID 174
-     btnUndo AT ROW 1.24 COL 102 HELP
-          "Undo Changes" WIDGET-ID 282
      btnDate AT ROW 14.81 COL 150 WIDGET-ID 166
      cUseIndex AT ROW 15.52 COL 12 COLON-ALIGNED NO-LABEL WIDGET-ID 262
-     btnSyntax AT ROW 23.86 COL 78 WIDGET-ID 202
      findType AT ROW 15.52 COL 50 NO-LABEL WIDGET-ID 26
      btnDec AT ROW 16 COL 150 WIDGET-ID 164
      subjectTableBrowse AT ROW 16.95 COL 82 WIDGET-ID 400
+     btnInt AT ROW 17.19 COL 150 WIDGET-ID 162
+     columnSearch AT ROW 17.43 COL 2 HELP
+          "Enter Column Search" NO-LABEL WIDGET-ID 112
+     columnMatches AT ROW 17.43 COL 67 HELP
+          "Select for Column Search Matches" WIDGET-ID 110
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -1109,38 +1128,38 @@ DEFINE FRAME DEFAULT-FRAME
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
-     btnAddSelections AT ROW 7.91 COL 77 HELP
-          "Add Selections" WIDGET-ID 200
-     btnInt AT ROW 17.19 COL 150 WIDGET-ID 162
-     columnSearch AT ROW 17.43 COL 2 HELP
-          "Enter Column Search" NO-LABEL WIDGET-ID 112
-     btnGroupCalc AT ROW 16.48 COL 77 HELP
-          "Group Calculations" WIDGET-ID 272
-     columnMatches AT ROW 17.43 COL 67 HELP
-          "Select for Column Search Matches" WIDGET-ID 110
-     btnAddUseIndex AT ROW 15.52 COL 38 WIDGET-ID 268
      btnStr AT ROW 18.38 COL 150 WIDGET-ID 168
      subjectColumnBrowse AT ROW 18.62 COL 1 WIDGET-ID 900
-     btnRemoveUseIndex AT ROW 15.52 COL 43 WIDGET-ID 270
      btnSubstr AT ROW 19.57 COL 150 WIDGET-ID 170
      cParameter AT ROW 20.76 COL 91 COLON-ALIGNED HELP
           "Select Parameter Type" NO-LABEL WIDGET-ID 204
+     btnCalcField AT ROW 18.38 COL 77 HELP
+          "Calculated Field" WIDGET-ID 280
      btnOpen AT ROW 20.76 COL 150 WIDGET-ID 94
-     btnAddParameter AT ROW 20.76 COL 145 WIDGET-ID 208
      btnClose AT ROW 20.76 COL 155 WIDGET-ID 96
-     btnRemoveSelection AT ROW 14.1 COL 77 HELP
-          "Remove Selections" WIDGET-ID 198
+     btnSave AT ROW 1.24 COL 94 HELP
+          "Update/Save" WIDGET-ID 248
      cConstant AT ROW 21.95 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 176
      btnPeriod AT ROW 21.95 COL 150 WIDGET-ID 236
      btnDouble AT ROW 21.95 COL 152.4 WIDGET-ID 240
+     btnUndo AT ROW 1.24 COL 102 HELP
+          "Undo Changes" WIDGET-ID 282
+     btnSyntax AT ROW 23.86 COL 78 WIDGET-ID 202
      btnComma AT ROW 21.95 COL 155 WIDGET-ID 242
+     btnSingle AT ROW 21.95 COL 157.4 WIDGET-ID 244
+     btnAddSelections AT ROW 7.91 COL 77 HELP
+          "Add Selections" WIDGET-ID 200
+     queryStr AT ROW 23.86 COL 83 NO-LABEL WIDGET-ID 4
+     btnGroupCalc AT ROW 16.48 COL 77 HELP
+          "Group Calculations" WIDGET-ID 272
+     btnAddUseIndex AT ROW 15.52 COL 38 WIDGET-ID 268
+     btnRemoveUseIndex AT ROW 15.52 COL 43 WIDGET-ID 270
+     btnAddParameter AT ROW 20.76 COL 145 WIDGET-ID 208
+     btnRemoveSelection AT ROW 14.1 COL 77 HELP
+          "Remove Selections" WIDGET-ID 198
      btnMoveDown AT ROW 12.19 COL 77 HELP
           "Move Down" WIDGET-ID 62
-     btnSingle AT ROW 21.95 COL 157.4 WIDGET-ID 244
      btnAddConstant AT ROW 21.95 COL 145 WIDGET-ID 180
-     btnMoveUp AT ROW 9.81 COL 77 HELP
-          "Move Up" WIDGET-ID 64
-     queryStr AT ROW 23.86 COL 83 NO-LABEL WIDGET-ID 4
      btnRemove AT ROW 11 COL 77 HELP
           "Remove" WIDGET-ID 66
      cUseIndexLabel AT ROW 15.52 COL 2 NO-LABEL WIDGET-ID 266
@@ -1180,16 +1199,17 @@ DEFINE FRAME outputFrame
      btnRunResults AT ROW 1.48 COL 94 HELP
           "Results Grid" WIDGET-ID 254
      svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
+     svSetAlignment AT ROW 1.71 COL 79 NO-LABEL WIDGET-ID 646
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
      svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
      svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
      svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
      svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
      svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
-     btnPrint AT ROW 1.48 COL 142 HELP
-          "Printer" WIDGET-ID 644
      svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
      svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
+     btnPrint AT ROW 1.48 COL 142 HELP
+          "Printer" WIDGET-ID 644
      btnAddEmail AT ROW 2.19 COL 3 HELP
           "Add Recipents" WIDGET-ID 636
      btnCSV AT ROW 1.48 COL 102 HELP
@@ -1204,6 +1224,8 @@ DEFINE FRAME outputFrame
           "Jasper Viewer" WIDGET-ID 148
      btnXLS AT ROW 1.48 COL 110 HELP
           "Excel XLS" WIDGET-ID 150
+     "Set Alignment" VIEW-AS TEXT
+          SIZE 13.6 BY .62 AT ROW 1 COL 79 WIDGET-ID 650
      "Email:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.48 COL 2 WIDGET-ID 640
      RECT-PANEL-2 AT ROW 1.24 COL 93 WIDGET-ID 256
@@ -1214,17 +1236,6 @@ DEFINE FRAME outputFrame
          SIZE 159 BY 5.24
          BGCOLOR 15 
          TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1400.
-
-DEFINE FRAME resultsFrame
-     btnCloseResults AT ROW 1 COL 6 HELP
-          "Jasper Viewer" WIDGET-ID 252
-     btnSaveResults AT ROW 1 COL 2 HELP
-          "Jasper Viewer" WIDGET-ID 254
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 139 ROW 9.81
-         SIZE 10 BY 2.38
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
 
 DEFINE FRAME viewFrame
      btnCloseView AT ROW 1.24 COL 106 HELP
@@ -1267,6 +1278,7 @@ DEFINE FRAME viewFrame
 "PDF", "PDF":U,
 "HTML", "HTML":U
           SIZE 61 BY 1
+     COMBO-BOX-1 AT ROW 3.62 COL 95 COLON-ALIGNED WIDGET-ID 160
      dynSubject.externalForm AT ROW 4.81 COL 16 COLON-ALIGNED WIDGET-ID 134
           VIEW-AS FILL-IN 
           SIZE 42 BY 1
@@ -1296,6 +1308,17 @@ DEFINE FRAME viewFrame
          SIZE 110 BY 7.38
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 1500.
+
+DEFINE FRAME resultsFrame
+     btnCloseResults AT ROW 1 COL 6 HELP
+          "Jasper Viewer" WIDGET-ID 252
+     btnSaveResults AT ROW 1 COL 2 HELP
+          "Jasper Viewer" WIDGET-ID 254
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 139 ROW 9.81
+         SIZE 10 BY 2.38
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1349,7 +1372,7 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE
 
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB subjectBrowse btnSave DEFAULT-FRAME */
+/* BROWSE-TAB subjectBrowse btnMatches DEFAULT-FRAME */
 /* BROWSE-TAB tableBrowse subjectBrowse DEFAULT-FRAME */
 /* BROWSE-TAB subjectWhereBrowse tableBrowse DEFAULT-FRAME */
 /* BROWSE-TAB paramSetBrowse btnGE DEFAULT-FRAME */
@@ -1368,7 +1391,7 @@ ASSIGN
        btnAddParameter:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR BUTTON btnAddSelections IN FRAME DEFAULT-FRAME
-   1 2 3 5                                                              */
+   1 2 3 4 5                                                            */
 ASSIGN 
        btnAddSelections:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
@@ -1475,12 +1498,12 @@ ASSIGN
        btnMinus:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR BUTTON btnMoveDown IN FRAME DEFAULT-FRAME
-   1 2 3 5                                                              */
+   1 2 3 4 5                                                            */
 ASSIGN 
        btnMoveDown:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR BUTTON btnMoveUp IN FRAME DEFAULT-FRAME
-   1 2 3 5                                                              */
+   1 2 3 4 5                                                            */
 ASSIGN 
        btnMoveUp:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
@@ -1535,12 +1558,12 @@ ASSIGN
        btnPlus:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR BUTTON btnRemove IN FRAME DEFAULT-FRAME
-   1 2 3 5                                                              */
+   1 2 3 4 5                                                            */
 ASSIGN 
        btnRemove:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR BUTTON btnRemoveSelection IN FRAME DEFAULT-FRAME
-   1 2 3 5                                                              */
+   1 2 3 4 5                                                            */
 ASSIGN 
        btnRemoveSelection:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
@@ -1668,13 +1691,13 @@ ASSIGN
        paramSetSearch:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR EDITOR queryStr IN FRAME DEFAULT-FRAME
-   1 2 3 4                                                              */
+   1 2 3                                                                */
 ASSIGN 
        queryStr:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE
        queryStr:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 /* SETTINGS FOR FILL-IN queryText IN FRAME DEFAULT-FRAME
-   NO-ENABLE 1 2 3 4                                                    */
+   NO-ENABLE 1 2 3                                                      */
 ASSIGN 
        queryText:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
@@ -1700,7 +1723,7 @@ ASSIGN
 /* SETTINGS FOR RECTANGLE RECT-QUERY IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-QUERYSTR IN FRAME DEFAULT-FRAME
-   NO-ENABLE 1 2 3 4                                                    */
+   NO-ENABLE 1 2 3                                                      */
 ASSIGN 
        RECT-QUERYSTR:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
@@ -1913,7 +1936,8 @@ BY ttSubjectColumn.sortOrder.
 OPEN QUERY {&SELF-NAME} FOR EACH ttSubjectParamSet
 WHERE ttSubjectParamSet.subjectID EQ dynSubject.subjectID,
 FIRST dynParamSet NO-LOCK
-WHERE dynParamSet.paramSetID EQ ttSubjectParamSet.paramSetID.
+WHERE dynParamSet.paramSetID EQ ttSubjectParamSet.paramSetID
+BY ttSubjectParamSet.sortOrder.
      _END_FREEFORM
      _Query            is NOT OPENED
 */  /* BROWSE subjectParamSetBrowse */
@@ -2187,8 +2211,18 @@ END.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 &Scoped-define SELF-NAME btnCreateDefaults
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCreateDefaults C-Win
-ON CHOOSE OF btnCreateDefaults IN FRAME DEFAULT-FRAME /* Create Defaults */
+ON CHOOSE OF btnCreateDefaults IN FRAME DEFAULT-FRAME /* Create Default / Test */
 DO:
+    DO TRANSACTION:
+        FIND FIRST dynParamValue EXCLUSIVE-LOCK
+             WHERE dynParamValue.subjectID    EQ dynSubject.subjectID
+               AND dynParamValue.user-id      EQ "{&defaultUser}"
+               AND dynParamValue.prgmName     EQ "{&program-id}"
+               AND dynParamValue.paramValueID EQ 0
+             NO-ERROR.
+        IF AVAILABLE dynParamValue THEN
+        DELETE dynParamValue.
+    END. /* do trans */
     RUN pCreateDynParameters (FRAME paramFrame:HANDLE, YES).
 END.
 
@@ -2328,6 +2362,9 @@ DO:
         WHEN "Columns" THEN
             IF AVAILABLE ttSubjectColumn THEN
             APPLY "DEFAULT-ACTION":U TO subjectColumnBrowse.
+        WHEN "Parameters" THEN
+            IF AVAILABLE ttSubjectParamSet THEN
+            APPLY "DEFAULT-ACTION":U TO subjectParamSetBrowse.
         WHEN "Table" THEN
             IF AVAILABLE ttSubjectTable THEN
             APPLY "DEFAULT-ACTION":U TO subjectTableBrowse.
@@ -2335,6 +2372,7 @@ DO:
             IF AVAILABLE ttSubjectWhere THEN
             APPLY "DEFAULT-ACTION":U TO subjectWhereBrowse.
     END CASE.
+    fSetSaveButton (YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2415,7 +2453,10 @@ END.
 ON CHOOSE OF btnSave IN FRAME DEFAULT-FRAME /* Save */
 DO:
     fSetSaveButton (NO).
-    BROWSE subjectColumnBrowse:MODIFIED = NO.
+    ASSIGN
+        BROWSE subjectColumnBrowse:MODIFIED   = NO
+        BROWSE subjectParamSetBrowse:MODIFIED = NO
+        .
     RUN pSaveSubject.
 END.
 
@@ -2636,6 +2677,17 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fieldBrowse C-Win
+ON VALUE-CHANGED OF fieldBrowse IN FRAME DEFAULT-FRAME /* Available Fields */
+DO:
+    IF AVAILABLE ttField THEN
+    SELF:TOOLTIP = ttField.fieldLabel + " (" + ttField.fieldName + ")".
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fieldMatches
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fieldMatches C-Win
 ON VALUE-CHANGED OF fieldMatches IN FRAME DEFAULT-FRAME /* Matches */
@@ -2668,6 +2720,7 @@ DO:
     IF AVAILABLE ttSubjectTable AND ttSubjectTable.sortOrder GT 1 THEN DO:
         ttSubjectTable.tableFind = {&SELF-NAME}.
         BROWSE subjectTableBrowse:REFRESH().
+        fSetSaveButton (YES).
         fShowQuery().
     END. /* if avail */
 END.
@@ -2799,8 +2852,20 @@ END.
 ON DEFAULT-ACTION OF subjectParamSetBrowse IN FRAME DEFAULT-FRAME /* Subject Parameter Sets */
 DO:
     DELETE ttSubjectParamSet.
+    RUN pSetOrder.
     {&OPEN-QUERY-subjectParamSetBrowse}
     RUN pGetParamList.
+    fSetSaveButton (YES).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL subjectParamSetBrowse C-Win
+ON ROW-LEAVE OF subjectParamSetBrowse IN FRAME DEFAULT-FRAME /* Subject Parameter Sets */
+DO:
+    IF BROWSE subjectParamSetBrowse:MODIFIED THEN
     fSetSaveButton (YES).
 END.
 
@@ -3034,6 +3099,17 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tableBrowse C-Win
+ON VALUE-CHANGED OF tableBrowse IN FRAME DEFAULT-FRAME /* Available Tables */
+DO:
+    IF AVAILABLE ttTable THEN
+    SELF:TOOLTIP = ttTable.tableDscr + " (" + ttTable.tableName + ")".
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tableList
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tableList C-Win
 ON VALUE-CHANGED OF tableList IN FRAME DEFAULT-FRAME /* Table */
@@ -3196,42 +3272,44 @@ PROCEDURE enable_UI :
           cParameter cConstant queryStr cUseIndexLabel cParameterLabel 
           cConstantLabel queryText 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnResults btnCalcField btnCreateDefaults btnSubjectParamSet btnNow 
-         btnOuterJoin subjectSection btnToday btnTime btnDateTime subjectSearch 
+  ENABLE btnMoveUp btnCreateDefaults btnSubjectParamSet btnNow btnOuterJoin 
+         subjectSection btnToday btnTime btnDateTime subjectSearch 
          subjectMatches tableSearch tableMatches tableList btnOF tableListOf 
-         btnWhere btnMatches btnSave subjectBrowse tableBrowse 
-         subjectWhereBrowse btnBegins btnAND btnOR btnEQ btnNE btnLT btnGT 
-         fieldSearch fieldMatches paramSetSearch paramSetMatches btnLE btnGE 
-         paramSetBrowse fieldBrowse btnPlus btnMinus subjectParamSetBrowse 
-         btnMultiply btnDivide btnYes btnNo btnUndo btnDate cUseIndex btnSyntax 
-         findType btnDec subjectTableBrowse btnAddSelections btnInt 
-         columnSearch btnGroupCalc columnMatches btnAddUseIndex btnStr 
-         subjectColumnBrowse btnRemoveUseIndex btnSubstr cParameter btnOpen 
-         btnAddParameter btnClose btnRemoveSelection cConstant btnPeriod 
-         btnDouble btnComma btnMoveDown btnSingle btnAddConstant btnMoveUp 
-         queryStr btnRemove cParameterLabel cConstantLabel 
+         btnWhere btnMatches subjectBrowse tableBrowse subjectWhereBrowse 
+         btnResults btnBegins btnAND btnOR btnEQ btnNE btnLT btnGT fieldSearch 
+         fieldMatches paramSetSearch paramSetMatches btnLE btnGE paramSetBrowse 
+         fieldBrowse btnPlus btnMinus subjectParamSetBrowse btnMultiply 
+         btnDivide btnYes btnNo btnDate cUseIndex findType btnDec 
+         subjectTableBrowse btnInt columnSearch columnMatches btnStr 
+         subjectColumnBrowse btnSubstr cParameter btnCalcField btnOpen btnClose 
+         btnSave cConstant btnPeriod btnDouble btnUndo btnSyntax btnComma 
+         btnSingle btnAddSelections queryStr btnGroupCalc btnAddUseIndex 
+         btnRemoveUseIndex btnAddParameter btnRemoveSelection btnMoveDown 
+         btnAddConstant btnRemove cParameterLabel cConstantLabel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
-  DISPLAY svRecipients svShowAll svShowReportHeader svShowReportFooter 
-          svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter 
-          svShowParameters 
+  DISPLAY svRecipients svSetAlignment svShowAll svShowReportHeader 
+          svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
+          svShowGroupFooter svShowParameters 
       WITH FRAME outputFrame IN WINDOW C-Win.
-  ENABLE btnRunResults svRecipients svShowAll svShowReportHeader 
+  ENABLE btnRunResults svRecipients svSetAlignment svShowAll svShowReportHeader 
          svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
-         btnPrint svShowGroupFooter svShowParameters btnAddEmail btnCSV btnDOCX 
+         svShowGroupFooter svShowParameters btnPrint btnAddEmail btnCSV btnDOCX 
          btnHTML btnPDF btnView btnXLS 
       WITH FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}
   ENABLE btnCloseResults btnSaveResults 
       WITH FRAME resultsFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-resultsFrame}
+  DISPLAY COMBO-BOX-1 
+      WITH FRAME viewFrame IN WINDOW C-Win.
   IF AVAILABLE dynSubject THEN 
     DISPLAY dynSubject.isActive dynSubject.securityLevel dynSubject.user-id 
           dynSubject.subjectTitle dynSubject.subjectType dynSubject.module 
           dynSubject.outputFormat dynSubject.externalForm 
           dynSubject.businessLogic 
       WITH FRAME viewFrame IN WINDOW C-Win.
-  ENABLE btnCloseView btnUpdate btnAdd btnCopy btnDelete 
+  ENABLE btnCloseView COMBO-BOX-1 btnUpdate btnAdd btnCopy btnDelete 
       WITH FRAME viewFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-viewFrame}
   ENABLE btnCloseParam 
@@ -3315,14 +3393,24 @@ PROCEDURE pAddParamSet :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiParamSetID AS INTEGER NO-UNDO.
     
+    DEFINE BUFFER bttSubjectParamSet FOR ttSubjectParamSet.
+    
     IF CAN-FIND(FIRST ttSubjectParamSet
                 WHERE ttSubjectParamSet.subjectID  EQ dynSubject.subjectID
                   AND ttSubjectParamSet.paramSetID EQ ipiParamSetID) THEN
     RETURN.
+    FOR EACH bttSubjectParamSet NO-LOCK
+        WHERE bttSubjectParamSet.subjectID  EQ dynSubject.subjectID
+           BY bttSubjectParamSet.sortOrder DESCENDING
+        :
+        LEAVE.
+    END. /* for each */
+    iOrder = IF AVAILABLE bttSubjectParamSet THEN bttSubjectParamSet.sortOrder ELSE 0.
     CREATE ttSubjectParamSet.
     ASSIGN
         ttSubjectParamSet.subjectID  = dynSubject.subjectID
         ttSubjectParamSet.paramSetID = ipiParamSetID
+        ttSubjectParamSet.sortOrder  = iOrder + 1
         ttSubjectParamSet.tableRowID = ?
         .
     {&OPEN-QUERY-subjectParamSetBrowse}
@@ -3357,6 +3445,8 @@ PROCEDURE pAddSelections :
                     CASE subjectSection:
                         WHEN "Columns" THEN
                         RUN pAddColumn (ttField.fieldName).
+                        WHEN "Parameters" THEN
+                        RUN pAddParamSet (dynParamSet.paramSetID).
                         WHEN "Where" THEN
                         RUN pAddWhere (tableList, ttField.fieldName, ttField.fieldLabel).
                     END CASE.
@@ -3927,6 +4017,8 @@ PROCEDURE pGetDBTables :
     DO idx = 1 TO NUM-ENTRIES(cDBList):
         CREATE ALIAS "dictdb" FOR DATABASE VALUE(ENTRY(idx,cDBList)).
         RUN nosweat/tables.p (OUTPUT cTableName, OUTPUT cTableDscr).
+        IF cTableDscr EQ "" OR cTableDscr EQ ? THEN
+        cTableDscr = cTableName.
         DO jdx = 1 TO NUM-ENTRIES(cTableName):
             CREATE ttTable.
             ASSIGN
@@ -3977,7 +4069,7 @@ PROCEDURE pGetFields :
             IF INDEX(cField,"[") NE 0 THEN
             cField = SUBSTR(cField,1,INDEX(cField,"[") - 1).
             RUN nosweat/fld_lbls.p (ttSubjectTable.tableName, cField, OUTPUT cLabel).
-            IF cLabel EQ "" THEN
+            IF cLabel EQ "" OR cLabel EQ ? THEN
             cLabel = ENTRY(idx,cFieldList).
             CREATE ttField.
             ASSIGN
@@ -4149,15 +4241,19 @@ PROCEDURE pMove :
     DEFINE VARIABLE iSubjectID AS INTEGER NO-UNDO.
     DEFINE VARIABLE rRowID     AS ROWID   NO-UNDO.
     
-    DEFINE BUFFER bttSubjectColumn FOR ttSubjectColumn.
-    DEFINE BUFFER bttSubjectTable  FOR ttSubjectTable.
-    DEFINE BUFFER bttSubjectWhere  FOR ttSubjectWhere.
+    DEFINE BUFFER bttSubjectColumn   FOR ttSubjectColumn.
+    DEFINE BUFFER bttSubjectParamSet FOR ttSubjectParamSet.
+    DEFINE BUFFER bttSubjectTable    FOR ttSubjectTable.
+    DEFINE BUFFER bttSubjectWhere    FOR ttSubjectWhere.
     
     iSubjectID = dynSubject.subjectID.
     CASE subjectSection:
         WHEN "Columns" THEN DO:
             {AOA/includes/pMove.i "ttSubjectColumn" "subjectColumnBrowse"}
         END. /* columns */
+        WHEN "Parameters" THEN DO:
+            {AOA/includes/pMove.i "ttSubjectParamSet" "subjectParamSetBrowse"}
+        END. /* table */
         WHEN "Table" THEN DO:
             {AOA/includes/pMove.i "ttSubjectTable" "subjectTableBrowse"}
         END. /* table */
@@ -4190,6 +4286,12 @@ PROCEDURE pRemoveSelections :
                     DELETE ttSubjectColumn.
                 END. /* do idex */
             END. /* columns */
+            WHEN "Parameters" THEN DO:
+                DO idx = 1 TO subjectParamSetBrowse:NUM-SELECTED-ROWS:
+                    subjectParamSetBrowse:FETCH-SELECTED-ROW(idx).
+                    DELETE ttSubjectParamSet.
+                END. /* do idex */
+            END. /* parameters */
             WHEN "Table" THEN DO:
                 DO idx = 1 TO subjectTableBrowse:NUM-SELECTED-ROWS:
                     subjectTableBrowse:FETCH-SELECTED-ROW(idx).
@@ -4462,7 +4564,7 @@ PROCEDURE pSetObjects :
             paramSetBrowse:ROW  = RECT-FIELD:ROW + 1.67
             
             /* parameter set browse */
-            subjectParamSetBrowse:COL = {&COL} - 5
+            subjectParamSetBrowse:COL = {&COL}
             subjectParamSetBrowse:ROW = {&ROW} + 1.67            
             
             /* results frame */
@@ -4493,9 +4595,10 @@ PROCEDURE pSetOrder :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
-    DEFINE BUFFER bttSubjectColumn FOR ttSubjectColumn.
-    DEFINE BUFFER bttSubjectTable  FOR ttSubjectTable.
-    DEFINE BUFFER bttSubjectWhere  FOR ttSubjectWhere.
+    DEFINE BUFFER bttSubjectColumn   FOR ttSubjectColumn.
+    DEFINE BUFFER bttSubjectParamSet FOR ttSubjectParamSet.
+    DEFINE BUFFER bttSubjectTable    FOR ttSubjectTable.
+    DEFINE BUFFER bttSubjectWhere    FOR ttSubjectWhere.
     
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN tableList.
@@ -4504,10 +4607,13 @@ PROCEDURE pSetOrder :
         WHEN "Columns" THEN DO:
             {AOA/includes/pSetOrder.i "ttSubjectColumn" "subjectColumnBrowse"}
         END. /* columns */
+        WHEN "Parameters" THEN DO:
+            {AOA/includes/pSetOrder.i "ttSubjectParamSet" "subjectParamSetBrowse"}
+        END. /* where */
         WHEN "Table" THEN DO:
             {AOA/includes/pSetOrder.i "ttSubjectTable" "subjectTableBrowse"}
         END. /* table */
-        WHEN "Where" OR WHEN "Parameters" THEN DO:
+        WHEN "Where" THEN DO:
             {AOA/includes/pSetOrder.i "ttSubjectWhere" "subjectWhereBrowse"}
         END. /* where */
     END CASE.

@@ -405,25 +405,33 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
           BGCOLOR 15 FONT 1
-     tt-report.frt-pay AT ROW 1.67 COL 81.4 COLON-ALIGNED
-          LABEL "Frt Pay" FORMAT "x(8)"
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1
+     tt-report.frt-pay AT ROW 1.67 COL 83.0 COLON-ALIGNED
+          LABEL "Frt Pay" FORMAT "x(12)"
+          VIEW-AS COMBO-BOX INNER-LINES 4
+          LIST-ITEM-PAIRS "P-Prepaid","P",
+                     "C-Collect","C",
+                     "B-Bill","B",
+                     "T-3rd Party","T"
+          DROP-DOWN-LIST
+          SIZE 17.5 BY 1
           BGCOLOR 15 FONT 1
      oe-rel.carrier AT ROW 2.86 COL 55.4 COLON-ALIGNED
           LABEL "Via" FORMAT "x(5)"
           VIEW-AS FILL-IN 
-          SIZE 24 BY 1
+          SIZE 20 BY 1
           BGCOLOR 15 FONT 1
-     tt-report.flute AT ROW 2.86 COL 88.4 COLON-ALIGNED
+     tt-report.flute AT ROW 2.86 COL 83.0 COLON-ALIGNED
           LABEL "FOB" FORMAT "x(1)"
-          VIEW-AS FILL-IN 
-          SIZE 8 BY 1
+          VIEW-AS COMBO-BOX INNER-LINES 4
+          LIST-ITEM-PAIRS "D-Destination","D",
+                     "O-Origin","O"
+          DROP-DOWN-LIST 
+          SIZE 17.5 BY 1
           BGCOLOR 15 FONT 1
      oe-rel.ship-id AT ROW 4.05 COL 55.4 COLON-ALIGNED
           LABEL "Ship To" FORMAT "x(8)"
           VIEW-AS FILL-IN 
-          SIZE 24 BY 1
+          SIZE 20 BY 1
           BGCOLOR 15 FONT 1
      tt-report.stat AT ROW 1.67 COL 121.6 COLON-ALIGNED
           LABEL "Release Date" FORMAT "99/99/9999"

@@ -495,11 +495,11 @@ do v-local-loop = 1 to v-local-copies:
               " " +
               "L:" + trim(string({sys/inc/k16v.i xeb.t-len},">>>9.99")) format "x(22)"
               SKIP
-              "Score:" AT 2 substring(v-len-score,1,30) WHEN xstyle.TYPE <> "F" format "x(30)" 
+              "Score:" AT 2 STRING(v-len-score) WHEN xstyle.TYPE <> "F" format "x(30)" 
               "Ink 5:" AT 39 v-ink-5
               "Impressions:" AT 80 trim(string(v-dc-qty))    format "x(7)"
               SKIP
-              SUBSTRING(v-len-score,31,36) AT 3 FORM "x(36)"
+              STRING(v-wid-score) AT 3 FORM "x(36)"
               "Color Desc:" AT 39 v-coldscr
               "D/C Style:" AT 80 SKIP
               WITH FRAME job1 NO-LABEL NO-BOX WIDTH 200 STREAM-IO.                

@@ -202,7 +202,7 @@ ON CHOOSE OF btn_post IN FRAME F-Main /* Post */
 DO:
     DEF VAR char-hdl AS cha NO-UNDO.
     DEF VAR lv-in-update AS LOG NO-UNDO.
-
+    DEFINE VARIABLE lChoice AS LOGICAL NO-UNDO.
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"state-target",OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
        RUN is-in-update IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-in-update).
@@ -210,9 +210,16 @@ DO:
        MESSAGE "Save or Cancel First before Post." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
     END.
-    run fg/fgpstall.w (?, "").
-    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-       RUN dispatch IN WIDGET-HANDLE(char-hdl) ("open-query").
+    lChoice = NO.
+    MESSAGE "Are you ready to post to finished goods?"
+        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+        UPDATE lChoice.
+        
+    IF lChoice AND VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
+        RUN post-finish-goods IN WIDGET-HANDLE(char-hdl).
+        MESSAGE "Posting completed..." VIEW-AS ALERT-BOX.
+    END.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

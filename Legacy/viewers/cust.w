@@ -2063,7 +2063,8 @@ PROCEDURE local-assign-record :
                 shipto.dest-code = cust.del-zone
                 shipto.loc = cust.loc
                 shipto.tax-code = cust.tax-gr
-                shipto.tax-mandatory = cust.sort EQ "Y".
+                shipto.tax-mandatory = cust.sort EQ "Y"
+                shipto.spare-char-1  = cust.sman.
          LEAVE.  /* just copy first shipto only Task 05250421*/
     end.
     for each bf-soldto of bf-cust NO-LOCK BY bf-soldto.sold-no:

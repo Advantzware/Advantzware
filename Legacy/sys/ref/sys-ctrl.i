@@ -28,7 +28,8 @@ ASSIGN
                 "Frankstn,Mirpkg,APC,FibreX,PPI,Fibre-Excel,Packrite,Nosco-Excel," + 
                 "MSPACK-Excel,AllWest,Simkins,CCC,Soule,SouleMed,MWFIBRE,Loylang,Protagon," +
                 "PeachTree,LoylangBSF,Premier-Excel,Oklahoma,Accord,Hughes,Sultana,CCC-Excel,Axis,Boss,Bell-Excel,Perform," +
-                "Printers,quoprint 1,quoprint 2,quoprint 10,quoprint 20,quoprint10-CAN,Premier-excel-mci,quoprint 11,RFC,Chattanooga"
+                "Printers,quoprint 1,quoprint 2,quoprint 10,quoprint 20,quoprint10-CAN,Premier-excel-mci,quoprint 11,RFC,Chattanooga," +
+                "QuoPrintVAL"
  str-init[2]  = "Capitol,ASI,Beeler,Argrov,ILWalker,1/2 Page,Phoenix,Color,Interpac,Royal,Keystone," +
                 "Livngstn,ContSrvc,Rudd,Premier,MultiWll,Imperial,PAC 1/2," +
                 "Colonial,Clev 1/2,Triad,Danbury,TriState,Blueridg,Sonoco," +  
@@ -110,7 +111,7 @@ ASSIGN
                 "TriLakes,TriLakes2,Spectrum,Michcor,CapCity,colonialPL," +
                 "Allwest,LoyLang,Badger,Delta,PQP,RFC2,Peachtree,BlueRidg," +
                 "Oklahoma,Protagon,TriState,Soule,Adapt,Freedman,BELL,VINELAND,Axis,Lakeside,PFS," +
-                "jobcardc 1,jobcardc 2,Printers,Valley,jobcardc 20,Valley20" 
+                "jobcardc 1,jobcardc 2,Printers,Valley,jobcardc 20,Valley20,Delta10" 
  str-init[33] = "ASI,HOP,Fibre,Century,Interpac,FibreFC,HPB,Dayton,Livngstn,CentBox,Metro,Keystone,Frankstn,Colonial,Unipak,OTTPkg,Shelby,CCC,Indiana-XL,PPI,Accord,Knight,MidYork,Dee,Badger,Rosmar,Carded,Carded2,PackRite,Prystup,Knight***,Coburn," + /*MWFibre=Keystone*/
                 "jobcardf 1,jobcardf 2,xml,Wingate,Ruffino"
  str-init[34] = "Manual,Matrix"

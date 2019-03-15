@@ -43,6 +43,7 @@ DEFINE VARIABLE hAppSrvBin      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hDynDescripProc AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hDynInitProc    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hDynValProc     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lSave           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE pHandle         AS HANDLE    NO-UNDO.
 DEFINE VARIABLE rRowID          AS ROWID     NO-UNDO.
 
@@ -75,10 +76,10 @@ RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
 
 /* Custom List Definitions                                              */
 /* outputObjects,showFields,List-3,List-4,List-5,List-6                 */
-&Scoped-define outputObjects btnSave svRecipients defaultOutputFormat ~
-svShowAll svShowReportHeader svShowReportFooter svShowPageHeader ~
-svShowPageFooter svShowGroupHeader btnAddEmail svShowGroupFooter ~
-svShowParameters 
+&Scoped-define outputObjects btnSave btnVisibleSets svRecipients ~
+svSetAlignment defaultOutputFormat svShowAll svShowReportHeader ~
+svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader ~
+svShowGroupFooter svShowParameters btnAddEmail 
 &Scoped-define showFields svShowAll svShowReportHeader svShowReportFooter ~
 svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter ~
 svShowParameters 
@@ -111,9 +112,14 @@ DEFINE BUTTON btnSave
      LABEL "Save" 
      SIZE 8 BY 1.91 TOOLTIP "Save".
 
+DEFINE BUTTON btnVisibleSets 
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "Show/Hide Parameter Sets".
+
 DEFINE VARIABLE svRecipients AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 83 BY 2.38
+     SIZE 69 BY 2.38
      BGCOLOR 15 .
 
 DEFINE VARIABLE defaultOutputFormat AS CHARACTER 
@@ -125,7 +131,15 @@ DEFINE VARIABLE defaultOutputFormat AS CHARACTER
 "DocX", "DOCX",
 "PDF", "PDF",
 "HTML", "HTML"
-     SIZE 55 BY 1 NO-UNDO.
+     SIZE 48 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svSetAlignment AS CHARACTER INITIAL "Custom" 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "Columns", "Columns",
+"Rows", "Rows",
+"Custom", "Custom"
+     SIZE 13 BY 1.91 NO-UNDO.
 
 DEFINE RECTANGLE RECT-PANEL
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -188,18 +202,23 @@ DEFINE FRAME paramFrame
 DEFINE FRAME outputFrame
      btnSave AT ROW 1.48 COL 149 HELP
           "Update/Save" WIDGET-ID 248
+     btnVisibleSets AT ROW 1.48 COL 141 HELP
+          "Show/Hide Parameter Sets" WIDGET-ID 660
      svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
+     svSetAlignment AT ROW 1.71 COL 78 NO-LABEL WIDGET-ID 654
      defaultOutputFormat AT ROW 2.43 COL 93 NO-LABEL WIDGET-ID 644
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
      svShowReportHeader AT ROW 4.1 COL 23 WIDGET-ID 2
      svShowReportFooter AT ROW 4.1 COL 44 WIDGET-ID 4
      svShowPageHeader AT ROW 4.1 COL 65 WIDGET-ID 6
-     svShowPageFooter AT ROW 4.1 COL 84 WIDGET-ID 8
+     svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
      svShowGroupHeader AT ROW 4.1 COL 103 WIDGET-ID 10
-     btnAddEmail AT ROW 2.19 COL 3 HELP
-          "Add Recipents" WIDGET-ID 636
      svShowGroupFooter AT ROW 4.1 COL 123 WIDGET-ID 12
      svShowParameters AT ROW 4.1 COL 142 WIDGET-ID 16
+     btnAddEmail AT ROW 2.19 COL 3 HELP
+          "Add Recipents" WIDGET-ID 636
+     "Set Alignment" VIEW-AS TEXT
+          SIZE 13.6 BY .62 AT ROW 1 COL 78 WIDGET-ID 658
      "Default Output Format:" VIEW-AS TEXT
           SIZE 23 BY 1 AT ROW 1.48 COL 93 WIDGET-ID 652
      "Email:" VIEW-AS TEXT
@@ -270,6 +289,8 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE.
    1                                                                    */
 /* SETTINGS FOR BUTTON btnSave IN FRAME outputFrame
    1                                                                    */
+/* SETTINGS FOR BUTTON btnVisibleSets IN FRAME outputFrame
+   1                                                                    */
 /* SETTINGS FOR RADIO-SET defaultOutputFormat IN FRAME outputFrame
    1                                                                    */
 /* SETTINGS FOR RECTANGLE RECT-PANEL IN FRAME outputFrame
@@ -277,6 +298,8 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE.
 /* SETTINGS FOR RECTANGLE RECT-SHOW IN FRAME outputFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR EDITOR svRecipients IN FRAME outputFrame
+   1                                                                    */
+/* SETTINGS FOR RADIO-SET svSetAlignment IN FRAME outputFrame
    1                                                                    */
 /* SETTINGS FOR TOGGLE-BOX svShowAll IN FRAME outputFrame
    1 2                                                                  */
@@ -345,9 +368,35 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnVisibleSets
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnVisibleSets s-object
+ON CHOOSE OF btnVisibleSets IN FRAME outputFrame
+DO:
+    RUN AOA/dynVisibleSets.w (ROWID(dynParamValue), OUTPUT lSave).
+    IF lSave THEN DO:
+        FIND CURRENT dynParamValue NO-LOCK.
+        RUN pShowParameterSets.
+    END. /* if lsave */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME defaultOutputFormat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL defaultOutputFormat s-object
 ON VALUE-CHANGED OF defaultOutputFormat IN FRAME outputFrame
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svSetAlignment
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svSetAlignment s-object
+ON VALUE-CHANGED OF svSetAlignment IN FRAME outputFrame
 DO:
     ASSIGN {&SELF-NAME}.
 END.
@@ -533,10 +582,12 @@ PROCEDURE local-view :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  RUN pCreateDynParameters (FRAME {&FRAME-NAME}:HANDLE, YES).
+  RUN pShowParameterSets.
   ENABLE {&outputObjects} WITH FRAME outputFrame.
-  btnSave:HIDDEN = NOT AVAILABLE dynParamValue OR dynParamValue.user-id EQ "_default".
-  FRAME {&FRAME-NAME}:MOVE-TO-TOP().
+  ASSIGN
+      btnSave:HIDDEN = NOT AVAILABLE dynParamValue OR dynParamValue.user-id EQ "_default"
+      btnVisibleSets:HIDDEN = btnSave:HIDDEN
+      .
 
 END PROCEDURE.
 
@@ -574,6 +625,21 @@ PROCEDURE pGetSettings :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pShowParameterSets s-object 
+PROCEDURE pShowParameterSets :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  RUN pCreateDynParameters (FRAME {&FRAME-NAME}:HANDLE, YES).
+  FRAME {&FRAME-NAME}:MOVE-TO-TOP().
 
 END PROCEDURE.
 

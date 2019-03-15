@@ -1,3 +1,0 @@
-/* btnReset.i */
-
-/* static version */

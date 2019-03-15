@@ -81,7 +81,7 @@ DEFINE VARIABLE cbShipFrom AS CHARACTER  NO-UNDO .
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS v-ship-id browse-shipto Btn_OK 
-&Scoped-Define DISPLAYED-OBJECTS v-order-id v-ship-id 
+&Scoped-Define DISPLAYED-OBJECTS v-order-id cShipLoc v-ship-id 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -106,6 +106,11 @@ DEFINE VARIABLE v-order-id AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 23 BY 1 NO-UNDO.
 
+DEFINE VARIABLE cShipLoc AS CHARACTER FORMAT "x(20)":U 
+     LABEL "Default Whse"
+     VIEW-AS FILL-IN 
+     SIZE 23 BY 1 NO-UNDO.
+
 DEFINE VARIABLE v-ship-id AS CHARACTER FORMAT "X(8)":U 
      LABEL "Ship To Code" 
      VIEW-AS FILL-IN 
@@ -123,7 +128,7 @@ DEFINE BROWSE browse-shipto
   QUERY browse-shipto NO-LOCK DISPLAY
       tt-oe-shipto.ship-from FORMAT "x(8)":U COLUMN-LABEL "Ship From" WIDTH 16
       tt-oe-shipto.on-hand-qty FORMAT "->,>>>,>>9":U COLUMN-LABEL "On Hand"  WIDTH 18
-      tt-oe-shipto.avail-qty FORMAT "->,>>>,>>>,>>9":U COLUMN-LABEL "Available" WIDTH 18 
+      tt-oe-shipto.avail-qty FORMAT "->,>>>,>>>,>>9":U COLUMN-LABEL "Available" WIDTH 20 
       tt-oe-shipto.q-status COLUMN-LABEL "Status":U WIDTH 8
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -134,8 +139,9 @@ DEFINE BROWSE browse-shipto
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     v-order-id AT ROW 1.38 COL 39.4 COLON-ALIGNED WIDGET-ID 4
-     v-ship-id AT ROW 3.33 COL 31.2 COLON-ALIGNED
+     v-order-id AT ROW 1.38 COL 31.2 COLON-ALIGNED WIDGET-ID 4
+     v-ship-id AT ROW 2.60 COL 31.2 COLON-ALIGNED
+     cShipLoc AT ROW 3.82 COL 31.2 COLON-ALIGNED 
      browse-shipto AT ROW 5.05 COL 10.6
      Btn_OK AT ROW 16.29 COL 41.2
      SPACE(36.79) SKIP(1.18)
@@ -170,6 +176,8 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN v-order-id IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cShipLoc IN FRAME Dialog-Frame
+   NO-ENABLE                                                           */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -317,6 +325,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   v-ship-id = op-ship-id.
   v-order-id = ipiOrderQty .
+  cShipLoc = op-ship-from .
 
   RUN enable_UI.
 
@@ -405,7 +414,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY v-order-id v-ship-id 
+  DISPLAY v-order-id cShipLoc v-ship-id 
       WITH FRAME Dialog-Frame.
   ENABLE v-ship-id browse-shipto Btn_OK 
       WITH FRAME Dialog-Frame.

@@ -32,7 +32,7 @@ ADD FIELD "queryStr" OF "dynSubject" AS character
   POSITION 5
   MAX-WIDTH 100
   HELP "Enter Query"
-  ORDER 110
+  ORDER 120
 
 ADD FIELD "rec_key" OF "dynSubject" AS character 
   FORMAT "x(21)"
@@ -41,7 +41,7 @@ ADD FIELD "rec_key" OF "dynSubject" AS character
   POSITION 6
   MAX-WIDTH 42
   HELP "Enter Rec Key Value"
-  ORDER 120
+  ORDER 130
 
 ADD FIELD "isActive" OF "dynSubject" AS logical 
   FORMAT "yes/no"
@@ -97,7 +97,7 @@ ADD FIELD "outputFormat" OF "dynSubject" AS character
   MAX-WIDTH 16
   COLUMN-LABEL "Output"
   HELP "Enter Output Format"
-  ORDER 80
+  ORDER 90
 
 ADD FIELD "externalForm" OF "dynSubject" AS character 
   FORMAT "x(40)"
@@ -106,7 +106,7 @@ ADD FIELD "externalForm" OF "dynSubject" AS character
   POSITION 15
   MAX-WIDTH 80
   HELP "Enter External Form"
-  ORDER 90
+  ORDER 100
 
 ADD FIELD "businessLogic" OF "dynSubject" AS character 
   FORMAT "x(40)"
@@ -115,7 +115,17 @@ ADD FIELD "businessLogic" OF "dynSubject" AS character
   POSITION 16
   MAX-WIDTH 80
   HELP "Enter Business Logic"
-  ORDER 100
+  ORDER 110
+
+ADD FIELD "paramAlign" OF "dynSubject" AS character 
+  FORMAT "x(8)"
+  INITIAL "Custom"
+  LABEL "Parameter Alignment"
+  POSITION 17
+  MAX-WIDTH 16
+  COLUMN-LABEL "Alignment"
+  HELP "Enter Parameter Alignment"
+  ORDER 80
 
 ADD INDEX "pi-subjectID" ON "dynSubject" 
   AREA "Index"
@@ -153,4 +163,4 @@ ADD INDEX "si-user-id" ON "dynSubject"
 PSC
 cpstream=ISO8859-1
 .
-0000003502
+0000003734

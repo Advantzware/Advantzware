@@ -133,15 +133,16 @@ IF lRecFound THEN
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_po-no end_po-no ~
 begin_vend-no end_vend-no tb_reprint tb_reprint-closed tb_delete ~
-tb_print-terms tb_spec tb_attachments tb_cust-code tb_mach tb_corr tb_group-notes ~
-tb_Summarize-by-item tb_itemDescription tb_score-types tb_metric ~
-tb_print-prices rd-dest lv-ornt lines-per-page lv-font-no td-show-parm ~
-btn-ok btn-cancel 
+tb_print-terms tb_spec tb_attachments tb_cust-code tb_corr tb_group-notes ~
+tb_mach tb_Summarize-by-item tb_grand-total tb_itemDescription ~
+tb_score-types tb_metric tb_print-prices rd-dest lv-ornt lines-per-page ~
+lv-font-no td-show-parm btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_po-no end_po-no begin_vend-no ~
 end_vend-no tb_reprint tb_reprint-closed tb_delete tb_print-terms tb_spec ~
-tb_attachments tb_cust-code tb_mach tb_corr tb_group-notes tb_Summarize-by-item ~
-tb_itemDescription tb_score-types tb_metric tb_print-prices rd-dest lv-ornt ~
-lines-per-page lv-font-no lv-font-name td-show-parm 
+tb_attachments tb_cust-code tb_corr tb_group-notes tb_mach ~
+tb_Summarize-by-item tb_grand-total tb_itemDescription tb_score-types ~
+tb_metric tb_print-prices rd-dest lv-ornt lines-per-page lv-font-no ~
+lv-font-name td-show-parm 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -249,15 +250,15 @@ DEFINE VARIABLE tb_cust-code AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 41.8 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_mach AS LOGICAL INITIAL no 
-     LABEL "Print First Resource?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 41.8 BY .81 NO-UNDO.
-
 DEFINE VARIABLE tb_delete AS LOGICAL INITIAL no 
      LABEL "Do you want to print deleted line items?" 
      VIEW-AS TOGGLE-BOX
      SIZE 41 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_grand-total AS LOGICAL INITIAL YES 
+     LABEL "Print Grand Total MSF" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 41.8 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_group-notes AS LOGICAL INITIAL no 
      LABEL "Group Notes on Same Page?" 
@@ -268,6 +269,11 @@ DEFINE VARIABLE tb_itemDescription AS LOGICAL INITIAL no
      LABEL "Print FG Item Description 3 Line?" 
      VIEW-AS TOGGLE-BOX
      SIZE 39.4 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_mach AS LOGICAL INITIAL no 
+     LABEL "Print First Resource?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 41.8 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_metric AS LOGICAL INITIAL no 
      LABEL "Print Metric?" 
@@ -337,6 +343,7 @@ DEFINE FRAME FRAME-A
      tb_group-notes AT ROW 8.86 COL 10.6
      tb_mach AT ROW 8.86 COL 53 WIDGET-ID 4
      tb_Summarize-by-item AT ROW 9.81 COL 10.6
+     tb_grand-total AT ROW 9.81 COL 53 WIDGET-ID 6
      tb_itemDescription AT ROW 10.76 COL 10.6
      tb_score-types AT ROW 11.71 COL 10.6
      tb_metric AT ROW 12.67 COL 10.6
@@ -450,12 +457,13 @@ ASSIGN
 ASSIGN 
        tb_cust-code:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-ASSIGN 
-       tb_mach:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
 
 ASSIGN 
        tb_delete:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_grand-total:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -464,6 +472,10 @@ ASSIGN
 
 ASSIGN 
        tb_itemDescription:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_mach:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -618,7 +630,8 @@ DO:
         v-print-terms       = tb_print-terms
         lv-attachments      = tb_attachments
         lCustCode           =  tb_cust-code
-        lPrintMach          =  tb_mach .
+        lPrintMach          =  tb_mach 
+        lPrintGrandTotMsf   = tb_grand-total.
 
 
     IF v-start-po EQ v-end-po THEN DO:
@@ -900,9 +913,10 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME tb_mach
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_mach C-Win
-ON VALUE-CHANGED OF tb_mach IN FRAME FRAME-A /* Print Machine for each PO Line? */
+
+&Scoped-define SELF-NAME tb_delete
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_delete C-Win
+ON VALUE-CHANGED OF tb_delete IN FRAME FRAME-A /* Do you want to print deleted line items? */
 DO:
   ASSIGN {&self-name}.
 END.
@@ -911,9 +925,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_delete
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_delete C-Win
-ON VALUE-CHANGED OF tb_delete IN FRAME FRAME-A /* Do you want to print deleted line items? */
+&Scoped-define SELF-NAME tb_grand-total
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_grand-total C-Win
+ON VALUE-CHANGED OF tb_grand-total IN FRAME FRAME-A /* Print Grand Total MSF */
 DO:
   ASSIGN {&self-name}.
 END.
@@ -936,6 +950,17 @@ END.
 &Scoped-define SELF-NAME tb_itemDescription
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_itemDescription C-Win
 ON VALUE-CHANGED OF tb_itemDescription IN FRAME FRAME-A /* Print FG Item Description 3 Line? */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_mach
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_mach C-Win
+ON VALUE-CHANGED OF tb_mach IN FRAME FRAME-A /* Print First Resource? */
 DO:
   ASSIGN {&self-name}.
 END.
@@ -1163,7 +1188,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    
     IF LOOKUP(v-print-fmt,"poprint 10,poprint 20,POPrint10-CAN") = 0 THEN 
        DISABLE tb_cust-code tb_mach.
-    
+
+    IF LOOKUP(v-print-fmt,"poprint 10,poprint 20,POPrint10-CAN") NE 0 THEN 
+        tb_grand-total:HIDDEN = NO .
+    ELSE 
+        tb_grand-total:HIDDEN = YES .
+
     IF NOT poPaperClip-log THEN 
         ASSIGN tb_attachments:SCREEN-VALUE = "NO"
                tb_attachments:SENSITIVE    = NO.
@@ -1231,16 +1261,17 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_po-no end_po-no begin_vend-no end_vend-no tb_reprint 
           tb_reprint-closed tb_delete tb_print-terms tb_spec tb_attachments 
-          tb_cust-code tb_mach tb_corr tb_group-notes tb_Summarize-by-item 
-          tb_itemDescription tb_score-types tb_metric tb_print-prices rd-dest 
-          lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm 
+          tb_cust-code tb_corr tb_group-notes tb_mach tb_Summarize-by-item 
+          tb_grand-total tb_itemDescription tb_score-types tb_metric 
+          tb_print-prices rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
+          td-show-parm 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_po-no end_po-no begin_vend-no end_vend-no 
          tb_reprint tb_reprint-closed tb_delete tb_print-terms tb_spec 
-         tb_attachments tb_cust-code tb_mach tb_corr tb_group-notes 
-         tb_Summarize-by-item tb_itemDescription tb_score-types tb_metric 
-         tb_print-prices rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
-         btn-ok btn-cancel 
+         tb_attachments tb_cust-code tb_corr tb_group-notes tb_mach 
+         tb_Summarize-by-item tb_grand-total tb_itemDescription tb_score-types 
+         tb_metric tb_print-prices rd-dest lv-ornt lines-per-page lv-font-no 
+         td-show-parm btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1248,87 +1279,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateReport C-Win 
-PROCEDURE GenerateReport :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DEFINE INPUT PARAMETER ip-begin-vend-no AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ip-end-vend-no AS CHARACTER NO-UNDO.
-
-  /* gdm - 11190804 */
-  DEFINE VARIABLE v-outfile AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lcSubject AS CHARACTER   NO-UNDO.
-  DEFINE BUFFER bf-po-ord FOR po-ord.
-  DEFINE VARIABLE llAttachExists AS LOG NO-UNDO.
-  SESSION:SET-WAIT-STATE ("").
-  llAttachExists = NO.
-
-  IF v-print-fmt <> "southpak-xl" THEN
-  DO WITH FRAME {&FRAME-NAME}:  
-    CASE rd-dest:
-       WHEN 1 THEN RUN output-to-printer.
-       WHEN 2 THEN RUN output-to-screen.
-       WHEN 3 THEN RUN output-to-file.
-       WHEN 4 THEN DO:
-
-           IF lv-fax-type = "MULTI" THEN DO:
-              RUN output-to-fax-prt. /* create tif file */              
-              {custom/asifaxm3.i &TYPE         = "MULTI"
-                                &begin_cust   = ip-begin-vend-no
-                                &end_cust     = ip-end-vend-no
-                                &fax-subject  = "Purchase Orders"
-                                &fax-body     = "Purchase Orders"
-                                &fax-file     = lv-fax-image
-                                &end-widget   = end_vend-no }      
-           END.
-           ELSE DO:
-           {custom/asifax.i     &type         = "Vendor"
-                                &begin_cust   = begin_vend-no
-                                &END_cust     = begin_vend-no
-                                &fax-subject  = "Purchase Orders"
-                                &fax-body     = "Purchase Orders"
-                                &fax-file     = list-name}
-           END.
-       END. 
-
-       WHEN 6 THEN RUN output-to-port.
-    END CASE. 
-  END.
-
-  IF rd-dest = 5 THEN DO:      
-   
-    IF is-xprint-form OR v-print-fmt = "southpak-xl" THEN DO:
-
-      IF v-print-fmt <> "southpak-xl" THEN DO:
-
-        RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
-
-        IF NOT AttachmentExists() THEN RETURN.
-      END.
-
-      ELSE 
-        ASSIGN lv-pdf-file = init-dir + "\PO.pdf".
-         
-        cPdfFilesAttach = cPdfFilesAttach + lv-pdf-file + "," .
-      
-    END.
-
-    ELSE DO:  
-      IF NOT AttachmentExists() THEN RETURN.
-      
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateMail C-Win 
 PROCEDURE GenerateMail :
@@ -1452,6 +1402,86 @@ PROCEDURE GenerateMail :
                               INPUT   "Purchase Orders",
                               INPUT   "Purchase Orders",
                               OUTPUT  vcErrorMsg).
+    END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateReport C-Win 
+PROCEDURE GenerateReport :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DEFINE INPUT PARAMETER ip-begin-vend-no AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ip-end-vend-no AS CHARACTER NO-UNDO.
+
+  /* gdm - 11190804 */
+  DEFINE VARIABLE v-outfile AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lcSubject AS CHARACTER   NO-UNDO.
+  DEFINE BUFFER bf-po-ord FOR po-ord.
+  DEFINE VARIABLE llAttachExists AS LOG NO-UNDO.
+  SESSION:SET-WAIT-STATE ("").
+  llAttachExists = NO.
+
+  IF v-print-fmt <> "southpak-xl" THEN
+  DO WITH FRAME {&FRAME-NAME}:  
+    CASE rd-dest:
+       WHEN 1 THEN RUN output-to-printer.
+       WHEN 2 THEN RUN output-to-screen.
+       WHEN 3 THEN RUN output-to-file.
+       WHEN 4 THEN DO:
+
+           IF lv-fax-type = "MULTI" THEN DO:
+              RUN output-to-fax-prt. /* create tif file */              
+              {custom/asifaxm3.i &TYPE         = "MULTI"
+                                &begin_cust   = ip-begin-vend-no
+                                &end_cust     = ip-end-vend-no
+                                &fax-subject  = "Purchase Orders"
+                                &fax-body     = "Purchase Orders"
+                                &fax-file     = lv-fax-image
+                                &end-widget   = end_vend-no }      
+           END.
+           ELSE DO:
+           {custom/asifax.i     &type         = "Vendor"
+                                &begin_cust   = begin_vend-no
+                                &END_cust     = begin_vend-no
+                                &fax-subject  = "Purchase Orders"
+                                &fax-body     = "Purchase Orders"
+                                &fax-file     = list-name}
+           END.
+       END. 
+
+       WHEN 6 THEN RUN output-to-port.
+    END CASE. 
+  END.
+
+  IF rd-dest = 5 THEN DO:      
+   
+    IF is-xprint-form OR v-print-fmt = "southpak-xl" THEN DO:
+
+      IF v-print-fmt <> "southpak-xl" THEN DO:
+
+        RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
+
+        IF NOT AttachmentExists() THEN RETURN.
+      END.
+
+      ELSE 
+        ASSIGN lv-pdf-file = init-dir + "\PO.pdf".
+         
+        cPdfFilesAttach = cPdfFilesAttach + lv-pdf-file + "," .
+      
+    END.
+
+    ELSE DO:  
+      IF NOT AttachmentExists() THEN RETURN.
+      
     END.
   END.
 
@@ -1654,7 +1684,8 @@ PROCEDURE run-report :
     v-print-terms       = tb_print-terms
     lv-attachments      = tb_attachments
     lCustCode           =  tb_cust-code
-    lPrintMach          =  tb_mach.
+    lPrintMach          =  tb_mach
+    lPrintGrandTotMsf   = tb_grand-total   .
 
   IF ip-sys-ctrl-shipto THEN
      ASSIGN

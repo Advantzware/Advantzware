@@ -1,1 +1,0 @@
-'Partner' + edIVLine.partner

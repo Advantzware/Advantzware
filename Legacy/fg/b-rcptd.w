@@ -2090,8 +2090,8 @@ PROCEDURE get-matrix :
     DO WITH FRAME {&FRAME-NAME}:
         IF AVAILABLE fg-rctd AND fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN 
         DO: /* in update mode - use screen-value */
-            IF fg-rctd.po-no:SCREEN-VALUE NE "" THEN 
-            DO: 
+            IF INTEGER(fg-rctd.po-no:SCREEN-VALUE) NE 0 THEN 
+            DO:  
                 RUN pDisplayPO(ip-first-disp).
  
             END.

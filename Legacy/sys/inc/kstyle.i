@@ -60,7 +60,7 @@ do i = 1 to length(tmpstore):
 	 i = i + 1.
 	 kar = substring(tmpstore,i,1).
       end.
-      i = i - 1.
+      
       if num[nextop] ne 0 then num[nextop] = decimal(curnum) * num[nextop].
       else num[nextop] = decimal(curnum).
    end.

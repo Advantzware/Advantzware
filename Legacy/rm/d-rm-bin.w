@@ -106,7 +106,7 @@ DEFINE BUTTON Btn_OK AUTO-GO
 
 DEFINE RECTANGLE RECT-27
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 75 BY 4.90.
+     SIZE 87 BY 4.90.
 
 DEFINE VARIABLE tb_last-cost AS LOGICAL INITIAL no 
      LABEL "Move to RM Last Cost?" 
@@ -117,7 +117,7 @@ DEFINE VARIABLE cb_reatype AS CHARACTER FORMAT "X(256)":U
      LABEL "Adjustment Reason" 
      VIEW-AS COMBO-BOX INNER-LINES 10
      DROP-DOWN-LIST
-     SIZE 30 BY 1 NO-UNDO.
+     SIZE 53 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -409,6 +409,7 @@ PROCEDURE build-type-list :
     DELETE OBJECT hPgmReason.
 
   DO WITH FRAME {&FRAME-NAME}:
+      IF cComboList EQ "" THEN cComboList = ?.
       cb_reatype:LIST-ITEM-PAIRS = cComboList .
   END.
 

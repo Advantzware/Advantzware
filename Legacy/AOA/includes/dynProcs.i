@@ -158,7 +158,6 @@ PROCEDURE pResultsBrowser :
     END. /* do idx */
     ASSIGN
         hQueryBrowse:TITLE   = dynSubject.subjectTitle
-                             + " Results - Count: "
         hQueryBrowse:QUERY   = iphQuery
         hQueryBrowse:VISIBLE = TRUE
         .
@@ -177,14 +176,16 @@ PROCEDURE pResultsBrowser :
                 .
         END. /* if calc field */
         ELSE
-        hColumn = hQueryBrowse:ADD-LIKE-COLUMN(dynParamValue.colName[idx]).
+        ASSIGN
+            hColumn = hQueryBrowse:ADD-LIKE-COLUMN(dynParamValue.colName[idx])
+            hColumn:LABEL  = dynParamValue.colLabel[idx]
+            .
 /*        IF idx MOD 2 EQ 0 THEN hColumn:COLUMN-BGCOLOR = 11.*/
         IF dynParamValue.columnSize[idx] NE 0 THEN
         hColumn:WIDTH-CHARS = dynParamValue.columnSize[idx].
     END. /* do idx */
     hBrowseQuery = iphQuery:HANDLE.
     iphQuery:QUERY-OPEN.
-    hQueryBrowse:TITLE = hQueryBrowse:TITLE + STRING(iphQuery:NUM-RESULTS).
     IF iphQuery:NUM-RESULTS GT 0 THEN
     hQueryBrowse:REFRESH().
     DO WITH FRAME resultsFrame:

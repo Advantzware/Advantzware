@@ -1,1 +1,0 @@
-ipcCompany AS CHARACTER, ipiBatch AS INTEGER, ipcUserID AS CHARACTER

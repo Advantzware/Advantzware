@@ -123,15 +123,21 @@ FOR EACH tt-boll,
             iGrandBundlePerPallet = iGrandBundlePerPallet + iBundlePerPallet  .
             iGrandTotPallet       = iGrandTotPallet       + iTotPallet .
             iGrandTotShiped       = iGrandTotShiped       + iTotShiped .
-
-            DISPLAY TRIM(STRING(oe-ordl.qty,"->>,>>>,>>>")) 
+            
+            FIND FIRST eb  NO-LOCK 
+                WHERE eb.company EQ cocode
+                  AND eb.est-no EQ oe-ordl.est-no
+                  AND eb.stock-no EQ oe-ordl.i-no NO-ERROR .
+             iAmtPerBundle = IF AVAIL eb THEN eb.cas-cnt ELSE 0.
+             iBundlePerPallet = IF AVAIL eb THEN eb.cas-pal ELSE 0.
+             RELEASE eb .
+            DISPLAY STRING(oe-ordl.ord-no)
                 WHEN i EQ 1
-                @ oe-ordl.i-no
-                oe-ordl.i-no                            
-                WHEN i EQ 2
-                v-job-po
+                @ v-job-po
+                v-job-po WHEN i EQ 2
+                oe-ordl.qty WHEN i EQ 1 
                 v-part-dscr
-                "" @ w2.cases
+                iAmtPerBundle WHEN LAST(w2.cases) @ w2.cases
                 iBundlePerPallet 
                 WHEN LAST(w2.cases)
                 iQtyPerPallet 
@@ -141,7 +147,8 @@ FOR EACH tt-boll,
                 iTotShiped  
                 WHEN LAST(w2.cases) @ tt-boll.qty
                 WITH FRAME bol-mid2.
-            DOWN  WITH FRAME bol-mid2.    
+            DOWN  WITH FRAME bol-mid2.  
+            
             v-printline = v-printline + 1.
     
             IF v-printline >= 48 THEN 
@@ -173,7 +180,7 @@ FOR EACH tt-boll,
                 IF i EQ 2 THEN
                     ASSIGN
                         v-part-dscr = oe-ordl.part-dscr1
-                        v-job-po    = STRING(oe-ordl.ord-no).
+                        v-job-po    = STRING(tt-boll.po-no).
 
                 ELSE
                     IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr2.
@@ -182,7 +189,7 @@ FOR EACH tt-boll,
                         IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr3.
     
             IF i = 2 AND v-job-po = "" THEN
-                v-job-po = STRING(oe-ordl.ord-no)                 .
+                v-job-po = STRING(tt-boll.po-no)                 .
 
             IF v-part-dscr NE "" OR v-job-po NE "" OR i LE 2 THEN 
             DO:
@@ -195,9 +202,8 @@ FOR EACH tt-boll,
                     {oe/rep/boldelta22.i}
                 END. 
                 DISPLAY {1}
-                    oe-ordl.i-no                            
+                    v-job-po                            
                     WHEN i EQ 2
-                    v-job-po
                     v-part-dscr              
                     WITH FRAME bol-mid2.
                 DOWN {1} WITH FRAME bol-mid2. 
@@ -233,16 +239,15 @@ FOR EACH tt-boll,
                 END.
 
                 DISPLAY {1}
-                    TRIM(STRING(oe-ordl.qty * v-part-qty,">>>,>>>,>>>")) 
-                    @ oe-ordl.i-no
-                    b-itemfg.part-no                        @ v-part-dscr
+                    STRING( oe-ordl.ord-no)
+                    STRING(oe-ordl.qty * v-part-qty,">>>,>>>,>>>") @ oe-ordl.qty
+                     b-itemfg.part-no                       @ v-part-dscr
                     tt-boll.qty * v-part-qty                @ tt-boll.qty        
                     WITH FRAME bol-mid2.
                 DOWN {1} WITH FRAME bol-mid2.
                 v-printline = v-printline + 1.
                 DISPLAY {1}
-                    fg-set.part-no                          @ oe-ordl.i-no
-                    v-job-po
+                    fg-set.part-no                          @ v-job-po
                     b-itemfg.i-name                         @ v-part-dscr
                     WITH FRAME bol-mid2.
                 DOWN {1} WITH FRAME bol-mid2.

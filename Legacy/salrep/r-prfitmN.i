@@ -216,6 +216,8 @@
           no-lock no-error.
 
       v-color = 0.
+      v-cust-part-no2 = "" .
+      v-cust-part-no  = "" .
           
           FOR EACH itemfg-ink OF itemfg WHERE 
                    itemfg-ink.i-no EQ itemfg.i-no NO-LOCK, 

@@ -203,14 +203,20 @@ DEFINE FRAME Dialog-Frame
           SIZE 12 BY 1
           BGCOLOR 15 FONT 1
      rm-rcpth.trans-date AT ROW 3.62 COL 63 COLON-ALIGNED
-          LABEL "TR Date" FORMAT "99/99/9999"
+          LABEL "Transaction Date" FORMAT "99/99/9999"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
      rm-rcpth.rita-code AT ROW 3.62 COL 105 COLON-ALIGNED
-          LABEL "C" FORMAT "x(1)"
-          VIEW-AS FILL-IN 
-          SIZE 4 BY 1
+          LABEL "Trans Type" FORMAT "x(10)"
+          VIEW-AS COMBO-BOX INNER-LINES 5
+          LIST-ITEM-PAIRS "R-Receipt","R",
+                     "I-Issues","I",
+                     "T-Transfer","T",
+                     "A-Adjustment","A",
+                     "C-Count","C"
+          DROP-DOWN-LIST
+          SIZE 18 BY 1
           BGCOLOR 15 FONT 1
      rm-rdtlh.loc AT ROW 4.81 COL 20 COLON-ALIGNED
           LABEL "Whs" FORMAT "x(5)"
@@ -264,7 +270,7 @@ DEFINE FRAME Dialog-Frame
      LABEL "Adjustment Reason" 
      VIEW-AS COMBO-BOX INNER-LINES 10
      LIST-ITEM-PAIRS "Item 1","Item 1"
-     DROP-DOWN-LIST SIZE 27 BY 1
+     DROP-DOWN-LIST SIZE 37 BY 1
      BGCOLOR 15 FONT 1
      Btn_OK AT ROW 12.23 COL 126
      Btn_Done AT ROW 12.50 COL 127
@@ -504,9 +510,6 @@ DO:
   RUN valid-loc-bin NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  RUN valid-user NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
   RUN valid-cost NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -738,7 +741,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
 
     DO WITH FRAME {&FRAME-NAME}:
-        IF ip-type EQ "update" THEN DISABLE fi_ext-cost fi_cost-uom.
+        IF ip-type EQ "update" THEN DISABLE fi_ext-cost fi_cost-uom rm-rdtlh.USER-ID rm-rcpth.i-no .
     END.
 
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.

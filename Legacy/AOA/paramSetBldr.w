@@ -38,8 +38,8 @@ DEFINE INPUT PARAMETER ipcType   AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipiID     AS INTEGER   NO-UNDO.
 &ELSE
 DEFINE VARIABLE iphParent AS HANDLE    NO-UNDO.
-DEFINE VARIABLE ipcType   AS CHARACTER NO-UNDO INITIAL "Param".
-DEFINE VARIABLE ipiID     AS INTEGER   NO-UNDO INITIAL 10.
+DEFINE VARIABLE ipcType   AS CHARACTER NO-UNDO INITIAL "Set".
+DEFINE VARIABLE ipiID     AS INTEGER   NO-UNDO INITIAL 3.
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
@@ -68,6 +68,10 @@ RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME paramFrame
+
+/* Standard List Definitions                                            */
+&Scoped-Define ENABLED-OBJECTS cParamID 
+&Scoped-Define DISPLAYED-OBJECTS cParamID cParamIDText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -109,10 +113,20 @@ DEFINE RECTANGLE RECT-1
      SIZE 18 BY 2.38
      BGCOLOR 15 FGCOLOR 15 .
 
+DEFINE VARIABLE cParamIDText AS CHARACTER FORMAT "X(256)":U INITIAL "Available Parameters (double click)" 
+      VIEW-AS TEXT 
+     SIZE 35 BY .62 NO-UNDO.
+
+DEFINE VARIABLE cParamID AS CHARACTER 
+     VIEW-AS SELECTION-LIST SINGLE NO-DRAG SORT 
+     SIZE 38 BY 17.14 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME paramFrame
+     cParamID AT ROW 5.52 COL 121 NO-LABEL WIDGET-ID 2
+     cParamIDText AT ROW 4.81 COL 122 COLON-ALIGNED NO-LABEL WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -189,6 +203,17 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE.
    NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME paramFrame
    FRAME-NAME                                                           */
+
+DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
+
+ASSIGN XXTABVALXX = FRAME outputFrame:MOVE-BEFORE-TAB-ITEM (cParamID:HANDLE IN FRAME paramFrame)
+/* END-ASSIGN-TABS */.
+
+/* SETTINGS FOR FILL-IN cParamIDText IN FRAME paramFrame
+   NO-ENABLE                                                            */
+ASSIGN 
+       cParamIDText:HIDDEN IN FRAME paramFrame           = TRUE.
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -233,6 +258,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Dynamic Parameter Set Builder */
 DO:
+  IF VALID-HANDLE(iphParent) AND ipcType EQ "Set" AND
+     INDEX(iphParent:INTERNAL-ENTRIES,"pGetParamSetID") NE 0 THEN
+  RUN pGetParamSetID IN iphParent.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -266,6 +294,17 @@ END.
 
 
 &Scoped-define FRAME-NAME paramFrame
+&Scoped-define SELF-NAME cParamID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cParamID C-Win
+ON DEFAULT-ACTION OF cParamID IN FRAME paramFrame
+DO:
+    RUN pAddParameter (INTEGER(SELF:SCREEN-VALUE)).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -292,6 +331,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN pSetFrameGrid (FRAME paramFrame:HANDLE).
   RUN enable_UI.
+  ASSIGN
+    cParamID:HIDDEN = ipcType EQ "Param"
+    cParamIDText:HIDDEN = cParamID:HIDDEN
+    .
+  IF ipcType EQ "Set" THEN
+  RUN pGetDynParam.
   APPLY "CHOOSE":U TO BtnReset.
   FRAME {&FRAME-NAME}:HIDDEN = NO.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -336,11 +381,52 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  VIEW FRAME paramFrame IN WINDOW C-Win.
+  DISPLAY cParamID cParamIDText 
+      WITH FRAME paramFrame IN WINDOW C-Win.
+  ENABLE cParamID 
+      WITH FRAME paramFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
   VIEW FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddParameter C-Win 
+PROCEDURE pAddParameter :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiParamID AS INTEGER NO-UNDO.
+
+    RUN pSave.
+    FIND FIRST dynParam NO-LOCK
+         WHERE dynParam.paramID EQ ipiParamID
+         NO-ERROR.
+    IF AVAILABLE dynParam THEN DO:
+        CREATE dynParamSetDtl.
+        ASSIGN
+            dynParamSetDtl.paramSetID     = ipiID
+            dynParamSetDtl.paramID        = ipiParamID
+            dynParamSetDtl.paramName      = dynParam.paramName
+            dynParamSetDtl.paramLabel     = dynParam.paramLabel
+            dynParamSetDtl.initialItems   = dynParam.initialItems
+            dynParamSetDtl.initialValue   = dynParam.initialValue
+            dynParamSetDtl.initializeProc = dynParam.initializeProc
+            dynParamSetDtl.validateProc   = dynParam.validateProc
+            dynParamSetDtl.paramHeight    = dynParam.paramHeight
+            dynParamSetDtl.paramWidth     = dynParam.paramWidth
+            dynParamSetDtl.action         = dynParam.action
+            dynParamSetDtl.paramCol       = 20
+            dynParamSetDtl.paramRow       = 1
+            .
+        RUN pReset (ipiID).
+    END. /* if avail */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -368,6 +454,8 @@ PROCEDURE pDynParameter :
         cInitialValue = dynParam.initialValue
         cParamLabel   = dynParam.paramLabel
         cParamName    = dynParam.paramName
+        dParamHeight  = dynParam.paramHeight
+        dParamWidth   = dynParam.paramWidth
         lMovable      = NO
         lResizable    = YES
         lSelectable   = YES
@@ -402,6 +490,7 @@ PROCEDURE pDynParameterSet :
         lResizable    = YES
         lSelectable   = YES
         lSensitive    = YES
+        lIsVisible    = YES
         .
     RUN pFrame (
         cPoolName,
@@ -414,6 +503,7 @@ PROCEDURE pDynParameterSet :
         NO,
         YES,
         dynParamSet.setName,
+        lIsVisible,
         OUTPUT hFrame
         ).
     RUN pSetFrameGrid (hFrame:HANDLE).
@@ -428,6 +518,7 @@ PROCEDURE pDynParameterSet :
             hFrame:ROW + .48,
             dynParamSet.setWidth - 2.2,
             dynParamSet.setHeight - 1.6,
+            lIsVisible,
             OUTPUT hRectangle
             ).
         hRectangle:HIDDEN = NO.
@@ -438,7 +529,8 @@ PROCEDURE pDynParameterSet :
             hFrame,
             hRectangle:COL + 2,
             hRectangle:ROW - .24,
-            dynParamSet.setTitle
+            dynParamSet.setTitle,
+            lIsVisible
             ).
     END. /* if rectangle */
     FOR EACH dynParamSetDtl NO-LOCK
@@ -452,6 +544,8 @@ PROCEDURE pDynParameterSet :
             cInitialValue = dynParamSetDtl.initialValue
             cParamLabel   = dynParamSetDtl.paramLabel
             cParamName    = dynParamSetDtl.paramName
+            dParamHeight  = dynParamSetDtl.paramHeight
+            dParamWidth   = dynParamSetDtl.paramWidth
             dCol          = dynParamSetDtl.paramCol
             dRow          = dynParamSetDtl.paramRow
             .
@@ -482,6 +576,43 @@ PROCEDURE pFrameResize :
         hRectangle:WIDTH  = iphFrame:WIDTH  - 2.2
         hRectangle:HEIGHT = iphFrame:HEIGHT - 1.6
         .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDynParam C-Win 
+PROCEDURE pGetDynParam :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        cParamID:LIST-ITEM-PAIRS = ?.
+        FOR EACH dynParam NO-LOCK:
+            cParamID:ADD-LAST(
+                dynParam.paramLabel + " (" +
+                dynParam.paramName + ")",
+                STRING(dynParam.paramID)
+                ).
+        END. /* each dynparam */
+    END. /* with frame */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pParamValidate C-Win 
+PROCEDURE pParamValidate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
 
 END PROCEDURE.
 
@@ -560,16 +691,10 @@ PROCEDURE pSave :
                                  NO-ERROR.
                             IF AVAILABLE dynParamSetDtl THEN DO:
                                 ASSIGN
-                                    dynParamSetDtl.paramCol = hObject[2]:COL
-                                    dynParamSetDtl.paramRow = hObject[2]:ROW
-                                    .
-                                FIND FIRST dynParam EXCLUSIVE-LOCK
-                                     WHERE dynParam.paramID EQ dynParamSetDtl.paramID
-                                     NO-ERROR.
-                                IF AVAILABLE dynParam THEN
-                                ASSIGN
-                                    dynParam.paramWidth  = hObject[2]:WIDTH
-                                    dynParam.paramHeight = hObject[2]:HEIGHT
+                                    dynParamSetDtl.paramCol    = hObject[2]:COL
+                                    dynParamSetDtl.paramRow    = hObject[2]:ROW
+                                    dynParamSetDtl.paramWidth  = hObject[2]:WIDTH
+                                    dynParamSetDtl.paramHeight = hObject[2]:HEIGHT
                                     .
                                 RELEASE dynParamSetDtl.
                             END. /* if avail */
@@ -635,20 +760,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidate C-Win 
-PROCEDURE pValidate :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pViewAs C-Win 
 PROCEDURE pViewAs :
 /*------------------------------------------------------------------------------
@@ -663,6 +774,10 @@ PROCEDURE pViewAs :
     DEFINE VARIABLE jdx AS INTEGER NO-UNDO.
     DEFINE VARIABLE kdx AS INTEGER NO-UNDO.
 
+    ASSIGN
+        lIsVisible = YES
+        lShowLabel = YES
+        .
     CASE dynParam.viewAs:
         WHEN "COMBO-BOX" THEN
         RUN pComboBox (
@@ -672,12 +787,13 @@ PROCEDURE pViewAs :
             cParamName,
             ipdCol,
             ipdRow,
-            dynParam.paramWidth,
+            dParamWidth,
             cInitialItems,
             dynParam.paramFormat,
             cInitialValue,
             dynParam.innerLines,
             lSensitive,
+            lIsVisible,
             OUTPUT hWidget
             ).
         WHEN "EDITOR" THEN DO:
@@ -688,12 +804,13 @@ PROCEDURE pViewAs :
                 cParamName,
                 ipdCol,
                 ipdRow,
-                dynParam.paramWidth,
-                dynParam.paramHeight,
+                dParamWidth,
+                dParamHeight,
                 CAN-DO(cAction,"HORIZONTAL"),
                 CAN-DO(cAction,"VERTICAL"),
                 cInitialValue,
                 lSensitive,
+                lIsVisible,
                 OUTPUT hWidget
                 ).
             IF CAN-DO(cAction,"EMAIL") THEN DO:
@@ -722,10 +839,11 @@ PROCEDURE pViewAs :
                 dynParam.paramFormat,
                 ipdCol,
                 ipdRow,
-                dynParam.paramWidth,
-                dynParam.paramHeight,
+                dParamWidth,
+                dParamHeight,
                 cInitialValue,
                 lSensitive,
+                lIsVisible,
                 OUTPUT ipdCol,
                 OUTPUT hWidget
                 ).
@@ -740,6 +858,7 @@ PROCEDURE pViewAs :
                         ipdCol,
                         ipdRow,
                         NO,
+                        lIsVisible,
                         hWidget,
                         OUTPUT ipdCol,
                         OUTPUT hCalendar
@@ -754,6 +873,7 @@ PROCEDURE pViewAs :
                         ipdCol,
                         ipdRow,
                         NO,
+                        lIsVisible,
                         hWidget,
                         hCalendar
                         ).
@@ -770,10 +890,11 @@ PROCEDURE pViewAs :
             CAN-DO(cAction,"HORIZONTAL"),
             ipdCol,
             ipdRow,
-            dynParam.paramWidth,
-            dynParam.paramHeight,
+            dParamWidth,
+            dParamHeight,
             cInitialValue,
             lSensitive,
+            lIsVisible,
             OUTPUT hWidget
             ).
         WHEN "SELECTION-LIST" THEN DO:
@@ -784,12 +905,13 @@ PROCEDURE pViewAs :
             cParamName,
             ipdCol,
             ipdRow,
-            dynParam.paramWidth,
-            dynParam.paramHeight,
+            dParamWidth,
+            dParamHeight,
             CAN-DO(cAction,"MULTISELECT"),
             cInitialItems,
             cInitialValue,
             lSensitive,
+            lIsVisible,
             OUTPUT hWidget
             ).
         END. /* selection-list */
@@ -801,10 +923,11 @@ PROCEDURE pViewAs :
             cParamName,
             ipdCol,
             ipdRow,
-            dynParam.paramWidth,
-            dynParam.paramHeight,
+            dParamWidth,
+            dParamHeight,
             cInitialValue,
             lSensitive,
+            lIsVisible,
             OUTPUT hWidget
             ).
     END CASE.

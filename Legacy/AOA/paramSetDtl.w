@@ -96,25 +96,27 @@ btnRestoreDefaults btnSortMove
 
 /* Custom List Definitions                                              */
 /* transPanel,transInit,transUpdate,displayFields,enabledFields,List-6  */
-&Scoped-define transPanel RECT-SETBUILDER btnSetBuilder btnUpdate ~
+&Scoped-define transPanel RECT-SETBUILDER btnUpdate btnSetBuilder ~
 btnFirst-1 btnLast-1 btnNext-1 btnPrev-1 btnCancel btnAdd btnCopy btnDelete ~
 btnReset 
-&Scoped-define transInit btnSetBuilder btnUpdate btnFirst-1 btnLast-1 ~
+&Scoped-define transInit btnUpdate btnSetBuilder btnFirst-1 btnLast-1 ~
 btnNext-1 btnPrev-1 btnAdd btnCopy btnDelete 
 &Scoped-define transUpdate btnUpdate btnCancel btnReset 
 &Scoped-define displayFields RECT-SETBUILDER dynParamSetDtl.paramSetID ~
 dynParamSetDtl.paramID dynParamSetDtl.paramName dynParamSetDtl.paramLabel ~
-dynParamSetDtl.actionParamID dynParamSetDtl.action dynParamSetDtl.paramCol ~
-dynParamSetDtl.paramRow dynParamSetDtl.paramPrompt ~
+dynParamSetDtl.actionParamName dynParamSetDtl.action ~
+dynParamSetDtl.paramWidth dynParamSetDtl.paramHeight ~
+dynParamSetDtl.paramCol dynParamSetDtl.paramRow dynParamSetDtl.paramPrompt ~
 dynParamSetDtl.initialValue dynParamSetDtl.initialItems ~
 dynParamSetDtl.initializeProc dynParamSetDtl.validateProc ~
 dynParamSetDtl.descriptionProc 
 &Scoped-define enabledFields dynParamSetDtl.paramName ~
-dynParamSetDtl.paramLabel dynParamSetDtl.actionParamID ~
-dynParamSetDtl.action dynParamSetDtl.paramCol dynParamSetDtl.paramRow ~
-dynParamSetDtl.paramPrompt dynParamSetDtl.initialValue ~
-dynParamSetDtl.initialItems dynParamSetDtl.initializeProc ~
-dynParamSetDtl.validateProc dynParamSetDtl.descriptionProc 
+dynParamSetDtl.paramLabel dynParamSetDtl.actionParamName ~
+dynParamSetDtl.action dynParamSetDtl.paramWidth dynParamSetDtl.paramHeight ~
+dynParamSetDtl.paramCol dynParamSetDtl.paramRow dynParamSetDtl.paramPrompt ~
+dynParamSetDtl.initialValue dynParamSetDtl.initialItems ~
+dynParamSetDtl.initializeProc dynParamSetDtl.validateProc ~
+dynParamSetDtl.descriptionProc 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -261,84 +263,84 @@ DEFINE FRAME DEFAULT-FRAME
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME viewFrame
-     dynParamSetDtl.paramSetID AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 166
+     dynParamSetDtl.paramSetID AT ROW 1.24 COL 20 COLON-ALIGNED WIDGET-ID 166
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.paramID AT ROW 1.24 COL 49 COLON-ALIGNED WIDGET-ID 158
+     dynParamSetDtl.paramID AT ROW 1.24 COL 55 COLON-ALIGNED WIDGET-ID 158
           VIEW-AS FILL-IN 
-          SIZE 14.6 BY 1
+          SIZE 15 BY 1
           BGCOLOR 15 
+     btnUpdate AT ROW 19.81 COL 23 HELP
+          "Update/Save" WIDGET-ID 128
      btnSetBuilder AT ROW 1.48 COL 74 HELP
           "Parameter Set Builder" WIDGET-ID 286
-     dynParamSetDtl.paramName AT ROW 2.43 COL 19 COLON-ALIGNED WIDGET-ID 162
+     dynParamSetDtl.paramName AT ROW 2.43 COL 20 COLON-ALIGNED WIDGET-ID 162
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.paramLabel AT ROW 3.62 COL 19 COLON-ALIGNED WIDGET-ID 160
+     dynParamSetDtl.paramLabel AT ROW 3.62 COL 20 COLON-ALIGNED WIDGET-ID 160
           VIEW-AS FILL-IN 
           SIZE 50 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.actionParamID AT ROW 4.81 COL 19 COLON-ALIGNED WIDGET-ID 150
-          LABEL "Action Param ID"
+     dynParamSetDtl.actionParamName AT ROW 4.81 COL 20 COLON-ALIGNED WIDGET-ID 302
+          LABEL "Action Param Name"
           VIEW-AS FILL-IN 
-          SIZE 14.6 BY 1
+          SIZE 22 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.action AT ROW 4.81 COL 44 NO-LABEL WIDGET-ID 186
+     dynParamSetDtl.action AT ROW 4.81 COL 45 NO-LABEL WIDGET-ID 186
           VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
           LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL","START DESCRIPTION","END DESCRIPTION" 
           SIZE 27 BY 9.52
-     btnUpdate AT ROW 19.81 COL 22 HELP
-          "Update/Save" WIDGET-ID 128
-     dynParamSetDtl.paramCol AT ROW 7.91 COL 19 COLON-ALIGNED WIDGET-ID 156
+     dynParamSetDtl.paramWidth AT ROW 7.43 COL 20 COLON-ALIGNED WIDGET-ID 306
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.paramRow AT ROW 9.1 COL 19 COLON-ALIGNED WIDGET-ID 164
+     dynParamSetDtl.paramHeight AT ROW 8.62 COL 20 COLON-ALIGNED WIDGET-ID 304
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.paramPrompt AT ROW 10.29 COL 21 WIDGET-ID 288
+     dynParamSetDtl.paramCol AT ROW 9.81 COL 20 COLON-ALIGNED WIDGET-ID 156
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+          BGCOLOR 15 
+     dynParamSetDtl.paramRow AT ROW 11 COL 20 COLON-ALIGNED WIDGET-ID 164
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+          BGCOLOR 15 
+     dynParamSetDtl.paramPrompt AT ROW 12.19 COL 22 WIDGET-ID 288
           VIEW-AS TOGGLE-BOX
-          SIZE 13.2 BY 1
-     dynParamSetDtl.initialValue AT ROW 13.38 COL 19 COLON-ALIGNED WIDGET-ID 154
+          SIZE 11 BY 1
+     dynParamSetDtl.initialValue AT ROW 13.38 COL 20 COLON-ALIGNED WIDGET-ID 154
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.initialItems AT ROW 14.57 COL 19 COLON-ALIGNED WIDGET-ID 152
+     dynParamSetDtl.initialItems AT ROW 14.57 COL 20 COLON-ALIGNED WIDGET-ID 152
           VIEW-AS FILL-IN 
-          SIZE 62 BY 1
+          SIZE 61 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.initializeProc AT ROW 15.76 COL 19 COLON-ALIGNED WIDGET-ID 296
+     dynParamSetDtl.initializeProc AT ROW 15.76 COL 20 COLON-ALIGNED WIDGET-ID 296
           VIEW-AS COMBO-BOX SORT INNER-LINES 5
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
-     dynParamSetDtl.validateProc AT ROW 16.95 COL 19 COLON-ALIGNED WIDGET-ID 298
+     btnFirst-1 AT ROW 22.67 COL 31 HELP
+          "First" WIDGET-ID 274
+     dynParamSetDtl.validateProc AT ROW 16.95 COL 20 COLON-ALIGNED WIDGET-ID 298
           VIEW-AS COMBO-BOX SORT INNER-LINES 5
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
-     dynParamSetDtl.descriptionProc AT ROW 18.14 COL 19 COLON-ALIGNED WIDGET-ID 300
+     btnLast-1 AT ROW 22.67 COL 55 HELP
+          "Last" WIDGET-ID 68
+     dynParamSetDtl.descriptionProc AT ROW 18.14 COL 20 COLON-ALIGNED WIDGET-ID 300
           LABEL "Descript Procedure"
           VIEW-AS COMBO-BOX SORT INNER-LINES 5
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
-     btnFirst-1 AT ROW 22.67 COL 30 HELP
-          "First" WIDGET-ID 274
-     btnLast-1 AT ROW 22.67 COL 54 HELP
-          "Last" WIDGET-ID 68
-     btnNext-1 AT ROW 22.67 COL 46 HELP
+     btnNext-1 AT ROW 22.67 COL 47 HELP
           "Next" WIDGET-ID 276
-     btnPrev-1 AT ROW 22.67 COL 38 HELP
-          "Previous" WIDGET-ID 278
-     btnCancel AT ROW 19.81 COL 62 HELP
-          "Cancel" WIDGET-ID 120
-     btnAdd AT ROW 19.81 COL 30 HELP
-          "Add" WIDGET-ID 118
-     btnCopy AT ROW 19.81 COL 38 HELP
-          "Copy" WIDGET-ID 122
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 76 ROW 1.95
@@ -347,15 +349,23 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     btnDelete AT ROW 19.81 COL 46 HELP
+     btnPrev-1 AT ROW 22.67 COL 39 HELP
+          "Previous" WIDGET-ID 278
+     btnCancel AT ROW 19.81 COL 63 HELP
+          "Cancel" WIDGET-ID 120
+     btnAdd AT ROW 19.81 COL 31 HELP
+          "Add" WIDGET-ID 118
+     btnCopy AT ROW 19.81 COL 39 HELP
+          "Copy" WIDGET-ID 122
+     btnDelete AT ROW 19.81 COL 47 HELP
           "Delete" WIDGET-ID 124
-     btnReset AT ROW 19.81 COL 54 HELP
+     btnReset AT ROW 19.81 COL 55 HELP
           "Reset" WIDGET-ID 126
      "Action:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 4.81 COL 37 WIDGET-ID 188
-     RECT-PANEL AT ROW 19.57 COL 21 WIDGET-ID 130
+          SIZE 7 BY 1 AT ROW 6 COL 37 WIDGET-ID 188
+     RECT-PANEL AT ROW 19.57 COL 22 WIDGET-ID 130
      RECT-SETBUILDER AT ROW 1.24 COL 73 WIDGET-ID 284
-     transPanel-8 AT ROW 22.43 COL 29 WIDGET-ID 280
+     transPanel-8 AT ROW 22.43 COL 30 WIDGET-ID 280
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 76 ROW 1.95
@@ -439,7 +449,7 @@ ASSIGN
 
 /* SETTINGS FOR SELECTION-LIST dynParamSetDtl.action IN FRAME viewFrame
    4 5                                                                  */
-/* SETTINGS FOR FILL-IN dynParamSetDtl.actionParamID IN FRAME viewFrame
+/* SETTINGS FOR FILL-IN dynParamSetDtl.actionParamName IN FRAME viewFrame
    4 5 EXP-LABEL                                                        */
 /* SETTINGS FOR BUTTON btnAdd IN FRAME viewFrame
    1 2                                                                  */
@@ -473,6 +483,8 @@ ASSIGN
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParamSetDtl.paramCol IN FRAME viewFrame
    4 5                                                                  */
+/* SETTINGS FOR FILL-IN dynParamSetDtl.paramHeight IN FRAME viewFrame
+   4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParamSetDtl.paramID IN FRAME viewFrame
    4                                                                    */
 /* SETTINGS FOR FILL-IN dynParamSetDtl.paramLabel IN FRAME viewFrame
@@ -485,6 +497,8 @@ ASSIGN
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParamSetDtl.paramSetID IN FRAME viewFrame
    4                                                                    */
+/* SETTINGS FOR FILL-IN dynParamSetDtl.paramWidth IN FRAME viewFrame
+   4 5                                                                  */
 /* SETTINGS FOR RECTANGLE RECT-PANEL IN FRAME viewFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-SETBUILDER IN FRAME viewFrame
@@ -656,7 +670,7 @@ DO:
         dynParamSetDtl.paramSetID
         ).
     ELSE
-    RUN pReset IN hParamBldr (dynParam.paramID).
+    RUN pReset IN hParamBldr (dynParamSetDtl.paramSetID).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -750,6 +764,8 @@ DO:
             dynParamSetDtl.initialValue:SCREEN-VALUE   = dynParam.initialValue
             dynParamSetDtl.initializeProc:SCREEN-VALUE = dynParam.initializeProc
             dynParamSetDtl.validateProc:SCREEN-VALUE   = dynParam.validateProc
+            dynParamSetDtl.paramHeight:SCREEN-VALUE    = STRING(dynParam.paramHeight)
+            dynParamSetDtl.paramWidth:SCREEN-VALUE     = STRING(dynParam.paramWidth)
             dynParamSetDtl.action:SCREEN-VALUE         = dynParam.action
             dynParamSetDtl.paramCol:SCREEN-VALUE       = "20"
             dynParamSetDtl.paramRow:SCREEN-VALUE       = "1"

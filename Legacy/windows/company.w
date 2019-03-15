@@ -39,7 +39,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-
+DEFINE VARIABLE li-prev-page as INTEGER init 1 no-undo.
+DEFINE VARIABLE li-cur-page as INTEGER init 1 no-undo.
 {methods\defines\phone.i &new="NEW"}
 
 /* _UIB-CODE-BLOCK-END */
@@ -566,12 +567,19 @@ PROCEDURE local-change-page :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  run get-attribute ("current-page").
+  assign li-prev-page = li-cur-page
+         li-cur-page = int(return-value).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
+
+IF li-cur-page = 3 THEN DO:  /* box design */
+     RUN pAutoFilter IN h_period1 .
+  END.
 
 END PROCEDURE.
 

@@ -484,9 +484,13 @@ end.
   PUT {1}
       "Freight:"             to 66 
      v-t-freight[2]         to 80   format ">,>>>,>>9.999"
-     skip (1)
+     skip (1) .
+  IF lPrintGrandTotMsf THEN
+  PUT 
      "MSF:"                 to 66
-     v-tot-sqft[2]          to 80   format ">,>>>,>>9.999" SKIP
+     v-tot-sqft[2]          to 80   format ">,>>>,>>9.999" SKIP .
+     
+  PUT 
       "TVS:"                 to 66
     /* v-tot-sqft[2]          to 80   format ">,>>>,>>9.999"*/
      SKIP.

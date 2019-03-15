@@ -1,2 +1,0 @@
-'EDI Control - ' + edco.company
-
