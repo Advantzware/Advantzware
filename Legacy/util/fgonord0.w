@@ -385,7 +385,7 @@ assign
 
 session:set-wait-state("").
 
-{util/fgonord0.i}
+{util/dev/fgonord0.i}
 
 message trim(c-win:title) + " Process Is Completed." view-as alert-box.
 apply "close" to this-procedure.

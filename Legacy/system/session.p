@@ -19,21 +19,21 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cModule             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMnemonic           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iParamValueID       AS INTEGER   NO-UNDO.
 /* cue card variables */
+DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lNext               AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 
 {system/ttSysCtrlUsage.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
@@ -47,7 +47,6 @@ DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Prototypes ********************** */
 
 &IF DEFINED(EXCLUDE-fCueCardActive) = 0 &THEN
@@ -59,9 +58,7 @@ FUNCTION fCueCardActive RETURNS LOGICAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-sfClearTtSysCtrlUsage) = 0 &THEN
 
@@ -164,7 +161,6 @@ FUNCTION sfUserSecurityLevel RETURNS INTEGER
 
 &ENDIF
 
-
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
@@ -188,11 +184,7 @@ FUNCTION sfUserSecurityLevel RETURNS INTEGER
                                                                         */
 &ANALYZE-RESUME
 
- 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
-
 
 /* ***************************  Main Block  *************************** */
 
@@ -202,7 +194,6 @@ FIND FIRST users NO-LOCK
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -236,9 +227,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spCreateAuditHdr) = 0 &THEN
 
@@ -272,9 +261,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spCreateSysCtrlUsage) = 0 &THEN
 
@@ -371,9 +358,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spCueCardFrame) = 0 &THEN
 
@@ -392,9 +377,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spGetParamValueID) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetParamValueID Procedure
+PROCEDURE spGetParamValueID:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opiParamValueID AS INTEGER NO-UNDO.
+    
+    opiParamValueID = iParamValueID.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-spGetTaskFilter) = 0 &THEN
 
@@ -404,12 +406,12 @@ PROCEDURE spGetTaskFilter:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opcModule    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMnemonic  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcProgramID AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcUserID    AS CHARACTER NO-UNDO.
     
     ASSIGN
-        opcModule    = cModule
+        opcMnemonic  = cMnemonic
         opcProgramID = cProgramID
         opcUserID    = cUserID
         .
@@ -419,9 +421,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spSendEmail) = 0 &THEN
 
@@ -436,11 +436,7 @@ PROCEDURE spSendEmail:
     DEFINE INPUT PARAMETER ipcAttachment AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcRecipients AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cHost            AS CHARACTER  NO-UNDO.
-    DEFINE VARIABLE cLogin           AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE cMail            AS CHARACTER  NO-UNDO.
-    DEFINE VARIABLE cPassword        AS CHARACTER  NO-UNDO.
-    DEFINE VARIABLE cPort            AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE idx              AS INTEGER    NO-UNDO.
     DEFINE VARIABLE objOutlook       AS COM-HANDLE NO-UNDO.
     DEFINE VARIABLE objOutlookAttach AS COM-HANDLE NO-UNDO.
@@ -457,21 +453,17 @@ PROCEDURE spSendEmail:
     IF ipcAttachment EQ ?  THEN RETURN.
     IF ipcRecipients EQ "" THEN RETURN.
     
-    IF TRUE THEN DO:
-        ASSIGN
-            cHost     = "smtp.office365.com"
-            cLogin    = "wade.kaldawi@advantzware.com"
-            cPassword = "Chester1!"
-            cPort     = "587"
-            cMail     = cMail + " -host:"
-                      + cLogin + ":" + cPassword
-                      + "@" + cHost + ":" + cPort
-                      + " -starttls"
-                      + " -a:" + ipcAttachment
-                      + " ~"-subject:" + ipcSubject + "~""
-                      + " ~"-body:" + ipcBody + "~""
-                      + " -from:" + cLogin
-                      .
+    FIND FIRST config NO-LOCK.
+    IF AVAILABLE config AND config.smtpServer NE "" THEN DO:
+        cMail = cMail + " -host:"
+              + config.smtpUser + ":" + config.smtpPassword
+              + "@" + config.smtpServer + ":" + STRING(config.smtpPort)
+              + " -starttls"
+              + " -a:" + ipcAttachment
+              + " ~"-subject:" + ipcSubject + "~""
+              + " ~"-body:" + config.emailBody + "~""
+              + " -from:" + config.smtpUser
+              .
         DO idx = 1 TO NUM-ENTRIES(ipcRecipients):
             cMail = cMail + " -to:" + ENTRY(idx,ipcRecipients).
         END. /* do idx */
@@ -500,9 +492,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spSetDontShowAgain) = 0 &THEN
 
@@ -534,9 +524,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spSetDismiss) = 0 &THEN
 
@@ -577,9 +565,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spNextCue) = 0 &THEN
 
@@ -951,6 +937,25 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spSetParamValueID) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetParamValueID Procedure
+PROCEDURE spSetParamValueID:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiParamValueID AS INTEGER NO-UNDO.
+    
+    iParamValueID = ipiParamValueID.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-spSetTaskFilter) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetTaskFilter Procedure
@@ -959,12 +964,12 @@ PROCEDURE spSetTaskFilter:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcModule    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMnemonic  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcProgramID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcUserID    AS CHARACTER NO-UNDO.
     
     ASSIGN
-        cModule    = ipcModule
+        cMnemonic  = ipcMnemonic
         cProgramID = ipcProgramID
         cUserID    = ipcUserID
         .
@@ -974,9 +979,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 /* ************************  Function Implementations ***************** */
 
@@ -996,9 +999,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-sfClearTtSysCtrlUsage) = 0 &THEN
 
@@ -1009,9 +1010,9 @@ FUNCTION sfClearTtSysCtrlUsage RETURNS LOGICAL
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-        EMPTY TEMP-TABLE ttSysCtrlUsage.
+    EMPTY TEMP-TABLE ttSysCtrlUsage.
 
-        RETURN TRUE.
+    RETURN TRUE.
 
 END FUNCTION.
 

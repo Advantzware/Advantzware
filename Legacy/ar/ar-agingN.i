@@ -477,9 +477,6 @@ END.
 
          m3 = m3 + string(cust.phone,"999-9999").
 
-         find first terms where terms.company = cust.company and
-                                terms.t-code = ar-inv.terms no-lock no-error.
-
          /* If input trend days entered, then do the trend days calculation. */
          IF  v-trend-days > 0 THEN
              RUN get-trend-days (INPUT v-trend-days,
@@ -521,6 +518,12 @@ END.
          v-int = 1.
        END.
 
+       IF AVAIL ar-inv THEN do:
+           find first terms NO-LOCK
+               where terms.company = cust.company 
+               AND terms.t-code = ar-inv.terms NO-ERROR .
+       END.
+       ELSE RELEASE terms .
       
        ASSIGN
         cust-t[v-int] = cust-t[v-int] + ag
@@ -1009,12 +1012,16 @@ END.
            m3 = string(cust.area-code,"(999) ").
 
         m3 = m3 + string(cust.phone,"999-9999").
-
-        find first terms where terms.company = cust.company and
-                               terms.t-code = ar-inv.terms no-lock no-error.
-       
+        
         assign v-first-cust = no.
       end.
+
+      IF AVAIL ar-inv THEN do:
+           find first terms no-lock
+               where terms.company = cust.company 
+               AND terms.t-code = ar-inv.terms no-error .
+       END.
+       ELSE RELEASE terms .
 
       v-neg-text = "ON ACCT".
 

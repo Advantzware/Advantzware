@@ -157,6 +157,7 @@ ASSIGN
     {refTableConv.i "CpLabP" 'cp-lab-p'}
     {refTableConv.i "PoordlDepth" 'POORDLDEPTH'}
     {refTableConv.i "EstGlobquot" 'est/globquot.w'}
+    {refTableConv.i "ChargeCode" 'chargecode'}
     {refTableConv.i "ArcashlInvline" 'ar-cashl.inv-line'}
     {refTableConv.i "BlankRefTable" ''}
     {refTableConv.i "OeBollSelected" 'oe-boll.selected'}
@@ -164,11 +165,13 @@ ASSIGN
     {refTableConv.i "TruckRunPrint" 'trp-car'}
     {refTableConv.i "ShiftDays" 'ShiftDays'}
     {refTableConv.i "EstGetqtyw2" 'est/getqty.w2'}
-    {refTableConv.i "CevEst3" 'ce/v-est3.w Unit#'}
+    {refTableConv.i "CevEst3" 'ce/v-est3.w-Unit#'}
     {refTableConv.i "ProbePerMsf" 'probe.per-msf'}
     {refTableConv.i "BlankVendQty" 'blank-vend-qty'}
     {refTableConv.i "BlankVendCost" 'blank-vend-cost'}
     {refTableConv.i "v10TaxCode" 'v10-TaxCode-Upgrade'}
+    {refTableConv.i "PrepCadFile" 'PREPCADFILE'}
+    {refTableConv.i "MSF-Limit" "msf-limit"}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */

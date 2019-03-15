@@ -1,0 +1,14 @@
+
+08/14/07                                      Advanced Box Company V4.10 - Main Office                                    Page   1
+ 3:12pm                                           Roll Stock Consumed Report Detail
+
+
+Category ITEM       DESCRIPTION    TAG#     Lineal Feet        MSF Weight     Cost Value
+-------- ---------- -------------- -------- ----------- ---------- ------ --------------
+26#      26# LINER  26# Liner                   18.7783       0.04  26.00           0.00
+26#      26# MEDIUM 26# Medium                  18.7783       0.03  26.00           0.00
+-----    ---------- --------------           ---------- ----------        --------------
+                    Category Total              37.5566       0.07                  0.00
+-----    ---------- --------------           ---------- ----------        --------------
+                    GRAND TOTALS                37.5566       0.07                  0.00
+

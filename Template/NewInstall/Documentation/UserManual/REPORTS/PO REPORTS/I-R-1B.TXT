@@ -1,0 +1,17 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:08pm                                                  SHEETS  ON  ORDER
+
+
+    DATE  ORDER        QUANTITY           QUANTITY  --------- VENDOR ---------        P/O  FG ITEM    RM ITEM            MSF    COST
+     DUE     NO         ORDERED UOM       RECEIVED  ---------- NAME ----------     NUMBER  NUMBER     NUMBER          REMAIN  REMAIN
+------------------------------------------------------------------------------------------------------------------------------------
+10/12/00    316           4.452 TON            2.5  INTERNATIONAL PAPER                93  ATT-1020   SBS-18           62.26   1,903
+                  -------------     --------------                                                                  -------- -------
+                          4.452                2.5                                                                     62.26   1,903
+
+10/18/00    319         5,000.0 EA             0.0  INTERNATIONAL PAPER                95  HER-1022   200 C            30.08   1,203
+                  -------------     --------------                                                                  -------- -------
+                        5,000.0                0.0                                                                     30.08   1,203
+
+

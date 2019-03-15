@@ -1866,7 +1866,7 @@ PROCEDURE export-xl :
         FromEstNo = est.est-no
         ToEstNo   = est.est-no
         .    
-    RUN fg/EstC-exp.w (FromEstNo, ToEstNo).
+    RUN fg/EstC-exp.w (FromEstNo, ToEstNo, "C" /* Corrugated */).
 
 END PROCEDURE.
 

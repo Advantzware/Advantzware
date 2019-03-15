@@ -104,8 +104,8 @@ form
      "   A N A L Y S I S   P e r  T h o u s a n d     " format "x(78)" skip
      "                              "
      space(10)
-     "              Board              Total   Contb/      Sell    Price  Total   Total" skip
-     "   Qty  R       $/M Board %      Contb   Man Hr     Price     /MSF Sheets     MSF"
+     "              Board              Total   Contb/      Sell FG Price  Total   Total" skip
+     "   Qty  R       $/M Board %      Contb   Man Hr     Price    / MSF Sheets Sht MSF"
      /*skip*/
      with width 90 stream-io frame probe-peach down no-labels no-underline no-attr-space no-box.
       
@@ -115,8 +115,8 @@ form
      probe.boardCostPerM    format "->,>>>,>>9.99"
      probe.boardCostPct     format "->>9.99"
      probe.boardContributionTotal        format ">>>,>>9.99"
-     dContPerManHR         format ">,>>>,>>9.99"
-     probe.sell-price       format "->>>>,>>9.99"
+     dContPerManHR         format ">>>>9.99"
+     probe.sell-price       format "->>>>>>9.99"
      voverall               format "->>>>9.99"
      probe.gsh-qty format ">>>>>9"
      vtot-msf
@@ -126,10 +126,10 @@ form
      "   A N A L Y S I S   P e r  T h o u s a n d     " format "x(78)" skip
      "                              "
      space(10)
-     "                                     Total         Contb/        Sell     Price  Total   Total" skip
-     "    Qty  R     Board $/M Board %     Contb         Man Hr       Price      /MSF Sheets     MSF" 
+     "                                     Total    Contb/        Sell  FG Price  Total   Total" skip
+     "    Qty  R     Board $/M Board %     Contb    Man Hr       Price     / MSF Sheets Sht MSF" 
      /*skip*/
-     with width 130 stream-io frame probe-peach-big down no-labels no-underline no-attr-space no-box.
+     with width 110 stream-io frame probe-peach-big down no-labels no-underline no-attr-space no-box.
            
 
 /* end ---------------------------------- copr. 1993  advanced software, inc. */

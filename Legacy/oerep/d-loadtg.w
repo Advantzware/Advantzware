@@ -37,6 +37,10 @@ DEFINE VARIABLE iTotalQty AS INTEGER NO-UNDO.
 
 DEF var v-loadtag  AS char NO-UNDO INIT "ASI".  /* sys ctrl option */
 DEF var v-tags AS DEC NO-UNDO INIT 1.  /* sys ctrl option */
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE iLoadTagLimit AS INTEGER NO-UNDO .
+DEFINE VARIABLE dLoadTagLimit AS DECIMAL NO-UNDO .
 /*
 DEF VAR v-ord-copied AS LOG NO-UNDO.
 DEF VAR v-copied-ord-no AS INT NO-UNDO.
@@ -45,6 +49,18 @@ DEF VAR v-is-update AS LOG INIT YES NO-UNDO.
 
 /* gdm - 07170905*/
 {sys\inc\BOLWeight.i}
+
+RUN sys/ref/nk1look.p (INPUT g_company, "LoadTagLimit", "I" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    iLoadTagLimit = INTEGER(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT g_company, "LoadTagLimit", "D" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    dLoadTagLimit = DECIMAL(cRtnChar) NO-ERROR.
 
 IF NOT BOLWt-log THEN RUN calc-weight-all.
 
@@ -67,7 +83,7 @@ IF NOT BOLWt-log THEN RUN calc-weight-all.
 &Scoped-define INTERNAL-TABLES w-ord
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 w-ord.ord-no w-ord.job-no w-ord.job-no2 NO-LABEL w-ord.cust-no w-ord.i-no w-ord.ord-qty w-ord.over-pct w-ord.pcs "Unit Count" w-ord.bundle Unit" */ "Units/!Pallet" w-ord.partial w-ord.total-unit w-ord.total-tags /* gdm 09210907 */ w-ord.unit-wt w-ord.pallt-wt w-ord.lot w-ord.i-name w-ord.cust-po-no w-ord.total-unit * w-ord.total-tags @ iTotalQty ~
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 w-ord.ord-no w-ord.job-no w-ord.job-no2 NO-LABEL w-ord.cust-no w-ord.i-no w-ord.ord-qty w-ord.rel-qty w-ord.over-pct w-ord.pcs "Unit Count" w-ord.bundle Unit" */ "Units/!Pallet" w-ord.partial w-ord.total-unit w-ord.total-tags /* gdm 09210907 */ w-ord.unit-wt w-ord.pallt-wt w-ord.lot w-ord.i-name w-ord.cust-po-no w-ord.po-line w-ord.total-unit * w-ord.total-tags @ iTotalQty ~
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 w-ord.over-pct ~
  w-ord.pcs ~
  w-ord.bundle ~
@@ -164,6 +180,7 @@ DEFINE BROWSE BROWSE-1
       w-ord.cust-no LABEL "Cust #"
       w-ord.i-no LABEL "Item #"
       w-ord.ord-qty COLUMN-LABEL "Ord Qty"
+      w-ord.rel-qty COLUMN-LABEL "Rel Qty"
       w-ord.over-pct FORM ">>9.99" COLUMN-LABEL "Overrun%"
       w-ord.pcs FORM ">>>,>>9" COLUMN-LABEL /*"Bdl/Case!Count"*/ "Unit Count"
       w-ord.bundle FORM ">>>,>>9" COLUMN-LABEL /*"Bdl/Case!Per Unit" */ "Units/!Pallet"
@@ -176,6 +193,7 @@ DEFINE BROWSE BROWSE-1
       w-ord.lot FORMAT "X(20)" COLUMN-LABEL "FG Lot#"
       w-ord.i-name LABEL "Item Name"
       w-ord.cust-po-no LABEL "Customer PO#"
+      w-ord.po-line LABEL "Ln"
       ENABLE
         w-ord.over-pct
         w-ord.pcs
@@ -270,8 +288,14 @@ RUN calc-total.
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Loadtag Creation Detail */
-DO:
-  APPLY "END-ERROR":U TO SELF.
+DO:  
+    IF AVAIL w-ord AND w-ord.total-tags GT iLoadTagLimit THEN DO:
+        MESSAGE "The LoadTagLimit = " + STRING(iLoadTagLimit) + ". You cannot print this many load tags at once or this setting must be changed" 
+            VIEW-AS ALERT-BOX INFO .
+        RETURN .
+    END.
+
+    APPLY "END-ERROR":U TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -412,32 +436,33 @@ ON 'RETURN' OF w-ord.over-pct IN BROWSE {&BROWSE-NAME} DO:
   RETURN NO-APPLY.
 END.
 
-ON 'LEAVE' OF w-ord.over-pct IN BROWSE {&BROWSE-NAME} DO:
+ON 'LEAVE' OF w-ord.over-pct IN BROWSE {&BROWSE-NAME} DO: 
+ IF AVAILABLE w-ord THEN
   w-ord.ord-qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} =
       STRING(w-ord.qty-before * (1 + (DEC(SELF:SCREEN-VALUE) / 100)),
              w-ord.ord-qty:FORMAT IN BROWSE {&BROWSE-NAME}).
   IF SELF:MODIFIED THEN RUN calc-total.
 END.
 
-ON 'RETURN' OF w-ord.pcs IN BROWSE {&BROWSE-NAME} DO:
+ON 'RETURN' OF w-ord.pcs IN BROWSE {&BROWSE-NAME} DO:  
   APPLY 'LEAVE' TO w-ord.pcs IN BROWSE {&BROWSE-NAME}.
   IF autoCopy THEN RUN autoCopy.
   ELSE APPLY 'CHOOSE' TO btn_save IN FRAME {&FRAME-NAME}.
   RETURN NO-APPLY.
 END.
 
-ON 'LEAVE' OF w-ord.pcs IN BROWSE {&BROWSE-NAME} DO:
+ON 'LEAVE' OF w-ord.pcs IN BROWSE {&BROWSE-NAME} DO:  
   IF SELF:MODIFIED THEN RUN calc-total.
 END.
 
-ON 'RETURN' OF w-ord.bundle IN BROWSE {&BROWSE-NAME} DO:
+ON 'RETURN' OF w-ord.bundle IN BROWSE {&BROWSE-NAME} DO: 
   APPLY 'LEAVE' TO w-ord.bundle IN BROWSE {&BROWSE-NAME}.
   IF autoCopy THEN RUN autoCopy.
   ELSE APPLY 'CHOOSE' TO btn_save IN FRAME {&FRAME-NAME}.
   RETURN NO-APPLY.
 END.
 
-ON 'LEAVE' OF w-ord.bundle IN BROWSE {&BROWSE-NAME} DO:
+ON 'LEAVE' OF w-ord.bundle IN BROWSE {&BROWSE-NAME} DO:  
   IF LASTKEY <> -1 AND int(w-ord.bundle:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) = 0
      AND LOOKUP(v-loadtag,'SSLabel,SSBarone') > 0 
   THEN DO:
@@ -447,24 +472,24 @@ ON 'LEAVE' OF w-ord.bundle IN BROWSE {&BROWSE-NAME} DO:
   IF SELF:MODIFIED THEN RUN calc-total.
 END.
 
-ON 'RETURN' OF w-ord.total-unit IN BROWSE {&BROWSE-NAME} DO:
+ON 'RETURN' OF w-ord.total-unit IN BROWSE {&BROWSE-NAME} DO:  
   APPLY 'LEAVE' TO w-ord.total-unit IN BROWSE {&BROWSE-NAME}.
   IF autoCopy THEN RUN autoCopy.
   ELSE APPLY 'CHOOSE' TO btn_save IN FRAME {&FRAME-NAME}.
   RETURN NO-APPLY.
 END.
 
-ON 'LEAVE' OF w-ord.total-unit IN BROWSE {&BROWSE-NAME} DO:
+ON 'LEAVE' OF w-ord.total-unit IN BROWSE {&BROWSE-NAME} DO: 
   IF SELF:MODIFIED THEN RUN calc-partial-unit.
 END.
 
-ON 'RETURN' OF w-ord.partial IN BROWSE {&BROWSE-NAME} DO:
+ON 'RETURN' OF w-ord.partial IN BROWSE {&BROWSE-NAME} DO: 
   APPLY 'LEAVE' TO w-ord.partial IN BROWSE {&BROWSE-NAME}.
   IF autoCopy THEN RUN autoCopy.
   ELSE APPLY 'CHOOSE' TO btn_save IN FRAME {&FRAME-NAME}.
   RETURN NO-APPLY.
 END.
-ON 'LEAVE' OF w-ord.total-tags IN BROWSE {&BROWSE-NAME} DO:
+ON 'LEAVE' OF w-ord.total-tags IN BROWSE {&BROWSE-NAME} DO: 
   IF SELF:MODIFIED THEN DO:
       glTotalTagsChanged = YES.
 /*         RUN calc-total. */
@@ -479,9 +504,23 @@ ON 'LEAVE' OF w-ord.total-tags IN BROWSE {&BROWSE-NAME} DO:
               VIEW-AS ALERT-BOX INFO BUTTONS YES-NO UPDATE glQtyOK.      
             IF NOT glQtyOK THEN RETURN NO-APPLY.
         END. /*NOT glQtyOK and NOT checkTotals*/
-    END. /*self:Modified*/
+        DEFINE VARIABLE lcheckflg AS LOGICAL INITIAL YES NO-UNDO .
+        IF AVAIL w-ord AND w-ord.total-tags GT iLoadTagLimit THEN DO:
+            MESSAGE "The LoadTagLimit = " + STRING(iLoadTagLimit) + ". You cannot print this many load tags at once or this setting must be changed" 
+                VIEW-AS ALERT-BOX INFO .
+            RETURN NO-APPLY .
+        END.
+
+        IF AVAIL w-ord AND w-ord.total-tags GT dLoadTagLimit THEN
+            MESSAGE "Are you sure you want to print " + string(w-ord.total-tags) + " of load tags?" 
+            VIEW-AS ALERT-BOX QUESTION  BUTTONS YES-NO UPDATE lcheckflg  .
+
+        IF NOT lcheckflg THEN
+            RETURN NO-APPLY .
+        
+   END. /*self:Modified*/
 END.
-ON 'LEAVE' OF w-ord.partial IN BROWSE {&BROWSE-NAME} DO:
+ON 'LEAVE' OF w-ord.partial IN BROWSE {&BROWSE-NAME} DO: 
   IF SELF:MODIFIED THEN RUN calc-total.
 END.
 
@@ -593,7 +632,10 @@ PROCEDURE calc-total :
       END.
       ELSE */
 
-      IF v-tags NE ? AND NOT glTotalTagsChanged THEN
+      IF v-tags NE ? AND NOT glTotalTagsChanged AND INTEGER(w-ord.rel-qty:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0  THEN
+        w-ord.total-tags = IF w-ord.total-unit <> 0 AND v-tags <> 0 THEN ((INT(w-ord.rel-qty:SCREEN-VALUE IN BROWSE {&browse-name}) / w-ord.total-unit) + .49) 
+                           ELSE 1.
+      ELSE IF v-tags NE ? AND NOT glTotalTagsChanged  THEN
         w-ord.total-tags = IF w-ord.total-unit <> 0 AND v-tags <> 0 THEN ((INT(w-ord.ord-qty:SCREEN-VALUE IN BROWSE {&browse-name}) / w-ord.total-unit) + .49) 
                            ELSE 1.
 
@@ -661,32 +703,34 @@ PROCEDURE calc-weight :
 
 DEF VAR v-weight-100 LIKE itemfg.weight-100 NO-UNDO.
 
-IF BOLWt-log  AND
-   (w-ord.unit-wt:SCREEN-VALUE IN BROWSE {&browse-name} NE "" OR w-ord.unit-wt:SCREEN-VALUE NE "0")
-  THEN DO:
+IF AVAIL w-ord THEN DO:
 
-  ASSIGN w-ord.unit-wt.
-
-  ASSIGN w-ord.pallt-wt = w-ord.bundle * w-ord.unit-wt
-         w-ord.pallt-wt:SCREEN-VALUE = STRING(w-ord.pallt-wt).
-
-
+    IF BOLWt-log  AND
+       (w-ord.unit-wt:SCREEN-VALUE IN BROWSE {&browse-name} NE "" OR w-ord.unit-wt:SCREEN-VALUE NE "0")
+      THEN DO:
+    
+      ASSIGN w-ord.unit-wt.
+    
+      ASSIGN w-ord.pallt-wt = w-ord.bundle * w-ord.unit-wt
+             w-ord.pallt-wt:SCREEN-VALUE = STRING(w-ord.pallt-wt).
+    
+    
+    END.
+    ELSE DO:
+    
+     FIND FIRST itemfg NO-LOCK
+        WHERE itemfg.company EQ g_company
+          AND itemfg.i-no EQ w-ord.i-no NO-ERROR.
+      IF AVAIL itemfg THEN ASSIGN v-weight-100 = itemfg.weight-100.
+    
+      IF v-weight-100 > 0 
+        THEN ASSIGN w-ord.unit-wt  = v-weight-100
+                    w-ord.pallt-wt = w-ord.bundle * v-weight-100.
+        ELSE ASSIGN w-ord.unit-wt  = 0
+                    w-ord.pallt-wt = 0.
+    
+    END.
 END.
-ELSE DO:
-
- FIND FIRST itemfg NO-LOCK
-    WHERE itemfg.company EQ g_company
-      AND itemfg.i-no EQ w-ord.i-no NO-ERROR.
-  IF AVAIL itemfg THEN ASSIGN v-weight-100 = itemfg.weight-100.
-
-  IF v-weight-100 > 0 
-    THEN ASSIGN w-ord.unit-wt  = v-weight-100
-                w-ord.pallt-wt = w-ord.bundle * v-weight-100.
-    ELSE ASSIGN w-ord.unit-wt  = 0
-                w-ord.pallt-wt = 0.
-
-END.
-   
 
 END PROCEDURE.
 

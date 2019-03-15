@@ -1,0 +1,14 @@
+
+10/17/00                                               ADVANCED CARTON COMPANY                                            Page   1
+ 6:41pm                                        O R D E R   B A L A N C E   B Y   P O #
+
+                                                         By Customer By PO #
+
+Cust: HER10    Hershey Chocolate Corp
+
+PO Number       Job Number  Order FG Item #       Ord Date   Order Qty Inv Date Invoice Number Qty Shipped Release Qty Balance Due
+--------------- ---------- ------ --------------- -------- ----------- -------- -------------- ----------- ----------- -----------
+101700          319-00        319 HER-1022        10/17/00       5,000                                                       5,000
+                                  RSC 10x10x10
+
+

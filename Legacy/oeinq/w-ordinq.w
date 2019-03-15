@@ -696,7 +696,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-obol , 'ordbol':U , h_b-ordrel ).
        RUN add-link IN adm-broker-hdl ( h_p-ordrel , 'TableIO':U , h_b-ordrel ).
        RUN add-link IN adm-broker-hdl ( h_p-orel , 'ordrel':U , h_b-ordrel ).
-
+       RUN add-link IN adm-broker-hdl ( h_p-ordrel , 'inquiry-rel':U , h_b-ordrel ).
+       
+       RUN add-link IN adm-broker-hdl ( h_p-orel , 'inquiry-prel':U , h_b-ordrel  ).
+       RUN add-link IN adm-broker-hdl ( h_p-obol , 'inquiry-orel':U , h_b-ordrel ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_relticket ,
              h_expxls , 'AFTER':U ).
@@ -1015,7 +1018,7 @@ PROCEDURE local-change-page :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var ls-est-no as cha no-undo.
-  
+  DEFINE VARIABLE rRowid AS ROWID NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
   
   run get-attribute ("current-page").
@@ -1044,11 +1047,19 @@ PROCEDURE local-change-page :
         END.
      END.
   end.
-         
+
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  if li-cur-page = 6 then do:  /* release */
+      RUN set-buttons IN h_p-orel ('disable-all').
+      RUN set-buttons IN h_p-obol ('disable-all').
+      RUN set-buttons IN h_p-ordrel ('disable-all').
+  END.
+
+
   {methods/winReSizePgChg.i}
   SESSION:SET-WAIT-STATE('').
 END PROCEDURE.

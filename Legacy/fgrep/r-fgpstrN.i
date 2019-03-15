@@ -37,8 +37,9 @@ for each tt-report where tt-report.term-id eq "" no-lock,
         hide frame r-top.
         VIEW frame r-top.
         page.
+        put SKIP "WHSE: " v-whse skip(1).
       end.
-      else put skip(3) "WHSE: " v-whse skip(1).
+      ELSE put SKIP(1) "WHSE: " v-whse skip(1).
     end.
     
     v-stnd-cost = 0.
@@ -344,7 +345,7 @@ for each tt-report where tt-report.term-id eq "" no-lock,
              
 
             CASE cTmpField:               
-                /* v-qty-case lv-cost-uom v-fg-qty v-fg-cost v-fg-value  */
+                 WHEN "loc" THEN cVarValue = STRING(fg-rdtlh.loc,"x(5)"). 
                  WHEN "v-tran-type" THEN cVarValue = substring(v-tran-type,1,1).
                  WHEN "v-tag" THEN cVarValue = string(v-tag).
                  WHEN "v-rfid#" THEN cVarValue = IF AVAIL rfidtag THEN SUBSTRING(rfidtag.rfidtag,13) ELSE "".
@@ -381,6 +382,7 @@ for each tt-report where tt-report.term-id eq "" no-lock,
             END CASE.
               
             cExcelVarValue = cVarValue.
+            IF cTmpField <> "loc" THEN 
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            

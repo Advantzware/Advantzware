@@ -1,6 +1,0 @@
-open 216.127.228.181
-advance
-phl20corr40
-cd /usr/lib/basic/WORK/xmt
-put c:\tmp\RFC59309
-quit

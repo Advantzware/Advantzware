@@ -239,9 +239,9 @@ PROCEDURE pLoad:
     DEFINE INPUT PARAMETER iplFieldValidation AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcFileType AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplCheck AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplLimitReached AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCount AS INTEGER NO-UNDO.
     
-    DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cData  AS CHARACTER NO-UNDO EXTENT 200.
 
     EMPTY TEMP-TABLE ttImportData.
@@ -255,7 +255,7 @@ PROCEDURE pLoad:
                     .
                 IF SEARCH(ipcFile) NE ? THEN 
                 DO:
-                    RUN pLoadARD(ipcCompany, ipcLocation, ipcFile, INPUT-OUTPUT iCount, INPUT-OUTPUT oplSuccess).
+                    RUN pLoadARD(ipcCompany, ipcLocation, ipcFile, INPUT-OUTPUT opiCount, INPUT-OUTPUT oplSuccess).
                 END.    
             END.
         WHEN "ARDFolder" THEN 
@@ -264,7 +264,7 @@ PROCEDURE pLoad:
                 FOR EACH ttFile:
                     IF SEARCH(ipcFile) NE ? THEN 
                     DO:
-                        RUN pLoadARD(ipcCompany, ipcLocation, ttFile.cFile, INPUT-OUTPUT iCount, INPUT-OUTPUT oplSuccess).
+                        RUN pLoadARD(ipcCompany, ipcLocation, ttFile.cFile, INPUT-OUTPUT opiCount, INPUT-OUTPUT oplSuccess).
                     END.    
                 END.
             END.
@@ -274,13 +274,9 @@ PROCEDURE pLoad:
             DO:
                 INPUT STREAM sImport FROM VALUE(ipcFile).
                 REPEAT:
-                    IF iCount GT 1000 THEN DO:
-                      oplCheck = TRUE .
-                      LEAVE.
-                    END.
-
+                    
                     ASSIGN 
-                        iCount = iCount + 1
+                        opiCount = opiCount + 1
                         cData  = "".
                     IMPORT STREAM sImport DELIMITER ','
                         cData
@@ -289,7 +285,7 @@ PROCEDURE pLoad:
                     ASSIGN
                         ttImportData.cData  = cData 
                         ttImportData.lValid = YES 
-                        ttImportData.iCount = iCount.    
+                        ttImportData.iCount = opiCount.    
                 
                     IF TRIM(ttImportData.cData[1]) EQ '' THEN
                         ASSIGN 
@@ -298,7 +294,7 @@ PROCEDURE pLoad:
                             .
                     ELSE 
                     DO:
-                        IF (iplHeader AND iCount GT 1) OR NOT iplHeader THEN 
+                        IF (iplHeader AND opiCount GT 1) OR NOT iplHeader THEN 
                             RUN pAddRecord IN ghdImportProcForType(ipcCompany,
                                 ipcLocation,
                                 ttImportData.cData, 
@@ -307,6 +303,11 @@ PROCEDURE pLoad:
                                 OUTPUT ttImportData.lValid, 
                                 OUTPUT ttImportDAta.cImportNote).
                     END.
+                    IF opiCount EQ giRecordLimit THEN DO:
+                        oplLimitReached = TRUE .
+                        LEAVE.
+                    END.
+                    
                 END.
                 OUTPUT STREAM sImport CLOSE.
             END.

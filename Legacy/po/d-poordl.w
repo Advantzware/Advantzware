@@ -3937,16 +3937,14 @@ PROCEDURE get-itemfg-gl :
             AND surcharge.charge <> "" NO-ERROR.
         IF AVAILABLE surcharge THEN
             ASSIGN v-charge = surcharge.charge.
-        FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ "chargecode"
-            AND reftable.company  EQ itemfg.company
-            AND reftable.loc      EQ itemfg.procat
-            AND reftable.code     EQ v-charge
-            /* AND reftable.code2 = "" */
+        FIND FIRST fgcat NO-LOCK WHERE fgcat.company  EQ itemfg.company
+            AND fgcat.procat      EQ itemfg.procat
+            AND fgcat.miscCharge  EQ v-charge
             NO-ERROR.
 
-        IF AVAILABLE reftable AND reftable.code2 <> "" THEN 
-            ASSIGN out-actnum = reftable.code2.
-        RELEASE reftable.
+        IF AVAILABLE fgcat AND fgcat.brdExpAcct <> "" THEN 
+            ASSIGN out-actnum = fgcat.brdExpAcct.                        
+        
     END.
 /* AH */                                                               
 END PROCEDURE.
@@ -4521,16 +4519,15 @@ PROCEDURE pGetGL PRIVATE:
                     END.
                     IF cAccount EQ "" THEN 
                     DO:
-                        FIND FIRST reftable NO-LOCK 
-                            WHERE reftable.reftable EQ "chargecode"
-                            AND reftable.company  EQ bf-itemfg.company
-                            AND reftable.loc      EQ bf-itemfg.procat
+                        FIND FIRST fgcat NO-LOCK 
+                            WHERE fgcat.company   EQ bf-itemfg.company
+                              AND fgcat.procat    EQ bf-itemfg.procat
                             NO-ERROR.
-                        IF AVAILABLE reftable AND reftable.dscr NE "" AND ipcType EQ "FG" THEN 
-                            cAccount = reftable.dscr.
-                        IF AVAILABLE reftable AND reftable.code2 NE "" AND ipcType EQ "RMJob" THEN 
-                            cAccount = reftable.code2.
-                        RELEASE reftable.       
+                        IF AVAILABLE fgcat AND fgcat.cogsExpAcct NE "" AND ipcType EQ "FG" THEN 
+                            cAccount = fgcat.cogsExpAcct.
+                        IF AVAILABLE fgcat AND fgcat.brdExpAcct NE "" AND ipcType EQ "RMJob" THEN 
+                            cAccount = fgcat.brdExpAcct.
+
                     END. 
                 END.
             END.  /*End FG or RMJob*/

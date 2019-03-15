@@ -1,1 +1,0 @@
-run ed/fmxship.p.

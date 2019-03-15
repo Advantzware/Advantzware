@@ -168,6 +168,10 @@ IF lRecFound THEN
 
 DEFINE VARIABLE lv-item-recid AS RECID   NO-UNDO.
 DEFINE VARIABLE ll-new-record AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cFreightCode AS CHARACTER INIT "P,C,B,T" NO-UNDO .
+DEFINE VARIABLE cFreightDscr AS CHARACTER INIT "Prepaid,Collect,Bill,3rd Party" NO-UNDO .
+DEFINE VARIABLE cFobCode AS CHARACTER INIT "D,O" NO-UNDO .
+DEFINE VARIABLE cFobDscr AS CHARACTER INIT "Destination,Origin" NO-UNDO .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -193,15 +197,15 @@ tt-report.po-no tt-report.lot-no tt-report.prom-date tt-report.stat ~
 oe-rel.ship-addr[1] oe-rel.ship-city oe-rel.ship-state tt-report.price ~
 tt-report.whsed tt-report.frt-pay ~
 tt-report.flute oe-rel.spare-char-1 oe-rel.spare-char-2 oe-rel.spare-char-3 ~
-tt-report.q-rel oe-rel.r-no oe-rel.link-no tt-report.job-start-date ~
-tt-report.qty tt-report.prom-code tt-report.pr-uom 
+tt-report.q-rel oe-rel.r-no tt-report.job-start-date ~
+ tt-report.prom-code tt-report.pr-uom 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame oe-rel.s-code oe-rel.ship-id ~
 oe-rel.stat oe-rel.carrier oe-rel.tot-qty oe-rel.qty tt-report.po-no ~
 tt-report.lot-no tt-report.prom-date tt-report.stat oe-rel.ship-addr[1] ~
 oe-rel.ship-city oe-rel.ship-state tt-report.price tt-report.whsed ~
 tt-report.frt-pay tt-report.flute ~
 oe-rel.spare-char-1 oe-rel.spare-char-2 oe-rel.spare-char-3 tt-report.q-rel ~
-oe-rel.r-no oe-rel.link-no tt-report.job-start-date tt-report.qty ~
+oe-rel.r-no tt-report.job-start-date  ~
 tt-report.prom-code tt-report.pr-uom 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame oe-rel tt-report
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame oe-rel
@@ -222,7 +226,7 @@ tt-report.lot-no tt-report.prom-date tt-report.stat oe-rel.ship-addr[1] ~
 oe-rel.ship-city oe-rel.ship-state tt-report.price tt-report.whsed ~
 tt-report.frt-pay tt-report.flute ~
 oe-rel.spare-char-1 oe-rel.spare-char-2 oe-rel.spare-char-3 tt-report.q-rel ~
-oe-rel.r-no oe-rel.link-no tt-report.job-start-date tt-report.qty ~
+oe-rel.r-no tt-report.job-start-date  ~
 tt-report.prom-code tt-report.pr-uom 
 &Scoped-define ENABLED-TABLES tt-report oe-rel 
 &Scoped-define FIRST-ENABLED-TABLE tt-report
@@ -236,8 +240,8 @@ tt-report.po-no tt-report.lot-no tt-report.prom-date tt-report.stat ~
 oe-rel.ship-addr[1] oe-rel.ship-city oe-rel.ship-state tt-report.price ~
 tt-report.whsed  tt-report.frt-pay ~
 tt-report.flute oe-rel.spare-char-1 oe-rel.spare-char-2 oe-rel.spare-char-3 ~
-tt-report.q-rel oe-rel.r-no oe-rel.link-no tt-report.job-start-date ~
-tt-report.qty tt-report.prom-code tt-report.pr-uom 
+tt-report.q-rel oe-rel.r-no tt-report.job-start-date ~
+ tt-report.prom-code tt-report.pr-uom 
 &Scoped-define DISPLAYED-TABLES tt-report oe-rel 
 &Scoped-define FIRST-DISPLAYED-TABLE tt-report
 &Scoped-define SECOND-DISPLAYED-TABLE oe-rel
@@ -315,8 +319,33 @@ DEFINE RECTANGLE RECT-21
 
 DEFINE RECTANGLE RECT-38
     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED
-    SIZE 142.7 BY 12.86
+    SIZE 39.8 BY 6.19
     BGCOLOR 15.
+
+DEFINE RECTANGLE RECT-39
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 46.8 BY 5.24
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-40
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 54.6 BY 5.24
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-41
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 60.6 BY 6.24
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-42
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 40 BY 6.24
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-43
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 40 BY 5.24
+     BGCOLOR 15 .
 
 DEFINE VARIABLE fi_discount AS DECIMAL FORMAT ">>>,>>9.99":U 
     LABEL "Discount" 
@@ -338,181 +367,181 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-    oe-rel.s-code AT ROW 2.43 COL 63 COLON-ALIGNED
-    LABEL "S" 
-    VIEW-AS COMBO-BOX INNER-LINES 4
-    LIST-ITEM-PAIRS "B-Both","B",
-    "S-Ship","S",
-    "I-Invoice","I",
-    "T-Transfer","T"
-    DROP-DOWN-LIST
-    SIZE 20 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.opened AT ROW 2.43 COL 20 COLON-ALIGNED
-    LABEL "Prt" FORMAT "Y/N"
-    VIEW-AS FILL-IN 
-    SIZE 20 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.ship-id AT ROW 2.43 COL 106.2 COLON-ALIGNED
-    LABEL "Ship To" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 24 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.stat AT ROW 3.57 COL 20 COLON-ALIGNED
-    VIEW-AS COMBO-BOX INNER-LINES 8
-    LIST-ITEM-PAIRS "S-Scheduled","S",
-    "L-Late","L",
-    "I-Invoice Per Terms","I",
-    "A-Actual","A",
-    "P-Posted","P",
-    "B-Backorder","B",
-    "Z-Posted BOL","Z",
-    "C-Completed","C"
-    DROP-DOWN-LIST
-    SIZE 20 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.carrier AT ROW 3.57 COL 63 COLON-ALIGNED
-    LABEL "Via" FORMAT "x(5)"
-    VIEW-AS FILL-IN 
-    SIZE 24 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.tot-qty AT ROW 3.57 COL 106.2 COLON-ALIGNED
-    LABEL "Sched Qty" FORMAT "->>,>>>,>>9"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.qty AT ROW 4.71 COL 20 COLON-ALIGNED
-    LABEL "Actual Qty" FORMAT "->>,>>>,>>9"
-    VIEW-AS FILL-IN 
-    SIZE 20 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.po-no AT ROW 4.71 COL 63 COLON-ALIGNED
-    LABEL "Customer PO#" FORMAT "x(15)"
-    VIEW-AS FILL-IN 
-    SIZE 24 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.lot-no AT ROW 4.71 COL 106.2 COLON-ALIGNED
-    LABEL "Customer Lot #" FORMAT "x(15)"
-    VIEW-AS FILL-IN 
-    SIZE 24 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.stat AT ROW 5.86 COL 20 COLON-ALIGNED FORMAT "99/99/9999"
-    LABEL "Rel Date" 
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    btnCalendar-1 AT ROW 5.81 COL 37
-    oe-rel.ship-addr[1] AT ROW 5.86 COL 63 COLON-ALIGNED
-    LABEL "Ship To Address" FORMAT "x(26)"
-    VIEW-AS FILL-IN 
-    SIZE 24 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.ship-city AT ROW 5.86 COL 106.2 COLON-ALIGNED
-    LABEL "City" FORMAT "x(15)"
-    VIEW-AS FILL-IN 
-    SIZE 24 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.ship-state AT ROW 7 COL 20 COLON-ALIGNED
-    LABEL "State" FORMAT "x(15)"
-    VIEW-AS FILL-IN 
-    SIZE 20 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.price AT ROW 7 COL 63 COLON-ALIGNED
-    LABEL "Sell Price" FORMAT ">>,>>>,>>9.99<<<<"
-    VIEW-AS FILL-IN 
-    SIZE 24 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.whsed AT ROW 7 COL 106.2 COLON-ALIGNED
-    LABEL "$0" FORMAT "Y/N"
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1
-    BGCOLOR 15 FONT 1
-    fi_discount AT ROW 8.14 COL 20 COLON-ALIGNED
-    BGCOLOR 15 FONT 1
-    fi_totprice AT ROW 8.14 COL 63 COLON-ALIGNED
-    BGCOLOR 15 FONT 1
-    tt-report.frt-pay AT ROW 8.14 COL 106.2 COLON-ALIGNED
-    LABEL "Frt Pay" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
+     oe-rel.tot-qty AT ROW 1.67 COL 15 COLON-ALIGNED
+          LABEL "Sched Qty" FORMAT "->>,>>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     oe-rel.qty AT ROW 2.86 COL 15 COLON-ALIGNED
+          LABEL "Actual Qty" FORMAT "->>,>>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 20 BY 1
+          BGCOLOR 15 FONT 1
+     oe-rel.s-code AT ROW 4.05 COL 15 COLON-ALIGNED
+          LABEL "Rel Type"
+          VIEW-AS COMBO-BOX INNER-LINES 4
+          LIST-ITEM-PAIRS "B-Both","B",
+                     "S-Ship","S",
+                     "I-Invoice","I",
+                     "T-Transfer","T"
+          DROP-DOWN-LIST
+          SIZE 20 BY 1
+          BGCOLOR 15 FONT 1
+     oe-rel.stat AT ROW 5.48 COL 15 COLON-ALIGNED
+          VIEW-AS COMBO-BOX INNER-LINES 8
+          LIST-ITEM-PAIRS "S-Scheduled","S",
+                     "L-Late","L",
+                     "I-Invoice Per Terms","I",
+                     "A-Actual","A",
+                     "P-Posted","P",
+                     "B-Backorder","B",
+                     "Z-Posted BOL","Z",
+                     "C-Completed","C"
+          DROP-DOWN-LIST
+          SIZE 20 BY 1
+          BGCOLOR 15 FONT 1
+     oe-rel.spare-char-1 AT ROW 1.67 COL 55 COLON-ALIGNED
+          LABEL "Ship From" FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+     tt-report.frt-pay AT ROW 1.67 COL 83.0 COLON-ALIGNED
+          LABEL "Frt Pay" FORMAT "x(12)"
+          VIEW-AS COMBO-BOX INNER-LINES 4
+          LIST-ITEM-PAIRS "P-Prepaid","P",
+                     "C-Collect","C",
+                     "B-Bill","B",
+                     "T-3rd Party","T"
+          DROP-DOWN-LIST
+          SIZE 17.5 BY 1
+          BGCOLOR 15 FONT 1
+     oe-rel.carrier AT ROW 2.86 COL 55.4 COLON-ALIGNED
+          LABEL "Via" FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 20 BY 1
+          BGCOLOR 15 FONT 1
+     tt-report.flute AT ROW 2.86 COL 83.0 COLON-ALIGNED
+          LABEL "FOB" FORMAT "x(1)"
+          VIEW-AS COMBO-BOX INNER-LINES 4
+          LIST-ITEM-PAIRS "D-Destination","D",
+                     "O-Origin","O"
+          DROP-DOWN-LIST 
+          SIZE 17.5 BY 1
+          BGCOLOR 15 FONT 1
+     oe-rel.ship-id AT ROW 4.05 COL 55.4 COLON-ALIGNED
+          LABEL "Ship To" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 20 BY 1
+          BGCOLOR 15 FONT 1
+     tt-report.stat AT ROW 1.67 COL 121.6 COLON-ALIGNED
+          LABEL "Release Date" FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+     btnCalendar-1 AT ROW 1.67 COL 139.6
+     tt-report.job-start-date AT ROW 5.33 COL 122.6 COLON-ALIGNED
+          LABEL "Ship Date" FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+     oe-rel.ship-addr[1] AT ROW 5.24 COL 62.4 COLON-ALIGNED
+          LABEL "Ship To Address" FORMAT "x(26)"
+          VIEW-AS FILL-IN 
+          SIZE 24 BY 1
+          BGCOLOR 15 FONT 1
+     oe-rel.ship-city AT ROW 6.43 COL 48.4 COLON-ALIGNED
+          LABEL "City" FORMAT "x(15)"
+          VIEW-AS FILL-IN 
+          SIZE 24 BY 1
+          BGCOLOR 15 FONT 1
+     oe-rel.ship-state AT ROW 6.43 COL 80.4 COLON-ALIGNED
+          LABEL "State" FORMAT "x(15)"
+          VIEW-AS FILL-IN 
+          SIZE 20 BY 1
+          BGCOLOR 15 FONT 1
+     tt-report.po-no AT ROW 8.14 COL 19.6 COLON-ALIGNED
+          LABEL "Customer PO#" FORMAT "x(15)"
+          VIEW-AS FILL-IN 
+          SIZE 24 BY 1
+          BGCOLOR 15 FONT 1
+     tt-report.lot-no AT ROW 9.33 COL 19.8 COLON-ALIGNED
+          LABEL "Customer Lot #" FORMAT "x(15)"
+          VIEW-AS FILL-IN 
+          SIZE 24 BY 1
+          BGCOLOR 15 FONT 1
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FGCOLOR 1 FONT 6.
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
-    tt-report.flute AT ROW 8.14 COL 128.6 COLON-ALIGNED
-    LABEL "FOB" FORMAT "x(1)"
-    VIEW-AS FILL-IN 
-    SIZE 8 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.spare-char-1 AT ROW 9.29 COL 20 COLON-ALIGNED
-    LABEL "Ship From" FORMAT "x(5)"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.spare-char-2 AT ROW 9.29 COL 63 COLON-ALIGNED
-    LABEL "Dt Chg Reason" FORMAT "x(30)"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.spare-char-3 AT ROW 9.29 COL 106.2 COLON-ALIGNED
-    LABEL "Dt Chg User" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.q-rel AT ROW 10.43 COL 20 COLON-ALIGNED
-    LABEL "Release #" FORMAT ">>>>>>9"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.r-no AT ROW 10.43 COL 63 COLON-ALIGNED
-    LABEL "Seq. #" FORMAT ">>>>>>>>9"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    oe-rel.link-no AT ROW 10.43 COL 106.2 COLON-ALIGNED
-    LABEL "Int. Release" FORMAT ">>>>>>>9"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.job-start-date AT ROW 11.57 COL 20 COLON-ALIGNED
-    LABEL "Shp Date" FORMAT "99/99/9999"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.qty AT ROW 11.57 COL 63 COLON-ALIGNED
-    LABEL "Quantity" FORMAT "->>,>>>,>>9.9<<"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.prom-date AT ROW 11.57 COL 106.2 COLON-ALIGNED FORMAT "99/99/9999"
-    LABEL "Due Date" 
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    btnCalendar-2 AT ROW 11.57 COL 123.2
-    tt-report.prom-code AT ROW 12.71 COL 63 COLON-ALIGNED
-    LABEL "Due Dt Chg Usr" FORMAT "x(5)"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    tt-report.pr-uom AT ROW 12.71 COL 20.2 COLON-ALIGNED
-    LABEL "Due Dt Chg Rsn" FORMAT "x(4)"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    Btn_OK AT ROW 15.13 COL 126
-    Btn_Done AT ROW 15.11 COL 130
-    Btn_Cancel AT ROW 15.13 COL 135
-    RECT-21 AT ROW 14.80 COL 125
-    RECT-38 AT ROW 1.48 COL 2.1
-    SPACE(0.99) SKIP(3.27)
+     tt-report.price AT ROW 8.19 COL 67.4 COLON-ALIGNED
+          LABEL "Sell Price" FORMAT ">>,>>>,>>9.99<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 24 BY 1
+          BGCOLOR 15 FONT 1
+     tt-report.q-rel AT ROW 11.71 COL 20 COLON-ALIGNED
+          LABEL "Release #" FORMAT ">>>>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+     tt-report.whsed AT ROW 9.38 COL 67.6 COLON-ALIGNED
+          LABEL "$0 Invoice Line" FORMAT "YES/NO"
+          VIEW-AS FILL-IN 
+          SIZE 10 BY 1
+          BGCOLOR 15 FONT 1
+     oe-rel.spare-char-2 AT ROW 2.91 COL 122.6 COLON-ALIGNED
+          LABEL "Dt Chg Reason" FORMAT "x(30)"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+     oe-rel.r-no AT ROW 10.52 COL 20 COLON-ALIGNED
+          LABEL "Seq. #" FORMAT ">>>>>>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+     fi_totprice AT ROW 10.57 COL 67.8 COLON-ALIGNED
+     oe-rel.spare-char-3 AT ROW 4.1 COL 122.4 COLON-ALIGNED
+          LABEL "Dt Chg User" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+     fi_discount AT ROW 11.71 COL 68 COLON-ALIGNED
+     tt-report.opened AT ROW 11.76 COL 40.8 COLON-ALIGNED
+          LABEL "Prt" FORMAT "Y/N"
+          VIEW-AS FILL-IN 
+          SIZE 5 BY 1
+          BGCOLOR 15 FONT 1
+     tt-report.prom-date AT ROW 8.19 COL 121.2 COLON-ALIGNED FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+     btnCalendar-2 AT ROW 8.19 COL 139.2
+     tt-report.prom-code AT ROW 10.57 COL 123.4 COLON-ALIGNED
+          LABEL "Due Dt Chg Usr" FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+     tt-report.pr-uom AT ROW 9.38 COL 124 COLON-ALIGNED
+          LABEL "Due Dt Chg Rsn" FORMAT "x(4)"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+     Btn_OK AT ROW 14.38 COL 126
+     Btn_Done AT ROW 14.33 COL 130
+     Btn_Cancel AT ROW 14.38 COL 135
+     RECT-21 AT ROW 14.1 COL 125
+     RECT-38 AT ROW 1.48 COL 2.2
+     RECT-39 AT ROW 7.91 COL 2.2 WIDGET-ID 2
+     RECT-40 AT ROW 7.91 COL 49.4 WIDGET-ID 4
+     RECT-41 AT ROW 1.43 COL 43.4 WIDGET-ID 6
+     RECT-42 AT ROW 1.43 COL 105 WIDGET-ID 8
+     RECT-43 AT ROW 7.91 COL 105 WIDGET-ID 10
+     SPACE(0.79) SKIP(3.75)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FGCOLOR 1 FONT 6
-    TITLE "Release - Order Maintenance".
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6
+         TITLE "Release - Order Maintenance".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -544,9 +573,9 @@ DEFINE FRAME Dialog-Frame
 ASSIGN 
     FRAME Dialog-Frame:SCROLLABLE = FALSE
     FRAME Dialog-Frame:HIDDEN     = TRUE.
-/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME  Dialog-Frame
    3                                                                    */
-/* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
+/* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME Dialog-Frame
    3                                                                    */
 /* SETTINGS FOR FILL-IN oe-rel.carrier IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
@@ -556,8 +585,6 @@ ASSIGN
 /* SETTINGS FOR FILL-IN tt-report.frt-pay IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN tt-report.job-start-date IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN oe-rel.link-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN tt-report.lot-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
@@ -574,8 +601,6 @@ ASSIGN
 /* SETTINGS FOR FILL-IN tt-report.prom-date IN FRAME Dialog-Frame
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN tt-report.q-rel IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN tt-report.qty IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-rel.qty IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
@@ -691,6 +716,18 @@ ON HELP OF FRAME Dialog-Frame /* Release - Order Maintenance */
             WHEN "spare-char-2" THEN 
                 DO:
                     RUN windows/l-rejpo.w  (g_company,FOCUS:SCREEN-VALUE, OUTPUT char-val). 
+                    IF char-val <> "" THEN 
+                        FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = ENTRY(1,char-val).
+                END.
+            WHEN "frt-pay" THEN 
+                DO:
+                    RUN windows/l-codedscr.w (cFreightCode,cFreightDscr, OUTPUT char-val). 
+                    IF char-val <> "" THEN 
+                        FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = ENTRY(1,char-val).
+                END.
+            WHEN "flute" THEN 
+                DO:
+                    RUN windows/l-codedscr.w (cFobCode,cFobDscr, OUTPUT char-val). 
                     IF char-val <> "" THEN 
                         FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = ENTRY(1,char-val).
                 END.
@@ -971,7 +1008,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
             AND  tt-report.prom-date NE dtPrevDueDate 
             AND  dtPrevDueDate NE ? 
             THEN 
-        DO:
+        DO:  
             FIND FIRST bf-rel WHERE ROWID(bf-rel) EQ ROWID(oe-rel) EXCLUSIVE-LOCK NO-ERROR.
             IF AVAILABLE bf-rel THEN 
             DO:    
@@ -1424,7 +1461,7 @@ ON LEAVE OF tt-report.stat IN FRAME Dialog-Frame /* Rel Date */
                     END.
                     ELSE 
                     DO: 
-                        APPLY "entry" TO tt-report.price.
+                        APPLY "entry" TO tt-report.po-no.
                         RETURN NO-APPLY.
                     END.
                 END.
@@ -1545,7 +1582,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
 
     DO WITH FRAME {&FRAME-NAME}:
-        DISABLE oe-rel.ship-addr[1] oe-rel.ship-city oe-rel.ship-state oe-rel.spare-char-2 oe-rel.spare-char-3 oe-rel.r-no oe-rel.link-no tt-report.job-start-date tt-report.qty tt-report.prom-code tt-report.pr-uom .
+        DISABLE oe-rel.ship-addr[1] oe-rel.ship-city oe-rel.ship-state oe-rel.spare-char-2 oe-rel.spare-char-3 oe-rel.r-no tt-report.job-start-date  tt-report.prom-code tt-report.pr-uom tt-report.q-rel .
         
         IF NOT (oeDateAuto-log AND OeDateAuto-Char EQ "Colonial") THEN 
         DO:
@@ -1554,9 +1591,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             tt-report.prom-code:HIDDEN IN FRAME {&FRAME-NAME} = YES.
             tt-report.pr-uom:HIDDEN IN FRAME {&FRAME-NAME} = YES.
             btnCalendar-2:HIDDEN IN FRAME {&FRAME-NAME} = YES.
+            RECT-43:HIDDEN IN FRAME {&FRAME-NAME} = YES.
+           
         END.
         
-        APPLY "entry" TO oe-rel.s-code .
+        APPLY "entry" TO oe-rel.tot-qty .
     END.
 
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -1874,6 +1913,8 @@ PROCEDURE display-item :
           PARAMs:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
+    DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
     IF AVAILABLE oe-rel  THEN 
     DO: 
         RUN pBuildReport (ROWID(oe-rel), NO).
@@ -1890,14 +1931,24 @@ PROCEDURE display-item :
             oe-rel.ship-addr[1] oe-rel.ship-city oe-rel.ship-state tt-report.price 
             tt-report.whsed fi_discount fi_totprice tt-report.frt-pay 
             tt-report.flute oe-rel.spare-char-1 oe-rel.spare-char-2 oe-rel.spare-char-3 
-            tt-report.q-rel oe-rel.r-no oe-rel.link-no tt-report.job-start-date 
-            tt-report.qty tt-report.prom-code tt-report.pr-uom 
+            tt-report.q-rel oe-rel.r-no tt-report.job-start-date 
+            tt-report.prom-code tt-report.pr-uom 
             WITH FRAME Dialog-Frame.
     END.
 
     IF ip-type NE "view" THEN 
     DO:
         ENABLE  Btn_Cancel Btn_OK WITH FRAME Dialog-Frame.
+    END.
+
+    IF ip-type EQ "update" THEN DO:
+        RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("windows/matprep.w", "", OUTPUT lResult).
+        DELETE OBJECT hPgmSecurity.
+        IF NOT lResult THEN 
+            DO WITH FRAME {&FRAME-NAME}:
+            DISABLE oe-rel.stat .
+        END.
     END.
 
     VIEW FRAME {&FRAME-NAME}. 
@@ -1927,12 +1978,12 @@ PROCEDURE enable_UI :
         DISPLAY oe-rel.s-code oe-rel.ship-id oe-rel.stat oe-rel.carrier oe-rel.tot-qty 
             oe-rel.qty oe-rel.ship-addr[1] oe-rel.ship-city oe-rel.ship-state 
             oe-rel.spare-char-1 oe-rel.spare-char-2 oe-rel.spare-char-3 
-            oe-rel.r-no oe-rel.link-no 
+            oe-rel.r-no  
             WITH FRAME Dialog-Frame.
     IF AVAILABLE tt-report THEN 
         DISPLAY tt-report.opened tt-report.po-no tt-report.lot-no tt-report.prom-date 
             tt-report.stat tt-report.price tt-report.whsed tt-report.frt-pay 
-            tt-report.flute tt-report.q-rel tt-report.job-start-date tt-report.qty 
+            tt-report.flute tt-report.q-rel tt-report.job-start-date  
             tt-report.prom-code tt-report.pr-uom 
             WITH FRAME Dialog-Frame.
     ENABLE oe-rel.s-code oe-rel.ship-id oe-rel.stat 
@@ -1941,8 +1992,8 @@ PROCEDURE enable_UI :
         oe-rel.ship-addr[1] oe-rel.ship-city oe-rel.ship-state tt-report.price 
         tt-report.whsed tt-report.frt-pay 
         tt-report.flute oe-rel.spare-char-1 oe-rel.spare-char-2 
-        oe-rel.spare-char-3 tt-report.q-rel oe-rel.r-no oe-rel.link-no 
-        tt-report.job-start-date tt-report.qty tt-report.prom-code 
+        oe-rel.spare-char-3 tt-report.q-rel oe-rel.r-no  
+        tt-report.job-start-date  tt-report.prom-code 
         tt-report.pr-uom btnCalendar-1 btnCalendar-2 Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
         WITH FRAME Dialog-Frame.
     VIEW FRAME Dialog-Frame.
@@ -2157,7 +2208,9 @@ PROCEDURE pCreateNewRel :
             oe-rel.carrier      = /*if sys-ctrl.char-fld = "Shipto" and avail shipto then shipto.carrier
                               else*/ v-carrier
             oe-rel.r-no         = v-nxt-r-no
-            oe-rel.spare-char-1 = v-shipfrom.
+            oe-rel.spare-char-1 = v-shipfrom
+            oe-rel.fob-code     = oe-ord.fob-code
+            oe-rel.frt-pay      = oe-ord.frt-pay .                                                                                                              .
 
         IF oereleas-cha EQ "LastShip" THEN
             oe-rel.rel-date = oe-ord.last-date.

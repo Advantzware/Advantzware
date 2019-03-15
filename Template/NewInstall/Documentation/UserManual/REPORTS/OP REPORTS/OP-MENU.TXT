@@ -1,0 +1,22 @@
+ 10/18/00               ADVANCED CARTON COMPANY - MAIN                 10:00am
+       M A I N    M E N U
+¦                              ORDER   PROCESSING
+¦  A. Cost Estimating   ¦                      +           REPORTS             +
+¦  B. Order Processing  ¦  1. Enter/Edit Orders¦                               ¦
+¦  C. Raw Materials     ¦  2. Enter/Edit Releas¦  1. Order Backlog             ¦
+¦  D. Finished Goods    ¦  3. Shipping/Bill of ¦  2. Scheduled Releases        ¦
+¦  E. Sales Analysis    ¦  4. Invoicing        ¦  3. Job Log                   ¦
+¦  F. Production Control¦  5. Process Returns  ¦  4. Salesmen Performance      ¦
+¦  G. Plant Data Collect¦  6. Credit Approval  ¦  5. Orders Booked             ¦
+¦  H. Job Costing       ¦  I. Inquiries        ¦  6. Commissions               ¦
+¦  I. Purchasing        ¦  R. Reports          ¦  7. Loadtag Creation          ¦
+¦  J. Accounts Receivabl¦  F. File Maintenance ¦  8. Order Balance by PO#      ¦
+¦  K. Accounts Payable  ¦                      ¦  9. Scheduled Releases w/Job  ¦
+¦  L. General Ledger    +----------------------¦  A. Orders Booked by Due Date ¦
+¦  M. EDI                      ¦               ¦  B. Orders Booked by Order No ¦
+¦  S. System Administration    ¦               ¦  C. Scheduled Rel by Ship-To  ¦
+¦  X. EXIT                     ¦               ¦                               ¦
+¦                              ¦               +-------------------------------+
++------------------------------+
+
+

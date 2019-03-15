@@ -175,7 +175,7 @@ chExcelApplication:VISIBLE = FALSE.
 
 /*==============*/
 DEF VAR lv-file-name AS cha FORM "x(60)" NO-UNDO.
-OS-CREATE-DIR VALUE("c:\temp\fax") NO-ERROR.
+OS-CREATE-DIR VALUE("c:\temp\fax").
 /*
 IF ip-multi-faxout THEN DO:
 

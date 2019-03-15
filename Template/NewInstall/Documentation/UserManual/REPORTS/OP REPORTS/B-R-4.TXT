@@ -1,0 +1,14 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 6:32pm                                   ORDER PROCESSING - SALESMAN PERFORMANCE REPORT
+
+                                                 Order Date: 10/17/00 Salesman :  -
+
+
+    Salesman            ---------Daily-----------  -----Period to Date------  -------Year to Date------
+No  Name                   Sq Ft/M         Amount     Sq Ft/M         Amount     Sq Ft/M         Amount
+--- ------------------- ---------- --------------  ---------- --------------  ---------- --------------
+001 Saleperson #10          30.078       3,087.90     497.274     142,713.90     997.826     333,474.40
+                        ---------- --------------  ---------- --------------  ---------- --------------
+       TOTAL SALES          30.078       3,087.90     497.274     142,713.90     997.826     333,474.40
+

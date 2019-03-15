@@ -46,6 +46,7 @@ CREATE WIDGET-POOL.
 &scoped-define item_spec  FGITEM
 DEF VAR rQuoteRow AS ROWID NO-UNDO.
 {methods\defines\phone.i &new="NEW"}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -118,18 +119,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 25.71
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 112 ROW 2.91
          SIZE 39 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -322,20 +323,20 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/optionse.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 69.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 63.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/smartmsg.w':U ,
              INPUT  FRAME message-frame:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
        RUN set-position IN h_smartmsg ( 1.00 , 8.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/optionse.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_options ).
+       RUN set-position IN h_options ( 1.00 , 69.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 63.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/printquo.w':U ,
@@ -390,6 +391,8 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_b-qthd ( 4.81 , 7.00 ) NO-ERROR.
        RUN set-size IN h_b-qthd ( 19.52 , 141.60 ) NO-ERROR.
 
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
        /* Links to SmartObject h_export. */
        RUN add-link IN adm-broker-hdl ( h_b-qthd , 'export-xl':U , h_export ).
@@ -399,6 +402,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-qthd , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_export ,
+             h_options , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-qthd ,
              h_folder , 'AFTER':U ).
     END. /* Page 1 */
@@ -413,7 +418,7 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = Yes':U ,
              OUTPUT h_v-qthd ).
        RUN set-position IN h_v-qthd ( 4.57 , 4.00 ) NO-ERROR.
-       /* Size in UIB:  ( 10.48 , 143.00 ) */
+       /* Size in UIB:  ( 10.48 , 143.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/changevalue.w':U ,
@@ -477,7 +482,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-qtitem , 'TableIO':U , h_b-qtitm ).
        RUN add-link IN adm-broker-hdl ( h_v-qthd , 'bottom':U , h_b-qtitm ).
        RUN add-link IN adm-broker-hdl ( h_v-qthd , 'Record':U , h_b-qtitm ).
-       RUN add-link IN adm-broker-hdl ( h_b-qtitm , 'itemqt':U , h_b-qthd ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-qthd ,
              h_folder , 'AFTER':U ).

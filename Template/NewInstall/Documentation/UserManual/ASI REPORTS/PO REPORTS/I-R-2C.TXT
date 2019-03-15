@@ -1,0 +1,14 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:09pm                                            SCHEDULED RECEIPTS BY VENDOR
+
+
+VEND NO                    ITEM NO          JOB NO        P/O  P/O DATE           QTY ORDER     QTY RECEIVED  REQ DATE          MSF
+  VENDOR NAME                ITEM NAME
+------------------------------------------------------------------------------------------------------------------------------------
+
+2                          SBS-18              316- 0      93  10/11/00                4.45             2.50  10/12/00       142.00
+  INTERNATIONAL PAPER        SBS 18 Pt Board
+                           200 C               319- 0      95  10/17/00            5,000.00             0.00  10/18/00        30.08
+                             200 C Sheets
+

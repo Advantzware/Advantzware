@@ -347,6 +347,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartNavBrowser h_st-pattn. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_st-pattn ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_st-pattn ).
+       RUN add-link IN adm-broker-hdl ( h_st-pattn , 'note-link':U , h_options ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,

@@ -1,0 +1,255 @@
+  htmldict.w - DataBase Dictionary Web page Generator.
+  -------------------------------------------------------------------------------------------------------------------------------------
+  
+  HtmlDict is a v8/9/10 compatible metaschema web page creator. These programs allow you to map some or all connected databases into a 
+  series of web pages. The top page shows all processed databases, the next level shows all tables within a database, and the last level 
+  shows all fields within a table. All table pages are linked to the Next and Previous page, and back to the level above. Additionally, 
+  a field cross index, a sequence list and an area overview is generated and linked in to the database and table pages. 
+
+  This set of pages is an easy way to see all the fields, tables, and databases with all relevant details for coding, without 
+  switching to the data dictionary.
+
+  HtmlDict is based on the updated version from 3 oct 2002 from Jeff Pilant, which, in turn, was based on the original version from 
+  Tom Bascom, dated 11 jan 1996. Many thanks go to these guys for the basic idea.
+
+
+ -[ General ]--------------------------------------------------------------------------------------------------------------------------
+
+  Each database processed will generate a subdirectory inside the basedir with web pages, each corresponding to one of the tables 
+  within the dataBase. Additionally, some extra 00-*.* files will be created:
+
+    00-area.html      : overview of the areas of the database
+    00-cross.html     : cross-index of the fieldnames in the db. For each fieldname the files are listed in which they occur
+    00-index.html     : frameset
+    00-list.html      : list of file names (left frame)
+    00-main.html      : main page with a list of the files in the db and their description (right frame)
+    00-crc.txt        : list of crc's for all the files in the database to determine whether the schema should be regenerated or not.
+    00-primeindex.txt : list with all single-field primary indexes. These are used to provide a link to the 'master table' of a given 
+                        field when it is a field that occurs as the only field in the primary index of a table
+
+  In the main directory the following files are created:
+
+    00-index.html     : the main entry point for the list of db's. The tool generates a subdirectory for each database it processes 
+                        and at the end of a generation process a new main page is generated, holding links to all direcotories.
+    HtmlDict.html     : Page with version info. Generated from htmldict.txt (this page)
+    HtmlDict.ico      : Icon file for the webpages
+    styles.css        : Cascaded style sheet for the database. All elements in the stylesheets that already exist will 
+                        not be touched. If elements are missing, they are added. This allows users to modify the stylesheet
+                        once without the need to re-modify it after each run. 
+
+
+ -[ Files ]---------------------------------------------------------------------------------------------------------------------------
+
+    HtmlDict consists of the following files:
+
+    - HtmlDict.w   : the main program (front end)
+    - HtmlDict2.p  : the program that generates the files for a single database 
+    - HtmlDict.txt : this file. it will be transformed to an html page
+    - HtmlDict.ico : an icon for the generated pages
+    - HtmlDict.gif : a small image to be placed on the pro*tools palette
+    - src2html.p   : utility to add syntax hilighting to an html file
+
+
+
+ -[ How to run ]----------------------------------------------------------------------------------------------------------------------
+
+    Place all files in one directory and run the main program htmldict.w. Run it either with a full path, or make sure that
+    the htmldict directory is in the propath. Otherwise, the main program cannot find the actual generator.
+
+                        
+
+ -[ Autostart ]-----------------------------------------------------------------------------------------------------------------------
+ 
+    Starting with build 009 it is possible to let htmldict run automatically. For this, you need to create a shortcut to 
+    HtmlDict.w and provide the options you want in the -param string. Possible options are:
+    
+      Option              Description                                                 Values
+      -----------------   ---------------------------------------------------------   ------------------------
+      x                 : x-position of the window                                  : valid position
+      y                 : y-position of the window                                  : valid position
+      FieldOrder        : sort order for the fields                                 : '_order' | '_field-name'
+      SkipIfUnchanged   : do not generate the HTML pages is the schema is unchanged : TRUE|FALSE
+      ShowHtml          : show the startpage after the generating process           : TRUE|FALSE 
+      SaveSettings      : save the settings in the registry                         : TRUE|FALSE 
+      OutputDirectory   : directory where the HTML pages will be saved.             : valid directory
+      TriggerPath       : directory where the trigger code can be found             : list of valid directories
+      AutoRun           : automatic run and quit                                    : TRUE|FALSE 
+
+
+    The settings can be specified inside the -param string, separated with spaces. A valid startup string would be: 
+      -param "SaveSettings=false x=10 y=10 SkipIfUnchanged=true AutoRun=true"
+    
+
+    Command line settings overrule the settings from the registry. Unless you specify 'SaveSettings=false', the 
+    settings you specify on the commandline might be saved to the registry (depending on your last run). You cannot 
+    specify the databases to be processed. By default, all connected databases and the metaschema will be processed, so 
+    connect your databases using -db on the command line. If you use the autorun feature, you might want to add -rr to 
+    the startup parameters to make Progress think it is running in a run-time environment. 
+
+
+
+ -[ Contributors ]--------------------------------------------------------------------------------------------------------------------
+
+  HtmlDict is maintained by Patrick Tingen and Gerben Wieringa. If you have suggestions, feel free to contact one of us:
+   
+    pt : Patrick Tingen         patrick at tingen dot net
+    gw : Gerben Wieringa        g.wieringa at vcd dot nl
+
+
+
+ -[ History ]-------------------------------------------------------------------------------------------------------------------------
+
+ Build       date  by   description
+ ----- ----------  ---  ------------------------------------------------------------------------------------------------------------
+ 
+  012        2006  pt   - Added button for ad-hoc database (dis)connects
+                        - Added possibility to view version info in main window
+                        - Clean message when started from appBuilder
+                        - CrossIndex page showed fields from all processed db's instead of 1 db
+                        - Further separation of UI and logic
+                   gw   - Finding table relations rewritten  
+  
+ ----- ----------  ---  ------------------------------------------------------------------------------------------------------------
+ 
+  011  28/04/2006  pt   - Finding the common start string failed when db contained 1 file (thanks to Peter Kiss)
+                        - Link on main page sometimes failed on lower/upper case
+                        - Convert triggerpath to lowercase
+                        - Removed 'smart' css fiddling
+                   gw   - Show index objects on _area page (thanks to Mike Derrick)
+                        - Show code of triggers with syntax hilighting (thanks to Jurjen Dijkstra)
+                        - Added table relations (thanks to Wim van der Ham)
+                        - Added support for alternate stylesheets
+                   pt   - Added stylesheet combobox
+                        - Show _area elements (files/indexes) in 4 cols
+                        - Replaced custom classes in stylesheets with more standard names
+                        - Possibility to sort the HTML files either on fieldname or number
+                        - Added database combobox
+                        - Cleaned up and renamed css files. 
+
+  to do:
+  - wanneer een veld verwijst naar een tabel in een andere db, gaat de link niet goed. Verwijzing op crossindex
+    pagina houdt hier geen rekening mee en verwijst naar mastertable.html ipv ../masterdb/mastertable.html
+
+ ----- ----------  ---  ------------------------------------------------------------------------------------------------------------
+
+  010  07/12/2005  gw   - Added triggers and reference to code
+                   gw   - Cosmetic: Table names in X-idx are now sorted by name
+                   pt   - Cosmetic: Table names on area page are now sorted by name
+                   pt   - Changes in stylesheet by user will be preserved on generating.  
+                   gw   - Find common startstring for all table names.
+                   gw   - mandatory property added
+                   pt   - Small changes in the .css
+                   pt   - If no database is connected, the 'Generate' button is disabled.
+
+ ----- ----------  ---  ------------------------------------------------------------------------------------------------------------
+
+  009  11/11/2005  pt   - Version info file could not be found via propath.
+                   pt   - Added whitespace between indexes for readability (Gerben Wieringa)
+                   pt   - Added title to index page of each database
+                   pt   - Frontend: Restore position on startup
+                   pt   - Frontend: Replaced 'Cancel' button with 'Done' button.
+                   pt   - Turned actual generate program into structured procedure.
+                   pt   - Minor html improvements.
+                   pt   - More frequent updates of the statusbar during generation. 
+                   pt   - Added HtmlDict.ico to generated pages
+                   pt   - Added image HtmlDict.gif to be used in PRO*Tools palette
+                   pt   - When started from shortcut, quit the session on completion. 
+                   pt   - Changed some names of registry settings
+                   pt   - Added autorun possibility through -param string
+                   pt   - Fixed bug in false reporting of word indexes (Frans Verhulst)
+  
+ ----- ----------  ---  ------------------------------------------------------------------------------------------------------------
+
+  008  07/09/2005  pt   - No use of dynamic query to make it runnable under v8
+                   pt   - Clean up generated HTML code for main page.
+  
+ ----- ----------  ---  ------------------------------------------------------------------------------------------------------------
+
+  007  09/07/2005  pt   - Split the cross index page to one page per letter. on large databases, a single page can easily
+                          grow to over 2 Mb, which takes a long time to load. 
+                        - save user settings in the registry.
+
+ ----- ----------  ---  ------------------------------------------------------------------------------------------------------------
+
+  006  20/06/2005  pt   - Removed redundant HTML attributes from generated pages
+                        - Use relative fontsizes in CSS instead of fixed ones
+                        - More compact style for navigation panel
+                        - Include 'current' page on navigation panel as plain text so all elements of the navigation
+                          panel stay on the same place if you click a link in the navigation panel.
+  
+ ----- ----------  ---  ------------------------------------------------------------------------------------------------------------
+
+  005  16/06/2005  pt   - Moved functions to main program for re-use
+                        - Fixed bug with '<' signs in field format
+                        - new style for navigation bar
+                        - navigation bar is in its own table so links stay on the same position on the screen. 
+                        - Create link to version info
+                        - Fixed bug with area list. Areas were not reported on versions < 10. Should be < 9. 
+                        - Removed link to itself on sequence page. 
+                        - Show sequences in odd/even rowstyle, like tables.
+                        - Added link to version info on all pages
+                        - New layout for main database page, including link to version info.
+                        - Re-introduced extents. Not in their own column, but within square brackets after 
+                          the datatype, so a char with extent 10 will look like "char[10]".
+                        - Show number of decimals on decimal datatypes. A decimal with 5 positions will 
+                          look like "decimal-5". If it also has an extent of 3 it will look like "decimal-5 [3]"
+                        - Possibility to indicate sort order for fields.
+                        - Included version number on starting window.
+                        - Extra space on starting window for more than 5 databases. 
+
+ ----- ----------  ---  ------------------------------------------------------------------------------------------------------------
+
+  004  25/05/2005  pt   - Changed runtime arguments to parameters
+                        - Create an area page
+                        - Show table details (like area, dumpname etc)
+                        - Cleaned up code
+                        - Use multiple html frames
+                        - Show list of files in the database
+                        - Possibility to generate report of the metaschema
+                        - Use 2 different styles for odd and even lines for readability
+                        - Include version info in generated pages.
+ 
+ ----- ----------  ---  ------------------------------------------------------------------------------------------------------------
+
+  003  12/04/2005  pt   - Show sequences
+                        - Show areas
+                        - Renamed all variables to apply to the same standard
+                        - Show progress status
+                        - Added shortcuts to fields on cross index page
+                        - Added link on each field to the field on the cross index page.
+                        - Removed extents from report
+                        - Create a link back to a table when a field appears to be the only
+                          field in the prime-index of that table. Fields like 'cust-id-bill-to' also 
+                          point back to 'customer' when 'cust-id' is the sole field in customer's prime index.
+                        - Show tables in two different styles, for odd/even rows
+
+ ----- ----------  ---  ------------------------------------------------------------------------------------------------------------
+
+  002  08/03/2003  pt   - Changed runtime arguments to parameters
+                        - moved frequently used lines to internal functions
+                        - Cleaned up code
+                        - Make use of a CSS file
+                        - Added shortcuts to files on main table page
+
+ ----- ----------  ---  ------------------------------------------------------------------------------------------------------------
+
+  001  04/03/2003  pt   - rewrite of front-end       
+
+ ----- ----------  ---  ------------------------------------------------------------------------------------------------------------
+
+  000  01/11/1996  tom  created (thanks to Gerry Duprey for the idea) 
+       04/03/1996  mjb  changed lots of stuff to automate this.
+       04/17/1996  mjb  put an html link back to the dict.html page at the bottom of every table listing.
+       08/30/1996  bmy  protect against hashes in URL names via encoding
+       09/24/1996  dmk  changed links to use _dump-name.html instead of _file-name.html to match with actual names of link files
+       02/06/1998  tom  adapted to genericize
+       02/06/2001  jtp  fixed *.htm -> *.html, added Next/Prev buttons
+       03/12/2001  jtp  converted to two *.w files from htmldict.p html-db.w & html-one.w HTML dictionary report
+       03/14/2001  jtp  chaned absolute file references in the pages to relative refrences.
+       03/19/2001  jtp  fixed problem with "?" appearing over table
+       12/03/2001  jtp  Added 'view-as' info from database
+       12/06/2001  jtp  Added 'Field Cross Reference' code
+
+ ----- ----------  ---  ------------------------------------------------------------------------------------------------------------
+
+

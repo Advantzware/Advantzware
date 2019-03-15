@@ -447,6 +447,18 @@ FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIsCustPriceHoldExempt d-oeitem
+FUNCTION fIsCustPriceHoldExempt RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER,
+   ipcCustomerID AS CHARACTER,
+   ipcShipToID AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnPrevOrder d-oeitem
 FUNCTION fnPrevOrder RETURNS CHARACTER 
     (ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER) FORWARD.
@@ -2763,11 +2775,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
  
  IF ip-type NE "view" THEN DO:
-    IF llOEPrcChg-sec THEN  
+    IF llOEPrcChg-sec OR fIsCustPriceHoldExempt(oe-ordl.company, oe-ordl.cust-no, oe-ordl.ship-id) THEN  
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES.
     ELSE DO:        
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
-    END.
+    END.    
+        
  END.
 
   IF fgsecurity-log THEN
@@ -2924,6 +2937,7 @@ oplRelFlg2 = llRelFlg2.
             v-ship-from = shipto.loc.
         END.
         RUN oe/d-shipid.w (INPUT b-oe-ordl.cust-no,
+                   INPUT oe-ordl.qty, INPUT oe-ordl.i-no,
                    INPUT-OUTPUT v-ship-id,
                    INPUT-OUTPUT v-ship-from).
 
@@ -3199,9 +3213,10 @@ DEF VAR lxPrice LIKE oe-ordl.price NO-UNDO.
 DEF VAR lxUom LIKE oe-ordl.pr-uom NO-UNDO.
 DEF VAR lxQty LIKE oe-ordl.qty NO-UNDO.
 DEF VAR lcChoice AS CHAR NO-UNDO.
+DEFINE VARIABLE iQutNo AS INTEGER NO-UNDO .
 
 DO WITH FRAME {&FRAME-NAME}:
-    RUN oe/d-quotedprices.w(cocode,
+    RUN oe/d-quotedprices.w("Button",cocode,
                         locode,
                         oe-ordl.est-no:SCREEN-VALUE,
                         oe-ordl.cust-no,
@@ -3210,6 +3225,7 @@ DO WITH FRAME {&FRAME-NAME}:
                         OUTPUT lxPrice,
                         OUTPUT lxUom,
                         OUTPUT lxQty,
+                        OUTPUT iQutNo,
                         OUTPUT lcChoice).
 
 
@@ -3412,8 +3428,15 @@ PROCEDURE create-job :
         FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
                               AND oe-ord.ord-no  EQ oe-ordl.ord-no
                             NO-ERROR.
+                            
+  v-job-job = 1.
   FIND LAST job WHERE job.company EQ cocode USE-INDEX job NO-LOCK NO-ERROR.
-  v-job-job = IF AVAIL job THEN job.job + 1 ELSE 1.
+  FIND LAST job-hdr WHERE job-hdr.company EQ cocode
+        USE-INDEX job NO-LOCK NO-ERROR.
+  /* In case job is not found and 1 is not the true last job# */
+  IF AVAILABLE job-hdr AND  job-hdr.job GT v-job-job THEN v-job-job = job-hdr.job + 1.
+  IF AVAILABLE job AND job.job GE v-job-job THEN v-job-job = job.job + 1.
+
   DO v-i = 1 TO 10:
       FIND job WHERE job.company EQ cocode 
            AND job.job = v-job-job USE-INDEX job 
@@ -4365,18 +4388,18 @@ PROCEDURE display-est-detail :
    lv-qty    = dec(oe-ordl.qty:SCREEN-VALUE).
 
   IF AVAIL xest AND v-quo-price-log AND NOT ll-got-qtprice AND
-     NOT CAN-FIND(FIRST tt-item-qty-price WHERE
+      NOT CAN-FIND(FIRST tt-item-qty-price WHERE
           tt-item-qty-price.tt-selected = YES AND
           (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
           (tt-item-qty-price.part-no EQ oe-ordl.i-no:SCREEN-VALUE AND oe-ordl.i-no:SCREEN-VALUE NE ""))) THEN DO:
      ll-got-qtprice = YES.
-
-     RUN oe/getqpric.p (RECID(xest), oe-ordl.part-no:SCREEN-VALUE,
-                        oe-ordl.i-no:SCREEN-VALUE,
-                        INPUT-OUTPUT lv-price,
-                        INPUT-OUTPUT lv-pr-uom,
-                        OUTPUT lv-q-no,
-                        INPUT-OUTPUT lv-qty).
+        
+     RUN pGetQuoteRec(xest.est-no,oe-ordl.part-no:SCREEN-VALUE,
+                      oe-ordl.i-no:SCREEN-VALUE,
+                      INPUT-OUTPUT lv-price ,
+                      INPUT-OUTPUT lv-pr-uom,
+                      OUTPUT lv-q-no,
+                      INPUT-OUTPUT lv-qty).
 
      oe-ordl.qty:SCREEN-VALUE  = STRING(lv-qty).
   END.
@@ -4612,13 +4635,13 @@ DO WITH FRAME {&FRAME-NAME}:
                  (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
                  (tt-item-qty-price.part-no EQ v-tmp-part AND v-tmp-part EQ ""))) THEN
                  DO:
-                    RUN oe/getqpric.p (RECID(xest),
-                                       oe-ordl.part-no:screen-value,
-                                       v-tmp-part,
-                                       INPUT-OUTPUT lv-price,
-                                       INPUT-OUTPUT lv-pr-uom,
-                                       OUTPUT lv-q-no,
-                                       INPUT-OUTPUT lv-qty).
+                    RUN pGetQuoteRec(xest.est-no,oe-ordl.part-no:SCREEN-VALUE,
+                                     v-tmp-part,
+                                     INPUT-OUTPUT lv-price ,
+                                     INPUT-OUTPUT lv-pr-uom,
+                                     OUTPUT lv-q-no,
+                                     INPUT-OUTPUT lv-qty).
+                    
                     oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).
                  END.
               ELSE
@@ -6209,12 +6232,13 @@ PROCEDURE leave-qty :
              (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
              (tt-item-qty-price.part-no EQ v-tmp-part AND v-tmp-part EQ ""))) THEN
           DO:
-             RUN oe/getqpric.p (RECID(xest), oe-ordl.part-no:screen-value,
-                                v-tmp-part,
-                                INPUT-OUTPUT lv-price,
-                                INPUT-OUTPUT lv-pr-uom,
-                                OUTPUT lv-q-no,
-                                INPUT-OUTPUT lv-qty).
+             
+           RUN pGetQuoteRec(xest.est-no,oe-ordl.part-no:screen-value,
+                            v-tmp-part,
+                            INPUT-OUTPUT lv-price ,
+                            INPUT-OUTPUT lv-pr-uom,
+                            OUTPUT lv-q-no,
+                            INPUT-OUTPUT lv-qty).
              oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).
           END.
           ELSE
@@ -6605,6 +6629,9 @@ PROCEDURE OnSaveButton :
 
     RUN validate-all NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+    IF (decimal(oe-ordl.cost:SCREEN-VALUE) * decimal(oe-ordl.qty:SCREEN-VALUE) / 1000 ) GT DECIMAL(oe-ordl.t-price:SCREEN-VALUE) THEN
+        MESSAGE "Warning: Sell Price is less than the cost." VIEW-AS ALERT-BOX WARNING .
 
     APPLY "go" TO FRAME {&FRAME-NAME}.
  
@@ -9459,6 +9486,70 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetQuoteRec d-oeitem 
+PROCEDURE pGetQuoteRec :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF INPUT        PARAM ipcEstNo      AS   CHARACTER.
+DEF INPUT        PARAM ipcPartNo    LIKE quoteit.part-no.
+DEF INPUT        PARAM ipcPartNo2   LIKE quoteit.part-no.
+DEF INPUT-OUTPUT PARAM iopPrice      LIKE oe-ordl.price.
+DEF INPUT-OUTPUT PARAM iopUom        LIKE oe-ordl.pr-uom.
+DEF OUTPUT       PARAM iopQ-no       LIKE quotehd.q-no.
+DEF INPUT-OUTPUT PARAM iop-qty       AS INT NO-UNDO.
+DEF VARIABLE lcChoice AS CHARACTER NO-UNDO .
+ DO WITH FRAME {&FRAME-NAME}:
+       j = 0.
+       FOR EACH quotehd
+            WHERE quotehd.company EQ cocode
+            AND quotehd.loc     EQ locode
+            AND quotehd.est-no  EQ ipcEstNo
+            AND quotehd.quo-date LE TODAY 
+            AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
+            USE-INDEX quote NO-LOCK,
+            
+            EACH quoteitm OF quotehd
+            WHERE quoteitm.part-no  EQ ipcPartNo OR
+            (quoteitm.part-no EQ ipcPartNo2 AND ipcPartNo2 NE "" )
+            USE-INDEX q-line NO-LOCK,
+            EACH quoteqty OF quoteitm
+            USE-INDEX qt-qty NO-LOCK
+            
+            BY quotehd.q-no DESC
+            BY quoteqty.qty DESC:
+
+           j = J + 1 .
+           IF J > 1 THEN LEAVE.
+           
+           ASSIGN
+               iopPrice = quoteqty.price
+               iopUom   = quoteqty.uom
+               iopQ-no  = quoteqty.q-no .
+       END.
+  
+       IF j GT 1 THEN
+           RUN oe/d-quotedprices.w("",cocode,
+                          locode,
+                          oe-ordl.est-no:SCREEN-VALUE,
+                          oe-ordl.cust-no,
+                          oe-ordl.part-no:SCREEN-VALUE,
+                          oe-ordl.i-no:SCREEN-VALUE,
+                          OUTPUT iopPrice,
+                          OUTPUT iopUom,
+                          OUTPUT iop-qty,
+                          OUTPUT iopQ-no,
+                          OUTPUT lcChoice).  
+ END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 /* ************************  Function Implementations ***************** */
 
 
@@ -9475,6 +9566,31 @@ DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
 RETURN lTaxable.
 
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIsCustPriceHoldExempt d-oeitem
+FUNCTION fIsCustPriceHoldExempt RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER, ipcCustomerID AS CHARACTER, ipcShipToID AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose: Returns true if the customer is not activated for price hold logic
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lCustExempt AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lPriceHoldActive AS LOGICAL NO-UNDO.
+	
+	RUN CheckPriceHoldForCustShip IN hdPriceProcs (ipcCompany, ipcCustomerID, ipcShipToID, OUTPUT lPriceHold, OUTPUT lPriceHoldActive).
+
+    lCustExempt = NOT lPriceHold AND lPriceHoldActive.
+    
+    RETURN lCustExempt.
 
 END FUNCTION.
 	

@@ -1,3 +1,0 @@
-/* timeflds.i */
-
-ENABLE {&TIME-FIELDS} WITH FRAME {&FRAME-NAME}.

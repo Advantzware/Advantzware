@@ -14,16 +14,7 @@ ADD FIELD "scheduled" OF "Task" AS logical
   POSITION 2
   MAX-WIDTH 1
   HELP "Scheduled (yes/no)"
-  ORDER 30
-
-ADD FIELD "company" OF "Task" AS character 
-  FORMAT "x(3)"
-  INITIAL ""
-  LABEL "Company"
-  POSITION 3
-  MAX-WIDTH 6
-  HELP "Enter Company"
-  ORDER 10
+  ORDER 70
 
 ADD FIELD "taskName" OF "Task" AS character 
   FORMAT "x(24)"
@@ -32,7 +23,7 @@ ADD FIELD "taskName" OF "Task" AS character
   POSITION 4
   MAX-WIDTH 48
   HELP "Enter Task Name"
-  ORDER 40
+  ORDER 80
 
 ADD FIELD "taskID" OF "Task" AS integer 
   FORMAT "->,>>>,>>9"
@@ -41,16 +32,16 @@ ADD FIELD "taskID" OF "Task" AS integer
   POSITION 5
   MAX-WIDTH 4
   HELP "Enter Task ID"
-  ORDER 50
+  ORDER 90
 
-ADD FIELD "programID" OF "Task" AS character 
-  FORMAT "x(20)"
+ADD FIELD "prgmName" OF "Task" AS character 
+  FORMAT "x(10)"
   INITIAL ""
-  LABEL "Program ID"
+  LABEL "Program Name"
   POSITION 6
   MAX-WIDTH 40
-  HELP "Enter Program ID"
-  ORDER 70
+  HELP "Enter Program Name"
+  ORDER 40
 
 ADD FIELD "user-id" OF "Task" AS character 
   FORMAT "x(10)"
@@ -59,7 +50,7 @@ ADD FIELD "user-id" OF "Task" AS character
   POSITION 7
   MAX-WIDTH 20
   HELP "Enter User ID"
-  ORDER 80
+  ORDER 30
 
 ADD FIELD "frequency" OF "Task" AS character 
   FORMAT "x(8)"
@@ -68,7 +59,7 @@ ADD FIELD "frequency" OF "Task" AS character
   POSITION 8
   MAX-WIDTH 16
   HELP "Enter Frequency"
-  ORDER 90
+  ORDER 110
 
 ADD FIELD "taskTime" OF "Task" AS integer 
   FORMAT ">>>>9"
@@ -78,7 +69,7 @@ ADD FIELD "taskTime" OF "Task" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "Time"
   HELP "Enter Task Time"
-  ORDER 100
+  ORDER 120
 
 ADD FIELD "dayOfWeek" OF "Task" AS logical 
   FORMAT "yes/no"
@@ -88,7 +79,7 @@ ADD FIELD "dayOfWeek" OF "Task" AS logical
   MAX-WIDTH 56
   HELP "Select Day of the Week"
   EXTENT 7
-  ORDER 130
+  ORDER 150
 
 ADD FIELD "lastOfMonth" OF "Task" AS logical 
   FORMAT "yes/no"
@@ -98,7 +89,7 @@ ADD FIELD "lastOfMonth" OF "Task" AS logical
   MAX-WIDTH 1
   COLUMN-LABEL "LastDay"
   HELP "Select for Last Day of Month"
-  ORDER 150
+  ORDER 170
 
 ADD FIELD "taskFormat" OF "Task" AS character 
   FORMAT "x(6)"
@@ -107,7 +98,7 @@ ADD FIELD "taskFormat" OF "Task" AS character
   POSITION 13
   MAX-WIDTH 12
   HELP "Enter Output Format"
-  ORDER 160
+  ORDER 180
 
 ADD FIELD "recipients" OF "Task" AS character 
   FORMAT "x(256)"
@@ -116,7 +107,7 @@ ADD FIELD "recipients" OF "Task" AS character
   POSITION 14
   MAX-WIDTH 512
   HELP "Enter Recipients"
-  ORDER 170
+  ORDER 190
 
 ADD FIELD "startDate" OF "Task" AS date 
   FORMAT "99/99/9999"
@@ -125,7 +116,7 @@ ADD FIELD "startDate" OF "Task" AS date
   POSITION 15
   MAX-WIDTH 4
   HELP "Enter Start Date"
-  ORDER 180
+  ORDER 200
 
 ADD FIELD "startTime" OF "Task" AS integer 
   FORMAT ">>>>9"
@@ -135,7 +126,7 @@ ADD FIELD "startTime" OF "Task" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "STime"
   HELP "Enter Start Time"
-  ORDER 190
+  ORDER 210
 
 ADD FIELD "endDate" OF "Task" AS date 
   FORMAT "99/99/9999"
@@ -144,7 +135,7 @@ ADD FIELD "endDate" OF "Task" AS date
   POSITION 17
   MAX-WIDTH 4
   HELP "Enter End Date"
-  ORDER 200
+  ORDER 220
 
 ADD FIELD "endTime" OF "Task" AS integer 
   FORMAT ">>>>9"
@@ -154,7 +145,7 @@ ADD FIELD "endTime" OF "Task" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "ETime"
   HELP "Enter End Time"
-  ORDER 210
+  ORDER 230
 
 ADD FIELD "nextDate" OF "Task" AS date 
   FORMAT "99/99/9999"
@@ -163,7 +154,7 @@ ADD FIELD "nextDate" OF "Task" AS date
   POSITION 19
   MAX-WIDTH 4
   HELP "Enter Next Date"
-  ORDER 220
+  ORDER 240
 
 ADD FIELD "nextTime" OF "Task" AS integer 
   FORMAT ">>>>9"
@@ -172,7 +163,7 @@ ADD FIELD "nextTime" OF "Task" AS integer
   POSITION 20
   MAX-WIDTH 4
   HELP "Enter Next Time"
-  ORDER 230
+  ORDER 250
 
 ADD FIELD "lastDate" OF "Task" AS date 
   FORMAT "99/99/9999"
@@ -181,7 +172,7 @@ ADD FIELD "lastDate" OF "Task" AS date
   POSITION 21
   MAX-WIDTH 4
   HELP "Enter Last Date"
-  ORDER 240
+  ORDER 260
 
 ADD FIELD "lastTime" OF "Task" AS integer 
   FORMAT ">>>>9"
@@ -190,7 +181,7 @@ ADD FIELD "lastTime" OF "Task" AS integer
   POSITION 22
   MAX-WIDTH 4
   HELP "Enter Last Time"
-  ORDER 250
+  ORDER 270
 
 ADD FIELD "rec_key" OF "Task" AS character 
   FORMAT "x(21)"
@@ -199,7 +190,7 @@ ADD FIELD "rec_key" OF "Task" AS character
   POSITION 23
   MAX-WIDTH 42
   HELP "Enter Rec Key Value"
-  ORDER 450
+  ORDER 480
 
 ADD FIELD "allData" OF "Task" AS character 
   FORMAT "x(8)"
@@ -208,7 +199,7 @@ ADD FIELD "allData" OF "Task" AS character
   POSITION 24
   MAX-WIDTH 16
   HELP "Enter ALL Data"
-  ORDER 270
+  ORDER 290
 
 ADD FIELD "dayOfWeek1" OF "Task" AS logical 
   FORMAT "yes/no"
@@ -218,7 +209,7 @@ ADD FIELD "dayOfWeek1" OF "Task" AS logical
   MAX-WIDTH 1
   COLUMN-LABEL "Su"
   HELP "Select Sunday"
-  ORDER 280
+  ORDER 300
 
 ADD FIELD "dayOfWeek2" OF "Task" AS logical 
   FORMAT "yes/no"
@@ -228,7 +219,7 @@ ADD FIELD "dayOfWeek2" OF "Task" AS logical
   MAX-WIDTH 1
   COLUMN-LABEL "Mo"
   HELP "Select Monday"
-  ORDER 290
+  ORDER 310
 
 ADD FIELD "dayOfWeek3" OF "Task" AS logical 
   FORMAT "yes/no"
@@ -238,7 +229,7 @@ ADD FIELD "dayOfWeek3" OF "Task" AS logical
   MAX-WIDTH 1
   COLUMN-LABEL "Tu"
   HELP "Select Tuesday"
-  ORDER 300
+  ORDER 320
 
 ADD FIELD "dayOfWeek4" OF "Task" AS logical 
   FORMAT "yes/no"
@@ -248,7 +239,7 @@ ADD FIELD "dayOfWeek4" OF "Task" AS logical
   MAX-WIDTH 1
   COLUMN-LABEL "We"
   HELP "Select Wednesday"
-  ORDER 310
+  ORDER 330
 
 ADD FIELD "dayOfWeek5" OF "Task" AS logical 
   FORMAT "yes/no"
@@ -258,7 +249,7 @@ ADD FIELD "dayOfWeek5" OF "Task" AS logical
   MAX-WIDTH 1
   COLUMN-LABEL "Th"
   HELP "Select Thursday"
-  ORDER 320
+  ORDER 340
 
 ADD FIELD "dayOfWeek6" OF "Task" AS logical 
   FORMAT "yes/no"
@@ -268,7 +259,7 @@ ADD FIELD "dayOfWeek6" OF "Task" AS logical
   MAX-WIDTH 1
   COLUMN-LABEL "Fr"
   HELP "Select Friday"
-  ORDER 330
+  ORDER 350
 
 ADD FIELD "dayOfWeek7" OF "Task" AS logical 
   FORMAT "yes/no"
@@ -278,7 +269,7 @@ ADD FIELD "dayOfWeek7" OF "Task" AS logical
   MAX-WIDTH 1
   COLUMN-LABEL "Sa"
   HELP "Select Saturday"
-  ORDER 340
+  ORDER 360
 
 ADD FIELD "dayOfMonth" OF "Task" AS logical 
   FORMAT "yes/no"
@@ -288,7 +279,7 @@ ADD FIELD "dayOfMonth" OF "Task" AS logical
   MAX-WIDTH 248
   HELP "Select Day of Month"
   EXTENT 31
-  ORDER 140
+  ORDER 160
 
 ADD FIELD "cTaskTime" OF "Task" AS character 
   FORMAT "99:99"
@@ -298,7 +289,7 @@ ADD FIELD "cTaskTime" OF "Task" AS character
   MAX-WIDTH 10
   COLUMN-LABEL "Time"
   HELP "Enter Task Time"
-  ORDER 350
+  ORDER 370
 
 ADD FIELD "cNextTime" OF "Task" AS character 
   FORMAT "99:99"
@@ -308,7 +299,7 @@ ADD FIELD "cNextTime" OF "Task" AS character
   MAX-WIDTH 10
   COLUMN-LABEL "Time"
   HELP "Enter Next Time"
-  ORDER 370
+  ORDER 390
 
 ADD FIELD "cLastTime" OF "Task" AS character 
   FORMAT "99:99"
@@ -318,7 +309,7 @@ ADD FIELD "cLastTime" OF "Task" AS character
   MAX-WIDTH 10
   COLUMN-LABEL "Time"
   HELP "Enter Last Time"
-  ORDER 390
+  ORDER 410
 
 ADD FIELD "fromTime" OF "Task" AS integer 
   FORMAT ">>>>9"
@@ -328,7 +319,7 @@ ADD FIELD "fromTime" OF "Task" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "From"
   HELP "Enter Task From Time"
-  ORDER 110
+  ORDER 130
 
 ADD FIELD "toTime" OF "Task" AS integer 
   FORMAT ">>>>9"
@@ -338,7 +329,7 @@ ADD FIELD "toTime" OF "Task" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "To"
   HELP "Enter Task To Time"
-  ORDER 120
+  ORDER 140
 
 ADD FIELD "cFromTime" OF "Task" AS character 
   FORMAT "99:99"
@@ -348,7 +339,7 @@ ADD FIELD "cFromTime" OF "Task" AS character
   MAX-WIDTH 10
   COLUMN-LABEL "From"
   HELP "Enter Task From Time"
-  ORDER 360
+  ORDER 380
 
 ADD FIELD "cToTime" OF "Task" AS character 
   FORMAT "99:99"
@@ -358,7 +349,7 @@ ADD FIELD "cToTime" OF "Task" AS character
   MAX-WIDTH 10
   COLUMN-LABEL "To"
   HELP "Enter Task To Time"
-  ORDER 380
+  ORDER 400
 
 ADD FIELD "securityLevel" OF "Task" AS integer 
   FORMAT ">>>9"
@@ -368,7 +359,7 @@ ADD FIELD "securityLevel" OF "Task" AS integer
   MAX-WIDTH 4
   COLUMN-LABEL "Security"
   HELP "Enter Security Level"
-  ORDER 400
+  ORDER 420
 
 ADD FIELD "runNow" OF "Task" AS logical 
   FORMAT "yes/no"
@@ -378,7 +369,7 @@ ADD FIELD "runNow" OF "Task" AS logical
   MAX-WIDTH 1
   COLUMN-LABEL "Run"
   HELP "Run Now (yes/no)"
-  ORDER 430
+  ORDER 450
 
 ADD FIELD "access" OF "Task" AS character 
   FORMAT "x(8)"
@@ -387,7 +378,7 @@ ADD FIELD "access" OF "Task" AS character
   POSITION 43
   MAX-WIDTH 16
   HELP "Enter Access Type"
-  ORDER 410
+  ORDER 430
 
 ADD FIELD "permissions" OF "Task" AS character 
   FORMAT "x(20)"
@@ -396,7 +387,7 @@ ADD FIELD "permissions" OF "Task" AS character
   POSITION 44
   MAX-WIDTH 40
   HELP "Enter Permissions"
-  ORDER 420
+  ORDER 440
 
 ADD FIELD "lastUser" OF "Task" AS character 
   FORMAT "x(10)"
@@ -405,7 +396,7 @@ ADD FIELD "lastUser" OF "Task" AS character
   POSITION 45
   MAX-WIDTH 20
   HELP "Enter Last User"
-  ORDER 260
+  ORDER 280
 
 ADD FIELD "module" OF "Task" AS character 
   FORMAT "x(4)"
@@ -414,7 +405,7 @@ ADD FIELD "module" OF "Task" AS character
   POSITION 46
   MAX-WIDTH 8
   HELP "Enter Module"
-  ORDER 60
+  ORDER 100
 
 ADD FIELD "isActive" OF "Task" AS logical 
   FORMAT "yes/no"
@@ -423,7 +414,7 @@ ADD FIELD "isActive" OF "Task" AS logical
   POSITION 47
   MAX-WIDTH 1
   HELP "Enter Is Active"
-  ORDER 20
+  ORDER 60
 
 ADD FIELD "isRunning" OF "Task" AS logical 
   FORMAT "yes/no"
@@ -433,20 +424,66 @@ ADD FIELD "isRunning" OF "Task" AS logical
   MAX-WIDTH 1
   COLUMN-LABEL "Running"
   HELP "Toggle Is Running"
-  ORDER 440
+  ORDER 460
 
-ADD INDEX "pi-task" ON "Task" 
+ADD FIELD "subjectID" OF "Task" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Subject ID"
+  POSITION 49
+  MAX-WIDTH 4
+  HELP "Enter Subject ID"
+  ORDER 20
+
+ADD FIELD "paramValueID" OF "Task" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Parameter Value ID"
+  POSITION 50
+  MAX-WIDTH 4
+  COLUMN-LABEL "Value ID"
+  HELP "Enter Parameter Value ID"
+  ORDER 50
+
+ADD FIELD "company" OF "Task" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 51
+  MAX-WIDTH 6
+  HELP "Enter Company"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "taskType" OF "Task" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Task Type"
+  POSITION 52
+  MAX-WIDTH 20
+  HELP "Enter Task Type"
+  ORDER 470
+
+ADD INDEX "pi-Task" ON "Task" 
   AREA "Index"
   PRIMARY
-  DESCRIPTION "Primary Index"
-  INDEX-FIELD "company" ASCENDING 
-  INDEX-FIELD "scheduled" ASCENDING 
-  INDEX-FIELD "taskName" ASCENDING 
+  DESCRIPTION "Primary Index by Subject ID, User ID, Program Name, Parameter Value ID"
+  INDEX-FIELD "subjectID" ASCENDING 
+  INDEX-FIELD "user-id" ASCENDING 
+  INDEX-FIELD "prgmName" ASCENDING 
+  INDEX-FIELD "paramValueID" ASCENDING 
 
 ADD INDEX "si-access" ON "Task" 
   AREA "Index"
   DESCRIPTION "Secondary Index by Access"
   INDEX-FIELD "access" ASCENDING 
+
+ADD INDEX "si-company" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Company, User ID, PrgmName"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "subjectID" ASCENDING 
+  INDEX-FIELD "user-id" ASCENDING 
 
 ADD INDEX "si-frequency" ON "Task" 
   AREA "Index"
@@ -468,10 +505,10 @@ ADD INDEX "si-lastUser" ON "Task"
   DESCRIPTION "Secondary Index by Last User"
   INDEX-FIELD "lastUser" ASCENDING 
 
-ADD INDEX "si-program-id" ON "Task" 
+ADD INDEX "si-prgmName" ON "Task" 
   AREA "Index"
-  DESCRIPTION "Secondary Index by Program ID"
-  INDEX-FIELD "programID" ASCENDING 
+  DESCRIPTION "Secondary Index by Program Name"
+  INDEX-FIELD "prgmName" ASCENDING 
 
 ADD INDEX "si-rec_key" ON "Task" 
   AREA "Index"
@@ -503,6 +540,11 @@ ADD INDEX "si-taskName" ON "Task"
   DESCRIPTION "Secondary Index by Task Name"
   INDEX-FIELD "taskName" ASCENDING 
 
+ADD INDEX "si-taskType" ON "Task" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Task Type"
+  INDEX-FIELD "taskType" ASCENDING 
+
 ADD INDEX "si-user-id" ON "Task" 
   AREA "Index"
   DESCRIPTION "Secondary Index by User ID"
@@ -512,4 +554,4 @@ ADD INDEX "si-user-id" ON "Task"
 PSC
 cpstream=ISO8859-1
 .
-0000010566
+0000011613

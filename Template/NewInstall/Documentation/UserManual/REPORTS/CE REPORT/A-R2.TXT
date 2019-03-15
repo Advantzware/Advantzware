@@ -1,0 +1,232 @@
+
+10/17/00            ADVANCED CARTON COMPANY - Main Office          Page   1
+ 4:02pm                        Machines List
+
+  Company: 001     ADVANCED CARTON COMPANY       
+Warehouse: MAIN    Main Office                   
+
+  Code: PR                  Desc: 42" Komori Press                Rigid:
+   Loc: MAIN                Dept: PR            Sequence:  4 01    Fold:
+  Feed: S           Run Spoil. %:   0.00        MR Waste:    0     Corr:
+                                                                  Therm: No
+ =============================  R  A  T  E  S  =============================
+ LABOR Rate1:  30.00    Market: 200.00  MR D.L.: 120.00     RUN D.L.: 120.00
+       Rate2:   0.00  MR  Crew:   4.00   Var OH: 125.00       Var OH: 125.00
+       Rate3:   0.00  RUN Crew:   4.00   Fix OH: 100.00       Fix OH: 100.00
+     Default: 1                           TOTAL: 345.00        TOTAL: 345.00
+
+  ==== LIMITS     Min       Max ===  ==========  Printing Press  =========
+      Width:   10.00000    28.00000      Printer Type:  O
+     Length:   10.00000    42.00000      Washup Hours:  0.25 Col/Pass: C
+   Trim Wid:    0.25000                  Max # colors:  7   Coater On: Y
+   Trim Len:    0.25000                MR Waste/color:   150
+    Caliper:    0.00800     0.03200  INK Waste Lbs/MR:  0.000 Lbs/Col:  0.000
+    Run Qty:          0  99,999,999  Tandem MR/Plate :  0.25  /Fountn:  0.30
+
+
+  Panel Wid:   Panel Len:            Use Lineal Feet in RUN Matrix?   0.00000
+  0.00000
+Sheets/Run:
+  MACHINE NO:  PR     42" Komori Press
+  DEPARTMENT:  PR
+  STYLE CODE:
+
+  MAKE READY:  1 Number of Colors           13 Number Up
+   RUN SPEED:  1 Number of Colors           11 N Sht W/Press Len
+   RUN SPOIL:  1 Number of Colors           20 Number of Sheets
+
+
+
+
+
+
+
+
+
+
+
+
+
+10/17/00            ADVANCED CARTON COMPANY - Main Office          Page   2
+ 4:02pm                        Machines List
+
+ MACHINE NO: PR     42" Komori Pres  STYLE:                       MR/RUN :  MR
+                        N U M B E R   O F   C O L O R S
+              1      2      3      4      5      6     99
+N      5.  2.00   2.25   2.50   2.75   3.00   3.50   4.00
+U     10.  3.00   3.00   3.00   3.00   3.00   3.25   3.25
+M     20.  3.50   3.50   3.50   3.50   3.50   3.50   3.50
+B     30.  3.75   3.75   3.75   3.75   3.75   3.75   3.75
+E     40.  4.10   4.20   4.30   4.40   4.50   4.60   4.70
+R     50.  5.10   5.20   5.30   5.40   5.50   5.60   5.70
+    9999.  6.10   6.20   6.30   6.40   6.50   6.60   6.70
+U
+P
+
+
+
+
+
+
+ MACHINE NO: PR     42" Komori Pres  STYLE:                       MR/RUN : RUN
+                        N U M B E R   O F   C O L O R S
+              1      2      3      4      5      6     99      0      0      0
+N     20.  7900   7800   7700   7600   7500   7400   7300
+      25.  6900   6800   6700   6600   6500   6400   6300
+S     35.  5900   5800   5700   5600   5500   5400   5300
+H  99999.  4900   4800   4700   4600   4500   4400   4300
+T
+
+W
+/
+P
+R
+E
+S
+S
+
+L
+
+   BLANKS   EXTRA %      BOARD    RUN SPEED       BOX       SPEED
+     OVER    PER HR    CALIPER  % REDUCTION     DEPTH   REDUCTION
+     5000        10      .0080           10
+    15000        15      .0320           10
+    25000        20      .0340           12
+    50000        25      .0360           15
+                         .2500           50
+
+
+
+
+
+10/17/00            ADVANCED CARTON COMPANY - Main Office          Page   3
+ 4:02pm                        Machines List
+
+
+
+
+
+
+
+
+
+ MACHINE NO: PR     42" Komori Pres  STYLE:                       MR/RUN : SPOIL
+                        N U M B E R   O F   C O L O R S
+              1      2      3      4      5    999
+N   2500.  5.00   5.25   5.50   6.00   6.50   7.00
+U  10000.  4.00   4.50   5.00   5.50   6.00   6.50
+M9999999.  3.00   3.50   4.00   4.50   4.75   5.25
+B
+E
+R
+
+O
+F
+
+S
+H
+E
+E
+T
+  MACHINE NO:  PR     42" Komori Press
+  DEPARTMENT:  PR
+  STYLE CODE:  DC     Die Cut Blister Card
+
+  MAKE READY:  1 Number of Colors           13 Number Up
+   RUN SPEED:  1 Number of Colors           11 N Sht W/Press Len
+   RUN SPOIL:  1 Number of Colors           20 Number of Sheets
+
+
+
+
+
+
+
+
+
+
+
+
+
+10/17/00            ADVANCED CARTON COMPANY - Main Office          Page   4
+ 4:02pm                        Machines List
+
+ MACHINE NO: PR     42" Komori Pres  STYLE: DC   Die Cut Blister  MR/RUN :  MR
+                        N U M B E R   O F   C O L O R S
+              1      2      3      4      5      6     99
+N      5.  2.00   2.00   2.00   2.00   2.00   2.00   2.00
+U     10.  3.00   3.00   3.00   3.00   3.00   3.25   3.25
+M     20.  3.50   3.50   3.50   3.50   3.50   3.50   3.50
+B     30.  3.75   3.75   3.75   3.75   3.75   3.75   3.75
+E     40.  4.00   4.00   4.00   4.00   4.00   4.00   4.00
+R     50.  4.25   4.25   4.25   4.25   4.25   4.25   4.25
+    9999.  4.50   4.50   4.50   4.50   4.50   4.50   4.50
+U
+P
+
+
+
+
+
+
+ MACHINE NO: PR     42" Komori Pres  STYLE: DC   Die Cut Blister  MR/RUN : RUN
+                        N U M B E R   O F   C O L O R S
+              1      2      3      4      5      6     99      0      0      0
+N     20.  7900   7800   7700   7600   7500   7400   7300
+      25.  6900   6800   6700   6600   6500   6400   6300
+S     35.  5900   5800   5700   5600   5500   5400   5300
+H  99999.  4900   4800   4700   4600   4500   4400   4300
+T
+
+W
+/
+P
+R
+E
+S
+S
+
+L
+
+   BLANKS   EXTRA %      BOARD    RUN SPEED       BOX       SPEED
+     OVER    PER HR    CALIPER  % REDUCTION     DEPTH   REDUCTION
+
+
+
+
+
+
+
+
+
+
+10/17/00            ADVANCED CARTON COMPANY - Main Office          Page   5
+ 4:02pm                        Machines List
+
+
+
+
+
+
+
+
+
+ MACHINE NO: PR     42" Komori Pres  STYLE: DC   Die Cut Blister  MR/RUN : SPOIL
+                        N U M B E R   O F   C O L O R S
+              1      2      3      4      5    999
+N   2500.  5.00   5.25   5.50   6.00   6.50   7.00
+U  10000.  4.00   4.50   5.00   5.50   6.00   6.50
+M9999999.  3.00   3.50   4.00   4.50   5.00   6.00
+B
+E
+R
+
+O
+F
+
+S
+H
+E
+E
+T
+

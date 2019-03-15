@@ -58,11 +58,11 @@ DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "CATEGORY,ITEM,DESCRIPTION,TAG#,LINEAL FEET,MSF," +
-                           "WEIGHT,COST VALUE" 
+                           "WT/MSF,COST VALUE,WIDTH,ROLL WEIGHT" 
        cFieldListToSelect = "cat,i-no,dscr,tag,lin-ft,msf," +
-                            "weht,cst-val"
-       cFieldLength = "8,10,15,20,13,10," + "6,14" 
-       cFieldType = "c,c,c,c,i,i," + "i,i"  
+                            "weht,cst-val,wd,roll-wt"
+       cFieldLength = "8,10,15,20,13,10," + "6,14,9,11" 
+       cFieldType = "c,c,c,c,i,i," + "i,i,i,i"  
     .
 
 {sys/inc/ttRptSel.i}
@@ -1382,6 +1382,7 @@ def var v-val like v-value extent 3.
 def var v-first as log extent 3.
 DEF VAR v-mattype AS cha NO-UNDO.
 DEF VAR v-msf-qty AS DEC NO-UNDO.
+DEFINE VARIABLE r-weight AS DECIMAL NO-UNDO.
 
 DEF VAR cDisplay AS cha NO-UNDO.
 DEF VAR cExcelDisplay AS cha NO-UNDO.
@@ -1505,7 +1506,8 @@ END.
       assign
        v-job-no = fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
                   trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99")
-       v-value  = rm-rdtlh.cost * rm-rdtlh.qty.
+       v-value  = rm-rdtlh.cost * rm-rdtlh.qty
+       r-weight = ((( ITEM.r-wid / 12 ) *  ITEM.s-len ) / 144000 ) * ITEM.basis-w .      
 
       if v-job-no begins "-" then v-job-no = "".
       RUN calc-msf (OUTPUT v-msf-qty).
@@ -1565,6 +1567,8 @@ END.
                      WHEN "msf"      THEN cVarValue = STRING(v-msf-qty,"->>,>>9.99").
                      WHEN "weht"     THEN cVarValue = string(ITEM.basis-w,">>9.99").
                      WHEN "cst-val"  THEN cVarValue = STRING(v-value,"->>,>>>,>>9.99") .
+                     WHEN "wd"       THEN cVarValue = STRING(ITEM.s-wid,">>,>>9.99") .
+                     WHEN "roll-wt"  THEN cVarValue = STRING(r-weight,">>,>>9.99") .
 
                 END CASE.
 
@@ -1629,6 +1633,8 @@ END.
                      WHEN "msf"      THEN cVarValue = STRING((ACCUM TOTAL BY rm-rcpth.i-no v-msf-qty),"->>,>>9.99").
                      WHEN "weht"     THEN cVarValue = "".
                      WHEN "cst-val"  THEN cVarValue = STRING(v-val[1],"->>,>>>,>>9.99") .
+                     WHEN "wd"       THEN cVarValue = "" .
+                     WHEN "roll-wt"  THEN cVarValue = "" .
 
                 END CASE.
 
@@ -1700,6 +1706,8 @@ END.
                      WHEN "msf"      THEN cVarValue = STRING((ACCUM TOTAL BY ITEM.procat v-msf-qty),"->>,>>9.99").
                      WHEN "weht"     THEN cVarValue = "".
                      WHEN "cst-val"  THEN cVarValue = STRING(v-val[2],"->>,>>>,>>9.99") .
+                     WHEN "wd"       THEN cVarValue = "" .
+                     WHEN "roll-wt"  THEN cVarValue = "" .
 
                 END CASE.
 
@@ -1755,6 +1763,8 @@ END.
                      WHEN "msf"      THEN cVarValue = STRING((ACCUM TOTAL v-msf-qty),"->>,>>9.99").
                      WHEN "weht"     THEN cVarValue = "".
                      WHEN "cst-val"  THEN cVarValue = STRING(v-val[3],"->>,>>>,>>9.99") .
+                     WHEN "wd"       THEN cVarValue = "" .
+                     WHEN "roll-wt"  THEN cVarValue = "" .
 
                 END CASE.
 

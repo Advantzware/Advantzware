@@ -1847,14 +1847,13 @@ PROCEDURE local-update-record :
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
     RUN record-added IN WIDGET-HANDLE(char-hdl).
   END.
-
-    lNewOrd = FALSE.
-
+    
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   lv-rowid = ROWID(po-ord).
+  lNewOrd = FALSE.
 
   FIND CURRENT po-ord NO-LOCK NO-ERROR.
 

@@ -1,0 +1,5 @@
+1526 NIBM1000        1021           IBM CORP                      IBM Blvd                      IBM Blvd                      Rochester        NY15989                      5165659898     5165555555                                                      IBM CORP                      123 Nowhere                                                 Rochester        NY15989                      
+1526 IIBM1000        1021               1      5000EA          1.71214UM                                        CIBM10002449A                           Letterpress Ink                                                                                     
+1526 DIBM1000        1021               1    856070101705      101705      2.52.5% discount 10 Days, Net 30          0                                                                           0         0         0         0               Our Truck                       
+1526 S     1     1     0      856070           0  261017050
+9999 T     1     1     0      856070           0101705

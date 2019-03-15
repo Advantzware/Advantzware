@@ -119,7 +119,7 @@ v-dash-line = fill ("_",80).
 IF ip-multi-faxout THEN DO:
 
   DEF VAR lv-file-name AS cha FORM "x(60)" NO-UNDO.
-  OS-CREATE-DIR VALUE("c:\temp\fax") NO-ERROR.
+  OS-CREATE-DIR VALUE("c:\temp\fax").
   INPUT FROM OS-DIR ("C:\temp\fax") NO-ECHO.
   REPEAT:
       SET lv-file-name.  

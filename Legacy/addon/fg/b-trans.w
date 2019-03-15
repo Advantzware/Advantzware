@@ -1149,6 +1149,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE is-in-update B-table-Win
+PROCEDURE is-in-update:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+   DEF OUTPUT PARAM op-in-update AS LOG NO-UNDO.
+
+   op-in-update = /*IF fg-rctd.tag:SENSITIVE IN BROWSE {&browse-name} THEN YES ELSE NO*/
+                  IF adm-brs-in-update OR adm-new-record THEN YES ELSE NO.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE leave-tag B-table-Win 
 PROCEDURE leave-tag :
 /*------------------------------------------------------------------------------
@@ -1863,6 +1883,52 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-finish-goods B-table-Win
+PROCEDURE post-finish-goods:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+
+    SESSION:SET-WAIT-STATE ("general").
+    /* IF fgPostLog THEN RUN fgPostLog ('Started'). */
+
+    FOR EACH w-fg-rctd:
+        DELETE w-fg-rctd.
+    END.
+ 
+    /* Create  workfile records for the finished goods being posted */
+    RUN fg/fgRecsByUser.p (INPUT cocode, INPUT "T", INPUT USERID("ASI"), INPUT TABLE w-fg-rctd BY-reference).
+        
+    ASSIGN
+        v-post-date = TODAY
+        .       
+        
+    RUN fg/fgpostBatch.p ( 
+        INPUT v-post-date, /* Post date      */
+        INPUT NO,          /* tg-recalc-cost */
+        INPUT "T",         /* Receipts       */
+        INPUT lFgEmails,   /* Send fg emails */
+        INPUT TABLE w-fg-rctd BY-reference,
+        INPUT TABLE tt-fgemail BY-reference,
+        INPUT TABLE tt-email BY-reference,
+        INPUT TABLE tt-inv BY-reference).
+            
+    SESSION:SET-WAIT-STATE ("").
+  
+    RUN dispatch IN THIS-PROCEDURE ('open-query':U).
+    
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-record B-table-Win 
 PROCEDURE post-record :

@@ -146,6 +146,7 @@ DEFINE VARIABLE v-called-setCellColumns AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lv-sort-by AS CHAR INIT "tag" NO-UNDO.
 DEFINE VARIABLE lv-sort-by-lab AS CHAR INIT "Tag" NO-UNDO.
 DEFINE VARIABLE ll-sort-asc AS LOG NO-UNDO.
+DEFINE VARIABLE cAbbrStatus AS CHARACTER NO-UNDO .
 
 RUN methods/prgsecur.p
     (INPUT "OEDateChg",
@@ -220,6 +221,7 @@ IF lRecFound THEN
 &SCOPED-DEFINE sortby-log                                                                                   ~
     IF lv-sort-by EQ "carrier"        THEN STRING(oe-rel.carrier)                                                                                                                     ELSE ~
     IF lv-sort-by EQ "stat"           THEN STRING(oe-rel.stat)                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "cAbbrStatus"           THEN STRING(get-stat())                                                                                                                     ELSE ~
     IF lv-sort-by EQ "s-code"        THEN STRING(oe-rel.s-code)                                                                                                                     ELSE ~
     IF lv-sort-by EQ "ship-id"           THEN STRING(oe-rel.ship-id)                                                                                                                     ELSE ~
     IF lv-sort-by EQ "opened"           THEN STRING(tt-report.opened)                                                                                                                     ELSE ~
@@ -297,7 +299,7 @@ oe-rel.ship-addr[1] oe-rel.ship-city oe-rel.ship-state tt-report.price ~
 tt-report.whsed oe-ordl.disc oe-ordl.t-price tt-report.frt-pay ~
 tt-report.flute oe-rel.spare-char-1 oe-rel.spare-char-2 oe-rel.spare-char-3 ~
 tt-report.q-rel oe-rel.r-no oe-rel.link-no tt-report.job-start-date ~
-tt-report.qty tt-report.prom-code tt-report.pr-uom 
+tt-report.qty tt-report.prom-code tt-report.pr-uom get-stat() @ cAbbrStatus
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table oe-rel.s-code ~
 oe-rel.ship-id oe-rel.stat oe-rel.carrier oe-rel.tot-qty oe-rel.qty ~
 tt-report.po-no tt-report.lot-no tt-report.prom-date tt-report.cStatus ~
@@ -408,6 +410,13 @@ FUNCTION get-tot-qty RETURNS DECIMAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-stat B-table-Win 
+FUNCTION get-stat RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -444,17 +453,7 @@ DEFINE BROWSE br_table
                      "T-Transfer","T"
           DROP-DOWN-LIST
       oe-rel.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U COLUMN-FONT 0
-      oe-rel.stat COLUMN-LABEL "Rel. Status" FORMAT "X(15)":U  WIDTH 28
-      VIEW-AS COMBO-BOX INNER-LINES 8 
-          LIST-ITEM-PAIRS "S-Scheduled","S",
-                     "L-Late","L",
-                     "I-Invoice Per Terms","I",
-                     "A-Actual","A",
-                     "P-Posted","P",
-                     "B-Backorder","B",
-                     "Z-Posted BOL","Z",
-                     "C-Completed","C"
-          DROP-DOWN-LIST
+      get-stat() @ cAbbrStatus COLUMN-LABEL "S" FORMAT "x(1)":U WIDTH 5.4
       oe-rel.carrier COLUMN-LABEL "Via" FORMAT "x(5)":U COLUMN-FONT 0
       oe-rel.tot-qty COLUMN-LABEL "Sched Qty" FORMAT "->>,>>>,>>9":U
       oe-rel.qty COLUMN-LABEL "Actual Qty" FORMAT "->>,>>>,>>9":U
@@ -492,6 +491,18 @@ DEFINE BROWSE br_table
       tt-report.qty FORMAT "->>,>>>,>>9.9<<":U
       tt-report.prom-code COLUMN-LABEL "Due Dt Chg Usr" FORMAT "x(5)":U
       tt-report.pr-uom COLUMN-LABEL "Due Dt Chg Rsn" FORMAT "x(4)":U
+      oe-rel.stat COLUMN-LABEL "Rel. Status" FORMAT "X(15)":U  WIDTH 28
+      VIEW-AS COMBO-BOX INNER-LINES 8 
+          LIST-ITEM-PAIRS "S-Scheduled","S",
+                     "L-Late","L",
+                     "I-Invoice Per Terms","I",
+                     "A-Actual","A",
+                     "P-Posted","P",
+                     "B-Backorder","B",
+                     "Z-Posted BOL","Z",
+                     "C-Completed","C"
+          DROP-DOWN-LIST
+      
   ENABLE
       oe-rel.s-code HELP "B=Bill and Ship, I=Invoice Only, S=Ship Only, T=Transfer"
       oe-rel.ship-id
@@ -625,8 +636,8 @@ ASSIGN
 "asi.oe-rel.s-code" "S/I" "!" "character" ? ? ? ? ? ? yes "B=Bill and Ship, I=Invoice Only, S=Ship Only, T=Transfer" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.oe-rel.ship-id
 "ASI.oe-rel.ship-id" "Ship To" ? "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.oe-rel.stat
-"ASI.oe-rel.stat" "S" ? "character" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > "_<CALC>"
+"get-stat() @ cAbbrStatus" "S" ? "character" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.oe-rel.carrier
 "ASI.oe-rel.carrier" "Via" ? "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.oe-rel.tot-qty
@@ -677,6 +688,8 @@ ASSIGN
 "Temp-Tables.tt-report.prom-code" "Due Dt Chg Usr" "x(5)" "character" ? ? ? ? ? ? no "Enter code the Due Date Reason Code" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[30]   > Temp-Tables.tt-report.pr-uom
 "Temp-Tables.tt-report.pr-uom" "Due Dt Chg Rsn" ? "character" ? ? ? ? ? ? no "Enter the Due Date Change Reason" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[31]   > ASI.oe-rel.stat
+"ASI.oe-rel.stat" "Rel. Status" ? "character" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -700,11 +713,22 @@ ASSIGN
 ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
-    
-  RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
-  RUN reopen-query .
-  RUN repo-query (ROWID(oe-rel)).
-  
+ DEFINE VARIABLE lCheckInquiry AS LOGICAL NO-UNDO .
+
+ RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"inquiry-rel-source", OUTPUT char-hdl) NO-ERROR.
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      lCheckInquiry = YES .
+     
+ IF oe-rel.stat NE "C" AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C' AND NOT lCheckInquiry  THEN do:
+     RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
+     RUN reopen-query .
+     RUN repo-query (ROWID(oe-rel)).
+ END.
+ ELSE DO:
+     RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "view", OUTPUT lv-rowid) .
+     RUN reopen-query .
+     RUN repo-query (ROWID(oe-rel)).
+ END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -714,11 +738,11 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON RETURN OF br_table IN FRAME F-Main
-ANYWHERE
-DO:
-   APPLY "tab" TO SELF.
-   RETURN NO-APPLY.
-END.
+    ANYWHERE
+    DO:
+        APPLY "tab" TO SELF.
+        RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2120,7 +2144,7 @@ PROCEDURE pUpdateRecord :
     DEFINE VARIABLE lMatchingSRecordFound AS LOGICAL NO-UNDO.
     DEFINE BUFFER bf-add-oe-rel FOR oe-rel.
     
-    IF AVAILABLE oe-ordl AND AVAILABLE oe-rel THEN
+    IF AVAILABLE oe-ordl AND AVAILABLE oe-rel AND oe-rel.stat NE "C" THEN
     DO:
        RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) . 
        
@@ -4514,6 +4538,22 @@ FUNCTION get-rel-stat RETURNS CHARACTER
   RUN oe/rel-stat.p (IF AVAIL oe-rel THEN ROWID(oe-rel) ELSE ?, OUTPUT lv-stat).
 
   RETURN lv-stat.
+  
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-stat B-table-Win 
+FUNCTION get-stat RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  
+  RETURN oe-rel.stat .
   
 END FUNCTION.
 

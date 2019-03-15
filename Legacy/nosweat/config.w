@@ -19,7 +19,8 @@
 
   Author: Ron Stark
 
-  Created: 02/28/98
+  Created: 2.28.1998
+  Updated: 1.4.2019
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -62,8 +63,10 @@ DEFINE VARIABLE selected-name AS CHARACTER NO-UNDO.
 &Scoped-define INTERNAL-TABLES config
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
-&Scoped-define FIELDS-IN-QUERY-DEFAULT-FRAME config.audit_dir ~
-config.logs_dir config.spool_dir config.start_page_no 
+&Scoped-define FIELDS-IN-QUERY-DEFAULT-FRAME config.logs_dir ~
+config.spool_dir config.start_page_no config.smtpServer config.smtpPort ~
+config.smtpUser config.smtpPassword config.taskName config.taskType ~
+config.taskDate config.taskTime config.emailBody config.cueCard 
 &Scoped-define QUERY-STRING-DEFAULT-FRAME FOR EACH config SHARE-LOCK
 &Scoped-define OPEN-QUERY-DEFAULT-FRAME OPEN QUERY DEFAULT-FRAME FOR EACH config SHARE-LOCK.
 &Scoped-define TABLES-IN-QUERY-DEFAULT-FRAME config
@@ -71,18 +74,21 @@ config.logs_dir config.spool_dir config.start_page_no
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-15 Btn_Update Btn_Close 
-&Scoped-Define DISPLAYED-FIELDS config.audit_dir config.logs_dir ~
-config.spool_dir config.start_page_no 
+&Scoped-Define ENABLED-OBJECTS btnUpdate btnClose 
+&Scoped-Define DISPLAYED-FIELDS config.logs_dir config.spool_dir ~
+config.start_page_no config.smtpServer config.smtpPort config.smtpUser ~
+config.smtpPassword config.taskName config.taskType config.taskDate ~
+config.taskTime config.emailBody config.cueCard 
 &Scoped-define DISPLAYED-TABLES config
 &Scoped-define FIRST-DISPLAYED-TABLE config
 
 
 /* Custom List Definitions                                              */
-/* List-1,List-2,List-3,List-4,List-5,F1                                */
-&Scoped-define List-1 config.audit_dir config.logs_dir config.spool_dir ~
-config.start_page_no 
-&Scoped-define F1 F-2 F-3 F-4 
+/* configFields,List-2,List-3,List-4,List-5,F1                          */
+&Scoped-define configFields config.logs_dir config.spool_dir ~
+config.start_page_no config.smtpServer config.smtpPort config.smtpUser ~
+config.smtpPassword config.taskName config.taskType config.taskDate ~
+config.taskTime config.emailBody config.cueCard 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -95,32 +101,19 @@ config.start_page_no
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Close 
+DEFINE BUTTON btnClose 
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U
      LABEL "&Close" 
-     SIZE 15 BY 1.14.
+     SIZE 8 BY 1.91.
 
-DEFINE BUTTON Btn_Update 
+DEFINE BUTTON btnUpdate 
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U
      LABEL "&Update" 
-     SIZE 15 BY 1.14.
+     SIZE 8 BY 1.91.
 
-DEFINE VARIABLE F-2 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
-      VIEW-AS TEXT 
-     SIZE 2.2 BY .52
-     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
-
-DEFINE VARIABLE F-3 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
-      VIEW-AS TEXT 
-     SIZE 2.2 BY .52
-     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
-
-DEFINE VARIABLE F-4 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
-      VIEW-AS TEXT 
-     SIZE 2.2 BY .52
-     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
-
-DEFINE RECTANGLE RECT-15
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 33 BY 1.67.
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 19 BY 2.38.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -131,34 +124,65 @@ DEFINE QUERY DEFAULT-FRAME FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     config.audit_dir AT ROW 1.71 COL 5.2
+     config.logs_dir AT ROW 1.24 COL 22 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 82 BY 1
           BGCOLOR 15 
-     config.logs_dir AT ROW 3.38 COL 19 COLON-ALIGNED
+     config.spool_dir AT ROW 2.43 COL 22 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 82 BY 1
           BGCOLOR 15 
-     config.spool_dir AT ROW 5.05 COL 19 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 82 BY 1
-          BGCOLOR 15 
-     config.start_page_no AT ROW 6.95 COL 26 COLON-ALIGNED
+     config.start_page_no AT ROW 3.62 COL 22 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 4.8 BY 1
           BGCOLOR 15 
-     Btn_Update AT ROW 7.43 COL 76 HELP
+     config.smtpServer AT ROW 4.81 COL 22 COLON-ALIGNED WIDGET-ID 10
+          VIEW-AS FILL-IN 
+          SIZE 62 BY 1
+          BGCOLOR 15 
+     config.smtpPort AT ROW 4.81 COL 96 COLON-ALIGNED WIDGET-ID 8
+          VIEW-AS FILL-IN 
+          SIZE 7.6 BY 1
+          BGCOLOR 15 
+     config.smtpUser AT ROW 6 COL 22 COLON-ALIGNED WIDGET-ID 12
+          VIEW-AS FILL-IN 
+          SIZE 62 BY 1
+          BGCOLOR 15 
+     config.smtpPassword AT ROW 7.19 COL 22 COLON-ALIGNED WIDGET-ID 6 PASSWORD-FIELD 
+          VIEW-AS FILL-IN 
+          SIZE 62 BY 1
+          BGCOLOR 15 
+     config.taskName AT ROW 8.38 COL 24 WIDGET-ID 22
+          VIEW-AS TOGGLE-BOX
+          SIZE 15 BY 1
+     config.taskType AT ROW 8.38 COL 40 WIDGET-ID 28
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.4 BY 1
+     config.taskDate AT ROW 8.38 COL 56 WIDGET-ID 24
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.4 BY 1
+     config.taskTime AT ROW 8.38 COL 72 WIDGET-ID 26
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.4 BY 1
+     config.emailBody AT ROW 9.57 COL 22 COLON-ALIGNED WIDGET-ID 4
+          VIEW-AS FILL-IN 
+          SIZE 62 BY 1
+          BGCOLOR 15 
+     btnUpdate AT ROW 9.57 COL 88 HELP
           "Update/Save System Configurations"
-     Btn_Close AT ROW 7.43 COL 92 HELP
+     btnClose AT ROW 9.57 COL 97 HELP
           "Cancel Update or Close Window"
-     F-2 AT ROW 1.95 COL 104 NO-LABEL
-     F-3 AT ROW 3.62 COL 104 NO-LABEL
-     F-4 AT ROW 5.29 COL 104 NO-LABEL
-     RECT-15 AT ROW 7.19 COL 75
+     config.cueCard AT ROW 10.76 COL 24 WIDGET-ID 30
+          VIEW-AS TOGGLE-BOX
+          SIZE 24 BY 1
+     "Email Subject:" VIEW-AS TEXT
+          SIZE 14 BY 1 AT ROW 8.38 COL 10 WIDGET-ID 32
+     RECT-1 AT ROW 9.33 COL 87
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 108 BY 8.
+         SIZE 106 BY 10.81
+         FGCOLOR 1 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -178,12 +202,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "System Configurations"
-         HEIGHT             = 8
-         WIDTH              = 108
-         MAX-HEIGHT         = 8
-         MAX-WIDTH          = 108
-         VIRTUAL-HEIGHT     = 8
-         VIRTUAL-WIDTH      = 108
+         HEIGHT             = 10.81
+         WIDTH              = 106
+         MAX-HEIGHT         = 10.81
+         MAX-WIDTH          = 106
+         VIRTUAL-HEIGHT     = 10.81
+         VIRTUAL-WIDTH      = 106
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -212,36 +236,41 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* SETTINGS FOR FILL-IN config.audit_dir IN FRAME DEFAULT-FRAME
-   NO-ENABLE ALIGN-L 1                                                  */
 ASSIGN 
-       Btn_Close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+       btnClose:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
 ASSIGN 
-       Btn_Update:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+       btnUpdate:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-/* SETTINGS FOR FILL-IN F-2 IN FRAME DEFAULT-FRAME
-   NO-DISPLAY NO-ENABLE ALIGN-L 6                                       */
-ASSIGN 
-       F-2:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
-
-/* SETTINGS FOR FILL-IN F-3 IN FRAME DEFAULT-FRAME
-   NO-DISPLAY NO-ENABLE ALIGN-L 6                                       */
-ASSIGN 
-       F-3:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
-
-/* SETTINGS FOR FILL-IN F-4 IN FRAME DEFAULT-FRAME
-   NO-DISPLAY NO-ENABLE ALIGN-L 6                                       */
-ASSIGN 
-       F-4:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
-
+/* SETTINGS FOR TOGGLE-BOX config.cueCard IN FRAME DEFAULT-FRAME
+   NO-ENABLE 1                                                          */
+/* SETTINGS FOR FILL-IN config.emailBody IN FRAME DEFAULT-FRAME
+   NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN config.logs_dir IN FRAME DEFAULT-FRAME
+   NO-ENABLE 1                                                          */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN config.smtpPassword IN FRAME DEFAULT-FRAME
+   NO-ENABLE 1                                                          */
+/* SETTINGS FOR FILL-IN config.smtpPort IN FRAME DEFAULT-FRAME
+   NO-ENABLE 1                                                          */
+/* SETTINGS FOR FILL-IN config.smtpServer IN FRAME DEFAULT-FRAME
+   NO-ENABLE 1                                                          */
+/* SETTINGS FOR FILL-IN config.smtpUser IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN config.spool_dir IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN config.start_page_no IN FRAME DEFAULT-FRAME
+   NO-ENABLE 1                                                          */
+/* SETTINGS FOR TOGGLE-BOX config.taskDate IN FRAME DEFAULT-FRAME
+   NO-ENABLE 1                                                          */
+/* SETTINGS FOR TOGGLE-BOX config.taskName IN FRAME DEFAULT-FRAME
+   NO-ENABLE 1                                                          */
+/* SETTINGS FOR TOGGLE-BOX config.taskTime IN FRAME DEFAULT-FRAME
+   NO-ENABLE 1                                                          */
+/* SETTINGS FOR TOGGLE-BOX config.taskType IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -291,34 +320,18 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME config.audit_dir
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL config.audit_dir C-Win
-ON HELP OF config.audit_dir IN FRAME DEFAULT-FRAME /* Audit Directory */
+&Scoped-define SELF-NAME btnClose
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClose C-Win
+ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 DO:
-  selected-name = {&SELF-NAME}:SCREEN-VALUE.
-  RUN Get_Procedure IN Persistent-Handle ("get_dir.",OUTPUT run-proc,no).
-  IF run-proc NE "" THEN
-  RUN VALUE(run-proc) (INPUT-OUTPUT selected-name).
-  IF selected-name = "" THEN
-  RETURN NO-APPLY.
-  {&SELF-NAME}:SCREEN-VALUE = selected-name.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Close
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Close C-Win
-ON CHOOSE OF Btn_Close IN FRAME DEFAULT-FRAME /* Close */
-DO:
-    IF {&SELF-NAME}:LABEL = "&Close" THEN
+    IF {&SELF-NAME}:LABEL EQ "&Close" THEN
         APPLY "CLOSE" TO THIS-PROCEDURE.
     ELSE DO WITH FRAME {&FRAME-NAME}:
-        DISABLE {&LIST-1} WITH FRAME {&FRAME-NAME}.
+        DISABLE {&configFields}.
         ASSIGN
             {&SELF-NAME}:LABEL = "&Close"
-            Btn_Update:LABEL = "&Update".
+            btnUpdate:LABEL    = "&Update"
+            .
         RUN enable_UI.
     END.
 END.
@@ -327,33 +340,25 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Update
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Update C-Win
-ON CHOOSE OF Btn_Update IN FRAME DEFAULT-FRAME /* Update */
+&Scoped-define SELF-NAME btnUpdate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUpdate C-Win
+ON CHOOSE OF btnUpdate IN FRAME DEFAULT-FRAME /* Update */
 DO:
     IF {&SELF-NAME}:LABEL = "&Update" THEN DO WITH FRAME {&FRAME-NAME}:
-        ENABLE 
-            config.audit_dir
-            f-2
-            config.logs_dir
-            f-3
-            config.spool_dir
-            f-4
-            config.start_page_no
-            WITH FRAME {&FRAME-NAME}.
-        DISPLAY f-2 f-3 f-4.
+        ENABLE {&configFields}.
         ASSIGN
             {&SELF-NAME}:LABEL = "&Save"
-            Btn_Close:LABEL = "&Cancel".
-        APPLY "ENTRY" TO config.audit_dir.
+            btnClose:LABEL     = "&Cancel"
+            .
+        APPLY "ENTRY" TO config.logs_dir.
     END.
     ELSE DO WITH FRAME {&FRAME-NAME}:
-        DISABLE {&LIST-1}.
-        HIDE {&F1} NO-PAUSE.
+        DISABLE {&configFields}.
         ASSIGN
             {&SELF-NAME}:LABEL = "&Update"
-            Btn_Close:LABEL = "&Close".
-        ASSIGN {&LIST-1}.
+            btnClose:LABEL     = "&Close"
+            .
+        ASSIGN {&configFields}.
     END.
 END.
 
@@ -465,9 +470,12 @@ PROCEDURE enable_UI :
   {&OPEN-QUERY-DEFAULT-FRAME}
   GET FIRST DEFAULT-FRAME.
   IF AVAILABLE config THEN 
-    DISPLAY config.audit_dir config.logs_dir config.spool_dir config.start_page_no 
+    DISPLAY config.logs_dir config.spool_dir config.start_page_no 
+          config.smtpServer config.smtpPort config.smtpUser config.smtpPassword 
+          config.taskName config.taskType config.taskDate config.taskTime 
+          config.emailBody config.cueCard 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-15 Btn_Update Btn_Close 
+  ENABLE btnUpdate btnClose 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

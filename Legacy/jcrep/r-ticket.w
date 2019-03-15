@@ -1790,7 +1790,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF (tb_fold AND (lv-format-f = "Interpac"  OR lv-format-f = "Dayton" 
                  OR lv-format-f = "Livngstn"  OR lv-format-f = "FibreFC"  OR lv-format-f = "HPB"
                  OR lv-format-f = "metro"     or lv-format-f = "Indiana-XL" OR lv-format-f = "MidYork"
-                 OR lv-format-f = "CentBox"   OR lv-format-f = "Keystone" OR lv-format-f = "Frankstn" 
+                 OR lv-format-f = "CentBox"   OR lv-format-f = "Keystone" OR lv-format-f = "Frankstn" OR lv-format-f = "Ruffino" 
                  OR lv-format-f = "Colonial"  OR lv-format-f = "xml"  OR lv-format-f = "Unipak"   OR lv-format-f = "Ottpkg"
                  OR lv-format-f = "MWFIbre"   OR lv-format-f = "Shelby"   OR lv-format-f = "CCC"
                  OR lv-format-f = "PPI"       OR lv-format-f = "Accord"   OR lv-format-f = "Knight" 
@@ -1915,7 +1915,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF NOT tb_prt-set-header:SENSITIVE THEN
       tb_prt-set-header:SCREEN-VALUE = "no".
 
-    IF LOOKUP(lv-format-c,"jobcardc 20,Valley20") > 0 THEN
+    IF LOOKUP(lv-format-c,"jobcardc 20,Valley20,Delta10") > 0 THEN
      ASSIGN tb_fgimage:SENSITIVE = NO
             tb_fgimage:SCREEN-VALUE = "yes" 
             tb_box:SENSITIVE = NO
@@ -2940,7 +2940,7 @@ PROCEDURE output-to-printer :
 /*      MESSAGE "lv-format-f  " lv-format-f VIEW-AS ALERT-BOX ERROR.*/
       IF /*index("Interpac,Dayton,FibreFC,Livngstn",lv-format-f) > 0 */
         lookup(lv-format-f, 
-          "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Frankstn,Colonial,Unipak,OttPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2") > 0 THEN
+          "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,Unipak,OttPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2") > 0 THEN
      DO:   
          FILE-INFO:FILE-NAME = list-name.
          RUN printfile (FILE-INFO:FILE-NAME).   
@@ -2998,7 +2998,7 @@ IF ( tb_fold AND lv-format-f EQ "xml")   THEN
      end.
 
      IF  /*index("Interpac,FibreFC,Dayton,Livngstn",lv-format-f) > 0 */
-        lookup(lv-format-f, "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,MidYork,Knight,Dee,Badger,Carded,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2") > 0 THEN
+        lookup(lv-format-f, "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,MidYork,Knight,Dee,Badger,Carded,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2") > 0 THEN
      DO:
          FILE-INFO:FILE-NAME = list-name.
          RUN printfile (FILE-INFO:FILE-NAME).

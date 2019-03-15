@@ -103,13 +103,13 @@ RUN sys/ref/nk1look.p (cocode, "AUTOFGISSUE", "L", NO, NO, "", "",
 {sys/inc/f16to32.i}
 {sys/ref/CustList.i NEW}
 DO TRANSACTION:
-  {sys/inc/jobpass.i}
-  {sys/inc/jobdatesmax.i}
-  {sys/inc/unappju2.i}
-   {sys/inc/custlistform.i ""JU1"" }
+  {sys/inc/jobpass.i} 
+   {sys/inc/jobdatesmax.i} 
+  {sys/inc/unappju2.i} 
+    
    {sys/inc/graphic.i}
 END.
-
+{sys/inc/custlistform.i ""JU1"" }
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

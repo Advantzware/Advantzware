@@ -1,0 +1,18 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:11pm                                M A T E R I A L S   R E Q U I R E D   F O R   J O B S
+
+                           All Orders  PO #:0 - 999999  PO Date:01/01/00 - 10/17/00  Vendor #: - zzzzzzzz
+   Job No   Item No    UOM       Required        Ordered       Received        Balance P/O No Vendor   Name                 Date Due
+---------   ---------- --- -------------- -------------- -------------- -------------- ------ -------- -------------------- --------
+   317-00   CASE-CNT   Ea           150.0                                        150.0
+            CCN-16     EA        44,229.0     44,228.754     47,834.262            0.0     94 2        INTERNATIONAL PAPER  10/17/00
+            GLUE       LB           378.0                                        378.0
+            P-BLACK    LB           16.29                                        16.29
+            P-CYAN     LB           32.34                                        32.34
+            P-MAGENTA  LB           16.29                                        16.29
+            PALLET     Ea             7.0                                          7.0
+            PMS-185    LB           25.13                                        25.13
+            VARN       LB           66.04                                        66.04
+
+

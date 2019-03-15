@@ -1,0 +1,46 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 8:07pm                                       SALES ANALYSIS - SALES BY ITEM/CUST/SHIP
+                        As of Invoice Date:10/17/00  Prod Cat:FC - FC  Salesman: - zzz  Customer: - zzzzzzzz
+
+                         Customer Range: HER10 - HER10   Ship-to Range:  - zzzzzzzz   Salesman Range:  - zzz
+                                Item Range:  - zzzzzzzzzzzzzzzzzzz   Date Range: 01/01/00 - 10/17/00
+
+                                                        Invoice Invoice   Order
+FG Item         Customer Customer/Item Name    Ship-to   Number Date     Number  Qty Shipped      Unit Price UOM        Invoice Amt
+--------------- -------- --------------------- -------- ------- -------- ------ ------------ --------------- ---- -----------------
+HER-1016        HER10    Hershey Chocolate Cor HER10        146 01/26/00    309       50,000          375.00 M            18,750.00
+                         ---------------------                                  ------------                      -----------------
+                               SHIP-TO TOTALS                                         50,000                              18,750.00
+
+                         ---------------------                                  ------------                      -----------------
+                              CUSTOMER TOTALS                                         50,000                              18,750.00
+
+                         ---------------------                                  ------------                      -----------------
+                                  ITEM TOTALS                                         50,000                              18,750.00
+
+HER-1021        HER10    Hershey Chocolate Cor HER10        149 10/16/00    317       25,000          395.00 M             9,875.00
+                         ---------------------                                  ------------                      -----------------
+                               SHIP-TO TOTALS                                         25,000                               9,875.00
+
+                         ---------------------                                  ------------                      -----------------
+                              CUSTOMER TOTALS                                         25,000                               9,875.00
+
+                         ---------------------                                  ------------                      -----------------
+                                  ITEM TOTALS                                         25,000                               9,875.00
+
+PLATE           HER10    Hershey Chocolate Cor HER10        146 01/26/00    309                       900.00                 900.00
+                HER10    Hershey Chocolate Cor HER10        149 10/16/00    317                       900.00                 900.00
+                         ---------------------                                  ------------                      -----------------
+                               SHIP-TO TOTALS                                                                              1,800.00
+
+                         ---------------------                                  ------------                      -----------------
+                              CUSTOMER TOTALS                                                                              1,800.00
+
+                         ---------------------                                  ------------                      -----------------
+                                  ITEM TOTALS                                                                              1,800.00
+
+
+                         ---------------------                                  ------------                      -----------------
+                                  GRAND TOTALS                                        75,000                              30,425.00
+

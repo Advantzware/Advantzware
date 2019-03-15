@@ -981,6 +981,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_v-ordt. */
        RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'Record':U , h_v-ordt ).
        RUN add-link IN adm-broker-hdl ( h_p-ordt , 'TableIO':U , h_v-ordt ).
+       RUN add-link IN adm-broker-hdl ( h_b-ordm , 'oemisc':U , h_v-ordt ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_vi-ord-2 ,
@@ -1353,6 +1354,11 @@ PROCEDURE local-change-page :
   END.
   IF li-cur-page = 2 AND VALID-HANDLE(h_v-ord)  THEN
     RUN change-page-logic IN h_v-ord.
+
+  IF li-cur-page EQ 5 then do:
+     RUN set-buttons IN h_p-orel-2 ('initial').
+     RUN set-buttons IN h_p-obol ('initial').
+  END.
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
 
@@ -1435,7 +1441,6 @@ PROCEDURE make-buttons-insensitive :
   Parameters:  <none>
   Notes:    To ensure user does not navigate to prior order
 -------------------------------------------------------------*/
-
     IF VALID-HANDLE(h_optonote) THEN
        RUN make-insensitive IN h_optonote.
     IF VALID-HANDLE(h_smartmsg) THEN
@@ -1465,8 +1470,6 @@ PROCEDURE make-buttons-sensitive :
   Parameters:  <none>
   Notes:   
 -------------------------------------------------------------*/
-
-
     IF VALID-HANDLE(h_optonote) THEN
        RUN make-sensitive IN h_optonote.
     IF VALID-HANDLE(h_smartmsg) THEN
@@ -1482,7 +1485,7 @@ PROCEDURE make-buttons-sensitive :
     IF VALID-HANDLE(h_movecol) THEN
        RUN make-sensitive IN h_movecol. 
     IF VALID-HANDLE(h_movecol-2) THEN
-       RUN make-insensitive IN h_movecol-2.
+       RUN make-sensitive IN h_movecol-2.
    RETURN.
        
 END PROCEDURE.

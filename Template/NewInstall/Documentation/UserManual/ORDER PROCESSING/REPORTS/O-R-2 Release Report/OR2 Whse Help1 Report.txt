@@ -1,0 +1,17 @@
+
+03/20/15                                    Advanced Box Company 001 V10 - Main Warehouse                                 Page   1
+ 9:58am                                                  Scheduled Releases
+
+                                                         By Customer By Date
+
+   Quantity                              Order    Rel                  Order       Quantity     Release Release    Due
+    On Hand Customer Name               Number    Num Item          Quantity        Shipped    Quantity Date      Alert Carrier
+----------- --------------------------- ------ ------ -------- ------------- -------------- ----------- --------- ----- -------
+      3,500 IBM CORP                    208336      0 10,10,10       2,000.0           0.00         500 03/21/15S ON    CC
+      3,500                             208336      0 10,10,10       2,000.0           0.00         500 03/21/15S ON    ILCC
+      3,500                             208336      0 10,10,10       2,000.0           0.00         500 03/21/15S ON    CC
+      3,500                             208336      0 10,10,10       2,000.0           0.00         500 03/21/15S ON    CC
+
+                                                                                         TOTAL NUMBER OF RELEASES:               4
+
+

@@ -1,0 +1,15 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:52pm                                                      SCRAP REPORT
+
+                                          Open Jobs that go thru machines: FLEXO,PR,PR2,pr4
+                                                     Dates: 01/01/001-12/31/9999
+
+                                                            Sheets     Sheets Sheets Cut
+                                                         Issued to  Issued to by Cutting       Plan    Cartons
+                             # of   Avg # up       Plan   Press by Cutting by  Issued to  Waste for   Produced         FG   Customer
+Job#      Customer Machine Layout on the Job     Sheets    Sheeter      Press  Finishing    Cartons     by Job   Received  Order Qty
+--------- -------- ------- ------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+303-00    HER10    PR           1     20.000      9,431     10,000      9,500      9,400     38,620    152,000    152,000    150,000
+
+

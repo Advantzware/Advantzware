@@ -67,16 +67,19 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
-ASSIGN cTextListToSelect = "Vendor #,Tax ID#,Name,Address 1,Address 2,City,State,Zip,Amount" 
+ASSIGN cTextListToSelect = "Vendor #,Tax ID#,Name,Address 1,Address 2,City,State,Zip,Amount," +
+                           "1099 Box,1099 Code Description"       
 
-       cFieldListToSelect = "vend,tax,name,add,add2,city,stat,zip,amt" 
+       cFieldListToSelect = "vend,tax,name,add,add2,city,stat,zip,amt,box,box-dscr" 
 
-       cFieldLength = "10,20,30,30,30,15,5,10,16" 
-       cFieldType = "c,c,c,c,c,c,c,c,i" 
+       cFieldLength = "10,20,30,30,30,15,5,10,16," + "8,35" 
+       cFieldType = "c,c,c,c,c,c,c,c,i," + "c,c"  
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Vendor #,Tax ID#,Name,Address 1,Address 2,City,State,Zip,Amount"   .
+
+{sys/inc/boxcode1099.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1189,6 +1192,7 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE cBoxDscr AS CHARACTER NO-UNDO .
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1250,7 +1254,8 @@ IF rs-date EQ "Invoice" THEN DO:
          vend.company   eq cocode AND
          vend.vend-no   ge svend  AND
          vend.vend-no   le evend  AND
-         vend.code-1099 eq "y"
+         vend.code-1099 NE "N"    AND  
+         vend.code-1099 NE ""
          NO-LOCK,
          EACH ap-inv FIELDS(company vend-no inv-date posted) WHERE
               ap-inv.company EQ cocode AND
@@ -1274,6 +1279,17 @@ IF rs-date EQ "Invoice" THEN DO:
        do:
           if v-vend-tot ne 0 or v-zero then
           DO:
+              cBoxDscr = "" .
+              CASE vend.code-1099:
+                  WHEN "Y" THEN cBoxDscr = "Box 3 Other Income".
+                  OTHERWISE 
+                      DO i = 1 TO NUM-ENTRIES(c1099Code) :
+                          IF ENTRY(i,c1099Code) EQ vend.code-1099  THEN do:
+                            cBoxDscr = ENTRY(i,c1099CodeDesc).
+                            LEAVE.
+                          END.
+                      END.
+              END CASE.
 
                ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1293,6 +1309,8 @@ IF rs-date EQ "Invoice" THEN DO:
                          WHEN "stat"   THEN cVarValue = STRING(vend.state,"x(5)") .
                          WHEN "zip"  THEN cVarValue = STRING(vend.zip,"xxxxx-xxxx") .
                          WHEN "amt"  THEN cVarValue = STRING(v-vend-tot,"->>>,>>>,>>9.99") .
+                         WHEN "box"  THEN cVarValue = STRING(vend.code-1099,"x") .
+                         WHEN "box-dscr"  THEN cVarValue = STRING(cBoxDscr,"x(35)") .
 
                     END CASE.
 
@@ -1336,6 +1354,8 @@ IF rs-date EQ "Invoice" THEN DO:
                          WHEN "stat"   THEN cVarValue = "" .
                          WHEN "zip"  THEN cVarValue = "" .
                          WHEN "amt"  THEN cVarValue = STRING(v-grand-tot,"->>>,>>>,>>9.99") .
+                         WHEN "box"  THEN cVarValue = "" .
+                         WHEN "box-dscr"  THEN cVarValue = "" .
 
                     END CASE.
 
@@ -1360,7 +1380,8 @@ IF rs-date EQ "Invoice" THEN DO:
          vend.company   eq cocode AND
          vend.vend-no   ge svend AND
          vend.vend-no   le evend AND
-         vend.code-1099 eq "y"
+         vend.code-1099 NE "N"   AND 
+         vend.code-1099 NE ""
          no-lock,
          each ap-pay FIELDS(company vend-no check-date posted) WHERE
               ap-pay.company    eq cocode AND
@@ -1383,6 +1404,18 @@ IF rs-date EQ "Invoice" THEN DO:
        do:
          if v-vend-tot ne 0 or v-zero then
          DO:
+             cBoxDscr = "" .
+              CASE vend.code-1099:
+                  WHEN "Y" THEN cBoxDscr = "Box 3 Other Income".
+                  OTHERWISE 
+                      DO i = 1 TO NUM-ENTRIES(c1099Code) :
+                          IF vend.code-1099 NE "" THEN
+                          IF ENTRY(i,c1099Code) EQ vend.code-1099  THEN do:
+                            cBoxDscr = ENTRY(i,c1099CodeDesc).
+                            LEAVE.
+                          END.
+                      END.
+              END CASE.
 
            ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1402,6 +1435,8 @@ IF rs-date EQ "Invoice" THEN DO:
                          WHEN "stat"   THEN cVarValue = STRING(vend.state,"x(5)") .
                          WHEN "zip"  THEN cVarValue = STRING(vend.zip,"xxxxx-xxxx") .
                          WHEN "amt"  THEN cVarValue = STRING(v-vend-tot,"->>>,>>>,>>9.99") .
+                         WHEN "box"  THEN cVarValue = STRING(vend.code-1099,"x") .
+                         WHEN "box-dscr"  THEN cVarValue = STRING(cBoxDscr,"x(35)") .
 
                     END CASE.
 
@@ -1447,6 +1482,8 @@ IF rs-date EQ "Invoice" THEN DO:
                          WHEN "stat"   THEN cVarValue = "" .
                          WHEN "zip"  THEN cVarValue = "" .
                          WHEN "amt"  THEN cVarValue = STRING(v-grand-tot,"->>>,>>>,>>9.99") .
+                         WHEN "box"  THEN cVarValue = "" .
+                         WHEN "box-dscr"  THEN cVarValue = "" .
 
                     END CASE.
 

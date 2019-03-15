@@ -3,7 +3,7 @@
 &Scoped-define WINDOW-NAME MAINMENU
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS MAINMENU 
 /*------------------------------------------------------------------------
- 
+
   File:              mainMenu.w
  
   Description:       Main Menu v3 (Menu Tree)
@@ -34,13 +34,13 @@ ON CTRL-P HELP.
 
 ON 'CTRL-ALT-D':U ANYWHERE
 DO:
-    RUN aoa/aoaLauncher.w PERSISTENT ("Dashboard").
+    RUN AOA/aoaLauncher.w PERSISTENT ("Dashboard").
     RETURN.
 END.
 
 ON 'CTRL-ALT-R':U ANYWHERE
 DO:
-    RUN aoa/aoaLauncher.w PERSISTENT ("Report").
+    RUN AOA/aoaLauncher.w PERSISTENT ("Report").
     RETURN.
 END.
 
@@ -84,6 +84,8 @@ DEFINE VARIABLE iRectangleBGColor AS INTEGER   NO-UNDO INITIAL {&BGColor}.
 DEFINE VARIABLE iRectangleFGColor AS INTEGER   NO-UNDO INITIAL {&FGColor}.
 DEFINE VARIABLE cCEMenu           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBitMap           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cProfilerFile     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iSaveBgColor      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lFound            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSearchOpen       AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE lFavorite         AS LOGICAL   NO-UNDO.
@@ -130,7 +132,7 @@ cEulaFile = SEARCH("{&EulaFile}").
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS imageSettings imageCompany menuLinkZoHo ~
-imageFolder 
+imageFolder imagePrinter imageScheduler 
 &Scoped-Define DISPLAYED-OBJECTS company_name loc_loc users_user_id ~
 Mnemonic 
 
@@ -166,6 +168,7 @@ DEFINE VAR MAINMENU AS WIDGET-HANDLE NO-UNDO.
 /* Menu Definitions                                                     */
 DEFINE SUB-MENU m_Help 
        MENU-ITEM m_SysCtrl_Usage LABEL "SysCtrl Usage" 
+       MENU-ITEM m_Profiler     LABEL "Start/Stop Profiler"
        MENU-ITEM m_Advantzware_Version LABEL "Advantzware Version"
        RULE
        MENU-ITEM m_Exit         LABEL "Exit"          .
@@ -175,8 +178,8 @@ DEFINE MENU MENU-BAR-MAINMENU MENUBAR
 
 
 /* Definitions of handles for OCX Containers                            */
-DEFINE VARIABLE CtrlFrame-2 AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE chCtrlFrame-2 AS COMPONENT-HANDLE NO-UNDO.
+DEFINE VARIABLE CtrlFrame AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE company_name AS CHARACTER FORMAT "X(256)":U 
@@ -210,6 +213,14 @@ DEFINE IMAGE imageCompany
 DEFINE IMAGE imageFolder
      FILENAME "Graphics/32x32/folder.png":U TRANSPARENT
      SIZE 6.4 BY 1.52 TOOLTIP "View User Folder".
+
+DEFINE IMAGE imagePrinter
+     FILENAME "Graphics/32x32/printer.ico":U TRANSPARENT
+     SIZE 6.4 BY 1.52 TOOLTIP "Reports".
+
+DEFINE IMAGE imageScheduler
+     FILENAME "Graphics/32x32/calendar_clock.ico":U TRANSPARENT
+     SIZE 6.4 BY 1.52 TOOLTIP "Task Scheduler".
 
 DEFINE IMAGE imageSettings
      FILENAME "Graphics/32x32/gearwheels.ico":U TRANSPARENT
@@ -269,12 +280,12 @@ DEFINE RECTANGLE RECT-5
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 35 BY 1.19
+     SIZE 27 BY 1.19
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 36 BY 1.19
+     SIZE 28 BY 1.19
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-8
@@ -609,20 +620,20 @@ DEFINE VARIABLE svMenuImage AS LOGICAL INITIAL no
 
 DEFINE FRAME FRAME-USER
      company_name AT ROW 1.71 COL 13 COLON-ALIGNED NO-LABEL
-     loc_loc AT ROW 1.71 COL 76 COLON-ALIGNED NO-LABEL
-     users_user_id AT ROW 1.71 COL 121 COLON-ALIGNED NO-LABEL
+     loc_loc AT ROW 1.71 COL 73 COLON-ALIGNED NO-LABEL
+     users_user_id AT ROW 1.71 COL 106 COLON-ALIGNED NO-LABEL
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     "User ID:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.71 COL 114
-     "Location:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 68
      "Company:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 4
+     "User ID:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.71 COL 99
+     "Location:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.71 COL 66
      boxes AT ROW 8.62 COL 57
      menu-image AT ROW 3.62 COL 58
      RECT-2 AT ROW 1 COL 1
      RECT-5 AT ROW 1.48 COL 3 WIDGET-ID 38
-     RECT-6 AT ROW 1.48 COL 105 WIDGET-ID 40
+     RECT-6 AT ROW 1.48 COL 97 WIDGET-ID 40
      RECT-7 AT ROW 1.48 COL 60 WIDGET-ID 42
      RECT-8 AT ROW 1.48 COL 141 WIDGET-ID 44
      RECT-9 AT ROW 3.29 COL 1 WIDGET-ID 46
@@ -640,12 +651,53 @@ DEFINE FRAME FRAME-USER
      menuLink-6 AT ROW 26.95 COL 83 WIDGET-ID 76
      menuLink-7 AT ROW 26.95 COL 70 WIDGET-ID 78
      menuLink-8 AT ROW 26.95 COL 57 WIDGET-ID 80
-     imageFolder AT ROW 1.24 COL 97 WIDGET-ID 86
+     imageFolder AT ROW 1.24 COL 89 WIDGET-ID 86
+     imagePrinter AT ROW 1.24 COL 125 WIDGET-ID 98
+     imageScheduler AT ROW 1.24 COL 133 WIDGET-ID 102
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 160 BY 28.57
          BGCOLOR 15 .
+
+DEFINE FRAME searchFrame
+     BtnFavorites AT ROW 1 COL 1 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 54
+     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
+          "Enter Search Filter" NO-LABEL WIDGET-ID 2
+     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
+     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
+     btnMoveDown AT ROW 5.76 COL 1 HELP
+          "Move Favorite Down" WIDGET-ID 58
+     btnMoveUp AT ROW 3.38 COL 1 HELP
+          "Move Favorite Up" WIDGET-ID 56
+     btnRemove AT ROW 4.57 COL 1 HELP
+          "Remove Favorite" WIDGET-ID 26
+     btnSearch AT ROW 1 COL 51 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 40
+     btnFavorite AT ROW 13.62 COL 52 WIDGET-ID 46
+     btnClear AT ROW 13.86 COL 100 HELP
+          "Clear Search Filters" WIDGET-ID 42
+     svFavoriteText AT ROW 13.86 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     "FAVORITES" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
+          BGCOLOR 15 
+     RECT-23 AT ROW 1 COL 6 WIDGET-ID 60
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 3.38
+         SIZE 108 BY 14.05
+         FGCOLOR 1  WIDGET-ID 600.
+
+DEFINE FRAME menuTreeFrame
+     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
+     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
+     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 4.57
+         SIZE 55 BY 24.91
+         BGCOLOR 15  WIDGET-ID 100.
 
 DEFINE FRAME userSettingsFrame
      btnCancel AT ROW 20.52 COL 12 HELP
@@ -656,8 +708,6 @@ DEFINE FRAME userSettingsFrame
           "Select this Language" WIDGET-ID 26
      btnLanguage-3 AT ROW 7.67 COL 6 HELP
           "Select this Language" WIDGET-ID 28
-     btnOK AT ROW 20.52 COL 3 HELP
-          "Save Changes" WIDGET-ID 4
      btnToggle AT ROW 1.48 COL 14 HELP
           "Customize Menu" WIDGET-ID 80
      copyFromUser AT ROW 1.95 COL 60 COLON-ALIGNED HELP
@@ -673,44 +723,46 @@ DEFINE FRAME userSettingsFrame
           "Show Mnemonic" NO-LABEL WIDGET-ID 100
      cPositionMnemonic AT ROW 18.86 COL 22 HELP
           "Place Mnemonic at Begin or End of Text" NO-LABEL WIDGET-ID 108
+     btnOK AT ROW 20.52 COL 3 HELP
+          "Save Changes" WIDGET-ID 4
      btnCopyToUser AT ROW 20.52 COL 62 HELP
           "Copy From User to Selected User(s)" WIDGET-ID 94
      btnActivateCueCards AT ROW 21 COL 27 HELP
           "Activate Inactive Cue Cards" WIDGET-ID 116
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 34 BY .81 AT ROW 10.76 COL 25 WIDGET-ID 42
-          FONT 33
-     " Copy to Selected Users" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
-     "Position:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 18.86 COL 12 WIDGET-ID 114
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 31 BY .95 AT ROW 12.19 COL 28 WIDGET-ID 48
-          FONT 35
-     " Language" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 3.62 COL 5 WIDGET-ID 86
-     "Show:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 17.67 COL 14 WIDGET-ID 112
-     " Menu Size" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 9.81 COL 5 WIDGET-ID 62
-     "2" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 22.91 COL 26 WIDGET-ID 462
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 28 BY 1.43 AT ROW 13.86 COL 31 WIDGET-ID 54
-          FONT 37
      " HotKey (Mnemonic)" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 16.95 COL 5 WIDGET-ID 106
-     " Copy From User" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 98
+     " Copy to Selected Users" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
+     "Menu Level 1" VIEW-AS TEXT
+          SIZE 13 BY .67 AT ROW 22.91 COL 7 WIDGET-ID 458
      "?" VIEW-AS TEXT
           SIZE 2 BY .76 AT ROW 24.33 COL 43 WIDGET-ID 354
           FGCOLOR 0 FONT 6
+     "2" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 22.91 COL 26 WIDGET-ID 462
+     "Position:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 18.86 COL 12 WIDGET-ID 114
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 34 BY .81 AT ROW 10.76 COL 25 WIDGET-ID 42
+          FONT 33
+     " Copy From User" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 98
+     " Menu Size" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 9.81 COL 5 WIDGET-ID 62
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 31 BY .95 AT ROW 12.19 COL 28 WIDGET-ID 48
+          FONT 35
      "3" VIEW-AS TEXT
           SIZE 2 BY .62 AT ROW 22.91 COL 33 WIDGET-ID 464
+     "Show:" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 17.67 COL 14 WIDGET-ID 112
      "BG Color:" VIEW-AS TEXT
           SIZE 9 BY 1 AT ROW 24.81 COL 7 WIDGET-ID 460
-     "Menu Level 1" VIEW-AS TEXT
-          SIZE 13 BY .67 AT ROW 22.91 COL 7 WIDGET-ID 458
+     " Language" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 3.62 COL 5 WIDGET-ID 86
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 28 BY 1.43 AT ROW 13.86 COL 31 WIDGET-ID 54
+          FONT 37
      "FG Color:" VIEW-AS TEXT
           SIZE 9 BY 1 AT ROW 23.62 COL 7 WIDGET-ID 454
      IMAGE-1 AT ROW 10.76 COL 17 WIDGET-ID 40
@@ -1198,7 +1250,7 @@ THEN MAINMENU:HIDDEN = no.
 
 &IF "{&OPSYS}" = "WIN32":U AND "{&WINDOW-SYSTEM}" NE "TTY":U &THEN
 
-CREATE CONTROL-FRAME CtrlFrame-2 ASSIGN
+CREATE CONTROL-FRAME CtrlFrame ASSIGN
        FRAME           = FRAME FRAME-USER:HANDLE
        ROW             = 1
        COLUMN          = 1
@@ -1207,8 +1259,8 @@ CREATE CONTROL-FRAME CtrlFrame-2 ASSIGN
        WIDGET-ID       = 84
        HIDDEN          = yes
        SENSITIVE       = yes.
-/* CtrlFrame-2 OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
-      CtrlFrame-2:MOVE-BEFORE(FRAME searchFrame:HANDLE).
+/* CtrlFrame OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
+      CtrlFrame:MOVE-BEFORE(FRAME searchFrame:HANDLE).
 
 &ENDIF
 
@@ -1565,15 +1617,31 @@ END.
 
 
 &Scoped-define FRAME-NAME FRAME-USER
-&Scoped-define SELF-NAME CtrlFrame-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL CtrlFrame-2 MAINMENU OCX.Tick
-PROCEDURE CtrlFrame-2.PSTimer.Tick .
+&Scoped-define SELF-NAME CtrlFrame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL CtrlFrame MAINMENU OCX.Tick
+PROCEDURE CtrlFrame.PSTimer.Tick .
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  None required for OCX.
   Notes:       
 ------------------------------------------------------------------------------*/
     RUN spRunCueCard ("Message", cCuePrgmName, hCueWindow, hCueFrame, lCueActive).
+    FIND FIRST taskResult NO-LOCK
+         WHERE taskResult.user-id EQ USERID("ASI")
+           AND taskResult.viewed  EQ NO
+         NO-ERROR.
+    IF AVAILABLE taskResult AND
+       SEARCH(taskResult.folderFile) NE ? THEN DO TRANSACTION:
+        PAUSE 2 NO-MESSAGE.
+        OS-COMMAND NO-WAIT start VALUE(SEARCH(taskResult.folderFile)).
+        FIND CURRENT taskResult EXCLUSIVE-LOCK.
+        taskResult.viewed = YES.
+        RELEASE taskResult.
+    END. /* if avail */
+    FIND FIRST config NO-LOCK.
+    STATUS DEFAULT
+        "Task Monitor Last Executed: " + STRING(config.taskerLastExecuted)
+        IN WINDOW {&WINDOW-NAME}.
 
 END PROCEDURE.
 
@@ -1627,6 +1695,30 @@ END.
 ON MOUSE-SELECT-CLICK OF imageFolder IN FRAME FRAME-USER
 DO:
     RUN Get_Procedure IN Persistent-Handle ("userFoldr.", OUTPUT run-proc, YES).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME imagePrinter
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imagePrinter MAINMENU
+ON MOUSE-SELECT-CLICK OF imagePrinter IN FRAME FRAME-USER
+DO:
+    RUN spSetTaskFilter ("", "", "").
+    RUN Get_Procedure IN Persistent-Handle ("dynTasks.", OUTPUT run-proc, YES).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME imageScheduler
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageScheduler MAINMENU
+ON MOUSE-SELECT-CLICK OF imageScheduler IN FRAME FRAME-USER
+DO:
+    RUN spSetParamValueID (0).
+    RUN Get_Procedure IN Persistent-Handle ("dynSched.", OUTPUT run-proc, YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1798,7 +1890,6 @@ DO:
             VIEW-AS ALERT-BOX INFO.
         OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
         QUIT.
-        
     END.
     ELSE DO:
         OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
@@ -1844,6 +1935,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME m_Profiler
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Profiler MAINMENU
+ON CHOOSE OF MENU-ITEM m_Profiler /* Profiler */
+ DO:
+        RUN pOnOffProfiler.
+ END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME m_SysCtrl_Usage
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_SysCtrl_Usage MAINMENU
@@ -2039,9 +2139,9 @@ IF OCXFile = ? THEN
 IF OCXFile <> ? THEN
 DO:
   ASSIGN
-    chCtrlFrame-2 = CtrlFrame-2:COM-HANDLE
-    UIB_S = chCtrlFrame-2:LoadControls( OCXFile, "CtrlFrame-2":U)
-    CtrlFrame-2:NAME = "CtrlFrame-2":U
+    chCtrlFrame = CtrlFrame:COM-HANDLE
+    UIB_S = chCtrlFrame:LoadControls( OCXFile, "CtrlFrame":U)
+    CtrlFrame:NAME = "CtrlFrame":U
   .
   RUN initialize-controls IN THIS-PROCEDURE NO-ERROR.
 END.
@@ -2089,7 +2189,8 @@ PROCEDURE enable_UI :
   RUN control_load.
   DISPLAY company_name loc_loc users_user_id Mnemonic 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
-  ENABLE imageSettings imageCompany menuLinkZoHo imageFolder 
+  ENABLE imageSettings imageCompany menuLinkZoHo imageFolder imagePrinter 
+         imageScheduler 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   DISPLAY menuTreeFilter favoritesList searchSelections svFavoriteText 
@@ -2123,11 +2224,13 @@ PROCEDURE pActivateCueCards :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    FOR EACH xCueCard EXCLUSIVE-LOCK
-        WHERE xCueCard.user_id EQ USERID("ASI")
-        :
-        DELETE xCueCard.
-    END. /* each xcuecard */
+    DO TRANSACTION:
+        FOR EACH xCueCard EXCLUSIVE-LOCK
+            WHERE xCueCard.user_id EQ USERID("ASI")
+            :
+            DELETE xCueCard.
+        END. /* each xcuecard */
+    END. /* do trans */
     MESSAGE
         "Cue Cards Activated"
     VIEW-AS ALERT-BOX.
@@ -2213,7 +2316,7 @@ PROCEDURE pCopyToUser :
     
     DO WITH FRAME userSettingsFrame:
         ASSIGN copyFromUser.
-        DO idx = 1 TO copyToUser:NUM-ITEMS:
+        DO idx = 1 TO copyToUser:NUM-ITEMS TRANSACTION:
             IF copyToUser:IS-SELECTED(idx) THEN DO:
                 /* prevent copy to same from to user */
                 IF copyToUser:ENTRY(idx) EQ copyFromUser THEN NEXT.
@@ -2259,6 +2362,7 @@ PROCEDURE pGetCopyUsers :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iUserSecurityLevel AS INTEGER NO-UNDO.
     DO WITH FRAME userSettingsFrame:
         ASSIGN
             copyFromUser:LIST-ITEM-PAIRS = ?
@@ -2270,12 +2374,15 @@ PROCEDURE pGetCopyUsers :
             IF FIRST-OF(xUserMenu.user_id) THEN DO:
                 FIND FIRST users OF xUserMenu NO-LOCK NO-ERROR.
                 copyFromUser:ADD-LAST(xUserMenu.user_id
-                    + (IF AVAILABLE users THEN
-                       " - " + REPLACE(users.user_name,","," ") ELSE ""),xUserMenu.user_id)
+                    + (IF AVAILABLE users THEN " - "
+                    + REPLACE(users.user_name,","," ") ELSE ""),xUserMenu.user_id)
                     .
             END. /* first-of */
         END. /* each xusermenu */
-        FOR EACH users NO-LOCK:
+        iUserSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
+        FOR EACH users NO-LOCK
+            WHERE users.securityLevel LE iUserSecurityLevel 
+            :            
             copyToUser:ADD-LAST(users.user_id + " - "
                 + REPLACE(users.user_name,","," "),users.user_id)
                 .
@@ -2874,6 +2981,62 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOnOffProfiler MAINMENU
+PROCEDURE pOnOffProfiler:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lProfile AS LOGICAL NO-UNDO.
+    IF PROFILER:ENABLED THEN 
+    DO:
+        ASSIGN 
+            PROFILER:PROFILING                       = FALSE                         
+            PROFILER:ENABLED                         = FALSE
+            company_name:BGCOLOR IN FRAME frame-user = iSaveBgColor
+            . 
+        PROFILER:WRITE-DATA().
+        MESSAGE "Profiler has been turned off and " SKIP 
+            "the data file is ready for use:" SKIP(1)
+            cProfilerFile
+            VIEW-AS ALERT-BOX.
+    END.
+    ELSE 
+    DO:
+        MESSAGE "Warning:  The profiler can create a large file" SKIP
+            "if left on.  Please do not run unless instructed to" SKIP
+            "and remember to turn off profiling" SKIP
+            "as soon as the relevant process is complete." SKIP 
+            SKIP(1)
+            "Do you want to start the profiler?"
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE lProfile.
+        IF lProfile THEN 
+        DO:
+            ASSIGN  
+                cProfilerFile                            = SESSION:TEMP-DIRECTORY + "profile" 
+                                   + STRING(TODAY, "999999") + "_"
+                                   + REPLACE(STRING(TIME, "HH:MM:SS") + ".prof", ":","-")
+                PROFILER:ENABLED                         = TRUE
+                PROFILER:DESCRIPTION                     = STRING(TODAY,"999999") + "_" + STRING(TIME, "HH:MM:SS")
+                PROFILER:FILE-NAME                       = cProfilerFile
+                PROFILER:PROFILING                       = TRUE
+                PROFILER:TRACE-FILTER                    = "*"
+                iSaveBgColor                             = company_name:BGCOLOR IN FRAME frame-user
+                company_name:BGCOLOR IN FRAME frame-user = 14
+                .
+        END.
+    END. 
+   
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProcessClick MAINMENU 
 PROCEDURE pProcessClick :
 /*------------------------------------------------------------------------------
@@ -3014,31 +3177,33 @@ PROCEDURE pSaveCustomMenu :
  Notes:
 ------------------------------------------------------------------------------*/
     /* remove xusermenu entry if menu option is active or no longer present */
-    FOR EACH xUserMenu
-        WHERE xUserMenu.user_id EQ USERID("ASI")
-        :
-        IF CAN-FIND(FIRST ttMenuTree
-                    WHERE ttMenuTree.treeChild EQ xUserMenu.prgmname
-                      AND ttMenuTree.isActive  EQ YES) OR
-           NOT CAN-FIND(FIRST ttMenuTree
-                        WHERE ttMenuTree.treeChild EQ xUserMenu.prgmname) THEN
-        DELETE xUserMenu.
-    END. /* each xusermenu */
-
-    FOR EACH ttMenuTree
-        WHERE ttMenuTree.isActive EQ NO
-        :
-        IF CAN-FIND(FIRST xUserMenu
-                    WHERE xUserMenu.user_id  EQ USERID("ASI")
-                      AND xUserMenu.prgmname EQ ttMenuTree.treeChild) THEN
-        NEXT.
-        /* create entry to hide menu option from user */
-        CREATE xUserMenu.
-        ASSIGN
-            xUserMenu.user_id  = USERID("ASI")
-            xUserMenu.prgmname = ttMenuTree.treeChild
-            .
-    END. /* each ttmenutree */
+    DO TRANSACTION:
+        FOR EACH xUserMenu
+            WHERE xUserMenu.user_id EQ USERID("ASI")
+            :
+            IF CAN-FIND(FIRST ttMenuTree
+                        WHERE ttMenuTree.treeChild EQ xUserMenu.prgmname
+                          AND ttMenuTree.isActive  EQ YES) OR
+               NOT CAN-FIND(FIRST ttMenuTree
+                            WHERE ttMenuTree.treeChild EQ xUserMenu.prgmname) THEN
+            DELETE xUserMenu.
+        END. /* each xusermenu */
+    
+        FOR EACH ttMenuTree
+            WHERE ttMenuTree.isActive EQ NO
+            :
+            IF CAN-FIND(FIRST xUserMenu
+                        WHERE xUserMenu.user_id  EQ USERID("ASI")
+                          AND xUserMenu.prgmname EQ ttMenuTree.treeChild) THEN
+            NEXT.
+            /* create entry to hide menu option from user */
+            CREATE xUserMenu.
+            ASSIGN
+                xUserMenu.user_id  = USERID("ASI")
+                xUserMenu.prgmname = ttMenuTree.treeChild
+                .
+        END. /* each ttmenutree */
+    END. /* do trans */
 
 END PROCEDURE.
 
@@ -3092,62 +3257,64 @@ PROCEDURE pSetUserSettings :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
-    FIND FIRST users EXCLUSIVE-LOCK
-         WHERE users.user_id EQ USERID("ASI")
-         NO-ERROR.
-    IF AVAILABLE users THEN DO:
-        ASSIGN
-            users.menuSize         = ENTRY(iMenuSize,"Small,Medium,Large")
-            users.showMnemonic     = cShowMnemonic
-            users.positionMnemonic = cPositionMnemonic            
-            users.showMenuImages   = lMenuImage
-            users.menuFGColor[1]   = iFGColor[1]
-            users.menuFGColor[2]   = iFGColor[2]
-            users.menuFGColor[3]   = iFGColor[3]
-            users.menuBGColor[1]   = iBGColor[1]
-            users.menuBGColor[2]   = iBGColor[2]
-            users.menuBGColor[3]   = iBGColor[3]
-            .
-        FIND FIRST userLanguage NO-LOCK
-             WHERE userLanguage.languageIdx EQ iLanguage
+    DO TRANSACTION:
+        FIND FIRST users EXCLUSIVE-LOCK
+             WHERE users.user_id EQ USERID("ASI")
              NO-ERROR.
-        IF AVAILABLE userLanguage THEN
-        ASSIGN
-            users.userLanguage = userLanguage.userLanguage
-            .
-        FIND CURRENT users NO-LOCK.
-    END. /* avail users */
-
-    FIND FIRST user-print EXCLUSIVE-LOCK
-         WHERE user-print.company    EQ g_company
-           AND user-print.program-id EQ "MainMenu"
-           AND user-print.user-id    EQ USERID("ASI")
-         NO-ERROR.
-    IF NOT AVAILABLE user-print THEN DO:
-        CREATE user-print.
-        ASSIGN
-            user-print.company    = g_company
-            user-print.program-id = "MainMenu"
-            user-print.user-id    = USERID("ASI")
-            .
-    END. /* if not avail */
-    ASSIGN
-        user-print.field-value    = ""
-        user-print.field-value[1] = STRING({&WINDOW-NAME}:HEIGHT)
-        user-print.field-value[2] = STRING({&WINDOW-NAME}:WIDTH)
-        idx = 2
-        .
-    FOR EACH ttMenuTree
-        WHERE ttMenuTree.favorite EQ YES
-           BY ttMenuTree.favoriteOrder
-        :
-        ASSIGN
-            idx = idx + 1
-            user-print.field-value[idx] = ttMenuTree.treeChild
-            .
-    END. /* each ttmenutree */
-    RELEASE user-print.
+        IF AVAILABLE users THEN DO:
+            ASSIGN
+                users.menuSize         = ENTRY(iMenuSize,"Small,Medium,Large")
+                users.showMnemonic     = cShowMnemonic
+                users.positionMnemonic = cPositionMnemonic            
+                users.showMenuImages   = lMenuImage
+                users.menuFGColor[1]   = iFGColor[1]
+                users.menuFGColor[2]   = iFGColor[2]
+                users.menuFGColor[3]   = iFGColor[3]
+                users.menuBGColor[1]   = iBGColor[1]
+                users.menuBGColor[2]   = iBGColor[2]
+                users.menuBGColor[3]   = iBGColor[3]
+                .
+            FIND FIRST userLanguage NO-LOCK
+                 WHERE userLanguage.languageIdx EQ iLanguage
+                 NO-ERROR.
+            IF AVAILABLE userLanguage THEN
+            ASSIGN
+                users.userLanguage = userLanguage.userLanguage
+                .
+            FIND CURRENT users NO-LOCK.
+        END. /* avail users */
     
+        FIND FIRST user-print EXCLUSIVE-LOCK
+             WHERE user-print.company    EQ g_company
+               AND user-print.program-id EQ "MainMenu"
+               AND user-print.user-id    EQ USERID("ASI")
+             NO-ERROR.
+        IF NOT AVAILABLE user-print THEN DO:
+            CREATE user-print.
+            ASSIGN
+                user-print.company    = g_company
+                user-print.program-id = "MainMenu"
+                user-print.user-id    = USERID("ASI")
+                .
+        END. /* if not avail */
+        ASSIGN
+            user-print.field-value    = ""
+            user-print.field-value[1] = STRING({&WINDOW-NAME}:HEIGHT)
+            user-print.field-value[2] = STRING({&WINDOW-NAME}:WIDTH)
+            idx = 2
+            .
+        FOR EACH ttMenuTree
+            WHERE ttMenuTree.favorite EQ YES
+               BY ttMenuTree.favoriteOrder
+            :
+            ASSIGN
+                idx = idx + 1
+                user-print.field-value[idx] = ttMenuTree.treeChild
+                .
+        END. /* each ttmenutree */
+        RELEASE user-print.
+    END. /* do trans */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

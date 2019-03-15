@@ -1,0 +1,2984 @@
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:   1
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+         05300207 E Helpdesk conversion to V9
+** FIND FIRST/LAST failed for table taskdtl. (565)
+         06100207 E Helpdesk Copy prompts for each file
+                    When I copy files form test to depolyment,  I get a prompt for each file.  I should get one promp
+                    t,then all the files listed should be transferred.    
+         06280202 E Installation On Site
+                    Installation of Progress/Advantzware.
+A-1- -   02280205 E GUI Folding Single Est
+                    1) Copy Corrugated to Folding so I dont have to test for weeks.
+                    2) Change Label and fields to 32'nds.
+                    3) Change Layout Screen for Folding.  
+                    ------->
+                       Not completed yet but take a look all screens and test.
+                       Please just be prepared any problems. :)
+                    
+                    
+                    4) Folding Style is not modifable  ok
+                    5) Number Out should default to 1 x 1.  ok
+                    6) Cant Override the Number Out.  Errors ok
+                    7) Cant Override the Gross Sheet Width or Length when same size.  ok
+                    8) Move Number Out up 1 Line so on same line as Gross Sheet     ok
+                    9) Move Number Up  up 1 Line so on same line as Die Size.       ok
+A-C-1-   05020300 E GUI A-C-1 Enter/Edit Cash Receipts
+                        
+                    1. Add radio button for posted invoices .         ok
+                    
+A-C-2-   07160208 E GUI A-C-2 Post Cash Receipts
+                    GUI A-C-2 Cash Receipts Posting to generate G/L accounts 
+                    
+                    
+                    
+                    
+                    
+                    
+A-C-2-   10090202 E Print
+                    GUI A-C-2 Cash Receipts Posting to generate G/L accounts 
+                    
+                    
+                    
+                    
+                    
+                    
+A-C-3-   05020301 E GUI A-C-3 Enter Misc Receipts
+                    GUI A-C-3 Misc Receipts.  Copy from Character J-3-3.
+                    
+                    Yoosun must add logic to post the Foreign Currency Code (currency not equal to the company file c
+                    urrency)  to the A/R Asset general ledger account in the currency file at the exchange rate house
+                    d in the vendor selection register.   Please note, the rate difference between the exchange rate 
+                    on the invoice and the exchange rate on the payment selection file will be posted to the PAID A/R
+                     Exchange Rate Variance GL account.
+                    
+                    Add radio button Posted.  Default should be Unposted.
+                    
+A-C-4-   05020302 E GUI A-C-4 Post Misc Receipts Register
+                    Copy logic from ASI
+                    
+A-C-4-   10090203 E Print Format, to screen and Printer
+                    
+                    
+A-C-5-   05020303 E GUI A-C-5 Apply / Reapply Cash / Memos
+                    GUI A-C-4 Combine from Character J-3-2, J-3-4 and J-3-6.
+                    
+                    1. If have cash receipt for 1000. and put all on acct.
+                        Apply 50 dollars to an invoice and leave the rest on acct.
+                       The 950 dollars is not showing on the browser  or on the edit register as on acct until posted
+                    .
+                          ok
+                    
+                    2. Make paid amount field updatable.    ok
+A-C-6-   02110215 E AC6 Post Applied Items Register
+                    Program not found.  Move to Test
+                    
+                    
+                    1.  See customer JULIE.  Invoice #93 I applied 1000 check and the amount paid field is showing 20
+                    00.
+                    ---------------
+                     Let me know when you test again please  YSK
+A-F- -   01180201 E GUI DB: Foreign Currency
+                    DB Customer File Field: Convert Currency?  Y/N.  Default to NO.  If yes, this will convert the In
+                    voice and Cash Receipt programs.  The Company file will indicate the Default Currency.  ie if the
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:   2
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                     general ledger company is CANADA, and the customer billto is in USA, then the invoice will be co
+                    nverted from Canadian dollars into USA dollars.  When the cash is received, the system will conve
+                    rt from US dollars to Canadian Dollars.  Same conversion will have to happen with the quote print
+                    out.  The data enter screens would be modified to show both US and Canada dollars.  The database 
+                    could retain the currency defined in the company file.  
+                    
+                    DB: GL company file, add Country Code.
+                    DB: Customer Ship to File add Country Code.
+                    
+                    Please note, the bill to address determines the currency. 
+                    
+                    DB: AR Control File:  Add Currency Difference GL Default.  When the conversion rate changes which
+                     makes the invoiced dollars vary from the converted dollars, the difference must be applied to a 
+                    general ledger account.
+A-F- -   01180205 E GUI: AR Markup Fields
+                    Add with Currency Task.   Add more Customer Markup Fields.  Currenty we have Once.  Add Markup2, 
+                    Markup3. These may be positive or negative.
+A-F- -   01180209 E GUI Customer File F1 on Zip Code
+                    Customer File and Customer Shipto File.  F1 on Zip Code should import the city, tax and zip code 
+                    from the CODES menu at the top menu in the Zip Code File.  Please note, the user should be able t
+                    o add their own zip codes without entering the zip codes in the zip code file.
+A-F- -   02070206 E GUI Customer Totals Folder
+                    Find Order 535.    I changed the order quantity to 2000 from 1000.   Add another release and noti
+                    ce the release quantity is 2000.  Since release exists for 1000, the new release should default t
+                    o the difference between order quantity and the total of all other releases.
+                    
+                    Invoice post did not update the customer order totals period to date sales, cost, profit, MSF, pr
+                    ofit percent, profit dollars, etc..  Invoice post did update the balance on account dollars.
+                    
+                    
+                    RECALC button only updates the  invoice and account balances.   This should also update the perio
+                    d to date sales, cost, msf, profit, etc.
+A-F- -   02110204 E GUI DB: Customer File Budgets
+                    New Customer DB File/Folder:  Called Sales Budgets.  Copy logic similar to GL Accounts budgets fo
+                    r 24 or 26 periods for each customer.  This will serve as a sales budget dollar amount for each p
+                    eriod for each customer.  Later, we will be able to generate sales budgeted dollars vs. actual sa
+                    les dollar reports, for both Period-To-Date and Year-To-Date.
+A-F- -   05010215 E GUI Customer File Credit Security
+                    Checking the Credit Hold Field requires:
+                    
+                    1) S-K-Customer and CustPass not being utilized.
+                    2) Clicking Credit Hold should prompt to place all orders on Hold.
+                    3) Clicking Credit Hold to blank field should take all order off of Hold.
+                    
+                    ie IBM is on Credit Hold
+A-F- -   05070220 E Tax Codes Label Change
+                    The Field Called Accumulate Tax should be called Tax Tax?  Also, move to the right of the GL acco
+                    unt field.  Change field Tax on Freight to Tax Freight?
+A-F- -   05070221 E Change Salesman File Comm Basis by Category
+                     Add field called Comm Basis for every product category for every cutomer type.  The corrugated e
+                    stimate program will calculate the commission based on the basis of the product category file.  T
+                    his field is only updateable if the CEMENU is CORRWARE.
+                     
+                    Same logic must be used in the order processing module.
+A-F- -   05070222 E GUI DB: Salesman File Comm Basis by Category
+                    GUI:  Add DB field called Comm Basis for every product category for every cutomer type.  The orde
+                    r entry and commission report program now basis the commissoin of the sales header record.  This 
+                    should look at the basis defined on the product category after this database is changed.  
+A-F- -   05080206 E GUI DB: Manf Days.
+                    GUI DB:  New field called Manf Days.   Change field labeled Whs/Mfg days to Whse/LastShip Days.
+A-F- -   05300203 E GUI Customer File Totals
+                    Totals folder in customer file.  The UPDATE button should require a password to update the totals
+                     just like character.
+A-F- -   06130201 E F1 on List Icon Not Working
+                    In customer file.  The first icon or LIST icon, the F1 on Customer code and customer names do not
+                     work.
+A-F- -   12230201 E Change Salesman File Comm Basis by Category
+                     Add field called Comm Basis for every product category for every cutomer type.  The corrugated e
+                    stimate program will calculate the commission based on the basis of the product category file.  T
+                    his field is only updateable if the CEMENU is CORRWARE.
+                     
+                    Same logic must be used in the order processing module.
+                    
+                    Not looking at commision amount in the category.  
+A-R- -   09100202 E Reports arep 13 reports
+A-R-1-1  11120104 E GUI A-F-Salesman List via Icon
+                    GUI New Salesman Report.  Add option, Print Commission Matrix. Y/N  No will just print the salesm
+                    an list.  Yes will print the salesman and each commission matrix for that salesman.
+A-R-5-   07020204 E AR Ageing Mod from V8 to V9
+                    New mods for middlesex for address, phone number and credit limit and ability to download to exce
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:   3
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    ll spreadsheet on character task 06270202 must be move down.  Two new fields on screen are Print 
+                    Address?  and Download to Excell? Y/N.
+                    
+                    Verify Price from old Task.
+A-U-2-   05020217 E GUI AR Invoice Edit List
+                    GUI A-U-1 Invoice Edit List
+                    
+                    1. When closing out of printing, get error message "No invoices available for posting".
+A-U-3-4  05020218 E AR Invoice Printing, Landscape Problem
+                    GUI A-U-3 Invoice Printing 
+                    arrep\r-ariprt.w
+                    
+                    Must print in Portrait Mode.
+A-U-4-   05020219 E GUI AR Post Invoice
+A-W-1-   05020296 E GUI Write Credit/Debit Memo
+                    GUI A-W-1 Enter/Edit Credit/Debit Memos
+                    create line record automatically when create header.
+                    create pop-up to select invoices for credit.
+                    
+                         
+                    
+                    
+                    
+                    
+A-W-2-   05020297 E GUI A-W-2 Credit/Debit Edit List
+                    GUI A-W-2 Credit/Debit Memos Edit List
+                    
+                    1. Title of report missing in header.  Period was not transfering, only printing one of the two h
+                    eadings.  ok BJ
+A-W-3-   05020298 E GUI A-W-3 Print Credit/Debit Memo
+                    GUI A-W-3 Print Credit/Debit Memos  
+                    
+                    1.If printing just 1 memo, prints fine.  If printing 2 or more memos -  not page breaking data 
+                       See sample given
+A-W-4-   05020299 E GUI A-W-4 Post Credit/Debit Memo
+                    GUI A-W-4 Post Credit/Debit Memos  
+B-2-1-   02060208 E GUI Order Release
+                    GUI Order Processing Releases allows deleting header and keeps the lines.
+                    Delete Release should also delete all the line items on the release.
+                    
+                    Also, cant copy a line.
+B-2-1-   10010108 E GUI Order Releases DB Change
+                    GUI Order Processing Releases need Database change to move the order#, PO# and Job# down to the l
+                    ine item level.  This will allow multiple orders on a single release.
+B-3-1-   02060207 E GUI BOL Copy Line
+                    Copy Line not saving record.  I am trying to add 10 units at 500 and 5 units at 400, but second l
+                    ine is not saved.
+                    
+                    
+                    d, Approved rather than use the Trailer ID number.  Add Button called HOLD for this Hold/Release 
+                    Feature.
+                    
+                    
+                    
+B-3-1-   05230103 E GUI BOL DB Changes
+                    DB Changes:  At line item level, add Order#, PO#, Release# for each Line item on the bill of Ladi
+                    ng. At the Header level, add TIME and "Status" code for Hold, Approved rather than use the Traile
+                    r ID number.  Add Button called HOLD for this Hold/Release Feature.
+                    
+                    
+                    
+B-I-2-   02070201 E GUI DB: Index Order Invoice Inquiry Slow
+                    B-Q-2.  Move to GUI and use better indexes to speed search.
+                    nds.  In B-I-1 this is almost immediate.  Can this be improved?
+                    Reported by Sheri Pinedo
+D- - -   02060205 E Move Menu Options from Shop FLoor
+                    Rename SHOP Reporting to Scheduling.
+                    Move All menu Options from Shop Floor to Data Collection.  
+                    We will add the new scheduling logic into this menu.  ie Capacity File, Etc. 
+                    
+                    Update Hours
+                    Floor Reporting
+                    Labor & Misc
+                    Validate Hours
+                    Transfer to WIP
+                    Query
+                    Reports
+D-F- -   04290209 E GUI Floor Collection Issues
+                    1) Add Machine ZLM.  Department should default, and Not Updateable.  F1 Works
+                        ok
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:   4
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    2) Add Job 486, item does not display items on the job file.         ok
+                    3) FG item should default after Job entered. F1 on FG item does not work.  ok
+                    4) Crew size should default from machine file.                             ok
+                    
+                    5) Error messages on last field on the machine data collection.            ok
+                    ted. ok
+                    6) Crew size should default from machine file.
+                    7) After updating the line, error message and line does not display.    ok
+                    
+                                                                  N/A
+                    9) Cant Post Hours.                                                     N/A
+D-F- -   05010202 E GUI Floor Collection Add Mode
+                    Add ZLM, Save and cursor moves directly to Job, which is great.
+                    Enter Job 486, tab through.  
+                    
+                    1) Item not displaying, after save 1st transaction and updating 2nd record.
+                       ok
+                    2) After saving first transaction, program should immediately to into add new    line and cursor 
+                    should pause on Charge Code, waiting for input.  
+                      ---
+                      ok
+                    
+                    3) Charge Code not validated.  Enter JUNK and it accepts.  ok
+                    
+                    4) Add ZLM, press Save, Department not defaulting,then error. ok
+                     ) Add ZLM, press Save, Department not defaulting,then error.
+                     ine, error message and line does not display.    ok
+                    
+                                                                  N/A
+                    9) Cant Post Hours.                                                     N/A
+D-F- -   05010212 E Data Collection to AutoPost
+                    Data Collection should prompt to create FG receipts when N-K-Autopost logical value is YES.  The 
+                    last machine operation in the routing will prompt for number of units, unit count, tag#, etc when
+                     the last machine is entered with the charge code category of RUN.  Ideally, we should have datab
+                    ase fields which retain the FG item, number of units, unit count, units per pallet, tag#, bin loc
+                    ation and warehouse, stacks, stacks per pallet, Partial Unit Count.  This is the same fields as t
+                    he FG item Bin file houses when pressing Update Unit Count.   The file would actual transfer to t
+                    he FG Receipts file when the transactions are posted during the D-Transfer/Post to WIP menu optio
+                    n is run.
+                    
+                    Add Post Report identical to Edit List.
+D-F- -   05070214 E Data Collection to Update Die Hits
+                    The data collection Floor Reporting and Update hours by Job transaction must update the number of
+                     impressions in the prep/die file.  First, the Die# and Plate# must be defined on the Spec File o
+                    f the Finished Goods Item File.  When posting to the printing press, the number of wasted sheets 
+                    and number of quantity of sheets produced will add to the Plate number of Impressions. Likewise, 
+                    when entering data on the Diecutter, the waste and run production will update the number of impre
+                    ssions in the die file.
+                    
+                    The PR department should update the spec Plate# die and and the DC department should update the D
+                    ie# defined on the spec folder.  Please note the flexo is both a PR and DC, hence for Job 648 sho
+                    uld update both plate P0003 and Die F0003.
+D-L-2-   05020268 E GUI Labor/Misc Edit List  Test after D-L-1 works
+                    D-L-2 Labor/Misc Edit List
+                    Update Screen.
+                    ld be update the job costing and raw material files.
+D-L-3-   05020269 E GUI Labor/Misc Post
+                    D-L-3 Labor/Misc Post 
+                    Update Screen.
+                    ld be update the job costing and raw material files.
+D-L-T-   05020267 E GUI Labor/Misc Mat'l Enter  Test Posting
+                    D-L-1 Labor/Misc Mat'l Entry
+                    BJ wrote Update Screen. 
+                    
+                    Add logic to update the job costing and raw material files and make this work.
+D-R- -   09170205 E Date Collection New Fonts.
+D-R- -   10100204 E Print to Screen & Security
+D-R-1-   04100209 E GUI DC Effeciency Report
+                    GUI Data Collection Effeciency Report.
+                    Test when production posting done. and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+D-R-1-   05020273 E GUI D-R-1 Machine Efficiency Report
+                    D-R-1   Also, not all hours are on report. 
+                    Test when posting is fixed.s fixed.data collection report menu.
+                    ow up to four sales GL Accounts by product category. 
+D-R-1-0  04100218 E GUI D-R-10 Open Jobs by Due Date
+                    D-R-10 GUI Data Collection Open Jobs by Due Date/Cust Report.
+                    Please note, the FG quantity received was not reduced from order total. up to Four GL Account#'s 
+                    with a Percentage Field for each GL#.  This will allow up to four sales GL Accounts by product ca
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:   5
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    tegory. 
+D-R-1-1  04100220 E GUI D-R-11 Report
+                    D-R-11 GUI Data Collection Press Scrap Report.  Note the menu name change from the character vers
+                    ion.
+D-R-1-2  04100221 E GUI D-R-12
+                    Add From Shift XX to Shift XX on the print selection menu.  Please note, this
+                    should be 2 characters each, since the touch screen has more than 9 shifts.
+                    This report currently prints by machine by job, hence each job must be
+                    detailed by shift.  This is character task logic added on August 9th.
+D-R-1-2  08210201 E Move task 08130201 to GUI
+                    Scrap Report by Machine.
+                    
+                    Add job qty, qty received variance & pct received
+                    -------------------------------TASK DESCRIPTION-------------------------------
+                    Add the job qty, qty received variance, and the pct received of ordered to the
+                    Scrap by Machine report.
+D-R-2-   04100210 E GUI DC Machine Backlog Ananlyis Report
+                    GUI Data Collection Machine Backlog Report.
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+D-R-3-   04100211 E GUI D-R-3 Productions by Dept. Report
+                    D-R-3 GUI Data Collection Production by Department Report.
+D-R-4-   04100212 E GUI D-R-4 Productions by Machine Report
+                    D-R-4 GUI Data Collection Production by Machine Report.
+D-R-5-   04100213 E GUI D-R-5 Waste Analysis Report
+                    D-R-5 GUI Data Collection Waste Analysis by Dept.  Report. 
+D-R-5-   04180201 E GUI D-R-5 Report
+                    Find Item ABB 224 for Estimate 224.  Two problems.  
+                    1.  Totals folder, Recalc does not update the L,W,D and blank square feet.
+                    2.  Add order for Set is not updating the totals square feet.  The character logic must be moved 
+                    to GUI.
+D-R-6-   04100214 E GUI D-R-6 Report
+                    D-R-6 GUI Data Collection Labor Hours vs. Estiamtes Report.
+D-R-7-   04100215 E GUI D-R-7 Downtime Analysis
+                    D-R-7 GUI Data Collection Downtime Analysis Report.
+                    Option to print from date range
+D-R-8-   04100216 E GUI D-R-8 Report
+                    D-R-8 WIP Edit List Report.   To Jeff is this same as H-R-1?  If same, just add H-R-1. 
+D-R-9-   04100217 E GUI D-R-9 Materials Allocation
+                    D-R-9 GUI Data Collection Materials Allocated Report.
+D-T- -   10100216 E Print to Screen & Security
+D-U- -   10160212 E Data Collection to Sort by Time
+                    Data Collection screen should sort by time entered, not by machine.
+                    Currently add hours should sort in time order.
+D-W- -   05090210 E GUI WIP Prepost Edit List
+                    D-V.  Data Collection, Validate Hours.  The heading are printing after each transaction. The colu
+                    mn headings should print after each machine sub-total.
+                    Also, the start and stop times are importing the computers current time.  This must print the sta
+                    rt and stop times from the data collection screen.
+D-W- -   05210206 E GUI Data Collection Edit List
+                    D-V.  Data Collection, Validate Hours.  The heading are printing after each transaction. The colu
+                    mn headings should print after each machine sub-total.
+                    Also, the start and stop times are importing the computers current time.  This must print the sta
+                    rt and stop times from the data collection screen.
+D-W- -   10100215 E Print to Screen & Security
+E- - -   01030204 E Esc should not exit software
+                    Escape key should exit one menu only.  Press E-C-File Maintenance.  Now Press Esc key.  This shou
+                    ld only backup one menu.
+                    -------------
+                    I don't see E-C-File maintenance.
+                    ESC key is disabled from main menu program.
+E- - -   02040206 E F1 on FG item#
+                    F1 on FG Item# in Quote File
+E- - -   07310202 E Screen Changes
+                    Move x-grain, and change tab order
+E- - -   11270208 E Estimate Layout Folder, F1 on Machine, Dept Radio
+                    When pressing F1 on the Layout Machine
+                    Add Department radio button on the Layout Folder.
+E-1- -   03060206 E GUI Folding Single Est
+                    1) Cant Override the Number Out.
+                    2) Cant Override the Gross Sheet Width or Length when same size. 
+                       Find 482, Layout Folder.  Click Override, CLick Save, See Errors.
+                    
+                    
+                    d any problems. :)
+                    
+                    
+                    4) Folding Style is not modifable  ok
+                    5) Number Out should default to 1 x 1.  ok
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:   6
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    6) Cant Override the Number Out.  Errors ok
+                    7) Cant Override the Gross Sheet Width or Length when same size.  ok
+                    8) Move Number Out up 1 Line so on same line as Gross Sheet     ok
+                    9) Move Number Up  up 1 Line so on same line as Die Size.       ok
+E-B-1-   10040201 E Machine File Trim Labels are backwards
+                    Machine labels should be changed.  Trim Width should say Side-Side and Trim Length should read Fr
+                    ont to Back.    I would also reverse the fields so that Front to Back is on the left because this
+                     is normally the sheet width (database file Trim length).   The Side-Side label should be on the 
+                    right and the database field should be Trim Width.   
+E-B-4-   10080201 E Box Design to show *.* files
+                    Currently only bit mapped images show on the box design and in the estimate.  This should should 
+                    all files.  Simply change to *.* so that .bmp and .jpg and tif, etc.
+E-B-4-   10110201 E Radio Button Description in Box Design
+                    Box Design file.  Add radio button for Description.ok
+                    
+                    Move Length Scoring to left to justify with the box design. ok
+                    
+                    Style File:  Expand Style Field. ok
+                    Estimate Style Field: Expand.ok
+E-B-4-   10240202 E Add Box Design Numbers to Folding Style File
+                    Add Folders for Box design 2D and 3D image fields to Folding Style File.
+                    
+                    F1 doesnt work on Box Design.
+                    
+                    Make 3D Folder for both Corrugated and Folding Carton.
+E-B-4-   10250207 E Add Box Design and 2D & 3D on Corr and Box Design
+                    Add Folders for 2D Design on Corr Style
+                    Add 3D image Folder on Box Design File.
+E-B-F-   03060202 E File Maintenance SLOW
+                    It took 30 seconds to access the box design file.  It took jeff 6 seconds.  This file is 40 recor
+                    ds.  Something must be wrong.  
+                    It takes 10 seconds to access folding estimates with 1 record.
+                    It takes 13 seconds to access corrugated estimates with 50 records.
+                    Will it take minutes with thousands or records?
+                    It takes 11 seconds to access to corrugated styles.
+                    ------>
+                    From my machine
+                        Box design - 1 sec
+                        Est Corrugate - 4 sec
+                        Folding est - 1.5 sec
+                        Corrugated stye - 2.5 sec
+                    
+                    SEND CODE TO PROGRESS.  I WANT TO KNOW WHAT WE ARE DOING WRONG.
+                    This is unacceptable.
+                     ---->
+                      It takes time to display records on browser.
+                      I'll talk to PROGRESS for this issue.
+                    
+                    task.
+E-B-F-   03110205 E GUI Prep Code to 10 Characters.
+                    Prep Code expand to 15 characters.  This would then match the prep and die codes added on the spe
+                    c folder.
+E-B-F-   03250203 E GUI DB: Expand Style Code
+                    Expand Folding and Corrugated Styles to 6 Alpha-numeric.
+E-B-F-   03250207 E GUI DB: Expand Number Up per item.
+                    New DB Field per item.  For combination estimates and corrugated estimates with mulitple items pe
+                    r set, Add Number Up W:  Number up on Length.  Currently, we just prompt for number up.  We need 
+                    both in order to properly update CAD-CAM systems. 
+E-B-F-   04100202 E GUI Prep File Est# to Update Fields
+                    Gui Prep File. Find Plate# 502 or Die# 502.  F1 on estimate number does not work.  Also after sel
+                    ecting the estimate#, the customer code, style, Carton L,W,D and Die W &L should import.  Also, i
+                    f the estimate has an order number, this would also transfer to the prep file.
+E-C- -   01030207 E GUI Estimate Folder.
+                    On Qty field, F1 to display quantities.  Only need qty and MSF columns.  Erase Price, UOM and Dat
+                    e fields.
+E-C- -   02200204 E Add Estimate Skip Date
+                    1) When adding a new estimate, skip the date and position cursor on Cust#.
+                    2) Shipto should default to Cust#.
+                    3) Depth is not mandatory.
+E-C- -   04100201 E GUI F1 on BOM not working
+                    Corr Estimate Layout folder, BOM button.  F1 should show all material types equal to "P".  Copy l
+                    ookup from raw materials BOM, which works perfectly.
+E-C- -   05030203 E GUI E- Estimate by Date/ID
+                    The Estimate Whatif Screen should have the UserID and Date Calculated.  Users will want to save o
+                    r update a quantity.  Now an estimate for 1000, 5000, 10000 on January 2002 will be overriden whe
+                    n estimated again on March 2002.
+                    When calculating, Prompt Update or Override.  Currently the logic is only override, which erases 
+                    the existing calculated data with the new calculated quantities.  Both functions should save the 
+                    date and userid.  If the user selects Update, the new and old quantities would display and would 
+                    be saved.  Likewise, updating quote would copy date and user ID.
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:   7
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    
+                    For example on Jan 2002 I quote 1000, 5000, 10000 which would have 0100202 and JOE as ID.  On Mar
+                    ch 2002, Jeff Calculated 10000, 15000 and says UPDATE.
+                    The original 1000, 5000,10000 would show 010202 Joe, but another 10000, 15000 would show 030202 J
+                    eff.
+                    
+                    
+                    Quote - Update/Save Quantity shows errors.
+E-C- -   05060201 E GUI Die#,Plate# Browser
+                    Add Die# and Plate# to Estimate browser.  The character version FIND allows 
+                    searching the Die# or Plate#, hence we need to move this to all estimates.OPRINT character value 
+                    is not changing the print
+                       out format of the quote form.
+                       There are many custom quote forms that are not printing correctly.
+                       --
+                    
+                    3) Add new quotes must copy the NOTES from the first record in the system.
+E-C- -   05070205 E Price per /MSF
+                    New Price Button like character called RePRICE on the Quantity Screen.  Options will be EA, M or 
+                    MSF.  This will change price from per Thousand to per MSF.  Multiple the quantity/M times the pri
+                    ce/M then divide by the MSF. 
+                    -- There is rounding issue in calculation.
+E-C- -   07240202 E Move Override Logic from Character
+                    Move character task 06140201 to GUI.
+                    
+                    Find any corugated Estimate.  I reduced every panel by .01,  The die size and sheet
+                    size are still calculated on the original style dimensions.  When overriding
+                    panels, prompt to update page two, then set all dimensions to save size.
+E-C- -   09110202 E Scan Image Button on Box Design
+                    Add SCAN IMAGE button in corrugated estimating box design folder.    How do we make sure that the
+                     image is the correct size for our box design screen.   As an alternative, should be simply promp
+                    t for a file name of image?
+E-C- -   09160205 E Estimate to Print Vendor Name
+                    Print the Label Vendor to the right of the Weight in the materials section.
+                    Under the column label, print the vendor code that was selected when printing
+                    the whatif.
+E-C- -   09180201 E Import Paintbrush Image for Box Design
+                    Ability to import and modify image in paintbrush and print on factory ticket.
+                    
+                    Box Design to update the position of the dimensions. 
+                    Import from ASIIMAGES.
+                    Save should save to BOXIMAGES.  Better would be BOXIMAGES/CUSTOMER CODE
+                    
+E-C- -   09190201 E New Estimate should build box design immediately
+                    Add new estimate for RSC.  The style file has the box design number, which has the image.
+                    This image should transfer directly to the estimate box design screen.   ok
+                    
+                    Whenever the blank dimensions are changed, the system should prompt to update the LAYOUT folder a
+                    nd the BOX DESIGN Dimensions exactly as in add mode.
+                    -------------- 
+                    That's the way working now from Spec page not estimate page.
+E-C- -   10010201 E Hardcopy New Fonts Software
+                    Estimates, Hardcopy option requires the new font logic for portrait or landscape printing.
+E-C- -   10040202 E Die Calculations are not in proper order
+                    Die number up is not in proper order.  Please show joe in the office.
+E-C- -   10070203 E DB Index change for better performance
+                    Converted database have poor performance on Estimate.
+                    Need to create new index for estimate table(est-qty).
+E-C- -   10070208 E Blank = Sheet Warning for Rev Corr not Valid
+                    When the layout folder has the REV CORR set to Blank cross grain, the sheet size will properly sw
+                    itch.   The problem is the N-K-CE W>L  warning message appears.  The solution is that when the RE
+                    V CORR flag is B, then the blank width must look at the sheet lenght and the blank lenght should 
+                    look at the sheet width.  
+E-C- -   10160206 E Print Box Design on Estimate Hardcopy
+                    Add new radio button on print selection screen, when printing Estimate Hard Copy to print the Box
+                     Design.    This will print at the bottom of the estimate or on a separate page after the estimat
+                    e prints.  The entire box design must print, so if this prints on the same page as the estimate t
+                    otals, then we cannot print half the box on one page and the other half on another page.
+E-C- -   10250206 E Expand Board Descriiption Name on Layout Folder
+                    Estimate layout browser.   Maximize the board item name to view on the screen.  Move the field Re
+                    al?  to the far right.  This is helpful for descripiton of foam material.
+E-C- -   10290205 E Setup Charges for Non Board Material
+                    Move current logic for board setup charges to all other materials on the estimate.  Hence any cor
+                    rugated material could have a setup charge in the cost matrix.  This setup charge must be added t
+                    o each material added to a corrugated estimate.   
+                    
+                    This mod took 6 hours to program and test.   Quoted 3 hours. 
+E-C- -   11050205 E Make Ready Hours not including Clean Up hours per Color
+                    Corrugated estimate not adding the 1 hour MR time for cleanup per color for printing press.
+E-C- -   11190205 E Estimate Folders reverse Print and Quote Folders
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:   8
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+E-C-Q-   10160207 E QUOPRINT character value to price quote.
+                    New character value for QUOPRICE.   Either /M or EACH.   When creating a quote, the price should 
+                    be calculated as EA if this character value is EA.  If the value is M then the current logic will
+                     be used.   If the value is EA, then the price will be divided by 1000 and the UOM will be conver
+                    ted to EA.   
+                    
+                    Move the UOM on the quantity folder to the right of the sell price.
+                    
+                    If this is going to take more than 1 hour,  I must send quote for approval.
+                    Joe.
+E-F- -   08280202 E Tandem/Combo # Plate / Fountain Changes
+                    The estimate browser must prompt for Number of Plate changes and fountain changes for each additi
+                    onal form.  This is required for calculating the total number of make ready hours for the printin
+                    g press.
+E-F- -   09110203 E Image Button on Box Design File Maintenance
+                    Add SCAN IMAGE button in estimating file maintenance box design folder.    How do we make sure th
+                    at the image is the correct size for our box design screen.   As an alternative, should be simply
+                     prompt for a file name of image?
+E-F- -   10160213 E New Folder called Box Design
+                    Create new button in folding carton estimate called Box Design.
+                    Exact same logic as Corrugated, except, no scoring is required.
+E-F- -   11190203 E Estimate to show Box Design and 3D Image
+E-F- -   11190204 E Estimate Folders reverse Print and Quote Folders
+E-F- -   11190209 E Prep Plates must not include Aqueaous
+                    If the Varnish Coating is an aqueous coating, this should not count toward the total number of pl
+                    ates on the prep screen.
+E-G- -   05010201 E GUI E-G Global Quote Price change
+                    Global Price Change for Customer ABC1000 to ABC1000 not working.
+                    Quote# 33 prices on the QTY folder are unchanged.  Increase. 99/99/99.  This should be a date fie
+                    ld.
+E-K- -   05020205 E Kopy Estimate Security not working
+                    Estimate Kopy security not working.
+E-K- -   08050201 E Kopy Estimate
+                    Copy Estimate Program Not Found.
+                    On menu screens, and program master
+E-Q- -   01030205 E Quote File Order Status Field
+                    Add Order Status Field to the quote file.  This will allow creating an order directly from a quot
+                    e.
+E-Q- -   01160211 E GUI DB:  Add over/under for each qty.
+                    DB:  Add over/under% for each quantity quoted for an item.  This % may be 10/10 for smaller quant
+                    ities and 5/5 for larger quantities.
+E-Q- -   04080204 E GUI Quote Menu shows twice
+                    When CEMENU is Foldware, the QUote menu is listed twice.
+                     estimates.  The user would not know that leaving this blank would delete the estimate.  
+E-Q- -   04100223 E Gui Quote Radio Estimate
+                    GUI quote browser.  Add Estimate and RFQ radio buttons.  ok
+                    
+                    When an estimate# exists on the quote, logic should work differently.  The item must be identical
+                     to the estimate.  When I press Update and tab, I get error message on the size.  UPDDATE should 
+                    never allow changing the FG item# either with or without when an estimate# exists.  UPDATE should
+                     only allow changes to the  Description fields.  
+                    
+                    Delete and Add would be better logic, hence UPDATE should never change the FG item#.             
+                                 ok
+E-Q- -   05030202 E GUI E-Q Quote Changes
+                    The Quote Line Item:  Add Date Quoted and User ID when last updated.
+                    is not on the menu. Increase. 99/99/99.  This should be a date field.
+E-Q- -   08290206 E Add Sell Price to View Quote Folder
+                    The View Quote Folder should show the Sell Price in front of the UOM.  This should match the quan
+                    tity that matches the Quantity Folder.
+                    
+                    Also, on the Quantity Folder, the quote date  and quoted is not updated via the estimate quote bu
+                    tton.
+E-Q- -   09130206 E Add Quote to update UserID and Quote Date
+                    The Quote Quantity Folder, should have the user ID and the quotee date  transfer from the whatif 
+                    estimate when the quote is created.   If the add quote is updating an existing estimate, each new
+                     date for each quantity should be transferred to the quote quantity folder.
+E-Q- -   10080209 E Pacific Pkg  Quote Print with Xprint
+                    New N-K-QUOPRINT = PACIFIC.  This will print their company logo at the top of the screen.
+E-Q- -   10100205 E Pacific Pkg  Quote with Xprint
+                    New N-K-ACKHEAD = PACIFIC.  This will print their company logo at the top of the screen.
+E-Q- -   10290204 E Add FG Item to Quotes
+                    Add FG Items to Quote File .  Add button on View Folder will provide an F1 lookup key on the enti
+                    re FG item file.  Once an item is added to this folder, the Quantity button will allow adding add
+                    itional quantity quotes for that item.  
+E-Q- -   11190216 E Quote to Import Stock Matrix Sell Price
+                    Add FG item on quote to import stock matrix price on quote.  If it does not exist, it will import
+                     sell price on the FG item file.
+E-Q- -   12110204 E Develope fax program for Quote
+                    Fax interface program for Window XP Fax Console.
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:   9
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+E-R- -   09100201 E Reports ER 1-9 Fonts
+E-R- -   09100203 E whatif, not showing vendor name
+E-R-7-   06030202 E GUI Die Report
+                    Convert Prep Report.  Add new screen changes.
+                    I added Die 542 to estimate 542, but this does not print.
+E-R-8-   09160202 E GUI Estimates by Size
+                    1)  Sort by Length or Part # logic in character must be moved to GUI
+                    
+                    2) Customer Name Wraps around to the next line when printing report.
+E-R-9-   05010218 E GUI Quoted Price List
+                    Move Code to A-R-9 to GUI E-R-9
+                    t, hence eliminate the break out cost from print selection screen.   Print Customer Name, Address
+                     and Salesman on Top Header Line.  On detail line, print Qty, Price/M, # Releases, CustPart#, Ite
+                    m Name, Size, Style, Board Code, Color Desc, Est#, Quote#, Date.  This is the same information th
+                    at prints on the quote form.  If space is required, truncate Item Name to 20 Characters. 
+E-S- -   04010203 E GUI Search for Estimates
+                    This finds all estimate types.  Logic should be similar to character A-9.
+                     estimates.  The user would not know that leaving this blank would delete the estimate.  
+E-U- -   03110207 E GUI Folding Estimate # Up
+                    Find Estimate 560.  Layout Folder.  Autocalc, press Tab to calculate the layout.  Now click the R
+                    oll to YES.   Layout is 2x1, but the roll width changes to 38 for some reason.    This is even to
+                     large for the 408 press which has maximum of 28 width.
+                    
+                    Now change the number up to 1 x 1 instead of 2x1.  The roll width is not recalculated.
+                    
+                    Lastly, the machine routing does notthing and shows errors.
+E-U- -   03110208 E GUI Folding Die Rule
+                    Prep Folder.   The die inches are not calculated from the layout screen.  I need to manually pres
+                    s update and save to import the die inches.calculated.
+E-U- -   03110210 E GUI Folding Route
+                    Cant change a machine with new standard importing.  ie change one press with another press.  Impo
+                    rt and Save does not import, but Import then Tab key works perfect.ss.
+E-U- -   04100205 E GUI Folding Estimate Quote Create
+                    Print Folder.  Calculate,then Quote.  The cost/M is not transferred to the folding quote on the Q
+                    uantity Folder in the quote file.
+                    calculated.
+E-U- -   05100211 E GUI Folding Combo Estimating
+                    GUI Folding Carton Layout Combination Estimating.
+                     Copy Folding Single Screens and make changes.
+                    We will use this same program for Corrugated Combinations. 
+                    
+                    Add GOTO Button on Estimate Browser.
+                             :  Request Qty, Yield Qty, #UpW,#UpL,TotUp, MSF and Price On (Request or Yield with defa
+                    ult to Request).
+                    
+                    If more than one blank per form, above new fields are mandatory. 
+                    
+                    Add S/B code to Estimate Browser.
+                    
+                    Inks missing for second blank
+                    Routing not created for each blank for gluiing.
+                    Board Code should default from first blank per form.  If changed it must change all board materia
+                    l for that form.  
+E-U- -   08190201 E Copy Button on Routing Screen
+                    Need copy button for machine routing with same logic as character combination logic.
+E-U- -   08190202 E Goto Button on Ink Folder
+                    Need goto button for inks with same logic as character goto button logic.  The arrow key would ta
+                    ke to long to skim through 20 forms.    This wil allow the estimator to enter the form and blank 
+                    number, which would then appear for making changes.
+E-U- -   08260202 E Estimate Browser GOTO button to change Forms
+                    The GOTO button on far right corner of estimate folder must work exactly like the character goto 
+                    button.  This must allow changing the form and blank number, which then updates the routing S/B c
+                    odes, inks, etc.  
+                    
+                    Also, when changing the number of width or length, the total number out should be calculated by m
+                    ultipliing for each item.
+                    
+                    The estimate folder should reverse the # on length and # up on width to match goto button.
+                    
+                    Change column headings for form to following:
+                    Inks/Form   Passes/Form    Coating/Form   Coat Passes/Form
+E-U- -   08290204 E Unit Calc
+                    When deleting the weight per case and adding a case count and number of cases per pallet, the sys
+                    tem should multiple to calcuate the Unit/Pallet Count.
+E-U- -   09120201 E Change Labels
+                    Folding Estimates, Layout Folder   Label/Wax should be  Leaf/Film
+                    
+                    Also on the Calculate Screen.  Eliminate the Drop Slitter if MSF > minimum.  This is a corrugated
+                     only prompt.
+E-U- -   09130205 E Change Labels on Whatif
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  10
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Both Folding Estimates and Corrugated estimates no longer need the prompt on the Print Folder  on
+                     the Calculate Button Screen.  Eliminate the Drop Slitter if MSF > minimum.  New corrugated logic
+                     makes this unneccessary.  Folding never needed it.
+E-W- -   04100204 E Gui Which Company
+                    Delete this menu option.  This is available via the USER button at the top of the GUI menu.  But 
+                    that option should work.
+G- - -   05230205 E GUI DB: Currency
+                    Add Currency Code to all application that affect cash.  
+                    Order Invoice History
+                    AR Invoice History
+                    Cash Receipt History
+                    Account Payabable Invoice History
+                    Account Payable Receipt History
+                    Customer File
+                    Vendor File
+                    Bank File.
+                    Company File.
+                    Each Posting Screen will display the Exchange Rate for modification.
+                    Each History File must retain the Exchange Rate that was posted.
+                    
+                    New Currency File: Country, Currency Desc. Code Alpha, Code Numeric, Minor Unit 99, Exchange Rate
+                    .  
+G-C- -   05020328 E GUI G-C-  Close Month, Add Report Logic
+                    GUI GL Close Month
+                     error  "Mismatched number of parameters passed to procedure scr-rpt.w (3234) when trying to clos
+                    e period 12/31/01.
+G-F- -   01180206 E GUI: GL Budgets
+                    GUI DB:  Accounts File.  Add another column for Budgets.  We need Budget Current Year and Budget 
+                    Last Year.  Add 13 New Budget Periods for Last Year.
+G-F-5-   06110201 E Currency File
+                    Add New Currency File Under GL File Maintenance.
+                    
+                    Description should be updateable. 
+                    
+                    First GL account Label should read.   Foreign A/P GL Account
+                    
+                    2nd GL account Label should read.    Paid A/P  Invoice Rate Variance 
+                    
+                    3rd GL account Label should read.     Foreign A/R GL Account
+                    
+                    4th GL account Label should read.      Paid  A/R Invoice Rate Variance
+                    
+                    
+                    
+                    Help should read  variance between foreign rate exchange at the time the invoice was entered and 
+                    the time that the invoice is paid.
+G-F-5-   06180205 E Foreign Currency DB Changes
+                    DB Currency and Exchange Rate to the following files:
+                    
+                    Currency File,  A/P Liability Account
+                                                 A/R Assest Account
+                                                 Paid A/P Invoioce Rate  Variance Account 
+                                                 Paid A/R Invoioce Rate Variance Account
+                                                 UnPaid A/P Invoioce Rate Variance
+                                                 UnPaid A/R Invoioce  Rate Variance
+                    Estimate Whatif Screen
+                    Quote File
+                    FG Item File
+                    Order Entry File
+                    Purchase Order File
+                    Order Price Matrix File
+                    
+                    A/P Vendor Selection File for each line item by Vendor.
+                    
+                    Order Invoice
+                    AR Invoice
+                    Cash Receipt
+                    Bank File
+G-R-1-   12170101 E GUI G-R-1 Chart of Accounts
+                    GUI Chart of Accounts convert from character L-R-1 to G-R-1.
+G-R-2-   12170112 E GUI G-R-2 Current Month Detail
+                    GUI Current Month Detail convert from character L-R-2 to G-R-2.
+G-R-3-   12170113 E GUI G-R-3 Transaction Report
+                    GUI Transaction Report convert from character L-R-3 to V-R-3.
+                    This seems to be the same as K-R-5 which is converting to G-R-8.  K-R-5 seems more dynamic, hence
+                     we may not need both?
+G-R-4-   12170114 E GUI G-R-4 GL Invoice Summary
+                    GUI Invoice Summary Report convert from character L-R-4 to G-R-4.
+                     the same as K-R-5 which is converting to G-R-8.  K-R-5 seems more dynamic, hence we may not need
+                     both?
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  11
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+G-R-6-   12170116 E GUI G-R-6 GL Posting Register
+                    GUI GL Posting Register Report convert from character G-R-6 to L-R-6.
+                    Note the Menu name change.
+                    nce we may not need both?
+G-R-7-   12170117 E GUI G-R-7 GL Posting Check
+                    GUI GL Out of Balance Registers Report convert from character G-R-7 to L-R-7.
+                    Note the Menu name change.
+                    nce we may not need both?
+G-T- -   05020330 E GUI G-T Trial Balance
+                    GUI Trial Balance
+G-U-1-   05020324 E GUI G-U-1 Journal Entries
+                    GUI GL Journal Enteries
+                    
+                    
+                    1. When adding a new journal , If you enter a date out of the current period, the period does not
+                     change to that period.  In character a message pops up to reset the period. ok
+                    
+G-U-2-   05020325 E GUI G-U-2 Journal Register
+                    GUI GL Journal Register
+                    1. After printing it to the screen, Hit close, it then prints to the screen again for some reason
+                    .
+G-U-2-   10090215 E Print to screen, form and Security
+G-U-3-   05020326 E GUI G-U-3 Recurring Enteries
+                    GUI GL Load Recurring Entries
+                    
+G-U-4-   05020327 E GUI G-U-4 Import Payroll Entries
+                    GUI GL Import Payroll Entries
+                    ------ It looks working but I'm sure how to test.
+                    
+G-W- -   05020331 E GUI G-W-1 Financial Statements
+                    GUI Financial Statements
+G-W-1-   10090201 E Print and security
+G-W-2-   05020332 E GUI G-W-2 Financial Report Maint
+                    GUI Report Maintenance
+                    
+G-W-2-   10170205 E GUI G-W-2 Financial Report Maint
+                    GUI Report Maintenance
+                    
+G-W-3-   05020333 E GUI G-W-3 Imcome Statement Ratios
+                    GUI P&L with Ratios
+G-W-3-   10100202 E Print and security
+G-Y- -   05020329 E GUI G-Y-  Year End Close
+                    GUI Year End Close
+G-Y- -   10110206 E Add new print features
+H- - -   10290208 E Helpdesk Hot Keys need F1
+                    Add F1 Lookup for Hot Keys for All Modules.  Same Lookup for GUI and Addon.
+                    Put is Alphabetic Order.  When Selecting the Module, the hot key will transfer to Helpdesk.
+                    This could be done with F1 on Module also.  ie enter TS should default key to T along with the mo
+                    dule description.
+                    E - Estimating
+                    O - Order Processing
+                    D - Data Collection
+                    T  - Touch Screen
+                    Accounts Receivable
+                    Vouchers
+                    General Ledger
+                    S Sharp Shooter
+                    I Inventory
+                    Cad Cam
+                    H  Sales History
+                    J Job Costing
+                    M Materials
+                    M- Marketing Lists
+                    Q- Quote Request
+                    Warehouse Management Offsite
+                    Later, we could make more help for two keys such as EQ - Quote file.
+                    If I simply type T, then Touch Screen should display.
+H-1- -   04220210 E GUI Period to Date Sales
+                    GUI H-1 Sales Report
+H-1- -   09100102 E GUI Job File DB Change-ROUTING
+                    Add database fields: Schedule Sequence Number (Size 999),Time and Date for each machine in the jo
+                    b file machine routing file.  This will be used to print a list by machine by job start date by s
+                    cheduling sequence number.  When the machine runs many jobs in one day, the date, time and sequen
+                    ce will be used to print the schedule.
+                    
+H-2- -   04220211 E GUI Detail sales Journal
+                    GUI H-2 Sales Report
+H-3- -   04220212 E GUI Product Category Sales
+                    GUI H-3 Sales Report
+H-4- -   04220213 E GUI Salesman Performance
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  12
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    GUI H-4 Sales Report
+H-5- -   04220214 E GUI Salesman Production
+                    GUI H-5 Sales Report
+H-6- -   04220215 E GUI Sales by customer Invoice
+                    GUI H-6 Sales Report
+H-7- -   04220216 E GUI Profit by Item
+                    GUI H-7 Sales Report
+H-8- -   04220217 E GUI Yearly Sales Volume
+                    GUI H-8 Sales Report
+H-8- -   11120202 E Output Sales Volume to Excell
+                    Move character logic to GUI.
+                    
+                    New option to Output this report into Excell.
+                    Logic will also be moved to the new Windows based software.
+                    
+                    Duplicate logic from I-R-9 Task# 03260210.  PO History report to create Excell
+                    File.  This file could then be imported into an excell spreadsheet.  Add
+                    option on  Print selection screen to output to Excell Y/N.  
+                    Have a deault file name and make updatable.
+                    This logic would be similar two F-R-B & F-R-C which download to a
+                    .csv format.
+H-D- -   12040204 E Beep when a record has notes.
+                    Erase this logic.
+                    Dont do task unless I write them up.
+H-R- -   09170207 E Sales Report, new Fonts.
+H-R- -   10100212 E Print to Screen & Security
+H-R-1-   04220219 E GUI Sales Report
+                    GUI H-R-1 Sales Report
+H-R-1-0  08220202 E New Sales Report
+                    Copy character E-R-A to H-R-10.
+                    
+                    [Description]
+                    New Multiple sort options.  Choose up to 3 sort selections: Customer,
+                    Invoice#, Invoice Date, Shipto, Shipto Zip, Order# Salesman with the letters
+                    C,I,D,S,Z,O,M respectively.
+                    
+                    Erase Print Name or Item Name? Erase Finance Charge Option? on Print Screen.
+                    Erase From Item to Item Option.
+                    
+                    Fields on print out will be Cust#,Cust Name, Sman, Shipto#, SHipto Zip, Inv#,
+                    Inv Date, Order#, Qty, Inv Amt.  Skip a line after each printed line.  Skip 2
+                    lines after each sub-total and Grand Total.
+                    
+                    Detail print 2 data lines to print.  2nd Line is the same a summary without a
+                    skipped line the first line will print.
+                    Item#, Item Name, Part Sesc, CustPart#, UnitPrice, UOM, Qty, Inv Amt.
+                    Subtotal.  Skip 1 lines after each pair of data line and skip 2 lines after
+                    each sub-total and Grand Total.
+                    
+                    Move to GUI.
+H-R-2-   04220220 E GUI Sales Report
+                    GUI H-R-2 Sales Report.  Add code.
+H-R-3-   04220221 E GUI Sales Report
+                    GUI H-R-3 Sales Report
+H-R-4-   04220222 E GUI Sales Report
+                    GUI H-R-4 Sales Report
+H-R-4-   07150210 E GUI Sales Report
+                    GUI H-R-4 Sales Report
+H-R-5-   04220223 E GUI Sales Report
+                    GUI H-R-5 Sales Report
+H-R-6-   04220224 E GUI Sales Report
+                    GUI H-R-6 Sales Report
+H-R-7-   04220226 E GUI Sales Report Sales by shipping Carrier
+                    GUI H-R-7  Sales by Shipping Carrier
+H-R-8-   04220225 E GUI Sales Report
+                    GUI H-R-8 Sales Report
+H-R-9-   04220227 E Sales by Customer Zip
+                    GUI H-R- 9 Sales Report. 
+I-C-1-   05020240 E GUI Physical Count List
+                    I-C-1 Physical Count List  
+                    Design Screen copy from character.Materials.
+                    
+                    Missing in Test, but shows in development.  Only Processing and posting show on menu.
+I-C-2-   05020241 E GUI Physical Count Processing
+                    I-C-1 Add/Edit Physical Counts
+                    Design Screen copy from character.Materials.
+                    
+                    Cannot move modem files to patch folder. OK
+I-C-3-   05020242 E GUI Physical Count Posting
+                    I-C-3 Post Physical Counts.  Edit List from Character is not needed.
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  13
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Just Convert the Posting Program, which already has edit list.
+                    Design Screen copy from character.
+                    
+                    Delete the menu option Physical Count Edit List.  ok
+                    
+                    BJ: This can't be tested until M-C-2  is completed.  I finished what I could and sent it to Jeff.
+I-C-3-   10100214 E Print to Screen & Security
+I-F- -   01020204 E GUI FG Item F1 on Est#
+                    Error message when adding an estimate number to item.Screen, Totals Screen, Page 2, Bin File whic
+                    h should include the Unit File fields and SPEC File.  Also, a new COLORS folder with all the ink 
+                    colors and coatings should be listed just like the RFQ folder.
+                    
+                    Tested: Cant Enter estimate 112 for item 10x10x10.  
+                            Cant Enter STOCK as Customer for item 10x10x10.
+                    
+                    Also Change Spec Notes to ICON
+I-F- -   01030206 E New GUI DB Field Called Ship Method
+                    GUI DB Field Called Shipped Method in FG item file.  This will be used for sets.  Assembled sets 
+                    may be shipped assembled or unassembled.  We currently have an inventory flag to update the paren
+                    t and component, now we need a new field for shipping method.  ie an assembled set may be shipped
+                     in a packaging as a set or shipped on separate pallets and even on separate trucks.
+I-F- -   01050202 E DB. Set Maint, BOM Level#
+                    Add Set Maintenance to FG Menu.  Add DB field called BOL Level to Each Line.  This will add the a
+                    bility to add multiple indented levels of bill of materials.multiple printing panels on one sheet
+                     and often a length and width partition are run side by side on the same sheet.  Add additional o
+                    ption to Add blank to a Form in corrugated sets. 
+I-F- -   02010211 E GUI DB: FG Cost Matrix
+                    New finished goods cost matrix folder identical to raw material cost matrix for defining costs to
+                     purchase finished goods items also known as farmouts. 
+                    le should hav a database field called modules so that ASI can define the module for each control 
+                    parameter.
+I-F- -   02180201 E GUI DB: Partial Pallet
+                    GUI DB Field:  Add Partial Pallet for FG Bin/Job File and other fields necessary to track pallets
+                    .  Currently, we store the total quantity and pallet count, but do not keep how many are in the p
+                    artial pallet.  In reality, there could be 10 pallets at 500 and 4 pallets at 600, but the curren
+                    t database can not handle this.   The problem is that the bill of lading can be created with the 
+                    wrong unit counts.  For example, if I receive 10 @500 and 1@ 600 to item file shows 5600 and 500 
+                    per unit.  When I create the BOL, it shows 11 @ 500 and 1 @ 100.
+I-F- -   02180206 E GUI FG DB's for Corrugators
+                    GUI DB files/fields.  New Field Called Sheet?  This will indicate that this item is a Sheet item 
+                    for corrugator plants that sell sheets. ie the width, lenght and scoring must be stored in the or
+                    der entry file.  
+                    Add new BOM file just like Raw materials for Defining Paper for Medium/Liner.
+                     
+                     FG Item and ADDERS including 10 Levels with each having Qty, UOM, Price, Setup Charge. 
+                     
+I-F- -   03070201 E Item# on Book Icon
+                    Display the FG Item# on the Notes Icon when adding notes.  This would be very helpful for sets, t
+                    andem and combo runs to verify the notes are for the correct FG item number.
+I-F- -   08100101 E GUI FG File - Notes
+                    FG Item File must be Built.  The following Folders must be created.  The Item Screen, Totals Scre
+                    en, Page 2, Bin File which should include the Unit File fields and SPEC File.  Also, a new COLORS
+                     folder with all the ink colors and coatings should be listed just like the RFQ folder.
+                    
+                    Tested: Cant Enter estimate 112 for item 10x10x10.  
+                            Cant Enter STOCK as Customer for item 10x10x10.
+                    
+                    Also Change Spec Notes to ICON
+I-F- -   12300203 E Taxable Field in FG Item File
+                    New RefTable Logical field called TAXABLE.  Add to FG Item File.   During order entry, modify log
+                    ic that looks at customer file as taxable to also look at the Finished Goods taxable flag.   Henc
+                    e, a customer may be taxable, but certain items may be tax exempt based on this flag. 
+                     
+                    We must write utility program to set all items to Taxable for Canadian clients.
+I-L-1-   05020261 E GUI I-L-1 Qty Totals By Cust\item
+                    GUI I-L-1 Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-L-1-0  05100205 E GUI I-L-10 Shipment By Customer Part
+                    GUI I-L-10 Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-L-1-1  05100206 E GUI I-L-11 Packing Detail
+                    GUI I-L-11 Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-L-1-2  10180212 E Email new FG Report
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  14
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Option to Email report using Microsoft Outlook Express .   When selecting this report from Custom
+                    er to Customer.  When selecting the Email button,  the system would verify that only one customer
+                     range is selected.   To utilize this new feature, first, the customer must create a TITLE CODE c
+                    alled Email via the top menu called codes.  Next, the customer file contacts and email addresses 
+                    must be added in the customer file in the PHONE INFO icon.   Please note, the title must be Email
+                    .   When sending this report to a customer, all contacts  with the title of Email.
+                    
+I-L-1-2  10210201 E New FG Report
+                    Copy IL11.   Add option to print by Inventory Class.   Add a single line to enter multiple codes.
+                    
+                    From Customer to Customer.
+                    Page Break by Inventory Class.
+                    
+                    BJ  They would like the customer Name to print at the top of the report when the from and to cust
+                    omer is the same name.
+                    
+                    Do not print the Job#, because they do not want multiple lines of inventory.
+                    Release Quantity- is a Blank line that their customer can write a quantity into.
+                    
+                    Date Required is the "Due date On" field on the first page of the order.
+                    
+I-L-2-   05020262 E GUI I-R-15 Unshipped FG Summary
+                    GUI I-R Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-L-2-   05100202 E GUI I-L-2 FG Daily Activity
+                    GUI I-R Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-L-3-   05020263 E GUI I-L-3 Unshipped FG Detail
+                    GUI I-R Report move to Gui Menu
+                     
+I-L-4-   05020264 E GUI I-R-17 Scheduled ship vs qoh
+                    GUI I-R Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-L-5-   05020265 E GUI I-L-5 Inventory Balances
+                    GUI I-L-5 Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-L-6-   05020266 E GUI I-L-6 FG POSTING REPORT BY DUE DATE
+                    GUI I-R Report move to Gui Menu.  Need this to verify posting transactions when testing.
+                    
+I-L-8-   05100203 E GUI I-L-8 Inventory Status By Job
+                    GUI I-R Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-L-9-   05100204 E GUI I-L-9 Reorder Advice By SHipto
+                    GUI I-L-9 Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-Q-1-   05020244 E IQ1 FG Transaction by Item
+                    I-Q FG Transaction by Item
+                    Design Screen copy from character.
+                    
+                    ert the Posting Program, which already has edit list.
+                    Design Screen copy from character.
+                    
+                    Delete the menu option Physical Count Edit List.
+I-Q-2-   05020248 E I-Q-2 GUI Scheduled Ship vs. On Hand Menu
+                    I-Q-5 Scheduled to Ship vs. On Hand.  Menu
+I-Q-2-   08050202 E I-Q-2 GUI Scheduled Ship vs. On Hand
+                    I-Q-5 Scheduled to Ship vs. On Hand.
+                    Design Screen copy from character.ert the Posting Program, which already has edit list.
+                    Design Screen copy from character.
+I-R- -   05150202 E Change Report Order
+                    Remove L-14 to L-18.  They should be moved to I-L-1 to I-L-5.
+                    Rename the current I-L-1 to I-L-6, I-L-2 to I-L-7, etc.  This will then match the current charact
+                    er report menus.
+I-R- -   09100205 E Reports fgrep
+I-R-1-   03050201 E GUI FG Reorder Report
+                    GUI Reorder Report fgrep\r-fgrord.w  Moved to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  15
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                     GL Accounts by product category. 
+I-R-1-0  05020257 E GUI I-R-10 Status
+                    GUI I-R Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-R-1-0  05130210 E GUI I-R-10 Status
+                    GUI I-R Reports works, but character and gui only print header job#.  The job number should print
+                     form the line item screen. up to Four GL Account#'s with a Percentage Field for each GL#.  This 
+                    will allow up to four sales GL Accounts by product category. 
+I-R-1-1  05020258 E GUI I-R-11 Transaction by Order
+                    GUI I-R Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-R-1-2  05020259 E GUI I-R-12 Aged inventory
+                    GUI I-R Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-R-1-2  07250202 E Changes to Aged Inventory
+                    Move Premere Pkg logic to Gui.  
+                    
+                    Modify Advantzware and new GUI Advantzware FG aging report.  New Print options
+                    called Show Cost? and Show Current?  Page Break per Customer Y/N.  Currently
+                    this report prints a separate page by customer.  No would not skip a page.
+                    When Show cost = Yes, print item cost to left of the selling value.  When
+                    option called Subtotal Value by Cust is Yes and Show Cost is Yes, the report
+                    will also subtotal the cost for each column nad grand total by customer.
+                    When Current is Yes, the report will show current columns 30,60,90,120+.  If
+                    Current? is NO, then only the 90-120 and 120+ columns will print and ONLY the
+                    items older than 90 days or older will print on the report.
+I-R-1-3  05020260 E GUI I-R-13 Nexr ship Date and Value
+                    GUI I-R Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-R-2-   05020249 E GUI I-R-2 Value cost By Whs/bin/tag
+                    GUI I-R-2 Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-R-3-   05020250 E GUI I-R-3  Alphabetic Item List
+                    GUI I-R-3 Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-R-4-   05020251 E GUI I-R-4 QTY value by Cust & Job
+                    GUI I-R-4 Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-R-5-   05020252 E GUI I-R-5 Qty OH shiped by  salesman
+                    GUI I-R Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-R-6-   05020253 E GUI I-R-6  Sales value by cust\item
+                    Reimport  report to include new Fibre and HOP Changes from character.
+                    
+                    New Option to Sort by Order Date or Due Date.   Add # of pallets after Qty on
+                    Hand and add order date or due date (depending on sort option)  as last field
+                    on the right.   Delete Type and Job# to make room.
+                    
+                    [Description]
+                    The Sales value by Customer by Item report now sub-totals by customer.  Add a
+                    grand total.  Also, move the job# to the left of the Quantity on Hand Field.
+                    This logic will also be moved to the new Advantzware for Windows software.
+                    
+                    Print Option print Job# or Total Pallets?  The original version printed the
+                    job#.  This must be added back when selection is to print JOB#.
+I-R-7-   05020254 E GUI I-R-7 Sles value by cust\tag
+                    GUI I-R Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-R-8-   05020255 E GUI I-R-8 YTD Cost/sales/by cust
+                    GUI I-R Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  16
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                     GL Accounts by product category. 
+I-R-9-   05130206 E GUI I-R-9 Manufactured Item Master list
+                    GUI I-R Report move to Gui Menu
+                     and Plant/Warehouse.  
+                     up to Four GL Account#'s with a Percentage Field for each GL#.  This will allow up to four sales
+                     GL Accounts by product category. 
+I-U- -   08290208 E Sharp Shooter Expand Tag# to 20 characters
+                    Sharp Shooter creates tag numbers that are 20 characters.  All GUI screens must be modified to sh
+                    ow the Tag as 20 characters.   Receipts, Transfers, Adjustments, Physical Counts, Release Screen 
+                    and Bill of Lading.
+                    
+                    Same changes are needed in GUI Raw Materials.
+                    Same changes needed in Sharp Shooter FG
+                    Same changes needed in Sharp Shooter RM.
+                    
+                    
+I-U-1-   04010204 E Add FG Receipt add Fields
+                    FG Receipt Screen must have Units per Pallet Column.  
+                    
+                    1) Change Qty/Unit to Unit Count                                ok
+                    2) Add field called Units/Pallet                                ok
+                    3) Screen should read.  Units, Unit Count, Units/Pallet.        ok
+                    4) Database should default Units/Pallet to 1 and should not be displayed.
+                       --->  stack per pallet is hidden.
+                    5) POST button does not update the FG File.
+                    6) F1 on Bin to Show All valid Bins for Warehouse that was selected.  This        now only shows 
+                    valid warehouses.                               ok
+                    7) Once in Add Mode, I CANCEL button does not work.  Asks for valid Bin. ok
+                    8) Total Quantity is a calcualted Only, not modifiable.  This would be Units x    Unit Count + Pa
+                    rtial Unit.                        ok
+                    
+                    9) Post Menu should default to Current date .   ok
+                    10) Post Menu should default Receipt Button, Transfer button, etc if file     contains data recor
+                    ds.                            ok
+I-U-2-   05020238 E GUI FG Transfers
+                    FG Transfers must validate From Warehouse form On Hand Bin Locations. 
+                    Must validate Item Number as Finished Goods.  
+                    This allows item 200 C.
+I-U-3-   05020239 E GUI FG Adjustments
+                    Adjustments must valid item Codes in Finished Goods.   ok
+                    Must Validate Warehouse and Bin Locations.                     ok
+                    Must validate Item Number as Raw Material.->  validate item as FG item.
+                    F1 not working on Item Number                   ok
+                    
+                    
+                    Invalid FG item number should not prompt to create the FG item in Adjustments.
+                    
+                    F1 on Job Must show only jobs for that item.  And only allow jobs for that item including a blank
+                     job number.   Simply, this must search the FG bin file.   Should work like the character lookup 
+                    on the job number. 
+                    
+                    F1 on Warehouse and Bin should only show the valid codes from the bin file.
+                    
+                    When I add one, and save, everything disappears and nothing is saved.
+                    
+I-U-5-   10040205 E FG Post to Auto Issue Materials
+                    New S-8-AUTOISSU logic to post materials when the posting finished goods
+                    rather than when the job closes.  Current logic will post the amount of
+                    material directly from the job file based on the original job quantity.   New
+                    character option to be FGPOST or JOBCLOSE.  Current logic will be JOBCLOSE.
+                    New logic called FGPOST will multiply the total finished goods quantity posted
+                    by the ratio of each component material on a job.
+                    
+                    When the job is closed or reopened, no material issues will be created when
+                    the flag is FGPOST.
+                    
+                    Please note, older logic in our system had utilized the character value as a
+                    default for the Bin location, but this logic was recently changed to default
+                    directly from the raw material bin file or item file.  Hence the old logic
+                    should not be required, however if the raw material location is blank, then
+                    the warehouse and bin must default from the Customer X warehouse and bin
+                    location.
+I-W- -   05020243 E GUI Write End of Period
+                    I-W Write End of Month
+                    
+                    Design Screen copy from character.
+                    
+J-2- -   10250203 E Close\Reopen Jobs
+                    Open Close Job Logic.  Copy from Open/Close Orders.
+                    
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  17
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Jeff to add logic to Open or Close Order.  This would update the inventory balances accordingly.
+J-L-1-   08010203 E Job Vendor Analysis J-L-1
+                    GUI J-L-1 Job Vendor Analysis
+J-L-2-   08010204 E Job Backlog by Machine J-L-2
+                    GUI J-L-2 Job Backlog by Machine
+                    
+                    BJ:  This report runs and pulls in all the correct information, but takes way to long when runnin
+                    g  all information.  Jeff is going to have to look at it.
+                    
+                    JOE:  Takes forever when selecting all jobs and all machines.  Must be something wrong.
+                    
+                    THis runs immediately when selecting just a single machine.    
+                    Nothing shows for job 533 when I select to show shipments, but the report prints when I select re
+                    ceipts.
+J-L-2-   11180204 E Job Backlog by Machine J-L-2
+                    GUI J-L-2 Job Backlog by Machine
+                    
+                    BJ:  This report runs and pulls in all the correct information, but takes way to long when runnin
+                    g  all information.  Jeff is going to have to look at it.
+                    
+                    JOE:  Takes forever when selecting all jobs and all machines.  Must be something wrong.
+                    
+                    THis runs immediately when selecting just a single machine.    
+                    Nothing shows for job 533 when I select to show shipments, but the report prints when I select re
+                    ceipts.
+J-L-3-   08010205 E Job Backlog by MSF/kicks J-L-3
+                    GUI J-L-3 JobBacklog by MSF\Kicks
+J-L-4-   08010206 E WIP by Product Category J-l-4
+                    GUI J-L-4 WIP by Product Category
+J-Q- -   11190206 E Job Inquiry.  Sheets should not be .00
+                    Eliminate decimals on Job Query.  MachQty and Waste folder buttons should show sheets rounded to 
+                    1.   It is impossible to have .5 sheets and it does not look as nice.   
+J-Q-1-   05010206 E Job Query
+                    Job Inquiry  should be same as character.  Browser should have Job#, Order#, Estimate#, FG Item# 
+                    and Job Status Code.  Folders should read Items (Same as Lines in character), Materials, Routing,
+                     Waste, Notes.
+J-R-2-   05020274 E GUI Job Cost J-R-2 Report
+J-R-3-   05020276 E GUI Job Cost J-R-3 Report
+                    J-R-3 Job Summary 
+J-R-4-   05020277 E J-R-4 Waste Analysis
+                    J-R-4 Waste Analysis    
+J-R-6-   05020278 E J-R-5 Closed Job Report
+                    J-R-5  Closed Job Analysis
+J-R-6-   09230207 E Factory ticket landscape print
+                    Factory ticket Portrait/Landscape.  Print job 575 in Landscape.
+J-R-7-   05020279 E GUI Job Cost J-R-7 Report
+                    J-R-7  Factory Ticket.  Same Program as O-U-5    d H-R-1.    Move this report to H-R if it is dif
+                    ferent.  Should not be in the data collection report menu.
+                    ow up to four sales GL Accounts by product category. 
+J-R-7-   05020280 E GUI Job Cost J-R-7 Report
+                    J-R-7  Job Cost Summary   d H-R-1.    Move this report to H-R if it is different.  Should not be 
+                    in the data collection report menu.
+                    ow up to four sales GL Accounts by product category. 
+J-R-8-   05020281 E GUI Job Cost J-R-8 Report
+                    J-R-8  Board Reconciliaton convert  from  H-R-9.    
+                    
+J-U- -   01170202 E GUI DB: GUI Job Schedule Fields
+                    Add DB fields: For each machine, add the following fields:
+                    Schedule Sequence (999),  Anchor Sequence Y/N, SU Start Date, SU Start Time, 
+                    SU End Date, SU End Time (military times),Run Start Date, Run Start Time, Run End Date, Run End T
+                    ime, Machine Status1, Machine Status2, Machine Status 3, (Clear,On Hold, W/F Board, W/F Plates, e
+                    tc).  
+                    Also Fields: Number Sheets, Number up & Number Out for each Machine to quickly calculate the numb
+                    er of run hours during sheduling.
+                    
+                    In the Machine File, add DB fields: Monday Capacity=99, Tuesday Capacity=99,Wednesday Capactiy=99
+                    , Thurday Capacity=99,Friday Capacity=99, 
+                    Saturday Capacity=99 and Sunday Capacity=99.  Valid hours will be 0-24.
+                    As an alternative, we could add Capactity Hours Jan1,Jan2,Jan3,Jan4, etc. to December 31,. This w
+                    ould allow for holdidays not worked, ie 0 Hours Capacity.  
+                    
+                    We need the die number, plate number and colors, but I would think that we can access this data i
+                    n the estimate file.  ie we cant schedule the same die for different jobs at the same time.  
+                    
+J-U- -   05020230 E GUI Commit Material To Jobs
+                    J-U Commit Materials to Jobs.  New Button on Job Material Screen called COMMIT.
+                    Also add fields called Commited Y/N and Qty Committed.     The quantity committed field is calcul
+                    ated based on the Stock UOM field for the real material versus the estimated material MRP require
+                    d.  However, the quantity committed field change be changed.    Once updated, the Committed field
+                     should change to YES.   This will then update the real material quantity committed.   If the use
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  18
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    r changes the button to NO, this will uncommitted quantity.
+                    
+J-U- -   10160208 E Job Create to Autocreate PO
+                    If OEAUTOPO character value is set to AUTO, then creating jobs directly from an estimate will cre
+                    ate a new purchase order for the board material on the job.
+                    
+                    If this is going to take more than 1 hour,  I must send quote for approval.
+                    Joe.
+M-1-1-   03250212 E GUI DB: Add Setup to Each Line item Cost
+                    DB:  Raw Materials File.  Cost Matrix file, Add Setup Charge for each quantity break line.   ie e
+                    ach quantity break could have a different setup charge.
+M-C-1-   05020231 E GUI Physical Count List
+                    M-C-1 Physical Count List
+                    Design Screen copy from character.Materials.
+M-C-2-   05020232 E GUI Physical Count Processing
+                    M-C-2 Add/Edit Physical Counts
+                    
+                    F1 on Item number bombs systems.        ok
+                    Add button shows errors if an item already exists on the screen.    ok
+                    
+                    August 27, 2002
+                    
+                    F1 on Item should only show REAL materials.
+M-C-2-   08090201 E GUI Physical Count Processing
+                    M-C-2 Add/Edit Physical Counts
+                    Design Screen copy from character.Materials.
+M-F- -   04110206 E GUI DB: Last Price Increase
+                    In Raw Material File, add Price Increased 99/99/99 field.  When running the global price increase
+                     option M-G Global Price Increase.  The first field on this program should update this new databa
+                    se field called Price Increased. 99/99/99.  This should be a date field.
+M-F- -   10070209 E Setup Charge per Quantity on Vendor Matrix
+                    We added Database fields for each quantity on the vendor matrix for estimated costs.  Please note
+                    , the current field should be applied to the first quantity.   Each quantity could have a separat
+                    e and unique setup charge.  
+                    
+                    Once defined, the estimate calculate button must be modified to utilize the new matrix setup char
+                    ges per quantity.
+M-F- -   11129901 E DB: Need Diameter field for each Tag# in the Bin File.
+                    DB: Corrugators need to take inventory by the diameter of a roll/tag number for a roll of paper. 
+                     When adjusting a roll of paper which is half used, they measure the diameter which then can calc
+                    ulate the lineal feet.  We need to display the diameter and lineal feet for each pound.
+M-F- -   11150203 E Aqueous Coating Logic
+                    Problem is that Aqueous coating does not need a plate for MR purposes.
+                    
+                    1)  If material type = V for Varnish, the ink yield fields do not display.
+                    
+                    2)  Add Ink Type for Varnish called Aqueous.
+                    
+                    3)  When estimating, if the coating is an Aqueous, then no MR hours sould be added.  
+M-F-1-   06110205 E Update RM page 2 of Folding
+                    Update 2nd Page.    Tab order should match screen.
+M-G- -   04110207 E GUI M-G Global Price Increase
+                    Move the global price increase option C-3 or M-Q Global Price Increase. 
+                    This is not on the menu. Increase. 99/99/99.  This should be a date field.
+M-G- -   05020234 E GUI RM Global Price Change
+                    M-G Global Price Change.  No material types are listed on the print selection screen.   I did pri
+                    ce change for 200 C to 200 C for stone and no prices were changed.  I think it is because the "B"
+                    oard material code was not listed.
+M-Q-1-   05020235 E GUI RM Transcation Inquiry
+                    M-Q-1 RM Transaction Inquiry.
+M-Q-2-   05020236 E GUI RM Allocated by Job#
+                    M-Q-2 RM Allocation by Job Inquiry.
+M-R- -   09170206 E Raw Material New Fonts.
+M-R- -   10100211 E Print to Screen & Security
+M-R-1-   01140201 E GUI M-R-1 RM Cost List
+                    Character C-R-1 to GUI M-R-1.yable to General Ledger Reports.
+M-R-2-   01140202 E GUI M-R-2 Reordering Advice
+                    Character C-R-2 to GUI M-R-2.
+                    F1 on Category shows Job Categories.  This should show RM Categories.
+M-R-3-   01140203 E GUI M-R-3 Inventory By Bin/Tag
+                    Nothing shows on the report.yable to General Ledger Reports.
+M-R-4-   01140204 E GUI M-R-4 Inventory By Item Name
+                    Character C-R-4 to GUI M-R-4.yable to General Ledger Reports.
+M-R-5-   01140205 E GUI M-R-5 Transaction History
+                    In GUI, I printed from 4-1-2002 to 4-30-2002.  I received and posted a receipt directly for a pur
+                    chase order for 200C, but nothing prints.  I did same test in character with estimated material a
+                    nd this prints for the same date.
+                    
+                    Post program not updating the proper bin file.  Evidently, Jeff doesn't have the ability to fix t
+                    his problem, since he gave this task back to me 4 times.
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  19
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+M-R-6-   01140206 E GUI M-R-6 Vendor Price List
+                    Character C-R-6 to GUI M-R-6.yable to General Ledger Reports.
+M-R-7-   01140207 E GUI M-R-7 Material Receipts History
+                    Character C-R-7 to GUI M-R-7.  Print from 4-11-02 to 4-11-02 and nothing prints.  I received 200 
+                    C on a PO and posted.
+                    
+M-R-8-   01140208 E GUI M-R-8 Ink By Machine
+                    Character C-R-8 to GUI M-R-8.yable to General Ledger Reports.
+M-U-2-   05020224 E GUI RM Issues
+                    Issues problems.  Errors when entering. 
+                    Post Button from Menu not reducing Qty on Hand and Qty Committed is required.
+                    Must prompt to update job file.
+                    Must prompt for Number Out for Real Sheets.
+                    Must validate real sheet is bigger than estimate sheet for by form#.
+                    Sheet/Form# must be validated against estimated form#.  
+M-U-2-   05130209 E GUI RM Post not updating Qty on Hand
+                    Add issue for Job 479, item 200C 60x80.  
+                    When adding alternative board code, system should prompt to update job file?  Then update board, 
+                    sheet width, sheet lenght, number out, etc. just like character. 
+M-U-2-   11270213 E Issue Roll Stock to Jobs
+                    New Issue Logic for Paper material.    When adding paper, the job# will not be mandatory.  
+                    Following logic would apply to all materials.     New F1 on Tag# to allow, check box to select mu
+                    ltiple tags to issue.   Once selected, the  SAVE button will transfer all the tags to the issue s
+                    creen.  Each tag number would then represent a separate line on the issue screen.     If a job nu
+                    mber is entered on the issue screen and multiple tags were checked on the tag lookup, then the jo
+                    b number would transfer to each issue line.
+                    Also, the lineal footage for each roll/tag# would transfer to the issue screen.
+M-U-3-   05020225 E GUI RM Transfers
+                    RM Transfers must validate From Warehouse form On Hand Bin Locations. 
+                    Must validate Item Number as Raw Material.  
+                    This allows item 6x6x6 which is a finished good.
+                    F1 Does not work on Item Code.
+                    Item Name does not show.
+                    
+                    Transfers do not Post.  I added Transfer for 200C50x100 for Main Floor to Main Aisle A1.
+M-U-4-   05020226 E GUI RM Adjustments
+                    RM Adjustments must valid item Codes is Real Material.
+                    Must Validate Warehouse and Bin Locations. 
+                    Must validate Item Number as Raw Material.
+                    F1 not working
+M-U-5-   05020227 E GUI RM Edit List
+                    RM Edit List xfer from character
+                    nd Bin Locations. 
+                    
+                    F1 not working ok created new f-1 BJ
+M-U-6-   05020228 E GUI Raw Mat'l Post Error
+                    M-U-6 Post raw materials is not found.  Transaction Codes such as Receipt, Issue, must default to
+                     screen.
+                    Please note, N=K=Autoissu logical value is YES, hence the Issues should also be posted.
+M-U-6-   05100224 E GUI RM Receipt PO 45 for Set
+                    Add RM Receipt for PO 45 or PO 57, which is for a Set Job 508 for estimate 394.  There are three 
+                    board materials on the PO.  The F1 on Sheet does not work.  The PO was created perfectly.  Press 
+                    F1 on Board Code and select each board material.  The system is not importing the correct quantit
+                    y, form number, sheet width or sheet length.
+M-U-7-   05020229 E GUI Delete Zero Qty Bins
+                    M-U-7 Delete Zero Qty Bins
+                    Design Screen.ue, must default to screen.
+N- - -   09090205 E Hot Key Menus
+                    Copy GUI Menu program to Addon to change hot keys for all Add On menus.
+N-F-1-   01140209 E Purge Finished Goods
+                    Character S-2-1 to GUI N-F-1.
+                    n-Order to Zero
+                    Purge GL History
+                    Purge Zero Posted AR
+                    Purge Orders
+                    Purge Quotes
+                    Purge POs
+                    FG Rebuil Bins/Reset Balances
+                    Purge Jobs
+                    Purge FG history
+                    Purge AR Invoices
+                    Purge AR Invoices
+                    Purge AP Invoices
+N-F-1-0  01140216 E FG Rebuild Bins Reset Balances
+                    Character S-2-A to GUI N-F-10.
+                    Test when FG History Working.
+                    n-Order to Zero
+                    Purge GL History
+                    Purge Zero Posted AR
+                    Purge Orders
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  20
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Purge Quotes
+                    Purge POs
+                    FG Rebuil Bins/Reset Balances
+                    Purge Jobs
+                    Purge FG history
+                    Purge AR Invoices
+                    Purge AR Invoices
+                    Purge AP Invoices
+N-F-1-1  01140217 E GUI N-F-Purge Jobs
+                    Character S-2-B to GUI N-F-11.
+                    Purge Jobs when Job File Completed.
+                    Tested by Joes
+                    Purge POs
+                    FG Rebuil Bins/Reset Balances
+                    Purge Jobs
+                    Purge FG history
+                    Purge AR Invoices
+                    Purge AR Invoices
+                    Purge AP Invoices
+N-F-1-2  01140218 E GUI Purge FG History
+                    Character S-2-C to GUI N-F-12.n-Order to Zero
+                    Purge GL History
+                    Purge Zero Posted AR
+                    Purge Orders
+                    Purge Quotes
+                    Purge POs
+                    FG Rebuil Bins/Reset Balances
+                    Purge Jobs
+                    Purge FG history
+                    Purge AR Invoices
+                    Purge AR Invoices
+                    Purge AP Invoices
+N-F-1-3  01140219 E Purge AR Invoices
+                    Test when GUI Done
+                    Purge GL History
+                    Purge Zero Posted AR
+                    Purge AR Invoices
+                    Purge AR Invoices
+                    Purge AP Invoices
+N-F-2-   01110204 E Archive/Delete Estimates
+                    Character S-2-2 to GUI N-F-2.n-Order to Zero
+                    Purge GL History
+                    Purge Zero Posted AR
+                    Purge Orders
+                    Purge Quotes
+                    Purge POs
+                    FG Rebuil Bins/Reset Balances
+                    Purge Jobs
+                    Purge FG history
+                    Purge AR Invoices
+                    Purge AR Invoices
+                    Purge AP Invoices
+N-F-2-   04010202 E GUI Purge Estimates
+                    Add Radio Button called Delete Estimates.  Now, the only button is the Archive estimates.  The us
+                    er would not know that leaving this blank would delete the estimate.  
+N-F-3-   01140210 E Set FG On-Hand To Zero
+                    Character S-2-3 to GUI N-F-3.
+                    n-Order to Zero
+                    Purge GL History
+                    Purge Zero Posted AR
+                    Purge Orders
+                    Purge Quotes
+                    Purge POs
+                    FG Rebuil Bins/Reset Balances
+                    Purge Jobs
+                    Purge FG history
+                    Purge AR Invoices
+                    Purge AR Invoices
+                    Purge AP Invoices
+N-F-4-   01150201 E Set FG On-Order to Zero
+                    Character S-2-4 to GUI N-F-4.n-Order to Zero
+                    Purge GL History
+                    Purge Zero Posted AR
+                    Purge Orders
+                    Purge Quotes
+                    Purge POs
+                    FG Rebuil Bins/Reset Balances
+                    Purge Jobs
+                    Purge FG history
+                    Purge AR Invoices
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  21
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Purge AR Invoices
+                    Purge AP Invoices
+N-F-5-   01140211 E Purge GL History
+                    Character S-2-5 to GUI N-F-5.
+                    Test When Finished GL.n-Order to Zero
+                    Purge GL History
+                    Purge Zero Posted AR
+                    Purge Orders
+                    Purge Quotes
+                    Purge POs
+                    FG Rebuil Bins/Reset Balances
+                    Purge Jobs
+                    Purge FG history
+                    Purge AR Invoices
+                    Purge AR Invoices
+                    Purge AP Invoices
+N-F-6-   01140212 E Purge Zero Posted AR
+                    Character S-2-6 to N-F-6.
+                    Test When AR Finished.n-Order to Zero
+                    Purge GL History
+                    Purge Zero Posted AR
+                    Purge Orders
+                    Purge Quotes
+                    Purge POs
+                    FG Rebuil Bins/Reset Balances
+                    Purge Jobs
+                    Purge FG history
+                    Purge AR Invoices
+                    Purge AR Invoices
+                    Purge AP Invoices
+N-F-7-   01140213 E Purge Orders
+                    Character S-2-7 to GUI N-F-7.n-Order to Zero
+                    Purge GL History
+                    Purge Zero Posted AR
+                    Purge Orders
+                    Purge Quotes
+                    Purge POs
+                    FG Rebuil Bins/Reset Balances
+                    Purge Jobs
+                    Purge FG history
+                    Purge AR Invoices
+                    Purge AR Invoices
+                    Purge AP Invoices
+N-F-8-   01140214 E Purge Quotes
+                    Character S-2-8 to GUI N-F-8.s.s
+                    Purge POs
+                    FG Rebuil Bins/Reset Balances
+                    Purge Jobs
+                    Purge FG history
+                    Purge AR Invoices
+                    Purge AR Invoices
+                    Purge AP Invoices
+N-F-9-   01140215 E GUI Sys-Clean UP Purge PO'S
+                    Character S-2-9 to GUI N-F-9.
+                    
+                    Test when PO File Exists.n-Order to Zero
+                    Purge GL History
+                    Purge Zero Posted AR
+                    Purge Orders
+                    Purge Quotes
+                    Purge POs
+                    FG Rebuil Bins/Reset Balances
+                    Purge Jobs
+                    Purge FG history
+                    Purge AR Invoices
+                    Purge AR Invoices
+                    Purge AP Invoices
+N-K-1-   02010206 E GUI Control Parameters
+                    New radio button at bottom on screen called Module.  This will sort the system control parameters
+                     by module.  The control file should hav a database field called modules so that ASI can define t
+                    he module for each control parameter.ach control parameter.
+N-K-1-   04090204 E N-K OERELEAS F1 on Character to show Lastship/DueDate
+                    The character value should be LastShip or Due Date like character.  
+N-K-1-   04090205 E N-K LASTSHIP F1 on Character to show ASI or FIBRE
+                    The character value should be Fibre or ASI.  Also, move new character logic into GUI to calculate
+                     the due date and last ship date based on Fibre task
+                    03190202.  Add order for customer ABC1000 should have last ship date equal to 90 days from order 
+                    date and due date 7 days from order date. If estimate for folding type then both days are multipl
+                    ied by decimal value of 2.
+N-K-1-   08060202 E N-K AP GL# to default via PO
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  22
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Move new option from V8 to V9 GUI.  The new  character value called vendor when logical value is 
+                    YES.
+                    
+                    Currently, when the logical value is YES, the GL account number in accounts
+                    payable imports from the purchase order, however the GL account number in
+                    purchasing imports from the material cost type file.  If the logical value is
+                    NO, then the purchase order imports the GL account number from the vendor
+                    file, however the accounts payable continues to import fromt he vendor file.
+                    
+                    New logic, when logical value is YES and character value in Vendor, then
+                    purchase order will import GL account from vendor file and accounts payable
+                    will import the GL account from the purchase order file.
+N-K-1-   09050202 E N-K BITMAP
+                    Main menu Picture Image will display any image the user would like.  The location of the bitmappe
+                    d file must be defined on the description line.
+                    
+                    The bit mapped image must be sized to fit in the window.
+N-K-1-   11080202 E N-K RMISSUE
+                    S-8-RMIssue.  Character value will be NetShts or GrsShts.  Current logic is
+                    gross sheets which utilizes the job material sheet size.  Hence, the user must
+                    enter the number of gross sheets finished.   If the character value is
+                    NetShts, then the user enters the number of sheets produced on the
+                    sheeter/slitter.  This will prompt message "Number Out on Sheeter/Slitter?"
+                    The number out will default from the estimated number out, but may be changed.
+                    The number out will divide into the calculated gross sheets.
+                    
+                    Issue 1000 EA (net sheets) for Job 7129 for estimate 8025.  The system
+                    calculates 14.418 MSF.  This should be 7.209 MSF because the production qty is
+                    net sheets.  ie sheets after the RC department.  Hence, the converted quantity
+                    must divide by the number out on the estimate. Calculation is 53.50 x 38.50
+                    job sheet size x sheets issued / 144,000 divided by number out = 7.1519095.
+                    Existing logic allows issues for stocked real rolls to enter the number of
+                    sheets finished on the sheeter, then converts the number of sheets (EA) into
+                    the consumption unit of measure (ie MSF,TON,LF).  This works perfect unless
+                    the sheeter slits the gross sheet into two.  The estimate number out is 2 x 1
+                    hence the number of MSF issues should be divided by the number out on the
+                    gross sheet.
+N-K-1-   11270209 E N-K OEITEM   Allow items for wrong customers
+                    Add new control file called OEITEM.  Allow adding wrong customer items to another customers order
+                    ?   Yes would be the current logic, which provides prompt.  If the Logical value is NO, then the 
+                    prompt would still display, however the user could not enter a YES to continue.  Only NO would sh
+                    ow and could not be changed.
+                    
+                    Mod for Loy-Lange
+N-K-1-   12040202 E N-K FGITEM# OP to create new FG Item#
+                    New N-K-FGITEM# character value called HUGHES.  This will create a default FG item# that may be m
+                    odified during estimating or order entry.  Each item will be 15 characters.
+                    
+                    First letter will default to the first letter for the product line file, hence must search by pro
+                    duct category.
+                    Next 6 characters will default to the customer 6 character customer code.
+                    Next 4 characters will be sequencial number for that customer from FG item file.  Find last and a
+                    dd one.
+                    A as default to next character.
+                    Next two will be 00 for set header or 01, 02, 03 for each component, hence parent will be listed 
+                    first.
+                    Single items not created as a set will be 99.
+                    Last character will be blank.
+                    
+N-K-1-   12130201 E N-K QUOPRINT logic for sell price in OE
+                    When QUOPRINT = FIBRE, adding new orders will not allow changing the sell
+                    price.  Also, the quote quantity must match the order quantity, otherwise the
+                    system will not allow entry of the quantity.  An error message will display
+                    that the quantity has not been quoted.  In any event, the price cannot be
+                    modified.
+                    
+                    Utilize the logical value field YES to evoke this logic.  Logical value NO will print the FIBRE q
+                    uote form but will not stop changing the price in order entry.
+N-K-1-   12170215 E N-K CUSTSIZE Integer Value to set character size.
+                    New N-K-1 Control Parameter called CUSTSIZE.  The interger value must be either 8 or 6 characters
+                    .   Default to 8.  When integer value is 6, then the new customer must be total of 6 characters. 
+                     If user enters 6 characters, system will promtp. must enter 6 characters and return to the custo
+                    mer code.
+N-K-2-   03080203 E DB: Update Help? Y/N
+                    DB Field called.  Update Y/N on the Help Fields.  This will allow users to update each field for 
+                    their plant.  When we send an update, this will not update any field that is NO for not to update
+                     help. Default to Yes.
+                    
+                    DB in Program Master called Update Y/N.  They may change the letters for each menu.  We do not wa
+                    nt to update the menus that they have changed.
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  23
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                     
+N-K-2-   05310201 E Gui Help Update via Release
+                    New Field for customer to disallow on-line documentation via new software patches from advanced s
+                    oftware.
+N-K-2-   05310202 E GUI Helpdesk
+                    I need to import 18 pages of text into the N-K-Control parameters.  Must expand help file.
+                    
+                    -------------
+                    Not available - Progress has 32K limit
+                    
+                    We need to place help on each N-K-Field Name, which is better.
+N-K-2-   09300204 E Help for Help About
+                    On the main menu, the top menu says Help.  Click this button, then click the two buttons listed.
+                    1) Help does not work
+                    2) About shows the wrong ASI version Number.   This mus be updated in the Ship DB also.
+                         Change this heading from About  to Advantzware Version.   This should be 10,10
+N-K-B-   09230201 E Help for mainmenu
+                    Login to ASI GUI.  Immediately click the F3 help.  Error System/Mainmenu.r, No detail information
+                     is available.  
+                    
+                    Set this up for John to add help text.  ok
+                    
+                    Pacific Packaging gets error Help file "help/mainmenu.htm" does not exist.  
+                      - No help menu implemented yet. use F3 key
+N-Q-1-1  12310202 E n-q-11 Util/FG-TAXED.R  To change tax code for all fg items
+                    New Utility Program  We Need Utility Program added on N-Q-11 Called  Default Tax Code for FG Item
+                    s.   Default to YES.  When then enter this, then all items in the system will have taxable field 
+                    set to YES.
+                    
+                    Without this, Canada clients orders and invoices will be wrong.   This must be run as soon as the
+                    y have this new modification.
+                    
+                    Also, add  N-Y-11  Purge Customers.   This will purge all customers history and customers from da
+                    tabase.   I will add another task. for both of these.
+N-R- -   09160206 E Util/SouthPk1
+                    Convert Util/Southpk1 to run in GUI to convert  Inventory Files.
+N-R- -   09160207 E Util/SouthPk2
+                    Convert Util/Southpk 2 to run in GUI to convert .
+                    Modify customer import.  First, Prompt purge all customers? Yes. Then reload
+                    from new database.  Also, default many fields with same data such as customer
+                    type, salesman, overrun%, underrun%, carrier, delivery zone, bundle/case,
+                    pallet, etc.
+                    
+                    10% for overrun, underrun %
+                    Customer Type? A
+                    Salesman? Pull from the master file
+                    Truck/Carrier? OT
+                    Delivery Zone? 25
+                    Bundle Code? B-25
+                    Pallet Code? Pallet
+                    Terms Code? N15
+N-R- -   09160208 E Util/SouthPk3
+                    Convert Util/Southpk 3 to run in GUI to convert  AP Vendors.
+N-R- -   09160209 E Util/SouthPk4
+                    Convert Util/Southpk 4 to run in GUI to convert  GL Accounts.
+N-R- -   09160210 E Util/SouthPk5
+                    Convert Util/Southpk 5 to run in GUI to convert  AR Ship Database.
+                    Perhaps this should be combined with Customer DB import? in Southpk2.
+N-R- -   09230205 E UTIL/UPD-BOX.p
+                    New utility to change the drive letter in the box design file that points to the image file.  Cur
+                    rently the ship database drive is an R:\RCODE\ASIIMAGE\filename.bmp.   Since the customers may ha
+                    ve many disk drives, this will change the letter from R: to F: or C: or N: or K:, etc.  The progr
+                    am will prompt the user for the new drive letter, than change the letter.
+N-R- -   10020202 E util/glprevyr.r    is missing
+N-R- -   11070206 E Util/Southpak6.r  Import OE History              ******INVOICED*******
+                    New utility to import AR History.  New file is under the clientdb folder under
+                    southpak.  The zip file is called OEARCD.zip.  We must convert the existing
+                    data from the ASCII file and slit this into numerous files for use by our
+                    existing inquiries.   This will require building index keys for the header
+                    record and the line item detail for each record.
+                    
+                    John is sending cross reference list and Paul will send a new data file with
+                    less fields unless we can test imported selected fields via John Lucas with
+                    the existing data file.  John said he does not need all the fields.
+                    
+                    
+                    Please note, the southpak file named OEARCD is the invoice line detail.
+                    the southpak file name OEARCH is the order header information.
+N-U- -   01020202 E User Folder called "Popup Menu"
+                    Each user can have run unique programs when accessing the lighting bolt icon.
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  24
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Make another Folder under N-U Users called Popup Menu.  Hence a new db field of UserID should be 
+                    added to the lighting bolt file.  Therefore, when a user clicks the lighting bolt, the program wi
+                    ll show the programs for that user.
+                    The current icon logic should be moved to this folder.  When accessing the icon during a program,
+                     the add, change, update, etc should not display.  We will need to copy a users popup menu to oth
+                    er users.
+                    ------
+                    New table : usr-menu
+                        field : user_id, menu-num.st work.
+N-Y- -   12200110 E GUI Network System File Cleanup
+                    Gui N-Y options not working:
+                    1) Update Estimate               S-2-F-1  util/updest.w    Errors
+                    2) Purge Report File             S-2-F-2  util/clearrep.w  OK
+                    3) Purge Raw Materials           S-2-F-3  util/rm-purge.w  Nope
+                    4) Update Estimate Labor Rates   S-2-F-4  util/estlabor.w  Perfect, but Slow
+N-Y-1-0  12310203 E Purge Customers
+                    New Utility Program  
+                    
+                    Also, add  N-Y-11  Purge Customers.   This will purge all customers history and customers from da
+                    tabase.   I will add another task. for both of these.
+O-B-1-   04110205 E GUI DB: BOL User ID
+                    GUI DB: BOL User Id on Header.
+O-B-1-   04160205 E Release Button doesnt work.
+                    Gui Post BOL  Release Button does nothing.  Also, BOL 146 has six items on BOL, but only 1 shows 
+                    on the posting report.  BOL print displays the BOL format type as programmning stop code.  Elimin
+                    ate that display.
+O-B-1-   04290213 E Order Invoice Problems
+                    Find Invoice in System.  
+                    1) Print Bombs.  - jeff
+                    2) Change Price is not saved.   ok
+                    3) Invoice Create via BOL post is not modifiable.  Only Price, UOM and Invoice    Qty fields are 
+                    modifable.   IE cant change Customer, FG Item, etc.  ok
+                    4) Add Misc Items is not saved.                                     ok
+                    5) Cant Add/Delete Items for Invoices created via BOL               ok
+                    6) Invoice Print Bombs System.                             Jeff
+O-B-1-   05070208 E Modify Invoice Fields
+                    Find exisiting invoice.  The Total Weight, Freight and Commission should be modifiable.  Tax, Rev
+                    enue and Cost are not.
+O-B-1-   05150203 E GUI DB: Commissions on B-4-1 Header
+                    Need Commission % field for cash sale for each salesman.
+                    Commissions are not calculated on a cash sale.  I added customer ABC and ordered 1"Tape for quant
+                    ity of 10.  No commission dollars show on the cash invoice line screen or the invoice header tota
+                    ls screen.  
+                    When I post the invoice, the commissions are on the report.
+O-B-2-   03280208 E BOL Edit Report
+                    Gui BOL Edit Report
+O-B-3-   02080241 E GUI FIBRE Invoice
+                    N-K-INVPRINT = FIBRE invoice form must be converted.
+                    Totals not printing at the bottom on invoice.OPRINT character value is not changing the print
+                       out format of the quote form.
+                       There are many custom quote forms that are not printing correctly.
+                       --
+                    
+                    3) Add new quotes must copy the NOTES from the first record in the system.
+O-B-3-   10040204 E Pacific Pkg  Invoice Print with Xprint
+                    New N-K-INVPRINT = PACIFIC.  This will print their company logo at the top of the screen.
+                    Also, print box lines and GST, PST.
+O-B-5-   03280210 E Post BOL / Create Invoice
+                    Gui Post BOL / Create Invoice
+O-B-5-   09180206 E Ship Only / Invoice Only Order should not close
+                    Move this logic from Character.
+                    If I add SHIP only release for entire quantity for Order 7100.  The invoice
+                    post will close the order.  This order should not appear on list to close
+                    order since zero dollars were ever billed.  The Close Order Option should
+                    simply exclude order from SHIP only releases.  The close procedure must check
+                    both total ship quantity and total invoice quantity to close the order.
+                    
+                    In addition, SHIP ONLY releases should create a new Actual release as an
+                    INVOICE only with the exact quantity as the qantity shipped on the ship only
+                    release.
+                    
+                    Likewise, an INVOICE only release should create an ACTUAL release as a SHIP
+                    ONLY release for the exact quantity invoiced.
+O-C- -   04090210 E GUI Credit Approval
+                    O-Credit Approval.  First browser should show status field.  Need Radio button on status feild to
+                     show all "H" status or credit held orders. Need button HOLD and RELEASE button on view folder.  
+                    Please note, all orders should appear however the initial sort should be by HOLD then APPROVED, t
+                    hen REGULAR.   
+                    
+                    This same browser could be moved for WEB Approval task, however only "W"eb status orders would ap
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  25
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    pear on that browser  Task# 05010217.  
+O-F- -   01150109 E GUI OE Price Matrix Problems.
+                    GUI File Maintenance file Global Price.
+                    1) Add new matrix for IBM10, should import Customer Type, not modifiable.
+                    2) Enter Item 10x10x10 should import FG Category.  F1 shows RM Categories.
+                    3) Not Validating Price UOM.  
+                    4) UOM does not display properly. ie EA shows EAS 
+O-F- -   02180208 E GUI DB to Order Price Matrix for Corrugators
+                    GUI DB files/fields to Order Price Matrix. Add new field called Setup for each quantity.  Also, n
+                    ew Folder called ADDERS to tie adder charges to an 
+                    individual finished good item.   Each adder will need a setup charge for each quantity and a link
+                     to the item.    This matrix would be identical to the price matrix including including the setup
+                     cost per quantity.
+                    All the costs for sheets would be cost per MSF.  Hence we will need a new Quantity UOM and Price 
+                    UOM for Finished Goods that are SHEETS?  (New FG Item Code).  The price would look at the new fie
+                    lds on the order called sheet widht, sheet length times quantity to determine the MSF total to fi
+                    nd the correct price.
+                    
+                    For example, the FG item would be 200 C.  Each price matrix would be based on the total MSF based
+                     on the order quantity times LxW /144. The order would also allow adders to the item.   
+                    
+                    
+                    DO NOT ADD TO CURRENT SCREENS!  ONLY ADD DATABASE FILES AND FIELDS.
+O-F-4-   02060209 E GUI O-F-4 Global Price Errors
+                    Global Price Change Missing from File Maintenance. 
+                    Running program shows error messages.  Array Subscripttegory.  F1 shows RM Categories.
+                    3) Not Validating Price UOM.  
+                    4) UOM does not display properly. ie EA shows EAS 
+O-I-2-   03280212 E Invoice Edit Report
+                    Gui Invoice Edit Report
+O-I-4-   03280214 E GUI Post Invoice
+                    Gui Post Invoice.  Cant Post Invoice 17.  Also account invalid keeps displaying.
+O-Q-2-   09180202 E Move OQ4 to OQ2
+                    We do not need two invoice inquires.   Delete current OQ2 and move OQ4 to OQ2.
+                    
+                    Customer Activity Inquiry is Gone.  BJ deleted the wrong inquiry.  Should be:
+                    1) Order Inquiry
+                    2) Invoice Inquiry
+                    3) Customer Activity Inquiry
+O-R- -   10100203 E Print to Screen & Security
+O-R-1-   02150206 E O-R-1 Order Backlog Report
+                    Order Backlog Report 
+                    
+                    1) Add new Logic when printing STATUS to print the Oldest Release Date and Code.
+                    2) When checking the Price/Cost, the system prompts for Password, but the box is outside the menu
+                    , hence cannot be viewed to update.   
+O-R-1-0  02150215 E O-R-10 Orders Booked by Due Date
+                    GUI O-R-10. Orders booked by Due Date.  The MSF column is wrapping around to the next line.
+O-R-1-2  02150217 E O-R-12 Order Report
+                    Order Processing Report 12.  Headings are printing bad characters in place of the / character.  C
+                    olumns not lined up.
+O-R-1-3  02150218 E O-R-13 Order Report
+                    Order Processing Report 13.  Does not print.  Error Messages Appear after I type in the password.
+                      I selected to print the profit.
+O-R-5-   02150210 E O-R-5 Order Report
+                    Order Processing Report 5.
+                    Format not lining up columns correctly.  Print Profit Yes.
+O-R-6-   02150211 E O-R-6 Commission Report
+                    Order Processing Report 6.
+                    Print for Period 4.  No OE-Cntrl record is Available Error.
+O-R-8-   02150213 E O-R-8 Order Report
+                    Order Processing Report 8.  Not formated Properly.  Printed Invoice Value.
+O-S-1-   10250204 E Combine Multiple BOL's to 1 BOL with Multiple Orders
+                    Need Ability to Combine Orders onto 1 BOL#.  Add New Button on BOL View Screen.\
+                    Validate same Shipto.   I would not worry about the carrier or date.  This will default to the Ma
+                    in BOL#.
+O-S-3-   10240212 E Midwest BOL Pagination Problem
+                    Midwest Needs BOL Form.  More than 6 items has pagination problems.
+                    Two page BOL wraps into page two.
+O-S-3-   12110206 E Inland BOL printing 2 pages
+                    Change lines per page.
+                    
+                    Entering an order range not printting correct BOLs.
+O-T- -   02120201 E Release Radio Buttons
+                    1) Add Order# and PO# radio buttons to Release File browser.  ok
+                    2) After add release in OW via order 281, the browser shows ???? on item#.
+                       When I exit and return it display fine.                    ok
+                    
+                    Browser Release # not matching Release in View Folders.
+O-T-1-   02270204 E GUI Add Release
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  26
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    O-W-1-Add release.
+                    
+                    1)  Release Browser to Sort in Descending Order#.       ok  
+                    2)  Shipto must be enter.  Now it allows blank record.  ok OK
+                    3)  F1 on Order number should sort in descending order. ok
+                    
+O-T-1-   02280204 E GUI Add Release
+                    P-U-1-PO.  Fix after Folding Single Item Done.
+                    
+                    1)  Add Job#, Status & Item Nubmer Radio Buttons
+                    2)  Add item# to Browser.                       
+                    -------
+                       Tool kit has a auto-find problem for multiple table joined query and
+                       non character type field.  Ron doesn't have a fixed program.
+                       I need to have our own version to cover this issue( 1-2 days).
+                     
+                    We need to fix for Purchasing and Order Entry.
+                    
+                       create and edit include file  ex oe/j-ord.i
+                       define browse2 on browser ex) &scoped-define browse2 oe/j-ord.i
+                       
+                       FYI)  custom/browser2.i 
+O-T-1-   02280206 E GUI Add Release
+                    O-W-1-Add release.
+                    
+                    1)  Release Number should not be a header field.  This is an order record.  The release number in
+                    creases based on the number of release per     order, regardless of how many items are on the rel
+                    ease.  Therefore, each     item on a release for an  order would have the same release  number.
+                    
+                    RELEASE NUMBER IS STILL ON THE HEADER
+                    
+                    2)  I cannot add release for ABB1000 for order 430
+                     
+                     
+O-T-1-   04100225 E Order Release Issues
+                    GUI Release Add.  Eliminate the Release# on the Header.
+                    ------  keep release# on header.
+                    Move release# logic from character header to the GUI line item per order#. Also, add Fountain Pen
+                     Icon by Header.   Also, line item needs button SELECT BIN/TAGS same as character. 
+O-T-1-   09030204 E F1 on Release Order #,  Add FG Items
+                    F1 on the order number in the release ticket, should show the FG item number / s.  This requires 
+                    making this browser shows each item for each order rather than just the order number.
+                    
+                    To make room,  Change Estimate # to Estimate.  Delete Run# label.  Change Job Number to Job# with
+                    out Run# label.   Delete the order date as it is not needed.    Expand Customer Code to allow all
+                     eight characters.   Delete NAME as this duplicates the company name.  
+                    
+                    On the Release Screen change following labels.:
+                    Quantity/Unit  into   Qty/Unit
+                    Erase Backorder # heading and truncate to 2 digits.  This should be Part of the Rel #.
+                    Expand Tag# to 20 characters.
+                    
+O-T-1-   09030205 E New Buttons on F1 on Release Order #
+                    F1 on the order number in the release ticket.  Change OK button to ORDER.   Add new button called
+                     ITEMS .   If the user double clicks or selects the ORDER button, all items on the order will imp
+                    ort.    If the user clicks the ITEM button, then only the item will import.   
+                    
+                    Also, add TOGGLE box next to the FG Item code to select individual items.   When clicking the  IT
+                    EMS  button, then all selected FG items for each order will move to the release screen.
+                    
+                    Currently, the user selects the order, then the system prompts to import all items on the order. 
+                     Move this logic to the Order Button.      We will only need that prompt, if the user manually ty
+                    pes the order number without press F1 to select orders.
+O-T-1-A  02080288 E GUI Add Release
+                    GUI Add Release. 
+                    1) F1 on Customer should only show customers with Open Orders.Order status    that is not equal t
+                    o "C" or "Z".  ok
+                    2) F1 on SHipto, but I cant get past the SHipto ok
+                    3) Carrier should default from the customer shipto file.  ok
+                    4) F1 on Order or PO should be limited to Open Orders items for that customer.
+                       ok
+O-T-2-   03280205 E Release Edit Report
+                    Gui Release Edit Report
+O-T-2-   10100213 E Print to Screen & Security
+O-T-3-   03280206 E Release Ticket
+                    Gui Release Ticket RELPRINT = Fibre.
+O-T-4-   03280207 E GUI Release Post/Create BOL
+                    Gui Release Post / Create BOL to post release and create via N-K-RELPOST.
+                    Post to create Invoice,Nothing,BOL per Release or BOL
+O-U- -   02080209 E GUI Order Entry Screen Expand
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  27
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    1) GUI order line item screen should show full screen of items.  The buttons      such as UPDATE,
+                     DELETE, etc  should be on that browser screen.
+                       ok
+                    2) The Window displaying the FG on hand, on order, available should display as    a separate sing
+                    le line at the bottom of the browser.
+                       ok
+                    3) Cursor should skip the Board PO and Board vendor. 
+                       ie go directly from PO# to Due Date. 
+                       ok
+                    4) When changing a line item PO#, system should prompt to change all items,    just like the char
+                    acter version.
+                       ok
+O-U- -   02120203 E Order Radio Buttons
+                    1) Sort by Cust# is not in order.  Sort Alpha with A at Top, Z at Bottom
+                       ok
+                    2) Order# sort Descendingeturn it display fine.
+O-U- -   02120206 E Order Line Help
+                    F3 on new line item fields have no help screen.  
+                    
+                      
+                    en.
+                    
+                      
+                    eturn it display fine.
+O-U- -   02180207 E GUI DB: Order Enter Corrugator Fields
+                    GUI DB fields.  For corrugated plants to place orders for Sheets?  
+                    IN ORDER ENTRY LINES, INVOICE LINES and INVOICE HISTORY, Add Setup Charge, Sheet Width, Sheet Len
+                    gth, Score 1-99, Adder1,Adder2,Adder3,Adder4, Adder5. When the FG Item Flag Sheet? is YES, the ab
+                    ove fields will diplay for input of the sheet size, panel sizes and adder codes.  The accumulated
+                     price will be calculated from the finished goods price matrix for each item together based on th
+                    e total MSF.  Each item's price will be based on the matrix for each item.  Please note, the adde
+                    r cost for each item may be different.   Please note, the FG item code may be 200C, hence there w
+                    ill be thousands to orders for 200C with different sheet size and scoring panels and adders.  
+                    
+                     
+O-U- -   02180209 E Add Extended Price
+                    Order Line Browser.  Add Discount and Ext Price on the Right Hand Side.
+O-U- -   03190212 E DB: New Open/Closed Status
+                    GUI DB: New Logical Indexed Field for Open/Closed Status field.  This new 
+                    field would be used to display open or closed orders only.
+O-U- -   10140203 E Change F-1 lookup on est# to desending order on header and item screen
+O-U-1-   02110208 E Browser Broke
+                    1) Click order entry.  Immediately type 280 for order# 280 and error message      appears.
+                       ----
+                       Tool kit does not handle autofind key for integer data type.
+                       User has to a enter value in Autofind and press enter key to find the    record.
+                      
+                    2) Add item, then Cancel should not create a Line.  ok
+                    3) Sort Browser Order Number Descending.  Highest Number First.  ok
+                    
+                    the price should be based on 150 for each item, only when the customer field AUTOREPRICE is YES.
+                    
+O-U-1-   02110211 E Orders not using Price Matrix
+                    1) Order 280 for ATT 10x10x10.  Change the quantity does nothing to price.
+                       This should use the Price Matrix. OK
+                    2) PRICE button should also import prices for each item from the price matrix.
+                       OK
+                    3) When adding 50 10x10x10 and 50 8x8x8 and 50 12x12x12, the price should be      based on 150 fo
+                    r each item, only when the customer field AUTOREPRICE is       YES.  This will group by FG Produc
+                    t Class.  X is unique class, Y is unique    class and Z is unique class.  Everything else is cons
+                    idered the same class.
+                     There could be a W unique class as well, but I cannot remember the ARGROV mod  from 4 years ago.
+                      OK
+                    
+                    4) Add order for IBM, the shipto prompt only prompts for IBM10B.  It must show all the shipto cod
+                    es.  ok
+                    
+                    5) Change OK button in order lines to SAVE in update/add mode            ok
+                       and to DONE in view mode                                                                      
+                       
+                    6) Add Line item 6x6x6 then OK/Save.  No Price imports not warning on wrong
+                       customer, etc.                       ok
+                    7) F1 on Salesman Code does not work.   ok
+O-U-1-   02220204 E Order Enter Bugs
+                    1) Update order with new due date and last ship date, SAVE does not save.  ok
+                    2) Add order, date must be after current date.               ok
+                    3) Add order for ABB1000.  Ship date defaults to ABB1001.  Should be same as      bill to.  ok
+                    4) View Folder.  Back ARROW Buttons have no focus.  - tool kit issue
+                    5) Item Folder, F1 on Estimate should only show estimate for that Customer. ok
+                    6) Item Folder. Dates cannot be before current date.          ok
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  28
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    7) Item Folder.  Priority Field missing RUSH, ASAP, MUST,NB4, HOT, etc.  ok 
+                    8) Find Order 385, Release Folder.  Delete 2nd Release. Add new release with    new date and erro
+                    r displays release exist.  Since its a different date the error should not appear.   ok
+                    
+                      
+                    
+                    ear.   ok
+                    
+                      
+                    
+O-U-1-   02280201 E Broswer modification
+                    1) Comment out, we will add back later when doing Folding.  est#,Job#      
+                    2) Order Browser Job# to show Job# from Item Screen.     ok
+                    3) Add Item# to Order Browser.                           ok
+                    4) Add Job# and Item# Radio Buttons.                     ok
+                    
+                    Update Browser so Job# radio button works from the item screen.
+O-U-1-   04100226 E BOL Create issues
+                    BOL See Support Notes
+                    rom character header to the GUI line item per order#. Also, add Fountain Pen Icon by Header.   Al
+                    so, line item needs button SELECT BIN/TAGS same as character. 
+O-U-1-   04110203 E Gui DB: Order Entry User ID
+                    GUI DB: User Id on Header and Line Item Screen.
+O-U-1-   04110204 E GUI DB: Order User ID & Email
+                    GUI DB: User Id on Header, User Id on Line item and Email Address on Header.
+                    Also Email Contact Name.
+O-U-1-   05100213 E + Icon in Order Entry
+                    Add + icon to order entry similar to estimating. This will take you directly to add mode. Perhaps
+                     you can show Julie & BJ how to add to each transaction process?
+                    
+                    Also, Save to go immediately into line item add mode.
+O-U-1-   07240201 E Move Quoted Price Logic from V5.11
+                    When N-K-QUOPRINT = FIBRE, the quantity must match the quoted quantity and the sell price cannot 
+                    be changed.   This was done on character task 07160201.  Move to GUI.  Original price was quoted 
+                    for both packages.  
+                    
+                    When QUOPRINT = FIBRE, adding new orders will not allow changing the sell
+                    price.  Also, the quote quantity must match the order quantity, otherwise the
+                    system will not allow entry of the quantity.  An error message will display
+                    that the quantity has not been quoted.  In any event, the price cannot be
+                    modified.
+                    
+                    This logic must be be moved to the new GUI software system.
+O-U-1-   10070210 E Taxable Customer should default items to Taxable
+                    When adding an order for either an estimate or stock items,  if the customer code is Taxable or t
+                    he order header is defined with a TAX code, then all the items should default to taxable.  Likewi
+                    se, the misc.  charges and freight charges should also default to taxable if the order control fi
+                    le fields Charge tax on freight and Charge Tax on prep charges are taxable yes as defined with a 
+                    Check.
+O-U-1-   10110208 E F1 on Est# on Header - Add Radio Buttons
+                    F1 on Estimate number on the order header has to search for customers.  Hence add radio buttons c
+                    alled Cust# and Cust Name.    You will need to add the Customer Name to the browsers as well.
+O-U-1-   11070207 E Adding line items slow.
+                    Once orders increase to 1000's, adding line items is very slow.
+O-U-1-R  05020308 E GUI Order Add Release Text
+                    When adding a new order or a new scheduled release, the Customer Shipto Notes for IBM1000 are not
+                     transferring to the Notes Folder            ok
+                    Also, the relese notes should transfer to the Bill of Lading.   ok
+                    
+                    Notes may be modified on the Order, Release and Bill of Lading.  The notes should print on all bi
+                    ll of lading forms.  Print only 4 lines as the character version does.
+                       BOL printed with Brick form.
+O-U-1-R  05090209 E N-K-OERELEAS Due Date or Last Ship Date.
+                    Add new release for any item.  The N-K-OERELEAS logic is not used.  No matter what the character 
+                    value, the due date defaults to the last ship date from the header screen.  The default should be
+                     Due Date or Last Ship Date from the Line Item Screen. If logical value is NO.  No releases shoul
+                    d be created at all when adding a new order.ease with Due Date from the Line Item Screen.
+O-U-2-   02140204 E GUI B-1-2 Order Edit List
+                    Make Order Edit List Work
+                    
+                    yable to General Ledger Reports.
+O-U-3-   02140205 E GUI O-U-3 Order Posting
+                    Change this to Purge Deleted Orders.
+                    Comment all code except code to Purge Delete Orders.
+                      
+                    This Post Logic is not Required any More.
+                    The only good logic, is that when orders are deleted they still exist with a Delete Status.  The 
+                    Post Logic Shows a list of Deleted Orders before purging.
+                    The Report is 
+O-U-4-   09130203 E Acknowledgements.
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  29
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Empire is the main one to be done for pacific.
+O-U-4-   10300205 E E-mail capability on Order Acknowledgement Form
+                    Atttachment does not show Xprint file.   Characters not formatted properly.
+O-U-5-   09090203 E XPRINT for BRICK Job Ticket
+                    N-K-JOBCARDC  = RFC Job Ticket form must be converted into XPRINT graphic.
+                    This will print from the bitmapped picture of a box design as a replacement to the current text b
+                    ox.    We will need the ability to type text on the picture if possible.   
+                    
+                    Ideally, the job ticket will print the bit mapped picture if it exists on the estimate, otherwise
+                     this will print the curren text box design.
+O-U-5-   09160204 E Brick Job Ticket to Print Metric
+                    Job Ticket to Print Metric Dimensions in place of the imperial dimensions when the estimate field
+                     called Metric is YES.   This must convert the feet and inches into the metric equivalent.  Pleas
+                    e note, the corrugated dimensions now print in 16'ths such as 8.08 but the database should be sto
+                    red as 8.50.  The 8.50 is the dimensions that must be converted. 
+                    
+                    JobCardC = BRICK.  Change machine description to print machine code.  When
+                    JobcardC=Brick, the Metric flag on the estimate will be updateable.  When this
+                    flag is YES, then the job card will print metric dimensions in place of the
+                    current 16th's of inches.
+                    
+                    Also, to right of box design description print CorrDir: Vertical or
+                    Horizontal.  Truncate box description to print spaces so that the box design
+                    number prints then the description without the label description.  When page
+                    two Rev Corr is NO, then the word Vertical will print.  When Rev Corr is YES,
+                    then the word Horizontal will print.
+                    
+O-U-5-   09180204 E Job Ticket Enhancement
+                    Job Ticket changes.   Erase panel and score headings.  Indent each panel one column.
+                    Also, many older clients when converted, the designs will be text only.  Print the # - and | rath
+                    er than convert.   They will have to convert into images, otherwise just the text will print.
+O-U-5-   11080203 E JOBCARDC in Landscape
+                    Jobcardc should only have ASI as an option.   This will print with Xprint is either landscape ro 
+                    protrait.    The font should not be modifable.  This should simply click portrait or landscape.
+                    The font and lines per inche should not be updateable.  This just creates support calls and probl
+                    ems.  
+                    
+                    Landscape mode does not fit on the page.
+O-U-5-   11080204 E Pacific Job Ticket
+                    New JobcardC = Pacific.  Box Design will print exactly like the new format..  The arrows that cur
+                    rently display will not print.    The arrows printing inside the box will not print either.   All
+                     other data should print as shown.   
+                     
+                    The notes will print on page two.  Ship Notes will be separated from the Manufacturing Notes by a
+                     skipped line similar to a paragraph is spaces.
+                     
+                    Data will print in a fixed text font identical to the current factory ticket prints.   All labels
+                     will print in a small font similar to the sample ticket.
+                    
+                    We cannot print mulitple font types for the data fields, otherwise this must be quoted on a time 
+                    and material at $100 per hour.    Data fields must be fixed fonts.   ie a 1 an W take up the same
+                     space.  Please advise.
+                     
+                    Tticket will prints both Part number and Set.
+                    
+                    Depart Notes will print on second page.
+                    
+                    Ship Notes will Print on Second Page. 
+O-U-5-   12030209 E Pacific Pkg Job Card.  Add Line between Page two Notes
+                    Print line accross page to separate Department Notes from Spec Notes.
+                    Also, horizontal lines not printing on his printer.
+                    
+                    Spec Notes only printing 1 line on job ticket.  Print Job 637.  Note the notes stop printing.
+                    
+O-U-7-   12100111 E LoadTag Creation
+                    Convert from character.  Screen developed, but not errors appear.  No file is created.  
+                    
+                    How much longer would it take to create Excell spreadsheet file rather than ASCII file?  The load
+                    tag program would then pull from the file.   The benefit is that the user could modify this file,
+                     before printing via Bar One or Bar Code Label.
+O-U-8-   10180202 E Create Load Tags by Job# or Order#
+                    Allow creating load tag file for either orders or stock job numbers such as S729.  This will need
+                     to find the bundle count and pallet count from the estimate.
+O-U-8-   10310201 E Shipping / Bills of Lading Menu
+                    Create Menu.
+O-U-9-   10290212 E O-U-9 FG Purchased Requirements
+                    Purchased Requirements Report.
+                    
+                    This will print a list of items on new orders that have a status field set to purchased in the fi
+                    nished goods file.   This report was written to provide a sheet for ordering farm out items that 
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  30
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    are not going to be manufactured.  Once this report is printed, the items will not print again, u
+                    nless the REPRINT option is selected.
+                    
+                    Manufactured items which are created from estimates will generate a job ticket, however finished 
+                    goods items that are purchased, such as farm outs, do not generate a job ticket.  This report dup
+                    licates the paperwork that should be given to a purchasing agent to buy the items.
+                    
+                    Alternatively, some clients print the order acknowledgment, however that is not as exact.  For cl
+                    ients that sell many stock box and distribution items, this report may be cumbersome.  The best r
+                    eport for those type of orders, would be the reorder advise report, which prints out only the ite
+                    ms that fall below the reorder level.   Thus, many orders for the same item would only require a 
+                    new purchase order when this level fell below the reorder level.
+O-U-I-   02130215 E Order Line Screen Buttons
+                    1). Need new Folder called FG File.  When clicking, item will go directly to 
+                        that Item in the FG item File.  Same as character version.  ok
+                    2)  New Folder call MATRIX.  This will do directly to Price matrix.  ok
+                    3)  The BOOK Icon at the top of the Item Screen not working.  
+                        This should go directly to the FG item Spec File.  Exact same logic as         Estimating Boo
+                    k Icon.                                              ok
+                    
+                    
+O-U-I-   02140206 E Order & Estimate SPEC Notes
+                    1) The BOOK Icon at the top of the Item Screen must update the same file the    the FG Spec Note 
+                    File.
+                       This should go directly to the FG item Spec File.  Exact same logic as         Estimating Book
+                     Icon.                                            
+                    
+                    Find Order 280, click 10x10x10 and Book Icon.  Then go to FG file and the notes are not there.  T
+                    his is not unique by Order #.  This must update the same file in each module.
+O-U-R-   05070211 E GUI Order Ship Notes
+                    Find Order 500. Press Ship Notes.  The notes extend accross the page, but only 1/2 the page can b
+                    e entered.  Minimize the length of each field.
+O-U-R-   05090205 E GUI Item Screen Buttons Missing
+                    Add BOL and RELEASE button to Item Screen.   Move all the logic from Release folder for these but
+                    tons to Item folder.  Modify Release folder BOL and RELEASE button to only process the selected i
+                    tem.ered releases via order release file must also delete the actual release from the Order Ticke
+                    t Release file.
+P- - -   01020311 E Fax / Email Logic for Purchasing Module
+                    1) Forms
+                    2  Reports
+P-1-1-I  03250211 E GUI DB: Add Setup to Each Line item Cost
+                    DB:  Add Setup Charge field for each purchase order line item.
+P-Q-1-   05020286 E GUI P-Q-1 Purchase Order Inquiry
+                    GUI Purchase Order Inquiry nothing transfers to the line item screen of the PO including job#, sh
+                    eet size, number of sheets, cost/msf, etc..  
+P-R- -   09170204 E Purchase order reports, new Fonts.
+P-R- -   10100206 E Print to Screen & Security
+P-R-1-   05020287 E GUI P-R-1 Sheets on order report
+                    GUI Purchase Order Report
+                    Must print Customer or Vendor Name. nothing transfers to the line item screen of the PO including
+                     job#, sheet size, number of sheets, cost/msf, etc..  
+P-R-2-   05020288 E GUI P-R-2Scheduled Receipts
+                    GUI Purchase Order Report nothing transfers to the line item screen of the PO including job#, she
+                    et size, number of sheets, cost/msf, etc..  
+P-R-3-   05020289 E GUI P-R-3 PO FG/RM history.
+                    GUI Purchase Order Report nothing transfers to the line item screen of the PO including job#, she
+                    et size, number of sheets, cost/msf, etc..  
+P-R-3-   05210202 E GUI P-R-3 PO FG/RM history.
+                    GUI Purchase Order Report nothing transfers to the line item screen of the PO including job#, she
+                    et size, number of sheets, cost/msf, etc..  
+P-R-4-   05020290 E GUI P-R-4 Materials requied for job
+                    GUI Purchase Order Report nothing transfers to the line item screen of the PO including job#, she
+                    et size, number of sheets, cost/msf, etc..  
+P-R-4-   11190207 E P-R-4 missing Print by Size
+                    Character version has option to print by size.   Gui is missing this very important feature.  Thi
+                    s helps to consolidate purchase orders for board.
+P-R-5-   05020291 E GUI P-R-5 PO Purchase Variance
+                    GUI Purchase Order Report nothing transfers to the line item screen of the PO including job#, she
+                    et size, number of sheets, cost/msf, etc..  
+P-R-6-   05020292 E GUI P-R-6 Vendor Analysis
+                    GUI Purchase Order Report nothing transfers to the line item screen of the PO including job#, she
+                    et size, number of sheets, cost/msf, etc..  
+P-R-7-   05020293 E GUI P-R-7 PO Receipts not Vouchered
+                    GUI Purchase Order Report nothing transfers to the line item screen of the PO including job#, she
+                    et size, number of sheets, cost/msf, etc..  
+P-R-8-   05020294 E GUI P-R-8 Shipment Approval Report
+                    Recreate entire report so that we import  new changes from character task 08210205.
+                    
+                    [Description]
+                    Need new fields and new print selection on shipment approval report.
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  31
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Print First Machine Operation?  This will print the first machine from the job
+                    routing file. This will print in place of the underline to the right of the
+                    Sht L field.  Make the heading MACH  bj/ok
+                    
+                    Print First Release Date?  This will print in place of vendor field.  This
+                    will print the first release from the either the actual release or scheduled
+                    release file.  Make the heading DUE.
+                    
+                    Also, print the heading Units above the ____  to the right of Vendor.
+                    
+                    Add option of report Drop decimals on Qty Order?
+                    Page Break by Vendor and print vendor at the top of the report.
+                    
+P-R-9-   02140207 E PO History by Receipt by Customer
+                    Move to new Advantzware for Windows Version 10.
+                    New P-R-9. (From Customer Order Entry Screen if job is for order), Receipts Date, Item Name (ie 2
+                    00C), Width, Length, PO Qty, PO Cost.   Please note, there may be multiple receipts for each PO, 
+                    hence multiple lines could print for each receipt date.  Add Date Range to Report Selection, PO R
+                    ange to Selection Screen.  Also, add Material Types for selection of any material type.  Default 
+                    to "B"oard.  
+                    This logic will also be moved to new Advantzware for Windows Version 10.
+                    New P-R-9 perhaps
+P-U-1-   02270205 E GUI Add Release
+                    P-U-1-PO.
+                    
+                    1)  Release Browser to Sort in Descending Purchase Order#.   ok
+                    2)  Add Job#, Status & Item Nubmer Radio Buttons             ok
+                    3)  Add item# to Browser.                                    ok
+                    -------
+                       Tool kit has a auto-find problem for multiple table joined query and
+                        non character type field.  Ron doesn't have a fixed program.
+                       I need to have our own version to cover this issue( 1-2 days).
+P-U-1-   05010204 E Add PO F1 on Job not importing
+                    Add PO, type item 200 C, then F1 on Job#.  Select job 486 and double click and nothing transfers 
+                    to the line item screen of the PO including job#, sheet size, number of sheets, cost/msf, etc..  
+P-U-1-   10160204 E PO Cost for Real Sheets
+                    Add PO for Stone for a stocked sheet such as 200C 60x80.   Enter a quantity and the cost should i
+                    mport from the raw material estimated cost matrix for that vendor.
+P-U-1-   11190215 E PO to import FG Matrix with Setup/Freight Cost
+                    First, we will add a new FG cost matrix by vendor similar to the raw materials cost matrix.  This
+                     will be for use in purchasing Finished Goods.  This matrix will have a setup charge next to each
+                     quantity.  The setup charge label will read,  Setup/Freight Charge.    When adding a purchase or
+                    der, the program will select the correct cost for the finished good item for the vendor on the pu
+                    rchase order.   The unit of measure on the cost matrix will be used as the Purchased UOM if the m
+                    atrix is defined for the vendor on the purchase order.
+                    
+                    The Purchase Order will print the Unit Cost of the Item and Print a Separate Cost for the Setup/F
+                    reight Charge, however the view screen in the po will total the cost each plus setup charge into 
+                    a total cost per the unit of measure.
+                    
+                    The FG receipt program will import the cumulative cost per unit of measure on the purchase order.
+                       This unit of measure must be converted into the consumption/stock unit of measure.  It must be
+                     either EA or M for finished goods.  Please note, the FG cost matrix could be entered as MSF for 
+                    farmouts for boxes, hence the MSF cost must be converted into cost per EA or /M.
+                    This cost will include the freight or setup charge.  The item totals screen will house the total 
+                    width, lenght and square feet per item.
+P-U-2-   05020282 E GUI P-U-2 Purchase Edit List
+                    GUI Purchase Edit List nothing transfers to the line item screen of the PO including job#, sheet 
+                    size, number of sheets, cost/msf, etc..  
+P-U-3-   05020283 E GUI P-U-3 Print Purchase Order
+                    GUI Print Purchase Orders nothing transfers to the line item screen of the PO including job#, she
+                    et size, number of sheets, cost/msf, etc..  
+                    
+                    PO Print 
+                    source\porep\r-poprnt.w
+P-U-3-   08220201 E Fibre PO to print Freight and Download
+                    Fibre PO format to Print the Freight Cost.  
+                    Also, all changes for downloading to CTI scheduling must be included.
+P-U-3-   09110205 E Purchase order forms with new fonts.
+                    Purchase Order Forms to print with new fonts, Landscape or Portrait. 
+P-U-4-   05020285 E PU4 Close / ReOpen Purchase Orders
+                    Combine Closed PO's and Reopen PO's.  Must have a radio buttuon for status to sort by Closed or O
+                    pen PO's.  
+                    
+                    GUI Close Purchase Orders nothing transfers to the line item screen of the PO including job#, she
+                    et size, number of sheets, cost/msf, etc..  
+                    
+                    GUI Reopen Purchase Orders nothing transfers to the line item screen of the PO including job#, sh
+                    eet size, number of sheets, cost/msf, etc..  
+                    
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  32
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    To be fixed in GUI
+                    Date range when closing a range of PO, does not look at the ending PO#.  For example if I close f
+                    rom PO 70-80 which were in may 2000, but selceted a date range of 01/01/01 to 12/31/2002, every s
+                    ingle PO got closed in that date range.
+                    
+                    TO JEFF:   Just need to add CLOSE and REOPEN buttons with programming logic to update inventory.
+R-F-Q-   12030203 E New Request for Quote Module
+                    Install Request for Quote module at Pacific Packaging over the modem.
+S-8- -   04060201 E CEMENU = FOLDWARE
+                    GUI CEMENU= Foldware.  The Machine file is missing from the estimate file maintenance.  Also, sta
+                    cking pattern and stacking matrix should be excluded when only Foldware is selected.
+                    
+                    April 8.  Corr Routing should not be on Folding Estimate Maint.
+S-8- -   04100224 E BOLWHSE = FIFO Logic
+                    MOVE new FIFO logic to GUI code to BOL and RELEASE buttons in order entry.  
+                    BOLWHSE current values are Shipto and FGBIN.  FGBIN currently imports multiple jobs when the job#
+                     is blank.  Add new option called FIFO. This will work just like FGBIN, however when the job# is 
+                    on the order, the Bill of Lading will import from the first job# to the most current job# until t
+                    he release quantity is fulfilled.   It would be possible that the actual job# on the order may no
+                    t be shipped on the Bill of Lading if previous jobs quantity on hand could fulfill the orders rel
+                    ease quantity.   PLEASE NOTE, if print copy changes are made between jobs, it would be possible t
+                    o ship the wrong item.  
+                    
+                    Tested with IBM estimate 408.
+S-F-1-   08080201 E Convert Sharp Shooter to GUI FG
+                    Sharp Shooter buttons should run new GUI.  TAG NUMBER = 10001FGITEM, 10002FGITEM
+                    
+                    1) Enter/Enter receipts should run exact same program as GUI FG receipts.
+                    2) Enter/Enter transfers should run exact same program as GUI FG transfers.
+                    3) Enter/Enter adjustments should run exact same program as GUI FG adjustments.
+                    4) Enter/Enter physical counts should run exact same program as GUI physical count.
+                    ----------------
+                    5) SCAN button to update GUI Receipts,transfers, adjustments & physical count.
+                    6)  Invalid Scanned number.  Close should exit.   There is no way to escape.
+S-S- -   08080202 E Convert Sharp Shooter to GUI BOL
+                    Sharp Shooter BOL buttons should run new GUI BOL.
+                    
+                    1) Enter/Enter BOL should run exact same program as GUI BOL.
+                    2) SCAN BOL to update GUI BOL.  ??
+                    
+                    3) POST BOL to run GUI Post BOL program.
+                    
+                    4) After scanning tag number, validate the order#, FG item number.  Make sure that order is for v
+                    alid posted release, FG item is on order and Tag number was not added already on the new BOL.   I
+                    f everything is valid, immediately update the new BOL and prompt for the next TAG#.
+                    
+                    5)  We must have a Reset button to erase the invalid tag number. 
+                    
+                    6)  The scan tag allows scanning the same tag, again and again and again. 
+                    
+S-S- -   08080203 E Convert Sharp Shooter to GUI RM
+                    Sharp Shooter buttons should run new GUI raw material transactions.
+                    
+                    1) Enter/Enter receipts should run exact same program as GUI RM receipts.
+                    2) Enter/Enter issues should run exact same program as GUI RM Issues.
+                    3) Enter/Enter transfers should run exact same program as GUI RM transfers.
+                    4) Enter/Enter adjustments should run exact same program as RM adjustments.
+                    4) Enter/Enter physical counts should run exact same program as GUI physical count.
+                    --------
+                    5) SCAN button to update Raw Goods GUI Receipts,transfers, adjustments & physical count.
+                         not done yet.
+                    
+T- - -   11270212 E Reset Button on Touch Screen
+                    V8 and V9.  When a computer is dedicated to one machine, the job data collection screen is the on
+                    ly screen displayed most of the day.   The time does not update automatically.   The button on th
+                    e bottom left should reset the time when pressed.   This would stop the operator from exiting the
+                     touch screen then accessing the file again.
+V-B-1-   05020309 E GUI V-B-1  Build Payment Selection
+                    GUI Build Vendor Payment by Due Date.
+                    Create line record automatically when create header.  Error with check number, need to put onto h
+                    eader.
+                    
+                    ---------------
+                    Yoosun must add ICON to display the Currency Code and Update the Exchange Rate.
+                    The currency will import from the vendor file for each vendor.  The current currency rate for tha
+                    t vendor will import from the currency file.  
+                    
+                     1  Do not update paid or balance due fields. 
+V-B-2-   05020310 E GUI V-B-2  Build Payment Selection by Vendor
+                    GUI Build Vendor Payment by Vendor
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  33
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    
+                    Yoosun must add ICON to display the Currency Code and Update the Exchange Rate.
+                    The currency will import from the vendor file for each vendor.  The current currency rate for tha
+                    t vendor will import from the currency file.  
+                    
+                    1. The paid and the amount due field and paid field keep changing figures everytime you exit and 
+                    go back in .  See me
+V-B-3-   08020201 E GUI V-B-3  Build Payment Selection Register
+                    GUI Build Vendor Payment Register
+                    
+                    Yoosun must add logic to post the Foreign Currency Code (currency not equal to the company file c
+                    urrency)  to the A/P Liability general ledger account in the currency file at the exchange rate h
+                    oused in the vendor selection register.   Please note, the rate difference between the exchange r
+                    ate on the invoice and the exchange rate on the payment selection file will be posted to the PAID
+                     A/P Exchange Rate Variance GL account.
+V-C-1-   05020312 E GUI V-C-1  Check Processing
+                    GUI Print A/P Checks
+                    
+                    Character Task 1222101110 New Middlesex check format.  Currently using format "ASI".  Copy ASI fo
+                    rmat and create new Middlesex format. Need only a few minor changes with some fields moved over a
+                     couple spaces. Also add field on bottom left of check to fill in the
+                    reference added to vendor file in mod#12210109. Allow to print a negative
+                    check amount on check.  It now prints ??????.  Same Issue as Fibre?
+                    
+                    ---------
+                    1. need default bank code on screen.
+V-C-1-   08190208 E GUI V-C-1  Check Processing new print format, security
+                    GUI Print A/P Checks
+                    
+                    
+V-C-2-   05020313 E GUI V-C-2  Manual Checks
+                    GUI  Manual Checks  Screen  from ASI
+                    
+                    
+                    
+V-C-3-   05020314 E GUI V-C-3  Check Register
+                    Program not Found.  Move to Test
+                    Check Register
+                    
+                    1. Get error when posting automatic checks.  "No banks record is available (91)"
+                    
+                    2. Each time you print to screen and don't post.  The grand total keeps doubling.
+V-C-4-   05020315 E GUI V-C-4  Void Checks
+                    GUI Void Checks 
+                    Error on check amount-need to add field     ok
+                    Need to add void field on viewer.          ok
+V-C-5-   05020316 E GUI V-C-5  Void Check Register
+                    GUI Void Check Register 
+V-C-5-   08060201 E GUI V-C-5  Void Check Register
+                    GUI Void Check Register
+                    
+                    
+                    
+                    4. Not reversing the G/L entries.  Should debit cash acct and bank file for the check amount     
+                     and credit A/P for the    invoice amount.
+                    
+V-F- -   01020201 E Mod for New Field "Check Memo"   Invoice when they upgrade to GUI
+                    Print material types W and F on the quote form.
+V-F- -   05070209 E GUI DB: Vendor Overrun%, Underun%
+                    Gui DB:  Add overrun% anad underrun% to vendor file.
+V-F- -   12110207 E No Freight account default
+                    In AP Control File,  Add default freight account similar to  character screen.    
+                    The screen should also have a default field for the account number for freight expense.  The acco
+                    unt is missing from the screen.  See character screen.
+V-F-1-   07180203 E Make currency field wider
+V-L-1-   05020320 E GUI V-L-1 Cash Disbursments
+                    GUI Cash Disbursments
+                    
+V-L-2-   05020321 E GUI V-L-2 Cash Disbursments Register
+                    GUI Cash Disbursments  Register
+                    
+V-L-3-   05020322 E GUI V-L-3 Cash Disbursments Report
+                    GUI Check Register Import
+V-Q-1-   05020323 E GUI V-Q- AP Inquiry
+                    Display not in order.  Not displaying CR/DB memos
+V-R- -   09130201 E AP Reports
+                    AP Reports with new Font Logic for Landscape or Portrait printing. 
+V-R-1-0  12170111 E GUI V-R-10 Vendor 1099 Report
+                    GUI Vendor 1099 Report convert from character K-R-B.  This will be V-R-10.
+                    
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  34
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    .
+                    
+V-R-2-   01100203 E GUI V-R-2 Cash Requirements
+                    GUI Cash Requirements Report convert from character K-R-2.  This will be V-R-21.
+                    Test when AP invoices can be posted.
+                    
+                    1. report is wrapping on screen in portrait and landscape mode.
+V-R-3-   12170103 E GUI V-R-3 Vendor Analysis Report
+                    GUI Vendor Analysis Report convert from character K-R-3.
+V-R-4-   12170104 E GUI V-R-4 Vendor List Report
+                    GUI Vendor List Report convert from character K-R-4.
+V-R-5-   12170106 E GUI V-R-5 Mailing List Report
+                    GUI Mailing List convert from character K-R-6.  This will be V-R-5.
+                    Make the Destination Field two toggle boxes called ASCII File & Labels.
+V-R-6-   12170107 E GUI V-R-6 Monthly Tax Report
+                    GUI Monthly Tax Report convert from character K-R-7.  This will be V-R-6.
+                    d two toggle boxes called ASCII File & Labels.
+V-R-7-   12170108 E GUI V-R-7 Tax Distribution Report
+                    GUI Tax Distribution Report convert from character K-R-8.  This will be V-R-7.
+                    
+                    I posted invoice for HER1000 for 12x12x12 with $57 tax for tax code of PA.
+                    This does not print on the report.
+V-R-8-   01110203 E GUI V-R-8 MTD Destination Subtotals
+                    GUI MTD Destination Subtotals convert from character K-R-9.  This will be V-R-8.
+                    Test when AP invoice can be posted.
+V-R-9-   12170110 E GUI V-R-9 Tax Schedule by Customer Report
+                    GUI Tax Schedule by Customer convert from character K-R-A.  This will be V-R-9.
+                    
+V-T-1-   05020317 E GUI V-T-1  Track Check Reconciliation
+                    GUI Check Reconciliatioin.  Change Menu Name and Design screen.
+V-T-1-   11130204 E GUI V-T-1  Track Check Reconciliation
+                    GUI Check Reconciliatioin.  Change Menu Name and Design screen.
+V-T-2-   05020318 E GUI V-T-2  Post Checks Reconciled
+                    GUI Check Reconciliatioin Register.  Change menu and create report.
+V-T-3-   05020319 E GUI V-T-3  Reconciled Report
+                    GUI Reconciled Report
+V-U-1-   03250213 E GUI DB: Add Setup to Each Line item Cost
+                    DB:  Each vendor invoice line, add Setup Charge for each line item on the invoice.  
+V-U-1-   05020306 E GUI V-U-1  Vendor Invoice
+                    VU1 Vendor Enter Edit Invoice
+                    Move logic from character to create line record automatically when create header.
+                    
+                    New Icon called ExRate.  This will display the vendors currency and the current exchange rate for
+                     that currency from the currency code file.   Please note, when adding a new invoice for a custom
+                    er with a foreign currency defined, this date will be added automatically.  The new Icon will all
+                    ow changing the exchange rate only for this record.   
+                    
+                    The new Reference Number field should be added to the invoice Screen.  ???
+V-U-1-   08020202 E AP invoice F1 on PO# to show Width & Length
+                    Add vendor invoice for STONE.   Press F1 on PO#.   On this popup window, add the Item Code, width
+                    , length, PO Qty,  Job# on the far right.   Delete the Vendor Code and Printed field.
+V-U-2-   05020307 E GUI V-U-2  Edit / Post AP Register
+                    VU2.  Edit  / Post AP Invoice Register
+V-U-2-   07300203 E Eliminate V-U-2 & V-U-3
+                    VU2 and VU3 should be eliminated.  There is no program in character.
+                    The current VU1 and VU4 should be VU1 and VU2.   Add invoice and post invoices are the only optio
+                    ns that should be on the menu.
+V-U-2-   10090204 E Print to screen, form and Security
+                    VU2.  Edit  / Post AP Invoice Register
+V-W-1-   06030209 E V-W-1 GUI Update AP CR/DB Memos
+                    Convert V-W-1
+                    
+                    .
+V-W-2-   06030208 E V-W-2 GUI AP CR/DB Edit Register
+                    1. The report is wrapping on the screen.  Does not do this in character.
+V-W-2-   10090205 E New Print Font, screen, and Security
+V-W-2-   10090207 E New Print Font, screen, and Security Three screens vb3, vc3, vl2
+                    This is for  V-B-3, V-C-3 and V-L-2
+Z- - -   01160213 E HELPDESK CHANGES
+                    The current Hot Key Description should only default when the Enhancement Version is less than ver
+                    sion 10.00
+                    ie E=estimating
+                    C=Raw Materials
+                    D=Finished goods, etc.
+                    
+                    When the Enhancement Version is equal to 10.00 or higher.  The hot keys should make the following
+                     hot key description default to:
+                    E= GUI Estimating,
+                    O= GUI Order Processing,
+                    M= GUI Materials,
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  35
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    I= GUI Finished Goods,
+                    H= Sales History,
+                    S= Shop Reporting
+                    D= Data Collection, 
+                    J= Job Costing
+                    P= Purchasing
+                    A= A/R
+                    V= A/P
+                    G= General Ledger and N=System Admin. 
+Z- - -   02260111 E GUI DB file for Module Use
+                    New DB File: Module Name and Y/N field for each Module including:
+                    Cost Estimating 
+                    Order Processing 
+                    Raw Materials
+                    Finished Goods
+                    Purchasing
+                    Accounting AP/AR/GL
+                    Sales History
+                    Production Control
+                    Job Costing
+                    Data Collection
+                    Contact Marketing
+                    Touch Screen
+                    RFQ
+                    Sharp Shooter Bar Coding. 
+                    CAD-CAM Link
+                    EDI
+                    E-Business
+                    Customer Warehouse
+                    This will allow ASI to update client if module will work.ry, Production Control, Job Costing, Dat
+                    a Collection, Contact Manager, Touch Screen, RFQ, Sharp Shooter Bar Coding. 
+                    
+                    Currently this is handled by different menu's.  
+Z- - -   05070107 E Install / Convert For Pacific Packaging.
+                    Please make sure the time Youson spent converting the Database here at the office was either cove
+                    red in another task, or gets included in the billing for this intall. 
+                    
+                    Plus BJ's Time
+Z- - -   09060201 E Font / Portrait Defaults for Forms/Reports
+                    All forms and reports should print in portrait mode.   The only exception are the HOP and ASI quo
+                    te form and the HOP jobcardF which use wider paper in landscape mode.  The HOP job ticket prints 
+                    in 17 pitch mode.    All forms such as invoices, bill of ladings, quotes,  etc. should print in 1
+                    0 pitch equivalent.  All reports should print in 17 pitch equivalent for 8 1/2 x 11" printers and
+                     10 pitch equivalent for 132 column wide carriage printers.
+                    
+                    The only exception to the report is H-R-4 which requires a wide printer in 17 pitch mode because 
+                    this is more than 132 columns.
+                    
+                    Forms are the highest priorities.
+                    
+                    After writing include, let BJ move to all reports.
+Z- - -   09090202 E NT Server upgrade/install e-Advantzware
+                    Upgrade our Network with new OS, e-Advantzware, GUI, Addons with database on my laptop.
+                    This will be used at the AICC corrugated conference on September 25, 26.  I will depart on Sept 2
+                    4 about 12:00 Noon.
+                    
+                    My Laptop will need another Icon that will point the Addon V9 to the same database that the Local
+                     GUI looks at.  ie copy local addon icon and copy local DB to another directory.
+                    This will allow me to run both GUI and Addon together, rather than have an NT operating sytems on
+                     my laptop.   Keep the Local addon9 as it is in case I need to demo the integration between addon
+                    s and gui. 
+Z- - -   09110201 E F1 on Font
+                    Add additional description to right of in parenthisis.
+                    For example:
+                    
+                    Font              Description
+                    
+                    
+                    10                  Courier New Size = 12   (10 cpi / 132 columns - Use for Forms)
+                    
+                    11                  Courier New Size = 7   (17 cpi / 132 columns - Use for Reports in Portrait)
+                                
+                    12                  Courier New Size = 3   (12 cpi /132 column - Use for Reports in Landscape)
+                    
+                    
+                    When printing forms, the font 10 should default with ? lines per page.  (Must Test)
+                    When printing reports in portrait, the font  11 should default with 99 lines per page.
+                    When printing reports in Lanscape the font 12 should default with 50 lines per page. 
+Z- - -   10250202 E Updated Menu
+                    New Close/Reopen Order not on Menu.
+12/30/2005             Advanced Software Services, Inc.               1:02 PM
+              Completed By Date & Programmer    Customer Report      Page:  36
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+Z- - -   11190210 E Helpdesk,  Email
+                    Add EMAIL button on Enhancement / Modem print out option.  Pull modem number from the customer fi
+                    le in helpdesk.    This should go directly to Microsoft Outlook Express
+

@@ -41,6 +41,8 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {sys/inc/VAR.i NEW SHARED}
 
+DEFINE NEW SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
+
 DEF VAR lv-qty-onhand AS INT NO-UNDO.
 DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 
@@ -647,6 +649,22 @@ DO:
     RUN dispatch ("open-query").
 
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn_go
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_go B-table-Win
+ON HELP OF tb_i-no IN FRAME F-Main /* Go */
+DO:
+
+  RUN lookups/i-no.p.
+  SELF:SCREEN-VALUE = g_lookup-var.
+  APPLY 'ENTRY':U TO SELF.
+  RETURN NO-APPLY.
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */

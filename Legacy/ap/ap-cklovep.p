@@ -375,11 +375,11 @@ PROCEDURE Get-Remit-Address :
 
 
    IF vend.r-add1 EQ " " THEN DO:   /*if no remit-to address*/
-     IF LENGTH(vend.r-zip) GT 5 THEN
+     /*IF LENGTH(vend.r-zip) GT 5 THEN
        csz = vend.city + ", " + vend.state + " " +
              SUBSTR(vend.zip,1,5) + "-" + SUBSTR(vend.zip,6,4).
-     ELSE
-       csz = vend.city + ", " + vend.state + " " + vend.zip.
+     ELSE*/ /* Ticket -44505*/
+       csz = vend.city + ", " + vend.state + " " + vend.postal.
 
      ASSIGN
       pcAdd1 = vend.add1
@@ -387,16 +387,21 @@ PROCEDURE Get-Remit-Address :
    END.
 
    ELSE DO: /*if a remit-to address exists  GEH */
-     IF LENGTH(vend.r-zip) GT 5 THEN
+     /*IF LENGTH(vend.r-zip) GT 5 THEN
        csz = vend.r-city + ", " + vend.r-state + " " +
              SUBSTR(vend.r-zip,1,5) + "-" + SUBSTR(vend.r-zip,6,4).
-     ELSE
-       csz = vend.r-city + ", " + vend.r-state + " " + vend.r-zip.
+     ELSE*/ /* Ticket -44505*/
+       csz = vend.r-city + ", " + vend.r-state + " " + vend.r-postal.
 
      ASSIGN
       pcAdd1 = vend.r-add1
       pcAdd2 = vend.r-add2.
    END.
+
+   IF pcAdd2 EQ "" THEN
+       ASSIGN
+       pcAdd2 = csz 
+       csz    = "" .
 
    RETURN.
 

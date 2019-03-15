@@ -27,10 +27,17 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 def buffer bf-item for item.
+DEF BUFFER b-qty FOR reftable.
+DEF BUFFER b-cost FOR reftable.
 DEF BUFFER b-setup FOR reftable.
+DEF BUFFER b-blank-vend-qty FOR reftable.
+DEF BUFFER b-blank-vend-cost FOR reftable.
 
+DEF BUFFER b2-qty FOR reftable.
+DEF BUFFER b2-cost FOR reftable.
 DEF BUFFER b2-setup FOR reftable.
-
+DEF BUFFER b2-blank-vend-qty FOR reftable.
+DEF BUFFER b2-blank-vend-cost FOR reftable.
 
 DEF VAR v-copy-record AS LOG NO-UNDO.
 DEF VAR v-old-vend-no AS CHAR NO-UNDO.
@@ -943,170 +950,204 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER bf-evend FOR e-item-vend.
+    DEF BUFFER bf-evend FOR e-item-vend.
+    DEF BUFFER b-e-item FOR e-item. /* Just to make sure this is the ONLY procedure that accesses this record */
 
-  def var i as int no-undo.
-  def var lv-recid as recid no-undo.
-  DEF VAR v-count AS INT NO-UNDO.
+    DISABLE TRIGGERS FOR LOAD OF bf-evend.
+    DISABLE TRIGGERS FOR LOAD OF b-e-item.  /* and we don't need triggers; we're controlling fields */
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  lv-recid = recid(e-item).
-  find first e-item where recid(e-item) = lv-recid .
+    DEF VAR i AS INT NO-UNDO.
+    DEF VAR lv-recid AS RECID NO-UNDO.
+    DEF VAR v-count AS INT NO-UNDO.
 
-  DISABLE TRIGGERS FOR LOAD OF bf-evend.
+    lv-recid = RECID(e-item).
+    FIND FIRST e-item WHERE RECID(e-item) = lv-recid .
 
-  IF TRIM(e-item-vend.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) EQ "" THEN
-  FOR EACH bf-evend
-      WHERE bf-evend.company   EQ e-item.company
+    /* This ensures there's ONLY ONE blank vendor code (used in master e-item record) */
+    IF TRIM(e-item-vend.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) EQ "" THEN
+    FOR EACH bf-evend
+        WHERE bf-evend.company EQ e-item.company
         AND bf-evend.i-no      EQ e-item.i-no
         AND bf-evend.item-type EQ YES
         AND bf-evend.vend-no   EQ ""
         AND ROWID(bf-evend)    NE ROWID(e-item-vend):
-    DELETE bf-evend.
-  END.
+        DELETE bf-evend.
+    END.
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+
+    /* This sorts the roll widths in descending order */
+    EMPTY TEMP-TABLE tmpfile.
+    DO i = 1 TO 26:
+        IF e-item-vend.roll-w[i] <> 0 THEN DO:
+            CREATE tmpfile.
+            ASSIGN 
+                tmpfile.siz = e-item-vend.roll-w[i]
+                e-item-vend.roll-w[i] = 0.
+        END.
+    END.
+    ASSIGN 
+        i = 1.
+    FOR EACH tmpfile BY tmpfile.siz :
+        ASSIGN 
+            e-item-vend.roll-w[i] = tmpfile.siz
+            i = i + 1.
+    END.
   
-  EMPTY TEMP-TABLE tmpfile.
-
-  do i = 1 to 26:
-     if e-item-vend.roll-w[i] <> 0 then do:
-        create tmpfile.
-        assign tmpfile.siz = e-item-vend.roll-w[i]
-               e-item-vend.roll-w[i] = 0.
-     end.
-  end.
-  i = 1.
-  for each tmpfile by tmpfile.siz :
-      assign e-item-vend.roll-w[i] = tmpfile.siz
-             i = i + 1.
-  end.
-  EMPTY TEMP-TABLE tmpfile.
-
-  IF v-copy-record THEN
-  DO:
-     FIND FIRST bf-evend
-      WHERE bf-evend.company   EQ e-item.company
+    /* If this is a copy, get the non-displayed fields from the source record */
+    IF v-copy-record THEN DO:
+        FIND FIRST bf-evend
+        WHERE bf-evend.company   EQ e-item.company
         AND bf-evend.i-no      EQ e-item.i-no
         AND bf-evend.vend-no   EQ v-old-vend-no
         AND ROWID(bf-evend)    NE ROWID(e-item-vend)
         NO-ERROR.
-     
-     IF AVAIL bf-evend THEN
-     DO: 
+        IF AVAIL bf-evend THEN DO: 
+            DO v-count = 1 TO 10:
+                e-item-vend.runQtyXtra[v-count] = bf-evend.runQtyXtra[v-count].
+                e-item-vend.runCostXtra[v-count] = bf-evend.runCostXtra[v-count].
+                e-item-vend.setupsXtra[v-count] = bf-evend.setupsXtra[v-count].
+            END.
+        END.
+    END.
+
+    /* If this is the "blank" vendor code, copy the qty/cost values to the "master" (e-item) record */
+    IF e-item-vend.vend-no EQ "" THEN  DO:    
+        FIND b-e-item EXCLUSIVE WHERE 
+            ROWID(b-e-item) EQ ROWID(e-item)
+            NO-ERROR.
+        IF NOT AVAIL b-e-item THEN DO:
+            MESSAGE 
+                "b-e-item not avail"
+                VIEW-AS ALERT-BOX.
+            RETURN.
+        END.
+/*           Just a word of explanation for this:                                              */
+/*           e-item and e-item-vend SHOULD have single fields for these elements with extent 20*/
+/*           They don't                                                                        */
+/*           run-qty and run-cost (the original fields) are still extent 10                    */
+/*           e-item has runqty and runcost (new fields with no hyphen) with extent 20          */
+/*           e-item-vend has runQtyXtra and runCostXtra with extent 10                         */
+/*           This code is designed to populate all of these properly                           */
+/*           I don't want to make a db change to correct this since we're doing a release      */
+/*           this afternoon and I'm sure there would be unintended consequences - MYT          */
         DO v-count = 1 TO 10:
-           e-item-vend.runQtyXtra[v-count] = bf-evend.runQtyXtra[v-count].
-           e-item-vend.runCostXtra[v-count] = bf-evend.runCostXtra[v-count].
-           e-item-vend.setupsXtra[v-count] = bf-evend.setupsXtra[v-count].
+            b-e-item.run-qty[v-count] = e-item-vend.run-qty[v-count].
+            b-e-item.runqty[v-count] = e-item-vend.run-qty[v-count].
+            b-e-item.runqty[v-count + 10] = e-item-vend.runQtyXtra[v-count].
+            b-e-item.run-cost[v-count] = e-item-vend.run-cost[v-count].
+            b-e-item.runcost[v-count] = e-item-vend.run-cost[v-count].
+            b-e-item.runcost[v-count + 10] = e-item-vend.runCostXtra[v-count].
         END.
+        FIND b-e-item NO-LOCK WHERE 
+            ROWID(b-e-item) EQ ROWID(e-item)
+            NO-ERROR.
+    END.
+  
+    EMPTY TEMP-TABLE tmpfile.
+    IF AVAIL e-item-vend THEN ASSIGN 
+        v-count = 20.
+    ELSE ASSIGN 
+        v-count = 10.
 
-        
-        IF e-item-vend.vend-no EQ "" THEN
-        DO:
-           FIND CURRENT e-item EXCLUSIVE-LOCK NO-ERROR.
-           
-           DO v-count = 1 TO 10:
-              e-item.runQty[v-count] = e-item-vend.runQtyXtra[v-count].
-           END.
+    /* Build a temp file for sorting */
+    DO i = 1 TO v-count:
+        CREATE tmpfile.
 
+        IF i LE 10 THEN ASSIGN 
+            tmpfile.qty = e-item-vend.run-qty[i]
+            tmpfile.siz = e-item-vend.run-cost[i]
+            tmpfile.setups = e-item-vend.setups[i]
+            e-item-vend.run-qty[i] = 0
+            e-item-vend.run-cost[i] = 0
+            e-item-vend.setups[i] = 0.
+        ELSE ASSIGN 
+            tmpfile.qty = e-item-vend.runQtyXtra[i - 10]
+            tmpfile.siz = e-item-vend.runCostXtra[i - 10]
+            tmpfile.setups = e-item-vend.setupsXtra[i - 10]
+            e-item-vend.runQtyXtra[i - 10] = 0
+            e-item-vend.runCostXtra[i - 10] = 0
+            e-item-vend.setupsXtra[i - 10] = 0.
+    END.
+  
+    ASSIGN 
+        i = 1.
 
-           DO v-count = 1 TO 10:
-              e-item.runCost[v-count] = e-item-vend.runCostXtra[v-count].
-           END.
-           FIND CURRENT e-item NO-LOCK NO-ERROR.
+    /* If the "master", get the e-item (using the buffer) for updating */
+    IF e-item-vend.vend-no EQ "" THEN
+    DO:
+        FIND b-e-item EXCLUSIVE WHERE 
+            ROWID(b-e-item) EQ ROWID(e-item)
+            NO-ERROR.
+        IF NOT AVAIL b-e-item THEN DO:
+            MESSAGE 
+                "b-e-item not avail"
+                VIEW-AS ALERT-BOX.
+            RETURN.
         END.
-     END.
-  END.
+    END.
 
-
-  IF AVAIL e-item-vend THEN
-     v-count = 20.
-  ELSE
-     v-count = 10.
-
-  do i = 1 to v-count:
-     create tmpfile.
-
-     IF i LE 10 THEN
-        assign tmpfile.qty = e-item-vend.run-qty[i]
-               tmpfile.siz = e-item-vend.run-cost[i]
-               tmpfile.setups = e-item-vend.setups[i]
-               e-item-vend.run-qty[i] = 0
-               e-item-vend.run-cost[i] = 0
-               e-item-vend.setups[i] = 0.
-     ELSE
-        assign tmpfile.qty = e-item-vend.runQtyXtra[i - 10]
-               tmpfile.siz = e-item-vend.runCostXtra[i - 10]
-               tmpfile.setups = e-item-vend.setupsXtra[i - 10]
-               e-item-vend.runQtyXtra[i - 10] = 0
-               e-item-vend.runCostXtra[i - 10] = 0
-               e-item-vend.setupsXtra[i - 10] = 0.
-  end.
-  i = 1.
-
-  IF e-item-vend.vend-no EQ "" THEN
-
-  for each tmpfile by tmpfile.qty:
-      if tmpfile.qty = 0 then next.
-
-      IF i LE 10 THEN
-         assign e-item-vend.run-qty[i] = tmpfile.qty
+    FOR EACH tmpfile BY tmpfile.qty:
+        /* If all done, just skip */
+        IF tmpfile.qty = 0 THEN NEXT.
+        /* See the comment above about field names/extents */
+        IF i LE 10 THEN DO:
+            ASSIGN 
+                e-item-vend.run-qty[i] = tmpfile.qty
                 e-item-vend.run-cost[i] = tmpfile.siz
                 e-item-vend.setups[i] = tmpfile.setups.
-      ELSE
-         ASSIGN
-            e-item-vend.runQtyXtra[i - 10] = tmpfile.qty
-            e-item-vend.runCostXtra[i - 10] = tmpfile.siz
-            e-item-vend.setupsXtra[i - 10] = tmpfile.setups.
+            IF e-item-vend.vend-no EQ "" THEN ASSIGN 
+                b-e-item.run-qty[i] = e-item-vend.run-qty[i]
+                b-e-item.runqty[i] = e-item-vend.run-qty[i]
+                b-e-item.run-cost[i] = e-item-vend.run-cost[i]
+                b-e-item.runcost[i] = e-item-vend.run-cost[i].
+        END.
+        ELSE DO:
+            ASSIGN
+                e-item-vend.runQtyXtra[i - 10] = tmpfile.qty
+                e-item-vend.runCostXtra[i - 10] = tmpfile.siz
+                e-item-vend.setupsXtra[i - 10] = tmpfile.setups.
+            IF e-item-vend.vend-no EQ "" THEN ASSIGN 
+                b-e-item.runqty[i + 10] = e-item-vend.runQtyXtra[i]
+                b-e-item.runcost[i + 10] = e-item-vend.runCostXtra[i].
+        END.
+        i = i + 1.       
+    END.
 
-      FIND CURRENT e-item EXCLUSIVE-LOCK NO-ERROR.
-      IF i GT 10 AND AVAIL e-item THEN
-         ASSIGN
-            e-item.runQty[i - 10] = tmpfile.qty
-            e-item.runCost[i - 10] = tmpfile.siz.  
+    /* If we found the master buffer exclusive, let's release it */
+    IF e-item-vend.vend-no EQ "" THEN DO:
+        DO i = 1 TO 30:
+            e-item.roll-w[i] = e-item-vend.roll-w[i].
+        END.
+        FIND b-e-item NO-LOCK WHERE 
+            ROWID(b-e-item) EQ ROWID(e-item)
+            NO-ERROR.
+    END.
 
-      i = i + 1.      
-      FIND CURRENT e-item NO-LOCK NO-ERROR. 
-  end.
+    RUN reftable-values (NO).
 
- 
-  IF e-item-vend.vend-no EQ "" THEN
-     do i = 1 to 10:
-        assign e-item.run-qty[i] = e-item-vend.run-qty[i]
-               e-item.run-cost[i] = e-item-vend.run-cost[i].
-     end.
+    ASSIGN
+        v-copy-record = NO
+        v-old-vend-no = "".
 
-  IF e-item-vend.vend-no EQ "" THEN
-  DO i = 1 TO 30:
-     e-item.roll-w[i] = e-item-vend.roll-w[i].
-  END.
+    IF gNewVendor THEN DO:
+        CREATE report.
+        ASSIGN
+            report.term-id = gTerm
+            report.key-01  = ""
+            report.key-02  = ""
+            report.key-03  = e-item-vend.vend-no
+            report.key-04  = STRING(e-item-vend.run-qty[1])
+            report.key-05  = ""
+            report.key-06  = STRING(e-item-vend.setups[1])
+            report.rec-id  = RECID(e-item-vend).
+        RELEASE report.
+    END.
 
-  RUN reftable-values (NO).
-
-  FIND CURRENT e-item NO-LOCK.
-
-  ASSIGN
-     v-copy-record = NO
-     v-old-vend-no = "".
-
-  IF gNewVendor THEN DO:
-     CREATE report.
-     ASSIGN
-       report.term-id = gTerm
-       report.key-01  = ""
-       report.key-02  = ""
-       report.key-03  = e-item-vend.vend-no
-       report.key-04  = string(e-item-vend.run-qty[1])
-       report.key-05  = ""
-       report.key-06  = string(e-item-vend.setups[1])
-       report.rec-id  = recid(e-item-vend).
-       RELEASE report.
-  END.
-
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+    /* Now redisplay what we changed */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
 END PROCEDURE.
 

@@ -1,0 +1,20 @@
+*** Company File Field Definition ***           As of 4/26/2007
+
+Table		Field		Label			Format
+-------		---------	--------------------	-------		
+company		company		Company			x(3)
+company		name		Company Name		x(30)
+company		addr		Address			x(30)
+company		city		City			x(15)
+company		state		State			x(2)
+company		zip		Postal Code		x(10)
+company		co-acc		Accounts Company	x(3)
+company		num-per		Number of periods	99
+company		yend-per	Year-End Adjustment	yes/no
+company		fid		Federal ID		x(15)
+company		sid		State ID#		x(15)
+company		acc-level	# of levels per G/L Ac	9
+company		acc-dig		Number of digits	9
+company		yend-off	Yr End Offset		>9
+company		rec_key		Rec Key			X(20)
+company		curr-code	Currency Code		X(3)

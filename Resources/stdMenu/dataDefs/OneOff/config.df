@@ -1,0 +1,95 @@
+ADD FIELD "smtpServer" OF "config" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "SMTP Server"
+  POSITION 9
+  MAX-WIDTH 120
+  HELP "Enter SMTP Server"
+  ORDER 80
+
+ADD FIELD "smtpPort" OF "config" AS integer 
+  FORMAT ">>>9"
+  INITIAL "0"
+  LABEL "SMTP Port"
+  POSITION 10
+  MAX-WIDTH 4
+  HELP "Enter SMTP Port"
+  ORDER 90
+
+ADD FIELD "smtpUser" OF "config" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "SMTP User"
+  POSITION 11
+  MAX-WIDTH 120
+  HELP "Enter SMTP User"
+  ORDER 100
+
+ADD FIELD "smtpPassword" OF "config" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "SMTP Password"
+  POSITION 12
+  MAX-WIDTH 120
+  HELP "Enter SMTP Password"
+  ORDER 110
+
+ADD FIELD "taskName" OF "config" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Task Name"
+  POSITION 13
+  MAX-WIDTH 1
+  HELP "Toggle to Use Task Name"
+  ORDER 120
+
+ADD FIELD "taskDate" OF "config" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Task Date"
+  POSITION 14
+  MAX-WIDTH 1
+  HELP "Toggle to Use Task Date"
+  ORDER 130
+
+ADD FIELD "taskTime" OF "config" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Task Time"
+  POSITION 15
+  MAX-WIDTH 1
+  HELP "Toggle to Use Task Time"
+  ORDER 140
+
+ADD FIELD "taskType" OF "config" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Task Type"
+  POSITION 16
+  MAX-WIDTH 1
+  HELP "Toggle to Use Task Type"
+  ORDER 150
+
+ADD FIELD "emailBody" OF "config" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Email Body"
+  POSITION 17
+  MAX-WIDTH 120
+  HELP "Enter Email Body"
+  ORDER 160
+
+ADD FIELD "cueCard" OF "config" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Cue Card Notification"
+  POSITION 18
+  MAX-WIDTH 1
+  HELP "Toggle to Use Cue Card Notification"
+  ORDER 170
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000003357

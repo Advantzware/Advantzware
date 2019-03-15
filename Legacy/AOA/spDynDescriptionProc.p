@@ -1,0 +1,48 @@
+/* spDynDescriptionProc.p - rstark - 3.1.2019 */
+
+/* add dynamic description procedures in alphabetical order */
+/* procedure has input of two iphWidget AS HANDLE           */
+/* 1. handle of widget with key value for find              */
+/* 2. handle of widget description value is displayed       */
+/* use scoped-define defInputParam as 1st line in procedure */
+
+&Scoped-define defInputParam ~
+    DEFINE INPUT PARAMETER iphWidgetFrom AS HANDLE NO-UNDO.~
+    DEFINE INPUT PARAMETER iphWidgetTo   AS HANDLE NO-UNDO.~
+~
+    iphWidgetTo:SCREEN-VALUE = fDefaultDescription(iphWidgetTo).
+
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+
+FUNCTION fDefaultDescription RETURNS CHARACTER
+    (iphWidgetTo AS HANDLE):
+    RETURN IF iphWidgetTo:NAME BEGINS "start" THEN "<Start Range Value>"
+      ELSE IF iphWidgetTo:NAME BEGINS "end"   THEN "<End Range Value>"
+      ELSE "<Value Not Found>".
+END FUNCTION.
+
+PROCEDURE dynDescripMachine:
+    {&defInputParam}
+    FIND FIRST mach NO-LOCK
+         WHERE mach.company EQ cCompany
+           AND mach.m-code  EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE mach THEN
+    iphWidgetTo:SCREEN-VALUE = mach.m-dscr.       
+END PROCEDURE.
+
+PROCEDURE dynDescripShift:
+    {&defInputParam}
+    FIND FIRST shifts NO-LOCK
+         WHERE shifts.company EQ cCompany
+           AND shifts.shift   EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE shifts THEN
+    iphWidgetTo:SCREEN-VALUE = shifts.description.
+END PROCEDURE.
+
+PROCEDURE spSetCompany:
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    
+    cCompany = ipcCompany.
+END PROCEDURE.

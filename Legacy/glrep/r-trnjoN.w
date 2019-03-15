@@ -62,7 +62,7 @@ ASSIGN cTextListToSelect = "Account,Account Description,Journal,Vendor,Name,Date
                            "Amt MSF,Discount,Amount" 
        cFieldListToSelect = "account,acc-desc,jou,vend,name,date,inv,chk,ord,qty," +
                             "msf,dis,amt"
-       cFieldLength = "10,30,8,8,35,8,6,7,6,13," + "10,10,14"
+       cFieldLength = "10,30,8,8,35,8,12,7,6,13," + "10,10,14"
        cFieldType = "c,c,c,c,c,c,i,i,i,i," + "i,i,i" 
     .
 
@@ -1947,7 +1947,7 @@ do:
                          WHEN "vend"   THEN cVarValue = STRING(ap-inv.vend-no,"x(8)").
                          WHEN "name"   THEN cVarValue = IF AVAIL vend THEN string(vend.name,"x(35)") ELSE "".
                          WHEN "date"  THEN cVarValue = STRING(ap-inv.inv-date,"99/99/99") .
-                         WHEN "inv"   THEN cVarValue = STRING(ap-inv.inv-no,"x(6)") .
+                         WHEN "inv"   THEN cVarValue = STRING(ap-inv.inv-no,"x(12)") .
                          WHEN "chk"  THEN cVarValue = STRING(ws_check-no,">>>>>>>") .
                          WHEN "ord"   THEN cVarValue = STRING(ws_order-no,">>>>>>") .
                          WHEN "qty"  THEN cVarValue = IF ap-invl.qty <> 0 THEN STRING(ap-invl.qty,"->,>>>,>>9.99") ELSE "" .

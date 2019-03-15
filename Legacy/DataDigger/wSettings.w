@@ -861,7 +861,9 @@ PROCEDURE saveSettings :
       hWidget = hWidget:NEXT-SIBLING.
     END. /* f/e ttFrame */
   END. /* while valid-handle */
-
+    
+  RUN flushRegistry. /* MYT - added to save custom settings, esp. Fonts - 2/15/2019 */
+  
 END PROCEDURE. /* saveSettings */
 
 /* _UIB-CODE-BLOCK-END */

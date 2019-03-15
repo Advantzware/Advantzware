@@ -89,7 +89,7 @@
          tt-report.key-02 = ""
          tt-report.key-03 = string(ar-cashl.inv-no,"999999").
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         ASSIGN
          lv-r-no = 0
@@ -216,6 +216,8 @@
           no-lock no-error.
 
       v-color = 0.
+      v-cust-part-no2 = "" .
+      v-cust-part-no  = "" .
           
           FOR EACH itemfg-ink OF itemfg WHERE 
                    itemfg-ink.i-no EQ itemfg.i-no NO-LOCK, 
@@ -322,7 +324,7 @@
          v-cst2[1]  = 0
          v-amt[1]  = ar-cashl.amt-paid - ar-cashl.amt-disc.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         ASSIGN
          lv-r-no = 0

@@ -139,7 +139,8 @@ DEF TEMP-TABLE tt-mat NO-UNDO FIELD frm LIKE job-mat.frm
 {sys/form/r-top3.f}
 
 DEFINE TEMP-TABLE tt-po-print LIKE w-po 
-    FIELD tag-no AS CHARACTER .
+    FIELD tag-no AS CHARACTER 
+    FIELD vend-tag AS CHARACTER.
 
 tmpstore = FILL("_",50).
 
@@ -2027,7 +2028,7 @@ PROCEDURE reprintTag :
 
   FIND loadtag NO-LOCK WHERE loadtag.company EQ cocode
                          AND loadtag.item-type EQ YES
-                         AND loadtag.tag-no EQ reprintLoadtag NO-ERROR.
+                         AND (loadtag.tag-no EQ reprintLoadtag OR loadtag.misc-char[1] EQ reprintLoadtag ) NO-ERROR.
   IF NOT AVAILABLE loadtag THEN DO:
     MESSAGE 'Loadtag Record Not Found!' VIEW-AS ALERT-BOX ERROR.
     RETURN.
@@ -2090,7 +2091,8 @@ PROCEDURE reprintTag :
       CREATE tt-po-print .
       BUFFER-COPY w-po TO tt-po-print .
       ASSIGN 
-          tt-po-print.tag-no = IF AVAIL loadtag THEN loadtag.tag-no ELSE "" .
+          tt-po-print.tag-no = IF AVAIL loadtag THEN loadtag.tag-no ELSE ""
+          tt-po-print.vend-tag = IF AVAIL loadtag THEN loadtag.misc-char[1] ELSE "" .
 
       RUN xprint-tag .
   END.
@@ -2376,7 +2378,8 @@ PROCEDURE run-report :
             CREATE tt-po-print .
             BUFFER-COPY w-po TO tt-po-print .
             ASSIGN 
-                tt-po-print.tag-no = IF AVAIL loadtag THEN loadtag.tag-no ELSE "" .
+                tt-po-print.tag-no = IF AVAIL loadtag THEN loadtag.tag-no ELSE ""
+                tt-po-print.vend-tag = IF AVAIL loadtag THEN loadtag.misc-char[1] ELSE "" .
     END.
     DELETE w-po.
   END. /* each w-po */
@@ -2677,10 +2680,11 @@ PROCEDURE validLoadtag :
 
   DO WITH FRAME {&FRAME-NAME}:
      ASSIGN reprintLoadtag.
+
      IF NOT CAN-FIND(FIRST loadtag WHERE
         loadtag.company EQ cocode AND
         loadtag.item-type EQ YES AND
-        loadtag.tag-no EQ reprintLoadtag) THEN DO:
+        (loadtag.tag-no EQ reprintLoadtag OR loadtag.misc-char[1] EQ reprintLoadtag) ) THEN DO:
         op-valid = NO.
         MESSAGE 'Invalid Loadtag, Please Try Again ...' VIEW-AS ALERT-BOX ERROR.
         APPLY 'ENTRY':U TO reprintLoadtag.

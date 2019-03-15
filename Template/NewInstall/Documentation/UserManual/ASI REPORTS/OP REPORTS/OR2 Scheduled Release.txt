@@ -1,0 +1,273 @@
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   1
+ 1:53pm                                                  Scheduled Releases
+
+                                                         By Date By Customer
+
+   Quantity                 PO               Order    Rel                         Order       Quantity     Release Release    Due
+    On Hand Customer Name   Number          Number    Num Item                 Quantity        Shipped    Quantity Date      Alert Carrier
+----------- --------------- --------------- ------ ------ --------------- ------------- -------------- ----------- --------- ----- -------
+      1,000 Abbot Laborator Release PO#     200666      0 Farm Out 2 Piec       1,000.0           0.00       1,000 01/02/09I       TRUCK
+        500 Robs Test Store                 200669      0 RSC 10x10x12            500.0           0.00         500 01/09/09I       TRUCK
+  1,002,850 Robs Test Store                 200670      0 RSC 10x10x10            500.0           0.00         500 01/12/09I       TRUCK
+    241,455 Robs Test Store                 200671      0 RSC 10x10x10            500.0           0.00         500 01/12/09I       TRUCK
+          0 Abbot Laborator PO# 200635D     200635      0 12345                 5,000.0           0.00       2,000 01/15/09I       TRUCK
+          0 Hershey Foods C Sheet PO        200672      0 RT 3x3x3.5          100,000.0           0.00     100,000 01/15/09I       TRUCK
+          0 Abbot Laborator FO 011209AA     200675      0 Farm Out 15x15x      50,000.0           0.00      50,000 01/16/09I       TRUCK
+          0 Abbot Laborator FO 011209BB     200676      0 Farm Out 15x15x      25,000.0           0.00      25,000 01/16/09I       TRUCK
+          0 Abbot Laborator FO 011209CC     200677      0 Farm Out 15x15x      50,000.0           0.00      50,000 01/16/09I       FEDX
+          0 Abbot Laborator                 200678      0 Farm Out 2 Piec       1,000.0           0.00       1,000 01/19/09I       TRUCK
+          0 Hershey Foods C                 200679      0 RSC 8x8x8 Item        1,000.0           0.00       1,000 01/19/09I       TRUCK
+          0 Hershey Foods C                 200680      0 RSC 8x8x8 Item        1,000.0           0.00           0 01/19/09I       TRUCK
+          0 Hershey Foods C                 200680      0 RSC 8x8x8 Item        1,000.0           0.00       1,000 01/19/09I       TRUCK
+          0 Abbot Laborator FO 011209AA     200675      0 Farm Out 15x15x      50,000.0           0.00       2,500 01/20/09I       TRUCK
+          0 Abbot Laborator                 200681      0 25                    1,000.0           0.00       1,000 01/20/09I       TRUCK
+          0 Abbot Laborator                 200682      0 26                    1,222.0           0.00       1,222 01/20/09I       TRUCK
+          0 Robs Test Store                 200673      0 K 6748                1,000.0           0.00       1,000 01/20/09I       TRUCK
+          0 Iggle Corportat                 200685      0 1.25 Bubble Wra         600.0           0.00         680 01/23/09I       TRUCK
+          0 Iggle Corportat                 200685      0 1.25 Bubble Wra         600.0           0.00         200 01/23/09I       TRUCK
+          0 Iggle Corportat                 200685      0 1.25 Bubble Wra         600.0           0.00         360 01/23/09I       TRUCK
+          0 Iggle Corportat                 200685      0 1.25 Bubble Wra         600.0           0.00         500 01/23/09I       TRUCK
+          0 Iggle Corportat                 200685      0 1.25 Bubble Wra         600.0           0.00         600 01/23/09I       TRUCK
+          0 Robs Test Store                 200683      0 RSC 11x11x11            500.0           0.00         500 01/23/09I       TRUCK
+          0 AT&T Communicat 01192008        200684      0 SE 5x5x5                400.0           0.00         400 01/26/09L       TRUCK
+    219,000 AT&T Communicat 01192008        200684      0 RT 3x3x 2.5           1,000.0       1,000.00         360 01/26/09L       TRUCK
+    219,000 AT&T Communicat 01192008        200684      0 RT 3x3x 2.5           1,000.0       1,000.00         325 01/26/09L       TRUCK
+          0 AT&T Communicat 01192008        200684      0 att-1088              1,500.0           0.00       1,500 01/26/09L       TRUCK
+          0 Robs Test Store                 200687      0 K 6748                1,000.0           0.00       1,000 01/26/09I       TRUCK
+          0 Robs Test Store                 200687      0 K 6748                1,000.0           0.00       1,000 01/26/09I       TRUCK
+     -1,000 Robs Test Store                 200688      0 RSC 10x10x10            500.0           0.00         500 01/26/09I       TRUCK
+    241,455 Customer 5                      200694      0 RSC 10x10x10          1,000.0           0.00       1,000 01/28/09I       TRUCK
+    219,000 AT&T Communicat 01192008        200684      0 RT 3x3x 2.5           1,000.0       1,000.00         350 01/31/09L       TRUCK
+          0 Abbot Laborator                 200691      0 Set with 2 Manf         250.0           0.00         250 02/02/09I       TRUCK
+          0 Abbot Laborator                 200695      0 Set with 2 Manf         250.0           0.00         250 02/02/09I       TRUCK
+          0 AT&T Communicat Farm PO         200696      0 RSC 2X2X15           25,000.0           0.00      25,000 02/02/09L       TRUCK
+  1,002,850 AT&T Communicat PO Welch        200699      0 RSC 10x10x10            500.0           0.00         500 02/02/09L       TRUCK
+          0 AT&T Communicat PO Welch        200699      0 .25" Bubble ite          50.0           0.00          50 02/02/09L       TRUCK
+       -800 AT&T Communicat po6875          200731      0 RSC 2X2X15            1,000.0           0.00         300 02/02/09L       TRUCK
+          0 Hershey Foods C                 200734      0 Chocolate Ice C     125,000.0           0.00      20,000 02/02/09I       TRUCK
+          0 Hershey Foods C                 200734      0 Vanilla Ice Cre      75,000.0           0.00      20,000 02/02/09I       TRUCK
+          0 IBM CORP        po200732        200732      0 HSC 8x8x15           25,000.0           0.00       5,000 02/02/09L       TRUCK
+          0 Abbot Laborator                 200695      0 Set with 2 Manf         250.0           0.00         100 02/03/09I       TRUCK
+          0 Hershey Foods C                 200734      0 Chocolate Ice C     125,000.0           0.00      15,000 02/03/09I       TRUCK
+          0 Hershey Foods C                 200734      0 Vanilla Ice Cre      75,000.0           0.00      20,000 02/03/09I       TRUCK
+          0 Abbot Laborator                 200693      0 RSC 15x15x15        150,000.0           0.00     150,000 02/04/09I       TRUCK
+          0 Hershey Foods C                 200734      0 Chocolate Ice C     125,000.0           0.00      20,000 02/04/09I       TRUCK
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   2
+ 1:53pm                                                  Scheduled Releases
+
+                                                         By Date By Customer
+
+   Quantity                 PO               Order    Rel                         Order       Quantity     Release Release    Due
+    On Hand Customer Name   Number          Number    Num Item                 Quantity        Shipped    Quantity Date      Alert Carrier
+----------- --------------- --------------- ------ ------ --------------- ------------- -------------- ----------- --------- ----- -------
+          0 Abbot Laborator                 200698      0 RSC 15x15x15        150,000.0           0.00     150,000 02/05/09I       TRUCK
+          0 AT&T Communicat 984841          200620      0 CROBSTR0001A         50,000.0           0.00      10,000 02/05/09I       TRUCK
+    125,000 Hershey Foods C Van,Choc,Straw  200697      0 Chocolate Ice C     125,000.0           0.00     125,000 02/05/09I       TRUCK
+          0 Hershey Foods C Van,Choc,Straw  200697      0 Vanilla Ice Cre      75,000.0           0.00      75,000 02/05/09I       TRUCK
+          0 Hershey Foods C Van,Choc,Straw  200697      0 Strawberry Ice       75,000.0           0.00      75,000 02/05/09I       TRUCK
+     41,979 Abbot Laborator New Item Test   200701      0 RSC 6x6x6 Stock         500.0           0.00       1,000 02/06/09I       TRUCK
+     41,979 Abbot Laborator New Item Test   200701      0 RSC 6x6x6 Stock         500.0           0.00         250 02/06/09I       TRUCK
+     41,979 Abbot Laborator New Item Test   200701      0 RSC 6x6x6 Stock         500.0           0.00         500 02/06/09I       TRUCK
+    553,550 AT&T Communicat Rel B           100208      0 RSC 4x4x4               100.0           0.00          50 02/06/09I       TRUCK
+     30,000 AT&T Communicat Rel 2           100312      0 RT 5x3x2             25,000.0           0.00      15,500 02/06/09I       TRUCK
+        -20 AT&T Communicat PO Welch        200699      0 RSC 8x8x16           20,000.0          20.00          25 02/06/09L       CC
+        -20 AT&T Communicat PO Welch        200699      0 RSC 8x8x16           20,000.0          20.00       1,200 02/06/09L       CC
+        -20 AT&T Communicat PO Welch        200699      0 RSC 8x8x16           20,000.0          20.00       7,500 02/06/09L       CC
+        -20 AT&T Communicat PO Welch        200699      0 RSC 8x8x16           20,000.0          20.00       3,000 02/06/09L       CC
+        -20 AT&T Communicat PO Welch        200699      0 RSC 8x8x16           20,000.0          20.00       8,000 02/06/09L       CC
+        -20 AT&T Communicat PO Welch        200699      0 RSC 8x8x16           20,000.0          20.00          10 02/06/09L       CC
+        -20 AT&T Communicat PO Welch        200699      0 RSC 8x8x16           20,000.0          20.00       2,000 02/06/09L       CC
+        -20 AT&T Communicat PO Welch        200699      0 RSC 8x8x16           20,000.0          20.00         700 02/06/09L       CC
+          0 Hershey Foods C Board Combo Tes 200700      0 Vanilla Ice Cre      75,000.0           0.00       2,500 02/06/09I       TRUCK
+          0 Hershey Foods C Board Combo Tes 200700      0 Vanilla Ice Cre      75,000.0           0.00           0 02/06/09I       TRUCK
+          0 Hershey Foods C Board Combo Tes 200700      0 Vanilla Ice Cre      75,000.0           0.00         250 02/06/09I       TRUCK
+          0 Hershey Foods C Board Combo Tes 200700      0 Vanilla Ice Cre      75,000.0           0.00      75,000 02/06/09I       TRUCK
+          0 Hershey Foods C Board Combo Tes 200700      0 Vanilla Ice Cre      75,000.0           0.00         250 02/06/09I       TRUCK
+          0 Hershey Foods C Board Combo Tes 200700      0 Strawberry Ice       75,000.0           0.00      75,000 02/06/09I       TRUCK
+     41,979 IBM CORP        Credit Limit    200702      0 RSC 6x6x6 Stock         500.0           0.00         500 02/06/09L       TRUCK
+    553,550 AT&T Communicat REl C           100208      0 RSC 4x4x4               100.0           0.00          50 02/07/09I       TRUCK
+          0 ABC Company                     200705      0 Two Piece RSC 2       5,000.0           0.00       5,000 02/09/09I       TRUCK
+          0 ABC Company                     200705      0 Two Piece RSC 2       5,000.0           0.00           0 02/09/09I       TRUCK
+     30,000 AT&T Communicat Rel 1           100312      0 RT 5x3x2             25,000.0           0.00       9,500 02/09/09I       TRUCK
+      5,320 IBM CORP        Old Inv Hold    200704      0 RSC 8x8x8 Item          500.0           0.00         500 02/09/09L       TRUCK
+    241,455 Customer 5                      200710      0 RSC 10x10x10          1,000.0           0.00       1,000 02/11/09I       TRUCK
+    241,455 Customer 5                      200718      0 RSC 10x10x10          5,000.0           0.00       5,000 02/11/09I       TRUCK
+    241,455 Customer 5                      200721      0 RSC 10x10x10            100.0           0.00         100 02/12/09I       TRUCK
+  1,002,850 Customer 5                      200723      0 RSC 10x10x10          3,000.0           0.00       3,000 02/12/09I       TRUCK
+    241,455 Customer 5                      200724      0 RSC 10x10x10            100.0           0.00         100 02/12/09I       TRUCK
+    241,455 Customer 5                      200725      0 RSC 10x10x10          5,000.0           0.00       5,000 02/12/09I       TRUCK
+    241,455 Customer 5                      200727      0 RSC 10x10x10            100.0           0.00         100 02/12/09I       TRUCK
+          0 Hershey Foods C Board Combo Tes 200700      0 Chocolate Ice C     125,000.0           0.00      25,000 02/12/09I       TRUCK
+          0 Hershey Foods C Board Combo Tes 200700      0 Chocolate Ice C     125,000.0           0.00      25,000 02/13/09I       TRUCK
+          0 Hershey Foods C FArm Out        200706      0 RSC STOCK Box 7      20,000.0           0.00      20,000 02/13/09I       TRUCK
+          0 Hershey Foods C FarmOut EA      200707      0 RSC STOCK Box 7       1,000.0           0.00       1,000 02/13/09I       TRUCK
+      5,320 IBM CORP        PO#             200746      0 RSC 8x8x8 Item          500.0           0.00         550 02/13/09L       TRUCK
+          0 Hershey Foods C Board Combo Tes 200700      0 Chocolate Ice C     125,000.0           0.00      75,000 02/14/09I       TRUCK
+    241,455 Customer 5                      200722      0 RSC 10x10x10            100.0           0.00         100 02/16/09I       TRUCK
+          0 Abbot Laborator Bill Prep       200735      0 ABB SET               1,000.0           0.00       1,000 02/16/09I       TRUCK
+          0 Abbot Laborator                 200736      0 ABB SET               1,000.0           0.00       1,000 02/16/09I       TRUCK
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   3
+ 1:53pm                                                  Scheduled Releases
+
+                                                         By Date By Customer
+
+   Quantity                 PO               Order    Rel                         Order       Quantity     Release Release    Due
+    On Hand Customer Name   Number          Number    Num Item                 Quantity        Shipped    Quantity Date      Alert Carrier
+----------- --------------- --------------- ------ ------ --------------- ------------- -------------- ----------- --------- ----- -------
+          0 Abbot Laborator Preps Gone      200737      0 ABB SET               1,000.0           0.00       1,000 02/16/09I       TRUCK
+          0 AT&T Communicat Many Jobs       200728      0 CROBSTR0001A          5,000.0           0.00       5,000 02/16/09L       TRUCK
+          0 AT&T Communicat Many Jobs       200728      0 RSC 8x8x16            1,000.0           0.00       1,000 02/16/09L       TRUCK
+     -2,000 AT&T Communicat Delete Prep     200729      0 CROBSTR0001A          5,000.0       2,000.00       3,000 02/16/09L       TRUCK
+          0 AT&T Communicat Prep Test       200730      0 RSC 8x8x16           20,000.0           0.00      20,000 02/16/09L       TRUCK
+       -800 AT&T Communicat po6875          200731      0 RSC 2X2X15            1,000.0           0.00         700 02/16/09L       TRUCK
+          0 AT&T Communicat New Item        200739      0                         100.0           0.00         100 02/16/09L       TRUCK
+          0 Hershey Foods C Prep Charge     200713      0 RSC STOCK Box 7      20,000.0       5,000.00      15,000 02/16/09I       TRUCK
+          0 Hershey Foods C Added Plate     200714      0 RSC STOCK Box 7      20,000.0       2,000.00      18,000 02/16/09I       TRUCK
+          0 Hershey Foods C                 200719      0 RSC STOCK Box 7      15,000.0       8,000.00       7,000 02/16/09I       TRUCK
+          0 Hershey Foods C Farmout         200738      0 RSC STOCK Box 7      20,000.0           0.00      20,000 02/16/09I       TRUCK
+          0 IBM CORP        po200732        200732      0 HSC 8x8x15           25,000.0           0.00      20,000 02/16/09L       TRUCK
+          0 IBM CORP        po7011          200733      0 HSC 8x8x15           25,000.0           0.00      25,000 02/16/09L       TRUCK
+          0 IBM CORP        po7011          200733      0                      20,000.0           0.00      20,000 02/16/09L       TRUCK
+          0 AT&T Communicat po6875-noprep   200741      0 RSC 2X2X15            1,000.0         500.00         500 02/17/09L       TRUCK
+          0 Robs Test Store                 200742      0                          15.0           0.00          15 02/17/09I       TRUCK
+          0 AT&T Communicat po6875          200740      0 RSC 2X2X15            1,000.0         300.00         700 02/18/09L       TRUCK
+          0 Hershey Foods C                 200734      0 Chocolate Ice C     125,000.0           0.00      70,000 02/19/09I       TRUCK
+          0 Hershey Foods C                 200734      0 Strawberry Ice       75,000.0           0.00      75,000 02/19/09I       TRUCK
+          0 Hershey Foods C                 200734      0 Vanilla Ice Cre      75,000.0           0.00      35,000 02/19/09I       TRUCK
+    -25,000 Hershey Foods C                 200743      0 Chocolate Ice C     125,000.0      25,000.00     100,000 02/20/09I       TRUCK
+          0 Hershey Foods C                 200743      0 Vanilla Ice Cre      75,000.0           0.00      75,000 02/20/09I       TRUCK
+          0 Hershey Foods C                 200743      0 Strawberry Ice       75,000.0           0.00      75,000 02/20/09I       TRUCK
+          0 Hershey Foods C                 200744      0 Strawberry Ice       75,000.0           0.00      75,000 02/20/09I       TRUCK
+          0 Hershey Foods C                 200744      0 Vanilla Ice Cre      75,000.0           0.00      75,000 02/20/09I       TRUCK
+    -25,000 Hershey Foods C                 200744      0 Chocolate Ice C     125,000.0      25,000.00     100,000 02/20/09I       TRUCK
+     -5,000 Hershey Foods C Purge Prep      200747      0 RT 4x4x7.5           25,000.0       5,000.00      20,000 02/20/09I       CC
+     -5,000 Hershey Foods C Prep = I        200749      0 RT 4x4x7.5           25,000.0       5,000.00      20,000 02/20/09I       CC
+     41,979 IBM CORP        Credit Check    200765      0 RSC 6x6x6 Stock         500.0           0.00         500 02/20/09L       TRUCK
+  1,002,850 Customer 5                      200753      0 RSC 10x10x10          1,000.0           0.00       1,000 02/23/09I       TRUCK
+          0 Abbot Laborator                 200754      0 ABB SET               1,000.0           0.00       1,000 02/23/09I       TRUCK
+          0 Abbot Laborator                 200755      0 ABB SET               1,000.0           0.00       1,000 02/23/09I       TRUCK
+          0 Abbot Laborator                 200756      0 ABB SET               1,000.0           0.00       1,000 02/23/09I       TRUCK
+          0 Abbot Laborator                 200757      0 ABB SET               1,000.0           0.00       1,000 02/23/09I       TRUCK
+          0 Abbot Laborator                 200758      0 ABB SET               1,000.0           0.00       1,000 02/23/09I       TRUCK
+          0 Abbot Laborator                 200759      0 ABB SET               1,000.0           0.00       1,000 02/23/09I       TRUCK
+          0 Abbot Laborator                 200760      0 ABB SET               1,000.0           0.00       1,000 02/23/09I       TRUCK
+          0 Abbot Laborator                 200761      0 ABB SET               1,000.0           0.00       1,000 02/23/09I       TRUCK
+          0 Abbot Laborator                 200762      0 ABB SET               1,000.0           0.00       1,000 02/23/09I       TRUCK
+          0 Abbot Laborator                 200763      0 ABB SET               1,000.0           0.00       1,000 02/23/09I       TRUCK
+          0 Abbot Laborator                 200764      0 ABB SET               2,000.0           0.00       1,000 02/23/09I       TRUCK
+          0 Hershey Foods C                 200750      0 RT 5x2x6             50,000.0           0.00      50,000 02/23/09I       TRUCK
+          0 Hershey Foods C                 200750      0 RT 5x2x6             25,000.0           0.00      25,000 02/23/09I       TRUCK
+     41,979 IBM CORP        Credit Check    200765      0 RSC 6x6x6 Stock         500.0           0.00         500 02/24/09L       TRUCK
+    -26,000 Abbot Laborator PAR             200745      0 Par 18 Slots         25,000.0      26,000.00       2,000 03/01/09I       TRUCK
+          0 Abbot Laborator                 200695      0 Set with 2 Manf         250.0           0.00         150 03/02/09I       TRUCK
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   4
+ 1:53pm                                                  Scheduled Releases
+
+                                                         By Date By Customer
+
+   Quantity                 PO               Order    Rel                         Order       Quantity     Release Release    Due
+    On Hand Customer Name   Number          Number    Num Item                 Quantity        Shipped    Quantity Date      Alert Carrier
+----------- --------------- --------------- ------ ------ --------------- ------------- -------------- ----------- --------- ----- -------
+         50 IBM CORP        Check Credit    200770      0 item name                25.0           0.00          25 03/02/09L       TRUCK
+          0 IBM CORP        Check Credit    200770      0 6 Rolls per Pal          50.0           0.00          25 03/02/09L       TRUCK
+          0 IBM CORP        Check Credit    200770      0 6 Rolls per Pal          50.0           0.00          50 03/02/09L       TRUCK
+         50 IBM CORP        Check Credit    200776      0 item name                25.0           0.00          25 03/02/09L       TRUCK
+          0 IBM CORP        Check Credit    200776      2 6 Rolls per Pal          50.0           0.00          25 03/02/09L       TRUCK
+          0 IBM CORP        Check Credit    200776      0 6 Rolls per Pal          50.0           0.00          50 03/02/09L       TRUCK
+        -20 AT&T Communicat PO Welch        200699      0 RSC 8x8x16           20,000.0          20.00       9,000 03/03/09L       CC
+          0 AT&T Communicat 022709          200771      0 RSC 12x10x10         25,000.0           0.00      25,000 03/03/09L       CC
+          0 Hershey Foods C Lot Price       200766      0 RT 4x4x7.5           50,000.0           0.00      50,000 03/04/09I       CC
+          0 Hershey Foods C Lot Price       200767      0 RT 4x4x7.5           50,000.0           0.00      50,000 03/04/09I       CC
+          0 Hershey Foods C Lot Pricing     200768      0 RT 4x4x7.5           75,000.0           0.00      25,000 03/04/09I       CC
+         50 IBM CORP        Check Credit    200770      0 item name                25.0           0.00           0 03/05/09L       TRUCK
+         50 IBM CORP        Check Credit    200776      0 item name                25.0           0.00           0 03/05/09L       TRUCK
+        -10 WALK-IN         Yoosun Check    200797      0 BUBBLE WRAP 1/2         500.0           0.00         500 03/05/09I       cpu
+          0 AT&T Communicat PO lotprice     200774      0 RSC 2X2X15           25,000.0           0.00      25,000 03/09/09L       TRUCK
+  1,002,850 IBM CORP        TEST CHECK CRED 200777      0 RSC 10x10x10             10.0           0.00          10 03/09/09L       TRUCK
+      2,200 IBM CORP        TEST CRD CHK II 200781      0 RSC 10x10x10             10.0           0.00          10 03/09/09L       TRUCK
+      9,700 IBM CORP        FNL TST CRD CHK 200782      0 Stock Box RSC 1           1.0           0.00           1 03/09/09L       TRUCK
+    241,455 IBM CORP        TEST CRDIT CHK  200783      0 RSC 10x10x10         10,000.0           0.00      10,000 03/09/09L       TRUCK
+          0 AT&T Communicat 48615           200617      0 CROBSTR0001A     15,193,000.0           0.00   2,500,000 03/10/09I       TRUCK
+          0 ABC Customer                    100158      0 RSC 8x8x11            5,000.0           0.00       5,000 03/11/09I       TRUCK
+          0 AT&T Communicat 48615           200617      0 CROBSTR0001A     15,193,000.0           0.00  12,693,000 03/11/09I       TRUCK
+          0 AT&T Communicat 984841          200620      0 CROBSTR0001A         50,000.0           0.00      50,000 03/11/09I       TRUCK
+    553,550 AT&T Communicat 984841          200620      0 RSC 4x4x4             2,000.0           0.00       2,000 03/12/09I       TRUCK
+    241,455 WALK-IN                         200574      0 RSC 10x10x10          2,500.0          25.00         100 03/14/09I       cpu
+          0 Abbot Laborator Full Cost       200787      0 Combo Part B          5,000.0           0.00       5,000 03/16/09I       TRUCK
+          0 Abbot Laborator                 200789      0 Combo Part C          5,000.0           0.00       5,000 03/16/09I       TRUCK
+     41,979                                 200791      0 RSC 6x6x6 Stock         500.0           0.00         500 03/16/09I       TRUCK
+          0                                 200792      0 RSC 20x20x20          1,500.0           0.00       1,500 03/16/09I       TRUCK
+  1,002,850                                 200793      0 RSC 10x10x10          1,000.0           0.00       1,000 03/16/09I       TRUCK
+          0 WALK-IN                         200804      0 RSC 11x11x11            300.0           0.00          50 03/16/09I       cpu
+    241,455 Abbot Laborator                 200795      0 RSC 10x10x10          1,000.0           0.00       1,000 03/17/09I       TRUCK
+        294 WALK-IN         Release Crdt    200796      0 3" Tape Rolls b         500.0           0.00         500 03/17/09I       cpu
+     41,979 WALK-IN                         200794      0 RSC 6x6x6 Stock       1,000.0           0.00         300 03/18/09I       cpu
+          0 Abbot Laborator EST 7043        200809      0 ABB SET               1,000.0           0.00       1,000 03/20/09I       TRUCK
+          0 AT&T Communicat PO Header       200800      0 RSC VD 4 Scores      50,000.0           0.00      50,000 03/20/09L       CC
+    553,550 WALK-IN                         200803      0 RSC 4x4x4               200.0           0.00         200 03/20/09I       cpu
+          0 WALK-IN                         200804      0 RSC 11x11x11            300.0           0.00         300 03/20/09I       cpu
+        -10 WALK-IN                         200805      0 BUBBLE WRAP 1/2          50.0           0.00          50 03/20/09I       cpu
+         30 WALK-IN                         200806      0 BUBBLE WRAP 1/2          10.0           0.00          10 03/20/09I       cpu
+        100 WALK-IN                         200807      0 RSC 5x5x5               100.0           0.00         100 03/20/09I       cpu
+  1,002,850 WALK-IN                         200808      0 RSC 10x10x10            500.0           0.00         500 03/20/09I       cpu
+          0 Abbot Laborator                 200816      0 d/c                  20,000.0           0.00      20,000 03/24/09I       TRUCK
+          0 IBM CORP                        200579      0 MAILER  #322 WH   6,000,000.0           0.00  60,000,000 03/25/09I       TRUCK
+          0 IBM CORP                        200579      0 MAILER  #322 WH   6,000,000.0           0.00  60,000,000 03/25/09I       TRUCK
+  1,002,850 IBM CORP        Test123         200818      0 10x10x10          1,000,000.0           0.00   1,000,000 03/27/09L       TRUCK
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   5
+ 1:53pm                                                  Scheduled Releases
+
+                                                         By Date By Customer
+
+   Quantity                 PO               Order    Rel                         Order       Quantity     Release Release    Due
+    On Hand Customer Name   Number          Number    Num Item                 Quantity        Shipped    Quantity Date      Alert Carrier
+----------- --------------- --------------- ------ ------ --------------- ------------- -------------- ----------- --------- ----- -------
+          0 Robs Test Store as              200836      0 Farm Out Handli           2.0           0.00          12 03/30/09I       TRUCK
+          0 Abbot Laborator 032709A         200829      0 2Pc RSC and Par       5,000.0           0.00       5,000 03/31/09I       TRUCK
+          0 Robs Test Store qa              200837      0 Farm Out Handli          11.0           0.00          11 03/31/09I       TRUCK
+          0 AT&T Communicat qa              200835      0 6 Rolls per Pal          12.0           0.00          12 04/01/09L       TRUCK
+          0 AT&T Communicat 123456          200839      0 RSC 6x6x14            1,500.0           0.00       1,500 04/03/09L       CC
+          0 AT&T Communicat 200840          200840      0 RSC 6x6x14            1,500.0           0.00       1,500 04/03/09L       CC
+          0 IBM CORP        200868          200868      0 RSC 8x8x20            1,000.0           0.00       1,000 04/05/09L       TRUCK
+          0 IBM CORP        200868          200868      0 RSC 8x8x20            1,000.0           0.00       1,000 04/05/09L       TRUCK
+          0 IBM CORP        200868          200868      0 RSC 8x8x20            1,000.0           0.00       1,000 04/05/09L       TRUCK
+          0 IBM CORP        04020901        200852      0 RSC 8x8x20            2,300.0           0.00       5,000 04/06/09L       TRUCK
+          0 IBM CORP        040209B         200853      0 RSC 8x8x20            9,000.0           0.00       6,000 04/06/09L       TRUCK
+          0 IBM CORP        200862          200862      0 RSC 8x8x20            1,000.0           0.00       1,000 04/06/09L       TRUCK
+          0 IBM CORP        200863          200863      0 RSC 8x8x20            1,000.0           0.00       1,000 04/06/09L       TRUCK
+          0 IBM CORP        200864          200864      0 RSC 8x8x20            1,000.0           0.00       1,000 04/06/09L       TRUCK
+          0 IBM CORP        200865          200865      0 RSC 8x8x20            1,000.0           0.00       1,000 04/06/09L       TRUCK
+          0 IBM CORP        200866          200866      0 RSC 8x8x20            1,000.0           0.00       1,000 04/06/09L       TRUCK
+          0 IBM CORP        200867          200867      0 RSC 8x8x20            1,000.0           0.00       1,000 04/06/09L       TRUCK
+          0 IBM CORP        200868          200868      0 RSC 8x8x20            1,000.0           0.00       1,000 04/06/09L       TRUCK
+          0 AT&T Communicat 12121           200869      0 RSC 6x6x18            2,500.0           0.00       2,500 04/07/09L       TRUCK
+          0 AT&T Communicat 12121           200869      0 RSC 6x6x16            5,000.0           0.00       5,000 04/07/09L       TRUCK
+          0 AT&T Communicat 021003RelB         770      0 RSC 8x8x12            1,000.0           0.00         500 04/08/09I       TRUCK
+     41,979 AT&T Communicat 040809C         200898      0 RSC 6x6x6 Stock       2,000.0           0.00       2,000 04/09/09L       TRUCK
+          0 AT&T Communicat 872             200872      0 RSC 5x5x5            37,500.0           0.00      37,500 04/10/09L       CC
+          0 AT&T Communicat 040609AA        200873      0 RSC 6x6x16            5,000.0           0.00       5,000 04/10/09L       CC
+          0 AT&T Communicat JU2 Test        200877      0 RSC 5x5x5            37,500.0           0.00      37,500 04/10/09L       CC
+      5,320 AT&T Communicat sz              200881      0 RSC 8x8x8 Item        5,000.0           0.00       5,000 04/10/09L       CC
+          0 IBM CORP        200874          200874      0 RSC 8x8x20            1,000.0           0.00       1,000 04/10/09L       TRUCK
+          0 IBM CORP        200875          200875      0 RSC 8x8x20            1,000.0           0.00       1,000 04/10/09L       TRUCK
+          0 IBM CORP        200876          200876      0 RSC 8x8x20            1,000.0           0.00       1,000 04/10/09L       TRUCK
+          0 IBM CORP        13              200899      0 RT 5x5x5                  0.0           0.00           0 04/10/09L       TRUCK
+      5,320 Hershey Foods C                 200896      0 RSC 8x8x8 Item          100.0           0.00         100 04/13/09I       TRUCK
+      5,320 IBM CORP        123             200907      0 RSC 8x8x8 Item          100.0           0.00         100 04/14/09S       TRUCK
+          0 21ST CENTURY MA                 200568      0 Bottom              100,000.0           0.00     100,000 04/15/09S       TRUCK
+        -20 AT&T Communicat PO Welch        200699      0 RSC 8x8x16           20,000.0          20.00      10,000 04/15/09S       CC
+     10,000 AT&T Communicat Sell Price test 200908      0 RSC 12x12x18.5       20,000.0           0.00      20,000 04/17/09S       TRUCK
+          0 AT&T Communicat 04082009B       200895      0 RSC 8x8x12            2,000.0           0.00       2,000 04/19/09S       TRUCK
+    110,000 IBM CORP        11052007F       200031      0 RT 3-3/4 x 2-1/     100,000.0      20,000.00       5,000 04/23/09I       CC
+          0 IBM CORP        11              200906      0 OPF 8x4x2               100.0           0.00         100 05/01/09S       TRUCK
+      5,320 IBM CORP        04082009A       200888      0 RSC 8x8x8 Item        3,000.0           0.00       3,000 05/10/09S       TRUCK
+          0 AT&T Communicat 040609AA        200878      0 RSC 5x5x5            50,000.0           0.00      50,000 05/23/09I       CC
+
+                                                                                         TOTAL NUMBER OF RELEASES:             224
+
+

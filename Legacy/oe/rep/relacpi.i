@@ -100,6 +100,7 @@ ASSIGN tmpstore = fill("-",130).
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+DEFINE BUFFER bf-oe-rell FOR oe-rell .
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -649,6 +650,27 @@ if v-zone-p then v-zone-hdr = "Route No.:".
              w-i-no = fg-bin.i-no
              w-po-no = w-oe-rell.po-no
              i        = i + 1.
+
+            IF s-print-what-item = "R" AND w-x THEN DO:
+
+                FIND FIRST bf-oe-rell NO-LOCK
+                    WHERE bf-oe-rell.company  EQ w-oe-rell.company
+                    AND bf-oe-rell.r-no     EQ w-oe-rell.r-no
+                    AND bf-oe-rell.ord-no   EQ w-oe-rell.ord-no
+                    AND bf-oe-rell.i-no     EQ w-oe-rell.i-no
+                    AND bf-oe-rell.line     EQ w-oe-rell.line
+                    AND bf-oe-rell.rel-no   EQ w-oe-rell.rel-no
+                    AND bf-oe-rell.b-ord-no EQ w-oe-rell.b-ord-no
+                    AND bf-oe-rell.po-no    EQ w-oe-rell.po-no
+                    AND bf-oe-rell.loc      EQ fg-bin.loc
+                    AND bf-oe-rell.loc-bin  EQ fg-bin.loc-bin
+                    AND bf-oe-rell.tag      EQ fg-bin.tag NO-ERROR .
+
+                IF AVAIL bf-oe-rell AND bf-oe-rell.partial NE w-bin.w-partial OR bf-oe-rell.qty-case NE w-bin.w-c-c THEN
+                    ASSIGN w-bin.w-partial = bf-oe-rell.partial 
+                           w-bin.w-c-c = bf-oe-rell.qty-case
+                           w-bin.w-qty[1] = bf-oe-rell.qty .     
+            END.
              
             assign
              w-pal = (if fg-bin.case-count   eq 0 then 1 else fg-bin.case-count)   *
