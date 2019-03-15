@@ -43,29 +43,6 @@ DEF VAR lv-new-job-ran AS LOG NO-UNDO.
 
 DEF BUFFER bf-tmp FOR fg-rctd.  /* for tag validation */
 DEF BUFFER xfg-rdtlh FOR fg-rdtlh. /* for tag validation */
-DEF VAR v-post-date AS DATE INITIAL TODAY.
-/*DEFINE VARIABLE cFgEmails AS CHARACTER NO-UNDO.*/
-/*DEFINE VARIABLE iFgEmails AS INTEGER NO-UNDO.  */
-DEFINE VARIABLE lFgEmails AS LOGICAL NO-UNDO.
-
-/*DEF BUFFER b-fg-rctd    FOR fg-rctd.  /* for tag validation */*/
-/*DEF BUFFER b-fg-rdtlh   FOR fg-rdtlh. /* for tag validation */*/
-/*DEF BUFFER reftable-job FOR reftable.                         */
-/*DEF VAR lv-frst-rno  AS INT NO-UNDO.                          */
-/*DEF VAR lv-linker    LIKE fg-rcpts.linker NO-UNDO.            */
-/*DEF VAR ll-set-parts AS LOG NO-UNDO.                          */
-
-{pc/pcprdd4u.i NEW}
-{fg/invrecpt.i NEW}
-{jc/jcgl-sh.i  NEW}
-{fg/fullset.i  NEW}
-{fg/fg-post3.i NEW}
-
-/* For fgpostBatch.p */
-{fg/fgPostBatch.i}
-    
-DEF STREAM logFile.
-DEF STREAM st-email.
 
 &SCOPED-DEFINE item-key-phrase TRUE
 DEF VAR ll-crt-transfer AS LOG NO-UNDO.
@@ -1600,106 +1577,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-finish-goods B-table-Win
-PROCEDURE post-finish-goods:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
- 
-    DEF BUFFER b-fg-rcpts FOR fg-rcpts.
-    DEF BUFFER b-fg-rdtl  FOR fg-rdtl.
-    DEF BUFFER b-fg-bin   FOR fg-bin.
-    DEF BUFFER b-itemfg   FOR itemfg.
-    DEF BUFFER b-itemfg1  FOR itemfg.
-    DEF BUFFER ps-rctd    FOR fg-rctd .
-    DEF BUFFER b-po-ordl  FOR po-ordl. 
-    DEF BUFFER b-oe-ordl  FOR oe-ordl.
-
-    DEF VAR v-one-item     AS LOG.
-    DEF VAR v-dec          AS DEC   DECIMALS 10.
-    DEF VAR v-po-no        LIKE rm-rcpt.po-no NO-UNDO.
-    DEF VAR x              AS INT   NO-UNDO.
-    DEF VAR i              AS INT   NO-UNDO.
-    DEF VAR v-r-qty        LIKE fg-rctd.qty NO-UNDO.
-    DEF VAR v-i-qty        LIKE fg-rctd.qty NO-UNDO.
-    DEF VAR v-t-qty        LIKE fg-rctd.qty NO-UNDO.
-    DEF VAR v-overrun-qty  LIKE fg-rctd.qty NO-UNDO.
-    DEF VAR v-underrun-qty LIKE fg-rctd.qty NO-UNDO.
-    DEF VAR v-reduce-qty   AS INT   NO-UNDO.
-    DEF VAR v-est-no       AS cha   NO-UNDO.
-    DEF VAR v-recid        AS RECID NO-UNDO.
-    DEF VAR v-cost         AS DEC   NO-UNDO.
-    DEF VAR v-binqty       AS INT   NO-UNDO.
-    DEF VAR v-qty          AS INT   NO-UNDO.
-    DEF VAR v-tagcost      AS DEC   NO-UNDO.
-    DEF VAR ld-cvt-qty     AS DEC   NO-UNDO.
-    DEF VAR ld-cvt-cost    AS DEC   DECIMALS 10 NO-UNDO.
-    DEF VAR v-autobin      AS cha   NO-UNDO.
-    DEF VAR v-newhdr       AS LOG   NO-UNDO. 
-    DEF VAR v-fin-qty      AS DEC   NO-UNDO.
-    DEF VAR choice         AS LOG   NO-UNDO.
-    DEF VAR v-trnum        LIKE gl-ctrl.trnum NO-UNDO.
-    DEF VAR uperiod        AS INT   NO-UNDO.
-    DEF VAR sysdate        AS DATE  INIT TODAY NO-UNDO.    
-    DEF VAR v-date         LIKE sysdate NO-UNDO.
-    DEF VAR v-underrun     AS DEC   NO-UNDO.
-    DEF VAR v-qty-received AS INT   NO-UNDO.
-    DEF VAR v-got-fgemail  AS LOG   NO-UNDO.
-    DEF VAR v-fgemail-file AS cha   NO-UNDO.
-    DEF VAR li-tag-no      AS INT   NO-UNDO.
-    DEF VAR ll-qty-changed AS LOG   NO-UNDO.
-    DEF VAR ll-whs-item    AS LOG   NO-UNDO.
-
-    SESSION:SET-WAIT-STATE ("general").
-    /* IF fgPostLog THEN RUN fgPostLog ('Started'). */
-    FIND FIRST period NO-LOCK
-        WHERE period.company EQ cocode
-        AND period.pst     LE v-post-date
-        AND period.pend    GE v-post-date.
-
-    FIND FIRST sys-ctrl  WHERE sys-ctrl.company EQ cocode
-        AND sys-ctrl.name    EQ "AUTOPOST"
-        NO-LOCK NO-ERROR.
-    v-autobin = IF AVAIL sys-ctrl THEN sys-ctrl.char-fld ELSE "".
-
-    DISABLE TRIGGERS FOR LOAD OF itemfg.
-    DISABLE TRIGGERS FOR LOAD OF b-oe-ordl.
-
-    FOR EACH w-fg-rctd:
-        DELETE w-fg-rctd.
-    END.
- 
-    /* Create  workfile records for the finished goods being posted */
-    RUN fg/fgRecsByUser.p (INPUT cocode, INPUT "C", INPUT USERID("ASI"), INPUT TABLE w-fg-rctd BY-reference).
-        
-    ASSIGN
-        v-post-date = TODAY
-        .       
-        
-    RUN fg/fgpostBatch.p ( 
-        INPUT v-post-date, /* Post date      */
-        INPUT NO,          /* tg-recalc-cost */
-        INPUT "C",         /* Receipts       */
-        INPUT lFgEmails,   /* Send fg emails */
-        INPUT TABLE w-fg-rctd BY-reference,
-        INPUT TABLE tt-fgemail BY-reference,
-        INPUT TABLE tt-email BY-reference,
-        INPUT TABLE tt-inv BY-reference).
-            
-    SESSION:SET-WAIT-STATE ("").
-  
-    RUN dispatch IN THIS-PROCEDURE ('open-query':U). 
-
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :
