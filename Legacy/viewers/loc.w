@@ -64,22 +64,23 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR loc, location.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS location.defaultBin loc.active loc.dscr ~
+&Scoped-Define ENABLED-FIELDS location.defaultBin loc.dscr ~
 location.streetAddr[1] location.streetAddr[2] location.streetAddr[3] ~
 location.subCode3 location.subCode1 location.subCode4 location.countryCode ~
 location.subCode2 location.geoLat location.geoLong location.phone ~
-location.externalID[1] location.fax location.email location.notes 
+location.externalID[1] location.fax location.email location.notes ~
+loc.active 
 &Scoped-define ENABLED-TABLES location loc
 &Scoped-define FIRST-ENABLED-TABLE location
 &Scoped-define SECOND-ENABLED-TABLE loc
 &Scoped-Define ENABLED-OBJECTS rsBinType 
 &Scoped-Define DISPLAYED-FIELDS loc.loc location.defaultBin loc.company ~
-location.streetAddr[4] loc.active location.streetAddr[5] loc.dscr ~
-location.streetAddr[6] location.streetAddr[1] location.streetAddr[2] ~
+location.streetAddr[4] loc.dscr location.streetAddr[5] ~
+location.streetAddr[1] location.streetAddr[6] location.streetAddr[2] ~
 location.streetAddr[3] location.subCode3 location.subCode1 ~
 location.subCode4 location.countryCode location.subCode2 location.geoLat ~
 location.geoLong location.phone location.externalID[1] location.fax ~
-location.email location.notes 
+location.email location.notes loc.active 
 &Scoped-define DISPLAYED-TABLES loc location
 &Scoped-define FIRST-DISPLAYED-TABLE loc
 &Scoped-define SECOND-DISPLAYED-TABLE location
@@ -155,79 +156,79 @@ DEFINE FRAME F-Main
      location.streetAddr[4] AT ROW 2.19 COL 97 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 2 BY 1
-     loc.active AT ROW 2.43 COL 14 WIDGET-ID 2
-          LABEL "Active?"
-          VIEW-AS TOGGLE-BOX
-          SIZE 13.4 BY .81
+     loc.dscr AT ROW 2.43 COL 12 COLON-ALIGNED
+          LABEL "Name" FORMAT "x(60)"
+          VIEW-AS FILL-IN 
+          SIZE 73 BY 1
      location.streetAddr[5] AT ROW 3.14 COL 97 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 2 BY 1
-     loc.dscr AT ROW 3.38 COL 15 COLON-ALIGNED
-          LABEL "Name" FORMAT "x(60)"
+     location.streetAddr[1] AT ROW 3.38 COL 12 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 73 BY 1
      location.streetAddr[6] AT ROW 4.1 COL 97 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 2 BY 1
-     location.streetAddr[1] AT ROW 4.33 COL 15 COLON-ALIGNED NO-LABEL
+     location.streetAddr[2] AT ROW 4.33 COL 12 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 73 BY 1
-     location.streetAddr[2] AT ROW 5.29 COL 15 COLON-ALIGNED NO-LABEL
+     location.streetAddr[3] AT ROW 5.29 COL 12 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 73 BY 1
-     location.streetAddr[3] AT ROW 6.24 COL 15 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 73 BY 1
-     location.subCode3 AT ROW 7.19 COL 15 COLON-ALIGNED
+     location.subCode3 AT ROW 6.24 COL 12 COLON-ALIGNED
           LABEL "City"
           VIEW-AS FILL-IN 
           SIZE 53 BY 1
-     location.subCode1 AT ROW 8.14 COL 15 COLON-ALIGNED
+     location.subCode1 AT ROW 7.19 COL 12 COLON-ALIGNED
           LABEL "St/Prov"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     fsStDesc AT ROW 8.19 COL 26 COLON-ALIGNED NO-LABEL
-     location.subCode4 AT ROW 9.1 COL 15 COLON-ALIGNED
+     fsStDesc AT ROW 7.24 COL 23 COLON-ALIGNED NO-LABEL
+     location.subCode4 AT ROW 8.14 COL 12 COLON-ALIGNED
           LABEL "Zip/Post"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     location.countryCode AT ROW 9.14 COL 42 COLON-ALIGNED
+     location.countryCode AT ROW 8.19 COL 39 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8 BY .95
-     fsCtyDesc AT ROW 9.14 COL 51 COLON-ALIGNED NO-LABEL
-     location.subCode2 AT ROW 10.29 COL 15 COLON-ALIGNED
+     fsCtyDesc AT ROW 8.19 COL 48 COLON-ALIGNED NO-LABEL
+     location.subCode2 AT ROW 9.33 COL 12 COLON-ALIGNED
           LABEL "County"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     location.geoLat AT ROW 10.29 COL 42 COLON-ALIGNED
+     location.geoLat AT ROW 9.33 COL 39 COLON-ALIGNED
           LABEL "Lat"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     location.geoLong AT ROW 10.29 COL 73 COLON-ALIGNED
+     location.geoLong AT ROW 9.33 COL 70 COLON-ALIGNED
           LABEL "Long"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     location.phone AT ROW 11.48 COL 15 COLON-ALIGNED
+     location.phone AT ROW 10.52 COL 12 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 42 BY 1
-     location.externalID[1] AT ROW 11.48 COL 70 COLON-ALIGNED
+     location.externalID[1] AT ROW 10.52 COL 67 COLON-ALIGNED
           LABEL "Ext.Code"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     location.fax AT ROW 12.43 COL 15 COLON-ALIGNED
+     location.fax AT ROW 11.48 COL 12 COLON-ALIGNED
           LABEL "Fax"
           VIEW-AS FILL-IN 
           SIZE 42 BY 1
-     location.email AT ROW 13.38 COL 15 COLON-ALIGNED
+     location.email AT ROW 12.43 COL 12 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 73 BY 1
-     location.notes AT ROW 15.05 COL 17 NO-LABEL
+     location.notes AT ROW 14.1 COL 14 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 73 BY 3.1
-     "Notes:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 15.05 COL 8
+     loc.active AT ROW 17.33 COL 14 WIDGET-ID 2
+          LABEL "Active?"
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.4 BY .81
      "Address:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 4.81 COL 6
+          SIZE 10 BY .62 AT ROW 3.86 COL 3
+     "Notes:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 14.1 COL 5
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -390,7 +391,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME location.countryCode
 &Scoped-define SELF-NAME location.defaultBin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL location.defaultBin V-table-Win
 ON LEAVE OF location.defaultBin IN FRAME F-Main /* Default Bin */
@@ -455,8 +455,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME location.subCode1
-&Scoped-define SELF-NAME location.subCode4
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
