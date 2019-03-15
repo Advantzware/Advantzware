@@ -1891,64 +1891,10 @@ PROCEDURE post-finish-goods:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEF BUFFER b-fg-rcpts FOR fg-rcpts.
-    DEF BUFFER b-fg-rdtl  FOR fg-rdtl.
-    DEF BUFFER b-fg-bin   FOR fg-bin.
-    DEF BUFFER b-itemfg   FOR itemfg.
-    DEF BUFFER b-itemfg1  FOR itemfg.
-    DEF BUFFER ps-rctd    FOR fg-rctd .
-    DEF BUFFER b-po-ordl  FOR po-ordl. 
-    DEF BUFFER b-oe-ordl  FOR oe-ordl.
 
-    DEF VAR v-one-item     AS LOG.
-    DEF VAR v-dec          AS DEC   DECIMALS 10.
-    DEF VAR v-po-no        LIKE rm-rcpt.po-no NO-UNDO.
-    DEF VAR x              AS INT   NO-UNDO.
-    DEF VAR i              AS INT   NO-UNDO.
-    DEF VAR v-r-qty        LIKE fg-rctd.qty NO-UNDO.
-    DEF VAR v-i-qty        LIKE fg-rctd.qty NO-UNDO.
-    DEF VAR v-t-qty        LIKE fg-rctd.qty NO-UNDO.
-    DEF VAR v-overrun-qty  LIKE fg-rctd.qty NO-UNDO.
-    DEF VAR v-underrun-qty LIKE fg-rctd.qty NO-UNDO.
-    DEF VAR v-reduce-qty   AS INT   NO-UNDO.
-    DEF VAR v-est-no       AS cha   NO-UNDO.
-    DEF VAR v-recid        AS RECID NO-UNDO.
-    DEF VAR v-cost         AS DEC   NO-UNDO.
-    DEF VAR v-binqty       AS INT   NO-UNDO.
-    DEF VAR v-qty          AS INT   NO-UNDO.
-    DEF VAR v-tagcost      AS DEC   NO-UNDO.
-    DEF VAR ld-cvt-qty     AS DEC   NO-UNDO.
-    DEF VAR ld-cvt-cost    AS DEC   DECIMALS 10 NO-UNDO.
-    DEF VAR v-autobin      AS cha   NO-UNDO.
-    DEF VAR v-newhdr       AS LOG   NO-UNDO. 
-    DEF VAR v-fin-qty      AS DEC   NO-UNDO.
-    DEF VAR choice         AS LOG   NO-UNDO.
-    DEF VAR v-trnum        LIKE gl-ctrl.trnum NO-UNDO.
-    DEF VAR uperiod        AS INT   NO-UNDO.
-    DEF VAR sysdate        AS DATE  INIT TODAY NO-UNDO.    
-    DEF VAR v-date         LIKE sysdate NO-UNDO.
-    DEF VAR v-underrun     AS DEC   NO-UNDO.
-    DEF VAR v-qty-received AS INT   NO-UNDO.
-    DEF VAR v-got-fgemail  AS LOG   NO-UNDO.
-    DEF VAR v-fgemail-file AS cha   NO-UNDO.
-    DEF VAR li-tag-no      AS INT   NO-UNDO.
-    DEF VAR ll-qty-changed AS LOG   NO-UNDO.
-    DEF VAR ll-whs-item    AS LOG   NO-UNDO.
 
     SESSION:SET-WAIT-STATE ("general").
     /* IF fgPostLog THEN RUN fgPostLog ('Started'). */
-    FIND FIRST period NO-LOCK
-        WHERE period.company EQ cocode
-        AND period.pst     LE v-post-date
-        AND period.pend    GE v-post-date.
-
-    FIND FIRST sys-ctrl  WHERE sys-ctrl.company EQ cocode
-        AND sys-ctrl.name    EQ "AUTOPOST"
-        NO-LOCK NO-ERROR.
-    v-autobin = IF AVAIL sys-ctrl THEN sys-ctrl.char-fld ELSE "".
-
-    DISABLE TRIGGERS FOR LOAD OF itemfg.
-    DISABLE TRIGGERS FOR LOAD OF b-oe-ordl.
 
     FOR EACH w-fg-rctd:
         DELETE w-fg-rctd.
