@@ -8,12 +8,9 @@
     Notes       : This is the "batch wrapper" for Reftable Conversions
                     The work is performed by the structured procedure spReftable.p which
                     is called as a persistent procedure here and is referenced as hConvert.
-                    The scope-define "converter" contains logic that tests for reftable 
-                    existence before running the conversion procedure.  This should result
-                    in an efficiency gain over the previous versions.
-                    In general, the only "maintenance" for this program is to add a 
-                    reftable-type to the list "cRefTableList".  All other processing and
-                    error catch are either built-in, or handled by hConvert.
+                    In general, there is no "maintenance" for this program, as the variable 
+                    is maintained by reading internal procedures in the SP.  All other processing 
+                    and error catch are either built-in, or handled by hConvert.
                     Logs are configured in hConvert, but are stored in c:\tmp by default.
   ----------------------------------------------------------------------*/
 
