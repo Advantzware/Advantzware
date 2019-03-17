@@ -61,7 +61,6 @@ ASSIGN
 
 
 /* **********************  Internal Procedures  *********************** */
-
 PROCEDURE _closeLog:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -99,9 +98,7 @@ PROCEDURE _closeLog:
     
     OUTPUT CLOSE.                     
 
-
 END PROCEDURE.
-
 
 PROCEDURE _epConvert:
 /*------------------------------------------------------------------------------
@@ -109,6 +106,9 @@ PROCEDURE _epConvert:
  Notes:     Record counts, reftable1 creation, logging, etc.
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcRefTable AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCount AS CHAR NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCount AS INT NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiProcessed AS INT NO-UNDO.
     
     DISABLE TRIGGERS FOR LOAD OF reftable.        
     DISABLE TRIGGERS FOR LOAD OF reftable1.        
@@ -122,23 +122,31 @@ PROCEDURE _epConvert:
         ASSIGN 
             iRecordCount = iRecordCount + 1.
         
-        RUN VALUE(ipcRefTable) (INPUT ipcRefTable,
-                                INPUT ROWID(reftable)). 
-
-        FIND CURRENT reftable EXCLUSIVE NO-ERROR.
-        CREATE reftable1.
-        BUFFER-COPY reftable TO reftable1.
-        RELEASE reftable1.
-        DELETE reftable. 
-
-        IF iProcessCount GE iLimit THEN LEAVE blkProcess. 
+        IF ipcCount NE "Count" THEN DO:
+            RUN VALUE(ipcRefTable) (INPUT ipcRefTable,
+                                    INPUT ROWID(reftable)). 
+    
+            FIND CURRENT reftable EXCLUSIVE NO-ERROR.
+            CREATE reftable1.
+            BUFFER-COPY reftable TO reftable1.
+            RELEASE reftable1.
+            DELETE reftable. 
+    
+            IF iProcessCount GE iLimit THEN LEAVE blkProcess.
+        END. 
     END.  /*FOR EACH reftable*/  
 
-    RUN _writeLog (ipcReftable, iRecordCount, "").
+    IF ipcCount NE "Count" THEN DO:
+        RUN _writeLog (ipcReftable, iRecordCount, "").
+        
+        ASSIGN 
+            iTotProcessCount = iTotProcessCount + iProcessCount
+            iTotRecordCount = iTotRecordCount + iRecordCount.
+    END.
     
     ASSIGN 
-        iTotProcessCount = iTotProcessCount + iProcessCount
-        iTotRecordCount = iTotRecordCount + iRecordCount.
+        opiCount = iRecordCount
+        opiProcessed = iProcessCount.
             
 END PROCEDURE.
 
@@ -199,6 +207,27 @@ PROCEDURE _writeLog:
     END. 
     
     OUTPUT CLOSE.
+
+END PROCEDURE.
+
+PROCEDURE _ProcTemplate:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /*   REMOVE THIS LINE AFTER COPYING THE TEMPLATE
+&SCOPED-DEFINE cTable <tablename>    
+{&CommonCode}
+        
+    FOR EACH <tablename> EXCLUSIVE WHERE 
+        <condition>:
+        
+        IF <condition> THEN ASSIGN 
+            truck.<value> = reftable.val[1] 
+            iProcessCount = iProcessCount + 1.
+
+    END.
+    REMOVE THIS LINE AFTER COPYING THE TEMPLATE  */
 
 END PROCEDURE.
 
@@ -2530,28 +2559,6 @@ PROCEDURE vend-setup:
             iProcessCount = iProcessCount + 1.
 
     END.
-
-END PROCEDURE.
-
-
-PROCEDURE zProcTemplate:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    /*   REMOVE THIS LINE AFTER COPYING THE TEMPLATE
-&SCOPED-DEFINE cTable <tablename>    
-{&CommonCode}
-        
-    FOR EACH <tablename> EXCLUSIVE WHERE 
-        <condition>:
-        
-        IF <condition> THEN ASSIGN 
-            truck.<value> = reftable.val[1] 
-            iProcessCount = iProcessCount + 1.
-
-    END.
-    REMOVE THIS LINE AFTER COPYING THE TEMPLATE  */
 
 END PROCEDURE.
 
