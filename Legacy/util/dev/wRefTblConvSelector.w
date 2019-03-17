@@ -64,7 +64,7 @@ RUN util/dev/spRefTable.p PERSISTENT SET hConvert.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS eInstructions bSelectAll bCount bConvert ~
 bExit 
-&Scoped-Define DISPLAYED-OBJECTS eInstructions 
+&Scoped-Define DISPLAYED-OBJECTS eInstructions fiStatus 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -100,6 +100,10 @@ DEFINE VARIABLE eInstructions AS CHARACTER
      VIEW-AS EDITOR NO-BOX
      SIZE 67 BY 3.33 NO-UNDO.
 
+DEFINE VARIABLE fiStatus AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 69 BY .62 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -109,10 +113,11 @@ DEFINE FRAME fMain
      bCount AT ROW 21 COL 5
      bConvert AT ROW 21 COL 26
      bExit AT ROW 21 COL 51
+     fiStatus AT ROW 22.91 COL 1 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 77.2 BY 21.76.
+         SIZE 72.6 BY 22.76.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -132,9 +137,9 @@ DEFINE FRAME fMain
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW wWin ASSIGN
          HIDDEN             = YES
-         TITLE              = "Interactive RefTable Analysis and Conversion"
-         HEIGHT             = 21.76
-         WIDTH              = 73.2
+         TITLE              = "Interactive RefTable Conversion"
+         HEIGHT             = 22.81
+         WIDTH              = 72.8
          MAX-HEIGHT         = 28.81
          MAX-WIDTH          = 146.2
          VIRTUAL-HEIGHT     = 28.81
@@ -169,6 +174,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME fMain
    FRAME-NAME                                                           */
+/* SETTINGS FOR FILL-IN fiStatus IN FRAME fMain
+   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
 THEN wWin:HIDDEN = yes.
 
@@ -183,7 +190,7 @@ THEN wWin:HIDDEN = yes.
 
 &Scoped-define SELF-NAME wWin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wWin wWin
-ON END-ERROR OF wWin /* Interactive RefTable Analysis and Conversion */
+ON END-ERROR OF wWin /* Interactive RefTable Conversion */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -196,7 +203,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wWin wWin
-ON WINDOW-CLOSE OF wWin /* Interactive RefTable Analysis and Conversion */
+ON WINDOW-CLOSE OF wWin /* Interactive RefTable Conversion */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
@@ -217,6 +224,8 @@ DO:
     DEFINE VAR cProcessList AS CHAR NO-UNDO.
     DEFINE VAR iCount AS INT NO-UNDO.
     DEFINE VAR iProcessed AS INT NO-UNDO.
+    DEFINE VAR iTotCount AS INT NO-UNDO.
+    DEFINE VAR iTotProc AS INT NO-UNDO.
     
     DO iCtr = 1 TO hBrowse:NUM-SELECTED-ROWS:
         hBrowse:FETCH-SELECTED-ROW(iCtr).
@@ -230,7 +239,8 @@ DO:
                                         OUTPUT iProcessed). 
             hBufferField = hBuffer:BUFFER-FIELD(2).
             ASSIGN 
-                hBufferField:BUFFER-VALUE = iCount.
+                hBufferField:BUFFER-VALUE = iCount
+                iTotCount = iTotCount + iCount.
         END.
         ELSE DO: 
             RUN _epConvert IN hConvert (INPUT cRefTableEntry,
@@ -239,11 +249,16 @@ DO:
                                         OUTPUT iProcessed). 
             hBufferField = hBuffer:BUFFER-FIELD(2).
             ASSIGN 
-                hBufferField:BUFFER-VALUE = iCount.
+                hBufferField:BUFFER-VALUE = iCount
+                iTotCount = iTotCount + iCount.
             hBufferField = hBuffer:BUFFER-FIELD(3).
             ASSIGN 
-                hBufferField:BUFFER-VALUE = iProcessed.
+                hBufferField:BUFFER-VALUE = iProcessed
+                iTotProc = iTotProc + iProcessed.
         END.
+        ASSIGN 
+            fiStatus:SCREEN-VALUE IN FRAME fMain = "Processing '" + cRefTableEntry + "' (" + STRING(iCtr) + "/" + STRING(hBrowse:NUM-SELECTED-ROWS) + 
+                                                   "). Counted " + STRING(iTotCount) + ". Processed " + STRING(iTotProc) + ".".
     END.
     
     hBrowse:REFRESH().
@@ -252,7 +267,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &Scoped-define SELF-NAME bSelectAll
@@ -334,7 +348,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY eInstructions 
+  DISPLAY eInstructions fiStatus 
       WITH FRAME fMain IN WINDOW wWin.
   ENABLE eInstructions bSelectAll bCount bConvert bExit 
       WITH FRAME fMain IN WINDOW wWin.
@@ -388,10 +402,11 @@ CREATE BROWSE hBrowse
     VISIBLE = NO
     MULTIPLE = TRUE 
     SEPARATORS = TRUE 
+    ROW-MARKERS = FALSE 
     SENSITIVE = YES 
     ROW = 4
-    COL = 4
-    WIDTH = 66
+    COL = 5
+    WIDTH = 64.2
     HEIGHT = 15.53.
 
 DO iCtr = 1 TO 3:
