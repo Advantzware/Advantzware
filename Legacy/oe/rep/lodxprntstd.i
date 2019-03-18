@@ -13,7 +13,7 @@
           WHERE company.company  = cocode  NO-ERROR.
 
 
-IF tb_print-view THEN DO:
+IF iplPrintView THEN DO:
     PUT  "<FArial>".
     PUT  "<C+25><#1>".
     PUT  "<=1>" SKIP.

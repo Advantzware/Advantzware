@@ -50,6 +50,8 @@ DEFINE VARIABLE dtDueDate2 LIKE  oe-ordl.req-date NO-UNDO.
 DEFINE VARIABLE lSched     AS    LOGICAL          NO-UNDO.
 DEFINE VARIABLE iIndex     AS INTEGER             NO-UNDO.
 DEFINE VARIABLE tmpFile    AS CHARACTER           NO-UNDO.
+DEFINE VARIABLE lc-result  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cResult    AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bOERell FOR oe-rell.
 
@@ -564,6 +566,12 @@ FOR EACH tt-report NO-LOCK
                                          ELSE oe-rel.rel-date.
        LEAVE.
     END. /* end of for each oe-rel */
+
+    lc-result = oe-ord.stat .
+        RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
+        IF cResult NE "" THEN
+            lc-result  = cResult .
+
     CREATE ttOpenOrderReport.
     ASSIGN
         ttOpenOrderReport.custNo      = cust.cust-no
@@ -587,6 +595,7 @@ FOR EACH tt-report NO-LOCK
         ttOpenOrderReport.palletCount = ttOpenOrderReport.unit
                                       * ttOpenOrderReport.pallet
         ttOpenOrderReport.sellPrice   = fCalcSellPrice()
+        ttOpenOrderReport.cSTATUS     = lc-result
         ttOpenOrderReport.xxSort1     = IF cPrimarySort EQ "Customer" THEN ttOpenOrderReport.custNo
                                         ELSE tt-report.key-01
         ttOpenOrderReport.xxSort2     = tt-report.key-03

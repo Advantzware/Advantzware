@@ -88,6 +88,7 @@ def buffer vjob for job.
 def buffer b-eb for eb.
 def buffer b-ef for ef.
 DEF BUFFER b-rt FOR reftable.
+DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 
 def new shared workfile wrk-op
   field m-dscr like est-op.m-dscr
@@ -320,12 +321,14 @@ FUNCTION barCode RETURNS CHARACTER (ipBarCode AS CHARACTER):
          ELSE ipBarCode.
 END FUNCTION.
 
-FUNCTION FNdeptnotes RETURNS char (INPUT v-reckey AS CHAR, v-codes AS CHAR, v-form-no AS INT):
+FUNCTION FNdeptnotes RETURNS char (INPUT v-reckey AS CHAR, v-codes AS CHAR, v-form-no AS INT, v-job AS char):
    ASSIGN v-text = "".
    FOR EACH notes NO-LOCK
                   WHERE notes.rec_key = v-reckey 
                     AND CAN-DO(v-codes,notes.note_code)
-                    AND notes.note_form_no = v-form-no, 
+                    AND notes.note_form_no = v-form-no
+                    AND notes.note_type NE "O"
+                    AND (IF v-job GT "" THEN notes.note_group EQ v-job ELSE TRUE), 
       FIRST dept NO-LOCK 
                  WHERE dept.code = notes.note_code
       BY notes.note_form_no 
@@ -403,8 +406,7 @@ END FUNCTION.
            lv-prt-date = TODAY
            lv-prt-time = STRING(TIME,"hh:mm am").
 
-    IF vjobreckey = "" THEN
-    FOR FIRST job FIELDS (job.rec_key) NO-LOCK
+    FOR FIRST job FIELDS (job.rec_key) NO-LOCK 
                    WHERE job.company = job-hdr.company
                      AND job.job     = job-hdr.job:
         ASSIGN vjobreckey = job.rec_key.
@@ -800,32 +802,10 @@ END FUNCTION.
                     first item
                     {sys/look/itemivW.i}
                        and item.i-no eq job-mat.i-no:
-
-                    FIND FIRST reftable 
-                         WHERE reftable EQ "ce/v-est3.w Unit#"
-                           AND reftable.company EQ b-eb.company
-                           AND reftable.loc     EQ eb.est-no
-                           AND reftable.code    EQ STRING(eb.form-no,"9999999999")
-                           AND reftable.code2   EQ STRING(eb.blank-no,"9999999999")
-                         NO-LOCK NO-ERROR.
-
-                    FIND FIRST b-rt
-                         WHERE b-rt.reftable EQ "ce/v-est3.w Unit#1"
-                           AND b-rt.company  EQ b-eb.company
-                           AND b-rt.loc      EQ eb.est-no
-                           AND b-rt.code     EQ STRING(eb.form-no,"9999999999")
-                           AND b-rt.code2    EQ STRING(eb.blank-no,"9999999999")
-                         NO-LOCK NO-ERROR.
                        
                     do i = 1 to 20:
-                        v-unit = IF i LE 12 AND AVAIL reftable 
-                                 THEN reftable.val[i]
-                                 ELSE
-                                 IF AVAIL b-rt THEN b-rt.val[i - 12]
-                                               ELSE 0.
-                         cSide = IF i LE 12 AND AVAIL reftable  THEN SUBSTRING(reftable.dscr,i,1)
-                              ELSE IF AVAIL b-rt THEN SUBSTRING(b-rt.dscr,i - 12,1)
-                                               ELSE "" .
+                        v-unit = eb.unitNo[i].
+                         cSide = SUBSTRING(eb.side[i],1).
                                    
                         if eb.i-code2[i] eq job-mat.i-no then do:
                              
@@ -946,7 +926,14 @@ END FUNCTION.
                 if avail oe-ordl then do:
                     v-est-qty = oe-ordl.qty.
                     find first oe-ord of oe-ordl no-lock.
-                    IF AVAIL oe-ord THEN do:
+                        FIND LAST bf-oe-ordl NO-LOCK
+                            WHERE bf-oe-ordl.company EQ cocode
+                            AND bf-oe-ordl.est-no  EQ oe-ordl.est-no
+                            AND bf-oe-ordl.ord-no  LT oe-ordl.ord-no
+                            NO-ERROR.
+                        IF AVAILABLE bf-oe-ordl THEN
+                            cLastOrd = STRING(bf-oe-ordl.ord-no).
+                    IF AVAIL oe-ord  AND cLastOrd EQ "" THEN do:                        
                         ASSIGN
                         cLastOrd = IF oe-ord.po-no2 NE "" THEN oe-ord.po-no2
                             ELSE STRING(oe-ord.pord-no) .
@@ -1355,24 +1342,24 @@ END FUNCTION.
             SKIP.
 
          PUT "Customer Service Department Notes:" SKIP.
-             ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"CS",job-hdr.frm),80).
+             ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"CS",job-hdr.frm,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
             END.  
-            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"CS",0),80).
+            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"CS",0,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
             END.  
 
           PUT v-thick  "<C1>Prepress Department Notes: "      SKIP .
-          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PP",job-hdr.frm),80).
+          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PP",job-hdr.frm,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
             END.  
-            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PP",0),80).
+            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PP",0,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
@@ -1380,12 +1367,12 @@ END FUNCTION.
 
 
           PUT   "Quality Control Department Notes: " SKIP .
-          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"QC",job-hdr.frm),80).
+          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"QC",job-hdr.frm,string(job-hdr.job)),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
             END. 
-            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"QC",0),80).
+            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"QC",0,STRING(job-hdr.job)),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
@@ -1393,24 +1380,24 @@ END FUNCTION.
           
 
           PUT   "Farm Out Department Notes:  "     SKIP .
-          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FO",job-hdr.frm),80).
+          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FO",job-hdr.frm,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
             END.  
-            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FO",0),80).
+            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FO",0,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
             END.  
 
           PUT   "Foil Stamp Department Notes: "    SKIP .
-          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FS",job-hdr.frm),80).
+          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FS",job-hdr.frm,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
             END.  
-            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FS",0),80).
+            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FS",0,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
@@ -1419,14 +1406,14 @@ END FUNCTION.
 
 
         IF lMachSheeter THEN DO:
-            IF ef.roll THEN
+            IF AVAIL ef AND ef.roll THEN
                 droll-len = ef.gsh-len .
             ELSE droll-len = 0 .
             PUT v-thick "<C1><b>Sheeter </b>" SKIP
              "Approval & In-Process Inspection Checklist Complete :  <FROM><R+1><C+2><RECT><||3>" SKIP
              "Sheeter Department Notes:  " SKIP .
 
-           ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"RS",job-hdr.frm),80).
+           ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"RS",job-hdr.frm,""),80).
         END.                                                                     
              
         DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
@@ -1492,7 +1479,7 @@ END FUNCTION.
         ASSIGN r = 1.
         PUT "<C1>Printing Department Notes:" SKIP.        
         
-        ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PR",job-hdr.frm),80).
+        ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PR",job-hdr.frm,""),80).
              
         DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
             PUT "<C1>" 
@@ -1533,7 +1520,7 @@ END FUNCTION.
 
        /* rdb 02/16/07  02140714 */
         ASSIGN
-          v-text = FNformat(FNdeptnotes(vjobreckey,"dc",job-hdr.frm),80)
+          v-text = FNformat(FNdeptnotes(vjobreckey,"dc",job-hdr.frm,""),80)
           intLnCount = 1.
         DO i = 1 TO NUM-ENTRIES(v-text,"`"):      
           intLnCount = intLnCount + 1.
@@ -1555,12 +1542,12 @@ END FUNCTION.
         RUN PRprintfg2 ("CC").
 
         PUT "Hand Stripping Department Notes:" SKIP.
-             ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"HS",job-hdr.frm),80).
+             ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"HS",job-hdr.frm,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
              END.   
-             ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"HS",0),80).
+             ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"HS",0,""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
@@ -1637,7 +1624,7 @@ END FUNCTION.
 
        /* rdb 02/16/07  02140714 */
         ASSIGN 
-          v-text = FNformat(FNdeptnotes(vjobreckey,"WN",job-hdr.frm),80)
+          v-text = FNformat(FNdeptnotes(vjobreckey,"WN",job-hdr.frm,""),80)
           intLnCount = 1.
 
         DO i = 1 TO NUM-ENTRIES(v-text,"`"):        
@@ -1842,7 +1829,7 @@ END FUNCTION.
                 dlayerDepth  = reftable.val[1]
                 ddivider = reftable.val[2].
 
-            IF eb.est-type EQ 1 THEN
+            IF eb.est-type EQ 1 AND AVAIL ef THEN
                 do iv-li = 1 TO 4:
                 find first item WHERE
                     item.company EQ ef.company and
@@ -1864,7 +1851,7 @@ END FUNCTION.
             find first item
                 {sys/look/itemW.i}
                 and item.i-no eq ef.board
-                no-lock.
+                NO-LOCK NO-ERROR.
             IF AVAIL ITEM THEN
                 b-wt   = item.basis-w .
                 ELSE 
@@ -1941,7 +1928,7 @@ END FUNCTION.
         PUT "<C1>Approval & In-Process Inspection Checklist Complete : <FROM><R+1><C+2><RECT><||3> " SKIP.
 
         ASSIGN 
-          v-text = FNformat(FNdeptnotes(vjobreckey,"GL",job-hdr.frm),80)
+          v-text = FNformat(FNdeptnotes(vjobreckey,"GL",job-hdr.frm,""),80)
           intLnCount = 1.
 
         DO i = 1 TO NUM-ENTRIES(v-text,"`"):        
@@ -2303,12 +2290,12 @@ END FUNCTION.
                 "<AT=,8.2>" chrBarcode[3].
 
                PUT SKIP "Shipping Department Notes:" SKIP.
-               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",job-hdr.frm),80).
+               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",job-hdr.frm,""),80).
                DO k = 1 TO NUM-ENTRIES(v-text,"`"):       
                    PUT  "<C1>" 
                        ENTRY(k,v-text,"`") FORMAT "X(80)" SKIP. 
                END.
-               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",0),80).
+               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",0,""),80).
                DO k = 1 TO NUM-ENTRIES(v-text,"`"):       
                    PUT  "<C1>" 
                        ENTRY(k,v-text,"`") FORMAT "X(80)" SKIP. 
@@ -2534,12 +2521,12 @@ END FUNCTION.
                   "<AT=,8.2>" chrBarcode[3].    
 
             PUT SKIP "Shipping Department Notes:" SKIP.
-               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",job-hdr.frm),80).
+               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",job-hdr.frm,""),80).
                DO k = 1 TO NUM-ENTRIES(v-text,"`"):       
                    PUT  "<C1>" 
                        ENTRY(k,v-text,"`") FORMAT "X(80)" SKIP. 
                END.
-               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",0),80).
+               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",0,""),80).
                DO k = 1 TO NUM-ENTRIES(v-text,"`"):       
                    PUT  "<C1>" 
                        ENTRY(k,v-text,"`") FORMAT "X(80)" SKIP. 

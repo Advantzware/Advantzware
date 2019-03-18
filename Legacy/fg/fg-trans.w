@@ -351,7 +351,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-trans ( 18.10 , 146.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'p-updsav.w':U ,
+             INPUT  'panels/p-updbtn.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -501,6 +501,52 @@ PROCEDURE send-records :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-buttons-insensitive W-Win 
+PROCEDURE make-buttons-insensitive :
+/* -----------------------------------------------------------
+  Purpose:  Make buttons insensitive after add until complete
+  Parameters:  <none>
+  Notes:  
+ -------------------------------------------------------------*/
+
+   
+    IF VALID-HANDLE(h_f-add) THEN
+       RUN disable-add-button IN h_f-add.
+    IF VALID-HANDLE(h_exit) THEN
+       RUN make-insensitive IN h_exit. 
+    IF VALID-HANDLE(h_options) THEN
+       RUN make-insensitive IN h_options.
+    IF VALID-HANDLE(h_loadtag) THEN
+       RUN make-insensitive IN h_loadtag.
+   RETURN.
+       
+END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-buttons-sensitive W-Win 
+PROCEDURE make-buttons-sensitive :
+/* -----------------------------------------------------------
+  Purpose:  Make buttons sensitive after add is complete
+  Parameters:  <none>
+  Notes:   
+-------------------------------------------------------------*/
+
+    IF VALID-HANDLE(h_f-add) THEN
+       RUN make-sensitive IN h_f-add.
+    IF VALID-HANDLE(h_exit) THEN
+       RUN make-sensitive IN h_exit.
+    IF VALID-HANDLE(h_options) THEN
+       RUN make-sensitive IN h_options.
+    IF VALID-HANDLE(h_loadtag) THEN
+       RUN make-sensitive IN h_loadtag.
+   RETURN.
+       
+END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

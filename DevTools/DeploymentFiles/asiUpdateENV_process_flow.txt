@@ -1,0 +1,270 @@
+At startup, run:
+    PROCEDURE ipCreateTTIniFile
+        Reades cIniVarList
+        CREATE empty ttIniFile record for each one
+    PROCEDURE ipFindIniFile
+        Uses various methods to locate advantzware.ini file
+    PROCEDURE ipReadIniFile
+        Reads advantazware.ini file and populates pre-created ttIniFile recs
+        If ttIniFile has empty value (nothing in advantzware.ini), user enters value
+    PROCEDURE ipExpandVarNames
+        Create typing shortcuts for various variables
+    PROCEDURE ipSetDispVars
+        Populates screen variables from data
+    PROCEDURE ipValidateDB
+        Uses "new" filename to verigy that db is at current level
+        
+On leave of any object, run:
+    PROCEDURE ipUpdateTTIniFile
+        PREVIOUS vers: allowed changes to ini file variables.
+        Now only confirms target version
+
+On choose of Start Update button, run
+    PROCEDURE ipProcessAll
+
+
+PROCEDURE ipProcessAll flow:
+    PROCEDURE ipStatus - run multiple times during process, writes log
+    IF tbBackupDBs THEN RUN PROCEDURE ipBackupDBs
+        FOR asi AND audit databases
+            IF .lk file DOESN'T EXIST RETURN FAILURE
+            ELSE RUN probkup ONLINE TO location specified in advantzware.ini
+            IF backup NOT CREATED RETURN FAILURE
+    IF tbUserControl THEN RUN PROCEDURE ipUpdateUserControl
+        IF NOT exist usercontrol, CREATE IT
+        ASSIGN numLicensedUsers from SCREEN
+    IF tbUserCleanup THEN RUN PROCEDURE ipFixUsers
+        IF NO "asi" user THEN
+            PROCEDURE ipCreateASIUser
+                CREATE users record for "asi"
+            PROCEDURE ipConfirmASIUser
+                ASSIGN default values
+                PROCEDURE ipSetAsiPwd
+                    ASSIGN _user record password
+                PROCEDURE ipAddSuppUserRecords
+                    IF NO usercomp records, CREATE them
+                    IF NO usr record, CREATE it
+                    IF NO /UserMenu folder, CREATE it
+        otherwise
+            PROCEDURE ipConfirmASIUser
+                ASSIGN default values
+                PROCEDURE ipSetAsiPwd
+                    ASSIGN _user record password
+                PROCEDURE ipAddSuppUserRecords
+                    IF NO usercomp records, CREATE them
+                    IF NO usr record, CREATE it
+                    IF NO /UserMenu folder, CREATE it
+
+        IF no "admin" user THEN
+            PROCEDURE ipCreateAdminUser
+                CREATE users record for "admin"
+            PROCEDURE ipConfirmAdminUser
+                PROCEDURE ipSetAdminPwd
+                    ASSIGN _user record password
+                PROCEDURE ipAddSuppUserRecords
+                    IF NO usercomp records, CREATE them
+                    IF NO usr record, CREATE it
+                    IF NO /UserMenu folder, CREATE it
+        otherwise
+            PROCEDURE ipConfirmAdminUser
+                PROCEDURE ipSetAdminPwd
+                    ASSIGN _user record password
+                PROCEDURE ipAddSuppUserRecords
+                    IF NO usercomp records, CREATE them
+                    IF NO usr record, CREATE it
+                    IF NO /UserMenu folder, CREATE it
+            
+        RUN PROCEDURE ipLoadNewUserData
+            ASSIGN 
+                userImage[1]
+                showMnemonic
+                positionMnemonic
+                userType
+                securityLevel
+                use_colors
+                use_fonts
+                showOnPO
+                showOnBoL
+                showOnInv
+                showOnQuote
+                phone 
+                fax
+                phone-cnty
+                fax-cnty
+            REMOVE reftable types
+                users.user-docs
+                users.phone-no
+                users.fax-no
+                users.phone-cnty
+                users.fax-cnty
+                users.user-docs
+        RUN PROCEDURE ipCleanBadUserData
+            REMOVE records for non-existent users
+                
+    IF tbDelBadData THEN RUN PROCEDURE ipDelBadData
+        REMOVE parmfile, mfdata records
+        IF need Usercontrol, REMOVE userlog
+    IF tbUpdateMaster THEN RUN PROCEDURE ipUpdateMaster
+        RUN PROCEDURE ipBackupDataFiles
+            CREATE backup files of
+                AuditTbl
+                sys-ctrl
+                sys-ctrl-shipto
+                emailcod
+                lookups
+                module
+                prgmxref
+                prgrms
+                translation
+                userlanguage
+                xusermenu
+                cueCard
+                cueCardText
+        IF prgrms.d exists THEN RUN PROCEDURE ipLoadPrograms
+            IF prgrms record NOT THERE, create and copy from .d
+            ELSE copy fields:
+                prgtitle
+                run_persistent
+                dir_group
+                use_colors
+                use_fonts
+                track_usage
+                popup
+                prgm_ver
+                menu_item
+                mfgroup
+                menuOrder
+                menuLevel
+                itemParent
+                mnemonic
+                systemType
+                menuImage
+                translation
+                widget_bgc
+                widget_fgc
+                widget_font
+            IF NOT in .d, DELETE 
+            IF "about." changed title to "About"
+            IF "audit." assign dir_group = "system", run_persistent = true, menu_item = true   
+            ENSURE "admin" user has same privileges as "asi"
+                (Do the same for usergrps)
+        IF prgmxref.d exists THEN RUN PROCEDURE ipLoadProgramXref
+            IF NOT there, create it
+            ELSE ASSIGN
+                prgmname
+                pageno
+            IF NOT in .d, DELETE 
+        IF lookups.d exists THEN RUN PROCEDURE ipLoadLookups
+            DELETE all from DB
+            LOAD from .d
+        IF emailcod.d exists THEN RUN PROCEDURE ipLoadEmailCodes
+            IF NOT there, create it
+        IF module.d exists THEN RUN PROCEDURE ipLoadModules
+            IF NOT there, create it
+            IF NOT in .d, DELETE 
+            for various m99 modules RUN PROCEDURE ipConvertModule
+                ASSIGN module.module = to Value
+        IF translation.d exists THEN RUN PROCEDURE ipLoadTranslation
+            IF NOT there, create it
+        IF userlanguage.d exists THEN RUN PROCEDURE ipLoadUserLanguage
+            IF NOT there, create it
+        IF xusermenu.d exists THEN RUN PROCEDURE ipLoadLoadXuserMenu
+            IF NOT there, create it
+        IF utilities.d exists THEN RUN PROCEDURE ipLoadUtilitiesTable
+            DELETE all from DB
+            LOAD from .d
+            IF NOT in .d, DELETE 
+            DELETE reftables for reftable "Utilities" and associated "Notes"
+        IF audittbl.d exists THEN RUN PROCEDURE ipLoadAuditRecs
+            IF NOT there, create it
+            IF NOT in .d, DELETE 
+        IF cueCard.d exists THEN RUN PROCEDURE ipLoadCueCard
+            IF NOT there, create it
+            IF NOT in .d, DELETE 
+        IF cueCardText.d exists THEN RUN PROCEDURE ipLoadCueCardText
+            IF NOT there, create it
+            IF NOT in .d, DELETE 
+    IF tbRunDataFix THEN RUN PROCEDURE ipDataFix
+        IF current version LT 16.0.1 THEN RUN PROCEDURE ipDataFix160001
+        IF current version LT 16.1.4 THEN RUN PROCEDURE ipDataFix160104
+            Update po_seq from last po-ord
+        IF current version LT 16.2.0 THEN RUN PROCEDURE ipDataFix160200
+            PROCEDURE ipCheckPayMaster
+                CREATE payment-type records
+            ASSIGN vend.payment-type
+        IF current version LT 16.6.0 THEN RUN PROCEDURE ipDataFix160600
+            PROCEDURE ipDelDupeNotes
+                REMOVE exact duplicate notes records
+                CREATE log of possible duplicats (all same except content)
+        IF current version LT 16.6.9 THEN RUN PROCEDURE ipDataFix160609
+            PROCEDURE ipInvRnoSeq
+                Remove orphaned inv-line records
+                Create inv_r_no_seq from last inv-head by r-no
+            PROCEDURE ipRelRnoSeq
+                Create oerel_rno_seq from last oe-rel by r-no
+        IF current version LT 16.7.0 THEN RUN PROCEDURE ipDataFix160700
+            ASSIGN oe-ctrl.u-inv = TRUE
+        IF current version LT 16.7.4 THEN RUN PROCEDURE ipDataFix160704
+            Ensure jobCode sequence is GT 100
+            If any empty job-codes, assign dmiID
+            If job-codes had been built with ID LT 100, fix them
+        IF current version LT 16.7.8 THEN RUN PROCEDURE ipDataFix160708
+        IF current version LT 16.7.12 THEN RUN PROCEDURE ipDataFix160712
+            PROCEDURE ipConvertUsrFile
+                Change format of advantzware.usr file to accomodate multi-modes per environment
+            PROCEDURE ipTurnOffUserColors
+                ASSIGN users.use_colors, users.use_fonts = FALSE
+            PROCEDURE ipFixPoEdiDirs
+                Move EDI folders to CustFiles\EDIFiles\POs
+            Update oe-rel.lot from reftable1
+            PROCEDURE ipConvQtyPerSet
+                Change qtyPerSet values for eb, fg-set records
+        IF current version LT 16.8.0 THEN RUN PROCEDURE ipDataFix160800
+            PROCEDURE ipRemoveUserAddon
+                Remove addon mode from advantzware.usr file
+            PROCEDURE ipMoveUsermenusToDatabase
+                Convert usermenu-level menu.lst, etc. to DB fields
+            PROCEDURE ipAddLocationData
+                Create location record for each loc record
+            PROCEDURE ipVendorMaxValue
+                Update e-item-ven.roll-w[28,30] to 999.000 IF 0
+            PROCEDURE ipSetImageFiles
+                Set image files for employee, mach records
+    IF tbUpdateNK1s THEN RUN PROCEDURE ipUpdateNK1s
+        Verify system help WSDL
+        REPORTS - set logical value = TRUE
+        RELTYPE = set default to "B"
+        MenuLinkZoho - update portal link
+    IF tbLoadMenus THEN RUN PROCEDURE ipLoadMenus
+        Copy all menu.x files from patch to environment
+    IF tbRelNotes THEN RUN PROCEDURE ipCopyRelNotes
+        Copy all relnotes from patch to Documentation\ReleaseNotes directory
+    IF tbBackupFiles THEN RUN PROCEDURE ipArchiveFiles
+        If installing new programs, zip existing programs dir and move to backup
+        If installing new resources, zip existing resources dir and move to backup
+        If installing new overrides, zip existing override dir and move to backup
+    IF tbInstallFiles THEN RUN PROCEDURE ipExpandFiles
+        Unzip programs, resources and overrides zip files inside patch dir
+        Move these directorieis to (dirname)N in Environmnent
+        Move exsiting dirs to (dinrName)O
+        Move (dirname)N to dirname
+        Delete (dirname)O dirs
+    IF tbRefTableConv THEN RUN PROCEDURE ipRefTableConv
+        RUN RefTableConv.r file in base Environment dir
+        25507 - Remove blank reftables
+        27898 - Fix oe-rel.s-code reftable1 error
+        32053 - Fix bad conversion for oe-rel reftables
+    IF tbUpdateIni THEN 
+        RUN PROCEDURE ipUpdateTTIniFile
+            Change internal version number in advantzware.ini file
+        RUN PROCEDURE ipWriteIniFile
+            Write ttIniFile records back out to advantzware.ini
+            Remove Addon choice from modules list
+
+Deprecated:
+PROCEDURE ipBuildCustFilesTree
+PROCEDURE ipBuildDirs
+PROCEDURE ipCopyDirs
+PROCEDURE ipCopyStartup
+PROCEDURE ipVerifyNK1Changes
+    Would verify new NK1s, IF we added during upgrade

@@ -488,7 +488,7 @@ PROCEDURE run-process :
             fg-bin.i-no    EQ itemfg.i-no AND 
             fg-bin.qty     LT 0:
 
-            RUN fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0).
+            RUN fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0,"").
             DELETE fg-bin.
         END.
 

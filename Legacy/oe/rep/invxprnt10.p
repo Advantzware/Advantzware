@@ -581,9 +581,9 @@ find first company where company.company eq cocode NO-LOCK.
                 inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
                 v-i-dscr  format "x(25)" SPACE(1)
-                v-price  format "->>,>>9.99<<" SPACE(1)
+                v-price  format "$->>,>>9.99<<" SPACE(1)
                 v-price-head 
-                inv-line.t-price  format "->>>,>>9.99"                     
+                inv-line.t-price  format "$->>>,>>9.99"                     
                 SKIP.
           END.
           ELSE DO:
@@ -592,9 +592,9 @@ find first company where company.company eq cocode NO-LOCK.
                 inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
                 v-i-dscr  format "x(25)" SPACE(1)
-                v-price  format "->>,>>9.99<<" SPACE(1)
+                v-price  format "$->>,>>9.99<<" SPACE(1)
                 v-price-head 
-                inv-line.t-price  format "->>>,>>9.99"                     
+                inv-line.t-price  format "$->>>,>>9.99"                     
                 SKIP.
 
           END.
@@ -610,7 +610,7 @@ find first company where company.company eq cocode NO-LOCK.
               if v-part-info ne "" OR  (v = 1 AND inv-line.part-no <> "") then do:
                  IF v = 1 THEN DO:
                    IF lPrintQtyAll THEN do:
-                      PUT SPACE(1) v-ship-qty FORMAT ">>>>>>9" .
+                      PUT SPACE(1) v-ship-qty FORMAT "->>>>>9" .
                      IF LENGTH(inv-line.po-no) LE 8 THEN DO:
                          PUT  SPACE(8) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
                      END.
@@ -704,7 +704,7 @@ find first company where company.company eq cocode NO-LOCK.
             assign v-printline = v-printline + 2.
           end.
             
-          put inv-misc.charge AT 10 inv-misc.dscr inv-misc.amt  SKIP.
+          put inv-misc.charge AT 10 inv-misc.dscr inv-misc.amt FORMAT "$->>,>>9.99"  SKIP.
           ASSIGN
              v-subtot-lines = v-subtot-lines + inv-misc.amt
              v-printline = v-printline + 1.
@@ -813,23 +813,23 @@ find first company where company.company eq cocode NO-LOCK.
     END.
 
     IF v-bot-lab[4] <> "" THEN
-    PUT "<R56><C60><#8><FROM><R+8><C+22><RECT> " 
-        "<=8> Sub Total  :" v-subtot-lines FORM "->,>>>,>>9.99"
+    PUT "<R56><C59><#8><FROM><R+8><C+23><RECT> " 
+        "<=8> Sub Total  :" v-subtot-lines FORM "$->,>>>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
         "<=8><R+5> " v-bot-lab[4]
         "<=8><R+6> " v-bot-lab[5]
-        "<=8><R+7> Grand Total:" inv-head.t-inv-rev FORM "->,>>>,>>9.99" .
+        "<=8><R+7> Grand Total:" inv-head.t-inv-rev FORM "$->,>>>,>>9.99" .
 ELSE
-    PUT "<R56><C60><#8><FROM><R+6><C+22><RECT> " 
-        "<=8> Sub Total  :" v-subtot-lines FORM "->,>>>,>>9.99"
+    PUT "<R56><C59><#8><FROM><R+6><C+23><RECT> " 
+        "<=8> Sub Total  :" v-subtot-lines FORM "$->,>>>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
-        "<=8><R+5> Grand Total:" inv-head.t-inv-rev FORM "->,>>>,>>9.99" .
+        "<=8><R+5> Grand Total:" inv-head.t-inv-rev FORM "$->,>>>,>>9.99" .
 
     ASSIGN
        v-printline = v-printline + 6

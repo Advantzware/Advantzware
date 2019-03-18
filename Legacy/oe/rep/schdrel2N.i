@@ -595,7 +595,8 @@ form header
                               (IF oe-ordl.cases-unit EQ 0 THEN 1 ELSE oe-ordl.cases-unit))
        w-ord.ord-date     = string(oe-ord.ord-date)
        w-ord.prom-date         = oe-ordl.prom-date
-       w-ord.csrUser_id        = oe-ord.csrUser_id  .
+       w-ord.csrUser_id        = oe-ord.csrUser_id
+       w-ord.entered-id        = oe-ord.entered-id .
 
       {sys/inc/roundup.i ld-palls}
 

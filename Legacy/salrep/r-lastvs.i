@@ -166,7 +166,7 @@ FOR EACH tt-report
 
             RELEASE ar-inv.
 
-            RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+            RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
             ASSIGN
                 lv-r-no = 0

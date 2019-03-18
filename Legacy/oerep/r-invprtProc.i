@@ -1416,21 +1416,24 @@ PROCEDURE run-report :
                 ASSIGN 
                     dtl-ctr = dtl-ctr + 1.
             END. /* Each b-{&head}1 */
-            IF dtl-ctr EQ 0 THEN DO: 
+            /* wfk IF dtl-ctr EQ 0 THEN */ DO: 
                 /* Make sure invoices with no inv-lines are not missed */
                 FOR EACH b-{&head}1 NO-LOCK
                     WHERE b-{&head}1.company       EQ {&head}.company
                     AND b-{&head}1.cust-no       EQ {&head}.cust-no
                     AND b-{&head}1.inv-no        EQ {&head}.inv-no
                     AND b-{&head}1.{&multiinvoice} EQ NO            
-                    AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0:
-                    FIND FIRST inv-misc NO-LOCK 
-                       WHERE inv-misc.{&miscrno} EQ b-{&head}1.{&rno}
-                       NO-ERROR.
-
-                    IF AVAILABLE inv-misc THEN DO:
+                    AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0,
+                    EACH inv-misc NO-LOCK 
+                    WHERE inv-misc.{&miscrno} EQ b-{&head}1.{&rno}:
+                       
+                    FIND first save-line 
+                         WHERE save-line.reftable EQ "save-line" + v-term-id
+                           AND save-line.val[3]   = INT(RECID(inv-misc))
+                         NO-ERROR.
+                    IF NOT AVAILABLE save-line THEN DO:
                         dtl-ctr = dtl-ctr + 1.
-                      RUN create-save-line. 
+                        RUN create-save-line. 
                     END.
                 END.             
             END.
@@ -1707,6 +1710,10 @@ DO:
                         IF tb_cust-copy THEN RUN value(v-program) ("Customer Copy",YES).
                         IF tb_office-copy THEN RUN value(v-program) ("Office Copy",YES).
                         IF tb_sman-copy  THEN RUN value(v-program) ("Salesman Copy",YES).
+                    END.
+                    ELSE IF LOOKUP(v-print-fmt,"nStock,nStockLogo") > 0 THEN 
+                    DO:    
+                        RUN value(v-program) (v-print-fmt). 
                     END.
                     ELSE RUN value(v-program). 
 
@@ -2393,9 +2400,9 @@ PROCEDURE SetInvForm:
                 v-program      = "oe/rep/invhughs.p"  /*Hughes format*/
                 lines-per-page = 66
                 is-xprint-form = YES.
-        WHEN "NStock" THEN
+        WHEN "NStock" OR WHEN "NStockLogo" THEN
             ASSIGN
-                v-program      = "oe/rep/invnstok.p"  /*NStock format*/
+                v-program      = "oe/rep/invnstok.p"  /*NStock nStockLogo format*/
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "Hughes2" THEN
@@ -2961,9 +2968,9 @@ PROCEDURE SetInvPostForm:
                 v-program      = "ar/rep/invhughs.p"  /*Hughes format*/
                 lines-per-page = 66
                 is-xprint-form = YES.
-        WHEN "NStock" THEN
+        WHEN "NStock" OR WHEN "NStockLogo" THEN
             ASSIGN
-                v-program      = "ar/rep/invnstok.p"  /*NStock format*/
+                v-program      = "ar/rep/invnstok.p"  /*NStock nStockLogo format*/
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "Hughes2" THEN

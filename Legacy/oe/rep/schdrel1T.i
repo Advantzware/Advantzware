@@ -79,7 +79,8 @@ def temp-table w-ord
   FIELD due-date AS CHAR
   FIELD ord-date AS CHARACTER
   FIELD prom-date like oe-ordl.prom-date
-  FIELD csrUser_id as CHARACTER .
+  FIELD csrUser_id as CHARACTER
+  FIELD entered-id as CHARACTER .
 
 def buffer b-w-ord for w-ord.
 

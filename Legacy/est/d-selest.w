@@ -627,7 +627,10 @@ PROCEDURE build-table :
         AND CAN-FIND(FIRST ef OF eb)
         AND ROWID(eb)   NE ip-rowid
       NO-LOCK,
-      FIRST est OF eb WHERE est.e-num EQ 0 NO-LOCK:
+      FIRST est WHERE 
+        est.company EQ eb.company AND 
+        est.est-no EQ eb.est-no AND 
+        est.e-num EQ 0 NO-LOCK:
 
       IF lv-both EQ NO AND
          NOT(eb.est-type GE lv-est-type - 3 AND eb.est-type LE lv-est-type) THEN
@@ -654,7 +657,10 @@ PROCEDURE build-table :
           AND (TRIM(eb.master-est-no) EQ "" OR ip-add-eb)
           AND CAN-FIND(FIRST ef OF eb)
         USE-INDEX die NO-LOCK,
-        FIRST est OF eb WHERE est.e-num EQ 0 NO-LOCK:
+        FIRST est WHERE 
+            est.company EQ eb.company AND 
+            est.est-no EQ eb.est-no AND 
+            est.e-num EQ 0 NO-LOCK:
 
         IF lv-both EQ NO AND
            NOT(eb.est-type GE lv-est-type - 3 AND

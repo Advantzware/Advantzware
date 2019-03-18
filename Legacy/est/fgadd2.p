@@ -156,17 +156,7 @@ do on error undo:
        itemfg.i-name      = v-item-name
        itemfg.part-dscr1  = v-item-dscr1
        itemfg.part-dscr2  = v-item-dscr2
-       /* itemfg.sell-uom    = eb.pr-uom wfk */
        itemfg.part-no     = v-item-part
-       /* itemfg.cust-po-no  = eb.po-no wfk */
-       /* itemfg.request-date = eb.req-date wfk */
-       /* itemfg.cust-no     = xoe-ord.cust-no wfk */
-       /* itemfg.cust-name   = xoe-ord.cust-name wfk */
-       /* itemfg.cust-job-no = string(xoe-ord.job-no) + "-" +
-                            string(xoe-ord.job-no2) wfk */
-       itemfg.pur-uom     = IF bf-eb.pur-man AND bf-eb.form-no GT 0 THEN "EA" ELSE "M"
-       itemfg.prod-uom    = IF bf-eb.pur-man AND bf-eb.form-no GT 0 THEN "EA" ELSE "M"
-       itemfg.stocked     = yes
        itemfg.die-no      = bf-eb.die-no
        itemfg.procat      = bf-eb.procat
        itemfg.plate-no    = bf-eb.plate-no
@@ -177,7 +167,7 @@ do on error undo:
        itemfg.isaset      = no 
        itemfg.pur-man     = bf-eb.form-no GT 0 AND bf-eb.pur-man
        itemfg.alloc       = bf-eb.set-is-assembled
-       itemfg.setupDate   = TODAY.
+       .
 
         IF fgmaster-log THEN
             itemfg.stocked = YES.
@@ -196,9 +186,6 @@ do on error undo:
       {sys/inc/fgcascnt.i itemfg bf-eb} 
 
       {sys/inc/updfgdim.i "bf-eb"}
-
-      find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
-      itemfg.i-code = if avail oe-ctrl and oe-ctrl.i-code then "S" else "C".
 
       RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT bf-eb.loc).
 

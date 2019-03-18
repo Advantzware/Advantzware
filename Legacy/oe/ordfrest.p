@@ -126,6 +126,8 @@ DEFINE VARIABLE v-cost-2           LIKE oe-ordl.cost.
 DEFINE VARIABLE blk-fact           LIKE blk.fact         NO-UNDO.
 DEFINE VARIABLE v-rowid-list       AS CHARACTER        NO-UNDO.
 DEFINE VARIABLE lv-disc            LIKE cust.disc        NO-UNDO.
+DEFINE VARIABLE hdTaxProcs         AS HANDLE           NO-UNDO.
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 
 DEF BUFFER b-oe-ord FOR oe-ord.
 DEF BUFFER b-oe-ordl FOR oe-ordl.
@@ -162,6 +164,15 @@ FORM
     WITH FRAME xyz.
 
  HIDE FRAME xyz.
+
+
+
+/* ************************  Function Prototypes ********************** */
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+	(ipcCompany AS CHARACTER,
+	 ipcCust AS CHARACTER,
+	 ipcShipto AS CHARACTER,
+	 ipcFGItemID AS CHARACTER) FORWARD.
 
 PROCEDURE ord-from-est:
     &scoped-define FRAME-NAME xyz
@@ -268,9 +279,12 @@ PROCEDURE new-order:
     EMPTY TEMP-TABLE tt-item-qty-price.
 
 
-
-    FOR EACH quoteitm NO-LOCK WHERE quoteitm.company EQ xest.company AND
-          quoteitm.est-no EQ xest.est-no,
+    FOR EACH quotehd NO-LOCK 
+      WHERE quotehd.company EQ xest.company AND
+      quotehd.est-no EQ xest.est-no AND 
+      quotehd.quo-date LE TODAY AND
+      (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?),
+    EACH quoteitm OF quotehd NO-LOCK ,
           EACH quoteqty OF quoteitm NO-LOCK BREAK BY quoteqty.LINE BY quoteqty.quote-date DESC 
               BY quoteqty.qty :
 
@@ -410,6 +424,9 @@ END PROCEDURE.
 
 
 PROCEDURE create-order-lines.
+    
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lcChoice AS CHARACTER NO-UNDO .
   /* dependencies ...
     cocode
     xoe-ord buffer
@@ -542,7 +559,7 @@ PROCEDURE create-order-lines.
         oe-ordl.blank-no   = eb.blank-no
         oe-ordl.cust-no    = xoe-ord.cust-no
         oe-ordl.disc       = lv-disc
-        oe-ordl.tax        = cust.SORT EQ "Y" AND xoe-ord.tax-gr NE "".
+        oe-ordl.tax        = fGetTaxable(xoe-ord.company, xoe-ord.cust-no, xoe-ord.ship-id, oe-ordl.i-no).
       
        FIND FIRST tt-item-qty-price WHERE
             tt-item-qty-price.tt-selected = YES AND
@@ -554,7 +571,19 @@ PROCEDURE create-order-lines.
           ASSIGN
              oe-ordl.qty = tt-item-qty-price.qty
              oe-ordl.rel = tt-item-qty-price.rels.
-      
+       
+       IF oe-ordl.qty GT 0 THEN DO:
+           FIND FIRST est-qty NO-LOCK
+                WHERE est-qty.company EQ oe-ordl.company
+                AND est-qty.est-no  EQ oe-ordl.est-no
+                NO-ERROR.
+            IF AVAILABLE est-qty THEN DO:
+                DO iCount = 1 TO EXTENT(est-qty.qty):
+                    IF est-qty.qty[iCount] EQ oe-ordl.qty OR est-qty.qty[iCount] EQ 0 THEN LEAVE.
+                END.
+                IF iCount GT 0 THEN oe-ordl.whsed = est-qty.whsed[iCount]. 
+            END.
+       END.
        IF v-d-ordqty-uom NE "-" THEN
        DO:
           IF AVAIL tt-item-qty-price THEN
@@ -570,9 +599,7 @@ PROCEDURE create-order-lines.
           ELSE
              oe-ordl.price = v-d-ordqty-price.
        END.
-      
-       {custom/shptotax.i xoe-ord.cust-no xoe-ord.sold-id oe-ordl.tax}
-      
+           
        RUN est/getcscnt.p ((IF xest.est-type EQ 6 AND
                                AVAIL xeb          AND
                                xeb.cas-no NE ""   THEN ROWID(xeb) ELSE ROWID(eb)),
@@ -818,12 +845,46 @@ PROCEDURE create-order-lines.
     END. /* not avail oe-ordl */
 
     IF avail xest AND v-quo-price-log AND NOT v-chose-quote THEN DO:
+      j = 0.
+       FOR EACH quotehd
+            WHERE quotehd.company EQ cocode
+            AND quotehd.loc     EQ locode
+            AND quotehd.est-no  EQ xest.est-no
+            AND quotehd.quo-date LE TODAY 
+            AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
+            USE-INDEX quote NO-LOCK,
+            
+            EACH quoteitm OF quotehd
+            WHERE quoteitm.part-no  EQ oe-ordl.part-no OR
+            (quoteitm.part-no EQ eb.part-no AND eb.part-no NE "" AND v-est-type EQ 2 )
+            USE-INDEX q-line NO-LOCK,
+            EACH quoteqty OF quoteitm
+            USE-INDEX qt-qty NO-LOCK
+            
+            BY quotehd.q-no DESC
+            BY quoteqty.qty DESC:
 
-       RUN oe/getqpric.p (RECID(xest), oe-ordl.part-no, IF v-est-type EQ 2 THEN eb.part-no ELSE "",
-                          INPUT-OUTPUT oe-ordl.price,
-                          INPUT-OUTPUT oe-ordl.pr-uom,
+           j = J + 1 .
+           IF J > 1 THEN LEAVE.
+           
+           ASSIGN
+               oe-ordl.price  = quoteqty.price
+               oe-ordl.pr-uom = quoteqty.uom
+               lv-q-no        = quoteqty.q-no .
+       END.
+
+       IF j GT 1 THEN
+           RUN oe/d-quotedprices.w("",cocode,
+                          locode,
+                          oe-ordl.est-no,
+                          oe-ordl.cust-no,
+                          oe-ordl.part-no,
+                          oe-ordl.i-no,
+                          OUTPUT oe-ordl.price,
+                          OUTPUT oe-ordl.pr-uom,
+                          OUTPUT oe-ordl.qty,
                           OUTPUT lv-q-no,
-                          INPUT-OUTPUT oe-ordl.qty).
+                          OUTPUT lcChoice).
 
        IF lv-q-no NE 0 THEN DO:
         FIND CURRENT oe-ordl.
@@ -1335,3 +1396,21 @@ PROCEDURE recalc-estimate:
       if v-est-type eq 2 then leave. /** 2pc box & Set headers **/
     END.
 END PROCEDURE. /* recalc estimate */
+
+
+/* ************************  Function Implementations ***************** */
+
+
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER, ipcCust AS CHARACTER , ipcShipto AS CHARACTER, ipcFGItemID AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: Gets the Taxable flag based on inputs
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+RETURN lTaxable.
+
+END FUNCTION.
+

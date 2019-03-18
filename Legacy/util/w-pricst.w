@@ -324,7 +324,7 @@ PROCEDURE adm-create-objects :
 
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'util/v-pricst.w':U ,
+             INPUT  'util/dev/v-pricst.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-pricst ).
@@ -352,12 +352,12 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'util/b-pricst.w':U ,
+             INPUT  'util/dev/b-pricst.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-pricst ).
        RUN set-position IN h_b-pricst ( 12.91 , 12.00 ) NO-ERROR.
-       RUN set-size IN h_b-pricst ( 6.71 , 118.00 ) NO-ERROR.
+       RUN set-size IN h_b-pricst ( 6.71 , 123.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updcan.w':U ,

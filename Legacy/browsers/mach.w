@@ -442,7 +442,8 @@ PROCEDURE repo-query :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
-
+  ASSIGN auto_find = ""
+         auto_find:SCREEN-VALUE IN FRAME {&frame-name} = "" .
   RUN dispatch ("open-query").
 
   DO WITH FRAME {&frame-name}:

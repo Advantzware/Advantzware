@@ -1,0 +1,1251 @@
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   1
+ 3:09pm                                               Estimates by Size Report
+
+                                                                                                                                   Industry:
+Corrugated
+
+                                                                                                       Last Ord
+  Length    Width    Depth Style  Material   Adder 1    Adder 2    Adder 3    Customer Part#  Est#       Date   Customer Name            Last User
+-------- -------- -------- ------ ---------- ---------- ---------- ---------- --------------- -------- -------- ------------------------ ---------
+ 8.00000  8.00000 16.00000 RSC    200 C      XTRA SCORE OW         33 MED     1322            1322              Hershey Foods Warehouse  asi
+ 8.00000  8.00000  8.00000 RSC    200 C                                       1325            1325              Hershey Foods Corporatio asi
+ 8.00000  8.00000  8.00000 RSC    200 C                                       1325            1326              Hershey Foods Corporatio asi
+ 6.00000  6.00000 14.00000 RSC    200 C                                       1442            1442     10/09/03 Hershey Foods Corporatio asi
+ 6.00000  6.00000 14.00000 RSC    200 C                                       1442            1449              Hershey Foods Corporatio asi
+15.00000 15.00000 15.00000 RSC    200 C      OW                               5570A           5570     06/21/06 Hershey Foods Corporatio asi
+15.00000 15.00000 15.00000 RSC    200 C      OW                               5570B           5570     06/21/06 Hershey Foods Corporatio asi
+15.00000 15.00000 15.00000 RSC    200 C      OW                               5570C           5570     06/21/06 Hershey Foods Corporatio asi
+12.00000 11.00000 10.50000 RSC    200 C      OW                               5573-1          5573     08/16/06 Hershey Foods Corporatio asi
+13.37500 10.25000  9.00000 HSC    200 C      OW                               5801-1234       5801     03/13/08 Hershey Foods Corporatio asi
+12.75000 11.00000 10.00000 RSC    200 C      OW                               5843-1          5843     03/02/07 Hershey Foods Corporatio asi
+ 5.00000  5.00000  5.00000 RSC    200 C                                       5x5x5           5853              Hershey Foods Corporatio asi
+ 6.00000  6.00000  6.00000 RSC    200 C                                       6x6x6           7054
+ 8.00000  8.00000  8.00000 RSC    200 C                                       8x8x8           6779     01/15/09 Hershey Foods Corporatio asi
+ 7.00000  7.00000  7.00000 RSC    200 C                                       COMBO SET 24-1  2412              Hershey Foods Corporatio asi
+ 5.00000  5.00000  5.00000 hsc    200 C                                       COMBO SET 24-2  2412              Hershey Foods Corporatio asi
+ 7.00000  7.00000  7.00000 RSC    200 C                                       COMBO SET-1     2402     08/09/06 Hershey Foods Corporatio asi
+ 7.00000  7.00000  0.00000 PAR1   200 C                                       COMBO SET-2     2402     08/09/06 Hershey Foods Corporatio asi
+ 5.00000  5.00000  5.00000 hsc    200 C                                       COMBO SET-3     2402     08/09/06 Hershey Foods Corporatio asi
+10.00000  9.00000 10.00000 RSC    200 C      OW                               COPY OF 5828    5834              Hershey Foods Corporatio asi
+ 4.00000  4.00000  8.00000 RSC    200 C                                       cp-591          591               Hershey Foods Corporatio asi
+ 4.00000  4.00000  2.00000 RSC    200 C                                       CP484           484      05/30/02 Hershey Foods Corporatio asi
+ 8.00000  6.00000  4.00000 RSC    200 C                                       CP894           894      01/04/03 Hershey Foods Corporatio asi
+ 8.00000  6.00000  4.00000 RSC    200 C                                       CP894           923               Hershey Foods Corporatio asi
+50.00000 40.00000  0.00000 D/C    200 C                                       HER 6688        6688              Hershey Foods Corporatio nosweat
+50.00000 39.00000  0.00000 D/C    200 C.                                      HER 6689        6689              Hershey Foods Corporatio asi
+ 7.00000  7.00000  7.00000 RSC    200 C                                       HER 7x7x7       7013     02/12/09 Hershey Foods Corporatio asi
+ 8.00000  8.00000  8.00000 RSC    200 C                                       HER 8x8x8       7012              Hershey Foods Corporatio asi
+20.00000 20.00000 20.00000 RSC    200 C                                       HER-1190        1190              Hershey Foods Corporatio asi
+16.00000 10.50000 10.68750 204    ECT 40 GP                                   HER-1429        1429     06/04/03 Hershey Foods Corporatio asi
+30.00000 30.00000 30.00000 RSC    200 C                                       HER-1503        1503              Hershey Foods Corporatio asi
+ 6.62500  6.62500  8.31250 RSC    200 C                                       HER-2043        2050              ABC Warehouse #1         asi
+ 8.00000  8.00000 16.00000 RSC    200 C      OW                               HER-2129 TEST   2129     03/10/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RSC    200B                                        HER-3x3x3       484      05/30/02 Hershey Foods Corporatio asi
+ 8.00000  6.00000  8.00000 RSC    200 C      OW                               HER-5544        5544     07/11/06 Hershey Foods Corporatio asi
+ 5.00000  5.00000  5.00000 RSC    125 A                                       HER-645         645               Hershey Foods Corporatio asi
+ 6.12500  6.25000  6.75000 RSC    200 C                                       HER-692         692      10/04/02 Hershey Foods Corporatio asi
+ 4.00000  4.00000 16.00000 RSC    200 C                                       HER-714         715               Hershey Foods Corporatio asi
+ 4.00000  4.00000 16.00000 TRA422                                             HER-714         714               Hershey Foods Corporatio asi
+ 5.00000  5.00000  6.00000 CCC    200 A                                       her-813         813               Hershey Foods Corporatio asi
+ 6.00000  6.00000 16.00000 RSC    200 C                                       HER-900         900      01/03/03 Hershey Foods Corporatio asi
+ 8.00000  8.00000  8.00000 RSC    200 C                                       HER-931         931               Hershey Foods Corporatio asi
+ 5.00000  5.00000 13.00000 RSC    200 C                                       HER11000        2134     03/25/04 Hershey Foods Corporatio asi
+ 1.00000  1.00000  1.00000 204    125 A                                       HER123          5847     03/06/07 Hershey Foods Corporatio asi
+ 1.00000  1.00000  1.00000 4SSH   125 A                                       her345          5851              Hershey Foods Corporatio asi
+ 1.00000  1.00000  1.00000 1PF    125 A                                       her390          5852     03/06/07 Hershey Foods Corporatio asi
+ 1.00000  1.00000  1.00000 4CI    CHIP                                        her543          5849     03/06/07 Hershey Foods Corporatio asi
+ 1.00000  1.00000  1.00000 204    150 B                                       her811          5850     03/06/07 Hershey Foods Corporatio asi
+ 8.00000  9.00000  8.00000 RSC    200 C                                       jeff-1079-1     1079              Hershey Foods Corporatio asi
+ 8.00000  9.00000  0.00000 DCPL   125 A                                       jeff-1079-2     1079              Hershey Foods Corporatio asi
+ 9.00000  8.00000  0.00000 D/C    150 A                                       jeff-1079-3     1079              Hershey Foods Corporatio asi
+13.00000 14.00000 11.00000 RSCL   200 C                                       jeff-1080-1     1080     06/05/03 Hershey Foods Corporatio asi
+14.00000 11.00000  0.00000 D/C    150 A                                       jeff-1080-2     1080     06/05/03 Hershey Foods Corporatio asi
+15.00000 10.00000 12.50000 RSC    200 C                                       jeff-1152       1152              Hershey Foods Corporatio asi
+10.00000 11.00000 12.00000 RSC    200 C                                       jeff-1173       1173     02/06/03 Hershey Foods Corporatio asi
+16.25000 20.75000  0.00000 DCPL   200 C                                       jeff-1278       1278              Hershey Foods Corporatio asi
+10.00000 11.00000 12.00000 RSC    200 C                                       jeff-1308       1308              Hershey Foods Corporatio asi
+15.00000 15.00000  0.81250 FOM    24X48X96W1                                  jeff-1374       1374              Hershey Foods Corporatio asi
+11.00000  4.00000  4.00000 DCB    125 A                                       jeff-2317       2317     06/08/04 Hershey Foods Corporatio asi
+10.00000 12.00000  9.00000 RSC    200 C                                       jeff-2550       2550     11/16/04 Hershey Foods Corporatio asi
+53.25000  9.25000 60.25000 RSC2   200 C                                       jeff-2640-1     2640     02/04/05 Hershey Foods Corporatio asi
+10.00000  8.00000  1.00000 1PF    150 A                                       jeff-2751       2751     03/23/05 Hershey Foods Corporatio asi
+40.00000 40.00000  0.00000 D/C    200 C                                       jeff-5029-1     5029     08/31/05 Hershey Foods Corporatio asi
+20.00000 15.00000 12.00000 RSC    200 C                                       jeff-5029-2     5029     08/31/05 Hershey Foods Corporatio asi
+10.00000 11.00000  9.00000 RSC    200 C                                       jeff-5120-1     5120              Hershey Foods Corporatio asi
+ 9.00000 10.00000  8.00000 RSC    200 C                                       jeff-5120-2     5120              Hershey Foods Corporatio asi
+10.00000  8.93750 10.00000 RS2    200 C                                       jeff-5658       5658     09/14/06 Hershey Foods Corporatio asi
+10.00000  9.00000  8.00000 RSC    200 C      OW                               jeff-5659-1     5659     10/10/06 Hershey Foods Corporatio asi
+11.00000 10.00000  7.00000 RSC    200 C      OW                               jeff-5659-2     5659     10/10/06 Hershey Foods Corporatio asi
+10.00000  9.00000 11.00000 RSC    200 C      OW                               jeff-5819       5819              Hershey Foods Corporatio asi
+10.00000  9.00000 10.00000 RSC    200 C      OW                               jeff-5828       5828     01/19/07 Hershey Foods Corporatio asi
+ 5.00000  5.00000  5.00000 RSC    200 C      OW                               jeff-5842       5842     02/09/07 Hershey Foods Corporatio asi
+10.00000 10.00000 10.00000 RSC    200 C                                       jeff-679        679               Hershey Foods Corporatio asi
+10.00000 11.00000 12.00000 RSC    200 C                                       jeff-682        682               Hershey Foods Corporatio asi
+10.00000 11.00000 12.00000 RSC    200 C                                       jeff-684        684               Hershey Foods Corporatio asi
+10.00000 11.00000 12.00000 RSC    200 C                                       jeff-686        686      10/30/02 Hershey Foods Corporatio asi
+ 6.00000  9.00000  8.00000 RSC    200 C                                       jeff-combo-3    5118     09/26/05 Hershey Foods Corporatio asi
+10.00000 11.00000  9.00000 RSC    200 C                                       jeff-set-1280-1 1280     03/14/03 Hershey Foods Corporatio asi
+11.00000  9.00000  0.00000 DCPL   150 B                                       jeff-set-1280-2 1280     03/14/03 Hershey Foods Corporatio asi
+11.00000 10.00000  9.00000 RSC    200 C      OW                               jeffmulticust1  5466              Hershey Foods Corporatio asi
+10.00000  9.00000 11.00000 RSC    200 C      OW                               jeffpart        5840              Hershey Foods Corporatio asi
+15.00000 10.00000  0.00000 PAR3   200B                                        JLF-5469-1      5469              Hershey Foods Corporatio asi
+10.00000 15.00000  0.00000 PAR2   200B                                        JLF-5469-2      5469              Hershey Foods Corporatio asi
+15.00000 10.00000  0.00000 PAR5   200B                                        JLF-5469-3      5469              Hershey Foods Corporatio asi
+ 8.00000  8.00000 16.00000 RSC    200 C      OW                               KOPY TEST       2156              Hershey Foods Corporatio asi
+ 8.00000  3.00000  1.87500 D/C    ECT 32B GP                                  LAKESIDE5       6571     08/26/08 Hershey Foods Corporatio asi
+ 5.00000  4.00000  5.00000 2PB    200 C                                       RSC545          6590     09/17/08 Hershey Foods Corporatio asi
+25.00000 20.00000 15.00000 RSCV2  200 C                                       rscv2           6578              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RTE    200B                                        RTE-1898        1898     03/14/06 Hershey Foods Corporatio asi
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   2
+ 3:09pm                                               Estimates by Size Report
+
+                                                                                                                                   Industry:
+Corrugated
+
+                                                                                                       Last Ord
+  Length    Width    Depth Style  Material   Adder 1    Adder 2    Adder 3    Customer Part#  Est#       Date   Customer Name            Last User
+-------- -------- -------- ------ ---------- ---------- ---------- ---------- --------------- -------- -------- ------------------------ ---------
+20.00000 10.00000  0.00000 PAR2   200 C                                       SET 5460-1      5460              Hershey Foods Corporatio asi
+10.00000 10.00000  0.00000 PAR5   200B                                        SET 5460-2      5460              Hershey Foods Corporatio asi
+20.00000 20.00000  0.00000 DCPL   150 B                                       set-2621-1      2621     02/23/05 Hershey Foods Corporatio asi
+20.00000 20.00000 20.00000 RSC    200 C                                       set-2621-2      2621     02/23/05 Hershey Foods Corporatio asi
+13.87500 10.62500 17.12500 FOL    200 C                                       shells          2551     11/22/04 Hershey Foods Corporatio asi
+ 8.00000  8.00000 25.00000 RSC    200 C      OW                               TEMP-2573       2573     05/05/05 Hershey Foods Warehouse  asi
+15.00000 10.00000  0.00000 PAR3   200B                                        Vallentine-1    5461     03/31/06 Hershey Foods Corporatio asi
+15.00000 10.00000  0.00000 PAR3   200B                                        Vallentine-1    5467     04/25/06 Hershey Foods Corporatio asi
+15.00000 10.00000  0.00000 PAR5   200B                                        Vallentine-2    5461     03/31/06 Hershey Foods Corporatio asi
+15.00000 10.00000  0.00000 PAR5   200B                                        Vallentine-2    5467     04/25/06 Hershey Foods Corporatio asi
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   3
+ 3:09pm                                               Estimates by Size Report
+
+                                                                                                                                   Industry:
+Folding
+
+                                                                                                       Last Ord
+  Length    Width    Depth Style  Material   Adder 1    Adder 2    Adder 3    Customer Part#  Est#       Date   Customer Name            Last User
+-------- -------- -------- ------ ---------- ---------- ---------- ---------- --------------- -------- -------- ------------------------ ---------
+ 0.00000  0.00000  0.00000                                                                    5989              Hershey Foods Corporatio
+ 0.00000  0.00000  0.00000                                                                    5991              Hershey Foods Corporatio asi
+ 0.00000  0.00000  0.00000                                                                    6012              Hershey Foods Corporatio
+ 0.00000  0.00000  0.00000                                                                    6060              Hershey Foods Corporatio
+ 0.00000  0.00000  0.00000                                                                    6064              Hershey Foods Corporatio
+ 0.00000  0.00000  0.00000 123    BC20                                                        7039              Hershey Foods Corporatio asi
+ 5.00000  5.00000  8.00000 RT     SBS18                                                       2081              Hershey Foods Corporatio asi
+ 5.00000  5.00000  8.00000 RT     SBS18                                                       2081              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                                       5001     09/07/05 Hershey Foods Corporatio asi
+ 5.00000  8.00000  5.00000 OAB    26#L-22"                                    1-1754          4026     08/29/08 Hershey Foods Corporatio asi
+ 5.00000  8.00000  5.00000 OAB    26#L-22"                                    1-1754          5982              Hershey Foods Corporatio asi
+10.00000  0.00000  0.00000                                                    10X10X10 Old    6013              Hershey Foods Corporatio
+10.00000  0.00000  0.00000                                                    10X10X10 Old    6061              Hershey Foods Corporatio
+10.00000  0.00000  0.00000                                                    10X10X10 Old    6065              Hershey Foods Corporatio
+ 7.00000  5.00000  4.00000 SE     SBS18                                       10x10x10s       2642     01/19/05 Hershey Foods Corporatio asi
+ 4.00000  4.00000  6.00000 RT     SBS18                                       1327            1327              Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       1327-2          1327              Hershey Foods Corporatio asi
+ 5.00000  5.00000 12.00000 STA    SBS18                                       1502            1502     09/22/03 Hershey Foods Corporatio asi
+ 5.00000  5.00000  5.00000 RT     SBS18                                       1508A           1508     08/13/03 Hershey Foods Corporatio asi
+ 5.00000  5.00000  6.00000 RT     SBS18                                       1508B           1508     08/13/03 Hershey Foods Corporatio asi
+ 5.00000  5.00000  7.00000 RT     SBS18                                       1508C           1508     08/13/03 Hershey Foods Corporatio asi
+ 6.00000  4.00000  8.00000 RT     125 A                                       2               6188              Hershey Foods Corporatio asi
+ 6.00000  4.00000  8.00000 RT     125 A                                       2               6190              Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT                                                 2294-1          2383     09/09/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-1          2294     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-1          2335     06/15/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-1          2358     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-1          2359     07/29/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-1          2359     07/29/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-1          2360     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-1          2387     12/09/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-1          2389     07/27/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-1          2439     09/24/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-1          2483     10/11/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-10         2294     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-10         2359     07/29/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-11         2294     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-11         2358     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-11         2359     07/29/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-12         2294     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-12         2359     07/29/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-12         2360     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-12         2387     12/09/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-12         2483     10/11/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-13         2359     07/29/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT                                                 2294-2          2383     09/09/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-2          2294     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-2          2335     06/15/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-2          2357     06/18/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-2          2359     07/29/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-3          2294     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-3          2359     07/29/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-4          2294     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-4          2335     06/15/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-4          2359     07/29/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-5          2294     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-5          2331     06/17/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-5          2335     06/15/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-5          2357     06/18/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-5          2359     07/29/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-5          2387     12/09/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-5          2389     07/27/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-5          2439     09/24/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-5          2483     10/11/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-6          2294     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-6          2331     06/17/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-6          2358     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-6          2359     07/29/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-6          2360     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-6          2387     12/09/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-6          2389     07/27/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-6          2439     09/24/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-6          2483     10/11/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-7          2294     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-7          2331     06/17/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-7          2359     07/29/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-8          2294     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-8          2331     06/17/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-8          2359     07/29/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-9          2294     06/21/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2294-9          2359     07/29/04 Hershey Foods Corporatio asi
+ 4.00000  4.00000  4.00000 RT     SBS18                                       2296            2296              Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2359-31A        2359     07/29/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2389-4          2359     07/29/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2389-4          2389     07/27/04 Hershey Foods Corporatio asi
+ 2.00000  3.00000  5.00000 RT     SBS18                                       2453-01         2390     08/26/04 Hershey Foods Corporatio asi
+ 2.00000  3.00000  5.00000 RT     SBS18                                       2459-02         2390     08/26/04 Hershey Foods Corporatio asi
+ 2.00000  3.00000  5.00000 RT     SBS18                                       2460-01         2390     08/26/04 Hershey Foods Corporatio asi
+ 2.00000  3.00000  5.00000 RT     SBS18                                       2461-01         2390     08/26/04 Hershey Foods Corporatio asi
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   4
+ 3:09pm                                               Estimates by Size Report
+
+                                                                                                                                   Industry:
+Folding
+
+                                                                                                       Last Ord
+  Length    Width    Depth Style  Material   Adder 1    Adder 2    Adder 3    Customer Part#  Est#       Date   Customer Name            Last User
+-------- -------- -------- ------ ---------- ---------- ---------- ---------- --------------- -------- -------- ------------------------ ---------
+ 2.00000  3.00000  5.00000 RT     SBS18                                       2462-01         2390     08/26/04 Hershey Foods Corporatio asi
+ 2.00000  3.00000  5.00000 RT     SBS18                                       2463-01         2390     08/26/04 Hershey Foods Corporatio asi
+ 2.00000  3.00000  5.00000 RT     SBS18                                       2464-01         2390     08/26/04 Hershey Foods Corporatio asi
+ 2.00000  3.00000  5.00000 RT     SBS18                                       2465-01         2390     08/26/04 Hershey Foods Corporatio asi
+ 2.00000  3.00000  5.00000 RT     SBS18                                       2465-02         2390     08/26/04 Hershey Foods Corporatio asi
+ 3.12500  3.50000  3.75000 RT     SBS18                                       2468            2468              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     sbs18                                       2470-B          2468              Hershey Foods Corporatio asi
+ 5.12500  8.62500 10.12500 RT     SBS18                                       2470-B          2470     10/01/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     sbs18                                       2470-c          2468              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     sbs18                                       2470-c          2470     10/01/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  2.00000 RT     SBS16                                       2481            2481     10/12/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       2512-5          2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       2537-6          2537     11/15/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       2537-7          2537     11/15/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       2537-8          2537     11/15/04 Hershey Foods Corporatio asi
+ 2.18750  1.21875  1.18750 RT     SBS18                                       2553Aa          2553     12/02/04 Hershey Foods Corporatio asi
+ 2.18750  1.21875  1.18750 RT     SBS18                                       2553Bb          2553     12/02/04 Hershey Foods Corporatio asi
+ 2.18750  1.21875  1.18750 RT     SBS18                                       2553C           2553     12/02/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2598-1          2528              Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2598-5          2528              Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    2598-6          2528              Hershey Foods Corporatio asi
+ 4.00000  4.00000  7.00000 RT     SBS18                                       2781            2781     03/17/05 Hershey Foods Corporatio asi
+ 4.00000  4.00000  8.00000 RT     SBS18                                       4024            4024     05/23/06 Hershey Foods Corporatio asi
+ 3.00000  3.00000 11.00000 RT     SBS18                                       5052            5052              Hershey Foods Corporatio asi
+ 4.00000  4.00000  9.75000 RT     sbs18                                       5053            5053     08/30/05 Hershey Foods Corporatio asi
+ 8.00000  2.00000  3.00000 RT     SBS16                                       5054-1          5054              Hershey Foods Corporatio asi
+ 8.00000  5.00000  3.00000 SE     sbs18                                       5056            5056     08/30/05 Hershey Foods Corporatio asi
+ 4.00000  2.00000  6.00000 RT     sbs18                                       5057            5057     08/30/05 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 SE     SBS18                                       5399            5399     03/06/06 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 SE     SBS18                                       5399            5602              Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 SE     SBS18                                       5399B           5399     03/06/06 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 SE     SBS18                                       5399B           5602              Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 SE     SBS18                                       5399C           5399     03/06/06 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 SE     SBS18                                       5399C           5602              Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 SE     SBS18                                       5399D           5399     03/06/06 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 SE     SBS18                                       5399D           5602              Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.12500 RT     sbs14                                       5487            5487     04/18/06 Hershey Foods Corporatio asi
+ 3.00000  3.00000 11.50000 RT     sbs18                                       5545            5545     08/17/06 Hershey Foods Corporatio asi
+ 4.00000  4.00000  9.00000 RT     SBS16                                       5574A           5574     06/26/06 Hershey Foods Corporatio asi
+ 4.00000  4.00000  9.00000 RT     SBS16                                       5574B           5574     06/26/06 Hershey Foods Corporatio asi
+ 4.00000  4.00000  9.00000 RT     SBS16                                       5574C           5574     06/26/06 Hershey Foods Corporatio asi
+ 2.00000  2.00000  7.00000 RT     sbs16                                       5686A           5686              Hershey Foods Corporatio asi
+ 2.00000  2.00000  7.00000 RT     sbs16                                       5686B           5686              Hershey Foods Corporatio asi
+ 2.00000  2.00000  7.00000 RT     sbs16                                       5686C           5686              Hershey Foods Corporatio asi
+ 2.00000  2.00000  7.00000 RT     sbs16                                       5686D           5686              Hershey Foods Corporatio asi
+ 3.50000  2.75000  5.00000 RT     sbs18                                       5687            5687              Hershey Foods Corporatio asi
+ 3.50000  2.75000  5.00000 RT     sbs18                                       5687B           5687              Hershey Foods Corporatio asi
+ 6.50000  2.43750  8.75000 SEELT  SBS18                                       5689            5689     10/24/06 Hershey Foods Corporatio asi
+ 5.00000  2.00000  7.00000 SEELT  SBS18                                       5690            5690     10/03/06 Hershey Foods Corporatio asi
+ 2.00000  2.00000  7.50000 RT     SBS18                                       5791A           5791     01/02/07 Hershey Foods Corporatio asi
+ 2.00000  2.00000  7.50000 RT     SBS18                                       5791A           5802     01/02/07 Hershey Foods Corporatio asi
+ 2.00000  2.00000  7.50000 RT     SBS18                                       5791B           5791     01/02/07 Hershey Foods Corporatio asi
+ 2.00000  2.00000  7.50000 RT     SBS18                                       5791B           5802     01/02/07 Hershey Foods Corporatio asi
+ 2.00000  2.00000  7.50000 RT     SBS18                                       5791C           5791     01/02/07 Hershey Foods Corporatio asi
+ 2.00000  2.00000  7.50000 RT     SBS18                                       5791C           5802     01/02/07 Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     SBS18                                       5859-1          5859     08/22/07 Hershey Foods Corporatio asi
+ 6.00000  5.00000  4.00000 RT     SBS18                                       5943- craig     5943     03/13/08 Hershey Foods Corporatio asi
+ 2.00000  2.00000  2.00000 RT     sbs18                                       684564          2301              Hershey Foods Corporatio asi
+ 2.00000  2.00000  2.00000 RT     sbs18                                       684564          2306              Hershey Foods Corporatio asi
+ 2.00000  2.00000  2.00000 RT     sbs18                                       684564          2307              Hershey Foods Corporatio asi
+ 2.00000  2.00000  2.00000 123    CCN18                                       7029            7029              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     SBS20                                       739-1           739               Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS20                                       739-2           739               Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 RT     SBS20                                       739-3           739               Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.00000 RT     sbs20                                       745-A           745               Hershey Foods Corporatio asi
+ 4.00000  4.00000  5.00000 RT     sbs20                                       745-d           745               Hershey Foods Corporatio asi
+12.00000 10.00000 12.00000 RT     SBS18                                       76525PB         5031     08/30/05 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     sbs18                                       793A            793               Hershey Foods Corporatio asi
+ 3.00000  3.00000 10.00000 RT     sbs18                                       793B            793               Hershey Foods Corporatio asi
+ 4.56260  2.25000  8.00000 TTAB   SBS18                                       8 oz cream-1-1  6570     09/18/08 Hershey Foods Corporatio asi
+ 2.15625  2.15625  7.87500 TTAB   SBS18                                       8 oz cream-1-2  6570     09/18/08 Hershey Foods Corporatio asi
+ 4.56250  2.37500  4.00000 S      SBS18                                       8 oz cream-1-3  6570     09/18/08 Hershey Foods Corporatio asi
+ 1.50000  1.50000  3.00000 RT     SBS16                                       ABC-1490        2263              Hershey Foods Corporatio asi
+ 8.00000 10.00000  1.00000 RSC    R35EC62    FOIL MULT                        ABC-273         6114              Hershey Foods Corporatio
+ 8.00000 10.00000  1.00000 RSC    R35EC62    FOIL MULT                        ABC-273         6115              Hershey Foods Corporatio
+16.00000  1.00000  0.00000 RSC    R69MW74                                     ABC-273         6014              Hershey Foods Corporatio
+16.00000  1.00000  0.00000 RSC    R69MW74                                     ABC-273         6062              Hershey Foods Corporatio
+16.00000  1.00000  0.00000 RSC    R69MW74                                     ABC-273         6066              Hershey Foods Corporatio
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       And Another     2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Another One     2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Blackberry      2770     03/16/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Blackberry      2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Blackberry      2446     09/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Blackberry      2514     10/26/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Blackberry      6574     09/23/08 Hershey Foods Corporatio asi
+15.00000  7.43750  0.00000 DC     Sbs18                                       Blister Card    2860     04/04/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Blueberry       2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Blueberry       2446     09/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Blueberry       2512     08/16/06 Hershey Foods Corporatio asi
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   5
+ 3:09pm                                               Estimates by Size Report
+
+                                                                                                                                   Industry:
+Folding
+
+                                                                                                       Last Ord
+  Length    Width    Depth Style  Material   Adder 1    Adder 2    Adder 3    Customer Part#  Est#       Date   Customer Name            Last User
+-------- -------- -------- ------ ---------- ---------- ---------- ---------- --------------- -------- -------- ------------------------ ---------
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Blueberry       2514     10/26/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Blueberry       5264              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Blueberry       6574     09/23/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Bubble Gum      2770     03/16/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Bubble Gum      2921              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Bubble Gum      2922     04/13/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Bubble Gum      2512     08/16/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Bubble Gum      5435     03/17/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Bubble Gum      5768     12/05/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS1822X32                                  Bubble Gum      5089     09/14/05 Hershey Foods Warehouse  asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Butter Peacan   5613     08/18/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Butter Peacan   2512     08/16/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Butter Peacan   5425     03/16/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Butterscotch    2770     03/16/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Butterscotch    2921              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Butterscotch    2922     04/13/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Butterscotch    4056     07/13/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Butterscotch    4057     08/17/07 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Butterscotch    5219     11/04/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Butterscotch    5261              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Butterscotch    5613     08/18/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Butterscotch    2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Butterscotch    2512     08/16/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Butterscotch    2517     10/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Butterscotch    2526     11/02/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Butterscotch    2527     11/03/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Butterscotch    2531     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Butterscotch    2532     11/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Butterscotch    2533     01/20/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Butterscotch    2601     12/22/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Butterscotch    2602     12/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Butterscotch    2606     01/03/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Butterscotch    2623     04/11/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Butterscotch    2635     01/11/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Butterscotch    6574     09/23/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Butterscotch    6630     10/25/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18-1826                                  Butterscotch    5286     01/09/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18-1826                                  Butterscotch    5290     02/03/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS1822X32                                  Butterscotch    5089     09/14/05 Hershey Foods Corporatio asi
+ 8.00000  7.00000  4.00000 SE     SBS18                                       Butterscotch    2537     11/15/04 Hershey Foods Corporatio asi
+ 8.00000  7.00000  4.00000 SE     SBS18                                       Butterscotch    2561     12/10/04 Hershey Foods Corporatio asi
+ 8.00000  7.00000  4.00000 SE     SBS18                                       Butterscotch    2562     12/06/04 Hershey Foods Corporatio asi
+ 8.00000  7.00000  4.00000 SE     SBS18                                       Butterscotch    2565     11/30/04 Hershey Foods Corporatio asi
+11.93750 13.81250 17.68750 SE     SBS20                                       Butterscotch    2782     03/17/05 Hershey Foods Corporatio asi
+ 6.00000  5.00000  4.00000 SE     SBS16                                       canary peach    2999              Hershey Foods Corporatio asi
+ 6.00000  5.00000  4.00000 SE     SBS16                                       canary peach    4006              Hershey Foods Corporatio asi
+ 6.00000  5.00000  4.00000 SE     SBS16                                       canary peach    4010     05/20/05 Hershey Foods Warehouse  asi
+ 6.00000  5.00000  4.00000 SE     SBS16                                       canary peach    4043              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Choc Chip Fudge 2770     03/16/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Choc Chip Fudge 6002              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Choc Chip Fudge 6007              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Choc Chip Mint  2770     03/16/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Choc Chip Mint  2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Choc Chip Mint  2446     09/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Choc Chip Mint  6574     09/23/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Choc Chip Mint  6630     10/25/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS14                                       CHOCOLATE       5506              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS14                                       CHOCOLATE       5558     05/25/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       CHOCOLATE       2921              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       CHOCOLATE       2922     04/13/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       CHOCOLATE       4027     06/07/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       CHOCOLATE       4036     06/21/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       CHOCOLATE       5001     09/07/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       CHOCOLATE       5035              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       CHOCOLATE       5072              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       CHOCOLATE       5085     10/26/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       CHOCOLATE       5086     09/09/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       CHOCOLATE       5086     09/09/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       CHOCOLATE       5086     09/09/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       CHOCOLATE       5089     09/14/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       CHOCOLATE       5179     10/28/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       CHOCOLATE       5219     11/04/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       CHOCOLATE       5261              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       CHOCOLATE       2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       CHOCOLATE       2446     09/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       2512     08/16/06 Broker Sales             asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       CHOCOLATE       2518     10/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       CHOCOLATE       2523     11/01/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       CHOCOLATE       2524              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       CHOCOLATE       2525     11/02/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       CHOCOLATE       2560     11/22/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       CHOCOLATE       2564     11/24/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       CHOCOLATE       2570     12/13/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       CHOCOLATE       2577              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       CHOCOLATE       2578     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       2594              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       2597     12/22/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       2598     12/22/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       2599              Hershey Foods Corporatio asi
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   6
+ 3:09pm                                               Estimates by Size Report
+
+                                                                                                                                   Industry:
+Folding
+
+                                                                                                       Last Ord
+  Length    Width    Depth Style  Material   Adder 1    Adder 2    Adder 3    Customer Part#  Est#       Date   Customer Name            Last User
+-------- -------- -------- ------ ---------- ---------- ---------- ---------- --------------- -------- -------- ------------------------ ---------
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       2910     04/08/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       2920     04/11/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       5264              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       5266     12/09/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       5304     01/24/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       5332              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       5389     02/23/06 Hershey Foods Warehouse  asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       5425     03/16/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       5503     04/27/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       5577     06/30/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       5581     07/12/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       5581     07/12/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       5605              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       5605              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       5621     09/06/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       5714     11/01/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       6574     09/23/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       CHOCOLATE       6630     10/25/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       6848     01/29/09 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       6848     01/29/09 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       7003              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       CHOCOLATE       7030              Hershey Foods Corporatio
+ 7.00000  5.00000  4.00000 SE     SBS18-1826                                  CHOCOLATE       5286     01/09/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18-1826                                  CHOCOLATE       5290     02/03/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18-20                                    CHOCOLATE       7004     02/13/09 Hershey Foods Corporatio nosweat
+ 7.00000  5.00000  4.00000 SE     SBS18-20                                    CHOCOLATE       7004     02/13/09 Hershey Foods Corporatio nosweat
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Cotton Candy    2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Cotton Candy    2446     09/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Cotton Candy    6574     09/23/08 Hershey Foods Corporatio asi
+ 4.00000  5.00000  6.00000 RT     SBS18                                       cp11a           2209              Hershey Foods Corporatio asi
+ 2.00000  3.00000  5.00000 RT     SBS18                                       cp2390          2390     08/26/04 Hershey Foods Corporatio asi
+ 4.00000  4.00000  2.00000 RSC    125 A                                       CP484           6189              Hershey Foods Corporatio
+ 4.00000  4.00000  2.00000 RSC    125 A                                       CP484           6191              Hershey Foods Corporatio
+ 4.00000  3.00000  2.00000 RT     SBS16                                       craig flat1     5954     03/13/08 Hershey Foods Corporatio asi
+ 5.00000  4.00000  3.00000 RT     200 c                                       craig flat2     5955     03/13/08 AT&T Communications Corp
+ 6.00000  4.00000  5.00000 SE     Sbs18                                       creamy Cherry   2600     12/22/04 Hershey Foods Corporatio asi
+ 6.00000  4.00000  5.00000 SE     SBS18                                       creamy chocolat 2533     01/20/05 Hershey Foods Corporatio asi
+ 6.00000  4.00000  5.00000 SE     Sbs18                                       creamy chocolat 2587              Hershey Foods Corporatio asi
+ 6.00000  4.00000  5.00000 SE     SBS18                                       creamy chocolat 2600     12/22/04 Hershey Foods Corporatio asi
+ 6.00000  4.00000  5.00000 SE     SBS18                                       creamy chocolat 2601     12/22/04 Hershey Foods Corporatio asi
+ 6.00000  4.00000  5.00000 SE     Sbs18                                       Creamy Fudge    2600     12/22/04 Hershey Foods Corporatio asi
+ 6.00000  4.00000  5.00000 SE     Sbs18                                       Creamy Fudge    2601     12/22/04 Hershey Foods Corporatio asi
+ 6.00000  4.00000  5.00000 SE     Sbs18                                       creamy Vanilla  2600     12/22/04 Hershey Foods Corporatio asi
+ 6.00000  4.00000  5.00000 SE     Sbs18                                       creamy Vanilla  2601     12/22/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Double Bubble   5435     03/17/06 Hershey Foods Corporatio asi
+ 4.65400  3.23300  4.12000 RT     SBS18                                       FHER10000065A   5093     11/18/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       GrapeRaspberry  2537     11/15/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-1184A       1184              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.25000 RT     SBS18                                       HER-1184B       1184              Hershey Foods Corporatio asi
+ 4.00000  4.00000  7.25000 RT     SBS18                                       HER-1185        1185     02/12/03 Hershey Foods Corporatio asi
+ 4.00000  4.00000  7.25000 RT     SBS18                                       HER-1185        5399     03/06/06 Hershey Foods Corporatio asi
+ 3.50000  3.50000  5.00000 RT     SBS14                                       HER-1212        1212     05/30/03 Hershey Foods Corporatio asi
+ 3.50000  3.50000  5.00000 RT     SBS14                                       HER-1212        1226     02/25/03 Hershey Foods Corporatio asi
+ 5.00000  5.00000  5.00000 RT     SBS18                                       HER-1218-1      1218              Hershey Foods Corporatio asi
+ 3.00000  5.00000  8.00000 RT     SBS18                                       HER-1251        1251              Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-1271        1271              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.50000 RT     SBS18                                       HER-1271B       1271              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.50000 RT     SBS18                                       HER-1271B       1271              Hershey Foods Corporatio asi
+ 6.75000  3.87500 10.25000 SE     SBS18                                       HER-1279        1279     03/21/03 Hershey Foods Corporatio asi
+ 7.00000  2.00000  9.50000 RT     CCN18                                       HER-1425        1439              Hershey Foods Corporatio asi
+ 7.00000  2.00000  9.50000 RT     SBS18                                       HER-1425        1425     05/28/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.50000 RT     SBS18                                       HER-164E        614      12/09/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.50000 RT     SBS18                                       HER-164E        1876     12/18/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.50000 RT     SBS18                                       HER-164E        2133     03/11/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.50000 RT     SBS18                                       HER-164E        2206     04/28/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.50000 RT     SBS18                                       HER-164E        2207              Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.50000 RT     SBS18                                       HER-164E        2239     05/24/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.50000 RT     SBS18                                       HER-164E        2288     05/25/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS16                                       HER-1674        1674              Hershey Foods Corporatio asi
+ 7.00000  3.00000  2.00000 RT     SBS18                                       HER-1679        1679              Hershey Foods Corporatio asi
+ 4.00000  3.00000  3.00000 RT     sbs18                                       HER-1706        1706     11/03/03 Hershey Foods Warehouse  asi
+ 4.00000  3.00000  3.00000 RT     sbs18                                       HER-1706        1733     11/12/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-1711A       1711              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-1711B       1711              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-1711C       1711              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-1711D       1711              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-1711E       1711              Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.00000 RT     SBS18                                       HER-1711F       1711              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     sbs18                                       HEr-1831A       1831              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     SBS18                                       HER-1831A       2136     03/15/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     sbs18                                       HEr-1831B       1831              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     sbs18                                       HEr-1831B       2136     03/15/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     sbs18                                       HER-1831C       1831              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     sbs18                                       HER-1831D       1831              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     sbs18                                       HER-1831E       1831              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     sbs18                                       HER-1831F       1831              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     sbs18                                       HER-1831G       1831              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     sbs18                                       HER-1831H       1831              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     sbs18                                       HER-1831I       1831              Hershey Foods Corporatio asi
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   7
+ 3:09pm                                               Estimates by Size Report
+
+                                                                                                                                   Industry:
+Folding
+
+                                                                                                       Last Ord
+  Length    Width    Depth Style  Material   Adder 1    Adder 2    Adder 3    Customer Part#  Est#       Date   Customer Name            Last User
+-------- -------- -------- ------ ---------- ---------- ---------- ---------- --------------- -------- -------- ------------------------ ---------
+ 3.00000  3.00000  6.00000 RT     sbs18                                       HER-1831J       1831              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     sbs18                                       HER-1831K       1831              Hershey Foods Corporatio asi
+ 5.00000  5.00000  9.00000 RT     SBS18                                       HER-1885        1885     12/16/03 Hershey Foods Corporatio asi
+ 5.00000  5.00000  9.00000 RT     SBS18                                       HER-1899        1899     01/15/04 Hershey Foods Corporatio asi
+ 5.00000  5.00000  8.00000 RT     SBS20                                       HER-2022C       2082     02/25/04 Hershey Foods Corporatio asi
+ 6.00000  6.00000 10.00000 RT     sbs18                                       HER-2025        2025     01/16/04 Hershey Foods Corporatio asi
+ 5.00000  5.00000  8.00000 RT     SBS18                                       HER-2052        2052              Hershey Foods Corporatio asi
+ 5.00000  5.00000  8.00000 RT     SBS18                                       HER-2077A       2077     02/05/04 Hershey Foods Corporatio asi
+ 5.00000  5.00000  8.00000 RT     SBS18                                       HER-2077A       2083     03/10/04 Hershey Foods Corporatio asi
+ 5.00000  5.00000  8.00000 RT     SBS18                                       HER-2077A       2083     03/10/04 Hershey Foods Corporatio asi
+ 5.00000  5.00000  8.00000 RT     SBS18                                       HER-2077A       2175              Hershey Foods Corporatio asi
+ 5.00000  5.00000  8.00000 RT     SBS18                                       HER-2077A       2175              Hershey Foods Corporatio asi
+ 5.00000  5.00000  8.00000 RT     SBS18                                       HER-2077B       2077     02/05/04 Hershey Foods Corporatio asi
+ 5.00000  5.00000  8.00000 RT     SBS20                                       HER-2082A       2082     02/25/04 Hershey Foods Corporatio asi
+ 5.00000  5.00000  8.00000 RT     SBS18                                       HER-2082D       2082     02/25/04 Hershey Foods Corporatio asi
+ 5.00000  5.00000  8.00000 RT     SBS18                                       HER-2082E       2082     02/25/04 Hershey Foods Corporatio asi
+ 2.00000  2.00000  2.00000 RT     SBS18                                       HER-2108A       2108     02/19/04 Hershey Foods Corporatio asi
+ 2.00000  2.00000  2.00000 RT     SBS18                                       HER-2108B       2108     02/19/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2130A       2130              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2130A       2135     04/15/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2130A       2182     04/16/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2130B       2130              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2130B       2135     04/15/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2130B       2182     04/16/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2130B       2210     04/30/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2130C       2130              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2130C       2135     04/15/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2130C       2182     04/16/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2130C       2210     04/30/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2130jlf     2130              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2130jlf     2135     04/15/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2141A       2141     03/18/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2141A       2178              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2141B       2141     03/18/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2141C       2141     03/18/04 Hershey Foods Corporatio asi
+ 5.00000  4.00000  8.00000 RT     SBS18                                       HER-2153        2153              Hershey Foods Corporatio asi
+ 2.00000  2.00000  8.00000 RT     sbs18                                       HER-2158        2158     03/30/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.25000 RT     sbs18                                       HER-2202A       2202              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.25000 RT     sbs18                                       HER-2202B       2202              Hershey Foods Corporatio asi
+ 4.00000  3.00000  6.25000 RT     sbs18                                       HER-2202C       2202              Hershey Foods Corporatio asi
+ 2.00000  2.00000  2.00000 RT     SBS18                                       HER-2204        2204              Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.50000 RT     SBS18                                       HER-2205        2205     04/28/04 Hershey Foods Corporatio asi
+ 5.50000  3.00000  7.00000 RT     SBS18                                       HER-2231        2231     05/11/04 Hershey Foods Corporatio asi
+ 5.50000  3.00000  7.00000 RT     SBS18                                       HER-2231        2252     05/24/04 Hershey Foods Corporatio asi
+ 5.50000  3.00000  7.00000 RT     SBS18                                       HER-2236        2236     05/11/04 Hershey Foods Corporatio asi
+ 5.00000  5.00000  9.50000 RT     SBS18                                       HER-2293        2293              Hershey Foods Corporatio asi
+ 4.00000  4.00000  8.00000 RT     SBS18                                       HER-2295        2295              Hershey Foods Corporatio asi
+ 6.00000  2.00000  5.00000 RT     SBS18                                       HER-2299        2299              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     SBS14                                       HER-2362        2362              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     SBS14                                       HER-2362-100    2363              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     SBS14                                       HER-2362-2      2363              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2365        2365              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2366        2365              Hershey Foods Corporatio asi
+ 4.00000  4.00000  6.00000 RT     SBS18                                       HER-2423A       2423     09/15/04 Hershey Foods Corporatio asi
+ 4.00000  4.00000  6.00000 RT     SBS18                                       HER-2423B       2423     09/15/04 Hershey Foods Corporatio asi
+ 4.00000  4.00000  6.00000 RT     SBS18                                       HER-2423C       2423     09/15/04 Hershey Foods Corporatio asi
+ 6.00000  6.00000  2.00000 RT     SBS18                                       HER-2479        2479              Hershey Foods Corporatio asi
+ 4.00000  4.00000  2.00000 RT     SBS18                                       HER-2480        2480              Hershey Foods Corporatio asi
+ 3.00000  5.00000  7.00000 RT     sbs18                                       HER-2496        2496     10/21/04 Hershey Foods Corporatio asi
+ 4.50000  4.50000  7.00000 RT     SBS18                                       HER-2497        2497     10/14/04 Hershey Foods Corporatio asi
+30.00000 50.00000  0.00000 DC     SBS18                                       HER-2520        2520     10/28/04 Hershey Foods Corporatio asi
+ 2.64062  2.01562  2.04687 RT     SBS18                                       HER-2552        2552     11/18/04 Hershey Foods Corporatio asi
+ 3.00000  7.00000  6.00000 RT     sbs18                                       HER-2611        2611              Hershey Foods Corporatio asi
+ 5.00000  5.00000  5.00000 RT     SBS18                                       HER-2615        2615              Hershey Foods Corporatio asi
+ 5.00000  5.00000  5.00000 RT     SBS18                                       HER-2615        2622              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-2656        2656     01/28/05 Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.00000 RT     SBS18                                       HER-2657        2657     01/28/05 Hershey Foods Corporatio asi
+ 3.00000  3.00000  4.00000 RT     SBS18                                       HER-2658        2658     01/28/05 Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     SBS18                                       HER-2659        2659     01/28/05 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 RT     SBS18                                       HER-2660        2660     01/28/05 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 RT     SBS18                                       HER-2662        2662     02/01/05 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 RT     SBS18                                       HER-2663        2663              Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     sbs18                                       HER-2668        2668              Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18                                       HER-2675A       2675     02/16/05 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 SE     SBS18                                       HER-2675B       2675     02/16/05 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 SE     SBS18                                       HER-2675B       2675     02/16/05 Hershey Foods Corporatio asi
+ 3.00000  3.50000  3.50000 RT     SBS1822x32                                  HER-2684        2684     02/22/05 Hershey Foods Corporatio asi
+ 3.00000  3.50000  3.50000 RT     SBS1822x32                                  HER-2687        2687     02/24/05 Hershey Foods Corporatio asi
+ 4.00000  4.00000  5.75000 RT     SBS18                                       HER-2780        2780              Hershey Foods Corporatio asi
+ 3.00000  5.00000  3.25000 RT     SBS18                                       her-2780-1      2780              Hershey Foods Corporatio asi
+ 3.00000  2.00000  4.00000 RT     sbs18                                       HER-2908        2908     04/07/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 RT     SBS18                                       HER-2972        2972     04/19/05 Hershey Foods Corporatio asi
+ 4.00000  4.00000  4.00000 RT     SBS18                                       HER-4X4X4       482      04/13/07 Hershey Foods Corporatio asi
+ 4.00000  4.00000  6.00000 RT     SBS18                                       HER-4x4x6       482      04/13/07 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18                                       HER-5063        5063              Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18                                       HER-5064        5064     09/02/05 Hershey Foods Corporatio asi
+ 5.00000  5.00000 11.00000 RT     SBS14                                       HER-5092        5092     09/14/05 Hershey Foods Corporatio asi
+ 5.00000  5.00000 11.00000 RT     SBS14                                       HER-5092        5826              Hershey Foods Corporatio asi
+ 4.00000  4.00000  7.00000 RT     SBS18                                       HER-513         5860     05/22/07 Hershey Foods Corporatio asi
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   8
+ 3:09pm                                               Estimates by Size Report
+
+                                                                                                                                   Industry:
+Folding
+
+                                                                                                       Last Ord
+  Length    Width    Depth Style  Material   Adder 1    Adder 2    Adder 3    Customer Part#  Est#       Date   Customer Name            Last User
+-------- -------- -------- ------ ---------- ---------- ---------- ---------- --------------- -------- -------- ------------------------ ---------
+ 4.00000  4.00000  4.00000 RT     sbs18                                       HER-5217        5217              Hershey Foods Corporatio asi
+ 4.00000  4.00000  4.00000 RT     sbs18                                       HER-5217        5260     01/10/06 Hershey Foods Corporatio ASI
+ 3.00000  2.00000  4.00000 RT     SBS18                                       HER-5280        5280     12/27/05 Hershey Foods Corporatio asi
+ 4.00000  2.00000  5.00000 RT     SBS18                                       HER-5305        5305     02/23/06 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-5305D       5305     02/23/06 Hershey Foods Corporatio asi
+ 4.00000  2.00000  5.00000 RT     SBS18                                       HER-5306        5305     02/23/06 Hershey Foods Corporatio asi
+ 8.00000  8.00000  8.00000 RT     SBS18                                       HER-5351        5351     03/21/06 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     sBS18                                       HER-5398        5398     03/02/06 Hershey Foods Corporatio asi
+ 5.00000  3.00000  7.00000 RT     SBS18                                       HER-5424        5424     03/16/06 Hershey Foods Corporatio asi
+ 4.00000  4.00000  7.50000 RT     SBS18                                       HER-543         769               Hershey Foods Corporatio asi
+ 6.00000  4.00000  8.00000 RT     SBS18                                       HER-543         543      08/25/06 Hershey Foods Corporatio asi
+ 6.00000  4.00000  8.00000 RT     SBS18                                       HER-543         6404              Hershey Foods Corporatio asi
+ 6.00000  4.00000  8.00000 RT     SBS18                                       HER-543         6433     02/13/09 Hershey Foods Corporatio nosweat
+ 6.00000  4.00000  8.00000 RT     SBS18                                       HER-543         6502              Hershey Foods Corporatio asi
+ 6.00000  6.00000  6.00000 RT     SBS18                                       her-543-1       6433     02/13/09 Hershey Foods Corporatio nosweat
+ 4.00000  4.25000  7.25000 RT     SBS18                                       HER-543B        769               Hershey Foods Corporatio asi
+ 4.00000  2.00000  6.00000 RT     sbs18                                       HER-545         545      10/11/04 Hershey Foods Corporatio asi
+ 4.00000  2.00000  6.00000 RT     sbs18                                       HER-547         547               Hershey Foods Corporatio asi
+ 3.25000  3.00000  6.25000 RT     SBS18                                       HER-5524        5524     03/13/08 Hershey Foods Corporatio asi
+ 6.00000  6.00000  9.00000 SE     SBS18                                       HER-5543        5543              Hershey Foods Corporatio asi
+ 4.00000  4.00000  7.50000 RT     SBS18                                       HER-5614        5614     08/16/06 Hershey Foods Corporatio asi
+ 9.00000  9.00000  3.00000 RT     sbs18                                       HER-565         640               Hershey Foods Corporatio asi
+ 9.00000  9.00000  3.00000 RT     SBS18                                       HER-565B        640               Hershey Foods Corporatio asi
+ 6.00000  2.00000  8.00000 SE     SBS18                                       HER-5708        5708     10/31/06 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.50000 RT     SBS18                                       HER-5709        5709              Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.50000 RT     SBS18                                       HER-5709B       5709              Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.50000 RT     SBS18                                       HER-5709C       5709              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER-572         572      06/06/02 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 RT     SBS18                                       HER-5732        5732     11/20/06 Hershey Foods Corporatio asi
+ 4.00000  4.00000  6.00000 RT     SBS18                                       HER-5766        5766     12/04/06 Hershey Foods Warehouse  asi
+ 3.00000  3.00000  5.25000 RT     SBS16                                       HER-5772        5772              Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.00000 RT     SBS18                                       HER-5785        5785     12/12/06 Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.00000 RT     SBS18-24.5                                  HER-5785        5786     12/12/06 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-5856        5856              Hershey Foods Corporatio asi
+ 2.00000  2.00000  2.00000 RT     SBS18                                       HER-585A        585               Hershey Foods Corporatio asi
+ 2.00000  2.00000  4.00000 RT     SBS18                                       HER-585D        585               Hershey Foods Corporatio asi
+ 5.00000  2.00000  8.00000 RT     SBS18                                       HER-5867        5867     03/13/08 Hershey Foods Corporatio asi
+ 5.00000  2.00000  8.00000 RT     SBS18                                       HER-5867        5942              Hershey Foods Corporatio asi
+ 5.00000  6.00000  5.00000 RT     SBS18                                       HER-5867-2      5942              Hershey Foods Corporatio asi
+ 5.00000  3.00000  6.00000 RT     SBS18                                       HER-5x3x6       7064              Hershey Foods Corporatio asi
+ 5.00000  4.00000  8.00000 RT     SBS18                                       HER-603         603               Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.00000 RT                                                 HER-614A        2383     09/09/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.00000 RT     SBS18                                       HER-614A        614      12/09/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.00000 RT     SBS18                                       HER-614A        1876     12/18/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.00000 RT     SBS18                                       HER-614A        2133     03/11/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.00000 RT     SBS18                                       HER-614A        2233     05/24/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT                                                 HER-614B        2383     09/09/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     SBS18                                       HER-614B        2133     03/11/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     SBS20                                       HER-614B        614      12/09/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     SBS20                                       HER-614B        1876     12/18/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT                                                 HER-614C        2383     09/09/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-614C        2133     03/11/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-614C        2206     04/28/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-614C        2239     05/24/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-614C        2288     05/25/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS20                                       HER-614C        614      12/09/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS20                                       HER-614C        1876     12/18/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 RT     SBS18                                       HER-614D        614      12/09/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 RT     SBS18                                       HER-614D        1876     12/18/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 RT     SBS18                                       HER-614D        2133     03/11/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  4.00000 RT     SBS18                                       HER-614F        2133     03/11/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  4.00000 RT     SBS18                                       HER-614F        2206     04/28/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  4.00000 RT     SBS20                                       HER-614F        614      12/09/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  4.00000 RT     SBS20                                       HER-614F        1876     12/18/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.50000 RT     SBS18                                       HER-614G        614      12/09/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.50000 RT     SBS18                                       HER-614G        1876     12/18/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.50000 RT     SBS18                                       HER-614G        2133     03/11/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.50000 RT     SBS18                                       HER-614G        2233     05/24/04 Hershey Foods Corporatio asi
+ 5.00000  3.00000  2.00000 RT     SBS18                                       HER-616         616      08/29/02 Hershey Foods Corporatio asi
+16.00000 11.00000  2.00000 6C     CCN20                                       HER-6592        6592     09/09/08 Hershey Foods Corporatio asi
+ 3.00000  2.00000  3.50000 RT     SBS18                                       HER-6780        6780     01/08/09 Hershey Foods Corporatio asi
+ 2.00000  1.75000  1.50000 RT     SBS18                                       HER-7005        7005              Hershey Foods Corporatio asi
+ 5.00000  2.00000  6.00000 RT     SBS10E                                      HER-7009A1      7009     02/16/09 Hershey Foods Corporatio asi
+ 5.00000  2.00000  6.00000 RT     SBS10E                                      HER-7009B       7009     02/16/09 Hershey Foods Corporatio asi
+ 6.00000  4.00000  8.00000 RT     SBS18                                       HER-7020        7020     03/16/09 Hershey Foods Corporatio asi
+ 4.00000  5.00000  6.00000 STA    SBS20                                       HER-748A        748               Hershey Foods Corporatio asi
+ 4.00000  5.00000  6.00000 STA    SBS20                                       HER-748A        748               Hershey Foods Corporatio asi
+ 3.00000  5.00000  6.00000 RT     SBS20                                       HER-748B        748               Hershey Foods Corporatio asi
+ 3.00000  4.00000  6.00000 RT     SBS20                                       HER-748C        748               Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     sbs18                                       HER-771         771               Hershey Foods Corporatio asi
+ 3.00000  3.00000  4.00000 RT     sbs18                                       HER-771A        771               Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.75000 RT     SBS18                                       HER-786         786      12/02/02 Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.25000 RT     sbs18                                       HER-792         792               Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.25000 RT     sbs18                                       HER-792B        792               Hershey Foods Corporatio asi
+ 3.00000  3.00000  4.50000 RT     SBS20                                       HER-797A        797               Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.50000 RT     SBS20                                       HEr-797B        797               Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     SBS18                                       HER-995         995      02/06/03 Hershey Foods Corporatio asi
+ 9.00000  4.00000  6.00000 RT     SBS18                                       HER-9x4x6       6612     11/13/08 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-Almonds     2246              Hershey Foods Corporatio asi
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page   9
+ 3:09pm                                               Estimates by Size Report
+
+                                                                                                                                   Industry:
+Folding
+
+                                                                                                       Last Ord
+  Length    Width    Depth Style  Material   Adder 1    Adder 2    Adder 3    Customer Part#  Est#       Date   Customer Name            Last User
+-------- -------- -------- ------ ---------- ---------- ---------- ---------- --------------- -------- -------- ------------------------ ---------
+ 2.00000  2.00000  2.00000 RT     sbs18                                       HER-KISS        2607              Hershey Foods Corporatio asi
+ 5.00000  3.00000  1.00000 4C     SBS18                                       HER-Set2067-1-1 2067              Hershey Foods Corporatio asi
+ 5.00000  3.00000  1.00000 4C     SBS18                                       HER-Set2067-2-1 2067              Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-Tandem1     1564              Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-Tandem1     1588              Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-Tandem1     1652              Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-Tandem1     1678     10/24/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18-22                                    HER-Tandem1     1661     10/08/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18-22                                    HER-Tandem1     1663     10/09/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18-22                                    HER-Tandem1     1665     10/10/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18-22                                    HER-Tandem1     1668     10/13/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-Tandem2     1564              Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-Tandem2     1652              Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-Tandem2     1678     10/24/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18-22                                    HER-Tandem2     1661     10/08/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18-22                                    HER-Tandem2     1663     10/09/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-Tandem3     1564              Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-Tandem3     1652              Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-Tandem3     1661     10/08/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-Tandem3     1663     10/09/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-Tandem4     1661     10/08/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER-Tandem5     1661     10/08/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.25000 RT     SBS18                                       HER1000         2183              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.25000 RT     SBS18                                       HER1000         5776     02/05/07 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER1274A        1274              Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18                                       HER1274A        1387     04/29/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18                                       HER1274A        1412     06/18/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-24                                    HER1274A        1405     10/11/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 RT     SBS18                                       HER1274B        1274              Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 RT     SBS18                                       HER1274B        1387     04/29/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 RT     SBS18                                       HER1274B        6370              Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 RT     SBS18-24                                    HER1274B        1405     10/11/04 Hershey Foods Corporatio asi
+ 4.00000  3.50000  9.00000 RT     SBS18                                       HER1274B        1395              Hershey Foods Warehouse  asi
+ 4.00000  3.50000  9.00000 SE     SBS18                                       HER1274B        1397     06/10/03 Hershey Foods Warehouse  asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER1274C        1274              Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER1274C        1387     04/29/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER1274C        1406              Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER1274C        1412     06/18/03 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18-24                                    HER1274C        1405     10/11/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     SBS18                                       HER2065         2065     01/30/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     SBS24                                       HER2065         2078              Hershey Foods Corporatio asi
+ 3.00000  3.00000 11.00000 RT     SBS20                                       HER2080         2080              Hershey Foods Corporatio asi
+ 7.00000  8.00000 16.00000 SE     SBS1042-26                                  HER2238         2238              Hershey Foods Corporatio asi
+ 4.37500  4.37500  7.00000 TTA    SBS18                                       HER2495         2495              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     sbs18                                       HER2569         2569     12/09/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 RT     SBS18                                       HER5013         5013              Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18                                       HER5014         5014              Hershey Foods Corporatio asi
+ 4.00000  4.00000  9.00000 RT     SBS18                                       HER5018         5018              Hershey Foods Corporatio asi
+ 4.00000  4.00000  8.00000 RT     sbs18                                       HER5036         5036     08/26/05 Hershey Foods Corporatio asi
+ 4.00000  4.00000  8.00000 RT     sbs18                                       HER5038         5038              Hershey Foods Corporatio asi
+ 4.00000  4.00000  8.00000 RT     sbs18                                       HER5039         5039     08/26/05 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.75000 RT     sbs18                                       HER5040         5040     08/26/05 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     SBS18                                       HER5300         5300     02/03/06 Hershey Foods Corporatio asi
+ 3.00000  3.00000  7.00000 RT     SBS18                                       HER5306         5306     02/07/06 Hershey Foods Warehouse  asi
+ 3.00000  3.00000  2.25000 RT     SBS18                                       HER5385         5385     02/22/06 Hershey Foods Warehouse  asi
+ 3.00000  3.00000  5.00000 RT     sbs18                                       HEr5488         5488     04/20/06 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18                                       HER5695         5695     10/10/06 Hershey Foods Corporatio asi
+ 8.00000  5.00000  3.00000 4C     CCN18                                       HERSET-2062-1-1 2062              Hershey Foods Corporatio asi
+ 8.00000  5.00000  3.00000 4C     CCN18                                       HERSET-2062-2-1 2062              Hershey Foods Corporatio asi
+ 3.00000  3.00000  6.00000 RT     SBS18                                       HERSHEY EASTER  2206     04/28/04                          asi
+ 4.00000  3.00000  3.00000 RT     sbs18                                       IBM-1680B       1706     11/03/03 Hershey Foods Warehouse  asi
+ 4.00000  3.00000  3.00000 RT     sbs18                                       IBM-1680C       1706     11/03/03 Hershey Foods Warehouse  asi
+ 3.00000  3.00000  5.00000 RT     sbs18                                       IBM-1900A       2217     04/30/04 IBM CORP                 asi
+ 3.00000  3.00000  8.00000 RT     ACE100                                      IBM-517         517      10/10/06 Hershey Foods Corporatio asi
+ 3.00000  3.00000  8.00000 RT     sbs18                                       IBM-517         768               Hershey Foods Corporatio asi
+ 5.00000  5.00000  5.00000 RT     ACE100                                      ibm-517-2       517      10/10/06                          asi
+ 6.00000  5.00000  2.00000 SE     Sbs18                                       ice cold        2623     04/11/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       It Works        2445     12/09/04 Hershey Foods Corporatio asi
+ 6.00000  6.00000  4.00000 RT     SBS16                                       jeff-1384       1384              Hershey Foods Corporatio asi
+ 5.00000  5.00000  4.00000 2PC    SBS18                                       jeff-2036-1-1   2036              Hershey Foods Corporatio asi
+ 4.00000  4.00000  3.00000 2PC    sbs18                                       jeff-2036-2-1   2036              Hershey Foods Corporatio asi
+ 4.00000  5.00000  6.00000 RT     SBS18                                       JEFF-2161-01    2161     04/15/04 Hershey Foods Corporatio asi
+ 4.00000  5.00000  6.00000 RT     SBS18                                       JEFF-2161-01    2168     04/05/04 Hershey Foods Corporatio asi
+ 4.00000  5.00000  6.00000 RT     SBS18                                       JEFF-2161-01    2181              Hershey Foods Corporatio asi
+ 4.00000  5.00000  6.00000 RT     SBS18                                       JEFF-2161-01    2209              Hershey Foods Corporatio asi
+ 4.00000  5.00000  6.00000 RT     SBS18                                       JEFF-2161-02    2161     04/15/04 Hershey Foods Corporatio asi
+ 4.00000  5.00000  6.00000 RT     SBS18                                       JEFF-2161-02    2168     04/05/04 Hershey Foods Corporatio asi
+ 4.00000  5.00000  6.00000 RT     SBS18                                       JEFF-2161-02    2181              Hershey Foods Corporatio asi
+ 4.00000  5.00000  6.00000 RT     SBS18                                       JEFF-2161-03    2161     04/15/04 Hershey Foods Corporatio asi
+ 5.00000  6.00000  3.37500 RT     SBS16                                       jeff-2208       2208              Hershey Foods Corporatio asi
+ 3.00000  3.00000  5.00000 RT     sbs18                                       jeff-2217-2     2186              IBM CORP                 asi
+ 3.00000  3.00000  5.00000 RT     sbs18                                       jeff-2217-2     2217     04/30/04 IBM CORP                 asi
+11.50000  6.25000  2.75000 6C     SBS34.75X4                                  JEFF-2282       2282              Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    jeff-2357       2335     06/15/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  9.00000 RT     SBS18-30                                    jeff-2357       2357     06/18/04 Hershey Foods Corporatio asi
+ 3.00000  4.64500  3.22200 RT     SBS16                                       jeff-2364-123   2364              Hershey Foods Corporatio asi
+ 5.00000  4.50000  7.00000 RT     SBS18                                       jeff-2529       2529              Hershey Foods Corporatio asi
+ 3.25000  3.00000  3.00000 RT     SBS18                                       jeff-2549       2549              Hershey Foods Corporatio asi
+ 5.00000  3.00000  4.00000 RT     sbs18                                       jeff-2609       2609              Hershey Foods Corporatio asi
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page  10
+ 3:09pm                                               Estimates by Size Report
+
+                                                                                                                                   Industry:
+Folding
+
+                                                                                                       Last Ord
+  Length    Width    Depth Style  Material   Adder 1    Adder 2    Adder 3    Customer Part#  Est#       Date   Customer Name            Last User
+-------- -------- -------- ------ ---------- ---------- ---------- ---------- --------------- -------- -------- ------------------------ ---------
+ 5.00000  4.00000  4.00000 RT     SBS18                                       jeff-2616       2616              Hershey Foods Corporatio asi
+ 2.34500  1.78650  2.88000 DLB    SBS16                                       jeff-2678-1     2678              Hershey Foods Corporatio asi
+ 2.81250  0.81250  2.81250 SE     SBS18                                       jeff-4028       4028              Hershey Foods Corporatio asi
+ 4.00000  3.00000  5.00000 RT     SBS16                                       jeff-5060-1     5060     08/30/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       jeff-5559-choco 5559     06/08/06 Hershey Warehouse        asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       jeff-5559-straw 5559     06/08/06 Hershey Warehouse        asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       jeff-5559-vanil 5559     06/08/06 Hershey Warehouse        asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       jeff-5559ZZZ    5559     06/08/06 Hershey Warehouse        asi
+ 4.12300  3.41200  2.41300 RT     SBS10                                       jeff-5830-01    5830              Hershey Foods Corporatio asi
+ 4.12300  3.41200  2.41300 RT     SBS10                                       jeff-5830-01    5833     04/13/07 Hershey Foods Corporatio asi
+ 4.12300  3.41200  2.41300 RT     SBS10                                       jeff-5830-01    5908              Hershey Foods Corporatio asi
+ 5.30000  4.30000  5.00000 RT     SBS10                                       jeff-5830-02    5830              Hershey Foods Corporatio asi
+ 5.30000  4.30000  5.00000 RT     SBS10                                       jeff-5830-02    5833     04/13/07 Hershey Foods Corporatio asi
+ 5.30000  4.30000  5.00000 RT     SBS10                                       jeff-5830-02    5908              Hershey Foods Corporatio asi
+ 5.30000  4.30000  5.00000 RT     SBS10                                       jeff-5830-03    5830              Hershey Foods Corporatio asi
+ 5.30000  4.30000  5.00000 RT     SBS10                                       jeff-5830-03    5833     04/13/07 Hershey Foods Corporatio asi
+ 5.30000  4.30000  5.00000 RT     SBS10                                       jeff-5830-03    5908              Hershey Foods Corporatio asi
+ 4.12300  3.41200  2.41300 RT     SBS12                                       jeff-5830-04    5830              Hershey Foods Corporatio asi
+ 4.12300  3.41200  2.41300 RT     SBS12                                       jeff-5830-04    5833     04/13/07 Hershey Foods Corporatio asi
+ 4.12300  3.41200  2.41300 RT     SBS12                                       jeff-5830-04    5908              Hershey Foods Corporatio asi
+ 4.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-05    5830              Hershey Foods Corporatio asi
+ 4.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-05    5833     04/13/07 Hershey Foods Corporatio asi
+ 4.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-05    5908              Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-06    5830              Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-06    5833     04/13/07 Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-06    5908              Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-07    5830              Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-07    5833     04/13/07 Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-07    5908              Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-08    5830              Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-08    5833     04/13/07 Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-08    5908              Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-09    5830              Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-09    5833     04/13/07 Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-09    5908              Hershey Foods Corporatio asi
+ 4.12300  3.41200  2.41300 RT     SBS10                                       jeff-5830-10    5830              Hershey Foods Corporatio asi
+ 4.12300  3.41200  2.41300 RT     SBS10                                       jeff-5830-10    5833     04/13/07 Hershey Foods Corporatio asi
+ 4.12300  3.41200  2.41300 RT     SBS10                                       jeff-5830-10    5908              Hershey Foods Corporatio asi
+ 4.12300  3.41200  2.41300 RT     SBS10                                       jeff-5830-11    5830              Hershey Foods Corporatio asi
+ 4.12300  3.41200  2.41300 RT     SBS10                                       jeff-5830-11    5833     04/13/07 Hershey Foods Corporatio asi
+ 4.12300  3.41200  2.41300 RT     SBS10                                       jeff-5830-11    5908              Hershey Foods Corporatio asi
+ 4.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-12    5830              Hershey Foods Corporatio asi
+ 4.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-12    5833     04/13/07 Hershey Foods Corporatio asi
+ 4.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-12    5908              Hershey Foods Corporatio asi
+ 3.50000  2.90000  2.50000 RT     SBS12                                       jeff-5830-13    5830              Hershey Foods Corporatio asi
+ 3.50000  2.90000  2.50000 RT     SBS12                                       jeff-5830-13    5833     04/13/07 Hershey Foods Corporatio asi
+ 3.50000  2.90000  2.50000 RT     SBS12                                       jeff-5830-13    5908              Hershey Foods Corporatio asi
+ 4.20000  3.15000  2.50000 RT     SBS12                                       jeff-5830-14    5830              Hershey Foods Corporatio asi
+ 4.20000  3.15000  2.50000 RT     SBS12                                       jeff-5830-14    5833     04/13/07 Hershey Foods Corporatio asi
+ 4.20000  3.15000  2.50000 RT     SBS12                                       jeff-5830-14    5908              Hershey Foods Corporatio asi
+ 4.20000  3.15000  2.50000 RT     SBS12                                       jeff-5830-15    5830              Hershey Foods Corporatio asi
+ 4.20000  3.15000  2.50000 RT     SBS12                                       jeff-5830-15    5833     04/13/07 Hershey Foods Corporatio asi
+ 4.20000  3.15000  2.50000 RT     SBS12                                       jeff-5830-15    5908              Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-16    5830              Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-16    5833     04/13/07 Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-16    5908              Hershey Foods Corporatio asi
+ 4.00000  3.00000  4.00000 RT     SBS12                                       jeff-5830-17    5830              Hershey Foods Corporatio asi
+ 4.00000  3.00000  4.00000 RT     SBS12                                       jeff-5830-17    5833     04/13/07 Hershey Foods Corporatio asi
+ 4.00000  3.00000  4.00000 RT     SBS12                                       jeff-5830-17    5908              Hershey Foods Corporatio asi
+ 3.00000  2.00000  4.00000 RT     SBS12                                       jeff-5830-18    5830              Hershey Foods Corporatio asi
+ 3.00000  2.00000  4.00000 RT     SBS12                                       jeff-5830-18    5833     04/13/07 Hershey Foods Corporatio asi
+ 3.00000  2.00000  4.00000 RT     SBS12                                       jeff-5830-18    5908              Hershey Foods Corporatio asi
+ 4.12300  3.41200  2.41300 RT     SBS10                                       jeff-5830-19    5830              Hershey Foods Corporatio asi
+ 4.12300  3.41200  2.41300 RT     SBS10                                       jeff-5830-19    5833     04/13/07 Hershey Foods Corporatio asi
+ 4.12300  3.41200  2.41300 RT     SBS10                                       jeff-5830-19    5908              Hershey Foods Corporatio asi
+ 4.12300  3.41200  2.41300 RT     SBS10                                       jeff-5830-20    5830              Hershey Foods Corporatio asi
+ 4.12300  3.41200  2.41300 RT     SBS10                                       jeff-5830-20    5833     04/13/07 Hershey Foods Corporatio asi
+ 4.12300  3.41200  2.41300 RT     SBS10                                       jeff-5830-20    5908              Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-21    5830              Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-21    5833     04/13/07 Hershey Foods Corporatio asi
+ 5.00000  3.00000  3.00000 RTM    SBS12                                       jeff-5830-21    5908              Hershey Foods Corporatio asi
+ 7.00000  4.00000  0.00000 DC     SBS16                                       jeff-farm-out   2783     03/23/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Last One        2519     10/28/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Major Treat     2445     12/09/04 Hershey Foods Corporatio asi
+ 5.00000  5.00000  4.00000 SE     SBS18                                       Mango           6746     12/10/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       MANGO           2921              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       MANGO           2922     04/13/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Mango           2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Mango           2512     08/16/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Mango           2519     10/28/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Mango           2598     12/22/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Mango           2606     01/03/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Mango           2638     01/18/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Mango           2646     01/25/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       MANGO           2650     01/27/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     sbs18                                       MANGO           5089     09/14/05 Hershey Foods Bld #3     asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       MANGO           5264              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       MANGO           5577     06/30/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       MANGO           5581     07/12/06 Hershey Foods Corporatio asi
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page  11
+ 3:09pm                                               Estimates by Size Report
+
+                                                                                                                                   Industry:
+Folding
+
+                                                                                                       Last Ord
+  Length    Width    Depth Style  Material   Adder 1    Adder 2    Adder 3    Customer Part#  Est#       Date   Customer Name            Last User
+-------- -------- -------- ------ ---------- ---------- ---------- ---------- --------------- -------- -------- ------------------------ ---------
+ 7.00000  5.00000  4.00000 SE     SBS18                                       MANGO           5605              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Mango           6574     09/23/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Mango           6630     10/25/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS20                                       MANGO           2697     03/02/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS20                                       MANGO           2698              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS20                                       MANGO           2700              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS20                                       MANGO           2702              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS20                                       MANGO           2703              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS20                                       MANGO           2756     04/05/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS20                                       MANGO           2757              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       MANGO 2699      2699     03/02/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       MANGO 2699      2770     03/16/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Mango Mango     2643     01/19/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Mango Mango     4056     07/13/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Mango Mango     5008              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Mango Mango     5009              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       MANGO VANILLA   5020              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Merry Melon     2921              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Merry Melon     2922     04/13/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Merry Melon     2989     05/10/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Merry Melon     2999              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Merry Melon     4006              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Merry Melon     4010     05/20/05 Hershey Foods Bld #3     asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Merry Melon     4043              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Merry Melon     4057     08/17/07 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Merry Melon     2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Merry Melon     2512     08/16/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Merry Melon     2517     10/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Merry Melon     2531     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Merry Melon     2532     11/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Merry Melon     2537     11/15/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Merry Melon     2565     11/30/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Merry Melon     5264              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Merry Melon     5740     11/28/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Merry Melon     6574     09/23/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS20                                       Merry Melon     2689     03/01/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS20                                       Merry Melon     2782     03/17/05 Hershey Foods Corporatio asi
+ 8.00000  5.00000  4.00000 SE     SBS18                                       Merry Melon     5768     12/05/06 Hershey Foods Corporatio asi
+ 3.50000  2.50000  4.00000 SE     SBS18                                       Merry Melon JR  5769              Hershey Foods Corporatio asi
+ 3.50000  2.50000  4.00000 SE     SBS18                                       Merry Melon JR  5771     12/06/06 1ST SOURCE SERVICE       asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Minor Treat     2445     12/09/04 Hershey Foods Corporatio asi
+ 3.00000  8.93750  0.00000 PF4    SBS18                                       PF4=7006        7006              Hershey Foods Corporatio asi
+ 3.00000  8.93750  0.00000 PF4    SBS18                                       PF4=7007        7007              Hershey Foods Corporatio asi
+ 3.00000  8.93750  0.00000 PF4    SBS18                                       PF4=7007        7008              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Please Be Right 2445     12/09/04 Hershey Foods Corporatio asi
+11.50000  6.25000  2.75000 6C     SBS34.75X4                                  PN 2163         2163              Hershey Foods Corporatio asi
+ 6.00000  4.00000  5.00000 SE     SBS18                                       Raspberry       2601     12/22/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Raspberry       2921              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Raspberry       2922     04/13/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Raspberry       4056     07/13/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Raspberry       4057     08/17/07 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Raspberry       5089     09/14/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Raspberry       5740     11/28/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Raspberry       2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Raspberry       2512     08/16/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Raspberry       2517     10/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Raspberry       2519     10/28/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Raspberry       2526     11/02/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Raspberry       2527     11/03/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Raspberry       2532     11/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Raspberry       2537     11/15/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Raspberry       2565     11/30/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Raspberry       2587              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Raspberry       5435     03/17/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Raspberry       5768     12/05/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Raspberry       6574     09/23/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS20                                       Raspberry       2782     03/17/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       RaspberryB      2537     11/15/04 Hershey Foods Corporatio asi
+ 6.00000  4.00000  2.00000 SE     Sbs18                                       relish          2582     01/19/05 Hershey Foods Corporatio asi
+ 5.00000  3.00000  4.00000 RT     SBS18                                       RFQ 644         4020     08/01/05 Hershey Foods Corporatio asi
+ 5.00000  3.00000  4.00000 RT     SBS18                                       RFQ 644         4039              Hershey Foods Corporatio asi
+ 5.00000  2.00000  8.00000 RT     SBS18                                       RFQ640          2608              Hershey Foods Corporatio asi
+ 5.00000  2.00000  8.00000 RT     SBS18                                       RFQ640          2735              Hershey Foods Corporatio asi
+ 5.00000  2.00000  8.00000 RT     SBS18                                       RFQ640          2736              Hershey Foods Corporatio asi
+ 5.00000  2.00000  8.00000 RT     SBS18                                       RFQ640          2740     03/03/05 Hershey Foods Corporatio asi
+ 5.00000  2.00000  8.00000 RT     SBS18                                       RFQ640          2742     03/07/05 Hershey Foods Corporatio asi
+ 5.00000  2.00000  8.00000 RT     SBS18                                       RFQ640          2766     03/16/05 Hershey Foods Corporatio asi
+ 5.00000  2.00000  8.00000 RT     SBS18-24.5                                  RFQ640          2765              Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     sbs18                                       RT-1897         1897              Hershey Foods Corporatio asi
+ 5.00000  3.00000  4.00000 RT     SBS18                                       RT-2466         2466     09/30/04 Hershey Foods Corporatio asi
+ 3.00000  3.00000  3.00000 RT     sbs18                                       RT-3x3x3        1422              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Scrumptious     2921              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Scrumptious     2922     04/13/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Scrumptious     5613     08/18/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Scrumptious     2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Scrumptious     2512     08/16/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Scrumptious     5435     03/17/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Scrumptious     5768     12/05/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Scrumptious     6574     09/23/08 Hershey Foods Corporatio asi
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page  12
+ 3:09pm                                               Estimates by Size Report
+
+                                                                                                                                   Industry:
+Folding
+
+                                                                                                       Last Ord
+  Length    Width    Depth Style  Material   Adder 1    Adder 2    Adder 3    Customer Part#  Est#       Date   Customer Name            Last User
+-------- -------- -------- ------ ---------- ---------- ---------- ---------- --------------- -------- -------- ------------------------ ---------
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Scrumptious     6627     09/23/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS20                                       Scrumptious     2689     03/01/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS20                                       Scrumptious     5740     11/28/06 Hershey Foods Corporatio asi
+ 3.00000 10.62500 17.12500 SE     SBS18                                       shells          5111     09/20/05 Hershey Foods Corporatio asi
+ 6.00000  4.00000  5.00000 SE     SBS18                                       Strawberry      2601     12/22/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS14                                       Strawberry      5506              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS14                                       Strawberry      5558     05/25/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       STRAWBERRY      2689     03/01/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       STRAWBERRY      2697     03/02/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       STRAWBERRY      2698              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       STRAWBERRY      2700              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       STRAWBERRY      2702              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       STRAWBERRY      2703              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       STRAWBERRY      2756     04/05/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       STRAWBERRY      2757              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       STRAWBERRY      2783     03/23/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Strawberry      2910     04/08/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Strawberry      2920     04/11/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Strawberry      2921              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Strawberry      2922     04/13/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Strawberry      4036     06/21/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Strawberry      5001     09/07/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Strawberry      5035              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Strawberry      5086     09/09/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Strawberry      5219     11/04/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       Strawberry      5261              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Strawberry      2446     09/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      2512     08/16/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Strawberry      2518     10/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Strawberry      2523     11/01/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Strawberry      2524              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Strawberry      2525     11/02/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Strawberry      2560     11/22/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Strawberry      2564     11/24/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      2570     12/13/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Strawberry      2577              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      2578     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Strawberry      2582     01/19/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Strawberry      2583              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      2594              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      2597     12/22/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      2599              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      2602     12/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      2606     01/03/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      2623     04/11/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      2631     01/10/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      2634              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      2635     01/11/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      2642     01/19/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       STRAWBERRY      2646     01/25/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       STRAWBERRY      2649     01/26/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       STRAWBERRY      2651     02/15/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       STRAWBERRY      2652     01/27/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     sbs18                                       Strawberry      5089     09/14/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      5266     12/09/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      5270              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      5295              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      5304     01/24/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      5332              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      5503     04/27/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      5577     06/30/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      5581     07/12/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      5605              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      5621     09/06/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      5714     11/01/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      6002              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      6003              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      6007              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      6574     09/23/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      6630     10/25/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      6848     01/29/09 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry      7038              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18-1826                                  Strawberry      5286     01/09/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18-1826                                  Strawberry      5290     02/03/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18-20                                    Strawberry      7004     02/13/09 Hershey Foods Corporatio nosweat
+ 7.53125  5.53125  4.53125 SE     SBS16                                       STRAWBERRY 2699 2699     03/02/05 Hershey Foods Corporatio asi
+ 7.53125  5.53125  4.53125 SE     SBS16                                       STRAWBERRY 2699 2770     03/16/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Strawberry Van  7038              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       TANGERINE       2921              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       TANGERINE       2922     04/13/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       TANGERINE       2986     04/25/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       TANGERINE       2989     05/10/05 Hershey Warehouse        asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       TANGERINE       2999              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       TANGERINE       4006              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       TANGERINE       4010     05/20/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       TANGERINE       4027     06/07/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       TANGERINE       4036     06/21/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       TANGERINE       4043              Hershey Foods Corporatio asi
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page  13
+ 3:09pm                                               Estimates by Size Report
+
+                                                                                                                                   Industry:
+Folding
+
+                                                                                                       Last Ord
+  Length    Width    Depth Style  Material   Adder 1    Adder 2    Adder 3    Customer Part#  Est#       Date   Customer Name            Last User
+-------- -------- -------- ------ ---------- ---------- ---------- ---------- --------------- -------- -------- ------------------------ ---------
+ 7.00000  5.00000  4.00000 SE     SBS16                                       TANGERINE       5086     09/09/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       TANGERINE       2512     08/16/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Tangerine       2523     11/01/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Tangerine       2598     12/22/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Tangerine       2638     01/18/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Tangerine       2643     01/19/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       TANGERINE       2697     03/02/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       TANGERINE       2698              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       TANGERINE       2700              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       TANGERINE       2702              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       TANGERINE       2703              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       TANGERINE       2756     04/05/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       TANGERINE       2757              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     sbs18                                       TANGERINE       5089     09/14/05 Hershey Warehouse        asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       TANGERINE 2699  2699     03/02/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       TANGERINE 2699  2770     03/16/05 Hershey Foods Corporatio asi
+ 3.00000  5.00000  4.00000 RT     SBS18                                       temp-2171       2780              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Try Again       2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 4SSH   SBS18                                       VANILLA         7030              Hershey Foods Corporatio
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Vanilla         2594              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA         2698              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA         2700              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA         2702              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA         2703              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA         2757              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA         5434     03/21/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA         5714     11/01/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA         6002              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA         6848     01/29/09 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA         7003              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18-20                                    VANILLA         7004     02/13/09 Hershey Foods Corporatio nosweat
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VANILLA 2699    2699     03/02/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VANILLA 2699    2770     03/16/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Vanilla Fudge   2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Vanilla Fudge   2446     09/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Vanilla Fudge   6574     09/23/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS14                                       VANILLA Ice     5506              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS14                                       VANILLA Ice     5558     05/25/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS14                                       VANILLA Ice     5722              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS14                                       VANILLA Ice     5723              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS14                                       VANILLA Ice     5723              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VANILLA Ice     2783     03/23/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VANILLA Ice     2920     04/11/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VANILLA Ice     2921              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VANILLA Ice     2921              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VANILLA Ice     2922     04/13/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VANILLA Ice     2986     04/25/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VANILLA Ice     4027     06/07/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VANILLA Ice     4036     06/21/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VANILLA Ice     5001     09/07/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VANILLA Ice     5086     09/09/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VANILLA Ice     5219     11/04/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VANILLA Ice     5261              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VANILLA Ice     5263              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       VANILLA Ice     2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       VANILLA Ice     2446     09/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     2512     08/16/06 Broker Sales             asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       VANILLA Ice     2518     10/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       VANILLA Ice     2523     11/01/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       VANILLA Ice     2524              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       VANILLA Ice     2525     11/02/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       VANILLA Ice     2564     11/24/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       VANILLA Ice     2570     12/13/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       VANILLA Ice     2577              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       VANILLA Ice     2578     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       VANILLA Ice     2582     01/19/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       VANILLA Ice     2583              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     2597     12/22/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     2601     12/22/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     2602     12/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     2623     04/11/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     2631     01/10/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     2634              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     2642     01/19/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     2646     01/25/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     2648              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     2649     01/26/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     2697     03/02/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     2756     04/05/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     2910     04/08/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     2920     04/11/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     5264              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     5304     01/24/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     5332              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     5389     02/23/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     5425     03/16/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     5433              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     5435     03/17/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     5442              Hershey Foods Corporatio asi
+
+04/14/09                                     Advanced Box Company V10 Test - Main Office                                  Page  14
+ 3:09pm                                               Estimates by Size Report
+
+                                                                                                                                   Industry:
+Folding
+
+                                                                                                       Last Ord
+  Length    Width    Depth Style  Material   Adder 1    Adder 2    Adder 3    Customer Part#  Est#       Date   Customer Name            Last User
+-------- -------- -------- ------ ---------- ---------- ---------- ---------- --------------- -------- -------- ------------------------ ---------
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     5483              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     5484              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     5485     04/17/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     5503     04/27/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     5577     06/30/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     5581     07/12/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     5605              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     5605              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     5621     09/06/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     6574     09/23/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       VANILLA Ice     6630     10/25/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VANILLA Ice     6746     12/10/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18-1826                                  VANILLA Ice     5286     01/09/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18-1826                                  VANILLA Ice     5290     02/03/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Vanilla Swirl   2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       Vanilla Swirl   2446     09/27/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       Vanilla Swirl   6574     09/23/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VERY BERRY      6002              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VERY BERRY      6003              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VERY BERRY ICE  2921              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VERY BERRY ICE  2922     04/13/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VERY BERRY ICE  2989     05/10/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VERY BERRY ICE  4006              Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       VERY BERRY ICE  5086     09/09/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     Sbs18                                       VERY BERRY ICE  2445     12/09/04 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VERY BERRY ICE  2512     08/16/06 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       VERY BERRY ICE  6574     09/23/08 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS16                                       WILD CHERRY     5001     09/07/05 Hershey Foods Corporatio asi
+ 7.00000  5.00000  4.00000 SE     SBS18                                       WILD CHERRY     2512     08/16/06 Hershey Foods Corporatio asi
+ 8.00000  8.00000  8.00000 RSC    200 C                                       ysk-5121-3      6015              Hershey Foods Corporatio
+ 8.00000  8.00000  8.00000 RSC    200 C                                       ysk-5121-3      6063              Hershey Foods Corporatio
+ 8.00000  8.00000  8.00000 RSC    200 C                                       ysk-5121-3      6067              Hershey Foods Corporatio
+

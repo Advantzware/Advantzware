@@ -298,7 +298,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page D-Dialog
 ON HELP OF lines-per-page IN FRAME D-Dialog /* Lines Per Page */
 DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" "file:///linesPerPage.txt" false.
+&ELSE
   OS-COMMAND NO-WAIT notepad linesPerPage.txt.
+&ENDIF
 END.
 
 /* _UIB-CODE-BLOCK-END */

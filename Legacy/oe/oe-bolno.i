@@ -150,7 +150,7 @@ end.*/
   DO:
      CREATE rec_key.
      ASSIGN
-        oe-bolh.rec_key = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+        oe-bolh.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey")
         rec_key.rec_key = oe-bolh.rec_key
         rec_key.table_name = "oe-bolh".
      RELEASE rec_key.
@@ -224,5 +224,6 @@ end.*/
          oe-bolh.ship-i[2] = oe-relh.ship-i[2]
          oe-bolh.ship-i[3] = oe-relh.ship-i[3]
          oe-bolh.ship-i[4] = oe-relh.ship-i[4].
+        RUN CopyShipNote IN hNotesProcs (oe-relh.rec_key, oe-bolh.rec_key).
   end.
   /*if v-royal then oe-bolh.trailer = "HOLD".*/

@@ -53,14 +53,11 @@ if ar-cashl.amt-paid ne 0 then do:
                     + " Inv# " + STRING(ar-cashl.inv-no).
 
      IF t-credits LT 0 AND
-        (CAN-FIND(FIRST reftable WHERE
-        reftable.reftable = "ARCASHLVDDATE" AND
-        reftable.rec_key = ar-cashl.rec_key
-        USE-INDEX rec_key) OR
+        ar-cashl.voided EQ YES OR
         can-find(FIRST gltrans WHERE
            gltrans.company EQ cocode AND
            gltrans.jrnl EQ "CASHRVD" AND
-           gltrans.tr-dscr EQ v-gltrans-desc)) THEN
+           gltrans.tr-dscr EQ v-gltrans-desc) THEN
         t-check-no = "Void".
   END.
      
@@ -87,14 +84,8 @@ if ar-cashl.amt-paid ne 0 then do:
          tt-arinq.tr-date  = ar-cash.check-date.
       ELSE
       DO:
-         FIND FIRST reftable WHERE
-              reftable.reftable EQ "ARCASHLVDDATE" AND
-              reftable.rec_key EQ ar-cashl.rec_key
-              USE-INDEX rec_key
-              NO-LOCK NO-ERROR.
-
-         IF AVAIL reftable THEN
-            tt-arinq.tr-date = DATE(reftable.CODE).
+         IF ar-cashl.voided THEN
+            tt-arinq.tr-date = ar-cashl.voidDate.
          ELSE
          DO:
             FIND FIRST gltrans WHERE
@@ -149,14 +140,8 @@ if ar-cashl.amt-paid ne 0 then do:
         tt-arinq.tr-date  = ar-cash.check-date.
      ELSE
      DO:
-        FIND FIRST reftable WHERE
-             reftable.reftable EQ "ARCASHLVDDATE" AND
-             reftable.rec_key EQ ar-cashl.rec_key
-             USE-INDEX rec_key
-             NO-LOCK NO-ERROR.
-
-          IF AVAIL reftable THEN
-             tt-arinq.tr-date = DATE(reftable.CODE).
+        IF ar-cashl.voided THEN
+             tt-arinq.tr-date = ar-cashl.voidDate.
           ELSE
           DO:
              FIND FIRST gltrans WHERE

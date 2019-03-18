@@ -178,10 +178,18 @@ PROCEDURE Get_Procedure :
       
       IF buf-prgrms.track_usage OR g_track_usage THEN
       DO:
-        FIND FIRST config NO-LOCK.
-        OUTPUT TO VALUE(config.logs_dir + "/trackuse.log") APPEND.
-        EXPORT USERID("NOSWEAT") buf-prgrms.prgmname TODAY FORMAT "99/99/9999" TIME.
-        OUTPUT CLOSE.
+        CREATE AuditHdr.
+        ASSIGN
+            AuditHdr.AuditID       = NEXT-VALUE(Audit_Seq,Audit)
+            AuditHdr.AuditDateTime = NOW
+            AuditHdr.AuditType     = "TRACK"
+            AuditHdr.AuditDB       = "ASI"
+            AuditHdr.AuditTable    = proc-name
+            AuditHdr.AuditUser     = USERID("ASI")
+            AuditHdr.AuditKey      = buf-prgrms.mnemonic
+            .
+        CREATE AuditDtl.
+        AuditDtl.AuditID = AuditHdr.AuditID.
       END.
       
       IF run-now THEN

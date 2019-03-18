@@ -468,7 +468,7 @@ PROCEDURE BuildData:
 DEF VAR cnt AS INT.
 cnt = 0.
    FOR EACH pack:
-    MESSAGE "pack in sp856xml.p" VIEW-AS ALERT-BOX.
+    
     cnt = cnt + 1.
     IF cnt GT 1 THEN 
      DELETE pack.
@@ -499,7 +499,7 @@ PROCEDURE GenerateXmlFiles:
        FALSE,
        ?,?,FALSE, FALSE, FALSE, FALSE )
        .
-MESSAGE "xml file created: " cXMLOutputfile
+MESSAGE "Advance Ship Notice file created: " cXMLOutputfile
 VIEW-AS ALERT-BOX.   
 
 END PROCEDURE.

@@ -1237,7 +1237,7 @@ PROCEDURE create-tt :
       EACH po-ordl
       WHERE po-ordl.company  EQ po-ord.company
         AND po-ordl.po-no    EQ po-ord.po-no
-        AND (CAN-DO(stat-list,po-ordl.stat) OR v-po-stat EQ "A")
+        and (lookup(po-ord.stat,stat-list) gt 0 or v-po-stat eq "A")
         AND po-ordl.due-date GE v-s-date
         AND po-ordl.due-date LE v-e-date
         AND ((po-ordl.item-type AND
@@ -1928,9 +1928,10 @@ DISPLAY "" WITH FRAME r-top.
 
   EMPTY TEMP-TABLE tt-sched.
   EMPTY TEMP-TABLE tt-fgs.
-  RUN create-tt. 
+  
   stat-list = IF v-po-stat EQ "A" THEN ""             ELSE
               IF v-po-stat EQ "O" THEN "O,U,P,A,N,H"  ELSE "C,X,F".
+  RUN create-tt.
 
 
   IF v-sort EQ "J" THEN

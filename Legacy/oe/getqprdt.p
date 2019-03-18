@@ -73,6 +73,7 @@ IF v-part-no2 EQ "0" THEN v-part-no2 = "".
         AND quotehd.loc     EQ locode
         AND quotehd.est-no  EQ w-est-no
         AND quotehd.quo-date >= TODAY - v-within
+        AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
       /*USE-INDEX quote*/ NO-LOCK,
 
       EACH quoteitm OF quotehd

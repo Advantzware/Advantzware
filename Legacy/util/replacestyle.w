@@ -828,6 +828,7 @@ PROCEDURE update-sheet :
           xeb.num-dep = 0.
    
    IF style.TYPE NE "F" THEN DO:
+     RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
      {sys/inc/ceroute1.i w id l en}
    END.
       

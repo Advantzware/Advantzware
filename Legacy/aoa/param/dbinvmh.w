@@ -64,16 +64,21 @@ DEFINE VARIABLE svYear AS INTEGER FORMAT "9999" INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 8 BY 1.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 26 BY 1.91.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svYear AT ROW 4.1 COL 46 COLON-ALIGNED HELP
+     svYear AT ROW 7.19 COL 77 COLON-ALIGNED HELP
           "Enter Beginning Customer" WIDGET-ID 2
+     RECT-1 AT ROW 6.71 COL 63 WIDGET-ID 4
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 94.6 BY 8.71
+         SIZE 149.2 BY 17
          TITLE "Dashboard Parameters".
 
 
@@ -103,8 +108,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 8.71
-         WIDTH              = 94.6.
+         HEIGHT             = 17
+         WIDTH              = 149.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -130,6 +135,8 @@ END.
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 

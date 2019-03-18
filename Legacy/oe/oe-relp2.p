@@ -39,6 +39,8 @@ DEF VAR vfob-list AS CHAR NO-UNDO.
 DEF VAR rell-ctr AS INTE NO-UNDO.
 
 DEF VAR  v-chkflg AS LOG NO-UNDO.
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
 
 DO TRANSACTION:
   {sys/ref/relpost.i}
@@ -145,6 +147,7 @@ for each oe-relh no-lock
   STATUS DEFAULT "Posting Release# " +
                  TRIM(STRING(oe-relh.release#,">>>>>>>>>>")).
 end.
+DELETE OBJECT hNotesProcs.
 
 STATUS DEFAULT "".
 

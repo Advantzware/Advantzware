@@ -65,7 +65,8 @@ DEFINE TEMP-TABLE ttImportPriceMatrix
     FIELD Discount10    AS DECIMAL   FORMAT "->>>9.99<<<" COLUMN-LABEL "Dsc10" HELP "Optional - Decimal"
     FIELD UOM10         AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "UOM10" HELP "Optional - must be Valid"
     FIELD ExpireDate      AS DATE      FORMAT "99/99/9999" INITIAL "12/31/2099" COLUMN-LABEL "Exp Date" HELP "validated - must be greater than eff date"
-    FIELD ShipTo       AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "ShipTo" HELP "Optional - Size:8".
+    FIELD ShipTo       AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "ShipTo" HELP "Optional - Size:8"
+    FIELD cOnline    AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Online" HELP "Optional - Yes or N0"  .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 
@@ -351,6 +352,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price10, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.price[10]).
     RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount10, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.discount[10]).
     RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM10, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.uom[10]).
+    RUN pAssignValueC (ipbf-ttImportPriceMatrix.cOnline, YES, INPUT-OUTPUT oe-prmtx.online).
 
     
 END PROCEDURE.

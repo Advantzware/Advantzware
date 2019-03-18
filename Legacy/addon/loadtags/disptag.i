@@ -22,22 +22,4 @@
            tt-tag.loc:SCREEN-VALUE = loadtag.loc
            tt-tag.loc-bin:SCREEN-VALUE = loadtag.loc-bin
            tt-tag.tag-date:SCREEN-VALUE = string(loadtag.tag-date).
-/* not for receipt
-    IF g-sharpshooter = YES THEN DO: 
-       /*FIND FIRST itemfg WHERE itemfg.company = g_company
-                           AND itemfg.i-no = loadtag.i-no:SCREEN-VALUE NO-LOCK NO-ERROR.
-       IF AVAIL ITEMfg AND itemfg.ship-meth THEN DO: /* case */
-          APPLY "entry" TO loadtag.cases.
-       END.
-       ELSE*/  APPLY "row-leave" TO BROWSE {&browse-name}.
-    END.
-    ELSE DO:
-       IF loadtag.job-no = "" AND loadtag.po-no = 0 THEN APPLY "entry" TO loadtag.t-qty.
-       ELSE    APPLY "entry" TO loadtag.loc.
-    END.
-    
-    IF loadtag.job-no = "" AND loadtag.po-no = 0 THEN APPLY "entry" TO loadtag.t-qty.
-    ELSE    APPLY "entry" TO loadtag.loc.
 
-    RETURN NO-APPLY.
-*/

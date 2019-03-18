@@ -20,7 +20,7 @@ CREATE WIDGET-POOL.
 { DataDigger.i }
 
 /* Parameters Definitions ---                                           */
-DEFINE INPUT-OUTPUT PARAMETER table FOR ttTestQuery.
+DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttTestQuery.
 
 /* Local Variable Definitions ---                                       */
 
@@ -112,47 +112,47 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnClearQuery 
      LABEL "&Clear" 
-     SIZE-PIXELS 50 BY 21.
+     SIZE-PIXELS 60 BY 21.
 
 DEFINE BUTTON btnPopOut 
      LABEL "&Pop out" 
-     SIZE-PIXELS 50 BY 21 TOOLTIP "Show text in separate window".
+     SIZE-PIXELS 60 BY 21 TOOLTIP "Show text in separate window".
 
 DEFINE BUTTON btnRunQuery 
      LABEL "&Run" 
-     SIZE-PIXELS 50 BY 21 TOOLTIP "Run the query".
+     SIZE-PIXELS 60 BY 21 TOOLTIP "Run the query".
 
 DEFINE BUTTON btnTestQuery 
      LABEL "&Test" 
-     SIZE-PIXELS 50 BY 21 TOOLTIP "Test the query".
+     SIZE-PIXELS 60 BY 21 TOOLTIP "Test the query".
 
 DEFINE VARIABLE ed-qry AS CHARACTER 
      VIEW-AS EDITOR MAX-CHARS 4000 SCROLLBAR-VERTICAL LARGE
-     SIZE-PIXELS 500 BY 105 NO-UNDO.
+     SIZE-PIXELS 500 BY 150 NO-UNDO.
 
 DEFINE VARIABLE resultset AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE-PIXELS 500 BY 105 TOOLTIP "result previous analyze" NO-UNDO.
+     SIZE-PIXELS 500 BY 150 TOOLTIP "result previous analyze" NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 100 BY 6.
+     SIZE-PIXELS 500 BY 125.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnClearQuery AT Y 5 X 505
-     ed-qry AT Y 135 X 0 NO-LABEL
-     btnTestQuery AT Y 135 X 505
-     btnRunQuery AT Y 160 X 505
-     resultset AT Y 250 X 0 NO-LABEL
-     btnPopOut AT Y 250 X 505 WIDGET-ID 2
-     RECT-1 AT ROW 1 COL 1 WIDGET-ID 4
+     btnClearQuery AT Y 5 X 510
+     ed-qry AT Y 135 X 5 NO-LABEL
+     btnTestQuery AT Y 135 X 510
+     btnRunQuery AT Y 165 X 510
+     resultset AT Y 290 X 5 NO-LABEL
+     btnPopOut AT Y 290 X 510 WIDGET-ID 2
+     RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT X 0 Y 0
-         SIZE-PIXELS 564 BY 360.
+         SIZE-PIXELS 580 BY 453.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -172,8 +172,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "MCF's Query Tester"
-         HEIGHT-P           = 360
-         WIDTH-P            = 563
+         HEIGHT-P           = 455
+         WIDTH-P            = 580
          MAX-HEIGHT-P       = 817
          MAX-WIDTH-P        = 1152
          VIRTUAL-HEIGHT-P   = 817
@@ -265,7 +265,10 @@ DO:
 
   CLOSE QUERY q1.
   OPEN QUERY q1 FOR EACH ttTestQuery.
-  ASSIGN ed-qry:SCREEN-VALUE = "".
+  ASSIGN 
+    ed-qry:SCREEN-VALUE = ""
+    resultset:SCREEN-VALUE = "".
+
   RUN enableButtons IN THIS-PROCEDURE.
 END.
 
@@ -293,7 +296,7 @@ END.
 ON CHOOSE OF btnRunQuery IN FRAME DEFAULT-FRAME /* Run */
 DO:
   SESSION:SET-WAIT-STATE("GENERAL":U).
-  RUN test-query IN THIS-PROCEDURE (INPUT TRUE, INPUT TRUE ,OUTPUT lErrorDetected).
+  RUN test-query IN THIS-PROCEDURE (INPUT TRUE, OUTPUT lErrorDetected).
   SESSION:SET-WAIT-STATE("":U).
 END.
 
@@ -306,7 +309,7 @@ END.
 ON CHOOSE OF btnTestQuery IN FRAME DEFAULT-FRAME /* Test */
 DO:
   SESSION:SET-WAIT-STATE("GENERAL":U).
-  RUN test-query IN THIS-PROCEDURE (INPUT FALSE, INPUT TRUE ,OUTPUT lErrorDetected).
+  RUN test-query IN THIS-PROCEDURE (INPUT FALSE, OUTPUT lErrorDetected).
   SESSION:SET-WAIT-STATE("":U).
 END.
 
@@ -379,7 +382,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     TRIGGERS:
       ON "value-changed":U ANYWHERE DO:
         ASSIGN ed-qry:SCREEN-VALUE IN FRAME {&FRAME-NAME} = REPLACE(ttTestQuery.cQueryTxt,",",",~n").
-        RUN test-query IN THIS-PROCEDURE (INPUT FALSE,INPUT FALSE, OUTPUT lErrorDetected).
+        RUN test-query IN THIS-PROCEDURE (INPUT FALSE, OUTPUT lErrorDetected).
       END.
 
       ON "row-display":U ANYWHERE DO:
@@ -391,7 +394,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     RECT-1:visible = TRUE.
     h-SeqName   = h-Browser:ADD-CALC-COLUMN("INTEGER",">,>>9","","Seq").
+    h-SeqName:WIDTH-CHARS = 5.
     h-ProgName  = h-Browser:ADD-CALC-COLUMN("CHARACTER","x(30)","","Table").
+    h-ProgName:WIDTH-CHARS = 30.
     h-QueryName = h-Browser:ADD-CALC-COLUMN("CHARACTER","x(105)","","Query").
 
   ASSIGN
@@ -559,16 +564,6 @@ PROCEDURE processQuery :
   DEFINE VARIABLE lcOldString AS CHARACTER NO-UNDO.
   DEFINE BUFFER bf-ttTestQuery FOR ttTestQuery.
 
-  /* <BEU> */
-  /* FORWARD-ONLY attribute:                                                             */
-  /* Lets you avoid building result-lists for static and dynamic queries. Set to TRUE to */
-  /* avoid building result-lists for queries. Set to FALSE to build result-lists for     */
-  /* queries. The default is FALSE. When TRUE, you cannot use the GET PREV, GET LAST,    */
-  /* REPOSITION, or BROWSE methods or statements with these queries. If you do, the AVM  */
-  /* generates an error.                                                                 */
-/*  ipcQueryString = REPLACE(ipcQueryString,"INDEXED-REPOSITION","").*/
-  /* </BEU> */
-
   DO WITH FRAME {&FRAME-NAME}:
 
     ASSIGN
@@ -577,7 +572,6 @@ PROCEDURE processQuery :
       ed-qry:SCREEN-VALUE = REPLACE(SUBSTRING(ipcQueryString,INDEX(ipcQueryString,"FOR EACH":U)),",",",~n").
 
     RUN test-query IN THIS-PROCEDURE (INPUT FALSE,
-                                      INPUT FALSE,
                                       OUTPUT lErrorDetected).
     ASSIGN lShowError = TRUE.
 
@@ -806,7 +800,6 @@ PROCEDURE test-query PRIVATE :
 /* test the query
   */
   DEFINE INPUT  PARAMETER iplPerfromQuery AS LOGICAL NO-UNDO.
-  DEFINE INPUT  PARAMETER iplShowQuery    AS LOGICAL NO-UNDO.
   DEFINE OUTPUT PARAMETER oplErrorOccured AS LOGICAL INITIAL TRUE NO-UNDO.
 
   DEFINE BUFFER bf-ttVstTableInfo FOR ttVstTableInfo.
@@ -823,6 +816,10 @@ PROCEDURE test-query PRIVATE :
   DEFINE VARIABLE liSeconds     AS INTEGER     NO-UNDO.
   DEFINE VARIABLE liWord        AS INTEGER     NO-UNDO.
   DEFINE VARIABLE lOk           AS LOGICAL     NO-UNDO.
+  DEFINE VARIABLE liNumResults  AS INTEGER     NO-UNDO.
+  DEFINE VARIABLE lStop         AS LOGICAL     NO-UNDO.
+  DEFINE VARIABLE liDelayStart  AS INTEGER     NO-UNDO.
+  DEFINE VARIABLE liDelayTime   AS INTEGER     NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
 
@@ -958,14 +955,25 @@ PROCEDURE test-query PRIVATE :
 
       ETIME(TRUE).
       hQry:GET-FIRST.
+      liNumResults = 0.
+      lStop = ?.
 
+      #QueryLoop:
       DO WHILE NOT hQry:QUERY-OFF-END:
+        liNumResults = liNumResults + 1.
         hQry:GET-NEXT.
+
+        IF ETIME > 5000 AND lStop = ? THEN
+        DO:
+          liDelayStart = ETIME.
+          MESSAGE 'This is taking quite some time, do you want to stop the query?' VIEW-AS ALERT-BOX INFO BUTTONS YES-NO UPDATE lStop.
+          IF lStop THEN LEAVE #QueryLoop.
+          liDelayTime = ETIME - liDelayStart.
+        END.
       END.
 
       ASSIGN
-        liSeconds = ETIME(FALSE)
-        .
+        liSeconds = ETIME(FALSE) - liDelayTime.
 
       RUN scanVST IN THIS-PROCEDURE (FALSE). /* the data coming from this query, assuming there were no other activities on the table */
     END.
@@ -976,19 +984,22 @@ PROCEDURE test-query PRIVATE :
     DO liWord = 1 TO liNumWords:
       ASSIGN lhBuffer = hQry:GET-BUFFER-HANDLE(liWord)
         resultset:SCREEN-VALUE = resultset:SCREEN-VALUE +
-                                 SUBSTITUTE("Buffer in the query &1 table name &2 uses index&3 &4.~n",
-                                            CAPS(lhBuffer:NAME),
-                                            CAPS(lhBuffer:TABLE),
-                                            (IF NUM-ENTRIES(hQry:INDEX-INFORMATION) > 1 THEN "es" ELSE ""),
-                                            hQry:INDEX-INFORMATION(liWord)
+                                 SUBSTITUTE("Buffer &1&2 uses index&3 &4.~n"
+                                           , CAPS(lhBuffer:NAME)
+                                           , (IF lhBuffer:NAME <> lhBuffer:TABLE 
+                                                THEN SUBSTITUTE(' (table name &1)', CAPS(lhBuffer:TABLE)) ELSE '')
+                                           , (IF NUM-ENTRIES(hQry:INDEX-INFORMATION) > 1 THEN "es" ELSE "")
+                                           , hQry:INDEX-INFORMATION(liWord)
                                            )
-        NO-ERROR.
+        NO-ERROR. 
     END.
 
     IF iplPerfromQuery THEN
     DO:
       ASSIGN
-        resultset:SCREEN-VALUE = resultset:SCREEN-VALUE + SUBSTITUTE("~nNumber of results reported by the query is &1 in &2 seconds.~n",hQry:NUM-RESULTS,TRIM(STRING(liSeconds / 1000,">>,>>9.9")))
+        resultset:SCREEN-VALUE = resultset:SCREEN-VALUE + SUBSTITUTE("~nNumber of query results is &1 in &2 seconds.~n"
+                                                                    , liNumResults
+                                                                    , TRIM(STRING(liSeconds / 1000,">>,>>9.99")))
       NO-ERROR.
 
       DO liWord = 1 TO liNumWords:
@@ -1021,14 +1032,6 @@ PROCEDURE test-query PRIVATE :
     {&CleanUp}
     SESSION:SET-WAIT-STATE("").
     ASSIGN oplErrorOccured = FALSE.
-
-    /* <BEU> */
-    IF iplShowQuery THEN
-      RUN VALUE(REPLACE(THIS-PROCEDURE:FILE-NAME,"query-tester","query-data")) PERSISTENT
-        ( INPUT ed-qry
-        , INPUT resultset:SCREEN-VALUE
-        ).
-    /* </BEU> */
 
   END.
 

@@ -47,7 +47,6 @@ def new shared buffer xeb for eb.
 {custom/globdefs.i}
     
 DEF BUFFER probe-ref FOR reftable.
-DEF BUFFER b-probemk FOR reftable.
 
 def new shared var k_frac as dec init "6.25" no-undo.
 def new shared var day_str as cha form "x(10)" no-undo.
@@ -102,7 +101,8 @@ def TEMP-TABLE q-sort1 no-undo field qty as dec field rel as int.
 def TEMP-TABLE q-sort2 no-undo field qty as dec field rel as int.
 
 def new shared temp-table tt-qtty field qtty like qtty
-                                  field rel like rels.
+                                  field rel like rels
+                                  FIELD lRunShip LIKE lRunShips.
 
 DEF TEMP-TABLE tt-bqty NO-UNDO FIELD tt-bqty AS INT FIELD tt-brel AS INT.
 
@@ -113,8 +113,6 @@ DEF TEMP-TABLE tt-probeit LIKE probeit
                                AND probeit.est-no  EQ probe.est-no  ~
                                AND probeit.line    EQ probe.line
 
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
 
 DEF TEMP-TABLE tt-ei NO-UNDO
     FIELD run-qty AS DECIMAL DECIMALS 3 EXTENT 20
@@ -867,7 +865,7 @@ END.
 
 &SCOPED-DEFINE cellColumnDat probe
 
-{methods/browsers/setCellColumnsLabel.i}
+{methods/browsers/setCellColumns.i}
 
   FI_moveCol = "Sort".
   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
@@ -1252,17 +1250,6 @@ PROCEDURE copy-item :
        BUFFER-COPY probeit EXCEPT probeit.LINE TO bf-probeit.
        ASSIGN bf-probeit.LINE = probe.LINE.
 
-       FOR EACH reftable NO-LOCK
-           WHERE reftable.reftable EQ "ce/com/probemk.p"
-             AND reftable.company  EQ probeit.company
-             AND reftable.loc      EQ probeit.est-no
-             AND reftable.code     EQ STRING(probeit.line,"9999999999")
-             AND reftable.code2    EQ probeit.part-no:
-         CREATE bf-reftable.
-         BUFFER-COPY reftable EXCEPT rec_key TO bf-reftable
-         ASSIGN
-          reftable.code = STRING(probe.line,"9999999999").
-       END.
      END.     
 
      v-est-eqty = 0.
@@ -1284,18 +1271,6 @@ PROCEDURE copy-item :
          v-est-eqty = v-est-eqty + 1.
          ASSIGN bf-est-summ.eqty = v-est-eqty
                 bf-est-summ.e-num = probe.LINE.
-     END.
-
-     FOR EACH reftable
-         WHERE reftable.reftable EQ "probe.per-msf"
-           AND reftable.company  EQ bf-probe.company
-           AND reftable.loc      EQ ""
-           AND reftable.code     EQ bf-probe.est-no
-           AND reftable.code2    EQ STRING(bf-probe.line,"9999999999"):
-       CREATE bf-reftable.
-       BUFFER-COPY reftable EXCEPT rec_key TO bf-reftable
-       ASSIGN
-        reftable.code2 = STRING(probe.line,"9999999999").
      END.
 
      FOR EACH reftable
@@ -1332,17 +1307,6 @@ PROCEDURE copy-item :
        BUFFER-COPY reftable EXCEPT rec_key TO bf-reftable
        ASSIGN
         reftable.code2 = STRING(probe.line,"9999999999").
-     END.
-
-     FOR EACH reftable
-        WHERE reftable.reftable EQ "ce/com/probemk.p"
-          AND reftable.company  EQ bf-probe.company
-          AND reftable.loc      EQ bf-probe.est-no
-          AND reftable.code     EQ STRING(bf-probe.line,"9999999999"):
-       CREATE bf-reftable.
-       BUFFER-COPY reftable EXCEPT rec_key TO bf-reftable
-       ASSIGN
-        reftable.code = STRING(probe.line,"9999999999").
      END.
      
      IF bf-probe.LINE LT 100 THEN
@@ -1572,15 +1536,9 @@ IF CAN-FIND(FIRST xprobe
      w-probeit.tot-lbs    = xprobe.tot-lbs 
      w-probeit.probe-date = xprobe.probe-date.
 
-    FIND FIRST reftable NO-LOCK
-        WHERE reftable.reftable EQ "ce/com/probemk.p"
-          AND reftable.company  EQ probeit.company
-          AND reftable.loc      EQ probeit.est-no
-          AND reftable.code     EQ STRING(probeit.line,"9999999999")
-          AND reftable.code2    EQ probeit.part-no
-        NO-ERROR.
-     w-probeit.freight = IF AVAIL reftable THEN reftable.val[1]
+  ASSIGN w-probeit.freight = IF AVAIL probeit THEN probeit.releaseCount
                                            ELSE xprobe.freight.
+  
   END.
 
   ELSE
@@ -2487,6 +2445,7 @@ PROCEDURE local-enable-fields :
 
   DO WITH FRAME {&FRAME-NAME}:
     probe.do-quote:SCREEN-VALUE IN BROWSE {&browse-name} = "Y".
+    APPLY "entry" TO probe.gross-profit.
   END.
 
 END PROCEDURE.
@@ -2709,14 +2668,14 @@ DO:
   END.
 
   DO num-groups = 1 TO NUM-ENTRIES(g_groups):
-     IF NOT CAN-DO(b-prgrms.can_update,ENTRY(num-groups,g_groups)) THEN
+     IF NOT CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups)) THEN
         NEXT.
     
-     IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,ENTRY(num-groups,g_groups)) THEN
+     IF NOT v-can-update AND CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups)) THEN
         v-can-update = YES.
   END.
   
-  IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) THEN
+  IF NOT v-can-update AND CAN-DO(TRIM(b-prgrms.can_update),USERID("ASI")) THEN
      v-can-update = YES.
 
 END. 
@@ -3313,7 +3272,7 @@ PROCEDURE run-whatif :
         AND mach.m-code EQ est-op.m-code:
    IF mach.obsolete THEN DO:
     MESSAGE "Machine: " + TRIM(mach.m-code) +
-            " is obsolete, please replace to complete calculation..."
+            " is Inactive, please replace to complete calculation..."
         VIEW-AS ALERT-BOX ERROR.
     RETURN.
    END.

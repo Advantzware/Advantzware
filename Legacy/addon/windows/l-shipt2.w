@@ -71,9 +71,15 @@ def var lv-type-dscr as cha no-undo.
 shipto.ship-addr[1] shipto.ship-city shipto.ship-state shipto.ship-zip ~
 shipto.carrier shipto.loc 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH shipto WHERE ~{&KEY-PHRASE} ~
+      AND shipto.company = ip-company and ~
+shipto.cust-no = ip-cust-no ~
+and shipto.statusCode ne "I" NO-LOCK ~
+    ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH shipto WHERE ~{&KEY-PHRASE} ~
       AND shipto.company = ip-company and ~
-shipto.cust-no = ip-cust-no NO-LOCK ~
+shipto.cust-no = ip-cust-no ~
+and shipto.statusCode ne "I" NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 shipto
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 shipto
@@ -84,8 +90,8 @@ shipto.cust-no = ip-cust-no NO-LOCK ~
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BROWSE-1 rd-sort bt-clear lv-search bt-ok ~
-bt-cancel RECT-1 
+&Scoped-Define ENABLED-OBJECTS BROWSE-1 RECT-1 rd-sort bt-clear lv-search ~
+bt-ok bt-cancel 
 &Scoped-Define DISPLAYED-OBJECTS rd-sort lv-search 
 
 /* Custom List Definitions                                              */
@@ -126,7 +132,7 @@ DEFINE VARIABLE rd-sort AS INTEGER
      SIZE 45 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 91 BY 1.43.
 
 /* Query definitions                                                    */
@@ -162,10 +168,10 @@ DEFINE FRAME Dialog-Frame
      lv-search AT ROW 14.1 COL 21 COLON-ALIGNED
      bt-ok AT ROW 14.1 COL 69
      bt-cancel AT ROW 14.1 COL 81
-     RECT-1 AT ROW 12.43 COL 1
      "Sort By:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 12.91 COL 4
-     SPACE(81.39) SKIP(1.84)
+     RECT-1 AT ROW 12.43 COL 1
+     SPACE(1.39) SKIP(1.51)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Ship To Information".
@@ -188,7 +194,7 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
                                                                         */
-/* BROWSE-TAB BROWSE-1 1 Dialog-Frame */
+/* BROWSE-TAB BROWSE-1 TEXT-1 Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -204,7 +210,8 @@ ASSIGN
      _TblList          = "ASI.shipto"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.shipto.company = ip-company and
-shipto.cust-no = ip-cust-no"
+shipto.cust-no = ip-cust-no
+and shipto.statusCode ne ""I"""
      _FldNameList[1]   = ASI.shipto.ship-id
      _FldNameList[2]   = ASI.shipto.ship-name
      _FldNameList[3]   = ASI.shipto.ship-addr[1]
@@ -388,7 +395,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY rd-sort lv-search 
       WITH FRAME Dialog-Frame.
-  ENABLE BROWSE-1 rd-sort bt-clear lv-search bt-ok bt-cancel RECT-1 
+  ENABLE BROWSE-1 RECT-1 rd-sort bt-clear lv-search bt-ok bt-cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

@@ -542,8 +542,6 @@ PROCEDURE calc-fields :
   DEF VAR ld-price AS DEC NO-UNDO.
   DEF VAR lv-changed AS cha NO-UNDO.
 
-  DEF BUFFER b-probemk FOR reftable.
-
 
   FIND xest WHERE xest.company = probe.company
               AND xest.est-no = probe.est-no NO-LOCK NO-ERROR.
@@ -551,16 +549,9 @@ PROCEDURE calc-fields :
   {cec/combasis.i}
       
       
-  FIND FIRST b-probemk
-      WHERE b-probemk.reftable EQ "ce/com/probemk.p"
-        AND b-probemk.company  EQ probeit.company
-        AND b-probemk.loc      EQ probeit.est-no
-        AND b-probemk.code     EQ STRING(probeit.line,"9999999999")
-        AND b-probemk.code2    EQ probeit.part-no
-      NO-ERROR.
-  IF AVAIL b-probemk THEN
-    v-com = b-probemk.val[2] + b-probemk.val[3] +
-            b-probemk.val[4] + b-probemk.val[5].
+  IF AVAIL probeit THEN
+   v-com = probeit.pctCommission + probeit.pctRoyalty +
+           probeit.pctWarehouse + probeit.pctCustMargin.
 
   {sys/inc/ceround.i}
   lv-changed = "S".

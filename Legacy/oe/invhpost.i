@@ -58,7 +58,9 @@ assign
 				    /* total invoiced - fright - misc - tax */
   ar-inv.t-sales  = inv-head.t-inv-rev - inv-head.t-inv-tax
   ar-inv.net   = inv-head.t-inv-rev - inv-head.t-inv-tax.
-
+  
+  RUN CopyShipNote IN hNotesProcs (inv-head.rec_key, ar-inv.rec_key).
+  
   if inv-head.f-bill then
   assign
     ar-inv.t-sales = ar-inv.t-sales - inv-head.t-inv-freight .

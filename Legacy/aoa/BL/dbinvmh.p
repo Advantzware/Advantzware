@@ -49,7 +49,7 @@ FOR EACH cust NO-LOCK
     WHERE cust.company GT ""
     :
  
-    FOR EACH ar-inv FIELDS () NO-LOCK 
+    FOR EACH ar-inv NO-LOCK 
         WHERE ar-inv.company  EQ cust.company
           AND ar-inv.posted   EQ YES 
           AND ar-inv.cust-no  EQ cust.cust-no
@@ -158,7 +158,7 @@ FOR EACH ttReport :
              WHERE ttInvoiceHighlights.company EQ ar-cashl.company
                AND ttInvoiceHighlights.dateIdx EQ ar-cash.check-date.
  
-        RUN salrep/getoeret.p ( ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl ).
+        RUN salrep/getoeret.p ( ROWID(ar-cashl), BUFFER oe-retl ).
  
         IF AVAILABLE oe-retl THEN DO:
             FIND FIRST ar-invl NO-LOCK 

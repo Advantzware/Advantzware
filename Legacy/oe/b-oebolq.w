@@ -75,10 +75,11 @@ ll-sort-asc = NO /*oeinq*/  .
                       USE-INDEX b-no
 
 &SCOPED-DEFINE for-each3                                             ~
-     EACH ASI.itemfg NO-LOCK WHERE itemfg.company EQ oe-boll.company ~
-                               AND itemfg.i-no    EQ oe-boll.i-no    ~
-                               AND itemfg.part-no BEGINS fi_part-no  ~
-                               AND itemfg.i-name  BEGINS fi_i-name
+     FIRST ASI.oe-ordl NO-LOCK WHERE oe-ordl.company EQ oe-boll.company ~
+                               AND oe-ordl.ord-no    EQ oe-boll.ord-no ~
+                               AND oe-ordl.i-no    EQ oe-boll.i-no    ~
+                               AND oe-ordl.part-no BEGINS fi_part-no  ~
+                               AND oe-ordl.i-name  BEGINS fi_i-name 
 
 &SCOPED-DEFINE for-each11                                    ~
      FOR EACH ASI.oe-boll  WHERE oe-boll.company = g_company ~
@@ -92,23 +93,25 @@ ll-sort-asc = NO /*oeinq*/  .
                       USE-INDEX b-no
 
 &SCOPED-DEFINE for-each31                                            ~
-     EACH ASI.itemfg NO-LOCK WHERE itemfg.company EQ oe-boll.company ~
-                               AND itemfg.i-no    EQ oe-boll.i-no   ~
-                               AND itemfg.part-no BEGINS fi_part-no
+     EACH ASI.oe-ordl NO-LOCK WHERE oe-ordl.company EQ oe-boll.company ~
+                               AND oe-ordl.i-no    EQ oe-boll.i-no   ~
+                               AND oe-ordl.ord-no    EQ oe-boll.ord-no   ~
+                               AND oe-ordl.part-no BEGINS fi_part-no OUTER-JOIN
 
 &SCOPED-DEFINE sortby-log                                                     ~
     IF lv-sort-by EQ "ord-no"   THEN STRING(oe-boll.ord-no,"9999999999") ELSE ~
     IF lv-sort-by EQ "bol-no"   THEN string(oe-bolh.bol-no,"9999999999") ELSE ~
     IF lv-sort-by EQ "cust-no"  THEN oe-bolh.cust-no                     ELSE ~
-    IF lv-sort-by EQ "part-no"  THEN itemfg.part-no                      ELSE ~
+    IF lv-sort-by EQ "part-no"  THEN oe-ordl.part-no                      ELSE ~
     IF lv-sort-by EQ "i-no"     THEN oe-boll.i-no                        ELSE ~
     IF lv-sort-by EQ "po-no"    THEN oe-boll.po-no                       ELSE ~
     IF lv-sort-by EQ "ship-id"  THEN oe-bolh.ship-id                     ELSE ~
-    IF lv-sort-by EQ "i-name"   THEN itemfg.i-name                       ELSE ~
+    IF lv-sort-by EQ "i-name"   THEN oe-ordl.i-name                       ELSE ~
     IF lv-sort-by EQ "bol-date" THEN STRING(YEAR(oe-boll.bol-date),'9999') + ~
         STRING(MONTH(oe-boll.bol-date),'99') + ~
         STRING(DAY(oe-boll.bol-date),'99')          ELSE ~
     IF lv-sort-by EQ "release#" THEN string(oe-bolh.release#,"9999999999")  ELSE ~
+    IF lv-sort-by EQ "stat"   THEN oe-bolh.stat ELSE ~
         STRING(oe-bolh.bol-no)
 
 &SCOPED-DEFINE sortby-phrase-asc  ~
@@ -137,36 +140,36 @@ ll-sort-asc = NO /*oeinq*/  .
 &Scoped-define BROWSE-NAME Browser-Table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES oe-boll oe-bolh itemfg
+&Scoped-define INTERNAL-TABLES oe-boll oe-bolh oe-ordl
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-bolh.bol-no oe-boll.ord-no ~
-oe-boll.po-no oe-bolh.cust-no itemfg.part-no oe-boll.i-no itemfg.i-name ~
-oe-bolh.ship-id oe-boll.bol-date get-release() @ lv-release 
+oe-boll.po-no oe-bolh.cust-no oe-ordl.part-no oe-boll.i-no oe-ordl.i-name ~
+oe-bolh.ship-id oe-boll.bol-date get-release() @ lv-release oe-bolh.stat 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-bolh.bol-no ~
-oe-boll.ord-no oe-boll.po-no oe-bolh.cust-no oe-boll.i-no itemfg.i-name ~
-oe-bolh.ship-id 
-&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table oe-bolh oe-boll itemfg
+oe-boll.ord-no oe-boll.po-no oe-bolh.cust-no oe-boll.i-no oe-ordl.i-name ~
+oe-bolh.ship-id
+&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table oe-bolh oe-boll oe-ordl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table oe-bolh
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table oe-boll
-&Scoped-define THIRD-ENABLED-TABLE-IN-QUERY-Browser-Table itemfg
+&Scoped-define THIRD-ENABLED-TABLE-IN-QUERY-Browser-Table oe-ordl
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH oe-boll WHERE ~{&KEY-PHRASE} ~
       AND oe-boll.b-no = 9000000 NO-LOCK, ~
       EACH oe-bolh OF oe-boll NO-LOCK, ~
-      EACH itemfg OF oe-boll NO-LOCK ~
+      EACH oe-ordl OF oe-boll NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH oe-boll WHERE ~{&KEY-PHRASE} ~
       AND oe-boll.b-no = 9000000 NO-LOCK, ~
       EACH oe-bolh OF oe-boll NO-LOCK, ~
-      EACH itemfg OF oe-boll NO-LOCK ~
+      EACH oe-ordl OF oe-boll NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-Browser-Table oe-boll oe-bolh itemfg
+&Scoped-define TABLES-IN-QUERY-Browser-Table oe-boll oe-bolh oe-ordl
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table oe-boll
 &Scoped-define SECOND-TABLE-IN-QUERY-Browser-Table oe-bolh
-&Scoped-define THIRD-TABLE-IN-QUERY-Browser-Table itemfg
+&Scoped-define THIRD-TABLE-IN-QUERY-Browser-Table oe-ordl
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -269,7 +272,7 @@ DEFINE VARIABLE tb_posted AS LOGICAL INITIAL no
 DEFINE QUERY Browser-Table FOR 
       oe-boll, 
       oe-bolh, 
-      itemfg SCROLLING.
+      oe-ordl SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -281,21 +284,26 @@ DEFINE BROWSE Browser-Table
       oe-boll.po-no COLUMN-LABEL "Customer's PO" FORMAT "x(15)":U
             LABEL-BGCOLOR 14
       oe-bolh.cust-no FORMAT "x(8)":U LABEL-BGCOLOR 14
-      itemfg.part-no FORMAT "x(15)":U LABEL-BGCOLOR 14
+      oe-ordl.part-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-boll.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      itemfg.i-name COLUMN-LABEL "FG Item Name" FORMAT "x(15)":U
+      oe-ordl.i-name COLUMN-LABEL "FG Item Name" FORMAT "x(15)":U
             WIDTH 22 LABEL-BGCOLOR 14
       oe-bolh.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U WIDTH 10
             LABEL-BGCOLOR 14
       oe-boll.bol-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       get-release() @ lv-release COLUMN-LABEL "Release" WIDTH 10.2
+      oe-bolh.stat COLUMN-LABEL "Status" FORMAT "x(10)":U WIDTH 14
+      VIEW-AS COMBO-BOX INNER-LINES 2
+          LIST-ITEM-PAIRS "H-Hold","H",
+                     "R-Released","R"
+          DROP-DOWN-LIST
   ENABLE
       oe-bolh.bol-no
       oe-boll.ord-no
       oe-boll.po-no
       oe-bolh.cust-no
       oe-boll.i-no
-      itemfg.i-name
+      oe-ordl.i-name
       oe-bolh.ship-id
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -424,7 +432,7 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.oe-boll,ASI.oe-bolh OF ASI.oe-boll,ASI.itemfg OF ASI.oe-boll"
+     _TblList          = "ASI.oe-boll,ASI.oe-bolh OF ASI.oe-boll,ASI.oe-ordl OF ASI.oe-boll"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = ",,"
      _Where[1]         = "ASI.oe-boll.b-no = 9000000"
@@ -436,18 +444,20 @@ ASSIGN
 "oe-boll.po-no" "Customer's PO" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.oe-bolh.cust-no
 "oe-bolh.cust-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.itemfg.part-no
-"itemfg.part-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > ASI.oe-ordl.part-no
+"oe-ordl.part-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.oe-boll.i-no
 "oe-boll.i-no" "FG Item#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > ASI.itemfg.i-name
-"itemfg.i-name" "FG Item Name" "x(15)" "character" ? ? ? 14 ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > ASI.oe-ordl.i-name
+"oe-ordl.i-name" "FG Item Name" "x(15)" "character" ? ? ? 14 ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.oe-bolh.ship-id
 "oe-bolh.ship-id" "Ship To" ? "character" ? ? ? 14 ? ? yes ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.oe-boll.bol-date
 "oe-boll.bol-date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > "_<CALC>"
 "get-release() @ lv-release" "Release" ? ? ? ? ? ? ? ? no ? no no "10.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > ASI.oe-bolh.stat
+"oe-bolh.stat" "Status" "!" "character" ? ? ? ? ? ? yes "" no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -989,7 +999,7 @@ PROCEDURE local-initialize :
       oe-bolh.cust-no:READ-ONLY IN BROWSE {&browse-name} = YES
       oe-boll.po-no:READ-ONLY IN BROWSE {&browse-name} = YES
       oe-boll.i-no:READ-ONLY IN BROWSE {&browse-name} = YES
-      itemfg.i-name:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordl.i-name:READ-ONLY IN BROWSE {&browse-name} = YES
       oe-bolh.ship-id:READ-ONLY IN BROWSE {&browse-name} = YES
       .
 
@@ -1257,7 +1267,7 @@ PROCEDURE send-records :
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "oe-boll"}
   {src/adm/template/snd-list.i "oe-bolh"}
-  {src/adm/template/snd-list.i "itemfg"}
+  {src/adm/template/snd-list.i "oe-ordl"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

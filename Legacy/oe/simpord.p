@@ -1101,7 +1101,7 @@ PROCEDURE CreateRelease :
                                      oe-rel.rel-date = oe-rel.rel-date + 1.
                             END.
 
-      if avail shipto then
+      if avail shipto THEN DO:
        assign oe-rel.ship-addr[1] = shipto.ship-addr[1]
               oe-rel.ship-city    = shipto.ship-city
               oe-rel.ship-state   = shipto.ship-state
@@ -1113,6 +1113,8 @@ PROCEDURE CreateRelease :
               oe-rel.ship-i[3]    = shipto.notes[3]
               oe-rel.ship-i[4]    = shipto.notes[4]
               oe-rel.spare-char-1 = shipto.loc.
+        RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+    END.
     else assign oe-rel.ship-no   = oe-ord.sold-no
                 oe-rel.ship-id   = oe-ord.sold-id
                 oe-rel.ship-i[1] = oe-ord.ship-i[1]
@@ -1432,6 +1434,7 @@ PROCEDURE pAutoCreateShipTo:
     DEFINE BUFFER bf-default-shipto FOR shipto.
     DEFINE BUFFER bf-state-shipto FOR shipto.
     DEFINE BUFFER bf-shipto FOR shipto.
+    DEFINE BUFFER bf-cust FOR cust.
     
     opcShipToID = ipcShipToID.
     RUN pParsePhone (INPUT ipcPhone, OUTPUT cArea, OUTPUT ipcPhone).
@@ -1485,9 +1488,18 @@ PROCEDURE pAutoCreateShipTo:
             AND bf-state-shipto.ship-id NE shipto.cust-no
             AND bf-state-shipto.ship-state EQ shipto.ship-state
             NO-LOCK NO-ERROR.
-        shipto.tax-code = IF AVAIL(bf-state-shipto) THEN bf-state-shipto.tax-code 
-        ELSE IF AVAIL(bf-default-shipto) THEN bf-shipto.tax-code 
-        ELSE "".
+        FIND FIRST bf-cust NO-LOCK 
+            WHERE bf-cust.company EQ shipto.company
+            AND bf-cust.cust-no EQ shipto.cust-no
+            NO-ERROR.
+        shipto.tax-code = IF AVAILABLE bf-state-shipto  THEN bf-state-shipto.tax-code 
+            ELSE IF AVAILABLE bf-default-shipto  THEN bf-shipto.tax-code 
+            ELSE IF AVAILABLE bf-cust THEN bf-cust.tax-gr
+            ELSE "".
+        shipto.tax-mandatory = IF AVAIL(bf-state-shipto) THEN bf-state-shipto.tax-mandatory 
+            ELSE IF AVAIL(bf-default-shipto) THEN bf-shipto.tax-mandatory 
+            ELSE IF AVAILABLE bf-cust THEN bf-cust.sort EQ "Y"
+            ELSE NO.
          
  
     END. /* not avail shipto */
@@ -1610,6 +1622,27 @@ PROCEDURE runProcess :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

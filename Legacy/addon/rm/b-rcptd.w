@@ -1959,6 +1959,38 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win
+PROCEDURE local-assign-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  ASSIGN 
+        rm-rctd.enteredBy = USERID("asi")
+        rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+        .
+  FIND CURRENT po-ordl NO-LOCK NO-ERROR .
+  IF NOT AVAIL po-ordl THEN
+      FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
+  IF AVAIL po-ordl THEN
+      rm-rctd.po-line = po-ordl.LINE .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-statement B-table-Win 
 PROCEDURE local-assign-statement :
 /*------------------------------------------------------------------------------

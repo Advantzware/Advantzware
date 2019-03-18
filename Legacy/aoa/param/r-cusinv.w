@@ -47,12 +47,12 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svCustList btnCustList svAllCustNo ~
+&Scoped-Define ENABLED-OBJECTS svCompany btnCustList svCustList svAllCustNo ~
 svStartCustNo svEndCustNo svInventoryClasses svSort ~
-svIncludeInactiveCustomers svIncludeZeroQty 
+svIncludeInactiveCustomers svIncludeZeroQty btnAddEmail svRecipients 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svCustList svAllCustNo ~
 svStartCustNo startCustName svEndCustNo endCustName svInventoryClasses ~
-svSort svIncludeInactiveCustomers svIncludeZeroQty 
+svSort svIncludeInactiveCustomers svIncludeZeroQty svRecipients 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -66,9 +66,19 @@ svSort svIncludeInactiveCustomers svIncludeZeroQty
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
 DEFINE BUTTON btnCustList 
      LABEL "Preview" 
      SIZE 9.8 BY .95.
+
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 73 BY 2.86
+     BGCOLOR 15 .
 
 DEFINE VARIABLE endCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -105,6 +115,18 @@ DEFINE VARIABLE svSort AS CHARACTER INITIAL "Item"
 "Customer Part No", "Part"
      SIZE 38 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 85.8 BY 5.43.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 86 BY 6.67.
+
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 86 BY 3.57.
+
 DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
      LABEL "All Customers" 
      VIEW-AS TOGGLE-BOX
@@ -129,30 +151,40 @@ DEFINE VARIABLE svIncludeZeroQty AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 60
-     svCustList AT ROW 3.38 COL 21 WIDGET-ID 48
-     btnCustList AT ROW 3.38 COL 57 WIDGET-ID 46
-     svAllCustNo AT ROW 4.57 COL 21 HELP
+     svCompany AT ROW 1.24 COL 142 COLON-ALIGNED WIDGET-ID 60
+     btnCustList AT ROW 1.71 COL 92 WIDGET-ID 46
+     svCustList AT ROW 1.71 COL 53 WIDGET-ID 48
+     svAllCustNo AT ROW 2.91 COL 53 HELP
           "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 5.76 COL 19 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 4.1 COL 51 COLON-ALIGNED HELP
           "Enter Beginning Customer" WIDGET-ID 2
-     startCustName AT ROW 5.76 COL 36 COLON-ALIGNED HELP
+     startCustName AT ROW 4.1 COL 68 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 6.95 COL 19 COLON-ALIGNED HELP
+     svEndCustNo AT ROW 5.29 COL 51 COLON-ALIGNED HELP
           "Enter Ending Customer" WIDGET-ID 6
-     endCustName AT ROW 6.95 COL 36 COLON-ALIGNED HELP
+     endCustName AT ROW 5.29 COL 68 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 8
-     svInventoryClasses AT ROW 9.1 COL 19 COLON-ALIGNED HELP
+     svInventoryClasses AT ROW 7.43 COL 51 COLON-ALIGNED HELP
           "Enter Inventory Class(es)" WIDGET-ID 86
-     svSort AT ROW 11.24 COL 21 NO-LABEL WIDGET-ID 88
-     svIncludeInactiveCustomers AT ROW 13.38 COL 21 WIDGET-ID 40
-     svIncludeZeroQty AT ROW 14.57 COL 21 WIDGET-ID 84
+     svSort AT ROW 9.1 COL 53 NO-LABEL WIDGET-ID 88
+     svIncludeInactiveCustomers AT ROW 11 COL 53 WIDGET-ID 40
+     svIncludeZeroQty AT ROW 12.19 COL 53 WIDGET-ID 84
+     btnAddEmail AT ROW 16 COL 37 HELP
+          "Add Recipents" WIDGET-ID 636
+     svRecipients AT ROW 14.33 COL 43 NO-LABEL WIDGET-ID 600
      "Sort By?:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 11.24 COL 12 WIDGET-ID 92
+          SIZE 9 BY 1 AT ROW 9.1 COL 44 WIDGET-ID 92
+     "Email" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 14.33 COL 37 WIDGET-ID 640
+     "Recipients:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 15.05 COL 32 WIDGET-ID 602
+     RECT-1 AT ROW 1.24 COL 31 WIDGET-ID 94
+     RECT-2 AT ROW 6.95 COL 31 WIDGET-ID 96
+     RECT-6 AT ROW 13.86 COL 31 WIDGET-ID 638
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 82 BY 16
+         SIZE 149.2 BY 17.71
          TITLE "Report Parameters".
 
 
@@ -182,8 +214,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 16
-         WIDTH              = 82.
+         HEIGHT             = 17.71
+         WIDTH              = 149.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -205,11 +237,17 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME                                               */
+   NOT-VISIBLE FRAME-NAME Custom                                        */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN endCustName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -234,6 +272,21 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail sObject
+ON CHOOSE OF btnAddEmail IN FRAME F-Main /* Email */
+DO:
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    cRecipients = svRecipients:SCREEN-VALUE.
+    RUN AOA/Recipients.w (INPUT-OUTPUT cRecipients).
+    svRecipients:SCREEN-VALUE = cRecipients.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btnCustList
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCustList sObject

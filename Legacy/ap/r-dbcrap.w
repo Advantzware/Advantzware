@@ -1032,6 +1032,8 @@ DEF VAR v1 as dec format "->>>,>>>,>>9.99".
 DEF VAR v2 as dec format "->>>,>>>,>>9.99".
 DEF VAR lcnt as int init 0. /* DAR */
 
+DEFINE VARIABLE dDate AS DATE NO-UNDO.
+
 form header
 SKIP(1)
 "VENDOR#  Name                          MEMO#  INVOICE#     INV.DATE      "
@@ -1041,7 +1043,7 @@ WITH frame r-top.
 form
     ap-pay.check-no  at 35 FORMAT ">>>>>>>>>>" space(2)
     ap-payl.inv-no   space(1)
-    ap-payl.due-date FORMAT "99/99/99" space(3)
+    dDate FORMAT "99/99/99" space(3)
     ap-payl.amt-disc format "->>,>>>,>>9.99" space(3)
     ap-payl.amt-paid space(5)
     ap-payl.actnum with frame dbcr-memo no-box no-labels STREAM-IO width 132.
@@ -1093,10 +1095,23 @@ DISPLAY "" WITH frame r-top.
       else 
       if first-of(ap-payl.inv-no) then put skip(1).
 
+      IF AVAIL ap-payl THEN DO:
+          FIND FIRST ap-inv
+              WHERE ap-inv.company EQ cocode
+              AND ap-inv.posted  EQ YES
+              AND ap-inv.vend-no EQ ap-pay.vend-no
+              AND ap-inv.inv-no  EQ ap-payl.inv-no
+              NO-LOCK NO-ERROR.
+          
+             IF AVAIL ap-inv AND ap-inv.inv-date NE ? THEN do:
+                 dDate = ap-inv.inv-date.
+             END.
+      END.
+
       display
           ap-pay.check-no  when first-of(ap-pay.check-no)
           ap-payl.inv-no
-          ap-payl.due-date
+          dDate
           ap-payl.amt-paid 
           ap-payl.amt-disc
           ap-payl.actnum.

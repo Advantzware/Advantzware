@@ -418,7 +418,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'oe/b-crdinqa.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
              OUTPUT h_b-crdinqa ).
        RUN set-position IN h_b-crdinqa ( 4.81 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 19.52 , 148.00 ) */
@@ -626,7 +630,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_b-ordrel ).
        /* Position in AB:  ( 9.57 , 2.00 ) */
-       /* Size in UIB:  ( 13.57 , 147.00 ) */       
+       /* Size in UIB:  ( 13.57 , 147.00 ) */
        RUN set-position IN h_b-ordrel ( 9.10 , 3.00 ) NO-ERROR.
        RUN set-size IN h_b-ordrel ( 13.57 , 147.00 ) NO-ERROR.
 
@@ -1052,32 +1056,6 @@ PROCEDURE local-exit :
    
    RETURN.
        
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view W-Win 
-PROCEDURE local-view :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-
-  /* There is a bug showing viewer instead browser when no records to show*/
-  IF lv-initial AND NOT AVAIL oe-ord THEN DO:
-     lv-initial = NO.
-     RUN select-page (2).
-     RUN select-page (1).  
-  END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -56,7 +56,7 @@ listname = "p-updinv." .
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-26 btn-update tg_showzerobins 
+&Scoped-Define ENABLED-OBJECTS btn-update tg_showzerobins 
 &Scoped-Define DISPLAYED-OBJECTS tg_showzerobins 
 
 /* Custom List Definitions                                              */
@@ -97,8 +97,9 @@ DEFINE BUTTON btn-update
      SIZE 34.4 BY 1.67.
 
 DEFINE RECTANGLE RECT-26
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 36 BY 2.14.
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 36 BY 2.14
+     BGCOLOR 15 .
 
 DEFINE VARIABLE tg_showzerobins AS LOGICAL INITIAL no 
      LABEL "Show Bins with Qty = 0" 
@@ -172,6 +173,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR RECTANGLE RECT-26 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 

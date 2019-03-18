@@ -316,7 +316,7 @@ DEFINE VARIABLE tb_act AS LOGICAL INITIAL yes
      SIZE 13.4 BY .81
      FGCOLOR 9 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE tb_in-act AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_in-act AS LOGICAL INITIAL no 
      LABEL "Inactive" 
      VIEW-AS TOGGLE-BOX
      SIZE 13.4 BY .81
@@ -363,7 +363,7 @@ DEFINE BROWSE r_table
       itemfg.q-onh
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 156 BY 16.19
+    WITH NO-ASSIGN SEPARATORS SIZE 156 BY 20.95
          BGCOLOR 8 FONT 2.
 
 
@@ -389,28 +389,28 @@ DEFINE FRAME F-Main
      "Customer Part#" VIEW-AS TEXT
           SIZE 18 BY .71 AT ROW 1.24 COL 25.8 WIDGET-ID 42
           FGCOLOR 9 FONT 6
-     "FG Item#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 6.6 WIDGET-ID 24
-          FGCOLOR 9 FONT 6
-     "Name" VIEW-AS TEXT
-          SIZE 7.2 BY .71 AT ROW 1.24 COL 77.4 WIDGET-ID 26
-          FGCOLOR 9 FONT 6
-     "Click on Yellow Field to Sort" VIEW-AS TEXT
-          SIZE 28 BY .95 AT ROW 3.62 COL 114 WIDGET-ID 14
-     "Style" VIEW-AS TEXT
-          SIZE 10 BY .71 AT ROW 1.24 COL 116 WIDGET-ID 34
-          FGCOLOR 9 FONT 6
-     "Category" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 127 WIDGET-ID 38
-          FGCOLOR 9 FONT 6
-     "Customer#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 49.2 WIDGET-ID 22
+     "Estimate#" VIEW-AS TEXT
+          SIZE 12 BY .71 AT ROW 1.24 COL 100 WIDGET-ID 28
           FGCOLOR 9 FONT 6
      "Sorted By:" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 3.62 COL 68 WIDGET-ID 30
           FONT 6
-     "Estimate#" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 100 WIDGET-ID 28
+     "Customer#" VIEW-AS TEXT
+          SIZE 13 BY .71 AT ROW 1.24 COL 49.2 WIDGET-ID 22
+          FGCOLOR 9 FONT 6
+     "Category" VIEW-AS TEXT
+          SIZE 12 BY .71 AT ROW 1.24 COL 127 WIDGET-ID 38
+          FGCOLOR 9 FONT 6
+     "Style" VIEW-AS TEXT
+          SIZE 10 BY .71 AT ROW 1.24 COL 116 WIDGET-ID 34
+          FGCOLOR 9 FONT 6
+     "Click on Yellow Field to Sort" VIEW-AS TEXT
+          SIZE 28 BY .95 AT ROW 3.62 COL 114 WIDGET-ID 14
+     "Name" VIEW-AS TEXT
+          SIZE 7.2 BY .71 AT ROW 1.24 COL 77.4 WIDGET-ID 26
+          FGCOLOR 9 FONT 6
+     "FG Item#" VIEW-AS TEXT
+          SIZE 13 BY .71 AT ROW 1.24 COL 6.6 WIDGET-ID 24
           FGCOLOR 9 FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -445,7 +445,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 20.1
+         HEIGHT             = 25.1
          WIDTH              = 159.2.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -516,36 +516,36 @@ ASSIGN
      _Where[1]         = "asi.itemfg.company eq g_company and
 asi.itemfg.i-no eq ""###"""
      _FldNameList[1]   > asi.itemfg.i-no
-"i-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.i-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.itemfg.i-name
-"i-name" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.i-name" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.itemfg.part-dscr1
-"part-dscr1" "Description" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.part-dscr1" "Description" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.itemfg.cust-no
-"cust-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.cust-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.itemfg.style
-"style" "Style" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.style" "Style" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.itemfg.procat
-"procat" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.procat" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.itemfg.i-code
-"i-code" "Stock/!Custom" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.i-code" "Stock/!Custom" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.itemfg.est-no
-"est-no" "Estimate" "x(8)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.est-no" "Estimate" "x(8)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.itemfg.cad-no
-"cad-no" "CAD #" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.cad-no" "CAD #" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > asi.itemfg.spc-no
-"spc-no" "Quality/SPC #" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.spc-no" "Quality/SPC #" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > asi.itemfg.stocked
-"stocked" "Stocked?" ? "logical" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.stocked" "Stocked?" ? "logical" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > asi.itemfg.q-onh
-"q-onh" ? "->>,>>>,>>9" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.q-onh" ? "->>,>>>,>>9" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > asi.itemfg.part-no
-"part-no" ? "x(20)" "character" ? ? ? 14 ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.part-no" ? "x(20)" "character" ? ? ? 14 ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE r_table */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -765,6 +765,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME fi_est-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_est-no B-table-Win
@@ -2011,7 +2012,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-teal-bgcolor B-table-Win 
 PROCEDURE set-teal-bgcolor :

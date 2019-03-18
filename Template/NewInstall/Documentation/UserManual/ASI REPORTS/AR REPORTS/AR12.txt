@@ -1,0 +1,188 @@
+
+08/16/11                                     Advanced Box Company 001 V10 - Main Office                                   Page   1
+10:59am                                               Customer Snapshot Totals
+
+
+Cust. #  Customer Name                       YTD Sales       LYR Sales     Hi Balance Number of Invoices Avg to Pay
+-------- ------------------------------ -------------- --------------- -------------- ------------------ ----------
+HER1000  Hershey Foods Corporation          862,632.49    2,285,410.93   1,946,619.73                247        105
+HES00001 HESCO  INC.                              0.00            0.00           0.00                  0          1
+HEW1000  Hewlett Packard                     10,706.12        2,083.02      18,963.46                  0          1
+HEWP1000 Hewlett Packard                          0.00            0.00           0.00                  0          1
+HI-00001 HI-TECH ENVIRONMENTAL  IN                0.00            0.00           0.00                  0          1
+HIC00002 HICKORY ROLLS                            0.00            0.00           0.00                  0          1
+HIG00001 HIGHLANDER ARCHERY                       0.00            0.00           0.00                  0          1
+HIG00002 HIGHLAND GOURMET SCONE CO                0.00            0.00           0.00                  0          1
+HIG00003 HIGH COTTON ENTERPRISES                  0.00            0.00           0.00                  0          1
+HIG00005 HIGH COTTON DIRECT MARKET                0.00            0.00           0.00                  0          1
+HIL00001 HILTON CORPORATE CASUALS                 0.00            0.00           0.00                  0          1
+HIR00001 HIRED-HAND GREEN  INC.                   0.00            0.00           0.00                  0          1
+HIR00002 HIRED HAND                               0.00            0.00           0.00                  0          1
+HLS00001 HLS COMPANIES                            0.00            0.00           0.00                  0          1
+HOF00001 HOFFMAN DISTRIBUTING COMP                0.00            0.00           0.00                  0          1
+HOL00001 HOLT AUDIO VISUAL & VIDEO                0.00            0.00           0.00                  0          1
+HOL00002 HOLLIS STORE FIXTURES                    0.00            0.00           0.00                  0          1
+HOL00003 HOLIDAY INN EXPRESS                      0.00            0.00           0.00                  0          1
+HOM00001 THE HOME DEPOT USA                       0.00            0.00           0.00                  0          1
+HOM00002 HOMELAND VINYL PRODUCTS                  0.00            0.00           0.00                  0          1
+HOMEDEPO HOME DEPOT CORP                          0.00            0.00           0.00                  0          1
+HOO00001 HOOVER SHIPPING CENTER                   0.00            0.00           0.00                  0          1
+HOO00002 HOOPER HOLMES  INC.                      0.00            0.00           0.00                  0          1
+HOO00003 HOOPER TIRE COMPANY                      0.00            0.00           0.00                  0          1
+HOP00001 HOPE SNOW                                0.00            0.00           0.00                  0          1
+HOR00001 HORST WHOLESALE FLORIST                  0.00            0.00           0.00                  0          1
+HOS00001 HOSPITALITY SERVICE  INC.                0.00            0.00           0.00                  0          1
+HOU00001 HOUSE OF SPECIALTIES  INC                0.00            0.00           0.00                  0          1
+HOU00002 HOUSE OF THREADS                         0.00            0.00           0.00                  0          1
+HOU00003 HOUSE OF THREADS                         0.00            0.00           0.00                  0          1
+HOW00001 HOWARD GRAPHICS                          0.00            0.00           0.00                  0          1
+HTB00001 H. T. BARNES CO.  INC.                   0.00            0.00           0.00                  0          1
+HUB00001 HUB CITY ALABAMA  L.P.                   0.00            0.00           0.00                  0          1
+HUD00001 HUDCO INDUSTRIAL PRODUCTS                0.00            0.00           0.00                  0          1
+HUG00001 HUGHES SUPPLY                            0.00            0.00           0.00                  0          1
+HUN00001 HUNT DESIGN AND MANUFACTU                0.00            0.00           0.00                  0          1
+HUN00002 HUNTIN' BUDDY ACCESSORIES                0.00            0.00           0.00                  0          1
+HUN00003 HUNTSMAN PACKAGING                       0.00            0.00           0.00                  0          1
+HUN00004 HUNTIN' BUDDY ACCESSORIES                0.00            0.00           0.00                  0          1
+HUN00005 HUNTER MUSEUM OF ART                     0.00            0.00           0.00                  0          1
+HUN00006 HUNTSVILLE REHABILITATION                0.00            0.00           0.00                  0          1
+HUS00001 HUSSMAN CORPORATION                      0.00            0.00           0.00                  0          1
+HUT00001 BUILDER RESOURCE                         0.00            0.00           0.00                  0          1
+HUT00003 HUTTO PRINTING & ADVERTIS                0.00            0.00           0.00                  0          1
+HWI00001 H. WILSON COMPANY                        0.00            0.00           0.00                  0          1
+HY-00001 HY-GRADE VALVE  INC.                     0.00            0.00           0.00                  0          1
+HYD00001 HYDRO/POWER  INC.                        0.00            0.00           0.00                  0          1
+HYD00002 HYDRO FLOSS  INC.                        0.00            0.00           0.00                  0          1
+HYD00003 HYDRO SERVICES                           0.00            0.00           0.00                  0          1
+HYD00004 HYDRO TECHNOLOGIES  INC.                 0.00            0.00           0.00                  0          1
+HYG00001 HYGIA HEALTH SERVICES                    0.00            0.00           0.00                  0          1
+HYG00002 HYGIA HEALTH SERVICES WES                0.00            0.00           0.00                  0          1
+IBM1000  IBM CORP                            16,127.21      345,824.53     621,654.06                 85          1
+IBM1007  IBM Corporation                    275,000.00            0.00     275,000.00                  0          1
+IBM10X   IBM CORP                                 0.00            0.00           0.00                  0          1
+IBMX     IBM Warehouse 10B                        0.00            0.00         217.73                  1          1
+ICE00001 I.C.E. INC.                              0.00            0.00           0.00                  0          1
+IDA00001 I. D. ASSOCIATES  INC.                   0.00            0.00           0.00                  0          1
+IDE00001 IDEAL PRODUCTS  INC.                     0.00            0.00           0.00                  0          1
+IDP00001 IDP                                      0.00            0.00           0.00                  0          1
+iggle002 Billable shipto                          0.00            0.00           0.00                  0          0
+IGGLE003 Iggle Incorporated Phase 2               0.00            0.00           0.00                  0          0
+iggle01  Iggle Incorporated                   1,150.00       76,542.58     135,211.56                  7          1
+IGGLES   Iggle Corportation                       0.00            0.00       5,781.01                  1          1
+III00001 III PHASE  INC.                          0.00            0.00         442.36                  0          1
+IIK00001 HK SYSTEMS - MONTGOMERY                  0.00            0.00           0.00                  0          1
+IKO00001 IKON OFFICE SOLUTIONS                    0.00            0.00           0.00                  0          1
+IMA00001 IMAGING BUSINESS MACHINES                0.00            0.00           0.00                  0          1
+IMA00002 IMAGISTICS                               0.00            0.00           0.00                  0          1
+IMI00001 RELIANCE WORLDWIDE CORP.                 0.00            0.00           0.00                  0          1
+IMP00001 I.M.P.A.C. (REDSTONE ARSE                0.00            0.00           0.00                  0          1
+IMP00003 IMPORTERS WAREHOUSE                      0.00            0.00           0.00                  0          1
+INC00001 IN CONTROL  INC.                         0.00            0.00           0.00                  0          1
+IND00001 INDUSTRIAL BOLT & SUPPLY                 0.00            0.00           0.00                  0          1
+IND00002 INDUSTRIAL MACHINE & FAB                 0.00            0.00           0.00                  0          1
+IND00003 INDUSTRIAL SUPPLIES  INC.                0.00            0.00           0.00                  0          1
+IND00004 INDUSTRIAL ELECTRIC SUPPL                0.00            0.00           0.00                  0          1
+IND00005 INDUCTION FURNACES                       0.00            0.00           0.00                  0          1
+IND00006 INDIANA FASTENER DIVISION                0.00            0.00           0.00                  0          1
+IND00007 INDUSTRIAL SUPPLIES                      0.00            0.00           0.00                  0          1
+IND00008 INDUSTRIAL CHEMICALS  INC                0.00            0.00           0.00                  0          1
+IND00009 INDUSTRIAL PAPER COMPANY                 0.00            0.00           0.00                  0          1
+IND00010 INDIGO MOUNTAIN                          0.00            0.00           0.00                  0          1
+INF00001 THE INFINITY GROUP                       0.00            0.00           0.00                  0          1
+INF00002 INFUSION PARTNERS                        0.00            0.00           0.00                  0          1
+INM00002 INMARK  INC.                             0.00            0.00           0.00                  0          1
+INN00001 INNOVATIVE BILLING SOLUTI                0.00            0.00           0.00                  0          1
+INN00003 HAMMERWELD  INC. DIV. OF                 0.00            0.00           0.00                  0          1
+INQ00001 INQUEST MINISTRIES  INC.                 0.00            0.00           0.00                  0          1
+INT00001 INTERNATIONAL DECAL CORPO                0.00            0.00           0.00                  0          1
+INT00002 INTELLILINK SERVICES  INC                0.00            0.00           0.00                  0          1
+INT00003 INTERGRAPH CORPORATION                   0.00            0.00           0.00                  0          1
+
+08/16/11                                     Advanced Box Company 001 V10 - Main Office                                   Page   2
+10:59am                                               Customer Snapshot Totals
+
+
+Cust. #  Customer Name                       YTD Sales       LYR Sales     Hi Balance Number of Invoices Avg to Pay
+-------- ------------------------------ -------------- --------------- -------------- ------------------ ----------
+INT00004 INTERSTATE BATTERY                       0.00            0.00           0.00                  0          1
+INT00005 INTERNATIONAL BODY WORKS                 0.00            0.00           0.00                  0          1
+INT00006 INTELLIGENT ALTERNATIVES                 0.00            0.00           0.00                  0          1
+INT00007 INTELLIGENT DISTRIBUTION                 0.00            0.00           0.00                  0          1
+INT00008 INTERNATIONAL BASEBALL FO                0.00            0.00           0.00                  0          1
+INT00009 INTERIORSCAPES                           0.00            0.00           0.00                  0          1
+INT00011 INTEGRATED MEDICAL SYSTEM                0.00            0.00           0.00                  0          1
+INT00014 INTERACTIVE COMMUNICATION                0.00            0.00           0.00                  0          1
+INT00015 INTRANET LAB SERVICES                    0.00            0.00           0.00                  0          1
+INT00016 IFG SOUTH                                0.00            0.00      25,500.00                  0          1
+INT00017 INTERNATIONAL PAPER CO.                  0.00            0.00           0.00                  0          1
+INT00019 INTERMET/ALEXANDER CITY F                0.00            0.00           0.00                  0          1
+INT00020 INTEC INDUSTRIES  INC.                   0.00            0.00           0.00                  0          1
+IRI00001 IRISH ENGINEERING CO. INC                0.00            0.00           0.00                  0          1
+IRO00001 IRONDALE CUSTOM MACHINE                  0.00            0.00           0.00                  0          1
+IRO00002 IRON GARDEN WORKS                        0.00            0.00           0.00                  0          1
+ISM00001 I.S.M. D/B/A INTERNATIONA                0.00            0.00           0.00                  0          1
+ITL00001 ITL INDUSTRIAL TIRES  INC                0.00            0.00           0.00                  0          1
+IVA00001 IVAN LEONARD CHEVROLET  I                0.00            0.00           0.00                  0          1
+IVY00001 IVY HALL  INC.                           0.00            0.00           0.00                  0          1
+J&B00001 J & B WOODWORKS                          0.00            0.00       3,060.16                  0          1
+J&J00001 J & J REFRACTORIES ANCHOR                0.00            0.00           0.00                  0          1
+J&J1000  J&J Snack Foods                          0.00            0.00           0.00                  0          1
+J&K00001 J & K SUPPLY COMPANY                     0.00            0.00           0.00                  0          1
+J-R00001 J-R AUTOMOTIVE & TIRE SER                0.00            0.00           0.00                  0          1
+JAC00001 JACKSON ROOFING                          0.00            0.00           0.00                  0          1
+JAC00002 JACK OPLER SALES COMPANY                 0.00            0.00           0.00                  0          1
+JAC00003 JACOBS RAGS  INC.                        0.00            0.00           0.00                  0          1
+JAC00004 JACK HAMMER                              0.00            0.00           0.00                  0          1
+JAC00006 JACKSON OIL PRODUCTS                     0.00            0.00           0.00                  0          1
+JAC00007 JACO TOOL CO.                            0.00            0.00           0.00                  0          1
+JAM00001 JAMES A. THOMASON                        0.00            0.00           0.00                  0          1
+JAM00002 JAMMIE BULGER                            0.00            0.00           0.00                  0          1
+JAR00001 JARED & ASSOCIATED  INC.                 0.00            0.00           0.00                  0          1
+JAY00001 JAY'S FURNITURE REHAB  IN                0.00            0.00           0.00                  0          1
+JAY00002 JAY MITCHEL & ASSOCIATES                 0.00            0.00           0.00                  0          1
+JBE00001 JB ENTERPRISES                           0.00            0.00           0.00                  0          1
+JDA00001 J. DAVID & COMPANY                       0.00            0.00           0.00                  0          1
+JEA00001 JEANE'S DENTAL LAB                       0.00            0.00           0.00                  0          1
+JEA00002 JEAN'S SAFETY & SUPPLY  I                0.00            0.00           0.00                  0          1
+JEF00001 JEFFERSON CO. SHERIFF'S D                0.00            0.00           0.00                  0          1
+JEF00002 JEFFERSON COUNTY COMMISSI                0.00            0.00           0.00                  0          1
+JEF00003 JEFFERSON COUNTY SCHOOL D                0.00            0.00           0.00                  0          1
+JEF00004 JEFFERSON COUNTY BOARD OF                0.00            0.00           0.00                  0          1
+JEF00005 METALS USA                               0.00            0.00           0.00                  0          1
+JEF00006 JEFFERSON-RANDOLPH CORPOR                0.00            0.00           0.00                  0          1
+JEM00001 JEMISON BASKET  INC.                     0.00            0.00           0.00                  0          1
+JEN00001 JENKINS BRICK COMPANY                    0.00            0.00           0.00                  0          1
+JET00001 JETA  INC.                               0.00            0.00           0.00                  0          1
+JEW00001 JEWELERS WHOLESALE  INC.                 0.00            0.00           0.00                  0          1
+jiggle   JIGGLE INC                               0.00            0.00       7,353.00                  0          1
+JIM00001 JIMCO  INC.                              0.00            0.00           0.00                  0          1
+JIM00002 JIM HOUSE & ASSOCIATES  I                0.00            0.00           0.00                  0          1
+JIM00003 JIM BENTON & ASSOCIATES                  0.00            0.00           0.00                  0          1
+JJI00001 J J INTERNATIONAL  INC.                  0.00            0.00           0.00                  0          1
+JME00001 J. M. EXOTIC FOODS  INC.                 0.00            0.00           0.00                  0          1
+JOE00001 JOE PIPER                                0.00            0.00           0.00                  0          1
+JOE00002 JOEY RICHERZHAGEN                        0.00            0.00           0.00                  0          1
+JOES     JOES FISH SHOP                           0.00            0.00           0.00                  0          1
+JOH00001 JOHN K. WARD                             0.00            0.00           0.00                  0          1
+JOH00002 JOHNSON BEAUTY & BARBER S                0.00            0.00           0.00                  0          1
+JOH00003 JOHN R. WHITE COMPANY  IN                0.00            0.00           0.00                  0          1
+JOH00004 JOHNSON EMU PROCESSING                   0.00            0.00           0.00                  0          1
+JOH00005 JOHNSTON INDUSTRIES COMPO                0.00            0.00           0.00                  0          1
+JON00001 JONES MACHINE & WELDING C                0.00            0.00           0.00                  0          1
+JON00002 JONES SPORTSWEAR COMPANY                 0.00            0.00           0.00                  0          1
+JON00003 JONES STEPHENS  INC.                     0.00            0.00           0.00                  0          1
+JON00004 JONES-BLAIR COMPANY                      0.00            0.00           0.00                  0          1
+JOR00001 JORDAN CONSTRUCTION                      0.00            0.00           0.00                  0          1
+JOR00002 JORDAN SCRAP  INC.                       0.00            0.00           0.00                  0          1
+JOS00001 JOSEPH LUMBER FOREST ENTE                0.00            0.00           0.00                  0          1
+JPA00002 J. PARROTT ENTERPRISES  I                0.00            0.00           0.00                  0          1
+JRA00001 J. RAG  INC.                             0.00            0.00           0.00                  0          1
+JRD00001 J. R. DUNN CONSTRUCTION                  0.00            0.00           0.00                  0          1
+JUD00001 JUDY LITTLEFIELD                         0.00            0.00           0.00                  0          1
+JUL00001 JULIE'S JOURNEY                          0.00            0.00           0.00                  0          1
+JUL010   Julie                                8,037.50            0.00      27,066.00                  3          1
+JULIE    JULIE HENTZ                         73,393.02            0.00     107,398.90                  6          1
+JUS00001 JUST FOR FEET                            0.00            0.00           0.00                  0          1
+JUS00002 JUSTICE PRINTING COMPANY                 0.00            0.00           0.00                  0          1
+JUS00004 JUST CATS VETERINARY CLIN                0.00            0.00           0.00                  0          1
+

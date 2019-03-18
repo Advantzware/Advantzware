@@ -436,7 +436,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DO WITH FRAME {&FRAME-NAME}:
     
     {custom/usrprint.i}
-     
+     lv-search:SCREEN-VALUE = "" .
+     lv-search = "" .
     APPLY 'VALUE-CHANGED' TO tgAllCompanies.
 
     &scoped-define key-phrase account.company EQ ip-company AND (ASI.account.type <> ip-type or ip-type = "")

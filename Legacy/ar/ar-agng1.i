@@ -7,7 +7,7 @@ def {1} shared var v-s-curr     like cust.curr-code no-undo.
 def {1} shared var v-e-curr     like cust.curr-code no-undo.
 def {1} shared var v-date       as date.
 DEF {1} SHARED VAR v-trend-days AS INT FORMAT ">>9" NO-UNDO INIT 0.
-def {1} shared var v-days       as int format ">,>>9" extent 3 init [30,60,90].
+def {1} shared var v-days       as int format ">,>>9" extent 4 init [30,60,90,120].
 def {1} shared var det-rpt      as INT format "9" init 1.
 def {1} shared var v-sort       as char init "Name" format "x(8)".
 def {1} shared var v-sort2      like v-sort init "InvDate".

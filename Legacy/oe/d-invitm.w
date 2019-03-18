@@ -45,6 +45,8 @@ DEF VAR v-msg AS CHAR NO-UNDO.
 DEF VAR v-print-head LIKE sys-ctrl.log-fld NO-UNDO.
 DEF VAR v-print-fmt LIKE sys-ctrl.char-fld NO-UNDO.
 DEF VAR glInvQtyChanged AS LOG NO-UNDO.
+DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 DEF NEW SHARED BUFFER xinv-line FOR inv-line.
 DEF NEW SHARED BUFFER xinv-head FOR inv-head.
 
@@ -132,6 +134,22 @@ inv-line.comm-amt[3] inv-line.tax inv-line.t-price
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable Dialog-Frame
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER,
+   ipcCust AS CHARACTER,
+   ipcShipto AS CHARACTER,
+   ipcFGItemID AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 
@@ -650,8 +668,6 @@ DO :
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     DEF VAR li AS INT NO-UNDO.
-    DEF VAR ll-tax LIKE inv-line.tax NO-UNDO.
-
 
     FIND itemfg
         {sys/look/itemfgrlW.i}
@@ -681,20 +697,8 @@ DO :
       IF itemfg.i-code EQ "S"          AND
          inv-line.cost:SENSITIVE EQ NO THEN
         inv-line.cost:SCREEN-VALUE = STRING(itemfg.total-std-cost).
-  
-      FIND FIRST cust
-          {sys/ref/custW.i}
-            AND cust.cust-no EQ inv-head.cust-no
-          USE-INDEX cust
-          NO-LOCK NO-ERROR.
-  
-      ll-tax = AVAIL cust AND cust.sort EQ "Y" AND inv-head.tax-gr NE "" AND itemfg.taxable.
-  
-      IF NOT ll-tax THEN DO:
-       {custom/shptotax.i inv-head.cust-no inv-head.sold-no ll-tax}
-      END.
-  
-      inv-line.tax:SCREEN-VALUE = STRING(ll-tax,"Y/N").
+      
+      inv-line.tax:SCREEN-VALUE = STRING(fGetTaxable(inv-head.company, inv-head.cust-no, inv-head.sold-no, itemfg.i-no),"Y/N").
       APPLY "value-changed" TO inv-line.ship-qty.
 
       RUN itemfg-sman.
@@ -779,11 +783,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.part-no Dialog-Frame
 ON LEAVE OF inv-line.part-no IN FRAME Dialog-Frame /* Cust Part # */
 DO :
-
+  
   IF LASTKEY NE -1 THEN DO WITH FRAME Dialog-Frame:
    IF inv-line.part-no:SCREEN-VALUE <> "" THEN do:
     DEF VAR li AS INT NO-UNDO.
-    DEF VAR ll-tax LIKE inv-line.tax NO-UNDO.
     
       find first itemfg where itemfg.company = g_company 
                           and itemfg.part-no = inv-line.part-no:screen-value
@@ -817,19 +820,8 @@ DO :
          inv-line.cost:SENSITIVE EQ NO THEN
         inv-line.cost:SCREEN-VALUE = STRING(itemfg.total-std-cost).
   
-      FIND FIRST cust
-          {sys/ref/custW.i}
-            AND cust.cust-no EQ inv-head.cust-no
-          USE-INDEX cust
-          NO-LOCK NO-ERROR.
-  
-      ll-tax = AVAIL cust AND cust.sort EQ "Y" AND inv-head.tax-gr NE "" AND itemfg.taxable.
-  
-      IF NOT ll-tax THEN DO:
-       {custom/shptotax.i inv-head.cust-no inv-head.sold-no ll-tax}
-      END.
-  
-      inv-line.tax:SCREEN-VALUE = STRING(ll-tax,"Y/N").
+      inv-line.tax:SCREEN-VALUE = STRING(fGetTaxable(inv-head.company, inv-head.cust-no, inv-head.sold-no, itemfg.i-no),"Y/N").
+      
       APPLY "value-changed" TO inv-line.ship-qty.
 /*       DO li = 1 TO LENGTH(TRIM(itemfg.i-no:SCREEN-VALUE)): */
 /*         APPLY "cursor-right" TO itemfg.i-no.               */
@@ -1065,7 +1057,7 @@ assign inv-line.sman[1] = caps(cust.sman)
        inv-line.disc    = cust.disc
        inv-line.tax     = cust.sort eq "Y" and inv-head.tax-gr ne "".
 
-{custom/shptotax.i inv-head.cust-no inv-head.sold-no inv-line.tax}
+inv-line.tax = fGetTaxable(inv-head.company, inv-head.cust-no, inv-head.sold-no, inv-line.i-no).
 
 find first sman where sman.company eq cust.company
              and sman.sman    eq cust.sman
@@ -1592,3 +1584,25 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable Dialog-Frame
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER, ipcCust AS CHARACTER , ipcShipto AS CHARACTER, ipcFGItemID AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: Gets the Taxable flag based on inputs
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+RETURN lTaxable.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+

@@ -46,21 +46,14 @@ IF ip-use-shipto THEN DO:
         sys-ctrl-shipto.NAME = ip-nk1-name AND
         sys-ctrl-shipto.cust-vend = ip-shipto-vendor AND
         sys-ctrl-shipto.cust-vend-no = ip-shipto-vendor-value AND
-        sys-ctrl-shipto.ship-id = ip-shipid-value AND
-        (IF ip-return-type = "C" THEN sys-ctrl-shipto.char-fld GT '' ELSE TRUE) AND
-        (IF ip-return-type = "D" THEN sys-ctrl-shipto.dec-fld GT 0 ELSE TRUE)  AND
-        (IF ip-return-type = "DT" THEN sys-ctrl-shipto.date-fld NE ? ELSE TRUE) AND
-        (IF ip-return-type = "I" THEN sys-ctrl-shipto.int-fld GT 0 ELSE TRUE)  
+        sys-ctrl-shipto.ship-id = ip-shipid-value 
         NO-ERROR.
     IF NOT AVAIL sys-ctrl-shipto THEN FIND FIRST sys-ctrl-shipto NO-LOCK WHERE
         sys-ctrl-shipto.company = ip-cocode AND
         sys-ctrl-shipto.NAME = ip-nk1-name AND
         sys-ctrl-shipto.cust-vend = ip-shipto-vendor AND
-        sys-ctrl-shipto.cust-vend-no = ip-shipto-vendor-value AND          
-        (IF ip-return-type = "C" THEN sys-ctrl-shipto.char-fld GT '' ELSE TRUE) AND
-        (IF ip-return-type = "D" THEN sys-ctrl-shipto.dec-fld GT 0 ELSE TRUE)  AND
-        (IF ip-return-type = "DT" THEN sys-ctrl-shipto.date-fld NE ? ELSE TRUE) AND
-        (IF ip-return-type = "I" THEN sys-ctrl-shipto.int-fld GT 0 ELSE TRUE)  
+        sys-ctrl-shipto.cust-vend-no = ip-shipto-vendor-value AND 
+        sys-ctrl-shipto.ship-id = ""      
         NO-ERROR.
 
     IF AVAIL sys-ctrl-shipto THEN DO:

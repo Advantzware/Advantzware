@@ -1,0 +1,94 @@
+07/31/07 16:36:07       PROGRESS Report
+Database: asi (PROGRESS)        Table: item
+
+Flags: <c>ase sensitive, <i>ndex component, <m>andatory, <v>iew component
+Table: item
+Order Field Name                      Data Type    Flags Format
+----- ------------------------------- ------------ ----- -------------------
+   10 company                         char         im    x(3)
+   20 loc                             char         m     x(5)
+   30 i-no                            char         im    x(10)
+   40 i-name                          char         i     x(30)
+   50 i-dscr                          char         i     x(30)
+   60 est-dscr                        char               x(20)
+   70 i-code                          char         im    X
+   80 mat-type                        char         i     X
+   90 cost-type                       char               XXX
+  100 procat                          char         im    x(5)
+  110 beg-date                        date               99/99/9999
+  120 beg-bal                         deci-6             >>>,>>>,>>9.9<<<<<
+  130 q-onh                           deci-6             ->>>,>>>,>>9.9<<<<<
+  140 q-ono                           deci-6             ->>>,>>>,>>9.9<<<<<
+  150 q-comm                          deci-6             >>>,>>>,>>9.9<<<<<
+  160 q-back                          deci-6             >>>,>>>,>>9.9<<<<<
+  170 q-avail                         deci-6             ->>>,>>>,>>9.9<<<<<
+  180 last-count                      deci-6             >>>,>>>,>>9.9<<<<<
+  190 last-date                       date               99/99/9999
+  200 last-cost                       deci-4       m     >>>,>>9.9999
+  210 avg-cost                        deci-4       m     >>>,>>9.9999
+  220 std-uom                         char               x(3)
+  230 loc-bin                         char               x(12)
+  240 cc-code                         char               XX
+  250 alloc                           logi               Yes/No
+  260 stocked                         logi               Yes/No
+  270 cons-uom                        char         m     x(3)
+  280 purcon%                         deci-4             >>>9.9999
+  290 s-wid                           deci-5             >>,>>9.99<<<
+  300 s-len                           deci-5             >>,>>9.99<<<
+  310 r-wid                           deci-5             >>,>>9.99<<<
+  320 shrink                          deci-4             >>9.9999
+  330 basis-w                         deci-3             >>9.99
+  340 cons-w-uom                      deci-4             >>,>>9.9999
+  350 pur-uom                         char         m     x(3)
+  360 vend-no                         char               x(10)
+  370 vend2-no                        char               x(10)
+  380 vend-item                       char               x(16)
+  390 vend2-item                      char               x(16)
+  400 pur-man                         logi               P/M
+  410 pur-rcode                       char               x(8)
+  420 lead-days                       inte               >>9
+  430 ord-level                       deci-6             >>>,>>>,>>9.999<<<
+  440 ord-min                         deci-6             >>>,>>>,>>9.999<<<
+  450 ord-max                         deci-6             >>>,>>>,>>9.99<<<<
+  460 ord-policy                      logi               R/L
+  470 pic-code                        char               x(3)
+  480 dlast-iss                       date               99/99/9999
+  490 qlast-iss                       deci-6             ->>>,>>>,>>9.9<<<<<
+  500 q-ptd                           deci-6             ->>>,>>>,>>9.9<<<<<
+  510 q-ytd                           deci-6             ->>>,>>>,>>9.9<<<<<
+  520 q-lyr                           deci-6             ->>>,>>>,>>9.9<<<<<
+  530 u-ptd                           deci-6             ->>>,>>>,>>9.9<<<<<
+  540 u-ytd                           deci-6             ->>>,>>>,>>9.9<<<<<
+  550 u-lyr                           deci-6             ->>>,>>>,>>9.9<<<<<
+  560 cal                             deci-5             9.99999
+  570 avg-w                           deci-2             >>>9.99
+  580 box-case                        inte               >>>>9
+  590 case-d                          deci-4             >9.9999
+  600 case-l                          deci-4             >9.9999
+  610 case-pall                       inte               >>>9
+  620 case-w                          deci-4             >9.9999
+  630 ink-type                        char               X
+  640 linin-lb                        deci-2             >>>,>>9
+  650 min-lbs                         deci-2             >9.99
+  660 press-type                      char               X
+  670 reg-no                          char         i     X(3)
+  680 dept-name                       char[10]           x(2)
+  690 speed%                          inte[10]           >>9
+  700 sqin-lb                         deci-2             >>>,>>9
+  710 yield                           inte               >>>,>>9
+  720 flute                           char         i     XXX
+  730 ect                             inte               >>9
+  740 price-code                      char         i     x(2)
+  750 min-sqft                        deci-2             >,>>>,>>9.99
+  760 industry                        char         i     x
+  770 s-dep                           deci-5             >>,>>9.99<<<
+  780 density                         deci-5             >>,>>9.99<<<
+  790 color-1                         char               x(15)
+  800 pur-cnt                         inte               >,>>9
+  810 price-date                      date               99/99/9999
+  820 weight-100                      deci-2             >,>>9.99
+  830 cust-no                         char         im    x(8)
+  840 rec_key                         char         i     X(20)
+  850 inv-by-cust                     logi               yes/no
+  860 tax-rcpt                        logi               yes/no
+  870 tax-rcpt-actnum                 char               x(21)

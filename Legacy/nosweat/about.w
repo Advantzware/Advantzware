@@ -571,7 +571,11 @@ PROCEDURE pLinkClick :
     DEFINE INPUT PARAMETER iphLink AS HANDLE NO-UNDO.
     
     IF iphLink:PRIVATE-DATA NE ? THEN
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+    open-mime-resource "text/html" string(iphLink:PRIVATE-DATA) false.
+&ELSE
     OS-COMMAND NO-WAIT START VALUE(iphLink:PRIVATE-DATA).
+&ENDIF
     ELSE
     MESSAGE iphLink:SCREEN-VALUE "Link Not Yet Implemented"
     VIEW-AS ALERT-BOX.  
@@ -609,6 +613,11 @@ PROCEDURE pProperties :
     DEFINE VARIABLE iRow      AS DECIMAL   NO-UNDO INITIAL 1.1.
     DEFINE VARIABLE iGap      AS DECIMAL   NO-UNDO INITIAL .7.
     
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+    /* get fwd version instead */
+    assign cVersion = "{&FWD-VERSION}".
+&ELSE
+    
     /* get progress installed location */
     GET-KEY-VALUE SECTION 'STARTUP'
         KEY 'DLC'
@@ -617,6 +626,7 @@ PROCEDURE pProperties :
     INPUT FROM VALUE(SEARCH(cDLC + "\version")) NO-ECHO.
     IMPORT UNFORMATTED cVersion.
     INPUT CLOSE.
+&ENDIF
     
     /* enable use of about.ini */
     aboutINI = SEARCH("nosweat/about.ini").

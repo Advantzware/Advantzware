@@ -251,12 +251,21 @@ if (not ch-multi) then do:
 
   lv-tot-pg = lv-tot-pg + TRUNC( ln-cnt / 25,0) .
    /* get total page number */
-
-  FIND FIRST phone WHERE phone.table_rec_key = cust.rec_key NO-LOCK NO-ERROR.
-  IF AVAIL phone THEN
-      ASSIGN v-email = phone.e_mail.
-  ELSE v-email = " ".
-
+ 
+  v-email = " ". 
+  FOR EACH phone NO-LOCK 
+     WHERE phone.table_rec_key EQ cust.rec_key:
+          FIND FIRST emaildtl NO-LOCK
+              WHERE emaildtl.emailcod       EQ "R-Quoprt."
+              AND emaildtl.table_rec_key  EQ phone.rec_key NO-ERROR .
+          IF AVAIL emaildtl THEN DO:
+              IF v-email EQ "" THEN
+              ASSIGN v-email = phone.e_mail.
+              ELSE v-email = v-email + "," + phone.e_mail.
+             /* LEAVE.*/
+          END.
+  END.
+       
   /*FIND FIRST phone WHERE phone.table_rec_key = sman.rec_key NO-LOCK NO-ERROR.
   IF AVAIL phone THEN
       ASSIGN v-phone-no = phone.phone_ctry_code + phone.phone_city_code + phone.phone.

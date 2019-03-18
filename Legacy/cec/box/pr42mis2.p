@@ -380,7 +380,7 @@ FIND FIRST xeb WHERE xeb.company = xest.company
    FIND FIRST tt-prep-sep NO-LOCK NO-ERROR.
    IF LOOKUP(cerunc,"Protagon,CERunC 3") NE 0 /*cerunc EQ "Protagon"*/ AND AVAIL tt-prep-sep AND ip-last-ef  THEN
    DO:
-      OUTPUT to value(outfile4) APPEND.
+      OUTPUT to value(outfile4) .
 
 /*       IF vmclean2 THEN                         */
 /*          FIND FIRST b-ef WHERE                 */

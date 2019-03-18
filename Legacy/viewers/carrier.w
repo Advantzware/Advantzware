@@ -437,9 +437,13 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN rd_chg-method = vChgMethod
-         carrier.chg-method = vChgMethod.
-
+  DO TRANSACTION:
+      ASSIGN
+          rd_chg-method = vChgMethod
+          carrier.chg-method = vChgMethod
+          .
+  END. /* do trans */
+  
   IF adm-adding-record THEN DISP rd_chg-method WITH FRAME {&FRAME-NAME}.
 
   if adm-new-record and not adm-adding-record then do:  /* copy */
@@ -448,10 +452,12 @@ PROCEDURE local-assign-record :
                            bf-carrier.carrier = ls-prev-carrier
                            no-lock no-error. 
      for each carr-mtx of bf-carrier no-lock:
-         create bf-carr-mtx.
-         buffer-copy carr-mtx except carr-mtx.carrier carr-mtx.loc to bf-carr-mtx.
-         assign bf-carr-mtx.loc = carrier.loc
-                bf-carr-mtx.carrier = carrier.carrier.
+         DO TRANSACTION:
+             create bf-carr-mtx.
+             buffer-copy carr-mtx except carr-mtx.carrier carr-mtx.loc to bf-carr-mtx.
+             assign bf-carr-mtx.loc = carrier.loc
+                    bf-carr-mtx.carrier = carrier.carrier.
+         END. /* do trans */
      end.
   end.
 

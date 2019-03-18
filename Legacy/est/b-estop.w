@@ -111,12 +111,12 @@ DEFINE QUERY external_tables FOR est, est-qty.
 
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table est-op.s-num est-op.b-num ~
-est-op.m-code est-op.m-dscr est-op.op-pass est-op.n-out est-op.op-mr ~
-est-op.op-waste est-op.op-speed est-op.op-spoil est-op.op-crew[1] ~
-est-op.op-crew[2] est-op.op-rate[1] est-op.op-rate[2] est-op.plates ~
-est-op.fountains est-op.att-type[1] est-op.att-qty[1] est-op.att-type[2] ~
-est-op.att-qty[2] est-op.att-type[3] est-op.att-qty[3] est-op.spare-char-1 ~
-est-op.n_out_div 
+est-op.m-code est-op.isLocked est-op.m-dscr est-op.op-pass est-op.n-out ~
+est-op.op-mr est-op.op-waste est-op.op-speed est-op.op-spoil ~
+est-op.op-crew[1] est-op.op-crew[2] est-op.op-rate[1] est-op.op-rate[2] ~
+est-op.plates est-op.fountains est-op.att-type[1] est-op.att-qty[1] ~
+est-op.att-type[2] est-op.att-qty[2] est-op.att-type[3] est-op.att-qty[3] ~
+est-op.spare-char-1 est-op.n_out_div 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table est-op.s-num est-op.b-num ~
 est-op.m-code est-op.m-dscr est-op.op-pass est-op.n-out est-op.op-mr ~
 est-op.op-waste est-op.op-speed est-op.op-spoil est-op.op-crew[1] ~
@@ -221,6 +221,7 @@ DEFINE BROWSE br_table
       est-op.b-num COLUMN-LABEL "B" FORMAT ">9":U
       est-op.m-code COLUMN-LABEL "Machine" FORMAT "x(6)":U COLUMN-FONT 0
             LABEL-BGCOLOR 14
+      est-op.isLocked COLUMN-LABEL "Lock" FORMAT "y/n":U VIEW-AS TOGGLE-BOX
       est-op.m-dscr FORMAT "x(20)":U COLUMN-FONT 0 LABEL-BGCOLOR 14
       est-op.op-pass COLUMN-LABEL "Pass#" FORMAT ">9":U
       est-op.n-out COLUMN-LABEL "Out" FORMAT ">>>9":U
@@ -228,11 +229,11 @@ DEFINE BROWSE br_table
       est-op.op-waste FORMAT ">>>>>9":U
       est-op.op-speed FORMAT ">>>>9":U
       est-op.op-spoil FORMAT ">>9.99":U
-      est-op.op-crew[1] COLUMN-LABEL "MRCrew" FORMAT ">9.99":U WIDTH 9.2
-      est-op.op-crew[2] COLUMN-LABEL "RunCrew" FORMAT ">9.99":U
+      est-op.op-crew[1] COLUMN-LABEL "MRCrew" FORMAT "9.99":U WIDTH 9.2
+      est-op.op-crew[2] COLUMN-LABEL "RunCrew" FORMAT "9.99":U
             WIDTH 10.2
       est-op.op-rate[1] COLUMN-LABEL "MRate" FORMAT ">>>9.99":U
-            WIDTH 7.8
+            WIDTH 9.6
       est-op.op-rate[2] COLUMN-LABEL "RRate" FORMAT ">>>9.99":U
       est-op.plates FORMAT ">>>":U
       est-op.fountains FORMAT ">>>":U
@@ -245,7 +246,7 @@ DEFINE BROWSE br_table
       est-op.att-type[3] COLUMN-LABEL "Adder 3" FORMAT "X(5)":U
             WIDTH 11.2
       est-op.att-qty[3] COLUMN-LABEL "Qty" FORMAT ">>,>>>":U
-      est-op.spare-char-1 COLUMN-LABEL "Feed" FORMAT "x(1)":U
+      est-op.spare-char-1 COLUMN-LABEL "Re" FORMAT "N/R":U COLUMN-FONT 0
       est-op.n_out_div COLUMN-LABEL "Run Qty Divisor" FORMAT "->>,>>9.99":U
   ENABLE
       est-op.s-num
@@ -315,8 +316,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 11
-         WIDTH              = 151.6.
+         HEIGHT             = 8.52
+         WIDTH              = 130.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -371,47 +372,49 @@ ASSIGN
 "est-op.b-num" "B" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.est-op.m-code
 "est-op.m-code" "Machine" ? "character" ? ? 0 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.est-op.m-dscr
+     _FldNameList[4]   > ASI.est-op.isLocked
+"est-op.isLocked" "Lock" "y/n" "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "?" ? ? 5 no 0 no no
+     _FldNameList[5]   > ASI.est-op.m-dscr
 "est-op.m-dscr" ? ? "character" ? ? 0 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.est-op.op-pass
+     _FldNameList[6]   > ASI.est-op.op-pass
 "est-op.op-pass" "Pass#" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.est-op.n-out
+     _FldNameList[7]   > ASI.est-op.n-out
 "est-op.n-out" "Out" ">>>9" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > ASI.est-op.op-mr
+     _FldNameList[8]   > ASI.est-op.op-mr
 "est-op.op-mr" "MR-Hrs." ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.est-op.op-waste
+     _FldNameList[9]   > ASI.est-op.op-waste
 "est-op.op-waste" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > ASI.est-op.op-speed
+     _FldNameList[10]   > ASI.est-op.op-speed
 "est-op.op-speed" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > ASI.est-op.op-spoil
+     _FldNameList[11]   > ASI.est-op.op-spoil
 "est-op.op-spoil" ? ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.est-op.op-crew[1]
+     _FldNameList[12]   > ASI.est-op.op-crew[1]
 "est-op.op-crew[1]" "MRCrew" ? "decimal" ? ? ? ? ? ? yes ? no no "9.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > ASI.est-op.op-crew[2]
+     _FldNameList[13]   > ASI.est-op.op-crew[2]
 "est-op.op-crew[2]" "RunCrew" ? "decimal" ? ? ? ? ? ? yes ? no no "10.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.est-op.op-rate[1]
-"est-op.op-rate[1]" "MRate" ">>>9.99" "decimal" ? ? ? ? ? ? no ? no no "7.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > ASI.est-op.op-rate[2]
+     _FldNameList[14]   > ASI.est-op.op-rate[1]
+"est-op.op-rate[1]" "MRate" ">>>9.99" "decimal" ? ? ? ? ? ? no ? no no "9.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[15]   > ASI.est-op.op-rate[2]
 "est-op.op-rate[2]" "RRate" ">>>9.99" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > ASI.est-op.plates
+     _FldNameList[16]   > ASI.est-op.plates
 "est-op.plates" ? ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > ASI.est-op.fountains
+     _FldNameList[17]   > ASI.est-op.fountains
 "est-op.fountains" ? ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > ASI.est-op.att-type[1]
+     _FldNameList[18]   > ASI.est-op.att-type[1]
 "est-op.att-type[1]" "Adder 1" ? "character" ? ? ? ? ? ? yes ? no no "11.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > ASI.est-op.att-qty[1]
+     _FldNameList[19]   > ASI.est-op.att-qty[1]
 "est-op.att-qty[1]" "Qty" ">>,>>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[19]   > ASI.est-op.att-type[2]
+     _FldNameList[20]   > ASI.est-op.att-type[2]
 "est-op.att-type[2]" "Adder 2" ? "character" ? ? ? ? ? ? yes ? no no "11.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[20]   > ASI.est-op.att-qty[2]
+     _FldNameList[21]   > ASI.est-op.att-qty[2]
 "est-op.att-qty[2]" "Qty" ">>,>>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[21]   > ASI.est-op.att-type[3]
+     _FldNameList[22]   > ASI.est-op.att-type[3]
 "est-op.att-type[3]" "Adder 3" ? "character" ? ? ? ? ? ? yes ? no no "11.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[22]   > ASI.est-op.att-qty[3]
+     _FldNameList[23]   > ASI.est-op.att-qty[3]
 "est-op.att-qty[3]" "Qty" ">>,>>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[23]   > ASI.est-op.spare-char-1
+     _FldNameList[24]   > ASI.est-op.spare-char-1
 "est-op.spare-char-1" "Re" "N/R" "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   > ASI.est-op.n_out_div
+     _FldNameList[25]   > ASI.est-op.n_out_div
 "est-op.n_out_div" "Run Qty Divisor" ? "decimal" ? ? ? ? ? ? yes "Enter Divisor for Out Reduction" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
@@ -433,7 +436,7 @@ ASSIGN
 &Scoped-define BROWSE-NAME br_table
 &Scoped-define SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON DEFAULT-ACTION OF br_table IN FRAME F-Main
+ON DEFAULT-ACTION OF br_table IN FRAME F-Main /* Operations */
 DO:
    def var phandle as widget-handle no-undo.
    def var char-hdl as cha no-undo.   
@@ -445,7 +448,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
@@ -492,7 +494,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &UNDEFINE SELF-NAME
@@ -786,7 +787,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record B-table-Win 
 PROCEDURE local-copy-record :
 /*------------------------------------------------------------------------------
@@ -808,7 +808,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
 PROCEDURE local-delete-record :
@@ -857,7 +856,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
@@ -892,7 +890,7 @@ PROCEDURE local-initialize :
       est-op.att-type[3]:READ-ONLY IN BROWSE {&browse-name} = YES
       est-op.att-qty[3]:READ-ONLY IN BROWSE {&browse-name} = YES
       est-op.spare-char-1:READ-ONLY IN BROWSE {&browse-name} = YES
-      est-op.n_out_div:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-op.n_out_div:READ-ONLY IN BROWSE {&browse-name} = YES 
       .
 
   /* Code placed here will execute AFTER standard behavior.    */
@@ -941,7 +939,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view B-table-Win 
 PROCEDURE local-view :
@@ -1132,7 +1129,7 @@ PROCEDURE set-import-stds :
    
    IF mach.obsolete THEN DO: 
     MESSAGE "Machine: " + TRIM(mach.m-code) +
-            " is obsolete, please replace or standards will not be imported"
+            " is Inactive, please replace or standards will not be imported"
         VIEW-AS ALERT-BOX ERROR.
     ip-import-stds = NO.
     LEAVE.
@@ -1197,5 +1194,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

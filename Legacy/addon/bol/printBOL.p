@@ -349,7 +349,7 @@ PROCEDURE post-bol:
 
       IF AVAIL oe-bolh AND oe-bolh.posted EQ NO THEN
       FOR EACH oe-boll NO-LOCK WHERE oe-boll.b-no EQ oe-bolh.b-no:
-          RUN oe/bol-pre-post.p (ROWID(oe-boll), v-term).
+          RUN oe/bol-pre-post.p (ROWID(oe-boll), v-term, YES /* show msg */).
       END.
     END.
   END.

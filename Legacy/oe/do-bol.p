@@ -37,6 +37,8 @@ DEF VAR dFreight AS DECIMAL DECIMALS 6 NO-UNDO.
 DEF TEMP-TABLE tt-bolList 
   FIELD b-no AS INT.
 DEF VAR ll AS LOG NO-UNDO.
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
 
 v-hold-list = "Royal,Superior,ContSrvc,BlueRidg,Danbury".
 
@@ -144,6 +146,7 @@ FOR EACH tt-bolList,
 
 END.
 RELEASE oe-bolh.
+DELETE OBJECT hNotesProcs.
 
 RUN oe/oe-bolp7.p (v-term, ip-check-back-release).
 

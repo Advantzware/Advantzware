@@ -419,6 +419,7 @@ PROCEDURE create-hist-adder :
          rm-rcpth.company = bf-rctd.company
          rm-rcpth.loc = bf-rctd.loc
          rm-rcpth.po-no = bf-rctd.po-no
+         rm-rcpth.po-line = bf-rctd.po-line 
          rm-rcpth.i-no = bf-rctd.i-no
          rm-rcpth.i-name = bf-rctd.i-name
          rm-rcpth.job-no = bf-rctd.job-no

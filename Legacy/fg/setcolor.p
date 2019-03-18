@@ -180,48 +180,17 @@ IF AVAIL eb THEN DO:
   END.
 
   IF eb.est-type LE 4 THEN
-  
-     DO v-count = 0 TO 1:
-      
-        FIND FIRST reftable WHERE
-             reftable.reftable EQ "ce/v-est3.w Unit#" + TRIM(STRING(v-count,">")) AND
-             reftable.company  EQ eb.company AND
-             reftable.loc      EQ eb.est-no AND
-             reftable.code     EQ STRING(eb.form-no,"9999999999") AND
-             reftable.code2    EQ STRING(eb.blank-no,"9999999999")
-             NO-ERROR.
-         
-        IF NOT AVAIL reftable THEN DO:
-           CREATE reftable.
-           ASSIGN
-              reftable.reftable = "ce/v-est3.w Unit#" + TRIM(STRING(v-count,">"))
-              reftable.company  = eb.company
-              reftable.loc      = eb.est-no
-              reftable.code     = STRING(eb.form-no,"9999999999")
-              reftable.code2    = STRING(eb.blank-no,"9999999999").
+    DO: 
+        eb.side = "".
+
+        DO v-side-count = 1 TO 17:
+
+              IF eb.i-code2[v-side-count] NE "" THEN
+                 eb.side[v-side-count] = "F".
+              ELSE
+                 eb.side[v-side-count] = " ".
         END.
-           
-        reftable.dscr = "".
-
-        IF v-count = 0 THEN
-           DO v-side-count = 1 TO 12:
-
-              IF eb.i-code2[v-side-count] NE "" THEN
-                 reftable.dscr = reftable.dscr + "F".
-              ELSE
-                 reftable.dscr = reftable.dscr + " ".
-           END.
-        
-        ELSE IF v-count = 1 THEN
-           DO v-side-count = 13 TO 17:
-              IF eb.i-code2[v-side-count] NE "" THEN
-                 reftable.dscr = reftable.dscr + "F".
-              ELSE
-                 reftable.dscr = reftable.dscr + " ".
-           END.
-        
-        RELEASE reftable.
-  END.
+    END.    
 END.
 
 RETURN.

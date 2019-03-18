@@ -644,15 +644,15 @@ DO:
         when "fi_std-uom" then do:
              /*find bf-itemfg of e-item no-lock no-error.*/
              RUN sys/ref/uom-fg.p  (NO, OUTPUT uom-list).
-             run windows/l-stduom.w (gcompany,uom-list, focus:screen-value, output char-val).
+             run windows/l-stduom.w (gcompany,uom-list, fi_std-uom:screen-value, output char-val).
              if char-val <> "" then 
-                assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
+                assign fi_std-uom:screen-value in frame {&frame-name} = entry(1,char-val)
                        .
         end.
-        when "vend-no" then do:
-             run windows/l-vendno.w (gcompany, "", focus:screen-value, output char-val).
+        when "vend-no" then do: 
+             run windows/l-vendno.w (gcompany, "", e-itemfg-vend.vend-no:screen-value, output char-val).
              if char-val <> "" then 
-                assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
+                assign e-itemfg-vend.vend-no:screen-value in frame {&frame-name} = entry(1,char-val)
                        .
         end.
     end.    

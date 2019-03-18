@@ -59,7 +59,7 @@
           by job-mch.m-code:
 
  IF FIRST-OF(job-mch.m-code) THEN DO:
-  v-date = job.start-date.
+  v-date = job.due-date.
 
   find first oe-ordl
       where oe-ordl.company eq cocode
@@ -69,11 +69,9 @@
         and oe-ordl.job-no2 eq job-hdr.job-no2
       no-lock no-error.
   if avail oe-ordl  then
-    v-due-date = if oe-ordl.prom-date ne ? then oe-ordl.prom-date
-             else
-             if oe-ordl.req-date  ne ? then oe-ordl.req-date else v-date.
+    v-due-date = if oe-ordl.req-date  ne ? then oe-ordl.req-date else v-date.
 
-  if (v-date ne ? and v-date le v-fdate) OR (v-due-date NE ? AND v-due-date LE v-fdate) then do:
+  if (v-date ne ? and v-date le v-fdate) OR (v-due-date NE ? AND v-due-date LE v-fdate) OR (v-date eq ?) then do:
     find first est
         where est.company eq job.company
           and est.est-no  eq job.est-no

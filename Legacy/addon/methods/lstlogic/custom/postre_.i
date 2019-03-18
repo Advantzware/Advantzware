@@ -598,7 +598,8 @@ FOR EACH b-mach FIELDS(m-code) WHERE
     FOR EACH ttbl_rowid EXCLUSIVE-LOCK:
       FIND ttbl_pc-prdd WHERE ROWID(ttbl_pc-prdd) = ttbl_rowid.pc-prdd_rowid EXCLUSIVE-LOCK.
       ASSIGN
-        shiftpct = ttbl_rowid.total_time / machtotaltime
+        shiftpct = IF ttbl_rowid.total_time / machtotaltime EQ ? THEN 0
+                   ELSE ttbl_rowid.total_time / machtotaltime
         ttbl_pc-prdd.waste = machtran.waste_qty * shiftpct
         ttbl_pc-prdd.qty = machtran.run_qty * shiftpct.
 

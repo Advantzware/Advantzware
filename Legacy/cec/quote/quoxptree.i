@@ -262,7 +262,7 @@ FOR EACH xqitm OF xquo NO-LOCK
       
        PUT xqqty.qty FORMAT ">>>>>>>9" TO  70 
            xqqty.rels space(5)
-           xqqty.price FORM "->>,>>9.99" space(4)
+           xqqty.price FORM "->>,>>9.99<<" space(4)
            xqqty.uom.   
        
        v-line-total = v-line-total + xqqty.price.

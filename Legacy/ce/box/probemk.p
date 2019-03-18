@@ -38,7 +38,7 @@ DEF VAR v-yld AS DEC.
 DEF VAR lv-sell-price LIKE probe.sell-price NO-UNDO.
 DEF VAR ll-use-margin AS LOG NO-UNDO.
 
-DEF NEW SHARED TEMP-TABLE tt-rel NO-UNDO LIKE reftable.
+DEF NEW SHARED TEMP-TABLE tt-rel NO-UNDO LIKE eb.
 
 
 {sys/inc/cerun.i F}

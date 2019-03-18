@@ -117,12 +117,9 @@
   END. /* if endlessloop */
   
   opContinue = YES.
-  OUTPUT TO VALUE(clientDat + '{&data}/' + ID + '/packBoard.log').
-  PUT UNFORMATTED ipValue ' ' firstDateTime ' ' lastDateTime SKIP.
   FOR EACH ttblJob NO-LOCK USE-INDEX packIdx
       WHERE ttblJob.endDateTime GE firstDateTime
         AND ttblJob.startDateTime LE lastDateTime:
-    {{&includes}/{&Board}/packBoard1.i}
     ASSIGN
       lvStartDate = ttblJob.startDate
       lvStartTime = ttblJob.startTime
@@ -194,7 +191,6 @@
   END. /* each ttblJob */
   RUN msgFrame ('Auto Schedule: Update Jobs from Stack').
   FOR EACH jobStacker NO-LOCK:
-    {{&includes}/{&Board}/packBoard2.i}
     IF NOT jobStacker.jobChanged THEN NEXT.
     FIND ttblJob EXCLUSIVE-LOCK WHERE ROWID(ttblJob) EQ jobStacker.ttblRowID.
     /* want to remove this functionality
@@ -216,7 +212,6 @@
       ttblJob.statusLabel = jobStatus()
       .
   END. /* each jobStacker */
-  OUTPUT CLOSE.
   EMPTY TEMP-TABLE jobStacker.
   RUN msgFrame ('Setting Job Sequence Values').
   RUN setJobSequence.

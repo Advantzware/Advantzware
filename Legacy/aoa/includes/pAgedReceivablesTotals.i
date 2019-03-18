@@ -24,6 +24,7 @@
     DEFINE VARIABLE iPeriodDays1 AS INTEGER NO-UNDO.
     DEFINE VARIABLE iPeriodDays2 AS INTEGER NO-UNDO.
     DEFINE VARIABLE iPeriodDays3 AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPeriodDays4 AS INTEGER NO-UNDO.
     DEFINE VARIABLE iRecenTrendDays AS INTEGER NO-UNDO.
     DEFINE VARIABLE cType AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSort1 AS CHARACTER NO-UNDO.
@@ -68,6 +69,7 @@
         iPeriodDays1 = DYNAMIC-FUNCTION("fGetParamValue","svPeriodDays1")
         iPeriodDays2 = DYNAMIC-FUNCTION("fGetParamValue","svPeriodDays2")
         iPeriodDays3 = DYNAMIC-FUNCTION("fGetParamValue","svPeriodDays3")
+        iPeriodDays4 = DYNAMIC-FUNCTION("fGetParamValue","svPeriodDays4")
         iRecenTrendDays = DYNAMIC-FUNCTION("fGetParamValue","svRecenTrendDays")
         cType = DYNAMIC-FUNCTION("fGetParamValue","svType")
         cSort1 = DYNAMIC-FUNCTION("fGetParamValue","svSort1")

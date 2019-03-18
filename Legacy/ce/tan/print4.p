@@ -6,7 +6,6 @@ def     shared buffer xest for est.
 def     shared buffer xef  for ef.
 def     shared buffer xeb  for eb.
 def    buffer xeb2 for eb.
-DEF BUFFER reftable-fm FOR reftable.
 DEF BUFFER reftable-fold-pct FOR reftable.
 def new shared buffer xop for est-op.
 DEF BUFFER bf-ef FOR ef.
@@ -680,16 +679,8 @@ for each xef where xef.company = xest.company
     gsa-com = ce-ctrl.comm-mrkup
     gsa-war = ce-ctrl.whse-mrkup.
 
-
-  FIND FIRST reftable-fm NO-LOCK
-       WHERE reftable-fm.reftable EQ "gsa-fm"
-         AND reftable-fm.company  EQ xest.company
-         AND reftable-fm.loc      EQ ""
-         AND reftable-fm.code     EQ xest.est-no
-       NO-ERROR.
-
-  IF AVAIL reftable-fm THEN
-     gsa-fm = reftable-fm.val[1].
+  IF AVAIL probe THEN
+      gsa-fm = int(probe.gsa-fm).
   ELSE
      gsa-fm = ctrl[19].
   

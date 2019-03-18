@@ -5,7 +5,6 @@
   DEF VAR v-n-out AS INT NO-UNDO.
   DEF VAR v-n-up  AS INT NO-UNDO.
   DEF VAR ll-use-defaults AS LOG NO-UNDO.
-  DEF BUFFER reftable-fm FOR reftable.
   DEF BUFFER reftable-broker-pct FOR reftable.
   DEF BUFFER b-est-qty-2 FOR est-qty.
   DEF VAR v-count-2 AS INT NO-UNDO.
@@ -393,6 +392,10 @@
      dm-tot   = 0
      ctrl2    = 0.
 
+    IF vprint THEN DO:
+	{custom/statusMsg.i " 'Calculating... Est#  '  + xest.est-no  + ' Qty - ' + string(qtty[k]) "}
+    END.
+
     FOR EACH w-form: 
       DELETE w-form.
     END.
@@ -518,7 +521,7 @@
             skip
             "  Blank Size:"
             brd-w[1]                            format ">>>9.99<<<"
-            brd-l[1]                            format ">>>9.99<<<" 
+            brd-l[1]                            format ">>>>9.99<<<" 
             xeb.t-dep WHEN xeb.t-dep NE 0       format ">>>9.99<<<"
             xeb.num-up                          format ">>>,>>>" 
             v-yld-qty                           FORMAT ">>>>9.9<<<"
@@ -530,7 +533,7 @@
 
             " NetSht Size:"
             brd-w[2]                            format ">>>9.99<<<"
-            brd-l[2]                            format ">>>9.99<<<"
+            brd-l[2]                            format ">>>>9.99<<<"
             xef.nsh-dep WHEN xef.nsh-dep NE 0   format ">>>9.99<<<"
             v-n-up                              format ">>>,>>9"
             SPACE(9)
@@ -543,7 +546,7 @@
 
             " GrsSht Size:"
             brd-w[3]                            format ">>>9.99<<<"
-            brd-l[3]                            format ">>>9.99<<<"
+            brd-l[3]                            format ">>>>9.99<<<"
             xef.gsh-dep WHEN xef.gsh-dep NE 0   format ">>>9.99<<<"
             v-n-out                             format ">>>,>>9"
             SPACE(9)
@@ -553,7 +556,7 @@
             space(0)
             "/MGS" skip
 
-        with stream-io no-box no-labels color value("blu/brown") width 80 frame aa2. 
+        with stream-io no-box no-labels color value("blu/brown") width 82 frame aa2. 
 
     IF v-yld-qty LT 0 THEN DO WITH FRAME aa:
       ASSIGN
@@ -566,13 +569,13 @@
     IF NOT vsuthrlnd THEN DO WITH FRAME aa2:
        ASSIGN
         brd-w[1]:FORMAT    = ">>>9.99"
-        brd-l[1]:FORMAT    = ">>>9.99"
+        brd-l[1]:FORMAT    = ">>>>9.99"
         xeb.t-dep:FORMAT   = ">>>9.99"
         brd-w[2]:FORMAT    = ">>>9.99"
-        brd-l[2]:FORMAT    = ">>>9.99"
+        brd-l[2]:FORMAT    = ">>>>9.99"
         xef.nsh-dep:FORMAT = ">>>9.99"
         brd-w[3]:FORMAT    = ">>>9.99"
-        brd-l[3]:FORMAT    = ">>>9.99"
+        brd-l[3]:FORMAT    = ">>>>9.99"
         xef.gsh-dep:FORMAT = ">>>9.99".
 
        display {sys/inc/k16v.i brd-w[1]} @ brd-w[1]
@@ -616,10 +619,10 @@
 
     /* adders   */  run cec/pr4-add.p (v-vend-list).
 
-    FIND CURRENT probe-board NO-ERROR.
-    IF AVAIL probe-board THEN
-      probe-board.val[1] = probe-board.val[1] + dm-tot[5].
-    FIND CURRENT probe-board NO-LOCK NO-ERROR.
+    FIND CURRENT probe NO-ERROR.
+    IF AVAIL probe THEN
+      probe.boardCostTotal = probe.boardCostTotal + dm-tot[5].
+    FIND CURRENT probe NO-LOCK NO-ERROR.
 
     /* i n k s  */  run cec/pr4-ink.p (v-vend-no).
 
@@ -676,20 +679,13 @@
             gsa-com = ce-ctrl.comm-mrkup
             gsa-war = ctrl[1] * 100.
 
-    FIND FIRST reftable-fm NO-LOCK
-       WHERE reftable-fm.reftable EQ "gsa-fm"
-         AND reftable-fm.company  EQ xest.company
-         AND reftable-fm.loc      EQ ""
-         AND reftable-fm.code     EQ xest.est-no
-       NO-ERROR.
-
     FIND FIRST cust WHERE
          cust.company EQ xeb.company AND
          cust.cust-no EQ xeb.cust-no
          NO-LOCK NO-ERROR.
 
-    IF AVAIL reftable-fm THEN
-       gsa-fm = reftable-fm.val[1].
+    IF AVAIL probe THEN
+      gsa-fm = int(probe.gsa-fm).
     ELSE IF AVAIL cust AND cust.scomm NE 0 THEN
        gsa-fm = cust.scomm.
     ELSE
@@ -792,3 +788,7 @@
   release xef.
   release xeb.
   session:set-wait-state("").
+
+IF vprint THEN DO:
+{custom/statusMsg.i " 'Calculating Complete....  '  "}
+END.

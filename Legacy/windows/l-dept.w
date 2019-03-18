@@ -67,10 +67,10 @@ def var lv-first-time as log init yes no-undo.
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define FIELD-PAIRS-IN-QUERY-BROWSE-1
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH dept WHERE ~{&KEY-PHRASE} ~
-      AND dept.setup <> 99 ~
+      AND (dept.setup <> 99 ~
  OR dept.fc <> 99 ~
  OR dept.corr <> 99 ~
- OR dept.therm <> 99 NO-LOCK ~
+ OR dept.therm <> 99) NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 dept
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 dept
@@ -118,8 +118,8 @@ DEFINE VARIABLE lv-search AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE rd-sort AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
-          "Cust #", 1,
-"Name", 2
+          "Code", 1,
+"Description", 2
      SIZE 45 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1

@@ -54,10 +54,20 @@ def var ls-prev-po as cha no-undo.
 def var hd-post as widget-handle no-undo.
 def var hd-post-child as widget-handle no-undo.
 def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
+DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 
 DO TRANSACTION:
   {sys/inc/rmrecpt.i}
 END.
+
+DEF VAR cRtnChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lAdjustReason-log AS LOGICAL NO-UNDO .
+RUN sys/ref/nk1look.p (INPUT cocode, "AdjustReason", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+lAdjustReason-log = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -72,7 +82,7 @@ END.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
@@ -85,7 +95,8 @@ END.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table rm-rctd.rct-date rm-rctd.i-no ~
 rm-rctd.i-name rm-rctd.loc rm-rctd.loc-bin rm-rctd.tag rm-rctd.qty ~
-rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom rm-rctd.user-id 
+rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom rm-rctd.reject-code[1] ~
+rm-rctd.user-id 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table rm-rctd.rct-date ~
 rm-rctd.i-no rm-rctd.loc rm-rctd.loc-bin rm-rctd.tag rm-rctd.qty ~
 rm-rctd.cost 
@@ -175,6 +186,9 @@ DEFINE BROWSE Browser-Table
       rm-rctd.pur-uom COLUMN-LABEL "UOM" FORMAT "x(4)":U WIDTH 7
       rm-rctd.cost COLUMN-LABEL "Unit Cost" FORMAT "->>>,>>9.99<<<<":U
       rm-rctd.cost-uom COLUMN-LABEL "UOM" FORMAT "x(4)":U WIDTH 7
+      rm-rctd.reject-code[1] FORMAT "x(2)":U VIEW-AS COMBO-BOX SORT INNER-LINES 5
+                      LIST-ITEM-PAIRS "Item 1"," Item 1"
+                      DROP-DOWN-LIST 
       rm-rctd.user-id COLUMN-LABEL "User ID" FORMAT "x(8)":U WIDTH 15
   ENABLE
       rm-rctd.rct-date
@@ -262,7 +276,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -281,26 +295,28 @@ ASSIGN
      _Where[1]         = "rm-rctd.company = cocode and
 rm-rctd.rita-code = ""A"""
      _FldNameList[1]   > asi.rm-rctd.rct-date
-"rm-rctd.rct-date" "Adjustment!Date" ? "date" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rct-date" "Adjustment!Date" ? "date" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.rm-rctd.i-no
-"rm-rctd.i-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"i-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   = asi.rm-rctd.i-name
      _FldNameList[4]   > asi.rm-rctd.loc
-"rm-rctd.loc" "Whse" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loc" "Whse" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.rm-rctd.loc-bin
-"rm-rctd.loc-bin" "Bin" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loc-bin" "Bin" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.rm-rctd.tag
-"rm-rctd.tag" "Tag" "x(20)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tag" "Tag" "x(20)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.rm-rctd.qty
-"rm-rctd.qty" "Qty" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"qty" "Qty" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.rm-rctd.pur-uom
-"rm-rctd.pur-uom" "UOM" "x(4)" "character" ? ? ? ? ? ? no ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"pur-uom" "UOM" "x(4)" "character" ? ? ? ? ? ? no ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.rm-rctd.cost
-"rm-rctd.cost" "Unit Cost" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cost" "Unit Cost" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > asi.rm-rctd.cost-uom
-"rm-rctd.cost-uom" "UOM" "x(4)" "character" ? ? ? ? ? ? no ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > asi.rm-rctd.user-id
-"rm-rctd.user-id" "User ID" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cost-uom" "UOM" "x(4)" "character" ? ? ? ? ? ? no ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > asi.rm-rctd.reject-code[1]
+"reject-code[1]" ? ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "DROP-DOWN-LIST" "," ? "Item 1, Item 1" 5 yes 0 no no
+     _FldNameList[12]   > asi.rm-rctd.user-id
+"user-id" "User ID" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -643,7 +659,10 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN
    rm-rctd.pur-uom  = lv-pur-uom
-   rm-rctd.cost-uom = lv-cst-uom.
+   rm-rctd.cost-uom = lv-cst-uom
+   rm-rctd.enteredBy = USERID("asi")
+   rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+   .
 
 END PROCEDURE.
 
@@ -783,6 +802,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
+PROCEDURE local-open-query :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+ 
+  RUN pAdjReason .
+  GET FIRST {&browse-name}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -796,6 +837,9 @@ PROCEDURE local-update-record :
   if not avail rm-rctd then find rm-rctd where recid(rm-rctd) = lv-recid no-error.
   
   RUN valid-i-no NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+  RUN valid-reason NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   RUN valid-loc-bin-tag (3) NO-ERROR.
@@ -879,6 +923,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAdjReason B-table-Win 
+PROCEDURE pAdjReason :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    &IF DEFINED(FWD-VERSION) EQ 0 &THEN
+    cComboList = "".
+    DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+     
+    RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
+    RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
+    DELETE OBJECT hPgmReason.
+
+    DO WITH FRAME {&FRAME-NAME}:   
+        rm-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
+    END.
+    &ENDIF
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -916,6 +985,29 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-reason B-table-Win 
+PROCEDURE valid-reason :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  DO WITH FRAME {&FRAME-NAME}:
+
+    IF cComboList NE "" AND lAdjustReason-log AND rm-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""
+    THEN DO:
+      MESSAGE "Please Enter , Adjustment Reason code..." VIEW-AS ALERT-BOX INFO.
+      APPLY "entry" TO rm-rctd.reject-code[1] IN BROWSE {&browse-name}.
+      RETURN ERROR.
+    END.
+  END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

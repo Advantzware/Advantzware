@@ -1,0 +1,169 @@
+
+*** Order Invoice File Field Definition ***           As of  12/27/05Page:   1
+================================================================================
+Header table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+inv-head   addr            Customer Address          x(30)
+inv-head   bank-code       Bank Code                 x(8)
+inv-head   bill-i          Billing Instructions      x(60)
+inv-head   bill-to         Bill to                   x(8)
+inv-head   bol-no          Bill Of Lading Number     >>>>>>>9
+inv-head   carrier         Carrier                   x(5)
+inv-head   cc-auth         Credit Card Authorization x(30)
+inv-head   cc-expiration   Credit Card Expiration    99/99/9999
+inv-head   cc-name         Credit Card Holders Name  x(30)
+inv-head   cc-num          Credit Card Number        x(20)
+inv-head   cc-type         Credit Card Type          x(8)
+inv-head   city            City                      x(15)
+inv-head   company         Company                   x(3)
+inv-head   contact         Contact Name              x(25)
+inv-head   curr-code       Currency Code             X(3)
+inv-head   cust-name       Customer Name             x(30)
+inv-head   cust-no         Cust. #                   x(8)
+inv-head   deleted         Deleted?                  Y/N
+inv-head   ex-rate         ?                         ->>,>>9.99<<<<<
+inv-head   f-bill          Bill Freight?             Y/N
+inv-head   fob-code        FOB Code                  x(5)
+inv-head   frt-pay         Freight Pay Code          x(1)
+inv-head   fuel-bill       Bill Fuel?                Y/N
+inv-head   inv-date        Invoice Date              99/99/9999
+inv-head   inv-no          Invoice Number            >>>>>9
+inv-head   posted          Posted                    y/n
+inv-head   printed         Printed?                  Y/N
+inv-head   r-no            Unique Internal Number    >>>>>>>9
+inv-head   rec_key         Rec Key                   X(20)
+inv-head   s-comm          Commission                >>9.99
+inv-head   s-pct           Percentage                >>9.99
+inv-head   ship-i          Shipping Instructions     x(60)
+inv-head   sman            Salesman Code             x(3)
+inv-head   sname           Salesman Name             x(20)
+inv-head   sold-addr                                 x(30)
+inv-head   sold-city       City                      x(15)
+inv-head   sold-name       Name                      x(30)
+inv-head   sold-no         Sold to                   x(8)
+inv-head   sold-state      State                     x(2)
+inv-head   sold-zip        Zip                       x(10)
+inv-head   stat            Order Status              x
+inv-head   state           State                     x(2)
+inv-head   t-comm          Total Commissions         ->>>,>>9.99
+inv-head   t-inv-cost      Total Cost Invoiced       ->>,>>>,>>9.99
+inv-head   t-inv-freight   Total Freight Invoiced    ->>,>>9.99
+inv-head   t-inv-fuel      Total Fuel                ->>,>>9.99
+inv-head   t-inv-rev       Total Invoiced Revenue    ->>,>>>,>>9.99
+inv-head   t-inv-tax       Total Tax Invoiced        ->,>>9.99
+inv-head   t-inv-weight    Total Invoice Weight      >>>,>>9.99
+inv-head   tax-gr          Sales Tax Group           x(3)
+inv-head   terms           Terms Code                x(5)
+inv-head   terms-d         Description               x(24)
+inv-head   tot-ord         Total Order               ->>,>>>,>>9.99
+inv-head   upd-date        Updated Date              99/99/9999
+
+*** Order Invoice File Field Definition ***           As of  12/27/05Page:   2
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+inv-head   upd-time        Updated Time              ->,>>>,>>9
+inv-head   user-id         ?                         x(8)
+inv-head   zip             Zip Code                  x(10)
+
+Line item table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+inv-line   amt-msf         Amount MSF                ->>>>,>>9.99
+inv-line   b-no            Unique Id#                >>>>>9
+inv-line   blank-no        BLANK                     >9
+inv-line   bol-no          ?                         >>>>>>>9
+inv-line   cas-cnt         Case Count                >>>>9
+inv-line   comm-amt        Commission Amount         >>>,>>9.99
+inv-line   company         Company                   x(3)
+inv-line   cons-uom        Cons UOM                  x(4)
+inv-line   cost            Costs                     ->>>,>>>,>>9.99
+inv-line   cust-no         Customer                  x(8)
+inv-line   deleted         Deleted?                  Y/N
+inv-line   disc            Discount                  (>>>,>>9.99)
+inv-line   e-num           Estimate Number           >>>>>9
+inv-line   est-no          Estimate #                x(5)
+inv-line   est-type        Type                      9
+inv-line   form-no         FORM                      >9
+inv-line   i-dscr          Item Description          x(30)
+inv-line   i-name          Name                      x(30)
+inv-line   i-no            Item#                     x(15)
+inv-line   inv-no          Invoice Number            >>>>>9
+inv-line   inv-qty         Invoice Quantity          ->>,>>>,>>9.99
+inv-line   j-no            Internial Job Number      >>>>>>9
+inv-line   job-no          Job Number                x(6)
+inv-line   job-no2         Run #                     >9
+inv-line   line            Line                      99
+inv-line   ord-date        Order Date                99/99/9999
+inv-line   ord-no          Order#                    >>>>>9
+inv-line   p-c             Partial/Complete          C/P
+inv-line   pal-chg         Pallet Charge             X
+inv-line   pal-i-no        Pallet RM Item#           x(10)
+inv-line   part-dscr1      Item Description          x(30)
+inv-line   part-dscr2      Item Description          x(30)
+inv-line   part-no         Cust Part #               x(15)
+inv-line   po-no           Cust PO#                  x(15)
+inv-line   po-no-po        Board PO #                >>>>>9
+inv-line   pr-qty-uom      Purch UOM                 x(4)
+inv-line   pr-uom          Purchased UOM             x(4)
+inv-line   price           Price                     >>,>>>,>>9.99<<<<
+inv-line   prom-code       Prom. Date Code           XX
+inv-line   prom-date       Prom. Date                99/99/9999
+inv-line   qty             Quantity                  ->>,>>>,>>9.9<<
+inv-line   r-no            Unique Internal Number    >>>>>>>9
+inv-line   ra-inv-no       RA Invoice#               >>>>>9
+inv-line   ra-no           RA #                      >>>>>9
+inv-line   rec_key         Rec Key                   X(20)
+inv-line   req-code        Req. Date Code            XX
+inv-line   req-date        Req. Date                 99/99/9999
+inv-line   s-comm          Commission                >>9.99
+
+*** Order Invoice File Field Definition ***           As of  12/27/05Page:   3
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+inv-line   s-commbasis     Basis                     X
+inv-line   s-pct           Percentage                >>9.99
+inv-line   sf-sht          SqFt/Sheet                >>9.99<<
+inv-line   ship-qty        Shipped Quantity          ->>,>>>,>>9.99
+inv-line   sman            Salesman Code             x(3)
+inv-line   sname           Salesman Name             x(20)
+inv-line   stat            Order Line Status         x
+inv-line   t-cost          ?                         ->>,>>>,>>9.99
+inv-line   t-freight       Total Freight             ->>,>>9.99
+inv-line   t-freight-p     ?                         ->>,>>>,>>9.99
+inv-line   t-fuel          Total Fuel                ->>,>>9.99
+inv-line   t-price         ?                         ->>,>>>,>>9.99
+inv-line   t-weight        Total Weight              >>>,>>9.99
+inv-line   tax             ?                         Y/N
+inv-line   upd-date        Updated Date              99/99/9999
+inv-line   upd-time        Updated Time              ->,>>>,>>9
+
+Misc. item table 
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+inv-misc   actnum          Account No                x(25)
+inv-misc   amt             Amount                    ->>>,>>9.99
+inv-misc   bill            Bill                      X
+inv-misc   charge          Charge                    x(20)
+inv-misc   company         Company                   x(3)
+inv-misc   cost            Cost                      ->>,>>>,>>9.99
+inv-misc   deleted         Deleted?                  Y/N
+inv-misc   dscr            Description               x(20)
+inv-misc   est-no          Estimate #                x(5)
+inv-misc   inv-i-no        Invoice Line Item         x(15)
+inv-misc   inv-line        Invoice Line              >9
+inv-misc   line            Line                      >9
+inv-misc   ord-no          Order#                    >>>>>9
+inv-misc   posted          Posted                    y/n
+inv-misc   r-no            Unique Internal Number    >>>>>>>9
+inv-misc   rec_key         Rec Key                   X(20)
+inv-misc   s-comm          Commission Pct            >>9.99
+inv-misc   s-commbasis     Basis                     X
+inv-misc   s-man           Salemsman                 x(3)
+inv-misc   s-pct           Pct of Sale               >>9.99
+inv-misc   tax             Tax                       Y/N
+inv-misc   upd-date        Updated Date              99/99/9999
+inv-misc   upd-time        Updated Time              ->,>>>,>>9
+

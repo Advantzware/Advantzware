@@ -7,8 +7,7 @@ for each item
       and item.i-no    ge fitm
       and item.i-no    le titm
       and item.i-no    ne ""
-      and item.i-code  eq "R"
-    no-lock by item.i-no:
+     no-lock by item.i-no:
 
   status default " Processing...    Item: " + item.i-no.
 

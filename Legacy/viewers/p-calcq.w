@@ -55,7 +55,7 @@ listname = "p-updinv." .
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-25 btn-recalc-qty 
+&Scoped-Define ENABLED-OBJECTS btn-recalc-qty 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -91,12 +91,12 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-recalc-qty 
-     LABEL "&Recalc Qtys" 
-     SIZE 16 BY 1.67.
+     LABEL "&Recalculate Qtys" 
+     SIZE 24.4 BY 1.14.
 
 DEFINE RECTANGLE RECT-25
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 17.2 BY 2.14.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 26 BY 1.52.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -167,6 +167,8 @@ ASSIGN
        btn-recalc-qty:PRIVATE-DATA IN FRAME F-Main     = 
                 "panel-image".
 
+/* SETTINGS FOR RECTANGLE RECT-25 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -188,7 +190,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME btn-recalc-qty
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-recalc-qty V-table-Win
-ON CHOOSE OF btn-recalc-qty IN FRAME F-Main /* Recalc Qtys */
+ON CHOOSE OF btn-recalc-qty IN FRAME F-Main /* Recalculate Qtys */
 DO:
   def var char-hdl as cha no-undo.
   DEF VAR ll-secure AS LOG INIT NO NO-UNDO.

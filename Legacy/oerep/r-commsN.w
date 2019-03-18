@@ -87,11 +87,11 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect  = "Rep,Customer,Name,Type,FG Item#,Cust Part#,Order#,Inv#,Cat,Quantity,Sell Price,Total Cost," +
-                            "GP %,Comm Amt,Comm %,Group,Currency,Invoice Date,Warehouse"  
+                            "GP %,Comm Amt,Comm %,Group,Currency,Invoice Date,Warehouse,Ship To"  
        cFieldListToSelect = "sman,cust-no,cust-nam,type,i-no,part-no,ord,inv,cat,qty,sel-pric,totl-cst," +
-                            "v-gp,v-camt,v-comm,grp,curr,inv-date,ware-house"
+                            "v-gp,v-camt,v-comm,grp,curr,inv-date,ware-house,ship-id"
 
-       cFieldLength = "4,8,19,8,15,15,6,6,8,10,12,12," + "9,9,8,8,8,12,9"
+       cFieldLength = "4,8,19,8,15,15,6,6,8,10,12,12," + "9,9,8,8,8,12,9,8"
        .
 
 {sys/inc/ttRptSel.i}
@@ -1379,6 +1379,8 @@ def var v-cost      like ar-invl.t-cost NO-UNDO.
 DEF VAR v-full-cost AS LOGICAL NO-UNDO.
 def var v-cust-part like ar-invl.part-no no-undo.
 def var v-ord-no    like ar-invl.ord-no NO-UNDO.
+DEFINE VARIABLE v-ship-id like ar-inv.ship-id NO-UNDO.
+
 def var v-job-no    like job.job-no NO-UNDO.
 def var v-job-no2   like job.job-no2 NO-UNDO.
 def var v-i-no      like ar-invl.i-no NO-UNDO.

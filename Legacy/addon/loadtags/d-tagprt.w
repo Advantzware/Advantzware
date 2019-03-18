@@ -56,7 +56,7 @@ DEFINE VARIABLE scanAgain AS LOGICAL NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
-
+{custom/xprint.i}
 assign
  cocode = gcompany
  locode = gloc.
@@ -84,7 +84,7 @@ DEF VAR lv-rd_print  AS CHAR NO-UNDO.
 DEF VAR v-loadtag       AS CHAR NO-UNDO INIT "ASI".  /* sys ctrl option */
 DEF VAR v-mult          AS INT  NO-UNDO INIT 0.  /* sys ctrl option */
 DEF VAR v-cas-lab       AS LOG  NO-UNDO.  /* sys ctrl option */
-DEF VAR v-tags          AS DEC  NO-UNDO INIT 0.  /* sys ctrl option */
+DEF VAR v-tags          AS DEC  NO-UNDO INIT 1.  /* sys ctrl option */
 DEF VAR v-count         AS INT  NO-UNDO INIT 0.
 DEF VAR v-fgrecpt       AS LOG  NO-UNDO.  /* sys ctrl option */
 
@@ -142,7 +142,7 @@ DEF WORKFILE w-shipto LIKE shipto
                       FIELD row-id AS ROWID.
 
 DEF BUFFER b-oe-rel FOR oe-rel.
-DEF BUFFER ref-lot-no FOR reftable.
+/*DEF BUFFER ref-lot-no FOR reftable.*/
 
 DEFINE TEMP-TABLE ttblJob NO-UNDO
   FIELD company AS CHARACTER
@@ -193,6 +193,9 @@ DO TRANSACTION:
    {sys/inc/rfidtag.i}
 END.
 
+DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hLoadtagProcs AS HANDLE NO-UNDO.
+
 /* gdm - 09210907 */
 DEF VAR v-bardir AS LOG NO-UNDO.
 DEF VAR v-bardir-chr AS CHAR NO-UNDO.
@@ -204,6 +207,8 @@ DEF BUFFER bf-po-ord  FOR po-ord.
 DEF BUFFER bf-po-ordl FOR po-ordl.
 
 DEF BUFFER bf-jobhdr FOR job-hdr.
+DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
+    FIELD tag-no AS CHARACTER .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -417,6 +422,9 @@ DO:
     scr-auto-print = tgAutoPrint.
   /*  RUN print-loadtag. */
 
+  FOR EACH tt-word-print:
+       DELETE tt-word-print .
+   END.
 
   ASSIGN {&displayed-objects}.
   
@@ -562,29 +570,36 @@ PROCEDURE AutoPrint :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR v-int AS INT NO-UNDO.
-DEF VAR cFileName AS CHAR NO-UNDO.
-DEF VAR v-path AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cBarDir AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE cDB AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE lUserSpecific AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cPath         AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE cLockPath     AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE lLockWasRemoved AS LOGICAL     NO-UNDO.
+    def var cProtocol        as char no-undo.
+    def var cComputerName    as char no-undo.
+    def var cSharedFolder    as char no-undo.
+    def var cDrive           as char no-undo.
+    def var cDir             as char no-undo.
+    def var cFile            as char no-undo.
+    def var cExt             as char no-undo.
 
-IF scr-auto-print THEN
-    DO:
+IF scr-auto-print THEN DO:
+    RUN sys/ref/GetBarDir.p (INPUT cocode,
+                             INPUT "loadtag",
+                             OUTPUT cBarDir,
+                             OUTPUT cDB,
+                             OUTPUT lUserSpecific).
 
-       LOAD "SOFTWARE" BASE-KEY "HKEY_LOCAL_MACHINE".
-       USE "SOFTWARE".
-       GET-KEY-VALUE SECTION "Teklynx\Label Matrix"
-                     KEY "PATH"
-                     VALUE v-path.
-       UNLOAD "SOFTWARE".
-       v-path = TRIM(v-path,"\").
-       ASSIGN
-          v-path = v-path + "\lmwprint.exe "
-          cFileName = "/L=" + scr-label-file.
-
-          RUN WinExec (INPUT v-path + CHR(32) + cFileName , INPUT 1, OUTPUT
-                       v-int).
-    END.
-
-
+    IF lUserSpecific THEN 
+        RUN custom/lmprint.p (INPUT scr-label-file, 
+                              INPUT cDB,
+                              INPUT cBarDir).
+    ELSE
+        RUN custom/lmprint.p (INPUT scr-label-file,
+                              INPUT "",
+                              INPUT "").
+END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1409,6 +1424,7 @@ PROCEDURE get-label-file :
             NO-LOCK NO-ERROR.
         IF AVAIL oe-ord THEN
             v-cust-no = oe-ord.cust-no.
+       
     END.
     ELSE DO:
     
@@ -1423,16 +1439,16 @@ PROCEDURE get-label-file :
     END.
 
      IF v-cust-no NE "" THEN
-        FIND FIRST reftable WHERE
-             reftable.reftable EQ "cp-lab-p" AND
-             reftable.company  EQ cocode AND
-             reftable.loc      GE bf-tag.i-no AND
-             reftable.loc      LE bf-tag.i-no AND
-             reftable.CODE     EQ v-cust-no
+         FIND FIRST cust-part WHERE
+             cust-part.company EQ cocode AND
+             cust-part.i-no    EQ bf-tag.i-no AND
+             cust-part.cust-no EQ v-cust-no 
              NO-LOCK NO-ERROR.
+ 
+     IF AVAIL cust-part AND cust-part.labelPallet <> "" THEN
+        scr-label-file = cust-part.labelPallet .
 
-     IF AVAIL reftable AND reftable.dscr NE "" THEN
-        scr-label-file = (IF reftable.dscr <> "" THEN reftable.dscr ELSE v-bardir-chr).
+
      ELSE
         IF INT(bf-tag.ord-no) NE 0 AND
            INT(bf-tag.ord-no) NE 0 THEN
@@ -1828,10 +1844,10 @@ PROCEDURE local-initialize :
                            OUTPUT lUserSpecific).
   begin_filename:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF cBarDirPath NE "" THEN cBarDirPath ELSE "c:\ba\label".
    RUN get-label-file.
-
-  IF v-mult LE 0 THEN v-mult = 1.
-  IF v-num-of-tags GT v-mult THEN v-mult = v-num-of-tags.
-
+   IF v-mult LE 0 THEN v-mult = 1.
+   v-num-of-tags = v-mult .
+   v-num-of-tags:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(v-mult) .
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2154,14 +2170,21 @@ PROCEDURE reprint-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  FIND FIRST loadtag WHERE loadtag.company     EQ cocode
+    DEFINE VARIABLE cLoadtagFile AS CHARACTER NO-UNDO.
+    
+    FIND FIRST loadtag WHERE loadtag.company     EQ cocode
                  AND loadtag.item-type   EQ NO
                  AND loadtag.tag-no  eq TRIM(begin_tag:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-LOCK NO-ERROR.
   IF NOT AVAIL loadtag THEN DO:
       MESSAGE "Invalid Loadtag. Try Help." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO scr-label-file.
       RETURN ERROR.
-  END.       
+  END.      
+
+  ASSIGN
+      cBarCodeProgram = IF scr-label-file MATCHES "*.xpr*" THEN "xprint" 
+                        ELSE IF scr-label-file MATCHES "*.lwl" THEN "loftware" 
+                        ELSE "".
   
   RUN create-w-ord.
 
@@ -2170,21 +2193,39 @@ PROCEDURE reprint-tag :
   {sys/inc/outprint.i value(lines-per-page)} 
       VIEW FRAME r-top.
       VIEW FRAME top.
-  IF v-out = "" THEN v-out = "c:~\ba~\label~\loadtag.txt".
+
+  IF cBarCodeProgram EQ 'Loftware' then 
+    cLoadtagFile = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99") + STRING(DAY(TODAY),"99") + STRING(TIME) + SUBSTRING(STRING(NOW),21,3) + '.csv'.
+  ELSE cLoadtagFile = 'loadtag.txt'.
+
+  IF v-out = "" THEN v-out = "c:~\ba~\label~\" + cLoadtagFile. 
   ELSE do:
      IF SUBSTRING(v-out,LENGTH(v-out),1) = "/" OR
         SUBSTRING(v-out,LENGTH(v-out),1) = "\" THEN .
      ELSE v-out = v-out + "/".
-     v-out = v-out + "loadtag.txt".
+     v-out = v-out + cLoadtagFile.
   END.
   IF begin_filename:SCREEN-VALUE = "" THEN 
        begin_filename:SCREEN-VALUE = v-out.
   
   RUN create-text-file.
+ 
   IF NOT is-from-addon() THEN
   MESSAGE "Loadtag reprint is completed." VIEW-AS ALERT-BOX INFORMATION.
   SESSION:SET-WAIT-STATE ("").
-  RUN AutoPrint.
+  
+  IF cBarCodeProgram EQ "" THEN do:    
+     RUN AutoPrint.
+ END.
+ ELSE IF cBarCodeProgram EQ "xprint" AND scr-auto-print THEN do:
+     PAUSE 1.
+     
+     RUN "oerep/LoadtagProcs.p" PERSISTENT SET hLoadtagProcs.
+     RUN pPrintView IN hLoadtagProcs (scr-label-file:SCREEN-VALUE IN FRAME {&FRAME-NAME}, YES).
+     DELETE OBJECT hLoadtagProcs.
+ END.
+
+
 
 END PROCEDURE.
 
@@ -2333,11 +2374,21 @@ PROCEDURE write-loadtag-line :
  PUT SKIP.
 
 
+ /* temp table for xprint */
+IF cBarCodeProgram EQ "xprint" THEN do:
+    CREATE tt-word-print .
+    BUFFER-COPY w-ord TO tt-word-print .
+    ASSIGN 
+        tt-word-print.tag-no = loadtag.tag-no .
+END.
+
+
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 

@@ -141,6 +141,7 @@ ASSIGN
     {refTableConv.i "VendCost" 'vend-cost'}
     {refTableConv.i "VendQty" 'vend-qty'}
     {refTableConv.i "VendSetup" 'vend-setup'}
+    {refTableConv.i "Ar-cash" 'AR-CASH'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */

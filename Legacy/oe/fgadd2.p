@@ -160,9 +160,6 @@ do on error undo:
        itemfg.cust-name   = xoe-ord.cust-name
        itemfg.cust-job-no = string(xoe-ord.job-no) + "-" +
                             string(xoe-ord.job-no2)
-       itemfg.pur-uom     = IF bf-eb.pur-man AND bf-eb.form-no GT 0 THEN "EA" ELSE "M"
-       itemfg.prod-uom    = IF bf-eb.pur-man AND bf-eb.form-no GT 0 THEN "EA" ELSE "M"
-       itemfg.stocked     = yes
        itemfg.die-no      = bf-eb.die-no
        itemfg.procat      = bf-eb.procat
        itemfg.plate-no    = bf-eb.plate-no
@@ -173,7 +170,7 @@ do on error undo:
        itemfg.isaset      = no 
        itemfg.pur-man     = bf-eb.form-no GT 0 AND bf-eb.pur-man
        itemfg.alloc       = bf-eb.set-is-assembled
-       itemfg.setupDate   = TODAY.
+       .
 
       /* Create an itemfg-loc for the default warehouse */
       RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
@@ -188,9 +185,6 @@ do on error undo:
       {sys/inc/fgcascnt.i itemfg bf-eb} 
 
       {sys/inc/updfgdim.i "bf-eb"}
-
-      find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
-      itemfg.i-code = if avail oe-ctrl and oe-ctrl.i-code then "S" else "C".
 
       RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT bf-eb.loc).
 

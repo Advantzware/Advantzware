@@ -64,16 +64,30 @@ DEF BUFFER bf-eb FOR eb.
 DEF VAR lv-uom LIKE xqqty.uom NO-UNDO.
 DEF VAR lv-chg-amt LIKE quotechg.amt NO-UNDO.
 
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+   def var rptExcel as handle.
+   def temp-table ttQuoKnightXL field est_num as char
+                                field description as char
+                                field item as char
+                                field quantity like xqqty.qty initial ?
+                                field price as char
+                                field uom as char.
+   def var comment as char extent 5 initial "".
+&ELSE
+
 DEFINE NEW SHARED VARIABLE chExcelApplication   AS COM-HANDLE 						  NO-UNDO.
 DEFINE NEW SHARED VARIABLE chWorkBook           AS COM-HANDLE 							NO-UNDO.
 DEFINE NEW SHARED VARIABLE chWorksheet          AS COM-HANDLE 							NO-UNDO.
 DEFINE NEW SHARED VARIABLE chHyper              AS COM-HANDLE 							NO-UNDO. 
+&ENDIF
+
 DEFINE VARIABLE v-cell                          AS CHARACTER  							NO-UNDO.
 DEFINE VARIABLE t-dwg                           AS CHAR       							NO-UNDO.
 DEFINE VARIABLE t-name                          AS CHARACTER FORMAT "x(40)" NO-UNDO.
 DEFINE VARIABLE t-fnd                           AS LOGICAL  INIT "False"    NO-UNDO.
 DEFINE VARIABLE t-seq                           AS INTEGER  								NO-UNDO.
 DEFINE VARIABLE inRowCount                      AS INTEGER    							NO-UNDO    INITIAL 1.
+DEFINE VARIABLE qFile  AS CHAR NO-UNDO.
 DEFINE VARIABLE chFile AS CHAR NO-UNDO.
 DEFINE VARIABLE LvLineCnt AS INT NO-UNDO.
 DEFINE VARIABLE CurrDir AS CHAR NO-UNDO.
@@ -112,6 +126,12 @@ ELSE
    v-dir = "c:\tmp\".
 
 /* Capture the current active printer */
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+   create report rptExcel.
+
+   assign CurActivePrinter = SESSION:PRINTER-NAME
+          AdobePrinter     = "PDFcamp Printer".
+&ELSE
 CREATE "WScript.Network" WshNetwork.
 
 CREATE "Excel.Application" chExcelApplication .
@@ -120,6 +140,7 @@ assign CurActivePrinter = SESSION:PRINTER-NAME
        AdobePrinter     = "PDFcamp Printer"
       /* Disable screen updating so it will go faster */
        chExcelApplication:ScreenUpdating = False.
+&ENDIF
 
 find first company where company.company = cocode no-lock no-error.
 
@@ -178,35 +199,54 @@ if (xquo.shipto[1] eq xquo.soldto[1] and
 
 RUN UTIL/CurrDir.p (output CurrDir).
 
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+   rptExcel:report-design = "template/quoteknight.jrxml" NO-ERROR.
+&ELSE
+
 chFile = CurrDir + "\Template\quotenosco.xlt" NO-ERROR.
    
 chExcelApplication:VISIBLE = TRUE.
+&ENDIF
 
 if not ch-multi then do:
+     
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+   ASSIGN inRowCount = 18.
+   {cec/quote/quoknight2-xl-jasper.i}    
+   {cec/quote/quoknight-xl-jasper.i 1}
+&ELSE
      
    ASSIGN chWorkbook = chExcelApplication:Workbooks:Open(chfile)
           inRowCount = 18.
    {cec/quote/quoknight2-xl.i}    
    {cec/quote/quoknight-xl.i 1}
+&ENDIF
    
    inrowcount = inrowcount + 4.
    
-   os-delete value(v-dir + "quote.xls").     
+   qFile = v-dir + "quote.xls".
+   os-delete value(qFile).
    os-delete value(v-dir + "asi.pdf").
    os-delete value(v-dir + "quote.pdf").
    	 
    IF LvOutputSelection = "PRINTER" THEN
    DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+&ELSE
       NO-RETURN-VALUE chWorkbook:PrintOut(,,,,,False,).
       chWorkbook:Close(no) no-error.
+&ENDIF
    END.
    ELSE IF LvOutputSelection = "Email" THEN
    DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+&ELSE
       WshNetwork:SetDefaultPrinter(AdobePrinter). 
       chExcelApplication:ActiveSheet:SaveAs(v-dir + "quote.xls") no-error. 	   
       NO-RETURN-VALUE chWorkbook:PrintOut(,,,,,False,). 
       chWorkbook:Close(no) no-error.   
       chExcelApplication:Quit() no-error.
+&ENDIF
        
       pause 3.
       OS-DELETE VALUE(v-dir + "quote.xls").
@@ -217,9 +257,13 @@ if not ch-multi then do:
       	      tt-FileName = v-dir + "quote.pdf".
    END.
    
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+&ELSE
+   
    RELEASE OBJECT chWorkbook NO-ERROR.
    RELEASE OBJECT chWorkSheet NO-ERROR.
    RELEASE OBJECT chHyper NO-ERROR.
+&ENDIF
 
    v-quo-total = v-line-total + v-t-tax[1] + v-t-tax[2] + v-t-tax[3].
 
@@ -276,6 +320,14 @@ else do: /* ch-multi is yes*/
       if first-of(report.key-01) THEN
          v-first-q-no = xquo.q-no.
     
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+      IF v-first THEN
+         ASSIGN
+            inRowCount = 18
+            v-first = NO.
+       {cec/quote/quoknight2-xl-jasper.i}
+&ELSE
+    
       IF v-first THEN
          ASSIGN
             chWorkbook =chExcelApplication:Workbooks:Open(chfile)
@@ -283,37 +335,55 @@ else do: /* ch-multi is yes*/
             v-first = NO.
 
        {cec/quote/quoknight2-xl.i}
+&ENDIF      
       
       ASSIGN
         v-last = last-of(report.key-01)
         v-line-total = 0.
   
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+      {cec/quote/quoknight-xl-jasper.i 2}  
+&ELSE
+  
       {cec/quote/quoknight-xl.i 2}  
+&ENDIF      
       v-quo-total = v-line-total + v-t-tax[1] + v-t-tax[2] + v-t-tax[3].
       
       IF LAST-OF(report.key-01) THEN DO:
+
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+        ASSIGN
+           inrowcount = inrowcount + 4.
+&ELSE
 
         ASSIGN
            inrowcount = inrowcount + 4
            v-cell = "R" + string(inrowcount) + "C2".
 
         chExcelApplication:Goto("R19C1") NO-ERROR.
+&ENDIF      
         os-delete value(v-dir + "quote.xls").     
      	os-delete value(v-dir + "asi.pdf").
      	os-delete value(v-dir + "quote.pdf").
 	 
      	IF LvOutputSelection = "PRINTER" THEN
      	DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+&ELSE
            NO-RETURN-VALUE chWorkbook:PrintOut(,,,,,False,).
            chWorkbook:Close(no) no-error.
+&ENDIF      
      	END.
      	ELSE IF LvOutputSelection = "Email" THEN
      	DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+&ELSE
            WshNetwork:SetDefaultPrinter(AdobePrinter). 
        	   chExcelApplication:ActiveSheet:SaveAs(v-dir + "quote.xls") no-error. 	   
        	   NO-RETURN-VALUE chWorkbook:PrintOut(,,,,,False,).
        	   chWorkbook:Close(no) no-error.   
        	   chExcelApplication:Quit() no-error.
+&ENDIF      
        	   
        	   pause 3.
        	   
@@ -327,9 +397,13 @@ else do: /* ch-multi is yes*/
                   tt-FileName = v-dir + "quote.pdf".
      	END.
         
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+&ELSE
+        
         RELEASE OBJECT chWorkbook NO-ERROR.
      	RELEASE OBJECT chWorkSheet NO-ERROR.
      	RELEASE OBJECT chHyper NO-ERROR.
+&ENDIF      
       END.
     end.
 end.
@@ -346,6 +420,15 @@ assign CommandString = CommandString + " cat output " + v-dir + "quote.pdf".
 
 os-command silent value(CommandString).
 
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+   define query qExcel for ttQuoKnightXL scrolling.
+   open query qExcel for each ttQuoKnightXL.
+   rptExcel:report-data-source = query qExcel:handle.
+   rptExcel:export-report-xls(qFile).
+   open-mime-resource "application/excel" string("file://" + replace(v-dir, "\", "/") + "quote.xls") false.
+   os-delete value(qFile).
+&ELSE
+
 WshNetwork:SetDefaultPrinter(CurActivePrinter).
 
 IF LvOutputSelection = "PRINTER" OR LvOutputSelection = "EMAIL" THEN
@@ -357,4 +440,5 @@ chExcelApplication:Goto("R1C1") NO-ERROR.
 
 RELEASE OBJECT WshNetwork NO-ERROR.
 RELEASE OBJECT chExcelApplication NO-ERROR.
+&ENDIF
 /* end ---------------------------------- copr. 2000  advanced software, inc. */

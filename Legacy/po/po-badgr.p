@@ -395,7 +395,7 @@ v-printline = 0.
 
         PUT po-ordl.i-name AT 25 FORM "x(26)" SPACE(1) /*v-vend-item FORM "x(15)" space(1) */
             v-adder[2] SPACE(16)
-            v-change-dscr  SKIP.
+            SKIP.
         v-printline = v-printline + 1.
         assign v-line-number = v-line-number + 3.
         
@@ -457,49 +457,6 @@ v-printline = 0.
           FIND FIRST ef WHERE ef.company = po-ordl.company
                           AND ef.est-no = job-hdr.est-no
                           AND ef.form-no = po-ordl.s-num NO-LOCK NO-ERROR.
-
-       IF AVAIL ITEM AND INDEX("1,2,3,4,A,G,J,L,R,T,V,W,Z,9,M,I,O,X,Y,7,8",ITEM.mat-type) > 0 THEN  DO:
-          /* PUT  STRING(v-cost,">>,>>9.99<<") + po-ordl.pr-uom + " $" + 
-                STRING(v-setup) + "SETUP" FORM "x(25)"   AT 77
-                SKIP.
-           assign v-line-number = v-line-number + 1
-                   v-printline = v-printline + 1.     
-           */     
-        END.
-        ELSE IF AVAIL ITEM AND ITEM.mat-type = "C" THEN DO:
-             PUT   "W: " at 25 v-wid space(2) "L: " v-len  
-                  SPACE(2) "D: " item.case-d FORM ">>>9.99<<" SPACE(9)
-               /* lv-flute FORM "x(13)"  lv-reg-no FORM "x(10)"*/
-                STRING(v-cost,">>,>>9.99<<") + po-ordl.pr-uom + " $" +
-                STRING(v-setup) + "SETUP" FORM "x(25)"   
-                SKIP.
-             assign v-line-number = v-line-number + 1
-                   v-printline = v-printline + 1.
-
-        END.
-        ELSE DO:
-           IF AVAIL ITEM AND index("b,d,p",ITEM.mat-type) > 0 THEN ASSIGN lv-flute = ""
-                                                                         lv-reg-no = "".
-           
-           IF (AVAIL ITEM AND ITEM.r-wid > 0) or
-              (AVAIL ef AND ef.roll) THEN  /* no length for Roll*/
-              PUT    "W: " at 25 v-wid space(14) 
-                     lv-flute FORM "x(13)" lv-reg-no FORM "x(10)"
-                STRING(v-cost,">>,>>9.99<<") + po-ordl.pr-uom + " $" +
-                STRING(v-setup) + "SETUP" FORM "x(25)"   
-                SKIP.
-
-           ELSE PUT    "W: " at 25 v-wid space(2) "L: " v-len  
-                 /*"                   "*/
-              /*  "  Flute:"*/  lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)"
-                STRING(v-cost,">>,>>9.99<<") + po-ordl.pr-uom + " $" +
-                STRING(v-setup) + "SETUP" FORM "x(25)"   
-                SKIP
-               /* space(2) v-vend-item FORM "x(20)" */  .
-        
-          assign v-line-number = v-line-number + 1
-                 v-printline = v-printline + 1.
-        END.
 
         len-score = "".   
         run po/po-ordls.p (recid(po-ordl)).
@@ -634,44 +591,38 @@ v-printline = 0.
                 {po/po-badgr.i}
              END.
         END.
-    /*
-        FIND FIRST itemfg WHERE itemfg.company = po-ordl.company
-                            AND itemfg.i-no = po-ordl.i-no NO-LOCK NO-ERROR.
-        lv-item-rec = IF po-ordl.item-type AND AVAIL ITEM THEN ITEM.rec_key
-                      ELSE IF AVAIL itemfg THEN itemfg.rec_key
-                      ELSE "".
-        IF lv-item-rec <> "" THEN DO:
-           FOR EACH notes WHERE notes.rec_key = lv-item-rec 
-               AND /*notes.note_type = "S" */  notes.note_code = "PO" NO-LOCK:
-              IF notes.note_text <> "" THEN DO:
-                 v-tmp-lines = LENGTH(NOTES.NOTE_TEXT) / 80.
-                {SYS/INC/ROUNDUP.I v-tmp-lines}
-                v-inst-lines = v-inst-lines + v-tmp-lines. 
-              END.
-           END.
-           if v-inst-lines gt 0 then v-inst-lines = v-inst-lines + 1.
-           v-printline = v-printline + v-inst-lines.
-           IF v-printline > 46 THEN DO:         
-              PAGE.
-              v-printline = 0.
-              {po/po-badgr.i}
-           END.     
-    
-           FOR EACH notes WHERE notes.rec_key = lv-item-rec AND 
-               /*notes.note_type = "S" */  notes.note_code = "PO"  NO-LOCK:
-               v-tmp-lines = LENGTH(NOTES.NOTE_TEXT) / 80.
-               {SYS/INC/ROUNDUP.I v-tmp-lines}
-               IF notes.note_text <> "" THEN DO i = 1 TO v-tmp-lines:
-                  PUT {1} substring(NOTES.NOTE_TEXT,(1 + 80 * (i - 1)), 80) FORM "x(80)"  SKIP.              
-              /*    v-printline = v-printline + 1. */
-               END.
-           end.
-        END. /* lv-item-spec <> "" */
-        */
      END.
      /* === end of specnote print */
 
   end. /* for each po-ordl record */
+
+IF po-ord.TYPE = "D" THEN do:
+  FIND FIRST shipto WHERE shipto.company = cocode AND 
+                           shipto.cust-no = po-ord.cust-no AND 
+                          shipto.ship-id = po-ord.ship-id NO-LOCK NO-ERROR.
+
+   IF v-printline > 46 THEN DO:
+          PAGE.
+          v-printline = 0.
+          {po/po-badgr.i}
+   END.
+
+   IF AVAIL shipto THEN
+       DO i = 1 TO 4:
+       IF i = 1 THEN PUT SKIP(1) .
+       IF shipto.notes[i] <> "" THEN do:
+           PUT shipto.notes[i] FORMAT "x(80)" SKIP .
+           v-printline = v-printline + 1 .
+       END.
+    END.
+    
+    IF v-printline > 46 THEN DO:
+          PAGE.
+          v-printline = 0.
+          {po/po-badgr.i}
+     END.
+END.
+ 
 
   ASSIGN v-inst = ""
          v-tmp-lines = 0
@@ -707,10 +658,6 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
 */
   /*v-printline 46*/
 
-      PUT "Grand Total MSF: " +
-          TRIM(STRING(v-tot-sqft / 1000,">>>,>>9.9<<")) AT 50 FORMAT "x(30)"
-          SKIP.
-
       v-tot-sqft = 0.
       v-bot-lab[1] = "Tax        :"
                      /*vend.tax-gr + "        :       " */ + STRING(po-ord.tax,"->>>,>>9.99").
@@ -730,10 +677,8 @@ PUT "<FArial><R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP
      " " SKIP
      " " SKIP
      " " SKIP(1)     
-     "  I acknowledge the pricing on this P.O. is correct. _________________________(please sign and fax)" SKIP
      .
 
-PUT "<FArial><R64><C1>FORM -0042 9/01/09".
 v-printline = v-printline + 6.
 
 IF v-printline < 60 THEN PUT SKIP(80 - v-printline).

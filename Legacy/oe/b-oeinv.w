@@ -191,7 +191,7 @@ DEFINE BROWSE Browser-Table
       inv-head.t-inv-rev COLUMN-LABEL "Invoiced Total" FORMAT "->>,>>>,>>9.99":U
             LABEL-BGCOLOR 14
       getStatus() @ ls-status COLUMN-LABEL "Status" FORMAT "x(8)":U
-            WIDTH 13.6 LABEL-BGCOLOR 14
+            WIDTH 13.6 
       inv-head.r-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       inv-head.company FORMAT "x(3)":U
 /* _UIB-CODE-BLOCK-END */

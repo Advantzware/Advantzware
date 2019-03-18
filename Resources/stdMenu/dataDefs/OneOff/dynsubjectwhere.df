@@ -1,0 +1,127 @@
+ADD TABLE "dynSubjectWhere"
+  AREA "Data"
+  LABEL "Dynamic Subject Where"
+  DESCRIPTION "Dynamic Subject Where"
+  DUMP-NAME "dynsubjectwhere"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/dynSubjectWhere.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/dynSubjectWhere.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/dynSubjectWhere.p" CRC "?" 
+
+ADD FIELD "subjectID" OF "dynSubjectWhere" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Subject ID"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Enter Subject ID"
+  ORDER 10
+
+ADD FIELD "sortOrder" OF "dynSubjectWhere" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Sort Order"
+  POSITION 3
+  MAX-WIDTH 4
+  COLUMN-LABEL "Order"
+  HELP "Enter Sort Order"
+  ORDER 20
+
+ADD FIELD "tableName" OF "dynSubjectWhere" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Table Name"
+  POSITION 4
+  MAX-WIDTH 40
+  HELP "Enter Table Name"
+  ORDER 30
+
+ADD FIELD "whereTable" OF "dynSubjectWhere" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Where Table"
+  POSITION 5
+  MAX-WIDTH 40
+  HELP "Enter Where Table"
+  ORDER 40
+
+ADD FIELD "fieldLabel" OF "dynSubjectWhere" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Field Label"
+  POSITION 6
+  MAX-WIDTH 60
+  HELP "Enter Field Label"
+  ORDER 50
+
+ADD FIELD "whereElement" OF "dynSubjectWhere" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Where Element"
+  POSITION 7
+  MAX-WIDTH 60
+  HELP "Enter Where Element"
+  ORDER 60
+
+ADD FIELD "dataType" OF "dynSubjectWhere" AS character 
+  FORMAT "x(9)"
+  INITIAL ""
+  LABEL "Data Type"
+  POSITION 8
+  MAX-WIDTH 18
+  HELP "Enter Data Type"
+  ORDER 70
+
+ADD FIELD "rec_key" OF "dynSubjectWhere" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 9
+  MAX-WIDTH 42
+  HELP "Enter Rec Key Value"
+  ORDER 110
+
+ADD FIELD "isCalcField" OF "dynSubjectWhere" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Is Calculated Field"
+  POSITION 10
+  MAX-WIDTH 1
+  COLUMN-LABEL "Is Calc"
+  HELP "Toggle if Calculated Field"
+  ORDER 80
+
+ADD FIELD "calcProc" OF "dynSubjectWhere" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Calculated Field Procedure"
+  POSITION 11
+  MAX-WIDTH 40
+  HELP "Enter Calculated Field Procedure"
+  ORDER 90
+
+ADD FIELD "calcParam" OF "dynSubjectWhere" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Calculated Field Procedure Parameters"
+  POSITION 12
+  MAX-WIDTH 120
+  HELP "Enter Calculated Field Procedure Parameters"
+  ORDER 100
+
+ADD INDEX "pi-subjectID" ON "dynSubjectWhere" 
+  AREA "Index"
+  PRIMARY
+  DESCRIPTION "Primary Index by Subject ID"
+  INDEX-FIELD "subjectID" ASCENDING 
+  INDEX-FIELD "tableName" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "dynSubjectWhere" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Rec Key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000002929

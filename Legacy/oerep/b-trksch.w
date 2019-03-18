@@ -748,21 +748,8 @@ DEF BUFFER bf-tt-report FOR tt-report.
 
       END.
       
-      FIND FIRST reftable WHERE
-           reftable.reftable = "trp-car" AND
-           reftable.rec_key  = truck-run-print.rec_key
-           USE-INDEX rec_key
-           NO-ERROR.
-
-      IF NOT AVAIL reftable THEN
-      DO:
-         CREATE reftable.
-         ASSIGN reftable.reftable = "trp-car"
-                reftable.rec_key  = truck-run-print.rec_key.
-      END.
-
       ASSIGN
-         reftable.CODE = bf-tt-report.carrier
+         truck-run-print.carrier = bf-tt-report.carrier
          truck-run-print.truck-code  = bf-tt-report.truck-code
          truck-run-print.load-no = bf-tt-report.load-no
          truck-run-print.stop-no = bf-tt-report.stop-no
@@ -1095,7 +1082,7 @@ PROCEDURE update-record :
           EXCLUSIVE-LOCK.
 
       ASSIGN
-         reftable.CODE = tt-report.carrier:SCREEN-VALUE IN BROWSE {&browse-name}
+         truck-run-print.carrier = tt-report.carrier:SCREEN-VALUE IN BROWSE {&browse-name}
          truck-run-print.truck-code  = tt-report.truck-code:SCREEN-VALUE IN BROWSE {&browse-name}
          truck-run-print.load-no = tt-report.load-no:SCREEN-VALUE IN BROWSE {&browse-name}
          truck-run-print.stop-no = INT(tt-report.stop-no:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -1104,7 +1091,6 @@ PROCEDURE update-record :
 
       FIND CURRENT truck-run-print NO-LOCK.
       RELEASE truck-run-print.
-      RELEASE reftable.
    END.
    
    ASSIGN tt-report.carrier    = tt-report.carrier:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1144,16 +1130,8 @@ PROCEDURE update-record :
 
   IF v-warn = NO THEN
   DO:
-    FIND FIRST reftable WHERE
-         reftable.reftable EQ "msf-limit" AND
-         reftable.company  EQ tt-report.company AND
-         reftable.loc      EQ locode AND 
-         reftable.CODE     EQ tt-report.carrier AND
-         reftable.code2    EQ tt-report.truck-code
-         NO-LOCK NO-ERROR.
-     
-    IF AVAIL reftable AND reftable.val[1] < tt-report.tot-msf THEN
-       MESSAGE "Total MSF is greater than Truck MSF Limit of " + STRING(reftable.val[1]) + "."
+    IF AVAIL truck AND truck.msfLimit < tt-report.tot-msf THEN
+       MESSAGE "Total MSF is greater than Truck MSF Limit of " + STRING(truck.msfLimit) + "."
           VIEW-AS ALERT-BOX WARNING.
   END.
   IF AVAIL truck AND truck.max-units < tt-report.tot-units THEN

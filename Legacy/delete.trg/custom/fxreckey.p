@@ -3,8 +3,8 @@ procedure account_rec_key:
   for each account exclusive:
     create rec_key.
     assign
-      account.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      account.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey")
+
       rec_key.rec_key = account.rec_key
       rec_key.table_name = "account".
   end.
@@ -14,8 +14,8 @@ procedure ap-buy_rec_key:
   for each ap-buy exclusive:
     create rec_key.
     assign
-      ap-buy.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ap-buy.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ap-buy.rec_key
       rec_key.table_name = "ap-buy".
   end.
@@ -25,8 +25,8 @@ procedure ap-chk_rec_key:
   for each ap-chk exclusive:
     create rec_key.
     assign
-      ap-chk.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ap-chk.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ap-chk.rec_key
       rec_key.table_name = "ap-chk".
   end.
@@ -36,8 +36,8 @@ procedure ap-ctrl_rec_key:
   for each ap-ctrl exclusive:
     create rec_key.
     assign
-      ap-ctrl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ap-ctrl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ap-ctrl.rec_key
       rec_key.table_name = "ap-ctrl".
   end.
@@ -47,8 +47,8 @@ procedure ap-dis_rec_key:
   for each ap-dis exclusive:
     create rec_key.
     assign
-      ap-dis.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ap-dis.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ap-dis.rec_key
       rec_key.table_name = "ap-dis".
   end.
@@ -58,8 +58,8 @@ procedure ap-disl_rec_key:
   for each ap-disl exclusive:
     create rec_key.
     assign
-      ap-disl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ap-disl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ap-disl.rec_key
       rec_key.table_name = "ap-disl".
   end.
@@ -69,8 +69,8 @@ procedure ap-inv_rec_key:
   for each ap-inv exclusive:
     create rec_key.
     assign
-      ap-inv.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ap-inv.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ap-inv.rec_key
       rec_key.table_name = "ap-inv".
   end.
@@ -80,8 +80,8 @@ procedure ap-invl_rec_key:
   for each ap-invl exclusive:
     create rec_key.
     assign
-      ap-invl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ap-invl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ap-invl.rec_key
       rec_key.table_name = "ap-invl".
   end.
@@ -91,8 +91,8 @@ procedure ap-ledger_rec_key:
   for each ap-ledger exclusive:
     create rec_key.
     assign
-      ap-ledger.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ap-ledger.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ap-ledger.rec_key
       rec_key.table_name = "ap-ledger".
   end.
@@ -102,8 +102,8 @@ procedure ap-pay_rec_key:
   for each ap-pay exclusive:
     create rec_key.
     assign
-      ap-pay.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ap-pay.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ap-pay.rec_key
       rec_key.table_name = "ap-pay".
   end.
@@ -113,8 +113,8 @@ procedure ap-payl_rec_key:
   for each ap-payl exclusive:
     create rec_key.
     assign
-      ap-payl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ap-payl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ap-payl.rec_key
       rec_key.table_name = "ap-payl".
   end.
@@ -124,8 +124,8 @@ procedure ap-sel_rec_key:
   for each ap-sel exclusive:
     create rec_key.
     assign
-      ap-sel.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ap-sel.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ap-sel.rec_key
       rec_key.table_name = "ap-sel".
   end.
@@ -135,8 +135,8 @@ procedure aphist_rec_key:
   for each aphist exclusive:
     create rec_key.
     assign
-      aphist.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      aphist.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = aphist.rec_key
       rec_key.table_name = "aphist".
   end.
@@ -146,8 +146,8 @@ procedure ar-cash_rec_key:
   for each ar-cash exclusive:
     create rec_key.
     assign
-      ar-cash.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ar-cash.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ar-cash.rec_key
       rec_key.table_name = "ar-cash".
   end.
@@ -157,8 +157,8 @@ procedure ar-cashl_rec_key:
   for each ar-cashl exclusive:
     create rec_key.
     assign
-      ar-cashl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ar-cashl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ar-cashl.rec_key
       rec_key.table_name = "ar-cashl".
   end.
@@ -168,8 +168,8 @@ procedure ar-ctrl_rec_key:
   for each ar-ctrl exclusive:
     create rec_key.
     assign
-      ar-ctrl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ar-ctrl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ar-ctrl.rec_key
       rec_key.table_name = "ar-ctrl".
   end.
@@ -179,8 +179,8 @@ procedure ar-inv_rec_key:
   for each ar-inv exclusive:
     create rec_key.
     assign
-      ar-inv.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ar-inv.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ar-inv.rec_key
       rec_key.table_name = "ar-inv".
   end.
@@ -190,8 +190,8 @@ procedure ar-invl_rec_key:
   for each ar-invl exclusive:
     create rec_key.
     assign
-      ar-invl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ar-invl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ar-invl.rec_key
       rec_key.table_name = "ar-invl".
   end.
@@ -201,8 +201,8 @@ procedure ar-ledger_rec_key:
   for each ar-ledger exclusive:
     create rec_key.
     assign
-      ar-ledger.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ar-ledger.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ar-ledger.rec_key
       rec_key.table_name = "ar-ledger".
   end.
@@ -212,8 +212,8 @@ procedure ar-mcash_rec_key:
   for each ar-mcash exclusive:
     create rec_key.
     assign
-      ar-mcash.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ar-mcash.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ar-mcash.rec_key
       rec_key.table_name = "ar-mcash".
   end.
@@ -223,8 +223,8 @@ procedure asinotes_rec_key:
   for each asinotes exclusive:
     create rec_key.
     assign
-      asinotes.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      asinotes.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = asinotes.rec_key
       rec_key.table_name = "asinotes".
   end.
@@ -234,8 +234,8 @@ procedure bank_rec_key:
   for each bank exclusive:
     create rec_key.
     assign
-      bank.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      bank.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = bank.rec_key
       rec_key.table_name = "bank".
   end.
@@ -245,8 +245,8 @@ procedure box-design-hdr_rec_key:
   for each box-design-hdr exclusive:
     create rec_key.
     assign
-      box-design-hdr.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      box-design-hdr.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = box-design-hdr.rec_key
       rec_key.table_name = "box-design-hdr".
   end.
@@ -256,8 +256,8 @@ procedure box-design-line_rec_key:
   for each box-design-line exclusive:
     create rec_key.
     assign
-      box-design-line.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      box-design-line.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = box-design-line.rec_key
       rec_key.table_name = "box-design-line".
   end.
@@ -267,8 +267,8 @@ procedure buyer_rec_key:
   for each buyer exclusive:
     create rec_key.
     assign
-      buyer.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      buyer.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = buyer.rec_key
       rec_key.table_name = "buyer".
   end.
@@ -278,8 +278,8 @@ procedure carr-mtx_rec_key:
   for each carr-mtx exclusive:
     create rec_key.
     assign
-      carr-mtx.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      carr-mtx.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = carr-mtx.rec_key
       rec_key.table_name = "carr-mtx".
   end.
@@ -289,8 +289,8 @@ procedure carrier_rec_key:
   for each carrier exclusive:
     create rec_key.
     assign
-      carrier.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      carrier.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = carrier.rec_key
       rec_key.table_name = "carrier".
   end.
@@ -300,8 +300,8 @@ procedure ce-ctrl_rec_key:
   for each ce-ctrl exclusive:
     create rec_key.
     assign
-      ce-ctrl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ce-ctrl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ce-ctrl.rec_key
       rec_key.table_name = "ce-ctrl".
   end.
@@ -311,8 +311,8 @@ procedure company_rec_key:
   for each company exclusive:
     create rec_key.
     assign
-      company.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      company.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = company.rec_key
       rec_key.table_name = "company".
   end.
@@ -322,8 +322,8 @@ procedure costtype_rec_key:
   for each costtype exclusive:
     create rec_key.
     assign
-      costtype.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      costtype.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = costtype.rec_key
       rec_key.table_name = "costtype".
   end.
@@ -333,8 +333,8 @@ procedure crew_rec_key:
   for each crew exclusive:
     create rec_key.
     assign
-      crew.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      crew.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = crew.rec_key
       rec_key.table_name = "crew".
   end.
@@ -344,8 +344,8 @@ procedure cust_rec_key:
   for each cust exclusive:
     create rec_key.
     assign
-      cust.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      cust.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = cust.rec_key
       rec_key.table_name = "cust".
   end.
@@ -355,8 +355,8 @@ procedure custype_rec_key:
   for each custype exclusive:
     create rec_key.
     assign
-      custype.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      custype.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = custype.rec_key
       rec_key.table_name = "custype".
   end.
@@ -366,8 +366,8 @@ procedure db-ctrl_rec_key:
   for each db-ctrl exclusive:
     create rec_key.
     assign
-      db-ctrl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      db-ctrl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = db-ctrl.rec_key
       rec_key.table_name = "db-ctrl".
   end.
@@ -377,8 +377,8 @@ procedure dept_rec_key:
   for each dept exclusive:
     create rec_key.
     assign
-      dept.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      dept.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = dept.rec_key
       rec_key.table_name = "dept".
   end.
@@ -388,8 +388,8 @@ procedure e-item_rec_key:
   for each e-item exclusive:
     create rec_key.
     assign
-      e-item.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      e-item.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = e-item.rec_key
       rec_key.table_name = "e-item".
   end.
@@ -399,8 +399,8 @@ procedure e-item-vend_rec_key:
   for each e-item-vend exclusive:
     create rec_key.
     assign
-      e-item-vend.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      e-item-vend.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = e-item-vend.rec_key
       rec_key.table_name = "e-item-vend".
   end.
@@ -410,8 +410,8 @@ procedure e-itemfg_rec_key:
   for each e-itemfg exclusive:
     create rec_key.
     assign
-      e-itemfg.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      e-itemfg.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = e-itemfg.rec_key
       rec_key.table_name = "e-itemfg".
   end.
@@ -421,8 +421,8 @@ procedure eb_rec_key:
   for each eb exclusive:
     create rec_key.
     assign
-      eb.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      eb.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = eb.rec_key
       rec_key.table_name = "eb".
   end.
@@ -432,8 +432,8 @@ procedure EDAPCheck_rec_key:
   for each EDAPCheck exclusive:
     create rec_key.
     assign
-      EDAPCheck.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDAPCheck.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDAPCheck.rec_key
       rec_key.table_name = "EDAPCheck".
   end.
@@ -443,8 +443,8 @@ procedure EDCat_rec_key:
   for each EDCat exclusive:
     create rec_key.
     assign
-      EDCat.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDCat.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDCat.rec_key
       rec_key.table_name = "EDCat".
   end.
@@ -454,8 +454,8 @@ procedure EDCatline_rec_key:
   for each EDCatline exclusive:
     create rec_key.
     assign
-      EDCatline.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDCatline.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDCatline.rec_key
       rec_key.table_name = "EDCatline".
   end.
@@ -465,8 +465,8 @@ procedure EDCatPrice_rec_key:
   for each EDCatPrice exclusive:
     create rec_key.
     assign
-      EDCatPrice.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDCatPrice.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDCatPrice.rec_key
       rec_key.table_name = "EDCatPrice".
   end.
@@ -476,8 +476,8 @@ procedure EDCo_rec_key:
   for each EDCo exclusive:
     create rec_key.
     assign
-      EDCo.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDCo.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDCo.rec_key
       rec_key.table_name = "EDCo".
   end.
@@ -487,8 +487,8 @@ procedure EDCode_rec_key:
   for each EDCode exclusive:
     create rec_key.
     assign
-      EDCode.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDCode.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDCode.rec_key
       rec_key.table_name = "EDCode".
   end.
@@ -498,8 +498,8 @@ procedure EDDoc_rec_key:
   for each EDDoc exclusive:
     create rec_key.
     assign
-      EDDoc.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDDoc.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDDoc.rec_key
       rec_key.table_name = "EDDoc".
   end.
@@ -509,8 +509,8 @@ procedure EDICXref_rec_key:
   for each EDICXref exclusive:
     create rec_key.
     assign
-      EDICXref.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDICXref.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDICXref.rec_key
       rec_key.table_name = "EDICXref".
   end.
@@ -520,8 +520,8 @@ procedure EDIVAddon_rec_key:
   for each EDIVAddon exclusive:
     create rec_key.
     assign
-      EDIVAddon.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDIVAddon.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDIVAddon.rec_key
       rec_key.table_name = "EDIVAddon".
   end.
@@ -531,8 +531,8 @@ procedure EDIVLine_rec_key:
   for each EDIVLine exclusive:
     create rec_key.
     assign
-      EDIVLine.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDIVLine.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDIVLine.rec_key
       rec_key.table_name = "EDIVLine".
   end.
@@ -542,8 +542,8 @@ procedure EDIVTran_rec_key:
   for each EDIVTran exclusive:
     create rec_key.
     assign
-      EDIVTran.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDIVTran.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDIVTran.rec_key
       rec_key.table_name = "EDIVTran".
   end.
@@ -553,8 +553,8 @@ procedure EDMast_rec_key:
   for each EDMast exclusive:
     create rec_key.
     assign
-      EDMast.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDMast.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDMast.rec_key
       rec_key.table_name = "EDMast".
   end.
@@ -564,8 +564,8 @@ procedure EDPD_rec_key:
   for each EDPD exclusive:
     create rec_key.
     assign
-      EDPD.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDPD.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDPD.rec_key
       rec_key.table_name = "EDPD".
   end.
@@ -575,8 +575,8 @@ procedure EDPOAddon_rec_key:
   for each EDPOAddon exclusive:
     create rec_key.
     assign
-      EDPOAddon.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDPOAddon.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDPOAddon.rec_key
       rec_key.table_name = "EDPOAddon".
   end.
@@ -586,8 +586,8 @@ procedure EDPOLine_rec_key:
   for each EDPOLine exclusive:
     create rec_key.
     assign
-      EDPOLine.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDPOLine.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDPOLine.rec_key
       rec_key.table_name = "EDPOLine".
   end.
@@ -597,8 +597,8 @@ procedure EDPOTran_rec_key:
   for each EDPOTran exclusive:
     create rec_key.
     assign
-      EDPOTran.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDPOTran.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDPOTran.rec_key
       rec_key.table_name = "EDPOTran".
   end.
@@ -608,8 +608,8 @@ procedure EDShipto_rec_key:
   for each EDShipto exclusive:
     create rec_key.
     assign
-      EDShipto.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDShipto.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDShipto.rec_key
       rec_key.table_name = "EDShipto".
   end.
@@ -619,8 +619,8 @@ procedure EDShipVia_rec_key:
   for each EDShipVia exclusive:
     create rec_key.
     assign
-      EDShipVia.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDShipVia.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDShipVia.rec_key
       rec_key.table_name = "EDShipVia".
   end.
@@ -630,8 +630,8 @@ procedure EDSHLine_rec_key:
   for each EDSHLine exclusive:
     create rec_key.
     assign
-      EDSHLine.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDSHLine.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDSHLine.rec_key
       rec_key.table_name = "EDSHLine".
   end.
@@ -641,8 +641,8 @@ procedure EDSHOrd_rec_key:
   for each EDSHOrd exclusive:
     create rec_key.
     assign
-      EDSHOrd.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDSHOrd.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDSHOrd.rec_key
       rec_key.table_name = "EDSHOrd".
   end.
@@ -652,8 +652,8 @@ procedure EDSHPack_rec_key:
   for each EDSHPack exclusive:
     create rec_key.
     assign
-      EDSHPack.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDSHPack.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDSHPack.rec_key
       rec_key.table_name = "EDSHPack".
   end.
@@ -663,8 +663,8 @@ procedure EDSHTare_rec_key:
   for each EDSHTare exclusive:
     create rec_key.
     assign
-      EDSHTare.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDSHTare.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDSHTare.rec_key
       rec_key.table_name = "EDSHTare".
   end.
@@ -674,8 +674,8 @@ procedure EDSHTran_rec_key:
   for each EDSHTran exclusive:
     create rec_key.
     assign
-      EDSHTran.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      EDSHTran.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = EDSHTran.rec_key
       rec_key.table_name = "EDSHTran".
   end.
@@ -685,8 +685,8 @@ procedure ef_rec_key:
   for each ef exclusive:
     create rec_key.
     assign
-      ef.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ef.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ef.rec_key
       rec_key.table_name = "ef".
   end.
@@ -696,8 +696,8 @@ procedure emp_rec_key:
   for each emp exclusive:
     create rec_key.
     assign
-      emp.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      emp.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = emp.rec_key
       rec_key.table_name = "emp".
   end.
@@ -707,8 +707,8 @@ procedure est_rec_key:
   for each est exclusive:
     create rec_key.
     assign
-      est.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      est.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = est.rec_key
       rec_key.table_name = "est".
   end.
@@ -718,8 +718,8 @@ procedure est-flm_rec_key:
   for each est-flm exclusive:
     create rec_key.
     assign
-      est-flm.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      est-flm.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = est-flm.rec_key
       rec_key.table_name = "est-flm".
   end.
@@ -729,8 +729,8 @@ procedure est-inst_rec_key:
   for each est-inst exclusive:
     create rec_key.
     assign
-      est-inst.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      est-inst.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = est-inst.rec_key
       rec_key.table_name = "est-inst".
   end.
@@ -740,8 +740,8 @@ procedure est-op_rec_key:
   for each est-op exclusive:
     create rec_key.
     assign
-      est-op.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      est-op.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = est-op.rec_key
       rec_key.table_name = "est-op".
   end.
@@ -751,8 +751,8 @@ procedure est-prep_rec_key:
   for each est-prep exclusive:
     create rec_key.
     assign
-      est-prep.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      est-prep.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = est-prep.rec_key
       rec_key.table_name = "est-prep".
   end.
@@ -762,8 +762,8 @@ procedure est-summ_rec_key:
   for each est-summ exclusive:
     create rec_key.
     assign
-      est-summ.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      est-summ.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = est-summ.rec_key
       rec_key.table_name = "est-summ".
   end.
@@ -773,8 +773,8 @@ procedure expiration_rec_key:
   for each expiration exclusive:
     create rec_key.
     assign
-      expiration.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      expiration.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = expiration.rec_key
       rec_key.table_name = "expiration".
   end.
@@ -784,8 +784,8 @@ procedure fg-act_rec_key:
   for each fg-act exclusive:
     create rec_key.
     assign
-      fg-act.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      fg-act.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = fg-act.rec_key
       rec_key.table_name = "fg-act".
   end.
@@ -795,8 +795,8 @@ procedure fg-bin_rec_key:
   for each fg-bin exclusive:
     create rec_key.
     assign
-      fg-bin.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      fg-bin.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = fg-bin.rec_key
       rec_key.table_name = "fg-bin".
   end.
@@ -806,8 +806,8 @@ procedure fg-ctrl_rec_key:
   for each fg-ctrl exclusive:
     create rec_key.
     assign
-      fg-ctrl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      fg-ctrl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = fg-ctrl.rec_key
       rec_key.table_name = "fg-ctrl".
   end.
@@ -817,8 +817,8 @@ procedure fg-hist_rec_key:
   for each fg-hist exclusive:
     create rec_key.
     assign
-      fg-hist.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      fg-hist.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = fg-hist.rec_key
       rec_key.table_name = "fg-hist".
   end.
@@ -828,8 +828,8 @@ procedure fg-rcpth_rec_key:
   for each fg-rcpth exclusive:
     create rec_key.
     assign
-      fg-rcpth.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      fg-rcpth.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = fg-rcpth.rec_key
       rec_key.table_name = "fg-rcpth".
   end.
@@ -839,8 +839,8 @@ procedure fg-rcpts_rec_key:
   for each fg-rcpts exclusive:
     create rec_key.
     assign
-      fg-rcpts.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      fg-rcpts.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = fg-rcpts.rec_key
       rec_key.table_name = "fg-rcpts".
   end.
@@ -850,8 +850,8 @@ procedure fg-rdtl_rec_key:
   for each fg-rdtl exclusive:
     create rec_key.
     assign
-      fg-rdtl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      fg-rdtl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = fg-rdtl.rec_key
       rec_key.table_name = "fg-rdtl".
   end.
@@ -861,8 +861,8 @@ procedure fg-rdtlh_rec_key:
   for each fg-rdtlh exclusive:
     create rec_key.
     assign
-      fg-rdtlh.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      fg-rdtlh.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = fg-rdtlh.rec_key
       rec_key.table_name = "fg-rdtlh".
   end.
@@ -872,8 +872,8 @@ procedure fg-set_rec_key:
   for each fg-set exclusive:
     create rec_key.
     assign
-      fg-set.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      fg-set.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = fg-set.rec_key
       rec_key.table_name = "fg-set".
   end.
@@ -883,8 +883,8 @@ procedure fgcat_rec_key:
   for each fgcat exclusive:
     create rec_key.
     assign
-      fgcat.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      fgcat.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = fgcat.rec_key
       rec_key.table_name = "fgcat".
   end.
@@ -894,8 +894,8 @@ procedure file_rec_key:
   for each file exclusive:
     create rec_key.
     assign
-      file.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      file.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = file.rec_key
       rec_key.table_name = "file".
   end.
@@ -905,8 +905,8 @@ procedure fraction_rec_key:
   for each fraction exclusive:
     create rec_key.
     assign
-      fraction.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      fraction.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = fraction.rec_key
       rec_key.table_name = "fraction".
   end.
@@ -916,8 +916,8 @@ procedure gl-ctrl_rec_key:
   for each gl-ctrl exclusive:
     create rec_key.
     assign
-      gl-ctrl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      gl-ctrl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = gl-ctrl.rec_key
       rec_key.table_name = "gl-ctrl".
   end.
@@ -927,8 +927,8 @@ procedure gl-freq_rec_key:
   for each gl-freq exclusive:
     create rec_key.
     assign
-      gl-freq.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      gl-freq.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = gl-freq.rec_key
       rec_key.table_name = "gl-freq".
   end.
@@ -938,8 +938,8 @@ procedure gl-jrn_rec_key:
   for each gl-jrn exclusive:
     create rec_key.
     assign
-      gl-jrn.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      gl-jrn.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = gl-jrn.rec_key
       rec_key.table_name = "gl-jrn".
   end.
@@ -949,8 +949,8 @@ procedure gl-jrnl_rec_key:
   for each gl-jrnl exclusive:
     create rec_key.
     assign
-      gl-jrnl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      gl-jrnl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = gl-jrnl.rec_key
       rec_key.table_name = "gl-jrnl".
   end.
@@ -960,8 +960,8 @@ procedure gl-rpt_rec_key:
   for each gl-rpt exclusive:
     create rec_key.
     assign
-      gl-rpt.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      gl-rpt.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = gl-rpt.rec_key
       rec_key.table_name = "gl-rpt".
   end.
@@ -971,8 +971,8 @@ procedure glhist_rec_key:
   for each glhist exclusive:
     create rec_key.
     assign
-      glhist.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      glhist.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = glhist.rec_key
       rec_key.table_name = "glhist".
   end.
@@ -982,8 +982,8 @@ procedure gltrans_rec_key:
   for each gltrans exclusive:
     create rec_key.
     assign
-      gltrans.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      gltrans.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = gltrans.rec_key
       rec_key.table_name = "gltrans".
   end.
@@ -993,8 +993,8 @@ procedure inv-head_rec_key:
   for each inv-head exclusive:
     create rec_key.
     assign
-      inv-head.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      inv-head.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = inv-head.rec_key
       rec_key.table_name = "inv-head".
   end.
@@ -1004,8 +1004,8 @@ procedure inv-line_rec_key:
   for each inv-line exclusive:
     create rec_key.
     assign
-      inv-line.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      inv-line.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = inv-line.rec_key
       rec_key.table_name = "inv-line".
   end.
@@ -1015,8 +1015,8 @@ procedure inv-misc_rec_key:
   for each inv-misc exclusive:
     create rec_key.
     assign
-      inv-misc.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      inv-misc.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = inv-misc.rec_key
       rec_key.table_name = "inv-misc".
   end.
@@ -1026,8 +1026,8 @@ procedure item_rec_key:
   for each item exclusive:
     create rec_key.
     assign
-      item.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      item.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = item.rec_key
       rec_key.table_name = "item".
   end.
@@ -1037,8 +1037,8 @@ procedure item-bom_rec_key:
   for each item-bom exclusive:
     create rec_key.
     assign
-      item-bom.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      item-bom.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = item-bom.rec_key
       rec_key.table_name = "item-bom".
   end.
@@ -1048,8 +1048,8 @@ procedure item-spec_rec_key:
   for each item-spec exclusive:
     create rec_key.
     assign
-      item-spec.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      item-spec.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = item-spec.rec_key
       rec_key.table_name = "item-spec".
   end.
@@ -1059,8 +1059,8 @@ procedure itemfg_rec_key:
   for each itemfg exclusive:
     create rec_key.
     assign
-      itemfg.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      itemfg.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = itemfg.rec_key
       rec_key.table_name = "itemfg".
   end.
@@ -1070,8 +1070,8 @@ procedure itemfgdtl_rec_key:
   for each itemfgdtl exclusive:
     create rec_key.
     assign
-      itemfgdtl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      itemfgdtl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = itemfgdtl.rec_key
       rec_key.table_name = "itemfgdtl".
   end.
@@ -1081,8 +1081,8 @@ procedure jc-ctrl_rec_key:
   for each jc-ctrl exclusive:
     create rec_key.
     assign
-      jc-ctrl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      jc-ctrl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = jc-ctrl.rec_key
       rec_key.table_name = "jc-ctrl".
   end.
@@ -1092,8 +1092,8 @@ procedure job_rec_key:
   for each job exclusive:
     create rec_key.
     assign
-      job.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      job.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = job.rec_key
       rec_key.table_name = "job".
   end.
@@ -1103,8 +1103,8 @@ procedure job-all_rec_key:
   for each job-all exclusive:
     create rec_key.
     assign
-      job-all.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      job-all.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = job-all.rec_key
       rec_key.table_name = "job-all".
   end.
@@ -1114,8 +1114,8 @@ procedure job-brd_rec_key:
   for each job-brd exclusive:
     create rec_key.
     assign
-      job-brd.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      job-brd.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = job-brd.rec_key
       rec_key.table_name = "job-brd".
   end.
@@ -1125,8 +1125,8 @@ procedure job-cat_rec_key:
   for each job-cat exclusive:
     create rec_key.
     assign
-      job-cat.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      job-cat.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = job-cat.rec_key
       rec_key.table_name = "job-cat".
   end.
@@ -1136,8 +1136,8 @@ procedure job-code_rec_key:
   for each job-code exclusive:
     create rec_key.
     assign
-      job-code.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      job-code.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = job-code.rec_key
       rec_key.table_name = "job-code".
   end.
@@ -1147,8 +1147,8 @@ procedure job-hdr_rec_key:
   for each job-hdr exclusive:
     create rec_key.
     assign
-      job-hdr.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      job-hdr.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = job-hdr.rec_key
       rec_key.table_name = "job-hdr".
   end.
@@ -1158,8 +1158,8 @@ procedure job-mat_rec_key:
   for each job-mat exclusive:
     create rec_key.
     assign
-      job-mat.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      job-mat.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = job-mat.rec_key
       rec_key.table_name = "job-mat".
   end.
@@ -1169,8 +1169,8 @@ procedure job-mch_rec_key:
   for each job-mch exclusive:
     create rec_key.
     assign
-      job-mch.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      job-mch.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = job-mch.rec_key
       rec_key.table_name = "job-mch".
   end.
@@ -1180,8 +1180,8 @@ procedure job-prep_rec_key:
   for each job-prep exclusive:
     create rec_key.
     assign
-      job-prep.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      job-prep.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = job-prep.rec_key
       rec_key.table_name = "job-prep".
   end.
@@ -1191,8 +1191,8 @@ procedure loc_rec_key:
   for each loc exclusive:
     create rec_key.
     assign
-      loc.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      loc.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = loc.rec_key
       rec_key.table_name = "loc".
   end.
@@ -1202,8 +1202,8 @@ procedure mach_rec_key:
   for each mach exclusive:
     create rec_key.
     assign
-      mach.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      mach.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = mach.rec_key
       rec_key.table_name = "mach".
   end.
@@ -1213,8 +1213,8 @@ procedure mach-adder_rec_key:
   for each mach-adder exclusive:
     create rec_key.
     assign
-      mach-adder.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      mach-adder.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = mach-adder.rec_key
       rec_key.table_name = "mach-adder".
   end.
@@ -1224,8 +1224,8 @@ procedure mach-calendar_rec_key:
   for each mach-calendar exclusive:
     create rec_key.
     assign
-      mach-calendar.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      mach-calendar.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = mach-calendar.rec_key
       rec_key.table_name = "mach-calendar".
   end.
@@ -1235,8 +1235,8 @@ procedure mat_rec_key:
   for each mat exclusive:
     create rec_key.
     assign
-      mat.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      mat.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = mat.rec_key
       rec_key.table_name = "mat".
   end.
@@ -1246,8 +1246,8 @@ procedure mat-act_rec_key:
   for each mat-act exclusive:
     create rec_key.
     assign
-      mat-act.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      mat-act.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = mat-act.rec_key
       rec_key.table_name = "mat-act".
   end.
@@ -1257,8 +1257,8 @@ procedure matprep_rec_key:
   for each matprep exclusive:
     create rec_key.
     assign
-      matprep.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      matprep.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = matprep.rec_key
       rec_key.table_name = "matprep".
   end.
@@ -1268,8 +1268,8 @@ procedure mch-act_rec_key:
   for each mch-act exclusive:
     create rec_key.
     assign
-      mch-act.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      mch-act.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = mch-act.rec_key
       rec_key.table_name = "mch-act".
   end.
@@ -1279,8 +1279,8 @@ procedure mch-srt_rec_key:
   for each mch-srt exclusive:
     create rec_key.
     assign
-      mch-srt.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      mch-srt.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = mch-srt.rec_key
       rec_key.table_name = "mch-srt".
   end.
@@ -1290,8 +1290,8 @@ procedure misc-act_rec_key:
   for each misc-act exclusive:
     create rec_key.
     assign
-      misc-act.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      misc-act.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = misc-act.rec_key
       rec_key.table_name = "misc-act".
   end.
@@ -1301,8 +1301,8 @@ procedure mmtx_rec_key:
   for each mmtx exclusive:
     create rec_key.
     assign
-      mmtx.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      mmtx.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = mmtx.rec_key
       rec_key.table_name = "mmtx".
   end.
@@ -1312,8 +1312,8 @@ procedure mmtx2_rec_key:
   for each mmtx2 exclusive:
     create rec_key.
     assign
-      mmtx2.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      mmtx2.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = mmtx2.rec_key
       rec_key.table_name = "mmtx2".
   end.
@@ -1323,8 +1323,8 @@ procedure mmty_rec_key:
   for each mmty exclusive:
     create rec_key.
     assign
-      mmty.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      mmty.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = mmty.rec_key
       rec_key.table_name = "mmty".
   end.
@@ -1334,8 +1334,8 @@ procedure mnu-item_rec_key:
   for each mnu-item exclusive:
     create rec_key.
     assign
-      mnu-item.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      mnu-item.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = mnu-item.rec_key
       rec_key.table_name = "mnu-item".
   end.
@@ -1345,8 +1345,8 @@ procedure monthly_rec_key:
   for each monthly exclusive:
     create rec_key.
     assign
-      monthly.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      monthly.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = monthly.rec_key
       rec_key.table_name = "monthly".
   end.
@@ -1356,8 +1356,8 @@ procedure mstd_rec_key:
   for each mstd exclusive:
     create rec_key.
     assign
-      mstd.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      mstd.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = mstd.rec_key
       rec_key.table_name = "mstd".
   end.
@@ -1367,8 +1367,8 @@ procedure nrf-color_rec_key:
   for each nrf-color exclusive:
     create rec_key.
     assign
-      nrf-color.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      nrf-color.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = nrf-color.rec_key
       rec_key.table_name = "nrf-color".
   end.
@@ -1378,8 +1378,8 @@ procedure nrf-size_rec_key:
   for each nrf-size exclusive:
     create rec_key.
     assign
-      nrf-size.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      nrf-size.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = nrf-size.rec_key
       rec_key.table_name = "nrf-size".
   end.
@@ -1389,8 +1389,8 @@ procedure oe-bolh_rec_key:
   for each oe-bolh exclusive:
     create rec_key.
     assign
-      oe-bolh.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      oe-bolh.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = oe-bolh.rec_key
       rec_key.table_name = "oe-bolh".
   end.
@@ -1400,8 +1400,8 @@ procedure oe-boll_rec_key:
   for each oe-boll exclusive:
     create rec_key.
     assign
-      oe-boll.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      oe-boll.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = oe-boll.rec_key
       rec_key.table_name = "oe-boll".
   end.
@@ -1411,8 +1411,8 @@ procedure oe-boll-qty_rec_key:
   for each oe-boll-qty exclusive:
     create rec_key.
     assign
-      oe-boll-qty.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      oe-boll-qty.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = oe-boll-qty.rec_key
       rec_key.table_name = "oe-boll-qty".
   end.
@@ -1422,8 +1422,8 @@ procedure oe-ctrl_rec_key:
   for each oe-ctrl exclusive:
     create rec_key.
     assign
-      oe-ctrl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      oe-ctrl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = oe-ctrl.rec_key
       rec_key.table_name = "oe-ctrl".
   end.
@@ -1433,8 +1433,8 @@ procedure oe-ord_rec_key:
   for each oe-ord exclusive:
     create rec_key.
     assign
-      oe-ord.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      oe-ord.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = oe-ord.rec_key
       rec_key.table_name = "oe-ord".
   end.
@@ -1444,8 +1444,8 @@ procedure oe-ordl_rec_key:
   for each oe-ordl exclusive:
     create rec_key.
     assign
-      oe-ordl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      oe-ordl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = oe-ordl.rec_key
       rec_key.table_name = "oe-ordl".
   end.
@@ -1455,8 +1455,8 @@ procedure oe-ordm_rec_key:
   for each oe-ordm exclusive:
     create rec_key.
     assign
-      oe-ordm.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      oe-ordm.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = oe-ordm.rec_key
       rec_key.table_name = "oe-ordm".
   end.
@@ -1466,8 +1466,8 @@ procedure oe-prmtx_rec_key:
   for each oe-prmtx exclusive:
     create rec_key.
     assign
-      oe-prmtx.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      oe-prmtx.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = oe-prmtx.rec_key
       rec_key.table_name = "oe-prmtx".
   end.
@@ -1477,8 +1477,8 @@ procedure oe-rel_rec_key:
   for each oe-rel exclusive:
     create rec_key.
     assign
-      oe-rel.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      oe-rel.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = oe-rel.rec_key
       rec_key.table_name = "oe-rel".
   end.
@@ -1488,8 +1488,8 @@ procedure oe-relh_rec_key:
   for each oe-relh exclusive:
     create rec_key.
     assign
-      oe-relh.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      oe-relh.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = oe-relh.rec_key
       rec_key.table_name = "oe-relh".
   end.
@@ -1499,8 +1499,8 @@ procedure oe-rell_rec_key:
   for each oe-rell exclusive:
     create rec_key.
     assign
-      oe-rell.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      oe-rell.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = oe-rell.rec_key
       rec_key.table_name = "oe-rell".
   end.
@@ -1510,8 +1510,8 @@ procedure oe-reth_rec_key:
   for each oe-reth exclusive:
     create rec_key.
     assign
-      oe-reth.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      oe-reth.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = oe-reth.rec_key
       rec_key.table_name = "oe-reth".
   end.
@@ -1521,8 +1521,8 @@ procedure oe-retl_rec_key:
   for each oe-retl exclusive:
     create rec_key.
     assign
-      oe-retl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      oe-retl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = oe-retl.rec_key
       rec_key.table_name = "oe-retl".
   end.
@@ -1532,8 +1532,8 @@ procedure oe-ship_rec_key:
   for each oe-ship exclusive:
     create rec_key.
     assign
-      oe-ship.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      oe-ship.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = oe-ship.rec_key
       rec_key.table_name = "oe-ship".
   end.
@@ -1543,8 +1543,8 @@ procedure pc-misc_rec_key:
   for each pc-misc exclusive:
     create rec_key.
     assign
-      pc-misc.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      pc-misc.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = pc-misc.rec_key
       rec_key.table_name = "pc-misc".
   end.
@@ -1554,8 +1554,8 @@ procedure pc-prdd_rec_key:
   for each pc-prdd exclusive:
     create rec_key.
     assign
-      pc-prdd.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      pc-prdd.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = pc-prdd.rec_key
       rec_key.table_name = "pc-prdd".
   end.
@@ -1565,8 +1565,8 @@ procedure pc-prdh_rec_key:
   for each pc-prdh exclusive:
     create rec_key.
     assign
-      pc-prdh.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      pc-prdh.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = pc-prdh.rec_key
       rec_key.table_name = "pc-prdh".
   end.
@@ -1576,8 +1576,8 @@ procedure pdd_rec_key:
   for each pdd exclusive:
     create rec_key.
     assign
-      pdd.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      pdd.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = pdd.rec_key
       rec_key.table_name = "pdd".
   end.
@@ -1587,8 +1587,8 @@ procedure pdh_rec_key:
   for each pdh exclusive:
     create rec_key.
     assign
-      pdh.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      pdh.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = pdh.rec_key
       rec_key.table_name = "pdh".
   end.
@@ -1598,8 +1598,8 @@ procedure period_rec_key:
   for each period exclusive:
     create rec_key.
     assign
-      period.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      period.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = period.rec_key
       rec_key.table_name = "period".
   end.
@@ -1609,8 +1609,8 @@ procedure perm_rec_key:
   for each perm exclusive:
     create rec_key.
     assign
-      perm.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      perm.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = perm.rec_key
       rec_key.table_name = "perm".
   end.
@@ -1620,8 +1620,8 @@ procedure permg_rec_key:
   for each permg exclusive:
     create rec_key.
     assign
-      permg.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      permg.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = permg.rec_key
       rec_key.table_name = "permg".
   end.
@@ -1631,8 +1631,8 @@ procedure permx_rec_key:
   for each permx exclusive:
     create rec_key.
     assign
-      permx.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      permx.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = permx.rec_key
       rec_key.table_name = "permx".
   end.
@@ -1642,8 +1642,8 @@ procedure po-all_rec_key:
   for each po-all exclusive:
     create rec_key.
     assign
-      po-all.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      po-all.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = po-all.rec_key
       rec_key.table_name = "po-all".
   end.
@@ -1653,8 +1653,8 @@ procedure po-ctrl_rec_key:
   for each po-ctrl exclusive:
     create rec_key.
     assign
-      po-ctrl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      po-ctrl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = po-ctrl.rec_key
       rec_key.table_name = "po-ctrl".
   end.
@@ -1664,8 +1664,8 @@ procedure po-ord_rec_key:
   for each po-ord exclusive:
     create rec_key.
     assign
-      po-ord.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      po-ord.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = po-ord.rec_key
       rec_key.table_name = "po-ord".
   end.
@@ -1675,8 +1675,8 @@ procedure po-ordl_rec_key:
   for each po-ordl exclusive:
     create rec_key.
     assign
-      po-ordl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      po-ordl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = po-ordl.rec_key
       rec_key.table_name = "po-ordl".
   end.
@@ -1686,8 +1686,8 @@ procedure po-rcpts_rec_key:
   for each po-rcpts exclusive:
     create rec_key.
     assign
-      po-rcpts.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      po-rcpts.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = po-rcpts.rec_key
       rec_key.table_name = "po-rcpts".
   end.
@@ -1697,8 +1697,8 @@ procedure prep_rec_key:
   for each prep exclusive:
     create rec_key.
     assign
-      prep.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      prep.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = prep.rec_key
       rec_key.table_name = "prep".
   end.
@@ -1708,8 +1708,8 @@ procedure printer_rec_key:
   for each printer exclusive:
     create rec_key.
     assign
-      printer.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      printer.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = printer.rec_key
       rec_key.table_name = "printer".
   end.
@@ -1719,8 +1719,8 @@ procedure probe_rec_key:
   for each probe exclusive:
     create rec_key.
     assign
-      probe.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      probe.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = probe.rec_key
       rec_key.table_name = "probe".
   end.
@@ -1730,8 +1730,8 @@ procedure probeit_rec_key:
   for each probeit exclusive:
     create rec_key.
     assign
-      probeit.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      probeit.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = probeit.rec_key
       rec_key.table_name = "probeit".
   end.
@@ -1741,8 +1741,8 @@ procedure procat_rec_key:
   for each procat exclusive:
     create rec_key.
     assign
-      procat.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      procat.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = procat.rec_key
       rec_key.table_name = "procat".
   end.
@@ -1752,8 +1752,8 @@ procedure prod_rec_key:
   for each prod exclusive:
     create rec_key.
     assign
-      prod.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      prod.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = prod.rec_key
       rec_key.table_name = "prod".
   end.
@@ -1763,8 +1763,8 @@ procedure prodl_rec_key:
   for each prodl exclusive:
     create rec_key.
     assign
-      prodl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      prodl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = prodl.rec_key
       rec_key.table_name = "prodl".
   end.
@@ -1774,8 +1774,8 @@ procedure quote_rec_key:
   for each quote exclusive:
     create rec_key.
     assign
-      quote.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      quote.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = quote.rec_key
       rec_key.table_name = "quote".
   end.
@@ -1785,8 +1785,8 @@ procedure quoteit_rec_key:
   for each quoteit exclusive:
     create rec_key.
     assign
-      quoteit.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      quoteit.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = quoteit.rec_key
       rec_key.table_name = "quoteit".
   end.
@@ -1796,8 +1796,8 @@ procedure RCErr_rec_key:
   for each RCErr exclusive:
     create rec_key.
     assign
-      RCErr.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      RCErr.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = RCErr.rec_key
       rec_key.table_name = "RCErr".
   end.
@@ -1807,8 +1807,8 @@ procedure reftable_rec_key:
   for each reftable exclusive:
     create rec_key.
     assign
-      reftable.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      reftable.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = reftable.rec_key
       rec_key.table_name = "reftable".
   end.
@@ -1818,8 +1818,8 @@ procedure rejct-cd_rec_key:
   for each rejct-cd exclusive:
     create rec_key.
     assign
-      rejct-cd.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      rejct-cd.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = rejct-cd.rec_key
       rec_key.table_name = "rejct-cd".
   end.
@@ -1829,8 +1829,8 @@ procedure report_rec_key:
   for each report exclusive:
     create rec_key.
     assign
-      report.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      report.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = report.rec_key
       rec_key.table_name = "report".
   end.
@@ -1840,8 +1840,8 @@ procedure rm-bin_rec_key:
   for each rm-bin exclusive:
     create rec_key.
     assign
-      rm-bin.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      rm-bin.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = rm-bin.rec_key
       rec_key.table_name = "rm-bin".
   end.
@@ -1851,8 +1851,8 @@ procedure rm-ctrl_rec_key:
   for each rm-ctrl exclusive:
     create rec_key.
     assign
-      rm-ctrl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      rm-ctrl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = rm-ctrl.rec_key
       rec_key.table_name = "rm-ctrl".
   end.
@@ -1862,8 +1862,8 @@ procedure rm-rcpt_rec_key:
   for each rm-rcpt exclusive:
     create rec_key.
     assign
-      rm-rcpt.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      rm-rcpt.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = rm-rcpt.rec_key
       rec_key.table_name = "rm-rcpt".
   end.
@@ -1873,8 +1873,8 @@ procedure rm-rcpth_rec_key:
   for each rm-rcpth exclusive:
     create rec_key.
     assign
-      rm-rcpth.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      rm-rcpth.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = rm-rcpth.rec_key
       rec_key.table_name = "rm-rcpth".
   end.
@@ -1884,8 +1884,8 @@ procedure rm-rdtl_rec_key:
   for each rm-rdtl exclusive:
     create rec_key.
     assign
-      rm-rdtl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      rm-rdtl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = rm-rdtl.rec_key
       rec_key.table_name = "rm-rdtl".
   end.
@@ -1895,8 +1895,8 @@ procedure rm-rdtlh_rec_key:
   for each rm-rdtlh exclusive:
     create rec_key.
     assign
-      rm-rdtlh.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      rm-rdtlh.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = rm-rdtlh.rec_key
       rec_key.table_name = "rm-rdtlh".
   end.
@@ -1906,8 +1906,8 @@ procedure rm-receipts_rec_key:
   for each rm-receipts exclusive:
     create rec_key.
     assign
-      rm-receipts.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      rm-receipts.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = rm-receipts.rec_key
       rec_key.table_name = "rm-receipts".
   end.
@@ -1917,8 +1917,8 @@ procedure routing_rec_key:
   for each routing exclusive:
     create rec_key.
     assign
-      routing.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      routing.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = routing.rec_key
       rec_key.table_name = "routing".
   end.
@@ -1928,8 +1928,8 @@ procedure routing-mtx_rec_key:
   for each routing-mtx exclusive:
     create rec_key.
     assign
-      routing-mtx.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      routing-mtx.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = routing-mtx.rec_key
       rec_key.table_name = "routing-mtx".
   end.
@@ -1939,8 +1939,8 @@ procedure shift_rec_key:
   for each shift exclusive:
     create rec_key.
     assign
-      shift.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      shift.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = shift.rec_key
       rec_key.table_name = "shift".
   end.
@@ -1950,8 +1950,8 @@ procedure shipto_rec_key:
   for each shipto exclusive:
     create rec_key.
     assign
-      shipto.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      shipto.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = shipto.rec_key
       rec_key.table_name = "shipto".
   end.
@@ -1961,8 +1961,8 @@ procedure sman_rec_key:
   for each sman exclusive:
     create rec_key.
     assign
-      sman.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      sman.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = sman.rec_key
       rec_key.table_name = "sman".
   end.
@@ -1972,8 +1972,8 @@ procedure sman-mtx_rec_key:
   for each sman-mtx exclusive:
     create rec_key.
     assign
-      sman-mtx.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      sman-mtx.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = sman-mtx.rec_key
       rec_key.table_name = "sman-mtx".
   end.
@@ -1983,8 +1983,8 @@ procedure soldto_rec_key:
   for each soldto exclusive:
     create rec_key.
     assign
-      soldto.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      soldto.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = soldto.rec_key
       rec_key.table_name = "soldto".
   end.
@@ -1994,8 +1994,8 @@ procedure stack-flute_rec_key:
   for each stack-flute exclusive:
     create rec_key.
     assign
-      stack-flute.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      stack-flute.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = stack-flute.rec_key
       rec_key.table_name = "stack-flute".
   end.
@@ -2005,8 +2005,8 @@ procedure stack-size_rec_key:
   for each stack-size exclusive:
     create rec_key.
     assign
-      stack-size.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      stack-size.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = stack-size.rec_key
       rec_key.table_name = "stack-size".
   end.
@@ -2016,8 +2016,8 @@ procedure state_rec_key:
   for each state exclusive:
     create rec_key.
     assign
-      state.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      state.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = state.rec_key
       rec_key.table_name = "state".
   end.
@@ -2027,8 +2027,8 @@ procedure stax_rec_key:
   for each stax exclusive:
     create rec_key.
     assign
-      stax.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      stax.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = stax.rec_key
       rec_key.table_name = "stax".
   end.
@@ -2038,8 +2038,8 @@ procedure stax-group_rec_key:
   for each stax-group exclusive:
     create rec_key.
     assign
-      stax-group.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      stax-group.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = stax-group.rec_key
       rec_key.table_name = "stax-group".
   end.
@@ -2049,8 +2049,8 @@ procedure std-code_rec_key:
   for each std-code exclusive:
     create rec_key.
     assign
-      std-code.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      std-code.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = std-code.rec_key
       rec_key.table_name = "std-code".
   end.
@@ -2060,8 +2060,8 @@ procedure style_rec_key:
   for each style exclusive:
     create rec_key.
     assign
-      style.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      style.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = style.rec_key
       rec_key.table_name = "style".
   end.
@@ -2071,8 +2071,8 @@ procedure terms_rec_key:
   for each terms exclusive:
     create rec_key.
     assign
-      terms.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      terms.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = terms.rec_key
       rec_key.table_name = "terms".
   end.
@@ -2082,8 +2082,8 @@ procedure terr_rec_key:
   for each terr exclusive:
     create rec_key.
     assign
-      terr.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      terr.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = terr.rec_key
       rec_key.table_name = "terr".
   end.
@@ -2093,8 +2093,8 @@ procedure test-red_rec_key:
   for each test-red exclusive:
     create rec_key.
     assign
-      test-red.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      test-red.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = test-red.rec_key
       rec_key.table_name = "test-red".
   end.
@@ -2104,8 +2104,8 @@ procedure uom_rec_key:
   for each uom exclusive:
     create rec_key.
     assign
-      uom.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      uom.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = uom.rec_key
       rec_key.table_name = "uom".
   end.
@@ -2115,8 +2115,8 @@ procedure usr_rec_key:
   for each usr exclusive:
     create rec_key.
     assign
-      usr.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      usr.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = usr.rec_key
       rec_key.table_name = "usr".
   end.
@@ -2126,8 +2126,8 @@ procedure usr-grp_rec_key:
   for each usr-grp exclusive:
     create rec_key.
     assign
-      usr-grp.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      usr-grp.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = usr-grp.rec_key
       rec_key.table_name = "usr-grp".
   end.
@@ -2137,8 +2137,8 @@ procedure usrx_rec_key:
   for each usrx exclusive:
     create rec_key.
     assign
-      usrx.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      usrx.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = usrx.rec_key
       rec_key.table_name = "usrx".
   end.
@@ -2148,8 +2148,8 @@ procedure vend_rec_key:
   for each vend exclusive:
     create rec_key.
     assign
-      vend.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      vend.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = vend.rec_key
       rec_key.table_name = "vend".
   end.
@@ -2159,8 +2159,8 @@ procedure ventype_rec_key:
   for each ventype exclusive:
     create rec_key.
     assign
-      ventype.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      ventype.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = ventype.rec_key
       rec_key.table_name = "ventype".
   end.
@@ -2170,8 +2170,8 @@ procedure view-dtl_rec_key:
   for each view-dtl exclusive:
     create rec_key.
     assign
-      view-dtl.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      view-dtl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = view-dtl.rec_key
       rec_key.table_name = "view-dtl".
   end.
@@ -2181,8 +2181,8 @@ procedure view-hdr_rec_key:
   for each view-hdr exclusive:
     create rec_key.
     assign
-      view-hdr.rec_key = STRING(TODAY,"99999999") + 
-                         STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+      view-hdr.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+
       rec_key.rec_key = view-hdr.rec_key
       rec_key.table_name = "view-hdr".
   end.

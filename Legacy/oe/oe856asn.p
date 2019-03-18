@@ -384,6 +384,9 @@ FOR EACH oe-boll
     .
     
 END.    /* each oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no */
-
-RUN edi/sp856xml.p (oe-bolh.bol-no, EDSHTran.partner, EDSHTran.seq).
+FIND FIRST edmast NO-LOCK WHERE edmast.partner EQ edshtran.partner NO-ERROR.
+IF AVAILABLE edmast AND edmast.partnerGrp EQ "GE" THEN 
+  RUN edi/ge856xml.p  (oe-bolh.bol-no, EDSHTran.partner, EDSHTran.seq).
+ELSE 
+  RUN edi/sp856xml.p (oe-bolh.bol-no, EDSHTran.partner, EDSHTran.seq).
 

@@ -925,7 +925,11 @@ PROCEDURE applyFields :
       IF ID BEGINS 'MXP' AND (SEARCH(runPrint) NE ? OR SEARCH(REPLACE(runPrint,'.p','.r')) NE ?)THEN
       RUN VALUE(runPrint) (printFile,outputTo,runProgram,printPrgm,fontValue,orientationValue).
       ELSE
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+      open-mime-resource "text/plain" string("file:///" + printFile) false.
+&ELSE
       OS-COMMAND NO-WAIT notepad.exe VALUE(printFile).
+&ENDIF
     END. /* else */
   END. /* if not closing */
 

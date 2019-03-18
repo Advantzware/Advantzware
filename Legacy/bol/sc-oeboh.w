@@ -830,20 +830,22 @@ PROCEDURE create-bol :
                       AND cust.cust-no = oe-ord.cust-no NO-LOCK NO-ERROR.
   FIND FIRST shipto WHERE shipto.company = gcompany
                       AND shipto.cust-no = cust.cust-no NO-LOCK NO-ERROR.
-  ASSIGN oe-bolh.ship-no = shipto.ship-no
-         oe-bolh.ship-id = shipto.ship-id
-         oe-bolh.carrier = oe-ord.carrier
-         oe-bolh.ship-i[1] = shipto.notes[1]
-         oe-bolh.ship-i[2] = shipto.notes[2]
-         oe-bolh.ship-i[3] = shipto.notes[3]
-         oe-bolh.ship-i[4] = shipto.notes[4]
-         oe-bolh.frt-pay = oe-ord.frt-pay
-
-         /* oe-bolh.traier
-            oe-bolh.release#
-            oe-bolh.frt-pay .... */
-         .
-
+  IF AVAILABLE shipto THEN DO:
+      ASSIGN oe-bolh.ship-no = shipto.ship-no
+             oe-bolh.ship-id = shipto.ship-id
+             oe-bolh.carrier = oe-ord.carrier
+             oe-bolh.ship-i[1] = shipto.notes[1]
+             oe-bolh.ship-i[2] = shipto.notes[2]
+             oe-bolh.ship-i[3] = shipto.notes[3]
+             oe-bolh.ship-i[4] = shipto.notes[4]
+             oe-bolh.frt-pay = oe-ord.frt-pay
+    
+             /* oe-bolh.traier
+                oe-bolh.release#
+                oe-bolh.frt-pay .... */
+             .
+     RUN CopyShipNote (shipto.rec_key, oe-bolh.rec_key).
+  END.
   CREATE oe-boll.
   ASSIGN oe-boll.b-no = oe-bolh.b-no
          oe-boll.bol-no = oe-bolh.bol-no
@@ -859,6 +861,28 @@ PROCEDURE create-bol :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+    
+    DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

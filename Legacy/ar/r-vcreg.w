@@ -936,14 +936,11 @@ PROCEDURE post-gl :
               xar-cashl.amt-disc   = -(ar-cashl.amt-disc)
 
               xar-cashl.amt-paid   = -(ar-cashl.amt-paid).
-
-          CREATE reftable.
+          
           ASSIGN
-            reftable.reftable = "ARCASHLVDDATE"
-            reftable.rec_key = xar-cashl.rec_key
-            reftable.CODE = STRING(tran-date,"99/99/9999").
-          RELEASE reftable.
-
+            xar-cashl.voided = YES.
+            xar-cashl.voidDate = tran-date.
+ 
           RELEASE xar-cashl.
        end.  /* for each xcashl */
    end. /* for each ar-cash record */

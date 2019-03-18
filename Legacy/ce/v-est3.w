@@ -54,6 +54,7 @@ DO TRANSACTION:
   {sys/inc/fgcolors.i}
 END.
 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -116,25 +117,21 @@ eb.layer-pad eb.lp-len eb.lp-wid eb.lp-up eb.spare-char-3 eb.divider ~
 eb.div-len eb.div-wid eb.div-up eb.spare-char-4 eb.cas-wt eb.cas-cost ~
 eb.cas-cnt eb.cas-pal eb.tr-no eb.tr-len eb.tr-wid eb.tr-dep eb.tr-cost ~
 eb.tr-cnt eb.tr-cas eb.chg-method eb.weight-m eb.carrier eb.carr-dscr ~
-eb.dest-code eb.fr-out-c eb.fr-out-m 
+eb.dest-code eb.fr-out-c eb.fr-out-m ~
+eb.unitno[1] eb.unitno[2] eb.unitno[3] eb.unitno[4] eb.unitno[5] eb.unitno[6] ~
+eb.unitno[7] eb.unitno[8] eb.unitno[9] eb.unitno[10] eb.unitno[11] eb.unitno[12] ~
+eb.unitno[13] eb.unitno[14] eb.unitno[15] eb.unitno[16] eb.unitno[17] ~
+eb.side[1] eb.side[2] eb.side[3] eb.side[4] eb.side[5] eb.side[6] eb.side[7] ~
+eb.side[8] eb.side[9] eb.side[10] eb.side[11] eb.side[12] eb.side[13] eb.side[14] ~
+eb.side[15] eb.side[16] eb.side[17] 
 &Scoped-define DISPLAYED-TABLES eb
 &Scoped-define FIRST-DISPLAYED-TABLE eb
-&Scoped-Define DISPLAYED-OBJECTS FILL-IN-1 fi_unit-1 fi_side-1 fi_unit-2 ~
-fi_side-2 fi_unit-3 fi_side-3 fi_unit-4 fi_side-4 fi_unit-5 fi_side-5 ~
-fi_unit-6 fi_side-6 fi_unit-7 fi_side-7 fi_unit-8 fi_side-8 fi_unit-9 ~
-fi_side-9 fi_unit-10 fi_side-10 fi_unit-11 fi_side-11 fi_unit-12 fi_side-12 ~
-fi_unit-13 fi_side-13 fi_unit-14 fi_side-14 fi_unit-15 fi_side-15 ~
-fi_unit-16 fi_side-16 fi_unit-17 fi_side-17 f-lp-dep f-div-dep ~
+&Scoped-Define DISPLAYED-OBJECTS FILL-IN-1  f-lp-dep f-div-dep ~
 fi_prod-notes fi_pr-type 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
-&Scoped-define ADM-ASSIGN-FIELDS fi_unit-1 fi_side-1 fi_unit-2 fi_side-2 ~
-fi_unit-3 fi_side-3 fi_unit-4 fi_side-4 fi_unit-5 fi_side-5 fi_unit-6 ~
-fi_side-6 fi_unit-7 fi_side-7 fi_unit-8 fi_side-8 fi_unit-9 fi_side-9 ~
-fi_unit-10 fi_side-10 fi_unit-11 fi_side-11 fi_unit-12 fi_side-12 ~
-fi_unit-13 fi_side-13 fi_unit-14 fi_side-14 fi_unit-15 fi_side-15 ~
-fi_unit-16 fi_side-16 fi_unit-17 fi_side-17 eb.carr-dscr 
+&Scoped-define ADM-ASSIGN-FIELDS eb.carr-dscr 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -186,142 +183,6 @@ DEFINE VARIABLE fi_prod-notes AS CHARACTER FORMAT "X(20)":U
      LABEL "Pack Note" 
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fi_side-1 AS CHARACTER FORMAT "X(1)" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_side-10 AS CHARACTER FORMAT "X(1)" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_side-11 AS CHARACTER FORMAT "X(1)" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_side-12 AS CHARACTER FORMAT "X(1)" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_side-13 AS CHARACTER FORMAT "X(1)" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_side-14 AS CHARACTER FORMAT "X(1)" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_side-15 AS CHARACTER FORMAT "X(1)" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_side-16 AS CHARACTER FORMAT "X(1)" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_side-17 AS CHARACTER FORMAT "X(1)" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_side-2 AS CHARACTER FORMAT "X(1)" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_side-3 AS CHARACTER FORMAT "X(1)" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_side-4 AS CHARACTER FORMAT "X(1)" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_side-5 AS CHARACTER FORMAT "X(1)" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_side-6 AS CHARACTER FORMAT "X(1)" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_side-7 AS CHARACTER FORMAT "X(1)" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_side-8 AS CHARACTER FORMAT "X(1)" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_side-9 AS CHARACTER FORMAT "X(1)" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_unit-1 AS DECIMAL FORMAT ">>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_unit-10 AS DECIMAL FORMAT ">>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_unit-11 AS DECIMAL FORMAT ">>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_unit-12 AS DECIMAL FORMAT ">>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_unit-13 AS DECIMAL FORMAT ">>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_unit-14 AS DECIMAL FORMAT ">>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_unit-15 AS DECIMAL FORMAT ">>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_unit-16 AS DECIMAL FORMAT ">>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_unit-17 AS DECIMAL FORMAT ">>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_unit-2 AS DECIMAL FORMAT ">>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_unit-3 AS DECIMAL FORMAT ">>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_unit-4 AS DECIMAL FORMAT ">>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_unit-5 AS DECIMAL FORMAT ">>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_unit-6 AS DECIMAL FORMAT ">>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_unit-7 AS DECIMAL FORMAT ">>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_unit-8 AS DECIMAL FORMAT ">>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY .76 NO-UNDO.
-
-DEFINE VARIABLE fi_unit-9 AS DECIMAL FORMAT ">>>" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY .76 NO-UNDO.
 
 DEFINE RECTANGLE RECT-26
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -382,8 +243,12 @@ DEFINE FRAME fold
      eb.i-%2[1] AT ROW 4.1 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     fi_unit-1 AT ROW 4.1 COL 60 COLON-ALIGNED NO-LABEL
-     fi_side-1 AT ROW 4.1 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     eb.unitno[1] AT ROW 4.1 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+         VIEW-AS FILL-IN
+         SIZE 7 BY .76
+     eb.side[1] AT ROW 4.1 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+         VIEW-AS FILL-IN 
+         SIZE 4 BY .76
      eb.i-ps2[2] AT ROW 4.86 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
@@ -396,8 +261,12 @@ DEFINE FRAME fold
      eb.i-%2[2] AT ROW 4.86 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     fi_unit-2 AT ROW 4.86 COL 60 COLON-ALIGNED NO-LABEL
-     fi_side-2 AT ROW 4.86 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+     eb.unitno[2] AT ROW 4.86 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN
+         SIZE 7 BY .76
+     eb.side[2] AT ROW 4.86 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+         VIEW-AS FILL-IN 
+         SIZE 4 BY .76
      eb.i-ps2[3] AT ROW 5.62 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
@@ -410,8 +279,12 @@ DEFINE FRAME fold
      eb.i-%2[3] AT ROW 5.62 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     fi_unit-3 AT ROW 5.62 COL 60 COLON-ALIGNED NO-LABEL
-     fi_side-3 AT ROW 5.62 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     eb.unitno[3] AT ROW 5.62 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+         VIEW-AS FILL-IN
+         SIZE 7 BY .76
+     eb.side[3] AT ROW 5.62 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+         VIEW-AS FILL-IN 
+         SIZE 4 BY .76
      eb.i-ps2[4] AT ROW 6.38 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
@@ -424,8 +297,12 @@ DEFINE FRAME fold
      eb.i-%2[4] AT ROW 6.38 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     fi_unit-4 AT ROW 6.38 COL 60 COLON-ALIGNED NO-LABEL
-     fi_side-4 AT ROW 6.38 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     eb.unitno[4] AT ROW 6.38 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN
+         SIZE 7 BY .76
+     eb.side[4] AT ROW 6.38 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+          VIEW-AS FILL-IN 
+         SIZE 4 BY .76
      eb.i-ps2[5] AT ROW 7.14 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
@@ -445,8 +322,12 @@ DEFINE FRAME fold
      eb.i-%2[5] AT ROW 7.14 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     fi_unit-5 AT ROW 7.14 COL 60 COLON-ALIGNED NO-LABEL
-     fi_side-5 AT ROW 7.14 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     eb.unitno[5] AT ROW 7.14 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN
+         SIZE 7 BY .76
+     eb.side[5] AT ROW 7.14 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+          VIEW-AS FILL-IN 
+         SIZE 4 BY .76
      eb.i-ps2[6] AT ROW 7.91 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
@@ -459,8 +340,12 @@ DEFINE FRAME fold
      eb.i-%2[6] AT ROW 7.91 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     fi_unit-6 AT ROW 7.91 COL 60 COLON-ALIGNED NO-LABEL
-     fi_side-6 AT ROW 7.91 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     eb.unitno[6] AT ROW 7.91 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN
+         SIZE 7 BY .76
+     eb.side[6] AT ROW 7.91 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+         VIEW-AS FILL-IN 
+         SIZE 4 BY .76
      eb.i-ps2[7] AT ROW 8.67 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
@@ -473,8 +358,12 @@ DEFINE FRAME fold
      eb.i-%2[7] AT ROW 8.67 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     fi_unit-7 AT ROW 8.67 COL 60 COLON-ALIGNED NO-LABEL
-     fi_side-7 AT ROW 8.67 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     eb.unitno[7] AT ROW 8.67 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN
+         SIZE 7 BY .76
+     eb.side[7] AT ROW 8.67 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+          VIEW-AS FILL-IN 
+         SIZE 4 BY .76
      eb.i-ps2[8] AT ROW 9.43 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
@@ -487,8 +376,12 @@ DEFINE FRAME fold
      eb.i-%2[8] AT ROW 9.43 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     fi_unit-8 AT ROW 9.43 COL 60 COLON-ALIGNED NO-LABEL
-     fi_side-8 AT ROW 9.43 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     eb.unitno[8] AT ROW 9.43 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN
+         SIZE 7 BY .76
+     eb.side[8] AT ROW 9.43 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+          VIEW-AS FILL-IN 
+         SIZE 4 BY .76
      eb.i-ps2[9] AT ROW 10.19 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
@@ -501,8 +394,12 @@ DEFINE FRAME fold
      eb.i-%2[9] AT ROW 10.19 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     fi_unit-9 AT ROW 10.19 COL 60 COLON-ALIGNED NO-LABEL
-     fi_side-9 AT ROW 10.19 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     eb.unitno[9] AT ROW 10.19 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN
+         SIZE 7 BY .76
+     eb.side[9] AT ROW 10.19 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+          VIEW-AS FILL-IN 
+         SIZE 4 BY .76
      eb.i-ps2[10] AT ROW 10.95 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
@@ -522,8 +419,12 @@ DEFINE FRAME fold
      eb.i-%2[10] AT ROW 10.95 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     fi_unit-10 AT ROW 10.95 COL 60 COLON-ALIGNED NO-LABEL
-     fi_side-10 AT ROW 10.95 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+     eb.unitno[10] AT ROW 10.95 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN
+         SIZE 7 BY .76
+     eb.side[10] AT ROW 10.95 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+         VIEW-AS FILL-IN 
+         SIZE 4 BY .76
      eb.i-ps2[11] AT ROW 11.71 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
@@ -536,8 +437,12 @@ DEFINE FRAME fold
      eb.i-%2[11] AT ROW 11.71 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     fi_unit-11 AT ROW 11.71 COL 60 COLON-ALIGNED NO-LABEL
-     fi_side-11 AT ROW 11.71 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 24
+     eb.unitno[11] AT ROW 11.71 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN
+         SIZE 7 BY .76
+     eb.side[11] AT ROW 11.71 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 24
+          VIEW-AS FILL-IN 
+         SIZE 4 BY .76
      eb.i-ps2[12] AT ROW 12.48 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
@@ -550,8 +455,12 @@ DEFINE FRAME fold
      eb.i-%2[12] AT ROW 12.48 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     fi_unit-12 AT ROW 12.48 COL 60 COLON-ALIGNED NO-LABEL
-     fi_side-12 AT ROW 12.48 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 26
+     eb.unitno[12] AT ROW 12.48 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN
+         SIZE 7 BY .76
+     eb.side[12] AT ROW 12.48 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 26
+          VIEW-AS FILL-IN 
+         SIZE 4 BY .76
      eb.i-ps2[13] AT ROW 13.19 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
@@ -564,8 +473,12 @@ DEFINE FRAME fold
      eb.i-%2[13] AT ROW 13.19 COL 55 NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     fi_unit-13 AT ROW 13.19 COL 60 COLON-ALIGNED NO-LABEL
-     fi_side-13 AT ROW 13.19 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 28
+     eb.unitno[13] AT ROW 13.19 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN
+         SIZE 7 BY .76
+     eb.side[13] AT ROW 13.19 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 28
+          VIEW-AS FILL-IN 
+         SIZE 4 BY .76
      eb.i-ps2[14] AT ROW 13.95 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
@@ -578,8 +491,12 @@ DEFINE FRAME fold
      eb.i-%2[14] AT ROW 13.95 COL 55 NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     fi_unit-14 AT ROW 13.95 COL 60 COLON-ALIGNED NO-LABEL
-     fi_side-14 AT ROW 13.95 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 30
+     eb.unitno[14] AT ROW 13.95 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN
+         SIZE 7 BY .76
+     eb.side[14] AT ROW 13.95 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 30
+          VIEW-AS FILL-IN 
+         SIZE 4 BY .76
      eb.i-ps2[15] AT ROW 14.71 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
@@ -599,8 +516,12 @@ DEFINE FRAME fold
      eb.i-%2[15] AT ROW 14.67 COL 55 NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     fi_unit-15 AT ROW 14.67 COL 60 COLON-ALIGNED NO-LABEL
-     fi_side-15 AT ROW 14.67 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+     eb.unitno[15] AT ROW 14.67 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN
+         SIZE 7 BY .76
+     eb.side[15] AT ROW 14.67 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+          VIEW-AS FILL-IN 
+         SIZE 4 BY .76
      eb.i-ps2[16] AT ROW 15.48 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
@@ -613,8 +534,12 @@ DEFINE FRAME fold
      eb.i-%2[16] AT ROW 15.48 COL 55 NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     fi_unit-16 AT ROW 15.48 COL 60 COLON-ALIGNED NO-LABEL
-     fi_side-16 AT ROW 15.48 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 34
+     eb.unitno[16] AT ROW 15.48 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN
+         SIZE 7 BY .76
+     eb.side[16] AT ROW 15.48 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 34
+          VIEW-AS FILL-IN 
+         SIZE 4 BY .76
      eb.i-ps2[17] AT ROW 16.19 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
@@ -627,8 +552,12 @@ DEFINE FRAME fold
      eb.i-%2[17] AT ROW 16.19 COL 55 NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     fi_unit-17 AT ROW 16.24 COL 60 COLON-ALIGNED NO-LABEL
-     fi_side-17 AT ROW 16.24 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+     eb.unitno[17] AT ROW 16.24 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN
+         SIZE 7 BY .76
+     eb.side[17] AT ROW 16.24 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+          VIEW-AS FILL-IN 
+         SIZE 4 BY .76
      eb.cas-no AT ROW 1.95 COL 87 COLON-ALIGNED
           LABEL "Pack Code"
           VIEW-AS FILL-IN 
@@ -889,74 +818,74 @@ ASSIGN
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN fi_prod-notes IN FRAME fold
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fi_side-1 IN FRAME fold
+/* SETTINGS FOR FILL-IN eb.side[1] IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_side-10 IN FRAME fold
+/* SETTINGS FOR FILL-IN eb.side[2] IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_side-11 IN FRAME fold
+/* SETTINGS FOR FILL-IN eb.side[3] IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_side-12 IN FRAME fold
+/* SETTINGS FOR FILL-IN eb.side[4] IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_side-13 IN FRAME fold
+/* SETTINGS FOR FILL-IN eb.side[5] IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_side-14 IN FRAME fold
+/* SETTINGS FOR FILL-IN eb.side[6] IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_side-15 IN FRAME fold
+/* SETTINGS FOR FILL-IN eb.side[7] IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_side-16 IN FRAME fold
+/* SETTINGS FOR FILL-IN eb.side[8] IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_side-17 IN FRAME fold
+/* SETTINGS FOR FILL-IN eb.side[9] IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_side-2 IN FRAME fold
+/* SETTINGS FOR FILL-IN eb.side[10] IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_side-3 IN FRAME fold
+/* SETTINGS FOR FILL-IN eb.side[11] IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_side-4 IN FRAME fold
+/* SETTINGS FOR FILL-IN eb.side[12] IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_side-5 IN FRAME fold
+/* SETTINGS FOR FILL-IN eb.side[13] IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_side-6 IN FRAME fold
+/* SETTINGS FOR FILL-IN eb.side[14] IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_side-7 IN FRAME fold
+/* SETTINGS FOR FILL-IN eb.side[15] IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_side-8 IN FRAME fold
+/* SETTINGS FOR FILL-IN eb.side[16] IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_side-9 IN FRAME fold
+/* SETTINGS FOR FILL-IN eb.side[17] IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_unit-1 IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_unit-10 IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_unit-11 IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_unit-12 IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_unit-13 IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_unit-14 IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_unit-15 IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_unit-16 IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_unit-17 IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_unit-2 IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_unit-3 IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_unit-4 IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_unit-5 IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_unit-6 IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_unit-7 IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_unit-8 IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN fi_unit-9 IN FRAME fold
-   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN eb.unitno[1] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitno[2] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitno[3] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitno[4] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                          */
+/* SETTINGS FOR FILL-IN eb.unitno[5] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                          */
+/* SETTINGS FOR FILL-IN eb.unitno[6] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                          */
+/* SETTINGS FOR FILL-IN eb.unitno[7] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                          */
+/* SETTINGS FOR FILL-IN eb.unitno[8] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                          */
+/* SETTINGS FOR FILL-IN eb.unitno[9] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                          */
+/* SETTINGS FOR FILL-IN eb.unitno[10] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                          */
+/* SETTINGS FOR FILL-IN eb.unitno[11] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                          */
+/* SETTINGS FOR FILL-IN eb.unitno[12] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                          */
+/* SETTINGS FOR FILL-IN eb.unitno[13] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                          */
+/* SETTINGS FOR FILL-IN eb.unitno[14] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                          */
+/* SETTINGS FOR FILL-IN eb.unitno[15] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                          */
+/* SETTINGS FOR FILL-IN eb.unitno[16] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                          */
+/* SETTINGS FOR FILL-IN eb.unitno[17] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                          */
 /* SETTINGS FOR FILL-IN eb.fr-out-c IN FRAME fold
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN eb.fr-out-m IN FRAME fold
@@ -1477,16 +1406,16 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_side-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_side-2 V-table-Win
-ON LEAVE OF fi_side-2 IN FRAME fold
+&Scoped-define SELF-NAME eb.side[2]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[2] V-table-Win
+ON LEAVE OF eb.side[2] IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
     {&methods/lValidateError.i YES}
 
-      ASSIGN fi_side-2.
+      /*ASSIGN eb.side[2].*/
 
-      IF fi_side-2 NE "" AND LOOKUP(fi_side-2,"F,B") EQ 0 THEN
+      IF eb.side[2]:Screen-value NE "" AND LOOKUP(eb.side[2]:Screen-value,"F,B") EQ 0 THEN
       DO:
          MESSAGE "Invalid Value.  Valid Values are F or B."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
@@ -1501,15 +1430,15 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_side-3
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_side-3 V-table-Win
-ON LEAVE OF fi_side-3 IN FRAME fold
+&Scoped-define SELF-NAME eb.side[3]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[3] V-table-Win
+ON LEAVE OF eb.side[3] IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
     {&methods/lValidateError.i YES}
-      ASSIGN fi_side-3.
+      /*ASSIGN eb.side[3].*/
 
-      IF fi_side-3 NE "" AND LOOKUP(fi_side-3,"F,B") EQ 0 THEN
+      IF eb.side[3]:Screen-value NE "" AND LOOKUP(eb.side[3]:Screen-value,"F,B") EQ 0 THEN
       DO:
          MESSAGE "Invalid Value.  Valid Values are F or B."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
@@ -1524,15 +1453,15 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_side-4
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_side-4 V-table-Win
-ON LEAVE OF fi_side-4 IN FRAME fold
+&Scoped-define SELF-NAME eb.side[4]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[4] V-table-Win
+ON LEAVE OF eb.side[4] IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
    {&methods/lValidateError.i YES}
-      ASSIGN fi_side-4.
+      /*ASSIGN eb.side[4].*/
 
-      IF fi_side-4 NE "" AND LOOKUP(fi_side-4,"F,B") EQ 0 THEN
+      IF eb.side[4]:Screen-value NE "" AND LOOKUP(eb.side[4]:Screen-value,"F,B") EQ 0 THEN
       DO:
          MESSAGE "Invalid Value.  Valid Values are F or B."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
@@ -1547,15 +1476,15 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_side-5
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_side-5 V-table-Win
-ON LEAVE OF fi_side-5 IN FRAME fold
+&Scoped-define SELF-NAME eb.side[5]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[5] V-table-Win
+ON LEAVE OF eb.side[5] IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
    {&methods/lValidateError.i YES}
-      ASSIGN fi_side-5.
+      /*ASSIGN eb.side[5].*/
 
-      IF fi_side-5 NE "" AND LOOKUP(fi_side-5,"F,B") EQ 0 THEN
+      IF eb.side[5]:Screen-value NE "" AND LOOKUP(eb.side[5]:Screen-value,"F,B") EQ 0 THEN
       DO:
          MESSAGE "Invalid Value.  Valid Values are F or B."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
@@ -1570,15 +1499,15 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_side-6
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_side-6 V-table-Win
-ON LEAVE OF fi_side-6 IN FRAME fold
+&Scoped-define SELF-NAME eb.side[6]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[6] V-table-Win
+ON LEAVE OF eb.side[6] IN FRAME fold
 DO:
   IF LASTKEY NE -1 THEN DO:
    {&methods/lValidateError.i YES}
-     ASSIGN fi_side-6.
+     /*ASSIGN eb.side[6].*/
 
-     IF fi_side-6 NE "" AND LOOKUP(fi_side-6,"F,B") EQ 0 THEN
+     IF eb.side[6]:Screen-value NE "" AND LOOKUP(eb.side[6]:Screen-value,"F,B") EQ 0 THEN
      DO:
         MESSAGE "Invalid Value.  Valid Values are F or B."
            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
@@ -1593,15 +1522,15 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_side-7
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_side-7 V-table-Win
-ON LEAVE OF fi_side-7 IN FRAME fold
+&Scoped-define SELF-NAME eb.side[7]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[7] V-table-Win
+ON LEAVE OF eb.side[7] IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
    {&methods/lValidateError.i YES}
-      ASSIGN fi_side-7.
+      /*ASSIGN eb.side[7].*/
 
-      IF fi_side-7 NE "" AND LOOKUP(fi_side-7,"F,B") EQ 0 THEN
+      IF eb.side[7]:Screen-value NE "" AND LOOKUP(eb.side[7]:Screen-value,"F,B") EQ 0 THEN
       DO:
          MESSAGE "Invalid Value.  Valid Values are F or B."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
@@ -1616,15 +1545,15 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_side-8
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_side-8 V-table-Win
-ON LEAVE OF fi_side-8 IN FRAME fold
+&Scoped-define SELF-NAME eb.side[8]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[8] V-table-Win
+ON LEAVE OF eb.side[8] IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
     {&methods/lValidateError.i YES}
-      ASSIGN fi_side-8.
+      /*ASSIGN eb.side[8].*/
 
-      IF fi_side-8 NE "" AND LOOKUP(fi_side-8,"F,B") EQ 0 THEN
+      IF eb.side[8]:Screen-value NE "" AND LOOKUP(eb.side[8]:Screen-value,"F,B") EQ 0 THEN
       DO:
          MESSAGE "Invalid Value.  Valid Values are F or B."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
@@ -1639,15 +1568,15 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_side-9
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_side-9 V-table-Win
-ON LEAVE OF fi_side-9 IN FRAME fold
+&Scoped-define SELF-NAME eb.side[9]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[9] V-table-Win
+ON LEAVE OF eb.side[9] IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
     {&methods/lValidateError.i YES}
-      ASSIGN fi_side-9.
+      ASSIGN eb.side[9].
 
-      IF fi_side-9 NE "" AND LOOKUP(fi_side-9,"F,B") EQ 0 THEN
+      IF eb.side[9]:Screen-value NE "" AND LOOKUP(eb.side[9]:Screen-value,"F,B") EQ 0 THEN
       DO:
          MESSAGE "Invalid Value.  Valid Values are F or B."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
@@ -2479,40 +2408,40 @@ PROCEDURE disable-inks :
             eb.i-code2[1 for 17]
             eb.i-dscr2[1 for 17]
             eb.i-%2[1 for 17]
-            fi_unit-1
-            fi_unit-2
-            fi_unit-3
-            fi_unit-4
-            fi_unit-5
-            fi_unit-6
-            fi_unit-7
-            fi_unit-8
-            fi_unit-9
-            fi_unit-10
-            fi_unit-11
-            fi_unit-12
-            fi_unit-13
-            fi_unit-14
-            fi_unit-15
-            fi_unit-16
-            fi_unit-17
-            fi_side-1
-            fi_side-2
-            fi_side-3
-            fi_side-4
-            fi_side-5
-            fi_side-6
-            fi_side-7
-            fi_side-8
-            fi_side-9
-            fi_side-10
-            fi_side-11
-            fi_side-12
-            fi_side-13
-            fi_side-14
-            fi_side-15
-            fi_side-16
-            fi_side-17.
+            eb.unitno[1]
+            eb.unitno[2]
+            eb.unitno[3]
+            eb.unitno[4]
+            eb.unitno[5]
+            eb.unitno[6]
+            eb.unitno[7]
+            eb.unitno[8]
+            eb.unitno[9]
+            eb.unitno[10]
+            eb.unitno[11]
+            eb.unitno[12]
+            eb.unitno[13]
+            eb.unitno[14]
+            eb.unitno[15]
+            eb.unitno[16]
+            eb.unitno[17]
+            eb.side[1]
+            eb.side[2]
+            eb.side[3]
+            eb.side[4]
+            eb.side[5]
+            eb.side[6]
+            eb.side[7]
+            eb.side[8]
+            eb.side[9]
+            eb.side[10]
+            eb.side[11]
+            eb.side[12]
+            eb.side[13]
+            eb.side[14]
+            eb.side[15]
+            eb.side[16]
+            eb.side[17].
   END.
 
 END PROCEDURE.
@@ -2660,90 +2589,12 @@ PROCEDURE fgcolors-reset :
     END.
 
     RUN fg/setcolor.p (ROWID(ink-eb), lv-type).
-
-    DO li = 0 TO 1:
-
-       v-str = "ce/v-est3.w Unit#" + TRIM(STRING(li,">")).
-
-       FIND FIRST b-ref WHERE
-            b-ref.reftable EQ v-str AND
-            b-ref.company  EQ ink-eb.company AND
-            b-ref.loc      EQ ink-eb.est-no AND
-            b-ref.code     EQ STRING(ink-eb.form-no,"9999999999") AND
-            b-ref.code2    EQ STRING(ink-eb.blank-no,"9999999999")
-            NO-ERROR.
-
-       IF AVAIL b-ref THEN
+      FIND CURRENT ink-eb EXCLUSIVE-LOCK NO-ERROR.
        DO:
-          b-ref.dscr = "".
-
-          IF li = 0 THEN
-          DO v-side-count = 1 TO 12:
-             IF ink-eb.i-code2[v-side-count] NE "" THEN
-                b-ref.dscr = b-ref.dscr + "F".
-             ELSE
-                b-ref.dscr = b-ref.dscr + " ".
-          END.
-          ELSE
-          DO v-side-count = 13 TO 17:
-             IF ink-eb.i-code2[v-side-count] NE "" THEN
-                b-ref.dscr = b-ref.dscr + "F".
-             ELSE
-                b-ref.dscr = b-ref.dscr + " ".
-          END.
-
-          FIND CURRENT b-ref NO-LOCK NO-ERROR.
-          RELEASE b-ref.
+          {ce/updunit#.i ink-eb}
        END.
-       ELSE
-       DO:
-          {ce/updunit#.i ink-eb li}
-       END.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE find-create-unit# V-table-Win 
-PROCEDURE find-create-unit# :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-  DEF INPUT PARAM ip-int AS INT NO-UNDO.
-  DEF OUTPUT PARAM op-rowid AS ROWID NO-UNDO.
-
-  DEF BUFFER b-eb FOR eb.
-  DEF BUFFER b-rt FOR reftable.
-
-
-  FIND b-eb WHERE ROWID(b-eb) EQ ip-rowid NO-LOCK NO-ERROR.
-
-  IF AVAIL b-eb THEN DO TRANSACTION:
-    FIND FIRST b-rt
-        WHERE b-rt.reftable EQ "ce/v-est3.w Unit#" + TRIM(STRING(ip-int,">"))
-          AND b-rt.company  EQ b-eb.company
-          AND b-rt.loc      EQ b-eb.est-no
-          AND b-rt.code     EQ STRING(b-eb.form-no,"9999999999")
-          AND b-rt.code2    EQ STRING(b-eb.blank-no,"9999999999")
-        NO-LOCK NO-ERROR.
-    IF NOT AVAIL b-rt THEN DO:
-      CREATE b-rt.
-      ASSIGN
-       b-rt.reftable = "ce/v-est3.w Unit#" + TRIM(STRING(ip-int,">"))
-       b-rt.company  = b-eb.company
-       b-rt.loc      = b-eb.est-no
-       b-rt.code     = STRING(b-eb.form-no,"9999999999")
-       b-rt.code2    = STRING(b-eb.blank-no,"9999999999").
-    END.
-
-    op-rowid = ROWID(b-rt).
-
+      FIND CURRENT ink-eb NO-LOCK NO-ERROR.       
+/*    END.*/
   END.
 
 END PROCEDURE.
@@ -2803,6 +2654,7 @@ PROCEDURE find-depth-reftable :
     END.
 
     op-rowid = ROWID(b-rt).
+    RELEASE b-rt.
   END.
 END PROCEDURE.
 
@@ -2870,11 +2722,8 @@ PROCEDURE getUnit# :
     DO i = 1 TO EXTENT(eb.i-code2):
       IF b-eb.i-ps2[i] NE INTEGER(iPS2:SCREEN-VALUE) OR
          b-eb.i-code2[i] NE iCode2:SCREEN-VALUE THEN NEXT.
-      j = IF i LE 12 THEN 0 ELSE 1.
-      RUN find-create-unit# (ROWID(b-eb),j,OUTPUT rtRowID).
-      FIND reftable NO-LOCK WHERE ROWID(reftable) EQ rtRowID NO-ERROR.
-      IF NOT AVAILABLE reftable THEN LEAVE.
-      fiUnit:SCREEN-VALUE = STRING(reftable.val[i],'>>>').
+      j = IF i LE 17 THEN 0 ELSE 1.
+      fiUnit:SCREEN-VALUE = STRING(b-eb.unitNo[i],'>>>').
       RETURN.
     END. /* do i */
   END. /* each b-ef */
@@ -2922,7 +2771,13 @@ PROCEDURE local-assign-record :
            eb.tr-cas 
            eb.carrier eb.carr-dscr eb.weight-m eb.dest-code
            eb.fr-out-c eb.fr-out-m eb.chg-method
-           fi_prod-notes
+           fi_prod-notes eb.unitNo[1] eb.unitNo[2] eb.unitNo[3] eb.unitNo[4]
+           eb.unitNo[5] eb.unitNo[6] eb.unitNo[7] eb.unitNo[8] eb.unitNo[9]
+           eb.unitNo[10] eb.unitNo[11] eb.unitNo[12] eb.unitNo[13] eb.unitNo[14]
+           eb.unitNo[15] eb.unitNo[16] eb.unitNo[17] eb.side[1] eb.side[2] 
+           eb.side[3] eb.side[4] eb.side[5] eb.side[6] eb.side[7] eb.side[8]
+           eb.side[9] eb.side[10] eb.side[11] eb.side[12] eb.side[13] eb.side[14]
+           eb.side[15] eb.side[16] eb.side[17]
            .
   end.
 
@@ -3027,72 +2882,16 @@ PROCEDURE local-assign-record :
   ASSIGN
      lv-unit-1 = 0
      lv-side-1 = ""
-     v-side-string = (IF fi_side-1 = "" THEN " " ELSE fi_side-1)
-                   + (IF fi_side-2 = "" THEN " " ELSE fi_side-2)
-                   + (IF fi_side-3 = "" THEN " " ELSE fi_side-3)
-                   + (IF fi_side-4 = "" THEN " " ELSE fi_side-4)
-                   + (IF fi_side-5 = "" THEN " " ELSE fi_side-5)
-                   + (IF fi_side-6 = "" THEN " " ELSE fi_side-6)
-                   + (IF fi_side-7 = "" THEN " " ELSE fi_side-7)
-                   + (IF fi_side-8 = "" THEN " " ELSE fi_side-8)
-                   + (IF fi_side-9 = "" THEN " " ELSE fi_side-9)
-                   + (IF fi_side-10 = "" THEN " " ELSE fi_side-10)
-                   + (IF fi_side-11 = "" THEN " " ELSE fi_side-11)
-                   + (IF fi_side-12 = "" THEN " " ELSE fi_side-12).
+     .
 
-  RUN find-create-unit# (ROWID(eb), 0, OUTPUT lv-rowid).
-  FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-ERROR.
-
-  IF AVAIL reftable THEN DO:
-     ASSIGN
-      reftable.val[1]  = fi_unit-1  
-      reftable.val[2]  = fi_unit-2
-      reftable.val[3]  = fi_unit-3
-      reftable.val[4]  = fi_unit-4  
-      reftable.val[5]  = fi_unit-5
-      reftable.val[6]  = fi_unit-6
-      reftable.val[7]  = fi_unit-7  
-      reftable.val[8]  = fi_unit-8
-      reftable.val[9]  = fi_unit-9
-      reftable.val[10] = fi_unit-10
-      reftable.val[11] = fi_unit-11
-      reftable.val[12] = fi_unit-12
-      reftable.dscr    = v-side-string.
-
-     FIND CURRENT reftable NO-LOCK.
-
-     DO a = 1 TO 12:
-        lv-unit-1[a] = reftable.val[a].
+  DO:
+   
+     DO a = 1 TO 17:
+        lv-unit-1[a] = eb.unitNo[a].
      END.
 
-     lv-side-1 = v-side-string.
   END.
 
-  RUN find-create-unit# (ROWID(eb), 1, OUTPUT lv-rowid).
-  FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-ERROR .
-
-  IF AVAIL reftable THEN DO:
-    ASSIGN
-   v-side-string-2 = (IF fi_side-13 = "" THEN " " ELSE fi_side-13)
-                    + (IF fi_side-14 = "" THEN " " ELSE fi_side-14)
-                    + (IF fi_side-15 = "" THEN " " ELSE fi_side-15)
-                    + (IF fi_side-16 = "" THEN " " ELSE fi_side-16)
-                    + (IF fi_side-17 = "" THEN " " ELSE fi_side-17)  
-     reftable.val[1]  = fi_unit-13  
-     reftable.val[2]  = fi_unit-14
-     reftable.val[3]  = fi_unit-15
-     reftable.val[4]  = fi_unit-16 
-     reftable.val[5]  = fi_unit-17
-     reftable.dscr    = v-side-string-2.
-
-    FIND CURRENT reftable NO-LOCK.
-
-    DO a = 1 TO 8:
-       lv-unit-1[a + 12] = reftable.val[a].
-    END.
-
-    lv-side-1 = lv-side-1 + v-side-string-2.
-  END.
 
   RUN find-depth-reftable(ROWID(eb), OUTPUT lv-rowid).
   FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-ERROR.
@@ -3114,28 +2913,12 @@ PROCEDURE local-assign-record :
        lv-unit-2 = 0
        lv-side-2 = "".
 
-    RUN find-create-unit# (ROWID(b-eb), 0, OUTPUT lv-rowid).
-    FIND b-rt WHERE ROWID(b-rt) EQ lv-rowid NO-LOCK NO-ERROR.
-
-    IF AVAIL b-rt THEN
     DO:
-       DO a = 1 TO 12:
-          lv-unit-2[a] = b-rt.val[a].
+       DO a = 1 TO 17:
+          lv-unit-2[a] = b-eb.unitNo[a].
        END.
 
-       lv-side-2 = b-rt.dscr.
-    END.
-
-    RUN find-create-unit# (ROWID(b-eb), 1, OUTPUT lv-rowid).
-    FIND b-rt WHERE ROWID(b-rt) EQ lv-rowid NO-LOCK NO-ERROR.
-
-    IF AVAIL b-rt THEN
-    DO:
-       DO a = 1 TO 8:
-          lv-unit-2[a + 12] = b-rt.val[a].
-       END.
-
-       lv-side-2 = lv-side-2 + b-rt.dscr.
+       lv-side-2 = lv-side-2 + b-eb.side[1].
     END.
 
     DO a = 1 TO EXTENT(eb.i-code2):
@@ -3151,32 +2934,9 @@ PROCEDURE local-assign-record :
        END.
     END.
 
-    RUN find-create-unit# (ROWID(b-eb), 0, OUTPUT lv-rowid).
-    FIND b-rt WHERE ROWID(b-rt) EQ lv-rowid NO-ERROR.
-
-    IF AVAIL b-rt THEN
-    DO:
-       DO a = 1 TO 12:
-          b-rt.val[a] = lv-unit-2[a].
-       END.
-
-       b-rt.dscr = SUBSTRING(lv-side-2,1,12).
-
-       FIND CURRENT b-rt NO-LOCK.
-    END.
-
-    RUN find-create-unit# (ROWID(b-eb), 1, OUTPUT lv-rowid).
-    FIND b-rt WHERE ROWID(b-rt) EQ lv-rowid NO-ERROR.
-
-    IF AVAIL b-rt THEN
-    DO:
-       DO a = 1 TO 8:
-          b-rt.val[a] = lv-unit-2[a + 12].
-       END.
-
-       b-rt.dscr = SUBSTRING(lv-side-2,13).
-
-       FIND CURRENT b-rt NO-LOCK.
+    DO a = 1 TO 20:
+      b-eb.unitNo[a] = lv-unit-2[a].
+      b-eb.side[a] = substring(lv-side-2,a,1).
     END.
   END.
 
@@ -3240,98 +3000,18 @@ PROCEDURE local-display-fields :
   IF NOT AVAIL eb THEN RETURN.
 
   ASSIGN
-   fi_unit-1  = 0
-   fi_unit-2  = 0
-   fi_unit-3  = 0
-   fi_unit-4  = 0
-   fi_unit-5  = 0
-   fi_unit-6  = 0
-   fi_unit-7  = 0
-   fi_unit-8  = 0
-   fi_unit-9  = 0
-   fi_unit-10 = 0
-   fi_unit-11 = 0
-   fi_unit-12 = 0
-   fi_unit-13 = 0
-   fi_unit-14 = 0
-   fi_unit-15 = 0
-   fi_unit-16 = 0
-   fi_unit-17 = 0
-   fi_side-1  = ""
-   fi_side-2  = ""
-   fi_side-3  = ""
-   fi_side-4  = ""
-   fi_side-5  = ""
-   fi_side-6  = ""
-   fi_side-7  = ""
-   fi_side-8  = ""
-   fi_side-9  = ""
-   fi_side-10 = ""
-   fi_side-11 = ""
-   fi_side-12 = ""
-   fi_side-13 = ""
-   fi_side-14 = ""
-   fi_side-15 = ""
-   fi_side-16 = ""
-   fi_side-17 = ""
    f-lp-dep = 0
    f-div-dep = 0.
 
   IF NOT adm-new-record THEN DO:
-     RUN find-create-unit# (ROWID(eb), 0, OUTPUT lv-rowid).
-     FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-LOCK NO-ERROR.
-
-     IF AVAIL reftable THEN
-       ASSIGN
-        fi_unit-1  = reftable.val[1]
-        fi_unit-2  = reftable.val[2]
-        fi_unit-3  = reftable.val[3]
-        fi_unit-4  = reftable.val[4]
-        fi_unit-5  = reftable.val[5]
-        fi_unit-6  = reftable.val[6]
-        fi_unit-7  = reftable.val[7]
-        fi_unit-8  = reftable.val[8]
-        fi_unit-9  = reftable.val[9]
-        fi_unit-10 = reftable.val[10]
-        fi_unit-11 = reftable.val[11]
-        fi_unit-12 = reftable.val[12]
-        fi_side-1  = SUBSTRING(reftable.dscr,1,1)
-        fi_side-2  = SUBSTRING(reftable.dscr,2,1)
-        fi_side-3  = SUBSTRING(reftable.dscr,3,1)
-        fi_side-4  = SUBSTRING(reftable.dscr,4,1)
-        fi_side-5  = SUBSTRING(reftable.dscr,5,1)
-        fi_side-6  = SUBSTRING(reftable.dscr,6,1)
-        fi_side-7  = SUBSTRING(reftable.dscr,7,1)
-        fi_side-8  = SUBSTRING(reftable.dscr,8,1)
-        fi_side-9  = SUBSTRING(reftable.dscr,9,1)
-        fi_side-10  = SUBSTRING(reftable.dscr,10,1)
-        fi_side-11  = SUBSTRING(reftable.dscr,11,1)
-        fi_side-12  = SUBSTRING(reftable.dscr,12,1)
-         .
-
-     RUN find-create-unit# (ROWID(eb), 1, OUTPUT lv-rowid).
-     FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-LOCK NO-ERROR.
-
-     IF AVAIL reftable THEN
-       ASSIGN
-        fi_unit-13 = reftable.val[1]
-        fi_unit-14 = reftable.val[2]
-        fi_unit-15 = reftable.val[3]
-        fi_unit-16 = reftable.val[4]
-        fi_unit-17 = reftable.val[5]
-        fi_side-13  = SUBSTRING(reftable.dscr,1,1)
-        fi_side-14  = SUBSTRING(reftable.dscr,2,1)
-        fi_side-15  = SUBSTRING(reftable.dscr,3,1)
-        fi_side-16  = SUBSTRING(reftable.dscr,4,1)
-        fi_side-17  = SUBSTRING(reftable.dscr,5,1).
-
-
+     
      RUN find-depth-reftable(ROWID(eb), OUTPUT lv-rowid).
      FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-ERROR.
      IF AVAIL reftable THEN
         ASSIGN
            f-lp-dep  = reftable.val[1]
            f-div-dep = reftable.val[2].
+     FIND CURRENT reftable NO-LOCK.
   END.
 
   FIND FIRST itemfg
@@ -3455,7 +3135,7 @@ PROCEDURE local-update-record :
       /*if eb.i-code2[18]:screen-value in frame {&frame-name} <> "" then li-num-of-code = li-num-of-code + 1.
       if eb.i-code2[19]:screen-value in frame {&frame-name} <> "" then li-num-of-code = li-num-of-code + 1.
       if eb.i-code2[20]:screen-value in frame {&frame-name} <> "" then li-num-of-code = li-num-of-code + 1*/.
-
+ 
       if li-num-of-code <> (integer(eb.i-col:screen-value) + 
                            integer(eb.i-coat:screen-value) )
       then do:
@@ -3497,17 +3177,19 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-   ll-unit-calc   = NO
-   ll-update-pack = NO.
-
+  
   DISABLE f-lp-dep f-div-dep WITH FRAME {&FRAME-NAME}.
 
   RUN release-shared-buffers.
 
   RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
 
-  IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), ?).
+  IF framechk-i-changed AND (ll-update-pack OR ll-unit-calc) THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 3).
+  ELSE IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 2).
+
+  ASSIGN
+   ll-unit-calc   = NO
+   ll-update-pack = NO.
 
   RUN update-ink.
   RUN disable-inks.
@@ -4042,50 +3724,16 @@ PROCEDURE reset-ink1 :
          if i modulo j = 0 then counter = counter + 1.
          if counter > ink-eb.i-pass then counter = ink-eb.i-pass.
       end.
-
-      DO li = 0 TO 1:
-
-         v-str = "ce/v-est3.w Unit#" + TRIM(STRING(li,">")).
-
-         FIND FIRST b-ref WHERE
-              b-ref.reftable EQ v-str AND
-              b-ref.company  EQ ink-eb.company AND
-              b-ref.loc      EQ ink-eb.est-no AND
-              b-ref.code     EQ STRING(ink-eb.form-no,"9999999999") AND
-              b-ref.code2    EQ STRING(ink-eb.blank-no,"9999999999")
-              NO-ERROR.
-
-         IF AVAIL b-ref THEN
+      FIND CURRENT ink-eb EXCLUSIVE-LOCK NO-ERROR.         
          DO:
-            b-ref.dscr = "".
-
-            IF li = 0 THEN
-            DO v-side-count = 1 TO 12:
-               IF ink-eb.i-code2[v-side-count] NE "" THEN
-                  b-ref.dscr = b-ref.dscr + "F".
-               ELSE
-                  b-ref.dscr = b-ref.dscr + " ".
-            END.
-            ELSE
-            DO v-side-count = 13 TO 17:
-               IF ink-eb.i-code2[v-side-count] NE "" THEN
-                  b-ref.dscr = b-ref.dscr + "F".
-               ELSE
-                  b-ref.dscr = b-ref.dscr + " ".
-            END.
-
-            FIND CURRENT b-ref NO-LOCK NO-ERROR.
-            RELEASE b-ref.
+            {ce/updunit#.i ink-eb}
          END.
-         ELSE
-         DO:
-            {ce/updunit#.i ink-eb li}
-         END.
+         
     END.
 
       FIND CURRENT ink-eb NO-LOCK NO-ERROR.
     END.
-  END.
+
 
   RUN dispatch ("display-fields").
 
@@ -4326,41 +3974,41 @@ PROCEDURE update-ink :
   RUN custom/framechk.p (1, FRAME {&FRAME-NAME}:HANDLE).
 
   DO WITH FRAME {&FRAME-NAME}:
-    ENABLE fi_unit-1
-           fi_unit-2
-           fi_unit-3
-           fi_unit-4
-           fi_unit-5
-           fi_unit-6
-           fi_unit-7
-           fi_unit-8
-           fi_unit-9
-           fi_unit-10
-           fi_unit-11
-           fi_unit-12
-           fi_unit-13
-           fi_unit-14
-           fi_unit-15
-           fi_unit-16
-           fi_unit-17
+    ENABLE  eb.unitno[1]
+            eb.unitno[2]
+            eb.unitno[3]
+            eb.unitno[4]
+            eb.unitno[5]
+            eb.unitno[6]
+            eb.unitno[7]
+            eb.unitno[8]
+            eb.unitno[9]
+            eb.unitno[10]
+            eb.unitno[11]
+            eb.unitno[12]
+            eb.unitno[13]
+            eb.unitno[14]
+            eb.unitno[15]
+            eb.unitno[16]
+            eb.unitno[17]
 
-           fi_side-1
-           fi_side-2
-           fi_side-3
-           fi_side-4
-           fi_side-5
-           fi_side-6
-           fi_side-7
-           fi_side-8
-           fi_side-9
-           fi_side-10
-           fi_side-11
-           fi_side-12
-           fi_side-13
-           fi_side-14
-           fi_side-15
-           fi_side-16
-           fi_side-17
+           eb.side[1]
+           eb.side[2]
+           eb.side[3]
+           eb.side[4]
+           eb.side[5]
+           eb.side[6]
+           eb.side[7]
+           eb.side[8]
+           eb.side[9]
+           eb.side[10]
+           eb.side[11]
+           eb.side[12]
+           eb.side[13]
+           eb.side[14]
+           eb.side[15]
+           eb.side[16]
+           eb.side[17]
 
         /*    fi_unit-18
             fi_unit-19

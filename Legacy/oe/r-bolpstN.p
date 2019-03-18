@@ -1452,7 +1452,7 @@ DO TRANSACTION.
     FOR EACH oe-boll NO-LOCK
         WHERE oe-boll.company EQ oe-bolh.company
           AND oe-boll.b-no    EQ oe-bolh.b-no:
-      RUN oe/bol-pre-post.p (ROWID(oe-boll), v-term).
+      RUN oe/bol-pre-post.p (ROWID(oe-boll), v-term, YES /* show msg */).
 
       IF fgreorder-log AND cust.ACTIVE EQ "E" THEN
       RUN create-reorder (ROWID(oe-boll)).
@@ -1713,7 +1713,17 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
           run create-nopost ("Order Lines Were Not Found").
           next mainblok.
         end.
-
+        RUN oe/custxship.p (oe-bolh.company,
+            oe-bolh.cust-no,
+            oe-bolh.ship-id,
+            BUFFER shipto).
+          
+        IF NOT AVAILABLE shipto THEN 
+        DO:
+          RUN create-nopost ("Invalid Shipto").
+          NEXT mainblok.            
+        END. 
+        
         find first oe-rell where oe-rell.company = oe-boll.company and
                oe-rell.r-no = oe-boll.r-no AND
                oe-rell.i-no = oe-boll.i-no and

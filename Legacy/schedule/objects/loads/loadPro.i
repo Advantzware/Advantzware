@@ -10,7 +10,7 @@ DEFINE VARIABLE custVal AS CHARACTER NO-UNDO.
 DEFINE VARIABLE debugCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE holdFlag AS CHARACTER NO-UNDO.
 DEFINE VARIABLE matType AS CHARACTER NO-UNDO.
-DEFINE VARIABLE traceON AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iAuditID AS INTEGER NO-UNDO.
 
 {{&viewers}/includes/sharedVars.i NEW}
 
@@ -41,12 +41,22 @@ DEFINE TEMP-TABLE statusCheckOffs NO-UNDO
 /* moved to loadProEnd.i */
 /* RUN updateColumns. /* add newly added columns incase they are missing */ */
 
-traceON = SEARCH(findProgram('{&startDir}/','','traceON.dat')) NE ?.
-
 &IF '{&Board}' NE 'View' &THEN
-OUTPUT TO VALUE('schedule\load.log') APPEND.
-PUT UNFORMATTED 'Start Load: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' for ' ID ' by ' sbUser SKIP.
-OUTPUT CLOSE.
+RUN spCreateAuditHdr (
+    "LOG",     /* type  */
+    "ASI",     /* db    */
+    "sbPro.", /* table */
+    ID,        /* key   */
+    OUTPUT iAuditID
+    ).
+RUN spCreateAuditDtl (
+    iAuditID,    /* audit id     */
+    "LoadBegin", /* field        */
+    0,           /* extent       */
+    STRING(TODAY,"99.99.9999") + " @ " + STRING(TIME,"hh:mm:ss"), /* before value */
+    "",          /* after value  */
+    NO           /* index field  */
+    ).
 
 OUTPUT STREAM sCapacity TO VALUE(SEARCH('{&data}/' + ID + '/capacity.dat')).
 OUTPUT STREAM sJobNotes TO VALUE(SEARCH('{&data}/' + ID + '/jobNotes.dat')).

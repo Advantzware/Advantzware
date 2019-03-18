@@ -1,2 +1,0 @@
-/* ediVTran.i */
-

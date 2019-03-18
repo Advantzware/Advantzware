@@ -9,7 +9,8 @@ DEF SHARED BUFFER xef  FOR ef.
 DEF SHARED BUFFER xeb  FOR eb.
 
 DEF VAR lv-cebrowse-dir AS cha NO-UNDO.
-
+DEFINE VARIABLE cCeBrowseBaseDir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE tmp-dir AS CHARACTER NO-UNDO.
 {ce/print4.i SHARED SHARED}
 {ce/print42.i SHARED}
 
@@ -29,10 +30,9 @@ if not avail sys-ctrl then DO TRANSACTION:
    sys-ctrl.int-fld = 30.
 end.
 
-IF sys-ctrl.char-fld NE "" THEN
-   lv-cebrowse-dir = sys-ctrl.char-fld.
-ELSE
-   lv-cebrowse-dir = "users\".
+RUN est/EstimateProcs.p (cocode, OUTPUT cCEBrowseBaseDir, OUTPUT tmp-dir ).
+
+lv-cebrowse-dir = tmp-dir.
 
 IF LOOKUP(SUBSTRING(lv-cebrowse-dir,LENGTH(lv-cebrowse-dir)),"\,/") EQ 0 THEN
    lv-cebrowse-dir = lv-cebrowse-dir + "\".

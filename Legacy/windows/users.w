@@ -128,14 +128,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 150.6 BY 23.86
-         BGCOLOR 15 .
-
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
+         SIZE 150.6 BY 28.57
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
@@ -143,6 +136,13 @@ DEFINE FRAME message-frame
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 118 ROW 2.51
          SIZE 33 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -165,7 +165,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Users"
-         HEIGHT             = 23.86
+         HEIGHT             = 28.57
          WIDTH              = 150.6
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
@@ -338,7 +338,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 2.91 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 150.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 26.67 , 150.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -364,7 +364,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_users ).
        RUN set-position IN h_users ( 4.81 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_users ( 19.52 , 146.00 ) NO-ERROR.
+       RUN set-size IN h_users ( 24.29 , 146.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
@@ -384,9 +384,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/users.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_users-2 ).
-       RUN set-position IN h_users-2 ( 5.29 , 7.00 ) NO-ERROR.
+       RUN set-position IN h_users-2 ( 5.29 , 5.50 ) NO-ERROR.
+       RUN set-size IN h_users-2 ( 15.76 , 137.00 ) NO-ERROR.
+       /* Position in AB:  ( 5.29 , 5.50 ) */
        /* Size in UIB:  ( 15.76 , 137.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -396,7 +398,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = NAV-ICON,
                      Right-to-Left = First-On-Left':U ,
              OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 22.19 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_p-navico ( 26.95 , 3.00 ) NO-ERROR.
        RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -406,21 +408,19 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 22.19 , 92.00 ) NO-ERROR.
+       RUN set-position IN h_p-updsav ( 26.95 , 93.00 ) NO-ERROR.
        RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartViewer h_users-2. */
+       /* Links to  h_users-2. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_users-2 ).
        RUN add-link IN adm-broker-hdl ( h_users , 'Record':U , h_users-2 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_users-2 ,
-             h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
-             h_users-2 , 'AFTER':U ).
+             h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
              h_p-navico , 'AFTER':U ).
     END. /* Page 2 */

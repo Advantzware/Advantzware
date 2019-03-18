@@ -3,6 +3,7 @@
 /* Production Analysis.rpa */
 DEFINE TEMP-TABLE ttProductionAnalysis NO-UNDO
     {aoa/tempTable/ttFields.i}
+    FIELD dDate          AS CHARACTER LABEL "Date"            FORMAT "99/99/9999"
     FIELD machine        AS CHARACTER LABEL "Machine"         FORMAT "x(6)"
     FIELD custNo         AS CHARACTER LABEL "Customer"        FORMAT "x(8)"
     FIELD custName       AS CHARACTER LABEL "Customer Name"   FORMAT "x(30)"

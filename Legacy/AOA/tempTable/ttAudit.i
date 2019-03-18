@@ -4,6 +4,11 @@ DEFINE TEMP-TABLE ttUser NO-UNDO
     FIELD AuditUser AS CHARACTER
         INDEX AuditUser IS PRIMARY AuditUser
         .
+DEFINE TEMP-TABLE ttAuditDBTable NO-UNDO
+    FIELD AuditDB    AS CHARACTER
+    FIELD AuditTable AS CHARACTER
+        INDEX ttAudit IS PRIMARY AuditDB AuditTable
+        .
 DEFINE TEMP-TABLE ttAudit NO-UNDO
     FIELD AuditDB    AS CHARACTER
     FIELD AuditTable AS CHARACTER

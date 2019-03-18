@@ -50,20 +50,16 @@ CREATE WIDGET-POOL.
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tg_notes tg_title tg_eservice Btn_OK ~
-Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS tg_notes v-f-cust v-t-cust tb_override ~
-tg_title v-erel-fcust tg_eservice 
+&Scoped-Define ENABLED-OBJECTS tg_notes Btn_OK Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS tg_notes v-f-cust v-t-cust tb_override 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 &Scoped-define List-1 tg_notes v-f-cust v-t-cust tb_override 
-&Scoped-define List-2 tg_title v-erel-fcust 
-&Scoped-define List-3 tg_eservice 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -84,11 +80,6 @@ DEFINE BUTTON Btn_OK
      LABEL "Start Process" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE v-erel-fcust AS CHARACTER FORMAT "X(8)":U 
-     LABEL "From Customer" 
-     VIEW-AS FILL-IN 
-     SIZE 18 BY 1 NO-UNDO.
-
 DEFINE VARIABLE v-f-cust AS CHARACTER FORMAT "X(8)":U 
      LABEL "Customer Range Begin" 
      VIEW-AS FILL-IN 
@@ -100,31 +91,17 @@ DEFINE VARIABLE v-t-cust AS CHARACTER FORMAT "X(8)":U
      SIZE 19.6 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 90 BY 10.48.
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
-     SIZE 88 BY 3.81.
-
-DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
-     SIZE 88 BY 2.62.
-
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
-     SIZE 88 BY 1.43.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 88 BY 6.24.
 
 DEFINE VARIABLE tb_override AS LOGICAL INITIAL no 
      LABEL "Override Estimates?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tg_eservice AS LOGICAL INITIAL no 
-     LABEL "Copy the Customer Type Eservice to ALL Customers?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 65 BY 1
-     FONT 6 NO-UNDO.
 
 DEFINE VARIABLE tg_notes AS LOGICAL INITIAL no 
      LABEL "Copy Department Notes From Customer to Estimates?" 
@@ -132,29 +109,18 @@ DEFINE VARIABLE tg_notes AS LOGICAL INITIAL no
      SIZE 65 BY 1.19
      FONT 6 NO-UNDO.
 
-DEFINE VARIABLE tg_title AS LOGICAL INITIAL no 
-     LABEL "Copy ERelease Note to All Customer?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 47 BY 1
-     FONT 6 NO-UNDO.
-
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     tg_notes AT ROW 1.48 COL 15
-     v-f-cust AT ROW 2.91 COL 35 COLON-ALIGNED
-     v-t-cust AT ROW 2.91 COL 62 COLON-ALIGNED
-     tb_override AT ROW 4.1 COL 33
-     tg_title AT ROW 5.52 COL 15
-     v-erel-fcust AT ROW 6.71 COL 38 COLON-ALIGNED
-     tg_eservice AT ROW 8.38 COL 15
-     Btn_OK AT ROW 10.05 COL 19
-     Btn_Cancel AT ROW 10.05 COL 61
+     tg_notes AT ROW 2.48 COL 15
+     v-f-cust AT ROW 4.38 COL 35 COLON-ALIGNED
+     v-t-cust AT ROW 4.38 COL 62 COLON-ALIGNED
+     tb_override AT ROW 6.05 COL 33
+     Btn_OK AT ROW 9.29 COL 19
+     Btn_Cancel AT ROW 9.29 COL 61
      RECT-1 AT ROW 1 COL 1
-     RECT-2 AT ROW 1.24 COL 2
-     RECT-3 AT ROW 5.29 COL 2
-     RECT-4 AT ROW 8.14 COL 2
+     RECT-2 AT ROW 1.91 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -205,25 +171,15 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-                                                                        */
+   FRAME-NAME                                                           */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX tb_override IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
-/* SETTINGS FOR TOGGLE-BOX tg_eservice IN FRAME DEFAULT-FRAME
-   3                                                                    */
 /* SETTINGS FOR TOGGLE-BOX tg_notes IN FRAME DEFAULT-FRAME
    1                                                                    */
-/* SETTINGS FOR TOGGLE-BOX tg_title IN FRAME DEFAULT-FRAME
-   2                                                                    */
-/* SETTINGS FOR FILL-IN v-erel-fcust IN FRAME DEFAULT-FRAME
-   NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN v-f-cust IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN v-t-cust IN FRAME DEFAULT-FRAME
@@ -286,9 +242,8 @@ DO:
 
    ASSIGN {&list-1} {&list-2} {&list-3}.
 
-   IF tg_notes THEN lc-msg = lc-msg + CHR(10) + tg_notes:LABEL.
-   IF tg_title THEN lc-msg = lc-msg + CHR(10) + tg_title:LABEL.
-   IF tg_eservice THEN lc-msg = lc-msg + CHR(10) + tg_eservice:LABEL.
+   IF tg_notes THEN lc-msg = lc-msg + CHR(10) + tg_notes:LABEL.  
+   
 
    IF lc-msg NE '' THEN DO:
      MESSAGE 'Are you sure you want to:' SKIP lc-msg VIEW-AS ALERT-BOX
@@ -296,8 +251,7 @@ DO:
      IF ll-ans THEN DO:
        SESSION:SET-WAIT-STATE("general").
        IF tg_notes THEN RUN trans-notes.
-       IF tg_title THEN RUN trans-phone.
-       IF tg_eservice THEN RUN trans-eservice.
+      
        SESSION:SET-WAIT-STATE("").
        MESSAGE "Completed." VIEW-AS ALERT-BOX.
      END.
@@ -313,26 +267,6 @@ DO:
       MESSAGE "Are you sure you want to copy ERelease Note?"
          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans.
    */
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tg_eservice
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tg_eservice C-Win
-ON VALUE-CHANGED OF tg_eservice IN FRAME DEFAULT-FRAME /* Copy the Customer Type Eservice to ALL Customers? */
-DO:
-  ASSIGN tg_title.
-  IF tg_title THEN do:
-     v-erel-fcust:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
-     APPLY "entry" TO v-erel-fcust.
-  END.
-  ELSE DO:
-     ASSIGN v-erel-fcust:SENSITIVE IN FRAME {&FRAME-NAME} = NO
-            v-erel-fcust:SCREEN-VALUE = "".
-  END.
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -371,26 +305,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tg_title
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tg_title C-Win
-ON VALUE-CHANGED OF tg_title IN FRAME DEFAULT-FRAME /* Copy ERelease Note to All Customer? */
-DO:
-  ASSIGN tg_title.
-  IF tg_title THEN do:
-     v-erel-fcust:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
-     APPLY "entry" TO v-erel-fcust.
-  END.
-  ELSE DO:
-     ASSIGN v-erel-fcust:SENSITIVE IN FRAME {&FRAME-NAME} = NO
-            v-erel-fcust:SCREEN-VALUE = "".
-  END.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -422,6 +336,22 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
   RUN enable_UI.
   {methods/nowait.i}
+   DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN tg_notes.
+    ASSIGN 
+        tg_notes = YES 
+        tg_notes:SCREEN-VALUE = "Yes" .
+    IF tg_notes THEN DO:
+      ASSIGN
+       v-f-cust:SENSITIVE    = YES
+       v-t-cust:SENSITIVE    = YES
+       tb_override:SENSITIVE = YES
+       v-t-cust:SCREEN-VALUE = "zzzzzzzz".
+
+      APPLY "entry" TO v-f-cust.
+    END.
+   END.
+
   APPLY "entry" TO FRAME {&FRAME-NAME}.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -464,30 +394,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tg_notes v-f-cust v-t-cust tb_override tg_title v-erel-fcust 
-          tg_eservice 
+  DISPLAY tg_notes v-f-cust v-t-cust tb_override 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE tg_notes tg_title tg_eservice Btn_OK Btn_Cancel 
+  ENABLE tg_notes Btn_OK Btn_Cancel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE trans-eservice C-Win 
-PROCEDURE trans-eservice :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  FOR EACH cust WHERE cust.company EQ g_company:
-    IF CAN-DO('E,I,X',cust.active) THEN NEXT.
-    cust.active = 'E'.
-  END. /* each cust */
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -534,50 +446,6 @@ PROCEDURE trans-notes :
              END.
          END.
  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE trans-phone C-Win 
-PROCEDURE trans-phone :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF BUFFER bf-cust FOR cust.
-  DEF BUFFER bf-phone FOR phone.
-  DEF BUFFER bx-phone FOR phone.
-
-  FIND FIRST bf-cust WHERE bf-cust.company = g_company
-                       AND bf-cust.cust-no = v-erel-fcust NO-LOCK NO-ERROR.
-
-  FOR EACH cust WHERE cust.company = g_company NO-LOCK:
-      IF cust.cust-no <> v-erel-fcust THEN DO:
-         STATUS DEFAULT "Updating ERelease for " + cust.cust-no .
-
-         FOR EACH phone WHERE phone.table_rec_key = bf-cust.rec_key 
-                          AND phone.titlcode = "ERELEASE" NO-LOCK :
-             FIND FIRST bf-phone WHERE bf-phone.TABLE_rec_key = cust.rec_key
-                                   AND bf-phone.titlcode = phone.titlcode 
-                                   AND bf-phone.attention = phone.attention NO-ERROR.
-             IF NOT AVAIL bf-phone THEN DO:                
-                FIND FIRST bx-phone WHERE bx-phone.TABLE_rec_key = cust.rec_key
-                                      AND bx-phone.attention = phone.attention NO-ERROR.                
-                CREATE bf-phone.
-                BUFFER-COPY phone EXCEPT phone.rec_key phone.attention TO bf-phone.
-                ASSIGN bf-phone.TABLE_rec_key = cust.rec_key
-                       bf-phone.attention = IF AVAIL bx-phone THEN phone.titlcode + " " + phone.attention
-                                            ELSE phone.attention.                  
-
-             END.
-         END.
-         
-      END.
-
-  END.
 
 END PROCEDURE.
 

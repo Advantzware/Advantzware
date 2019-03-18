@@ -374,7 +374,7 @@ DEFINE BROWSE Browser-Table
       cust.area-code FORMAT "(999)":U LABEL-BGCOLOR 14
       cust.phone COLUMN-LABEL "Phone #" FORMAT "999-9999":U LABEL-BGCOLOR 14
       cust.type COLUMN-LABEL "Type" FORMAT "x(8)":U LABEL-BGCOLOR 14
-      cust.sman COLUMN-LABEL "SalesRep" FORMAT "x(3)":U LABEL-BGCOLOR 14
+      cust.sman COLUMN-LABEL "SalesGrp" FORMAT "x(3)":U LABEL-BGCOLOR 14
       cust.terr COLUMN-LABEL "Territory" FORMAT "x(3)":U LABEL-BGCOLOR 14
       cust.spare-char-2 COLUMN-LABEL "Group" FORMAT "x(8)":U LABEL-BGCOLOR 14
       cust.rec_key FORMAT "X(20)":U
@@ -563,7 +563,7 @@ ASSIGN
      _FldNameList[9]   > ASI.cust.type
 "cust.type" "Type" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.cust.sman
-"cust.sman" "SalesRep" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust.sman" "SalesGrp" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.cust.terr
 "cust.terr" "Territory" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
  _FldNameList[11]   > ASI.cust.spare-char-2

@@ -1,11 +1,13 @@
 /* loadProEnd.i */
 
-IF traceON THEN
-OUTPUT CLOSE.
-
-OUTPUT TO 'schedule/load.log' APPEND.
-PUT UNFORMATTED '  End Load: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' for ' ID ' by ' sbUser SKIP(1).
-OUTPUT CLOSE.
+RUN spCreateAuditDtl (
+    iAuditID,    /* audit id     */
+    "LoadEnd", /* field        */
+    0,           /* extent       */
+    STRING(TODAY,"99.99.9999") + " @ " + STRING(TIME,"hh:mm:ss"), /* before value */
+    "",         /* after value  */
+    NO          /* index field  */
+    ).
 
 OUTPUT STREAM sCapacity CLOSE.
 OUTPUT STREAM sJobNotes CLOSE.

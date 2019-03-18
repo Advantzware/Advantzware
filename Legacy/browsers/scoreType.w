@@ -69,7 +69,8 @@ CREATE WIDGET-POOL.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table scoreType.scoreType scoreType.description 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table scoreType.scoreType ~
+scoreType.description 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table scoreType.scoreType ~
 scoreType.description 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table scoreType
@@ -138,8 +139,8 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      scoreType.scoreType FORMAT "x":U
-      scoreType.description FORMAT "x(30)":U
+      scoreType.scoreType FORMAT "x(8)":U
+      scoreType.description FORMAT "x(60)":U
   ENABLE
       scoreType.scoreType
       scoreType.description
@@ -222,14 +223,14 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
-                "2"
+                "1"
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 /* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
@@ -250,9 +251,9 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _FldNameList[1]   > ASI.scoreType.scoreType
-"type" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"scoreType.scoreType" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.scoreType.description
-"dscr" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"scoreType.description" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -380,24 +381,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
-PROCEDURE export-xl :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
+PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE lcAccFrom AS CHAR NO-UNDO.
-DEFINE VARIABLE lcAccTo   AS CHAR NO-UNDO.
 
-IF account.actnum NE "" THEN
-    ASSIGN
-        lcAccFrom = account.actnum
-        lcAccTo = account.actnum .
+  /* Code placed here will execute PRIOR to standard behavior. */
 
-RUN fg/acc-exp.w (lcAccFrom,
-                       lcAccTo).
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
+  /* Code placed here will execute AFTER standard behavior.    */
+  IF AVAILABLE scoreType AND scoreType.company EQ "" THEN 
+  scoreType.company = g_company.
 
 END PROCEDURE.
 

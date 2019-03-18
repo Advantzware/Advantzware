@@ -156,7 +156,7 @@ IF cRtnChar NE "" THEN DO:
         ls-full-img1 = SEARCH(ls-full-img1)
         ls-full-img1 = cRtnChar + ">".
 END.
-DO:
+ELSE DO:
     ASSIGN 
         ls-image1 = SEARCH("images\premierinv.jpg")
         FILE-INFO:FILE-NAME = ls-image1.

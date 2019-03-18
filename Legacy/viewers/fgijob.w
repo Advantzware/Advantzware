@@ -140,7 +140,7 @@ DEFINE FRAME F-Main
      itemfg.q-onh AT ROW 4.33 COL 3 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     itemfg.q-ono AT ROW 4.33 COL 18 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
+     itemfg.q-ono AT ROW 4.33 COL 18 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
      itemfg.q-alloc AT ROW 4.33 COL 33 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
@@ -149,16 +149,16 @@ DEFINE FRAME F-Main
      itemfg.q-back AT ROW 4.33 COL 48 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     itemfg.q-avail AT ROW 4.33 COL 63 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
+     itemfg.q-avail AT ROW 4.33 COL 63 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     itemfg.ord-level AT ROW 4.33 COL 78 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>9"
+     itemfg.ord-level AT ROW 4.33 COL 78 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     itemfg.ord-min AT ROW 4.33 COL 90 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>9"
+     itemfg.ord-min AT ROW 4.33 COL 90 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     itemfg.ord-max AT ROW 4.33 COL 103 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>9"
+     itemfg.ord-max AT ROW 4.33 COL 103 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      "Jobs/POs" VIEW-AS TEXT

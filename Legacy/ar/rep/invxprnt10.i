@@ -40,8 +40,8 @@ PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " ar-inv.inv-no "</B><P10>            
     "<=3><R+5> " v-ord-po-no space(3) v-inv-date .
 
     
-PUT "<R21><C1><#4><FROM><R25><C80><RECT><||3>" SKIP
-    "<R23><C1><FROM><R23><C80><LINE><||3>" SKIP    
+PUT "<R21><C1><#4><FROM><R25><C81><RECT><||3>" SKIP
+    "<R23><C1><FROM><R23><C81><LINE><||3>" SKIP    
     "<R21><C10.5><FROM><R25><C10.5><LINE><||3>" SKIP
     "<R21><C21.5><FROM><R25><C21.5><LINE><||3>" SKIP
     "<R21><C47.2><FROM><R25><C47.2><LINE><||3>" SKIP
@@ -63,22 +63,22 @@ PUT "<FArial><=4><R+1>     Ship Date               FOB                          
     SKIP.
 
 
-PUT "<R26><C1><#5><FROM><R28><C80><RECT><||3>" SKIP    
+PUT "<R26><C1><#5><FROM><R28><C81><RECT><||3>" SKIP    
                 "<R26><C8><FROM><R28><C8><LINE><||3>" SKIP
                 "<R26><C15><FROM><R28><C15><LINE><||3>" SKIP
                 "<R26><C21><FROM><R28><C21><LINE><||3>" SKIP
                 "<R26><C34><FROM><R28><C34><LINE><||3>" SKIP
                 "<R26><C56><FROM><R28><C56><LINE><||3>" SKIP
                 "<R26><C65><FROM><R28><C65><LINE><||3>" SKIP
-                "<R26><C69><FROM><R28><C69><LINE><||3>" SKIP
+                "<R26><C70><FROM><R28><C70><LINE><||3>" SKIP
                 . 
 IF NOT lPrintQtyAll THEN DO:  
 PUT "<FArial><=5>"  space(37) " Order /" SKIP
-                   " Ordered     Shipped      Cust PO      Item#/CustPart#                       Description                             Price      UOM              Amount" SKIP(1).
+                   " Ordered     Shipped      Cust PO      Item#/CustPart#                       Description                             Price        UOM              Amount" SKIP(1).
 END.
 ELSE DO:
 PUT "<FArial><=5>" " Ordered" space(25)  " Order /" SKIP
-                   " Shipped     Invoiced      Cust PO      Item#/CustPart#                       Description                             Price      UOM              Amount" SKIP(1).
+                   " Shipped     Invoiced      Cust PO      Item#/CustPart#                       Description                             Price        UOM              Amount" SKIP(1).
 END.
 v-printline = v-printline + 4.
            

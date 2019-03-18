@@ -31,7 +31,6 @@ CREATE WIDGET-POOL.
 
 
 DEF NEW SHARED VAR choice AS LOG NO-UNDO. /* for post fg */
-DEF SHARED VAR g-sharpshooter AS LOG NO-UNDO.
 
 {methods/defines/hndldefs.i}
 
@@ -210,10 +209,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Adjust-3 s-object
 ON CHOOSE OF Btn_Adjust-3 IN FRAME F-Main /* 4.      Count  Goods */
 DO:
-  /*run /*rm/rmadjt.w.*/ rm/w-phys.w.*/
-    IF g-sharpshooter THEN RUN addon/fg/fg-physs.w.
-    ELSE RUN addon/fg/fg-phys.w.
-
+    RUN addon/fg/fg-phys.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -235,9 +231,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Consol s-object
 ON CHOOSE OF Btn_Consol IN FRAME F-Main /* 8.   Consolidate Tags */
 DO:
-  /* IF g-sharpshooter THEN RUN addon/fg/fg-conss.w.
-   ELSE */ RUN addon/fg/fg-cons.w.
-  
+    RUN addon/fg/fg-cons.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -248,9 +242,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_delete s-object
 ON CHOOSE OF Btn_delete IN FRAME F-Main /* 5.     Delete  Goods */
 DO:
-   /*run fg/fg-rcpt.w. */
-   IF g-sharpshooter THEN RUN addon/fg/fg-rcpts.w ("Delete").
-   ELSE RUN addon/fg/fg-rcpt.w ("Delete").
+    RUN addon/fg/fg-rcpt.w ("Delete").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -289,9 +281,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Rcpt s-object
 ON CHOOSE OF Btn_Rcpt IN FRAME F-Main /* 1.  Receive Goods */
 DO:
-   /*run fg/fg-rcpt.w. */
-   IF g-sharpshooter THEN RUN addon/fg/fg-rcpts.w ("Receipt").
-   ELSE RUN addon/fg/fg-rcpt.w ("Receipt").
+    RUN addon/fg/fg-rcpt.w ("Receipt").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -302,9 +292,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_return s-object
 ON CHOOSE OF Btn_return IN FRAME F-Main /* 6.    Return  Goods */
 DO:
-   /*run fg/fg-rcpt.w. */
-   /*IF g-sharpshooter THEN RUN addon/fg/fg-rcpts.w ("Delete").
-   ELSE*/ RUN addon/sshoot/sssetups.w.
+    RUN addon/sshoot/sssetups.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -315,9 +303,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Transfers s-object
 ON CHOOSE OF Btn_Transfers IN FRAME F-Main /* 3.   Transfer  Goods */
 DO:
-   IF g-sharpshooter THEN RUN addon/fg/fg-trnss.w.
-   ELSE RUN addon/fg/fg-trans.w.
-  
+    RUN addon/fg/fg-trans.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -328,9 +314,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_update s-object
 ON CHOOSE OF Btn_update IN FRAME F-Main /* 2.   Move  Receipts */
 DO:
-   /*run fg/fg-rcpt.w. */
-   IF g-sharpshooter THEN RUN addon/fg/fg-ucpts.w.
-   ELSE RUN addon/fg/fg-ucpt.w.
+    RUN addon/fg/fg-ucpt.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -388,8 +372,6 @@ PROCEDURE local-initialize :
 
   /* Code placed here will execute AFTER standard behavior.    */
   
-  /*IF g-sharpshooter THEN DISABLE btn_post WITH FRAME {&FRAME-NAME}.*/
-
 
 END PROCEDURE.
 

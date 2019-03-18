@@ -76,7 +76,6 @@ END.
 
 ELSE
 IF {&TABLENAME}.reftable EQ "PLATE/FOUNTAIN"    OR
-   {&TABLENAME}.reftable EQ "ce/v-est3.w Unit#" OR
    {&TABLENAME}.reftable EQ "cedepth" THEN RUN update-est ({&TABLENAME}.loc).
 
 ELSE

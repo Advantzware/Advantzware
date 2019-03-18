@@ -1,0 +1,60 @@
+
+
+
+
+
+
+
+
+
+
+
+                                                           INVOICE#  INV DATE
+                                                              1069   12/16/05
+
+
+
+SOLD TO                                      SHIP TO
+ AT&T Communications Corp.                    AT&T Communications Corp.
+ ATT 1000 Blvd                                ATT Blvd
+                                              Warehouse B
+ Yardley, PA                                  Yardley, PA  19067
+
+
+YOUR ORDER NO  DELIV DATE SHIP VIA           BOL#   F.0.B. TERMS            SLMN
+Verbal PO       12/16/05                       1815 DEST   2% 10, Net 30    001
+
+    QTY  P  C JOB NUMBER    DESCRIPTION                       PRICE       TOTAL
+
+   1000       8x8x8         RSC 8x8x8 Stock Box                 0.85     850.00
+                            200 C Kraft
+
+    500       CATT10000041A RSC 8x8x13                       3250.00    1625.00
+                            ECT32 PaperBoard
+
+ 125000       FATT10000003A Sealed End 10x5x8                 300.00   37500.00
+                            5 Color + Coating
+
+                      ** Miscellaneous Items **
+
+DIE                         Die Charge                                   111.11
+
+PLATE                       Plates                                       900.00
+
+
+
+
+
+
+
+
+
+
+
+
+
+Taxes-  PA  :   2,627.47       :       0.00      :       0.00 Tot Tax:  2,627.47
+
+             Freight             Net Amount    Cash Disc  If Paid By Invoice Amt
+           2,805.00               40,986.11       819.72   12/24/05    46,418.58
+

@@ -23,7 +23,7 @@ item.yield
 
 &Scoped-define group# 3
 &Scoped-define group{&group#}-misc RECT-{&group#} group{&group#}-text
-&Scoped-define group{&group#}-fields item.sqin-lb item.linin-lb
+&Scoped-define group{&group#}-fields item.sqin-lb item.linin-lb item.cal item.r-wid item.s-len item.basis-w
 &Scoped-define group{&group#} {&group{&group#}-misc} {&group{&group#}-fields}
 
 &Scoped-define group# 4
@@ -32,7 +32,7 @@ item.yield
 item.avg-w item.box-case item.case-pall fi_cas-pal-w item.flute fi_reg-no
 &Scoped-define group{&group#} {&group{&group#}-misc} {&group{&group#}-fields}
 
-&Scoped-define mat-types {&group1} {&group2} {&group3} {&group4}
+&Scoped-define mat-types {&group1} {&group2} {&group3} {&group4} 
 
 DEFINE VARIABLE col-coord AS INTEGER NO-UNDO.
 DEFINE VARIABLE row-coord AS INTEGER NO-UNDO.
@@ -126,6 +126,14 @@ CASE fi_mat-type:SCREEN-VALUE:
     &IF '{&mat-types-enable}' = 'yes' &THEN
     ENABLE {&group{&group#}-fields}.
     &ENDIF
+    IF fi_mat-type:SCREEN-VALUE in frame {&frame-name}  NE "W" THEN DO:
+        ASSIGN
+            item.cal:HIDDEN in frame {&frame-name} = TRUE
+            item.r-wid:HIDDEN in frame {&frame-name} = TRUE
+            item.s-len:HIDDEN in frame {&frame-name} = TRUE
+            item.basis-w:HIDDEN in frame {&frame-name} = TRUE.
+            
+        END.
   END.
   &Scoped-define group# 4
   WHEN 'D' OR WHEN 'C' OR WHEN 'Z' OR WHEN '5' OR WHEN '6' THEN

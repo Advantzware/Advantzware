@@ -83,6 +83,7 @@ DEFINE VARIABLE dTotRetInv AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iHandQtyNoalloc AS INTEGER NO-UNDO .
 DEFINE VARIABLE lActive AS LOG NO-UNDO.
 DEFINE VARIABLE lSwitchToWeb AS LOG NO-UNDO.
+DEFINE VARIABLE iPreOrder AS INTEGER NO-UNDO .
 DEFINE TEMP-TABLE ttRelease NO-UNDO
     FIELD ordlRecID AS RECID
     FIELD lot-no AS CHARACTER
@@ -218,7 +219,7 @@ oe-ordl.i-name oe-ordl.line oe-ordl.po-no-po oe-ordl.e-num oe-ordl.whsed ~
 get-act-bol-qty() @ li-act-bol-qty getTotalReturned() @ dTotQtyRet ~
 getReturnedInv() @ dTotRetInv oe-ordl.s-man[1] ~
 fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc ~
-oe-ordl.managed 
+oe-ordl.managed fnPrevOrder(oe-ordl.est-no,oe-ordl.ord-no) @ iPreOrder
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
 oe-ordl.cust-no oe-ord.ord-date oe-ordl.req-date oe-ord.cust-name ~
 oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no oe-ordl.job-no ~
@@ -375,6 +376,14 @@ FUNCTION getTotalReturned RETURNS DECIMAL
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD isFilterBlank B-table-Win 
 FUNCTION isFilterBlank RETURNS LOGICAL
   (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnPrevOrder B-table-Win 
+FUNCTION fnPrevOrder RETURNS INTEGER
+  ( ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -550,6 +559,7 @@ DEFINE BROWSE Browser-Table
       oe-ordl.s-man[1] COLUMN-LABEL "Rep" FORMAT "x(3)":U LABEL-BGCOLOR 14
       fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
       oe-ordl.managed FORMAT "yes/no":U
+      fnPrevOrder(oe-ordl.est-no,oe-ordl.ord-no) @ iPreOrder COLUMN-LABEL "Prev Order" FORMAT ">>>>>>>>":U 
   ENABLE
       oe-ordl.ord-no
       oe-ordl.cust-no
@@ -791,6 +801,8 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 "fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc" "On Hand Qty not Allocated" "->>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[37]   > ASI.oe-ordl.managed
 "oe-ordl.managed" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+_FldNameList[38]   > "_<CALC>"
+"fnPrevOrder(oe-ordl.est-no,oe-ordl.ord-no) @ iPreOrder" "Prev Order" ">>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -1209,6 +1221,24 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&Scoped-define SELF-NAME fi_cad-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cad-no B-table-Win
+ON HELP OF fi_cad-no IN FRAME F-Main
+DO:
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
+    run windows/l-itemfc.w  (g_company,fi_cad-no:screen-value, output char-val). 
+    if char-val <> "" then 
+        {&SELF-NAME}:screen-value = entry(1,char-val).
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_sman B-table-Win
@@ -2859,6 +2889,32 @@ FUNCTION isFilterBlank RETURNS LOGICAL
                lResult = FALSE. 
          END.
                 RETURN lResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnPrevOrder B-table-Win 
+FUNCTION fnPrevOrder RETURNS INTEGER
+  ( ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+     DEFINE VARIABLE iResult AS INTEGER NO-UNDO.
+     DEF BUFFER bf-oe-ordl FOR oe-ordl.
+        IF ipcEstNo GT "" THEN 
+        DO:
+            FIND LAST bf-oe-ordl NO-LOCK
+                WHERE bf-oe-ordl.company EQ cocode
+                  AND bf-oe-ordl.est-no  EQ ipcEstNo
+                  AND bf-oe-ordl.ord-no  LT ipiOrdNo
+                NO-ERROR.
+            IF AVAILABLE bf-oe-ordl THEN
+                iResult = (bf-oe-ordl.ord-no).
+        END.
+	    RETURN iResult.
 
 END FUNCTION.
 

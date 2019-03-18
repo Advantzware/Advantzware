@@ -91,13 +91,13 @@ IF g_batch THEN do:
        MESSAGE "Transfer New Date To All Batches With Same Program Name?" 
            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
     IF ll-ans THEN DO:
-      FIND FIRST reftable WHERE reftable.reftable = "Batchrpt"
-                          AND reftable.code2 = ip-program-id NO-LOCK NO-ERROR.
-      IF AVAIL reftable THEN DO:
-         FOR EACH bf-user-print WHERE bf-user-print.company EQ cocode         
-                                  AND bf-user-print.program-id EQ reftable.code 
+
+       FOR EACH bf-user-print WHERE bf-user-print.company EQ cocode         
+                                  AND bf-user-print.program-id EQ user-print.program-id 
+                                  AND bf-user-print.prgmName EQ ip-program-id
                                   AND bf-user-print.BATCH <> ""
                                   AND ROWID(bf-user-print) <> ROWID(user-print):
+
             FOR EACH tt-date:
               DO li = 1 TO EXTENT(bf-user-print.field-name):
                  IF TRIM(bf-user-print.field-name[li]) NE ""  AND 
@@ -106,7 +106,7 @@ IF g_batch THEN do:
               END.
             END. /* each tt-date*/
          END.  /* for each bf-user */
-      END. /*reftable*/
+/*      END. /*reftable*/*/
     END. /* ll-ans*/
   END.
 END.

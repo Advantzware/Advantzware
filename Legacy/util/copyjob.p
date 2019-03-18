@@ -40,10 +40,12 @@ BUFFER-COPY b1Job EXCEPT job start-date due-date TO job
 
 FOR EACH bJobHdr OF b1Job NO-LOCK:
   CREATE job-hdr.
-  BUFFER-COPY bJobHdr EXCEPT job job-no job-no2 j-no rec_key TO job-hdr
+  BUFFER-COPY bJobHdr EXCEPT job job-no job-no2 j-no due-date rec_key TO job-hdr
     ASSIGN job-hdr.job = job.job
            job-hdr.job-no = job.job-no
-           job-hdr.job-no2 = job.job-no2.
+           job-hdr.job-no2 = job.job-no2
+           job-hdr.due-date = job.due-date .
+  
   IF job.due-date EQ ? AND noDate THEN
   job-hdr.due-date = ?.
   RUN util/upditmfg.p (ROWID(job-hdr),1).

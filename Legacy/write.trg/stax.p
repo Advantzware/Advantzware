@@ -11,21 +11,12 @@ DEF BUFFER b-{&TABLENAME} FOR {&TABLENAME}.
 DEF VAR li AS INT NO-UNDO.
 
 /* which is the master?  Tax Code or Tax Code1? */
-find first reftable no-lock where reftable.reftable = "v10-TaxCode-Upgrade"
-                              and reftable.code     = "10 Extents" no-error.
-if available(reftable) then DO li = 1 to extent({&TABLENAME}.tax-code): /* synch original with new */
+DO li = 1 to extent({&TABLENAME}.tax-code): /* synch original with new */
     Assign {&TABLENAME}.tax-code[li] = {&TABLENAME}.tax-code1[li]
            {&TABLENAME}.tax-dscr[li] = {&TABLENAME}.tax-dscr1[li]
            {&TABLENAME}.tax-rate[li] = {&TABLENAME}.tax-rate1[li]
            {&TABLENAME}.tax-acc[li]  = {&TABLENAME}.tax-acc1[li]
            {&TABLENAME}.tax-frt[li]  = {&TABLENAME}.tax-frt1[li].
-end.
-else DO li = 1 to extent({&TABLENAME}.tax-code): /* synch new with original */
-    Assign {&TABLENAME}.tax-code1[li] = {&TABLENAME}.tax-code[li]
-           {&TABLENAME}.tax-dscr1[li] = {&TABLENAME}.tax-dscr[li]
-           {&TABLENAME}.tax-rate1[li] = {&TABLENAME}.tax-rate[li]
-           {&TABLENAME}.tax-acc1[li]  = {&TABLENAME}.tax-acc[li]
-           {&TABLENAME}.tax-frt1[li]  = {&TABLENAME}.tax-frt[li].
 end.
 
 IF {&TABLENAME}.tax-group   EQ {&TABLENAME}.tax-code[1] AND

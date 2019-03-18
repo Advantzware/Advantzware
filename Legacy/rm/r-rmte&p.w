@@ -95,6 +95,7 @@ DEF TEMP-TABLE tt-rctd NO-UNDO LIKE rm-rctd FIELD tt-row-id AS ROWID
                                     FIELD has-rec   AS LOG INIT NO
                                     FIELD seq-no    AS INT
                                     FIELD db-seq-no AS INT 
+                                    FIELD vend-tag  AS CHARACTER 
                                     INDEX seq-no seq-no i-no.
 
 DEF TEMP-TABLE tt-mat NO-UNDO FIELD frm LIKE job-mat.frm
@@ -209,13 +210,14 @@ DEFINE STREAM excel.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-18 RECT-6 fiAutoIssue v-post-date ~
 v-from-job begin_job-no2 v-to-job end_job-no2 ldt-from ldt-to begin_userid ~
-end_userid t-receipt t-issue t-trans t-adj t-showtotal lv-ornt ~
+end_userid t-receipt t-issue t-trans t-adj t-showtotal t-show-vend lv-ornt ~
 lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
 Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS fiAutoIssue v-post-date v-from-job ~
 begin_job-no2 v-to-job end_job-no2 ldt-from ldt-to begin_userid end_userid ~
-t-receipt t-issue t-trans t-adj t-showtotal lv-ornt lines-per-page rd-dest ~
-lv-font-no td-show-parm lv-font-name tb_excel tb_runExcel fi_file 
+t-receipt t-issue t-trans t-adj t-showtotal t-show-vend lv-ornt ~
+lines-per-page rd-dest lv-font-no td-show-parm lv-font-name tb_excel ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -345,11 +347,11 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
 
 DEFINE RECTANGLE RECT-18
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 92 BY 12.14.
+     SIZE 92 BY 13.57.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 92 BY 8.81.
+     SIZE 92 BY 8.67.
 
 DEFINE VARIABLE t-adj AS LOGICAL INITIAL no 
      LABEL "Adjustments" 
@@ -366,8 +368,13 @@ DEFINE VARIABLE t-receipt AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY .86 NO-UNDO.
 
+DEFINE VARIABLE t-show-vend AS LOGICAL INITIAL no 
+     LABEL "Show Vendor Tag #'s" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
 DEFINE VARIABLE t-showtotal AS LOGICAL INITIAL no 
-     LABEL "Show Totals?" 
+     LABEL "Show Totals" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY .81 NO-UNDO.
 
@@ -416,32 +423,33 @@ DEFINE FRAME FRAME-F
      t-issue AT ROW 8.71 COL 44
      t-trans AT ROW 9.67 COL 44
      t-adj AT ROW 10.62 COL 44
-     t-showtotal AT ROW 12.05 COL 44
-     lv-ornt AT ROW 13.86 COL 34 NO-LABEL
-     lines-per-page AT ROW 13.86 COL 85 COLON-ALIGNED
-     rd-dest AT ROW 14.1 COL 6 NO-LABEL
-     lv-font-no AT ROW 16.24 COL 34.2 COLON-ALIGNED
-     td-show-parm AT ROW 16.38 COL 51
-     lv-font-name AT ROW 17.33 COL 34 COLON-ALIGNED NO-LABEL
-     tb_excel AT ROW 19.29 COL 31.4
-     tb_runExcel AT ROW 19.29 COL 81 RIGHT-ALIGNED
-     fi_file AT ROW 20.52 COL 29.4 COLON-ALIGNED HELP
+     t-showtotal AT ROW 12.29 COL 44
+     t-show-vend AT ROW 13.19 COL 44 WIDGET-ID 4
+     lv-ornt AT ROW 15.14 COL 34 NO-LABEL
+     lines-per-page AT ROW 15.14 COL 85 COLON-ALIGNED
+     rd-dest AT ROW 15.38 COL 6 NO-LABEL
+     lv-font-no AT ROW 17.52 COL 34.2 COLON-ALIGNED
+     td-show-parm AT ROW 17.67 COL 51
+     lv-font-name AT ROW 18.62 COL 34 COLON-ALIGNED NO-LABEL
+     tb_excel AT ROW 20.57 COL 31.4
+     tb_runExcel AT ROW 20.57 COL 81 RIGHT-ALIGNED
+     fi_file AT ROW 21.81 COL 29.4 COLON-ALIGNED HELP
           "Enter File Name"
-     Btn_OK AT ROW 22 COL 22
-     Btn_Cancel AT ROW 22.05 COL 59
+     Btn_OK AT ROW 23.29 COL 22
+     Btn_Cancel AT ROW 23.33 COL 59
      "Selection Parameters" VIEW-AS TEXT
           SIZE 22 BY .95 AT ROW 1.48 COL 6
           BGCOLOR 2 
      "Output Destination" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 13.38 COL 2
+          SIZE 20 BY .62 AT ROW 14.67 COL 2
      "Transaction Types" VIEW-AS TEXT
           SIZE 21 BY .86 AT ROW 7.76 COL 23
      RECT-18 AT ROW 1 COL 1
-     RECT-6 AT ROW 13.14 COL 1
+     RECT-6 AT ROW 14.57 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 92.8 BY 23.1.
+         SIZE 92.8 BY 24.76.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -461,7 +469,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Raw Material Post"
-         HEIGHT             = 23.1
+         HEIGHT             = 24.76
          WIDTH              = 92.8
          MAX-HEIGHT         = 48.05
          MAX-WIDTH          = 322.8
@@ -1172,29 +1180,6 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-Period C-Win 
-PROCEDURE check-Period :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR lv-period LIKE period.pnum NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:   
-    RUN sys/inc/valtrndt.p (cocode,
-                            DATE(v-post-date:SCREEN-VALUE),
-                            OUTPUT lv-period) NO-ERROR.
-    lInvalid = ERROR-STATUS:ERROR.
-    IF lInvalid THEN APPLY "entry" TO v-post-date.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE assign-prep-info C-Win 
 PROCEDURE assign-prep-info :
 /*------------------------------------------------------------------------------
@@ -1291,6 +1276,28 @@ PROCEDURE check-date :
        END.
     END.
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-Period C-Win 
+PROCEDURE check-Period :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR lv-period LIKE period.pnum NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:   
+    RUN sys/inc/valtrndt.p (cocode,
+                            DATE(v-post-date:SCREEN-VALUE),
+                            OUTPUT lv-period) NO-ERROR.
+    lInvalid = ERROR-STATUS:ERROR.
+    IF lInvalid THEN APPLY "entry" TO v-post-date.
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1400,13 +1407,14 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiAutoIssue v-post-date v-from-job begin_job-no2 v-to-job end_job-no2 
           ldt-from ldt-to begin_userid end_userid t-receipt t-issue t-trans 
-          t-adj t-showtotal lv-ornt lines-per-page rd-dest lv-font-no 
-          td-show-parm lv-font-name tb_excel tb_runExcel fi_file 
+          t-adj t-showtotal t-show-vend lv-ornt lines-per-page rd-dest 
+          lv-font-no td-show-parm lv-font-name tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-F IN WINDOW C-Win.
   ENABLE RECT-18 RECT-6 fiAutoIssue v-post-date v-from-job begin_job-no2 
          v-to-job end_job-no2 ldt-from ldt-to begin_userid end_userid t-receipt 
-         t-issue t-trans t-adj t-showtotal lv-ornt lines-per-page rd-dest 
-         lv-font-no td-show-parm tb_excel tb_runExcel fi_file Btn_OK Btn_Cancel 
+         t-issue t-trans t-adj t-showtotal t-show-vend lv-ornt lines-per-page 
+         rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file Btn_OK 
+         Btn_Cancel 
       WITH FRAME FRAME-F IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-F}
   VIEW C-Win.
@@ -1764,7 +1772,7 @@ DEF VAR v-trnum LIKE gl-ctrl.trnum NO-UNDO.
 DEF VAR v-r-qty     AS   DEC                    NO-UNDO.
 DEF VAR v-i-qty     AS   DEC                    NO-UNDO.
 DEF VAR v-t-qty     AS   DEC                    NO-UNDO.
-DEF VAR cost        AS   DEC                    NO-UNDO.
+DEF VAR dCost        AS   DEC                    NO-UNDO.
 DEF VAR out-qty     AS   DEC                    NO-UNDO.
 DEF VAR v-bwt       LIKE item.basis-w           NO-UNDO.
 DEF VAR v-len       LIKE item.s-len             NO-UNDO.
@@ -1932,15 +1940,15 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
                                       v-bwt, v-len, v-wid, v-dep,
                                       rm-rctd.qty, OUTPUT out-qty).
 
-            cost = rm-rctd.cost.
+            dCost = rm-rctd.cost.
             IF rm-rctd.pur-uom NE job-mat.sc-uom AND rm-rctd.pur-uom NE "" THEN
                RUN sys/ref/convcuom.p(rm-rctd.pur-uom, job-mat.sc-uom,
                                       v-bwt, v-len, v-wid, v-dep,
-                                      rm-rctd.cost, OUTPUT cost).
+                                      rm-rctd.cost, OUTPUT dCost).
 
             ASSIGN
              mat-act.qty-uom = job-mat.qty-uom
-             mat-act.cost    = cost
+             mat-act.cost    = dCost
              mat-act.qty     = mat-act.qty     + out-qty
              job-mat.qty-iss = job-mat.qty-iss + out-qty
              job-mat.qty-all = job-mat.qty-all - out-qty
@@ -1950,7 +1958,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
                                    v-bwt, v-len, v-wid, v-dep,
                                    rm-rctd.qty, OUTPUT out-qty).
 
-            mat-act.ext-cost = mat-act.ext-cost + (cost * out-qty).
+            mat-act.ext-cost = mat-act.ext-cost + (dCost * out-qty).
 
             /* Don't relieve more than were allocated */
             IF job-mat.qty-all LT 0 THEN DO:
@@ -2077,7 +2085,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
         IF FIRST(rm-bin.i-no) THEN
           ASSIGN
            v-i-qty = 0
-           cost    = 0.
+           dCost    = 0.
 
         v-r-qty = rm-bin.qty.
 
@@ -2085,13 +2093,13 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
 
         ASSIGN
          v-i-qty = v-i-qty + v-r-qty
-         cost    = cost    + (v-r-qty * rm-bin.cost).
+         dCost    = dCost    + (v-r-qty * rm-bin.cost).
 
-        IF cost EQ ? THEN cost = 0.
+        IF dCost EQ ? THEN dCost = 0.
 
-        IF LAST(rm-bin.i-no) AND v-i-qty NE 0 AND cost NE 0  
-            AND v-i-qty NE ? AND cost NE ? THEN 
-          item.avg-cost = cost / v-i-qty.
+        IF LAST(rm-bin.i-no) AND v-i-qty NE 0 AND dCost NE 0  
+            AND v-i-qty NE ? AND dCost NE ? THEN 
+          item.avg-cost = dCost / v-i-qty.
 
       END. /* each rm-bin */      
 
@@ -2212,7 +2220,25 @@ FORM tt-rctd.rct-date                   LABEL "DATE"
      tt-rctd.cost FORMAT "->>>>9.99"    LABEL "COST"
      v-ext-cost                         LABEL "TOTAL COST"
 
-    WITH FRAME itemx NO-BOX DOWN STREAM-IO WIDTH 132.
+    WITH NO-BOX FRAME itemx  DOWN STREAM-IO WIDTH 132.
+
+FORM tt-rctd.rct-date                   LABEL "DATE"
+     tt-rctd.i-no                       LABEL "ITEM"
+     tt-rctd.i-name FORMAT "x(14)"      LABEL "DESCRIPTION"
+     tt-rctd.po-no                      LABEL "P.O.#"
+     po-ord.vend-no                     LABEL "VENDOR"
+     tt-rctd.job-no                     LABEL "Job #" SPACE(0) "-" SPACE(0)
+     tt-rctd.job-no2                    LABEL ""
+     tt-rctd.rita-code                  LABEL "T"
+     tt-rctd.tag                        LABEL "TAG#" FORM "x(20)"
+     tt-rctd.vend-tag                   LABEL "VENDOR TAG#" FORM "x(20)"
+     tt-rctd.qty FORMAT "->>>>9.99<<"   LABEL "QUANTITY" 
+     tt-rctd.loc-bin                    LABEL "BIN"
+     tt-rctd.pur-uom                    LABEL "UOM"    
+     tt-rctd.cost FORMAT "->>>>9.99"    LABEL "COST"
+     v-ext-cost                         LABEL "TOTAL COST"
+
+    WITH FRAME itemxvend NO-BOX DOWN STREAM-IO WIDTH 162.
 
 FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
      v-dscr        LABEL "DESCRIPTION"
@@ -2408,7 +2434,10 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
   IF tb_excel THEN
   DO:
       OUTPUT STREAM excel TO VALUE(fi_file).
-      ASSIGN excelheader = "DATE,ITEM,DESCRIPTION,PO #,VENDOR,JOB #,JOB #2,T,TAG #,QUANTITY,BIN,UOM,COST,TOTAL COST".
+      IF t-show-vend THEN
+          ASSIGN excelheader = "DATE,ITEM,DESCRIPTION,PO #,VENDOR,JOB #,JOB #2,T,TAG #,VENDOR TAG #,QUANTITY,BIN,UOM,COST,TOTAL COST".
+      ELSE
+           ASSIGN excelheader = "DATE,ITEM,DESCRIPTION,PO #,VENDOR,JOB #,JOB #2,T,TAG #,QUANTITY,BIN,UOM,COST,TOTAL COST".
       PUT STREAM excel UNFORMATTED excelheader SKIP.
   END.
     ASSIGN
@@ -2424,7 +2453,7 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
               BY tt-rctd.tag
               BY RECID(tt-rctd)
 
-        WITH FRAME itemx:                                                   
+       /* WITH FRAME itemx*/ :                                                   
 
       IF FIRST-OF(tt-rctd.loc) THEN DO:
         v-whse = tt-rctd.loc.
@@ -2576,26 +2605,79 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
         END.
       END.
 
-      DISPLAY tt-rctd.rct-date   WHEN FIRST-OF(tt-rctd.i-no)
-              tt-rctd.i-no       WHEN FIRST-OF(tt-rctd.i-no)
-              tt-rctd.i-name     WHEN FIRST-OF(tt-rctd.i-no)
-              tt-rctd.po-no
-              po-ord.vend-no     WHEN AVAIL po-ord                     
-              tt-rctd.job-no
-              tt-rctd.job-no     WHEN tt-rctd.job-no EQ "" @ tt-rctd.job-no
-              tt-rctd.job-no2
-              tt-rctd.job-no2    WHEN tt-rctd.job-no EQ "" @ tt-rctd.job-no2
-              tt-rctd.rita-code
-              tt-rctd.tag
-              tt-rctd.qty
-              tt-rctd.loc-bin
-              tt-rctd.pur-uom                                   
-              tt-rctd.cost
-              v-ext-cost.
-      DOWN.
+      FIND FIRST loadtag NO-LOCK
+                 WHERE loadtag.company = cocode
+                   AND loadtag.item-type = YES
+                   AND loadtag.tag-no = tt-rctd.tag
+                   AND tt-rctd.tag NE "" NO-ERROR.
+      IF AVAIL loadtag THEN
+          ASSIGN
+          tt-rctd.vend-tag = loadtag.misc-char[1] . 
 
-      IF tb_excel THEN
+      PUT SKIP .
+      IF t-show-vend THEN do:
+          DISPLAY tt-rctd.rct-date   WHEN FIRST-OF(tt-rctd.i-no)
+                    tt-rctd.i-no       WHEN FIRST-OF(tt-rctd.i-no)
+                    tt-rctd.i-name     WHEN FIRST-OF(tt-rctd.i-no)
+                    tt-rctd.po-no
+                    po-ord.vend-no     WHEN AVAIL po-ord                     
+                    tt-rctd.job-no
+                    tt-rctd.job-no     WHEN tt-rctd.job-no EQ "" @ tt-rctd.job-no
+                    tt-rctd.job-no2
+                    tt-rctd.job-no2    WHEN tt-rctd.job-no EQ "" @ tt-rctd.job-no2
+                    tt-rctd.rita-code
+                    tt-rctd.tag
+                    tt-rctd.vend-tag
+                    tt-rctd.qty
+                    tt-rctd.loc-bin
+                    tt-rctd.pur-uom                                   
+                    tt-rctd.cost
+                    v-ext-cost
+                with FRAME itemxvend.
+      END.
+      ELSE DO:
+
+            DISPLAY tt-rctd.rct-date   WHEN FIRST-OF(tt-rctd.i-no)
+                    tt-rctd.i-no       WHEN FIRST-OF(tt-rctd.i-no)
+                    tt-rctd.i-name     WHEN FIRST-OF(tt-rctd.i-no)
+                    tt-rctd.po-no
+                    po-ord.vend-no     WHEN AVAIL po-ord                     
+                    tt-rctd.job-no
+                    tt-rctd.job-no     WHEN tt-rctd.job-no EQ "" @ tt-rctd.job-no
+                    tt-rctd.job-no2
+                    tt-rctd.job-no2    WHEN tt-rctd.job-no EQ "" @ tt-rctd.job-no2
+                    tt-rctd.rita-code
+                    tt-rctd.tag
+                    tt-rctd.qty
+                    tt-rctd.loc-bin
+                    tt-rctd.pur-uom                                   
+                    tt-rctd.cost
+                    v-ext-cost
+                with FRAME itemx .
+
+         END.
+    
+      IF tb_excel THEN do:
+         IF t-show-vend THEN do:
          PUT STREAM excel UNFORMATTED
+              (IF FIRST-OF(tt-rctd.i-no) THEN tt-rctd.rct-date ELSE ?) ","
+              (IF FIRST-OF(tt-rctd.i-no) THEN tt-rctd.i-no ELSE "" )     ","
+              (IF FIRST-OF(tt-rctd.i-no) THEN tt-rctd.i-name ELSE "")   ","
+              tt-rctd.po-no                                             ","
+              (IF AVAIL po-ord THEN po-ord.vend-no ELSE "")             ","
+              (IF tt-rctd.job-no <> "" THEN tt-rctd.job-no ELSE "" )    ","
+              (IF tt-rctd.job-no EQ "" THEN tt-rctd.job-no2 ELSE 0 ) FORMAT "99"  ","
+              tt-rctd.rita-code                                  ","
+              tt-rctd.tag                                        ","
+              tt-rctd.vend-tag                                   ","
+              tt-rctd.qty                                        ","
+              tt-rctd.loc-bin                                    ","
+              tt-rctd.pur-uom                                    ","
+              tt-rctd.cost                                       ","
+              v-ext-cost  SKIP .
+         END.
+         ELSE DO:
+              PUT STREAM excel UNFORMATTED
               (IF FIRST-OF(tt-rctd.i-no) THEN tt-rctd.rct-date ELSE ?) ","
               (IF FIRST-OF(tt-rctd.i-no) THEN tt-rctd.i-no ELSE "" )     ","
               (IF FIRST-OF(tt-rctd.i-no) THEN tt-rctd.i-name ELSE "")   ","
@@ -2610,7 +2692,8 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
               tt-rctd.pur-uom                                    ","
               tt-rctd.cost                                       ","
               v-ext-cost  SKIP .
-
+         END.
+      END.
 
       IF tt-rctd.rita-code EQ "T" THEN 
         PUT "To WHSE: " AT 69

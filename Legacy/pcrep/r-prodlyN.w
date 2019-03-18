@@ -71,6 +71,7 @@ DEF TEMP-TABLE tt-srt NO-UNDO LIKE mch-srt
                               FIELD start-time AS INT 
                               FIELD start-date AS DATE 
                               FIELD i-no LIKE mch-srt.job-no
+                              FIELD dDate AS CHARACTER
 
     INDEX dept-idx dept m-code job-no job-no2 frm blank-no
     INDEX job-idx job-no job-no2.

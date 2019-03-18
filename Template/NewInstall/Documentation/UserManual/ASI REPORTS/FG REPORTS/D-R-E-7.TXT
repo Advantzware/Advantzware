@@ -1,0 +1,14 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:43pm                                      FINISHED GOODS -- DAILY INVENTORY ACTIVITY
+
+                                                      As of Date:  10/16/2000
+
+                                                        Beginning   Daily       Daily       Ending
+Cust #   Item #          Description                    Balance     Rec/Adj     Shipments   Balance       Count1      Count2
+-------- --------------- ------------------------------ ----------- ----------- ----------- ----------- - ----------- -----------
+         HER-1021        RT 5x4x8                                 0      50,400      25,000      25,400   ___________ ___________
+
+STOCK    Facial Box      Facial Powder                            0      25,000           0      25,000   ___________ ___________
+
+

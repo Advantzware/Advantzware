@@ -61,7 +61,8 @@ DEF TEMP-TABLE tt-sched NO-UNDO
     FIELD due-date LIKE po-ordl.due-date
     FIELD amt-msf LIKE ap-invl.amt-msf
     FIELD vend-name LIKE vend.name
-    FIELD carrier LIKE po-ord.carrier
+    FIELD carrier LIKE po-ord.carrier  
+    FIELD m-code LIKE job-mch.m-code   
     FIELD rec_key LIKE po-ordl.rec_key
     INDEX job job-no job-no2
     INDEX i-no i-no
@@ -80,11 +81,11 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "JOB NO,ITEM NO,ITEM NAME,VEND NO,VEND NAME,P/O#,P/O DATE,UOM," +  /*8*/
-                               "QTY ORDER,QTY RECEIVED,REQ DATE,MSF,CARRIER" /*5*/
+                               "QTY ORDER,QTY RECEIVED,REQ DATE,MSF,CARRIER,FIRST RESOURCE" /*5*/
            cFieldListToSelect = "lv-job-no,tt-sched.i-no,tt-sched.i-name,tt-sched.vend-no,tt-sched.vend-name,tt-sched.po-no,tt-sched.po-date,tt-sched.cons-uom," +
-                                "tt-sched.cons-qty,tt-sched.t-rec-qty,tt-sched.due-date,tt-sched.amt-msf,tt-sched.carrier"
-           cFieldLength = "10,15,30,8,30,8,10,4," + "15,15,8,13,7"
-           cFieldType = "c,c,c,c,c,c,c,c," + "i,i,c,i,c"
+                                "tt-sched.cons-qty,tt-sched.t-rec-qty,tt-sched.due-date,tt-sched.amt-msf,tt-sched.carrier,tt-sched.m-code"
+           cFieldLength = "10,15,30,8,30,8,10,4," + "15,15,8,13,7,14"
+           cFieldType = "c,c,c,c,c,c,c,c," + "i,i,c,i,c,c"
            .
         ASSIGN cTextListToDefault  = "JOB NO,ITEM NO,ITEM NAME,VEND NO,P/O#,P/O DATE,UOM," +  /*8*/
                                      "QTY ORDER,QTY RECEIVED,REQ DATE,MSF,CARRIER"  . /*5*/
@@ -1596,7 +1597,7 @@ DISPLAY "" WITH FRAME r-top.
 
     ASSIGN
      v-qty  = po-ordl.t-rec-qty
-     v-cost = po-ordl.cons-cost. 
+     v-cost = po-ordl.cons-cost.        
 
     IF po-ordl.cons-uom NE lv-uom THEN DO:
 
@@ -1620,6 +1621,12 @@ DISPLAY "" WITH FRAME r-top.
                               v-bwt, v-len, v-wid, v-dep,
                               po-ordl.ord-qty, OUTPUT v-ord-qty).
 
+        FIND FIRST  job-mch NO-LOCK 
+            WHERE job-mch.company EQ cocode
+                AND job-mch.job-no EQ po-ordl.job-no
+                AND job-mch.job-no2 EQ po-ordl.job-no2
+                AND job-mch.frm EQ po-ordl.s-num USE-INDEX line-idx NO-ERROR.        
+
     /*IF po-ordl.ord-qty - v-qty GT 0 THEN DO:*/
     IF v-ord-qty - v-qty GT 0 THEN DO:
 
@@ -1640,7 +1647,8 @@ DISPLAY "" WITH FRAME r-top.
         tt-sched.t-rec-qty = (IF NOT po-ordl.item-type AND po-ordl.cons-uom NE lv-uom THEN po-ordl.t-rec-qty ELSE v-qty)
         tt-sched.due-date  = po-ordl.due-date
         tt-sched.carrier   = po-ord.carrier
-        tt-sched.rec_key   = po-ordl.rec_key.
+        tt-sched.rec_key   = po-ordl.rec_key
+        tt-sched.m-code    = IF AVAILABLE job-mch THEN job-mch.m-code ELSE "".
 
        /*IF v-sort EQ "V" THEN DO:*/
           FIND FIRST vend NO-LOCK
@@ -1695,7 +1703,7 @@ DISPLAY "" WITH FRAME r-top.
        END.
        ELSE DO:            
           CASE cTmpField: 
-                WHEN "lv-job-no" THEN cVarValue = lv-job-no.
+                WHEN "lv-job-no" THEN cVarValue = lv-job-no.                                                  
           END CASE.
           cExcelVarValue = cVarValue.  
           cDisplay = cDisplay + cVarValue +

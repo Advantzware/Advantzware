@@ -46,6 +46,7 @@ def {1} var v-form-len      like job-mat.len                            no-undo.
 def {1} var v-form-wid      like job-mat.wid                            no-undo.
 def {1} var v-form-sqft     as   dec decimals 3 format ">>9.9<<"        no-undo.
 def {1} var v-len-score     as   char format "x(27)"                    no-undo.
+def {1} var v-wid-score     as   char format "x(27)"                    no-undo.
 def {1} var v-inst          as   char                                   no-undo.
 def {1} var v-ship          as   char                                   no-undo.
 def {1} var v-cas-pal       like eb.cas-pal                             no-undo.

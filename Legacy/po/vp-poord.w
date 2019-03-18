@@ -28,6 +28,8 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 def var char-hdl as cha no-undo.
+DEF SHARED VAR lNewOrd AS LOG NO-UNDO.
+
 /* === vars for d-poordl.w ====*/
 {methods/prgsecdt.i}
 
@@ -504,6 +506,22 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE addItem V-table-Win
+PROCEDURE addItem:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    APPLY 'choose' TO btn-Add IN FRAME {&frame-name}.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :

@@ -64,7 +64,10 @@ DO:
         style.company = eb.company AND
         style.style = eb.style
         NO-LOCK NO-ERROR.
-    FIND est OF eb NO-LOCK.
+    FIND FIRST est NO-LOCK WHERE 
+        est.company EQ eb.company AND 
+        est.est-no EQ eb.est-no 
+        NO-ERROR.
     FIND ef OF eb NO-LOCK. 
 END.
 IF NOT AVAILABLE style

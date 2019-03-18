@@ -574,11 +574,8 @@ DO:
      IF AVAIL ar-cash THEN ASSIGN begin_cust:SCREEN-VALUE = ar-cash.cust-no
                                  end_cust:SCREEN-VALUE = ar-cash.cust-no.
      /* task 01311304 */
-     FIND FIRST reftable WHERE reftable.reftable EQ  "AR-CASH"
-                            AND reftable.code     EQ 
-                            STRING(ar-cash.c-no,"9999999999") NO-LOCK NO-ERROR.
      IF AVAIL ar-cash AND ar-cash.posted THEN DO:
-       IF AVAIL reftable THEN
+         IF ar-cash.printed THEN
          ASSIGN
             tb_reprint:SCREEN-VALUE = "YES"
             tb_posted:SCREEN-VALUE  = "YES".
@@ -588,7 +585,7 @@ DO:
                tb_reprint:SCREEN-VALUE = "NO".
      END.    
      ELSE do:
-        IF AVAIL reftable THEN
+         IF ar-cash.printed THEN
          tb_reprint:SCREEN-VALUE = "YES".
         ELSE
             tb_reprint:SCREEN-VALUE = "NO" .
@@ -1087,17 +1084,9 @@ SESSION:SET-WAIT-STATE("general").
         and ar-cash.check-date le end_date
         and can-find(first ar-cashl where ar-cashl.c-no eq ar-cash.c-no)
         and ((v-reprint and
-              can-find(first reftable
-                       where reftable.reftable eq "AR-CASH"
-                         and reftable.code     eq
-                                    string(ar-cash.c-no,"9999999999")
-                           use-index code)) or
+              ar-cash.printed EQ YES) or
              (not v-reprint and
-              not can-find(first reftable
-                           where reftable.reftable eq "AR-CASH"
-                             and reftable.code     eq
-                                        string(ar-cash.c-no,"9999999999")
-                           use-index code)))
+              ar-cash.printed EQ NO))
       use-index posted        
       break by ar-cash.cust-no
             by ar-cash.check-no with frame a1:
@@ -1195,19 +1184,10 @@ SESSION:SET-WAIT-STATE("general").
        v2 = 0.
     end.
 
-    find first reftable
-        where reftable.reftable eq "AR-CASH"
-          and reftable.code     eq string(ar-cash.c-no,"9999999999")
-        use-index code no-error.
-    if not avail reftable then do:
-      create reftable.
-      assign
-       reftable.reftable = "AR-CASH"
-       reftable.code     = string(ar-cash.c-no,"9999999999").
-    end.
-
+    
     /* gdm 07010903 */
-    ASSIGN ar-cash.ret-memo = YES.
+    ASSIGN ar-cash.ret-memo = YES
+           ar-cash.printed  = YES.
 
   end. /* each ar-cash */
 

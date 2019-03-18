@@ -45,12 +45,13 @@ CREATE WIDGET-POOL.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svCompany svStartReceiptDate btnCalendar-1 ~
 svStartReceiptDateOption svEndReceiptDate btnCalendar-2 ~
-svEndReceiptDateOption svAllSalesRep svStartSalesRep svEndSalesRep svSort ~
-svIncludeTermsDiscount svIncludePrepCharges svDayOld 
+svEndReceiptDateOption svAllSalesRep svStartSalesRep svEndSalesRep svDayOld ~
+svSort svIncludeTermsDiscount svIncludePrepCharges btnAddEmail svRecipients 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svStartReceiptDate ~
 svStartReceiptDateOption svEndReceiptDate svEndReceiptDateOption ~
 svAllSalesRep svStartSalesRep startSalesRepName svEndSalesRep ~
-endSalesRepName svSort svIncludeTermsDiscount svIncludePrepCharges svDayOld 
+endSalesRepName svDayOld svSort svIncludeTermsDiscount svIncludePrepCharges ~
+svRecipients 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -65,6 +66,11 @@ endSalesRepName svSort svIncludeTermsDiscount svIncludePrepCharges svDayOld
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
 DEFINE BUTTON btnCalendar-1 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
@@ -87,13 +93,18 @@ DEFINE VARIABLE svStartReceiptDateOption AS CHARACTER FORMAT "X(256)":U
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
 
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 70 BY 2.86
+     BGCOLOR 15 .
+
 DEFINE VARIABLE endSalesRepName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 44 BY 1.
+     SIZE 37 BY 1.
 
 DEFINE VARIABLE startSalesRepName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 44 BY 1.
+     SIZE 37 BY 1.
 
 DEFINE VARIABLE svCompany AS CHARACTER FORMAT "X(3)" 
      LABEL "Company" 
@@ -133,6 +144,26 @@ DEFINE VARIABLE svSort AS CHARACTER INITIAL "SalesRep"
 "SalesRep", "SalesRep"
      SIZE 44 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 69.8 BY 3.05.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 69.8 BY 4.29.
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 63.8 BY 3.05.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 63.8 BY 4.29.
+
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 83 BY 3.57.
+
 DEFINE VARIABLE svAllSalesRep AS LOGICAL INITIAL yes 
      LABEL "All Sales Reps" 
      VIEW-AS TOGGLE-BOX
@@ -152,40 +183,52 @@ DEFINE VARIABLE svIncludeTermsDiscount AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 60
-     svStartReceiptDate AT ROW 3.14 COL 19 COLON-ALIGNED HELP
+     svCompany AT ROW 1.24 COL 142 COLON-ALIGNED WIDGET-ID 60
+     svStartReceiptDate AT ROW 3.38 COL 25 COLON-ALIGNED HELP
           "Enter Start Receipt Date" WIDGET-ID 72
-     btnCalendar-1 AT ROW 3.14 COL 37.2 WIDGET-ID 80
-     svStartReceiptDateOption AT ROW 3.14 COL 40.2 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 3.38 COL 43.2 WIDGET-ID 80
+     svStartReceiptDateOption AT ROW 3.38 COL 46.2 COLON-ALIGNED HELP
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 74
-     svEndReceiptDate AT ROW 4.33 COL 19.2 COLON-ALIGNED HELP
+     svEndReceiptDate AT ROW 4.57 COL 25.2 COLON-ALIGNED HELP
           "Enter End Receipt Date" WIDGET-ID 68
-     btnCalendar-2 AT ROW 4.33 COL 37.2 WIDGET-ID 82
-     svEndReceiptDateOption AT ROW 4.33 COL 40.2 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 4.57 COL 43.2 WIDGET-ID 82
+     svEndReceiptDateOption AT ROW 4.57 COL 46.2 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
-     svAllSalesRep AT ROW 6.24 COL 21 HELP
+     svAllSalesRep AT ROW 8.14 COL 27 HELP
           "All Sales Reps?" WIDGET-ID 58
-     svStartSalesRep AT ROW 7.43 COL 19 COLON-ALIGNED HELP
+     svStartSalesRep AT ROW 9.33 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Sales Rep#" WIDGET-ID 22
-     startSalesRepName AT ROW 7.43 COL 28 COLON-ALIGNED HELP
+     startSalesRepName AT ROW 9.33 COL 34 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
-     svEndSalesRep AT ROW 8.62 COL 19 COLON-ALIGNED HELP
+     svEndSalesRep AT ROW 10.52 COL 25 COLON-ALIGNED HELP
           "Enter Ending Sales Rep" WIDGET-ID 20
-     endSalesRepName AT ROW 8.62 COL 28 COLON-ALIGNED HELP
+     endSalesRepName AT ROW 10.52 COL 34 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svSort AT ROW 10.52 COL 21 NO-LABEL WIDGET-ID 28
-     svIncludeTermsDiscount AT ROW 11.71 COL 21 WIDGET-ID 42
-     svIncludePrepCharges AT ROW 12.91 COL 21 WIDGET-ID 44
-     svDayOld AT ROW 14.57 COL 44 COLON-ALIGNED HELP
+     svDayOld AT ROW 3.86 COL 126 COLON-ALIGNED HELP
           "Show only Invoices with Cash Receipts after" WIDGET-ID 76
-     "Days" VIEW-AS TEXT
-          SIZE 5 BY 1 AT ROW 14.57 COL 55 WIDGET-ID 78
+     svSort AT ROW 8.14 COL 96 NO-LABEL WIDGET-ID 28
+     svIncludeTermsDiscount AT ROW 9.33 COL 96 WIDGET-ID 42
+     svIncludePrepCharges AT ROW 10.52 COL 96 WIDGET-ID 44
+     btnAddEmail AT ROW 15.29 COL 40 HELP
+          "Add Recipents" WIDGET-ID 636
+     svRecipients AT ROW 13.62 COL 46 NO-LABEL WIDGET-ID 600
      "Sort?:" VIEW-AS TEXT
-          SIZE 6 BY 1 AT ROW 10.52 COL 14 WIDGET-ID 52
+          SIZE 6 BY 1 AT ROW 8.14 COL 89 WIDGET-ID 52
+     "Days" VIEW-AS TEXT
+          SIZE 5 BY 1 AT ROW 3.86 COL 137 WIDGET-ID 78
+     "Email" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 13.62 COL 40 WIDGET-ID 640
+     "Recipients:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 14.33 COL 35 WIDGET-ID 602
+     RECT-1 AT ROW 2.91 COL 6 WIDGET-ID 84
+     RECT-2 AT ROW 7.67 COL 6 WIDGET-ID 86
+     RECT-3 AT ROW 2.91 COL 81 WIDGET-ID 88
+     RECT-4 AT ROW 7.67 COL 81 WIDGET-ID 90
+     RECT-6 AT ROW 13.14 COL 34 WIDGET-ID 638
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 74 BY 16
+         SIZE 149.2 BY 17
          TITLE "Report Parameters".
 
 
@@ -215,8 +258,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 16
-         WIDTH              = 74.
+         HEIGHT             = 17
+         WIDTH              = 149.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -238,7 +281,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME                                               */
+   NOT-VISIBLE FRAME-NAME Custom                                        */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
@@ -247,6 +290,16 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
    3                                                                    */
 /* SETTINGS FOR FILL-IN endSalesRepName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startSalesRepName IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -271,6 +324,21 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail sObject
+ON CHOOSE OF btnAddEmail IN FRAME F-Main /* Email */
+DO:
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    cRecipients = svRecipients:SCREEN-VALUE.
+    RUN AOA/Recipients.w (INPUT-OUTPUT cRecipients).
+    svRecipients:SCREEN-VALUE = cRecipients.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btnCalendar-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 sObject

@@ -27,12 +27,13 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "FGRecptUnit,OeDateWarn,PREPMASTER,POFarmOutScores,OEQtyPerUnitWarn,APMatTypeExceptions," 
            + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn,SSScanVendor," 
            + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran,BOLMaster,SalesBudget,CEMarkupMatrixInterpolate,CEMarkupMatrixLookup,"
-           + "KiwiT,BusinessFormModal,LoadTagXprintImage,AsiHelpClientID,CEGotoCalc,FGKEEPZEROBIN,RMKEEPZEROBIN,PrePressHotFolderIn,"
+           + "KiwiT,BusinessFormModal,LoadTagXprintImage,CEGotoCalc,FGKEEPZEROBIN,RMKEEPZEROBIN,PrePressHotFolderIn,"
            + "PrePressHotFolderOut,METRIC,CEImportForm,CEImportFormFolder,BusinessFormLogo,CalcBtnImage,CalcBtnLink,DCClosedJobs,"
            + "ImportFolder,ImportLog,TagFormat,FgItemHideCalcFields,VendCostMatrix,RelSkipRecalc,RMAllowAdd,CECostSave,RMOverrunCostProtection,"
            + "SSBOLPassword,BOLImageFooter,InvAddDate,POFGDims,OEPriceHold,POConfigDir,EDILogs,AutoLogout,AutoLogoutLocal,RMTagValidation,"
            + "MenuLink1,MenuLink2,MenuLink3,MenuLink4,MenuLink5,MenuLink6,MenuLink7,MenuLink8,MenuLinkASI,MenuLinkZoHo,MenuLinkUpgrade,"
-           + "BitMap,CEMenu,BOLPartial,OEAutoDateUpdate,FGUnderOver"
+           + "BitMap,CEMenu,BOLPartial,OEAutoDateUpdate,SSPostFGTransfer,FGUnderOver,FGSetAdjustReason,AdjustReason,ShipNotesExpanded,CTIDir,"
+           + "TSBREAKSQTY,CERouteFromStyle,Tasker,CEUpdate,LoadTagLimit,RMHistoryBrowse,CeSizeVal"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -41,460 +42,514 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                 INPUT "Load Tag SSCC",
                 INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                INPUT NO /* Logical value */).
+                INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "IR12" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT YES /* Prompt? */,
                   INPUT "Prompt for custom IR12?",
                   INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                  INPUT NO /* Logical value */).
+                  INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "OEDateChange" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                   INPUT "Force entry of date change reason?",
                   INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                  INPUT NO /* Logical value */).
+                  INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "Paperless" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                   INPUT "Activate Paperless Logic by Customer?",
                   INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                  INPUT NO /* Logical value */).
+                  INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "FGSetAssembly" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                   INPUT "FG Set Receipt Logic to Relieve Component On Hand Inventory",
                   INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                  INPUT NO /* Logical value */).
+                  INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "FGRecptPassWord" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                   INPUT "Password for override of job # in I-U-1",
                   INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                  INPUT NO /* Logical value */).
+                  INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "InvStatus" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                   INPUT "Invoice Status and Post Bills / Create Invoices One at Time",
                   INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                  INPUT NO /* Logical value */).
+                  INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "BOLQtyPopup" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                   INPUT "Show BOL Qty Warning Message",
                   INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                  INPUT YES /* Logical value */).
+                  INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "AgeDays" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                    INPUT "Calc Avg Days to Pay only with invoices paid within X (Leave 0 for all)",
                    INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                   INPUT YES /* Logical value */).
+                   INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "OEFGADD" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                    INPUT "Prompts to Create an Item?",
                    INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                   INPUT YES /* Logical value */).
+                   INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "HighBalDays" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                    INPUT "Calc High Balance for customer within X days (Leave 0 for no recalc)",
                    INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                   INPUT YES /* Logical value */).
+                   INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "oeShipFrom" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                    INPUT "Prompt for a ship from code on each order line?",
                    INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                   INPUT NO /* Logical value */).
+                   INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "SSFGSCAN" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                    INPUT "Prompt for the Warehouse/Bin?",
                    INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                   INPUT YES /* Logical value */).
+                   INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "AutoFGIssue" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                    INPUT "AUTO ISSUE FARM OUTS to JOBS for POs with ORDER#",
                    INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                   INPUT NO /* Logical value */).
+                   INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "FGPostCmp" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                    INPUT "Post FG Components along with Set Header",
                    INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                   INPUT NO /* Logical value */).
+                   INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "CustomerList" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                    INPUT "Define Customer List for Reporting",
                    INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                   INPUT NO /* Logical value */).
+                   INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "SSLoadtag" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                    INPUT "Prompt for print confirmation?",
                    INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                   INPUT YES /* Logical value */).
+                   INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "ChkFmtACH" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                    INPUT "ACH Remittance format for ACH Check Runs",
                    INPUT "ASI" /* Char Value */, INPUT 0 /* Int value */,
-                   INPUT NO /* Logical value */).
+                   INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "OESellPriceXfer" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                    INPUT "Transfer OE Price to Invoice?",
                    INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                   INPUT NO /* Logical value */).
+                   INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "OEPO#Xfer" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                    INPUT "Transfer PO# from Order to Invoice?",
                    INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                   INPUT NO /* Logical value */).
+                   INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "SSBolEmail" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                    INPUT "Generate SS Emails from release & BOL Changes?",
                    INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                   INPUT YES /* Logical value */).
+                   INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "OEDateAuto" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                    INPUT "Auto calculate due date and promise date?",
                    INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                   INPUT NO /* Logical value */).
+                   INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "QuoteNotes" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                    INPUT "Specify quote number for default quote notes",
                    INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                   INPUT NO /* Logical value */).
+                   INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "OEPriceMatrixCheck" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                   INPUT "Compare Order Qty Against Price Matrix?",
                   INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                  INPUT NO /* Logical value */).
+                  INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "GLJournalPost" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                   INPUT "Prompt if GL journals are out of balance before posting?",
                   INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                  INPUT NO /* Logical value */).
+                  INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "FGRecptUnit" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                   INPUT "Unit Count for FGRecpt Character Value = AutoPost",
                   INPUT "Pallet Counts" /* Char Value */, INPUT 0 /* Int value */,
-                  INPUT NO /* Logical value */).
+                  INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "OEDateWarn" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                   INPUT "Warn user dates are entered too far into the future?",
                   INPUT "" /* Char Value */, INPUT 90 /* Int value */,
-                  INPUT NO /* Logical value */).
+                  INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "PrepMaster" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                   INPUT "Set Defaults for Prep File Creation",
                   INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                  INPUT NO /* Logical value */).
+                  INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "POFarmOutScores" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                   INPUT "For all FG Items, transfer dimensions to the scores button?",
                   INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                  INPUT NO /* Logical value */).
+                  INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "OEQtyPerUnitWarn" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                   INPUT "Disallow updating of the Order Qty if Order Qty > Qty/Unit",
                   INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                  INPUT NO /* Logical value */).
+                  INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "APMatTypeExceptions" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                   INPUT "Materials Types that don't require receipts for AP invoices",
                   INPUT "MOXY789@" /* Char Value */, INPUT 0 /* Int value */,
-                  INPUT NO /* Logical value */).
+                  INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "OEJobHold" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                           INPUT "Synch Job Hold status with Order Hold Status",
                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                          INPUT NO /* Logical value */).
+                          INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "lmLock" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                           INPUT "Label Matrix Locking Option",
                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                          INPUT NO /* Logical value */).
+                          INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "CESample" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                           INPUT "Sample/Spec/NOC Format  ",
                           INPUT "Partitions" /* Char Value */, INPUT 0 /* Int value */,
-                          INPUT NO /* Logical value */).
+                          INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "DefaultDir" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                           INPUT "Set default folder for Attachments and Images",
                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                          INPUT NO /* Logical value */).                                                    
+                          INPUT NO /* Logical value */, INPUT 0 /* dec value*/).                                                    
     WHEN "JobHoldReason" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                           INPUT "Prompt for Reason when Job Placed on Hold",
                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                          INPUT NO /* Logical value */).
+                          INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "ASIHelpService" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                           INPUT "ASI Help Services",
                           INPUT "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'" /* Char Value */, INPUT 0 /* Int value */,
-                          INPUT NO /* Logical value */).
+                          INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "CRMAuthToken" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                           INPUT "ZOHO CRM Authorization Token",
                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                          INPUT NO /* Logical value */).
+                          INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "TSAMPMWarn" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                           INPUT "AM/PM Toggle Button - Warning when changing AM/PM",
                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                          INPUT NO /* Logical value */).
+                          INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "SSScanVendor" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Additional fields required to scan in Scan Vendor Tags",
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                           INPUT NO /* Logical value */).
+                           INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "OEBOLPrompt" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Prompt for BOL/INV on Order Entry Screen ",
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                           INPUT NO /* Logical value */).
+                           INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "SHTCALCWarn" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Prompt for board differences on Sheet Calc button ",
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                           INPUT NO /* Logical value */).
+                           INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "BOLFMTTran" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Transfer Bill of Lading Creation ",
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                           INPUT NO /* Logical value */).
+                           INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "BOLMaster" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Master Bill of Lading Creation ",
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                           INPUT NO /* Logical value */).
+                           INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "SalesBudget" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Budget Report",
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                           INPUT NO /* Logical value */).
+                           INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "CEMarkupMatrixInterpolate" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Interpolate markup value on Markup Matrix",
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                           INPUT NO /* Logical value */).  
+                           INPUT NO /* Logical value */, INPUT 0 /* dec value*/).  
     WHEN "CEMarkupMatrixLookup" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Value to use as lookup on Markup Matrix",
                            INPUT "Square Feet" /* Char Value */, INPUT 0 /* Int value */,
-                           INPUT NO /* Logical value */).
+                           INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "KiwiT" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "N:\rcode\Kiwi",
                            INPUT "trilakes" /* Char Value */, INPUT 0 /* Int value */,
-                           INPUT NO /* Logical value */). 
+                           INPUT NO /* Logical value */, INPUT 0 /* dec value*/). 
     WHEN "BusinessFormModal" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Set Business Form Preview window to Modal (wait to close)?",
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                           INPUT YES /* Logical value */).
+                           INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "LoadTagXprintImage" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Set Logo on xprint loadtag ",
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                           INPUT NO /* Logical value */).
+                           INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
 
     WHEN "FGKEEPZEROBIN" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Keep zero FG bins?",
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                           INPUT NO /* Logical value */).
+                           INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "RMKEEPZEROBIN" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Keep zero RM bins?",
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                           INPUT NO /* Logical value */).
-
-    WHEN "AsiHelpClientID" THEN 
-    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
-                           INPUT "Asi Help Client ID ",
-                           INPUT "ASI" /* Char Value */, INPUT 0 /* Int value */,
-                           INPUT YES /* Logical value */).
+                           INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "CEGotoCalc" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Use enhanced GOTO Screen from Estimate?",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "CEPanel" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Check Panel sizes against limits on Machine File?",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "PrePressHotFolderIn" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "PrePress Hot Folder In",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT YES /* Logical value */).
+        INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "PrePressHotFolderOut" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "PrePress Hot Folder Out",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT YES /* Logical value */).
+        INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "METRIC" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Default Metric flag to be set",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
-    WHEN "CEImportForm" THEN 
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+    WHEN "CEImportForm" THEN  
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Enable Import Estimate Form from Excel",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).  
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).  
     WHEN "CEImportFormFolder" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Default Folder for Import Estimate Form",
         INPUT "C:\temp\" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "BusinessFormLogo" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Define the path to the logo to be used on the standard Business forms",
-        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT ".\resources\images\noLogo.png" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "CalcBtnImage" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Calculator Factor Button Image",
         INPUT "Graphics\32x32\calculator.ico" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "CalcBtnLink" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Calculator Factor Button Link",
         INPUT "http://www.metric-conversions.org/length/millimeters-to-inches.htm" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "DCClosedJobs" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Prevent Data Collection on Closed Jobs",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "ImportFolder" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Default Folder for Importer File Lookup",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "ImportLog" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Default Folder for Importer Logfile",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "RelSkipRecalc" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Skip inventory recalc for create of actual release",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).        
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).        
     WHEN "FgItemHideCalcFields" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "FG Item Hide IF1 Calculated Fields",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).        
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).        
     WHEN "TagFormat" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Tag Format string convert of integer value to excel output",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).  
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).  
     WHEN "VendCostMatrix" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Vendor Cost Matrix - Form or To",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */). 
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/). 
     WHEN "RMAllowAdd" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "allow auto creation of new Raw material item",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT YES /* Logical value */).
+        INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "RMOverrunCostProtection" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Limit Cost of Receipt to Overrun Quantity",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "CECostSave" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Save Options for Cost Calc",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "SSBOLPassword" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "BOL password if tag scanned is not on the BOL and the driver scans a tag from a different job#",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */). 
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/). 
     WHEN "BOLImageFooter" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Bol Footer Image",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "InvAddDate" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Enter Invoice Date on AU1",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "POFGDims" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Use Box L W D for FG POs (specify Style Types optional)",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "OEPriceHold" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Select Price Hold criteria",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "POConfigDir" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "PO Config Directory",
         INPUT ".\custfiles\EDIFiles\POs" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).        
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).        
     WHEN "EDILogs" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "C:\tmp",
         INPUT "C:\tmp" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
      WHEN "UserControl" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Folder to write disconnect instructions",
         INPUT "custfiles\userControl" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).       
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).       
     WHEN "RMTagValidation" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Validates the tag number upon issue Material Posting",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "MenuLink1" OR WHEN "MenuLink2" OR WHEN "MenuLink3" OR WHEN "MenuLink4" OR
     WHEN "MenuLink5" OR WHEN "MenuLink6" OR WHEN "MenuLink7" OR WHEN "MenuLink8" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "MenuLinkASI" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "http://www.advantzware.com",
         INPUT "Graphics\asiicon.ico" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT YES /* Logical value */).
+        INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "MenuLinkZoHo" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "https://support.zoho.com/portal/advantzware/kb",
         INPUT "Graphics\32x32\question.ico" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT YES /* Logical value */).
+        INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "MenuLinkUpgrade" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "https://desk.zoho.com/support/advantzware/ShowHomePage.do#Solutions",
         INPUT "Graphics\32x32\question_and_answer.ico" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT YES /* Logical value */).
+        INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "BitMap" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Graphics\bigboxes",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "CEMenu" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Graphics\bigboxes",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).  
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).  
     WHEN "BOLPartial" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "P/C on Bill of Lading by Order or by Release",
         INPUT "Order Quantity" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "OEAutoDateUpdate" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Updates orders and releases with any change to transit days or dock appointment days",
         INPUT "Transit&Dock" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/). 
    WHEN "FGUnderOver" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Finished Goods Check Overrun and Underrun Method",
         INPUT "UnderRuns and OverRun" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+   WHEN "FGSetAdjustReason" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT " Specify the Adjustment Reason code for Set Component reductions",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+  WHEN "AdjustReason" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Require Reason Code when entering inventory Adjustments Applies to RM and FG",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+  WHEN "ShipNotesExpanded" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Ship Notes Expanded Control",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+    WHEN "CTIDir" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Directory for corrtrim export files",
+        INPUT ".\CustFiles\DataXfer\CorrTrim" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).       
+   WHEN "SSPostFGTransfer" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Sharp Shooter FG Warehouse Trans Transfer Post",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+   WHEN "TSBREAKSQTY" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Automatically allocate Run/Waste Qty across Break Transactions",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+   WHEN "CERouteFromStyle" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Set Layout Machine to first machine in Style",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+   WHEN "Tasker" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Tasker Enabled",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/). 
+  WHEN "CEUpdate" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Update inks, pack, freight for like estimates",
+        INPUT "FG Item #" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+  WHEN "RMHistoryBrowse" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "# of Records to be displayed in RM History browser",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value */).
+  WHEN "LoadTagLimit" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Limit the maximum number of load tags to print",
+        INPUT "" /* Char Value */, INPUT 120 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 50 /* dec value*/ ).
+    WHEN "CeSizeVal" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Display warning prompt on Calculation that Specs Blank and Box Design dimension do not match",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT YES /* Logical value */, INPUT 0 /* dec value*/ ).        
 END CASE.
 ELSE
 CASE ip-nk1-value:

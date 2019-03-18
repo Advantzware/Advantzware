@@ -37,7 +37,7 @@ DEFINE VARIABLE lFirstUnapp       AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE cDiscType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSalesRep         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iInt              AS INTEGER   NO-UNDO.
-DEFINE VARIABLE dDec              AS DECIMAL   NO-UNDO EXTENT 4.
+DEFINE VARIABLE dDec              AS DECIMAL   NO-UNDO EXTENT 5.
 DEFINE VARIABLE lValidCust        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lMultCurr         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cInvoiceNote      AS CHARACTER NO-UNDO.
@@ -87,12 +87,8 @@ FOR EACH ar-cash ~
         IF NOT AVAILABLE ar-inv THEN NEXT. ~
     END. ~
     IF ar-cashl.amt-paid GT 0 THEN DO: ~
-        FIND FIRST reftable NO-LOCK ~
-             WHERE reftable.reftable EQ "ARCASHLVDDATE" ~
-               AND reftable.rec_key  EQ ar-cashl.rec_key ~
-             USE-INDEX rec_key NO-ERROR. ~
-        IF AVAILABLE reftable THEN ~
-        dtInvoiceDate = DATE(reftable.CODE). ~
+        IF ar-cashl.voided THEN ~
+        dtInvoiceDate = ar-cashl.voidDate. ~
         ELSE DO: ~
             cGltransDesc = "VOID " + cust.cust-no + " " ~
                          + STRING(ar-cash.check-no,"9999999999") ~
@@ -107,7 +103,7 @@ FOR EACH ar-cash ~
         END. ~
     END. ~
     ELSE dtInvoiceDate = ar-cash.check-date. ~
-    IF dtInvoiceDate NE ? AND dtInvoiceDate GT dtAsofDate THEN NEXT.
+    IF dtInvoiceDate NE ? AND dtInvoiceDate GT dtAsofDate THEN NEXT. 
 
 &SCOPED-DEFINE valid-factored ~
 IF NOT lIncludeFactoredFGItems AND ~
@@ -290,13 +286,9 @@ FOR EACH tt-cust,
               AND ar-cash.check-date LE dtAsofDate
             USE-INDEX c-no BY ar-cashl.rec_key
             :
-            IF ar-cashl.amt-paid GT 0 THEN DO:
-                FIND FIRST reftable NO-LOCK
-                    WHERE reftable.reftable EQ "ARCASHLVDDATE"
-                      AND reftable.rec_key  EQ ar-cashl.rec_key
-                    USE-INDEX rec_key NO-ERROR.
-                IF AVAILABLE reftable THEN
-                dtInvoiceDate = DATE(reftable.code).
+            IF ar-cashl.amt-paid GT 0 THEN DO:                
+                IF ar-cashl.voided THEN  
+                   dtInvoiceDate = ar-cashl.voidDate.
                 ELSE DO:
                     cGltransDesc = "VOID " + cust.cust-no + " "
                                  + STRING(ar-cash.check-no,"9999999999")
@@ -350,7 +342,8 @@ FOR EACH tt-cust,
                 lFirstCust = NO.
             END. /* if lFirstCust */
     
-            IF iD GE iPeriodDays3 THEN iInt = 4.
+            IF iD GE iPeriodDays4 THEN iInt = 5.
+            ELSE IF iD GE iPeriodDays3 THEN iInt = 4.
             ELSE IF iD GE iPeriodDays2 THEN iInt = 3.
             ELSE IF iD GE iPeriodDays1 THEN iInt = 2.
             ELSE iInt = 1.
@@ -393,7 +386,8 @@ FOR EACH tt-cust,
                     ttAgedReceivables.td          = iCurrentTrendDays         
                     ttAgedReceivables.periodDay1  = dDec[2]                     
                     ttAgedReceivables.periodDay2  = dDec[3]                     
-                    ttAgedReceivables.periodDay3  = dDec[4]                     
+                    ttAgedReceivables.periodDay3  = dDec[4]    
+                    ttAgedReceivables.periodDay4  = dDec[5]
                     ttAgedReceivables.custPoNo    = cPoNo                        
                     ttAgedReceivables.jobNo       = cJobStr                      
                     ttAgedReceivables.invoiceNote = ""                           
@@ -435,12 +429,9 @@ FOR EACH tt-cust,
                 USE-INDEX c-no
                 :
                 IF ar-cashl.amt-paid GT 0 THEN DO:
-                    FIND FIRST reftable NO-LOCK
-                        WHERE reftable.reftable EQ "ARCASHLVDDATE"
-                          AND reftable.rec_key  EQ ar-cashl.rec_key
-                        USE-INDEX rec_key NO-ERROR.
-                    IF AVAILABLE reftable THEN                             
-                    dtInvoiceDate = DATE(reftable.code).
+
+                    IF ar-cashl.voided THEN  
+                       dtInvoiceDate = ar-cashl.voidDate.
                     ELSE DO:
                         cGltransDesc = "VOID " + cust.cust-no + " "
                                      + STRING(ar-cash.check-no,"9999999999")
@@ -476,10 +467,7 @@ FOR EACH tt-cust,
                             + STRING(ar-cash.check-no,"9999999999")
                             + " Inv# " + STRING(ar-cashl.inv-no).
                     IF ar-cashl.amt-paid GT 0 AND
-                        (CAN-FIND(FIRST reftable
-                                  WHERE reftable.reftable EQ "ARCASHLVDDATE"
-                                    AND reftable.rec_key  EQ ar-cashl.rec_key
-                                  USE-INDEX rec_key) OR
+                         (ar-cashl.voided EQ YES or
                          CAN-FIND(FIRST gltrans
                                   WHERE gltrans.company EQ cust.company
                                     AND gltrans.jrnl    EQ "CASHRVD"
@@ -530,6 +518,7 @@ FOR EACH tt-cust,
                                 ttAgedReceivables.periodDay1  = 0
                                 ttAgedReceivables.periodDay2  = 0
                                 ttAgedReceivables.periodDay3  = 0
+                                ttAgedReceivables.periodDay4  = 0
                                 ttAgedReceivables.custPoNo    = cPoNo
                                 ttAgedReceivables.jobNo       = cJobStr
                                 ttAgedReceivables.invoiceNote = ""
@@ -573,6 +562,7 @@ FOR EACH tt-cust,
                             ttAgedReceivables.periodDay1  = 0
                             ttAgedReceivables.periodDay2  = 0
                             ttAgedReceivables.periodDay3  = 0
+                            ttAgedReceivables.periodDay4  = 0
                             ttAgedReceivables.custPoNo    = cPoNo
                             ttAgedReceivables.jobNo       = cJobStr
                             ttAgedReceivables.invoiceNote = ""
@@ -592,12 +582,8 @@ FOR EACH tt-cust,
                 END. /* IF v-disc-amt NE 0*/
                 ELSE IF cType EQ "Detail" THEN DO:
                     IF cvType EQ "VD" THEN DO:
-                        FIND FIRST reftable NO-LOCK
-                            WHERE reftable.reftable EQ "ARCASHLVDDATE"
-                              AND reftable.rec_key  EQ ar-cashl.rec_key
-                            USE-INDEX rec_key NO-ERROR.
-                        IF AVAILABLE reftable THEN
-                        dtInvoiceDate = DATE(reftable.code).
+                        IF ar-cashl.voided THEN  
+                           dtInvoiceDate = ar-cashl.voidDate.
                         ELSE DO:
                             cGltransDesc = "VOID " + cust.cust-no + " "
                                          + STRING(ar-cash.check-no,"9999999999")
@@ -641,6 +627,7 @@ FOR EACH tt-cust,
                             ttAgedReceivables.periodDay1  = 0
                             ttAgedReceivables.periodDay2  = 0
                             ttAgedReceivables.periodDay3  = 0
+                            ttAgedReceivables.periodDay4  = 0
                             ttAgedReceivables.custPoNo    = cPoNo
                             ttAgedReceivables.jobNo       = cJobStr
                             ttAgedReceivables.invoiceNote = ""
@@ -741,10 +728,7 @@ FOR EACH tt-cust,
             cTrDscr = "VOID " + cust.cust-no + " "
                 + STRING(ar-cash.check-no,"9999999999")
                 + " Inv# " + STRING(ar-cashl.inv-no).
-            IF CAN-FIND(FIRST reftable
-                        WHERE reftable.reftable EQ "ARCASHLVDDATE"
-                          AND reftable.rec_key  EQ ar-cashl.rec_key
-                        USE-INDEX rec_key) OR
+            IF ar-cashl.voided EQ YES OR   
                CAN-FIND(FIRST gltrans
                         WHERE gltrans.company EQ cust.company
                           AND gltrans.jrnl    EQ "CASHRVD"
@@ -753,7 +737,6 @@ FOR EACH tt-cust,
                     cvType       = "VD"
                     cInvoiceNote = "VOID"
                     .
-                RELEASE reftable.
             END. /* do */
             ELSE cvType = "PY".
         
@@ -768,12 +751,8 @@ FOR EACH tt-cust,
     
         IF lFirstUnapp THEN DO:
             IF cvType EQ "VD" THEN DO:
-                FIND FIRST reftable NO-LOCK
-                     WHERE reftable.reftable EQ "ARCASHLVDDATE"
-                       AND reftable.rec_key  EQ ar-cashl.rec_key
-                     USE-INDEX rec_key NO-ERROR.
-                IF AVAILABLE reftable THEN
-                dtInvoiceDate = DATE(reftable.code).
+                IF ar-cashl.voided THEN  
+                   dtInvoiceDate = ar-cashl.voidDate.
                 ELSE DO:
                     cGltransDesc = "VOID " + cust.cust-no + " "
                                  + STRING(ar-cash.check-no,"9999999999")
@@ -817,6 +796,7 @@ FOR EACH tt-cust,
                     ttAgedReceivables.periodDay1  = dUnapp[2]                                                                              
                     ttAgedReceivables.periodDay2  = dUnapp[3]                                                                              
                     ttAgedReceivables.periodDay3  = dUnapp[4]                                                                              
+                    ttAgedReceivables.periodDay4  = dUnapp[5]
                     ttAgedReceivables.custPoNo    = cPoNo                                                                                 
                     ttAgedReceivables.jobNo       = cJobStr                                                                               
                     ttAgedReceivables.invoiceNote = cInvoiceNote
@@ -827,6 +807,7 @@ FOR EACH tt-cust,
             END. /*IF cType EQ "Detail" THEN DO */
             
             ASSIGN
+                dCustT[5] = dCustT[5] + dUnapp[5]
                 dCustT[4] = dCustT[4] + dUnapp[4]
                 dCustT[3] = dCustT[3] + dUnapp[3]
                 dCustT[2] = dCustT[2] + dUnapp[2]
@@ -835,6 +816,7 @@ FOR EACH tt-cust,
         
             IF lSeparateFinanceCharges THEN
             ASSIGN
+                dCustTPri[5] = dCustTPri[5] + dUnapp[5]
                 dCustTPri[4] = dCustTPri[4] + dUnapp[4]
                 dCustTPri[3] = dCustTPri[3] + dUnapp[3]
                 dCustTPri[2] = dCustTPri[2] + dUnapp[2]
@@ -845,13 +827,8 @@ FOR EACH tt-cust,
         IF lFirstUnapp THEN lFirstUnapp = NO.
         ELSE DO:
             IF cvType EQ "VD" THEN DO:
-                FIND FIRST reftable NO-LOCK
-                     WHERE reftable.reftable EQ "ARCASHLVDDATE"
-                       AND reftable.rec_key  EQ ar-cashl.rec_key
-                     USE-INDEX rec_key NO-ERROR.
-                  
-                IF AVAILABLE reftable THEN
-                dtInvoiceDate = DATE(reftable.CODE).
+                IF ar-cashl.voided THEN  
+                   dtInvoiceDate = ar-cashl.voidDate.
                 ELSE DO:
                     cGltransDesc = "VOID " + cust.cust-no + " "
                                  + STRING(ar-cash.check-no,"9999999999")
@@ -896,6 +873,7 @@ FOR EACH tt-cust,
                     ttAgedReceivables.periodDay1  = 0
                     ttAgedReceivables.periodDay2  = 0 
                     ttAgedReceivables.periodDay3  = 0
+                    ttAgedReceivables.periodDay4  = 0
                     ttAgedReceivables.custPoNo    = cPoNo
                     ttAgedReceivables.jobNo       = cJobStr
                     ttAgedReceivables.invoiceNote = cInvoiceNote
@@ -907,7 +885,7 @@ FOR EACH tt-cust,
         END. /* else do: */
     END. /* each ar-cashl */
 
-    dC1 = dCustT[1] + dCustT[2] + dCustT[3] + dCustT[4].
+    dC1 = dCustT[1] + dCustT[2] + dCustT[3] + dCustT[4] + dCustT[5].
     
     IF NOT lFirstCust OR dC1 NE 0 THEN DO:
         IF cType EQ "Detail" THEN DO:
@@ -921,12 +899,13 @@ FOR EACH tt-cust,
                 dCustT[2],
                 dCustT[3],
                 dCustT[4],
+                dCustT[5],
                 tt-cust.sorter
                 ).
             IF lSeparateFinanceCharges THEN DO:
                 ASSIGN
-                    dC1Pri = dCustTPri[1] + dCustTPri[2] + dCustTPri[3] + dCustTPri[4]
-                    dC1Fc  = dCustTFc[1]  + dCustTFc[2]  + dCustTFc[3]  + dCustTFc[4].
+                    dC1Pri = dCustTPri[1] + dCustTPri[2] + dCustTPri[3] + dCustTPri[4] + dCustTPri[5]
+                    dC1Fc  = dCustTFc[1]  + dCustTFc[2]  + dCustTFc[3]  + dCustTFc[4] + dCustTFc[5].
                 RUN AgedReceivablesCreateTotals (
                     "",
                     "",
@@ -937,6 +916,7 @@ FOR EACH tt-cust,
                     dCustTPri[2],
                     dCustTPri[3],
                     dCustTPri[4],
+                    dCustTPri[5],
                     tt-cust.sorter
                     ).
                 RUN AgedReceivablesCreateTotals (
@@ -949,6 +929,7 @@ FOR EACH tt-cust,
                     dCustTFc[2],
                     dCustTFc[3],
                     dCustTFc[4],
+                    dCustTFc[5],
                     tt-cust.sorter
                     ).
             END. /* IF lSeparateFinanceCharges THEN */
@@ -964,11 +945,12 @@ FOR EACH tt-cust,
                 dCustT[2],
                 dCustT[3],
                 dCustT[4],
+                dCustT[5],
                 tt-cust.sorter
                 ).
         END. /* if cType eq "Summary" */
                
-        DO i = 1 TO 4:
+        DO i = 1 TO 5:
             ASSIGN
                 dSManT[i] = dSManT[i] + dCustT[i]
                 dCustT[i] = 0
@@ -984,7 +966,7 @@ FOR EACH tt-cust,
     END. /* if not lFirstCust */
     
     IF LAST-OF(tt-cust.sorter) THEN DO:
-        dC1 = dSManT[1] + dSManT[2] + dSManT[3] + dSManT[4].
+        dC1 = dSManT[1] + dSManT[2] + dSManT[3] + dSManT[4] + dSManT[5].
         IF cSort1 EQ "Name" THEN DO:
             IF cType NE "Totals Only" THEN
             RUN AgedReceivablesCreateTotals (
@@ -997,10 +979,11 @@ FOR EACH tt-cust,
                 dSManT[2],
                 dSManT[3],
                 dSManT[4],
+                dSManT[5],
                 tt-cust.sorter
                 ).
         END. /* sort by customer no */
-        DO i = 1 TO 4:
+        DO i = 1 TO 5:
             ASSIGN
                 dCurrT[i]    = dCurrT[i]    + dSManT[i]
                 dCurrTPri[i] = dCurrTPri[i] + dSManTPri[i]
@@ -1014,7 +997,7 @@ FOR EACH tt-cust,
     
     IF LAST-OF(tt-cust.curr-code) THEN DO:
         IF lMultCurr THEN DO:
-            dC1 = dCurrT[1] + dCurrT[2] + dCurrT[3] + dCurrT[4].
+            dC1 = dCurrT[1] + dCurrT[2] + dCurrT[3] + dCurrT[4] + dCurrT[5].
             IF cType NE "Totals Only" THEN
             RUN AgedReceivablesCreateTotals (
                 cust.cust-no,
@@ -1026,6 +1009,7 @@ FOR EACH tt-cust,
                 dCurrT[2],
                 dCurrT[3],
                 dCurrT[4],
+                dCurrT[5],
                 tt-cust.sorter
                 ).
             RUN AgedReceivablesCreateTotals (
@@ -1038,10 +1022,11 @@ FOR EACH tt-cust,
                 (IF dC1 NE 0 THEN (dCurrT[2] / dC1) * 100 ELSE 0),
                 (IF dC1 NE 0 THEN (dCurrT[3] / dC1) * 100 ELSE 0),
                 (IF dC1 NE 0 THEN (dCurrT[4] / dC1) * 100 ELSE 0),
+                (IF dC1 NE 0 THEN (dCurrT[5] / dC1) * 100 ELSE 0),
                 tt-cust.sorter
                 ).
         END. /* IF lMultCurr */
-        DO i = 1 TO 4:
+        DO i = 1 TO 5:
             ASSIGN
                 dGrandT[i] = dGrandT[i] + dCurrT[i]
                 dCurrT[i]  = 0
@@ -1064,7 +1049,7 @@ FOR EACH tt-cust,
         .
 END. /* each tt-cust */
 
-dT1 = dGrandT[1] + dGrandT[2] + dGrandT[3] + dGrandT[4].
+dT1 = dGrandT[1] + dGrandT[2] + dGrandT[3] + dGrandT[4] + dGrandT[5].
 
 RUN AgedReceivablesCreateTotals (
     "",
@@ -1076,6 +1061,7 @@ RUN AgedReceivablesCreateTotals (
     dGrandT[2],
     dGrandT[3],
     dGrandT[4],
+    dGrandT[5],
     tt-cust.sorter
     ).
 RUN AgedReceivablesCreateTotals (
@@ -1088,13 +1074,14 @@ RUN AgedReceivablesCreateTotals (
     (IF dT1 NE 0 THEN (dGrandT[2] / dT1) * 100 ELSE 0),
     (IF dT1 NE 0 THEN (dGrandT[3] / dT1) * 100 ELSE 0),
     (IF dT1 NE 0 THEN (dGrandT[4] / dT1) * 100 ELSE 0),
+    (IF dT1 NE 0 THEN (dGrandT[5] / dT1) * 100 ELSE 0),
     tt-cust.sorter
     ).
 
 IF lSeparateFinanceCharges THEN DO:
     ASSIGN
-        dT1Pri = dGrandTPri[1] + dGrandTPri[2] + dGrandTPri[3] + dGrandTPri[4]
-        dT1Fc  = dGrandTFc[1]  + dGrandTFc[2]  + dGrandTFc[3]  + dGrandTFc[4]
+        dT1Pri = dGrandTPri[1] + dGrandTPri[2] + dGrandTPri[3] + dGrandTPri[4] + dGrandTPri[5]
+        dT1Fc  = dGrandTFc[1]  + dGrandTFc[2]  + dGrandTFc[3]  + dGrandTFc[4]  + dGrandTFc[5]
         .
     RUN AgedReceivablesCreateTotals (
         "",
@@ -1106,6 +1093,7 @@ IF lSeparateFinanceCharges THEN DO:
         dGrandTPri[2],
         dGrandTPri[3],
         dGrandTPri[4],
+        dGrandTPri[5],
         tt-cust.sorter
         ).
     RUN AgedReceivablesCreateTotals (
@@ -1118,6 +1106,7 @@ IF lSeparateFinanceCharges THEN DO:
         dGrandTFc[2],
         dGrandTFc[3],
         dGrandTFc[4],
+        dGrandTFc[5],
         tt-cust.sorter
         ).
 END. /* if separate finance charges */
@@ -1133,6 +1122,7 @@ PROCEDURE AgedReceivablesCreateTotals:
     DEFINE INPUT  PARAMETER ipdTotPeriod1     AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipdTotPeriod2     AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipdTotPeriod3     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdTotPeriod4     AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcSort           AS CHARACTER NO-UNDO.
 
     CREATE ttAgedReceivablesTotals.
@@ -1146,6 +1136,7 @@ PROCEDURE AgedReceivablesCreateTotals:
         ttAgedReceivablesTotals.totPeriodDay1  = ipdTotPeriod1
         ttAgedReceivablesTotals.totPeriodDay2  = ipdTotPeriod2
         ttAgedReceivablesTotals.totPeriodDay3  = ipdTotPeriod3
+        ttAgedReceivablesTotals.totPeriodDay4  = ipdTotPeriod4
         ttAgedReceivablesTotals.xxSort         = ipcSort
         . 
 END PROCEDURE.

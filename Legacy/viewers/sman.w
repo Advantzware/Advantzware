@@ -37,6 +37,8 @@ CREATE WIDGET-POOL.
 
 {custom/gcompany.i}
 
+&SCOPED-DEFINE proc-enable proc-enable
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -62,15 +64,15 @@ CREATE WIDGET-POOL.
 DEFINE QUERY external_tables FOR sman.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS sman.sname sman.commbasis sman.scomm ~
-sman.netpct sman.territory 
+sman.netpct sman.territory sman.hasMembers
 &Scoped-define ENABLED-TABLES sman
 &Scoped-define FIRST-ENABLED-TABLE sman
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS sman.sman sman.sname sman.commbasis ~
-sman.scomm sman.netpct sman.territory 
+sman.scomm sman.netpct sman.territory sman.hasMembers
 &Scoped-define DISPLAYED-TABLES sman
 &Scoped-define FIRST-DISPLAYED-TABLE sman
-&Scoped-Define DISPLAYED-OBJECTS terr_dscr F1 
+&Scoped-Define DISPLAYED-OBJECTS terr_dscr F1 btnGroupLookup
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -120,14 +122,20 @@ DEFINE VARIABLE terr_dscr AS CHARACTER FORMAT "x(20)"
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 65 BY 5.
+     SIZE 65 BY 6.2.
+
+
+DEFINE BUTTON btnGroupLookup 
+     IMAGE-UP FILE "Graphics/16x16/find.bmp":U
+     LABEL "" 
+     SIZE 4.4 BY 1.05.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
      sman.sman AT ROW 1.24 COL 17.6 COLON-ALIGNED
-          LABEL "Sales Rep"
+          LABEL "SalesGrp"
           VIEW-AS FILL-IN 
           SIZE 8.4 BY 1
           BGCOLOR 15 FONT 4
@@ -157,6 +165,11 @@ DEFINE FRAME F-Main
           SIZE 6 BY 1
           BGCOLOR 15 FONT 4
      terr_dscr AT ROW 4.81 COL 27 COLON-ALIGNED NO-LABEL
+     sman.hasMembers AT ROW 6.00 COL 18.6 COLON-ALIGNED
+         LABEL "Has Group Members"
+         VIEW-AS TOGGLE-BOX
+         SIZE 30 BY .81
+     btnGroupLookup AT ROW 6.00 COL 51
      F1 AT ROW 4.81 COL 26 NO-LABEL
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -234,6 +247,8 @@ ASSIGN
    4                                                                    */
 /* SETTINGS FOR FILL-IN terr_dscr IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnGroupLookup IN FRAME Corr
+                                                                         */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -264,6 +279,35 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sman.hasMembers V-table-Win
+ON VALUE-CHANGED OF sman.hasMembers IN FRAME F-Main /* HsaMembers */
+DO:
+    DEFINE VARIABLE v-date-change-reason AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE v-added-rowid AS ROWID NO-UNDO .
+    
+    IF sman.hasMembers:SCREEN-VALUE EQ "Yes" AND AVAIL sman THEN DO:
+        RUN oe/d-salegrp.w (INPUT sman.rec_key, INPUT sman.sman:SCREEN-VALUE )  .
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnGroupLookup
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupLookup V-table-Win
+ON CHOOSE OF btnGroupLookup IN FRAME F-Main
+DO:
+  
+    IF sman.hasMembers:SCREEN-VALUE EQ "Yes" AND AVAIL sman THEN DO:
+        RUN oe/d-salegrp.w (INPUT sman.rec_key, INPUT sman.sman:SCREEN-VALUE )  .
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -274,6 +318,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
+  
   
   /************************ INTERNAL PROCEDURES ********************/
 
@@ -438,6 +483,8 @@ PROCEDURE local-assign-record :
       END.
   end.
 
+  DISABLE btnGroupLookup WITH FRAME {&FRAME-NAME}.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -508,6 +555,21 @@ PROCEDURE send-records :
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
+PROCEDURE proc-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    ENABLE btnGroupLookup WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 

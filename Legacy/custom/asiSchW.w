@@ -211,7 +211,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Advantzware Scheduler/Monitor */
 DO:
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -226,7 +226,7 @@ END.
 ON CHOOSE OF btExit IN FRAME DEFAULT-FRAME /* Exit */
 DO:
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
   APPLY "CLOSE" TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.

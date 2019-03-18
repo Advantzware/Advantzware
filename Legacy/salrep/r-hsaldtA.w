@@ -1432,7 +1432,7 @@ SESSION:SET-WAIT-STATE ("general").
            {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
         release ar-invl.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         if avail oe-retl then
         find first ar-invl

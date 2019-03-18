@@ -1,0 +1,35 @@
+
+08/14/07                                      Advanced Box Company V4.10 - Main Office                                    Page   1
+ 5:27pm                                               W.I.P. Daily Summary Posting Edit List
+
+TRANS  TRANS      JOB                                                           QUANTITY     WASTE      MACH MACH   JOB
+TYPE    DATE      NUMBER  S/ B ITEM NUMBER     DESCRIPTION                        POSTED       QTY     HOURS CODE   CODE  C
+-----------------------------------------------------------------------------------------------------------------------------------
+
+SBS   08/14/07 100305-00  1/ 1 SBS18-24.5                                            4351
+SBS   08/14/07 100305-00  1/ 1 SBS18-24.5                                            3558
+SBS   08/14/07 100305-00  1/ 1 SBS18-24.5                                            6269
+SBS   08/14/07 100305-00  1/ 1 SBS18-24.5                                            6448
+MISC  08/14/07 100305-00  1/ 1 B-25                                                   330
+HRS   08/14/07 100305-00  1/ 0                 408 HEIDY 7C + COAT                 5000.00        0      1.00 408    RUN   Y
+HRS   08/14/07 100305-00  1/ 0                 408 HEIDY 7C + COAT                20000.00        0      2.00 408    RUN   Y
+HRS   08/14/07 100305-00  1/ 0                 49 CUTTER                              0.00        0      2.00 49     MR    Y
+HRS   08/14/07 100305-00  1/ 0                 49 CUTTER                          25000.00        0      4.00 49     RUN   Y
+HRS   08/14/07 100305-00  1/ 0                 408 HEIDY 7C + COAT                    0.00      100      1.00 408    MR    N
+HRS   08/14/07 100305-00  1/ 1                 BOBST DOMINO GLUER                780000.00        0      5.00 DOMINO RUN   Y
+HRS   08/14/07 100305-00  1/ 1                 BOBST DOMINO GLUER                     0.00        0      2.00 DOMINO MR    Y
+F.G.  07/28/06 100305-00  0/ 0 ATT-2297        RT 5x3x2                           25000.00
+F.G.  08/14/07 100305-00  0/ 0 ATT-2297        RT 5x3x2                           60000.00
+
+                   JOB TOTALS - 100305-00                       BOARD TOTALS:      20626
+                                                              MACHINE TOTALS:     830000      100     17.00
+                                                       FINISHED GOODS TOTALS:      85000
+                                                       OTHER MATERIAL TOTALS:        330
+
+
+
+                   REPORT TOTALS                                BOARD TOTALS:      20626
+                                                              MACHINE TOTALS:     830000      100     17.00
+                                                       FINISHED GOODS TOTALS:      85000
+                                                       OTHER MATERIAL TOTALS:        330
+

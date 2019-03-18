@@ -809,7 +809,8 @@ IF rs-date EQ "Invoice" THEN DO:
          vend.company   eq cocode AND
          vend.vend-no   ge svend  AND
          vend.vend-no   le evend  AND
-         vend.code-1099 eq "y"
+         vend.code-1099 NE "N"    AND
+         vend.code-1099 NE ""
          NO-LOCK,
          EACH ap-inv FIELDS(company vend-no inv-date posted) WHERE
               ap-inv.company EQ cocode AND
@@ -827,7 +828,7 @@ IF rs-date EQ "Invoice" THEN DO:
 
        {custom/statusMsg.i " 'Processing Vendor #  '  + string(vend.vend-no) "}
 
-       v-vend-tot = v-vend-tot + (ap-payl.amt-paid - ap-payl.amt-disc).
+       v-vend-tot = v-vend-tot + (ap-payl.amt-paid ).
 
        if last-of(vend.vend-no) then 
        do:
@@ -891,7 +892,8 @@ IF rs-date EQ "Invoice" THEN DO:
          vend.company   eq cocode AND
          vend.vend-no   ge svend AND
          vend.vend-no   le evend AND
-         vend.code-1099 eq "y"
+         vend.code-1099 NE "N"   AND
+         vend.code-1099 NE ""
          no-lock,
          each ap-pay FIELDS(company vend-no check-date posted) WHERE
               ap-pay.company    eq cocode AND
@@ -908,7 +910,7 @@ IF rs-date EQ "Invoice" THEN DO:
 
        {custom/statusMsg.i " 'Processing Vendor #  '  + string(vend.vend-no) "}
 
-       v-vend-tot = v-vend-tot + (ap-payl.amt-paid - ap-payl.amt-disc).
+       v-vend-tot = v-vend-tot + (ap-payl.amt-paid ).
 
        if last-of(vend.vend-no) then 
        do:

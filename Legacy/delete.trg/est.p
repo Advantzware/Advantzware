@@ -52,15 +52,6 @@ FOR EACH reftable
   DELETE reftable.
 END.
 
-FOR EACH reftable WHERE
-    reftable.reftable EQ "gsa-fm" AND
-    reftable.company  EQ est.company AND
-    reftable.loc      EQ "" AND
-    reftable.code     EQ est.est-no:
-
-    DELETE reftable.
-END.
-
 FOR EACH probe
     WHERE probe.company EQ est.company
       AND probe.est-no  EQ est.est-no:

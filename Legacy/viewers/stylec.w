@@ -1586,6 +1586,7 @@ PROCEDURE local-delete-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER bf-flute FOR flute.
+  DEF BUFFER bStyle FOR style.
   DEF VAR j AS INT NO-UNDO.
   DEF VAR lv-rowid AS ROWID EXTENT 2 NO-UNDO.
 
@@ -1627,6 +1628,11 @@ PROCEDURE local-delete-record :
   RUN reset-browse (lv-rowid[1]).
 
   FOR EACH bf-flute NO-LOCK:  /* used be reftable */
+      /* IF this style/flute not used in any other company, OK to delete non-co-specific data */
+      IF NOT CAN-FIND (FIRST bstyle WHERE 
+                        bstyle.company NE style.company AND 
+                        bstyle.style EQ style.style AND 
+                        bstyle.flute EQ bf-flute.code) THEN 
       DO j = 1 TO 7:
          FIND FIRST reftable WHERE reftable.reftable = "STYFLU"
                                AND reftable.company = style.style

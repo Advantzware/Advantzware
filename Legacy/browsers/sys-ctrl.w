@@ -71,7 +71,7 @@ CREATE WIDGET-POOL.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table sys-ctrl.name sys-ctrl.descrip ~
 sys-ctrl.module sys-ctrl.int-fld sys-ctrl.dec-fld sys-ctrl.char-fld ~
-sys-ctrl.date-fld sys-ctrl.log-fld 
+sys-ctrl.date-fld sys-ctrl.log-fld sys-ctrl.securityLevelUser sys-ctrl.company
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH sys-ctrl WHERE ~{&KEY-PHRASE} ~
       AND sys-ctrl.company = g_company NO-LOCK ~
@@ -140,7 +140,9 @@ DEFINE QUERY Browser-Table FOR
       sys-ctrl.dec-fld
       sys-ctrl.char-fld
       sys-ctrl.date-fld
-      sys-ctrl.log-fld) SCROLLING.
+      sys-ctrl.log-fld
+      sys-ctrl.securityLevelUser 
+      sys-ctrl.company) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -160,6 +162,10 @@ DEFINE BROWSE Browser-Table
       sys-ctrl.date-fld COLUMN-LABEL "Date!Value" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
       sys-ctrl.log-fld COLUMN-LABEL "Logical!Value" FORMAT "yes/no":U
+            LABEL-BGCOLOR 14
+      sys-ctrl.securityLevelUser COLUMN-LABEL "SecurityLevel" FORMAT ">999"
+            LABEL-BGCOLOR 14
+      sys-ctrl.company COLUMN-LABEL "Company" FORMAT "x(8)"
             LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -284,6 +290,8 @@ ASSIGN
 "sys-ctrl.date-fld" "Date!Value" ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.sys-ctrl.log-fld
 "sys-ctrl.log-fld" "Logical!Value" ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > ASI.sys-ctrl.securityLevelUser
+"sys-ctrl.securityLevelUser" "Security!Level" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -511,4 +519,23 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+GET FIRST Browser-Table .
+
+RUN windows/sysctrl-exp.w .
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

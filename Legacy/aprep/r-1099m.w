@@ -56,6 +56,7 @@ DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+DEFINE VARIABLE d-print-fmt-dec  AS DECIMAL NO-UNDO.
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -574,6 +575,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   v-print-fmt = sys-ctrl.char-fld.
+  d-print-fmt-dec = sys-ctrl.dec-fld.
 
   CASE v-print-fmt:
       WHEN "Fibre" THEN
@@ -607,7 +609,7 @@ PROCEDURE calc-total-proc :
 
    DO WITH FRAME {&FRAME-NAME}:
 
-      iop-vend-tot = iop-vend-tot + (ap-payl.amt-paid - ap-payl.amt-disc).
+      iop-vend-tot = iop-vend-tot + (ap-payl.amt-paid ).
 
      if ip-last-of-vend then do:
        IF tb_zero-ven:CHECKED THEN DO:
@@ -620,7 +622,8 @@ PROCEDURE calc-total-proc :
                  tt-1099-m.vend-city-line = vend.city + ","
                                           + " " + vend.state
                                           + " " + vend.zip
-                 tt-1099-m.vend-total = iop-vend-tot.
+                 tt-1099-m.vend-total = iop-vend-tot
+                 tt-1099-m.vend-box   = vend.code-1099 .
           RELEASE tt-1099-m.
        END.
        ELSE DO:
@@ -634,7 +637,8 @@ PROCEDURE calc-total-proc :
                     tt-1099-m.vend-city-line = vend.city + ","
                                           + " " + vend.state
                                           + " " + vend.zip
-                    tt-1099-m.vend-total = iop-vend-tot.
+                    tt-1099-m.vend-total = iop-vend-tot
+                    tt-1099-m.vend-box   = vend.code-1099.
             RELEASE tt-1099-m.
           END.
        END.
@@ -755,12 +759,12 @@ DEF VAR v-vend-tot AS DEC NO-UNDO.
   IF IS-xprint-form THEN
   DO:
     CASE rd-dest:
-          WHEN 1 THEN PUT  "<PRINTER?>".
+          WHEN 1 THEN PUT  "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
           WHEN 2 THEN do:
               IF NOT lBussFormModle THEN
-                PUT "<PREVIEW><MODAL=NO>". 
+                PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)" . 
               ELSE
-                PUT "<PREVIEW>".        
+                PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".        
           END.
     END CASE.
     PUT "</PROGRESS>".
@@ -776,7 +780,8 @@ DEF VAR v-vend-tot AS DEC NO-UNDO.
          vend.company   eq cocode AND
          vend.vend-no   ge begin_vend AND
          vend.vend-no   le end_vend AND
-         vend.code-1099 eq "y"
+         vend.code-1099 NE "N" AND
+         vend.code-1099 NE ""
          NO-LOCK,
          EACH ap-inv FIELDS(company vend-no inv-date posted) WHERE
               ap-inv.company EQ cocode AND
@@ -801,7 +806,8 @@ DEF VAR v-vend-tot AS DEC NO-UNDO.
          vend.company   eq cocode AND
          vend.vend-no   ge begin_vend AND
          vend.vend-no   le end_vend AND
-         vend.code-1099 eq "y"
+         vend.code-1099 NE "N" AND
+         vend.code-1099 NE ""
          no-lock,
          each ap-pay FIELDS(company vend-no check-date posted) WHERE
               ap-pay.company    eq cocode AND

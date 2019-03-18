@@ -171,14 +171,14 @@ FOR EACH est-op WHERE est-op.company = xest.company
     /*Run Qty Divisor 24462 (also undoes 19774) REFACTOR - why isn't this done before oprun is calculated?*/
     IF est-op.n_out_div GT 0 THEN 
         op.run-qty = op.run-qty / est-op.n_out_div.
-         
+        
     IF est-op.m-code NE "" THEN
         DISPLAY est-op.m-dscr   FORMAT "x(18)"
             est-op.op-mr    FORMAT ">>>9.99"
-            oprun           FORMAT ">>>>9.99"     TO 35
-            est-op.op-speed FORMAT ">>>>>9"        TO 42
+            oprun           FORMAT ">>>>9.99"     TO 34
+            est-op.op-speed FORMAT ">>>>>9"       TO 41
             est-op.op-rate[2] FORMAT ">>9.99"     TO 48 WHEN ce-ctrl.sho-labor
-            opmr$           FORMAT ">>>>9.99"     TO 57
+            opmr$          FORMAT ">>>>9.99"      TO 57
             oprun$          FORMAT ">>>>>>9.99"   TO 68
             optot$          FORMAT ">,>>>,>>9.99" TO 80 SKIP WITH STREAM-IO.
 

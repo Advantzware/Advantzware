@@ -202,6 +202,23 @@ ASSIGN
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME C-Win
+&Scoped-define SELF-NAME usergrps.usergrps
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL usergrps.usergrps V-table-Win
+ON LEAVE OF usergrps.usergrps IN FRAME F-Main /* Beginning Customer# */
+DO:
+   IF LASTKEY <> -1 THEN DO:
+       IF INDEX(usergrps.usergrps:SCREEN-VALUE,",") NE 0 THEN
+           usergrps.usergrps:SCREEN-VALUE = REPLACE(usergrps.usergrps:SCREEN-VALUE,",","") .
+       usergrps.usergrps:SCREEN-VALUE = TRIM(usergrps.usergrps:SCREEN-VALUE) .
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&UNDEFINE SELF-NAME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 

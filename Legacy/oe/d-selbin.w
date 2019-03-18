@@ -622,15 +622,22 @@ DO:
          DO:
             {oe/sel-binsrel.i "oe-rel"}
          END.
-    
-         op-rowid-list = op-rowid-list + STRING(ROWID(oe-rell)) + ",".
+         ASSIGN 
+           oe-rell.enteredBy = USERID("asi")
+           oe-rell.enteredDT = DATETIME(TODAY, MTIME)   
+           op-rowid-list = op-rowid-list + STRING(ROWID(oe-rell)) + ","
+          .
        END.
        ELSE DO:
          FIND FIRST oe-bolh WHERE oe-bolh.b-no EQ xoe-boll.b-no NO-LOCK.
          bolh_id = RECID(oe-bolh).
          {oe/sel-bins.i "oe-bol"}
-         oe-boll.weight = oe-boll.qty / 100 * itemfg.weight-100.
-    
+         
+         ASSIGN
+           oe-boll.weight = oe-boll.qty / 100 * itemfg.weight-100
+           oe-boll.enteredBy = USERID("asi")
+           oe-boll.enteredDT = DATETIME(TODAY, MTIME)  
+           .
          IF NOT AVAIL oe-ordl THEN
          FIND FIRST oe-ordl WHERE oe-ordl.company EQ cocode
                               AND oe-ordl.ord-no  EQ xoe-boll.ord-no
@@ -1244,9 +1251,7 @@ PROCEDURE SaveColumns :
   DO i = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
     IF cellColumn[i]:NAME EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):NAME AND
        columnWidth[i] EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):WIDTH-PIXELS THEN NEXT.    
-    MESSAGE 'Save Column Changes?' VIEW-AS ALERT-BOX
-      QUESTION BUTTONS YES-NO UPDATE saveChanges AS LOGICAL.
-    IF saveChanges THEN DO:
+    DO:
       OUTPUT TO VALUE(cellColumnDat).
       DO j = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
         EXPORT {&BROWSE-NAME}:GET-BROWSE-COLUMN(j):NAME {&BROWSE-NAME}:GET-BROWSE-COLUMN(j):WIDTH-PIXELS.

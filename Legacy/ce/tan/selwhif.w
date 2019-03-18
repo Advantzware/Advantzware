@@ -46,7 +46,8 @@ def output parameter op-error as log no-undo.
 {cec/print42.i shared}
 
 def shared temp-table tt-qtty field qtty like qtty
-                              field rel like rels.  
+                              field rel like rels
+                              FIELD lRunShip LIKE lRunShips.  
 def var i as int no-undo.
 
 def shared var cocode as cha no-undo.

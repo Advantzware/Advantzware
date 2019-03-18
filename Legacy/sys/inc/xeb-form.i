@@ -117,17 +117,6 @@ FOR EACH notes
       AND notes.note_form_no NE 0:
   notes.note_form_no = {3}.
 END.
-   
-FOR EACH reftable
-    WHERE reftable.reftable EQ "ce/v-est3.w Unit#"
-      AND reftable.company  EQ {1}company
-      AND reftable.loc      EQ {1}est-no
-      AND reftable.code     EQ STRING({1}form-no,"9999999999")
-      AND reftable.code2    EQ STRING({2},"9999999999"):
-  ASSIGN
-   reftable.code  = STRING({3},"9999999999")
-   reftable.code2 = STRING({4},"9999999999").
-END.
 
 FOR EACH reftable
     WHERE reftable.reftable EQ "cedepth"

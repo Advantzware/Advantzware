@@ -245,6 +245,7 @@ DO:
         RUN notify ('update-record':U).
      END.
   END.
+   adm-panel-state = "initial" .
 END.
 
 /* _UIB-CODE-BLOCK-END */

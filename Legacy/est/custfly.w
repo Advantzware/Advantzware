@@ -1767,7 +1767,8 @@ PROCEDURE assign-cust :
     shipto.carrier = cust.carrier
     shipto.dest-code = cust.del-zone
     shipto.loc = cust.loc
-    shipto.tax-code = cust.tax-gr.
+    shipto.tax-code = cust.tax-gr
+    shipto.tax-mandatory = cust.sort EQ "Y".
   CREATE soldto.
   ASSIGN
     soldto.company = cust.company

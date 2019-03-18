@@ -906,10 +906,10 @@ PROCEDURE local-create-record :
              rfq.comm = 0
              rfq.sman = "". 
 
-       ls-key = string(today,"99999999") +
-             string(next-value(rec_key_seq,nosweat),"99999999").
-       rfq.rec_key = ls-key.
-
+       ASSIGN
+           ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey")
+           rfq.rec_key = ls-key
+           .
   end.
   run assign-company.  /* assign company,loc */
 

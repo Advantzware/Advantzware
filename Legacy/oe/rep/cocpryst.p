@@ -106,7 +106,7 @@ FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 
 {sa/sa-sls01.i}
 
-FOR EACH report NO-LOCK WHERE report.term-id EQ v-term-id,
+FOR EACH report EXCLUSIVE WHERE report.term-id EQ v-term-id,
     FIRST oe-bolh WHERE RECID(oe-bolh) EQ report.rec-id:
 
   FOR EACH oe-boll NO-LOCK

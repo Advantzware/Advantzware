@@ -1,7 +1,0 @@
--H advserver
--N tcp
--S 3800
--db	e:\asi_gui10\db1010\asi
--ld	ASI
--inp	10000
--tok 1500

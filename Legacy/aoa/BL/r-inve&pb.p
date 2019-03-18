@@ -32,6 +32,8 @@ DEFINE VARIABLE cInitDir    AS CHA       NO-UNDO.
 DEFINE VARIABLE cCompCurr   AS cha       NO-UNDO.
 DEFINE VARIABLE oeprep-char AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dProfit     AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
 
 ASSIGN
     gcompany = ipcCompany
@@ -268,6 +270,7 @@ RUN pPrintPost.
 
 DELETE OBJECT Persistent-Handle.
 DELETE OBJECT ListLogic-Handle.
+DELETE OBJECT hNotesProcs.
 OUTPUT STREAM sDebug CLOSE.
 
 
@@ -1114,10 +1117,11 @@ PROCEDURE list-post-inv :
             ELSE
                 IF v-post THEN UNDO ordblock, NEXT ordblock.
 
-            RUN oe/invlcost.p (ROWID(inv-line),
+            RUN oe/GetCostInvl.p (ROWID(inv-line),
                 OUTPUT v-cost[1], OUTPUT v-cost[2],
                 OUTPUT v-cost[3], OUTPUT v-cost[4],
-                OUTPUT inv-line.cost, OUTPUT inv-line.t-cost).
+                OUTPUT inv-line.cost, OUTPUT inv-line.spare-char-2, 
+                OUTPUT inv-line.t-cost, OUTPUT inv-line.spare-char-1).
             w-inv-line.t-cost = inv-line.t-cost.
             IF inv-line.inv-qty NE 0 AND
                 inv-line.t-cost EQ 0  AND 
@@ -1299,7 +1303,7 @@ PROCEDURE list-post-inv :
                             END.
                     END.
 
-                    IF dSumRelQty GE oe-ordl.qty AND 
+                    IF AVAILABLE oe-ordl AND  dSumRelQty GE oe-ordl.qty AND 
                         (CAN-FIND(oe-boll WHERE oe-boll.company EQ inv-line.company
                         AND oe-boll.b-no   EQ inv-line.b-no
                         AND oe-boll.ord-no EQ inv-line.ord-no

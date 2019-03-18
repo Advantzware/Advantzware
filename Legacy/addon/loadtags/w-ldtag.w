@@ -75,6 +75,7 @@ DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-ldtag AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-nav2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-print AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_loadtag AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -309,6 +310,14 @@ PROCEDURE adm-create-objects :
              FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
+        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/loadtag.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_loadtag ).
+       RUN set-position IN h_loadtag ( 1.00 , 85.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'loadtags/b-ldtag.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -316,6 +325,9 @@ PROCEDURE adm-create-objects :
              OUTPUT h_b-ldtag ).
        RUN set-position IN h_b-ldtag ( 4.81 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 19.52 , 145.00 ) */
+
+       /* Links to SmartObject h_loadtag. */
+       RUN add-link IN adm-broker-hdl ( h_b-ldtag , 'loadtag':U , h_loadtag ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-ldtag ,

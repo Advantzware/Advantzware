@@ -95,6 +95,10 @@ DEFINE TEMP-TABLE ttblUPS NO-UNDO
   FIELD invHeadRowID AS ROWID
   FIELD cod AS LOGICAL
     INDEX ttblUPS IS PRIMARY UNIQUE company ord-no sold-to.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
+    
            
 FUNCTION tabChar RETURNS CHARACTER (ipValue AS CHARACTER):
   RETURN IF ipValue NE '' THEN '~t' ELSE ''.
@@ -389,6 +393,7 @@ FOR EACH w-inv:
 END.
 
 RUN upsFile.
+DELETE OBJECT hNotesProcs.
 
 RETURN.
 

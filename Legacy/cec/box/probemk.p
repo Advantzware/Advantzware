@@ -39,7 +39,7 @@ DEF VAR ll-use-margin AS LOG NO-UNDO.
 DEF VAR v-max-sheets AS INT NO-UNDO.
 DEF VAR v-sheets AS INT NO-UNDO.
 
-DEF NEW SHARED TEMP-TABLE tt-rel NO-UNDO LIKE reftable.
+DEF NEW SHARED TEMP-TABLE tt-rel NO-UNDO LIKE eb.
 
 {sys/inc/cerun.i C}
 

@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE BUFFER bf-period FOR period .
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
 ASSIGN cocode = g_company
@@ -291,12 +292,23 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON START-SEARCH OF Browser-Table IN FRAME F-Main
+DO:  
+  RUN startsearch.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main /* Periods */
 DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
+      
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -405,6 +417,33 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAutoFilter B-table-Win 
+PROCEDURE pAutoFilter :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  DO WITH FRAME {&FRAME-NAME}:
+      FIND LAST bf-period OF company NO-LOCK
+           WHERE bf-period.pstat EQ YES  NO-ERROR .
+    IF AVAIL bf-period THEN do:
+        ASSIGN auto_find:SCREEN-VALUE = string(bf-period.yr) .
+        browse-order:SCREEN-VALUE = "1"  .
+        
+        APPLY "entry" TO auto_find .
+        APPLY 'ENTRY' TO {&BROWSE-NAME} IN FRAME {&FRAME-NAME}.
+    END.
+  END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

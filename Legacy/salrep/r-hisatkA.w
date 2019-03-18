@@ -1358,7 +1358,7 @@ FOR each cust where cust.company eq cocode
   {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
   release ar-invl.
  
-  RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+  RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
   if avail oe-retl then
   find first ar-invl
@@ -1435,12 +1435,11 @@ for each tt-report no-lock
 
     break by tt-report.key-02
           by tt-report.key-03:
-
   assign
    v-amt[1] = v-amt[1] + tt-report.dec1
    v-amt[2] = v-amt[2] + tt-report.dec2.
 
-  if last-of(tt-report.key-02) then do:
+  if last-of(tt-report.key-03) then do:
      if v-amt[1] ne 0 or v-inc or v-ytd then do:
        create tt-report2.
        assign

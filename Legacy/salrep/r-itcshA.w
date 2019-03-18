@@ -671,13 +671,7 @@ DO:
                              &mail-file=list-name }
            END.
            ELSE DO:
-               {custom/asimailr.i &TYPE = "Customer"
-                                  &begin_cust= begin_cust-no
-                                  &END_cust=end_cust-no
-                                  &mail-subject=c-win:title
-                                  &mail-body=c-win:title
-                                  &mail-file=list-name }
-
+                RUN ExcelEmail.
            END.
 
        END. 
@@ -1440,6 +1434,38 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ExcelEmail C-Win 
+PROCEDURE ExcelEmail :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+IF tb_excel THEN DO:
+     {custom/asimailx.i &TYPE = "Excel"
+                             &begin_cust= begin_cust-no
+                             &END_cust=end_cust-no
+                             &mail-subject=c-win:title
+                             &mail-body=c-win:title
+                             &mail-file=fi_file }   
+END.
+ELSE DO:
+    {custom/asimailr.i &TYPE = "Customer"
+                             &begin_cust= begin_cust-no
+                             &END_cust=end_cust-no
+                             &mail-subject=c-win:title
+                             &mail-body=c-win:title
+                             &mail-file=list-name }
+
+END.
+        
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :

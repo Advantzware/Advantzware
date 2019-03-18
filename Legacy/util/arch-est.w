@@ -389,6 +389,47 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_est
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_est C-Win
+ON HELP OF begin_est IN FRAME FRAME-A /* Beginning Estimate# */
+DO:
+     DEF VAR char-val AS cha NO-UNDO.
+     DEF var lv-eb-tmpid as recid no-undo.
+
+     run windows/l-est.w (g_company,g_loc,focus:screen-value, output char-val).
+
+     if char-val <> "" then do:                 
+            FIND FIRST eb WHERE string(RECID(eb)) = (char-val) NO-LOCK NO-ERROR.
+            IF AVAIL eb THEN ASSIGN FOCUS:SCREEN-VALUE = eb.est-no
+                                           lv-eb-tmpid = RECID(eb)    
+                                begin_est:SCREEN-VALUE = eb.est-no.
+
+     END.
+END.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_est
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_est C-Win
+ON HELP OF end_est IN FRAME FRAME-A /* Ending Estimate# */
+DO:
+     DEF VAR char-val AS cha NO-UNDO.
+     DEF var lv-eb-tmpid as recid no-undo.
+
+     run windows/l-est.w (g_company,g_loc,focus:screen-value, output char-val).
+
+     if char-val <> "" then do:                 
+            FIND FIRST eb WHERE string(RECID(eb)) = (char-val) NO-LOCK NO-ERROR.
+            IF AVAIL eb THEN ASSIGN FOCUS:SCREEN-VALUE = eb.est-no
+                                           lv-eb-tmpid = RECID(eb)    
+                                  end_est:SCREEN-VALUE = eb.est-no.
+
+            END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -697,22 +738,6 @@ if v-process then do:
        OUTPUT CLOSE.
     END.
 
-    FOR EACH reftable WHERE
-        reftable.reftable EQ "gsa-fm" AND
-        reftable.company  EQ est.company AND
-        reftable.loc      EQ "" AND
-        reftable.code     EQ est.est-no
-        EXCLUSIVE WITH FRAME f-gsa-fm:
-
-        if archive then do:
-           output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
-           export reftable.
-           output close.
-        end.
-
-        delete reftable.
-    END.
-
     IF archive THEN DO:
        output to value(v-file-path + "ef" + STRING(est.est-no,"X(8)") + ".d").
        OUTPUT close.
@@ -987,22 +1012,7 @@ if v-process then do:
       delete asi.box-design-hdr.
     end.
 
-    FOR EACH reftable WHERE
-        reftable.reftable EQ "probe.board" AND
-        reftable.company  EQ est.company AND
-        reftable.loc      EQ "" AND
-        reftable.code     EQ est.est-no
-        EXCLUSIVE WITH FRAME f-probe-board:
-
-        if archive then do:
-           output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
-           export reftable.
-           output close.
-        end.
-
-        delete reftable.
-    END.
-    
+       
 
     FOR EACH reftable WHERE
         reftable.reftable EQ "est/probeset.i" AND
@@ -1050,23 +1060,7 @@ if v-process then do:
 
         delete reftable.
     END.
-
-    FOR EACH reftable WHERE
-        reftable.reftable EQ "probe.per-msf" AND
-        reftable.company  EQ est.company AND
-        reftable.loc      EQ "" AND
-        reftable.code     EQ est.est-no
-        EXCLUSIVE WITH FRAME f-permsf:
-
-        if archive then do:
-           output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
-           export reftable.
-           output close.
-        end.
-
-        delete reftable.
-    END.
-
+    
     FOR EACH reftable WHERE
         reftable.reftable EQ "probe.per-ref" AND
         reftable.company  EQ est.company AND
@@ -1099,20 +1093,7 @@ if v-process then do:
         delete reftable.
     END.
 
-    FOR EACH reftable WHERE
-        reftable.reftable EQ "ce/com/selwhif1.w" AND
-        reftable.company  EQ est.company AND
-        reftable.loc      EQ est.est-no
-        EXCLUSIVE WITH FRAME f-selwhif:
-
-        if archive then do:
-           output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
-           export reftable.
-           output close.
-        end.
-
-        delete reftable.
-    END.
+    
     
     FOR EACH reftable WHERE
         reftable.reftable EQ "est/getqty.w" AND
@@ -1163,41 +1144,10 @@ if v-process then do:
     END.
 
     FOR EACH reftable WHERE
-        reftable.reftable EQ "est/getqty.w2"
-        AND reftable.company  EQ est.company
-        AND reftable.loc      EQ ""
-        AND reftable.code     EQ est.est-no
-        EXCLUSIVE WITH FRAME f-getqty2:
-
-        if archive then do:
-           output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
-           export reftable.
-           output close.
-        end.
-
-        delete reftable.
-    END.
-
-    FOR EACH reftable WHERE
         reftable.reftable EQ "PLATE/FOUNTAIN" AND
         reftable.company  EQ est.company AND
         reftable.loc      EQ est.est-no
         EXCLUSIVE WITH FRAME f-plate:
-
-        if archive then do:
-           output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
-           export reftable.
-           output close.
-        end.
-
-        delete reftable.
-    END.
-
-    FOR EACH reftable WHERE
-        reftable.reftable BEGINS "ce/v-est3.w Unit#" AND
-        reftable.company  EQ est.company AND
-        reftable.loc      EQ est.est-no
-        EXCLUSIVE WITH FRAME f-v-est3:
 
         if archive then do:
            output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.

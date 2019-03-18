@@ -14,6 +14,10 @@ PROCEDURE GetCurrentDirectoryA EXTERNAL "KERNEL32.DLL":
   DEFINE RETURN       PARAMETER intResult     AS SHORT.
 END PROCEDURE. 
 
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+ASSIGN chrDirectoryName = get-working-directory().
+&ELSE
+
 SET-SIZE(ptrToString) = 256. 
 
 RUN GetCurrentDirectoryA (INPUT        intBufferSize,                          
@@ -27,3 +31,4 @@ ELSE IF intResult = LENGTH(chrDirectoryName) THEN .
 /* MESSAGE chrDirectoryName VIEW-AS ALERT-BOX.     */
 ELSE MESSAGE "Buffer size is too small.  Must be at least " + STRING(intResult) VIEW-AS ALERT-BOX. 
 SET-SIZE(ptrToString) = 0.
+&ENDIF

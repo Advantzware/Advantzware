@@ -1036,7 +1036,7 @@ SESSION:SET-WAIT-STATE ("general").
     find ar-cashl where recid(ar-cashl) eq report.rec-id no-lock no-error.
 
     if avail ar-cashl then do:
-      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
       if avail oe-retl then do:
         release itemfg.

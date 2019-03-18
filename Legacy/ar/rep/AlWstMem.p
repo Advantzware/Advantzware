@@ -119,18 +119,10 @@ FOR EACH ar-cash
       AND ar-cash.check-date LE v-enddt
       AND CAN-FIND(FIRST ar-cashl WHERE ar-cashl.c-no EQ ar-cash.c-no)
       AND ((v-reprint AND 
-            CAN-FIND(FIRST reftable
-                        WHERE reftable.reftable EQ  "AR-CASH"
-                          AND reftable.code     EQ 
-                              STRING(ar-cash.c-no,"9999999999")
-                     use-index CODE)
+            ar-cash.printed EQ YES
            ) or
            (NOT v-reprint AND
-            NOT CAN-FIND(FIRST reftable
-                         WHERE reftable.reftable EQ "AR-CASH"
-                           AND reftable.code     EQ 
-                               STRING(ar-cash.c-no,"9999999999")
-                         use-index CODE)
+            ar-cash.printed EQ NO
            ))
     USE-INDEX posted        
     BREAK BY ar-cash.cust-no
@@ -141,8 +133,7 @@ FOR EACH ar-cash
         NEXT.
     
      
-    RELEASE reftable NO-ERROR.
-
+    
     IF CAN-FIND(FIRST ar-cashl WHERE ar-cashl.company = cocode 
                                AND ar-cashl.c-no = ar-cash.c-no 
                                AND (ar-cashl.amt-paid + ar-cashl.amt-disc) < 0)
@@ -411,19 +402,11 @@ FOR EACH ar-cash
             v-creamt = 0 v-debamt = 0.
     END.     
 
-    FIND FIRST reftable
-        WHERE reftable.reftable EQ "AR-CASH"
-          AND reftable.code     EQ STRING(ar-cash.c-no,"9999999999")
-        USE-INDEX CODE NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN 
-          reftable.reftable = "AR-CASH"
-          reftable.code     = STRING(ar-cash.c-no,"9999999999").
-    END.
+    
 
     /* gdm 07010903 */
-    ASSIGN ar-cash.ret-memo = YES.
+    ASSIGN ar-cash.ret-memo = YES
+           ar-cash.printed = YES.
 END. /* each ar-cash */
 
 ASSIGN g2 = 0.
