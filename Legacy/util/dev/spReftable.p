@@ -2239,6 +2239,27 @@ PROCEDURE ship-to.mandatory-tax:
 END PROCEDURE.
 
 
+PROCEDURE SPECSAMP
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+&SCOPED-DEFINE cTable est    
+{&CommonCode}
+        
+    FOR EACH est EXCLUSIVE WHERE 
+        est.company EQ reftable.company AND 
+        est.est-no  EQ reftable.code:
+        
+        IF est.sampleNum EQ 0 THEN ASSIGN 
+            est.sampleNum = INT(reftable.code2)
+            iProcessCount = iProcessCount + 1.
+
+    END.
+
+END PROCEDURE.
+
+
 PROCEDURE SPLITSHIP:
 /*------------------------------------------------------------------------------
  Purpose:
