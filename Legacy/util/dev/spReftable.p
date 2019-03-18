@@ -251,7 +251,7 @@ PROCEDURE ar-cashl.inv-line:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-&SCOPED-DEFINE cTable ar-invl    
+&SCOPED-DEFINE cTable ar-cashl    
 {&CommonCode}
         
     FOR EACH ar-invl NO-LOCK WHERE 
@@ -1932,6 +1932,36 @@ PROCEDURE oe/ordlmisc.p:
 END PROCEDURE.
 
 
+PROCEDURE ORDERPO:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+&SCOPED-DEFINE cTable job-mat    
+{&CommonCode}
+        
+    FOR EACH job NO-LOCK WHERE 
+        job.company EQ reftable.company AND 
+        job.job-no  EQ SUBSTRING(reftable.CODE,1,10):
+        
+        FOR EACH job-mat EXCLUSIVE WHERE 
+            job-mat.company  EQ job.company AND
+            job-mat.job      EQ job.job AND  
+            job-mat.job-no   EQ job.job-no AND 
+            job-mat.job-no2  EQ job.job-no2 AND 
+            job-mat.rm-i-no  EQ reftable.CODE2 AND 
+            job-mat.frm      EQ INT(SUBSTRING(reftable.CODE,11,10)):
+        
+            IF job-mat.po-no EQ 0 THEN ASSIGN 
+                job-mat.po-no = reftable.val[1] 
+                iProcessCount = iProcessCount + 1.
+        
+        END.
+    END.
+
+END PROCEDURE.
+
+
 PROCEDURE POORDLDEPTH:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -2253,7 +2283,7 @@ PROCEDURE ship-to.mandatory-tax:
 END PROCEDURE.
 
 
-PROCEDURE SPECSAMP
+PROCEDURE SPECSAMP:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
