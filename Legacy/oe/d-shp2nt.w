@@ -495,100 +495,28 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE toggle-values Dialog-Frame 
 PROCEDURE toggle-values :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:     Sets values for copying notes to other records
   Parameters:  <none>
-  Notes:       
+  Notes:       Main block sets all to TRUE.  OK button processes based on user choices.
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER ip_value AS LOG NO-UNDO.
+    DEF INPUT PARAMETER ip_value AS LOG NO-UNDO.
 
-FIND FIRST reftable EXCLUSIVE-LOCK
-    WHERE reftable.reftable EQ "d-shp2nt" 
-      AND reftable.company  EQ ip-company 
-      AND reftable.loc      EQ "BOL" NO-ERROR.
-IF NOT AVAIL reftable THEN DO:
-
-    CREATE reftable.
-    ASSIGN
-        reftable.reftable = "d-shp2nt"
-        reftable.company  = ip-company
-        reftable.loc      = "BOL".
-
-END.
-ELSE DO:
-
-    IF NOT ip_value 
-      THEN ASSIGN reftable.code = tgl_BOL:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-                  reftable.code = IF reftable.code EQ ""
-                                    THEN "NO" ELSE reftable.code.
-
-    ASSIGN 
-     tgl_BOL:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF reftable.code EQ ""
-                                                     THEN "NO" 
-                                                     ELSE reftable.code.
-
-END.
-    
-
-RELEASE reftable.
-
-
-FIND FIRST reftable EXCLUSIVE-LOCK
-    WHERE reftable.reftable EQ "d-shp2nt" 
-      AND reftable.company  EQ ip-company 
-      AND reftable.loc      EQ "Releases" NO-ERROR.
-IF NOT AVAIL reftable THEN DO:
-
-    CREATE reftable.
-    ASSIGN
-        reftable.reftable = "d-shp2nt"
-        reftable.company  = ip-company
-        reftable.loc      = "Releases".
-
-END.
-ELSE DO:
-
-    IF NOT ip_value 
-      THEN ASSIGN reftable.code = tgl_release:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-                  reftable.code = IF reftable.code EQ ""
-                                    THEN "NO" ELSE reftable.code.
-
-    ASSIGN 
-     tgl_release:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF reftable.code EQ ""
-                                                        THEN "NO" 
-                                                        ELSE reftable.code.
-
-END.
-
-RELEASE reftable.
-
-FIND FIRST reftable EXCLUSIVE-LOCK
-    WHERE reftable.reftable EQ "d-shp2nt" 
-      AND reftable.company  EQ ip-company 
-      AND reftable.loc      EQ "Orders" NO-ERROR.
-IF NOT AVAIL reftable THEN DO:
-
-    CREATE reftable.
-    ASSIGN
-        reftable.reftable = "d-shp2nt"
-        reftable.company  = ip-company
-        reftable.loc      = "Orders".
-
-END.
-ELSE DO:
-
-    IF NOT ip_value 
-      THEN ASSIGN reftable.code = tgl_order:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-                  reftable.code = IF reftable.code EQ ""
-                                    THEN "NO" ELSE reftable.code.
-
-    ASSIGN 
-     tgl_order:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF reftable.code EQ ""
-                                                        THEN "NO" 
-                                                        ELSE reftable.code.
-
-END.
-   
-RELEASE reftable.
+    IF ip_value THEN DO:
+        ASSIGN 
+            tgl_BOL:CHECKED IN FRAME {&frame-name} = TRUE 
+            tgl_release:CHECKED IN FRAME {&frame-name} = TRUE
+            tgl_order:CHECKED IN FRAME {&frame-name} = TRUE.
+        ASSIGN 
+            tgl_BOL
+            tgl_Release
+            tgl_order.
+    END.
+    ELSE DO:
+        ASSIGN 
+            tgl_BOL
+            tgl_Release
+            tgl_order.
+    END.
 
 END PROCEDURE.
 
