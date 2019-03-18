@@ -99,6 +99,7 @@ DO:
             ASSIGN 
                 itemfg.case-count = eb.cas-cnt
                 itemfg.case-pall = eb.cas-pal
+                itemfg.trno = eb.tr-no
                 .
     END.
         

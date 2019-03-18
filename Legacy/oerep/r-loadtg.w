@@ -3282,6 +3282,7 @@ PROCEDURE create-loadtag :
    loadtag.misc-char[2] = w-ord.lot
    /* gdm - 07170905  end */
    loadtag.spare-char-1 = w-ord.SSCC
+   loadtag.pallet-no    = IF AVAIL itemfg THEN itemfg.trno ELSE ""
    .
 
    /* gdm - 08260916 */
@@ -3669,7 +3670,7 @@ PROCEDURE create-text-file :
 
       PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#,"
                        "PalletCode,PalletID,TagCounter,TagCountTotal,"
-                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty,RunShip".
+                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty,RunShip,Pallet type".
 
       /* rstark - */
       IF lSSCC THEN PUT UNFORMATTED ",SSCC".
@@ -7870,7 +7871,8 @@ PROCEDURE write-loadtag-line :
         "~"" loadtag.loc "~","
         "~"" loadtag.loc-bin "~","
         "~"" w-ord.job-qty "~","
-        "~"" STRING(w-ord.runShip,"R&S/WHSE")  "~"".
+        "~"" STRING(w-ord.runShip,"R&S/WHSE")  "~"," 
+        "~"" STRING(loadtag.pallet-no)  "~"" .
     
     IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".
 END.
