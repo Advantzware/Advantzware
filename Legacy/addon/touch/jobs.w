@@ -923,7 +923,6 @@ IF ip-sort-by = "JOB" THEN
         END. /* first-of(job-no2) */
      end.  /* for each job */
   end.
-
  ELSE /* start-date */
   do i = 1 to 2:
      assign
@@ -941,7 +940,8 @@ IF ip-sort-by = "JOB" THEN
          
         IF FIRST-OF(job.job-no2) THEN DO:
            FOR EACH job-mch OF job NO-LOCK
-               WHERE job-mch.m-code EQ machine_code
+               WHERE (job-mch.m-code EQ machine_code
+                  OR LOOKUP(job-mch.m-code,machine_list) GT 0)
                  AND job-mch.run-complete EQ NO
                BREAK BY job-mch.frm BY job-mch.blank-no:
               IF FIRST-OF(job-mch.blank-no) THEN DO:
@@ -956,7 +956,7 @@ IF ip-sort-by = "JOB" THEN
                                   AND cmpltjob.job_sub = job-mch.job-no2
                                   AND cmpltjob.FORM_number = job-mch.frm
                                   AND cmpltjob.blank_number = job-mch.blank-no)
-/*                    AND NOT lv-form-completed*/
+                    AND NOT lv-form-completed
                  THEN DO:
                       IF NOT CAN-FIND(FIRST tt-job
                                       WHERE tt-job.job-no  EQ job.job-no
