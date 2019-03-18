@@ -762,6 +762,20 @@ PROCEDURE cust.show-set:
 END PROCEDURE.
 
 
+PROCEDURE d-shp2nt:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+&SCOPED-DEFINE cTable reftable    
+{&CommonCode}
+    /* This reftable has no effect on the "normal" files */
+    ASSIGN 
+        iProcessCount = iProcessCount + 1.    
+
+END PROCEDURE.
+
+
 PROCEDURE dropslit:
 /*------------------------------------------------------------------------------
  Purpose:
