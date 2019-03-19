@@ -981,7 +981,14 @@ FOR  EACH job-hdr NO-LOCK
                        AND job-mch.job-no2 EQ job.job-no2
                        AND job-mch.m-code  EQ ef.m-code 
                      NO-ERROR .
-                                            
+
+              FIND FIRST job-mat NO-LOCK
+                     WHERE job-mat.company EQ cocode
+                       AND job-mat.job     EQ job.job
+                       AND job-mat.job-no  EQ job.job-no
+                       AND job-mat.job-no2 EQ job.job-no2
+                       AND job-mat.i-no    EQ wrk-film.leaf NO-ERROR .
+                                         
                 IF FIRST(wrk-film.leaf) THEN
                     PUT "<P10>" SKIP
                         "<B> LEAF/FILM CODE  DESCRIPTION                 FORM  BLANK  APERTURE SIZE (W x L)   TOTAL LINEAL FEET   POUNDS     </B>" 
@@ -993,8 +1000,8 @@ FOR  EACH job-hdr NO-LOCK
                     wrk-film.bnum SPACE(3)
                     STRING(wrk-film.leaf-l) + "x" + STRING(wrk-film.leaf-w)
                     FORMAT "x(23)" SPACE(10)
-                    STRING( ( wrk-film.leaf-l + 1) * (IF AVAILABLE job-mch THEN job-mch.run-qty ELSE 0) / 12)
-                    STRING((IF AVAILABLE job-mch THEN job-mch.run-qty ELSE 0) * (wrk-film.leaf-l + 1) * ( wrk-film.leaf-w + 1) /
+                    STRING( ( wrk-film.leaf-l + 1) * (IF AVAILABLE job-mat THEN job-mat.qty ELSE 0) / 12)
+                    STRING((IF AVAILABLE job-mat THEN job-mat.qty ELSE 0) * (wrk-film.leaf-l + 1) * ( wrk-film.leaf-w + 1) /
                     (IF AVAILABLE ITEM THEN ITEM.sqin-lb ELSE 0) )
                     WITH STREAM-IO WIDTH 170 NO-LABELS NO-BOX FRAME film.
 
