@@ -60,6 +60,21 @@ FUNCTION fCueCardActive RETURNS LOGICAL
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfWebCharacters Procedure
+FUNCTION sfWebCharacters RETURNS CHARACTER 
+  (ipcWebString AS CHARACTER,
+   ipiLevel AS INTEGER,
+   ipcType AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfClearTtSysCtrlUsage) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfClearTtSysCtrlUsage Procedure 
@@ -980,6 +995,48 @@ FUNCTION fCueCardActive RETURNS LOGICAL
  Notes:
 ------------------------------------------------------------------------------*/
     RETURN lCueCardActive.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfWebCharacters Procedure
+FUNCTION sfWebCharacters RETURNS CHARACTER 
+  (ipcWebString AS CHARACTER, ipiLevel AS INTEGER, ipcType AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose: remove special characters with escape values
+ Notes: 1=& (ampersand)
+        2=' (single quote)
+        3=" (double quote)
+        4=< (less than)
+        5=> (greater than)
+        6=\ (back slash)
+        7=/ (forward slash)
+------------------------------------------------------------------------------*/
+	DEFINE VARIABLE cWebString AS CHARACTER NO-UNDO.
+
+    cWebString = ipcWebString.
+    IF ipiLevel GE 1 THEN
+    cWebString = REPLACE(cWebString,"~&",IF ipcType EQ "Web" THEN "~&amp;"  ELSE "").
+    IF ipiLevel GE 2 THEN
+    cWebString = REPLACE(cWebString,"~'",IF ipcType EQ "Web" THEN "~&apos;" ELSE "").
+    IF ipiLevel GE 3 THEN
+    cWebString = REPLACE(cWebString,"~"",IF ipcType EQ "Web" THEN "~&quot;" ELSE "").
+    IF ipiLevel GE 4 THEN
+    cWebString = REPLACE(cWebString,"<", IF ipcType EQ "Web" THEN "~&lt;"   ELSE "").
+    IF ipiLevel GE 5 THEN
+    cWebString = REPLACE(cWebString,">", IF ipcType EQ "Web" THEN "~&gt;"   ELSE "").
+    IF ipiLevel GE 6 THEN
+    cWebString = REPLACE(cWebString,"~\",IF ipcType EQ "Web" THEN "~\~\"    ELSE "").
+    IF ipiLevel GE 7 THEN
+    cWebString = REPLACE(cWebString,"~/",IF ipcType EQ "Web" THEN "~/~/"    ELSE "").
+
+	RETURN cWebString.
 
 END FUNCTION.
 	

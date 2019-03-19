@@ -74,21 +74,6 @@ FUNCTION fHTMLFieldValue RETURNS CHARACTER
     RETURN cFieldValue.
 END FUNCTION.
 
-FUNCTION fWebCharacters RETURNS CHARACTER 
-	(ipcWebString AS CHARACTER):
-	ASSIGN
-        ipcWebString = REPLACE(ipcWebString,"~&","")
-        ipcWebString = REPLACE(ipcWebString,"~'","")
-        ipcWebString = REPLACE(ipcWebString,"~"","")
-        ipcWebString = REPLACE(ipcWebString,"<","")
-        ipcWebString = REPLACE(ipcWebString,">","")
-        ipcWebString = REPLACE(ipcWebString,"~\","")
-        ipcWebString = REPLACE(ipcWebString,"~/","")
-        .
-	RETURN ipcWebString.
-
-END FUNCTION.
-
 FUNCTION numericDateTime RETURNS DECIMAL (ipDate AS DATE,ipTime AS INTEGER):
   {{&includes}/numericDateTime.i}
 END FUNCTION.
@@ -414,12 +399,6 @@ RUN pHTMLPages.
 
 RUN pLogEntry ("SaveEnd", STRING(TODAY,"99.99.9999") + " @ " + STRING(TIME,"hh:mm:ss")).
 
-
-
-/* ************************  Function Prototypes ********************** */
-FUNCTION fWebCharacters RETURNS CHARACTER 
-	(ipcWebString AS CHARACTER) FORWARD.
-
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE check4Notes:
@@ -689,7 +668,7 @@ PROCEDURE pHTMLPages:
             IF iJobs NE 0 THEN
             PUT UNFORMATTED
                 '<a href="JavaScript:newPopup(~''
-                htmlPageLocation + '\' + fWebCharacters(ttblJob.resource)
+                htmlPageLocation + '\' + DYNAMIC-FUNCTION("sfWebCharacters", ttblJob.resource, 7, "Blank")
                 'Pending.htm~');">Jobs: <b>' iJobs '</a><br>' specialTime(iTime) '</b>'
                 .
             ELSE PUT UNFORMATTED "~&nbsp".
@@ -809,7 +788,7 @@ PROCEDURE pHTMLPages:
                             + "</font></b>"
                 lScript     = NO
                 .
-            OUTPUT TO VALUE(htmlPageLocation + '\' + fWebCharacters(ttblJob.resource) + '.htm').
+            OUTPUT TO VALUE(htmlPageLocation + '\' + DYNAMIC-FUNCTION("sfWebCharacters", ttblJob.resource, 7, "Blank") + '.htm').
             RUN pHTMLHeader (cHTMLTitle,cHTMLLegend,lScript).
             RUN pHTMLBranding.
             PUT UNFORMATTED
@@ -846,7 +825,7 @@ PROCEDURE pHTMLPages:
                             + "</font></b>"
                 lScript     = NO
                 .
-            OUTPUT TO VALUE(htmlPageLocation + '\' + fWebCharacters(pendingJob.resource) + 'Pending.htm').
+            OUTPUT TO VALUE(htmlPageLocation + '\' + DYNAMIC-FUNCTION("sfWebCharacters", pendingJob.resource, 7, "Blank") + 'Pending.htm').
             RUN pHTMLHeader (cHTMLTitle,cHTMLLegend,lScript).
             RUN pHTMLBranding.
             PUT UNFORMATTED
