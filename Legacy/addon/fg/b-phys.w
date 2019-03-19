@@ -50,6 +50,8 @@ DEF VAR lv-org-loc AS cha NO-UNDO.
 DEF VAR lv-org-loc-bin AS cha NO-UNDO.
 DEF VAR lv-org-cases AS INT NO-UNDO.
 DEFINE VARIABLE lCheckCount AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hActiveLoc AS HANDLE NO-UNDO.
+DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -623,12 +625,10 @@ DO:
           ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
                  fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
 
-          FIND FIRST fg-bin WHERE fg-bin.company = g_company 
-                           AND fg-bin.i-no = ""
-                           AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                           AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                           USE-INDEX co-ino NO-LOCK NO-ERROR.
-         IF NOT AVAIL fg-bin THEN DO:
+        RUN getActiveBin IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+            fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+            OUTPUT lActiveBin ).
+        IF NOT lActiveBin THEN DO:
             MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO fg-rctd.loc .
             RETURN NO-APPLY.
@@ -850,6 +850,8 @@ END.
 ASSIGN
  cocode = g_company
  locode = g_loc.
+ 
+RUN sys/ref/activeLoc.p PERSISTENT SET hActiveLoc.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -1401,6 +1403,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
+PROCEDURE local-exit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DELETE OBJECT hActiveLoc.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -1945,10 +1972,8 @@ PROCEDURE valid-loc :
   IF {&BROWSE-NAME}:NUM-SELECTED-ROWS   IN FRAME {&FRAME-NAME} = 0 THEN 
       RETURN.
   DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST loc
-                    WHERE loc.company EQ cocode
-                      AND loc.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name})
-    THEN DO:
+    RUN getActiveLoc IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+    IF NOT lActiveBin THEN DO: 
       MESSAGE "Invalid Warehouse, try help..." VIEW-AS ALERT-BOX ERROR.
       RETURN ERROR.
     END.
@@ -1969,13 +1994,10 @@ PROCEDURE valid-loc-bin :
   IF {&BROWSE-NAME}:NUM-SELECTED-ROWS   IN FRAME {&FRAME-NAME} = 0 THEN 
       RETURN.
   DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST fg-bin
-                    WHERE fg-bin.company EQ cocode 
-                      AND fg-bin.i-no    EQ ""
-                      AND fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND fg-bin.loc-bin EQ fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                    USE-INDEX co-ino)
-    THEN DO:
+    RUN getActiveBin IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+          fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+          OUTPUT lActiveBin ).
+    IF NOT lActiveBin THEN  DO:
       MESSAGE "Invalid Bin#, try help..." VIEW-AS ALERT-BOX ERROR.
       RETURN ERROR.
     END.
@@ -2116,21 +2138,17 @@ PROCEDURE validate-record :
      END.
   END.
   
-  FIND FIRST loc WHERE loc.company = cocode
-                        AND loc.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                        NO-LOCK NO-ERROR.
-       IF NOT AVAIL loc THEN DO:
+  RUN getActiveLoc IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+  IF NOT lActiveBin THEN  DO:
           MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO fg-rctd.loc.
           RETURN ERROR.
   END.
   
-  FIND FIRST fg-bin WHERE fg-bin.company = cocode 
-                      AND fg-bin.i-no = ""
-                      AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                      USE-INDEX co-ino NO-LOCK NO-ERROR.
-  IF NOT AVAIL fg-bin THEN DO:
+  RUN getActiveBin IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+        fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+        OUTPUT lActiveBin ).
+  IF NOT lActiveBin THEN DO:
           MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO fg-rctd.loc-bin.
           RETURN ERROR.

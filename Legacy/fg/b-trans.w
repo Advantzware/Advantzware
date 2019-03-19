@@ -54,6 +54,7 @@ def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
 DEF VAR lv-fgrecpt-val AS INT NO-UNDO.
 DEF VAR trans-time AS CHAR NO-UNDO.
 DEF VAR lv-new-tag-number-chosen AS LOG NO-UNDO.
+DEFINE VARIABLE hActiveLoc AS HANDLE NO-UNDO.
 &SCOPED-DEFINE item-key-phrase TRUE
 
 /* _UIB-CODE-BLOCK-END */
@@ -772,7 +773,7 @@ DO TRANSACTION:
   {sys/inc/fgrecpt.i}
   lv-fgrecpt-val = sys-ctrl.int-fld.
 END.
-
+RUN sys/ref/activeLoc.p PERSISTENT SET hActiveLoc.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -1169,6 +1170,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
+PROCEDURE local-exit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DELETE OBJECT hActiveLoc.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -1409,6 +1435,7 @@ PROCEDURE valid-job-loc-bin-tag :
   DEF VAR lv-fields AS CHAR INIT "job-no,job-no2,loc,loc-bin,tag,cust-no" NO-UNDO.
   DEF VAR li-field# AS INT NO-UNDO.
   DEF VAR li-fieldc AS CHAR NO-UNDO.
+  DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
   
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1417,7 +1444,9 @@ PROCEDURE valid-job-loc-bin-tag :
      li-fieldc = FILL(" ",6 - LENGTH(li-fieldc)) + li-fieldc
      fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = li-fieldc
 
-     li-field# = LOOKUP(FOCUS:NAME IN BROWSE {&browse-name},lv-fields).
+     li-field# = LOOKUP(FOCUS:NAME IN BROWSE {&browse-name},lv-fields)
+     lActiveBin = No
+     .
 
     IF li-field# EQ 0 THEN li-field# = 9999.
 
@@ -1432,7 +1461,23 @@ PROCEDURE valid-job-loc-bin-tag :
         
     IF li-field# LT 6                                              AND
        fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN li-field# = 6.
-
+       
+      lActiveBin = TRUE.
+      IF li-field# GE 3 THEN 
+      DO:
+          RUN getActiveLoc IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+          IF NOT lActiveBin THEN 
+              APPLY "entry" TO fg-rctd.loc IN BROWSE {&browse-name}.
+      END.
+      IF li-field# GE 4 THEN 
+      DO:
+          RUN getActiveBin IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+              fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+              OUTPUT lActiveBin ).
+          IF NOT lActiveBin THEN 
+              APPLY "entry" TO fg-rctd.loc-bin IN BROWSE {&browse-name}.
+      END.
+      
     FOR EACH fg-bin NO-LOCK
         WHERE fg-bin.company  EQ cocode
           AND fg-bin.i-no     EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1452,7 +1497,8 @@ PROCEDURE valid-job-loc-bin-tag :
       LEAVE.
     END.
 
-    IF AVAIL fg-bin AND
+    IF AVAIL fg-bin AND 
+       lActiveBin AND
        fg-bin.qty GE (DEC(fg-rctd.cases:SCREEN-VALUE IN BROWSE {&browse-name}) *
                       DEC(fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name})) +
                      DEC(fg-rctd.partial:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -1491,7 +1537,7 @@ PROCEDURE valid-job-loc-bin-tag :
 
     END.
     ELSE DO:
-      IF AVAIL fg-bin THEN DO:
+      IF AVAIL fg-bin AND lActiveBin THEN DO:
         MESSAGE "Insufficient qty in bin..." VIEW-AS ALERT-BOX.
         APPLY "entry" TO fg-rctd.cases IN BROWSE {&browse-name}.
       END.
@@ -1536,14 +1582,10 @@ PROCEDURE valid-loc-bin2 :
         lv-msg = "To Whse/Bin may not be the same as From Whse/Bin".
 
     IF lv-msg EQ "" THEN DO:
-      FIND FIRST fg-bin
-          WHERE fg-bin.company EQ cocode
-            AND fg-bin.i-no    EQ ""
-            AND fg-bin.loc     EQ fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}
-            AND fg-bin.loc-bin EQ fg-rctd.loc-bin2:SCREEN-VALUE IN BROWSE {&browse-name}
-        USE-INDEX co-ino NO-LOCK NO-ERROR.
-
-      IF NOT AVAIL fg-bin THEN lv-msg = "Invalid entry, try help...".
+        RUN getActiveBin IN hActiveLoc (fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}, 
+                                        fg-rctd.loc-bin2:SCREEN-VALUE IN BROWSE {&browse-name}, 
+                                        OUTPUT lActiveBin ).
+      IF NOT lActiveBin THEN lv-msg = "Invalid entry, try help...".
     END.
 
     IF lv-msg NE "" THEN DO:
@@ -1566,7 +1608,7 @@ PROCEDURE valid-loc2 :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR lv-msg AS CHAR NO-UNDO.
-
+  DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
     IF lv-msg EQ "" THEN
@@ -1574,11 +1616,8 @@ PROCEDURE valid-loc2 :
         lv-msg = "To Bin may not be spaces".
 
     IF lv-msg EQ "" THEN DO:
-      FIND FIRST loc
-          WHERE loc.company EQ cocode
-            AND loc.loc     EQ fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}
-          NO-LOCK NO-ERROR.
-      IF NOT AVAIL loc THEN lv-msg = "Invalid entry, try help".
+      RUN getActiveLoc IN hActiveLoc (fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).          
+      IF NOT lActiveBin THEN lv-msg = "Invalid entry, try help".
     END.
 
     IF lv-msg NE "" THEN DO:
