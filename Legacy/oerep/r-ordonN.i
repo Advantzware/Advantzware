@@ -37,9 +37,9 @@
         FIND FIRST itemfg WHERE itemfg.company EQ cocode 
                           AND itemfg.i-no = oe-ordl.i-no NO-LOCK NO-ERROR.
         
-        IF itemfg.stat NE "" THEN
-            IF AVAIL itemfg AND (itemfg.stat NE "A") AND NOT tb_itm-act THEN NEXT .
-
+        IF AVAIL itemfg AND itemfg.stat NE "" THEN               
+            IF (itemfg.stat NE "A") AND NOT tb_itm-act THEN NEXT .        
+        
       {oerep/r-ordo1N.i}
     END.
 
@@ -372,6 +372,7 @@
                    WHEN "ack-date" THEN cVarValue = IF oe-ord.ack-prnt-date NE ? THEN STRING(oe-ord.ack-prnt-date) ELSE "".
                    WHEN "ord-date" THEN cVarValue = IF oe-ord.ord-date NE ? THEN STRING(oe-ord.ord-date) ELSE "".
                    WHEN "status" THEN cVarValue = STRING(lc-result,"x(20)").
+                   WHEN "csr"    THEN cVarValue = IF AVAIL oe-ord THEN STRING(oe-ord.csrUser_id) ELSE "". 
                   /* WHEN "bin-job"  THEN cVarValue = STRING(v-bin-job)              .
                    WHEN "whs"      THEN cVarValue = STRING(v-whs)              .
                    WHEN "bin"      THEN cVarValue = STRING(v-bin)              .

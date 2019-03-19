@@ -254,11 +254,11 @@ oe-ord.tax-gr oe-ord.managed oe-ord.frt-pay oe-ord.carrier oe-ord.fob-code ~
 oe-ord.sman[1] oe-ord.s-pct[1] oe-ord.s-comm[1] oe-ord.sman[2] ~
 oe-ord.s-pct[2] oe-ord.s-comm[2] oe-ord.sman[3] oe-ord.s-pct[3] ~
 oe-ord.s-comm[3] oe-ord.cc-type oe-ord.cc-expiration oe-ord.cc-num ~
-oe-ord.cc-auth oe-ord.spare-char-1 
+oe-ord.cc-auth oe-ord.spare-char-1 oe-ord.poReceivedDate
 &Scoped-define ENABLED-TABLES oe-ord
 &Scoped-define FIRST-ENABLED-TABLE oe-ord
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
-btnCalendar-4 btnCalendar-5 RECT-30 RECT-33 RECT-35 RECT-36 RECT-37 RECT-34 
+btnCalendar-4 btnCalendar-5 btnCalendar-6 RECT-30 RECT-33 RECT-35 RECT-36 RECT-37 RECT-34 
 &Scoped-Define DISPLAYED-FIELDS oe-ord.priceHold oe-ord.priceHoldReason ~
 oe-ord.ship-id oe-ord.ord-no oe-ord.est-no oe-ord.job-no oe-ord.job-no2 ~
 oe-ord.user-id oe-ord.stat oe-ord.spare-char-2 oe-ord.cust-no ~
@@ -271,7 +271,7 @@ oe-ord.sname[1] oe-ord.s-pct[1] oe-ord.s-comm[1] oe-ord.sman[2] ~
 oe-ord.sname[2] oe-ord.s-pct[2] oe-ord.s-comm[2] oe-ord.sman[3] ~
 oe-ord.sname[3] oe-ord.s-pct[3] oe-ord.s-comm[3] oe-ord.cc-type ~
 oe-ord.cc-expiration oe-ord.cc-num oe-ord.cc-auth oe-ord.spare-char-1 ~
-oe-ord.approved-date oe-ord.ack-prnt-date 
+oe-ord.approved-date oe-ord.ack-prnt-date oe-ord.poReceivedDate
 &Scoped-define DISPLAYED-TABLES oe-ord
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ord
 &Scoped-Define DISPLAYED-OBJECTS fiCustAddress fiHoldType fiShipName ~
@@ -285,7 +285,7 @@ fiSoldAddress fiShipAddress
 oe-ord.sold-name oe-ord.terms-d oe-ord.managed ~
 oe-ord.sname[1] oe-ord.sname[2] oe-ord.sname[3] fi_prev_order
 &Scoped-define calendarPopup btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
-btnCalendar-4 btnCalendar-5 
+btnCalendar-4 btnCalendar-5 btnCalendar-6 
 &Scoped-define webField oe-ord.due-code oe-ord.due-date oe-ord.po-no 
 &Scoped-define nonWebField fi_type oe-ord.managed 
 
@@ -372,6 +372,11 @@ DEFINE BUTTON btnCalendar-4
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-5 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-6 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
@@ -515,6 +520,10 @@ DEFINE FRAME F-Main
           LABEL "Entered By"
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
+     oe-ord.poReceivedDate AT ROW 7.91 COL 93 COLON-ALIGNED 
+          LABEL "PO Received"
+          VIEW-AS FILL-IN 
+          SIZE 13.9 BY 1
      oe-ord.ord-date AT ROW 2.67 COL 128.2 COLON-ALIGNED
           LABEL "Order Date"
           VIEW-AS FILL-IN 
@@ -669,7 +678,8 @@ DEFINE FRAME F-Main
      btnCalendar-3 AT ROW 4.71 COL 147.2
      btnCalendar-4 AT ROW 5.81 COL 147.2
      btnCalendar-5 AT ROW 15.76 COL 129
-     
+     btnCalendar-6 AT ROW 7.91 COL 109
+
      oe-ord.approved-date AT ROW 6.86 COL 128 COLON-ALIGNED HELP
           "Enter the date this order was approved" WIDGET-ID 10
           LABEL "Hold/Appr Date"
@@ -767,6 +777,8 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-5 IN FRAME F-Main
    3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-6 IN FRAME F-Main
+   3                                                                    */
 /* SETTINGS FOR FILL-IN oe-ord.cc-auth IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.cc-expiration IN FRAME F-Main
@@ -863,6 +875,8 @@ ASSIGN
    NO-ENABLE 2 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN oe-ord.user-id IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN oe-ord.poReceivedDate IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -1109,6 +1123,16 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME btnCalendar-6
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-6 V-table-Win
+ON CHOOSE OF btnCalendar-6 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i oe-ord.poReceivedDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME oe-ord.carrier
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.carrier V-table-Win
@@ -1790,6 +1814,17 @@ DO:
   DO li = 1 TO LENGTH(oe-ord.terms:SCREEN-VALUE):
     APPLY "cursor-right" TO oe-ord.terms.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME oe-ord.poReceivedDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.poReceivedDate V-table-Win
+ON HELP OF oe-ord.poReceivedDate IN FRAME F-Main /* Last Ship */
+DO:
+  {methods/calendar.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5155,9 +5190,32 @@ PROCEDURE local-display-fields :
 
   DO WITH FRAME {&FRAME-NAME}:
       ASSIGN oe-ord.spare-char-2:TOOLTIP =  getOrdStatDescr(oe-ord.spare-char-2:SCREEN-VALUE).
+      btnCalendar-6:HIDDEN = TRUE .
   END.
   RUN pDisplayAddresses.
   
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win 
+PROCEDURE local-disable-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DO WITH FRAME {&FRAME-NAME}:
+    btnCalendar-6:HIDDEN = TRUE .
+  END.
 
 END PROCEDURE.
 
@@ -5186,6 +5244,7 @@ PROCEDURE local-enable-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
+    btnCalendar-6:HIDDEN = FALSE .
     IF NOT v-slow-ord AND NOT adm-new-record THEN DISABLE oe-ord.sold-id.
     
     FIND FIRST sys-ctrl
