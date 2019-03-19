@@ -860,13 +860,7 @@ PROCEDURE pJasperJSON:
                 ASSIGN 
                     fieldName    = ttColumn.ttField
                     cBufferValue = fFormatValue(hTable, hTable:BUFFER-FIELD(fieldName):NAME)
-                    /* remove special characters with escape values */
-                    cBufferValue = REPLACE(cBufferValue,"~&","~&amp;")
-                    cBufferValue = REPLACE(cBufferValue,"~'","~&apos;")
-                    cBufferValue = REPLACE(cBufferValue,"~"","~&quot;")
-                    cBufferValue = REPLACE(cBufferValue,"<","~&lt;")
-                    cBufferValue = REPLACE(cBufferValue,">","~&gt;")
-                    cBufferValue = REPLACE(cBufferValue,"~\","~\~\")
+                    cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 6, "Web")
                     .
                 PUT UNFORMATTED
                     FILL(" ",8)
