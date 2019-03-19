@@ -15,6 +15,7 @@
 /* ***************************  Definitions  ************************** */
 DEFINE {1} TEMP-TABLE ttEstHeader /*Master Print*/
     FIELD rec_KeyHeader  AS CHARACTER /*Unique ID*/
+    FIELD cCompany AS CHARACTER
     FIELD cEstNo AS CHARACTER
     FIELD dQtyMaster AS DECIMAL /*Master Qty Calculated*/
     FIELD cCalculator AS CHARACTER /*User ID of who calculated*/
@@ -90,7 +91,8 @@ DEFINE {1} TEMP-TABLE ttEstForm
     FIELD cUOMWeightNet AS CHARACTER  
     FIELD dWeightDie AS DECIMAL 
     FIELD cUOMWeightDie AS CHARACTER 
-    FIELD dRollWidth AS DECIMAL 
+    FIELD dRollWidth AS DECIMAL
+    FIELD dQtyFGOnForm AS DECIMAL
     .
 
 DEFINE {1} TEMP-TABLE ttEstBlank
@@ -121,12 +123,27 @@ DEFINE {1} TEMP-TABLE ttEstMaterial
     FIELD rec_keyBlank AS CHARACTER /*link to parent blank*/
     FIELD cItemID AS CHARACTER /*RM Item Code*/
     FIELD cItemName AS CHARACTER 
-    FIELD dQtyRequired AS DECIMAL 
+    FIELD dQtyRequiredNoWaste AS DECIMAL 
+    FIELD dQtyRequiredWasteMR AS DECIMAL 
+    FIELD dQtyRequiredWasteRun AS DECIMAL
+    FIELD dQtyRequiredTotal AS DECIMAL
     FIELD cQtyUOM AS CHARACTER 
     FIELD dCostPerUOM AS DECIMAL 
-    FIELD dCostUOM AS DECIMAL 
+    FIELD cCostUOM AS CHARACTER  
+    FIELD dCostMR AS DECIMAL
     FIELD dCostTotal AS DECIMAL
+    FIELD dCostTotalNoWaste AS DECIMAL
+    FIELD dCostTotalWasteMR AS DECIMAL 
+    FIELD dCostTotalWasteRun AS DECIMAL 
+    FIELD dCostTotalPerMFinished AS DECIMAL
+    FIELD dCostTotalPerMFinishedNoWaste AS DECIMAL
+    FIELD dCostTotalPerMFinishedWasteMR AS DECIMAL 
+    FIELD dCostTotalPerMFinishedWasteRun AS DECIMAL 
+    FIELD lIsPrimarySubstrate AS LOGICAL 
+    FIELD lAddToWeightFG AS LOGICAL 
+    FIELD lAddToWeightTare AS LOGICAL 
     .
+    
 DEFINE {1} TEMP-TABLE ttEstOperations
     FIELD rec_keyOperation AS CHARACTER /*Unique ID*/
     FIELD rec_keyForm AS CHARACTER /*link to parent form*/
@@ -145,6 +162,32 @@ DEFINE {1} TEMP-TABLE ttEstOperations
     FIELD dQtyWasteSetup AS DECIMAL 
     FIELD dQtyWasteRun AS DECIMAL
     .
+
+DEFINE {1} TEMP-TABLE ttEstCostDetail
+    FIELD rec_keyCostDetail AS CHARACTER
+    FIELD rec_keyCostCenter AS CHARACTER 
+    FIELD rec_keyHeader AS CHARACTER 
+    FIELD rec_keyOperation AS CHARACTER 
+    FIELD rec_keyMaterial AS CHARACTER
+    FIELD rec_keyMisc AS CHARACTER
+    FIELD cDetailDescription AS CHARACTER 
+    FIELD dCost AS DECIMAL
+    FIELD dMarkup AS DECIMAL 
+    .
+
+DEFINE {1} TEMP-TABLE ttEstCostCenter
+    FIELD rec_keyCostCenter AS CHARACTER 
+    FIELD cCenterDescription AS CHARACTER 
+    FIELD cCenterLabel AS CHARACTER
+    FIELD iSequence AS INTEGER
+    FIELD cCategory AS INTEGER
+    FIELD lIncludeInStandardCost AS LOGICAL 
+    FIELD lIncludeInCost AS LOGICAL 
+    FIELD lIncludeInGrossCost AS LOGICAL 
+    FIELD lIncludeInNetCost AS LOGICAL
+    .
+    
+    
     
 /* ********************  Preprocessor Definitions  ******************** */
 
