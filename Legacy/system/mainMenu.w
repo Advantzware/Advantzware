@@ -138,8 +138,8 @@ Mnemonic
 
 /* Custom List Definitions                                              */
 /* searchFilters,List-2,List-3,List-4,List-5,colorPallet                */
-&Scoped-define searchFilters menuTreeFilter searchSelections btnMoveDown ~
-btnMoveUp btnRemove btnFavorite svFavoriteText 
+&Scoped-define searchFilters menuTreeFilter btnMoveDown btnMoveUp ~
+searchSelections btnRemove btnFavorite svFavoriteText 
 &Scoped-define colorPallet colorChoice-0 colorChoice-1 colorChoice-2 ~
 colorChoice-3 colorChoice-4 colorChoice-5 colorChoice-6 colorChoice-7 ~
 colorChoice-8 colorChoice-9 colorChoice-10 colorChoice-11 colorChoice-12 ~
@@ -623,12 +623,12 @@ DEFINE FRAME FRAME-USER
      loc_loc AT ROW 1.71 COL 73 COLON-ALIGNED NO-LABEL
      users_user_id AT ROW 1.71 COL 106 COLON-ALIGNED NO-LABEL
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     "Company:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1.71 COL 4
-     "User ID:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.71 COL 99
      "Location:" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.71 COL 66
+     "User ID:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.71 COL 99
+     "Company:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1.71 COL 4
      boxes AT ROW 8.62 COL 57
      menu-image AT ROW 3.62 COL 58
      RECT-2 AT ROW 1 COL 1
@@ -660,45 +660,6 @@ DEFINE FRAME FRAME-USER
          SIZE 160 BY 28.57
          BGCOLOR 15 .
 
-DEFINE FRAME searchFrame
-     BtnFavorites AT ROW 1 COL 1 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 54
-     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
-          "Enter Search Filter" NO-LABEL WIDGET-ID 2
-     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
-     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
-     btnMoveDown AT ROW 5.76 COL 1 HELP
-          "Move Favorite Down" WIDGET-ID 58
-     btnMoveUp AT ROW 3.38 COL 1 HELP
-          "Move Favorite Up" WIDGET-ID 56
-     btnRemove AT ROW 4.57 COL 1 HELP
-          "Remove Favorite" WIDGET-ID 26
-     btnSearch AT ROW 1 COL 51 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 40
-     btnFavorite AT ROW 13.62 COL 52 WIDGET-ID 46
-     btnClear AT ROW 13.86 COL 100 HELP
-          "Clear Search Filters" WIDGET-ID 42
-     svFavoriteText AT ROW 13.86 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-     "FAVORITES" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
-          BGCOLOR 15 
-     RECT-23 AT ROW 1 COL 6 WIDGET-ID 60
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 3.38
-         SIZE 108 BY 14.05
-         FGCOLOR 1  WIDGET-ID 600.
-
-DEFINE FRAME menuTreeFrame
-     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
-     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
-     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 4.57
-         SIZE 55 BY 24.91
-         BGCOLOR 15  WIDGET-ID 100.
-
 DEFINE FRAME userSettingsFrame
      btnCancel AT ROW 20.52 COL 12 HELP
           "Cancel" WIDGET-ID 2
@@ -708,6 +669,8 @@ DEFINE FRAME userSettingsFrame
           "Select this Language" WIDGET-ID 26
      btnLanguage-3 AT ROW 7.67 COL 6 HELP
           "Select this Language" WIDGET-ID 28
+     btnOK AT ROW 20.52 COL 3 HELP
+          "Save Changes" WIDGET-ID 4
      btnToggle AT ROW 1.48 COL 14 HELP
           "Customize Menu" WIDGET-ID 80
      copyFromUser AT ROW 1.95 COL 60 COLON-ALIGNED HELP
@@ -723,16 +686,12 @@ DEFINE FRAME userSettingsFrame
           "Show Mnemonic" NO-LABEL WIDGET-ID 100
      cPositionMnemonic AT ROW 18.86 COL 22 HELP
           "Place Mnemonic at Begin or End of Text" NO-LABEL WIDGET-ID 108
-     btnOK AT ROW 20.52 COL 3 HELP
-          "Save Changes" WIDGET-ID 4
      btnCopyToUser AT ROW 20.52 COL 62 HELP
           "Copy From User to Selected User(s)" WIDGET-ID 94
      btnActivateCueCards AT ROW 21 COL 27 HELP
           "Activate Inactive Cue Cards" WIDGET-ID 116
      " HotKey (Mnemonic)" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 16.95 COL 5 WIDGET-ID 106
-     " Copy to Selected Users" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
      "Menu Level 1" VIEW-AS TEXT
           SIZE 13 BY .67 AT ROW 22.91 COL 7 WIDGET-ID 458
      "?" VIEW-AS TEXT
@@ -760,11 +719,13 @@ DEFINE FRAME userSettingsFrame
           SIZE 9 BY 1 AT ROW 24.81 COL 7 WIDGET-ID 460
      " Language" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 3.62 COL 5 WIDGET-ID 86
+     "FG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 23.62 COL 7 WIDGET-ID 454
      "[S] Scheduling" VIEW-AS TEXT
           SIZE 28 BY 1.43 AT ROW 13.86 COL 31 WIDGET-ID 54
           FONT 37
-     "FG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 23.62 COL 7 WIDGET-ID 454
+     " Copy to Selected Users" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
      IMAGE-1 AT ROW 10.76 COL 17 WIDGET-ID 40
      IMAGE-2 AT ROW 12.19 COL 17 WIDGET-ID 44
      IMAGE-3 AT ROW 13.86 COL 17 WIDGET-ID 50
@@ -831,12 +792,12 @@ DEFINE FRAME searchFrame
           "Search Menu / Edit Favorites" WIDGET-ID 54
      menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
           "Enter Search Filter" NO-LABEL WIDGET-ID 2
-     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
-     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
      btnMoveDown AT ROW 5.76 COL 1 HELP
           "Move Favorite Down" WIDGET-ID 58
+     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
      btnMoveUp AT ROW 3.38 COL 1 HELP
           "Move Favorite Up" WIDGET-ID 56
+     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
      btnRemove AT ROW 4.57 COL 1 HELP
           "Remove Favorite" WIDGET-ID 26
      btnSearch AT ROW 1 COL 51 HELP
@@ -845,6 +806,9 @@ DEFINE FRAME searchFrame
      btnClear AT ROW 13.86 COL 100 HELP
           "Clear Search Filters" WIDGET-ID 42
      svFavoriteText AT ROW 13.86 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     "FAVORITES" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
+          BGCOLOR 15 
      "FAVORITES" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
           BGCOLOR 15 
@@ -1478,7 +1442,7 @@ DO:
     IF lToggle THEN lToggle = NO.
     HIDE FRAME userSettingsFrame.
     cLabelLanguage = ENTRY(iLanguage,cLanguageList).
-    RUN pSetUserSettings.
+    RUN pSetUserSettings (YES).
     RUN pReset.
     VIEW FRAME searchFrame.
 END.
@@ -1935,15 +1899,17 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME m_Profiler
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Profiler MAINMENU
-ON CHOOSE OF MENU-ITEM m_Profiler /* Profiler */
- DO:
+ON CHOOSE OF MENU-ITEM m_Profiler /* Start/Stop Profiler */
+DO:
         RUN pOnOffProfiler.
  END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME m_SysCtrl_Usage
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_SysCtrl_Usage MAINMENU
@@ -2046,7 +2012,7 @@ DO:
         MESSAGE 'Exit Advantzware?' VIEW-AS ALERT-BOX
             QUESTION BUTTONS YES-NO UPDATE closeMenu.
     IF NOT closeMenu THEN RETURN NO-APPLY.
-    RUN pSetUserSettings.
+    RUN pSetUserSettings (NO).
     RUN system/userLogOut.p (NO, 0).
     QUIT. /* kills all processes */
 END.
@@ -2195,8 +2161,8 @@ PROCEDURE enable_UI :
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   DISPLAY menuTreeFilter favoritesList searchSelections svFavoriteText 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
-  ENABLE BtnFavorites menuTreeFilter favoritesList searchSelections btnMoveDown 
-         btnMoveUp btnRemove btnSearch btnFavorite 
+  ENABLE BtnFavorites menuTreeFilter btnMoveDown favoritesList btnMoveUp 
+         searchSelections btnRemove btnSearch btnFavorite 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
   VIEW FRAME searchFrame IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-searchFrame}
@@ -2981,10 +2947,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOnOffProfiler MAINMENU
-PROCEDURE pOnOffProfiler:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOnOffProfiler MAINMENU 
+PROCEDURE pOnOffProfiler :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -3031,11 +2996,9 @@ PROCEDURE pOnOffProfiler:
    
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProcessClick MAINMENU 
 PROCEDURE pProcessClick :
@@ -3255,34 +3218,38 @@ PROCEDURE pSetUserSettings :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplSaveAll AS LOGICAL NO-UNDO.
+    
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
     DO TRANSACTION:
-        FIND FIRST users EXCLUSIVE-LOCK
-             WHERE users.user_id EQ USERID("ASI")
-             NO-ERROR.
-        IF AVAILABLE users THEN DO:
-            ASSIGN
-                users.menuSize         = ENTRY(iMenuSize,"Small,Medium,Large")
-                users.showMnemonic     = cShowMnemonic
-                users.positionMnemonic = cPositionMnemonic            
-                users.showMenuImages   = lMenuImage
-                users.menuFGColor[1]   = iFGColor[1]
-                users.menuFGColor[2]   = iFGColor[2]
-                users.menuFGColor[3]   = iFGColor[3]
-                users.menuBGColor[1]   = iBGColor[1]
-                users.menuBGColor[2]   = iBGColor[2]
-                users.menuBGColor[3]   = iBGColor[3]
-                .
-            FIND FIRST userLanguage NO-LOCK
-                 WHERE userLanguage.languageIdx EQ iLanguage
+        IF iplSaveAll THEN DO:
+            FIND FIRST users EXCLUSIVE-LOCK
+                 WHERE users.user_id EQ USERID("ASI")
                  NO-ERROR.
-            IF AVAILABLE userLanguage THEN
-            ASSIGN
-                users.userLanguage = userLanguage.userLanguage
-                .
-            FIND CURRENT users NO-LOCK.
-        END. /* avail users */
+            IF AVAILABLE users THEN DO:
+                ASSIGN
+                    users.menuSize         = ENTRY(iMenuSize,"Small,Medium,Large")
+                    users.showMnemonic     = cShowMnemonic
+                    users.positionMnemonic = cPositionMnemonic            
+                    users.showMenuImages   = lMenuImage
+                    users.menuFGColor[1]   = iFGColor[1]
+                    users.menuFGColor[2]   = iFGColor[2]
+                    users.menuFGColor[3]   = iFGColor[3]
+                    users.menuBGColor[1]   = iBGColor[1]
+                    users.menuBGColor[2]   = iBGColor[2]
+                    users.menuBGColor[3]   = iBGColor[3]
+                    .
+                FIND FIRST userLanguage NO-LOCK
+                     WHERE userLanguage.languageIdx EQ iLanguage
+                     NO-ERROR.
+                IF AVAILABLE userLanguage THEN
+                ASSIGN
+                    users.userLanguage = userLanguage.userLanguage
+                    .
+                FIND CURRENT users NO-LOCK.
+            END. /* avail users */
+        END. /* if save all */
     
         FIND FIRST user-print EXCLUSIVE-LOCK
              WHERE user-print.company    EQ g_company
