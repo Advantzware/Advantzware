@@ -1,40 +1,33 @@
-    define input parameter ipcCompany as character no-undo init '001'.
-    define input parameter ipctestNum  as integer no-undo init 4.
-    define input parameter ipcFormat   AS CHARACTER NO-UNDO.
-    define input parameter ipcFtpSite  AS CHARACTER NO-UNDO.
-    define input parameter ipcFolder   AS CHARACTER NO-UNDO.
-    define input parameter ipcFileSpec AS CHARACTER NO-UNDO.
-    define input parameter iplSilent   as LOGICAL   no-undo .
-    define input parameter iplExecute  as logical   no-undo init yes.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO INIT '001'.
+    DEFINE INPUT PARAMETER ipctestNum  AS INTEGER NO-UNDO INIT 4.
+    DEFINE INPUT PARAMETER ipcFormat   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFtpSite  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFolder   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFileSpec AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplSilent   AS LOGICAL   NO-UNDO .
+    DEFINE INPUT PARAMETER iplExecute  AS LOGICAL   NO-UNDO INIT YES.
 
 
-    define output parameter ftpURL      AS CHARACTER NO-UNDO.
-    define output parameter ftpUser     AS CHARACTER NO-UNDO.
-    define output parameter ftpPassword AS CHARACTER NO-UNDO.
-    define output parameter ftpMode     AS CHARACTER NO-UNDO.
-    define output parameter ftpDir      AS CHARACTER NO-UNDO.
-    define output parameter ftpGet      AS CHARACTER NO-UNDO.
-    define output parameter ftpSoftware AS CHARACTER NO-UNDO.
-    define output parameter ftpScript   AS CHARACTER NO-UNDO.
-    define output parameter ftpBinary   AS CHARACTER NO-UNDO.
-    define output parameter cCommandFile AS CHARACTER NO-UNDO.
-    define output parameter cFullCmd    AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER ftpURL      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ftpUser     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ftpPassword AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ftpMode     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ftpDir      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ftpGet      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ftpSoftware AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ftpScript   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ftpBinary   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER cCommandFile AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER cFullCmd    AS CHARACTER NO-UNDO.    
 
     
     DEFINE  BUFFER ipbf-ftpConfig FOR ftpConfig.
         
-    def var hftp as handle.
-    def buffer bfFtpConfig for ftpConfig.
-    run custom/ftpProcs.p persistent set hftp.
-    this-procedure:add-super-procedure(hftp).
-    /* run pExecFtp ("001", "ipaper", "acpi", "c:\temp", "x.p"). */
-    
-    ipcFormat = "ipaper".
-    ipcFtpSite = "acpi".
-    ipcFolder = "c:\temp".
-    ipcFileSpec = "x.p".
-  
-    
+    DEFINE VARIABLE hftp AS HANDLE.
+    DEFINE BUFFER bfFtpConfig FOR ftpConfig.
+    RUN custom/ftpProcs.p PERSISTENT SET hftp.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftp).
+
     RUN pGetConfigValues (ipcFormat, 
                      ipcFtpSite, 
                      ipcFolder, 
@@ -50,7 +43,7 @@
                      OUTPUT ftpScript, 
                      OUTPUT ftpBinary).
     
-    if ipcTestNum ge 2 then 
+    IF ipcTestNum GE 2 THEN 
     RUN pCreateScriptRecords (FtpURL,
                              FtpUser,
                              FtpPassword,
@@ -65,10 +58,10 @@
 
     cCommandFile = DYNAMIC-FUNCTION("fNK1ConfigFolder", ipcCompany) + "\" + ftpScript.
     
-    if ipcTestNum ge 3 then 
+    IF ipcTestNum GE 3 THEN 
     RUN pWriteToFile (INPUT cCommandFile).
     
-    if ipcTestNum ge 4 then 
+    IF ipcTestNum GE 4 THEN 
     RUN pExecuteCommand (iplSilent /* silent */, FtpSoftware, cCommandFile, iplExecute /* run cmd */, OUTPUT cFullCmd).
         
-    this-procedure:remove-super-procedure(hftp). 
+    THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftp). 
