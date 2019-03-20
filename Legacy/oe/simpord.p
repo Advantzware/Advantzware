@@ -1085,7 +1085,9 @@ PROCEDURE CreateRelease :
            oe-rel.sold-no   = oe-ord.sold-no
            oe-rel.carrier   = if sys-ctrl.char-fld = "Shipto" and avail shipto then shipto.carrier
                               else oe-ord.carrier
-           oe-rel.r-no      = iNextRelNo.
+           oe-rel.r-no      = iNextRelNo
+           oe-rel.frt-pay   = oe-ordl.frt-pay
+           oe-rel.fob-code  = oe-ord.fob-code.
            
           IF oereleas-cha eq "LastShip" then
                                oe-rel.rel-date = oe-ord.last-date.

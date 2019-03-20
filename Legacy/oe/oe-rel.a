@@ -85,7 +85,9 @@ if avail {&fil} then do:
            oe-rel.carrier   = if sys-ctrl.char-fld = "Shipto" and avail shipto then shipto.carrier
                               else xoe-ord.carrier
            oe-rel.spare-char-1 = xoe-ord.loc
-           oe-rel.r-no      = v-nxt-r-no.
+           oe-rel.r-no      = v-nxt-r-no
+           oe-rel.frt-pay   = substring({&fil}.frt.pay,1,1)
+           oe-rel.fob-code  = xoe-ord.fob-code.
            
     if oereleas-cha eq "LastShip" then
        oe-rel.rel-date = xoe-ord.last-date.
