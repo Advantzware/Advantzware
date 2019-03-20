@@ -31,6 +31,7 @@
 def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cust-no like itemfg.cust-no no-undo.
 def input parameter ip-cur-val as cha no-undo.
+DEFINE INPUT PARAMETER ip-vendor AS CHARACTER NO-UNDO .
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-recid as recid no-undo.
 
@@ -81,14 +82,14 @@ get-part () @ itemfg.part-no itemfg.part-no itemfg.part-dscr1
       first e-itemfg-vend NO-LOCK ~
         where e-itemfg-vend.company eq itemfg.company ~
           and e-itemfg-vend.i-no    eq itemfg.i-no ~
-          and ((e-itemfg-vend.vend-no NE "" AND rd-filter EQ 1) OR rd-filter EQ 2 ) ~
+          and ((e-itemfg-vend.vend-no EQ ip-vendor AND rd-filter EQ 1) OR rd-filter EQ 2 ) ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH itemfg WHERE ~{&KEY-PHRASE} ~
       AND itemfg.company = ip-company AND itemfg.stat EQ "A" NO-LOCK, ~
       first e-itemfg-vend NO-LOCK ~
         where e-itemfg-vend.company eq itemfg.company ~
           and e-itemfg-vend.i-no    eq itemfg.i-no ~
-          and ((e-itemfg-vend.vend-no NE "" AND rd-filter EQ 1) OR rd-filter EQ 2 ) ~
+          and ((e-itemfg-vend.vend-no EQ ip-vendor AND rd-filter EQ 1) OR rd-filter EQ 2 ) ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 itemfg e-itemfg-vend
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 itemfg
@@ -101,7 +102,7 @@ get-part () @ itemfg.part-no itemfg.part-no itemfg.part-dscr1
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS BROWSE-1 rd-sort rd-filter bt-clear lv-search bt-ok ~
 bt-cancel RECT-1 
-&Scoped-Define DISPLAYED-OBJECTS rd-sort rd-filter lv-search 
+&Scoped-Define DISPLAYED-OBJECTS rd-sort rd-filter lv-search lv-label
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -157,11 +158,17 @@ DEFINE VARIABLE rd-sort AS INTEGER
      SIZE 45 BY 1 NO-UNDO.
 
 DEFINE VARIABLE rd-filter AS INTEGER 
+     LABEL "Filter By:" 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
-          "Po Vendor", 1,
+          "PO Vendor", 1,
           "All Vendors", 2
      SIZE 33 BY .95 NO-UNDO.
+
+DEFINE VARIABLE lv-label AS CHARACTER FORMAT "X(9)":U 
+     LABEL "Filter By" 
+     VIEW-AS FILL-IN 
+     SIZE 1 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
@@ -205,8 +212,7 @@ DEFINE FRAME Dialog-Frame
      RECT-1 AT ROW 12.43 COL 1
      "Sort By:" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 12.67 COL 4
-    "Filter By:" VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 12.67 COL 89
+     lv-label AT ROW 12.67 COL 89
      SPACE(38.59) SKIP(1.56)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -435,10 +441,21 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   ASSIGN rd-filter = 1 .
+
+  IF ip-vendor EQ "" THEN 
+      ASSIGN rd-filter = 2 .
+      
   &scoped-define key-phrase {&fld-name-1} >= ip-cur-val
   &scoped-define sortby-phrase {&sortby-1}
   
   RUN enable_UI.
+
+  IF ip-vendor EQ "" THEN do:
+      ASSIGN rd-filter = 2 .
+      rd-filter:HIDDEN in FRAME {&FRAME-NAME} = YES .
+      lv-label:HIDDEN in FRAME {&FRAME-NAME} = YES  .
+  END.
+
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
@@ -477,7 +494,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY rd-sort rd-filter lv-search 
+  DISPLAY rd-sort rd-filter lv-search lv-label
       WITH FRAME Dialog-Frame.
   ENABLE BROWSE-1 rd-sort rd-filter bt-clear lv-search bt-ok bt-cancel RECT-1 
       WITH FRAME Dialog-Frame.

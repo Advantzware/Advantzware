@@ -446,7 +446,7 @@ DO:
 
              END.
              ELSE DO:
-                  RUN windows/l-itemf2.w (rm-rctd.company, rm-rctd.i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT rec-val).
+                  RUN windows/l-itemf2.w (rm-rctd.company, rm-rctd.i-no:SCREEN-VALUE,"", OUTPUT char-val, OUTPUT rec-val).
                   IF rec-val <> ? THEN DO:
                      FIND item WHERE RECID(item) = rec-val NO-LOCK.
                      ASSIGN rm-rctd.i-no:SCREEN-VALUE  = item.i-no
