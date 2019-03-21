@@ -1942,7 +1942,7 @@ PROCEDURE ORDERPO:
         
     FOR EACH job NO-LOCK WHERE 
         job.company EQ reftable.company AND 
-        job.job-no  EQ SUBSTRING(reftable.CODE,1,10):
+        job.job     EQ SUBSTRING(reftable.CODE,1,10):
         
         FOR EACH job-mat EXCLUSIVE WHERE 
             job-mat.company  EQ job.company AND
