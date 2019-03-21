@@ -520,10 +520,10 @@ DEFINE FRAME F-Main
           LABEL "Entered By"
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
-     oe-ord.poReceivedDate AT ROW 7.91 COL 93 COLON-ALIGNED 
-          LABEL "PO Received"
+     oe-ord.poReceivedDate AT ROW 7.91 COL 93 COLON-ALIGNED FORMAT "99/99/9999"
+          LABEL "PO Received" 
           VIEW-AS FILL-IN 
-          SIZE 13.9 BY 1
+          SIZE 14.9 BY 1
      oe-ord.ord-date AT ROW 2.67 COL 128.2 COLON-ALIGNED
           LABEL "Order Date"
           VIEW-AS FILL-IN 
@@ -678,7 +678,7 @@ DEFINE FRAME F-Main
      btnCalendar-3 AT ROW 4.71 COL 147.2
      btnCalendar-4 AT ROW 5.81 COL 147.2
      btnCalendar-5 AT ROW 15.76 COL 129
-     btnCalendar-6 AT ROW 7.91 COL 109
+     btnCalendar-6 AT ROW 7.91 COL 110
 
      oe-ord.approved-date AT ROW 6.86 COL 128 COLON-ALIGNED HELP
           "Enter the date this order was approved" WIDGET-ID 10
@@ -876,7 +876,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ord.user-id IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN oe-ord.poReceivedDate IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -5189,8 +5189,7 @@ PROCEDURE local-display-fields :
   /* Code placed here will execute AFTER standard behavior.    */
 
   DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN oe-ord.spare-char-2:TOOLTIP =  getOrdStatDescr(oe-ord.spare-char-2:SCREEN-VALUE).
-      btnCalendar-6:HIDDEN = TRUE .
+      ASSIGN oe-ord.spare-char-2:TOOLTIP =  getOrdStatDescr(oe-ord.spare-char-2:SCREEN-VALUE).      
   END.
   RUN pDisplayAddresses.
   
@@ -5213,9 +5212,6 @@ PROCEDURE local-disable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DO WITH FRAME {&FRAME-NAME}:
-    btnCalendar-6:HIDDEN = TRUE .
-  END.
 
 END PROCEDURE.
 
@@ -5243,8 +5239,7 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DO WITH FRAME {&FRAME-NAME}:
-    btnCalendar-6:HIDDEN = FALSE .
+  DO WITH FRAME {&FRAME-NAME}:    
     IF NOT v-slow-ord AND NOT adm-new-record THEN DISABLE oe-ord.sold-id.
     
     FIND FIRST sys-ctrl
