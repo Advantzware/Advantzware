@@ -1168,6 +1168,7 @@ DO:
 
         FOR EACH xprep
             WHERE xprep.ml EQ YES
+              AND NOT CAN-DO("S,N", xprep.simon)
             ,
             FIRST prep NO-LOCK
             WHERE prep.company EQ cocode
@@ -1564,8 +1565,22 @@ DO:
                 job-mch.line = z.
         END.
 
-        FOR EACH xprep:        
-   
+        FOR EACH xprep WHERE NOT CAN-DO("S,N", xprep.simon):        
+            FIND FIRST prep NO-LOCK
+                 WHERE prep.company EQ cocode
+                   AND prep.CODE EQ xprep.CODE
+                 NO-ERROR.
+            
+            IF AVAILABLE prep THEN 
+             
+            FIND FIRST item NO-LOCK
+                 WHERE item.company EQ cocode
+                   AND item.i-no    EQ prep.i-no            
+                 NO-ERROR.
+            
+            /* If item is avail, should go on materials tab */
+            IF AVAILABLE ITEM THEN 
+              NEXT.
             CREATE job-prep.
             ASSIGN
                 job-prep.company  = cocode
