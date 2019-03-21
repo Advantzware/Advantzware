@@ -1161,7 +1161,7 @@ PROCEDURE loadFiles :
               oe-rel.ship-city = xoe-ord.city
               oe-rel.ship-state = xoe-ord.state
               oe-rel.ship-zip = xoe-ord.zip
-              oe-rel.frt=pay    = substring(oe-ordl.frt-pay,1,1)
+              oe-rel.frt-pay    = substring(oe-ordl.frt-pay,1,1)
               oe-rel.fob-code   = xoe-ord.fob-code
               .
 
