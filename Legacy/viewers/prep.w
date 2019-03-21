@@ -571,7 +571,7 @@ DO:
     CASE lw-focus:NAME:
 
       WHEN "i-no" THEN DO:
-         RUN windows/l-itmall.w (gcompany, "","", prep.i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
+         RUN windows/l-itmall.w (gcompany, "","", prep.i-no:SCREEN-VALUE,"", OUTPUT char-val, OUTPUT look-recid).
          IF char-val NE "" AND ENTRY(1,char-val) NE prep.i-no:SCREEN-VALUE THEN
             lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
       END.

@@ -512,7 +512,7 @@ DO:
 
              END.
              ELSE DO:
-                  RUN windows/l-itemf2.w (fg-rctd.company, fg-rctd.i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT rec-val).
+                  RUN windows/l-itemf2.w (fg-rctd.company, fg-rctd.i-no:SCREEN-VALUE,"", OUTPUT char-val, OUTPUT rec-val).
                   IF rec-val <> ? THEN DO:
                      FIND itemfg WHERE RECID(itemfg) = rec-val NO-LOCK.
                      ASSIGN fg-rctd.i-no:SCREEN-VALUE  = itemfg.i-no
