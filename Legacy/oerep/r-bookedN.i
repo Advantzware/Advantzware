@@ -301,13 +301,13 @@ FORMAT wkrecap.procat
 
             IF AVAIL bf-oe-rel AND NOT(bf-oe-rel.spare-char-1   ge begin_shipfrom
               and bf-oe-rel.spare-char-1   le end_shipfrom) THEN NEXT.
-            ELSE IF NOT AVAIL bf-oe-rel THEN NEXT.
+            ELSE IF NOT AVAIL bf-oe-rel AND NOT lOrdWithNoRel THEN NEXT.
             
         END.
         ELSE DO:   
             IF AVAIL oe-rel AND NOT(oe-rel.spare-char-1   ge begin_shipfrom
             and oe-rel.spare-char-1   le end_shipfrom) THEN NEXT.
-            ELSE IF NOT AVAIL oe-rel THEN NEXT.
+            ELSE IF NOT AVAIL oe-rel AND NOT lOrdWithNoRel THEN NEXT.
 
         END.
       

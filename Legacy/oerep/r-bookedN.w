@@ -154,16 +154,17 @@ ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER,CUSTOMER NAME,PROD CODE," 
 begin_cust-no end_cust-no begin_ord-date end_ord-date begin_due-date ~
 end_due-date begin_slsmn end_slsmn begin_fg-cat end_fg-cat begin_shipfrom ~
 end_shipfrom tb_prepmisc tb_smn-no tb_exclude-set-comps tb_rep-tot ~
-tb_exclude-transfer tb_Under% tb_Over% Btn_Def sl_avail sl_selected Btn_Add ~
-Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page lv-font-no ~
-td-show-parm tb_excel tb_runExcel fi_file tb_batch btn-ok btn-cancel 
+tb_exclude-transfer tb_include-ordrel tb_Under% tb_Over% Btn_Def sl_avail ~
+sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt ~
+lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
+tb_batch btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust-no end_cust-no ~
 begin_ord-date end_ord-date lbl_sqft begin_due-date end_due-date ~
 begin_slsmn end_slsmn begin_fg-cat end_fg-cat begin_shipfrom end_shipfrom ~
 tb_prepmisc tb_smn-no tb_exclude-set-comps tb_rep-tot tb_exclude-transfer ~
-tb_Under% fUnder% fOver% tb_Over% sl_avail sl_selected rd-dest lv-ornt ~
-lines-per-page lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel ~
-fi_file tb_batch 
+tb_include-ordrel tb_Under% fUnder% fOver% tb_Over% sl_avail sl_selected ~
+rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm ~
+tb_excel tb_runExcel fi_file tb_batch 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -399,6 +400,11 @@ DEFINE VARIABLE tb_exclude-transfer AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY .95 NO-UNDO.
 
+DEFINE VARIABLE tb_include-ordrel AS LOGICAL INITIAL no 
+     LABEL "Include Orders with no Release?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 36 BY .95 NO-UNDO.
+
 DEFINE VARIABLE tb_margin AS LOGICAL INITIAL no 
      LABEL "Print Avail Margin?" 
      VIEW-AS TOGGLE-BOX
@@ -495,6 +501,7 @@ DEFINE FRAME FRAME-A
      tb_exclude-set-comps AT ROW 9.52 COL 15 WIDGET-ID 4
      tb_rep-tot AT ROW 9.67 COL 58 WIDGET-ID 54
      tb_exclude-transfer AT ROW 10.48 COL 15 WIDGET-ID 6
+     tb_include-ordrel AT ROW 10.57 COL 58 WIDGET-ID 6
      tb_comm AT ROW 11.24 COL 118
      tb_Under% AT ROW 11.52 COL 15 WIDGET-ID 46
      fUnder% AT ROW 11.52 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 48
@@ -534,17 +541,17 @@ DEFINE FRAME FRAME-A
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 21.38 COL 2
-     "(Prep / Misc Charges will Display 'P' or 'M' for Product Code)" VIEW-AS TEXT
-          SIZE 57 BY .95 AT ROW 12.67 COL 15
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 14.91 COL 4.4 WIDGET-ID 38
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 14.91 COL 60.2 WIDGET-ID 44
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 14.91 COL 60.2 WIDGET-ID 44
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 14.91 COL 4.4 WIDGET-ID 38
+     "(Prep / Misc Charges will Display 'P' or 'M' for Product Code)" VIEW-AS TEXT
+          SIZE 57 BY .95 AT ROW 12.67 COL 15
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 21.38 COL 2
      RECT-7 AT ROW 1 COL 1
      RECT-8 AT ROW 21.14 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -706,6 +713,10 @@ ASSIGN
 
 ASSIGN 
        tb_exclude-transfer:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_include-ordrel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_margin IN FRAME FRAME-A
@@ -1332,6 +1343,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_include-ordrel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_include-ordrel C-Win
+ON VALUE-CHANGED OF tb_include-ordrel IN FRAME FRAME-A /* Include Orders with no Release? */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_margin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_margin C-Win
 ON VALUE-CHANGED OF tb_margin IN FRAME FRAME-A /* Print Avail Margin? */
@@ -1767,18 +1789,18 @@ PROCEDURE enable_UI :
           lbl_sqft begin_due-date end_due-date begin_slsmn end_slsmn 
           begin_fg-cat end_fg-cat begin_shipfrom end_shipfrom tb_prepmisc 
           tb_smn-no tb_exclude-set-comps tb_rep-tot tb_exclude-transfer 
-          tb_Under% fUnder% fOver% tb_Over% sl_avail sl_selected rd-dest lv-ornt 
-          lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
-          tb_runExcel fi_file tb_batch 
+          tb_include-ordrel tb_Under% fUnder% fOver% tb_Over% sl_avail 
+          sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
+          td-show-parm tb_excel tb_runExcel fi_file tb_batch 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-7 RECT-8 tb_cust-list btnCustList begin_cust-no end_cust-no 
          begin_ord-date end_ord-date begin_due-date end_due-date begin_slsmn 
          end_slsmn begin_fg-cat end_fg-cat begin_shipfrom end_shipfrom 
          tb_prepmisc tb_smn-no tb_exclude-set-comps tb_rep-tot 
-         tb_exclude-transfer tb_Under% tb_Over% Btn_Def sl_avail sl_selected 
-         Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page 
-         lv-font-no td-show-parm tb_excel tb_runExcel fi_file tb_batch btn-ok 
-         btn-cancel 
+         tb_exclude-transfer tb_include-ordrel tb_Under% tb_Over% Btn_Def 
+         sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest 
+         lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel 
+         fi_file tb_batch btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1975,6 +1997,7 @@ DEFINE VARIABLE tot-sqft AS DECIMAL NO-UNDO.
 DEFINE VARIABLE tot-renv AS DECIMAL NO-UNDO.
 DEFINE VARIABLE tot-ton AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cPrevOrder AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lOrdWithNoRel AS LOGICAL INITIAL NO NO-UNDO.
 
 DEFINE VARIABLE v-revenue LIKE oe-ordl.t-price FORMAT "->,>>>,>>9.99" NO-UNDO
   COLUMN-LABEL "Order!Amount".
@@ -2035,7 +2058,8 @@ ASSIGN
  p-m-chg    = tb_prepmisc
  lSelected  = tb_cust-list
  dSDueDate      = begin_due-date
- dEDueDate      = end_due-date    .
+ dEDueDate      = end_due-date    
+ lOrdWithNoRel  = tb_include-ordrel .
 
 /*IF tb_margin THEN prt-profit = NO.*/
 prt-profit = CAN-DO(cSelectedlist,"% PROFIT").
