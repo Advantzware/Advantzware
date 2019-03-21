@@ -2594,7 +2594,7 @@ PROCEDURE initJobVals :
 
     FIND FIRST po-ord NO-LOCK 
         WHERE po-ord.company   EQ cocode
-        AND po-ord.po-no     EQ INT(job-hdr.po-no)
+        AND po-ord.po-no     EQ INT(bf-w-job-mat.po-no)
         NO-ERROR.
     IF AVAILABLE po-ord THEN gvcVendNo = po-ord.vend-no.  
 
