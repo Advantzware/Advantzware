@@ -25,7 +25,7 @@
         
     DEFINE VARIABLE hftp AS HANDLE.
     DEFINE BUFFER bfFtpConfig FOR ftpConfig.
-    RUN custom/ftpProcs.p PERSISTENT SET hftp.
+    RUN system/ftpProcs.p PERSISTENT SET hftp.
     THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftp).
 
     RUN pGetConfigValues (ipcFormat, 

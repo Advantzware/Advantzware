@@ -161,7 +161,7 @@ PROCEDURE postMonitor:
     DEFINE VARIABLE hFtpProcs AS HANDLE NO-UNDO.
     
     
-    RUN custom/ftpProcs.p PERSISTENT SET hFtpProcs.
+    RUN system/ftpProcs.p PERSISTENT SET hFtpProcs.
     
     AsnHotFolderIn-char = monitorImportdir.
     AsnHotFolderOut-char = AsnHotFolderIn-char + "\processed".
