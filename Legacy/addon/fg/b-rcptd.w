@@ -2076,11 +2076,12 @@ PROCEDURE local-assign-record :
               AND po-ordl.i-no  EQ fg-rctd.i-no 
           NO-LOCK NO-ERROR.
       DEF BUFFER bfItemfg FOR itemfg.
-      IF AVAIL po-ordl THEN
+      IF AVAIL po-ordl THEN DO:
+          ASSIGN fg-rctd.po-line = po-ordl.line.
           FIND FIRST itemfg WHERE itemfg.company EQ po-ordl.company
             AND itemfg.i-no EQ po-ordl.i-no 
           NO-LOCK NO-ERROR.
-     
+      END.
       IF AVAIL itemfg AND itemfg.pur-man = TRUE AND po-ordl.job-no GT "" THEN
           ASSIGN fg-rctd.job-no = po-ordl.job-no
                  fg-rctd.job-no2 = po-ordl.job-no2.
