@@ -742,7 +742,9 @@ FOR EACH eddoc
             oe-rel.ship-i[3]    = oe-ord.ship-i[3]
             oe-rel.ship-i[4]    = oe-ord.ship-i[4]
             oe-rel.deleted      = oe-ord.deleted
-            oe-ordl.rel-qty     = oe-ordl.rel-qty + oe-rel.qty.
+            oe-ordl.rel-qty     = oe-ordl.rel-qty + oe-rel.qty
+            oe-rel.frt-pay      = oe-ordl.frt-pay
+            oe-rel.fob-code     = oe-ord.fob-code.
           IF oe-rel.ship-i[1] = "" AND shipto.notes[1] > ""
             THEN
           DO i = 1 TO 4:

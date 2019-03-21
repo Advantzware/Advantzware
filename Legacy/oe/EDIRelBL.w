@@ -1161,21 +1161,10 @@ PROCEDURE loadFiles :
               oe-rel.ship-city = xoe-ord.city
               oe-rel.ship-state = xoe-ord.state
               oe-rel.ship-zip = xoe-ord.zip
+              oe-rel.frt-pay    = substring(oe-ordl.frt-pay,1,1)
+              oe-rel.fob-code   = xoe-ord.fob-code
               .
 
-            /* task 12031201 rstark
-            &IF DEFINED(useLotNo) EQ 0 &THEN
-            FIND FIRST reftable EXCLUSIVE-LOCK
-                 WHERE reftable.reftable EQ 'oe-rel.lot-no'
-                   AND reftable.company EQ STRING(oe-rel.r-no,'9999999999') NO-ERROR.
-            IF NOT AVAIL reftable THEN DO:
-               CREATE reftable.
-               ASSIGN
-                 reftable.reftable = 'oe-rel.lot-no'
-                 reftable.company = STRING(oe-rel.r-no,'9999999999').
-            END. /* if not avail */
-            reftable.code = ediLotNo.
-            &ENDIF */
 
             FOR EACH w-ordl: DELETE w-ordl. END. /* each w-ordl */
       

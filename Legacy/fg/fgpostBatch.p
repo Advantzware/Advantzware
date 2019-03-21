@@ -357,7 +357,9 @@ PROCEDURE add-rel-for-qty:
             oe-rel.sold-no      = bf-orig-oe-rel.sold-no
             oe-rel.carrier      = bf-orig-oe-rel.carrier
             oe-rel.spare-char-1 = bf-orig-oe-rel.spare-char-1
-            oe-rel.r-no         = v-nxt-r-no.
+            oe-rel.r-no         = v-nxt-r-no
+            oe-rel.frt-pay      = bf-orig-oe-rel.frt-pay
+            oe-rel.fob-code     = bf-orig-oe-rel.fob-code.
 
 
         oe-rel.rel-date = bf-orig-oe-rel.rel-date.

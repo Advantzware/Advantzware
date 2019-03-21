@@ -846,7 +846,9 @@ IF NOT AVAILABLE bf-oe-ord THEN
            oe-rel.carrier   = bf-orig-oe-rel.carrier
            oe-rel.spare-char-1 = bf-orig-oe-rel.spare-char-1
            oe-rel.r-no      = v-nxt-r-no
-           oe-rel.lot-no = bf-orig-oe-rel.lot-no.
+           oe-rel.lot-no = bf-orig-oe-rel.lot-no
+           oe-rel.frt-pay   = bf-orig-oe-rel.frt-pay
+           oe-rel.fob-code  = bf-orig-oe-rel.fob-code.
 
     
            oe-rel.rel-date = bf-orig-oe-rel.rel-date.
