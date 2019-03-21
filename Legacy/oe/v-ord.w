@@ -65,8 +65,6 @@ DEF VAR v-estord-id AS RECID EXTENT 10 NO-UNDO.
 DEF VAR v-multord AS LOG NO-UNDO.
 DEF VAR ll-ord-no-override AS LOG NO-UNDO.
 DEFINE VARIABLE lWebOrder AS LOGICAL NO-UNDO.
-DEF VAR lDateApproved AS LOG NO-UNDO.
-DEF VAR hNextWidget AS HANDLE.
 
 {ce/print4.i "new shared"}
 {ce/print42.i "new shared"}
@@ -1257,17 +1255,6 @@ END.
 ON HELP OF oe-ord.due-date IN FRAME F-Main /* Due Date */
 DO:
   {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.due-date V-table-Win
-ON ENTRY OF oe-ord.due-date IN FRAME F-Main /* Due Date # */
-DO:
-    ASSIGN 
-        lDateApproved = FALSE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5455,7 +5442,7 @@ PROCEDURE local-update-record :
      RUN valid-custcsr NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     
-     RUN valid-due-date.
+     RUN valid-due-date NO-ERROR.
      IF ERROR-STATUS:ERROR THEN
         RETURN NO-APPLY.
      {&methods/lValidateError.i YES}
@@ -6642,8 +6629,6 @@ PROCEDURE valid-due-date :
     DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
     DEFINE VARIABLE ldDate    AS DATE    NO-UNDO.
   
-    IF lDateApproved THEN RETURN.
-  
   {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
 
@@ -6653,13 +6638,7 @@ PROCEDURE valid-due-date :
             ldDate    = DATE(oe-ord.due-date:screen-value).
 
         RUN oe/dateFuture.p (INPUT cocode, INPUT ldDate, INPUT YES /* prompt */, OUTPUT lValid, OUTPUT lContinue).
-        IF lContinue THEN DO:
-            ASSIGN 
-                lDateApproved = TRUE
-                ERROR-STATUS:ERROR = FALSE.
-  {methods/lValidateError.i NO}
-            RETURN.
-        END.
+
         IF NOT lValid AND NOT lContinue THEN 
         DO:    
             APPLY "entry" TO oe-ord.ord-no.
