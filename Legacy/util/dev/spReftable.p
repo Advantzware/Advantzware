@@ -251,7 +251,7 @@ PROCEDURE ar-cashl.inv-line:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-&SCOPED-DEFINE cTable ar-invl    
+&SCOPED-DEFINE cTable ar-cashl    
 {&CommonCode}
         
     FOR EACH ar-invl NO-LOCK WHERE 
@@ -808,13 +808,13 @@ PROCEDURE e-item-vend.adders:
         e-item-vend.rec_key EQ reftable.rec_key:
         
         IF e-item-vend.underWidth EQ 0 THEN ASSIGN 
-            e-item-vend.underWidth = reftable.val[1].
+            e-item-vend.underWidth = reftable.val[1] / 10000.
         IF e-item-vend.underLength EQ 0 THEN ASSIGN 
-            e-item-vend.underWidth = reftable.val[2].
+            e-item-vend.underWidth = reftable.val[2] / 10000.
         IF e-item-vend.underWidthCost EQ 0 THEN ASSIGN 
-            e-item-vend.underWidth = reftable.val[3].
+            e-item-vend.underWidth = reftable.val[3] / 10000.
         IF e-item-vend.underLengthCost EQ 0 THEN ASSIGN 
-            e-item-vend.underWidth = reftable.val[4].
+            e-item-vend.underWidth = reftable.val[4] / 10000.
         ASSIGN  
             iProcessCount = iProcessCount + 1.
 
@@ -2253,7 +2253,7 @@ PROCEDURE ship-to.mandatory-tax:
 END PROCEDURE.
 
 
-PROCEDURE SPECSAMP
+PROCEDURE SPECSAMP:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
