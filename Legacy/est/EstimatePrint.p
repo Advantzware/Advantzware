@@ -109,6 +109,10 @@ PROCEDURE pBuildSections PRIVATE:
         NO-ERROR.
     IF AVAILABLE ttEstHeader THEN 
     DO:
+        ASSIGN 
+            ttEstHeader.dtPrintDateTime = NOW
+            ttEstHeader.cPrinter = USERID("asi")
+            . 
         IF ipcSectionStyle BEGINS "By Form" THEN 
         DO:
             FOR EACH ttEstForm NO-LOCK 

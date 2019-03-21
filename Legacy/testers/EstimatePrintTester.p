@@ -13,11 +13,21 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-
+DEFINE STREAM sImport.
 {est/ttEstPrint.i "NEW SHARED"}
-DEFINE VARIABLE gcOutputFile AS CHARACTER INIT "C:\temp\estPrintOut.txt".
+
+DEFINE VARIABLE gcOutputFile  AS CHARACTER INITIAL "C:\temp\estPrintOut.txt".
+DEFINE VARIABLE gcTestDataDir AS CHARACTER INITIAL "C:\Users\brad.vigrass\Documents\Testing\EstimateData\".
+DEFINE VARIABLE giRecKey      AS INTEGER   NO-UNDO.
+
 
 /* ********************  Preprocessor Definitions  ******************** */
+
+/* ************************  Function Prototypes ********************** */
+
+
+FUNCTION fGetNextRecKey RETURNS CHARACTER PRIVATE
+    (  ) FORWARD.
 
 
 /* ***************************  Main Block  *************************** */
@@ -29,17 +39,62 @@ RUN est\EstimatePrint.p (ROWID(ttEstHeader), gcOutputFile, "By Form with Item Su
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE BuildSummaryFromDetail:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE PARAMETER BUFFER ipbf-ttEstHeader FOR ttEstHeader.
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttEstHeader FOR ttEstHeader.
 
-FOR EACH ttEstCostDetail NO-LOCK
-    WHERE ttEstCostDetail.rec_keyHeader EQ ipbf-ttEstHeader.rec_KeyHeader 
-:
-END.
+    FOR EACH ttEstCostDetail NO-LOCK
+        WHERE ttEstCostDetail.rec_keyHeader EQ ipbf-ttEstHeader.rec_KeyHeader 
+        :
+    END.
 
+END PROCEDURE.
+
+PROCEDURE pAddRecord PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Add a record for specified type with array of data
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcData AS CHARACTER NO-UNDO EXTENT 100.
+
+    CASE ipcType:
+        WHEN "EstHeader" THEN 
+            DO:
+                CREATE ttEstHeader.
+                ASSIGN 
+                    ttEstHeader.rec_KeyHeader  = ipcData[1]
+                    ttEstHeader.cCompany       = ipcData[2]
+                    ttEstHeader.cEstNo         = ipcData[3]
+                    ttEstHeader.cEstType       = ipcData[4]
+                    ttEstHeader.dQtyMaster     = DECIMAL(ipcData[5])
+                    ttEstHeader.cCalculator    = ipcData[6]
+                    ttEstHeader.dtCalcDateTime = DATETIME(ipcData[7])
+                    .
+            END.       
+        WHEN "CostGroup" THEN 
+            DO:
+                CREATE ttEstCostGroup.
+                ASSIGN
+                    ttEstCostGroup.rec_keyCostGroup  = ipcData[1]
+                    ttEstCostGroup.iSequence         = INTEGER(ipcData[2])
+                    ttEstCostGroup.cGroupLabel       = ipcData[3]
+                    ttEstCostGroup.cGroupType        = ipcData[4]
+                    ttEstCostGroup.cGroupDescription = ipcData[5]
+                    ttEstCostGroup.iCostGroupLevel   = INTEGER(ipcData[6])
+                    .
+            END.
+        WHEN "CostGroupLevel" THEN 
+            DO:
+                CREATE ttEstCostGroupLevel.
+                ASSIGN
+                    ttEstCostGroupLevel.iCostGroupLevel            = INTEGER(ipcData[1])
+                    ttEstCostGroupLevel.cCostGroupLevelDescription = ipcData[2]
+                    .
+            END.
+    END CASE.
 END PROCEDURE.
 
 PROCEDURE pBuildTestData PRIVATE:
@@ -47,23 +102,18 @@ PROCEDURE pBuildTestData PRIVATE:
      Purpose: Builds the temptables to test with
      Notes:
     ------------------------------------------------------------------------------*/
-    CREATE ttEstHeader.
-    ASSIGN 
-        ttEstHeader.cCompany        = '001'
-        ttEstHeader.cEstNo          = "123456"
-        ttEstHeader.cCalculator     = "est"
-        ttEstHeader.cEstType        = "Single"
-        ttEstHeader.cPrinter        = "sales"
-        ttEstHeader.dQtyMaster      = 1000
-        ttEstHeader.dtCalcDateTime  = NOW - 2000000000
-        ttEstHeader.dtPrintDateTime = NOW
-        ttEstHeader.rec_KeyHeader   = "1"
-        .
+    
+    RUN pLoadData("EstHeader").
+    RUN pLoadData("CostGroupLevel").
+    RUN pLoadData("CostGroup").
+    
+    
+    FIND FIRST ttEstHeader NO-LOCK.        
     CREATE ttEstItem.
     ASSIGN 
-        ttEstItem.rec_keyItem       = "2"
+        ttEstItem.rec_keyItem       = fGetNextRecKey()
         ttEstItem.rec_keyHeader     = ttEstHeader.rec_KeyHeader
-        ttEstItem.dQtyPerSet        = 1
+        ttEstItem.dQtyPerParent     = 1
         ttEstItem.dQtyRequired      = 15000
         ttEstItem.dQtyYielded       = 15000
         ttEstItem.cItemName         = "Long Item Name"
@@ -86,7 +136,7 @@ PROCEDURE pBuildTestData PRIVATE:
         .
     CREATE ttEstForm.
     ASSIGN 
-        ttEstForm.rec_KeyForm               = "3"
+        ttEstForm.rec_KeyForm               = fGetNextRecKey()
         ttEstForm.rec_keyHeader             = ttEstHeader.rec_KeyHeader
         ttEstForm.iFormNo                   = 1
         ttEstForm.iNumOutLength             = 1
@@ -116,7 +166,7 @@ PROCEDURE pBuildTestData PRIVATE:
         .
     CREATE ttEstBlank.
     ASSIGN 
-        ttEstBlank.rec_keyBlank                   = "4"
+        ttEstBlank.rec_keyBlank                   = fGetNextRecKey()
         ttEstBlank.rec_keyForm                    = ttEstForm.rec_KeyForm
         ttEstBlank.rec_keyItem                    = ttEstItem.rec_keyItem
         ttEstBlank.iBlankNo                       = 1
@@ -148,12 +198,14 @@ PROCEDURE pBuildTestData PRIVATE:
         ttEstBlank.dWeight    = ttEstForm.dBasisWeightInLbsPerMSF * ttEstBlank.dBlankArea * 144 / 1000 
         ttEstBlank.cUOMWeight = "LB/M"
         .
+    
     FIND FIRST ITEM NO-LOCK 
         WHERE item.company EQ  ttEstHeader.cCompany
         AND item.i-no EQ "200 C"
         NO-ERROR.
     CREATE ttEstMaterial.
     ASSIGN 
+        ttEstMaterial.rec_keyMaterial      = fGetNextRecKey()
         ttEstMaterial.rec_keyForm          = ttEstForm.rec_KeyForm
         ttEstMaterial.rec_keyBlank         = ttEstBlank.rec_keyBlank
         ttEstMaterial.cItemID              = item.i-no 
@@ -180,6 +232,7 @@ PROCEDURE pBuildTestData PRIVATE:
         NO-ERROR.
     CREATE ttEstMaterial.
     ASSIGN 
+        ttEstMaterial.rec_keyMaterial      = fGetNextRecKey()
         ttEstMaterial.rec_keyForm          = ttEstForm.rec_KeyForm
         ttEstMaterial.rec_keyBlank         = ttEstBlank.rec_keyBlank
         ttEstMaterial.cItemID              = item.i-no 
@@ -198,3 +251,47 @@ PROCEDURE pBuildTestData PRIVATE:
         ttEstMaterial.dCostTotal           = ttEstMaterial.dCostTotalNoWaste + ttEstMaterial.dCostTotalWasteMR + ttEstMaterial.dCostTotalWasteRun
         .
 END PROCEDURE.
+
+
+PROCEDURE pLoadData PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Loads EstHeader table from Excel
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cImportFile AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE iCount      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cData       AS CHARACTER NO-UNDO EXTENT 100 .
+    
+    cImportFile = gcTestDataDir + ipcType + ".csv".
+    IF SEARCH(cImportFile) NE ? THEN 
+    DO:
+        INPUT STREAM sImport FROM VALUE(cImportFile).
+        REPEAT:
+            iCount = iCount + 1.
+            IMPORT STREAM sImport DELIMITER ','
+                cData
+                .
+            IF iCount GT 1 AND cData[1] NE "" THEN 
+                RUN pAddRecord(ipcType, cData).
+                 
+        END.
+    END.
+    OUTPUT STREAM sImport CLOSE.
+END PROCEDURE.
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fGetNextRecKey RETURNS CHARACTER PRIVATE
+    (  ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/	
+
+    giRecKey = giRecKey + 1.
+    RETURN STRING(giRecKey).
+
+
+		
+END FUNCTION.

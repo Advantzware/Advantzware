@@ -29,7 +29,7 @@ DEFINE {1} TEMP-TABLE ttEstItem
     FIELD rec_keyItem AS CHARACTER 
     FIELD rec_keyItemParent AS CHARACTER /*Link to Set*/
     FIELD rec_keyHeader AS CHARACTER /*Link to Header*/
-    FIELD dQtyPerSet AS DECIMAL
+    FIELD dQtyPerParent AS DECIMAL
     FIELD dQtyRequired AS DECIMAL
     FIELD dQtyYielded AS DECIMAL
     FIELD cItemName AS CHARACTER 
@@ -165,30 +165,37 @@ DEFINE {1} TEMP-TABLE ttEstOperations
 
 DEFINE {1} TEMP-TABLE ttEstCostDetail
     FIELD rec_keyCostDetail AS CHARACTER
-    FIELD rec_keyCostCenter AS CHARACTER 
+    FIELD rec_keyCostCategory AS CHARACTER 
     FIELD rec_keyHeader AS CHARACTER 
-    FIELD rec_keyOperation AS CHARACTER 
-    FIELD rec_keyMaterial AS CHARACTER
-    FIELD rec_keyMisc AS CHARACTER
+    FIELD rec_keySource AS CHARACTER 
+    FIELD cSourceType AS CHARACTER
     FIELD cDetailDescription AS CHARACTER 
     FIELD dCost AS DECIMAL
     FIELD dMarkup AS DECIMAL 
     .
 
-DEFINE {1} TEMP-TABLE ttEstCostCenter
-    FIELD rec_keyCostCenter AS CHARACTER 
-    FIELD cCenterDescription AS CHARACTER 
-    FIELD cCenterLabel AS CHARACTER
-    FIELD iSequence AS INTEGER
-    FIELD cCategory AS INTEGER
-    FIELD lIncludeInStandardCost AS LOGICAL 
-    FIELD lIncludeInCost AS LOGICAL 
-    FIELD lIncludeInGrossCost AS LOGICAL 
-    FIELD lIncludeInNetCost AS LOGICAL
+DEFINE {1} TEMP-TABLE ttEstCostCategory
+    FIELD rec_keyCostCategory AS CHARACTER
+    FIELD rec_keyCostGroup AS CHARACTER 
+    FIELD cCategoryLabel AS CHARACTER
+    FIELD cCategoryDescription AS CHARACTER 
+    FIELD cIncludeIn AS CHARACTER 
+    FIELD cBasis AS CHARACTER 
+    
     .
     
-    
-    
+DEFINE {1} TEMP-TABLE ttEstCostGroup
+    FIELD rec_keyCostGroup AS CHARACTER 
+    FIELD cGroupDescription AS CHARACTER 
+    FIELD cGroupLabel AS CHARACTER 
+    FIELD iSequence AS INTEGER 
+    FIELD cGroupType AS CHARACTER
+    FIELD iCostGroupLevel AS INTEGER
+    .
+DEFINE {1} TEMP-TABLE ttEstCostGroupLevel
+    FIELD iCostGroupLevel AS INTEGER 
+    FIELD cCostGroupLevelDescription AS CHARACTER 
+    .    
 /* ********************  Preprocessor Definitions  ******************** */
 
 
