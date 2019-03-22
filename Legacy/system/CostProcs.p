@@ -385,13 +385,19 @@ PROCEDURE pSetBuffersPO PRIVATE:
             AND opbf-po-ordl.line EQ ipiPOLine
             AND opbf-po-ordl.i-no EQ ipcItemID
             NO-ERROR.
+        IF NOT AVAILABLE opbf-po-ordl THEN
+            FIND FIRST opbf-po-ordl NO-LOCK
+                WHERE opbf-po-ordl.company EQ opbf-po-ord.company
+                AND opbf-po-ordl.po-no EQ opbf-po-ord.po-no
+                AND opbf-po-ordl.i-no EQ ipcItemID
+                NO-ERROR.
     /*Po-ordl.item-type = NO-> FG, YES->RM*/
     IF AVAILABLE opbf-po-ordl AND opbf-po-ordl.item-type THEN 
         FIND FIRST opbf-item NO-LOCK 
             WHERE opbf-item.company EQ opbf-po-ordl.company
             AND opbf-item.i-no EQ opbf-po-ordl.i-no
             NO-ERROR.
-    ELSE 
+    ELSE IF AVAILABLE opbf-po-ordl THEN 
         FIND FIRST opbf-itemfg NO-LOCK 
             WHERE opbf-itemfg.company EQ opbf-po-ordl.company
             AND opbf-itemfg.i-no EQ opbf-po-ordl.i-no
