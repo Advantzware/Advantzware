@@ -57,12 +57,14 @@ DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
-ASSIGN cTextListToSelect = "RM Item#,Description,Tag#,Lineal Feet,Totals Rolls" 
+ASSIGN cTextListToSelect = "RM Item#,Description,Tag#,Lineal Feet,Totals Rolls,Roll Weight," +
+                           "Roll Width,Wt/MSF"
 
-       cFieldListToSelect = "rm-item,desc,tag,lin-ft,tot-rol" 
+       cFieldListToSelect = "rm-item,desc,tag,lin-ft,tot-rol,rol-wt," + 
+                            "rol-wid,wt-msf"
 
-       cFieldLength = "10,25,20,12,12"
-       cFieldType = "c,c,c,i,i" 
+       cFieldLength = "10,25,20,12,12,11," + "10,8"
+       cFieldType = "c,c,c,i,i,i," + "i,i" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1396,6 +1398,8 @@ DEF VAR v-roll-tot AS INT NO-UNDO.
 def var v-first as log extent 3.
 DEF VAR v-mattype AS cha NO-UNDO.
 DEF VAR v-msf-qty AS DEC NO-UNDO.
+DEFINE VARIABLE dLinerFeet AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dWeight AS DECIMAL NO-UNDO .
 
 DEF VAR cDisplay AS cha NO-UNDO.
 DEF VAR cExcelDisplay AS cha NO-UNDO.
@@ -1550,6 +1554,17 @@ for each rm-rcpth
 
       down with frame itemx.*/
 
+      IF item.cons-uom EQ "LF" THEN
+            dWeight = ((( ITEM.r-wid / 12 ) *  ITEM.s-len ) / 1000 ) * ITEM.basis-w .
+        ELSE
+            dWeight = rm-bin.qty .
+
+       IF item.cons-uom EQ "LB" THEN
+          dLinerFeet = ((dWeight / ITEM.basis-w) * 1000 ) / (ITEM.r-wid / 12) .
+      ELSE
+          dLinerFeet = rm-bin.qty .
+     
+
          ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -1562,8 +1577,11 @@ for each rm-rcpth
                          WHEN "rm-item"    THEN cVarValue = IF FIRST-OF(rm-bin.i-no) THEN string(rm-bin.i-no,"x(10)") ELSE "" .
                          WHEN "desc"   THEN cVarValue = IF FIRST-OF(rm-bin.i-no) THEN string(item.i-name,"x(25)") ELSE "".
                          WHEN "tag"   THEN cVarValue = STRING(rm-bin.tag,"x(20)").
-                         WHEN "lin-ft"  THEN cVarValue = STRING(rm-bin.qty,"->>>>>>>9.99<<") .
+                         WHEN "lin-ft"  THEN cVarValue = STRING(dLinerFeet,"->>>>>>>9.99<<") .
                          WHEN "tot-rol"   THEN cVarValue = IF LAST-OF(rm-bin.i-no) THEN STRING(v-roll-qty,"->>>,>>>,>>9") ELSE "" .
+                         WHEN "rol-wt"   THEN cVarValue = STRING(dWeight,"->>,>>9.99").
+                         WHEN "rol-wid"  THEN cVarValue = STRING(ITEM.s-wid,"->>,>>9.99") .
+                         WHEN "wt-msf"   THEN cVarValue = string(ITEM.basis-w,">>>>9.99")  .
 
                     END CASE.
 
@@ -1605,6 +1623,9 @@ for each rm-rcpth
                          WHEN "tag"   THEN cVarValue = "".
                          WHEN "lin-ft"  THEN cVarValue = "" /*STRING(rm-bin.qty,"->>>>>9.99<<")*/ .
                          WHEN "tot-rol"   THEN cVarValue = STRING(v-roll-tot,"->>,>>>,>>9") .
+                         WHEN "rol-wt"   THEN cVarValue = "".
+                         WHEN "rol-wid"  THEN cVarValue = "" .
+                         WHEN "wt-msf"   THEN cVarValue = ""  .
 
                     END CASE.
 
