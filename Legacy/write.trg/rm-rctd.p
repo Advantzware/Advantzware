@@ -21,7 +21,7 @@ END.
 
 {&TABLENAME}.po-no = TRIM(STRING(INT({&TABLENAME}.po-no),">>>>>>>>>>")).
 
-IF {&TABLENAME}.job-no EQ "" THEN {&TABLENAME}.s-num = 0.
+/*IF {&TABLENAME}.job-no EQ "" THEN {&TABLENAME}.s-num = 0.*/ /* Ticket - 46557*/
 
 IF {&TABLENAME}.pur-uom EQ "EA" THEN DO:
   {sys/inc/roundup.i {&TABLENAME}.qty}
