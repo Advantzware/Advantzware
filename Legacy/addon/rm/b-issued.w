@@ -777,6 +777,9 @@ DO:
        END.
     END.
 
+    IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" AND
+        INTEGER(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
+            rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name} = "1" .
 
     /* If "scan tag only" is set, then attempt to auto-save and auto-add. */
     IF adm-new-record AND v-scanTagOnly = YES THEN DO:
