@@ -1498,23 +1498,7 @@ SESSION:SET-WAIT-STATE("general").
     display "" with frame r-top.
 
     IF tb_excel THEN PUT STREAM excel UNFORMATTED excelheader SKIP.
-/* 
-for each rm-rcpth
-         where rm-rcpth.company                 eq cocode
-           and rm-rcpth.i-no                    ge v-fitem
-           and rm-rcpth.i-no                    le v-titem
-           and rm-rcpth.trans-date              ge v-fdate
-           and rm-rcpth.trans-date              le v-tdate
-           and index(caps(v-type),rm-rcpth.rita-code) gt 0
-         use-index i-no no-lock,
 
-         each rm-rdtlh
-         where rm-rdtlh.r-no      eq rm-rcpth.r-no
-           and rm-rdtlh.rita-code eq rm-rcpth.rita-code
-           and rm-rdtlh.loc                     ge v-floc
-           and rm-rdtlh.loc                     le v-tloc
-         no-lock,
- */
  FOR EACH rm-bin WHERE rm-bin.company = cocode
                    AND rm-bin.i-no GE v-fitem
                    AND rm-bin.i-no LE v-titem
@@ -1528,41 +1512,20 @@ for each rm-rcpth
          break /*by item.procat*/  BY rm-bin.i-no BY rm-bin.tag :
 
      {custom/statusMsg.i "'Processing Item # ' + string(item.i-no)"} 
-
-      /*RUN calc-msf (OUTPUT v-msf-qty).
-      ACCUMULATE v-msf-qty (TOTAL BY ITEM.procat).
-      */
+     
       IF rm-bin.tag <> "" THEN ASSIGN v-roll-qty = v-roll-qty + 1.
                                       v-roll-tot = v-roll-tot + 1.
 
-     /* display /*item.procat*/
-                 rm-bin.i-no LABEL "RM Item#"
-                             WHEN FIRST-OF(rm-bin.i-no)
-                 item.i-name LABEL "Description"
-                             WHEN FIRST-OF(rm-bin.i-no)
-                 rm-bin.tag  FORMAT "X(20)" LABEL "Tag#"
-                 /*v-job-no*/
-                 rm-bin.qty LABEL "Lineal Feet"
-                /* v-msf-qty LABEL "MSF"
-                 ITEM.basis-w LABEL "Weight"
-                 rm-rdtlh.loc
-                 rm-rdtlh.loc-bin                 
-                 rm-rdtlh.cost              
-                 v-value*/
-                 v-roll-qty WHEN LAST-OF(rm-bin.i-no) LABEL "Total Rolls"
-          with frame itemx.
-
-      down with frame itemx.*/
-
-      IF item.cons-uom EQ "LF" THEN
-            dWeight = ((( ITEM.r-wid / 12 ) *  ITEM.s-len ) / 1000 ) * ITEM.basis-w .
-        ELSE
-            dWeight = rm-bin.qty .
-
-       IF item.cons-uom EQ "LB" THEN
-          dLinerFeet = ((dWeight / ITEM.basis-w) * 1000 ) / (ITEM.r-wid / 12) .
-      ELSE
-          dLinerFeet = rm-bin.qty .
+      dLinerFeet = rm-bin.qty . 
+      IF item.cons-uom NE "LF" THEN
+          RUN rm/convquom.p(item.cons-uom, "LF",
+                            ITEM.basis-w, ITEM.s-len,(IF item.r-wid ne 0 then item.r-wid else item.s-wid), ITEM.s-dep,
+                            dLinerFeet, OUTPUT dLinerFeet).
+      dWeight = rm-bin.qty . 
+      IF item.cons-uom NE "LB" THEN
+          RUN rm/convquom.p(item.cons-uom, "LB",
+                            ITEM.basis-w, ITEM.s-len, (IF item.r-wid ne 0 then item.r-wid else item.s-wid), ITEM.s-dep,
+                            dWeight, OUTPUT dWeight).
      
 
          ASSIGN cDisplay = ""
@@ -1605,10 +1568,7 @@ for each rm-rcpth
       end.
 
       if last(rm-bin.i-no) then do:
-
-        /*display "GRAND TOTALS" @ rm-rcpth.i-no
-                v-roll-tot     @ v-roll-qty                
-              with frame itemx.*/
+        
           ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
