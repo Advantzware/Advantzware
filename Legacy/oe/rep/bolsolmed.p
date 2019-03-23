@@ -374,21 +374,12 @@ for each xxreport where xxreport.term-id eq v-term-id,
               w2.cas-cnt = oe-boll.partial
               w2.cases   = w2.cases + 1.
       END.
-
-      find first oe-ordl where oe-ordl.company eq cocode
-          and oe-ordl.ord-no  eq int(report.key-02)
-          and oe-ordl.i-no    eq report.key-01
-          no-lock no-error.
-      v-job-no = "".
-
-      if avail oe-ordl and oe-ordl.job-no ne "" then
-          v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-          trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
-
-      ASSIGN v-ship-qty = v-ship-qty + oe-boll.qty
-          v-weight   = v-weight + oe-boll.weight
-          v-ord-qty = v-ord-qty + oe-ordl.qty.
-      
+    
+       FIND first oe-ordl where oe-ordl.company eq cocode
+           and oe-ordl.ord-no  eq int(report.key-02)
+           and oe-ordl.i-no    eq report.key-01
+           no-lock no-error.
+     
       IF lv-bolfmt-int = 1 THEN DO:  /* show summary per item */
           IF LAST-OF(report.key-02) THEN DO:
               i = 0.
@@ -399,26 +390,9 @@ for each xxreport where xxreport.term-id eq v-term-id,
                   IF LAST(w2.cases * w2.cas-cnt) THEN DO:
                       IF FIRST(w2.cases * w2.cas-cnt) THEN DO:
                           ln-cnt = ln-cnt + 1 .
+                          RUN PrintCountNoteLine .
                       END.
-
-                      ln-cnt = ln-cnt + 2 .
-
-                      IF v-print-dept THEN DO:
-                          FOR EACH notes WHERE
-                              notes.rec_key EQ oe-ordl.rec_key AND
-                              CAN-DO(v-depts,notes.note_code)
-                              NO-LOCK
-                              BY notes.note_code:
-
-                              v-tmp-lines = LENGTH(NOTES.NOTE_TEXT) / 80.
-                              {SYS/INC/ROUNDUP.I v-tmp-lines}
-
-                                  IF notes.note_text <> "" THEN
-                                      DO i = 1 TO v-tmp-lines:
-                                      ln-cnt = ln-cnt + 1 .
-                                  END.
-                          END.
-                      END.
+                      ln-cnt = ln-cnt + 2  .
                   END.
                   DELETE w2.
               END.
@@ -429,22 +403,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
       /* end of summary mods */
       ELSE DO:
           ln-cnt = ln-cnt + 5 .
-
-          IF v-print-dept THEN DO:
-              FOR EACH notes WHERE
-                  notes.rec_key EQ oe-ordl.rec_key AND
-                  CAN-DO(v-depts,notes.note_code)
-                  NO-LOCK
-                  BY notes.note_code:
-
-                  v-tmp-lines = LENGTH(NOTES.NOTE_TEXT) / 80.
-                  {SYS/INC/ROUNDUP.I v-tmp-lines}
-                      IF notes.note_text <> "" THEN
-                          DO i = 1 TO v-tmp-lines:
-                          ln-cnt = ln-cnt + 1 .
-                      END.
-              END.
-          END.
+          RUN PrintCountNoteLine .
       END.
       if v-print-components then
           for each fg-set
@@ -580,6 +539,25 @@ PROCEDURE PrintBarTag:
       PUT UNFORMATTED cBarTag.
       iBarCount = 0.
    END.
+END PROCEDURE.
+
+PROCEDURE PrintCountNoteLine:
+
+    IF v-print-dept THEN DO:
+        FOR EACH notes WHERE
+            notes.rec_key EQ oe-ordl.rec_key AND
+            CAN-DO(v-depts,notes.note_code)
+            NO-LOCK
+            BY notes.note_code:
+            v-tmp-lines = LENGTH(NOTES.NOTE_TEXT) / 80.
+            {SYS/INC/ROUNDUP.I v-tmp-lines}
+                IF notes.note_text <> "" THEN
+                    DO i = 1 TO v-tmp-lines:
+                    ln-cnt = ln-cnt + 1 .
+                END.
+        END.
+    END.
+
 END PROCEDURE.
 
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */
