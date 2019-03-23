@@ -1509,39 +1509,24 @@ END.
                   trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99")
        v-value  = rm-rdtlh.cost * rm-rdtlh.qty .
        
-        IF item.cons-uom EQ "LF" THEN
-            r-weight = ((( ITEM.r-wid / 12 ) *  ITEM.s-len ) / 1000 ) * ITEM.basis-w .
-        ELSE
-            r-weight = rm-rdtlh.qty .
-
       if v-job-no begins "-" then v-job-no = "".
       RUN calc-msf (OUTPUT v-msf-qty).
-
-      IF item.cons-uom EQ "LB" THEN
-          dLinerFeet = ((r-weight / ITEM.basis-w) * 1000 ) / (ITEM.r-wid / 12) .
-      ELSE
-          dLinerFeet = rm-rdtlh.qty . 
+     
+      dLinerFeet = rm-rdtlh.qty . 
+      IF item.cons-uom NE "LF" THEN
+          RUN rm/convquom.p(item.cons-uom, "LF",
+                            ITEM.basis-w, ITEM.s-len,(IF item.r-wid ne 0 then item.r-wid else item.s-wid), ITEM.s-dep,
+                            dLinerFeet, OUTPUT dLinerFeet).
+      r-weight = rm-rdtlh.qty . 
+      IF item.cons-uom NE "LB" THEN
+          RUN rm/convquom.p(item.cons-uom, "LB",
+                            ITEM.basis-w, ITEM.s-len, (IF item.r-wid ne 0 then item.r-wid else item.s-wid), ITEM.s-dep,
+                            r-weight, OUTPUT r-weight).
 
 
       ACCUMULATE v-msf-qty (TOTAL BY rm-rcpth.i-no).
       ACCUMULATE v-msf-qty (TOTAL BY ITEM.procat).
-
-     /* IF rd-summary = "D" THEN
-         display item.procat
-                 rm-rcpth.i-no
-                 rm-rcpth.i-name
-                 rm-rdtlh.tag FORMAT "X(20)"
-                 /*v-job-no*/
-                 rm-rdtlh.qty LABEL "Lineal Feet"
-                 v-msf-qty LABEL "MSF"
-                 ITEM.basis-w LABEL "Weight"
-              /*   rm-rdtlh.loc
-                 rm-rdtlh.loc-bin                 
-                 rm-rdtlh.cost              */
-                 v-value LABEL "Cost Value"
-          with frame itemx.
-      down with frame itemx. */
-
+    
       assign
        v-qty[1] = v-qty[1] + dLinerFeet
        v-val[1] = v-val[1] + v-value
