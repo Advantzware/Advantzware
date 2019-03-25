@@ -776,8 +776,7 @@ DO:
           RETURN NO-APPLY.
        END.
     END.
-
-
+    
     /* If "scan tag only" is set, then attempt to auto-save and auto-add. */
     IF adm-new-record AND v-scanTagOnly = YES THEN DO:
 
@@ -1108,7 +1107,8 @@ END.
 ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
 DO:
    IF LASTKEY NE -1 THEN DO:
-      IF INTEGER(SELF:SCREEN-VALUE) EQ 0 THEN DO:
+      IF INTEGER(SELF:SCREEN-VALUE) EQ 0 AND 
+          rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
         MESSAGE "Sheet # cannot be 0. Press F1 for help"
           VIEW-AS ALERT-BOX INFO BUTTONS OK.
         RETURN NO-APPLY.
@@ -3371,8 +3371,9 @@ PROCEDURE valid-s-num :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DO WITH FRAME {&FRAME-NAME}:
-    IF INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) EQ 0 THEN DO:
+  DO WITH FRAME {&FRAME-NAME}:  
+    IF INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) EQ 0 AND 
+        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:
       MESSAGE "Sheet # may not be 0..." VIEW-AS ALERT-BOX.
       APPLY "entry" TO rm-rctd.s-num IN BROWSE {&BROWSE-NAME}.
       RETURN ERROR.
