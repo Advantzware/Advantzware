@@ -434,12 +434,19 @@ FOR each report
 
          /* br task 12081002 */
          
-         RUN addLines(4).
+         CASE svi-print-item:
+            WHEN 1 THEN ASSIGN vc-print-item = ar-invl.i-no.
+            WHEN 2 THEN ASSIGN vc-print-item = ar-invl.part-no.
+                OTHERWISE ASSIGN vc-print-item = ar-invl.part-no.
+          END.
+
+         RUN addLines(4).    
+
          PUT 
            SPACE(1)
              /*v-po-no         FORMAT "x(15)" */
              /* br task 12081002 */
-             ar-invl.part-no FORMAT "x(15)" /* ar-invl.part-no FORMAT "x(15)" */
+             vc-print-item FORMAT "x(15)" /* ar-invl.part-no FORMAT "x(15)" */
            SPACE(1)
              ar-invl.i-no  FORMAT "x(30)" 
            SPACE(1)
