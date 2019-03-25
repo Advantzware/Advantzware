@@ -79,7 +79,7 @@ for each report where report.term-id eq v-term-id,
        no-lock no-error.
 
   IF v-printline >= 40 THEN DO:
-  PUT "<R63><C65>Page:" string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)".
+  PUT "<R63><C65>Page:" string(PAGE-NUM - lv-pg-num,">>9") + " of " + STRING(lv-tot-pg)  FORM "x(20)".
      v-printline = 0.
      PAGE {1}.
      {oe/rep/bolsolmed2.i}
@@ -111,7 +111,7 @@ for each report where report.term-id eq v-term-id,
         if i eq 4 then v-part-dscr = oe-ordl.part-dscr2.
              
         IF v-printline >= 42 THEN DO:
-        PUT "<R63><C65>Page:" string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)".
+        PUT "<R63><C65>Page:" string(PAGE-NUM - lv-pg-num,">>9") + " of " + STRING(lv-tot-pg)  FORM "x(20)".
           v-printline = 0.
           PAGE {1}.
           {oe/rep/bolsolmed2.i}
@@ -176,7 +176,7 @@ for each report where report.term-id eq v-term-id,
                     DO i = 1 TO v-tmp-lines:
 
                        IF v-printline >= 42 THEN DO:
-                       PUT "<R63><C65>Page:" string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)".
+                       PUT "<R63><C65>Page:" string(PAGE-NUM - lv-pg-num,">>9") + " of " + STRING(lv-tot-pg)  FORM "x(20)".
                           v-printline = 0.
                           PAGE {1}.
                           {oe/rep/bolsolmed2.i}
@@ -238,7 +238,7 @@ for each report where report.term-id eq v-term-id,
             IF notes.note_text <> "" THEN
                DO i = 1 TO v-tmp-lines:
                   IF v-printline >= 42 THEN DO:
-                  PUT "<R63><C65>Page:" string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)".
+                  PUT "<R63><C65>Page:" string(PAGE-NUM - lv-pg-num,">>9") + " of " + STRING(lv-tot-pg)  FORM "x(20)".
                      v-printline = 0.
                      PAGE {1}.
                      {oe/rep/bolsolmed2.i}
@@ -272,7 +272,7 @@ for each report where report.term-id eq v-term-id,
     {sys/inc/part-qty.i v-part-qty fg-set}
 
        IF v-printline >= 42 THEN DO:
-       PUT "<R63><C65>Page:" string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)".
+       PUT "<R63><C65>Page:" string(PAGE-NUM - lv-pg-num,">>9") + " of " + STRING(lv-tot-pg)  FORM "x(20)".
           v-printline = 0.
           PAGE {1}.
           {oe/rep/bolsolmed2.i}
