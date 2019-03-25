@@ -858,7 +858,7 @@ FIND FIRST sys-ctrl WHERE sys-ctrl.company = g_company AND
          sys-ctrl.log-fld = YES
          sys-ctrl.date-fld = 01/01/2011.
    END.
-   IF AVAIL sys-ctrl THEN
+   IF AVAIL sys-ctrl AND sys-ctrl.date-fld NE ? THEN
         fi_date = sys-ctrl.date-fld.
    ELSE
       fi_date = date("01/01/" + SUBSTRING(string(TODAY),7,11)).
