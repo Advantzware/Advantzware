@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v9r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
@@ -368,10 +368,10 @@ PROCEDURE calc-total :
             w-ord.total-unit = w-ord.pcs * w-ord.bundle /*+ w-ord.partial*/ 
            /*w-ord.partial = w-ord.ord-qty - w-ord.total-unit */ .
             IF w-ord.rel-qty NE 0 THEN
-                w-ord.total-tags = ((w-ord.rel-qty / (w-ord.pcs * w-ord.bundle)) + .49) 
+                w-ord.total-tags = ((w-ord.rel-qty / w-ord.pcs) + .49) 
                                   + IF w-ord.partial > 0 THEN 1 ELSE 0.
             ELSE
-                w-ord.total-tags = ((w-ord.ord-qty / (w-ord.pcs * w-ord.bundle)) + .49) 
+                w-ord.total-tags = ((w-ord.ord-qty / w-ord.pcs) + .49) 
                                   + IF w-ord.partial > 0 THEN 1 ELSE 0.
 
       /*IF int(w-ord.partial:SCREEN-VALUE IN BROWSE {&browse-name}) < 0 THEN w-ord.partial = 0.
