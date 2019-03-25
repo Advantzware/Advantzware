@@ -1,5 +1,5 @@
 /***************************************************************************/
-/* PROGRAM: cerep/jobacc2.p                                                */
+/* PROGRAM: cerep/jobcard2.p                                                */
 /***************************************************************************/
  
 DEFINE INPUT PARAMETER v-format like sys-ctrl.char-fld.
@@ -7,6 +7,8 @@ DEFINE INPUT PARAMETER v-format like sys-ctrl.char-fld.
 {sys/inc/var.i shared}
 {sys/form/s-top.f}
 {jcrep/r-ticket.i "shared"}
+{UDF/ttUDF.i}
+{UDF/fUDFGroup.i "itemfg."}
 
 def new shared var save_id as recid.
 def new shared var v-today as date init today.
@@ -1384,8 +1386,8 @@ END FUNCTION.
                                        and xjob-mat.job-no  eq job-hdr.job-no
                                        and xjob-mat.job-no2 eq job-hdr.job-no2
                                        AND xjob-mat.frm = job-hdr.frm
-                                       /*AND (xjob-mat.blank-no = job-hdr.blank-no
-                                            OR xjob-mat.blank-no = 0)*/  NO-LOCK,
+                    /*AND (xjob-mat.blank-no = job-hdr.blank-no
+                         OR xjob-mat.blank-no = 0)*/  NO-LOCK,
                     first ITEM WHERE ITEM.company = cocode AND
                                      ITEM.i-no = xjob-mat.rm-i-no AND
                                      ITEM.mat-type = SUBSTRING(wrk-op.dept,1,1) 
@@ -1423,7 +1425,7 @@ END FUNCTION.
                        wrk-op.mr-waste[job-hdr.frm]   SPACE(5)
                        wrk-op.mr[job-hdr.frm]         SPACE(5)
                        wrk-op.speed[job-hdr.frm]      SPACE(5)
-                       /*wrk-op.spoil[job-hdr.frm]*/ v-spoil FORM ">>,>>9"     SPACE(5)
+                        /*wrk-op.spoil[job-hdr.frm]*/ v-spoil FORM ">>,>>9"     SPACE(5)
                        wrk-op.num-sh[job-hdr.frm] SPACE(3)
                        /*v-output */
                       /* v-mat-for-mach FORM "x(60)"*/
@@ -1437,7 +1439,7 @@ END FUNCTION.
                        wrk-op.mr-waste[job-hdr.frm]   SPACE(5)
                        wrk-op.mr[job-hdr.frm]         SPACE(5)
                        wrk-op.run-hr[job-hdr.frm]     SPACE(5)
-                       /*wrk-op.spoil[job-hdr.frm]*/ v-spoil   FORM ">>,>>9"   SPACE(5)
+                        /*wrk-op.spoil[job-hdr.frm]*/ v-spoil   FORM ">>,>>9"   SPACE(5)
                        wrk-op.num-sh[job-hdr.frm] SPACE(3)
                        /*v-output */
                        /*v-mat-for-mach FORM "x(60)"    */
@@ -1449,10 +1451,10 @@ END FUNCTION.
             END.
             ELSE 
               PUT wrk-op.m-dscr   SPACE(5)
-                     /* wrk-op.mr-waste[job-hdr.frm]   */ SPACE(10)
-                      /*wrk-op.mr[job-hdr.frm] >>9.99 */   SPACE(11)
-                      /*wrk-op.speed[job-hdr.frm] >>>>9*/      SPACE(10)
-                      /*wrk-op.spoil[job-hdr.frm]   >>9.99*/   SPACE(12)
+                /* wrk-op.mr-waste[job-hdr.frm]   */ SPACE(10)
+                /*wrk-op.mr[job-hdr.frm] >>9.99 */   SPACE(11)
+                /*wrk-op.speed[job-hdr.frm] >>>>9*/      SPACE(10)
+                /*wrk-op.spoil[job-hdr.frm]   >>9.99*/   SPACE(12)
                      /* v-mat-for-mach FORM "x(60)" */
                       "<R-1><C67><FROM><R+1><LINE><||3>" /*RDR*/
                       "<R-1><C87><FROM><R+1><LINE><||3>" /*RDR*/
@@ -1564,8 +1566,28 @@ END FUNCTION.
           END.
         END.
 
-        PUT "" SKIP .
-          v-ink-pass2  = NO .
+        IF cUDFGroup NE ? THEN DO:
+            FIND FIRST itemfg NO-LOCK
+                 WHERE itemfg.company EQ job-hdr.company
+                   AND itemfg.i-no EQ job-hdr.i-no
+                 NO-ERROR.
+            IF AVAILABLE itemfg THEN DO:
+                IF CAN-FIND(FIRST mfvalues
+                            WHERE mfvalues.rec_key EQ itemfg.rec_key) THEN
+                RUN UDF/UDF.p (cUDFGroup, itemfg.rec_key, OUTPUT TABLE ttUDF).
+                PUT UNFORMATTED "GRN:".
+                FOR EACH ttUDF WHERE ttUDF.udfOrder GT 0:
+                    PUT UNFORMATTED " " ttUDF.udfValue.
+                END. /* each ttudf */
+                PUT "" SKIP.
+            END. /* if avail */
+            ELSE /* no fg item */
+            PUT "" SKIP.
+        END. /* cUDFGroup */
+        ELSE /* no udf group */
+        PUT "" SKIP.
+
+        v-ink-pass2  = NO .
         /* task 01071410  */
          FOR EACH wrk-ink WHERE wrk-ink.form-no EQ job-hdr.frm NO-LOCK:
              IF wrk-ink.i-pass = 2 THEN DO:
@@ -1574,47 +1596,47 @@ END FUNCTION.
              END.
          END.
 
-         IF v-ink-pass2  THEN DO:
+        IF v-ink-pass2  THEN DO:
             /* PRINTING NOTES	*/
-             PUT v-fill   /*RDR*/
-                 "<C1><B>PRINTING</B>" "<C43>LBS  F/B"  "<C93>LBS  F/B"  SKIP. /* 02/02/07 rdb SKIP(1). */
+            PUT v-fill   /*RDR*/
+                "<C1><B>PRINTING</B>" "<C43>LBS  F/B"  "<C93>LBS  F/B"  SKIP. /* 02/02/07 rdb SKIP(1). */
 
-             PUT "<#15><FROM><R+5><C105><RECT><||3>"
-                 "<=15><C50><FROM><R+5><C50><LINE><||4>" 
-                 "<=15><R+1><C1><FROM><C105><LINE><||4> "
-                 "<=15><R+2><C1><FROM><C105><LINE><||4> "
-                 "<=15><R+3><C1><FROM><C105><LINE><||4> "
-                 "<=15><R+4><C1><FROM><C105><LINE><||4> "
-                 " <=15>".
+            PUT "<#15><FROM><R+5><C105><RECT><||3>"
+                "<=15><C50><FROM><R+5><C50><LINE><||4>" 
+                "<=15><R+1><C1><FROM><C105><LINE><||4> "
+                "<=15><R+2><C1><FROM><C105><LINE><||4> "
+                "<=15><R+3><C1><FROM><C105><LINE><||4> "
+                "<=15><R+4><C1><FROM><C105><LINE><||4> "
+                " <=15>".
 
-             v-num-of-inks = 0. /* 1 thru 8 */
+            v-num-of-inks = 0. /* 1 thru 8 */
 
-             DO j = 1 TO 5:
-                 DO i = 0 TO 1:
-                     FIND FIRST wrk-ink
-                         WHERE wrk-ink.form-no EQ job-hdr.frm
-                         AND wrk-ink.i-pass EQ 2
-                         AND wrk-ink.i-unit  EQ (j + (i * 5))
-                         NO-ERROR.
+            DO j = 1 TO 5:
+                DO i = 0 TO 1:
+                    FIND FIRST wrk-ink
+                        WHERE wrk-ink.form-no EQ job-hdr.frm
+                        AND wrk-ink.i-pass EQ 2
+                        AND wrk-ink.i-unit  EQ (j + (i * 5))
+                        NO-ERROR.
                          
-                     v-ink1[1] = "".
-                     IF AVAIL(wrk-ink) THEN
-                         v-ink1[1] = IF AVAIL wrk-ink THEN
-                             STRING(wrk-ink.i-code,"X(15)") + " " + 
-                             STRING(wrk-ink.i-dscr,"x(20)") + " " +  STRING(wrk-ink.i-qty,">>>9.999") + "   " + string(wrk-ink.i-bf,"X(1)")    
-                             ELSE "".
+                    v-ink1[1] = "".
+                    IF AVAIL(wrk-ink) THEN
+                        v-ink1[1] = IF AVAIL wrk-ink THEN
+                            STRING(wrk-ink.i-code,"X(15)") + " " + 
+                            STRING(wrk-ink.i-dscr,"x(20)") + " " +  STRING(wrk-ink.i-qty,">>>9.999") + "   " + string(wrk-ink.i-bf,"X(1)")    
+                            ELSE "".
 
-                     IF i EQ 1 THEN PUT "  ".
-                     PUT "UNIT"
-                         j + (i * 5) FORMAT ">9: "
-                         v-ink1[1]   FORMAT "x(50)".
-                     IF i EQ 1 THEN PUT "<C105><FROM><LINE><||3>" SKIP.
-                     END.
-                  END.
-             PUT "" SKIP .
-         END.  /* v-ink-pass2     */   /* task 01071410  */
+                    IF i EQ 1 THEN PUT "  ".
+                    PUT "UNIT"
+                        j + (i * 5) FORMAT ">9: "
+                        v-ink1[1]   FORMAT "x(50)".
+                    IF i EQ 1 THEN PUT "<C105><FROM><LINE><||3>" SKIP.
+                END. /* do i */
+            END. /* do j */
+            PUT "" SKIP.
+        END.  /* v-ink-pass2     */   /* task 01071410  */
          
-             /*"Printing Checklist Complete : <FROM><R+1><C+2><RECT><||3> " SKIP*/ .  /*Task# 12021303*/
+        /*"Printing Checklist Complete : <FROM><R+1><C+2><RECT><||3> " SKIP*/ .  /*Task# 12021303*/
 
         ASSIGN r = 1.
        /* PUT "<C1>Printing Department Notes:" SKIP. */                 /*Task# 12021303*/
