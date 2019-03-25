@@ -270,9 +270,8 @@ DO:
 
     PUT "<FArial><R58><C1><P12><B> Comments </B> <P9> " SKIP
         "<C7>Quote valid for 30 days." SKIP
-        "<C7>Valley Container, Inc. will not assume responsibility " SKIP 
-        "<C7>for any tooling that has been inactive for " SKIP 
-        "<C7>24 consecutive months."      . 
+        "<C7>Valley Container, Inc. will not assume responsibility for any tooling that has been inactive for 24 consecutive months." SKIP . 
+
       
     ASSIGN
         v-tmp-lines = 0
@@ -481,9 +480,7 @@ DO:
 
             PUT "<FArial><R58><C1><P12><B> Comments </B> <P9>  " SKIP
                 "<C7>Quote valid for 30 days." SKIP
-                "<C7>Valley Container, Inc. will not assume responsibility " SKIP 
-                "<C7>for any tooling that has been inactive for " SKIP 
-                "<C7>24 consecutive months.".
+                "<C7>Valley Container, Inc. will not assume responsibility for any tooling that has been inactive for 24 consecutive months." SKIP .
 
      
             li-cline = 0.
