@@ -1166,6 +1166,11 @@ PROCEDURE pDeDupe :
 
     IF AVAILABLE shipto THEN 
     DO:
+        RUN custom/setUserPrint.p (INPUT shipto.company,
+                           INPUT 'updship#.',
+                           INPUT 'begin_cust',
+                           INPUT STRING(shipto.cust-no) ).
+
         RUN util/dev/updship#.w .
     END.
 
