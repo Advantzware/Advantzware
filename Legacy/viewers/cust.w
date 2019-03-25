@@ -469,6 +469,7 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      btn_bank-info AT ROW 2.95 COL 129.2
      cust.sman AT ROW 3.86 COL 73 COLON-ALIGNED
+          LABEL "Sales Grp"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
@@ -789,7 +790,7 @@ ASSIGN
 /* SETTINGS FOR TOGGLE-BOX cust.show-set IN FRAME F-Main
    2 4 EXP-LABEL                                                        */
 /* SETTINGS FOR FILL-IN cust.sman IN FRAME F-Main
-   4                                                                    */
+   4  EXP-LABEL                                                         */
 /* SETTINGS FOR FILL-IN sman_sname IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cust.spare-char-1 IN FRAME F-Main
