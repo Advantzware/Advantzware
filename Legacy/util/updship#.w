@@ -584,7 +584,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/yellowColumns.i}
     RUN enable_UI.
     {methods/nowait.i}
-    {custom/usrprint.i}
+
+    IF INDEX(PROGRAM-NAME(2),"viewers/shipto.") NE 0 THEN do:
+        {custom/usrprint.i}
+    END.
 
     CLOSE QUERY browse-machine.
     RUN build-table. 

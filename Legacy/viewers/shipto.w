@@ -1171,7 +1171,7 @@ PROCEDURE pDeDupe :
                            INPUT 'begin_cust',
                            INPUT STRING(shipto.cust-no) ).
 
-        RUN util/dev/updship#.w .
+        RUN util/updship#.w .
     END.
 
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT hBrowse).
