@@ -69,6 +69,6 @@ DEF TEMP-TABLE tt-bqty NO-UNDO FIELD tt-bqty AS INT FIELD tt-brel AS INT.
 
 lv-ef-recid = recid(xef).
 
-RUN est/EstimateProcs.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+RUN est/EstimateProcsOld.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
 
 {cec/print4p.i}

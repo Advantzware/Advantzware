@@ -13,10 +13,32 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE {1} TEMP-TABLE ttCostMaster
-    FIELD company        AS CHARACTER 
-    FIELD estimateNo     LIKE est.est-no
-    FIELD masterQuantity AS DECIMAL  
+DEFINE {1} TEMP-TABLE ttCostMaster  /*Store estimate level overrides or options*/
+    FIELD cCompany        AS CHARACTER 
+    FIELD cEstimateNo     LIKE est.est-no
+    FIELD dMasterQuantity AS DECIMAL  
+    FIELD dMarginPct AS DECIMAL 
+    FIELD cMarginOn AS CHARACTER 
+    FIELD dWarehouseMarkupPct AS DECIMAL 
+    FIELD dHandlingChargePct AS DECIMAL 
+    FIELD dHandlingRatePerCWTRMPct AS DECIMAL 
+    FIELD dSpecial1MarkupPct AS DECIMAL 
+    FIELD dSpecial2MarkupPct AS DECIMAL 
+    FIELD dSpecial3MarkupPct AS DECIMAL 
+    FIELD lShowCommissoins AS LOGICAL
+    FIELD lShowLaborRates AS LOGICAL
+    FIELD lAddToFactCostSpecial1 AS LOGICAL
+    FIELD lAddToFactCostSpecial2 AS LOGICAL 
+    FIELD lAddToFactCostSpecial3 AS LOGICAL 
+    FIELD lAddToFactCostFreight AS LOGICAL 
+    FIELD lAddToFactCostGSA AS LOGICAL 
+    FIELD lAddToFactCostRoyalty AS LOGICAL 
+    FIELD lAddToFactCostComm AS LOGICAL 
+    FIELD dFoldPct AS DECIMAL
+    FIELD dHandlingRatePerCWTFGPct AS DECIMAL 
+    FIELD dHandlingRatePerCWTRMFarmPct AS DECIMAL 
+    FIELD dHandlingRatePerCWTFGFarmPct AS DECIMAL 
+    FIELD dHandlingChargeFarmPct AS DECIMAL
     .
     
 DEFINE {1} TEMP-TABLE ttCostHeader

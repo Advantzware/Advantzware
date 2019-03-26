@@ -30,7 +30,7 @@ if not avail sys-ctrl then DO TRANSACTION:
    sys-ctrl.int-fld = 30.
 end.
 
-RUN est/EstimateProcs.p (cocode, OUTPUT cCEBrowseBaseDir, OUTPUT tmp-dir ).
+RUN est/EstimateProcsOld.p (cocode, OUTPUT cCEBrowseBaseDir, OUTPUT tmp-dir ).
 
 lv-cebrowse-dir = tmp-dir.
 

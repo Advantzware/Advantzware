@@ -65,7 +65,7 @@ find first xeb where xeb.company = xest.company
                  AND xeb.est-no   eq xest.est-no and
                      xeb.form-no eq xef.form-no no-lock.
 
-RUN est/EstimateProcs.p (xest.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+RUN est/EstimateProcsOld.p (xest.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
     
 {sys/inc/f16to32.i}
 {cec/print42p.i }

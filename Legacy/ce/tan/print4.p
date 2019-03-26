@@ -59,7 +59,7 @@ END.
 {sys/inc/ceprepprice.i}
 
 
-RUN est/EstimateProcs.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+RUN est/EstimateProcsOld.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
 
 find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 assign
