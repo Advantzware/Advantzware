@@ -1462,7 +1462,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
            oe-rel.spare-char-1 = oe-rell.loc
            oe-rel.qty       = lv-qty
            oe-rel.frt-pay   = oe-rell.frt-pay
-           oe-ref.fob-code  = oe-rell.fob-code.
+           oe-rel.fob-code  = oe-rell.fob-code.
            
           RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key). 
           RUN oe/custxship.p (oe-rel.company,
