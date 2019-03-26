@@ -1195,7 +1195,18 @@ PROCEDURE valid-loc-bin-tag :
           END.
 
     END.
-
+    IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+        FIND FIRST loadtag NO-LOCK 
+            WHERE loadtag.company EQ g_company
+              AND loadtag.item-type EQ YES 
+              AND loadtag.tag-no EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+            NO-ERROR.
+        IF AVAILABLE loadtag AND loadtag.i-no NE rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} THEN DO:
+              MESSAGE "Warning: a loadtag exists with this tag number" SKIP 
+                      "but for a different item number!"
+              VIEW-AS ALERT-BOX.
+        END.
+    END.
 /*    IF NOT AVAILABLE rm-bin THEN DO:                                               */
 /*      IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN              */
 /*        FIND FIRST loadtag NO-LOCK                                                 */

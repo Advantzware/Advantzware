@@ -1084,6 +1084,8 @@ PROCEDURE local-update-record :
   RUN valid-loc-bin NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+  RUN valid-tag-item NO-ERROR.
+  
   /*RUN valid-loc-bin-tag (99) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.*/
 
@@ -1398,12 +1400,40 @@ PROCEDURE valid-tag :
        APPLY "entry" TO rm-rctd.tag IN BROWSE {&browse-name}.
        RETURN ERROR.
     END.
+   
   END.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag-item B-table-Win
+PROCEDURE valid-tag-item:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN 
+    DO:
+        FIND FIRST loadtag NO-LOCK 
+            WHERE loadtag.company EQ g_company
+            AND loadtag.item-type EQ YES 
+            AND loadtag.tag-no EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+            NO-ERROR.
+        IF AVAILABLE loadtag AND loadtag.i-no NE rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} THEN 
+        DO:
+            MESSAGE "Warning: a loadtag exists with this tag number" SKIP 
+                "but for a different item number!"
+                VIEW-AS ALERT-BOX.
+        END.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 
