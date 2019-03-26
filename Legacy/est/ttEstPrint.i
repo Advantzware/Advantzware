@@ -167,6 +167,8 @@ DEFINE {1} TEMP-TABLE ttEstCostDetail
     FIELD rec_keyCostDetail AS CHARACTER
     FIELD rec_keyCostCategory AS CHARACTER 
     FIELD rec_keyHeader AS CHARACTER 
+    FIELD rec_keyForm AS CHARACTER 
+    FIELD rec_keyBlank AS CHARACTER
     FIELD rec_keySource AS CHARACTER 
     FIELD cSourceType AS CHARACTER
     FIELD cDetailDescription AS CHARACTER 
@@ -174,6 +176,14 @@ DEFINE {1} TEMP-TABLE ttEstCostDetail
     FIELD dMarkup AS DECIMAL 
     .
 
+DEFINE {1} TEMP-TABLE ttEstCostSummary
+    FIELD rec_keyCostSummary AS CHARACTER 
+    FIELD rec_keyCostGroup AS CHARACTER 
+    FIELD rec_keyScope AS CHARACTER /*Form, Item, Header*/
+    FIELD dCostPerM AS DECIMAL 
+    FIELD dCostTotal AS DECIMAL 
+    .
+    
 DEFINE {1} TEMP-TABLE ttEstCostCategory
     FIELD rec_keyCostCategory AS CHARACTER
     FIELD rec_keyCostGroup AS CHARACTER 
@@ -181,7 +191,7 @@ DEFINE {1} TEMP-TABLE ttEstCostCategory
     FIELD cCategoryDescription AS CHARACTER 
     FIELD cIncludeIn AS CHARACTER 
     FIELD cBasis AS CHARACTER 
-    
+    FIELD cCostModel AS CHARACTER
     .
     
 DEFINE {1} TEMP-TABLE ttEstCostGroup
@@ -192,6 +202,7 @@ DEFINE {1} TEMP-TABLE ttEstCostGroup
     FIELD cGroupType AS CHARACTER
     FIELD iCostGroupLevel AS INTEGER
     .
+    
 DEFINE {1} TEMP-TABLE ttEstCostGroupLevel
     FIELD iCostGroupLevel AS INTEGER 
     FIELD cCostGroupLevelDescription AS CHARACTER 

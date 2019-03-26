@@ -22,11 +22,15 @@ DEFINE INPUT PARAMETER ipcFormatStyle AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE gcFont     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glClassic  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE giQtyMaxColumn AS INTEGER NO-UNDO.
 DEFINE VARIABLE gcContinue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcNumError AS CHARACTER NO-UNDO.
+
 ASSIGN 
+    giQtyMaxColumn = 5
     gcNumError = "#"
-    gcContinue = CHR(187).
+    gcContinue = CHR(187)
+    .
 
 
 DEFINE TEMP-TABLE ttSection
@@ -58,7 +62,7 @@ FUNCTION fFormatString RETURNS CHARACTER PRIVATE
 RUN pBuildSections(ipriEstHeader, ipcSectionStyle, ipcFormatStyle).
 IF CAN-FIND(FIRST ttSection) THEN 
 DO: 
-    RUN InitializeOutputXprint IN hdOutputProcs (ipcOutputFile, YES, YES, gcFont, 12) .
+    RUN InitializeOutputXprint IN hdOutputProcs (ipcOutputFile, YES, YES, gcFont, 11) .
     RUN pProcessSections.
     RUN CloseOutput IN hdOutputProcs.
     RUN PrintXprintFile IN hdOutputProcs(ipcOutputFile).
@@ -195,10 +199,10 @@ PROCEDURE pPrintForm PRIVATE:
     IF NOT AVAILABLE ttEstHeader THEN RETURN.
     iRowCount = 1 .
     RUN pPrintPageHeader(BUFFER ttEstHeader, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iRowCount).
-    RUN pPrintItemInformation(BUFFER ttEstForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iRowCount).
-    RUN pPrintLayoutInformation(BUFFER ttEstForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iRowCount).
-    RUN pPrintMaterialInformation(BUFFER ttEstForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iRowCount).
-
+    RUN pPrintItemInfoForForm(BUFFER ttEstForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iRowCount).
+    RUN pPrintLayoutInfoForForm(BUFFER ttEstForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iRowCount).
+    RUN pPrintMaterialInfoForForm(BUFFER ttEstForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iRowCount).
+    RUN pPrintCostSummaryInfoForForm(BUFFER ttEstForm, YES, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iRowCount).
 END PROCEDURE.
 
 PROCEDURE pPrintPageHeader PRIVATE:
@@ -234,7 +238,7 @@ PROCEDURE pPrintPageHeader PRIVATE:
     
 END PROCEDURE.
 
-PROCEDURE pPrintItemInformation PRIVATE:
+PROCEDURE pPrintItemInfoForForm PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Prints the top-most section of each page
      Notes:
@@ -297,7 +301,105 @@ PROCEDURE pPrintItemInformation PRIVATE:
     END.
 END PROCEDURE.
 
-PROCEDURE pPrintLayoutInformation PRIVATE:
+PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Prints the Cost Summary with either Each Qty showing or a Per M plus Total
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttEstForm FOR ttEstForm.
+    DEFINE INPUT PARAMETER iplPerQuantity AS LOGICAL.
+    DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
+    DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
+   
+    DEFINE BUFFER bf-PrimaryttEstHeader FOR ttEstHeader.
+    DEFINE VARIABLE iRowStart AS INTEGER.
+    DEFINE VARIABLE iColumn1 AS INTEGER INITIAL 2.
+    DEFINE VARIABLE iColumn2 AS INTEGER INITIAL 32.
+    DEFINE VARIABLE iColumnWidth AS INTEGER INITIAL 10.
+    
+    DEFINE VARIABLE iQtyCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iQtyCountTotal AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cScopeRecKey AS CHARACTER EXTENT 10.
+    DEFINE VARIABLE cQtyHeader AS CHARACTER EXTENT 10.
+    DEFINE VARIABLE dCostValue AS DECIMAL EXTENT 10.
+       
+    FIND FIRST bf-PrimaryttEstHeader NO-LOCK 
+        WHERE bf-PrimaryttEstHeader.rec_KeyHeader EQ ipbf-ttEstForm.rec_keyHeader
+        NO-ERROR.
+    IF NOT AVAILABLE bf-PrimaryttEstHeader THEN LEAVE.
+    
+    ASSIGN 
+        iopiRowCount = iopiRowCount + 2
+        iRowStart = iopiRowCount /*Store reset Point*/
+        .
+        
+    ASSIGN 
+        iQtyCountTotal = 1
+        cScopeRecKey[iQtyCountTotal] = ipbf-ttEstForm.rec_KeyForm
+        cQtyHeader[iQtyCountTotal] = fFormatNumber(ipbf-ttEstForm.dQtyFGOnForm, 7, 0, YES)
+        .
+    IF iplPerQuantity THEN DO:
+        FOR EACH ttEstHeader NO-LOCK
+            WHERE ttEstHeader.cEstNo EQ bf-PrimaryttEstHeader.cEstNo
+            AND ttEstHeader.rec_KeyHeader NE bf-PrimaryttEstHeader.rec_KeyHeader
+            ,
+            FIRST ttEstForm NO-LOCK 
+            WHERE ttEstForm.rec_keyHeader EQ ttEstHeader.rec_KeyHeader
+            AND ttEstForm.iFormNo EQ ipbf-ttEstForm.iFormNo
+            :
+            ASSIGN 
+                iQtyCountTotal = iQtyCountTotal + 1
+                cScopeRecKey[iQtyCountTotal] = ttEstForm.rec_KeyForm
+                cQtyHeader[iQtyCountTotal] = fFormatNumber(ttEstForm.dQtyFGOnForm, 7, 0, YES)
+                .
+            IF iQtyCountTotal EQ giQtyMaxColumn THEN LEAVE. 
+        END.
+        RUN pWriteToCoordinates(iopiRowCount, iColumn1, "*** Totals Per M ", YES, YES, NO).
+        DO iQtyCount = 1 TO iQtyCountTotal:
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2 + (iQtyCount - 1) * iColumnWidth, cQtyHeader[iQtyCount], 7, 0, YES, YES, YES, YES, YES).
+        END.
+    END.
+    ELSE DO:
+        RUN pWriteToCoordinates(iopiRowCount, iColumn1, "*** Totals for Qty: " +  fFormatNumber(ipbf-ttEstForm.dQtyFGOnForm, 7, 0, YES), YES, YES, NO).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn2 , "Per M" , YES, YES, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn2 + iColumnWidth, "Total", YES, YES, YES).
+    END.    
+    FOR EACH ttEstCostGroupLevel NO-LOCK
+        BY ttEstCostGroupLevel.iCostGroupLevel:
+        FOR EACH ttEstCostGroup NO-LOCK 
+            WHERE ttEstCostGroup.iCostGroupLevel EQ ttEstCostGroupLevel.iCostGroupLevel
+            BY ttEstCostGroup.iSequence:
+            iopiRowCount = iopiRowCount + 1.
+            RUN pWriteToCoordinates(iopiRowCount, iColumn1, ttEstCostGroup.cGroupLabel, NO, NO, NO).
+            
+            IF iplPerQuantity THEN DO: /*Print values for each quantity (per M)*/
+                DO iQtyCount = 1 TO iQtyCountTotal:
+                    FIND FIRST ttEstCostSummary NO-LOCK 
+                        WHERE ttEstCostSummary.rec_keyCostGroup EQ ttEstCostGroup.rec_keyCostGroup
+                        AND ttEstCostSummary.rec_keyScope EQ cScopeRecKey[iQtyCount]
+                        NO-ERROR.
+                    IF AVAILABLE ttEstCostSummary THEN     
+                        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2 + (iQtyCount - 1) * iColumnWidth ,ttEstCostSummary.dCostPerM , 6, 2, NO, YES, NO, NO, YES).
+                END.
+            END.
+            ELSE DO:  /*Print only the values for the subject quantity (per M and Totals)*/ 
+                FIND FIRST ttEstCostSummary NO-LOCK 
+                    WHERE ttEstCostSummary.rec_keyCostGroup EQ ttEstCostGroup.rec_keyCostGroup
+                    AND ttEstCostSummary.rec_keyScope EQ ipbf-ttEstForm.rec_KeyForm
+                    NO-ERROR.
+                IF AVAILABLE ttEstCostSummary THEN 
+                    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2 , ttEstCostSummary.dCostPerM , 6, 2, NO, YES, NO, NO, YES).
+                    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2 + iColumnWidth, ttEstCostSummary.dCostTotal , 6, 2, NO, YES, NO, NO, YES).
+            END.
+        END.
+        iopiRowCount = iopiRowCount + 1.
+        RUN pWriteToCoordinates(iopiRowCount, iColumn1, ttEstCostGroupLevel.cCostGroupLevelDescription, YES, NO, NO).    
+    END.
+            
+END PROCEDURE.
+
+
+PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Prints the top-most section of each page
      Notes:
@@ -377,7 +479,7 @@ PROCEDURE pPrintLayoutInformation PRIVATE:
     RUN pWriteToCoordinates(iopiRowCount, iColumn6 + 1, ttEstForm.cUOMGrossQtyRequiredTotalWeight, NO, NO, NO).
 END PROCEDURE.
 
-PROCEDURE pPrintMaterialInformation PRIVATE:
+PROCEDURE pPrintMaterialInfoForForm PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Prints the top-most section of each page
      Notes:
@@ -464,8 +566,7 @@ PROCEDURE pProcessSections PRIVATE:
             WHEN "Consolidated" THEN 
             RUN pPrintConsolidated(ttSection.rec_keyParent, INPUT-OUTPUT iPageCount).
             WHEN "ItemSummary" THEN 
-            RUN pPrintItemSummary(ttSection.rec_keyParent, INPUT-OUTPUT iPageCount).
-                       
+            RUN pPrintItemSummary(ttSection.rec_keyParent, INPUT-OUTPUT iPageCount).                       
         END CASE.
     END.
 
