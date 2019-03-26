@@ -165,7 +165,7 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR. 
   
-RUN est/EstimateProcsOld.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+RUN est/EstimateProcs.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
 
   lv-cebrowse-dir = tmp-dir.
 
@@ -3248,20 +3248,17 @@ PROCEDURE run-whatif :
   DEF VAR tmp-outfile AS cha NO-UNDO.
   DEF VAR viewfile AS cha NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
-  DEFINE VARIABLE hEstProcs AS HANDLE NO-UNDO.
 
-    {est/checkuse.i}
+  {est/checkuse.i}
+  EMPTY TEMP-TABLE xprep.
 
-  lv-eb-recid = recid(eb).
-  lv-ef-recid = recid(ef).
-  
-  MESSAGE "Use New Estimating Calc?" VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE lNew AS LOGICAL. 
-  IF NOT lNew THEN DO:
   FIND CURRENT est.
   find xef where recid(xef) = recid(ef).
   find xeb where recid(xeb) = recid(eb).
   vprint = yes.
-  EMPTY TEMP-TABLE xprep.
+  lv-eb-recid = recid(eb).
+  lv-ef-recid = recid(ef).
+  
   FOR EACH mclean:
     DELETE mclean.
   END.
@@ -3280,7 +3277,7 @@ PROCEDURE run-whatif :
     RETURN.
    END.
   END.
-  RUN est/EstimateProcsOld.p (est.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+  RUN est/EstimateProcs.p (est.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
   lv-cebrowse-dir = tmp-dir.
   
   IF est.est-type >= 3 AND est.est-type <= 4 AND cerunf = "HOP" THEN RUN ce/dAskSum.w (OUTPUT gEstSummaryOnly).
@@ -3311,16 +3308,9 @@ PROCEDURE run-whatif :
                         exclusive-lock :
            delete est-op.  
   end.
-  END.
-  ELSE 
-  DO: /*New*/
-      FIND CURRENT est.
-      RUN est\EstimateProcs.p PERSISTENT SET hEstProcs.
-      RUN CalculateEstimate IN hEstProcs(ROWID(est), ROWID(ef), ROWID(eb),YES, "F").
-      
-  END.
+
   RUN release-shared-buffers.
-    
+
   session:set-wait-state("").
 
   find eb where recid(eb) = lv-eb-recid no-lock.
