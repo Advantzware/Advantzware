@@ -61,6 +61,9 @@ DEFINE VARIABLE iBinQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE iBinQtyBef AS INTEGER NO-UNDO.
 DEFINE VARIABLE iBinQtyAft AS INTEGER NO-UNDO.
 DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE dtDateChar AS DATE NO-UNDO .
 
 RUN methods/prgsecur.p
     (INPUT "FGHstUpd",
@@ -1171,21 +1174,14 @@ END.
 {sys/inc/f3help.i}  /* asi field contents help */
 SESSION:DATA-ENTRY-RETURN = YES.
 
-FIND FIRST sys-ctrl WHERE sys-ctrl.company = g_company AND
-     sys-ctrl.NAME = "FGHistoryDate" NO-LOCK NO-ERROR.
+RUN sys/ref/nk1look.p (INPUT cocode, "FGHistoryDate", "DT" /* Logical */, NO /* check by cust */, 
+                          INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                          OUTPUT cRtnChar, OUTPUT lRecFound).
+   IF lRecFound THEN
+       dtDateChar = date(cRtnChar) NO-ERROR. 
 
-  IF NOT AVAIL sys-ctrl THEN
-   DO:
-      CREATE sys-ctrl.
-      ASSIGN
-         sys-ctrl.company  = g_company
-         sys-ctrl.name     = "FGHistoryDate"
-         sys-ctrl.descrip  = "Default date on Finished Goods History"
-         sys-ctrl.log-fld = YES
-         sys-ctrl.date-fld = 01/01/2011.
-   END.
-   IF AVAIL sys-ctrl AND sys-ctrl.date-fld NE ? THEN
-        fi_date = sys-ctrl.date-fld.
+   IF dtDateChar NE ? THEN
+        fi_date = dtDateChar.
    ELSE
       fi_date = DATE("01/01/" + SUBSTRING(STRING(TODAY),7,11)).
 

@@ -63,6 +63,9 @@ DEF VAR v-col-move AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
 DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 DEF VAR lActive AS LOG NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE dtDateChar AS DATE NO-UNDO .
 
 DO TRANSACTION:
      {sys/ref/CustList.i NEW}
@@ -845,21 +848,15 @@ END.
 {sys/inc/f3help.i}
 SESSION:DATA-ENTRY-RETURN = YES.
 fi_date = 01/01/0001.
-FIND FIRST sys-ctrl WHERE sys-ctrl.company = g_company AND
-     sys-ctrl.NAME = "FGHistoryDate" NO-LOCK NO-ERROR.
 
-  IF NOT AVAIL sys-ctrl THEN
-   DO:
-      CREATE sys-ctrl.
-      ASSIGN
-         sys-ctrl.company  = g_company
-         sys-ctrl.name     = "FGHistoryDate"
-         sys-ctrl.descrip  = "Default date on Finished Goods History"
-         sys-ctrl.log-fld = YES
-         sys-ctrl.date-fld = 01/01/2011.
-   END.
-   IF AVAIL sys-ctrl AND sys-ctrl.date-fld NE ? THEN
-        fi_date = sys-ctrl.date-fld.
+   RUN sys/ref/nk1look.p (INPUT cocode, "FGHistoryDate", "DT" /* Logical */, NO /* check by cust */, 
+                          INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                          OUTPUT cRtnChar, OUTPUT lRecFound).
+   IF lRecFound THEN
+       dtDateChar = date(cRtnChar) NO-ERROR. 
+
+   IF dtDateChar NE ? THEN
+        fi_date = dtDateChar .
    ELSE
       fi_date = date("01/01/" + SUBSTRING(string(TODAY),7,11)).
 
