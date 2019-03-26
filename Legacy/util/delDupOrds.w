@@ -102,7 +102,7 @@ DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiOrdDate AS DATE FORMAT "99/99/99":U INITIAL ? 
+DEFINE VARIABLE fiOrdDate AS DATE FORMAT "99/99/99":U 
      LABEL "Order Date" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
@@ -126,7 +126,7 @@ DEFINE FRAME DEFAULT-FRAME
      tgAllowBlankPO AT ROW 4.62 COL 19 WIDGET-ID 8
      edDuplicates AT ROW 5.76 COL 3 NO-LABEL WIDGET-ID 2
      btnOk AT ROW 18.62 COL 14
-     BtnCancel AT ROW 18.62 COL 40
+     BtnCancel AT ROW 18.62 COL 40.2
      scr-text AT ROW 1.48 COL 3 NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -231,7 +231,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BtnCancel C-Win
 ON CHOOSE OF BtnCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
-    APPLY "close" TO THIS-PROCEDURE.
+    APPLY "close" TO THIS-PROCEDURE. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -290,10 +290,12 @@ END.
 ON CHOOSE OF btSearch IN FRAME DEFAULT-FRAME /* Search for Duplicates */
 DO:
   DEFINE VAR iTotDups AS INT NO-UNDO.
+  
   ASSIGN begin_cust tgAllowBlankPO fiOrdDate.
   edDuplicates:INSERT-STRING("Customer" + " " + "PO Number" 
                  + " " + "Count"
                  + CHR(10)). 
+  /* Blank Po option is used for one customer at Premier */
   FOR EACH oe-ord NO-LOCK 
     WHERE oe-ord.company EQ cocode
       AND oe-ord.stat EQ 'W' 
