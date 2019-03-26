@@ -605,6 +605,48 @@ PROCEDURE CreateInventoryLoadtagsFromPreLoadtags:
 
 END PROCEDURE.
 
+PROCEDURE ValidateBin:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLoc AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBin AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValidBin AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lActiveLoc AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
+
+    RUN ValidateLoc IN THIS-PROCEDURE (INPUT ipcCompany, INPUT ipcLoc, OUTPUT lActiveLoc).
+    
+    lActiveBin = CAN-FIND(FIRST fg-bin NO-LOCK 
+        WHERE fg-bin.company EQ ipcCompany  
+        AND fg-bin.loc     EQ ipcLoc 
+        AND fg-bin.loc-bin EQ ipcBin
+        AND fg-bin.i-no    EQ ""
+        AND fg-bin.active  EQ TRUE).
+    
+    oplValidBin = lActiveLoc AND lActiveBin.
+    
+
+END PROCEDURE.
+
+PROCEDURE ValidateLoc:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLoc AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValidLoc AS LOGICAL NO-UNDO.
+    
+    oplValidLoc = CAN-FIND(FIRST loc NO-LOCK 
+        WHERE loc.company EQ ipcCompany  
+        AND loc.loc     EQ ipcLoc 
+        AND loc.active  EQ TRUE).
+        
+
+END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 

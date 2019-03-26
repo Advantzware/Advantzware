@@ -61,8 +61,8 @@ DEFINE VARIABLE v-shpmet        LIKE itemfg.ship-meth NO-UNDO.
 DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE lFound          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lCheckMessage   AS LOGICAL   NO-UNDO .
-DEFINE VARIABLE hActiveLoc      AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
+{Inventory/ttInventory.i "NEW SHARED"}
 DEFINE TEMP-TABLE w-est-no
     FIELD w-est-no LIKE itemfg.est-no
     FIELD w-run    AS LOG.
@@ -1889,7 +1889,7 @@ PROCEDURE local-exit:
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DELETE OBJECT hActiveLoc.
+  DELETE OBJECT hInventoryProcs.
 
 
 END PROCEDURE.
@@ -1936,7 +1936,7 @@ PROCEDURE local-initialize :
     ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    RUN sys/ref/activeLoc.p PERSISTENT SET hActiveLoc.
+    RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
@@ -2804,14 +2804,14 @@ PROCEDURE valid-loc :
                 RETURN ERROR.
             END.
         END.
-        RUN getActiveLoc IN hActiveLoc (itemfg.def-loc:SCREEN-VALUE, OUTPUT lValidLoc ).
+        RUN ValidateLoc IN hInventoryProcs (cocode, itemfg.def-loc:SCREEN-VALUE, OUTPUT lValidLoc ).
         IF NOT lValidLoc THEN 
         DO:
             MESSAGE "Invalid Default Warehouse." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO itemfg.def-loc.
             RETURN ERROR.
         END.
-        RUN getActiveBin IN hActiveLoc (itemfg.def-loc:SCREEN-VALUE, itemfg.def-loc-bin:SCREEN-VALUE, OUTPUT lValidBin ).
+        RUN ValidateBin IN hInventoryProcs (cocode, itemfg.def-loc:SCREEN-VALUE, itemfg.def-loc-bin:SCREEN-VALUE, OUTPUT lValidBin ).
         IF NOT lValidBin
             THEN 
         DO:

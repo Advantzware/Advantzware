@@ -63,7 +63,7 @@ DEF BUFFER reftable-job FOR reftable.
 DEF VAR lv-frst-rno AS INT NO-UNDO.
 DEF VAR lv-linker LIKE fg-rcpts.linker NO-UNDO.
 DEF VAR ll-set-parts AS LOG NO-UNDO.
-DEFINE VARIABLE hActiveLoc      AS HANDLE NO-UNDO.
+DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
 DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 
 {pc/pcprdd4u.i NEW}
@@ -71,7 +71,7 @@ DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 {jc/jcgl-sh.i  NEW}
 {fg/fullset.i  NEW}
 {fg/fg-post3.i NEW}
-
+{Inventory/ttInventory.i "NEW SHARED"}
 
 
 
@@ -849,12 +849,12 @@ DO:
                  fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
        END.
 
-       RUN getActiveLoc IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+       RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
        IF NOT lActiveBin THEN DO:
           MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
        END.
-       RUN getActiveBin IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+       RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
             fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
             OUTPUT lActiveBin ).       
        IF NOT lActiveBin THEN DO:
@@ -1208,7 +1208,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-RUN sys/ref/activeLoc.p PERSISTENT SET hActiveLoc.
+RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -2294,7 +2294,7 @@ PROCEDURE local-exit:
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DELETE OBJECT hActiveLoc.
+  DELETE OBJECT hInventoryProcs.
 
 
 END PROCEDURE.
@@ -3462,7 +3462,7 @@ PROCEDURE validate-record :
       END.
     END.
   END.
-  RUN getActiveLoc IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+  RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
     IF NOT lActiveBin THEN DO:
      MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO fg-rctd.loc.
@@ -3480,7 +3480,7 @@ PROCEDURE validate-record :
        op-error = YES.
      LEAVE.
     END.   
-    RUN getActiveBin IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+    RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
         fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
         OUTPUT lActiveBin ).    
   IF NOT lActiveBin THEN DO:

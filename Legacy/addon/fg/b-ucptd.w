@@ -49,7 +49,7 @@ DEF VAR v-post-date AS DATE INITIAL TODAY.
 def var fg-uom-list  as char NO-UNDO.
 DEF VAR v-fgpostgl AS CHAR NO-UNDO.
 DEF VAR v-prgmname AS CHAR INIT "b-rcptd." NO-UNDO.
-DEFINE VARIABLE hActiveLoc      AS HANDLE NO-UNDO.
+DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
 DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
 
@@ -61,7 +61,7 @@ ASSIGN cocode = g_company
 {fg/invrecpt.i NEW}
 /* For fgpostBatch.p */
 {fg/fgPostBatch.i}
-    
+{Inventory/ttInventory.i "NEW SHARED"}    
 
 /*DEF TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd                        */
 /*    FIELD row-id   AS ROWID                                          */
@@ -699,12 +699,12 @@ DO:
           ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
                  fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
 
-          RUN getActiveLoc IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+          RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
           IF NOT lActiveBin THEN DO:
              MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
              RETURN NO-APPLY.
           END.
-          RUN getActiveBin IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+          RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
                fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
                OUTPUT lActiveBin ).
           IF NOT lActiveBin THEN DO:
@@ -721,7 +721,7 @@ DO:
        END.
     END.
     ELSE DO:
-        RUN getActiveLoc IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+        RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
         IF NOT lActiveBin THEN DO:
              MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
              RETURN NO-APPLY.
@@ -741,7 +741,7 @@ DO:
   IF LASTKEY = -1 THEN RETURN .
 
   IF SELF:MODIFIED THEN DO:
-      RUN getActiveBin IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+      RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
           fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
           OUTPUT lActiveBin ).
 
@@ -1104,7 +1104,7 @@ PROCEDURE local-exit:
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DELETE OBJECT hActiveLoc.
+  DELETE OBJECT hInventoryProcs.
 
 
 END PROCEDURE.
@@ -1122,7 +1122,7 @@ PROCEDURE local-initialize :
     ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN sys/ref/activeLoc.p PERSISTENT SET hActiveLoc.
+  RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
@@ -1374,14 +1374,14 @@ PROCEDURE validate-record :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-       RUN getActiveLoc IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+       RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
        IF NOT lActiveBin THEN DO:
           MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO fg-rctd.loc.
           RETURN ERROR.
   END.
   
-  RUN getActiveBin IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+  RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
       fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
       OUTPUT lActiveBin ).
   IF NOT lActiveBin THEN DO: 

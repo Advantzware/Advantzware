@@ -54,7 +54,9 @@ def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
 DEF VAR lv-fgrecpt-val AS INT NO-UNDO.
 DEF VAR trans-time AS CHAR NO-UNDO.
 DEF VAR lv-new-tag-number-chosen AS LOG NO-UNDO.
-DEFINE VARIABLE hActiveLoc AS HANDLE NO-UNDO.
+DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
+{Inventory/ttInventory.i "NEW SHARED"}
 &SCOPED-DEFINE item-key-phrase TRUE
 
 /* _UIB-CODE-BLOCK-END */
@@ -773,7 +775,7 @@ DO TRANSACTION:
   {sys/inc/fgrecpt.i}
   lv-fgrecpt-val = sys-ctrl.int-fld.
 END.
-RUN sys/ref/activeLoc.p PERSISTENT SET hActiveLoc.
+RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -1185,7 +1187,7 @@ PROCEDURE local-exit:
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DELETE OBJECT hActiveLoc.
+  DELETE OBJECT hInventoryProcs.
 
 
 END PROCEDURE.
@@ -1465,13 +1467,13 @@ PROCEDURE valid-job-loc-bin-tag :
       lActiveBin = TRUE.
       IF li-field# GE 3 THEN 
       DO:
-          RUN getActiveLoc IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+          RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
           IF NOT lActiveBin THEN 
               APPLY "entry" TO fg-rctd.loc IN BROWSE {&browse-name}.
       END.
       IF li-field# GE 4 THEN 
       DO:
-          RUN getActiveBin IN hActiveLoc (fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+          RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
               fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
               OUTPUT lActiveBin ).
           IF NOT lActiveBin THEN 
@@ -1582,7 +1584,7 @@ PROCEDURE valid-loc-bin2 :
         lv-msg = "To Whse/Bin may not be the same as From Whse/Bin".
 
     IF lv-msg EQ "" THEN DO:
-        RUN getActiveBin IN hActiveLoc (fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}, 
+        RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}, 
                                         fg-rctd.loc-bin2:SCREEN-VALUE IN BROWSE {&browse-name}, 
                                         OUTPUT lActiveBin ).
       IF NOT lActiveBin THEN lv-msg = "Invalid entry, try help...".
@@ -1616,7 +1618,7 @@ PROCEDURE valid-loc2 :
         lv-msg = "To Bin may not be spaces".
 
     IF lv-msg EQ "" THEN DO:
-      RUN getActiveLoc IN hActiveLoc (fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).          
+      RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).          
       IF NOT lActiveBin THEN lv-msg = "Invalid entry, try help".
     END.
 
