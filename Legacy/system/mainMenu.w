@@ -2043,6 +2043,9 @@ PROCEDURE pInit :
     DEFINE VARIABLE cThisVer      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iThisVersion  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iLastVersion  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lCanProfile   AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cAccessList   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAccessClose  AS LOGICAL NO-UNDO.
     
     RUN sys/ref/nk1look.p (
         g_company,"CEMenu","C",NO,NO,"","",
@@ -2169,7 +2172,25 @@ PROCEDURE pInit :
                 "",
                 OUTPUT lSuperAdmin 
                 ).
+            RUN epCanAccess IN hPgmMstrSecur (
+                "profiler",
+                "",
+                OUTPUT lCanProfile 
+                ).
+             
         END. /* if valid handle */
+        RUN methods/prgsecur.p ("Profiler", 
+                                "Access",
+                                NO,
+                                NO,
+                                NO,
+                                OUTPUT lCanProfile,
+                                OUTPUT lAccessClose,
+                                OUTPUT cAccessList  
+                ).
+        IF NOT lCanProfile THEN
+           MENU-item  m_Profiler:SENSITIVE IN MENU m_help  = FALSE.   
+        
         IF lAdmin AND USERID("ASI") NE "NoSweat" THEN DO:
             RUN sys/ref/nk1look.p (
                 g_company,"AsiHelpService","C",NO,NO,"","",
@@ -2455,7 +2476,7 @@ PROCEDURE pOnOffProfiler:
                 PROFILER:PROFILING                       = TRUE
                 PROFILER:TRACE-FILTER                    = "*"
                 iSaveBgColor                             = company_name:BGCOLOR IN FRAME frame-user
-                company_name:BGCOLOR IN FRAME frame-user = 14
+                company_name:BGCOLOR IN FRAME frame-user = 12
                 .
         END.
     END. 
