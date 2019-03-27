@@ -35,6 +35,8 @@ DEFINE VARIABLE ldummy  AS LOG       NO-UNDO.
 DEFINE VARIABLE i       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iCount  AS INTEGER   NO-UNDO .
 DEFINE VARIABLE cadFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdCadProcs AS HANDLE.
+RUN custom/CadImgProcs.p PERSISTENT SET hdCadProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -205,49 +207,14 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
 
-            FIND FIRST est NO-LOCK
-                WHERE ROWID(est) EQ ipRowId NO-ERROR .
-
-            IF SEARCH(file_name) EQ ?  THEN 
-            DO:
-                MESSAGE "File Path or file Invalid, try help..." VIEW-AS ALERT-BOX INFORMATION .
+           IF SEARCH(file_name) EQ ?  THEN DO:
+               MESSAGE "File Path or file Invalid, try help..." VIEW-AS ALERT-BOX INFORMATION .
                 APPLY "entry" TO file_name . 
                 RETURN NO-APPLY .
-            END.
-      
-            IF AVAILABLE est  THEN 
-            DO:
-
-                FOR EACH eb EXCLUSIVE-LOCK
-                    WHERE eb.company EQ est.company 
-                    AND eb.est-no EQ est.est-no :
-
-                    IF eb.cad-no EQ "" THEN
-                        eb.cad-no = imageName(file_name) .
-
-                    IF tb_addcad THEN 
-                    DO:
-                        IF INDEX(eb.cad-no,".ard") EQ 0 THEN
-                            ASSIGN eb.cad-no = eb.cad-no + ".ard" .
-                    END.
-                    IF tb_boximg THEN 
-                    DO:
-                        FIND FIRST box-design-hdr WHERE box-design-hdr.design-no = 0 AND
-                            box-design-hdr.company = eb.company 
-                            AND box-design-hdr.est-no = eb.est-no     
-                            AND box-design-hdr.form-no   EQ eb.form-no
-                            AND box-design-hdr.blank-no  EQ eb.blank-no NO-ERROR.
-                      
-                        IF AVAILABLE box-design-hdr THEN 
-                        DO:
-                            ASSIGN 
-                                box-design-hdr.box-image = file_name . /*".jpg"*/.
-                        END.
-                    END.
-                END.
-                RELEASE eb .
-            END.
+           END.
         END.
+
+    RUN pUpdateCadOnCorrugated IN hdCadProcs(ipRowId,tb_addcad,tb_boximg,ImageName(file_name),file_name) .
 
     END.
 
