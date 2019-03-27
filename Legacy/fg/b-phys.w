@@ -57,10 +57,35 @@ DEF VAR lv-org-loc AS cha NO-UNDO.
 DEF VAR lv-org-loc-bin AS cha NO-UNDO.
 DEF VAR lv-prv-i-no LIKE fg-rctd.i-no NO-UNDO.
 DEFINE VARIABLE lCheckCount AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChr AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFnd AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE physCnt-log AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cPhysCntSaveFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLogFolder       AS CHARACTER NO-UNDO INIT "./custfiles/logs".
+DEFINE STREAM sPhysCntSave.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "PhysCnt", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChr, OUTPUT lRecFnd).
+physCnt-log = LOGICAL(cRtnChr) NO-ERROR.
+MESSAGE "log?" physCnt-log
+VIEW-AS ALERT-BOX.
 ASSIGN
  cocode = g_company
  locode = g_loc.
-
+IF physCnt-log THEN 
+DO: 
+    OS-CREATE-DIR VALUE(cLogFolder).
+    FIND FIRST _myconnection NO-LOCK.     
+    cPhysCntSaveFile = cLogFolder + "/" + USERID("ASI") + STRING(MONTH(TODAY),"99") 
+                       + STRING(DAY(TODAY), "99") + STRING(YEAR(TODAY))
+                       + STRING(TIME).
+    cPhysCntSaveFile = cPhysCntSaveFile + STRING(_myconnection._MyConn-Id) + ".log".
+    MESSAGE "logfile" cPhysCntSavefile
+        VIEW-AS ALERT-BOX.
+    
+    
+END.
 DO:
    {sys/inc/fgrecpt.i}
 END.
@@ -1002,7 +1027,7 @@ PROCEDURE crt-transfer :
                       AND fg-bin.job-no = fg-rctd.job-no
                       AND fg-bin.job-no2 = fg-rctd.job-no2 
                       AND fg-bin.tag     EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
-                      /*AND fg-bin.qty > 0*/  NO-LOCK:
+        /*AND fg-bin.qty > 0*/  NO-LOCK:
 
      IF fg-bin.loc NE fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
         OR  fg-bin.loc-bin NE fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1605,6 +1630,55 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-end-update B-table-Win
+PROCEDURE local-end-update:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'end-update':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
+PROCEDURE local-exit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win
 PROCEDURE local-open-query:
 /*------------------------------------------------------------------------------
@@ -1669,6 +1743,13 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  IF physCnt-log AND AVAILABLE(fg-rctd) THEN 
+  DO: 
+      OUTPUT STREAM sPhysCntSave TO VALUE(cPhysCntSaveFile) APPEND.
+      EXPORT STREAM sPhysCntSave fg-rctd.
+      OUTPUT STREAM sPhysCntSave CLOSE.
+  END.
+  
   DO:
       /*IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" */
       IF fgrecpt-int = 1 THEN  ll-crt-transfer = YES.
@@ -1742,7 +1823,7 @@ PROCEDURE new-bin :
            IF fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" THEN caps(fg-bin.cust-no) ELSE fg-rctd.cust-no:SCREEN-VALUE 
        lv-org-loc = fg-rctd.loc:SCREEN-VALUE
        lv-org-loc-bin = fg-rctd.loc-bin:SCREEN-VALUE 
-       /*ld-cost                                                = fg-bin.std-tot-cost*/.
+                /*ld-cost                                                = fg-bin.std-tot-cost*/.
       RUN valid-tag.
     END.
   END.
