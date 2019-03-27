@@ -418,7 +418,7 @@ FOR EACH report
             gchWorkSheet:Range("B12"):VALUE = IF AVAIL fgcat THEN fgcat.dscr ELSE "" .
 
             IF cCertFormat EQ "CCC3" THEN
-                gchWorkSheet:Range("B13"):VALUE = string(itemfg.i-no + " - " + itemfg.part-no) .
+                gchWorkSheet:Range("B13"):VALUE = string(itemfg.i-no + " / " + itemfg.part-no) .
             ELSE IF cCertFormat NE "CCC3" THEN
                 gchWorkSheet:Range("B13"):VALUE = itemfg.part-no .
 
@@ -449,14 +449,19 @@ FOR EACH report
             gchWorkSheet:Range("B31"):VALUE = STRING(xQtyPerCaseTail)
 /*             gchWorkSheet:Range("B32"):VALUE = "Calculated" */
             gchWorkSheet:Range("B33"):VALUE = STRING(oe-bolh.tot-pal) .
-           IF cCertFormat EQ "CCC5"  THEN 
-            gchWorkSheet:Range("B34"):VALUE = IF AVAIL eb THEN STRING(eb.num-wid) ELSE "".
+           
+         
          
            IF AVAIL eb THEN
                FIND FIRST prodl NO-LOCK
                WHERE prodl.company EQ cocode AND
                prodl.procat EQ eb.procat NO-ERROR .
            ELSE RELEASE prodl .
+
+           IF cCertFormat EQ "CCC5" AND  AVAIL prodl AND prodl.prolin EQ "Labels" THEN DO:
+               gchWorkSheet:Range("A34"):VALUE = "Print Lanes" .
+               gchWorkSheet:Range("B34"):VALUE = IF AVAIL eb THEN STRING(eb.num-wid) ELSE "".
+           END.
 
            IF AVAIL prodl AND prodl.prolin EQ "Cartons" AND cCertFormat EQ "CCC4" THEN 
                gchWorkSheet:Range("B35"):VALUE = "Yes".
@@ -466,8 +471,21 @@ FOR EACH report
         /*Get Notes*/
         iNoteLine = 1.
 
-        IF AVAIL prodl AND (prodl.prolin EQ "Labels" OR prodl.prolin EQ "Printed Literature")
+        IF AVAIL prodl AND prodl.prolin NE "Labels"  
              AND cCertFormat EQ "CCC4"  THEN lChackNotes = TRUE .
+
+         IF AVAIL prodl AND prodl.prolin EQ "Labels" AND cCertFormat EQ "CCC4" THEN DO:
+             iNoteLine = iNoteLine + 1.
+             gchWorkSheet:Range("D" + TRIM(STRING(iNoteLine,">9"))):VALUE = 
+                "All label Varnish Water Based.".
+         END.
+         IF AVAIL prodl AND prodl.prolin EQ "Cartons" AND cCertFormat EQ "CCC4" THEN DO:
+          lChackNotes = FALSE .
+          iNoteLine = iNoteLine + 1.
+             gchWorkSheet:Range("D" + TRIM(STRING(iNoteLine,">9"))):VALUE = 
+                "Code Grade for UPC and 2D as 'C' or higher ".
+
+         END.
         
         IF NOT lChackNotes THEN
         FOR EACH notes 
