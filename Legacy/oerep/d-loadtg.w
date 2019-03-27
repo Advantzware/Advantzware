@@ -41,6 +41,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE iLoadTagLimit AS INTEGER NO-UNDO .
 DEFINE VARIABLE dLoadTagLimit AS DECIMAL NO-UNDO .
+DEFINE VARIABLE lcheckflgMsg AS LOGICAL INITIAL YES NO-UNDO .
 /*
 DEF VAR v-ord-copied AS LOG NO-UNDO.
 DEF VAR v-copied-ord-no AS INT NO-UNDO.
@@ -288,13 +289,10 @@ RUN calc-total.
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Loadtag Creation Detail */
-DO:  
-    IF AVAIL w-ord AND w-ord.total-tags GT iLoadTagLimit THEN DO:
-        MESSAGE "The LoadTagLimit = " + STRING(iLoadTagLimit) + ". You cannot print this many load tags at once or this setting must be changed" 
-            VIEW-AS ALERT-BOX INFO .
-        RETURN .
-    END.
-
+DO: 
+    RUN pCheckTag NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    
     APPLY "END-ERROR":U TO SELF.
 END.
 
@@ -307,6 +305,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
+    RUN pCheckTag NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
    APPLY "choose" TO btn_save.
 END.
 
@@ -357,6 +358,7 @@ END.
 ON CHOOSE OF btn_copy IN FRAME Dialog-Frame /* Copy */
 DO:
   IF NOT AVAIL w-ord THEN RETURN NO-APPLY.
+  lcheckflgMsg = YES .
   RUN copy-word.
   RUN pGrandTotal.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -383,7 +385,10 @@ END.
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Create Tags */
-DO:
+DO: 
+   RUN pCheckTag NO-ERROR.
+   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   APPLY 'GO' TO FRAME {&FRAME-NAME}.
 END.
 
@@ -489,12 +494,19 @@ ON 'RETURN' OF w-ord.partial IN BROWSE {&BROWSE-NAME} DO:
   ELSE APPLY 'CHOOSE' TO btn_save IN FRAME {&FRAME-NAME}.
   RETURN NO-APPLY.
 END.
+ON 'VALUE-CHANGED' OF w-ord.total-tags IN BROWSE {&BROWSE-NAME} DO: 
+  
+    ASSIGN w-ord.ord-qty = dec(w-ord.ord-qty:SCREEN-VALUE IN BROWSE {&browse-name})
+        w-ord.total-tags = int(w-ord.total-tags:SCREEN-VALUE IN BROWSE {&browse-name}).
+ 
+END.
 ON 'LEAVE' OF w-ord.total-tags IN BROWSE {&BROWSE-NAME} DO: 
   IF SELF:MODIFIED THEN DO:
       glTotalTagsChanged = YES.
+      lcheckflgMsg = YES .
+      ASSIGN w-ord.ord-qty = dec(w-ord.ord-qty:SCREEN-VALUE IN BROWSE {&browse-name})
+         w-ord.total-tags = int(w-ord.total-tags:SCREEN-VALUE IN BROWSE {&browse-name}).
 /*         RUN calc-total. */
-        ASSIGN w-ord.ord-qty = dec(w-ord.ord-qty:SCREEN-VALUE IN BROWSE {&browse-name})
-           w-ord.total-tags = int(w-ord.total-tags:SCREEN-VALUE IN BROWSE {&browse-name}).
         IF NOT glQtyOK  AND NOT CheckTotals(w-ord.total-unit, 
                                           w-ord.total-tags, 
                                           w-ord.ord-qty) THEN DO:
@@ -504,21 +516,10 @@ ON 'LEAVE' OF w-ord.total-tags IN BROWSE {&BROWSE-NAME} DO:
               VIEW-AS ALERT-BOX INFO BUTTONS YES-NO UPDATE glQtyOK.      
             IF NOT glQtyOK THEN RETURN NO-APPLY.
         END. /*NOT glQtyOK and NOT checkTotals*/
-        DEFINE VARIABLE lcheckflg AS LOGICAL INITIAL YES NO-UNDO .
-        IF AVAIL w-ord AND w-ord.total-tags GT iLoadTagLimit THEN DO:
-            MESSAGE "The LoadTagLimit = " + STRING(iLoadTagLimit) + ". You cannot print this many load tags at once or this setting must be changed" 
-                VIEW-AS ALERT-BOX INFO .
-            RETURN NO-APPLY .
-        END.
-
-        IF AVAIL w-ord AND w-ord.total-tags GT dLoadTagLimit THEN
-            MESSAGE "Are you sure you want to print " + string(w-ord.total-tags) + " of load tags?" 
-            VIEW-AS ALERT-BOX QUESTION  BUTTONS YES-NO UPDATE lcheckflg  .
-
-        IF NOT lcheckflg THEN
-            RETURN NO-APPLY .
-        
-   END. /*self:Modified*/
+        RUN pCheckTag NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END. /*self:Modified*/
+  
 END.
 ON 'LEAVE' OF w-ord.partial IN BROWSE {&BROWSE-NAME} DO: 
   IF SELF:MODIFIED THEN RUN calc-total.
@@ -1012,6 +1013,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckTag Dialog-Frame 
+PROCEDURE pCheckTag :
+DEFINE VARIABLE lcheckflg AS LOGICAL INITIAL YES NO-UNDO .
+
+    IF AVAIL w-ord AND w-ord.total-tags GT iLoadTagLimit THEN DO:
+      MESSAGE "The LoadTagLimit = " + STRING(iLoadTagLimit) + ". You cannot print this many load tags at once or this setting must be changed" 
+          VIEW-AS ALERT-BOX INFO .
+      APPLY "entry"  TO w-ord.total-tags IN BROWSE {&browse-NAME}.
+      RETURN ERROR  .
+    END.
+
+    IF lcheckflgMsg AND AVAIL w-ord AND w-ord.total-tags GT dLoadTagLimit THEN 
+      MESSAGE "Are you sure you want to print " + string(w-ord.total-tags) + " of load tags?" 
+      VIEW-AS ALERT-BOX QUESTION  BUTTONS YES-NO UPDATE lcheckflg  .
+  
+    IF NOT lcheckflg THEN do:
+      APPLY "entry"  TO w-ord.total-tags IN BROWSE {&browse-NAME}.
+      RETURN ERROR .      
+    END.
+    ELSE DO:
+      lcheckflgMsg = NO .
+    END.
+END PROCEDURE.
+
 
 /* ************************  Function Implementations ***************** */
 
@@ -1038,3 +1063,4 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+    
