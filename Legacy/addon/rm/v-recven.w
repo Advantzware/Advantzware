@@ -130,15 +130,8 @@ DO TRANSACTION:
    {sys/inc/sspostvt.i}
 END.
 
-DEFINE VARIABLE iSSScanVendorLength AS INTEGER NO-UNDO .
+
 DEFINE VARIABLE lSSScanVendorLength AS LOGICAL NO-UNDO .
-DEFINE VARIABLE lRecFound       AS LOG       NO-UNDO.
-DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
-	
-	RUN sys/ref/nk1look.p (cocode, "SSScanVendor", "I", NO, NO, "", "", 
-	    OUTPUT cRtnChar, OUTPUT lRecFound).
-	IF lRecFound THEN
-	    iSSScanVendorLength = INT(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -721,6 +714,7 @@ END.
 ON LEAVE OF scr-vend-tag IN FRAME F-Main /* Vendor Tag# */
 DO:
    DEFINE VARIABLE lEdDocFound AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE cVendorID AS CHARACTER NO-UNDO.
    
    DO WITH FRAME {&FRAME-NAME}:
 
@@ -749,17 +743,11 @@ DO:
                RETURN NO-APPLY.
             END.
 
-            IF iSSScanVendorLength NE 0 AND scr-vend-tag NE "" AND NOT LSSScanVendorLength THEN DO:
-                IF LENGTH(scr-vend-tag) > iSSScanVendorLength THEN do:
-	                 MESSAGE "Vendor tag is longer than the maximum of " + STRING(iSSScanVendorLength) 
-	                        + ", as defined by the integer value of SSScanVendor" VIEW-AS ALERT-BOX WARNING.  
-	                    ASSIGN LSSScanVendorLength = YES . 
-	              END.
-	        END.
+            
             
          RUN edDocSearch (OUTPUT lEdDocFound).
          IF lEdDocFound THEN DO:
-             RUN poSearch.
+             RUN poSearch(OUTPUT cVendorID).
          END. 
          ELSE DO:              
              v-po-no = INT(SUBSTR(scr-vend-tag,1,6)) NO-ERROR.
@@ -786,7 +774,13 @@ DO:
              IF NOT ERROR-STATUS:ERROR THEN
                 scr-qty:SCREEN-VALUE = STRING(v-qty).
             
-                RUN poSearch.
+             RUN poSearch(OUTPUT cVendorID).
+             
+             RUN pCheckTagLength(cocode, cVendorID, scr-vend-tag, OUTPUT LSSScanVendorLength).
+             IF NOT LSSScanVendorLength THEN DO:
+                APPLY "entry" TO SELF.
+                RETURN NO-APPLY.
+             END.
          END.
       END.
    END.
@@ -814,6 +808,52 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckTagLength V-table-Win
+PROCEDURE pCheckTagLength PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: given a company, vendor and tag, determine if it meets tag length
+     requirements
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcScan AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplOK AS LOGICAL NO-UNDO.
+
+    DEFINE VARIABLE iSSScanVendorLength         AS INTEGER   NO-UNDO .
+    DEFINE VARIABLE lSSScanVendorLengthRequired AS LOGICAL   NO-UNDO .
+    DEFINE VARIABLE lRecFound                   AS LOG       NO-UNDO.
+    DEFINE VARIABLE cRtnChar                    AS CHARACTER NO-UNDO.
+    
+    oplOK = YES.
+    RUN sys/ref/nk1look.p (ipcCompany, "SSScanVendor", "I", YES, NO, ipcVendorID, "", 
+        OUTPUT cRtnChar, OUTPUT lRecFound).
+    IF lRecFound THEN
+        iSSScanVendorLength = INT(cRtnChar) NO-ERROR.
+    RUN sys/ref/nk1look.p (ipcCompany, "SSScanVendor", "D", YES, NO, ipcVendorID, "", 
+        OUTPUT cRtnChar, OUTPUT lRecFound).  
+    IF lRecFound THEN
+        lSSScanVendorLengthRequired = DEC(cRtnChar) EQ 1 NO-ERROR.
+    IF iSSScanVendorLength NE 0 AND ipcScan NE "" THEN 
+    DO:
+        IF LENGTH(ipcScan) > iSSScanVendorLength AND NOT lSSScanVendorLengthRequired THEN 
+            MESSAGE "Vendor tag is longer than the maximum of " + STRING(iSSScanVendorLength) 
+                + ", as defined by the integer value of SSScanVendor" VIEW-AS ALERT-BOX WARNING.  
+        ELSE IF LENGTH(ipcScan) NE iSSScanVendorLength AND lSSScanVendorLengthRequired THEN DO:
+            MESSAGE "Vendor tag length must be " + STRING(iSSScanVendorLength) 
+                + ", as defined by the integer value of SSScanVendor" VIEW-AS ALERT-BOX.
+            oplOK = NO.
+        END.
+    END.
+        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
@@ -1109,6 +1149,8 @@ PROCEDURE poSearch:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcVendorID AS CHARACTER NO-UNDO.
+    
     IF begin_po-no:SCREEN-VALUE in frame {&frame-name} NE "0" AND
         scr-po-line:SCREEN-VALUE in frame {&frame-name} NE "0" THEN
     DO with frame {&frame-name}:
@@ -1122,6 +1164,7 @@ PROCEDURE poSearch:
         
         IF AVAIL po-ordl THEN
         DO:
+            opcVendorID = po-ordl.vend-no.
             FIND FIRST ITEM WHERE ITEM.company = cocode AND
                 ITEM.i-no = po-ordl.i-no
                 NO-LOCK NO-ERROR.
