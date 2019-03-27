@@ -2177,8 +2177,17 @@ PROCEDURE valid-job-no :
                 RETURN ERROR.
              END.
          END.
-      END.
-    END.
+      END. /* Not avail Job Hdr */
+      FIND FIRST job-hdr
+            WHERE job-hdr.company EQ fg-rctd.company
+            AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
+            NO-LOCK NO-ERROR.
+        IF AVAIL job-hdr AND job-hdr.opened = NO THEN 
+        DO:
+            MESSAGE "Warning: The job entered has a status of closed."
+            VIEW-AS ALERT-BOX.
+        END.
+    END. /* If job# not blank */
   END.
 
 END PROCEDURE.
