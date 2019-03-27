@@ -4299,9 +4299,9 @@ PROCEDURE ipRefTableConv :
         cOrigPropath = PROPATH
         cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
-    RUN ipStatus ("   ReftableConv for " + fiEnvironment:{&SV}).
+    RUN ipStatus ("   ReftableConvert for " + fiEnvironment:{&SV}).
     RUN 
-        VALUE(SEARCH("RefTableConv.r")).
+        VALUE(SEARCH("util\dev\RefTableConvert.r")).
     ASSIGN
         PROPATH = cOrigPropath.
 
@@ -4322,7 +4322,8 @@ PROCEDURE ipRefTableConv :
         reftable1.val[1] NE 1,
         FIRST oe-rel EXCLUSIVE WHERE
             oe-rel.r-no EQ integer(reftable1.company) AND 
-            oe-rel.s-code NE reftable1.code:
+            oe-rel.s-code NE reftable1.code
+            USE-INDEX seq-no:
         ASSIGN 
             reftable1.val[1] = 1
             oe-rel.s-code = reftable1.code.
@@ -4338,6 +4339,7 @@ PROCEDURE ipRefTableConv :
         reftable1.spare-char-3 NE "1":
         FIND FIRST oe-rel EXCLUSIVE WHERE
             oe-rel.r-no = INT(reftable1.company)
+            USE-INDEX seq-no
             NO-ERROR.
         IF AVAILABLE oe-rel THEN DO: 
             IF oe-rel.lot-no EQ "" 
