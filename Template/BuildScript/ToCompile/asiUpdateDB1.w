@@ -980,93 +980,68 @@ PROCEDURE ipFindIniFile :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+    DEF VAR cLetters AS CHAR NO-UNDO INITIAL "ABCDEFGHIJKLMNOPQRSTUVWXYZ".
+    DEF VAR cEnt AS CHAR NO-UNDO.
+    
     /* Start guessing where the file might be */
+    SEARCHBLOCK:
     DO:
         ASSIGN
             cIniLoc = "advantzware.ini".
         IF SEARCH(cIniLoc) <> ? THEN DO:
             ASSIGN
                 cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
+            LEAVE SEARCHBLOCK.
         END.
         ELSE ASSIGN
             cIniLoc = "..\advantzware.ini".
         IF SEARCH(cIniLoc) <> ? THEN DO:
             ASSIGN
                 cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
+            LEAVE SEARCHBLOCK.
         END.
+    
         ASSIGN
             cIniLoc = "N:\Admin\advantzware.ini".
         IF SEARCH(cIniLoc) <> ? THEN DO:
             ASSIGN
                 cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
+            LEAVE SEARCHBLOCK.
         END.
-        ASSIGN
-            cIniLoc = "P:\Admin\advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
+
+        DO iCtr = 1 TO LENGTH(cLetters):
+            ASSIGN 
+                cEnt = SUBSTRING(cLetters,iCtr,1)
+                cIniLoc = cEnt + ":\Admin\advantzware.ini".
+            IF SEARCH(cIniLoc) <> ? THEN DO:
+                ASSIGN
+                    cIniLoc = SEARCH(cIniLoc).
+                LEAVE SEARCHBLOCK.
+            END.
         END.
-        ASSIGN
-            cIniLoc = "C:\ASIGUI\Admin\advantzware.ini.".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
+        
+        DO iCtr = 1 TO LENGTH(cLetters):
+            ASSIGN 
+                cEnt = SUBSTRING(cLetters,iCtr,1)
+                cIniLoc = cEnt + ":\asigui\Admin\advantzware.ini".
+            IF SEARCH(cIniLoc) <> ? THEN DO:
+                ASSIGN
+                    cIniLoc = SEARCH(cIniLoc).
+                LEAVE SEARCHBLOCK.
+            END.
         END.
-        ASSIGN
-            cIniLoc = "C:\ASI\Admin\advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
+
+        DO iCtr = 1 TO LENGTH(cLetters):
+            ASSIGN 
+                cEnt = SUBSTRING(cLetters,iCtr,1)
+                cIniLoc = cEnt + ":\asi\Admin\advantzware.ini".
+            IF SEARCH(cIniLoc) <> ? THEN DO:
+                ASSIGN
+                    cIniLoc = SEARCH(cIniLoc).
+                LEAVE SEARCHBLOCK.
+            END.
         END.
-        ASSIGN
-            cIniLoc = "D:\ASIGUI\Admin\advantzware.ini.".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "D:\ASI\Admin\advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "E:\ASIGUI\Admin\advantzware.ini.".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "E:\ASI\Admin\advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "F:\ASIGUI\Admin\advantzware.ini.".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "F:\ASI\Admin\advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
+
         ASSIGN
             cIniLoc = "".
     END.
