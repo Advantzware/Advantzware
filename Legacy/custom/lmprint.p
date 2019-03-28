@@ -18,6 +18,7 @@ Notes       :
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions     ----------------------------------------- */
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 DEF INPUT PARAMETER ipcLabelFile AS CHAR NO-UNDO.  /* QDF Template File */
 /*##PN these parameter is used in the case of a user-defined c:ba\label\ dir*/
 /*##PN leave blank to let template dictate datafile*/
@@ -31,12 +32,11 @@ DEFINE VARIABLE cResult AS CHARACTER   NO-UNDO.
 
 /* Include Files              ----------------------------------------- */
 {custom/windows.i}
-{sys/inc/var.i shared}
 
 DEF VAR lLabelMatrixLock AS LOG NO-UNDO.
 DEF STREAM sLock.
 
-RUN sys/ref/nk1look.p (INPUT cocode,
+RUN sys/ref/nk1look.p (INPUT ipcCompany,
                        INPUT "lmLock",
                        INPUT "L",
                        INPUT NO,

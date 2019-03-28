@@ -1439,11 +1439,13 @@ IF scr-auto-print THEN DO:
                              OUTPUT lUserSpecific).
 
     IF lUserSpecific THEN 
-        RUN custom/lmprint.p (INPUT scr-label-file, 
+        RUN custom/lmprint.p (INPUT cocode,
+                              INPUT scr-label-file, 
                               INPUT cDB,
                               INPUT cBarDir).
     ELSE
-        RUN custom/lmprint.p (INPUT scr-label-file,
+        RUN custom/lmprint.p (INPUT cocode,
+                              INPUT scr-label-file,
                               INPUT "",
                               INPUT "").
 END.
