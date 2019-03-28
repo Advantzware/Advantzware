@@ -54,6 +54,23 @@ PROCEDURE CloseOutput:
 
 END PROCEDURE.
 
+PROCEDURE GetBarDirFilePath:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the entire path for the location of the data file
+ Notes:  Wraps 
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDB AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFilePath AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cBarDir AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDB AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lUserSpecific AS LOGICAL NO-UNDO.
+    
+    RUN sys/ref/GetBarDir.p (ipcCompany, ipcDB, OUTPUT opcFilePath, OUTPUT cDB, OUTPUT lUserSpecific).
+    
+END PROCEDURE.
+
 PROCEDURE InitializeOutputXprint:
     /*------------------------------------------------------------------------------
      Purpose: Initialize XPrintOutput with default Font and FontSize
@@ -64,6 +81,7 @@ PROCEDURE InitializeOutputXprint:
     DEFINE INPUT PARAMETER iplModal AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcFont AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiFontSize AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAdditionalTags AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cInitTag AS CHARACTER NO-UNDO.
 
@@ -72,6 +90,7 @@ PROCEDURE InitializeOutputXprint:
     IF ipcFont EQ "" THEN ipcFont = "Tahoma".
     IF ipiFontSize LT 8 THEN ipiFontSize = 8.
     cInitTag = "<F" + ipcFont + "><P" + TRIM(STRING(ipiFontSize,">9")) + ">".
+    IF ipcAdditionalTags NE "" THEN cInitTag = ipcAdditionalTags + cInitTag.
     IF NOT iplModal THEN cInitTag = "<MODAL=NO>" + cInitTag. 
     IF iplPreview THEN cInitTag = "<PREVIEW>" + cInitTag.
      
@@ -112,9 +131,9 @@ PROCEDURE PrintLabelMatrixFile:
     RUN sys/ref/GetBarDir.p (ipcCompany, ipcDB, OUTPUT cBarDir, OUTPUT cDB, OUTPUT lUserSpecific).
 
     IF lUserSpecific THEN 
-        RUN custom/lmprint.p (ipcQDFFile, cDB, cBarDir).
+        RUN custom/lmprint.p (ipcCompany, ipcQDFFile, cDB, cBarDir).
     ELSE
-        RUN custom/lmprint.p (ipcQDFFile, "", "").
+        RUN custom/lmprint.p (ipcCompany, ipcQDFFile, "", "").
 
 END PROCEDURE.
 
