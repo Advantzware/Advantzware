@@ -1494,11 +1494,15 @@ PROCEDURE ipJobMaterial:
     END. /* each item */
     requiredQty = requiredQty + job-mat.qty.
   END. /* each job-mat */
-  ASSIGN 
+  ASSIGN
     opNoCases = STRING(noCases,'>>,>>>,>>9.9<<<<<')
     opMatType5Qty = STRING(matType5Qty,'>>,>>>,>>9.9<<<<<')
     opMatType6Qty = STRING(matType6Qty,'>>,>>>,>>9.9<<<<<')
-    opRequiredQty = STRING(requiredQty,'>>,>>>,>>9.9<<<<<')
+/*    opRequiredQty = STRING(requiredQty,'>>,>>>,>>9.9<<<<<')*/
+    /* round up required quantity */
+    requiredQty = TRUNCATE(requiredQty,0)
+                + IF requiredQty - TRUNCATE(requiredQty,0) GT 0 THEN 1 ELSE 0
+    opRequiredQty = STRING(requiredQty,'>>,>>>,>>9')
     .
 END PROCEDURE.
 
