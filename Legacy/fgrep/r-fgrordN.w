@@ -74,7 +74,7 @@ DEFINE VARIABLE cItemLoc AS CHARACTER NO-UNDO .
 ASSIGN cTextListToSelect = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,WHSE," + 
                            "QTY ALLOC,QTY ORD,MIN ORD QTY,MAX ORD QTY,QTY AVAIL,SELL PRC,SUGT REORDER QTY," +
                            "VENDOR ITEM#,HISTORY,WHS DAYS,LAST SHIP,PO DUE DATE,JOB DUE DATE,CUSTOMER#,SALES REP,COST,COST UOM," +
-                           "5 MO AVG,SUGT - AVG,SUGT REORDER MSF,STOCK STATUS"
+                           "MO AVG,SUGT - AVG,SUGT REORDER MSF,STOCK STATUS"
        cFieldListToSelect = "itemfg.i-no,itemfg.part-no,itemfg.i-name,itemfg.procat,itemfg.sell-uom,itemfg.ord-level,v-qty-onh,whse," +
                             "v-alloc-qty,itemfg.q-ono,itemfg.ord-min,itemfg.ord-max,v-qty-avail,itemfg.sell-price,v-reord-qty," +
                             "itemfg.vend-item,li-hist,whs-day,last-ship,po-due-dt,job-due-dt,itemfg.cust-no,v-rep,itemfg.total-std-cost,itemfg.prod-uom," +
@@ -942,12 +942,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL display_hist C-Win
 ON HELP OF display_hist IN FRAME FRAME-A /* History for month */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
-                                  .
-
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1656,9 +1651,9 @@ END.
 ON LEAVE OF display_hist IN FRAME FRAME-A /* Beginning Class */
 DO:
     
-  IF INTEGER(display_hist:SCREEN-VALUE) GT 12 THEN
+  IF INTEGER(display_hist:SCREEN-VALUE) GT 12 OR INTEGER(display_hist:SCREEN-VALUE) LT 1  THEN
       ASSIGN display_hist:SCREEN-VALUE = "12" .
-  ASSIGN {&self-name}.
+    ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
