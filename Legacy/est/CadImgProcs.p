@@ -18,16 +18,8 @@ PROCEDURE pUpdateCadOnCorrugated:
         FOR EACH eb EXCLUSIVE-LOCK
             WHERE eb.company EQ est.company 
             AND eb.est-no EQ est.est-no :
-
-            IF eb.cad-no EQ "" THEN
-                eb.cad-no = ipcFileName .
-
-            IF iplAddExt AND eb.cad-no NE "" THEN DO:
-                IF INDEX(eb.cad-no,".ard") EQ 0 THEN
-                    ASSIGN eb.cad-no = eb.cad-no + ".ard" .
-            END.
-
-            IF iplBoxImg THEN DO:
+            
+            IF iplBoxImg AND eb.cad-no NE "" THEN DO:
                  FIND FIRST box-design-hdr WHERE box-design-hdr.design-no = 0 AND
                      box-design-hdr.company = eb.company 
                      AND box-design-hdr.est-no = eb.est-no     
@@ -36,8 +28,13 @@ PROCEDURE pUpdateCadOnCorrugated:
 
                  IF AVAILABLE box-design-hdr THEN DO:
                      ASSIGN 
-                         box-design-hdr.box-image = ipcFilePath . /*".jpg"*/.
+                         box-design-hdr.box-image = ipcFilePath + "\" + trim(eb.cad-no) + ".jpg"  . /*".jpg"*/.
                  END.
+            END.
+
+            IF iplAddExt AND eb.cad-no NE "" THEN DO:
+                IF INDEX(eb.cad-no,".ard") EQ 0 THEN
+                    ASSIGN eb.cad-no = eb.cad-no + ".ard" .
             END.
         END.
     END.

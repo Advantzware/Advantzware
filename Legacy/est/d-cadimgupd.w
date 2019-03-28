@@ -36,7 +36,17 @@ DEFINE VARIABLE i       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iCount  AS INTEGER   NO-UNDO .
 DEFINE VARIABLE cadFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdCadProcs AS HANDLE.
-RUN custom/CadImgProcs.p PERSISTENT SET hdCadProcs.
+DEFINE VARIABLE cInitDir   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRtnChar  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL   NO-UNDO.
+
+RUN est/CadImgProcs.p PERSISTENT SET hdCadProcs.
+
+RUN sys/ref/nk1look.p (INPUT ipcCompany, "CEUpdateCAD", "C" /* Logical */, NO /* check by cust */, 
+            INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+            OUTPUT cRtnChar, OUTPUT lRecFound).
+        IF lRecFound THEN
+            cInitDir = cRtnChar NO-ERROR. 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -206,12 +216,6 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
     DO:
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
-
-           IF SEARCH(file_name) EQ ?  THEN DO:
-               MESSAGE "File Path or file Invalid, try help..." VIEW-AS ALERT-BOX INFORMATION .
-                APPLY "entry" TO file_name . 
-                RETURN NO-APPLY .
-           END.
         END.
 
     RUN pUpdateCadOnCorrugated IN hdCadProcs(ipRowId,tb_addcad,tb_boximg,ImageName(file_name),file_name) .
@@ -247,29 +251,6 @@ ON VALUE-CHANGED OF tb_boximg IN FRAME Dialog-Frame /* Update Box Design Image F
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL file_name Dialog-Frame
 ON HELP OF file_name IN FRAME Dialog-Frame /* Update Box Design Image File path and filename - (CAD#).jpg */
     DO:
-        DEFINE VARIABLE initDir   AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE okClicked AS LOGICAL   NO-UNDO.
-        DEFINE VARIABLE cRtnChar  AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE lRecFound AS LOGICAL   NO-UNDO.
-
-        RUN sys/ref/nk1look.p (INPUT ipcCompany, "CEUpdateCAD", "C" /* Logical */, NO /* check by cust */, 
-            INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-            OUTPUT cRtnChar, OUTPUT lRecFound).
-        IF lRecFound THEN
-            initDir = cRtnChar NO-ERROR. 
-        cadFile = ''.
-
-        SYSTEM-DIALOG GET-FILE cadfile 
-            TITLE 'Select Image File to insert'
-            FILTERS 'JPG Files    (*.jpg)' '*.jpg',
-            'Bitmap files (*.bmp)' '*.bmp',
-            'JPEG Files   (*.jpeg)' '*.jpeg',
-            'TIF Files    (*.tif)' '*.tif',
-            'All Files    (*.*) ' '*.*'
-            INITIAL-DIR initDir
-            MUST-EXIST USE-FILENAME UPDATE okClicked.
-        IF okClicked THEN
-            file_name:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cadfile /*imageName(cadfile)*/ .
   
     END.
 
@@ -312,6 +293,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
         tot_form:SCREEN-VALUE IN FRAME {&FRAME-NAME}   = string(iCount) .
         tot_form = STRING(iCount) .
+        file_name = cInitDir .
 
     END.
   

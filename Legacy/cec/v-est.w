@@ -5054,7 +5054,7 @@ PROCEDURE cad-image-update :
   Notes:       
 ------------------------------------------------------------------------------*/
     IF AVAIL eb THEN do:
-        RUN custom/d-cadimgupd.w(cocode,ROWID(est)) .
+        RUN est/d-cadimgupd.w(cocode,ROWID(est)) .
         RUN local-display-fields .
     END.
 
