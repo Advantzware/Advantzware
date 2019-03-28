@@ -21,12 +21,10 @@ DEFINE VARIABLE cConfigFolder AS CHARACTER NO-UNDO.
 /*DEFINE VARIABLE cCommandFile AS CHARACTER NO-UNDO. */
 DEFINE VARIABLE iPos AS INTEGER NO-UNDO.
 DEFINE BUFFER bfFtpConfig FOR ftpConfig.
-{methods/defines/globdefs.i}
-{methods/defines/hndldefs.i}
 {custom/ftpProcs.i}        
 {sys/inc/var.i NEW SHARED}
 
-cocode = g_company.
+cocode = "001".
 RUN sys/ref/nk1look.p (INPUT cocode,  "InboundConfig", "C" /* Character*/, 
     INPUT NO /* check by cust */, 
     INPUT YES /* use cust not vendor */,
@@ -605,6 +603,7 @@ PROCEDURE pGetConfigValues:
         WHERE ftpConfig.partner EQ  ipcFtpSite
         NO-LOCK NO-ERROR.
   
+
     IF AVAIL ftpConfig THEN DO:
         lConfigBased = TRUE.
         ASSIGN
