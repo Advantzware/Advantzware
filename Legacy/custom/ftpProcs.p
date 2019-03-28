@@ -13,17 +13,37 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE VARIABLE cReturnChar AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE gvFormat AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gvFtpSite AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gvFolder AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gvFileSpec AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE ftpURL AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ftpUser AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ftpPassword AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ftpType AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ftpDir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ftpGet AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ftpMode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ftpSoftware AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ftpScript AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ftpBinary AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cXMLFile AS CHARACTER FORMAT 'X(50)' NO-UNDO.
+DEFINE VARIABLE attrList AS CHARACTER FORMAT 'X(4)' NO-UNDO.
+DEFINE VARIABLE cExec    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFtpIniFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cReturnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cConfigFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lConfigBased AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cConfigFolder AS CHARACTER NO-UNDO.
-/*DEFINE VARIABLE cCommandFile AS CHARACTER NO-UNDO. */
+DEFINE VARIABLE cCommandFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iPos AS INTEGER NO-UNDO.
 DEFINE BUFFER bfFtpConfig FOR ftpConfig.
-{custom/ftpProcs.i}        
-{sys/inc/var.i NEW SHARED}
+{custom/ftpProcs.i}
 
+        
+{sys/inc/var.i NEW SHARED}
 cocode = "001".
 RUN sys/ref/nk1look.p (INPUT cocode,  "InboundConfig", "C" /* Character*/, 
     INPUT NO /* check by cust */, 
@@ -41,63 +61,57 @@ ELSE
 
 /* ************************  Function Prototypes ********************** */
 
-FUNCTION fNK1ConfigFolder RETURNS CHARACTER 
+FUNCTION fGetConfigFolder RETURNS CHARACTER 
 	(  ) FORWARD.
 
 FUNCTION fGetFtpCmd RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER  ) FORWARD.
 
-FUNCTION fGetLogFile RETURNS CHARACTER 
-    (ipcSoftware AS CHARACTER, ipcCommandFile AS CHARACTER ) FORWARD.
-
-FUNCTION fGetScriptCmd RETURNS CHARACTER 
-    (ipcSoftware AS CHARACTER, ipcCommandFile AS CHARACTER ) FORWARD.
-
-FUNCTION fGetCloseCmd RETURNS CHARACTER 
+FUNCTION GetCloseCmd RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER  ) FORWARD.
 
-FUNCTION fGetConfigFolder RETURNS CHARACTER 
+FUNCTION getConfigFolder RETURNS CHARACTER 
     (ipcConfigFile AS CHARACTER) FORWARD.
 
 FUNCTION fGetPutCmd RETURNS CHARACTER 
-	(ipcSoftware AS CHARACTER, ipcFtpGet AS CHARACTER, ipcFileSpec AS CHARACTER) FORWARD.
+	(ipcSoftware AS CHARACTER, ipcFtpGet AS CHARACTER) FORWARD.
 
-FUNCTION fGetExitCmd RETURNS CHARACTER 
+FUNCTION GetExitCmd RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER  ) FORWARD.
 
-FUNCTION fGetFtpExe RETURNS CHARACTER 
+FUNCTION getFtpExe RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER) FORWARD.
 
-FUNCTION fGetFtpIni RETURNS CHARACTER 
+FUNCTION getFtpINI RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER) FORWARD.
 
-FUNCTION fGetLocalChgDirCmd RETURNS CHARACTER 
+FUNCTION GetLocalChgDirCmd RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER, ipcLocalFolder AS CHARACTER) FORWARD.
 
-FUNCTION fGetOpenCmd RETURNS CHARACTER 
+FUNCTION GetOpenCmd RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER, ipcFtpMode AS CHARACTER, ipcFtpUser AS CHARACTER, ipcFtpPassword AS CHARACTER, ipcFtpURL AS CHARACTER ) FORWARD.
 
-FUNCTION fGetPrepCmd1 RETURNS CHARACTER 
+FUNCTION GetPrepCmd1 RETURNS CHARACTER 
 	(ipcSoftware AS CHARACTER  ) FORWARD.
 
-FUNCTION fGetPrepCmd2 RETURNS CHARACTER 
+FUNCTION GetPrepCmd2 RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER  ) FORWARD.
 
-FUNCTION fGetRmtChgDirCmd RETURNS CHARACTER 
+FUNCTION GetRmtChgDirCmd RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER, ipcChdir AS CHARACTER) FORWARD.
 
-FUNCTION fGetWinScpExe RETURNS CHARACTER 
+FUNCTION getWinScpExe RETURNS CHARACTER 
 	(  ) FORWARD.
 
-FUNCTION fGetWinScpINI RETURNS CHARACTER 
+FUNCTION getWinScpINI RETURNS CHARACTER 
 	(  ) FORWARD.
 
-FUNCTION fSetCmdLine RETURNS CHARACTER 
+FUNCTION setCmdLine RETURNS CHARACTER 
     (INPUT ipiLine AS INTEGER, INPUT ipcCmd AS CHARACTER  ) FORWARD.
 
 /* ************************  Function Implementations ***************** */
 
-FUNCTION fNK1ConfigFolder RETURNS CHARACTER 
+FUNCTION fGetConfigFolder RETURNS CHARACTER 
 	(  ):
 /*------------------------------------------------------------------------------
  Purpose:
@@ -131,7 +145,7 @@ FUNCTION fGetFtpCmd RETURNS CHARACTER
     ------------------------------------------------------------------------------*/	
 
     DEF VAR cCmd AS CHAR NO-UNDO.
-    /* cExec = fGetFtpExe(ipcSoftware). */
+    
     CASE ipcSoftware:
         WHEN "WinScp" THEN 
             cCmd = "Close".
@@ -141,52 +155,11 @@ FUNCTION fGetFtpCmd RETURNS CHARACTER
     
     RETURN cCmd.
 
-		
-END FUNCTION.
-
-FUNCTION fGetLogFile RETURNS CHARACTER 
-    (ipcSoftware AS CHARACTER, ipcCommandFile AS CHARACTER ):
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/	
-
-    DEF VAR cCmd AS CHAR NO-UNDO.
-    
-    CASE ipcSoftware:
-        WHEN "WinScp" THEN DO:
-            cCmd = "/XMLLOG=" + ipcCommandFile + ".XML" .           
-        END.
-        WHEN "FTP" THEN 
-            cCmd = "". 
-    END CASE.
-    
-    RETURN cCmd.
-		
-END FUNCTION.
-
-FUNCTION fGetScriptCmd RETURNS CHARACTER 
-    (ipcSoftware AS CHARACTER, ipcCommandFile AS CHARACTER ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/	
-
-    DEF VAR cCmd AS CHAR NO-UNDO.
-    
-    CASE ipcSoftware:
-        WHEN "WinScp" THEN 
-            cCmd = "/script=" + ipcCommandFile.
-        WHEN "FTP" THEN 
-            cCmd = "-s:" + ipcCommandFile. 
-    END CASE.
-    
-    RETURN cCmd.
 
 		
 END FUNCTION.
 
-FUNCTION fGetCloseCmd RETURNS CHARACTER 
+FUNCTION GetCloseCmd RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER  ):
     /*------------------------------------------------------------------------------
      Purpose:
@@ -207,7 +180,7 @@ FUNCTION fGetCloseCmd RETURNS CHARACTER
 		
 END FUNCTION.
 
-FUNCTION fGetConfigFolder RETURNS CHARACTER 
+FUNCTION getConfigFolder RETURNS CHARACTER 
 	(ipcConfigFile AS CHARACTER):
 /*------------------------------------------------------------------------------
  Purpose:
@@ -230,7 +203,7 @@ FUNCTION fGetConfigFolder RETURNS CHARACTER
 END FUNCTION.
 
 FUNCTION fGetPutCmd RETURNS CHARACTER 
-	( ipcSoftware AS CHARACTER, ipcFtpGet AS CHARACTER, ipcFileSpec AS CHARACTER ):
+	( ipcSoftware AS CHARACTER, ipcFtpGet AS CHARACTER ):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -240,9 +213,9 @@ FUNCTION fGetPutCmd RETURNS CHARACTER
     
     CASE ipcSoftware:
         WHEN "WinScp" THEN 
-            cCmd = ipcFtpGet + " " + ipcFileSpec.
+            cCmd = ipcFtpGet + " " + gvFileSpec.
         WHEN "FTP" THEN 
-            cCmd = ipcFtpGet + " " + ipcFileSpec. 
+            cCmd = ipcFtpGet + " " + gvFileSpec. 
     END CASE.
     
     RETURN cCmd.
@@ -250,12 +223,14 @@ FUNCTION fGetPutCmd RETURNS CHARACTER
 		
 END FUNCTION.
 
-FUNCTION fGetExitCmd RETURNS CHARACTER 
+FUNCTION GetExitCmd RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER  ):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/	
+
+ 
     DEF VAR cCmd   AS CHAR NO-UNDO.
     
     CASE ipcSoftware:
@@ -268,7 +243,7 @@ FUNCTION fGetExitCmd RETURNS CHARACTER
 		
 END FUNCTION.
 
-FUNCTION fGetFtpExe RETURNS CHARACTER 
+FUNCTION getFtpExe RETURNS CHARACTER 
 	(ipcSoftware AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose: Return ftp program executable file
@@ -298,8 +273,6 @@ FUNCTION fGetFtpExe RETURNS CHARACTER
                 
             END.
        END.
-       WHEN "FTP" THEN
-         cExec = "FTP".
     END CASE. 
     
     cFtpExe = cExec.          
@@ -308,7 +281,7 @@ FUNCTION fGetFtpExe RETURNS CHARACTER
 		
 END FUNCTION.
 
-FUNCTION fGetFtpIni RETURNS CHARACTER 
+FUNCTION getFtpINI RETURNS CHARACTER 
 	(ipcSoftware AS CHARACTER):
 /*------------------------------------------------------------------------------
  Purpose:  Returns INI file for ftp software (if any)
@@ -316,7 +289,7 @@ FUNCTION fGetFtpIni RETURNS CHARACTER
 ------------------------------------------------------------------------------*/	
 
 		DEFINE VARIABLE cIniResult AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE cFtpIniFile AS CHARACTER NO-UNDO.
+
         CASE ipcSoftware:
             WHEN "WinScp" THEN DO:
                 
@@ -331,13 +304,12 @@ FUNCTION fGetFtpIni RETURNS CHARACTER
 
             END.
         END CASE.  
-        IF cFtpIniFile NE ? THEN 
-          cIniResult = cFtpIniFile.
+        
 		RETURN cIniResult.
 		
 END FUNCTION.
 
-FUNCTION fGetLocalChgDirCmd RETURNS CHARACTER 
+FUNCTION GetLocalChgDirCmd RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER, ipcLocalFolder AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:
@@ -348,7 +320,7 @@ FUNCTION fGetLocalChgDirCmd RETURNS CHARACTER
     
     CASE ipcSoftware:
         WHEN "WinScp" THEN 
-            cCmd = IF ipcLocalFolder GT "" THEN "lcd " + ipcLocalFolder ELSE "".
+            cCmd = "lcd " + ipcLocalFolder.
         WHEN "FTP" THEN 
             cCmd = "Exit". 
     END CASE.
@@ -358,7 +330,7 @@ FUNCTION fGetLocalChgDirCmd RETURNS CHARACTER
 		
 END FUNCTION.
 
-FUNCTION fGetOpenCmd RETURNS CHARACTER 
+FUNCTION GetOpenCmd RETURNS CHARACTER 
 	(ipcSoftware AS CHARACTER, ipcFtpMode AS CHARACTER, ipcFtpUser AS CHARACTER, ipcFtpPassword AS CHARACTER, ipcFtpURL AS CHARACTER ):
     /*------------------------------------------------------------------------------
      Purpose:
@@ -379,7 +351,7 @@ FUNCTION fGetOpenCmd RETURNS CHARACTER
 		
 END FUNCTION.
 
-FUNCTION fGetPrepCmd1 RETURNS CHARACTER 
+FUNCTION GetPrepCmd1 RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER  ):
     /*------------------------------------------------------------------------------
      Purpose:
@@ -400,7 +372,7 @@ FUNCTION fGetPrepCmd1 RETURNS CHARACTER
 		
 END FUNCTION.
 
-FUNCTION fGetPrepCmd2 RETURNS CHARACTER 
+FUNCTION GetPrepCmd2 RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER  ):
     /*------------------------------------------------------------------------------
      Purpose:
@@ -421,7 +393,7 @@ FUNCTION fGetPrepCmd2 RETURNS CHARACTER
 		
 END FUNCTION.
 
-FUNCTION fGetRmtChgDirCmd RETURNS CHARACTER 
+FUNCTION GetRmtChgDirCmd RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER, ipcChdir AS CHARACTER  ):
     /*------------------------------------------------------------------------------
      Purpose:
@@ -442,7 +414,7 @@ FUNCTION fGetRmtChgDirCmd RETURNS CHARACTER
 		
 END FUNCTION.
 
-FUNCTION fGetWinScpExe RETURNS CHARACTER 
+FUNCTION getWinScpExe RETURNS CHARACTER 
 	(  ):
     /*------------------------------------------------------------------------------
      Purpose:
@@ -472,14 +444,14 @@ FUNCTION fGetWinScpExe RETURNS CHARACTER
     RETURN cWinScpExe.   /* Function return value. */
 END FUNCTION.
 
-FUNCTION fGetWinScpINI RETURNS CHARACTER 
+FUNCTION getWinScpINI RETURNS CHARACTER 
 	(  ):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/	
 DEFINE VARIABLE cWinScpIniFile AS CHARACTER NO-UNDO.
-    cWinScpIniFile = SEARCH(fNK1configFolder() + "\winscp.ini").
+    cWinScpIniFile = SEARCH(fGetconfigFolder() + "\winscp.ini").
     IF cWinScpIniFile EQ ? THEN 
         cWinScpIniFile = "".
     ELSE 
@@ -490,7 +462,7 @@ DEFINE VARIABLE cWinScpIniFile AS CHARACTER NO-UNDO.
     
 END FUNCTION.
 
-FUNCTION fSetCmdLine RETURNS CHARACTER 
+FUNCTION setCmdLine RETURNS CHARACTER 
     (INPUT ipiLine AS INTEGER, INPUT ipcCmd AS CHARACTER  ):
 /*------------------------------------------------------------------------------
  Purpose:
@@ -508,10 +480,32 @@ END FUNCTION.
 
 /* ***************************  Main Block  *************************** */
 
+/*
+cConfigFolder = getConfigFolder(cConfigFile).
+RUN LoadConfig.
+
+RUN set-config-based (BUFFER bfftpConfig).
+
+IF NOT lConfigBased OR NOT AVAILABLE ftpConfig THEN 
+  RETURN.
+  
+  
+cCommandFile = cConfigFolder + "\" + ftpConfig.ftpScript.
+
+
+RUN config-Based-Script.
+
+/* run ftp and download the files */
+cExec = getFtpExe("WinScp").
+
+
+IF cExec NE ? AND cExec NE "" THEN 
+    OS-COMMAND SILENT VALUE(cExec + cFtpIniFile + " /XMLLOG=c:\temp\log.txt  /script=" + cCommandFile).
+*/ 
    
    
 /* **********************  Internal Procedures  *********************** */   
-PROCEDURE pCreateScriptRecords:
+PROCEDURE createScriptRecords:
     DEFINE INPUT PARAMETER ipFtpURL      AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipFtpUser     AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipFtpPassword AS CHARACTER NO-UNDO.
@@ -520,9 +514,7 @@ PROCEDURE pCreateScriptRecords:
     DEFINE INPUT PARAMETER ipFtpGet      AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipFtpSoftware AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipFtpScript   AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipFtpBinary   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcLocalFolder AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFileSpec  AS CHARACTER NO-UNDO.    
+    DEFINE INPUT PARAMETER ipFtpBinary   AS CHARACTER NO-UNDO.    
     DEFINE VARIABLE cPrepCmd1       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPrepCmd2       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOpenCmd        AS CHARACTER NO-UNDO.
@@ -532,14 +524,13 @@ PROCEDURE pCreateScriptRecords:
     DEFINE VARIABLE cCloseCmd       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cExitCmd        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iLineNumber     AS INTEGER NO-UNDO.
-    DEFINE VARIABLE cFtpIniFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cExec AS CHARACTER NO-UNDO.    
+    
     /* Winscp is the only option handled currently */
     IF ipFtpSoftware EQ "winSCP" THEN 
     DO:
         
         cFtpIniFile = SEARCH(cConfigFile + "\winscp.ini").
-        cExec = fGetFtpExe("WinScp").
+        cExec = getFtpExe("WinScp").
         IF cFtpIniFile EQ ? THEN 
             cFtpIniFile = "".
         ELSE 
@@ -549,36 +540,35 @@ PROCEDURE pCreateScriptRecords:
         END.
         
         ASSIGN
-        cPrepCmd1       = fGetPrepCmd1(ipFtpSoftware)    
-        cPrepCmd2       = fGetPrepCmd2(ipFtpSoftware)      
-        cOpenCmd        = fGetOpenCmd(ipFtpSoftware, ipFtpMode, ipFtpUser, 
-                                      ipFtpPassword, ipFtpURL)       
-        cLocalChgDirCmd = fGetLocalChgDirCmd(ipFtpSoftware, ipcLocalFolder)
-        cRmtChgDirCmd   = fGetRmtChgDirCmd(ipFtpSoftware, ipFtpDir)  
-        cFtpPutCmd      = fGetPutCmd(ipFtpSoftware, ipFtpGet, ipcFileSpec)    
-        cCloseCmd       = fGetCloseCmd(ipFtpSoftware)      
-        cExitCmd        = fGetExitCmd(ipFtpSoftware)
+        cPrepCmd1       = GetPrepCmd1(ipFtpSoftware)    
+        cPrepCmd2       = GetPrepCmd2(ipFtpSoftware)      
+        cOpenCmd        = GetOpenCmd(ipFtpSoftware, ipFtpMode, ipFtpUser, ipFtpPassword, ipFtpURL)       
+        /* cLocalChgDirCmd = GetLocalChgDirCmd(ipFtpSoftware, gvFolder) */
+        cRmtChgDirCmd   = GetRmtChgDirCmd(ipFtpSoftware, ftpDir)  
+        cFtpPutCmd     = fGetPutCmd(ipFtpSoftware, ipFtpGet)    
+        cCloseCmd       = GetCloseCmd(ipFtpSoftware)      
+        cExitCmd        = GetExitCmd(ipFtpSoftware)
         .       
         iLineNumber = 10.
-        fSetCmdLine(iLineNumber, cPrepCmd1).
+        setCmdLine(iLineNumber, cPrepCmd1).
         
         iLineNumber = iLineNumber + 10.
-        fSetCmdLine(iLineNumber, cPrepCmd2).
+        setCmdLine(iLineNumber, cPrepCmd2).
         
         iLineNumber = iLineNumber + 10.
-        fSetCmdLine(iLineNumber, cOpenCmd). 
+        setCmdLine(iLineNumber, cOpenCmd). 
         
-        iLineNumber = iLineNumber + 10.          
-        fSetCmdLine(iLineNumber, cLocalChgDirCmd).
-        
-        iLineNumber = iLineNumber + 10.
-        fSetCmdLine(iLineNumber, cRmtChgDirCmd).
+/*        iLineNumber = iLineNumber + 10.          */
+/*        setCmdLine(iLineNumber, cLocalChgDirCmd).*/
         
         iLineNumber = iLineNumber + 10.
-        fSetCmdLine(iLineNumber, cFtpPutCmd).
+        setCmdLine(iLineNumber, cRmtChgDirCmd).
         
         iLineNumber = iLineNumber + 10.
-        fSetCmdLine(iLineNumber, cCloseCmd).
+        setCmdLine(iLineNumber, cFtpPutCmd).
+        
+        iLineNumber = iLineNumber + 10.
+        setCmdLine(iLineNumber, cCloseCmd).
 
     END. /* WinScp */
 
@@ -586,7 +576,7 @@ PROCEDURE pCreateScriptRecords:
 END PROCEDURE.
 
 
-PROCEDURE pGetConfigValues:
+PROCEDURE getConfigValues:
     DEFINE INPUT PARAMETER ipcFormat   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFtpSite  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFolder   AS CHARACTER NO-UNDO.
@@ -641,26 +631,13 @@ PROCEDURE pExecuteCommand:
      Notes:
     ------------------------------------------------------------------------------*/
     /* run ftp and download the files */
-    DEFINE INPUT  PARAMETER iplSilent AS LOGICAL NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcSoftware AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcCommandFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cLogFileCmd AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cScriptCmd AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFtpIniFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cExec AS CHARACTER NO-UNDO.
-    cExec = fGetFtpExe(ipcSoftware).
-    cLogFileCmd = fGetLogFile(ipcSoftware, ipcCommandFile).
-    cScriptCmd = fGetScriptCmd(ipcSoftware, ipcCommandFile).
-    cFtpIniFile = fGetFtpIni(ipcSoftware).
+    cExec = getFtpExe("WinScp").
 
-    IF cExec NE ? AND cExec NE "" THEN DO:
-        IF iplSilent THEN 
-            OS-COMMAND SILENT 
-              VALUE(cExec + cFtpIniFile + " " + cLogFileCmd + " " + cScriptCmd).
-        ELSE 
-            OS-COMMAND 
-              VALUE(cExec + cFtpIniFile + " " + cLogFileCmd + " " + cScriptCmd).
-    END.
+MESSAGE cExec + cFtpIniFile + " /XMLLOG=c:\temp\log.txt  /script=" + cCommandFile
+VIEW-AS ALERT-BOX.
+    IF cExec NE ? AND cExec NE "" THEN 
+        OS-COMMAND /* SILENT */ VALUE(cExec + cFtpIniFile + " /XMLLOG=c:\temp\log.txt  /script=" + cCommandFile).
+
 END PROCEDURE.
 
 PROCEDURE pWriteToFile:
@@ -668,20 +645,18 @@ PROCEDURE pWriteToFile:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCommandFile AS CHARACTER NO-UNDO.
-    OUTPUT TO VALUE(ipcCommandFile). 
-/*    cCommandFile = fNK1configFolder() + "\" + ftpScript. */
-    
+    OUTPUT TO VALUE(fGetconfigFolder() + "\" + ftpScript). 
+    cCommandFile = fGetconfigFolder() + "\" + ftpScript.
     FOR EACH ttScriptLines BY ttScriptLines.scriptLineNum:       
+
       PUT UNFORMATTED ttScriptLines.scriptLineText SKIP.
     END.
-    
     OUTPUT CLOSE.
 
 
 END PROCEDURE.
 
-PROCEDURE pExecFtp:
+PROCEDURE setFtpSite:
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -690,19 +665,12 @@ PROCEDURE pExecFtp:
     DEFINE INPUT PARAMETER ipcFtpSite  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFolder   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFileSpec AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE ftpURL      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE ftpUser     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE ftpPassword AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE ftpType     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE ftpDir      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE ftpGet      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE ftpMode     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE ftpSoftware AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE ftpScript   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE ftpBinary   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCommandFile AS CHARACTER NO-UNDO.
-    RUN pGetConfigValues (ipcFormat, 
+    ASSIGN gvFormat   = ipcFormat
+           gvFtpSite  = ipcFtpSite
+           gvFolder   = ipcFolder
+           gvFileSpec = ipcFileSpec
+           .
+    RUN getConfigValues (ipcFormat, 
                          ipcFtpSite, 
                          ipcFolder, 
                          ipcFileSpec, 
@@ -717,7 +685,7 @@ PROCEDURE pExecFtp:
                          OUTPUT ftpScript, 
                          OUTPUT ftpBinary).
     
-    RUN pCreateScriptRecords (FtpURL,
+    RUN createScriptRecords (FtpURL,
                              FtpUser,
                              FtpPassword,
                              FtpMode,
@@ -725,11 +693,9 @@ PROCEDURE pExecFtp:
                              FtpGet,
                              FtpSoftware,
                              FtpScript,
-                             FtpBinary,
-                             ipcFolder,
-                             ipcFileSpec).
-
-    cCommandFile = fNK1configFolder() + "\" + ftpScript.
-    RUN pWriteToFile (INPUT cCommandFile).
-    RUN pExecuteCommand (NO, FtpSoftware, cCommandFile).
+                             FtpBinary).
+    MESSAGE ftpUrl ftpuser ftppassword ftpsoftware
+    VIEW-AS ALERT-BOX.
+    RUN pWriteToFile.
+    RUN pExecuteCommand.
 END PROCEDURE.
