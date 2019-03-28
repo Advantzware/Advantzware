@@ -49,6 +49,9 @@ DEFINE VARIABLE ll-order-warned          AS LOGICAL       NO-UNDO.
 DEFINE VARIABLE ll-new-record            AS LOGICAL       NO-UNDO.
 DEFINE BUFFER bf-rell FOR oe-rell.
 DEFINE BUFFER bf-ordl FOR oe-ordl.
+DEFINE VARIABLE hInventoryProcs AS HANDLE  NO-UNDO.
+DEFINE VARIABLE lActiveBin      AS LOGICAL NO-UNDO.
+{Inventory/ttInventory.i "NEW SHARED"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -897,9 +900,10 @@ IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+        
+    RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
     
     IF ip-type EQ "copy" THEN lv-item-recid = ip-recid.
-
 
     IF ip-recid EQ ? THEN 
     DO:
@@ -1125,6 +1129,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit Dialog-Frame
+PROCEDURE local-exit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    DELETE OBJECT hInventoryProcs.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-bin Dialog-Frame 
 PROCEDURE new-bin :
     /*------------------------------------------------------------------------------
@@ -1278,6 +1304,7 @@ PROCEDURE valid-job-loc-bin-tag :
 
         FOR EACH fg-bin NO-LOCK
             WHERE fg-bin.company  EQ cocode
+            AND fg-bin.active   EQ TRUE
             AND fg-bin.i-no     EQ fg-rctd.i-no:SCREEN-VALUE 
             AND fg-bin.job-no   EQ fg-rctd.job-no:SCREEN-VALUE 
             AND (fg-bin.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE ) OR
@@ -1388,14 +1415,11 @@ PROCEDURE valid-loc-bin2 :
 
         IF lv-msg EQ "" THEN 
         DO:
-            FIND FIRST fg-bin
-                WHERE fg-bin.company EQ cocode
-                AND fg-bin.i-no    EQ ""
-                AND fg-bin.loc     EQ fg-rctd.loc2:SCREEN-VALUE 
-                AND fg-bin.loc-bin EQ fg-rctd.loc-bin2:SCREEN-VALUE 
-                USE-INDEX co-ino NO-LOCK NO-ERROR.
-
-            IF NOT AVAILABLE fg-bin THEN lv-msg = "Invalid entry, try help...".
+            RUN ValidateBin IN hInventoryProcs (cocode, 
+                fg-rctd.loc2:SCREEN-VALUE,
+                fg-rctd.loc-bin2:SCREEN-VALUE, 
+                OUTPUT lActiveBin ).
+            IF NOT lActiveBin THEN lv-msg = "Invalid entry, try help...".
         END.
 
         IF lv-msg NE "" THEN 
@@ -1428,11 +1452,9 @@ PROCEDURE valid-loc2 :
 
         IF lv-msg EQ "" THEN 
         DO:
-            FIND FIRST loc
-                WHERE loc.company EQ cocode
-                AND loc.loc     EQ fg-rctd.loc2:SCREEN-VALUE 
-                NO-LOCK NO-ERROR.
-            IF NOT AVAILABLE loc THEN lv-msg = "Invalid entry, try help".
+            RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc2:SCREEN-VALUE, OUTPUT lActiveBin).
+            IF NOT lActiveBin THEN 
+                 lv-msg = "Invalid entry, try help".
         END.
 
         IF lv-msg NE "" THEN 

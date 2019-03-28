@@ -63,13 +63,15 @@ DEF BUFFER reftable-job FOR reftable.
 DEF VAR lv-frst-rno AS INT NO-UNDO.
 DEF VAR lv-linker LIKE fg-rcpts.linker NO-UNDO.
 DEF VAR ll-set-parts AS LOG NO-UNDO.
+DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
+DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 
 {pc/pcprdd4u.i NEW}
 {fg/invrecpt.i NEW}
 {jc/jcgl-sh.i  NEW}
 {fg/fullset.i  NEW}
 {fg/fg-post3.i NEW}
-
+{Inventory/ttInventory.i "NEW SHARED"}
 
 
 
@@ -847,19 +849,15 @@ DO:
                  fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
        END.
 
-       FIND FIRST loc WHERE loc.company = cocode
-                        AND loc.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                        NO-LOCK NO-ERROR.
-       IF NOT AVAIL loc THEN DO:
+       RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+       IF NOT lActiveBin THEN DO:
           MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
        END.
-       FIND FIRST fg-bin WHERE fg-bin.company = cocode 
-                           AND fg-bin.i-no = ""
-                           AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                           AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                           USE-INDEX co-ino NO-LOCK NO-ERROR.
-       IF NOT AVAIL fg-bin THEN DO:
+       RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+            fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+            OUTPUT lActiveBin ).       
+       IF NOT lActiveBin THEN DO:
           MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO fg-rctd.loc .
           RETURN NO-APPLY.
@@ -1210,6 +1208,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -2280,6 +2279,31 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
+PROCEDURE local-exit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DELETE OBJECT hInventoryProcs.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
@@ -3439,10 +3463,8 @@ PROCEDURE validate-record :
       END.
     END.
   END.
-  
-  IF NOT CAN-FIND(FIRST loc WHERE
-     loc.company = cocode AND
-     loc.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}) THEN DO:
+  RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+    IF NOT lActiveBin THEN DO:
      MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO fg-rctd.loc.
      op-error = YES.
@@ -3459,11 +3481,10 @@ PROCEDURE validate-record :
        op-error = YES.
      LEAVE.
     END.   
-  IF NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = cocode 
-                      AND fg-bin.i-no = ""
-                      AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                      USE-INDEX co-ino) THEN DO:
+    RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+        fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+        OUTPUT lActiveBin ).    
+  IF NOT lActiveBin THEN DO:
      MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO fg-rctd.loc-bin.
      op-error = YES.

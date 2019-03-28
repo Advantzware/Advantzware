@@ -61,7 +61,8 @@ DEFINE VARIABLE v-shpmet        LIKE itemfg.ship-meth NO-UNDO.
 DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE lFound          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lCheckMessage   AS LOGICAL   NO-UNDO .
-
+DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
+{Inventory/ttInventory.i "NEW SHARED"}
 DEFINE TEMP-TABLE w-est-no
     FIELD w-est-no LIKE itemfg.est-no
     FIELD w-run    AS LOG.
@@ -1873,6 +1874,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit V-table-Win
+PROCEDURE local-exit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DELETE OBJECT hInventoryProcs.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-hide V-table-Win 
 PROCEDURE local-hide :
 /*------------------------------------------------------------------------------
@@ -1910,7 +1936,7 @@ PROCEDURE local-initialize :
     ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
-
+    RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
@@ -2756,6 +2782,8 @@ PROCEDURE valid-loc :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lValidLoc AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lValidBin AS LOGICAL NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
         
         /* If you're not modifying the FGMASTER item then blanks aren't allowed */
@@ -2776,21 +2804,15 @@ PROCEDURE valid-loc :
                 RETURN ERROR.
             END.
         END.
-        IF itemfg.def-loc:SCREEN-VALUE <> ""
-            AND NOT CAN-FIND(FIRST loc WHERE 
-            loc.company = gcompany AND 
-            loc.loc = itemfg.def-loc:SCREEN-VALUE)
-            THEN 
+        RUN ValidateLoc IN hInventoryProcs (cocode, itemfg.def-loc:SCREEN-VALUE, OUTPUT lValidLoc ).
+        IF NOT lValidLoc THEN 
         DO:
             MESSAGE "Invalid Default Warehouse." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO itemfg.def-loc.
             RETURN ERROR.
         END.
-        IF itemfg.def-loc-bin:SCREEN-VALUE <> "" 
-            AND NOT CAN-FIND(FIRST fg-bin WHERE 
-            fg-bin.company = gcompany AND 
-            fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
-            fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
+        RUN ValidateBin IN hInventoryProcs (cocode, itemfg.def-loc:SCREEN-VALUE, itemfg.def-loc-bin:SCREEN-VALUE, OUTPUT lValidBin ).
+        IF NOT lValidBin
             THEN 
         DO:
             MESSAGE "Invalid Default Bin Location for Warehouse " itemfg.def-loc:SCREEN-VALUE VIEW-AS ALERT-BOX ERROR.
