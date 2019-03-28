@@ -30,6 +30,7 @@ DEFINE TEMP-TABLE ttCycleCountCompare
     FIELD cCompany                   AS CHARACTER COLUMN-LABEL "Company" 
     FIELD cFGItemID                  AS CHARACTER COLUMN-LABEL "FG Item ID"
     FIELD cTag                       AS CHARACTER COLUMN-LABEL "Tag"
+    FIELD cVendorTag                 AS CHARACTER COLUMN-LABEL "Vendor Tag"
     FIELD cSysLoc                    AS CHARACTER COLUMN-LABEL "System Warehouse"
     FIELD cSysLocBin                 AS CHARACTER COLUMN-LABEL "System Bin"
     FIELD cScanLoc                   AS CHARACTER COLUMN-LABEL "Scanned Warehouse"
@@ -97,7 +98,7 @@ FIELD    tag  like rm-bin.tag.
 DEFINE STREAM sOutput.
 
 DEFINE VARIABLE gcOutputFile   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE gcSnapshotFile AS CHARACTER NO-UNDO INIT "c:\tmp\invSnapShot.csv".
+DEFINE VARIABLE gcSnapshotFile AS CHARACTER NO-UNDO INIT "./custfiles/invSnapShot.csv".
 
 DEF NEW SHARED VAR v-post-date AS DATE    INITIAL TODAY.     
 DEF NEW SHARED VAR v-avgcost   AS LOGICAL.
@@ -595,7 +596,13 @@ PROCEDURE pBuildCompareTable PRIVATE:
         END.
 
         ttCycleCountCompare.cShtSize = (trim(string(dShtLen,">,>>99.99")) + " X " + trim(string(dShtWid,">,>>99.99")) ).        
-
+        FIND FIRST loadtag NO-LOCK 
+            WHERE loadtag.company EQ ttCycleCountCompare.cCompany
+              AND loadtag.item-type EQ TRUE 
+              AND loadtag.tag-no EQ ttCycleCountCompare.cTag
+            NO-ERROR.
+        IF AVAILABLE loadtag then
+            ttCycleCountCompare.cVendorTag = loadtag.misc-char[1].
     END. 
 END PROCEDURE.
 
