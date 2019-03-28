@@ -138,7 +138,7 @@ IF tb_corr AND ( lv-format-c = "Soule" /* OR lv-format-c = "BELL" */ ) THEN DO:
     END.
 END.
 
-IF ip-industry EQ "Fold" AND tb_fold AND CAN-DO("Frankstn,Keystone,Ruffino,FibreFC,METRO,HPB,MWFibre,PPI,PackRite,Rosmar,Knight,MidYork,Dee,Prystup,Knight***",lv-format-f) THEN
+IF ip-industry EQ "Fold" AND tb_fold AND CAN-DO("Frankstn,Keystone,FibreFC,METRO,HPB,MWFibre,PPI,PackRite,Rosmar,Knight,MidYork,Dee,Prystup,Knight***",lv-format-f) THEN
   {cerep/jobkeyst.i NO-LOCK}
   , EACH job-mat WHERE job-mat.company = job-hdr.company
                    AND job-mat.job     = job-hdr.job
@@ -153,7 +153,7 @@ IF ip-industry EQ "Fold" AND tb_fold AND CAN-DO("Frankstn,Keystone,Ruffino,Fibre
           BY job-hdr.i-no
   TRANSACTION:
   
-    IF CAN-DO("Keystone,MWFibre,Ruffino",lv-format-f) THEN DO:
+    IF CAN-DO("Keystone,MWFibre",lv-format-f) THEN DO:
 
       IF FIRST-OF(job-hdr.frm) THEN 
         RUN cerep/d-keyst.w (job-hdr.job-no, job-hdr.job-no2, job-hdr.frm).
@@ -182,7 +182,7 @@ IF ip-industry EQ "Fold" AND tb_fold AND CAN-DO("Frankstn,Keystone,Ruffino,Fibre
                 tt-key2.tt-rowid   = ROWID(job-hdr).
 
               /* 2nd Popup */
-              IF lv-format-f EQ "Keystone" or lv-format-f EQ "Ruffino" THEN do:         /*Task# 10181304*/
+              IF lv-format-f EQ "Keystone" THEN do:         /*Task# 10181304*/
                   IF FIRST-OF(job-hdr.i-no) THEN
                       RUN cerep/d-kystn1.w (job-hdr.job-no, job-hdr.job-no2, job-hdr.frm, job-hdr.blank-no, job-hdr.i-no).            
               END.
