@@ -290,10 +290,8 @@ RUN calc-total.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Loadtag Creation Detail */
 DO: 
-    RUN pCheckTag NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    
-    APPLY "END-ERROR":U TO SELF.
+    EMPTY TEMP-TABLE w-ord .
+    APPLY "go" TO FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
