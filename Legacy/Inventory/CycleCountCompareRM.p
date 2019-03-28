@@ -92,16 +92,16 @@ DEFINE TEMP-TABLE ttSnapShot
     .
     
 DEFINE TEMP-TABLE ttDupTags
-FIELD    i-no like rm-bin.i-no
-FIELD    tag  like rm-bin.tag.
+    FIELD i-no LIKE rm-bin.i-no
+    FIELD tag  LIKE rm-bin.tag.
     
 DEFINE STREAM sOutput.
 
-DEFINE VARIABLE gcOutputFile   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE gcSnapshotFile AS CHARACTER NO-UNDO INIT "./custfiles/invSnapShot.csv".
+DEFINE            VARIABLE gcOutputFile   AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE gcSnapshotFile AS CHARACTER NO-UNDO INIT "./custfiles/invSnapShot.csv".
 
-DEF NEW SHARED VAR v-post-date AS DATE    INITIAL TODAY.     
-DEF NEW SHARED VAR v-avgcost   AS LOGICAL.
+DEFINE NEW SHARED VARIABLE v-post-date    AS DATE      INITIAL TODAY.     
+DEFINE NEW SHARED VARIABLE v-avgcost      AS LOGICAL.
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -110,7 +110,7 @@ DEF NEW SHARED VAR v-avgcost   AS LOGICAL.
 
 
 FUNCTION fSnapshotCreateDtTime RETURNS CHARACTER 
-	(  ) FORWARD.
+    (  ) FORWARD.
 
 
 /* ***************************  Main Block  *************************** */
@@ -134,7 +134,7 @@ PROCEDURE exportSnapshot:
     DEFINE VARIABLE lBinDups AS LOGICAL NO-UNDO.
     RUN pCheckBinDups (OUTPUT lBinDups ).
     IF lBinDups THEN 
-      RETURN. 
+        RETURN. 
     FOR EACH rm-bin NO-LOCK
         WHERE rm-bin.company EQ ipcCompany
         AND rm-bin.i-no GE ipcFGItemStart
@@ -164,11 +164,11 @@ PROCEDURE exportSnapshot:
             WHERE rm-rcpth.r-no EQ rm-rdtlh.r-no
             AND rm-rcpth.rita-code EQ rm-rdtlh.rita-code:
             ASSIGN 
-              ttSnapShot.cJobNo   = rm-rdtlh.job-no 
-              ttSnapShot.cJobNo2  = STRING(rm-rdtlh.job-no2)
-              ttSnapShot.cSNum    = STRING(rm-rdtlh.s-num)
-              ttSnapShot.cBNum    = STRING(rm-rdtlh.b-num)
-              .
+                ttSnapShot.cJobNo  = rm-rdtlh.job-no 
+                ttSnapShot.cJobNo2 = STRING(rm-rdtlh.job-no2)
+                ttSnapShot.cSNum   = STRING(rm-rdtlh.s-num)
+                ttSnapShot.cBNum   = STRING(rm-rdtlh.b-num)
+                .
         END.            
     END.
     
@@ -197,16 +197,18 @@ PROCEDURE pBuildCompareTable PRIVATE:
     DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
     DEFINE BUFFER bf-rm-bin  FOR rm-bin.
 
-    DEFINE VARIABLE iCountBins AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dMSF AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCalcQty AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dLFQty AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCost AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dExtCost AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dShtWid AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dShtLen AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dTransQty AS DECIMAL NO-UNDO.
-    
+    DEFINE VARIABLE iCountBins  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dMSF        AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCalcQty    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dLFQty      AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCost       AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dExtCost    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dShtWid     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dShtLen     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTransQty   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iStatusCnt1 AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iStatusCnt2 AS INTEGER NO-UNDO.
+        
     EMPTY TEMP-TABLE ttCycleCountCompare.
     FIND FIRST ce-ctrl WHERE ce-ctrl.company EQ ipcCompany NO-LOCK NO-ERROR.
     FOR EACH rm-rctd NO-LOCK 
@@ -221,7 +223,15 @@ PROCEDURE pBuildCompareTable PRIVATE:
         AND rm-rctd.loc-bin LE ipcBinEnd
         AND rm-rctd.qty NE 0
         :
-          
+
+        iStatusCnt1 = iStatusCnt1 + 1.
+        IF iStatusCnt1 GT 99 THEN 
+        DO:
+            iStatusCnt2 = iStatusCnt2 + iStatusCnt1.
+            iStatusCnt1 = 0.
+            STATUS DEFAULT "Build Compare " + STRING(iStatusCnt2).
+        END.          
+        
         /*Initial Create*/    
         FIND FIRST ttCycleCountCompare NO-LOCK /*Only one record per tag*/
             WHERE ttCycleCountCompare.cCompany EQ rm-rctd.company
@@ -232,29 +242,29 @@ PROCEDURE pBuildCompareTable PRIVATE:
         DO:
             CREATE ttCycleCountCompare.
             ASSIGN 
-                ttCycleCountCompare.cCompany    = rm-rctd.company
-                ttCycleCountCompare.cFGItemID   = rm-rctd.i-no
-                ttCycleCountCompare.cTag        = rm-rctd.tag
-                ttCycleCountCompare.cScanLoc    = rm-rctd.loc
-                ttCycleCountCompare.cScanLocBin = rm-rctd.loc-bin
-                ttCycleCountCompare.dScanQty    = rm-rctd.qty
-                ttCycleCountCompare.dScanCost    = rm-rctd.cost
-                ttCycleCountCompare.dScanCostValue  = rm-rctd.qty * rm-rctd.cost
-                ttCycleCountCompare.iSequence   = rm-rctd.r-no
-                ttCycleCountCompare.dtScanDate  = rm-rctd.enteredDT
-                ttCycleCountCompare.cScanUser   = rm-rctd.enteredBy
-                ttCycleCountCompare.cJobNo      = rm-rctd.job-no
-                ttCycleCountCompare.cJobNo2     = STRING(rm-rctd.job-no2)
-                ttCycleCountCompare.cSNum       = STRING(rm-rctd.s-num)
-                ttCycleCountCompare.cBnum       = STRING(rm-rctd.b-num)
+                ttCycleCountCompare.cCompany       = rm-rctd.company
+                ttCycleCountCompare.cFGItemID      = rm-rctd.i-no
+                ttCycleCountCompare.cTag           = rm-rctd.tag
+                ttCycleCountCompare.cScanLoc       = rm-rctd.loc
+                ttCycleCountCompare.cScanLocBin    = rm-rctd.loc-bin
+                ttCycleCountCompare.dScanQty       = rm-rctd.qty
+                ttCycleCountCompare.dScanCost      = rm-rctd.cost
+                ttCycleCountCompare.dScanCostValue = rm-rctd.qty * rm-rctd.cost
+                ttCycleCountCompare.iSequence      = rm-rctd.r-no
+                ttCycleCountCompare.dtScanDate     = rm-rctd.enteredDT
+                ttCycleCountCompare.cScanUser      = rm-rctd.enteredBy
+                ttCycleCountCompare.cJobNo         = rm-rctd.job-no
+                ttCycleCountCompare.cJobNo2        = STRING(rm-rctd.job-no2)
+                ttCycleCountCompare.cSNum          = STRING(rm-rctd.s-num)
+                ttCycleCountCompare.cBnum          = STRING(rm-rctd.b-num)
                 .
         END.
     END. 
-    
+  
     /* Records for reporting of snapshot only */
     FOR EACH ttSnapshot
         WHERE ttSnapshot.cFGItemID GE ipcFgItemStart
-         AND ttSnapshot.cFgItemID  LE ipcFgItemEnd :
+        AND ttSnapshot.cFgItemID  LE ipcFgItemEnd :
             
         FIND FIRST ttCycleCountCompare NO-LOCK /*Only one record per tag*/
             WHERE ttCycleCountCompare.cCompany EQ ttSnapshot.cCompany
@@ -289,19 +299,20 @@ PROCEDURE pBuildCompareTable PRIVATE:
             WHERE rm-rcpth.r-no EQ rm-rdtlh.r-no
             AND rm-rcpth.rita-code EQ rm-rdtlh.rita-code:
             CASE rm-rcpth.rita-code:
-                WHEN "I" THEN dTransQty = dTransQty - rm-rdtlh.qty.
+                WHEN "I" THEN 
+                    dTransQty = dTransQty - rm-rdtlh.qty.
                 WHEN "R"THEN 
                     dTransQty = dTransQty + rm-rdtlh.qty.
                 WHEN "A" THEN 
                     dTransQty = dTransQty + rm-rdtlh.qty.
                 OTHERWISE 
-                    dTransQty = dTransQty + rm-rdtlh.qty.
+                dTransQty = dTransQty + rm-rdtlh.qty.
             END CASE.
         END.
         ASSIGN         
-              ttCycleCountCompare.dSnapQty         = ttSnapShot.dSysQty 
-              ttCycleCountCompare.dTotalTrans      = dTransQty 
-              .  
+            ttCycleCountCompare.dSnapQty    = ttSnapShot.dSysQty 
+            ttCycleCountCompare.dTotalTrans = dTransQty 
+            .  
     END.
     
     FOR EACH ttCycleCountCompare:  
@@ -435,43 +446,56 @@ PROCEDURE pBuildCompareTable PRIVATE:
         END.
     END.
     
+    ASSIGN 
+        iStatusCnt1 = 0
+        iStatusCnt2 = 0
+        .
     /* Add other values */
     FOR EACH ttCycleCountCompare:
-        
+
+        iStatusCnt1 = iStatusCnt1 + 1.
+        IF iStatusCnt1 GT 99 THEN 
+        DO:
+            iStatusCnt2 = iStatusCnt2 + iStatusCnt1.
+            iStatusCnt1 = 0.
+            STATUS DEFAULT "Build Compare - lookup values " + STRING(iStatusCnt2).
+        END.
+
+            
         IF  ttCycleCountCompare.lLocationChanged THEN ttCycleCountCompare.cAction = "Transfer auto-created".
         IF  ttCycleCountCompare.lQuantityChanged THEN ttCycleCountCompare.cAction = "Count Posted".
-       IF  ttCycleCountCompare.lLocationChanged AND ttCycleCountCompare.lQuantityChanged THEN 
-          ttCycleCountCompare.cAction = "Transfer auto-created,Count Posted".
+        IF  ttCycleCountCompare.lLocationChanged AND ttCycleCountCompare.lQuantityChanged THEN 
+            ttCycleCountCompare.cAction = "Transfer auto-created,Count Posted".
         IF  ttCycleCountCompare.lLocationChanged AND ttCycleCountCompare.lQuantityChanged 
-             AND (ttCycleCountCompare.cSysLoc EQ ""
-                  OR ttCycleCountCompare.cSysLocBin EQ  "") THEN 
+            AND (ttCycleCountCompare.cSysLoc EQ ""
+            OR ttCycleCountCompare.cSysLocBin EQ  "") THEN 
             ttCycleCountCompare.cAction = "Count Posted".          
                   
-       IF  ttCycleCountCompare.iCountOfBinsForTagNonZero > 1 THEN 
-         ASSIGN ttCycleCountCompare.cAction = "Cannot Post" ttCycleCountCompare.cRecommendedAction = "Remove Duplicate" .
-       IF  ttCycleCountCompare.lNotScanned THEN ttCycleCountCompare.cAction = "Zero Count auto-created". 
-       IF  ttCycleCountCompare.iCountofScansForTagZero > 1 THEN ASSIGN ttCycleCountCompare.cAction = "Cannot Post" 
-        ttCycleCountCompare.cRecommendedAction = "Remove Duplicate".       
-       IF  ttCycleCountCompare.lMatch THEN  ttCycleCountCompare.cAction = "Count auto-deleted".
+        IF  ttCycleCountCompare.iCountOfBinsForTagNonZero > 1 THEN 
+            ASSIGN ttCycleCountCompare.cAction            = "Cannot Post" ttCycleCountCompare.cRecommendedAction = "Remove Duplicate" .
+        IF  ttCycleCountCompare.lNotScanned THEN ttCycleCountCompare.cAction = "Zero Count auto-created". 
+        IF  ttCycleCountCompare.iCountofScansForTagZero > 1 THEN ASSIGN ttCycleCountCompare.cAction            = "Cannot Post" 
+                ttCycleCountCompare.cRecommendedAction = "Remove Duplicate".       
+        IF  ttCycleCountCompare.lMatch THEN  ttCycleCountCompare.cAction = "Count auto-deleted".
         
         FIND FIRST ITEM NO-LOCK 
             WHERE ITEM.company EQ ttCycleCountCompare.cCompany 
             AND ITEM.i-no EQ ttCycleCountCompare.cFgItemID
             NO-ERROR.
-           /* MESSAGE "avail item" avail(item) ITEM.i-no "co" ITEM.company " i-code" ITEM.i-code "industr" ITEM.industry "case-l" ITEM.case-l "case-w" ITEM.case-w
-            VIEW-AS ALERT-BOX. */
+        /* MESSAGE "avail item" avail(item) ITEM.i-no "co" ITEM.company " i-code" ITEM.i-code "industr" ITEM.industry "case-l" ITEM.case-l "case-w" ITEM.case-w
+         VIEW-AS ALERT-BOX. */
         IF NOT AVAILABLE ITEM THEN NEXT.
         
         /* Sys MSF */
         dCalcQty = ttCycleCountCompare.dSysQty.
         dLFQty = dCalcQty.
-/*         MESSAGE "dCalcQty dlfQty" dCalcQty dLFQty*/
-/*         VIEW-AS ALERT-BOX.                       */
+        /*         MESSAGE "dCalcQty dlfQty" dCalcQty dLFQty*/
+        /*         VIEW-AS ALERT-BOX.                       */
         IF ITEM.cons-uom NE "LF" THEN
             RUN sys/ref/convquom.p(ITEM.cons-uom, "LF", ITEM.basis-w,
-                (IF ITEM.r-wid eq 0 THEN ITEM.s-len
+                (IF ITEM.r-wid EQ 0 THEN ITEM.s-len
                 ELSE 12),
-                (IF ITEM.r-wid eq 0 THEN ITEM.s-wid
+                (IF ITEM.r-wid EQ 0 THEN ITEM.s-wid
                 ELSE ITEM.r-wid),
                 ITEM.s-dep,                    
                 dCalcQty, OUTPUT dLFQty).
@@ -488,13 +512,13 @@ PROCEDURE pBuildCompareTable PRIVATE:
         dCalcQty = ttCycleCountCompare.dScanQty.
       
         dLFQty = dCalcQty.
-/*                 MESSAGE "dCalcQty dlfQty" dCalcQty dLFQty*/
-/*                 VIEW-AS ALERT-BOX.                       */
+        /*                 MESSAGE "dCalcQty dlfQty" dCalcQty dLFQty*/
+        /*                 VIEW-AS ALERT-BOX.                       */
         IF ITEM.cons-uom NE "LF" THEN
             RUN sys/ref/convquom.p(ITEM.cons-uom, "LF", ITEM.basis-w,
-                (IF ITEM.r-wid eq 0 THEN ITEM.s-len
+                (IF ITEM.r-wid EQ 0 THEN ITEM.s-len
                 ELSE 12),
-                (IF ITEM.r-wid eq 0 THEN ITEM.s-wid
+                (IF ITEM.r-wid EQ 0 THEN ITEM.s-wid
                 ELSE ITEM.r-wid),
                 ITEM.s-dep,                    
                 dCalcQty, OUTPUT dLFQty).
@@ -504,31 +528,32 @@ PROCEDURE pBuildCompareTable PRIVATE:
         IF AVAILABLE ITEM THEN 
             dMSF = IF item.r-wid GT 0 THEN dLFQty * ITEM.r-wid / 12 / 1000
             ELSE dCalcQty * ITEM.s-wid * ITEM.s-len / 144 / 1000.
-/*MESSAGE "dcalcqty r-wid s-wid s-len dlfqty" dCalcQty ITEM.r-wid ITEM.s-wid ITEM.s-len dlfqty*/
-/*VIEW-AS ALERT-BOX.                                                                          */
+        /*MESSAGE "dcalcqty r-wid s-wid s-len dlfqty" dCalcQty ITEM.r-wid ITEM.s-wid ITEM.s-len dlfqty*/
+        /*VIEW-AS ALERT-BOX.                                                                          */
         ttCycleCountCompare.dScanMSF            = dMSF.
         
         
         FIND FIRST ce-ctrl WHERE ce-ctrl.company EQ cocode NO-LOCK NO-ERROR.
         
-       /* System Cost */
+        /* System Cost */
         dCost = IF ce-ctrl.r-cost THEN ITEM.avg-cost ELSE ttCycleCountCompare.dSysCost.
         IF dCost EQ ? THEN dCost = 0.
-       IF dCost EQ 0 AND ce-ctrl.r-cost EQ NO THEN DO:
-           FIND FIRST rm-bin NO-LOCK /*Only one record per tag*/
-               WHERE rm-bin.company EQ ttCycleCountCompare.cCompany 
-               AND rm-bin.i-no EQ ttCycleCountCompare.cFGItemID  
-               AND rm-bin.tag EQ ttCycleCountCompare.cTag  
-               NO-ERROR.
-           IF AVAILABLE rm-bin THEN 
-             dCost = rm-bin.cost.
-       END.
+        IF dCost EQ 0 AND ce-ctrl.r-cost EQ NO THEN 
+        DO:
+            FIND FIRST rm-bin NO-LOCK /*Only one record per tag*/
+                WHERE rm-bin.company EQ ttCycleCountCompare.cCompany 
+                AND rm-bin.i-no EQ ttCycleCountCompare.cFGItemID  
+                AND rm-bin.tag EQ ttCycleCountCompare.cTag  
+                NO-ERROR.
+            IF AVAILABLE rm-bin THEN 
+                dCost = rm-bin.cost.
+        END.
        
-       ASSIGN 
-        ttCycleCountCompare.dSysCost = dCost 
-        ttCycleCountCompare.cSysCostUom = ITEM.pur-uom      
-        ttCycleCountCompare.dSysCostValue = dCost * ttCycleCountCompare.dSysQty
-        .
+        ASSIGN 
+            ttCycleCountCompare.dSysCost      = dCost 
+            ttCycleCountCompare.cSysCostUom   = ITEM.pur-uom      
+            ttCycleCountCompare.dSysCostValue = dCost * ttCycleCountCompare.dSysQty
+            .
         
                
         
@@ -538,46 +563,47 @@ PROCEDURE pBuildCompareTable PRIVATE:
         dShtLen     = 0  .
 
         IF ITEM.i-code EQ "R" THEN 
-        do:
+        DO:
             IF item.industry = "1" THEN
                 ASSIGN
-                    dShtWid     = ITEM.case-w 
-                    dShtLen     = ITEM.case-l
-/*                    dShtDep     = ITEM.case-d */
-/*                    dShtRollWid = ITEM.r-wid .*/
-                . 
+                    dShtWid = ITEM.case-w 
+                    dShtLen = ITEM.case-l
+                    /*                    dShtDep     = ITEM.case-d */
+                    /*                    dShtRollWid = ITEM.r-wid .*/
+                    . 
             ELSE
                 ASSIGN
-                    dShtWid     = ITEM.s-wid 
-                    dShtLen     = ITEM.s-len
+                    dShtWid = ITEM.s-wid 
+                    dShtLen = ITEM.s-len
                     .
         END.
         ELSE 
         DO:             
 
-            IF NOT ttCycleCountCompare.lNotScanned THEN DO:
-                 FIND FIRST rm-bin NO-LOCK /*Only one record per tag*/
+            IF NOT ttCycleCountCompare.lNotScanned THEN 
+            DO:
+                FIND FIRST rm-bin NO-LOCK /*Only one record per tag*/
                     WHERE rm-bin.company EQ ttCycleCountCompare.cCompany 
                     AND rm-bin.i-no EQ ttCycleCountCompare.cFGItemID  
                     AND rm-bin.tag EQ ttCycleCountCompare.cTag  
                     NO-ERROR.  
                 IF AVAILABLE rm-bin THEN  
-                FIND FIRST po-ordl  NO-LOCK WHERE po-ordl.company EQ rm-bin.company 
-                    AND po-ordl.po-no EQ rm-bin.po-no
-                    AND po-ordl.i-no EQ rm-bin.i-no
-                   NO-ERROR.
+                    FIND FIRST po-ordl  NO-LOCK WHERE po-ordl.company EQ rm-bin.company 
+                        AND po-ordl.po-no EQ rm-bin.po-no
+                        AND po-ordl.i-no EQ rm-bin.i-no
+                        NO-ERROR.
         
                 IF AVAILABLE po-ordl THEN                    
-                 ASSIGN 
-                     ttCycleCountCompare.cJobNo = IF po-ordl.job-no NE "" THEN string(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2) ELSE ""
-                     ttCycleCountCompare.cJobNo2 = STRING(po-ordl.job-no2)
-                     ttCycleCountCompare.cSNum   = STRING(po-ordl.s-num)
-                     ttCycleCountCompare.cBNum = STRING(po-ordl.b-num )
-                     .
+                    ASSIGN 
+                        ttCycleCountCompare.cJobNo  = IF po-ordl.job-no NE "" THEN STRING(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2) ELSE ""
+                        ttCycleCountCompare.cJobNo2 = STRING(po-ordl.job-no2)
+                        ttCycleCountCompare.cSNum   = STRING(po-ordl.s-num)
+                        ttCycleCountCompare.cBNum   = STRING(po-ordl.b-num )
+                        .
             END.         
-/*            MESSAGE "finding job mat" "co" ttCycleCountCompare.cCompany "job" ttCycleCountCompare.cJobNo*/
-/*                "csnum" ttCycleCountCompare.cSNum "bnum" ttCycleCountCompare.cBNum                      */
-/*                VIEW-AS ALERT-BOX.                                                                      */
+            /*            MESSAGE "finding job mat" "co" ttCycleCountCompare.cCompany "job" ttCycleCountCompare.cJobNo*/
+            /*                "csnum" ttCycleCountCompare.cSNum "bnum" ttCycleCountCompare.cBNum                      */
+            /*                VIEW-AS ALERT-BOX.                                                                      */
             FIND FIRST job-mat NO-LOCK
                 WHERE job-mat.company EQ ttCycleCountCompare.cCompany
                 AND job-mat.job-no  EQ SUBSTRING(ttCycleCountCompare.cJobNo,1,6)
@@ -586,40 +612,41 @@ PROCEDURE pBuildCompareTable PRIVATE:
                 AND job-mat.frm EQ INTEGER(ttCycleCountCompare.cSNum)
                 AND job-mat.blank-no EQ INTEGER(ttCycleCountCompare.cBNum) NO-ERROR .
 
-/*            MESSAGE "avail job mat?" avail(job-mat)*/
-/*            VIEW-AS ALERT-BOX.                     */
-            IF AVAIL job-mat THEN
+            /*            MESSAGE "avail job mat?" avail(job-mat)*/
+            /*            VIEW-AS ALERT-BOX.                     */
+            IF AVAILABLE job-mat THEN
                 ASSIGN
-                    dShtWid     = job-mat.wid 
-                    dShtLen     = job-mat.len
+                    dShtWid = job-mat.wid 
+                    dShtLen = job-mat.len
                     .
         END.
 
-        ttCycleCountCompare.cShtSize = (trim(string(dShtLen,">,>>99.99")) + " X " + trim(string(dShtWid,">,>>99.99")) ).        
+        ttCycleCountCompare.cShtSize = (TRIM(STRING(dShtLen,">,>>99.99")) + " X " + trim(STRING(dShtWid,">,>>99.99")) ).        
         FIND FIRST loadtag NO-LOCK 
             WHERE loadtag.company EQ ttCycleCountCompare.cCompany
-              AND loadtag.item-type EQ TRUE 
-              AND loadtag.tag-no EQ ttCycleCountCompare.cTag
+            AND loadtag.item-type EQ TRUE 
+            AND loadtag.tag-no EQ ttCycleCountCompare.cTag
             NO-ERROR.
-        IF AVAILABLE loadtag then
+        IF AVAILABLE loadtag THEN
             ttCycleCountCompare.cVendorTag = loadtag.misc-char[1].
-    END. 
+    END. /* each ttCycleCountCompare */ 
+    
 END PROCEDURE.
 
 PROCEDURE pCheckBinDups:
-/*------------------------------------------------------------------------------
- Purpose: Check Bin Duplicates
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE OUTPUT PARAMETER oplNoDups AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lIsDups AS LOGICAL NO-UNDO.
-DEFINE BUFFER bf-rm-bin FOR rm-bin.
+    /*------------------------------------------------------------------------------
+     Purpose: Check Bin Duplicates
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplNoDups AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIsDups AS LOGICAL NO-UNDO.
+    DEFINE BUFFER bf-rm-bin FOR rm-bin.
 
     EMPTY TEMP-TABLE ttDupTags.
     lIsDups = NO.
     FOR EACH rm-bin WHERE rm-bin.qty GT 0
         AND rm-bin.tag GT "" NO-LOCK.
-        FIND FIRST bf-rm-bin no-lock
+        FIND FIRST bf-rm-bin NO-LOCK
             WHERE bf-rm-bin.company EQ rm-bin.company
             AND bf-rm-bin.tag EQ rm-bin.tag
             AND ROWID(bf-rm-bin) NE ROWID(rm-bin)
@@ -662,9 +689,9 @@ PROCEDURE pCheckCountDups:
     EMPTY TEMP-TABLE ttDupTags.
     lIsDups = FALSE. 
     FOR EACH rm-rctd NO-LOCK
-         WHERE rm-rctd.company EQ cocode
-           AND rm-rctd.rita-code EQ "C".
-        FIND FIRST bf-rm-rctd no-lock
+        WHERE rm-rctd.company EQ cocode
+        AND rm-rctd.rita-code EQ "C".
+        FIND FIRST bf-rm-rctd NO-LOCK
             WHERE bf-rm-rctd.company EQ rm-rctd.company
             AND bf-rm-rctd.tag EQ rm-rctd.tag
             AND ROWID(bf-rm-rctd) NE ROWID(rm-rctd) 
@@ -679,7 +706,8 @@ PROCEDURE pCheckCountDups:
         END.
     END.
     oplDups = lIsDups.
-    IF lIsDups THEN DO:
+    IF lIsDups THEN 
+    DO:
         OUTPUT TO c:\tmp\dupCountTags.csv.
         FOR EACH ttDupTags:
             EXPORT DELIMITER "," ttDupTags.
@@ -727,7 +755,7 @@ PROCEDURE pCreateTransfers:
         RUN sys/ref/asiseq.p (INPUT rm-bin.company, INPUT "rm_rcpt_seq", OUTPUT iNextRNo) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN
             MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
-                VIEW-AS ALERT-BOX INFO BUTTONS OK.              
+                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.              
         FIND FIRST item WHERE item.company = rm-bin.company
             AND item.i-no = rm-bin.i-no NO-LOCK NO-ERROR.
         CREATE rm-rctd.
@@ -757,11 +785,11 @@ PROCEDURE pCreateTransfers:
         IF rm-rctd.cost     EQ ? THEN rm-rctd.cost = 0.
         
         /* from addon/rm/b-trans.w */
-        assign 
+        ASSIGN 
             rm-rctd.user-id  = USERID("nosweat")
             rm-rctd.upd-date = TODAY
             rm-rctd.upd-time = TIME.
-        IF AVAIL ITEM THEN 
+        IF AVAILABLE ITEM THEN 
         DO:
             rm-rctd.pur-uom = ITEM.cons-uom.
             RELEASE ITEM.
@@ -774,7 +802,7 @@ PROCEDURE pCreateTransfers:
             USE-INDEX tag
             NO-LOCK NO-ERROR.
 
-        IF AVAIL rm-rdtlh THEN 
+        IF AVAILABLE rm-rdtlh THEN 
         DO:
 
             FIND FIRST rm-rcpth OF rm-rdtlh NO-LOCK NO-ERROR.
@@ -826,12 +854,12 @@ PROCEDURE pCreateZeroCount:
             
         RUN sys/ref/asiseq.p (INPUT rm-bin.company, INPUT "rm_rcpt_seq", OUTPUT iNextRNo) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN
-        MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
-            VIEW-AS ALERT-BOX INFO BUTTONS OK.     
+            MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
+                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.     
         FIND FIRST item WHERE item.company = rm-bin.company
             AND item.i-no = rm-bin.i-no NO-LOCK NO-ERROR.
         IF NOT AVAILABLE ITEM THEN 
-           NEXT.
+            NEXT.
         CREATE rm-rctd.
         ASSIGN 
             rm-rctd.r-no       = iNextRNo
@@ -851,11 +879,11 @@ PROCEDURE pCreateZeroCount:
         IF rm-rctd.cost     EQ ? THEN rm-rctd.cost = 0.
           
         /* from addon/rm/b-trans.w */
-        assign 
+        ASSIGN 
             rm-rctd.user-id  = USERID("nosweat")
             rm-rctd.upd-date = TODAY
             rm-rctd.upd-time = TIME.
-        IF AVAIL ITEM THEN 
+        IF AVAILABLE ITEM THEN 
         DO:
             rm-rctd.pur-uom = ITEM.cons-uom.
             RELEASE ITEM.
@@ -868,7 +896,7 @@ PROCEDURE pCreateZeroCount:
             USE-INDEX tag
             NO-LOCK NO-ERROR.
 
-        IF AVAIL rm-rdtlh THEN 
+        IF AVAILABLE rm-rdtlh THEN 
         DO:
 
             FIND FIRST rm-rcpth OF rm-rdtlh NO-LOCK NO-ERROR.
@@ -907,14 +935,14 @@ PROCEDURE pExportTempTable PRIVATE:
     DEFINE INPUT  PARAMETER iplLocChanged AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER iplDupsInScan AS LOGICAL NO-UNDO.  
     
-    DEFINE VARIABLE hQuery  AS HANDLE    NO-UNDO. 
-    DEFINE VARIABLE iIndex  AS INTEGER   NO-UNDO. 
-    DEFINE VARIABLE cTTName AS CHARACTER NO-UNDO. 
-    DEFINE VARIABLE cQuery  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hQuery       AS HANDLE    NO-UNDO. 
+    DEFINE VARIABLE iIndex       AS INTEGER   NO-UNDO. 
+    DEFINE VARIABLE cTTName      AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cQuery       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTrueOrFalse AS CHARACTER NO-UNDO.
     
     ASSIGN 
-        cTTName = iphTT:NAME
+        cTTName      = iphTT:NAME
         cTrueOrFalse = IF (iplComplete OR iplQtyChanged OR iplSnapshotOnly OR iplLocChanged OR iplDupsInScan) THEN "FALSE" ELSE "TRUE"
         cQuery  = "FOR EACH " + cTTName + " WHERE " + cTrueOrFalse + " " 
         . 
@@ -946,8 +974,8 @@ PROCEDURE pExportTempTable PRIVATE:
                 PUT STREAM sOutput UNFORMATTED  
                     '="' iphTT:DEFAULT-BUFFER-HANDLE:buffer-field(iIndex):buffer-value '",'.             
             ELSE 
-            PUT STREAM sOutput UNFORMATTED  
-                '"' iphTT:DEFAULT-BUFFER-HANDLE:buffer-field(iIndex):buffer-value '",'. 
+                PUT STREAM sOutput UNFORMATTED  
+                    '"' iphTT:DEFAULT-BUFFER-HANDLE:buffer-field(iIndex):buffer-value '",'. 
         END. 
         PUT STREAM sOutput UNFORMATTED SKIP. 
     END. 
@@ -1009,7 +1037,7 @@ PROCEDURE postRM:
     DEFINE VARIABLE lDupsExist AS LOGICAL NO-UNDO.
     RUN pCheckCountDups (OUTPUT lDupsExist).
     IF lDupsExist THEN 
-      RETURN.
+        RETURN.
 
     RUN pCreateZeroCount.
     RUN pCreateTransfers.
@@ -1025,22 +1053,22 @@ PROCEDURE pPostCounts:
      Notes:
     ------------------------------------------------------------------------------*/
     
-    DEF BUFFER b-rm-bin FOR rm-bin.
+    DEFINE BUFFER b-rm-bin FOR rm-bin.
 
-    DEF VAR v-temp-cost AS DEC FORMAT ">>>>>9.99".
-    DEF VAR v-dunne     AS LOG INITIAL NO.
-    DEF VAR next_r-no   LIKE rm-rcpth.r-no.
-    DEF VAR v_r-no      LIKE rm-rcpth.r-no.
-    DEF VAR v-r-qty     AS DEC NO-UNDO.
-    DEF VAR v-i-qty     AS DEC NO-UNDO.
-    DEF VAR v-t-qty     AS DEC NO-UNDO.
-    DEF VAR lv-uom    LIKE rm-rcpth.pur-uom NO-UNDO.
-    DEF VAR ld-qty    LIKE rm-rdtlh.qty NO-UNDO.
-    DEF VAR ld-cst    LIKE rm-rdtlh.cost NO-UNDO.
-    DEF VAR v-printed AS LOGI NO-UNDO.
+    DEFINE VARIABLE v-temp-cost AS DECIMAL FORMAT ">>>>>9.99".
+    DEFINE VARIABLE v-dunne     AS LOG     INITIAL NO.
+    DEFINE VARIABLE next_r-no   LIKE rm-rcpth.r-no.
+    DEFINE VARIABLE v_r-no      LIKE rm-rcpth.r-no.
+    DEFINE VARIABLE v-r-qty     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-i-qty     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-t-qty     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lv-uom      LIKE rm-rcpth.pur-uom NO-UNDO.
+    DEFINE VARIABLE ld-qty      LIKE rm-rdtlh.qty NO-UNDO.
+    DEFINE VARIABLE ld-cst      LIKE rm-rdtlh.cost NO-UNDO.
+    DEFINE VARIABLE v-printed   AS LOGI    NO-UNDO.
         
 
-    DEF            VAR v-cum-qty   AS DEC     EXTENT 2 FORMAT ">>>>>9.999".
+    DEFINE VARIABLE v-cum-qty   AS DECIMAL EXTENT 2 FORMAT ">>>>>9.999".
     postit:
     DO /* TRANSACTION */ ON ERROR UNDO postit, LEAVE postit:
         FOR EACH rm-rctd
@@ -1069,7 +1097,7 @@ PROCEDURE pPostCounts:
                 AND rm-bin.tag     EQ rm-rctd.tag
                 NO-ERROR.
 
-            IF NOT AVAIL rm-bin THEN 
+            IF NOT AVAILABLE rm-bin THEN 
             DO:
                 IF rm-rctd.cost EQ 0 THEN ASSIGN  
                         rm-rctd.cost     = IF v-avgcost THEN ITEM.avg-cost ELSE ITEM.last-cost
@@ -1152,13 +1180,13 @@ PROCEDURE pPostCounts:
 END PROCEDURE.
 
 PROCEDURE pPostTransfers:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-MESSAGE "Please select to post transfers only on the following screen.  Press OK to continue."
-VIEW-AS ALERT-BOX.
-RUN rm/r-rmtpst.p.
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    MESSAGE "Please select to post transfers only on the following screen.  Press OK to continue."
+        VIEW-AS ALERT-BOX.
+    RUN rm/r-rmtpst.p.
 
 END PROCEDURE.
 
@@ -1170,15 +1198,15 @@ PROCEDURE pRemoveMatches:
     FOR EACH ttCycleCountCompare NO-LOCK 
         WHERE ttCycleCountCompare.lMatch = TRUE,    
         EACH rm-rctd EXCLUSIVE-LOCK 
-             WHERE rm-rctd.company  EQ ttCycleCountCompare.cCompany 
-               AND rm-rctd.i-no     EQ ttCycleCountCompare.cFGItemID  
-               AND rm-rctd.tag      EQ ttCycleCountCompare.cTag        
-               AND rm-rctd.loc      EQ ttCycleCountCompare.cScanLoc    
-               AND rm-rctd.loc-bin  EQ ttCycleCountCompare.cScanLocBin  
-               AND rm-rctd.qty      EQ ttCycleCountCompare.dScanQty    
-               AND rm-rctd.r-no     EQ ttCycleCountCompare.iSequence
-             :
-       DELETE rm-rctd.
+        WHERE rm-rctd.company  EQ ttCycleCountCompare.cCompany 
+        AND rm-rctd.i-no     EQ ttCycleCountCompare.cFGItemID  
+        AND rm-rctd.tag      EQ ttCycleCountCompare.cTag        
+        AND rm-rctd.loc      EQ ttCycleCountCompare.cScanLoc    
+        AND rm-rctd.loc-bin  EQ ttCycleCountCompare.cScanLocBin  
+        AND rm-rctd.qty      EQ ttCycleCountCompare.dScanQty    
+        AND rm-rctd.r-no     EQ ttCycleCountCompare.iSequence
+        :
+        DELETE rm-rctd.
     END. 
           
 END PROCEDURE.
@@ -1231,31 +1259,30 @@ END PROCEDURE.
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fSnapshotCreateDtTime RETURNS CHARACTER 
-	(  ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/	
+    (  ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/	
 
-		DEFINE VARIABLE cresult AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cresult AS CHARACTER NO-UNDO.
 		
-        FILE-INFO:FILE-NAME = gcSnapshotFile.
-        IF FILE-INFO:PATHNAME NE ? THEN 
-          ASSIGN cResult = 
-          STRING(YEAR(FILE-INFO:FILE-CREATE-DATE),"9999")
+    FILE-INFO:FILE-NAME = gcSnapshotFile.
+    IF FILE-INFO:PATHNAME NE ? THEN 
+        ASSIGN cResult = STRING(YEAR(FILE-INFO:FILE-CREATE-DATE),"9999")
                  + STRING(MONTH(FILE-INFO:FILE-CREATE-DATE),"99")
                  + STRING(DAY(FILE-INFO:FILE-CREATE-DATE),"99")
                  + STRING(FILE-INFO:FILE-CREATE-TIME,"99999")
-                .
-        ELSE 
-            cResult = 
-                STRING(YEAR(TODAY),"9999")
-                + STRING(MONTH(TODAY),"99")
-                + STRING(DAY(TODAY),"99")
-                + STRING(60 * 60 * 7,"99999")
-                 .
+            .
+    ELSE 
+        cResult = 
+            STRING(YEAR(TODAY),"9999")
+            + STRING(MONTH(TODAY),"99")
+            + STRING(DAY(TODAY),"99")
+            + STRING(60 * 60 * 7,"99999")
+            .
   
-		RETURN cresult.
+    RETURN cresult.
 
 
 		
