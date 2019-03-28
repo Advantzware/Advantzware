@@ -46,7 +46,7 @@ DEFINE VARIABLE iPos AS INTEGER NO-UNDO.
 DEFINE BUFFER bfFtpConfig FOR ftpConfig.
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
-{system/ftpProcs.i}        
+{custom/ftpProcs.i}        
 {sys/inc/var.i NEW SHARED}
 
 cocode = g_company.
