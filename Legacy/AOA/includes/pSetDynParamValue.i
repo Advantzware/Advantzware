@@ -36,6 +36,7 @@ PROCEDURE pSetDynParamValue:
             dynParamValue.outputFormat     = dynSubject.outputFormat
             dynParamValue.paramDescription = IF ipcUserID EQ "{&defaultUser}" THEN "System Default"
                                              ELSE "User Default"
+            dynParamValue.externalForm     = dynSubject.externalForm
             .
         FOR EACH {1}SubjectParamSet
             WHERE {1}SubjectParamSet.subjectID EQ ipiSubjectID,
