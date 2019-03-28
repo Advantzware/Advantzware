@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : spReftable.p
     Purpose     : 
@@ -31,6 +30,9 @@
     DEFINE VARIABLE iHaveRecs AS INT NO-UNDO.
     DEFINE VARIABLE iElapsedTime AS INT NO-UNDO.
     
+    DEFINE BUFFER bRefTable FOR refTable.
+    DEFINE BUFFER b-rt FOR reftable.
+
     DEFINE TEMP-TABLE ttErrorList
         FIELD cRefTable AS CHAR FORMAT "x(30)"
         FIELD cErrText AS CHAR FORMAT "x(50)".
@@ -39,7 +41,6 @@
 &SCOPED-DEFINE CommonCode ~
     DEFINE INPUT PARAMETER ipcRefTable AS CHAR. ~
     DEFINE INPUT PARAMETER iprRefTable AS ROWID. ~
-    DEFINE BUFFER bRefTable FOR refTable. ~
     ~
     DISABLE TRIGGERS FOR LOAD OF ~{&cTable}. ~
     ~
@@ -251,7 +252,7 @@ PROCEDURE ar-cashl.inv-line:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-&SCOPED-DEFINE cTable ar-invl    
+&SCOPED-DEFINE cTable ar-cashl    
 {&CommonCode}
         
     FOR EACH ar-invl NO-LOCK WHERE 
@@ -568,14 +569,13 @@ PROCEDURE ce/com/selwhif1.w:
 END PROCEDURE.
 
 
-PROCEDURE ce/v-est3.w-Unit#:
+PROCEDURE "ce/v-est3.w Unit#":
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
 &SCOPED-DEFINE cTable eb    
 {&CommonCode}
-    DEFINE BUFFER b-rt FOR reftable.
         
     FOR EACH eb EXCLUSIVE WHERE 
         eb.company     EQ reftable.company AND 
@@ -600,13 +600,15 @@ PROCEDURE ce/v-est3.w-Unit#:
             b-rt.code     EQ STRING(eb.form-no,"9999999999") AND 
             b-rt.code2    EQ STRING(eb.blank-no,"9999999999")
             NO-ERROR.            
-        IF AVAIL b-rt THEN DO iCtr = 13 to 20: 
-            /* Load 'side' value if empty or user hasn't updated manually */
-            IF eb.side[iCtr] EQ "" THEN ASSIGN 
-                eb.side[iCtr] = SUBSTRING(b-rt.dscr,iCtr,1).
-            /* Load 'unit' value if 0 and user hasn't updated manually */
-            IF eb.unitNo[iCtr] EQ 0 THEN ASSIGN  
-                eb.unitNo[iCtr] = b-rt.val[iCtr - 12].
+        IF AVAIL b-rt THEN DO:
+            DO iCtr = 13 to 20: 
+                /* Load 'side' value if empty or user hasn't updated manually */
+                IF eb.side[iCtr] EQ "" THEN ASSIGN 
+                    eb.side[iCtr] = SUBSTRING(b-rt.dscr,iCtr,1).
+                /* Load 'unit' value if 0 and user hasn't updated manually */
+                IF eb.unitNo[iCtr] EQ 0 THEN ASSIGN  
+                    eb.unitNo[iCtr] = b-rt.val[iCtr - 12].
+            END.
             CREATE reftable1.
             BUFFER-COPY b-rt TO reftable1.
             RELEASE reftable1.
@@ -758,6 +760,20 @@ PROCEDURE cust.show-set:
             iProcessCount = iProcessCount + 1.
 
     END.
+
+END PROCEDURE.
+
+
+PROCEDURE d-shp2nt:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+&SCOPED-DEFINE cTable reftable    
+{&CommonCode}
+    /* This reftable has no effect on the "normal" files */
+    ASSIGN 
+        iProcessCount = iProcessCount + 1.    
 
 END PROCEDURE.
 
@@ -1918,6 +1934,36 @@ PROCEDURE oe/ordlmisc.p:
 END PROCEDURE.
 
 
+PROCEDURE ORDERPO:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+&SCOPED-DEFINE cTable job-mat    
+{&CommonCode}
+        
+    FOR EACH job NO-LOCK WHERE 
+        job.company EQ reftable.company AND 
+        job.job     EQ INT(SUBSTRING(reftable.CODE,1,10)):
+        
+        FOR EACH job-mat EXCLUSIVE WHERE 
+            job-mat.company  EQ job.company AND
+            job-mat.job      EQ job.job AND  
+            job-mat.job-no   EQ job.job-no AND 
+            job-mat.job-no2  EQ job.job-no2 AND 
+            job-mat.rm-i-no  EQ reftable.CODE2 AND 
+            job-mat.frm      EQ INT(SUBSTRING(reftable.CODE,11,10)):
+        
+            IF job-mat.po-no EQ 0 THEN ASSIGN 
+                job-mat.po-no = INT(reftable.val[1]) 
+                iProcessCount = iProcessCount + 1.
+        
+        END.
+    END.
+
+END PROCEDURE.
+
+
 PROCEDURE POORDLDEPTH:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -2232,6 +2278,27 @@ PROCEDURE ship-to.mandatory-tax:
         
         IF shipto.tax-mandatory EQ NO THEN ASSIGN 
             shipto.tax-mandatory = IF reftable.val[1] = 1 THEN TRUE ELSE FALSE 
+            iProcessCount = iProcessCount + 1.
+
+    END.
+
+END PROCEDURE.
+
+
+PROCEDURE SPECSAMP:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+&SCOPED-DEFINE cTable est    
+{&CommonCode}
+        
+    FOR EACH est EXCLUSIVE WHERE 
+        est.company EQ reftable.company AND 
+        est.est-no  EQ reftable.code:
+        
+        IF est.sampleNum EQ 0 THEN ASSIGN 
+            est.sampleNum = INT(reftable.code2)
             iProcessCount = iProcessCount + 1.
 
     END.
