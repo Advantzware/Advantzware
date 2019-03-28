@@ -97,7 +97,6 @@ DEFINE            VARIABLE ll                     AS LOGICAL   NO-UNDO.
 DEFINE            VARIABLE v-hold                 AS LOGICAL   NO-UNDO.
 DEFINE            VARIABLE v-vendor-chosen-report AS RECID     NO-UNDO.
 DEFINE            VARIABLE v-sel-uom              AS CHARACTER NO-UNDO.
-DEFINE            VARIABLE rOrderPoRow            AS ROWID     NO-UNDO.
 DEFINE            VARIABLE po-found               AS LOGICAL   NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-new-i-no             LIKE ITEM.i-no INIT "" NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-new-wid              LIKE ITEM.s-wid INIT 0 NO-UNDO.
@@ -160,7 +159,6 @@ DEFINE BUFFER b-item     FOR ITEM.
 DEFINE BUFFER b-oe-ordl  FOR oe-ordl.
 DEFINE BUFFER bf-ordl    FOR oe-ordl.
 DEFINE BUFFER bf-ord     FOR oe-ord.
-DEFINE BUFFER b-orderpo  FOR reftable.
 DEFINE BUFFER b-jc-calc  FOR reftable.
 DEFINE BUFFER b-ref1     FOR reftable.
 DEFINE BUFFER b-ref2     FOR reftable.
@@ -186,7 +184,6 @@ DEFINE VARIABLE gvrJob          AS ROWID     NO-UNDO.
 DEFINE VARIABLE gvrPoOrd        AS ROWID     NO-UNDO.
 DEFINE VARIABLE gvrTT-eiv       AS ROWID     NO-UNDO.
 DEFINE VARIABLE gvrTT-ei        AS ROWID     NO-UNDO.
-DEFINE VARIABLE gvrB-orderPo    AS ROWID     NO-UNDO.
 DEFINE VARIABLE gvrItemfg       AS ROWID     NO-UNDO.
 DEFINE VARIABLE gvcFilIdSource  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gvrWJobMat      AS ROWID     NO-UNDO.
@@ -2231,18 +2228,16 @@ PROCEDURE findExistingPo :
         Inputs:
           b-orderpo
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER  iprBOrderPo AS ROWID NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplAvailPO AS LOGICAL     NO-UNDO.
-    DEFINE OUTPUT PARAMETER oprPoOrd AS ROWID       NO-UNDO.
+    DEFINE INPUT PARAMETER  ipiPoNo AS INT NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplAvailPO AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oprPoOrd AS ROWID NO-UNDO.
 
-    FIND b-orderpo WHERE ROWID(b-orderpo) EQ iprBOrderPo NO-LOCK NO-ERROR.
 
     FIND LAST po-ord NO-LOCK 
         WHERE po-ord.company   EQ cocode
         AND po-ord.po-date   EQ gvdPoDate
         AND po-ord.due-date  EQ gvdDueDate
-        AND po-ord.po-no     EQ INT(b-orderpo.val[1])
-        AND b-orderpo.val[1] NE 0
+        AND po-ord.po-no     EQ ipiPoNo
         AND po-ord.vend-no   EQ gvcVendNo
         AND po-ord.opened    EQ YES
         AND (po-ord.type     EQ "D" OR NOT ll-drop)
@@ -2530,7 +2525,7 @@ PROCEDURE initJobVals :
         v-job
         assigns gvrJobRecid (used in assign po-ordl values)
         assigns v-ord-no
-        releases po-ord, po-ordl, b-orderpo
+        releases po-ord, po-ordl
         finds po-ordl
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCocode AS CHARACTER   NO-UNDO.
@@ -2595,72 +2590,11 @@ PROCEDURE initJobVals :
   
     RELEASE po-ord.
     RELEASE po-ordl.
-    RELEASE b-orderpo.
 
-    rOrderPoRow = ?.
-    /* 05281404 - added first po-ordl to check item # */
-    FOR EACH  b-orderpo NO-LOCK
-        WHERE b-orderpo.reftable EQ "ORDERPO"
-        AND b-orderpo.company  EQ cocode
-        AND b-orderpo.loc      EQ string(v-ord-no,"9999999999")
-        AND b-orderpo.code     EQ string(bf-w-job-mat.job,"9999999999") +
-        string(bf-w-job-mat.frm,"9999999999")
-        AND b-orderpo.code2    EQ bf-w-job-mat.rm-i-no
-        ,
-        FIRST po-ord NO-LOCK WHERE po-ord.company EQ cocode
-        AND po-ord.po-no EQ INTEGER(b-orderpo.val[1])
-        AND po-ord.stat NE "C"
-        ,
-        FIRST po-ordl NO-LOCK WHERE po-ordl.company EQ po-ord.company
-        AND po-ordl.po-no EQ po-ord.po-no
-        AND po-ordl.i-no  EQ bf-w-job-mat.rm-i-no
-        AND po-ordl.s-num EQ bf-w-job-mat.frm
-      
-        :
-        rOrderPoRow = ROWID(b-orderpo).
-    
-    END. /* Each b-orderpo */
-
-    IF rOrderPoRow NE ? THEN
-        FIND b-orderpo WHERE ROWID(b-orderpo) EQ rOrderPoRow.
-
-    IF NOT AVAILABLE b-orderpo THEN 
-    DO:
-        CREATE b-orderpo.
-        ASSIGN
-            b-orderpo.reftable = "ORDERPO"
-            b-orderpo.company  = cocode
-            b-orderpo.loc      = STRING(v-ord-no,"9999999999")
-            b-orderpo.code     = STRING(bf-w-job-mat.job,"9999999999") +
-                          string(bf-w-job-mat.frm,"9999999999")
-            b-orderpo.code2    = bf-w-job-mat.rm-i-no.
-
-        IF AVAILABLE bf-ordl AND bf-ordl.vend-no NE "" AND bf-ordl.po-no-po NE 0 THEN 
-        DO:
-            FIND FIRST po-ordl NO-LOCK 
-                WHERE po-ordl.company EQ cocode
-                AND po-ordl.po-no   EQ bf-ordl.po-no-po
-                AND po-ordl.job-no  EQ bf-w-job-mat.job-no
-                AND po-ordl.job-no2 EQ bf-w-job-mat.job-no2
-                AND po-ordl.s-num   EQ bf-w-job-mat.frm
-                AND po-ordl.i-no    EQ bf-w-job-mat.rm-i-no
-                NO-ERROR.
-            IF AVAILABLE po-ordl THEN 
-            DO:         
-                b-orderpo.val[1] = po-ordl.po-no.        
-            END.
-        END. /* If avail bf-ordl */
-
-        FIND CURRENT b-orderpo NO-LOCK NO-ERROR.
-    END. /* If not avail b-orderpo */
-  
-    IF AVAILABLE b-orderpo THEN
-        gvrB-orderpo = ROWID(b-orderpo).
 
     FIND FIRST po-ord NO-LOCK 
         WHERE po-ord.company   EQ cocode
-        AND po-ord.po-no     EQ int(b-orderpo.val[1])
-        AND b-orderpo.val[1] NE 0
+        AND po-ord.po-no     EQ INT(bf-w-job-mat.po-no)
         NO-ERROR.
     IF AVAILABLE po-ord THEN gvcVendNo = po-ord.vend-no.  
 
@@ -3240,7 +3174,7 @@ PROCEDURE processJobMat :
 
         /* prompt for updating PO for given vendor and date */
         RUN promptUpdPoNum (INPUT cocode, 
-            INPUT gvrB-orderPo,
+            INPUT w-job-mat.po-no,
             OUTPUT gvrPoOrd,
             OUTPUT gvrTT-eiv,
             OUTPUT lNextOuters). /* set choice */
@@ -3277,7 +3211,7 @@ PROCEDURE processJobMat :
             INPUT gvrPoOrd).
   
         /* Find existing PO for a due date and vendor. */
-        RUN findExistingPo (INPUT gvrB-orderpo, OUTPUT lPoExists, OUTPUT gvrPoOrd).
+        RUN findExistingPo (INPUT w-job-mat.po-no, OUTPUT lPoExists, OUTPUT gvrPoOrd).
 
         FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrPoOrd NO-ERROR.
         FIND oe-ord NO-LOCK WHERE ROWID(oe-ord) EQ gvrOeOrd NO-ERROR.
@@ -3309,8 +3243,7 @@ PROCEDURE processJobMat :
         RUN setPoValues (INPUT llFirstOfJobFrm, 
             INPUT gvrPoOrd, 
             INPUT gvrOeOrdl,
-            INPUT ROWID(w-job-mat),
-            INPUT gvrB-orderpo).
+            INPUT ROWID(w-job-mat)).
                   
         FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrpoOrd NO-ERROR.
 
@@ -3616,18 +3549,16 @@ PROCEDURE promptUpdPoNum :
           
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCocode AS CHARACTER   NO-UNDO.
-    DEFINE INPUT  PARAMETER iprB-orderpo AS ROWID       NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPoNo AS INT NO-UNDO.
     DEFINE OUTPUT PARAMETER oprPoOrd AS ROWID       NO-UNDO.
     DEFINE OUTPUT PARAMETER oprTT-eiv AS ROWID       NO-UNDO.
     DEFINE OUTPUT PARAMETER oplNextOuters AS LOGICAL     NO-UNDO.
 
-    FIND b-orderpo WHERE ROWID(b-orderpo) EQ iprB-orderpo NO-LOCK NO-ERROR.
     gvlChoice = NO.
     oplNextOuters = FALSE.
     FIND LAST po-ord NO-LOCK
         WHERE po-ord.company   EQ cocode
-        AND po-ord.po-no     EQ INT(b-orderpo.val[1])
-        AND b-orderpo.val[1] NE 0
+        AND po-ord.po-no     EQ ipiPoNo
         AND po-ord.vend-no   EQ gvcVendNo
         AND (po-ord.type     EQ "D" OR NOT ll-drop)
         NO-ERROR.
@@ -4024,7 +3955,6 @@ PROCEDURE setPoValues :
     DEFINE INPUT  PARAMETER iprPoOrd      AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprOeOrdl     AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprWJobMat AS ROWID       NO-UNDO.
-    DEFINE INPUT  PARAMETER iprB-orderpo AS ROWID       NO-UNDO.
 
     DEFINE BUFFER bf-ordl      FOR oe-ordl.
     DEFINE BUFFER bf-po-ord    FOR po-ord.
@@ -4033,18 +3963,7 @@ PROCEDURE setPoValues :
     FIND bf-po-ord EXCLUSIVE-LOCK WHERE ROWID(bf-po-ord) EQ iprPoOrd NO-ERROR.
     FIND bf-ordl EXCLUSIVE-LOCK WHERE ROWID(bf-ordl) EQ iprOeOrdl NO-ERROR.
     FIND bf-w-job-mat  NO-LOCK WHERE ROWID(bf-w-job-mat) EQ iprWJobMat NO-ERROR.
-    FIND b-orderpo EXCLUSIVE-LOCK WHERE ROWID(b-orderpo) EQ iprB-orderpo NO-ERROR.
 
-    FIND CURRENT b-orderpo EXCLUSIVE-LOCK NO-ERROR.
-    IF NOT AVAILABLE b-orderpo THEN 
-    DO:
-        MESSAGE "Error: b-orderpo not found, skipping..."
-            VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-        RETURN ERROR.
-    END.
-    b-orderpo.val[1] = bf-po-ord.po-no.
-    FIND CURRENT b-orderpo NO-LOCK NO-ERROR.
-   
     IF AVAILABLE bf-ordl AND iplFirstOfFrm THEN
         FOR EACH b-oe-ordl
             WHERE b-oe-ordl.company EQ bf-ordl.company
@@ -4103,7 +4022,6 @@ PROCEDURE setPoValues :
     RELEASE bf-po-ord.
     RELEASE bf-ordl.
     RELEASE bf-w-job-mat.
-    RELEASE b-orderpo.
 /* end procedure Assign PO ord values from vend and sales order */
 END PROCEDURE.
 

@@ -170,13 +170,37 @@ DEFINE INPUT PARAMETER ipdQty AS DECIMAL NO-UNDO.
 
 FIND FIRST ce-ctrl NO-LOCK 
     WHERE ce-ctrl.company EQ ipbf-est.company
+    AND ce-ctrl.loc EQ ipbf-est.loc
     NO-ERROR.
 IF NOT AVAILABLE ce-ctrl THEN LEAVE.
  
 CREATE ttCostMaster.
-ASSIGN 
-    ttCostMaster.company = ce-ctrl.company
-    ttCostMaster.estimateNo = ipbf-est.est-no
+ASSIGN /*Initialize the quantity specific CostMaster with values from ce-ctrl*/
+    ttCostMaster.cCompany = ce-ctrl.company
+    ttCostMaster.cEstimateNo = ipbf-est.est-no
+    ttCostMaster.dMasterQuantity = ipdQty
+    ttCostMaster.cMarginOn = ce-ctrl.sell-by
+    ttCostMaster.dMarginPct = ce-ctrl.prof-mrkup
+    ttCostMaster.dWarehouseMarkupPct = ce-ctrl.whse-mrkup / 100 /*ctrl[1]*/
+    ttCostMaster.dHandlingChargePct = ce-ctrl.hand-pct / 100 /*ctrl[2]*/
+    ttCostMaster.dHandlingRatePerCWTRMPct = ce-ctrl.rm-rate / 100 /*ctrl[3]*/ /*NOTE CHANGED to be /100 */
+    ttCostMaster.dSpecial1MarkupPct = ce-ctrl.spec-%[1] / 100 /*ctrl[4]*/ /*NOTE CHANGED to be /100 */
+    ttCostMaster.dSpecial2MarkupPct = ce-ctrl.spec-%[2] / 100 /*ctrl[11]*/ /*NOTE CHANGED to be /100 */
+    ttCostMaster.dSpecial3MarkupPct = ce-ctrl.spec-%[3] / 100 /*ctrl[12]*/ /*NOTE CHANGED to be /100 */
+    ttCostMaster.lShowCommissoins = ce-ctrl.comm-add /*ctrl[5]*/
+    ttCostMaster.lAddToFactCostFreight = ce-ctrl.shp-add /*ctrl[6]*/
+    ttCostMaster.lShowLaborRates = ce-ctrl.sho-labor /*ctrl[7]*/
+    ttCostMaster.lAddToFactCostSpecial1 = ce-ctrl.spec-add[1] /*ctrl[13]*/
+    ttCostMaster.lAddToFactCostSpecial2 = ce-ctrl.spec-add[2] /*ctrl[14]*/
+    ttCostMaster.lAddToFactCostSpecial3 = ce-ctrl.spec-add[3] /*ctrl[15]*/
+    ttCostMaster.lAddToFactCostGSA = ce-ctrl.spec-add[6] /*ctrl[16]*/
+    ttCostMaster.lAddToFactCostRoyalty = ce-ctrl.spec-add[8] /*ctrl[18]*/
+    ttCostMaster.dFoldPct = ce-ctrl.fold-pct / 100 /*ctrl[19]*/ /*NOTE CHANGED to be /100 */    
+    ttCostMaster.lAddToFactCostComm = ce-ctrl.spec-add[7] /*ctrl[17]*/
+    ttCostMaster.dHandlingRatePerCWTFGPct = ce-ctrl.fg-rate / 100
+    ttCostMaster.dHandlingRatePerCWTRMFarmPct = ce-ctrl.rm-rate-farm / 100
+    ttCostMaster.dHandlingRatePerCWTFGFarmPct = ce-ctrl.fg-rate-farm / 100
+    ttCostMaster.dHandlingChargeFarmPct = ce-ctrl.hand-pct-farm / 100
     .
 
 
