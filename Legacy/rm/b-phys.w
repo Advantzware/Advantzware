@@ -59,10 +59,36 @@ DEF VAR lv-date-ent AS DATE NO-UNDO.
 DEF VAR lv-prior-date AS DATE NO-UNDO.
 DEF VAR ll-help-run AS LOG NO-UNDO.  /* set on browse help, reset row-entry */
 DEF VAR lAddMode AS LOG NO-UNDO.
+DEFINE VARIABLE cRtnChr          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFnd          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE physCnt-log      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cPhysCntSaveFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLogFolder       AS CHARACTER NO-UNDO INIT "./custfiles/logs".
+DEFINE STREAM sPhysCntSave.
+
 DO TRANSACTION:
   {sys/inc/rmrecpt.i}
 END.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "PhysCnt", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChr, OUTPUT lRecFnd).
+physCnt-log = LOGICAL(cRtnChr) NO-ERROR.
+
+
+IF physCnt-log THEN 
+DO: 
+    OS-CREATE-DIR VALUE(cLogFolder).
+    FIND FIRST _myconnection NO-LOCK.     
+    cPhysCntSaveFile = cLogFolder + "/" + USERID("ASI") + STRING(MONTH(TODAY),"99") 
+        + STRING(DAY(TODAY), "99") + STRING(YEAR(TODAY))
+        + STRING(TIME).
+    cPhysCntSaveFile = cPhysCntSaveFile + STRING(_myconnection._MyConn-Id) + ".log".
+    MESSAGE "logfile" cPhysCntSavefile
+        VIEW-AS ALERT-BOX.
+    
+    
+END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1096,13 +1122,20 @@ PROCEDURE local-update-record :
         lAddMode = FALSE.
         
   /* Code placed here will execute AFTER standard behavior.    */
+    
   IF NOT winReSize THEN
   DO WITH FRAME {&FRAME-NAME}:
     DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
       APPLY 'cursor-left' TO {&BROWSE-NAME}.
     END.
   END.
-
+  
+  IF physCnt-log AND AVAILABLE(fg-rctd) THEN 
+  DO: 
+      OUTPUT STREAM sPhysCntSave TO VALUE(cPhysCntSaveFile) APPEND.
+      EXPORT STREAM sPhysCntSave fg-rctd.
+      OUTPUT STREAM sPhysCntSave CLOSE.
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1285,7 +1318,7 @@ PROCEDURE valid-i-no :
     IF NOT CAN-FIND(FIRST item
                     WHERE item.company EQ cocode
                       AND item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                      /*AND item.i-code  EQ "R"*/ ) THEN DO: /* task 11241401*/
+            /*AND item.i-code  EQ "R"*/ ) THEN DO: /* task 11241401*/
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO rm-rctd.i-no IN BROWSE {&browse-name}.
       RETURN ERROR.
@@ -1427,6 +1460,16 @@ PROCEDURE valid-tag-item:
                 "but for a different item number!"
                 VIEW-AS ALERT-BOX.
         END.
+        
+        IF AVAILABLE loadtag AND loadtag.job-no GT "" THEN 
+            FIND FIRST job-hdr NO-LOCK 
+                WHERE job-hdr.company EQ loadtag.company
+                  AND job-hdr.job-no    EQ loadtag.job-no
+                  AND job-hdr.job-no2   EQ loadtag.job-no2
+                NO-ERROR.
+        IF AVAILABLE job-hdr AND job-hdr.opened EQ NO THEN 
+            MESSAGE "Warning:  The job scanned has a status of closed."
+                VIEW-AS ALERT-BOX.
     END.
 
 END PROCEDURE.
