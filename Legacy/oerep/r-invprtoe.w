@@ -1745,7 +1745,7 @@ ELSE
      tb_splitPDF:HIDDEN = YES
      tb_splitPDF:SENSITIVE = NO
      .        
-  IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" THEN
+  IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" OR v-print-fmt EQ "LancoYork" THEN
          ASSIGN tb_qty-all:HIDDEN = NO .
      ELSE tb_qty-all:HIDDEN = YES .
 
