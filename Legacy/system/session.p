@@ -199,6 +199,33 @@ FIND FIRST users NO-LOCK
 
 /* **********************  Internal Procedures  *********************** */
 
+&IF DEFINED(EXCLUDE-spCheckTrackUsage) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCheckTrackUsage Procedure
+PROCEDURE spCheckTrackUsage:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcPrgmName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMnemonic AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iAuditID AS INTEGER NO-UNDO.
+
+    IF CAN-FIND(FIRST prgrms
+                WHERE prgrms.prgmname    EQ ipcPrgmName
+                  AND prgrms.track_usage EQ YES) THEN DO:
+        RUN spCreateAuditHdr ("TRACK","ASI",ipcPrgmName,ipcMnemonic,OUTPUT iAuditID).
+        RUN spCreateAuditDtl (iAuditID,"",0,"","",NO).
+    END. /* if lAuditRecalcQty */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-spCreateAuditDtl) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCreateAuditDtl Procedure
