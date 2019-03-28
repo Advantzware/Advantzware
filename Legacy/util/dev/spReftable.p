@@ -1942,7 +1942,7 @@ PROCEDURE ORDERPO:
         
     FOR EACH job NO-LOCK WHERE 
         job.company EQ reftable.company AND 
-        job.job     EQ SUBSTRING(reftable.CODE,1,10):
+        job.job     EQ INT(SUBSTRING(reftable.CODE,1,10)):
         
         FOR EACH job-mat EXCLUSIVE WHERE 
             job-mat.company  EQ job.company AND
@@ -1953,7 +1953,7 @@ PROCEDURE ORDERPO:
             job-mat.frm      EQ INT(SUBSTRING(reftable.CODE,11,10)):
         
             IF job-mat.po-no EQ 0 THEN ASSIGN 
-                job-mat.po-no = reftable.val[1] 
+                job-mat.po-no = INT(reftable.val[1]) 
                 iProcessCount = iProcessCount + 1.
         
         END.
