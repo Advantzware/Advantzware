@@ -818,9 +818,8 @@ FIND FIRST bf-oe-ordl WHERE bf-oe-ordl.company EQ oe-rel.company
         /* Check that the fob desc for this oe-relh matches that of oe-rel */
         IF reft-dscr GT "" THEN
         DO:
-           FOR EACH b2-oe-rell FIELDS(rec_key) WHERE
-               b2-oe-rell.r-no EQ oe-relh.r-no
-               NO-LOCK:
+           FOR EACH b2-oe-rell NO-LOCK WHERE
+               b2-oe-rell.r-no EQ oe-relh.r-no:
                lcFobDscr2 = b2-oe-rell.fob-code.
                /* Find of fob description for this oe-rell */
                IF (lcFobDscr2 GT "" AND lcFobDscr2 NE reft-dscr) OR
