@@ -1543,7 +1543,7 @@ SESSION:SET-WAIT-STATE("general").
                          WHEN "lin-ft"  THEN cVarValue = STRING(dLinerFeet,"->>>>>>>9.99<<") .
                          WHEN "tot-rol"   THEN cVarValue = IF LAST-OF(rm-bin.i-no) THEN STRING(v-roll-qty,"->>>,>>>,>>9") ELSE "" .
                          WHEN "rol-wt"   THEN cVarValue = STRING(dWeight,"->>,>>9.99").
-                         WHEN "rol-wid"  THEN cVarValue = STRING(ITEM.s-wid,"->>,>>9.99") .
+                         WHEN "rol-wid"  THEN cVarValue = IF item.r-wid ne 0 then STRING(ITEM.r-wid,"->>,>>9.99") ELSE STRING(ITEM.s-wid,"->>,>>9.99") .
                          WHEN "wt-msf"   THEN cVarValue = string(ITEM.basis-w,">>>>9.99")  .
 
                     END CASE.
