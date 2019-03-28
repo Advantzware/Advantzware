@@ -89,6 +89,15 @@ DEF TEMP-TABLE ttUserLanguage LIKE userlanguage.
 DEF TEMP-TABLE ttXuserMenu LIKE xuserMenu.
 DEF TEMP-TABLE ttUtilities LIKE utilities.
 
+DEF TEMP-TABLE ttPfFile
+    FIELD ttfLine AS INT  
+    FIELD ttfRawLine AS CHAR 
+    FIELD ttfParm AS CHAR 
+    FIELD ttfValue AS CHAR
+    FIELD ttfDesc AS CHAR 
+    INDEX iLine IS PRIMARY 
+        ttfLine.
+
 DEFINE TEMP-TABLE ttUserMenu NO-UNDO
     FIELD prgmname AS CHARACTER
     INDEX prgmname IS PRIMARY
@@ -2217,6 +2226,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix160851.
     IF fIntVer(cThisEntry) LT 16086000 THEN
         RUN ipDataFix160860.
+    IF fIntVer(cThisEntry) LT 16088000 THEN 
+        RUN ipDataFix160880.
     IF fIntVer(cThisEntry) LT 16089900 THEN
         RUN ipDataFix160899.
 
@@ -2531,6 +2542,25 @@ PROCEDURE ipDataFix160860:
 	    RUN ipDeleteAudit.
     END.
         
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160880 C-Win
+PROCEDURE ipDataFix160880:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160880...").
+    
+    RUN ipUpdateAdvantzwarePf.
+    
+
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -2890,92 +2920,68 @@ PROCEDURE ipFindIniFile :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEF VAR cLetters AS CHAR NO-UNDO INITIAL "ABCDEFGHIJKLMNOPQRSTUVWXYZ".
+    DEF VAR cEnt AS CHAR NO-UNDO.
+    
     /* Start guessing where the file might be */
+    SEARCHBLOCK:
     DO:
         ASSIGN
             cIniLoc = "advantzware.ini".
         IF SEARCH(cIniLoc) <> ? THEN DO:
             ASSIGN
                 cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
+            LEAVE SEARCHBLOCK.
         END.
         ELSE ASSIGN
             cIniLoc = "..\advantzware.ini".
         IF SEARCH(cIniLoc) <> ? THEN DO:
             ASSIGN
                 cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
+            LEAVE SEARCHBLOCK.
         END.
+    
         ASSIGN
             cIniLoc = "N:\Admin\advantzware.ini".
         IF SEARCH(cIniLoc) <> ? THEN DO:
             ASSIGN
                 cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
+            LEAVE SEARCHBLOCK.
         END.
-        ASSIGN
-            cIniLoc = "P:\Admin\advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
+
+        DO iCtr = 1 TO LENGTH(cLetters):
+            ASSIGN 
+                cEnt = SUBSTRING(cLetters,iCtr,1)
+                cIniLoc = cEnt + ":\Admin\advantzware.ini".
+            IF SEARCH(cIniLoc) <> ? THEN DO:
+                ASSIGN
+                    cIniLoc = SEARCH(cIniLoc).
+                LEAVE SEARCHBLOCK.
+            END.
         END.
-        ASSIGN
-            cIniLoc = "C:\ASIGUI\Admin\advantzware.ini.".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
+        
+        DO iCtr = 1 TO LENGTH(cLetters):
+            ASSIGN 
+                cEnt = SUBSTRING(cLetters,iCtr,1)
+                cIniLoc = cEnt + ":\asigui\Admin\advantzware.ini".
+            IF SEARCH(cIniLoc) <> ? THEN DO:
+                ASSIGN
+                    cIniLoc = SEARCH(cIniLoc).
+                LEAVE SEARCHBLOCK.
+            END.
         END.
-        ASSIGN
-            cIniLoc = "C:\ASI\Admin\advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
+
+        DO iCtr = 1 TO LENGTH(cLetters):
+            ASSIGN 
+                cEnt = SUBSTRING(cLetters,iCtr,1)
+                cIniLoc = cEnt + ":\asi\Admin\advantzware.ini".
+            IF SEARCH(cIniLoc) <> ? THEN DO:
+                ASSIGN
+                    cIniLoc = SEARCH(cIniLoc).
+                LEAVE SEARCHBLOCK.
+            END.
         END.
-        ASSIGN
-            cIniLoc = "D:\ASIGUI\Admin\advantzware.ini.".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "D:\ASI\Admin\advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "E:\ASIGUI\Admin\advantzware.ini.".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "E:\ASI\Admin\advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "F:\ASIGUI\Admin\advantzware.ini.".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "F:\ASI\Admin\advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
+
         ASSIGN
             cIniLoc = "".
     END.
@@ -3256,6 +3262,23 @@ PROCEDURE ipLoadAuditRecs :
     END.
     
     EMPTY TEMP-TABLE tt{&tablename}.
+    
+    /* Ensure ALL tables in asi DB are referenced in audittbl file - Tkt #39728*/
+    FOR EACH _file NO-LOCK WHERE 
+        NOT _file._file-name BEGINS "_":
+        FIND FIRST {&tablename} NO-LOCK WHERE 
+            {&tablename}.auditTable EQ _file._file-name 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN DO:
+            CREATE {&tablename}.
+            ASSIGN 
+                {&tablename}.auditTable = _file._file-name
+                {&tablename}.auditCreate = NO 
+                {&tablename}.auditDelete = NO 
+                {&tablename}.auditUpdate = NO 
+                {&tablename}.auditStack = NO. 
+        END.
+    END. 
         
 END PROCEDURE.
 
@@ -3906,7 +3929,7 @@ PROCEDURE ipLoadUtilitiesTable :
         CREATE {&tablename}.
         IMPORT {&tablename}.
         IF {&tablename}.programName = "module.r" /* Module Maint */
-        OR {&tablename}.programName = "w-head.r" /* Help Maint */
+        OR {&tablename}.programName = "w-head.r" /* Help Maint */ THEN ASSIGN 
             {&tablename}.securityLevel = 1000.
         ELSE ASSIGN 
             {&tablename}.securityLevel = 900.
@@ -4276,9 +4299,9 @@ PROCEDURE ipRefTableConv :
         cOrigPropath = PROPATH
         cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
-    RUN ipStatus ("   ReftableConv for " + fiEnvironment:{&SV}).
+    RUN ipStatus ("   ReftableConvert for " + fiEnvironment:{&SV}).
     RUN 
-        VALUE(SEARCH("RefTableConv.r")).
+        VALUE(SEARCH("util\dev\RefTableConvert.r")).
     ASSIGN
         PROPATH = cOrigPropath.
 
@@ -4299,7 +4322,8 @@ PROCEDURE ipRefTableConv :
         reftable1.val[1] NE 1,
         FIRST oe-rel EXCLUSIVE WHERE
             oe-rel.r-no EQ integer(reftable1.company) AND 
-            oe-rel.s-code NE reftable1.code:
+            oe-rel.s-code NE reftable1.code
+            USE-INDEX seq-no:
         ASSIGN 
             reftable1.val[1] = 1
             oe-rel.s-code = reftable1.code.
@@ -4315,6 +4339,7 @@ PROCEDURE ipRefTableConv :
         reftable1.spare-char-3 NE "1":
         FIND FIRST oe-rel EXCLUSIVE WHERE
             oe-rel.r-no = INT(reftable1.company)
+            USE-INDEX seq-no
             NO-ERROR.
         IF AVAILABLE oe-rel THEN DO: 
             IF oe-rel.lot-no EQ "" 
@@ -4806,6 +4831,55 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateAdvantzwarePf C-Win
+PROCEDURE ipUpdateAdvantzwarePf:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR cFileLine AS CHAR NO-UNDO.
+    DEF VAR iLine AS INT NO-UNDO INITIAL 1.
+    
+    RUN ipStatus ("    Beginning advantzware.pf update").
+    
+    INPUT FROM VALUE(SEARCH(cEnvAdmin + "\advantzware.pf")).
+    REPEAT:
+        IMPORT UNFORMATTED cFileLine.
+        CREATE ttPfFile.
+        ASSIGN 
+            ttPfFile.ttfLine = iLine
+            ttPfFile.ttfRawLine = cFileLine
+            iLine = iLine + 1.
+        IF NOT cFileLine BEGINS "#" THEN ASSIGN 
+            ttPfFile.ttfParm = ENTRY(1,cFileLine," ")
+            ttPfFile.ttfValue = ENTRY(2,cFileLine," ")
+            ttPfFile.ttfDesc = ENTRY(2,cFileLine,"#").
+    END.
+ 
+    FIND FIRST ttPfFile WHERE 
+        ttPfFile.ttfParm EQ "-cpstream"
+        NO-ERROR.
+    IF AVAIL ttPfFile THEN ASSIGN 
+        ttPfFile.ttfValue = "ISO8859-1".
+        
+    OUTPUT TO VALUE(SEARCH(cEnvAdmin + "\advantzware.pf")).
+    FOR EACH ttPfFile:
+        IF ttPfFile.ttfParm NE "" THEN PUT 
+            ttPfFile.ttfParm + " " + ttPfFile.ttfValue AT 1
+            "# " + ttPfFile.ttfDesc AT 21 SKIP.
+        ELSE put
+            ttPfFile.ttfRawLine AT 1 SKIP.
+    END.         
+    OUTPUT CLOSE.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateMaster C-Win 
 PROCEDURE ipUpdateMaster :
