@@ -378,7 +378,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBeginItem C-Win
 ON HELP OF fiBeginItem IN FRAME FRAME-A /* Beginning Item */
 DO:
-  RUN windows/l-itemf2.w (cocode,"",FOCUS:SCREEN-VALUE, OUTPUT char-val, OUTPUT rec-val).
+  RUN windows/l-itemf2.w (cocode,"",FOCUS:SCREEN-VALUE,"", OUTPUT char-val, OUTPUT rec-val).
   fiBeginItem:SCREEN-VALUE = ENTRY(1, char-val).
 END.
 
@@ -390,7 +390,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndItem C-Win
 ON HELP OF fiEndItem IN FRAME FRAME-A /* Ending Item */
 DO:
-  RUN windows/l-itemf2.w (cocode,"",FOCUS:SCREEN-VALUE, OUTPUT char-val, OUTPUT rec-val).
+  RUN windows/l-itemf2.w (cocode,"",FOCUS:SCREEN-VALUE,"", OUTPUT char-val, OUTPUT rec-val).
   fiEndItem:SCREEN-VALUE = ENTRY(1, char-val).
 END.
 

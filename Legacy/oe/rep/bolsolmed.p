@@ -106,6 +106,9 @@ DEF VAR v-print-barTag AS LOG NO-UNDO.
 
 DEF VAR lv-pg-num AS INT NO-UNDO.
 
+DEF VAR lv-tot-pg AS INT NO-UNDO.
+DEF VAR ln-cnt AS INT NO-UNDO.
+
 
 ASSIGN
   ls-image1 = "images\Soulemedical.jpg"
@@ -338,6 +341,94 @@ for each xxreport where xxreport.term-id eq v-term-id,
      IF v-ship-addr[2] = "" THEN
            ASSIGN v-ship-addr[2] = v-ship-addr3
                   v-ship-addr3 = "".
+
+   lv-tot-pg = 1.
+   ln-cnt = 0.
+  for each report where report.term-id eq v-term-id,
+    first oe-boll where recid(oe-boll) eq report.rec-id,
+    first xoe-bolh where xoe-bolh.b-no eq oe-boll.b-no no-lock,
+    first itemfg
+    where itemfg.company eq oe-boll.company
+      and itemfg.i-no    eq oe-boll.i-no
+    no-lock
+    break BY oe-boll.line
+          by report.key-01 /* oe-boll.i-no*/
+          by report.key-02 /* oe-boll.ord-no*/
+          BY oe-boll.po-no
+          BY oe-boll.job-no
+          BY oe-boll.job-no2:   
+
+
+      if oe-boll.qty-case ne 0 and oe-boll.cases ne 0 then do:
+          find first w2 where w2.cas-cnt eq oe-boll.qty-case no-error.
+          if not avail w2 then create w2.
+          assign
+              w2.cas-cnt = oe-boll.qty-case
+              w2.cases   = w2.cases + oe-boll.cases.
+      end.
+
+      if oe-boll.partial ne 0 then do:
+          find first w2 where w2.cas-cnt eq oe-boll.partial no-error.
+          if not avail w2 then create w2.
+          assign
+              w2.cas-cnt = oe-boll.partial
+              w2.cases   = w2.cases + 1.
+      END.
+    
+       FIND first oe-ordl where oe-ordl.company eq cocode
+           and oe-ordl.ord-no  eq int(report.key-02)
+           and oe-ordl.i-no    eq report.key-01
+           no-lock no-error.
+     
+      IF lv-bolfmt-int = 1 THEN DO:  /* show summary per item */
+          IF LAST-OF(report.key-02) THEN DO:
+              i = 0.
+              FOR EACH w2 BREAK BY w2.cases * w2.cas-cnt DESC:
+                  i = i + 1.
+                  ln-cnt = ln-cnt + 2 .
+
+                  IF LAST(w2.cases * w2.cas-cnt) THEN DO:
+                      IF FIRST(w2.cases * w2.cas-cnt) THEN DO:
+                          ln-cnt = ln-cnt + 1 .
+                          RUN PrintCountNoteLine .
+                      END.
+                      ln-cnt = ln-cnt + 2  .
+                  END.
+                  DELETE w2.
+              END.
+
+              ln-cnt = ln-cnt + 1 .
+          END.
+      END.
+      /* end of summary mods */
+      ELSE DO:
+          ln-cnt = ln-cnt + 5 .
+          RUN PrintCountNoteLine .
+      END.
+      if v-print-components then
+          for each fg-set
+          where fg-set.company eq cocode
+          and fg-set.set-no  eq oe-boll.i-no
+          no-lock,
+          
+          first xitemfg
+          where xitemfg.company eq cocode
+          and xitemfg.i-no    eq fg-set.part-no
+          no-lock
+          break by fg-set.set-no:
+          ln-cnt = ln-cnt + 3 .
+      END.
+  END.
+     /* end of dup loop */
+
+     IF lv-bolfmt-int = 1 THEN
+         lv-tot-pg = IF ln-cnt MOD 26 = 0 THEN TRUNC( ln-cnt / 26,0)
+                      ELSE lv-tot-pg + TRUNC( ln-cnt / 26,0) .  /* 16->34 19 po detail lines */
+      ELSE lv-tot-pg = IF ln-cnt MOD 24 = 0 THEN TRUNC( ln-cnt / 24,0)
+                      ELSE lv-tot-pg + TRUNC( ln-cnt / 24,0) .  /* 16->34 19 po detail lines */
+                  
+                  /*  end of getting total page per po */
+
      
      {oe/rep/bolsolmed2.i}
      {oe/rep/bolsolmed.i}
@@ -350,7 +441,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
     "<=8><R+1> Total Cases       :" v-tot-unit 
     "<=8><R+3> " /*v-tot-wt*/ /*fORM ">>,>>9.99"*/ .
 
-  PUT "<R63><C65>Page:" string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)".
+  PUT "<R63><C65>Page:" string(PAGE-NUM - lv-pg-num,">>9") + " of " + STRING(lv-tot-pg)  FORM "x(20)".
     
   ASSIGN v-ship-i = "".
   IF v-print-shipnotes THEN 
@@ -448,6 +539,25 @@ PROCEDURE PrintBarTag:
       PUT UNFORMATTED cBarTag.
       iBarCount = 0.
    END.
+END PROCEDURE.
+
+PROCEDURE PrintCountNoteLine:
+
+    IF v-print-dept THEN DO:
+        FOR EACH notes WHERE
+            notes.rec_key EQ oe-ordl.rec_key AND
+            CAN-DO(v-depts,notes.note_code)
+            NO-LOCK
+            BY notes.note_code:
+            v-tmp-lines = LENGTH(NOTES.NOTE_TEXT) / 80.
+            {SYS/INC/ROUNDUP.I v-tmp-lines}
+                IF notes.note_text <> "" THEN
+                    DO i = 1 TO v-tmp-lines:
+                    ln-cnt = ln-cnt + 1 .
+                END.
+        END.
+    END.
+
 END PROCEDURE.
 
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */

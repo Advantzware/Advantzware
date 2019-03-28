@@ -340,71 +340,12 @@ rm-rctd.rita-code = ""T"""
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
-   def var phandle as widget-handle no-undo.
-   def var char-hdl as cha no-undo.   
-   RUN get-link-handle IN adm-broker-hdl
-      (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
-   phandle = WIDGET-HANDLE(char-hdl).
-   
-   RUN new-state in phandle ('update-begin':U).
+    DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON HELP OF Browser-Table IN FRAME F-Main
-DO:
- def var ll-tag# as log no-undo.
- def var char-val as cha no-undo.
- def var recid-val as recid no-undo.
- def var rowid-val as rowid no-undo.
-
- 
- IF NOT avail rm-rctd then find rm-rctd where recid(rm-rctd) = lv-recid no-lock no-error. 
- 
- ll-help-run = yes.
-
- case focus:name :
-     when "i-no" then do:
-           run windows/l-itmre.w (rm-rctd.company, "", "", "R", focus:screen-value in browse {&browse-name}, output char-val, output recid-val).
-           if char-val <> "" then do :
-              focus:screen-value in browse {&browse-name} = entry(1,char-val).
-              apply "value-changed" to focus in browse {&browse-name}.
-           end.   
-     end.
-
-     WHEN "loc"     THEN DO:
-           RUN rmbin-help. 
-           APPLY "ENTRY" TO rm-rctd.loc IN BROWSE {&browse-name}.  
-     END.
-     WHEN "loc-bin" THEN DO:
-           RUN rmbin-help. 
-           APPLY "ENTRY" TO rm-rctd.loc-bin IN BROWSE {&browse-name}.  
-     END.
-     WHEN "tag"     THEN DO:
-           RUN rmbin-help. 
-           APPLY "ENTRY" TO rm-rctd.tag IN BROWSE {&browse-name}.  
-     END.
-
-     when "loc2" then do:
-           run rm/l-loc.w (rm-rctd.company, focus:screen-value in browse {&browse-name}, output char-val).
-           if char-val <> "" then do :
-              assign focus:screen-value in  browse {&browse-name}  = entry(1,char-val).             
-           end.
-     end.
-     when "loc-bin2" then do:
-           run rm/l-locbin.w (rm-rctd.company, rm-rctd.loc2:screen-value in browse {&browse-name}, output char-val).
-           if char-val <> "" then do :
-              assign focus:screen-value in  browse {&browse-name}  = entry(1,char-val).             
-           end.
-     end.
-
-   end case.
-
-   return no-apply.
+    IF AVAILABLE rm-rctd THEN DO:
+        RUN rm/d-trans.w (RECID(rm-rctd), "update", OUTPUT lv-rowid) . 
+        RUN repo-query (lv-rowid).
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -445,195 +386,6 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME rm-rctd.i-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.i-no Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF rm-rctd.i-no IN BROWSE Browser-Table /* Item No */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-i-no NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.i-no Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF rm-rctd.i-no IN BROWSE Browser-Table /* Item No */
-DO:
-/*   FIND item                                                                    */
-/*       WHERE item.company EQ cocode                                             */
-/*         AND item.i-no    EQ {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} */
-/*       NO-LOCK NO-ERROR.                                                        */
-/*   IF AVAIL item THEN                                                           */
-/*     ASSIGN                                                                     */
-/*      {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}   = item.i-no          */
-/*      rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = item.i-name.       */
-
-    DEF VAR li AS INT NO-UNDO.
-
-  FIND item
-      WHERE item.company EQ cocode
-        AND item.i-no    EQ {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}
-/*         AND item.i-code  EQ "R" */
-      NO-LOCK NO-ERROR.
-  IF AVAIL item THEN DO:
-    RUN display-item (RECID(item)).
-    DO li = 1 TO LENGTH({&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}) + 1:
-      APPLY "cursor-right" TO {&self-name} IN BROWSE {&browse-name}.
-    END.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME rm-rctd.i-name
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.i-name Browser-Table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF rm-rctd.i-name IN BROWSE Browser-Table /* Name */
-DO:
-  APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-  RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME rm-rctd.tag
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF rm-rctd.tag IN BROWSE Browser-Table /* From!Tag */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-tag NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    /*
-    RUN valid-loc-bin-tag NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    */
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF rm-rctd.tag IN BROWSE Browser-Table /* From!Tag */
-DO:
-  RUN new-bin.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME rm-rctd.loc
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF rm-rctd.loc IN BROWSE Browser-Table /* From!Whs */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-loc-bin-tag NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF rm-rctd.loc IN BROWSE Browser-Table /* From!Whs */
-DO:
-  RUN new-bin.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME rm-rctd.loc-bin
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc-bin Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF rm-rctd.loc-bin IN BROWSE Browser-Table /* From!Bin */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-loc-bin-tag NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc-bin Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF rm-rctd.loc-bin IN BROWSE Browser-Table /* From!Bin */
-DO:
-  RUN new-bin.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME rm-rctd.qty
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.qty Browser-Table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF rm-rctd.qty IN BROWSE Browser-Table /* Name */
-DO:
-  IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN do:
-  APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-  RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-&Scoped-define SELF-NAME rm-rctd.qty
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.qty Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF rm-rctd.qty IN BROWSE Browser-Table /* Qty */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-loc-bin-tag NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME rm-rctd.loc2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc2 Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF rm-rctd.loc2 IN BROWSE Browser-Table /* To !Whs */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-loc2 NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME rm-rctd.loc-bin2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc-bin2 Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF rm-rctd.loc-bin2 IN BROWSE Browser-Table /* To!Bin */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-loc-bin2 NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -728,94 +480,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-item B-table-Win 
-PROCEDURE display-item :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-item-recid AS RECID.
 
-  FIND ITEM WHERE RECID(ITEM) = ip-item-recid NO-LOCK NO-ERROR.
-  IF AVAIL ITEM THEN
-     ASSIGN rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = ITEM.i-no
-            rm-rctd.i-name:SCREEN-VALUE = ITEM.i-name
-            rm-rctd.pur-uom:SCREEN-VALUE = ITEM.cons-uom
-           /* rm-rctd.loc:SCREEN-VALUE = ITEM.loc
-            rm-rctd.loc-bin:SCREEN-VALUE = ITEM.loc-bin */
-            .
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
-PROCEDURE local-assign-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DEF VAR lv-tag2 LIKE rm-rctd.tag2 NO-UNDO.
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  DO WITH FRAME {&FRAME-NAME}:
-    lv-tag2 = rm-rctd.tag2:SCREEN-VALUE IN BROWSE {&browse-name}.
-  END.
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN rm-rctd.tag2  = lv-tag2
-         rm-rctd.enteredBy = USERID("asi")
-         rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
-         .
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
-PROCEDURE local-create-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
- DEF VAR lv-rno LIKE rm-rctd.r-no NO-UNDO.
- DEF BUFFER b-rm-rctd FOR rm-rctd.
-
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  lv-rno = 0.
-
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  RUN sys/ref/asiseq.p (INPUT cocode, INPUT "rm_rcpt_seq", OUTPUT lv-rno) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN
-    MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
-       VIEW-AS ALERT-BOX INFO BUTTONS OK.
-
-
-  assign rm-rctd.company   = cocode
-         rm-rctd.r-no      = lv-rno
-         rm-rctd.rita-code = "T"
-         rm-rctd.s-num     = 0
-         rm-rctd.rct-date  = today
-         .
-  disp rm-rctd.rct-date with browse {&browse-name}. 
-  lv-recid = recid(rm-rctd).  
- 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
 PROCEDURE local-delete-record :
@@ -897,79 +562,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
-PROCEDURE local-update-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* when new record created from last row, get error "No rm-rctd" record ava */
-  if not avail rm-rctd then find rm-rctd where recid(rm-rctd) = lv-recid no-error.
-  
-  RUN valid-i-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  RUN valid-tag NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  RUN valid-loc-bin-tag NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  RUN valid-loc2 NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  RUN valid-loc-bin2 NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  RUN repo-query (ROWID(rm-rctd)).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-bin B-table-Win 
-PROCEDURE new-bin :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&FRAME-NAME}:
-   IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} <> ""  THEN do:
-    FIND FIRST rm-bin 
-        WHERE rm-bin.company EQ cocode
-          AND rm-bin.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND rm-bin.loc     EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND rm-bin.loc-bin EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND rm-bin.tag     EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
-        NO-LOCK NO-ERROR.
-    IF NOT AVAIL rm-bin THEN
-        FIND FIRST rm-bin 
-        WHERE rm-bin.company EQ cocode
-          AND rm-bin.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND rm-bin.tag     EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
-        NO-LOCK NO-ERROR.
-
-    IF AVAIL rm-bin THEN DO:
-/*       IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN */
-        rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(rm-bin.qty).
-    END.
-   END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :
@@ -992,47 +584,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE rmbin-help B-table-Win 
-PROCEDURE rmbin-help :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR lv-rowid AS ROWID NO-UNDO.
-  DEF VAR save-rowid AS ROWID NO-UNDO.
-  DEF VAR save-focus AS CHAR NO-UNDO.
-  DEF VAR char-hdl AS CHAR NO-UNDO.
-  DEF VAR ll-error AS LOG NO-UNDO.
-
-
-  DO WITH FRAME {&FRAME-NAME}:
-    RUN windows/l-rmibn2.w (rm-rctd.company, rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}, rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lv-rowid).
-
-    FOR EACH tt-selected WHERE tt-rowid EQ lv-rowid,
-        FIRST rm-bin WHERE ROWID(rm-bin) EQ tt-rowid:
-
-      IF rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     NE rm-bin.loc     OR
-         rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} NE rm-bin.loc-bin OR
-         rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}     NE rm-bin.tag     THEN DO:
-        ASSIGN
-         rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = rm-bin.loc
-         rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = rm-bin.loc-bin
-         rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}     = rm-bin.tag.
-
-        RUN new-bin.
-      END.
-
-      DELETE tt-selected.
-
-      LEAVE.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
@@ -1076,247 +627,96 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-i-no B-table-Win 
-PROCEDURE valid-i-no :
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddRecord B-table-Win 
+PROCEDURE pAddRecord :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+  DEFINE BUFFER bff-rm-rctd FOR rm-rctd .
 
-  DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST item
-        WHERE item.company EQ cocode
-          AND item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-        NO-LOCK NO-ERROR.
-    IF NOT AVAIL item THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX.
-      RETURN ERROR.
-    END.
-  END.
+   RUN rm/d-trans.w (?,"add", OUTPUT lv-rowid) . 
+   FIND FIRST bff-rm-rctd NO-LOCK
+       WHERE bff-rm-rctd.company EQ cocode
+       AND ROWID(bff-rm-rctd) EQ lv-rowid NO-ERROR .
+   IF AVAIL bff-rm-rctd THEN
+       RUN repo-query (lv-rowid).
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc-bin-tag B-table-Win 
-PROCEDURE valid-loc-bin-tag :
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecord B-table-Win 
+PROCEDURE pUpdateRecord :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-fields AS CHAR INIT "loc,loc-bin,tag" NO-UNDO.
-  DEF VAR li-field# AS INT NO-UNDO.
-
-
-  DO WITH FRAME {&FRAME-NAME}:
-    li-field# = LOOKUP(FOCUS:NAME IN BROWSE {&browse-name},lv-fields).
-
-    IF li-field# EQ 0 THEN li-field# = 9999.
-
-    FIND FIRST rm-bin
-        WHERE rm-bin.company  EQ cocode
-          AND rm-bin.i-no     EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND (rm-bin.loc     EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}          OR
-               (li-field#     LT 1 AND
-                rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""))
-          AND (rm-bin.loc-bin EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}      OR
-               (li-field#     LT 2 AND
-                rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""))
-          AND (rm-bin.tag     EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}          OR
-               (li-field#     LT 3 AND
-                rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""))
-        USE-INDEX loc-bin NO-LOCK NO-ERROR.
-
-    IF AVAIL rm-bin                                                             AND
-       (rm-bin.qty GE DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}) OR
-        li-field# LT 3)                                                         THEN
-      ASSIGN
-       rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = CAPS(rm-bin.loc)
-       rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = CAPS(rm-bin.loc-bin)
-       rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}     = CAPS(rm-bin.tag)
-       rm-rctd.tag2:SCREEN-VALUE IN BROWSE {&browse-name}    = CAPS(rm-bin.tag).
-
-    ELSE DO:
-      IF AVAIL rm-bin THEN DO:
-        MESSAGE "Insufficient qty in bin..." VIEW-AS ALERT-BOX.
-        IF li-field# LE 3 THEN
-          APPLY "entry" TO FOCUS IN BROWSE {&browse-name}.
-        ELSE
-          APPLY "entry" TO rm-rctd.qty IN BROWSE {&browse-name}.
-      END.
-
-      ELSE DO:
-        MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX.
-        IF li-field# LE 3 THEN
-          APPLY "entry" TO FOCUS IN BROWSE {&browse-name}.
-        ELSE
-          APPLY "entry" TO rm-rctd.loc-bin IN BROWSE {&browse-name}.
-      END.
-
-      RETURN ERROR.
+    DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+    
+    IF AVAILABLE rm-rctd THEN
+    DO:
+       RUN rm/d-trans.w (RECID(rm-rctd), "update", OUTPUT lv-rowid) . 
+       RUN repo-query (lv-rowid).
     END.
-  END.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc-bin-tag-old B-table-Win 
-PROCEDURE valid-loc-bin-tag-old :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pViewRecord B-table-Win 
+PROCEDURE pViewRecord :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-int AS INT NO-UNDO.
-
-
-  DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST rm-bin 
-                    WHERE rm-bin.company  EQ cocode
-                      AND rm-bin.i-no     EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND (rm-bin.loc     EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     OR ip-int LT 1)
-                      AND (rm-bin.loc-bin EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} OR ip-int LT 2)
-                      AND (rm-bin.tag     EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}     OR ip-int LT 3))
-    THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX.
-      IF ip-int EQ 3 THEN
-        APPLY "entry" TO rm-rctd.tag IN BROWSE {&browse-name}.
-      ELSE
-      IF ip-int EQ 2 THEN
-        APPLY "entry" TO rm-rctd.loc-bin IN BROWSE {&browse-name}.
-      ELSE
-        APPLY "entry" TO rm-rctd.loc IN BROWSE {&browse-name}.
-      RETURN ERROR.
+    DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+    
+    IF AVAILABLE rm-rctd THEN
+    DO:
+       RUN rm/d-trans.w (RECID(rm-rctd),"view", OUTPUT lv-rowid) . 
+       RUN repo-query (lv-rowid).
     END.
-  END.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc-bin2 B-table-Win 
-PROCEDURE valid-loc-bin2 :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyRecord B-table-Win 
+PROCEDURE pCopyRecord :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
-  DEF VAR lv-msg AS CHAR NO-UNDO.
+    DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+    DEF VAR lv-rno LIKE rm-rctd.r-no NO-UNDO.
+    DEFINE BUFFER bf-rm-rctd FOR rm-rctd .
+    
+    IF AVAILABLE rm-rctd THEN
+    DO:
+        RUN sys/ref/asiseq.p (INPUT cocode, INPUT "rm_rcpt_seq", OUTPUT lv-rno) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN
+            MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
+            VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
+       CREATE bf-rm-rctd.
+       BUFFER-COPY rm-rctd EXCEPT r-no rec_key TO bf-rm-rctd.
+       ASSIGN bf-rm-rctd.r-no = lv-rno.
 
-  DO WITH FRAME {&FRAME-NAME}:
-    IF lv-msg EQ "" THEN
-      IF rm-rctd.loc-bin2:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN
-        lv-msg = "To Bin may not be spaces".
-
-    IF lv-msg EQ "" THEN
-      IF rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}      EQ
-         rm-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}     AND
-         rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}  EQ
-         rm-rctd.loc-bin2:SCREEN-VALUE IN BROWSE {&browse-name} THEN
-        lv-msg = "To Whse/Bin may not be the same as From Whse/Bin".
-
-    IF lv-msg EQ "" THEN DO:
-      FIND FIRST rm-bin
-          WHERE rm-bin.company EQ cocode
-            AND rm-bin.i-no    EQ ""
-            AND rm-bin.loc     EQ rm-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}
-            AND rm-bin.loc-bin EQ rm-rctd.loc-bin2:SCREEN-VALUE IN BROWSE {&browse-name}
-        USE-INDEX loc-bin NO-LOCK NO-ERROR.
-
-      IF NOT AVAIL rm-bin THEN lv-msg = "Invalid entry, try help...".
+       RUN rm/d-trans.w (RECID(bf-rm-rctd),"copy", OUTPUT lv-rowid) . 
+       IF lv-rowid NE ? THEN
+           RUN repo-query (lv-rowid).
     END.
-
-    IF lv-msg NE "" THEN DO:
-      MESSAGE TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX.
-      APPLY "entry" TO rm-rctd.loc-bin2 IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  END.
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc2 B-table-Win 
-PROCEDURE valid-loc2 :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  
-  DEF VAR lv-msg AS CHAR NO-UNDO.
-
-
-  DO WITH FRAME {&FRAME-NAME}:
-    IF lv-msg EQ "" THEN
-      IF rm-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN
-        lv-msg = "To Warehouse may not be spaces".
-
-    IF lv-msg EQ "" THEN DO:
-      FIND FIRST loc
-          WHERE loc.company EQ cocode
-            AND loc.loc     EQ rm-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}
-          NO-LOCK NO-ERROR.
-      IF NOT AVAIL loc THEN lv-msg = "Invalid entry, try help".
-    END.
-
-    IF lv-msg NE "" THEN DO:
-      MESSAGE TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX.
-      APPLY "entry" TO rm-rctd.loc2 IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  END.
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag B-table-Win 
-PROCEDURE valid-tag :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- DEFINE BUFFER bf-rm-rctd FOR rm-rctd . 
-
-    DO WITH FRAME {&FRAME-NAME}:
-      FIND FIRST bf-rm-rctd NO-LOCK
-          WHERE bf-rm-rctd.company = gcompany 
-          AND bf-rm-rctd.rita-code = "T" 
-          AND bf-rm-rctd.tag = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND RECID(bf-rm-rctd) <> RECID(rm-rctd)  NO-ERROR.
-      IF AVAIL bf-rm-rctd THEN DO:
-          MESSAGE "This Tag Number Has Already Been Used." skip
-              "Please Enter A Unique Tag Number." 
-              VIEW-AS ALERT-BOX ERROR.
-          APPLY 'entry' TO rm-rctd.tag.
-          RETURN ERROR.
-      END.
-    END.
- 
-  IF rmrecpt-int EQ 1 THEN DO:
-    FIND FIRST loadtag WHERE loadtag.company = g_company
-                         AND loadtag.item-type = YES
-                         AND loadtag.tag-no = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK NO-ERROR.
-    IF NOT AVAIL loadtag THEN DO:
-       MESSAGE "Invalid Tag#. Try help or Scan valid tag#..." VIEW-AS ALERT-BOX ERROR.
-       rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = ''.
-       APPLY "entry" TO rm-rctd.tag IN BROWSE {&browse-name}.
-       RETURN ERROR.
-    END.
-  END.
 
 END PROCEDURE.
 

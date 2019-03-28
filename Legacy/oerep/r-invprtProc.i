@@ -2300,6 +2300,11 @@ PROCEDURE SetInvForm:
                 v-program      = "oe/rep/invxprnt10.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
+        WHEN "LancoYork" THEN
+            ASSIGN
+                v-program      = "oe/rep/invlanyork.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
         WHEN "Shamrock" THEN
             ASSIGN
                 v-program      = "oe/rep/invshamrock.p"
@@ -2871,6 +2876,11 @@ PROCEDURE SetInvPostForm:
         WHEN "invprint 20" THEN
             ASSIGN
                 v-program      = "ar/rep/invxprnt10.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
+        WHEN "LancoYork" THEN
+            ASSIGN
+                v-program      = "ar/rep/invlanyork.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "Shamrock" THEN

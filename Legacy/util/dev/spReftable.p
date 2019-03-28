@@ -61,7 +61,6 @@ ASSIGN
 
 
 /* **********************  Internal Procedures  *********************** */
-
 PROCEDURE _closeLog:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -99,9 +98,7 @@ PROCEDURE _closeLog:
     
     OUTPUT CLOSE.                     
 
-
 END PROCEDURE.
-
 
 PROCEDURE _epConvert:
 /*------------------------------------------------------------------------------
@@ -109,6 +106,9 @@ PROCEDURE _epConvert:
  Notes:     Record counts, reftable1 creation, logging, etc.
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcRefTable AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCount AS CHAR NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCount AS INT NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiProcessed AS INT NO-UNDO.
     
     DISABLE TRIGGERS FOR LOAD OF reftable.        
     DISABLE TRIGGERS FOR LOAD OF reftable1.        
@@ -122,23 +122,31 @@ PROCEDURE _epConvert:
         ASSIGN 
             iRecordCount = iRecordCount + 1.
         
-        RUN VALUE(ipcRefTable) (INPUT ipcRefTable,
-                                INPUT ROWID(reftable)). 
-
-        FIND CURRENT reftable EXCLUSIVE NO-ERROR.
-        CREATE reftable1.
-        BUFFER-COPY reftable TO reftable1.
-        RELEASE reftable1.
-        DELETE reftable. 
-
-        IF iProcessCount GE iLimit THEN LEAVE blkProcess. 
+        IF ipcCount NE "Count" THEN DO:
+            RUN VALUE(ipcRefTable) (INPUT ipcRefTable,
+                                    INPUT ROWID(reftable)). 
+    
+            FIND CURRENT reftable EXCLUSIVE NO-ERROR.
+            CREATE reftable1.
+            BUFFER-COPY reftable TO reftable1.
+            RELEASE reftable1.
+            DELETE reftable. 
+    
+            IF iProcessCount GE iLimit THEN LEAVE blkProcess.
+        END. 
     END.  /*FOR EACH reftable*/  
 
-    RUN _writeLog (ipcReftable, iRecordCount, "").
+    IF ipcCount NE "Count" THEN DO:
+        RUN _writeLog (ipcReftable, iRecordCount, "").
+        
+        ASSIGN 
+            iTotProcessCount = iTotProcessCount + iProcessCount
+            iTotRecordCount = iTotRecordCount + iRecordCount.
+    END.
     
     ASSIGN 
-        iTotProcessCount = iTotProcessCount + iProcessCount
-        iTotRecordCount = iTotRecordCount + iRecordCount.
+        opiCount = iRecordCount
+        opiProcessed = iProcessCount.
             
 END PROCEDURE.
 
@@ -202,6 +210,27 @@ PROCEDURE _writeLog:
 
 END PROCEDURE.
 
+PROCEDURE _ProcTemplate:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /*   REMOVE THIS LINE AFTER COPYING THE TEMPLATE
+&SCOPED-DEFINE cTable <tablename>    
+{&CommonCode}
+        
+    FOR EACH <tablename> EXCLUSIVE WHERE 
+        <condition>:
+        
+        IF <condition> THEN ASSIGN 
+            truck.<value> = reftable.val[1] 
+            iProcessCount = iProcessCount + 1.
+
+    END.
+    REMOVE THIS LINE AFTER COPYING THE TEMPLATE  */
+
+END PROCEDURE.
+
 
 PROCEDURE AOAreport:
 /*------------------------------------------------------------------------------
@@ -222,7 +251,7 @@ PROCEDURE ar-cashl.inv-line:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-&SCOPED-DEFINE cTable ar-invl    
+&SCOPED-DEFINE cTable ar-cashl    
 {&CommonCode}
         
     FOR EACH ar-invl NO-LOCK WHERE 
@@ -733,6 +762,20 @@ PROCEDURE cust.show-set:
 END PROCEDURE.
 
 
+PROCEDURE d-shp2nt:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+&SCOPED-DEFINE cTable reftable    
+{&CommonCode}
+    /* This reftable has no effect on the "normal" files */
+    ASSIGN 
+        iProcessCount = iProcessCount + 1.    
+
+END PROCEDURE.
+
+
 PROCEDURE dropslit:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -765,13 +808,13 @@ PROCEDURE e-item-vend.adders:
         e-item-vend.rec_key EQ reftable.rec_key:
         
         IF e-item-vend.underWidth EQ 0 THEN ASSIGN 
-            e-item-vend.underWidth = reftable.val[1].
+            e-item-vend.underWidth = reftable.val[1] / 10000.
         IF e-item-vend.underLength EQ 0 THEN ASSIGN 
-            e-item-vend.underWidth = reftable.val[2].
+            e-item-vend.underWidth = reftable.val[2] / 10000.
         IF e-item-vend.underWidthCost EQ 0 THEN ASSIGN 
-            e-item-vend.underWidth = reftable.val[3].
+            e-item-vend.underWidth = reftable.val[3] / 10000.
         IF e-item-vend.underLengthCost EQ 0 THEN ASSIGN 
-            e-item-vend.underWidth = reftable.val[4].
+            e-item-vend.underWidth = reftable.val[4] / 10000.
         ASSIGN  
             iProcessCount = iProcessCount + 1.
 
@@ -1889,6 +1932,36 @@ PROCEDURE oe/ordlmisc.p:
 END PROCEDURE.
 
 
+PROCEDURE ORDERPO:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+&SCOPED-DEFINE cTable job-mat    
+{&CommonCode}
+        
+    FOR EACH job NO-LOCK WHERE 
+        job.company EQ reftable.company AND 
+        job.job     EQ SUBSTRING(reftable.CODE,1,10):
+        
+        FOR EACH job-mat EXCLUSIVE WHERE 
+            job-mat.company  EQ job.company AND
+            job-mat.job      EQ job.job AND  
+            job-mat.job-no   EQ job.job-no AND 
+            job-mat.job-no2  EQ job.job-no2 AND 
+            job-mat.rm-i-no  EQ reftable.CODE2 AND 
+            job-mat.frm      EQ INT(SUBSTRING(reftable.CODE,11,10)):
+        
+            IF job-mat.po-no EQ 0 THEN ASSIGN 
+                job-mat.po-no = reftable.val[1] 
+                iProcessCount = iProcessCount + 1.
+        
+        END.
+    END.
+
+END PROCEDURE.
+
+
 PROCEDURE POORDLDEPTH:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -2203,6 +2276,27 @@ PROCEDURE ship-to.mandatory-tax:
         
         IF shipto.tax-mandatory EQ NO THEN ASSIGN 
             shipto.tax-mandatory = IF reftable.val[1] = 1 THEN TRUE ELSE FALSE 
+            iProcessCount = iProcessCount + 1.
+
+    END.
+
+END PROCEDURE.
+
+
+PROCEDURE SPECSAMP:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+&SCOPED-DEFINE cTable est    
+{&CommonCode}
+        
+    FOR EACH est EXCLUSIVE WHERE 
+        est.company EQ reftable.company AND 
+        est.est-no  EQ reftable.code:
+        
+        IF est.sampleNum EQ 0 THEN ASSIGN 
+            est.sampleNum = INT(reftable.code2)
             iProcessCount = iProcessCount + 1.
 
     END.
@@ -2530,28 +2624,6 @@ PROCEDURE vend-setup:
             iProcessCount = iProcessCount + 1.
 
     END.
-
-END PROCEDURE.
-
-
-PROCEDURE zProcTemplate:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    /*   REMOVE THIS LINE AFTER COPYING THE TEMPLATE
-&SCOPED-DEFINE cTable <tablename>    
-{&CommonCode}
-        
-    FOR EACH <tablename> EXCLUSIVE WHERE 
-        <condition>:
-        
-        IF <condition> THEN ASSIGN 
-            truck.<value> = reftable.val[1] 
-            iProcessCount = iProcessCount + 1.
-
-    END.
-    REMOVE THIS LINE AFTER COPYING THE TEMPLATE  */
 
 END PROCEDURE.
 

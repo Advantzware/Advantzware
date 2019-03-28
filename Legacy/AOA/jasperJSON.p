@@ -63,13 +63,7 @@ IF NOT iphQuery:QUERY-OFF-END THEN DO:
                 hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynParamValue.colName[idx],"."))
                 cFieldName   = ENTRY(2,dynParamValue.colName[idx],".")
                 cBufferValue = fFormatValue(hQueryBuf, hQueryBuf:BUFFER-FIELD(cFieldName):NAME)
-                /* remove special characters with escape values */
-                cBufferValue = REPLACE(cBufferValue,"~&","~&amp;")
-                cBufferValue = REPLACE(cBufferValue,"~'","~&apos;")
-                cBufferValue = REPLACE(cBufferValue,"~"","~&quot;")
-                cBufferValue = REPLACE(cBufferValue,"<","~&lt;")
-                cBufferValue = REPLACE(cBufferValue,">","~&gt;")
-                cBufferValue = REPLACE(cBufferValue,"~\","~\~\")
+                cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 6, "Web")
                 .
             IF idx GT 1 THEN
             PUT UNFORMATTED "," SKIP.

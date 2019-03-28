@@ -125,7 +125,7 @@ DEF VAR userLabelPath AS cha NO-UNDO.
 &Scoped-Define ENABLED-OBJECTS RECT-7 fi_cas-lab begin_job begin_job2 ~
 begin_ord-no begin_i-no begin_rel tb_per-unit tb_per-pallet tb_over ~
 tb_print-comp scr-auto-print scr-freeze-label scr-label-file rd_print ~
-begin_date end_date btn-cancel btn-ok 
+begin_date end_date btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS fi_cas-lab begin_job begin_job2 ~
 begin_ord-no begin_i-no begin_rel tb_per-unit tb_per-pallet tb_over ~
 tb_print-comp scr-auto-print scr-freeze-label scr-label-file rd_print ~
@@ -142,12 +142,15 @@ begin_date end_date begin_filename lbl_po-no
 
 /* ************************  Function Prototypes ********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD blockAccess C-Win 
-FUNCTION blockAccess RETURNS LOGICAL
-  ( /* parameter-definitions */ )  FORWARD.
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD blockAccess C-Win
+FUNCTION blockAccess RETURNS LOGICAL 
+  (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD removeChars C-Win 
 FUNCTION removeChars RETURNS CHARACTER
@@ -189,7 +192,7 @@ DEFINE VARIABLE begin_form AS INTEGER FORMAT ">>>":U INITIAL 3
 DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U 
      LABEL "Item#" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
+     SIZE 21 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job AS CHARACTER FORMAT "X(12)":U 
      LABEL "Job#" 
@@ -209,12 +212,12 @@ DEFINE VARIABLE begin_labels AS INTEGER FORMAT ">>>>":U INITIAL 2
 DEFINE VARIABLE begin_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "Order#" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
+     SIZE 21 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_rel AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
      LABEL "Release#" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
+     SIZE 21 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "To Date" 
@@ -261,7 +264,7 @@ DEFINE VARIABLE rd_print AS CHARACTER INITIAL "R"
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 104 BY 18.81.
+     SIZE 104 BY 19.05.
 
 DEFINE VARIABLE scr-auto-print AS LOGICAL INITIAL no 
      LABEL "Auto Print Label?" 
@@ -307,45 +310,45 @@ DEFINE VARIABLE tb_rel AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     fi_cas-lab AT ROW 2.38 COL 40 COLON-ALIGNED
-     begin_job AT ROW 3.24 COL 40 COLON-ALIGNED HELP
+     fi_cas-lab AT ROW 1.71 COL 40 COLON-ALIGNED
+     begin_job AT ROW 2.91 COL 40 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job2 AT ROW 3.33 COL 55 COLON-ALIGNED HELP
+     begin_job2 AT ROW 2.91 COL 56 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_ord-no AT ROW 4.29 COL 40 COLON-ALIGNED HELP
+     begin_ord-no AT ROW 4.1 COL 40 COLON-ALIGNED HELP
           "Enter Beginning Order Number"
      begin_i-no AT ROW 5.24 COL 40 COLON-ALIGNED HELP
           "Enter Beginning Item Number"
-     begin_rel AT ROW 6.19 COL 40 COLON-ALIGNED HELP
+     begin_rel AT ROW 6.48 COL 40 COLON-ALIGNED HELP
           "Enter Beginning Item Number" WIDGET-ID 6
-     tb_per-unit AT ROW 7.29 COL 52
-     tb_per-pallet AT ROW 7.29 COL 68
-     tb_over AT ROW 8.29 COL 40
-     tb_print-comp AT ROW 9.24 COL 40
-     scr-auto-print AT ROW 10.19 COL 40
-     scr-freeze-label AT ROW 10.19 COL 63.2
-     scr-label-file AT ROW 11.33 COL 38 COLON-ALIGNED
-     rd_print AT ROW 12.67 COL 55 NO-LABEL
-     begin_date AT ROW 13.71 COL 54 COLON-ALIGNED HELP
+     tb_per-unit AT ROW 7.57 COL 52
+     tb_per-pallet AT ROW 7.57 COL 68
+     tb_over AT ROW 8.57 COL 40
+     tb_print-comp AT ROW 9.52 COL 40
+     scr-auto-print AT ROW 10.48 COL 40
+     scr-freeze-label AT ROW 10.48 COL 63.2
+     scr-label-file AT ROW 11.62 COL 38 COLON-ALIGNED
+     rd_print AT ROW 12.95 COL 55 NO-LABEL
+     begin_date AT ROW 14 COL 54 COLON-ALIGNED HELP
           "Enter Beginning Release Date" WIDGET-ID 2
-     end_date AT ROW 13.71 COL 79.6 COLON-ALIGNED HELP
+     end_date AT ROW 14 COL 79.6 COLON-ALIGNED HELP
           "Enter Ending Release Date" WIDGET-ID 4
-     rd_order-sts AT ROW 15.19 COL 55 NO-LABEL
-     begin_form AT ROW 16.38 COL 19 COLON-ALIGNED
-     rd_comps AT ROW 16.38 COL 55 NO-LABEL
-     begin_labels AT ROW 17.33 COL 19 COLON-ALIGNED
-     tb_rel AT ROW 17.38 COL 37
-     tb_16ths AT ROW 17.38 COL 76
-     begin_filename AT ROW 18.52 COL 19 COLON-ALIGNED
-     btn-cancel AT ROW 20.19 COL 66
-     btn-ok AT ROW 20.29 COL 24
-     lbl_po-no AT ROW 12.67 COL 38 COLON-ALIGNED HELP
+     rd_order-sts AT ROW 15.48 COL 55 NO-LABEL
+     begin_form AT ROW 16.67 COL 19 COLON-ALIGNED
+     rd_comps AT ROW 16.67 COL 55 NO-LABEL
+     begin_labels AT ROW 17.62 COL 19 COLON-ALIGNED
+     tb_rel AT ROW 17.67 COL 37
+     tb_16ths AT ROW 17.67 COL 76
+     begin_filename AT ROW 18.81 COL 19 COLON-ALIGNED
+     btn-ok AT ROW 20.52 COL 24
+     btn-cancel AT ROW 20.52 COL 66
+     lbl_po-no AT ROW 12.95 COL 38 COLON-ALIGNED HELP
           "Print Customer's PO Number from Header, Line item or Release" NO-LABEL
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 2
-          BGCOLOR 2 
+          BGCOLOR 14 
      "Update Estimate, Order and FG Item --->" VIEW-AS TEXT
-          SIZE 39 BY 1 AT ROW 7.29 COL 12
+          SIZE 39 BY 1 AT ROW 7.57 COL 12
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -1054,7 +1057,7 @@ ON LEAVE OF fi_cas-lab IN FRAME FRAME-A /* Scan Label */
 DO:
   DEF VAR v-cust-no AS CHAR NO-UNDO.
 
-  IF SELF:SCREEN-VALUE NE "" AND SELF:MODIFIED THEN DO:      
+  IF SELF:SCREEN-VALUE NE "" THEN DO:      
 
     ASSIGN
       fi_cas-lab:SCREEN-VALUE   = TRIM(fi_cas-lab:SCREEN-VALUE)
@@ -1063,8 +1066,7 @@ DO:
       begin_job2:SCREEN-VALUE   = SUBSTRING(fi_cas-lab:SCREEN-VALUE,22,2)
       begin_i-no:SCREEN-VALUE   = SUBSTRING(fi_cas-lab:SCREEN-VALUE,1,15).
 
-    IF v-auto-print AND LOGICAL(scr-freeze-label:SCREEN-VALUE) EQ NO THEN
-    DO:
+    IF v-auto-print THEN DO:
        FIND FIRST job-hdr WHERE
             job-hdr.company EQ cocode AND
             job-hdr.job-no EQ begin_job:SCREEN-VALUE AND
@@ -1437,15 +1439,103 @@ IF scr-auto-print THEN DO:
                              OUTPUT lUserSpecific).
 
     IF lUserSpecific THEN 
-        RUN custom/lmprint.p (INPUT scr-label-file, 
+        RUN custom/lmprint.p (INPUT cocode,
+                              INPUT scr-label-file, 
                               INPUT cDB,
                               INPUT cBarDir).
     ELSE
-        RUN custom/lmprint.p (INPUT scr-label-file,
+        RUN custom/lmprint.p (INPUT cocode,
+                              INPUT scr-label-file,
                               INPUT "",
                               INPUT "").
 END.
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-release C-Win 
+PROCEDURE check-release :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-stat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCheckRel AS LOGICAL NO-UNDO .
+    IF AVAIL oe-ordl THEN
+    FOR EACH oe-rel NO-LOCK
+        WHERE oe-rel.company EQ oe-ordl.company
+        AND oe-rel.ord-no  EQ oe-ordl.ord-no
+        AND oe-rel.i-no    EQ oe-ordl.i-no
+        AND oe-rel.line    EQ oe-ordl.line
+        USE-INDEX ord-item
+
+        BREAK BY oe-rel.rel-no
+              BY oe-rel.b-ord-no
+              BY oe-rel.po-no
+          TRANSACTION:
+
+          IF LAST-OF(oe-rel.po-no) OR oe-rel.rel-no EQ 0 THEN DO:
+              
+              FIND FIRST oe-rell
+                WHERE oe-rell.company  EQ oe-rel.company
+                AND oe-rell.r-no     EQ oe-rel.link-no
+                AND oe-rell.ord-no   EQ oe-rel.ord-no
+                AND oe-rell.rel-no   EQ oe-rel.rel-no
+                AND oe-rell.b-ord-no EQ oe-rel.b-ord-no
+                AND oe-rell.i-no     EQ oe-rel.i-no
+                AND oe-rell.line     EQ oe-rel.line
+                AND oe-rell.po-no    EQ oe-rel.po-no
+                AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
+                USE-INDEX r-no NO-LOCK NO-ERROR.
+            IF NOT AVAIL oe-rell THEN
+                FIND FIRST oe-rell
+                WHERE oe-rell.company  EQ oe-rel.company
+                AND oe-rell.link-no  EQ oe-rel.r-no
+                AND oe-rell.ord-no   EQ oe-rel.ord-no
+                AND oe-rell.rel-no   EQ oe-rel.rel-no
+                AND oe-rell.b-ord-no EQ oe-rel.b-ord-no
+                AND oe-rell.i-no     EQ oe-rel.i-no
+                AND oe-rell.line     EQ oe-rel.line
+                AND oe-rell.po-no    EQ oe-rel.po-no
+                AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
+                NO-LOCK NO-ERROR.
+            /* Needed because line was sometimes different between the two */
+            IF NOT AVAIL oe-rell THEN
+                FIND FIRST oe-rell
+                WHERE oe-rell.company  EQ oe-rel.company
+                AND oe-rell.ord-no   EQ oe-rel.ord-no              
+                AND oe-rell.i-no     EQ oe-rel.i-no
+                AND oe-rell.link-no  EQ oe-rel.r-no
+                AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
+                NO-LOCK NO-ERROR.
+
+            IF AVAIL oe-rell THEN
+                FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK NO-ERROR.
+                
+ 
+            DO WITH FRAME {&FRAME-NAME}:
+                IF AVAIL oe-relh AND oe-relh.release# NE 0 THEN do:
+                    ASSIGN
+                        begin_rel:SCREEN-VALUE   = STRING(oe-relh.release#)
+                        begin_rel:SENSITIVE   = YES
+                        lCheckRel = YES .
+                    LEAVE .
+                END.
+            END.
+          END.
+    END.
+    IF NOT lCheckRel THEN DO:
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN
+                begin_rel:SCREEN-VALUE   = ""
+                begin_rel:SENSITIVE   = NO .
+        END.
+    END.
+ 
+
+    END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1572,7 +1662,7 @@ PROCEDURE enable_UI :
   ENABLE RECT-7 fi_cas-lab begin_job begin_job2 begin_ord-no begin_i-no 
          begin_rel tb_per-unit tb_per-pallet tb_over tb_print-comp 
          scr-auto-print scr-freeze-label scr-label-file rd_print begin_date 
-         end_date btn-cancel btn-ok 
+         end_date btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -3409,103 +3499,16 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-release C-Win 
-PROCEDURE check-release :
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION blockAccess C-Win
+FUNCTION blockAccess RETURNS LOGICAL 
+  (  ):
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lv-stat AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lCheckRel AS LOGICAL NO-UNDO .
-    IF AVAIL oe-ordl THEN
-    FOR EACH oe-rel NO-LOCK
-        WHERE oe-rel.company EQ oe-ordl.company
-        AND oe-rel.ord-no  EQ oe-ordl.ord-no
-        AND oe-rel.i-no    EQ oe-ordl.i-no
-        AND oe-rel.line    EQ oe-ordl.line
-        USE-INDEX ord-item
-
-        BREAK BY oe-rel.rel-no
-              BY oe-rel.b-ord-no
-              BY oe-rel.po-no
-          TRANSACTION:
-
-          IF LAST-OF(oe-rel.po-no) OR oe-rel.rel-no EQ 0 THEN DO:
-              
-              FIND FIRST oe-rell
-                WHERE oe-rell.company  EQ oe-rel.company
-                AND oe-rell.r-no     EQ oe-rel.link-no
-                AND oe-rell.ord-no   EQ oe-rel.ord-no
-                AND oe-rell.rel-no   EQ oe-rel.rel-no
-                AND oe-rell.b-ord-no EQ oe-rel.b-ord-no
-                AND oe-rell.i-no     EQ oe-rel.i-no
-                AND oe-rell.line     EQ oe-rel.line
-                AND oe-rell.po-no    EQ oe-rel.po-no
-                AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
-                USE-INDEX r-no NO-LOCK NO-ERROR.
-            IF NOT AVAIL oe-rell THEN
-                FIND FIRST oe-rell
-                WHERE oe-rell.company  EQ oe-rel.company
-                AND oe-rell.link-no  EQ oe-rel.r-no
-                AND oe-rell.ord-no   EQ oe-rel.ord-no
-                AND oe-rell.rel-no   EQ oe-rel.rel-no
-                AND oe-rell.b-ord-no EQ oe-rel.b-ord-no
-                AND oe-rell.i-no     EQ oe-rel.i-no
-                AND oe-rell.line     EQ oe-rel.line
-                AND oe-rell.po-no    EQ oe-rel.po-no
-                AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
-                NO-LOCK NO-ERROR.
-            /* Needed because line was sometimes different between the two */
-            IF NOT AVAIL oe-rell THEN
-                FIND FIRST oe-rell
-                WHERE oe-rell.company  EQ oe-rel.company
-                AND oe-rell.ord-no   EQ oe-rel.ord-no              
-                AND oe-rell.i-no     EQ oe-rel.i-no
-                AND oe-rell.link-no  EQ oe-rel.r-no
-                AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
-                NO-LOCK NO-ERROR.
-
-            IF AVAIL oe-rell THEN
-                FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK NO-ERROR.
-                
- 
-            DO WITH FRAME {&FRAME-NAME}:
-                IF AVAIL oe-relh AND oe-relh.release# NE 0 THEN do:
-                    ASSIGN
-                        begin_rel:SCREEN-VALUE   = STRING(oe-relh.release#)
-                        begin_rel:SENSITIVE   = YES
-                        lCheckRel = YES .
-                    LEAVE .
-                END.
-            END.
-          END.
-    END.
-    IF NOT lCheckRel THEN DO:
-        DO WITH FRAME {&FRAME-NAME}:
-            ASSIGN
-                begin_rel:SCREEN-VALUE   = ""
-                begin_rel:SENSITIVE   = NO .
-        END.
-    END.
- 
-
-    END PROCEDURE.
-
-    /* _UIB-CODE-BLOCK-END */
-    &ANALYZE-RESUME
-
-
-    /* ************************  Function Implementations ***************** */
-
-    &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION blockAccess C-Win 
-    FUNCTION blockAccess RETURNS LOGICAL
-      ( /* parameter-definitions */ ) :
-    /*------------------------------------------------------------------------------
-      Purpose:  
-        Notes:  
-    ------------------------------------------------------------------------------*/
 DEF VAR llAllowed AS LOGICAL NO-UNDO.
 DEF VAR llAccessClose AS LOG NO-UNDO.
 DEF VAR lcAccessList AS CHARACTER NO-UNDO.
@@ -3522,10 +3525,13 @@ RUN methods/prgsecur.p
 
 RETURN NOT llAllowed.
 
-END FUNCTION.
 
+END FUNCTION.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION removeChars C-Win 
 FUNCTION removeChars RETURNS CHARACTER

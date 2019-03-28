@@ -87,6 +87,15 @@ period.pend period.pstat
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetLastDate V-table-Win
+FUNCTION fGetLastDate RETURNS DATE PRIVATE
+  (ipdDate AS DATE) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
 /* Actions: ? adm/support/keyedit.w ? ? ? */
@@ -293,6 +302,23 @@ END.
 ON HELP OF period.pend IN FRAME F-Main /*  */
 DO:
   {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME period.pend
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period.pend V-table-Win
+ON LEAVE OF period.pend IN FRAME F-Main /*  */
+DO:
+    DEFINE VARIABLE dDate  AS DATE NO-UNDO .
+    dDate = fGetLastDate(DATE(period.pend:SCREEN-VALUE)) .
+
+   IF DATE(period.pend:SCREEN-VALUE) LT dDate THEN
+       MESSAGE "Not all days for the year are accounted for with ALL periods in the Year"
+         VIEW-AS ALERT-BOX warning  .
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -590,3 +616,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Implementations ***************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetLastDate d-oeitem
+FUNCTION fGetLastDate RETURNS DATE PRIVATE
+  ( ipdDate AS DATE  ):
+/*------------------------------------------------------------------------------
+ Purpose: Gets the Taxable flag based on inputs
+ Notes:
+------------------------------------------------------------------------------*/
+ return add-interval( date( month( ipdDate ), 1, year( ipdDate )), 1, "month" ) - 1.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

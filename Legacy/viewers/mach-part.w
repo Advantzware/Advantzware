@@ -266,7 +266,7 @@ DO:
 
        WHEN "rm-part-code" THEN
        DO:
-          RUN windows/l-itmall.w (g_company, "","", mach-part.rm-part-code:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
+          RUN windows/l-itmall.w (g_company, "","", mach-part.rm-part-code:SCREEN-VALUE,"", OUTPUT char-val, OUTPUT look-recid).
           IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN
              lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
        END.

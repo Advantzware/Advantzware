@@ -94,6 +94,7 @@ DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+DEFINE VARIABLE dQuoteValue AS DECIMAL NO-UNDO .
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -894,7 +895,8 @@ DO:
                   IF AVAIL sys-ctrl-shipto THEN
                   DO:
                      RUN SetQuoForm (sys-ctrl-shipto.char-fld).
-                     v-print-fmt = sys-ctrl-shipto.char-fld.
+                     v-print-fmt = sys-ctrl-shipto.char-fld .
+                     dQuoteValue   = sys-ctrl-shipto.dec-fld.
                   END.
                   ELSE
                   DO:
@@ -1441,7 +1443,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    v-print-fmt = sys-ctrl.char-fld
    CallingParameter = sys-ctrl.char-fld
    v-log       = sys-ctrl.log-fld
-   vcDefaultForm = v-print-fmt.
+   vcDefaultForm = v-print-fmt 
+   dQuoteValue   = sys-ctrl.dec-fld.
 
   FIND FIRST users WHERE
        users.user_id EQ USERID("NOSWEAT")
@@ -2353,12 +2356,22 @@ IF v-print-fmt = "CSC-EXCEL" OR v-print-fmt = "TRILAKE-EXCEL" OR v-print-fmt = "
 ELSE
 IF IS-xprint-form THEN DO:
     CASE rd-dest:
-        WHEN 1 THEN PUT  "<PRINTER?></PROGRESS>".
+        WHEN 1 THEN do:
+            IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+                PUT  "<PRINTER?><LEFT=" + trim(string(dQuoteValue)) + "mm></PROGRESS>" FORMAT "x(50)".
+            ELSE PUT  "<PRINTER?></PROGRESS>".
+        END.
         WHEN 2 THEN do:
-            IF NOT lBussFormModle THEN
-              PUT "<PREVIEW><MODAL=NO></PROGRESS>".     
-            ELSE
-              PUT "<PREVIEW></PROGRESS>".     
+            IF NOT lBussFormModle THEN do:
+                IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+                    PUT "<PREVIEW><LEFT=" + trim(string(dQuoteValue)) + "mm><MODAL=NO></PROGRESS>" FORMAT "x(50)". 
+                ELSE PUT "<PREVIEW><MODAL=NO></PROGRESS>" FORMAT "x(50)". 
+            END.
+            ELSE do:
+                IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+                    PUT "<PREVIEW><LEFT=" + trim(string(dQuoteValue)) + "mm></PROGRESS>" FORMAT "x(50)".     
+                ELSE PUT "<PREVIEW></PROGRESS>" FORMAT "x(50)". 
+            END.
         END.
 
         WHEN  4 THEN do:
@@ -2368,6 +2381,8 @@ IF IS-xprint-form THEN DO:
         WHEN 5 THEN do:
             IF lookup(v-print-fmt,"century,unipak,PPI,Packrite,Simkins") > 0 THEN       
                PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=3mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)" "</PROGRESS>".
+            ELSE IF lookup(v-print-fmt,"QuoPrintVAL") > 0 THEN
+               PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=MS Mincho><LEFT=" + trim(string(dQuoteValue)) +  "mm><PDF-LEFT=2mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)" "</PROGRESS>".
             ELSE PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=Arial,Courier New><PDF-LEFT=2mm><PDF-TOP=3mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)" "</PROGRESS>".
         END.
     END CASE.
@@ -2543,13 +2558,23 @@ IF v-print-fmt = "CSC-EXCEL" OR v-print-fmt = "TRILAKE-EXCEL" OR v-print-fmt = "
 ELSE
 IF IS-xprint-form THEN DO:
     CASE rd-dest:
-        WHEN 1 THEN PUT  "<PRINTER?></PROGRESS>".
+        WHEN 1 THEN do:
+            IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+                PUT  "<PRINTER?><LEFT=" + string(dQuoteValue) + "mm></PROGRESS>" FORMAT "x(50)".
+            ELSE PUT  "<PRINTER?></PROGRESS>" FORMAT "x(50)".
+        END.
         WHEN 2 THEN do:
-            IF NOT lBussFormModle THEN
-              PUT "<PREVIEW><MODAL=NO></PROGRESS>".     
-            ELSE
-              PUT "<PREVIEW></PROGRESS>".     
-        END.         
+            IF NOT lBussFormModle THEN do:
+                IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+                    PUT "<PREVIEW><LEFT=" + string(dQuoteValue) + "mm><MODAL=NO></PROGRESS>" FORMAT "x(50)". 
+                ELSE PUT "<PREVIEW><MODAL=NO></PROGRESS>" FORMAT "x(50)". 
+            END.
+            ELSE do:
+                IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+                    PUT "<PREVIEW><LEFT=" + string(dQuoteValue) + "mm></PROGRESS>" FORMAT "x(50)".     
+                ELSE PUT "<PREVIEW></PROGRESS>" FORMAT "x(50)". 
+            END.
+        END.      
 
         WHEN  4 THEN do:
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
@@ -2558,6 +2583,8 @@ IF IS-xprint-form THEN DO:
         WHEN 5 THEN do:
             IF lookup(v-print-fmt,"century,unipak,PPI,Packrite") > 0 THEN       
                PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=3mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+            ELSE IF lookup(v-print-fmt,"QuoPrintVAL") > 0 THEN
+               PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=MS Mincho><LEFT=" + string( dQuoteValue) +  "mm><PDF-LEFT=2mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)" "</PROGRESS>".
             ELSE PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=Arial,Courier New><PDF-LEFT=2mm><PDF-TOP=3mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
         END.
     END CASE.

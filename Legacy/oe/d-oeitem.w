@@ -1845,6 +1845,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.part-no d-oeitem
 ON LEAVE OF oe-ordl.part-no IN FRAME d-oeitem /* Cust Part # */
 DO:
+    DEFINE VARIABLE lErrorPart AS LOGICAL NO-UNDO .
       IF LASTKEY = -1 THEN RETURN.
 
   IF SELF:modified AND SELF:screen-value <> "" THEN DO:
@@ -1867,8 +1868,9 @@ DO:
                           AND itemfg.part-no = oe-ordl.part-no:screen-value
                           NO-LOCK NO-ERROR.
          IF NOT AVAIL itemfg THEN DO:
-            MESSAGE "Invalid Cust Part#. Try help. " VIEW-AS ALERT-BOX.
-            RETURN NO-APPLY.
+            RUN pCrtPart(INPUT-OUTPUT cp-rowid,OUTPUT lErrorPart ) .
+            IF lErrorPart THEN
+                RETURN NO-APPLY.
          END.
          ELSE DO:
             FIND FIRST cust WHERE cust.company = oe-ord.company
@@ -9549,6 +9551,58 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCrtPart d-oeitem 
+PROCEDURE pCrtPart :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAM io-rowid AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAM op-error AS LOGICAL NO-UNDO.
+    DEFINE BUFFER b-cust-part FOR cust-part .
+    DEFINE VARIABLE cCustNo AS CHARACTER NO-UNDO .
+
+    DO WITH FRAME {&FRAME-NAME}:
+        cCustNo = IF AVAIL oe-ord THEN oe-ord.cust-no ELSE oe-ordl.cust-no .
+
+        FIND FIRST b-cust-part NO-LOCK
+            WHERE b-cust-part.company EQ cocode
+            AND b-cust-part.i-no    EQ oe-ordl.i-no:SCREEN-VALUE
+            AND b-cust-part.cust-no EQ cCustNo  NO-ERROR .
+
+        IF  AVAIL b-cust-part THEN DO:
+            MESSAGE "Cust Part# - Customer# already exists for FG Item:" + oe-ordl.i-no:SCREEN-VALUE + " and Part#:" + b-cust-part.part-no 
+                VIEW-AS ALERT-BOX ERROR .
+            APPLY "entry" TO oe-ordl.part-no .
+            op-error = YES .
+            RETURN NO-APPLY .
+        END.
+             
+        FIND FIRST itemfg NO-LOCK
+            WHERE itemfg.company EQ cocode
+            AND itemfg.i-no EQ oe-ordl.i-no:SCREEN-VALUE NO-ERROR .
+
+        IF AVAIL itemfg THEN do:
+            CREATE cust-part .
+            ASSIGN
+                cust-part.company = cocode
+                cust-part.i-no    = oe-ordl.i-no:SCREEN-VALUE
+                cust-part.cust-no = IF AVAIL oe-ord THEN oe-ord.cust-no ELSE oe-ordl.cust-no
+                cust-part.part-no = oe-ordl.part-no:SCREEN-VALUE .
+
+           RELEASE cust-part .
+           io-rowid = ROWID(itemfg).
+        END.
+        
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 

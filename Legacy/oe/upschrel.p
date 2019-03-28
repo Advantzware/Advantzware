@@ -155,7 +155,9 @@ IF AVAIL oe-relh THEN DO:
      oe-rel.ship-i[3] = oe-relh.ship-i[3]
      oe-rel.ship-i[4] = oe-relh.ship-i[4]
      oe-rel.loc       = oe-rell.loc
-     oe-rel.s-code    = oe-rell.s-code.
+     oe-rel.s-code    = oe-rell.s-code
+     oe-rel.frt-pay   = oe-rell.frt-pay
+     oe-rel.fob-code  = oe-rell.fob-code.
      
     RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key).
     

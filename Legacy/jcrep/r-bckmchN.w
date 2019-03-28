@@ -1512,7 +1512,6 @@ SESSION:SET-WAIT-STATE ("general").
               EACH  rm-rdtlh    
               WHERE rm-rdtlh.r-no    EQ rm-rcpth.r-no      
               AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code 
-              AND rm-rdtlh.tag NE ""
               USE-INDEX rm-rdtl NO-LOCK:
 
                 run sys/ref/convquom.p(item.cons-uom, "EA", job-mat.basis-w,

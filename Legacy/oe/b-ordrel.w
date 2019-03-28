@@ -1323,7 +1323,9 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
          oe-rel.po-no     = oe-boll.po-no
          oe-rel.lot-no    = oe-boll.lot-no
          oe-rel.spare-char-1 = oe-rell.loc
-         oe-rel.qty       = lv-qty.
+         oe-rel.qty       = lv-qty
+         oe-rel.frt-pay   = oe-rell.frt-pay
+         oe-rel.fob-code  = oe-rell.fob-code.
         
         RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key).
         RUN set-lot-from-boll (INPUT ROWID(oe-rel), INPUT ROWID(oe-rell),
@@ -1458,7 +1460,9 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
            oe-rel.po-no     = oe-rell.po-no
            oe-rel.lot-no    = oe-rell.lot-no
            oe-rel.spare-char-1 = oe-rell.loc
-           oe-rel.qty       = lv-qty.
+           oe-rel.qty       = lv-qty
+           oe-rel.frt-pay   = oe-rell.frt-pay
+           oe-rel.fob-code  = oe-rell.fob-code.
            
           RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key). 
           RUN oe/custxship.p (oe-rel.company,

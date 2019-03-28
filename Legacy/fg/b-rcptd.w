@@ -583,7 +583,7 @@ ON HELP OF Browser-Table IN FRAME F-Main
                             END.
                             ELSE 
                             DO:
-                                RUN windows/l-itemf2.w (fg-rctd.company, "", fg-rctd.i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT rec-val).
+                                RUN windows/l-itemf2.w (fg-rctd.company, "", fg-rctd.i-no:SCREEN-VALUE,"", OUTPUT char-val, OUTPUT rec-val).
                                 IF rec-val <> ? THEN 
                                 DO:
                                     FIND itemfg WHERE RECID(itemfg) = rec-val NO-LOCK.
@@ -817,10 +817,11 @@ ON LEAVE OF fg-rctd.tag IN BROWSE Browser-Table /* Tag# */
     DO:    
         DEF VAR lNegative AS LOG NO-UNDO.
         IF LASTKEY NE -1 THEN 
-        DO:    
-            IF avail(fg-rctd) AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE fg-rctd.tag THEN
+        DO: 
+            IF avail(fg-rctd) AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE fg-rctd.tag THEN DO:
                 RUN valid-tag (FOCUS, OUTPUT lNegative) NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+                IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+            END.
             IF lNegative THEN 
             DO:
                 IF lNegative AND INTEGER(fg-rctd.cases:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN

@@ -128,10 +128,13 @@ FOR EACH tt-boll,
                 "<C35>" v-job-po FORMAT "x(15)".
             IF i EQ 1 THEN
                 PUT "<C48>" oe-ordl.ord-no  .
+            IF i EQ 2 THEN
+                PUT "<C48>" v-lot# FORMAT "x(20)" .
             PUT "<C61>" v-part-dscr FORMAT "x(23)" SKIP.
           
          
             v-printline = v-printline + 1.
+            
             IF v-printline >= 48 THEN 
             DO:
                 v-printline = 0.
@@ -171,8 +174,8 @@ FOR EACH tt-boll,
             IF i = 2 AND v-job-po = "" THEN
                 v-job-po = IF tt-boll.job-no EQ "" THEN "" ELSE
                     (TRIM(tt-boll.job-no) + "-" + string(tt-boll.job-no2,"99"))                 .
-
-            IF v-part-dscr NE "" OR v-job-po NE "" OR i LE 2 OR v-lot# NE "" THEN 
+  
+            IF v-part-dscr NE "" OR i LE 2 OR (v-lot# NE "" AND i = 2) THEN 
             DO:
                 IF v-printline >= 48 THEN 
                 DO:

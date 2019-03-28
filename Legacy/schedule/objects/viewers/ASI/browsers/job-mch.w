@@ -35,10 +35,13 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE startMR AS CHARACTER NO-UNDO.
+DEFINE VARIABLE boardType AS CHARACTER NO-UNDO.
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE endMR AS CHARACTER NO-UNDO.
-DEFINE VARIABLE startRun AS CHARACTER NO-UNDO.
 DEFINE VARIABLE endRun AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
+DEFINE VARIABLE startMR AS CHARACTER NO-UNDO.
+DEFINE VARIABLE startRun AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -53,7 +56,7 @@ DEFINE VARIABLE endRun AS CHARACTER NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME br_table
 
@@ -155,7 +158,7 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 21 BY 7.43.
 
 /* Query definitions                                                    */
@@ -253,7 +256,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB br_table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -274,36 +277,36 @@ ASSIGN
      _OrdList          = "asi.job-mch.frm|yes,asi.job-mch.blank-no|yes,asi.job-mch.line|yes"
      _FldNameList[1]   = asi.job-mch.frm
      _FldNameList[2]   > asi.job-mch.blank-no
-"job-mch.blank-no" "Blank" ">>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"job-mch.blank-no" "Blank" ">>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   = asi.job-mch.pass
      _FldNameList[4]   > asi.job-mch.m-code
-"job-mch.m-code" "Machine" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"job-mch.m-code" "Machine" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.job-mch.i-no
-"job-mch.i-no" ? "x(18)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"job-mch.i-no" ? "x(18)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.job-mch.mr-complete
-"job-mch.mr-complete" "MR?" ? "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
+"job-mch.mr-complete" "MR?" ? "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.job-mch.run-complete
-"job-mch.run-complete" "Run?" ? "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
+"job-mch.run-complete" "Run?" ? "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.job-mch.mr-hr
-"job-mch.mr-hr" "MR Hr" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"job-mch.mr-hr" "MR Hr" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.job-mch.start-date-su
-"job-mch.start-date-su" "Start MR" "99/99/99" "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"job-mch.start-date-su" "Start MR" "99/99/99" "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > "_<CALC>"
-"STRING(job-mch.start-time-su,'HH:MMam') @ startMR" "Start" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"STRING(job-mch.start-time-su,'HH:MMam') @ startMR" "Start" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > asi.job-mch.end-date-su
-"job-mch.end-date-su" "End MR" "99/99/99" "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"job-mch.end-date-su" "End MR" "99/99/99" "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > "_<CALC>"
-"STRING(job-mch.end-time-su,'HH:MMam') @ endMR" "End" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"STRING(job-mch.end-time-su,'HH:MMam') @ endMR" "End" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > asi.job-mch.run-hr
-"job-mch.run-hr" "Run Hr" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"job-mch.run-hr" "Run Hr" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > asi.job-mch.start-date
-"job-mch.start-date" "Start Run" "99/99/99" "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"job-mch.start-date" "Start Run" "99/99/99" "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > "_<CALC>"
-"STRING(job-mch.start-time,'HH:MMam') @ startRun" "Start" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"STRING(job-mch.start-time,'HH:MMam') @ startRun" "Start" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > asi.job-mch.end-date
-"job-mch.end-date" "End Run" "99/99/99" "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"job-mch.end-date" "End Run" "99/99/99" "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > "_<CALC>"
-"STRING(job-mch.end-time,'HH:MMam') @ endRun" "End" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"STRING(job-mch.end-time,'HH:MMam') @ endRun" "End" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -327,6 +330,8 @@ ASSIGN
 ON ROW-ENTRY OF br_table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
+  IF boardType NE "Pro" THEN
+  RETURN NO-APPLY.
   {src/adm/template/brsentry.i}  
 END.
 
@@ -437,6 +442,26 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  {methods/run_link.i "CONTAINER" "pGetBoardType" "(OUTPUT boardType)"}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -52,6 +52,7 @@ DEFINE BUFFER bf-ordl FOR oe-ordl.
 DEFINE VARIABLE hInventoryProcs AS HANDLE  NO-UNDO.
 DEFINE VARIABLE lActiveBin      AS LOGICAL NO-UNDO.
 {Inventory/ttInventory.i "NEW SHARED"}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1128,7 +1129,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit Dialog-Frame
 PROCEDURE local-exit:
 /*------------------------------------------------------------------------------
@@ -1150,8 +1150,6 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-bin Dialog-Frame 
 PROCEDURE new-bin :

@@ -578,6 +578,7 @@ DO:
         MESSAGE
             "Hotkey:" SELF:SCREEN-VALUE "already exists, please retry."
         VIEW-AS ALERT-BOX ERROR.
+        SELF:SCREEN-VALUE = prgrms.mnemonic.
         APPLY "ENTRY":U TO SELF.
         RETURN NO-APPLY.
     END. /* if can-find */

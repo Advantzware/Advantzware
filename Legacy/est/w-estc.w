@@ -146,6 +146,7 @@ DEFINE VARIABLE h_w-qtest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_xferjobdata AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_fgadd AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-cadimg AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 /*DEFINE BUTTON btNextItemfg 
@@ -542,7 +543,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-rfqsiz ).
-       RUN set-position IN h_p-rfqsiz ( 22.19 , 75.00 ) NO-ERROR.
+       RUN set-position IN h_p-rfqsiz ( 22.19 , 85.00 ) NO-ERROR.
        RUN set-size IN h_p-rfqsiz ( 1.76 , 66.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -553,6 +554,14 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_v-naveb ( 22.43 , 15.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 42.00 ) */
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-cadimg.w':U ,
+             INPUT  FRAME est:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_p-cadimg ).
+       RUN set-position IN h_p-cadimg ( 22.19 , 60.00 ) NO-ERROR.
+       /*RUN set-size IN h_p-cadimg ( 1.43 , 12.20 ) NO-ERROR.*/
+
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
@@ -560,6 +569,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_v-est ).
        RUN add-link IN adm-broker-hdl ( h_p-rfqsiz , 'TableIO':U , h_v-est ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'ebhead':U , h_v-est ).
+        RUN add-link IN adm-broker-hdl ( h_p-cadimg , 'TableIO':U , h_v-est ).
 
        /* Links to SmartViewer h_v-naveb. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'nav-itm':U , h_v-naveb ).

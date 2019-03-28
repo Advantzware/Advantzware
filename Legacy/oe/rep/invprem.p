@@ -66,7 +66,7 @@ def var v-inv-qty as int format "99999" no-undo.
 def var v-ship-qty as int format "99999" no-undo.
 def var v-i-no as char format "x(15)" no-undo.
 def var v-i-dscr as char format "x(18)" no-undo.
-def var v-price as dec format ">>>>9.9999" no-undo.
+def var v-price as dec format ">>>>9.99999" no-undo.
 def var v-t-price as dec format ">>>>>>9.99" no-undo.
 def var v-tot-lines as dec format ">>>>>>9.99" no-undo.
 def var v-tot-rev like inv-head.t-inv-rev no-undo.
@@ -421,7 +421,7 @@ with frame totals-comp2 no-labels no-box no-underline stream-io width 90.
             display v-ship-qty AT 1 format "->>>>9"
                     v-po-no AT 9 format "x(15)"
                     v-i-dscr AT 26 format "x(30)"
-                    v-price AT 61 format ">>>9.9999"
+                    v-price AT 61 format ">>>9.99999"
                     v-t-price AT 73 format "->>>9.99"
                 with frame detail no-attr-space no-labels no-box
                      no-underline down stream-io width 90.
