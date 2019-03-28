@@ -14,22 +14,6 @@
 
 /* ***************************  Definitions  ************************** */
 {Inventory/ttInventory.i SHARED}
-DEFINE VARIABLE gcStatusStockPreLoadtag    AS CHARACTER INITIAL "PreLoadtag".
-DEFINE VARIABLE gcStatusStockLoadtag       AS CHARACTER INITIAL "Loadtag".
-DEFINE VARIABLE gcStatusStockInitial       AS CHARACTER INITIAL "Initialized".
-DEFINE VARIABLE gcStatusStockReceived      AS CHARACTER INITIAL "On-Hand".
-
-DEFINE VARIABLE gcStatusTransactionInitial AS CHARACTER INITIAL "Pending".
-DEFINE VARIABLE gcStatusTransactionPosted  AS CHARACTER INITIAL "Posted".
-
-DEFINE VARIABLE gcTransactionTypeReceive   AS CHARACTER INITIAL "R".
-DEFINE VARIABLE gcTransactionTypeTransfer  AS CHARACTER INITIAL "T".
-DEFINE VARIABLE gcTransactionTypeConsume   AS CHARACTER INITIAL "I".
-DEFINE VARIABLE gcTransactionTypeShip      AS CHARACTER INITIAL "S".
-
-DEFINE VARIABLE gcItemTypeWIP              AS CHARACTER INITIAL "WP".
-DEFINE VARIABLE gcItemTypeFG               AS CHARACTER INITIAL "FG".
-DEFINE VARIABLE gcItemTypeRM               AS CHARACTER INITIAL "RM".
 
 DEFINE VARIABLE giLengthUniquePrefix       AS INTEGER   INITIAL 20.
 DEFINE VARIABLE giLengthAlias              AS INTEGER   INITIAL 25.
@@ -39,7 +23,6 @@ DEFINE VARIABLE giIDTemp                   AS INTEGER. /*TESTING ONLY DELETE BEF
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
-
 
 FUNCTION fGetNextStockAliasID RETURNS INTEGER PRIVATE
     (  ) FORWARD.
@@ -74,14 +57,14 @@ PROCEDURE CheckInventoryStockIDAlias:
     DEFINE OUTPUT PARAMETER opcInventoryStockID AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcStockIDAlias AS CHARACTER NO-UNDO.
 
-    FIND FIRST InventoryStockAlias NO-LOCK 
-        WHERE InventoryStockAlias.Company EQ ipcCompany
-        AND InventoryStockAlias.StockIDAlias EQ ipcLookupID
+    FIND FIRST inventoryStockAlias NO-LOCK 
+        WHERE inventoryStockAlias.company EQ ipcCompany
+        AND inventoryStockAlias.stockIDAlias EQ ipcLookupID
         NO-ERROR.
-    IF AVAILABLE InventoryStockAlias THEN 
+    IF AVAILABLE inventoryStockAlias THEN 
         ASSIGN
-            opcInventoryStockID = InventoryStockAlias.InventoryStockID
-            opcStockIDAlias     = InventoryStockAlias.StockIDAlias
+            opcInventoryStockID = inventoryStockAlias.inventoryStockID
+            opcStockIDAlias     = inventoryStockAlias.stockIDAlias
             . 
     ELSE 
         ASSIGN
@@ -95,7 +78,7 @@ END PROCEDURE.
 PROCEDURE CreateInventoryStockFromLoadtag:
     /*------------------------------------------------------------------------------
      Purpose: Given existing ttInventoryStockLoadtag table, generate the "Actual"
-     inventory with original quantity transfering to .Quantity and registering the status as
+     inventory with original quantity transfering to .quantity and registering the status as
      received.
      Notes:
     ------------------------------------------------------------------------------*/
@@ -106,9 +89,9 @@ PROCEDURE CreateInventoryStockFromLoadtag:
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
        
-    /*Copy Loadtags to InventoryStock*/
+    /*Copy Loadtags to inventoryStock*/
     FIND FIRST ttInventoryStockLoadtag NO-LOCK
-        WHERE ttInventoryStockLoadtag.InventoryStockID EQ ipcInventoryStockID
+        WHERE ttInventoryStockLoadtag.inventoryStockID EQ ipcInventoryStockID
         NO-ERROR. 
     IF AVAILABLE ttInventoryStockLoadtag THEN 
     DO:        
@@ -162,6 +145,7 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
     DEFINE BUFFER bf-item    FOR item.
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
     
+    EMPTY TEMP-TABLE ttInventoryStockPreLoadtag.
     FIND FIRST bf-job-mch NO-LOCK 
         WHERE ROWID(bf-job-mch) EQ ipriJobMch
         NO-ERROR.
@@ -172,29 +156,30 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
     DO:
         CREATE ttInventoryStockPreLoadtag.
         ASSIGN 
-            ttInventoryStockPreLoadtag.Company                 = bf-job-mch.company
-            ttInventoryStockPreLoadtag.MachineID               = bf-job-mch.m-code
-            ttInventoryStockPreLoadtag.JobID                   = bf-job-mch.job-no
-            ttInventoryStockPreLoadtag.JobID2                  = bf-job-mch.job-no2
-            ttInventoryStockPreLoadtag.FormNo                  = bf-job-mch.frm
-            ttInventoryStockPreLoadtag.BlankNo                 = bf-job-mch.blank-no
-            ttInventoryStockPreLoadtag.PassNo                  = bf-job-mch.pass
-            ttInventoryStockPreLoadtag.InventoryStatus         = gcStatusStockPreLoadtag
-            ttInventoryStockPreLoadtag.ItemType                = gcItemTypeWIP
-            ttInventoryStockPreLoadtag.RMItemID                = bf-job-mat.rm-i-no
-            ttInventoryStockPreLoadtag.DimEachLen              = bf-job-mat.len
-            ttInventoryStockPreLoadtag.DimEachWid              = bf-job-mat.wid
-            ttInventoryStockPreLoadtag.DimEachDep              = bf-job-mat.dep
-            ttInventoryStockPreLoadtag.DimEachUOM              = "IN"
-            ttInventoryStockPreLoadtag.QuantityTotal           = ipdQuantityTotal
-            ttInventoryStockPreLoadtag.QuantityUOM             = ipcQuantityUOM
-            ttInventoryStockPreLoadtag.QuantitySubUnitsPerUnit = ipiQuantitySubUnitsPerUnit
-            ttInventoryStockPreLoadtag.QuantityPerSubUnit      = ipdQuantityPerSubUnit
-            .
-        RUN pGetWIPID(BUFFER ttInventoryStockPreLoadtag, OUTPUT ttInventoryStockPreLoadtag.WIPItemID).
-        ttInventoryStockPreLoadtag.PrimaryID = ttInventoryStockPreLoadtag.WIPItemID.
-        RUN pRecalcQuantityUnits(ipdQuantityTotal, INPUT-OUTPUT ttInventoryStockPreLoadtag.QuantityPerSubUnit, INPUT-OUTPUT ttInventoryStockPreLoadtag.QuantitySubUnitsPerUnit, 
-            OUTPUT ttInventoryStockPreLoadtag.QuantityOfSubUnits, OUTPUT ttInventoryStockPreLoadtag.QuantityOfUnits, OUTPUT ttInventoryStockPreLoadtag.QuantityPartial).
+            ttInventoryStockPreLoadtag.company                 = bf-job-mch.company
+            ttInventoryStockPreLoadtag.machineID               = bf-job-mch.m-code
+            ttInventoryStockPreLoadtag.jobID                   = bf-job-mch.job-no
+            ttInventoryStockPreLoadtag.jobID2                  = bf-job-mch.job-no2
+            ttInventoryStockPreLoadtag.formNo                  = bf-job-mch.frm
+            ttInventoryStockPreLoadtag.blankNo                 = bf-job-mch.blank-no
+            ttInventoryStockPreLoadtag.passNo                  = bf-job-mch.pass
+            ttInventoryStockPreLoadtag.inventoryStatus         = gcStatusStockPreLoadtag
+            ttInventoryStockPreLoadtag.itemType                = gcItemTypeWIP
+            ttInventoryStockPreLoadtag.rmItemID                = bf-job-mat.rm-i-no
+            ttInventoryStockPreLoadtag.dimEachLen              = bf-job-mat.len
+            ttInventoryStockPreLoadtag.dimEachWid              = bf-job-mat.wid
+            ttInventoryStockPreLoadtag.dimEachDep              = bf-job-mat.dep
+            ttInventoryStockPreLoadtag.dimEachUOM              = "IN"
+            ttInventoryStockPreLoadtag.quantityTotal           = ipdQuantityTotal
+            ttInventoryStockPreLoadtag.quantityUOM             = ipcQuantityUOM
+            ttInventoryStockPreLoadtag.quantitySubUnitsPerUnit = ipiQuantitySubUnitsPerUnit
+            ttInventoryStockPreLoadtag.quantityPerSubUnit      = ipdQuantityPerSubUnit
+            ttInventoryStockPreLoadtag.lastTransTime           = NOW
+            ttInventoryStockPreLoadtag.lastTransBy             = USERID("asi").
+        RUN pGetWIPID(BUFFER ttInventoryStockPreLoadtag, OUTPUT ttInventoryStockPreLoadtag.wipItemID).
+        ttInventoryStockPreLoadtag.primaryID = ttInventoryStockPreLoadtag.wipItemID.
+        RUN pRecalcQuantityUnits(ipdQuantityTotal, INPUT-OUTPUT ttInventoryStockPreLoadtag.quantityPerSubUnit, INPUT-OUTPUT ttInventoryStockPreLoadtag.quantitySubUnitsPerUnit, 
+            OUTPUT ttInventoryStockPreLoadtag.quantityOfSubUnits, OUTPUT ttInventoryStockPreLoadtag.quantityOfUnits, OUTPUT ttInventoryStockPreLoadtag.quantityPartial).
             
         FIND FIRST bf-item NO-LOCK 
             WHERE bf-item.company EQ bf-job-mat.company
@@ -202,8 +187,8 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
             NO-ERROR.
         IF AVAILABLE bf-item THEN 
             ASSIGN 
-                ttInventoryStockPreLoadtag.BasisWeight    = bf-item.basis-w
-                ttInventoryStockPreLoadtag.BasisWeightUOM = "LBS/MSF"
+                ttInventoryStockPreLoadtag.basisWeight    = bf-item.basis-w
+                ttInventoryStockPreLoadtag.basisWeightUOM = "LBS/MSF"
                 .
         FIND FIRST bf-job-hdr NO-LOCK 
             WHERE bf-job-hdr.company EQ bf-job-mch.company
@@ -215,10 +200,10 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
             NO-ERROR.
         IF AVAILABLE bf-job-hdr THEN 
             ASSIGN 
-                ttInventoryStockPreLoadtag.FGItemID    = bf-job-hdr.i-no
-                ttInventoryStockPreLoadtag.WarehouseID = bf-job-hdr.loc
-                ttInventoryStockPreLoadtag.OrderID     = bf-job-hdr.ord-no
-                ttInventoryStockPreLoadtag.CustomerID  = bf-job-hdr.cust-no
+                ttInventoryStockPreLoadtag.fgItemID    = bf-job-hdr.i-no
+                ttInventoryStockPreLoadtag.warehouseID = bf-job-hdr.loc
+                ttInventoryStockPreLoadtag.orderID     = bf-job-hdr.ord-no
+                ttInventoryStockPreLoadtag.customerID  = bf-job-hdr.cust-no
                 .
     END.
     ELSE 
@@ -228,6 +213,105 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
             .
     
 
+END PROCEDURE.
+
+PROCEDURE CreatePrintInventory:
+    /*------------------------------------------------------------------------------
+     Purpose: Creates temporary table to send data to a text file
+     Notes: 
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcInventoryStockID LIKE inventoryTransaction.inventoryStockID NO-UNDO.
+    
+    DEFINE VARIABLE cCustName LIKE oe-ord.cust-name NO-UNDO.
+    DEFINE VARIABLE cMachName LIKE mach.m-dscr      NO-UNDO.
+    DEFINE VARIABLE cItemName LIKE item.i-name      NO-UNDO.
+    
+    FIND FIRST inventoryStock NO-LOCK
+         WHERE inventoryStock.inventoryStockID = ipcinventoryStockID
+         NO-ERROR.
+    IF AVAILABLE inventoryStock THEN DO:
+        CREATE ttPrintInventoryStock.
+        BUFFER-COPY inventoryStock TO ttPrintInventoryStock.
+        
+        FIND FIRST oe-ord NO-LOCK
+             WHERE oe-ord.company = inventoryStock.company AND
+                   oe-ord.ord-no  = inventoryStock.orderID AND
+                   oe-ord.cust-no = inventoryStock.customerID NO-ERROR.
+        IF AVAILABLE oe-ord THEN
+            ASSIGN cCustName = oe-ord.cust-name.
+        ELSE DO:
+            FIND FIRST cust NO-LOCK
+                WHERE cust.company = inventoryStock.company AND
+                      cust.cust-no = inventoryStock.customerID  NO-ERROR.
+            IF AVAILABLE cust THEN
+                ASSIGN cCustName = cust.name.
+        END.
+                 
+        FIND FIRST mach NO-LOCK
+             WHERE mach.company = inventoryStock.company AND
+                   mach.m-code  = inventoryStock.machineID NO-ERROR.
+        IF AVAILABLE mach THEN
+            ASSIGN cMachName = mach.m-dscr.
+        
+        FIND FIRST item NO-LOCK
+             WHERE item.company = inventoryStock.company AND
+                   item.i-no    = inventoryStock.rmItemID NO-ERROR.
+        IF AVAILABLE item THEN
+            ASSIGN cItemName = item.i-name.
+            
+        ASSIGN
+            ttPrintInventoryStock.jobNo        = inventoryStock.jobID + STRING(inventoryStock.jobID2)
+            ttPrintInventoryStock.customerName = cCustName
+            ttPrintInventoryStock.machineName  = cMachName
+            ttPrintInventoryStock.rmItemName   = cItemName.
+    END.
+
+END PROCEDURE.
+
+PROCEDURE PostReceivedInventory:
+    /*------------------------------------------------------------------------------
+     Purpose: Change status of inventory stock from pending to posted.
+     Notes: 
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany          LIKE inventoryStock.company                NO-UNDO.
+    DEFINE INPUT PARAMETER ipcInventoryStockID LIKE inventoryTransaction.inventoryStockID NO-UNDO.
+       
+    FIND FIRST inventoryTransaction NO-LOCK
+         WHERE inventoryTransaction.company          = ipcCompany AND
+               inventoryTransaction.inventoryStockID = ipcInventoryStockID
+         NO-ERROR.
+    IF AVAILABLE inventoryTransaction THEN
+        RUN PostTransaction(inventoryTransactionID).
+    
+END PROCEDURE.
+
+PROCEDURE CreateTransactionReceived:
+    /*------------------------------------------------------------------------------
+     Purpose: Given the Loadtag buffer, create the Stock inventory
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcInventoryStockID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPost AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+     
+    DEFINE VARIABLE iInventoryTransactionID AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-inventoryStock FOR inventoryStock.
+    
+    FIND FIRST bf-inventoryStock NO-LOCK
+         WHERE bf-inventoryStock.company = ipcCompany 
+           AND bf-inventoryStock.inventoryStockID = ipcInventoryStockID NO-ERROR.
+    IF AVAILABLE bf-inventoryStock THEN DO:
+        RUN pCreateTransactionAndReturnID(bf-inventoryStock.company, bf-inventoryStock.inventoryStockID, gcTransactionTypeReceive, 
+                bf-inventoryStock.quantityOriginal, bf-inventoryStock.quantityUOM, bf-inventoryStock.warehouseID, bf-inventoryStock.locationID, 
+                OUTPUT iInventoryTransactionID, OUTPUT oplCreated, OUTPUT opcMessage).
+        IF iplPost THEN 
+            RUN PostTransaction(iInventoryTransactionID).
+    END.
+    RELEASE bf-inventoryStock.
+    
 END PROCEDURE.
 
 PROCEDURE CreateTransactionTransfer:
@@ -290,27 +374,27 @@ PROCEDURE pCreateTransactionAndReturnID PRIVATE:
     DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
-    CREATE InventoryTransaction.
+    CREATE inventoryTransaction.
     ASSIGN 
-        /*InventoryTransaction.rec_key          = DYNAMIC-FUNCTION("sfGetNextRecKey")*/
-        InventoryTransaction.InventoryTransactionID = fGetNextTransactionID()
-        opiInventoryTransactionID                   = InventoryTransaction.InventoryTransactionID
-        InventoryTransaction.TransactionType        = ipcTransactionType
-        InventoryTransaction.Company                = ipcCompany
-        InventoryTransaction.CreatedBy              = USERID("asi")
-        InventoryTransaction.CreatedTime            = NOW
-        InventoryTransaction.QuantityChange         = ipdQuantityChange
-        InventoryTransaction.QuantityUOM            = ipcQuantityUOM
-        InventoryTransaction.WarehouseID            = ipcWarehouseID
-        InventoryTransaction.LocationID             = ipcLocationID
-        InventoryTransaction.TransactionTime        = InventoryTransaction.CreatedTime  /*Default to Created Time, Not Posted*/
-        InventoryTransaction.TransactionStatus      = gcStatusTransactionInitial
+        /*inventoryTransaction.rec_key          = DYNAMIC-FUNCTION("sfGetNextRecKey")*/
+        inventoryTransaction.inventoryTransactionID = fGetNextTransactionID()
+        opiInventoryTransactionID                   = inventoryTransaction.inventoryTransactionID
+        inventoryTransaction.transactionType        = ipcTransactionType
+        inventoryTransaction.company                = ipcCompany
+        inventoryTransaction.createdBy              = USERID("asi")
+        inventoryTransaction.createdTime            = NOW
+        inventoryTransaction.quantityChange         = ipdQuantityChange
+        inventoryTransaction.quantityUOM            = ipcQuantityUOM
+        inventoryTransaction.warehouseID            = ipcWarehouseID
+        inventoryTransaction.locationID             = ipcLocationID
+        inventoryTransaction.transactionTime        = inventoryTransaction.createdTime  /*Default to Created Time, Not Posted*/
+        inventoryTransaction.transactionStatus      = gcStatusTransactionInitial
         oplCreated                                  = YES
         opcMessage                                  = "Transaction Created.  ID: " + STRING(opiInventoryTransactionID)
         .
-    RUN CheckInventoryStockIDAlias(ipcCompany, ipcInventoryStockID, OUTPUT InventoryTransaction.InventoryStockID, OUTPUT InventoryTransaction.StockIDAlias).
+    RUN CheckInventoryStockIDAlias(ipcCompany, ipcInventoryStockID, OUTPUT inventoryTransaction.inventoryStockID, OUTPUT inventoryTransaction.stockIDAlias).
     
-    RELEASE InventoryTransaction.
+    RELEASE inventoryTransaction.
 
 END PROCEDURE.
 
@@ -354,18 +438,18 @@ PROCEDURE pCreateLoadtagFromPreLoadtag PRIVATE:
     BUFFER-COPY ipbf-ttInventoryStockPreLoadtag TO ttInventoryStockLoadtag.
     ASSIGN 
         /*        ttInventoryStockLoadtag.rec_key          = DYNAMIC-FUNCTION("sfGetNextRecKey")*/
-        ttInventoryStockLoadtag.InventoryStockID = fGetNextStockID(ttInventoryStockLoadtag.ItemType) /*Unique ID*/
-        ttInventoryStockLoadtag.QuantityOriginal = ipdQuantity
-        ttInventoryStockLoadtag.InventoryStatus  = gcStatusStockLoadtag
+        ttInventoryStockLoadtag.inventoryStockID = fGetNextStockID(ttInventoryStockLoadtag.itemType) /*Unique ID*/
+        ttInventoryStockLoadtag.quantityOriginal = ipdQuantity
+        ttInventoryStockLoadtag.inventoryStatus  = gcStatusStockLoadtag
         .
     /*Ensure the partial and unit counts are calculated correctly for this specific quantity*/
-    RUN pRecalcQuantityUnits(ttInventoryStockLoadtag.QuantityOriginal, 
-        INPUT-OUTPUT ttInventoryStockLoadtag.QuantityPerSubUnit, INPUT-OUTPUT ttInventoryStockLoadtag.QuantitySubUnitsPerUnit,
-        OUTPUT ttInventoryStockLoadtag.QuantityOfSubUnits, OUTPUT ttInventoryStockLoadtag.QuantityOfUnits, OUTPUT ttInventoryStockLoadtag.QuantityPartial).
+    RUN pRecalcQuantityUnits(ttInventoryStockLoadtag.quantityOriginal, 
+        INPUT-OUTPUT ttInventoryStockLoadtag.quantityPerSubUnit, INPUT-OUTPUT ttInventoryStockLoadtag.quantitySubUnitsPerUnit,
+        OUTPUT ttInventoryStockLoadtag.quantityOfSubUnits, OUTPUT ttInventoryStockLoadtag.quantityOfUnits, OUTPUT ttInventoryStockLoadtag.quantityPartial).
     
     /*Build Readable Tag Number and register it on Alias table*/
-    ttInventoryStockLoadtag.StockIDAlias = fGetNextStockIDAlias(ttInventoryStockLoadtag.Company, ttInventoryStockLoadtag.PrimaryID). 
-    RUN CreateStockIDAlias(ttInventoryStockLoadtag.Company, ttInventoryStockLoadtag.InventoryStockID, ttInventoryStockLoadtag.PrimaryID, ttInventoryStockLoadtag.StockIDAlias,
+    ttInventoryStockLoadtag.stockIDAlias = fGetNextStockIDAlias(ttInventoryStockLoadtag.company, ttInventoryStockLoadtag.primaryID). 
+    RUN CreateStockIDAlias(ttInventoryStockLoadtag.company, ttInventoryStockLoadtag.inventoryStockID, ttInventoryStockLoadtag.primaryID, ttInventoryStockLoadtag.stockIDAlias,
         OUTPUT lAliasCreated, OUTPUT cAliasCreateMessage). 
     
 END PROCEDURE.
@@ -385,28 +469,28 @@ PROCEDURE pCreateStockFromLoadtag PRIVATE:
     DEFINE VARIABLE iInventoryTransactionID AS INTEGER   NO-UNDO.
     
     
-    CREATE InventoryStock.
-    BUFFER-COPY ipbf-ttInventoryStockLoadtag TO InventoryStock.
+    CREATE inventoryStock.
+    BUFFER-COPY ipbf-ttInventoryStockLoadtag TO inventoryStock.
     ASSIGN 
-        /*        InventoryStock.rec_key          = DYNAMIC-FUNCTION("sfGetNextRecKey")*/
-        InventoryStock.InventoryStatus = gcStatusStockInitial
+        /*        inventoryStock.rec_key          = DYNAMIC-FUNCTION("sfGetNextRecKey")*/
+        inventoryStock.inventoryStatus = gcStatusStockInitial
         oplCreated                     = YES
-        opcMessage                     = "Inventory Stock Created for " + InventoryStock.InventoryStockID
+        opcMessage                     = "Inventory Stock Created for " + inventoryStock.inventoryStockID
         .
     IF iplCreateReceipt THEN 
-        RUN pCreateTransactionAndReturnID(InventoryStock.Company, InventoryStock.InventoryStockID, gcTransactionTypeReceive, 
-            InventoryStock.QuantityOriginal, InventoryStock.QuantityUOM, InventoryStock.WarehouseID, InventoryStock.LocationID, 
+        RUN pCreateTransactionAndReturnID(inventoryStock.company, inventoryStock.inventoryStockID, gcTransactionTypeReceive, 
+            inventoryStock.quantityOriginal, inventoryStock.quantityUOM, inventoryStock.warehouseID, inventoryStock.locationID, 
             OUTPUT iInventoryTransactionID, OUTPUT oplCreated, OUTPUT opcMessage).
     IF iplCreateReceipt AND iplPost THEN 
         RUN PostTransaction(iInventoryTransactionID).
-    RELEASE InventoryStock.
+    RELEASE inventoryStock.
     
 END PROCEDURE.
 
 PROCEDURE CreateStockIDAlias:
     /*------------------------------------------------------------------------------
      Purpose: Adds a record to to the stock ID Alias table given a 
-     InventoryStockID, Company, PrimaryID and Alias
+     inventoryStockID, Company, PrimaryID and Alias
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
@@ -416,26 +500,26 @@ PROCEDURE CreateStockIDAlias:
     DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-InventoryStockAlias FOR InventoryStockAlias.
+    DEFINE BUFFER bf-inventoryStockAlias FOR inventoryStockAlias.
     
-    FIND FIRST bf-InventoryStockAlias NO-LOCK 
-        WHERE bf-InventoryStockAlias.Company EQ ipcCompany 
-        AND bf-InventoryStockAlias.StockIDAlias EQ ipcAlias
+    FIND FIRST bf-inventoryStockAlias NO-LOCK 
+        WHERE bf-inventoryStockAlias.company EQ ipcCompany 
+        AND bf-inventoryStockAlias.stockIDAlias EQ ipcAlias
         NO-ERROR.
     
-    IF NOT AVAILABLE bf-InventoryStockAlias THEN 
+    IF NOT AVAILABLE bf-inventoryStockAlias THEN 
     DO:
-        CREATE InventoryStockAlias.
+        CREATE inventoryStockAlias.
         ASSIGN 
-            InventoryStockAlias.InventoryStockAliasID = fGetNextStockAliasID()
-            InventoryStockAlias.Company               = ipcCompany
-            InventoryStockAlias.InventoryStockID      = ipcInventoryStockID
-            InventoryStockAlias.UniquePrefix          = ipcUniquePrefix
-            InventoryStockAlias.StockIDAlias          = ipcAlias
+            inventoryStockAlias.inventoryStockAliasID = fGetNextStockAliasID()
+            inventoryStockAlias.company               = ipcCompany
+            inventoryStockAlias.inventoryStockID      = ipcInventoryStockID
+            inventoryStockAlias.uniquePrefix          = ipcUniquePrefix
+            inventoryStockAlias.stockIDAlias          = ipcAlias
             oplCreated                                = YES
             opcMessage                                = "Alias Created: " + ipcAlias + " = " + ipcInventoryStockID
             .
-        RELEASE InventoryStockAlias.
+        RELEASE inventoryStockAlias.
     END.
     ELSE 
         ASSIGN 
@@ -482,9 +566,9 @@ PROCEDURE pGetWIPID PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttInventoryStockPreLoadtag FOR ttInventoryStockPreLoadtag.
     DEFINE OUTPUT PARAMETER opcWIPID AS CHARACTER NO-UNDO.
 
-    opcWIPID = STRING(ipbf-ttInventoryStockPreLoadtag.MachineID,"x(6)") + STRING(ipbf-ttInventoryStockPreLoadtag.JobID,"x(6)") 
-        + STRING(ipbf-ttInventoryStockPreLoadtag.JobID2,"99") + STRING(ipbf-ttInventoryStockPreLoadtag.FormNo,"99")  
-        + STRING(ipbf-ttInventoryStockPreLoadtag.BlankNo,"99").
+    opcWIPID = STRING(ipbf-ttInventoryStockPreLoadtag.machineID,"x(6)") + STRING(ipbf-ttInventoryStockPreLoadtag.jobID,"x(6)") 
+        + STRING(ipbf-ttInventoryStockPreLoadtag.jobID2,"99") + STRING(ipbf-ttInventoryStockPreLoadtag.formNo,"99")  
+        + STRING(ipbf-ttInventoryStockPreLoadtag.blankNo,"99").
 
     IF TRIM(opcWIPID) EQ "" THEN opcWIPID = "WIPITEM".
 
@@ -497,55 +581,57 @@ PROCEDURE PostTransaction:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiInventoryTransactionID AS INTEGER NO-UNDO.
 
-    FIND FIRST InventoryTransaction EXCLUSIVE-LOCK
-        WHERE InventoryTransaction.InventoryTransactionID EQ ipiInventoryTransactionID
+    FIND FIRST inventoryTransaction EXCLUSIVE-LOCK
+        WHERE inventoryTransaction.inventoryTransactionID EQ ipiInventoryTransactionID
         NO-ERROR.
-    FIND FIRST InventoryStock EXCLUSIVE-LOCK
-        WHERE InventoryStock.InventoryStockID EQ InventoryTransaction.InventoryStockID
+    FIND FIRST inventoryStock EXCLUSIVE-LOCK
+        WHERE inventoryStock.inventoryStockID EQ inventoryTransaction.inventoryStockID
         NO-ERROR. 
-    IF AVAILABLE InventoryTransaction AND AVAILABLE InventoryStock THEN 
+    IF AVAILABLE inventoryTransaction AND AVAILABLE inventoryStock THEN 
     DO:
-        IF InventoryTransaction.QuantityChange NE 0 THEN 
-            RUN pAddQuantity(InventoryTransaction.QuantityChange, InventoryTransaction.QuantityUOM, INPUT-OUTPUT InventoryStock.Quantity, InventoryStock.QuantityUOM). 
-        IF InventoryTransaction.WarehouseID NE "" THEN 
-            InventoryStock.WarehouseID = InventoryTransaction.WarehouseID.
-        IF InventoryTransaction.LocationID NE "" THEN 
-            InventoryStock.LocationID = InventoryTransaction.LocationID.
-        CASE InventoryTransaction.TransactionType:
+        IF inventoryTransaction.quantityChange NE 0 THEN 
+            RUN pAddQuantity(inventoryTransaction.quantityChange, inventoryTransaction.quantityUOM, INPUT-OUTPUT inventoryStock.quantity, inventoryStock.quantityUOM). 
+        IF inventoryTransaction.warehouseID NE "" THEN 
+            inventoryStock.warehouseID = inventoryTransaction.warehouseID.
+        IF inventoryTransaction.locationID NE "" THEN 
+            inventoryStock.locationID = inventoryTransaction.locationID.
+        CASE inventoryTransaction.transactionType:
             WHEN gcTransactionTypeReceive THEN 
                 DO:
                     ASSIGN 
-                        InventoryStock.InventoryStatus = gcStatusStockReceived.
+                        inventoryStock.inventoryStatus = gcStatusStockReceived.
                 END.
             WHEN gcTransactionTypeTransfer THEN 
                 DO:
-            
+                    ASSIGN 
+                        inventoryStock.lastTransBy   = USERID("asi")
+                        inventoryStock.lastTransTime = NOW
+                        .           
                 END.
             WHEN gcTransactionTypeConsume OR 
             WHEN gcTransactionTypeShip THEN 
                 DO:
-                    IF InventoryStock.Quantity EQ 0 THEN 
+                    IF inventoryStock.quantity EQ 0 THEN 
                     DO: 
                         ASSIGN 
-                            InventoryStock.ConsumedBy   = USERID("asi")
-                            InventoryStock.ConsumedTime = NOW
-                            .
+                            inventoryStock.consumedBy   = USERID("asi")
+                            inventoryStock.consumedTime = NOW
+                            inventoryStock.inventoryStatus = gcStatusStockConsumed.
                     END.
                     ELSE 
                         ASSIGN 
-                            InventoryStock.ConsumedBy   = ""
-                            InventoryStock.ConsumedTime = ?
-                            .
+                            inventoryStock.consumedBy   = ""
+                            inventoryStock.consumedTime = ?.
                 END.
         END CASE. 
         ASSIGN 
-            InventoryTransaction.TransactionStatus = gcStatusTransactionPosted
-            InventoryTransaction.PostedBy          = USERID("asi")
-            InventoryTransaction.PostedTime        = NOW
+            inventoryTransaction.transactionStatus = gcStatusTransactionPosted
+            inventoryTransaction.postedBy          = USERID("asi")
+            inventoryTransaction.postedTime        = NOW
             .
     END.
-    RELEASE InventoryTransaction.
-    RELEASE InventoryStock.
+    RELEASE inventoryTransaction.
+    RELEASE inventoryStock.
 
 END PROCEDURE.
 
@@ -585,17 +671,21 @@ PROCEDURE CreateInventoryLoadtagsFromPreLoadtags:
     EMPTY TEMP-TABLE ttInventoryStockLoadtag.
     /*Process Inputs to "explode" the loadtag records required based on inputs*/
     FOR EACH ttInventoryStockPreLoadtag:
-        ttInventoryStockPreLoadtag.CountOfLoadtags = MAX(ttInventoryStockPreLoadtag.CountOfLoadtags,1).    
-        RUN GetFullUnitQuantity(INPUT-OUTPUT ttInventoryStockPreLoadtag.QuantityPerSubUnit, INPUT-OUTPUT ttInventoryStockPreLoadtag.QuantitySubUnitsPerUnit, OUTPUT dQuantityPerFullLoadtag).
+        ttInventoryStockPreLoadtag.countOfLoadtags = MAX(ttInventoryStockPreLoadtag.countOfLoadtags,1).    
+
+        RUN GetFullUnitQuantity(INPUT-OUTPUT ttInventoryStockPreLoadtag.quantityPerSubUnit, INPUT-OUTPUT ttInventoryStockPreLoadtag.quantitySubUnitsPerUnit, OUTPUT dQuantityPerFullLoadtag).
+
         ASSIGN 
-            iCountOfFullLoadtags      = INTEGER(TRUNC(ttInventoryStockPreLoadtag.QuantityTotal / dQuantityPerFullLoadtag, 0))
-            dQuantityOfPartialLoadtag = ttInventoryStockPreLoadtag.QuantityTotal - dQuantityPerFullLoadtag * iCountOfFullLoadtags
+            iCountOfFullLoadtags      = INTEGER(TRUNC(ttInventoryStockPreLoadtag.quantityTotal / dQuantityPerFullLoadtag, 0))
+            dQuantityOfPartialLoadtag = ttInventoryStockPreLoadtag.quantityTotal - dQuantityPerFullLoadtag * iCountOfFullLoadtags
             .
-        IF dQuantityOfPartialLoadtag NE 0 AND iCountOfFullLoadtags EQ ttInventoryStockPreLoadtag.CountOfLoadtags THEN 
+
+        IF dQuantityOfPartialLoadtag NE 0 AND iCountOfFullLoadtags EQ ttInventoryStockPreLoadtag.countOfLoadtags THEN 
             ASSIGN 
                 dQuantityOfPartialLoadtag = dQuantityOfPartialLoadtag + dQuantityPerFullLoadtag
                 iCountOfFullLoadtags      = iCountOfFullLoadtags - 1
                 .    
+
         DO iCountOfLoadtags = 1 TO iCountOfFullLoadtags:
             RUN pCreateLoadtagFromPreLoadtag(BUFFER ttInventoryStockPreLoadtag, dQuantityPerFullLoadtag).
         END. 
@@ -657,7 +747,7 @@ FUNCTION fGetNextStockAliasID RETURNS INTEGER PRIVATE
      Notes:
     ------------------------------------------------------------------------------*/	
     
-    giIDTemp = giIDTemp + 1.
+    giIDTemp = NEXT-VALUE(invaliasid_seq).
     RETURN giIDTemp.
 		
 END FUNCTION.
@@ -698,11 +788,11 @@ FUNCTION fGetNextStockIDAlias RETURNS CHARACTER PRIVATE
         USE-INDEX tag NO-ERROR.
     iLastRMTag = (IF AVAILABLE loadtag THEN fGetNumberSuffix(loadtag.tag-no, iStartChar) ELSE 0) + 1.
     
-    FIND LAST InventoryStockAlias NO-LOCK     
-        WHERE InventoryStockAlias.Company EQ ipcCompany
-        AND InventoryStockAlias.UniquePrefix EQ ipcUniquePrefix
+    FIND LAST inventoryStockAlias NO-LOCK     
+        WHERE inventoryStockAlias.company EQ ipcCompany
+        AND inventoryStockAlias.uniquePrefix EQ ipcUniquePrefix
         NO-ERROR.
-    iLastAlias = (IF AVAILABLE InventoryStockAlias THEN fGetNumberSuffix(InventoryStockAlias.StockIDAlias, iStartChar) ELSE 0) + 1.
+    iLastAlias = (IF AVAILABLE inventoryStockAlias THEN fGetNumberSuffix(inventoryStockAlias.stockIDAlias, iStartChar) ELSE 0) + 1.
     iNextTag = MAX(iLastFGTag, iLastRMTag, iLastAlias).
     
     cAlias = ipcUniquePrefix + FILL(" ", giLengthUniquePrefix - iStartChar + 1).
@@ -719,7 +809,7 @@ FUNCTION fGetNextStockID RETURNS CHARACTER PRIVATE
      Purpose: Returns the next stock ID
      Notes:
     ------------------------------------------------------------------------------*/	
-    giIDTemp = giIDTemp + 1.
+    giIDTemp = NEXT-VALUE(invstockid_seq).
     
     RETURN ipcType + STRING(giIDTemp,"999999999999").
 
@@ -732,7 +822,7 @@ FUNCTION fGetNextTransactionID RETURNS INTEGER PRIVATE
      Purpose: Returns the next transaction ID
      Notes:
     ------------------------------------------------------------------------------*/    
-    giIDTemp = giIDTemp + 1.
+    giIDTemp = NEXT-VALUE(invtrans_seq).
     RETURN giIDTemp.
 
 END FUNCTION.

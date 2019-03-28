@@ -1,12 +1,12 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v9r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: 
+  File: wip-menu.w
 
-  Description: 
+  Description: Menu for the Work In Process tasks
 
   Input Parameters:
       <none>
@@ -14,9 +14,9 @@
   Output Parameters:
       <none>
 
-  Author: 
+  Author: Porandla Mithun
 
-  Created: 
+  Created: 03/24/2019
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
@@ -36,10 +36,6 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-
-{methods/defines/globdefs.i}
-{methods/defines/hndldefs.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -55,8 +51,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-11 btn-rm btn-fg btn-bol btn-tag ~
-btn-wip btn-close 
+&Scoped-Define ENABLED-OBJECTS btn-wipcreate btn-wipissue btn-transfer ~
+btn-close 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -72,55 +68,38 @@ btn-wip btn-close
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-bol 
-     LABEL "&Bill of Lading" 
-     SIZE 35 BY 2
-     FONT 6.
-
 DEFINE BUTTON btn-close 
      LABEL "C&lose" 
      SIZE 35 BY 2
      FONT 6.
 
-DEFINE BUTTON btn-fg 
-     LABEL "&Finished Goods" 
+DEFINE BUTTON btn-transfer 
+     LABEL "&WIP Transfer" 
      SIZE 35 BY 2
      FONT 6.
 
-DEFINE BUTTON btn-rm 
-     LABEL "&Material" 
+DEFINE BUTTON btn-wipcreate 
+     LABEL "&WIP Create" 
      SIZE 35 BY 2
      FONT 6.
 
-DEFINE BUTTON btn-tag 
-     LABEL "L&abel Menu" 
+DEFINE BUTTON btn-wipissue 
+     LABEL "&WIP Issue" 
      SIZE 35 BY 2
      FONT 6.
-
-DEFINE BUTTON btn-wip 
-     LABEL "&Work In Process" 
-     SIZE 35 BY 2
-     FONT 6.
-
-DEFINE RECTANGLE RECT-11
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 37 BY 13.1.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btn-rm AT ROW 1.24 COL 2
-     btn-fg AT ROW 3.38 COL 2
-     btn-bol AT ROW 5.52 COL 2
-     btn-tag AT ROW 7.67 COL 2
-     btn-wip AT ROW 9.81 COL 2 WIDGET-ID 2
-     btn-close AT ROW 11.95 COL 2
-     RECT-11 AT ROW 1 COL 1
+     btn-wipcreate AT ROW 1.48 COL 2.4 WIDGET-ID 2
+     btn-wipissue AT ROW 3.62 COL 2.4 WIDGET-ID 8
+     btn-transfer AT ROW 5.86 COL 2.4 WIDGET-ID 10
+     btn-close AT ROW 11.95 COL 2 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 37.2 BY 13.1.
+         SIZE 37 BY 13.62 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -139,12 +118,12 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Sharp Shooter Menu"
-         HEIGHT             = 13.1
-         WIDTH              = 37.2
-         MAX-HEIGHT         = 16.43
+         TITLE              = "WIP"
+         HEIGHT             = 13.62
+         WIDTH              = 37
+         MAX-HEIGHT         = 16
          MAX-WIDTH          = 80
-         VIRTUAL-HEIGHT     = 16.43
+         VIRTUAL-HEIGHT     = 16
          VIRTUAL-WIDTH      = 80
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -169,27 +148,19 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
 ASSIGN 
-       btn-bol:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
-
-ASSIGN 
        btn-close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
 ASSIGN 
-       btn-fg:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+       btn-transfer:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
 ASSIGN 
-       btn-rm:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+       btn-wipcreate:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
 ASSIGN 
-       btn-tag:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
-
-ASSIGN 
-       btn-wip:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+       btn-wipissue:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -206,7 +177,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Sharp Shooter Menu */
+ON END-ERROR OF C-Win /* WIP */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -219,23 +190,11 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Sharp Shooter Menu */
+ON WINDOW-CLOSE OF C-Win /* WIP */
 DO:
-    RUN system/userLogOut.p (NO, 0).
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn-bol
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-bol C-Win
-ON CHOOSE OF btn-bol IN FRAME DEFAULT-FRAME /* Bill of Lading */
-DO:
-   RUN addon/bol/boltrans.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -255,44 +214,49 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-fg
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-fg C-Win
-ON CHOOSE OF btn-fg IN FRAME DEFAULT-FRAME /* Finished Goods */
+&Scoped-define SELF-NAME btn-transfer
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-transfer C-Win
+ON CHOOSE OF btn-transfer IN FRAME DEFAULT-FRAME /* WIP Transfer */
 DO:
-   RUN addon/fg/fgtransa.w.
+   RUN wip\wip-transfer.w(INPUT "001",     /* Company Code */
+                          INPUT "MAIN",    /* Location Code */
+                          INPUT "W13648",  /* Primary Job number */
+                          INPUT 00,        /* Second Job number */
+                          INPUT 01,        /* Form number of the Job */
+                          INPUT 00).       /* Blank number of the Job */
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-rm
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-rm C-Win
-ON CHOOSE OF btn-rm IN FRAME DEFAULT-FRAME /* Material */
-DO:
-   RUN addon/rm/rmtransa.w.
+&Scoped-define SELF-NAME btn-wipcreate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-wipcreate C-Win
+ON CHOOSE OF btn-wipcreate IN FRAME DEFAULT-FRAME /* WIP Create */
+DO:   
+   RUN wip\wip-create.w(INPUT "001",     /* Company Code */
+                        INPUT "MAIN",    /* Location Code */
+                        INPUT "W13648",  /* Primary Job number */
+                        INPUT "SHT1",    /* Machine Code */
+                        INPUT 00,        /* Second Job number */
+                        INPUT 01,        /* Form number of the Job */
+                        INPUT 00).       /* Blank number of the Job */
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-tag
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-tag C-Win
-ON CHOOSE OF btn-tag IN FRAME DEFAULT-FRAME /* Label Menu */
+&Scoped-define SELF-NAME btn-wipissue
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-wipissue C-Win
+ON CHOOSE OF btn-wipissue IN FRAME DEFAULT-FRAME /* WIP Issue */
 DO:
-   RUN addon/loadtags/ldtagtrs.w.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn-wip
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-wip C-Win
-ON CHOOSE OF btn-wip IN FRAME DEFAULT-FRAME /* Work In Process */
-DO:
-   RUN addon/wip/wip-menu.w.
+   RUN wip\wip-issue.w(INPUT "001",     /* Company Code */
+                       INPUT "MAIN",    /* Location Code */
+                       INPUT "W13648",  /* Primary Job number */
+                       INPUT 00,        /* Second Job number */
+                       INPUT 01,        /* Form number of the Job */
+                       INPUT 00).       /* Blank number of the Job */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -323,15 +287,9 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  ASSIGN
-    {&WINDOW-NAME}:X = 20
-    {&WINDOW-NAME}:Y = 20.
   RUN enable_UI.
-  {methods/nowait.i}
-  APPLY "entry" TO btn-rm.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
-       WAIT-FOR CLOSE OF THIS-PROCEDURE.
-
+    WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -370,7 +328,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE RECT-11 btn-rm btn-fg btn-bol btn-tag btn-wip btn-close 
+  ENABLE btn-wipcreate btn-wipissue btn-transfer btn-close 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
