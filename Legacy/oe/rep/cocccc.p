@@ -573,15 +573,15 @@ FOR EACH report
 
 
  IF cCertFormat EQ "CCC" OR cCertFormat EQ "CCC3" THEN
-     cTemplateFile = "template\CCCBOLCert.xlt". 
+     cTemplateFile = SEARCH("template\CCCBOLCert.xlt"). 
  IF cCertFormat EQ "CCC2"  THEN
-     cTemplateFile = "template\CCC2BOLCert.xlt". 
+     cTemplateFile = SEARCH("template\CCC2BOLCert.xlt"). 
  IF cCertFormat EQ "CCC4"  THEN
-     cTemplateFile = "template\CCC4BOLCert.xlt". 
+     cTemplateFile = SEARCH("template\CCC4BOLCert.xlt"). 
  IF cCertFormat EQ "CCC5"  THEN
-     cTemplateFile = "template\CCC5BOLCert.xlt". 
+     cTemplateFile = SEARCH("template\CCC5BOLCert.xlt"). 
  IF cCertFormat EQ "CCCWPP"  THEN 
-     cTemplateFile = "template\WPPBOLCert.xlt".
+     cTemplateFile = SEARCH("template\WPPBOLCert.xlt").
 
 /* Connect to the running Excel session. */
 CREATE "Excel.Application" gchExcelApplication CONNECT NO-ERROR.
