@@ -756,14 +756,25 @@ DO:
              DO:
                 IF NOT CAN-FIND(FIRST po-ord WHERE
                    po-ord.company EQ cocode AND
-                   po-ord.po-no EQ v-po-no) THEN
+                   po-ord.po-no EQ v-po-no) THEN DO:
+                   RUN pCheckTagLength(cocode, "", scr-vend-tag, OUTPUT lContinue).
+                   IF NOT lContinue THEN DO:
+                      APPLY "entry" TO SELF.
+                      RETURN NO-APPLY.
+                   END.
                    LEAVE.
-            
+                END.
                 begin_po-no:SCREEN-VALUE = STRING(v-po-no).
              END.
-             ELSE
+             ELSE DO:
+                 RUN pCheckTagLength(cocode, "", scr-vend-tag, OUTPUT lContinue).
+                   IF NOT lContinue THEN DO:
+                      APPLY "entry" TO SELF.
+                      RETURN NO-APPLY.
+                   END.
                 LEAVE.
-                
+             END.
+              
              v-po-line = INT(SUBSTR(scr-vend-tag,7,3)) NO-ERROR.
              
              IF NOT ERROR-STATUS:ERROR THEN
@@ -837,8 +848,8 @@ PROCEDURE pCheckTagLength PRIVATE:
         lSSScanVendorLengthRequired = DEC(cRtnChar) EQ 1 NO-ERROR.
     IF iSSScanVendorLength NE 0 AND ipcScan NE "" THEN 
     DO:
-        IF LENGTH(ipcScan) > iSSScanVendorLength AND NOT lSSScanVendorLengthRequired THEN 
-            MESSAGE "Vendor tag is longer than the maximum of " + STRING(iSSScanVendorLength) 
+        IF LENGTH(ipcScan) NE iSSScanVendorLength AND NOT lSSScanVendorLengthRequired THEN 
+            MESSAGE "Vendor tag is not equal to the target of " + STRING(iSSScanVendorLength) 
                 + ", as defined by the integer value of SSScanVendor" VIEW-AS ALERT-BOX WARNING.  
         ELSE IF LENGTH(ipcScan) NE iSSScanVendorLength AND lSSScanVendorLengthRequired THEN DO:
             MESSAGE "Vendor tag length must be " + STRING(iSSScanVendorLength) 
