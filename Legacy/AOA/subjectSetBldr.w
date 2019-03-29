@@ -42,8 +42,9 @@ DEFINE VARIABLE ipiSubjectID  AS INTEGER   NO-UNDO INITIAL 1.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE cPoolName    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hDynInitProc AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cPoolName      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hDynInitProc   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE svSetAlignment AS CHARACTER NO-UNDO INITIAL "Custom".
 
 FIND FIRST dynSubject NO-LOCK
      WHERE dynSubject.subjectID EQ ipiSubjectID

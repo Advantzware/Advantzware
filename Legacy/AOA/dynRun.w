@@ -235,6 +235,17 @@ DEFINE FRAME paramFrame
          SIZE 160 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
+DEFINE FRAME resultsFrame
+     btnCloseResults AT ROW 1 COL 6 HELP
+          "Jasper Viewer" WIDGET-ID 252
+     btnSaveResults AT ROW 1 COL 2 HELP
+          "Jasper Viewer" WIDGET-ID 254
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 6.48
+         SIZE 10 BY 2.38
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
+
 DEFINE FRAME outputFrame
      btnRunResults AT ROW 1.48 COL 95 HELP
           "Results Grid" WIDGET-ID 254
@@ -244,15 +255,15 @@ DEFINE FRAME outputFrame
      svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
      svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
      svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
-     svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
-     svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
      btnCSV AT ROW 1.48 COL 103 HELP
           "Excel CSV" WIDGET-ID 140
-     svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
+     svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
      btnHTML AT ROW 1.48 COL 135 HELP
           "HTML" WIDGET-ID 144
+     svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
      btnView AT ROW 1.48 COL 151 HELP
           "Jasper Viewer" WIDGET-ID 148
+     svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
      svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
      btnAddEmail AT ROW 2.19 COL 3 HELP
           "Add Recipents" WIDGET-ID 636
@@ -276,17 +287,6 @@ DEFINE FRAME outputFrame
          SIZE 160 BY 5.24
          BGCOLOR 15 
          TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
-
-DEFINE FRAME resultsFrame
-     btnCloseResults AT ROW 1 COL 6 HELP
-          "Jasper Viewer" WIDGET-ID 252
-     btnSaveResults AT ROW 1 COL 2 HELP
-          "Jasper Viewer" WIDGET-ID 254
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 6.48
-         SIZE 10 BY 2.38
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -748,9 +748,9 @@ PROCEDURE enable_UI :
           svShowGroupFooter svShowParameters 
       WITH FRAME outputFrame IN WINDOW C-Win.
   ENABLE btnRunResults svRecipients svSetAlignment svShowAll svShowReportHeader 
-         svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
-         btnCSV svShowGroupFooter btnHTML btnView svShowParameters btnAddEmail 
-         btnPrint btnDOCX btnPDF btnXLS 
+         svShowReportFooter svShowPageHeader btnCSV svShowPageFooter btnHTML 
+         svShowGroupHeader btnView svShowGroupFooter svShowParameters 
+         btnAddEmail btnPrint btnDOCX btnPDF btnXLS 
       WITH FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}
   VIEW FRAME paramFrame IN WINDOW C-Win.

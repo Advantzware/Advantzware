@@ -750,6 +750,11 @@ PROCEDURE pTaskEmails :
                     FILE-INFO:FILE-NAME = "AOA\TaskEmail.r" 
                     cRunProgram = FILE-INFO:FULL-PATHNAME
                     .
+                IF cRunProgram EQ ? THEN
+                ASSIGN
+                    FILE-INFO:FILE-NAME = "AOA\TaskEmail.p" 
+                    cRunProgram = FILE-INFO:FULL-PATHNAME
+                    .
                 OS-COMMAND NO-WAIT VALUE(
                     SUBSTITUTE(
                         cRun,
