@@ -834,6 +834,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 /* **********************  Internal Procedures  *********************** */
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-open-query-cases B-table-Win  adm/support/_adm-opn.p
 PROCEDURE adm-open-query-cases :
 /*------------------------------------------------------------------------------
@@ -1171,7 +1172,7 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   IF SSMoveFG-log THEN
-     RUN post-finish-goods.
+     RUN post-finish-goods-single.
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN scan-next.
@@ -1185,8 +1186,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-finish-goods B-table-Win
 PROCEDURE post-finish-goods:
     /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
+     Purpose:  This is the batch posting of several records using the rules defined
+     in fgRecsByUser.p to create the workfiles to be processed in fgPostBatch.
+     Notes:  This is called externally by the Post button
     ------------------------------------------------------------------------------*/
  
 
@@ -1199,6 +1201,52 @@ PROCEDURE post-finish-goods:
  
     /* Create  workfile records for the finished goods being posted */
     RUN fg/fgRecsByUser.p (INPUT cocode, INPUT "R", INPUT USERID("ASI"), INPUT TABLE w-fg-rctd BY-reference).
+        
+    RUN pPostMain.
+    
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-finish-goods B-table-Win
+PROCEDURE post-finish-goods-single:
+    /*------------------------------------------------------------------------------
+     Purpose:  This only posts the current active fg-rctd record
+     Notes: This is only run if SSMoveFG is yes
+    ------------------------------------------------------------------------------*/
+ 
+
+    SESSION:SET-WAIT-STATE ("general").
+
+
+    FOR EACH w-fg-rctd:
+        DELETE w-fg-rctd.
+    END.
+ 
+      /* Create a single workfile record for the finished good being posted - originally removed with ticket 46268 */
+    CREATE w-fg-rctd.
+    BUFFER-COPY fg-rctd TO w-fg-rctd
+    ASSIGN w-fg-rctd.row-id  = ROWID(fg-rctd)
+         w-fg-rctd.has-rec = YES.
+         
+        
+    RUN pPostMain.
+    
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-finish-goods B-table-Win
+PROCEDURE pPostMain PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Main common post program
+    ------------------------------------------------------------------------------*/
+ 
         
     ASSIGN
         v-post-date = TODAY
@@ -1221,11 +1269,9 @@ PROCEDURE post-finish-goods:
 
 
 END PROCEDURE.
-	
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE scan-next B-table-Win 
 PROCEDURE scan-next :
