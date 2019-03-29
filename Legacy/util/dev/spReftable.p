@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : spReftable.p
     Purpose     : 
@@ -31,6 +30,9 @@
     DEFINE VARIABLE iHaveRecs AS INT NO-UNDO.
     DEFINE VARIABLE iElapsedTime AS INT NO-UNDO.
     
+    DEFINE BUFFER bRefTable FOR refTable.
+    DEFINE BUFFER b-rt FOR reftable.
+
     DEFINE TEMP-TABLE ttErrorList
         FIELD cRefTable AS CHAR FORMAT "x(30)"
         FIELD cErrText AS CHAR FORMAT "x(50)".
@@ -39,7 +41,6 @@
 &SCOPED-DEFINE CommonCode ~
     DEFINE INPUT PARAMETER ipcRefTable AS CHAR. ~
     DEFINE INPUT PARAMETER iprRefTable AS ROWID. ~
-    DEFINE BUFFER bRefTable FOR refTable. ~
     ~
     DISABLE TRIGGERS FOR LOAD OF ~{&cTable}. ~
     ~
@@ -568,14 +569,13 @@ PROCEDURE ce/com/selwhif1.w:
 END PROCEDURE.
 
 
-PROCEDURE ce/v-est3.w-Unit#:
+PROCEDURE "ce/v-est3.w Unit#":
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
 &SCOPED-DEFINE cTable eb    
 {&CommonCode}
-    DEFINE BUFFER b-rt FOR reftable.
         
     FOR EACH eb EXCLUSIVE WHERE 
         eb.company     EQ reftable.company AND 
@@ -600,13 +600,15 @@ PROCEDURE ce/v-est3.w-Unit#:
             b-rt.code     EQ STRING(eb.form-no,"9999999999") AND 
             b-rt.code2    EQ STRING(eb.blank-no,"9999999999")
             NO-ERROR.            
-        IF AVAIL b-rt THEN DO iCtr = 13 to 20: 
-            /* Load 'side' value if empty or user hasn't updated manually */
-            IF eb.side[iCtr] EQ "" THEN ASSIGN 
-                eb.side[iCtr] = SUBSTRING(b-rt.dscr,iCtr,1).
-            /* Load 'unit' value if 0 and user hasn't updated manually */
-            IF eb.unitNo[iCtr] EQ 0 THEN ASSIGN  
-                eb.unitNo[iCtr] = b-rt.val[iCtr - 12].
+        IF AVAIL b-rt THEN DO:
+            DO iCtr = 13 to 20: 
+                /* Load 'side' value if empty or user hasn't updated manually */
+                IF eb.side[iCtr] EQ "" THEN ASSIGN 
+                    eb.side[iCtr] = SUBSTRING(b-rt.dscr,iCtr,1).
+                /* Load 'unit' value if 0 and user hasn't updated manually */
+                IF eb.unitNo[iCtr] EQ 0 THEN ASSIGN  
+                    eb.unitNo[iCtr] = b-rt.val[iCtr - 12].
+            END.
             CREATE reftable1.
             BUFFER-COPY b-rt TO reftable1.
             RELEASE reftable1.
