@@ -43,7 +43,7 @@ CASE ip-lookupField:
            /* List of fields which should be displayed in the browse */
            INPUT "job-no,job-no2,i-no,est-no,ord-no,cust-no,due-date,opened",
            /* List of field labels to override the default database field label */
-           INPUT "Job #,Job #2,Item #,,Order #,,,Opened",
+           INPUT "Job #,Job #2,Item #,,Order #,,,Status",
            /* List of field formats to override the default database field format */
            INPUT "x(9),>9,X(20),X(10),>>>>>9,X(10)",
            /* List of browse column width values to override the default column width in browse */
