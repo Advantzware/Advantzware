@@ -289,9 +289,8 @@ RUN calc-total.
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Loadtag Creation Detail */
-DO: 
-    EMPTY TEMP-TABLE w-ord .
-    APPLY "go" TO FRAME {&FRAME-NAME}.
+DO:
+    APPLY "END-ERROR":U TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1023,7 +1022,7 @@ DEFINE VARIABLE lcheckflg AS LOGICAL INITIAL YES NO-UNDO .
     END.
 
     IF lcheckflgMsg AND AVAIL w-ord AND w-ord.total-tags GT dLoadTagLimit THEN 
-      MESSAGE "Are you sure you want to print " + string(w-ord.total-tags) + " of load tags?" 
+      MESSAGE "Are you sure you want to print " + string(w-ord.total-tags) + " load tags?" 
       VIEW-AS ALERT-BOX QUESTION  BUTTONS YES-NO UPDATE lcheckflg  .
   
     IF NOT lcheckflg THEN do:

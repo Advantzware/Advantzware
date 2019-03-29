@@ -200,6 +200,7 @@ DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
 DEFINE VARIABLE i-bardir-int AS INTEGER NO-UNDO .
 DEFINE VARIABLE i-xprint-int AS INTEGER NO-UNDO .
+DEFINE VARIABLE iLaodTagIntValue AS INTEGER NO-UNDO .
 
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "FGSetAssembly",
@@ -2122,6 +2123,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_override-mult C-Win
 ON VALUE-CHANGED OF tb_override-mult IN FRAME FRAME-A /* Ignore Customer Labels/ Skid */
 DO:
+  IF tb_override-mult:SCREEN-VALUE EQ "No" THEN
+      begin_labels:SCREEN-VALUE = "" .
+  ELSE begin_labels:SCREEN-VALUE = string(iLaodTagIntValue) . 
   assign {&self-name}.
 END.
 
@@ -2406,7 +2410,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   ASSIGN v-loadtag = sys-ctrl.char-fld
          v-mult    = sys-ctrl.int-fld
          v-cas-lab = sys-ctrl.log-fld
-         v-tags    = sys-ctrl.dec-fld.
+         v-tags    = sys-ctrl.dec-fld
+         iLaodTagIntValue = sys-ctrl.int-fld .
 
   /* gdm - 09210907 */
   FIND FIRST sys-ctrl NO-LOCK 
@@ -2506,6 +2511,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         begin_rel:SCREEN-VALUE = ""
         end_rel:SCREEN-VALUE   = ""
         .
+    IF tb_override-mult:SCREEN-VALUE EQ "No" THEN
+        begin_labels:SCREEN-VALUE = "" .
 
     DISABLE v-ship-id.
     ASSIGN v-ord-list:SCREEN-VALUE = "".
