@@ -108,9 +108,9 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     ~{&OPEN-QUERY-browseParamValue}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnOutputFormat btnScheduleTask ~
-btnSetExternalForm searchBar browseParamValue btnRunTask btnCopyTask ~
-btnDeleteTask btnRestoreDefaults btnSortMove 
+&Scoped-Define ENABLED-OBJECTS searchBar btnOutputFormat browseParamValue ~
+btnScheduleTask btnSetExternalForm btnRunTask btnCopyTask btnDeleteTask ~
+btnRestoreDefaults btnSortMove 
 &Scoped-Define DISPLAYED-OBJECTS searchBar 
 
 /* Custom List Definitions                                              */
@@ -143,7 +143,7 @@ DEFINE BUTTON btnOutputFormat
      IMAGE-UP FILE "Graphics/32x32/table.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      CONTEXT-HELP-ID 0
-     SIZE 8 BY 1.9 TOOLTIP "Run Now".
+     SIZE 8 BY 1.91 TOOLTIP "Run Now".
 
 DEFINE BUTTON btnRestoreDefaults 
      IMAGE-UP FILE "Graphics/16x16/rename.jpg":U NO-FOCUS FLAT-BUTTON
@@ -163,7 +163,7 @@ DEFINE BUTTON btnScheduleTask
 DEFINE BUTTON btnSetExternalForm 
      IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "External Form" 
-     SIZE 8 BY 1.9 TOOLTIP "Set External Form".
+     SIZE 8 BY 1.91 TOOLTIP "Set External Form".
 
 DEFINE BUTTON btnSortMove 
      IMAGE-UP FILE "Graphics/16x16/sort_up_down2.gif":U NO-FOCUS FLAT-BUTTON
@@ -232,15 +232,15 @@ ttDynParamValue.externalForm
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     searchBar AT ROW 1 COL 52 COLON-ALIGNED HELP
+          "Search" WIDGET-ID 6
      btnOutputFormat AT ROW 19.57 COL 27 HELP
           "Run Now" WIDGET-ID 256
+     browseParamValue AT ROW 1.95 COL 37 WIDGET-ID 500
      btnScheduleTask AT ROW 23.38 COL 27 HELP
           "Schedule Task" WIDGET-ID 252
      btnSetExternalForm AT ROW 21.48 COL 27 HELP
           "Set External Form" WIDGET-ID 286
-     searchBar AT ROW 1 COL 52 COLON-ALIGNED HELP
-          "Search" WIDGET-ID 6
-     browseParamValue AT ROW 1.95 COL 37 WIDGET-ID 500
      btnRunTask AT ROW 13.86 COL 27 HELP
           "Run Task" WIDGET-ID 250
      btnCopyTask AT ROW 15.76 COL 27 HELP
@@ -334,7 +334,7 @@ ASSIGN FRAME filterFrame:FRAME = FRAME F-Main:HANDLE.
 
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB browseParamValue filterFrame F-Main */
+/* BROWSE-TAB browseParamValue btnOutputFormat F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
        FRAME F-Main:HEIGHT           = 26.95
@@ -841,7 +841,8 @@ PROCEDURE pGetParamValue :
     FOR EACH prgrms NO-LOCK
         WHERE prgrms.mnemonic BEGINS cMnemonic,
         EACH dynParamValue NO-LOCK
-        WHERE dynParamValue.prgmName EQ prgrms.prgmname
+        WHERE dynParamValue.prgmName      EQ prgrms.prgmname
+          AND dynParamValue.securityLevel LE DYNAMIC-FUNCTION("sfUserSecurityLevel")
         WITH FRAME filterFrame:
         CREATE ttDynParamValue.
         ASSIGN
