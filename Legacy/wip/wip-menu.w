@@ -33,6 +33,9 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+/* Parameters Definitions ---                                           */
+DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
@@ -218,14 +221,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-transfer C-Win
 ON CHOOSE OF btn-transfer IN FRAME DEFAULT-FRAME /* WIP Transfer */
 DO:
-   RUN wip\wip-transfer.w(INPUT "001",     /* Company Code */
-                          INPUT "MAIN",    /* Location Code */
-                          INPUT "W13648",  /* Primary Job number */
-                          INPUT 00,        /* Second Job number */
-                          INPUT 01,        /* Form number of the Job */
-                          INPUT 00).       /* Blank number of the Job */
+   RUN wip\wip-transfer.w(INPUT ipcCompany,     /* Company Code */
+                          INPUT ipcLocation,    /* Location Code */
+                          INPUT "",  /* Primary Job number */
+                          INPUT 0,        /* Second Job number */
+                          INPUT 0,        /* Form number of the Job */
+                          INPUT 0).       /* Blank number of the Job */
 END.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -234,13 +236,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-wipcreate C-Win
 ON CHOOSE OF btn-wipcreate IN FRAME DEFAULT-FRAME /* WIP Create */
 DO:   
-   RUN wip\wip-create.w(INPUT "001",     /* Company Code */
-                        INPUT "MAIN",    /* Location Code */
-                        INPUT "W13648",  /* Primary Job number */
-                        INPUT "SHT1",    /* Machine Code */
-                        INPUT 00,        /* Second Job number */
-                        INPUT 01,        /* Form number of the Job */
-                        INPUT 00).       /* Blank number of the Job */
+   RUN wip\wip-create.w(INPUT ipcCompany,     /* Company Code */
+                        INPUT ipcLocation,    /* Location Code */
+                        INPUT "",  /* Primary Job number */
+                        INPUT "",    /* Machine Code */
+                        INPUT 0,        /* Second Job number */
+                        INPUT 0,        /* Form number of the Job */
+                        INPUT 0).       /* Blank number of the Job */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -251,12 +253,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-wipissue C-Win
 ON CHOOSE OF btn-wipissue IN FRAME DEFAULT-FRAME /* WIP Issue */
 DO:
-   RUN wip\wip-issue.w(INPUT "001",     /* Company Code */
-                       INPUT "MAIN",    /* Location Code */
-                       INPUT "W13648",  /* Primary Job number */
-                       INPUT 00,        /* Second Job number */
-                       INPUT 01,        /* Form number of the Job */
-                       INPUT 00).       /* Blank number of the Job */
+   RUN wip\wip-issue.w(INPUT ipcCompany,     /* Company Code */
+                       INPUT ipcLocation,    /* Location Code */
+                       INPUT "",  /* Primary Job number */
+                       INPUT 0,        /* Second Job number */
+                       INPUT 0,        /* Form number of the Job */
+                       INPUT 0).       /* Blank number of the Job */
 END.
 
 /* _UIB-CODE-BLOCK-END */
