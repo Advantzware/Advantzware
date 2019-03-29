@@ -17,6 +17,8 @@ DEFINE TEMP-TABLE ttImportBin
     FIELD Location  AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Location" HELP "Required. Must be valid - Size:5"
     FIELD BinType   AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Type" HELP "Required. Must be FG  RM or WIP"
     FIELD BinLoc    AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Primary Bin Loc" HELP "Required - Size:8"
+    FIELD LocAct    AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Loc Active" HELP "Optional. Yes or No - Default Yes"
+    FIELD BinAct    AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "FG Bin Active" HELP "Optional. Yes or No - Default Yes"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER   NO-UNDO INIT 1. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -152,6 +154,10 @@ PROCEDURE pValidate PRIVATE:
 
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
+    IF ipbf-ttImportBin.BinAct EQ "" THEN
+        ipbf-ttImportBin.BinAct = "Yes" .
+    IF ipbf-ttImportBin.LocAct EQ "" THEN
+        ipbf-ttImportBin.LocAct = "Yes" .
     
 END PROCEDURE.
 
@@ -165,6 +171,11 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
      
     IF AVAILABLE ipbf-ttImportBin THEN DO: 
+        FIND FIRST loc EXCLUSIVE-LOCK
+             WHERE loc.company EQ ipbf-ttImportBin.company
+               AND loc.loc  EQ ipbf-ttImportBin.Location NO-ERROR  .
+        IF AVAIL loc THEN
+            ASSIGN loc.ACTIVE      = logical(ipbf-ttImportBin.LocAct) .
 
         IF ipbf-ttImportBin.BinType = "FG" THEN DO:
             FIND FIRST fg-bin EXCLUSIVE-LOCK
@@ -180,7 +191,8 @@ PROCEDURE pProcessRecord PRIVATE:
             ASSIGN
             fg-bin.company     = ipbf-ttImportBin.company
             fg-bin.loc         = ipbf-ttImportBin.Location
-            fg-bin.loc-bin     = ipbf-ttImportBin.BinLoc.
+            fg-bin.loc-bin     = ipbf-ttImportBin.BinLoc 
+            fg-bin.ACTIVE      = logical(ipbf-ttImportBin.BinAct)      .
         END.
         ELSE IF ipbf-ttImportBin.BinType = "RM" THEN DO:
             FIND FIRST rm-bin EXCLUSIVE-LOCK
@@ -214,7 +226,10 @@ PROCEDURE pProcessRecord PRIVATE:
             wip-bin.loc         = ipbf-ttImportBin.Location
             wip-bin.loc-bin     = ipbf-ttImportBin.BinLoc.
         END.
-        
+        RELEASE loc .
+        RELEASE fg-bin .
+        RELEASE rm-bin .
+        RELEASE wip-bin .
     END.
     
 END PROCEDURE.

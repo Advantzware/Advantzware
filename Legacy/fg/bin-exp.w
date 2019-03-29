@@ -68,14 +68,16 @@ DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN 
     cTextListToSelect  = "Location,Type,Default Bin,Name,Address1,Address2,Address3,Address4,Address5,Address6," +
-                           "City,St Prov,Zip Post,Country,County,Lat,Long,Phone,Ext Code,Fax,Email,Notes,Primary Bin Loc"
+                           "City,St Prov,Zip Post,Country,County,Lat,Long,Phone,Ext Code,Fax,Email,Notes,Primary Bin Loc," +
+                           "Loc Active,FG Bin Active"
 
     cFieldListToSelect = "loc,type,def-bin,dscr,addr[1],addr[2],addr[3],addr[4],addr[5],addr[6]," +
-                           "city,st-prov,zip-post,country,county,lat,long,phone,ext-code,fax,email,notes,prm-bin-loc" .
+                           "city,st-prov,zip-post,country,county,lat,long,phone,ext-code,fax,email,notes,prm-bin-loc," +
+                           "active,fg-active"  .
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
-    cTextListToDefault = "Location,Type,Primary Bin Loc" .
+    cTextListToDefault = "Location,Type,Primary Bin Loc,Loc Active,FG Bin Active" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -130,7 +132,7 @@ FUNCTION buildHeader RETURNS CHARACTER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getValue-itemfg rd-fgexp 
 FUNCTION getValue-itemfg RETURNS CHARACTER
-    ( BUFFER ipb-itemfg FOR loc, ipc-field AS CHARACTER, ipc-bin-loc AS CHARACTER, ipc-type AS CHARACTER )  FORWARD.
+    ( BUFFER ipb-itemfg FOR loc, ipc-field AS CHARACTER, ipc-bin-loc AS CHARACTER, ipc-type AS CHARACTER, ipc-active AS LOGICAL )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -863,7 +865,7 @@ PROCEDURE run-report :
                
                 FOR EACH ttRptSelected:
                     v-excel-detail-lines = v-excel-detail-lines + 
-                        appendXLLine(getValue-itemfg(BUFFER b-loc,ttRptSelected.FieldList,fg-bin.loc-bin,cType)).
+                        appendXLLine(getValue-itemfg(BUFFER b-loc,ttRptSelected.FieldList,fg-bin.loc-bin,cType,fg-bin.active)).
                 END.
                 PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
 
@@ -880,7 +882,7 @@ PROCEDURE run-report :
                 
                 FOR EACH ttRptSelected:
                     v-excel-detail-lines = v-excel-detail-lines + 
-                        appendXLLine(getValue-itemfg(BUFFER b-loc,ttRptSelected.FieldList,rm-bin.loc-bin,cType)).
+                        appendXLLine(getValue-itemfg(BUFFER b-loc,ttRptSelected.FieldList,rm-bin.loc-bin,cType,b-loc.active)).
                 END.
                 PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
 
@@ -895,7 +897,7 @@ PROCEDURE run-report :
                
                 FOR EACH ttRptSelected:
                     v-excel-detail-lines = v-excel-detail-lines + 
-                        appendXLLine(getValue-itemfg(BUFFER b-loc,ttRptSelected.FieldList,wip-bin.loc-bin,cType)).
+                        appendXLLine(getValue-itemfg(BUFFER b-loc,ttRptSelected.FieldList,wip-bin.loc-bin,cType,b-loc.active)).
                 END.
                 PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
 
@@ -904,7 +906,7 @@ PROCEDURE run-report :
         IF i EQ 0 THEN DO:
              FOR EACH ttRptSelected:
                     v-excel-detail-lines = v-excel-detail-lines + 
-                        appendXLLine(getValue-itemfg(BUFFER b-loc,ttRptSelected.FieldList,"",cType)).
+                        appendXLLine(getValue-itemfg(BUFFER b-loc,ttRptSelected.FieldList,"",cType,b-loc.active)).
              END.
              PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
         END.
@@ -990,7 +992,7 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getValue-itemfg rd-fgexp 
 FUNCTION getValue-itemfg RETURNS CHARACTER
-    ( BUFFER ipb-itemfg FOR loc, ipc-field AS CHARACTER, ipc-loc-bin AS CHARACTER, ipc-type AS CHARACTER ) :
+    ( BUFFER ipb-itemfg FOR loc, ipc-field AS CHARACTER, ipc-loc-bin AS CHARACTER, ipc-type AS CHARACTER, ipc-active AS LOGICAL ) :
     /*------------------------------------------------------------------------------
       Purpose:  Take a buffer and field name as string and return the value
         Notes:  
@@ -1144,6 +1146,14 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
         END.
         WHEN "type"  THEN DO:   
             lc-return = ipc-type .
+        END.
+        WHEN "active"  THEN DO:  
+            lc-return = string(ipb-itemfg.active) .
+        END.
+        WHEN "fg-active"  THEN DO:  
+            IF ipc-type EQ "FG" THEN
+                lc-return = string(ipc-active) .
+            ELSE lc-return = "" .
         END.
         OTHERWISE 
         DO:
