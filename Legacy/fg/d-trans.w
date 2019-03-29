@@ -171,14 +171,14 @@ DEFINE FRAME Dialog-Frame
     SIZE 12 BY 1
     BGCOLOR 15 FONT 1
     fg-rctd.rct-date AT ROW 2.43 COL 29.8 COLON-ALIGNED
-    LABEL "Transfer!Date" FORMAT "99/99/9999"
+    LABEL "Transfer Date" FORMAT "99/99/9999"
     VIEW-AS FILL-IN 
     SIZE 17.2 BY 1
     BGCOLOR 15 FONT 1
     btnCalendar-1 AT ROW 2.43 COL 49
     fi_tr-time AT ROW 3.62 COL 29.8 COLON-ALIGNED
     fg-rctd.i-no AT ROW 4.76 COL 29.8 COLON-ALIGNED
-    LABEL "Item No" FORMAT "x(10)"
+    LABEL "Item No" FORMAT "x(15)"
     VIEW-AS FILL-IN 
     SIZE 31.2 BY 1
     BGCOLOR 15 FONT 1
@@ -197,12 +197,12 @@ DEFINE FRAME Dialog-Frame
     SIZE 4.8 BY 1
     BGCOLOR 15 FONT 1
     fg-rctd.loc AT ROW 8.48 COL 29.8 COLON-ALIGNED
-    LABEL "From!Whs" FORMAT "x(5)"
+    LABEL "From Whs" FORMAT "x(5)"
     VIEW-AS FILL-IN 
     SIZE 19 BY 1
     BGCOLOR 15 FONT 1
     fg-rctd.loc-bin AT ROW 9.76 COL 29.8 COLON-ALIGNED
-    LABEL "From!Bin" FORMAT "x(8)"
+    LABEL "From Bin" FORMAT "x(8)"
     VIEW-AS FILL-IN 
     SIZE 18.6 BY 1
     BGCOLOR 15 FONT 1
@@ -236,17 +236,17 @@ DEFINE FRAME Dialog-Frame
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
     fg-rctd.loc2 AT ROW 7.19 COL 85.4 COLON-ALIGNED
-    LABEL "To!Whse" FORMAT "x(5)"
+    LABEL "To Whse" FORMAT "x(5)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
     fg-rctd.loc-bin2 AT ROW 8.48 COL 85.4 COLON-ALIGNED
-    LABEL "To!Bin" FORMAT "x(8)"
+    LABEL "To Bin" FORMAT "x(8)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
     fg-rctd.tag2 AT ROW 9.76 COL 85.4 COLON-ALIGNED
-    LABEL "To!Tag" FORMAT "x(20)"
+    LABEL "To Tag" FORMAT "x(20)"
     VIEW-AS FILL-IN 
     SIZE 28.6 BY 1
     BGCOLOR 15 FONT 1
