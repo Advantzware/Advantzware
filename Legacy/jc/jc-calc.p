@@ -1180,6 +1180,7 @@ DO:
 
         FOR EACH xprep
             WHERE xprep.ml EQ YES
+            AND NOT CAN-DO("S,N", xprep.simon)
             ,
             FIRST prep NO-LOCK
             WHERE prep.company EQ cocode
