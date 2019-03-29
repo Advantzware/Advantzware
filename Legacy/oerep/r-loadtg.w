@@ -7742,6 +7742,7 @@ PROCEDURE write-loadtag-line :
  DEF INPUT PARAMETER ipi-counter AS INT NO-UNDO.
  DEF VAR cLoftString AS CHAR NO-UNDO.
  DEF VAR iCtr AS INT NO-UNDO.
+ DEFINE VARIABLE cPalletType AS CHARACTER NO-UNDO .
 
   IF cBarCodeProgram EQ "Loftware" THEN DO:
       
@@ -7951,6 +7952,8 @@ PROCEDURE write-loadtag-line :
             "~"" ipc-rfid "~"," .
     END.
 
+    RUN pGetPalletType(w-ord.pallt-no , OUTPUT cPalletType) .
+
     PUT UNFORMATTED 
         "~"" w-ord.due-date-jobhdr "~"," 
         "~"" w-ord.due-date-job "~","
@@ -7973,7 +7976,7 @@ PROCEDURE write-loadtag-line :
         "~"" loadtag.loc-bin "~","
         "~"" w-ord.job-qty "~","
         "~"" STRING(w-ord.runShip,"R&S/WHSE")  "~"," 
-        "~"" STRING(loadtag.pallet-no)  "~"" .
+        "~"" STRING(cPalletType)  "~"" .
     
     IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".
 END.
@@ -7993,6 +7996,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetPalletType C-Win 
+PROCEDURE pGetPalletType :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcPallet AS CHARACTER NO-UNDO .
+    DEFINE OUTPUT PARAMETER opcPallet AS CHARACTER NO-UNDO .
+
+    FIND ITEM NO-LOCK 
+        WHERE item.company = cocode
+        AND item.i-no = ipcPallet NO-ERROR .
+    IF AVAIL ITEM THEN DO:
+        FIND FIRST mat NO-LOCK WHERE mat.mat EQ item.mat-type  NO-ERROR.
+        IF AVAIL mat THEN
+            opcPallet = mat.dscr.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 
