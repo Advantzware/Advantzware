@@ -193,7 +193,7 @@ DEFINE VARIABLE ls-item AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE ls-jobno AS CHARACTER FORMAT "X(6)":U 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.38
-     FONT 38 NO-UNDO.
+     FONT 37 NO-UNDO.
 
 DEFINE VARIABLE ls-lastop AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -213,7 +213,7 @@ DEFINE VARIABLE ls-order AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE ls-tag AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 80 BY 1.38
-     FONT 38 NO-UNDO.
+     FONT 37 NO-UNDO.
 
 DEFINE VARIABLE ls-wipitemid AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -248,14 +248,14 @@ DEFINE BROWSE br-table
   QUERY br-table DISPLAY
       ttBrowseInventory.quantity WIDTH 25 COLUMN-LABEL "Qty On-hand"
       ttBrowseInventory.quantityOriginal WIDTH 25 COLUMN-LABEL "Qty Original"      
-ttBrowseInventory.locationID WIDTH 30 COLUMN-LABEL "Location" FORMAT "X(12)"
-ttBrowseInventory.stockIDAlias WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
-ttBrowseInventory.jobID WIDTH 25 COLUMN-LABEL "Job #" FORMAT "X(20)"
-ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(15)"
+      ttBrowseInventory.locationID WIDTH 30 COLUMN-LABEL "Location" FORMAT "X(12)"
+      ttBrowseInventory.stockIDAlias WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
+      ttBrowseInventory.jobID WIDTH 25 COLUMN-LABEL "Job #" FORMAT "X(20)"
+      ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(15)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 189 BY 20.05
-         FONT 37 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
+         FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -282,25 +282,25 @@ DEFINE FRAME F-Main
      ls-message AT ROW 31.24 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 86
      "Last Operation :" VIEW-AS TEXT
           SIZE 21.2 BY .81 AT ROW 8.29 COL 112.4 WIDGET-ID 78
-          FONT 35
-     "Cust # :" VIEW-AS TEXT
-          SIZE 10.6 BY .62 AT ROW 2.71 COL 151.4 WIDGET-ID 66
-          FONT 35
-     "Order # :" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 2.71 COL 112 WIDGET-ID 64
-          FONT 35
+          FONT 34
      "Blank #:" VIEW-AS TEXT
           SIZE 14 BY .95 AT ROW 3.71 COL 71 WIDGET-ID 58
-          FONT 37
+          FONT 36
      "Tag:" VIEW-AS TEXT
           SIZE 8.2 BY 1.19 AT ROW 7.29 COL 17.4 WIDGET-ID 22
-          FONT 37
+          FONT 36
      "WIP ID :" VIEW-AS TEXT
           SIZE 11.6 BY .62 AT ROW 6.95 COL 112.2 WIDGET-ID 74
-          FONT 35
+          FONT 34
+     "Item # :" VIEW-AS TEXT
+          SIZE 10.6 BY .62 AT ROW 4.14 COL 112.4 WIDGET-ID 70
+          FONT 34
+     "Cust # :" VIEW-AS TEXT
+          SIZE 10.6 BY .62 AT ROW 2.71 COL 151.4 WIDGET-ID 66
+          FONT 34
      "Form #:" VIEW-AS TEXT
           SIZE 12.6 BY .95 AT ROW 3.71 COL 27.4 WIDGET-ID 48
-          FONT 37
+          FONT 36
      "Tag Details" VIEW-AS TEXT
           SIZE 15.4 BY .76 AT ROW 5.91 COL 113.8 WIDGET-ID 28
           FONT 35
@@ -309,10 +309,10 @@ DEFINE FRAME F-Main
           FONT 35
      "Job #:" VIEW-AS TEXT
           SIZE 11 BY .95 AT ROW 2.14 COL 30 WIDGET-ID 12
-          FONT 37
-     "Item # :" VIEW-AS TEXT
-          SIZE 10.6 BY .62 AT ROW 4.14 COL 112.4 WIDGET-ID 70
-          FONT 35
+          FONT 36
+     "Order # :" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 2.71 COL 112 WIDGET-ID 64
+          FONT 34
      RECT-25 AT ROW 1.95 COL 111 WIDGET-ID 14
      RECT-26 AT ROW 5.62 COL 2.2 WIDGET-ID 18
      RECT-27 AT ROW 6.19 COL 111 WIDGET-ID 26
@@ -346,6 +346,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 273.2
          VIRTUAL-HEIGHT     = 36.57
          VIRTUAL-WIDTH      = 273.2
+         CONTROL-BOX        = no
          MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
@@ -380,6 +381,9 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* BROWSE-TAB br-table ls-lastop F-Main */
 /* SETTINGS FOR BUTTON bt-post IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       bt-post:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN ls-cust IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ls-item IN FRAME F-Main
@@ -509,6 +513,21 @@ END.
 
 
 &Scoped-define SELF-NAME ls-jobno
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-jobno W-Win
+ON HELP OF ls-jobno IN FRAME F-Main
+DO:
+    DEFINE VARIABLE cFieldsValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+
+    RUN system/openlookup.p (ipcCompany, "job-no", OUTPUT cFieldsValue, OUTPUT cFoundValue, OUTPUT recFoundRecID).
+/*    RUN windows/l-itemf2.w (ipcCompany,"", ipcInitial, "", OUTPUT cFoundValue, OUTPUT recFoundRecID).*/
+    SELF:SCREEN-VALUE = cFoundValue.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-jobno W-Win
 ON LEAVE OF ls-jobno IN FRAME F-Main
 DO:
@@ -800,11 +819,13 @@ PROCEDURE init :
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
                          + STRING(company.name) + " - " + ipcLocation  .
 
-    RUN jobScan(INPUT ipcCompany,
-                INPUT ipcJobno,
-                INPUT ipiJobno2,
-                INPUT ipiFormno,
-                INPUT ipiBlankno).
+    IF ipcJobNo NE "" THEN 
+        RUN jobScan(INPUT ipcCompany,
+                    INPUT ipcJobno,
+                    INPUT ipiJobno2,
+                    INPUT ipiFormno,
+                    INPUT ipiBlankno).
+                
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

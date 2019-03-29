@@ -191,7 +191,7 @@ DEFINE VARIABLE ls-item AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE ls-jobno AS CHARACTER FORMAT "X(6)":U 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.38
-     FONT 38 NO-UNDO.
+     FONT 37 NO-UNDO.
 
 DEFINE VARIABLE ls-lastop AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -201,7 +201,7 @@ DEFINE VARIABLE ls-lastop AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE ls-location AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.38
-     FONT 38 NO-UNDO.
+     FONT 37 NO-UNDO.
 
 DEFINE VARIABLE ls-order AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -211,7 +211,7 @@ DEFINE VARIABLE ls-order AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE ls-tag AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 80 BY 1.38
-     FONT 38 NO-UNDO.
+     FONT 37 NO-UNDO.
 
 DEFINE VARIABLE ls-wipitemid AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -278,42 +278,42 @@ DEFINE FRAME F-Main
      bt-down AT ROW 25.86 COL 191.8 WIDGET-ID 42
      bt-last AT ROW 28.29 COL 191.8 WIDGET-ID 46
      bt-post AT ROW 31.05 COL 151 WIDGET-ID 38
-     "Last Operation :" VIEW-AS TEXT
-          SIZE 21.2 BY .81 AT ROW 8.29 COL 112.4 WIDGET-ID 78
-          FONT 35
-     "Location:" VIEW-AS TEXT
-          SIZE 16 BY 1.19 AT ROW 8.14 COL 10 WIDGET-ID 32
-          FONT 37
-     "WIP ID :" VIEW-AS TEXT
-          SIZE 11.6 BY .62 AT ROW 6.95 COL 112.2 WIDGET-ID 74
-          FONT 35
-     "Cust # :" VIEW-AS TEXT
-          SIZE 10.6 BY .62 AT ROW 2.71 COL 151.4 WIDGET-ID 66
-          FONT 35
-     "Form #:" VIEW-AS TEXT
-          SIZE 12.6 BY .95 AT ROW 3.71 COL 27.4 WIDGET-ID 48
-          FONT 37
-     "Order # :" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 2.71 COL 112 WIDGET-ID 64
-          FONT 35
-     "Item # :" VIEW-AS TEXT
-          SIZE 10.6 BY .62 AT ROW 4.14 COL 112.4 WIDGET-ID 70
-          FONT 35
-     "Tag:" VIEW-AS TEXT
-          SIZE 8.2 BY 1.19 AT ROW 6.38 COL 17.4 WIDGET-ID 22
-          FONT 37
-     "Job #:" VIEW-AS TEXT
-          SIZE 11 BY .95 AT ROW 2.14 COL 30 WIDGET-ID 12
-          FONT 37
      "Job Details" VIEW-AS TEXT
           SIZE 15.4 BY .62 AT ROW 1.67 COL 113.6 WIDGET-ID 16
           FONT 35
+     "Tag:" VIEW-AS TEXT
+          SIZE 8.2 BY 1.19 AT ROW 6.38 COL 17.4 WIDGET-ID 22
+          FONT 36
+     "Item # :" VIEW-AS TEXT
+          SIZE 10.6 BY .62 AT ROW 4.14 COL 112.4 WIDGET-ID 70
+          FONT 34
+     "Order # :" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 2.71 COL 112 WIDGET-ID 64
+          FONT 34
+     "Form #:" VIEW-AS TEXT
+          SIZE 12.6 BY .95 AT ROW 3.71 COL 27.4 WIDGET-ID 48
+          FONT 36
+     "Blank #:" VIEW-AS TEXT
+          SIZE 14 BY .95 AT ROW 3.71 COL 71 WIDGET-ID 58
+          FONT 36
      "Tag Details" VIEW-AS TEXT
           SIZE 15.4 BY .76 AT ROW 5.91 COL 113.8 WIDGET-ID 28
           FONT 35
-     "Blank #:" VIEW-AS TEXT
-          SIZE 14 BY .95 AT ROW 3.71 COL 71 WIDGET-ID 58
-          FONT 37
+     "Last Operation :" VIEW-AS TEXT
+          SIZE 21.2 BY .81 AT ROW 8.29 COL 112.4 WIDGET-ID 78
+          FONT 34
+     "Location:" VIEW-AS TEXT
+          SIZE 16 BY 1.19 AT ROW 8.14 COL 10 WIDGET-ID 32
+          FONT 36
+     "WIP ID :" VIEW-AS TEXT
+          SIZE 11.6 BY .62 AT ROW 6.95 COL 112.2 WIDGET-ID 74
+          FONT 34
+     "Cust # :" VIEW-AS TEXT
+          SIZE 10.6 BY .62 AT ROW 2.71 COL 151.4 WIDGET-ID 66
+          FONT 34
+     "Job #:" VIEW-AS TEXT
+          SIZE 11 BY .95 AT ROW 2.14 COL 30 WIDGET-ID 12
+          FONT 36
      RECT-25 AT ROW 1.95 COL 111 WIDGET-ID 14
      RECT-26 AT ROW 5.62 COL 2.2 WIDGET-ID 18
      RECT-27 AT ROW 6.19 COL 111 WIDGET-ID 26
@@ -355,7 +355,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          FGCOLOR            = ?
          THREE-D            = yes
          MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         SENSITIVE          = yes
+         CONTROL-BOX        = no.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -381,6 +382,9 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* BROWSE-TAB br-table ls-lastop F-Main */
 /* SETTINGS FOR BUTTON bt-post IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       bt-post:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN ls-cust IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ls-item IN FRAME F-Main
@@ -510,6 +514,21 @@ END.
 
 
 &Scoped-define SELF-NAME ls-jobno
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-jobno W-Win
+ON HELP OF ls-jobno IN FRAME F-Main
+DO:
+    DEFINE VARIABLE cFieldsValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+
+    RUN system/openlookup.p (ipcCompany, "job-no", OUTPUT cFieldsValue, OUTPUT cFoundValue, OUTPUT recFoundRecID).
+/*    RUN windows/l-itemf2.w (ipcCompany,"", ipcInitial, "", OUTPUT cFoundValue, OUTPUT recFoundRecID).*/
+    SELF:SCREEN-VALUE = cFoundValue.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-jobno W-Win
 ON LEAVE OF ls-jobno IN FRAME F-Main
 DO:
@@ -834,11 +853,12 @@ PROCEDURE init :
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
                          + STRING(company.name) + " - " + ipcLocation  .
 
-    RUN jobScan(INPUT ipcCompany,
-                INPUT ipcJobno,
-                INPUT ipiJobno2,
-                INPUT ipiFormno,
-                INPUT ipiBlankno).
+    IF ipcJobNo NE "" THEN 
+        RUN jobScan(INPUT ipcCompany,
+                    INPUT ipcJobno,
+                    INPUT ipiJobno2,
+                    INPUT ipiFormno,
+                    INPUT ipiBlankno).
 
 END PROCEDURE.
 
@@ -1154,7 +1174,7 @@ PROCEDURE tagScan :
                 RETURN.    
         END.
         ASSIGN 
-            ls-wipitemid:SCREEN-VALUE IN FRAME {&FRAME-NAME} = buf-inventoryStock.stockIDAlias
+            ls-wipitemid:SCREEN-VALUE IN FRAME {&FRAME-NAME} = buf-inventoryStock.inventoryStockID
             ls-lastop:SCREEN-VALUE IN FRAME {&FRAME-NAME}    = buf-inventoryStock.machineID
             ls-location:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = buf-inventoryStock.warehouseID +
                                                                FILL(" ", 5 - LENGTH(buf-inventoryStock.warehouseID)) +
