@@ -37,7 +37,7 @@ CREATE WIDGET-POOL.
 DEF VAR lAddRecord AS LOG NO-UNDO.
 DEF VAR iSecurityLevel AS INT NO-UNDO.
 DEF VAR iBaseLevel AS INT NO-UNDO.
-
+DEF VAR cPgmToLaunch AS CHAR NO-UNDO.
 {custom/gcompany.i}
 
 FIND FIRST users NO-LOCK WHERE 
@@ -254,12 +254,10 @@ ON CHOOSE OF btnRun IN FRAME F-Main /* Run */
 DO:
     IF NOT AVAILABLE utilities THEN 
         RETURN NO-APPLY.
-    IF SEARCH('util/' + utilities.programName) NE ? THEN
-        RUN VALUE('util/' + utilities.programName).
-    ELSE IF SEARCH('util/' + utilities.programName + '.r') NE ? THEN
-        RUN VALUE('util/' + utilities.programName + '.r').
+    IF SEARCH(cPgmToLaunch) NE ? THEN
+        RUN VALUE(cPgmToLaunch).
     ELSE MESSAGE 
-        'Program: util/' + utilities.programName + ' does not exist!' VIEW-AS ALERT-BOX.
+        'Program: ' + cPgmToLaunch + ' does not exist!' VIEW-AS ALERT-BOX.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -296,13 +294,41 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL utilities.programName V-table-Win
 ON LEAVE OF utilities.programName IN FRAME F-Main /* Program Name */
 DO:
+    /* If the pgm name contains util/ or datadigger/, strip it off - we correct later */
     IF INDEX(SELF:SCREEN-VALUE,'util/') NE 0 THEN ASSIGN 
         SELF:SCREEN-VALUE = REPLACE(SELF:SCREEN-VALUE,'util/','').
-    IF SEARCH('util/' + SELF:SCREEN-VALUE) EQ ? 
-    AND SEARCH('util/' + SELF:SCREEN-VALUE + ".r") EQ ? THEN DO:
+    /* If the pgm name doesn't have an extension, add one */
+    IF SUBSTRING(SELF:SCREEN-VALUE,LENGTH(SELF:SCREEN-VALUE) - 1,1) NE "." THEN ASSIGN 
+        SELF:SCREEN-VALUE = SELF:SCREEN-VALUE + ".r".
+    IF SUBSTRING(SELF:SCREEN-VALUE,LENGTH(SELF:SCREEN-VALUE),1) EQ "." THEN ASSIGN 
+        SELF:SCREEN-VALUE = SELF:SCREEN-VALUE + "r".
+
+    ASSIGN 
+        cPgmToLaunch = SELF:SCREEN-VALUE.
+    IF SEARCH(cPgmToLaunch) EQ ? THEN ASSIGN 
+        cPgmToLaunch = "util/" + SELF:SCREEN-VALUE.
+    IF SEARCH(cPgmToLaunch) EQ ? THEN ASSIGN 
+        cPgmToLaunch = "datadigger/" + SELF:SCREEN-VALUE.
+
+    /* These should only be used if a developer is running source code */
+    IF SEARCH(cPgmToLaunch) EQ ? THEN ASSIGN 
+        cPgmToLaunch = REPLACE(SELF:SCREEN-VALUE,".r",".w").
+    IF SEARCH(cPgmToLaunch) EQ ? THEN ASSIGN 
+        cPgmToLaunch = "util/" + REPLACE(SELF:SCREEN-VALUE,".r",".w").
+    IF SEARCH(cPgmToLaunch) EQ ? THEN ASSIGN 
+        cPgmToLaunch = "datadigger/" + REPLACE(SELF:SCREEN-VALUE,".r",".w").
+    IF SEARCH(cPgmToLaunch) EQ ? THEN ASSIGN 
+        cPgmToLaunch = REPLACE(SELF:SCREEN-VALUE,".r",".p").
+    IF SEARCH(cPgmToLaunch) EQ ? THEN ASSIGN 
+        cPgmToLaunch = "util/" + REPLACE(SELF:SCREEN-VALUE,".r",".p").
+    IF SEARCH(cPgmToLaunch) EQ ? THEN ASSIGN 
+        cPgmToLaunch = "datadigger/" + REPLACE(SELF:SCREEN-VALUE,".r",".p").
+     
+    IF SEARCH(cPgmToLaunch) EQ ? THEN DO:
         MESSAGE 
-            "This program does not exist in the /util directory." SKIP 
-            "Please correct this condition immediately."
+            "This program cannot be found on your current system." SKIP 
+            "Please correct this condition immediately," SKIP 
+            "or contact Advantzware Support for assistance."
             VIEW-AS ALERT-BOX WARNING.
     END.
 END.
