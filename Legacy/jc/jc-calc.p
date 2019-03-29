@@ -93,11 +93,13 @@ DEFINE VARIABLE ll-recalc-cost     AS LOG       NO-UNDO.
 DEFINE VARIABLE ll-oe-program      AS LOG       NO-UNDO.
 DEFINE VARIABLE lAuditJobMch       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iAuditID           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iAuditIdx          AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iSubjectID         AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iParamValueID      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cUserID            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRecipients        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cOutputFormat      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lPriorJobMchExists AS LOGICAL   NO-UNDO.
 
 DEFINE BUFFER x-eb            FOR eb.
 DEFINE BUFFER x-job-hdr       FOR job-hdr.
@@ -1173,6 +1175,7 @@ DO:
             BUFFER-COPY job-mch EXCEPT rec_key TO tt-job-mch.
             RELEASE tt-job-mch.
         END.
+        lPriorJobMchExists = CAN-FIND(FIRST tt-job-mch).
 
         RUN jc/delkids.p (ROWID(job), NO).
 
@@ -1563,40 +1566,42 @@ DO:
                     .
                 DELETE tt-job-mch.
             END. /* avail tt-job-mch */
-            ELSE IF lAuditJobMch THEN DO:
+            ELSE IF lAuditJobMch AND lPriorJobMchExists THEN DO:
                 IF iAuditID EQ 0 THEN
                 RUN spCreateAuditHdr ("LOG","ASI","job-mch",job-mch.rec_key,OUTPUT iAuditID).
-                RUN spCreateAuditDtl (iAuditID,"company",0,job-mch.company,"Job Recalc New Record",NO).
-                RUN spCreateAuditDtl (iAuditID,"m-code",0,job-mch.m-code,"Job Recalc New Record",NO).
-                RUN spCreateAuditDtl (iAuditID,"job-no",0,job-mch.job-no,"Job Recalc New Record",NO).
-                RUN spCreateAuditDtl (iAuditID,"job-no2",0,STRING(job-mch.job-no2),"Job Recalc New Record",NO).
-                RUN spCreateAuditDtl (iAuditID,"frm",0,STRING(job-mch.frm),"Job Recalc New Record",NO).
-                RUN spCreateAuditDtl (iAuditID,"blank-no",0,STRING(job-mch.blank-no),"Job Recalc New Record",NO).
-                RUN spCreateAuditDtl (iAuditID,"pass",0,STRING(job-mch.pass),"Job Recalc New Record",NO).
-                RUN spCreateAuditDtl (iAuditID,"start-date",0,STRING(job-mch.start-date,"99/99/9999"),"Job Recalc New Record",NO).
-                RUN spCreateAuditDtl (iAuditID,"start-time",0,STRING(job-mch.start-time,"hh:mm:ss am"),"Job Recalc New Record",NO).
-                RUN spCreateAuditDtl (iAuditID,"end-date",0,STRING(job-mch.end-date,"99/99/9999"),"Job Recalc New Record",NO).
-                RUN spCreateAuditDtl (iAuditID,"end-time",0,STRING(job-mch.end-time,"hh:mm:ss am"),"Job Recalc New Record",NO).
-                RUN spCreateAuditDtl (iAuditID,"est-op_rec_key",0,job-mch.est-op_rec_key,"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"company",iAuditIdx,job-mch.company,"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"m-code",iAuditIdx,job-mch.m-code,"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"job-no",iAuditIdx,job-mch.job-no,"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"job-no2",iAuditIdx,STRING(job-mch.job-no2),"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"frm",iAuditIdx,STRING(job-mch.frm),"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"blank-no",iAuditIdx,STRING(job-mch.blank-no),"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"pass",iAuditIdx,STRING(job-mch.pass),"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"start-date",iAuditIdx,STRING(job-mch.start-date,"99/99/9999"),"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"start-time",iAuditIdx,STRING(job-mch.start-time,"hh:mm:ss am"),"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"end-date",iAuditIdx,STRING(job-mch.end-date,"99/99/9999"),"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"end-time",iAuditIdx,STRING(job-mch.end-time,"hh:mm:ss am"),"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"est-op_rec_key",iAuditIdx,job-mch.est-op_rec_key,"Job Recalc New Record",NO).
+                iAuditIdx = iAuditIdx + 1.
             END. /* else */
         END. /* each op */
 
-        IF lAuditJobMch THEN
+        IF lAuditJobMch AND lPriorJobMchExists THEN
         FOR EACH tt-job-mch:
             IF iAuditID EQ 0 THEN
             RUN spCreateAuditHdr ("LOG","ASI","job-mch",tt-job-mch.rec_key,OUTPUT iAuditID).
-            RUN spCreateAuditDtl (iAuditID,"company",0,tt-job-mch.company,"Job Recalc No Record",NO).
-            RUN spCreateAuditDtl (iAuditID,"m-code",0,tt-job-mch.m-code,"Job Recalc No Record",NO).
-            RUN spCreateAuditDtl (iAuditID,"job-no",0,tt-job-mch.job-no,"Job Recalc No Record",NO).
-            RUN spCreateAuditDtl (iAuditID,"job-no2",0,STRING(tt-job-mch.job-no2),"Job Recalc No Record",NO).
-            RUN spCreateAuditDtl (iAuditID,"frm",0,STRING(tt-job-mch.frm),"Job Recalc No Record",NO).
-            RUN spCreateAuditDtl (iAuditID,"blank-no",0,STRING(tt-job-mch.blank-no),"Job Recalc No Record",NO).
-            RUN spCreateAuditDtl (iAuditID,"pass",0,STRING(tt-job-mch.pass),"Job Recalc No Record",NO).
-            RUN spCreateAuditDtl (iAuditID,"start-date",0,STRING(tt-job-mch.start-date,"99/99/9999"),"Job Recalc No Record",NO).
-            RUN spCreateAuditDtl (iAuditID,"start-time",0,STRING(tt-job-mch.start-time,"hh:mm:ss am"),"Job Recalc No Record",NO).
-            RUN spCreateAuditDtl (iAuditID,"end-date",0,STRING(tt-job-mch.end-date,"99/99/9999"),"Job Recalc No Record",NO).
-            RUN spCreateAuditDtl (iAuditID,"end-time",0,STRING(tt-job-mch.end-time,"hh:mm:ss am"),"Job Recalc No Record",NO).
-            RUN spCreateAuditDtl (iAuditID,"est-op_rec_key",0,tt-job-mch.est-op_rec_key,"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"company",iAuditIdx,tt-job-mch.company,"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"m-code",iAuditIdx,tt-job-mch.m-code,"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"job-no",iAuditIdx,tt-job-mch.job-no,"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"job-no2",iAuditIdx,STRING(tt-job-mch.job-no2),"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"frm",iAuditIdx,STRING(tt-job-mch.frm),"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"blank-no",iAuditIdx,STRING(tt-job-mch.blank-no),"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"pass",iAuditIdx,STRING(tt-job-mch.pass),"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"start-date",iAuditIdx,STRING(tt-job-mch.start-date,"99/99/9999"),"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"start-time",iAuditIdx,STRING(tt-job-mch.start-time,"hh:mm:ss am"),"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"end-date",iAuditIdx,STRING(tt-job-mch.end-date,"99/99/9999"),"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"end-time",iAuditIdx,STRING(tt-job-mch.end-time,"hh:mm:ss am"),"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"est-op_rec_key",iAuditIdx,tt-job-mch.est-op_rec_key,"Job Recalc No Record",NO).
+            iAuditIdx = iAuditIdx + 1.
         END. /* each tt-job-mch */
         EMPTY TEMP-TABLE tt-job-mch.
 
