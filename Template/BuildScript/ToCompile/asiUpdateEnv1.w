@@ -136,6 +136,7 @@ DEF STREAM outStream.
 DEF STREAM logStream.
 DEF STREAM iniStream.
 
+DEF VAR cAuditExceptionList AS CHAR NO-UNDO.
 DEF VAR cDbDirOnly AS CHAR NO-UNDO.
 DEF VAR cBadDirList AS CHAR NO-UNDO.
 DEF VAR cfrom AS CHAR.
@@ -3240,46 +3241,71 @@ PROCEDURE ipLoadAuditRecs :
     
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     
+    ASSIGN 
+        cAuditExceptionList = "dynParamValue,report,tag,Task,taskEmail,taskResult,user-print".
+    
+    /* First section reads the .d and creates records that aren't already there 
+        (unless they're in the exception lis) */
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE tt{&tablename}.
         IMPORT tt{&tablename}.
-        FIND {&tablename} EXCLUSIVE WHERE 
-            {&tablename}.auditTable EQ tt{&tablename}.auditTable
-            NO-ERROR.
-        IF NOT AVAIL {&tablename} THEN 
-        DO:
-            CREATE {&tablename}.
-            BUFFER-COPY tt{&tablename} TO {&tablename}.
+        /* If it's in the exception list, remove the base record and the tt record */
+        IF CAN-DO(cAuditExceptionList,tt{&tablename}.auditTable) THEN DO:
+            FIND {&tablename} EXCLUSIVE WHERE 
+                {&tablename}.auditTable EQ tt{&tablename}.auditTable
+                NO-ERROR.
+            IF AVAIL {&tablename} THEN 
+                DELETE {&tablename}.
+            DELETE tt{&tablename}.
+        END.
+        /* Otherwise create the base record from the .d */
+        ELSE DO:
+            FIND {&tablename} EXCLUSIVE WHERE 
+                {&tablename}.auditTable EQ tt{&tablename}.auditTable
+                NO-ERROR.
+            IF NOT AVAIL {&tablename} THEN DO:
+                CREATE {&tablename}.
+                BUFFER-COPY tt{&tablename} TO {&tablename}.
+            END.
         END.
     END.
     INPUT CLOSE.
 
-    /* Delete records no longer used */
+    /* Now remove any base records that are not in the tt */
     FOR EACH {&tablename} EXCLUSIVE WHERE
         NOT CAN-FIND(FIRST tt{&tablename} WHERE tt{&tablename}.auditTable = {&tablename}.auditTable ):
         DELETE {&tablename}.
     END.
     
+    /* Finally, read the DB and ensure ALL (non-exception) tables in asi DB are referenced in audittbl file
+        with all audit options off - Tkt #39728*/
+    FOR EACH _file NO-LOCK WHERE _file._Tbl-type EQ "T":
+        /* check if already exists */
+        IF CAN-FIND(FIRST AuditTbl WHERE 
+            AuditTbl.AuditTable EQ _file._file-name) THEN NEXT.
+        /* ensure field rec_key exists */
+        IF CAN-FIND(FIRST _field OF _file WHERE 
+            ASI._field._field-name EQ "rec_key") EQ NO THEN NEXT.
+        /* ensure trigger code exists */
+        IF CAN-FIND(FIRST _file-trig WHERE 
+            _file-trig._file-recid EQ recid(_file) AND 
+            _file-trig._event EQ "create") EQ NO THEN NEXT.
+        /* check if in exception list */
+        IF CAN-DO(cAuditExceptionList,_file._file-name) THEN NEXT.
+        /* add table to Audit Table */
+        CREATE AuditTbl.
+        ASSIGN
+            AuditTbl.AuditTable  = _file._file-name
+            AuditTbl.AuditCreate = NO
+            AuditTbl.AuditDelete = NO
+            AuditTbl.AuditUpdate = NO
+            AuditTbl.AuditStack  = NO
+            .
+    END.
+            
     EMPTY TEMP-TABLE tt{&tablename}.
     
-    /* Ensure ALL tables in asi DB are referenced in audittbl file - Tkt #39728*/
-    FOR EACH _file NO-LOCK WHERE 
-        NOT _file._file-name BEGINS "_":
-        FIND FIRST {&tablename} NO-LOCK WHERE 
-            {&tablename}.auditTable EQ _file._file-name 
-            NO-ERROR.
-        IF NOT AVAIL {&tablename} THEN DO:
-            CREATE {&tablename}.
-            ASSIGN 
-                {&tablename}.auditTable = _file._file-name
-                {&tablename}.auditCreate = NO 
-                {&tablename}.auditDelete = NO 
-                {&tablename}.auditUpdate = NO 
-                {&tablename}.auditStack = NO. 
-        END.
-    END. 
-        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
