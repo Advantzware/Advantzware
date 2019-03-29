@@ -104,7 +104,9 @@ e-item-vend.roll-w[18] e-item-vend.roll-w[19] e-item-vend.roll-w[20] ~
 e-item-vend.roll-w[21] e-item-vend.roll-w[22] e-item-vend.roll-w[23] ~
 e-item-vend.roll-w[24] e-item-vend.roll-w[25] e-item-vend.roll-w[26] ~
 e-item-vend.roll-w[27] e-item-vend.roll-w[28] e-item-vend.roll-w[29] ~
-e-item-vend.roll-w[30] 
+e-item-vend.roll-w[30] ~
+e-item-vend.underLength e-item-vend.underLengthCost e-item-vend.underWidth ~
+e-item-vend.underWidthCost 
 &Scoped-define ENABLED-TABLES e-item-vend
 &Scoped-define FIRST-ENABLED-TABLE e-item-vend
 &Scoped-Define ENABLED-OBJECTS btn_more-breaks RECT-24 RECT-25 
