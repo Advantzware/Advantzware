@@ -286,6 +286,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize C-WIn 
 PROCEDURE local-initialize :
 /*--------------------------------------------------------------------------
@@ -503,6 +505,41 @@ DO WITH FRAME panel-frame:
   Btn-23d:LABEL = /*label-string*/ "Image &2D/3D".
 END.
 */
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-all V-table-Win 
+PROCEDURE disable-all :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  IF lButtonSec THEN
+  DO WITH FRAME {&FRAME-NAME}:
+    DISABLE ALL.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable-all V-table-Win 
+PROCEDURE enable-all :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  IF lButtonSec THEN
+  DO WITH FRAME {&FRAME-NAME}:
+    ENABLE ALL.
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
