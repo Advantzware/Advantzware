@@ -3265,7 +3265,8 @@ PROCEDURE ipLoadAuditRecs :
     
     /* Ensure ALL tables in asi DB are referenced in audittbl file - Tkt #39728*/
     FOR EACH _file NO-LOCK WHERE 
-        NOT _file._file-name BEGINS "_":
+        NOT _file._file-name BEGINS "_" AND 
+        NOT _file._owner BEGINS "SYS":
         FIND FIRST {&tablename} NO-LOCK WHERE 
             {&tablename}.auditTable EQ _file._file-name 
             NO-ERROR.
