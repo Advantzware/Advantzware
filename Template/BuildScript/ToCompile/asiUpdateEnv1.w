@@ -2535,13 +2535,6 @@ PROCEDURE ipDataFix160860:
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 160860...").
 
-    FIND FIRST module NO-LOCK WHERE 
-        module.module = "audit." AND 
-        module.is-Used = FALSE
-        NO-ERROR.
-    IF AVAIL module THEN DO:
-	    RUN ipDeleteAudit.
-    END.
         
 END PROCEDURE.
 	
@@ -2579,6 +2572,15 @@ PROCEDURE ipDataFix160899 :
     RUN ipUseOldNK1.
     RUN ipAuditSysCtrl.
     RUN ipLoadJasperData.
+    
+    /* Remove audit file details if not licensed */
+    FIND FIRST module NO-LOCK WHERE 
+        module.module = "audit." AND 
+        module.is-Used = FALSE
+        NO-ERROR.
+    IF AVAIL module THEN DO:
+        RUN ipDeleteAudit.
+    END.
 
 END PROCEDURE.
 
@@ -2771,18 +2773,24 @@ PROCEDURE ipDeleteAudit:
     RUN ipStatus ("    Deleting audit records (unlicensed)...").
 
     RUN ipStatus ("      Deleting audit headers...").
-    FOR EACH AuditHdr:
+    FOR EACH AuditHdr TABLE-SCAN:
         DELETE AuditHdr.
     END.
     RUN ipStatus ("      Deleting audit details...").
-    FOR EACH AuditDtl:
+    FOR EACH AuditDtl TABLE-SCAN:
         DELETE AuditDtl.
     END.
     RUN ipStatus ("      Deleting audit stack...").
-    FOR EACH AuditStack:
+    FOR EACH AuditStack TABLE-SCAN:
         DELETE AuditStack.
     END.
-
+    FOR EACH AuditTbl:
+        ASSIGN
+            AuditTbl.AuditCreate = NO
+            AuditTbl.AuditDelete = NO
+            AuditTbl.AuditUpdate = NO
+            AuditTbl.AuditStack  = NO.
+    END.
 
 END PROCEDURE.
 	
