@@ -171,7 +171,7 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
-/* BROWSE-TAB recipients RECT-1 Dialog-Frame */
+/* BROWSE-TAB recipients searchBar Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -347,15 +347,16 @@ PROCEDURE pGetRecipients :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
+    /* email is stored in image_filename field */
     FOR EACH users NO-LOCK
-        WHERE users.email NE ""
+        WHERE users.image_filename NE ""
         :
         CREATE ttEmail.
         ASSIGN
-            ttEmail.isActive = CAN-DO(iopcRecipients,users.email)
+            ttEmail.isActive = CAN-DO(iopcRecipients,users.image_filename)
             ttEmail.user-id  = users.user_id
             ttEmail.userName = users.user_name
-            ttEmail.email    = users.email
+            ttEmail.email    = users.image_filename
             ttEmail.allData  = ttEmail.user-id  + "|"
                              + ttEmail.userName + "|"
                              + ttEmail.email

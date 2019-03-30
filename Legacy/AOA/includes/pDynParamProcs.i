@@ -223,6 +223,7 @@ PROCEDURE pSaveDynParamValues :
         FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
         ASSIGN
             dynParamValue.outputFormat  = ipcOutputFormat
+            dynParamValue.securityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel")
             dynParamValue.paramName     = ""
             dynParamValue.paramLabel    = ""
             dynParamValue.paramValue    = ""

@@ -40,9 +40,9 @@ DEFINE {1} TEMP-TABLE ttInventoryStockLoadtagWIP
     .
 
 DEFINE {1} TEMP-TABLE ttPrintInventoryStock
-    FIELD inventoryStockID AS CHARACTER
+    FIELD inventoryStockID AS CHARACTER 
     FIELD stockIDAlias AS CHARACTER	
-    FIELD wipItemID AS CHARACTER
+    FIELD wipItemID AS CHARACTER 
     FIELD jobNo AS CHARACTER
     FIELD jobID AS CHARACTER
     FIELD jobID2 AS INTEGER
@@ -69,7 +69,7 @@ DEFINE {1} TEMP-TABLE ttPrintInventoryStock
 
 DEFINE VARIABLE gcStatusStockPreLoadtag    AS CHARACTER INITIAL "PreLoadtag".
 DEFINE VARIABLE gcStatusStockLoadtag       AS CHARACTER INITIAL "Loadtag".
-DEFINE VARIABLE gcStatusStockInitial       AS CHARACTER INITIAL "Initialized".
+DEFINE VARIABLE gcStatusStockInitial       AS CHARACTER INITIAL "Created".
 DEFINE VARIABLE gcStatusStockReceived      AS CHARACTER INITIAL "On-Hand".
 DEFINE VARIABLE gcStatusStockConsumed      AS CHARACTER INITIAL "Consumed".
 

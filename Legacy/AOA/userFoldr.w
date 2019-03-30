@@ -356,6 +356,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRefresh C-Win
 ON CHOOSE OF btnRefresh IN FRAME DEFAULT-FRAME /* Refresh */
 DO:
+    RUN pSync.
     {&OPEN-QUERY-{&BROWSE-NAME}}
 END.
 
@@ -442,6 +443,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   {&WINDOW-NAME}:TITLE = "~"" + USERID("ASI") + "~" " + {&WINDOW-NAME}:TITLE.
   RUN pGetSettings.
+  RUN pSync.
   RUN enable_UI.
   btnRefresh:MOVE-TO-TOP().
   btnDelete:MOVE-TO-TOP().
@@ -611,6 +613,25 @@ PROCEDURE pSaveSettings :
         user-print.field-label[idx] = "WindowHeight"
         user-print.field-value[idx] = STRING({&WINDOW-NAME}:HEIGHT)
         .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSync C-Win 
+PROCEDURE pSync :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO TRANSACTION:
+        FOR EACH taskResult EXCLUSIVE-LOCK:
+            IF SEARCH(taskResult.folderFile) EQ ? THEN
+            DELETE taskResult.
+        END. /* each taskresult */
+    END. /* do trans */
 
 END PROCEDURE.
 

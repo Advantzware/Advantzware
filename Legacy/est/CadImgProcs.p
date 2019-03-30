@@ -10,7 +10,6 @@ PROCEDURE pUpdateCadOnCorrugated:
     DEFINE INPUT  PARAMETER iplBoxImg   AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFileName AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFilePath AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCadName AS CHARACTER NO-UNDO .
     
     FIND FIRST est NO-LOCK
                 WHERE ROWID(est) EQ ipRowid NO-ERROR .
@@ -19,11 +18,11 @@ PROCEDURE pUpdateCadOnCorrugated:
         FOR EACH eb EXCLUSIVE-LOCK
             WHERE eb.company EQ est.company 
             AND eb.est-no EQ est.est-no :
-
-            IF INDEX(eb.cad-no,".") > 0 THEN DO:
-                cCadName = SUBSTRING(eb.cad-no ,1,INDEX(eb.cad-no ,".") - 1) .
+            
+            IF iplAddExt AND eb.cad-no NE "" THEN DO:
+                IF INDEX(eb.cad-no,".ard") EQ 0 THEN
+                    ASSIGN eb.cad-no = eb.cad-no + ".ard" .
             END.
-            ELSE cCadName = eb.cad-no .
             
             IF iplBoxImg AND eb.cad-no NE "" THEN DO:
                  FIND FIRST box-design-hdr WHERE box-design-hdr.design-no = 0 AND
@@ -34,14 +33,10 @@ PROCEDURE pUpdateCadOnCorrugated:
 
                  IF AVAILABLE box-design-hdr THEN DO:
                      ASSIGN 
-                         box-design-hdr.box-image = ipcFilePath + "\" + trim(cCadName) + ".jpg"  . /*".jpg"*/.
+                         box-design-hdr.box-image = ipcFilePath + "\" + trim(eb.cad-no) + ".jpg"  . /*".jpg"*/.
                  END.
             END.
-
-            IF iplAddExt AND eb.cad-no NE "" THEN DO:
-                IF INDEX(eb.cad-no,".ard") EQ 0 THEN
-                    ASSIGN eb.cad-no = eb.cad-no + ".ard" .
-            END.
+            
         END.
     END.
     RELEASE eb .

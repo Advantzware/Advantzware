@@ -2581,7 +2581,6 @@ PROCEDURE ipDataFix160899 :
     IF AVAIL module THEN DO:
         RUN ipDeleteAudit.
     END.
-    
 
 END PROCEDURE.
 

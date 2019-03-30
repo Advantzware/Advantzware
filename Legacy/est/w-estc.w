@@ -569,7 +569,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_v-est ).
        RUN add-link IN adm-broker-hdl ( h_p-rfqsiz , 'TableIO':U , h_v-est ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'ebhead':U , h_v-est ).
-        RUN add-link IN adm-broker-hdl ( h_p-cadimg , 'TableIO':U , h_v-est ).
+       RUN add-link IN adm-broker-hdl ( h_p-cadimg , 'TableIO':U , h_v-est ).
+       RUN add-link IN adm-broker-hdl ( h_v-est , 'btn-set':U , h_p-cadimg ).
 
        /* Links to SmartViewer h_v-naveb. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'nav-itm':U , h_v-naveb ).

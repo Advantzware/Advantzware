@@ -292,7 +292,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-wip C-Win
 ON CHOOSE OF btn-wip IN FRAME DEFAULT-FRAME /* Work In Process */
 DO:
-   RUN addon/wip/wip-menu.w.
+   RUN wip/wip-menu.w(g_company, g_loc).
 END.
 
 /* _UIB-CODE-BLOCK-END */
