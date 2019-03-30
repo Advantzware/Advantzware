@@ -2535,13 +2535,6 @@ PROCEDURE ipDataFix160860:
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 160860...").
 
-    FIND FIRST module NO-LOCK WHERE 
-        module.module = "audit." AND 
-        module.is-Used = FALSE
-        NO-ERROR.
-    IF AVAIL module THEN DO:
-	    RUN ipDeleteAudit.
-    END.
         
 END PROCEDURE.
 	
@@ -2560,7 +2553,6 @@ PROCEDURE ipDataFix160880:
     RUN ipStatus ("  Data Fix 160880...").
     
     RUN ipUpdateAdvantzwarePf.
-    
 
 END PROCEDURE.
 	
@@ -2579,6 +2571,17 @@ PROCEDURE ipDataFix160899 :
 
     RUN ipUseOldNK1.
     RUN ipAuditSysCtrl.
+    RUN ipLoadJasperData.
+    
+    /* Remove audit file details if not licensed */
+    FIND FIRST module NO-LOCK WHERE 
+        module.module = "audit." AND 
+        module.is-Used = FALSE
+        NO-ERROR.
+    IF AVAIL module THEN DO:
+        RUN ipDeleteAudit.
+    END.
+    
 
 END PROCEDURE.
 
@@ -2771,18 +2774,24 @@ PROCEDURE ipDeleteAudit:
     RUN ipStatus ("    Deleting audit records (unlicensed)...").
 
     RUN ipStatus ("      Deleting audit headers...").
-    FOR EACH AuditHdr:
+    FOR EACH AuditHdr TABLE-SCAN:
         DELETE AuditHdr.
     END.
     RUN ipStatus ("      Deleting audit details...").
-    FOR EACH AuditDtl:
+    FOR EACH AuditDtl TABLE-SCAN:
         DELETE AuditDtl.
     END.
     RUN ipStatus ("      Deleting audit stack...").
-    FOR EACH AuditStack:
+    FOR EACH AuditStack TABLE-SCAN:
         DELETE AuditStack.
     END.
-
+    FOR EACH AuditTbl:
+        ASSIGN
+            AuditTbl.AuditCreate = NO
+            AuditTbl.AuditDelete = NO
+            AuditTbl.AuditUpdate = NO
+            AuditTbl.AuditStack  = NO.
+    END.
 
 END PROCEDURE.
 	
@@ -3416,6 +3425,130 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadJasperData C-Win
+PROCEDURE ipLoadJasperData:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Loading Dynamic subjects...").
+    
+&SCOPED-DEFINE tablename dynSubject
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynSubjectTable
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynSubjectWhere
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynSubjectColumn
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynSubjectParamSet
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynParam
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynParamSet
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynParamSetDtl
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynParamValue
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadLookups C-Win 
 PROCEDURE ipLoadLookups :
