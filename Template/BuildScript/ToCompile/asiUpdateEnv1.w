@@ -3434,11 +3434,46 @@ PROCEDURE ipLoadJasperData:
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("    Loading Dynamic subjects...").
     
+    /* Remove all records that we plan to replace */
+    FOR EACH dynSubject EXCLUSIVE WHERE 
+        dynSubject.subjecttype EQ "system" AND 
+        dynSubject.user-id EQ "_default"
+        BY dynSubject.subjectid:
+        FOR EACH dynSubjectTable OF dynSubject EXCLUSIVE:
+            DELETE dynSubjectTable.
+        END.
+        FOR EACH dynSubjectWhere OF dynSubject EXCLUSIVE:
+            DELETE dynSubjectWhere.
+        END.
+        FOR EACH dynSubjectColumn OF dynSubject EXCLUSIVE:
+            DELETE dynSubjectColumn.
+        END.
+        FOR EACH dynSubjectParamSet OF dynSubject EXCLUSIVE:
+            DELETE dynSubjectParamSet.
+        END.
+        DELETE dynSubject.
+    END. 
+    
+    FOR EACH dynParam EXCLUSIVE WHERE 
+        dynParam.paramType EQ "system":
+        DELETE dynParam.
+    END.
+    
+    FOR EACH dynParamSet EXCLUSIVE WHERE 
+        dynParamSet.paramSetType EQ "system":
+        FOR EACH dynParamSetDtl OF dynParamSet EXCLUSIVE:
+            DELETE dynParamSetDtl.
+        END.
+        DELETE dynParamSet.
+    END.
+    
+    FOR EACH dynParamValue EXCLUSIVE WHERE 
+        dynParamValue.user-id EQ "_default":
+        DELETE dynParamValue.
+    END.
+
 &SCOPED-DEFINE tablename dynSubject
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
-    FOR EACH {&tablename}:
-        DELETE {&tablename}.
-    END.
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
@@ -3448,9 +3483,6 @@ PROCEDURE ipLoadJasperData:
 
 &SCOPED-DEFINE tablename dynSubjectTable
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
-    FOR EACH {&tablename}:
-        DELETE {&tablename}.
-    END.
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
@@ -3460,9 +3492,6 @@ PROCEDURE ipLoadJasperData:
 
 &SCOPED-DEFINE tablename dynSubjectWhere
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
-    FOR EACH {&tablename}:
-        DELETE {&tablename}.
-    END.
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
@@ -3472,9 +3501,6 @@ PROCEDURE ipLoadJasperData:
 
 &SCOPED-DEFINE tablename dynSubjectColumn
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
-    FOR EACH {&tablename}:
-        DELETE {&tablename}.
-    END.
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
@@ -3484,9 +3510,6 @@ PROCEDURE ipLoadJasperData:
 
 &SCOPED-DEFINE tablename dynSubjectParamSet
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
-    FOR EACH {&tablename}:
-        DELETE {&tablename}.
-    END.
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
@@ -3496,9 +3519,6 @@ PROCEDURE ipLoadJasperData:
 
 &SCOPED-DEFINE tablename dynParam
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
-    FOR EACH {&tablename}:
-        DELETE {&tablename}.
-    END.
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
@@ -3508,9 +3528,6 @@ PROCEDURE ipLoadJasperData:
 
 &SCOPED-DEFINE tablename dynParamSet
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
-    FOR EACH {&tablename}:
-        DELETE {&tablename}.
-    END.
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
@@ -3520,9 +3537,6 @@ PROCEDURE ipLoadJasperData:
 
 &SCOPED-DEFINE tablename dynParamSetDtl
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
-    FOR EACH {&tablename}:
-        DELETE {&tablename}.
-    END.
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
@@ -3532,9 +3546,6 @@ PROCEDURE ipLoadJasperData:
 
 &SCOPED-DEFINE tablename dynParamValue
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
-    FOR EACH {&tablename}:
-        DELETE {&tablename}.
-    END.
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
