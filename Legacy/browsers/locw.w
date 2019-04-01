@@ -214,7 +214,7 @@ DEFINE BROWSE br_table
 &ANALYZE-RESUME
     WITH NO-ASSIGN NO-ROW-MARKERS NO-COLUMN-SCROLLING SEPARATORS NO-VALIDATE SIZE 156 BY 20.24
          FONT 0
-         TITLE "Location Details" ROW-HEIGHT-CHARS .52.
+         TITLE "Location Details".
 
 
 /* ************************  Frame Definitions  *********************** */
