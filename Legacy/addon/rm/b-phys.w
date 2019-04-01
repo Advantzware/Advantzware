@@ -48,7 +48,7 @@ DEFINE VARIABLE cRtnChr          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFnd          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE physCnt-log      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cPhysCntSaveFile AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cLogFolder       AS CHARACTER NO-UNDO INIT "./custfiles/logs".
+DEFINE VARIABLE cLogFolder       AS CHARACTER NO-UNDO INIT "./custfiles/logs/RMInventory".
 DEFINE STREAM sPhysCntSave.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "PhysCnt", "L" /* Logical */, NO /* check by cust */, 
@@ -1197,8 +1197,8 @@ PROCEDURE valid-loc-bin-tag :
            AND rm-bin.loc-bin EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
            AND rm-bin.tag     EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-ERROR.
-    IF ip-int LE 3 AND adm-new-record THEN
-    rm-rctd.qty:SCREEN-VALUE = '0'.
+/*    IF ip-int LE 3 AND adm-new-record THEN*/
+/*    rm-rctd.qty:SCREEN-VALUE = '0'.       */
     IF ip-int LE 3 AND adm-new-record AND AVAILABLE rm-bin THEN
     rm-rctd.qty:SCREEN-VALUE = STRING(rm-bin.qty).
     
