@@ -68,8 +68,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "PhysCnt", "L" /* Logical */, NO /* check b
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChr, OUTPUT lRecFnd).
 physCnt-log = LOGICAL(cRtnChr) NO-ERROR.
-MESSAGE "log?" physCnt-log
-VIEW-AS ALERT-BOX.
+
 ASSIGN
  cocode = g_company
  locode = g_loc.

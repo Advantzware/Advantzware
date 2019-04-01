@@ -28,6 +28,9 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
+ASSIGN
+ cocode = g_company
+ locode = g_loc.
 
 def var char-val as cha no-undo.
 def var ext-cost as decimal no-undo.
@@ -63,13 +66,14 @@ RUN sys/ref/nk1look.p (INPUT cocode, "PhysCnt", "L" /* Logical */, NO /* check b
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChr, OUTPUT lRecFnd).
 physCnt-log = LOGICAL(cRtnChr) NO-ERROR.
+
 IF physCnt-log THEN 
 DO: 
     OS-CREATE-DIR VALUE(cLogFolder).
     FIND FIRST _myconnection NO-LOCK.     
     cPhysCntSaveFile = cLogFolder + "/" + USERID("ASI") + STRING(MONTH(TODAY),"99") + STRING(DAY(TODAY), "99") + STRING(YEAR(TODAY)).
     cPhysCntSaveFile = cPhysCntSaveFile + STRING(_myconnection._MyConn-Id) + ".log".
-    
+       
 END.
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
@@ -1490,7 +1494,7 @@ PROCEDURE local-update-record :
   DO:
       IF physCnt-log AND AVAILABLE(fg-rctd) THEN 
       DO: 
-          OUTPUT STREAM sPhysCntSave TO VALUE(cPhysCntSaveFile).
+          OUTPUT STREAM sPhysCntSave TO VALUE(cPhysCntSaveFile) APPEND.
           EXPORT STREAM sPhysCntSave fg-rctd.
           OUTPUT STREAM sPhysCntSave CLOSE.
       END.
