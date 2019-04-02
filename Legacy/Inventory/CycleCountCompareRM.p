@@ -1192,11 +1192,14 @@ END PROCEDURE.
 
 PROCEDURE pRemoveMatches:
     /*------------------------------------------------------------------------------
-     Purpose: Delete cycle counts that match quantity and location
-     Notes:
+     Purpose: Delete cycle counts that match quantity and location or just loc changed
+     Notes:   If the quantity is the same and the location changed, a transfer was
+              created, so the count can be removed
     ------------------------------------------------------------------------------*/
     FOR EACH ttCycleCountCompare NO-LOCK 
-        WHERE ttCycleCountCompare.lMatch = TRUE,    
+        WHERE ttCycleCountCompare.lMatch = TRUE
+          OR (ttCycleCountCompare.lQuantityChanged EQ NO AND ttCycleCountCompare.lLocationChanged EQ YES)
+        ,    
         EACH rm-rctd EXCLUSIVE-LOCK 
         WHERE rm-rctd.company  EQ ttCycleCountCompare.cCompany 
         AND rm-rctd.i-no     EQ ttCycleCountCompare.cFGItemID  
