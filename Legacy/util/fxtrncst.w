@@ -54,10 +54,11 @@ DEFINE STREAM excel.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-17 begin_i-no end_i-no tb_FallBack ~
-tb_Receipts tb_0 tb_inactive tb_pro-only tb_excel tb_runExcel fi_file ~
-btn-process btn-cancel 
+tb_Receipts tb_0 tb_inactive tb_pro-only tb_rec-qty tb_zer tb_neg tb_excel ~
+tb_runExcel fi_file btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_i-no end_i-no tb_FallBack ~
-tb_Receipts tb_0 tb_inactive tb_pro-only tb_excel tb_runExcel fi_file 
+tb_Receipts tb_0 tb_inactive tb_pro-only tb_rec-qty tb_zer tb_neg tb_excel ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -99,7 +100,7 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\fxtrncst.c
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 11.19.
+     SIZE 89 BY 13.81.
 
 DEFINE VARIABLE tb_0 AS LOGICAL INITIAL yes 
      LABEL "Fix Cost for ~"0~" in Cost and ~"?~" in Cost only" 
@@ -122,8 +123,18 @@ DEFINE VARIABLE tb_inactive AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 47 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tb_neg AS LOGICAL INITIAL no 
+     LABEL "Delete Bins w/Negative Qty" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 47 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tb_pro-only AS LOGICAL INITIAL no 
      LABEL "Report on proposed changes only" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 47 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_rec-qty AS LOGICAL INITIAL yes 
+     LABEL "Recalculates Qtys?" 
      VIEW-AS TOGGLE-BOX
      SIZE 47 BY .81 NO-UNDO.
 
@@ -132,11 +143,16 @@ DEFINE VARIABLE tb_Receipts AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 46 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL yes 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
+
+DEFINE VARIABLE tb_zer AS LOGICAL INITIAL no 
+     LABEL "Delete Bins w/Zero Qty" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 47 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -151,12 +167,15 @@ DEFINE FRAME FRAME-A
      tb_0 AT ROW 10.29 COL 28
      tb_inactive AT ROW 11.24 COL 28 WIDGET-ID 2
      tb_pro-only AT ROW 12.24 COL 28 WIDGET-ID 14
-     tb_excel AT ROW 13.71 COL 40.6 WIDGET-ID 10
-     tb_runExcel AT ROW 13.71 COL 82.6 RIGHT-ALIGNED WIDGET-ID 12
-     fi_file AT ROW 14.62 COL 38.6 COLON-ALIGNED HELP
+     tb_rec-qty AT ROW 13.14 COL 28 WIDGET-ID 16
+     tb_zer AT ROW 14.14 COL 28 WIDGET-ID 18
+     tb_neg AT ROW 15.1 COL 28 WIDGET-ID 20
+     tb_excel AT ROW 16.48 COL 40.6 WIDGET-ID 10
+     tb_runExcel AT ROW 16.48 COL 82.6 RIGHT-ALIGNED WIDGET-ID 12
+     fi_file AT ROW 17.38 COL 38.6 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 8
-     btn-process AT ROW 16.48 COL 21
-     btn-cancel AT ROW 16.48 COL 53
+     btn-process AT ROW 19.24 COL 21
+     btn-cancel AT ROW 19.24 COL 53
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
@@ -166,7 +185,7 @@ DEFINE FRAME FRAME-A
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89.6 BY 17.14.
+         SIZE 89.6 BY 20.
 
 DEFINE FRAME FRAME-B
      "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
@@ -199,11 +218,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Fix FG Hist Cost"
-         HEIGHT             = 17.14
+         HEIGHT             = 20.05
          WIDTH              = 91.2
-         MAX-HEIGHT         = 19.76
+         MAX-HEIGHT         = 20.38
          MAX-WIDTH          = 98.2
-         VIRTUAL-HEIGHT     = 19.76
+         VIRTUAL-HEIGHT     = 20.38
          VIRTUAL-WIDTH      = 98.2
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -401,6 +420,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
 
   {methods/nowait.i}
+   
+   IF INDEX(PROGRAM-NAME(2),"browsers/locw.") GT 0 THEN do:
+        {custom/usrprint.i}
+   END.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -442,10 +465,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_i-no end_i-no tb_FallBack tb_Receipts tb_0 tb_inactive 
-          tb_pro-only tb_excel tb_runExcel fi_file 
+          tb_pro-only tb_rec-qty tb_zer tb_neg tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-17 begin_i-no end_i-no tb_FallBack tb_Receipts tb_0 tb_inactive 
-         tb_pro-only tb_excel tb_runExcel fi_file btn-process btn-cancel 
+         tb_pro-only tb_rec-qty tb_zer tb_neg tb_excel tb_runExcel fi_file 
+         btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -502,6 +526,30 @@ FOR EACH itemfg NO-LOCK
   iCountItem = iCountItem + 1.
   STATUS DEFAULT "Processing FG Item#: " + TRIM(itemfg.i-no).
 
+  IF tb_rec-qty THEN DO:
+      RUN fg/fg-calcbcst.p (INPUT ROWID(itemfg)).
+      run fg/fg-mkbin.p (recid(itemfg)).
+  END.
+
+  if tb_zer then
+  for each fg-bin
+      where fg-bin.company eq itemfg.company
+        and fg-bin.i-no    eq itemfg.i-no
+        and fg-bin.qty     eq 0:
+    delete fg-bin.
+  end.
+    
+  if tb_neg then
+  for each fg-bin
+      where fg-bin.company eq itemfg.company
+        and fg-bin.i-no    eq itemfg.i-no
+        and fg-bin.qty     lt 0:
+      
+    run fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0,"").    
+       
+    delete fg-bin.
+  end.
+  
   FOR EACH fg-rcpth
       WHERE fg-rcpth.company EQ itemfg.company
         AND fg-rcpth.i-no    EQ itemfg.i-no
@@ -591,6 +639,7 @@ FOR EACH itemfg NO-LOCK
         END.
     END.
   END.
+ /* run fg/fg-reset.p (recid(itemfg)).*/
 END.
 
 STATUS DEFAULT "".

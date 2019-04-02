@@ -720,8 +720,13 @@ PROCEDURE calc-qty :
 ------------------------------------------------------------------------------*/
   def var char-hdl as cha no-undo.
 
-  IF AVAIL itemfg THEN
-    run fg/d-reqtys.w (ROWID(itemfg), yes).
+  IF AVAIL itemfg THEN do:
+      RUN custom/setUserPrint.p (itemfg.company,'fxtrncst.',
+                             'begin_i-no,end_i-no',
+                             itemfg.i-no + ',' + itemfg.i-no ).
+
+      RUN util/fxtrncst.w .   /*run fg/d-reqtys.w (ROWID(itemfg), yes).*/
+  END.
 
   run get-link-handle in adm-broker-hdl (this-procedure, "repo-query-source", output char-hdl).
 

@@ -91,7 +91,7 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-recalc-qty 
-     LABEL "&Recalculate Qtys" 
+     LABEL "&Recalc Item" 
      SIZE 24.4 BY 1.14.
 
 DEFINE RECTANGLE RECT-25
@@ -194,7 +194,6 @@ ON CHOOSE OF btn-recalc-qty IN FRAME F-Main /* Recalculate Qtys */
 DO:
   def var char-hdl as cha no-undo.
   DEF VAR ll-secure AS LOG INIT NO NO-UNDO.
-
 
   run get-link-handle in adm-broker-hdl (this-procedure, "container-source", output char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
